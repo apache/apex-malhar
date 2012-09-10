@@ -27,7 +27,7 @@ public class TestLoadGenerator {
     private static Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
 
     class TestSink implements Sink {
-        
+
         HashMap<String, Integer> collectedTuples = new HashMap<String, Integer>();
 
         //DefaultSerDe serde = new DefaultSerDe();
@@ -35,8 +35,8 @@ public class TestLoadGenerator {
         boolean test_hashmap = false;
 
         /**
-         * 
-         * @param payload 
+         *
+         * @param payload
          */
         @Override
         public void process(Object payload) {
@@ -131,7 +131,7 @@ public class TestLoadGenerator {
         }
 
         conf.set(LoadGenerator.KEY_VALUES, "1,2,3,4");
-        conf.set(LoadGenerator.KEY_TUPLES_PER_SEC, "0");
+        conf.set(LoadGenerator.KEY_TUPLES_PER_SEC, "-1");
         try {
             node.myValidation(conf);
             Assert.fail("validation error  " + LoadGenerator.KEY_VALUES);
@@ -149,7 +149,7 @@ public class TestLoadGenerator {
         } catch (IllegalArgumentException e) {
             Assert.assertTrue("validate " + LoadGenerator.KEY_STRING_SCHEMA + " and " + LoadGenerator.KEY_VALUES,
                     e.getMessage().contains("if string_schema"));
-        }               
+        }
     }
 
     /**
@@ -182,7 +182,7 @@ public class TestLoadGenerator {
         conf.setInt(LoadGenerator.KEY_TUPLES_PER_SEC, 100000000);
         conf.setInt("SpinMillis", 10);
         conf.setInt("BufferCapacity", 1024 * 1024);
-        
+
         node.setup(conf);
 
         final AtomicBoolean inactive = new AtomicBoolean(true);
@@ -214,7 +214,7 @@ public class TestLoadGenerator {
             }
         }
         node.deactivate();
-        
+
         // Let the reciever get the tuples from the queue
         for (int i = 0; i < 10; i++) {
             mses.tick(1);

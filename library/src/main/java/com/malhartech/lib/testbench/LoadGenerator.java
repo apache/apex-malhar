@@ -44,8 +44,8 @@ import org.slf4j.LoggerFactory;
  * <br>
  *
  * Compile time error checking includes<br>
- * 
- * 
+ *
+ *
  * @author amol
  */
 @NodeAnnotation(
@@ -56,11 +56,11 @@ public class LoadGenerator extends AbstractInputNode {
 
     public static final String OPORT_DATA = "data";
     private static Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
-    int tuples_per_sec = 1;
+    int tuples_per_sec = 10000;
     HashMap<String, Double> keys = new HashMap<String, Double>();
     HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();
-    ArrayList<Integer> weights = new ArrayList<Integer>();
-    
+    ArrayList<Integer> weights = null;
+
     boolean isstringschema = false;
     int total_weight = 0;
     private Random random = new Random();
@@ -88,16 +88,16 @@ public class LoadGenerator extends AbstractInputNode {
     /**
      * The number of tuples sent out per milli second
      */
-    public static final String KEY_TUPLES_PER_SEC = "tuples_per_ms";
+    public static final String KEY_TUPLES_PER_SEC = "tuples_per_sec";
 
     /**
      * If specified as "true" a String class is sent, else HashMap is sent
      */
     public static final String KEY_STRING_SCHEMA = "string_schema";
-    
-    
+
+
     /**
-     * 
+     *
      * Code to be moved to a proper base method name
      * @param config
      * @return boolean
@@ -107,7 +107,7 @@ public class LoadGenerator extends AbstractInputNode {
         String[] kstr = config.getTrimmedStrings(KEY_KEYS);
         String[] vstr = config.getTrimmedStrings(KEY_VALUES);
         isstringschema = config.getBoolean(KEY_STRING_SCHEMA, false);
-        
+
         boolean ret = true;
 
         if (kstr.length == 0) {
@@ -116,7 +116,7 @@ public class LoadGenerator extends AbstractInputNode {
         } else {
             LOG.info(String.format("Number of keys are %d", kstr.length));
         }
-        
+
         if (wstr.length == 0) {
             LOG.info("weights was not provided, so keys would be equally weighted");
         } else {
@@ -126,7 +126,7 @@ public class LoadGenerator extends AbstractInputNode {
                 } catch (NumberFormatException e) {
                     ret = false;
                     throw new IllegalArgumentException(String.format("Weight string should be an integer(%s)", s));
-                }   
+                }
             }
         }
         if (vstr.length == 0) {
@@ -155,11 +155,11 @@ public class LoadGenerator extends AbstractInputNode {
                     vstr.length, kstr.length));
         }
 
-        tuples_per_sec = config.getInt(KEY_TUPLES_PER_SEC, 1);
+        tuples_per_sec = config.getInt(KEY_TUPLES_PER_SEC, 10000);
         if (tuples_per_sec <= 0) {
             ret = false;
             throw new IllegalArgumentException(
-                    String.format("tuples_per_ms (%d) has to be > 0", tuples_per_sec));
+                    String.format("tuples_per_sec (%d) has to be > 0", tuples_per_sec));
         } else {
             LOG.info(String.format("Using %d tuples per second", tuples_per_sec));
         }
@@ -179,7 +179,7 @@ public class LoadGenerator extends AbstractInputNode {
 
     /**
      * Sets up all the config parameters. Assumes checking is done and has passed
-     * @param config 
+     * @param config
      */
     @Override
     public void setup(NodeConfiguration config) {
@@ -191,18 +191,22 @@ public class LoadGenerator extends AbstractInputNode {
         String[] wstr = config.getTrimmedStrings(KEY_WEIGHTS);
         String[] kstr = config.getTrimmedStrings(KEY_KEYS);
         String[] vstr = config.getTrimmedStrings(KEY_VALUES);
-        
+
         isstringschema = config.getBoolean(KEY_STRING_SCHEMA, false);
         tuples_per_sec = config.getInt(KEY_TUPLES_PER_SEC, 10000);
-        
+
         // Keys and weights would are accessed via same key
         int i = 0;
+        total_weight = 0;
         for (String s : kstr) {
             if (wstr.length != 0) {
+              if (weights == null) {
+                weights = new ArrayList<Integer>();
+              }
                 weights.add(Integer.parseInt(wstr[i]));
                 total_weight += Integer.parseInt(wstr[i]);
             } else {
-                total_weight += 100;
+                total_weight += 1;
             }
             if (vstr.length != 0) {
                 keys.put(s, new Double(Double.parseDouble(vstr[i])));
@@ -215,10 +219,10 @@ public class LoadGenerator extends AbstractInputNode {
     }
 
     /**
-     * 
+     *
      * To allow emit to wait till output port is connected in a deployment on Hadoop
      * @param id
-     * @param dagpart 
+     * @param dagpart
      */
     @Override
     public void connected(String id, Sink dagpart) {
@@ -236,50 +240,62 @@ public class LoadGenerator extends AbstractInputNode {
         super.deactivate();
     }
 
-    /**
-     * Generates all the tuples till shutdown (deactivate) is issued
-     * @param context 
-     */
-    @Override
-    public void activate(NodeContext context) {
-        super.activate(context);
-        int i = 0;
+  /**
+   * Generates all the tuples till shutdown (deactivate) is issued
+   *
+   * @param context
+   */
+  @Override
+  public void activate(NodeContext context)
+  {
+    super.activate(context);
+    int i = 0;
 
-        while (!shutdown) {
-            if (outputConnected) {
-                // send tuples upto tuples_per_sec and then wait for 1 ms
-                while (i < tuples_per_sec) {
-                    int rval = random.nextInt(total_weight);
-                    int j = 0;
-                    int wval = 0;
-                    for (Integer e : weights) {
-                        wval += e.intValue();
-                        if (wval >= rval) {
-                            break;
-                        }
-                        j++;
-                    }
-                    // wval is the key index
-                    if (!isstringschema) {
-                        HashMap<String, Double> tuple = new HashMap<String, Double>();
-                        String key = wtostr_index.get(j); // the key
-                        tuple.put(key, keys.get(key));
-                        emit(OPORT_DATA, tuple);
-                    }
-                    else {
-                        emit(OPORT_DATA, wtostr_index.get(j));
-                    }
-                    i++;
-                }
-                try {
-                    Thread.sleep(1000);
-                    //Thread.sleep(10); // Remove sleep if you want to blast data at huge rate
-                } catch (InterruptedException e) {
-                    LOG.error("Unexpected error while sleeping for 1 s", e);
-                }
-                i = 0;
+    while (!shutdown) {
+      if (outputConnected) {
+        // send tuples upto tuples_per_sec and then wait for 1 ms
+        HashMap<String, Double> tuple = null;
+        String tuple_key = ""; // the tuple key
+        int j = 0;
+        while (i < tuples_per_sec) {
+          if (weights != null) { // weights are not even
+            int rval = random.nextInt(total_weight);
+            j = 0; // for randomization, need to reset to 0
+            int wval = 0;
+            for (Integer e: weights) {
+              wval += e.intValue();
+              if (wval >= rval) {
+                break;
+              }
+              j++;
             }
+          }
+          else {
+            j++;
+            j = j % keys.size();
+          }
+          // j is the key index
+          tuple_key = wtostr_index.get(j);
+          if (!isstringschema) {
+            tuple = new HashMap<String, Double>();
+            tuple.put(tuple_key, keys.get(tuple_key));
+            emit(OPORT_DATA, tuple);
+          }
+          else {
+            emit(OPORT_DATA, tuple_key);
+          }
+          i++;
         }
-        LOG.info("Finished generating tuples");
+      }
+      try {
+        //Thread.sleep(1000);
+        Thread.sleep(10); // Remove sleep if you want to blast data at huge rate
+      }
+      catch (InterruptedException e) {
+        LOG.error("Unexpected error while sleeping for 1 s", e);
+      }
+      i = 0;
     }
+    LOG.info("Finished generating tuples");
+  }
 }
