@@ -43,7 +43,7 @@ public class BenchmarkLoadGenerator {
             }
           else { // ignore the payload, just count it
             count++;
-            if (!dohash) {
+            if (dohash) {
               String str = (String)payload;
               Integer val = collectedTuples.get(str);
               if (val == null) {
@@ -82,12 +82,12 @@ public class BenchmarkLoadGenerator {
         TestSink lgenSink = new TestSink();
         node.connect(LoadGenerator.OPORT_DATA, lgenSink);
         NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
-        lgenSink.dohash = true;
+        lgenSink.dohash = false;
 
-        conf.set(LoadGenerator.KEY_KEYS, "a,b");
+        conf.set(LoadGenerator.KEY_KEYS, "a");
         conf.set(LoadGenerator.KEY_VALUES, "");
         conf.set(LoadGenerator.KEY_STRING_SCHEMA, "true");
-        conf.setInt(LoadGenerator.KEY_TUPLES_PER_SEC, 500000000);
+        conf.setInt(LoadGenerator.KEY_TUPLES_PER_SEC, 1000000000);
         conf.setInt("SpinMillis", 10);
         conf.setInt("BufferCapacity", 1024 * 1024);
 
@@ -113,7 +113,7 @@ public class BenchmarkLoadGenerator {
             LOG.debug(ex.getLocalizedMessage());
         }
         wingen.activate(null);
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 300; i++) {
             mses.tick(1);
             try {
                 Thread.sleep(2);
@@ -124,7 +124,7 @@ public class BenchmarkLoadGenerator {
         node.deactivate();
 
         // Let the reciever get the tuples from the queue
-        for (int i = 0; i < 300; i++) {
+        for (int i = 0; i <500; i++) {
             mses.tick(1);
             try {
                 Thread.sleep(2);

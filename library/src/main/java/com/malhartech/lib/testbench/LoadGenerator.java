@@ -289,7 +289,7 @@ public class LoadGenerator extends AbstractInputNode {
       }
       try {
         //Thread.sleep(1000);
-        Thread.sleep(10); // Remove sleep if you want to blast data at huge rate
+        Thread.sleep(5); // Remove sleep if you want to blast data at huge rate
       }
       catch (InterruptedException e) {
         LOG.error("Unexpected error while sleeping for 1 s", e);
