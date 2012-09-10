@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
 import com.malhartech.annotation.NodeAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
+import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.dag.AbstractNode;
 import com.malhartech.dag.NodeConfiguration;
-import com.malhartech.stram.conf.ShipContainingJars;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 
@@ -27,7 +27,7 @@ import com.sun.jersey.api.client.WebResource;
  *
  * Sends tuple as POST with JSON content to the given URL<p>
  * <br>
- * Maps are converted to JSON. All other tuple types are sent in their toString representation.<br>
+ * Data of type {@link java.util.Map} is converted to JSON. All other types are sent in their {@link Object#toString()} representation.<br>
  * <br>
  *
  */
