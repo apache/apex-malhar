@@ -43,13 +43,13 @@ public class TestLoadRandomGenerator {
             if (payload instanceof Tuple) {
                 // LOG.debug(payload.toString());
             }
-            else {/*
+            else {
                 if (test_integer) {
                   collectedTuples.put(((Integer) payload).toString(), null);
                 }
                 else {
                   collectedTuples.put((String) payload, null);
-                }*/
+                }
                 count++;
              }
         }
@@ -84,7 +84,7 @@ public class TestLoadRandomGenerator {
         }
 
         conf.set(LoadRandomGenerator.KEY_MIN_VALUE, "0");
-        conf.set(LoadRandomGenerator.KEY_MAX_VALUE, "1000");
+        conf.set(LoadRandomGenerator.KEY_MAX_VALUE, "50");
         conf.set(LoadRandomGenerator.KEY_TUPLES_PER_SEC, "-1");
         try {
             node.myValidation(conf);
@@ -120,10 +120,10 @@ public class TestLoadRandomGenerator {
 
         conf.set(LoadRandomGenerator.KEY_MIN_VALUE, "0");
         conf.set(LoadRandomGenerator.KEY_MAX_VALUE, "1000");
-        conf.setInt(LoadRandomGenerator.KEY_TUPLES_PER_SEC, 100000000);
+        conf.setInt(LoadRandomGenerator.KEY_TUPLES_PER_SEC, 50000000);
         conf.set(LoadRandomGenerator.KEY_STRING_SCHEMA, "true");
 
-        conf.setInt("SpinMillis", 10);
+        conf.setInt("SpinMillis", 2);
         conf.setInt("BufferCapacity", 1024 * 1024);
 
         node.setup(conf);
@@ -149,10 +149,10 @@ public class TestLoadRandomGenerator {
         }
 
         wingen.activate(null);
-        for (int i = 0; i < 500; i++) {
+        for (int i = 0; i < 50; i++) {
             mses.tick(1);
             try {
-                Thread.sleep(2);
+                Thread.sleep(4);
             } catch (InterruptedException e) {
                 LOG.error("Unexpected error while sleeping for 1 s", e);
             }
@@ -160,18 +160,15 @@ public class TestLoadRandomGenerator {
         node.deactivate();
 
         // Let the reciever get the tuples from the queue
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 100; i++) {
             mses.tick(1);
             try {
-                Thread.sleep(5);
+                Thread.sleep(4);
             } catch (InterruptedException e) {
                 LOG.error("Unexpected error while sleeping for 1 s", e);
             }
         }
 
-
-        // Assert.assertEquals("number emitted tuples", 5000, lgenSink.collectedTuples.size());
-//        LOG.debug("Processed {} tuples out of {}", lgenSink.collectedTuples.size(), lgenSink.count);
         LOG.debug("Processed {} tuples and {} unique strings", lgenSink.count, lgenSink.collectedTuples.size());
     }
 }

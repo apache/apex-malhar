@@ -178,6 +178,7 @@ public class TestLoadGenerator {
 //        conf.set(LoadGenerator.KEY_VALUES, "1,2,3,4");
         conf.set(LoadGenerator.KEY_VALUES, "");
         conf.set(LoadGenerator.KEY_STRING_SCHEMA, "true");
+        // lgenSink.test_hashmap = true;
         conf.set(LoadGenerator.KEY_WEIGHTS, "10,40,20,30");
         conf.setInt(LoadGenerator.KEY_TUPLES_PER_SEC, 100000000);
         conf.setInt("SpinMillis", 10);

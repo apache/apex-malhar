@@ -24,14 +24,14 @@ import org.slf4j.LoggerFactory;
  * a range at a very high throughput. This node does not need to be windowed. It would just create tuple stream upto the limit set
  * by the config parameters.<br>
  * <br>
- * This node has been benchmarked at over ?? million tuples/second for String objects in local/inline mode<br>
+ * This node has been benchmarked at over 10 million tuples/second for String objects in local/inline mode<br>
  * <br>
  * <b>Tuple Schema</b>: Has two choices Integer, or String<br><br>
  * <b>Port Interface</b>:It has only one output port "data" and has no input ports<br><br>
  * <b>Properties</b>:
  * <b>min_value</b> is the minimum value of the range of numbers. Default is 0<br>
  * <b>max_value</b> is the maximum value of the range of numbers. Default is 100<br>
- * <b>tuples_per_sec</b> is the upper limit of number of tuples per sec. The default value is 10000. This library node has been benchmarked at over ?? million tuples/sec<br>
+ * <b>tuples_per_sec</b> is the upper limit of number of tuples per sec. The default value is 10000. This library node has been benchmarked at over 10 million tuples/sec<br>
  * <b>string_schema</b> controls the tuple schema. For string set it to "true". By default it is "false" (i.e. Integer schema)<br>
  * <br>
  * Compile time checks are:<br>
@@ -175,29 +175,22 @@ public class LoadRandomGenerator extends AbstractInputNode {
   {
     super.activate(context);
 
+    String sval = new String();
+    Integer ival = new Integer(0);
     while (!shutdown) {
       if (outputConnected) {
         // send tuples upto tuples_per_sec and then wait for 1 ms
         int range = max_value - min_value;
         int i = 0;
-        String sval = new String();
-        Integer ival = new Integer(0);
-
-        int j = min_value;
         while (i < tuples_per_sec) {
-          //int rval = min_value + random.nextInt(range);
-          int rval = j;
+          int rval = min_value + random.nextInt(range);
           if (!isstringschema) {
             ival = rval;
-            emit(OPORT_DATA,  ival);
+            emit(OPORT_DATA, ival);
           }
           else {
             sval = String.valueOf(rval);
             emit(OPORT_DATA, sval);
-          }
-          j++;
-          if (j == max_value) {
-            j = min_value;
           }
           i++;
         }
