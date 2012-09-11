@@ -35,13 +35,17 @@ public class SearchInvertIndex extends AbstractNode {
     public static final String IPORT_DATA = "data";
     public static final String OPORT_INDEX = "index";
     private static Logger LOG = LoggerFactory.getLogger(SearchInvertIndex.class);
-    HashMap<String, ArrayList<String>> index = null;
+    HashMap<String, ArrayList> index = null;
 
     class valueData {
       String str;
       Object value;
+
+      valueData(String istr, Object val) {
+        str = istr;
+        value = val;
+      }
     }
-    HashMap<String, ArrayList<valueData>> vindex = null;
     boolean passvalue = false;
 
   /**
@@ -55,81 +59,78 @@ public class SearchInvertIndex extends AbstractNode {
 
   /**
    *
-   * Takes in a key and an arrayIndex. ReverseIndexes the strings in the ArrayIndex
-   * @param payload
+   * Returns the ArrayList stored for a key
+   * @param key
+   * @return ArrayList
    */
-    @Override
-    public void process(Object payload) {
-
-      // Code needs to be reused as almost exactly same code is in both if and else
+  ArrayList getArrayList(String key)
+  {
+    ArrayList ret = index.get(key);
+    if (ret == null) {
       if (passvalue) {
-        HashMap<String, ArrayList<valueData>> intuples = (HashMap<String, ArrayList<valueData>>) payload;
-        for (Map.Entry<String, ArrayList<valueData>> e : intuples.entrySet()) {
-          ArrayList<valueData> alist = e.getValue();
-          if (alist != null) {
-            Iterator<valueData> values = alist.iterator();
-            while (values.hasNext()) {
-              valueData ival = values.next();
-              String key = ival.str;
-              ArrayList<valueData> val = vindex.get(key);
-              if (val == null) {
-                val = new ArrayList<valueData>();
-              }
-              valueData tval = new valueData();
-              tval.str = e.getKey();
-              tval.value =ival.value;
-              val.add(tval);
-              vindex.put(key, val);
-              //vindex.put(key, val); // not needed except when val was null
-            }
-          }
-          else { // bad tuple
-            // emitError() here
-          }
-        }
+        ret = new ArrayList<valueData>();
       }
       else {
-        HashMap<String, ArrayList<String>> intuples = (HashMap<String, ArrayList<String>>) payload;
-        for (Map.Entry<String, ArrayList<String>> e: intuples.entrySet()) {
-          ArrayList<String> alist = e.getValue();
-          if (alist != null) {
-            Iterator<String> values = alist.iterator();
-            while (values.hasNext()) {
-              String key = values.next();
-              ArrayList<String> val = index.get(key);
-              if (val == null) {
-                val = new ArrayList<String>();
-              }
-              val.add(e.getKey());
-              index.put(key, val); // not needed except when val was null
-            }
+        ret = new ArrayList<String>();
+      }
+      index.put(key, ret);
+    }
+    return ret;
+  }
+
+  /**
+   *
+   * Takes in a key and an arrayIndex. ReverseIndexes the strings in the ArrayIndex
+   *
+   * @param payload
+   */
+  @Override
+  public void process(Object payload)
+  {
+    HashMap<String, ArrayList<Object>> intuples = (HashMap<String, ArrayList<Object>>)payload;
+    for (Map.Entry<String, ArrayList<Object>> e: intuples.entrySet()) {
+      ArrayList<Object> alist = e.getValue();
+      if (alist != null) {
+        Iterator<Object> values = alist.iterator();
+        while (values.hasNext()) {
+          String key = null;
+          Object avalue = null;
+          if (passvalue) {
+            valueData dval =  (valueData) values.next();
+            key = dval.str;
+            avalue = new valueData(e.getKey(), dval.value);
           }
-          else { // bad tuple
-            // emitError() here
+          else {
+            key = (String) values.next();
+            avalue = e.getKey();
           }
+          getArrayList(key).add(avalue);
         }
       }
+      else { // bad tuple
+        // emitError() here
+      }
     }
+  }
 
     /**
      *
      * @param config
-     * @return
+     * @return boolean
      */
     public boolean myValidation(NodeConfiguration config) {
       // No checks are needed for now
         return true;
     }
 
+    /**
+     *
+     * @param config
+     */
   @Override
   public void setup(NodeConfiguration config) {
     passvalue = config.getBoolean(KEY_PASSVALUE, false);
-    if (passvalue) {
-      vindex = new HashMap<String, ArrayList<valueData>>();
-    }
-    else {
-      index = new HashMap<String, ArrayList<String>>();
-    }
+    index = new HashMap<String, ArrayList>();
     super.setup(config);
   }
 
@@ -141,13 +142,7 @@ public class SearchInvertIndex extends AbstractNode {
   public void endWindow()
   {
     if (passvalue) {
-      for (Map.Entry<String, ArrayList<valueData>> e: vindex.entrySet()) {
-        emit(e);
-      }
-      vindex.clear();
-    }
-    else {
-      for (Map.Entry<String, ArrayList<String>> e: index.entrySet()) {
+      for (Map.Entry<String, ArrayList> e: index.entrySet()) {
         emit(e);
       }
       index.clear();
