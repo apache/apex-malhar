@@ -134,9 +134,9 @@ public class TestLoadGenerator {
         conf.set(LoadGenerator.KEY_TUPLES_PER_SEC, "-1");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadGenerator.KEY_VALUES);
+            Assert.fail("validation error  " + LoadGenerator.KEY_TUPLES_PER_SEC);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadGenerator.KEY_VALUES + " and " + LoadGenerator.KEY_TUPLES_PER_SEC,
+            Assert.assertTrue("validate " + LoadGenerator.KEY_TUPLES_PER_SEC,
                     e.getMessage().contains("has to be > 0"));
         }
 
