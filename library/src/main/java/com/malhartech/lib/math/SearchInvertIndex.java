@@ -63,19 +63,19 @@ public class SearchInvertIndex extends AbstractNode {
    * @param key
    * @return ArrayList
    */
-  ArrayList getArrayList(String key)
+  void insert(String key, Object value)
   {
-    ArrayList ret = index.get(key);
-    if (ret == null) {
+    ArrayList list = index.get(key);
+    if (list == null) {
       if (passvalue) {
-        ret = new ArrayList<valueData>();
+        list = new ArrayList<valueData>();
       }
       else {
-        ret = new ArrayList<String>();
+        list = new ArrayList<String>();
       }
-      index.put(key, ret);
+      index.put(key, list);
     }
-    return ret;
+     list.add(value);
   }
 
   /**
@@ -94,17 +94,17 @@ public class SearchInvertIndex extends AbstractNode {
         Iterator<Object> values = alist.iterator();
         while (values.hasNext()) {
           String key = null;
-          Object avalue = null;
+          Object value = null;
           if (passvalue) {
             valueData dval =  (valueData) values.next();
             key = dval.str;
-            avalue = new valueData(e.getKey(), dval.value);
+            value = new valueData(e.getKey(), dval.value);
           }
           else {
             key = (String) values.next();
-            avalue = e.getKey();
+            value = e.getKey();
           }
-          getArrayList(key).add(avalue);
+          insert(key, value);
         }
       }
       else { // bad tuple
@@ -119,8 +119,8 @@ public class SearchInvertIndex extends AbstractNode {
      * @return boolean
      */
     public boolean myValidation(NodeConfiguration config) {
-      // No checks are needed for now
-        return true;
+      // No checks for passing a boolean value
+      return true;
     }
 
     /**
@@ -141,12 +141,12 @@ public class SearchInvertIndex extends AbstractNode {
   @Override
   public void endWindow()
   {
-    if (passvalue) {
-      for (Map.Entry<String, ArrayList> e: index.entrySet()) {
-        emit(e);
-      }
-      index.clear();
+    for (Map.Entry<String, ArrayList> e: index.entrySet()) {
+      HashMap<String, ArrayList> tuple = new HashMap<String, ArrayList>();
+      tuple.put(e.getKey(), e.getValue());
+      emit(tuple);
     }
+    index.clear();
     super.endWindow();
   }
 }
