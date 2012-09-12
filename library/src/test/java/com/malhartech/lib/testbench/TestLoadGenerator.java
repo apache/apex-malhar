@@ -156,7 +156,7 @@ public class TestLoadGenerator {
      * Test node logic emits correct results
      */
     @Test
-    public void testNodeProcessing() {
+    public void testNodeProcessing() throws Exception {
 
         final LoadGenerator node = new LoadGenerator();
         final ManualScheduledExecutorService mses = new ManualScheduledExecutorService(1);

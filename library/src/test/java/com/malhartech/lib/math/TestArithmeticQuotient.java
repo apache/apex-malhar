@@ -62,7 +62,7 @@ public class TestArithmeticQuotient
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  public void testNodeProcessing()
+  public void testNodeProcessing() throws Exception
   {
     final ArithmeticQuotient node = new ArithmeticQuotient();
 

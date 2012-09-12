@@ -189,7 +189,7 @@ public class LoadGenerator extends AbstractInputNode {
    * @param config
    */
   @Override
-  public void setup(NodeConfiguration config)
+  public void setup(NodeConfiguration config) throws Exception
   {
     super.setup(config);
     if (!myValidation(config)) {

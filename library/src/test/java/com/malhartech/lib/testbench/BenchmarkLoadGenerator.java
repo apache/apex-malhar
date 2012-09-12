@@ -65,7 +65,7 @@ public class BenchmarkLoadGenerator {
      * The sink would simply ignore the payload as we are testing througput
      */
     @Test
-    public void testNodeProcessing() {
+    public void testNodeProcessing() throws Exception {
 
         final LoadGenerator node = new LoadGenerator();
         final ManualScheduledExecutorService mses = new ManualScheduledExecutorService(1);

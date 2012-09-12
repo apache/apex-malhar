@@ -62,7 +62,7 @@ public class ArithmeticQuotient extends AbstractNode
    * @param config
    */
   @Override
-  public void setup(NodeConfiguration config)
+  public void setup(NodeConfiguration config) throws Exception
   {
     super.setup(config);
     mult_by = config.getInt(KEY_MULTIPLY_BY, 1);

@@ -59,7 +59,7 @@ public class TestArithmeticMargin
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  public void testNodeProcessing()
+  public void testNodeProcessing() throws Exception
   {
     final ArithmeticMargin node = new ArithmeticMargin();
 

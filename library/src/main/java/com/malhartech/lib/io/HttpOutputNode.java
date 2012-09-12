@@ -51,7 +51,7 @@ public class HttpOutputNode extends AbstractNode
   private transient WebResource resource;
 
   @Override
-  public void setup(NodeConfiguration config)  {
+  public void setup(NodeConfiguration config) throws Exception {
     super.setup(config);
     checkConfiguration(config);
 
