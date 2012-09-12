@@ -8,6 +8,7 @@ import com.malhartech.annotation.NodeAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
 import com.malhartech.dag.AbstractNode;
+import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.NodeConfiguration;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,7 +47,6 @@ public class ArithmeticQuotient extends AbstractNode
   public static final String IPORT_NUMERATOR = "numerator";
   public static final String IPORT_DENOMINATOR = "denominator";
   public static final String OPORT_QUOTIENT = "quotient";
-  private static Logger LOG = LoggerFactory.getLogger(ArithmeticSum.class);
   int mult_by = 1;
   HashMap<String, Number> numerators = new HashMap<String, Number>();
   HashMap<String, Number> denominators = new HashMap<String, Number>();
@@ -62,9 +62,8 @@ public class ArithmeticQuotient extends AbstractNode
    * @param config
    */
   @Override
-  public void setup(NodeConfiguration config) throws Exception
+  public void setup(NodeConfiguration config) throws FailedOperationException
   {
-    super.setup(config);
     mult_by = config.getInt(KEY_MULTIPLY_BY, 1);
   }
 

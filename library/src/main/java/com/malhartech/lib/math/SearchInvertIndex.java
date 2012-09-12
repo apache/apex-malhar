@@ -8,6 +8,7 @@ import com.malhartech.annotation.NodeAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
 import com.malhartech.dag.AbstractNode;
+import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.NodeConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -128,11 +129,10 @@ public class SearchInvertIndex extends AbstractNode {
      * @param config
      */
   @Override
-  public void setup(NodeConfiguration config) throws Exception
+  public void setup(NodeConfiguration config) throws FailedOperationException
   {
     passvalue = config.getBoolean(KEY_PASSVALUE, false);
     index = new HashMap<String, ArrayList>();
-    super.setup(config);
   }
 
 

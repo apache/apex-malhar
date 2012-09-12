@@ -7,6 +7,7 @@ package com.malhartech.lib.testbench;
 import com.malhartech.annotation.NodeAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.dag.AbstractInputNode;
+import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.NodeConfiguration;
 import com.malhartech.dag.Sink;
 import java.util.Random;
@@ -56,7 +57,6 @@ public class LoadRandomGenerator extends AbstractInputNode
   boolean isstringschema = false;
   private Random random = new Random();
   private volatile boolean shutdown = false;
-  private boolean outputConnected = false;
   /**
    * An integer specifying min_value.
    *
@@ -128,7 +128,7 @@ public class LoadRandomGenerator extends AbstractInputNode
    * @param config
    */
   @Override
-  public void setup(NodeConfiguration config) throws Exception
+  public void setup(NodeConfiguration config) throws FailedOperationException
   {
     super.setup(config);
     if (!myValidation(config)) {
@@ -139,39 +139,18 @@ public class LoadRandomGenerator extends AbstractInputNode
     // TBD, should we setup values only after myValidation passes successfully?
   }
 
-//    /**
-//     *
-//     * To allow emit to wait till output port is connected in a deployment on Hadoop
-//     * @param id
-//     * @param dagpart
-//     */
-//    @Override
-//    public void connected(String id, Sink dagpart) {
-//        if (id.equals(OPORT_DATA)) {
-//            outputConnected = true;
-//        }
-//    }
-//    /**
-//     * The only way to shut down a loadGenerator. We are looking into a property based shutdown
-//     */
-//    @Override
-//    public void deactivate() {
-//        shutdown = true;
-//        super.deactivate();
-//    }
   /**
    * Generates all the tuples till shutdown (deactivate) is issued
    *
    * @param context
    */
   @Override
+  @SuppressWarnings("SleepWhileInLoop")
   public void run()
   {
-    String sval = new String();
-    Integer ival = new Integer(0);
+    String sval;
+    Integer ival;
     while (!shutdown) {
-//      if (outputConnected) {
-      // send tuples upto tuples_per_sec and then wait for 1 ms
       int range = max_value - min_value;
       int i = 0;
       while (i < tuples_per_sec) {
@@ -186,9 +165,7 @@ public class LoadRandomGenerator extends AbstractInputNode
         }
         i++;
       }
-//      }
       try {
-        //Thread.sleep(1000);
         Thread.sleep(5); // Remove sleep if you want to blast data at huge rate
       }
       catch (InterruptedException e) {

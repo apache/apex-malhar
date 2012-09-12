@@ -9,12 +9,14 @@ import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
 import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.dag.AbstractNode;
+import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.NodeConfiguration;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.MissingResourceException;
 import javax.ws.rs.core.MediaType;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
@@ -48,10 +50,14 @@ public class HttpOutputNode extends AbstractNode
   private transient WebResource resource;
 
   @Override
-  public void setup(NodeConfiguration config) throws Exception
+  public void setup(NodeConfiguration config) throws FailedOperationException
   {
-    super.setup(config);
-    checkConfiguration(config);
+    try {
+      checkConfiguration(config);
+    }
+    catch (Exception ex) {
+      throw new FailedOperationException(ex.getCause());
+    }
 
     wsClient = Client.create();
     wsClient.setFollowRedirects(true);
@@ -70,7 +76,7 @@ public class HttpOutputNode extends AbstractNode
   public boolean checkConfiguration(NodeConfiguration config) {
     String urlStr = config.get(P_RESOURCE_URL);
     if (urlStr == null) {
-      throw new IllegalArgumentException(String.format("Missing '%s' in configuration.", P_RESOURCE_URL));
+      throw new MissingResourceException("Key for URL string not set", String.class.getSimpleName(), P_RESOURCE_URL);
     }
     try {
       this.resourceUrl = new URI(urlStr);

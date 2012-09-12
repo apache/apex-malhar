@@ -7,6 +7,7 @@ package com.malhartech.lib.testbench;
 import com.malhartech.annotation.NodeAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.dag.AbstractNode;
+import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.NodeConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -188,11 +189,10 @@ public class LoadRandomClassifier extends AbstractNode {
    * @param config
    */
   @Override
-  public void setup(NodeConfiguration config) throws Exception
+  public void setup(NodeConfiguration config) throws FailedOperationException
   {
-    super.setup(config);
     if (!myValidation(config)) {
-      throw new IllegalArgumentException("Did not pass validation");
+      throw new FailedOperationException("validation failed");
     }
 
     isstringschema = config.getBoolean(KEY_STRING_SCHEMA, false);

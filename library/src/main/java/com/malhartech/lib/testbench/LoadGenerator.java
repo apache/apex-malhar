@@ -7,6 +7,7 @@ package com.malhartech.lib.testbench;
 import com.malhartech.annotation.NodeAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.dag.AbstractInputNode;
+import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.NodeConfiguration;
 import com.malhartech.dag.Sink;
 import java.util.ArrayList;
@@ -189,11 +190,11 @@ public class LoadGenerator extends AbstractInputNode {
    * @param config
    */
   @Override
-  public void setup(NodeConfiguration config) throws Exception
+  public void setup(NodeConfiguration config) throws FailedOperationException
   {
     super.setup(config);
     if (!myValidation(config)) {
-      throw new IllegalArgumentException("Did not pass validation");
+      throw new FailedOperationException("Did not pass validation");
     }
 
     String[] wstr = config.getTrimmedStrings(KEY_WEIGHTS);
