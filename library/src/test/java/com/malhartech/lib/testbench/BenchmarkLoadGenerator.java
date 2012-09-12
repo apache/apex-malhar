@@ -104,7 +104,7 @@ public class BenchmarkLoadGenerator {
         conf.setInt("SpinMillis", 10);
         conf.setInt("BufferCapacity", 10 * 1024 * 1024);
 
-          node.setup(conf);
+      node.setup(conf);
 
         final AtomicBoolean inactive = new AtomicBoolean(true);
         new Thread() {

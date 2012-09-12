@@ -130,7 +130,6 @@ public class LoadRandomGenerator extends AbstractInputNode
   @Override
   public void setup(NodeConfiguration config) throws FailedOperationException
   {
-    super.setup(config);
     if (!myValidation(config)) {
       throw new IllegalArgumentException("Did not pass validation");
     }

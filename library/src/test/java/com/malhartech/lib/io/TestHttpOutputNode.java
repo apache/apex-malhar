@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.io;
 
+import com.malhartech.dag.NodeConfiguration;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,13 +12,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import junit.framework.Assert;
-
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jettison.json.JSONObject;
 import org.junit.Test;
@@ -25,8 +23,6 @@ import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Request;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.AbstractHandler;
-
-import com.malhartech.dag.NodeConfiguration;
 
 
 public class TestHttpOutputNode {

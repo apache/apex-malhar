@@ -192,7 +192,6 @@ public class LoadGenerator extends AbstractInputNode {
   @Override
   public void setup(NodeConfiguration config) throws FailedOperationException
   {
-    super.setup(config);
     if (!myValidation(config)) {
       throw new FailedOperationException("Did not pass validation");
     }
