@@ -19,7 +19,7 @@ import com.malhartech.dag.AbstractNode;
  */
 @NodeAnnotation(
     ports = {
-        @PortAnnotation(name = "input", type = PortType.INPUT)
+        @PortAnnotation(name = ConsoleOutputNode.INPUT, type = PortType.INPUT)
     }
 )
 public class ConsoleOutputNode extends AbstractNode

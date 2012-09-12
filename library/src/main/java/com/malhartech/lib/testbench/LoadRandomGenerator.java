@@ -8,6 +8,7 @@ import com.malhartech.annotation.NodeAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.dag.AbstractInputNode;
 import com.malhartech.dag.NodeConfiguration;
+import com.malhartech.dag.Sink;
 import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +55,7 @@ public class LoadRandomGenerator extends AbstractInputNode {
     int max_value = 100;
     boolean isstringschema = false;
 
-    private Random random = new Random();
+    private final Random random = new Random();
     private volatile boolean shutdown = false;
     private boolean outputConnected = false;
     /**
@@ -139,27 +140,27 @@ public class LoadRandomGenerator extends AbstractInputNode {
         // TBD, should we setup values only after myValidation passes successfully?
     }
 
-//    /**
-//     *
-//     * To allow emit to wait till output port is connected in a deployment on Hadoop
-//     * @param id
-//     * @param dagpart
-//     */
-//    @Override
-//    public void connected(String id, Sink dagpart) {
-//        if (id.equals(OPORT_DATA)) {
-//            outputConnected = true;
-//        }
-//    }
+    /**
+     *
+     * To allow emit to wait till output port is connected in a deployment on Hadoop
+     * @param id
+     * @param dagpart
+     */
+    @Override
+    public void connected(String id, Sink dagpart) {
+        if (id.equals(OPORT_DATA)) {
+            outputConnected = true;
+        }
+    }
 
-//    /**
-//     * The only way to shut down a loadGenerator. We are looking into a property based shutdown
-//     */
-//    @Override
-//    public void deactivate() {
-//        shutdown = true;
-//        super.deactivate();
-//    }
+    /**
+     * The only way to shut down a loadGenerator. We are looking into a property based shutdown
+     */
+    @Override
+    public void teardown() {
+        shutdown = true;
+        super.teardown();
+    }
 
   /**
    * Generates all the tuples till shutdown (deactivate) is issued
