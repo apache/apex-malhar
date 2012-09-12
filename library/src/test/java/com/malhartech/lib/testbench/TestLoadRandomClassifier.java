@@ -119,7 +119,7 @@ public class TestLoadRandomClassifier {
      * Test node logic emits correct results
      */
     @Test
-    public void testNodeProcessing() {
+    public void testNodeProcessing() throws Exception {
 
         LoadRandomClassifier node = new LoadRandomClassifier();
 

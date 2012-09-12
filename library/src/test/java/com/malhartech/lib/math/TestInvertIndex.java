@@ -47,7 +47,7 @@ public class TestInvertIndex
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  public void testNodeProcessing()
+  public void testNodeProcessing() throws Exception
   {
     final SearchInvertIndex node = new SearchInvertIndex();
 
@@ -140,7 +140,7 @@ public class TestInvertIndex
       HashMap<String, ArrayList<String>> output = (HashMap<String, ArrayList<String>>)o;
       for (Map.Entry<String, ArrayList<String>> e: output.entrySet()) {
         String lstr = "Key " + e.getKey() + ": ";
-        alist = (ArrayList<String>)e.getValue();
+        alist = e.getValue();
         if (alist == null) {
           LOG.error("Tuple value was null");
         }

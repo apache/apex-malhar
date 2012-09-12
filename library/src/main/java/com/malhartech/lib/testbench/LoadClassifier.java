@@ -104,13 +104,13 @@ public class LoadClassifier extends AbstractNode {
      */
     public static final String KEY_VALUEOPERATION = "valueoperation";
     int total_weight = 0;
-    private Random random = new Random();
+    private final Random random = new Random();
 
     enum value_operation {VOPR_REPLACE,VOPR_ADD,VOPR_MULT,VOPR_APPEND} ;
     value_operation voper;
 
     private volatile boolean shutdown = false;
-    private boolean outputConnected = false;
+    private final boolean outputConnected = false;
 
    /**
      * Not used, but overridden as it is abstract
@@ -229,7 +229,7 @@ public class LoadClassifier extends AbstractNode {
      * @param config
      */
     @Override
-    public void setup(NodeConfiguration config) {
+    public void setup(NodeConfiguration config) throws Exception {
         super.setup(config);
         if (!myValidation(config)) {
             throw new IllegalArgumentException("Did not pass validation");

@@ -99,7 +99,7 @@ public class TestLoadRandomGenerator {
      * Test node logic emits correct results
      */
     @Test
-    public void testNodeProcessing() {
+    public void testNodeProcessing() throws Exception {
 
         final LoadRandomGenerator node = new LoadRandomGenerator();
         final ManualScheduledExecutorService mses = new ManualScheduledExecutorService(1);

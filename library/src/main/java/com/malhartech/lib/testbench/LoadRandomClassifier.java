@@ -75,7 +75,7 @@ public class LoadRandomClassifier extends AbstractNode {
    */
   public static final String KEY_STRING_SCHEMA = "string_schema";
 
-  private Random random = new Random();
+  private final Random random = new Random();
 
   class valueData
   {
@@ -184,7 +184,7 @@ public class LoadRandomClassifier extends AbstractNode {
    * @param config
    */
   @Override
-  public void setup(NodeConfiguration config)
+  public void setup(NodeConfiguration config) throws Exception
   {
     super.setup(config);
     if (!myValidation(config)) {
