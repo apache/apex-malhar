@@ -150,7 +150,8 @@ public class TestLoadClassifier {
      * Test node logic emits correct results
      */
     @Test
-    public void testNodeProcessing() throws Exception {
+    public void testNodeProcessing() throws Exception
+    {
 
         LoadClassifier node = new LoadClassifier();
 

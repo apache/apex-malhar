@@ -128,7 +128,8 @@ public class SearchInvertIndex extends AbstractNode {
      * @param config
      */
   @Override
-  public void setup(NodeConfiguration config) throws Exception {
+  public void setup(NodeConfiguration config) throws Exception
+  {
     passvalue = config.getBoolean(KEY_PASSVALUE, false);
     index = new HashMap<String, ArrayList>();
     super.setup(config);

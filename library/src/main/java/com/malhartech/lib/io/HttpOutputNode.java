@@ -4,16 +4,6 @@
  */
 package com.malhartech.lib.io;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Map;
-
-import javax.ws.rs.core.MediaType;
-
-import org.codehaus.jettison.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.malhartech.annotation.NodeAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
@@ -22,6 +12,13 @@ import com.malhartech.dag.AbstractNode;
 import com.malhartech.dag.NodeConfiguration;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Map;
+import javax.ws.rs.core.MediaType;
+import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -51,7 +48,8 @@ public class HttpOutputNode extends AbstractNode
   private transient WebResource resource;
 
   @Override
-  public void setup(NodeConfiguration config) throws Exception {
+  public void setup(NodeConfiguration config) throws Exception
+  {
     super.setup(config);
     checkConfiguration(config);
 
