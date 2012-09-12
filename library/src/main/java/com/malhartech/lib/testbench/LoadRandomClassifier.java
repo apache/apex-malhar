@@ -62,7 +62,7 @@ public class LoadRandomClassifier extends AbstractNode {
     HashMap<String, Object> processedkeys = new HashMap<String, Object>();
     ArrayList<String> keys = new ArrayList<String>();
     ArrayList<Integer> keys_min = new ArrayList<Integer>();
-    ArrayList<Integer> keys_max = new ArrayList<Integer>();
+    ArrayList<Integer> keys_range = new ArrayList<Integer>();
     boolean isstringschema = false;
   /**
    * keys are ';' separated list of keys to classify the incoming keys in in_data stream<p>
@@ -98,10 +98,15 @@ public class LoadRandomClassifier extends AbstractNode {
 
   private void insertTuple(HashMap<String, ArrayList<valueData>> tuples, String key)
   {
-    ArrayList<valueData> val = new ArrayList<valueData>();
+    ArrayList val = new ArrayList();
     int j = 0;
     for (String s : keys) {
-      val.add(new valueData(s, new Integer(keys_min.get(j) + random.nextInt(keys_max.get(j) - keys_min.get(j)))));
+      if (isstringschema) {
+        val.add(s + ":" + Integer.toString(keys_min.get(j) + random.nextInt(keys_range.get(j))));
+      }
+      else {
+        val.add(new valueData(s, new Integer(keys_min.get(j) + random.nextInt(keys_range.get(j)))));
+      }
       j++;
     }
     tuples.put(key, val);
@@ -118,7 +123,7 @@ public class LoadRandomClassifier extends AbstractNode {
   {
     keys.add(key);
     keys_min.add(low);
-    keys_max.add(high);
+    keys_range.add(high-low);
   }
 
   /**

@@ -20,7 +20,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * Tests {@link com.malhartech.lib.testbench.LoadGenerator} at a very high load with stringschema. Current peak benchmark is at 16 Million tuples/sec<p>
+ * <br>
+ * The benchmark results matter a lot in terms of how thread contention is handled. The test has three parts<br>
+ * 1. Trigger the input generator with a very high load and no wait. Simultaneously start read thread, but do sleep
+ * once a while. Set the buffersize large enough to handle growing queued up tuples<br>
+ * 2. Deactivate load generator node and drain the queue<br>
+ * 3. Wait till all the queue is drained<br>
+ * <br>
+ * No DRC check is done on the node as this test is for benchmark only<br>
+ * <br>
+ * Benchmark is at 16 Million tuples/src. Once we get to real Hadoop cluster, we should increase the buffer size to handle 100x more tuples and see what the raw
+ * throughput would be. Then on we would not need to force either thread to wait, or be hampered by low memory on debugging
+ * envinronment<br>
+ * <br>
  */
 public class BenchmarkLoadGenerator {
 
@@ -65,8 +78,7 @@ public class BenchmarkLoadGenerator {
      * The sink would simply ignore the payload as we are testing througput
      */
     @Test
-    public void testNodeProcessing() throws Exception
-    {
+    public void testNodeProcessing() throws Exception {
 
         final LoadGenerator node = new LoadGenerator();
         final ManualScheduledExecutorService mses = new ManualScheduledExecutorService(1);
@@ -92,7 +104,7 @@ public class BenchmarkLoadGenerator {
         conf.setInt("SpinMillis", 10);
         conf.setInt("BufferCapacity", 10 * 1024 * 1024);
 
-        node.setup(conf);
+          node.setup(conf);
 
         final AtomicBoolean inactive = new AtomicBoolean(true);
         new Thread() {
@@ -114,7 +126,7 @@ public class BenchmarkLoadGenerator {
             LOG.debug(ex.getLocalizedMessage());
         }
         wingen.activate(null);
-        for (int i = 0; i < 3000; i++) {
+        for (int i = 0; i < 2000; i++) {
             mses.tick(1);
             try {
                 Thread.sleep(1);
@@ -125,8 +137,7 @@ public class BenchmarkLoadGenerator {
         node.deactivate();
 
         // Let the reciever get the tuples from the queue
-        for (int i = 0; i <500; i++) {
-            mses.tick(1);
+        for (int i = 0; i <300; i++) {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {

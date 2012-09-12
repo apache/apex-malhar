@@ -21,6 +21,16 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
+ * Functional tests for {@link com.malhartech.lib.testbench.LoadGenerator}. <p>
+ * <br>
+ * Load is generated and the tuples are outputted to ensure that the numbers are roughly in line with the weights<br>
+ * <br>
+ *  Benchmarks:<br>
+ * String schema does over 10 Million tuples/sec<br>
+ * HashMap schema does over 1.2 Million tuples/sec<br>
+ * <br>
+ * DRC checks are validated<br>
+ *
  */
 public class TestLoadGenerator {
 
@@ -33,6 +43,7 @@ public class TestLoadGenerator {
         //DefaultSerDe serde = new DefaultSerDe();
         int count = 0;
         boolean test_hashmap = false;
+        boolean skiphash = true;
 
         /**
          *
@@ -44,6 +55,7 @@ public class TestLoadGenerator {
                 // LOG.debug(payload.toString());
             }
             else {
+              if (!skiphash) {
                 if (test_hashmap) {
                     HashMap<String, Double> tuple = (HashMap<String, Double>) payload;
                     for (Map.Entry<String, Double> e : tuple.entrySet()) {
@@ -67,6 +79,7 @@ public class TestLoadGenerator {
                     }
                     collectedTuples.put(str, val);
                 }
+              }
                 count++;
                 //serde.toByteArray(payload);
              }
@@ -152,12 +165,22 @@ public class TestLoadGenerator {
         }
     }
 
+  /**
+   * Tests both string and non string schema
+   */
+  @Test
+  public void testNodeProcessing() throws Exception
+  {
+      testSingleSchemaNodeProcessing(true, true);
+      testSingleSchemaNodeProcessing(true, false);
+      testSingleSchemaNodeProcessing(false, true);
+       testSingleSchemaNodeProcessing(false, false);
+  }
+
     /**
      * Test node logic emits correct results
      */
-    @Test
-    public void testNodeProcessing() throws Exception
-    {
+    public void testSingleSchemaNodeProcessing(boolean stringschema, boolean skiphash) throws Exception {
 
         final LoadGenerator node = new LoadGenerator();
         final ManualScheduledExecutorService mses = new ManualScheduledExecutorService(1);
@@ -176,14 +199,20 @@ public class TestLoadGenerator {
         NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
 
         conf.set(LoadGenerator.KEY_KEYS, "a,b,c,d");
-//        conf.set(LoadGenerator.KEY_VALUES, "1,2,3,4");
+        // conf.set(LoadGenerator.KEY_VALUES, "1,2,3,4");
         conf.set(LoadGenerator.KEY_VALUES, "");
+      if (stringschema) {
         conf.set(LoadGenerator.KEY_STRING_SCHEMA, "true");
-        // lgenSink.test_hashmap = true;
-        conf.set(LoadGenerator.KEY_WEIGHTS, "10,40,20,30");
-        conf.setInt(LoadGenerator.KEY_TUPLES_PER_SEC, 100000000);
-        conf.setInt("SpinMillis", 10);
-        conf.setInt("BufferCapacity", 1024 * 1024);
+      }
+      else {
+        conf.set(LoadGenerator.KEY_STRING_SCHEMA, "false");
+      }
+      lgenSink.test_hashmap = !stringschema;
+      lgenSink.skiphash = skiphash;
+      conf.set(LoadGenerator.KEY_WEIGHTS, "10,40,20,30");
+      conf.setInt(LoadGenerator.KEY_TUPLES_PER_SEC, 100000000);
+      conf.setInt("SpinMillis", 10);
+      conf.setInt("BufferCapacity", 1024 * 1024);
 
         node.setup(conf);
 
@@ -219,7 +248,6 @@ public class TestLoadGenerator {
 
         // Let the reciever get the tuples from the queue
         for (int i = 0; i < 10; i++) {
-            mses.tick(1);
             try {
                 Thread.sleep(5);
             } catch (InterruptedException e) {
@@ -235,4 +263,6 @@ public class TestLoadGenerator {
             LOG.debug("{} tuples for key {}", e.getValue().intValue(), e.getKey());
         }
     }
+
+
 }

@@ -3,10 +3,10 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.esotericsoftware.minlog.Log;
 import com.malhartech.dag.NodeConfiguration;
 import com.malhartech.dag.Sink;
 import com.malhartech.dag.Tuple;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
@@ -16,6 +16,15 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
+ * Functional test for {@link com.malhartech.lib.testbench.LoadRandomClassifier}<p>
+ * <br>
+ * Four keys are sent in at a high throughput rate and the classification is expected to be cover all combinations<br>
+ * <br>
+ * Benchmarks: A total of 40 million tuples are pushed in each benchmark<br>
+ * String schema does about 1.5 Million tuples/sec<br>
+ * LoadRandomClassifier.valueData schema is about 4 Million tuples/sec<br>
+ * <br>
+ * DRC checks are validated<br>
  */
 public class TestLoadRandomClassifier {
 
@@ -23,8 +32,9 @@ public class TestLoadRandomClassifier {
 
     class TestSink implements Sink {
 
-        HashMap<String, Integer> collectedTuples = new HashMap<String, Integer>();
-        HashMap<String, Double> collectedTupleValues = new HashMap<String, Double>();
+      HashMap<String, HashMap>collectedTuples = new HashMap<String, HashMap>();
+      int count = 0;
+      boolean isstring = true;
 
         /**
          *
@@ -35,25 +45,28 @@ public class TestLoadRandomClassifier {
             if (payload instanceof Tuple) {
                 // LOG.debug(payload.toString());
             } else {
-                HashMap<String, Double> tuple = (HashMap<String, Double>) payload;
-                for (Map.Entry<String, Double> e : tuple.entrySet()) {
-                    Integer ival = collectedTuples.get(e.getKey());
-                    if (ival == null) {
-                        ival = new Integer(1);
-                    } else {
-                        ival = ival + 1;
+                HashMap<String, ArrayList> tuples = (HashMap<String, ArrayList>) payload;
+                for (Map.Entry<String, ArrayList> e : tuples.entrySet()) {
+                    HashMap<String, Object> val = collectedTuples.get(e.getKey());
+                    if (val == null) {
+                      val = new HashMap<String, Object>();
+                      collectedTuples.put(e.getKey(), val);
                     }
-                    collectedTuples.put(e.getKey(), ival);
-                    collectedTupleValues.put(e.getKey(), e.getValue());
+                    if (isstring) {
+                      ArrayList<String> alist = e.getValue();
+                      for (String s : alist) { // These string should be ikey:val
+                        val.put(s, null);
+                      }
+                    }
+                    else { // tbd, convert valueData into a string
+                      ArrayList<LoadRandomClassifier.valueData> alist = e.getValue();
+                      for (LoadRandomClassifier.valueData v : alist) {
+                        val.put(v.str, null);
+                      }
+                    }
+                    count++;
                 }
             }
-        }
-        /**
-         *
-         */
-        public void clear() {
-            collectedTuples.clear();
-            collectedTupleValues.clear();
         }
     }
 
@@ -65,10 +78,8 @@ public class TestLoadRandomClassifier {
 
         NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
         LoadRandomClassifier node = new LoadRandomClassifier();
-        // String[] kstr = config.getTrimmedStrings(KEY_KEYS);
-        // String[] vstr = config.getTrimmedStrings(KEY_VALUES);
 
- //       conf.set(LoadRandomClassifier.KEY_KEYS, "x:0,100;y:0,100;gender:0,1;age:10,120"); // the good key
+       // conf.set(LoadRandomClassifier.KEY_KEYS, "x:0,100;y:0,100;gender:0,1;age:10,120"); // the good key
         conf.set(LoadRandomClassifier.KEY_KEYS, "");
         try {
             node.myValidation(conf);
@@ -115,119 +126,69 @@ public class TestLoadRandomClassifier {
         }
     }
 
-    /**
-     * Test node logic emits correct results
-     */
-    @Test
-    public void testNodeProcessing() throws Exception
-    {
+  /**
+   * Test node logic emits correct results
+   */
+  @Test
+  public void testNodeProcessing () throws Exception {
+    testSchemaNodeProcessing(true);
+    testSchemaNodeProcessing(false);
+  }
+
+
+
+    public void testSchemaNodeProcessing(boolean isstring) throws Exception {
 
         LoadRandomClassifier node = new LoadRandomClassifier();
 
         TestSink classifySink = new TestSink();
         node.connect(LoadClassifier.OPORT_OUT_DATA, classifySink);
-        HashMap<String, Double> input = new HashMap<String, Double>();
 
         NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
+        conf.set(LoadRandomClassifier.KEY_KEYS, "x:0,99;y:0,99;gender:0,1;age:10,109"); // the good key
 
-        conf.set(LoadRandomClassifier.KEY_KEYS, "x:0,100;y:0,100;gender:0,1;age:10,120"); // the good key
-        conf.set(LoadRandomClassifier.KEY_STRING_SCHEMA, "true");
+        if (isstring) {
+          conf.set(LoadRandomClassifier.KEY_STRING_SCHEMA, "true");
+        }
+        else {
+          conf.set(LoadRandomClassifier.KEY_STRING_SCHEMA, "false");
+        }
+        classifySink.isstring = isstring;
 
         conf.setInt("SpinMillis", 10);
         conf.setInt("BufferCapacity", 1024 * 1024);
         node.setup(conf);
-/*
+
         int sentval = 0;
-        for (int i = 0; i < 1000000; i++) {
-            input.clear();
-            input.put("ia", 2.0);
-            input.put("ib", 20.0);
-            input.put("ic", 1000.0);
-            input.put("id", 1000.0);
-            sentval += 4;
-            node.process(input);
+        ArrayList<String> alist = new ArrayList<String>();
+        alist.add("key1");
+        alist.add("key2");
+        alist.add("key3");
+        alist.add("key4");
+        for (int i = 0; i < 10000000; i++) {
+          if (isstring) {
+            node.process("key1");
+            node.process("key2");
+            node.process("key3");
+            node.process("key4");
+          }
+          else {
+            node.process(alist);
+          }
+           sentval += 4;
         }
         node.endWindow();
-        int ival = 0;
-        for (Map.Entry<String, Integer> e : classifySink.collectedTuples.entrySet()) {
-            ival += e.getValue().intValue();
-        }
-
-        LOG.info(String.format("\nThe number of keys in %d tuples are %d and %d",
-                ival,
-                classifySink.collectedTuples.size(),
-                classifySink.collectedTupleValues.size()));
-        for (Map.Entry<String, Double> ve : classifySink.collectedTupleValues.entrySet()) {
-            Integer ieval = classifySink.collectedTuples.get(ve.getKey()); // ieval should not be null?
-            Log.info(String.format("%d tuples of key \"%s\" has value %f", ieval.intValue(), ve.getKey(), ve.getValue()));
-        }
-        Assert.assertEquals("number emitted tuples", sentval, ival);
-        // Now test a node with no weights
-        LoadClassifier nwnode = new LoadClassifier();
-        classifySink.clear();
-        nwnode.connect(LoadRandomClassifier.OPORT_OUT_DATA, classifySink);
-        nwnode.setup(conf);
-
-        sentval = 0;
-        for (int i = 0; i < 1000000; i++) {
-            input.clear();
-            input.put("ia", 2.0);
-            input.put("ib", 20.0);
-            input.put("ic", 1000.0);
-            input.put("id", 1000.0);
-            sentval += 4;
-            nwnode.process(input);
-        }
-        nwnode.endWindow();
-        ival = 0;
-        for (Map.Entry<String, Integer> e : classifySink.collectedTuples.entrySet()) {
-            ival += e.getValue().intValue();
-        }
-        LOG.info(String.format("\nThe number of keys in %d tuples are %d and %d",
-                ival,
-                classifySink.collectedTuples.size(),
-                classifySink.collectedTupleValues.size()));
-        for (Map.Entry<String, Double> ve : classifySink.collectedTupleValues.entrySet()) {
-            Integer ieval = classifySink.collectedTuples.get(ve.getKey()); // ieval should not be null?
-            Log.info(String.format("%d tuples of key \"%s\" has value %f", ieval.intValue(), ve.getKey(), ve.getValue()));
-        }
-        Assert.assertEquals("number emitted tuples", sentval, ival);
 
 
-        // Now test a node with no weights and no values
-        LoadRandomClassifier nvnode = new LoadRandomClassifier();
-        classifySink.clear();
-        nvnode.connect(LoadRandomClassifier.OPORT_OUT_DATA, classifySink);
-        nvnode.setup(conf);
+        LOG.info(String.format("\nThe number of tuples sent (%d) and processed(%d) with stringschema as %s",
+                sentval,
+                classifySink.count,
+                isstring ? "true": "false"));
 
-        sentval = 0;
-        for (int i = 0; i < 1000000; i++) {
-            input.clear();
-            input.put("ia", 2.0);
-            input.put("ib", 20.0);
-            input.put("ic", 500.0);
-            input.put("id", 1000.0);
-            sentval += 4;
-            nvnode.process(input);
+        for (Map.Entry<String, HashMap> e : classifySink.collectedTuples.entrySet()) {
+          LOG.info(String.format("Key %s has %d entries", e.getKey(), e.getValue().size()));
         }
-        nvnode.endWindow();
-        ival = 0;
-        for (Map.Entry<String, Integer> e : classifySink.collectedTuples.entrySet()) {
-            ival += e.getValue().intValue();
-        }
-        LOG.info(String.format("\nThe number of keys in %d tuples are %d and %d",
-                ival,
-                classifySink.collectedTuples.size(),
-                classifySink.collectedTupleValues.size()));
-        for (Map.Entry<String, Double> ve : classifySink.collectedTupleValues.entrySet()) {
-            Integer ieval = classifySink.collectedTuples.get(ve.getKey()); // ieval should not be null?
-            Log.info(String.format("%d tuples of key \"%s\" has value %f",
-                    ieval.intValue(),
-                    ve.getKey(),
-                    ve.getValue()));
-        }
-        Assert.assertEquals("number emitted tuples", sentval, ival);
-        */
+        Assert.assertEquals("number emitted tuples", sentval, classifySink.count);
     }
 }
 

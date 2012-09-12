@@ -19,20 +19,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * Functional test for {@link com.malhartech.lib.testbench.LoadRandomGenerator}<p>
+ * <br>
+ * Tests both string and integer. Sets range to 0 to 999 and generates random numbers. With millions
+ * of tuple all the values are covered<br>
+ * <br>
+ * Benchmark: pushes as many tuples are possible<br>
+ * String schema does about 3 Million tuples/sec<br>
+ * Integer schema does about 7 Million tuples/sec<br>
+ * <br>
+ * DRC validation is done<br>
+ * <br>
  */
+
 public class TestLoadRandomGenerator {
 
     private static Logger LOG = LoggerFactory.getLogger(LoadRandomGenerator.class);
 
     class TestSink implements Sink {
 
-        HashMap<String, Object> collectedTuples = new HashMap<String, Object>();
+        HashMap<Object, Object> collectedTuples = new HashMap<Object, Object>();
 
 
         //DefaultSerDe serde = new DefaultSerDe();
         int count = 0;
-        boolean test_integer = false;
+        boolean isstring = false;
 
         /**
          *
@@ -44,11 +55,11 @@ public class TestLoadRandomGenerator {
                 // LOG.debug(payload.toString());
             }
             else {
-                if (test_integer) {
-                  collectedTuples.put(((Integer) payload).toString(), null);
+                if (isstring) {
+                  collectedTuples.put((String) payload, null);
                 }
                 else {
-                  collectedTuples.put((String) payload, null);
+                  collectedTuples.put((Integer) payload, null);
                 }
                 count++;
              }
@@ -99,7 +110,13 @@ public class TestLoadRandomGenerator {
      * Test node logic emits correct results
      */
     @Test
-    public void testNodeProcessing() throws Exception {
+    public void testNodeProcessing () throws Exception {
+      testSchemaNodeProcessing(true);
+      testSchemaNodeProcessing(false);
+    }
+
+
+    public void testSchemaNodeProcessing(boolean isstring) throws Exception {
 
         final LoadRandomGenerator node = new LoadRandomGenerator();
         final ManualScheduledExecutorService mses = new ManualScheduledExecutorService(1);
@@ -116,12 +133,14 @@ public class TestLoadRandomGenerator {
         TestSink lgenSink = new TestSink();
         node.connect(LoadRandomGenerator.OPORT_DATA, lgenSink);
         NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
-        lgenSink.test_integer = false; // Testing String for now
+        lgenSink.isstring = isstring;
 
         conf.set(LoadRandomGenerator.KEY_MIN_VALUE, "0");
         conf.set(LoadRandomGenerator.KEY_MAX_VALUE, "1000");
         conf.setInt(LoadRandomGenerator.KEY_TUPLES_PER_SEC, 50000000);
-        conf.set(LoadRandomGenerator.KEY_STRING_SCHEMA, "true");
+        if (isstring) {
+          conf.set(LoadRandomGenerator.KEY_STRING_SCHEMA, "true");
+        }
 
         conf.setInt("SpinMillis", 2);
         conf.setInt("BufferCapacity", 1024 * 1024);
@@ -149,10 +168,10 @@ public class TestLoadRandomGenerator {
         }
 
         wingen.activate(null);
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 100; i++) {
             mses.tick(1);
             try {
-                Thread.sleep(4);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 LOG.error("Unexpected error while sleeping for 1 s", e);
             }
@@ -161,9 +180,8 @@ public class TestLoadRandomGenerator {
 
         // Let the reciever get the tuples from the queue
         for (int i = 0; i < 100; i++) {
-            mses.tick(1);
             try {
-                Thread.sleep(4);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 LOG.error("Unexpected error while sleeping for 1 s", e);
             }
