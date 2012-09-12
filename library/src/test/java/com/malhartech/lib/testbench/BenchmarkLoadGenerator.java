@@ -87,9 +87,9 @@ public class BenchmarkLoadGenerator {
         conf.set(LoadGenerator.KEY_KEYS, "a");
         conf.set(LoadGenerator.KEY_VALUES, "");
         conf.set(LoadGenerator.KEY_STRING_SCHEMA, "true");
-        conf.setInt(LoadGenerator.KEY_TUPLES_PER_SEC, 1000000000);
+        conf.setInt(LoadGenerator.KEY_TUPLES_PER_SEC, 500000000);
         conf.setInt("SpinMillis", 10);
-        conf.setInt("BufferCapacity", 1024 * 1024);
+        conf.setInt("BufferCapacity", 10 * 1024 * 1024);
 
         node.setup(conf);
 
@@ -113,10 +113,10 @@ public class BenchmarkLoadGenerator {
             LOG.debug(ex.getLocalizedMessage());
         }
         wingen.activate(null);
-        for (int i = 0; i < 300; i++) {
+        for (int i = 0; i < 3000; i++) {
             mses.tick(1);
             try {
-                Thread.sleep(2);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 LOG.error("Unexpected error while sleeping for 1 s", e);
             }
@@ -127,7 +127,7 @@ public class BenchmarkLoadGenerator {
         for (int i = 0; i <500; i++) {
             mses.tick(1);
             try {
-                Thread.sleep(2);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 LOG.error("Unexpected error while sleeping for 1 s", e);
             }

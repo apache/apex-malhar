@@ -161,7 +161,7 @@ public class LoadGenerator extends AbstractInputNode {
             throw new IllegalArgumentException(
                     String.format("tuples_per_sec (%d) has to be > 0", tuples_per_sec));
         } else {
-            LOG.info(String.format("Using %d tuples per second", tuples_per_sec));
+            LOG.info(String.format("tuples_per_sec set to %d", tuples_per_sec));
         }
         if (isstringschema) {
             if (vstr.length != 0) {

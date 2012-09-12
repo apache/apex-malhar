@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class TestLoadClassifier {
+public class TestLoadRandomClassifier {
 
-    private static Logger LOG = LoggerFactory.getLogger(LoadClassifier.class);
+    private static Logger LOG = LoggerFactory.getLogger(LoadRandomClassifier.class);
 
     class TestSink implements Sink {
 
@@ -64,85 +64,54 @@ public class TestLoadClassifier {
     public void testNodeValidation() {
 
         NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
-        LoadClassifier node = new LoadClassifier();
+        LoadRandomClassifier node = new LoadRandomClassifier();
         // String[] kstr = config.getTrimmedStrings(KEY_KEYS);
         // String[] vstr = config.getTrimmedStrings(KEY_VALUES);
 
-
-        conf.set(LoadClassifier.KEY_KEYS, "");
+ //       conf.set(LoadRandomClassifier.KEY_KEYS, "x:0,100;y:0,100;gender:0,1;age:10,120"); // the good key
+        conf.set(LoadRandomClassifier.KEY_KEYS, "");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadClassifier.KEY_KEYS);
+            Assert.fail("validation error  " + LoadRandomClassifier.KEY_KEYS);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadClassifier.KEY_KEYS,
+            Assert.assertTrue("validate " + LoadRandomClassifier.KEY_KEYS,
                     e.getMessage().contains("is empty"));
         }
 
-        conf.set(LoadClassifier.KEY_KEYS, "a,b,c"); // from now on keys are a,b,c
-        conf.set(LoadClassifier.KEY_VALUEOPERATION, "blah");
+        conf.set(LoadRandomClassifier.KEY_KEYS, "x:0,100;;gender:0,1;age:10,120");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadClassifier.KEY_VALUEOPERATION);
+            Assert.fail("validation error  " + LoadRandomClassifier.KEY_KEYS);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadClassifier.KEY_VALUEOPERATION,
-                    e.getMessage().contains("not supported. Supported values are"));
-        }
-        conf.set(LoadClassifier.KEY_VALUEOPERATION, "replace"); // from now on valueoperation is "replace"
-
-        conf.set(LoadClassifier.KEY_VALUES, "1,2,3,4");
-        try {
-            node.myValidation(conf);
-            Assert.fail("validation error  " + LoadClassifier.KEY_VALUES);
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadClassifier.KEY_VALUES,
-                    e.getMessage().contains("does not match number of keys"));
+            Assert.assertTrue("validate " + LoadRandomClassifier.KEY_KEYS,
+                    e.getMessage().contains("slot of parameter \"key\" is empty"));
         }
 
-        conf.set(LoadClassifier.KEY_VALUES, "1,2a,3");
+       conf.set(LoadRandomClassifier.KEY_KEYS, "x:0,100;y:0:100;gender:0,1;age:10,120"); // the good key
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadClassifier.KEY_VALUES);
+            Assert.fail("validation error  " + LoadRandomClassifier.KEY_KEYS);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadClassifier.KEY_VALUES,
-                    e.getMessage().contains("Value string should be float"));
+            Assert.assertTrue("validate " + LoadRandomClassifier.KEY_KEYS,
+                    e.getMessage().contains("malformed in parameter \"key\""));
         }
 
-        conf.set(LoadClassifier.KEY_VALUES, "1,2,3");
-
-        conf.set(LoadClassifier.KEY_WEIGHTS, "ia:60,10,35;;ic:20,10,70;id:50,15,35");
+       conf.set(LoadRandomClassifier.KEY_KEYS, "x:0,100;y:0,100,3;gender:0,1;age:10,120"); // the good key
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadClassifier.KEY_WEIGHTS);
+            Assert.fail("validation error  " + LoadRandomClassifier.KEY_KEYS);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadClassifier.KEY_WEIGHTS,
-                    e.getMessage().contains("One of the keys in"));
+            Assert.assertTrue("validate " + LoadRandomClassifier.KEY_KEYS,
+                    e.getMessage().contains("of parameter \"key\" is malformed"));
         }
 
-        conf.set(LoadClassifier.KEY_WEIGHTS, "ia:60,10,35;ib,10,75,15;ic:20,10,70;id:50,15,35");
+       conf.set(LoadRandomClassifier.KEY_KEYS, "x:0,100;y:100,0;gender:0,1;age:10,120"); // the good key
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadClassifier.KEY_WEIGHTS);
+            Assert.fail("validation error  " + LoadRandomClassifier.KEY_KEYS);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadClassifier.KEY_WEIGHTS,
-                    e.getMessage().contains("need two strings separated by"));
-        }
-
-        conf.set(LoadClassifier.KEY_WEIGHTS, "ia:60,10,35;ib:10,75;ic:20,10,70;id:50,15,35");
-        try {
-            node.myValidation(conf);
-            Assert.fail("validation error  " + LoadClassifier.KEY_WEIGHTS);
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadClassifier.KEY_WEIGHTS,
-                    e.getMessage().contains("does not match the number of keys"));
-        }
-
-        conf.set(LoadClassifier.KEY_WEIGHTS, "ia:60,10,35;ib:10,75,1a5;ic:20,10,70;id:50,15,35");
-        try {
-            node.myValidation(conf);
-            Assert.fail("validation error  " + LoadClassifier.KEY_WEIGHTS);
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadClassifier.KEY_WEIGHTS,
-                    e.getMessage().contains("Weight string should be an integer"));
+            Assert.assertTrue("validate " + LoadRandomClassifier.KEY_KEYS,
+                    e.getMessage().contains("Low value \"100\" is >= high value \"0\" for \"y\""));
         }
     }
 
@@ -152,7 +121,7 @@ public class TestLoadClassifier {
     @Test
     public void testNodeProcessing() {
 
-        LoadClassifier node = new LoadClassifier();
+        LoadRandomClassifier node = new LoadRandomClassifier();
 
         TestSink classifySink = new TestSink();
         node.connect(LoadClassifier.OPORT_OUT_DATA, classifySink);
@@ -160,15 +129,13 @@ public class TestLoadClassifier {
 
         NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
 
-        conf.set(LoadClassifier.KEY_KEYS, "a,b,c");
-        conf.set(LoadClassifier.KEY_VALUES, "1,4,5");
-        conf.set(LoadClassifier.KEY_WEIGHTS, "ia:60,10,35;ib:10,75,15;ic:20,10,70;id:50,15,35");
-        conf.set(LoadClassifier.KEY_VALUEOPERATION, "replace");
+        conf.set(LoadRandomClassifier.KEY_KEYS, "x:0,100;y:0,100;gender:0,1;age:10,120"); // the good key
+        conf.set(LoadRandomClassifier.KEY_STRING_SCHEMA, "true");
 
         conf.setInt("SpinMillis", 10);
         conf.setInt("BufferCapacity", 1024 * 1024);
         node.setup(conf);
-
+/*
         int sentval = 0;
         for (int i = 0; i < 1000000; i++) {
             input.clear();
@@ -197,8 +164,7 @@ public class TestLoadClassifier {
         // Now test a node with no weights
         LoadClassifier nwnode = new LoadClassifier();
         classifySink.clear();
-        nwnode.connect(LoadClassifier.OPORT_OUT_DATA, classifySink);
-        conf.set(LoadClassifier.KEY_WEIGHTS, "");
+        nwnode.connect(LoadRandomClassifier.OPORT_OUT_DATA, classifySink);
         nwnode.setup(conf);
 
         sentval = 0;
@@ -228,11 +194,9 @@ public class TestLoadClassifier {
 
 
         // Now test a node with no weights and no values
-        LoadClassifier nvnode = new LoadClassifier();
+        LoadRandomClassifier nvnode = new LoadRandomClassifier();
         classifySink.clear();
-        nvnode.connect(LoadClassifier.OPORT_OUT_DATA, classifySink);
-        conf.set(LoadClassifier.KEY_WEIGHTS, "");
-        conf.set(LoadClassifier.KEY_VALUES, "");
+        nvnode.connect(LoadRandomClassifier.OPORT_OUT_DATA, classifySink);
         nvnode.setup(conf);
 
         sentval = 0;
@@ -262,5 +226,7 @@ public class TestLoadClassifier {
                     ve.getValue()));
         }
         Assert.assertEquals("number emitted tuples", sentval, ival);
+        */
     }
 }
+
