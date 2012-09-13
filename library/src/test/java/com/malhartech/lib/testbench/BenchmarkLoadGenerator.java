@@ -100,9 +100,10 @@ public class BenchmarkLoadGenerator {
         conf.set(LoadGenerator.KEY_KEYS, "a");
         conf.set(LoadGenerator.KEY_VALUES, "");
         conf.set(LoadGenerator.KEY_STRING_SCHEMA, "true");
-        conf.setInt(LoadGenerator.KEY_TUPLES_PER_SEC, 500000000);
+        conf.setInt(LoadGenerator.KEY_TUPLES_BLAST, 500000000);
+        conf.setInt(LoadGenerator.KEY_SLEEP_TIME, 1);
         conf.setInt("SpinMillis", 10);
-        conf.setInt("BufferCapacity", 10 * 1024 * 1024);
+        conf.setInt("BufferCapacity", 20 * 1024 * 1024);
 
       node.setup(conf);
 

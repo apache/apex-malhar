@@ -29,13 +29,14 @@ import org.slf4j.LoggerFactory;
  * <b>Properties</b>:
  * <b>min_value</b> is the minimum value of the range of numbers. Default is 0<br>
  * <b>max_value</b> is the maximum value of the range of numbers. Default is 100<br>
- * <b>tuples_per_sec</b> is the upper limit of number of tuples per sec. The default value is 10000. This library node has been benchmarked at over 10 million tuples/sec<br>
+ * <b>tuples_burst</b> is the total amount of tuples sent by the node before the thread sleeps. The default value is 10000<br>
  * <b>string_schema</b> controls the tuple schema. For string set it to "true". By default it is "false" (i.e. Integer schema)<br>
  * <br>
  * Compile time checks are:<br>
  * <b>min_value</b> has to be an integer<br>
  * <b>max_value</b> has to be an integer and has to be >= min_value<br>
- * <b>tuples_per_sec</b>If specified must be an integer<br>
+ * <b>tuples_burst</b>If specified must be an integer<br>
+ * <b>sleep_time</b>Time for the thread to sleep before the next tuple send session. Default is 1000 milles<br>
  * <br>
  *
  * Compile time error checking includes<br>
@@ -51,25 +52,36 @@ public class LoadRandomGenerator extends AbstractInputNode
 {
   public static final String OPORT_DATA = "data";
   private static Logger LOG = LoggerFactory.getLogger(LoadRandomGenerator.class);
-  int tuples_per_sec = 10000;
+  protected volatile int tuples_blast = 10000;
+  protected volatile int sleep_time = 1000;
+
   int min_value = 0;
   int max_value = 100;
   boolean isstringschema = false;
   private Random random = new Random();
   private volatile boolean shutdown = false;
+
   /**
    * An integer specifying min_value.
    *
    */
   public static final String KEY_MIN_VALUE = "min_value";
+
   /**
    * An integer specifying max_value.
    */
   public static final String KEY_MAX_VALUE = "max_value";
+
   /**
    * The number of tuples sent out per milli second
    */
-  public static final String KEY_TUPLES_PER_SEC = "tuples_per_sec";
+  public static final String KEY_TUPLES_BLAST = "tuples_blast";
+
+ /**
+   * The number of tuples sent out per milli second
+   */
+  public static final String KEY_SLEEP_TIME = "sleep_time";
+
   /**
    * If specified as "true" a String class is sent, else Integer is sent
    */
@@ -110,15 +122,26 @@ public class LoadRandomGenerator extends AbstractInputNode
       throw new IllegalArgumentException(String.format("min_value (%s) should be < max_value(%s)", minstr, maxstr));
     }
 
-    tuples_per_sec = config.getInt(KEY_TUPLES_PER_SEC, 10000);
-    if (tuples_per_sec <= 0) {
+    tuples_blast = config.getInt(KEY_TUPLES_BLAST, 10000);
+    if (tuples_blast <= 0) {
       ret = false;
       throw new IllegalArgumentException(
-              String.format("tuples_per_sec (%d) has to be > 0", tuples_per_sec));
+              String.format("tuples_per_sec (%d) has to be > 0", tuples_blast));
     }
     else {
-      LOG.info(String.format("Using %d tuples per second", tuples_per_sec));
+      LOG.info(String.format("Using %d tuples per second", tuples_blast));
     }
+
+    sleep_time = config.getInt(KEY_SLEEP_TIME, 1000);
+    if (sleep_time <= 0) {
+      ret = false;
+      throw new IllegalArgumentException(
+              String.format("sleep_time (%d) has to be > 0", sleep_time));
+    }
+    else {
+      LOG.info(String.format("sleep_time is set to %d", sleep_time));
+    }
+
     return ret;
   }
 
@@ -149,10 +172,10 @@ public class LoadRandomGenerator extends AbstractInputNode
   {
     String sval;
     Integer ival;
-    while (!shutdown) {
+    while (true) {
       int range = max_value - min_value;
       int i = 0;
-      while (i < tuples_per_sec) {
+      while (i < tuples_blast) {
         int rval = min_value + random.nextInt(range);
         if (!isstringschema) {
           ival = rval;
@@ -165,12 +188,11 @@ public class LoadRandomGenerator extends AbstractInputNode
         i++;
       }
       try {
-        Thread.sleep(5); // Remove sleep if you want to blast data at huge rate
+        Thread.sleep(sleep_time);
       }
       catch (InterruptedException e) {
         LOG.error("Unexpected error while sleeping for 1 s", e);
       }
     }
-    LOG.info("Finished generating tuples");
   }
 }

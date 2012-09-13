@@ -74,6 +74,7 @@ public class TestLoadRandomGenerator {
 
         NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
         LoadRandomGenerator node = new LoadRandomGenerator();
+        LOG.debug("Testing Node Validation: start");
 
         conf.set(LoadRandomGenerator.KEY_MIN_VALUE, "a");
         try {
@@ -96,14 +97,25 @@ public class TestLoadRandomGenerator {
 
         conf.set(LoadRandomGenerator.KEY_MIN_VALUE, "0");
         conf.set(LoadRandomGenerator.KEY_MAX_VALUE, "50");
-        conf.set(LoadRandomGenerator.KEY_TUPLES_PER_SEC, "-1");
+        conf.set(LoadRandomGenerator.KEY_TUPLES_BLAST, "-1");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadRandomGenerator.KEY_TUPLES_PER_SEC);
+            Assert.fail("validation error  " + LoadRandomGenerator.KEY_TUPLES_BLAST);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadRandomGenerator.KEY_TUPLES_PER_SEC,
+            Assert.assertTrue("validate " + LoadRandomGenerator.KEY_TUPLES_BLAST,
                     e.getMessage().contains("has to be > 0"));
         }
+
+        conf.set(LoadRandomGenerator.KEY_TUPLES_BLAST, "1000");
+        conf.set(LoadRandomGenerator.KEY_SLEEP_TIME, "-1");
+        try {
+            node.myValidation(conf);
+            Assert.fail("validation error  " + LoadRandomGenerator.KEY_SLEEP_TIME);
+        } catch (IllegalArgumentException e) {
+            Assert.assertTrue("validate " + LoadRandomGenerator.KEY_SLEEP_TIME,
+                    e.getMessage().contains("has to be > 0"));
+        }
+        LOG.debug("Testing Node Validation: end");
     }
 
     /**
@@ -137,7 +149,9 @@ public class TestLoadRandomGenerator {
 
         conf.set(LoadRandomGenerator.KEY_MIN_VALUE, "0");
         conf.set(LoadRandomGenerator.KEY_MAX_VALUE, "1000");
-        conf.setInt(LoadRandomGenerator.KEY_TUPLES_PER_SEC, 50000000);
+        conf.setInt(LoadRandomGenerator.KEY_TUPLES_BLAST, 50000000);
+        conf.setInt(LoadRandomGenerator.KEY_SLEEP_TIME, 1);
+
         if (isstring) {
           conf.set(LoadRandomGenerator.KEY_STRING_SCHEMA, "true");
         }

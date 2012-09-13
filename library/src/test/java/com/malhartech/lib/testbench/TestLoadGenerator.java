@@ -144,18 +144,30 @@ public class TestLoadGenerator {
         }
 
         conf.set(LoadGenerator.KEY_VALUES, "1,2,3,4");
-        conf.set(LoadGenerator.KEY_TUPLES_PER_SEC, "-1");
+        conf.set(LoadGenerator.KEY_TUPLES_BLAST, "-1");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadGenerator.KEY_TUPLES_PER_SEC);
+            Assert.fail("validation error  " + LoadGenerator.KEY_TUPLES_BLAST);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadGenerator.KEY_TUPLES_PER_SEC,
+            Assert.assertTrue("validate " + LoadGenerator.KEY_TUPLES_BLAST,
+                    e.getMessage().contains("has to be > 0"));
+        }
+
+        conf.set(LoadGenerator.KEY_VALUES, "1,2,3,4");
+        conf.set(LoadGenerator.KEY_TUPLES_BLAST, "10000");
+        conf.set(LoadGenerator.KEY_SLEEP_TIME, "-1");
+        try {
+            node.myValidation(conf);
+            Assert.fail("validation error  " + LoadGenerator.KEY_SLEEP_TIME);
+        } catch (IllegalArgumentException e) {
+            Assert.assertTrue("validate " + LoadGenerator.KEY_SLEEP_TIME,
                     e.getMessage().contains("has to be > 0"));
         }
 
         conf.set(LoadGenerator.KEY_VALUES, "1,2,3,4");
         conf.set(LoadGenerator.KEY_STRING_SCHEMA, "true");
-        conf.set(LoadGenerator.KEY_TUPLES_PER_SEC, "1");
+        conf.set(LoadGenerator.KEY_TUPLES_BLAST, "10000");
+        conf.set(LoadGenerator.KEY_SLEEP_TIME, "1000");
         try {
             node.myValidation(conf);
             Assert.fail("validation error  " + LoadGenerator.KEY_STRING_SCHEMA);
@@ -171,10 +183,10 @@ public class TestLoadGenerator {
   @Test
   public void testNodeProcessing() throws Exception
   {
-      testSingleSchemaNodeProcessing(true, true);
-      testSingleSchemaNodeProcessing(true, false);
-      testSingleSchemaNodeProcessing(false, true);
-       testSingleSchemaNodeProcessing(false, false);
+    testSingleSchemaNodeProcessing(true, true);
+    testSingleSchemaNodeProcessing(true, false);
+    testSingleSchemaNodeProcessing(false, true);
+    testSingleSchemaNodeProcessing(false, false);
   }
 
     /**
@@ -210,7 +222,8 @@ public class TestLoadGenerator {
       lgenSink.test_hashmap = !stringschema;
       lgenSink.skiphash = skiphash;
       conf.set(LoadGenerator.KEY_WEIGHTS, "10,40,20,30");
-      conf.setInt(LoadGenerator.KEY_TUPLES_PER_SEC, 100000000);
+      conf.setInt(LoadGenerator.KEY_TUPLES_BLAST, 100000000);
+      conf.setInt(LoadGenerator.KEY_SLEEP_TIME, 1);
       conf.setInt("SpinMillis", 10);
       conf.setInt("BufferCapacity", 1024 * 1024);
 

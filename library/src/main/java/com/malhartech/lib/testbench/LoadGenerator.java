@@ -28,19 +28,24 @@ import org.slf4j.LoggerFactory;
  * This node has been benchmarked at over 15 million tuples/second for String objects in local/inline mode<br>
  * <br>
  * <b>Tuple Schema</b>: Has two choices HashMap<String, Double>, or String<br><br>
+ * <b>Benchmarks></b>:
+ * String schema does about 4 Million tuples/sec in throughput<br>
+ * HashMap schema does about 2.5 Million tuples/sec in throughput<br>
  * <b>Port Interface</b>:It has only one output port "data" and has no input ports<br><br>
  * <b>Properties</b>:
  * <b>keys</b> is a comma separated list of keys. This key are the <key> field in the tuple<br>
  * <b>values</b> are comma separated list of values. This value is the <value> field in the tuple. If not specified the values for all keys are 0.0<br>
  * <b>weights</b> are comma separated list of probability weights for each key. If not specified the weights are even for all keys<br>
- * <b>tuples_per_sec</b> is the upper limit of number of tuples per sec. The default value is 10000. This library node has been benchmarked at over 15 million tuples/sec<br>
+ * <b>tuples_blast</b> is the total number of tuples sent out before the thread sleeps. The default value is 10000<br>
+ * <b>sleep_time</b> is the sleep time for the thread between batch of tuples being sent out. The default value is 1000<br>
+ * <b>max_windows_count</b>The number of windows after which the node would shut down. If not set, the node runs forever<br>
  * <b>string_schema</b> controls the tuple schema. For string set it to "true". By default it is "false" (i.e. HashMap schema)<br>
  * <br>
  * Compile time checks are:<br>
  * <b>keys</b> cannot be empty<br>
  * <b>values</b> if specified has to be comma separated doubles and their number must match the number of keys<br>
  * <b>weights</b> if specified has to be comma separated integers and number of their number must match the number of keys<br>
- * <b>tuples_per_sec</b>If specified must be an integer<br>
+ * <b>tuples_blast</b>If specified must be an integer<br>
  * <br>
  *
  * Compile time error checking includes<br>
@@ -55,8 +60,10 @@ public class LoadGenerator extends AbstractInputNode
 {
   public static final String OPORT_DATA = "data";
   private static Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
-  protected volatile int tuples_per_sec = 10000;
+  protected volatile int tuples_blast = 10000;
   protected volatile int maxCountOfWindows = Integer.MAX_VALUE;
+  protected volatile int sleep_time = 1000;
+
   HashMap<String, Double> keys = new HashMap<String, Double>();
   HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();
   ArrayList<Integer> weights = null;
@@ -71,6 +78,7 @@ public class LoadGenerator extends AbstractInputNode
    *
    */
   public static final String KEY_KEYS = "keys";
+
   /**
    * values are to be assigned to each key. The tuple thus is a key,value
    * pair. The value field can either be empty (no value to any key), or a
@@ -78,20 +86,29 @@ public class LoadGenerator extends AbstractInputNode
    * must match the number of keys
    */
   public static final String KEY_VALUES = "values";
+
   /**
    * The weights define the probability of each key being assigned to current
    * tuple. The total of all weights is equal to 100%. If weights are not
    * specified then the probability is equal.
    */
   public static final String KEY_WEIGHTS = "weights";
+
+  /**
+   * The number of tuples sent out before the thread sleeps
+   */
+  public static final String KEY_TUPLES_BLAST = "tuples_blast";
+
   /**
    * The number of tuples sent out per milli second
    */
-  public static final String KEY_TUPLES_PER_SEC = "tuples_per_sec";
+  public static final String KEY_SLEEP_TIME = "sleep_time";
+
   /**
    * The Maximum number of Windows to pump out.
    */
   public static final String MAX_WINDOWS_COUNT = "max_windows_count";
+
   /**
    * If specified as "true" a String class is sent, else HashMap is sent
    */
@@ -163,15 +180,26 @@ public class LoadGenerator extends AbstractInputNode
                             vstr.length, kstr.length));
     }
 
-    tuples_per_sec = config.getInt(KEY_TUPLES_PER_SEC, 10000);
-    if (tuples_per_sec <= 0) {
+    tuples_blast = config.getInt(KEY_TUPLES_BLAST, 10000);
+    if (tuples_blast <= 0) {
       ret = false;
       throw new IllegalArgumentException(
-              String.format("tuples_per_sec (%d) has to be > 0", tuples_per_sec));
+              String.format("tuples_blast (%d) has to be > 0", tuples_blast));
     }
     else {
-      LOG.info(String.format("tuples_per_sec set to %d", tuples_per_sec));
+      LOG.info(String.format("tuples_blast set to %d", tuples_blast));
     }
+
+    sleep_time = config.getInt(KEY_SLEEP_TIME, 1000);
+    if (sleep_time <= 0) {
+      ret = false;
+      throw new IllegalArgumentException(
+              String.format("sleep_time (%d) has to be > 0", sleep_time));
+    }
+    else {
+      LOG.info(String.format("sleep_time set to %d", sleep_time));
+    }
+
     if (isstringschema) {
       if (vstr.length != 0) {
         LOG.info(String.format("Value %s and stringschema is %s",
@@ -205,7 +233,8 @@ public class LoadGenerator extends AbstractInputNode
     String[] vstr = config.getTrimmedStrings(KEY_VALUES);
 
     isstringschema = config.getBoolean(KEY_STRING_SCHEMA, false);
-    tuples_per_sec = config.getInt(KEY_TUPLES_PER_SEC, 10000);
+    tuples_blast = config.getInt(KEY_TUPLES_BLAST, 10000);
+    sleep_time = config.getInt(KEY_SLEEP_TIME, 1000);
 
     // Keys and weights would are accessed via same key
     int i = 0;
@@ -232,27 +261,6 @@ public class LoadGenerator extends AbstractInputNode
     }
   }
 
-//    /**
-//     *
-//     * To allow emit to wait till output port is connected in a deployment on Hadoop
-//     * @param id
-//     * @param dagpart
-//     */
-//    @Override
-//    public void connected(String id, Sink dagpart) {
-//        if (id.equals(OPORT_DATA)) {
-//            outputConnected = true;
-//        }
-//    }
-  // this is not the way to alive the load generation. there has to be a different way to handle that. Till then
-  // keep an uppercap on how much you will generate.
-//    /**
-//     * The only way to shut down a loadGenerator. We are looking into a property based alive
-//     */
-//    public void deactivate() {
-//        alive = true;
-//        super.deactivate();
-//    }
 
   @Override
   public void teardown() {
@@ -302,13 +310,13 @@ public class LoadGenerator extends AbstractInputNode
         else {
           emit(OPORT_DATA, tuple_key);
         }
-      } while (++i % tuples_per_sec != 0);
+      } while (++i % tuples_blast != 0);
 
       try {
-        Thread.sleep(5); // Remove sleep if you want to blast data at huge rate
+        Thread.sleep(sleep_time); // Remove sleep if you want to blast data at huge rate
       }
       catch (InterruptedException e) {
-        LOG.error("Unexpected error while sleeping for 1 s", e);
+        LOG.error(String.format("Unexpected error while sleeping for %d s", sleep_time), e);
         alive = false;
       }
     }
