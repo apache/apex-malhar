@@ -4,6 +4,9 @@
  */
 package com.malhartech.lib.io;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.malhartech.annotation.NodeAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
@@ -24,6 +27,37 @@ import com.malhartech.dag.AbstractNode;
 )
 public class ConsoleOutputNode extends AbstractNode
 {
+  private static final Logger LOG = LoggerFactory.getLogger(ConsoleOutputNode.class);
+
+  /**
+   * When set to true, tuples are also logged at INFO level.
+   */
+  public static final String P_DEBUG = "debug";
+
+  /**
+   * A formatter for {@link String#format}
+   */
+  public static final String P_STRING_FORMAT = "stringFormat";
+
+  private boolean debug;
+  private String stringFormat;
+
+  public boolean isDebug() {
+    return debug;
+  }
+
+  public void setDebug(boolean debug) {
+    this.debug = debug;
+  }
+
+  public String getStringFormat() {
+    return stringFormat;
+  }
+
+  public void setStringFormat(String stringFormat) {
+    this.stringFormat = stringFormat;
+  }
+
   /**
    *
    * @param t the value of t
@@ -31,7 +65,13 @@ public class ConsoleOutputNode extends AbstractNode
   @Override
   public void process(Object t)
   {
+    if (stringFormat != null) {
+      t = String.format(stringFormat, t);
+    }
     System.out.println(t);
+    if (debug) {
+       LOG.info(""+t);
+    }
   }
 
 }
