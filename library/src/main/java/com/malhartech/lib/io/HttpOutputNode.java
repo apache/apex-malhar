@@ -56,7 +56,7 @@ public class HttpOutputNode extends AbstractNode
       checkConfiguration(config);
     }
     catch (Exception ex) {
-      throw new FailedOperationException(ex.getCause());
+      throw new FailedOperationException(ex);
     }
 
     wsClient = Client.create();
