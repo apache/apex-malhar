@@ -51,49 +51,51 @@ import org.slf4j.LoggerFactory;
 @NodeAnnotation(ports = {
   @PortAnnotation(name = LoadGenerator.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT)
 })
-public class LoadGenerator extends AbstractInputNode {
-
-    public static final String OPORT_DATA = "data";
-    private static Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
-    int tuples_per_sec = 10000;
-    HashMap<String, Double> keys = new HashMap<String, Double>();
-    HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();
-    ArrayList<Integer> weights = null;
-
-    boolean isstringschema = false;
-    int total_weight = 0;
-    private final Random random = new Random();
-    private volatile boolean shutdown = false;
-    private boolean outputConnected = false;
-    /**
-     * keys are comma separated list of keys for the load. These keys are send
-     * one per tuple as per the other parameters
-     *
-     */
-    public static final String KEY_KEYS = "keys";
-    /**
-     * values are to be assigned to each key. The tuple thus is a key,value
-     * pair. The value field can either be empty (no value to any key), or a
-     * comma separated list of values. If values list is provided, the number
-     * must match the number of keys
-     */
-    public static final String KEY_VALUES = "values";
-    /**
-     * The weights define the probability of each key being assigned to current
-     * tuple. The total of all weights is equal to 100%. If weights are not
-     * specified then the probability is equal.
-     */
-    public static final String KEY_WEIGHTS = "weights";
-    /**
-     * The number of tuples sent out per milli second
-     */
-    public static final String KEY_TUPLES_PER_SEC = "tuples_per_sec";
-
-    /**
-     * If specified as "true" a String class is sent, else HashMap is sent
-     */
-    public static final String KEY_STRING_SCHEMA = "string_schema";
-
+public class LoadGenerator extends AbstractInputNode
+{
+  public static final String OPORT_DATA = "data";
+  private static Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
+  protected volatile int tuples_per_sec = 10000;
+  protected volatile int maxCountOfWindows = Integer.MAX_VALUE;
+  HashMap<String, Double> keys = new HashMap<String, Double>();
+  HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();
+  ArrayList<Integer> weights = null;
+  boolean isstringschema = false;
+  int total_weight = 0;
+  private final Random random = new Random();
+  protected volatile boolean alive = true;
+//  private final boolean outputConnected = false;
+  /**
+   * keys are comma seperated list of keys for the load. These keys are send
+   * one per tuple as per the other parameters
+   *
+   */
+  public static final String KEY_KEYS = "keys";
+  /**
+   * values are to be assigned to each key. The tuple thus is a key,value
+   * pair. The value field can either be empty (no value to any key), or a
+   * comma separated list of values. If values list is provided, the number
+   * must match the number of keys
+   */
+  public static final String KEY_VALUES = "values";
+  /**
+   * The weights define the probability of each key being assigned to current
+   * tuple. The total of all weights is equal to 100%. If weights are not
+   * specified then the probability is equal.
+   */
+  public static final String KEY_WEIGHTS = "weights";
+  /**
+   * The number of tuples sent out per milli second
+   */
+  public static final String KEY_TUPLES_PER_SEC = "tuples_per_sec";
+  /**
+   * The Maximum number of Windows to pump out.
+   */
+  public static final String MAX_WINDOWS_COUNT = "max_windows_count";
+  /**
+   * If specified as "true" a String class is sent, else HashMap is sent
+   */
+  public static final String KEY_STRING_SCHEMA = "string_schema";
 
   /**
    *
@@ -180,7 +182,9 @@ public class LoadGenerator extends AbstractInputNode {
                               config.get(KEY_VALUES, ""), config.get(KEY_STRING_SCHEMA, "")));
       }
     }
-    // Should enforce an upper limit
+
+    maxCountOfWindows = config.getInt(MAX_WINDOWS_COUNT, Integer.MAX_VALUE);
+    LOG.debug("{} set to generate data for {} widows", this, maxCountOfWindows);
     return ret;
   }
 
@@ -228,25 +232,50 @@ public class LoadGenerator extends AbstractInputNode {
     }
   }
 
+//    /**
+//     *
+//     * To allow emit to wait till output port is connected in a deployment on Hadoop
+//     * @param id
+//     * @param dagpart
+//     */
+//    @Override
+//    public void connected(String id, Sink dagpart) {
+//        if (id.equals(OPORT_DATA)) {
+//            outputConnected = true;
+//        }
+//    }
+  // this is not the way to alive the load generation. there has to be a different way to handle that. Till then
+  // keep an uppercap on how much you will generate.
+//    /**
+//     * The only way to shut down a loadGenerator. We are looking into a property based alive
+//     */
+//    public void deactivate() {
+//        alive = true;
+//        super.deactivate();
+//    }
+
+  @Override
+  public void teardown() {
+    this.alive = false; // TODO: need solution for alive in AbstractInputNode
+    super.teardown();
+  }
 
   /**
-   * Generates all the tuples till shutdown (deactivate) is issued
+   * Generates all the tuples till alive (deactivate) is issued
    *
    * @param context
    */
   @Override
+  @SuppressWarnings("SleepWhileInLoop")
   public void run()
   {
     int i = 0;
 
-    while (!shutdown) {
-//      if (outputConnected) { this is not needed since output is connected before this code gets executed.
-      // connected method is not to track whether the output is connected, it's if you want to optimize certain things.
-      // send tuples upto tuples_per_sec and then wait for 1 ms
-      HashMap<String, Double> tuple = null;
-      String tuple_key = ""; // the tuple key
+    while (alive) {
+      HashMap<String, Double> tuple;
+      String tuple_key; // the tuple key
       int j = 0;
-      while (i < tuples_per_sec) {
+      do {
         if (weights != null) { // weights are not even
           int rval = random.nextInt(total_weight);
           j = 0; // for randomization, need to reset to 0
@@ -273,28 +302,27 @@ public class LoadGenerator extends AbstractInputNode {
         else {
           emit(OPORT_DATA, tuple_key);
         }
-        i++;
-      }
-//      } // endif outputConnected
+      } while (++i % tuples_per_sec == 0);
+
       try {
-        //Thread.sleep(1000);
         Thread.sleep(5); // Remove sleep if you want to blast data at huge rate
       }
       catch (InterruptedException e) {
         LOG.error("Unexpected error while sleeping for 1 s", e);
-        shutdown = true; // TODO: deactivate will interrupt the thread?
+        alive = false;
       }
-      i = 0;
     }
     LOG.info("Finished generating tuples");
   }
 
+  /**
+   * convenient method for not sending more than 10 windows.
+   */
   @Override
-  public void teardown() {
-    this.shutdown = true; // TODO: review solution for shutdown in AbstractInputNode
-    super.teardown();
+  public void endWindow()
+  {
+    if (--maxCountOfWindows == 0) {
+      alive = false;
+    }
   }
-
-
-
 }
