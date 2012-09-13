@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * <b>values</b> are comma separated list of values. This value is the <value> field in the tuple. If not specified the values for all keys are 0.0<br>
  * <b>weights</b> are comma separated list of probability weights for each key. If not specified the weights are even for all keys<br>
  * <b>tuples_blast</b> is the total number of tuples sent out before the thread sleeps. The default value is 10000<br>
- * <b>sleep_time</b> is the sleep time for the thread between batch of tuples being sent out. The default value is 1000<br>
+ * <b>sleep_time</b> is the sleep time for the thread between batch of tuples being sent out. The default value is 50<br>
  * <b>max_windows_count</b>The number of windows after which the node would shut down. If not set, the node runs forever<br>
  * <b>string_schema</b> controls the tuple schema. For string set it to "true". By default it is "false" (i.e. HashMap schema)<br>
  * <br>
@@ -62,7 +62,7 @@ public class LoadGenerator extends AbstractInputNode
   private static Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
   protected volatile int tuples_blast = 10000;
   protected volatile int maxCountOfWindows = Integer.MAX_VALUE;
-  protected volatile int sleep_time = 1000;
+  protected volatile int sleep_time = 50;
 
   HashMap<String, Double> keys = new HashMap<String, Double>();
   HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();
@@ -190,7 +190,7 @@ public class LoadGenerator extends AbstractInputNode
       LOG.info(String.format("tuples_blast set to %d", tuples_blast));
     }
 
-    sleep_time = config.getInt(KEY_SLEEP_TIME, 1000);
+    sleep_time = config.getInt(KEY_SLEEP_TIME, 50);
     if (sleep_time <= 0) {
       ret = false;
       throw new IllegalArgumentException(
@@ -234,7 +234,7 @@ public class LoadGenerator extends AbstractInputNode
 
     isstringschema = config.getBoolean(KEY_STRING_SCHEMA, false);
     tuples_blast = config.getInt(KEY_TUPLES_BLAST, 10000);
-    sleep_time = config.getInt(KEY_SLEEP_TIME, 1000);
+    sleep_time = config.getInt(KEY_SLEEP_TIME, 50);
 
     // Keys and weights would are accessed via same key
     int i = 0;
