@@ -302,7 +302,7 @@ public class LoadGenerator extends AbstractInputNode
         else {
           emit(OPORT_DATA, tuple_key);
         }
-      } while (++i % tuples_per_sec == 0);
+      } while (++i % tuples_per_sec != 0);
 
       try {
         Thread.sleep(5); // Remove sleep if you want to blast data at huge rate
