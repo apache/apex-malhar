@@ -52,8 +52,12 @@ public class LoadRandomGenerator extends AbstractInputNode
 {
   public static final String OPORT_DATA = "data";
   private static Logger LOG = LoggerFactory.getLogger(LoadRandomGenerator.class);
-  protected volatile int tuples_blast = 10000;
-  protected volatile int sleep_time = 1000;
+
+  final int sleep_time_default_value = 50;
+  final int tuples_blast_default_value = 10000;
+
+  protected volatile int tuples_blast = tuples_blast_default_value;
+  protected volatile int sleep_time = sleep_time_default_value;
 
   int min_value = 0;
   int max_value = 100;
@@ -122,7 +126,7 @@ public class LoadRandomGenerator extends AbstractInputNode
       throw new IllegalArgumentException(String.format("min_value (%s) should be < max_value(%s)", minstr, maxstr));
     }
 
-    tuples_blast = config.getInt(KEY_TUPLES_BLAST, 10000);
+    tuples_blast = config.getInt(KEY_TUPLES_BLAST, tuples_blast_default_value);
     if (tuples_blast <= 0) {
       ret = false;
       throw new IllegalArgumentException(
@@ -132,7 +136,7 @@ public class LoadRandomGenerator extends AbstractInputNode
       LOG.info(String.format("Using %d tuples per second", tuples_blast));
     }
 
-    sleep_time = config.getInt(KEY_SLEEP_TIME, 1000);
+    sleep_time = config.getInt(KEY_SLEEP_TIME, sleep_time_default_value);
     if (sleep_time <= 0) {
       ret = false;
       throw new IllegalArgumentException(

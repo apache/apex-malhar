@@ -60,9 +60,13 @@ public class LoadGenerator extends AbstractInputNode
 {
   public static final String OPORT_DATA = "data";
   private static Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
-  protected volatile int tuples_blast = 10000;
+
+  final int sleep_time_default_value = 50;
+  final int tuples_blast_default_value = 10000;
+
+  protected volatile int tuples_blast = tuples_blast_default_value;
   protected volatile int maxCountOfWindows = Integer.MAX_VALUE;
-  protected volatile int sleep_time = 50;
+  protected volatile int sleep_time = sleep_time_default_value;
 
   HashMap<String, Double> keys = new HashMap<String, Double>();
   HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();
@@ -180,7 +184,7 @@ public class LoadGenerator extends AbstractInputNode
                             vstr.length, kstr.length));
     }
 
-    tuples_blast = config.getInt(KEY_TUPLES_BLAST, 10000);
+    tuples_blast = config.getInt(KEY_TUPLES_BLAST, tuples_blast_default_value);
     if (tuples_blast <= 0) {
       ret = false;
       throw new IllegalArgumentException(
@@ -190,7 +194,7 @@ public class LoadGenerator extends AbstractInputNode
       LOG.info(String.format("tuples_blast set to %d", tuples_blast));
     }
 
-    sleep_time = config.getInt(KEY_SLEEP_TIME, 50);
+    sleep_time = config.getInt(KEY_SLEEP_TIME, sleep_time_default_value);
     if (sleep_time <= 0) {
       ret = false;
       throw new IllegalArgumentException(
@@ -233,8 +237,8 @@ public class LoadGenerator extends AbstractInputNode
     String[] vstr = config.getTrimmedStrings(KEY_VALUES);
 
     isstringschema = config.getBoolean(KEY_STRING_SCHEMA, false);
-    tuples_blast = config.getInt(KEY_TUPLES_BLAST, 10000);
-    sleep_time = config.getInt(KEY_SLEEP_TIME, 50);
+    tuples_blast = config.getInt(KEY_TUPLES_BLAST, tuples_blast_default_value);
+    sleep_time = config.getInt(KEY_SLEEP_TIME, sleep_time_default_value);
 
     // Keys and weights would are accessed via same key
     int i = 0;
