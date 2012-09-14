@@ -42,17 +42,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.malhartech</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>malhar-stram</artifactId>
-      <version>0.1-SNAPSHOT</version>
-      <classifier>tests</classifier>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.malhartech</groupId>
-      <artifactId>malhar-stram</artifactId>
-      <version>0.1-SNAPSHOT</version>
-      <type>jar</type>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 
