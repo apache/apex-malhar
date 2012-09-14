@@ -164,9 +164,7 @@ public class TestLoadClassifier {
 
         TestSink classifySink = new TestSink();
         node.connect(LoadClassifier.OPORT_OUT_DATA, classifySink);
-        HashMap<String, Double> input = new HashMap<String, Double>();
-
-        NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
+         NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
 
         conf.set(LoadClassifier.KEY_KEYS, "a,b,c");
         conf.set(LoadClassifier.KEY_VALUES, "1,4,5");
@@ -179,6 +177,7 @@ public class TestLoadClassifier {
           node.setup(conf);
         } catch (IllegalArgumentException e) {;}
 
+        HashMap<String, Double> input = new HashMap<String, Double>();
         int sentval = 0;
         for (int i = 0; i < 1000000; i++) {
             input.clear();
