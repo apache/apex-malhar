@@ -40,14 +40,8 @@ public class DebugProbeNode extends AbstractNode
    */
   public static final String P_DEBUG = "debug";
 
-  /**
-   * A formatter for {@link String#format}
-   */
-  public static final String P_STRING_FORMAT = "stringFormat";
-
   private boolean debug;
   private int count = 0;
-  private String stringFormat;
 
   public boolean isDebug() {
     return debug;
