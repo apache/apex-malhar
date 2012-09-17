@@ -17,7 +17,7 @@ public class TestDebugProbe  {
   public void testDebugProbeNode() throws Exception
   {
 
-    DebugProbeNode node = new DebugProbeNode();
+    DebugProbe node = new DebugProbe();
 
     NodeConfiguration conf = new NodeConfiguration("testNode", new HashMap<String, String>());
     conf.setInt("SpinMillis", 10);
