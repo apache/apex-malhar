@@ -13,7 +13,6 @@ import com.malhartech.stram.WindowGenerator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import junit.framework.Assert;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -50,26 +49,26 @@ public class BenchmarkLoadGenerator {
          * @param payload
          */
         @Override
-        public void process(Object payload) {
-            if (payload instanceof Tuple) {
-                // LOG.debug(payload.toString());
-            }
+      public void process(Object payload)
+      {
+        count++; // Behchmark counts all tuples as we are measuring throughput
+        if (dohash) {
+          if (payload instanceof Tuple) {
+            // LOG.debug(payload.toString());
+          }
           else { // ignore the payload, just count it
-            count++;
-            if (dohash) {
-              String str = (String)payload;
-              Integer val = collectedTuples.get(str);
-              if (val == null) {
-                val = new Integer(1);
-              }
-              else {
-                val = val + 1;
-
-              }
-              collectedTuples.put(str, val);
+            String str = (String)payload;
+            Integer val = collectedTuples.get(str);
+            if (val == null) {
+              val = new Integer(1);
             }
+            else {
+              val = val + 1;
+            }
+            collectedTuples.put(str, val);
           }
         }
+      }
     }
 
 
@@ -98,12 +97,11 @@ public class BenchmarkLoadGenerator {
         lgenSink.dohash = false;
 
         conf.set(LoadGenerator.KEY_KEYS, "a");
-        conf.set(LoadGenerator.KEY_VALUES, "");
         conf.set(LoadGenerator.KEY_STRING_SCHEMA, "true");
-        conf.setInt(LoadGenerator.KEY_TUPLES_BLAST, 500000000);
-        conf.setInt(LoadGenerator.KEY_SLEEP_TIME, 1);
-        conf.setInt("SpinMillis", 10);
-        conf.setInt("BufferCapacity", 20 * 1024 * 1024);
+        conf.setInt(LoadGenerator.KEY_TUPLES_BLAST, 50000000);
+        conf.setInt(LoadGenerator.KEY_SLEEP_TIME, 10);
+        conf.setInt("SpinMillis", 5);
+        conf.setInt("BufferCapacity", 2 * 1024 * 1024);
 
       node.setup(conf);
 
@@ -127,7 +125,7 @@ public class BenchmarkLoadGenerator {
             LOG.debug(ex.getLocalizedMessage());
         }
         wingen.activate(null);
-        for (int i = 0; i < 2000; i++) {
+        for (int i = 0; i < 500; i++) {
             mses.tick(1);
             try {
                 Thread.sleep(1);
@@ -138,7 +136,7 @@ public class BenchmarkLoadGenerator {
         node.deactivate();
 
         // Let the reciever get the tuples from the queue
-        for (int i = 0; i <300; i++) {
+        for (int i = 0; i <100; i++) {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {

@@ -68,8 +68,8 @@ public class LoadClassifier extends AbstractNode
   HashMap<String, Double> keys = new HashMap<String, Double>();
   HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();
   // One of inkeys (Key to weight hash) or noweight (even weight) would be not null
-  HashMap<String, ArrayList<Integer>> inkeys = null;
-  ArrayList<Integer> noweight = null;
+  volatile HashMap<String, ArrayList<Integer>> inkeys = null;
+  volatile ArrayList<Integer> noweight = null;
   boolean hasvalues = false;
   /**
    * keys are comma separated list of keys to append to keys in in_data stream<p>
@@ -109,24 +109,6 @@ public class LoadClassifier extends AbstractNode
     VOPR_REPLACE, VOPR_ADD, VOPR_MULT, VOPR_APPEND
   };
   value_operation voper;
-  private volatile boolean shutdown = false;
-  private boolean outputConnected = false;
-
-  /**
-   * Not used, but overridden as it is abstract
-   */
-  @Override
-  public void endWindow()
-  {
-  }
-
-  /**
-   * Not used, but overridden as it is abstract
-   */
-  @Override
-  public void beginWindow()
-  {
-  }
 
   /**
    *
@@ -289,6 +271,13 @@ public class LoadClassifier extends AbstractNode
       wtostr_index.put(i, s);
       i += 1;
     }
+    LOG.info(String.format("\nSetting up node (%s)\nkeys(%s)\nninkey(%s)\nw(%s)\nv(%s)\nFor (%s), (%s), (%s)\n"
+            , this.toString()
+            , (keys == null) ? "null" : keys.toString()
+            , (inkeys == null) ? "null" : inkeys.toString()
+            , (noweight == null) ? "null" : noweight.toString()
+            , hasvalues ? "null" : "not null"
+            , config.get(KEY_WEIGHTS, ""), config.get(KEY_KEYS, ""),  config.get(KEY_VALUES, "")));
   }
 
   /**
@@ -309,13 +298,12 @@ public class LoadClassifier extends AbstractNode
 
     for (Map.Entry<String, Double> e: ((HashMap<String, Double>)payload).entrySet()) {
       String inkey = e.getKey();
-      ArrayList<Integer> alist = null;
+      ArrayList<Integer> alist = noweight;
       if (inkeys != null) {
         alist = inkeys.get(e.getKey());
       }
-      else {
-        alist = noweight;
-      }
+
+
       // now alist are the weights
       int rval = random.nextInt(alist.get(alist.size() - 1));
       int j = 0;

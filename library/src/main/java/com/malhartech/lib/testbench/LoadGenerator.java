@@ -64,9 +64,9 @@ public class LoadGenerator extends AbstractInputNode
   final int sleep_time_default_value = 50;
   final int tuples_blast_default_value = 10000;
 
-  protected volatile int tuples_blast = tuples_blast_default_value;
-  protected volatile int maxCountOfWindows = Integer.MAX_VALUE;
-  protected volatile int sleep_time = sleep_time_default_value;
+  protected int tuples_blast = tuples_blast_default_value;
+  protected int maxCountOfWindows = Integer.MAX_VALUE;
+  protected int sleep_time = sleep_time_default_value;
 
   HashMap<String, Double> keys = new HashMap<String, Double>();
   HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();
@@ -74,7 +74,7 @@ public class LoadGenerator extends AbstractInputNode
   boolean isstringschema = false;
   int total_weight = 0;
   private final Random random = new Random();
-  protected volatile boolean alive = true;
+  protected boolean alive = true;
 //  private final boolean outputConnected = false;
   /**
    * keys are comma seperated list of keys for the load. These keys are send
@@ -284,7 +284,6 @@ public class LoadGenerator extends AbstractInputNode
     int i = 0;
 
     while (alive) {
-      HashMap<String, Double> tuple;
       String tuple_key; // the tuple key
       int j = 0;
       do {
@@ -307,7 +306,7 @@ public class LoadGenerator extends AbstractInputNode
         // j is the key index
         tuple_key = wtostr_index.get(j);
         if (!isstringschema) {
-          tuple = new HashMap<String, Double>();
+          HashMap<String, Double> tuple = new HashMap<String, Double>();
           tuple.put(tuple_key, keys.get(tuple_key));
           emit(OPORT_DATA, tuple);
         }
