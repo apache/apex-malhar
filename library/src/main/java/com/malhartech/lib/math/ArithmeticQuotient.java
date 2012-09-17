@@ -130,6 +130,5 @@ public class ArithmeticQuotient extends AbstractNode
      */
     numerators.clear();
     denominators.clear();
-    super.endWindow();
   }
 }

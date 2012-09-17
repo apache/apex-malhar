@@ -91,6 +91,5 @@ public class ArithmeticMargin extends AbstractNode {
          */
         numerators.clear();
         denominators.clear();
-        super.endWindow();
     }
 }
