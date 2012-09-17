@@ -36,12 +36,20 @@ public class DebugProbe extends AbstractNode {
   protected HashMap<String, Integer> objcount = new HashMap<String, Integer>();
 
   /**
-   * When set to true, tuples are also logged at INFO level.
+   * When set to true, total tuples by are logged by endWindow
    */
-  public static final String P_DEBUG = "debug";
+  public static final String KEY_DEBUG = "debug";
+
+  /**
+   * When set to true, toString is called on each tuple object
+   */
+  public static final String KEY_TOSTRING = "tostring";
+
 
   private boolean debug;
   private int count = 0;
+
+  private boolean tostring = false;
 
   public boolean isDebug() {
     return debug;
@@ -55,6 +63,10 @@ public class DebugProbe extends AbstractNode {
     return count;
   }
 
+  public void setString(boolean flag) {
+    tostring = flag;
+  }
+
   /**
    *
    * @param config
@@ -63,6 +75,7 @@ public class DebugProbe extends AbstractNode {
   @Override
   public void setup(NodeConfiguration config) throws FailedOperationException
   {
+    tostring = config.getBoolean(KEY_TOSTRING, false);
     super.setup(config);
   }
 
@@ -99,7 +112,15 @@ public class DebugProbe extends AbstractNode {
     }
     objcount.put(key, val);
     count++;
-}
+    if (tostring) {
+      if (debug) {
+        LOG.debug("\n" + getId() + ": " + t.toString());
+      }
+      else {
+        LOG.info("\n" + getId() + ": " + t.toString());
+      }
+    }
+  }
 
   @Override
   public void beginWindow()
@@ -107,10 +128,10 @@ public class DebugProbe extends AbstractNode {
     objcount.clear();
     count = 0;
     if (debug) {
-      LOG.debug("Begin window");
+      LOG.debug(getId() + ": Begin window");
     }
     else {
-      LOG.info("Begin window");
+      LOG.info(getId() + ": Begin window");
     }
   }
 
@@ -119,17 +140,17 @@ public class DebugProbe extends AbstractNode {
   {
     for (Map.Entry<String, Integer> e: objcount.entrySet()) {
       if (debug) {
-        LOG.debug(String.format("%d tuples of type %s", e.getValue(), e.getKey()));
+        LOG.debug(String.format("%s: %d tuples of type %s", getId(), e.getValue(), e.getKey()));
       }
       else {
-        LOG.info(String.format("%d tuples of type %s", e.getValue(), e.getKey()));
+        LOG.info(String.format("%s: %d tuples of type %s", getId(), e.getValue(), e.getKey()));
       }
     }
     if (debug) {
-      LOG.debug("End window");
+      LOG.debug(getId() + ": End window");
     }
     else {
-      LOG.info("End window");
+      LOG.info(getId() +": End window");
     }
   }
 }
