@@ -26,12 +26,12 @@ import org.slf4j.LoggerFactory;
  */
 @NodeAnnotation(
     ports = {
-        @PortAnnotation(name = DebugProbeNode.INPUT, type = PortType.INPUT)
+        @PortAnnotation(name = DebugProbeNode.IPORT_INPUT, type = PortType.INPUT)
     }
 )
-public class DebugProbeNode extends AbstractNode
-{
+public class DebugProbeNode extends AbstractNode {
   private static final Logger LOG = LoggerFactory.getLogger(DebugProbeNode.class);
+  public static final String IPORT_INPUT = "input";
 
   protected HashMap<String, Integer> objcount = new HashMap<String, Integer>();
 
