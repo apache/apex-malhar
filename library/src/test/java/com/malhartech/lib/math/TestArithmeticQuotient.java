@@ -32,7 +32,11 @@ public class TestArithmeticQuotient
     @Override
     public void process(Object payload)
     {
-      collectedTuples.add(payload);
+      if (payload instanceof Tuple) {
+      }
+      else {
+        collectedTuples.add(payload);
+      }
     }
   }
 
@@ -140,31 +144,25 @@ public class TestArithmeticQuotient
     }
 
     // One for each key
-    Assert.assertEquals("number emitted tuples", 3, quotientSink.collectedTuples.size());
+    Assert.assertEquals("number emitted tuples", 1, quotientSink.collectedTuples.size());
 
     for (Object o: quotientSink.collectedTuples) {
-      if (o instanceof Tuple) {
-        LOG.debug(o.toString());
-      }
-      else {
-        HashMap<String, Number> output = (HashMap<String, Number>)o;
-        for (Map.Entry<String, Number> e: output.entrySet()) {
-          LOG.debug(String.format("Key, value is %s,%f", e.getKey(), e.getValue().doubleValue()));
-          if (e.getKey().equals("a")) {
-            Assert.assertEquals("emitted value for 'a' was ", new Double(2), e.getValue());
-          }
-          else if (e.getKey().equals("b")) {
-            Assert.assertEquals("emitted tuple for 'b' was ", new Double(1), e.getValue());
-          }
-          else if (e.getKey().equals("c")) {
-            Assert.assertEquals("emitted tuple for 'c' was ", new Double(4), e.getValue());
-          }
-          else {
-            LOG.debug(String.format("key was %s", e.getKey()));
-          }
+      HashMap<String, Number> output = (HashMap<String, Number>)o;
+      for (Map.Entry<String, Number> e: output.entrySet()) {
+        LOG.debug(String.format("Key, value is %s,%f", e.getKey(), e.getValue().doubleValue()));
+        if (e.getKey().equals("a")) {
+          Assert.assertEquals("emitted value for 'a' was ", new Double(2), e.getValue());
+        }
+        else if (e.getKey().equals("b")) {
+          Assert.assertEquals("emitted tuple for 'b' was ", new Double(1), e.getValue());
+        }
+        else if (e.getKey().equals("c")) {
+          Assert.assertEquals("emitted tuple for 'c' was ", new Double(4), e.getValue());
+        }
+        else {
+          LOG.debug(String.format("key was %s", e.getKey()));
         }
       }
     }
-
   }
 }

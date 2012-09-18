@@ -140,11 +140,11 @@ public class LoadGenerator extends AbstractInputNode
       throw new IllegalArgumentException("Parameter \"key\" is empty");
     }
     else {
-      LOG.info(String.format("Number of keys are %d", kstr.length));
+      LOG.debug(String.format("Number of keys are %d", kstr.length));
     }
 
     if (wstr.length == 0) {
-      LOG.info("weights was not provided, so keys would be equally weighted");
+      LOG.debug("weights was not provided, so keys would be equally weighted");
     }
     else {
       for (String s: wstr) {
@@ -158,7 +158,7 @@ public class LoadGenerator extends AbstractInputNode
       }
     }
     if (vstr.length == 0) {
-      LOG.info("values was not provided, so keys would have value of 0");
+      LOG.debug("values was not provided, so keys would have value of 0");
     }
     else {
       for (String s: vstr) {
@@ -192,7 +192,7 @@ public class LoadGenerator extends AbstractInputNode
               String.format("tuples_blast (%d) has to be > 0", tuples_blast));
     }
     else {
-      LOG.info(String.format("tuples_blast set to %d", tuples_blast));
+      LOG.debug(String.format("tuples_blast set to %d", tuples_blast));
     }
 
     sleep_time = config.getInt(KEY_SLEEP_TIME, sleep_time_default_value);
@@ -202,12 +202,12 @@ public class LoadGenerator extends AbstractInputNode
               String.format("sleep_time (%d) has to be > 0", sleep_time));
     }
     else {
-      LOG.info(String.format("sleep_time set to %d", sleep_time));
+      LOG.debug(String.format("sleep_time set to %d", sleep_time));
     }
 
     if (isstringschema) {
       if (vstr.length != 0) {
-        LOG.info(String.format("Value %s and stringschema is %s",
+        LOG.debug(String.format("Value %s and stringschema is %s",
                                config.get(KEY_VALUES, ""), config.get(KEY_STRING_SCHEMA, "")));
         ret = false;
         throw new IllegalArgumentException(
@@ -319,7 +319,6 @@ public class LoadGenerator extends AbstractInputNode
       } while (++i % tuples_blast != 0);
 
       try {
-        //LOG.info(this + " sleeping: maxCountOfWindows=" + maxCountOfWindows + ", sleep_time=" + sleep_time);
         Thread.sleep(sleep_time); // Remove sleep if you want to blast data at huge rate
       }
       catch (InterruptedException e) {
@@ -327,7 +326,7 @@ public class LoadGenerator extends AbstractInputNode
         alive = false;
       }
     }
-    LOG.info("Finished generating tuples");
+    LOG.debug("Finished generating tuples");
   }
 
   /**

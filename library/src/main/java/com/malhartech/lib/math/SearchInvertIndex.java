@@ -28,27 +28,28 @@ import org.slf4j.LoggerFactory;
  */
 @NodeAnnotation(
         ports = {
-    @PortAnnotation(name = SearchInvertIndex.IPORT_DATA, type = PortType.INPUT),
-    @PortAnnotation(name = SearchInvertIndex.OPORT_INDEX, type = PortType.OUTPUT)
+  @PortAnnotation(name = SearchInvertIndex.IPORT_DATA, type = PortType.INPUT),
+  @PortAnnotation(name = SearchInvertIndex.OPORT_INDEX, type = PortType.OUTPUT)
 })
-public class SearchInvertIndex extends AbstractNode {
+public class SearchInvertIndex extends AbstractNode
+{
+  public static final String IPORT_DATA = "data";
+  public static final String OPORT_INDEX = "index";
+  private static Logger LOG = LoggerFactory.getLogger(SearchInvertIndex.class);
+  HashMap<String, ArrayList> index = null;
 
-    public static final String IPORT_DATA = "data";
-    public static final String OPORT_INDEX = "index";
-    private static Logger LOG = LoggerFactory.getLogger(SearchInvertIndex.class);
-    HashMap<String, ArrayList> index = null;
+  class valueData
+  {
+    String str;
+    Object value;
 
-    class valueData {
-      String str;
-      Object value;
-
-      valueData(String istr, Object val) {
-        str = istr;
-        value = val;
-      }
+    valueData(String istr, Object val)
+    {
+      str = istr;
+      value = val;
     }
-    boolean passvalue = false;
-
+  }
+  boolean passvalue = false;
   /**
    *
    * The incoming tuple is an ArrayList.
@@ -61,6 +62,7 @@ public class SearchInvertIndex extends AbstractNode {
   /**
    *
    * Returns the ArrayList stored for a key
+   *
    * @param key
    * @return ArrayList
    */
@@ -76,7 +78,7 @@ public class SearchInvertIndex extends AbstractNode {
       }
       index.put(key, list);
     }
-     list.add(value);
+    list.add(value);
   }
 
   /**
@@ -97,12 +99,12 @@ public class SearchInvertIndex extends AbstractNode {
           String key = null;
           Object value = null;
           if (passvalue) {
-            valueData dval =  (valueData) values.next();
+            valueData dval = (valueData)values.next();
             key = dval.str;
             value = new valueData(e.getKey(), dval.value);
           }
           else {
-            key = (String) values.next();
+            key = (String)values.next();
             value = e.getKey();
           }
           insert(key, value);
@@ -114,27 +116,27 @@ public class SearchInvertIndex extends AbstractNode {
     }
   }
 
-    /**
-     *
-     * @param config
-     * @return boolean
-     */
-    public boolean myValidation(NodeConfiguration config) {
-      // No checks for passing a boolean value
-      return true;
-    }
+  /**
+   *
+   * @param config
+   * @return boolean
+   */
+  public boolean myValidation(NodeConfiguration config)
+  {
+    // No checks for passing a boolean value
+    return true;
+  }
 
-    /**
-     *
-     * @param config
-     */
+  /**
+   *
+   * @param config
+   */
   @Override
   public void setup(NodeConfiguration config) throws FailedOperationException
   {
     passvalue = config.getBoolean(KEY_PASSVALUE, false);
     index = new HashMap<String, ArrayList>();
   }
-
 
   /**
    * Emit all the data and clear the hash

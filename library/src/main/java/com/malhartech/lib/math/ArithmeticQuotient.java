@@ -23,7 +23,8 @@ import org.slf4j.LoggerFactory;
  * each key within the window and for each stream.<<br> This node only functions in
  * a windowed stram application<br> <br> Compile time error processing is done
  * on configuration parameters<br> property <b>multiply_by</b> has to be an
- * integer.<br> input ports <b>numerator</b>, <b>denominator</b> must be
+ * integer.<br>property <b>dokey</b> is a boolean. It true the node ignores the values and counts the instances of each key (i.e. value=1.0)<br>
+ * <br>input ports <b>numerator</b>, <b>denominator</b> must be
  * connected.<br> outbound port <b>quotient</b> must be connected<br>
  * <br><b>All Run time errors are TBD</b><br>
  * Run time error processing are emitted on _error
@@ -139,9 +140,11 @@ public class ArithmeticQuotient extends AbstractNode
       }
     }
 
-    //LOG.debug("emitted {} tuples", denominators.size());
-
-    emit(tuples);
+    // Should allow users to send each key as a separate tuple to load balance
+    // This is an aggregate node, so load balancing would most likely not be needed
+    if (!tuples.isEmpty()) {
+      emit(tuples);
+    }
     /* Now if numerators has any keys issue divide by zero error
      for (Map.Entry<String, Number> e : numerators.entrySet()) {
      // emit error

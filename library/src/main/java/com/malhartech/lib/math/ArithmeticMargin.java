@@ -36,30 +36,26 @@ import org.slf4j.LoggerFactory;
  */
 @NodeAnnotation(
         ports = {
-    @PortAnnotation(name = ArithmeticMargin.IPORT_NUMERATOR, type = PortType.INPUT),
-    @PortAnnotation(name = ArithmeticMargin.IPORT_DENOMINATOR, type = PortType.INPUT),
-    @PortAnnotation(name = ArithmeticMargin.OPORT_MARGIN, type = PortType.OUTPUT)
+  @PortAnnotation(name = ArithmeticMargin.IPORT_NUMERATOR, type = PortType.INPUT),
+  @PortAnnotation(name = ArithmeticMargin.IPORT_DENOMINATOR, type = PortType.INPUT),
+  @PortAnnotation(name = ArithmeticMargin.OPORT_MARGIN, type = PortType.OUTPUT)
 })
-public class ArithmeticMargin extends AbstractNode {
-
-    public static final String IPORT_NUMERATOR = "numerator";
-    public static final String IPORT_DENOMINATOR = "denominator";
-    public static final String OPORT_MARGIN = "margin";
-    private static Logger LOG = LoggerFactory.getLogger(ArithmeticMargin.class);
-
-    HashMap<String, Number> numerators = new HashMap<String, Number>();
-    HashMap<String, Number> denominators = new HashMap<String, Number>();
-    boolean percent = false;
-
- /**
+public class ArithmeticMargin extends AbstractNode
+{
+  public static final String IPORT_NUMERATOR = "numerator";
+  public static final String IPORT_DENOMINATOR = "denominator";
+  public static final String OPORT_MARGIN = "margin";
+  private static Logger LOG = LoggerFactory.getLogger(ArithmeticMargin.class);
+  HashMap<String, Number> numerators = new HashMap<String, Number>();
+  HashMap<String, Number> denominators = new HashMap<String, Number>();
+  boolean percent = false;
+  /**
    * Sent tuples as percentages
    *
    */
   public static final String KEY_PERCENT = "percent";
 
-
-
- /**
+  /**
    *
    * @param config
    */
@@ -70,54 +66,66 @@ public class ArithmeticMargin extends AbstractNode {
     LOG.debug(String.format("Set percent(%s)", percent ? "true" : "false"));
   }
 
-    /**
-     *
-     * @param config
+  /**
+   *
+   * @param config
+   */
+  @Override
+  public void process(Object payload)
+  {
+    Map<String, Number> active;
+    if (IPORT_NUMERATOR.equals(getActivePort())) {
+      active = numerators;
+    }
+    else {
+      active = denominators;
+    }
+
+    for (Map.Entry<String, Number> e: ((HashMap<String, Number>)payload).entrySet()) {
+      Number val = active.get(e.getKey());
+      if (val == null) {
+        val = e.getValue();
+      }
+      else {
+        val = new Double(val.doubleValue() + e.getValue().doubleValue());
+      }
+      active.put(e.getKey(), val);
+    }
+  }
+
+  @Override
+  public void endWindow()
+  {
+    HashMap<String, Number> tuples = new HashMap<String, Number>();
+    for (Map.Entry<String, Number> e: denominators.entrySet()) {
+      Number nval = numerators.get(e.getKey());
+      if (nval == null) {
+        nval = new Double(0.0);
+      }
+      else {
+        numerators.remove(e.getKey()); // so that all left over keys can be reported
+      }
+      LOG.debug(String.format("Processed key %s", e.getKey()));
+
+      if (percent) {
+        tuples.put(e.getKey(), new Double((1 - nval.doubleValue() / e.getValue().doubleValue()) * 100));
+      }
+      else {
+        tuples.put(e.getKey(), new Double(1 - nval.doubleValue() / e.getValue().doubleValue()));
+      }
+    }
+
+    // Should allow users to send each key as a separate tuple to load balance
+    // This is an aggregate node, so load balancing would most likely not be needed
+    if (!tuples.isEmpty()) {
+      emit(tuples);
+    }
+    /* Now if numerators has any keys issue divide by zero error
+     for (Map.Entry<String, Number> e : numerators.entrySet()) {
+     // emit error
+     }
      */
-    @Override
-    public void process(Object payload) {
-        Map<String, Number> active;
-        if (IPORT_NUMERATOR.equals(getActivePort())) {
-            active = numerators;
-        } else {
-            active = denominators;
-        }
-
-        for (Map.Entry<String, Number> e : ((HashMap<String, Number>) payload).entrySet()) {
-            Number val = active.get(e.getKey());
-            if (val == null) {
-                val = e.getValue();
-            } else {
-                val = new Double(val.doubleValue() + e.getValue().doubleValue());
-            }
-            active.put(e.getKey(), val);
-        }
-    }
-
-    @Override
-    public void endWindow() {
-        HashMap<String, Number> tuples = new HashMap<String, Number>();
-        for (Map.Entry<String, Number> e : denominators.entrySet()) {
-            Number nval = numerators.get(e.getKey());
-            if (nval == null) {
-                nval = new Double(0.0);
-            } else {
-                numerators.remove(e.getKey()); // so that all left over keys can be reported
-            }
-          if (percent) {
-            tuples.put(e.getKey(), new Double((1 - nval.doubleValue() / e.getValue().doubleValue()) * 100));
-          }
-          else {
-            tuples.put(e.getKey(), new Double(1 - nval.doubleValue() / e.getValue().doubleValue()));
-          }
-        }
-        emit(tuples);
-        /* Now if numerators has any keys issue divide by zero error
-         for (Map.Entry<String, Number> e : numerators.entrySet()) {
-         // emit error
-         }
-         */
-        numerators.clear();
-        denominators.clear();
-    }
+    numerators.clear();
+    denominators.clear();
+  }
 }

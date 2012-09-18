@@ -133,7 +133,7 @@ public class LoadRandomGenerator extends AbstractInputNode
               String.format("tuples_per_sec (%d) has to be > 0", tuples_blast));
     }
     else {
-      LOG.info(String.format("Using %d tuples per second", tuples_blast));
+      LOG.debug(String.format("Using %d tuples per second", tuples_blast));
     }
 
     sleep_time = config.getInt(KEY_SLEEP_TIME, sleep_time_default_value);
@@ -143,7 +143,7 @@ public class LoadRandomGenerator extends AbstractInputNode
               String.format("sleep_time (%d) has to be > 0", sleep_time));
     }
     else {
-      LOG.info(String.format("sleep_time is set to %d", sleep_time));
+      LOG.debug(String.format("sleep_time is set to %d", sleep_time));
     }
 
     return ret;

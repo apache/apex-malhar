@@ -5,6 +5,7 @@ package com.malhartech.lib.math;
 
 import com.malhartech.dag.NodeConfiguration;
 import com.malhartech.dag.Sink;
+import com.malhartech.dag.Tuple;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,10 +25,15 @@ public class TestArithmeticSum {
 
         List<Object> collectedTuples = new ArrayList<Object>();
 
-        @Override
-        public void process(Object payload) {
-            collectedTuples.add(payload);
+      @Override
+      public void process(Object payload)
+      {
+        if (payload instanceof Tuple) {
         }
+        else {
+          collectedTuples.add(payload);
+        }
+      }
     }
 
     /**

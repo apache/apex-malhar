@@ -27,62 +27,72 @@ import org.slf4j.LoggerFactory;
  */
 @NodeAnnotation(
         ports = {
-    @PortAnnotation(name = ArithmeticSum.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-    @PortAnnotation(name = ArithmeticSum.OPORT_SUM, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = ArithmeticSum.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = ArithmeticSum.OPORT_SUM, type = PortAnnotation.PortType.OUTPUT)
 })
-public class ArithmeticSum extends AbstractNode {
+public class ArithmeticSum extends AbstractNode
+{
+  public static final String IPORT_DATA = "data";
+  public static final String OPORT_SUM = "sum";
+  private static Logger LOG = LoggerFactory.getLogger(ArithmeticSum.class);
+  HashMap<String, Number> sum = new HashMap<String, Number>();
 
-    public static final String IPORT_DATA = "data";
-    public static final String OPORT_SUM = "sum";
-    private static Logger LOG = LoggerFactory.getLogger(ArithmeticSum.class);
-    HashMap<String, Number> sum = new HashMap<String, Number>();
+  /**
+   * Process each tuple
+   *
+   * @param payload
+   */
+  @Override
+  public void process(Object payload)
+  {
+    for (Map.Entry<String, Number> e: ((HashMap<String, Number>)payload).entrySet()) {
+      Number val = sum.get(e.getKey());
+      if (val != null) {
+        val = new Double(val.doubleValue() + e.getValue().doubleValue());
+      }
+      else {
+        val = new Double(e.getValue().doubleValue());
+      }
+      sum.put(e.getKey(), val);
+    }
+  }
 
-    /**
-     * Process each tuple
-     *
-     * @param payload
-     */
-    @Override
-    public void process(Object payload) {
-        for (Map.Entry<String, Number> e : ((HashMap<String, Number>) payload).entrySet()) {
-            Number val = sum.get(e.getKey());
-            if (val != null) {
-                val = new Double(val.doubleValue() + e.getValue().doubleValue());
-            } else {
-                val = new Double(e.getValue().doubleValue());
-            }
-            sum.put(e.getKey(), val);
-        }
+  public boolean myValidation(NodeConfiguration config)
+  {
+    return true;
+  }
+
+  /**
+   * Node only works in windowed mode. Emits all data upon end of window tuple
+   */
+  @Override
+  public void endWindow()
+  {
+    HashMap<String, Number> tuples = new HashMap<String, Number>();
+    for (Map.Entry<String, Number> e: sum.entrySet()) {
+      tuples.put(e.getKey(), e.getValue());
     }
 
-    public boolean myValidation(NodeConfiguration config) {
-        return true;
+    // Should allow users to send each key as a separate tuple to load balance
+    // This is an aggregate node, so load balancing would most likely not be needed
+    if (!tuples.isEmpty()) {
+      emit(OPORT_SUM, tuples);
     }
+    sum.clear();
+  }
 
-    /**
-     * Node only works in windowed mode. Emits all data upon end of window tuple
-     */
-    @Override
-    public void endWindow() {
-        HashMap<String, Number> tuple = new HashMap<String, Number>();
-        for (Map.Entry<String, Number> e : sum.entrySet()) {
-            tuple.put(e.getKey(), e.getValue());
-        }
-        emit(OPORT_SUM, tuple);
-        sum.clear();
-    }
-
-    /**
-     *
-     * Checks for user specific configuration values<p>
-     *
-     * @param config
-     * @return boolean
-     */
-    @Override
-    public boolean checkConfiguration(NodeConfiguration config) {
-        boolean ret = true;
-        // TBD
-        return ret && super.checkConfiguration(config);
-    }
+  /**
+   *
+   * Checks for user specific configuration values<p>
+   *
+   * @param config
+   * @return boolean
+   */
+  @Override
+  public boolean checkConfiguration(NodeConfiguration config)
+  {
+    boolean ret = true;
+    // TBD
+    return ret && super.checkConfiguration(config);
+  }
 }

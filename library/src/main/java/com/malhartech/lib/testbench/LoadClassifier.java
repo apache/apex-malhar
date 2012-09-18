@@ -133,7 +133,7 @@ public class LoadClassifier extends AbstractNode
       throw new IllegalArgumentException("Parameter \"key\" is empty");
     }
     else {
-      LOG.info(String.format("Number of keys are %d", kstr.length));
+      LOG.debug(String.format("Number of keys are %d", kstr.length));
     }
 
     if (!iwstr.isEmpty()) { // if empty noweights would be used
@@ -174,7 +174,7 @@ public class LoadClassifier extends AbstractNode
 
     hasvalues = (vstr.length != 0);
     if (!hasvalues) {
-      LOG.info("values was not provided, so keys would have value of 0");
+      LOG.debug("values was not provided, so keys would have value of 0");
     }
     else {
       for (String s: vstr) {
@@ -271,7 +271,7 @@ public class LoadClassifier extends AbstractNode
       wtostr_index.put(i, s);
       i += 1;
     }
-    LOG.info(String.format("\nSetting up node (%s)\nkeys(%s)\nninkey(%s)\nw(%s)\nv(%s)\nFor (%s), (%s), (%s)\n"
+    LOG.debug(String.format("\nSetting up node (%s)\nkeys(%s)\nninkey(%s)\nw(%s)\nv(%s)\nFor (%s), (%s), (%s)\n"
             , this.toString()
             , (keys == null) ? "null" : keys.toString()
             , (inkeys == null) ? "null" : inkeys.toString()
