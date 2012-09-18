@@ -75,7 +75,6 @@ public class LoadGenerator extends AbstractInputNode
   int total_weight = 0;
   private final Random random = new Random();
   protected boolean alive = true;
-  private int emitCount = 0;
 
   /**
    * keys are comma seperated list of keys for the load. These keys are send
@@ -310,11 +309,9 @@ public class LoadGenerator extends AbstractInputNode
           HashMap<String, Double> tuple = new HashMap<String, Double>();
           tuple.put(tuple_key, keys.get(tuple_key));
           emit(OPORT_DATA, tuple);
-          emitCount++;
         }
         else {
           emit(OPORT_DATA, tuple_key);
-          emitCount++;
         }
       } while (++i % tuples_blast != 0);
 
@@ -336,8 +333,7 @@ public class LoadGenerator extends AbstractInputNode
   public void endWindow()
   {
     //LOG.info(this +" endWindow: " + maxCountOfWindows + ", time=" + System.currentTimeMillis() + ", emitCount=" + emitCount);
-    if (emitCount > 0) {
-      emitCount = 0;
+    if (getProducedTupleCount() > 0) {
       if (--maxCountOfWindows == 0) {
         alive = false;
       }
