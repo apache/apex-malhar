@@ -75,7 +75,8 @@ public class LoadGenerator extends AbstractInputNode
   int total_weight = 0;
   private final Random random = new Random();
   protected boolean alive = true;
-//  private final boolean outputConnected = false;
+  private volatile int emitCount = 0;
+
   /**
    * keys are comma seperated list of keys for the load. These keys are send
    * one per tuple as per the other parameters
@@ -216,7 +217,7 @@ public class LoadGenerator extends AbstractInputNode
     }
 
     maxCountOfWindows = config.getInt(MAX_WINDOWS_COUNT, Integer.MAX_VALUE);
-    LOG.debug("{} set to generate data for {} widows", this, maxCountOfWindows);
+    LOG.debug("{} set to generate data for {} windows", this, maxCountOfWindows);
     return ret;
   }
 
@@ -309,9 +310,11 @@ public class LoadGenerator extends AbstractInputNode
           HashMap<String, Double> tuple = new HashMap<String, Double>();
           tuple.put(tuple_key, keys.get(tuple_key));
           emit(OPORT_DATA, tuple);
+          emitCount++;
         }
         else {
           emit(OPORT_DATA, tuple_key);
+          emitCount++;
         }
       } while (++i % tuples_blast != 0);
 
@@ -333,9 +336,12 @@ public class LoadGenerator extends AbstractInputNode
   @Override
   public void endWindow()
   {
-    //LOG.info(this +" endWindow: " + maxCountOfWindows + ", time=" + System.currentTimeMillis());
-    if (--maxCountOfWindows == 0) {
-      alive = false;
+    //LOG.info(this +" endWindow: " + maxCountOfWindows + ", time=" + System.currentTimeMillis() + ", emitCount=" + emitCount);
+    if (emitCount > 0) {
+      emitCount = 0;
+      if (--maxCountOfWindows == 0) {
+        alive = false;
+      }
     }
   }
 }
