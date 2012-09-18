@@ -47,9 +47,13 @@ public class ArithmeticQuotient extends AbstractNode
   public static final String IPORT_NUMERATOR = "numerator";
   public static final String IPORT_DENOMINATOR = "denominator";
   public static final String OPORT_QUOTIENT = "quotient";
+  private static Logger LOG = LoggerFactory.getLogger(ArithmeticQuotient.class);
+
+
   int mult_by = 1;
   HashMap<String, Number> numerators = new HashMap<String, Number>();
   HashMap<String, Number> denominators = new HashMap<String, Number>();
+  boolean dokey = false;
   /**
    * Multiplies the quotient by this number. Ease of use for percentage (*
    * 100) or CPM (* 1000)
@@ -58,6 +62,13 @@ public class ArithmeticQuotient extends AbstractNode
   public static final String KEY_MULTIPLY_BY = "multiply_by";
 
   /**
+   * Ignore the value and just use key to compute the quotient
+   *
+   */
+  public static final String KEY_DOKEY = "dokey";
+
+
+ /**
    *
    * @param config
    */
@@ -65,6 +76,8 @@ public class ArithmeticQuotient extends AbstractNode
   public void setup(NodeConfiguration config) throws FailedOperationException
   {
     mult_by = config.getInt(KEY_MULTIPLY_BY, 1);
+    dokey = config.getBoolean(KEY_DOKEY, false);
+    LOG.debug(String.format("Set mult_by(%d), and dokey(%s)", mult_by, dokey ? "true" : "false"));
   }
 
   public boolean myValidation(NodeConfiguration config)
@@ -79,6 +92,7 @@ public class ArithmeticQuotient extends AbstractNode
       throw new IllegalArgumentException(String.format("key %s (%s) has to be an an integer",
                                                        KEY_MULTIPLY_BY, config.get(KEY_MULTIPLY_BY)));
     }
+    // dokey is not checked as getBoolean always returns a value
     return ret;
   }
 
@@ -99,7 +113,12 @@ public class ArithmeticQuotient extends AbstractNode
         val = e.getValue();
       }
       else {
-        val = new Double(val.doubleValue() + e.getValue().doubleValue());
+        if (dokey) { // skip incoming value, and simply count the occurances of the keys, (for example ctr)
+          val = new Double(val.doubleValue() + 1.0);
+        }
+        else {
+         val = new Double(val.doubleValue() + e.getValue().doubleValue());
+        }
       }
       active.put(e.getKey(), val);
     }

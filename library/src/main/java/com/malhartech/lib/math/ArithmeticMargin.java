@@ -8,6 +8,8 @@ import com.malhartech.annotation.NodeAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
 import com.malhartech.dag.AbstractNode;
+import com.malhartech.dag.FailedOperationException;
+import com.malhartech.dag.NodeConfiguration;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -44,8 +46,29 @@ public class ArithmeticMargin extends AbstractNode {
     public static final String IPORT_DENOMINATOR = "denominator";
     public static final String OPORT_MARGIN = "margin";
     private static Logger LOG = LoggerFactory.getLogger(ArithmeticMargin.class);
+
     HashMap<String, Number> numerators = new HashMap<String, Number>();
     HashMap<String, Number> denominators = new HashMap<String, Number>();
+    boolean percent = false;
+
+ /**
+   * Sent tuples as percentages
+   *
+   */
+  public static final String KEY_PERCENT = "percent";
+
+
+
+ /**
+   *
+   * @param config
+   */
+  @Override
+  public void setup(NodeConfiguration config) throws FailedOperationException
+  {
+    percent = config.getBoolean(KEY_PERCENT, false);
+    LOG.debug(String.format("Set percent(%s)", percent ? "true" : "false"));
+  }
 
     /**
      *
@@ -81,7 +104,12 @@ public class ArithmeticMargin extends AbstractNode {
             } else {
                 numerators.remove(e.getKey()); // so that all left over keys can be reported
             }
+          if (percent) {
+            tuples.put(e.getKey(), new Double((1 - nval.doubleValue() / e.getValue().doubleValue()) * 100));
+          }
+          else {
             tuples.put(e.getKey(), new Double(1 - nval.doubleValue() / e.getValue().doubleValue()));
+          }
         }
         emit(tuples);
         /* Now if numerators has any keys issue divide by zero error
