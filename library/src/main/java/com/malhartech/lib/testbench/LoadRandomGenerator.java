@@ -56,14 +56,13 @@ public class LoadRandomGenerator extends AbstractInputNode
   final int sleep_time_default_value = 50;
   final int tuples_blast_default_value = 10000;
 
-  protected volatile int tuples_blast = tuples_blast_default_value;
-  protected volatile int sleep_time = sleep_time_default_value;
+  protected int tuples_blast = tuples_blast_default_value;
+  protected int sleep_time = sleep_time_default_value;
 
   int min_value = 0;
   int max_value = 100;
   boolean isstringschema = false;
   private Random random = new Random();
-  private volatile boolean shutdown = false;
 
   /**
    * An integer specifying min_value.

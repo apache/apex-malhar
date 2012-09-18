@@ -75,7 +75,7 @@ public class LoadGenerator extends AbstractInputNode
   int total_weight = 0;
   private final Random random = new Random();
   protected boolean alive = true;
-  private volatile int emitCount = 0;
+  private int emitCount = 0;
 
   /**
    * keys are comma seperated list of keys for the load. These keys are send

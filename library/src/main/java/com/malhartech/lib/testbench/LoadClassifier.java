@@ -68,8 +68,8 @@ public class LoadClassifier extends AbstractNode
   HashMap<String, Double> keys = new HashMap<String, Double>();
   HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();
   // One of inkeys (Key to weight hash) or noweight (even weight) would be not null
-  volatile HashMap<String, ArrayList<Integer>> inkeys = null;
-  volatile ArrayList<Integer> noweight = null;
+  HashMap<String, ArrayList<Integer>> inkeys = null;
+  ArrayList<Integer> noweight = null;
   boolean hasvalues = false;
   /**
    * keys are comma separated list of keys to append to keys in in_data stream<p>
