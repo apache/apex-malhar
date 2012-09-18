@@ -316,6 +316,7 @@ public class LoadGenerator extends AbstractInputNode
       } while (++i % tuples_blast != 0);
 
       try {
+        //LOG.info(this + " sleeping: maxCountOfWindows=" + maxCountOfWindows + ", sleep_time=" + sleep_time);
         Thread.sleep(sleep_time); // Remove sleep if you want to blast data at huge rate
       }
       catch (InterruptedException e) {
@@ -332,6 +333,7 @@ public class LoadGenerator extends AbstractInputNode
   @Override
   public void endWindow()
   {
+    //LOG.info(this +" endWindow: " + maxCountOfWindows + ", time=" + System.currentTimeMillis());
     if (--maxCountOfWindows == 0) {
       alive = false;
     }
