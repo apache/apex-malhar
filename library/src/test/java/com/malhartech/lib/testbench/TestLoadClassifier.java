@@ -164,7 +164,7 @@ public class TestLoadClassifier {
 
         TestSink classifySink = new TestSink();
         node.connect(LoadClassifier.OPORT_OUT_DATA, classifySink);
-         NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
+        NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
 
         conf.set(LoadClassifier.KEY_KEYS, "a,b,c");
         conf.set(LoadClassifier.KEY_VALUES, "1,4,5");
