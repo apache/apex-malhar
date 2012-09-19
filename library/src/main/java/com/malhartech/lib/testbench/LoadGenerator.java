@@ -54,11 +54,13 @@ import org.slf4j.LoggerFactory;
  * @author amol
  */
 @NodeAnnotation(ports = {
-  @PortAnnotation(name = LoadGenerator.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = LoadGenerator.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT),
+  @PortAnnotation(name = LoadGenerator.OPORT_COUNT, type = PortAnnotation.PortType.OUTPUT)
 })
 public class LoadGenerator extends AbstractInputNode
 {
   public static final String OPORT_DATA = "data";
+  public static final String OPORT_COUNT = "count";
   private static Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
 
   final int sleep_time_default_value = 50;
@@ -75,6 +77,8 @@ public class LoadGenerator extends AbstractInputNode
   int total_weight = 0;
   private final Random random = new Random();
   protected boolean alive = true;
+
+  private boolean count_connected = false;
 
   /**
    * keys are comma seperated list of keys for the load. These keys are send
@@ -117,6 +121,22 @@ public class LoadGenerator extends AbstractInputNode
    * If specified as "true" a String class is sent, else HashMap is sent
    */
   public static final String KEY_STRING_SCHEMA = "string_schema";
+
+  /**
+   *
+   * @param id
+   * @param dagpart
+   */
+  @Override
+  public void connected(String id, Sink dagpart)
+  {
+    if (id.equals(OPORT_COUNT)) {
+      count_connected = (dagpart != null);
+    }
+  }
+
+
+
 
   /**
    *
@@ -334,6 +354,9 @@ public class LoadGenerator extends AbstractInputNode
   {
     //LOG.info(this +" endWindow: " + maxCountOfWindows + ", time=" + System.currentTimeMillis() + ", emitCount=" + emitCount);
     if (getProducedTupleCount() > 0) {
+      if (count_connected) {
+        emit(OPORT_COUNT, new Integer(getProducedTupleCount()));
+      }
       if (--maxCountOfWindows == 0) {
         alive = false;
       }

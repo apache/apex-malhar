@@ -80,11 +80,37 @@ public class TestLoadGenerator {
                     collectedTuples.put(str, val);
                 }
               }
-                count++;
+              count++;
                 //serde.toByteArray(payload);
              }
         }
     }
+
+    class TestCountSink implements Sink {
+
+        //DefaultSerDe serde = new DefaultSerDe();
+        int count = 0;
+        int num_tuples = 0;
+
+        /**
+         *
+         * @param payload
+         */
+        @Override
+        public void process(Object payload) {
+            if (payload instanceof Tuple) {
+                // LOG.debug(payload.toString());
+            }
+            else {
+              count += ((Integer) payload).intValue();
+              num_tuples++;
+                //serde.toByteArray(payload);
+             }
+        }
+    }
+
+
+
 
     /**
      * Test configuration and parameter validation of the node
@@ -206,8 +232,10 @@ public class TestLoadGenerator {
         Sink input = node.connect(Component.INPUT, wingen);
         wingen.connect("mytestnode", input);
 
+        TestCountSink countSink = new TestCountSink();
         TestSink lgenSink = new TestSink();
         node.connect(LoadGenerator.OPORT_DATA, lgenSink);
+        node.connect(LoadGenerator.OPORT_COUNT, countSink);
         NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
 
         conf.set(LoadGenerator.KEY_KEYS, "a,b,c,d");
@@ -252,7 +280,7 @@ public class TestLoadGenerator {
         for (int i = 0; i < 500; i++) {
             mses.tick(1);
             try {
-                Thread.sleep(2);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 LOG.error("Unexpected error while sleeping for 1 s", e);
             }
@@ -260,9 +288,9 @@ public class TestLoadGenerator {
         node.deactivate();
 
         // Let the reciever get the tuples from the queue
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 15; i++) {
             try {
-                Thread.sleep(5);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 LOG.error("Unexpected error while sleeping for 1 s", e);
             }
@@ -271,11 +299,13 @@ public class TestLoadGenerator {
 
         // Assert.assertEquals("number emitted tuples", 5000, lgenSink.collectedTuples.size());
 //        LOG.debug("Processed {} tuples out of {}", lgenSink.collectedTuples.size(), lgenSink.count);
-        LOG.debug("Processed {} tuples", lgenSink.count);
+        LOG.debug(String.format("\n********************************************\nTesting with %s and%s insertion\nLoadGenerator emitted %d tuples in %d windows; Sink processed %d tuples",
+                  stringschema ? "String" : "HashMap", skiphash ? "" : " no",
+                  countSink.count, countSink.num_tuples, lgenSink.count));
+
         for (Map.Entry<String, Integer> e: lgenSink.collectedTuples.entrySet()) {
             LOG.debug("{} tuples for key {}", e.getValue().intValue(), e.getKey());
         }
+
     }
-
-
 }
