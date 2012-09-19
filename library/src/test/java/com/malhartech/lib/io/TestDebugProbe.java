@@ -31,7 +31,6 @@ public class TestDebugProbe  {
     Integer iinput = new Integer(1);
     ArrayList ainput = new ArrayList();
 
-    node.setDebug(false);
     int sentval = 0;
     for (int i = 0; i < 100; i++) {sentval += 1; node.process(hinput);}
     for (int i = 0; i < 200; i++) {sentval += 1; node.process(sinput);}
@@ -41,17 +40,6 @@ public class TestDebugProbe  {
     node.endWindow();
     Assert.assertEquals("number emitted tuples", sentval, node.getCount());
 
-    node.beginWindow();
-    node.setDebug(true);
-    sentval = 0;
-    for (int i = 0; i < 100; i++) {sentval += 1; node.process(hinput);}
-    for (int i = 0; i < 200; i++) {sentval += 1; node.process(sinput);}
-    for (int i = 0; i < 300; i++) {sentval += 1; node.process(iinput);}
-    for (int i = 0; i < 400; i++) {sentval += 1; node.process(dinput);}
-    for (int i = 0; i < 500; i++) {sentval += 1; node.process(ainput);}
-    Assert.assertEquals("number emitted tuples", sentval, node.getCount());
-
-    node.endWindow();
     node.teardown();
   }
 }

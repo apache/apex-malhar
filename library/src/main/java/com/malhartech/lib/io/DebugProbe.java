@@ -35,29 +35,15 @@ public class DebugProbe extends AbstractNode {
 
   protected HashMap<String, Integer> objcount = new HashMap<String, Integer>();
 
-  /**
-   * When set to true, total tuples by are logged by endWindow
-   */
-  public static final String KEY_DEBUG = "debug";
 
   /**
    * When set to true, toString is called on each tuple object
    */
   public static final String KEY_TOSTRING = "tostring";
 
-
-  private boolean debug;
   private int count = 0;
 
   private boolean tostring = false;
-
-  public boolean isDebug() {
-    return debug;
-  }
-
-  public void setDebug(boolean debug) {
-    this.debug = debug;
-  }
 
   public int getCount() {
     return count;
@@ -113,12 +99,7 @@ public class DebugProbe extends AbstractNode {
     objcount.put(key, val);
     count++;
     if (tostring) {
-      if (debug) {
         LOG.debug("\n" + getId() + ": " + t.toString());
-      }
-      else {
-        LOG.info("\n" + getId() + ": " + t.toString());
-      }
     }
   }
 
@@ -127,30 +108,15 @@ public class DebugProbe extends AbstractNode {
   {
     objcount.clear();
     count = 0;
-    if (debug) {
       LOG.debug(getId() + ": Begin window");
-    }
-    else {
-      LOG.info(getId() + ": Begin window");
-    }
   }
 
   @Override
   public void endWindow()
   {
     for (Map.Entry<String, Integer> e: objcount.entrySet()) {
-      if (debug) {
         LOG.debug(String.format("%s: %d tuples of type %s", getId(), e.getValue(), e.getKey()));
-      }
-      else {
-        LOG.info(String.format("%s: %d tuples of type %s", getId(), e.getValue(), e.getKey()));
-      }
     }
-    if (debug) {
       LOG.debug(getId() + ": End window");
-    }
-    else {
-      LOG.info(getId() +": End window");
-    }
   }
 }

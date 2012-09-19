@@ -45,16 +45,16 @@ public class ArithmeticSum extends AbstractNode
   @Override
   public void process(Object payload)
   {
-    for (Map.Entry<String, Number> e: ((HashMap<String, Number>)payload).entrySet()) {
-      Number val = sum.get(e.getKey());
-      if (val != null) {
-        val = new Double(val.doubleValue() + e.getValue().doubleValue());
+      for (Map.Entry<String, Number> e: ((HashMap<String, Number>)payload).entrySet()) {
+        Number val = sum.get(e.getKey());
+        if (val != null) {
+          val = new Double(val.doubleValue() + e.getValue().doubleValue());
+        }
+        else {
+          val = new Double(e.getValue().doubleValue());
+        }
+        sum.put(e.getKey(), val);
       }
-      else {
-        val = new Double(e.getValue().doubleValue());
-      }
-      sum.put(e.getKey(), val);
-    }
   }
 
   public boolean myValidation(NodeConfiguration config)

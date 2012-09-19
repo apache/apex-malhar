@@ -151,10 +151,7 @@ public class TestLoadRandomGenerator {
         conf.set(LoadRandomGenerator.KEY_MAX_VALUE, "1000");
         conf.setInt(LoadRandomGenerator.KEY_TUPLES_BLAST, 50000000);
         conf.setInt(LoadRandomGenerator.KEY_SLEEP_TIME, 1);
-
-        if (isstring) {
-          conf.set(LoadRandomGenerator.KEY_STRING_SCHEMA, "true");
-        }
+        conf.set(LoadRandomGenerator.KEY_STRING_SCHEMA, isstring ? "true" : "false");
 
         conf.setInt("SpinMillis", 2);
         conf.setInt("BufferCapacity", 1024 * 1024);
@@ -193,7 +190,7 @@ public class TestLoadRandomGenerator {
         node.deactivate();
 
         // Let the reciever get the tuples from the queue
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 20; i++) {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {

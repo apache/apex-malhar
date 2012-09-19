@@ -15,19 +15,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Functional test for {@link com.malhartech.lib.testbench.LoadClassifier} for three configuration><p>
+ * Functional test for {@link com.malhartech.lib.testbench.FilterClassifier} for three configuration><p>
  * <br>
  * Configuration 1: Provide values and weights<br>
  * Configuration 2: Provide values but no weights (even weights)<br>
  * Configuration 3: Provide no values or weights<br>
  * <br>
- * Benchmarks: Currently does about 3 Million tuples/sec in debugging environment. Need to test on larger nodes<br>
+ * Benchmarks: Currently handle about 18 Million tuples/sec incoming tuples in debugging environment. Need to test on larger nodes<br>
  * <br>
  * Validates all DRC checks of the node<br>
  */
-public class TestLoadClassifier {
+public class TestFilterClassifier {
 
-    private static Logger LOG = LoggerFactory.getLogger(LoadClassifier.class);
+    private static Logger LOG = LoggerFactory.getLogger(FilterClassifier.class);
 
     class TestSink implements Sink {
 
@@ -72,84 +72,99 @@ public class TestLoadClassifier {
     public void testNodeValidation() {
 
         NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
-        LoadClassifier node = new LoadClassifier();
+        FilterClassifier node = new FilterClassifier();
         // String[] kstr = config.getTrimmedStrings(KEY_KEYS);
         // String[] vstr = config.getTrimmedStrings(KEY_VALUES);
 
 
-        conf.set(LoadClassifier.KEY_KEYS, "");
+        conf.set(FilterClassifier.KEY_KEYS, "");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadClassifier.KEY_KEYS);
+            Assert.fail("validation error  " + FilterClassifier.KEY_KEYS);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadClassifier.KEY_KEYS,
+            Assert.assertTrue("validate " + FilterClassifier.KEY_KEYS,
                     e.getMessage().contains("is empty"));
         }
 
-        conf.set(LoadClassifier.KEY_KEYS, "a,b,c"); // from now on keys are a,b,c
-        conf.set(LoadClassifier.KEY_VALUEOPERATION, "blah");
+        conf.set(FilterClassifier.KEY_KEYS, "a,b,c"); // from now on keys are a,b,c
+        conf.set(FilterClassifier.KEY_FILTER, "");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadClassifier.KEY_VALUEOPERATION);
+            Assert.fail("validation error  " + FilterClassifier.KEY_FILTER);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadClassifier.KEY_VALUEOPERATION,
-                    e.getMessage().contains("not supported. Supported values are"));
+            Assert.assertTrue("validate " + FilterClassifier.KEY_FILTER,
+                    e.getMessage().contains("is empty"));
         }
-        conf.set(LoadClassifier.KEY_VALUEOPERATION, "replace"); // from now on valueoperation is "replace"
-
-        conf.set(LoadClassifier.KEY_VALUES, "1,2,3,4");
+        conf.set(FilterClassifier.KEY_FILTER, "22");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadClassifier.KEY_VALUES);
+            Assert.fail("validation error  " + FilterClassifier.KEY_FILTER);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadClassifier.KEY_VALUES,
+            Assert.assertTrue("validate " + FilterClassifier.KEY_FILTER,
+                    e.getMessage().contains("has wrong format"));
+        }
+        conf.set(FilterClassifier.KEY_FILTER, "2,a");
+        try {
+            node.myValidation(conf);
+            Assert.fail("validation error  " + FilterClassifier.KEY_FILTER);
+        } catch (IllegalArgumentException e) {
+            Assert.assertTrue("validate " + FilterClassifier.KEY_FILTER,
+                    e.getMessage().contains("Filter string should be an integer"));
+        }
+        conf.set(FilterClassifier.KEY_FILTER, "7,1000");
+
+        conf.set(FilterClassifier.KEY_VALUES, "1,2,3,4");
+        try {
+            node.myValidation(conf);
+            Assert.fail("validation error  " + FilterClassifier.KEY_VALUES);
+        } catch (IllegalArgumentException e) {
+            Assert.assertTrue("validate " + FilterClassifier.KEY_VALUES,
                     e.getMessage().contains("does not match number of keys"));
         }
 
-        conf.set(LoadClassifier.KEY_VALUES, "1,2a,3");
+        conf.set(FilterClassifier.KEY_VALUES, "1,2a,3");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadClassifier.KEY_VALUES);
+            Assert.fail("validation error  " + FilterClassifier.KEY_VALUES);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadClassifier.KEY_VALUES,
+            Assert.assertTrue("validate " + FilterClassifier.KEY_VALUES,
                     e.getMessage().contains("Value string should be float"));
         }
 
-        conf.set(LoadClassifier.KEY_VALUES, "1,2,3");
-
-        conf.set(LoadClassifier.KEY_WEIGHTS, "ia:60,10,35;;ic:20,10,70;id:50,15,35");
+        conf.set(FilterClassifier.KEY_VALUES, "1,2,3");
+        conf.set(FilterClassifier.KEY_WEIGHTS, "ia:60,10,35;;ic:20,10,70;id:50,15,35");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadClassifier.KEY_WEIGHTS);
+            Assert.fail("validation error  " + FilterClassifier.KEY_WEIGHTS);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadClassifier.KEY_WEIGHTS,
+            Assert.assertTrue("validate " + FilterClassifier.KEY_WEIGHTS,
                     e.getMessage().contains("One of the keys in"));
         }
 
-        conf.set(LoadClassifier.KEY_WEIGHTS, "ia:60,10,35;ib,10,75,15;ic:20,10,70;id:50,15,35");
+        conf.set(FilterClassifier.KEY_WEIGHTS, "ia:60,10,35;ib,10,75,15;ic:20,10,70;id:50,15,35");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadClassifier.KEY_WEIGHTS);
+            Assert.fail("validation error  " + FilterClassifier.KEY_WEIGHTS);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadClassifier.KEY_WEIGHTS,
+            Assert.assertTrue("validate " + FilterClassifier.KEY_WEIGHTS,
                     e.getMessage().contains("need two strings separated by"));
         }
 
-        conf.set(LoadClassifier.KEY_WEIGHTS, "ia:60,10,35;ib:10,75;ic:20,10,70;id:50,15,35");
+        conf.set(FilterClassifier.KEY_WEIGHTS, "ia:60,10,35;ib:10,75;ic:20,10,70;id:50,15,35");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadClassifier.KEY_WEIGHTS);
+            Assert.fail("validation error  " + FilterClassifier.KEY_WEIGHTS);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadClassifier.KEY_WEIGHTS,
+            Assert.assertTrue("validate " + FilterClassifier.KEY_WEIGHTS,
                     e.getMessage().contains("does not match the number of keys"));
         }
 
-        conf.set(LoadClassifier.KEY_WEIGHTS, "ia:60,10,35;ib:10,75,1a5;ic:20,10,70;id:50,15,35");
+        conf.set(FilterClassifier.KEY_WEIGHTS, "ia:60,10,35;ib:10,75,1a5;ic:20,10,70;id:50,15,35");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadClassifier.KEY_WEIGHTS);
+            Assert.fail("validation error  " + FilterClassifier.KEY_WEIGHTS);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadClassifier.KEY_WEIGHTS,
+            Assert.assertTrue("validate " + FilterClassifier.KEY_WEIGHTS,
                     e.getMessage().contains("Weight string should be an integer"));
         }
     }
@@ -160,16 +175,16 @@ public class TestLoadClassifier {
     @Test
     public void testNodeProcessing() throws Exception {
 
-        LoadClassifier node = new LoadClassifier();
+        FilterClassifier node = new FilterClassifier();
 
         TestSink classifySink = new TestSink();
-        node.connect(LoadClassifier.OPORT_OUT_DATA, classifySink);
+        node.connect(FilterClassifier.OPORT_OUT_DATA, classifySink);
          NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
 
-        conf.set(LoadClassifier.KEY_KEYS, "a,b,c");
-        conf.set(LoadClassifier.KEY_VALUES, "1,4,5");
-        conf.set(LoadClassifier.KEY_WEIGHTS, "ia:60,10,35;ib:10,75,15;ic:20,10,70;id:50,15,35");
-        conf.set(LoadClassifier.KEY_VALUEOPERATION, "replace");
+        conf.set(FilterClassifier.KEY_KEYS, "a,b,c");
+        conf.set(FilterClassifier.KEY_VALUES, "1,4,5");
+        conf.set(FilterClassifier.KEY_WEIGHTS, "ia:60,10,35;ib:10,75,15;ic:20,10,70;id:50,15,35");
+        conf.set(FilterClassifier.KEY_FILTER, "10,1000");
 
         conf.setInt("SpinMillis", 10);
         conf.setInt("BufferCapacity", 1024 * 1024);
@@ -181,11 +196,20 @@ public class TestLoadClassifier {
         int sentval = 0;
         for (int i = 0; i < 1000000; i++) {
             input.clear();
-            input.put("ia", 2.0);
-            input.put("ib", 20.0);
-            input.put("ic", 1000.0);
-            input.put("id", 1000.0);
-            sentval += 4;
+            input.put("a,ia", 2.0);
+            input.put("a,ib", 2.0);
+            input.put("a,ic", 2.0);
+            input.put("a,id", 2.0);
+            input.put("b,ia", 2.0);
+            input.put("b,ib", 2.0);
+            input.put("b,ic", 2.0);
+            input.put("b,id", 2.0);
+            input.put("c,ia", 2.0);
+            input.put("c,ib", 2.0);
+            input.put("c,ic", 2.0);
+            input.put("c,id", 2.0);
+
+            sentval += 12;
             node.process(input);
         }
         node.endWindow();
@@ -194,7 +218,8 @@ public class TestLoadClassifier {
             ival += e.getValue().intValue();
         }
 
-        LOG.info(String.format("\nThe number of keys in %d tuples are %d and %d",
+        LOG.info(String.format("\nFiltered %d out of %d intuples with %d and %d unique keys",
+                sentval,
                 ival,
                 classifySink.collectedTuples.size(),
                 classifySink.collectedTupleValues.size()));
@@ -202,22 +227,31 @@ public class TestLoadClassifier {
             Integer ieval = classifySink.collectedTuples.get(ve.getKey()); // ieval should not be null?
             Log.info(String.format("%d tuples of key \"%s\" has value %f", ieval.intValue(), ve.getKey(), ve.getValue()));
         }
-        Assert.assertEquals("number emitted tuples", sentval, ival);
+
         // Now test a node with no weights
-        LoadClassifier nwnode = new LoadClassifier();
+        FilterClassifier nwnode = new FilterClassifier();
         classifySink.clear();
-        nwnode.connect(LoadClassifier.OPORT_OUT_DATA, classifySink);
-        conf.set(LoadClassifier.KEY_WEIGHTS, "");
+        nwnode.connect(FilterClassifier.OPORT_OUT_DATA, classifySink);
+        conf.set(FilterClassifier.KEY_WEIGHTS, "");
         nwnode.setup(conf);
 
         sentval = 0;
         for (int i = 0; i < 1000000; i++) {
             input.clear();
-            input.put("ia", 2.0);
-            input.put("ib", 20.0);
-            input.put("ic", 1000.0);
-            input.put("id", 1000.0);
-            sentval += 4;
+            input.put("a,ia", 2.0);
+            input.put("a,ib", 2.0);
+            input.put("a,ic", 2.0);
+            input.put("a,id", 2.0);
+            input.put("b,ia", 2.0);
+            input.put("b,ib", 2.0);
+            input.put("b,ic", 2.0);
+            input.put("b,id", 2.0);
+            input.put("c,ia", 2.0);
+            input.put("c,ib", 2.0);
+            input.put("c,ic", 2.0);
+            input.put("c,id", 2.0);
+
+            sentval += 12;
             nwnode.process(input);
         }
         nwnode.endWindow();
@@ -225,7 +259,9 @@ public class TestLoadClassifier {
         for (Map.Entry<String, Integer> e : classifySink.collectedTuples.entrySet()) {
             ival += e.getValue().intValue();
         }
-        LOG.info(String.format("\nThe number of keys in %d tuples are %d and %d",
+
+        LOG.info(String.format("\nFiltered %d out of %d intuples with %d and %d unique keys",
+                sentval,
                 ival,
                 classifySink.collectedTuples.size(),
                 classifySink.collectedTupleValues.size()));
@@ -233,25 +269,32 @@ public class TestLoadClassifier {
             Integer ieval = classifySink.collectedTuples.get(ve.getKey()); // ieval should not be null?
             Log.info(String.format("%d tuples of key \"%s\" has value %f", ieval.intValue(), ve.getKey(), ve.getValue()));
         }
-        Assert.assertEquals("number emitted tuples", sentval, ival);
-
 
         // Now test a node with no weights and no values
-        LoadClassifier nvnode = new LoadClassifier();
+        FilterClassifier nvnode = new FilterClassifier();
         classifySink.clear();
-        nvnode.connect(LoadClassifier.OPORT_OUT_DATA, classifySink);
-        conf.set(LoadClassifier.KEY_WEIGHTS, "");
-        conf.set(LoadClassifier.KEY_VALUES, "");
+        nvnode.connect(FilterClassifier.OPORT_OUT_DATA, classifySink);
+        conf.set(FilterClassifier.KEY_WEIGHTS, "");
+        conf.set(FilterClassifier.KEY_VALUES, "");
         nvnode.setup(conf);
 
         sentval = 0;
         for (int i = 0; i < 1000000; i++) {
             input.clear();
-            input.put("ia", 2.0);
-            input.put("ib", 20.0);
-            input.put("ic", 500.0);
-            input.put("id", 1000.0);
-            sentval += 4;
+            input.put("a,ia", 2.0);
+            input.put("a,ib", 2.0);
+            input.put("a,ic", 2.0);
+            input.put("a,id", 2.0);
+            input.put("b,ia", 2.0);
+            input.put("b,ib", 2.0);
+            input.put("b,ic", 2.0);
+            input.put("b,id", 2.0);
+            input.put("c,ia", 2.0);
+            input.put("c,ib", 2.0);
+            input.put("c,ic", 2.0);
+            input.put("c,id", 2.0);
+
+            sentval += 12;
             nvnode.process(input);
         }
         nvnode.endWindow();
@@ -259,10 +302,12 @@ public class TestLoadClassifier {
         for (Map.Entry<String, Integer> e : classifySink.collectedTuples.entrySet()) {
             ival += e.getValue().intValue();
         }
-        LOG.info(String.format("\nThe number of keys in %d tuples are %d and %d",
+        LOG.info(String.format("\nFiltered %d out of %d intuples with %d and %d unique keys",
+                sentval,
                 ival,
                 classifySink.collectedTuples.size(),
                 classifySink.collectedTupleValues.size()));
+
         for (Map.Entry<String, Double> ve : classifySink.collectedTupleValues.entrySet()) {
             Integer ieval = classifySink.collectedTuples.get(ve.getKey()); // ieval should not be null?
             Log.info(String.format("%d tuples of key \"%s\" has value %f",
@@ -270,6 +315,6 @@ public class TestLoadClassifier {
                     ve.getKey(),
                     ve.getValue()));
         }
-        Assert.assertEquals("number emitted tuples", sentval, ival);
+
     }
 }
