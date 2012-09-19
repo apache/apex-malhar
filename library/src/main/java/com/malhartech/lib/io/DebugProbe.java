@@ -8,6 +8,7 @@ import com.malhartech.annotation.NodeAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
 import com.malhartech.dag.AbstractNode;
+import com.malhartech.dag.Component;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.NodeConfiguration;
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ import org.slf4j.LoggerFactory;
 )
 public class DebugProbe extends AbstractNode {
   private static final Logger LOG = LoggerFactory.getLogger(DebugProbe.class);
-  public static final String IPORT_INPUT = "input";
+  public static final String IPORT_INPUT = Component.INPUT;
 
   protected HashMap<String, Integer> objcount = new HashMap<String, Integer>();
 

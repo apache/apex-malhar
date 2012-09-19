@@ -9,6 +9,7 @@ import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
 import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.dag.AbstractNode;
+import com.malhartech.dag.Component;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.NodeConfiguration;
 import com.sun.jersey.api.client.Client;
@@ -33,7 +34,7 @@ import org.slf4j.LoggerFactory;
 @ShipContainingJars(classes={com.sun.jersey.api.client.ClientHandler.class})
 @NodeAnnotation(
     ports = {
-        @PortAnnotation(name = "input", type = PortType.INPUT)
+        @PortAnnotation(name = Component.INPUT, type = PortType.INPUT)
     }
 )
 public class HttpOutputNode extends AbstractNode
