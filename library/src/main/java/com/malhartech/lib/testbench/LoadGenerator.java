@@ -78,6 +78,11 @@ public class LoadGenerator extends AbstractInputNode
   private final Random random = new Random();
   protected boolean alive = true;
 
+  private int rolling_window_count = 1;
+  int[] tuple_numbers = null;
+  int tuple_index = 0;
+  int count_denominator = 1;
+
   private boolean count_connected = false;
 
   /**
@@ -123,6 +128,11 @@ public class LoadGenerator extends AbstractInputNode
   public static final String KEY_STRING_SCHEMA = "string_schema";
 
   /**
+   * The Maximum number of Windows to pump out.
+   */
+  public static final String ROLLING_WINDOW_COUNT = "rolling_window_count";
+
+  /**
    *
    * @param id
    * @param dagpart
@@ -151,6 +161,8 @@ public class LoadGenerator extends AbstractInputNode
     String[] kstr = config.getTrimmedStrings(KEY_KEYS);
     String[] vstr = config.getTrimmedStrings(KEY_VALUES);
     isstringschema = config.getBoolean(KEY_STRING_SCHEMA, false);
+    String rstr = config.get(ROLLING_WINDOW_COUNT);
+
 
     boolean ret = true;
 
@@ -176,6 +188,7 @@ public class LoadGenerator extends AbstractInputNode
         }
       }
     }
+
     if (vstr.length == 0) {
       LOG.debug("values was not provided, so keys would have value of 0");
     }
@@ -235,6 +248,16 @@ public class LoadGenerator extends AbstractInputNode
       }
     }
 
+    if ((rstr != null) && !rstr.isEmpty()) {
+      try {
+        Integer.parseInt(rstr);
+      }
+      catch (NumberFormatException e) {
+        ret = false;
+        throw new IllegalArgumentException(String.format("%s has to be an integer (%s)", ROLLING_WINDOW_COUNT, rstr));
+      }
+    }
+
     maxCountOfWindows = config.getInt(MAX_WINDOWS_COUNT, Integer.MAX_VALUE);
     LOG.debug("{} set to generate data for {} windows", this, maxCountOfWindows);
     return ret;
@@ -259,6 +282,15 @@ public class LoadGenerator extends AbstractInputNode
     isstringschema = config.getBoolean(KEY_STRING_SCHEMA, false);
     tuples_blast = config.getInt(KEY_TUPLES_BLAST, tuples_blast_default_value);
     sleep_time = config.getInt(KEY_SLEEP_TIME, sleep_time_default_value);
+    rolling_window_count = config.getInt(ROLLING_WINDOW_COUNT, 1);
+
+    if (rolling_window_count != 1) { // Initialized the tuple_numbers
+      tuple_numbers = new int[rolling_window_count];
+      for (int i = tuple_numbers.length; i > 0; i--) {
+        tuple_numbers[i-1] = 0;
+      }
+      tuple_index = 0;
+    }
 
     // Keys and weights would are accessed via same key
     int i = 0;
@@ -355,7 +387,35 @@ public class LoadGenerator extends AbstractInputNode
     //LOG.info(this +" endWindow: " + maxCountOfWindows + ", time=" + System.currentTimeMillis() + ", emitCount=" + emitCount);
     if (getProducedTupleCount() > 0) {
       if (count_connected) {
-        emit(OPORT_COUNT, new Integer(getProducedTupleCount()));
+        int tcount = getProducedTupleCount();
+        int average = 0;
+        if (rolling_window_count == 1) {
+          average = tcount;
+        }
+        else { // use tuple_numbers
+          int denominator = 0;
+          if (count_denominator == rolling_window_count) {
+            tuple_numbers[tuple_index] = tcount;
+            denominator = rolling_window_count;
+            tuple_index++;
+            if (tuple_index == rolling_window_count) {
+              tuple_index = 0;
+            }
+          }
+          else {
+            tuple_numbers[count_denominator-1] = tcount;
+            denominator = count_denominator;
+            count_denominator++;
+          }
+          for (int i = 0; i < denominator; i++) {
+            average += tuple_numbers[i];
+          }
+          average = average/denominator;
+        }
+        ArrayList<Integer> twoint = new ArrayList<Integer>();
+        twoint.add(new Integer(average));
+        twoint.add(new Integer(tcount));
+        emit(OPORT_COUNT, twoint);
       }
       if (--maxCountOfWindows == 0) {
         alive = false;

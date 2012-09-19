@@ -10,6 +10,7 @@ import com.malhartech.dag.Sink;
 import com.malhartech.dag.Tuple;
 import com.malhartech.stram.ManualScheduledExecutorService;
 import com.malhartech.stram.WindowGenerator;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -90,6 +91,7 @@ public class TestLoadGenerator {
 
         //DefaultSerDe serde = new DefaultSerDe();
         int count = 0;
+        int average = 0;
         int num_tuples = 0;
 
         /**
@@ -102,7 +104,9 @@ public class TestLoadGenerator {
                 // LOG.debug(payload.toString());
             }
             else {
-              count += ((Integer) payload).intValue();
+              ArrayList<Integer> iarray = (ArrayList<Integer>) payload;
+              average = iarray.get(0).intValue();
+              count += iarray.get(1).intValue();
               num_tuples++;
                 //serde.toByteArray(payload);
              }
@@ -201,6 +205,17 @@ public class TestLoadGenerator {
             Assert.assertTrue("validate " + LoadGenerator.KEY_STRING_SCHEMA + " and " + LoadGenerator.KEY_VALUES,
                     e.getMessage().contains("if string_schema"));
         }
+
+        conf.set(LoadGenerator.KEY_VALUES, "");
+        conf.set(LoadGenerator.ROLLING_WINDOW_COUNT, "aa");
+        String rstr = conf.get(LoadGenerator.ROLLING_WINDOW_COUNT);
+        try {
+            node.myValidation(conf);
+            Assert.fail("validation error  " + LoadGenerator.ROLLING_WINDOW_COUNT);
+        } catch (IllegalArgumentException e) {
+            Assert.assertTrue("validate " + LoadGenerator.ROLLING_WINDOW_COUNT,
+                    e.getMessage().contains("has to be an integer"));
+        }
     }
 
   /**
@@ -252,6 +267,7 @@ public class TestLoadGenerator {
       conf.set(LoadGenerator.KEY_WEIGHTS, "10,40,20,30");
       conf.setInt(LoadGenerator.KEY_TUPLES_BLAST, 100000000);
       conf.setInt(LoadGenerator.KEY_SLEEP_TIME, 1);
+      conf.setInt(LoadGenerator.ROLLING_WINDOW_COUNT, 10);
       conf.setInt("SpinMillis", 10);
       conf.setInt("BufferCapacity", 1024 * 1024);
 
@@ -299,9 +315,9 @@ public class TestLoadGenerator {
 
         // Assert.assertEquals("number emitted tuples", 5000, lgenSink.collectedTuples.size());
 //        LOG.debug("Processed {} tuples out of {}", lgenSink.collectedTuples.size(), lgenSink.count);
-        LOG.debug(String.format("\n********************************************\nTesting with %s and%s insertion\nLoadGenerator emitted %d tuples in %d windows; Sink processed %d tuples",
+        LOG.debug(String.format("\n********************************************\nTesting with %s and%s insertion\nLoadGenerator emitted %d (%d) tuples in %d windows; Sink processed %d tuples",
                   stringschema ? "String" : "HashMap", skiphash ? "" : " no",
-                  countSink.count, countSink.num_tuples, lgenSink.count));
+                  countSink.count, countSink.average, countSink.num_tuples, lgenSink.count));
 
         for (Map.Entry<String, Integer> e: lgenSink.collectedTuples.entrySet()) {
             LOG.debug("{} tuples for key {}", e.getValue().intValue(), e.getKey());
