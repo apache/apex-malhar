@@ -105,7 +105,7 @@ public class ArithmeticMargin extends AbstractNode
       else {
         numerators.remove(e.getKey()); // so that all left over keys can be reported
       }
-      LOG.debug(String.format("Processed key %s", e.getKey()));
+      //LOG.debug(String.format("Processed key %s", e.getKey()));
 
       if (percent) {
         tuples.put(e.getKey(), new Double((1 - nval.doubleValue() / e.getValue().doubleValue()) * 100));
