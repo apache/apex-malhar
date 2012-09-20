@@ -119,7 +119,7 @@ public class BenchmarkLoadGenerator {
         TestSink lgenSink = new TestSink();
         TestCountSink countSink = new TestCountSink();
         node.connect(LoadGenerator.OPORT_DATA, lgenSink);
-        node.connect(LoadGenerator.OPORT_COUNT, countSink);
+        //node.connect(LoadGenerator.OPORT_COUNT, countSink);
 
         ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
         lgenSink.dohash = false;
@@ -127,7 +127,7 @@ public class BenchmarkLoadGenerator {
         conf.set(LoadGenerator.KEY_KEYS, "a");
         conf.set(LoadGenerator.KEY_STRING_SCHEMA, "true");
         conf.setInt(LoadGenerator.KEY_TUPLES_BLAST, 50000000);
-        conf.setInt(LoadGenerator.KEY_SLEEP_TIME, 10);
+        conf.setInt(LoadGenerator.KEY_SLEEP_TIME, 25);
         conf.setInt("SpinMillis", 5);
         conf.setInt("BufferCapacity", 2 * 1024 * 1024);
 
@@ -163,9 +163,10 @@ public class BenchmarkLoadGenerator {
         }
         node.deactivate();
 
-        LOG.debug(String.format("\nProcessed %d tuples from emitted %d in %d windows", lgenSink.count, countSink.count, countSink.num_tuples));
-                for (Map.Entry<String, Integer> e: lgenSink.collectedTuples.entrySet()) {
-            LOG.debug("{} tuples for key {}", e.getValue().intValue(), e.getKey());
-        }
+      //LOG.debug(String.format("\nProcessed %d tuples from emitted %d in %d windows", lgenSink.count, countSink.count, countSink.num_tuples));
+      LOG.debug(String.format("\nProcessed %d tuples", lgenSink.count));
+      for (Map.Entry<String, Integer> e: lgenSink.collectedTuples.entrySet()) {
+        LOG.debug("{} tuples for key {}", e.getValue().intValue(), e.getKey());
+      }
     }
 }
