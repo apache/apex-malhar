@@ -63,6 +63,7 @@ public class HttpOutputNode extends AbstractModule
     wsClient = Client.create();
     wsClient.setFollowRedirects(true);
     resource = wsClient.resource(resourceUrl);
+    LOG.info("URL: {}", resourceUrl);
   }
 
   @Override
