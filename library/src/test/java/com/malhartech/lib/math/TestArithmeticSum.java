@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.dag.NodeConfiguration;
+import com.malhartech.dag.ModuleConfiguration;
 import com.malhartech.dag.Sink;
 import com.malhartech.dag.Tuple;
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class TestArithmeticSum {
     @Test
     public void testNodeValidation() {
 
-        NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
+        ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
 
         ArithmeticSum node = new ArithmeticSum();
 

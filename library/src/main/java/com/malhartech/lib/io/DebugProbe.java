@@ -4,13 +4,13 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.annotation.NodeAnnotation;
+import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
-import com.malhartech.dag.AbstractNode;
+import com.malhartech.dag.AbstractModule;
 import com.malhartech.dag.Component;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.NodeConfiguration;
+import com.malhartech.dag.ModuleConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,12 +25,12 @@ import org.slf4j.LoggerFactory;
  * <br>
  *
  */
-@NodeAnnotation(
+@ModuleAnnotation(
     ports = {
         @PortAnnotation(name = DebugProbe.IPORT_INPUT, type = PortType.INPUT)
     }
 )
-public class DebugProbe extends AbstractNode {
+public class DebugProbe extends AbstractModule {
   private static final Logger LOG = LoggerFactory.getLogger(DebugProbe.class);
   public static final String IPORT_INPUT = Component.INPUT;
 
@@ -60,7 +60,7 @@ public class DebugProbe extends AbstractNode {
    * @throws FailedOperationException
    */
   @Override
-  public void setup(NodeConfiguration config) throws FailedOperationException
+  public void setup(ModuleConfiguration config) throws FailedOperationException
   {
     tostring = config.getBoolean(KEY_TOSTRING, false);
     super.setup(config);

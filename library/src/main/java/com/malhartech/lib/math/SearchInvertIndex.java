@@ -4,12 +4,12 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.annotation.NodeAnnotation;
+import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
-import com.malhartech.dag.AbstractNode;
+import com.malhartech.dag.AbstractModule;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.NodeConfiguration;
+import com.malhartech.dag.ModuleConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -26,12 +26,12 @@ import org.slf4j.LoggerFactory;
  * @author amol<br>
  *
  */
-@NodeAnnotation(
+@ModuleAnnotation(
         ports = {
   @PortAnnotation(name = SearchInvertIndex.IPORT_DATA, type = PortType.INPUT),
   @PortAnnotation(name = SearchInvertIndex.OPORT_INDEX, type = PortType.OUTPUT)
 })
-public class SearchInvertIndex extends AbstractNode
+public class SearchInvertIndex extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_INDEX = "index";
@@ -121,7 +121,7 @@ public class SearchInvertIndex extends AbstractNode
    * @param config
    * @return boolean
    */
-  public boolean myValidation(NodeConfiguration config)
+  public boolean myValidation(ModuleConfiguration config)
   {
     // No checks for passing a boolean value
     return true;
@@ -132,7 +132,7 @@ public class SearchInvertIndex extends AbstractNode
    * @param config
    */
   @Override
-  public void setup(NodeConfiguration config) throws FailedOperationException
+  public void setup(ModuleConfiguration config) throws FailedOperationException
   {
     passvalue = config.getBoolean(KEY_PASSVALUE, false);
     index = new HashMap<String, ArrayList>();

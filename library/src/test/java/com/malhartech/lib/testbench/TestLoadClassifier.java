@@ -4,7 +4,7 @@
 package com.malhartech.lib.testbench;
 
 import com.esotericsoftware.minlog.Log;
-import com.malhartech.dag.NodeConfiguration;
+import com.malhartech.dag.ModuleConfiguration;
 import com.malhartech.dag.Sink;
 import com.malhartech.dag.Tuple;
 import java.util.HashMap;
@@ -71,7 +71,7 @@ public class TestLoadClassifier {
     @Test
     public void testNodeValidation() {
 
-        NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
+        ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
         LoadClassifier node = new LoadClassifier();
         // String[] kstr = config.getTrimmedStrings(KEY_KEYS);
         // String[] vstr = config.getTrimmedStrings(KEY_VALUES);
@@ -164,7 +164,7 @@ public class TestLoadClassifier {
 
         TestSink classifySink = new TestSink();
         node.connect(LoadClassifier.OPORT_OUT_DATA, classifySink);
-        NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
+        ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
 
         conf.set(LoadClassifier.KEY_KEYS, "a,b,c");
         conf.set(LoadClassifier.KEY_VALUES, "1,4,5");

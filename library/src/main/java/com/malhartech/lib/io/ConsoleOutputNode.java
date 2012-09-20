@@ -4,10 +4,10 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.annotation.NodeAnnotation;
+import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
-import com.malhartech.dag.AbstractNode;
+import com.malhartech.dag.AbstractModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,12 +19,12 @@ import org.slf4j.LoggerFactory;
  * <br>
  *
  */
-@NodeAnnotation(
+@ModuleAnnotation(
     ports = {
         @PortAnnotation(name = ConsoleOutputNode.INPUT, type = PortType.INPUT)
     }
 )
-public class ConsoleOutputNode extends AbstractNode
+public class ConsoleOutputNode extends AbstractModule
 {
   private static final Logger LOG = LoggerFactory.getLogger(ConsoleOutputNode.class);
 

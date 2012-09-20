@@ -4,8 +4,8 @@
 package com.malhartech.lib.testbench;
 
 import com.malhartech.dag.Component;
-import com.malhartech.dag.NodeConfiguration;
-import com.malhartech.dag.NodeContext;
+import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.ModuleContext;
 import com.malhartech.dag.Sink;
 import com.malhartech.dag.Tuple;
 import com.malhartech.stram.ManualScheduledExecutorService;
@@ -72,7 +72,7 @@ public class TestLoadRandomGenerator {
     @Test
     public void testNodeValidation() {
 
-        NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
+        ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
         LoadRandomGenerator node = new LoadRandomGenerator();
         LOG.debug("Testing Node Validation: start");
 
@@ -144,7 +144,7 @@ public class TestLoadRandomGenerator {
 
         TestSink lgenSink = new TestSink();
         node.connect(LoadRandomGenerator.OPORT_DATA, lgenSink);
-        NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
+        ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
         lgenSink.isstring = isstring;
 
         conf.set(LoadRandomGenerator.KEY_MIN_VALUE, "0");
@@ -163,7 +163,7 @@ public class TestLoadRandomGenerator {
             @Override
             public void run() {
                 inactive.set(false);
-                node.activate(new NodeContext("LoadRandomGeneratorTestNode"));
+                node.activate(new ModuleContext("LoadRandomGeneratorTestNode"));
             }
         }.start();
 

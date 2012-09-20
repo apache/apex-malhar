@@ -4,14 +4,14 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.annotation.NodeAnnotation;
+import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
 import com.malhartech.annotation.ShipContainingJars;
-import com.malhartech.dag.AbstractNode;
+import com.malhartech.dag.AbstractModule;
 import com.malhartech.dag.Component;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.NodeConfiguration;
+import com.malhartech.dag.ModuleConfiguration;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import java.net.URI;
@@ -32,12 +32,12 @@ import org.slf4j.LoggerFactory;
  *
  */
 @ShipContainingJars(classes={com.sun.jersey.api.client.ClientHandler.class})
-@NodeAnnotation(
+@ModuleAnnotation(
     ports = {
         @PortAnnotation(name = Component.INPUT, type = PortType.INPUT)
     }
 )
-public class HttpOutputNode extends AbstractNode
+public class HttpOutputNode extends AbstractModule
 {
   private static final Logger LOG = LoggerFactory.getLogger(HttpOutputNode.class);
 
@@ -51,7 +51,7 @@ public class HttpOutputNode extends AbstractNode
   private transient WebResource resource;
 
   @Override
-  public void setup(NodeConfiguration config) throws FailedOperationException
+  public void setup(ModuleConfiguration config) throws FailedOperationException
   {
     try {
       checkConfiguration(config);
@@ -74,7 +74,7 @@ public class HttpOutputNode extends AbstractNode
   }
 
   @Override
-  public boolean checkConfiguration(NodeConfiguration config) {
+  public boolean checkConfiguration(ModuleConfiguration config) {
     String urlStr = config.get(P_RESOURCE_URL);
     if (urlStr == null) {
       throw new MissingResourceException("Key for URL string not set", String.class.getSimpleName(), P_RESOURCE_URL);

@@ -3,8 +3,8 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.dag.NodeConfiguration;
-import com.malhartech.dag.NodeContext;
+import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.ModuleContext;
 import com.malhartech.dag.Sink;
 import com.malhartech.dag.Tuple;
 import com.malhartech.stream.StramTestSupport;
@@ -51,7 +51,7 @@ public class TestArithmeticMargin
   public void testNodeValidation()
   {
     ArithmeticMargin node = new ArithmeticMargin();
-    NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
+    ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
 
     // no testing as of now as no parameters on this node
     // connectivity should be part of standard tests
@@ -73,7 +73,7 @@ public class TestArithmeticMargin
     Sink denSink = node.connect(ArithmeticMargin.IPORT_DENOMINATOR, node);
     node.connect(ArithmeticMargin.OPORT_MARGIN, marginSink);
 
-    NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
+    ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
     node.setup(conf);
 
     final AtomicBoolean inactive = new AtomicBoolean(true);
@@ -83,7 +83,7 @@ public class TestArithmeticMargin
       public void run()
       {
         inactive.set(false);
-        node.activate(new NodeContext("ArithmeticMarginTestNode"));
+        node.activate(new ModuleContext("ArithmeticMarginTestNode"));
       }
     }.start();
 

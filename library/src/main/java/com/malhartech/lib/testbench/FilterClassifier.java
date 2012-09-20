@@ -4,11 +4,11 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.annotation.NodeAnnotation;
+import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractNode;
+import com.malhartech.dag.AbstractModule;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.NodeConfiguration;
+import com.malhartech.dag.ModuleConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,12 +52,12 @@ import org.slf4j.LoggerFactory;
  *
  * @author amol
  */
-@NodeAnnotation(
+@ModuleAnnotation(
         ports = {
   @PortAnnotation(name = FilterClassifier.IPORT_IN_DATA, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = FilterClassifier.OPORT_OUT_DATA, type = PortAnnotation.PortType.OUTPUT)
 })
-public class FilterClassifier extends AbstractNode
+public class FilterClassifier extends AbstractModule
 {
   public static final String IPORT_IN_DATA = "in_data";
   public static final String OPORT_OUT_DATA = "out_data";
@@ -107,7 +107,7 @@ public class FilterClassifier extends AbstractNode
    * @param config
    * @return boolean
    */
-  public boolean myValidation(NodeConfiguration config)
+  public boolean myValidation(ModuleConfiguration config)
   {
 
     boolean ret = true;
@@ -216,7 +216,7 @@ public class FilterClassifier extends AbstractNode
    * @param config
    */
   @Override
-  public void setup(NodeConfiguration config) throws FailedOperationException
+  public void setup(ModuleConfiguration config) throws FailedOperationException
   {
     if (!myValidation(config)) {
       throw new FailedOperationException("Did not pass validation");
@@ -344,7 +344,7 @@ public class FilterClassifier extends AbstractNode
    * @return boolean
    */
   @Override
-  public boolean checkConfiguration(NodeConfiguration config)
+  public boolean checkConfiguration(ModuleConfiguration config)
   {
     boolean ret = true;
     // TBD

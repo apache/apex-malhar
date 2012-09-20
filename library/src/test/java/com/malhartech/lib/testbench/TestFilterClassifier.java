@@ -4,7 +4,7 @@
 package com.malhartech.lib.testbench;
 
 import com.esotericsoftware.minlog.Log;
-import com.malhartech.dag.NodeConfiguration;
+import com.malhartech.dag.ModuleConfiguration;
 import com.malhartech.dag.Sink;
 import com.malhartech.dag.Tuple;
 import java.util.HashMap;
@@ -71,7 +71,7 @@ public class TestFilterClassifier {
     @Test
     public void testNodeValidation() {
 
-        NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
+        ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
         FilterClassifier node = new FilterClassifier();
         // String[] kstr = config.getTrimmedStrings(KEY_KEYS);
         // String[] vstr = config.getTrimmedStrings(KEY_VALUES);
@@ -179,7 +179,7 @@ public class TestFilterClassifier {
 
         TestSink classifySink = new TestSink();
         node.connect(FilterClassifier.OPORT_OUT_DATA, classifySink);
-         NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
+         ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
 
         conf.set(FilterClassifier.KEY_KEYS, "a,b,c");
         conf.set(FilterClassifier.KEY_VALUES, "1,4,5");

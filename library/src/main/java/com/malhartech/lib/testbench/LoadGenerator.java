@@ -4,11 +4,11 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.annotation.NodeAnnotation;
+import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractInputNode;
+import com.malhartech.dag.AbstractInputModule;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.NodeConfiguration;
+import com.malhartech.dag.ModuleConfiguration;
 import com.malhartech.dag.Sink;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,11 +53,11 @@ import org.slf4j.LoggerFactory;
  *
  * @author amol
  */
-@NodeAnnotation(ports = {
+@ModuleAnnotation(ports = {
   @PortAnnotation(name = LoadGenerator.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT),
   @PortAnnotation(name = LoadGenerator.OPORT_COUNT, type = PortAnnotation.PortType.OUTPUT)
 })
-public class LoadGenerator extends AbstractInputNode
+public class LoadGenerator extends AbstractInputModule
 {
   public static final String OPORT_DATA = "data";
   public static final String OPORT_COUNT = "count";
@@ -155,7 +155,7 @@ public class LoadGenerator extends AbstractInputNode
    * @param config
    * @return boolean
    */
-  public boolean myValidation(NodeConfiguration config)
+  public boolean myValidation(ModuleConfiguration config)
   {
     String[] wstr = config.getTrimmedStrings(KEY_WEIGHTS);
     String[] kstr = config.getTrimmedStrings(KEY_KEYS);
@@ -269,7 +269,7 @@ public class LoadGenerator extends AbstractInputNode
    * @param config
    */
   @Override
-  public void setup(NodeConfiguration config) throws FailedOperationException
+  public void setup(ModuleConfiguration config) throws FailedOperationException
   {
     if (!myValidation(config)) {
       throw new FailedOperationException("Did not pass validation");
@@ -320,7 +320,7 @@ public class LoadGenerator extends AbstractInputNode
 
   @Override
   public void teardown() {
-    this.alive = false; // TODO: need solution for alive in AbstractInputNode
+    this.alive = false; // TODO: need solution for alive in AbstractInputModule
     super.teardown();
   }
 

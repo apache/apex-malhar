@@ -4,7 +4,7 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.dag.NodeConfiguration;
+import com.malhartech.dag.ModuleConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import junit.framework.Assert;
@@ -19,7 +19,7 @@ public class TestDebugProbe  {
 
     DebugProbe node = new DebugProbe();
 
-    NodeConfiguration conf = new NodeConfiguration("testNode", new HashMap<String, String>());
+    ModuleConfiguration conf = new ModuleConfiguration("testNode", new HashMap<String, String>());
     conf.setInt("SpinMillis", 10);
     conf.setInt("BufferCapacity", 1024 * 1024);
 

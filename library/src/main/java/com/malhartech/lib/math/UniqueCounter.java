@@ -4,9 +4,9 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.annotation.NodeAnnotation;
+import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractNode;
+import com.malhartech.dag.AbstractModule;
 import com.malhartech.dag.Component;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -15,11 +15,11 @@ import java.util.Map.Entry;
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-@NodeAnnotation(ports = {
+@ModuleAnnotation(ports = {
   @PortAnnotation( name = Component.INPUT, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation( name = Component.OUTPUT, type = PortAnnotation.PortType.OUTPUT)
 })
-public class UniqueCounter extends AbstractNode
+public class UniqueCounter extends AbstractModule
 {
   HashMap<Object, Integer> map = new HashMap<Object, Integer>();
 

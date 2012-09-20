@@ -4,12 +4,12 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.annotation.NodeAnnotation;
+import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
-import com.malhartech.dag.AbstractNode;
+import com.malhartech.dag.AbstractModule;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.NodeConfiguration;
+import com.malhartech.dag.ModuleConfiguration;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -37,13 +37,13 @@ import org.slf4j.LoggerFactory;
  * @author amol<br>
  *
  */
-@NodeAnnotation(
+@ModuleAnnotation(
         ports = {
   @PortAnnotation(name = ArithmeticQuotient.IPORT_NUMERATOR, type = PortType.INPUT),
   @PortAnnotation(name = ArithmeticQuotient.IPORT_DENOMINATOR, type = PortType.INPUT),
   @PortAnnotation(name = ArithmeticQuotient.OPORT_QUOTIENT, type = PortType.OUTPUT)
 })
-public class ArithmeticQuotient extends AbstractNode
+public class ArithmeticQuotient extends AbstractModule
 {
   public static final String IPORT_NUMERATOR = "numerator";
   public static final String IPORT_DENOMINATOR = "denominator";
@@ -74,14 +74,14 @@ public class ArithmeticQuotient extends AbstractNode
    * @param config
    */
   @Override
-  public void setup(NodeConfiguration config) throws FailedOperationException
+  public void setup(ModuleConfiguration config) throws FailedOperationException
   {
     mult_by = config.getInt(KEY_MULTIPLY_BY, 1);
     dokey = config.getBoolean(KEY_DOKEY, false);
     LOG.debug(String.format("Set mult_by(%d), and dokey(%s)", mult_by, dokey ? "true" : "false"));
   }
 
-  public boolean myValidation(NodeConfiguration config)
+  public boolean myValidation(ModuleConfiguration config)
   {
     boolean ret = true;
 

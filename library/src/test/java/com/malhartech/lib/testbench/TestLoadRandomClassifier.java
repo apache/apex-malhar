@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.dag.NodeConfiguration;
+import com.malhartech.dag.ModuleConfiguration;
 import com.malhartech.dag.Sink;
 import com.malhartech.dag.Tuple;
 import java.util.ArrayList;
@@ -76,7 +76,7 @@ public class TestLoadRandomClassifier {
   public void testNodeValidation()
   {
 
-    NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
+    ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
     LoadRandomClassifier node = new LoadRandomClassifier();
 
     // conf.set(LoadRandomClassifier.KEY_KEYS, "x:0,100;y:0,100;gender:0,1;age:10,120"); // the good key
@@ -149,7 +149,7 @@ public class TestLoadRandomClassifier {
     TestSink classifySink = new TestSink();
     node.connect(LoadClassifier.OPORT_OUT_DATA, classifySink);
 
-    NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
+    ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
     conf.set(LoadRandomClassifier.KEY_KEYS, "x:0,99;y:0,99;gender:0,1;age:10,109"); // the good key
 
     if (isstring) {

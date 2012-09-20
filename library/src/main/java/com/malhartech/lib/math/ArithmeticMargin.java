@@ -4,12 +4,12 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.annotation.NodeAnnotation;
+import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
-import com.malhartech.dag.AbstractNode;
+import com.malhartech.dag.AbstractModule;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.NodeConfiguration;
+import com.malhartech.dag.ModuleConfiguration;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -34,13 +34,13 @@ import org.slf4j.LoggerFactory;
  * @author amol<br>
  *
  */
-@NodeAnnotation(
+@ModuleAnnotation(
         ports = {
   @PortAnnotation(name = ArithmeticMargin.IPORT_NUMERATOR, type = PortType.INPUT),
   @PortAnnotation(name = ArithmeticMargin.IPORT_DENOMINATOR, type = PortType.INPUT),
   @PortAnnotation(name = ArithmeticMargin.OPORT_MARGIN, type = PortType.OUTPUT)
 })
-public class ArithmeticMargin extends AbstractNode
+public class ArithmeticMargin extends AbstractModule
 {
   public static final String IPORT_NUMERATOR = "numerator";
   public static final String IPORT_DENOMINATOR = "denominator";
@@ -60,7 +60,7 @@ public class ArithmeticMargin extends AbstractNode
    * @param config
    */
   @Override
-  public void setup(NodeConfiguration config) throws FailedOperationException
+  public void setup(ModuleConfiguration config) throws FailedOperationException
   {
     percent = config.getBoolean(KEY_PERCENT, false);
     LOG.debug(String.format("Set percent(%s)", percent ? "true" : "false"));

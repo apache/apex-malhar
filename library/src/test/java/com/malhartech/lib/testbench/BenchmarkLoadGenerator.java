@@ -4,8 +4,8 @@
 package com.malhartech.lib.testbench;
 
 import com.malhartech.dag.Component;
-import com.malhartech.dag.NodeConfiguration;
-import com.malhartech.dag.NodeContext;
+import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.ModuleContext;
 import com.malhartech.dag.Sink;
 import com.malhartech.dag.Tuple;
 import com.malhartech.stram.ManualScheduledExecutorService;
@@ -93,7 +93,7 @@ public class BenchmarkLoadGenerator {
 
         TestSink lgenSink = new TestSink();
         node.connect(LoadGenerator.OPORT_DATA, lgenSink);
-        NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
+        ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
         lgenSink.dohash = false;
 
         conf.set(LoadGenerator.KEY_KEYS, "a");
@@ -110,7 +110,7 @@ public class BenchmarkLoadGenerator {
             @Override
             public void run() {
                 inactive.set(false);
-                node.activate(new NodeContext("LoadGeneratorTestNode"));
+                node.activate(new ModuleContext("LoadGeneratorTestNode"));
             }
         }.start();
 

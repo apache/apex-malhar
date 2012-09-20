@@ -4,8 +4,8 @@
 package com.malhartech.lib.testbench;
 
 import com.malhartech.dag.Component;
-import com.malhartech.dag.NodeConfiguration;
-import com.malhartech.dag.NodeContext;
+import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.ModuleContext;
 import com.malhartech.dag.Sink;
 import com.malhartech.dag.Tuple;
 import com.malhartech.stram.ManualScheduledExecutorService;
@@ -122,7 +122,7 @@ public class TestLoadGenerator {
     @Test
     public void testNodeValidation() {
 
-        NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
+        ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
         LoadGenerator node = new LoadGenerator();
 
         conf.set(LoadGenerator.KEY_KEYS, "");
@@ -251,7 +251,7 @@ public class TestLoadGenerator {
         TestSink lgenSink = new TestSink();
         node.connect(LoadGenerator.OPORT_DATA, lgenSink);
         node.connect(LoadGenerator.OPORT_COUNT, countSink);
-        NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
+        ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
 
         conf.set(LoadGenerator.KEY_KEYS, "a,b,c,d");
         // conf.set(LoadGenerator.KEY_VALUES, "1,2,3,4");
@@ -278,7 +278,7 @@ public class TestLoadGenerator {
             @Override
             public void run() {
                 inactive.set(false);
-                node.activate(new NodeContext("LoadGeneratorTestNode"));
+                node.activate(new ModuleContext("LoadGeneratorTestNode"));
             }
         }.start();
 

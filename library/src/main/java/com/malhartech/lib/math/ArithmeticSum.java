@@ -4,10 +4,10 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.annotation.NodeAnnotation;
+import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractNode;
-import com.malhartech.dag.NodeConfiguration;
+import com.malhartech.dag.AbstractModule;
+import com.malhartech.dag.ModuleConfiguration;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -25,12 +25,12 @@ import org.slf4j.LoggerFactory;
  *
  * @author amol
  */
-@NodeAnnotation(
+@ModuleAnnotation(
         ports = {
   @PortAnnotation(name = ArithmeticSum.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = ArithmeticSum.OPORT_SUM, type = PortAnnotation.PortType.OUTPUT)
 })
-public class ArithmeticSum extends AbstractNode
+public class ArithmeticSum extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_SUM = "sum";
@@ -57,7 +57,7 @@ public class ArithmeticSum extends AbstractNode
       }
   }
 
-  public boolean myValidation(NodeConfiguration config)
+  public boolean myValidation(ModuleConfiguration config)
   {
     return true;
   }
@@ -89,7 +89,7 @@ public class ArithmeticSum extends AbstractNode
    * @return boolean
    */
   @Override
-  public boolean checkConfiguration(NodeConfiguration config)
+  public boolean checkConfiguration(ModuleConfiguration config)
   {
     boolean ret = true;
     // TBD

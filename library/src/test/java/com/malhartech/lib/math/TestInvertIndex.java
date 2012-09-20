@@ -3,8 +3,8 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.dag.NodeConfiguration;
-import com.malhartech.dag.NodeContext;
+import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.ModuleContext;
 import com.malhartech.dag.Sink;
 import com.malhartech.dag.Tuple;
 import com.malhartech.stream.StramTestSupport;
@@ -56,7 +56,7 @@ public class TestInvertIndex
     Sink inSink = node.connect(SearchInvertIndex.IPORT_DATA, node);
     node.connect(SearchInvertIndex.OPORT_INDEX, indexSink);
 
-    NodeConfiguration conf = new NodeConfiguration("mynode", new HashMap<String, String>());
+    ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
     conf.setBoolean(SearchInvertIndex.KEY_PASSVALUE, false); // test with String
     node.setup(conf);
 
@@ -67,7 +67,7 @@ public class TestInvertIndex
       public void run()
       {
         inactive.set(false);
-        node.activate(new NodeContext("ArithmeticQuotientTestNode"));
+        node.activate(new ModuleContext("ArithmeticQuotientTestNode"));
       }
     }.start();
 

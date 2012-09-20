@@ -4,7 +4,7 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.dag.NodeConfiguration;
+import com.malhartech.dag.ModuleConfiguration;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -57,7 +57,7 @@ public class TestHttpOutputNode {
 
     HttpOutputNode node = new HttpOutputNode();
 
-    NodeConfiguration config = new NodeConfiguration("testNode", Collections.<String,String>emptyMap());
+    ModuleConfiguration config = new ModuleConfiguration("testNode", Collections.<String,String>emptyMap());
     config.set(HttpOutputNode.P_RESOURCE_URL, url);
 
     node.setup(config);

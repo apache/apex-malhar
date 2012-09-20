@@ -4,12 +4,11 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.annotation.NodeAnnotation;
+import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractInputNode;
+import com.malhartech.dag.AbstractInputModule;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.NodeConfiguration;
-import com.malhartech.dag.Sink;
+import com.malhartech.dag.ModuleConfiguration;
 import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,11 +43,11 @@ import org.slf4j.LoggerFactory;
  *
  * @author amol
  */
-@NodeAnnotation(
+@ModuleAnnotation(
         ports = {
   @PortAnnotation(name = LoadRandomGenerator.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT)
 })
-public class LoadRandomGenerator extends AbstractInputNode
+public class LoadRandomGenerator extends AbstractInputModule
 {
   public static final String OPORT_DATA = "data";
   private static Logger LOG = LoggerFactory.getLogger(LoadRandomGenerator.class);
@@ -97,7 +96,7 @@ public class LoadRandomGenerator extends AbstractInputNode
    * @param config
    * @return boolean
    */
-  public boolean myValidation(NodeConfiguration config)
+  public boolean myValidation(ModuleConfiguration config)
   {
     String minstr = config.get(KEY_MIN_VALUE, "0");
     String maxstr = config.get(KEY_MAX_VALUE, "100");
@@ -154,7 +153,7 @@ public class LoadRandomGenerator extends AbstractInputNode
    * @param config
    */
   @Override
-  public void setup(NodeConfiguration config) throws FailedOperationException
+  public void setup(ModuleConfiguration config) throws FailedOperationException
   {
     if (!myValidation(config)) {
       throw new IllegalArgumentException("Did not pass validation");
