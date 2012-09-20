@@ -10,6 +10,7 @@ import com.malhartech.dag.Sink;
 import com.malhartech.dag.Tuple;
 import com.malhartech.stram.ManualScheduledExecutorService;
 import com.malhartech.stram.WindowGenerator;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -71,6 +72,30 @@ public class BenchmarkLoadGenerator {
       }
     }
 
+    class TestCountSink implements Sink {
+
+        //DefaultSerDe serde = new DefaultSerDe();
+        int count = 0;
+        int average = 0;
+        int num_tuples = 0;
+
+        /**
+         *
+         * @param payload
+         */
+        @Override
+        public void process(Object payload) {
+            if (payload instanceof Tuple) {
+                // LOG.debug(payload.toString());
+            }
+            else {
+              ArrayList<Integer> iarray = (ArrayList<Integer>) payload;
+              count += iarray.get(1).intValue();
+              num_tuples++;
+             }
+        }
+    }
+
 
     /**
      * Benchmark the maximum payload flow for String
@@ -92,7 +117,10 @@ public class BenchmarkLoadGenerator {
         wingen.connect("mytestnode", input);
 
         TestSink lgenSink = new TestSink();
+        TestCountSink countSink = new TestCountSink();
         node.connect(LoadGenerator.OPORT_DATA, lgenSink);
+        node.connect(LoadGenerator.OPORT_COUNT, countSink);
+
         ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
         lgenSink.dohash = false;
 
@@ -125,7 +153,7 @@ public class BenchmarkLoadGenerator {
             LOG.debug(ex.getLocalizedMessage());
         }
         wingen.activate(null);
-        for (int i = 0; i < 500; i++) {
+        for (int i = 0; i < 7000; i++) {
             mses.tick(1);
             try {
                 Thread.sleep(1);
@@ -135,16 +163,7 @@ public class BenchmarkLoadGenerator {
         }
         node.deactivate();
 
-        // Let the reciever get the tuples from the queue
-        for (int i = 0; i <100; i++) {
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                LOG.error("Unexpected error while sleeping for 1 s", e);
-            }
-        }
-
-        LOG.debug("Processed {} tuples", lgenSink.count);
+        LOG.debug(String.format("\nProcessed %d tuples from emitted %d in %d windows", lgenSink.count, countSink.count, countSink.num_tuples));
                 for (Map.Entry<String, Integer> e: lgenSink.collectedTuples.entrySet()) {
             LOG.debug("{} tuples for key {}", e.getValue().intValue(), e.getKey());
         }
