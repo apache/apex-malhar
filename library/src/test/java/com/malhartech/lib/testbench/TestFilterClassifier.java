@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * Configuration 2: Provide values but no weights (even weights)<br>
  * Configuration 3: Provide no values or weights<br>
  * <br>
- * Benchmarks: Currently handle about 18 Million tuples/sec incoming tuples in debugging environment. Need to test on larger nodes<br>
+ * Benchmarks: Currently handle about 20 Million tuples/sec incoming tuples in debugging environment. Need to test on larger nodes<br>
  * <br>
  * Validates all DRC checks of the node<br>
  */

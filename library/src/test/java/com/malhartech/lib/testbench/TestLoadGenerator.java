@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory;
  * Load is generated and the tuples are outputted to ensure that the numbers are roughly in line with the weights<br>
  * <br>
  *  Benchmarks:<br>
- * String schema does over 10 Million tuples/sec<br>
- * HashMap schema does over 1.2 Million tuples/sec<br>
+ * String schema generates over 11 Million tuples/sec<br>
+ * HashMap schema generates over 1.7 Million tuples/sec<br>
  * <br>
  * DRC checks are validated<br>
  *
