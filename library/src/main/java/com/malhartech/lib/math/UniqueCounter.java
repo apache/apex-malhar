@@ -19,9 +19,9 @@ import java.util.Map.Entry;
   @PortAnnotation( name = Component.INPUT, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation( name = Component.OUTPUT, type = PortAnnotation.PortType.OUTPUT)
 })
-public class UniqueCounterString extends AbstractNode
+public class UniqueCounter extends AbstractNode
 {
-  HashMap<String, Integer> map = new HashMap<String, Integer>();
+  HashMap<Object, Integer> map = new HashMap<Object, Integer>();
 
   @Override
   public void beginWindow()
@@ -32,7 +32,7 @@ public class UniqueCounterString extends AbstractNode
   @Override
   public void endWindow()
   {
-    for (Entry<String, Integer> e: map.entrySet()) {
+    for (Entry<Object, Integer> e: map.entrySet()) {
       emit(e);
     }
   }
@@ -40,12 +40,12 @@ public class UniqueCounterString extends AbstractNode
   @Override
   public void process(Object payload)
   {
-    Integer i = map.get((String)payload);
+    Integer i = map.get(payload);
     if (i == null) {
-      map.put((String)payload, 1);
+      map.put(payload, 1);
     }
     else {
-      map.put((String)payload, i + 1);
+      map.put(payload, i + 1);
     }
   }
 }

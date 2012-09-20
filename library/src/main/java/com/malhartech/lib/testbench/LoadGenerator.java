@@ -385,38 +385,7 @@ public class LoadGenerator extends AbstractInputNode
   public void endWindow()
   {
     //LOG.info(this +" endWindow: " + maxCountOfWindows + ", time=" + System.currentTimeMillis() + ", emitCount=" + emitCount);
-    if (getProducedTupleCount() > 0) {
-      if (count_connected) {
-        int tcount = getProducedTupleCount();
-        int average = 0;
-        if (rolling_window_count == 1) {
-          average = tcount;
-        }
-        else { // use tuple_numbers
-          int denominator = 0;
-          if (count_denominator == rolling_window_count) {
-            tuple_numbers[tuple_index] = tcount;
-            denominator = rolling_window_count;
-            tuple_index++;
-            if (tuple_index == rolling_window_count) {
-              tuple_index = 0;
-            }
-          }
-          else {
-            tuple_numbers[count_denominator-1] = tcount;
-            denominator = count_denominator;
-            count_denominator++;
-          }
-          for (int i = 0; i < denominator; i++) {
-            average += tuple_numbers[i];
-          }
-          average = average/denominator;
-        }
-        ArrayList<Integer> twoint = new ArrayList<Integer>();
-        twoint.add(new Integer(average));
-        twoint.add(new Integer(tcount));
-        emit(OPORT_COUNT, twoint);
-      }
+    if (getProcessedTupleCount() > 0) {
       if (--maxCountOfWindows == 0) {
         alive = false;
       }
