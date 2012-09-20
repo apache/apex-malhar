@@ -238,12 +238,13 @@ public class FilterClassifier extends AbstractModule
         String[] twostr = ts.split(":");
         String[] weights = twostr[1].split(",");
         ArrayList<Integer> alist = new ArrayList<Integer>();
-        Integer wtotal = 0;
+        int wtotal = 0;
         for (String ws: weights) {
-          alist.add(Integer.parseInt(ws));
-          wtotal += Integer.parseInt(ws);
+          int wsval = Integer.parseInt(ws);
+          alist.add(wsval);
+          wtotal += wsval;
         }
-        alist.add(wtotal);
+        alist.add(wtotal); // The last integer is the total
         inkeys.put(twostr[0], alist);
       }
     }

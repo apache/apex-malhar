@@ -219,8 +219,8 @@ public class TestFilterClassifier {
         }
 
         LOG.info(String.format("\nFiltered %d out of %d intuples with %d and %d unique keys",
-                sentval,
                 ival,
+                sentval,
                 classifySink.collectedTuples.size(),
                 classifySink.collectedTupleValues.size()));
         for (Map.Entry<String, Double> ve : classifySink.collectedTupleValues.entrySet()) {
@@ -261,8 +261,8 @@ public class TestFilterClassifier {
         }
 
         LOG.info(String.format("\nFiltered %d out of %d intuples with %d and %d unique keys",
-                sentval,
                 ival,
+                sentval,
                 classifySink.collectedTuples.size(),
                 classifySink.collectedTupleValues.size()));
         for (Map.Entry<String, Double> ve : classifySink.collectedTupleValues.entrySet()) {
@@ -303,8 +303,8 @@ public class TestFilterClassifier {
             ival += e.getValue().intValue();
         }
         LOG.info(String.format("\nFiltered %d out of %d intuples with %d and %d unique keys",
-                sentval,
                 ival,
+                sentval,
                 classifySink.collectedTuples.size(),
                 classifySink.collectedTupleValues.size()));
 
