@@ -21,12 +21,12 @@ import org.slf4j.LoggerFactory;
  */
 @ModuleAnnotation(
     ports = {
-        @PortAnnotation(name = ConsoleOutputNode.INPUT, type = PortType.INPUT)
+        @PortAnnotation(name = ConsoleOutputModule.INPUT, type = PortType.INPUT)
     }
 )
-public class ConsoleOutputNode extends AbstractModule
+public class ConsoleOutputModule extends AbstractModule
 {
-  private static final Logger LOG = LoggerFactory.getLogger(ConsoleOutputNode.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ConsoleOutputModule.class);
 
   /**
    * When set to true, tuples are also logged at INFO level.
