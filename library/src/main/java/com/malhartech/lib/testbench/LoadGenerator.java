@@ -379,7 +379,7 @@ public class LoadGenerator extends AbstractInputNode
   }
 
   /**
-   * convenient method for not sending more than 10 windows.
+   * convenient method for not sending more than configured number of windows.
    */
   @Override
   public void endWindow()
