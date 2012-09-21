@@ -21,7 +21,9 @@ import org.slf4j.LoggerFactory;
  * end of window computes the quotient for each key and emits the result on port
  * "quotient".<p> <br> Each stream is added to a hash. The values are added for
  * each key within the window and for each stream.<<br> This node only functions in
- * a windowed stram application<br> <br> Compile time error processing is done
+ * a windowed stram application<br>Currently only HashMap schema is supported (Key, Number)<br>
+ * <br>
+ * <br> Compile time error processing is done
  * on configuration parameters<br> property <b>multiply_by</b> has to be an
  * integer.<br>property <b>dokey</b> is a boolean. It true the node ignores the values and counts the instances of each key (i.e. value=1.0)<br>
  * <br>input ports <b>numerator</b>, <b>denominator</b> must be
@@ -32,6 +34,9 @@ import org.slf4j.LoggerFactory;
  * "outport".<br> Input tuple not an integer on denominator stream: This tuple
  * would not be counted towards the result.<br> Input tuple not an integer on
  * numerator stream: This tuple would not be counted towards the result.<br>
+ * <br>
+ * Benchmarks:<br>
+ * With HashMap schema the node does about 3 Million/tuples per second<br>
  * <br>
  *
  * @author amol<br>
