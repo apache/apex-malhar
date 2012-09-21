@@ -386,6 +386,37 @@ public class LoadGenerator extends AbstractInputModule
   {
     //LOG.info(this +" endWindow: " + maxCountOfWindows + ", time=" + System.currentTimeMillis() + ", emitCount=" + emitCount);
     if (getProcessedTupleCount() > 0) {
+      if (count_connected) {
+        int tcount = getProcessedTupleCount();
+        int average = 0;
+        if (rolling_window_count == 1) {
+          average = tcount;
+        }
+        else { // use tuple_numbers
+          int denominator = 0;
+          if (count_denominator == rolling_window_count) {
+            tuple_numbers[tuple_index] = tcount;
+            denominator = rolling_window_count;
+            tuple_index++;
+            if (tuple_index == rolling_window_count) {
+              tuple_index = 0;
+            }
+          }
+          else {
+            tuple_numbers[count_denominator-1] = tcount;
+            denominator = count_denominator;
+            count_denominator++;
+          }
+          for (int i = 0; i < denominator; i++) {
+            average += tuple_numbers[i];
+          }
+          average = average/denominator;
+        }
+        HashMap<String, Integer> twoint = new HashMap<String, Integer>();
+        twoint.put("avg", new Integer(average));
+        twoint.put("count", new Integer(tcount));
+        emit(OPORT_COUNT, twoint);
+      }
       if (--maxCountOfWindows == 0) {
         alive = false;
       }
