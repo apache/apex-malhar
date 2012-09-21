@@ -21,7 +21,11 @@ import java.util.Map.Entry;
 })
 public class UniqueCounter extends AbstractModule
 {
-  HashMap<Object, Integer> map = new HashMap<Object, Integer>();
+  /**
+   * Bucket counting mechanism.
+   * Since we clear the bucket at the beginning of the window, we make this object transient.
+   */
+  transient HashMap<Object, Integer> map = new HashMap<Object, Integer>();
 
   @Override
   public void beginWindow()
