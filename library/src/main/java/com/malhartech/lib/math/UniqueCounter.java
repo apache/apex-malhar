@@ -25,20 +25,18 @@ public class UniqueCounter extends AbstractModule
    * Bucket counting mechanism.
    * Since we clear the bucket at the beginning of the window, we make this object transient.
    */
-  transient HashMap<Object, Integer> map = new HashMap<Object, Integer>();
+  transient HashMap<Object, Integer> map;
 
   @Override
   public void beginWindow()
   {
-    map.clear();
+    map = new HashMap<Object, Integer>();
   }
 
   @Override
   public void endWindow()
   {
-    for (Entry<Object, Integer> e: map.entrySet()) {
-      emit(e);
-    }
+    emit(map);
   }
 
   @Override
