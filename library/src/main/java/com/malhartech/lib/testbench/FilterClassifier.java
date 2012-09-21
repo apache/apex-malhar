@@ -297,7 +297,7 @@ public class FilterClassifier extends AbstractModule
 
     // Check if the tuple has to be ignored
 
-    int fval = random.nextInt(total_filter - 1);
+    int fval = random.nextInt(total_filter);
     if (fval >= pass_filter) {
       return;
     }
@@ -312,12 +312,12 @@ public class FilterClassifier extends AbstractModule
           alist = inkeys.get(inkey);
         }
         // now alist are the weights
-        int rval = random.nextInt(alist.get(alist.size() - 1));
+        int rval = random.nextInt(alist.get(alist.size()-1));
         int j = 0;
         int wval = 0;
         for (Integer ew: alist) {
           wval += ew.intValue();
-          if (wval >= rval) {
+          if (wval > rval) {
             break;
           }
           j++;
