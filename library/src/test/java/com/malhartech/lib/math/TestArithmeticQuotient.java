@@ -114,17 +114,24 @@ public class TestArithmeticQuotient
     numSink.process(bt);
     denSink.process(bt);
 
-    HashMap<String, Integer> ninput = new HashMap<String, Integer>();
-    ninput.put("a", 2);
-    ninput.put("b", 20);
-    ninput.put("c", 1000);
-    numSink.process(ninput);
+    HashMap<String, Integer> ninput = null;
+    HashMap<String, Integer> dinput = null;
 
-    HashMap<String, Integer> dinput = new HashMap<String, Integer>();
-    dinput.put("a", 2);
-    dinput.put("b", 40);
-    dinput.put("c", 500);
-    denSink.process(dinput);
+    int numtuples = 10000000;
+    for (int i = 0; i < numtuples; i++) {
+      ninput = new HashMap<String, Integer>();
+      dinput = new HashMap<String, Integer>();
+      ninput.put("a", 2);
+      ninput.put("b", 20);
+      ninput.put("c", 1000);
+      numSink.process(ninput);
+      dinput.put("a", 2);
+      dinput.put("b", 40);
+      dinput.put("c", 500);
+      denSink.process(dinput);
+    }
+
+
 
     Tuple et = StramTestSupport.generateEndWindowTuple("doesn't matter", 1, 1);
     numSink.process(et);
@@ -132,7 +139,7 @@ public class TestArithmeticQuotient
 
     // Should get one bag of keys "a", "b", "c"
     try {
-      for (int i = 0; i < 10; i++) {
+      for (int i = 0; i < 50; i++) {
         Thread.sleep(20);
         if (quotientSink.collectedTuples.size() >= 1) {
           break;
@@ -145,6 +152,7 @@ public class TestArithmeticQuotient
 
     // One for each key
     Assert.assertEquals("number emitted tuples", 1, quotientSink.collectedTuples.size());
+    LOG.debug(String.format("Processed %d tuples", numtuples * 6));
 
     for (Object o: quotientSink.collectedTuples) {
       HashMap<String, Number> output = (HashMap<String, Number>)o;

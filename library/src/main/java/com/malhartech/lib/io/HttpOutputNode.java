@@ -104,7 +104,6 @@ public class HttpOutputNode extends AbstractModule
     }
     catch (Exception e) {
       LOG.error("Failed to send tuple to " + resource.getURI());
-      //throw new IllegalArgumentException("Failed to send tuple to " + r.getURI(), e);
     }
   }
 
