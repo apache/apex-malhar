@@ -104,17 +104,14 @@ public class TestLoadGenerator {
                 // LOG.debug(payload.toString());
             }
             else {
-              ArrayList<Integer> iarray = (ArrayList<Integer>) payload;
-              average = iarray.get(0).intValue();
-              count += iarray.get(1).intValue();
+              HashMap<String, Integer> tuples = (HashMap<String, Integer>) payload;
+              average = tuples.get(LoadGenerator.OPORT_COUNT_TUPLE_AVERAGE).intValue();
+              count += tuples.get(LoadGenerator.OPORT_COUNT_TUPLE_COUNT).intValue();
               num_tuples++;
                 //serde.toByteArray(payload);
              }
         }
     }
-
-
-
 
     /**
      * Test configuration and parameter validation of the node

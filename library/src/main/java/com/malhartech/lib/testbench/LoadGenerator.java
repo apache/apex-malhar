@@ -61,6 +61,10 @@ public class LoadGenerator extends AbstractInputModule
 {
   public static final String OPORT_DATA = "data";
   public static final String OPORT_COUNT = "count";
+
+  public static final String OPORT_COUNT_TUPLE_AVERAGE = "avg";
+  public static final String OPORT_COUNT_TUPLE_COUNT = "count";
+
   private static Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
 
   final int sleep_time_default_value = 50;
@@ -131,6 +135,9 @@ public class LoadGenerator extends AbstractInputModule
    * The Maximum number of Windows to pump out.
    */
   public static final String ROLLING_WINDOW_COUNT = "rolling_window_count";
+
+
+
 
   /**
    *
@@ -412,10 +419,10 @@ public class LoadGenerator extends AbstractInputModule
           }
           average = average/denominator;
         }
-        HashMap<String, Integer> twoint = new HashMap<String, Integer>();
-        twoint.put("avg", new Integer(average));
-        twoint.put("count", new Integer(tcount));
-        emit(OPORT_COUNT, twoint);
+        HashMap<String, Integer> tuples = new HashMap<String, Integer>();
+        tuples.put(OPORT_COUNT_TUPLE_AVERAGE, new Integer(average));
+        tuples.put(OPORT_COUNT_TUPLE_COUNT, new Integer(tcount));
+        emit(OPORT_COUNT, tuples);
       }
       if (--maxCountOfWindows == 0) {
         alive = false;
