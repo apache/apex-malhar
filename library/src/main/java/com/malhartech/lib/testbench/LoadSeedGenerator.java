@@ -52,13 +52,13 @@ import org.slf4j.LoggerFactory;
  */
 @ModuleAnnotation(
         ports = {
-    @PortAnnotation(name = LoadRandomClassifier.IPORT_IN_DATA, type = PortAnnotation.PortType.INPUT),
-    @PortAnnotation(name = LoadRandomClassifier.OPORT_OUT_DATA, type = PortAnnotation.PortType.OUTPUT)
+    @PortAnnotation(name = LoadSeedGenerator.IPORT_IN_DATA, type = PortAnnotation.PortType.INPUT),
+    @PortAnnotation(name = LoadSeedGenerator.OPORT_OUT_DATA, type = PortAnnotation.PortType.OUTPUT)
 })
-public class LoadRandomClassifier extends AbstractModule {
+public class LoadSeedGenerator extends AbstractModule {
     public static final String IPORT_IN_DATA = "in_data";
     public static final String OPORT_OUT_DATA = "out_data";
-    private static Logger LOG = LoggerFactory.getLogger(LoadRandomClassifier.class);
+    private static Logger LOG = LoggerFactory.getLogger(LoadSeedGenerator.class);
 
     HashMap<String, Object> processedkeys = new HashMap<String, Object>();
     ArrayList<String> keys = new ArrayList<String>();

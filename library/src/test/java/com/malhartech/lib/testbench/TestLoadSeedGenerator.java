@@ -16,18 +16,18 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional test for {@link com.malhartech.lib.testbench.LoadRandomClassifier}<p>
+ * Functional test for {@link com.malhartech.lib.testbench.LoadSeedGenerator}<p>
  * <br>
  * Four keys are sent in at a high throughput rate and the classification is expected to be cover all combinations<br>
  * <br>
  * Benchmarks: A total of 40 million tuples are pushed in each benchmark<br>
  * String schema does about 1.5 Million tuples/sec<br>
- * LoadRandomClassifier.valueData schema is about 4 Million tuples/sec<br>
+ * LoadSeedGenerator.valueData schema is about 4 Million tuples/sec<br>
  * <br>
  * DRC checks are validated<br>
  */
-public class TestLoadRandomClassifier {
-  private static Logger LOG = LoggerFactory.getLogger(LoadRandomClassifier.class);
+public class TestLoadSeedGenerator {
+  private static Logger LOG = LoggerFactory.getLogger(LoadSeedGenerator.class);
 
   class TestSink implements Sink {
     HashMap<String, HashMap> collectedTuples = new HashMap<String, HashMap>();
@@ -58,8 +58,8 @@ public class TestLoadRandomClassifier {
             }
           }
           else { // tbd, convert valueData into a string
-            ArrayList<LoadRandomClassifier.valueData> alist = e.getValue();
-            for (LoadRandomClassifier.valueData v: alist) {
+            ArrayList<LoadSeedGenerator.valueData> alist = e.getValue();
+            for (LoadSeedGenerator.valueData v: alist) {
               val.put(v.str, null);
             }
           }
@@ -77,56 +77,56 @@ public class TestLoadRandomClassifier {
   {
 
     ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
-    LoadRandomClassifier node = new LoadRandomClassifier();
+    LoadSeedGenerator node = new LoadSeedGenerator();
 
-    // conf.set(LoadRandomClassifier.KEY_KEYS, "x:0,100;y:0,100;gender:0,1;age:10,120"); // the good key
-    conf.set(LoadRandomClassifier.KEY_KEYS, "");
+    // conf.set(LoadSeedGenerator.KEY_KEYS, "x:0,100;y:0,100;gender:0,1;age:10,120"); // the good key
+    conf.set(LoadSeedGenerator.KEY_KEYS, "");
     try {
       node.myValidation(conf);
-      Assert.fail("validation error  " + LoadRandomClassifier.KEY_KEYS);
+      Assert.fail("validation error  " + LoadSeedGenerator.KEY_KEYS);
     }
     catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + LoadRandomClassifier.KEY_KEYS,
+      Assert.assertTrue("validate " + LoadSeedGenerator.KEY_KEYS,
                         e.getMessage().contains("is empty"));
     }
 
-    conf.set(LoadRandomClassifier.KEY_KEYS, "x:0,100;;gender:0,1;age:10,120");
+    conf.set(LoadSeedGenerator.KEY_KEYS, "x:0,100;;gender:0,1;age:10,120");
     try {
       node.myValidation(conf);
-      Assert.fail("validation error  " + LoadRandomClassifier.KEY_KEYS);
+      Assert.fail("validation error  " + LoadSeedGenerator.KEY_KEYS);
     }
     catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + LoadRandomClassifier.KEY_KEYS,
+      Assert.assertTrue("validate " + LoadSeedGenerator.KEY_KEYS,
                         e.getMessage().contains("slot of parameter \"key\" is empty"));
     }
 
-    conf.set(LoadRandomClassifier.KEY_KEYS, "x:0,100;y:0:100;gender:0,1;age:10,120"); // the good key
+    conf.set(LoadSeedGenerator.KEY_KEYS, "x:0,100;y:0:100;gender:0,1;age:10,120"); // the good key
     try {
       node.myValidation(conf);
-      Assert.fail("validation error  " + LoadRandomClassifier.KEY_KEYS);
+      Assert.fail("validation error  " + LoadSeedGenerator.KEY_KEYS);
     }
     catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + LoadRandomClassifier.KEY_KEYS,
+      Assert.assertTrue("validate " + LoadSeedGenerator.KEY_KEYS,
                         e.getMessage().contains("malformed in parameter \"key\""));
     }
 
-    conf.set(LoadRandomClassifier.KEY_KEYS, "x:0,100;y:0,100,3;gender:0,1;age:10,120"); // the good key
+    conf.set(LoadSeedGenerator.KEY_KEYS, "x:0,100;y:0,100,3;gender:0,1;age:10,120"); // the good key
     try {
       node.myValidation(conf);
-      Assert.fail("validation error  " + LoadRandomClassifier.KEY_KEYS);
+      Assert.fail("validation error  " + LoadSeedGenerator.KEY_KEYS);
     }
     catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + LoadRandomClassifier.KEY_KEYS,
+      Assert.assertTrue("validate " + LoadSeedGenerator.KEY_KEYS,
                         e.getMessage().contains("of parameter \"key\" is malformed"));
     }
 
-    conf.set(LoadRandomClassifier.KEY_KEYS, "x:0,100;y:100,0;gender:0,1;age:10,120"); // the good key
+    conf.set(LoadSeedGenerator.KEY_KEYS, "x:0,100;y:100,0;gender:0,1;age:10,120"); // the good key
     try {
       node.myValidation(conf);
-      Assert.fail("validation error  " + LoadRandomClassifier.KEY_KEYS);
+      Assert.fail("validation error  " + LoadSeedGenerator.KEY_KEYS);
     }
     catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + LoadRandomClassifier.KEY_KEYS,
+      Assert.assertTrue("validate " + LoadSeedGenerator.KEY_KEYS,
                         e.getMessage().contains("Low value \"100\" is >= high value \"0\" for \"y\""));
     }
   }
@@ -144,19 +144,19 @@ public class TestLoadRandomClassifier {
   public void testSchemaNodeProcessing(boolean isstring) throws Exception
   {
 
-    LoadRandomClassifier node = new LoadRandomClassifier();
+    LoadSeedGenerator node = new LoadSeedGenerator();
 
     TestSink classifySink = new TestSink();
     node.connect(LoadClassifier.OPORT_OUT_DATA, classifySink);
 
     ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
-    conf.set(LoadRandomClassifier.KEY_KEYS, "x:0,99;y:0,99;gender:0,1;age:10,109"); // the good key
+    conf.set(LoadSeedGenerator.KEY_KEYS, "x:0,99;y:0,99;gender:0,1;age:10,109"); // the good key
 
     if (isstring) {
-      conf.set(LoadRandomClassifier.KEY_STRING_SCHEMA, "true");
+      conf.set(LoadSeedGenerator.KEY_STRING_SCHEMA, "true");
     }
     else {
-      conf.set(LoadRandomClassifier.KEY_STRING_SCHEMA, "false");
+      conf.set(LoadSeedGenerator.KEY_STRING_SCHEMA, "false");
     }
     classifySink.isstring = isstring;
 
