@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Generates load based on range provided for the keys, and adds new classification to incoming keys. The new tuple is emitted
+ * Generates one time seed load based on range provided for the keys, and adds new classification to incoming keys. The new tuple is emitted
  * on the output port <b>data</b>
  * <br>
  * Examples of getting seed distributions include<br>

@@ -287,7 +287,6 @@ public class TestLoadSeedGenerator
           LOG.error("Unexpected error while sleeping for 1 s", e);
         }
       }
-
       LOG.debug(String.format("\n********************************************\nSchema %s, %s, %s: Emitted %d tuples, with %d keys, and %d ckeys\n********************************************\n",
                               isstring ? "String" : "ArrayList",
                               insert ? "insert values" : "skip insert",
