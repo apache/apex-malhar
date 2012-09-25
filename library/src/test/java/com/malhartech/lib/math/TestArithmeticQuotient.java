@@ -87,7 +87,7 @@ public class TestArithmeticQuotient
       public void run()
       {
         inactive.set(false);
-        node.activate(new ModuleContext("ArithmeticQuotientTestNode"));
+        node.activate(new ModuleContext("ArithmeticQuotientTestNode", this));
       }
     }.start();
 

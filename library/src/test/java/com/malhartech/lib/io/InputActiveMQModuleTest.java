@@ -4,7 +4,6 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.lib.io.AbstractActiveMQInputModule;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.dag.*;
@@ -34,7 +33,7 @@ public class InputActiveMQModuleTest
 
     public MyStreamContext()
     {
-      super("irrelevant_id");
+      super("irrelevant_id", Thread.currentThread());  // the 2nd argument could be wrong. Please check.
       myserde = new DefaultSerDe();
     }
 

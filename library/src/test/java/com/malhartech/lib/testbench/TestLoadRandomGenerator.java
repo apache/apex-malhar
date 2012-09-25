@@ -163,7 +163,7 @@ public class TestLoadRandomGenerator {
             @Override
             public void run() {
                 inactive.set(false);
-                node.activate(new ModuleContext("LoadRandomGeneratorTestNode"));
+                node.activate(new ModuleContext("LoadRandomGeneratorTestNode", this));
             }
         }.start();
 

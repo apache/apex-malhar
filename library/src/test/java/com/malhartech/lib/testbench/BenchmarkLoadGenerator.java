@@ -138,7 +138,7 @@ public class BenchmarkLoadGenerator {
             @Override
             public void run() {
                 inactive.set(false);
-                node.activate(new ModuleContext("LoadGeneratorTestNode"));
+                node.activate(new ModuleContext("LoadGeneratorTestNode", this));
             }
         }.start();
 

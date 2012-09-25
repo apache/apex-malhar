@@ -83,7 +83,7 @@ public class TestArithmeticMargin
       public void run()
       {
         inactive.set(false);
-        node.activate(new ModuleContext("ArithmeticMarginTestNode"));
+        node.activate(new ModuleContext("ArithmeticMarginTestNode", this));
       }
     }.start();
 

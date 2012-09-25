@@ -61,19 +61,14 @@ public class LoadGenerator extends AbstractInputModule
 {
   public static final String OPORT_DATA = "data";
   public static final String OPORT_COUNT = "count";
-
   public static final String OPORT_COUNT_TUPLE_AVERAGE = "avg";
   public static final String OPORT_COUNT_TUPLE_COUNT = "count";
-
   private static Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
-
   final int sleep_time_default_value = 50;
   final int tuples_blast_default_value = 10000;
-
   protected int tuples_blast = tuples_blast_default_value;
   protected int maxCountOfWindows = Integer.MAX_VALUE;
   protected int sleep_time = sleep_time_default_value;
-
   HashMap<String, Double> keys = new HashMap<String, Double>();
   HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();
   ArrayList<Integer> weights = null;
@@ -81,21 +76,17 @@ public class LoadGenerator extends AbstractInputModule
   int total_weight = 0;
   private final Random random = new Random();
   protected boolean alive = true;
-
   private int rolling_window_count = 1;
   int[] tuple_numbers = null;
   int tuple_index = 0;
   int count_denominator = 1;
-
   private boolean count_connected = false;
-
   /**
    * keys are comma seperated list of keys for the load. These keys are send
    * one per tuple as per the other parameters
    *
    */
   public static final String KEY_KEYS = "keys";
-
   /**
    * values are to be assigned to each key. The tuple thus is a key,value
    * pair. The value field can either be empty (no value to any key), or a
@@ -103,41 +94,32 @@ public class LoadGenerator extends AbstractInputModule
    * must match the number of keys
    */
   public static final String KEY_VALUES = "values";
-
   /**
    * The weights define the probability of each key being assigned to current
    * tuple. The total of all weights is equal to 100%. If weights are not
    * specified then the probability is equal.
    */
   public static final String KEY_WEIGHTS = "weights";
-
   /**
    * The number of tuples sent out before the thread sleeps
    */
   public static final String KEY_TUPLES_BLAST = "tuples_blast";
-
   /**
    * The number of tuples sent out per milli second
    */
   public static final String KEY_SLEEP_TIME = "sleep_time";
-
   /**
    * The Maximum number of Windows to pump out.
    */
   public static final String MAX_WINDOWS_COUNT = "max_windows_count";
-
   /**
    * If specified as "true" a String class is sent, else HashMap is sent
    */
   public static final String KEY_STRING_SCHEMA = "string_schema";
-
   /**
    * The Maximum number of Windows to pump out.
    */
   public static final String ROLLING_WINDOW_COUNT = "rolling_window_count";
-
-
-
 
   /**
    *
@@ -151,9 +133,6 @@ public class LoadGenerator extends AbstractInputModule
       count_connected = (dagpart != null);
     }
   }
-
-
-
 
   /**
    *
@@ -247,7 +226,7 @@ public class LoadGenerator extends AbstractInputModule
     if (isstringschema) {
       if (vstr.length != 0) {
         LOG.debug(String.format("Value %s and stringschema is %s",
-                               config.get(KEY_VALUES, ""), config.get(KEY_STRING_SCHEMA, "")));
+                                config.get(KEY_VALUES, ""), config.get(KEY_STRING_SCHEMA, "")));
         ret = false;
         throw new IllegalArgumentException(
                 String.format("Value (\"%s\") cannot be specified if string_schema (\"%s\") is true",
@@ -294,7 +273,7 @@ public class LoadGenerator extends AbstractInputModule
     if (rolling_window_count != 1) { // Initialized the tuple_numbers
       tuple_numbers = new int[rolling_window_count];
       for (int i = tuple_numbers.length; i > 0; i--) {
-        tuple_numbers[i-1] = 0;
+        tuple_numbers[i - 1] = 0;
       }
       tuple_index = 0;
     }
@@ -324,13 +303,6 @@ public class LoadGenerator extends AbstractInputModule
     }
   }
 
-
-  @Override
-  public void teardown() {
-    this.alive = false; // TODO: need solution for alive in AbstractInputModule
-    super.teardown();
-  }
-
   /**
    * Generates all the tuples till alive (deactivate) is issued
    *
@@ -342,45 +314,45 @@ public class LoadGenerator extends AbstractInputModule
   {
     int i = 0;
 
-    while (alive) {
-      String tuple_key; // the tuple key
-      int j = 0;
-      do {
-        if (weights != null) { // weights are not even
-          int rval = random.nextInt(total_weight);
-          j = 0; // for randomization, need to reset to 0
-          int wval = 0;
-          for (Integer e: weights) {
-            wval += e.intValue();
-            if (wval >= rval) {
-              break;
+    try {
+      while (alive) {
+        String tuple_key; // the tuple key
+        int j = 0;
+        do {
+          if (weights != null) { // weights are not even
+            int rval = random.nextInt(total_weight);
+            j = 0; // for randomization, need to reset to 0
+            int wval = 0;
+            for (Integer e: weights) {
+              wval += e.intValue();
+              if (wval >= rval) {
+                break;
+              }
+              j++;
             }
+          }
+          else {
             j++;
+            j = j % keys.size();
+          }
+          // j is the key index
+          tuple_key = wtostr_index.get(j);
+          if (!isstringschema) {
+            HashMap<String, Double> tuple = new HashMap<String, Double>();
+            tuple.put(tuple_key, keys.get(tuple_key));
+            emit(OPORT_DATA, tuple);
+          }
+          else {
+            emit(OPORT_DATA, tuple_key);
           }
         }
-        else {
-          j++;
-          j = j % keys.size();
-        }
-        // j is the key index
-        tuple_key = wtostr_index.get(j);
-        if (!isstringschema) {
-          HashMap<String, Double> tuple = new HashMap<String, Double>();
-          tuple.put(tuple_key, keys.get(tuple_key));
-          emit(OPORT_DATA, tuple);
-        }
-        else {
-          emit(OPORT_DATA, tuple_key);
-        }
-      } while (++i % tuples_blast != 0);
-
-      try {
+        while (++i % tuples_blast != 0);
+        
         Thread.sleep(sleep_time); // Remove sleep if you want to blast data at huge rate
       }
-      catch (InterruptedException e) {
-        LOG.error(String.format("Unexpected error while sleeping for %d s", sleep_time), e);
-        alive = false;
-      }
+    }
+    catch (InterruptedException e) {
+      LOG.info("Exiting the loop as encountered {}", e);
     }
     LOG.debug("Finished generating tuples");
   }
@@ -410,14 +382,14 @@ public class LoadGenerator extends AbstractInputModule
             }
           }
           else {
-            tuple_numbers[count_denominator-1] = tcount;
+            tuple_numbers[count_denominator - 1] = tcount;
             denominator = count_denominator;
             count_denominator++;
           }
           for (int i = 0; i < denominator; i++) {
             average += tuple_numbers[i];
           }
-          average = average/denominator;
+          average = average / denominator;
         }
         HashMap<String, Integer> tuples = new HashMap<String, Integer>();
         tuples.put(OPORT_COUNT_TUPLE_AVERAGE, new Integer(average));
