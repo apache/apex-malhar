@@ -247,7 +247,7 @@ public class TestLoadSeedGenerator
         public void run()
         {
           inactive.set(false);
-          node.activate(new ModuleContext("LoadSeedGeneratorTestNode"));
+          node.activate(new ModuleContext("LoadSeedGeneratorTestNode", this));
         }
       }.start();
 
