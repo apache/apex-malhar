@@ -249,6 +249,7 @@ public class TestLoadSeedGenerator
         {
           inactive.set(false);
           node.activate(new ModuleContext("LoadSeedGeneratorTestNode", this));
+          inactive.set(true);
         }
       }.start();
 
@@ -266,7 +267,9 @@ public class TestLoadSeedGenerator
       }
       wingen.activate(null);
 
-      while (!node.seed_done) {
+      int maxticks = insert ? 500 : 200;
+
+      for (int i = 0; i < maxticks && !inactive.get(); i++) {
         mses.tick(1);
         try {
           Thread.sleep(1);
@@ -275,17 +278,17 @@ public class TestLoadSeedGenerator
           LOG.error("Unexpected error while sleeping for 1 s", e);
         }
       }
-      wingen.deactivate();
-      //node.deactivate();
+
+      if (!inactive.get()) {
+        node.deactivate();
+      }
 
       // Let the reciever get the tuples from the queue
-      for (int i = 0; i < 25; i++) {
-        try {
-          Thread.sleep(1);
-        }
-        catch (InterruptedException e) {
-          LOG.error("Unexpected error while sleeping for 1 s", e);
-        }
+      try {
+        Thread.sleep(15);
+      }
+      catch (InterruptedException e) {
+        LOG.error("Unexpected error while sleeping for 1 s", e);
       }
       LOG.debug(String.format("\n********************************************\nSchema %s, %s, %s: Emitted %d tuples, with %d keys, and %d ckeys\n********************************************\n",
                               isstring ? "String" : "ArrayList",
