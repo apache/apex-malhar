@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Takes in a stream via input port "data". Inverts the index and sends out the tuple on output port "index"<p>At the
+ * Takes in a stream via input port "data". Inverts the index and sends out the tuple on output port "index"<p>
  *
  *
  *
