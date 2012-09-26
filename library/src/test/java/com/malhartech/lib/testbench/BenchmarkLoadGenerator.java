@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,9 +100,10 @@ public class BenchmarkLoadGenerator {
 
     /**
      * Benchmark the maximum payload flow for String
-     * The sink would simply ignore the payload as we are testing througput
+     * The sink would simply ignore the payload as we are testing throughput
      */
     @Test
+    @Category(com.malhartech.PerformanceTestCategory.class)
     public void testNodeProcessing() throws Exception {
 
         final LoadGenerator node = new LoadGenerator();
