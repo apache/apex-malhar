@@ -205,6 +205,7 @@ public class TestLoadSeedGenerator
       testSchemaNodeProcessing(false, true, true);
     }
 
+  @SuppressWarnings("SleepWhileInLoop")
     public void testSchemaNodeProcessing(boolean isstring, boolean insert, boolean nokey) throws Exception
     {
 
