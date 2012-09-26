@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Generates seeds and merges data as it comes in from input ports (<b>in_data1</b>, and <b>in_data2</b>. The new tuple is emitted
- * on the output port <b>data</b>
+ * on the output port <b>out_data</b>
  * <br>
  * Examples of getting seed distributions include<br>
  * Chages in mobile co-ordinates of a phone<br>
@@ -27,7 +27,9 @@ import org.slf4j.LoggerFactory;
  * <br>
  * The seed is created from the values of properties <b>seed_start</b>, and <b>seed_end</b>
  * <br>
- * Benchmarks: This node has been benchmarked at over ?? million tuples/second in local/in-line mode<br>
+ * Benchmarks:<br>
+ * String: Benchmarked at over 3.5 million tuples/second in local/in-line mode<br>
+ * Integer: Benchmarked at over 3.0 million tuples/second in local/in-line mode<br>
  * <br>
  * <b>Default schema</b>:<br>
  * Schema for port <b>data</b>: The default schema is HashMap<String, ArrayList<valueData>>, where valueData is class{String, Integer}<br>
@@ -174,12 +176,12 @@ public class SeedClassifier extends AbstractModule {
     indata2_str = config.get(KEY_IN_DATA2_CLASSIFIER);
 
     if (istart > iend) {
-      s_start = istart;
-      s_end = iend;
-    }
-    else {
       s_start = iend;
       s_end = istart;
+    }
+    else {
+      s_start = istart;
+      s_end = iend;
     }
 
     LOG.debug(String.format("Set up for seed_start(%d), seed_end (%d), indata1_classifier(%s), and indata2_classifier(%s)", s_start, s_end, indata1_str, indata2_str));

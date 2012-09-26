@@ -13,6 +13,7 @@
  * <b>{@link com.malhartech.lib.testbench.LoadGenerator}</b>: Generates tuples for a given list of keys. Adds values to the tuple if they are specified. Allows limited randomization of probability<br>
  * <b>{@link com.malhartech.lib.testbench.LoadRandomGenerator}</b>: Generates synthetic load. Creates tuples using random numbers and keeps emitting them on the output port "data"<br>
  * <b>{@link com.malhartech.lib.testbench.LoadSeedGenerator}</b>: Generates one time seed load based on range provided for the keys, and adds new classification to incoming keys. The new tuple is emitted on the output port <b>data</b><br>
+ * <b>{@link com.malhartech.lib.testbench.SeedClassifier}</b>: Generates seeds and merges data as it comes in from input ports (<b>in_data1</b>, and <b>in_data2</b>. The new tuple is emitted on the output port <b>out_data</b>
  * <br>
  *
  */
