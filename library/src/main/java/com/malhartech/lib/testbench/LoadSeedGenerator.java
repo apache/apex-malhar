@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * Year, color, mileage for every car make (key is car make model)<br>
  * <br>
  * The classification to be done is based on the value of the property <b>key</b>. This property provides all the classification
- * information and their ranges<br>The range of values for the key is given by properties key_min and key_max
+ * information and their ranges<br>The range of values for the key is given in the format described below<br>
  * <br>
  * Benchmarks: This node has been benchmarked at over ?? million tuples/second in local/in-line mode<br>
  * <br>
@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  * Compile time checks are:<br>
  * <b>seed_start</b>Has to be an integer<br>
- * <b>sedd_end</b>Has to be an integer<br>
+ * <b>seed_end</b>Has to be an integer<br>
  * <b>key</b>If provided has to be in format "key1,key1start,key1end;key2, key2start, key2end; ..."
  * <br>
  * @author amol
@@ -71,11 +71,12 @@ public class LoadSeedGenerator extends AbstractInputModule {
     final int s_start_default = 0;
     final int s_end_default = 99;
 
-    int s_start = 0;
-    int s_end = 99;
+    int s_start = s_start_default;
+    int s_end = s_end_default;
+
+    public boolean seed_done = false;
 
     private final Random random = new Random();
-    protected boolean alive = true;
 
   /**
    * Start integer value for seeding<p>
@@ -310,41 +311,17 @@ public class LoadSeedGenerator extends AbstractInputModule {
     int lstart = s_start;
     int lend = s_end;
 
-    while (alive) {
-      if (lstart < lend) {
-        for (int i = lstart; i < lend; i++) {
-          emit(OPORT_DATA, getTuple(i));
-        }
+    if (lstart < lend) {
+      for (int i = lstart; i < lend; i++) {
+        emit(OPORT_DATA, getTuple(i));
       }
-      else {
-        for (int i = lstart; i > lend; i--) {
-          emit(OPORT_DATA, getTuple(i));
-        }
+    }
+    else {
+      for (int i = lstart; i > lend; i--) {
+        emit(OPORT_DATA, getTuple(i));
       }
-      // Seed only once
-      break;
     }
     LOG.debug("Finished generating tuples");
-  }
-
-
-  /**
-   * Stops any more emitting of tuples
-   */
-  @Override
-  public void teardown() {
-    this.alive = false; // TODO: need solution for alive in AbstractInputModule
-    super.teardown();
-  }
-
-
-  /**
-   * Nothing to do as of now in endWindow. But may send out tuples data on endWindow to another port(?)
-   */
-  @Override
-  public void endWindow() {
-    // do nothing for now
-    // In future support tuple blasting
-    // May need to make LoadGenerator thread/tuple_blast/sleep_time a base class
+    seed_done = true;
   }
 }

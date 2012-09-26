@@ -242,7 +242,7 @@ public class TestLoadSeedGenerator
       node.setup(conf);
 
       final AtomicBoolean inactive = new AtomicBoolean(true);
-      new Thread()
+      new Thread("SchemaNodeProcessing-" + isstring + ":" + insert + ":" + nokey)
       {
         @Override
         public void run()
@@ -266,9 +266,7 @@ public class TestLoadSeedGenerator
       }
       wingen.activate(null);
 
-      int maxticks = insert ? 500 : 200;
-
-      for (int i = 0; i < maxticks; i++) {
+      while (!node.seed_done) {
         mses.tick(1);
         try {
           Thread.sleep(1);
@@ -277,10 +275,11 @@ public class TestLoadSeedGenerator
           LOG.error("Unexpected error while sleeping for 1 s", e);
         }
       }
-      node.deactivate();
+      wingen.deactivate();
+      //node.deactivate();
 
       // Let the reciever get the tuples from the queue
-      for (int i = 0; i < 15; i++) {
+      for (int i = 0; i < 25; i++) {
         try {
           Thread.sleep(1);
         }
