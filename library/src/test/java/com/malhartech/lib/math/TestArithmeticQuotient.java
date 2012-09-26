@@ -99,7 +99,7 @@ public class TestArithmeticQuotient
       do {
         Thread.sleep(20);
         sleeptimes++;
-        if (sleeptimes > 20) {
+        if (sleeptimes > 5) {
           break;
         }
 
