@@ -25,19 +25,16 @@ import org.slf4j.LoggerFactory;
  * It does not need to be windowed. It would just create tuple stream upto the limit set
  * by the config parameters.<br>
  * <br>
- * This node has been benchmarked at over 15 million tuples/second for String objects in local/inline mode<br>
- * <br>
  * <b>Tuple Schema</b>: Has two choices HashMap<String, Double>, or String<br><br>
- * <b>Benchmarks></b>:
- * String schema does about 4 Million tuples/sec in throughput<br>
- * HashMap schema does about 2.5 Million tuples/sec in throughput<br>
+ * <b>Benchmarks></b>: Send as many tuples in in-line mode, the receiver just counts the tuples and drops the object<br>
+ * String schema does about 26 Million tuples/sec in throughput<br>
+ * HashMap schema does about 10 Million tuples/sec in throughput<br>
  * <b>Port Interface</b>:It has only one output port "data" and has no input ports<br><br>
  * <b>Properties</b>:
  * <b>keys</b> is a comma separated list of keys. This key are the <key> field in the tuple<br>
  * <b>values</b> are comma separated list of values. This value is the <value> field in the tuple. If not specified the values for all keys are 0.0<br>
  * <b>weights</b> are comma separated list of probability weights for each key. If not specified the weights are even for all keys<br>
- * <b>tuples_blast</b> is the total number of tuples sent out before the thread sleeps. The default value is 10000<br>
- * <b>sleep_time</b> is the sleep time for the thread between batch of tuples being sent out. The default value is 50<br>
+ * <b>tuples_blast</b> is the total number of tuples sent out before the thread returns control. The default value is 10000<br>
  * <b>max_windows_count</b>The number of windows after which the node would shut down. If not set, the node runs forever<br>
  * <b>string_schema</b> controls the tuple schema. For string set it to "true". By default it is "false" (i.e. HashMap schema)<br>
  * <br>
@@ -64,11 +61,9 @@ public class LoadGenerator extends AbstractInputModule
   public static final String OPORT_COUNT_TUPLE_AVERAGE = "avg";
   public static final String OPORT_COUNT_TUPLE_COUNT = "count";
   private static Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
-  final int sleep_time_default_value = 50;
   final int tuples_blast_default_value = 10000;
   protected int tuples_blast = tuples_blast_default_value;
   protected int maxCountOfWindows = Integer.MAX_VALUE;
-  protected int sleep_time = sleep_time_default_value;
   HashMap<String, Double> keys = new HashMap<String, Double>();
   HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();
   ArrayList<Integer> weights = null;
@@ -100,13 +95,10 @@ public class LoadGenerator extends AbstractInputModule
    */
   public static final String KEY_WEIGHTS = "weights";
   /**
-   * The number of tuples sent out before the thread sleeps
+   * The number of tuples sent out before it returns control. Users need to ensure that this does not cross window boundary
    */
   public static final String KEY_TUPLES_BLAST = "tuples_blast";
-  /**
-   * The number of tuples sent out per milli second
-   */
-  public static final String KEY_SLEEP_TIME = "sleep_time";
+
   /**
    * The Maximum number of Windows to pump out.
    */
@@ -212,17 +204,7 @@ public class LoadGenerator extends AbstractInputModule
       LOG.debug(String.format("tuples_blast set to %d", tuples_blast));
     }
 
-    sleep_time = config.getInt(KEY_SLEEP_TIME, sleep_time_default_value);
-    if (sleep_time <= 0) {
-      ret = false;
-      throw new IllegalArgumentException(
-              String.format("sleep_time (%d) has to be > 0", sleep_time));
-    }
-    else {
-      LOG.debug(String.format("sleep_time set to %d", sleep_time));
-    }
-
-    if (isstringschema) {
+     if (isstringschema) {
       if (vstr.length != 0) {
         LOG.debug(String.format("Value %s and stringschema is %s",
                                 config.get(KEY_VALUES, ""), config.get(KEY_STRING_SCHEMA, "")));
@@ -266,9 +248,9 @@ public class LoadGenerator extends AbstractInputModule
 
     isstringschema = config.getBoolean(KEY_STRING_SCHEMA, false);
     tuples_blast = config.getInt(KEY_TUPLES_BLAST, tuples_blast_default_value);
-    sleep_time = config.getInt(KEY_SLEEP_TIME, sleep_time_default_value);
     rolling_window_count = config.getInt(ROLLING_WINDOW_COUNT, 1);
-
+    maxCountOfWindows = config.getInt(MAX_WINDOWS_COUNT, Integer.MAX_VALUE);
+    
     if (rolling_window_count != 1) { // Initialized the tuple_numbers
       tuple_numbers = new int[rolling_window_count];
       for (int i = tuple_numbers.length; i > 0; i--) {

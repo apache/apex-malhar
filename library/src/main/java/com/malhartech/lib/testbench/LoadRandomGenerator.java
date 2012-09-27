@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * a range at a very high throughput. This node does not need to be windowed. It would just create tuple stream upto the limit set
  * by the config parameters.<br>
  * <br>
- * This node has been benchmarked at over 10 million tuples/second for String objects in local/inline mode<br>
+ * This node has been benchmarked at over 12 million tuples/second for String objects in local/inline mode<br>
  * <br>
  * <b>Tuple Schema</b>: Has two choices Integer, or String<br><br>
  * <b>Port Interface</b>:It has only one output port "data" and has no input ports<br><br>

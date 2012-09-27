@@ -24,14 +24,13 @@ import org.slf4j.LoggerFactory;
  * Tests {@link com.malhartech.lib.testbench.LoadGenerator} at a very high load with stringschema. Current peak benchmark is at 16 Million tuples/sec<p>
  * <br>
  * The benchmark results matter a lot in terms of how thread contention is handled. The test has three parts<br>
- * 1. Trigger the input generator with a very high load and no wait. Simultaneously start read thread, but do sleep
- * once a while. Set the buffersize large enough to handle growing queued up tuples<br>
+ * 1. Trigger the input generator with a very high load and no wait. Set the buffersize large enough to handle growing queued up tuples<br>
  * 2. Deactivate load generator node and drain the queue<br>
  * 3. Wait till all the queue is drained<br>
  * <br>
  * No DRC check is done on the node as this test is for benchmark only<br>
  * <br>
- * Benchmark is at 16 Million tuples/src. Once we get to real Hadoop cluster, we should increase the buffer size to handle 100x more tuples and see what the raw
+ * Benchmark is at 26 Million tuples/src. Once we get to real Hadoop cluster, we should increase the buffer size to handle 100x more tuples and see what the raw
  * throughput would be. Then on we would not need to force either thread to wait, or be hampered by low memory on debugging
  * envinronment<br>
  * <br>
@@ -127,10 +126,9 @@ public class BenchmarkLoadGenerator {
         lgenSink.dohash = false;
 
         conf.set(LoadGenerator.KEY_KEYS, "a");
-        conf.set(LoadGenerator.KEY_STRING_SCHEMA, "true");
+        conf.set(LoadGenerator.KEY_STRING_SCHEMA, "false");
         conf.setInt(LoadGenerator.KEY_TUPLES_BLAST, 50000000);
-        conf.setInt(LoadGenerator.KEY_SLEEP_TIME, 25);
-        conf.setInt("SpinMillis", 5);
+          conf.setInt("SpinMillis", 5);
         conf.setInt("BufferCapacity", 2 * 1024 * 1024);
 
       node.setup(conf);

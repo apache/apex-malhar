@@ -229,6 +229,7 @@ public class TestLoadSeedGenerator
 
     conf.set(LoadSeedGenerator.KEY_SEED_START, "1");
     conf.set(LoadSeedGenerator.KEY_SEED_END, "1000000");
+    int numtuples = 500;
     if (!nokey) {
       conf.set(LoadSeedGenerator.KEY_KEYS, "x:0,9;y:0,9;gender:0,1;age:10,19"); // the good key
     }
@@ -267,14 +268,13 @@ public class TestLoadSeedGenerator
     }
 
     wingen.activate(null);
-    mses.tick(1);
-    try {
-      Thread.sleep(5);
-    }
-    catch (InterruptedException ie) {
-    }
-    finally {
+    for (int i = 0; i < numtuples; i++) {
       mses.tick(1);
+      try {
+        Thread.sleep(1);
+      }
+      catch (InterruptedException ie) {
+      }
     }
 
 //      wingen.deactivate();

@@ -28,7 +28,9 @@ import org.slf4j.LoggerFactory;
  * The classification to be done is based on the value of the property <b>key</b>. This property provides all the classification
  * information and their ranges<br>The range of values for the key is given in the format described below<br>
  * <br>
- * Benchmarks: This node has been benchmarked at over ?? million tuples/second in local/in-line mode<br>
+ * <b>Benchmarks</b>: Generate as many tuples as possible in inline mode<br>
+ * HashMap<String, String>: 18 million/sec with no classification; 1.8 million tuples/sec with classification<br>
+ * HashMap<Sring, ArrayList<Integer>>: 18 million/sec with no classification; 3.5 million tuples/sec with classification<br>
  * <br>
  * <b>Default schema</b>:<br>
  * Schema for port <b>data</b>: The default schema is HashMap<String, ArrayList<valueData>>, where valueData is class{String, Integer}<br>
@@ -72,7 +74,6 @@ public class LoadSeedGenerator extends AbstractInputModule
   final int s_end_default = 99;
   int s_start = s_start_default;
   int s_end = s_end_default;
-  public boolean seed_done = false;
   private final Random random = new Random();
   /**
    * Start integer value for seeding<p>
@@ -316,14 +317,5 @@ public class LoadSeedGenerator extends AbstractInputModule
       }
     }
     LOG.debug("Finished generating tuples");
-    seed_done = true;
-  }
-
-  @Override
-  public void endWindow()
-  {
-    if (seed_done) {
-      deactivate();
-    }
   }
 }

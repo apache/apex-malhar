@@ -131,8 +131,6 @@ public class TestArithmeticQuotient
       denSink.process(dinput);
     }
 
-
-
     Tuple et = StramTestSupport.generateEndWindowTuple("doesn't matter", 1, 1);
     numSink.process(et);
     denSink.process(et);

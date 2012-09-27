@@ -116,8 +116,8 @@ public class TestSeedClassifier {
      */
     @Test
     public void testNodeProcessing() throws Exception {
-      testSchemaNodeProcessing(true);
-      testSchemaNodeProcessing(false);
+      testSchemaNodeProcessing(true); // 5.7 million/sec
+      testSchemaNodeProcessing(false); // 4.0 million/sec
     }
 
     /**
@@ -176,7 +176,7 @@ public class TestSeedClassifier {
       inSink1.process(bt);
       inSink2.process(bt);
 
-      int numtuples = 10000000;
+      int numtuples = 50000000;
       if (isstring) {
         String input;
         for (int i = 0; i < numtuples; i++) {
@@ -201,7 +201,7 @@ public class TestSeedClassifier {
       // Should get one bag of keys "a", "b", "c"
       try {
         for (int i = 0; i < 50; i++) {
-          Thread.sleep(20);
+          Thread.sleep(10);
           if (classifySink.count >= numtuples*2 - 1) {
             break;
           }

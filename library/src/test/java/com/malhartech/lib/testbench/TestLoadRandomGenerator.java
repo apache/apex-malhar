@@ -179,7 +179,7 @@ public class TestLoadRandomGenerator {
         }
 
         wingen.activate(null);
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1000; i++) {
             mses.tick(1);
             try {
                 Thread.sleep(1);

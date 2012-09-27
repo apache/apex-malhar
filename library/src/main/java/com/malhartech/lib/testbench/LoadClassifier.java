@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * or append (append is not yet supported)<br>. For each incoming key users can provide an insertion
  * probability for the insert keys. This allows for randomization of the insert key choice<br><br>
  * <br>
- * Benchmarks: This node has been benchmarked at over 10 million tuples/second in local/inline mode<br>
+ * Benchmarks: This node has been benchmarked at over 5 million tuples/second in local/inline mode<br>
  *
  * <b>Tuple Schema</b>: Each tuple is HashMap<String, Double> on both the ports. Currently other schemas are not supported<br>
  * <b>Port Interface</b><br>

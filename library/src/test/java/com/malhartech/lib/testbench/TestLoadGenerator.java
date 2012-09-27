@@ -181,20 +181,8 @@ public class TestLoadGenerator {
         }
 
         conf.set(LoadGenerator.KEY_VALUES, "1,2,3,4");
-        conf.set(LoadGenerator.KEY_TUPLES_BLAST, "10000");
-        conf.set(LoadGenerator.KEY_SLEEP_TIME, "-1");
-        try {
-            node.myValidation(conf);
-            Assert.fail("validation error  " + LoadGenerator.KEY_SLEEP_TIME);
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadGenerator.KEY_SLEEP_TIME,
-                    e.getMessage().contains("has to be > 0"));
-        }
-
-        conf.set(LoadGenerator.KEY_VALUES, "1,2,3,4");
         conf.set(LoadGenerator.KEY_STRING_SCHEMA, "true");
         conf.set(LoadGenerator.KEY_TUPLES_BLAST, "10000");
-        conf.set(LoadGenerator.KEY_SLEEP_TIME, "1000");
         try {
             node.myValidation(conf);
             Assert.fail("validation error  " + LoadGenerator.KEY_STRING_SCHEMA);
@@ -221,10 +209,10 @@ public class TestLoadGenerator {
   @Test
   public void testNodeProcessing() throws Exception
   {
-    testSingleSchemaNodeProcessing(true, true);
-    testSingleSchemaNodeProcessing(true, false);
-    testSingleSchemaNodeProcessing(false, true);
-    testSingleSchemaNodeProcessing(false, false);
+    testSingleSchemaNodeProcessing(true, true); // 10.5 million/s
+    testSingleSchemaNodeProcessing(true, false); // 7.5 million/s
+    testSingleSchemaNodeProcessing(false, true); // 4.7 million/s
+    testSingleSchemaNodeProcessing(false, false); // 3 million/s
   }
 
     /**
@@ -262,9 +250,8 @@ public class TestLoadGenerator {
       lgenSink.test_hashmap = !stringschema;
       lgenSink.skiphash = skiphash;
       conf.set(LoadGenerator.KEY_WEIGHTS, "10,40,20,30");
-      conf.setInt(LoadGenerator.KEY_TUPLES_BLAST, 100000000);
-      conf.setInt(LoadGenerator.KEY_SLEEP_TIME, 1);
-      conf.setInt(LoadGenerator.ROLLING_WINDOW_COUNT, 10);
+      conf.setInt(LoadGenerator.KEY_TUPLES_BLAST, 10000000);
+      conf.setInt(LoadGenerator.ROLLING_WINDOW_COUNT, 5);
       conf.setInt("SpinMillis", 10);
       conf.setInt("BufferCapacity", 1024 * 1024);
 
@@ -313,7 +300,7 @@ public class TestLoadGenerator {
         // Assert.assertEquals("number emitted tuples", 5000, lgenSink.collectedTuples.size());
 //        LOG.debug("Processed {} tuples out of {}", lgenSink.collectedTuples.size(), lgenSink.count);
         LOG.debug(String.format("\n********************************************\nTesting with %s and%s insertion\nLoadGenerator emitted %d (%d) tuples in %d windows; Sink processed %d tuples",
-                  stringschema ? "String" : "HashMap", skiphash ? "" : " no",
+                  stringschema ? "String" : "HashMap", skiphash ? " no" : "",
                   countSink.count, countSink.average, countSink.num_tuples, lgenSink.count));
 
         for (Map.Entry<String, Integer> e: lgenSink.collectedTuples.entrySet()) {

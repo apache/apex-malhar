@@ -28,8 +28,8 @@ import org.slf4j.LoggerFactory;
  * The seed is created from the values of properties <b>seed_start</b>, and <b>seed_end</b>
  * <br>
  * Benchmarks:<br>
- * String: Benchmarked at over 3.5 million tuples/second in local/in-line mode<br>
- * Integer: Benchmarked at over 3.0 million tuples/second in local/in-line mode<br>
+ * String: Benchmarked at over 5.7 million tuples/second in local/in-line mode<br>
+ * Integer: Benchmarked at over 4.0 million tuples/second in local/in-line mode<br>
  * <br>
  * <b>Default schema</b>:<br>
  * Schema for port <b>data</b>: The default schema is HashMap<String, ArrayList<valueData>>, where valueData is class{String, Integer}<br>

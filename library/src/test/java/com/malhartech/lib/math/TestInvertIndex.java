@@ -100,17 +100,8 @@ public class TestInvertIndex
     input.put("b", alist);
     inSink.process(input);
 
-    try {
-      for (int i = 0; i < 10; i++) {
-        Thread.sleep(5);
-      }
-    }
-    catch (InterruptedException ex) {
-      LOG.debug(ex.getLocalizedMessage());
-    }
-
-    alist.clear();
-    input.clear();
+    alist = new ArrayList<String>();
+    input = new HashMap<String, ArrayList>();
     alist.add(new String("blah"));
     alist.add(new String("str1"));
     input.put("c", alist);

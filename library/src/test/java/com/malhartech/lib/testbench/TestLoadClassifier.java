@@ -34,6 +34,9 @@ public class TestLoadClassifier {
         HashMap<String, Integer> collectedTuples = new HashMap<String, Integer>();
         HashMap<String, Double> collectedTupleValues = new HashMap<String, Double>();
 
+        int count = 0;
+        boolean dohash = true;
+
         /**
          *
          * @param payload
@@ -43,17 +46,21 @@ public class TestLoadClassifier {
             if (payload instanceof Tuple) {
                 // LOG.debug(payload.toString());
             } else {
-                HashMap<String, Double> tuple = (HashMap<String, Double>) payload;
-                for (Map.Entry<String, Double> e : tuple.entrySet()) {
-                    Integer ival = collectedTuples.get(e.getKey());
-                    if (ival == null) {
-                        ival = new Integer(1);
-                    } else {
-                        ival = ival + 1;
-                    }
-                    collectedTuples.put(e.getKey(), ival);
-                    collectedTupleValues.put(e.getKey(), e.getValue());
+              count++;
+              if (dohash) {
+                HashMap<String, Double> tuple = (HashMap<String, Double>)payload;
+                for (Map.Entry<String, Double> e: tuple.entrySet()) {
+                  Integer ival = collectedTuples.get(e.getKey());
+                  if (ival == null) {
+                    ival = new Integer(1);
+                  }
+                  else {
+                    ival = ival + 1;
+                  }
+                  collectedTuples.put(e.getKey(), ival);
+                  collectedTupleValues.put(e.getKey(), e.getValue());
                 }
+              }
             }
         }
         /**
@@ -62,6 +69,7 @@ public class TestLoadClassifier {
         public void clear() {
             collectedTuples.clear();
             collectedTupleValues.clear();
+            count = 0;
         }
     }
 
@@ -163,6 +171,7 @@ public class TestLoadClassifier {
         LoadClassifier node = new LoadClassifier();
 
         TestSink classifySink = new TestSink();
+        classifySink.dohash = true;
         node.connect(LoadClassifier.OPORT_OUT_DATA, classifySink);
         ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
 
@@ -190,9 +199,14 @@ public class TestLoadClassifier {
         }
         node.endWindow();
         int ival = 0;
-        for (Map.Entry<String, Integer> e : classifySink.collectedTuples.entrySet()) {
-            ival += e.getValue().intValue();
+      if (classifySink.dohash) {
+        for (Map.Entry<String, Integer> e: classifySink.collectedTuples.entrySet()) {
+          ival += e.getValue().intValue();
         }
+      }
+      else {
+        ival = classifySink.count;
+      }
 
         LOG.info(String.format("\nThe number of keys in %d tuples are %d and %d",
                 ival,
@@ -222,9 +236,14 @@ public class TestLoadClassifier {
         }
         nwnode.endWindow();
         ival = 0;
-        for (Map.Entry<String, Integer> e : classifySink.collectedTuples.entrySet()) {
-            ival += e.getValue().intValue();
+      if (classifySink.dohash) {
+        for (Map.Entry<String, Integer> e: classifySink.collectedTuples.entrySet()) {
+          ival += e.getValue().intValue();
         }
+      }
+      else {
+        ival = classifySink.count;
+      }
         LOG.info(String.format("\nThe number of keys in %d tuples are %d and %d",
                 ival,
                 classifySink.collectedTuples.size(),
@@ -256,9 +275,14 @@ public class TestLoadClassifier {
         }
         nvnode.endWindow();
         ival = 0;
-        for (Map.Entry<String, Integer> e : classifySink.collectedTuples.entrySet()) {
-            ival += e.getValue().intValue();
+      if (classifySink.dohash) {
+        for (Map.Entry<String, Integer> e: classifySink.collectedTuples.entrySet()) {
+          ival += e.getValue().intValue();
         }
+      }
+      else {
+        ival = classifySink.count;
+      }
         LOG.info(String.format("\nThe number of keys in %d tuples are %d and %d",
                 ival,
                 classifySink.collectedTuples.size(),
