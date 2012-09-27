@@ -75,7 +75,6 @@ public class LoadGenerator extends AbstractInputModule
   boolean isstringschema = false;
   int total_weight = 0;
   private final Random random = new Random();
-  protected boolean alive = true;
   private int rolling_window_count = 1;
   int[] tuple_numbers = null;
   int tuple_index = 0;
@@ -343,7 +342,7 @@ public class LoadGenerator extends AbstractInputModule
         emit(OPORT_COUNT, tuples);
       }
       if (--maxCountOfWindows == 0) {
-        alive = false;
+        deactivate();
       }
     }
   }
