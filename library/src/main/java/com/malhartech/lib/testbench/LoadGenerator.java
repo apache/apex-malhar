@@ -75,7 +75,7 @@ public class LoadGenerator extends AbstractInputModule
   int total_weight = 0;
   private final Random random = new Random();
   private int rolling_window_count = 1;
-  int[] tuple_numbers = null;
+  long[] tuple_numbers = null;
   int tuple_index = 0;
   int count_denominator = 1;
   private boolean count_connected = false;
@@ -261,7 +261,7 @@ public class LoadGenerator extends AbstractInputModule
     maxCountOfWindows = config.getInt(MAX_WINDOWS_COUNT, Integer.MAX_VALUE);
 
     if (rolling_window_count != 1) { // Initialized the tuple_numbers
-      tuple_numbers = new int[rolling_window_count];
+      tuple_numbers = new long[rolling_window_count];
       for (int i = tuple_numbers.length; i > 0; i--) {
         tuple_numbers[i - 1] = 0;
       }
@@ -296,7 +296,9 @@ public class LoadGenerator extends AbstractInputModule
   @Override
   public void beginWindow()
   {
-    window_start_time = System.currentTimeMillis();
+      if (count_connected) {
+        window_start_time = System.currentTimeMillis();
+      }
   }
 
 
@@ -309,17 +311,17 @@ public class LoadGenerator extends AbstractInputModule
   {
     //LOG.info(this +" endWindow: " + maxCountOfWindows + ", time=" + System.currentTimeMillis() + ", emitCount=" + emitCount);
     if (generatedTupleCount > 0) {
-      long elapsed_time = System.currentTimeMillis() - window_start_time;
       if (count_connected) {
+        long elapsed_time = System.currentTimeMillis() - window_start_time;
         int tcount = generatedTupleCount;
-        int average = 0;
+        long average = 0;
         if (rolling_window_count == 1) {
-          average = tcount;
+          average = (tcount * 1000) / elapsed_time;
         }
         else { // use tuple_numbers
           int denominator;
           if (count_denominator == rolling_window_count) {
-            tuple_numbers[tuple_index] = tcount;
+            tuple_numbers[tuple_index] = (tcount*1000)/elapsed_time;
             denominator = rolling_window_count;
             tuple_index++;
             if (tuple_index == rolling_window_count) {
@@ -327,7 +329,7 @@ public class LoadGenerator extends AbstractInputModule
             }
           }
           else {
-            tuple_numbers[count_denominator - 1] = tcount;
+            tuple_numbers[count_denominator - 1] = (tcount*1000)/elapsed_time;
             denominator = count_denominator;
             count_denominator++;
           }
@@ -337,7 +339,7 @@ public class LoadGenerator extends AbstractInputModule
           average = average / denominator;
         }
         HashMap<String, Number> tuples = new HashMap<String, Number>();
-        tuples.put(OPORT_COUNT_TUPLE_AVERAGE, new Integer(average));
+        tuples.put(OPORT_COUNT_TUPLE_AVERAGE, new Long(average));
         tuples.put(OPORT_COUNT_TUPLE_COUNT, new Integer(tcount));
         tuples.put(OPORT_COUNT_TUPLE_TIME, new Long(elapsed_time));
         tuples.put(OPORT_COUNT_TUPLE_TUPLES_PERSEC, new Long((tcount*1000)/elapsed_time));
