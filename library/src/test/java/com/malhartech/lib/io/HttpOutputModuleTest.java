@@ -25,7 +25,7 @@ import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.AbstractHandler;
 
 
-public class TestHttpOutputNode {
+public class HttpOutputModuleTest {
 
   @Test
   public void testHttpOutputNode() throws Exception {
@@ -55,10 +55,10 @@ public class TestHttpOutputNode {
     System.out.println("url: " + url);
 
 
-    HttpOutputNode node = new HttpOutputNode();
+    HttpOutputModule node = new HttpOutputModule();
 
     ModuleConfiguration config = new ModuleConfiguration("testNode", Collections.<String,String>emptyMap());
-    config.set(HttpOutputNode.P_RESOURCE_URL, url);
+    config.set(HttpOutputModule.P_RESOURCE_URL, url);
 
     node.setup(config);
 

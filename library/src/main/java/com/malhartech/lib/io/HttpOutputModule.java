@@ -37,9 +37,9 @@ import org.slf4j.LoggerFactory;
         @PortAnnotation(name = Component.INPUT, type = PortType.INPUT)
     }
 )
-public class HttpOutputNode extends AbstractModule
+public class HttpOutputModule extends AbstractModule
 {
-  private static final Logger LOG = LoggerFactory.getLogger(HttpOutputNode.class);
+  private static final Logger LOG = LoggerFactory.getLogger(HttpOutputModule.class);
 
   /**
    * The URL of the web service resource for the POST request.

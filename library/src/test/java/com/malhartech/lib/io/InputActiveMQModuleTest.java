@@ -29,12 +29,9 @@ public class InputActiveMQModuleTest
 
   private static final class MyStreamContext extends ModuleContext implements Sink
   {
-    DefaultSerDe myserde;
-
     public MyStreamContext()
     {
       super("irrelevant_id", Thread.currentThread());  // the 2nd argument could be wrong. Please check.
-      myserde = new DefaultSerDe();
     }
 
     @Override

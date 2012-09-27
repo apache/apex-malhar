@@ -3,20 +3,22 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.ModuleContext;
-import com.malhartech.dag.Sink;
-import com.malhartech.dag.Tuple;
-import com.malhartech.stream.StramTestSupport;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.ModuleContext;
+import com.malhartech.dag.Sink;
+import com.malhartech.dag.TestSink;
+import com.malhartech.dag.Tuple;
+import com.malhartech.stream.StramTestSupport;
 
 /**
  *
@@ -24,21 +26,6 @@ import org.slf4j.LoggerFactory;
 public class TestArithmeticQuotient
 {
   private static Logger LOG = LoggerFactory.getLogger(ArithmeticQuotient.class);
-
-  class TestSink implements Sink
-  {
-    List<Object> collectedTuples = new ArrayList<Object>();
-
-    @Override
-    public void process(Object payload)
-    {
-      if (payload instanceof Tuple) {
-      }
-      else {
-        collectedTuples.add(payload);
-      }
-    }
-  }
 
   /**
    * Test configuration and parameter validation of the node

@@ -11,7 +11,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 
-public class TestDebugProbe  {
+public class DebugProbeTest  {
 
   @Test
   public void testDebugProbeNode() throws Exception
@@ -29,7 +29,7 @@ public class TestDebugProbe  {
     String sinput = "";
     Double dinput = new Double(0.0);
     Integer iinput = new Integer(1);
-    ArrayList ainput = new ArrayList();
+    ArrayList<?> ainput = new ArrayList<Object>();
 
     int sentval = 0;
     for (int i = 0; i < 100; i++) {sentval += 1; node.process(hinput);}
