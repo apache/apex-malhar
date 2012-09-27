@@ -69,7 +69,7 @@ public abstract class AbstractActiveMQInputModule extends AbstractInputModule im
   }
 
   @Override
-  public void run()
+  public void process(Object payload)
   {
     try {
       getConsumer().setMessageListener(this);

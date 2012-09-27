@@ -50,52 +50,45 @@ import org.slf4j.LoggerFactory;
  * <b>seed_end</b>Has to be an integer<br>
  * <b>key</b>If provided has to be in format "key1,key1start,key1end;key2, key2start, key2end; ..."
  * <br>
+ *
  * @author amol
  */
 @ModuleAnnotation(
         ports = {
-    @PortAnnotation(name = LoadSeedGenerator.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = LoadSeedGenerator.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT)
 })
-public class LoadSeedGenerator extends AbstractInputModule {
-    public static final String OPORT_DATA = "data";
-    private static Logger LOG = LoggerFactory.getLogger(LoadSeedGenerator.class);
-
-    /**
-     * Data for classification values
-     */
-    ArrayList<String> keys = null;
-    ArrayList<Integer> keys_min = null;
-    ArrayList<Integer> keys_range = null;
-    boolean isstringschema = false;
-
-    final int s_start_default = 0;
-    final int s_end_default = 99;
-
-    int s_start = s_start_default;
-    int s_end = s_end_default;
-
-    public boolean seed_done = false;
-
-    private final Random random = new Random();
-
+public class LoadSeedGenerator extends AbstractInputModule
+{
+  public static final String OPORT_DATA = "data";
+  private static Logger LOG = LoggerFactory.getLogger(LoadSeedGenerator.class);
+  /**
+   * Data for classification values
+   */
+  ArrayList<String> keys = null;
+  ArrayList<Integer> keys_min = null;
+  ArrayList<Integer> keys_range = null;
+  boolean isstringschema = false;
+  final int s_start_default = 0;
+  final int s_end_default = 99;
+  int s_start = s_start_default;
+  int s_end = s_end_default;
+  public boolean seed_done = false;
+  private final Random random = new Random();
   /**
    * Start integer value for seeding<p>
    *
    */
   public static final String KEY_SEED_START = "seed_start";
-
   /**
    * End integer value for seeding<p>
    *
    */
   public static final String KEY_SEED_END = "seed_end";
-
-    /**
+  /**
    * keys are ';' separated list of keys to classify the incoming keys in in_data stream<p>
    *
    */
   public static final String KEY_KEYS = "keys";
-
   /**
    * If specified as "true" a String class is sent, else HashMap is sent
    */
@@ -113,14 +106,13 @@ public class LoadSeedGenerator extends AbstractInputModule {
     }
   }
 
-
   /**
    *
    * Inserts a tuple for a given outbound key
+   *
    * @param tuples bag of tuples
    * @param key the key
    */
-
   public HashMap<String, Object> getTuple(int i)
   {
     HashMap<String, Object> ret = new HashMap<String, Object>();
@@ -164,13 +156,14 @@ public class LoadSeedGenerator extends AbstractInputModule {
   /**
    *
    * Add a key data. By making a single call we ensure that all three Arrays are not corrupt and that the addition is atomic/one place
+   *
    * @param key
    * @param low
    * @param high
    */
   void addKeyData(String key, int low, int high)
   {
-    if (keys ==null) {
+    if (keys == null) {
       keys = new ArrayList<String>();
       keys_min = new ArrayList<Integer>();
       keys_range = new ArrayList<Integer>();
@@ -178,7 +171,7 @@ public class LoadSeedGenerator extends AbstractInputModule {
 
     keys.add(key);
     keys_min.add(low);
-    keys_range.add(high-low+1);
+    keys_range.add(high - low + 1);
   }
 
   /**
@@ -293,7 +286,7 @@ public class LoadSeedGenerator extends AbstractInputModule {
 
     LOG.debug(String.format("Set up for seed_start(%d), seed_end (%d) and keys (\"%s\")", s_start, s_end, kstr));
 
-     // The key format is "str:int,int;str:int,int;..."
+    // The key format is "str:int,int;str:int,int;..."
     // The format is already validated by myValidation
     if (!kstr.isEmpty()) {
       String[] strs = kstr.split(";");
@@ -305,8 +298,9 @@ public class LoadSeedGenerator extends AbstractInputModule {
       }
     }
   }
+
   @Override
-  public void run()
+  public void process(Object payload)
   {
     int lstart = s_start;
     int lend = s_end;
@@ -323,5 +317,13 @@ public class LoadSeedGenerator extends AbstractInputModule {
     }
     LOG.debug("Finished generating tuples");
     seed_done = true;
+  }
+
+  @Override
+  public void endWindow()
+  {
+    if (seed_done) {
+      deactivate();
+    }
   }
 }

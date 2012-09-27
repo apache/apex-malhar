@@ -12,9 +12,9 @@ import java.util.logging.Logger;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.TextMessage;
-import org.junit.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import org.junit.*;
 
 /**
  *
@@ -70,6 +70,12 @@ public class InputActiveMQModuleTest
     @Override
     public void endWindow()
     {
+    }
+
+    @Override
+    public void process(Object payload)
+    {
+      throw new UnsupportedOperationException("Not supported yet.");
     }
   }
 

@@ -304,60 +304,6 @@ public class LoadGenerator extends AbstractInputModule
   }
 
   /**
-   * Generates all the tuples till alive (deactivate) is issued
-   *
-   * @param context
-   */
-  @Override
-  @SuppressWarnings("SleepWhileInLoop")
-  public void run()
-  {
-    int i = 0;
-
-    try {
-      while (alive) {
-        String tuple_key; // the tuple key
-        int j = 0;
-        do {
-          if (weights != null) { // weights are not even
-            int rval = random.nextInt(total_weight);
-            j = 0; // for randomization, need to reset to 0
-            int wval = 0;
-            for (Integer e: weights) {
-              wval += e.intValue();
-              if (wval >= rval) {
-                break;
-              }
-              j++;
-            }
-          }
-          else {
-            j++;
-            j = j % keys.size();
-          }
-          // j is the key index
-          tuple_key = wtostr_index.get(j);
-          if (!isstringschema) {
-            HashMap<String, Double> tuple = new HashMap<String, Double>();
-            tuple.put(tuple_key, keys.get(tuple_key));
-            emit(OPORT_DATA, tuple);
-          }
-          else {
-            emit(OPORT_DATA, tuple_key);
-          }
-        }
-        while (++i % tuples_blast != 0);
-        
-        Thread.sleep(sleep_time); // Remove sleep if you want to blast data at huge rate
-      }
-    }
-    catch (InterruptedException e) {
-      LOG.info("Exiting the loop as encountered {}", e);
-    }
-    LOG.debug("Finished generating tuples");
-  }
-
-  /**
    * convenient method for not sending more than configured number of windows.
    */
   @Override
@@ -372,7 +318,7 @@ public class LoadGenerator extends AbstractInputModule
           average = tcount;
         }
         else { // use tuple_numbers
-          int denominator = 0;
+          int denominator;
           if (count_denominator == rolling_window_count) {
             tuple_numbers[tuple_index] = tcount;
             denominator = rolling_window_count;
@@ -398,6 +344,42 @@ public class LoadGenerator extends AbstractInputModule
       }
       if (--maxCountOfWindows == 0) {
         alive = false;
+      }
+    }
+  }
+
+  @Override
+  public void process(Object payload)
+  {
+    String tuple_key; // the tuple key
+    int j = 0;
+
+    for (int i = tuples_blast; i-- > 0;) {
+      if (weights != null) { // weights are not even
+        int rval = random.nextInt(total_weight);
+        j = 0; // for randomization, need to reset to 0
+        int wval = 0;
+        for (Integer e: weights) {
+          wval += e.intValue();
+          if (wval >= rval) {
+            break;
+          }
+          j++;
+        }
+      }
+      else {
+        j++;
+        j = j % keys.size();
+      }
+      // j is the key index
+      tuple_key = wtostr_index.get(j);
+      if (!isstringschema) {
+        HashMap<String, Double> tuple = new HashMap<String, Double>();
+        tuple.put(tuple_key, keys.get(tuple_key));
+        emit(OPORT_DATA, tuple);
+      }
+      else {
+        emit(OPORT_DATA, tuple_key);
       }
     }
   }

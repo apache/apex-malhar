@@ -51,39 +51,31 @@ public class LoadRandomGenerator extends AbstractInputModule
 {
   public static final String OPORT_DATA = "data";
   private static Logger LOG = LoggerFactory.getLogger(LoadRandomGenerator.class);
-
   final int sleep_time_default_value = 50;
   final int tuples_blast_default_value = 10000;
-
   protected int tuples_blast = tuples_blast_default_value;
   protected int sleep_time = sleep_time_default_value;
-
   int min_value = 0;
   int max_value = 100;
   boolean isstringschema = false;
   private Random random = new Random();
-
   /**
    * An integer specifying min_value.
    *
    */
   public static final String KEY_MIN_VALUE = "min_value";
-
   /**
    * An integer specifying max_value.
    */
   public static final String KEY_MAX_VALUE = "max_value";
-
   /**
    * The number of tuples sent out per milli second
    */
   public static final String KEY_TUPLES_BLAST = "tuples_blast";
-
- /**
+  /**
    * The number of tuples sent out per milli second
    */
   public static final String KEY_SLEEP_TIME = "sleep_time";
-
   /**
    * If specified as "true" a String class is sent, else Integer is sent
    */
@@ -169,32 +161,23 @@ public class LoadRandomGenerator extends AbstractInputModule
    * @param context
    */
   @Override
-  @SuppressWarnings("SleepWhileInLoop")
-  public void run()
+  public void process(Object payload)
   {
     String sval;
     Integer ival;
-    while (true) {
-      int range = max_value - min_value;
-      int i = 0;
-      while (i < tuples_blast) {
-        int rval = min_value + random.nextInt(range);
-        if (!isstringschema) {
-          ival = rval;
-          emit(OPORT_DATA, ival);
-        }
-        else {
-          sval = String.valueOf(rval);
-          emit(OPORT_DATA, sval);
-        }
-        i++;
+    int range = max_value - min_value;
+    int i = 0;
+    while (i < tuples_blast) {
+      int rval = min_value + random.nextInt(range);
+      if (!isstringschema) {
+        ival = rval;
+        emit(OPORT_DATA, ival);
       }
-      try {
-        Thread.sleep(sleep_time);
+      else {
+        sval = String.valueOf(rval);
+        emit(OPORT_DATA, sval);
       }
-      catch (InterruptedException e) {
-        LOG.error("Unexpected error while sleeping for 1 s", e);
-      }
+      i++;
     }
   }
 }
