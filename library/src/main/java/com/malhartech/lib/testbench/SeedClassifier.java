@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  * The seed is created from the values of properties <b>seed_start</b>, and <b>seed_end</b>
  * <br>
- * Benchmarks:<br>
+ * <b>Benchmarks</b>:<br>
  * String: Benchmarked at over 5.7 million tuples/second in local/in-line mode<br>
  * Integer: Benchmarked at over 4.0 million tuples/second in local/in-line mode<br>
  * <br>

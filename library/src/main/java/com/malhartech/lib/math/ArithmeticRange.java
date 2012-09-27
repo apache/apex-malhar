@@ -25,7 +25,12 @@ import org.slf4j.LoggerFactory;
  * "windowed" has to be true<br> Run time error processing are emitted on _error
  * port. The errors are:<br> Value is not a supported type<br>
  * <br>
- * <b>Benchmarks</b>: Blast as many tuples
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * Integer: 8 million tuples/s<br>
+ * Double: 8 million tuples/s<br>
+ * Long: 8 million tuples/s<br>
+ * Short: 8 million tuples/s<br>
+ * Float: 8 million tupels/s<br>
  *
  * @author amol
  */
@@ -173,6 +178,7 @@ public class ArithmeticRange extends AbstractModule
                }
                break;
              default:
+               // emit error tuple
                break;
            }
            // if error emit this tuple on error port
@@ -200,22 +206,21 @@ public class ArithmeticRange extends AbstractModule
       type = supported_type.UNDEFINED;
       str = "undefined";
     }
-    else if (str == "integer") {
+    else if (str.equals( "integer")) {
       type = supported_type.INT;
     }
-    else if (str == "double") {
+    else if (str.equals("double")) {
       type = supported_type.DOUBLE;
     }
-    else if (str == "long") {
+    else if (str.equals("long")) {
       type = supported_type.LONG;
     }
-    else if (str == "short") {
+    else if (str.equals("short")) {
       type = supported_type.SHORT;
     }
-    else if (str == "float") {
+    else if (str.equals("float")) {
       type = supported_type.FLOAT;
     }
-
     LOG.debug(String.format("Schema set to %s", str));
   }
 
