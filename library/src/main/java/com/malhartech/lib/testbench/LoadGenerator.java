@@ -58,8 +58,12 @@ public class LoadGenerator extends AbstractInputModule
 {
   public static final String OPORT_DATA = "data";
   public static final String OPORT_COUNT = "count";
+
   public static final String OPORT_COUNT_TUPLE_AVERAGE = "avg";
   public static final String OPORT_COUNT_TUPLE_COUNT = "count";
+  public static final String OPORT_COUNT_TUPLE_TIME = "window_time";
+  public static final String OPORT_COUNT_TUPLE_TUPLES_PERSEC = "tuples_per_sec";
+
   private static Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
   final int tuples_blast_default_value = 10000;
   protected int tuples_blast = tuples_blast_default_value;
@@ -75,6 +79,11 @@ public class LoadGenerator extends AbstractInputModule
   int tuple_index = 0;
   int count_denominator = 1;
   private boolean count_connected = false;
+
+  long window_start_time = 0;
+  long window_end_time = 0;
+
+
   /**
    * keys are comma seperated list of keys for the load. These keys are send
    * one per tuple as per the other parameters
@@ -284,6 +293,14 @@ public class LoadGenerator extends AbstractInputModule
     }
   }
 
+  @Override
+  public void beginWindow()
+  {
+    window_start_time = System.currentTimeMillis();
+  }
+
+
+
   /**
    * convenient method for not sending more than configured number of windows.
    */
@@ -292,6 +309,7 @@ public class LoadGenerator extends AbstractInputModule
   {
     //LOG.info(this +" endWindow: " + maxCountOfWindows + ", time=" + System.currentTimeMillis() + ", emitCount=" + emitCount);
     if (generatedTupleCount > 0) {
+      long elapsed_time = System.currentTimeMillis() - window_start_time;
       if (count_connected) {
         int tcount = generatedTupleCount;
         int average = 0;
@@ -318,9 +336,11 @@ public class LoadGenerator extends AbstractInputModule
           }
           average = average / denominator;
         }
-        HashMap<String, Integer> tuples = new HashMap<String, Integer>();
+        HashMap<String, Number> tuples = new HashMap<String, Number>();
         tuples.put(OPORT_COUNT_TUPLE_AVERAGE, new Integer(average));
         tuples.put(OPORT_COUNT_TUPLE_COUNT, new Integer(tcount));
+        tuples.put(OPORT_COUNT_TUPLE_TIME, new Long(elapsed_time));
+        tuples.put(OPORT_COUNT_TUPLE_TUPLES_PERSEC, new Long((tcount*1000)/elapsed_time));
         emit(OPORT_COUNT, tuples);
       }
       if (--maxCountOfWindows == 0) {
