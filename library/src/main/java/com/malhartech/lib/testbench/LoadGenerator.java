@@ -250,7 +250,7 @@ public class LoadGenerator extends AbstractInputModule
     tuples_blast = config.getInt(KEY_TUPLES_BLAST, tuples_blast_default_value);
     rolling_window_count = config.getInt(ROLLING_WINDOW_COUNT, 1);
     maxCountOfWindows = config.getInt(MAX_WINDOWS_COUNT, Integer.MAX_VALUE);
-    
+
     if (rolling_window_count != 1) { // Initialized the tuple_numbers
       tuple_numbers = new int[rolling_window_count];
       for (int i = tuple_numbers.length; i > 0; i--) {
@@ -291,9 +291,9 @@ public class LoadGenerator extends AbstractInputModule
   public void endWindow()
   {
     //LOG.info(this +" endWindow: " + maxCountOfWindows + ", time=" + System.currentTimeMillis() + ", emitCount=" + emitCount);
-    if (getProcessedTupleCount() > 0) {
+    if (generatedTupleCount > 0) {
       if (count_connected) {
-        int tcount = getProcessedTupleCount();
+        int tcount = generatedTupleCount;
         int average = 0;
         if (rolling_window_count == 1) {
           average = tcount;
