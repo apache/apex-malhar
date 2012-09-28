@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class TestInvertIndex
+public class TestSearchInvertIndex
 {
   private static Logger LOG = LoggerFactory.getLogger(SearchInvertIndex.class);
 

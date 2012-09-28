@@ -134,6 +134,9 @@ public class SearchInvertIndex extends AbstractModule
   @Override
   public void setup(ModuleConfiguration config) throws FailedOperationException
   {
+    if (!myValidation(config)) {
+      throw new FailedOperationException("Did not pass validation");
+    }
     passvalue = config.getBoolean(KEY_PASSVALUE, false);
     index = new HashMap<String, ArrayList>();
   }

@@ -81,6 +81,9 @@ public class ArithmeticQuotient extends AbstractModule
   @Override
   public void setup(ModuleConfiguration config) throws FailedOperationException
   {
+    if (!myValidation(config)) {
+      throw new FailedOperationException("Did not pass validation");
+    }
     mult_by = config.getInt(KEY_MULTIPLY_BY, 1);
     dokey = config.getBoolean(KEY_DOKEY, false);
     LOG.debug(String.format("Set mult_by(%d), and dokey(%s)", mult_by, dokey ? "true" : "false"));
