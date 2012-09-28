@@ -57,6 +57,7 @@ public class LoadIncrementor extends AbstractModule
   private static Logger LOG = LoggerFactory.getLogger(LoadIncrementor.class);
 
   HashMap<String, Object> vmap = new HashMap<String, Object>();
+  ArrayList<String> keys = new ArrayList<String>();
 
   float delta_default_value = 1;
   float delta = delta_default_value;
@@ -136,8 +137,9 @@ public class LoadIncrementor extends AbstractModule
       // Allow Seed to override
       for (Map.Entry<String, ArrayList> e: ((HashMap<String, ArrayList>)payload).entrySet()) {
         ArrayList alist = new ArrayList();
-        for (valueData n : (ArrayList<valueData>) e.getValue()) {
-          alist.add(new valueData(n.str, n.value));
+        // Get int here
+        for (Integer n : (ArrayList<Integer>) e.getValue()) {
+          alist.add(n);
         }
         vmap.put(e.getKey(), alist);
       }
