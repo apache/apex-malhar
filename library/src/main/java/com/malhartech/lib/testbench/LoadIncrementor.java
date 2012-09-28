@@ -58,6 +58,7 @@ public class LoadIncrementor extends AbstractModule
 
   HashMap<String, Object> vmap = new HashMap<String, Object>();
   ArrayList<String> keys = new ArrayList<String>();
+  ArrayList<Double> limits = new ArrayList<Double>();
 
   float delta_default_value = 1;
   float delta = delta_default_value;
@@ -101,7 +102,13 @@ public class LoadIncrementor extends AbstractModule
   public boolean myValidation(ModuleConfiguration config)
   {
     boolean ret = true;
+    //delta = config.getFloat(KEY_DELTA, delta_default_value);
+    String[] skey = config.getTrimmedStrings(KEY_KEYS);
+    String[] lkey = config.getTrimmedStrings(KEY_LIMITS);
+    if (skey.length != lkey.length) {
+      ret = false;
 
+    }
     return ret;
   }
 
@@ -118,7 +125,15 @@ public class LoadIncrementor extends AbstractModule
     }
 
     delta = config.getFloat(KEY_DELTA, delta_default_value);
-    String keys = config.get(KEY_KEYS);
+    String[] skey = config.getTrimmedStrings(KEY_KEYS);
+    for (String s : skey) {
+      keys.add(s);
+    }
+
+    String[] lkey = config.getTrimmedStrings(KEY_LIMITS);
+    for (String l : lkey) {
+      limits.add(Double.valueOf(l));
+    }
   }
 
   /**
@@ -138,10 +153,16 @@ public class LoadIncrementor extends AbstractModule
       for (Map.Entry<String, ArrayList> e: ((HashMap<String, ArrayList>)payload).entrySet()) {
         ArrayList alist = new ArrayList();
         // Get int here
-        for (Integer n : (ArrayList<Integer>) e.getValue()) {
+        int j = 0;
+        for (Integer n: (ArrayList<Integer>)e.getValue()) {
           alist.add(n);
+          j++;
         }
-        vmap.put(e.getKey(), alist);
+        if (j == keys.size()) { // Seed need to values for each key as expected
+          vmap.put(e.getKey(), alist);
+        }
+        else { // emit error tuple
+        }
       }
     }
     else if (IPORT_INCREMENT.equals(getActivePort())) {

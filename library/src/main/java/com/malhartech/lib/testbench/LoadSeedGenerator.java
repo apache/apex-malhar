@@ -74,8 +74,8 @@ public class LoadSeedGenerator extends AbstractInputModule
   final int s_end_default = 99;
   int s_start = s_start_default;
   int s_end = s_end_default;
-  final boolean nokey_default = false;
-  boolean nokey = nokey_default;
+  final boolean emitkey_default = false;
+  boolean emitkey = emitkey_default;
   private final Random random = new Random();
 
   /**
@@ -101,7 +101,7 @@ public class LoadSeedGenerator extends AbstractInputModule
    */
   public static final String KEY_STRING_SCHEMA = "string_schema";
 
-  public static final String KEY_NOKEY = "nokey";
+  public static final String KEY_EMITKEY = "emitkey";
 
   class valueData
   {
@@ -142,22 +142,22 @@ public class LoadSeedGenerator extends AbstractInputModule
         if (alist == null) {
           alist = new ArrayList();
         }
-        if (nokey) {
-          alist.add(new Integer(keys_min.get(j) + random.nextInt(keys_range.get(j))));
+        if (emitkey) {
+          alist.add(new valueData(s, new Integer(keys_min.get(j) + random.nextInt(keys_range.get(j)))));
         }
         else {
-          alist.add(new valueData(s, new Integer(keys_min.get(j) + random.nextInt(keys_range.get(j)))));
+          alist.add(new Integer(keys_min.get(j) + random.nextInt(keys_range.get(j))));
         }
       }
       else {
         if (!str.isEmpty()) {
           str += ';';
         }
-        if (nokey) {
-          str += Integer.toString(keys_min.get(j) + random.nextInt(keys_range.get(j)));
+        if (emitkey) {
+          str += s + ":" + Integer.toString(keys_min.get(j) + random.nextInt(keys_range.get(j)));
         }
         else {
-          str += s + ":" + Integer.toString(keys_min.get(j) + random.nextInt(keys_range.get(j)));
+          str += Integer.toString(keys_min.get(j) + random.nextInt(keys_range.get(j)));
         }
       }
       j++;
@@ -302,7 +302,7 @@ public class LoadSeedGenerator extends AbstractInputModule
     String kstr = config.get(KEY_KEYS, "");
     s_start = config.getInt(KEY_SEED_START, s_start_default);
     s_end = config.getInt(KEY_SEED_END, s_end_default);
-    nokey = config.getBoolean(KEY_NOKEY, nokey_default);
+    emitkey = config.getBoolean(KEY_EMITKEY, emitkey_default);
 
     LOG.debug(String.format("Set up for seed_start(%d), seed_end (%d) and keys (\"%s\")", s_start, s_end, kstr));
 

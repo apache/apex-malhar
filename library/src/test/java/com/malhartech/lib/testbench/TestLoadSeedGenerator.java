@@ -44,7 +44,7 @@ public class TestLoadSeedGenerator
     int count = 0;
     boolean isstring = true;
     boolean insert = false;
-    boolean nokey = false;
+    boolean emitkey = false;
     int numwindows = 0;
     ArrayList<String> ikeys = new ArrayList<String>();
 
@@ -73,7 +73,7 @@ public class TestLoadSeedGenerator
                 ArrayList alist = (ArrayList)e.getValue();
                 int j = 0;
                 for (Object o: alist) {
-                  if (nokey) {
+                  if (emitkey) {
                     cval += ";" + ikeys.get(j) + ":" + o.toString();
                     j++;
                   }
@@ -224,7 +224,7 @@ public class TestLoadSeedGenerator
   }
 
   @SuppressWarnings("SleepWhileInLoop")
-  public void testSchemaNodeProcessing(boolean isstring, boolean insert, boolean doseedkey, boolean nokey) throws Exception
+  public void testSchemaNodeProcessing(boolean isstring, boolean insert, boolean doseedkey, boolean emitkey) throws Exception
   {
 
     final LoadSeedGenerator node = new LoadSeedGenerator();
@@ -253,11 +253,11 @@ public class TestLoadSeedGenerator
       conf.set(LoadSeedGenerator.KEY_KEYS, "x:0,9;y:0,9;gender:0,1;age:10,19"); // the good key
     }
     conf.set(LoadSeedGenerator.KEY_STRING_SCHEMA, isstring ? "true" : "false");
-    conf.set(LoadSeedGenerator.KEY_NOKEY, nokey ? "true" : "false");
+    conf.set(LoadSeedGenerator.KEY_EMITKEY, emitkey ? "true" : "false");
 
     seedSink.isstring = isstring;
     seedSink.insert = insert;
-    seedSink.nokey = nokey;
+    seedSink.emitkey = emitkey;
     if (seedSink.ikeys.isEmpty()) {
       seedSink.ikeys.add("x");
       seedSink.ikeys.add("y");
@@ -270,7 +270,7 @@ public class TestLoadSeedGenerator
     node.setup(conf);
 
     final AtomicBoolean inactive = new AtomicBoolean(true);
-    new Thread("SchemaNodeProcessing-" + isstring + ":" + insert + ":" + doseedkey + ":" + nokey)
+    new Thread("SchemaNodeProcessing-" + isstring + ":" + insert + ":" + doseedkey + ":" + emitkey)
     {
       @Override
       public void run()
@@ -317,7 +317,7 @@ public class TestLoadSeedGenerator
     LOG.debug(String.format("\n********************************************\nSchema %s, %s, %s: Emitted %d tuples, with %d keys, and %d ckeys\n********************************************\n",
                             isstring ? "String" : "ArrayList",
                             insert ? "insert values" : "skip insert",
-                            nokey ? "no classification key" : "with classification key",
+                            emitkey ? "with classification key" : "no classification key",
                             seedSink.count,
                             seedSink.keys.size(),
                             seedSink.ckeys.size()));
