@@ -1,0 +1,124 @@
+/**
+ * Copyright (c) 2012-2012 Malhar, Inc.
+ * All rights reserved.
+ */
+
+Proposal
+1. Users should be able to run their application in "test framework" and "live" with no changes
+2. Support a grammar that allows users to use an application as a library node
+3. Positions Malhar as a platform for developing Enterprise level real-time applications
+4. Clearly demonstrate leverage Hadoop, and Hadoop like setup
+5. Usability
+
+
+How to implement the above proposal
+1. Interface Declaration: Ports and Properties
+1a. Grammar should be exactly identical for nodes of all types (adapter, leaf, or dag/hierarchical)
+1b. The properties files as well as java should have similar concept:
+ -> functionality
+ -> interface definition (ports and properties)
+ -> instantiate (instances with context(how ports are connected, and what are the values of the properties))
+
+Instantiation is done as follows
+In java it would be
+import <...>.<...>....packagename.* <- same as .lib in properties
+or
+import <...>.<...>.....packagename.nodename <- one node at a time
+
+then do NodeDeclaration instnode = blah.createinstance("name", Node.Class);
+The streams do the wiring as createstream.("name").setSource(instnode.outputPort("...)).setSink(...);
+See point 2 below
+
+
+In properties file, a library usage of .* is not supported. Users need to use classnode at a time as
+stram.node.classname=.../.../libraryname/nodename
+stram.node.instancename=inodename
+
+
+Checker should check that the correct port names and property names are used. This should be
+achieved by calling a method on the java class of "nodename" object. Since this happens during
+compile time (not while the dag is running in Hadoop), it has no application runtime impact.
+
+=> Proposal #1, #2, and #5 are achieved by 1a and 1b
+
+
+2. Connecting ports and specifying properties is done during wiring, i.e definition
+of an application. Should allow usage of same node twice in the dag. For example
+two load generators, or two counters etc. The only difference is that they are connected
+to different streams and may (most like will) have different properties.
+
+The connections and properties define the "context" in which the node runs. The checker code
+should pass this context to the java code of the node and a checking is done. For example
+-* A "must connect" port has to be connected
+-* A property value should be within range
+- Two property values should not clash
+etc. (* -> may be done by AbstractNode itself)
+
+3. A dag node
+- Is a dag has at least one port and may or may not have properties
+- The "checker" of the hierarchical node is "checker" of AbstractNode for itself (its ports and properties)
++ checker for each of the node inside. The internal node checking is needed as a top level property can be
+passed to a node inside.
+- The usage of hierarchical node is now exactly identical to the other leaf nodes
+- The interface class should be identical. AbstractNode is called just as is
+- Users should be able to write checker method in the hierarchical node
+- The DAG can be specified via a properties file, or by a method that builds the dag
+- The dag extends AbstractNode. We should provide a DagAbstractNode class
+
+4. An application is also a DAG, and is a mixture of the following two setups
+a. Load generators, nodes (hierarchical or otherwise), Output Adapters
+b. A test/certification of an DAG would involve running the DAG as an instance with load generators
+and output adapters. Streaming platform needs to provide an ability to "diff the tuples" that come out.
+c. Input adapters, nodes (hierarchical or otherwise), Output Adapters
+then it runs as if they are not connected. Writing/Reading to/from a stream is done with StreamAdapter nodes
+or MessageBusAdapter nodes (Kafka for eg).
+d. Users do not build a topology, they wire the DAG. So just use "Dag" as the class
+
+Examples of Adapters (input and output) are adapters for: sockets, streams, hdfs, hbase, cassandra,
+ MySql, Oracle, Console, etc.
+
+
+4. Any of the above should run in local as well as live on production Hadoop environment
+- Markets the message "test locally and run on Hadoop production"
+
+5. The process of creating an application same as "main" v.s a function body in C++. A twitter feed
+processing application will have "twitter connector" node as part of the application itself.
+
+
+6. Property proposal of node instance
+
+# is an instance myfirstcounter of a class "Counter"
+stram.node..classname=blah.blah.library.Counter
+stram.node.instancename=myfirstcounter
+..
+
+# is an instance mysecondcounter of a class "Counter"
+stram.node..classname=blah.blah.library.Counter
+stram.node.instancename=mysecondcounter
+..
+
+
+# is the wiring
+stram.stream1.source=myfirstcounter.outport
+...
+
+# is the wiring
+stram.stream2.source=mysecondcounter.outport
+...
+
+7. Miscellaneous
+a. AbstractNode (and therefore AbstractHierarchicalNode) would have an "error" port. Accessible as .getError()
+b. emitError would be hardcoded to emit a tuple on this port. The schema of this tuple should be extensible.
+The base schema should have error_code, "error_message", (tbd ...)
+c. checker will always call "super.checker", i.e. checker of all nodes in the hierarchy are
+called (not sure how to guarantee)
+d. The application would run as flattened on Hadoop, but webservice would respect the hierarchy. Data can
+be accessed via web service in flat way (with ids showing scope) or hierarchical way.
+e. Should allow webservice for say "throughput on a logical port"; this is same as throughput of a stream
+f. We would allow .getInput("") or .getOutput("") in case when the node has only one input or output. But
+users should be discouraged from doing so as in future interfaces may change (a new port may be added).
+
+
+TBD: Should we have a .getStatistics()? <- End of window stats supported with emitStatistics()
+TBD: Should we have a .getState()? <- end of window state of the node supported with emitState()
+
