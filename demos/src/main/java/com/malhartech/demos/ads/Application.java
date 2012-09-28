@@ -132,8 +132,8 @@ public class Application implements ApplicationFactory {
     dag.addStream("tuplecount", viewGen.getOutput(LoadGenerator.OPORT_COUNT), viewcountconsole.getInput(ConsoleOutputModule.INPUT)).setInline(true);
 
     // these settings only affect distributed mode
-    dag.getConf().setInt(DAG.STRAM_CONTAINER_MEMORY_MB, 512);
-    dag.getConf().setInt(DAG.STRAM_MASTER_MEMORY_MB, 512);
+    dag.getConf().setInt(DAG.STRAM_CONTAINER_MEMORY_MB, 2048);
+    dag.getConf().setInt(DAG.STRAM_MASTER_MEMORY_MB, 1024);
 
     return dag;
   }
