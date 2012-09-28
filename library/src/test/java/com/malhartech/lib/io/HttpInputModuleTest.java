@@ -34,11 +34,12 @@ import com.malhartech.dag.TestSink;
 public class HttpInputModuleTest {
 
   @Test
-  public void testHttpInputNode() throws Exception {
+  public void testHttpInputModule() throws Exception {
 
     final List<String> receivedMessages = new ArrayList<String>();
     Handler handler=new AbstractHandler()
     {
+      int responseCount = 0;
         @Override
         public void handle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch)
             throws IOException, ServletException
@@ -46,14 +47,18 @@ public class HttpInputModuleTest {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             IOUtils.copy(request.getInputStream(), bos);
             receivedMessages.add(new String(bos.toByteArray()));
-            //response.setContentType("application/json");
+            response.setContentType("application/json");
             response.setStatus(HttpServletResponse.SC_OK);
-
+            response.setHeader("Transfer-Encoding", "chunked");
             try {
               JSONObject json = new JSONObject();
-              json.put("responseId", "response1");
-              response.getOutputStream().println(json.toString());
-              response.setContentType("application/json"); // set after getOutputStream to avoid ;charset=.. appended
+              json.put("responseId", "response" + ++responseCount);
+              byte[] bytes = json.toString().getBytes();
+              response.getOutputStream().println(bytes.length);
+              response.getOutputStream().write(bytes);
+              response.getOutputStream().println();
+              response.getOutputStream().println(0);
+              response.getOutputStream().flush();
             } catch (JSONException e) {
               response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error generating response: " + e.toString());
             }
@@ -73,8 +78,9 @@ public class HttpInputModuleTest {
     TestSink<Map<String, Object>> sink = new TestSink<Map<String, Object>>();
 
     node.connect(HttpInputModule.OUTPUT, sink);
+    node.setId("testHttpInputNode");
 
-    final ModuleConfiguration config = new ModuleConfiguration("testHttpInputNode", Collections.<String,String>emptyMap());
+    final ModuleConfiguration config = new ModuleConfiguration(node.getId(), Collections.<String,String>emptyMap());
     config.set(HttpOutputModule.P_RESOURCE_URL, url);
 
     node.setup(config);
@@ -107,6 +113,7 @@ public class HttpInputModuleTest {
     Map<String, Object> tuple = sink.collectedTuples.get(0);
     Assert.assertEquals("", tuple.get("responseId"), "response1");
 
+    node.deactivate();
     node.teardown();
     server.stop();
 

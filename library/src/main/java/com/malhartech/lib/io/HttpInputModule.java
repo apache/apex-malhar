@@ -4,17 +4,25 @@
  */
 package com.malhartech.lib.io;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Future;
 
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.io.IOUtils;
+import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.fusesource.hawtbuf.ByteArrayInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,13 +34,13 @@ import com.malhartech.dag.AbstractInputModule;
 import com.malhartech.dag.Component;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.ModuleConfiguration;
+import com.sun.jersey.api.client.AsyncWebResource;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
 
 /**
  *
- * Reads data via GET from given URL<p>
+ * Reads via GET from given URL as chunked transfer encoded input stream<p>
  * <br>
  * Data of type {@link java.util.Map} is converted to JSON. All other types are sent in their {@link Object#toString()} representation.<br>
  * <br>
@@ -55,7 +63,7 @@ public class HttpInputModule extends AbstractInputModule
 
   private transient URI resourceUrl;
   private transient Client wsClient;
-  private transient WebResource resource;
+  private transient AsyncWebResource resource;
   private transient Thread ioThread;
 
   @Override
@@ -70,7 +78,8 @@ public class HttpInputModule extends AbstractInputModule
 
     wsClient = Client.create();
     wsClient.setFollowRedirects(true);
-    resource = wsClient.resource(resourceUrl);
+    wsClient.setReadTimeout(30000);
+    resource = wsClient.asyncResource(resourceUrl);
     LOG.info("URL: {}", resourceUrl);
 
     // launch IO thread
@@ -121,12 +130,73 @@ public class HttpInputModule extends AbstractInputModule
   public void run() {
     while (true) {
       try {
-        ClientResponse response = resource.accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
+        Future<ClientResponse> responseFuture = resource.accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
+        ClientResponse response = responseFuture.get();
+        LOG.debug("Opening stream: " + resource);
+
         if (!MediaType.APPLICATION_JSON_TYPE.equals(response.getType())) {
           LOG.error("Unexpected response type " + response.getType());
+          response.close();
         } else {
-          // we are expecting a JSON object and converting one level of keys to a map, no further mapping is performed
-          JSONObject json = response.getEntity(JSONObject.class);
+          InputStream is = response.getEntity(java.io.InputStream.class);
+          while (true) {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            byte[] bytes = new byte[255];
+            int bytesRead;
+            while ((bytesRead = is.read(bytes)) != -1) {
+              bos.write(bytes, 0, bytesRead);
+              if (is.available() == 0 && bos.size() > 0) {
+                // give chance to process what we have before blocking on read
+                break;
+              }
+            }
+            if (processResponseChunk(bos.toByteArray())) {
+              LOG.debug("End of chunked input");
+              response.close();
+              break;
+            }
+
+            if (bytesRead == -1) {
+              LOG.error("Unexpected end of chunked input stream");
+              response.close();
+              break;
+            }
+
+            bos.reset();
+          }
+        }
+      } catch (Exception e) {
+          LOG.error("Error reading from " + resource.getURI(), e);
+      }
+
+      try {
+        Thread.sleep(500);
+      }
+      catch (InterruptedException e) {
+        LOG.info("Exiting IO loop {}.", e.toString());
+        break;
+      }
+    }
+  }
+
+  private boolean processResponseChunk(byte[] bytes) throws IOException, JSONException {
+    StringBuilder chunkStr = new StringBuilder();
+    // hack: when a line is a number we skip to next object instead of properly reading the chunks
+    List<String> lines = IOUtils.readLines(new ByteArrayInputStream(bytes));
+    boolean endStream = false;
+    for (String line : lines) {
+      try {
+        int length = Integer.parseInt(line);
+        if (length == 0) {
+          endStream = true;
+        }
+        //LOG.debug("chunk length: " + line);
+        // end chunk
+        // we are expecting a JSON object and converting one level of keys to a map, no further mapping is performed
+        if (chunkStr.length() > 0) {
+          //LOG.debug("completed chunk: " + chunkStr);
+          JSONObject json = new JSONObject(chunkStr.toString());
+          chunkStr = new StringBuilder();
           Map<String, Object> tuple = new HashMap<String, Object>();
           Iterator<?> it = json.keys();
           while (it.hasNext()) {
@@ -141,17 +211,13 @@ public class HttpInputModule extends AbstractInputModule
             tuples.offer(tuple);
           }
         }
-      } catch (Exception e) {
-          LOG.error("Error reading from " + resource.getURI(), e);
-      }
-      try {
-        Thread.sleep(500);
-      }
-      catch (InterruptedException e) {
-        LOG.info("Exiting IO loop {}.", e.toString());
-        break;
+      } catch (NumberFormatException e) {
+        // add to chunk
+        chunkStr.append(line);
+        chunkStr.append("\n");
       }
     }
+    return endStream;
   }
 
 }
