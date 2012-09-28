@@ -9,6 +9,7 @@ import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.dag.AbstractInputModule;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.ModuleConfiguration;
+import java.util.HashMap;
 import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
  * <b>Tuple Schema</b>: Has two choices Integer, or String<br><br>
  * <b>Port Interface</b>:It has only one output port "data" and has no input ports<br><br>
  * <b>Properties</b>:
+ * <b>key</b> is an optional parameter, the generator sends an HashMap if key is specified<br>
  * <b>min_value</b> is the minimum value of the range of numbers. Default is 0<br>
  * <b>max_value</b> is the maximum value of the range of numbers. Default is 100<br>
  * <b>tuples_burst</b> is the total amount of tuples sent by the node before the thread sleeps. The default value is 10000<br>
@@ -151,8 +153,11 @@ public class LoadRandomGenerator extends AbstractInputModule
       throw new IllegalArgumentException("Did not pass validation");
     }
 
-    // myValidation sets up all the property values
-    // TBD, should we setup values only after myValidation passes successfully?
+    isstringschema = config.getBoolean(KEY_STRING_SCHEMA, false);
+    sleep_time = config.getInt(KEY_SLEEP_TIME, sleep_time_default_value);
+    tuples_blast = config.getInt(KEY_TUPLES_BLAST, tuples_blast_default_value);
+    min_value = config.getInt(KEY_MIN_VALUE, 0);
+    max_value = config.getInt(KEY_MAX_VALUE, 100);
   }
 
   /**
@@ -163,19 +168,16 @@ public class LoadRandomGenerator extends AbstractInputModule
   @Override
   public void process(Object payload)
   {
-    String sval;
-    Integer ival;
-    int range = max_value - min_value;
+    int range = max_value - min_value + 1;
     int i = 0;
+    // Need to add a key, if key is provided send HashMap
     while (i < tuples_blast) {
       int rval = min_value + random.nextInt(range);
       if (!isstringschema) {
-        ival = rval;
-        emit(OPORT_DATA, ival);
+        emit(OPORT_DATA, new Integer(rval));
       }
       else {
-        sval = String.valueOf(rval);
-        emit(OPORT_DATA, sval);
+        emit(OPORT_DATA, Integer.toString(rval));
       }
       i++;
     }

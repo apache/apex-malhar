@@ -53,7 +53,6 @@ public class StreamMerger extends AbstractModule
 
 
   /**
-   *
    * Code to be moved to a proper base method name
    *
    * @param config

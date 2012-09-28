@@ -85,7 +85,7 @@ public class LoadGenerator extends AbstractInputModule
 
 
   /**
-   * keys are comma seperated list of keys for the load. These keys are send
+   * keys are comma separated list of keys for the load. These keys are send
    * one per tuple as per the other parameters
    *
    */
