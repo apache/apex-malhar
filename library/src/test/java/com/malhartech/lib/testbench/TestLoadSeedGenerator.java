@@ -44,7 +44,9 @@ public class TestLoadSeedGenerator
     int count = 0;
     boolean isstring = true;
     boolean insert = false;
+    boolean nokey = false;
     int numwindows = 0;
+    ArrayList<String> ikeys = new ArrayList<String>();
 
     /**
      *
@@ -69,9 +71,16 @@ public class TestLoadSeedGenerator
               }
               else {
                 ArrayList alist = (ArrayList)e.getValue();
+                int j = 0;
                 for (Object o: alist) {
-                  LoadSeedGenerator.valueData vdata = (LoadSeedGenerator.valueData)o;
-                  cval += ';' + vdata.str + ":" + vdata.value.toString();
+                  if (nokey) {
+                    cval += ";" + ikeys.get(j) + ":" + o.toString();
+                    j++;
+                  }
+                  else {
+                    LoadSeedGenerator.valueData vdata = (LoadSeedGenerator.valueData)o;
+                    cval += ';' + vdata.str + ":" + vdata.value.toString();
+                  }
                 }
               }
               if (ckeys.get(cval) == null) {
@@ -195,18 +204,27 @@ public class TestLoadSeedGenerator
   @Test
   public void testNodeProcessing() throws Exception
   {
-    testSchemaNodeProcessing(true, false, false);
-    testSchemaNodeProcessing(true, true, false);
-    testSchemaNodeProcessing(false, false, false);
-    testSchemaNodeProcessing(false, true, false);
-    testSchemaNodeProcessing(true, false, true);
-    testSchemaNodeProcessing(true, true, true);
-    testSchemaNodeProcessing(false, false, true);
-    testSchemaNodeProcessing(false, true, true);
+    testSchemaNodeProcessing(true, false, false, false);
+    testSchemaNodeProcessing(true, true, false, false);
+    testSchemaNodeProcessing(false, false, false, false);
+    testSchemaNodeProcessing(false, true, false, false);
+    testSchemaNodeProcessing(true, false, true, false);
+    testSchemaNodeProcessing(true, true, true, false);
+    testSchemaNodeProcessing(false, false, true, false);
+    testSchemaNodeProcessing(false, true, true, false);
+
+    testSchemaNodeProcessing(true, false, false, true);
+    testSchemaNodeProcessing(true, true, false, true);
+    testSchemaNodeProcessing(false, false, false, true);
+    testSchemaNodeProcessing(false, true, false, true);
+    testSchemaNodeProcessing(true, false, true, true);
+    testSchemaNodeProcessing(true, true, true, true);
+    testSchemaNodeProcessing(false, false, true, true);
+    testSchemaNodeProcessing(false, true, true, true);
   }
 
   @SuppressWarnings("SleepWhileInLoop")
-  public void testSchemaNodeProcessing(boolean isstring, boolean insert, boolean nokey) throws Exception
+  public void testSchemaNodeProcessing(boolean isstring, boolean insert, boolean doseedkey, boolean nokey) throws Exception
   {
 
     final LoadSeedGenerator node = new LoadSeedGenerator();
@@ -230,20 +248,29 @@ public class TestLoadSeedGenerator
     conf.set(LoadSeedGenerator.KEY_SEED_START, "1");
     conf.set(LoadSeedGenerator.KEY_SEED_END, "1000000");
     int numtuples = 500;
-    if (!nokey) {
+
+    if (doseedkey) {
       conf.set(LoadSeedGenerator.KEY_KEYS, "x:0,9;y:0,9;gender:0,1;age:10,19"); // the good key
     }
     conf.set(LoadSeedGenerator.KEY_STRING_SCHEMA, isstring ? "true" : "false");
+    conf.set(LoadSeedGenerator.KEY_NOKEY, nokey ? "true" : "false");
 
     seedSink.isstring = isstring;
     seedSink.insert = insert;
+    seedSink.nokey = nokey;
+    if (seedSink.ikeys.isEmpty()) {
+      seedSink.ikeys.add("x");
+      seedSink.ikeys.add("y");
+      seedSink.ikeys.add("genger");
+      seedSink.ikeys.add("age");
+    }
 
     conf.setInt("SpinMillis", 10);
     conf.setInt("BufferCapacity", 1024 * 1024);
     node.setup(conf);
 
     final AtomicBoolean inactive = new AtomicBoolean(true);
-    new Thread("SchemaNodeProcessing-" + isstring + ":" + insert + ":" + nokey)
+    new Thread("SchemaNodeProcessing-" + isstring + ":" + insert + ":" + doseedkey + ":" + nokey)
     {
       @Override
       public void run()

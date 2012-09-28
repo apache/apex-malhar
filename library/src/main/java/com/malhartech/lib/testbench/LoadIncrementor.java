@@ -58,6 +58,9 @@ public class LoadIncrementor extends AbstractModule
 
   HashMap<String, Object> vmap = new HashMap<String, Object>();
 
+  float delta_default_value = 1;
+  float delta = delta_default_value;
+
 /**
    * keys are comma separated list of keys for seeding. They are taken in order on seed port (i.e. keys need not be sent)<p>
    * On the increment port changes are sent per key.<br>
@@ -70,8 +73,9 @@ public class LoadIncrementor extends AbstractModule
    * delta defines what constitutes a change. Default value is 1<p>
    * <br>
    */
-
   public static final String KEY_DELTA = "delta";
+
+  public static final String KEY_LIMITS = "limits";
 
   // Data Recieved on seed port
   class valueData
@@ -111,6 +115,9 @@ public class LoadIncrementor extends AbstractModule
     if (!myValidation(config)) {
       throw new FailedOperationException("Did not pass validation");
     }
+
+    delta = config.getFloat(KEY_DELTA, delta_default_value);
+    String keys = config.get(KEY_KEYS);
   }
 
   /**
@@ -123,7 +130,6 @@ public class LoadIncrementor extends AbstractModule
   {
     // LoadSeedGenerator would provide seed
     // LoadRandomGenerator->SeedClassifier would provide Increment, use delta to make it fit
-
 
     if (IPORT_SEED.equals(getActivePort())) {
       // Payload is     HashMap<String, Object> ret = new HashMap<String, Object>();, where Object is ArrayList of Integers
@@ -138,12 +144,23 @@ public class LoadIncrementor extends AbstractModule
     }
     else if (IPORT_INCREMENT.equals(getActivePort())) {
       for (Map.Entry<String, Object> e: ((HashMap<String, Object>) payload).entrySet()) {
-        String key = e.getKey();
-        ArrayList alist = (ArrayList) vmap.get(key);
-        if (alist != null) {
+        String key = e.getKey(); // the key
+        ArrayList<valueData> alist = (ArrayList<valueData>) vmap.get(key); // does it have a location?
+        if (alist != null) { // oops, not seeded yet
           for (Map.Entry<String, Integer> o : ((HashMap<String, Integer>) e.getValue()).entrySet()) {
-            // Now look at the (x and val) or (y and val)
-
+            String dimension = o.getKey();
+            int ival = o.getValue().intValue();
+            ival = ival % 100; // Make it a percent
+            for (valueData d : alist) {
+              if (dimension.equals(d.str)) {
+                // Compute the new location
+                Double location = (Double) d.value;
+                double incr = delta/100;
+                incr = incr * ival;
+                // Get limits here just do MOD with limits
+                break;
+              }
+            }
           }
         }
       }

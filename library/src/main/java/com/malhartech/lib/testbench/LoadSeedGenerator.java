@@ -29,8 +29,8 @@ import org.slf4j.LoggerFactory;
  * information and their ranges<br>The range of values for the key is given in the format described below<br>
  * <br>
  * <b>Benchmarks</b>: Generate as many tuples as possible in inline mode<br>
- * HashMap<String, String>: 18 million/sec with no classification; 1.8 million tuples/sec with classification<br>
- * HashMap<Sring, ArrayList<Integer>>: 18 million/sec with no classification; 3.5 million tuples/sec with classification<br>
+ * HashMap<String, String>: 8 million/sec with no classification; 1.8 million tuples/sec with classification<br>
+ * HashMap<Sring, ArrayList<Integer>>: 8 million/sec with no classification; 3.5 million tuples/sec with classification<br>
  * <br>
  * <b>Default schema</b>:<br>
  * Schema for port <b>data</b>: The default schema is HashMap<String, ArrayList<valueData>>, where valueData is class{String, Integer}<br>
@@ -74,26 +74,34 @@ public class LoadSeedGenerator extends AbstractInputModule
   final int s_end_default = 99;
   int s_start = s_start_default;
   int s_end = s_end_default;
+  final boolean nokey_default = false;
+  boolean nokey = nokey_default;
   private final Random random = new Random();
+
   /**
    * Start integer value for seeding<p>
    *
    */
   public static final String KEY_SEED_START = "seed_start";
+
   /**
    * End integer value for seeding<p>
    *
    */
   public static final String KEY_SEED_END = "seed_end";
+
   /**
    * keys are ';' separated list of keys to classify the incoming keys in in_data stream<p>
    *
    */
   public static final String KEY_KEYS = "keys";
+
   /**
    * If specified as "true" a String class is sent, else HashMap is sent
    */
   public static final String KEY_STRING_SCHEMA = "string_schema";
+
+  public static final String KEY_NOKEY = "nokey";
 
   class valueData
   {
@@ -134,13 +142,23 @@ public class LoadSeedGenerator extends AbstractInputModule
         if (alist == null) {
           alist = new ArrayList();
         }
-        alist.add(new valueData(s, new Integer(keys_min.get(j) + random.nextInt(keys_range.get(j)))));
+        if (nokey) {
+          alist.add(new Integer(keys_min.get(j) + random.nextInt(keys_range.get(j))));
+        }
+        else {
+          alist.add(new valueData(s, new Integer(keys_min.get(j) + random.nextInt(keys_range.get(j)))));
+        }
       }
       else {
         if (!str.isEmpty()) {
           str += ';';
         }
-        str += s + ":" + Integer.toString(keys_min.get(j) + random.nextInt(keys_range.get(j)));
+        if (nokey) {
+          str += Integer.toString(keys_min.get(j) + random.nextInt(keys_range.get(j)));
+        }
+        else {
+          str += s + ":" + Integer.toString(keys_min.get(j) + random.nextInt(keys_range.get(j)));
+        }
       }
       j++;
     }
@@ -284,6 +302,7 @@ public class LoadSeedGenerator extends AbstractInputModule
     String kstr = config.get(KEY_KEYS, "");
     s_start = config.getInt(KEY_SEED_START, s_start_default);
     s_end = config.getInt(KEY_SEED_END, s_end_default);
+    nokey = config.getBoolean(KEY_NOKEY, nokey_default);
 
     LOG.debug(String.format("Set up for seed_start(%d), seed_end (%d) and keys (\"%s\")", s_start, s_end, kstr));
 
