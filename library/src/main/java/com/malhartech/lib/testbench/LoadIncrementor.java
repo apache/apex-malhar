@@ -10,6 +10,7 @@ import com.malhartech.dag.AbstractModule;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.ModuleConfiguration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -58,7 +59,8 @@ public class LoadIncrementor extends AbstractModule
 
   HashMap<String, Object> vmap = new HashMap<String, Object>();
   ArrayList<String> keys = new ArrayList<String>();
-  ArrayList<Double> limits = new ArrayList<Double>();
+  ArrayList<Double> low_limits = new ArrayList<Double>();
+  ArrayList<Double> high_limits = new ArrayList<Double>();
 
   float delta_default_value = 1;
   float delta = delta_default_value;
@@ -103,11 +105,46 @@ public class LoadIncrementor extends AbstractModule
   {
     boolean ret = true;
     //delta = config.getFloat(KEY_DELTA, delta_default_value);
-    String[] skey = config.getTrimmedStrings(KEY_KEYS);
-    String[] lkey = config.getTrimmedStrings(KEY_LIMITS);
-    if (skey.length != lkey.length) {
-      ret = false;
+    String key_str = config.get(KEY_KEYS);
+    String limits_str = config.get(KEY_LIMITS);
 
+    if (key_str.isEmpty()) {
+      ret = false;
+      throw new IllegalArgumentException("Property \"keys\" is empty");
+    }
+
+    if (!limits_str.isEmpty()) { // if specified, must match the key_str ids
+      String[] skey = key_str.split(",");
+      String[] lkey = limits_str.split(";");
+      if (skey.length != lkey.length) {
+        ret = false;
+        throw new IllegalArgumentException(
+                String.format("Number of ids in keys(%d) does not match number ids in limits (%d)", skey.length, lkey.length));
+      }
+      // ensure lkey has two doubles each
+      for (String l: lkey) {
+        String[] klimit = l.split(",");
+        if (klimit.length != 2) {
+          ret = false;
+          throw new IllegalArgumentException(
+                  String.format("Property \"limits\" has a illegal value (%s). Need to be \"lower_limit,upper_limit\"", l));
+        }
+        for (String k: klimit) {
+          try {
+            Double.parseDouble(k);
+          }
+          catch (NumberFormatException e) {
+            ret = false;
+            throw new IllegalArgumentException(String.format("Property \"limits\" has illegal format for one of its strings (%s)", k));
+          }
+        }
+        Double low_limit = Double.parseDouble(klimit[0]);
+        Double high_limit = Double.parseDouble(klimit[1]);
+        if (low_limit >= high_limit) {
+            ret = false;
+            throw new IllegalArgumentException(String.format("Property \"limits\" low value (%s) >= high_value(%s)", klimit[0], klimit[1]));
+        }
+      }
     }
     return ret;
   }
@@ -125,14 +162,13 @@ public class LoadIncrementor extends AbstractModule
     }
 
     delta = config.getFloat(KEY_DELTA, delta_default_value);
-    String[] skey = config.getTrimmedStrings(KEY_KEYS);
-    for (String s : skey) {
-      keys.add(s);
-    }
+    keys.addAll(Arrays.asList(config.get(KEY_KEYS).split(",")));
 
-    String[] lkey = config.getTrimmedStrings(KEY_LIMITS);
+    String[] lkey = config.get(KEY_LIMITS).split(";");
     for (String l : lkey) {
-      limits.add(Double.valueOf(l));
+      String[] limits = l.split(",");
+      low_limits.add(Double.valueOf(limits[0]));
+      high_limits.add(Double.valueOf(limits[1]));
     }
   }
 
