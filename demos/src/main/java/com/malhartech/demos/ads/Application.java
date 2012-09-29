@@ -28,6 +28,8 @@ public class Application implements ApplicationFactory {
   private int generatorMaxWindowsCount = 100;
   private int generatorWindowCount = 1;
 
+  private final boolean allInline = true;
+
   {
     // TODO: call from the CLI
     setLocalMode();
@@ -125,15 +127,16 @@ public class Application implements ApplicationFactory {
     Operator ctrconsole = getConsoleOperator(dag, "ctrConsole");
     Operator viewcountconsole = getConsoleOperator(dag, "viewCountConsole");
 
-    dag.addStream("revenuedata", revenue.getOutput(ArithmeticSum.OPORT_SUM), margin.getInput(ArithmeticMargin.IPORT_DENOMINATOR), revconsole.getInput(ConsoleOutputModule.INPUT)).setInline(true);
-    dag.addStream("costdata", cost.getOutput(ArithmeticSum.OPORT_SUM), margin.getInput(ArithmeticMargin.IPORT_NUMERATOR), costconsole.getInput(ConsoleOutputModule.INPUT)).setInline(true);
-    dag.addStream("margindata", margin.getOutput(ArithmeticMargin.OPORT_MARGIN), marginconsole.getInput(ConsoleOutputModule.INPUT)).setInline(true);
-    dag.addStream("ctrdata", ctr.getOutput(ArithmeticQuotient.OPORT_QUOTIENT), ctrconsole.getInput(ConsoleOutputModule.INPUT)).setInline(true);
-    dag.addStream("tuplecount", viewGen.getOutput(LoadGenerator.OPORT_COUNT), viewcountconsole.getInput(ConsoleOutputModule.INPUT)).setInline(true);
+    dag.addStream("revenuedata", revenue.getOutput(ArithmeticSum.OPORT_SUM), margin.getInput(ArithmeticMargin.IPORT_DENOMINATOR), revconsole.getInput(ConsoleOutputModule.INPUT)).setInline(allInline);
+    dag.addStream("costdata", cost.getOutput(ArithmeticSum.OPORT_SUM), margin.getInput(ArithmeticMargin.IPORT_NUMERATOR), costconsole.getInput(ConsoleOutputModule.INPUT)).setInline(allInline);
+    dag.addStream("margindata", margin.getOutput(ArithmeticMargin.OPORT_MARGIN), marginconsole.getInput(ConsoleOutputModule.INPUT)).setInline(allInline);
+    dag.addStream("ctrdata", ctr.getOutput(ArithmeticQuotient.OPORT_QUOTIENT), ctrconsole.getInput(ConsoleOutputModule.INPUT)).setInline(allInline);
+    dag.addStream("tuplecount", viewGen.getOutput(LoadGenerator.OPORT_COUNT), viewcountconsole.getInput(ConsoleOutputModule.INPUT)).setInline(allInline);
 
     // these settings only affect distributed mode
     dag.getConf().setInt(DAG.STRAM_CONTAINER_MEMORY_MB, 2048);
     dag.getConf().setInt(DAG.STRAM_MASTER_MEMORY_MB, 1024);
+    dag.setMaxContainerCount(1); // to simplify non-inline deployment debugging
 
     return dag;
   }
