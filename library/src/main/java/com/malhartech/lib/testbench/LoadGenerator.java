@@ -65,25 +65,25 @@ public class LoadGenerator extends AbstractInputModule
   public static final String OPORT_COUNT_TUPLE_TUPLES_PERSEC = "tuples_per_sec";
   public static final String OPORT_COUNT_TUPLE_WINDOWID = "window_id";
 
-  private static Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
-  final int tuples_blast_default_value = 10000;
-  protected int tuples_blast = tuples_blast_default_value;
-  protected int maxCountOfWindows = Integer.MAX_VALUE;
-  HashMap<String, Double> keys = new HashMap<String, Double>();
-  HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();
-  ArrayList<Integer> weights = null;
-  boolean isstringschema = false;
-  int total_weight = 0;
-  private final Random random = new Random();
-  private int rolling_window_count = 1;
-  long[] tuple_numbers = null;
-  int tuple_index = 0;
-  int count_denominator = 1;
-  int count_windowid = 0;
-  private boolean count_connected = false;
+  private static final Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
+  protected static final int tuples_blast_default_value = 10000;
+  protected transient int tuples_blast = tuples_blast_default_value;
+  protected transient int maxCountOfWindows = Integer.MAX_VALUE;
+  transient HashMap<String, Double> keys = new HashMap<String, Double>();
+  transient HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();
+  transient ArrayList<Integer> weights;
+  transient boolean isstringschema;
+  transient int total_weight = 0;
+  private transient final Random random = new Random();
+  private transient int rolling_window_count = 1;
+  transient long[] tuple_numbers = null;
+  transient int tuple_index = 0;
+  transient int count_denominator = 1;
+  transient int count_windowid = 0;
+  private transient boolean count_connected = false;
 
-  long window_start_time = 0;
-  long window_end_time = 0;
+  transient long window_start_time = 0;
+  transient long window_end_time = 0;
 
 
   /**
