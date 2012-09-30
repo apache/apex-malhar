@@ -4,17 +4,20 @@
  */
 package com.malhartech.demos.twitter;
 
+import java.io.IOException;
+import java.util.Map.Entry;
+import java.util.Properties;
+
+import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.malhartech.dag.ApplicationFactory;
 import com.malhartech.dag.DAG;
 import com.malhartech.dag.DAG.Operator;
 import com.malhartech.lib.io.ConsoleOutputModule;
 import com.malhartech.lib.io.HttpOutputModule;
 import com.malhartech.lib.math.UniqueCounter;
-import java.io.IOException;
-import java.util.Map.Entry;
-import java.util.Properties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Example of application configuration in Java using {@link com.malhartech.stram.conf.NewDAGBuilder}.<p>
@@ -40,7 +43,7 @@ public class SynchronousFeedApplication implements ApplicationFactory
   }
 
   @Override
-  public DAG getApplication()
+  public DAG getApplication(Configuration conf)
   {
     final String propertyBase = "twitter4j";
     Properties properties = new Properties();
@@ -52,7 +55,7 @@ public class SynchronousFeedApplication implements ApplicationFactory
       return null;
     }
 
-    DAG b = new DAG();
+    DAG b = new DAG(conf);
     /*
      * Setup the operator to get the data from twitter sample stream injected into the system.
      */

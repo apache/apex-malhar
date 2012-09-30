@@ -37,7 +37,7 @@ public class ApplicationTest
     if (app == null) {
       Assert.fail("could not get reference to the application");
     }
-    StramLocalCluster lc = new StramLocalCluster(app.getApplication());
+    StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));
     lc.setHeartbeatMonitoringEnabled(false);
     lc.run();
   }
@@ -49,7 +49,7 @@ public class ApplicationTest
     if (app == null) {
       Assert.fail("could not get reference to the application");
     }
-    StramLocalCluster lc = new StramLocalCluster(app.getApplication());
+    StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));
     lc.setHeartbeatMonitoringEnabled(false);
     lc.run();
   }

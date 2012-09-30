@@ -4,6 +4,8 @@
  */
 package com.malhartech.demos.mobile;
 
+import org.apache.hadoop.conf.Configuration;
+
 import com.malhartech.dag.ApplicationFactory;
 import com.malhartech.dag.DAG;
 import com.malhartech.dag.DAG.Operator;
@@ -66,9 +68,9 @@ public class Application implements ApplicationFactory {
 
 
   @Override
-  public DAG getApplication() {
+  public DAG getApplication(Configuration conf) {
 
-    DAG dag = new DAG();
+    DAG dag = new DAG(conf);
 
 
     Operator seedGen = getSeedGeneratorOperator("seedGen", dag);

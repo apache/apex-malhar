@@ -4,6 +4,8 @@
  */
 package com.malhartech.demos.ads;
 
+import org.apache.hadoop.conf.Configuration;
+
 import com.malhartech.dag.ApplicationFactory;
 import com.malhartech.dag.DAG;
 import com.malhartech.dag.DAG.Operator;
@@ -23,17 +25,15 @@ import com.malhartech.lib.testbench.LoadGenerator;
 
 public class Application implements ApplicationFactory {
 
+  public static final String P_generatorVTuplesBlast = Application.class.getName() + ".generatorVTuplesBlast";
+  public static final String P_generatorMaxWindowsCount = Application.class.getName() + ".generatorMaxWindowsCount";
+  public static final String P_allInline = Application.class.getName() + ".allInline";
+
   // adjust these depending on execution mode (junit, cli-local, cluster)
   private int generatorVTuplesBlast = 1000;
   private int generatorMaxWindowsCount = 100;
   private int generatorWindowCount = 1;
-
-  private final boolean allInline = true;
-
-  {
-    // TODO: call from the CLI
-    setLocalMode();
-  }
+  private boolean allInline = true;
 
   public void setUnitTestMode() {
    generatorVTuplesBlast = 10;
@@ -103,9 +103,13 @@ public class Application implements ApplicationFactory {
   }
 
   @Override
-  public DAG getApplication() {
+  public DAG getApplication(Configuration conf) {
 
-    DAG dag = new DAG();
+    this.generatorVTuplesBlast = conf.getInt(P_generatorVTuplesBlast, this.generatorVTuplesBlast);
+    this.generatorMaxWindowsCount = conf.getInt(P_generatorMaxWindowsCount, this.generatorMaxWindowsCount);
+    this.allInline = conf.getBoolean(P_allInline, this.allInline);
+
+    DAG dag = new DAG(conf);
 
     Operator viewGen = getPageViewGenOperator("viewGen", dag);
     Operator adviews = getAdViewsStampOperator("adviews", dag);
@@ -133,11 +137,12 @@ public class Application implements ApplicationFactory {
     dag.addStream("ctrdata", ctr.getOutput(ArithmeticQuotient.OPORT_QUOTIENT), ctrconsole.getInput(ConsoleOutputModule.INPUT)).setInline(allInline);
     dag.addStream("tuplecount", viewGen.getOutput(LoadGenerator.OPORT_COUNT), viewcountconsole.getInput(ConsoleOutputModule.INPUT)).setInline(allInline);
 
-    // these settings only affect distributed mode
-    dag.getConf().setInt(DAG.STRAM_CONTAINER_MEMORY_MB, 2048);
-    dag.getConf().setInt(DAG.STRAM_MASTER_MEMORY_MB, 1024);
-    dag.setMaxContainerCount(1); // to simplify non-inline deployment debugging
-
+    if (LAUNCHMODE_YARN.equals(dag.getConf().get(DAG.STRAM_LAUNCH_MODE))) {
+      // settings only affect distributed mode
+      dag.getConf().setIfUnset(DAG.STRAM_CONTAINER_MEMORY_MB, "2048");
+      dag.getConf().setIfUnset(DAG.STRAM_MASTER_MEMORY_MB, "1024");
+      dag.getConf().setIfUnset(DAG.STRAM_MAX_CONTAINERS, "1");
+    }
     return dag;
   }
 }

@@ -32,7 +32,7 @@ public class ApplicationTest {
     Application app = new Application();
     app.setUnitTestMode(); // terminate quickly
     //app.setLocalMode(); // terminate with a long run
-    StramLocalCluster lc = new StramLocalCluster(app.getApplication());
+    StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));
     lc.setHeartbeatMonitoringEnabled(false);
     lc.run();
   }
