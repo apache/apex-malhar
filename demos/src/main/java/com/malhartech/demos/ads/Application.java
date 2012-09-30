@@ -42,7 +42,7 @@ public class Application implements ApplicationFactory {
   }
 
   private void setLocalMode() {
-    generatorVTuplesBlast = 5000; // keep this number low to not distort window boundaries
+    generatorVTuplesBlast = 1000; // keep this number low to not distort window boundaries
     //generatorVTuplesBlast = 500000;
    generatorWindowCount = 5;
    //generatorMaxWindowsCount = 50;
@@ -50,9 +50,6 @@ public class Application implements ApplicationFactory {
   }
 
   private void configure(Configuration conf) {
-    this.generatorVTuplesBlast = conf.getInt(P_generatorVTuplesBlast, this.generatorVTuplesBlast);
-    this.generatorMaxWindowsCount = conf.getInt(P_generatorMaxWindowsCount, this.generatorMaxWindowsCount);
-    this.allInline = conf.getBoolean(P_allInline, this.allInline);
 
     if (LAUNCHMODE_YARN.equals(conf.get(DAG.STRAM_LAUNCH_MODE))) {
       setLocalMode();
@@ -63,6 +60,11 @@ public class Application implements ApplicationFactory {
     } else if (LAUNCHMODE_LOCAL.equals(conf.get(DAG.STRAM_LAUNCH_MODE))) {
       setLocalMode();
     }
+
+    this.generatorVTuplesBlast = conf.getInt(P_generatorVTuplesBlast, this.generatorVTuplesBlast);
+    this.generatorMaxWindowsCount = conf.getInt(P_generatorMaxWindowsCount, this.generatorMaxWindowsCount);
+    this.allInline = conf.getBoolean(P_allInline, this.allInline);
+
   }
 
   private Operator getConsoleOperator(DAG b, String operatorName)
