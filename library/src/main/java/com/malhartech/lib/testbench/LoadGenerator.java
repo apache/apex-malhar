@@ -82,8 +82,7 @@ public class LoadGenerator extends AbstractInputModule
   transient int count_windowid = 0;
   private transient boolean count_connected = false;
 
-  transient long window_start_time = 0;
-  transient long window_end_time = 0;
+  private transient long windowStartTime = 0;
 
 
   /**
@@ -299,7 +298,7 @@ public class LoadGenerator extends AbstractInputModule
   public void beginWindow()
   {
       if (count_connected) {
-        window_start_time = System.currentTimeMillis();
+        windowStartTime = System.currentTimeMillis();
       }
   }
 
@@ -314,16 +313,20 @@ public class LoadGenerator extends AbstractInputModule
     //LOG.info(this +" endWindow: " + maxCountOfWindows + ", time=" + System.currentTimeMillis() + ", emitCount=" + emitCount);
     if (generatedTupleCount > 0) {
       if (count_connected) {
-        long elapsed_time = System.currentTimeMillis() - window_start_time;
+        long elapsedTime = System.currentTimeMillis() - windowStartTime;
+        if (elapsedTime == 0) {
+          elapsedTime = 1; // prevent from / zero
+        }
+
         int tcount = generatedTupleCount;
         long average = 0;
         if (rolling_window_count == 1) {
-          average = (tcount * 1000) / elapsed_time;
+          average = (tcount * 1000) / elapsedTime;
         }
         else { // use tuple_numbers
           int denominator;
           if (count_denominator == rolling_window_count) {
-            tuple_numbers[tuple_index] = (tcount*1000)/elapsed_time;
+            tuple_numbers[tuple_index] = (tcount*1000)/elapsedTime;
             denominator = rolling_window_count;
             tuple_index++;
             if (tuple_index == rolling_window_count) {
@@ -331,7 +334,7 @@ public class LoadGenerator extends AbstractInputModule
             }
           }
           else {
-            tuple_numbers[count_denominator - 1] = (tcount*1000)/elapsed_time;
+            tuple_numbers[count_denominator - 1] = (tcount*1000)/elapsedTime;
             denominator = count_denominator;
             count_denominator++;
           }
@@ -343,14 +346,15 @@ public class LoadGenerator extends AbstractInputModule
         HashMap<String, Number> tuples = new HashMap<String, Number>();
         tuples.put(OPORT_COUNT_TUPLE_AVERAGE, new Long(average));
         tuples.put(OPORT_COUNT_TUPLE_COUNT, new Integer(tcount));
-        tuples.put(OPORT_COUNT_TUPLE_TIME, new Long(elapsed_time));
-        tuples.put(OPORT_COUNT_TUPLE_TUPLES_PERSEC, new Long((tcount*1000)/elapsed_time));
+        tuples.put(OPORT_COUNT_TUPLE_TIME, new Long(elapsedTime));
+        tuples.put(OPORT_COUNT_TUPLE_TUPLES_PERSEC, new Long((tcount*1000)/elapsedTime));
         tuples.put(OPORT_COUNT_TUPLE_WINDOWID, new Integer(count_windowid++));
         emit(OPORT_COUNT, tuples);
       }
-      if (--maxCountOfWindows == 0) {
-        deactivate();
-      }
+    }
+
+    if (--maxCountOfWindows == 0) {
+      deactivate();
     }
   }
 
