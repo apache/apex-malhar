@@ -41,12 +41,28 @@ public class Application implements ApplicationFactory {
    generatorMaxWindowsCount = 20;
   }
 
-  public void setLocalMode() {
+  private void setLocalMode() {
     generatorVTuplesBlast = 5000; // keep this number low to not distort window boundaries
     //generatorVTuplesBlast = 500000;
    generatorWindowCount = 5;
    //generatorMaxWindowsCount = 50;
    generatorMaxWindowsCount = 1000;
+  }
+
+  private void configure(Configuration conf) {
+    this.generatorVTuplesBlast = conf.getInt(P_generatorVTuplesBlast, this.generatorVTuplesBlast);
+    this.generatorMaxWindowsCount = conf.getInt(P_generatorMaxWindowsCount, this.generatorMaxWindowsCount);
+    this.allInline = conf.getBoolean(P_allInline, this.allInline);
+
+    if (LAUNCHMODE_YARN.equals(conf.get(DAG.STRAM_LAUNCH_MODE))) {
+      setLocalMode();
+      // settings only affect distributed mode
+      conf.setIfUnset(DAG.STRAM_CONTAINER_MEMORY_MB, "2048");
+      conf.setIfUnset(DAG.STRAM_MASTER_MEMORY_MB, "1024");
+      conf.setIfUnset(DAG.STRAM_MAX_CONTAINERS, "1");
+    } else if (LAUNCHMODE_LOCAL.equals(conf.get(DAG.STRAM_LAUNCH_MODE))) {
+      setLocalMode();
+    }
   }
 
   private Operator getConsoleOperator(DAG b, String operatorName)
@@ -105,9 +121,7 @@ public class Application implements ApplicationFactory {
   @Override
   public DAG getApplication(Configuration conf) {
 
-    this.generatorVTuplesBlast = conf.getInt(P_generatorVTuplesBlast, this.generatorVTuplesBlast);
-    this.generatorMaxWindowsCount = conf.getInt(P_generatorMaxWindowsCount, this.generatorMaxWindowsCount);
-    this.allInline = conf.getBoolean(P_allInline, this.allInline);
+    configure(conf);
 
     DAG dag = new DAG(conf);
 
@@ -137,12 +151,6 @@ public class Application implements ApplicationFactory {
     dag.addStream("ctrdata", ctr.getOutput(ArithmeticQuotient.OPORT_QUOTIENT), ctrconsole.getInput(ConsoleOutputModule.INPUT)).setInline(allInline);
     dag.addStream("tuplecount", viewGen.getOutput(LoadGenerator.OPORT_COUNT), viewcountconsole.getInput(ConsoleOutputModule.INPUT)).setInline(allInline);
 
-    if (LAUNCHMODE_YARN.equals(dag.getConf().get(DAG.STRAM_LAUNCH_MODE))) {
-      // settings only affect distributed mode
-      dag.getConf().setIfUnset(DAG.STRAM_CONTAINER_MEMORY_MB, "2048");
-      dag.getConf().setIfUnset(DAG.STRAM_MASTER_MEMORY_MB, "1024");
-      dag.getConf().setIfUnset(DAG.STRAM_MAX_CONTAINERS, "1");
-    }
     return dag;
   }
 }
