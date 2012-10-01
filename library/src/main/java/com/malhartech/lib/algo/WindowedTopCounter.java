@@ -1,4 +1,4 @@
-package com.malhartech.demos.twitter;
+package com.malhartech.lib.algo;
 
 /*
  *  Copyright (c) 2012 Malhar, Inc.
@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory;
 })
 public class WindowedTopCounter extends AbstractModule
 {
+  private static final Logger logger = LoggerFactory.getLogger(WindowedTopCounter.class);
   private static final long serialVersionUID = 201208061826L;
-  private static final Logger logger = LoggerFactory.getLogger(PartitionedCounter.class);
   private transient int windows;
   private transient int topCount;
   private HashMap<Object, WindowedHolder> objects;

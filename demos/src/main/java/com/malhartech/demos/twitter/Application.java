@@ -4,6 +4,7 @@
  */
 package com.malhartech.demos.twitter;
 
+import com.malhartech.lib.algo.WindowedTopCounter;
 import java.io.IOException;
 import java.util.Map.Entry;
 import java.util.Properties;
