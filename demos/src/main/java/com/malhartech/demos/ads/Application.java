@@ -4,8 +4,6 @@
  */
 package com.malhartech.demos.ads;
 
-import org.apache.hadoop.conf.Configuration;
-
 import com.malhartech.dag.ApplicationFactory;
 import com.malhartech.dag.DAG;
 import com.malhartech.dag.DAG.Operator;
@@ -19,6 +17,7 @@ import com.malhartech.lib.testbench.LoadClassifier;
 import com.malhartech.lib.testbench.LoadGenerator;
 import com.malhartech.lib.testbench.StreamMerger;
 import com.malhartech.lib.testbench.ThroughputCounter;
+import org.apache.hadoop.conf.Configuration;
 
 
 /**
