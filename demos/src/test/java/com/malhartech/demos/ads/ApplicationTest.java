@@ -4,7 +4,6 @@
  */
 package com.malhartech.demos.ads;
 
-import com.malhartech.demos.ads.Application;
 import com.malhartech.stram.DAGPropertiesBuilder;
 import com.malhartech.stram.StramLocalCluster;
 import java.io.IOException;
