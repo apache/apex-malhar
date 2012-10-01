@@ -10,6 +10,7 @@ import com.malhartech.dag.ApplicationFactory;
 import com.malhartech.dag.DAG;
 import com.malhartech.dag.DAG.Operator;
 import com.malhartech.lib.io.ConsoleOutputModule;
+import com.malhartech.lib.io.HttpInputModule;
 import com.malhartech.lib.io.HttpOutputModule;
 import com.malhartech.lib.testbench.LoadSeedGenerator;
 
@@ -20,28 +21,8 @@ import com.malhartech.lib.testbench.LoadSeedGenerator;
 
 public class Application implements ApplicationFactory {
 
-  // adjust these depending on execution mode (junit, cli-local, cluster)
-  private int generatorVTuplesBlast = 1000;
-  private int generatorMaxWindowsCount = 100;
-  private int generatorWindowCount = 1;
-
-  {
-    // TODO: call from the CLI
-    setLocalMode();
-  }
 
   public void setUnitTestMode() {
-   generatorVTuplesBlast = 10;
-   generatorWindowCount = 5;
-   generatorMaxWindowsCount = 20;
-  }
-
-  public void setLocalMode() {
-    generatorVTuplesBlast = 5000; // keep this number low to not distort window boundaries
-    //generatorVTuplesBlast = 500000;
-   generatorWindowCount = 5;
-   //generatorMaxWindowsCount = 50;
-   generatorMaxWindowsCount = 1000;
   }
 
   private Operator getConsoleOperator(DAG b, String operatorName)
@@ -72,6 +53,9 @@ public class Application implements ApplicationFactory {
 
     DAG dag = new DAG(conf);
 
+    Operator phoneLocationQuery = dag.addOperator("phoneLocationQuery", HttpInputModule.class);
+    phoneLocationQuery.setProperty(HttpInputModule.P_RESOURCE_URL, "http://localhost:8080/channel/mobile/phoneLocationQuery");
+
 
     Operator seedGen = getSeedGeneratorOperator("seedGen", dag);
 
@@ -80,10 +64,6 @@ public class Application implements ApplicationFactory {
     Operator viewcountconsole = getConsoleOperator(dag, "viewCountConsole");
 
     //dag.addStream("revenuedata", revenue.getOutput(ArithmeticSum.OPORT_SUM), margin.getInput(ArithmeticMargin.IPORT_DENOMINATOR), revconsole.getInput(ConsoleOutputModule.INPUT)).setInline(true);
-
-    // these settings only affect distributed mode
-    dag.getConf().setInt(DAG.STRAM_CONTAINER_MEMORY_MB, 512);
-    dag.getConf().setInt(DAG.STRAM_MASTER_MEMORY_MB, 512);
 
     return dag;
   }

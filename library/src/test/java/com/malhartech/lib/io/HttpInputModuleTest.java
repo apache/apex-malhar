@@ -72,6 +72,7 @@ public class HttpInputModuleTest {
     server.start();
 
     String url = "http://localhost:" + server.getConnectors()[0].getLocalPort() + "/somecontext";
+    //String url = "http://localhost:8080/channel/mobile/phoneLocationQuery";
 
     final HttpInputModule node = new HttpInputModule();
 

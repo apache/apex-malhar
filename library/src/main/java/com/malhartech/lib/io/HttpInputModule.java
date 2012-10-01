@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Future;
 
 import javax.ws.rs.core.MediaType;
 
@@ -34,13 +33,13 @@ import com.malhartech.dag.AbstractInputModule;
 import com.malhartech.dag.Component;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.ModuleConfiguration;
-import com.sun.jersey.api.client.AsyncWebResource;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
 
 /**
  *
- * Reads via GET from given URL as chunked transfer encoded input stream<p>
+ * Reads via GET from given URL as input stream (entities on stream delimited by leading length)<p>
  * <br>
  * Data of type {@link java.util.Map} is converted to JSON. All other types are sent in their {@link Object#toString()} representation.<br>
  * <br>
@@ -63,7 +62,7 @@ public class HttpInputModule extends AbstractInputModule
 
   private transient URI resourceUrl;
   private transient Client wsClient;
-  private transient AsyncWebResource resource;
+  private transient WebResource resource;
   private transient Thread ioThread;
 
   @Override
@@ -78,8 +77,8 @@ public class HttpInputModule extends AbstractInputModule
 
     wsClient = Client.create();
     wsClient.setFollowRedirects(true);
-    wsClient.setReadTimeout(30000);
-    resource = wsClient.asyncResource(resourceUrl);
+    wsClient.setReadTimeout(60000);
+    resource = wsClient.resource(resourceUrl);
     LOG.info("URL: {}", resourceUrl);
 
     // launch IO thread
@@ -130,28 +129,29 @@ public class HttpInputModule extends AbstractInputModule
   public void run() {
     while (true) {
       try {
-        Future<ClientResponse> responseFuture = resource.accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
-        ClientResponse response = responseFuture.get();
+        ClientResponse response = resource.header("x-stream", "rockon").accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
         LOG.debug("Opening stream: " + resource);
 
-        if (!MediaType.APPLICATION_JSON_TYPE.equals(response.getType())) {
-          LOG.error("Unexpected response type " + response.getType());
-          response.close();
-        } else {
+        // media type check, if any, should be configuration based
+        //if (!MediaType.APPLICATION_JSON_TYPE.equals(response.getType())) {
+        //  LOG.error("Unexpected response type " + response.getType());
+        //  response.close();
+        //} else {
           InputStream is = response.getEntity(java.io.InputStream.class);
           while (true) {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             byte[] bytes = new byte[255];
             int bytesRead;
             while ((bytesRead = is.read(bytes)) != -1) {
+              //LOG.debug("read {} bytes", bytesRead);
               bos.write(bytes, 0, bytesRead);
               if (is.available() == 0 && bos.size() > 0) {
                 // give chance to process what we have before blocking on read
                 break;
               }
             }
-            if (processResponseChunk(bos.toByteArray())) {
-              LOG.debug("End of chunked input");
+            if (processBytes(bos.toByteArray())) {
+              LOG.debug("End of chunked input stream.");
               response.close();
               break;
             }
@@ -164,7 +164,7 @@ public class HttpInputModule extends AbstractInputModule
 
             bos.reset();
           }
-        }
+        //}
       } catch (Exception e) {
           LOG.error("Error reading from " + resource.getURI(), e);
       }
@@ -179,45 +179,61 @@ public class HttpInputModule extends AbstractInputModule
     }
   }
 
-  private boolean processResponseChunk(byte[] bytes) throws IOException, JSONException {
+  private boolean processBytes(byte[] bytes) throws IOException, JSONException {
     StringBuilder chunkStr = new StringBuilder();
-    // hack: when a line is a number we skip to next object instead of properly reading the chunks
+    // hack: when line is a number we skip to next object instead of using it to read length chunk bytes
     List<String> lines = IOUtils.readLines(new ByteArrayInputStream(bytes));
     boolean endStream = false;
+    int currentChunkLength = 0;
     for (String line : lines) {
       try {
-        int length = Integer.parseInt(line);
-        if (length == 0) {
+        int nextLength = Integer.parseInt(line);
+        if (nextLength == 0) {
           endStream = true;
+          break;
         }
+        // switch to next chunk
+        processChunk(chunkStr, currentChunkLength);
+        currentChunkLength = nextLength;
+
         //LOG.debug("chunk length: " + line);
-        // end chunk
-        // we are expecting a JSON object and converting one level of keys to a map, no further mapping is performed
-        if (chunkStr.length() > 0) {
-          //LOG.debug("completed chunk: " + chunkStr);
-          JSONObject json = new JSONObject(chunkStr.toString());
-          chunkStr = new StringBuilder();
-          Map<String, Object> tuple = new HashMap<String, Object>();
-          Iterator<?> it = json.keys();
-          while (it.hasNext()) {
-            String key = (String)it.next();
-            Object val = json.get(key);
-            if (val != null) {
-              tuple.put(key, val);
-            }
-          }
-          if (!tuple.isEmpty()) {
-            LOG.debug("Got: " + tuple);
-            tuples.offer(tuple);
-          }
-        }
       } catch (NumberFormatException e) {
         // add to chunk
         chunkStr.append(line);
         chunkStr.append("\n");
       }
     }
+    // process current chunk, if any
+    processChunk(chunkStr, currentChunkLength);
     return endStream;
+  }
+
+  /**
+   * We are expecting a JSON object and converting one level of keys to a map, no further mapping is performed
+   * @param chunk
+   * @param expectedLength
+   * @throws JSONException
+   */
+  private void processChunk(StringBuilder chunk, int expectedLength) throws JSONException {
+    if (expectedLength > 0 && chunk.length() > 0) {
+      //LOG.debug("completed chunk: " + chunkStr);
+      JSONObject json = new JSONObject(chunk.toString());
+      chunk = new StringBuilder();
+      Map<String, Object> tuple = new HashMap<String, Object>();
+      Iterator<?> it = json.keys();
+      while (it.hasNext()) {
+        String key = (String)it.next();
+        Object val = json.get(key);
+        if (val != null) {
+          tuple.put(key, val);
+        }
+      }
+      if (!tuple.isEmpty()) {
+        LOG.debug("Got: " + tuple);
+        tuples.offer(tuple);
+        chunk.setLength(0);
+      }
+    }
   }
 
 }

@@ -4,55 +4,29 @@
  */
 package com.malhartech.demos.mobile;
 
-import com.malhartech.dag.DAG;
-import com.malhartech.dag.DAG.Operator;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
-/**
- *
- * @author Chetan Narsude <chetan@malhar-inc.com>
- */
+import com.malhartech.demos.mobile.Application;
+import com.malhartech.stram.StramLocalCluster;
+
+
 public class ApplicationTest
 {
   public ApplicationTest()
   {
   }
 
-
-  /**
-   * Test of setUnitTestMode method, of class Application.
-   */
-  @Test
-  public void testSetUnitTestMode()
-  {
-    ;
-
-  }
-
-  /**
-   * Test of setLocalMode method, of class Application.
-   */
-  @Test
-  public void testSetLocalMode()
-  {
-    System.out.println("setLocalMode");
-    Application instance = new Application();
-    instance.setLocalMode();
-  }
-
   /**
    * Test of getApplication method, of class Application.
    */
   @Test
-  public void testGetApplication()
+  public void testGetApplication() throws Exception
   {
-    System.out.println("getApplication");
-    Application instance = new Application();
-
+    Application app = new Application();
+    app.setUnitTestMode(); // terminate quickly
+    StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));
+    lc.setHeartbeatMonitoringEnabled(false);
+    lc.run();
   }
 }
