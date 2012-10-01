@@ -32,7 +32,7 @@ public class WindowedTopCounter extends AbstractModule
   private transient int windows;
   private transient int topCount;
   private HashMap<Object, WindowedHolder> objects;
-  private PriorityQueue<WindowedHolder> topCounter;
+  private transient PriorityQueue<WindowedHolder> topCounter;
 
   @Override
   public void setup(ModuleConfiguration config) throws FailedOperationException
