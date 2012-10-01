@@ -20,7 +20,7 @@ import com.malhartech.lib.io.HttpOutputModule;
 import com.malhartech.lib.math.UniqueCounter;
 
 /**
- * Example of application configuration in Java using {@link com.malhartech.stram.conf.NewDAGBuilder}.<p>
+ * Example of application configuration in Java.<p>
  */
 public class Application implements ApplicationFactory
 {
