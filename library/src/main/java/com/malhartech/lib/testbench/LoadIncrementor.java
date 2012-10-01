@@ -55,12 +55,13 @@ public class LoadIncrementor extends AbstractModule
   public static final String IPORT_SEED = "seed";
   public static final String IPORT_INCREMENT = "increment";
   public static final String OPORT_DATA = "data";
+
   private static Logger LOG = LoggerFactory.getLogger(LoadIncrementor.class);
 
   HashMap<String, Object> vmap = new HashMap<String, Object>();
-  ArrayList<String> keys = new ArrayList<String>();
-  ArrayList<Double> low_limits = new ArrayList<Double>();
-  ArrayList<Double> high_limits = new ArrayList<Double>();
+  String[] keys = null;
+  double[] low_limits = null;
+  double[] high_limits = null;
 
   float delta_default_value = 1;
   float delta = delta_default_value;
@@ -162,14 +163,25 @@ public class LoadIncrementor extends AbstractModule
     }
 
     delta = config.getFloat(KEY_DELTA, delta_default_value);
-    keys.addAll(Arrays.asList(config.get(KEY_KEYS).split(",")));
-
+    String[] kstr = config.getTrimmedStrings(KEY_KEYS);
     String[] lkey = config.get(KEY_LIMITS).split(";");
+
+    low_limits = new double[lkey.length];
+    high_limits = new double[lkey.length];
+    keys = new String[kstr.length];
+    int j = 0;
     for (String l : lkey) {
       String[] limits = l.split(",");
-      low_limits.add(Double.valueOf(limits[0]));
-      high_limits.add(Double.valueOf(limits[1]));
+      keys[j] = kstr[j];
+      low_limits[j] = Double.valueOf(limits[0]).doubleValue();
+      high_limits[j] = Double.valueOf(limits[1]).doubleValue();
+      j++;
     }
+  }
+
+  public double getNextNumber(double current, double increment, double low, double high ) {
+    return current;
+
   }
 
   /**
@@ -194,8 +206,9 @@ public class LoadIncrementor extends AbstractModule
           alist.add(n);
           j++;
         }
-        if (j == keys.size()) { // Seed need to values for each key as expected
+        if (j == keys.length) { // Seed need to have values for each key as expected
           vmap.put(e.getKey(), alist);
+          // emit slots here on oport data
         }
         else { // emit error tuple
         }
@@ -205,22 +218,31 @@ public class LoadIncrementor extends AbstractModule
       for (Map.Entry<String, Object> e: ((HashMap<String, Object>) payload).entrySet()) {
         String key = e.getKey(); // the key
         ArrayList<valueData> alist = (ArrayList<valueData>) vmap.get(key); // does it have a location?
-        if (alist != null) { // oops, not seeded yet
+
+        if (alist != null) { // is seeded
           for (Map.Entry<String, Integer> o : ((HashMap<String, Integer>) e.getValue()).entrySet()) {
             String dimension = o.getKey();
             int ival = o.getValue().intValue();
             ival = ival % 100; // Make it a percent
+            int j = 0;
             for (valueData d : alist) {
               if (dimension.equals(d.str)) {
                 // Compute the new location
-                Double location = (Double) d.value;
-                double incr = delta/100;
-                incr = incr * ival;
+                Double current = (Double) d.value;
+                int cslot = current.intValue();
+                alist.get(j).value = getNextNumber(current.doubleValue(), (delta/100) * ival, low_limits[j], high_limits[j]);
+                int nslot = ((Double) alist.get(j).value).intValue();
+                // emit if cslot != nslot
+                // emit new value on oport data
                 // Get limits here just do MOD with limits
                 break;
               }
+              j++;
             }
           }
+        }
+        else { // oops, no seed yet
+          ;
         }
       }
     }
