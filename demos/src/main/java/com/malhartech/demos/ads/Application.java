@@ -17,6 +17,8 @@ import com.malhartech.lib.math.ArithmeticSum;
 import com.malhartech.lib.testbench.FilterClassifier;
 import com.malhartech.lib.testbench.LoadClassifier;
 import com.malhartech.lib.testbench.LoadGenerator;
+import com.malhartech.lib.testbench.StreamMerger;
+import com.malhartech.lib.testbench.ThroughputCounter;
 
 
 /**
@@ -41,7 +43,7 @@ public class Application implements ApplicationFactory {
    generatorMaxWindowsCount = 20;
   }
 
-  private void setLocalMode() {
+  public void setLocalMode() {
     generatorVTuplesBlast = 1000; // keep this number low to not distort window boundaries
     //generatorVTuplesBlast = 500000;
    generatorWindowCount = 5;
@@ -84,9 +86,20 @@ public class Application implements ApplicationFactory {
     return b.addOperator(name, ArithmeticSum.class);
   }
 
+  public Operator getStreamMerger(String name, DAG b) {
+    return b.addOperator(name, StreamMerger.class);
+  }
+
+  public Operator getThroughputCounter(String name, DAG b) {
+    Operator oper = b.addOperator(name, ThroughputCounter.class);
+    oper.setProperty(ThroughputCounter.ROLLING_WINDOW_COUNT, "5");
+    return oper;
+  }
+
   public Operator getMarginOperator(String name, DAG b) {
     return b.addOperator(name, ArithmeticMargin.class).setProperty(ArithmeticMargin.KEY_PERCENT, "true");
   }
+
 
   public Operator getQuotientOperator(String name, DAG b) {
     Operator oper = b.addOperator(name, ArithmeticQuotient.class);
@@ -130,16 +143,30 @@ public class Application implements ApplicationFactory {
     Operator viewGen = getPageViewGenOperator("viewGen", dag);
     Operator adviews = getAdViewsStampOperator("adviews", dag);
     Operator insertclicks = getInsertClicksOperator("insertclicks", dag);
+    Operator viewAggregate = getSumOperator("viewAggr", dag);
+    Operator clickAggregate = getSumOperator("clickAggr", dag);
+
     Operator ctr = getQuotientOperator("ctr", dag);
     Operator cost = getSumOperator("cost", dag);
     Operator revenue = getSumOperator("rev", dag);
     Operator margin = getMarginOperator("margin", dag);
 
+    Operator merge = getStreamMerger("countmerge", dag);
+    Operator tuple_counter = getThroughputCounter("tuple_counter", dag);
+
     dag.addStream("views", viewGen.getOutput(LoadGenerator.OPORT_DATA), adviews.getInput(LoadClassifier.IPORT_IN_DATA)).setInline(true);
-    dag.addStream("adviewsdata", adviews.getOutput(LoadClassifier.OPORT_OUT_DATA), insertclicks.getInput(FilterClassifier.IPORT_IN_DATA),
-                      ctr.getInput(ArithmeticQuotient.IPORT_DENOMINATOR), cost.getInput(ArithmeticSum.IPORT_DATA)).setInline(true);
-    dag.addStream("clicksdata", insertclicks.getOutput(FilterClassifier.OPORT_OUT_DATA),
-                      ctr.getInput(ArithmeticQuotient.IPORT_NUMERATOR), revenue.getInput(ArithmeticSum.IPORT_DATA)).setInline(true);
+    dag.addStream("viewsaggregate", adviews.getOutput(LoadClassifier.OPORT_OUT_DATA), insertclicks.getInput(FilterClassifier.IPORT_IN_DATA),
+                      viewAggregate.getInput(ArithmeticSum.IPORT_DATA)).setInline(true);
+    dag.addStream("clicksaggregate", insertclicks.getOutput(FilterClassifier.OPORT_OUT_DATA), clickAggregate.getInput(ArithmeticSum.IPORT_DATA)).setInline(true);
+
+    dag.addStream("adviewsdata", viewAggregate.getOutput(ArithmeticSum.OPORT_SUM), ctr.getInput(ArithmeticQuotient.IPORT_DENOMINATOR),
+                                                                                   cost.getInput(ArithmeticSum.IPORT_DATA));
+    dag.addStream("clicksdata", clickAggregate.getOutput(ArithmeticSum.OPORT_SUM), ctr.getInput(ArithmeticQuotient.IPORT_NUMERATOR),
+                                                                                   revenue.getInput(ArithmeticSum.IPORT_DATA));
+    dag.addStream("viewtuplecount", viewAggregate.getOutput(ArithmeticSum.OPORT_COUNT), merge.getInput(StreamMerger.IPORT_IN_DATA1));
+    dag.addStream("clicktuplecount", clickAggregate.getOutput(ArithmeticSum.OPORT_COUNT), merge.getInput(StreamMerger.IPORT_IN_DATA2));
+    dag.addStream("total count", merge.getOutput(StreamMerger.OPORT_OUT_DATA), tuple_counter.getInput(ThroughputCounter.IPORT_DATA));
+
 
     Operator revconsole = getConsoleOperator(dag, "revConsole");
     Operator costconsole = getConsoleOperator(dag, "costConsole");
@@ -151,7 +178,7 @@ public class Application implements ApplicationFactory {
     dag.addStream("costdata", cost.getOutput(ArithmeticSum.OPORT_SUM), margin.getInput(ArithmeticMargin.IPORT_NUMERATOR), costconsole.getInput(ConsoleOutputModule.INPUT)).setInline(allInline);
     dag.addStream("margindata", margin.getOutput(ArithmeticMargin.OPORT_MARGIN), marginconsole.getInput(ConsoleOutputModule.INPUT)).setInline(allInline);
     dag.addStream("ctrdata", ctr.getOutput(ArithmeticQuotient.OPORT_QUOTIENT), ctrconsole.getInput(ConsoleOutputModule.INPUT)).setInline(allInline);
-    dag.addStream("tuplecount", viewGen.getOutput(LoadGenerator.OPORT_COUNT), viewcountconsole.getInput(ConsoleOutputModule.INPUT)).setInline(allInline);
+    dag.addStream("tuplecount", tuple_counter.getOutput(ThroughputCounter.OPORT_COUNT) , viewcountconsole.getInput(ConsoleOutputModule.INPUT)).setInline(allInline);
 
     return dag;
   }

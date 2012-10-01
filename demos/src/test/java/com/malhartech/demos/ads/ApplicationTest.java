@@ -30,8 +30,8 @@ public class ApplicationTest {
   @Test
   public void testJavaConfig() throws IOException, Exception {
     Application app = new Application();
-    app.setUnitTestMode(); // terminate quickly
-    //app.setLocalMode(); // terminate with a long run
+    //app.setUnitTestMode(); // terminate quickly
+    app.setLocalMode(); // terminate with a long run
     StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));
     lc.setHeartbeatMonitoringEnabled(false);
     lc.run();

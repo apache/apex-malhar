@@ -124,8 +124,10 @@ public class ThroughputCounter extends AbstractModule
   @Override
   public void beginWindow()
   {
-    windowStartTime = System.currentTimeMillis();
-    tuple_count = 0;
+    if (tuple_count != 0) { // Do not restart time if no tuples were sent
+      windowStartTime = System.currentTimeMillis();
+      tuple_count = 0;
+    }
   }
 
 
@@ -135,6 +137,9 @@ public class ThroughputCounter extends AbstractModule
   @Override
   public void endWindow()
   {
+    if (tuple_count == 0) {
+      return;
+    }
     long elapsedTime = System.currentTimeMillis() - windowStartTime;
     if (elapsedTime == 0) {
       elapsedTime = 1; // prevent from / zero

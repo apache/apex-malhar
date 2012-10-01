@@ -79,7 +79,7 @@ public class ArithmeticSum extends AbstractModule
         else if (sum_connected && count_connected) {
           if (hval != null) {
             ((ArrayList) hval).set(0, new Double(((Number) ((ArrayList) hval).get(0)).doubleValue() + e.getValue().doubleValue()));
-            ((ArrayList) hval).set(1, (Integer) ((ArrayList) hval).get(0) + 1);
+            ((ArrayList) hval).set(1, (Integer) ((ArrayList) hval).get(1) + 1);
           }
           else {
             hval = new ArrayList();
