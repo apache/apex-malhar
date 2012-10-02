@@ -187,6 +187,10 @@ public class AlgothmicFIFO extends AbstractModule
     }
   }
 
+  //
+  // Need to add emiting last console tuple on every end_window
+  //
+
   public boolean myValidation(ModuleConfiguration config)
   {
     boolean ret = true;

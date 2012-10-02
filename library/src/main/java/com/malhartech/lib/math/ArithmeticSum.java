@@ -42,7 +42,7 @@ public class ArithmeticSum extends AbstractModule
   HashMap<String, Object> sum = new HashMap<String, Object>();
 
   boolean count_connected = false;
-  boolean sum_connected = true;
+  boolean sum_connected = false;
 
   @Override
   public void connected(String id, Sink dagpart)
@@ -143,20 +143,5 @@ public class ArithmeticSum extends AbstractModule
       emit(OPORT_COUNT, ctuples);
     }
     sum.clear();
-  }
-
-  /**
-   *
-   * Checks for user specific configuration values<p>
-   *
-   * @param config
-   * @return boolean
-   */
-  @Override
-  public boolean checkConfiguration(ModuleConfiguration config)
-  {
-    boolean ret = true;
-    // TBD
-    return ret && super.checkConfiguration(config);
   }
 }
