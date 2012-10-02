@@ -28,6 +28,7 @@ import org.apache.hadoop.conf.Configuration;
 
 public class Application5 implements ApplicationFactory {
 
+  public static final String P_numGenerators = Application5.class.getName() + ".numGenerators";
   public static final String P_generatorVTuplesBlast = Application5.class.getName() + ".generatorVTuplesBlast";
   public static final String P_generatorMaxWindowsCount = Application5.class.getName() + ".generatorMaxWindowsCount";
   public static final String P_allInline = Application5.class.getName() + ".allInline";
@@ -36,6 +37,7 @@ public class Application5 implements ApplicationFactory {
   private int generatorVTuplesBlast = 1000;
   private int generatorMaxWindowsCount = 100;
   private int generatorWindowCount = 1;
+  private int numGenerators = 2;
   private boolean allInline = true;
 
   public void setUnitTestMode() {
@@ -64,6 +66,7 @@ public class Application5 implements ApplicationFactory {
       setLocalMode();
     }
 
+    this.numGenerators = conf.getInt(P_numGenerators, this.numGenerators);
     this.generatorVTuplesBlast = conf.getInt(P_generatorVTuplesBlast, this.generatorVTuplesBlast);
     this.generatorMaxWindowsCount = conf.getInt(P_generatorMaxWindowsCount, this.generatorMaxWindowsCount);
     this.allInline = conf.getBoolean(P_allInline, this.allInline);
@@ -145,6 +148,7 @@ public class Application5 implements ApplicationFactory {
   public Operator getStreamMerger(String name, DAG b) {
     return b.addOperator(name, StreamMerger.class);
   }
+
   @Override
   public DAG getApplication(Configuration conf) {
 
@@ -152,12 +156,12 @@ public class Application5 implements ApplicationFactory {
 
     DAG dag = new DAG(conf);
 
-    Operator viewAggrSum5 = getStreamMerger5Operator("viewaggregatesum", dag);
-    Operator clickAggrSum5 = getStreamMerger5Operator("clickaggregatesum", dag);
-    Operator viewAggrCount5 = getStreamMerger5Operator("viewaggregatecount", dag);
-    Operator clickAggrCount5 = getStreamMerger5Operator("clickaggregatecount", dag);
+    Operator viewAggrSum5 = getStreamMerger10Operator("viewaggregatesum", dag);
+    Operator clickAggrSum5 = getStreamMerger10Operator("clickaggregatesum", dag);
+    Operator viewAggrCount5 = getStreamMerger10Operator("viewaggregatecount", dag);
+    Operator clickAggrCount5 = getStreamMerger10Operator("clickaggregatecount", dag);
 
-    for (int i = 1; i <= 5; i++) {
+    for (int i = 1; i <= numGenerators; i++) {
       String viewgenstr = String.format("%s%d", "viewGen", i);
       String adviewstr = String.format("%s%d", "adviews", i);
       String insertclicksstr = String.format("%s%d", "insertclicks", i);
@@ -183,10 +187,10 @@ public class Application5 implements ApplicationFactory {
                     viewAggregate.getInput(ArithmeticSum.IPORT_DATA)).setInline(true);
       dag.addStream(clicksaggregatestreamstr, insertclicks.getOutput(FilterClassifier.OPORT_OUT_DATA), clickAggregate.getInput(ArithmeticSum.IPORT_DATA)).setInline(true);
 
-      dag.addStream(viewaggrsumstreamstr, viewAggregate.getOutput(ArithmeticSum.OPORT_SUM), viewAggrSum5.getInput(StreamMerger5.getInputName(i)));
-      dag.addStream(clickaggrsumstreamstr, clickAggregate.getOutput(ArithmeticSum.OPORT_SUM), clickAggrSum5.getInput(StreamMerger5.getInputName(i)));
-      dag.addStream(viewaggrcountstreamstr, viewAggregate.getOutput(ArithmeticSum.OPORT_COUNT), viewAggrCount5.getInput(StreamMerger5.getInputName(i)));
-      dag.addStream(clickaggrcountstreamstr, clickAggregate.getOutput(ArithmeticSum.OPORT_COUNT), clickAggrCount5.getInput(StreamMerger5.getInputName(i)));
+      dag.addStream(viewaggrsumstreamstr, viewAggregate.getOutput(ArithmeticSum.OPORT_SUM), viewAggrSum5.getInput(StreamMerger10.getInputName(i)));
+      dag.addStream(clickaggrsumstreamstr, clickAggregate.getOutput(ArithmeticSum.OPORT_SUM), clickAggrSum5.getInput(StreamMerger10.getInputName(i)));
+      dag.addStream(viewaggrcountstreamstr, viewAggregate.getOutput(ArithmeticSum.OPORT_COUNT), viewAggrCount5.getInput(StreamMerger10.getInputName(i)));
+      dag.addStream(clickaggrcountstreamstr, clickAggregate.getOutput(ArithmeticSum.OPORT_COUNT), clickAggrCount5.getInput(StreamMerger10.getInputName(i)));
     }
 
     Operator ctr = getQuotientOperator("ctr", dag);

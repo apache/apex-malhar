@@ -4,12 +4,12 @@
  */
 package com.malhartech.demos.ads;
 
-import com.malhartech.stram.DAGPropertiesBuilder;
-import com.malhartech.stram.StramLocalCluster;
 import java.io.IOException;
+
 import org.apache.hadoop.conf.Configuration;
-import org.junit.Ignore;
 import org.junit.Test;
+
+import com.malhartech.stram.StramLocalCluster;
 
 
 /**
