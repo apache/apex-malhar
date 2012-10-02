@@ -48,13 +48,15 @@ import org.slf4j.LoggerFactory;
         ports = {
   @PortAnnotation(name = LoadIncrementor.IPORT_SEED, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = LoadIncrementor.IPORT_INCREMENT, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = LoadIncrementor.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = LoadIncrementor.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT),
+  @PortAnnotation(name = LoadIncrementor.OPORT_COUNT, type = PortAnnotation.PortType.OUTPUT)
 })
 public class LoadIncrementor extends AbstractModule
 {
   public static final String IPORT_SEED = "seed";
   public static final String IPORT_INCREMENT = "increment";
   public static final String OPORT_DATA = "data";
+  public static final String OPORT_COUNT = "count";
 
   private static Logger LOG = LoggerFactory.getLogger(LoadIncrementor.class);
 
@@ -65,6 +67,8 @@ public class LoadIncrementor extends AbstractModule
 
   float delta_default_value = 1;
   float delta = delta_default_value;
+
+  int tuple_count = 0;
 
 /**
    * keys are comma separated list of keys for seeding. They are taken in order on seed port (i.e. keys need not be sent)<p>
@@ -195,22 +199,23 @@ public class LoadIncrementor extends AbstractModule
     // LoadSeedGenerator would provide seed
     // LoadRandomGenerator->SeedClassifier would provide Increment, use delta to make it fit
 
+    tuple_count++;
     if (IPORT_SEED.equals(getActivePort())) {
       // Payload is     HashMap<String, Object> ret = new HashMap<String, Object>();, where Object is ArrayList of Integers
       // Allow Seed to override
       for (Map.Entry<String, ArrayList> e: ((HashMap<String, ArrayList>)payload).entrySet()) {
-        ArrayList alist = new ArrayList();
-        // Get int here
-        int j = 0;
-        for (Integer n: (ArrayList<Integer>)e.getValue()) {
-          alist.add(n);
-          j++;
+        if (keys.length != ((ArrayList) e.getValue()).size()) { // bad seed
+          // emit error tuple here
         }
-        if (j == keys.length) { // Seed need to have values for each key as expected
+        else {
+          ArrayList alist = new ArrayList();
+          int j = 0;
+          for (Integer s: (ArrayList<Integer>) e.getValue()) {
+            valueData d = new valueData(keys[j], new Double(s.doubleValue()));
+            alist.add(d);
+            j++;
+          }
           vmap.put(e.getKey(), alist);
-          // emit slots here on oport data
-        }
-        else { // emit error tuple
         }
       }
     }
@@ -218,26 +223,35 @@ public class LoadIncrementor extends AbstractModule
       for (Map.Entry<String, Object> e: ((HashMap<String, Object>) payload).entrySet()) {
         String key = e.getKey(); // the key
         ArrayList<valueData> alist = (ArrayList<valueData>) vmap.get(key); // does it have a location?
-
-        if (alist != null) { // is seeded
+        if (alist != null) { // if not seeded just ignore
           for (Map.Entry<String, Integer> o : ((HashMap<String, Integer>) e.getValue()).entrySet()) {
             String dimension = o.getKey();
-            int ival = o.getValue().intValue();
-            ival = ival % 100; // Make it a percent
             int j = 0;
+            int cur_slot = 0;
+            int new_slot = 0;
             for (valueData d : alist) {
               if (dimension.equals(d.str)) {
                 // Compute the new location
                 Double current = (Double) d.value;
-                int cslot = current.intValue();
-                alist.get(j).value = getNextNumber(current.doubleValue(), (delta/100) * ival, low_limits[j], high_limits[j]);
-                int nslot = ((Double) alist.get(j).value).intValue();
-                // emit if cslot != nslot
-                // emit new value on oport data
-                // Get limits here just do MOD with limits
+                cur_slot = current.intValue();
+                alist.get(j).value = getNextNumber(current.doubleValue(), (delta/100) * (o.getValue().intValue() % 100), low_limits[j], high_limits[j]);
+                new_slot = ((Double) alist.get(j).value).intValue();
                 break;
               }
               j++;
+            }
+            if (cur_slot != new_slot) {
+              HashMap<String, String> tuple = new HashMap<String, String>();
+              String val = new String();
+              for (valueData d : alist) {
+                if (!val.isEmpty()) {
+                  val += ",";
+                }
+                Integer ival = ((Double) d.value).intValue();
+                val += ival.toString();
+              }
+              tuple.put(key, val);
+              emit(OPORT_DATA, tuple);
             }
           }
         }
@@ -247,4 +261,19 @@ public class LoadIncrementor extends AbstractModule
       }
     }
   }
+
+  @Override
+  public void beginWindow()
+  {
+    tuple_count = 0;
+  }
+
+  @Override
+  public void endWindow()
+  {
+    HashMap<String, Integer> tuple = new HashMap<String, Integer>();
+    tuple.put("TUPLE_COUNT", new Integer(tuple_count));
+    emit(OPORT_COUNT, tuple);
+  }
+
 }
