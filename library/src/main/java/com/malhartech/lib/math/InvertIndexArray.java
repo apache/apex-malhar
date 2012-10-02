@@ -28,14 +28,14 @@ import org.slf4j.LoggerFactory;
  */
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = SearchInvertIndex.IPORT_DATA, type = PortType.INPUT),
-  @PortAnnotation(name = SearchInvertIndex.OPORT_INDEX, type = PortType.OUTPUT)
+  @PortAnnotation(name = InvertIndexArray.IPORT_DATA, type = PortType.INPUT),
+  @PortAnnotation(name = InvertIndexArray.OPORT_INDEX, type = PortType.OUTPUT)
 })
-public class SearchInvertIndex extends AbstractModule
+public class InvertIndexArray extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_INDEX = "index";
-  private static Logger LOG = LoggerFactory.getLogger(SearchInvertIndex.class);
+  private static Logger LOG = LoggerFactory.getLogger(InvertIndexArray.class);
   HashMap<String, ArrayList> index = null;
 
   class valueData

@@ -22,9 +22,9 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class TestSearchInvertIndex
+public class TestInvertIndexArray
 {
-  private static Logger LOG = LoggerFactory.getLogger(SearchInvertIndex.class);
+  private static Logger LOG = LoggerFactory.getLogger(InvertIndexArray.class);
 
   class TestSink implements Sink
   {
@@ -49,15 +49,15 @@ public class TestSearchInvertIndex
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    final SearchInvertIndex node = new SearchInvertIndex();
+    final InvertIndexArray node = new InvertIndexArray();
 
     TestSink indexSink = new TestSink();
 
-    Sink inSink = node.connect(SearchInvertIndex.IPORT_DATA, node);
-    node.connect(SearchInvertIndex.OPORT_INDEX, indexSink);
+    Sink inSink = node.connect(InvertIndexArray.IPORT_DATA, node);
+    node.connect(InvertIndexArray.OPORT_INDEX, indexSink);
 
     ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
-    conf.setBoolean(SearchInvertIndex.KEY_PASSVALUE, false); // test with String
+    conf.setBoolean(InvertIndexArray.KEY_PASSVALUE, false); // test with String
     node.setup(conf);
 
     final AtomicBoolean inactive = new AtomicBoolean(true);

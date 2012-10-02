@@ -361,7 +361,6 @@ public class LoadGenerator extends AbstractInputModule
   @Override
   public void process(Object payload)
   {
-    String tuple_key; // the tuple key
     int j = 0;
 
     for (int i = tuples_blast; i-- > 0;) {
@@ -382,7 +381,7 @@ public class LoadGenerator extends AbstractInputModule
         j = j % keys.size();
       }
       // j is the key index
-      tuple_key = wtostr_index.get(j);
+      String tuple_key = wtostr_index.get(j);
       if (!isstringschema) {
         HashMap<String, Double> tuple = new HashMap<String, Double>(1);
         tuple.put(tuple_key, keys.get(tuple_key));

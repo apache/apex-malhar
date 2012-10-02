@@ -58,15 +58,7 @@ public class BenchmarkLoadGenerator {
             // LOG.debug(payload.toString());
           }
           else { // ignore the payload, just count it
-            String str = (String)payload;
-            Integer val = collectedTuples.get(str);
-            if (val == null) {
-              val = new Integer(1);
-            }
-            else {
-              val = val + 1;
-            }
-            collectedTuples.put(str, val);
+            count++;
           }
         }
       }
@@ -101,8 +93,8 @@ public class BenchmarkLoadGenerator {
         conf.set(LoadGenerator.KEY_KEYS, "a");
         conf.set(LoadGenerator.KEY_STRING_SCHEMA, "false");
         conf.setInt(LoadGenerator.KEY_TUPLES_BLAST, 50000000);
-          conf.setInt("SpinMillis", 5);
-        conf.setInt("BufferCapacity", 2 * 1024 * 1024);
+        node.setSpinMillis(2);
+        node.setBufferCapacity(2 * 1024 * 1024);
 
       node.setup(conf);
 
@@ -138,8 +130,5 @@ public class BenchmarkLoadGenerator {
 
       //LOG.debug(String.format("\nProcessed %d tuples from emitted %d in %d windows", lgenSink.count, countSink.count, countSink.num_tuples));
       LOG.debug(String.format("\nProcessed %d tuples", lgenSink.count));
-      for (Map.Entry<String, Integer> e: lgenSink.collectedTuples.entrySet()) {
-        LOG.debug("{} tuples for key {}", e.getValue().intValue(), e.getKey());
-      }
     }
 }

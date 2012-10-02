@@ -63,7 +63,8 @@ public class AlgothmicFIFO extends AbstractModule
   boolean fifo_connected = false;
   boolean console_connected = false;
 
-  int depth = 0;
+  final int depth_default = 10;
+  int depth = depth_default;
 
   /**
    * Depth of the FIFO
@@ -217,7 +218,7 @@ public class AlgothmicFIFO extends AbstractModule
       throw new FailedOperationException("validation failed");
     }
 
-    depth = config.getInt(KEY_DEPTH, 10);
+    depth = config.getInt(KEY_DEPTH, depth_default);
     LOG.debug(String.format("Set depth to %d)", depth));
   }
 

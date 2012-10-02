@@ -44,7 +44,7 @@ public class ArithmeticSum extends AbstractModule
   boolean count_connected = false;
   boolean sum_connected = false;
 
-  @Override
+   @Override
   public void connected(String id, Sink dagpart)
   {
     if (id.equals(OPORT_COUNT)) {
@@ -104,7 +104,7 @@ public class ArithmeticSum extends AbstractModule
     return true;
   }
 
-  /**
+    /**
    * Node only works in windowed mode. Emits all data upon end of window tuple
    */
   @Override
