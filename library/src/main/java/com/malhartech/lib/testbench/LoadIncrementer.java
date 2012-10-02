@@ -28,8 +28,10 @@ import org.slf4j.LoggerFactory;
  * <br>
  * Description: tbd
  * <br>
- * Benchmarks: This node has been benchmarked at over ?? million tuples/second in local/inline mode<br>
- *
+ * Benchmarks: The benchmark was done in local/inline mode<br>
+ * Processing tuples on seed port are at 3.5 Million tuples/sec<br>
+ * Processing tuples on increment port are at 10 Million tuples/sec<br>
+ * <br>
  * <b>Tuple Schema</b>: Each tuple is HashMap<String, ArrayList> on both the ports. Currently other schemas are not supported<br>
  * <b>Port Interface</b><br>
  * <b>seed</b>: The seed data for setting up the incrementor data to work on<br>
@@ -58,12 +60,15 @@ public class LoadIncrementer extends AbstractModule
   public static final String OPORT_DATA = "data";
   public static final String OPORT_COUNT = "count";
 
+  public static final String OPORT_COUNT_TUPLE_COUNT = "count";
+
   private static Logger LOG = LoggerFactory.getLogger(LoadIncrementer.class);
 
   HashMap<String, Object> vmap = new HashMap<String, Object>();
   String[] keys = null;
   double[] low_limits = null;
   double[] high_limits = null;
+  double sign = -1.0;
 
   final double low_limit_default_val = 0;
   final double high_limit_default_val = 100;
@@ -186,18 +191,36 @@ public class LoadIncrementer extends AbstractModule
     if (!lkey.isEmpty()) {
       String[] lstr = lkey.split(";");
       j = 0;
-      for (String l : lstr) {
+      for (String l: lstr) {
         String[] klimit = l.split(",");
-        low_limits[j] =  Double.valueOf(klimit[0]).doubleValue();
+        low_limits[j] = Double.valueOf(klimit[0]).doubleValue();
         high_limits[j] = Double.valueOf(klimit[1]).doubleValue();
+        j++;
       }
-      j++;
+    }
+
+    for (int i = 0; i < kstr.length; i++) {
+      LOG.debug(String.format("Key %s has limits %f,%f", keys[i], low_limits[i], high_limits[i]));
     }
  }
 
   public double getNextNumber(double current, double increment, double low, double high ) {
-    return current;
-
+    double ret = current;
+    double range = high - low;
+    if (increment > range) { // bad data, do nothing
+      ret = current;
+    }
+    else {
+      sign = sign * -1.0;
+      ret += sign * increment;
+      if (ret < low) {
+        ret = low + increment / 2;
+      }
+      if (ret > high) {
+        ret = high - increment / 2;
+      }
+    }
+    return ret;
   }
 
   /**
@@ -206,7 +229,7 @@ public class LoadIncrementer extends AbstractModule
    * @param list list of data items
    */
   public void emitDataTuple(String key, ArrayList list) {
-    HashMap<String, String> tuple = new HashMap<String, String>();
+    HashMap<String, String> tuple = new HashMap<String, String>(1);
     String val = new String();
     for (valueData d: (ArrayList<valueData>) list) {
       if (!val.isEmpty()) {
@@ -240,9 +263,10 @@ public class LoadIncrementer extends AbstractModule
           // emit error tuple here
         }
         else {
-          ArrayList alist = new ArrayList();
+          ArrayList<Integer> ilist = (ArrayList<Integer>) e.getValue();
+          ArrayList alist = new ArrayList(ilist.size());
           int j = 0;
-          for (Integer s: (ArrayList<Integer>) e.getValue()) {
+          for (Integer s: ilist) {
             valueData d = new valueData(keys[j], new Double(s.doubleValue()));
             alist.add(d);
             j++;
@@ -266,8 +290,9 @@ public class LoadIncrementer extends AbstractModule
               if (dimension.equals(d.str)) {
                 // Compute the new location
                 cur_slot = ((Double) d.value).intValue();
-                alist.get(j).value = getNextNumber(((Double) d.value).doubleValue(), (delta/100) * (o.getValue().intValue() % 100), low_limits[j], high_limits[j]);
-                new_slot = ((Double) alist.get(j).value).intValue();
+                Double nval = getNextNumber(((Double) d.value).doubleValue(), (delta/100) * (o.getValue().intValue() % 100), low_limits[j], high_limits[j]);
+                new_slot = nval.intValue();
+                alist.get(j).value = nval;
                 break;
               }
               j++;
@@ -293,8 +318,8 @@ public class LoadIncrementer extends AbstractModule
   @Override
   public void endWindow()
   {
-    HashMap<String, Integer> tuple = new HashMap<String, Integer>();
-    tuple.put("TUPLE_COUNT", new Integer(tuple_count));
+    HashMap<String, Integer> tuple = new HashMap<String, Integer>(1);
+    tuple.put(OPORT_COUNT_TUPLE_COUNT, new Integer(tuple_count));
     emit(OPORT_COUNT, tuple);
   }
 }

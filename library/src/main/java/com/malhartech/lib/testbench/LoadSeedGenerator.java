@@ -124,7 +124,7 @@ public class LoadSeedGenerator extends AbstractInputModule
    */
   public HashMap<String, Object> getTuple(int i)
   {
-    HashMap<String, Object> ret = new HashMap<String, Object>();
+    HashMap<String, Object> ret = new HashMap<String, Object>(1);
 
     String key;
     key = Integer.toString(i);
@@ -140,7 +140,7 @@ public class LoadSeedGenerator extends AbstractInputModule
     for (String s: keys) {
       if (!isstringschema) {
         if (alist == null) {
-          alist = new ArrayList();
+          alist = new ArrayList(keys.size());
         }
         if (emitkey) {
           alist.add(new valueData(s, new Integer(keys_min.get(j) + random.nextInt(keys_range.get(j)))));

@@ -384,7 +384,7 @@ public class LoadGenerator extends AbstractInputModule
       // j is the key index
       tuple_key = wtostr_index.get(j);
       if (!isstringschema) {
-        HashMap<String, Double> tuple = new HashMap<String, Double>();
+        HashMap<String, Double> tuple = new HashMap<String, Double>(1);
         tuple.put(tuple_key, keys.get(tuple_key));
         emit(OPORT_DATA, tuple);
       }

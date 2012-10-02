@@ -235,7 +235,7 @@ public class LoadClassifier extends AbstractModule
 
     if (!iwstr.isEmpty()) {
       String[] wstr = iwstr.split(";");
-      inkeys = new HashMap<String, ArrayList<Integer>>();
+      inkeys = new HashMap<String, ArrayList<Integer>>(1);
       for (String ts: wstr) { // ts is top string as <key>:weight1,weight2,...
         String[] twostr = ts.split(":");
         String[] weights = twostr[1].split(",");
@@ -315,7 +315,7 @@ public class LoadClassifier extends AbstractModule
         }
         j++;
       }
-      HashMap<String, Double> tuple = new HashMap<String, Double>();
+      HashMap<String, Double> tuple = new HashMap<String, Double>(1);
       String key = wtostr_index.get(j); // the key
       Double keyval = null;
       if (hasvalues) {

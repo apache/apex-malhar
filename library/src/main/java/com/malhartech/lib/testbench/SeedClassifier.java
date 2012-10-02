@@ -212,8 +212,8 @@ public class SeedClassifier extends AbstractModule {
       obj = tuple;
     }
     else {
-      HashMap<String, Object> tuple = new HashMap<String, Object>();
-      HashMap<String, Object> val = new HashMap<String, Object>();
+      HashMap<String, Object> tuple = new HashMap<String, Object>(1);
+      HashMap<String, Object> val = new HashMap<String, Object>(1);
       val.put(ikey, payload);
       tuple.put(Integer.toString(s_start + random.nextInt(s_end-s_start+1)), val);
       obj = tuple;

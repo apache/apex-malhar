@@ -78,8 +78,8 @@ public class TestLoadSeedGenerator
                     j++;
                   }
                   else {
-                    LoadSeedGenerator.valueData vdata = (LoadSeedGenerator.valueData)o;
-                    cval += ';' + vdata.str + ":" + vdata.value.toString();
+                    //LoadSeedGenerator.valueData vdata = (LoadSeedGenerator.valueData) o;
+                    cval += ';' + ((Integer) o).toString();
                   }
                 }
               }
