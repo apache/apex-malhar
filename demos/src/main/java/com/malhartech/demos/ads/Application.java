@@ -81,8 +81,11 @@ public class Application implements ApplicationFactory {
             .setProperty(ConsoleOutputModule.P_STRING_FORMAT, operatorName + ": %s");
   }
 
-  public Operator getSumOperator(String name, DAG b) {
-    return b.addOperator(name, ArithmeticSum.class);
+  public Operator getSumOperator(String name, DAG b, String debug) {
+    Operator oper = b.addOperator(name, ArithmeticSum.class);
+    oper.setProperty("do_debug", debug);
+
+    return oper;
   }
 
   public Operator getStreamMerger(String name, DAG b) {
@@ -90,9 +93,7 @@ public class Application implements ApplicationFactory {
   }
 
   public Operator getThroughputCounter(String name, DAG b) {
-    Operator oper = b.addOperator(name, ThroughputCounter.class);
-    oper.setProperty(ThroughputCounter.ROLLING_WINDOW_COUNT, "5");
-    return oper;
+    return b.addOperator(name, ThroughputCounter.class).setProperty(ThroughputCounter.ROLLING_WINDOW_COUNT, "5");
   }
 
   public Operator getMarginOperator(String name, DAG b) {
@@ -102,15 +103,17 @@ public class Application implements ApplicationFactory {
 
   public Operator getQuotientOperator(String name, DAG b) {
     Operator oper = b.addOperator(name, ArithmeticQuotient.class);
-    oper.setProperty(ArithmeticQuotient.KEY_MULTIPLY_BY, "10");
-    oper.setProperty(ArithmeticQuotient.KEY_DOKEY, "true");
+    oper.setProperty(ArithmeticQuotient.KEY_MULTIPLY_BY, "100"); // multiply by 100 to get percentage
+    oper.setProperty(ArithmeticQuotient.KEY_DOKEY, "true"); // Ignore the value and just count instances or a key
+    oper.setProperty("do_debug", "CTR Node");
     return oper;
   }
 
   public Operator getPageViewGenOperator(String name, DAG b) {
     Operator oper = b.addOperator(name, LoadGenerator.class);
     oper.setProperty(LoadGenerator.KEY_KEYS, "home,finance,sports,mail");
-    oper.setProperty(LoadGenerator.KEY_VALUES, "0.00215,0.003,0.00175,0.0006"); // average value for each key, i.e. cost of getting an impression
+    // Paying $2.15,$3,$1.75,$.6 for 1000 views respectively
+    oper.setProperty(LoadGenerator.KEY_VALUES, "0.00215,0.003,0.00175,0.0006");
     oper.setProperty(LoadGenerator.KEY_WEIGHTS, "25,25,25,25");
     oper.setProperty(LoadGenerator.KEY_TUPLES_BLAST, String.valueOf(this.generatorVTuplesBlast));
     oper.setProperty(LoadGenerator.MAX_WINDOWS_COUNT, String.valueOf(generatorMaxWindowsCount));
@@ -125,11 +128,13 @@ public class Application implements ApplicationFactory {
   }
 
   public Operator getInsertClicksOperator(String name, DAG b) {
-    return b.addOperator(name, FilterClassifier.class)
-        .setProperty(FilterClassifier.KEY_KEYS, "sprint,etrade,nike")
-        .setProperty(FilterClassifier.KEY_WEIGHTS, "home:60,10,30;finance:10,75,15;sports:10,10,80;mail:50,15,35") // ctr in ratio
-        .setProperty(FilterClassifier.KEY_VALUES, "0.1,0.5,0.4")
-        .setProperty(FilterClassifier.KEY_FILTER, "40,1000"); // average value for each classify_key, i.e. money paid by advertizer
+    Operator oper = b.addOperator(name, FilterClassifier.class);
+    oper.setProperty(FilterClassifier.KEY_KEYS, "sprint,etrade,nike");
+    oper.setProperty(FilterClassifier.KEY_WEIGHTS, "home:60,10,30;finance:10,75,15;sports:10,10,80;mail:50,15,35"); // ctr in ratio
+    // Getting $1,$5,$4 per click respectively
+    oper.setProperty(FilterClassifier.KEY_VALUES, "1,5,4");
+    oper.setProperty(FilterClassifier.KEY_FILTER, "40,1000"); // average value for each classify_key, i.e. money paid by advertizer
+    return oper;
   }
 
   @Override
@@ -142,12 +147,12 @@ public class Application implements ApplicationFactory {
     Operator viewGen = getPageViewGenOperator("viewGen", dag);
     Operator adviews = getAdViewsStampOperator("adviews", dag);
     Operator insertclicks = getInsertClicksOperator("insertclicks", dag);
-    Operator viewAggregate = getSumOperator("viewAggr", dag);
-    Operator clickAggregate = getSumOperator("clickAggr", dag);
+    Operator viewAggregate = getSumOperator("viewAggr", dag, "");
+    Operator clickAggregate = getSumOperator("clickAggr", dag, "");
 
     Operator ctr = getQuotientOperator("ctr", dag);
-    Operator cost = getSumOperator("cost", dag);
-    Operator revenue = getSumOperator("rev", dag);
+    Operator cost = getSumOperator("cost", dag, "");
+    Operator revenue = getSumOperator("rev", dag, "");
     Operator margin = getMarginOperator("margin", dag);
 
     Operator merge = getStreamMerger("countmerge", dag);
@@ -158,12 +163,12 @@ public class Application implements ApplicationFactory {
                       viewAggregate.getInput(ArithmeticSum.IPORT_DATA)).setInline(true);
     dag.addStream("clicksaggregate", insertclicks.getOutput(FilterClassifier.OPORT_OUT_DATA), clickAggregate.getInput(ArithmeticSum.IPORT_DATA)).setInline(true);
 
-    dag.addStream("adviewsdata", viewAggregate.getOutput(ArithmeticSum.OPORT_SUM), ctr.getInput(ArithmeticQuotient.IPORT_DENOMINATOR),
-                                                                                   cost.getInput(ArithmeticSum.IPORT_DATA));
-    dag.addStream("clicksdata", clickAggregate.getOutput(ArithmeticSum.OPORT_SUM), ctr.getInput(ArithmeticQuotient.IPORT_NUMERATOR),
-                                                                                   revenue.getInput(ArithmeticSum.IPORT_DATA));
-    dag.addStream("viewtuplecount", viewAggregate.getOutput(ArithmeticSum.OPORT_COUNT), merge.getInput(StreamMerger.IPORT_IN_DATA1));
-    dag.addStream("clicktuplecount", clickAggregate.getOutput(ArithmeticSum.OPORT_COUNT), merge.getInput(StreamMerger.IPORT_IN_DATA2));
+    dag.addStream("adviewsdata", viewAggregate.getOutput(ArithmeticSum.OPORT_SUM), cost.getInput(ArithmeticSum.IPORT_DATA));
+    dag.addStream("clicksdata", clickAggregate.getOutput(ArithmeticSum.OPORT_SUM), revenue.getInput(ArithmeticSum.IPORT_DATA));
+    dag.addStream("viewtuplecount", viewAggregate.getOutput(ArithmeticSum.OPORT_COUNT), ctr.getInput(ArithmeticQuotient.IPORT_DENOMINATOR)
+            , merge.getInput(StreamMerger.IPORT_IN_DATA1));
+    dag.addStream("clicktuplecount", clickAggregate.getOutput(ArithmeticSum.OPORT_COUNT), ctr.getInput(ArithmeticQuotient.IPORT_NUMERATOR)
+            , merge.getInput(StreamMerger.IPORT_IN_DATA2));
     dag.addStream("total count", merge.getOutput(StreamMerger.OPORT_OUT_DATA), tuple_counter.getInput(ThroughputCounter.IPORT_DATA));
 
 
