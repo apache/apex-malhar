@@ -76,7 +76,7 @@ public class StreamMerger10 extends AbstractModule
   private static Logger LOG = LoggerFactory.getLogger(StreamMerger10.class);
 
 
-   final int num_iport = 10;
+   final static int num_iport = 10;
   /**
    * Allows usage of StreamMerger in a automated way
    *
@@ -84,7 +84,7 @@ public class StreamMerger10 extends AbstractModule
    * @return returns the proper input port name
    */
 
-  public String getInputName(int i) {
+  static public String getInputName(int i) {
     String ret = "illegal_portnumber";
     if (i < num_iport) {
       ret = "in_data";
