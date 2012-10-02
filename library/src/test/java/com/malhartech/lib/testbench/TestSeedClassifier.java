@@ -141,8 +141,8 @@ public class TestSeedClassifier {
       conf.set(SeedClassifier.KEY_IN_DATA2_CLASSIFIER, "y");
       conf.set(SeedClassifier.KEY_STRING_SCHEMA, isstring ? "true" : "false");
 
-      conf.setInt("SpinMillis", 10);
-      conf.setInt("BufferCapacity", 1024 * 1024);
+      node.setSpinMillis(10);
+      node.setBufferCapacity(1024 * 1024);
       node.setup(conf);
 
       final AtomicBoolean inactive = new AtomicBoolean(true);

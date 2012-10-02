@@ -65,6 +65,8 @@ public class LoadIncrementer extends AbstractModule
   double[] low_limits = null;
   double[] high_limits = null;
 
+  final double low_limit_default_val = 0;
+  final double high_limit_default_val = 100;
   float delta_default_value = 1;
   float delta = delta_default_value;
 
@@ -168,25 +170,55 @@ public class LoadIncrementer extends AbstractModule
 
     delta = config.getFloat(KEY_DELTA, delta_default_value);
     String[] kstr = config.getTrimmedStrings(KEY_KEYS);
-    String[] lkey = config.get(KEY_LIMITS).split(";");
 
-    low_limits = new double[lkey.length];
-    high_limits = new double[lkey.length];
+    low_limits = new double[kstr.length];
+    high_limits = new double[kstr.length];
     keys = new String[kstr.length];
     int j = 0;
-    for (String l : lkey) {
-      String[] limits = l.split(",");
-      keys[j] = kstr[j];
-      low_limits[j] = Double.valueOf(limits[0]).doubleValue();
-      high_limits[j] = Double.valueOf(limits[1]).doubleValue();
+    for (String k: kstr) {
+      keys[j] = k;
+      low_limits[j] = low_limit_default_val;
+      high_limits[j] = high_limit_default_val;
       j++;
     }
-  }
+
+    String lkey = config.get(KEY_LIMITS);
+    if (!lkey.isEmpty()) {
+      String[] lstr = lkey.split(";");
+      j = 0;
+      for (String l : lstr) {
+        String[] klimit = l.split(",");
+        low_limits[j] =  Double.valueOf(klimit[0]).doubleValue();
+        high_limits[j] = Double.valueOf(klimit[1]).doubleValue();
+      }
+      j++;
+    }
+ }
 
   public double getNextNumber(double current, double increment, double low, double high ) {
     return current;
 
   }
+
+  /**
+   *
+   * @param key tuple key in HashMap<key, value>
+   * @param list list of data items
+   */
+  public void emitDataTuple(String key, ArrayList list) {
+    HashMap<String, String> tuple = new HashMap<String, String>();
+    String val = new String();
+    for (valueData d: (ArrayList<valueData>) list) {
+      if (!val.isEmpty()) {
+        val += ",";
+      }
+      Integer ival = ((Double) d.value).intValue();
+      val += ival.toString();
+    }
+    tuple.put(key, val);
+    emit(OPORT_DATA, tuple);
+  }
+
 
   /**
    * Process each tuple
@@ -216,6 +248,7 @@ public class LoadIncrementer extends AbstractModule
             j++;
           }
           vmap.put(e.getKey(), alist);
+          emitDataTuple(e.getKey(), alist);
         }
       }
     }
@@ -232,26 +265,15 @@ public class LoadIncrementer extends AbstractModule
             for (valueData d : alist) {
               if (dimension.equals(d.str)) {
                 // Compute the new location
-                Double current = (Double) d.value;
-                cur_slot = current.intValue();
-                alist.get(j).value = getNextNumber(current.doubleValue(), (delta/100) * (o.getValue().intValue() % 100), low_limits[j], high_limits[j]);
+                cur_slot = ((Double) d.value).intValue();
+                alist.get(j).value = getNextNumber(((Double) d.value).doubleValue(), (delta/100) * (o.getValue().intValue() % 100), low_limits[j], high_limits[j]);
                 new_slot = ((Double) alist.get(j).value).intValue();
                 break;
               }
               j++;
             }
             if (cur_slot != new_slot) {
-              HashMap<String, String> tuple = new HashMap<String, String>();
-              String val = new String();
-              for (valueData d : alist) {
-                if (!val.isEmpty()) {
-                  val += ",";
-                }
-                Integer ival = ((Double) d.value).intValue();
-                val += ival.toString();
-              }
-              tuple.put(key, val);
-              emit(OPORT_DATA, tuple);
+              emitDataTuple(key,alist);
             }
           }
         }
@@ -275,5 +297,4 @@ public class LoadIncrementer extends AbstractModule
     tuple.put("TUPLE_COUNT", new Integer(tuple_count));
     emit(OPORT_COUNT, tuple);
   }
-
 }

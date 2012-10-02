@@ -30,14 +30,14 @@ import org.slf4j.LoggerFactory;
  * <b>key</b> is an optional parameter, the generator sends an HashMap if key is specified<br>
  * <b>min_value</b> is the minimum value of the range of numbers. Default is 0<br>
  * <b>max_value</b> is the maximum value of the range of numbers. Default is 100<br>
- * <b>tuples_burst</b> is the total amount of tuples sent by the node before the thread sleeps. The default value is 10000<br>
+ * <b>tuples_burst</b> is the total amount of tuples sent by the node before handing over control. The default
+ * value is 10000. A high value does not help as if window has space the control is immediately returned for mode processing<br>
  * <b>string_schema</b> controls the tuple schema. For string set it to "true". By default it is "false" (i.e. Integer schema)<br>
  * <br>
  * Compile time checks are:<br>
  * <b>min_value</b> has to be an integer<br>
  * <b>max_value</b> has to be an integer and has to be >= min_value<br>
  * <b>tuples_burst</b>If specified must be an integer<br>
- * <b>sleep_time</b>Time for the thread to sleep before the next tuple send session. Default is 1000 milles<br>
  * <br>
  *
  * Compile time error checking includes<br>
@@ -53,10 +53,8 @@ public class LoadRandomGenerator extends AbstractInputModule
 {
   public static final String OPORT_DATA = "data";
   private static Logger LOG = LoggerFactory.getLogger(LoadRandomGenerator.class);
-  final int sleep_time_default_value = 50;
   final int tuples_blast_default_value = 10000;
   protected int tuples_blast = tuples_blast_default_value;
-  protected int sleep_time = sleep_time_default_value;
   int min_value = 0;
   int max_value = 100;
   boolean isstringschema = false;
@@ -74,10 +72,7 @@ public class LoadRandomGenerator extends AbstractInputModule
    * The number of tuples sent out per milli second
    */
   public static final String KEY_TUPLES_BLAST = "tuples_blast";
-  /**
-   * The number of tuples sent out per milli second
-   */
-  public static final String KEY_SLEEP_TIME = "sleep_time";
+
   /**
    * If specified as "true" a String class is sent, else Integer is sent
    */
@@ -128,16 +123,6 @@ public class LoadRandomGenerator extends AbstractInputModule
       LOG.debug(String.format("Using %d tuples per second", tuples_blast));
     }
 
-    sleep_time = config.getInt(KEY_SLEEP_TIME, sleep_time_default_value);
-    if (sleep_time <= 0) {
-      ret = false;
-      throw new IllegalArgumentException(
-              String.format("sleep_time (%d) has to be > 0", sleep_time));
-    }
-    else {
-      LOG.debug(String.format("sleep_time is set to %d", sleep_time));
-    }
-
     return ret;
   }
 
@@ -154,7 +139,6 @@ public class LoadRandomGenerator extends AbstractInputModule
     }
 
     isstringschema = config.getBoolean(KEY_STRING_SCHEMA, false);
-    sleep_time = config.getInt(KEY_SLEEP_TIME, sleep_time_default_value);
     tuples_blast = config.getInt(KEY_TUPLES_BLAST, tuples_blast_default_value);
     min_value = config.getInt(KEY_MIN_VALUE, 0);
     max_value = config.getInt(KEY_MAX_VALUE, 100);
