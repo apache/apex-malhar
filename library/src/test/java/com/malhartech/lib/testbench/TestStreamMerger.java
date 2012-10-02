@@ -122,5 +122,8 @@ public class TestStreamMerger {
       // One for each key
       Assert.assertEquals("number emitted tuples", numtuples*2, mergeSink.count);
       LOG.debug(String.format("\n********************\nProcessed %d tuples\n********************\n", mergeSink.count));
+      for (int i = 0; i < node.getNumInputPorts(); i++) {
+        LOG.debug(String.format("%dth input port name is %s", i, node.getInputName(i)));
+      }
     }
 }
