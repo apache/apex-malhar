@@ -62,7 +62,7 @@ public class StreamMerger extends AbstractModule
 
   static public String getInputName(int i) {
     String ret = "illegal_portnumber";
-    if (i < num_iport) {
+    if ((i != 0) && (i <= num_iport)) {
       ret = "in_data";
       ret += Integer.toString(i);
     }

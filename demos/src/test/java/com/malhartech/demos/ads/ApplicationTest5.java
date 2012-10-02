@@ -17,18 +17,9 @@ import org.junit.Test;
  */
 public class ApplicationTest5 {
 
-  @Ignore
-  @Test
-  public void testPropertiesConfig() throws IOException, Exception {
-    String tplgFile = "src/main/resources/ctrapp.tplg.properties";
-    StramLocalCluster lc = new StramLocalCluster(DAGPropertiesBuilder.create(new Configuration(false), tplgFile));
-    lc.setHeartbeatMonitoringEnabled(false);
-    lc.run();
-  }
-
   @Test
   public void testJavaConfig() throws IOException, Exception {
-    Application app = new Application();
+    Application5 app = new Application5();
     app.setUnitTestMode(); // terminate quickly
     //app.setLocalMode(); // terminate with a long run
     StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));

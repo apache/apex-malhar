@@ -157,7 +157,7 @@ public class Application5 implements ApplicationFactory {
     Operator viewAggrCount5 = getStreamMerger5Operator("viewaggregatecount", dag);
     Operator clickAggrCount5 = getStreamMerger5Operator("clickaggregatecount", dag);
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 1; i <= 5; i++) {
       String viewgenstr = String.format("%s%d", "viewGen", i);
       String adviewstr = String.format("%s%d", "adviews", i);
       String insertclicksstr = String.format("%s%d", "insertclicks", i);
@@ -199,9 +199,9 @@ public class Application5 implements ApplicationFactory {
     dag.addStream("adviewsdata", viewAggrSum5.getOutput(StreamMerger5.OPORT_OUT_DATA), cost.getInput(ArithmeticSum.IPORT_DATA));
     dag.addStream("clicksdata", clickAggrSum5.getOutput(StreamMerger5.OPORT_OUT_DATA), revenue.getInput(ArithmeticSum.IPORT_DATA));
     dag.addStream("viewtuplecount", viewAggrCount5.getOutput(StreamMerger5.OPORT_OUT_DATA), ctr.getInput(ArithmeticQuotient.IPORT_DENOMINATOR)
-            , merge.getInput(StreamMerger.getInputName(1)));
+            , merge.getInput(StreamMerger.IPORT_IN_DATA1));
     dag.addStream("clicktuplecount", clickAggrCount5.getOutput(StreamMerger5.OPORT_OUT_DATA), ctr.getInput(ArithmeticQuotient.IPORT_NUMERATOR)
-            , merge.getInput(StreamMerger.getInputName(2)));
+            , merge.getInput(StreamMerger.IPORT_IN_DATA2));
     dag.addStream("total count", merge.getOutput(StreamMerger.OPORT_OUT_DATA), tuple_counter.getInput(ThroughputCounter.IPORT_DATA));
 
 

@@ -132,7 +132,7 @@ public class TestStreamMerger5 {
       }
 
       LOG.debug(String.format("\n********************\nProcessed %d tuples\n********************\n", mergeSink.count));
-      for (int i = 0; i < node.getNumInputPorts(); i++) {
+      for (int i = 1; i <= node.getNumInputPorts(); i++) {
         LOG.debug(String.format("%dth input port name is %s", i, node.getInputName(i)));
       }
     }
