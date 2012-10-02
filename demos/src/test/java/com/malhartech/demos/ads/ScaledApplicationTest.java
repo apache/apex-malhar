@@ -15,11 +15,11 @@ import com.malhartech.stram.StramLocalCluster;
 /**
  * Test the DAG declaration in local mode.
  */
-public class ApplicationTest5 {
+public class ScaledApplicationTest {
 
   @Test
   public void testJavaConfig() throws IOException, Exception {
-    Application5 app = new Application5();
+    ScaledApplication app = new ScaledApplication();
     app.setUnitTestMode(); // terminate quickly
     //app.setLocalMode(); // terminate with a long run
     StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));

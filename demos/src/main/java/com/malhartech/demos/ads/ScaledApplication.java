@@ -26,16 +26,18 @@ import org.apache.hadoop.conf.Configuration;
  * Example of application configuration in Java using {@link com.malhartech.stram.conf.NewDAGBuilder}.<p>
  */
 
-public class Application2 implements ApplicationFactory {
+public class ScaledApplication implements ApplicationFactory {
 
-  public static final String P_generatorVTuplesBlast = Application2.class.getName() + ".generatorVTuplesBlast";
-  public static final String P_generatorMaxWindowsCount = Application2.class.getName() + ".generatorMaxWindowsCount";
-  public static final String P_allInline = Application2.class.getName() + ".allInline";
+  public static final String P_numGenerators = ScaledApplication.class.getName() + ".numGenerators";
+  public static final String P_generatorVTuplesBlast = ScaledApplication.class.getName() + ".generatorVTuplesBlast";
+  public static final String P_generatorMaxWindowsCount = ScaledApplication.class.getName() + ".generatorMaxWindowsCount";
+  public static final String P_allInline = ScaledApplication.class.getName() + ".allInline";
 
   // adjust these depending on execution mode (junit, cli-local, cluster)
   private int generatorVTuplesBlast = 1000;
   private int generatorMaxWindowsCount = 100;
   private int generatorWindowCount = 1;
+  private int numGenerators = 2;
   private boolean allInline = true;
 
   public void setUnitTestMode() {
@@ -46,10 +48,9 @@ public class Application2 implements ApplicationFactory {
 
   public void setLocalMode() {
     generatorVTuplesBlast = 1000; // keep this number low to not distort window boundaries
-    //generatorVTuplesBlast = 500000;
-   generatorWindowCount = 5;
+    generatorWindowCount = 5;
    //generatorMaxWindowsCount = 50;
-   generatorMaxWindowsCount = 1000;
+    generatorMaxWindowsCount = 1000;
   }
 
   private void configure(Configuration conf) {
@@ -64,6 +65,7 @@ public class Application2 implements ApplicationFactory {
       setLocalMode();
     }
 
+    this.numGenerators = conf.getInt(P_numGenerators, this.numGenerators);
     this.generatorVTuplesBlast = conf.getInt(P_generatorVTuplesBlast, this.generatorVTuplesBlast);
     this.generatorMaxWindowsCount = conf.getInt(P_generatorMaxWindowsCount, this.generatorMaxWindowsCount);
     this.allInline = conf.getBoolean(P_allInline, this.allInline);
@@ -142,7 +144,7 @@ public class Application2 implements ApplicationFactory {
     return oper;
   }
 
-  public Operator getStreamMerger2Operator(String name, DAG b) {
+  public Operator getStreamMerger(String name, DAG b) {
     return b.addOperator(name, StreamMerger.class);
   }
 
@@ -158,7 +160,7 @@ public class Application2 implements ApplicationFactory {
     Operator viewAggrCount5 = getStreamMerger10Operator("viewaggregatecount", dag);
     Operator clickAggrCount5 = getStreamMerger10Operator("clickaggregatecount", dag);
 
-    for (int i = 1; i <= 2; i++) {
+    for (int i = 1; i <= numGenerators; i++) {
       String viewgenstr = String.format("%s%d", "viewGen", i);
       String adviewstr = String.format("%s%d", "adviews", i);
       String insertclicksstr = String.format("%s%d", "insertclicks", i);
@@ -194,7 +196,7 @@ public class Application2 implements ApplicationFactory {
     Operator cost = getSumOperator("cost", dag);
     Operator revenue = getSumOperator("rev", dag);
     Operator margin = getMarginOperator("margin", dag);
-    Operator merge = getStreamMerger2Operator("countmerge", dag);
+    Operator merge = getStreamMerger("countmerge", dag);
     Operator tuple_counter = getThroughputCounter("tuple_counter", dag);
 
     dag.addStream("adviewsdata", viewAggrSum5.getOutput(StreamMerger5.OPORT_OUT_DATA), cost.getInput(ArithmeticSum.IPORT_DATA));
