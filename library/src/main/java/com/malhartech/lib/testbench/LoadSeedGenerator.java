@@ -335,6 +335,7 @@ public class LoadSeedGenerator extends AbstractInputModule
         emit(OPORT_DATA, getTuple(i));
       }
     }
-    LOG.debug("Finished generating tuples");
+    LOG.debug("Finished generating tuples, now deactivating");
+    deactivate();
   }
 }
