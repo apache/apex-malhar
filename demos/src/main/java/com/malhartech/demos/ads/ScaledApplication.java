@@ -90,7 +90,8 @@ public class ScaledApplication implements ApplicationFactory {
   }
 
   public Operator getThroughputCounter(String name, DAG b) {
-    return b.addOperator(name, ThroughputCounter.class).setProperty(ThroughputCounter.ROLLING_WINDOW_COUNT, "5");
+    return b.addOperator(name, ThroughputCounter.class).
+            setProperty(ThroughputCounter.ROLLING_WINDOW_COUNT, String.valueOf(this.generatorWindowCount));
   }
 
   public Operator getMarginOperator(String name, DAG b) {
