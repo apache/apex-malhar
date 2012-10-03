@@ -1,8 +1,9 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.math;
+package com.malhartech.lib.io;
 
+import com.malhartech.lib.algo.TupleQueue;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -23,9 +24,9 @@ import java.util.ArrayList;
 /**
  *
  */
-public class TestAlgorithmicFifo
+public class TestTupleQueue
 {
-  private static Logger LOG = LoggerFactory.getLogger(AlgothmicFIFO.class);
+  private static Logger LOG = LoggerFactory.getLogger(TupleQueue.class);
 
   class FifoSink implements Sink
   {
@@ -85,19 +86,19 @@ public class TestAlgorithmicFifo
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    final AlgothmicFIFO node = new AlgothmicFIFO();
+    final TupleQueue node = new TupleQueue();
 
     FifoSink fifoSink = new FifoSink();
     ConsoleSink consoleSink = new ConsoleSink();
 
-    Sink dataSink = node.connect(AlgothmicFIFO.IPORT_DATA, node);
-    Sink querySink = node.connect(AlgothmicFIFO.IPORT_QUERY, node);
-    node.connect(AlgothmicFIFO.OPORT_FIFO, fifoSink);
-    node.connect(AlgothmicFIFO.OPORT_CONSOLE, consoleSink);
+    Sink dataSink = node.connect(TupleQueue.IPORT_DATA, node);
+    Sink querySink = node.connect(TupleQueue.IPORT_QUERY, node);
+    node.connect(TupleQueue.OPORT_FIFO, fifoSink);
+    node.connect(TupleQueue.OPORT_CONSOLE, consoleSink);
 
 
     final ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
-    conf.set(AlgothmicFIFO.KEY_DEPTH, "10");
+    conf.set(TupleQueue.KEY_DEPTH, "10");
 
 
     final AtomicBoolean inactive = new AtomicBoolean(true);

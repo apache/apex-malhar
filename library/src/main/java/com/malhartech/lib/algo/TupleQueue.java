@@ -2,7 +2,7 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.math;
+package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
@@ -46,18 +46,18 @@ import org.slf4j.LoggerFactory;
  */
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = AlgothmicFIFO.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = AlgothmicFIFO.IPORT_QUERY, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = AlgothmicFIFO.OPORT_FIFO, type = PortAnnotation.PortType.OUTPUT),
-  @PortAnnotation(name = AlgothmicFIFO.OPORT_CONSOLE, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = TupleQueue.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = TupleQueue.IPORT_QUERY, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = TupleQueue.OPORT_FIFO, type = PortAnnotation.PortType.OUTPUT),
+  @PortAnnotation(name = TupleQueue.OPORT_CONSOLE, type = PortAnnotation.PortType.OUTPUT)
 })
-public class AlgothmicFIFO extends AbstractModule
+public class TupleQueue extends AbstractModule
 {
   public static final String IPORT_QUERY = "query";
   public static final String IPORT_DATA = "data";
   public static final String OPORT_FIFO = "fifo";
   public static final String OPORT_CONSOLE = "console";
-  private static Logger LOG = LoggerFactory.getLogger(AlgothmicFIFO.class);
+  private static Logger LOG = LoggerFactory.getLogger(TupleQueue.class);
 
   HashMap<String, ValueData> vmap = new HashMap<String, ValueData>();
   boolean fifo_connected = false;
