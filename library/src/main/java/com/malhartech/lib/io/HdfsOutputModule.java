@@ -6,7 +6,10 @@ package com.malhartech.lib.io;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -40,16 +43,24 @@ public class HdfsOutputModule extends AbstractModule
   private BufferedOutputStream bufferedOutput;
   private SerDe serde; // it was taken from context before, but now what, it's not a stream but a node!
   private FileSystem fs;
-  private Path filepath;
+  private String filePathTemplate;
   private boolean append;
   private int bufferSize;
   private int replication;
+  private int bytesPerFile;
+  private int fileIndex = 0;
 
-  int bytesWritten = 0;
+  int currentBytesWritten = 0;
+  int totalBytesWritten = 0;
 
   public static final String KEY_FILEPATH = "filepath";
   public static final String KEY_APPEND = "append";
   public static final String KEY_REPLICATION = "replication";
+
+  /**
+   * Byte limit for a single file. Once the size is reached, a new file will be created.
+   */
+  public static final String KEY_BYTES_PER_FILE = "bytesPerFile";
 
   /**
    * Bytes are written to the underlying file stream once they cross this size.<br>
@@ -59,6 +70,47 @@ public class HdfsOutputModule extends AbstractModule
    */
   public static final String KEY_BUFFERSIZE = "bufferSize";
 
+
+  public static final String FNAME_SUB_MODULE_ID = "moduleId";
+  public static final String FNAME_SUB_PART_INDEX = "partIndex";
+
+  private Path subFilePath(int index) {
+    Map<String, String> params = new HashMap<String, String>();
+    params.put(FNAME_SUB_PART_INDEX, String.valueOf(index));
+    params.put(FNAME_SUB_MODULE_ID, this.getId());
+    StrSubstitutor sub = new StrSubstitutor(params, "%(", ")");
+    return new Path(sub.replace(filePathTemplate.toString()));
+  }
+
+  private void openFile(Path filepath) throws IOException {
+    if (fs.exists(filepath)) {
+      if (append) {
+        fsOutput = fs.append(filepath);
+        logger.info("appending to {}", filepath);
+      }
+      else {
+        fs.delete(filepath, true);
+        if (replication <= 0) {
+          replication = fs.getDefaultReplication(filepath);
+        }
+        fsOutput = fs.create(filepath, (short)replication);
+        logger.info("creating {} with replication {}", filepath, replication);
+      }
+    }
+    else {
+      fsOutput = fs.create(filepath);
+    }
+  }
+
+  private void closeFile() throws IOException {
+    if (bufferedOutput != null) {
+      bufferedOutput.close();
+      bufferedOutput = null;
+    }
+    fsOutput.close();
+    fsOutput = null;
+  }
+
   /**
    *
    * @param config
@@ -67,28 +119,23 @@ public class HdfsOutputModule extends AbstractModule
   public void setup(ModuleConfiguration config) throws FailedOperationException
   {
     try {
-      filepath = new Path(config.get(KEY_FILEPATH));
+      filePathTemplate = config.get(KEY_FILEPATH);
+      Path filepath = subFilePath(this.fileIndex);
       fs = FileSystem.get(filepath.toUri(), config);
       append = config.getBoolean(KEY_APPEND, true);
       replication = config.getInt(KEY_REPLICATION, 0);
+      bytesPerFile = config.getInt(KEY_BYTES_PER_FILE, 0);
 
-      if (fs.exists(filepath)) {
-        if (append) {
-          fsOutput = fs.append(filepath);
-          logger.info("appending to {}", filepath);
-        }
-        else {
-          fs.delete(filepath, true);
-          if (replication <= 0) {
-            replication = fs.getDefaultReplication(filepath);
-          }
-          fsOutput = fs.create(filepath, (short)replication);
-          logger.info("creating {} with replication {}", filepath, replication);
+      if (bytesPerFile > 0) {
+        // ensure file path generates unique names
+        Path p1 = subFilePath(1);
+        Path p2 = subFilePath(2);
+        if (p1.equals(p2)) {
+          throw new IllegalArgumentException("Rolling files require %() placeholders for unique names: " + filepath);
         }
       }
-      else {
-        fsOutput = fs.create(filepath);
-      }
+
+      openFile(filepath);
 
       this.bufferSize = config.getInt(KEY_BUFFERSIZE, 0);
       if (bufferSize > 0) {
@@ -106,12 +153,7 @@ public class HdfsOutputModule extends AbstractModule
   public void teardown()
   {
     try {
-      if (bufferedOutput != null) {
-        bufferedOutput.close();
-        bufferedOutput = null;
-      }
-      fsOutput.close();
-      fsOutput = null;
+      closeFile();
     }
     catch (IOException ex) {
       logger.info("", ex);
@@ -119,7 +161,7 @@ public class HdfsOutputModule extends AbstractModule
 
     serde = null;
     fs = null;
-    filepath = null;
+    filePathTemplate = null;
     append = false;
   }
 
@@ -144,12 +186,22 @@ public class HdfsOutputModule extends AbstractModule
         tupleBytes = serde.toByteArray(t);
       }
       try {
+        if (bytesPerFile > 0 && currentBytesWritten + tupleBytes.length > bytesPerFile) {
+          closeFile();
+          Path filepath = subFilePath(++fileIndex);
+          openFile(filepath);
+          currentBytesWritten = 0;
+        }
+
         if (bufferedOutput != null) {
           bufferedOutput.write(tupleBytes);
         } else {
           fsOutput.write(tupleBytes);
         }
-        bytesWritten += tupleBytes.length;
+
+        currentBytesWritten += tupleBytes.length;
+        totalBytesWritten += tupleBytes.length;
+
       } catch (IOException ex) {
         logger.error("Failed to write to stream.", ex);
       }

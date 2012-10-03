@@ -37,7 +37,7 @@ public class HdfsOutputTest implements ApplicationFactory {
     HdfsOutputModule module = new HdfsOutputModule();
     module.setup(config);
 
-    for (int i=0; i<numTuples; i++) {
+    for (int i=0; i<=numTuples; i++) {
       module.process("testdata" + i);
     }
 
@@ -47,9 +47,9 @@ public class HdfsOutputTest implements ApplicationFactory {
     StringBuilder sb = new StringBuilder();
     sb.append("\ntime taken: " + ellapsedMillis + "ms");
     sb.append("\ntuples written: " + numTuples);
-    sb.append("\nbytes written: " + module.bytesWritten);
+    sb.append("\nbytes written: " + module.totalBytesWritten);
     if (ellapsedMillis > 0) {
-      sb.append("\nbytes per second: " + (module.bytesWritten *1000L / ellapsedMillis ));
+      sb.append("\nbytes per second: " + (module.totalBytesWritten *1000L / ellapsedMillis ));
     }
     LOG.info("test summary: {}", sb);
 
