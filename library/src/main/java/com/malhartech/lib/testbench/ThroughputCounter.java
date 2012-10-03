@@ -64,7 +64,7 @@ public class ThroughputCounter extends AbstractModule
   int tuple_index = 0;
   int count_denominator = 1;
   long count_windowid = 0;
-  long tuple_count = 0;
+  long tuple_count = 1; // so that the first w
 
 
 
@@ -149,7 +149,6 @@ public class ThroughputCounter extends AbstractModule
     }
 
     long average = 0;
-    long time_slot = 0;
     long tuples_per_sec = (tuple_count * 1000) / elapsedTime; // * 1000 as elapsedTime is in millis
     if (rolling_window_count == 1) {
       average = tuples_per_sec;
@@ -171,11 +170,13 @@ public class ThroughputCounter extends AbstractModule
         slots = count_denominator;
         count_denominator++;
       }
+      long time_slot = 0;
+      long numtuples = 0;
       for (int i = 0; i < slots; i++) {
-        average += tuple_numbers[i];
+        numtuples += tuple_numbers[i];
         time_slot += time_numbers[i];
       }
-      average = (average * 1000) / time_slot;
+      average = (numtuples * 1000) / time_slot;
     }
     HashMap<String, Number> tuples = new HashMap<String, Number>();
     tuples.put(OPORT_COUNT_TUPLE_AVERAGE, new Long(average));
@@ -189,7 +190,7 @@ public class ThroughputCounter extends AbstractModule
 
 
   /**
-   * Process each tuple
+   * Process each tuple. Expects upstream node to compute number of tuples in that window and send it as an int
    *
    * @param payload
    */

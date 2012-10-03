@@ -58,13 +58,11 @@ public class LoadGenerator extends AbstractInputModule
 {
   public static final String OPORT_DATA = "data";
   public static final String OPORT_COUNT = "count";
-
   public static final String OPORT_COUNT_TUPLE_AVERAGE = "avg";
   public static final String OPORT_COUNT_TUPLE_COUNT = "count";
   public static final String OPORT_COUNT_TUPLE_TIME = "window_time";
   public static final String OPORT_COUNT_TUPLE_TUPLES_PERSEC = "tuples_per_sec";
   public static final String OPORT_COUNT_TUPLE_WINDOWID = "window_id";
-
   private static final Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
   protected static final int tuples_blast_default_value = 10000;
   protected transient int tuples_blast = tuples_blast_default_value;
@@ -82,10 +80,7 @@ public class LoadGenerator extends AbstractInputModule
   transient int count_denominator = 1;
   transient int count_windowid = 0;
   private transient boolean count_connected = false;
-
   private transient long windowStartTime = 0;
-
-
   /**
    * keys are comma separated list of keys for the load. These keys are send
    * one per tuple as per the other parameters
@@ -109,7 +104,6 @@ public class LoadGenerator extends AbstractInputModule
    * The number of tuples sent out before it returns control. Users need to ensure that this does not cross window boundary
    */
   public static final String KEY_TUPLES_BLAST = "tuples_blast";
-
   /**
    * The Maximum number of Windows to pump out.
    */
@@ -215,7 +209,7 @@ public class LoadGenerator extends AbstractInputModule
       LOG.debug(String.format("tuples_blast set to %d", tuples_blast));
     }
 
-     if (isstringschema) {
+    if (isstringschema) {
       if (vstr.length != 0) {
         LOG.debug(String.format("Value %s and stringschema is %s",
                                 config.get(KEY_VALUES, ""), config.get(KEY_STRING_SCHEMA, "")));
@@ -267,7 +261,7 @@ public class LoadGenerator extends AbstractInputModule
       time_numbers = new long[rolling_window_count];
       for (int i = tuple_numbers.length; i > 0; i--) {
         tuple_numbers[i - 1] = 0;
-        time_numbers[i-1] = 0;
+        time_numbers[i - 1] = 0;
       }
       tuple_index = 0;
     }
@@ -300,12 +294,10 @@ public class LoadGenerator extends AbstractInputModule
   @Override
   public void beginWindow()
   {
-      if (count_connected) {
-        windowStartTime = System.currentTimeMillis();
-      }
+    if (count_connected) {
+      windowStartTime = System.currentTimeMillis();
+    }
   }
-
-
 
   /**
    * convenient method for not sending more than configured number of windows.
@@ -323,7 +315,6 @@ public class LoadGenerator extends AbstractInputModule
 
         int tcount = generatedTupleCount;
         long average = 0;
-        long time_slot = 0;
         if (rolling_window_count == 1) {
           average = (tcount * 1000) / elapsedTime;
         }
@@ -344,23 +335,21 @@ public class LoadGenerator extends AbstractInputModule
             slots = count_denominator;
             count_denominator++;
           }
+          long time_slot = 0;
+          long num_tuples = 0;
           for (int i = 0; i < slots; i++) {
-            average += tuple_numbers[i];
+            num_tuples += tuple_numbers[i];
             time_slot += time_numbers[i];
           }
-          average = (average * 1000) / time_slot; // as the time is in millis
+          average = (num_tuples * 1000) / time_slot; // as the time is in millis
         }
-        /*
         HashMap<String, Number> tuples = new HashMap<String, Number>();
         tuples.put(OPORT_COUNT_TUPLE_AVERAGE, new Long(average));
         tuples.put(OPORT_COUNT_TUPLE_COUNT, new Integer(tcount));
         tuples.put(OPORT_COUNT_TUPLE_TIME, new Long(elapsedTime));
-        tuples.put(OPORT_COUNT_TUPLE_TUPLES_PERSEC, new Long((tcount*1000)/elapsedTime));
+        tuples.put(OPORT_COUNT_TUPLE_TUPLES_PERSEC, new Long((tcount * 1000) / elapsedTime));
         tuples.put(OPORT_COUNT_TUPLE_WINDOWID, new Integer(count_windowid++));
         emit(OPORT_COUNT, tuples);
-        * */
-        LOG.debug(String.format("\n**** ViewGen *** - Average(%d), Count(%d), Time(%d), Rate(%d), WindowId(%d)",
-                                average, tcount, elapsedTime, (tcount*1000)/elapsedTime, count_windowid++));
       }
     }
 
