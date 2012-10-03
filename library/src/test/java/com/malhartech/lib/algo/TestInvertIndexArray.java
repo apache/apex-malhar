@@ -1,8 +1,9 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.math;
+package com.malhartech.lib.algo;
 
+import com.malhartech.lib.algo.InvertIndexArray;
 import com.malhartech.dag.ModuleConfiguration;
 import com.malhartech.dag.ModuleContext;
 import com.malhartech.dag.Sink;
