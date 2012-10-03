@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  * <b>Schema</b>:
  * Input port "data": The incoming tuple have to be HashMap<String, Object>. Strings are key and Object is value<br>
  * Input port "query": The incoming tuple has to be String. This is the key on which a query is done<br>
- * Output port "fifo": Sends out Object class<br>
+ * Output port "queue": Sends out Object class<br>
  * Output port "console": Sends out HashMap<String, ArrayList>. String is the key, and ArrayList is the in order list of Objects
  * <br>
  * <b>Description</b>: Takes data for every key and keeps last N values. N is the value given by property <b>depth</b>
@@ -33,13 +33,13 @@ import org.slf4j.LoggerFactory;
  * <b>Benchmarks</b>: The benchmarks are done by blasting as many HashMaps as possible on inline mode<br>
  * <br>
  * <b>Port Interface</b>:
- * data: Input data as HashMap<String, Object>. This is the key value pair that is inserted into the FIFO<br>
- * query: Special input port that allows operation of FIFO module to respond to a query. The query is a String object that is the key on which to query. Output is sent to console port<br>
- * fifo: Output of fifo for every key. Sends the ejected Object<br>
- * console: Sends out all the fifo contents for the String on the query port<br>
+ * data: Input data as HashMap<String, Object>. This is the key value pair that is inserted into the QUEUE<br>
+ * query: Special input port that allows operation of QUEUE module to respond to a query. The query is a String object that is the key on which to query. Output is sent to console port<br>
+ * queue: Output of queue for every key. Sends the ejected Object<br>
+ * console: Sends out all the queue contents for the String on the query port<br>
  * <br>
  * <b>Properties</b>
- * depth: Depth of the Fifo. The number of objects to be retained<br>
+ * depth: Depth of the queue. The number of objects to be retained<br>
  *
  *
  * @author amol
@@ -48,19 +48,19 @@ import org.slf4j.LoggerFactory;
         ports = {
   @PortAnnotation(name = TupleQueue.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = TupleQueue.IPORT_QUERY, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = TupleQueue.OPORT_FIFO, type = PortAnnotation.PortType.OUTPUT),
+  @PortAnnotation(name = TupleQueue.OPORT_QUEUE, type = PortAnnotation.PortType.OUTPUT),
   @PortAnnotation(name = TupleQueue.OPORT_CONSOLE, type = PortAnnotation.PortType.OUTPUT)
 })
 public class TupleQueue extends AbstractModule
 {
   public static final String IPORT_QUERY = "query";
   public static final String IPORT_DATA = "data";
-  public static final String OPORT_FIFO = "fifo";
+  public static final String OPORT_QUEUE = "queue";
   public static final String OPORT_CONSOLE = "console";
   private static Logger LOG = LoggerFactory.getLogger(TupleQueue.class);
 
   HashMap<String, ValueData> vmap = new HashMap<String, ValueData>();
-  boolean fifo_connected = false;
+  boolean queue_connected = false;
   boolean console_connected = false;
 
   final int depth_default = 10;
@@ -69,7 +69,7 @@ public class TupleQueue extends AbstractModule
   HashMap<String, Object> queryHash = new HashMap<String, Object>();
 
   /**
-   * Depth of the FIFO
+   * Depth of the QUEUE
    */
   public static final String KEY_DEPTH = "depth";
 
@@ -85,9 +85,9 @@ public class TupleQueue extends AbstractModule
     }
 
     /**
-     * Inserts Object at the tail of the fifo
+     * Inserts Object at the tail of the queue
      * @param val
-     * @return Object: the Object at the top of the fifo after it is full
+     * @return Object: the Object at the top of the queue after it is full
      */
     public Object insert(Object val, int depth) {
       Object ret = null;
@@ -137,8 +137,8 @@ public class TupleQueue extends AbstractModule
   @Override
   public void connected(String id, Sink dagpart)
   {
-    if (id.equals(OPORT_FIFO)) {
-      fifo_connected = (dagpart != null);
+    if (id.equals(OPORT_QUEUE)) {
+      queue_connected = (dagpart != null);
     }
     else if (id.equals(OPORT_CONSOLE)) {
       console_connected = (dagpart != null);
@@ -164,11 +164,11 @@ public class TupleQueue extends AbstractModule
         }
         else {
           Object ret = val.insert(e.getValue(), depth);
-          if (fifo_connected) {
-            if (ret != null) { // means something popped out of the fifo
+          if (queue_connected) {
+            if (ret != null) { // means something popped out of the queue
               HashMap<String, Object> tuple = new HashMap<String, Object>();
               tuple.put(key, ret);
-              emit(OPORT_FIFO, tuple);
+              emit(OPORT_QUEUE, tuple);
             }
           }
         }
