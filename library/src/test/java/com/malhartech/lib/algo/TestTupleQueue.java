@@ -11,6 +11,7 @@ import com.malhartech.dag.Sink;
 import com.malhartech.dag.Tuple;
 import com.malhartech.stram.ManualScheduledExecutorService;
 import com.malhartech.stram.WindowGenerator;
+import com.malhartech.stream.StramTestSupport;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,22 +39,53 @@ public class TestTupleQueue
 {
   private static Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
 
-  class TestTupleQueueSink implements Sink
+  class QueueSink implements Sink
   {
-    long count = 0;
-    long average = 0;
-
-    /**
-     * @param payload
-     */
+    int count = 0;
     @Override
     public void process(Object payload)
     {
       if (payload instanceof Tuple) {
-        // LOG.debug(payload.toString());
       }
       else {
+        HashMap<String, Object> tuple = (HashMap<String, Object>)payload;
+        for (Map.Entry<String, Object> e: tuple.entrySet()) {
+          count++;
+        }
       }
+    }
+  }
+
+  class ConsoleSink implements Sink
+  {
+    int count = 0;
+    HashMap<String, ArrayList> map  = new HashMap<String, ArrayList>();
+    @Override
+    public void process(Object payload)
+    {
+      if (payload instanceof Tuple) {
+      }
+      else {
+        HashMap<String, ArrayList> tuple = (HashMap<String, ArrayList>)payload;
+        for (Map.Entry<String, ArrayList> e: tuple.entrySet()) {
+          map.put(e.getKey(), e.getValue());
+          count++;
+        }
+      }
+    }
+
+    public String print() {
+      String line = "\nTotal of ";
+      line += String.format("%d tuples\n", count);
+      for (Map.Entry<String, ArrayList> e: map.entrySet()) {
+        line += e.getKey() +": ";
+        for (Object o : e.getValue()) {
+          line += ",";
+          line += o.toString();
+        }
+        line += "\n";
+      }
+      return line;
     }
   }
 
@@ -79,19 +111,26 @@ public class TestTupleQueue
   }
 
   /**
-   * Tests both string and non string schema
+   * Test node logic emits correct results
    */
   @Test
+  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
     final TupleQueue node = new TupleQueue();
 
-    TestTupleQueueSink fifoSink = new TestTupleQueueSink();
-    node.connect(TupleQueue.OPORT_FIFO, fifoSink);
+    QueueSink queueSink = new QueueSink();
+    ConsoleSink consoleSink = new ConsoleSink();
 
-    ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
+    Sink dataSink = node.connect(TupleQueue.IPORT_DATA, node);
+    Sink querySink = node.connect(TupleQueue.IPORT_QUERY, node);
+    node.connect(TupleQueue.OPORT_QUEUE, queueSink);
+    node.connect(TupleQueue.OPORT_CONSOLE, consoleSink);
+
+
+    final ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
     conf.set(TupleQueue.KEY_DEPTH, "10");
-    node.setup(conf);
+
 
     final AtomicBoolean inactive = new AtomicBoolean(true);
     new Thread()
@@ -100,11 +139,14 @@ public class TestTupleQueue
       public void run()
       {
         inactive.set(false);
+        node.setup(conf);
         node.activate(new ModuleContext("TupleQueueTestNode", this));
       }
     }.start();
 
-    // spin while the node gets activated./
+    /**
+     * spin while the node gets activated.
+     */
     int sleeptimes = 0;
     try {
       do {
@@ -113,6 +155,7 @@ public class TestTupleQueue
         if (sleeptimes > 5) {
           break;
         }
+
       }
       while (inactive.get());
     }
@@ -120,25 +163,40 @@ public class TestTupleQueue
       LOG.debug(ex.getLocalizedMessage());
     }
 
+    Tuple bt = StramTestSupport.generateBeginWindowTuple("doesn't matter", 1);
+    dataSink.process(bt);
+    querySink.process(bt);
 
-    node.beginWindow();
-    HashMap<String, Integer> input;
-    int numtuples = 1000000;
+    HashMap<String, Integer> dinput = null;
+    int numtuples = 100;
     for (int i = 0; i < numtuples; i++) {
-      input = new HashMap<String, Integer>();
-//      node.process(input);
+      dinput = new HashMap<String, Integer>();
+      dinput.put("a", new Integer(i));
+      dinput.put("b", new Integer(100+i));
+      dinput.put("c", new Integer(200+i));
+      dataSink.process(dinput);
     }
-    node.endWindow();
+    Tuple et = StramTestSupport.generateEndWindowTuple("doesn't matter", 1, 1);
+    dataSink.process(et);
+    querySink.process(et);
 
-    try {
-      for (int i = 0; i < 10; i++) {
-        Thread.sleep(5);
-      }
-    }
-    catch (InterruptedException ex) {
-      LOG.debug(ex.getLocalizedMessage());
-    }
+    bt = StramTestSupport.generateBeginWindowTuple("doesn't matter", 2);
+    dataSink.process(bt);
+    querySink.process(bt);
 
+    String key = "a";
+    querySink.process(key);
+    key = "b";
+    querySink.process(key);
+    key = "c";
+    querySink.process(key);
 
+    et = StramTestSupport.generateEndWindowTuple("doesn't matter", 2, 1);
+    dataSink.process(et);
+    querySink.process(et);
+
+    Thread.sleep(100);
+    LOG.debug(String.format("\n*************************\nQueue had %d tuples\n", queueSink.count));
+    LOG.debug(consoleSink.print());
   }
 }
