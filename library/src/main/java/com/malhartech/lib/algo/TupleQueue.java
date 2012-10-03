@@ -217,7 +217,7 @@ public class TupleQueue extends AbstractModule
     }
     catch (Exception e) {
       ret = false;
-      throw new IllegalArgumentException(String.format("key %s (%s) has to be an an integer",
+      throw new IllegalArgumentException(String.format("key %s (%s) has to be an integer",
                                                        KEY_DEPTH, config.get(KEY_DEPTH)));
     }
      return ret;

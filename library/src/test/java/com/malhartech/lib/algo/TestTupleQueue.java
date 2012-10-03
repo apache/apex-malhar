@@ -86,8 +86,8 @@ public class TestTupleQueue
   {
     final TupleQueue node = new TupleQueue();
 
-    TestTupleQueueSink queueSink = new TestTupleQueueSink();
-    node.connect(FilterClassifier.OPORT_OUT_DATA, queueSink);
+    TestTupleQueueSink fifoSink = new TestTupleQueueSink();
+    node.connect(TupleQueue.OPORT_FIFO, fifoSink);
 
     ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
     conf.set(TupleQueue.KEY_DEPTH, "10");
@@ -123,18 +123,10 @@ public class TestTupleQueue
 
     node.beginWindow();
     HashMap<String, Integer> input;
-    int aint = 1000;
-    int bint = 100;
-    Integer aval = new Integer(aint);
-    Integer bval = new Integer(bint);
     int numtuples = 1000000;
-    int sentval = 0;
     for (int i = 0; i < numtuples; i++) {
       input = new HashMap<String, Integer>();
-      input.put("a", aval);
-      input.put("b", bval);
-      sentval += 2;
-      node.process(input);
+//      node.process(input);
     }
     node.endWindow();
 
