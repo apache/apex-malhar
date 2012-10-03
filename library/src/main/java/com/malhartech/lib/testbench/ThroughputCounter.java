@@ -146,13 +146,14 @@ public class ThroughputCounter extends AbstractModule
     }
 
     long average = 0;
+    long tuples_per_sec = (tuple_count * 1000) / elapsedTime; // * 1000 as elapsedTime is in millis
     if (rolling_window_count == 1) {
-      average = (tuple_count * 1000) / elapsedTime;
+      average = tuples_per_sec;
     }
     else { // use tuple_numbers
-      int denominator;
+      long denominator;
       if (count_denominator == rolling_window_count) {
-        tuple_numbers[tuple_index] = (tuple_count * 1000) / elapsedTime; // * 1000 as elapsedTime is in millis
+        tuple_numbers[tuple_index] = tuples_per_sec;
         denominator = rolling_window_count;
         tuple_index++;
         if (tuple_index == rolling_window_count) {
@@ -160,7 +161,7 @@ public class ThroughputCounter extends AbstractModule
         }
       }
       else {
-        tuple_numbers[count_denominator - 1] = (tuple_count * 1000) / elapsedTime;
+        tuple_numbers[count_denominator - 1] =tuples_per_sec;
         denominator = count_denominator;
         count_denominator++;
       }
@@ -173,7 +174,7 @@ public class ThroughputCounter extends AbstractModule
     tuples.put(OPORT_COUNT_TUPLE_AVERAGE, new Long(average));
     tuples.put(OPORT_COUNT_TUPLE_COUNT, new Long(tuple_count));
     tuples.put(OPORT_COUNT_TUPLE_TIME, new Long(elapsedTime));
-    tuples.put(OPORT_COUNT_TUPLE_TUPLES_PERSEC, new Long((tuple_count * 1000) / elapsedTime));
+    tuples.put(OPORT_COUNT_TUPLE_TUPLES_PERSEC, new Long(tuples_per_sec));
     tuples.put(OPORT_COUNT_TUPLE_WINDOWID, new Long(count_windowid++));
     emit(OPORT_COUNT, tuples);
   }
