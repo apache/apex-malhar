@@ -66,6 +66,8 @@ public class TupleQueue extends AbstractModule
   final int depth_default = 10;
   int depth = depth_default;
 
+  HashMap<String, Object> queryHash = new HashMap<String, Object>();
+
   /**
    * Depth of the FIFO
    */
@@ -174,18 +176,32 @@ public class TupleQueue extends AbstractModule
     }
     else if (console_connected) { // Query port, no point processing if console is not connected
       String key = (String) payload;
-      ValueData val = vmap.get(key);
-      ArrayList list;
-      HashMap<String, ArrayList> tuple = new HashMap<String, ArrayList>();
-      if (val != null) {
-        list = val.getList(depth);
-      }
-      else {
-        list = new ArrayList(); // If no data, send an empty ArrayList
-      }
-      tuple.put(key, list);
-      emit(OPORT_CONSOLE, tuple);
+      queryHash.put(key, new Object());
+      emitConsoleTuple(key);
     }
+  }
+
+  void emitConsoleTuple(String key)
+  {
+    ValueData val = vmap.get(key);
+    ArrayList list;
+    HashMap<String, ArrayList> tuple = new HashMap<String, ArrayList>();
+    if (val != null) {
+      list = val.getList(depth);
+    }
+    else {
+      list = new ArrayList(); // If no data, send an empty ArrayList
+    }
+    tuple.put(key, list);
+    emit(OPORT_CONSOLE, tuple);
+  }
+
+
+  @Override
+  public void endWindow() {
+      for (Map.Entry<String, Object> e: ((HashMap<String, Object>) queryHash).entrySet()) {
+        emitConsoleTuple(e.getKey());
+      }
   }
 
   //

@@ -186,8 +186,8 @@ public class TestFilterClassifier {
         conf.set(FilterClassifier.KEY_WEIGHTS, "ia:60,10,35;ib:10,75,15;ic:20,10,70;id:50,15,35");
         conf.set(FilterClassifier.KEY_FILTER, "10,1000");
 
-        conf.setInt("SpinMillis", 10);
-        conf.setInt("BufferCapacity", 1024 * 1024);
+        node.setSpinMillis(10);
+        node.setBufferCapacity(1024 * 1024);
         try {
           node.setup(conf);
         } catch (IllegalArgumentException e) {;}
