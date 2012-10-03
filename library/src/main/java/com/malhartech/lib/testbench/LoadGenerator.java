@@ -77,6 +77,7 @@ public class LoadGenerator extends AbstractInputModule
   private transient final Random random = new Random();
   private transient int rolling_window_count = 1;
   transient long[] tuple_numbers = null;
+  transient long[] time_numbers = null;
   transient int tuple_index = 0;
   transient int count_denominator = 1;
   transient int count_windowid = 0;
@@ -263,8 +264,10 @@ public class LoadGenerator extends AbstractInputModule
 
     if (rolling_window_count != 1) { // Initialized the tuple_numbers
       tuple_numbers = new long[rolling_window_count];
+      time_numbers = new long[rolling_window_count];
       for (int i = tuple_numbers.length; i > 0; i--) {
         tuple_numbers[i - 1] = 0;
+        time_numbers[i-1] = 0;
       }
       tuple_index = 0;
     }
@@ -320,29 +323,34 @@ public class LoadGenerator extends AbstractInputModule
 
         int tcount = generatedTupleCount;
         long average = 0;
+        long time_slot = 0;
         if (rolling_window_count == 1) {
           average = (tcount * 1000) / elapsedTime;
         }
         else { // use tuple_numbers
-          int denominator;
+          int slots;
           if (count_denominator == rolling_window_count) {
-            tuple_numbers[tuple_index] = (tcount*1000)/elapsedTime;
-            denominator = rolling_window_count;
+            tuple_numbers[tuple_index] = tcount;
+            time_numbers[tuple_index] = elapsedTime;
+            slots = rolling_window_count;
             tuple_index++;
             if (tuple_index == rolling_window_count) {
               tuple_index = 0;
             }
           }
           else {
-            tuple_numbers[count_denominator - 1] = (tcount*1000)/elapsedTime;
-            denominator = count_denominator;
+            tuple_numbers[count_denominator - 1] = tcount;
+            time_numbers[count_denominator - 1] = elapsedTime;
+            slots = count_denominator;
             count_denominator++;
           }
-          for (int i = 0; i < denominator; i++) {
+          for (int i = 0; i < slots; i++) {
             average += tuple_numbers[i];
+            time_slot += time_numbers[i];
           }
-          average = average / denominator;
+          average = (average * 1000) / time_slot; // as the time is in millis
         }
+        /*
         HashMap<String, Number> tuples = new HashMap<String, Number>();
         tuples.put(OPORT_COUNT_TUPLE_AVERAGE, new Long(average));
         tuples.put(OPORT_COUNT_TUPLE_COUNT, new Integer(tcount));
@@ -350,6 +358,9 @@ public class LoadGenerator extends AbstractInputModule
         tuples.put(OPORT_COUNT_TUPLE_TUPLES_PERSEC, new Long((tcount*1000)/elapsedTime));
         tuples.put(OPORT_COUNT_TUPLE_WINDOWID, new Integer(count_windowid++));
         emit(OPORT_COUNT, tuples);
+        * */
+        LOG.debug(String.format("\n**** ViewGen *** - Average(%d), Count(%d), Time(%d), Rate(%d), WindowId(%d)",
+                                average, tcount, elapsedTime, (tcount*1000)/elapsedTime, count_windowid++));
       }
     }
 

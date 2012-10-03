@@ -60,6 +60,7 @@ public class ThroughputCounter extends AbstractModule
   private int rolling_window_count_default = 1;
   private int rolling_window_count = rolling_window_count_default;
   long[] tuple_numbers = null;
+  long[] time_numbers = null;
   int tuple_index = 0;
   int count_denominator = 1;
   long count_windowid = 0;
@@ -114,8 +115,10 @@ public class ThroughputCounter extends AbstractModule
     windowStartTime = 0;
     if (rolling_window_count != 1) { // Initialized the tuple_numbers
       tuple_numbers = new long[rolling_window_count];
+      time_numbers = new long[rolling_window_count];
       for (int i = tuple_numbers.length; i > 0; i--) {
         tuple_numbers[i - 1] = 0;
+        time_numbers[i - 1] = 0;
       }
       tuple_index = 0;
     }
@@ -146,29 +149,33 @@ public class ThroughputCounter extends AbstractModule
     }
 
     long average = 0;
+    long time_slot = 0;
     long tuples_per_sec = (tuple_count * 1000) / elapsedTime; // * 1000 as elapsedTime is in millis
     if (rolling_window_count == 1) {
       average = tuples_per_sec;
     }
     else { // use tuple_numbers
-      long denominator;
+      long slots;
       if (count_denominator == rolling_window_count) {
-        tuple_numbers[tuple_index] = tuples_per_sec;
-        denominator = rolling_window_count;
+        tuple_numbers[tuple_index] = tuple_count;
+        time_numbers[tuple_index] = elapsedTime;
+        slots = rolling_window_count;
         tuple_index++;
         if (tuple_index == rolling_window_count) {
           tuple_index = 0;
         }
       }
       else {
-        tuple_numbers[count_denominator - 1] =tuples_per_sec;
-        denominator = count_denominator;
+        tuple_numbers[count_denominator - 1] =tuple_count;
+        time_numbers[count_denominator - 1] =elapsedTime;
+        slots = count_denominator;
         count_denominator++;
       }
-      for (int i = 0; i < denominator; i++) {
+      for (int i = 0; i < slots; i++) {
         average += tuple_numbers[i];
+        time_slot += time_numbers[i];
       }
-      average = average / denominator;
+      average = (average * 1000) / time_slot;
     }
     HashMap<String, Number> tuples = new HashMap<String, Number>();
     tuples.put(OPORT_COUNT_TUPLE_AVERAGE, new Long(average));
