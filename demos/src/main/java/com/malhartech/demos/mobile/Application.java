@@ -12,6 +12,8 @@ import com.malhartech.dag.DAG.Operator;
 import com.malhartech.lib.io.ConsoleOutputModule;
 import com.malhartech.lib.io.HttpInputModule;
 import com.malhartech.lib.io.HttpOutputModule;
+import com.malhartech.lib.algo.TupleQueue;
+import com.malhartech.lib.math.InvertIndexMap;
 import com.malhartech.lib.testbench.LoadRandomGenerator;
 import com.malhartech.lib.testbench.LoadSeedGenerator;
 import com.malhartech.lib.testbench.SeedClassifier;
@@ -70,6 +72,17 @@ public class Application implements ApplicationFactory {
     return oper;
   }
 
+  public Operator getTupleQueue(String name, DAG b) {
+    Operator oper = b.addOperator(name, TupleQueue.class);
+    oper.setProperty(TupleQueue.KEY_DEPTH, "5");
+
+    return oper;
+  }
+
+  public Operator getInvertIndexMap(String name, DAG b) {
+    return b.addOperator(name, InvertIndexMap.class);
+  }
+
   @Override
   public DAG getApplication(Configuration conf) {
 
@@ -82,12 +95,11 @@ public class Application implements ApplicationFactory {
     Operator randomXGen = getRandomGenerator("xgen", dag);
     Operator randomYGen = getRandomGenerator("ygen", dag);
     Operator seedClassify = getSeedClassifier("seedclassify", dag);
-
+    Operator tupleQueue = getTupleQueue("location_queue", dag);
+    Operator indexMap = getInvertIndexMap("index_map", dag);
+    Operator phoneconsole = getConsoleOperator(dag, "revConsole");
 
     //dag.addStream("views", viewGen.getOutput(LoadGenerator.OPORT_DATA), adviews.getInput(LoadClassifier.IPORT_IN_DATA)).setInline(true);
-
-    Operator viewcountconsole = getConsoleOperator(dag, "viewCountConsole");
-
     //dag.addStream("revenuedata", revenue.getOutput(ArithmeticSum.OPORT_SUM), margin.getInput(ArithmeticMargin.IPORT_DENOMINATOR), revconsole.getInput(ConsoleOutputModule.INPUT)).setInline(true);
 
     return dag;
