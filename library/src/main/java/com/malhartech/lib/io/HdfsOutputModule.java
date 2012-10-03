@@ -4,20 +4,23 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.*;
 import java.io.IOException;
 import java.util.ArrayList;
+
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- * @author Chetan Narsude <chetan@malhar-inc.com>
- */
+import com.malhartech.annotation.ModuleAnnotation;
+import com.malhartech.annotation.PortAnnotation;
+import com.malhartech.dag.AbstractModule;
+import com.malhartech.dag.Component;
+import com.malhartech.dag.FailedOperationException;
+import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.SerDe;
+import com.malhartech.dag.Tuple;
+
 /**
  * Adapter for writing to HDFS<p>
  * <br>
@@ -30,23 +33,28 @@ import org.slf4j.LoggerFactory;
 @ModuleAnnotation(ports= {
   @PortAnnotation(name = Component.INPUT, type = PortAnnotation.PortType.INPUT)
 })
-public class HDFSOutputModule extends AbstractModule
+public class HdfsOutputModule extends AbstractModule
 {
-  private static org.slf4j.Logger logger = LoggerFactory.getLogger(HDFSOutputModule.class);
+  private static org.slf4j.Logger logger = LoggerFactory.getLogger(HdfsOutputModule.class);
   private FSDataOutputStream output;
   private SerDe serde; // it was taken from context before, but now what, it's not a stream but a node!
   private FileSystem fs;
   private Path filepath;
   private boolean append;
-  ArrayList alist = null;
+  private ArrayList alist = null;
 
   int byte_tuple_size_compute_count = 10;
-    int byte_tuple_size_compute_size = 0;
+  int byte_tuple_size_compute_size = 0;
   int byte_tuple_size = 0;
   int byte_flush_size = 0;
 
+  int bytesWritten = 0;
+
+  public static final String KEY_FILEPATH = "filepath";
+  public static final String KEY_APPEND = "append";
+
 /**
-   * Bytes are written to the file once they cross this size. If end of window is reached the all bytes are writted out anyway<br>
+   * Bytes are written to the file once they cross this size. If end of window is reached the all bytes are written out anyway<br>
    * <br>
    */
   public static final String KEY_BYTE_FLUSH_SIZE = "byte_flush_size";
@@ -65,9 +73,9 @@ public class HDFSOutputModule extends AbstractModule
   public void setup(ModuleConfiguration config) throws FailedOperationException
   {
     try {
-      fs = FileSystem.get(config);
-      filepath = new Path(config.get("filepath"));
-      append = config.getBoolean("append", true);
+      filepath = new Path(config.get(KEY_FILEPATH));
+      fs = FileSystem.get(filepath.toUri(), config);
+      append = config.getBoolean(KEY_APPEND, true);
 
       if (fs.exists(filepath)) {
         if (append) {
@@ -92,6 +100,7 @@ public class HDFSOutputModule extends AbstractModule
   @Override
   public void teardown()
   {
+    flushBytes();
     try {
       output.close();
       output = null;
@@ -109,7 +118,8 @@ public class HDFSOutputModule extends AbstractModule
 
 
   public void flushBytes() {
-    byte[] serialized = serde.toByteArray(alist);
+    if (!alist.isEmpty()) {
+      byte[] serialized = serde.toByteArray(alist);
       try {
         output.write(serialized);
       }
@@ -117,7 +127,9 @@ public class HDFSOutputModule extends AbstractModule
         logger.info("", ex);
       }
       alist.clear();
+    }
   }
+
   /**
    *
    * @param t the value of t
@@ -125,29 +137,47 @@ public class HDFSOutputModule extends AbstractModule
   @Override
   public void process(Object t) {
     if (t instanceof Tuple) {
-      logger.debug("ignoring tuple " + t);
+      logger.error("ignoring tuple " + t);
     }
     else {
-      alist.add(t);
-      if (byte_tuple_size == 0) {
-        if (byte_tuple_size_compute_count <= 0) {
-          byte_tuple_size = byte_tuple_size_compute_size/10; // take average of 10 tuples
+      if (this.byte_flush_size == 0) {
+        // writing directly to the stream, assuming that HDFS already buffers block size.
+        // check whether writing to separate in memory byte stream would be faster
+        byte[] tupleBytes;
+        if (serde == null) {
+          tupleBytes = t.toString().concat("\n").getBytes();
+        } else {
+          tupleBytes = serde.toByteArray(t);
         }
-        else {
-          byte[] dump = serde.toByteArray(t);
-          byte_tuple_size_compute_size += dump.length;
-          byte_tuple_size_compute_count--;
+        try {
+          output.write(tupleBytes);
+          bytesWritten += tupleBytes.length;
+        } catch (IOException ex) {
+          logger.error("Failed to write to stream.", ex);
         }
-      }
-      if (byte_flush_size != 0) { // do not wait till end of window to flush
-        if ((alist.size() * byte_tuple_size) > byte_flush_size) {
-          flushBytes();
+      } else {
+        alist.add(t);
+        if (byte_tuple_size == 0) {
+          if (byte_tuple_size_compute_count <= 0) {
+            byte_tuple_size = byte_tuple_size_compute_size/10; // take average of 10 tuples
+          }
+          else {
+            byte[] dump = serde.toByteArray(t);
+            byte_tuple_size_compute_size += dump.length;
+            byte_tuple_size_compute_count--;
+          }
+        }
+        if (byte_flush_size != 0) { // do not wait till end of window to flush
+          if ((alist.size() * byte_tuple_size) > byte_flush_size) {
+            flushBytes();
+          }
         }
       }
     }
   }
     @Override
   public void endWindow() {
-      flushBytes();
+      //flushBytes();
   }
+
 }
