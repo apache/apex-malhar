@@ -42,13 +42,13 @@ public class ScaledApplication implements ApplicationFactory {
 
   public void setUnitTestMode() {
    generatorVTuplesBlast = 10;
-   generatorWindowCount = 5;
+   generatorWindowCount = 25;
    generatorMaxWindowsCount = 20;
   }
 
   public void setLocalMode() {
     generatorVTuplesBlast = 1000; // keep this number low to not distort window boundaries
-    generatorWindowCount = 5;
+    generatorWindowCount = 25;
    //generatorMaxWindowsCount = 50;
     generatorMaxWindowsCount = 1000;
   }
