@@ -64,7 +64,7 @@ public class ThroughputCounter extends AbstractModule
   int tuple_index = 0;
   int count_denominator = 1;
   long count_windowid = 0;
-  long tuple_count = 1; // so that the first w
+  long tuple_count = 1; // so that the first begin window starts the count down
 
 
 

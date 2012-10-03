@@ -123,12 +123,16 @@ public class ArithmeticSum extends AbstractModule
       ctuples = new HashMap<String, Object>();
     }
 
+    int numtuples = 0;
+    int tcount = 0;
     for (Map.Entry<String, Object> e: sum.entrySet()) {
+      numtuples++;
       if (sum_connected && !count_connected) {
         stuples.put(e.getKey(), e.getValue());
       }
       else if (sum_connected && count_connected) {
         stuples.put(e.getKey(), ((ArrayList) e.getValue()).get(0));
+        tcount += ((Integer) ((ArrayList) e.getValue()).get(1)).intValue();
         ctuples.put(e.getKey(), ((ArrayList) e.getValue()).get(1));
       }
       else if (count_connected) {
@@ -143,5 +147,8 @@ public class ArithmeticSum extends AbstractModule
       emit(OPORT_COUNT, ctuples);
     }
     sum.clear();
+    if (count_connected) {
+      LOG.debug(String.format("\n************* ArithmeticSum: Sent out %d tuples with value of %d ***************", numtuples, tcount));
+    }
   }
 }

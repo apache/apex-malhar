@@ -11,9 +11,7 @@ import com.malhartech.dag.AbstractModule;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.ModuleConfiguration;
 import com.malhartech.dag.Sink;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,15 +105,24 @@ public class InvertIndexMap extends AbstractModule
     }
     else if (IPORT_QUERY.equals(getActivePort())) {
       if (console_connected) {
+        String qid = null;
+        String phone = null;
         for (Map.Entry<String, String> e: ((HashMap<String, String>)payload).entrySet()) {
-          String val = e.getValue();
-          if ((val == null) || val.isEmpty()) {
-            query_register.remove(e.getKey());
+          if (e.getKey().equals("queryid")) {
+            qid = e.getValue();
           }
-          else {
-            query_register.put(e.getKey(), e.getValue());
-            emitConsoleTuple(e.getValue());
+          else if (e.getKey().equals("phone")) {
+            phone = e.getValue();
           }
+        }
+        if ((phone == null) || phone.isEmpty()) {
+          if ((qid != null) && !qid.isEmpty()) {
+            query_register.remove(qid);
+          }
+        }
+        else if ((qid != null) && !qid.isEmpty()) {
+          query_register.put(qid, phone);
+          emitConsoleTuple(qid, phone);
         }
       }
       else { // should give an error tuple as a query port was sent without console connected
@@ -123,8 +130,16 @@ public class InvertIndexMap extends AbstractModule
     }
   }
 
-  protected void emitConsoleTuple(String key) {
-
+  protected void emitConsoleTuple(String id, String key) {
+    String val = secondary_index.get(key);
+    if (val == null) {
+      val = "Not Found,Not Found";
+    }
+    HashMap<String,String> tuples = new HashMap<String,String>(3);
+    tuples.put("queryId", id);
+    tuples.put("phone", key);
+    tuples.put("location", val);
+    LOG.debug(String.format("Sent queryid(%s), phone(%s), location(%s)", id, key, val));
   }
 
   /**
@@ -151,6 +166,12 @@ public class InvertIndexMap extends AbstractModule
     index = new HashMap<String, HashMap<String, Object>>();
     secondary_index = new HashMap<String, String>();
     query_register = new HashMap<String, String>();
+
+    secondary_index.put("id2201", "9042031");
+    secondary_index.put("id1000", "9000020");
+    secondary_index.put("id1001", "9005000");
+    secondary_index.put("id1002", "9005500");
+    secondary_index.put("id1002", "9999998");
   }
 
   /**
@@ -161,7 +182,7 @@ public class InvertIndexMap extends AbstractModule
   {
     if (console_connected) {
       for (Map.Entry<String, String> e: query_register.entrySet()) {
-        emitConsoleTuple(e.getValue());
+        emitConsoleTuple(e.getKey(), e.getValue());
       }
     }
   }

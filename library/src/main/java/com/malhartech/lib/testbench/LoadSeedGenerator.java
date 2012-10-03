@@ -325,6 +325,8 @@ public class LoadSeedGenerator extends AbstractInputModule
     int lstart = s_start;
     int lend = s_end;
 
+    LOG.debug(String.format("\n************************************ Generating seed from %d to %d **************", lstart, lend));
+
     if (lstart < lend) {
       for (int i = lstart; i < lend; i++) {
         emit(OPORT_DATA, getTuple(i));
@@ -335,7 +337,7 @@ public class LoadSeedGenerator extends AbstractInputModule
         emit(OPORT_DATA, getTuple(i));
       }
     }
-    LOG.debug("Finished generating tuples, now deactivating");
+    LOG.debug("\n************************************ Finished generating tuples, now deactivating **************");
     deactivate();
   }
 }

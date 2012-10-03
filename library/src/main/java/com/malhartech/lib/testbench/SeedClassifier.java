@@ -80,6 +80,10 @@ public class SeedClassifier extends AbstractModule {
     int s_start = 0;
     int s_end = 99;
 
+    int data1count = 1;
+    int data2count = 1;
+
+
     private final Random random = new Random();
 
   /**
@@ -195,12 +199,13 @@ public class SeedClassifier extends AbstractModule {
   public void process(Object payload)
   {
     String ikey;
-    Object obj;
     if (IPORT_IN_DATA1.equals(getActivePort())) {
       ikey = indata1_str;
+      data1count++;
     }
     else {
       ikey = indata2_str;
+      data2count++;
     }
 
     if (isstringschema) {
@@ -209,15 +214,22 @@ public class SeedClassifier extends AbstractModule {
       tuple += ikey;
       tuple += ",";
       tuple += (String) payload;
-      obj = tuple;
+      emit(OPORT_OUT_DATA, tuple);
     }
     else {
       HashMap<String, Object> tuple = new HashMap<String, Object>(1);
       HashMap<String, Object> val = new HashMap<String, Object>(1);
       val.put(ikey, payload);
-      tuple.put(Integer.toString(s_start + random.nextInt(s_end-s_start+1)), val);
-      obj = tuple;
+      int seed = s_start + random.nextInt(s_end - s_start + 1);
+      tuple.put(Integer.toString(seed), val);
+
+      if (data1count % 100000 == 0) {
+        LOG.debug(String.format("Seed Classifier recieved x(%d), y(%d); %s(%s), %d", data1count, data2count, ikey, getActivePort(), seed));
+      }
+      else if (data2count % 100000 == 0) {
+        LOG.debug(String.format("Seed Classifier recieved y(%d), x(%d); %s(%s), %d", data2count, data1count, ikey, getActivePort(), seed));
+      }
+      emit(OPORT_OUT_DATA, tuple);
     }
-    emit(OPORT_OUT_DATA, obj);
   }
 }

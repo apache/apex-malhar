@@ -9,6 +9,7 @@ import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.dag.AbstractModule;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.Sink;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -77,6 +78,13 @@ public class LoadIncrementer extends AbstractModule
 
   int tuple_count = 0;
 
+  int seed_count = 0;
+  int noseed_count = 0;
+  int matchseed_count = 0;
+  int newslot_count = 0;
+
+  private transient boolean count_connected = false;
+
 /**
    * keys are comma separated list of keys for seeding. They are taken in order on seed port (i.e. keys need not be sent)<p>
    * On the increment port changes are sent per key.<br>
@@ -103,6 +111,20 @@ public class LoadIncrementer extends AbstractModule
     {
       str = istr;
       value = val;
+    }
+  }
+
+
+  /**
+   *
+   * @param id
+   * @param dagpart
+   */
+  @Override
+  public void connected(String id, Sink dagpart)
+  {
+    if (id.equals(OPORT_COUNT)) {
+      count_connected = (dagpart != null);
     }
   }
 
@@ -277,20 +299,22 @@ public class LoadIncrementer extends AbstractModule
       }
     }
     else if (IPORT_INCREMENT.equals(getActivePort())) {
-      for (Map.Entry<String, Object> e: ((HashMap<String, Object>) payload).entrySet()) {
+      for (Map.Entry<String, Object> e: ((HashMap<String, Object>)payload).entrySet()) {
         String key = e.getKey(); // the key
-        ArrayList<valueData> alist = (ArrayList<valueData>) vmap.get(key); // does it have a location?
+        ArrayList<valueData> alist = (ArrayList<valueData>)vmap.get(key); // does it have a location?
         if (alist != null) { // if not seeded just ignore
-          for (Map.Entry<String, Integer> o : ((HashMap<String, Integer>) e.getValue()).entrySet()) {
+          seed_count++;
+          for (Map.Entry<String, Integer> o: ((HashMap<String, Integer>)e.getValue()).entrySet()) {
             String dimension = o.getKey();
             int j = 0;
             int cur_slot = 0;
             int new_slot = 0;
-            for (valueData d : alist) {
+            for (valueData d: alist) {
               if (dimension.equals(d.str)) {
                 // Compute the new location
-                cur_slot = ((Double) d.value).intValue();
-                Double nval = getNextNumber(((Double) d.value).doubleValue(), (delta/100) * (o.getValue().intValue() % 100), low_limits[j], high_limits[j]);
+                matchseed_count++;
+                cur_slot = ((Double)d.value).intValue();
+                Double nval = getNextNumber(((Double)d.value).doubleValue(), (delta / 100) * (o.getValue().intValue() % 100), low_limits[j], high_limits[j]);
                 new_slot = nval.intValue();
                 alist.get(j).value = nval;
                 break;
@@ -298,12 +322,21 @@ public class LoadIncrementer extends AbstractModule
               j++;
             }
             if (cur_slot != new_slot) {
-              emitDataTuple(key,alist);
+              emitDataTuple(key, alist);
             }
+          }
+          if ((noseed_count % 100000) == 0) {
+            LOG.debug(String.format("Seed count (%d), Noseed Count(%d), Matchseed Count (%d), Newslot Count(%d)",
+                                    seed_count, noseed_count, matchseed_count, newslot_count));
           }
         }
         else { // oops, no seed yet
-          ;
+          noseed_count++;
+          if ((noseed_count % 100000) == 0) {
+            LOG.debug(String.format("Noseed count (%d), Seed Count(%d), Matchse"
+                    + "ed Count (%d), Newslot Count(%d)",
+                                    noseed_count, seed_count, matchseed_count, newslot_count));
+          }
         }
       }
     }
@@ -318,8 +351,10 @@ public class LoadIncrementer extends AbstractModule
   @Override
   public void endWindow()
   {
-    HashMap<String, Integer> tuple = new HashMap<String, Integer>(1);
-    tuple.put(OPORT_COUNT_TUPLE_COUNT, new Integer(tuple_count));
-    emit(OPORT_COUNT, tuple);
+    if (count_connected) {
+      HashMap<String, Integer> tuple = new HashMap<String, Integer>(1);
+      tuple.put(OPORT_COUNT_TUPLE_COUNT, new Integer(tuple_count));
+      emit(OPORT_COUNT, tuple);
+    }
   }
 }
