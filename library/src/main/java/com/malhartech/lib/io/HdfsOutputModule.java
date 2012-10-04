@@ -28,10 +28,10 @@ import com.malhartech.dag.Tuple;
  * Adapter for writing to HDFS<p>
  * <br>
  * Serializes tuples into a HDFS file<br>
- * Currently all tuples are written to a single HDFS file<br>
- * Future enhancements include options to write into a time slot/windows based files<br>
+ * Tuples are written to a single HDFS file, with the option to specify
+ * size based file rolling, using place holders in the file path.<br>
+ * Future enhancements may include options to write into a time slot/windows based files<br>
  * <br>
- *
  */
 @ModuleAnnotation(ports= {
   @PortAnnotation(name = Component.INPUT, type = PortAnnotation.PortType.INPUT)
@@ -64,8 +64,9 @@ public class HdfsOutputModule extends AbstractModule
 
   /**
    * Bytes are written to the underlying file stream once they cross this size.<br>
-   * Use this parameter only if the file system used does not already buffer.
-   * HDFS does buffering but other file system abstractions may not.
+   * Use this parameter if the file system used does not provide sufficient buffering.
+   * HDFS does buffering (even though another layer of buffering on top appears to help)
+   * but other file system abstractions may not.
    * <br>
    */
   public static final String KEY_BUFFERSIZE = "bufferSize";
@@ -103,6 +104,12 @@ public class HdfsOutputModule extends AbstractModule
     else {
       fsOutput = fs.create(filepath);
     }
+
+    if (bufferSize > 0) {
+      this.bufferedOutput = new BufferedOutputStream(fsOutput, bufferSize);
+      logger.info("buffering with size {}", bufferSize);
+    }
+
   }
 
   private void closeFile() throws IOException {
@@ -128,6 +135,7 @@ public class HdfsOutputModule extends AbstractModule
       append = config.getBoolean(KEY_APPEND, true);
       replication = config.getInt(KEY_REPLICATION, 0);
       bytesPerFile = config.getInt(KEY_BYTES_PER_FILE, 0);
+      bufferSize = config.getInt(KEY_BUFFERSIZE, 0);
 
       if (bytesPerFile > 0) {
         // ensure file path generates unique names
@@ -139,12 +147,6 @@ public class HdfsOutputModule extends AbstractModule
       }
 
       openFile(filepath);
-
-      this.bufferSize = config.getInt(KEY_BUFFERSIZE, 0);
-      if (bufferSize > 0) {
-        this.bufferedOutput = new BufferedOutputStream(fsOutput, bufferSize);
-        logger.info("buffering with size {}", bufferSize);
-      }
 
     }
     catch (IOException ex) {
