@@ -77,6 +77,7 @@ public class LoadSeedGenerator extends AbstractInputModule
   final boolean emitkey_default = false;
   boolean emitkey = emitkey_default;
   private final Random random = new Random();
+  boolean doneseeding = false;
 
   /**
    * Start integer value for seeding<p>
@@ -322,19 +323,22 @@ public class LoadSeedGenerator extends AbstractInputModule
   @Override
   public void process(Object payload)
   {
-    int lstart = s_start;
-    int lend = s_end;
+    if (!doneseeding) {
+      int lstart = s_start;
+      int lend = s_end;
 
-    if (lstart < lend) {
-      for (int i = lstart; i < lend; i++) {
-        emit(OPORT_DATA, getTuple(i));
+      if (lstart < lend) {
+        for (int i = lstart; i < lend; i++) {
+          emit(OPORT_DATA, getTuple(i));
+        }
+      }
+      else {
+        for (int i = lstart; i > lend; i--) {
+          emit(OPORT_DATA, getTuple(i));
+        }
       }
     }
-    else {
-      for (int i = lstart; i > lend; i--) {
-        emit(OPORT_DATA, getTuple(i));
-      }
-    }
-    deactivate();
+    doneseeding = true;
+    //deactivate();
   }
 }
