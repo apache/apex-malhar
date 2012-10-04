@@ -11,6 +11,7 @@ import com.malhartech.dag.AbstractModule;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.ModuleConfiguration;
 import com.malhartech.dag.Sink;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -44,12 +45,15 @@ public class InvertIndexMap extends AbstractModule
 
   HashMap<String, HashMap<String, Object>> index = null;
   HashMap<String, String> secondary_index = null;
-  HashMap<String, String> query_register = null;
+  HashMap<String, String> phone_register = null;
+  HashMap<String, String> location_register = null;
+
+  public static final String CHANNEL_PHONE = "phone";
+  public static final String CHANNEL_LOCATION = "location";
+  public static final String IDENTIFIER_CHANNEL = "queryid";
 
   boolean console_connected = false;
   boolean index_connected = false;
-
-  int tcount = 1;
 
   protected boolean hasIndex(String key) {
     HashMap<String, Object> val = index.get(key);
@@ -88,7 +92,6 @@ public class InvertIndexMap extends AbstractModule
   {
     if (IPORT_DATA.equals(getActivePort())) {
       for (Map.Entry<String, String> e: ((HashMap<String, String>) payload).entrySet()) {
-        tcount++;
         HashMap<String, Object> values = index.get(e.getValue());
         if (values == null) {
           values = new HashMap<String, Object>(4); // start with 4 slots, keep it low
@@ -114,22 +117,51 @@ public class InvertIndexMap extends AbstractModule
       if (console_connected) {
         String qid = null;
         String phone = null;
+        String location = null;
         for (Map.Entry<String, String> e: ((HashMap<String, String>)payload).entrySet()) {
-          if (e.getKey().equals("queryid")) {
+          if (e.getKey().equals(IDENTIFIER_CHANNEL)) {
             qid = e.getValue();
           }
-          else if (e.getKey().equals("phone")) {
+          else if (e.getKey().equals(CHANNEL_PHONE)) {
             phone = e.getValue();
           }
-        }
-        if ((phone == null) || phone.isEmpty()) {
-          if ((qid != null) && !qid.isEmpty()) {
-            query_register.remove(qid);
+          else if (e.getKey().equals(CHANNEL_LOCATION)) {
+            location = e.getValue();
           }
         }
-        else if ((qid != null) && !qid.isEmpty()) {
-          query_register.put(qid, phone);
-          emitConsoleTuple(qid, phone);
+        boolean phonechannel = (phone != null);
+        boolean locationchannel = (location != null);
+        boolean hasqid = (qid != null);
+
+        if (hasqid) { // without qid, ignore
+          if (phonechannel) {
+            if (location_register.get(qid) != null) { // check if user is moving from location to phone
+              location_register.remove(qid);
+            }
+            if (phone.isEmpty()) { // simply remove the channel
+              if (phone_register.get(qid) != null) {
+                phone_register.remove(qid);
+              }
+            }
+            else { // register the phone channel
+              phone_register.put(qid, phone);
+              emitConsoleTuple(qid);
+            }
+          }
+          else if (locationchannel) {
+            if (phone_register.get(qid) != null) { // check if user is moving from phone to location
+              phone_register.remove(qid);
+            }
+            if (location.isEmpty()) { // simply remove the channel
+              if (location_register.get(qid) != null) {
+                location_register.remove(qid);
+              }
+            }
+            else {
+              location_register.put(qid, location);
+              emitConsoleTuple(qid);
+            }
+          }
         }
       }
       else { // should give an error tuple as a query port was sent without console connected
@@ -137,15 +169,42 @@ public class InvertIndexMap extends AbstractModule
     }
   }
 
-  protected void emitConsoleTuple(String id, String key) {
-    String val = secondary_index.get(key);
-    if (val == null) {
-      val = "Not Found,Not Found";
+  protected void emitConsoleTuple(String id) {
+    if (!console_connected) {
+      return;
     }
-    HashMap<String,String> tuples = new HashMap<String,String>(3);
-    tuples.put("queryId", id);
-    tuples.put("phone", key);
-    tuples.put("location", val);
+
+    String key = phone_register.get(id);
+    boolean isphone = (key != null);
+    if (!isphone) {
+      key = location_register.get(id);
+    }
+    if (key == null) { // something awful? bad data?
+      return;
+    }
+
+    HashMap<String,Object> tuples = new HashMap<String, Object>(3);
+    tuples.put(IDENTIFIER_CHANNEL, id);
+
+    if (isphone) {
+      String val = secondary_index.get(key);
+      if (val == null) {
+        val = "Not Found,Not Found";
+      }
+      tuples.put(CHANNEL_PHONE, key);
+      tuples.put(CHANNEL_LOCATION, val);
+    }
+    else {
+      tuples.put(CHANNEL_LOCATION, key);
+      HashMap<String, Object> values = index.get(key);
+      ArrayList<String> phonelist = new ArrayList<String>();
+      if (values != null) {
+        for (Map.Entry<String, Object> e: values.entrySet()) {
+          phonelist.add(e.getKey());
+        }
+      }
+      tuples.put(CHANNEL_PHONE, phonelist);
+    }
     emit(OPORT_CONSOLE, tuples);
   }
 
@@ -171,14 +230,14 @@ public class InvertIndexMap extends AbstractModule
       throw new FailedOperationException("Did not pass validation");
     }
     index = new HashMap<String, HashMap<String, Object>>();
-    secondary_index = new HashMap<String, String>();
-    query_register = new HashMap<String, String>();
+    secondary_index = new HashMap<String, String>(5);
+    phone_register = new HashMap<String, String>(5);
+    location_register = new HashMap<String, String>(5);
 
-    query_register.put("id2201", "9042031");
-    query_register.put("id1000", "9000020");
-    query_register.put("id1001", "9005000");
-    query_register.put("id1002", "9005500");
-    query_register.put("id1002", "9999998");
+
+    location_register.put("loc1", "234,487");
+    phone_register.put("blah", "9005500");
+    phone_register.put("id1002", "9999998");
   }
 
   /**
@@ -188,8 +247,11 @@ public class InvertIndexMap extends AbstractModule
   public void endWindow()
   {
     if (console_connected) {
-      for (Map.Entry<String, String> e: query_register.entrySet()) {
-        emitConsoleTuple(e.getKey(), e.getValue());
+      for (Map.Entry<String, String> e: phone_register.entrySet()) {
+        emitConsoleTuple(e.getKey());
+      }
+      for (Map.Entry<String, String> e: location_register.entrySet()) {
+        emitConsoleTuple(e.getKey());
       }
     }
     else if (index_connected) {

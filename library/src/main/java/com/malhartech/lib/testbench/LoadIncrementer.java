@@ -77,12 +77,7 @@ public class LoadIncrementer extends AbstractModule
   float delta = delta_default_value;
 
   int tuple_count = 0;
-
-  int seed_count = 0;
-  int noseed_count = 0;
-  int matchseed_count = 0;
-  int newslot_count = 0;
-
+  
   private transient boolean count_connected = false;
 
 /**
@@ -303,7 +298,6 @@ public class LoadIncrementer extends AbstractModule
         String key = e.getKey(); // the key
         ArrayList<valueData> alist = (ArrayList<valueData>)vmap.get(key); // does it have a location?
         if (alist != null) { // if not seeded just ignore
-          seed_count++;
           for (Map.Entry<String, Integer> o: ((HashMap<String, Integer>)e.getValue()).entrySet()) {
             String dimension = o.getKey();
             int j = 0;
@@ -312,7 +306,6 @@ public class LoadIncrementer extends AbstractModule
             for (valueData d: alist) {
               if (dimension.equals(d.str)) {
                 // Compute the new location
-                matchseed_count++;
                 cur_slot = ((Double)d.value).intValue();
                 Double nval = getNextNumber(((Double)d.value).doubleValue(), (delta / 100) * (o.getValue().intValue() % 100), low_limits[j], high_limits[j]);
                 new_slot = nval.intValue();
@@ -323,21 +316,10 @@ public class LoadIncrementer extends AbstractModule
             }
             if (cur_slot != new_slot) {
               emitDataTuple(key, alist);
-              newslot_count++;
             }
-          }
-          if ((noseed_count % 100000) == 0) {
-            LOG.debug(String.format("Seed count (%d), Noseed Count(%d), Matchseed Count (%d), Newslot Count(%d)",
-                                    seed_count, noseed_count, matchseed_count, newslot_count));
           }
         }
         else { // oops, no seed yet
-          noseed_count++;
-          if ((noseed_count % 100000) == 0) {
-            LOG.debug(String.format("Noseed count (%d), Seed Count(%d), Matchse"
-                    + "ed Count (%d), Newslot Count(%d)",
-                                    noseed_count, seed_count, matchseed_count, newslot_count));
-          }
         }
       }
     }
