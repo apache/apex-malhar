@@ -39,10 +39,10 @@ import com.malhartech.dag.Tuple;
 public class HdfsOutputModule extends AbstractModule
 {
   private static org.slf4j.Logger logger = LoggerFactory.getLogger(HdfsOutputModule.class);
-  private FSDataOutputStream fsOutput;
-  private BufferedOutputStream bufferedOutput;
+  private transient FSDataOutputStream fsOutput;
+  private transient BufferedOutputStream bufferedOutput;
   private SerDe serde; // it was taken from context before, but now what, it's not a stream but a node!
-  private FileSystem fs;
+  private transient FileSystem fs;
   private String filePathTemplate;
   private boolean append;
   private int bufferSize;
@@ -77,7 +77,10 @@ public class HdfsOutputModule extends AbstractModule
   private Path subFilePath(int index) {
     Map<String, String> params = new HashMap<String, String>();
     params.put(FNAME_SUB_PART_INDEX, String.valueOf(index));
-    params.put(FNAME_SUB_MODULE_ID, this.getId());
+    String moduleId  = this.getId();
+    if (moduleId != null) {
+      params.put(FNAME_SUB_MODULE_ID, moduleId.replace(":", ""));
+    }
     StrSubstitutor sub = new StrSubstitutor(params, "%(", ")");
     return new Path(sub.replace(filePathTemplate.toString()));
   }

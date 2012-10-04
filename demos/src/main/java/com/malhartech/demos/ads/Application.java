@@ -4,10 +4,17 @@
  */
 package com.malhartech.demos.ads;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.hadoop.conf.Configuration;
+
 import com.malhartech.dag.ApplicationFactory;
 import com.malhartech.dag.DAG;
 import com.malhartech.dag.DAG.Operator;
+import com.malhartech.dag.DAG.StreamDecl;
 import com.malhartech.lib.io.ConsoleOutputModule;
+import com.malhartech.lib.io.HdfsOutputModule;
 import com.malhartech.lib.io.HttpOutputModule;
 import com.malhartech.lib.math.ArithmeticMargin;
 import com.malhartech.lib.math.ArithmeticQuotient;
@@ -17,7 +24,6 @@ import com.malhartech.lib.testbench.LoadClassifier;
 import com.malhartech.lib.testbench.LoadGenerator;
 import com.malhartech.lib.testbench.StreamMerger;
 import com.malhartech.lib.testbench.ThroughputCounter;
-import org.apache.hadoop.conf.Configuration;
 
 
 /**
@@ -29,6 +35,7 @@ public class Application implements ApplicationFactory {
   public static final String P_generatorVTuplesBlast = Application.class.getName() + ".generatorVTuplesBlast";
   public static final String P_generatorMaxWindowsCount = Application.class.getName() + ".generatorMaxWindowsCount";
   public static final String P_allInline = Application.class.getName() + ".allInline";
+  public static final String P_enableHdfs = Application.class.getName() + ".enableHdfs";
 
   // adjust these depending on execution mode (junit, cli-local, cluster)
   private int generatorVTuplesBlast = 1000;
@@ -68,6 +75,21 @@ public class Application implements ApplicationFactory {
 
   }
 
+  /**
+   * Map properties from application to operator scope
+   * @param dag
+   * @param op
+   */
+  public static Map<String, String> getOperatorProperties(Configuration appConf, Class<?> appClass, String operatorId) {
+    String keyPrefix = appClass.getName() + "." + operatorId + ".";
+    Map<String, String> values = appConf.getValByRegex(keyPrefix + "*");
+    Map<String, String> properties = new HashMap<String, String>(values.size());
+    for (Map.Entry<String, String> e : values.entrySet()) {
+      properties.put(e.getKey().replace(keyPrefix, ""), e.getValue());
+    }
+    return properties;
+  }
+
   private Operator getConsoleOperator(DAG b, String operatorName)
   {
     // output to HTTP server when specified in environment setting
@@ -79,6 +101,18 @@ public class Application implements ApplicationFactory {
     return b.addOperator(operatorName, ConsoleOutputModule.class)
             //.setProperty(ConsoleOutputModule.P_DEBUG, "true")
             .setProperty(ConsoleOutputModule.P_STRING_FORMAT, operatorName + ": %s");
+  }
+
+  private DAG.InputPort getViewsToHdfsOperator(DAG dag, String operatorName)
+  {
+    Map<String, String> props = getOperatorProperties(dag.getConf(), this.getClass(), operatorName);
+    Operator o = dag.addOperator(operatorName, HdfsOutputModule.class);
+    o.setProperty(HdfsOutputModule.KEY_APPEND, "false");
+    o.setProperty(HdfsOutputModule.KEY_FILEPATH, "file:///tmp/adsdemoviews-%(moduleId)-part%(partIndex)");
+    for (Map.Entry<String, String> e : props.entrySet()) {
+      o.setProperty(e.getKey(), e.getValue());
+    }
+    return o.getInput(HdfsOutputModule.INPUT);
   }
 
   public Operator getSumOperator(String name, DAG b, String debug) {
@@ -159,8 +193,14 @@ public class Application implements ApplicationFactory {
     Operator tuple_counter = getThroughputCounter("tuple_counter", dag);
 
     dag.addStream("views", viewGen.getOutput(LoadGenerator.OPORT_DATA), adviews.getInput(LoadClassifier.IPORT_IN_DATA)).setInline(true);
-    dag.addStream("viewsaggregate", adviews.getOutput(LoadClassifier.OPORT_OUT_DATA), insertclicks.getInput(FilterClassifier.IPORT_IN_DATA),
+    StreamDecl viewsAggStream = dag.addStream("viewsaggregate", adviews.getOutput(LoadClassifier.OPORT_OUT_DATA), insertclicks.getInput(FilterClassifier.IPORT_IN_DATA),
                       viewAggregate.getInput(ArithmeticSum.IPORT_DATA)).setInline(true);
+
+    if (conf.getBoolean(P_enableHdfs, false)) {
+      DAG.InputPort viewsToHdfs = getViewsToHdfsOperator(dag, "viewsToHdfs");
+      viewsAggStream.addSink(viewsToHdfs);
+    }
+
     dag.addStream("clicksaggregate", insertclicks.getOutput(FilterClassifier.OPORT_OUT_DATA), clickAggregate.getInput(ArithmeticSum.IPORT_DATA)).setInline(true);
 
     dag.addStream("adviewsdata", viewAggregate.getOutput(ArithmeticSum.OPORT_SUM), cost.getInput(ArithmeticSum.IPORT_DATA));

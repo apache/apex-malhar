@@ -20,7 +20,7 @@ public class ApplicationTest {
   @Ignore
   @Test
   public void testPropertiesConfig() throws IOException, Exception {
-    String tplgFile = "src/main/resources/ctrapp.tplg.properties";
+    String tplgFile = "src/main/resources/ctr.app.properties";
     StramLocalCluster lc = new StramLocalCluster(DAGPropertiesBuilder.create(new Configuration(false), tplgFile));
     lc.setHeartbeatMonitoringEnabled(false);
     lc.run();
