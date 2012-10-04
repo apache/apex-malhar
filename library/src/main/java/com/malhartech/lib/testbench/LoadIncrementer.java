@@ -323,6 +323,7 @@ public class LoadIncrementer extends AbstractModule
             }
             if (cur_slot != new_slot) {
               emitDataTuple(key, alist);
+              newslot_count++;
             }
           }
           if ((noseed_count % 100000) == 0) {

@@ -60,8 +60,6 @@ public class LoadRandomGenerator extends AbstractInputModule
   boolean isstringschema = false;
   private Random random = new Random();
 
-  boolean dodebug = false;
-  String debugid = new String();
   /**
    * An integer specifying min_value.
    *
@@ -145,8 +143,6 @@ public class LoadRandomGenerator extends AbstractInputModule
     tuples_blast = config.getInt(KEY_TUPLES_BLAST, tuples_blast_default_value);
     min_value = config.getInt(KEY_MIN_VALUE, 0);
     max_value = config.getInt(KEY_MAX_VALUE, 100);
-    debugid = config.get("debugid");
-    dodebug = !debugid.isEmpty();
   }
 
   /**
@@ -169,11 +165,6 @@ public class LoadRandomGenerator extends AbstractInputModule
         emit(OPORT_DATA, Integer.toString(rval));
       }
       i++;
-      if (dodebug) {
-        if (i % 100000 == 0) {
-          LOG.debug(String.format("Id %s generated %d", debugid, i));
-        }
-      }
     }
   }
 }

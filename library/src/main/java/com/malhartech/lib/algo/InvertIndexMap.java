@@ -47,6 +47,9 @@ public class InvertIndexMap extends AbstractModule
   HashMap<String, String> query_register = null;
 
   boolean console_connected = false;
+  boolean index_connected = false;
+
+  int tcount = 1;
 
   protected boolean hasIndex(String key) {
     HashMap<String, Object> val = index.get(key);
@@ -69,6 +72,9 @@ public class InvertIndexMap extends AbstractModule
     if (id.equals(OPORT_CONSOLE)) {
       console_connected = (dagpart != null);
     }
+    else if (id.equals(OPORT_INDEX)) {
+      index_connected = (dagpart != null);
+    }
   }
 
   /**
@@ -82,6 +88,7 @@ public class InvertIndexMap extends AbstractModule
   {
     if (IPORT_DATA.equals(getActivePort())) {
       for (Map.Entry<String, String> e: ((HashMap<String, String>) payload).entrySet()) {
+        tcount++;
         HashMap<String, Object> values = index.get(e.getValue());
         if (values == null) {
           values = new HashMap<String, Object>(4); // start with 4 slots, keep it low
@@ -139,7 +146,7 @@ public class InvertIndexMap extends AbstractModule
     tuples.put("queryId", id);
     tuples.put("phone", key);
     tuples.put("location", val);
-    LOG.debug(String.format("Sent queryid(%s), phone(%s), location(%s)", id, key, val));
+    emit(OPORT_CONSOLE, tuples);
   }
 
   /**
@@ -167,11 +174,11 @@ public class InvertIndexMap extends AbstractModule
     secondary_index = new HashMap<String, String>();
     query_register = new HashMap<String, String>();
 
-    secondary_index.put("id2201", "9042031");
-    secondary_index.put("id1000", "9000020");
-    secondary_index.put("id1001", "9005000");
-    secondary_index.put("id1002", "9005500");
-    secondary_index.put("id1002", "9999998");
+    query_register.put("id2201", "9042031");
+    query_register.put("id1000", "9000020");
+    query_register.put("id1001", "9005000");
+    query_register.put("id1002", "9005500");
+    query_register.put("id1002", "9999998");
   }
 
   /**
@@ -184,6 +191,9 @@ public class InvertIndexMap extends AbstractModule
       for (Map.Entry<String, String> e: query_register.entrySet()) {
         emitConsoleTuple(e.getKey(), e.getValue());
       }
+    }
+    else if (index_connected) {
+      // Todo, send out entire index
     }
   }
 }

@@ -79,11 +79,6 @@ public class SeedClassifier extends AbstractModule {
 
     int s_start = 0;
     int s_end = 99;
-
-    int data1count = 1;
-    int data2count = 1;
-
-
     private final Random random = new Random();
 
   /**
@@ -187,7 +182,6 @@ public class SeedClassifier extends AbstractModule {
       s_start = istart;
       s_end = iend;
     }
-
     LOG.debug(String.format("Set up for seed_start(%d), seed_end (%d), indata1_classifier(%s), and indata2_classifier(%s)", s_start, s_end, indata1_str, indata2_str));
   }
 
@@ -201,11 +195,9 @@ public class SeedClassifier extends AbstractModule {
     String ikey;
     if (IPORT_IN_DATA1.equals(getActivePort())) {
       ikey = indata1_str;
-      data1count++;
     }
     else {
       ikey = indata2_str;
-      data2count++;
     }
 
     if (isstringschema) {
@@ -222,13 +214,6 @@ public class SeedClassifier extends AbstractModule {
       val.put(ikey, payload);
       int seed = s_start + random.nextInt(s_end - s_start + 1);
       tuple.put(Integer.toString(seed), val);
-
-      if (data1count % 100000 == 0) {
-        LOG.debug(String.format("Seed Classifier recieved x(%d), y(%d); %s(%s), %d", data1count, data2count, ikey, getActivePort(), seed));
-      }
-      else if (data2count % 100000 == 0) {
-        LOG.debug(String.format("Seed Classifier recieved y(%d), x(%d); %s(%s), %d", data2count, data1count, ikey, getActivePort(), seed));
-      }
       emit(OPORT_OUT_DATA, tuple);
     }
   }

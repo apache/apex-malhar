@@ -80,7 +80,7 @@ public class Application implements ApplicationFactory {
     oper.setProperty(LoadSeedGenerator.KEY_STRING_SCHEMA, "false");
     oper.setProperty(LoadSeedGenerator.KEY_EMITKEY, "false");
     oper.setProperty(LoadSeedGenerator.KEY_KEYS, "x:0,1000;y:0,1000");
-    oper.setProperty(LoadSeedGenerator.KEY_SEED_START, "9000000");
+    oper.setProperty(LoadSeedGenerator.KEY_SEED_START, "9900000");
     oper.setProperty(LoadSeedGenerator.KEY_SEED_END    , "9999999");
 
     return oper;
@@ -97,7 +97,7 @@ public class Application implements ApplicationFactory {
 
   public Operator getSeedClassifier(String name, DAG b) {
     Operator oper = b.addOperator(name, SeedClassifier.class);
-    oper.setProperty(SeedClassifier.KEY_SEED_START, "9000000");
+    oper.setProperty(SeedClassifier.KEY_SEED_START, "9900000");
     oper.setProperty(SeedClassifier.KEY_SEED_END    , "9999999");
     oper.setProperty(SeedClassifier.KEY_IN_DATA1_CLASSIFIER, "x");
     oper.setProperty(SeedClassifier.KEY_IN_DATA2_CLASSIFIER, "y");
@@ -146,9 +146,9 @@ public class Application implements ApplicationFactory {
     dag.addStream("xdata", randomXGen.getOutput(LoadRandomGenerator.OPORT_DATA), seedClassify.getInput(SeedClassifier.IPORT_IN_DATA1)).setInline(true);
     dag.addStream("ydata", randomYGen.getOutput(LoadRandomGenerator.OPORT_DATA), seedClassify.getInput(SeedClassifier.IPORT_IN_DATA2)).setInline(true);
     dag.addStream("incrdata", seedClassify.getOutput(SeedClassifier.OPORT_OUT_DATA), incrementer.getInput(LoadIncrementer.IPORT_INCREMENT)).setInline(true);
-    dag.addStream("mobilelocation", incrementer.getOutput(LoadIncrementer.OPORT_DATA), indexMap.getInput(InvertIndexMap.IPORT_DATA));
+    dag.addStream("mobilelocation", incrementer.getOutput(LoadIncrementer.OPORT_DATA), indexMap.getInput(InvertIndexMap.IPORT_DATA)).setInline(true);
     //dag.addStream("mobilequery", phoneLocationQuery.getOutput(HttpInputModule.OUTPUT, indexMap.getInput(InvertIndexMap.IPORT_QUERY));
-    dag.addStream("consoledata", indexMap.getOutput(InvertIndexMap.OPORT_CONSOLE), phoneconsole.getInput(HttpOutputModule.INPUT));
+    dag.addStream("consoledata", indexMap.getOutput(InvertIndexMap.OPORT_CONSOLE), phoneconsole.getInput(HttpOutputModule.INPUT)).setInline(true);
 
     return dag;
   }
