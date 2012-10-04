@@ -79,8 +79,8 @@ public class Application implements ApplicationFactory {
     Operator oper = b.addOperator(name, LoadSeedGenerator.class);
     oper.setProperty(LoadSeedGenerator.KEY_STRING_SCHEMA, "false");
     oper.setProperty(LoadSeedGenerator.KEY_EMITKEY, "false");
-    oper.setProperty(LoadSeedGenerator.KEY_KEYS, "x:0,1000;y:0,1000");
-    oper.setProperty(LoadSeedGenerator.KEY_SEED_START, "9900000");
+    oper.setProperty(LoadSeedGenerator.KEY_KEYS, "x:0,500;y:0,500");
+    oper.setProperty(LoadSeedGenerator.KEY_SEED_START, "9000000");
     oper.setProperty(LoadSeedGenerator.KEY_SEED_END    , "9999999");
 
     return oper;
@@ -97,7 +97,7 @@ public class Application implements ApplicationFactory {
 
   public Operator getSeedClassifier(String name, DAG b) {
     Operator oper = b.addOperator(name, SeedClassifier.class);
-    oper.setProperty(SeedClassifier.KEY_SEED_START, "9900000");
+    oper.setProperty(SeedClassifier.KEY_SEED_START, "9000000");
     oper.setProperty(SeedClassifier.KEY_SEED_END    , "9999999");
     oper.setProperty(SeedClassifier.KEY_IN_DATA1_CLASSIFIER, "x");
     oper.setProperty(SeedClassifier.KEY_IN_DATA2_CLASSIFIER, "y");
