@@ -60,10 +60,16 @@ public class HttpInputModule extends AbstractInputModule
    */
   public static final String P_RESOURCE_URL = "resourceUrl";
 
+  /**
+   * Timeout interval for reading from server. 0 or negative indicates no timeout.
+   */
+  public static final String P_READ_TIMEOUT_MILLIS = "readTimeoutMillis";
+
   private transient URI resourceUrl;
   private transient Client wsClient;
   private transient WebResource resource;
   private transient Thread ioThread;
+  private transient int readTimeoutMillis = 0;
 
   @Override
   public void setup(ModuleConfiguration config) throws FailedOperationException
@@ -77,7 +83,7 @@ public class HttpInputModule extends AbstractInputModule
 
     wsClient = Client.create();
     wsClient.setFollowRedirects(true);
-    wsClient.setReadTimeout(60000);
+    wsClient.setReadTimeout(readTimeoutMillis);
     resource = wsClient.resource(resourceUrl);
     LOG.info("URL: {}", resourceUrl);
 
@@ -112,6 +118,7 @@ public class HttpInputModule extends AbstractInputModule
     } catch (URISyntaxException e) {
       throw new IllegalArgumentException(String.format("Invalid value '%s' for '%s'.", urlStr, P_RESOURCE_URL));
     }
+    this.readTimeoutMillis = config.getInt(P_READ_TIMEOUT_MILLIS, 0);
     return true;
   }
 

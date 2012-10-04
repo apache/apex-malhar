@@ -169,7 +169,7 @@ public class InvertIndexMap extends AbstractModule
             else {
               location_register.put(qid, location);
               emitConsoleTuple(qid);
-              LOG.debug(String.format("Registered query id \"%s\", with location \"%s\"", qid, location));
+              LOG.info(String.format("Registered query id \"%s\", with location \"%s\"", qid, location));
             }
           }
         }
