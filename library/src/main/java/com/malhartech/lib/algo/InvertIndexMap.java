@@ -51,7 +51,7 @@ public class InvertIndexMap extends AbstractModule
 
   public static final String CHANNEL_PHONE = "phone";
   public static final String CHANNEL_LOCATION = "location";
-  public static final String IDENTIFIER_CHANNEL = "queryid";
+  public static final String IDENTIFIER_CHANNEL = "queryId";
 
   boolean console_connected = false;
   boolean index_connected = false;
@@ -175,6 +175,7 @@ public class InvertIndexMap extends AbstractModule
         }
       }
       else { // should give an error tuple as a query port was sent without console connected
+        LOG.warn("Received invalid query {}", payload);
       }
     }
   }

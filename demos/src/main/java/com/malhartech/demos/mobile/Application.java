@@ -152,7 +152,7 @@ public class Application implements ApplicationFactory {
     // Waiting for local server to be set up. For now I hardcoded the phones to be dumped
        Operator phoneLocationQuery = dag.addOperator("phoneLocationQuery", HttpInputModule.class);
        phoneLocationQuery.setProperty(HttpInputModule.P_RESOURCE_URL, "http://" + ajaxServerAddr + "/channel/mobile/phoneLocationQuery");
-       dag.addStream("mobilequery", phoneLocationQuery.getOutput(HttpInputModule.OUTPUT), indexMap.getInput(InvertIndexMap.IPORT_QUERY));
+       dag.addStream("mobilequery", phoneLocationQuery.getOutput(HttpInputModule.OUTPUT), indexMap.getInput(InvertIndexMap.IPORT_QUERY)).setInline(true);
     }
 
     dag.addStream("consoledata", indexMap.getOutput(InvertIndexMap.OPORT_CONSOLE), phoneconsole.getInput(HttpOutputModule.INPUT)).setInline(true);
