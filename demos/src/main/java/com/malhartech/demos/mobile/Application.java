@@ -65,7 +65,6 @@ public class Application implements ApplicationFactory {
   {
     // output to HTTP server when specified in environment setting
     String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
-    LOG.debug(String.format("\n******************* Server address was %s", serverAddr));
     if (serverAddr != null) {
       return b.addOperator(operatorName, HttpOutputModule.class)
               .setProperty(HttpOutputModule.P_RESOURCE_URL, "http://" + serverAddr + "/channel/mobile/" + operatorName);
@@ -120,7 +119,7 @@ public class Application implements ApplicationFactory {
     Operator oper = b.addOperator(name, LoadIncrementer.class);
     oper.setProperty(LoadIncrementer.KEY_KEYS, "x,y");
     oper.setProperty(LoadIncrementer.KEY_DELTA, "1");
-    oper.setProperty(LoadIncrementer.KEY_LIMITS, "0,1000;0,1000");
+    oper.setProperty(LoadIncrementer.KEY_LIMITS, "0,500;0,500");
     return oper;
   }
 

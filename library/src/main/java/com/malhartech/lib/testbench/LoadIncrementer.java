@@ -77,7 +77,7 @@ public class LoadIncrementer extends AbstractModule
   float delta = delta_default_value;
 
   int tuple_count = 0;
-  
+
   private transient boolean count_connected = false;
 
 /**
@@ -307,7 +307,7 @@ public class LoadIncrementer extends AbstractModule
               if (dimension.equals(d.str)) {
                 // Compute the new location
                 cur_slot = ((Double)d.value).intValue();
-                Double nval = getNextNumber(((Double)d.value).doubleValue(), (delta / 100) * (o.getValue().intValue() % 100), low_limits[j], high_limits[j]);
+                Double nval = getNextNumber(((Double)d.value).doubleValue(), delta * (o.getValue().intValue() % 100), low_limits[j], high_limits[j]);
                 new_slot = nval.intValue();
                 alist.get(j).value = nval;
                 break;

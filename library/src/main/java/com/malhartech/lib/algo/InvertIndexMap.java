@@ -47,6 +47,7 @@ public class InvertIndexMap extends AbstractModule
   HashMap<String, String> secondary_index = null;
   HashMap<String, String> phone_register = null;
   HashMap<String, String> location_register = null;
+  HashMap<String, Object> window_change = null;
 
   public static final String CHANNEL_PHONE = "phone";
   public static final String CHANNEL_LOCATION = "location";
@@ -98,6 +99,7 @@ public class InvertIndexMap extends AbstractModule
           index.put(e.getValue(), values);
         }
         values.put(e.getKey(), null);
+        window_change.put(e.getKey(), null);
 
         // Now remove the key from old index value
         String cur_key = secondary_index.get(e.getKey());
@@ -106,6 +108,8 @@ public class InvertIndexMap extends AbstractModule
           if (values != null) { // must be true
             values.remove(e.getKey());
           }
+          window_change.put(cur_key, null);
+          window_change.put(e.getValue(), null);
           if (values.isEmpty()) { // clean up memory if need be
             index.remove(cur_key);
           }
@@ -233,7 +237,7 @@ public class InvertIndexMap extends AbstractModule
     secondary_index = new HashMap<String, String>(5);
     phone_register = new HashMap<String, String>(5);
     location_register = new HashMap<String, String>(5);
-
+    window_change = new HashMap<String, Object>();
 
     location_register.put("loc1", "234,487");
     phone_register.put("blah", "9005500");
@@ -248,14 +252,20 @@ public class InvertIndexMap extends AbstractModule
   {
     if (console_connected) {
       for (Map.Entry<String, String> e: phone_register.entrySet()) {
-        emitConsoleTuple(e.getKey());
+        //if (window_change.containsKey(e.getKey())) {
+          emitConsoleTuple(e.getKey());
+        //}
       }
       for (Map.Entry<String, String> e: location_register.entrySet()) {
-        emitConsoleTuple(e.getKey());
+        //if (window_change.containsKey(e.getKey())) {
+          emitConsoleTuple(e.getKey());
+        //}
       }
     }
     else if (index_connected) {
       // Todo, send out entire index
     }
+    LOG.debug(String.format("Window had %d changes", window_change.size()));
+    window_change.clear();
   }
 }
