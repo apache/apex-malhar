@@ -141,29 +141,35 @@ public class InvertIndexMap extends AbstractModule
           if (phonechannel) {
             if (location_register.get(qid) != null) { // check if user is moving from location to phone
               location_register.remove(qid);
+              LOG.debug(String.format("Removing query id \"%s\" as a location", qid));
             }
             if (phone.isEmpty()) { // simply remove the channel
               if (phone_register.get(qid) != null) {
                 phone_register.remove(qid);
+                LOG.debug(String.format("Removing query id \"%s\"", qid));
               }
             }
             else { // register the phone channel
               phone_register.put(qid, phone);
               emitConsoleTuple(qid);
+              LOG.debug(String.format("Registered query id \"%s\", with phonenum \"%s\"", qid, phone));
             }
           }
           else if (locationchannel) {
             if (phone_register.get(qid) != null) { // check if user is moving from phone to location
               phone_register.remove(qid);
+              LOG.debug(String.format("Removing query id \"%s\" as a phone", qid));
             }
             if (location.isEmpty()) { // simply remove the channel
               if (location_register.get(qid) != null) {
                 location_register.remove(qid);
+                LOG.debug(String.format("Removing query id \"%s\"", qid));
               }
             }
             else {
               location_register.put(qid, location);
               emitConsoleTuple(qid);
+              LOG.debug(String.format("Registered query id \"%s\", with location \"%s\"", qid, location));
             }
           }
         }
@@ -239,8 +245,8 @@ public class InvertIndexMap extends AbstractModule
     location_register = new HashMap<String, String>(5);
     window_change = new HashMap<String, Object>();
 
-    location_register.put("loc1", "234,487");
-    phone_register.put("blah", "9005500");
+    location_register.put("loc1", "34,87");
+    phone_register.put("blah", "9905500");
     phone_register.put("id1002", "9999998");
   }
 
