@@ -106,6 +106,16 @@ public class TestLoadRandomGenerator {
                     e.getMessage().contains("has to be > 0"));
         }
 
+        conf.set(LoadRandomGenerator.KEY_TUPLES_BLAST, "100");
+        conf.set(LoadRandomGenerator.KEY_SLEEP_TIME, "-1");
+        try {
+            node.myValidation(conf);
+            Assert.fail("validation error  " + LoadRandomGenerator.KEY_SLEEP_TIME);
+        } catch (IllegalArgumentException e) {
+            Assert.assertTrue("validate " + LoadRandomGenerator.KEY_SLEEP_TIME,
+                    e.getMessage().contains("has to be > 0"));
+        }
+
         LOG.debug("Testing Node Validation: end");
     }
 
@@ -142,6 +152,7 @@ public class TestLoadRandomGenerator {
         conf.set(LoadRandomGenerator.KEY_MAX_VALUE, "1000");
         conf.setInt(LoadRandomGenerator.KEY_TUPLES_BLAST, 50000000);
         conf.set(LoadRandomGenerator.KEY_STRING_SCHEMA, isstring ? "true" : "false");
+        conf.setInt(LoadRandomGenerator.KEY_SLEEP_TIME, 1);
 
         conf.setInt("SpinMillis", 2);
         conf.setInt("BufferCapacity", 1024 * 1024);

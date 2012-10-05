@@ -54,9 +54,14 @@ public class LoadRandomGenerator extends AbstractInputModule
   public static final String OPORT_DATA = "data";
   private static Logger LOG = LoggerFactory.getLogger(LoadRandomGenerator.class);
   final int tuples_blast_default_value = 1000;
+  final int sleep_time_default_value = 100;
+  final int min_value_default_value = 0;
+  final int max_value_default_value = 100;
+
   protected int tuples_blast = tuples_blast_default_value;
-  int min_value = 0;
-  int max_value = 100;
+  protected int sleep_time = sleep_time_default_value;
+  int min_value = min_value_default_value;
+  int max_value = max_value_default_value;
   boolean isstringschema = false;
   private final Random random = new Random();
 
@@ -78,6 +83,11 @@ public class LoadRandomGenerator extends AbstractInputModule
    * If specified as "true" a String class is sent, else Integer is sent
    */
   public static final String KEY_STRING_SCHEMA = "string_schema";
+
+  /**
+   * If specified as "true" a String class is sent, else Integer is sent
+   */
+  public static final String KEY_SLEEP_TIME = "sleep_time";
 
   /**
    *
@@ -118,10 +128,20 @@ public class LoadRandomGenerator extends AbstractInputModule
     if (tuples_blast <= 0) {
       ret = false;
       throw new IllegalArgumentException(
-              String.format("tuples_per_sec (%d) has to be > 0", tuples_blast));
+              String.format("tuples_blast (%d) has to be > 0", tuples_blast));
     }
     else {
       LOG.debug(String.format("Using %d tuples per second", tuples_blast));
+    }
+
+    sleep_time = config.getInt(KEY_SLEEP_TIME, sleep_time_default_value);
+    if (sleep_time <= 0) {
+      ret = false;
+      throw new IllegalArgumentException(
+              String.format("sleep time  (%d) has to be > 0", sleep_time));
+    }
+    else {
+      LOG.debug(String.format("Using %d as sleep time", sleep_time));
     }
 
     return ret;
@@ -141,8 +161,9 @@ public class LoadRandomGenerator extends AbstractInputModule
 
     isstringschema = config.getBoolean(KEY_STRING_SCHEMA, false);
     tuples_blast = config.getInt(KEY_TUPLES_BLAST, tuples_blast_default_value);
-    min_value = config.getInt(KEY_MIN_VALUE, 0);
-    max_value = config.getInt(KEY_MAX_VALUE, 100);
+    min_value = config.getInt(KEY_MIN_VALUE, min_value_default_value);
+    max_value = config.getInt(KEY_MAX_VALUE, max_value_default_value);
+    sleep_time = config.getInt(KEY_SLEEP_TIME, sleep_time_default_value);
   }
 
   /**
@@ -170,7 +191,7 @@ public class LoadRandomGenerator extends AbstractInputModule
     // the sleep interval should be dynamically determined:
     // desired update interval / number of phone numbers
     try {
-      Thread.sleep(100);
+      Thread.sleep(sleep_time);
     } catch (InterruptedException e) {
 
     }

@@ -107,7 +107,7 @@ public class InvertIndexMap extends AbstractModule
           index.put(e.getValue(), values);
         }
         values.put(e.getKey(), null);
-        window_change.put(e.getKey(), null);
+        //window_change.put(e.getKey(), null);
 
         // Now remove the key from old index value
         String cur_key = secondary_index.get(e.getKey());
@@ -116,8 +116,8 @@ public class InvertIndexMap extends AbstractModule
           if (values != null) { // must be true
             values.remove(e.getKey());
           }
-          window_change.put(cur_key, null);
-          window_change.put(e.getValue(), null);
+          //window_change.put(cur_key, null);
+          //window_change.put(e.getValue(), null);
           if (values.isEmpty()) { // clean up memory if need be
             index.remove(cur_key);
           }
@@ -314,7 +314,7 @@ public class InvertIndexMap extends AbstractModule
     else if (index_connected) {
       // Todo, send out entire index
     }
-    LOG.debug(String.format("Window had %d changes", window_change.size()));
-    window_change.clear();
+    //LOG.debug(String.format("Window had %d changes", window_change.size()));
+    //window_change.clear();
   }
 }
