@@ -4,6 +4,16 @@
  */
 package com.malhartech.lib.algo;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
@@ -11,11 +21,6 @@ import com.malhartech.dag.AbstractModule;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.ModuleConfiguration;
 import com.malhartech.dag.Sink;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -37,11 +42,14 @@ import org.slf4j.LoggerFactory;
 })
 public class InvertIndexMap extends AbstractModule
 {
+  private static Logger LOG = LoggerFactory.getLogger(InvertIndexMap.class);
+
   public static final String IPORT_DATA = "data";
   public static final String IPORT_QUERY = "query";
   public static final String OPORT_INDEX = "index";
   public static final String OPORT_CONSOLE = "index";
-  private static Logger LOG = LoggerFactory.getLogger(InvertIndexMap.class);
+
+  public static final String KEY_SEED_QUERYS_JSON = "seedQueries";
 
   HashMap<String, HashMap<String, Object>> index = null;
   HashMap<String, String> secondary_index = null;
@@ -230,6 +238,36 @@ public class InvertIndexMap extends AbstractModule
     return true;
   }
 
+  private void parseSeedQueries(String s) {
+    try {
+      JSONObject queries = new JSONObject(s);
+      if (queries.has(CHANNEL_PHONE)) {
+        JSONObject json = queries.getJSONObject(CHANNEL_PHONE);
+        Iterator<?> it = json.keys();
+        while (it.hasNext()) {
+          String key = (String)it.next();
+          String val = json.getString(key);
+          if (val != null) {
+            phone_register.put(key, val);
+          }
+        }
+      }
+      if (queries.has(CHANNEL_LOCATION)) {
+        JSONObject json = queries.getJSONObject(CHANNEL_LOCATION);
+        Iterator<?> it = json.keys();
+        while (it.hasNext()) {
+          String key = (String)it.next();
+          String val = json.getString(key);
+          if (val != null) {
+            location_register.put(key, val);
+          }
+        }
+      }
+    } catch (JSONException e) {
+      throw new FailedOperationException(e);
+    }
+  }
+
   /**
    *
    * @param config
@@ -246,9 +284,13 @@ public class InvertIndexMap extends AbstractModule
     location_register = new HashMap<String, String>(5);
     window_change = new HashMap<String, Object>();
 
-    location_register.put("loc1", "34,87");
-    phone_register.put("blah", "9905500");
-    phone_register.put("id1002", "9999998");
+    String seedQueries = config.get(KEY_SEED_QUERYS_JSON);
+    if (seedQueries != null) {
+      parseSeedQueries(seedQueries);
+    }
+    //location_register.put("loc1", "34,87");
+    //phone_register.put("blah", "9905500");
+    //phone_register.put("id1002", "9999998");
   }
 
   /**

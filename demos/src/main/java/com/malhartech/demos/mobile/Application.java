@@ -4,7 +4,11 @@
  */
 package com.malhartech.demos.mobile;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.hadoop.conf.Configuration;
+import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -153,6 +157,24 @@ public class Application implements ApplicationFactory {
        Operator phoneLocationQuery = dag.addOperator("phoneLocationQuery", HttpInputModule.class);
        phoneLocationQuery.setProperty(HttpInputModule.P_RESOURCE_URL, "http://" + ajaxServerAddr + "/channel/mobile/phoneLocationQuery");
        dag.addStream("mobilequery", phoneLocationQuery.getOutput(HttpInputModule.OUTPUT), indexMap.getInput(InvertIndexMap.IPORT_QUERY)).setInline(true);
+    } else {
+      try {
+        JSONObject seedQueries = new JSONObject();
+        Map<String, String> phoneQueries = new HashMap<String, String>();
+        phoneQueries.put("idBlah", "9000003");
+        phoneQueries.put("id1002", "9999998");
+        seedQueries.put(InvertIndexMap.CHANNEL_PHONE, phoneQueries);
+
+        Map<String, String> locQueries = new HashMap<String, String>();
+        locQueries.put("loc1", "34,87");
+        seedQueries.put(InvertIndexMap.CHANNEL_LOCATION, locQueries);
+        //location_register.put("loc1", "34,87");
+        //phone_register.put("blah", "9905500");
+        //phone_register.put("id1002", "9999998");
+        indexMap.setProperty(InvertIndexMap.KEY_SEED_QUERYS_JSON, seedQueries.toString());
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
     }
 
     dag.addStream("consoledata", indexMap.getOutput(InvertIndexMap.OPORT_CONSOLE), phoneconsole.getInput(HttpOutputModule.INPUT)).setInline(true);
