@@ -231,10 +231,10 @@ public class LoadIncrementer extends AbstractModule
       sign = sign * -1.0;
       ret += sign * increment;
       if (ret < low) {
-        ret = low + increment / 2;
+        ret = (low+high)/2;
       }
       if (ret > high) {
-        ret = high - increment / 2;
+        ret = (low+high)/2;
       }
     }
     return ret;
