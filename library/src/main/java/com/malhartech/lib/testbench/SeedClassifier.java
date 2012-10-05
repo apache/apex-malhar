@@ -6,14 +6,10 @@ package com.malhartech.lib.testbench;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractInputModule;
 import com.malhartech.dag.AbstractModule;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.ModuleConfiguration;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,8 +24,8 @@ import org.slf4j.LoggerFactory;
  * The seed is created from the values of properties <b>seed_start</b>, and <b>seed_end</b>
  * <br>
  * <b>Benchmarks</b>:<br>
- * String: Benchmarked at over 5.7 million tuples/second in local/in-line mode<br>
- * Integer: Benchmarked at over 4.0 million tuples/second in local/in-line mode<br>
+ * String: Benchmarked at over 5.9 million tuples/second in local/in-line mode<br>
+ * Integer: Benchmarked at over 4.4 million tuples/second in local/in-line mode<br>
  * <br>
  * <b>Default schema</b>:<br>
  * Schema for port <b>data</b>: The default schema is HashMap<String, ArrayList<valueData>>, where valueData is class{String, Integer}<br>
@@ -44,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * <b>seed_start</b>: An integer for the seed to start from<br>
  * <b>seed_end</b>: An integer for the seed to end with<br>
  * <br>string_schema</b>: If set to true, operates in string schema mode<br>
- * <br>key</b>: Classifier keys to be inserted randomly. Format is "key1,key1start, key1end; key2, key2start, key2end;..."
+ * <br>key</b>: Classifier keys to be inserted in order for each incoming tuple. Format is "key1,key1start, key1end; key2, key2start, key2end;..."
  * <br>
  * Compile time checks are:<br>
  * <b>seed_start</b>Has to be an integer<br>
@@ -79,7 +75,7 @@ public class SeedClassifier extends AbstractModule {
 
     int s_start = 0;
     int s_end = 99;
-    private final Random random = new Random();
+    int seed = 0;
 
   /**
    * Start integer value for seeding<p>
@@ -182,6 +178,7 @@ public class SeedClassifier extends AbstractModule {
       s_start = istart;
       s_end = iend;
     }
+    seed = s_start;
     LOG.debug(String.format("Set up for seed_start(%d), seed_end (%d), indata1_classifier(%s), and indata2_classifier(%s)", s_start, s_end, indata1_str, indata2_str));
   }
 
@@ -200,8 +197,9 @@ public class SeedClassifier extends AbstractModule {
       ikey = indata2_str;
     }
 
+
     if (isstringschema) {
-      String tuple = Integer.toString(s_start + random.nextInt(s_end-s_start+1));
+      String tuple = Integer.toString(seed);
       tuple += ":";
       tuple += ikey;
       tuple += ",";
@@ -212,9 +210,12 @@ public class SeedClassifier extends AbstractModule {
       HashMap<String, Object> tuple = new HashMap<String, Object>(1);
       HashMap<String, Object> val = new HashMap<String, Object>(1);
       val.put(ikey, payload);
-      int seed = s_start + random.nextInt(s_end - s_start + 1);
       tuple.put(Integer.toString(seed), val);
       emit(OPORT_OUT_DATA, tuple);
+    }
+    seed++;
+    if (seed == s_end) {
+      seed = s_start;
     }
   }
 }

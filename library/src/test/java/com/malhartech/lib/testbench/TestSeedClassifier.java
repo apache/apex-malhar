@@ -116,8 +116,8 @@ public class TestSeedClassifier {
      */
     @Test
     public void testNodeProcessing() throws Exception {
-      testSchemaNodeProcessing(true); // 5.7 million/sec
-      testSchemaNodeProcessing(false); // 4.0 million/sec
+      testSchemaNodeProcessing(true); // 5.9 million/sec
+      testSchemaNodeProcessing(false); // 4.4 million/sec
     }
 
     /**
