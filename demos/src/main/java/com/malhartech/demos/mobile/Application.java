@@ -45,8 +45,7 @@ public class Application implements ApplicationFactory {
 
   public void setUnitTestMode() {
      generatorMaxWindowsCount = 20;
-     this.phoneRangeStart = 9000000;
-     this.phoneRangeEnd = 9000010;
+     this.phoneRange = Ranges.closed(9999900, 9999999);
   }
 
   public void setLocalMode() {
@@ -126,7 +125,7 @@ public class Application implements ApplicationFactory {
   public Operator getIncrementer(String name, DAG b) {
     Operator oper = b.addOperator(name, LoadIncrementer.class);
     oper.setProperty(LoadIncrementer.KEY_KEYS, "x,y");
-    oper.setProperty(LoadIncrementer.KEY_DELTA, "1");
+    oper.setProperty(LoadIncrementer.KEY_DELTA, "2");
     oper.setProperty(LoadIncrementer.KEY_LIMITS, "0,500;0,500");
     return oper;
   }
@@ -161,8 +160,8 @@ public class Application implements ApplicationFactory {
       try {
         JSONObject seedQueries = new JSONObject();
         Map<String, String> phoneQueries = new HashMap<String, String>();
-        phoneQueries.put("idBlah", "9000003");
-        phoneQueries.put("id1002", "9999998");
+        phoneQueries.put("idBlah", "9999988");
+        phoneQueries.put("id102", "9999998");
         seedQueries.put(InvertIndexMap.CHANNEL_PHONE, phoneQueries);
 
         Map<String, String> locQueries = new HashMap<String, String>();
