@@ -7,7 +7,6 @@ package com.malhartech.lib.testbench;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.dag.AbstractInputModule;
-import com.malhartech.dag.AbstractModule;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.ModuleConfiguration;
 import java.util.ArrayList;
@@ -339,6 +338,6 @@ public class LoadSeedGenerator extends AbstractInputModule
       }
     }
     doneseeding = true;
-    //deactivate();
+    deactivate();
   }
 }

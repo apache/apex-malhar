@@ -11,10 +11,8 @@ import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.ModuleConfiguration;
 import com.malhartech.dag.Sink;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,8 +45,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author amol
  */
-@ModuleAnnotation(
-        ports = {
+@ModuleAnnotation(ports = {
   @PortAnnotation(name = LoadIncrementer.IPORT_SEED, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = LoadIncrementer.IPORT_INCREMENT, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = LoadIncrementer.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT),
@@ -60,40 +57,31 @@ public class LoadIncrementer extends AbstractModule
   public static final String IPORT_INCREMENT = "increment";
   public static final String OPORT_DATA = "data";
   public static final String OPORT_COUNT = "count";
-
   public static final String OPORT_COUNT_TUPLE_COUNT = "count";
-
   private static Logger LOG = LoggerFactory.getLogger(LoadIncrementer.class);
-
   HashMap<String, Object> vmap = new HashMap<String, Object>();
   String[] keys = null;
   double[] low_limits = null;
   double[] high_limits = null;
   double sign = -1.0;
-
   final double low_limit_default_val = 0;
   final double high_limit_default_val = 100;
   float delta_default_value = 1;
   float delta = delta_default_value;
-
   int tuple_count = 0;
-
   private transient boolean count_connected = false;
-
-/**
+  /**
    * keys are comma separated list of keys for seeding. They are taken in order on seed port (i.e. keys need not be sent)<p>
    * On the increment port changes are sent per key.<br>
    * If not provided the keys are ignored (i.e. behaves like single value)<br>
    *
    */
   public static final String KEY_KEYS = "keys";
-
-/**
+  /**
    * delta defines what constitutes a change. Default value is 1<p>
    * <br>
    */
   public static final String KEY_DELTA = "delta";
-
   public static final String KEY_LIMITS = "limits";
 
   // Data Recieved on seed port
@@ -108,7 +96,6 @@ public class LoadIncrementer extends AbstractModule
       value = val;
     }
   }
-
 
   /**
    *
@@ -170,8 +157,8 @@ public class LoadIncrementer extends AbstractModule
         Double low_limit = Double.parseDouble(klimit[0]);
         Double high_limit = Double.parseDouble(klimit[1]);
         if (low_limit >= high_limit) {
-            ret = false;
-            throw new IllegalArgumentException(String.format("Property \"limits\" low value (%s) >= high_value(%s)", klimit[0], klimit[1]));
+          ret = false;
+          throw new IllegalArgumentException(String.format("Property \"limits\" low value (%s) >= high_value(%s)", klimit[0], klimit[1]));
         }
       }
     }
@@ -219,9 +206,10 @@ public class LoadIncrementer extends AbstractModule
     for (int i = 0; i < kstr.length; i++) {
       LOG.debug(String.format("Key %s has limits %f,%f", keys[i], low_limits[i], high_limits[i]));
     }
- }
+  }
 
-  public double getNextNumber(double current, double increment, double low, double high ) {
+  public double getNextNumber(double current, double increment, double low, double high)
+  {
     double ret = current;
     double range = high - low;
     if (increment > range) { // bad data, do nothing
@@ -231,10 +219,10 @@ public class LoadIncrementer extends AbstractModule
       sign = sign * -1.0;
       ret += sign * increment;
       if (ret < low) {
-        ret = (low+high)/2;
+        ret = (low + high) / 2;
       }
       if (ret > high) {
-        ret = (low+high)/2;
+        ret = (low + high) / 2;
       }
     }
     return ret;
@@ -245,20 +233,20 @@ public class LoadIncrementer extends AbstractModule
    * @param key tuple key in HashMap<key, value>
    * @param list list of data items
    */
-  public void emitDataTuple(String key, ArrayList list) {
+  public void emitDataTuple(String key, ArrayList list)
+  {
     HashMap<String, String> tuple = new HashMap<String, String>(1);
     String val = new String();
-    for (valueData d: (ArrayList<valueData>) list) {
+    for (valueData d: (ArrayList<valueData>)list) {
       if (!val.isEmpty()) {
         val += ",";
       }
-      Integer ival = ((Double) d.value).intValue();
+      Integer ival = ((Double)d.value).intValue();
       val += ival.toString();
     }
     tuple.put(key, val);
     emit(OPORT_DATA, tuple);
   }
-
 
   /**
    * Process each tuple
@@ -276,11 +264,11 @@ public class LoadIncrementer extends AbstractModule
       // Payload is     HashMap<String, Object> ret = new HashMap<String, Object>();, where Object is ArrayList of Integers
       // Allow Seed to override
       for (Map.Entry<String, ArrayList> e: ((HashMap<String, ArrayList>)payload).entrySet()) {
-        if (keys.length != ((ArrayList) e.getValue()).size()) { // bad seed
+        if (keys.length != ((ArrayList)e.getValue()).size()) { // bad seed
           // emit error tuple here
         }
         else {
-          ArrayList<Integer> ilist = (ArrayList<Integer>) e.getValue();
+          ArrayList<Integer> ilist = (ArrayList<Integer>)e.getValue();
           ArrayList alist = new ArrayList(ilist.size());
           int j = 0;
           for (Integer s: ilist) {
@@ -307,7 +295,7 @@ public class LoadIncrementer extends AbstractModule
               if (dimension.equals(d.str)) {
                 // Compute the new location
                 cur_slot = ((Double)d.value).intValue();
-                Double nval = getNextNumber(((Double)d.value).doubleValue(), delta/100 * (o.getValue().intValue() % 100), low_limits[j], high_limits[j]);
+                Double nval = getNextNumber(((Double)d.value).doubleValue(), delta / 100 * (o.getValue().intValue() % 100), low_limits[j], high_limits[j]);
                 new_slot = nval.intValue();
                 alist.get(j).value = nval;
                 break;
