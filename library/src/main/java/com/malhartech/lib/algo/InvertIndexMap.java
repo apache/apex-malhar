@@ -147,7 +147,7 @@ public class InvertIndexMap extends AbstractModule
 
         if (hasqid) { // without qid, ignore
           if (phonechannel) {
-            if (location_register.get(qid) != null) { // check if user is moving from location to phone
+            if (location_register.get(qid) != null) { // check if user is moving from a location query to a phone query
               location_register.remove(qid);
               LOG.debug(String.format("Removing query id \"%s\" as a location", qid));
             }
@@ -164,7 +164,7 @@ public class InvertIndexMap extends AbstractModule
             }
           }
           else if (locationchannel) {
-            if (phone_register.get(qid) != null) { // check if user is moving from phone to location
+            if (phone_register.get(qid) != null) { // check if user is moving from a phone query to a location query
               phone_register.remove(qid);
               LOG.debug(String.format("Removing query id \"%s\" as a phone", qid));
             }
