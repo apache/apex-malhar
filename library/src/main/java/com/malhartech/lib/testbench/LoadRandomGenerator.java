@@ -53,12 +53,12 @@ public class LoadRandomGenerator extends AbstractInputModule
 {
   public static final String OPORT_DATA = "data";
   private static Logger LOG = LoggerFactory.getLogger(LoadRandomGenerator.class);
-  final int tuples_blast_default_value = 10000;
+  final int tuples_blast_default_value = 1000;
   protected int tuples_blast = tuples_blast_default_value;
   int min_value = 0;
   int max_value = 100;
   boolean isstringschema = false;
-  private Random random = new Random();
+  private final Random random = new Random();
 
   /**
    * An integer specifying min_value.
@@ -165,6 +165,14 @@ public class LoadRandomGenerator extends AbstractInputModule
         emit(OPORT_DATA, Integer.toString(rval));
       }
       i++;
+    }
+    // we want to not overwhelm the downstream nodes
+    // the sleep interval should be dynamically determined:
+    // desired update interval / number of phone numbers
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+
     }
   }
 }
