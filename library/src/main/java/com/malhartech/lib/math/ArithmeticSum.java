@@ -165,9 +165,11 @@ public class ArithmeticSum extends AbstractModule
       int location = ((Integer) e.getValue()).intValue();
       if (sum_connected) {
         stuples.put(e.getKey(), new Double(sums[location]));
+        sums[location] = 0.0;
       }
       if (count_connected) {
         ctuples.put(e.getKey(), new Integer(counts[location]));
+        counts[location] = 0;
       }
     }
 
