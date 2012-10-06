@@ -7,6 +7,7 @@ package com.malhartech.lib.math;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.dag.AbstractModule;
+import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.ModuleConfiguration;
 import com.malhartech.dag.Sink;
 import java.util.ArrayList;
@@ -40,11 +41,16 @@ public class ArithmeticSum extends AbstractModule
   public static final String OPORT_COUNT = "count";
   private static Logger LOG = LoggerFactory.getLogger(ArithmeticSum.class);
   HashMap<String, Object> sum = new HashMap<String, Object>();
-
   boolean count_connected = false;
   boolean sum_connected = false;
 
-   @Override
+  int num_unique_keys_default_value = 1000;
+  int num_unique_keys = num_unique_keys_default_value;
+  int newkey_location = 0;
+  double [] sums = null;
+  int [] counts = null;
+
+  @Override
   public void connected(String id, Sink dagpart)
   {
     if (id.equals(OPORT_COUNT)) {
@@ -55,9 +61,6 @@ public class ArithmeticSum extends AbstractModule
     }
   }
 
-
-
-
   /**
    * Process each tuple
    *
@@ -66,37 +69,40 @@ public class ArithmeticSum extends AbstractModule
   @Override
   public void process(Object payload)
   {
-      for (Map.Entry<String, Number> e: ((HashMap<String, Number>)payload).entrySet()) {
-        Object hval = sum.get(e.getKey());
-        if (sum_connected && !count_connected) {
-          if (hval != null) {
-            hval = new Double(((Number) hval).doubleValue() + e.getValue().doubleValue());
+    // Change this to do the following
+    // Reserve 10,000 "int" array vals[...]
+    // Use HashMap for the location of the key
+    // Then on simply do vals[map.get(key).IntValue()]++;
+    //
+
+    for (Map.Entry<String, Number> e: ((HashMap<String, Number>) payload).entrySet()) {
+      Integer sloc = (Integer) sum.get(e.getKey());
+      int iloc = 0;
+      if (sloc == null) {
+        iloc = newkey_location;
+        newkey_location++;
+        if (newkey_location > num_unique_keys) {
+          int newnum = 2 * num_unique_keys;
+          double [] newsums = new double[newnum];
+          int [] newcounts = new int[newnum];
+              // System.arraycopy(sum, spinMillis, this, spinMillis, spinMillis);
+          for (int i = 0; i < num_unique_keys; i++) {
+            newsums[i] = sums[i];
+            newcounts[i] = counts[i];
           }
-          else {
-            hval = new Double(e.getValue().doubleValue());
+          for (int i = num_unique_keys; i < newnum; i++) {
+            newsums[i] = 0.0;
+            newcounts[i] = 0;
           }
         }
-        else if (sum_connected && count_connected) {
-          if (hval != null) {
-            ((ArrayList) hval).set(0, new Double(((Number) ((ArrayList) hval).get(0)).doubleValue() + e.getValue().doubleValue()));
-            ((ArrayList) hval).set(1, (Integer) ((ArrayList) hval).get(1) + 1);
-          }
-          else {
-            hval = new ArrayList();
-            ((ArrayList) hval).add(new Double(e.getValue().doubleValue()));
-            ((ArrayList) hval).add(new Integer(1));
-          }
-        }
-        else if (count_connected) {
-          if (hval != null) {
-            hval = ((Integer) hval) + 1;
-          }
-          else {
-            hval = new Integer(1);
-          }
-        } // If neither of the above are true, emit error
-        sum.put(e.getKey(), hval);
+        sum.put(e.getKey(), new Integer(iloc));
       }
+      else {
+        iloc = sloc.intValue();
+      }
+      sums[iloc] += e.getValue().doubleValue();
+      counts[iloc]++;
+    }
   }
 
   public boolean myValidation(ModuleConfiguration config)
@@ -104,7 +110,39 @@ public class ArithmeticSum extends AbstractModule
     return true;
   }
 
-    /**
+
+  /**
+   * Sets up all the config parameters. Assumes checking is done and has passed
+   *
+   * @param config
+   */
+  @Override
+  public void setup(ModuleConfiguration config) throws FailedOperationException
+  {
+    if (!myValidation(config)) {
+      throw new IllegalArgumentException("Did not pass validation");
+    }
+
+    // Initialize sums and counts to 0
+    num_unique_keys = num_unique_keys_default_value;
+    sums = new double[num_unique_keys];
+    counts = new int[num_unique_keys];
+    newkey_location = 0;
+    // System.arraycopy(sum, spinMillis, this, spinMillis, spinMillis);
+    for (int i = 0; i < num_unique_keys; i++) {
+      sums[i] = 0.0;
+      counts[i] = 0;
+    }
+  }
+
+  @Override
+  public void beginWindow()
+  {
+    sum.clear();
+    newkey_location = 0;
+  }
+
+  /**
    * Node only works in windowed mode. Emits all data upon end of window tuple
    */
   @Override
@@ -124,15 +162,12 @@ public class ArithmeticSum extends AbstractModule
     }
 
     for (Map.Entry<String, Object> e: sum.entrySet()) {
-      if (sum_connected && !count_connected) {
-        stuples.put(e.getKey(), e.getValue());
+      int location = ((Integer) e.getValue()).intValue();
+      if (sum_connected) {
+        stuples.put(e.getKey(), new Double(sums[location]));
       }
-      else if (sum_connected && count_connected) {
-        stuples.put(e.getKey(), ((ArrayList) e.getValue()).get(0));
-        ctuples.put(e.getKey(), ((ArrayList) e.getValue()).get(1));
-      }
-      else if (count_connected) {
-        ctuples.put(e.getKey(), e.getValue());
+      if (count_connected) {
+        ctuples.put(e.getKey(), new Integer(counts[location]));
       }
     }
 
@@ -142,6 +177,5 @@ public class ArithmeticSum extends AbstractModule
     if ((ctuples != null) && !ctuples.isEmpty()) {
       emit(OPORT_COUNT, ctuples);
     }
-    sum.clear();
   }
 }

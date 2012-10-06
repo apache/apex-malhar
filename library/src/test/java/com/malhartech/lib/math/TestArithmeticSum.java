@@ -73,6 +73,9 @@ public class TestArithmeticSum {
     if (count) {
       node.connect(ArithmeticSum.OPORT_COUNT, countSink);
     }
+    ModuleConfiguration conf = new ModuleConfiguration("testsumnode", new HashMap<String, String>());
+    node.setup(conf);
+    node.beginWindow(); //
 
     HashMap<String, Double> input = new HashMap<String, Double>();
 
