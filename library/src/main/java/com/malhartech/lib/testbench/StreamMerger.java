@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Takes in two streams with identical schema and simply passes on to the output port in order<br>
+ * Merges two streams with identical schema and emits the tuples to the output port in order<br>
  * The aim is to simply merge two streams of same schema type<p>
  * <br>
  * This module may not be needed once dynamic merge is supported by Stram

@@ -35,100 +35,114 @@ import org.slf4j.LoggerFactory;
  * envinronment<br>
  * <br>
  */
-public class BenchmarkLoadGenerator {
+public class BenchmarkLoadGenerator
+{
+  private static Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
 
-    private static Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
+  class TestSink implements Sink
+  {
+    HashMap<String, Integer> collectedTuples = new HashMap<String, Integer>();
+    //DefaultSerDe serde = new DefaultSerDe();
+    int count = 0;
+    boolean dohash = false;
 
-    class TestSink implements Sink {
-        HashMap<String, Integer> collectedTuples = new HashMap<String, Integer>();
-
-        //DefaultSerDe serde = new DefaultSerDe();
-        int count = 0;
-        boolean dohash = false;
-        /**
-         *
-         * @param payload
-         */
-        @Override
-      public void process(Object payload)
-      {
-        count++; // Behchmark counts all tuples as we are measuring throughput
-        if (dohash) {
-          if (payload instanceof Tuple) {
-            // LOG.debug(payload.toString());
-          }
-          else { // ignore the payload, just count it
-            count++;
-          }
+    /**
+     *
+     * @param payload
+     */
+    @Override
+    public void process(Object payload)
+    {
+      count++; // Behchmark counts all tuples as we are measuring throughput
+      if (dohash) {
+        if (payload instanceof Tuple) {
+          // LOG.debug(payload.toString());
+        }
+        else { // ignore the payload, just count it
+          count++;
         }
       }
     }
+  }
+
+  /**
+   * Benchmark the maximum payload flow for String
+   * The sink would simply ignore the payload as we are testing throughput
+   */
+  @Test
+  @Category(com.malhartech.PerformanceTestCategory.class)
+  public void testNodeProcessing() throws Exception
+  {
+
+    final LoadGenerator node = new LoadGenerator();
+    final ManualScheduledExecutorService mses = new ManualScheduledExecutorService(1);
+    final WindowGenerator wingen = new WindowGenerator(mses);
+
+    Configuration config = new Configuration();
+    config.setLong(WindowGenerator.FIRST_WINDOW_MILLIS, 0);
+    config.setInt(WindowGenerator.WINDOW_WIDTH_MILLIS, 1);
+    wingen.setup(config);
+
+    Sink input = node.connect(Component.INPUT, wingen);
+    wingen.connect("mytestnode", input);
+
+    TestSink lgenSink = new TestSink();
+    node.connect(LoadGenerator.OPORT_DATA, lgenSink);
+
+    ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
+    lgenSink.dohash = false;
+
+    int numchars = 1024;
+    char[] chararray = new char[numchars + 1];
+    for (int i = 0; i < numchars; i++) {
+      chararray[i] = 'a';
+    }
+    chararray[numchars] = '\0';
+    String key = new String(chararray);
+    conf.set(LoadGenerator.KEY_KEYS, key);
+    conf.set(LoadGenerator.KEY_STRING_SCHEMA, "false");
+    conf.setInt(LoadGenerator.KEY_TUPLES_BLAST, 50000000);
+    node.setSpinMillis(2);
+    node.setBufferCapacity(2 * 1024 * 1024);
+
+    node.setup(conf);
+
+    final AtomicBoolean inactive = new AtomicBoolean(true);
+    new Thread()
+    {
+      @Override
+      public void run()
+      {
+        inactive.set(false);
+        node.activate(new ModuleContext("LoadGeneratorTestNode", this));
+      }
+    }.start();
 
     /**
-     * Benchmark the maximum payload flow for String
-     * The sink would simply ignore the payload as we are testing throughput
+     * spin while the node gets activated.
      */
-    @Test
-    @Category(com.malhartech.PerformanceTestCategory.class)
-    public void testNodeProcessing() throws Exception {
-
-        final LoadGenerator node = new LoadGenerator();
-        final ManualScheduledExecutorService mses = new ManualScheduledExecutorService(1);
-        final WindowGenerator wingen = new WindowGenerator(mses);
-
-        Configuration config = new Configuration();
-        config.setLong(WindowGenerator.FIRST_WINDOW_MILLIS, 0);
-        config.setInt(WindowGenerator.WINDOW_WIDTH_MILLIS, 1);
-        wingen.setup(config);
-
-        Sink input = node.connect(Component.INPUT, wingen);
-        wingen.connect("mytestnode", input);
-
-        TestSink lgenSink = new TestSink();
-        node.connect(LoadGenerator.OPORT_DATA, lgenSink);
-
-        ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
-        lgenSink.dohash = false;
-
-        conf.set(LoadGenerator.KEY_KEYS, "a");
-        conf.set(LoadGenerator.KEY_STRING_SCHEMA, "false");
-        conf.setInt(LoadGenerator.KEY_TUPLES_BLAST, 50000000);
-        node.setSpinMillis(2);
-        node.setBufferCapacity(2 * 1024 * 1024);
-
-      node.setup(conf);
-
-        final AtomicBoolean inactive = new AtomicBoolean(true);
-        new Thread() {
-            @Override
-            public void run() {
-                inactive.set(false);
-                node.activate(new ModuleContext("LoadGeneratorTestNode", this));
-            }
-        }.start();
-
-        /**
-         * spin while the node gets activated.
-         */
-        try {
-            do {
-                Thread.sleep(20);
-            } while (inactive.get());
-        } catch (InterruptedException ex) {
-            LOG.debug(ex.getLocalizedMessage());
-        }
-        wingen.activate(null);
-        for (int i = 0; i < 7000; i++) {
-            mses.tick(1);
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                LOG.error("Unexpected error while sleeping for 1 s", e);
-            }
-        }
-        node.deactivate();
-
-      //LOG.debug(String.format("\nProcessed %d tuples from emitted %d in %d windows", lgenSink.count, countSink.count, countSink.num_tuples));
-      LOG.debug(String.format("\nProcessed %d tuples", lgenSink.count));
+    try {
+      do {
+        Thread.sleep(20);
+      }
+      while (inactive.get());
     }
+    catch (InterruptedException ex) {
+      LOG.debug(ex.getLocalizedMessage());
+    }
+    wingen.activate(null);
+    for (int i = 0; i < 7000; i++) {
+      mses.tick(1);
+      try {
+        Thread.sleep(1);
+      }
+      catch (InterruptedException e) {
+        LOG.error("Unexpected error while sleeping for 1 s", e);
+      }
+    }
+    node.deactivate();
+
+    //LOG.debug(String.format("\nProcessed %d tuples from emitted %d in %d windows", lgenSink.count, countSink.count, countSink.num_tuples));
+    LOG.debug(String.format("\nProcessed %d tuples of size", lgenSink.count, key.length()));
+  }
 }
