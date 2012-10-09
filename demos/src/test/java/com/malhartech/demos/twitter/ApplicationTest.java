@@ -4,8 +4,6 @@
  */
 package com.malhartech.demos.twitter;
 
-import com.malhartech.demos.twitter.SynchronousFeedApplication;
-import com.malhartech.demos.twitter.Application;
 import com.malhartech.stram.DAGPropertiesBuilder;
 import com.malhartech.stram.StramLocalCluster;
 import java.io.IOException;

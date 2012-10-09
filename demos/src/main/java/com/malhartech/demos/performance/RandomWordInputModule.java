@@ -21,25 +21,25 @@ import com.malhartech.dag.Tuple;
 })
 public class RandomWordInputModule extends AbstractInputModule
 {
-  byte[] output = new byte[8];
   long lastWindowId = 0;
   int count = 1;
-  int totalIterations = 0;
+//  int totalIterations = 0;
 
   @Override
   public final void process(Object payload)
   {
     if (((Tuple)payload).getWindowId() == lastWindowId) {
-      emit(output);
+      emit(new byte[64]);
       count++;
     }
     else {
       for (int i = count--; i-- > 0;) {
-        emit(output);
+        emit(new byte[64]);
       }
       lastWindowId = ((Tuple)payload).getWindowId();
-      if (totalIterations++ > 10)
-      deactivate();
+//      if (++totalIterations > 20) {
+//        deactivate();
+//      }
     }
   }
 }
