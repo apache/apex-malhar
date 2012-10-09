@@ -116,21 +116,24 @@ public class GroupBy extends AbstractModule
       return;
     }
     boolean prt1 = IPORT_IN_DATA1.equals(getActivePort());
-    HashMap<Object, Object> source = prt1 ? map1 : map2;
+    HashMap<Object, Object> sourcemap = prt1 ? map1 : map2;
     HashMap<Object, Object> othermap = prt1 ? map2 : map1;
 
+    // emit tuples with the other source.
     emitTuples((HashMap<String, Object>) payload, othermap.get(val), val);
 
+    // Construct the data (HashMap) to be inserted into sourcemap
     HashMap<String, Object> data = new HashMap<String, Object>();
     for (Map.Entry<String, Object> e: ((HashMap<String, Object>)payload).entrySet()) {
         if (!e.getKey().equals(groupby)) {
           data.put(e.getKey(), e.getValue());
         }
     }
-    ArrayList<HashMap<String, Object>> list = (ArrayList<HashMap<String, Object>>)source.get(val);
+
+    ArrayList<HashMap<String, Object>> list = (ArrayList<HashMap<String, Object>>) sourcemap.get(val);
     if (list == null) {
       list = new ArrayList<HashMap<String, Object>>();
-      source.put(val, list);
+      sourcemap.put(val, list);
     }
     list.add(data);
   }
