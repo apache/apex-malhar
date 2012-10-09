@@ -32,8 +32,9 @@ import com.malhartech.dag.Sink;
  * <b>Ports</b>
  * <b>in_data1</b>: Input data port expects HashMap<String, Object>
  * <b>in_data2</b>: Input data port expects HashMap<String, Object>
+ * <b>out_data</b>: Output data port, emits HashMap<String, Object>
  * <b>Properties</b>:
- * <b>key</b>: The key to groupby<br>
+ * <b>key</b>: The key to "groupby"<br>
  *
  * <b>Benchmarks></b>: TBD<br>
  * Compile time checks are:<br>
