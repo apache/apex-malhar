@@ -58,8 +58,9 @@ public class GroupBy extends AbstractModule
   public static final String IPORT_IN_DATA1 = "in_data1";
   public static final String IPORT_IN_DATA2 = "in_data2";
   public static final String OPORT_OUT_DATA = "out_data";
-  String groupby = null;
 
+
+  String groupby = null;
   HashMap<Object, Object> map1 = new HashMap<Object, Object>();
   HashMap<Object, Object> map2 = new HashMap<Object, Object>();
 
@@ -79,13 +80,25 @@ public class GroupBy extends AbstractModule
     map2.clear();
   }
 
-  public void emitTuples(HashMap<String, Object> source, Object currentList) {
+  public void emitTuples(HashMap<String, Object> source, Object currentList, Object val) {
     if (currentList == null) { // The currentList does not have the value yet
       return;
     }
-    ArrayList<HashMap<String, Object>> list = (ArrayList<HashMap<String, Object>>) currentList;
 
+    ArrayList<HashMap<String, Object>> list = (ArrayList<HashMap<String, Object>>) currentList;
+    HashMap<String, Object> tuple;
     for (HashMap<String, Object> e : list) {
+      tuple = new HashMap<String, Object>();
+      tuple.put(groupby, val);
+      for (Map.Entry<String, Object> o : e.entrySet()) {
+        tuple.put(o.getKey(), o.getValue());
+      }
+      for (Map.Entry<String, Object> o : source.entrySet()) {
+        if (!o.getKey().equals(groupby)) {
+          tuple.put(o.getKey(), o.getValue());
+        }
+      }
+       emit(tuple);
     }
   }
 
@@ -106,10 +119,20 @@ public class GroupBy extends AbstractModule
     HashMap<Object, Object> source = prt1 ? map1 : map2;
     HashMap<Object, Object> othermap = prt1 ? map2 : map1;
 
-    emitTuples((HashMap<String, Object>) payload, othermap.get(val));
+    emitTuples((HashMap<String, Object>) payload, othermap.get(val), val);
 
+    HashMap<String, Object> data = new HashMap<String, Object>();
     for (Map.Entry<String, Object> e: ((HashMap<String, Object>)payload).entrySet()) {
+        if (!e.getKey().equals(groupby)) {
+          data.put(e.getKey(), e.getValue());
+        }
     }
+    ArrayList<HashMap<String, Object>> list = (ArrayList<HashMap<String, Object>>)source.get(val);
+    if (list == null) {
+      list = new ArrayList<HashMap<String, Object>>();
+      source.put(val, list);
+    }
+    list.add(data);
   }
 
   /**
