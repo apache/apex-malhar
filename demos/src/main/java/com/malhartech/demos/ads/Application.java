@@ -108,7 +108,7 @@ public class Application implements ApplicationFactory {
     Map<String, String> props = getOperatorProperties(dag.getConf(), this.getClass(), operatorName);
     Operator o = dag.addOperator(operatorName, HdfsOutputModule.class);
     o.setProperty(HdfsOutputModule.KEY_APPEND, "false");
-    o.setProperty(HdfsOutputModule.KEY_FILEPATH, "file:///tmp/adsdemoviews-%(moduleId)-part%(partIndex)");
+    o.setProperty(HdfsOutputModule.KEY_FILEPATH, "file:///tmp/adsdemo/views-%(moduleId)-part%(partIndex)");
     for (Map.Entry<String, String> e : props.entrySet()) {
       o.setProperty(e.getKey(), e.getValue());
     }
