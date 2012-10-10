@@ -8,7 +8,6 @@ import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
 import com.malhartech.dag.AbstractInputModule;
-import com.malhartech.dag.AbstractModule;
 import com.malhartech.dag.Component;
 import com.malhartech.dag.Tuple;
 

@@ -58,7 +58,7 @@ public class TwitterSampleInput extends AbstractInputModule implements StatusLis
   transient TwitterStream ts;
   transient int count;
   transient int multiplier;
-  transient CircularBuffer<Status> statuses = new CircularBuffer<Status>(bufferCapacity);
+  transient CircularBuffer<Status> statuses = new CircularBuffer<Status>(bufferCapacity, spinMillis);
 
   @Override
   public void connected(String port, Sink dagpart)
@@ -118,9 +118,13 @@ public class TwitterSampleInput extends AbstractInputModule implements StatusLis
   @Override
   public void onStatus(Status status)
   {
-    for (int i = multiplier; i-- > 0;) {
-      count++;
-      statuses.add(status);
+    try {
+      for (int i = multiplier; i-- > 0;) {
+        statuses.put(status);
+        count++;
+      }
+    }
+    catch (InterruptedException ex) {
     }
   }
 
@@ -163,7 +167,7 @@ public class TwitterSampleInput extends AbstractInputModule implements StatusLis
   public void process(Object payload)
   {
     for (int size = statuses.size(); size-- > 0;) {
-      Status s = statuses.get();
+      Status s = statuses.poll();
       if (this.status != null) {
         this.status.process(s);
       }
