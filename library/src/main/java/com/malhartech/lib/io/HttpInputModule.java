@@ -70,6 +70,7 @@ public class HttpInputModule extends AbstractInputModule
   private transient WebResource resource;
   private transient Thread ioThread;
   private transient int readTimeoutMillis = 0;
+  private final ConcurrentLinkedQueue<Object> tuples = new ConcurrentLinkedQueue<Object>();
 
   @Override
   public void setup(ModuleConfiguration config) throws FailedOperationException
@@ -129,8 +130,6 @@ public class HttpInputModule extends AbstractInputModule
       emit(Component.OUTPUT, tuple);
     }
   }
-
-  private final ConcurrentLinkedQueue<Object> tuples = new ConcurrentLinkedQueue<Object>();
 
   //@Override
   public void run() {
