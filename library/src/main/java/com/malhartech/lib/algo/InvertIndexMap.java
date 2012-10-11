@@ -55,7 +55,6 @@ public class InvertIndexMap extends AbstractModule
   HashMap<String, String> secondary_index = null;
   HashMap<String, String> phone_register = null;
   HashMap<String, String> location_register = null;
-  HashMap<String, Object> window_change = null;
 
   public static final String CHANNEL_PHONE = "phone";
   public static final String CHANNEL_LOCATION = "location";
@@ -107,7 +106,6 @@ public class InvertIndexMap extends AbstractModule
           index.put(e.getValue(), values);
         }
         values.put(e.getKey(), null);
-        //window_change.put(e.getKey(), null);
 
         // Now remove the key from old index value
         String cur_key = secondary_index.get(e.getKey());
@@ -116,8 +114,6 @@ public class InvertIndexMap extends AbstractModule
           if (values != null) { // must be true
             values.remove(e.getKey());
           }
-          //window_change.put(cur_key, null);
-          //window_change.put(e.getValue(), null);
           if (values.isEmpty()) { // clean up memory if need be
             index.remove(cur_key);
           }
@@ -159,7 +155,7 @@ public class InvertIndexMap extends AbstractModule
             }
             else { // register the phone channel
               phone_register.put(qid, phone);
-              emitConsoleTuple(qid);
+              emitConsoleTuple(qid, true);
               LOG.debug(String.format("Registered query id \"%s\", with phonenum \"%s\"", qid, phone));
             }
           }
@@ -176,7 +172,7 @@ public class InvertIndexMap extends AbstractModule
             }
             else {
               location_register.put(qid, location);
-              emitConsoleTuple(qid);
+              emitConsoleTuple(qid, false);
               LOG.info(String.format("Registered query id \"%s\", with location \"%s\"", qid, location));
             }
           }
@@ -188,16 +184,12 @@ public class InvertIndexMap extends AbstractModule
     }
   }
 
-  protected void emitConsoleTuple(String id) {
+  protected void emitConsoleTuple(String id, boolean isphone) {
     if (!console_connected) {
       return;
     }
 
-    String key = phone_register.get(id);
-    boolean isphone = (key != null);
-    if (!isphone) {
-      key = location_register.get(id);
-    }
+    String key = isphone ? phone_register.get(id) : location_register.get(id);
     if (key == null) { // something awful? bad data?
       return;
     }
@@ -282,7 +274,6 @@ public class InvertIndexMap extends AbstractModule
     secondary_index = new HashMap<String, String>(5);
     phone_register = new HashMap<String, String>(5);
     location_register = new HashMap<String, String>(5);
-    window_change = new HashMap<String, Object>();
 
     String seedQueries = config.get(KEY_SEED_QUERYS_JSON);
     if (seedQueries != null) {
@@ -301,20 +292,16 @@ public class InvertIndexMap extends AbstractModule
   {
     if (console_connected) {
       for (Map.Entry<String, String> e: phone_register.entrySet()) {
-        //if (window_change.containsKey(e.getKey())) {
-          emitConsoleTuple(e.getKey());
-        //}
+          emitConsoleTuple(e.getKey(), true);
       }
       for (Map.Entry<String, String> e: location_register.entrySet()) {
-        //if (window_change.containsKey(e.getKey())) {
-          emitConsoleTuple(e.getKey());
-        //}
+          emitConsoleTuple(e.getKey(), false);
       }
     }
-    else if (index_connected) {
-      // Todo, send out entire index
+    if (index_connected) {
+      for (Map.Entry<String, HashMap<String, Object>> e: index.entrySet()) {
+        emit(e.getKey(), e.getValue());
+      }
     }
-    //LOG.debug(String.format("Window had %d changes", window_change.size()));
-    //window_change.clear();
   }
 }

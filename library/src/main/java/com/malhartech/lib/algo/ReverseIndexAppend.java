@@ -24,13 +24,13 @@ import com.malhartech.dag.Sink;
 
 /**
  *
- * Takes a stream via input port "data" and emits the reverse index on output port index<p>
+ * Takes a stream via input port "data" and emits the reverse index on output port index on end of window<p>
  * <br>
  * Takes in HashMap<Object, Object> and emits HashMap<Object, Object>
  * <br>
  * <b>Ports</b>
  * <b>data</b>: Input data port expects HashMap<Object, Object>
- * <b>index</b>: Output data port, emits HashMap<Object, Object>
+ * <b>index</b>: Output data port, emits HashMap<Object, ArrayList<Object>>
  * <b>Properties</b>:
  *
  * <b>Benchmarks></b>: TBD<br>
@@ -44,15 +44,16 @@ import com.malhartech.dag.Sink;
  */
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = ReverseIndex.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = ReverseIndex.OPORT_INDEX, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = ReverseIndexAppend.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = ReverseIndexAppend.OPORT_INDEX, type = PortAnnotation.PortType.OUTPUT)
 })
-public class ReverseIndex extends AbstractModule
+public class ReverseIndexAppend extends AbstractModule
 {
-  private static Logger LOG = LoggerFactory.getLogger(ReverseIndex.class);
+  private static Logger LOG = LoggerFactory.getLogger(ReverseIndexAppend.class);
   public static final String IPORT_DATA = "data";
   public static final String OPORT_INDEX = "index";
 
+  HashMap<Object, ArrayList<Object>> map = null;
 
   /**
    *
@@ -64,11 +65,31 @@ public class ReverseIndex extends AbstractModule
   public void process(Object payload)
   {
     for (Map.Entry<Object, Object> e: ((HashMap<Object, Object>)payload).entrySet()) {
-      HashMap<Object, Object> tuple = new HashMap<Object, Object>(1);
-      tuple.put(e.getValue(), e.getKey());
+      ArrayList<Object> list = map.get(e.getValue());
+      if (list == null) {
+        list = new ArrayList<Object>();
+        map.put(e.getValue(), list);
+      }
+      list.add(e.getKey());
+    }
+  }
+
+  @Override
+  public void beginWindow()
+  {
+    map.clear();
+  }
+
+  @Override
+  public void endWindow()
+  {
+    for (Map.Entry<Object, ArrayList<Object>> e: map.entrySet()) {
+      HashMap<Object, ArrayList<Object>> tuple = new HashMap<Object, ArrayList<Object>>(1);
+      tuple.put(e.getKey(), e.getValue());
       emit(tuple);
     }
   }
+
 
   /**
    *
@@ -92,5 +113,6 @@ public class ReverseIndex extends AbstractModule
     if (!myValidation(config)) {
       throw new FailedOperationException("Did not pass validation");
     }
+    map = new HashMap<Object, ArrayList<Object>>();
   }
 }

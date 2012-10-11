@@ -49,12 +49,12 @@ public class ArithmeticRange extends AbstractModule
   HashMap<String, Number> high = new HashMap<String, Number>();
   HashMap<String, Number> low = new HashMap<String, Number>();
 
-  enum supported_type {INT, SHORT, LONG, DOUBLE, FLOAT, UNDEFINED};
+  enum supported_type {INT, SHORT, LONG, DOUBLE, FLOAT};
   supported_type type;
 
 
    /**
-   * Expected tuple schema. If left undefined, the first tuple dictates the schema.
+   * Expected tuple schema. The default is int
    *
    */
   public static final String KEY_SCHEMA = "schema";
@@ -89,31 +89,6 @@ public class ArithmeticRange extends AbstractModule
                  val = new Float(tval.floatValue());
                  break;
              default:
-               // The first tuple dictates the remaining types
-               if (tval instanceof Integer) {
-                 val = new Integer(tval.intValue());
-                 type = supported_type.INT;
-               }
-               else if (tval instanceof Double) {
-                 val = new Double(tval.doubleValue());
-                 type = supported_type.DOUBLE;
-               }
-               else if (tval instanceof Long) {
-                 val = new Long(tval.longValue());
-                 type = supported_type.LONG;
-               }
-               else if (tval instanceof Short) {
-                 val = new Short(tval.shortValue());
-                 type = supported_type.SHORT;
-               }
-               else if (tval instanceof Float) {
-                 val = new Float(tval.floatValue());
-                 type = supported_type.FLOAT;
-               }
-               else { // should not execute, should be an error tuple
-                 val = new Double(tval.doubleValue());
-                 type = supported_type.UNDEFINED;
-               }
                break;
            }
            high.put(key, val);
@@ -178,10 +153,9 @@ public class ArithmeticRange extends AbstractModule
                }
                break;
              default:
-               // emit error tuple
                break;
            }
-           // if error emit this tuple on error port
+           // if (error) {emit on error port}
          }
       }
   }
@@ -203,8 +177,8 @@ public class ArithmeticRange extends AbstractModule
 
     String str = config.get(KEY_SCHEMA, "");
     if (str.isEmpty()) {
-      type = supported_type.UNDEFINED;
-      str = "undefined";
+      type = supported_type.INT;
+      str = "integer";
     }
     else if (str.equals( "integer")) {
       type = supported_type.INT;
