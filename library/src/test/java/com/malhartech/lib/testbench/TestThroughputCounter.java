@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.testbench.LoadGenerator}. <p>
+ * Functional tests for {@link com.malhartech.lib.testbench.ThroughputCounter}. <p>
  * <br>
  * Load is generated and the tuples are outputted to ensure that the numbers are roughly in line with the weights<br>
  * <br>

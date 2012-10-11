@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Performance test for {@link com.malhartech.lib.testbench.StreamMerger}<p>
+ * Performance test for {@link com.malhartech.lib.testbench.StreamMerger10}<p>
  * Benchmarks: Currently does about 3 Million tuples/sec in debugging environment. Need to test on larger nodes<br>
  * <br>
  */

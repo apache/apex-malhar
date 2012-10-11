@@ -18,13 +18,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Functional test for {@link com.malhartech.lib.testbench.FilterClassifier} for three configuration><p>
+ * Functional test for {@link com.malhartech.lib.testbench.LoadIncrementer}<p>
  * <br>
- * Configuration 1: Provide values and weights<br>
- * Configuration 2: Provide values but no weights (even weights)<br>
- * Configuration 3: Provide no values or weights<br>
- * <br>
- * Benchmarks: Currently handle about 20 Million tuples/sec incoming tuples in debugging environment. Need to test on larger nodes<br>
+ * Benchmarks: The benchmark was done in local/inline mode<br>
+ * Processing tuples on seed port are at 3.5 Million tuples/sec<br>
+ * Processing tuples on increment port are at 10 Million tuples/sec<br>
  * <br>
  * Validates all DRC checks of the node<br>
  */
