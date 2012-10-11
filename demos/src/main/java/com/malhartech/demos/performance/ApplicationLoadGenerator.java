@@ -22,8 +22,8 @@ public class ApplicationLoadGenerator implements ApplicationFactory
 
 
   public Operator getLoadGenerator(String name, DAG b) {
-    Operator oper = b.addOperator(name , LoadGenerator.class);
-      int numchars = 1024;
+    Operator oper = b.addOperator(name, LoadGenerator.class);
+    int numchars = 1024;
     char[] chararray = new char[numchars + 1];
     for (int i = 0; i < numchars; i++) {
       chararray[i] = 'a';
@@ -33,7 +33,7 @@ public class ApplicationLoadGenerator implements ApplicationFactory
     oper.setProperty(LoadGenerator.KEY_KEYS, key);
     oper.setProperty(LoadGenerator.KEY_STRING_SCHEMA, "false");
     oper.setProperty(LoadGenerator.KEY_TUPLES_BLAST, "1000");
-    oper.setProperty(LoadGenerator.ROLLING_WINDOW_COUNT, "5");
+    oper.setProperty(LoadGenerator.ROLLING_WINDOW_COUNT, "10");
     oper.setProperty("spinMillis", "2");
     int i = 10 * 1024 * 1024;
     String ival = Integer.toString(i);
