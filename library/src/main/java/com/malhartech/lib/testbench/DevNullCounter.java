@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = DevNullCounter.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = DevNullCounter.IPORT_DATA, type = PortAnnotation.PortType.INPUT)
 })
 public class DevNullCounter extends AbstractModule
 {
@@ -48,7 +48,7 @@ public class DevNullCounter extends AbstractModule
   private static Logger LOG = LoggerFactory.getLogger(DevNullCounter.class);
 
   private long windowStartTime = 0;
-  private int rolling_window_count_default = 1;
+  private final int rolling_window_count_default = 1;
   private int rolling_window_count = rolling_window_count_default;
   long[] tuple_numbers = null;
   long[] time_numbers = null;
