@@ -49,7 +49,7 @@ public class ApplicationLoadGenerator implements ApplicationFactory
   public DAG getApplication(Configuration conf)
   {
     DAG b = new DAG(conf);
-
+    b.getConf().setInt(DAG.STRAM_CHECKPOINT_INTERVAL_MILLIS, 0); // disable auto backup
     Operator lgen = getLoadGenerator("lgen", b);
     Operator devnull = getDevNull("devnull", b);
     b.addStream("lgen2devnull", lgen.getOutput(LoadGenerator.OPORT_DATA), devnull.getInput(DevNullCounter.IPORT_DATA)).setInline(inline);
