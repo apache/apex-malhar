@@ -15,7 +15,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.ws.rs.core.MediaType;
 
@@ -29,7 +28,7 @@ import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
 import com.malhartech.annotation.ShipContainingJars;
-import com.malhartech.dag.AbstractInputModule;
+import com.malhartech.dag.AbstractSynchronousInputModule;
 import com.malhartech.dag.Component;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.ModuleConfiguration;
@@ -51,7 +50,7 @@ import com.sun.jersey.api.client.WebResource;
         @PortAnnotation(name = Component.OUTPUT, type = PortType.OUTPUT)
     }
 )
-public class HttpInputModule extends AbstractInputModule
+public class HttpInputModule extends AbstractSynchronousInputModule
 {
   private static final Logger LOG = LoggerFactory.getLogger(HttpInputModule.class);
 
@@ -68,9 +67,7 @@ public class HttpInputModule extends AbstractInputModule
   private transient URI resourceUrl;
   private transient Client wsClient;
   private transient WebResource resource;
-  private transient Thread ioThread;
   private transient int readTimeoutMillis = 0;
-  private final ConcurrentLinkedQueue<Object> tuples = new ConcurrentLinkedQueue<Object>();
 
   @Override
   public void setup(ModuleConfiguration config) throws FailedOperationException
@@ -88,21 +85,10 @@ public class HttpInputModule extends AbstractInputModule
     resource = wsClient.resource(resourceUrl);
     LOG.info("URL: {}", resourceUrl);
 
-    // launch IO thread
-    Runnable r = new Runnable() {
-      @Override
-      public void run() {
-        HttpInputModule.this.run();
-      }
-    };
-    this.ioThread = new Thread(r, "http-io-"+this.getId());
-    this.ioThread.start();
-
   }
 
   @Override
   public void teardown() {
-    this.ioThread.interrupt();
     if (wsClient != null) {
       wsClient.destroy();
     }
@@ -124,14 +110,6 @@ public class HttpInputModule extends AbstractInputModule
   }
 
   @Override
-  public void process(Object payload) {
-    Object tuple;
-    while ((tuple = tuples.poll()) != null) {
-      emit(Component.OUTPUT, tuple);
-    }
-  }
-
-  //@Override
   public void run() {
     while (true) {
       try {
@@ -236,7 +214,7 @@ public class HttpInputModule extends AbstractInputModule
       }
       if (!tuple.isEmpty()) {
         LOG.debug("Got: " + tuple);
-        tuples.offer(tuple);
+        super.emit(tuple);
         chunk.setLength(0);
       }
     }
