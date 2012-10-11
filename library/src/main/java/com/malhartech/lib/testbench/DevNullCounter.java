@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * Mainly to be used to benchmark other modules
  * <br>
  * <br>
- * Benchmarks: This node has been benchmarked at over ?? million tuples/second in local/inline mode<br>
+ * Benchmarks: This node has been benchmarked at over 125 million tuples/second in local/inline mode. i.e. it does not impact the dag<br>
  *
  * <b>Tuple Schema</b>
  * Not relevant
@@ -167,8 +167,8 @@ public class DevNullCounter extends AbstractModule
       }
       average = (numtuples * 1000) / time_slot;
     }
-    LOG.debug(String.format("Windowid (%d), Time (%d ms): The rate for %d tuples is %d. This window had %d tuples_per_sec ",
-              count_windowid++, elapsedTime, tuple_count, average, tuples_per_sec));
+    LOG.debug(String.format("\nWindowid (%d), Time (%d ms): The rate for %d tuples is %d. This window had %d tuples_per_sec ",
+                              count_windowid++, elapsedTime, tuple_count, average, tuples_per_sec));
   }
 
 
