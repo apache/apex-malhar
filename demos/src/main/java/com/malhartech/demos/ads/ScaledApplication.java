@@ -12,12 +12,11 @@ import com.malhartech.lib.io.HttpOutputModule;
 import com.malhartech.lib.math.ArithmeticMargin;
 import com.malhartech.lib.math.ArithmeticQuotient;
 import com.malhartech.lib.math.ArithmeticSum;
+import com.malhartech.lib.stream.StreamMerger;
+import com.malhartech.lib.stream.StreamMerger10;
 import com.malhartech.lib.testbench.FilterClassifier;
 import com.malhartech.lib.testbench.LoadClassifier;
 import com.malhartech.lib.testbench.LoadGenerator;
-import com.malhartech.lib.testbench.StreamMerger;
-import com.malhartech.lib.testbench.StreamMerger10;
-import com.malhartech.lib.testbench.StreamMerger5;
 import com.malhartech.lib.testbench.ThroughputCounter;
 import org.apache.hadoop.conf.Configuration;
 
@@ -140,14 +139,11 @@ public class ScaledApplication implements ApplicationFactory {
     return oper;
   }
 
-  public Operator getStreamMerger5Operator(String name, DAG b) {
-    Operator oper = b.addOperator(name, StreamMerger5.class);
+  public Operator getStreamMergerOperator(String name, DAG b) {
+    Operator oper = b.addOperator(name, StreamMerger.class);
     return oper;
   }
 
-  public Operator getStreamMerger(String name, DAG b) {
-    return b.addOperator(name, StreamMerger.class);
-  }
 
   @Override
   public DAG getApplication(Configuration conf) {
@@ -156,10 +152,10 @@ public class ScaledApplication implements ApplicationFactory {
 
     DAG dag = new DAG(conf);
 
-    Operator viewAggrSum5 = getStreamMerger10Operator("viewaggregatesum", dag);
-    Operator clickAggrSum5 = getStreamMerger10Operator("clickaggregatesum", dag);
-    Operator viewAggrCount5 = getStreamMerger10Operator("viewaggregatecount", dag);
-    Operator clickAggrCount5 = getStreamMerger10Operator("clickaggregatecount", dag);
+    Operator viewAggrSum10 = getStreamMerger10Operator("viewaggregatesum", dag);
+    Operator clickAggrSum10 = getStreamMerger10Operator("clickaggregatesum", dag);
+    Operator viewAggrCount10 = getStreamMerger10Operator("viewaggregatecount", dag);
+    Operator clickAggrCount10 = getStreamMerger10Operator("clickaggregatecount", dag);
 
     for (int i = 1; i <= numGenerators; i++) {
       String viewgenstr = String.format("%s%d", "viewGen", i);
@@ -187,24 +183,24 @@ public class ScaledApplication implements ApplicationFactory {
                     viewAggregate.getInput(ArithmeticSum.IPORT_DATA)).setInline(true);
       dag.addStream(clicksaggregatestreamstr, insertclicks.getOutput(FilterClassifier.OPORT_OUT_DATA), clickAggregate.getInput(ArithmeticSum.IPORT_DATA)).setInline(true);
 
-      dag.addStream(viewaggrsumstreamstr, viewAggregate.getOutput(ArithmeticSum.OPORT_SUM), viewAggrSum5.getInput(StreamMerger10.getInputName(i)));
-      dag.addStream(clickaggrsumstreamstr, clickAggregate.getOutput(ArithmeticSum.OPORT_SUM), clickAggrSum5.getInput(StreamMerger10.getInputName(i)));
-      dag.addStream(viewaggrcountstreamstr, viewAggregate.getOutput(ArithmeticSum.OPORT_COUNT), viewAggrCount5.getInput(StreamMerger10.getInputName(i)));
-      dag.addStream(clickaggrcountstreamstr, clickAggregate.getOutput(ArithmeticSum.OPORT_COUNT), clickAggrCount5.getInput(StreamMerger10.getInputName(i)));
+      dag.addStream(viewaggrsumstreamstr, viewAggregate.getOutput(ArithmeticSum.OPORT_SUM), viewAggrSum10.getInput(StreamMerger10.getInputName(i)));
+      dag.addStream(clickaggrsumstreamstr, clickAggregate.getOutput(ArithmeticSum.OPORT_SUM), clickAggrSum10.getInput(StreamMerger10.getInputName(i)));
+      dag.addStream(viewaggrcountstreamstr, viewAggregate.getOutput(ArithmeticSum.OPORT_COUNT), viewAggrCount10.getInput(StreamMerger10.getInputName(i)));
+      dag.addStream(clickaggrcountstreamstr, clickAggregate.getOutput(ArithmeticSum.OPORT_COUNT), clickAggrCount10.getInput(StreamMerger10.getInputName(i)));
     }
 
     Operator ctr = getQuotientOperator("ctr", dag);
     Operator cost = getSumOperator("cost", dag);
     Operator revenue = getSumOperator("rev", dag);
     Operator margin = getMarginOperator("margin", dag);
-    Operator merge = getStreamMerger("countmerge", dag);
+    Operator merge = getStreamMergerOperator("countmerge", dag);
     Operator tuple_counter = getThroughputCounter("tuple_counter", dag);
 
-    dag.addStream("adviewsdata", viewAggrSum5.getOutput(StreamMerger5.OPORT_OUT_DATA), cost.getInput(ArithmeticSum.IPORT_DATA));
-    dag.addStream("clicksdata", clickAggrSum5.getOutput(StreamMerger5.OPORT_OUT_DATA), revenue.getInput(ArithmeticSum.IPORT_DATA));
-    dag.addStream("viewtuplecount", viewAggrCount5.getOutput(StreamMerger5.OPORT_OUT_DATA), ctr.getInput(ArithmeticQuotient.IPORT_DENOMINATOR)
+    dag.addStream("adviewsdata", viewAggrSum10.getOutput(StreamMerger10.OPORT_OUT_DATA), cost.getInput(ArithmeticSum.IPORT_DATA));
+    dag.addStream("clicksdata", clickAggrSum10.getOutput(StreamMerger10.OPORT_OUT_DATA), revenue.getInput(ArithmeticSum.IPORT_DATA));
+    dag.addStream("viewtuplecount", viewAggrCount10.getOutput(StreamMerger10.OPORT_OUT_DATA), ctr.getInput(ArithmeticQuotient.IPORT_DENOMINATOR)
             , merge.getInput(StreamMerger.IPORT_IN_DATA1));
-    dag.addStream("clicktuplecount", clickAggrCount5.getOutput(StreamMerger5.OPORT_OUT_DATA), ctr.getInput(ArithmeticQuotient.IPORT_NUMERATOR)
+    dag.addStream("clicktuplecount", clickAggrCount10.getOutput(StreamMerger10.OPORT_OUT_DATA), ctr.getInput(ArithmeticQuotient.IPORT_NUMERATOR)
             , merge.getInput(StreamMerger.IPORT_IN_DATA2));
     dag.addStream("total count", merge.getOutput(StreamMerger.OPORT_OUT_DATA), tuple_counter.getInput(ThroughputCounter.IPORT_DATA));
 

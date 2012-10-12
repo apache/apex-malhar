@@ -22,7 +22,7 @@ import com.malhartech.lib.math.ArithmeticSum;
 import com.malhartech.lib.testbench.FilterClassifier;
 import com.malhartech.lib.testbench.LoadClassifier;
 import com.malhartech.lib.testbench.LoadGenerator;
-import com.malhartech.lib.testbench.StreamMerger;
+import com.malhartech.lib.stream.StreamMerger;
 import com.malhartech.lib.testbench.ThroughputCounter;
 
 
