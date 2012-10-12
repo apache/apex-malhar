@@ -1,13 +1,16 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.testbench;
+package com.malhartech.lib.stream;
 
+import com.malhartech.lib.stream.DevNullCounter;
 import com.malhartech.dag.Component;
 import com.malhartech.dag.ModuleConfiguration;
 import com.malhartech.dag.ModuleContext;
 import com.malhartech.dag.Sink;
 import com.malhartech.dag.Tuple;
+import com.malhartech.lib.testbench.LoadGenerator;
+import com.malhartech.lib.testbench.ThroughputCounter;
 import com.malhartech.stram.ManualScheduledExecutorService;
 import com.malhartech.stram.WindowGenerator;
 import java.util.ArrayList;

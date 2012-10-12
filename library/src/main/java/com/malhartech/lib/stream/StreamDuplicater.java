@@ -2,7 +2,7 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.testbench;
+package com.malhartech.lib.stream;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
@@ -35,20 +35,20 @@ import org.slf4j.LoggerFactory;
  */
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = StreamSplitter.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = StreamSplitter.OPORT_OUT_DATA1, type = PortAnnotation.PortType.OUTPUT),
-  @PortAnnotation(name = StreamSplitter.OPORT_OUT_DATA2, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = StreamDuplicater.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = StreamDuplicater.OPORT_OUT_DATA1, type = PortAnnotation.PortType.OUTPUT),
+  @PortAnnotation(name = StreamDuplicater.OPORT_OUT_DATA2, type = PortAnnotation.PortType.OUTPUT)
 })
-public class StreamSplitter extends AbstractModule
+public class StreamDuplicater extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_OUT_DATA1 = "out_data1";
   public static final String OPORT_OUT_DATA2 = "out_data2";
-  private static Logger LOG = LoggerFactory.getLogger(StreamSplitter.class);
+  private static Logger LOG = LoggerFactory.getLogger(StreamDuplicater.class);
 
   final static int num_oport = 2;
   /**
-   * Allows usage of StreamSplitter in a automated way
+   * Allows usage of StreamDuplicater in a automated way
    *
    * @param i port index
    * @return returns the proper input port name

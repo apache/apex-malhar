@@ -1,19 +1,17 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.testbench;
+package com.malhartech.lib.stream;
 
-import com.esotericsoftware.minlog.Log;
 import com.malhartech.dag.ModuleConfiguration;
 import com.malhartech.dag.ModuleContext;
 import com.malhartech.dag.Sink;
 import com.malhartech.dag.Tuple;
-import com.malhartech.lib.math.ArithmeticQuotient;
+import com.malhartech.lib.stream.StreamMerger;
+import com.malhartech.lib.stream.StreamMerger10;
 import com.malhartech.stream.StramTestSupport;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
