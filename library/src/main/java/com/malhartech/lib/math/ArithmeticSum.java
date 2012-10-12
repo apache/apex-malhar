@@ -19,7 +19,8 @@ import org.slf4j.LoggerFactory;
 /**
  *
  * Takes in one stream via input port "data". At end of window sums all values
- * for each key and emits them on port "sum"<p> <br> Values are stored in a
+ * for each key and emits them on port <b>sum</b>; emits number of occurrences on port <b>count</b>; and average on port <b>average</b><p>
+ * <br> Values are stored in a
  * hash<br> This node only functions in a windowed stram application<br> Compile
  * time error processing is done on configuration parameters<br> input port
  * "data" must be connected<br> output port "sum" must be connected<br>
@@ -32,17 +33,21 @@ import org.slf4j.LoggerFactory;
         ports = {
   @PortAnnotation(name = ArithmeticSum.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = ArithmeticSum.OPORT_SUM, type = PortAnnotation.PortType.OUTPUT),
+  @PortAnnotation(name = ArithmeticSum.OPORT_AVERAGE, type = PortAnnotation.PortType.OUTPUT),
   @PortAnnotation(name = ArithmeticSum.OPORT_COUNT, type = PortAnnotation.PortType.OUTPUT)
 })
 public class ArithmeticSum extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_SUM = "sum";
+  public static final String OPORT_AVERAGE = "average";
   public static final String OPORT_COUNT = "count";
+
   private static Logger LOG = LoggerFactory.getLogger(ArithmeticSum.class);
   HashMap<String, Object> sum = new HashMap<String, Object>();
   boolean count_connected = false;
   boolean sum_connected = false;
+  boolean average_connected = false;
 
   int num_unique_keys_default_value = 1000;
   int num_unique_keys = num_unique_keys_default_value;
@@ -58,6 +63,9 @@ public class ArithmeticSum extends AbstractModule
     }
     else if (id.equals(OPORT_SUM)) {
       sum_connected = (dagpart != null);
+    }
+    else if (id.equals(OPORT_AVERAGE)) {
+      average_connected = (dagpart != null);
     }
   }
 
@@ -156,9 +164,15 @@ public class ArithmeticSum extends AbstractModule
     if (sum_connected) {
       stuples = new HashMap<String, Object>();
     }
+
     HashMap<String, Object> ctuples = null;
     if (count_connected) {
       ctuples = new HashMap<String, Object>();
+    }
+
+    HashMap<String, Object> atuples = null;
+    if (average_connected) {
+      atuples = new HashMap<String, Object>();
     }
 
     for (Map.Entry<String, Object> e: sum.entrySet()) {
@@ -171,6 +185,11 @@ public class ArithmeticSum extends AbstractModule
         ctuples.put(e.getKey(), new Integer(counts[location]));
         counts[location] = 0;
       }
+      if (average_connected) {
+        if (counts[location] != 0) { // should always be true
+          atuples.put(e.getKey(), new Double(sums[location]/counts[location]));
+        }
+      }
     }
 
     if ((stuples != null) && !stuples.isEmpty()) {
@@ -178,6 +197,9 @@ public class ArithmeticSum extends AbstractModule
     }
     if ((ctuples != null) && !ctuples.isEmpty()) {
       emit(OPORT_COUNT, ctuples);
+    }
+    if ((atuples != null) && !atuples.isEmpty()) {
+      emit(OPORT_AVERAGE, atuples);
     }
   }
 }
