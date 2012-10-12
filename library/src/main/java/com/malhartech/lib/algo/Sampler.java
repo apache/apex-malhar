@@ -70,7 +70,7 @@ public class Sampler extends AbstractModule
   public void process(Object payload)
   {
     int fval = random.nextInt(totalrate);
-    if (fval >= totalrate) {
+    if (fval >= passrate) {
       return;
     }
     emit(payload);
