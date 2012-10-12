@@ -31,7 +31,6 @@ public class Application implements ApplicationFactory
 //    b.addStream("Generator2Processor", wordGenerator.getOutput(Component.OUTPUT), noOpProcessor.getInput(Component.INPUT)).setInline(inline);
 //    b.addStream("Processor2Counter", noOpProcessor.getOutput(Component.OUTPUT), counter.getInput(Component.INPUT)).setInline(inline);
 
-    //b.addStream("Generator2Counter", wordGenerator.getOutput(Component.OUTPUT), counter.getInput(DevNullCounter.IPORT_DATA)).setInline(inline);
     b.addStream("Generator2Counter", wordGenerator.getOutput(Component.OUTPUT), counter.getInput(Component.INPUT)).setInline(inline);
     return b;
   }
