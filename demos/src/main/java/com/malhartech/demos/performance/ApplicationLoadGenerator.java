@@ -8,8 +8,8 @@ import com.malhartech.dag.ApplicationFactory;
 import com.malhartech.dag.Component;
 import com.malhartech.dag.DAG;
 import com.malhartech.dag.DAG.Operator;
-import com.malhartech.lib.math.ArithmeticSum;
-import com.malhartech.lib.testbench.DevNullCounter;
+import com.malhartech.lib.math.Sum;
+import com.malhartech.lib.stream.DevNullCounter;
 import com.malhartech.lib.testbench.LoadGenerator;
 import org.apache.hadoop.conf.Configuration;
 
