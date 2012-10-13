@@ -34,7 +34,6 @@ import com.malhartech.dag.Sink;
  * <b>distinct</b>: Output data port, emits HashMap<String, Object>(1)
  * <b>Properties</b>:
  * None
- *
  * <b>Benchmarks></b>: TBD<br>
  * Compile time checks are:<br>
  * None
