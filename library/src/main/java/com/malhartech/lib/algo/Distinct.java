@@ -24,14 +24,14 @@ import com.malhartech.dag.Sink;
 
 /**
  *
- * Takes a stream via input port "in_data" and emits distinct key,val pairs (i.e drops duplicates) on output port "out_data". Restarts at end of window boundary<p>
+ * Takes a stream via input port "in_data" and emits distinct key,val pairs (i.e drops duplicates) on output port "distinct". Restarts at end of window boundary<p>
  * <br>
  * Even though this module produces continuous tuples, at end of window all data is flushed. Thus the data set is windowed
  * and no history is kept of previous windows<br>
  * <br>
  * <b>Ports</b>
  * <b>in_data</b>: Input data port expects HashMap<String, Object>
- * <b>out_data</b>: Output data port, emits HashMap<String, Object>(1)
+ * <b>distinct</b>: Output data port, emits HashMap<String, Object>(1)
  * <b>Properties</b>:
  * None
  *
@@ -49,14 +49,14 @@ import com.malhartech.dag.Sink;
 @ModuleAnnotation(
         ports = {
   @PortAnnotation(name = Distinct.IPORT_IN_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = Distinct.OPORT_OUT_DATA, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = Distinct.OPORT_DISTINCT, type = PortAnnotation.PortType.OUTPUT)
 })
 public class Distinct extends AbstractModule
 {
   private static Logger LOG = LoggerFactory.getLogger(Distinct.class);
   public static final String IPORT_IN_DATA = "in_data";
   public static final String IPORT_IN_DATA2 = "in_data2";
-  public static final String OPORT_OUT_DATA = "out_data";
+  public static final String OPORT_DISTINCT = "distinct";
 
   HashMap<Object, HashMap<Object, Object>> mapkeyval = null;
 
