@@ -4,13 +4,11 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.lib.math.*;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.dag.AbstractModule;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.Sink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,14 +17,14 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". If the tuple
- * passed the test, it is emitted on the output port "firstof". The comparison is done by getting double
- * value from the Number. Both output ports are optional, but at least one has to be connected<p>
- *  * This module is a pass through<br>
+ * Takes in one stream via input port "data". Each tuple is tested for the compare function. The function is given by
+ * "key", "value", and "compare". If all tuples passes a Boolean(true) is emitted, else a Boolean(false) is emitted on end of window on the output port "allof".
+ * The comparison is done by getting double value from the Number.<p>
+ *  This module is an end of window module<br>
  * <br>
  * Ports:<br>
  * <b>data</b>: Input port, expects HashMap<String, Object><br>
- * <b>firstof</b>: Output port, emits HashMap<String, Object> if compare function returns true<br>
+ * <b>allof</b>: Output port, emits Boolean<br>
  * <br>
  * Properties:<br>
  * <b>key</b>: The key on which compare is done<br>
@@ -54,24 +52,24 @@ import org.slf4j.LoggerFactory;
 
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = ArithmeticFirstOf.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = ArithmeticFirstOf.OPORT_FIRSTOF, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = AllOf.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = AllOf.OPORT_ALLOF, type = PortAnnotation.PortType.OUTPUT)
 })
-public class ArithmeticFirstOf extends AbstractModule
+public class AllOf extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
-  public static final String OPORT_FIRSTOF = "firstof";
-  private static Logger LOG = LoggerFactory.getLogger(ArithmeticCompare.class);
+  public static final String OPORT_ALLOF = "allof";
+  private static Logger LOG = LoggerFactory.getLogger(AllOf.class);
 
   String key;
   double default_value = 0.0;
   double value = default_value;
 
+  Boolean result = false;
+
   enum supported_type {LTE, LT, EQ, NEQ, GT, GTE};
   supported_type default_type = supported_type.EQ;
   supported_type type = default_type;
-
-  boolean emitted = false;
 
    /**
    * The key to compare on
@@ -99,7 +97,7 @@ public class ArithmeticFirstOf extends AbstractModule
   @Override
   public void process(Object payload)
   {
-    if (emitted) {
+    if (!result) {
       return;
     }
     HashMap<String, Object> tuple = (HashMap<String, Object>) payload;
@@ -120,26 +118,33 @@ public class ArithmeticFirstOf extends AbstractModule
                 || ((type == supported_type.NEQ) && (tvalue != value))
                 || ((type == supported_type.GT) && (tvalue > value))
                 || ((type == supported_type.GTE) && (tvalue >= value))) {
-          emit(payload);
-          emitted = true;
+          ;
+        }
+        else {
+          result = false;
         }
       }
-      else { // emit error tuple, the string has to be Double
+      else {
+        result = false;
 
       }
     }
-    else { // is this an error condition?
-      ;
+    else { // emit error?
+      result = false;
     }
   }
 
   @Override
   public void beginWindow()
   {
-    emitted = false;
+     result = true;
   }
 
-
+  @Override
+  public void endWindow()
+  {
+    emit( new Boolean(result));
+  }
 
   public boolean myValidation(ModuleConfiguration config)
   {

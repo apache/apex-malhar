@@ -52,14 +52,14 @@ import org.slf4j.LoggerFactory;
 
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = ArithmeticAnyOf.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = ArithmeticAnyOf.OPORT_ANYOF, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = AnyOf.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = AnyOf.OPORT_ANYOF, type = PortAnnotation.PortType.OUTPUT)
 })
-public class ArithmeticAnyOf extends AbstractModule
+public class AnyOf extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_ANYOF = "anyof";
-  private static Logger LOG = LoggerFactory.getLogger(ArithmeticAnyOf.class);
+  private static Logger LOG = LoggerFactory.getLogger(AnyOf.class);
 
   String key;
   double default_value = 0.0;

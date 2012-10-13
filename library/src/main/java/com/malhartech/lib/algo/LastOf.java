@@ -4,11 +4,13 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.lib.math.*;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.dag.AbstractModule;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.Sink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,14 +19,14 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Takes in one stream via input port "data". Each tuple is tested for the compare function. The function is given by
- * "key", "value", and "compare". If all tuples passes a Boolean(true) is emitted, else a Boolean(false) is emitted on end of window on the output port "allof".
- * The comparison is done by getting double value from the Number.<p>
- *  This module is an end of window module<br>
+ * Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". Every tuple
+ * is checked and the last one is send during end of window on port "lastof". The comparison is done by getting double
+ * value from the Number. Both output ports are optional, but at least one has to be connected<p>
+ *  * This module is an end of window module<br>
  * <br>
  * Ports:<br>
  * <b>data</b>: Input port, expects HashMap<String, Object><br>
- * <b>allof</b>: Output port, emits Boolean<br>
+ * <b>lastof</b>: Output port, emits HashMap<String, Object> in end of window for the last tuple on which the compare function is true<br>
  * <br>
  * Properties:<br>
  * <b>key</b>: The key on which compare is done<br>
@@ -52,26 +54,26 @@ import org.slf4j.LoggerFactory;
 
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = ArithmeticAllOf.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = ArithmeticAllOf.OPORT_ALLOF, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = LastOf.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = LastOf.OPORT_LASTOF, type = PortAnnotation.PortType.OUTPUT)
 })
-public class ArithmeticAllOf extends AbstractModule
+public class LastOf extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
-  public static final String OPORT_ALLOF = "allof";
-  private static Logger LOG = LoggerFactory.getLogger(ArithmeticAllOf.class);
+  public static final String OPORT_LASTOF = "lastof";
+  private static Logger LOG = LoggerFactory.getLogger(ArithmeticCompare.class);
 
   String key;
   double default_value = 0.0;
   double value = default_value;
 
-  Boolean result = false;
-
   enum supported_type {LTE, LT, EQ, NEQ, GT, GTE};
   supported_type default_type = supported_type.EQ;
   supported_type type = default_type;
 
-   /**
+  HashMap<String, Object> ltuple = null;
+
+  /**
    * The key to compare on
    *
    */
@@ -97,9 +99,6 @@ public class ArithmeticAllOf extends AbstractModule
   @Override
   public void process(Object payload)
   {
-    if (!result) {
-      return;
-    }
     HashMap<String, Object> tuple = (HashMap<String, Object>) payload;
     Object val = tuple.get(key);
     double tvalue = 0;
@@ -118,33 +117,41 @@ public class ArithmeticAllOf extends AbstractModule
                 || ((type == supported_type.NEQ) && (tvalue != value))
                 || ((type == supported_type.GT) && (tvalue > value))
                 || ((type == supported_type.GTE) && (tvalue >= value))) {
-          ;
-        }
-        else {
-          result = false;
+          if (ltuple == null) {
+            ltuple.clear();
+          }
+          else {
+            ltuple = new HashMap<String, Object>();
+          }
+          for (Map.Entry<String, Object> e: tuple.entrySet()) {
+            ltuple.put(e.getKey(), e.getValue());
+          }
         }
       }
-      else {
-        result = false;
+      else { // emit error tuple, the string has to be Double
 
       }
     }
-    else { // emit error?
-      result = false;
+    else { // is this an error condition?
+      ;
     }
   }
 
   @Override
   public void beginWindow()
   {
-     result = true;
+    ltuple = null;
   }
 
   @Override
   public void endWindow()
   {
-    emit( new Boolean(result));
+    if (ltuple != null) {
+      emit(ltuple);
+    }
   }
+
+
 
   public boolean myValidation(ModuleConfiguration config)
   {

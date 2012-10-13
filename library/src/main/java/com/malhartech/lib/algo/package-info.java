@@ -8,6 +8,7 @@
  * <b>com.malhartech.lib.algo</b> is a library of algorithmic modules for reuse<p>
  * <br>
  * <br>The modules are<br>
+ * <b>{@link com.malhartech.lib.algo.AllOf}
  * <b>{@link com.malhartech.lib.algo.InvertIndexArray}</b>: Takes in a stream via input port "data". Inverts the index and sends out the tuple on output port "index"<br>
  * <b>{@link com.malhartech.lib.algo.InvertIndexMap}</b>: Takes in a stream via input port "data". Inverts the index and sends out the tuple on output port "index". Takes in specific queries on query port and outputs the data in the cache through console port on receiving the tuple and on each subsequent end_of_window tuple<br>
  * <b>{@link com.malhartech.lib.algo.ReverseIndex}</b>: Takes a stream via input port "data" and emits the reverse index on output port index<br>
