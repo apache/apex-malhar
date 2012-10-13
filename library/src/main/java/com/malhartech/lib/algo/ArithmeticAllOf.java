@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
  *  This module is an end of window module<br>
  * <br>
  * Ports:<br>
- * <b>in_data</b>: Input port, expects HashMap<String, Object><br>
+ * <b>data</b>: Input port, expects HashMap<String, Object><br>
  * <b>allof</b>: Output port, emits Boolean<br>
  * <br>
  * Properties:<br>

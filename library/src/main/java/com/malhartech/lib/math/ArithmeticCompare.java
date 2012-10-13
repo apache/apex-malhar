@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Takes in one stream via input port "in_data". A compare function is imposed based on the property "key", "value", and "compare". If the tuple
+ * Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". If the tuple
  * passed the test, it is emitted on the output port "compare". The comparison is done by getting double
  * value from the Number. Both output ports are optional, but at least one has to be connected<p>
  *  * This module is a pass through<br>
@@ -53,14 +53,13 @@ import org.slf4j.LoggerFactory;
 
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = ArithmeticCompare.IPORT_IN_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = ArithmeticCompare.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = ArithmeticCompare.OPORT_COMPARE, type = PortAnnotation.PortType.OUTPUT)
 })
 public class ArithmeticCompare extends AbstractModule
 {
-  public static final String IPORT_IN_DATA = "in_data";
+  public static final String IPORT_DATA = "data";
   public static final String OPORT_COMPARE = "compare";
-  public static final String OPORT_EXCEPT = "except";
   private static Logger LOG = LoggerFactory.getLogger(ArithmeticCompare.class);
 
   String key;

@@ -4,11 +4,13 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.lib.math.*;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.dag.AbstractModule;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.Sink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,14 +19,14 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Takes in one stream via input port "data". Each tuple is tested for the compare function. The function is given by
- * "key", "value", and "compare". If any tuple passes a Boolean(true) is emitted, else a Boolean(false) is emitted on the output port "anyof".
- * The comparison is done by getting double value from the Number.<p>
- *  This module is a pass through as it emits the moment the condition is met<br>
+ * Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". If the tuple
+ * passed the test, it is emitted on the output port "firstof". The comparison is done by getting double
+ * value from the Number. Both output ports are optional, but at least one has to be connected<p>
+ *  * This module is a pass through<br>
  * <br>
  * Ports:<br>
  * <b>data</b>: Input port, expects HashMap<String, Object><br>
- * <b>anyof</b>: Output port, emits Boolean<br>
+ * <b>firstof</b>: Output port, emits HashMap<String, Object> if compare function returns true<br>
  * <br>
  * Properties:<br>
  * <b>key</b>: The key on which compare is done<br>
@@ -52,24 +54,24 @@ import org.slf4j.LoggerFactory;
 
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = ArithmeticAnyOf.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = ArithmeticAnyOf.OPORT_ANYOF, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = ArithmeticFirstOf.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = ArithmeticFirstOf.OPORT_FIRSTOF, type = PortAnnotation.PortType.OUTPUT)
 })
-public class ArithmeticAnyOf extends AbstractModule
+public class ArithmeticFirstOf extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
-  public static final String OPORT_ANYOF = "anyof";
-  private static Logger LOG = LoggerFactory.getLogger(ArithmeticAnyOf.class);
+  public static final String OPORT_FIRSTOF = "firstof";
+  private static Logger LOG = LoggerFactory.getLogger(ArithmeticCompare.class);
 
   String key;
   double default_value = 0.0;
   double value = default_value;
 
-  Boolean result = false;
-
   enum supported_type {LTE, LT, EQ, NEQ, GT, GTE};
   supported_type default_type = supported_type.EQ;
   supported_type type = default_type;
+
+  boolean emitted = false;
 
    /**
    * The key to compare on
@@ -97,7 +99,7 @@ public class ArithmeticAnyOf extends AbstractModule
   @Override
   public void process(Object payload)
   {
-    if (result) {
+    if (emitted) {
       return;
     }
     HashMap<String, Object> tuple = (HashMap<String, Object>) payload;
@@ -118,18 +120,15 @@ public class ArithmeticAnyOf extends AbstractModule
                 || ((type == supported_type.NEQ) && (tvalue != value))
                 || ((type == supported_type.GT) && (tvalue > value))
                 || ((type == supported_type.GTE) && (tvalue >= value))) {
-          result = true;
-          emit(new Boolean(true));
-        }
-        else {
-          ;
+          emit(payload);
+          emitted = true;
         }
       }
-      else {
-        ;
+      else { // emit error tuple, the string has to be Double
+
       }
     }
-    else { // emit error?
+    else { // is this an error condition?
       ;
     }
   }
@@ -137,13 +136,10 @@ public class ArithmeticAnyOf extends AbstractModule
   @Override
   public void beginWindow()
   {
-     result = false;
+    emitted = false;
   }
 
-  @Override
-  public void endWindow()
-  {
-  }
+
 
   public boolean myValidation(ModuleConfiguration config)
   {
