@@ -16,7 +16,7 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class Application implements ApplicationFactory
 {
-  private static final boolean inline = true;
+  private static final boolean inline = false;
 
   @Override
   public DAG getApplication(Configuration conf)

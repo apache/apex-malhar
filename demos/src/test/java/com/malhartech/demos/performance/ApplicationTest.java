@@ -21,20 +21,20 @@ public class ApplicationTest
     final StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));
     lc.setHeartbeatMonitoringEnabled(false);
 
-    new Thread("LocalClusterController")
-    {
-      @Override
-      public void run()
-      {
-        try {
-          Thread.sleep(1000000);
-        }
-        catch (InterruptedException ex) {
-        }
-
-        lc.shutdown();
-      }
-    }.start();
+//    new Thread("LocalClusterController")
+//    {
+//      @Override
+//      public void run()
+//      {
+//        try {
+//          Thread.sleep(10000);
+//        }
+//        catch (InterruptedException ex) {
+//        }
+//
+//        lc.shutdown();
+//      }
+//    }.start();
 
     lc.run();
   }
