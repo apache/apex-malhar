@@ -2,7 +2,7 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.math;
+package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
@@ -17,19 +17,19 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Takes in one stream via input port "data". A count is done on how many tuples satisfy the compare function. The function is given by
- * "key", "value", and "compare". If a tuple passed the test count is incremented. On end of window count iss emitted on the output port "countof".
+ * Takes in one stream via input port "in_data". Each tuple is tested for the compare function. The function is given by
+ * "key", "value", and "compare". If any tuple passes a Boolean(true) is emitted, else a Boolean(false) is emitted on end of window on the output port "anyof".
  * The comparison is done by getting double value from the Number.<p>
  *  This module is an end of window module<br>
  * <br>
  * Ports:<br>
- * <b>data</b>: Input port, expects HashMap<String, Object><br>
- * <b>countof</b>: Output port, emits Integer<br>
+ * <b>in_data</b>: Input port, expects HashMap<String, Object><br>
+ * <b>anyof</b>: Output port, emits Boolean<br>
  * <br>
  * Properties:<br>
  * <b>key</b>: The key on which compare is done<br>
  * <b>value</b>: The value to compare with<br>
- * <b>compare<b>: The compare function. Supported values are "lte", "lt", "eq", "neq", "gt", "gte". Default is "eq"<br>
+ * <b>comp<b>: The compare function. Supported values are "lte", "lt", "eq", "neq", "gt", "gte". Default is "eq"<br>
  * <br>
  * Compile time checks<br>
  * Key must be non empty<br>
@@ -52,20 +52,20 @@ import org.slf4j.LoggerFactory;
 
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = ArithmeticCountOf.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = ArithmeticCountOf.OPORT_COUNTOF, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = ArithmeticAnyOf.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = ArithmeticAnyOf.OPORT_ANYOF, type = PortAnnotation.PortType.OUTPUT)
 })
-public class ArithmeticCountOf extends AbstractModule
+public class ArithmeticAnyOf extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
-  public static final String OPORT_COUNTOF = "countof";
-  private static Logger LOG = LoggerFactory.getLogger(ArithmeticCountOf.class);
+  public static final String OPORT_ANYOF = "anyof";
+  private static Logger LOG = LoggerFactory.getLogger(ArithmeticAnyOf.class);
 
   String key;
   double default_value = 0.0;
   double value = default_value;
 
-  int count = 0;
+  Boolean result = false;
 
   enum supported_type {LTE, LT, EQ, NEQ, GT, GTE};
   supported_type default_type = supported_type.EQ;
@@ -87,7 +87,7 @@ public class ArithmeticCountOf extends AbstractModule
    * The compare function
    *
    */
-  public static final String KEY_COMPARE = "compare";
+  public static final String KEY_COMP = "comp";
 
   /**
    * Process each tuple
@@ -97,6 +97,9 @@ public class ArithmeticCountOf extends AbstractModule
   @Override
   public void process(Object payload)
   {
+    if (result) {
+      return;
+    }
     HashMap<String, Object> tuple = (HashMap<String, Object>) payload;
     Object val = tuple.get(key);
     double tvalue = 0;
@@ -115,14 +118,17 @@ public class ArithmeticCountOf extends AbstractModule
                 || ((type == supported_type.NEQ) && (tvalue != value))
                 || ((type == supported_type.GT) && (tvalue > value))
                 || ((type == supported_type.GTE) && (tvalue >= value))) {
-          count++;
+          result = true;
+        }
+        else {
+          ;
         }
       }
-      else { // emit error tuple, the string has to be Double
+      else {
         ;
       }
     }
-    else { // is this an error condition?
+    else { // emit error?
       ;
     }
   }
@@ -130,13 +136,13 @@ public class ArithmeticCountOf extends AbstractModule
   @Override
   public void beginWindow()
   {
-     count = 0;
+     result = false;
   }
 
   @Override
   public void endWindow()
   {
-    emit(new Integer(count));
+    emit( new Boolean(result));
   }
 
   public boolean myValidation(ModuleConfiguration config)
@@ -145,7 +151,7 @@ public class ArithmeticCountOf extends AbstractModule
 
     String key = config.get(KEY_KEY, "");
     String vstr = config.get(KEY_VALUE, "");
-    String cstr = config.get(KEY_COMPARE, "");
+    String cstr = config.get(KEY_COMP, "");
 
     if (key.isEmpty()) {
       ret = false;
@@ -162,7 +168,7 @@ public class ArithmeticCountOf extends AbstractModule
 
     if (!cstr.isEmpty() && !cstr.equals("lt") && !cstr.equals("lte") && !cstr.equals("eq") && !cstr.equals("neq") && !cstr.equals("gt") && !cstr.equals("gte")) {
       ret = false;
-      throw new IllegalArgumentException(String.format("Property \"%s\" is \"%s\". Valid values are \"lte\", \"lt\", \"eq\", \"neq\", \"gt\", \"gte\"", KEY_COMPARE, cstr));
+      throw new IllegalArgumentException(String.format("Property \"%s\" is \"%s\". Valid values are \"lte\", \"lt\", \"eq\", \"neq\", \"gt\", \"gte\"", KEY_COMP, cstr));
     }
     return ret;
   }
@@ -179,7 +185,7 @@ public class ArithmeticCountOf extends AbstractModule
 
     key = config.get(KEY_KEY);
     String vstr = config.get(KEY_VALUE);
-    String cstr = config.get(KEY_COMPARE, "lt");
+    String cstr = config.get(KEY_COMP, "lt");
 
     double value = Double.parseDouble(vstr);
     if (cstr.equals("lt")) {

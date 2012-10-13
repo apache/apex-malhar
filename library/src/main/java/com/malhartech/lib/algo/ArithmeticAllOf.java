@@ -2,7 +2,7 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.math;
+package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
@@ -17,14 +17,14 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Takes in one stream via input port "in_data". Each tuple is tested for the compare function. The function is given by
- * "key", "value", and "compare". If any tuple passes a Boolean(true) is emitted, else a Boolean(false) is emitted on end of window on the output port "anyof".
+ * Takes in one stream via input port "data". Each tuple is tested for the compare function. The function is given by
+ * "key", "value", and "compare". If all tuples passes a Boolean(true) is emitted, else a Boolean(false) is emitted on end of window on the output port "allof".
  * The comparison is done by getting double value from the Number.<p>
  *  This module is an end of window module<br>
  * <br>
  * Ports:<br>
  * <b>in_data</b>: Input port, expects HashMap<String, Object><br>
- * <b>anyof</b>: Output port, emits Boolean<br>
+ * <b>allof</b>: Output port, emits Boolean<br>
  * <br>
  * Properties:<br>
  * <b>key</b>: The key on which compare is done<br>
@@ -52,14 +52,14 @@ import org.slf4j.LoggerFactory;
 
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = ArithmeticAnyOf.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = ArithmeticAnyOf.OPORT_ANYOF, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = ArithmeticAllOf.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = ArithmeticAllOf.OPORT_ALLOF, type = PortAnnotation.PortType.OUTPUT)
 })
-public class ArithmeticAnyOf extends AbstractModule
+public class ArithmeticAllOf extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
-  public static final String OPORT_ANYOF = "anyof";
-  private static Logger LOG = LoggerFactory.getLogger(ArithmeticAnyOf.class);
+  public static final String OPORT_ALLOF = "allof";
+  private static Logger LOG = LoggerFactory.getLogger(ArithmeticAllOf.class);
 
   String key;
   double default_value = 0.0;
@@ -97,7 +97,7 @@ public class ArithmeticAnyOf extends AbstractModule
   @Override
   public void process(Object payload)
   {
-    if (result) {
+    if (!result) {
       return;
     }
     HashMap<String, Object> tuple = (HashMap<String, Object>) payload;
@@ -118,25 +118,26 @@ public class ArithmeticAnyOf extends AbstractModule
                 || ((type == supported_type.NEQ) && (tvalue != value))
                 || ((type == supported_type.GT) && (tvalue > value))
                 || ((type == supported_type.GTE) && (tvalue >= value))) {
-          result = true;
+          ;
         }
         else {
-          ;
+          result = false;
         }
       }
       else {
-        ;
+        result = false;
+
       }
     }
     else { // emit error?
-      ;
+      result = false;
     }
   }
 
   @Override
   public void beginWindow()
   {
-     result = false;
+     result = true;
   }
 
   @Override
