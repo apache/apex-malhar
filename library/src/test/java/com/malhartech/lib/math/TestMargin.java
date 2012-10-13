@@ -23,9 +23,9 @@ import com.malhartech.stream.StramTestSupport;
 /**
  *
  */
-public class TestArithmeticMargin
+public class TestMargin
 {
-  private static Logger LOG = LoggerFactory.getLogger(ArithmeticMargin.class);
+  private static Logger LOG = LoggerFactory.getLogger(Margin.class);
 
   /**
    * Test configuration and parameter validation of the node
@@ -33,7 +33,7 @@ public class TestArithmeticMargin
   @Test
   public void testNodeValidation()
   {
-    ArithmeticMargin node = new ArithmeticMargin();
+    Margin node = new Margin();
     ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
 
     // no testing as of now as no parameters on this node
@@ -48,13 +48,13 @@ public class TestArithmeticMargin
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    final ArithmeticMargin node = new ArithmeticMargin();
+    final Margin node = new Margin();
 
     TestSink marginSink = new TestSink();
 
-    Sink numSink = node.connect(ArithmeticMargin.IPORT_NUMERATOR, node);
-    Sink denSink = node.connect(ArithmeticMargin.IPORT_DENOMINATOR, node);
-    node.connect(ArithmeticMargin.OPORT_MARGIN, marginSink);
+    Sink numSink = node.connect(Margin.IPORT_NUMERATOR, node);
+    Sink denSink = node.connect(Margin.IPORT_DENOMINATOR, node);
+    node.connect(Margin.OPORT_MARGIN, marginSink);
 
     ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
     node.setup(conf);

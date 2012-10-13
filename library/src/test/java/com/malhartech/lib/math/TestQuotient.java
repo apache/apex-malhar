@@ -23,9 +23,9 @@ import com.malhartech.stream.StramTestSupport;
 /**
  *
  */
-public class TestArithmeticQuotient
+public class TestQuotient
 {
-  private static Logger LOG = LoggerFactory.getLogger(ArithmeticQuotient.class);
+  private static Logger LOG = LoggerFactory.getLogger(Quotient.class);
 
   /**
    * Test configuration and parameter validation of the node
@@ -33,17 +33,17 @@ public class TestArithmeticQuotient
   @Test
   public void testNodeValidation()
   {
-    ArithmeticQuotient node = new ArithmeticQuotient();
+    Quotient node = new Quotient();
 
     ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
-    conf.set(ArithmeticQuotient.KEY_MULTIPLY_BY, "junk");
+    conf.set(Quotient.KEY_MULTIPLY_BY, "junk");
 
     try {
       node.myValidation(conf);
-      Assert.fail("validation error  " + ArithmeticQuotient.KEY_MULTIPLY_BY);
+      Assert.fail("validation error  " + Quotient.KEY_MULTIPLY_BY);
     }
     catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + ArithmeticQuotient.KEY_MULTIPLY_BY,
+      Assert.assertTrue("validate " + Quotient.KEY_MULTIPLY_BY,
                         e.getMessage().contains("has to be an an integer"));
     }
   }
@@ -55,16 +55,16 @@ public class TestArithmeticQuotient
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    final ArithmeticQuotient node = new ArithmeticQuotient();
+    final Quotient node = new Quotient();
 
     TestSink quotientSink = new TestSink();
 
-    Sink numSink = node.connect(ArithmeticQuotient.IPORT_NUMERATOR, node);
-    Sink denSink = node.connect(ArithmeticQuotient.IPORT_DENOMINATOR, node);
-    node.connect(ArithmeticQuotient.OPORT_QUOTIENT, quotientSink);
+    Sink numSink = node.connect(Quotient.IPORT_NUMERATOR, node);
+    Sink denSink = node.connect(Quotient.IPORT_DENOMINATOR, node);
+    node.connect(Quotient.OPORT_QUOTIENT, quotientSink);
 
     ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
-    conf.setInt(ArithmeticQuotient.KEY_MULTIPLY_BY, 2);
+    conf.setInt(Quotient.KEY_MULTIPLY_BY, 2);
     node.setup(conf);
 
     final AtomicBoolean inactive = new AtomicBoolean(true);

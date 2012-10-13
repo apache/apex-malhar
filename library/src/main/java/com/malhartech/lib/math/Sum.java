@@ -31,19 +31,19 @@ import org.slf4j.LoggerFactory;
  */
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = ArithmeticSum.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = ArithmeticSum.OPORT_SUM, type = PortAnnotation.PortType.OUTPUT),
-  @PortAnnotation(name = ArithmeticSum.OPORT_AVERAGE, type = PortAnnotation.PortType.OUTPUT),
-  @PortAnnotation(name = ArithmeticSum.OPORT_COUNT, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = Sum.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = Sum.OPORT_SUM, type = PortAnnotation.PortType.OUTPUT),
+  @PortAnnotation(name = Sum.OPORT_AVERAGE, type = PortAnnotation.PortType.OUTPUT),
+  @PortAnnotation(name = Sum.OPORT_COUNT, type = PortAnnotation.PortType.OUTPUT)
 })
-public class ArithmeticSum extends AbstractModule
+public class Sum extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_SUM = "sum";
   public static final String OPORT_AVERAGE = "average";
   public static final String OPORT_COUNT = "count";
 
-  private static Logger LOG = LoggerFactory.getLogger(ArithmeticSum.class);
+  private static Logger LOG = LoggerFactory.getLogger(Sum.class);
   HashMap<String, Object> sum = new HashMap<String, Object>();
   boolean count_connected = false;
   boolean sum_connected = false;

@@ -44,16 +44,16 @@ import org.slf4j.LoggerFactory;
  */
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = ArithmeticQuotient.IPORT_NUMERATOR, type = PortType.INPUT),
-  @PortAnnotation(name = ArithmeticQuotient.IPORT_DENOMINATOR, type = PortType.INPUT),
-  @PortAnnotation(name = ArithmeticQuotient.OPORT_QUOTIENT, type = PortType.OUTPUT)
+  @PortAnnotation(name = Quotient.IPORT_NUMERATOR, type = PortType.INPUT),
+  @PortAnnotation(name = Quotient.IPORT_DENOMINATOR, type = PortType.INPUT),
+  @PortAnnotation(name = Quotient.OPORT_QUOTIENT, type = PortType.OUTPUT)
 })
-public class ArithmeticQuotient extends AbstractModule
+public class Quotient extends AbstractModule
 {
   public static final String IPORT_NUMERATOR = "numerator";
   public static final String IPORT_DENOMINATOR = "denominator";
   public static final String OPORT_QUOTIENT = "quotient";
-  private static Logger LOG = LoggerFactory.getLogger(ArithmeticQuotient.class);
+  private static Logger LOG = LoggerFactory.getLogger(Quotient.class);
 
 
   int mult_by = 1;

@@ -18,10 +18,10 @@
  * value from the Number. Both output ports are optional, but at least one has to be connected<br>
  * <b>{@link com.malhartech.lib.math.Max}</b>: Takes in one stream via input port "data". At end of window sends maximum of all values for each key and emits them on port "max"<br>
  * <b>{@link com.malhartech.lib.math.Min}</b>: Takes in one stream via input port "data". At end of window sends minimum of all values for each key and emits them on port "min"<br>
- * <b>{@link com.malhartech.lib.math.ArithmeticMargin}</b>: For every window computes margins of sums of values of a key in two streams<br>
- * <b>{@link com.malhartech.lib.math.ArithmeticQuotient}</b>: For every window computes quotient of sum of values of a key in two streams<br>
+ * <b>{@link com.malhartech.lib.math.Margin}</b>: For every window computes margins of sums of values of a key in two streams<br>
+ * <b>{@link com.malhartech.lib.math.Quotient}</b>: For every window computes quotient of sum of values of a key in two streams<br>
  * <b>{@link com.malhartech.lib.math.Range}</b>: Takes in one stream via input port "data". At end of window sends range of all values for each key and emits them on port "range"<br>
- * <b>{@link com.malhartech.lib.math.ArithmeticSum}</b>: For every window adds all the values of a key in a stream. For string values users can choose to appends with a delimiter<br>
+ * <b>{@link com.malhartech.lib.math.Sum}</b>: For every window adds all the values of a key in a stream. For string values users can choose to appends with a delimiter<br>
  * <b>{@link com.malhartech.lib.math.UniqueCounter}</b>: Counts payloads and send unique count for each on end of window<br>
  * <br>
  */

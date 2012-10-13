@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class TestArithmeticRange {
+public class TestRange {
     private static Logger LOG = LoggerFactory.getLogger(Range.class);
 
   class TestSink implements Sink

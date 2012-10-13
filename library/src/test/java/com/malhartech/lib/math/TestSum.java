@@ -18,8 +18,8 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class TestArithmeticSum {
-    private static Logger LOG = LoggerFactory.getLogger(ArithmeticSum.class);
+public class TestSum {
+    private static Logger LOG = LoggerFactory.getLogger(Sum.class);
 
     class TestSink implements Sink {
 
@@ -44,7 +44,7 @@ public class TestArithmeticSum {
 
         ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
 
-        ArithmeticSum node = new ArithmeticSum();
+        Sum node = new Sum();
 
         // Insert tests for expected failure and success here
         node.myValidation(conf);
@@ -64,14 +64,14 @@ public class TestArithmeticSum {
   public void testNodeSchemaProcessing(boolean sum, boolean count)
   {
 
-    ArithmeticSum node = new ArithmeticSum();
+    Sum node = new Sum();
     TestSink sumSink = new TestSink();
     TestSink countSink = new TestSink();
     if (sum) {
-      node.connect(ArithmeticSum.OPORT_SUM, sumSink);
+      node.connect(Sum.OPORT_SUM, sumSink);
     }
     if (count) {
-      node.connect(ArithmeticSum.OPORT_COUNT, countSink);
+      node.connect(Sum.OPORT_COUNT, countSink);
     }
     ModuleConfiguration conf = new ModuleConfiguration("testsumnode", new HashMap<String, String>());
     node.setup(conf);

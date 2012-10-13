@@ -8,7 +8,7 @@ import com.malhartech.dag.ModuleConfiguration;
 import com.malhartech.dag.ModuleContext;
 import com.malhartech.dag.Sink;
 import com.malhartech.dag.Tuple;
-import com.malhartech.lib.math.ArithmeticQuotient;
+import com.malhartech.lib.math.Quotient;
 import com.malhartech.stream.StramTestSupport;
 import java.util.HashMap;
 import java.util.Map;

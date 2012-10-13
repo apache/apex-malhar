@@ -36,16 +36,16 @@ import org.slf4j.LoggerFactory;
  */
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = ArithmeticMargin.IPORT_NUMERATOR, type = PortType.INPUT),
-  @PortAnnotation(name = ArithmeticMargin.IPORT_DENOMINATOR, type = PortType.INPUT),
-  @PortAnnotation(name = ArithmeticMargin.OPORT_MARGIN, type = PortType.OUTPUT)
+  @PortAnnotation(name = Margin.IPORT_NUMERATOR, type = PortType.INPUT),
+  @PortAnnotation(name = Margin.IPORT_DENOMINATOR, type = PortType.INPUT),
+  @PortAnnotation(name = Margin.OPORT_MARGIN, type = PortType.OUTPUT)
 })
-public class ArithmeticMargin extends AbstractModule
+public class Margin extends AbstractModule
 {
   public static final String IPORT_NUMERATOR = "numerator";
   public static final String IPORT_DENOMINATOR = "denominator";
   public static final String OPORT_MARGIN = "margin";
-  private static Logger LOG = LoggerFactory.getLogger(ArithmeticMargin.class);
+  private static Logger LOG = LoggerFactory.getLogger(Margin.class);
   HashMap<String, Number> numerators = new HashMap<String, Number>();
   HashMap<String, Number> denominators = new HashMap<String, Number>();
   boolean percent = false;
