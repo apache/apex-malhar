@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  * Takes in one stream via input port "in_data". A compare function is imposed based on the property "key", "value", and "compare". If the tuple
- * passed the test, it is emitted on the output port "compare". The comparison is done by getting double
+ * fails the test, it is emitted on the output port "except". The comparison is done by getting double
  * value from the Number. Both output ports are optional, but at least one has to be connected<p>
  *  * This module is a pass through<br>
  * <br>
@@ -53,15 +53,14 @@ import org.slf4j.LoggerFactory;
 
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = ArithmeticCompare.IPORT_IN_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = ArithmeticCompare.OPORT_COMPARE, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = ArithmeticExcept.IPORT_IN_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = ArithmeticExcept.OPORT_EXCEPT, type = PortAnnotation.PortType.OUTPUT)
 })
-public class ArithmeticCompare extends AbstractModule
+public class ArithmeticExcept extends AbstractModule
 {
   public static final String IPORT_IN_DATA = "in_data";
-  public static final String OPORT_COMPARE = "compare";
   public static final String OPORT_EXCEPT = "except";
-  private static Logger LOG = LoggerFactory.getLogger(ArithmeticCompare.class);
+  private static Logger LOG = LoggerFactory.getLogger(ArithmeticExcept.class);
 
   String key;
   double default_value = 0.0;
@@ -115,6 +114,9 @@ public class ArithmeticCompare extends AbstractModule
                 || ((type == supported_type.NEQ) && (tvalue != value))
                 || ((type == supported_type.GT) && (tvalue > value))
                 || ((type == supported_type.GTE) && (tvalue >= value))) {
+          ;
+        }
+        else {
           emit(payload);
         }
       }

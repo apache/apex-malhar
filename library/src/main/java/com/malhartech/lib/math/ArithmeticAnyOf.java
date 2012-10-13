@@ -9,7 +9,6 @@ import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.dag.AbstractModule;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.Sink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,14 +17,14 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Takes in one stream via input port "in_data". A compare function is imposed based on the property "key", "value", and "compare". If the tuple
- * passed the test, it is emitted on the output port "compare". The comparison is done by getting double
- * value from the Number. Both output ports are optional, but at least one has to be connected<p>
- *  * This module is a pass through<br>
+ * Takes in one stream via input port "in_data". Each tuple is tested for the compare function. The function is given by
+ * "key", "value", and "compare". If any tuple passes a Boolean(true) is emitted, else a Boolean(false) is emitted on end of window on the output port "anyof".
+ * The comparison is done by getting double value from the Number.<p>
+ *  This module is an end of window module<br>
  * <br>
  * Ports:<br>
  * <b>in_data</b>: Input port, expects HashMap<String, Object><br>
- * <b>compare</b>: Output port, emits HashMap<String, Object> if compare function returns true<br>
+ * <b>anyof</b>: Output port, emits Boolean<br>
  * <br>
  * Properties:<br>
  * <b>key</b>: The key on which compare is done<br>
@@ -53,19 +52,20 @@ import org.slf4j.LoggerFactory;
 
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = ArithmeticCompare.IPORT_IN_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = ArithmeticCompare.OPORT_COMPARE, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = ArithmeticAnyOf.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = ArithmeticAnyOf.OPORT_ANYOF, type = PortAnnotation.PortType.OUTPUT)
 })
-public class ArithmeticCompare extends AbstractModule
+public class ArithmeticAnyOf extends AbstractModule
 {
-  public static final String IPORT_IN_DATA = "in_data";
-  public static final String OPORT_COMPARE = "compare";
-  public static final String OPORT_EXCEPT = "except";
-  private static Logger LOG = LoggerFactory.getLogger(ArithmeticCompare.class);
+  public static final String IPORT_DATA = "data";
+  public static final String OPORT_ANYOF = "anyof";
+  private static Logger LOG = LoggerFactory.getLogger(ArithmeticAnyOf.class);
 
   String key;
   double default_value = 0.0;
   double value = default_value;
+
+  Boolean result = false;
 
   enum supported_type {LTE, LT, EQ, NEQ, GT, GTE};
   supported_type default_type = supported_type.EQ;
@@ -97,6 +97,9 @@ public class ArithmeticCompare extends AbstractModule
   @Override
   public void process(Object payload)
   {
+    if (result) {
+      return;
+    }
     HashMap<String, Object> tuple = (HashMap<String, Object>) payload;
     Object val = tuple.get(key);
     double tvalue = 0;
@@ -115,16 +118,31 @@ public class ArithmeticCompare extends AbstractModule
                 || ((type == supported_type.NEQ) && (tvalue != value))
                 || ((type == supported_type.GT) && (tvalue > value))
                 || ((type == supported_type.GTE) && (tvalue >= value))) {
-          emit(payload);
+          result = true;
+        }
+        else {
+          ;
         }
       }
-      else { // emit error tuple, the string has to be Double
-
+      else {
+        ;
       }
     }
-    else { // is this an error condition?
+    else { // emit error?
       ;
     }
+  }
+
+  @Override
+  public void beginWindow()
+  {
+     result = false;
+  }
+
+  @Override
+  public void endWindow()
+  {
+    emit( new Boolean(result));
   }
 
   public boolean myValidation(ModuleConfiguration config)

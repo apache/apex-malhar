@@ -19,13 +19,14 @@ import org.slf4j.LoggerFactory;
 /**
  *
  * Takes in one stream via input port "in_data". A compare function is imposed based on the property "key", "value", and "compare". If the tuple
- * passed the test, it is emitted on the output port "compare". The comparison is done by getting double
+ * passed the test, it is emitted on the output port "compare". If the tuple fails it is emitted on port "except". The comparison is done by getting double
  * value from the Number. Both output ports are optional, but at least one has to be connected<p>
  *  * This module is a pass through<br>
  * <br>
  * Ports:<br>
  * <b>in_data</b>: Input port, expects HashMap<String, Object><br>
  * <b>compare</b>: Output port, emits HashMap<String, Object> if compare function returns true<br>
+ * <b>except</b>: Output port, emits HashMap<String, Object> if compare function is false<br>
  * <br>
  * Properties:<br>
  * <b>key</b>: The key on which compare is done<br>
@@ -53,19 +54,23 @@ import org.slf4j.LoggerFactory;
 
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = ArithmeticCompare.IPORT_IN_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = ArithmeticCompare.OPORT_COMPARE, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = ArithmeticCompareExcept.IPORT_IN_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = ArithmeticCompareExcept.OPORT_COMPARE, type = PortAnnotation.PortType.OUTPUT),
+  @PortAnnotation(name = ArithmeticCompareExcept.OPORT_EXCEPT, type = PortAnnotation.PortType.OUTPUT)
 })
-public class ArithmeticCompare extends AbstractModule
+public class ArithmeticCompareExcept extends AbstractModule
 {
   public static final String IPORT_IN_DATA = "in_data";
   public static final String OPORT_COMPARE = "compare";
   public static final String OPORT_EXCEPT = "except";
-  private static Logger LOG = LoggerFactory.getLogger(ArithmeticCompare.class);
+  private static Logger LOG = LoggerFactory.getLogger(ArithmeticCompareExcept.class);
 
   String key;
   double default_value = 0.0;
   double value = default_value;
+
+  boolean compare_connected = false;
+  boolean except_connected = false;
 
   enum supported_type {LTE, LT, EQ, NEQ, GT, GTE};
   supported_type default_type = supported_type.EQ;
@@ -88,6 +93,18 @@ public class ArithmeticCompare extends AbstractModule
    *
    */
   public static final String KEY_COMP = "comp";
+
+
+    @Override
+  public void connected(String id, Sink dagpart)
+  {
+    if (id.equals(OPORT_COMPARE)) {
+      compare_connected = (dagpart != null);
+    }
+    else if (id.equals(OPORT_EXCEPT)) {
+      except_connected = (dagpart != null);
+    }
+  }
 
   /**
    * Process each tuple
@@ -115,6 +132,11 @@ public class ArithmeticCompare extends AbstractModule
                 || ((type == supported_type.NEQ) && (tvalue != value))
                 || ((type == supported_type.GT) && (tvalue > value))
                 || ((type == supported_type.GTE) && (tvalue >= value))) {
+          if (compare_connected) {
+            emit(payload);
+          }
+        }
+        else if (except_connected) {
           emit(payload);
         }
       }
