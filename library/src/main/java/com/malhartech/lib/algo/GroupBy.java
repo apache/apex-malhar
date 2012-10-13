@@ -72,8 +72,6 @@ public class GroupBy extends AbstractModule
   public static final String KEY_GROUPBY = "groupby";
 
 
-
-
   @Override
   public void beginWindow()
   {

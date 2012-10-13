@@ -59,6 +59,7 @@ public class Distinct extends AbstractModule
 
   HashMap<Object, HashMap<Object, Object>> mapkeyval = null;
 
+
   @Override
   public void beginWindow()
   {

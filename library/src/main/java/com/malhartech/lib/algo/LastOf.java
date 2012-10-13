@@ -99,8 +99,8 @@ public class LastOf extends AbstractModule
   @Override
   public void process(Object payload)
   {
-    HashMap<String, Object> tuple = (HashMap<String, Object>) payload;
-    Object val = tuple.get(key);
+    HashMap<String, Object> tuples = (HashMap<String, Object>) payload;
+    Object val = tuples.get(key);
     double tvalue = 0;
     boolean errortuple = false;
     if (val != null) { // skip if key does not exist
@@ -118,12 +118,12 @@ public class LastOf extends AbstractModule
                 || ((type == supported_type.GT) && (tvalue > value))
                 || ((type == supported_type.GTE) && (tvalue >= value))) {
           if (ltuple == null) {
-            ltuple.clear();
-          }
-          else {
             ltuple = new HashMap<String, Object>();
           }
-          for (Map.Entry<String, Object> e: tuple.entrySet()) {
+          else {
+            ltuple.clear();
+          }
+          for (Map.Entry<String, Object> e: tuples.entrySet()) {
             ltuple.put(e.getKey(), e.getValue());
           }
         }
