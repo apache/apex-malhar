@@ -38,14 +38,14 @@ import org.slf4j.LoggerFactory;
 
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = ArithmeticMax.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = ArithmeticMax.OPORT_MAX, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = Max.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = Max.OPORT_MAX, type = PortAnnotation.PortType.OUTPUT)
 })
-public class ArithmeticMax extends AbstractModule
+public class Max extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_MAX = "max";
-  private static Logger LOG = LoggerFactory.getLogger(ArithmeticMax.class);
+  private static Logger LOG = LoggerFactory.getLogger(Max.class);
   HashMap<String, Number> high = new HashMap<String, Number>();
 
   enum supported_type {INT, SHORT, LONG, DOUBLE, FLOAT};

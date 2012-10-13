@@ -53,14 +53,14 @@ import org.slf4j.LoggerFactory;
 
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = ArithmeticCompare.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = ArithmeticCompare.OPORT_COMPARE, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = Compare.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = Compare.OPORT_COMPARE, type = PortAnnotation.PortType.OUTPUT)
 })
-public class ArithmeticCompare extends AbstractModule
+public class Compare extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_COMPARE = "compare";
-  private static Logger LOG = LoggerFactory.getLogger(ArithmeticCompare.class);
+  private static Logger LOG = LoggerFactory.getLogger(Compare.class);
 
   String key;
   double default_value = 0.0;

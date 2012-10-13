@@ -38,14 +38,14 @@ import org.slf4j.LoggerFactory;
 
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = ArithmeticRange.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = ArithmeticRange.OPORT_RANGE, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = Range.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = Range.OPORT_RANGE, type = PortAnnotation.PortType.OUTPUT)
 })
-public class ArithmeticRange extends AbstractModule
+public class Range extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_RANGE = "range";
-  private static Logger LOG = LoggerFactory.getLogger(ArithmeticRange.class);
+  private static Logger LOG = LoggerFactory.getLogger(Range.class);
   HashMap<String, Number> high = new HashMap<String, Number>();
   HashMap<String, Number> low = new HashMap<String, Number>();
 

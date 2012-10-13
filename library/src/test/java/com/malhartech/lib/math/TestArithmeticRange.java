@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class TestArithmeticRange {
-    private static Logger LOG = LoggerFactory.getLogger(ArithmeticRange.class);
+    private static Logger LOG = LoggerFactory.getLogger(Range.class);
 
   class TestSink implements Sink
   {
@@ -50,7 +50,7 @@ public class TestArithmeticRange {
 
         ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
 
-        ArithmeticRange node = new ArithmeticRange();
+        Range node = new Range();
        // Insert tests for expected failure and success here
         node.myValidation(conf);
     }
@@ -72,16 +72,16 @@ public class TestArithmeticRange {
      */
     public void testSchemaNodeProcessing(String type) {
 
-      ArithmeticRange node = new ArithmeticRange();
+      Range node = new Range();
 
       TestSink rangeSink = new TestSink();
-      node.connect(ArithmeticRange.OPORT_RANGE, rangeSink);
+      node.connect(Range.OPORT_RANGE, rangeSink);
 
       HashMap<String, Double> input = new HashMap<String, Double>();
-      Sink outSink = node.connect(ArithmeticRange.IPORT_DATA, node);
+      Sink outSink = node.connect(Range.IPORT_DATA, node);
 
     ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
-    conf.set(ArithmeticRange.KEY_SCHEMA, type);
+    conf.set(Range.KEY_SCHEMA, type);
     node.setup(conf);
 
       // do node.setup

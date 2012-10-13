@@ -38,14 +38,14 @@ import org.slf4j.LoggerFactory;
 
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = ArithmeticMin.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = ArithmeticMin.OPORT_MIN, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = Min.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = Min.OPORT_MIN, type = PortAnnotation.PortType.OUTPUT)
 })
-public class ArithmeticMin extends AbstractModule
+public class Min extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_MIN = "min";
-  private static Logger LOG = LoggerFactory.getLogger(ArithmeticMin.class);
+  private static Logger LOG = LoggerFactory.getLogger(Min.class);
   HashMap<String, Number> low = new HashMap<String, Number>();
 
   enum supported_type {INT, SHORT, LONG, DOUBLE, FLOAT};

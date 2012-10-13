@@ -61,7 +61,7 @@ public class FirstOf extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_FIRSTOF = "firstof";
-  private static Logger LOG = LoggerFactory.getLogger(ArithmeticCompare.class);
+  private static Logger LOG = LoggerFactory.getLogger(Compare.class);
 
   String key;
   double default_value = 0.0;
