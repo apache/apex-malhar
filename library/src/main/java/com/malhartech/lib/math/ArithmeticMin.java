@@ -17,11 +17,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Takes in one stream via input port "data". At end of window sends range of all values
- * for each key and emits them on port "range"<p> <br> Values are stored in a
+ * Takes in one stream via input port "data". At end of window sends minimum of all values
+ * for each key and emits them on port "min"<p> <br> Values are stored in a
  * hash<br> This node only functions in a windowed stram application<br> Compile
  * time error processing is done on configuration parameters<br> input port
- * "data" must be connected<br> output port "range" must be connected<br>
+ * "data" must be connected<br> output port "min" must be connected<br>
  * "windowed" has to be true<br> Run time error processing are emitted on _error
  * port. The errors are:<br> Value is not a supported type<br>
  * <br>
@@ -38,15 +38,14 @@ import org.slf4j.LoggerFactory;
 
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = ArithmeticRange.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = ArithmeticRange.OPORT_RANGE, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = ArithmeticMin.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = ArithmeticMin.OPORT_MIN, type = PortAnnotation.PortType.OUTPUT)
 })
-public class ArithmeticRange extends AbstractModule
+public class ArithmeticMin extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
-  public static final String OPORT_RANGE = "range";
-  private static Logger LOG = LoggerFactory.getLogger(ArithmeticRange.class);
-  HashMap<String, Number> high = new HashMap<String, Number>();
+  public static final String OPORT_MIN = "min";
+  private static Logger LOG = LoggerFactory.getLogger(ArithmeticMin.class);
   HashMap<String, Number> low = new HashMap<String, Number>();
 
   enum supported_type {INT, SHORT, LONG, DOUBLE, FLOAT};
@@ -70,7 +69,7 @@ public class ArithmeticRange extends AbstractModule
        for (Map.Entry<String, Object> e: ((HashMap<String, Object>)payload).entrySet()) {
          Number tval = (Number) e.getValue(); // later on accept string
          String key = e.getKey();
-         Number val = high.get(key);
+         Number val = low.get(key);
          if (val == null) {
            switch (type) {
              case INT:
@@ -91,7 +90,6 @@ public class ArithmeticRange extends AbstractModule
              default:
                break;
            }
-           high.put(key, val);
            low.put(key, val);
          }
          else {
@@ -99,57 +97,32 @@ public class ArithmeticRange extends AbstractModule
            switch(type) {
              case INT:
                error = !(tval instanceof Integer);
-               if (!error) {
-                 if (val.intValue() < tval.intValue()) { // no need to touch "low" as old val is automatic low
-                   high.put(key, tval);
-                 }
-                 else if (val.intValue() > tval.intValue()) {
-                   low.put(key, tval);
-                 }
+               if (!error && (val.intValue() > tval.intValue())) {
+                 low.put(key, tval);
                }
                break;
              case DOUBLE:
                error = !(tval instanceof Double);
-               if (!error) {
-                 if (val.doubleValue() < tval.doubleValue()) { // no need to touch "low" as old val is automatic low
-                   high.put(key, tval);
-                 }
-                 else if (val.doubleValue() > tval.doubleValue()) {
-                   low.put(key, tval);
-                 }
+               if (!error && (val.doubleValue() > tval.doubleValue())) {
+                 low.put(key, tval);
                }
                break;
              case LONG:
                error = !(tval instanceof Long);
-               if (!error) {
-                 if (val.longValue() < tval.longValue()) { // no need to touch "low" as old val is automatic low
-                   high.put(key, tval);
-                 }
-                 else if (val.longValue() > tval.longValue()) {
-                   low.put(key, tval);
-                 }
+               if (!error && (val.longValue() > tval.longValue())) {
+                 low.put(key, tval);
                }
                break;
              case SHORT:
                error = !(tval instanceof Short);
-               if (!error) {
-                 if (val.shortValue() < tval.shortValue()) { // no need to touch "low" as old val is automatic low
-                   high.put(key, tval);
-                 }
-                 else if (val.shortValue() > tval.shortValue()) {
-                   low.put(key, tval);
-                 }
+               if (!error && (val.shortValue() > tval.shortValue())) {
+                 low.put(key, tval);
                }
                break;
              case FLOAT:
                error = !(tval instanceof Float);
-               if (!error) {
-                 if (val.floatValue() < tval.floatValue()) { // no need to touch "low" as old val is automatic low
-                   high.put(key, tval);
-                 }
-                 else if (val.floatValue() > tval.floatValue()) {
-                   low.put(key, tval);
-                 }
+               if (!error && (val.floatValue() > tval.floatValue())) {
+                 low.put(key, tval);
                }
                break;
              default:
@@ -198,6 +171,12 @@ public class ArithmeticRange extends AbstractModule
     LOG.debug(String.format("Schema set to %s", str));
   }
 
+  @Override
+  public void beginWindow()
+  {
+    low.clear();
+  }
+
 
   /**
    * Node only works in windowed mode. Emits all data upon end of window tuple
@@ -205,20 +184,9 @@ public class ArithmeticRange extends AbstractModule
   @Override
   public void endWindow()
   {
-    HashMap<String, Object> tuples = new HashMap<String, Object>();
-    for (Map.Entry<String, Number> e: high.entrySet()) {
-      ArrayList alist = new ArrayList();
-      alist.add(e.getValue());
-      alist.add(low.get(e.getKey())); // cannot be null
-      tuples.put(e.getKey(), alist);
+    if (!low.isEmpty()) {
+      emit(OPORT_MIN, low);
     }
-    // Should allow users to send each key as a separate tuple to load balance
-    // This is an aggregate node, so load balancing would most likely not be needed
-    if (!tuples.isEmpty()) {
-      emit(OPORT_RANGE, tuples);
-    }
-    high.clear();
-    low.clear();
   }
 
   /**
