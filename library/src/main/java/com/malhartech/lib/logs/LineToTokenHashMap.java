@@ -56,8 +56,9 @@ public class LineToTokenHashMap extends AbstractModule
   String splitby = null;
   String splittokenby = null;
   boolean dosplittoken = false; // !splittokenby_default.isEmpty();
-   /**
-   * The key to compare on
+
+  /**
+   * Tokens are split by this string
    *
    */
   public static final String KEY_SPLITBY = "splitby";
