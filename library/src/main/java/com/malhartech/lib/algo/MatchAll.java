@@ -18,13 +18,13 @@ import org.slf4j.LoggerFactory;
 /**
  *
  * Takes in one stream via input port "data". Each tuple is tested for the compare function. The function is given by
- * "key", "value", and "compare". If all tuples passes a Boolean(true) is emitted, else a Boolean(false) is emitted on end of window on the output port "allof".
+ * "key", "value", and "compare". If all tuples passes a Boolean(true) is emitted, else a Boolean(false) is emitted on end of window on the output port "all".
  * The comparison is done by getting double value from the Number.<p>
  *  This module is an end of window module<br>
  * <br>
  * Ports:<br>
  * <b>data</b>: Input port, expects HashMap<String, Object><br>
- * <b>allof</b>: Output port, emits Boolean<br>
+ * <b>all</b>: Output port, emits Boolean<br>
  * <br>
  * Properties:<br>
  * <b>key</b>: The key on which compare is done<br>
@@ -52,14 +52,14 @@ import org.slf4j.LoggerFactory;
 
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = AllOf.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = AllOf.OPORT_ALLOF, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = MatchAll.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = MatchAll.OPORT_ALL, type = PortAnnotation.PortType.OUTPUT)
 })
-public class AllOf extends AbstractModule
+public class MatchAll extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
-  public static final String OPORT_ALLOF = "allof";
-  private static Logger LOG = LoggerFactory.getLogger(AllOf.class);
+  public static final String OPORT_ALL = "all";
+  private static Logger LOG = LoggerFactory.getLogger(MatchAll.class);
 
   String key;
   double default_value = 0.0;
