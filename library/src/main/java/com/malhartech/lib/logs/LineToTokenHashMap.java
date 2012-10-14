@@ -34,11 +34,7 @@ import org.slf4j.LoggerFactory;
  * none<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Integer: ?? million tuples/s<br>
- * Double: ?? million tuples/s<br>
- * Long: ?? million tuples/s<br>
- * Short: ?? million tuples/s<br>
- * Float: ?? million tupels/s<br>
+ * TBD<br>
  *
  * @author amol
  */
@@ -72,6 +68,12 @@ public class LineToTokenHashMap extends AbstractModule
    */
   public static final String KEY_SPLITTOKENBY = "splittokenby";
 
+
+  public boolean addToken(String t) {
+    return !t.isEmpty();
+  }
+
+
   /**
    * Process each tuple
    *
@@ -88,7 +90,7 @@ public class LineToTokenHashMap extends AbstractModule
     String[] tokens = line.split(splitby);
     HashMap<String, Object> tuple = new HashMap<String, Object>();
     for (String t : tokens) {
-      if (!t.isEmpty()) {
+      if (addToken(t)) {
         if (dosplittoken) {
           String[] vals = t.split(splittokenby);
           if (vals.length != 0) {
@@ -112,11 +114,12 @@ public class LineToTokenHashMap extends AbstractModule
           tuple.put(t, null);
         }
       }
-      else {
-        ; // is it an error token, emit error?
-      }
+      // should emit error in else clause?
     }
-    emit(tuple);
+    if (!tuple.isEmpty()) {
+      emit(tuple);
+    }
+    // should emit error if tuple is empty?
   }
 
 

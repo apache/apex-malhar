@@ -21,11 +21,12 @@ import org.slf4j.LoggerFactory;
  * <br>
  * Ports:<br>
  * <b>data</b>: Input port, expects String<br>
- * <b>tokens</b>: Output port, emits HashMap<String, Object><br>
+ * <b>tokens</b>: Output port, emits ArrayList<Object><br>
  * <br>
  * Properties:<br>
  * <b>splitby</b>: The characters used to split the line. Default is ";\t "<br>
  * <b>splittokenby</b>: The characters used to split a token into key,val pair. If not specified the value is set to null. Default is "", i.e. tokens are not split<br>
+ * <b>filterby</b>: The keys to be filters. If a key is not  in this comma separated list it is ignored<br>
  * <br>
  * Compile time checks<br>
  * None<br>
@@ -34,11 +35,7 @@ import org.slf4j.LoggerFactory;
  * none<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Integer: ?? million tuples/s<br>
- * Double: ?? million tuples/s<br>
- * Long: ?? million tuples/s<br>
- * Short: ?? million tuples/s<br>
- * Float: ?? million tupels/s<br>
+ * TBD<br>
  *
  * @author amol
  */
@@ -55,8 +52,8 @@ public class LineToTokenArrayList extends AbstractModule
   public static final String OPORT_TOKENS = "tokens";
   private static Logger LOG = LoggerFactory.getLogger(LineToTokenArrayList.class);
 
-  String splitby_default = new String(";\t ");
-  String splittokenby_default = new String();
+  String splitby_default = ";\t ";
+  String splittokenby_default = "";
   String splitby = null;
   String splittokenby = null;
   boolean dosplittoken = false; // !splittokenby_default.isEmpty();
@@ -77,6 +74,11 @@ public class LineToTokenArrayList extends AbstractModule
    *
    * @param payload
    */
+
+  public boolean addToken(String t) {
+    return !t.isEmpty();
+  }
+
   @Override
   public void process(Object payload)
   {
@@ -88,7 +90,7 @@ public class LineToTokenArrayList extends AbstractModule
     String[] tokens = line.split(splitby);
     ArrayList<Object> tuple = new ArrayList<Object>();
     for (String t : tokens) {
-      if (!t.isEmpty()) {
+      if (addToken(t)) {
         if (dosplittoken) {
           String[] vals = t.split(splittokenby);
           if (vals.length != 0) {
@@ -116,11 +118,12 @@ public class LineToTokenArrayList extends AbstractModule
           tuple.add(t);
         }
       }
-      else {
-        ; // is it an error token, emit error?
-      }
+      // should emit error in the else clause?
     }
-    emit(tuple);
+    if (!tuple.isEmpty()) {
+      emit(tuple);
+    }
+    // should emit error if tuple is empty?
   }
 
 
