@@ -19,14 +19,14 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". Every tuple
- * is checked and the last one is send during end of window on port "lastof". The comparison is done by getting double
+ * Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". If the tuple
+ * passed the test, it is emitted on the output port "first" as the first match. The comparison is done by getting double
  * value from the Number. Both output ports are optional, but at least one has to be connected<p>
- *  * This module is an end of window module<br>
+ *  * This module is a pass through<br>
  * <br>
  * Ports:<br>
  * <b>data</b>: Input port, expects HashMap<String, Object><br>
- * <b>lastof</b>: Output port, emits HashMap<String, Object> in end of window for the last tuple on which the compare function is true<br>
+ * <b>first</b>: Output port, emits HashMap<String, Object> if compare function returns true<br>
  * <br>
  * Properties:<br>
  * <b>key</b>: The key on which compare is done<br>
@@ -54,13 +54,13 @@ import org.slf4j.LoggerFactory;
 
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = LastOf.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = LastOf.OPORT_LASTOF, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = FirstMatch.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = FirstMatch.OPORT_FIRST, type = PortAnnotation.PortType.OUTPUT)
 })
-public class LastOf extends AbstractModule
+public class FirstMatch extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
-  public static final String OPORT_LASTOF = "lastof";
+  public static final String OPORT_FIRST = "first";
   private static Logger LOG = LoggerFactory.getLogger(Compare.class);
 
   String key;
@@ -71,9 +71,9 @@ public class LastOf extends AbstractModule
   supported_type default_type = supported_type.EQ;
   supported_type type = default_type;
 
-  HashMap<String, Object> ltuple = null;
+  boolean emitted = false;
 
-  /**
+   /**
    * The key to compare on
    *
    */
@@ -99,8 +99,11 @@ public class LastOf extends AbstractModule
   @Override
   public void process(Object payload)
   {
-    HashMap<String, Object> tuples = (HashMap<String, Object>) payload;
-    Object val = tuples.get(key);
+    if (emitted) {
+      return;
+    }
+    HashMap<String, Object> tuple = (HashMap<String, Object>) payload;
+    Object val = tuple.get(key);
     double tvalue = 0;
     boolean errortuple = false;
     if (val != null) { // skip if key does not exist
@@ -117,15 +120,8 @@ public class LastOf extends AbstractModule
                 || ((type == supported_type.NEQ) && (tvalue != value))
                 || ((type == supported_type.GT) && (tvalue > value))
                 || ((type == supported_type.GTE) && (tvalue >= value))) {
-          if (ltuple == null) {
-            ltuple = new HashMap<String, Object>();
-          }
-          else {
-            ltuple.clear();
-          }
-          for (Map.Entry<String, Object> e: tuples.entrySet()) {
-            ltuple.put(e.getKey(), e.getValue());
-          }
+          emit(payload);
+          emitted = true;
         }
       }
       else { // emit error tuple, the string has to be Double
@@ -140,15 +136,7 @@ public class LastOf extends AbstractModule
   @Override
   public void beginWindow()
   {
-    ltuple = null;
-  }
-
-  @Override
-  public void endWindow()
-  {
-    if (ltuple != null) {
-      emit(ltuple);
-    }
+    emitted = false;
   }
 
 
