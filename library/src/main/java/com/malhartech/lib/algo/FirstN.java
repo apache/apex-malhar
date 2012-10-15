@@ -4,14 +4,11 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.lib.math.*;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.dag.AbstractModule;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.Sink;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -19,12 +16,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Takes in one stream via input port "data". Takes the first N tuples of a particular key and emits them as they come in on output port "take".<p>
+ * Takes in one stream via input port "data". Takes the first N tuples of a particular key and emits them as they come in on output port "first".<p>
  *  * This module is a pass through module<br>
  * <br>
  * Ports:<br>
  * <b>data</b>: Input port, expects HashMap<String, Object><br>
- * <b>take</b>: Output port, emits HashMap<String, Object><br>
+ * <b>first</b>: Output port, emits HashMap<String, Object><br>
  * <br>
  * Properties:<br>
  * <b>n</b>: Number of tuples to pass through for each key. Default value of N is 1.<br>
@@ -43,14 +40,14 @@ import org.slf4j.LoggerFactory;
 
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = TakeN.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = TakeN.OPORT_TAKE, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = FirstN.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = FirstN.OPORT_FIRST, type = PortAnnotation.PortType.OUTPUT)
 })
-public class TakeN extends AbstractModule
+public class FirstN extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
-  public static final String OPORT_TAKE = "take";
-  private static Logger LOG = LoggerFactory.getLogger(Compare.class);
+  public static final String OPORT_FIRST = "first";
+  private static Logger LOG = LoggerFactory.getLogger(FirstN.class);
 
   HashMap<String, Integer> keyloc = null;
 

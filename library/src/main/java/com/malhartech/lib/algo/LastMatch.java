@@ -4,14 +4,11 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.lib.math.*;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.dag.AbstractModule;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.Sink;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -61,7 +58,7 @@ public class LastMatch extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_LAST = "last";
-  private static Logger LOG = LoggerFactory.getLogger(Compare.class);
+  private static Logger LOG = LoggerFactory.getLogger(LastMatch.class);
 
   String key;
   double default_value = 0.0;
