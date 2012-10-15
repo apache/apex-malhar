@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  * Takes in one stream via input port "data". Takes the first N tuples of a particular key and emits them as they come in on output port "first".<p>
- *  * This module is a pass through module<br>
+ * This module is a pass through module<br>
  * <br>
  * Ports:<br>
  * <b>data</b>: Input port, expects HashMap<String, Object><br>

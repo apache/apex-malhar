@@ -18,8 +18,8 @@ import org.slf4j.LoggerFactory;
  *
  * Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". Every tuple
  * is checked and the last one that passes the condition is send during end of window on port "last". The comparison is done by getting double
- * value from the Number. Both output ports are optional, but at least one has to be connected<p>
- *  * This module is an end of window module<br>
+ * value from the Number<p>
+ * This module is an end of window module<br>
  * <br>
  * Ports:<br>
  * <b>data</b>: Input port, expects HashMap<String, Object><br>
