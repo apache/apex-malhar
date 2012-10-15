@@ -18,13 +18,13 @@ import org.slf4j.LoggerFactory;
 /**
  *
  * Takes in one stream via input port "data". A count is done on how many tuples satisfy the compare function. The function is given by
- * "key", "value", and "compare". If a tuple passed the test count is incremented. On end of window count iss emitted on the output port "countof".
+ * "key", "value", and "compare". If a tuple passed the test count is incremented. On end of window count iss emitted on the output port "count".
  * The comparison is done by getting double value from the Number.<p>
  *  This module is an end of window module<br>
  * <br>
  * Ports:<br>
  * <b>data</b>: Input port, expects HashMap<String, Object><br>
- * <b>countof</b>: Output port, emits Integer<br>
+ * <b>count</b>: Output port, emits Integer<br>
  * <br>
  * Properties:<br>
  * <b>key</b>: The key on which compare is done<br>
@@ -52,14 +52,14 @@ import org.slf4j.LoggerFactory;
 
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = CountOf.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = CountOf.OPORT_COUNTOF, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = CompareCount.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = CompareCount.OPORT_COUNT, type = PortAnnotation.PortType.OUTPUT)
 })
-public class CountOf extends AbstractModule
+public class CompareCount extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
-  public static final String OPORT_COUNTOF = "countof";
-  private static Logger LOG = LoggerFactory.getLogger(CountOf.class);
+  public static final String OPORT_COUNT = "count";
+  private static Logger LOG = LoggerFactory.getLogger(CompareCount.class);
 
   String key;
   double default_value = 0.0;
