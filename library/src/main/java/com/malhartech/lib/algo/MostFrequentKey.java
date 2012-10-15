@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Takes in one stream via input port "data". Occurrences of each key is counted and at the end of window the least frequent key is emitted on output port "count"<p>
+ * Takes in one stream via input port "data". Occurrences of each key is counted and at the end of window the most frequent key is emitted on output port "count"<p>
  *  This module is an end of window module<br>
  * <br>
  * Ports:<br>
@@ -41,14 +41,14 @@ import org.slf4j.LoggerFactory;
 
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = LeastFrequentKey.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = LeastFrequentKey.OPORT_COUNT, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = MostFrequentKey.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = MostFrequentKey.OPORT_COUNT, type = PortAnnotation.PortType.OUTPUT)
 })
-public class LeastFrequentKey extends AbstractModule
+public class MostFrequentKey extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_COUNT = "count";
-  private static Logger LOG = LoggerFactory.getLogger(LeastFrequentKey.class);
+  private static Logger LOG = LoggerFactory.getLogger(MostFrequentKey.class);
 
   HashMap<String, Integer> keylocation = null;
 
@@ -100,7 +100,7 @@ public class LeastFrequentKey extends AbstractModule
     int kval = -1;
     for (Map.Entry<String, Integer> e: keylocation.entrySet()) {
       if ((kval == -1) || // first key
-              (count[e.getValue().intValue()] < kval)) {
+              (count[e.getValue().intValue()] > kval)) {
         key = e.getKey();
         kval = count[e.getValue().intValue()];
       }
