@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * envinronment<br>
  * <br>
  */
-public class BenchmarkLoadGenerator
+public class LoadGeneratorBenchmark
 {
   private static Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
 

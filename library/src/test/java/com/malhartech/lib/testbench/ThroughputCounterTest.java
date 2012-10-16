@@ -3,19 +3,11 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.dag.Component;
 import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.ModuleContext;
 import com.malhartech.dag.Sink;
 import com.malhartech.dag.Tuple;
-import com.malhartech.stram.ManualScheduledExecutorService;
-import com.malhartech.stram.WindowGenerator;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import junit.framework.Assert;
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +25,7 @@ import org.slf4j.LoggerFactory;
  * DRC checks are validated<br>
  *
  */
-public class TestThroughputCounter {
+public class ThroughputCounterTest {
 
     private static Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
 

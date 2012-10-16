@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class TestMargin
+public class MarginTest
 {
   private static Logger LOG = LoggerFactory.getLogger(Margin.class);
 

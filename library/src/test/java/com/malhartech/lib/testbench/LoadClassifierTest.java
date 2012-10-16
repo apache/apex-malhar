@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  * Validates all DRC checks of the node<br>
  */
-public class TestLoadClassifier {
+public class LoadClassifierTest {
 
     private static Logger LOG = LoggerFactory.getLogger(LoadClassifier.class);
 

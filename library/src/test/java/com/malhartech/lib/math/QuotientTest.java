@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class TestQuotient
+public class QuotientTest
 {
   private static Logger LOG = LoggerFactory.getLogger(Quotient.class);
 

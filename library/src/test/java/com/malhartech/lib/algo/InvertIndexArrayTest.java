@@ -3,7 +3,6 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.lib.algo.InvertIndexArray;
 import com.malhartech.dag.ModuleConfiguration;
 import com.malhartech.dag.ModuleContext;
 import com.malhartech.dag.Sink;
@@ -12,7 +11,6 @@ import com.malhartech.stream.StramTestSupport;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import junit.framework.Assert;
@@ -23,7 +21,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class TestInvertIndexArray
+public class InvertIndexArrayTest
 {
   private static Logger LOG = LoggerFactory.getLogger(InvertIndexArray.class);
 

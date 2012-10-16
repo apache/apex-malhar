@@ -3,15 +3,12 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.esotericsoftware.minlog.Log;
 import com.malhartech.dag.ModuleConfiguration;
 import com.malhartech.dag.ModuleContext;
 import com.malhartech.dag.Sink;
 import com.malhartech.dag.Tuple;
-import com.malhartech.lib.math.Quotient;
 import com.malhartech.stream.StramTestSupport;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -29,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  * Validates all DRC checks of the node<br>
  */
-public class TestSeedClassifier {
+public class SeedClassifierTest {
 
     private static Logger LOG = LoggerFactory.getLogger(LoadClassifier.class);
 

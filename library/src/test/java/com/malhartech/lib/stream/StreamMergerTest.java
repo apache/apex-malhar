@@ -7,21 +7,20 @@ import com.malhartech.dag.ModuleConfiguration;
 import com.malhartech.dag.ModuleContext;
 import com.malhartech.dag.Sink;
 import com.malhartech.dag.Tuple;
-import com.malhartech.lib.stream.StreamMerger;
-import com.malhartech.lib.stream.StreamMerger10;
 import com.malhartech.stream.StramTestSupport;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Performance test for {@link com.malhartech.lib.testbench.StreamMerger10}<p>
+ * Performance test for {@link com.malhartech.lib.testbench.StreamMerger}<p>
  * Benchmarks: Currently does about 3 Million tuples/sec in debugging environment. Need to test on larger nodes<br>
  * <br>
  */
-public class TestStreamMerger10 {
+public class StreamMergerTest {
 
     private static Logger LOG = LoggerFactory.getLogger(StreamMerger.class);
 
@@ -48,25 +47,17 @@ public class TestStreamMerger10 {
     @Test
     public void testNodeProcessing() throws Exception {
 
-      final StreamMerger10 node = new StreamMerger10();
+      final StreamMerger node = new StreamMerger();
 
       TestSink mergeSink = new TestSink();
 
-      Sink inSink1 = node.connect(StreamMerger10.IPORT_IN_DATA1, node);
-      Sink inSink2 = node.connect(StreamMerger10.IPORT_IN_DATA2, node);
-      Sink inSink3 = node.connect(StreamMerger10.IPORT_IN_DATA3, node);
-      Sink inSink4 = node.connect(StreamMerger10.IPORT_IN_DATA4, node);
-      Sink inSink5 = node.connect(StreamMerger10.IPORT_IN_DATA5, node);
-      Sink inSink6 = node.connect(StreamMerger10.IPORT_IN_DATA6, node);
-      Sink inSink7 = node.connect(StreamMerger10.IPORT_IN_DATA7, node);
-      Sink inSink8 = node.connect(StreamMerger10.IPORT_IN_DATA8, node);
-      Sink inSink9 = node.connect(StreamMerger10.IPORT_IN_DATA9, node);
-      Sink inSink10 = node.connect(StreamMerger10.IPORT_IN_DATA10, node);
+      Sink inSink1 = node.connect(StreamMerger.IPORT_IN_DATA1, node);
+      Sink inSink2 = node.connect(StreamMerger.IPORT_IN_DATA2, node);
       node.connect(StreamMerger.OPORT_OUT_DATA, mergeSink);
 
       ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
-      conf.setInt("SpinMillis", 1);
-      conf.setInt("BufferCapacity", 10 * 1024 * 1024);
+      conf.setInt("SpinMillis", 10);
+      conf.setInt("BufferCapacity", 1024 * 1024);
       node.setup(conf);
 
       final AtomicBoolean inactive = new AtomicBoolean(true);
@@ -99,14 +90,6 @@ public class TestStreamMerger10 {
       Tuple bt = StramTestSupport.generateBeginWindowTuple("doesn't matter", 1);
       inSink1.process(bt);
       inSink2.process(bt);
-      inSink3.process(bt);
-      inSink4.process(bt);
-      inSink5.process(bt);
-      inSink6.process(bt);
-      inSink7.process(bt);
-      inSink8.process(bt);
-      inSink9.process(bt);
-      inSink10.process(bt);
 
       int numtuples = 50000000;
       Integer input = new Integer(0);
@@ -114,30 +97,15 @@ public class TestStreamMerger10 {
       for (int i = 0; i < numtuples; i++) {
         inSink1.process(input);
         inSink2.process(input);
-        inSink3.process(input);
-        inSink4.process(input);
-        inSink5.process(input);
-        inSink6.process(input);
-        inSink7.process(input);
-        inSink8.process(input);
-        inSink9.process(input);
-        inSink10.process(input);
       }
 
       Tuple et = StramTestSupport.generateEndWindowTuple("doesn't matter", 1, 1);
       inSink1.process(et);
       inSink2.process(et);
-      inSink3.process(et);
-      inSink4.process(et);
-      inSink5.process(et);
-      inSink6.process(et);
-      inSink7.process(et);
-      inSink8.process(et);
-      inSink9.process(et);
-      inSink10.process(et);
+
       // Should get one bag of keys "a", "b", "c"
       try {
-        for (int i = 0; i < 900; i++) {
+        for (int i = 0; i < 100; i++) {
           Thread.sleep(10);
           if (mergeSink.count >= numtuples*2 - 1) {
             break;
@@ -148,6 +116,8 @@ public class TestStreamMerger10 {
         LOG.debug(ex.getLocalizedMessage());
       }
 
+      // One for each key
+      Assert.assertEquals("number emitted tuples", numtuples*2, mergeSink.count);
       LOG.debug(String.format("\n********************\nProcessed %d tuples\n********************\n", mergeSink.count));
       for (int i = 1; i <= node.getNumInputPorts(); i++) {
         LOG.debug(String.format("%dth input port name is %s", i, node.getInputName(i)));

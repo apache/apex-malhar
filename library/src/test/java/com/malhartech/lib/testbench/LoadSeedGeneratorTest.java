@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  * DRC checks are validated<br>
  */
-public class TestLoadSeedGenerator
+public class LoadSeedGeneratorTest
 {
   private static Logger LOG = LoggerFactory.getLogger(LoadSeedGenerator.class);
 

@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class TestRange {
+public class RangeTest {
     private static Logger LOG = LoggerFactory.getLogger(Range.class);
 
   class TestSink implements Sink

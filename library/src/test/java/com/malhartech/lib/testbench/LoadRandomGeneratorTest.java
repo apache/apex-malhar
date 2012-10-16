@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  */
 
-public class TestLoadRandomGenerator {
+public class LoadRandomGeneratorTest {
 
     private static Logger LOG = LoggerFactory.getLogger(LoadRandomGenerator.class);
 

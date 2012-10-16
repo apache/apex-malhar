@@ -3,19 +3,13 @@
  */
 package com.malhartech.lib.stream;
 
-import com.malhartech.lib.stream.StreamMerger;
-import com.malhartech.lib.stream.StreamMerger5;
-import com.esotericsoftware.minlog.Log;
 import com.malhartech.dag.ModuleConfiguration;
 import com.malhartech.dag.ModuleContext;
 import com.malhartech.dag.Sink;
 import com.malhartech.dag.Tuple;
-import com.malhartech.lib.math.Quotient;
 import com.malhartech.stream.StramTestSupport;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * Benchmarks: Currently does about 3 Million tuples/sec in debugging environment. Need to test on larger nodes<br>
  * <br>
  */
-public class TestStreamMerger5 {
+public class StreamMerger5Test {
 
     private static Logger LOG = LoggerFactory.getLogger(StreamMerger.class);
 

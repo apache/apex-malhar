@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class TestSum {
+public class SumTest {
     private static Logger LOG = LoggerFactory.getLogger(Sum.class);
 
     class TestSink implements Sink {
