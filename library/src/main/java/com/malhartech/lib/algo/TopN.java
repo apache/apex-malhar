@@ -39,9 +39,9 @@ import org.slf4j.LoggerFactory;
  * @author amol<br>
  *
  */
-public class TopNPerKey extends OrderByKey
+public class TopN extends OrderByKey
 {
-  private static Logger LOG = LoggerFactory.getLogger(TopNPerKey.class);
+  private static Logger LOG = LoggerFactory.getLogger(TopN.class);
 
   final String default_n_str = new String("5");
   final int default_n_value = 5;

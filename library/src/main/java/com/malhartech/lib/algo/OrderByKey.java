@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
  * <b>out_data</b>: Output data port, emits HashMap<String, Object><br>
  * <b>Properties</b>:
  * <b>key</b>: The key to order by<br>
+ * <b>emitcount</b>: If true only the count is emitted instead of the tuples. Default value is false</br>
  * <b>Benchmarks></b>: TBD<br>
  * Compile time checks are:<br>
  * Parameter "key" cannot be empty<br>
@@ -50,14 +51,21 @@ public class OrderByKey extends AbstractModule
   public static final String OPORT_OUT_DATA = "out_data";
 
   String key = null;
+  final boolean docount_default = false;
+  boolean docount = docount_default;
   protected PriorityQueue<Integer> pqueue = null;
-  protected HashMap<Integer, ArrayList> smap = null;
+  protected HashMap<Integer, Object> smap = null;
 
  /**
    * The key to order by
    *
    */
   public static final String KEY_KEY = "key";
+
+  /**
+   * Emits the count of tuples, instead of the actual tuples at a particular value
+   */
+  public static final String KEY_DOCOUNT = "docount";
 
   /**
    * Cleanup at the start of window
@@ -77,9 +85,16 @@ public class OrderByKey extends AbstractModule
   {
     Integer key;
     while ((key = pqueue.poll()) != null) {
-      ArrayList list = smap.get(key);
-      for (Object o : list) {
-        emit(o);
+      if (docount) {
+        HashMap<Integer, Integer> tuple = new HashMap<Integer, Integer>(1);
+        tuple.put(key, (Integer) smap.get(key));
+        emit(tuple);
+      }
+      else {
+        ArrayList list = (ArrayList) smap.get(key);
+        for (Object o: list) {
+          emit(o);
+        }
       }
     }
   }
@@ -95,20 +110,31 @@ public class OrderByKey extends AbstractModule
   public void process(Object payload)
   {
     HashMap<String, Object> tuple = (HashMap<String, Object>) payload;
-
     Integer val = (Integer) tuple.get(key); // check instanceof?
     if (val == null) {
       // emit error tuple?
       return;
     }
-    ArrayList list = smap.get(val);
-    if (list == null) { // already in the queue
-      list = new ArrayList();
-      list.add(tuple);
-      smap.put(val, list);
-      pqueue.add(val);
+    if (docount) {
+      Integer count = (Integer) smap.get(val);
+      if (count == null) {
+        count = new Integer(1);
+      }
+      else {
+        count = count + 1;
+      }
+      smap.put(val, count);
     }
-    list.add(tuple);
+    else {
+      ArrayList list = (ArrayList) smap.get(val);
+      if (list == null) { // already in the queue
+        list = new ArrayList();
+        list.add(tuple);
+        smap.put(val, list);
+        pqueue.add(val);
+      }
+      list.add(tuple);
+    }
   }
 
   /**
@@ -140,7 +166,8 @@ public class OrderByKey extends AbstractModule
     }
 
     key = config.get(KEY_KEY, "");
+    docount = config.getBoolean(KEY_DOCOUNT, docount_default);
     pqueue = new PriorityQueue<Integer>();
-    smap = new HashMap<Integer, ArrayList>();
+    smap = new HashMap<Integer, Object>();
   }
 }
