@@ -89,17 +89,23 @@ public class FirstN extends AbstractModule
         emit(tuple);
       }
       if (current_loc >= count_size) {
-        final int new_count_size = count_size*2;
-        int[] newcount = new int[new_count_size*2];
-        for (int j = 0; j < count_size; j++) {
-          newcount[j] = count[j];
-        }
-        for (int j = count_size; j < new_count_size; j++) {
-          newcount[j] = 0;
-        }
-        count = newcount;
+        updateCountSize();
       }
     }
+  }
+
+    public void updateCountSize()
+  {
+    int new_count_size = count_size * 2;
+    int[] newcount = new int[new_count_size];
+    for (int i = 0; i < count_size; i++) {
+      newcount[i] = count[i];
+    }
+    for (int i = count_size; i < new_count_size; i++) {
+      newcount[i] = 0;
+    }
+    count = newcount;
+    count_size = new_count_size;
   }
 
   @Override

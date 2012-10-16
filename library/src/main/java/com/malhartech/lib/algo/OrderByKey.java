@@ -19,13 +19,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Takes a stream of key value pairs via input port "data", and they are ordered by their value. The ordered tuples are emitted on port "out_data" at the end of window<p>
+ * Takes a stream of key value pairs via input port "data", and they are ordered by key. The ordered tuples are emitted on port "out_data" at the end of window<p>
  * This is an end of window module<br>
  * At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
  * <br>
  * <b>Ports</b>
- * <b>data</b>: Input data port expects HashMap<String, Integer><br>
- * <b>out_data</b>: Output data port, emits HashMap<String, Integer><br>
+ * <b>data</b>: Input data port expects HashMap<String, Object><br>
+ * <b>out_data</b>: Output data port, emits HashMap<String, Object><br>
  * <b>Properties</b>:
  * <b>Benchmarks></b>: TBD<br>
  * Compile time checks are:<br>
@@ -38,17 +38,17 @@ import org.slf4j.LoggerFactory;
  */
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = OrderByValue.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = OrderByValue.OPORT_OUT_DATA, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = OrderByKey.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = OrderByKey.OPORT_OUT_DATA, type = PortAnnotation.PortType.OUTPUT)
 })
-public class OrderByValue extends AbstractModule
+public class OrderByKey extends AbstractModule
 {
-  private static Logger LOG = LoggerFactory.getLogger(OrderByValue.class);
+  private static Logger LOG = LoggerFactory.getLogger(OrderByKey.class);
   public static final String IPORT_DATA = "data";
   public static final String OPORT_OUT_DATA = "out_data";
 
-  PriorityQueue<Integer> pqueue = null;
-  HashMap<Integer, HashMap<String, Integer>> smap = null;
+  PriorityQueue<String> pqueue = null;
+  HashMap<String, ArrayList> smap = null;
 
 
   /**
@@ -67,19 +67,13 @@ public class OrderByValue extends AbstractModule
   @Override
   public void endWindow()
   {
-    Integer ival;
-    while ((ival = pqueue.poll()) != null) {
-      HashMap<String, Integer> istr = smap.get(ival);
-      if (istr == null) { // Should always be null
-        continue;
-      }
-      for (Map.Entry<String, Integer> e: istr.entrySet()) {
-        int count = e.getValue().intValue();
-        for (int i = 0; i < count; i++) {
-          HashMap<String, Integer> tuple = new HashMap<String, Integer>(1);
-          tuple.put(e.getKey(), ival);
-          emit(tuple);
-        }
+    String key;
+    while ((key = pqueue.poll()) != null) {
+      ArrayList list = smap.get(key);
+      for (Object o : list) {
+        HashMap<String, Object> tuple = new HashMap<String, Object>(1);
+        tuple.put(key, o);
+        emit(tuple);
       }
     }
   }
@@ -95,21 +89,15 @@ public class OrderByValue extends AbstractModule
   public void process(Object payload)
   {
     for (Map.Entry<String, Integer> e: ((HashMap<String, Integer>) payload).entrySet()) {
-      HashMap<String, Integer> istr = smap.get(e.getValue());
-      if (istr == null) { // not in priority queue
-        istr = new HashMap<String, Integer>(4);
-        istr.put(e.getKey(), new Integer(1));
-        smap.put(e.getValue(), istr);
-        pqueue.add(e.getValue());
+      ArrayList list = smap.get(e.getKey());
+      if (list == null) { // not in priority queue
+        list = new ArrayList(4);
+        list.add(e.getValue());
+        smap.put(e.getKey(), list);
+        pqueue.add(e.getKey());
       }
       else { // value is in the priority queue
-        Integer scount = istr.get(e.getKey());
-        if (scount == null) { // this key does not exist
-          istr.put(e.getKey(), new Integer(1));
-        }
-        else {
-          istr.put(e.getKey(), scount + 1);
-        }
+        list.add(e.getValue());
       }
     }
   }
@@ -135,7 +123,7 @@ public class OrderByValue extends AbstractModule
     if (!myValidation(config)) {
       throw new FailedOperationException("Did not pass validation");
     }
-    pqueue = new PriorityQueue<Integer>();
-    smap = new HashMap<Integer, HashMap<String, Integer>>();
+    pqueue = new PriorityQueue<String>();
+    smap = new HashMap<String, ArrayList>();
   }
 }

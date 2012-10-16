@@ -80,7 +80,6 @@ public class MostFrequentKeyValue extends AbstractModule
   public void updateCountSize()
   {
     int new_count_size = current_count_size * 2;
-
     int[] newcount = new int[new_count_size];
     for (int i = 0; i < current_count_size; i++) {
       newcount[i] = count[i];

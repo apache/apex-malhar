@@ -72,17 +72,23 @@ public class LeastFrequentKey extends AbstractModule
     }
     count[location.intValue()]++;
     if (current_location >= current_count_size) {
-      int new_count_size = current_count_size * 2;
-      int[] newcount = new int[new_count_size];
-      for (int i = 0; i < current_count_size; i++) {
-        newcount[i] = count[i];
-      }
-      for (int i = current_count_size; i < new_count_size; i++) {
-        newcount[i] = 0;
-      }
-      count = newcount;
-      current_count_size = new_count_size;
+      updateCountSize();
     }
+  }
+
+
+  public void updateCountSize()
+  {
+    int new_count_size = current_count_size * 2;
+    int[] newcount = new int[new_count_size];
+    for (int i = 0; i < current_count_size; i++) {
+      newcount[i] = count[i];
+    }
+    for (int i = current_count_size; i < new_count_size; i++) {
+      newcount[i] = 0;
+    }
+    count = newcount;
+    current_count_size = new_count_size;
   }
 
   @Override
