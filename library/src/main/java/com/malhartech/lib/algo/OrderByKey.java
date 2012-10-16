@@ -172,7 +172,7 @@ public class OrderByKey extends AbstractModule
 
     key = config.get(KEY_KEY, "");
     docount = config.getBoolean(KEY_DOCOUNT, docount_default);
-    pqueue = new PriorityQueue<Integer>();
+    initializePriorityQueue();
     smap = new HashMap<Integer, Object>();
   }
 }

@@ -15,14 +15,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". If the tuple
- * passed the test, it is emitted on the output port "first" as the first match. The comparison is done by getting double
- * value from the Number.<p>
+ * Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". All tuples
+ * are emitted (inclusive) once a match is made. The comparison is done by getting double value from the Number.<p>
  * This module is a pass through<br>
  * <br>
  * Ports:<br>
  * <b>data</b>: Input port, expects HashMap<String, Object><br>
- * <b>first</b>: Output port, emits HashMap<String, Object> if compare function returns true<br>
+ * <b>allafter</b>: Output port, emits HashMap<String, Object> if compare function returns true<br>
  * <br>
  * Properties:<br>
  * <b>key</b>: The key on which compare is done<br>
@@ -50,14 +49,14 @@ import org.slf4j.LoggerFactory;
 
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = FirstMatch.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = FirstMatch.OPORT_FIRST, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = AllAfterMatch.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = AllAfterMatch.OPORT_ALLAFTER, type = PortAnnotation.PortType.OUTPUT)
 })
-public class FirstMatch extends AbstractModule
+public class AllAfterMatch extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
-  public static final String OPORT_FIRST = "first";
-  private static Logger LOG = LoggerFactory.getLogger(FirstMatch.class);
+  public static final String OPORT_ALLAFTER = "allaftert";
+  private static Logger LOG = LoggerFactory.getLogger(AllAfterMatch.class);
 
   String key;
   double default_value = 0.0;
@@ -67,7 +66,7 @@ public class FirstMatch extends AbstractModule
   supported_type default_type = supported_type.EQ;
   supported_type type = default_type;
 
-  boolean emitted = false;
+  boolean doemit = false;
 
    /**
    * The key to compare on
@@ -95,7 +94,8 @@ public class FirstMatch extends AbstractModule
   @Override
   public void process(Object payload)
   {
-    if (emitted) {
+    if (doemit) {
+      emit(payload);
       return;
     }
     HashMap<String, Object> tuple = (HashMap<String, Object>) payload;
@@ -116,23 +116,21 @@ public class FirstMatch extends AbstractModule
                 || ((type == supported_type.NEQ) && (tvalue != value))
                 || ((type == supported_type.GT) && (tvalue > value))
                 || ((type == supported_type.GTE) && (tvalue >= value))) {
+          doemit = true;
           emit(payload);
-          emitted = true;
         }
       }
       else { // emit error tuple, the string has to be Double
-
       }
     }
     else { // is this an error condition?
-      ;
     }
   }
 
   @Override
   public void beginWindow()
   {
-    emitted = false;
+    doemit = false;
   }
 
 

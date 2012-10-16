@@ -15,9 +15,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". If the tuple
- * passed the test, it is emitted on the output port "first" as the first match. The comparison is done by getting double
- * value from the Number.<p>
+ * Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". All tuples
+ * are emitted till a tuple matches this test. Then on no tuple is emitted in that window. The comparison is done by getting double value from the Number.<p>
  * This module is a pass through<br>
  * <br>
  * Ports:<br>
@@ -50,14 +49,14 @@ import org.slf4j.LoggerFactory;
 
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = FirstMatch.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = FirstMatch.OPORT_FIRST, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = FirstTillMatch.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = FirstTillMatch.OPORT_FIRST, type = PortAnnotation.PortType.OUTPUT)
 })
-public class FirstMatch extends AbstractModule
+public class FirstTillMatch extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_FIRST = "first";
-  private static Logger LOG = LoggerFactory.getLogger(FirstMatch.class);
+  private static Logger LOG = LoggerFactory.getLogger(FirstTillMatch.class);
 
   String key;
   double default_value = 0.0;
@@ -110,22 +109,25 @@ public class FirstMatch extends AbstractModule
         errortuple = true;
       }
       if (!errortuple) {
-        if (((type == supported_type.LT) && (tvalue < value))
-                || ((type == supported_type.LTE) && (tvalue <= value))
-                || ((type == supported_type.EQ) && (tvalue == value))
-                || ((type == supported_type.NEQ) && (tvalue != value))
-                || ((type == supported_type.GT) && (tvalue > value))
-                || ((type == supported_type.GTE) && (tvalue >= value))) {
-          emit(payload);
-          emitted = true;
+        if (!emitted) {
+          if (((type == supported_type.LT) && (tvalue < value))
+                  || ((type == supported_type.LTE) && (tvalue <= value))
+                  || ((type == supported_type.EQ) && (tvalue == value))
+                  || ((type == supported_type.NEQ) && (tvalue != value))
+                  || ((type == supported_type.GT) && (tvalue > value))
+                  || ((type == supported_type.GTE) && (tvalue >= value))) {
+            emitted = true;
+          }
+          else {
+            emit(payload);
+          }
         }
       }
       else { // emit error tuple, the string has to be Double
-
       }
     }
     else { // is this an error condition?
-      ;
+      emit(payload);
     }
   }
 
