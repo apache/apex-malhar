@@ -9,6 +9,7 @@ import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.dag.AbstractModule;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.lib.util.BoundedPriorityQueue;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -43,7 +44,7 @@ public class TopN extends OrderByKey
 {
   private static Logger LOG = LoggerFactory.getLogger(TopN.class);
 
-  final String default_n_str = new String("5");
+  final String default_n_str = "5";
   final int default_n_value = 5;
   int n = default_n_value;
 
@@ -56,25 +57,10 @@ public class TopN extends OrderByKey
 
   /**
    *
-   * Takes in a key and an arrayIndex. ReverseIndexes the strings in the ArrayIndex
-   *
-   * @param payload
-   */
-  @Override
-  public void process(Object payload)
-  {
-    super.process(payload);
-    int size = pqueue.size();
-    if (size > n) {
-      // purge the extra value here from pqueue and smap
-    }
-  }
-
-  /**
-   *
    * @param config
    * @return boolean
    */
+  @Override
   public boolean myValidation(ModuleConfiguration config)
   {
     boolean ret = true;
@@ -101,7 +87,13 @@ public class TopN extends OrderByKey
     if (!myValidation(config)) {
       throw new FailedOperationException("Did not pass validation");
     }
-
     n = config.getInt(KEY_N, default_n_value);
+    initializePriorityQueue();
+  }
+
+  @Override
+  public void initializePriorityQueue()
+  {
+    pqueue = new BoundedPriorityQueue<Integer>(5, n);
   }
 }

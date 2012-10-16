@@ -119,6 +119,7 @@ public class OrderByKey extends AbstractModule
       Integer count = (Integer) smap.get(val);
       if (count == null) {
         count = new Integer(1);
+        pqueue.add(val);
       }
       else {
         count = count + 1;
@@ -154,6 +155,10 @@ public class OrderByKey extends AbstractModule
     return ret;
   }
 
+  public void initializePriorityQueue()
+  {
+    pqueue = new PriorityQueue<Integer>(5);
+  }
   /**
    *
    * @param config
