@@ -58,6 +58,9 @@ public class FilterKeys extends AbstractModule
    */
   public static final String KEY_KEYS = "keys";
 
+  /**
+   * If inverse is true the filtered keys are dropped and rest are passed through. If inverse if false then the filtered keys are passed through. Default value for "inverse" is "false"<br>
+   */
   public static final String KEYS_INVERSE = "inverse";
 
   /**

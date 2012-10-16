@@ -70,7 +70,7 @@ public class OrderByValue extends AbstractModule
     Integer ival;
     while ((ival = pqueue.poll()) != null) {
       HashMap<String, Integer> istr = smap.get(ival);
-      if (istr == null) { // Should always be null
+      if (istr == null) { // Should always be not null
         continue;
       }
       for (Map.Entry<String, Integer> e: istr.entrySet()) {
