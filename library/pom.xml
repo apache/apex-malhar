@@ -73,9 +73,9 @@
 
   <profiles>
 
-    <!-- mvn package -P docs -->
+    <!-- mvn package -Prelease -->
     <profile>
-      <id>docs</id>
+      <id>release</id>
       <activation>
         <activeByDefault>false</activeByDefault>
       </activation>
@@ -90,6 +90,7 @@
               <execution>
                 <goals>
                   <goal>javadoc</goal>
+                  <goal>jar</goal>
                 </goals>
                 <phase>prepare-package</phase>
               </execution>
