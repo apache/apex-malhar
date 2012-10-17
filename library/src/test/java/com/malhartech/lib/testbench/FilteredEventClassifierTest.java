@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Functional test for {@link com.malhartech.lib.testbench.FilterClassifier} for three configuration><p>
+ * Functional test for {@link com.malhartech.lib.testbench.FilteredEventClassifier} for three configuration><p>
  * <br>
  * Configuration 1: Provide values and weights<br>
  * Configuration 2: Provide values but no weights (even weights)<br>
@@ -25,9 +25,9 @@ import org.slf4j.LoggerFactory;
  * <br>
  * Validates all DRC checks of the node<br>
  */
-public class FilterClassifierTest {
+public class FilteredEventClassifierTest {
 
-    private static Logger LOG = LoggerFactory.getLogger(FilterClassifier.class);
+    private static Logger LOG = LoggerFactory.getLogger(FilteredEventClassifier.class);
 
     class TestSink implements Sink {
 
@@ -72,99 +72,99 @@ public class FilterClassifierTest {
     public void testNodeValidation() {
 
         ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
-        FilterClassifier node = new FilterClassifier();
+        FilteredEventClassifier node = new FilteredEventClassifier();
         // String[] kstr = config.getTrimmedStrings(KEY_KEYS);
         // String[] vstr = config.getTrimmedStrings(KEY_VALUES);
 
 
-        conf.set(FilterClassifier.KEY_KEYS, "");
+        conf.set(FilteredEventClassifier.KEY_KEYS, "");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + FilterClassifier.KEY_KEYS);
+            Assert.fail("validation error  " + FilteredEventClassifier.KEY_KEYS);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + FilterClassifier.KEY_KEYS,
+            Assert.assertTrue("validate " + FilteredEventClassifier.KEY_KEYS,
                     e.getMessage().contains("is empty"));
         }
 
-        conf.set(FilterClassifier.KEY_KEYS, "a,b,c"); // from now on keys are a,b,c
-        conf.set(FilterClassifier.KEY_FILTER, "");
+        conf.set(FilteredEventClassifier.KEY_KEYS, "a,b,c"); // from now on keys are a,b,c
+        conf.set(FilteredEventClassifier.KEY_FILTER, "");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + FilterClassifier.KEY_FILTER);
+            Assert.fail("validation error  " + FilteredEventClassifier.KEY_FILTER);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + FilterClassifier.KEY_FILTER,
+            Assert.assertTrue("validate " + FilteredEventClassifier.KEY_FILTER,
                     e.getMessage().contains("is empty"));
         }
-        conf.set(FilterClassifier.KEY_FILTER, "22");
+        conf.set(FilteredEventClassifier.KEY_FILTER, "22");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + FilterClassifier.KEY_FILTER);
+            Assert.fail("validation error  " + FilteredEventClassifier.KEY_FILTER);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + FilterClassifier.KEY_FILTER,
+            Assert.assertTrue("validate " + FilteredEventClassifier.KEY_FILTER,
                     e.getMessage().contains("has wrong format"));
         }
-        conf.set(FilterClassifier.KEY_FILTER, "2,a");
+        conf.set(FilteredEventClassifier.KEY_FILTER, "2,a");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + FilterClassifier.KEY_FILTER);
+            Assert.fail("validation error  " + FilteredEventClassifier.KEY_FILTER);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + FilterClassifier.KEY_FILTER,
+            Assert.assertTrue("validate " + FilteredEventClassifier.KEY_FILTER,
                     e.getMessage().contains("Filter string should be an integer"));
         }
-        conf.set(FilterClassifier.KEY_FILTER, "7,1000");
+        conf.set(FilteredEventClassifier.KEY_FILTER, "7,1000");
 
-        conf.set(FilterClassifier.KEY_VALUES, "1,2,3,4");
+        conf.set(FilteredEventClassifier.KEY_VALUES, "1,2,3,4");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + FilterClassifier.KEY_VALUES);
+            Assert.fail("validation error  " + FilteredEventClassifier.KEY_VALUES);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + FilterClassifier.KEY_VALUES,
+            Assert.assertTrue("validate " + FilteredEventClassifier.KEY_VALUES,
                     e.getMessage().contains("does not match number of keys"));
         }
 
-        conf.set(FilterClassifier.KEY_VALUES, "1,2a,3");
+        conf.set(FilteredEventClassifier.KEY_VALUES, "1,2a,3");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + FilterClassifier.KEY_VALUES);
+            Assert.fail("validation error  " + FilteredEventClassifier.KEY_VALUES);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + FilterClassifier.KEY_VALUES,
+            Assert.assertTrue("validate " + FilteredEventClassifier.KEY_VALUES,
                     e.getMessage().contains("Value string should be float"));
         }
 
-        conf.set(FilterClassifier.KEY_VALUES, "1,2,3");
-        conf.set(FilterClassifier.KEY_WEIGHTS, "ia:60,10,35;;ic:20,10,70;id:50,15,35");
+        conf.set(FilteredEventClassifier.KEY_VALUES, "1,2,3");
+        conf.set(FilteredEventClassifier.KEY_WEIGHTS, "ia:60,10,35;;ic:20,10,70;id:50,15,35");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + FilterClassifier.KEY_WEIGHTS);
+            Assert.fail("validation error  " + FilteredEventClassifier.KEY_WEIGHTS);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + FilterClassifier.KEY_WEIGHTS,
+            Assert.assertTrue("validate " + FilteredEventClassifier.KEY_WEIGHTS,
                     e.getMessage().contains("One of the keys in"));
         }
 
-        conf.set(FilterClassifier.KEY_WEIGHTS, "ia:60,10,35;ib,10,75,15;ic:20,10,70;id:50,15,35");
+        conf.set(FilteredEventClassifier.KEY_WEIGHTS, "ia:60,10,35;ib,10,75,15;ic:20,10,70;id:50,15,35");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + FilterClassifier.KEY_WEIGHTS);
+            Assert.fail("validation error  " + FilteredEventClassifier.KEY_WEIGHTS);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + FilterClassifier.KEY_WEIGHTS,
+            Assert.assertTrue("validate " + FilteredEventClassifier.KEY_WEIGHTS,
                     e.getMessage().contains("need two strings separated by"));
         }
 
-        conf.set(FilterClassifier.KEY_WEIGHTS, "ia:60,10,35;ib:10,75;ic:20,10,70;id:50,15,35");
+        conf.set(FilteredEventClassifier.KEY_WEIGHTS, "ia:60,10,35;ib:10,75;ic:20,10,70;id:50,15,35");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + FilterClassifier.KEY_WEIGHTS);
+            Assert.fail("validation error  " + FilteredEventClassifier.KEY_WEIGHTS);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + FilterClassifier.KEY_WEIGHTS,
+            Assert.assertTrue("validate " + FilteredEventClassifier.KEY_WEIGHTS,
                     e.getMessage().contains("does not match the number of keys"));
         }
 
-        conf.set(FilterClassifier.KEY_WEIGHTS, "ia:60,10,35;ib:10,75,1a5;ic:20,10,70;id:50,15,35");
+        conf.set(FilteredEventClassifier.KEY_WEIGHTS, "ia:60,10,35;ib:10,75,1a5;ic:20,10,70;id:50,15,35");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + FilterClassifier.KEY_WEIGHTS);
+            Assert.fail("validation error  " + FilteredEventClassifier.KEY_WEIGHTS);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + FilterClassifier.KEY_WEIGHTS,
+            Assert.assertTrue("validate " + FilteredEventClassifier.KEY_WEIGHTS,
                     e.getMessage().contains("Weight string should be an integer"));
         }
     }
@@ -175,16 +175,16 @@ public class FilterClassifierTest {
     @Test
     public void testNodeProcessing() throws Exception {
 
-        FilterClassifier node = new FilterClassifier();
+        FilteredEventClassifier node = new FilteredEventClassifier();
 
         TestSink classifySink = new TestSink();
-        node.connect(FilterClassifier.OPORT_OUT_DATA, classifySink);
+        node.connect(FilteredEventClassifier.OPORT_OUT_DATA, classifySink);
          ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
 
-        conf.set(FilterClassifier.KEY_KEYS, "a,b,c");
-        conf.set(FilterClassifier.KEY_VALUES, "1,4,5");
-        conf.set(FilterClassifier.KEY_WEIGHTS, "ia:60,10,35;ib:10,75,15;ic:20,10,70;id:50,15,35");
-        conf.set(FilterClassifier.KEY_FILTER, "10,1000");
+        conf.set(FilteredEventClassifier.KEY_KEYS, "a,b,c");
+        conf.set(FilteredEventClassifier.KEY_VALUES, "1,4,5");
+        conf.set(FilteredEventClassifier.KEY_WEIGHTS, "ia:60,10,35;ib:10,75,15;ic:20,10,70;id:50,15,35");
+        conf.set(FilteredEventClassifier.KEY_FILTER, "10,1000");
 
         node.setSpinMillis(10);
         node.setBufferCapacity(1024 * 1024);
@@ -229,10 +229,10 @@ public class FilterClassifierTest {
         }
 
         // Now test a node with no weights
-        FilterClassifier nwnode = new FilterClassifier();
+        FilteredEventClassifier nwnode = new FilteredEventClassifier();
         classifySink.clear();
-        nwnode.connect(FilterClassifier.OPORT_OUT_DATA, classifySink);
-        conf.set(FilterClassifier.KEY_WEIGHTS, "");
+        nwnode.connect(FilteredEventClassifier.OPORT_OUT_DATA, classifySink);
+        conf.set(FilteredEventClassifier.KEY_WEIGHTS, "");
         nwnode.setup(conf);
 
         sentval = 0;
@@ -271,11 +271,11 @@ public class FilterClassifierTest {
         }
 
         // Now test a node with no weights and no values
-        FilterClassifier nvnode = new FilterClassifier();
+        FilteredEventClassifier nvnode = new FilteredEventClassifier();
         classifySink.clear();
-        nvnode.connect(FilterClassifier.OPORT_OUT_DATA, classifySink);
-        conf.set(FilterClassifier.KEY_WEIGHTS, "");
-        conf.set(FilterClassifier.KEY_VALUES, "");
+        nvnode.connect(FilteredEventClassifier.OPORT_OUT_DATA, classifySink);
+        conf.set(FilteredEventClassifier.KEY_WEIGHTS, "");
+        conf.set(FilteredEventClassifier.KEY_VALUES, "");
         nvnode.setup(conf);
 
         sentval = 0;

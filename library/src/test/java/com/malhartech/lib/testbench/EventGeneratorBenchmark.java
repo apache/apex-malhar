@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Tests {@link com.malhartech.lib.testbench.LoadGenerator} at a very high load with stringschema. Current peak benchmark is at 16 Million tuples/sec<p>
+ * Tests {@link com.malhartech.lib.testbench.EventGenerator} at a very high load with stringschema. Current peak benchmark is at 16 Million tuples/sec<p>
  * <br>
  * The benchmark results matter a lot in terms of how thread contention is handled. The test has three parts<br>
  * 1. Trigger the input generator with a very high load and no wait. Set the buffersize large enough to handle growing queued up tuples<br>
@@ -35,9 +35,9 @@ import org.slf4j.LoggerFactory;
  * envinronment<br>
  * <br>
  */
-public class LoadGeneratorBenchmark
+public class EventGeneratorBenchmark
 {
-  private static Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
+  private static Logger LOG = LoggerFactory.getLogger(EventGenerator.class);
 
   class TestSink implements Sink
   {
@@ -74,7 +74,7 @@ public class LoadGeneratorBenchmark
   public void testNodeProcessing() throws Exception
   {
 
-    final LoadGenerator node = new LoadGenerator();
+    final EventGenerator node = new EventGenerator();
     final ManualScheduledExecutorService mses = new ManualScheduledExecutorService(1);
     final WindowGenerator wingen = new WindowGenerator(mses);
 
@@ -87,7 +87,7 @@ public class LoadGeneratorBenchmark
     wingen.connect("mytestnode", input);
 
     TestSink lgenSink = new TestSink();
-    node.connect(LoadGenerator.OPORT_DATA, lgenSink);
+    node.connect(EventGenerator.OPORT_DATA, lgenSink);
 
     ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
     lgenSink.dohash = false;
@@ -99,9 +99,9 @@ public class LoadGeneratorBenchmark
     }
     chararray[numchars] = '\0';
     String key = new String(chararray);
-    conf.set(LoadGenerator.KEY_KEYS, key);
-    conf.set(LoadGenerator.KEY_STRING_SCHEMA, "false");
-    conf.setInt(LoadGenerator.KEY_TUPLES_BLAST, 50000000);
+    conf.set(EventGenerator.KEY_KEYS, key);
+    conf.set(EventGenerator.KEY_STRING_SCHEMA, "false");
+    conf.setInt(EventGenerator.KEY_TUPLES_BLAST, 50000000);
     node.setSpinMillis(2);
     node.setBufferCapacity(2 * 1024 * 1024);
 

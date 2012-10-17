@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Functional test for {@link com.malhartech.lib.testbench.LoadRandomGenerator}<p>
+ * Functional test for {@link com.malhartech.lib.testbench.RandomEventGenerator}<p>
  * <br>
  * Tests both string and integer. Sets range to 0 to 999 and generates random numbers. With millions
  * of tuple all the values are covered<br>
@@ -32,9 +32,9 @@ import org.slf4j.LoggerFactory;
  * <br>
  */
 
-public class LoadRandomGeneratorTest {
+public class RandomEventGeneratorTest {
 
-    private static Logger LOG = LoggerFactory.getLogger(LoadRandomGenerator.class);
+    private static Logger LOG = LoggerFactory.getLogger(RandomEventGenerator.class);
 
     class TestSink implements Sink {
 
@@ -73,46 +73,46 @@ public class LoadRandomGeneratorTest {
     public void testNodeValidation() {
 
         ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
-        LoadRandomGenerator node = new LoadRandomGenerator();
+        RandomEventGenerator node = new RandomEventGenerator();
         LOG.debug("Testing Node Validation: start");
 
-        conf.set(LoadRandomGenerator.KEY_MIN_VALUE, "a");
+        conf.set(RandomEventGenerator.KEY_MIN_VALUE, "a");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadRandomGenerator.KEY_MIN_VALUE);
+            Assert.fail("validation error  " + RandomEventGenerator.KEY_MIN_VALUE);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadRandomGenerator.KEY_MIN_VALUE,
+            Assert.assertTrue("validate " + RandomEventGenerator.KEY_MIN_VALUE,
                     e.getMessage().contains("min_value should be an integer"));
         }
 
-        conf.set(LoadRandomGenerator.KEY_MIN_VALUE, "0");
-        conf.set(LoadRandomGenerator.KEY_MAX_VALUE, "b");
+        conf.set(RandomEventGenerator.KEY_MIN_VALUE, "0");
+        conf.set(RandomEventGenerator.KEY_MAX_VALUE, "b");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadRandomGenerator.KEY_MAX_VALUE);
+            Assert.fail("validation error  " + RandomEventGenerator.KEY_MAX_VALUE);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadRandomGenerator.KEY_MAX_VALUE,
+            Assert.assertTrue("validate " + RandomEventGenerator.KEY_MAX_VALUE,
                     e.getMessage().contains("max_value should be an integer"));
         }
 
-        conf.set(LoadRandomGenerator.KEY_MIN_VALUE, "0");
-        conf.set(LoadRandomGenerator.KEY_MAX_VALUE, "50");
-        conf.set(LoadRandomGenerator.KEY_TUPLES_BLAST, "-1");
+        conf.set(RandomEventGenerator.KEY_MIN_VALUE, "0");
+        conf.set(RandomEventGenerator.KEY_MAX_VALUE, "50");
+        conf.set(RandomEventGenerator.KEY_TUPLES_BLAST, "-1");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadRandomGenerator.KEY_TUPLES_BLAST);
+            Assert.fail("validation error  " + RandomEventGenerator.KEY_TUPLES_BLAST);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadRandomGenerator.KEY_TUPLES_BLAST,
+            Assert.assertTrue("validate " + RandomEventGenerator.KEY_TUPLES_BLAST,
                     e.getMessage().contains("has to be > 0"));
         }
 
-        conf.set(LoadRandomGenerator.KEY_TUPLES_BLAST, "100");
-        conf.set(LoadRandomGenerator.KEY_SLEEP_TIME, "-1");
+        conf.set(RandomEventGenerator.KEY_TUPLES_BLAST, "100");
+        conf.set(RandomEventGenerator.KEY_SLEEP_TIME, "-1");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadRandomGenerator.KEY_SLEEP_TIME);
+            Assert.fail("validation error  " + RandomEventGenerator.KEY_SLEEP_TIME);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadRandomGenerator.KEY_SLEEP_TIME,
+            Assert.assertTrue("validate " + RandomEventGenerator.KEY_SLEEP_TIME,
                     e.getMessage().contains("has to be > 0"));
         }
 
@@ -131,7 +131,7 @@ public class LoadRandomGeneratorTest {
 
     public void testSchemaNodeProcessing(boolean isstring) throws Exception {
 
-        final LoadRandomGenerator node = new LoadRandomGenerator();
+        final RandomEventGenerator node = new RandomEventGenerator();
         final ManualScheduledExecutorService mses = new ManualScheduledExecutorService(1);
         final WindowGenerator wingen = new WindowGenerator(mses);
 
@@ -144,15 +144,15 @@ public class LoadRandomGeneratorTest {
         wingen.connect("mytestnode", input);
 
         TestSink lgenSink = new TestSink();
-        node.connect(LoadRandomGenerator.OPORT_DATA, lgenSink);
+        node.connect(RandomEventGenerator.OPORT_DATA, lgenSink);
         ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
         lgenSink.isstring = isstring;
 
-        conf.set(LoadRandomGenerator.KEY_MIN_VALUE, "0");
-        conf.set(LoadRandomGenerator.KEY_MAX_VALUE, "1000");
-        conf.setInt(LoadRandomGenerator.KEY_TUPLES_BLAST, 50000000);
-        conf.set(LoadRandomGenerator.KEY_STRING_SCHEMA, isstring ? "true" : "false");
-        conf.setInt(LoadRandomGenerator.KEY_SLEEP_TIME, 1);
+        conf.set(RandomEventGenerator.KEY_MIN_VALUE, "0");
+        conf.set(RandomEventGenerator.KEY_MAX_VALUE, "1000");
+        conf.setInt(RandomEventGenerator.KEY_TUPLES_BLAST, 50000000);
+        conf.set(RandomEventGenerator.KEY_STRING_SCHEMA, isstring ? "true" : "false");
+        conf.setInt(RandomEventGenerator.KEY_SLEEP_TIME, 1);
 
         conf.setInt("SpinMillis", 2);
         conf.setInt("BufferCapacity", 1024 * 1024);

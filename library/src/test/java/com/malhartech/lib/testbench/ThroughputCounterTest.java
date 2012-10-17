@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ThroughputCounterTest {
 
-    private static Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
+    private static Logger LOG = LoggerFactory.getLogger(EventGenerator.class);
 
   class TestCountSink implements Sink
   {
@@ -81,7 +81,7 @@ public class ThroughputCounterTest {
     ThroughputCounter node = new ThroughputCounter();
 
     TestCountSink countSink = new TestCountSink();
-    node.connect(FilterClassifier.OPORT_OUT_DATA, countSink);
+    node.connect(FilteredEventClassifier.OPORT_OUT_DATA, countSink);
     ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
 
     conf.set(ThroughputCounter.ROLLING_WINDOW_COUNT, "5");

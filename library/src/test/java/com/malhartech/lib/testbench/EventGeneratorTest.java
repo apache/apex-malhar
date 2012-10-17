@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.testbench.LoadGenerator}. <p>
+ * Functional tests for {@link com.malhartech.lib.testbench.EventGenerator}. <p>
  * <br>
  * Load is generated and the tuples are outputted to ensure that the numbers are roughly in line with the weights<br>
  * <br>
@@ -33,9 +33,9 @@ import org.slf4j.LoggerFactory;
  * DRC checks are validated<br>
  *
  */
-public class LoadGeneratorTest {
+public class EventGeneratorTest {
 
-    private static Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
+    private static Logger LOG = LoggerFactory.getLogger(EventGenerator.class);
 
     class TestSink implements Sink {
 
@@ -105,8 +105,8 @@ public class LoadGeneratorTest {
             }
             else {
               HashMap<String, Integer> tuples = (HashMap<String, Integer>) payload;
-              average = tuples.get(LoadGenerator.OPORT_COUNT_TUPLE_AVERAGE).intValue();
-              count += tuples.get(LoadGenerator.OPORT_COUNT_TUPLE_COUNT).intValue();
+              average = tuples.get(EventGenerator.OPORT_COUNT_TUPLE_AVERAGE).intValue();
+              count += tuples.get(EventGenerator.OPORT_COUNT_TUPLE_COUNT).intValue();
               num_tuples++;
                 //serde.toByteArray(payload);
              }
@@ -120,85 +120,85 @@ public class LoadGeneratorTest {
     public void testNodeValidation() {
 
         ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
-        LoadGenerator node = new LoadGenerator();
+        EventGenerator node = new EventGenerator();
 
-        conf.set(LoadGenerator.KEY_KEYS, "");
+        conf.set(EventGenerator.KEY_KEYS, "");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadGenerator.KEY_KEYS);
+            Assert.fail("validation error  " + EventGenerator.KEY_KEYS);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadGenerator.KEY_KEYS,
+            Assert.assertTrue("validate " + EventGenerator.KEY_KEYS,
                     e.getMessage().contains("is empty"));
         }
 
-        conf.set(LoadGenerator.KEY_KEYS, "a,b,c,d"); // from now on keys would be a,b,c,d
-        conf.set(LoadGenerator.KEY_WEIGHTS, "10.4,40,20,30");
+        conf.set(EventGenerator.KEY_KEYS, "a,b,c,d"); // from now on keys would be a,b,c,d
+        conf.set(EventGenerator.KEY_WEIGHTS, "10.4,40,20,30");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadGenerator.KEY_WEIGHTS);
+            Assert.fail("validation error  " + EventGenerator.KEY_WEIGHTS);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadGenerator.KEY_WEIGHTS,
+            Assert.assertTrue("validate " + EventGenerator.KEY_WEIGHTS,
                     e.getMessage().contains("should be an integer"));
         }
 
-        conf.set(LoadGenerator.KEY_WEIGHTS, "10,40,20"); // from now on weights would be 10,40,20,30
+        conf.set(EventGenerator.KEY_WEIGHTS, "10,40,20"); // from now on weights would be 10,40,20,30
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadGenerator.KEY_WEIGHTS);
+            Assert.fail("validation error  " + EventGenerator.KEY_WEIGHTS);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadGenerator.KEY_WEIGHTS,
+            Assert.assertTrue("validate " + EventGenerator.KEY_WEIGHTS,
                     e.getMessage().contains("does not match number of keys"));
         }
 
-        conf.set(LoadGenerator.KEY_WEIGHTS, ""); // from now on weights would be 10,40,20,30
-        conf.set(LoadGenerator.KEY_VALUES, "a,2,3,4");
+        conf.set(EventGenerator.KEY_WEIGHTS, ""); // from now on weights would be 10,40,20,30
+        conf.set(EventGenerator.KEY_VALUES, "a,2,3,4");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadGenerator.KEY_VALUES);
+            Assert.fail("validation error  " + EventGenerator.KEY_VALUES);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadGenerator.KEY_VALUES,
+            Assert.assertTrue("validate " + EventGenerator.KEY_VALUES,
                     e.getMessage().contains("should be float"));
         }
 
-        conf.set(LoadGenerator.KEY_WEIGHTS, "10,40,30,20"); // from now on weights would be 10,40,20,30
-        conf.set(LoadGenerator.KEY_VALUES, "1,2,3");
+        conf.set(EventGenerator.KEY_WEIGHTS, "10,40,30,20"); // from now on weights would be 10,40,20,30
+        conf.set(EventGenerator.KEY_VALUES, "1,2,3");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadGenerator.KEY_VALUES);
+            Assert.fail("validation error  " + EventGenerator.KEY_VALUES);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadGenerator.KEY_VALUES,
+            Assert.assertTrue("validate " + EventGenerator.KEY_VALUES,
                     e.getMessage().contains("does not match number of keys"));
         }
 
-        conf.set(LoadGenerator.KEY_VALUES, "1,2,3,4");
-        conf.set(LoadGenerator.KEY_TUPLES_BLAST, "-1");
+        conf.set(EventGenerator.KEY_VALUES, "1,2,3,4");
+        conf.set(EventGenerator.KEY_TUPLES_BLAST, "-1");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadGenerator.KEY_TUPLES_BLAST);
+            Assert.fail("validation error  " + EventGenerator.KEY_TUPLES_BLAST);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadGenerator.KEY_TUPLES_BLAST,
+            Assert.assertTrue("validate " + EventGenerator.KEY_TUPLES_BLAST,
                     e.getMessage().contains("has to be > 0"));
         }
 
-        conf.set(LoadGenerator.KEY_VALUES, "1,2,3,4");
-        conf.set(LoadGenerator.KEY_STRING_SCHEMA, "true");
-        conf.set(LoadGenerator.KEY_TUPLES_BLAST, "10000");
+        conf.set(EventGenerator.KEY_VALUES, "1,2,3,4");
+        conf.set(EventGenerator.KEY_STRING_SCHEMA, "true");
+        conf.set(EventGenerator.KEY_TUPLES_BLAST, "10000");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadGenerator.KEY_STRING_SCHEMA);
+            Assert.fail("validation error  " + EventGenerator.KEY_STRING_SCHEMA);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadGenerator.KEY_STRING_SCHEMA + " and " + LoadGenerator.KEY_VALUES,
+            Assert.assertTrue("validate " + EventGenerator.KEY_STRING_SCHEMA + " and " + EventGenerator.KEY_VALUES,
                     e.getMessage().contains("if string_schema"));
         }
 
-        conf.set(LoadGenerator.KEY_VALUES, "");
-        conf.set(LoadGenerator.ROLLING_WINDOW_COUNT, "aa");
-        String rstr = conf.get(LoadGenerator.ROLLING_WINDOW_COUNT);
+        conf.set(EventGenerator.KEY_VALUES, "");
+        conf.set(EventGenerator.ROLLING_WINDOW_COUNT, "aa");
+        String rstr = conf.get(EventGenerator.ROLLING_WINDOW_COUNT);
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadGenerator.ROLLING_WINDOW_COUNT);
+            Assert.fail("validation error  " + EventGenerator.ROLLING_WINDOW_COUNT);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadGenerator.ROLLING_WINDOW_COUNT,
+            Assert.assertTrue("validate " + EventGenerator.ROLLING_WINDOW_COUNT,
                     e.getMessage().contains("has to be an integer"));
         }
     }
@@ -220,7 +220,7 @@ public class LoadGeneratorTest {
      */
     public void testSingleSchemaNodeProcessing(boolean stringschema, boolean skiphash) throws Exception {
 
-        final LoadGenerator node = new LoadGenerator();
+        final EventGenerator node = new EventGenerator();
         final ManualScheduledExecutorService mses = new ManualScheduledExecutorService(1);
         final WindowGenerator wingen = new WindowGenerator(mses);
 
@@ -234,24 +234,24 @@ public class LoadGeneratorTest {
 
         TestCountSink countSink = new TestCountSink();
         TestSink lgenSink = new TestSink();
-        node.connect(LoadGenerator.OPORT_DATA, lgenSink);
-        node.connect(LoadGenerator.OPORT_COUNT, countSink);
+        node.connect(EventGenerator.OPORT_DATA, lgenSink);
+        node.connect(EventGenerator.OPORT_COUNT, countSink);
         ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
 
-        conf.set(LoadGenerator.KEY_KEYS, "a,b,c,d");
-        // conf.set(LoadGenerator.KEY_VALUES, "1,2,3,4");
-        conf.set(LoadGenerator.KEY_VALUES, "");
+        conf.set(EventGenerator.KEY_KEYS, "a,b,c,d");
+        // conf.set(EventGenerator.KEY_VALUES, "1,2,3,4");
+        conf.set(EventGenerator.KEY_VALUES, "");
       if (stringschema) {
-        conf.set(LoadGenerator.KEY_STRING_SCHEMA, "true");
+        conf.set(EventGenerator.KEY_STRING_SCHEMA, "true");
       }
       else {
-        conf.set(LoadGenerator.KEY_STRING_SCHEMA, "false");
+        conf.set(EventGenerator.KEY_STRING_SCHEMA, "false");
       }
       lgenSink.test_hashmap = !stringschema;
       lgenSink.skiphash = skiphash;
-      conf.set(LoadGenerator.KEY_WEIGHTS, "10,40,20,30");
-      conf.setInt(LoadGenerator.KEY_TUPLES_BLAST, 10000000);
-      conf.setInt(LoadGenerator.ROLLING_WINDOW_COUNT, 5);
+      conf.set(EventGenerator.KEY_WEIGHTS, "10,40,20,30");
+      conf.setInt(EventGenerator.KEY_TUPLES_BLAST, 10000000);
+      conf.setInt(EventGenerator.ROLLING_WINDOW_COUNT, 5);
       conf.setInt("SpinMillis", 10);
       conf.setInt("BufferCapacity", 1024 * 1024);
 

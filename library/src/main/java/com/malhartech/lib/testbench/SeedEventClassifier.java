@@ -51,15 +51,15 @@ import org.slf4j.LoggerFactory;
  */
 @ModuleAnnotation(
         ports = {
-    @PortAnnotation(name = SeedClassifier.IPORT_IN_DATA1, type = PortAnnotation.PortType.INPUT),
-    @PortAnnotation(name = SeedClassifier.IPORT_IN_DATA2, type = PortAnnotation.PortType.INPUT),
-    @PortAnnotation(name = SeedClassifier.OPORT_OUT_DATA, type = PortAnnotation.PortType.OUTPUT)
+    @PortAnnotation(name = SeedEventClassifier.IPORT_IN_DATA1, type = PortAnnotation.PortType.INPUT),
+    @PortAnnotation(name = SeedEventClassifier.IPORT_IN_DATA2, type = PortAnnotation.PortType.INPUT),
+    @PortAnnotation(name = SeedEventClassifier.OPORT_OUT_DATA, type = PortAnnotation.PortType.OUTPUT)
 })
-public class SeedClassifier extends AbstractModule {
+public class SeedEventClassifier extends AbstractModule {
     public static final String IPORT_IN_DATA1 = "in_data1";
     public static final String IPORT_IN_DATA2 = "in_data2";
     public static final String OPORT_OUT_DATA = "out_data";
-    private static Logger LOG = LoggerFactory.getLogger(SeedClassifier.class);
+    private static Logger LOG = LoggerFactory.getLogger(SeedEventClassifier.class);
 
     /**
      * Data for classification values

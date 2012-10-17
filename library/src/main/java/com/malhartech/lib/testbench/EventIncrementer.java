@@ -46,19 +46,19 @@ import org.slf4j.LoggerFactory;
  * @author amol
  */
 @ModuleAnnotation(ports = {
-  @PortAnnotation(name = LoadIncrementer.IPORT_SEED, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = LoadIncrementer.IPORT_INCREMENT, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = LoadIncrementer.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT),
-  @PortAnnotation(name = LoadIncrementer.OPORT_COUNT, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = EventIncrementer.IPORT_SEED, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = EventIncrementer.IPORT_INCREMENT, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = EventIncrementer.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT),
+  @PortAnnotation(name = EventIncrementer.OPORT_COUNT, type = PortAnnotation.PortType.OUTPUT)
 })
-public class LoadIncrementer extends AbstractModule
+public class EventIncrementer extends AbstractModule
 {
   public static final String IPORT_SEED = "seed";
   public static final String IPORT_INCREMENT = "increment";
   public static final String OPORT_DATA = "data";
   public static final String OPORT_COUNT = "count";
   public static final String OPORT_COUNT_TUPLE_COUNT = "count";
-  private static Logger LOG = LoggerFactory.getLogger(LoadIncrementer.class);
+  private static Logger LOG = LoggerFactory.getLogger(EventIncrementer.class);
   HashMap<String, Object> vmap = new HashMap<String, Object>();
   String[] keys = null;
   double[] low_limits = null;

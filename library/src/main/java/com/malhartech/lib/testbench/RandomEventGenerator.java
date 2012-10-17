@@ -47,12 +47,12 @@ import org.slf4j.LoggerFactory;
  */
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = LoadRandomGenerator.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = RandomEventGenerator.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT)
 })
-public class LoadRandomGenerator extends AbstractInputModule
+public class RandomEventGenerator extends AbstractInputModule
 {
   public static final String OPORT_DATA = "data";
-  private static Logger LOG = LoggerFactory.getLogger(LoadRandomGenerator.class);
+  private static Logger LOG = LoggerFactory.getLogger(RandomEventGenerator.class);
   final int tuples_blast_default_value = 1000;
   final int sleep_time_default_value = 100;
   final int min_value_default_value = 0;

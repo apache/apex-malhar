@@ -56,12 +56,12 @@ import org.slf4j.LoggerFactory;
  */
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = LoadSeedGenerator.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = SeedEventGenerator.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT)
 })
-public class LoadSeedGenerator extends AbstractInputModule
+public class SeedEventGenerator extends AbstractInputModule
 {
   public static final String OPORT_DATA = "data";
-  private static Logger LOG = LoggerFactory.getLogger(LoadSeedGenerator.class);
+  private static Logger LOG = LoggerFactory.getLogger(SeedEventGenerator.class);
   /**
    * Data for classification values
    */

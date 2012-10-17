@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Functional test for {@link com.malhartech.lib.testbench.SeedClassifier} for three configuration><p>
+ * Functional test for {@link com.malhartech.lib.testbench.SeedEventClassifier} for three configuration><p>
  * <br>
  * Configuration 1: Provide values and weights<br>
  * Configuration 2: Provide values but no weights (even weights)<br>
@@ -26,9 +26,9 @@ import org.slf4j.LoggerFactory;
  * <br>
  * Validates all DRC checks of the node<br>
  */
-public class SeedClassifierTest {
+public class SeedEventClassifierTest {
 
-    private static Logger LOG = LoggerFactory.getLogger(LoadClassifier.class);
+    private static Logger LOG = LoggerFactory.getLogger(EventClassifier.class);
 
     class TestSink implements Sink {
 
@@ -61,49 +61,49 @@ public class SeedClassifierTest {
     public void testNodeValidation() {
 
         ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
-        SeedClassifier node = new SeedClassifier();
+        SeedEventClassifier node = new SeedEventClassifier();
         // String[] kstr = config.getTrimmedStrings(KEY_KEYS);
         // String[] vstr = config.getTrimmedStrings(KEY_VALUES);
 
 
-        conf.set(SeedClassifier.KEY_SEED_START, "");
-        conf.set(SeedClassifier.KEY_SEED_END, "100");
+        conf.set(SeedEventClassifier.KEY_SEED_START, "");
+        conf.set(SeedEventClassifier.KEY_SEED_END, "100");
 
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + SeedClassifier.KEY_SEED_START);
+            Assert.fail("validation error  " + SeedEventClassifier.KEY_SEED_START);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + SeedClassifier.KEY_SEED_START,
+            Assert.assertTrue("validate " + SeedEventClassifier.KEY_SEED_START,
                     e.getMessage().contains("seedstart is empty, but seedend"));
         }
 
-        conf.set(SeedClassifier.KEY_SEED_START, "1");
-        conf.set(SeedClassifier.KEY_SEED_END, "");
+        conf.set(SeedEventClassifier.KEY_SEED_START, "1");
+        conf.set(SeedEventClassifier.KEY_SEED_END, "");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + SeedClassifier.KEY_SEED_END);
+            Assert.fail("validation error  " + SeedEventClassifier.KEY_SEED_END);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + SeedClassifier.KEY_SEED_END,
+            Assert.assertTrue("validate " + SeedEventClassifier.KEY_SEED_END,
                     e.getMessage().contains("but seedend is empty"));
         }
 
-        conf.set(SeedClassifier.KEY_SEED_START, "1");
-        conf.set(SeedClassifier.KEY_SEED_END, "a");
+        conf.set(SeedEventClassifier.KEY_SEED_START, "1");
+        conf.set(SeedEventClassifier.KEY_SEED_END, "a");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + SeedClassifier.KEY_SEED_END);
+            Assert.fail("validation error  " + SeedEventClassifier.KEY_SEED_END);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + SeedClassifier.KEY_SEED_END,
+            Assert.assertTrue("validate " + SeedEventClassifier.KEY_SEED_END,
                     e.getMessage().contains("should be an integer"));
         }
 
-        conf.set(SeedClassifier.KEY_SEED_START, "a");
-        conf.set(SeedClassifier.KEY_SEED_END, "1");
+        conf.set(SeedEventClassifier.KEY_SEED_START, "a");
+        conf.set(SeedEventClassifier.KEY_SEED_END, "1");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + SeedClassifier.KEY_SEED_START);
+            Assert.fail("validation error  " + SeedEventClassifier.KEY_SEED_START);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + SeedClassifier.KEY_SEED_START,
+            Assert.assertTrue("validate " + SeedEventClassifier.KEY_SEED_START,
                     e.getMessage().contains("should be an integer"));
         }
     }
@@ -122,21 +122,21 @@ public class SeedClassifierTest {
      */
     public void testSchemaNodeProcessing(boolean isstring) throws Exception {
 
-      final SeedClassifier node = new SeedClassifier();
+      final SeedEventClassifier node = new SeedEventClassifier();
 
       TestSink classifySink = new TestSink();
 
-      Sink inSink1 = node.connect(SeedClassifier.IPORT_IN_DATA1, node);
-      Sink inSink2 = node.connect(SeedClassifier.IPORT_IN_DATA2, node);
-      node.connect(SeedClassifier.OPORT_OUT_DATA, classifySink);
+      Sink inSink1 = node.connect(SeedEventClassifier.IPORT_IN_DATA1, node);
+      Sink inSink2 = node.connect(SeedEventClassifier.IPORT_IN_DATA2, node);
+      node.connect(SeedEventClassifier.OPORT_OUT_DATA, classifySink);
 
       ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
 
-      conf.set(SeedClassifier.KEY_SEED_START, "1");
-      conf.set(SeedClassifier.KEY_SEED_END, "1000000");
-      conf.set(SeedClassifier.KEY_IN_DATA1_CLASSIFIER, "x");
-      conf.set(SeedClassifier.KEY_IN_DATA2_CLASSIFIER, "y");
-      conf.set(SeedClassifier.KEY_STRING_SCHEMA, isstring ? "true" : "false");
+      conf.set(SeedEventClassifier.KEY_SEED_START, "1");
+      conf.set(SeedEventClassifier.KEY_SEED_END, "1000000");
+      conf.set(SeedEventClassifier.KEY_IN_DATA1_CLASSIFIER, "x");
+      conf.set(SeedEventClassifier.KEY_IN_DATA2_CLASSIFIER, "y");
+      conf.set(SeedEventClassifier.KEY_STRING_SCHEMA, isstring ? "true" : "false");
 
       node.setSpinMillis(10);
       node.setBufferCapacity(1024 * 1024);

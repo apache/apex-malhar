@@ -23,19 +23,19 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional test for {@link com.malhartech.lib.testbench.LoadSeedGenerator}<p>
+ * Functional test for {@link com.malhartech.lib.testbench.SeedEventGenerator}<p>
  * <br>
  * Four keys are sent in at a high throughput rate and the classification is expected to be cover all combinations<br>
  * <br>
  * Benchmarks: A total of 40 million tuples are pushed in each benchmark<br>
  * String schema does about 1.5 Million tuples/sec<br>
- * LoadSeedGenerator.valueData schema is about 4 Million tuples/sec<br>
+ * SeedEventGenerator.valueData schema is about 4 Million tuples/sec<br>
  * <br>
  * DRC checks are validated<br>
  */
-public class LoadSeedGeneratorTest
+public class SeedEventGeneratorTest
 {
-  private static Logger LOG = LoggerFactory.getLogger(LoadSeedGenerator.class);
+  private static Logger LOG = LoggerFactory.getLogger(SeedEventGenerator.class);
 
   class TestSink implements Sink
   {
@@ -78,7 +78,7 @@ public class LoadSeedGeneratorTest
                     j++;
                   }
                   else {
-                    //LoadSeedGenerator.valueData vdata = (LoadSeedGenerator.valueData) o;
+                    //LoadSeedGenerator.valueData vdata = (SeedEventGenerator.valueData) o;
                     cval += ';' + ((Integer) o).toString();
                   }
                 }
@@ -107,95 +107,95 @@ public class LoadSeedGeneratorTest
   {
 
     ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
-    LoadSeedGenerator node = new LoadSeedGenerator();
+    SeedEventGenerator node = new SeedEventGenerator();
 
-    // conf.set(LoadSeedGenerator.KEY_KEYS, "x:0,100;y:0,100;gender:0,1;age:10,120"); // the good key
+    // conf.set(SeedEventGenerator.KEY_KEYS, "x:0,100;y:0,100;gender:0,1;age:10,120"); // the good key
 
-    conf.set(LoadSeedGenerator.KEY_SEED_END, "10");
+    conf.set(SeedEventGenerator.KEY_SEED_END, "10");
     try {
       node.myValidation(conf);
-      Assert.fail("validation error  " + LoadSeedGenerator.KEY_SEED_END);
+      Assert.fail("validation error  " + SeedEventGenerator.KEY_SEED_END);
     }
     catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + LoadSeedGenerator.KEY_SEED_END,
+      Assert.assertTrue("validate " + SeedEventGenerator.KEY_SEED_END,
                         e.getMessage().contains("seedstart is empty, but seedend"));
     }
 
-    conf.set(LoadSeedGenerator.KEY_SEED_START, "10");
-    conf.set(LoadSeedGenerator.KEY_SEED_END, "");
+    conf.set(SeedEventGenerator.KEY_SEED_START, "10");
+    conf.set(SeedEventGenerator.KEY_SEED_END, "");
     try {
       node.myValidation(conf);
-      Assert.fail("validation error  " + LoadSeedGenerator.KEY_SEED_START);
+      Assert.fail("validation error  " + SeedEventGenerator.KEY_SEED_START);
     }
     catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + LoadSeedGenerator.KEY_SEED_START,
+      Assert.assertTrue("validate " + SeedEventGenerator.KEY_SEED_START,
                         e.getMessage().contains("but seedend is empty"));
     }
 
-    conf.set(LoadSeedGenerator.KEY_SEED_START, "a");
-    conf.set(LoadSeedGenerator.KEY_SEED_END, "10");
+    conf.set(SeedEventGenerator.KEY_SEED_START, "a");
+    conf.set(SeedEventGenerator.KEY_SEED_END, "10");
     try {
       node.myValidation(conf);
-      Assert.fail("validation error  " + LoadSeedGenerator.KEY_SEED_START);
+      Assert.fail("validation error  " + SeedEventGenerator.KEY_SEED_START);
     }
     catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + LoadSeedGenerator.KEY_SEED_START,
+      Assert.assertTrue("validate " + SeedEventGenerator.KEY_SEED_START,
                         e.getMessage().contains("should be an integer"));
     }
 
-    conf.set(LoadSeedGenerator.KEY_SEED_START, "10");
-    conf.set(LoadSeedGenerator.KEY_SEED_END, "a");
+    conf.set(SeedEventGenerator.KEY_SEED_START, "10");
+    conf.set(SeedEventGenerator.KEY_SEED_END, "a");
     try {
       node.myValidation(conf);
-      Assert.fail("validation error  " + LoadSeedGenerator.KEY_SEED_END);
+      Assert.fail("validation error  " + SeedEventGenerator.KEY_SEED_END);
     }
     catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + LoadSeedGenerator.KEY_SEED_END,
+      Assert.assertTrue("validate " + SeedEventGenerator.KEY_SEED_END,
                         e.getMessage().contains("should be an integer"));
     }
 
-    conf.set(LoadSeedGenerator.KEY_SEED_START, "0");
-    conf.set(LoadSeedGenerator.KEY_SEED_END, "999");
-    conf.set(LoadSeedGenerator.KEY_KEYS, "x:0,100;;gender:0,1;age:10,120");
+    conf.set(SeedEventGenerator.KEY_SEED_START, "0");
+    conf.set(SeedEventGenerator.KEY_SEED_END, "999");
+    conf.set(SeedEventGenerator.KEY_KEYS, "x:0,100;;gender:0,1;age:10,120");
     try {
       node.myValidation(conf);
-      Assert.fail("validation error  " + LoadSeedGenerator.KEY_KEYS);
+      Assert.fail("validation error  " + SeedEventGenerator.KEY_KEYS);
     }
     catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + LoadSeedGenerator.KEY_KEYS,
+      Assert.assertTrue("validate " + SeedEventGenerator.KEY_KEYS,
                         e.getMessage().contains("slot of parameter \"key\" is empty"));
     }
 
-    conf.set(LoadSeedGenerator.KEY_KEYS, "x:0,100;y:0:100;gender:0,1;age:10,120");
+    conf.set(SeedEventGenerator.KEY_KEYS, "x:0,100;y:0:100;gender:0,1;age:10,120");
     try {
       node.myValidation(conf);
-      Assert.fail("validation error  " + LoadSeedGenerator.KEY_KEYS);
+      Assert.fail("validation error  " + SeedEventGenerator.KEY_KEYS);
     }
     catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + LoadSeedGenerator.KEY_KEYS,
+      Assert.assertTrue("validate " + SeedEventGenerator.KEY_KEYS,
                         e.getMessage().contains("malformed in parameter \"key\""));
     }
 
-    conf.set(LoadSeedGenerator.KEY_KEYS, "x:0,100;y:0,100,3;gender:0,1;age:10,120");
+    conf.set(SeedEventGenerator.KEY_KEYS, "x:0,100;y:0,100,3;gender:0,1;age:10,120");
     try {
       node.myValidation(conf);
-      Assert.fail("validation error  " + LoadSeedGenerator.KEY_KEYS);
+      Assert.fail("validation error  " + SeedEventGenerator.KEY_KEYS);
     }
     catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + LoadSeedGenerator.KEY_KEYS,
+      Assert.assertTrue("validate " + SeedEventGenerator.KEY_KEYS,
                         e.getMessage().contains("of parameter \"key\" is malformed"));
     }
 
-    conf.set(LoadSeedGenerator.KEY_KEYS, "x:0,100;y:100,0;gender:0,1;age:10,120");
+    conf.set(SeedEventGenerator.KEY_KEYS, "x:0,100;y:100,0;gender:0,1;age:10,120");
     try {
       node.myValidation(conf);
-      Assert.fail("validation error  " + LoadSeedGenerator.KEY_KEYS);
+      Assert.fail("validation error  " + SeedEventGenerator.KEY_KEYS);
     }
     catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + LoadSeedGenerator.KEY_KEYS,
+      Assert.assertTrue("validate " + SeedEventGenerator.KEY_KEYS,
                         e.getMessage().contains("Low value \"100\" is >= high value \"0\" for \"y\""));
     }
-    conf.set(LoadSeedGenerator.KEY_KEYS, "x:0,100;y:0,100;gender:0,1;age:10,120");
+    conf.set(SeedEventGenerator.KEY_KEYS, "x:0,100;y:0,100;gender:0,1;age:10,120");
   }
 
   /**
@@ -227,7 +227,7 @@ public class LoadSeedGeneratorTest
   public void testSchemaNodeProcessing(boolean isstring, boolean insert, boolean doseedkey, boolean emitkey) throws Exception
   {
 
-    final LoadSeedGenerator node = new LoadSeedGenerator();
+    final SeedEventGenerator node = new SeedEventGenerator();
     final ManualScheduledExecutorService mses = new ManualScheduledExecutorService(1);
     final WindowGenerator wingen = new WindowGenerator(mses);
 
@@ -241,19 +241,19 @@ public class LoadSeedGeneratorTest
 
 
     TestSink seedSink = new TestSink();
-    node.connect(LoadSeedGenerator.OPORT_DATA, seedSink);
+    node.connect(SeedEventGenerator.OPORT_DATA, seedSink);
 
     ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
 
-    conf.set(LoadSeedGenerator.KEY_SEED_START, "1");
-    conf.set(LoadSeedGenerator.KEY_SEED_END, "1000000");
+    conf.set(SeedEventGenerator.KEY_SEED_START, "1");
+    conf.set(SeedEventGenerator.KEY_SEED_END, "1000000");
     int numtuples = 500;
 
     if (doseedkey) {
-      conf.set(LoadSeedGenerator.KEY_KEYS, "x:0,9;y:0,9;gender:0,1;age:10,19"); // the good key
+      conf.set(SeedEventGenerator.KEY_KEYS, "x:0,9;y:0,9;gender:0,1;age:10,19"); // the good key
     }
-    conf.set(LoadSeedGenerator.KEY_STRING_SCHEMA, isstring ? "true" : "false");
-    conf.set(LoadSeedGenerator.KEY_EMITKEY, emitkey ? "true" : "false");
+    conf.set(SeedEventGenerator.KEY_STRING_SCHEMA, isstring ? "true" : "false");
+    conf.set(SeedEventGenerator.KEY_EMITKEY, emitkey ? "true" : "false");
 
     seedSink.isstring = isstring;
     seedSink.insert = insert;

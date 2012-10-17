@@ -17,65 +17,62 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Takes a in_stream <b>in_data</b> and filters the tuples. Only sends out tuples as per filter numbers provided
- * on output port <b>out_data</b>. The aim is to create another stream representing a subsection of incoming load<p>
+ * Takes a in stream <b>in_data</b> and adds to incoming keys to create a new tuple that is emitted
+ * on output port <b>out_data</b>. The aim is to create a load with pair of keys<p>
  * <br>
  * Examples of pairs include<br>
  * publisher,advertizer<br>
  * automobile,model<br>
  * <br>
  * The keys to be inserted are given by the property <b>keys</b>. Users can choose to insert their
- * own values via property <b>values</b>.<br>
- * For each incoming key users can provide an insertion
+ * own values via property <b>values</b>. Insertion can be done as replacement, addition, multiply,
+ * or append (append is not yet supported)<br>. For each incoming key users can provide an insertion
  * probability for the insert keys. This allows for randomization of the insert key choice<br><br>
  * <br>
- * Benchmarks: This node has been benchmarked at over 22 million tuples/second in local/inline mode<br>
+ * Benchmarks: This node has been benchmarked at over 5 million tuples/second in local/inline mode<br>
  *
  * <b>Tuple Schema</b>: Each tuple is HashMap<String, Double> on both the ports. Currently other schemas are not supported<br>
  * <b>Port Interface</b><br>
- * <b>out_data</b>: Output port for emitting the new tuple<br>
+ * <b>out_data</b>: Output port for emitting the new classified tuple<br>
  * <b>in_data</b>: Input port for receiving the incoming tuple<br>
  * <br>
  * <b>Properties</b>:
  * <b>keys</b> is a comma separated list of keys. This key are the insert keys in the tuple<br>
  * <b>values</b> are comma separated list of values. This value is for insertion into the <value> field in the tuple. also called "insert value". If not specified the incoming values are not changed<br>
  * <b>weights</b> are comma separated list of probability weights for each incoming key. For each incoming key the weights have to be provided. If this parameter is empty all the weights are even for all keys<br>
- * <b>percent<b>A number between 0 and 100. This is the percent of the time a new tuple is created. If say the number is 1, then a randomly selected 1 tuple out of 100 would create an output typle<br>
+ * <b>valueoperation</b> defines insert operation. The choices are:
+ * <b>replace</b> - Replace the tuple value with "insert value"<br>
+ * <b>add</b> - Add "insert value" to incoming tuple value<br>
+ * <b>mult</b> - Multiply "insert value" with incoming tuple value<br>
+ * <b>append</b> - Append the "insert value" to the incoming tuple's value. Mainly for string operation. Currently this mode is not supported<br>
  * <br>
  * Compile time checks are:<br>
  * <b>keys</b> cannot be empty<br>
- * <b>values</b> if not provided the incoming value is passed through<br>
+ * <b>values</b> if specified has to be comma separated doubles and their number must match the number of keys<br>
  * <b>weights</b> if specified the format has to be "key1:val1,val2,...,valn;key2:val1,val2,...,valn;...", where n has to be
  * number of keys in parameter <b>keys</b>. If not specified all weights are equal<br>
- * <b>filter</b> The first number has to be less than the second and both have to be positive<br>
  * <br>
  *
  * @author amol
  */
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = FilterClassifier.IPORT_IN_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = FilterClassifier.OPORT_OUT_DATA, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = EventClassifier.IPORT_IN_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = EventClassifier.OPORT_OUT_DATA, type = PortAnnotation.PortType.OUTPUT)
 })
-public class FilterClassifier extends AbstractModule
+public class EventClassifier extends AbstractModule
 {
   public static final String IPORT_IN_DATA = "in_data";
   public static final String OPORT_OUT_DATA = "out_data";
-  private static Logger LOG = LoggerFactory.getLogger(FilterClassifier.class);
+  private static Logger LOG = LoggerFactory.getLogger(EventClassifier.class);
   HashMap<String, Double> keys = new HashMap<String, Double>();
   HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();
   // One of inkeys (Key to weight hash) or noweight (even weight) would be not null
   HashMap<String, ArrayList<Integer>> inkeys = null;
   ArrayList<Integer> noweight = null;
   boolean hasvalues = false;
-
-  int total_weight = 0;
-  int pass_filter = 0;
-  int total_filter = 0;
-  private Random random = new Random();
-
   /**
-   * keys are comma separated list of keys to insert to keys in in_data stream<p>
+   * keys are comma separated list of keys to append to keys in in_data stream<p>
    * The out bound keys are in_data(key)<delimiter>key
    *
    */
@@ -83,7 +80,9 @@ public class FilterClassifier extends AbstractModule
   /**
    * values are to be assigned to each key. The tuple thus is a newkey,newvalue
    * pair. The value field can either be empty in which case the value in in_data tuple is
-   * passed through as is; or the value corresponding to key is inserted
+   * passed through as is; or a comma separated list of values. These values are then operated
+   * upon the incoming values (see valueoperation). If values list is provided,
+   * the number must match the number of keys
    *
    */
   public static final String KEY_VALUES = "values";
@@ -93,12 +92,23 @@ public class FilterClassifier extends AbstractModule
    * If weights are not specified then the append probability is equal.
    */
   public static final String KEY_WEIGHTS = "weights";
-
   /**
-   * The filter numbers. Two numbers n1,n2, where n1is less than n2 and we send out n1 tuples out of n2 incoming
-   * tuples<br>
+   * operation to be done between the incoming values and inserted values by this node. The supported operations are
+   * replace: Is the default operation and would simply ignore the incoming value and insert new one.
+   * add: Adds to the incoming value
+   * mult: Multiplies the incoming value
+   * append: Appends to the incoming value. The same delimiter is used as that of the key
+   *
    */
-  public static final String KEY_FILTER = "filter";
+  public static final String KEY_VALUEOPERATION = "valueoperation";
+  int total_weight = 0;
+  private Random random = new Random();
+
+  enum value_operation
+  {
+    VOPR_REPLACE, VOPR_ADD, VOPR_MULT, VOPR_APPEND
+  };
+  value_operation voper;
 
   /**
    *
@@ -115,7 +125,7 @@ public class FilterClassifier extends AbstractModule
     String iwstr = config.get(KEY_WEIGHTS, "");
     String[] kstr = config.getTrimmedStrings(KEY_KEYS);
     String[] vstr = config.getTrimmedStrings(KEY_VALUES);
-    String fstr = config.get(KEY_FILTER);
+    String vostr = config.get(KEY_VALUEOPERATION, "");
 
 
     if (kstr.length == 0) {
@@ -185,27 +195,22 @@ public class FilterClassifier extends AbstractModule
                             vstr.length, kstr.length));
     }
 
-    if (fstr.isEmpty()) {
-      ret = false;
-      throw new IllegalArgumentException("Parameter \"filter\" is empty");
+    if (vostr.isEmpty() || vostr.equals("replace")) {
+      voper = value_operation.VOPR_REPLACE; // Default is replace
+    }
+    else if (vostr.equals("add")) {
+      voper = value_operation.VOPR_ADD;
+    }
+    else if (vostr.equals("mult")) {
+      voper = value_operation.VOPR_MULT;
+    }
+    else if (vostr.equals("append")) {
+      voper = value_operation.VOPR_APPEND;
     }
     else {
-      String[] twofstr = fstr.split(",");
-      if (twofstr.length != 2) {
-        ret = false;
-        throw new IllegalArgumentException(String.format("Parameter \"filter\" has wrong format \"%s\"", fstr));
-      }
-      else {
-        for (String ws: twofstr) {
-          try {
-            Integer.parseInt(ws);
-          }
-          catch (NumberFormatException e) {
-            ret = false;
-            throw new IllegalArgumentException(String.format("Filter string should be an integer(%s)", ws));
-          }
-        }
-      }
+      ret = false;
+      throw new IllegalArgumentException(
+              String.format("Value opertion (%s) not supported. Supported values are \"replace\",\"add\",\"mult\",\"append\"", vostr));
     }
     return ret;
   }
@@ -226,10 +231,7 @@ public class FilterClassifier extends AbstractModule
     String iwstr = config.get(KEY_WEIGHTS, "");
     String[] kstr = config.getTrimmedStrings(KEY_KEYS);
     String[] vstr = config.getTrimmedStrings(KEY_VALUES);
-    String[] fstr = config.getTrimmedStrings(KEY_FILTER);
 
-    pass_filter = Integer.parseInt(fstr[0]);
-    total_filter = Integer.parseInt(fstr[1]);
 
     if (!iwstr.isEmpty()) {
       String[] wstr = iwstr.split(";");
@@ -238,13 +240,12 @@ public class FilterClassifier extends AbstractModule
         String[] twostr = ts.split(":");
         String[] weights = twostr[1].split(",");
         ArrayList<Integer> alist = new ArrayList<Integer>();
-        int wtotal = 0;
+        Integer wtotal = 0;
         for (String ws: weights) {
-          int wsval = Integer.parseInt(ws);
-          alist.add(wsval);
-          wtotal += wsval;
+          alist.add(Integer.parseInt(ws));
+          wtotal += Integer.parseInt(ws);
         }
-        alist.add(wtotal); // The last integer is the total
+        alist.add(wtotal);
         inkeys.put(twostr[0], alist);
       }
     }
@@ -295,45 +296,48 @@ public class FilterClassifier extends AbstractModule
     //
     // tuple should be "inkey,key" and "value" pair
 
-    // Check if the tuple has to be ignored
-
-    int fval = random.nextInt(total_filter);
-    if (fval >= pass_filter) {
-      return;
-    }
-
-    // Now insertion needs to be done
     for (Map.Entry<String, Double> e: ((HashMap<String, Double>)payload).entrySet()) {
-      String[] twokeys = e.getKey().split(",");
-      if (twokeys.length == 2) {
-        String inkey = twokeys[1];
-        ArrayList<Integer> alist = noweight;
-        if (inkeys != null) {
-          alist = inkeys.get(inkey);
+      String inkey = e.getKey();
+      ArrayList<Integer> alist = noweight;
+      if (inkeys != null) {
+        alist = inkeys.get(e.getKey());
+      }
+
+
+      // now alist are the weights
+      int rval = random.nextInt(alist.get(alist.size() - 1));
+      int j = 0;
+      int wval = 0;
+      for (Integer ew: alist) {
+        wval += ew.intValue();
+        if (wval >= rval) {
+          break;
         }
-        // now alist are the weights
-        int rval = random.nextInt(alist.get(alist.size()-1));
-        int j = 0;
-        int wval = 0;
-        for (Integer ew: alist) {
-          wval += ew.intValue();
-          if (wval > rval) {
-            break;
-          }
-          j++;
-        }
-        HashMap<String, Double> tuple = new HashMap<String, Double>(1);
-        String key = wtostr_index.get(j); // the key
-        Double keyval = null;
-        if (hasvalues) {
+        j++;
+      }
+      HashMap<String, Double> tuple = new HashMap<String, Double>(1);
+      String key = wtostr_index.get(j); // the key
+      Double keyval = null;
+      if (hasvalues) {
+        if (voper == value_operation.VOPR_REPLACE) { // replace the incoming value
           keyval = keys.get(key);
         }
-        else { // pass on the value from incoming tuple
-          keyval = e.getValue();
+        else if (voper == value_operation.VOPR_ADD) {
+          keyval = keys.get(key) + e.getValue();
         }
-        tuple.put(key + "," + inkey, keyval);
-        emit(OPORT_OUT_DATA, tuple);
+        else if (voper == value_operation.VOPR_MULT) {
+          keyval = keys.get(key) * e.getValue();
+
+        }
+        else if (voper == value_operation.VOPR_APPEND) { // not supported yet
+          keyval = keys.get(key);
+        }
       }
+      else { // pass on the value from incoming tuple
+        keyval = e.getValue();
+      }
+      tuple.put(key + "," + inkey, keyval);
+      emit(OPORT_OUT_DATA, tuple);
     }
   }
 

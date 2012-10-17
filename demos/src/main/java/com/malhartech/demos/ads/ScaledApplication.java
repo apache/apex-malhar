@@ -14,9 +14,9 @@ import com.malhartech.lib.math.Quotient;
 import com.malhartech.lib.math.Sum;
 import com.malhartech.lib.stream.StreamMerger;
 import com.malhartech.lib.stream.StreamMerger10;
-import com.malhartech.lib.testbench.FilterClassifier;
-import com.malhartech.lib.testbench.LoadClassifier;
-import com.malhartech.lib.testbench.LoadGenerator;
+import com.malhartech.lib.testbench.FilteredEventClassifier;
+import com.malhartech.lib.testbench.EventClassifier;
+import com.malhartech.lib.testbench.EventGenerator;
 import com.malhartech.lib.testbench.ThroughputCounter;
 import org.apache.hadoop.conf.Configuration;
 
@@ -107,30 +107,30 @@ public class ScaledApplication implements ApplicationFactory {
   }
 
   public Operator getPageViewGenOperator(String name, DAG b) {
-    Operator oper = b.addOperator(name, LoadGenerator.class);
-    oper.setProperty(LoadGenerator.KEY_KEYS, "home,finance,sports,mail");
+    Operator oper = b.addOperator(name, EventGenerator.class);
+    oper.setProperty(EventGenerator.KEY_KEYS, "home,finance,sports,mail");
     // Paying $2.15,$3,$1.75,$.6 for 1000 views respectively
-    oper.setProperty(LoadGenerator.KEY_VALUES, "0.00215,0.003,0.00175,0.0006");
-    oper.setProperty(LoadGenerator.KEY_WEIGHTS, "25,25,25,25");
-    oper.setProperty(LoadGenerator.KEY_TUPLES_BLAST, String.valueOf(this.generatorVTuplesBlast));
-    oper.setProperty(LoadGenerator.MAX_WINDOWS_COUNT, String.valueOf(generatorMaxWindowsCount));
-    oper.setProperty(LoadGenerator.ROLLING_WINDOW_COUNT, String.valueOf(this.generatorWindowCount));
+    oper.setProperty(EventGenerator.KEY_VALUES, "0.00215,0.003,0.00175,0.0006");
+    oper.setProperty(EventGenerator.KEY_WEIGHTS, "25,25,25,25");
+    oper.setProperty(EventGenerator.KEY_TUPLES_BLAST, String.valueOf(this.generatorVTuplesBlast));
+    oper.setProperty(EventGenerator.MAX_WINDOWS_COUNT, String.valueOf(generatorMaxWindowsCount));
+    oper.setProperty(EventGenerator.ROLLING_WINDOW_COUNT, String.valueOf(this.generatorWindowCount));
     return oper;
   }
 
   public Operator getAdViewsStampOperator(String name, DAG b) {
-    Operator oper = b.addOperator(name, LoadClassifier.class);
-    oper.setProperty(LoadClassifier.KEY_KEYS, "sprint,etrade,nike");
+    Operator oper = b.addOperator(name, EventClassifier.class);
+    oper.setProperty(EventClassifier.KEY_KEYS, "sprint,etrade,nike");
     return oper;
   }
 
   public Operator getInsertClicksOperator(String name, DAG b) {
-    Operator oper = b.addOperator(name, FilterClassifier.class);
-    oper.setProperty(FilterClassifier.KEY_KEYS, "sprint,etrade,nike");
-    oper.setProperty(FilterClassifier.KEY_WEIGHTS, "home:60,10,30;finance:10,75,15;sports:10,10,80;mail:50,15,35"); // ctr in ratio
+    Operator oper = b.addOperator(name, FilteredEventClassifier.class);
+    oper.setProperty(FilteredEventClassifier.KEY_KEYS, "sprint,etrade,nike");
+    oper.setProperty(FilteredEventClassifier.KEY_WEIGHTS, "home:60,10,30;finance:10,75,15;sports:10,10,80;mail:50,15,35"); // ctr in ratio
     // Getting $1,$5,$4 per click respectively
-    oper.setProperty(FilterClassifier.KEY_VALUES, "1,5,4");
-    oper.setProperty(FilterClassifier.KEY_FILTER, "40,1000"); // average value for each classify_key, i.e. money paid by advertizer
+    oper.setProperty(FilteredEventClassifier.KEY_VALUES, "1,5,4");
+    oper.setProperty(FilteredEventClassifier.KEY_FILTER, "40,1000"); // average value for each classify_key, i.e. money paid by advertizer
     return oper;
   }
 
@@ -178,10 +178,10 @@ public class ScaledApplication implements ApplicationFactory {
       Operator viewAggregate = getSumOperator(viewAggrstr, dag);
       Operator clickAggregate = getSumOperator(clickAggrstr, dag);
 
-      dag.addStream(viewsstreamstr, viewGen.getOutput(LoadGenerator.OPORT_DATA), adviews.getInput(LoadClassifier.IPORT_IN_DATA)).setInline(true);
-      dag.addStream(viewsaggregatesrteamstr, adviews.getOutput(LoadClassifier.OPORT_OUT_DATA), insertclicks.getInput(FilterClassifier.IPORT_IN_DATA),
+      dag.addStream(viewsstreamstr, viewGen.getOutput(EventGenerator.OPORT_DATA), adviews.getInput(EventClassifier.IPORT_IN_DATA)).setInline(true);
+      dag.addStream(viewsaggregatesrteamstr, adviews.getOutput(EventClassifier.OPORT_OUT_DATA), insertclicks.getInput(FilteredEventClassifier.IPORT_IN_DATA),
                     viewAggregate.getInput(Sum.IPORT_DATA)).setInline(true);
-      dag.addStream(clicksaggregatestreamstr, insertclicks.getOutput(FilterClassifier.OPORT_OUT_DATA), clickAggregate.getInput(Sum.IPORT_DATA)).setInline(true);
+      dag.addStream(clicksaggregatestreamstr, insertclicks.getOutput(FilteredEventClassifier.OPORT_OUT_DATA), clickAggregate.getInput(Sum.IPORT_DATA)).setInline(true);
 
       dag.addStream(viewaggrsumstreamstr, viewAggregate.getOutput(Sum.OPORT_SUM), viewAggrSum10.getInput(StreamMerger10.getInputName(i)));
       dag.addStream(clickaggrsumstreamstr, clickAggregate.getOutput(Sum.OPORT_SUM), clickAggrSum10.getInput(StreamMerger10.getInputName(i)));

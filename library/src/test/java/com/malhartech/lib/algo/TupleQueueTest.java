@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.testbench.LoadGenerator}. <p>
+ * Functional tests for {@link com.malhartech.lib.testbench.EventGenerator}. <p>
  * <br>
  * Load is generated and the tuples are outputted to ensure that the numbers are roughly in line with the weights<br>
  * <br>
@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TupleQueueTest
 {
-  private static Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
+  private static Logger LOG = LoggerFactory.getLogger(EventGenerator.class);
 
   class QueueSink implements Sink
   {

@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Functional test for {@link com.malhartech.lib.testbench.LoadClassifier} for three configuration><p>
+ * Functional test for {@link com.malhartech.lib.testbench.EventClassifier} for three configuration><p>
  * <br>
  * Configuration 1: Provide values and weights<br>
  * Configuration 2: Provide values but no weights (even weights)<br>
@@ -25,9 +25,9 @@ import org.slf4j.LoggerFactory;
  * <br>
  * Validates all DRC checks of the node<br>
  */
-public class LoadClassifierTest {
+public class EventClassifierTest {
 
-    private static Logger LOG = LoggerFactory.getLogger(LoadClassifier.class);
+    private static Logger LOG = LoggerFactory.getLogger(EventClassifier.class);
 
     class TestSink implements Sink {
 
@@ -80,84 +80,84 @@ public class LoadClassifierTest {
     public void testNodeValidation() {
 
         ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
-        LoadClassifier node = new LoadClassifier();
+        EventClassifier node = new EventClassifier();
         // String[] kstr = config.getTrimmedStrings(KEY_KEYS);
         // String[] vstr = config.getTrimmedStrings(KEY_VALUES);
 
 
-        conf.set(LoadClassifier.KEY_KEYS, "");
+        conf.set(EventClassifier.KEY_KEYS, "");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadClassifier.KEY_KEYS);
+            Assert.fail("validation error  " + EventClassifier.KEY_KEYS);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadClassifier.KEY_KEYS,
+            Assert.assertTrue("validate " + EventClassifier.KEY_KEYS,
                     e.getMessage().contains("is empty"));
         }
 
-        conf.set(LoadClassifier.KEY_KEYS, "a,b,c"); // from now on keys are a,b,c
-        conf.set(LoadClassifier.KEY_VALUEOPERATION, "blah");
+        conf.set(EventClassifier.KEY_KEYS, "a,b,c"); // from now on keys are a,b,c
+        conf.set(EventClassifier.KEY_VALUEOPERATION, "blah");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadClassifier.KEY_VALUEOPERATION);
+            Assert.fail("validation error  " + EventClassifier.KEY_VALUEOPERATION);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadClassifier.KEY_VALUEOPERATION,
+            Assert.assertTrue("validate " + EventClassifier.KEY_VALUEOPERATION,
                     e.getMessage().contains("not supported. Supported values are"));
         }
-        conf.set(LoadClassifier.KEY_VALUEOPERATION, "replace"); // from now on valueoperation is "replace"
+        conf.set(EventClassifier.KEY_VALUEOPERATION, "replace"); // from now on valueoperation is "replace"
 
-        conf.set(LoadClassifier.KEY_VALUES, "1,2,3,4");
+        conf.set(EventClassifier.KEY_VALUES, "1,2,3,4");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadClassifier.KEY_VALUES);
+            Assert.fail("validation error  " + EventClassifier.KEY_VALUES);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadClassifier.KEY_VALUES,
+            Assert.assertTrue("validate " + EventClassifier.KEY_VALUES,
                     e.getMessage().contains("does not match number of keys"));
         }
 
-        conf.set(LoadClassifier.KEY_VALUES, "1,2a,3");
+        conf.set(EventClassifier.KEY_VALUES, "1,2a,3");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadClassifier.KEY_VALUES);
+            Assert.fail("validation error  " + EventClassifier.KEY_VALUES);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadClassifier.KEY_VALUES,
+            Assert.assertTrue("validate " + EventClassifier.KEY_VALUES,
                     e.getMessage().contains("Value string should be float"));
         }
 
-        conf.set(LoadClassifier.KEY_VALUES, "1,2,3");
+        conf.set(EventClassifier.KEY_VALUES, "1,2,3");
 
-        conf.set(LoadClassifier.KEY_WEIGHTS, "ia:60,10,35;;ic:20,10,70;id:50,15,35");
+        conf.set(EventClassifier.KEY_WEIGHTS, "ia:60,10,35;;ic:20,10,70;id:50,15,35");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadClassifier.KEY_WEIGHTS);
+            Assert.fail("validation error  " + EventClassifier.KEY_WEIGHTS);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadClassifier.KEY_WEIGHTS,
+            Assert.assertTrue("validate " + EventClassifier.KEY_WEIGHTS,
                     e.getMessage().contains("One of the keys in"));
         }
 
-        conf.set(LoadClassifier.KEY_WEIGHTS, "ia:60,10,35;ib,10,75,15;ic:20,10,70;id:50,15,35");
+        conf.set(EventClassifier.KEY_WEIGHTS, "ia:60,10,35;ib,10,75,15;ic:20,10,70;id:50,15,35");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadClassifier.KEY_WEIGHTS);
+            Assert.fail("validation error  " + EventClassifier.KEY_WEIGHTS);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadClassifier.KEY_WEIGHTS,
+            Assert.assertTrue("validate " + EventClassifier.KEY_WEIGHTS,
                     e.getMessage().contains("need two strings separated by"));
         }
 
-        conf.set(LoadClassifier.KEY_WEIGHTS, "ia:60,10,35;ib:10,75;ic:20,10,70;id:50,15,35");
+        conf.set(EventClassifier.KEY_WEIGHTS, "ia:60,10,35;ib:10,75;ic:20,10,70;id:50,15,35");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadClassifier.KEY_WEIGHTS);
+            Assert.fail("validation error  " + EventClassifier.KEY_WEIGHTS);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadClassifier.KEY_WEIGHTS,
+            Assert.assertTrue("validate " + EventClassifier.KEY_WEIGHTS,
                     e.getMessage().contains("does not match the number of keys"));
         }
 
-        conf.set(LoadClassifier.KEY_WEIGHTS, "ia:60,10,35;ib:10,75,1a5;ic:20,10,70;id:50,15,35");
+        conf.set(EventClassifier.KEY_WEIGHTS, "ia:60,10,35;ib:10,75,1a5;ic:20,10,70;id:50,15,35");
         try {
             node.myValidation(conf);
-            Assert.fail("validation error  " + LoadClassifier.KEY_WEIGHTS);
+            Assert.fail("validation error  " + EventClassifier.KEY_WEIGHTS);
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + LoadClassifier.KEY_WEIGHTS,
+            Assert.assertTrue("validate " + EventClassifier.KEY_WEIGHTS,
                     e.getMessage().contains("Weight string should be an integer"));
         }
     }
@@ -168,17 +168,17 @@ public class LoadClassifierTest {
     @Test
     public void testNodeProcessing() throws Exception {
 
-        LoadClassifier node = new LoadClassifier();
+        EventClassifier node = new EventClassifier();
 
         TestSink classifySink = new TestSink();
         classifySink.dohash = true;
-        node.connect(LoadClassifier.OPORT_OUT_DATA, classifySink);
+        node.connect(EventClassifier.OPORT_OUT_DATA, classifySink);
         ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
 
-        conf.set(LoadClassifier.KEY_KEYS, "a,b,c");
-        conf.set(LoadClassifier.KEY_VALUES, "1,4,5");
-        conf.set(LoadClassifier.KEY_WEIGHTS, "ia:60,10,35;ib:10,75,15;ic:20,10,70;id:50,15,35");
-        conf.set(LoadClassifier.KEY_VALUEOPERATION, "replace");
+        conf.set(EventClassifier.KEY_KEYS, "a,b,c");
+        conf.set(EventClassifier.KEY_VALUES, "1,4,5");
+        conf.set(EventClassifier.KEY_WEIGHTS, "ia:60,10,35;ib:10,75,15;ic:20,10,70;id:50,15,35");
+        conf.set(EventClassifier.KEY_VALUEOPERATION, "replace");
 
         conf.setInt("SpinMillis", 10);
         conf.setInt("BufferCapacity", 1024 * 1024);
@@ -218,10 +218,10 @@ public class LoadClassifierTest {
         }
         Assert.assertEquals("number emitted tuples", sentval, ival);
         // Now test a node with no weights
-        LoadClassifier nwnode = new LoadClassifier();
+        EventClassifier nwnode = new EventClassifier();
         classifySink.clear();
-        nwnode.connect(LoadClassifier.OPORT_OUT_DATA, classifySink);
-        conf.set(LoadClassifier.KEY_WEIGHTS, "");
+        nwnode.connect(EventClassifier.OPORT_OUT_DATA, classifySink);
+        conf.set(EventClassifier.KEY_WEIGHTS, "");
         nwnode.setup(conf);
 
         sentval = 0;
@@ -256,11 +256,11 @@ public class LoadClassifierTest {
 
 
         // Now test a node with no weights and no values
-        LoadClassifier nvnode = new LoadClassifier();
+        EventClassifier nvnode = new EventClassifier();
         classifySink.clear();
-        nvnode.connect(LoadClassifier.OPORT_OUT_DATA, classifySink);
-        conf.set(LoadClassifier.KEY_WEIGHTS, "");
-        conf.set(LoadClassifier.KEY_VALUES, "");
+        nvnode.connect(EventClassifier.OPORT_OUT_DATA, classifySink);
+        conf.set(EventClassifier.KEY_WEIGHTS, "");
+        conf.set(EventClassifier.KEY_VALUES, "");
         nvnode.setup(conf);
 
         sentval = 0;

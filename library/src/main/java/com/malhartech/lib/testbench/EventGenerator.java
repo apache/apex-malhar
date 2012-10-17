@@ -51,10 +51,10 @@ import org.slf4j.LoggerFactory;
  * @author amol
  */
 @ModuleAnnotation(ports = {
-  @PortAnnotation(name = LoadGenerator.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT),
-  @PortAnnotation(name = LoadGenerator.OPORT_COUNT, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = EventGenerator.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT),
+  @PortAnnotation(name = EventGenerator.OPORT_COUNT, type = PortAnnotation.PortType.OUTPUT)
 })
-public class LoadGenerator extends AbstractInputModule
+public class EventGenerator extends AbstractInputModule
 {
   public static final String OPORT_DATA = "data";
   public static final String OPORT_COUNT = "count";
@@ -63,7 +63,7 @@ public class LoadGenerator extends AbstractInputModule
   public static final String OPORT_COUNT_TUPLE_TIME = "window_time";
   public static final String OPORT_COUNT_TUPLE_TUPLES_PERSEC = "tuples_per_sec";
   public static final String OPORT_COUNT_TUPLE_WINDOWID = "window_id";
-  private static final Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EventGenerator.class);
   protected static final int tuples_blast_default_value = 10000;
   protected transient int tuples_blast = tuples_blast_default_value;
   protected transient int maxCountOfWindows = Integer.MAX_VALUE;

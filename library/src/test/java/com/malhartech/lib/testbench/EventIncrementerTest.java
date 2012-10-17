@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Functional test for {@link com.malhartech.lib.testbench.LoadIncrementer}<p>
+ * Functional test for {@link com.malhartech.lib.testbench.EventIncrementer}<p>
  * <br>
  * Benchmarks: The benchmark was done in local/inline mode<br>
  * Processing tuples on seed port are at 3.5 Million tuples/sec<br>
@@ -26,9 +26,9 @@ import org.slf4j.LoggerFactory;
  * <br>
  * Validates all DRC checks of the node<br>
  */
-public class LoadIncrementerTest
+public class EventIncrementerTest
 {
-  private static Logger LOG = LoggerFactory.getLogger(FilterClassifier.class);
+  private static Logger LOG = LoggerFactory.getLogger(FilteredEventClassifier.class);
 
   class DataSink implements Sink
   {
@@ -78,7 +78,7 @@ public class LoadIncrementerTest
       else {
         HashMap<String, Integer> tuple = (HashMap<String, Integer>)payload;
         for (Map.Entry<String, Integer> e: ((HashMap<String, Integer>)payload).entrySet()) {
-          if (e.getKey().equals(LoadIncrementer.OPORT_COUNT_TUPLE_COUNT)) {
+          if (e.getKey().equals(EventIncrementer.OPORT_COUNT_TUPLE_COUNT)) {
             count = e.getValue().intValue();
           }
         }
@@ -93,56 +93,56 @@ public class LoadIncrementerTest
   public void testNodeValidation()
   {
     ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
-    LoadIncrementer node = new LoadIncrementer();
+    EventIncrementer node = new EventIncrementer();
 
-    conf.set(FilterClassifier.KEY_KEYS, "");
+    conf.set(FilteredEventClassifier.KEY_KEYS, "");
     try {
       node.myValidation(conf);
-      Assert.fail("validation error  " + LoadIncrementer.KEY_KEYS);
+      Assert.fail("validation error  " + EventIncrementer.KEY_KEYS);
     }
     catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + LoadIncrementer.KEY_KEYS,
+      Assert.assertTrue("validate " + EventIncrementer.KEY_KEYS,
                         e.getMessage().contains("is empty"));
     }
 
-    conf.set(LoadIncrementer.KEY_KEYS, "a,b"); // from now on keys are a,b,c
-    conf.set(LoadIncrementer.KEY_LIMITS, "1,100;1,100;1,100");
+    conf.set(EventIncrementer.KEY_KEYS, "a,b"); // from now on keys are a,b,c
+    conf.set(EventIncrementer.KEY_LIMITS, "1,100;1,100;1,100");
     try {
       node.myValidation(conf);
-      Assert.fail("validation error  " + LoadIncrementer.KEY_LIMITS);
+      Assert.fail("validation error  " + EventIncrementer.KEY_LIMITS);
     }
     catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + LoadIncrementer.KEY_LIMITS,
+      Assert.assertTrue("validate " + EventIncrementer.KEY_LIMITS,
                         e.getMessage().contains("does not match number ids in limits"));
     }
 
-    conf.set(LoadIncrementer.KEY_LIMITS, "1,100,200;1,100");
+    conf.set(EventIncrementer.KEY_LIMITS, "1,100,200;1,100");
     try {
       node.myValidation(conf);
-      Assert.fail("validation error  " + LoadIncrementer.KEY_LIMITS);
+      Assert.fail("validation error  " + EventIncrementer.KEY_LIMITS);
     }
     catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + LoadIncrementer.KEY_LIMITS,
+      Assert.assertTrue("validate " + EventIncrementer.KEY_LIMITS,
                         e.getMessage().contains("Property \"limits\" has a illegal value"));
     }
 
-    conf.set(LoadIncrementer.KEY_LIMITS, "1,a;1,100");
+    conf.set(EventIncrementer.KEY_LIMITS, "1,a;1,100");
     try {
       node.myValidation(conf);
-      Assert.fail("validation error  " + LoadIncrementer.KEY_LIMITS);
+      Assert.fail("validation error  " + EventIncrementer.KEY_LIMITS);
     }
     catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + LoadIncrementer.KEY_LIMITS,
+      Assert.assertTrue("validate " + EventIncrementer.KEY_LIMITS,
                         e.getMessage().contains("has illegal format for one of its strings"));
     }
 
-    conf.set(LoadIncrementer.KEY_LIMITS, "100,1;1,100");
+    conf.set(EventIncrementer.KEY_LIMITS, "100,1;1,100");
     try {
       node.myValidation(conf);
-      Assert.fail("validation error  " + LoadIncrementer.KEY_LIMITS);
+      Assert.fail("validation error  " + EventIncrementer.KEY_LIMITS);
     }
     catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + LoadIncrementer.KEY_LIMITS,
+      Assert.assertTrue("validate " + EventIncrementer.KEY_LIMITS,
                         e.getMessage().contains(">= high_value"));
     }
   }
@@ -153,22 +153,22 @@ public class LoadIncrementerTest
   @Test
   public void testNodeProcessing() throws Exception
   {
-    final LoadIncrementer node = new LoadIncrementer();
+    final EventIncrementer node = new EventIncrementer();
 
     DataSink dataSink = new DataSink();
     CountSink countSink = new CountSink();
 
-    node.connect(LoadIncrementer.OPORT_DATA, dataSink);
-    node.connect(LoadIncrementer.OPORT_COUNT, countSink);
+    node.connect(EventIncrementer.OPORT_DATA, dataSink);
+    node.connect(EventIncrementer.OPORT_COUNT, countSink);
 
-    Sink seedSink = node.connect(LoadIncrementer.IPORT_SEED, node);
-    Sink incrSink = node.connect(LoadIncrementer.IPORT_INCREMENT, node);
+    Sink seedSink = node.connect(EventIncrementer.IPORT_SEED, node);
+    Sink incrSink = node.connect(EventIncrementer.IPORT_INCREMENT, node);
 
     ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
 
-    conf.set(LoadIncrementer.KEY_KEYS, "x,y");
-    conf.set(LoadIncrementer.KEY_LIMITS, "1,100;1,200");
-    conf.set(LoadIncrementer.KEY_DELTA, "1");
+    conf.set(EventIncrementer.KEY_KEYS, "x,y");
+    conf.set(EventIncrementer.KEY_LIMITS, "1,100;1,200");
+    conf.set(EventIncrementer.KEY_DELTA, "1");
     node.setup(conf);
 
     final AtomicBoolean inactive = new AtomicBoolean(true);

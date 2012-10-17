@@ -4,7 +4,7 @@
 package com.malhartech.lib.stream;
 
 import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.lib.testbench.LoadGenerator;
+import com.malhartech.lib.testbench.EventGenerator;
 import com.malhartech.lib.testbench.ThroughputCounter;
 import java.util.HashMap;
 import junit.framework.Assert;
@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DevNullCounterTest {
 
-    private static Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
+    private static Logger LOG = LoggerFactory.getLogger(EventGenerator.class);
 
     /**
      * Test configuration and parameter validation of the node
