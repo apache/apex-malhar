@@ -10,7 +10,7 @@ import com.malhartech.annotation.PortAnnotation.PortType;
 import com.malhartech.bufferserver.Buffer;
 import com.malhartech.dag.AbstractInputModule;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.Module;
+import com.malhartech.dag.Operator;
 import com.malhartech.dag.ModuleConfiguration;
 import com.malhartech.dag.Tuple;
 import java.io.IOException;
@@ -92,7 +92,7 @@ public abstract class AbstractHDFSInputModule extends AbstractInputModule implem
       }
       else {
         logger.info("Ending the stream");
-        Class<? extends Module> clazz = this.getClass();
+        Class<? extends Operator> clazz = this.getClass();
         ModuleAnnotation na = clazz.getAnnotation(ModuleAnnotation.class);
         if (na != null) {
           PortAnnotation[] ports = na.ports();

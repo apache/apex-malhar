@@ -9,6 +9,7 @@ import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
 import com.malhartech.dag.AbstractModule;
 import com.malhartech.dag.Component;
+import com.malhartech.dag.Sink;
 
 /**
  *
@@ -18,7 +19,7 @@ import com.malhartech.dag.Component;
   @PortAnnotation(name = Component.INPUT, type = PortType.INPUT),
   @PortAnnotation(name = Component.OUTPUT, type = PortType.OUTPUT)
 })
-public class DoNothingModule extends AbstractModule
+public class DoNothingModule extends AbstractModule implements Sink
 {
   private static final long serialVersionUID = 201208061821L;
 

@@ -218,6 +218,7 @@ public class EventGeneratorTest {
     /**
      * Test node logic emits correct results
      */
+  @SuppressWarnings("SleepWhileInLoop")
     public void testSingleSchemaNodeProcessing(boolean stringschema, boolean skiphash) throws Exception {
 
         final EventGenerator node = new EventGenerator();

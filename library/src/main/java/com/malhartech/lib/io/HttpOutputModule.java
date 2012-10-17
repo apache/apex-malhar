@@ -8,10 +8,7 @@ import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
 import com.malhartech.annotation.ShipContainingJars;
-import com.malhartech.dag.AbstractModule;
-import com.malhartech.dag.Component;
-import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.*;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import java.net.URI;
@@ -37,7 +34,7 @@ import org.slf4j.LoggerFactory;
         @PortAnnotation(name = Component.INPUT, type = PortType.INPUT)
     }
 )
-public class HttpOutputModule extends AbstractModule
+public class HttpOutputModule extends AbstractModule implements Sink
 {
   private static final Logger LOG = LoggerFactory.getLogger(HttpOutputModule.class);
 

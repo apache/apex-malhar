@@ -4,14 +4,9 @@
  */
 package com.malhartech.demos.ads;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.hadoop.conf.Configuration;
-
 import com.malhartech.dag.ApplicationFactory;
 import com.malhartech.dag.DAG;
-import com.malhartech.dag.DAG.Operator;
+import com.malhartech.dag.DAG.OperatorInstance;
 import com.malhartech.dag.DAG.StreamDecl;
 import com.malhartech.lib.io.ConsoleOutputModule;
 import com.malhartech.lib.io.HdfsOutputModule;
@@ -19,11 +14,14 @@ import com.malhartech.lib.io.HttpOutputModule;
 import com.malhartech.lib.math.Margin;
 import com.malhartech.lib.math.Quotient;
 import com.malhartech.lib.math.Sum;
-import com.malhartech.lib.testbench.FilteredEventClassifier;
-import com.malhartech.lib.testbench.EventClassifier;
-import com.malhartech.lib.testbench.EventGenerator;
 import com.malhartech.lib.stream.StreamMerger;
+import com.malhartech.lib.testbench.FilterClassifier;
+import com.malhartech.lib.testbench.LoadClassifier;
+import com.malhartech.lib.testbench.LoadGenerator;
 import com.malhartech.lib.testbench.ThroughputCounter;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.hadoop.conf.Configuration;
 
 
 /**
@@ -80,7 +78,7 @@ public class Application implements ApplicationFactory {
    * @param dag
    * @param op
    */
-  public static Map<String, String> getOperatorProperties(Configuration appConf, Class<?> appClass, String operatorId) {
+  public static Map<String, String> getOperatorInstanceProperties(Configuration appConf, Class<?> appClass, String operatorId) {
     String keyPrefix = appClass.getName() + "." + operatorId + ".";
     Map<String, String> values = appConf.getValByRegex(keyPrefix + "*");
     Map<String, String> properties = new HashMap<String, String>(values.size());
@@ -90,7 +88,7 @@ public class Application implements ApplicationFactory {
     return properties;
   }
 
-  private Operator getConsoleOperator(DAG b, String operatorName)
+  private OperatorInstance getConsoleOperatorInstance(DAG b, String operatorName)
   {
     // output to HTTP server when specified in environment setting
     String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
@@ -103,10 +101,10 @@ public class Application implements ApplicationFactory {
             .setProperty(ConsoleOutputModule.P_STRING_FORMAT, operatorName + ": %s");
   }
 
-  private DAG.InputPort getViewsToHdfsOperator(DAG dag, String operatorName)
+  private DAG.InputPort getViewsToHdfsOperatorInstance(DAG dag, String operatorName)
   {
-    Map<String, String> props = getOperatorProperties(dag.getConf(), this.getClass(), operatorName);
-    Operator o = dag.addOperator(operatorName, HdfsOutputModule.class);
+    Map<String, String> props = getOperatorInstanceProperties(dag.getConf(), this.getClass(), operatorName);
+    OperatorInstance o = dag.addOperator(operatorName, HdfsOutputModule.class);
     o.setProperty(HdfsOutputModule.KEY_APPEND, "false");
     o.setProperty(HdfsOutputModule.KEY_FILEPATH, "file:///tmp/adsdemo/views-%(moduleId)-part%(partIndex)");
     for (Map.Entry<String, String> e : props.entrySet()) {
@@ -115,37 +113,37 @@ public class Application implements ApplicationFactory {
     return o.getInput(HdfsOutputModule.INPUT);
   }
 
-  public Operator getSumOperator(String name, DAG b, String debug) {
-    Operator oper = b.addOperator(name, Sum.class);
+  public OperatorInstance getSumOperatorInstance(String name, DAG b, String debug) {
+    OperatorInstance oper = b.addOperator(name, Sum.class);
     oper.setProperty("do_debug", debug);
 
     return oper;
   }
 
-  public Operator getStreamMerger(String name, DAG b) {
+  public OperatorInstance getStreamMerger(String name, DAG b) {
     return b.addOperator(name, StreamMerger.class);
   }
 
-  public Operator getThroughputCounter(String name, DAG b) {
+  public OperatorInstance getThroughputCounter(String name, DAG b) {
     return b.addOperator(name, ThroughputCounter.class).setProperty(ThroughputCounter.ROLLING_WINDOW_COUNT, "5");
   }
 
-  public Operator getMarginOperator(String name, DAG b) {
+  public OperatorInstance getMarginOperatorInstance(String name, DAG b) {
     return b.addOperator(name, Margin.class).setProperty(Margin.KEY_PERCENT, "true");
   }
 
 
-  public Operator getQuotientOperator(String name, DAG b) {
-    Operator oper = b.addOperator(name, Quotient.class);
+  public OperatorInstance getQuotientOperatorInstance(String name, DAG b) {
+    OperatorInstance oper = b.addOperator(name, Quotient.class);
     oper.setProperty(Quotient.KEY_MULTIPLY_BY, "100"); // multiply by 100 to get percentage
     oper.setProperty(Quotient.KEY_DOKEY, "true"); // Ignore the value and just count instances or a key
     oper.setProperty("do_debug", "CTR Node");
     return oper;
   }
 
-  public Operator getPageViewGenOperator(String name, DAG b) {
-    Operator oper = b.addOperator(name, EventGenerator.class);
-    oper.setProperty(EventGenerator.KEY_KEYS, "home,finance,sports,mail");
+  public OperatorInstance getPageViewGenOperatorInstance(String name, DAG b) {
+    OperatorInstance oper = b.addOperator(name, LoadGenerator.class);
+    oper.setProperty(LoadGenerator.KEY_KEYS, "home,finance,sports,mail");
     // Paying $2.15,$3,$1.75,$.6 for 1000 views respectively
     oper.setProperty(EventGenerator.KEY_VALUES, "0.00215,0.003,0.00175,0.0006");
     oper.setProperty(EventGenerator.KEY_WEIGHTS, "25,25,25,25");
@@ -155,16 +153,16 @@ public class Application implements ApplicationFactory {
     return oper;
   }
 
-  public Operator getAdViewsStampOperator(String name, DAG b) {
-    Operator oper = b.addOperator(name, EventClassifier.class);
-    oper.setProperty(EventClassifier.KEY_KEYS, "sprint,etrade,nike");
+  public OperatorInstance getAdViewsStampOperatorInstance(String name, DAG b) {
+    OperatorInstance oper = b.addOperator(name, LoadClassifier.class);
+    oper.setProperty(LoadClassifier.KEY_KEYS, "sprint,etrade,nike");
     return oper;
   }
 
-  public Operator getInsertClicksOperator(String name, DAG b) {
-    Operator oper = b.addOperator(name, FilteredEventClassifier.class);
-    oper.setProperty(FilteredEventClassifier.KEY_KEYS, "sprint,etrade,nike");
-    oper.setProperty(FilteredEventClassifier.KEY_WEIGHTS, "home:60,10,30;finance:10,75,15;sports:10,10,80;mail:50,15,35"); // ctr in ratio
+  public OperatorInstance getInsertClicksOperatorInstance(String name, DAG b) {
+    OperatorInstance oper = b.addOperator(name, FilterClassifier.class);
+    oper.setProperty(FilterClassifier.KEY_KEYS, "sprint,etrade,nike");
+    oper.setProperty(FilterClassifier.KEY_WEIGHTS, "home:60,10,30;finance:10,75,15;sports:10,10,80;mail:50,15,35"); // ctr in ratio
     // Getting $1,$5,$4 per click respectively
     oper.setProperty(FilteredEventClassifier.KEY_VALUES, "1,5,4");
     oper.setProperty(FilteredEventClassifier.KEY_FILTER, "40,1000"); // average value for each classify_key, i.e. money paid by advertizer
@@ -178,26 +176,26 @@ public class Application implements ApplicationFactory {
 
     DAG dag = new DAG(conf);
 
-    Operator viewGen = getPageViewGenOperator("viewGen", dag);
-    Operator adviews = getAdViewsStampOperator("adviews", dag);
-    Operator insertclicks = getInsertClicksOperator("insertclicks", dag);
-    Operator viewAggregate = getSumOperator("viewAggr", dag, "");
-    Operator clickAggregate = getSumOperator("clickAggr", dag, "");
+    OperatorInstance viewGen = getPageViewGenOperatorInstance("viewGen", dag);
+    OperatorInstance adviews = getAdViewsStampOperatorInstance("adviews", dag);
+    OperatorInstance insertclicks = getInsertClicksOperatorInstance("insertclicks", dag);
+    OperatorInstance viewAggregate = getSumOperatorInstance("viewAggr", dag, "");
+    OperatorInstance clickAggregate = getSumOperatorInstance("clickAggr", dag, "");
 
-    Operator ctr = getQuotientOperator("ctr", dag);
-    Operator cost = getSumOperator("cost", dag, "");
-    Operator revenue = getSumOperator("rev", dag, "");
-    Operator margin = getMarginOperator("margin", dag);
+    OperatorInstance ctr = getQuotientOperatorInstance("ctr", dag);
+    OperatorInstance cost = getSumOperatorInstance("cost", dag, "");
+    OperatorInstance revenue = getSumOperatorInstance("rev", dag, "");
+    OperatorInstance margin = getMarginOperatorInstance("margin", dag);
 
-    Operator merge = getStreamMerger("countmerge", dag);
-    Operator tuple_counter = getThroughputCounter("tuple_counter", dag);
+    OperatorInstance merge = getStreamMerger("countmerge", dag);
+    OperatorInstance tuple_counter = getThroughputCounter("tuple_counter", dag);
 
     dag.addStream("views", viewGen.getOutput(EventGenerator.OPORT_DATA), adviews.getInput(EventClassifier.IPORT_IN_DATA)).setInline(true);
     StreamDecl viewsAggStream = dag.addStream("viewsaggregate", adviews.getOutput(EventClassifier.OPORT_OUT_DATA), insertclicks.getInput(FilteredEventClassifier.IPORT_IN_DATA),
                       viewAggregate.getInput(Sum.IPORT_DATA)).setInline(true);
 
     if (conf.getBoolean(P_enableHdfs, false)) {
-      DAG.InputPort viewsToHdfs = getViewsToHdfsOperator(dag, "viewsToHdfs");
+      DAG.InputPort viewsToHdfs = getViewsToHdfsOperatorInstance(dag, "viewsToHdfs");
       viewsAggStream.addSink(viewsToHdfs);
     }
 
@@ -212,11 +210,11 @@ public class Application implements ApplicationFactory {
     dag.addStream("total count", merge.getOutput(StreamMerger.OPORT_OUT_DATA), tuple_counter.getInput(ThroughputCounter.IPORT_DATA));
 
 
-    Operator revconsole = getConsoleOperator(dag, "revConsole");
-    Operator costconsole = getConsoleOperator(dag, "costConsole");
-    Operator marginconsole = getConsoleOperator(dag, "marginConsole");
-    Operator ctrconsole = getConsoleOperator(dag, "ctrConsole");
-    Operator viewcountconsole = getConsoleOperator(dag, "viewCountConsole");
+    OperatorInstance revconsole = getConsoleOperatorInstance(dag, "revConsole");
+    OperatorInstance costconsole = getConsoleOperatorInstance(dag, "costConsole");
+    OperatorInstance marginconsole = getConsoleOperatorInstance(dag, "marginConsole");
+    OperatorInstance ctrconsole = getConsoleOperatorInstance(dag, "ctrConsole");
+    OperatorInstance viewcountconsole = getConsoleOperatorInstance(dag, "viewCountConsole");
 
     dag.addStream("revenuedata", revenue.getOutput(Sum.OPORT_SUM), margin.getInput(Margin.IPORT_DENOMINATOR), revconsole.getInput(ConsoleOutputModule.INPUT)).setInline(allInline);
     dag.addStream("costdata", cost.getOutput(Sum.OPORT_SUM), margin.getInput(Margin.IPORT_NUMERATOR), costconsole.getInput(ConsoleOutputModule.INPUT)).setInline(allInline);

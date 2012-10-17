@@ -4,21 +4,19 @@
  */
 package com.malhartech.demos.twitter;
 
-import com.malhartech.lib.algo.WindowedTopCounter;
-import java.io.IOException;
-import java.util.Map.Entry;
-import java.util.Properties;
-
-import org.apache.hadoop.conf.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.malhartech.dag.ApplicationFactory;
 import com.malhartech.dag.DAG;
-import com.malhartech.dag.DAG.Operator;
+import com.malhartech.dag.DAG.OperatorInstance;
+import com.malhartech.lib.algo.WindowedTopCounter;
 import com.malhartech.lib.io.ConsoleOutputModule;
 import com.malhartech.lib.io.HttpOutputModule;
 import com.malhartech.lib.math.UniqueCounter;
+import java.io.IOException;
+import java.util.Map.Entry;
+import java.util.Properties;
+import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Example of application configuration in Java using {@link com.malhartech.stram.conf.NewDAGBuilder}.<p>
@@ -60,7 +58,7 @@ public class SynchronousFeedApplication implements ApplicationFactory
     /*
      * Setup the operator to get the data from twitter sample stream injected into the system.
      */
-    Operator twitterFeed = b.addOperator("TweetSampler", TwitterSynchronousSampleInput.class);
+    OperatorInstance twitterFeed = b.addOperator("TweetSampler", TwitterSynchronousSampleInput.class);
     twitterFeed.setProperty("FeedMultiplier", String.valueOf(100));
     for (Entry<Object, Object> property: properties.entrySet()) {
       String key = propertyBase.concat(".").concat(property.getKey().toString());
@@ -70,7 +68,7 @@ public class SynchronousFeedApplication implements ApplicationFactory
     /*
      * Setup the operator to get the URLs extracted from the twitter statuses.
      */
-    Operator urlExtractor = b.addOperator("URLExtractor", TwitterStatusURLExtractor.class);
+    OperatorInstance urlExtractor = b.addOperator("URLExtractor", TwitterStatusURLExtractor.class);
 
     /*
      * Feed the statuses from feed into the input of the url extractor.
@@ -83,7 +81,7 @@ public class SynchronousFeedApplication implements ApplicationFactory
     /*
      * Let's setup a node to count the unique urls within a window.
      */
-    Operator uniqueCounter = b.addOperator("UniqueURLCounter", UniqueCounter.class);
+    OperatorInstance uniqueCounter = b.addOperator("UniqueURLCounter", UniqueCounter.class);
 
     /*
      * Start counting the urls coming out of URL extractor
@@ -96,7 +94,7 @@ public class SynchronousFeedApplication implements ApplicationFactory
     /*
      * Get the aggregated url counts and count them over the timeframe.
      */
-    Operator topCounts = b.addOperator("TopCounter", WindowedTopCounter.class);
+    OperatorInstance topCounts = b.addOperator("TopCounter", WindowedTopCounter.class);
     topCounts.setProperty("topCount", String.valueOf(10));
 
     b.addStream("uniqueURLCounts")

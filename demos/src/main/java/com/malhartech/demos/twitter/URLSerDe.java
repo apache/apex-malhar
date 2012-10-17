@@ -4,7 +4,7 @@
  */
 package com.malhartech.demos.twitter;
 
-import com.malhartech.dag.Module;
+import com.malhartech.dag.Operator;
 import com.malhartech.dag.SerDe;
 import java.nio.ByteBuffer;
 import java.util.Collection;
@@ -69,7 +69,7 @@ public class URLSerDe implements SerDe
   }
 
   @Override
-  public boolean transferState(Module destination, Module source, Collection<byte[]> partitions)
+  public boolean transferState(Operator destination, Operator source, Collection<byte[]> partitions)
   {
     return false;
   }

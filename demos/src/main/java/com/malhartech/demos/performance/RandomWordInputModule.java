@@ -9,6 +9,7 @@ import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
 import com.malhartech.dag.AbstractInputModule;
 import com.malhartech.dag.Component;
+import com.malhartech.dag.Sink;
 import com.malhartech.dag.Tuple;
 
 /**
@@ -18,16 +19,16 @@ import com.malhartech.dag.Tuple;
 @ModuleAnnotation(ports = {
   @PortAnnotation(name = Component.OUTPUT, type = PortType.OUTPUT)
 })
-public class RandomWordInputModule extends AbstractInputModule
+public class RandomWordInputModule extends AbstractInputModule implements Sink<Tuple>
 {
   long lastWindowId = 0;
   int count = 1;
 //  int totalIterations = 0;
 
   @Override
-  public final void process(Object payload)
+  public final void process(Tuple tuple)
   {
-    if (((Tuple)payload).getWindowId() == lastWindowId) {
+    if (tuple.getWindowId() == lastWindowId) {
       emit(new byte[64]);
       count++;
     }
@@ -35,7 +36,7 @@ public class RandomWordInputModule extends AbstractInputModule
       for (int i = count--; i-- > 0;) {
         emit(new byte[64]);
       }
-      lastWindowId = ((Tuple)payload).getWindowId();
+      lastWindowId = tuple.getWindowId();
 //      if (++totalIterations > 20) {
 //        deactivate();
 //      }

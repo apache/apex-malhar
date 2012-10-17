@@ -3,16 +3,10 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.dag.Component;
-import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.ModuleContext;
-import com.malhartech.dag.Sink;
-import com.malhartech.dag.Tuple;
+import com.malhartech.dag.*;
 import com.malhartech.stram.ManualScheduledExecutorService;
 import com.malhartech.stram.WindowGenerator;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
@@ -71,6 +65,7 @@ public class EventGeneratorBenchmark
    */
   @Test
   @Category(com.malhartech.PerformanceTestCategory.class)
+  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
 

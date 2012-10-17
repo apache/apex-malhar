@@ -3,17 +3,12 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.dag.Component;
-import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.ModuleContext;
-import com.malhartech.dag.Sink;
-import com.malhartech.dag.Tuple;
+import com.malhartech.dag.*;
 import com.malhartech.stram.ManualScheduledExecutorService;
 import com.malhartech.stram.WindowGenerator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import junit.framework.Assert;
 import org.apache.hadoop.conf.Configuration;

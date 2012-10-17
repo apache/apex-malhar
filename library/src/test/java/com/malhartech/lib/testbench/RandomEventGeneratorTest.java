@@ -129,6 +129,7 @@ public class RandomEventGeneratorTest {
     }
 
 
+  @SuppressWarnings("SleepWhileInLoop")
     public void testSchemaNodeProcessing(boolean isstring) throws Exception {
 
         final RandomEventGenerator node = new RandomEventGenerator();

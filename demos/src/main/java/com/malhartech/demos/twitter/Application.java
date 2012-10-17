@@ -6,7 +6,7 @@ package com.malhartech.demos.twitter;
 
 import com.malhartech.dag.ApplicationFactory;
 import com.malhartech.dag.DAG;
-import com.malhartech.dag.DAG.Operator;
+import com.malhartech.dag.DAG.OperatorInstance;
 import com.malhartech.lib.algo.WindowedTopCounter;
 import com.malhartech.lib.io.ConsoleOutputModule;
 import com.malhartech.lib.io.HttpOutputModule;
@@ -41,7 +41,7 @@ public class Application implements ApplicationFactory
             .getInput(ConsoleOutputModule.INPUT);
   }
 
-  public Operator getTwitterFeed(String name, DAG b, int multby)
+  public OperatorInstance getTwitterFeed(String name, DAG b, int multby)
   {
     final String propertyBase = "twitter4j";
     Properties properties = new Properties();
@@ -55,7 +55,7 @@ public class Application implements ApplicationFactory
     /*
      * Setup the operator to get the data from twitter sample stream injected into the system.
      */
-    Operator oper = b.addOperator(name, TwitterSampleInput.class);
+    OperatorInstance oper = b.addOperator(name, TwitterSampleInput.class);
     oper.setProperty("FeedMultiplier", String.valueOf(multby));
     for (Entry<Object, Object> property: properties.entrySet()) {
       String key = propertyBase.concat(".").concat(property.getKey().toString());
@@ -65,19 +65,19 @@ public class Application implements ApplicationFactory
     return oper;
   }
 
-  public Operator getTwitterUrlExtractor(String name, DAG b)
+  public OperatorInstance getTwitterUrlExtractor(String name, DAG b)
   {
-    Operator oper = b.addOperator(name, TwitterStatusURLExtractor.class);
+    OperatorInstance oper = b.addOperator(name, TwitterStatusURLExtractor.class);
     return oper;
   }
 
-  public Operator getUniqueCounter(String name, DAG b) {
-    Operator oper = b.addOperator(name, UniqueCounter.class);
+  public OperatorInstance getUniqueCounter(String name, DAG b) {
+    OperatorInstance oper = b.addOperator(name, UniqueCounter.class);
     return oper;
   }
 
-  public Operator getTopCounter(String name, DAG b, int count) {
-    Operator oper = b.addOperator(name, WindowedTopCounter.class).setProperty("topCount", String.valueOf(count));
+  public OperatorInstance getTopCounter(String name, DAG b, int count) {
+    OperatorInstance oper = b.addOperator(name, WindowedTopCounter.class).setProperty("topCount", String.valueOf(count));
     return oper;
   }
 
@@ -86,10 +86,10 @@ public class Application implements ApplicationFactory
   {
     DAG b = new DAG(conf);
 
-    Operator twitterFeed = getTwitterFeed("TweetSampler", b, 100); // Setup the operator to get the data from twitter sample stream injected into the system.
-    Operator urlExtractor = getTwitterUrlExtractor("URLExtractor", b); //  Setup the operator to get the URLs extracted from the twitter statuses
-    Operator uniqueCounter = getUniqueCounter("UniqueURLCounter", b); // Setup a node to count the unique urls within a window.
-    Operator topCounts = getTopCounter("TopCounter", b, 10);  // Get the aggregated url counts and count them over the timeframe
+    OperatorInstance twitterFeed = getTwitterFeed("TweetSampler", b, 100); // Setup the operator to get the data from twitter sample stream injected into the system.
+    OperatorInstance urlExtractor = getTwitterUrlExtractor("URLExtractor", b); //  Setup the operator to get the URLs extracted from the twitter statuses
+    OperatorInstance uniqueCounter = getUniqueCounter("UniqueURLCounter", b); // Setup a node to count the unique urls within a window.
+    OperatorInstance topCounts = getTopCounter("TopCounter", b, 10);  // Get the aggregated url counts and count them over the timeframe
 
     // Feed the statuses from feed into the input of the url extractor.
     b.addStream("tweetStream").setSource(twitterFeed.getOutput(TwitterSampleInput.OPORT_STATUS))

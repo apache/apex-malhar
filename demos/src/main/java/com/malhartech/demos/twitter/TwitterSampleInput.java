@@ -31,7 +31,7 @@ import twitter4j.conf.ConfigurationBuilder;
   @PortAnnotation(name = TwitterSampleInput.OPORT_MEDIA, type = PortAnnotation.PortType.OUTPUT)
 })
 @ShipContainingJars(classes = {StatusListener.class, Status.class})
-public class TwitterSampleInput extends AbstractInputModule implements StatusListener
+public class TwitterSampleInput extends AbstractInputModule implements StatusListener, Sink
 {
   private static final Logger logger = LoggerFactory.getLogger(TwitterSampleInput.class);
   /**

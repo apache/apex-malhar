@@ -6,10 +6,7 @@ package com.malhartech.lib.algo;
  */
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractModule;
-import com.malhartech.dag.Component;
-import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.*;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -25,7 +22,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = Component.INPUT, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = Component.OUTPUT, type = PortAnnotation.PortType.OUTPUT)
 })
-public class WindowedTopCounter extends AbstractModule
+public class WindowedTopCounter<T> extends AbstractModule implements Sink<HashMap<T, Integer>>
 {
   private static final Logger logger = LoggerFactory.getLogger(WindowedTopCounter.class);
   private static final long serialVersionUID = 201208061826L;
@@ -57,10 +54,9 @@ public class WindowedTopCounter extends AbstractModule
   }
 
   @Override
-  public void process(Object payload)
+  public void process(HashMap<T, Integer> map)
   {
-    HashMap<Object, Integer> map = (HashMap<Object, Integer>)payload;
-    for (Map.Entry<Object, Integer> e: map.entrySet()) {
+    for (Map.Entry<T, Integer> e: map.entrySet()) {
       WindowedHolder holder = objects.get(e.getKey());
       if (holder == null) {
         holder = new WindowedHolder(e.getKey(), windows);

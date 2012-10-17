@@ -7,8 +7,7 @@ package com.malhartech.demos.performance;
 import com.malhartech.dag.ApplicationFactory;
 import com.malhartech.dag.Component;
 import com.malhartech.dag.DAG;
-import com.malhartech.dag.DAG.Operator;
-import com.malhartech.lib.testbench.DevNullCounter;
+import com.malhartech.dag.DAG.OperatorInstance;
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -23,10 +22,9 @@ public class Application implements ApplicationFactory
   {
     DAG b = new DAG(conf);
     b.getConf().setInt(DAG.STRAM_CHECKPOINT_INTERVAL_MILLIS, 0); // disable auto backup
-    Operator wordGenerator = b.addOperator("wordGenerator", RandomWordInputModule.class);
+    OperatorInstance wordGenerator = b.addOperator("wordGenerator", RandomWordInputModule.class);
 //    Operator noOpProcessor = b.addOperator("noOpProcessor", DoNothingModule.class);
-    Operator counter = b.addOperator("counter", WordCountModule.class);
-   //Operator counter = b.addOperator("counter", DevNullCounter.class);
+    OperatorInstance counter = b.addOperator("counter", WordCountModule.class);
 
 //    b.addStream("Generator2Processor", wordGenerator.getOutput(Component.OUTPUT), noOpProcessor.getInput(Component.INPUT)).setInline(inline);
 //    b.addStream("Processor2Counter", noOpProcessor.getOutput(Component.OUTPUT), counter.getInput(Component.INPUT)).setInline(inline);

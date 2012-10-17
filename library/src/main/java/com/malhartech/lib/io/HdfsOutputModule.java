@@ -4,25 +4,18 @@
  */
 package com.malhartech.lib.io;
 
+import com.malhartech.annotation.ModuleAnnotation;
+import com.malhartech.annotation.PortAnnotation;
+import com.malhartech.dag.*;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.LoggerFactory;
-
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractModule;
-import com.malhartech.dag.Component;
-import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.SerDe;
-import com.malhartech.dag.Tuple;
 
 /**
  * Adapter for writing to HDFS<p>
@@ -33,10 +26,10 @@ import com.malhartech.dag.Tuple;
  * Future enhancements may include options to write into a time slot/windows based files<br>
  * <br>
  */
-@ModuleAnnotation(ports= {
+@ModuleAnnotation(ports = {
   @PortAnnotation(name = Component.INPUT, type = PortAnnotation.PortType.INPUT)
 })
-public class HdfsOutputModule extends AbstractModule
+public class HdfsOutputModule extends AbstractModule implements Sink
 {
   private static org.slf4j.Logger logger = LoggerFactory.getLogger(HdfsOutputModule.class);
   private transient FSDataOutputStream fsOutput;
@@ -49,19 +42,15 @@ public class HdfsOutputModule extends AbstractModule
   private int replication;
   private int bytesPerFile;
   private int fileIndex = 0;
-
   int currentBytesWritten = 0;
   int totalBytesWritten = 0;
-
   public static final String KEY_FILEPATH = "filepath";
   public static final String KEY_APPEND = "append";
   public static final String KEY_REPLICATION = "replication";
-
   /**
    * Byte limit for a single file. Once the size is reached, a new file will be created.
    */
   public static final String KEY_BYTES_PER_FILE = "bytesPerFile";
-
   /**
    * Bytes are written to the underlying file stream once they cross this size.<br>
    * Use this parameter if the file system used does not provide sufficient buffering.
@@ -70,15 +59,14 @@ public class HdfsOutputModule extends AbstractModule
    * <br>
    */
   public static final String KEY_BUFFERSIZE = "bufferSize";
-
-
   public static final String FNAME_SUB_MODULE_ID = "moduleId";
   public static final String FNAME_SUB_PART_INDEX = "partIndex";
 
-  private Path subFilePath(int index) {
+  private Path subFilePath(int index)
+  {
     Map<String, String> params = new HashMap<String, String>();
     params.put(FNAME_SUB_PART_INDEX, String.valueOf(index));
-    String moduleId  = this.getId();
+    String moduleId = this.getId();
     if (moduleId != null) {
       params.put(FNAME_SUB_MODULE_ID, moduleId.replace(":", ""));
     }
@@ -86,7 +74,8 @@ public class HdfsOutputModule extends AbstractModule
     return new Path(sub.replace(filePathTemplate.toString()));
   }
 
-  private void openFile(Path filepath) throws IOException {
+  private void openFile(Path filepath) throws IOException
+  {
     if (fs.exists(filepath)) {
       if (append) {
         fsOutput = fs.append(filepath);
@@ -112,7 +101,8 @@ public class HdfsOutputModule extends AbstractModule
 
   }
 
-  private void closeFile() throws IOException {
+  private void closeFile() throws IOException
+  {
     if (bufferedOutput != null) {
       bufferedOutput.close();
       bufferedOutput = null;
@@ -170,47 +160,43 @@ public class HdfsOutputModule extends AbstractModule
     append = false;
   }
 
-
   /**
    *
    * @param t the value of t
    */
   @Override
-  public void process(Object t) {
-    if (t instanceof Tuple) {
-      // TODO: is this still needed?
-      logger.error("ignoring tuple " + t);
+  public void process(Object t)
+  {
+    // writing directly to the stream, assuming that HDFS already buffers block size.
+    // check whether writing to separate in memory byte stream would be faster
+    byte[] tupleBytes;
+    if (serde == null) {
+      tupleBytes = t.toString().concat("\n").getBytes();
     }
     else {
-      // writing directly to the stream, assuming that HDFS already buffers block size.
-      // check whether writing to separate in memory byte stream would be faster
-      byte[] tupleBytes;
-      if (serde == null) {
-        tupleBytes = t.toString().concat("\n").getBytes();
-      } else {
-        tupleBytes = serde.toByteArray(t);
+      tupleBytes = serde.toByteArray(t);
+    }
+    try {
+      if (bytesPerFile > 0 && currentBytesWritten + tupleBytes.length > bytesPerFile) {
+        closeFile();
+        Path filepath = subFilePath(++fileIndex);
+        openFile(filepath);
+        currentBytesWritten = 0;
       }
-      try {
-        if (bytesPerFile > 0 && currentBytesWritten + tupleBytes.length > bytesPerFile) {
-          closeFile();
-          Path filepath = subFilePath(++fileIndex);
-          openFile(filepath);
-          currentBytesWritten = 0;
-        }
 
-        if (bufferedOutput != null) {
-          bufferedOutput.write(tupleBytes);
-        } else {
-          fsOutput.write(tupleBytes);
-        }
-
-        currentBytesWritten += tupleBytes.length;
-        totalBytesWritten += tupleBytes.length;
-
-      } catch (IOException ex) {
-        logger.error("Failed to write to stream.", ex);
+      if (bufferedOutput != null) {
+        bufferedOutput.write(tupleBytes);
       }
+      else {
+        fsOutput.write(tupleBytes);
+      }
+
+      currentBytesWritten += tupleBytes.length;
+      totalBytesWritten += tupleBytes.length;
+
+    }
+    catch (IOException ex) {
+      logger.error("Failed to write to stream.", ex);
     }
   }
-
 }
