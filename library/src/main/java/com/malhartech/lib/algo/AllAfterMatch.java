@@ -134,7 +134,7 @@ public class AllAfterMatch extends AbstractModule
   }
 
 
-
+  
   public boolean myValidation(ModuleConfiguration config)
   {
     boolean ret = true;
