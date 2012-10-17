@@ -49,12 +49,12 @@ public class LeastFrequentKey extends AbstractModule
   public static final String OPORT_COUNT = "count";
   private static Logger LOG = LoggerFactory.getLogger(LeastFrequentKey.class);
 
-  HashMap<String, Integer> keylocation = null;
+  HashMap<String, myInteger> keycount = null;
 
-  int[] count = null;
-  int current_location = 0;
-  final int default_count_size = 1000;
-  int current_count_size = default_count_size;
+  class myInteger
+  {
+    int value;
+  }
 
   /**
    * Process each tuple
@@ -64,38 +64,18 @@ public class LeastFrequentKey extends AbstractModule
   @Override
   public void process(Object payload)
   {
-    Integer location = keylocation.get((String) payload);
-    if (location == null) {
-      location = new Integer(current_location);
-      current_location++;
-      keylocation.put((String) payload, location);
+    myInteger count = keycount.get((String) payload);
+    if (count == null) {
+      count = new myInteger();
+      keycount.put((String) payload, count);
     }
-    count[location.intValue()]++;
-    if (current_location >= current_count_size) {
-      updateCountSize();
-    }
-  }
-
-
-  public void updateCountSize()
-  {
-    int new_count_size = current_count_size * 2;
-    int[] newcount = new int[new_count_size];
-    for (int i = 0; i < current_count_size; i++) {
-      newcount[i] = count[i];
-    }
-    for (int i = current_count_size; i < new_count_size; i++) {
-      newcount[i] = 0;
-    }
-    count = newcount;
-    current_count_size = new_count_size;
+    count.value++;
   }
 
   @Override
   public void beginWindow()
   {
-    // need to periodically clean up the keylocation hash and start again
-    // else old keys will fill up the hash, de-silting needs to be done
+    keycount.clear();
   }
 
   @Override
@@ -103,27 +83,24 @@ public class LeastFrequentKey extends AbstractModule
   {
     String key = null;
     int kval = -1;
-    for (Map.Entry<String, Integer> e: keylocation.entrySet()) {
+    for (Map.Entry<String, myInteger> e: keycount.entrySet()) {
       if ((kval == -1) || // first key
-              (count[e.getValue().intValue()] < kval)) {
+              (e.getValue().value < kval)) {
         key = e.getKey();
-        kval = count[e.getValue().intValue()];
+        kval = e.getValue().value;
       }
-      count[e.getValue().intValue()] = 0; // clear the positions
+      e.getValue().value = 0; // clear the positions
     }
     if ((key != null) && (kval > 0)) { // key is null if no
       HashMap<String, Integer> tuple = new HashMap<String, Integer>(1);
       tuple.put(key, new Integer(kval));
       emit(tuple);
     }
-    // emit least frequent key here
-
   }
 
   public boolean myValidation(ModuleConfiguration config)
   {
-    boolean ret = true;
-    return ret;
+    return true;
   }
    /**
    *
@@ -135,28 +112,6 @@ public class LeastFrequentKey extends AbstractModule
     if (!myValidation(config)) {
       throw new FailedOperationException("validation failed");
     }
-    keylocation = new HashMap<String, Integer>();
-    count = new int[default_count_size];
-    current_location = 0;
-    current_count_size = default_count_size;
-    for (int i = 0; i < default_count_size; i++) {
-      count[i] = 0;
-    }
-  }
-
-
-  /**
-   *
-   * Checks for user specific configuration values<p>
-   *
-   * @param config
-   * @return boolean
-   */
-  @Override
-  public boolean checkConfiguration(ModuleConfiguration config)
-  {
-    boolean ret = true;
-    // TBD
-    return ret && super.checkConfiguration(config);
+    keycount = new HashMap<String, myInteger>();
   }
 }

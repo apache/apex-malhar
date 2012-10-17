@@ -49,15 +49,15 @@ public class FirstN extends AbstractModule
   public static final String OPORT_FIRST = "first";
   private static Logger LOG = LoggerFactory.getLogger(FirstN.class);
 
-  HashMap<String, Integer> keyloc = null;
+  HashMap<String, myInteger> keycount = null;
 
   int n_default_value = 1;
   int n = n_default_value;
 
-  final int count_size_default = 1000;
-  int count_size = count_size_default;
-  int[] count = null;
-  int current_loc = 0;
+  class myInteger {
+    public myInteger(int i) {value = i;}
+    int value;
+  }
 
   /**
    * The number of tuples to emit for each key
@@ -76,46 +76,24 @@ public class FirstN extends AbstractModule
   public void process(Object payload)
   {
     for (Map.Entry<String, Object> e: ((HashMap<String, Object>)payload).entrySet()) {
-      Integer loc = keyloc.get(e.getKey());
-      if (loc == null) {
-        loc = new Integer(current_loc++);
-        keyloc.put(e.getKey(), loc);
+      myInteger count = keycount.get(e.getKey());
+      if (count == null) {
+        count = new myInteger(0);
+        keycount.put(e.getKey(), count);
       }
-      int i = loc.intValue();
-      count[i]++;
-      if (count[i] <= n) {
+      count.value++;
+      if (count.value <= n) {
         HashMap<String, Object> tuple = new HashMap<String, Object>(1);
         tuple.put(e.getKey(), e.getValue());
         emit(tuple);
       }
-      if (current_loc >= count_size) {
-        updateCountSize();
-      }
     }
-  }
-
-    public void updateCountSize()
-  {
-    int new_count_size = count_size * 2;
-    int[] newcount = new int[new_count_size];
-    for (int i = 0; i < count_size; i++) {
-      newcount[i] = count[i];
-    }
-    for (int i = count_size; i < new_count_size; i++) {
-      newcount[i] = 0;
-    }
-    count = newcount;
-    count_size = new_count_size;
   }
 
   @Override
   public void beginWindow()
   {
-    for (int i = 0; i < current_loc; i++) {
-      count[i] = 0;
-    }
-    keyloc.clear();
-    current_loc = 0;
+    keycount.clear();
   }
 
   public boolean myValidation(ModuleConfiguration config)
@@ -144,28 +122,7 @@ public class FirstN extends AbstractModule
       throw new FailedOperationException("validation failed");
     }
     n = config.getInt(KEY_N, n_default_value);
+    keycount = new HashMap<String, myInteger>();
     LOG.debug(String.format("Set up take for %d tuples", n));
-    count = new int[count_size];
-    current_loc = 0;
-    for (int i = 0; i < count_size; i++) {
-      count[i] = 0;
-    }
-    keyloc = new HashMap<String, Integer>();
-  }
-
-
-  /**
-   *
-   * Checks for user specific configuration values<p>
-   *
-   * @param config
-   * @return boolean
-   */
-  @Override
-  public boolean checkConfiguration(ModuleConfiguration config)
-  {
-    boolean ret = true;
-    // TBD
-    return ret && super.checkConfiguration(config);
   }
 }

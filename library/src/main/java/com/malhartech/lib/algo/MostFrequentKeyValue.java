@@ -50,48 +50,11 @@ public class MostFrequentKeyValue extends AbstractModule
   public static final String OPORT_COUNT = "count";
   private static Logger LOG = LoggerFactory.getLogger(MostFrequentKeyValue.class);
 
-  HashMap<String, Integer> keyvallocation = null;
-  HashMap<String, HashMap<String, Integer>> keyvals = null;
+  HashMap<String, HashMap<String, myInteger>> keyvals = null;
 
-  int[] count = null;
-  int current_location = 0;
-  final int default_count_size = 1000;
-  int current_count_size = default_count_size;
-
-
-  /**
-   * Keeps the integer location for each key, val pair. This way there is no need to recalculate when the next identical tuple arrives for processing
-   * @param key
-   * @param value
-   * @param loc
-   */
-
-  public void insertKeyVal(String key, String value, Integer loc) {
-    HashMap<String, Integer> vals = keyvals.get(key);
-    if (vals == null) {
-      vals = new HashMap<String, Integer>();
-    }
-    if (vals.get(value) == null) {
-      vals.put(value, loc);
-    }
-    return;
+  class myInteger {
+    int value;
   }
-
-  public void updateCountSize()
-  {
-    int new_count_size = current_count_size * 2;
-    int[] newcount = new int[new_count_size];
-    for (int i = 0; i < current_count_size; i++) {
-      newcount[i] = count[i];
-    }
-    for (int i = current_count_size; i < new_count_size; i++) {
-      newcount[i] = 0;
-    }
-    count = newcount;
-    current_count_size = new_count_size;
-  }
-
-
   /**
    * Process each tuple
    *
@@ -100,45 +63,42 @@ public class MostFrequentKeyValue extends AbstractModule
   @Override
   public void process(Object payload)
   {
-    for (Map.Entry<String, String> e: ((HashMap<String, String>)payload).entrySet()) {
-      String keyval = e.getKey() + "=" + e.getValue();
-      Integer location = keyvallocation.get(keyval);
-      if (location == null) {
-        location = new Integer(current_location);
-        current_location++;
-        keyvallocation.put((String)payload, location);
+    for (Map.Entry<String, String> e: ((HashMap<String, String>) payload).entrySet()) {
+      HashMap<String, myInteger> vals = keyvals.get(e.getKey());
+      if (vals == null) {
+        vals = new HashMap<String, myInteger>();
+        keyvals.put(e.getKey(), vals);
       }
-      count[location.intValue()]++;
-      insertKeyVal(e.getKey(), e.getValue(), location);
-      if (current_location >= current_count_size) {
-        updateCountSize();
+      myInteger count = vals.get(e.getValue());
+      if (count == null) {
+        count = new myInteger();
+        vals.put(e.getValue(), count);
       }
+      count.value++;
     }
   }
 
   @Override
   public void beginWindow()
   {
-    // need to periodically clean up the keylocation hash and start again
-    // else old keys will fill up the hash, de-silting needs to be done
+    keyvals.clear();
   }
 
   @Override
   public void endWindow()
   {
-    for (Map.Entry<String, HashMap<String, Integer>> e: keyvals.entrySet()) {
+    for (Map.Entry<String, HashMap<String, myInteger>> e: keyvals.entrySet()) {
       String val = null;
       int kval = -1;
-      HashMap<String, Integer> vals = e.getValue();
-      for (Map.Entry<String, Integer> v: vals.entrySet()) {
+      HashMap<String, myInteger> vals = e.getValue();
+      for (Map.Entry<String, myInteger> v: vals.entrySet()) {
         if ((kval == -1) || // first key
-                (count[v.getValue().intValue()] > kval)) {
+                (v.getValue().value > kval)) {
           val = v.getKey();
-          kval = count[v.getValue().intValue()];
+          kval = v.getValue().value;
         }
-        count[v.getValue().intValue()] = 0; // clear the positions
       }
-      if ((val != null) && (kval > 0)) { // key is null if no
+      if ((val != null) && (kval > 0)) { // key should never be null
         HashMap<String, HashMap<String, Integer>> tuple = new HashMap<String, HashMap<String, Integer>>(1);
         HashMap<String, Integer> valpair = new HashMap<String, Integer>(1);
         valpair.put(val, new Integer(kval));
@@ -150,8 +110,7 @@ public class MostFrequentKeyValue extends AbstractModule
 
   public boolean myValidation(ModuleConfiguration config)
   {
-    boolean ret = true;
-    return ret;
+    return true;
   }
    /**
    *
@@ -163,29 +122,6 @@ public class MostFrequentKeyValue extends AbstractModule
     if (!myValidation(config)) {
       throw new FailedOperationException("validation failed");
     }
-    keyvallocation = new HashMap<String, Integer>();
-    keyvals = new HashMap<String, HashMap<String, Integer>>();
-    count = new int[default_count_size];
-    current_location = 0;
-    current_count_size = default_count_size;
-    for (int i = 0; i < default_count_size; i++) {
-      count[i] = 0;
-    }
-  }
-
-
-  /**
-   *
-   * Checks for user specific configuration values<p>
-   *
-   * @param config
-   * @return boolean
-   */
-  @Override
-  public boolean checkConfiguration(ModuleConfiguration config)
-  {
-    boolean ret = true;
-    // TBD
-    return ret && super.checkConfiguration(config);
+    keyvals = new HashMap<String, HashMap<String, myInteger>>();
   }
 }
