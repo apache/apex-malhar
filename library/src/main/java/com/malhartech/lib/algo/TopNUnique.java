@@ -10,6 +10,7 @@ import com.malhartech.dag.AbstractModule;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.ModuleConfiguration;
 import com.malhartech.lib.util.TopNSort;
+import com.malhartech.lib.util.TopNUniqueSort;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,14 +18,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Takes a stream of key value pairs via input port "data", and they are ordered by key. Bottom N of the ordered tuples per key are emitted on
+ * Takes a stream of key value pairs via input port "data", and they are ordered by key. Top N of the ordered unique tuples per key are emitted on
  * port "top" at the end of window<p>
  * This is an end of window module<br>
  * At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
  * <br>
  * <b>Ports</b>
- * <b>data</b>: Input data port expects HashMap<String, Object> (<key, value><br>
- * <b>top</b>: Output data port, emits HashMap<String, ArrayList> (key, values><br>
+ * <b>data</b>: Input data port expects HashMap<String, Object> (key, value)<br>
+ * <b>top</b>: Output data port, emits HashMap<String, ArrayList<HashMap<Object, Integer>>> (key, <value, Integer>)br>
  * <b>Properties</b>:
  * <b>N</b>: The number of top values to be emitted per key<br>
  * <br>
@@ -41,19 +42,19 @@ import org.slf4j.LoggerFactory;
 
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = BottomN.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = BottomN.OPORT_TOP, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = TopNUnique.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = TopNUnique.OPORT_TOP, type = PortAnnotation.PortType.OUTPUT)
 })
-public class BottomN<E> extends AbstractModule
+public class TopNUnique<E> extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_TOP = "top";
-  private static Logger LOG = LoggerFactory.getLogger(BottomN.class);
+  private static Logger LOG = LoggerFactory.getLogger(TopNUnique.class);
 
   final String default_n_str = "5";
   final int default_n_value = 5;
   int n = default_n_value;
-  HashMap<String, TopNSort<E>> kmap = null;
+  HashMap<String, TopNUniqueSort<E>> kmap = null;
 
   /**
    * Top N values per key are emitted
@@ -93,7 +94,7 @@ public class BottomN<E> extends AbstractModule
       throw new FailedOperationException("Did not pass validation");
     }
     n = config.getInt(KEY_N, default_n_value);
-    kmap = new HashMap<String, TopNSort<E>>();
+    kmap = new HashMap<String, TopNUniqueSort<E>>();
   }
 
     /**
@@ -106,9 +107,9 @@ public class BottomN<E> extends AbstractModule
   public void process(Object payload)
   {
     for (Map.Entry<String, E> e: ((HashMap<String, E>) payload).entrySet()) {
-      TopNSort pqueue = kmap.get(e.getKey());
+      TopNUniqueSort pqueue = kmap.get(e.getKey());
       if (pqueue == null) {
-        pqueue = new TopNSort<E>(5, n, false);
+        pqueue = new TopNUniqueSort<E>(5, n, true);
         kmap.put(e.getKey(), pqueue);
       }
       pqueue.offer(e.getValue());
@@ -124,7 +125,7 @@ public class BottomN<E> extends AbstractModule
   @Override
   public void endWindow()
   {
-    for (Map.Entry<String, TopNSort<E>> e: kmap.entrySet()) {
+    for (Map.Entry<String, TopNUniqueSort<E>> e: kmap.entrySet()) {
       HashMap<String, ArrayList> tuple = new HashMap<String, ArrayList>(1);
       tuple.put(e.getKey(), e.getValue().getTopN());
       emit(tuple);
