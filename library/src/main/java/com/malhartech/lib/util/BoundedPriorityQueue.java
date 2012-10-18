@@ -4,17 +4,7 @@
  */
 package com.malhartech.lib.util;
 
-import com.malhartech.lib.algo.*;
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractModule;
-import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.PriorityQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,31 +18,89 @@ import org.slf4j.LoggerFactory;
  * @author amol<br>
  *
  */
-public class BoundedPriorityQueue<E> extends PriorityQueue<E>
+public class BoundedPriorityQueue<E>
 {
-  private static Logger LOG = LoggerFactory.getLogger(TopN.class);
+  private static Logger LOG = LoggerFactory.getLogger(BoundedPriorityQueue.class);
 
   int qbound = Integer.MAX_VALUE;
+  boolean ascending = true;
 
+  PriorityQueue<E> q = null;
+
+
+  public void setBound(int i) {
+    qbound = i;
+  }
+
+  public void setAscending()
+  {
+    ascending = true;
+  }
+
+  public void setDescendin()
+  {
+    ascending = false;
+  }
 
   public BoundedPriorityQueue(int initialCapacity, int bound)
   {
-    super(initialCapacity, null);
+    q = new PriorityQueue<E>(initialCapacity, null);
     qbound = bound;
   }
 
-  @Override
   public boolean add(E e)
   {
     return offer(e);
   }
 
-  @Override
+  public int size() {
+    return q.size();
+  }
+
+  public boolean isEmpty() {
+    return q.isEmpty();
+  }
+
+  public E peek(){
+    return q.peek();
+  }
+
+   public E poll(){
+    return q.poll();
+  }
+
   public boolean offer(E e)
   {
-    boolean ret = super.offer(e);
-    if (size() >= qbound) {
-      poll();
+    if (q.size() <= qbound) {
+      return q.offer(e);
+    }
+
+    boolean ret = true;
+    Comparator<? super E> cmp = q.comparator();
+    E head = q.peek();
+    boolean insert = false;
+
+    if (cmp != null) {
+      if (ascending) {
+        insert = cmp.compare(head, (E)e) >= 0; // head is >= e
+      }
+      else {
+        insert = cmp.compare(head, (E)e) <= 0; // head is <= e
+      }
+    }
+    else {
+      Comparable<? super E> key = (Comparable<? super E>)head;
+      if (ascending) {
+        insert = key.compareTo((E)e) >= 0; // head is >= e
+      }
+      else {
+        insert = key.compareTo((E)e) <= 0; // head is <= e
+      }
+    }
+
+    if (q.offer(e)) {
+      ret = true;
+      q.poll();
     }
     return ret;
   }
