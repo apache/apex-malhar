@@ -9,7 +9,7 @@ import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.dag.AbstractModule;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.lib.util.MyComparator;
+import com.malhartech.lib.util.ReversibleComparator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.PriorityQueue;
@@ -167,7 +167,7 @@ public class OrderByKeyDesc extends AbstractModule
 
     key = config.get(KEY_KEY, "");
     docount = config.getBoolean(KEY_DOCOUNT, docount_default);
-    pqueue = new PriorityQueue<Integer>(5, new MyComparator<Integer>(false));
+    pqueue = new PriorityQueue<Integer>(5, new ReversibleComparator<Integer>(false));
     smap = new HashMap<Integer, Object>();
   }
 }

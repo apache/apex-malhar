@@ -15,9 +15,9 @@ import java.util.Comparator;
  *
  */
 
-public class MyComparator<E> implements Comparator<E>
+public class ReversibleComparator<E> implements Comparator<E>
 {
-  public MyComparator(boolean flag)
+  public ReversibleComparator(boolean flag)
   {
     ascending = flag;
   }
