@@ -9,7 +9,7 @@ import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.dag.AbstractModule;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.lib.util.BoundedPriorityQueue;
+import com.malhartech.lib.util.TopNSort;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,7 +53,7 @@ public class TopN<E> extends AbstractModule
   final String default_n_str = "5";
   final int default_n_value = 5;
   int n = default_n_value;
-  HashMap<String, BoundedPriorityQueue<E>> kmap = null;
+  HashMap<String, TopNSort<E>> kmap = null;
 
   /**
    * Top N values per key are emitted
@@ -93,7 +93,7 @@ public class TopN<E> extends AbstractModule
       throw new FailedOperationException("Did not pass validation");
     }
     n = config.getInt(KEY_N, default_n_value);
-    kmap = new HashMap<String, BoundedPriorityQueue<E>>();
+    kmap = new HashMap<String, TopNSort<E>>();
   }
 
     /**
@@ -106,10 +106,9 @@ public class TopN<E> extends AbstractModule
   public void process(Object payload)
   {
     for (Map.Entry<String, E> e: ((HashMap<String, E>) payload).entrySet()) {
-      BoundedPriorityQueue pqueue = kmap.get(e.getKey());
+      TopNSort pqueue = kmap.get(e.getKey());
       if (pqueue == null) {
-        pqueue = new BoundedPriorityQueue<E>(5, n);
-        pqueue.setAscending();
+        pqueue = new TopNSort<E>(5, n, true);
         kmap.put(e.getKey(), pqueue);
       }
       pqueue.offer(e.getValue());
@@ -125,15 +124,9 @@ public class TopN<E> extends AbstractModule
   @Override
   public void endWindow()
   {
-    for (Map.Entry<String, BoundedPriorityQueue<E>> e: kmap.entrySet()) {
-      BoundedPriorityQueue<E> pqueue = e.getValue();
-      ArrayList list = new ArrayList();
-      E v;
-      while ((v = pqueue.poll()) != null) {
-        list.add(v);
-      }
+    for (Map.Entry<String, TopNSort<E>> e: kmap.entrySet()) {
       HashMap<String, ArrayList> tuple = new HashMap<String, ArrayList>(1);
-      tuple.put(e.getKey(), list);
+      tuple.put(e.getKey(), e.getValue().getTopN());
       emit(tuple);
     }
   }
