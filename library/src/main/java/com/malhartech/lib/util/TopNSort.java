@@ -32,7 +32,7 @@ public class TopNSort<E>
   {
     ascending = flag;
     // Ascending use of pqueue needs a descending comparator
-    q = new PriorityQueue<E>(initialCapacity, new myComparator<E>(!flag));
+    q = new PriorityQueue<E>(initialCapacity, new MyComparator<E>(!flag));
     qbound = bound;
   }
 

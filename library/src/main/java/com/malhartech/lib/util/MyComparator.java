@@ -14,9 +14,10 @@ import java.util.Comparator;
  * @author amol<br>
  *
  */
-class myComparator<E> implements Comparator<E>
+
+public class MyComparator<E> implements Comparator<E>
 {
-  public myComparator(boolean flag)
+  public MyComparator(boolean flag)
   {
     ascending = flag;
   }
