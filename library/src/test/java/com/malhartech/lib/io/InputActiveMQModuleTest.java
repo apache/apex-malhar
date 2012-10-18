@@ -23,11 +23,11 @@ import org.junit.*;
 @Ignore
 public class InputActiveMQModuleTest
 {
-  static ModuleConfiguration config;
+  static OperatorConfiguration config;
   static AbstractActiveMQInputModule instance;
   static MyStreamContext context;
 
-  private static final class MyStreamContext extends ModuleContext implements Sink
+  private static final class MyStreamContext extends OperatorContext implements Sink
   {
     public MyStreamContext()
     {
@@ -83,7 +83,7 @@ public class InputActiveMQModuleTest
   @BeforeClass
   public static void setUpClass() throws Exception
   {
-    config = new ModuleConfiguration("instance", null);
+    config = new OperatorConfiguration("instance", null);
     config.set("user", "");
     config.set("password", "");
     config.set("url", "tcp://localhost:61616");

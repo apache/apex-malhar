@@ -28,10 +28,10 @@ import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
 import com.malhartech.annotation.ShipContainingJars;
-import com.malhartech.dag.AbstractSynchronousInputModule;
+import com.malhartech.dag.SynchronousInputModule;
 import com.malhartech.dag.Component;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.OperatorConfiguration;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -50,7 +50,7 @@ import com.sun.jersey.api.client.WebResource;
         @PortAnnotation(name = Component.OUTPUT, type = PortType.OUTPUT)
     }
 )
-public class HttpInputModule extends AbstractSynchronousInputModule
+public class HttpInputModule extends SynchronousInputModule
 {
   private static final Logger LOG = LoggerFactory.getLogger(HttpInputModule.class);
 
@@ -70,7 +70,7 @@ public class HttpInputModule extends AbstractSynchronousInputModule
   private transient int readTimeoutMillis = 0;
 
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     try {
       checkConfiguration(config);
@@ -95,7 +95,7 @@ public class HttpInputModule extends AbstractSynchronousInputModule
     super.teardown();
   }
 
-  public boolean checkConfiguration(ModuleConfiguration config) {
+  public boolean checkConfiguration(OperatorConfiguration config) {
     String urlStr = config.get(P_RESOURCE_URL);
     if (urlStr == null) {
       throw new MissingResourceException("Key for URL string not set", String.class.getSimpleName(), P_RESOURCE_URL);

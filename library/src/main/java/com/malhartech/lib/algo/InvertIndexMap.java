@@ -7,10 +7,10 @@ package com.malhartech.lib.algo;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
-import com.malhartech.dag.AbstractModule;
+import com.malhartech.dag.Module;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.Sink;
+import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.api.Sink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = InvertIndexMap.OPORT_INDEX, type = PortType.OUTPUT),
   @PortAnnotation(name = InvertIndexMap.OPORT_CONSOLE, type = PortType.OUTPUT)
 })
-public class InvertIndexMap extends AbstractModule
+public class InvertIndexMap extends Module
 {
   private static Logger LOG = LoggerFactory.getLogger(InvertIndexMap.class);
 
@@ -222,7 +222,7 @@ public class InvertIndexMap extends AbstractModule
    * @param config
    * @return boolean
    */
-  public boolean myValidation(ModuleConfiguration config)
+  public boolean myValidation(OperatorConfiguration config)
   {
     // no checks as of now
     return true;
@@ -263,7 +263,7 @@ public class InvertIndexMap extends AbstractModule
    * @param config
    */
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     if (!myValidation(config)) {
       throw new FailedOperationException("Did not pass validation");

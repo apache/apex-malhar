@@ -26,8 +26,8 @@ import org.mortbay.jetty.Request;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.AbstractHandler;
 
-import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.ModuleContext;
+import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.dag.OperatorContext;
 import com.malhartech.dag.TestSink;
 
 
@@ -81,7 +81,7 @@ public class HttpInputModuleTest {
     node.connect(HttpInputModule.OUTPUT, sink);
     node.setId("testHttpInputNode");
 
-    final ModuleConfiguration config = new ModuleConfiguration(node.getId(), Collections.<String,String>emptyMap());
+    final OperatorConfiguration config = new OperatorConfiguration(node.getId(), Collections.<String,String>emptyMap());
     config.set(HttpOutputModule.P_RESOURCE_URL, url);
 
     node.setup(config);
@@ -91,7 +91,7 @@ public class HttpInputModuleTest {
       @Override
       public void run()
       {
-        node.activate(new ModuleContext(node.getId(), this));
+        node.activate(new OperatorContext(node.getId(), this));
       }
     };
     nodeThread.start();

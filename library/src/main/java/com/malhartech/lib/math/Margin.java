@@ -7,9 +7,9 @@ package com.malhartech.lib.math;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
-import com.malhartech.dag.AbstractModule;
+import com.malhartech.dag.Module;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.OperatorConfiguration;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = Margin.IPORT_DENOMINATOR, type = PortType.INPUT),
   @PortAnnotation(name = Margin.OPORT_MARGIN, type = PortType.OUTPUT)
 })
-public class Margin extends AbstractModule
+public class Margin extends Module
 {
   public static final String IPORT_NUMERATOR = "numerator";
   public static final String IPORT_DENOMINATOR = "denominator";
@@ -60,7 +60,7 @@ public class Margin extends AbstractModule
    * @param config
    */
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     percent = config.getBoolean(KEY_PERCENT, false);
     LOG.debug(String.format("Set percent(%s)", percent ? "true" : "false"));

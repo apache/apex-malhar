@@ -3,9 +3,9 @@
  */
 package com.malhartech.lib.stream;
 
-import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.ModuleContext;
-import com.malhartech.dag.Sink;
+import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.dag.OperatorContext;
+import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import com.malhartech.stream.StramTestSupport;
 import java.util.HashMap;
@@ -57,7 +57,7 @@ public class StreamMerger5Test {
       Sink inSink5 = node.connect(StreamMerger5.IPORT_IN_DATA5, node);
       node.connect(StreamMerger.OPORT_OUT_DATA, mergeSink);
 
-      ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
+      OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
       conf.setInt("SpinMillis", 1);
       conf.setInt("BufferCapacity", 10 * 1024 * 1024);
       node.setup(conf);
@@ -69,7 +69,7 @@ public class StreamMerger5Test {
         public void run()
         {
           inactive.set(false);
-          node.activate(new ModuleContext("StreamMergerTestNode", this));
+          node.activate(new OperatorContext("StreamMergerTestNode", this));
         }
       }.start();
 

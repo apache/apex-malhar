@@ -3,8 +3,8 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.Sink;
+import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,7 +48,7 @@ public class RangeTest {
     @Test
     public void testNodeValidation() {
 
-        ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
+        OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
 
         Range node = new Range();
        // Insert tests for expected failure and success here
@@ -80,7 +80,7 @@ public class RangeTest {
       HashMap<String, Double> input = new HashMap<String, Double>();
       Sink outSink = node.connect(Range.IPORT_DATA, node);
 
-    ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
+    OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
     conf.set(Range.KEY_SCHEMA, type);
     node.setup(conf);
 

@@ -6,9 +6,9 @@ package com.malhartech.lib.math;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractModule;
+import com.malhartech.dag.Module;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.OperatorConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = Min.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = Min.OPORT_MIN, type = PortAnnotation.PortType.OUTPUT)
 })
-public class Min extends AbstractModule
+public class Min extends Module
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_MIN = "min";
@@ -133,7 +133,7 @@ public class Min extends AbstractModule
       }
   }
 
-  public boolean myValidation(ModuleConfiguration config)
+  public boolean myValidation(OperatorConfiguration config)
   {
     return true;
   }
@@ -142,7 +142,7 @@ public class Min extends AbstractModule
    * @param config
    */
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     if (!myValidation(config)) {
       throw new FailedOperationException("validation failed");
@@ -197,7 +197,7 @@ public class Min extends AbstractModule
    * @return boolean
    */
   @Override
-  public boolean checkConfiguration(ModuleConfiguration config)
+  public boolean checkConfiguration(OperatorConfiguration config)
   {
     boolean ret = true;
     // TBD

@@ -84,7 +84,7 @@ public class EventGeneratorBenchmark
     TestSink lgenSink = new TestSink();
     node.connect(EventGenerator.OPORT_DATA, lgenSink);
 
-    ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
+    OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
     lgenSink.dohash = false;
 
     int numchars = 1024;
@@ -109,7 +109,7 @@ public class EventGeneratorBenchmark
       public void run()
       {
         inactive.set(false);
-        node.activate(new ModuleContext("LoadGeneratorTestNode", this));
+        node.activate(new OperatorContext("LoadGeneratorTestNode", this));
       }
     }.start();
 

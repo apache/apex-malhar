@@ -3,9 +3,9 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.ModuleContext;
-import com.malhartech.dag.Sink;
+import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.dag.OperatorContext;
+import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import com.malhartech.stream.StramTestSupport;
 import java.util.HashMap;
@@ -60,8 +60,8 @@ public class SeedEventClassifierTest {
     @Test
     public void testNodeValidation() {
 
-        ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
-        SeedEventClassifier node = new SeedEventClassifier();
+        OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
+        SeedClassifier node = new SeedClassifier();
         // String[] kstr = config.getTrimmedStrings(KEY_KEYS);
         // String[] vstr = config.getTrimmedStrings(KEY_VALUES);
 
@@ -130,7 +130,7 @@ public class SeedEventClassifierTest {
       Sink inSink2 = node.connect(SeedEventClassifier.IPORT_IN_DATA2, node);
       node.connect(SeedEventClassifier.OPORT_OUT_DATA, classifySink);
 
-      ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
+      OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
 
       conf.set(SeedEventClassifier.KEY_SEED_START, "1");
       conf.set(SeedEventClassifier.KEY_SEED_END, "1000000");
@@ -149,7 +149,7 @@ public class SeedEventClassifierTest {
         public void run()
         {
           inactive.set(false);
-          node.activate(new ModuleContext("SeedClassifierTestNode", this));
+          node.activate(new OperatorContext("SeedClassifierTestNode", this));
         }
       }.start();
 

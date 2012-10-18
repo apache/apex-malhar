@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 @ModuleAnnotation(ports = {
   @PortAnnotation(name = Component.INPUT, type = PortAnnotation.PortType.INPUT)
 })
-public class HdfsOutputModule extends AbstractModule implements Sink
+public class HdfsOutputModule extends Module implements Sink
 {
   private static org.slf4j.Logger logger = LoggerFactory.getLogger(HdfsOutputModule.class);
   private transient FSDataOutputStream fsOutput;
@@ -116,7 +116,7 @@ public class HdfsOutputModule extends AbstractModule implements Sink
    * @param config
    */
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     try {
       filePathTemplate = config.get(KEY_FILEPATH);

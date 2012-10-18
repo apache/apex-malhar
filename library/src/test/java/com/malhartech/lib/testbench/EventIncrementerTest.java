@@ -3,9 +3,9 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.ModuleContext;
-import com.malhartech.dag.Sink;
+import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.dag.OperatorContext;
+import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import com.malhartech.stream.StramTestSupport;
 import java.util.ArrayList;
@@ -92,8 +92,8 @@ public class EventIncrementerTest
   @Test
   public void testNodeValidation()
   {
-    ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
-    EventIncrementer node = new EventIncrementer();
+    OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
+    LoadIncrementer node = new LoadIncrementer();
 
     conf.set(FilteredEventClassifier.KEY_KEYS, "");
     try {
@@ -164,7 +164,7 @@ public class EventIncrementerTest
     Sink seedSink = node.connect(EventIncrementer.IPORT_SEED, node);
     Sink incrSink = node.connect(EventIncrementer.IPORT_INCREMENT, node);
 
-    ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
+    OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
 
     conf.set(EventIncrementer.KEY_KEYS, "x,y");
     conf.set(EventIncrementer.KEY_LIMITS, "1,100;1,200");
@@ -178,7 +178,7 @@ public class EventIncrementerTest
       public void run()
       {
         inactive.set(false);
-        node.activate(new ModuleContext("LoadIncrementerTestNode", this));
+        node.activate(new OperatorContext("LoadIncrementerTestNode", this));
       }
     }.start();
 

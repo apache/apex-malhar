@@ -4,9 +4,9 @@
 package com.malhartech.lib.testbench;
 
 import com.malhartech.dag.Component;
-import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.ModuleContext;
-import com.malhartech.dag.Sink;
+import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.dag.OperatorContext;
+import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import com.malhartech.stram.ManualScheduledExecutorService;
 import com.malhartech.stram.WindowGenerator;
@@ -72,8 +72,8 @@ public class RandomEventGeneratorTest {
     @Test
     public void testNodeValidation() {
 
-        ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
-        RandomEventGenerator node = new RandomEventGenerator();
+        OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
+        LoadRandomGenerator node = new LoadRandomGenerator();
         LOG.debug("Testing Node Validation: start");
 
         conf.set(RandomEventGenerator.KEY_MIN_VALUE, "a");
@@ -145,8 +145,8 @@ public class RandomEventGeneratorTest {
         wingen.connect("mytestnode", input);
 
         TestSink lgenSink = new TestSink();
-        node.connect(RandomEventGenerator.OPORT_DATA, lgenSink);
-        ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
+        node.connect(LoadRandomGenerator.OPORT_DATA, lgenSink);
+        OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
         lgenSink.isstring = isstring;
 
         conf.set(RandomEventGenerator.KEY_MIN_VALUE, "0");
@@ -165,7 +165,7 @@ public class RandomEventGeneratorTest {
             @Override
             public void run() {
                 inactive.set(false);
-                node.activate(new ModuleContext("LoadRandomGeneratorTestNode", this));
+                node.activate(new OperatorContext("LoadRandomGeneratorTestNode", this));
             }
         }.start();
 

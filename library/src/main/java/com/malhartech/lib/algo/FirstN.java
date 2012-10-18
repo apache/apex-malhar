@@ -6,9 +6,9 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractModule;
+import com.malhartech.dag.Module;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.OperatorConfiguration;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = FirstN.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = FirstN.OPORT_FIRST, type = PortAnnotation.PortType.OUTPUT)
 })
-public class FirstN extends AbstractModule
+public class FirstN extends Module
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_FIRST = "first";
@@ -96,7 +96,7 @@ public class FirstN extends AbstractModule
     keycount.clear();
   }
 
-  public boolean myValidation(ModuleConfiguration config)
+  public boolean myValidation(OperatorConfiguration config)
   {
     boolean ret = true;
 
@@ -116,7 +116,7 @@ public class FirstN extends AbstractModule
    * @param config
    */
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     if (!myValidation(config)) {
       throw new FailedOperationException("validation failed");
@@ -124,5 +124,27 @@ public class FirstN extends AbstractModule
     n = config.getInt(KEY_N, n_default_value);
     keycount = new HashMap<String, myInteger>();
     LOG.debug(String.format("Set up take for %d tuples", n));
+    count = new int[count_size];
+    current_loc = 0;
+    for (int i = 0; i < count_size; i++) {
+      count[i] = 0;
+    }
+    keyloc = new HashMap<String, Integer>();
+  }
+
+
+  /**
+   *
+   * Checks for user specific configuration values<p>
+   *
+   * @param config
+   * @return boolean
+   */
+  @Override
+  public boolean checkConfiguration(OperatorConfiguration config)
+  {
+    boolean ret = true;
+    // TBD
+    return ret && super.checkConfiguration(config);
   }
 }

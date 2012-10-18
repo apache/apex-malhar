@@ -6,9 +6,9 @@ package com.malhartech.lib.math;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractModule;
+import com.malhartech.dag.Module;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.OperatorConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = Range.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = Range.OPORT_RANGE, type = PortAnnotation.PortType.OUTPUT)
 })
-public class Range extends AbstractModule
+public class Range extends Module
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_RANGE = "range";
@@ -160,7 +160,7 @@ public class Range extends AbstractModule
       }
   }
 
-  public boolean myValidation(ModuleConfiguration config)
+  public boolean myValidation(OperatorConfiguration config)
   {
     return true;
   }
@@ -169,7 +169,7 @@ public class Range extends AbstractModule
    * @param config
    */
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     if (!myValidation(config)) {
       throw new FailedOperationException("validation failed");
@@ -229,7 +229,7 @@ public class Range extends AbstractModule
    * @return boolean
    */
   @Override
-  public boolean checkConfiguration(ModuleConfiguration config)
+  public boolean checkConfiguration(OperatorConfiguration config)
   {
     boolean ret = true;
     // TBD

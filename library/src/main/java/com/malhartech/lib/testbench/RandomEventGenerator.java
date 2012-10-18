@@ -6,9 +6,9 @@ package com.malhartech.lib.testbench;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractInputModule;
+import com.malhartech.dag.InputModule;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.OperatorConfiguration;
 import java.util.HashMap;
 import java.util.Random;
 import org.slf4j.Logger;
@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
         ports = {
   @PortAnnotation(name = RandomEventGenerator.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT)
 })
-public class RandomEventGenerator extends AbstractInputModule
+public class LoadRandomGenerator extends InputModule
 {
   public static final String OPORT_DATA = "data";
   private static Logger LOG = LoggerFactory.getLogger(RandomEventGenerator.class);
@@ -96,7 +96,7 @@ public class RandomEventGenerator extends AbstractInputModule
    * @param config
    * @return boolean
    */
-  public boolean myValidation(ModuleConfiguration config)
+  public boolean myValidation(OperatorConfiguration config)
   {
     String minstr = config.get(KEY_MIN_VALUE, "0");
     String maxstr = config.get(KEY_MAX_VALUE, "100");
@@ -153,7 +153,7 @@ public class RandomEventGenerator extends AbstractInputModule
    * @param config
    */
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     if (!myValidation(config)) {
       throw new IllegalArgumentException("Did not pass validation");

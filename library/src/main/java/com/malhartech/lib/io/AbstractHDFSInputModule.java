@@ -8,10 +8,10 @@ import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
 import com.malhartech.bufferserver.Buffer;
-import com.malhartech.dag.AbstractInputModule;
+import com.malhartech.dag.InputModule;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.Operator;
-import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.api.Operator;
+import com.malhartech.dag.OperatorConfiguration;
 import com.malhartech.dag.Tuple;
 import java.io.IOException;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * Users need to implement getRecord to get HDFS input adapter to work as per their choice<br>
  * <br>
  */
-public abstract class AbstractHDFSInputModule extends AbstractInputModule implements Runnable
+public abstract class AbstractHDFSInputModule extends InputModule implements Runnable
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractHDFSInputModule.class);
   protected FSDataInputStream input;
@@ -60,7 +60,7 @@ public abstract class AbstractHDFSInputModule extends AbstractInputModule implem
    * @param config
    */
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     try {
       FileSystem fs = FileSystem.get(config);

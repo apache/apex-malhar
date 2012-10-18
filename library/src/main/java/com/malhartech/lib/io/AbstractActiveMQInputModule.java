@@ -3,9 +3,9 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.dag.AbstractInputModule;
+import com.malhartech.dag.InputModule;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.OperatorConfiguration;
 import javax.jms.*;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.slf4j.Logger;
@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  * Users need to implement getObject. (See example in InputActiveMQStreamTest)<br>
  * <br>
  */
-public abstract class AbstractActiveMQInputModule extends AbstractInputModule implements MessageListener, ExceptionListener
+public abstract class AbstractActiveMQInputModule extends InputModule implements MessageListener, ExceptionListener
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractActiveMQInputModule.class);
   private boolean transacted;
@@ -34,7 +34,7 @@ public abstract class AbstractActiveMQInputModule extends AbstractInputModule im
   private MessageProducer replyProducer;
 
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     super.setup(config);
     try {
@@ -191,7 +191,7 @@ public abstract class AbstractActiveMQInputModule extends AbstractInputModule im
 
   protected abstract void emitMessage(Message message);
 
-  private void setupConnection(ModuleConfiguration config) throws JMSException
+  private void setupConnection(OperatorConfiguration config) throws JMSException
   {
     ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
             config.get("user"),

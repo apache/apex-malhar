@@ -3,9 +3,9 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.ModuleContext;
-import com.malhartech.dag.Sink;
+import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.dag.OperatorContext;
+import com.malhartech.api.Sink;
 import com.malhartech.dag.TestSink;
 import com.malhartech.dag.Tuple;
 import com.malhartech.stream.StramTestSupport;
@@ -32,7 +32,7 @@ public class QuotientTest
   {
     Quotient node = new Quotient();
 
-    ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
+    OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
     conf.set(Quotient.KEY_MULTIPLY_BY, "junk");
 
     try {
@@ -60,7 +60,7 @@ public class QuotientTest
     Sink denSink = node.connect(Quotient.IPORT_DENOMINATOR, node);
     node.connect(Quotient.OPORT_QUOTIENT, quotientSink);
 
-    ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
+    OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
     conf.setInt(Quotient.KEY_MULTIPLY_BY, 2);
     node.setup(conf);
 
@@ -71,7 +71,7 @@ public class QuotientTest
       public void run()
       {
         inactive.set(false);
-        node.activate(new ModuleContext("ArithmeticQuotientTestNode", this));
+        node.activate(new OperatorContext("ArithmeticQuotientTestNode", this));
       }
     }.start();
 

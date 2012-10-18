@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
         @PortAnnotation(name = Component.INPUT, type = PortType.INPUT)
     }
 )
-public class HttpOutputModule extends AbstractModule implements Sink
+public class HttpOutputModule extends Module implements Sink
 {
   private static final Logger LOG = LoggerFactory.getLogger(HttpOutputModule.class);
 
@@ -48,7 +48,7 @@ public class HttpOutputModule extends AbstractModule implements Sink
   private transient WebResource resource;
 
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     try {
       checkConfiguration(config);
@@ -72,7 +72,7 @@ public class HttpOutputModule extends AbstractModule implements Sink
   }
 
   @Override
-  public boolean checkConfiguration(ModuleConfiguration config) {
+  public boolean checkConfiguration(OperatorConfiguration config) {
     String urlStr = config.get(P_RESOURCE_URL);
     if (urlStr == null) {
       throw new MissingResourceException("Key for URL string not set", String.class.getSimpleName(), P_RESOURCE_URL);

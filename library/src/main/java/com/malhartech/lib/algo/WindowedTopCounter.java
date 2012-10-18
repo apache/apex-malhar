@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = Component.INPUT, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = Component.OUTPUT, type = PortAnnotation.PortType.OUTPUT)
 })
-public class WindowedTopCounter<T> extends AbstractModule implements Sink<HashMap<T, Integer>>
+public class WindowedTopCounter<T> extends Module implements Sink<HashMap<T, Integer>>
 {
   private static final Logger logger = LoggerFactory.getLogger(WindowedTopCounter.class);
   private static final long serialVersionUID = 201208061826L;
@@ -32,7 +32,7 @@ public class WindowedTopCounter<T> extends AbstractModule implements Sink<HashMa
   private transient PriorityQueue<WindowedHolder> topCounter;
 
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     topCount = config.getInt("topCount", 10);
     topCounter = new PriorityQueue<WindowedHolder>(this.topCount, new TopSpotComparator());

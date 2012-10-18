@@ -6,10 +6,10 @@ package com.malhartech.lib.testbench;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractInputModule;
+import com.malhartech.dag.InputModule;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.Sink;
+import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.api.Sink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = EventGenerator.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT),
   @PortAnnotation(name = EventGenerator.OPORT_COUNT, type = PortAnnotation.PortType.OUTPUT)
 })
-public class EventGenerator extends AbstractInputModule
+public class LoadGenerator extends InputModule
 {
   public static final String OPORT_DATA = "data";
   public static final String OPORT_COUNT = "count";
@@ -137,7 +137,7 @@ public class EventGenerator extends AbstractInputModule
    * @param config
    * @return boolean
    */
-  public boolean myValidation(ModuleConfiguration config)
+  public boolean myValidation(OperatorConfiguration config)
   {
     String[] wstr = config.getTrimmedStrings(KEY_WEIGHTS);
     String[] kstr = config.getTrimmedStrings(KEY_KEYS);
@@ -241,7 +241,7 @@ public class EventGenerator extends AbstractInputModule
    * @param config
    */
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     if (!myValidation(config)) {
       throw new FailedOperationException("Did not pass validation");

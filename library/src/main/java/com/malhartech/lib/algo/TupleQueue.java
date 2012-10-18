@@ -6,10 +6,10 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractModule;
+import com.malhartech.dag.Module;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.Sink;
+import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.api.Sink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = TupleQueue.OPORT_QUEUE, type = PortAnnotation.PortType.OUTPUT),
   @PortAnnotation(name = TupleQueue.OPORT_CONSOLE, type = PortAnnotation.PortType.OUTPUT)
 })
-public class TupleQueue extends AbstractModule
+public class TupleQueue extends Module
 {
   public static final String IPORT_QUERY = "query";
   public static final String IPORT_DATA = "data";
@@ -208,7 +208,7 @@ public class TupleQueue extends AbstractModule
   // Need to add emiting last console tuple on every end_window
   //
 
-  public boolean myValidation(ModuleConfiguration config)
+  public boolean myValidation(OperatorConfiguration config)
   {
     boolean ret = true;
 
@@ -228,7 +228,7 @@ public class TupleQueue extends AbstractModule
    * @param config
    */
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     if (!myValidation(config)) {
       throw new FailedOperationException("validation failed");
@@ -246,7 +246,7 @@ public class TupleQueue extends AbstractModule
    * @return boolean
    */
   @Override
-  public boolean checkConfiguration(ModuleConfiguration config)
+  public boolean checkConfiguration(OperatorConfiguration config)
   {
     boolean ret = true;
     // TBD

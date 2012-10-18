@@ -7,9 +7,9 @@ package com.malhartech.demos.performance;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
-import com.malhartech.dag.AbstractInputModule;
+import com.malhartech.dag.InputModule;
 import com.malhartech.dag.Component;
-import com.malhartech.dag.Sink;
+import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 
 /**
@@ -19,7 +19,7 @@ import com.malhartech.dag.Tuple;
 @ModuleAnnotation(ports = {
   @PortAnnotation(name = Component.OUTPUT, type = PortType.OUTPUT)
 })
-public class RandomWordInputModule extends AbstractInputModule implements Sink<Tuple>
+public class RandomWordInputModule extends InputModule implements Sink<Tuple>
 {
   long lastWindowId = 0;
   int count = 1;

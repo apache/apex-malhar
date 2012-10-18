@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
     ports = {
   @PortAnnotation(name = DebugProbe.IPORT_INPUT, type = PortType.INPUT)
 })
-public class DebugProbe extends AbstractModule implements Sink
+public class DebugProbe extends Module implements Sink
 {
   private static final Logger LOG = LoggerFactory.getLogger(DebugProbe.class);
   public static final String IPORT_INPUT = Component.INPUT;
@@ -53,7 +53,7 @@ public class DebugProbe extends AbstractModule implements Sink
    * @throws FailedOperationException
    */
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     tostring = config.getBoolean(KEY_TOSTRING, false);
     super.setup(config);

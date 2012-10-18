@@ -6,9 +6,9 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractModule;
+import com.malhartech.dag.Module;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.OperatorConfiguration;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = MostFrequentKey.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = MostFrequentKey.OPORT_COUNT, type = PortAnnotation.PortType.OUTPUT)
 })
-public class MostFrequentKey extends AbstractModule
+public class MostFrequentKey extends Module
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_COUNT = "count";
@@ -98,7 +98,7 @@ public class MostFrequentKey extends AbstractModule
     }
   }
 
-  public boolean myValidation(ModuleConfiguration config)
+  public boolean myValidation(OperatorConfiguration config)
   {
     return true;
   }
@@ -107,11 +107,33 @@ public class MostFrequentKey extends AbstractModule
    * @param config
    */
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     if (!myValidation(config)) {
       throw new FailedOperationException("validation failed");
     }
-    keycount = new HashMap<String, myInteger>();
+    keylocation = new HashMap<String, Integer>();
+    count = new int[default_count_size];
+    current_location = 0;
+    current_count_size = default_count_size;
+    for (int i = 0; i < default_count_size; i++) {
+      count[i] = 0;
+    }
+  }
+
+
+  /**
+   *
+   * Checks for user specific configuration values<p>
+   *
+   * @param config
+   * @return boolean
+   */
+  @Override
+  public boolean checkConfiguration(OperatorConfiguration config)
+  {
+    boolean ret = true;
+    // TBD
+    return ret && super.checkConfiguration(config);
   }
 }

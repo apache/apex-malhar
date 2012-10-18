@@ -3,8 +3,8 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.Sink;
+import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import java.util.HashMap;
 import junit.framework.Assert;
@@ -58,7 +58,7 @@ public class ThroughputCounterTest {
     @Test
     public void testNodeValidation() {
 
-        ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
+        OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
         ThroughputCounter node = new ThroughputCounter();
 
         conf.set(ThroughputCounter.ROLLING_WINDOW_COUNT, "aa");
@@ -81,8 +81,8 @@ public class ThroughputCounterTest {
     ThroughputCounter node = new ThroughputCounter();
 
     TestCountSink countSink = new TestCountSink();
-    node.connect(FilteredEventClassifier.OPORT_OUT_DATA, countSink);
-    ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
+    node.connect(FilterClassifier.OPORT_OUT_DATA, countSink);
+    OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
 
     conf.set(ThroughputCounter.ROLLING_WINDOW_COUNT, "5");
 

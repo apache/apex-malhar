@@ -6,9 +6,9 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractModule;
+import com.malhartech.dag.Module;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.OperatorConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = OrderByKey.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = OrderByKey.OPORT_OUT_DATA, type = PortAnnotation.PortType.OUTPUT)
 })
-public class OrderByKey extends AbstractModule
+public class OrderByKey extends Module
 {
   private static Logger LOG = LoggerFactory.getLogger(OrderByKey.class);
   public static final String IPORT_DATA = "data";
@@ -143,7 +143,7 @@ public class OrderByKey extends AbstractModule
    * @param config
    * @return boolean
    */
-  public boolean myValidation(ModuleConfiguration config)
+  public boolean myValidation(OperatorConfiguration config)
   {
     boolean ret = true;
 
@@ -164,7 +164,7 @@ public class OrderByKey extends AbstractModule
    * @param config
    */
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     if (!myValidation(config)) {
       throw new FailedOperationException("Did not pass validation");

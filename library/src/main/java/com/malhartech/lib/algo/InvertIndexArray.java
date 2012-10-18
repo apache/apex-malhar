@@ -7,9 +7,9 @@ package com.malhartech.lib.algo;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
-import com.malhartech.dag.AbstractModule;
+import com.malhartech.dag.Module;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.OperatorConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = InvertIndexArray.IPORT_DATA, type = PortType.INPUT),
   @PortAnnotation(name = InvertIndexArray.OPORT_INDEX, type = PortType.OUTPUT)
 })
-public class InvertIndexArray extends AbstractModule
+public class InvertIndexArray extends Module
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_INDEX = "index";
@@ -121,7 +121,7 @@ public class InvertIndexArray extends AbstractModule
    * @param config
    * @return boolean
    */
-  public boolean myValidation(ModuleConfiguration config)
+  public boolean myValidation(OperatorConfiguration config)
   {
     // No checks for passing a boolean value
     return true;
@@ -132,7 +132,7 @@ public class InvertIndexArray extends AbstractModule
    * @param config
    */
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     if (!myValidation(config)) {
       throw new FailedOperationException("Did not pass validation");

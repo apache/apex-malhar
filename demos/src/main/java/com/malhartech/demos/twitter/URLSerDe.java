@@ -4,7 +4,7 @@
  */
 package com.malhartech.demos.twitter;
 
-import com.malhartech.dag.Operator;
+import com.malhartech.api.Operator;
 import com.malhartech.dag.SerDe;
 import java.nio.ByteBuffer;
 import java.util.Collection;

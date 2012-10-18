@@ -6,10 +6,10 @@ package com.malhartech.demos.performance;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
-import com.malhartech.dag.AbstractModule;
+import com.malhartech.dag.Module;
 import com.malhartech.dag.Component;
-import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.Sink;
+import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.api.Sink;
 import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 @ModuleAnnotation(ports = {
   @PortAnnotation(name = Component.INPUT, type = PortType.INPUT)
 })
-public class WordCountModule extends AbstractModule implements Sink
+public class WordCountModule extends Module implements Sink
 {
   private static final long serialVersionUID = 201208061820L;
   private static final Logger logger = LoggerFactory.getLogger(WordCountModule.class);

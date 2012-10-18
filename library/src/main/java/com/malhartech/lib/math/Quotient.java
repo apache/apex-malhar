@@ -7,9 +7,9 @@ package com.malhartech.lib.math;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
-import com.malhartech.dag.AbstractModule;
+import com.malhartech.dag.Module;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.OperatorConfiguration;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = Quotient.IPORT_DENOMINATOR, type = PortType.INPUT),
   @PortAnnotation(name = Quotient.OPORT_QUOTIENT, type = PortType.OUTPUT)
 })
-public class Quotient extends AbstractModule
+public class Quotient extends Module
 {
   public static final String IPORT_NUMERATOR = "numerator";
   public static final String IPORT_DENOMINATOR = "denominator";
@@ -79,7 +79,7 @@ public class Quotient extends AbstractModule
    * @param config
    */
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     if (!myValidation(config)) {
       throw new FailedOperationException("Did not pass validation");
@@ -89,7 +89,7 @@ public class Quotient extends AbstractModule
     LOG.debug(String.format("Set mult_by(%d), and dokey(%s)", mult_by, dokey ? "true" : "false"));
   }
 
-  public boolean myValidation(ModuleConfiguration config)
+  public boolean myValidation(OperatorConfiguration config)
   {
     boolean ret = true;
 

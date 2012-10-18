@@ -6,10 +6,10 @@ package com.malhartech.lib.testbench;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractModule;
+import com.malhartech.dag.Module;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.Sink;
+import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.api.Sink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = EventIncrementer.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT),
   @PortAnnotation(name = EventIncrementer.OPORT_COUNT, type = PortAnnotation.PortType.OUTPUT)
 })
-public class EventIncrementer extends AbstractModule
+public class LoadIncrementer extends Module
 {
   public static final String IPORT_SEED = "seed";
   public static final String IPORT_INCREMENT = "increment";
@@ -117,7 +117,7 @@ public class EventIncrementer extends AbstractModule
    * @param config
    * @return boolean
    */
-  public boolean myValidation(ModuleConfiguration config)
+  public boolean myValidation(OperatorConfiguration config)
   {
     boolean ret = true;
     //delta = config.getFloat(KEY_DELTA, delta_default_value);
@@ -171,7 +171,7 @@ public class EventIncrementer extends AbstractModule
    * @param config
    */
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     if (!myValidation(config)) {
       throw new FailedOperationException("Did not pass validation");

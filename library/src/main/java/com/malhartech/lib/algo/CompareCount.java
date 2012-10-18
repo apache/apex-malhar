@@ -6,9 +6,9 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractModule;
+import com.malhartech.dag.Module;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.OperatorConfiguration;
 import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = CompareCount.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = CompareCount.OPORT_COUNT, type = PortAnnotation.PortType.OUTPUT)
 })
-public class CompareCount extends AbstractModule
+public class CompareCount extends Module
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_COUNT = "count";
@@ -137,7 +137,7 @@ public class CompareCount extends AbstractModule
     emit(new Integer(count));
   }
 
-  public boolean myValidation(ModuleConfiguration config)
+  public boolean myValidation(OperatorConfiguration config)
   {
     boolean ret = true;
 
@@ -169,7 +169,7 @@ public class CompareCount extends AbstractModule
    * @param config
    */
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     if (!myValidation(config)) {
       throw new FailedOperationException("validation failed");
@@ -213,7 +213,7 @@ public class CompareCount extends AbstractModule
    * @return boolean
    */
   @Override
-  public boolean checkConfiguration(ModuleConfiguration config)
+  public boolean checkConfiguration(OperatorConfiguration config)
   {
     boolean ret = true;
     // TBD

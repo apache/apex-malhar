@@ -7,9 +7,9 @@ package com.malhartech.demos.twitter;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.ShipContainingJars;
-import com.malhartech.dag.AbstractSynchronousInputModule;
-import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.Sink;
+import com.malhartech.dag.SynchronousInputModule;
+import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.api.Sink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import twitter4j.*;
@@ -28,7 +28,7 @@ import twitter4j.conf.ConfigurationBuilder;
   @PortAnnotation(name = TwitterSynchronousSampleInput.OPORT_MEDIA, type = PortAnnotation.PortType.OUTPUT)
 })
 @ShipContainingJars(classes = {StatusListener.class, Status.class})
-public class TwitterSynchronousSampleInput extends AbstractSynchronousInputModule implements StatusListener
+public class TwitterSynchronousSampleInput extends SynchronousInputModule implements StatusListener
 {
   private static final Logger logger = LoggerFactory.getLogger(TwitterSynchronousSampleInput.class);
   /**
@@ -57,7 +57,7 @@ public class TwitterSynchronousSampleInput extends AbstractSynchronousInputModul
   transient int multiplier;
 
   @Override
-  public void setup(ModuleConfiguration config)
+  public void setup(OperatorConfiguration config)
   {
     multiplier = config.getInt("FeedMultiplier", 1);
     if (multiplier != 1) {

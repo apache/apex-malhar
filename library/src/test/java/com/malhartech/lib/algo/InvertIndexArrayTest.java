@@ -3,9 +3,9 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.ModuleContext;
-import com.malhartech.dag.Sink;
+import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.dag.OperatorContext;
+import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import com.malhartech.stream.StramTestSupport;
 import java.util.ArrayList;
@@ -55,7 +55,7 @@ public class InvertIndexArrayTest
     Sink inSink = node.connect(InvertIndexArray.IPORT_DATA, node);
     node.connect(InvertIndexArray.OPORT_INDEX, indexSink);
 
-    ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
+    OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
     conf.setBoolean(InvertIndexArray.KEY_PASSVALUE, false); // test with String
     node.setup(conf);
 
@@ -66,7 +66,7 @@ public class InvertIndexArrayTest
       public void run()
       {
         inactive.set(false);
-        node.activate(new ModuleContext("ArithmeticQuotientTestNode", this));
+        node.activate(new OperatorContext("ArithmeticQuotientTestNode", this));
       }
     }.start();
 

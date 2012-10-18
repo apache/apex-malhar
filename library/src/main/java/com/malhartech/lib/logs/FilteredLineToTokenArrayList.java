@@ -6,9 +6,9 @@ package com.malhartech.lib.logs;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractModule;
+import com.malhartech.dag.Module;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.OperatorConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.slf4j.Logger;
@@ -59,7 +59,7 @@ public class FilteredLineToTokenArrayList extends LineToTokenArrayList
   }
 
   @Override
-  public boolean myValidation(ModuleConfiguration config)
+  public boolean myValidation(OperatorConfiguration config)
   {
     boolean ret = super.myValidation(config);
     if (!dosplittoken) {
@@ -73,7 +73,7 @@ public class FilteredLineToTokenArrayList extends LineToTokenArrayList
    * @param config
    */
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     super.setup(config);
 

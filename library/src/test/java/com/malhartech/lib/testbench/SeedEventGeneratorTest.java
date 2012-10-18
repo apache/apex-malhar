@@ -101,8 +101,8 @@ public class SeedEventGeneratorTest
   public void testNodeValidation()
   {
 
-    ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
-    SeedEventGenerator node = new SeedEventGenerator();
+    OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
+    LoadSeedGenerator node = new LoadSeedGenerator();
 
     // conf.set(SeedEventGenerator.KEY_KEYS, "x:0,100;y:0,100;gender:0,1;age:10,120"); // the good key
 
@@ -238,7 +238,7 @@ public class SeedEventGeneratorTest
     TestSink seedSink = new TestSink();
     node.connect(SeedEventGenerator.OPORT_DATA, seedSink);
 
-    ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
+    OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
 
     conf.set(SeedEventGenerator.KEY_SEED_START, "1");
     conf.set(SeedEventGenerator.KEY_SEED_END, "1000000");
@@ -271,7 +271,7 @@ public class SeedEventGeneratorTest
       public void run()
       {
         inactive.set(false);
-        node.activate(new ModuleContext("LoadSeedGeneratorTestNode", this));
+        node.activate(new OperatorContext("LoadSeedGeneratorTestNode", this));
         inactive.set(true);
       }
     }.start();

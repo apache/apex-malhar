@@ -6,9 +6,9 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractModule;
+import com.malhartech.dag.Module;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.OperatorConfiguration;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = ReverseIndex.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = ReverseIndex.OPORT_INDEX, type = PortAnnotation.PortType.OUTPUT)
 })
-public class ReverseIndex extends AbstractModule
+public class ReverseIndex extends Module
 {
   private static Logger LOG = LoggerFactory.getLogger(ReverseIndex.class);
   public static final String IPORT_DATA = "data";
@@ -67,7 +67,7 @@ public class ReverseIndex extends AbstractModule
    * @param config
    * @return boolean
    */
-  public boolean myValidation(ModuleConfiguration config)
+  public boolean myValidation(OperatorConfiguration config)
   {
     boolean ret = true;
 
@@ -79,7 +79,7 @@ public class ReverseIndex extends AbstractModule
    * @param config
    */
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     if (!myValidation(config)) {
       throw new FailedOperationException("Did not pass validation");

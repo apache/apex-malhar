@@ -6,10 +6,10 @@ package com.malhartech.lib.math;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractModule;
+import com.malhartech.dag.Module;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.Sink;
+import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.api.Sink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = Sum.OPORT_AVERAGE, type = PortAnnotation.PortType.OUTPUT),
   @PortAnnotation(name = Sum.OPORT_COUNT, type = PortAnnotation.PortType.OUTPUT)
 })
-public class Sum extends AbstractModule
+public class Sum extends Module
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_SUM = "sum";
@@ -113,7 +113,7 @@ public class Sum extends AbstractModule
     }
   }
 
-  public boolean myValidation(ModuleConfiguration config)
+  public boolean myValidation(OperatorConfiguration config)
   {
     return true;
   }
@@ -125,7 +125,7 @@ public class Sum extends AbstractModule
    * @param config
    */
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     if (!myValidation(config)) {
       throw new IllegalArgumentException("Did not pass validation");

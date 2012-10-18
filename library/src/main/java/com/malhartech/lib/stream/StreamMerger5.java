@@ -6,9 +6,9 @@ package com.malhartech.lib.stream;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractModule;
+import com.malhartech.dag.Module;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.OperatorConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = StreamMerger5.IPORT_IN_DATA5, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = StreamMerger5.OPORT_OUT_DATA, type = PortAnnotation.PortType.OUTPUT)
 })
-public class StreamMerger5 extends AbstractModule
+public class StreamMerger5 extends Module
 {
   public static final String IPORT_IN_DATA1 = "in_data1";
   public static final String IPORT_IN_DATA2 = "in_data2";
@@ -88,7 +88,7 @@ public class StreamMerger5 extends AbstractModule
    * @param config
    * @return boolean
    */
-  public boolean myValidation(ModuleConfiguration config)  {
+  public boolean myValidation(OperatorConfiguration config)  {
     return true;
   }
 
@@ -99,7 +99,7 @@ public class StreamMerger5 extends AbstractModule
    * @param config
    */
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException {
+  public void setup(OperatorConfiguration config) throws FailedOperationException {
     if (!myValidation(config)) {
       throw new FailedOperationException("Did not pass validation");
     }

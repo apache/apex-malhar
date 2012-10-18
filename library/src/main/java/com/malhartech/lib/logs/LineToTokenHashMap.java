@@ -6,9 +6,9 @@ package com.malhartech.lib.logs;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractModule;
+import com.malhartech.dag.Module;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.OperatorConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.slf4j.Logger;
@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = LineToTokenHashMap.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = LineToTokenHashMap.OPORT_TOKENS, type = PortAnnotation.PortType.OUTPUT)
 })
-public class LineToTokenHashMap extends AbstractModule
+public class LineToTokenHashMap extends Module
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_TOKENS = "tokens";
@@ -124,7 +124,7 @@ public class LineToTokenHashMap extends AbstractModule
   }
 
 
-  public boolean myValidation(ModuleConfiguration config)
+  public boolean myValidation(OperatorConfiguration config)
   {
     boolean ret = true;
     return ret;
@@ -134,7 +134,7 @@ public class LineToTokenHashMap extends AbstractModule
    * @param config
    */
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     if (!myValidation(config)) {
       throw new FailedOperationException("validation failed");

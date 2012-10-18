@@ -6,10 +6,10 @@ package com.malhartech.lib.math;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractModule;
+import com.malhartech.dag.Module;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.Sink;
+import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.api.Sink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = CompareExcept.OPORT_COMPARE, type = PortAnnotation.PortType.OUTPUT),
   @PortAnnotation(name = CompareExcept.OPORT_EXCEPT, type = PortAnnotation.PortType.OUTPUT)
 })
-public class CompareExcept extends AbstractModule
+public class CompareExcept extends Module
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_COMPARE = "compare";
@@ -149,7 +149,7 @@ public class CompareExcept extends AbstractModule
     }
   }
 
-  public boolean myValidation(ModuleConfiguration config)
+  public boolean myValidation(OperatorConfiguration config)
   {
     boolean ret = true;
 
@@ -181,7 +181,7 @@ public class CompareExcept extends AbstractModule
    * @param config
    */
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     if (!myValidation(config)) {
       throw new FailedOperationException("validation failed");
@@ -225,7 +225,7 @@ public class CompareExcept extends AbstractModule
    * @return boolean
    */
   @Override
-  public boolean checkConfiguration(ModuleConfiguration config)
+  public boolean checkConfiguration(OperatorConfiguration config)
   {
     boolean ret = true;
     // TBD

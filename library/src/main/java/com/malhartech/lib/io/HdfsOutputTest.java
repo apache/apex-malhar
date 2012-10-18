@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.malhartech.dag.ApplicationFactory;
 import com.malhartech.dag.DAG;
-import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.OperatorConfiguration;
 
 /**
  *
@@ -30,7 +30,7 @@ public class HdfsOutputTest implements ApplicationFactory {
 
     long startMillis = System.currentTimeMillis();
 
-    ModuleConfiguration config = new ModuleConfiguration("testNode", moduleConfigProperties);
+    OperatorConfiguration config = new OperatorConfiguration("testNode", moduleConfigProperties);
     config.setIfUnset(HdfsOutputModule.KEY_FILEPATH, "hdfsoutputtest.txt");
     config.setIfUnset(HdfsOutputModule.KEY_APPEND, "false");
 

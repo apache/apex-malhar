@@ -4,9 +4,9 @@
 package com.malhartech.lib.testbench;
 
 import com.malhartech.dag.Component;
-import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.ModuleContext;
-import com.malhartech.dag.Sink;
+import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.dag.OperatorContext;
+import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import com.malhartech.stram.ManualScheduledExecutorService;
 import com.malhartech.stram.WindowGenerator;
@@ -119,8 +119,8 @@ public class EventGeneratorTest {
     @Test
     public void testNodeValidation() {
 
-        ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
-        EventGenerator node = new EventGenerator();
+        OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
+        LoadGenerator node = new LoadGenerator();
 
         conf.set(EventGenerator.KEY_KEYS, "");
         try {
@@ -235,9 +235,9 @@ public class EventGeneratorTest {
 
         TestCountSink countSink = new TestCountSink();
         TestSink lgenSink = new TestSink();
-        node.connect(EventGenerator.OPORT_DATA, lgenSink);
-        node.connect(EventGenerator.OPORT_COUNT, countSink);
-        ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
+        node.connect(LoadGenerator.OPORT_DATA, lgenSink);
+        node.connect(LoadGenerator.OPORT_COUNT, countSink);
+        OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
 
         conf.set(EventGenerator.KEY_KEYS, "a,b,c,d");
         // conf.set(EventGenerator.KEY_VALUES, "1,2,3,4");
@@ -263,7 +263,7 @@ public class EventGeneratorTest {
             @Override
             public void run() {
                 inactive.set(false);
-                node.activate(new ModuleContext("LoadGeneratorTestNode", this));
+                node.activate(new OperatorContext("LoadGeneratorTestNode", this));
             }
         }.start();
 

@@ -3,8 +3,8 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.Sink;
+import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,7 +42,7 @@ public class SumTest {
     @Test
     public void testNodeValidation() {
 
-        ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
+        OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
 
         Sum node = new Sum();
 
@@ -73,7 +73,7 @@ public class SumTest {
     if (count) {
       node.connect(Sum.OPORT_COUNT, countSink);
     }
-    ModuleConfiguration conf = new ModuleConfiguration("testsumnode", new HashMap<String, String>());
+    OperatorConfiguration conf = new OperatorConfiguration("testsumnode", new HashMap<String, String>());
     node.setup(conf);
     node.beginWindow(); //
 

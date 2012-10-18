@@ -3,8 +3,8 @@
  */
 package com.malhartech.lib.stream;
 
-import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.lib.testbench.EventGenerator;
+import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.lib.testbench.LoadGenerator;
 import com.malhartech.lib.testbench.ThroughputCounter;
 import java.util.HashMap;
 import junit.framework.Assert;
@@ -35,7 +35,7 @@ public class DevNullCounterTest {
     @Test
     public void testNodeValidation() {
 
-        ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
+        OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
         DevNullCounter node = new DevNullCounter();
 
         conf.set(ThroughputCounter.ROLLING_WINDOW_COUNT, "aa");
@@ -56,7 +56,7 @@ public class DevNullCounterTest {
   public void testSingleSchemaNodeProcessing() throws Exception
   {
     DevNullCounter node = new DevNullCounter();
-    ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
+    OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
 
     conf.set(ThroughputCounter.ROLLING_WINDOW_COUNT, "5");
     node.setup(conf);

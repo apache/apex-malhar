@@ -3,9 +3,9 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.ModuleContext;
-import com.malhartech.dag.Sink;
+import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.dag.OperatorContext;
+import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import com.malhartech.lib.testbench.*;
 import com.malhartech.stream.StramTestSupport;
@@ -92,7 +92,7 @@ public class TupleQueueTest
   public void testNodeValidation()
   {
 
-    ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
+    OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
     TupleQueue node = new TupleQueue();
 
     conf.set(TupleQueue.KEY_DEPTH, "aa");
@@ -124,7 +124,7 @@ public class TupleQueueTest
     node.connect(TupleQueue.OPORT_CONSOLE, consoleSink);
 
 
-    final ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
+    final OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
     conf.set(TupleQueue.KEY_DEPTH, "10");
 
 
@@ -136,7 +136,7 @@ public class TupleQueueTest
       {
         inactive.set(false);
         node.setup(conf);
-        node.activate(new ModuleContext("TupleQueueTestNode", this));
+        node.activate(new OperatorContext("TupleQueueTestNode", this));
       }
     }.start();
 

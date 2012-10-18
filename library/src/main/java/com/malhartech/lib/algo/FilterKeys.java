@@ -6,9 +6,9 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractModule;
+import com.malhartech.dag.Module;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.OperatorConfiguration;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = FilterKeys.IPORT_IN_DATA, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = FilterKeys.OPORT_OUT_DATA, type = PortAnnotation.PortType.OUTPUT)
 })
-public class FilterKeys extends AbstractModule
+public class FilterKeys extends Module
 {
   private static Logger LOG = LoggerFactory.getLogger(FilterKeys.class);
   public static final String IPORT_IN_DATA = "in_data";
@@ -92,7 +92,7 @@ public class FilterKeys extends AbstractModule
    * @param config
    * @return boolean
    */
-  public boolean myValidation(ModuleConfiguration config)
+  public boolean myValidation(OperatorConfiguration config)
   {
     boolean ret = true;
     String[] kstr = config.getTrimmedStrings(KEY_KEYS);
@@ -113,7 +113,7 @@ public class FilterKeys extends AbstractModule
    * @param config
    */
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     if (!myValidation(config)) {
       throw new FailedOperationException("Did not pass validation");

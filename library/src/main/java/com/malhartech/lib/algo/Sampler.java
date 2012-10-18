@@ -6,9 +6,9 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractModule;
+import com.malhartech.dag.Module;
 import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.dag.OperatorConfiguration;
 import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = Sampler.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = Sampler.OPORT_SAMPLE, type = PortAnnotation.PortType.OUTPUT)
 })
-public class Sampler extends AbstractModule
+public class Sampler extends Module
 {
   private static Logger LOG = LoggerFactory.getLogger(Sampler.class);
   public static final String IPORT_DATA = "in_data1";
@@ -81,7 +81,7 @@ public class Sampler extends AbstractModule
    * @param config
    * @return boolean
    */
-  public boolean myValidation(ModuleConfiguration config)
+  public boolean myValidation(OperatorConfiguration config)
   {
     boolean ret = true;
     String ratestr = config.get(KEY_RATE);
@@ -112,7 +112,7 @@ public class Sampler extends AbstractModule
    * @param config
    */
   @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config) throws FailedOperationException
   {
     if (!myValidation(config)) {
       throw new FailedOperationException("Did not pass validation");

@@ -4,8 +4,8 @@
 package com.malhartech.lib.testbench;
 
 import com.esotericsoftware.minlog.Log;
-import com.malhartech.dag.ModuleConfiguration;
-import com.malhartech.dag.Sink;
+import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import java.util.HashMap;
 import java.util.Map;
@@ -79,8 +79,8 @@ public class EventClassifierTest {
     @Test
     public void testNodeValidation() {
 
-        ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
-        EventClassifier node = new EventClassifier();
+        OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
+        LoadClassifier node = new LoadClassifier();
         // String[] kstr = config.getTrimmedStrings(KEY_KEYS);
         // String[] vstr = config.getTrimmedStrings(KEY_VALUES);
 
@@ -172,8 +172,8 @@ public class EventClassifierTest {
 
         TestSink classifySink = new TestSink();
         classifySink.dohash = true;
-        node.connect(EventClassifier.OPORT_OUT_DATA, classifySink);
-        ModuleConfiguration conf = new ModuleConfiguration("mynode", new HashMap<String, String>());
+        node.connect(LoadClassifier.OPORT_OUT_DATA, classifySink);
+        OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
 
         conf.set(EventClassifier.KEY_KEYS, "a,b,c");
         conf.set(EventClassifier.KEY_VALUES, "1,4,5");
