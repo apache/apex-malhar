@@ -27,7 +27,12 @@ public class BoundedPriorityQueue<E>
 
   PriorityQueue<E> q = null;
 
-
+  public BoundedPriorityQueue(int initialCapacity, int bound)
+  {
+    q = new PriorityQueue<E>(initialCapacity, null);
+    qbound = bound;
+  }
+  
   public void setBound(int i) {
     qbound = i;
   }
@@ -37,15 +42,9 @@ public class BoundedPriorityQueue<E>
     ascending = true;
   }
 
-  public void setDescendin()
+  public void setDescending()
   {
     ascending = false;
-  }
-
-  public BoundedPriorityQueue(int initialCapacity, int bound)
-  {
-    q = new PriorityQueue<E>(initialCapacity, null);
-    qbound = bound;
   }
 
   public boolean add(E e)
