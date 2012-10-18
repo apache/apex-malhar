@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <b>NOT DONE YET</b>
- * Takes a stream of key value pairs via input port "data", and they are ordered by key. Top N of the ordered tuples per key are emitted on
+ * Takes a stream of key value pairs via input port "data", and they are ordered by key. Bottom N of the ordered tuples per key are emitted on
  * port "top" at the end of window<p>
  * This is an end of window module<br>
  * At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
@@ -42,14 +42,14 @@ import org.slf4j.LoggerFactory;
 
 @ModuleAnnotation(
         ports = {
-  @PortAnnotation(name = TopN.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = TopN.OPORT_TOP, type = PortAnnotation.PortType.OUTPUT)
+  @PortAnnotation(name = BottomN.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
+  @PortAnnotation(name = BottomN.OPORT_TOP, type = PortAnnotation.PortType.OUTPUT)
 })
-public class TopN<E> extends AbstractModule
+public class BottomN<E> extends AbstractModule
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_TOP = "top";
-  private static Logger LOG = LoggerFactory.getLogger(TopN.class);
+  private static Logger LOG = LoggerFactory.getLogger(BottomN.class);
 
   final String default_n_str = "5";
   final int default_n_value = 5;
@@ -110,7 +110,7 @@ public class TopN<E> extends AbstractModule
       BoundedPriorityQueue pqueue = kmap.get(e.getKey());
       if (pqueue == null) {
         pqueue = new BoundedPriorityQueue<E>(5, n);
-        pqueue.setAscending();
+        pqueue.setDescending();
         kmap.put(e.getKey(), pqueue);
       }
       pqueue.offer(e.getValue());

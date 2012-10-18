@@ -11,9 +11,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * extends {@link java.util.PriorityQueue} to enforce bounds (upper limit). This helps performance as it allows top N objects
- * to be kept and thus keeps N low.<br>
- *
+ * Provides BoundedPriorityQueue functionality. Users can insert objects of type E. This is a wrapper around PriorityQueue<br>
+ * This class is more efficient that just using PriorityQueue and then picking up the top N. The class works by not even inserting objects
+ * that would not make it to top N.
  *
  * @author amol<br>
  *
@@ -32,7 +32,7 @@ public class BoundedPriorityQueue<E>
     q = new PriorityQueue<E>(initialCapacity, null);
     qbound = bound;
   }
-  
+
   public void setBound(int i) {
     qbound = i;
   }
@@ -54,6 +54,10 @@ public class BoundedPriorityQueue<E>
 
   public int size() {
     return q.size();
+  }
+
+  public void clear() {
+    q.clear();
   }
 
   public boolean isEmpty() {

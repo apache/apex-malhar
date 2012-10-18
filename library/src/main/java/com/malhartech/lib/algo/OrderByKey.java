@@ -155,10 +155,6 @@ public class OrderByKey extends Module
     return ret;
   }
 
-  public void initializePriorityQueue()
-  {
-    pqueue = new PriorityQueue<Integer>(5);
-  }
   /**
    *
    * @param config
@@ -172,7 +168,7 @@ public class OrderByKey extends Module
 
     key = config.get(KEY_KEY, "");
     docount = config.getBoolean(KEY_DOCOUNT, docount_default);
-    initializePriorityQueue();
+    pqueue = new PriorityQueue<Integer>(5);
     smap = new HashMap<Integer, Object>();
   }
 }
