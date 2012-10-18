@@ -5,7 +5,6 @@
 package com.malhartech.lib.util;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.PriorityQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,32 +26,13 @@ public class TopNSort<E>
   int qbound = Integer.MAX_VALUE;
   boolean ascending = true;
 
-  class myComparator<E> implements Comparator<E>
-  {
-    public myComparator(boolean flag)
-    {
-      ascending = flag;
-    }
-    public boolean ascending = true;
-
-    @Override
-    public int compare(E e1, E e2)
-    {
-      Comparable<? super E> ce1 = (Comparable<? super E>) e1;
-      int ret = ce1.compareTo(e2);
-      if (ascending) {
-        ret = 0 - ret;
-      }
-      return ret;
-    }
-  }
-
   PriorityQueue<E> q = null;
 
   public TopNSort(int initialCapacity, int bound, boolean flag)
   {
     ascending = flag;
-    q = new PriorityQueue<E>(initialCapacity, new myComparator<E>(flag));
+    // Ascending use of pqueue needs a descending comparator
+    q = new PriorityQueue<E>(initialCapacity, new myComparator<E>(!flag));
     qbound = bound;
   }
 
@@ -88,10 +68,6 @@ public class TopNSort<E>
     return ret;
   }
 
-
-  //
-  // If ascending, put the order in reverse
-  //
   public boolean offer(E e)
   {
     if (q.size() <= qbound) {
