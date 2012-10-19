@@ -28,7 +28,7 @@ import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
 import com.malhartech.annotation.ShipContainingJars;
-import com.malhartech.dag.SynchronousInputModule;
+import com.malhartech.dag.SyncInputNode;
 import com.malhartech.dag.Component;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.OperatorConfiguration;
@@ -50,7 +50,7 @@ import com.sun.jersey.api.client.WebResource;
         @PortAnnotation(name = Component.OUTPUT, type = PortType.OUTPUT)
     }
 )
-public class HttpInputModule extends SynchronousInputModule
+public class HttpInputModule extends SyncInputNode
 {
   private static final Logger LOG = LoggerFactory.getLogger(HttpInputModule.class);
 

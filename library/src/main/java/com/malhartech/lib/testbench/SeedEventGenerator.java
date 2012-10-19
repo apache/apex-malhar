@@ -6,7 +6,7 @@ package com.malhartech.lib.testbench;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.InputNode;
+import com.malhartech.dag.AsyncInputNode;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.OperatorConfiguration;
 import java.util.ArrayList;
@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
         ports = {
   @PortAnnotation(name = SeedEventGenerator.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT)
 })
-public class LoadSeedGenerator extends InputNode
+public class LoadSeedGenerator extends AsyncInputNode
 {
   public static final String OPORT_DATA = "data";
   private static Logger LOG = LoggerFactory.getLogger(SeedEventGenerator.class);

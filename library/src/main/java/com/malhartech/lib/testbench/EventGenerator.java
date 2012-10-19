@@ -6,7 +6,7 @@ package com.malhartech.lib.testbench;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.InputNode;
+import com.malhartech.dag.AsyncInputNode;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.OperatorConfiguration;
 import com.malhartech.api.Sink;
@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = EventGenerator.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT),
   @PortAnnotation(name = EventGenerator.OPORT_COUNT, type = PortAnnotation.PortType.OUTPUT)
 })
-public class LoadGenerator extends InputNode
+public class LoadGenerator extends AsyncInputNode
 {
   public static final String OPORT_DATA = "data";
   public static final String OPORT_COUNT = "count";

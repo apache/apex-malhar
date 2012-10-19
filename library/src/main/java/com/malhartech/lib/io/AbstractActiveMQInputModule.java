@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.dag.InputNode;
+import com.malhartech.dag.AsyncInputNode;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.OperatorConfiguration;
 import javax.jms.*;
@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  * Users need to implement getObject. (See example in InputActiveMQStreamTest)<br>
  * <br>
  */
-public abstract class AbstractActiveMQInputModule extends InputNode implements MessageListener, ExceptionListener
+public abstract class AbstractActiveMQInputModule extends AsyncInputNode implements MessageListener, ExceptionListener
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractActiveMQInputModule.class);
   private boolean transacted;
