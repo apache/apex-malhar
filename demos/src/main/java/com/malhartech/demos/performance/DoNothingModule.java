@@ -4,28 +4,24 @@
  */
 package com.malhartech.demos.performance;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.annotation.PortAnnotation.PortType;
-import com.malhartech.dag.GenericNode;
-import com.malhartech.dag.Component;
-import com.malhartech.api.Sink;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.DefaultOutputPort;
 
 /**
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-@ModuleAnnotation(ports = {
-  @PortAnnotation(name = Component.INPUT, type = PortType.INPUT),
-  @PortAnnotation(name = Component.OUTPUT, type = PortType.OUTPUT)
-})
-public class DoNothingModule extends GenericNode implements Sink
+public class DoNothingModule<T> extends BaseOperator
 {
   private static final long serialVersionUID = 201208061821L;
-
-  @Override
-  public void process(Object payload)
+  public final transient DefaultOutputPort<T> output = new DefaultOutputPort<T>(this);
+  public final transient DefaultInputPort<T> input = new DefaultInputPort<T>(this)
   {
-    emit(payload);
-  }
+    @Override
+    public void process(T tuple)
+    {
+      output.emit(tuple);
+    }
+  };
 }

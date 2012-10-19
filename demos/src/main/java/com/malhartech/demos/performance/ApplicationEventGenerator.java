@@ -4,9 +4,8 @@
  */
 package com.malhartech.demos.performance;
 
+import com.malhartech.api.DAG;
 import com.malhartech.dag.ApplicationFactory;
-import com.malhartech.dag.DAG;
-import com.malhartech.dag.DAG.OperatorInstance;
 import com.malhartech.lib.stream.DevNullCounter;
 import com.malhartech.lib.testbench.EventGenerator;
 import org.apache.hadoop.conf.Configuration;
@@ -19,8 +18,8 @@ public class ApplicationEventGenerator implements ApplicationFactory
   private static final boolean inline = true;
 
 
-  public OperatorInstance getLoadGenerator(String name, DAG b) {
-    OperatorInstance oper = b.addOperator(name, LoadGenerator.class);
+  public LoadGenerator getLoadGenerator(String name, DAG dag) {
+    LoadGenerator oper = dag.addOperator(name, LoadGenerator.class);
     int numchars = 1024;
     char[] chararray = new char[numchars + 1];
     for (int i = 0; i < numchars; i++) {
@@ -28,29 +27,30 @@ public class ApplicationEventGenerator implements ApplicationFactory
     }
     chararray[numchars] = '\0';
     String key = new String(chararray);
-    oper.setProperty(EventGenerator.KEY_KEYS, key);
-    oper.setProperty(EventGenerator.KEY_STRING_SCHEMA, "false");
-    oper.setProperty(EventGenerator.KEY_TUPLES_BLAST, "1000");
-    oper.setProperty(EventGenerator.ROLLING_WINDOW_COUNT, "10");
-    oper.setProperty("spinMillis", "2");
-    int i = 10 * 1024 * 1024;
-    String ival = Integer.toString(i);
-    oper.setProperty("bufferCapacity", ival);
+    oper.setKeys(key);
+    oper.setTuplesBlast(1000);
+    oper.setRollingWindowCount(10);
+
+//    oper.setProperty("spinMillis", "2");
+//    int i = 10 * 1024 * 1024;
+//    String ival = Integer.toString(i);
+//    oper.setProperty("bufferCapacity", ival);
     return oper;
   }
 
-  public OperatorInstance getDevNull(String name, DAG b)
+  public DevNullCounter getDevNull(String name, DAG dag)
   {
-    return b.addOperator(name, DevNullCounter.class);
+    return dag.addOperator(name, DevNullCounter.class);
   }
+  
   @Override
   public DAG getApplication(Configuration conf)
   {
-    DAG b = new DAG(conf);
-    b.getConf().setInt(DAG.STRAM_CHECKPOINT_INTERVAL_MILLIS, 0); // disable auto backup
-    OperatorInstance lgen = getLoadGenerator("lgen", b);
-    OperatorInstance devnull = getDevNull("devnull", b);
-    b.addStream("lgen2devnull", lgen.getOutput(LoadGenerator.OPORT_DATA), devnull.getInput(DevNullCounter.IPORT_DATA)).setInline(inline);
-    return b;
+    DAG dag = new DAG(conf);
+    dag.getConf().setInt(DAG.STRAM_CHECKPOINT_INTERVAL_MILLIS, 0); // disable auto backup
+    LoadGenerator lgen = getLoadGenerator("lgen", dag);
+    DevNullCounter devnull = getDevNull("devnull", dag);
+    dag.addStream("lgen2devnull", lgen.string_data, devnull.input).setInline(inline);
+    return dag;
   }
 }

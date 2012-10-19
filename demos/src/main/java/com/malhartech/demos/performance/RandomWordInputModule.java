@@ -4,42 +4,66 @@
  */
 package com.malhartech.demos.performance;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.annotation.PortAnnotation.PortType;
-import com.malhartech.dag.AsyncInputNode;
-import com.malhartech.dag.Component;
-import com.malhartech.api.Sink;
-import com.malhartech.dag.Tuple;
+import com.malhartech.api.AsyncInputOperator;
+import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.dag.*;
 
 /**
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-@ModuleAnnotation(ports = {
-  @PortAnnotation(name = Component.OUTPUT, type = PortType.OUTPUT)
-})
-public class RandomWordInputModule extends AsyncInputNode implements Sink<Tuple>
+public class RandomWordInputModule implements AsyncInputOperator
 {
+  public final transient DefaultOutputPort<byte[]> output = new DefaultOutputPort<byte[]>(this);
   long lastWindowId = 0;
   int count = 1;
 //  int totalIterations = 0;
 
   @Override
-  public final void process(Tuple tuple)
+  public void injectTuples(long windowId)
   {
-    if (tuple.getWindowId() == lastWindowId) {
-      emit(new byte[64]);
+    if (windowId == lastWindowId) {
+      output.emit(new byte[64]);
       count++;
     }
     else {
       for (int i = count--; i-- > 0;) {
-        emit(new byte[64]);
+        output.emit(new byte[64]);
       }
-      lastWindowId = tuple.getWindowId();
+      lastWindowId = windowId;
 //      if (++totalIterations > 20) {
-//        deactivate();
+//        Thread.currentThread().interrupt();
 //      }
     }
+  }
+
+  @Override
+  public void beginWindow()
+  {
+  }
+
+  @Override
+  public void endWindow()
+  {
+  }
+
+  @Override
+  public void setup(OperatorConfiguration config) throws FailedOperationException
+  {
+  }
+
+  @Override
+  public void activated(OperatorContext context)
+  {
+  }
+
+  @Override
+  public void deactivated()
+  {
+  }
+
+  @Override
+  public void teardown()
+  {
   }
 }

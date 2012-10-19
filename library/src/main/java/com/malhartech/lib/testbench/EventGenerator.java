@@ -6,10 +6,13 @@ package com.malhartech.lib.testbench;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
+import com.malhartech.api.AsyncInputOperator;
+import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.dag.AsyncInputNode;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.OperatorConfiguration;
 import com.malhartech.api.Sink;
+import com.malhartech.dag.OperatorContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -50,36 +53,32 @@ import org.slf4j.LoggerFactory;
  *
  * @author amol
  */
-@ModuleAnnotation(ports = {
-  @PortAnnotation(name = EventGenerator.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT),
-  @PortAnnotation(name = EventGenerator.OPORT_COUNT, type = PortAnnotation.PortType.OUTPUT)
-})
-public class LoadGenerator extends AsyncInputNode
+public class LoadGenerator implements AsyncInputOperator
 {
-  public static final String OPORT_DATA = "data";
-  public static final String OPORT_COUNT = "count";
+  private static final Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
+  public final transient DefaultOutputPort<String> string_data = new DefaultOutputPort<String>(this);
+  public final transient DefaultOutputPort<HashMap<String, Double>> hash_data = new DefaultOutputPort<HashMap<String, Double>>(this);
+  public final transient DefaultOutputPort<HashMap<String, Number>> count = new DefaultOutputPort<HashMap<String, Number>>(this);
   public static final String OPORT_COUNT_TUPLE_AVERAGE = "avg";
   public static final String OPORT_COUNT_TUPLE_COUNT = "count";
   public static final String OPORT_COUNT_TUPLE_TIME = "window_time";
   public static final String OPORT_COUNT_TUPLE_TUPLES_PERSEC = "tuples_per_sec";
   public static final String OPORT_COUNT_TUPLE_WINDOWID = "window_id";
-  private static final Logger LOG = LoggerFactory.getLogger(EventGenerator.class);
-  protected static final int tuples_blast_default_value = 10000;
-  protected transient int tuples_blast = tuples_blast_default_value;
+  protected static final int TUPLES_BLAST_DEFAULT = 10000;
+  private transient int tuples_blast = TUPLES_BLAST_DEFAULT;
   protected transient int maxCountOfWindows = Integer.MAX_VALUE;
   transient HashMap<String, Double> keys = new HashMap<String, Double>();
   transient HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();
   transient ArrayList<Integer> weights;
-  transient boolean isstringschema;
   transient int total_weight = 0;
   private transient final Random random = new Random();
-  private transient int rolling_window_count = 1;
+  public static final int ROLLING_WINDOW_COUNT_DEFAULT = 1;
+  private transient int rolling_window_count = ROLLING_WINDOW_COUNT_DEFAULT;
   transient long[] tuple_numbers = null;
   transient long[] time_numbers = null;
   transient int tuple_index = 0;
   transient int count_denominator = 1;
   transient int count_windowid = 0;
-  private transient boolean count_connected = false;
   private transient long windowStartTime = 0;
   /**
    * keys are comma separated list of keys for the load. These keys are send
@@ -112,23 +111,10 @@ public class LoadGenerator extends AsyncInputNode
    * If specified as "true" a String class is sent, else HashMap is sent
    */
   public static final String KEY_STRING_SCHEMA = "string_schema";
-  /**
-   * The Maximum number of Windows to pump out.
-   */
-  public static final String ROLLING_WINDOW_COUNT = "rolling_window_count";
-
-  /**
-   *
-   * @param id
-   * @param dagpart
-   */
-  @Override
-  public void connected(String id, Sink dagpart)
-  {
-    if (id.equals(OPORT_COUNT)) {
-      count_connected = (dagpart != null);
-    }
-  }
+  private int generatedTupleCount;
+  private String[] key_keys = new String[0];
+  private String[] key_weights = new String[0];
+  private String[] key_values = new String[0];
 
   /**
    *
@@ -139,28 +125,21 @@ public class LoadGenerator extends AsyncInputNode
    */
   public boolean myValidation(OperatorConfiguration config)
   {
-    String[] wstr = config.getTrimmedStrings(KEY_WEIGHTS);
-    String[] kstr = config.getTrimmedStrings(KEY_KEYS);
-    String[] vstr = config.getTrimmedStrings(KEY_VALUES);
-    isstringschema = config.getBoolean(KEY_STRING_SCHEMA, false);
-    String rstr = config.get(ROLLING_WINDOW_COUNT);
-
-
     boolean ret = true;
 
-    if (kstr.length == 0) {
+    if (key_keys.length == 0) {
       ret = false;
       throw new IllegalArgumentException("Parameter \"key\" is empty");
     }
     else {
-      LOG.debug(String.format("Number of keys are %d", kstr.length));
+      LOG.debug(String.format("Number of keys are %d", key_keys.length));
     }
 
-    if (wstr.length == 0) {
+    if (key_weights.length == 0) {
       LOG.debug("weights was not provided, so keys would be equally weighted");
     }
     else {
-      for (String s: wstr) {
+      for (String s: key_weights) {
         try {
           Integer.parseInt(s);
         }
@@ -171,11 +150,11 @@ public class LoadGenerator extends AsyncInputNode
       }
     }
 
-    if (vstr.length == 0) {
+    if (key_values.length == 0) {
       LOG.debug("values was not provided, so keys would have value of 0");
     }
     else {
-      for (String s: vstr) {
+      for (String s: key_values) {
         try {
           Double.parseDouble(s);
         }
@@ -186,48 +165,17 @@ public class LoadGenerator extends AsyncInputNode
       }
     }
 
-    if ((wstr.length != 0) && (wstr.length != kstr.length)) {
+    if ((key_weights.length != 0) && (key_weights.length != key_keys.length)) {
       ret = false;
       throw new IllegalArgumentException(
               String.format("Number of weights (%d) does not match number of keys (%d)",
-                            wstr.length, kstr.length));
+                            key_weights.length, key_keys.length));
     }
-    if ((vstr.length != 0) && (vstr.length != kstr.length)) {
+    if ((key_values.length != 0) && (key_values.length != key_keys.length)) {
       ret = false;
       throw new IllegalArgumentException(
               String.format("Number of values (%d) does not match number of keys (%d)",
-                            vstr.length, kstr.length));
-    }
-
-    tuples_blast = config.getInt(KEY_TUPLES_BLAST, tuples_blast_default_value);
-    if (tuples_blast <= 0) {
-      ret = false;
-      throw new IllegalArgumentException(
-              String.format("tuples_blast (%d) has to be > 0", tuples_blast));
-    }
-    else {
-      LOG.debug(String.format("tuples_blast set to %d", tuples_blast));
-    }
-
-    if (isstringschema) {
-      if (vstr.length != 0) {
-        LOG.debug(String.format("Value %s and stringschema is %s",
-                                config.get(KEY_VALUES, ""), config.get(KEY_STRING_SCHEMA, "")));
-        ret = false;
-        throw new IllegalArgumentException(
-                String.format("Value (\"%s\") cannot be specified if string_schema (\"%s\") is true",
-                              config.get(KEY_VALUES, ""), config.get(KEY_STRING_SCHEMA, "")));
-      }
-    }
-
-    if ((rstr != null) && !rstr.isEmpty()) {
-      try {
-        Integer.parseInt(rstr);
-      }
-      catch (NumberFormatException e) {
-        ret = false;
-        throw new IllegalArgumentException(String.format("%s has to be an integer (%s)", ROLLING_WINDOW_COUNT, rstr));
-      }
+                            key_values.length, key_keys.length));
     }
 
     maxCountOfWindows = config.getInt(MAX_WINDOWS_COUNT, Integer.MAX_VALUE);
@@ -247,13 +195,6 @@ public class LoadGenerator extends AsyncInputNode
       throw new FailedOperationException("Did not pass validation");
     }
 
-    String[] wstr = config.getTrimmedStrings(KEY_WEIGHTS);
-    String[] kstr = config.getTrimmedStrings(KEY_KEYS);
-    String[] vstr = config.getTrimmedStrings(KEY_VALUES);
-
-    isstringschema = config.getBoolean(KEY_STRING_SCHEMA, false);
-    tuples_blast = config.getInt(KEY_TUPLES_BLAST, tuples_blast_default_value);
-    rolling_window_count = config.getInt(ROLLING_WINDOW_COUNT, 1);
     maxCountOfWindows = config.getInt(MAX_WINDOWS_COUNT, Integer.MAX_VALUE);
 
     if (rolling_window_count != 1) { // Initialized the tuple_numbers
@@ -269,19 +210,19 @@ public class LoadGenerator extends AsyncInputNode
     // Keys and weights would are accessed via same key
     int i = 0;
     total_weight = 0;
-    for (String s: kstr) {
-      if (wstr.length != 0) {
+    for (String s: key_keys) {
+      if (key_weights.length != 0) {
         if (weights == null) {
           weights = new ArrayList<Integer>();
         }
-        weights.add(Integer.parseInt(wstr[i]));
-        total_weight += Integer.parseInt(wstr[i]);
+        weights.add(Integer.parseInt(key_weights[i]));
+        total_weight += Integer.parseInt(key_weights[i]);
       }
       else {
         total_weight += 1;
       }
-      if (vstr.length != 0) {
-        keys.put(s, new Double(Double.parseDouble(vstr[i])));
+      if (key_values.length != 0) {
+        keys.put(s, new Double(Double.parseDouble(key_values[i])));
       }
       else {
         keys.put(s, 0.0);
@@ -294,7 +235,8 @@ public class LoadGenerator extends AsyncInputNode
   @Override
   public void beginWindow()
   {
-    if (count_connected) {
+    if (count.isConnected()) {
+      generatedTupleCount = 0;
       windowStartTime = System.currentTimeMillis();
     }
   }
@@ -306,60 +248,58 @@ public class LoadGenerator extends AsyncInputNode
   public void endWindow()
   {
     //LOG.info(this +" endWindow: " + maxCountOfWindows + ", time=" + System.currentTimeMillis() + ", emitCount=" + emitCount);
-    if (generatedTupleCount > 0) {
-      if (count_connected) {
-        long elapsedTime = System.currentTimeMillis() - windowStartTime;
-        if (elapsedTime == 0) {
-          elapsedTime = 1; // prevent from / zero
-        }
-
-        int tcount = generatedTupleCount;
-        long average = 0;
-        if (rolling_window_count == 1) {
-          average = (tcount * 1000) / elapsedTime;
-        }
-        else { // use tuple_numbers
-          int slots;
-          if (count_denominator == rolling_window_count) {
-            tuple_numbers[tuple_index] = tcount;
-            time_numbers[tuple_index] = elapsedTime;
-            slots = rolling_window_count;
-            tuple_index++;
-            if (tuple_index == rolling_window_count) {
-              tuple_index = 0;
-            }
-          }
-          else {
-            tuple_numbers[count_denominator - 1] = tcount;
-            time_numbers[count_denominator - 1] = elapsedTime;
-            slots = count_denominator;
-            count_denominator++;
-          }
-          long time_slot = 0;
-          long num_tuples = 0;
-          for (int i = 0; i < slots; i++) {
-            num_tuples += tuple_numbers[i];
-            time_slot += time_numbers[i];
-          }
-          average = (num_tuples * 1000) / time_slot; // as the time is in millis
-        }
-        HashMap<String, Number> tuples = new HashMap<String, Number>();
-        tuples.put(OPORT_COUNT_TUPLE_AVERAGE, new Long(average));
-        tuples.put(OPORT_COUNT_TUPLE_COUNT, new Integer(tcount));
-        tuples.put(OPORT_COUNT_TUPLE_TIME, new Long(elapsedTime));
-        tuples.put(OPORT_COUNT_TUPLE_TUPLES_PERSEC, new Long((tcount * 1000) / elapsedTime));
-        tuples.put(OPORT_COUNT_TUPLE_WINDOWID, new Integer(count_windowid++));
-        emit(OPORT_COUNT, tuples);
+    if (count.isConnected() && generatedTupleCount > 0) {
+      long elapsedTime = System.currentTimeMillis() - windowStartTime;
+      if (elapsedTime == 0) {
+        elapsedTime = 1; // prevent from / zero
       }
+
+      int tcount = generatedTupleCount;
+      long average;
+      if (rolling_window_count == 1) {
+        average = (tcount * 1000) / elapsedTime;
+      }
+      else { // use tuple_numbers
+        int slots;
+        if (count_denominator == rolling_window_count) {
+          tuple_numbers[tuple_index] = tcount;
+          time_numbers[tuple_index] = elapsedTime;
+          slots = rolling_window_count;
+          tuple_index++;
+          if (tuple_index == rolling_window_count) {
+            tuple_index = 0;
+          }
+        }
+        else {
+          tuple_numbers[count_denominator - 1] = tcount;
+          time_numbers[count_denominator - 1] = elapsedTime;
+          slots = count_denominator;
+          count_denominator++;
+        }
+        long time_slot = 0;
+        long num_tuples = 0;
+        for (int i = 0; i < slots; i++) {
+          num_tuples += tuple_numbers[i];
+          time_slot += time_numbers[i];
+        }
+        average = (num_tuples * 1000) / time_slot; // as the time is in millis
+      }
+      HashMap<String, Number> tuples = new HashMap<String, Number>();
+      tuples.put(OPORT_COUNT_TUPLE_AVERAGE, new Long(average));
+      tuples.put(OPORT_COUNT_TUPLE_COUNT, new Integer(tcount));
+      tuples.put(OPORT_COUNT_TUPLE_TIME, new Long(elapsedTime));
+      tuples.put(OPORT_COUNT_TUPLE_TUPLES_PERSEC, new Long((tcount * 1000) / elapsedTime));
+      tuples.put(OPORT_COUNT_TUPLE_WINDOWID, new Integer(count_windowid++));
+      count.emit(tuples);
     }
 
     if (--maxCountOfWindows == 0) {
-      deactivate();
+      Thread.currentThread().interrupt();
     }
   }
 
   @Override
-  public void process(Object payload)
+  public void injectTuples(long windowId)
   {
     int j = 0;
 
@@ -382,14 +322,62 @@ public class LoadGenerator extends AsyncInputNode
       }
       // j is the key index
       String tuple_key = wtostr_index.get(j);
-      if (!isstringschema) {
+
+      if (string_data.isConnected()) {
+        string_data.emit(tuple_key);
+      }
+
+      if (hash_data.isConnected()) {
         HashMap<String, Double> tuple = new HashMap<String, Double>(1);
         tuple.put(tuple_key, keys.get(tuple_key));
-        emit(OPORT_DATA, tuple);
-      }
-      else {
-        emit(OPORT_DATA, tuple_key);
+        hash_data.emit(tuple);
       }
     }
+  }
+
+  @Override
+  public void activated(OperatorContext context)
+  {
+  }
+
+  @Override
+  public void deactivated()
+  {
+  }
+
+  @Override
+  public void teardown()
+  {
+  }
+
+  public void setKeys(String key)
+  {
+    key_keys = key.split(",");
+  }
+
+  public void setWeights(String weight)
+  {
+    key_weights = weight.split(",");
+  }
+
+  public void setValues(String value)
+  {
+    key_values = value.split(",");
+  }
+
+  /**
+   * @param tuples_blast the tuples_blast to set
+   */
+  public void setTuplesBlast(int tuples_blast)
+  {
+    this.tuples_blast = tuples_blast;
+  }
+
+  /**
+   * @param rolling_window_count the rolling_window_count to set
+   */
+  public void setRollingWindowCount(int rolling_window_count)
+  {
+    this.rolling_window_count = rolling_window_count;
   }
 }

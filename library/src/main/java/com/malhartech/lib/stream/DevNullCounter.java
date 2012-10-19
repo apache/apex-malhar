@@ -6,6 +6,8 @@ package com.malhartech.lib.stream;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultInputPort;
 import com.malhartech.dag.GenericNode;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.OperatorConfiguration;
@@ -42,11 +44,23 @@ import org.slf4j.LoggerFactory;
         ports = {
   @PortAnnotation(name = DevNullCounter.IPORT_DATA, type = PortAnnotation.PortType.INPUT)
 })
-public class DevNullCounter extends GenericNode
+public class DevNullCounter<T> extends BaseOperator
 {
+  public final transient DefaultInputPort<T> input = new DefaultInputPort<T>(this)
+  {
+    /**
+     * Process each tuple. Expects upstream node to compute number of tuples in that window and send it as an int
+     *
+     * @param payload
+     */
+    @Override
+    public void process(T tuple)
+    {
+      tuple_count++;
+    }
+  };
   public static final String IPORT_DATA = "data";
   private static Logger LOG = LoggerFactory.getLogger(DevNullCounter.class);
-
   private long windowStartTime = 0;
   private final int rolling_window_count_default = 1;
   private int rolling_window_count = rolling_window_count_default;
@@ -56,37 +70,11 @@ public class DevNullCounter extends GenericNode
   int count_denominator = 1;
   long count_windowid = 0;
   long tuple_count = 1; // so that the first begin window starts the count down
-
   /**
    *
    * The Maximum number of Windows to pump out.
    */
   public static final String ROLLING_WINDOW_COUNT = "rolling_window_count";
-
-
-  /**
-   *
-   * Code to be moved to a proper base method name
-   *
-   * @param config
-   * @return boolean
-   */
-  public boolean myValidation(OperatorConfiguration config)
-  {
-    String rstr = config.get(ROLLING_WINDOW_COUNT);
-    boolean ret = true;
-
-    if ((rstr != null) && !rstr.isEmpty()) {
-      try {
-        Integer.parseInt(rstr);
-      }
-      catch (NumberFormatException e) {
-        ret = false;
-        throw new IllegalArgumentException(String.format("%s has to be an integer (%s)", ROLLING_WINDOW_COUNT, rstr));
-      }
-    }
-    return ret;
-  }
 
   /**
    * Sets up all the config parameters. Assumes checking is done and has passed
@@ -96,10 +84,6 @@ public class DevNullCounter extends GenericNode
   @Override
   public void setup(OperatorConfiguration config) throws FailedOperationException
   {
-    if (!myValidation(config)) {
-      throw new FailedOperationException("Did not pass validation");
-    }
-
     rolling_window_count = config.getInt(ROLLING_WINDOW_COUNT, rolling_window_count_default);
     windowStartTime = 0;
     if (rolling_window_count != 1) { // Initialized the tuple_numbers
@@ -122,7 +106,6 @@ public class DevNullCounter extends GenericNode
     }
   }
 
-
   /**
    * convenient method for not sending more than configured number of windows.
    */
@@ -137,7 +120,7 @@ public class DevNullCounter extends GenericNode
       elapsedTime = 1; // prevent from / zero
     }
 
-    long average = 0;
+    long average;
     long tuples_per_sec = (tuple_count * 1000) / elapsedTime; // * 1000 as elapsedTime is in millis
     if (rolling_window_count == 1) {
       average = tuples_per_sec;
@@ -154,8 +137,8 @@ public class DevNullCounter extends GenericNode
         }
       }
       else {
-        tuple_numbers[count_denominator - 1] =tuple_count;
-        time_numbers[count_denominator - 1] =elapsedTime;
+        tuple_numbers[count_denominator - 1] = tuple_count;
+        time_numbers[count_denominator - 1] = elapsedTime;
         slots = count_denominator;
         count_denominator++;
       }
@@ -168,34 +151,6 @@ public class DevNullCounter extends GenericNode
       average = (numtuples * 1000) / time_slot;
     }
     LOG.debug(String.format("\nWindowid (%d), Time (%d ms): The rate for %d tuples is %d. This window had %d tuples_per_sec ",
-                              count_windowid++, elapsedTime, tuple_count, average, tuples_per_sec));
-  }
-
-
-
-  /**
-   * Process each tuple. Expects upstream node to compute number of tuples in that window and send it as an int
-   *
-   * @param payload
-   */
-  @Override
-  public void process(Object payload)
-  {
-    tuple_count++;
-  }
-
-  /**
-   *
-   * Checks for user specific configuration values<p>
-   *
-   * @param config
-   * @return boolean
-   */
-  @Override
-  public boolean checkConfiguration(OperatorConfiguration config)
-  {
-    boolean ret = true;
-    // TBD
-    return ret && super.checkConfiguration(config);
+                            count_windowid++, elapsedTime, tuple_count, average, tuples_per_sec));
   }
 }

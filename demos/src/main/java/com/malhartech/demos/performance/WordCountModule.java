@@ -3,13 +3,10 @@ package com.malhartech.demos.performance;
 /*
  * To change this template, choose Tools | Templates and open the template in the editor.
  */
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.annotation.PortAnnotation.PortType;
-import com.malhartech.dag.GenericNode;
-import com.malhartech.dag.Component;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.Operator;
 import com.malhartech.dag.OperatorConfiguration;
-import com.malhartech.api.Sink;
+import com.malhartech.dag.*;
 import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,16 +15,20 @@ import org.slf4j.LoggerFactory;
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-@ModuleAnnotation(ports = {
-  @PortAnnotation(name = Component.INPUT, type = PortType.INPUT)
-})
-public class WordCountModule extends GenericNode implements Sink
+public class WordCountModule<T> implements Operator
 {
+  public final transient DefaultInputPort<T> input = new DefaultInputPort<T>(this)
+  {
+    @Override
+    public void process(T tuple)
+    {
+      count++;
+    }
+  };
   private static final long serialVersionUID = 201208061820L;
   private static final Logger logger = LoggerFactory.getLogger(WordCountModule.class);
-
-  ArrayList<Integer> counts = new ArrayList<Integer>();
-  int count = 0;
+  ArrayList<Integer> counts;
+  int count;
 
   @Override
   public void endWindow()
@@ -42,14 +43,31 @@ public class WordCountModule extends GenericNode implements Sink
   }
 
   @Override
-  public void process(Object payload)
-  {
-    count++;
-  }
-
-  @Override
   public void teardown()
   {
     logger.info("counts = {}", counts);
+  }
+
+  @Override
+  public void beginWindow()
+  {
+  }
+
+  @Override
+  public void setup(OperatorConfiguration config) throws FailedOperationException
+  {
+    counts = new ArrayList<Integer>();
+  }
+
+  @Override
+  public void activated(OperatorContext context)
+  {
+    count = 0;
+    counts.clear();
+  }
+
+  @Override
+  public void deactivated()
+  {
   }
 }

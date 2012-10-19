@@ -4,10 +4,8 @@
  */
 package com.malhartech.demos.performance;
 
+import com.malhartech.api.DAG;
 import com.malhartech.dag.ApplicationFactory;
-import com.malhartech.dag.Component;
-import com.malhartech.dag.DAG;
-import com.malhartech.dag.DAG.OperatorInstance;
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -20,16 +18,17 @@ public class Application implements ApplicationFactory
   @Override
   public DAG getApplication(Configuration conf)
   {
-    DAG b = new DAG(conf);
-    b.getConf().setInt(DAG.STRAM_CHECKPOINT_INTERVAL_MILLIS, 0); // disable auto backup
-    OperatorInstance wordGenerator = b.addOperator("wordGenerator", RandomWordInputModule.class);
-//    Operator noOpProcessor = b.addOperator("noOpProcessor", DoNothingModule.class);
-    OperatorInstance counter = b.addOperator("counter", WordCountModule.class);
+    DAG dag = new DAG(conf);
+    dag.getConf().setInt(DAG.STRAM_CHECKPOINT_INTERVAL_MILLIS, 0); // disable auto backup
 
-//    b.addStream("Generator2Processor", wordGenerator.getOutput(Component.OUTPUT), noOpProcessor.getInput(Component.INPUT)).setInline(inline);
-//    b.addStream("Processor2Counter", noOpProcessor.getOutput(Component.OUTPUT), counter.getInput(Component.INPUT)).setInline(inline);
+    RandomWordInputModule wordGenerator = dag.addOperator("wordGenerator", RandomWordInputModule.class);
+//    DoNothingModule<byte[]> noOpProcessor = dag.addOperator("noOpProcessor", new DoNothingModule<byte[]>());
+    WordCountModule<byte[]> counter = dag.addOperator("counter", WordCountModule.class);
 
-    b.addStream("Generator2Counter", wordGenerator.getOutput(Component.OUTPUT), counter.getInput(Component.INPUT)).setInline(inline);
-    return b;
+//    dag.addStream("Generator2Processor", wordGenerator.output, noOpProcessor.input).setInline(inline);
+//    dag.addStream("Processor2Counter", noOpProcessor.output, counter.input).setInline(inline);
+
+    dag.addStream("Generator2Counter", wordGenerator.output, counter.input).setInline(inline);
+    return dag;
   }
 }
