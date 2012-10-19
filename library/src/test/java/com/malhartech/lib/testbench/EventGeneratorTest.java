@@ -9,7 +9,7 @@ import com.malhartech.dag.OperatorContext;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import com.malhartech.stram.ManualScheduledExecutorService;
-import com.malhartech.stram.WindowGenerator;
+import com.malhartech.dag.WindowGenerator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;

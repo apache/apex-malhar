@@ -5,7 +5,7 @@ package com.malhartech.lib.testbench;
 
 import com.malhartech.dag.*;
 import com.malhartech.stram.ManualScheduledExecutorService;
-import com.malhartech.stram.WindowGenerator;
+import com.malhartech.dag.WindowGenerator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
