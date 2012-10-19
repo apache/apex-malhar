@@ -180,7 +180,7 @@ public class RandomEventGeneratorTest {
             LOG.debug(ex.getLocalizedMessage());
         }
 
-        wingen.activate(null);
+        wingen.activated(null);
         for (int i = 0; i < 1000; i++) {
             mses.tick(1);
             try {

@@ -125,7 +125,7 @@ public class EventGeneratorBenchmark
     catch (InterruptedException ex) {
       LOG.debug(ex.getLocalizedMessage());
     }
-    wingen.activate(null);
+    wingen.activated(null);
     for (int i = 0; i < 7000; i++) {
       mses.tick(1);
       try {

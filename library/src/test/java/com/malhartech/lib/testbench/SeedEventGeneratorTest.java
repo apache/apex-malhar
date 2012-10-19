@@ -289,7 +289,7 @@ public class SeedEventGeneratorTest
       LOG.debug(ex.getLocalizedMessage());
     }
 
-    wingen.activate(null);
+    wingen.activated(null);
     for (int i = 0; i < numtuples; i++) {
       mses.tick(1);
       try {
@@ -299,8 +299,8 @@ public class SeedEventGeneratorTest
       }
     }
 
-//      wingen.deactivate();
-    //node.deactivate();
+//      wingen.deactivated();
+    //node.deactivated();
     try {
       Thread.sleep(5);
     }
