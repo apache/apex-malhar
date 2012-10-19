@@ -6,7 +6,7 @@ package com.malhartech.lib.math;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.Module;
+import com.malhartech.dag.GenericNode;
 import com.malhartech.dag.Component;
 import com.malhartech.api.Sink;
 import java.util.HashMap;
@@ -20,7 +20,7 @@ import java.util.Map.Entry;
   @PortAnnotation( name = Component.INPUT, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation( name = Component.OUTPUT, type = PortAnnotation.PortType.OUTPUT)
 })
-public class UniqueCounter extends Module implements Sink
+public class UniqueCounter extends GenericNode implements Sink
 {
   /**
    * Bucket counting mechanism.

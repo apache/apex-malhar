@@ -6,7 +6,7 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.Module;
+import com.malhartech.dag.GenericNode;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.OperatorConfiguration;
 import java.util.HashMap;
@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = FirstMatch.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = FirstMatch.OPORT_FIRST, type = PortAnnotation.PortType.OUTPUT)
 })
-public class FirstMatch extends Module
+public class FirstMatch extends GenericNode
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_FIRST = "first";

@@ -7,7 +7,7 @@ package com.malhartech.lib.math;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
-import com.malhartech.dag.Module;
+import com.malhartech.dag.GenericNode;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.OperatorConfiguration;
 import java.util.HashMap;
@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = Quotient.IPORT_DENOMINATOR, type = PortType.INPUT),
   @PortAnnotation(name = Quotient.OPORT_QUOTIENT, type = PortType.OUTPUT)
 })
-public class Quotient extends Module
+public class Quotient extends GenericNode
 {
   public static final String IPORT_NUMERATOR = "numerator";
   public static final String IPORT_DENOMINATOR = "denominator";

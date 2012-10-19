@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
     ports = {
   @PortAnnotation(name = DebugProbe.IPORT_INPUT, type = PortType.INPUT)
 })
-public class DebugProbe extends Module implements Sink
+public class DebugProbe extends GenericNode implements Sink
 {
   private static final Logger LOG = LoggerFactory.getLogger(DebugProbe.class);
   public static final String IPORT_INPUT = Component.INPUT;

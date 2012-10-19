@@ -6,7 +6,7 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.Module;
+import com.malhartech.dag.GenericNode;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.OperatorConfiguration;
 import com.malhartech.api.Sink;
@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = TupleQueue.OPORT_QUEUE, type = PortAnnotation.PortType.OUTPUT),
   @PortAnnotation(name = TupleQueue.OPORT_CONSOLE, type = PortAnnotation.PortType.OUTPUT)
 })
-public class TupleQueue extends Module
+public class TupleQueue extends GenericNode
 {
   public static final String IPORT_QUERY = "query";
   public static final String IPORT_DATA = "data";

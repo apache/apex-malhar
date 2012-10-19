@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = Component.INPUT, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = Component.OUTPUT, type = PortAnnotation.PortType.OUTPUT)
 })
-public class WindowedTopCounter<T> extends Module implements Sink<HashMap<T, Integer>>
+public class WindowedTopCounter<T> extends GenericNode implements Sink<HashMap<T, Integer>>
 {
   private static final Logger logger = LoggerFactory.getLogger(WindowedTopCounter.class);
   private static final long serialVersionUID = 201208061826L;

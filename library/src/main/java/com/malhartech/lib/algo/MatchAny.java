@@ -6,7 +6,7 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.Module;
+import com.malhartech.dag.GenericNode;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.OperatorConfiguration;
 import java.util.HashMap;
@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = MatchAny.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = MatchAny.OPORT_ANY, type = PortAnnotation.PortType.OUTPUT)
 })
-public class MatchAny extends Module
+public class MatchAny extends GenericNode
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_ANY = "any";

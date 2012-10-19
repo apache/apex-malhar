@@ -6,7 +6,7 @@ package com.malhartech.lib.testbench;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.Module;
+import com.malhartech.dag.GenericNode;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.OperatorConfiguration;
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = ThroughputCounter.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = ThroughputCounter.OPORT_COUNT, type = PortAnnotation.PortType.OUTPUT)
 })
-public class ThroughputCounter extends Module
+public class ThroughputCounter extends GenericNode
 {
   public static final String IPORT_DATA = "in_data";
   public static final String OPORT_COUNT = "out_data";

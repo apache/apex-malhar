@@ -6,7 +6,7 @@ package com.malhartech.demos.twitter;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.Module;
+import com.malhartech.dag.GenericNode;
 import com.malhartech.dag.Component;
 import com.malhartech.api.Sink;
 import twitter4j.Status;
@@ -20,7 +20,7 @@ import twitter4j.URLEntity;
   @PortAnnotation(name = Component.INPUT, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = Component.OUTPUT, type = PortAnnotation.PortType.OUTPUT)
 })
-public class TwitterStatusURLExtractor extends Module implements Sink<Status>
+public class TwitterStatusURLExtractor extends GenericNode implements Sink<Status>
 {
   @Override
   public void process(Status status)

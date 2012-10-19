@@ -6,7 +6,7 @@ package com.malhartech.lib.testbench;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.Module;
+import com.malhartech.dag.GenericNode;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.OperatorConfiguration;
 import java.util.ArrayList;
@@ -60,7 +60,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = EventClassifier.IPORT_IN_DATA, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = EventClassifier.OPORT_OUT_DATA, type = PortAnnotation.PortType.OUTPUT)
 })
-public class LoadClassifier extends Module
+public class LoadClassifier extends GenericNode
 {
   public static final String IPORT_IN_DATA = "in_data";
   public static final String OPORT_OUT_DATA = "out_data";

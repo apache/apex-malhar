@@ -6,7 +6,7 @@ package com.malhartech.lib.stream;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.Module;
+import com.malhartech.dag.GenericNode;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.OperatorConfiguration;
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
         ports = {
   @PortAnnotation(name = DevNullCounter.IPORT_DATA, type = PortAnnotation.PortType.INPUT)
 })
-public class DevNullCounter extends Module
+public class DevNullCounter extends GenericNode
 {
   public static final String IPORT_DATA = "data";
   private static Logger LOG = LoggerFactory.getLogger(DevNullCounter.class);

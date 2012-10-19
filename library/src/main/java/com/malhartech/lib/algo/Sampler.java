@@ -6,7 +6,7 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.Module;
+import com.malhartech.dag.GenericNode;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.OperatorConfiguration;
 import java.util.Random;
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = Sampler.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = Sampler.OPORT_SAMPLE, type = PortAnnotation.PortType.OUTPUT)
 })
-public class Sampler extends Module
+public class Sampler extends GenericNode
 {
   private static Logger LOG = LoggerFactory.getLogger(Sampler.class);
   public static final String IPORT_DATA = "in_data1";

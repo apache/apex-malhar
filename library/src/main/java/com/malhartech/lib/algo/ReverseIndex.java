@@ -6,7 +6,7 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.Module;
+import com.malhartech.dag.GenericNode;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.OperatorConfiguration;
 import java.util.HashMap;
@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = ReverseIndex.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = ReverseIndex.OPORT_INDEX, type = PortAnnotation.PortType.OUTPUT)
 })
-public class ReverseIndex extends Module
+public class ReverseIndex extends GenericNode
 {
   private static Logger LOG = LoggerFactory.getLogger(ReverseIndex.class);
   public static final String IPORT_DATA = "data";

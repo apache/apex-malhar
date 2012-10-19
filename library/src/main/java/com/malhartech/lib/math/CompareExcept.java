@@ -6,7 +6,7 @@ package com.malhartech.lib.math;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.Module;
+import com.malhartech.dag.GenericNode;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.OperatorConfiguration;
 import com.malhartech.api.Sink;
@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = CompareExcept.OPORT_COMPARE, type = PortAnnotation.PortType.OUTPUT),
   @PortAnnotation(name = CompareExcept.OPORT_EXCEPT, type = PortAnnotation.PortType.OUTPUT)
 })
-public class CompareExcept extends Module
+public class CompareExcept extends GenericNode
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_COMPARE = "compare";

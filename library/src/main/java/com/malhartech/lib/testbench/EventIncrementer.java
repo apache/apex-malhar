@@ -6,7 +6,7 @@ package com.malhartech.lib.testbench;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.Module;
+import com.malhartech.dag.GenericNode;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.OperatorConfiguration;
 import com.malhartech.api.Sink;
@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = EventIncrementer.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT),
   @PortAnnotation(name = EventIncrementer.OPORT_COUNT, type = PortAnnotation.PortType.OUTPUT)
 })
-public class LoadIncrementer extends Module
+public class LoadIncrementer extends GenericNode
 {
   public static final String IPORT_SEED = "seed";
   public static final String IPORT_INCREMENT = "increment";

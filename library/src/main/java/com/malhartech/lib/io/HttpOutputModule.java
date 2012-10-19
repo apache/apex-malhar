@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
         @PortAnnotation(name = Component.INPUT, type = PortType.INPUT)
     }
 )
-public class HttpOutputModule extends Module implements Sink
+public class HttpOutputModule extends GenericNode implements Sink
 {
   private static final Logger LOG = LoggerFactory.getLogger(HttpOutputModule.class);
 

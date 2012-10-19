@@ -6,7 +6,7 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.Module;
+import com.malhartech.dag.GenericNode;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.OperatorConfiguration;
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = OrderByValue.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = OrderByValue.OPORT_OUT_DATA, type = PortAnnotation.PortType.OUTPUT)
 })
-public class OrderByValue extends Module
+public class OrderByValue extends GenericNode
 {
   private static Logger LOG = LoggerFactory.getLogger(OrderByValue.class);
   public static final String IPORT_DATA = "data";

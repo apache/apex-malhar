@@ -6,7 +6,7 @@ package com.malhartech.lib.stream;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.Module;
+import com.malhartech.dag.GenericNode;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.OperatorConfiguration;
 import org.slf4j.Logger;
@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = StreamDuplicater.OPORT_OUT_DATA1, type = PortAnnotation.PortType.OUTPUT),
   @PortAnnotation(name = StreamDuplicater.OPORT_OUT_DATA2, type = PortAnnotation.PortType.OUTPUT)
 })
-public class StreamDuplicater extends Module
+public class StreamDuplicater extends GenericNode
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_OUT_DATA1 = "out_data1";

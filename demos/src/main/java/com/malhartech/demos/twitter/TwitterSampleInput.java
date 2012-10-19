@@ -7,7 +7,7 @@ package com.malhartech.demos.twitter;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.ShipContainingJars;
-import com.malhartech.dag.InputModule;
+import com.malhartech.dag.InputNode;
 import com.malhartech.dag.Component;
 import com.malhartech.dag.OperatorConfiguration;
 import com.malhartech.api.Sink;
@@ -31,7 +31,7 @@ import twitter4j.conf.ConfigurationBuilder;
   @PortAnnotation(name = TwitterSampleInput.OPORT_MEDIA, type = PortAnnotation.PortType.OUTPUT)
 })
 @ShipContainingJars(classes = {StatusListener.class, Status.class})
-public class TwitterSampleInput extends InputModule implements StatusListener, Sink
+public class TwitterSampleInput extends InputNode implements StatusListener, Sink
 {
   private static final Logger logger = LoggerFactory.getLogger(TwitterSampleInput.class);
   /**

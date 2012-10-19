@@ -6,7 +6,7 @@ package com.malhartech.lib.testbench;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.Module;
+import com.malhartech.dag.GenericNode;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.OperatorConfiguration;
 import java.util.HashMap;
@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
     @PortAnnotation(name = SeedEventClassifier.IPORT_IN_DATA2, type = PortAnnotation.PortType.INPUT),
     @PortAnnotation(name = SeedEventClassifier.OPORT_OUT_DATA, type = PortAnnotation.PortType.OUTPUT)
 })
-public class SeedClassifier extends Module {
+public class SeedClassifier extends GenericNode {
     public static final String IPORT_IN_DATA1 = "in_data1";
     public static final String IPORT_IN_DATA2 = "in_data2";
     public static final String OPORT_OUT_DATA = "out_data";

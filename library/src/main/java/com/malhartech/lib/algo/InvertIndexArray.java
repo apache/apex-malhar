@@ -7,7 +7,7 @@ package com.malhartech.lib.algo;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
-import com.malhartech.dag.Module;
+import com.malhartech.dag.GenericNode;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.OperatorConfiguration;
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = InvertIndexArray.IPORT_DATA, type = PortType.INPUT),
   @PortAnnotation(name = InvertIndexArray.OPORT_INDEX, type = PortType.OUTPUT)
 })
-public class InvertIndexArray extends Module
+public class InvertIndexArray extends GenericNode
 {
   public static final String IPORT_DATA = "data";
   public static final String OPORT_INDEX = "index";

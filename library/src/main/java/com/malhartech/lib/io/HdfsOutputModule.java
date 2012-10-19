@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 @ModuleAnnotation(ports = {
   @PortAnnotation(name = Component.INPUT, type = PortAnnotation.PortType.INPUT)
 })
-public class HdfsOutputModule extends Module implements Sink
+public class HdfsOutputModule extends GenericNode implements Sink
 {
   private static org.slf4j.Logger logger = LoggerFactory.getLogger(HdfsOutputModule.class);
   private transient FSDataOutputStream fsOutput;

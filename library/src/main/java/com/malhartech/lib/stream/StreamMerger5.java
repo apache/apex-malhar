@@ -6,7 +6,7 @@ package com.malhartech.lib.stream;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.Module;
+import com.malhartech.dag.GenericNode;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.OperatorConfiguration;
 import java.util.ArrayList;
@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = StreamMerger5.IPORT_IN_DATA5, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = StreamMerger5.OPORT_OUT_DATA, type = PortAnnotation.PortType.OUTPUT)
 })
-public class StreamMerger5 extends Module
+public class StreamMerger5 extends GenericNode
 {
   public static final String IPORT_IN_DATA1 = "in_data1";
   public static final String IPORT_IN_DATA2 = "in_data2";

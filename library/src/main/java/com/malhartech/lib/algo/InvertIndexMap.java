@@ -7,7 +7,7 @@ package com.malhartech.lib.algo;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
-import com.malhartech.dag.Module;
+import com.malhartech.dag.GenericNode;
 import com.malhartech.dag.FailedOperationException;
 import com.malhartech.dag.OperatorConfiguration;
 import com.malhartech.api.Sink;
@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = InvertIndexMap.OPORT_INDEX, type = PortType.OUTPUT),
   @PortAnnotation(name = InvertIndexMap.OPORT_CONSOLE, type = PortType.OUTPUT)
 })
-public class InvertIndexMap extends Module
+public class InvertIndexMap extends GenericNode
 {
   private static Logger LOG = LoggerFactory.getLogger(InvertIndexMap.class);
 
