@@ -4,7 +4,7 @@
 package com.malhartech.lib.stream;
 
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.lib.testbench.LoadGenerator;
+import com.malhartech.lib.testbench.EventGenerator;
 import com.malhartech.lib.testbench.ThroughputCounter;
 import java.util.HashMap;
 import junit.framework.Assert;

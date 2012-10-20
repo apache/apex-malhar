@@ -60,7 +60,7 @@ import org.slf4j.LoggerFactory;
   @PortAnnotation(name = EventClassifier.IPORT_IN_DATA, type = PortAnnotation.PortType.INPUT),
   @PortAnnotation(name = EventClassifier.OPORT_OUT_DATA, type = PortAnnotation.PortType.OUTPUT)
 })
-public class LoadClassifier extends GenericNode
+public class EventClassifier extends GenericNode
 {
   public static final String IPORT_IN_DATA = "in_data";
   public static final String OPORT_OUT_DATA = "out_data";

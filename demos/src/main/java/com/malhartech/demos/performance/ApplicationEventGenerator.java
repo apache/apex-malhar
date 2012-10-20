@@ -18,8 +18,8 @@ public class ApplicationEventGenerator implements ApplicationFactory
   private static final boolean inline = true;
 
 
-  public LoadGenerator getLoadGenerator(String name, DAG dag) {
-    LoadGenerator oper = dag.addOperator(name, LoadGenerator.class);
+  public EventGenerator getLoadGenerator(String name, DAG dag) {
+    EventGenerator oper = dag.addOperator(name, EventGenerator.class);
     int numchars = 1024;
     char[] chararray = new char[numchars + 1];
     for (int i = 0; i < numchars; i++) {
@@ -42,13 +42,13 @@ public class ApplicationEventGenerator implements ApplicationFactory
   {
     return dag.addOperator(name, DevNullCounter.class);
   }
-  
+
   @Override
   public DAG getApplication(Configuration conf)
   {
     DAG dag = new DAG(conf);
     dag.getConf().setInt(DAG.STRAM_CHECKPOINT_INTERVAL_MILLIS, 0); // disable auto backup
-    LoadGenerator lgen = getLoadGenerator("lgen", dag);
+    EventGenerator lgen = getLoadGenerator("lgen", dag);
     DevNullCounter devnull = getDevNull("devnull", dag);
     dag.addStream("lgen2devnull", lgen.string_data, devnull.input).setInline(inline);
     return dag;

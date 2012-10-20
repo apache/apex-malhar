@@ -53,9 +53,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author amol
  */
-public class LoadGenerator implements AsyncInputOperator
+public class EventGenerator implements AsyncInputOperator
 {
-  private static final Logger LOG = LoggerFactory.getLogger(LoadGenerator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EventGenerator.class);
   public final transient DefaultOutputPort<String> string_data = new DefaultOutputPort<String>(this);
   public final transient DefaultOutputPort<HashMap<String, Double>> hash_data = new DefaultOutputPort<HashMap<String, Double>>(this);
   public final transient DefaultOutputPort<HashMap<String, Number>> count = new DefaultOutputPort<HashMap<String, Number>>(this);
