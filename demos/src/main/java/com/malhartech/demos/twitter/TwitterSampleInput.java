@@ -35,7 +35,10 @@ public abstract class TwitterSampleInput implements Operator, StatusListener
    */
   transient TwitterStream ts;
   transient CircularBuffer<Status> statuses = new CircularBuffer<Status>(1024 * 1024, 10);
-  int count;
+  transient int count;
+  /**
+   * The state which we would like to save for this operator.
+   */
   int multiplier;
   private Properties twitterProperties;
 

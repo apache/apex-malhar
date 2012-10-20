@@ -8,9 +8,9 @@ import com.malhartech.dag.ApplicationFactory;
 import com.malhartech.dag.DAG;
 import com.malhartech.dag.DAG.OperatorInstance;
 import com.malhartech.dag.DAG.StreamDecl;
-import com.malhartech.lib.io.ConsoleOutputModule;
+import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.io.HdfsOutputModule;
-import com.malhartech.lib.io.HttpOutputModule;
+import com.malhartech.lib.io.HttpOutputOperator;
 import com.malhartech.lib.math.Margin;
 import com.malhartech.lib.math.Quotient;
 import com.malhartech.lib.math.Sum;
@@ -93,12 +93,12 @@ public class Application implements ApplicationFactory {
     // output to HTTP server when specified in environment setting
     String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
     if (serverAddr != null) {
-      return b.addOperator(operatorName, HttpOutputModule.class)
-              .setProperty(HttpOutputModule.P_RESOURCE_URL, "http://" + serverAddr + "/channel/" + operatorName);
+      return b.addOperator(operatorName, HttpOutputOperator.class)
+              .setProperty(HttpOutputOperator.P_RESOURCE_URL, "http://" + serverAddr + "/channel/" + operatorName);
     }
-    return b.addOperator(operatorName, ConsoleOutputModule.class)
-            //.setProperty(ConsoleOutputModule.P_DEBUG, "true")
-            .setProperty(ConsoleOutputModule.P_STRING_FORMAT, operatorName + ": %s");
+    return b.addOperator(operatorName, ConsoleOutputOperator.class)
+            //.setProperty(ConsoleOutputOperator.P_DEBUG, "true")
+            .setProperty(ConsoleOutputOperator.P_STRING_FORMAT, operatorName + ": %s");
   }
 
   private DAG.InputPort getViewsToHdfsOperatorInstance(DAG dag, String operatorName)
@@ -216,11 +216,11 @@ public class Application implements ApplicationFactory {
     OperatorInstance ctrconsole = getConsoleOperatorInstance(dag, "ctrConsole");
     OperatorInstance viewcountconsole = getConsoleOperatorInstance(dag, "viewCountConsole");
 
-    dag.addStream("revenuedata", revenue.getOutput(Sum.OPORT_SUM), margin.getInput(Margin.IPORT_DENOMINATOR), revconsole.getInput(ConsoleOutputModule.INPUT)).setInline(allInline);
-    dag.addStream("costdata", cost.getOutput(Sum.OPORT_SUM), margin.getInput(Margin.IPORT_NUMERATOR), costconsole.getInput(ConsoleOutputModule.INPUT)).setInline(allInline);
-    dag.addStream("margindata", margin.getOutput(Margin.OPORT_MARGIN), marginconsole.getInput(ConsoleOutputModule.INPUT)).setInline(allInline);
-    dag.addStream("ctrdata", ctr.getOutput(Quotient.OPORT_QUOTIENT), ctrconsole.getInput(ConsoleOutputModule.INPUT)).setInline(allInline);
-    dag.addStream("tuplecount", tuple_counter.getOutput(ThroughputCounter.OPORT_COUNT) , viewcountconsole.getInput(ConsoleOutputModule.INPUT)).setInline(allInline);
+    dag.addStream("revenuedata", revenue.getOutput(Sum.OPORT_SUM), margin.getInput(Margin.IPORT_DENOMINATOR), revconsole.getInput(ConsoleOutputOperator.INPUT)).setInline(allInline);
+    dag.addStream("costdata", cost.getOutput(Sum.OPORT_SUM), margin.getInput(Margin.IPORT_NUMERATOR), costconsole.getInput(ConsoleOutputOperator.INPUT)).setInline(allInline);
+    dag.addStream("margindata", margin.getOutput(Margin.OPORT_MARGIN), marginconsole.getInput(ConsoleOutputOperator.INPUT)).setInline(allInline);
+    dag.addStream("ctrdata", ctr.getOutput(Quotient.OPORT_QUOTIENT), ctrconsole.getInput(ConsoleOutputOperator.INPUT)).setInline(allInline);
+    dag.addStream("tuplecount", tuple_counter.getOutput(ThroughputCounter.OPORT_COUNT) , viewcountconsole.getInput(ConsoleOutputOperator.INPUT)).setInline(allInline);
 
     return dag;
   }

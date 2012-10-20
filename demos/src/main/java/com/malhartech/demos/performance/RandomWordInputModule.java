@@ -4,11 +4,11 @@
  */
 package com.malhartech.demos.performance;
 
-import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.api.FailedOperationException;
 import com.malhartech.api.AsyncInputOperator;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.dag.*;
+import com.malhartech.api.FailedOperationException;
+import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.dag.OperatorContext;
 
 /**
  *
@@ -17,8 +17,8 @@ import com.malhartech.dag.*;
 public class RandomWordInputModule implements AsyncInputOperator
 {
   public final transient DefaultOutputPort<byte[]> output = new DefaultOutputPort<byte[]>(this);
-  long lastWindowId = 0;
-  int count = 1;
+  transient long lastWindowId = 0;
+  transient int count = 1;
 //  int totalIterations = 0;
 
   @Override

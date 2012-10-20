@@ -7,8 +7,8 @@ package com.malhartech.demos.twitter;
 import com.malhartech.api.DAG;
 import com.malhartech.api.Operator.InputPort;
 import com.malhartech.lib.algo.WindowedTopCounter;
-import com.malhartech.lib.io.ConsoleOutputModule;
-import com.malhartech.lib.io.HttpOutputModule;
+import com.malhartech.lib.io.ConsoleOutputOperator;
+import com.malhartech.lib.io.HttpOutputOperator;
 import com.malhartech.lib.math.UniqueCounter;
 import java.io.IOException;
 import java.util.Properties;
@@ -29,12 +29,12 @@ public class TwitterTopCounter extends DAG
     // hack to output to HTTP based on actual environment
     String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
     if (serverAddr != null) {
-      HttpOutputModule<Object> operator = addOperator(nodeName, HttpOutputModule.class);
+      HttpOutputOperator<Object> operator = addOperator(nodeName, HttpOutputOperator.class);
       operator.setResourceURL("http://" + serverAddr + "/channel/" + nodeName);
       return operator.input;
     }
 
-    ConsoleOutputModule<Object> operator = addOperator(nodeName, ConsoleOutputModule.class);
+    ConsoleOutputOperator<Object> operator = addOperator(nodeName, ConsoleOutputOperator.class);
     operator.setStringFormat(nodeName + ": %s");
     return operator.input;
   }

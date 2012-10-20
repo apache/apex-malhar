@@ -82,7 +82,7 @@ public class HttpInputModuleTest {
     node.setId("testHttpInputNode");
 
     final OperatorConfiguration config = new OperatorConfiguration(node.getId(), Collections.<String,String>emptyMap());
-    config.set(HttpOutputModule.P_RESOURCE_URL, url);
+    config.set(HttpOutputOperator.P_RESOURCE_URL, url);
 
     node.setup(config);
 

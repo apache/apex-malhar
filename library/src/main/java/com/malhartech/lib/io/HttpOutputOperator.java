@@ -28,10 +28,10 @@ import org.slf4j.LoggerFactory;
  *
  */
 @ShipContainingJars(classes = {com.sun.jersey.api.client.ClientHandler.class})
-public class HttpOutputModule<T> extends BaseOperator
+public class HttpOutputOperator<T> extends BaseOperator
 {
-  private static final Logger LOG = LoggerFactory.getLogger(HttpOutputModule.class);
-  public final DefaultInputPort<T> input = new DefaultInputPort<T>(this)
+  private static final Logger LOG = LoggerFactory.getLogger(HttpOutputOperator.class);
+  public final transient DefaultInputPort<T> input = new DefaultInputPort<T>(this)
   {
     @Override
     public void process(T t)

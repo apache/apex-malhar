@@ -55,10 +55,10 @@ public class HttpOutputModuleTest {
     System.out.println("url: " + url);
 
 
-    HttpOutputModule node = new HttpOutputModule();
+    HttpOutputOperator node = new HttpOutputOperator();
 
     OperatorConfiguration config = new OperatorConfiguration("testNode", Collections.<String,String>emptyMap());
-    config.set(HttpOutputModule.P_RESOURCE_URL, url);
+    config.set(HttpOutputOperator.P_RESOURCE_URL, url);
 
     node.setup(config);
 

@@ -41,8 +41,8 @@ public class WindowedTopCounter<T> extends BaseOperator
   public final transient DefaultOutputPort<Map<T, Integer>> output = new DefaultOutputPort<Map<T, Integer>>(this);
   private transient int windows;
   private transient int topCount;
-  private HashMap<T, WindowedHolder> objects;
   private transient PriorityQueue<WindowedHolder<T>> topCounter;
+  private HashMap<T, WindowedHolder> objects;
 
   @Override
   public void setup(OperatorConfiguration config) throws FailedOperationException

@@ -17,13 +17,13 @@ import com.malhartech.dag.DAG;
 import com.malhartech.dag.DAG.OperatorInstance;
 import com.malhartech.lib.algo.InvertIndexMap;
 import com.malhartech.lib.algo.TupleQueue;
-import com.malhartech.lib.io.ConsoleOutputModule;
+import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.io.HttpInputModule;
-import com.malhartech.lib.io.HttpOutputModule;
-import com.malhartech.lib.testbench.EventIncrementer;
-import com.malhartech.lib.testbench.RandomEventGenerator;
-import com.malhartech.lib.testbench.SeedEventGenerator;
-import com.malhartech.lib.testbench.SeedEventClassifier;
+import com.malhartech.lib.io.HttpOutputOperator;
+import com.malhartech.lib.testbench.LoadIncrementer;
+import com.malhartech.lib.testbench.LoadRandomGenerator;
+import com.malhartech.lib.testbench.LoadSeedGenerator;
+import com.malhartech.lib.testbench.SeedClassifier;
 
 
 /**
@@ -73,12 +73,12 @@ public class Application implements ApplicationFactory {
   {
     // output to HTTP server when specified in environment setting
     if (this.ajaxServerAddr != null) {
-      return b.addOperator(operatorName, HttpOutputModule.class)
-              .setProperty(HttpOutputModule.P_RESOURCE_URL, "http://" + ajaxServerAddr + "/channel/mobile/" + operatorName);
+      return b.addOperator(operatorName, HttpOutputOperator.class)
+              .setProperty(HttpOutputOperator.P_RESOURCE_URL, "http://" + ajaxServerAddr + "/channel/mobile/" + operatorName);
     }
-    return b.addOperator(operatorName, ConsoleOutputModule.class)
-            //.setProperty(ConsoleOutputModule.P_DEBUG, "true")
-            .setProperty(ConsoleOutputModule.P_STRING_FORMAT, operatorName + ": %s");
+    return b.addOperator(operatorName, ConsoleOutputOperator.class)
+            //.setProperty(ConsoleOutputOperator.P_DEBUG, "true")
+            .setProperty(ConsoleOutputOperator.P_STRING_FORMAT, operatorName + ": %s");
   }
 
   public OperatorInstance getSeedGenerator(String name, DAG b) {
@@ -176,7 +176,7 @@ public class Application implements ApplicationFactory {
       }
     }
 
-    dag.addStream("consoledata", indexMap.getOutput(InvertIndexMap.OPORT_CONSOLE), phoneconsole.getInput(HttpOutputModule.INPUT)).setInline(true);
+    dag.addStream("consoledata", indexMap.getOutput(InvertIndexMap.OPORT_CONSOLE), phoneconsole.getInput(HttpOutputOperator.INPUT)).setInline(true);
 
     return dag;
   }

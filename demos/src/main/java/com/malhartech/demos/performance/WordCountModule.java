@@ -26,10 +26,8 @@ public class WordCountModule<T> implements Operator
       count++;
     }
   };
-  private static final long serialVersionUID = 201208061820L;
-  private static final Logger logger = LoggerFactory.getLogger(WordCountModule.class);
-  ArrayList<Integer> counts;
-  int count;
+  transient ArrayList<Integer> counts;
+  transient int count;
 
   @Override
   public void endWindow()
@@ -71,4 +69,6 @@ public class WordCountModule<T> implements Operator
   public void deactivated()
   {
   }
+  private static final long serialVersionUID = 201208061820L;
+  private static final Logger logger = LoggerFactory.getLogger(WordCountModule.class);
 }
