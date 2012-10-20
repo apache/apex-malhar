@@ -4,11 +4,9 @@
  */
 package com.malhartech.demos.twitter;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.GenericNode;
-import com.malhartech.dag.Component;
-import com.malhartech.api.Sink;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.DefaultOutputPort;
 import twitter4j.Status;
 import twitter4j.URLEntity;
 
@@ -16,20 +14,20 @@ import twitter4j.URLEntity;
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-@ModuleAnnotation(ports = {
-  @PortAnnotation(name = Component.INPUT, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = Component.OUTPUT, type = PortAnnotation.PortType.OUTPUT)
-})
-public class TwitterStatusURLExtractor extends GenericNode implements Sink<Status>
+public class TwitterStatusURLExtractor extends BaseOperator
 {
-  @Override
-  public void process(Status status)
+  public final transient DefaultOutputPort<String> url = new DefaultOutputPort<String>(this);
+  public final transient DefaultInputPort<Status> input = new DefaultInputPort<Status>(this)
   {
-    URLEntity[] entities = status.getURLEntities();
-    if (entities != null) {
-      for (URLEntity ue: entities) {
-        emit((ue.getExpandedURL() == null ? ue.getURL() : ue.getExpandedURL()).toString());
+    @Override
+    public void process(Status status)
+    {
+      URLEntity[] entities = status.getURLEntities();
+      if (entities != null) {
+        for (URLEntity ue: entities) {
+          url.emit((ue.getExpandedURL() == null ? ue.getURL() : ue.getExpandedURL()).toString());
+        }
       }
     }
-  }
+  };
 }

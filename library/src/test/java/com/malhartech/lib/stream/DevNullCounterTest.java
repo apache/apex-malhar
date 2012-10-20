@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.stream;
 
-import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.lib.testbench.LoadGenerator;
 import com.malhartech.lib.testbench.ThroughputCounter;
 import java.util.HashMap;

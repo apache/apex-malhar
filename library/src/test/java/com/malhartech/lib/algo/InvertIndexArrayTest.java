@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.dag.OperatorContext;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;

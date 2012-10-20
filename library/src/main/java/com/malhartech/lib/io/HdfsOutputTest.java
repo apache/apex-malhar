@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.malhartech.dag.ApplicationFactory;
 import com.malhartech.dag.DAG;
-import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.api.OperatorConfiguration;
 
 /**
  *

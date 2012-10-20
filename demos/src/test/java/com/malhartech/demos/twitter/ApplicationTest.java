@@ -8,7 +8,6 @@ import com.malhartech.stram.DAGPropertiesBuilder;
 import com.malhartech.stram.StramLocalCluster;
 import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
-import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -31,23 +30,18 @@ public class ApplicationTest
   @Test
   public void testAsyncApplication() throws IOException, Exception
   {
-    Application app = new Application();
-    if (app == null) {
-      Assert.fail("could not get reference to the application");
-    }
-    StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));
-    lc.setHeartbeatMonitoringEnabled(false);
-    lc.run();
+    testApplication(false);
   }
 
   @Test
   public void testSyncApplication() throws IOException, Exception
   {
-    SynchronousFeedApplication app = new SynchronousFeedApplication();
-    if (app == null) {
-      Assert.fail("could not get reference to the application");
-    }
-    StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));
+    testApplication(true);
+  }
+
+  public void testApplication(boolean sync) throws Exception
+  {
+    StramLocalCluster lc = new StramLocalCluster(new TwitterTopCounter(new Configuration(false), sync));
     lc.setHeartbeatMonitoringEnabled(false);
     lc.run();
   }

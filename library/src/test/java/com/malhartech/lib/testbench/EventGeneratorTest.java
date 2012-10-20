@@ -4,7 +4,7 @@
 package com.malhartech.lib.testbench;
 
 import com.malhartech.dag.Component;
-import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.dag.OperatorContext;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;

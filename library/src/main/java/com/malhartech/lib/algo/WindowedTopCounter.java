@@ -4,9 +4,7 @@ package com.malhartech.lib.algo;
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.*;
+import com.malhartech.api.*;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -18,25 +16,40 @@ import org.slf4j.LoggerFactory;
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-@ModuleAnnotation(ports = {
-  @PortAnnotation(name = Component.INPUT, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = Component.OUTPUT, type = PortAnnotation.PortType.OUTPUT)
-})
-public class WindowedTopCounter<T> extends GenericNode implements Sink<HashMap<T, Integer>>
+public class WindowedTopCounter<T> extends BaseOperator
 {
-  private static final Logger logger = LoggerFactory.getLogger(WindowedTopCounter.class);
   private static final long serialVersionUID = 201208061826L;
+  private static final Logger logger = LoggerFactory.getLogger(WindowedTopCounter.class);
+  public final transient DefaultInputPort<Map<T, Integer>> input = new DefaultInputPort<Map<T, Integer>>(this)
+  {
+    @Override
+    public void process(Map<T, Integer> map)
+    {
+      for (Map.Entry<T, Integer> e: map.entrySet()) {
+        WindowedHolder holder = objects.get(e.getKey());
+        if (holder == null) {
+          holder = new WindowedHolder(e.getKey(), windows);
+          holder.totalCount = e.getValue();
+          objects.put(e.getKey(), holder);
+        }
+        else {
+          holder.adjustCount(e.getValue());
+        }
+      }
+    }
+  };
+  public final transient DefaultOutputPort<Map<T, Integer>> output = new DefaultOutputPort<Map<T, Integer>>(this);
   private transient int windows;
   private transient int topCount;
-  private HashMap<Object, WindowedHolder> objects;
-  private transient PriorityQueue<WindowedHolder> topCounter;
+  private HashMap<T, WindowedHolder> objects;
+  private transient PriorityQueue<WindowedHolder<T>> topCounter;
 
   @Override
   public void setup(OperatorConfiguration config) throws FailedOperationException
   {
-    topCount = config.getInt("topCount", 10);
-    topCounter = new PriorityQueue<WindowedHolder>(this.topCount, new TopSpotComparator());
-    objects = new HashMap<Object, WindowedHolder>(topCount);
+    topCount = config.getInt("topCount", topCount);
+    topCounter = new PriorityQueue<WindowedHolder<T>>(this.topCount, new TopSpotComparator());
+    objects = new HashMap<T, WindowedHolder>(topCount);
 
     long windowWidth = config.getInt("windowWidth", 500);
     long samplePeriod = config.getInt("samplePeriod", 300000);
@@ -54,25 +67,9 @@ public class WindowedTopCounter<T> extends GenericNode implements Sink<HashMap<T
   }
 
   @Override
-  public void process(HashMap<T, Integer> map)
-  {
-    for (Map.Entry<T, Integer> e: map.entrySet()) {
-      WindowedHolder holder = objects.get(e.getKey());
-      if (holder == null) {
-        holder = new WindowedHolder(e.getKey(), windows);
-        holder.totalCount = e.getValue();
-        objects.put(e.getKey(), holder);
-      }
-      else {
-        holder.adjustCount(e.getValue());
-      }
-    }
-  }
-
-  @Override
   public void endWindow()
   {
-    Iterator<Map.Entry<Object, WindowedHolder>> iterator = objects.entrySet().iterator();
+    Iterator<Map.Entry<T, WindowedHolder>> iterator = objects.entrySet().iterator();
     int i = topCount;
 
     /*
@@ -118,15 +115,14 @@ public class WindowedTopCounter<T> extends GenericNode implements Sink<HashMap<T
     /*
      * Emit our top URLs without caring for order.
      */
-
-    HashMap<Object, Integer> map = new HashMap<Object, Integer>();
-    Iterator<WindowedHolder> iterator1 = topCounter.iterator();
+    HashMap<T, Integer> map = new HashMap<T, Integer>();
+    Iterator<WindowedHolder<T>> iterator1 = topCounter.iterator();
     while (iterator1.hasNext()) {
-      final WindowedHolder wh = iterator1.next();
+      final WindowedHolder<T> wh = iterator1.next();
       map.put(wh.identifier, wh.totalCount);
     }
 
-    emit(Component.OUTPUT, map);
+    output.emit(map);
   }
 
   @Override
@@ -134,5 +130,10 @@ public class WindowedTopCounter<T> extends GenericNode implements Sink<HashMap<T
   {
     topCounter = null;
     objects = null;
+  }
+
+  public void setTopCount(int i)
+  {
+    topCount = i;
   }
 }

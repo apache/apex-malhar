@@ -4,51 +4,47 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.GenericNode;
-import com.malhartech.dag.Component;
-import com.malhartech.api.Sink;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.DefaultOutputPort;
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 /**
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-@ModuleAnnotation(ports = {
-  @PortAnnotation( name = Component.INPUT, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation( name = Component.OUTPUT, type = PortAnnotation.PortType.OUTPUT)
-})
-public class UniqueCounter extends GenericNode implements Sink
+public class UniqueCounter<T> extends BaseOperator
 {
+  public final transient DefaultInputPort<T> input = new DefaultInputPort<T>(this)
+  {
+    @Override
+    public void process(T tuple)
+    {
+      Integer i = map.get(tuple);
+      if (i == null) {
+        map.put(tuple, 1);
+      }
+      else {
+        map.put(tuple, i + 1);
+      }
+    }
+  };
+  public final transient DefaultOutputPort<HashMap<T, Integer>> output = new DefaultOutputPort<HashMap<T, Integer>>(this);
   /**
    * Bucket counting mechanism.
    * Since we clear the bucket at the beginning of the window, we make this object transient.
    */
-  transient HashMap<Object, Integer> map;
+  transient HashMap<T, Integer> map;
 
   @Override
   public void beginWindow()
   {
-    map = new HashMap<Object, Integer>();
+    map = new HashMap<T, Integer>();
   }
 
   @Override
   public void endWindow()
   {
-    emit(map);
-  }
-
-  @Override
-  public void process(Object payload)
-  {
-    Integer i = map.get(payload);
-    if (i == null) {
-      map.put(payload, 1);
-    }
-    else {
-      map.put(payload, i + 1);
-    }
+    output.emit(map);
   }
 }

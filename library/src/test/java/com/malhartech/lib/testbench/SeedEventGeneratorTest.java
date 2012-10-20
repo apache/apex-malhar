@@ -3,6 +3,7 @@
  */
 package com.malhartech.lib.testbench;
 
+import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.dag.*;
 import com.malhartech.stram.ManualScheduledExecutorService;
 import com.malhartech.dag.WindowGenerator;

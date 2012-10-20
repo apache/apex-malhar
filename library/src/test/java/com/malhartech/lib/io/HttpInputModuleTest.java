@@ -26,7 +26,7 @@ import org.mortbay.jetty.Request;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.AbstractHandler;
 
-import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.dag.OperatorContext;
 import com.malhartech.dag.TestSink;
 

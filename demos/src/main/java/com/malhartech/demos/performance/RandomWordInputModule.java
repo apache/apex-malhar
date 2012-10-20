@@ -4,6 +4,8 @@
  */
 package com.malhartech.demos.performance;
 
+import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.FailedOperationException;
 import com.malhartech.api.AsyncInputOperator;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.dag.*;

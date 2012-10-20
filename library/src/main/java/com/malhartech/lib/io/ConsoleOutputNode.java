@@ -4,11 +4,8 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.annotation.PortAnnotation.PortType;
-import com.malhartech.dag.GenericNode;
-import com.malhartech.api.Sink;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultInputPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,12 +17,27 @@ import org.slf4j.LoggerFactory;
  * <br>
  *
  */
-@ModuleAnnotation(ports = {
-  @PortAnnotation(name = ConsoleOutputModule.INPUT, type = PortType.INPUT)
-})
-public class ConsoleOutputModule extends GenericNode implements Sink
+public class ConsoleOutputModule<T> extends BaseOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(ConsoleOutputModule.class);
+  public final transient DefaultInputPort<T> input = new DefaultInputPort<T>(this)
+  {
+    @Override
+    public void process(T t)
+    {
+      String s;
+      if (stringFormat == null) {
+        s = t.toString();
+      }
+      else {
+        s = String.format(stringFormat, t);
+      }
+      System.out.println(s);
+      if (debug) {
+        LOG.info(s);
+      }
+    }
+  };
   /**
    * When set to true, tuples are also logged at INFO level.
    */
@@ -55,21 +67,5 @@ public class ConsoleOutputModule extends GenericNode implements Sink
   public void setStringFormat(String stringFormat)
   {
     this.stringFormat = stringFormat;
-  }
-
-  /**
-   *
-   * @param t the value of t
-   */
-  @Override
-  public void process(Object t)
-  {
-    if (stringFormat != null) {
-      t = String.format(stringFormat, t);
-    }
-    System.out.println(t);
-    if (debug) {
-      LOG.info("" + t);
-    }
   }
 }

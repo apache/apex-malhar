@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import java.util.HashMap;

@@ -4,8 +4,8 @@
 package com.malhartech.lib.io;
 
 import com.malhartech.dag.AsyncInputNode;
-import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.api.FailedOperationException;
+import com.malhartech.api.OperatorConfiguration;
 import javax.jms.*;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.slf4j.Logger;

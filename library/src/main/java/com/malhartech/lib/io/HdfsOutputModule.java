@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.io;
 
+import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.FailedOperationException;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.dag.*;

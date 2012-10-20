@@ -4,7 +4,7 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.dag.OperatorConfiguration;
+import com.malhartech.api.OperatorConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import junit.framework.Assert;
