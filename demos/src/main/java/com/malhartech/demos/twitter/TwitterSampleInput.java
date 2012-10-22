@@ -8,7 +8,7 @@ import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.Operator;
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.dag.OperatorContext;
+import com.malhartech.api.Context;
 import com.malhartech.util.CircularBuffer;
 import java.util.Properties;
 import org.slf4j.Logger;
@@ -118,7 +118,7 @@ public abstract class TwitterSampleInput implements Operator, StatusListener
   }
 
   @Override
-  public void activated(OperatorContext context)
+  public void activated(Context context)
   {
     ts.addListener(this);
     // we can only listen to tweets containing links by callng ts.links().

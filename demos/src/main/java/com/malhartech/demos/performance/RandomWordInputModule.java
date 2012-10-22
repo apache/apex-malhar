@@ -5,9 +5,9 @@
 package com.malhartech.demos.performance;
 
 import com.malhartech.api.AsyncInputOperator;
+import com.malhartech.api.Context;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.dag.OperatorContext;
 
 /**
  *
@@ -54,7 +54,7 @@ public class RandomWordInputModule implements AsyncInputOperator
   }
 
   @Override
-  public void activated(OperatorContext context)
+  public void activated(Context context)
   {
   }
 
