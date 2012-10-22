@@ -3,7 +3,6 @@ package com.malhartech.demos.performance;
 /*
  * To change this template, choose Tools | Templates and open the template in the editor.
  */
-import com.malhartech.api.FailedOperationException;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.Operator;
 import com.malhartech.api.OperatorConfiguration;
@@ -53,7 +52,7 @@ public class WordCountModule<T> implements Operator
   }
 
   @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config)
   {
     counts = new ArrayList<Integer>();
   }

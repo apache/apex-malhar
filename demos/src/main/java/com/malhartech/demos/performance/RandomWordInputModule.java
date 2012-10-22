@@ -6,7 +6,6 @@ package com.malhartech.demos.performance;
 
 import com.malhartech.api.AsyncInputOperator;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.FailedOperationException;
 import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.dag.OperatorContext;
 
@@ -50,7 +49,7 @@ public class RandomWordInputModule implements AsyncInputOperator
   }
 
   @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config)
   {
   }
 

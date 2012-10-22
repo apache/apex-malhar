@@ -8,7 +8,7 @@ import com.malhartech.api.DefaultInputPort;
 
 /**
  * Merges ten streams with identical schema and emits tuples on to the output port in order.<br>
- * The aim is to simply merge two streams of same schema type<p>
+ * The aim is to simply getUnifier two streams of same schema type<p>
  * <br>
  * <br>
  * Benchmarks: This node has been benchmarked at over 18 million tuples/second in local/inline mode<br>

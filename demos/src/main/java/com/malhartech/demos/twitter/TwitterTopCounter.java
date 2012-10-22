@@ -53,6 +53,7 @@ public class TwitterTopCounter extends DAG
     /*
      * Setup the operator to get the data from twitter sample stream injected into the system.
      */
+    logger.info("Creating {}synchronous instance of TwitterSampleInput", sync? "": "a");
     TwitterSampleInput oper = addOperator(name, sync? TwitterSyncSampleInput.class: TwitterAsyncSampleInput.class);
     oper.setTwitterProperties(properties);
     oper.setFeedMultiplier(multby);

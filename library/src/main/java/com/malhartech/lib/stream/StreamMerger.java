@@ -10,9 +10,9 @@ import com.malhartech.api.DefaultOutputPort;
 
 /**
  * Merges two streams with identical schema and emits the tuples to the output port in order<br>
- * The aim is to simply merge two streams of same schema type<p>
+ * The aim is to simply getUnifier two streams of same schema type<p>
  * <br>
- * This module may not be needed once dynamic merge is supported by Stram
+ * This module may not be needed once dynamic getUnifier is supported by Stram
  * <br>
  * Benchmarks: This node has been benchmarked at over 18 million tuples/second in local/inline mode<br>
  *
