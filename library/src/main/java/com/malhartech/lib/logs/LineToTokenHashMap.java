@@ -4,10 +4,9 @@
  */
 package com.malhartech.lib.logs;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.GenericNode;
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.DefaultOutputPort;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.slf4j.Logger;
@@ -16,7 +15,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  * Takes in one stream via input port "data". The tuples are String objects and are split into tokens. A HashMap of all tokens are emitted on output port "tokens"<p>
- *  This module is a pass through<br>
+ * This module is a pass through<br>
  * <br>
  * Ports:<br>
  * <b>data</b>: Input port, expects String<br>
@@ -37,112 +36,69 @@ import org.slf4j.LoggerFactory;
  *
  * @author amol
  */
-
-
-@ModuleAnnotation(
-        ports = {
-  @PortAnnotation(name = LineToTokenHashMap.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = LineToTokenHashMap.OPORT_TOKENS, type = PortAnnotation.PortType.OUTPUT)
-})
-public class LineToTokenHashMap extends GenericNode
+public class LineToTokenHashMap extends BaseOperator
 {
-  public static final String IPORT_DATA = "data";
-  public static final String OPORT_TOKENS = "tokens";
-  private static Logger LOG = LoggerFactory.getLogger(LineToTokenHashMap.class);
-
-  String splitby_default = new String(";\t ");
-  String splittokenby_default = new String();
-  String splitby = null;
-  String splittokenby = null;
-  boolean dosplittoken = false; // !splittokenby_default.isEmpty();
-
-  /**
-   * Tokens are split by this string
-   *
-   */
-  public static final String KEY_SPLITBY = "splitby";
-
-  /**
-   * The value to compare with
-   *
-   */
-  public static final String KEY_SPLITTOKENBY = "splittokenby";
-
-
-  public boolean addToken(String t) {
-    return !t.isEmpty();
-  }
-
-
-  /**
-   * Process each tuple
-   *
-   * @param payload
-   */
-  @Override
-  public void process(Object payload)
+  public final transient DefaultInputPort<String> data = new DefaultInputPort<String>(this)
   {
-    String line = (String) payload;
-    if (!line.isEmpty()) {
-      // emit error token?
-      return;
-    }
-    String[] tokens = line.split(splitby);
-    HashMap<String, Object> tuple = new HashMap<String, Object>();
-    for (String t : tokens) {
-      if (addToken(t)) {
-        if (dosplittoken) {
+    @Override
+    public void process(String tuple)
+    {
+      if (tuple.isEmpty()) {
+        return;
+      }
+
+      String[] tkns = tuple.split(splitby);
+      HashMap<String, ArrayList<String>> otuple = new HashMap<String, ArrayList<String>>();
+      for (String t: tkns) {
+        if (!addToken(t)) {
+          continue;
+        }
+        if (!splittokenby.isEmpty()) {
           String[] vals = t.split(splittokenby);
-          if (vals.length != 0) {
-            String key = vals[0];
-            if (vals.length == 1) {
-              tuple.put(t, null);
-            }
-            else if (vals.length == 2) {
-             tuple.put(vals[0], vals[1]);
-            }
-            else { // For now do ArrayList
-              ArrayList list = new ArrayList(vals.length);
-              for (int i = 1; i < vals.length; i++) {
-                list.add(vals[i]);
-              }
-              tuple.put(vals[0], list);
-            }
+          if (vals.length == 0) {
+            continue;
           }
+          String key = vals[0];
+          if (!addToken(key)) {
+            continue;
+          }
+          if (vals.length == 1) {
+            otuple.put(key, null);
+          }
+          else {
+            ArrayList<String> list = new ArrayList<String>(vals.length);
+            for (int i = 1; i < vals.length; i++) {
+              list.add(vals[i]);
+            }
+            otuple.put(vals[0], list);
+          }
+
         }
         else {
-          tuple.put(t, null);
+          otuple.put(t, null);
         }
       }
-      // should emit error in else clause?
+      if (!otuple.isEmpty()) {
+        tokens.emit(otuple);
+      }
     }
-    if (!tuple.isEmpty()) {
-      emit(tuple);
-    }
-    // should emit error if tuple is empty?
+  };
+  public final transient DefaultOutputPort<HashMap<String, ArrayList<String>>> tokens = new DefaultOutputPort<HashMap<String, ArrayList<String>>>(this);
+  String splitby = ";\t ";
+  String splittokenby = "";
+
+  public void setSplitby(String str)
+  {
+    splitby = str;
   }
 
-
-  public boolean myValidation(OperatorConfiguration config)
+  public void setSplittokenby(String str)
   {
-    boolean ret = true;
-    return ret;
+    splittokenby = str;
   }
-   /**
-   *
-   * @param config
-   */
-  @Override
-  public void setup(OperatorConfiguration config)
+
+  public boolean addToken(String t)
   {
-    if (!myValidation(config)) {
-      throw new RuntimeException("validation failed");
-    }
-
-    splitby = config.get(KEY_SPLITBY, splitby_default);
-    splittokenby = config.get(KEY_SPLITTOKENBY, splittokenby_default);
-    dosplittoken = !splittokenby.isEmpty();
-
-    LOG.debug(String.format("Set up: split by is \"%s\", splittokenby is \"%s\"", splitby, splittokenby));
+    return !t.isEmpty();
   }
 }
