@@ -7,7 +7,6 @@ package com.malhartech.lib.logs;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.dag.GenericNode;
-import com.malhartech.api.FailedOperationException;
 import com.malhartech.api.OperatorConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,7 +71,7 @@ public class FilteredLineToTokenHashMap extends LineToTokenHashMap
    * @param config
    */
   @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config)
   {
     super.setup(config);
 

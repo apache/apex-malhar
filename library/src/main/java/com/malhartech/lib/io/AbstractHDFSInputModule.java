@@ -9,7 +9,6 @@ import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
 import com.malhartech.bufferserver.Buffer;
 import com.malhartech.dag.AsyncInputNode;
-import com.malhartech.api.FailedOperationException;
 import com.malhartech.api.Operator;
 import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.dag.Tuple;
@@ -60,7 +59,7 @@ public abstract class AbstractHDFSInputModule extends AsyncInputNode implements 
    * @param config
    */
   @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config)
   {
     try {
       FileSystem fs = FileSystem.get(config);
@@ -69,7 +68,7 @@ public abstract class AbstractHDFSInputModule extends AsyncInputNode implements 
     }
     catch (IOException ex) {
       logger.error(ex.getLocalizedMessage());
-      throw new FailedOperationException(ex);
+      throw new RuntimeException(ex);
     }
   }
 

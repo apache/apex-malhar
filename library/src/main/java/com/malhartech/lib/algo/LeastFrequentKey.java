@@ -7,7 +7,6 @@ package com.malhartech.lib.algo;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.dag.GenericNode;
-import com.malhartech.api.FailedOperationException;
 import com.malhartech.api.OperatorConfiguration;
 import java.util.HashMap;
 import java.util.Map;
@@ -107,10 +106,10 @@ public class LeastFrequentKey extends GenericNode
    * @param config
    */
   @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config)
   {
     if (!myValidation(config)) {
-      throw new FailedOperationException("validation failed");
+      throw new RuntimeException("validation failed");
     }
     keylocation = new HashMap<String, Integer>();
     count = new int[default_count_size];

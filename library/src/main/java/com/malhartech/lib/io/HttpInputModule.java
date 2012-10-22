@@ -30,7 +30,6 @@ import com.malhartech.annotation.PortAnnotation.PortType;
 import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.dag.SyncInputNode;
 import com.malhartech.dag.Component;
-import com.malhartech.api.FailedOperationException;
 import com.malhartech.api.OperatorConfiguration;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -70,13 +69,13 @@ public class HttpInputModule extends SyncInputNode
   private transient int readTimeoutMillis = 0;
 
   @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config)
   {
     try {
       checkConfiguration(config);
     }
     catch (Exception ex) {
-      throw new FailedOperationException(ex);
+      throw new RuntimeException(ex);
     }
 
     wsClient = Client.create();

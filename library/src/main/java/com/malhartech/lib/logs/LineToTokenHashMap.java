@@ -7,7 +7,6 @@ package com.malhartech.lib.logs;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.dag.GenericNode;
-import com.malhartech.api.FailedOperationException;
 import com.malhartech.api.OperatorConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -134,10 +133,10 @@ public class LineToTokenHashMap extends GenericNode
    * @param config
    */
   @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config)
   {
     if (!myValidation(config)) {
-      throw new FailedOperationException("validation failed");
+      throw new RuntimeException("validation failed");
     }
 
     splitby = config.get(KEY_SPLITBY, splitby_default);

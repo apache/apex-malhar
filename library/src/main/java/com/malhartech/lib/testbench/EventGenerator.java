@@ -9,7 +9,6 @@ import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.api.AsyncInputOperator;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.dag.AsyncInputNode;
-import com.malhartech.api.FailedOperationException;
 import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.OperatorContext;
@@ -189,10 +188,10 @@ public class EventGenerator implements AsyncInputOperator
    * @param config
    */
   @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config)
   {
     if (!myValidation(config)) {
-      throw new FailedOperationException("Did not pass validation");
+      throw new RuntimeException("Did not pass validation");
     }
 
     maxCountOfWindows = config.getInt(MAX_WINDOWS_COUNT, Integer.MAX_VALUE);

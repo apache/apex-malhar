@@ -6,9 +6,8 @@ package com.malhartech.lib.testbench;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AsyncInputNode;
-import com.malhartech.api.FailedOperationException;
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.dag.AbstractInputModule;
+import com.malhartech.dag.ModuleConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -292,10 +291,10 @@ public class LoadSeedGenerator extends AsyncInputNode
    * @param config
    */
   @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
+  public void setup(ModuleConfiguration config)
   {
     if (!myValidation(config)) {
-      throw new FailedOperationException("validation failed");
+      throw new RuntimeException("validation failed");
     }
 
     isstringschema = config.getBoolean(KEY_STRING_SCHEMA, false);

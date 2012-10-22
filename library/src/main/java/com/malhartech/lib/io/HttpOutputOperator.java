@@ -7,7 +7,6 @@ package com.malhartech.lib.io;
 import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.FailedOperationException;
 import com.malhartech.api.OperatorConfiguration;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
@@ -70,7 +69,7 @@ public class HttpOutputOperator<T> extends BaseOperator
   }
 
   @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config)
   {
     wsClient = Client.create();
     wsClient.setFollowRedirects(true);

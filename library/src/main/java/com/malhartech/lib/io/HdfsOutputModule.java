@@ -5,7 +5,6 @@
 package com.malhartech.lib.io;
 
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.api.FailedOperationException;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.dag.*;
@@ -118,7 +117,7 @@ public class HdfsOutputModule extends GenericNode implements Sink
    * @param config
    */
   @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config)
   {
     try {
       filePathTemplate = config.get(KEY_FILEPATH);
@@ -142,7 +141,7 @@ public class HdfsOutputModule extends GenericNode implements Sink
 
     }
     catch (IOException ex) {
-      throw new FailedOperationException(ex);
+      throw new RuntimeException(ex);
     }
   }
 

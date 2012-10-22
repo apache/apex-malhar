@@ -6,7 +6,6 @@ package com.malhartech.lib.stream;
 
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.FailedOperationException;
 import com.malhartech.api.OperatorConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +67,7 @@ public class DevNullCounter<T> extends BaseOperator
    * @param config
    */
   @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config)
   {
     windowStartTime = 0;
     if (rollingwindowcount != 1) { // Initialized the tuple_numbers

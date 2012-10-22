@@ -45,7 +45,7 @@ public class WindowedTopCounter<T> extends BaseOperator
   private HashMap<T, WindowedHolder> objects;
 
   @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config)
   {
     topCount = config.getInt("topCount", topCount);
     topCounter = new PriorityQueue<WindowedHolder<T>>(this.topCount, new TopSpotComparator());

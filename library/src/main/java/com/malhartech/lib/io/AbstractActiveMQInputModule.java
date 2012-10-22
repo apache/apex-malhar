@@ -4,7 +4,6 @@
 package com.malhartech.lib.io;
 
 import com.malhartech.dag.AsyncInputNode;
-import com.malhartech.api.FailedOperationException;
 import com.malhartech.api.OperatorConfiguration;
 import javax.jms.*;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -34,7 +33,7 @@ public abstract class AbstractActiveMQInputModule extends AsyncInputNode impleme
   private MessageProducer replyProducer;
 
   @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config)
   {
     super.setup(config);
     try {
@@ -42,7 +41,7 @@ public abstract class AbstractActiveMQInputModule extends AsyncInputNode impleme
     }
     catch (JMSException ex) {
       logger.debug(ex.getLocalizedMessage());
-      throw new FailedOperationException(ex);
+      throw new RuntimeException(ex);
     }
 
     maxiumMessages = config.getInt("maximumMessages", 0);

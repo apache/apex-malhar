@@ -6,9 +6,8 @@ package com.malhartech.lib.testbench;
 
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AsyncInputNode;
-import com.malhartech.api.FailedOperationException;
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.dag.AbstractInputModule;
+import com.malhartech.dag.ModuleConfiguration;
 import java.util.HashMap;
 import java.util.Random;
 import org.slf4j.Logger;
@@ -153,7 +152,7 @@ public class LoadRandomGenerator extends AsyncInputNode
    * @param config
    */
   @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
+  public void setup(ModuleConfiguration config)
   {
     if (!myValidation(config)) {
       throw new IllegalArgumentException("Did not pass validation");

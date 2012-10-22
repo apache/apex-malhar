@@ -7,7 +7,6 @@ package com.malhartech.lib.algo;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.FailedOperationException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -223,7 +222,7 @@ public class InvertIndexUniqueMap extends BaseOperator
       }
     }
     catch (JSONException e) {
-      throw new FailedOperationException(e);
+      throw new RuntimeException(e);
     }
   }
 

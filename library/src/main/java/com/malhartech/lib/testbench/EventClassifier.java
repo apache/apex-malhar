@@ -7,7 +7,6 @@ package com.malhartech.lib.testbench;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.dag.GenericNode;
-import com.malhartech.api.FailedOperationException;
 import com.malhartech.api.OperatorConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -221,10 +220,10 @@ public class EventClassifier extends GenericNode
    * @param config
    */
   @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config)
   {
     if (!myValidation(config)) {
-      throw new FailedOperationException("Did not pass validation");
+      throw new RuntimeException("Did not pass validation");
     }
 
     // example format for iwstr is "home:60,10,35;finance:10,75,15;sports:20,10,70;mail:50,15,35"

@@ -6,7 +6,6 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.FailedOperationException;
 import com.malhartech.api.OperatorConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -207,7 +206,7 @@ public class InvertIndexMap<K,V> extends BaseOperator
         }
       }
     } catch (JSONException e) {
-      throw new FailedOperationException(e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -216,7 +215,7 @@ public class InvertIndexMap<K,V> extends BaseOperator
    * @param config
    */
   @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config)
   {
 
     index = new HashMap<String, HashMap<String, Object>>();

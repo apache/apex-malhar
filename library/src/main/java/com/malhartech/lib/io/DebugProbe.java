@@ -5,7 +5,6 @@
 package com.malhartech.lib.io;
 
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.api.FailedOperationException;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.annotation.PortAnnotation.PortType;
@@ -52,10 +51,9 @@ public class DebugProbe extends GenericNode implements Sink
   /**
    *
    * @param config
-   * @throws FailedOperationException
    */
   @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config)
   {
     tostring = config.getBoolean(KEY_TOSTRING, false);
     super.setup(config);

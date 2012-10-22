@@ -7,7 +7,6 @@ package com.malhartech.lib.algo;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.FailedOperationException;
 import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.lib.util.MutableInteger;
 import java.util.HashMap;
@@ -70,7 +69,7 @@ public class OrderByValue<K, V> extends BaseOperator
   }
 
   @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config)
   {
     initializePriorityQueue();
   }
