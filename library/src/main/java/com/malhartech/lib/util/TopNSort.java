@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.util;
 
+import com.google.common.collect.MinMaxPriorityQueue;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ public class TopNSort<E>
   int qbound = Integer.MAX_VALUE;
   boolean ascending = true;
 
+  //MinMaxPriorityQueue<E> mq = null;
   PriorityQueue<E> q = null;
 
   public TopNSort(int initialCapacity, int bound, boolean flag)
@@ -33,7 +35,9 @@ public class TopNSort<E>
     ascending = flag;
     // Ascending use of pqueue needs a descending comparator
     q = new PriorityQueue<E>(initialCapacity, new ReversibleComparator<E>(!flag));
-    qbound = bound;
+    //MinMaxPriorityQueue.Builder<Number> builder = new MinMaxPriorityQueue.Builder<Number>(new Comparator<Number>());
+
+
   }
 
   public boolean add(E e)

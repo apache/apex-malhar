@@ -4,11 +4,9 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.GenericNode;
-import com.malhartech.api.FailedOperationException;
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.DefaultOutputPort;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -23,8 +21,8 @@ import org.slf4j.LoggerFactory;
  * and no history is kept of previous windows<br>
  * <br>
  * <b>Ports</b>
- * <b>data</b>: Input data port expects HashMap<String, Object>
- * <b>distinct</b>: Output data port, emits HashMap<String, Object>(1)
+ * <b>data</b>: Input data port expects HashMap<K,V>
+ * <b>distinct</b>: Output data port, emits HashMap<K,V>(1)
  * <b>Properties</b>:
  * None
  * <b>Benchmarks></b>: TBD<br>
@@ -38,70 +36,35 @@ import org.slf4j.LoggerFactory;
  * @author amol<br>
  *
  */
-@ModuleAnnotation(
-        ports = {
-  @PortAnnotation(name = Distinct.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = Distinct.OPORT_DISTINCT, type = PortAnnotation.PortType.OUTPUT)
-})
-public class Distinct extends GenericNode
+
+public class Distinct<K,V> extends BaseOperator
 {
-  private static Logger LOG = LoggerFactory.getLogger(Distinct.class);
-  public static final String IPORT_DATA = "data";
-  public static final String OPORT_DISTINCT = "distinct";
-
-  HashMap<Object, HashMap<Object, Object>> mapkeyval = null;
-
+  public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>(this)
+  {
+    @Override
+    public void process(HashMap<K,V> tuple)
+    {
+      for (Map.Entry<K,V> e: tuple.entrySet()) {
+        HashMap<V, Object> vals = mapkeyval.get(e.getKey());
+        if ((vals == null) || !vals.containsKey(e.getValue())) {
+          HashMap<K,V> otuple = new HashMap<K,V>(1);
+          otuple.put(e.getKey(), e.getValue());
+          distinct.emit(otuple);
+          if (vals == null) {
+            vals = new HashMap<V, Object>();
+            mapkeyval.put(e.getKey(), vals);
+          }
+          vals.put(e.getValue(), null);
+        }
+      }
+    }
+  };
+  public final transient DefaultOutputPort<HashMap<K,V>> distinct = new DefaultOutputPort<HashMap<K,V>>(this);
+  HashMap<K, HashMap<V, Object>> mapkeyval = new HashMap<K, HashMap<V, Object>>();
 
   @Override
   public void beginWindow()
   {
     mapkeyval.clear();
-  }
-
-  /**
-   *
-   * Takes in a key and an arrayIndex. ReverseIndexes the strings in the ArrayIndex
-   *
-   * @param payload
-   */
-  @Override
-  public void process(Object payload)
-  {
-    for (Map.Entry<String, Object> e: ((HashMap<String, Object>) payload).entrySet()) {
-      HashMap<Object, Object> vals =mapkeyval.get(e.getKey());
-      if ((vals == null) || !vals.containsKey(e.getValue())) {
-        HashMap<String, Object>tuple = new HashMap<String, Object>(1);
-        tuple.put(e.getKey(), e.getValue());
-        emit(tuple);
-        if (vals == null) {
-          vals = new HashMap<Object, Object>();
-          mapkeyval.put(e.getKey(), vals);
-        }
-        vals.put(e.getValue(), null);
-      }
-    }
-  }
-
-  /**
-   *
-   * @param config
-   * @return boolean
-   */
-  public boolean myValidation(OperatorConfiguration config)
-  {
-    return true;
-  }
-
-  /**
-   *
-   * @param config
-   */
-  @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
-  {
-    if (!myValidation(config)) {
-      throw new FailedOperationException("Did not pass validation");
-    }
-    mapkeyval = new HashMap<Object, HashMap<Object, Object>>();
   }
 }

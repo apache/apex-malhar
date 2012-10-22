@@ -16,7 +16,7 @@ import java.util.HashMap;
  * This module is a pass through as it emits the moment the condition is met<br>
  * <br>
  * Ports:<br>
- * <b>data</b>: Input port, expects HashMap<K,V extends Number><br>
+ * <b>data</b>: Input port, expects HashMap<K,String><br>
  * <b>any</b>: Output port, emits Boolean<br>
  * <br>
  * Properties:<br>
@@ -36,28 +36,35 @@ import java.util.HashMap;
  *
  * @author amol
  */
-public class MatchAny<K, V extends Number> extends BaseMatchOperator<K>
+public class MatchAnyString<K, String> extends BaseMatchOperator<K>
 {
-  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
+  public final transient DefaultInputPort<HashMap<K, String>> data = new DefaultInputPort<HashMap<K, String>>(this)
   {
     @Override
-    public void process(HashMap<K, V> tuple)
+    public void process(HashMap<K, String> tuple)
     {
       if (result) {
         return;
       }
-      V val = tuple.get(key);
+      String val = tuple.get(key);
       if (val == null) { // skip if key does not exist
         return;
       }
-      double tvalue = val.doubleValue();
-      if (((type == supported_type.LT) && (tvalue < value))
+      double tvalue = 0;
+      boolean errortuple = false;
+      try {
+        tvalue = Double.parseDouble(val.toString());
+      }
+      catch (NumberFormatException e) {
+        errortuple = true;
+      }
+      result = !errortuple && (((type == supported_type.LT) && (tvalue < value))
               || ((type == supported_type.LTE) && (tvalue <= value))
               || ((type == supported_type.EQ) && (tvalue == value))
               || ((type == supported_type.NEQ) && (tvalue != value))
               || ((type == supported_type.GT) && (tvalue > value))
-              || ((type == supported_type.GTE) && (tvalue >= value))) {
-        result = true;
+              || ((type == supported_type.GTE) && (tvalue >= value)));
+      if (result) {
         any.emit(true);
       }
     }

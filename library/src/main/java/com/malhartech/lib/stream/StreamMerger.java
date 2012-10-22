@@ -4,13 +4,9 @@
  */
 package com.malhartech.lib.stream;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.GenericNode;
-import com.malhartech.api.FailedOperationException;
-import com.malhartech.api.OperatorConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.DefaultOutputPort;
 
 /**
  * Merges two streams with identical schema and emits the tuples to the output port in order<br>
@@ -22,9 +18,9 @@ import org.slf4j.LoggerFactory;
  *
  * <b>Tuple Schema</b>: All tuples were treated as Object
  * <b>Port Interface</b><br>
- * <b>out_data</b>: Output port for emitting tuples<br>
- * <b>in_data1</b>: Input port for receiving the first stream of incoming tuple<br>
- * <b>in_data2</b>: Input port for receiving the second stream of incoming tuple<br>
+ * <b>out</b>: Output port for emitting tuples<br>
+ * <b>data1</b>: Input port for receiving the first stream of incoming tuple<br>
+ * <b>data2</b>: Input port for receiving the second stream of incoming tuple<br>
  * <br>
  * <b>Properties</b>:
  * None
@@ -35,70 +31,44 @@ import org.slf4j.LoggerFactory;
  *
  * @author amol
  */
-@ModuleAnnotation(
-        ports = {
-  @PortAnnotation(name = StreamMerger.IPORT_IN_DATA1, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = StreamMerger.IPORT_IN_DATA2, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = StreamMerger.OPORT_OUT_DATA, type = PortAnnotation.PortType.OUTPUT)
-})
-public class StreamMerger extends GenericNode
+public class StreamMerger<K> extends BaseOperator
 {
-  public static final String IPORT_IN_DATA1 = "in_data1";
-  public static final String IPORT_IN_DATA2 = "in_data2";
-  public static final String OPORT_OUT_DATA = "out_data";
-  private static Logger LOG = LoggerFactory.getLogger(StreamMerger.class);
+  public final transient DefaultInputPort<K> data1 = new DefaultInputPort<K>(this)
+  {
+    @Override
+    public void process(K tuple)
+    {
+      out.emit(tuple);
+    }
+  };
+  public final transient DefaultInputPort<K> data2 = new DefaultInputPort<K>(this)
+  {
+    @Override
+    public void process(K tuple)
+    {
+      out.emit(tuple);
+    }
+  };
+  public final transient DefaultOutputPort<K> out = new DefaultOutputPort<K>(this);
 
-  final static int num_iport = 2;
   /**
    * Allows usage of StreamMerger in a automated way
    *
    * @param i port index
    * @return returns the proper input port name
    */
-
-  static public String getInputName(int i) {
+  static public String getInputName(int i)
+  {
     String ret = "illegal_portnumber";
-    if ((i != 0) && (i <= num_iport)) {
-      ret = "in_data";
+    if ((i != 0) && (i <= getNumberOfInputPorts())) {
+      ret = "data";
       ret += Integer.toString(i);
     }
     return ret;
   }
 
-  public int getNumInputPorts(){
-    return num_iport;
-  }
-
-  /**
-   * Code to be moved to a proper base method name
-   *
-   * @param config
-   * @return boolean
-   */
-  public boolean myValidation(OperatorConfiguration config)  {
-    return true;
-  }
-
-
-  /**
-   * Sets up all the config parameters. Assumes checking is done and has passed
-   *
-   * @param config
-   */
-  @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException {
-    if (!myValidation(config)) {
-      throw new FailedOperationException("Did not pass validation");
-    }
-  }
-
-  /**
-   * Process each tuple
-   *
-   * @param payload
-   */
-  @Override
-  public void process(Object payload) {
-    emit(OPORT_OUT_DATA, payload);
+  static public int getNumberOfInputPorts()
+  {
+    return 2;
   }
 }

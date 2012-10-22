@@ -2,16 +2,9 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-
 package com.malhartech.lib.stream;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.GenericNode;
-import com.malhartech.api.FailedOperationException;
-import com.malhartech.api.OperatorConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.malhartech.api.DefaultInputPort;
 
 /**
  * Merges ten streams with identical schema and emits tuples on to the output port in order.<br>
@@ -22,17 +15,17 @@ import org.slf4j.LoggerFactory;
  *
  * <b>Tuple Schema</b>: All tuples were treated as Object
  * <b>Port Interface</b><br>
- * <b>out_data</b>: Output port for emitting tuples<br>
- * <b>in_data1</b>: Input port for receiving the 1st stream of incoming tuple<br>
- * <b>in_data2</b>: Input port for receiving the 2nd stream of incoming tuple<br>
- * <b>in_data3</b>: Input port for receiving the 3rd stream of incoming tuple<br>
- * <b>in_data4</b>: Input port for receiving the 4th stream of incoming tuple<br>
- * <b>in_data5</b>: Input port for receiving the 5th stream of incoming tuple<br>
- * <b>in_data6</b>: Input port for receiving the 6th stream of incoming tuple<br>
- * <b>in_data7</b>: Input port for receiving the 7th stream of incoming tuple<br>
- * <b>in_data8</b>: Input port for receiving the 8th stream of incoming tuple<br>
- * <b>in_data9</b>: Input port for receiving the 9th stream of incoming tuple<br>
- * <b>in_data10</b>: Input port for receiving the 10th stream of incoming tuple<br>
+ * <b>out</b>: Output port for emitting tuples<br>
+ * <b>data1</b>: Input port for receiving the 1st stream of incoming tuple<br>
+ * <b>data2</b>: Input port for receiving the 2nd stream of incoming tuple<br>
+ * <b>data3</b>: Input port for receiving the 3rd stream of incoming tuple<br>
+ * <b>data4</b>: Input port for receiving the 4th stream of incoming tuple<br>
+ * <b>data5</b>: Input port for receiving the 5th stream of incoming tuple<br>
+ * <b>data6</b>: Input port for receiving the 6th stream of incoming tuple<br>
+ * <b>data7</b>: Input port for receiving the 7th stream of incoming tuple<br>
+ * <b>data8</b>: Input port for receiving the 8th stream of incoming tuple<br>
+ * <b>data9</b>: Input port for receiving the 9th stream of incoming tuple<br>
+ * <b>data10</b>: Input port for receiving the 10th stream of incoming tuple<br>
  * <br>
  * <b>Properties</b>:
  * None
@@ -43,88 +36,67 @@ import org.slf4j.LoggerFactory;
  *
  * @author amol
  */
-@ModuleAnnotation(
-        ports = {
-  @PortAnnotation(name = StreamMerger10.IPORT_IN_DATA1, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = StreamMerger10.IPORT_IN_DATA2, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = StreamMerger10.IPORT_IN_DATA3, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = StreamMerger10.IPORT_IN_DATA4, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = StreamMerger10.IPORT_IN_DATA5, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = StreamMerger10.IPORT_IN_DATA6, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = StreamMerger10.IPORT_IN_DATA7, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = StreamMerger10.IPORT_IN_DATA8, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = StreamMerger10.IPORT_IN_DATA9, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = StreamMerger10.IPORT_IN_DATA10, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = StreamMerger10.OPORT_OUT_DATA, type = PortAnnotation.PortType.OUTPUT)
-})
-public class StreamMerger10 extends GenericNode
+public class StreamMerger10<K> extends StreamMerger5<K>
 {
-  public static final String IPORT_IN_DATA1 = "in_data1";
-  public static final String IPORT_IN_DATA2 = "in_data2";
-  public static final String IPORT_IN_DATA3 = "in_data3";
-  public static final String IPORT_IN_DATA4 = "in_data4";
-  public static final String IPORT_IN_DATA5 = "in_data5";
-  public static final String IPORT_IN_DATA6 = "in_data5";
-  public static final String IPORT_IN_DATA7 = "in_data5";
-  public static final String IPORT_IN_DATA8 = "in_data5";
-  public static final String IPORT_IN_DATA9 = "in_data5";
-  public static final String IPORT_IN_DATA10 = "in_data5";
-  public static final String OPORT_OUT_DATA = "out_data";
-  private static Logger LOG = LoggerFactory.getLogger(StreamMerger10.class);
+  public final transient DefaultInputPort<K> data6 = new DefaultInputPort<K>(this)
+  {
+    @Override
+    public void process(K tuple)
+    {
+      out.emit(tuple);
+    }
+  };
+  public final transient DefaultInputPort<K> data7 = new DefaultInputPort<K>(this)
+  {
+    @Override
+    public void process(K tuple)
+    {
+      out.emit(tuple);
+    }
+  };
+  public final transient DefaultInputPort<K> data8 = new DefaultInputPort<K>(this)
+  {
+    @Override
+    public void process(K tuple)
+    {
+      out.emit(tuple);
+    }
+  };
+  public final transient DefaultInputPort<K> data9 = new DefaultInputPort<K>(this)
+  {
+    @Override
+    public void process(K tuple)
+    {
+      out.emit(tuple);
+    }
+  };
+  public final transient DefaultInputPort<K> data10 = new DefaultInputPort<K>(this)
+  {
+    @Override
+    public void process(K tuple)
+    {
+      out.emit(tuple);
+    }
+  };
 
-
-   final static int num_iport = 10;
   /**
    * Allows usage of StreamMerger in a automated way
    *
    * @param i port index
    * @return returns the proper input port name
    */
-
-  static public String getInputName(int i) {
+  static public String getInputName(int i)
+  {
     String ret = "illegal_portnumber";
-    if ((i != 0) && (i <= num_iport)) {
-      ret = "in_data";
+    if ((i != 0) && (i <= getNumberOfInputPorts())) {
+      ret = "data";
       ret += Integer.toString(i);
     }
     return ret;
   }
 
-  public int getNumInputPorts(){
-    return num_iport;
-  }
-
-
-  /**
-   * Code to be moved to a proper base method name
-   *
-   * @param config
-   * @return boolean
-   */
-  public boolean myValidation(OperatorConfiguration config)  {
-    return true;
-  }
-
-
-  /**
-   * Sets up all the config parameters. Assumes checking is done and has passed
-   *
-   * @param config
-   */
-  @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException {
-    if (!myValidation(config)) {
-      throw new FailedOperationException("Did not pass validation");
-    }
-  }
-
-  /**
-   * Process each tuple
-   *
-   * @param payload
-   */
-  @Override
-  public void process(Object payload) {
-    emit(OPORT_OUT_DATA, payload);
+  static public int getNumberOfInputPorts()
+  {
+    return 10;
   }
 }

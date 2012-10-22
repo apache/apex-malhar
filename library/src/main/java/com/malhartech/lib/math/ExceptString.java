@@ -6,6 +6,7 @@ package com.malhartech.lib.math;
 
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.algo.Match;
+import com.malhartech.lib.algo.MatchString;
 import java.util.HashMap;
 
 /**
@@ -41,15 +42,17 @@ import java.util.HashMap;
  *
  * @author amol
  */
-public class Except<K, V extends Number> extends Match<K, V>
+public class ExceptString<K,String> extends MatchString<K,String>
 {
-  public final transient DefaultOutputPort<HashMap<K, V>> except = new DefaultOutputPort<HashMap<K, V>>(this);
+  public final transient DefaultOutputPort<HashMap<K,String>> except = new DefaultOutputPort<HashMap<K,String>>(this);
 
-  public void tupleMatched(HashMap<K, V> tuple)
+  @Override
+  public void tupleMatched(HashMap<K,String> tuple)
   {
   }
 
-  public void tupleNotMatched(HashMap<K, V> tuple)
+  @Override
+  public void tupleNotMatched(HashMap<K,String> tuple)
   {
     except.emit(tuple);
   }

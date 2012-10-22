@@ -4,11 +4,9 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractModule;
-import com.malhartech.dag.FailedOperationException;
-import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.TopNSort;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,8 +21,8 @@ import org.slf4j.LoggerFactory;
  * At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
  * <br>
  * <b>Ports</b>
- * <b>data</b>: Input data port expects HashMap<String, Object> (<key, value><br>
- * <b>top</b>: Output data port, emits HashMap<String, ArrayList> (key, values><br>
+ * <b>data</b>: Input data port expects HashMap<StriK,V> (<key, value><br>
+ * <b>top</b>: Output data port, emits HashMap<K, ArrayList<V>> (<key, ArraList<values>>)<br>
  * <b>Properties</b>:
  * <b>N</b>: The number of top values to be emitted per key<br>
  * <br>
@@ -38,81 +36,33 @@ import org.slf4j.LoggerFactory;
  * @author amol<br>
  *
  */
-
-@ModuleAnnotation(
-        ports = {
-  @PortAnnotation(name = BottomN.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = BottomN.OPORT_TOP, type = PortAnnotation.PortType.OUTPUT)
-})
-public class BottomN<E> extends AbstractModule
+public class BottomN<K, V> extends BaseOperator
 {
-  public static final String IPORT_DATA = "data";
-  public static final String OPORT_TOP = "top";
-  private static Logger LOG = LoggerFactory.getLogger(BottomN.class);
+  public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>(this)
+  {
+    @Override
+    public void process(HashMap<K,V> tuple)
+    {
 
+      for (Map.Entry<K,V> e: tuple.entrySet()) {
+        TopNSort pqueue = kmap.get(e.getKey());
+        if (pqueue == null) {
+          pqueue = new TopNSort<V>(5, n, false);
+          kmap.put(e.getKey(), pqueue);
+        }
+        pqueue.offer(e.getValue());
+      }
+    }
+  };
+  public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> top = new DefaultOutputPort<HashMap<K, ArrayList<V>>>(this);
   final String default_n_str = "5";
   final int default_n_value = 5;
   int n = default_n_value;
-  HashMap<String, TopNSort<E>> kmap = null;
+  HashMap<K, TopNSort<V>> kmap = new HashMap<K, TopNSort<V>>();
 
-  /**
-   * Top N values per key are emitted
-   *
-   */
-  public static final String KEY_N = "n";
-
-  /**
-   *
-   * @param config
-   * @return boolean
-   */
-  public boolean myValidation(ModuleConfiguration config)
+  public void setN(int val)
   {
-    boolean ret = true;
-
-    String nstr = config.get(KEY_N, default_n_str);
-    try {
-      Integer.parseInt(nstr);
-    }
-    catch (NumberFormatException e) {
-      ret = false;
-      throw new IllegalArgumentException(String.format("N has to be an integer(%s)", nstr));
-    }
-    return ret;
-  }
-
-  /**
-   *
-   * @param config
-   */
-  @Override
-  public void setup(ModuleConfiguration config) throws FailedOperationException
-  {
-    super.setup(config);
-    if (!myValidation(config)) {
-      throw new FailedOperationException("Did not pass validation");
-    }
-    n = config.getInt(KEY_N, default_n_value);
-    kmap = new HashMap<String, TopNSort<E>>();
-  }
-
-    /**
-   *
-   * Takes in a key and an arrayIndex. ReverseIndexes the strings in the ArrayIndex
-   *
-   * @param payload
-   */
-  @Override
-  public void process(Object payload)
-  {
-    for (Map.Entry<String, E> e: ((HashMap<String, E>) payload).entrySet()) {
-      TopNSort pqueue = kmap.get(e.getKey());
-      if (pqueue == null) {
-        pqueue = new TopNSort<E>(5, n, false);
-        kmap.put(e.getKey(), pqueue);
-      }
-      pqueue.offer(e.getValue());
-    }
+    n = val;
   }
 
   @Override
@@ -124,10 +74,10 @@ public class BottomN<E> extends AbstractModule
   @Override
   public void endWindow()
   {
-    for (Map.Entry<String, TopNSort<E>> e: kmap.entrySet()) {
-      HashMap<String, ArrayList> tuple = new HashMap<String, ArrayList>(1);
+    for (Map.Entry<K, TopNSort<V>> e: kmap.entrySet()) {
+      HashMap<K, ArrayList<V>> tuple = new HashMap<K, ArrayList<V>>(1);
       tuple.put(e.getKey(), e.getValue().getTopN());
-      emit(tuple);
+      top.emit(tuple);
     }
   }
 }

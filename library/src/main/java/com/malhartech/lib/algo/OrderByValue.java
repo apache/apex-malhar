@@ -4,18 +4,15 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.GenericNode;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.FailedOperationException;
 import com.malhartech.api.OperatorConfiguration;
-import java.util.ArrayList;
+import com.malhartech.lib.util.MutableInteger;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.PriorityQueue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -36,27 +33,56 @@ import org.slf4j.LoggerFactory;
  * @author amol<br>
  *
  */
-@ModuleAnnotation(
-        ports = {
-  @PortAnnotation(name = OrderByValue.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = OrderByValue.OPORT_OUT_DATA, type = PortAnnotation.PortType.OUTPUT)
-})
-public class OrderByValue extends GenericNode
+public class OrderByValue<K, V> extends BaseOperator
 {
-  private static Logger LOG = LoggerFactory.getLogger(OrderByValue.class);
-  public static final String IPORT_DATA = "data";
-  public static final String OPORT_OUT_DATA = "out_data";
+  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
+  {
+    @Override
+    public void process(HashMap<K, V> tuple)
+    {
+      for (Map.Entry<K, V> e: tuple.entrySet()) {
+        HashMap<K, MutableInteger> istr = smap.get(e.getValue());
+        if (istr == null) { // not in priority queue
+          istr = new HashMap<K, MutableInteger>(4);
+          istr.put(e.getKey(), new MutableInteger(1));
+          smap.put(e.getValue(), istr);
+          pqueue.add(e.getValue());
+        }
+        else { // value is in the priority queue
+          MutableInteger scount = istr.get(e.getKey());
+          if (scount == null) { // this key does not exist
+            istr.put(e.getKey(), new MutableInteger(0));
+          }
+          scount.value++;
+        }
+      }
+    }
+  };
+  public final transient DefaultOutputPort<HashMap<K, V>> ordered_list = new DefaultOutputPort<HashMap<K, V>>(this);
+  public final transient DefaultOutputPort<HashMap<K, HashMap<V, Integer>>> ordered_count = new DefaultOutputPort<HashMap<K, HashMap<V, Integer>>>(this);
+  PriorityQueue<V> pqueue = new PriorityQueue<V>(5);
+  HashMap<V, HashMap<K, MutableInteger>> smap = new HashMap<V, HashMap<K, MutableInteger>>();
 
-  PriorityQueue<Integer> pqueue = null;
-  HashMap<Integer, HashMap<String, Integer>> smap = null;
 
+  public PriorityQueue<V> initializePriorityQueue()
+  {
+    return new PriorityQueue<V>(5);
+  }
 
+  @Override
+  public void setup(OperatorConfiguration config) throws FailedOperationException
+  {
+    initializePriorityQueue();
+  }
   /**
    * Cleanup at the start of window
    */
   @Override
   public void beginWindow()
   {
+    if (pqueue == null) {
+      initializePriorityQueue();
+    }
     pqueue.clear();
     smap.clear();
   }
@@ -67,75 +93,29 @@ public class OrderByValue extends GenericNode
   @Override
   public void endWindow()
   {
-    Integer ival;
+    V ival;
     while ((ival = pqueue.poll()) != null) {
-      HashMap<String, Integer> istr = smap.get(ival);
-      if (istr == null) { // Should always be not null
+      HashMap<K, MutableInteger> istr = smap.get(ival);
+      if (istr == null) { // Should never be null
         continue;
       }
-      for (Map.Entry<String, Integer> e: istr.entrySet()) {
-        int count = e.getValue().intValue();
-        for (int i = 0; i < count; i++) {
-          HashMap<String, Integer> tuple = new HashMap<String, Integer>(1);
-          tuple.put(e.getKey(), ival);
-          emit(tuple);
+      for (Map.Entry<K, MutableInteger> e: istr.entrySet()) {
+        final int count = e.getValue().value;
+        if (ordered_list.isConnected()) {
+          for (int i = 0; i < count; i++) {
+            HashMap<K, V> tuple = new HashMap<K, V>(1);
+            tuple.put(e.getKey(), ival);
+            ordered_list.emit(tuple);
+          }
+        }
+        if (ordered_count.isConnected()) {
+          HashMap<K, HashMap<V, Integer>> tuple = new HashMap<K, HashMap<V, Integer>>(1);
+          HashMap<V, Integer> data = new HashMap<V, Integer>(1);
+          data.put(ival, new Integer(count));
+          tuple.put(e.getKey(), data);
+          ordered_count.emit(tuple);
         }
       }
     }
-  }
-
-
-  /**
-   *
-   * Takes in a key and an arrayIndex. ReverseIndexes the strings in the ArrayIndex
-   *
-   * @param payload
-   */
-  @Override
-  public void process(Object payload)
-  {
-    for (Map.Entry<String, Integer> e: ((HashMap<String, Integer>) payload).entrySet()) {
-      HashMap<String, Integer> istr = smap.get(e.getValue());
-      if (istr == null) { // not in priority queue
-        istr = new HashMap<String, Integer>(4);
-        istr.put(e.getKey(), new Integer(1));
-        smap.put(e.getValue(), istr);
-        pqueue.add(e.getValue());
-      }
-      else { // value is in the priority queue
-        Integer scount = istr.get(e.getKey());
-        if (scount == null) { // this key does not exist
-          istr.put(e.getKey(), new Integer(1));
-        }
-        else {
-          istr.put(e.getKey(), scount + 1);
-        }
-      }
-    }
-  }
-
-  /**
-   *
-   * @param config
-   * @return boolean
-   */
-  public boolean myValidation(OperatorConfiguration config)
-  {
-    boolean ret = true;
-    return ret;
-  }
-
-  /**
-   *
-   * @param config
-   */
-  @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
-  {
-    if (!myValidation(config)) {
-      throw new FailedOperationException("Did not pass validation");
-    }
-    pqueue = new PriorityQueue<Integer>();
-    smap = new HashMap<Integer, HashMap<String, Integer>>();
   }
 }

@@ -7,7 +7,6 @@ package com.malhartech.lib.algo;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,19 +34,19 @@ import java.util.Map;
  *
  */
 
-public class FilterKeys<K,V> extends BaseOperator
+public class FilterKeysString<V> extends BaseOperator
 {
-  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
+  public final transient DefaultInputPort<HashMap<String, V>> data = new DefaultInputPort<HashMap<String, V>>(this)
   {
     @Override
-    public void process(HashMap<K, V> tuple)
+    public void process(HashMap<String, V> tuple)
     {
-      HashMap<K, V> dtuple = null;
-      for (Map.Entry<K, V> e: tuple.entrySet()) {
+      HashMap<String, V> dtuple = null;
+      for (Map.Entry<String, V> e: tuple.entrySet()) {
         boolean contains = keys.containsKey(e.getKey());
         if ((contains && !inverse) || (!contains && inverse)) {
           if (dtuple == null) {
-            dtuple = new HashMap<K, V>(4); // usually the filter keys are very few, so 4 is just fine
+            dtuple = new HashMap<String, V>(4); // usually the filter keys are very few, so 4 is just fine
           }
           dtuple.put(e.getKey(), e.getValue());
         }
@@ -57,23 +56,19 @@ public class FilterKeys<K,V> extends BaseOperator
       }
     }
   };
-  public final transient DefaultOutputPort<HashMap<K, V>> filter = new DefaultOutputPort<HashMap<K, V>>(this);
+  public final transient DefaultOutputPort<HashMap<String, V>> filter = new DefaultOutputPort<HashMap<String, V>>(this);
 
-  HashMap<K, V> keys = new HashMap<K, V>();
+  HashMap<Object, V> keys = new HashMap<Object, V>();
   boolean inverse = false;
 
   public void setInverse(boolean val) {
     inverse = val;
   }
 
-  public void setKeys(K str) {
-      keys.put(str, null);
-  }
-
-  public void setKeys(ArrayList<K> list)
-  {
-    for (K e : list) {
-      keys.put(e,null);
+  public void setKeys(String str) {
+    String[] klist = str.split(",");
+    for (String k : klist) {
+      keys.put(k, null);
     }
   }
 }

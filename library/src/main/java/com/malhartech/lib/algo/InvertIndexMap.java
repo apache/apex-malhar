@@ -4,21 +4,16 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.annotation.PortAnnotation.PortType;
-import com.malhartech.dag.GenericNode;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.FailedOperationException;
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.api.Sink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -31,82 +26,25 @@ import org.slf4j.LoggerFactory;
  * @author amol<br>
  *
  */
-@ModuleAnnotation(
-        ports = {
-  @PortAnnotation(name = InvertIndexMap.IPORT_DATA, type = PortType.INPUT),
-  @PortAnnotation(name = InvertIndexMap.IPORT_QUERY, type = PortType.INPUT),
-  @PortAnnotation(name = InvertIndexMap.OPORT_INDEX, type = PortType.OUTPUT),
-  @PortAnnotation(name = InvertIndexMap.OPORT_CONSOLE, type = PortType.OUTPUT)
-})
-public class InvertIndexMap extends GenericNode
+
+public class InvertIndexMap<K,V> extends BaseOperator
 {
-  private static Logger LOG = LoggerFactory.getLogger(InvertIndexMap.class);
+    private static Logger LOG = LoggerFactory.getLogger(InvertIndexMap.class);
 
-  public static final String IPORT_DATA = "data";
-  public static final String IPORT_QUERY = "query";
-  public static final String OPORT_INDEX = "index";
-  public static final String OPORT_CONSOLE = "index";
-
-  public static final String KEY_SEED_QUERYS_JSON = "seedQueries";
-
-  HashMap<String, HashMap<String, Object>> index = null;
-  HashMap<String, String> secondary_index = null;
-  HashMap<String, String> phone_register = null;
-  HashMap<String, String> location_register = null;
-
-  public static final String CHANNEL_PHONE = "phone";
-  public static final String CHANNEL_LOCATION = "location";
-  public static final String IDENTIFIER_CHANNEL = "queryId";
-
-  boolean console_connected = false;
-  boolean index_connected = false;
-
-  protected boolean hasIndex(String key) {
-    HashMap<String, Object> val = index.get(key);
-    return (val != null) && !val.isEmpty();
-  }
-
-  protected boolean hasSecondaryIndex(String key) {
-    return (secondary_index.get(key) != null);
-  }
-
-
-  /**
-   *
-   * @param id
-   * @param dagpart
-   */
-  @Override
-  public void connected(String id, Sink dagpart)
-  {
-    if (id.equals(OPORT_CONSOLE)) {
-      console_connected = (dagpart != null);
-    }
-    else if (id.equals(OPORT_INDEX)) {
-      index_connected = (dagpart != null);
-    }
-  }
-
-  /**
-   *
-   * Takes in a key and an arrayIndex. ReverseIndexes the strings in the ArrayIndex
-   *
-   * @param payload
-   */
-  @Override
-  public void process(Object payload)
-  {
-    if (IPORT_DATA.equals(getActivePort())) {
-      for (Map.Entry<String, String> e: ((HashMap<String, String>) payload).entrySet()) {
-        HashMap<String, Object> values = index.get(e.getValue());
+  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this) {
+    @Override
+    public void process(HashMap<K, V> tuple)
+    {
+      for (Map.Entry<K, V> e: tuple.entrySet()) {
+        HashMap<K, Object> values = index.get(e.getValue());
         if (values == null) {
-          values = new HashMap<String, Object>(4); // start with 4 slots, keep it low
+          values = new HashMap<K, Object>(4); // start with 4 slots, keep it low
           index.put(e.getValue(), values);
         }
         values.put(e.getKey(), null);
 
         // Now remove the key from old index value
-        String cur_key = secondary_index.get(e.getKey());
+        V cur_key = secondary_index.get(e.getKey());
         if ((cur_key != null) && !cur_key.equals(e.getValue())) { // remove from old index
           values = index.get(cur_key);
           if (values != null) { // must be true
@@ -119,12 +57,17 @@ public class InvertIndexMap extends GenericNode
         secondary_index.put(e.getKey(), e.getValue());
       }
     }
-    else if (IPORT_QUERY.equals(getActivePort())) {
-      if (console_connected) {
-        String qid = null;
+  };
+
+  public final transient DefaultInputPort<HashMap<String, V>> query = new DefaultInputPort<HashMap<String, V>>(this)
+  {
+    @Override
+    public void process(HashMap<K, V> tuple)
+    {
+            String qid = null;
         String phone = null;
         String location = null;
-        for (Map.Entry<String, String> e: ((HashMap<String, String>)payload).entrySet()) {
+        for (Map.Entry<String, V> e: tuple.entrySet()) {
           if (e.getKey().equals(IDENTIFIER_CHANNEL)) {
             qid = e.getValue();
           }
@@ -175,17 +118,37 @@ public class InvertIndexMap extends GenericNode
             }
           }
         }
-      }
-      else { // should give an error tuple as a query port was sent without console connected
-        LOG.warn("Received invalid query {}", payload);
-      }
     }
+  };
+
+
+
+  public static final String IPORT_QUERY = "query";
+  public static final String OPORT_INDEX = "index";
+  public static final String OPORT_CONSOLE = "index";
+
+  public static final String KEY_SEED_QUERYS_JSON = "seedQueries";
+
+  HashMap<V, HashMap<K, Object>> index = null;
+  HashMap<K,V> secondary_index = null;
+  HashMap<String, String> phone_register = null;
+  HashMap<String, String> location_register = null;
+
+  public static final String CHANNEL_PHONE = "phone";
+  public static final String CHANNEL_LOCATION = "location";
+  public static final String IDENTIFIER_CHANNEL = "queryId";
+
+
+  protected boolean hasIndex(K key) {
+    HashMap<K, Object> val = index.get(key);
+    return (val != null) && !val.isEmpty();
+  }
+
+  protected boolean hasSecondaryIndex(K key) {
+    return (secondary_index.get(key) != null);
   }
 
   protected void emitConsoleTuple(String id, boolean isphone) {
-    if (!console_connected) {
-      return;
-    }
 
     String key = isphone ? phone_register.get(id) : location_register.get(id);
     if (key == null) { // something awful? bad data?
@@ -217,16 +180,6 @@ public class InvertIndexMap extends GenericNode
     emit(OPORT_CONSOLE, tuples);
   }
 
-  /**
-   *
-   * @param config
-   * @return boolean
-   */
-  public boolean myValidation(OperatorConfiguration config)
-  {
-    // no checks as of now
-    return true;
-  }
 
   private void parseSeedQueries(String s) {
     try {
@@ -265,9 +218,7 @@ public class InvertIndexMap extends GenericNode
   @Override
   public void setup(OperatorConfiguration config) throws FailedOperationException
   {
-    if (!myValidation(config)) {
-      throw new FailedOperationException("Did not pass validation");
-    }
+
     index = new HashMap<String, HashMap<String, Object>>();
     secondary_index = new HashMap<String, String>(5);
     phone_register = new HashMap<String, String>(5);

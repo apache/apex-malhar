@@ -4,14 +4,10 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.GenericNode;
-import com.malhartech.api.FailedOperationException;
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.DefaultOutputPort;
 import java.util.Random;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -23,104 +19,47 @@ import org.slf4j.LoggerFactory;
  * <b>data</b>: Input data port expects Object
  * <b>sample</b>: Output data port, emits Object
  * <b>Properties</b>:
- * <b>rate</b>: Samplying rate, a number between 0 to 100 (type double). Default is 1% (0.01)<br>
- *
+ * <b>passrate</b>: Sample rate out of a total of totalrate. Default is 1<br>
+ * <b>totalrate</b>: Total rate (divisor). Default is 100<br>
  * <b>Benchmarks></b>: TBD<br>
  * Compile time checks are:<br>
- * <b>rate</b> has to be between 0 and 100<br>
+ * None
  * <br>
  * Run time checks are:<br>
  * None<br>
- * <br> *
+ * <br>
+ *
  * @author amol<br>
  *
  */
-@ModuleAnnotation(
-        ports = {
-  @PortAnnotation(name = Sampler.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = Sampler.OPORT_SAMPLE, type = PortAnnotation.PortType.OUTPUT)
-})
-public class Sampler extends GenericNode
+public class Sampler<K> extends BaseOperator
 {
-  private static Logger LOG = LoggerFactory.getLogger(Sampler.class);
-  public static final String IPORT_DATA = "in_data1";
-  public static final String OPORT_SAMPLE = "sample";
-
   int passrate_default_value = 1;
   int totalrate_default_value = 100;
   int passrate = passrate_default_value;
   int totalrate = totalrate_default_value;
-
+  public final transient DefaultInputPort<K> data = new DefaultInputPort<K>(this)
+  {
+    @Override
+    public void process(K tuple)
+    {
+      int fval = random.nextInt(totalrate);
+      if (fval >= passrate) {
+        return;
+      }
+      sample.emit(tuple);
+    }
+  };
   private Random random = new Random();
+  public final transient DefaultOutputPort<K> sample = new DefaultOutputPort<K>(this);
 
- /**
-   * The group by key
-   *
-   */
-  public static final String KEY_RATE = "rate";
-
-
-  /**
-   *
-   * Takes in a key and an arrayIndex. ReverseIndexes the strings in the ArrayIndex
-   *
-   * @param payload
-   */
-  @Override
-  public void process(Object payload)
+  public void setPassrate(int val)
   {
-    int fval = random.nextInt(totalrate);
-    if (fval >= passrate) {
-      return;
-    }
-    emit(payload);
+    passrate = val;
   }
 
-  /**
-   *
-   * @param config
-   * @return boolean
-   */
-  public boolean myValidation(OperatorConfiguration config)
+  public void setTotalrate(int val)
   {
-    boolean ret = true;
-    String ratestr = config.get(KEY_RATE);
-
-    if (!ratestr.isEmpty()) {
-      String[] twofstr = ratestr.split(",");
-      if (twofstr.length != 2) {
-        ret = false;
-        throw new IllegalArgumentException(String.format("Parameter \"rate\" has wrong format \"%s\"", ratestr));
-      }
-      else {
-        for (String ws: twofstr) {
-          try {
-            Integer.parseInt(ws);
-          }
-          catch (NumberFormatException e) {
-            ret = false;
-            throw new IllegalArgumentException(String.format("Rate string should be an integer(%s)", ws));
-          }
-        }
-      }
-    }
-    return ret;
-  }
-
-  /**
-   *
-   * @param config
-   */
-  @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
-  {
-    if (!myValidation(config)) {
-      throw new FailedOperationException("Did not pass validation");
-    }
-
-    String[] ratestr = config.getTrimmedStrings(KEY_RATE);
-    passrate = Integer.parseInt(ratestr[0]);
-    totalrate = Integer.parseInt(ratestr[1]);
-    LOG.debug(String.format("Rate set to %d out of %d", passrate, totalrate));
+    totalrate = val;
   }
 }

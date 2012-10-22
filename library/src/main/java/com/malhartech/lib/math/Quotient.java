@@ -4,36 +4,33 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.annotation.PortAnnotation.PortType;
-import com.malhartech.dag.GenericNode;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.FailedOperationException;
 import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.lib.util.MutableDouble;
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
  * Takes in two streams via input ports "numerator" and "denominator". At the
  * end of window computes the quotient for each key and emits the result on port
- * "quotient".<p> <br> Each stream is added to a hash. The values are added for
- * each key within the window and for each stream.<<br> This node only functions in
- * a windowed stram application<br>Currently only HashMap schema is supported (Key, Number)<br>
+ * "quotient".<p> <br>
+ * <b>Ports</b>:
+ * <b>numerator</b> expects HashMap<K,V extends Number><br>
+ * <b>denominator</b> expects HashMap<K,V extends Number><br>
+ * <b>quotient</b> emits HashMap<K,Double><br>
  * <br>
- * <br> Compile time error processing is done
- * on configuration parameters<br> property <b>multiply_by</b> has to be an
- * integer.<br>property <b>dokey</b> is a boolean. It true the node ignores the values and counts the instances of each key (i.e. value=1.0)<br>
- * <br>input ports <b>numerator</b>, <b>denominator</b> must be
- * connected.<br> outbound port <b>quotient</b> must be connected<br>
- * <br><b>All Run time errors are TBD</b><br>
- * Run time error processing are emitted on _error
- * port. The errors are:<br> Divide by zero (Error): no result is emitted on
- * "outport".<br> Input tuple not an integer on denominator stream: This tuple
- * would not be counted towards the result.<br> Input tuple not an integer on
- * numerator stream: This tuple would not be counted towards the result.<br>
+ * <br>
+ * <b>Compile time checks</b>
+ * None<br>
+ * <br>
+ * <b>Runtime checks</b>
+ * None<br>
+ * <br>
+ * <b>Benchmarks</b><br>
  * <br>
  * Benchmarks:<br>
  * With HashMap schema the node does about 3 Million/tuples per second<br>
@@ -42,123 +39,85 @@ import org.slf4j.LoggerFactory;
  * @author amol<br>
  *
  */
-@ModuleAnnotation(
-        ports = {
-  @PortAnnotation(name = Quotient.IPORT_NUMERATOR, type = PortType.INPUT),
-  @PortAnnotation(name = Quotient.IPORT_DENOMINATOR, type = PortType.INPUT),
-  @PortAnnotation(name = Quotient.OPORT_QUOTIENT, type = PortType.OUTPUT)
-})
-public class Quotient extends GenericNode
+
+public class Quotient<K,V extends Number> extends BaseOperator
 {
-  public static final String IPORT_NUMERATOR = "numerator";
-  public static final String IPORT_DENOMINATOR = "denominator";
-  public static final String OPORT_QUOTIENT = "quotient";
-  private static Logger LOG = LoggerFactory.getLogger(Quotient.class);
-
-
-  int mult_by = 1;
-  HashMap<String, Number> numerators = new HashMap<String, Number>();
-  HashMap<String, Number> denominators = new HashMap<String, Number>();
-  boolean dokey = false;
-  /**
-   * Multiplies the quotient by this number. Ease of use for percentage (*
-   * 100) or CPM (* 1000)
-   *
-   */
-  public static final String KEY_MULTIPLY_BY = "multiply_by";
-
-  /**
-   * Ignore the value and just use key to compute the quotient
-   *
-   */
-  public static final String KEY_DOKEY = "dokey";
-
-
- /**
-   *
-   * @param config
-   */
-  @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
+  public final transient DefaultInputPort<HashMap<K,V>> numerator = new DefaultInputPort<HashMap<K,V>>(this)
   {
-    if (!myValidation(config)) {
-      throw new FailedOperationException("Did not pass validation");
+    @Override
+    public void process(HashMap<K,V> tuple)
+    {
+      addTuple(tuple, numerators);
     }
-    mult_by = config.getInt(KEY_MULTIPLY_BY, 1);
-    dokey = config.getBoolean(KEY_DOKEY, false);
-    LOG.debug(String.format("Set mult_by(%d), and dokey(%s)", mult_by, dokey ? "true" : "false"));
-  }
-
-  public boolean myValidation(OperatorConfiguration config)
+  };
+  public final transient DefaultInputPort<HashMap<K,V>> denominator = new DefaultInputPort<HashMap<K,V>>(this)
   {
-    boolean ret = true;
-
-    try {
-      mult_by = config.getInt(KEY_MULTIPLY_BY, 1);
+    @Override
+    public void process(HashMap<K,V> tuple)
+    {
+      addTuple(tuple, denominators);
     }
-    catch (Exception e) {
-      ret = false;
-      throw new IllegalArgumentException(String.format("key %s (%s) has to be an an integer",
-                                                       KEY_MULTIPLY_BY, config.get(KEY_MULTIPLY_BY)));
-    }
-    // dokey is not checked as getBoolean always returns a value
-    return ret;
-  }
+  };
 
-  @Override
-  public void process(Object payload)
+  public void addTuple(HashMap<K,V> tuple, HashMap<K, MutableDouble> map)
   {
-    Map<String, Number> active;
-    if (IPORT_NUMERATOR.equals(getActivePort())) {
-      active = numerators;
-    }
-    else {
-      active = denominators;
-    }
-
-    for (Map.Entry<String, Number> e: ((HashMap<String, Number>)payload).entrySet()) {
-      Number val = active.get(e.getKey());
+    for (Map.Entry<K,V> e: tuple.entrySet()) {
+      MutableDouble val = map.get(e.getKey());
       if (val == null) {
-        val = e.getValue();
+        val.value = e.getValue().doubleValue();
       }
       else {
-        if (dokey) { // skip incoming value, and simply count the occurances of the keys, (for example ctr)
-          val = new Double(val.doubleValue() + 1.0);
+        if (dokey) {
+          val.value++;
         }
         else {
-         val = new Double(val.doubleValue() + e.getValue().doubleValue());
+          val.value += e.getValue().doubleValue();
         }
       }
-      active.put(e.getKey(), val);
+      map.put(e.getKey(), val);
     }
+  }
+
+  public final transient DefaultOutputPort<HashMap<K, Double>> quotient = new DefaultOutputPort<HashMap<K, Double>>(this);
+  HashMap<K, MutableDouble> numerators = new HashMap<K, MutableDouble>();
+  HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();
+  boolean dokey = false;
+  int mult_by = 1;
+
+
+  public void setMult_by(int i)
+  {
+    mult_by = i;
+  }
+
+  public void setDokey(boolean i)
+  {
+    dokey = i;
+  }
+
+
+  @Override
+  public void beginWindow()
+  {
+    numerators.clear();
+    denominators.clear();
   }
 
   @Override
   public void endWindow()
   {
-    HashMap<String, Number> tuples = new HashMap<String, Number>();
-    for (Map.Entry<String, Number> e: denominators.entrySet()) {
-      Number nval = numerators.get(e.getKey());
+    HashMap<K,Double> tuples = new HashMap<K,Double>();
+    for (Map.Entry<K,MutableDouble> e: denominators.entrySet()) {
+      MutableDouble nval = numerators.get(e.getKey());
       if (nval == null) {
         tuples.put(e.getKey(), new Double(0.0));
       }
       else {
-        tuples.put(e.getKey(), new Double((nval.doubleValue() / e.getValue().doubleValue()) * mult_by));
-        numerators.remove(e.getKey()); // so that all left over keys can be reported
+        tuples.put(e.getKey(), new Double((nval.value/ e.getValue().value) * mult_by));
       }
     }
-
-    // Should allow users to send each key as a separate tuple to load balance
-    // This is an aggregate node, so load balancing would most likely not be needed
     if (!tuples.isEmpty()) {
-      emit(tuples);
+      quotient.emit(tuples);
     }
-    /* Now if numerators has any keys issue divide by zero error
-     for (Map.Entry<String, Number> e : numerators.entrySet()) {
-     // emit error
-     }
-     */
-    numerators.clear();
-    denominators.clear();
   }
 }

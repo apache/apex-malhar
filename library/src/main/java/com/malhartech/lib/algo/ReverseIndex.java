@@ -4,15 +4,12 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.GenericNode;
-import com.malhartech.api.FailedOperationException;
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.DefaultOutputPort;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -21,68 +18,61 @@ import org.slf4j.LoggerFactory;
  * Takes in HashMap<Object, Object> and emits HashMap<Object, Object>
  * <br>
  * <b>Ports</b>
- * <b>data</b>: Input data port expects HashMap<Object, Object>
- * <b>index</b>: Output data port, emits HashMap<Object, Object>
+ * <b>data</b>: expects HashMap<K,V><br>
+ * <b>index</b>:  emits HashMap<V,K><br>
+ * <b>index_list</b>: emits HashMap<V,ArrayList<K>><br>
  * <b>Properties</b>:
- *
+ * None
  * <b>Benchmarks></b>: TBD<br>
  * Compile time checks are:<br>
  * <br>
  * Run time checks are:<br>
- *
- *
+ * None
  * @author amol<br>
  *
  */
-@ModuleAnnotation(
-        ports = {
-  @PortAnnotation(name = ReverseIndex.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = ReverseIndex.OPORT_INDEX, type = PortAnnotation.PortType.OUTPUT)
-})
-public class ReverseIndex extends GenericNode
+public class ReverseIndex<K, V> extends BaseOperator
 {
-  private static Logger LOG = LoggerFactory.getLogger(ReverseIndex.class);
-  public static final String IPORT_DATA = "data";
-  public static final String OPORT_INDEX = "index";
-
-
-  /**
-   *
-   * Takes in a key and an arrayIndex. ReverseIndexes the strings in the ArrayIndex
-   *
-   * @param payload
-   */
-  @Override
-  public void process(Object payload)
+  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
-    for (Map.Entry<Object, Object> e: ((HashMap<Object, Object>)payload).entrySet()) {
-      HashMap<Object, Object> tuple = new HashMap<Object, Object>(1);
-      tuple.put(e.getValue(), e.getKey());
-      emit(tuple);
+    @Override
+    public void process(HashMap<K, V> tuple)
+    {
+      for (Map.Entry<K, V> e: tuple.entrySet()) {
+        if (index.isConnected()) {
+          HashMap<V, K> otuple = new HashMap<V, K>(1);
+          otuple.put(e.getValue(), e.getKey());
+          index.emit(otuple);
+        }
+        if (index_list.isConnected()) {
+          ArrayList<K> list = map.get(e.getValue());
+          if (list == null) {
+            list = new ArrayList<K>(4);
+          }
+          list.add(e.getKey());
+        }
+      }
     }
-  }
+  };
+  public final transient DefaultOutputPort<HashMap<V, K>> index = new DefaultOutputPort<HashMap<V, K>>(this);
+  public final transient DefaultOutputPort<HashMap<V, ArrayList<K>>> index_list = new DefaultOutputPort<HashMap<V, ArrayList<K>>>(this);
+  HashMap<V, ArrayList<K>> map = new HashMap<V, ArrayList<K>>();
 
-  /**
-   *
-   * @param config
-   * @return boolean
-   */
-  public boolean myValidation(OperatorConfiguration config)
-  {
-    boolean ret = true;
-
-    return ret;
-  }
-
-  /**
-   *
-   * @param config
-   */
   @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
+  public void beginWindow()
   {
-    if (!myValidation(config)) {
-      throw new FailedOperationException("Did not pass validation");
+    map.clear();
+  }
+
+  @Override
+  public void endWindow()
+  {
+    if (index_list.isConnected()) {
+      for (Map.Entry<V, ArrayList<K>> e: map.entrySet()) {
+        HashMap<V, ArrayList<K>> tuple = new HashMap<V, ArrayList<K>>(1);
+        tuple.put(e.getKey(), e.getValue());
+        index_list.emit(tuple);
+      }
     }
   }
 }

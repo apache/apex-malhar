@@ -4,16 +4,12 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.annotation.PortAnnotation.PortType;
-import com.malhartech.dag.GenericNode;
-import com.malhartech.api.FailedOperationException;
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.MutableDouble;
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -22,110 +18,97 @@ import org.slf4j.LoggerFactory;
  * "margin" (1 - numerator/denominator).<p> <br> Each stream is added to a hash.
  * The values are added for each key within the window and for each stream.<<br>
  * This node only functions in a windowed stram application<br> <br> Compile
- * time error processing is done on configuration parameters<br> input ports
- * <b>numerator</b>, <b>denominator</b> must be connected.<br> outbound port
- * <b>margin</b> must be connected.<br> <br><b>All run time errors are TBD</b>
+ * time error processing is done on configuration parameters<br>
+ * <b>Ports</b>:
+ * <b>numerator</b> expects HashMap<K,V><br>
+ * <b>denominator</b> expects HashMap<K,V><br>
+ * <b>margin</b> emits HashMap<K,Double>, one entry per key<br>
+ * <br>
+ * <b>Compile time checks</b><br>
+ * None<br>
  * <br> Run time error processing are emitted on _error port. The errors
  * are:<br> Divide by zero (Error): no result is emitted on "outport".<br> Input
  * tuple not an integer on denominator stream: This tuple would not be counted
  * towards the result.<br> Input tuple not an integer on numerator stream: This
  * tuple would not be counted towards the result.<br> <br>
+ * <b>Benchmarks</b><br>
+ * tbd<br>
+ * <br>
  *
  * @author amol<br>
  *
  */
-@ModuleAnnotation(
-        ports = {
-  @PortAnnotation(name = Margin.IPORT_NUMERATOR, type = PortType.INPUT),
-  @PortAnnotation(name = Margin.IPORT_DENOMINATOR, type = PortType.INPUT),
-  @PortAnnotation(name = Margin.OPORT_MARGIN, type = PortType.OUTPUT)
-})
-public class Margin extends GenericNode
+public class Margin<K, V extends Number> extends BaseOperator
 {
-  public static final String IPORT_NUMERATOR = "numerator";
-  public static final String IPORT_DENOMINATOR = "denominator";
-  public static final String OPORT_MARGIN = "margin";
-  private static Logger LOG = LoggerFactory.getLogger(Margin.class);
-  HashMap<String, Number> numerators = new HashMap<String, Number>();
-  HashMap<String, Number> denominators = new HashMap<String, Number>();
-  boolean percent = false;
-  /**
-   * Sent tuples as percentages
-   *
-   */
-  public static final String KEY_PERCENT = "percent";
-
-  /**
-   *
-   * @param config
-   */
-  @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
+  public final transient DefaultInputPort<HashMap<K,V>> numerator = new DefaultInputPort<HashMap<K,V>>(this)
   {
-    percent = config.getBoolean(KEY_PERCENT, false);
-    LOG.debug(String.format("Set percent(%s)", percent ? "true" : "false"));
-  }
-
-  /**
-   *
-   * @param config
-   */
-  @Override
-  public void process(Object payload)
+    @Override
+    public void process(HashMap<K,V> tuple)
+    {
+      addTuple(tuple, numerators);
+    }
+  };
+  public final transient DefaultInputPort<HashMap<K,V>> denominator = new DefaultInputPort<HashMap<K,V>>(this)
   {
-    Map<String, Number> active;
-    if (IPORT_NUMERATOR.equals(getActivePort())) {
-      active = numerators;
+    @Override
+    public void process(HashMap<K,V> tuple)
+    {
+      addTuple(tuple, denominators);
     }
-    else {
-      active = denominators;
-    }
+  };
 
-    for (Map.Entry<String, Number> e: ((HashMap<String, Number>)payload).entrySet()) {
-      Number val = active.get(e.getKey());
+  public void addTuple(HashMap<K,V> tuple, HashMap<K, MutableDouble> map)
+  {
+    for (Map.Entry<K,V> e: tuple.entrySet()) {
+      MutableDouble val = map.get(e.getKey());
       if (val == null) {
-        val = e.getValue();
+        val.value = e.getValue().doubleValue();
       }
       else {
-        val = new Double(val.doubleValue() + e.getValue().doubleValue());
+        val.add(e.getValue().doubleValue());
       }
-      active.put(e.getKey(), val);
+      map.put(e.getKey(), val);
     }
   }
 
+  public final transient DefaultOutputPort<HashMap<K, Double>> margin = new DefaultOutputPort<HashMap<K, Double>>(this);
+  HashMap<K, MutableDouble> numerators = new HashMap<K, MutableDouble>();
+  HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();
+  boolean percent = false;
+
+  void setPercent(boolean val)
+  {
+    percent = val;
+  }
+
   @Override
+  public void beginWindow()
+  {
+    numerators.clear();
+    denominators.clear();
+  }
+
+   @Override
   public void endWindow()
   {
-    HashMap<String, Number> tuples = new HashMap<String, Number>();
-    for (Map.Entry<String, Number> e: denominators.entrySet()) {
-      Number nval = numerators.get(e.getKey());
+    HashMap<K,Double> tuples = new HashMap<K,Double>();
+    for (Map.Entry<K, MutableDouble> e: denominators.entrySet()) {
+      MutableDouble nval = numerators.get(e.getKey());
       if (nval == null) {
-        nval = new Double(0.0);
+        nval = new MutableDouble(0.0);
       }
       else {
         numerators.remove(e.getKey()); // so that all left over keys can be reported
       }
-      //LOG.debug(String.format("Processed key %s", e.getKey()));
-
       if (percent) {
-        tuples.put(e.getKey(), new Double((1 - nval.doubleValue() / e.getValue().doubleValue()) * 100));
+        tuples.put(e.getKey(), new Double((1 - nval.value / e.getValue().value * 100)));
       }
       else {
-        tuples.put(e.getKey(), new Double(1 - nval.doubleValue() / e.getValue().doubleValue()));
+        tuples.put(e.getKey(), new Double(1 - nval.value/ e.getValue().value));
       }
     }
-
-    // Should allow users to send each key as a separate tuple to load balance
-    // This is an aggregate node, so load balancing would most likely not be needed
     if (!tuples.isEmpty()) {
-      emit(tuples);
+      margin.emit(tuples);
     }
-    /* Now if numerators has any keys issue divide by zero error
-     for (Map.Entry<String, Number> e : numerators.entrySet()) {
-     // emit error
-     }
-     */
-    numerators.clear();
-    denominators.clear();
   }
 }

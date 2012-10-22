@@ -4,18 +4,15 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.GenericNode;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.FailedOperationException;
 import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.lib.util.MutableInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.PriorityQueue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -25,10 +22,10 @@ import org.slf4j.LoggerFactory;
  * <br>
  * <b>Ports</b>
  * <b>data</b>: Input data port expects HashMap<String, Object><br>
- * <b>out_data</b>: Output data port, emits HashMap<String, Object><br>
+ * <b>ordered_count</b>: emits HashMap<Object, Integer><br>
+ * <b>ordered_list</b>: Output data port, emits ArrayList<HashMap<String, Object>><br>
  * <b>Properties</b>:
- * <b>key</b>: The key to order by<br>
- * <b>emitcount</b>: If true only the count is emitted instead of the tuples. Default value is false</br>
+ * <b>orderby</b>: The key to order by<br>
  * <b>Benchmarks></b>: TBD<br>
  * Compile time checks are:<br>
  * Parameter "key" cannot be empty<br>
@@ -39,33 +36,66 @@ import org.slf4j.LoggerFactory;
  * @author amol<br>
  *
  */
-@ModuleAnnotation(
-        ports = {
-  @PortAnnotation(name = OrderByKey.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = OrderByKey.OPORT_OUT_DATA, type = PortAnnotation.PortType.OUTPUT)
-})
-public class OrderByKey extends GenericNode
+public class OrderByKey<K, V> extends BaseOperator
 {
-  private static Logger LOG = LoggerFactory.getLogger(OrderByKey.class);
-  public static final String IPORT_DATA = "data";
-  public static final String OPORT_OUT_DATA = "out_data";
+  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
+  {
+    @Override
+    public void process(HashMap<K, V> tuple)
+    {
+      V val = tuple.get(orderby);
+      if (val == null) {
+        // emit error tuple?
+        return;
+      }
+      boolean first = false;
+      if (ordered_count.isConnected()) {
+        MutableInteger count = countmap.get(val);
+        if (count == null) {
+          count = new MutableInteger(1);
+          first = true;
+        }
+        else {
+          count.value++;
+        }
+        countmap.put(val, count);
+      }
+      if (ordered_list.isConnected()) {
+        ArrayList list = (ArrayList)smap.get(val);
+        if (list == null) { // already in the queue
+          list = new ArrayList();
+          list.add(tuple);
+          smap.put(val, list);
+          first = true;
+        }
+        list.add(tuple);
+      }
+      if (first) {
+        pqueue.add(val);
+      }
+    }
+  };
+  public final transient DefaultOutputPort<HashMap<K, V>> ordered_list = new DefaultOutputPort<HashMap<K, V>>(this);
+  public final transient DefaultOutputPort<HashMap<V, Integer>> ordered_count = new DefaultOutputPort<HashMap<V, Integer>>(this);
+  String orderby = "";
+  protected PriorityQueue<V> pqueue = null;
+  protected HashMap<V, MutableInteger> countmap = new HashMap<V, MutableInteger>();
+  protected HashMap<V, ArrayList<HashMap<K, V>>> smap = new HashMap<V, ArrayList<HashMap<K, V>>>();
 
-  String key = null;
-  final boolean docount_default = false;
-  boolean docount = docount_default;
-  protected PriorityQueue<Integer> pqueue = null;
-  protected HashMap<Integer, Object> smap = null;
+  public void setOrderby(String str)
+  {
+    orderby = str;
+  }
 
- /**
-   * The key to order by
-   *
-   */
-  public static final String KEY_KEY = "key";
+  public PriorityQueue<V> initializePriorityQueue() {
+    return new PriorityQueue<V>(5);
+  }
 
-  /**
-   * Emits the count of tuples, instead of the actual tuples at a particular value
-   */
-  public static final String KEY_DOCOUNT = "docount";
+  @Override
+  public void setup(OperatorConfiguration config) throws FailedOperationException
+  {
+    initializePriorityQueue();
+  }
 
   /**
    * Cleanup at the start of window
@@ -73,7 +103,11 @@ public class OrderByKey extends GenericNode
   @Override
   public void beginWindow()
   {
+    if (pqueue == null) {
+      pqueue = initializePriorityQueue();
+    }
     pqueue.clear();
+    countmap.clear();
     smap.clear();
   }
 
@@ -83,92 +117,19 @@ public class OrderByKey extends GenericNode
   @Override
   public void endWindow()
   {
-    Integer key;
+    V key;
     while ((key = pqueue.poll()) != null) {
-      if (docount) {
-        HashMap<Integer, Integer> tuple = new HashMap<Integer, Integer>(1);
-        tuple.put(key, (Integer) smap.get(key));
-        emit(tuple);
+      if (ordered_count.isConnected()) {
+        HashMap<V, Integer> tuple = new HashMap<V, Integer>(1);
+        tuple.put(key, countmap.get(key).value);
+        ordered_count.emit(tuple);
       }
-      else {
-        ArrayList list = (ArrayList) smap.get(key);
-        for (Object o: list) {
-          emit(o);
+      if (ordered_list.isConnected()) {
+        ArrayList<HashMap<K, V>> list = (ArrayList<HashMap<K, V>>)smap.get(key);
+        for (HashMap<K, V> o: list) {
+          ordered_list.emit(o);
         }
       }
     }
-  }
-
-
-  /**
-   *
-   * Takes in a key and an arrayIndex. ReverseIndexes the strings in the ArrayIndex
-   *
-   * @param payload
-   */
-  @Override
-  public void process(Object payload)
-  {
-    HashMap<String, Object> tuple = (HashMap<String, Object>) payload;
-    Integer val = (Integer) tuple.get(key); // check instanceof?
-    if (val == null) {
-      // emit error tuple?
-      return;
-    }
-    if (docount) {
-      Integer count = (Integer) smap.get(val);
-      if (count == null) {
-        count = new Integer(1);
-        pqueue.add(val);
-      }
-      else {
-        count = count + 1;
-      }
-      smap.put(val, count);
-    }
-    else {
-      ArrayList list = (ArrayList) smap.get(val);
-      if (list == null) { // already in the queue
-        list = new ArrayList();
-        list.add(tuple);
-        smap.put(val, list);
-        pqueue.add(val);
-      }
-      list.add(tuple);
-    }
-  }
-
-  /**
-   *
-   * @param config
-   * @return boolean
-   */
-  public boolean myValidation(OperatorConfiguration config)
-  {
-    boolean ret = true;
-
-    key = config.get(KEY_KEY, "");
-    if (key.isEmpty()) {
-      ret = false;
-      throw new IllegalArgumentException("Parameter \"key\" is empty");
-    }
-    return ret;
-  }
-
-  /**
-   *
-   * @param config
-   */
-  @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
-  {
-    if (!myValidation(config)) {
-      throw new FailedOperationException("Did not pass validation");
-    }
-
-    key = config.get(KEY_KEY, "");
-    docount = config.getBoolean(KEY_DOCOUNT, docount_default);
-    pqueue = new PriorityQueue<Integer>(5);
-    smap = new HashMap<Integer, Object>();
   }
 }

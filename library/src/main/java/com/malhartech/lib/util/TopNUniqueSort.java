@@ -27,10 +27,7 @@ public class TopNUniqueSort<E>
   int qbound = Integer.MAX_VALUE;
   boolean ascending = true;
 
-  class myInteger {
-    int value;
-  }
-  HashMap<E, myInteger> hmap = null;
+  HashMap<E, MutableInteger> hmap = null;
 
   PriorityQueue<E> q = null;
 
@@ -40,7 +37,7 @@ public class TopNUniqueSort<E>
     // Ascending use of pqueue needs a descending comparator
     q = new PriorityQueue<E>(initialCapacity, new ReversibleComparator<E>(!flag));
     qbound = bound;
-    hmap = new HashMap<E, myInteger>();
+    hmap = new HashMap<E, MutableInteger>();
   }
 
   public boolean add(E e)
@@ -75,7 +72,7 @@ public class TopNUniqueSort<E>
     for (int i = size; i > 0; i--) {
       E o = (E) list.get(i);
       HashMap<E, Integer> val = new HashMap<E, Integer>(1);
-      myInteger ival = hmap.get(o);
+      MutableInteger ival = hmap.get(o);
       val.put(o, ival.value);
       ret.add(size-i, val);
     }
@@ -88,7 +85,7 @@ public class TopNUniqueSort<E>
   //
   public boolean offer(E e)
   {
-    myInteger ival = hmap.get(e);
+    MutableInteger ival = hmap.get(e);
     if (ival != null) { // already exists, so no insertion
       ival.value++;
       return true;
@@ -110,7 +107,7 @@ public class TopNUniqueSort<E>
     //
     // object e makes it, someone else gets dropped
     //
-    ival = new myInteger();
+    ival = new MutableInteger(0);
     ival.value = 1;
     hmap.put(e, ival);
     if (insert && q.offer(e)) {

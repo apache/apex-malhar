@@ -17,8 +17,8 @@ import java.util.Map;
  * This module is an end of window module<br>
  * <br>
  * Ports:<br>
- * <b>data</b>: Input port, expects HashMap<K, V><br>
- * <b>last</b>: Output port, emits HashMap<K, V> in end of window for the last tuple on which the compare function is true<br>
+ * <b>data</b>: Input port, expects HashMap<K, String><br>
+ * <b>last</b>: Output port, emits HashMap<K, String> in end of window for the last tuple on which the compare function is true<br>
  * <br>
  * Properties:<br>
  * <b>key</b>: The key on which compare is done<br>
@@ -42,36 +42,39 @@ import java.util.Map;
  *
  * @author amol
  */
-public class LastMatch<K, V extends Number> extends BaseMatchOperator<K>
+public class LastMatchString<K, String> extends BaseMatchOperator<K>
 {
-  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
+  public final transient DefaultInputPort<HashMap<K, String>> data = new DefaultInputPort<HashMap<K, String>>(this)
   {
     @Override
-    public void process(HashMap<K, V> tuple)
+    public void process(HashMap<K, String> tuple)
     {
-      V val = tuple.get(key);
+      String val = tuple.get(key);
       if (val == null) {
         return;
       }
-      double tvalue = val.doubleValue();
-      if (((type == supported_type.LT) && (tvalue < value))
-              || ((type == supported_type.LTE) && (tvalue <= value))
-              || ((type == supported_type.EQ) && (tvalue == value))
-              || ((type == supported_type.NEQ) && (tvalue != value))
-              || ((type == supported_type.GT) && (tvalue > value))
-              || ((type == supported_type.GTE) && (tvalue >= value))) {
-        if (ltuple == null) {
-          ltuple = new HashMap<K, V>(1);
-        }
-        ltuple.clear(); // clear the previous match
-        for (Map.Entry<K, V> e: tuple.entrySet()) {
-          ltuple.put(e.getKey(), e.getValue());
+      double tvalue = 0;
+      boolean errortuple = false;
+      try {
+        tvalue = Double.parseDouble(val.toString());
+      }
+      catch (NumberFormatException e) {
+        errortuple = true;
+      }
+      if (!errortuple) {
+        if (((type == supported_type.LT) && (tvalue < value))
+                || ((type == supported_type.LTE) && (tvalue <= value))
+                || ((type == supported_type.EQ) && (tvalue == value))
+                || ((type == supported_type.NEQ) && (tvalue != value))
+                || ((type == supported_type.GT) && (tvalue > value))
+                || ((type == supported_type.GTE) && (tvalue >= value))) {
+          ltuple = tuple;
         }
       }
     }
   };
-  public final transient DefaultOutputPort<HashMap<K, V>> last = new DefaultOutputPort<HashMap<K, V>>(this);
-  HashMap<K, V> ltuple = null;
+  public final transient DefaultOutputPort<HashMap<K, String>> last = new DefaultOutputPort<HashMap<K, String>>(this);
+  HashMap<K, String> ltuple = null;
 
   @Override
   public void beginWindow()

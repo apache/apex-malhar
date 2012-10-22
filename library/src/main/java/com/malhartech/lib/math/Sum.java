@@ -4,17 +4,12 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.GenericNode;
-import com.malhartech.api.FailedOperationException;
-import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.api.Sink;
-import java.util.ArrayList;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.MutableInteger;
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -29,125 +24,48 @@ import org.slf4j.LoggerFactory;
  *
  * @author amol
  */
-@ModuleAnnotation(
-        ports = {
-  @PortAnnotation(name = Sum.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = Sum.OPORT_SUM, type = PortAnnotation.PortType.OUTPUT),
-  @PortAnnotation(name = Sum.OPORT_AVERAGE, type = PortAnnotation.PortType.OUTPUT),
-  @PortAnnotation(name = Sum.OPORT_COUNT, type = PortAnnotation.PortType.OUTPUT)
-})
-public class Sum extends GenericNode
+public class Sum<K, V extends Number> extends BaseOperator
 {
-  public static final String IPORT_DATA = "data";
-  public static final String OPORT_SUM = "sum";
-  public static final String OPORT_AVERAGE = "average";
-  public static final String OPORT_COUNT = "count";
-
-  private static Logger LOG = LoggerFactory.getLogger(Sum.class);
-  HashMap<String, Object> sum = new HashMap<String, Object>();
-  boolean count_connected = false;
-  boolean sum_connected = false;
-  boolean average_connected = false;
-
-  int num_unique_keys_default_value = 1000;
-  int num_unique_keys = num_unique_keys_default_value;
-  int newkey_location = 0;
-  double [] sums = null;
-  int [] counts = null;
-
-  @Override
-  public void connected(String id, Sink dagpart)
+  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
-    if (id.equals(OPORT_COUNT)) {
-      count_connected = (dagpart != null);
-    }
-    else if (id.equals(OPORT_SUM)) {
-      sum_connected = (dagpart != null);
-    }
-    else if (id.equals(OPORT_AVERAGE)) {
-      average_connected = (dagpart != null);
-    }
-  }
-
-  /**
-   * Process each tuple
-   *
-   * @param payload
-   */
-  @Override
-  public void process(Object payload)
-  {
-    // Change this to do the following
-    // Reserve 10,000 "int" array vals[...]
-    // Use HashMap for the location of the key
-    // Then on simply do vals[map.get(key).IntValue()]++;
-    //
-
-    for (Map.Entry<String, Number> e: ((HashMap<String, Number>) payload).entrySet()) {
-      Integer sloc = (Integer) sum.get(e.getKey());
-      int iloc = 0;
-      if (sloc == null) {
-        iloc = newkey_location;
-        newkey_location++;
-        if (newkey_location > num_unique_keys) {
-          int newnum = 2 * num_unique_keys;
-          double [] newsums = new double[newnum];
-          int [] newcounts = new int[newnum];
-              // System.arraycopy(sum, spinMillis, this, spinMillis, spinMillis);
-          for (int i = 0; i < num_unique_keys; i++) {
-            newsums[i] = sums[i];
-            newcounts[i] = counts[i];
-          }
-          for (int i = num_unique_keys; i < newnum; i++) {
-            newsums[i] = 0.0;
-            newcounts[i] = 0;
-          }
+    @Override
+    public void process(HashMap<K, V> tuple)
+    {
+      for (Map.Entry<K, V> e: tuple.entrySet()) {
+        K key = e.getKey();
+        Double val = sums.get(key);
+        if (val == null) {
+          sums.put(key, e.getValue().doubleValue());
         }
-        sum.put(e.getKey(), new Integer(iloc));
+        else {
+          val = val + e.getValue().doubleValue();
+        }
+        sums.put(key, val);
+        MutableInteger count = counts.get(key);
+        if (count == null) {
+          count = new MutableInteger(0);
+          counts.put(key, count);
+        }
+
+
+        count.value++;
       }
-      else {
-        iloc = sloc.intValue();
-      }
-      sums[iloc] += e.getValue().doubleValue();
-      counts[iloc]++;
     }
-  }
+  };
 
-  public boolean myValidation(OperatorConfiguration config)
-  {
-    return true;
-  }
+  public final transient DefaultOutputPort<HashMap<K,V>> sum = new DefaultOutputPort<HashMap<K,V>>(this);
+  public final transient DefaultOutputPort<HashMap<K,Double>> average = new DefaultOutputPort<HashMap<K,Double>>(this);
+  public final transient DefaultOutputPort<HashMap<K,Integer>> count = new DefaultOutputPort<HashMap<K,Integer>>(this);
 
+  HashMap<K,Double> sums = new HashMap<K,Double>();
+  HashMap<K,MutableInteger> counts = new HashMap<K,MutableInteger>();
 
-  /**
-   * Sets up all the config parameters. Assumes checking is done and has passed
-   *
-   * @param config
-   */
-  @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
-  {
-    if (!myValidation(config)) {
-      throw new IllegalArgumentException("Did not pass validation");
-    }
-
-    // Initialize sums and counts to 0
-    num_unique_keys = num_unique_keys_default_value;
-    sums = new double[num_unique_keys];
-    counts = new int[num_unique_keys];
-    newkey_location = 0;
-    // System.arraycopy(sum, spinMillis, this, spinMillis, spinMillis);
-    for (int i = 0; i < num_unique_keys; i++) {
-      sums[i] = 0.0;
-      counts[i] = 0;
-    }
-  }
 
   @Override
   public void beginWindow()
   {
-    sum.clear();
-    newkey_location = 0;
+    sums.clear();
+    counts.clear();
   }
 
   /**
@@ -160,46 +78,66 @@ public class Sum extends GenericNode
     // Should allow users to send each key as a separate tuple to load balance
     // This is an aggregate node, so load balancing would most likely not be needed
 
-    HashMap<String, Object> stuples = null;
-    if (sum_connected) {
-      stuples = new HashMap<String, Object>();
+    HashMap<K,V> stuples = null;
+    if (sum.isConnected()) {
+      stuples = new HashMap<K,V>();
     }
 
-    HashMap<String, Object> ctuples = null;
-    if (count_connected) {
-      ctuples = new HashMap<String, Object>();
+    HashMap<K,Integer> ctuples = null;
+    if (count.isConnected()) {
+      ctuples = new HashMap<K,Integer>();
     }
 
-    HashMap<String, Object> atuples = null;
-    if (average_connected) {
-      atuples = new HashMap<String, Object>();
+    HashMap<K,Double> atuples = null;
+    if (average.isConnected()) {
+      atuples = new HashMap<K,Double>();
     }
 
-    for (Map.Entry<String, Object> e: sum.entrySet()) {
-      int location = ((Integer) e.getValue()).intValue();
-      if (sum_connected) {
-        stuples.put(e.getKey(), new Double(sums[location]));
-        sums[location] = 0.0;
-      }
-      if (count_connected) {
-        ctuples.put(e.getKey(), new Integer(counts[location]));
-        counts[location] = 0;
-      }
-      if (average_connected) {
-        if (counts[location] != 0) { // should always be true
-          atuples.put(e.getKey(), new Double(sums[location]/counts[location]));
+    V sval = null;
+    for (Map.Entry<K,Double> e: sums.entrySet()) {
+      K key = e.getKey();
+      if (sum.isConnected()) {
+        if (sval instanceof Double) {
+          sval = (V) e.getValue();
         }
+        else if (sval instanceof Integer) {
+          Integer i = e.getValue().intValue();
+          sval = (V) i;
+        }
+        else if (sval instanceof Float) {
+          Float f = e.getValue().floatValue();
+          sval = (V) f;
+        }
+        else if (sval instanceof Long) {
+          Long l = e.getValue().longValue();
+          sval = (V) l;
+        }
+        else if (sval instanceof Short) {
+          Short s = e.getValue().shortValue();
+          sval = (V) s;
+        }
+        else {
+          sval = (V) e.getValue();
+        }
+        stuples.put(key, sval);
+      }
+      if (count.isConnected()) {
+        ctuples.put(key, new Integer(counts.get(e.getKey()).value));
+      }
+      if (average.isConnected()) {
+          atuples.put(e.getKey(), new Double(e.getValue().doubleValue()/counts.get(e.getKey()).value));
+
       }
     }
 
     if ((stuples != null) && !stuples.isEmpty()) {
-      emit(OPORT_SUM, stuples);
+      sum.emit(stuples);
     }
     if ((ctuples != null) && !ctuples.isEmpty()) {
-      emit(OPORT_COUNT, ctuples);
+      count.emit(ctuples);
     }
     if ((atuples != null) && !atuples.isEmpty()) {
-      emit(OPORT_AVERAGE, atuples);
+      average.emit(atuples);
     }
   }
 }

@@ -4,28 +4,25 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import java.util.HashMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
- * Takes in one stream via input port "data". A count is done on how many tuples satisfy the compare function. The function is given by
- * "key", "value", and "compare". If a tuple passed the test count is incremented. On end of window count iss emitted on the output port "count".
- * The comparison is done by getting double value from the Number.<p>
- *  This module is an end of window module<br>
+ * Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". If the tuple
+ * passed the test, it is emitted on the output port "match". The comparison is done by getting double
+ * value from the Number. Both output ports are optional, but at least one has to be connected<p>
+ *  * This module is a pass through<br>
  * <br>
  * Ports:<br>
- * <b>data</b>: expects HashMap<K,V><br>
- * <b>count</b>: emits Integer<br>
+ * <b>data</b>: expects HashMap<K,String><br>
+ * <b>match</b>: emits HashMap<K,String> if compare function returns true<br>
  * <br>
  * Properties:<br>
  * <b>key</b>: The key on which compare is done<br>
  * <b>value</b>: The value to compare with<br>
- * <b>compare<b>: The compare function. Supported values are "lte", "lt", "eq", "neq", "gt", "gte". Default is "eq"<br>
+ * <b>comp<b>: The compare function. Supported values are "lte", "lt", "eq", "neq", "gt", "gte". Default is "eq"<br>
  * <br>
  * Compile time checks<br>
  * Key must be non empty<br>
@@ -44,18 +41,20 @@ import org.slf4j.LoggerFactory;
  *
  * @author amol
  */
-
-public class CompareCount<K,V> extends BaseMatchOperator<K>
+public class MatchString<K, String> extends BaseMatchOperator<K>
 {
-  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
+  public final transient DefaultInputPort<HashMap<K, String>> data = new DefaultInputPort<HashMap<K, String>>(this)
   {
     @Override
-    public void process(HashMap<K,V> tuple)
+    public void process(HashMap<K, String> tuple)
     {
-    V val = tuple.get(key);
-    double tvalue = 0;
-    boolean errortuple = false;
-    if (val != null) { // skip if key does not exist
+      String val = tuple.get(getKey());
+      if (val == null) { // skip this tuple
+        tupleNotMatched(tuple);
+        return;
+      }
+      double tvalue = 0;
+      boolean errortuple = false;
       try {
         tvalue = Double.parseDouble(val.toString());
       }
@@ -69,28 +68,25 @@ public class CompareCount<K,V> extends BaseMatchOperator<K>
                 || ((type == supported_type.NEQ) && (tvalue != value))
                 || ((type == supported_type.GT) && (tvalue > value))
                 || ((type == supported_type.GTE) && (tvalue >= value))) {
-          tcount++;
+          tupleMatched(tuple);
+        }
+        else {
+          tupleNotMatched(tuple);
         }
       }
-      else { // emit error tuple, the string has to be Double
+      else {
+        tupleNotMatched(tuple);
       }
     }
-    else { // is this an error condition?
-    }
-    }
   };
-  public final transient DefaultOutputPort<Integer> count = new DefaultOutputPort<Integer>(this);
-  int tcount = 0;
+  public final transient DefaultOutputPort<HashMap<K, String>> match = new DefaultOutputPort<HashMap<K, String>>(this);
 
-  @Override
-  public void beginWindow()
+  public void tupleMatched(HashMap<K, String> tuple)
   {
-     tcount = 0;
+    match.emit(tuple);
   }
 
-  @Override
-  public void endWindow()
+  public void tupleNotMatched(HashMap<K, String> tuple)
   {
-    count.emit(new Integer(tcount));
   }
 }

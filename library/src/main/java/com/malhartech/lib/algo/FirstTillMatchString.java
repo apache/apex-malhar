@@ -15,8 +15,8 @@ import java.util.HashMap;
  * This module is a pass through<br>
  * <br>
  * Ports:<br>
- * <b>data</b>: Input port, expects HashMap<K,V><br>
- * <b>first</b>: Output port, emits HashMap<K,V> if compare function returns true<br>
+ * <b>data</b>: Input port, expects HashMap<K,String><br>
+ * <b>first</b>: Output port, emits HashMap<K,String> if compare function returns true<br>
  * <br>
  * Properties:<br>
  * <b>key</b>: The key on which compare is done<br>
@@ -40,35 +40,44 @@ import java.util.HashMap;
  *
  * @author amol
  */
-public class FirstTillMatch<K, V extends Number> extends BaseMatchOperator<K>
+public class FirstTillMatchString<K, String> extends BaseMatchOperator<K>
 {
-  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
+  public final transient DefaultInputPort<HashMap<K, String>> data = new DefaultInputPort<HashMap<K, String>>(this)
   {
     @Override
-    public void process(HashMap<K, V> tuple)
+    public void process(HashMap<K, String> tuple)
     {
       if (emitted) {
         return;
       }
-      V val = tuple.get(key);
-      if (val == null) { // skip if the key does not exist
+      String val = tuple.get(key);
+      double tvalue = 0;
+      if (val == null) { // skip if key does not exist
         return;
       }
-      double tvalue = val.doubleValue();
-      if (((type == supported_type.LT) && (tvalue < value))
-              || ((type == supported_type.LTE) && (tvalue <= value))
-              || ((type == supported_type.EQ) && (tvalue == value))
-              || ((type == supported_type.NEQ) && (tvalue != value))
-              || ((type == supported_type.GT) && (tvalue > value))
-              || ((type == supported_type.GTE) && (tvalue >= value))) {
-        emitted = true;
+      boolean error = false;
+      try {
+        tvalue = Double.valueOf(val.toString()).doubleValue();
+      }
+      catch (NumberFormatException e) {
+        error = true;
+      }
+      if (!error) {
+        if (((type == supported_type.LT) && (tvalue < value))
+                || ((type == supported_type.LTE) && (tvalue <= value))
+                || ((type == supported_type.EQ) && (tvalue == value))
+                || ((type == supported_type.NEQ) && (tvalue != value))
+                || ((type == supported_type.GT) && (tvalue > value))
+                || ((type == supported_type.GTE) && (tvalue >= value))) {
+          emitted = true;
+        }
       }
       if (!emitted) {
         first.emit(tuple);
       }
     }
   };
-  public final transient DefaultOutputPort<HashMap<K, V>> first = new DefaultOutputPort<HashMap<K, V>>(this);
+  public final transient DefaultOutputPort<HashMap<K, String>> first = new DefaultOutputPort<HashMap<K, String>>(this);
   boolean emitted = false;
 
   @Override

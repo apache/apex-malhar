@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
  * <br>
  * <b>Ports</b>:
- * <b>data</b>: expects <K, ArrayList<V>><br>
+ * <b>data</b>: expects <K, V><br>
  * <b>index</b>: emits <V, ArrayList<K>><br>
  * <b>Properties</b>:
  * None<br>
@@ -36,24 +36,18 @@ import org.slf4j.LoggerFactory;
  * @author amol<br>
  *
  */
-public class InvertIndexArray<K, V> extends BaseOperator
+public class InvertIndex<K, V> extends BaseOperator
 {
-  public final transient DefaultInputPort<HashMap<K, ArrayList<V>>> data = new DefaultInputPort<HashMap<K, ArrayList<V>>>(this)
+  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
     /**
      * Reverse indexes a HashMap<K, ArrayList<V>> tuple
      */
     @Override
-    public void process(HashMap<K, ArrayList<V>> tuple)
+    public void process(HashMap<K, V> tuple)
     {
-      for (Map.Entry<K, ArrayList<V>> e: tuple.entrySet()) {
-        ArrayList<V> alist = e.getValue();
-        if (alist == null) { // error tuple?
-          continue;
-        }
-        for (V val : alist) {
-          insert(val, e.getKey());
-        }
+      for (Map.Entry<K, V> e: tuple.entrySet()) {
+          insert(e.getValue(), e.getKey());
       }
     }
   };

@@ -4,11 +4,9 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.GenericNode;
-import com.malhartech.api.FailedOperationException;
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.DefaultOutputPort;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,52 +15,82 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Takes two streams via input port "in_data1" and "in_data2", and outputs GroupBy property "Key" on output port out_data<p>
+ * Takes two streams via input port "data1" and "data2", and outputs GroupBy property "Key" on output port "groupby"<p>
  * <br>
  * Even though this module produces continuous tuples, at end of window all data is flushed. Thus the data set is windowed
  * and no history is kept of previous windows<br>
  * <br>
  * <b>Ports</b>
- * <b>in_data1</b>: Input data port expects HashMap<String, Object><br>
- * <b>in_data2</b>: Input data port expects HashMap<String, Object><br>
- * <b>out_data</b>: Output data port, emits HashMap<String, Object><br>
+ * <b>data1</b>: expects HashMap<K,V><br>
+ * <b>data2</b>: expects HashMap<K,V><br>
+ * <b>groupby</b>: emits HashMap<K,V><br>
  * <b>Properties</b>:<br>
  * <b>key</b>: The key to "groupby"<br>
- *
  * <b>Benchmarks></b>: TBD<br>
  * Compile time checks are:<br>
  * <b>key</b> cannot be empty<br>
  * <br>
  * Run time checks are:<br>
- * All incoming tuples must include the groupby key.
- *
- *
+ * All incoming tuples must include the key to groupby
+ *<br>
  * @author amol<br>
  *
  */
-@ModuleAnnotation(
-        ports = {
-  @PortAnnotation(name = GroupBy.IPORT_IN_DATA1, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = GroupBy.IPORT_IN_DATA2, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = GroupBy.OPORT_OUT_DATA, type = PortAnnotation.PortType.OUTPUT)
-})
-public class GroupBy extends GenericNode
+
+public class GroupBy<K,V> extends BaseOperator
 {
-  private static Logger LOG = LoggerFactory.getLogger(GroupBy.class);
-  public static final String IPORT_IN_DATA1 = "in_data1";
-  public static final String IPORT_IN_DATA2 = "in_data2";
-  public static final String OPORT_OUT_DATA = "out_data";
+  public final transient DefaultInputPort<HashMap<K,V>> data1 = new DefaultInputPort<HashMap<K,V>>(this)
+  {
+    @Override
+    public void process(HashMap<K,V> tuple)
+    {
+      V val = tuple.get(key);
+      if (val == null) { // emit error tuple
+        return;
+      }
+      emitTuples(tuple, map2.get(val), val);
+      registerTuple(tuple, map1, val);
+    }
+  };
+  public final transient DefaultInputPort<HashMap<K,V>> data2 = new DefaultInputPort<HashMap<K,V>>(this)
+  {
+    @Override
+    public void process(HashMap<K,V> tuple)
+    {
+      V val = tuple.get(key);
+      if (val == null) { // emit error tuple
+        return;
+      }
+      emitTuples(tuple, map1.get(val), val);
+      registerTuple(tuple, map2, val);
+    }
+  };
+  public final transient DefaultOutputPort<HashMap<K,V>> groupby = new DefaultOutputPort<HashMap<K,V>>(this);
+
+  protected void registerTuple(HashMap<K,V> tuple, HashMap<V,ArrayList<HashMap<K,V>>> map, V val) {
+      // Construct the data (HashMap) to be inserted into sourcemap
+      HashMap<K,V> data = new HashMap<K,V>();
+      for (Map.Entry<K,V> e: tuple.entrySet()) {
+        if (!e.getKey().equals(key)) {
+          data.put(e.getKey(), e.getValue());
+        }
+      }
+      ArrayList<HashMap<K,V>> list = map.get(val);
+      if (list == null) {
+        list = new ArrayList<HashMap<K,V>>();
+        map.put(val, list);
+      }
+      list.add(data);
+    }
+
+  K key;
+  HashMap<V,ArrayList<HashMap<K,V>>> map1 = new HashMap<V,ArrayList<HashMap<K,V>>>();
+  HashMap<V,ArrayList<HashMap<K,V>>> map2 = new HashMap<V,ArrayList<HashMap<K,V>>>();
 
 
-  String groupby = null;
-  HashMap<Object, Object> map1 = new HashMap<Object, Object>();
-  HashMap<Object, Object> map2 = new HashMap<Object, Object>();
-
-  /**
-   * The group by key
-   *
-   */
-  public static final String KEY_GROUPBY = "groupby";
+  public void setKey(K str) {
+    key = str;
+  }
 
 
   @Override
@@ -72,92 +100,24 @@ public class GroupBy extends GenericNode
     map2.clear();
   }
 
-  public void emitTuples(HashMap<String, Object> source, Object currentList, Object val) {
-    if (currentList == null) { // The currentList does not have the value yet
+  public void emitTuples(HashMap<K,V> source, ArrayList<HashMap<K,V>> list, V val) {
+    if (list == null) { // The currentList does not have the value yet
       return;
     }
 
-    ArrayList<HashMap<String, Object>> list = (ArrayList<HashMap<String, Object>>) currentList;
-    HashMap<String, Object> tuple;
-    for (HashMap<String, Object> e : list) {
-      tuple = new HashMap<String, Object>();
-      tuple.put(groupby, val);
-      for (Map.Entry<String, Object> o : e.entrySet()) {
+    HashMap<K,V> tuple;
+    for (HashMap<K,V> e : list) {
+      tuple = new HashMap<K,V>();
+      tuple.put(key, val);
+      for (Map.Entry<K,V> o : e.entrySet()) {
         tuple.put(o.getKey(), o.getValue());
       }
-      for (Map.Entry<String, Object> o : source.entrySet()) {
-        if (!o.getKey().equals(groupby)) {
+      for (Map.Entry<K,V> o : source.entrySet()) {
+        if (!o.getKey().equals(key)) {
           tuple.put(o.getKey(), o.getValue());
         }
       }
-       emit(tuple);
+      groupby.emit(tuple);
     }
-  }
-
-  /**
-   *
-   * Takes in a key and an arrayIndex. ReverseIndexes the strings in the ArrayIndex
-   *
-   * @param payload
-   */
-  @Override
-  public void process(Object payload)
-  {
-    Object val = ((HashMap<String, Object>) payload).get(groupby);
-    if (val == null) { // emit error tuple
-      return;
-    }
-    boolean prt1 = IPORT_IN_DATA1.equals(getActivePort());
-    HashMap<Object, Object> sourcemap = prt1 ? map1 : map2;
-    HashMap<Object, Object> othermap = prt1 ? map2 : map1;
-
-    // emit tuples with the other source.
-    emitTuples((HashMap<String, Object>) payload, othermap.get(val), val);
-
-    // Construct the data (HashMap) to be inserted into sourcemap
-    HashMap<String, Object> data = new HashMap<String, Object>();
-    for (Map.Entry<String, Object> e: ((HashMap<String, Object>)payload).entrySet()) {
-        if (!e.getKey().equals(groupby)) {
-          data.put(e.getKey(), e.getValue());
-        }
-    }
-
-    ArrayList<HashMap<String, Object>> list = (ArrayList<HashMap<String, Object>>) sourcemap.get(val);
-    if (list == null) {
-      list = new ArrayList<HashMap<String, Object>>();
-      sourcemap.put(val, list);
-    }
-    list.add(data);
-  }
-
-  /**
-   *
-   * @param config
-   * @return boolean
-   */
-  public boolean myValidation(OperatorConfiguration config)
-  {
-    boolean ret = true;
-    groupby = config.get(KEY_GROUPBY);
-
-    if ((groupby == null) || (groupby.isEmpty())) {
-      ret = false;
-      throw new IllegalArgumentException(String.format("Parameter \"%s\" is empty", KEY_GROUPBY));
-    }
-    return ret;
-  }
-
-  /**
-   *
-   * @param config
-   */
-  @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
-  {
-    if (!myValidation(config)) {
-      throw new FailedOperationException("Did not pass validation");
-    }
-    groupby = config.get(KEY_GROUPBY);
-    LOG.debug(String.format("Set up: \"groupby\" key set to %s", groupby));
   }
 }

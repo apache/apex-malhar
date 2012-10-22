@@ -11,13 +11,13 @@ import java.util.HashMap;
 /**
  *
  * Takes in one stream via input port "data". Each tuple is tested for the compare function. The function is given by
- * "key", "value", and "compare". If any tuple passes a Boolean(true) is emitted, else a Boolean(false) is emitted on the output port "any".
+ * "key", "value", and "compare". If all tuples passes a Boolean(true) is emitted, else a Boolean(false) is emitted on end of window on the output port "all".
  * The comparison is done by getting double value from the Number.<p>
- * This module is a pass through as it emits the moment the condition is met<br>
+ * This module is an end of window module<br>
  * <br>
  * Ports:<br>
- * <b>data</b>: Input port, expects HashMap<K,V extends Number><br>
- * <b>any</b>: Output port, emits Boolean<br>
+ * <b>data</b>: Input port, expects HashMap<K,String><br>
+ * <b>all</b>: Output port, emits Boolean<br>
  * <br>
  * Properties:<br>
  * <b>key</b>: The key on which compare is done<br>
@@ -36,38 +36,49 @@ import java.util.HashMap;
  *
  * @author amol
  */
-public class MatchAny<K, V extends Number> extends BaseMatchOperator<K>
+public class MatchAllString<K, String> extends BaseMatchOperator<K>
 {
-  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
+  public final transient DefaultInputPort<HashMap<K, String>> data = new DefaultInputPort<HashMap<K, String>>(this)
   {
     @Override
-    public void process(HashMap<K, V> tuple)
+    public void process(HashMap<K, String> tuple)
     {
-      if (result) {
+      if (!result) {
         return;
       }
-      V val = tuple.get(key);
+      String val = tuple.get(key);
       if (val == null) { // skip if key does not exist
         return;
       }
-      double tvalue = val.doubleValue();
-      if (((type == supported_type.LT) && (tvalue < value))
+      double tvalue = 0;
+      boolean errortuple = false;
+      try {
+        tvalue = Double.parseDouble(val.toString());
+      }
+      catch (NumberFormatException e) {
+        errortuple = true;
+      }
+      result = !errortuple
+              && ((type == supported_type.LT) && (tvalue < value))
               || ((type == supported_type.LTE) && (tvalue <= value))
               || ((type == supported_type.EQ) && (tvalue == value))
               || ((type == supported_type.NEQ) && (tvalue != value))
               || ((type == supported_type.GT) && (tvalue > value))
-              || ((type == supported_type.GTE) && (tvalue >= value))) {
-        result = true;
-        any.emit(true);
-      }
+              || ((type == supported_type.GTE) && (tvalue >= value));
     }
   };
-  public final transient DefaultOutputPort<Boolean> any = new DefaultOutputPort<Boolean>(this);
-  Boolean result = false;
+  public final transient DefaultOutputPort<Boolean> all = new DefaultOutputPort<Boolean>(this);
+  Boolean result = true;
 
   @Override
   public void beginWindow()
   {
-    result = false;
+    result = true;
+  }
+
+  @Override
+  public void endWindow()
+  {
+    all.emit(result);
   }
 }
