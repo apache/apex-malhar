@@ -4,11 +4,10 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractInputModule;
-import com.malhartech.dag.ModuleConfiguration;
-import java.util.HashMap;
+import com.malhartech.api.AsyncInputOperator;
+import com.malhartech.api.Context;
+import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.api.OperatorConfiguration;
 import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,155 +43,79 @@ import org.slf4j.LoggerFactory;
  *
  * @author amol
  */
-@ModuleAnnotation(
-        ports = {
-  @PortAnnotation(name = RandomEventGenerator.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT)
-})
-public class LoadRandomGenerator extends AsyncInputNode
+public class RandomEventGenerator implements AsyncInputOperator
 {
-  public static final String OPORT_DATA = "data";
-  private static Logger LOG = LoggerFactory.getLogger(RandomEventGenerator.class);
-  final int tuples_blast_default_value = 1000;
-  final int sleep_time_default_value = 100;
-  final int min_value_default_value = 0;
-  final int max_value_default_value = 100;
-
-  protected int tuples_blast = tuples_blast_default_value;
-  protected int sleep_time = sleep_time_default_value;
-  int min_value = min_value_default_value;
-  int max_value = max_value_default_value;
-  boolean isstringschema = false;
+  public final transient DefaultOutputPort<String> string_data = new DefaultOutputPort<String>(this);
+  public final transient DefaultOutputPort<Integer> integer_data = new DefaultOutputPort<Integer>(this);
+  
+  protected int tuples_blast = 1000;
+  int min_value = 0;
+  int max_value = 100;
   private final Random random = new Random();
 
-  /**
-   * An integer specifying min_value.
-   *
-   */
-  public static final String KEY_MIN_VALUE = "min_value";
-  /**
-   * An integer specifying max_value.
-   */
-  public static final String KEY_MAX_VALUE = "max_value";
-  /**
-   * The number of tuples sent out per milli second
-   */
-  public static final String KEY_TUPLES_BLAST = "tuples_blast";
-
-  /**
-   * If specified as "true" a String class is sent, else Integer is sent
-   */
-  public static final String KEY_STRING_SCHEMA = "string_schema";
-
-  /**
-   * If specified as "true" a String class is sent, else Integer is sent
-   */
-  public static final String KEY_SLEEP_TIME = "sleep_time";
-
-  /**
-   *
-   * Code to be moved to a proper base method name
-   *
-   * @param config
-   * @return boolean
-   */
-  public boolean myValidation(OperatorConfiguration config)
+  public void setMaxvalue(int i)
   {
-    String minstr = config.get(KEY_MIN_VALUE, "0");
-    String maxstr = config.get(KEY_MAX_VALUE, "100");
-    isstringschema = config.getBoolean(KEY_STRING_SCHEMA, false);
-    boolean ret = true;
+    max_value = i;
+  }
 
-    try {
-      min_value = Integer.parseInt(minstr);
-    }
-    catch (NumberFormatException e) {
-      ret = false;
-      throw new IllegalArgumentException(String.format("min_value should be an integer (%s)", minstr));
-    }
+  public void setMinvalue(int i)
+  {
+    min_value = i;
+  }
 
-    try {
-      max_value = Integer.parseInt(maxstr);
-    }
-    catch (NumberFormatException e) {
-      ret = false;
-      throw new IllegalArgumentException(String.format("max_value should be an integer (%s)", maxstr));
-    }
+  public void setTuplesblast(int i)
+  {
+    tuples_blast = i;
+  }
 
+  @Override
+  public void setup(OperatorConfiguration config)
+  {
     if (max_value <= min_value) {
-      ret = false;
-      throw new IllegalArgumentException(String.format("min_value (%s) should be < max_value(%s)", minstr, maxstr));
+      throw new IllegalArgumentException(String.format("min_value (%d) should be < max_value(%d)", min_value, max_value));
     }
-
-    tuples_blast = config.getInt(KEY_TUPLES_BLAST, tuples_blast_default_value);
-    if (tuples_blast <= 0) {
-      ret = false;
-      throw new IllegalArgumentException(
-              String.format("tuples_blast (%d) has to be > 0", tuples_blast));
-    }
-    else {
-      LOG.debug(String.format("Using %d tuples per second", tuples_blast));
-    }
-
-    sleep_time = config.getInt(KEY_SLEEP_TIME, sleep_time_default_value);
-    if (sleep_time <= 0) {
-      ret = false;
-      throw new IllegalArgumentException(
-              String.format("sleep time  (%d) has to be > 0", sleep_time));
-    }
-    else {
-      LOG.debug(String.format("Using %d as sleep time", sleep_time));
-    }
-
-    return ret;
   }
 
-  /**
-   * Sets up all the config parameters. Assumes checking is done and has passed
-   *
-   * @param config
-   */
   @Override
-  public void setup(ModuleConfiguration config)
-  {
-    if (!myValidation(config)) {
-      throw new IllegalArgumentException("Did not pass validation");
-    }
-
-    isstringschema = config.getBoolean(KEY_STRING_SCHEMA, false);
-    tuples_blast = config.getInt(KEY_TUPLES_BLAST, tuples_blast_default_value);
-    min_value = config.getInt(KEY_MIN_VALUE, min_value_default_value);
-    max_value = config.getInt(KEY_MAX_VALUE, max_value_default_value);
-    sleep_time = config.getInt(KEY_SLEEP_TIME, sleep_time_default_value);
-  }
-
-  /**
-   * Generates all the tuples till shutdown (deactivate) is issued
-   *
-   * @param context
-   */
-  @Override
-  public void process(Object payload)
+  public void injectTuples(long windowId)
   {
     int range = max_value - min_value + 1;
     int i = 0;
     // Need to add a key, if key is provided send HashMap
     while (i < tuples_blast) {
       int rval = min_value + random.nextInt(range);
-      if (!isstringschema) {
-        emit(OPORT_DATA, new Integer(rval));
+      if (integer_data.isConnected()) {
+        integer_data.emit(new Integer(rval));
       }
-      else {
-        emit(OPORT_DATA, Integer.toString(rval));
+      if (string_data.isConnected()) {
+        string_data.emit(Integer.toString(rval));
       }
       i++;
     }
-    // we want to not overwhelm the downstream nodes
-    // the sleep interval should be dynamically determined:
-    // desired update interval / number of phone numbers
-    try {
-      Thread.sleep(sleep_time);
-    } catch (InterruptedException e) {
+  }
 
-    }
+  @Override
+  public void beginWindow()
+  {
+  }
+
+  @Override
+  public void endWindow()
+  {
+  }
+
+  @Override
+  public void activated(Context context)
+  {
+  }
+
+  @Override
+  public void deactivated()
+  {
+  }
+
+  @Override
+  public void teardown()
+  {
   }
 }
