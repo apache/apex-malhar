@@ -50,7 +50,7 @@ public class ApplicationEventGenerator implements ApplicationFactory
     dag.getConf().setInt(DAG.STRAM_CHECKPOINT_INTERVAL_MILLIS, 0); // disable auto backup
     EventGenerator lgen = getLoadGenerator("lgen", dag);
     DevNullCounter devnull = getDevNull("devnull", dag);
-    dag.addStream("lgen2devnull", lgen.string_data, devnull.input).setInline(inline);
+    dag.addStream("lgen2devnull", lgen.string_data, devnull.data).setInline(inline);
     return dag;
   }
 }
