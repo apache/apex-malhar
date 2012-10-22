@@ -4,14 +4,10 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
 import com.malhartech.api.AsyncInputOperator;
+import com.malhartech.api.Context;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.dag.AsyncInputNode;
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.api.Sink;
-import com.malhartech.dag.OperatorContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -26,6 +22,10 @@ import org.slf4j.LoggerFactory;
  * nodes.<br>
  * It does not need to be windowed. It would just create tuple stream upto the limit set
  * by the config parameters.<br>
+ * <b>Ports</b>:
+ * <b>string_data</b>: emits String<br>
+ * <b>hash_data</b>: emits HashMap<String,Double><br>
+ * <b>count<b>: emits HashMap<String, Number>, contains per window count of throughput<br>
  * <br>
  * <b>Tuple Schema</b>: Has two choices HashMap<String, Double>, or String<br><br>
  * <b>Benchmarks></b>: Send as many tuples in in-line mode, the receiver just counts the tuples and drops the object<br>
@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
  * <b>weights</b> are comma separated list of probability weights for each key. If not specified the weights are even for all keys<br>
  * <b>tuples_blast</b> is the total number of tuples sent out before the thread returns control. The default value is 10000<br>
  * <b>max_windows_count</b>The number of windows after which the node would shut down. If not set, the node runs forever<br>
- * <b>string_schema</b> controls the tuple schema. For string set it to "true". By default it is "false" (i.e. HashMap schema)<br>
  * <br>
  * Compile time checks are:<br>
  * <b>keys</b> cannot be empty<br>
@@ -55,9 +54,11 @@ import org.slf4j.LoggerFactory;
 public class EventGenerator implements AsyncInputOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(EventGenerator.class);
+
   public final transient DefaultOutputPort<String> string_data = new DefaultOutputPort<String>(this);
   public final transient DefaultOutputPort<HashMap<String, Double>> hash_data = new DefaultOutputPort<HashMap<String, Double>>(this);
   public final transient DefaultOutputPort<HashMap<String, Number>> count = new DefaultOutputPort<HashMap<String, Number>>(this);
+
   public static final String OPORT_COUNT_TUPLE_AVERAGE = "avg";
   public static final String OPORT_COUNT_TUPLE_COUNT = "count";
   public static final String OPORT_COUNT_TUPLE_TIME = "window_time";
@@ -79,41 +80,12 @@ public class EventGenerator implements AsyncInputOperator
   transient int count_denominator = 1;
   transient int count_windowid = 0;
   private transient long windowStartTime = 0;
-  /**
-   * keys are comma separated list of keys for the load. These keys are send
-   * one per tuple as per the other parameters
-   *
-   */
-  public static final String KEY_KEYS = "keys";
-  /**
-   * values are to be assigned to each key. The tuple thus is a key,value
-   * pair. The value field can either be empty (no value to any key), or a
-   * comma separated list of values. If values list is provided, the number
-   * must match the number of keys
-   */
-  public static final String KEY_VALUES = "values";
-  /**
-   * The weights define the probability of each key being assigned to current
-   * tuple. The total of all weights is equal to 100%. If weights are not
-   * specified then the probability is equal.
-   */
-  public static final String KEY_WEIGHTS = "weights";
-  /**
-   * The number of tuples sent out before it returns control. Users need to ensure that this does not cross window boundary
-   */
-  public static final String KEY_TUPLES_BLAST = "tuples_blast";
-  /**
-   * The Maximum number of Windows to pump out.
-   */
-  public static final String MAX_WINDOWS_COUNT = "max_windows_count";
-  /**
-   * If specified as "true" a String class is sent, else HashMap is sent
-   */
-  public static final String KEY_STRING_SCHEMA = "string_schema";
+
   private int generatedTupleCount;
   private String[] key_keys = new String[0];
   private String[] key_weights = new String[0];
   private String[] key_values = new String[0];
+
 
   /**
    *
@@ -125,44 +97,6 @@ public class EventGenerator implements AsyncInputOperator
   public boolean myValidation(OperatorConfiguration config)
   {
     boolean ret = true;
-
-    if (key_keys.length == 0) {
-      ret = false;
-      throw new IllegalArgumentException("Parameter \"key\" is empty");
-    }
-    else {
-      LOG.debug(String.format("Number of keys are %d", key_keys.length));
-    }
-
-    if (key_weights.length == 0) {
-      LOG.debug("weights was not provided, so keys would be equally weighted");
-    }
-    else {
-      for (String s: key_weights) {
-        try {
-          Integer.parseInt(s);
-        }
-        catch (NumberFormatException e) {
-          ret = false;
-          throw new IllegalArgumentException(String.format("Weight string should be an integer(%s)", s));
-        }
-      }
-    }
-
-    if (key_values.length == 0) {
-      LOG.debug("values was not provided, so keys would have value of 0");
-    }
-    else {
-      for (String s: key_values) {
-        try {
-          Double.parseDouble(s);
-        }
-        catch (NumberFormatException e) {
-          ret = false;
-          throw new IllegalArgumentException(String.format("Value string should be float(%s)", s));
-        }
-      }
-    }
 
     if ((key_weights.length != 0) && (key_weights.length != key_keys.length)) {
       ret = false;
@@ -176,9 +110,6 @@ public class EventGenerator implements AsyncInputOperator
               String.format("Number of values (%d) does not match number of keys (%d)",
                             key_values.length, key_keys.length));
     }
-
-    maxCountOfWindows = config.getInt(MAX_WINDOWS_COUNT, Integer.MAX_VALUE);
-    LOG.debug("{} set to generate data for {} windows", this, maxCountOfWindows);
     return ret;
   }
 
@@ -193,8 +124,6 @@ public class EventGenerator implements AsyncInputOperator
     if (!myValidation(config)) {
       throw new RuntimeException("Did not pass validation");
     }
-
-    maxCountOfWindows = config.getInt(MAX_WINDOWS_COUNT, Integer.MAX_VALUE);
 
     if (rolling_window_count != 1) { // Initialized the tuple_numbers
       tuple_numbers = new long[rolling_window_count];
@@ -246,7 +175,6 @@ public class EventGenerator implements AsyncInputOperator
   @Override
   public void endWindow()
   {
-    //LOG.info(this +" endWindow: " + maxCountOfWindows + ", time=" + System.currentTimeMillis() + ", emitCount=" + emitCount);
     if (count.isConnected() && generatedTupleCount > 0) {
       long elapsedTime = System.currentTimeMillis() - windowStartTime;
       if (elapsedTime == 0) {
@@ -335,11 +263,6 @@ public class EventGenerator implements AsyncInputOperator
   }
 
   @Override
-  public void activated(OperatorContext context)
-  {
-  }
-
-  @Override
   public void deactivated()
   {
   }
@@ -347,6 +270,10 @@ public class EventGenerator implements AsyncInputOperator
   @Override
   public void teardown()
   {
+  }
+
+  public void setMaxcountofwindows(int i) {
+    maxCountOfWindows = i;
   }
 
   public void setKeys(String key)
@@ -378,5 +305,10 @@ public class EventGenerator implements AsyncInputOperator
   public void setRollingWindowCount(int rolling_window_count)
   {
     this.rolling_window_count = rolling_window_count;
+  }
+
+  @Override
+  public void activated(Context context)
+  {
   }
 }
