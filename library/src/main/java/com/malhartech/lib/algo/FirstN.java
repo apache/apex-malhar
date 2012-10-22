@@ -4,10 +4,10 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.GenericNode;
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.MutableInteger;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -19,8 +19,8 @@ import org.slf4j.LoggerFactory;
  * This module is a pass through module<br>
  * <br>
  * Ports:<br>
- * <b>data</b>: Input port, expects HashMap<String, Object><br>
- * <b>first</b>: Output port, emits HashMap<String, Object><br>
+ * <b>data</b>: expects HashMap<K, V><br>
+ * <b>first</b>: emits HashMap<K, V><br>
  * <br>
  * Properties:<br>
  * <b>n</b>: Number of tuples to pass through for each key. Default value of N is 1.<br>
@@ -36,114 +36,42 @@ import org.slf4j.LoggerFactory;
  * @author amol
  */
 
-
-@ModuleAnnotation(
-        ports = {
-  @PortAnnotation(name = FirstN.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = FirstN.OPORT_FIRST, type = PortAnnotation.PortType.OUTPUT)
-})
-public class FirstN extends GenericNode
+public class FirstN<K,V> extends BaseOperator
 {
-  public static final String IPORT_DATA = "data";
-  public static final String OPORT_FIRST = "first";
-  private static Logger LOG = LoggerFactory.getLogger(FirstN.class);
+  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
+  {
+    @Override
+    public void process(HashMap<K, V> tuple)
+    {
+      for (Map.Entry<K, V> e: tuple.entrySet()) {
+        MutableInteger count = keycount.get(e.getKey());
+        if (count == null) {
+          count = new MutableInteger(0);
+          keycount.put(e.getKey(), count);
+        }
+        count.value++;
+        if (count.value <= n) {
+          HashMap<K, V> dtuple = new HashMap<K, V>(1);
+          dtuple.put(e.getKey(), e.getValue());
+          first.emit(dtuple);
+        }
+      }
+    }
+  };
+  public final transient DefaultOutputPort<HashMap<K, V>> first = new DefaultOutputPort<HashMap<K, V>>(this);
 
-  HashMap<String, myInteger> keycount = null;
+  HashMap<K, MutableInteger> keycount = new HashMap<K, MutableInteger>();
 
   int n_default_value = 1;
   int n = n_default_value;
 
-  class myInteger {
-    public myInteger(int i) {value = i;}
-    int value;
-  }
-
-  /**
-   * The number of tuples to emit for each key
-   *
-   */
-  public static final String KEY_N = "n";
-
-
-  /**
-   * Process each tuple
-   *
-   * @param payload
-   */
-  @Override
-  @SuppressWarnings("ManualArrayToCollectionCopy")
-  public void process(Object payload)
-  {
-    for (Map.Entry<String, Object> e: ((HashMap<String, Object>)payload).entrySet()) {
-      myInteger count = keycount.get(e.getKey());
-      if (count == null) {
-        count = new myInteger(0);
-        keycount.put(e.getKey(), count);
-      }
-      count.value++;
-      if (count.value <= n) {
-        HashMap<String, Object> tuple = new HashMap<String, Object>(1);
-        tuple.put(e.getKey(), e.getValue());
-        emit(tuple);
-      }
-    }
+  public void setN(int val) {
+    n = val;
   }
 
   @Override
   public void beginWindow()
   {
     keycount.clear();
-  }
-
-  public boolean myValidation(OperatorConfiguration config)
-  {
-    boolean ret = true;
-
-    String nstr = config.get(KEY_N, "");
-
-    try {
-      int value = Integer.parseInt(nstr);
-    }
-    catch (NumberFormatException e) {
-      ret = false;
-      throw new IllegalArgumentException(String.format("Property \"%s\" is not a valid integer", KEY_N, nstr));
-    }
-    return ret;
-  }
-   /**
-   *
-   * @param config
-   */
-  @Override
-  public void setup(OperatorConfiguration config)
-  {
-    if (!myValidation(config)) {
-      throw new RuntimeException("validation failed");
-    }
-    n = config.getInt(KEY_N, n_default_value);
-    keycount = new HashMap<String, myInteger>();
-    LOG.debug(String.format("Set up take for %d tuples", n));
-    count = new int[count_size];
-    current_loc = 0;
-    for (int i = 0; i < count_size; i++) {
-      count[i] = 0;
-    }
-    keyloc = new HashMap<String, Integer>();
-  }
-
-
-  /**
-   *
-   * Checks for user specific configuration values<p>
-   *
-   * @param config
-   * @return boolean
-   */
-  @Override
-  public boolean checkConfiguration(OperatorConfiguration config)
-  {
-    boolean ret = true;
-    // TBD
-    return ret && super.checkConfiguration(config);
   }
 }

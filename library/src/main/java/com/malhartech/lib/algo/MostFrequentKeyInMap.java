@@ -13,11 +13,11 @@ import java.util.Map;
 
 /**
  *
- * Takes in one stream via input port "data". Occurrences of each key is counted and at the end of window the least frequent key is emitted on output port "count"<p>
+ * Takes in one stream via input port "data". Occurrences of each key is counted and at the end of window the most frequent key is emitted on output port "count"<p>
  * This module is an end of window module<br>
  * <br>
  * Ports:<br>
- * <b>data</b>: expects K<br>
+ * <b>data</b>: expects HashMap<K,V>, V is ignored/not used<br>
  * <b>count</b>: emits HashMap<K, Integer>(1); where String is the least frequent key, and Integer is the number of its occurrences in the window<br>
  * <br>
  * Properties:<br>
@@ -34,19 +34,22 @@ import java.util.Map;
  *
  * @author amol
  */
-public class LeastFrequentKey<K> extends BaseOperator
+public class MostFrequentKeyInMap<K,V> extends BaseOperator
 {
-  public final transient DefaultInputPort<K> data = new DefaultInputPort<K>(this)
+  public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>(this)
   {
     @Override
-    public void process(K tuple)
+    public void process(HashMap<K,V> tuple)
     {
-      MutableInteger count = keycount.get(tuple);
-      if (count == null) {
-        count = new MutableInteger(0);
-        keycount.put(tuple, count);
+      for (Map.Entry<K, V> e: tuple.entrySet()) {
+        K key = e.getKey();
+        MutableInteger count = keycount.get(key);
+        if (count == null) {
+          count = new MutableInteger(0);
+          keycount.put(key, count);
+        }
+        count.value++;
       }
-      count.value++;
     }
   };
   public final transient DefaultOutputPort<HashMap<K, Integer>> count = new DefaultOutputPort<HashMap<K, Integer>>(this);
@@ -65,7 +68,7 @@ public class LeastFrequentKey<K> extends BaseOperator
     int kval = -1;
     for (Map.Entry<K, MutableInteger> e: keycount.entrySet()) {
       if ((kval == -1) || // first key
-              (e.getValue().value < kval)) {
+              (e.getValue().value > kval)) {
         key = e.getKey();
         kval = e.getValue().value;
       }
