@@ -4,16 +4,13 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.GenericNode;
+
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.OperatorConfiguration;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Takes a in stream <b>data</b> as a HashMap<String, Integer> and add all integer values. On end of window this total and average is
@@ -38,16 +35,21 @@ import org.slf4j.LoggerFactory;
  *
  * @author amol
  */
-@ModuleAnnotation(
-        ports = {
-  @PortAnnotation(name = ThroughputCounter.IPORT_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = ThroughputCounter.OPORT_COUNT, type = PortAnnotation.PortType.OUTPUT)
-})
-public class ThroughputCounter extends GenericNode
+
+public class ThroughputCounter<K> extends BaseOperator
 {
-  public static final String IPORT_DATA = "in_data";
-  public static final String OPORT_COUNT = "out_data";
-  private static Logger LOG = LoggerFactory.getLogger(ThroughputCounter.class);
+  public final transient DefaultInputPort<HashMap<K, Integer>> data = new DefaultInputPort<HashMap<K, Integer>>(this)
+  {
+    @Override
+    public void process(HashMap<K, Integer> tuple)
+    {
+      for (Map.Entry<K, Integer> e: tuple.entrySet()) {
+        tuple_count += e.getValue().longValue();
+      }
+    }
+  };
+
+  public final transient DefaultOutputPort<HashMap<String,Number>> count = new DefaultOutputPort<HashMap<String, Number>>(this);
 
   public static final String OPORT_COUNT_TUPLE_AVERAGE = "avg";
   public static final String OPORT_COUNT_TUPLE_COUNT = "count";
@@ -65,52 +67,14 @@ public class ThroughputCounter extends GenericNode
   long count_windowid = 0;
   long tuple_count = 1; // so that the first begin window starts the count down
 
-
-
-  /**
-   *
-   * The Maximum number of Windows to pump out.
-   */
-  public static final String ROLLING_WINDOW_COUNT = "rolling_window_count";
-
-
-  /**
-   *
-   * Code to be moved to a proper base method name
-   *
-   * @param config
-   * @return boolean
-   */
-  public boolean myValidation(OperatorConfiguration config)
+  void setRollingWindowCount(int i)
   {
-    String rstr = config.get(ROLLING_WINDOW_COUNT);
-    boolean ret = true;
-
-    if ((rstr != null) && !rstr.isEmpty()) {
-      try {
-        Integer.parseInt(rstr);
-      }
-      catch (NumberFormatException e) {
-        ret = false;
-        throw new IllegalArgumentException(String.format("%s has to be an integer (%s)", ROLLING_WINDOW_COUNT, rstr));
-      }
-    }
-    return ret;
+    rolling_window_count = i;
   }
 
-  /**
-   * Sets up all the config parameters. Assumes checking is done and has passed
-   *
-   * @param config
-   */
   @Override
   public void setup(OperatorConfiguration config)
   {
-    if (!myValidation(config)) {
-      throw new RuntimeException("Did not pass validation");
-    }
-
-    rolling_window_count = config.getInt(ROLLING_WINDOW_COUNT, rolling_window_count_default);
     windowStartTime = 0;
     if (rolling_window_count != 1) { // Initialized the tuple_numbers
       tuple_numbers = new long[rolling_window_count];
@@ -131,7 +95,6 @@ public class ThroughputCounter extends GenericNode
       tuple_count = 0;
     }
   }
-
 
   /**
    * convenient method for not sending more than configured number of windows.
@@ -183,37 +146,6 @@ public class ThroughputCounter extends GenericNode
     tuples.put(OPORT_COUNT_TUPLE_TIME, new Long(elapsedTime));
     tuples.put(OPORT_COUNT_TUPLE_TUPLES_PERSEC, new Long(tuples_per_sec));
     tuples.put(OPORT_COUNT_TUPLE_WINDOWID, new Long(count_windowid++));
-    emit(OPORT_COUNT, tuples);
-  }
-
-
-
-  /**
-   * Process each tuple. Expects upstream node to compute number of tuples in that window and send it as an int
-   *
-   * @param payload
-   */
-  @Override
-  public void process(Object payload)
-  {
-    HashMap<String, Integer> tuples = (HashMap<String, Integer>) payload;
-    for (Map.Entry<String, Integer> e: ((HashMap<String, Integer>) payload).entrySet()) {
-      tuple_count += e.getValue().longValue();
-    }
-  }
-
-  /**
-   *
-   * Checks for user specific configuration values<p>
-   *
-   * @param config
-   * @return boolean
-   */
-  @Override
-  public boolean checkConfiguration(OperatorConfiguration config)
-  {
-    boolean ret = true;
-    // TBD
-    return ret && super.checkConfiguration(config);
+    count.emit(tuples);
   }
 }
