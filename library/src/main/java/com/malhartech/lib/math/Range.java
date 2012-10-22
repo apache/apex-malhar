@@ -17,7 +17,7 @@ import java.util.Map;
  * for each key and emits them on port "range"<p>
  * <br>
  * <b>Ports</b>
- * <b>data</b> expects HashMap<K,V><br>
+ * <b>data</b> expects HashMap<K,V extends Number><br>
  * <b>range</b> emits HashMap<K,ArrayList<V>>, each key has two entries, first Max and next Min<br>
 * <b>Compile time check</b>
 * None<br>
@@ -88,8 +88,6 @@ public class Range<K, V extends Number> extends BaseOperator
     if (!tuples.isEmpty()) {
       range.emit(tuples);
     }
-    high.clear();
-    low.clear();
   }
 }
 
