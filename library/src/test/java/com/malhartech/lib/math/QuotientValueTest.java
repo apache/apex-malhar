@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class RangeValueTest {
+public class QuotientValueTest {
     private static Logger LOG = LoggerFactory.getLogger(Sum.class);
 
     class TestSink implements Sink {
@@ -47,45 +47,43 @@ public class RangeValueTest {
 
   public void testNodeSchemaProcessing(boolean sum, boolean count)
   {
-    RangeValue<Double> oper = new RangeValue<Double>();
-    TestSink rangeSink = new TestSink();
+    QuotientValue<Double> oper = new QuotientValue<Double>();
+    TestSink quotientSink = new TestSink();
     if (sum) {
-      oper.range.setSink(rangeSink);
+      oper.quotient.setSink(quotientSink);
     }
 
     // Not needed, but still setup is being called as a matter of discipline
     oper.setup(new OperatorConfiguration());
+    oper.setMult_by(2);
+
     oper.beginWindow(); //
-
-    Double a = new Double(2.0);
+    Double a = new Double(30.0);
     Double b = new Double(20.0);
-    Double c = new Double(1000.0);
+    Double c = new Double(100.0);
+    oper.denominator.process(a);
+    oper.denominator.process(b);
+    oper.denominator.process(c);
 
-    oper.data.process(a);
-    oper.data.process(b);
-    oper.data.process(c);
+    a = 5.0; oper.numerator.process(a);
+    a = 1.0; oper.numerator.process(a);
+    b = 44.0; oper.numerator.process(b);
 
-    a = 1.0; oper.data.process(a);
-    a = 10.0; oper.data.process(a);
-    b = 5.0; oper.data.process(b);
+    b = 10.0; oper.numerator.process(b);
+    c = 22.0; oper.numerator.process(c);
+    c = 18.0; oper.numerator.process(c);
 
-    b = 12.0; oper.data.process(b);
-    c = 22.0; oper.data.process(c);
-    c = 14.0; oper.data.process(c);
-
-    a = 46.0; oper.data.process(a);
-    b = 2.0; oper.data.process(b);
-    a = 23.0; oper.data.process(a);
-
+    a = 0.5; oper.numerator.process(a);
+    b = 41.5; oper.numerator.process(b);
+    a = 8.0; oper.numerator.process(a);
     oper.endWindow(); //
 
     if (sum) {
       // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
-      Assert.assertEquals("number emitted tuples", 1, rangeSink.collectedTuples.size());
-      for (Object o: rangeSink.collectedTuples) { // sum is 1157
-        ArrayList<Double> list = (ArrayList<Double>) o;
-        Assert.assertEquals("emitted high value was ", new Double(1000.0), list.get(0));
-        Assert.assertEquals("emitted low value was ", new Double(1.0), list.get(1));
+      Assert.assertEquals("number emitted tuples", 1, quotientSink.collectedTuples.size());
+      for (Object o: quotientSink.collectedTuples) { // sum is 1157
+        Double val = (Double) o;
+        Assert.assertEquals("emitted quotient value was ", new Double(2.0), val);
       }
     }
   }

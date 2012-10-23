@@ -3,7 +3,6 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.api.Context;
 import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.TestSink;
@@ -11,7 +10,6 @@ import com.malhartech.dag.Tuple;
 import com.malhartech.stream.StramTestSupport;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
