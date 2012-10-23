@@ -10,8 +10,7 @@ import com.malhartech.api.DefaultOutputPort;
 
 /**
  *
- * Takes in one stream via input port "data". At end of window sends maximum of all values
- * for each key and emits them on port "max"<p>
+ * Takes in one stream via input port "data". At end of window sends maximum of all incoming tuples on port "max"<p>
  * <br>
  * <b>Ports</b>:
  * <b>data</b> expects V extends Number<br>

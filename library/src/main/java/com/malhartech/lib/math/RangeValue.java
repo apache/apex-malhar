@@ -13,8 +13,7 @@ import java.util.Map;
 
 /**
  *
- * Takes in one stream via input port "data". At end of window sends range of all values
- * for each key and emits them on port "range"<p>
+ * Takes in one stream via input port "data". At end of window sends range of all values on port "range"<p>
  * <br>
  * <b>Ports</b>
  * <b>data</b> expects V extends Number<br>

@@ -16,7 +16,8 @@ import java.util.Map;
  *
  * Takes in two streams via input ports "numerator" and "denominator". At the
  * end of window computes the quotient for each key and emits the result on port
- * "quotient".<p> <br>
+ * "quotient".<p>
+ * <br>
  * <b>Ports</b>:
  * <b>numerator</b> expects HashMap<K,V extends Number><br>
  * <b>denominator</b> expects HashMap<K,V extends Number><br>
@@ -34,7 +35,7 @@ import java.util.Map;
  * Benchmarks:<br>
  * With HashMap schema the node does about 3 Million/tuples per second<br>
  * <br>
- *
+ * <br>
  * @author amol<br>
  *
  */

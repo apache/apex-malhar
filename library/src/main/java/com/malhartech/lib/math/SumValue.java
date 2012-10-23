@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  *
  * Takes in one stream via input port "data". At end of window sums all values
- * for each key and emits them on port <b>sum</b>; emits number of occurrences on port <b>count</b>; and average on port <b>average</b><p>
+ * and emits them on port <b>sum</b>; emits number of tuples on port <b>count</b>; and average on port <b>average</b><p>
  * <br> Values are stored in a
  * hash<br> This node only functions in a windowed stram application<br> Compile
  * time error processing is done on configuration parameters<br> input port
