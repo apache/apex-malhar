@@ -37,8 +37,7 @@ public class BaseMatchOperator<K> extends BaseOperator
   double value = default_value;
 
   public enum supported_type {LTE, LT, EQ, NEQ, GT, GTE};
-  supported_type default_type = supported_type.EQ;
-  supported_type type = default_type;
+  supported_type type = supported_type.EQ;
 
   public void setKey(K str) {
     key = str;
@@ -63,27 +62,33 @@ public class BaseMatchOperator<K> extends BaseOperator
     return type;
   }
 
-  public void setCmp(String cstr) {
-    if (cstr.equals("lt")) {
-      type = supported_type.LT;
-    }
-    else if (cstr.equals("lte")) {
-      type = supported_type.LTE;
-    }
-    else if (cstr.equals("eq")) {
-      type = supported_type.EQ;
-    }
-    else if (cstr.equals("neq")) {
-      type = supported_type.NEQ;
-    }
-    else if (cstr.equals("gt")) {
-      type = supported_type.GT;
-    }
-    else if (cstr.equals("gte")) {
-      type = supported_type.GTE;
-    }
-    else {
-      type = supported_type.EQ;
-    }
+  public void steTypeLT()
+  {
+    type = supported_type.LT;
+  }
+
+  public void steTypeLTE()
+  {
+    type = supported_type.LTE;
+  }
+
+  public void steTypeEQ()
+  {
+    type = supported_type.EQ;
+  }
+
+  public void steTypeNEQ()
+  {
+    type = supported_type.NEQ;
+  }
+
+  public void steTypeGT()
+  {
+    type = supported_type.GT;
+  }
+
+   public void steTypeGTE()
+  {
+    type = supported_type.GTE;
   }
 }
