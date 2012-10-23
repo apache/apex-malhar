@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class SumValueTest {
+public class RangeValueTest {
     private static Logger LOG = LoggerFactory.getLogger(Sum.class);
 
     class TestSink implements Sink {
@@ -49,15 +49,10 @@ public class SumValueTest {
 
   public void testNodeSchemaProcessing(boolean sum, boolean count)
   {
-
-    SumValue<Double> oper = new SumValue<Double>();
-    TestSink sumSink = new TestSink();
-    TestSink countSink = new TestSink();
+    RangeValue<Double> oper = new RangeValue<Double>();
+    TestSink rangeSink = new TestSink();
     if (sum) {
-      oper.sum.setSink(sumSink);
-    }
-    if (count) {
-      oper.count.setSink(countSink);
+      oper.range.setSink(rangeSink);
     }
 
     // Not needed, but still setup is being called as a matter of discipline
@@ -88,19 +83,11 @@ public class SumValueTest {
 
     if (sum) {
       // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
-      Assert.assertEquals("number emitted tuples", 1, sumSink.collectedTuples.size());
-      for (Object o: sumSink.collectedTuples) { // sum is 1157
-        Double val = (Double)o;
-        Assert.assertEquals("emitted sum value was was ", new Double(1157.0), o);
-      }
-    }
-
-    if (count) {
-      // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
-      Assert.assertEquals("number emitted tuples", 1, countSink.collectedTuples.size());
-      for (Object o: countSink.collectedTuples) { // count is 12
-        Integer val = (Integer) o;
-        Assert.assertEquals("emitted sum value was was ", new Integer(12), val);
+      Assert.assertEquals("number emitted tuples", 1, rangeSink.collectedTuples.size());
+      for (Object o: rangeSink.collectedTuples) { // sum is 1157
+        ArrayList<Double> list = (ArrayList<Double>) o;
+        Assert.assertEquals("emitted high value was ", new Double(1000.0), list.get(0));
+        Assert.assertEquals("emitted low value was ", new Double(1.0), list.get(1));
       }
     }
   }
