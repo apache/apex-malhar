@@ -28,7 +28,7 @@ import java.util.ArrayList;
  *
  * @author amol
  */
-public class ArraylistToItem<K> extends BaseOperator
+public class ArrayListToItem<K> extends BaseOperator
 {
   public final transient DefaultInputPort<ArrayList<K>> data = new DefaultInputPort<ArrayList<K>>(this)
   {
