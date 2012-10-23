@@ -3,8 +3,8 @@
  */
 package com.malhartech.lib.math;
 
+import com.malhartech.api.Context;
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.dag.OperatorContext;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.TestSink;
 import com.malhartech.dag.Tuple;
@@ -25,86 +25,36 @@ public class QuotientTest
   private static Logger LOG = LoggerFactory.getLogger(Quotient.class);
 
   /**
-   * Test configuration and parameter validation of the node
-   */
-  @Test
-  public void testNodeValidation()
-  {
-    Quotient node = new Quotient();
-
-    OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
-    conf.set(Quotient.KEY_MULTIPLY_BY, "junk");
-
-    try {
-      node.myValidation(conf);
-      Assert.fail("validation error  " + Quotient.KEY_MULTIPLY_BY);
-    }
-    catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + Quotient.KEY_MULTIPLY_BY,
-                        e.getMessage().contains("has to be an an integer"));
-    }
-  }
-
-  /**
    * Test node logic emits correct results
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    final Quotient node = new Quotient();
+    testNodeProcessingSchema(new Quotient<String,Integer>());
+    testNodeProcessingSchema(new Quotient<String,Double>());
+  }
+
+  public void testNodeProcessingSchema(Quotient node) throws Exception
+  {
 
     TestSink quotientSink = new TestSink();
-
-    Sink numSink = node.connect(Quotient.IPORT_NUMERATOR, node);
-    Sink denSink = node.connect(Quotient.IPORT_DENOMINATOR, node);
-    node.connect(Quotient.OPORT_QUOTIENT, quotientSink);
-
-    OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
-    conf.setInt(Quotient.KEY_MULTIPLY_BY, 2);
-    node.setup(conf);
-
-    final AtomicBoolean inactive = new AtomicBoolean(true);
-    new Thread()
-    {
-      @Override
-      public void run()
-      {
-        inactive.set(false);
-        node.activate(new OperatorContext("ArithmeticQuotientTestNode", this));
-      }
-    }.start();
-
-    /**
-     * spin while the node gets activated.
-     */
-    int sleeptimes = 0;
-    try {
-      do {
-        Thread.sleep(20);
-        sleeptimes++;
-        if (sleeptimes > 5) {
-          break;
-        }
-
-      }
-      while (inactive.get());
-    }
-    catch (InterruptedException ex) {
-      LOG.debug(ex.getLocalizedMessage());
-    }
+    Sink numSink = node.numerator.getSink();
+    Sink denSink = node.denominator.getSink();
+    node.quotient.setSink(quotientSink);
+    node.setup(new OperatorConfiguration());
+    node.setMult_by(2);
 
     Tuple bt = StramTestSupport.generateBeginWindowTuple("doesn't matter", 1);
     numSink.process(bt);
     denSink.process(bt);
 
-    HashMap<String, Integer> ninput = null;
-    HashMap<String, Integer> dinput = null;
-
+    HashMap<String,Number> ninput = new HashMap<String, Number>();
+    HashMap<String,Number> dinput = new HashMap<String, Number>();
     int numtuples = 10000000;
     for (int i = 0; i < numtuples; i++) {
-      ninput = new HashMap<String, Integer>();
-      dinput = new HashMap<String, Integer>();
+      ninput = new HashMap<String, Number>();
+      dinput = new HashMap<String, Number>();
       ninput.put("a", 2);
       ninput.put("b", 20);
       ninput.put("c", 1000);

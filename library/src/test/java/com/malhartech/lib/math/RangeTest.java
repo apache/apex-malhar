@@ -42,89 +42,72 @@ public class RangeTest {
     }
   }
 
-    /**
-     * Test configuration and parameter validation of the node
-     */
-    @Test
-    public void testNodeValidation() {
-
-        OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
-
-        Range node = new Range();
-       // Insert tests for expected failure and success here
-        node.myValidation(conf);
-    }
 
     /**
      * Test functional logic
      */
     @Test
     public void testNodeProcessing() {
-      testSchemaNodeProcessing("integer"); // 8million/s
-      testSchemaNodeProcessing("double"); // 8 million/s
-      testSchemaNodeProcessing("long"); // 8 million/s
-      testSchemaNodeProcessing("short"); // 8 million/s
-      testSchemaNodeProcessing("float"); // 8 million/s
+      testSchemaNodeProcessing(new Range<String,Integer>(), "integer"); // 8million/s
+      testSchemaNodeProcessing(new Range<String,Double>(), "double"); // 8 million/s
+      testSchemaNodeProcessing(new Range<String,Long>(), "long"); // 8 million/s
+      testSchemaNodeProcessing(new Range<String,Short>(),"short"); // 8 million/s
+      testSchemaNodeProcessing(new Range<String,Float>(),"float"); // 8 million/s
     }
 
     /**
      * Test node logic emits correct results for each schema
      */
-    public void testSchemaNodeProcessing(String type) {
-
-      Range node = new Range();
-
+    public void testSchemaNodeProcessing(Range node, String type)
+    {
       TestSink rangeSink = new TestSink();
-      node.connect(Range.OPORT_RANGE, rangeSink);
+      node.range.setSink(rangeSink);
+      node.setup(new OperatorConfiguration());
 
-      HashMap<String, Double> input = new HashMap<String, Double>();
-      Sink outSink = node.connect(Range.IPORT_DATA, node);
-
-    OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
-    conf.set(Range.KEY_SCHEMA, type);
-    node.setup(conf);
-
-      // do node.setup
-      HashMap<String, Number> tuple;
+      HashMap<String, Number> input = new HashMap<String, Number>();
       int numtuples = 1000000;
       // For benchmark do -> numtuples = numtuples * 100;
       if (type.equals("integer")) {
+        HashMap<String,Integer> tuple;
         for (int i = 0; i < numtuples; i++) {
-          tuple = new HashMap<String, Number>();
+          tuple = new HashMap<String, Integer>();
           tuple.put("a", new Integer(i));
-          node.process(tuple);
+          node.data.process(tuple);
         }
       }
       else if (type.equals("double")) {
+        HashMap<String,Double> tuple;
         for (int i = 0; i < numtuples; i++) {
-          tuple = new HashMap<String, Number>();
+          tuple = new HashMap<String, Double>();
           tuple.put("a", new Double(i));
-          node.process(tuple);
+          node.data.process(tuple);
         }
       }
       else if (type.equals("long")) {
+        HashMap<String,Long> tuple;
         for (int i = 0; i < numtuples; i++) {
-          tuple = new HashMap<String, Number>();
+          tuple = new HashMap<String, Long>();
           tuple.put("a", new Long(i));
-          node.process(tuple);
+          node.data.process(tuple);
         }
       }
       else if (type.equals("short")) {
-        // cannot cross 64K
-        int count = numtuples/1000;
+        HashMap<String,Short> tuple;
+        int count = numtuples/1000; // cannot cross 64K
         for (int j = 0; j < count; j++) {
           for (short i = 0; i < 1000; i++) {
-            tuple = new HashMap<String, Number>();
+            tuple = new HashMap<String, Short>();
             tuple.put("a", new Short(i));
-            node.process(tuple);
+            node.data.process(tuple);
           }
         }
       }
        else if (type.equals("float")) {
+        HashMap<String,Float> tuple;
         for (int i = 0; i < numtuples; i++) {
-          tuple = new HashMap<String, Number>();
+          tuple = new HashMap<String, Float>();
           tuple.put("a", new Float(i));
-          node.process(tuple);
+          node.data.process(tuple);
         }
       }
       node.endWindow();

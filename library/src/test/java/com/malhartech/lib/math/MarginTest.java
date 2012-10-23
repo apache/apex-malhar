@@ -24,19 +24,6 @@ public class MarginTest
 {
   private static Logger LOG = LoggerFactory.getLogger(Margin.class);
 
-  /**
-   * Test configuration and parameter validation of the node
-   */
-  @Test
-  public void testNodeValidation()
-  {
-    Margin node = new Margin();
-    OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
-
-    // no testing as of now as no parameters on this node
-    // connectivity should be part of standard tests
-
-  }
 
   /**
    * Test node logic emits correct results
@@ -45,57 +32,30 @@ public class MarginTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    final Margin node = new Margin();
+    testNodeProcessingSchema(new Margin<String, Integer>());
+  }
 
+  public void testNodeProcessingSchema(Margin node)
+  {
     TestSink marginSink = new TestSink();
+    Sink numSink = node.numerator.getSink();
+    Sink denSink = node.denominator.getSink();
+    node.margin.setSink(marginSink);
+    node.setup(new OperatorConfiguration());
 
-    Sink numSink = node.connect(Margin.IPORT_NUMERATOR, node);
-    Sink denSink = node.connect(Margin.IPORT_DENOMINATOR, node);
-    node.connect(Margin.OPORT_MARGIN, marginSink);
-
-    OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
-    node.setup(conf);
-
-    final AtomicBoolean inactive = new AtomicBoolean(true);
-    new Thread()
-    {
-      @Override
-      public void run()
-      {
-        inactive.set(false);
-        node.activate(new OperatorContext("ArithmeticMarginTestNode", this));
-      }
-    }.start();
-
-    /**
-     * spin while the node gets activated.
-     */
-    int sleeptimes = 0;
-    try {
-      do {
-        Thread.sleep(20);
-        sleeptimes++;
-        if (sleeptimes > 20) {
-          break;
-        }
-      }
-      while (inactive.get());
-    }
-    catch (InterruptedException ex) {
-      LOG.debug(ex.getLocalizedMessage());
-    }
+    node.setup(new OperatorConfiguration());
 
     Tuple bt = StramTestSupport.generateBeginWindowTuple("doesn't matter", 1);
     numSink.process(bt);
     denSink.process(bt);
 
-    HashMap<String, Integer> ninput = new HashMap<String, Integer>();
+    HashMap<String, Number> ninput = new HashMap<String, Number>();
     ninput.put("a", 2);
     ninput.put("b", 20);
     ninput.put("c", 1000);
     numSink.process(ninput);
 
-    HashMap<String, Integer> dinput = new HashMap<String, Integer>();
+    HashMap<String, Number> dinput = new HashMap<String, Number>();
     dinput.put("a", 2);
     dinput.put("b", 40);
     dinput.put("c", 500);
