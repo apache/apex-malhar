@@ -301,4 +301,5 @@ public class EventGenerator implements AsyncInputOperator
   {
     this.rolling_window_count = rolling_window_count;
   }
+
 }

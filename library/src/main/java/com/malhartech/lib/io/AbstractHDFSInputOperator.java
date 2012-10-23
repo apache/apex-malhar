@@ -4,15 +4,17 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.api.Context;
-import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.api.SyncInputOperator;
 import java.io.IOException;
+
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.SyncInputOperator;
 
 /**
  *
@@ -25,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * Users need to implement getRecord to get HDFS input adapter to work as per their choice<br>
  * <br>
  */
-public abstract class AbstractHDFSInputOperator implements SyncInputOperator, Runnable
+public abstract class AbstractHDFSInputOperator extends BaseOperator implements SyncInputOperator, Runnable
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractHDFSInputOperator.class);
   protected FSDataInputStream input;
@@ -72,11 +74,6 @@ public abstract class AbstractHDFSInputOperator implements SyncInputOperator, Ru
     catch (IOException ex) {
       throw new RuntimeException(ex);
     }
-  }
-
-  @Override
-  public void activated(Context context)
-  {
     try {
       input = fs.open(filepath);
     }
@@ -86,7 +83,7 @@ public abstract class AbstractHDFSInputOperator implements SyncInputOperator, Ru
   }
 
   @Override
-  public void deactivated()
+  public void teardown()
   {
     try {
       input.close();
@@ -95,18 +92,10 @@ public abstract class AbstractHDFSInputOperator implements SyncInputOperator, Ru
     catch (IOException ex) {
       logger.error(ex.getLocalizedMessage());
     }
-  }
-
-  @Override
-  public void teardown()
-  {
     fs = null;
     filepath = null;
   }
 
-  /**
-   *
-   */
   @Override
   public void run()
   {
