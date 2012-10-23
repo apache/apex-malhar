@@ -4,23 +4,21 @@
 package com.malhartech.lib.stream;
 
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.dag.OperatorContext;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import com.malhartech.stream.StramTestSupport;
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Performance test for {@link com.malhartech.lib.testbench.StreamMerger}<p>
- * Benchmarks: Currently does about 3 Million tuples/sec in debugging environment. Need to test on larger nodes<br>
+ * Performance test for {@link com.malhartech.lib.testbench.StreamDuplicater}<p>
+ * Benchmarks: Currently does about ?? Million tuples/sec in debugging environment. Need to test on larger nodes<br>
  * <br>
  */
-public class StreamMergerTest {
+public class HashMapToKeyTest {
 
     private static Logger LOG = LoggerFactory.getLogger(StreamMerger.class);
 
@@ -47,35 +45,34 @@ public class StreamMergerTest {
     @Test
     public void testNodeProcessing() throws Exception
     {
-      StreamMerger node = new StreamMerger();
-      TestSink mergeSink = new TestSink();
-      Sink inSink1 = node.data1.getSink();
-      Sink inSink2 = node.data2.getSink();
-      node.out.setSink(mergeSink);
+      HashMapToKey node = new HashMapToKey();
+      TestSink keySink = new TestSink();
+      TestSink valSink = new TestSink();
+      TestSink keyvalSink = new TestSink();
+      Sink inSink = node.data.getSink();
+      node.key.setSink(keySink);
+      node.val.setSink(valSink);
+      node.keyval.setSink(keyvalSink);
       node.setup(new OperatorConfiguration());
 
-
       Tuple bt = StramTestSupport.generateBeginWindowTuple("doesn't matter", 1);
-      inSink1.process(bt);
-      inSink2.process(bt);
+      inSink.process(bt);
 
-      int numtuples = 50000000;
-      Integer input = new Integer(0);
+      HashMap<String,String> input = new HashMap<String,String>();
+      input.put("a", "1");
       // Same input object can be used as the node is just pass through
+      int numtuples = 50000000;
       for (int i = 0; i < numtuples; i++) {
-        inSink1.process(input);
-        inSink2.process(input);
+        inSink.process(input);
       }
-
       Tuple et = StramTestSupport.generateEndWindowTuple("doesn't matter", 1, 1);
-      inSink1.process(et);
-      inSink2.process(et);
+      inSink.process(et);
 
       // Should get one bag of keys "a", "b", "c"
       try {
         for (int i = 0; i < 100; i++) {
           Thread.sleep(10);
-          if (mergeSink.count >= numtuples*2 - 1) {
+          if (keySink.count >= numtuples*2 - 1) {
             break;
           }
         }
@@ -84,8 +81,19 @@ public class StreamMergerTest {
         LOG.debug(ex.getLocalizedMessage());
       }
 
-      // One for each key
-      Assert.assertEquals("number emitted tuples", numtuples*2, mergeSink.count);
-      LOG.debug(String.format("\n********************\nProcessed %d tuples\n********************\n", mergeSink.count));
+      // just sleep some more
+      for (int i = 0; i < 200; i++) {
+        try {
+          Thread.sleep(1);
+        }
+        catch (InterruptedException e) {
+          LOG.error("Unexpected error while sleeping for 1 s", e);
+        }
+      }
+
+      Assert.assertEquals("number emitted tuples", numtuples, keySink.count);
+      Assert.assertEquals("number emitted tuples", numtuples, valSink.count);
+      Assert.assertEquals("number emitted tuples", numtuples, keyvalSink.count);
+      LOG.debug(String.format("\n********************\nProcessed %d tuples\n********************\n", keySink.count+valSink.count+keyvalSink.count));
     }
 }
