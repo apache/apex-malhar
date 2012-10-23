@@ -4,8 +4,8 @@
 package com.malhartech.lib.algo;
 
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.dag.OperatorContext;
 import com.malhartech.api.Sink;
+import com.malhartech.dag.OperatorContext;
 import com.malhartech.dag.Tuple;
 import com.malhartech.lib.testbench.*;
 import com.malhartech.stream.StramTestSupport;
@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,26 +84,6 @@ public class TupleQueueTest
     }
   }
 
-  /**
-   * Test configuration and parameter validation of the node
-   */
-  @Test
-  public void testNodeValidation()
-  {
-
-    OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
-    TupleQueue node = new TupleQueue();
-
-    conf.set(TupleQueue.KEY_DEPTH, "aa");
-    try {
-      node.myValidation(conf);
-      Assert.fail("validation error  " + TupleQueue.KEY_DEPTH);
-    }
-    catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + TupleQueue.KEY_DEPTH,
-                        e.getMessage().contains("has to be an integer"));
-    }
-  }
 
   /**
    * Test node logic emits correct results
@@ -118,46 +97,11 @@ public class TupleQueueTest
     QueueSink queueSink = new QueueSink();
     ConsoleSink consoleSink = new ConsoleSink();
 
-    Sink dataSink = node.connect(TupleQueue.IPORT_DATA, node);
-    Sink querySink = node.connect(TupleQueue.IPORT_QUERY, node);
-    node.connect(TupleQueue.OPORT_QUEUE, queueSink);
-    node.connect(TupleQueue.OPORT_CONSOLE, consoleSink);
-
-
-    final OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
-    conf.set(TupleQueue.KEY_DEPTH, "10");
-
-
-    final AtomicBoolean inactive = new AtomicBoolean(true);
-    new Thread()
-    {
-      @Override
-      public void run()
-      {
-        inactive.set(false);
-        node.setup(conf);
-        node.activate(new OperatorContext("TupleQueueTestNode", this));
-      }
-    }.start();
-
-    /**
-     * spin while the node gets activated.
-     */
-    int sleeptimes = 0;
-    try {
-      do {
-        Thread.sleep(20);
-        sleeptimes++;
-        if (sleeptimes > 5) {
-          break;
-        }
-
-      }
-      while (inactive.get());
-    }
-    catch (InterruptedException ex) {
-      LOG.debug(ex.getLocalizedMessage());
-    }
+    Sink dataSink = node.data.getSink();
+    Sink querySink = node.query.getSink();
+    node.queue.setSink(queueSink);
+    node.console.setSink(consoleSink);
+    node.setup(new OperatorConfiguration());
 
     Tuple bt = StramTestSupport.generateBeginWindowTuple("doesn't matter", 1);
     dataSink.process(bt);

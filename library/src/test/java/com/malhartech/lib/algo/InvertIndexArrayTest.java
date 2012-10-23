@@ -48,61 +48,29 @@ public class InvertIndexArrayTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    final InvertIndexArray node = new InvertIndexArray();
+    InvertIndexArray node = new InvertIndexArray();
 
     TestSink indexSink = new TestSink();
 
-    Sink inSink = node.connect(InvertIndexArray.IPORT_DATA, node);
-    node.connect(InvertIndexArray.OPORT_INDEX, indexSink);
-
-    OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
-    conf.setBoolean(InvertIndexArray.KEY_PASSVALUE, false); // test with String
-    node.setup(conf);
-
-    final AtomicBoolean inactive = new AtomicBoolean(true);
-    new Thread()
-    {
-      @Override
-      public void run()
-      {
-        inactive.set(false);
-        node.activate(new OperatorContext("ArithmeticQuotientTestNode", this));
-      }
-    }.start();
-
-    /**
-     * spin while the node gets activated.
-     */
-    int sleeptimes = 0;
-    try {
-      do {
-        Thread.sleep(20);
-        sleeptimes++;
-        if (sleeptimes > 20) {
-          break;
-        }
-      }
-      while (inactive.get());
-    }
-    catch (InterruptedException ex) {
-      LOG.debug(ex.getLocalizedMessage());
-    }
+    Sink inSink = node.data.getSink();
+    node.index.setSink(indexSink);
+    node.setup(new OperatorConfiguration());
 
     Tuple bt = StramTestSupport.generateBeginWindowTuple("doesn't matter", 1);
     inSink.process(bt);
 
     HashMap<String, ArrayList> input = new HashMap<String, ArrayList>();
     ArrayList<String> alist = new ArrayList<String>();
-    alist.add(new String("str"));
-    alist.add(new String("str1"));
+    alist.add("str");
+    alist.add("str1");
     input.put("a", alist);
     input.put("b", alist);
     inSink.process(input);
 
     alist = new ArrayList<String>();
     input = new HashMap<String, ArrayList>();
-    alist.add(new String("blah"));
-    alist.add(new String("str1"));
+    alist.add("blah");
+    alist.add("str1");
     input.put("c", alist);
     inSink.process(input);
 
@@ -119,9 +87,6 @@ public class InvertIndexArrayTest
     catch (InterruptedException ex) {
       LOG.debug(ex.getLocalizedMessage());
     }
-
-
-    node.deactivate();
 
     // One for each key
     Assert.assertEquals("number emitted tuples", 3, indexSink.collectedTuples.size());
