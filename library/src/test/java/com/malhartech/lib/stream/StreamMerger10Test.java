@@ -46,55 +46,23 @@ public class StreamMerger10Test {
      * Test node pass through. The Object passed is not relevant
      */
     @Test
-    public void testNodeProcessing() throws Exception {
-
+    public void testNodeProcessing() throws Exception
+    {
       final StreamMerger10 node = new StreamMerger10();
-
       TestSink mergeSink = new TestSink();
 
-      Sink inSink1 = node.connect(StreamMerger10.IPORT_IN_DATA1, node);
-      Sink inSink2 = node.connect(StreamMerger10.IPORT_IN_DATA2, node);
-      Sink inSink3 = node.connect(StreamMerger10.IPORT_IN_DATA3, node);
-      Sink inSink4 = node.connect(StreamMerger10.IPORT_IN_DATA4, node);
-      Sink inSink5 = node.connect(StreamMerger10.IPORT_IN_DATA5, node);
-      Sink inSink6 = node.connect(StreamMerger10.IPORT_IN_DATA6, node);
-      Sink inSink7 = node.connect(StreamMerger10.IPORT_IN_DATA7, node);
-      Sink inSink8 = node.connect(StreamMerger10.IPORT_IN_DATA8, node);
-      Sink inSink9 = node.connect(StreamMerger10.IPORT_IN_DATA9, node);
-      Sink inSink10 = node.connect(StreamMerger10.IPORT_IN_DATA10, node);
-      node.connect(StreamMerger.OPORT_OUT_DATA, mergeSink);
-
-      OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
-      conf.setInt("SpinMillis", 1);
-      conf.setInt("BufferCapacity", 10 * 1024 * 1024);
-      node.setup(conf);
-
-      final AtomicBoolean inactive = new AtomicBoolean(true);
-      new Thread()
-      {
-        @Override
-        public void run()
-        {
-          inactive.set(false);
-          node.activate(new OperatorContext("StreamMergerTestNode", this));
-        }
-      }.start();
-
-      // spin while the node gets activated./
-      int sleeptimes = 0;
-      try {
-        do {
-          Thread.sleep(20);
-          sleeptimes++;
-          if (sleeptimes > 5) {
-            break;
-          }
-        }
-        while (inactive.get());
-      }
-      catch (InterruptedException ex) {
-        LOG.debug(ex.getLocalizedMessage());
-      }
+      Sink inSink1 = node.data1.getSink();
+      Sink inSink2 = node.data2.getSink();
+      Sink inSink3 = node.data3.getSink();
+      Sink inSink4 = node.data4.getSink();
+      Sink inSink5 = node.data5.getSink();
+      Sink inSink6 = node.data6.getSink();
+      Sink inSink7 = node.data7.getSink();
+      Sink inSink8 = node.data8.getSink();
+      Sink inSink9 = node.data9.getSink();
+      Sink inSink10 = node.data10.getSink();
+      node.out.setSink(mergeSink);
+      node.setup(new OperatorConfiguration());
 
       Tuple bt = StramTestSupport.generateBeginWindowTuple("doesn't matter", 1);
       inSink1.process(bt);
@@ -147,10 +115,6 @@ public class StreamMerger10Test {
       catch (InterruptedException ex) {
         LOG.debug(ex.getLocalizedMessage());
       }
-
       LOG.debug(String.format("\n********************\nProcessed %d tuples\n********************\n", mergeSink.count));
-      for (int i = 1; i <= node.getNumInputPorts(); i++) {
-        LOG.debug(String.format("%dth input port name is %s", i, node.getInputName(i)));
-      }
     }
 }

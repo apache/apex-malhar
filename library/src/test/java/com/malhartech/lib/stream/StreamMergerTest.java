@@ -45,47 +45,16 @@ public class StreamMergerTest {
      * Test node pass through. The Object passed is not relevant
      */
     @Test
-    public void testNodeProcessing() throws Exception {
-
-      final StreamMerger node = new StreamMerger();
-
+    public void testNodeProcessing() throws Exception
+    {
+      StreamMerger node = new StreamMerger();
       TestSink mergeSink = new TestSink();
+      Sink inSink1 = node.data1.getSink();
+      Sink inSink2 = node.data2.getSink();
+      node.out.setSink(mergeSink);
+      node.out.setSink(mergeSink);
+      node.setup(new OperatorConfiguration());
 
-      Sink inSink1 = node.connect(StreamMerger.IPORT_IN_DATA1, node);
-      Sink inSink2 = node.connect(StreamMerger.IPORT_IN_DATA2, node);
-      node.connect(StreamMerger.OPORT_OUT_DATA, mergeSink);
-
-      OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
-      conf.setInt("SpinMillis", 10);
-      conf.setInt("BufferCapacity", 1024 * 1024);
-      node.setup(conf);
-
-      final AtomicBoolean inactive = new AtomicBoolean(true);
-      new Thread()
-      {
-        @Override
-        public void run()
-        {
-          inactive.set(false);
-          node.activate(new OperatorContext("StreamMergerTestNode", this));
-        }
-      }.start();
-
-      // spin while the node gets activated./
-      int sleeptimes = 0;
-      try {
-        do {
-          Thread.sleep(20);
-          sleeptimes++;
-          if (sleeptimes > 5) {
-            break;
-          }
-        }
-        while (inactive.get());
-      }
-      catch (InterruptedException ex) {
-        LOG.debug(ex.getLocalizedMessage());
-      }
 
       Tuple bt = StramTestSupport.generateBeginWindowTuple("doesn't matter", 1);
       inSink1.process(bt);
@@ -119,8 +88,5 @@ public class StreamMergerTest {
       // One for each key
       Assert.assertEquals("number emitted tuples", numtuples*2, mergeSink.count);
       LOG.debug(String.format("\n********************\nProcessed %d tuples\n********************\n", mergeSink.count));
-      for (int i = 1; i <= node.getNumInputPorts(); i++) {
-        LOG.debug(String.format("%dth input port name is %s", i, node.getInputName(i)));
-      }
     }
 }
