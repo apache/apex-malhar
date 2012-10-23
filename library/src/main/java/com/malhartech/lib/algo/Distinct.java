@@ -9,8 +9,6 @@ import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -41,6 +39,9 @@ public class Distinct<K,V> extends BaseOperator
 {
   public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>(this)
   {
+    /**
+     * Process HashMap<K,V> tuple on input port data
+     */
     @Override
     public void process(HashMap<K,V> tuple)
     {
