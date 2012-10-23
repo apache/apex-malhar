@@ -67,11 +67,11 @@ public abstract class AbstractHDFSInputOperator implements SyncInputOperator, Ru
   {
     try {
       fs = FileSystem.get(config);
+      filepath = new Path(config.get("filepath"));
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
     }
-    filepath = new Path(config.get("filepath"));
   }
 
   @Override
@@ -90,6 +90,7 @@ public abstract class AbstractHDFSInputOperator implements SyncInputOperator, Ru
   {
     try {
       input.close();
+      input = null;
     }
     catch (IOException ex) {
       logger.error(ex.getLocalizedMessage());
@@ -99,6 +100,8 @@ public abstract class AbstractHDFSInputOperator implements SyncInputOperator, Ru
   @Override
   public void teardown()
   {
+    fs = null;
+    filepath = null;
   }
 
   /**
