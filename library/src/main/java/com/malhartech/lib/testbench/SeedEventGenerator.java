@@ -4,16 +4,17 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.api.AsyncInputOperator;
-import com.malhartech.api.Context;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.lib.util.OneKeyValPair;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.malhartech.api.AsyncInputOperator;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.OneKeyValPair;
 
 /**
  * Generates one time seed load based on range provided for the keys, and adds new classification to incoming keys. The new tuple is emitted
@@ -55,7 +56,7 @@ import org.slf4j.LoggerFactory;
  * @author amol
  */
 
-public class SeedEventGenerator implements AsyncInputOperator
+public class SeedEventGenerator extends BaseOperator implements AsyncInputOperator
 {
     public final transient DefaultOutputPort<HashMap<String, ArrayList<OneKeyValPair>>> keyvalpair_list = new DefaultOutputPort<HashMap<String, ArrayList<OneKeyValPair>>>(this);
     public final transient DefaultOutputPort<HashMap<String,ArrayList<Integer>>> val_list = new DefaultOutputPort<HashMap<String, ArrayList<Integer>>>(this);
@@ -103,27 +104,6 @@ public class SeedEventGenerator implements AsyncInputOperator
       }
     }
     Thread.currentThread().interrupt();
-  }
-
-  @Override
-  public void beginWindow()
-  {
-  }
-
-  @Override
-  public void endWindow()
-  {
-  }
-
-  @Override
-  public void setup(OperatorConfiguration config)
-  {
-
-  }
-
-  @Override
-  public void teardown()
-  {
   }
 
   /**

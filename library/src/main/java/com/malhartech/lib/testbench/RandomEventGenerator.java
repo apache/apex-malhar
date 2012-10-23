@@ -4,13 +4,12 @@
  */
 package com.malhartech.lib.testbench;
 
+import java.util.Random;
+
 import com.malhartech.api.AsyncInputOperator;
-import com.malhartech.api.Context;
+import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.OperatorConfiguration;
-import java.util.Random;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -43,7 +42,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author amol
  */
-public class RandomEventGenerator implements AsyncInputOperator
+public class RandomEventGenerator extends BaseOperator implements AsyncInputOperator
 {
   public final transient DefaultOutputPort<String> string_data = new DefaultOutputPort<String>(this);
   public final transient DefaultOutputPort<Integer> integer_data = new DefaultOutputPort<Integer>(this);
@@ -101,11 +100,6 @@ public class RandomEventGenerator implements AsyncInputOperator
   }
 
   @Override
-  public void beginWindow()
-  {
-  }
-
-  @Override
   public void endWindow()
   {
     if (--maxCountOfWindows == 0) {
@@ -113,8 +107,4 @@ public class RandomEventGenerator implements AsyncInputOperator
     }
   }
 
-  @Override
-  public void teardown()
-  {
-  }
 }
