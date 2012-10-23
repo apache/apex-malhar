@@ -263,11 +263,6 @@ public class EventGenerator implements AsyncInputOperator
   }
 
   @Override
-  public void deactivated()
-  {
-  }
-
-  @Override
   public void teardown()
   {
   }
@@ -305,10 +300,5 @@ public class EventGenerator implements AsyncInputOperator
   public void setRollingWindowCount(int rolling_window_count)
   {
     this.rolling_window_count = rolling_window_count;
-  }
-
-  @Override
-  public void activated(Context context)
-  {
   }
 }

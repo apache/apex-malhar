@@ -114,16 +114,6 @@ public class RandomEventGenerator implements AsyncInputOperator
   }
 
   @Override
-  public void activated(Context context)
-  {
-  }
-
-  @Override
-  public void deactivated()
-  {
-  }
-
-  @Override
   public void teardown()
   {
   }
