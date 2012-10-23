@@ -7,6 +7,7 @@ package com.malhartech.lib.io;
 import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.annotation.ModuleAnnotation;
 import com.malhartech.annotation.PortAnnotation;
+import com.malhartech.api.BaseOperator;
 import com.malhartech.dag.*;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -30,7 +31,7 @@ import org.slf4j.LoggerFactory;
 @ModuleAnnotation(ports = {
   @PortAnnotation(name = Component.INPUT, type = PortAnnotation.PortType.INPUT)
 })
-public class HdfsOutputModule extends GenericNode implements Sink
+public class HdfsOutputModule extends BaseOperator implements Sink
 {
   private static org.slf4j.Logger logger = LoggerFactory.getLogger(HdfsOutputModule.class);
   private transient FSDataOutputStream fsOutput;
@@ -44,7 +45,7 @@ public class HdfsOutputModule extends GenericNode implements Sink
   private int bytesPerFile;
   private int fileIndex = 0;
   int currentBytesWritten = 0;
-  int totalBytesWritten = 0;
+  long totalBytesWritten = 0;
   public static final String KEY_FILEPATH = "filepath";
   public static final String KEY_APPEND = "append";
   public static final String KEY_REPLICATION = "replication";
@@ -62,6 +63,11 @@ public class HdfsOutputModule extends GenericNode implements Sink
   public static final String KEY_BUFFERSIZE = "bufferSize";
   public static final String FNAME_SUB_MODULE_ID = "moduleId";
   public static final String FNAME_SUB_PART_INDEX = "partIndex";
+
+  public long getTotalBytesWritten()
+  {
+    return totalBytesWritten;
+  }
 
   private Path subFilePath(int index)
   {

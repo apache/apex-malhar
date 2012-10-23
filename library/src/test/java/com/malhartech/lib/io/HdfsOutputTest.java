@@ -4,16 +4,15 @@
  */
 package com.malhartech.lib.io;
 
+import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.dag.ApplicationFactory;
+import com.malhartech.dag.DAG;
+import com.malhartech.lib.io.HdfsOutputModule;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.malhartech.dag.ApplicationFactory;
-import com.malhartech.dag.DAG;
-import com.malhartech.api.OperatorConfiguration;
 
 /**
  *
@@ -47,9 +46,9 @@ public class HdfsOutputTest implements ApplicationFactory {
     StringBuilder sb = new StringBuilder();
     sb.append("\ntime taken: " + ellapsedMillis + "ms");
     sb.append("\ntuples written: " + numTuples);
-    sb.append("\nbytes written: " + module.totalBytesWritten);
+    sb.append("\nbytes written: " + module.getTotalBytesWritten());
     if (ellapsedMillis > 0) {
-      sb.append("\nbytes per second: " + (module.totalBytesWritten *1000L / ellapsedMillis ));
+      sb.append("\nbytes per second: " + (module.getTotalBytesWritten() * 1000L / ellapsedMillis ));
     }
     LOG.info("test summary: {}", sb);
 
