@@ -7,6 +7,7 @@ import com.esotericsoftware.minlog.Log;
 import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
@@ -74,131 +75,61 @@ public class EventClassifierTest {
     }
 
     /**
-     * Test configuration and parameter validation of the node
-     */
-    @Test
-    public void testNodeValidation() {
-
-        OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
-        LoadClassifier node = new LoadClassifier();
-        // String[] kstr = config.getTrimmedStrings(KEY_KEYS);
-        // String[] vstr = config.getTrimmedStrings(KEY_VALUES);
-
-
-        conf.set(EventClassifier.KEY_KEYS, "");
-        try {
-            node.myValidation(conf);
-            Assert.fail("validation error  " + EventClassifier.KEY_KEYS);
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + EventClassifier.KEY_KEYS,
-                    e.getMessage().contains("is empty"));
-        }
-
-        conf.set(EventClassifier.KEY_KEYS, "a,b,c"); // from now on keys are a,b,c
-        conf.set(EventClassifier.KEY_VALUEOPERATION, "blah");
-        try {
-            node.myValidation(conf);
-            Assert.fail("validation error  " + EventClassifier.KEY_VALUEOPERATION);
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + EventClassifier.KEY_VALUEOPERATION,
-                    e.getMessage().contains("not supported. Supported values are"));
-        }
-        conf.set(EventClassifier.KEY_VALUEOPERATION, "replace"); // from now on valueoperation is "replace"
-
-        conf.set(EventClassifier.KEY_VALUES, "1,2,3,4");
-        try {
-            node.myValidation(conf);
-            Assert.fail("validation error  " + EventClassifier.KEY_VALUES);
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + EventClassifier.KEY_VALUES,
-                    e.getMessage().contains("does not match number of keys"));
-        }
-
-        conf.set(EventClassifier.KEY_VALUES, "1,2a,3");
-        try {
-            node.myValidation(conf);
-            Assert.fail("validation error  " + EventClassifier.KEY_VALUES);
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + EventClassifier.KEY_VALUES,
-                    e.getMessage().contains("Value string should be float"));
-        }
-
-        conf.set(EventClassifier.KEY_VALUES, "1,2,3");
-
-        conf.set(EventClassifier.KEY_WEIGHTS, "ia:60,10,35;;ic:20,10,70;id:50,15,35");
-        try {
-            node.myValidation(conf);
-            Assert.fail("validation error  " + EventClassifier.KEY_WEIGHTS);
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + EventClassifier.KEY_WEIGHTS,
-                    e.getMessage().contains("One of the keys in"));
-        }
-
-        conf.set(EventClassifier.KEY_WEIGHTS, "ia:60,10,35;ib,10,75,15;ic:20,10,70;id:50,15,35");
-        try {
-            node.myValidation(conf);
-            Assert.fail("validation error  " + EventClassifier.KEY_WEIGHTS);
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + EventClassifier.KEY_WEIGHTS,
-                    e.getMessage().contains("need two strings separated by"));
-        }
-
-        conf.set(EventClassifier.KEY_WEIGHTS, "ia:60,10,35;ib:10,75;ic:20,10,70;id:50,15,35");
-        try {
-            node.myValidation(conf);
-            Assert.fail("validation error  " + EventClassifier.KEY_WEIGHTS);
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + EventClassifier.KEY_WEIGHTS,
-                    e.getMessage().contains("does not match the number of keys"));
-        }
-
-        conf.set(EventClassifier.KEY_WEIGHTS, "ia:60,10,35;ib:10,75,1a5;ic:20,10,70;id:50,15,35");
-        try {
-            node.myValidation(conf);
-            Assert.fail("validation error  " + EventClassifier.KEY_WEIGHTS);
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + EventClassifier.KEY_WEIGHTS,
-                    e.getMessage().contains("Weight string should be an integer"));
-        }
-    }
-
-    /**
      * Test node logic emits correct results
      */
     @Test
-    public void testNodeProcessing() throws Exception {
+    public void testNodeProcessing() throws Exception
+    {
 
-        EventClassifier node = new EventClassifier();
+      EventClassifier node = new EventClassifier();
+      TestSink classifySink = new TestSink();
+      classifySink.dohash = true;
+      node.data.setSink(classifySink);
 
-        TestSink classifySink = new TestSink();
-        classifySink.dohash = true;
-        node.connect(LoadClassifier.OPORT_OUT_DATA, classifySink);
-        OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
+      HashMap<String, Double> keymap = new HashMap<String, Double>();
+      keymap.put("a", 1.0);
+      keymap.put("b", 4.0);
+      keymap.put("c", 5.0);
+      node.setKeyMap(keymap);
+      node.setOperationReplace();
 
-        conf.set(EventClassifier.KEY_KEYS, "a,b,c");
-        conf.set(EventClassifier.KEY_VALUES, "1,4,5");
-        conf.set(EventClassifier.KEY_WEIGHTS, "ia:60,10,35;ib:10,75,15;ic:20,10,70;id:50,15,35");
-        conf.set(EventClassifier.KEY_VALUEOPERATION, "replace");
+      HashMap<String, ArrayList<Integer>> wmap = new HashMap<String, ArrayList<Integer>>();
+      ArrayList<Integer> list = new ArrayList<Integer>(3);
+      list.add(60);
+      list.add(10);
+      list.add(35);
+      wmap.put("ia", list);
+      list = new ArrayList<Integer>(3);
+      list.add(10);
+      list.add(75);
+      list.add(15);
+      wmap.put("ib", list);
+      list = new ArrayList<Integer>(3);
+      list.add(20);
+      list.add(10);
+      list.add(70);
+      wmap.put("ic", list);
+      list = new ArrayList<Integer>(3);
+      list.add(50);
+      list.add(15);
+      list.add(35);
+      wmap.put("id", list);
+      node.setKeyWeights(wmap);
+      node.setup(new OperatorConfiguration());
 
-        conf.setInt("SpinMillis", 10);
-        conf.setInt("BufferCapacity", 1024 * 1024);
-        try {
-          node.setup(conf);
-        } catch (IllegalArgumentException e) {;}
-
-        HashMap<String, Double> input = new HashMap<String, Double>();
-        int sentval = 0;
-        for (int i = 0; i < 1000000; i++) {
-            input.clear();
-            input.put("ia", 2.0);
-            input.put("ib", 20.0);
-            input.put("ic", 1000.0);
-            input.put("id", 1000.0);
-            sentval += 4;
-            node.process(input);
-        }
-        node.endWindow();
-        int ival = 0;
+      HashMap<String, Double> input = new HashMap<String, Double>();
+      int sentval = 0;
+      for (int i = 0; i < 1000000; i++) {
+        input.clear();
+        input.put("ia", 2.0);
+        input.put("ib", 20.0);
+        input.put("ic", 1000.0);
+        input.put("id", 1000.0);
+        sentval += 4;
+        node.event.process(input);
+      }
+      node.endWindow();
+      int ival = 0;
       if (classifySink.dohash) {
         for (Map.Entry<String, Integer> e: classifySink.collectedTuples.entrySet()) {
           ival += e.getValue().intValue();
@@ -208,34 +139,36 @@ public class EventClassifierTest {
         ival = classifySink.count;
       }
 
-        LOG.info(String.format("\nThe number of keys in %d tuples are %d and %d",
-                ival,
-                classifySink.collectedTuples.size(),
-                classifySink.collectedTupleValues.size()));
-        for (Map.Entry<String, Double> ve : classifySink.collectedTupleValues.entrySet()) {
-            Integer ieval = classifySink.collectedTuples.get(ve.getKey()); // ieval should not be null?
-            Log.info(String.format("%d tuples of key \"%s\" has value %f", ieval.intValue(), ve.getKey(), ve.getValue()));
-        }
-        Assert.assertEquals("number emitted tuples", sentval, ival);
-        // Now test a node with no weights
-        EventClassifier nwnode = new EventClassifier();
-        classifySink.clear();
-        nwnode.connect(EventClassifier.OPORT_OUT_DATA, classifySink);
-        conf.set(EventClassifier.KEY_WEIGHTS, "");
-        nwnode.setup(conf);
+      LOG.info(String.format("\nThe number of keys in %d tuples are %d and %d",
+                             ival,
+                             classifySink.collectedTuples.size(),
+                             classifySink.collectedTupleValues.size()));
+      for (Map.Entry<String, Double> ve: classifySink.collectedTupleValues.entrySet()) {
+        Integer ieval = classifySink.collectedTuples.get(ve.getKey()); // ieval should not be null?
+        Log.info(String.format("%d tuples of key \"%s\" has value %f", ieval.intValue(), ve.getKey(), ve.getValue()));
+      }
+      Assert.assertEquals("number emitted tuples", sentval, ival);
 
-        sentval = 0;
-        for (int i = 0; i < 1000000; i++) {
-            input.clear();
-            input.put("ia", 2.0);
-            input.put("ib", 20.0);
-            input.put("ic", 1000.0);
-            input.put("id", 1000.0);
-            sentval += 4;
-            nwnode.process(input);
-        }
-        nwnode.endWindow();
-        ival = 0;
+      // Now test a node with no weights
+      EventClassifier nwnode = new EventClassifier();
+      classifySink.clear();
+      nwnode.data.setSink(classifySink);
+      nwnode.setKeyMap(keymap);
+      nwnode.setOperationReplace();
+      nwnode.setup(new OperatorConfiguration());
+
+      sentval = 0;
+      for (int i = 0; i < 1000000; i++) {
+        input.clear();
+        input.put("ia", 2.0);
+        input.put("ib", 20.0);
+        input.put("ic", 1000.0);
+        input.put("id", 1000.0);
+        sentval += 4;
+        nwnode.event.process(input);
+      }
+      nwnode.endWindow();
+      ival = 0;
       if (classifySink.dohash) {
         for (Map.Entry<String, Integer> e: classifySink.collectedTuples.entrySet()) {
           ival += e.getValue().intValue();
@@ -244,56 +177,60 @@ public class EventClassifierTest {
       else {
         ival = classifySink.count;
       }
-        LOG.info(String.format("\nThe number of keys in %d tuples are %d and %d",
-                ival,
-                classifySink.collectedTuples.size(),
-                classifySink.collectedTupleValues.size()));
-        for (Map.Entry<String, Double> ve : classifySink.collectedTupleValues.entrySet()) {
-            Integer ieval = classifySink.collectedTuples.get(ve.getKey()); // ieval should not be null?
-            Log.info(String.format("%d tuples of key \"%s\" has value %f", ieval.intValue(), ve.getKey(), ve.getValue()));
-        }
-        Assert.assertEquals("number emitted tuples", sentval, ival);
-
-
-        // Now test a node with no weights and no values
-        EventClassifier nvnode = new EventClassifier();
-        classifySink.clear();
-        nvnode.connect(EventClassifier.OPORT_OUT_DATA, classifySink);
-        conf.set(EventClassifier.KEY_WEIGHTS, "");
-        conf.set(EventClassifier.KEY_VALUES, "");
-        nvnode.setup(conf);
-
-        sentval = 0;
-        for (int i = 0; i < 1000000; i++) {
-            input.clear();
-            input.put("ia", 2.0);
-            input.put("ib", 20.0);
-            input.put("ic", 500.0);
-            input.put("id", 1000.0);
-            sentval += 4;
-            nvnode.process(input);
-        }
-        nvnode.endWindow();
-        ival = 0;
-      if (classifySink.dohash) {
-        for (Map.Entry<String, Integer> e: classifySink.collectedTuples.entrySet()) {
-          ival += e.getValue().intValue();
-        }
+      LOG.info(String.format("\nThe number of keys in %d tuples are %d and %d",
+                             ival,
+                             classifySink.collectedTuples.size(),
+                             classifySink.collectedTupleValues.size()));
+      for (Map.Entry<String, Double> ve: classifySink.collectedTupleValues.entrySet()) {
+        Integer ieval = classifySink.collectedTuples.get(ve.getKey()); // ieval should not be null?
+        Log.info(String.format("%d tuples of key \"%s\" has value %f", ieval.intValue(), ve.getKey(), ve.getValue()));
       }
-      else {
-        ival = classifySink.count;
+      Assert.assertEquals("number emitted tuples", sentval, ival);
+
+
+      // Now test a node with no weights and no values
+      EventClassifier nvnode = new EventClassifier();
+      classifySink.clear();
+      keymap.put("a", 0.0);
+      keymap.put("b", 0.0);
+      keymap.put("c", 0.0);
+
+      nvnode.data.setSink(classifySink);
+      nwnode.setKeyMap(keymap);
+      nvnode.setOperationReplace();
+      nvnode.setup(new OperatorConfiguration());
+
+      sentval = 0;
+      for (int i = 0; i < 1000000; i++) {
+        input.clear();
+        input.put("ia", 2.0);
+        input.put("ib", 20.0);
+        input.put("ic", 500.0);
+        input.put("id", 1000.0);
+        sentval += 4;
+        nvnode.event.process(input);
       }
-        LOG.info(String.format("\nThe number of keys in %d tuples are %d and %d",
-                ival,
-                classifySink.collectedTuples.size(),
-                classifySink.collectedTupleValues.size()));
-        for (Map.Entry<String, Double> ve : classifySink.collectedTupleValues.entrySet()) {
-            Integer ieval = classifySink.collectedTuples.get(ve.getKey()); // ieval should not be null?
-            Log.info(String.format("%d tuples of key \"%s\" has value %f",
-                    ieval.intValue(),
-                    ve.getKey(),
-                    ve.getValue()));
-        }
-        Assert.assertEquals("number emitted tuples", sentval, ival);
+    nvnode.endWindow();
+    ival = 0;
+    if (classifySink.dohash) {
+      for (Map.Entry<String, Integer> e: classifySink.collectedTuples.entrySet()) {
+        ival += e.getValue().intValue();
+      }
     }
+    else {
+      ival = classifySink.count;
+    }
+    LOG.info(String.format("\nThe number of keys in %d tuples are %d and %d",
+                           ival,
+                           classifySink.collectedTuples.size(),
+                           classifySink.collectedTupleValues.size()));
+    for (Map.Entry<String, Double> ve: classifySink.collectedTupleValues.entrySet()) {
+      Integer ieval = classifySink.collectedTuples.get(ve.getKey()); // ieval should not be null?
+      Log.info(String.format("%d tuples of key \"%s\" has value %f",
+                             ieval.intValue(),
+                             ve.getKey(),
+                             ve.getValue()));
+    }
+    Assert.assertEquals("number emitted tuples", sentval, ival);
+  }
 }
