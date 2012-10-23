@@ -65,7 +65,7 @@ public class SumTest {
     oper.beginWindow(); //
 
     HashMap<String, Double> input = new HashMap<String, Double>();
-
+    
     input.put("a", 2.0);
     input.put("b", 20.0);
     input.put("c", 1000.0);
