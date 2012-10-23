@@ -47,7 +47,8 @@ public class RandomEventGenerator implements AsyncInputOperator
 {
   public final transient DefaultOutputPort<String> string_data = new DefaultOutputPort<String>(this);
   public final transient DefaultOutputPort<Integer> integer_data = new DefaultOutputPort<Integer>(this);
-  
+
+  protected transient int maxCountOfWindows = Integer.MAX_VALUE;
   protected int tuples_blast = 1000;
   int min_value = 0;
   int max_value = 100;
@@ -94,6 +95,11 @@ public class RandomEventGenerator implements AsyncInputOperator
     }
   }
 
+  public void setMaxcountofwindows(int i)
+  {
+    maxCountOfWindows = i;
+  }
+
   @Override
   public void beginWindow()
   {
@@ -102,6 +108,9 @@ public class RandomEventGenerator implements AsyncInputOperator
   @Override
   public void endWindow()
   {
+    if (--maxCountOfWindows == 0) {
+      Thread.currentThread().interrupt();
+    }
   }
 
   @Override

@@ -4,10 +4,10 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractModule;
-import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.api.OperatorConfiguration;
 import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,175 +46,91 @@ import org.slf4j.LoggerFactory;
  * <b>sedd_end</b>Has to be an integer<br>
  * <b>key</b>If provided has to be in format "key1,key1start,key1end;key2, key2start, key2end; ..."
  * <br>
+ *
  * @author amol
  */
-@ModuleAnnotation(
-        ports = {
-    @PortAnnotation(name = SeedEventClassifier.IPORT_IN_DATA1, type = PortAnnotation.PortType.INPUT),
-    @PortAnnotation(name = SeedEventClassifier.IPORT_IN_DATA2, type = PortAnnotation.PortType.INPUT),
-    @PortAnnotation(name = SeedEventClassifier.OPORT_OUT_DATA, type = PortAnnotation.PortType.OUTPUT)
-})
-public class SeedClassifier extends GenericNode {
-    public static final String IPORT_IN_DATA1 = "in_data1";
-    public static final String IPORT_IN_DATA2 = "in_data2";
-    public static final String OPORT_OUT_DATA = "out_data";
-    private static Logger LOG = LoggerFactory.getLogger(SeedEventClassifier.class);
-
-    /**
-     * Data for classification values
-     */
-    HashMap<String, Object> keys = new HashMap<String, Object>();
-    String indata1_str = new String();
-    String indata2_str = new String();
-
-    boolean isstringschema = false;
-
-    final int s_start_default = 0;
-    final int s_end_default = 99;
-
-    int s_start = 0;
-    int s_end = 99;
-    int seed = 0;
-
-  /**
-   * Start integer value for seeding<p>
-   *
-   */
-  public static final String KEY_SEED_START = "seed_start";
-
-  /**
-   * End integer value for seeding<p>
-   *
-   */
-  public static final String KEY_SEED_END = "seed_end";
-
-  /**
-   * Classifer for port in_data1
-   */
-  public static final String KEY_IN_DATA1_CLASSIFIER = "in_data1_classifier";
-
-  /**
-   * Classifer for port in_data2
-   */
-  public static final String KEY_IN_DATA2_CLASSIFIER = "in_data2_classifier";
-
-  /**
-   * If specified as "true" a String class is sent, else HashMap is sent
-   */
-  public static final String KEY_STRING_SCHEMA = "string_schema";
-
-
-  /**
-   *
-   * Code to be moved to a proper base method name
-   *
-   * @param config
-   * @return boolean
-   */
-  public boolean myValidation(OperatorConfiguration config)
+public class SeedEventClassifier<T> extends BaseOperator
+{
+  public final transient DefaultInputPort<T> data1 = new DefaultInputPort<T>(this)
   {
-    boolean ret = true;
-
-    String seedstart = config.get(KEY_SEED_START, "");
-    String seedend = config.get(KEY_SEED_END, "");
-
-    if (seedstart.isEmpty()) {
-      if (!seedend.isEmpty()) {
-        ret = false;
-        throw new IllegalArgumentException(String.format("seedstart is empty, but seedend (%s) is not", seedend));
-      }
+    @Override
+    public void process(T tuple)
+    {
+      emitTuple(key1, tuple);
     }
-    else {
-      if (seedend.isEmpty()) {
-        ret = false;
-        throw new IllegalArgumentException(String.format("seedstart is specified (%s), but seedend is empty", seedstart));
-      }
-      // Both are specified
-      int lstart = 0;
-      int lend = 0;
-      try {
-        lstart = Integer.parseInt(seedstart);
-      }
-      catch (NumberFormatException e) {
-        ret = false;
-        throw new IllegalArgumentException(String.format("seed_start (%s) should be an integer", seedstart));
-      }
-      try {
-        lend = Integer.parseInt(seedend);
-      }
-      catch (NumberFormatException e) {
-        ret = false;
-        throw new IllegalArgumentException(String.format("seed_end (%s) should be an integer", seedend));
-      }
-    }
-
-    return ret;
-  }
-
-  /**
-   * Sets up all the config parameters. Assumes checking is done and has passed
-   *
-   * @param config
-   */
-  @Override
-  public void setup(ModuleConfiguration config)
+  };
+  public final transient DefaultInputPort<T> data2 = new DefaultInputPort<T>(this)
   {
-    if (!myValidation(config)) {
-      throw new RuntimeException("validation failed");
+    @Override
+    public void process(T tuple)
+    {
+      emitTuple(key1, tuple);
     }
+  };
+  public final transient DefaultOutputPort<String> string_data = new DefaultOutputPort<String>(this);
+  public final transient DefaultOutputPort<HashMap<String, HashMap<String, T>>> hash_data = new DefaultOutputPort<HashMap<String, HashMap<String, T>>>(this);
 
-    isstringschema = config.getBoolean(KEY_STRING_SCHEMA, false);
-    int istart = config.getInt(KEY_SEED_START, s_start_default);
-    int iend = config.getInt(KEY_SEED_END, s_end_default);
-    indata1_str = config.get(KEY_IN_DATA1_CLASSIFIER);
-    indata2_str = config.get(KEY_IN_DATA2_CLASSIFIER);
-
-    if (istart > iend) {
-      s_start = iend;
-      s_end = istart;
-    }
-    else {
-      s_start = istart;
-      s_end = iend;
-    }
-    seed = s_start;
-    LOG.debug(String.format("Set up for seed_start(%d), seed_end (%d), indata1_classifier(%s), and indata2_classifier(%s)", s_start, s_end, indata1_str, indata2_str));
-  }
-
-  /**
-   *
-   * @param payload
-   */
-  @Override
-  public void process(Object payload)
+  public void emitTuple(String key, T tuple)
   {
-    String ikey;
-    if (IPORT_IN_DATA1.equals(getActivePort())) {
-      ikey = indata1_str;
+    if (string_data.isConnected()) {
+      String str = Integer.toString(seed);
+      str += ":";
+      str += key1;
+      str += ",";
+      str += tuple.toString();
+      string_data.emit(str);
     }
-    else {
-      ikey = indata2_str;
-    }
-
-
-    if (isstringschema) {
-      String tuple = Integer.toString(seed);
-      tuple += ":";
-      tuple += ikey;
-      tuple += ",";
-      tuple += (String) payload;
-      emit(OPORT_OUT_DATA, tuple);
-    }
-    else {
-      HashMap<String, Object> tuple = new HashMap<String, Object>(1);
-      HashMap<String, Object> val = new HashMap<String, Object>(1);
-      val.put(ikey, payload);
-      tuple.put(Integer.toString(seed), val);
-      emit(OPORT_OUT_DATA, tuple);
+    if (hash_data.isConnected()) {
+      HashMap<String, HashMap<String, T>> hdata = new HashMap<String, HashMap<String, T>>(1);
+      HashMap<String, T> val = new HashMap<String, T>(1);
+      val.put(key1, tuple);
+      hdata.put(Integer.toString(seed), val);
+      hash_data.emit(hdata);
     }
     seed++;
     if (seed == s_end) {
       seed = s_start;
     }
+  }
+  private static Logger log = LoggerFactory.getLogger(SeedEventClassifier.class);
+  /**
+   * Data for classification values
+   */
+  HashMap<String, Object> keys = new HashMap<String, Object>();
+  String key1 = new String();
+  String key2 = new String();
+  int s_start = 0;
+  int s_end = 99;
+  int seed = 0;
+
+  public void setSeedstart(int i)
+  {
+    s_start = i;
+  }
+
+  public void setSeedend(int i)
+  {
+    s_end = i;
+  }
+
+  public void setKey1(String i)
+  {
+    key1 = i;
+  }
+
+  public void setKey2(String i)
+  {
+    key2 = i;
+  }
+
+  @Override
+  public void setup(OperatorConfiguration config)
+  {
+    if (s_start > s_end) {
+      int temp = s_end;
+      s_end = s_start;
+      s_start = temp;
+    }
+    seed = s_start;
   }
 }

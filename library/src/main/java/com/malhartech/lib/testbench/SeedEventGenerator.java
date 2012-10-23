@@ -4,10 +4,11 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractInputModule;
-import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.api.AsyncInputOperator;
+import com.malhartech.api.Context;
+import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.lib.util.OneKeyValPair;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -53,65 +54,86 @@ import org.slf4j.LoggerFactory;
  *
  * @author amol
  */
-@ModuleAnnotation(
-        ports = {
-  @PortAnnotation(name = SeedEventGenerator.OPORT_DATA, type = PortAnnotation.PortType.OUTPUT)
-})
-public class LoadSeedGenerator extends AsyncInputNode
+
+public class SeedEventGenerator implements AsyncInputOperator
 {
-  public static final String OPORT_DATA = "data";
-  private static Logger LOG = LoggerFactory.getLogger(SeedEventGenerator.class);
+    public final transient DefaultOutputPort<HashMap<String, ArrayList<OneKeyValPair>>> keyvalpair_list = new DefaultOutputPort<HashMap<String, ArrayList<OneKeyValPair>>>(this);
+    public final transient DefaultOutputPort<HashMap<String,ArrayList<Integer>>> val_list = new DefaultOutputPort<HashMap<String, ArrayList<Integer>>>(this);
+
+    public final transient DefaultOutputPort<HashMap<String,String>> string_data = new DefaultOutputPort<HashMap<String, String>>(this);
+    public final transient DefaultOutputPort<HashMap<String,String>> val_data = new DefaultOutputPort<HashMap<String, String>>(this);
+
+    private static Logger LOG = LoggerFactory.getLogger(SeedEventGenerator.class);
   /**
    * Data for classification values
    */
   ArrayList<String> keys = null;
   ArrayList<Integer> keys_min = null;
   ArrayList<Integer> keys_range = null;
-  boolean isstringschema = false;
-  final int s_start_default = 0;
-  final int s_end_default = 99;
-  int s_start = s_start_default;
-  int s_end = s_end_default;
-  final boolean emitkey_default = false;
-  boolean emitkey = emitkey_default;
+
+  int s_start = 0;
+  int s_end = 99;
   private final Random random = new Random();
-  boolean doneseeding = false;
 
-  /**
-   * Start integer value for seeding<p>
-   *
-   */
-  public static final String KEY_SEED_START = "seed_start";
 
-  /**
-   * End integer value for seeding<p>
-   *
-   */
-  public static final String KEY_SEED_END = "seed_end";
-
-  /**
-   * keys are ';' separated list of keys to classify the incoming keys in in_data stream<p>
-   *
-   */
-  public static final String KEY_KEYS = "keys";
-
-  /**
-   * If specified as "true" a String class is sent, else HashMap is sent
-   */
-  public static final String KEY_STRING_SCHEMA = "string_schema";
-
-  public static final String KEY_EMITKEY = "emitkey";
-
-  class valueData
+  public void setSeedstart(int i)
   {
-    String str;
-    Object value;
+    s_start = i;
+  }
 
-    valueData(String istr, Object val)
-    {
-      str = istr;
-      value = val;
+  public void setSeedend(int i)
+  {
+    s_end = i;
+  }
+
+  @Override
+  public void injectTuples(long windowId)
+  {
+    int lstart = s_start;
+    int lend = s_end;
+
+    if (lstart < lend) {
+      for (int i = lstart; i < lend; i++) {
+        emitTuple(i);
+      }
     }
+    else {
+      for (int i = lstart; i > lend; i--) {
+        emitTuple(i);
+      }
+    }
+    Thread.currentThread().interrupt();
+  }
+
+  @Override
+  public void beginWindow()
+  {
+  }
+
+  @Override
+  public void endWindow()
+  {
+  }
+
+  @Override
+  public void setup(OperatorConfiguration config)
+  {
+
+  }
+
+  @Override
+  public void activated(Context context)
+  {
+  }
+
+  @Override
+  public void deactivated()
+  {
+  }
+
+  @Override
+  public void teardown()
+  {
   }
 
   /**
@@ -121,55 +143,87 @@ public class LoadSeedGenerator extends AsyncInputNode
    * @param tuples bag of tuples
    * @param key the key
    */
-  public HashMap<String, Object> getTuple(int i)
+  public void emitTuple (int i)
   {
-    HashMap<String, Object> ret = new HashMap<String, Object>(1);
-
-    String key;
-    key = Integer.toString(i);
+    HashMap<String, String> stuple = null;
+    HashMap<String, ArrayList<OneKeyValPair>> atuple = null;
+    String key = Integer.toString(i);
 
     if (keys == null) {
-      ret.put(key, null);
-      return ret;
+      if (string_data.isConnected()) {
+        stuple.put(key, null);
+        string_data.emit(stuple);
+      }
+      if (keyvalpair_list.isConnected()) {
+        atuple.put(key, null);
+        keyvalpair_list.emit(atuple);
+      }
+      return;
     }
 
-    ArrayList alist = null;
+    ArrayList<OneKeyValPair> alist = null;
+    ArrayList<Integer> vlist = null;
     String str = new String();
+    String vstr = new String ();
+    boolean iskv = keyvalpair_list.isConnected();
+    boolean isvl = val_list.isConnected();
+    boolean issd = string_data.isConnected();
+    boolean isvd = val_data.isConnected();
+
     int j = 0;
     for (String s: keys) {
-      if (!isstringschema) {
+      if (iskv) {
         if (alist == null) {
-          alist = new ArrayList(keys.size());
+          alist = new ArrayList<OneKeyValPair>(keys.size());
         }
-        if (emitkey) {
-          alist.add(new valueData(s, new Integer(keys_min.get(j) + random.nextInt(keys_range.get(j)))));
-        }
-        else {
-          alist.add(new Integer(keys_min.get(j) + random.nextInt(keys_range.get(j))));
-        }
+        alist.add(new OneKeyValPair<String, Integer>(s, new Integer(keys_min.get(j) + random.nextInt(keys_range.get(j)))));
       }
-      else {
+      if (isvl) {
+        if (alist == null) {
+          vlist = new ArrayList<Integer>(keys.size());
+        }
+        vlist.add(new Integer(keys_min.get(j) + random.nextInt(keys_range.get(j))));
+      }
+
+      if (issd) {
         if (!str.isEmpty()) {
           str += ';';
         }
-        if (emitkey) {
-          str += s + ":" + Integer.toString(keys_min.get(j) + random.nextInt(keys_range.get(j)));
+        str += s + ":" + Integer.toString(keys_min.get(j) + random.nextInt(keys_range.get(j)));
+      }
+      if (isvd) {
+        if (!vstr.isEmpty()) {
+          vstr += ';';
         }
-        else {
-          str += Integer.toString(keys_min.get(j) + random.nextInt(keys_range.get(j)));
-        }
+        vstr += Integer.toString(keys_min.get(j) + random.nextInt(keys_range.get(j)));
       }
       j++;
     }
 
-    if (isstringschema) {
-      ret.put(key, str);
+    if (iskv) {
+      atuple = new HashMap<String, ArrayList<OneKeyValPair>>(1);
+      atuple.put(key, alist);
+      keyvalpair_list.emit(atuple);
     }
-    else {
-      ret.put(key, alist);
+
+    if (isvl) {
+      HashMap<String, ArrayList<Integer>> ituple = new HashMap<String, ArrayList<Integer>>(1);
+      ituple.put(key, vlist);
+      val_list.emit(ituple);
     }
-    return ret;
-  }
+
+    if (issd) {
+      stuple = new HashMap<String, String>(1);
+      stuple.put(key, str);
+      string_data.emit(stuple);
+    }
+
+    if (isvd) {
+      HashMap vtuple = new HashMap<String,String>(1);
+      vtuple.put(key, vstr);
+      val_data.emit(vtuple);
+    }
+}
 
   /**
    *
@@ -190,153 +244,5 @@ public class LoadSeedGenerator extends AsyncInputNode
     keys.add(key);
     keys_min.add(low);
     keys_range.add(high - low + 1);
-  }
-
-  /**
-   *
-   * Code to be moved to a proper base method name
-   *
-   * @param config
-   * @return boolean
-   */
-  public boolean myValidation(OperatorConfiguration config)
-  {
-    boolean ret = true;
-
-    String seedstart = config.get(KEY_SEED_START, "");
-    String seedend = config.get(KEY_SEED_END, "");
-
-    if (seedstart.isEmpty()) {
-      if (!seedend.isEmpty()) {
-        ret = false;
-        throw new IllegalArgumentException(String.format("seedstart is empty, but seedend (%s) is not", seedend));
-      }
-    }
-    else {
-      if (seedend.isEmpty()) {
-        ret = false;
-        throw new IllegalArgumentException(String.format("seedstart is specified (%s), but seedend is empty", seedstart));
-      }
-      // Both are specified
-      int lstart = 0;
-      int lend = 0;
-      try {
-        lstart = Integer.parseInt(seedstart);
-      }
-      catch (NumberFormatException e) {
-        ret = false;
-        throw new IllegalArgumentException(String.format("seed_start (%s) should be an integer", seedstart));
-      }
-      try {
-        lend = Integer.parseInt(seedend);
-      }
-      catch (NumberFormatException e) {
-        ret = false;
-        throw new IllegalArgumentException(String.format("seed_end (%s) should be an integer", seedend));
-      }
-    }
-
-    String kstr = config.get(KEY_KEYS, "");
-    if (kstr.isEmpty()) {
-      return ret;
-    }
-
-    // The key format is "str:int,int;str:int,int;..."
-    String[] strs = kstr.split(";");
-    int j = 0;
-    for (String s: strs) {
-      j++;
-      if (s.isEmpty()) {
-        ret = false;
-        throw new IllegalArgumentException(String.format("%d slot of parameter \"key\" is empty", j));
-      }
-      else {
-        String[] twostr = s.split(":");
-        if (twostr.length != 2) {
-          ret = false;
-          throw new IllegalArgumentException(String.format("\"%s\" malformed in parameter \"key\"", s));
-        }
-        else {
-          String key = twostr[0];
-          String[] istr = twostr[1].split(",");
-          if (istr.length != 2) {
-            ret = false;
-            throw new IllegalArgumentException(String.format("Values \"%s\" for \"%s\" of parameter \"key\" is malformed", twostr[1], key));
-          }
-          else {
-            int low = 0;
-            int high = 0;
-            try {
-              low = Integer.parseInt(istr[0]);
-              high = Integer.parseInt(istr[1]);
-            }
-            catch (NumberFormatException e) {
-              ret = false;
-              throw new IllegalArgumentException(String.format("Weight string should be an integer(%s)", s));
-            }
-            if (low >= high) {
-              ret = false;
-              throw new IllegalArgumentException(String.format("Low value \"%d\" is >= high value \"%d\" for \"%s\"", low, high, key));
-            }
-          }
-        }
-      }
-    }
-    return ret;
-  }
-
-  /**
-   * Sets up all the config parameters. Assumes checking is done and has passed
-   *
-   * @param config
-   */
-  @Override
-  public void setup(ModuleConfiguration config)
-  {
-    if (!myValidation(config)) {
-      throw new RuntimeException("validation failed");
-    }
-
-    isstringschema = config.getBoolean(KEY_STRING_SCHEMA, false);
-    String kstr = config.get(KEY_KEYS, "");
-    s_start = config.getInt(KEY_SEED_START, s_start_default);
-    s_end = config.getInt(KEY_SEED_END, s_end_default);
-    emitkey = config.getBoolean(KEY_EMITKEY, emitkey_default);
-
-    LOG.debug(String.format("Set up for seed_start(%d), seed_end (%d) and keys (\"%s\")", s_start, s_end, kstr));
-
-    // The key format is "str:int,int;str:int,int;..."
-    // The format is already validated by myValidation
-    if (!kstr.isEmpty()) {
-      String[] strs = kstr.split(";");
-      for (String s: strs) {
-        String[] twostr = s.split(":");
-        String key = twostr[0];
-        String[] istr = twostr[1].split(",");
-        addKeyData(twostr[0], Integer.parseInt(istr[0]), Integer.parseInt(istr[1]));
-      }
-    }
-  }
-
-  @Override
-  public void process(Object payload)
-  {
-    if (!doneseeding) {
-      int lstart = s_start;
-      int lend = s_end;
-
-      if (lstart < lend) {
-        for (int i = lstart; i < lend; i++) {
-          emit(OPORT_DATA, getTuple(i));
-        }
-      }
-      else {
-        for (int i = lstart; i > lend; i--) {
-          emit(OPORT_DATA, getTuple(i));
-        }
-      }
-    }
-    doneseeding = true;
-    deactivate();
   }
 }

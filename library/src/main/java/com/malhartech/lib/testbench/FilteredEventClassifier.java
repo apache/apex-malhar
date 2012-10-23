@@ -4,10 +4,10 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.AbstractModule;
-import com.malhartech.dag.ModuleConfiguration;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.api.OperatorConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,303 +51,119 @@ import org.slf4j.LoggerFactory;
  *
  * @author amol
  */
-@ModuleAnnotation(
-        ports = {
-  @PortAnnotation(name = FilteredEventClassifier.IPORT_IN_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = FilteredEventClassifier.OPORT_OUT_DATA, type = PortAnnotation.PortType.OUTPUT)
-})
-public class FilterClassifier extends GenericNode
+public class FilteredEventClassifier<T> extends BaseOperator
 {
-  public static final String IPORT_IN_DATA = "in_data";
-  public static final String OPORT_OUT_DATA = "out_data";
-  private static Logger LOG = LoggerFactory.getLogger(FilteredEventClassifier.class);
-  HashMap<String, Double> keys = new HashMap<String, Double>();
+  public final transient DefaultInputPort<HashMap<String, T>> data = new DefaultInputPort<HashMap<String, T>>(this)
+  {
+    @Override
+    public void process(HashMap<String, T> tuple)
+    {
+      int fval = random.nextInt(total_filter);
+      if (fval >= pass_filter) {
+        return;
+      }
+
+      // Now insertion needs to be done
+      for (Map.Entry<String, T> e: tuple.entrySet()) {
+        String[] twokeys = e.getKey().split(",");
+        if (twokeys.length == 2) {
+          String inkey = twokeys[1];
+          ArrayList<Integer> alist = noweight;
+          if (inkeys != null) {
+            alist = inkeys.get(inkey);
+          }
+          // now alist are the weights
+          int rval = random.nextInt(alist.get(alist.size() - 1));
+          int j = 0;
+          int wval = 0;
+          for (Integer ew: alist) {
+            wval += ew.intValue();
+            if (wval > rval) {
+              break;
+            }
+            j++;
+          }
+          HashMap<String, T> otuple = new HashMap<String, T>(1);
+          String key = wtostr_index.get(j); // the key
+          T keyval = null;
+          if (hasvalues) {
+            keyval = keys.get(key);
+          }
+          else { // pass on the value from incoming tuple
+            keyval = e.getValue();
+          }
+          otuple.put(key + "," + inkey, keyval);
+          filter.emit(otuple);
+        }
+      }
+    }
+  };
+
+    public final transient DefaultOutputPort<HashMap<String, T>> filter = new DefaultOutputPort<HashMap<String, T>>(this);
+
+
+  HashMap<String, T> keys = new HashMap<String, T>();
   HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();
   // One of inkeys (Key to weight hash) or noweight (even weight) would be not null
   HashMap<String, ArrayList<Integer>> inkeys = null;
   ArrayList<Integer> noweight = null;
   boolean hasvalues = false;
-
   int total_weight = 0;
   int pass_filter = 0;
   int total_filter = 0;
   private Random random = new Random();
 
-  /**
-   * keys are comma separated list of keys to insert to keys in in_data stream<p>
-   * The out bound keys are in_data(key)<delimiter>key
-   *
-   */
-  public static final String KEY_KEYS = "keys";
-  /**
-   * values are to be assigned to each key. The tuple thus is a newkey,newvalue
-   * pair. The value field can either be empty in which case the value in in_data tuple is
-   * passed through as is; or the value corresponding to key is inserted
-   *
-   */
-  public static final String KEY_VALUES = "values";
-  /**
-   * The weights define the probability of each key being assigned to current
-   * in_data tuple based on the in_data tuple key. The total of all weights is equal to 100%.
-   * If weights are not specified then the append probability is equal.
-   */
-  public static final String KEY_WEIGHTS = "weights";
-
-  /**
-   * The filter numbers. Two numbers n1,n2, where n1is less than n2 and we send out n1 tuples out of n2 incoming
-   * tuples<br>
-   */
-  public static final String KEY_FILTER = "filter";
-
-  /**
-   *
-   * Code to be moved to a proper base method name
-   *
-   * @param config
-   * @return boolean
-   */
-  public boolean myValidation(OperatorConfiguration config)
+  void setPassFilter(int i)
   {
-
-    boolean ret = true;
-
-    String iwstr = config.get(KEY_WEIGHTS, "");
-    String[] kstr = config.getTrimmedStrings(KEY_KEYS);
-    String[] vstr = config.getTrimmedStrings(KEY_VALUES);
-    String fstr = config.get(KEY_FILTER);
-
-
-    if (kstr.length == 0) {
-      ret = false;
-      throw new IllegalArgumentException("Parameter \"key\" is empty");
-    }
-    else {
-      LOG.debug(String.format("Number of keys are %d", kstr.length));
-    }
-
-    if (!iwstr.isEmpty()) { // if empty noweights would be used
-      String[] wstr = iwstr.split(";");
-      for (String s: wstr) { // Each wstr is in_key:val1,val2,valN where N = num of keys
-        if (s.isEmpty()) {
-          ret = false;
-          throw new IllegalArgumentException("One of the keys in \"weights\" is empty");
-        }
-        else {
-          String[] keywstrs = s.split(":");
-          if (keywstrs.length != 2) {
-            ret = false;
-            throw new IllegalArgumentException(
-                    String.format("Property \"weights\" has a bad key \"%s\" (need two strings separated by ':')", s));
-          }
-          String[] kwstrs = keywstrs[1].split(","); // Keywstrs[0] is the in_key
-          if (kwstrs.length != kstr.length) {
-            ret = false;
-            throw new IllegalArgumentException(
-                    String.format("Number of weights (%d) in \"%s\" does not match the number of keys (%d) in \"%s\"",
-                                  kwstrs.length, keywstrs[1], kstr.length, config.get(KEY_KEYS, "")));
-          }
-          else { // Now you get weights for each key
-            for (String ws: kwstrs) {
-              try {
-                Integer.parseInt(ws);
-              }
-              catch (NumberFormatException e) {
-                ret = false;
-                throw new IllegalArgumentException(String.format("Weight string should be an integer(%s)", ws));
-              }
-            }
-          }
-        }
-      }
-    }
-
-    hasvalues = (vstr.length != 0);
-    if (!hasvalues) {
-      LOG.debug("values was not provided, so keys would have value of 0");
-    }
-    else {
-      for (String s: vstr) {
-        try {
-          Double.parseDouble(s);
-        }
-        catch (NumberFormatException e) {
-          ret = false;
-          throw new IllegalArgumentException(String.format("Value string should be float(%s)", s));
-        }
-      }
-    }
-
-    if (hasvalues && (vstr.length != kstr.length)) {
-      ret = false;
-      throw new IllegalArgumentException(
-              String.format("Number of values (%d) does not match number of keys (%d)",
-                            vstr.length, kstr.length));
-    }
-
-    if (fstr.isEmpty()) {
-      ret = false;
-      throw new IllegalArgumentException("Parameter \"filter\" is empty");
-    }
-    else {
-      String[] twofstr = fstr.split(",");
-      if (twofstr.length != 2) {
-        ret = false;
-        throw new IllegalArgumentException(String.format("Parameter \"filter\" has wrong format \"%s\"", fstr));
-      }
-      else {
-        for (String ws: twofstr) {
-          try {
-            Integer.parseInt(ws);
-          }
-          catch (NumberFormatException e) {
-            ret = false;
-            throw new IllegalArgumentException(String.format("Filter string should be an integer(%s)", ws));
-          }
-        }
-      }
-    }
-    return ret;
+    pass_filter = i;
   }
 
-  /**
-   * Sets up all the config parameters. Assumes checking is done and has passed
-   *
-   * @param config
-   */
-  @Override
-  public void setup(ModuleConfiguration config)
+  void setTotalFilter(int i)
   {
-    if (!myValidation(config)) {
-      throw new RuntimeException("Did not pass validation");
-    }
+    total_filter = i;
+  }
 
-    // example format for iwstr is "home:60,10,35;finance:10,75,15;sports:20,10,70;mail:50,15,35"
-    String iwstr = config.get(KEY_WEIGHTS, "");
-    String[] kstr = config.getTrimmedStrings(KEY_KEYS);
-    String[] vstr = config.getTrimmedStrings(KEY_VALUES);
-    String[] fstr = config.getTrimmedStrings(KEY_FILTER);
-
-    pass_filter = Integer.parseInt(fstr[0]);
-    total_filter = Integer.parseInt(fstr[1]);
-
-    if (!iwstr.isEmpty()) {
-      String[] wstr = iwstr.split(";");
-      inkeys = new HashMap<String, ArrayList<Integer>>(1);
-      for (String ts: wstr) { // ts is top string as <key>:weight1,weight2,...
-        String[] twostr = ts.split(":");
-        String[] weights = twostr[1].split(",");
-        ArrayList<Integer> alist = new ArrayList<Integer>();
-        int wtotal = 0;
-        for (String ws: weights) {
-          int wsval = Integer.parseInt(ws);
-          alist.add(wsval);
-          wtotal += wsval;
-        }
-        alist.add(wtotal); // The last integer is the total
-        inkeys.put(twostr[0], alist);
-      }
-    }
-    else {
-      // noweight would be used for all in_keys
-      noweight = new ArrayList<Integer>();
-      for (String s: kstr) {
-        noweight.add(100); // Even distribution
-        total_weight += 100;
-      }
-      noweight.add(total_weight);
-    }
-
+  void setKeyMap(HashMap<String, T> map)
+  {
     int i = 0;
     // First load up the keys and the index hash (wtostr_index) for randomization to work
-    for (String s: kstr) {
-      if (hasvalues) {
-        keys.put(s, new Double(Double.parseDouble(vstr[i])));
-      }
-      else {
-        keys.put(s, new Double(0.0));
-      }
-      wtostr_index.put(i, s);
+    for (Map.Entry<String, T> e: map.entrySet()) {
+      keys.put(e.getKey(), e.getValue());
+      wtostr_index.put(i, e.getKey());
       i += 1;
     }
-    LOG.debug(String.format("\nSetting up node (%s)\nkeys(%s)\nninkey(%s)\nw(%s)\nv(%s)\nFor (%s), (%s), (%s)\n"
-            , this.toString()
-            , (keys == null) ? "null" : keys.toString()
-            , (inkeys == null) ? "null" : inkeys.toString()
-            , (noweight == null) ? "null" : noweight.toString()
-            , hasvalues ? "null" : "not null"
-            , config.get(KEY_WEIGHTS, ""), config.get(KEY_KEYS, ""),  config.get(KEY_VALUES, "")));
   }
 
-  /**
-   * Process each tuple
-   *
-   * @param payload
-   */
   @Override
-  public void process(Object payload)
+  public void setup(OperatorConfiguration config)
   {
-    // TBD, payload can be either a String or a HashMap
-    // Later on add String type to it as the throughput is high
-    // The nodes later can split string and construct the HashMap if need be
-    // Save I/O
-    // For now only HashMap is supported
-    //
-    // tuple should be "inkey,key" and "value" pair
+    noweight = new ArrayList<Integer>();
+    for (int i = 0; i < keys.size(); i++) {
+      noweight.add(100); // Even distribution
+      total_weight += 100;
+    }
+    noweight.add(total_weight);
+    if (pass_filter > total_filter) {
+      throw new IllegalArgumentException(String.format("Pass filter (%d) cannot be >= Total filter (%d)", pass_filter, total_filter));
+    }
+  }
 
-    // Check if the tuple has to be ignored
-
-    int fval = random.nextInt(total_filter);
-    if (fval >= pass_filter) {
-      return;
+  void setKeyWeights(HashMap<String, ArrayList<Integer>> map)
+  {
+    if (inkeys == null) {
+      inkeys = new HashMap<String, ArrayList<Integer>>();
+    }
+    for (Map.Entry<String, ArrayList<Integer>> e: map.entrySet()) {
+      inkeys.put(e.getKey(), e.getValue());
     }
 
-    // Now insertion needs to be done
-    for (Map.Entry<String, Double> e: ((HashMap<String, Double>)payload).entrySet()) {
-      String[] twokeys = e.getKey().split(",");
-      if (twokeys.length == 2) {
-        String inkey = twokeys[1];
-        ArrayList<Integer> alist = noweight;
-        if (inkeys != null) {
-          alist = inkeys.get(inkey);
-        }
-        // now alist are the weights
-        int rval = random.nextInt(alist.get(alist.size()-1));
-        int j = 0;
-        int wval = 0;
-        for (Integer ew: alist) {
-          wval += ew.intValue();
-          if (wval > rval) {
-            break;
-          }
-          j++;
-        }
-        HashMap<String, Double> tuple = new HashMap<String, Double>(1);
-        String key = wtostr_index.get(j); // the key
-        Double keyval = null;
-        if (hasvalues) {
-          keyval = keys.get(key);
-        }
-        else { // pass on the value from incoming tuple
-          keyval = e.getValue();
-        }
-        tuple.put(key + "," + inkey, keyval);
-        emit(OPORT_OUT_DATA, tuple);
+    for (Map.Entry<String, ArrayList<Integer>> e: inkeys.entrySet()) {
+      ArrayList<Integer> list = e.getValue();
+      int total = 0;
+      for (Integer i: list) {
+        total += i.intValue();
       }
+      list.add(total);
     }
-  }
-
-  /**
-   *
-   * Checks for user specific configuration values<p>
-   *
-   * @param config
-   * @return boolean
-   */
-  @Override
-  public boolean checkConfiguration(OperatorConfiguration config)
-  {
-    boolean ret = true;
-    // TBD
-    return ret && super.checkConfiguration(config);
   }
 }

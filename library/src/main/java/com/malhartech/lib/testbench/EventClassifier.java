@@ -4,9 +4,9 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.dag.GenericNode;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.OperatorConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,18 +32,11 @@ import org.slf4j.LoggerFactory;
  *
  * <b>Tuple Schema</b>: Each tuple is HashMap<String, Double> on both the ports. Currently other schemas are not supported<br>
  * <b>Port Interface</b><br>
- * <b>out_data</b>: Output port for emitting the new classified tuple<br>
- * <b>in_data</b>: Input port for receiving the incoming tuple<br>
+ * <b>data</b>: emits HashMap<String,Double><br>
+ * <b>event</b>: expects HashMap<String,Double><br>
  * <br>
  * <b>Properties</b>:
- * <b>keys</b> is a comma separated list of keys. This key are the insert keys in the tuple<br>
- * <b>values</b> are comma separated list of values. This value is for insertion into the <value> field in the tuple. also called "insert value". If not specified the incoming values are not changed<br>
- * <b>weights</b> are comma separated list of probability weights for each incoming key. For each incoming key the weights have to be provided. If this parameter is empty all the weights are even for all keys<br>
- * <b>valueoperation</b> defines insert operation. The choices are:
- * <b>replace</b> - Replace the tuple value with "insert value"<br>
- * <b>add</b> - Add "insert value" to incoming tuple value<br>
- * <b>mult</b> - Multiply "insert value" with incoming tuple value<br>
- * <b>append</b> - Append the "insert value" to the incoming tuple's value. Mainly for string operation. Currently this mode is not supported<br>
+ * None<br>
  * <br>
  * Compile time checks are:<br>
  * <b>keys</b> cannot be empty<br>
@@ -54,254 +47,23 @@ import org.slf4j.LoggerFactory;
  *
  * @author amol
  */
-@ModuleAnnotation(
-        ports = {
-  @PortAnnotation(name = EventClassifier.IPORT_IN_DATA, type = PortAnnotation.PortType.INPUT),
-  @PortAnnotation(name = EventClassifier.OPORT_OUT_DATA, type = PortAnnotation.PortType.OUTPUT)
-})
-public class EventClassifier extends GenericNode
+
+public class EventClassifier extends BaseOperator
 {
-  public static final String IPORT_IN_DATA = "in_data";
-  public static final String OPORT_OUT_DATA = "out_data";
-  private static Logger LOG = LoggerFactory.getLogger(EventClassifier.class);
-  HashMap<String, Double> keys = new HashMap<String, Double>();
-  HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();
-  // One of inkeys (Key to weight hash) or noweight (even weight) would be not null
-  HashMap<String, ArrayList<Integer>> inkeys = null;
-  ArrayList<Integer> noweight = null;
-  boolean hasvalues = false;
-  /**
-   * keys are comma separated list of keys to append to keys in in_data stream<p>
-   * The out bound keys are in_data(key)<delimiter>key
-   *
-   */
-  public static final String KEY_KEYS = "keys";
-  /**
-   * values are to be assigned to each key. The tuple thus is a newkey,newvalue
-   * pair. The value field can either be empty in which case the value in in_data tuple is
-   * passed through as is; or a comma separated list of values. These values are then operated
-   * upon the incoming values (see valueoperation). If values list is provided,
-   * the number must match the number of keys
-   *
-   */
-  public static final String KEY_VALUES = "values";
-  /**
-   * The weights define the probability of each key being assigned to current
-   * in_data tuple based on the in_data tuple key. The total of all weights is equal to 100%.
-   * If weights are not specified then the append probability is equal.
-   */
-  public static final String KEY_WEIGHTS = "weights";
-  /**
-   * operation to be done between the incoming values and inserted values by this node. The supported operations are
-   * replace: Is the default operation and would simply ignore the incoming value and insert new one.
-   * add: Adds to the incoming value
-   * mult: Multiplies the incoming value
-   * append: Appends to the incoming value. The same delimiter is used as that of the key
-   *
-   */
-  public static final String KEY_VALUEOPERATION = "valueoperation";
-  int total_weight = 0;
-  private Random random = new Random();
-
-  enum value_operation
+  public final transient DefaultInputPort<HashMap<String, Double>> event = new DefaultInputPort<HashMap<String, Double>>(this)
   {
-    VOPR_REPLACE, VOPR_ADD, VOPR_MULT, VOPR_APPEND
-  };
-  value_operation voper;
-
-  /**
-   *
-   * Code to be moved to a proper base method name
-   *
-   * @param config
-   * @return boolean
-   */
-  public boolean myValidation(OperatorConfiguration config)
-  {
-
-    boolean ret = true;
-
-    String iwstr = config.get(KEY_WEIGHTS, "");
-    String[] kstr = config.getTrimmedStrings(KEY_KEYS);
-    String[] vstr = config.getTrimmedStrings(KEY_VALUES);
-    String vostr = config.get(KEY_VALUEOPERATION, "");
-
-
-    if (kstr.length == 0) {
-      ret = false;
-      throw new IllegalArgumentException("Parameter \"key\" is empty");
-    }
-    else {
-      LOG.debug(String.format("Number of keys are %d", kstr.length));
-    }
-
-    if (!iwstr.isEmpty()) { // if empty noweights would be used
-      String[] wstr = iwstr.split(";");
-      for (String s: wstr) { // Each wstr is in_key:val1,val2,valN where N = num of keys
-        if (s.isEmpty()) {
-          ret = false;
-          throw new IllegalArgumentException("One of the keys in \"weights\" is empty");
-        }
-        else {
-          String[] keywstrs = s.split(":");
-          if (keywstrs.length != 2) {
-            ret = false;
-            throw new IllegalArgumentException(
-                    String.format("Property \"weights\" has a bad key \"%s\" (need two strings separated by ':')", s));
-          }
-          String[] kwstrs = keywstrs[1].split(","); // Keywstrs[0] is the in_key
-          if (kwstrs.length != kstr.length) {
-            ret = false;
-            throw new IllegalArgumentException(
-                    String.format("Number of weights (%d) in \"%s\" does not match the number of keys (%d) in \"%s\"",
-                                  kwstrs.length, keywstrs[1], kstr.length, config.get(KEY_KEYS, "")));
-          }
-          else { // Now you get weights for each key
-            for (String ws: kwstrs) {
-              try {
-                Integer.parseInt(ws);
-              }
-              catch (NumberFormatException e) {
-                ret = false;
-                throw new IllegalArgumentException(String.format("Weight string should be an integer(%s)", ws));
-              }
-            }
-          }
-        }
-      }
-    }
-
-    hasvalues = (vstr.length != 0);
-    if (!hasvalues) {
-      LOG.debug("values was not provided, so keys would have value of 0");
-    }
-    else {
-      for (String s: vstr) {
-        try {
-          Double.parseDouble(s);
-        }
-        catch (NumberFormatException e) {
-          ret = false;
-          throw new IllegalArgumentException(String.format("Value string should be float(%s)", s));
-        }
-      }
-    }
-
-    if (hasvalues && (vstr.length != kstr.length)) {
-      ret = false;
-      throw new IllegalArgumentException(
-              String.format("Number of values (%d) does not match number of keys (%d)",
-                            vstr.length, kstr.length));
-    }
-
-    if (vostr.isEmpty() || vostr.equals("replace")) {
-      voper = value_operation.VOPR_REPLACE; // Default is replace
-    }
-    else if (vostr.equals("add")) {
-      voper = value_operation.VOPR_ADD;
-    }
-    else if (vostr.equals("mult")) {
-      voper = value_operation.VOPR_MULT;
-    }
-    else if (vostr.equals("append")) {
-      voper = value_operation.VOPR_APPEND;
-    }
-    else {
-      ret = false;
-      throw new IllegalArgumentException(
-              String.format("Value opertion (%s) not supported. Supported values are \"replace\",\"add\",\"mult\",\"append\"", vostr));
-    }
-    return ret;
-  }
-
-  /**
-   * Sets up all the config parameters. Assumes checking is done and has passed
-   *
-   * @param config
-   */
-  @Override
-  public void setup(OperatorConfiguration config)
-  {
-    if (!myValidation(config)) {
-      throw new RuntimeException("Did not pass validation");
-    }
-
-    // example format for iwstr is "home:60,10,35;finance:10,75,15;sports:20,10,70;mail:50,15,35"
-    String iwstr = config.get(KEY_WEIGHTS, "");
-    String[] kstr = config.getTrimmedStrings(KEY_KEYS);
-    String[] vstr = config.getTrimmedStrings(KEY_VALUES);
-
-
-    if (!iwstr.isEmpty()) {
-      String[] wstr = iwstr.split(";");
-      inkeys = new HashMap<String, ArrayList<Integer>>(1);
-      for (String ts: wstr) { // ts is top string as <key>:weight1,weight2,...
-        String[] twostr = ts.split(":");
-        String[] weights = twostr[1].split(",");
-        ArrayList<Integer> alist = new ArrayList<Integer>();
-        Integer wtotal = 0;
-        for (String ws: weights) {
-          alist.add(Integer.parseInt(ws));
-          wtotal += Integer.parseInt(ws);
-        }
-        alist.add(wtotal);
-        inkeys.put(twostr[0], alist);
-      }
-    }
-    else {
-      // noweight would be used for all in_keys
-      noweight = new ArrayList<Integer>();
-      for (String s: kstr) {
-        noweight.add(100); // Even distribution
-        total_weight += 100;
-      }
-      noweight.add(total_weight);
-    }
-
-    int i = 0;
-    // First load up the keys and the index hash (wtostr_index) for randomization to work
-    for (String s: kstr) {
-      if (hasvalues) {
-        keys.put(s, new Double(Double.parseDouble(vstr[i])));
-      }
-      else {
-        keys.put(s, new Double(0.0));
-      }
-      wtostr_index.put(i, s);
-      i += 1;
-    }
-    LOG.debug(String.format("\nSetting up node (%s)\nkeys(%s)\nninkey(%s)\nw(%s)\nv(%s)\nFor (%s), (%s), (%s)\n"
-            , this.toString()
-            , (keys == null) ? "null" : keys.toString()
-            , (inkeys == null) ? "null" : inkeys.toString()
-            , (noweight == null) ? "null" : noweight.toString()
-            , hasvalues ? "null" : "not null"
-            , config.get(KEY_WEIGHTS, ""), config.get(KEY_KEYS, ""),  config.get(KEY_VALUES, "")));
-  }
-
-  /**
-   * Process each tuple
-   *
-   * @param payload
-   */
-  @Override
-  public void process(Object payload)
-  {
-    // TBD, payload can be either a String or a HashMap
-    // Later on add String type to it as the throughput is high
-    // The nodes later can split string and construct the HashMap if need be
-    // Save I/O
-    // For now only HashMap is supported
-    //
-    // tuple should be "inkey,key" and "value" pair
-
-    for (Map.Entry<String, Double> e: ((HashMap<String, Double>)payload).entrySet()) {
+    @Override
+    public void process(HashMap<String, Double> tuple)
+    {
+    for (Map.Entry<String, Double> e: tuple.entrySet()) {
       String inkey = e.getKey();
-      ArrayList<Integer> alist = noweight;
+      ArrayList<Integer> alist = null;
       if (inkeys != null) {
         alist = inkeys.get(e.getKey());
       }
-
+      if (alist == null) {
+        alist = noweight;
+      }
 
       // now alist are the weights
       int rval = random.nextInt(alist.get(alist.size() - 1));
@@ -314,7 +76,7 @@ public class EventClassifier extends GenericNode
         }
         j++;
       }
-      HashMap<String, Double> tuple = new HashMap<String, Double>(1);
+      HashMap<String, Double> otuple = new HashMap<String, Double>(1);
       String key = wtostr_index.get(j); // the key
       Double keyval = null;
       if (hasvalues) {
@@ -335,23 +97,99 @@ public class EventClassifier extends GenericNode
       else { // pass on the value from incoming tuple
         keyval = e.getValue();
       }
-      tuple.put(key + "," + inkey, keyval);
-      emit(OPORT_OUT_DATA, tuple);
+      otuple.put(key + "," + inkey, keyval);
+      data.emit(otuple);
+    }
+    }
+  };
+  public final transient DefaultOutputPort<HashMap<String, Double>> data = new DefaultOutputPort<HashMap<String, Double>>(this);
+;
+
+  private static Logger LOG = LoggerFactory.getLogger(EventClassifier.class);
+
+  HashMap<String, Double> keys = new HashMap<String, Double>();
+  HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();
+  // One of inkeys (Key to weight hash) or noweight (even weight) would be not null
+  HashMap<String, ArrayList<Integer>> inkeys = null;
+  ArrayList<Integer> noweight = null;
+  boolean hasvalues = false;
+
+  /**
+   * The weights define the probability of each key being assigned to current
+   * in_data tuple based on the in_data tuple key. The total of all weights is equal to 100%.
+   * If weights are not specified then the append probability is equal.
+   */
+  public static final String KEY_WEIGHTS = "weights";
+
+  int total_weight = 0;
+  private Random random = new Random();
+
+  enum value_operation
+  {
+    VOPR_REPLACE, VOPR_ADD, VOPR_MULT, VOPR_APPEND
+  };
+  value_operation voper = value_operation.VOPR_REPLACE;
+
+
+  public void setOperationReplace()
+  {
+    voper = value_operation.VOPR_REPLACE;
+  }
+
+  public void setOperationAdd()
+  {
+    voper = value_operation.VOPR_ADD;
+  }
+
+  public void setOperationMult()
+  {
+    voper = value_operation.VOPR_MULT;
+  }
+
+  public void setOperationAppend()
+  {
+    voper = value_operation.VOPR_MULT;
+  }
+
+   void setKeyWeights(HashMap<String, ArrayList<Integer>> map)
+  {
+    if (inkeys == null) {
+      inkeys = new HashMap<String, ArrayList<Integer>>();
+    }
+
+    for (Map.Entry<String, ArrayList<Integer>> e: map.entrySet()) {
+      inkeys.put(e.getKey(), e.getValue());
+    }
+
+    for (Map.Entry<String, ArrayList<Integer>> e: inkeys.entrySet()) {
+      ArrayList<Integer> list = e.getValue();
+      int total = 0;
+      for (Integer i: list) {
+        total += i.intValue();
+      }
+      list.add(total);
     }
   }
 
-  /**
-   *
-   * Checks for user specific configuration values<p>
-   *
-   * @param config
-   * @return boolean
-   */
-  @Override
-  public boolean checkConfiguration(OperatorConfiguration config)
+   @Override
+  public void setup(OperatorConfiguration config)
   {
-    boolean ret = true;
-    // TBD
-    return ret && super.checkConfiguration(config);
+    noweight = new ArrayList<Integer>();
+    for (int i = 0; i < keys.size(); i++) {
+      noweight.add(100); // Even distribution
+      total_weight += 100;
+    }
+    noweight.add(total_weight);
+  }
+
+  public void setKeyMap(HashMap<String,Double> map)
+  {
+    int i = 0;
+    // First load up the keys and the index hash (wtostr_index) for randomization to work
+    for (Map.Entry<String, Double> e: map.entrySet()) {
+      keys.put(e.getKey(), e.getValue());
+      wtostr_index.put(i, e.getKey());
+      i += 1;
+    }
   }
 }
