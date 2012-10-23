@@ -7,6 +7,7 @@ import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import com.malhartech.stream.StramTestSupport;
+import java.util.ArrayList;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -18,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * Benchmarks: Currently does about ?? Million tuples/sec in debugging environment. Need to test on larger nodes<br>
  * <br>
  */
-public class HashMapToKeyTest {
+public class ArrayListToKeyTest {
 
     private static Logger LOG = LoggerFactory.getLogger(StreamMerger.class);
 
@@ -45,21 +46,17 @@ public class HashMapToKeyTest {
     @Test
     public void testNodeProcessing() throws Exception
     {
-      HashMapToKey node = new HashMapToKey();
-      TestSink keySink = new TestSink();
-      TestSink valSink = new TestSink();
-      TestSink keyvalSink = new TestSink();
+      ArrayListToItem node = new ArrayListToItem();
+      TestSink itemSink = new TestSink();
       Sink inSink = node.data.getSink();
-      node.key.setSink(keySink);
-      node.val.setSink(valSink);
-      node.keyval.setSink(keyvalSink);
+      node.item.setSink(itemSink);
       node.setup(new OperatorConfiguration());
 
       Tuple bt = StramTestSupport.generateBeginWindowTuple("doesn't matter", 1);
       inSink.process(bt);
 
-      HashMap<String,String> input = new HashMap<String,String>();
-      input.put("a", "1");
+      ArrayList<String> input = new ArrayList<String>();
+      input.add("a");
       // Same input object can be used as the node is just pass through
       int numtuples = 50000000;
       for (int i = 0; i < numtuples; i++) {
@@ -72,7 +69,7 @@ public class HashMapToKeyTest {
       try {
         for (int i = 0; i < 100; i++) {
           Thread.sleep(10);
-          if (keySink.count >= numtuples*2 - 1) {
+          if (itemSink.count >= numtuples*2 - 1) {
             break;
           }
         }
@@ -90,10 +87,7 @@ public class HashMapToKeyTest {
           LOG.error("Unexpected error while sleeping for 1 s", e);
         }
       }
-
-      Assert.assertEquals("number emitted tuples", numtuples, keySink.count);
-      Assert.assertEquals("number emitted tuples", numtuples, valSink.count);
-      Assert.assertEquals("number emitted tuples", numtuples, keyvalSink.count);
-      LOG.debug(String.format("\n********************\nProcessed %d tuples\n********************\n", keySink.count+valSink.count+keyvalSink.count));
+      Assert.assertEquals("number emitted tuples", numtuples, itemSink.count);
+      LOG.debug(String.format("\n********************\nProcessed %d tuples\n********************\n", itemSink.count));
     }
 }
