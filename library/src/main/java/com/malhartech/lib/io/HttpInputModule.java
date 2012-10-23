@@ -9,12 +9,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.MissingResourceException;
 
 import javax.ws.rs.core.MediaType;
 
@@ -24,13 +22,12 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.annotation.PortAnnotation.PortType;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.annotation.ShipContainingJars;
-import com.malhartech.dag.SyncInputNode;
-import com.malhartech.dag.Component;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.SyncInputOperator;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -44,46 +41,34 @@ import com.sun.jersey.api.client.WebResource;
  *
  */
 @ShipContainingJars(classes={com.sun.jersey.api.client.ClientHandler.class})
-@ModuleAnnotation(
-    ports = {
-        @PortAnnotation(name = Component.OUTPUT, type = PortType.OUTPUT)
-    }
-)
-public class HttpInputModule extends SyncInputNode
+public class HttpInputModule extends BaseOperator implements SyncInputOperator, Runnable
 {
   private static final Logger LOG = LoggerFactory.getLogger(HttpInputModule.class);
 
   /**
-   * The URL of the web service resource for the POST request.
-   */
-  public static final String P_RESOURCE_URL = "resourceUrl";
-
-  /**
    * Timeout interval for reading from server. 0 or negative indicates no timeout.
    */
-  public static final String P_READ_TIMEOUT_MILLIS = "readTimeoutMillis";
+  public int readTimeoutMillis = 0;
 
-  private transient URI resourceUrl;
+  /**
+   * The URL of the web service resource for the POST request.
+   */
+  public URI resourceUrl;
+
   private transient Client wsClient;
   private transient WebResource resource;
-  private transient int readTimeoutMillis = 0;
+
+  @OutputPortFieldAnnotation(name="outputPort")
+  final public transient DefaultOutputPort<Map<String, Object>> outputPort = new DefaultOutputPort<Map<String, Object>>(this);
 
   @Override
   public void setup(OperatorConfiguration config)
   {
-    try {
-      checkConfiguration(config);
-    }
-    catch (Exception ex) {
-      throw new RuntimeException(ex);
-    }
-
     wsClient = Client.create();
     wsClient.setFollowRedirects(true);
     wsClient.setReadTimeout(readTimeoutMillis);
     resource = wsClient.resource(resourceUrl);
     LOG.info("URL: {}", resourceUrl);
-
   }
 
   @Override
@@ -94,18 +79,9 @@ public class HttpInputModule extends SyncInputNode
     super.teardown();
   }
 
-  public boolean checkConfiguration(OperatorConfiguration config) {
-    String urlStr = config.get(P_RESOURCE_URL);
-    if (urlStr == null) {
-      throw new MissingResourceException("Key for URL string not set", String.class.getSimpleName(), P_RESOURCE_URL);
-    }
-    try {
-      this.resourceUrl = new URI(urlStr);
-    } catch (URISyntaxException e) {
-      throw new IllegalArgumentException(String.format("Invalid value '%s' for '%s'.", urlStr, P_RESOURCE_URL));
-    }
-    this.readTimeoutMillis = config.getInt(P_READ_TIMEOUT_MILLIS, 0);
-    return true;
+  @Override
+  public Runnable getDataPoller() {
+    return this;
   }
 
   @Override
@@ -213,7 +189,7 @@ public class HttpInputModule extends SyncInputNode
       }
       if (!tuple.isEmpty()) {
         LOG.debug("Got: " + tuple);
-        super.emit(tuple);
+        outputPort.emit(tuple);
         chunk.setLength(0);
       }
     }

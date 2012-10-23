@@ -6,8 +6,8 @@ package com.malhartech.lib.io;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -27,7 +27,6 @@ import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.AbstractHandler;
 
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.dag.OperatorContext;
 import com.malhartech.dag.TestSink;
 
 
@@ -78,20 +77,18 @@ public class HttpInputModuleTest {
 
     TestSink<Map<String, Object>> sink = new TestSink<Map<String, Object>>();
 
-    node.connect(HttpInputModule.OUTPUT, sink);
-    node.setId("testHttpInputNode");
+    node.outputPort.setSink(sink);
+    node.setName("testHttpInputNode");
+    node.resourceUrl = new URI(url);
 
-    final OperatorConfiguration config = new OperatorConfiguration(node.getId(), Collections.<String,String>emptyMap());
-    config.set(HttpOutputOperator.P_RESOURCE_URL, url);
-
-    node.setup(config);
+    node.setup(new OperatorConfiguration());
 
     Thread nodeThread = new Thread()
     {
       @Override
       public void run()
       {
-        node.activate(new OperatorContext(node.getId(), this));
+        node.getDataPoller().run();
       }
     };
     nodeThread.start();
@@ -102,19 +99,13 @@ public class HttpInputModuleTest {
       Thread.sleep(10);
     }
 
-    long timeoutMillis = 3000;
-    while (timeoutMillis > 0) {
-      node.process(null);
-      timeoutMillis -= 20;
-      Thread.sleep(20);
-    }
-
+    sink.waitForResultCount(1, 3000);
     Assert.assertTrue("tuple emmitted", sink.collectedTuples.size() > 0);
 
     Map<String, Object> tuple = sink.collectedTuples.get(0);
     Assert.assertEquals("", tuple.get("responseId"), "response1");
 
-    node.deactivate();
+    nodeThread.interrupt();
     node.teardown();
     server.stop();
 
