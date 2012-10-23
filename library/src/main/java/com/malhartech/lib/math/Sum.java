@@ -46,8 +46,6 @@ public class Sum<K, V extends Number> extends BaseOperator
           count = new MutableInteger(0);
           counts.put(key, count);
         }
-
-
         count.value++;
       }
     }

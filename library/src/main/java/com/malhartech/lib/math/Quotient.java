@@ -113,7 +113,7 @@ public class Quotient<K,V extends Number> extends BaseOperator
         tuples.put(e.getKey(), new Double(0.0));
       }
       else {
-        tuples.put(e.getKey(), new Double((nval.value/ e.getValue().value) * mult_by));
+        tuples.put(e.getKey(), new Double((nval.value/e.getValue().value) * mult_by));
       }
     }
     if (!tuples.isEmpty()) {
