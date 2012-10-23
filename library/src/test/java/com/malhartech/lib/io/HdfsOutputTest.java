@@ -4,15 +4,16 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.dag.ApplicationFactory;
-import com.malhartech.dag.DAG;
-import com.malhartech.lib.io.HdfsOutputModule;
-import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.malhartech.api.DAG;
+import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.dag.ApplicationFactory;
+import com.malhartech.stram.DAGPropertiesBuilder;
 
 /**
  *
@@ -20,24 +21,25 @@ import org.slf4j.LoggerFactory;
 public class HdfsOutputTest implements ApplicationFactory {
 
   private static Logger LOG = LoggerFactory.getLogger(HdfsOutputTest.class);
+  public static final String KEY_FILEPATH = "filepath";
+  public static final String KEY_APPEND = "append";
 
   private long numTuples = 1000000;
-  private final Map<String, String> moduleConfigProperties = new HashMap<String, String>();
+  private final Configuration config = new Configuration(false);
 
   public void testThroughPut()
   {
 
     long startMillis = System.currentTimeMillis();
 
-    OperatorConfiguration config = new OperatorConfiguration("testNode", moduleConfigProperties);
-    config.setIfUnset(HdfsOutputModule.KEY_FILEPATH, "hdfsoutputtest.txt");
-    config.setIfUnset(HdfsOutputModule.KEY_APPEND, "false");
+    HdfsOutputOperator<Object> module = new HdfsOutputOperator<Object>();
+    module.filePath = config.get(KEY_FILEPATH, "hdfsoutputtest.txt");
+    module.append = config.getBoolean(KEY_APPEND, false);
 
-    HdfsOutputModule module = new HdfsOutputModule();
-    module.setup(config);
+    module.setup(new OperatorConfiguration());
 
     for (int i=0; i<=numTuples; i++) {
-      module.process("testdata" + i);
+      module.input.process("testdata" + i);
     }
 
     module.teardown();
@@ -62,12 +64,12 @@ public class HdfsOutputTest implements ApplicationFactory {
 
     this.numTuples = cfg.getLong(this.getClass().getName() + ".numTuples", this.numTuples);
 
-    String keyPrefix = this.getClass().getName() + ".module.";
+    String keyPrefix = this.getClass().getName() + ".operator.";
     Map<String, String> values = cfg.getValByRegex(keyPrefix + "*");
     for (Map.Entry<String, String> e : values.entrySet()) {
-      moduleConfigProperties.put(e.getKey().replace(keyPrefix, ""), e.getValue());
+      this.config.set(e.getKey().replace(keyPrefix, ""), e.getValue());
     }
-    LOG.info("module properties: " + moduleConfigProperties);
+    LOG.info("properties: " + DAGPropertiesBuilder.toProperties(config));
 
     testThroughPut();
 

@@ -73,7 +73,7 @@ public class HttpInputModuleTest {
     String url = "http://localhost:" + server.getConnectors()[0].getLocalPort() + "/somecontext";
     //String url = "http://localhost:8080/channel/mobile/phoneLocationQuery";
 
-    final HttpInputModule node = new HttpInputModule();
+    final HttpInputOperator node = new HttpInputOperator();
 
     TestSink<Map<String, Object>> sink = new TestSink<Map<String, Object>>();
 

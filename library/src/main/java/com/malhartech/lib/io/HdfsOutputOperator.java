@@ -4,20 +4,21 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
-import com.malhartech.api.BaseOperator;
-import com.malhartech.dag.*;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.LoggerFactory;
+
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.dag.SerDe;
 
 /**
  * Adapter for writing to HDFS<p>
@@ -28,31 +29,36 @@ import org.slf4j.LoggerFactory;
  * Future enhancements may include options to write into a time slot/windows based files<br>
  * <br>
  */
-@ModuleAnnotation(ports = {
-  @PortAnnotation(name = Component.INPUT, type = PortAnnotation.PortType.INPUT)
-})
-public class HdfsOutputModule extends BaseOperator implements Sink
+public class HdfsOutputOperator<T> extends BaseOperator
 {
-  private static org.slf4j.Logger logger = LoggerFactory.getLogger(HdfsOutputModule.class);
+  private static org.slf4j.Logger logger = LoggerFactory.getLogger(HdfsOutputOperator.class);
   private transient FSDataOutputStream fsOutput;
   private transient BufferedOutputStream bufferedOutput;
   private SerDe serde; // it was taken from context before, but now what, it's not a stream but a node!
   private transient FileSystem fs;
-  private String filePathTemplate;
-  private boolean append;
-  private int bufferSize;
-  private int replication;
-  private int bytesPerFile;
+
+  // internal persistent state
   private int fileIndex = 0;
-  int currentBytesWritten = 0;
-  long totalBytesWritten = 0;
-  public static final String KEY_FILEPATH = "filepath";
-  public static final String KEY_APPEND = "append";
-  public static final String KEY_REPLICATION = "replication";
+  private int currentBytesWritten = 0;
+  private long totalBytesWritten = 0;
+
+  public static final String FNAME_SUB_OPERATOR_ID = "operatorId";
+  public static final String FNAME_SUB_PART_INDEX = "partIndex";
+
   /**
-   * Byte limit for a single file. Once the size is reached, a new file will be created.
+   * The file name. This can be a relative path for the default file system
+   * or fully qualified URL as accepted by ({@link org.apache.hadoop.fs.Path}).
+   * For splits with per file size limit, the name needs to
+   * contain substitution tokens to generate unique file names.
+   * Example: file:///mydir/adviews.out.%(operatorId).part-%(partIndex)
    */
-  public static final String KEY_BYTES_PER_FILE = "bytesPerFile";
+  public String filePath;
+
+  /**
+   * Append to existing file. Default is true.
+   */
+  public boolean append = true;
+
   /**
    * Bytes are written to the underlying file stream once they cross this size.<br>
    * Use this parameter if the file system used does not provide sufficient buffering.
@@ -60,9 +66,18 @@ public class HdfsOutputModule extends BaseOperator implements Sink
    * but other file system abstractions may not.
    * <br>
    */
-  public static final String KEY_BUFFERSIZE = "bufferSize";
-  public static final String FNAME_SUB_MODULE_ID = "moduleId";
-  public static final String FNAME_SUB_PART_INDEX = "partIndex";
+  public int bufferSize = 0;
+
+  /**
+   * Replication factor. Value <= 0 indicates that the file systems default
+   * replication setting is used.
+   */
+  private int replication = 0;
+
+  /**
+   * Byte limit for a single file. Once the size is reached, a new file will be created.
+   */
+  public int bytesPerFile = 0;
 
   public long getTotalBytesWritten()
   {
@@ -73,12 +88,13 @@ public class HdfsOutputModule extends BaseOperator implements Sink
   {
     Map<String, String> params = new HashMap<String, String>();
     params.put(FNAME_SUB_PART_INDEX, String.valueOf(index));
-    String moduleId = this.getId();
-    if (moduleId != null) {
-      params.put(FNAME_SUB_MODULE_ID, moduleId.replace(":", ""));
+    // TODO: need access to the operator id
+    String operatorId = this.getName();
+    if (operatorId != null) {
+      params.put(FNAME_SUB_OPERATOR_ID, operatorId.replace(":", ""));
     }
     StrSubstitutor sub = new StrSubstitutor(params, "%(", ")");
-    return new Path(sub.replace(filePathTemplate.toString()));
+    return new Path(sub.replace(filePath.toString()));
   }
 
   private void openFile(Path filepath) throws IOException
@@ -126,13 +142,8 @@ public class HdfsOutputModule extends BaseOperator implements Sink
   public void setup(OperatorConfiguration config)
   {
     try {
-      filePathTemplate = config.get(KEY_FILEPATH);
       Path filepath = subFilePath(this.fileIndex);
       fs = FileSystem.get(filepath.toUri(), config);
-      append = config.getBoolean(KEY_APPEND, true);
-      replication = config.getInt(KEY_REPLICATION, 0);
-      bytesPerFile = config.getInt(KEY_BYTES_PER_FILE, 0);
-      bufferSize = config.getInt(KEY_BUFFERSIZE, 0);
 
       if (bytesPerFile > 0) {
         // ensure file path generates unique names
@@ -142,9 +153,7 @@ public class HdfsOutputModule extends BaseOperator implements Sink
           throw new IllegalArgumentException("Rolling files require %() placeholders for unique names: " + filepath);
         }
       }
-
       openFile(filepath);
-
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
@@ -163,47 +172,47 @@ public class HdfsOutputModule extends BaseOperator implements Sink
 
     serde = null;
     fs = null;
-    filePathTemplate = null;
+    filePath = null;
     append = false;
   }
 
-  /**
-   *
-   * @param t the value of t
-   */
-  @Override
-  public void process(Object t)
+  public final transient DefaultInputPort<T> input = new DefaultInputPort<T>(this)
   {
-    // writing directly to the stream, assuming that HDFS already buffers block size.
-    // check whether writing to separate in memory byte stream would be faster
-    byte[] tupleBytes;
-    if (serde == null) {
-      tupleBytes = t.toString().concat("\n").getBytes();
-    }
-    else {
-      tupleBytes = serde.toByteArray(t);
-    }
-    try {
-      if (bytesPerFile > 0 && currentBytesWritten + tupleBytes.length > bytesPerFile) {
-        closeFile();
-        Path filepath = subFilePath(++fileIndex);
-        openFile(filepath);
-        currentBytesWritten = 0;
-      }
-
-      if (bufferedOutput != null) {
-        bufferedOutput.write(tupleBytes);
+    @Override
+    public void process(T t)
+    {
+      // writing directly to the stream, assuming that HDFS already buffers block size.
+      // check whether writing to separate in memory byte stream would be faster
+      byte[] tupleBytes;
+      if (serde == null) {
+        tupleBytes = t.toString().concat("\n").getBytes();
       }
       else {
-        fsOutput.write(tupleBytes);
+        tupleBytes = serde.toByteArray(t);
       }
+      try {
+        if (bytesPerFile > 0 && currentBytesWritten + tupleBytes.length > bytesPerFile) {
+          closeFile();
+          Path filepath = subFilePath(++fileIndex);
+          openFile(filepath);
+          currentBytesWritten = 0;
+        }
 
-      currentBytesWritten += tupleBytes.length;
-      totalBytesWritten += tupleBytes.length;
+        if (bufferedOutput != null) {
+          bufferedOutput.write(tupleBytes);
+        }
+        else {
+          fsOutput.write(tupleBytes);
+        }
 
+        currentBytesWritten += tupleBytes.length;
+        totalBytesWritten += tupleBytes.length;
+
+      }
+      catch (IOException ex) {
+        logger.error("Failed to write to stream.", ex);
+      }
     }
-    catch (IOException ex) {
-      logger.error("Failed to write to stream.", ex);
-    }
-  }
+  };
+
 }

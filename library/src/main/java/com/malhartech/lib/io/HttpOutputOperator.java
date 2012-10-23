@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 public class HttpOutputOperator<T> extends BaseOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(HttpOutputOperator.class);
+
   public final transient DefaultInputPort<T> input = new DefaultInputPort<T>(this)
   {
     @Override
@@ -48,6 +49,7 @@ public class HttpOutputOperator<T> extends BaseOperator
       }
     }
   };
+
   /**
    * The URL of the web service resource for the POST request.
    */

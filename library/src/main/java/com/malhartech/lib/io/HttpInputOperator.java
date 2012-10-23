@@ -41,9 +41,9 @@ import com.sun.jersey.api.client.WebResource;
  *
  */
 @ShipContainingJars(classes={com.sun.jersey.api.client.ClientHandler.class})
-public class HttpInputModule extends BaseOperator implements SyncInputOperator, Runnable
+public class HttpInputOperator extends BaseOperator implements SyncInputOperator, Runnable
 {
-  private static final Logger LOG = LoggerFactory.getLogger(HttpInputModule.class);
+  private static final Logger LOG = LoggerFactory.getLogger(HttpInputOperator.class);
 
   /**
    * Timeout interval for reading from server. 0 or negative indicates no timeout.
