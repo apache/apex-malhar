@@ -3,8 +3,6 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.dag.OperatorContext;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import com.malhartech.stream.StramTestSupport;
@@ -83,67 +81,6 @@ public class EventIncrementerTest
           }
         }
       }
-    }
-  }
-
-  /**
-   * Test configuration and parameter validation of the node
-   */
-  @Test
-  public void testNodeValidation()
-  {
-    OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
-    LoadIncrementer node = new LoadIncrementer();
-
-    conf.set(FilteredEventClassifier.KEY_KEYS, "");
-    try {
-      node.myValidation(conf);
-      Assert.fail("validation error  " + EventIncrementer.KEY_KEYS);
-    }
-    catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + EventIncrementer.KEY_KEYS,
-                        e.getMessage().contains("is empty"));
-    }
-
-    conf.set(EventIncrementer.KEY_KEYS, "a,b"); // from now on keys are a,b,c
-    conf.set(EventIncrementer.KEY_LIMITS, "1,100;1,100;1,100");
-    try {
-      node.myValidation(conf);
-      Assert.fail("validation error  " + EventIncrementer.KEY_LIMITS);
-    }
-    catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + EventIncrementer.KEY_LIMITS,
-                        e.getMessage().contains("does not match number ids in limits"));
-    }
-
-    conf.set(EventIncrementer.KEY_LIMITS, "1,100,200;1,100");
-    try {
-      node.myValidation(conf);
-      Assert.fail("validation error  " + EventIncrementer.KEY_LIMITS);
-    }
-    catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + EventIncrementer.KEY_LIMITS,
-                        e.getMessage().contains("Property \"limits\" has a illegal value"));
-    }
-
-    conf.set(EventIncrementer.KEY_LIMITS, "1,a;1,100");
-    try {
-      node.myValidation(conf);
-      Assert.fail("validation error  " + EventIncrementer.KEY_LIMITS);
-    }
-    catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + EventIncrementer.KEY_LIMITS,
-                        e.getMessage().contains("has illegal format for one of its strings"));
-    }
-
-    conf.set(EventIncrementer.KEY_LIMITS, "100,1;1,100");
-    try {
-      node.myValidation(conf);
-      Assert.fail("validation error  " + EventIncrementer.KEY_LIMITS);
-    }
-    catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + EventIncrementer.KEY_LIMITS,
-                        e.getMessage().contains(">= high_value"));
     }
   }
 
