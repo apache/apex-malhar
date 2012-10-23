@@ -3,6 +3,7 @@
  */
 package com.malhartech.lib.testbench;
 
+import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import com.malhartech.stream.StramTestSupport;
@@ -95,45 +96,25 @@ public class EventIncrementerTest
     DataSink dataSink = new DataSink();
     CountSink countSink = new CountSink();
 
-    node.connect(EventIncrementer.OPORT_DATA, dataSink);
-    node.connect(EventIncrementer.OPORT_COUNT, countSink);
+    node.data.setSink(dataSink);
+    node.count.setSink(countSink);
 
-    Sink seedSink = node.connect(EventIncrementer.IPORT_SEED, node);
-    Sink incrSink = node.connect(EventIncrementer.IPORT_INCREMENT, node);
+    Sink seedSink = node.seed.getSink();
+    Sink incrSink = node.increment.getSink();
 
-    OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
+    ArrayList<String> keys = new ArrayList<String>(2);
+    ArrayList<Double> low = new ArrayList<Double>(2);
+    ArrayList<Double> high = new ArrayList<Double>(2);
+    keys.add("x");
+    keys.add("y");
+    low.add(1.0);
+    low.add(100.0);
+    high.add(1.0);
+    high.add(100.0);
+    node.setKeylimits(keys, low, high);
+    node.setDelta(1);
+    node.setup(new OperatorConfiguration());
 
-    conf.set(EventIncrementer.KEY_KEYS, "x,y");
-    conf.set(EventIncrementer.KEY_LIMITS, "1,100;1,200");
-    conf.set(EventIncrementer.KEY_DELTA, "1");
-    node.setup(conf);
-
-    final AtomicBoolean inactive = new AtomicBoolean(true);
-    new Thread()
-    {
-      @Override
-      public void run()
-      {
-        inactive.set(false);
-        node.activate(new OperatorContext("LoadIncrementerTestNode", this));
-      }
-    }.start();
-
-    // spin while the node gets activated./
-    int sleeptimes = 0;
-    try {
-      do {
-        Thread.sleep(20);
-        sleeptimes++;
-        if (sleeptimes > 5) {
-          break;
-        }
-      }
-      while (inactive.get());
-    }
-    catch (InterruptedException ex) {
-      LOG.debug(ex.getLocalizedMessage());
-    }
 
     Tuple bt = StramTestSupport.generateBeginWindowTuple("doesn't matter", 1);
     seedSink.process(bt);

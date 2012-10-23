@@ -3,10 +3,10 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.dag.*;
+
+import com.malhartech.api.Sink;
+import com.malhartech.dag.Tuple;
 import com.malhartech.stram.ManualScheduledExecutorService;
-import com.malhartech.dag.WindowGenerator;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hadoop.conf.Configuration;
