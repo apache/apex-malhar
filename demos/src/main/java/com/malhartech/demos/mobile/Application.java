@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.malhartech.dag.ApplicationFactory;
 import com.malhartech.dag.DAG;
 import com.malhartech.dag.DAG.OperatorInstance;
-import com.malhartech.lib.algo.InvertIndexMap;
+import com.malhartech.lib.algo.InvertIndexMapPhone;
 import com.malhartech.lib.algo.TupleQueue;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.io.HttpInputModule;
@@ -119,7 +119,7 @@ public class Application implements ApplicationFactory {
   }
 
   public OperatorInstance getInvertIndexMap(String name, DAG b) {
-    return b.addOperator(name, InvertIndexMap.class);
+    return b.addOperator(name, InvertIndexMapPhone.class);
   }
 
   public OperatorInstance getIncrementer(String name, DAG b) {
@@ -149,34 +149,34 @@ public class Application implements ApplicationFactory {
     dag.addStream("xdata", randomXGen.getOutput(RandomEventGenerator.OPORT_DATA), seedClassify.getInput(SeedEventClassifier.IPORT_IN_DATA1)).setInline(true);
     dag.addStream("ydata", randomYGen.getOutput(RandomEventGenerator.OPORT_DATA), seedClassify.getInput(SeedEventClassifier.IPORT_IN_DATA2)).setInline(true);
     dag.addStream("incrdata", seedClassify.getOutput(SeedEventClassifier.OPORT_OUT_DATA), incrementer.getInput(EventIncrementer.IPORT_INCREMENT)).setInline(true);
-    dag.addStream("mobilelocation", incrementer.getOutput(EventIncrementer.OPORT_DATA), indexMap.getInput(InvertIndexMap.IPORT_DATA)).setInline(true);
+    dag.addStream("mobilelocation", incrementer.getOutput(EventIncrementer.OPORT_DATA), indexMap.getInput(InvertIndexMapPhone.IPORT_DATA)).setInline(true);
 
     if (this.ajaxServerAddr != null) {
     // Waiting for local server to be set up. For now I hardcoded the phones to be dumped
        OperatorInstance phoneLocationQuery = dag.addOperator("phoneLocationQuery", HttpInputModule.class);
        phoneLocationQuery.setProperty(HttpInputModule.P_RESOURCE_URL, "http://" + ajaxServerAddr + "/channel/mobile/phoneLocationQuery");
-       dag.addStream("mobilequery", phoneLocationQuery.getOutput(HttpInputModule.OUTPUT), indexMap.getInput(InvertIndexMap.IPORT_QUERY)).setInline(true);
+       dag.addStream("mobilequery", phoneLocationQuery.getOutput(HttpInputModule.OUTPUT), indexMap.getInput(InvertIndexMapPhone.IPORT_QUERY)).setInline(true);
     } else {
       try {
         JSONObject seedQueries = new JSONObject();
         Map<String, String> phoneQueries = new HashMap<String, String>();
         phoneQueries.put("idBlah", "9999988");
         phoneQueries.put("id102", "9999998");
-        seedQueries.put(InvertIndexMap.CHANNEL_PHONE, phoneQueries);
+        seedQueries.put(InvertIndexMapPhone.CHANNEL_PHONE, phoneQueries);
 
         Map<String, String> locQueries = new HashMap<String, String>();
         locQueries.put("loc1", "34,87");
-        seedQueries.put(InvertIndexMap.CHANNEL_LOCATION, locQueries);
+        seedQueries.put(InvertIndexMapPhone.CHANNEL_LOCATION, locQueries);
         //location_register.put("loc1", "34,87");
         //phone_register.put("blah", "9905500");
         //phone_register.put("id1002", "9999998");
-        indexMap.setProperty(InvertIndexMap.KEY_SEED_QUERYS_JSON, seedQueries.toString());
+        indexMap.setProperty(InvertIndexMapPhone.KEY_SEED_QUERYS_JSON, seedQueries.toString());
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
     }
 
-    dag.addStream("consoledata", indexMap.getOutput(InvertIndexMap.OPORT_CONSOLE), phoneconsole.getInput(HttpOutputOperator.INPUT)).setInline(true);
+    dag.addStream("consoledata", indexMap.getOutput(InvertIndexMapPhone.OPORT_CONSOLE), phoneconsole.getInput(HttpOutputOperator.INPUT)).setInline(true);
 
     return dag;
   }
