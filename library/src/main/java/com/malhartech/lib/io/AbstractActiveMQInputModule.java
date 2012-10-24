@@ -3,12 +3,25 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.dag.AsyncInputNode;
-import com.malhartech.api.OperatorConfiguration;
-import javax.jms.*;
+import javax.jms.Connection;
+import javax.jms.DeliveryMode;
+import javax.jms.Destination;
+import javax.jms.ExceptionListener;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.Topic;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.malhartech.api.AsyncInputOperator;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.OperatorConfiguration;
 
 /**
  *
@@ -21,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * Users need to implement getObject. (See example in InputActiveMQStreamTest)<br>
  * <br>
  */
-public abstract class AbstractActiveMQInputModule extends AsyncInputNode implements MessageListener, ExceptionListener
+public abstract class AbstractActiveMQInputModule extends BaseOperator implements AsyncInputOperator, MessageListener, ExceptionListener
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractActiveMQInputModule.class);
   private boolean transacted;
@@ -67,7 +80,7 @@ public abstract class AbstractActiveMQInputModule extends AsyncInputNode impleme
     }
   }
 
-  @Override
+  //@Override
   public void process(Object payload)
   {
     try {
