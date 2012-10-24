@@ -5,6 +5,7 @@ package com.malhartech.lib.testbench;
 
 
 import com.malhartech.api.Component;
+import com.malhartech.api.Context;
 import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.AsyncInputNode;
@@ -192,7 +193,7 @@ public class SeedEventGeneratorTest
       kvpairSink.ikeys.add("age");
     }
 
-    node.setup(new OperatorConfiguration());
+    inode.activate(new Context());
     wingen.postActivate(null);
 
     for (int i = 0; i < numtuples; i++) {
@@ -203,7 +204,7 @@ public class SeedEventGeneratorTest
       catch (InterruptedException ie) {
       }
     }
-    
+
     try {
       Thread.sleep(5);
     }

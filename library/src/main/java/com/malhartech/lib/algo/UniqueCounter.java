@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -13,10 +15,11 @@ import java.util.HashMap;
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-
 public class UniqueCounter<K> extends BaseOperator
 {
-  public final transient DefaultInputPort<K> data = new DefaultInputPort<K>(this) {
+  @InputPortFieldAnnotation(name = "data")
+  public final transient DefaultInputPort<K> data = new DefaultInputPort<K>(this)
+  {
     @Override
     public void process(K tuple)
     {
@@ -29,9 +32,8 @@ public class UniqueCounter<K> extends BaseOperator
       }
     }
   };
-
-    public final transient DefaultOutputPort<HashMap<K,Integer>> count = new DefaultOutputPort<HashMap<K,Integer>>(this);
-
+  @OutputPortFieldAnnotation(name = "count")
+  public final transient DefaultOutputPort<HashMap<K, Integer>> count = new DefaultOutputPort<HashMap<K, Integer>>(this);
   /**
    * Bucket counting mechanism.
    * Since we clear the bucket at the beginning of the window, we make this object transient.

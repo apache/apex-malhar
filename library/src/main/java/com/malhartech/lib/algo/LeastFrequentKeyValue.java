@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -37,6 +39,7 @@ import java.util.Map;
  */
 public class LeastFrequentKeyValue<K,V> extends BaseOperator
 {
+  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>(this)
   {
     @Override
@@ -56,6 +59,8 @@ public class LeastFrequentKeyValue<K,V> extends BaseOperator
       }
     }
   };
+
+  @OutputPortFieldAnnotation(name = "count")
   public final transient DefaultOutputPort<HashMap<K, HashMap<V, Integer>>> count = new DefaultOutputPort<HashMap<K, HashMap<V, Integer>>>(this);
   HashMap<K, HashMap<V, MutableInteger>> keyvals = new HashMap<K, HashMap<V, MutableInteger>>();
 

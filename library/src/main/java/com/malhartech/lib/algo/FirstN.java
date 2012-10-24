@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -38,6 +40,7 @@ import org.slf4j.LoggerFactory;
 
 public class FirstN<K,V> extends BaseOperator
 {
+  @InputPortFieldAnnotation(name="data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
     @Override
@@ -58,6 +61,8 @@ public class FirstN<K,V> extends BaseOperator
       }
     }
   };
+
+  @OutputPortFieldAnnotation(name="first")
   public final transient DefaultOutputPort<HashMap<K, V>> first = new DefaultOutputPort<HashMap<K, V>>(this);
 
   HashMap<K, MutableInteger> keycount = new HashMap<K, MutableInteger>();

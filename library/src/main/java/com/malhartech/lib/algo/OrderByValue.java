@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -34,6 +36,7 @@ import java.util.PriorityQueue;
  */
 public class OrderByValue<K, V> extends BaseOperator
 {
+  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
     @Override
@@ -57,7 +60,9 @@ public class OrderByValue<K, V> extends BaseOperator
       }
     }
   };
+  @OutputPortFieldAnnotation(name = "ordered_list")
   public final transient DefaultOutputPort<HashMap<K, V>> ordered_list = new DefaultOutputPort<HashMap<K, V>>(this);
+  @OutputPortFieldAnnotation(name = "ordered_count")
   public final transient DefaultOutputPort<HashMap<K, HashMap<V, Integer>>> ordered_count = new DefaultOutputPort<HashMap<K, HashMap<V, Integer>>>(this);
   PriorityQueue<V> pqueue = new PriorityQueue<V>(5);
   HashMap<V, HashMap<K, MutableInteger>> smap = new HashMap<V, HashMap<K, MutableInteger>>();

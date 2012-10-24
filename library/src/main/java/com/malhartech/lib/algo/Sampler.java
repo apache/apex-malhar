@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -34,10 +36,7 @@ import java.util.Random;
  */
 public class Sampler<K> extends BaseOperator
 {
-  int passrate_default_value = 1;
-  int totalrate_default_value = 100;
-  int passrate = passrate_default_value;
-  int totalrate = totalrate_default_value;
+  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>(this)
   {
     @Override
@@ -50,8 +49,12 @@ public class Sampler<K> extends BaseOperator
       sample.emit(tuple);
     }
   };
-  private Random random = new Random();
+  @OutputPortFieldAnnotation(name = "sample")
   public final transient DefaultOutputPort<K> sample = new DefaultOutputPort<K>(this);
+
+  int passrate = 1;
+  int totalrate = 100;
+  private Random random = new Random();
 
   public void setPassrate(int val)
   {

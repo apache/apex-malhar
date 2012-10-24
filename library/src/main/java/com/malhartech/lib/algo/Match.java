@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import java.util.HashMap;
@@ -43,6 +45,7 @@ import java.util.HashMap;
  */
 public class Match<K, V extends Number> extends BaseMatchOperator<K>
 {
+  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
     @Override
@@ -69,6 +72,8 @@ public class Match<K, V extends Number> extends BaseMatchOperator<K>
       }
     }
   };
+
+  @OutputPortFieldAnnotation(name = "match")
   public final transient DefaultOutputPort<HashMap<K, V>> match = new DefaultOutputPort<HashMap<K, V>>(this);
   public void tupleMatched(HashMap<K,V> tuple)
   {

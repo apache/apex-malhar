@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -33,6 +35,8 @@ import org.slf4j.LoggerFactory;
 public class InvertIndexUniqueMap extends BaseOperator
 {
   private static Logger log = LoggerFactory.getLogger(InvertIndexUniqueMap.class);
+
+  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<String, String>> data = new DefaultInputPort<HashMap<String, String>>(this)
   {
     @Override
@@ -62,6 +66,7 @@ public class InvertIndexUniqueMap extends BaseOperator
     }
   };
 
+  @InputPortFieldAnnotation(name = "query")
   public final transient DefaultInputPort<HashMap<String, String>> query = new DefaultInputPort<HashMap<String, String>>(this)
   {
     @Override
@@ -128,7 +133,9 @@ public class InvertIndexUniqueMap extends BaseOperator
     }
   };
 
+  @OutputPortFieldAnnotation(name = "index")
   public final transient DefaultOutputPort<HashMap<String, ArrayList>> index = new DefaultOutputPort<HashMap<String, ArrayList>>(this);
+  @OutputPortFieldAnnotation(name = "console")
   public final transient DefaultOutputPort<HashMap<String, Object>> console = new DefaultOutputPort<HashMap<String, Object>>(this);
 
   public static final String KEY_SEED_QUERYS_JSON = "seedQueries";

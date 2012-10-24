@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -39,8 +41,8 @@ import org.slf4j.LoggerFactory;
 
 public class BottomNUnique<K,V> extends BaseOperator
 {
+  @InputPortFieldAnnotation(name="data")
   public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>(this) {
-
     @Override
     public void process(HashMap<K,V> tuple)
     {
@@ -54,6 +56,8 @@ public class BottomNUnique<K,V> extends BaseOperator
       }
     }
   };
+
+  @OutputPortFieldAnnotation(name="top")
   public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> top = new DefaultOutputPort<HashMap<K, ArrayList<V>>>(this);
 
   final int default_n_value = 5;

@@ -4,6 +4,7 @@ package com.malhartech.lib.algo;
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
+import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.*;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -20,6 +21,8 @@ public class WindowedTopCounter<T> extends BaseOperator
 {
   private static final long serialVersionUID = 201208061826L;
   private static final Logger logger = LoggerFactory.getLogger(WindowedTopCounter.class);
+
+  @InputPortFieldAnnotation(name = "input")
   public final transient DefaultInputPort<Map<T, Integer>> input = new DefaultInputPort<Map<T, Integer>>(this)
   {
     @Override
@@ -38,6 +41,7 @@ public class WindowedTopCounter<T> extends BaseOperator
       }
     }
   };
+  @InputPortFieldAnnotation(name = "output")
   public final transient DefaultOutputPort<Map<T, Integer>> output = new DefaultOutputPort<Map<T, Integer>>(this);
   private transient int windows;
   private transient int topCount;

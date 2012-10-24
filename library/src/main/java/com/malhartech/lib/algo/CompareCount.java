@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -47,6 +49,8 @@ import org.slf4j.LoggerFactory;
 
 public class CompareCount<K,V> extends BaseMatchOperator<K>
 {
+
+  @InputPortFieldAnnotation(name="data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
     @Override
@@ -79,6 +83,8 @@ public class CompareCount<K,V> extends BaseMatchOperator<K>
     }
     }
   };
+
+  @OutputPortFieldAnnotation(name="count")
   public final transient DefaultOutputPort<Integer> count = new DefaultOutputPort<Integer>(this);
   int tcount = 0;
 

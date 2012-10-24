@@ -3,13 +3,11 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.dag.Component;
-import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.dag.OperatorContext;
 import com.malhartech.api.Sink;
+import com.malhartech.dag.StreamConfiguration;
 import com.malhartech.dag.Tuple;
-import com.malhartech.stram.ManualScheduledExecutorService;
 import com.malhartech.dag.WindowGenerator;
+import com.malhartech.stram.ManualScheduledExecutorService;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import junit.framework.Assert;
@@ -67,59 +65,6 @@ public class RandomEventGeneratorTest {
     }
 
     /**
-     * Test configuration and parameter validation of the node
-     */
-    @Test
-    public void testNodeValidation() {
-
-        OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
-        LoadRandomGenerator node = new LoadRandomGenerator();
-        LOG.debug("Testing Node Validation: start");
-
-        conf.set(RandomEventGenerator.KEY_MIN_VALUE, "a");
-        try {
-            node.myValidation(conf);
-            Assert.fail("validation error  " + RandomEventGenerator.KEY_MIN_VALUE);
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + RandomEventGenerator.KEY_MIN_VALUE,
-                    e.getMessage().contains("min_value should be an integer"));
-        }
-
-        conf.set(RandomEventGenerator.KEY_MIN_VALUE, "0");
-        conf.set(RandomEventGenerator.KEY_MAX_VALUE, "b");
-        try {
-            node.myValidation(conf);
-            Assert.fail("validation error  " + RandomEventGenerator.KEY_MAX_VALUE);
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + RandomEventGenerator.KEY_MAX_VALUE,
-                    e.getMessage().contains("max_value should be an integer"));
-        }
-
-        conf.set(RandomEventGenerator.KEY_MIN_VALUE, "0");
-        conf.set(RandomEventGenerator.KEY_MAX_VALUE, "50");
-        conf.set(RandomEventGenerator.KEY_TUPLES_BLAST, "-1");
-        try {
-            node.myValidation(conf);
-            Assert.fail("validation error  " + RandomEventGenerator.KEY_TUPLES_BLAST);
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + RandomEventGenerator.KEY_TUPLES_BLAST,
-                    e.getMessage().contains("has to be > 0"));
-        }
-
-        conf.set(RandomEventGenerator.KEY_TUPLES_BLAST, "100");
-        conf.set(RandomEventGenerator.KEY_SLEEP_TIME, "-1");
-        try {
-            node.myValidation(conf);
-            Assert.fail("validation error  " + RandomEventGenerator.KEY_SLEEP_TIME);
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + RandomEventGenerator.KEY_SLEEP_TIME,
-                    e.getMessage().contains("has to be > 0"));
-        }
-
-        LOG.debug("Testing Node Validation: end");
-    }
-
-    /**
      * Test node logic emits correct results
      */
     @Test
@@ -136,10 +81,10 @@ public class RandomEventGeneratorTest {
         final ManualScheduledExecutorService mses = new ManualScheduledExecutorService(1);
         final WindowGenerator wingen = new WindowGenerator(mses);
 
-        Configuration config = new Configuration();
-        config.setLong(WindowGenerator.FIRST_WINDOW_MILLIS, 0);
-        config.setInt(WindowGenerator.WINDOW_WIDTH_MILLIS, 1);
-        wingen.setup(config);
+      StreamConfiguration config = new StreamConfiguration();
+      config.setLong(WindowGenerator.FIRST_WINDOW_MILLIS, 0);
+      config.setInt(WindowGenerator.WINDOW_WIDTH_MILLIS, 1);
+      wingen.setup(config);
 
         Sink input = node.connect(Component.INPUT, wingen);
         wingen.connect("mytestnode", input);

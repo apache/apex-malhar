@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -39,7 +41,9 @@ public class InsertSort<K> extends BaseOperator
   /**
    * Input port that takes in an array of Objects to insert
    */
-  public final transient DefaultInputPort<ArrayList<K>> data1 = new DefaultInputPort<ArrayList<K>>(this)
+
+  @InputPortFieldAnnotation(name = "data")
+  public final transient DefaultInputPort<ArrayList<K>> data = new DefaultInputPort<ArrayList<K>>(this)
   {
     @Override
     public void process(ArrayList<K> tuple)
@@ -51,6 +55,8 @@ public class InsertSort<K> extends BaseOperator
       }
     }
   };
+
+  @OutputPortFieldAnnotation(name = "sort")
   public final transient DefaultOutputPort<ArrayList<K>> sort = new DefaultOutputPort<ArrayList<K>>(this);
   protected PriorityQueue<K> pqueue = new PriorityQueue<K>();
 

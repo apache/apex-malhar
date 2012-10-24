@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -38,6 +40,8 @@ import org.slf4j.LoggerFactory;
  */
 public class InvertIndex<K, V> extends BaseOperator
 {
+
+  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
     /**
@@ -51,6 +55,7 @@ public class InvertIndex<K, V> extends BaseOperator
       }
     }
   };
+  @OutputPortFieldAnnotation(name = "index")
   public final transient DefaultOutputPort<HashMap<V, ArrayList<K>>> index = new DefaultOutputPort<HashMap<V, ArrayList<K>>>(this);
   HashMap<V, ArrayList<K>> map = new HashMap<V, ArrayList<K>>();
 

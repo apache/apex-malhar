@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -33,6 +35,7 @@ import java.util.ArrayList;
  */
 public class MergeSort<K> extends BaseOperator
 {
+  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<ArrayList<K>> data = new DefaultInputPort<ArrayList<K>>(this)
   {
     @Override
@@ -46,6 +49,7 @@ public class MergeSort<K> extends BaseOperator
       }
     }
   };
+  @OutputPortFieldAnnotation(name = "sort")
   public final transient DefaultOutputPort<ArrayList> sort = new DefaultOutputPort<ArrayList>(this);
   protected ArrayList<K> mergedList = new ArrayList<K>();
 

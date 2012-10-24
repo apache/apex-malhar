@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -36,6 +38,7 @@ import java.util.Map;
 
 public class FilterKeysString<V> extends BaseOperator
 {
+  @InputPortFieldAnnotation(name="data")
   public final transient DefaultInputPort<HashMap<String, V>> data = new DefaultInputPort<HashMap<String, V>>(this)
   {
     @Override
@@ -56,6 +59,8 @@ public class FilterKeysString<V> extends BaseOperator
       }
     }
   };
+
+  @OutputPortFieldAnnotation(name="filter")
   public final transient DefaultOutputPort<HashMap<String, V>> filter = new DefaultOutputPort<HashMap<String, V>>(this);
 
   HashMap<Object, V> keys = new HashMap<Object, V>();

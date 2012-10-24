@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import java.util.HashMap;
@@ -44,6 +46,7 @@ import java.util.Map;
  */
 public class LastMatch<K, V extends Number> extends BaseMatchOperator<K>
 {
+  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
     @Override
@@ -70,6 +73,8 @@ public class LastMatch<K, V extends Number> extends BaseMatchOperator<K>
       }
     }
   };
+
+  @OutputPortFieldAnnotation(name = "last")
   public final transient DefaultOutputPort<HashMap<K, V>> last = new DefaultOutputPort<HashMap<K, V>>(this);
   HashMap<K, V> ltuple = null;
 

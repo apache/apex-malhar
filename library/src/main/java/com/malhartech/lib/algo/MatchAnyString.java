@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import java.util.HashMap;
@@ -38,6 +40,7 @@ import java.util.HashMap;
  */
 public class MatchAnyString<K, String> extends BaseMatchOperator<K>
 {
+  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, String>> data = new DefaultInputPort<HashMap<K, String>>(this)
   {
     @Override
@@ -69,6 +72,8 @@ public class MatchAnyString<K, String> extends BaseMatchOperator<K>
       }
     }
   };
+
+  @OutputPortFieldAnnotation(name = "any")
   public final transient DefaultOutputPort<Boolean> any = new DefaultOutputPort<Boolean>(this);
   Boolean result = false;
 

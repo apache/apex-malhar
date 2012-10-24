@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -40,8 +42,7 @@ import java.util.Map;
  */
 public class TupleQueue<K, V> extends BaseOperator
 {
-  public static final String IPORT_QUERY = "query";
-  public static final String IPORT_DATA = "data";
+  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
     @Override
@@ -56,7 +57,7 @@ public class TupleQueue<K, V> extends BaseOperator
         }
         else {
           V ret = val.insert(e.getValue(), depth);
-          if (queue.isConnected() && (ret != null))  { // means something popped out of the queue
+          if (queue.isConnected() && (ret != null)) { // means something popped out of the queue
             HashMap<K, V> qtuple = new HashMap<K, V>(1);
             qtuple.put(key, ret);
             queue.emit(qtuple);
@@ -66,7 +67,9 @@ public class TupleQueue<K, V> extends BaseOperator
     }
   };
 
-    public final transient DefaultInputPort<K> query = new DefaultInputPort<K>(this) {
+  @InputPortFieldAnnotation(name = "query")
+  public final transient DefaultInputPort<K> query = new DefaultInputPort<K>(this)
+  {
     @Override
     public void process(K tuple)
     {
@@ -75,7 +78,10 @@ public class TupleQueue<K, V> extends BaseOperator
     }
   };
 
+  @OutputPortFieldAnnotation(name = "queue")
   public final transient DefaultOutputPort<HashMap<K, V>> queue = new DefaultOutputPort<HashMap<K, V>>(this);
+
+  @OutputPortFieldAnnotation(name = "console")
   public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> console = new DefaultOutputPort<HashMap<K, ArrayList<V>>>(this);
   HashMap<K, ValueData> vmap = new HashMap<K, ValueData>();
   HashMap<K, Object> queryHash = new HashMap<K, Object>();

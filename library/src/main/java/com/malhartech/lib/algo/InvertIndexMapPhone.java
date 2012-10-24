@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -27,16 +29,17 @@ import org.slf4j.LoggerFactory;
  * @author amol<br>
  *
  */
-
 public class InvertIndexMapPhone extends BaseOperator
 {
-    private static Logger log = LoggerFactory.getLogger(InvertIndexMapPhone.class);
+  private static Logger log = LoggerFactory.getLogger(InvertIndexMapPhone.class);
 
-  public final transient DefaultInputPort<HashMap<String,String>> data = new DefaultInputPort<HashMap<String,String>>(this) {
+  @InputPortFieldAnnotation(name = "data")
+  public final transient DefaultInputPort<HashMap<String, String>> data = new DefaultInputPort<HashMap<String, String>>(this)
+  {
     @Override
-    public void process(HashMap<String,String> tuple)
+    public void process(HashMap<String, String> tuple)
     {
-      for (Map.Entry<String,String> e: tuple.entrySet()) {
+      for (Map.Entry<String, String> e: tuple.entrySet()) {
         HashMap<String, Object> values = kindex.get(e.getValue());
         if (values == null) {
           values = new HashMap<String, Object>(4); // start with 4 slots, keep it low
@@ -60,6 +63,7 @@ public class InvertIndexMapPhone extends BaseOperator
     }
   };
 
+  @InputPortFieldAnnotation(name = "query")
   public final transient DefaultInputPort<HashMap<String, String>> query = new DefaultInputPort<HashMap<String, String>>(this)
   {
     @Override
@@ -122,41 +126,41 @@ public class InvertIndexMapPhone extends BaseOperator
     }
   };
 
-  public final transient DefaultOutputPort<HashMap<String,Object>> console = new DefaultOutputPort<HashMap<String,Object>>(this);
+  @OutputPortFieldAnnotation(name = "console")
+  public final transient DefaultOutputPort<HashMap<String, Object>> console = new DefaultOutputPort<HashMap<String, Object>>(this);
 
   public static final String IPORT_QUERY = "query";
   public static final String OPORT_INDEX = "index";
   public static final String OPORT_CONSOLE = "index";
-
   public static final String KEY_SEED_QUERYS_JSON = "seedQueries";
-
   HashMap<String, HashMap<String, Object>> kindex = null;
-  HashMap<String,String> secondary_index = null;
+  HashMap<String, String> secondary_index = null;
   HashMap<String, String> phone_register = null;
   HashMap<String, String> location_register = null;
-
   public static final String CHANNEL_PHONE = "phone";
   public static final String CHANNEL_LOCATION = "location";
   public static final String IDENTIFIER_CHANNEL = "queryId";
 
-
-  protected boolean hasIndex(String key) {
+  protected boolean hasIndex(String key)
+  {
     HashMap<String, Object> val = kindex.get(key);
     return (val != null) && !val.isEmpty();
   }
 
-  protected boolean hasSecondaryIndex(String key) {
+  protected boolean hasSecondaryIndex(String key)
+  {
     return (secondary_index.get(key) != null);
   }
 
-  protected void emitConsoleTuple(String id, boolean isphone) {
+  protected void emitConsoleTuple(String id, boolean isphone)
+  {
 
     String key = isphone ? phone_register.get(id) : location_register.get(id);
     if (key == null) { // something awful? bad data?
       return;
     }
 
-    HashMap<String,Object> tuples = new HashMap<String, Object>(3);
+    HashMap<String, Object> tuples = new HashMap<String, Object>(3);
     tuples.put(IDENTIFIER_CHANNEL, id);
 
     if (isphone) {
@@ -181,8 +185,8 @@ public class InvertIndexMapPhone extends BaseOperator
     console.emit(tuples);
   }
 
-
-  private void parseSeedQueries(String s) {
+  private void parseSeedQueries(String s)
+  {
     try {
       JSONObject queries = new JSONObject(s);
       if (queries.has(CHANNEL_PHONE)) {
@@ -207,7 +211,8 @@ public class InvertIndexMapPhone extends BaseOperator
           }
         }
       }
-    } catch (JSONException e) {
+    }
+    catch (JSONException e) {
       throw new IllegalArgumentException(e);
     }
   }
@@ -220,10 +225,10 @@ public class InvertIndexMapPhone extends BaseOperator
   {
     if (console.isConnected()) {
       for (Map.Entry<String, String> e: phone_register.entrySet()) {
-          emitConsoleTuple(e.getKey(), true);
+        emitConsoleTuple(e.getKey(), true);
       }
       for (Map.Entry<String, String> e: location_register.entrySet()) {
-          emitConsoleTuple(e.getKey(), false);
+        emitConsoleTuple(e.getKey(), false);
       }
     }
   }

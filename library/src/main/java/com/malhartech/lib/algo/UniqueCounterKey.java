@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -17,6 +19,7 @@ import java.util.Map;
  */
 public class UniqueCounterKey<K> extends BaseOperator
 {
+  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>(this)
   {
     @Override
@@ -31,6 +34,7 @@ public class UniqueCounterKey<K> extends BaseOperator
       }
     }
   };
+  @OutputPortFieldAnnotation(name = "count")
   public final transient DefaultOutputPort<HashMap<K, Integer>> count = new DefaultOutputPort<HashMap<K, Integer>>(this);
   /**
    * Bucket counting mechanism.

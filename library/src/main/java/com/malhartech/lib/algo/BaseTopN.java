@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -37,6 +39,7 @@ import java.util.Map;
  */
 abstract public class BaseTopN<K, V> extends BaseOperator
 {
+  @InputPortFieldAnnotation(name="data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
     @Override
@@ -48,11 +51,11 @@ abstract public class BaseTopN<K, V> extends BaseOperator
     }
   };
 
-  abstract public void insertIntoQueue(K k, V v);
-
+  @OutputPortFieldAnnotation(name="top")
   public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> top = new DefaultOutputPort<HashMap<K, ArrayList<V>>>(this);
   final int default_n_value = 5;
   int n = default_n_value;
+  abstract public void insertIntoQueue(K k, V v);
 
   public void setN(int val)
   {
