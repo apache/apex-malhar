@@ -4,16 +4,14 @@
 package com.malhartech.lib.testbench;
 
 
-import com.malhartech.api.Component;
-import com.malhartech.api.Context;
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DAG;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.Operator;
 import com.malhartech.api.Sink;
-import com.malhartech.dag.AsyncInputNode;
-import com.malhartech.dag.Node;
-import com.malhartech.dag.StreamConfiguration;
+import com.malhartech.dag.AbstractSynchronousInputModuleTest;
 import com.malhartech.dag.Tuple;
-import com.malhartech.dag.WindowGenerator;
-import com.malhartech.stram.ManualScheduledExecutorService;
+import com.malhartech.stram.StramLocalCluster;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +35,23 @@ public class SeedEventGeneratorTest
 {
   private static Logger LOG = LoggerFactory.getLogger(SeedEventGenerator.class);
 
+    public static class CollectorInputPort<T> extends DefaultInputPort<T>
+  {
+    ArrayList<T> list;
+    final String id;
+
+    public CollectorInputPort(String id, Operator module)
+    {
+      super(module);
+      this.id = id;
+    }
+
+    @Override
+    public void process(T tuple)
+    {
+      list.add(tuple);
+    }
+  }
   class TestSink implements Sink
   {
     HashMap<String, Object> keys = new HashMap<String, Object>();
@@ -125,31 +140,33 @@ public class SeedEventGeneratorTest
     testSchemaNodeProcessing(false, true, true, true);
   }
 
+    public static class CollectorOperator<T> extends BaseOperator
+  {
+    public final transient CollectorInputPort<T> sdata = new CollectorInputPort<T>("sdata", this);
+    public final transient CollectorInputPort<T> vdata = new CollectorInputPort<T>("vdata", this);
+    public final transient CollectorInputPort<T> vlist = new CollectorInputPort<T>("vlist", this);
+    public final transient CollectorInputPort<T> kvpair = new CollectorInputPort<T>("kvpair", this);
+  }
+
   @SuppressWarnings("SleepWhileInLoop")
   public void testSchemaNodeProcessing(boolean isstring, boolean insert, boolean doseedkey, boolean emitkey) throws Exception
   {
-    SeedEventGenerator node = new SeedEventGenerator();
-    final ManualScheduledExecutorService mses = new ManualScheduledExecutorService(1);
-    final WindowGenerator wingen = new WindowGenerator(mses);
 
-    StreamConfiguration config = new StreamConfiguration();
-    config.setLong(WindowGenerator.FIRST_WINDOW_MILLIS, 0);
-    config.setInt(WindowGenerator.WINDOW_WIDTH_MILLIS, 1);
-    wingen.setup(config);
+    DAG dag = new DAG();
 
-    AsyncInputNode inode = new AsyncInputNode("mytestnode", node);
-   Sink input = inode.connect(Node.INPUT, wingen);
-    wingen.setSink("mytestnode", input);
+    SeedEventGenerator node = dag.addOperator("seedeventgen", SeedEventGenerator.class);
+     CollectorOperator collector = dag.addOperator("data collector", new CollectorOperator<Number>());
+
+    dag.addStream("string_data", node.string_data, collector.sdata).setInline(true);
+    dag.addStream("string_data", node.val_data, collector.vdata).setInline(true);
+    dag.addStream("string_data", node.val_list, collector.vlist).setInline(true);
+    dag.addStream("string_data", node.keyvalpair_list, collector.kvpair).setInline(true);
 
     TestSink sdataSink = new TestSink();
     TestSink vdataSink = new TestSink();
     TestSink vlistSink = new TestSink();
     TestSink kvpairSink = new TestSink();
 
-    node.string_data.setSink(sdataSink);
-    node.val_data.setSink(vdataSink);
-    node.val_list.setSink(vlistSink);
-    node.keyvalpair_list.setSink(kvpairSink);
 
     if (doseedkey) {
       node.addKeyData("x", 0, 9);
@@ -193,26 +210,25 @@ public class SeedEventGeneratorTest
       kvpairSink.ikeys.add("age");
     }
 
-    inode.activate(new Context());
-    wingen.postActivate(null);
+    final StramLocalCluster lc = new StramLocalCluster(dag);
+    lc.setHeartbeatMonitoringEnabled(false);
 
-    for (int i = 0; i < numtuples; i++) {
-      mses.tick(1);
-      try {
-        Thread.sleep(1);
-      }
-      catch (InterruptedException ie) {
-      }
-    }
+    new Thread("LocalClusterController")
+    {
+      @Override
+      public void run()
+      {
+        try {
+          Thread.sleep(1000);
+        }
+        catch (InterruptedException ex) {
+        }
 
-    try {
-      Thread.sleep(5);
-    }
-    catch (InterruptedException ie) {
-    }
-    finally {
-      mses.tick(1);
-    }
+        lc.shutdown();
+      }
+    }.start();
+
+    lc.run();
     LOG.debug(String.format("\n********************************************\nSchema %s, %s, %s: Emitted %d tuples, with %d keys, and %d ckeys\n********************************************\n",
                             isstring ? "String" : "ArrayList",
                             insert ? "insert values" : "skip insert",
