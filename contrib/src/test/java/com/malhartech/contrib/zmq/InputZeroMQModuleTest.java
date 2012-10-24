@@ -2,9 +2,10 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.io;
+package com.malhartech.contrib.zmq;
 
 import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.contrib.zmq.AbstractZeroMQInputOperator;
 import com.malhartech.dag.*;
 import com.malhartech.stram.ManualScheduledExecutorService;
 import com.malhartech.stram.WindowGenerator;
@@ -25,7 +26,7 @@ public class InputZeroMQModuleTest
 {
   static OperatorConfiguration config;
   static InputZeroMQStream node;
-  static com.malhartech.lib.io.InputZeroMQModuleTest.MyStreamContext context;
+  static com.malhartech.contrib.zmq.InputZeroMQModuleTest.MyStreamContext context;
   static ArrayList<String> recvList = new ArrayList<String>();
   private static org.slf4j.Logger logger = LoggerFactory.getLogger(InputZeroMQModuleTest.class);
   int testNum = 3;

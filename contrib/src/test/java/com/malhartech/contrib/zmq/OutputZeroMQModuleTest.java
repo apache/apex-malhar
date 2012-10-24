@@ -2,9 +2,10 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.io;
+package com.malhartech.contrib.zmq;
 
 import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.contrib.zmq.AbstractZeroMQOutputOperator;
 import com.malhartech.dag.*;
 import com.malhartech.stream.StramTestSupport;
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ public class OutputZeroMQModuleTest
 {
   static OperatorConfiguration config;
   static AbstractZeroMQOutputOperator node;
-  static com.malhartech.lib.io.OutputZeroMQModuleTest.MyStreamContext context;
+  static com.malhartech.contrib.zmq.OutputZeroMQModuleTest.MyStreamContext context;
   private static org.slf4j.Logger logger = LoggerFactory.getLogger(OutputZeroMQModuleTest.class);
   int testNum = 10;
   private static final class MyStreamContext extends ModuleContext implements Sink

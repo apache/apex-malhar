@@ -2,15 +2,14 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.stream.kafka;
+package com.malhartech.contrib.kafka;
 
-import com.malhartech.dag.StreamConfiguration;
-import com.malhartech.stream.AbstractInputAdapter;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
 import kafka.consumer.Consumer;
 import kafka.consumer.ConsumerConfig;
 import kafka.consumer.ConsumerIterator;
@@ -18,21 +17,29 @@ import kafka.consumer.KafkaStream;
 import kafka.javaapi.consumer.ConsumerConnector;
 import kafka.message.Message;
 
-/**
- * This is a Input Adapter Code from Kafka message bus. Make sure that you have
- * Kafka installed (look at pom.xml for instructions)
- *
- * @author Chetan Narsude <chetan@malhar-inc.com>
- */
-public class KafkaInputStream
-  extends AbstractInputAdapter
-  implements Runnable
+import com.malhartech.annotation.OutputPortFieldAnnotation;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.SyncInputOperator;
+import com.malhartech.dag.SerDe;
+
+public class KafkaInputOperator extends BaseOperator implements SyncInputOperator, Runnable
 {
   private ConsumerConnector consumer;
   private String topic;
+  private SerDe serde;
+
+  @OutputPortFieldAnnotation(name="outputPort")
+  final public transient DefaultOutputPort<Object> outputPort = new DefaultOutputPort<Object>(this);
 
   @Override
-  public void setup(StreamConfiguration config)
+  public Runnable getDataPoller() {
+    return this;
+  }
+
+  @Override
+  public void setup(OperatorConfiguration config)
   {
     Properties props = new Properties();
     String interesting[] = {
@@ -61,7 +68,7 @@ public class KafkaInputStream
     KafkaStream<Message> stream = consumerMap.get(topic).get(0);
     ConsumerIterator<Message> it = stream.iterator();
     while (it.hasNext()) {
-      emit(getObject(it.next().message()));
+      outputPort.emit(getObject(it.next().message()));
     }
   }
 
@@ -71,6 +78,7 @@ public class KafkaInputStream
     consumer.shutdown();
     consumer = null;
     topic = null;
+    new Thread(this).start();
   }
 
   public Object getObject(Object message)
@@ -83,15 +91,10 @@ public class KafkaInputStream
       byte[] bytes = new byte[buffer.remaining()];
       buffer.get(bytes);
 
-      return context.getSerDe().fromByteArray(bytes);
+      return serde.fromByteArray(bytes);
     }
 
     return null;
   }
 
-  @Override
-  public void activate()
-  {
-    new Thread(this).start();
-  }
 }

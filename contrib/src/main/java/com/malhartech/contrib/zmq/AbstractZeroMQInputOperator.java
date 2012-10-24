@@ -2,7 +2,7 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.io;
+package com.malhartech.contrib.zmq;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.*;

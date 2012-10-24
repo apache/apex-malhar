@@ -2,12 +2,11 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.io;
+package com.malhartech.contrib.zmq;
 
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.dag.FailedOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
@@ -27,7 +26,7 @@ public class AbstractZeroMQOutputOperator<T> extends BaseOperator
   private String addr;
 
   @Override
-  public void setup(OperatorConfiguration config) throws FailedOperationException
+  public void setup(OperatorConfiguration config)
   {
     super.setup(config);
     //setupConnection(config);
