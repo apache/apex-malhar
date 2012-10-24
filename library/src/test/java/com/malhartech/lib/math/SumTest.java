@@ -50,7 +50,8 @@ public class SumTest {
   public void testNodeSchemaProcessing(boolean sum, boolean count)
   {
 
-    Sum<String,Double> oper = new Sum<String,Double>();
+    Sum<String, Double> oper = new Sum<String, Double>();
+    oper.setType(Double.class);
     TestSink sumSink = new TestSink();
     TestSink countSink = new TestSink();
     if (sum) {
@@ -65,7 +66,7 @@ public class SumTest {
     oper.beginWindow(); //
 
     HashMap<String, Double> input = new HashMap<String, Double>();
-    
+
     input.put("a", 2.0);
     input.put("b", 20.0);
     input.put("c", 1000.0);

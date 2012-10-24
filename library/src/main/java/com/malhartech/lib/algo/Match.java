@@ -59,12 +59,7 @@ public class Match<K, V extends Number> extends BaseMatchOperator<K>
       double tvalue = v.doubleValue();
       double val = getValue();
       supported_type t = getType();
-      if (((t == supported_type.LT) && (tvalue < val))
-              || ((t == supported_type.LTE) && (tvalue <= val))
-              || ((t == supported_type.EQ) && (tvalue == val))
-              || ((t == supported_type.NEQ) && (tvalue != val))
-              || ((t == supported_type.GT) && (tvalue > val))
-              || ((t == supported_type.GTE) && (tvalue >= val))) {
+      if (compareValue(tvalue)) {
         tupleMatched(tuple);
       }
       else {

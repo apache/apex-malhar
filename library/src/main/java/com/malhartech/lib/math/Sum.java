@@ -12,6 +12,7 @@ import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.MutableInteger;
 import java.util.HashMap;
 import java.util.Map;
+import javax.validation.constraints.NotNull;
 
 /**
  *
@@ -36,34 +37,43 @@ public class Sum<K, V extends Number> extends BaseOperator
     {
       for (Map.Entry<K, V> e: tuple.entrySet()) {
         K key = e.getKey();
-        Double val = sums.get(key);
-        if (val == null) {
-          sums.put(key, e.getValue().doubleValue());
+        if (sum.isConnected()) {
+          Double val = sums.get(key);
+          if (val == null) {
+            val = e.getValue().doubleValue();
+          }
+          else {
+            val = val + e.getValue().doubleValue();
+          }
+          sums.put(key, val);
         }
-        else {
-          val = val + e.getValue().doubleValue();
+        if (count.isConnected()) {
+          MutableInteger count = counts.get(key);
+          if (count == null) {
+            count = new MutableInteger(0);
+            counts.put(key, count);
+          }
+          count.value++;
         }
-        sums.put(key, val);
-        MutableInteger count = counts.get(key);
-        if (count == null) {
-          count = new MutableInteger(0);
-          counts.put(key, count);
-        }
-        count.value++;
       }
     }
   };
-
   @OutputPortFieldAnnotation(name = "sum")
-  public final transient DefaultOutputPort<HashMap<K,V>> sum = new DefaultOutputPort<HashMap<K,V>>(this);
+  public final transient DefaultOutputPort<HashMap<K, V>> sum = new DefaultOutputPort<HashMap<K, V>>(this);
   @OutputPortFieldAnnotation(name = "average")
-  public final transient DefaultOutputPort<HashMap<K,Double>> average = new DefaultOutputPort<HashMap<K,Double>>(this);
+  public final transient DefaultOutputPort<HashMap<K, Double>> average = new DefaultOutputPort<HashMap<K, Double>>(this);
   @OutputPortFieldAnnotation(name = "count")
-  public final transient DefaultOutputPort<HashMap<K,Integer>> count = new DefaultOutputPort<HashMap<K,Integer>>(this);
+  public final transient DefaultOutputPort<HashMap<K, Integer>> count = new DefaultOutputPort<HashMap<K, Integer>>(this);
+  HashMap<K, Double> sums = new HashMap<K, Double>();
+  HashMap<K, MutableInteger> counts = new HashMap<K, MutableInteger>();
+  @NotNull
+  Class<V> type;
 
-  HashMap<K,Double> sums = new HashMap<K,Double>();
-  HashMap<K,MutableInteger> counts = new HashMap<K,MutableInteger>();
-
+  @NotNull
+  public void setType(Class<V> type)
+  {
+    this.type = type;
+  }
 
   @Override
   public void beginWindow()
@@ -82,55 +92,61 @@ public class Sum<K, V extends Number> extends BaseOperator
     // Should allow users to send each key as a separate tuple to load balance
     // This is an aggregate node, so load balancing would most likely not be needed
 
-    HashMap<K,V> stuples = null;
+    HashMap<K, V> stuples = null;
     if (sum.isConnected()) {
-      stuples = new HashMap<K,V>();
+      stuples = new HashMap<K, V>();
     }
 
-    HashMap<K,Integer> ctuples = null;
+    HashMap<K, Integer> ctuples = null;
     if (count.isConnected()) {
-      ctuples = new HashMap<K,Integer>();
+      ctuples = new HashMap<K, Integer>();
     }
 
-    HashMap<K,Double> atuples = null;
+    HashMap<K, Double> atuples = null;
     if (average.isConnected()) {
-      atuples = new HashMap<K,Double>();
+      atuples = new HashMap<K, Double>();
     }
 
-    V sval = null;
-    for (Map.Entry<K,Double> e: sums.entrySet()) {
-      K key = e.getKey();
-      if (sum.isConnected()) {
-        if (sval instanceof Double) {
-          sval = (V) e.getValue();
+    V sval;
+    if (sum.isConnected()) {
+      for (Map.Entry<K, Double> e: sums.entrySet()) {
+        K key = e.getKey();
+        if (sum.isConnected()) {
+          if (type == Double.class) {
+            sval = (V)e.getValue();
+          }
+          else if (type == Integer.class) {
+            Integer i = e.getValue().intValue();
+            sval = (V)i;
+          }
+          else if (type == Float.class) {
+            Float f = e.getValue().floatValue();
+            sval = (V)f;
+          }
+          else if (type == Long.class) {
+            Long l = e.getValue().longValue();
+            sval = (V)l;
+          }
+          else if (type == Short.class) {
+            Short s = e.getValue().shortValue();
+            sval = (V)s;
+          }
+          else {
+            sval = (V)e.getValue();
+          }
+          stuples.put(key, sval);
         }
-        else if (sval instanceof Integer) {
-          Integer i = e.getValue().intValue();
-          sval = (V) i;
+        if (count.isConnected()) {
+          ctuples.put(key, new Integer(counts.get(e.getKey()).value));
         }
-        else if (sval instanceof Float) {
-          Float f = e.getValue().floatValue();
-          sval = (V) f;
+        if (average.isConnected()) {
+          atuples.put(e.getKey(), new Double(e.getValue().doubleValue() / counts.get(e.getKey()).value));
         }
-        else if (sval instanceof Long) {
-          Long l = e.getValue().longValue();
-          sval = (V) l;
-        }
-        else if (sval instanceof Short) {
-          Short s = e.getValue().shortValue();
-          sval = (V) s;
-        }
-        else {
-          sval = (V) e.getValue();
-        }
-        stuples.put(key, sval);
       }
-      if (count.isConnected()) {
-        ctuples.put(key, new Integer(counts.get(e.getKey()).value));
-      }
-      if (average.isConnected()) {
-          atuples.put(e.getKey(), new Double(e.getValue().doubleValue()/counts.get(e.getKey()).value));
-
+    }
+    else if (count.isConnected()) { // sum is not connected, only counts is connected
+      for (Map.Entry<K, MutableInteger> e: counts.entrySet()) {
+          ctuples.put(e.getKey(), new Integer(e.getValue().value));
       }
     }
 

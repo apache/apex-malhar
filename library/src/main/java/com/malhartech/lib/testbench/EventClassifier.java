@@ -114,13 +114,6 @@ public class EventClassifier extends BaseOperator
   ArrayList<Integer> noweight = null;
   boolean hasvalues = false;
 
-  /**
-   * The weights define the probability of each key being assigned to current
-   * in_data tuple based on the in_data tuple key. The total of all weights is equal to 100%.
-   * If weights are not specified then the append probability is equal.
-   */
-  public static final String KEY_WEIGHTS = "weights";
-
   int total_weight = 0;
   private Random random = new Random();
 
@@ -186,6 +179,7 @@ public class EventClassifier extends BaseOperator
   {
     int i = 0;
     // First load up the keys and the index hash (wtostr_index) for randomization to work
+
     for (Map.Entry<String, Double> e: map.entrySet()) {
       keys.put(e.getKey(), e.getValue());
       wtostr_index.put(i, e.getKey());

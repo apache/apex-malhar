@@ -12,6 +12,7 @@ import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.MutableInteger;
 import java.util.HashMap;
 import java.util.Map;
+import javax.validation.constraints.NotNull;
 
 /**
  *
@@ -39,6 +40,15 @@ public class SumValue<V extends Number> extends BaseOperator
     }
   };
 
+  @NotNull
+  Class <V> type;
+  @NotNull
+  public void setType(Class <V> type)
+  {
+    this.type = type;
+  }
+
+
   @OutputPortFieldAnnotation(name = "sum")
   public final transient DefaultOutputPort<V> sum = new DefaultOutputPort<V>(this);
   @OutputPortFieldAnnotation(name = "count")
@@ -63,22 +73,22 @@ public class SumValue<V extends Number> extends BaseOperator
     if (sum.isConnected()) {
       V val = null;
       Double d = new Double(sums);
-      if (val instanceof Double) {
+      if (type == Double.class) {
         val = (V) d;
       }
-      else if (val instanceof Integer) {
+      else if (type == Integer.class) {
         Integer ival = d.intValue();
         val = (V) ival;
       }
-      else if (val instanceof Float) {
+      else if (type == Float.class) {
         Float fval = d.floatValue();
         val = (V) fval;
       }
-      else if (val instanceof Long) {
+      else if (type == Long.class) {
         Long lval = d.longValue();
         val = (V) lval;
       }
-      else if (val instanceof Short) {
+      else if (type == Short.class) {
         Short sval = d.shortValue();
         val = (V) sval;
       }
