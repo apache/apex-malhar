@@ -4,10 +4,10 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.Operator;
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.*;
+import com.malhartech.lib.testbench.EventGeneratorTest.CollectorInputPort;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.jms.JMSException;
@@ -25,14 +25,14 @@ import org.slf4j.LoggerFactory;
 public class ActiveMQProducerModuleTest
 {
   private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ActiveMQProducerModuleTest.class);
-  static AbstractActiveMQProducerModule node;
+  //static AbstractActiveMQProducerModule node;
   private static OperatorConfiguration config;
   private static BrokerService broker;
 
   @BeforeClass
   public static void setUpClass() throws Exception
   {
-    node = new ActiveMQProducerModule();
+    //node = new ActiveMQProducerModule();
 
     // config parameters should be in some configuration xml file as opposed to in code TBD
     config = new OperatorConfiguration(); // This is the master copy for configuration
@@ -128,6 +128,12 @@ public class ActiveMQProducerModuleTest
     }
   }
 
+    public static class ProducerOperator extends BaseOperator
+  {
+    public final transient ProducerInputPort<String> sdata = new ProducerInputPort<String>("sdata", this);
+
+  }
+
   @Test
   @SuppressWarnings( {"SleepWhileInLoop", "empty-statement"})
   public void testProducer() throws Exception
@@ -146,7 +152,22 @@ public class ActiveMQProducerModuleTest
     listener.run();
 
     // Malhar module to send message
-/*    Sink sink = node.connect(ActiveMQProducerModule.INPUT, node); // sink is writing to input port
+
+        DAG dag = new DAG();
+    ActiveMQProducerModule node = dag.addOperator("eventgen", ActiveMQProducerModule.class);
+    ProducerOperator collector = dag.addOperator("data collector", new ProducerOperator());
+
+    node.setKeys("a,b,c,d");
+    node.setValues("");
+
+    dag.addStream("stest", node.string_data, collector.sdata).setInline(true);
+
+
+    node.setWeights("10,40,20,30");
+    node.setTuplesBlast(10000000);
+    node.setRollingWindowCount(5);
+    node.setup(new OperatorConfiguration());
+    Sink sink = node.connect(ActiveMQProducerModule.INPUT, node); // sink is writing to input port
     node.setup(config);
 
     final AtomicBoolean inactive = new AtomicBoolean(true);
@@ -202,7 +223,7 @@ public class ActiveMQProducerModuleTest
     Assert.assertEquals("Number of emitted tuples", numTuple, listener.receivedData.size());
     logger.debug(String.format("Processed %d tuples", listener.receivedData.size()));
     Assert.assertEquals("First tuple", "{b=20, c=1000, a=2}", listener.receivedData.get(new Integer(1)));
-*/
+
     listener.closeConnection();
   }
 }
