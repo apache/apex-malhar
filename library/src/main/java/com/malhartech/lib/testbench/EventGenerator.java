@@ -88,32 +88,6 @@ public class EventGenerator implements AsyncInputOperator
 
 
   /**
-   *
-   * Code to be moved to a proper base method name
-   *
-   * @param config
-   * @return boolean
-   */
-  public boolean myValidation(OperatorConfiguration config)
-  {
-    boolean ret = true;
-
-    if ((key_weights.length != 0) && (key_weights.length != key_keys.length)) {
-      ret = false;
-      throw new IllegalArgumentException(
-              String.format("Number of weights (%d) does not match number of keys (%d)",
-                            key_weights.length, key_keys.length));
-    }
-    if ((key_values.length != 0) && (key_values.length != key_keys.length)) {
-      ret = false;
-      throw new IllegalArgumentException(
-              String.format("Number of values (%d) does not match number of keys (%d)",
-                            key_values.length, key_keys.length));
-    }
-    return ret;
-  }
-
-  /**
    * Sets up all the config parameters. Assumes checking is done and has passed
    *
    * @param config
@@ -121,10 +95,6 @@ public class EventGenerator implements AsyncInputOperator
   @Override
   public void setup(OperatorConfiguration config)
   {
-    if (!myValidation(config)) {
-      throw new RuntimeException("Did not pass validation");
-    }
-
     if (rolling_window_count != 1) { // Initialized the tuple_numbers
       tuple_numbers = new long[rolling_window_count];
       time_numbers = new long[rolling_window_count];
