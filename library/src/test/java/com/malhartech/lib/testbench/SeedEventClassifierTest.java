@@ -4,7 +4,6 @@
 package com.malhartech.lib.testbench;
 
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.dag.OperatorContext;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import com.malhartech.stream.StramTestSupport;
@@ -26,190 +25,109 @@ import org.slf4j.LoggerFactory;
  * <br>
  * Validates all DRC checks of the node<br>
  */
-public class SeedEventClassifierTest {
+public class SeedEventClassifierTest
+{
+  private static Logger LOG = LoggerFactory.getLogger(EventClassifier.class);
 
-    private static Logger LOG = LoggerFactory.getLogger(EventClassifier.class);
-
-    class TestSink implements Sink {
-
-        HashMap<String, Integer> collectedTuples = new HashMap<String, Integer>();
-        HashMap<String, Double> collectedTupleValues = new HashMap<String, Double>();
-
-        boolean isstring = true;
-        int count = 0;
-
-        /**
-         *
-         * @param payload
-         */
-        @Override
-        public void process(Object payload) {
-            if (payload instanceof Tuple) {
-                // LOG.debug(payload.toString());
-            } else {
-              if (isstring) {
-                count++;
-              }
-            }
-        }
-    }
+  class TestSink implements Sink
+  {
+    HashMap<String, Integer> collectedTuples = new HashMap<String, Integer>();
+    HashMap<String, Double> collectedTupleValues = new HashMap<String, Double>();
+    boolean isstring = true;
+    int count = 0;
 
     /**
-     * Test configuration and parameter validation of the node
+     *
+     * @param payload
      */
-    @Test
-    public void testNodeValidation() {
-
-        OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
-        SeedClassifier node = new SeedClassifier();
-        // String[] kstr = config.getTrimmedStrings(KEY_KEYS);
-        // String[] vstr = config.getTrimmedStrings(KEY_VALUES);
-
-
-        conf.set(SeedEventClassifier.KEY_SEED_START, "");
-        conf.set(SeedEventClassifier.KEY_SEED_END, "100");
-
-        try {
-            node.myValidation(conf);
-            Assert.fail("validation error  " + SeedEventClassifier.KEY_SEED_START);
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + SeedEventClassifier.KEY_SEED_START,
-                    e.getMessage().contains("seedstart is empty, but seedend"));
-        }
-
-        conf.set(SeedEventClassifier.KEY_SEED_START, "1");
-        conf.set(SeedEventClassifier.KEY_SEED_END, "");
-        try {
-            node.myValidation(conf);
-            Assert.fail("validation error  " + SeedEventClassifier.KEY_SEED_END);
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + SeedEventClassifier.KEY_SEED_END,
-                    e.getMessage().contains("but seedend is empty"));
-        }
-
-        conf.set(SeedEventClassifier.KEY_SEED_START, "1");
-        conf.set(SeedEventClassifier.KEY_SEED_END, "a");
-        try {
-            node.myValidation(conf);
-            Assert.fail("validation error  " + SeedEventClassifier.KEY_SEED_END);
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + SeedEventClassifier.KEY_SEED_END,
-                    e.getMessage().contains("should be an integer"));
-        }
-
-        conf.set(SeedEventClassifier.KEY_SEED_START, "a");
-        conf.set(SeedEventClassifier.KEY_SEED_END, "1");
-        try {
-            node.myValidation(conf);
-            Assert.fail("validation error  " + SeedEventClassifier.KEY_SEED_START);
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + SeedEventClassifier.KEY_SEED_START,
-                    e.getMessage().contains("should be an integer"));
-        }
-    }
-
-     /**
-     * Test node logic emits correct results
-     */
-    @Test
-    public void testNodeProcessing() throws Exception {
-      testSchemaNodeProcessing(true); // 5.9 million/sec
-      testSchemaNodeProcessing(false); // 4.4 million/sec
-    }
-
-    /**
-     * Test node logic emits correct results
-     */
-    public void testSchemaNodeProcessing(boolean isstring) throws Exception {
-
-      final SeedEventClassifier node = new SeedEventClassifier();
-
-      TestSink classifySink = new TestSink();
-
-      Sink inSink1 = node.connect(SeedEventClassifier.IPORT_IN_DATA1, node);
-      Sink inSink2 = node.connect(SeedEventClassifier.IPORT_IN_DATA2, node);
-      node.connect(SeedEventClassifier.OPORT_OUT_DATA, classifySink);
-
-      OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
-
-      conf.set(SeedEventClassifier.KEY_SEED_START, "1");
-      conf.set(SeedEventClassifier.KEY_SEED_END, "1000000");
-      conf.set(SeedEventClassifier.KEY_IN_DATA1_CLASSIFIER, "x");
-      conf.set(SeedEventClassifier.KEY_IN_DATA2_CLASSIFIER, "y");
-      conf.set(SeedEventClassifier.KEY_STRING_SCHEMA, isstring ? "true" : "false");
-
-      node.setSpinMillis(10);
-      node.setBufferCapacity(1024 * 1024);
-      node.setup(conf);
-
-      final AtomicBoolean inactive = new AtomicBoolean(true);
-      new Thread()
-      {
-        @Override
-        public void run()
-        {
-          inactive.set(false);
-          node.activate(new OperatorContext("SeedClassifierTestNode", this));
-        }
-      }.start();
-
-      // spin while the node gets activated./
-      int sleeptimes = 0;
-      try {
-        do {
-          Thread.sleep(20);
-          sleeptimes++;
-          if (sleeptimes > 5) {
-            break;
-          }
-        }
-        while (inactive.get());
-      }
-      catch (InterruptedException ex) {
-        LOG.debug(ex.getLocalizedMessage());
-      }
-
-      Tuple bt = StramTestSupport.generateBeginWindowTuple("doesn't matter", 1);
-      inSink1.process(bt);
-      inSink2.process(bt);
-
-      int numtuples = 50000000;
-      if (isstring) {
-        String input;
-        for (int i = 0; i < numtuples; i++) {
-          input = Integer.toString(i);
-          inSink1.process(input);
-          inSink2.process(input);
-        }
+    @Override
+    public void process(Object payload)
+    {
+      if (payload instanceof Tuple) {
+        // LOG.debug(payload.toString());
       }
       else {
-        Integer input;
-        for (int i = 0; i < numtuples; i++) {
-          input  = new Integer(i);
-          inSink1.process(input);
-          inSink2.process(input);
+        if (isstring) {
+          count++;
         }
       }
-
-      Tuple et = StramTestSupport.generateEndWindowTuple("doesn't matter", 1, 1);
-      inSink1.process(et);
-      inSink2.process(et);
-
-      // Should get one bag of keys "a", "b", "c"
-      try {
-        for (int i = 0; i < 50; i++) {
-          Thread.sleep(10);
-          if (classifySink.count >= numtuples*2 - 1) {
-            break;
-          }
-        }
-      }
-      catch (InterruptedException ex) {
-        LOG.debug(ex.getLocalizedMessage());
-      }
-
-      // One for each key
-      Assert.assertEquals("number emitted tuples", numtuples*2, classifySink.count);
-      LOG.debug(String.format("\n********************\nProcessed %d tuples\n********************\n", classifySink.count));
     }
+  }
+
+  /**
+   * Test node logic emits correct results
+   */
+  @Test
+  public void testNodeProcessing() throws Exception
+  {
+    testSchemaNodeProcessing(true); // 5.9 million/sec
+    testSchemaNodeProcessing(false); // 4.4 million/sec
+  }
+
+  /**
+   * Test node logic emits correct results
+   */
+  public void testSchemaNodeProcessing(boolean isstring) throws Exception
+  {
+    final SeedEventClassifier node = new SeedEventClassifier();
+    TestSink classifySink = new TestSink();
+
+    Sink inSink1 = node.data1.getSink();
+    Sink inSink2 = node.data2.getSink();
+    if (isstring) {
+      node.string_data.setSink(classifySink);
+    }
+    else {
+      node.hash_data.setSink(classifySink);
+    }
+
+    node.setKey1("x");
+    node.setKey2("y");
+    node.setSeedstart(1);
+    node.setSeedend(1000000);
+    node.setup(new OperatorConfiguration());
+
+    Tuple bt = StramTestSupport.generateBeginWindowTuple("doesn't matter", 1);
+    inSink1.process(bt);
+    inSink2.process(bt);
+
+    int numtuples = 50000000;
+    if (isstring) {
+      String input;
+      for (int i = 0; i < numtuples; i++) {
+        input = Integer.toString(i);
+        inSink1.process(input);
+        inSink2.process(input);
+      }
+    }
+    else {
+      Integer input;
+      for (int i = 0; i < numtuples; i++) {
+        input = new Integer(i);
+        inSink1.process(input);
+        inSink2.process(input);
+      }
+    }
+
+    Tuple et = StramTestSupport.generateEndWindowTuple("doesn't matter", 1, 1);
+    inSink1.process(et);
+    inSink2.process(et);
+
+    // Should get one bag of keys "a", "b", "c"
+    try {
+      for (int i = 0; i < 50; i++) {
+        Thread.sleep(10);
+        if (classifySink.count >= numtuples * 2 - 1) {
+          break;
+        }
+      }
+    }
+    catch (InterruptedException ex) {
+      LOG.debug(ex.getLocalizedMessage());
+    }
+
+    // One for each key
+    Assert.assertEquals("number emitted tuples", numtuples * 2, classifySink.count);
+    LOG.debug(String.format("\n********************\nProcessed %d tuples\n********************\n", classifySink.count));
+  }
 }

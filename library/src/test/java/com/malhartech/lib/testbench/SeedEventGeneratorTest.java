@@ -3,16 +3,19 @@
  */
 package com.malhartech.lib.testbench;
 
+
+import com.malhartech.api.Component;
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.dag.*;
-import com.malhartech.stram.ManualScheduledExecutorService;
+import com.malhartech.api.Sink;
+import com.malhartech.dag.AsyncInputNode;
+import com.malhartech.dag.Node;
+import com.malhartech.dag.StreamConfiguration;
+import com.malhartech.dag.Tuple;
 import com.malhartech.dag.WindowGenerator;
+import com.malhartech.stram.ManualScheduledExecutorService;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import junit.framework.Assert;
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,104 +98,6 @@ public class SeedEventGeneratorTest
     }
   }
 
-  /**
-   * Test configuration and parameter validation of the node
-   */
-  @Test
-  public void testNodeValidation()
-  {
-
-    OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
-    LoadSeedGenerator node = new LoadSeedGenerator();
-
-    // conf.set(SeedEventGenerator.KEY_KEYS, "x:0,100;y:0,100;gender:0,1;age:10,120"); // the good key
-
-    conf.set(SeedEventGenerator.KEY_SEED_END, "10");
-    try {
-      node.myValidation(conf);
-      Assert.fail("validation error  " + SeedEventGenerator.KEY_SEED_END);
-    }
-    catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + SeedEventGenerator.KEY_SEED_END,
-                        e.getMessage().contains("seedstart is empty, but seedend"));
-    }
-
-    conf.set(SeedEventGenerator.KEY_SEED_START, "10");
-    conf.set(SeedEventGenerator.KEY_SEED_END, "");
-    try {
-      node.myValidation(conf);
-      Assert.fail("validation error  " + SeedEventGenerator.KEY_SEED_START);
-    }
-    catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + SeedEventGenerator.KEY_SEED_START,
-                        e.getMessage().contains("but seedend is empty"));
-    }
-
-    conf.set(SeedEventGenerator.KEY_SEED_START, "a");
-    conf.set(SeedEventGenerator.KEY_SEED_END, "10");
-    try {
-      node.myValidation(conf);
-      Assert.fail("validation error  " + SeedEventGenerator.KEY_SEED_START);
-    }
-    catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + SeedEventGenerator.KEY_SEED_START,
-                        e.getMessage().contains("should be an integer"));
-    }
-
-    conf.set(SeedEventGenerator.KEY_SEED_START, "10");
-    conf.set(SeedEventGenerator.KEY_SEED_END, "a");
-    try {
-      node.myValidation(conf);
-      Assert.fail("validation error  " + SeedEventGenerator.KEY_SEED_END);
-    }
-    catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + SeedEventGenerator.KEY_SEED_END,
-                        e.getMessage().contains("should be an integer"));
-    }
-
-    conf.set(SeedEventGenerator.KEY_SEED_START, "0");
-    conf.set(SeedEventGenerator.KEY_SEED_END, "999");
-    conf.set(SeedEventGenerator.KEY_KEYS, "x:0,100;;gender:0,1;age:10,120");
-    try {
-      node.myValidation(conf);
-      Assert.fail("validation error  " + SeedEventGenerator.KEY_KEYS);
-    }
-    catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + SeedEventGenerator.KEY_KEYS,
-                        e.getMessage().contains("slot of parameter \"key\" is empty"));
-    }
-
-    conf.set(SeedEventGenerator.KEY_KEYS, "x:0,100;y:0:100;gender:0,1;age:10,120");
-    try {
-      node.myValidation(conf);
-      Assert.fail("validation error  " + SeedEventGenerator.KEY_KEYS);
-    }
-    catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + SeedEventGenerator.KEY_KEYS,
-                        e.getMessage().contains("malformed in parameter \"key\""));
-    }
-
-    conf.set(SeedEventGenerator.KEY_KEYS, "x:0,100;y:0,100,3;gender:0,1;age:10,120");
-    try {
-      node.myValidation(conf);
-      Assert.fail("validation error  " + SeedEventGenerator.KEY_KEYS);
-    }
-    catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + SeedEventGenerator.KEY_KEYS,
-                        e.getMessage().contains("of parameter \"key\" is malformed"));
-    }
-
-    conf.set(SeedEventGenerator.KEY_KEYS, "x:0,100;y:100,0;gender:0,1;age:10,120");
-    try {
-      node.myValidation(conf);
-      Assert.fail("validation error  " + SeedEventGenerator.KEY_KEYS);
-    }
-    catch (IllegalArgumentException e) {
-      Assert.assertTrue("validate " + SeedEventGenerator.KEY_KEYS,
-                        e.getMessage().contains("Low value \"100\" is >= high value \"0\" for \"y\""));
-    }
-    conf.set(SeedEventGenerator.KEY_KEYS, "x:0,100;y:0,100;gender:0,1;age:10,120");
-  }
 
   /**
    * Test node logic emits correct results
@@ -222,75 +127,74 @@ public class SeedEventGeneratorTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testSchemaNodeProcessing(boolean isstring, boolean insert, boolean doseedkey, boolean emitkey) throws Exception
   {
-
-    final SeedEventGenerator node = new SeedEventGenerator();
+    SeedEventGenerator node = new SeedEventGenerator();
     final ManualScheduledExecutorService mses = new ManualScheduledExecutorService(1);
     final WindowGenerator wingen = new WindowGenerator(mses);
 
-    Configuration config = new Configuration();
+    StreamConfiguration config = new StreamConfiguration();
     config.setLong(WindowGenerator.FIRST_WINDOW_MILLIS, 0);
     config.setInt(WindowGenerator.WINDOW_WIDTH_MILLIS, 1);
     wingen.setup(config);
 
-    Sink input = node.connect(Component.INPUT, wingen);
-    wingen.connect("mytestnode", input);
+    AsyncInputNode inode = new AsyncInputNode("mytestnode", node);
+   Sink input = inode.connect(Node.INPUT, wingen);
+    wingen.setSink("mytestnode", input);
 
+    TestSink sdataSink = new TestSink();
+    TestSink vdataSink = new TestSink();
+    TestSink vlistSink = new TestSink();
+    TestSink kvpairSink = new TestSink();
 
-    TestSink seedSink = new TestSink();
-    node.connect(SeedEventGenerator.OPORT_DATA, seedSink);
-
-    OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
-
-    conf.set(SeedEventGenerator.KEY_SEED_START, "1");
-    conf.set(SeedEventGenerator.KEY_SEED_END, "1000000");
-    int numtuples = 500;
+    node.string_data.setSink(sdataSink);
+    node.val_data.setSink(vdataSink);
+    node.val_list.setSink(vlistSink);
+    node.keyvalpair_list.setSink(kvpairSink);
 
     if (doseedkey) {
-      conf.set(SeedEventGenerator.KEY_KEYS, "x:0,9;y:0,9;gender:0,1;age:10,19"); // the good key
+      node.addKeyData("x", 0, 9);
+      node.addKeyData("y", 0, 9);
+      node.addKeyData("gender", 0, 1);
+      node.addKeyData("age", 10, 19);
     }
-    conf.set(SeedEventGenerator.KEY_STRING_SCHEMA, isstring ? "true" : "false");
-    conf.set(SeedEventGenerator.KEY_EMITKEY, emitkey ? "true" : "false");
+    node.setSeedstart(1);
+    node.setSeedend(1000000);
 
-    seedSink.isstring = isstring;
-    seedSink.insert = insert;
-    seedSink.emitkey = emitkey;
-    if (seedSink.ikeys.isEmpty()) {
-      seedSink.ikeys.add("x");
-      seedSink.ikeys.add("y");
-      seedSink.ikeys.add("genger");
-      seedSink.ikeys.add("age");
-    }
+    int numtuples = 500;
 
-    conf.setInt("SpinMillis", 10);
-    conf.setInt("BufferCapacity", 1024 * 1024);
-    node.setup(conf);
-
-    final AtomicBoolean inactive = new AtomicBoolean(true);
-    new Thread("SchemaNodeProcessing-" + isstring + ":" + insert + ":" + doseedkey + ":" + emitkey)
-    {
-      @Override
-      public void run()
-      {
-        inactive.set(false);
-        node.activate(new OperatorContext("LoadSeedGeneratorTestNode", this));
-        inactive.set(true);
-      }
-    }.start();
-
-    /**
-     * spin while the node gets activated.
-     */
-    try {
-      do {
-        Thread.sleep(20);
-      }
-      while (inactive.get());
-    }
-    catch (InterruptedException ex) {
-      LOG.debug(ex.getLocalizedMessage());
+    sdataSink.isstring = isstring;
+    sdataSink.insert = insert;
+    sdataSink.emitkey = emitkey;
+    if (sdataSink.ikeys.isEmpty()) {
+      sdataSink.ikeys.add("x");
+      sdataSink.ikeys.add("y");
+      sdataSink.ikeys.add("genger");
+      sdataSink.ikeys.add("age");
     }
 
-    wingen.activated(null);
+    if (vdataSink.ikeys.isEmpty()) {
+      vdataSink.ikeys.add("x");
+      vdataSink.ikeys.add("y");
+      vdataSink.ikeys.add("genger");
+      vdataSink.ikeys.add("age");
+    }
+
+    if (vlistSink.ikeys.isEmpty()) {
+      vlistSink.ikeys.add("x");
+      vlistSink.ikeys.add("y");
+      vlistSink.ikeys.add("genger");
+      vlistSink.ikeys.add("age");
+    }
+
+    if (kvpairSink.ikeys.isEmpty()) {
+      kvpairSink.ikeys.add("x");
+      kvpairSink.ikeys.add("y");
+      kvpairSink.ikeys.add("genger");
+      kvpairSink.ikeys.add("age");
+    }
+
+    node.setup(new OperatorConfiguration());
+    wingen.postActivate(null);
+
     for (int i = 0; i < numtuples; i++) {
       mses.tick(1);
       try {
@@ -299,9 +203,7 @@ public class SeedEventGeneratorTest
       catch (InterruptedException ie) {
       }
     }
-
-//      wingen.deactivated();
-    //node.deactivated();
+    
     try {
       Thread.sleep(5);
     }
@@ -314,8 +216,8 @@ public class SeedEventGeneratorTest
                             isstring ? "String" : "ArrayList",
                             insert ? "insert values" : "skip insert",
                             emitkey ? "with classification key" : "no classification key",
-                            seedSink.count,
-                            seedSink.keys.size(),
-                            seedSink.ckeys.size()));
+                            sdataSink.count,
+                            sdataSink.keys.size(),
+                            sdataSink.ckeys.size()));
   }
 }

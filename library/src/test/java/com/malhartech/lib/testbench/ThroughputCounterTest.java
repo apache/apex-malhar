@@ -52,45 +52,18 @@ public class ThroughputCounterTest {
     }
   }
 
-    /**
-     * Test configuration and parameter validation of the node
-     */
-    @Test
-    public void testNodeValidation() {
-
-        OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
-        ThroughputCounter node = new ThroughputCounter();
-
-        conf.set(ThroughputCounter.ROLLING_WINDOW_COUNT, "aa");
-        String rstr = conf.get(ThroughputCounter.ROLLING_WINDOW_COUNT);
-        try {
-            node.myValidation(conf);
-            Assert.fail("validation error  " + ThroughputCounter.ROLLING_WINDOW_COUNT);
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue("validate " + ThroughputCounter.ROLLING_WINDOW_COUNT,
-                    e.getMessage().contains("has to be an integer"));
-        }
-    }
-
   /**
    * Tests both string and non string schema
    */
   @Test
   public void testSingleSchemaNodeProcessing() throws Exception
   {
-    ThroughputCounter node = new ThroughputCounter();
+    ThroughputCounter<String> node = new ThroughputCounter<String>();
 
     TestCountSink countSink = new TestCountSink();
-    node.connect(FilterClassifier.OPORT_OUT_DATA, countSink);
-    OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
-
-    conf.set(ThroughputCounter.ROLLING_WINDOW_COUNT, "5");
-
-    try {
-      node.setup(conf);
-    }
-    catch (IllegalArgumentException e) {;
-    }
+    node.count.setSink(countSink);
+    node.setRollingWindowCount(5);
+    node.setup(new OperatorConfiguration());
 
     node.beginWindow();
     HashMap<String, Integer> input;
@@ -105,7 +78,7 @@ public class ThroughputCounterTest {
       input.put("a", aval);
       input.put("b", bval);
       sentval += 2;
-      node.process(input);
+      node.data.process(input);
     }
     node.endWindow();
 
