@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.math;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -42,6 +44,7 @@ import java.util.Map;
 
 public class Quotient<K,V extends Number> extends BaseOperator
 {
+  @InputPortFieldAnnotation(name = "numerator")
   public final transient DefaultInputPort<HashMap<K,V>> numerator = new DefaultInputPort<HashMap<K,V>>(this)
   {
     @Override
@@ -50,6 +53,8 @@ public class Quotient<K,V extends Number> extends BaseOperator
       addTuple(tuple, numerators);
     }
   };
+
+  @InputPortFieldAnnotation(name = "denominator")
   public final transient DefaultInputPort<HashMap<K,V>> denominator = new DefaultInputPort<HashMap<K,V>>(this)
   {
     @Override
@@ -78,6 +83,7 @@ public class Quotient<K,V extends Number> extends BaseOperator
     }
   }
 
+  @OutputPortFieldAnnotation(name = "quotient")
   public final transient DefaultOutputPort<HashMap<K, Double>> quotient = new DefaultOutputPort<HashMap<K, Double>>(this);
   HashMap<K, MutableDouble> numerators = new HashMap<K, MutableDouble>();
   HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();

@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.math;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -26,6 +28,7 @@ import java.util.Map;
  */
 public class SumValue<V extends Number> extends BaseOperator
 {
+  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<V> data = new DefaultInputPort<V>(this)
   {
     @Override
@@ -36,7 +39,9 @@ public class SumValue<V extends Number> extends BaseOperator
     }
   };
 
+  @OutputPortFieldAnnotation(name = "sum")
   public final transient DefaultOutputPort<V> sum = new DefaultOutputPort<V>(this);
+  @OutputPortFieldAnnotation(name = "count")
   public final transient DefaultOutputPort<Integer> count = new DefaultOutputPort<Integer>(this);
 
   double sums = 0;
@@ -57,7 +62,6 @@ public class SumValue<V extends Number> extends BaseOperator
   {
     if (sum.isConnected()) {
       V val = null;
-      V ave = null;
       Double d = new Double(sums);
       if (val instanceof Double) {
         val = (V) d;

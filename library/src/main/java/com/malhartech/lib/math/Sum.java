@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.math;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -26,6 +28,7 @@ import java.util.Map;
  */
 public class Sum<K, V extends Number> extends BaseOperator
 {
+  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
     @Override
@@ -51,8 +54,11 @@ public class Sum<K, V extends Number> extends BaseOperator
     }
   };
 
+  @OutputPortFieldAnnotation(name = "sum")
   public final transient DefaultOutputPort<HashMap<K,V>> sum = new DefaultOutputPort<HashMap<K,V>>(this);
+  @OutputPortFieldAnnotation(name = "average")
   public final transient DefaultOutputPort<HashMap<K,Double>> average = new DefaultOutputPort<HashMap<K,Double>>(this);
+  @OutputPortFieldAnnotation(name = "count")
   public final transient DefaultOutputPort<HashMap<K,Integer>> count = new DefaultOutputPort<HashMap<K,Integer>>(this);
 
   HashMap<K,Double> sums = new HashMap<K,Double>();

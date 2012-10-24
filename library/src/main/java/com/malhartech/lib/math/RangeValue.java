@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.math;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -36,6 +38,7 @@ import java.util.Map;
  */
 public class RangeValue<V extends Number> extends BaseOperator
 {
+  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<V> data = new DefaultInputPort<V>(this)
   {
     @Override
@@ -56,6 +59,8 @@ public class RangeValue<V extends Number> extends BaseOperator
       }
     }
   };
+
+  @OutputPortFieldAnnotation(name = "range")
   public final transient DefaultOutputPort<ArrayList<V>> range = new DefaultOutputPort<ArrayList<V>>(this);
   V high = null;
   V low = null;
