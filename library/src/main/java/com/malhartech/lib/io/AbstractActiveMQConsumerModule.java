@@ -4,7 +4,9 @@
  */
 package com.malhartech.lib.io;
 
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.api.SyncInputOperator;
 import java.util.logging.Level;
@@ -24,6 +26,9 @@ public abstract class AbstractActiveMQConsumerModule extends BaseOperator implem
   private static final Logger logger = LoggerFactory.getLogger(AbstractActiveMQConsumerModule.class);
   private long maxMessages;
   public ActiveMQHelper activeMQHelper = new ActiveMQHelper(false);
+
+  @OutputPortFieldAnnotation(name="ActiveMQOutputPort")
+  final public transient DefaultOutputPort<Object> outputPort = new DefaultOutputPort<Object>(this);
 
   /**
    * Any concrete class derived from AbstractActiveQConsumerModule has to implement this method
