@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.logs;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -38,6 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public class LineToTokenHashMap extends BaseOperator
 {
+  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<String> data = new DefaultInputPort<String>(this)
   {
     @Override
@@ -83,6 +86,8 @@ public class LineToTokenHashMap extends BaseOperator
       }
     }
   };
+
+  @OutputPortFieldAnnotation(name = "tokens")
   public final transient DefaultOutputPort<HashMap<String, ArrayList<String>>> tokens = new DefaultOutputPort<HashMap<String, ArrayList<String>>>(this);
   String splitby = ";\t ";
   String splittokenby = "";

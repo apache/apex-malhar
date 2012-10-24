@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.logs;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -35,6 +37,7 @@ import com.malhartech.api.DefaultOutputPort;
  */
 public class LineSplitter extends BaseOperator
 {
+  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<String> data = new DefaultInputPort<String>(this)
   {
     @Override
@@ -52,6 +55,7 @@ public class LineSplitter extends BaseOperator
       }
     }
   };
+  @OutputPortFieldAnnotation(name = "tokens")
   public final transient DefaultOutputPort<String> tokens = new DefaultOutputPort<String>(this);
   String splitby_default = ";\t ";
   String splitby = null;
