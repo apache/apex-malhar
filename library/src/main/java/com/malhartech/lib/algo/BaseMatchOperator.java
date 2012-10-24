@@ -4,7 +4,10 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.annotation.InjectConfig;
 import com.malhartech.api.BaseOperator;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 /**
  *
@@ -31,16 +34,26 @@ import com.malhartech.api.BaseOperator;
 
 public class BaseMatchOperator<K> extends BaseOperator
 {
-  K key;
-  String cmp;
-  double default_value = 0.0;
-  double value = default_value;
+  @InjectConfig(key = "key")
+  private K key;
 
-  public enum supported_type {LTE, LT, EQ, NEQ, GT, GTE};
+  @Pattern(regexp = "lte|lt|eq|ne|gt|gte", message = "Value has to be one of lte, lt, eq, ne, gt, gte")
+  @InjectConfig(key = "cmp")
+  String cmp;
+
+  @InjectConfig(key = "value")
+  double value = 0.0;
+
+  public enum supported_type
+  {
+    LTE, LT, EQ, NEQ, GT, GTE
+  };
   supported_type type = supported_type.EQ;
 
-  public void setKey(K str) {
-    key = str;
+  @NotNull
+  public void setKey(K key)
+  {
+    this.key = key;
   }
 
   public K getKey()
@@ -48,8 +61,8 @@ public class BaseMatchOperator<K> extends BaseOperator
     return key;
   }
 
-  public void setValue(double v) {
-    value = v;
+  public void setValue(double value) {
+    this.value = value;
   }
 
   public double getValue()
@@ -62,32 +75,61 @@ public class BaseMatchOperator<K> extends BaseOperator
     return type;
   }
 
-  public void steTypeLT()
+  /**
+   * Setter function for compare type. Allowed values are lte, lt, eq, ne, gt, gte<p>   *
+   */
+  @Pattern(regexp = "lte|lt|eq|ne|gt|gte", message = "Value has to be one of lte, lt, eq, ne, gt, gte")
+  public void setType(String cmp)
+  {
+    if (cmp.equals("lt")) {
+      setTypeLT();
+    }
+    else if (cmp.equals("lte")) {
+      setTypeLTE();
+    }
+    else if (cmp.equals("eq")) {
+      setTypeEQ();
+    }
+    else if (cmp.equals("ne")) {
+      setTypeEQ();
+    }
+    else if (cmp.equals("gt")) {
+      setTypeGT();
+    }
+    else if (cmp.equals("gte")) {
+      setTypeGTE();
+    }
+    else {
+      setTypeEQ();
+    }
+  }
+
+  public void setTypeLT()
   {
     type = supported_type.LT;
   }
 
-  public void steTypeLTE()
+  public void setTypeLTE()
   {
     type = supported_type.LTE;
   }
 
-  public void steTypeEQ()
+  public void setTypeEQ()
   {
     type = supported_type.EQ;
   }
 
-  public void steTypeNEQ()
+  public void setTypeNEQ()
   {
     type = supported_type.NEQ;
   }
 
-  public void steTypeGT()
+  public void setTypeGT()
   {
     type = supported_type.GT;
   }
 
-   public void steTypeGTE()
+   public void setTypeGTE()
   {
     type = supported_type.GTE;
   }
