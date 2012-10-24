@@ -54,17 +54,11 @@ public class AllAfterMatch<K, V extends Number> extends BaseMatchOperator<K>
         allafter.emit(tuple);
         return;
       }
-      V v = tuple.get(key);
+      V v = tuple.get(getKey());
       if (v == null) { // error tuple
         return;
       }
-      double tvalue = v.doubleValue();
-      if (((type == supported_type.LT) && (tvalue < value))
-              || ((type == supported_type.LTE) && (tvalue <= value))
-              || ((type == supported_type.EQ) && (tvalue == value))
-              || ((type == supported_type.NEQ) && (tvalue != value))
-              || ((type == supported_type.GT) && (tvalue > value))
-              || ((type == supported_type.GTE) && (tvalue >= value))) {
+      if (compareValue(v.doubleValue())) {
         doemit = true;
         allafter.emit(tuple);
       }

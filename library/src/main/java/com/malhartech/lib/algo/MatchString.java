@@ -65,12 +65,7 @@ public class MatchString<K, String> extends BaseMatchOperator<K>
         errortuple = true;
       }
       if (!errortuple) {
-        if (((type == supported_type.LT) && (tvalue < value))
-                || ((type == supported_type.LTE) && (tvalue <= value))
-                || ((type == supported_type.EQ) && (tvalue == value))
-                || ((type == supported_type.NEQ) && (tvalue != value))
-                || ((type == supported_type.GT) && (tvalue > value))
-                || ((type == supported_type.GTE) && (tvalue >= value))) {
+        if (compareValue(tvalue)) {
           tupleMatched(tuple);
         }
         else {

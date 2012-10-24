@@ -52,17 +52,11 @@ public class LastMatch<K, V extends Number> extends BaseMatchOperator<K>
     @Override
     public void process(HashMap<K, V> tuple)
     {
-      V val = tuple.get(key);
+      V val = tuple.get(getKey());
       if (val == null) {
         return;
       }
-      double tvalue = val.doubleValue();
-      if (((type == supported_type.LT) && (tvalue < value))
-              || ((type == supported_type.LTE) && (tvalue <= value))
-              || ((type == supported_type.EQ) && (tvalue == value))
-              || ((type == supported_type.NEQ) && (tvalue != value))
-              || ((type == supported_type.GT) && (tvalue > value))
-              || ((type == supported_type.GTE) && (tvalue >= value))) {
+      if (compareValue(val.doubleValue())) {
         if (ltuple == null) {
           ltuple = new HashMap<K, V>(1);
         }

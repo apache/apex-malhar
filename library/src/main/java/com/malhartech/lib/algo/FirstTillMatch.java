@@ -53,17 +53,11 @@ public class FirstTillMatch<K, V extends Number> extends BaseMatchOperator<K>
       if (emitted) {
         return;
       }
-      V val = tuple.get(key);
+      V val = tuple.get(getKey());
       if (val == null) { // skip if the key does not exist
         return;
       }
-      double tvalue = val.doubleValue();
-      if (((type == supported_type.LT) && (tvalue < value))
-              || ((type == supported_type.LTE) && (tvalue <= value))
-              || ((type == supported_type.EQ) && (tvalue == value))
-              || ((type == supported_type.NEQ) && (tvalue != value))
-              || ((type == supported_type.GT) && (tvalue > value))
-              || ((type == supported_type.GTE) && (tvalue >= value))) {
+      if (compareValue(val.doubleValue())) {
         emitted = true;
       }
       if (!emitted) {

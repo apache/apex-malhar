@@ -54,7 +54,7 @@ public class AllAfterMatchStringValue<K, String> extends BaseMatchOperator<K>
         allafter.emit(tuple);
         return;
       }
-      String val = tuple.get(key);
+      String val = tuple.get(getKey());
       if (val == null) { // error tuple
         return;
       }
@@ -67,12 +67,7 @@ public class AllAfterMatchStringValue<K, String> extends BaseMatchOperator<K>
         error = true;
       }
       if (!error) {
-        if (((type == supported_type.LT) && (tvalue < value))
-                || ((type == supported_type.LTE) && (tvalue <= value))
-                || ((type == supported_type.EQ) && (tvalue == value))
-                || ((type == supported_type.NEQ) && (tvalue != value))
-                || ((type == supported_type.GT) && (tvalue > value))
-                || ((type == supported_type.GTE) && (tvalue >= value))) {
+        if (compareValue(tvalue)) {
           doemit = true;
           allafter.emit(tuple);
         }

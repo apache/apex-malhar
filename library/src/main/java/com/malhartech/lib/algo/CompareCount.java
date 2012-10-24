@@ -56,7 +56,7 @@ public class CompareCount<K,V> extends BaseMatchOperator<K>
     @Override
     public void process(HashMap<K,V> tuple)
     {
-    V val = tuple.get(key);
+    V val = tuple.get(getKey());
     double tvalue = 0;
     boolean errortuple = false;
     if (val != null) { // skip if key does not exist
@@ -67,12 +67,7 @@ public class CompareCount<K,V> extends BaseMatchOperator<K>
         errortuple = true;
       }
       if (!errortuple) {
-        if (((type == supported_type.LT) && (tvalue < value))
-                || ((type == supported_type.LTE) && (tvalue <= value))
-                || ((type == supported_type.EQ) && (tvalue == value))
-                || ((type == supported_type.NEQ) && (tvalue != value))
-                || ((type == supported_type.GT) && (tvalue > value))
-                || ((type == supported_type.GTE) && (tvalue >= value))) {
+        if (compareValue(tvalue)) {
           tcount++;
         }
       }

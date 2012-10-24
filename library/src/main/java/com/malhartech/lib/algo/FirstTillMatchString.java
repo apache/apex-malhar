@@ -53,7 +53,7 @@ public class FirstTillMatchString<K, String> extends BaseMatchOperator<K>
       if (emitted) {
         return;
       }
-      String val = tuple.get(key);
+      String val = tuple.get(getKey());
       double tvalue = 0;
       if (val == null) { // skip if key does not exist
         return;
@@ -66,12 +66,7 @@ public class FirstTillMatchString<K, String> extends BaseMatchOperator<K>
         error = true;
       }
       if (!error) {
-        if (((type == supported_type.LT) && (tvalue < value))
-                || ((type == supported_type.LTE) && (tvalue <= value))
-                || ((type == supported_type.EQ) && (tvalue == value))
-                || ((type == supported_type.NEQ) && (tvalue != value))
-                || ((type == supported_type.GT) && (tvalue > value))
-                || ((type == supported_type.GTE) && (tvalue >= value))) {
+        if (compareValue(tvalue)) {
           emitted = true;
         }
       }

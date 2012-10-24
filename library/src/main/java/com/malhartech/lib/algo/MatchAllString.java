@@ -49,7 +49,7 @@ public class MatchAllString<K, String> extends BaseMatchOperator<K>
       if (!result) {
         return;
       }
-      String val = tuple.get(key);
+      String val = tuple.get(getKey());
       if (val == null) { // skip if key does not exist
         return;
       }
@@ -62,12 +62,7 @@ public class MatchAllString<K, String> extends BaseMatchOperator<K>
         errortuple = true;
       }
       result = !errortuple
-              && ((type == supported_type.LT) && (tvalue < value))
-              || ((type == supported_type.LTE) && (tvalue <= value))
-              || ((type == supported_type.EQ) && (tvalue == value))
-              || ((type == supported_type.NEQ) && (tvalue != value))
-              || ((type == supported_type.GT) && (tvalue > value))
-              || ((type == supported_type.GTE) && (tvalue >= value));
+              && compareValue(tvalue);
     }
   };
   @OutputPortFieldAnnotation(name = "all")

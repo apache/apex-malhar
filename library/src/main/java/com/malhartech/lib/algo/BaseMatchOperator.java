@@ -39,10 +39,10 @@ public class BaseMatchOperator<K> extends BaseOperator
 
   @Pattern(regexp = "lte|lt|eq|ne|gt|gte", message = "Value has to be one of lte, lt, eq, ne, gt, gte")
   @InjectConfig(key = "cmp")
-  String cmp;
+  private String cmp;
 
   @InjectConfig(key = "value")
-  double value = 0.0;
+  private double value = 0.0;
 
   public enum supported_type
   {
@@ -70,6 +70,16 @@ public class BaseMatchOperator<K> extends BaseOperator
     return value;
   }
 
+  public boolean compareValue(double value)
+  {
+    return ((type == supported_type.LT) && (value < this.value))
+            || ((type == supported_type.LTE) && (value <= this.value))
+            || ((type == supported_type.EQ) && (value == this.value))
+            || ((type == supported_type.NEQ) && (value != this.value))
+            || ((type == supported_type.GT) && (value > this.value))
+            || ((type == supported_type.GTE) && (value >= this.value));
+  }
+
   public supported_type getType()
   {
     return type;
@@ -79,7 +89,7 @@ public class BaseMatchOperator<K> extends BaseOperator
    * Setter function for compare type. Allowed values are lte, lt, eq, ne, gt, gte<p>   *
    */
   @Pattern(regexp = "lte|lt|eq|ne|gt|gte", message = "Value has to be one of lte, lt, eq, ne, gt, gte")
-  public void setType(String cmp)
+  public void setCmp(String cmp)
   {
     if (cmp.equals("lt")) {
       setTypeLT();
