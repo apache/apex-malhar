@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.annotation.OutputPortFieldAnnotation;
+import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.TopNUniqueSort;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,21 +33,33 @@ import java.util.Map;
  * @author amol<br>
  *
  */
-public class TopNUnique<K, V> extends BaseTopN<K, V>
+public class TopNUnique<K, V> extends BaseNOperator<K, V>
 {
+    @OutputPortFieldAnnotation(name="top")
+  public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> top = new DefaultOutputPort<HashMap<K, ArrayList<V>>>(this);
   HashMap<K, TopNUniqueSort<V>> kmap = new HashMap<K, TopNUniqueSort<V>>();
 
+  /**
+   * Inserts tuples into the queue
+   * @param tuple to insert in the queue
+   */
   @Override
-  public void insertIntoQueue(K k, V v)
+  public void processTuple(HashMap<K, V> tuple)
   {
-    TopNUniqueSort<V> pqueue = kmap.get(k);
-    if (pqueue == null) {
-      pqueue = new TopNUniqueSort<V>(5, n, true);
-      kmap.put(k, pqueue);
+    for (Map.Entry<K, V> e: tuple.entrySet()) {
+
+      TopNUniqueSort<V> pqueue = kmap.get(e.getKey());
+      if (pqueue == null) {
+        pqueue = new TopNUniqueSort<V>(5, n, true);
+        kmap.put(e.getKey(), pqueue);
+      }
+      pqueue.offer(e.getValue());
     }
-    pqueue.offer(v);
   }
 
+  /**
+   * Clears cache to start fresh
+   */
   @Override
   public void beginWindow()
   {

@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.annotation.InjectConfig;
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
@@ -13,6 +14,7 @@ import com.malhartech.lib.util.TopNUniqueSort;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import javax.validation.constraints.Min;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,49 +40,51 @@ import org.slf4j.LoggerFactory;
  * @author amol<br>
  *
  */
-
-public class BottomNUnique<K,V> extends BaseOperator
+public class BottomNUnique<K, V> extends BaseNOperator<K, V>
 {
-  @InputPortFieldAnnotation(name="data")
-  public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>(this) {
-    @Override
-    public void process(HashMap<K,V> tuple)
-    {
-      for (Map.Entry<K,V> e: tuple.entrySet()) {
-        TopNUniqueSort pqueue = kmap.get(e.getKey());
-        if (pqueue == null) {
-          pqueue = new TopNUniqueSort<V>(5, n, false);
-          kmap.put(e.getKey(), pqueue);
-        }
-        pqueue.offer(e.getValue());
+  /**
+   * Inserts tuples into the queue
+   * @param tuple to insert in the queue
+   */
+  @Override
+  public void processTuple(HashMap<K, V> tuple)
+  {
+    for (Map.Entry<K, V> e: tuple.entrySet()) {
+      TopNUniqueSort pqueue = kmap.get(e.getKey());
+      if (pqueue == null) {
+        pqueue = new TopNUniqueSort<V>(5, n, false);
+        kmap.put(e.getKey(), pqueue);
       }
+      pqueue.offer(e.getValue());
     }
-  };
-
-  @OutputPortFieldAnnotation(name="top")
-  public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> top = new DefaultOutputPort<HashMap<K, ArrayList<V>>>(this);
-
-  final int default_n_value = 5;
-  int n = default_n_value;
-  HashMap<K, TopNUniqueSort<V>> kmap = new HashMap<K, TopNUniqueSort<V>>();
-
-  public void setN(int val) {
-    n = val;
   }
+  /**
+   * Emits a HashMap<K,ArrayList<V>> tuple. ArrayList are the BottomNUnique values
+   */
+  @OutputPortFieldAnnotation(name = "bottom")
+  public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> bottom = new DefaultOutputPort<HashMap<K, ArrayList<V>>>(this);
 
+  private HashMap<K, TopNUniqueSort<V>> kmap = new HashMap<K, TopNUniqueSort<V>>();
+
+  /**
+   * Cleans up the cache to start anew
+   */
   @Override
   public void beginWindow()
   {
     kmap.clear();
   }
 
+  /**
+   * Emits a HashMap<K,ArrayList<V>> tuple. ArrayList are the BottomNUnique values
+   */
   @Override
   public void endWindow()
   {
     for (Map.Entry<K, TopNUniqueSort<V>> e: kmap.entrySet()) {
       HashMap<K, ArrayList<V>> tuple = new HashMap<K, ArrayList<V>>(1);
       tuple.put(e.getKey(), e.getValue().getTopN());
-      top.emit(tuple);
+      bottom.emit(tuple);
     }
   }
 }

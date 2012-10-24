@@ -38,42 +38,38 @@ import org.slf4j.LoggerFactory;
  * @author amol
  */
 
-public class FirstN<K,V> extends BaseOperator
+public class FirstN<K,V> extends BaseNOperator<K, V>
 {
-  @InputPortFieldAnnotation(name="data")
-  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
-  {
-    @Override
-    public void process(HashMap<K, V> tuple)
-    {
-      for (Map.Entry<K, V> e: tuple.entrySet()) {
-        MutableInteger count = keycount.get(e.getKey());
-        if (count == null) {
-          count = new MutableInteger(0);
-          keycount.put(e.getKey(), count);
-        }
-        count.value++;
-        if (count.value <= n) {
-          HashMap<K, V> dtuple = new HashMap<K, V>(1);
-          dtuple.put(e.getKey(), e.getValue());
-          first.emit(dtuple);
-        }
-      }
-    }
-  };
-
   @OutputPortFieldAnnotation(name="first")
   public final transient DefaultOutputPort<HashMap<K, V>> first = new DefaultOutputPort<HashMap<K, V>>(this);
 
   HashMap<K, MutableInteger> keycount = new HashMap<K, MutableInteger>();
 
-  int n_default_value = 1;
-  int n = n_default_value;
-
-  public void setN(int val) {
-    n = val;
+  /**
+   * Inserts tuples into the queue
+   * @param tuple to insert in the queue
+   */
+  @Override
+  public void processTuple(HashMap<K, V> tuple)
+  {
+    for (Map.Entry<K, V> e: tuple.entrySet()) {
+      MutableInteger count = keycount.get(e.getKey());
+      if (count == null) {
+        count = new MutableInteger(0);
+        keycount.put(e.getKey(), count);
+      }
+      count.value++;
+      if (count.value <= n) {
+        HashMap<K, V> dtuple = new HashMap<K, V>(1);
+        dtuple.put(e.getKey(), e.getValue());
+        first.emit(dtuple);
+      }
+    }
   }
 
+  /**
+   * Clears the cache to start anew in a new window
+   */
   @Override
   public void beginWindow()
   {

@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.annotation.InjectConfig;
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
@@ -13,6 +14,7 @@ import com.malhartech.lib.util.TopNSort;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import javax.validation.constraints.Min;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,15 +40,18 @@ import org.slf4j.LoggerFactory;
  * @author amol<br>
  *
  */
-public class BottomN<K, V> extends BaseOperator
+public class BottomN<K, V> extends BaseNOperator<K,V>
 {
-  @InputPortFieldAnnotation(name="data")
-  public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>(this)
-  {
-    @Override
-    public void process(HashMap<K,V> tuple)
-    {
+  @OutputPortFieldAnnotation(name="bottom")
+  public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> bottom = new DefaultOutputPort<HashMap<K, ArrayList<V>>>(this);
 
+  /**
+   * Inserts tuples into the queue
+   * @param tuple to insert in the queue
+   */
+  @Override
+  public void processTuple(HashMap<K, V> tuple)
+  {
       for (Map.Entry<K,V> e: tuple.entrySet()) {
         TopNSort pqueue = kmap.get(e.getKey());
         if (pqueue == null) {
@@ -55,20 +60,9 @@ public class BottomN<K, V> extends BaseOperator
         }
         pqueue.offer(e.getValue());
       }
-    }
-  };
-
-  @OutputPortFieldAnnotation(name="top")
-  public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> top = new DefaultOutputPort<HashMap<K, ArrayList<V>>>(this);
-  final String default_n_str = "5";
-  final int default_n_value = 5;
-  int n = default_n_value;
-  HashMap<K, TopNSort<V>> kmap = new HashMap<K, TopNSort<V>>();
-
-  public void setN(int val)
-  {
-    n = val;
   }
+
+  HashMap<K, TopNSort<V>> kmap = new HashMap<K, TopNSort<V>>();
 
   @Override
   public void beginWindow()
@@ -82,7 +76,7 @@ public class BottomN<K, V> extends BaseOperator
     for (Map.Entry<K, TopNSort<V>> e: kmap.entrySet()) {
       HashMap<K, ArrayList<V>> tuple = new HashMap<K, ArrayList<V>>(1);
       tuple.put(e.getKey(), e.getValue().getTopN());
-      top.emit(tuple);
+      bottom.emit(tuple);
     }
   }
 }

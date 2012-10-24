@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.annotation.InjectConfig;
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
@@ -13,9 +14,10 @@ import com.malhartech.lib.util.TopNSort;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import javax.validation.constraints.Min;
 
 /**
- * Abstract class for basic topN operators. Need to provide insertIntoQueue, beginWindow, and endWindow to implement TopN operator<p>
+ * Abstract class for basic topN operators. Need to provide processTuple, beginWindow, and endWindow to implement TopN operator<p>
  * port "top" at the end of window<p>
  * This is an end of window module<br>
  * At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
@@ -37,26 +39,29 @@ import java.util.Map;
  * @author amol<br>
  *
  */
-abstract public class BaseTopN<K, V> extends BaseOperator
+abstract public class BaseNOperator<K, V> extends BaseOperator
 {
+    /**
+   * Expects a HashMap<K,V> tuple
+   */
   @InputPortFieldAnnotation(name="data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
     @Override
     public void process(HashMap<K, V> tuple)
     {
-      for (Map.Entry<K, V> e: tuple.entrySet()) {
-        insertIntoQueue(e.getKey(), e.getValue());
-      }
+      processTuple(tuple);
     }
   };
 
-  @OutputPortFieldAnnotation(name="top")
-  public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> top = new DefaultOutputPort<HashMap<K, ArrayList<V>>>(this);
-  final int default_n_value = 5;
+  final int default_n_value = 1;
+  @Min(1)
+  @InjectConfig(key = "n")
   int n = default_n_value;
-  abstract public void insertIntoQueue(K k, V v);
 
+  abstract public void processTuple(HashMap<K, V> tuple);
+
+  @Min(1)
   public void setN(int val)
   {
     n = val;

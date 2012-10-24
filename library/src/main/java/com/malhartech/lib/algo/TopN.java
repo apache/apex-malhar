@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.annotation.OutputPortFieldAnnotation;
+import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.TopNSort;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,27 +33,42 @@ import java.util.Map;
  * @author amol<br>
  *
  */
-public class TopN<K, V> extends BaseTopN<K,V>
+public class TopN<K, V> extends BaseNOperator<K,V>
 {
+  @OutputPortFieldAnnotation(name="top")
+  public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> top = new DefaultOutputPort<HashMap<K, ArrayList<V>>>(this);
+
+  /**
+   * Inserts tuples into the queue
+   * @param tuple to insert in the queue
+   */
   @Override
-  public void insertIntoQueue(K k, V v)
+  public void processTuple(HashMap<K,V> tuple)
   {
-    TopNSort<V> pqueue = kmap.get(k);
-    if (pqueue == null) {
-      pqueue = new TopNSort<V>(5, n, true);
-      kmap.put(k, pqueue);
+    for (Map.Entry<K, V> e: tuple.entrySet()) {
+      TopNSort<V> pqueue = kmap.get(e.getKey());
+      if (pqueue == null) {
+        pqueue = new TopNSort<V>(5, n, true);
+        kmap.put(e.getKey(), pqueue);
+      }
+      pqueue.offer(e.getValue());
     }
-    pqueue.offer(v);
   }
   HashMap<K, TopNSort<V>> kmap = new HashMap<K, TopNSort<V>>();
 
 
+  /**
+   * Clears the cache for the next window to start fresh
+   */
   @Override
   public void beginWindow()
   {
     kmap.clear();
   }
 
+  /**
+   * Emits the TopN tuples
+   */
   @Override
   public void endWindow()
   {
