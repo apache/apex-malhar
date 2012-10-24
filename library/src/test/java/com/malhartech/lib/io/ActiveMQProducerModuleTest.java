@@ -157,7 +157,7 @@ public class ActiveMQProducerModuleTest
     ActiveMQProducerModule node = dag.addOperator("eventgen", ActiveMQProducerModule.class);
     ProducerOperator collector = dag.addOperator("data collector", new ProducerOperator());
 
-    node.setKeys("a,b,c,d");
+/*    node.setKeys("a,b,c,d");
     node.setValues("");
 
     dag.addStream("stest", node.string_data, collector.sdata).setInline(true);
@@ -223,7 +223,7 @@ public class ActiveMQProducerModuleTest
     Assert.assertEquals("Number of emitted tuples", numTuple, listener.receivedData.size());
     logger.debug(String.format("Processed %d tuples", listener.receivedData.size()));
     Assert.assertEquals("First tuple", "{b=20, c=1000, a=2}", listener.receivedData.get(new Integer(1)));
-
+*/
     listener.closeConnection();
   }
 }

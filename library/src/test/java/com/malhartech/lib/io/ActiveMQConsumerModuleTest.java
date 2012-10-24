@@ -6,15 +6,19 @@ package com.malhartech.lib.io;
 
 
 import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.dag.TestSink;
 import com.malhartech.dag.WindowGenerator;
 import com.malhartech.stram.ManualScheduledExecutorService;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.TextMessage;
+import junit.framework.Assert;
 import org.apache.activemq.broker.BrokerService;
+import org.apache.log4j.Level;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -45,11 +49,11 @@ public class ActiveMQConsumerModuleTest
       //logger.info("emitMessage got called from {}", this);
       if (message instanceof TextMessage) {
         try {
-          emit(Component.OUTPUT, ((TextMessage)message).getText());
+          outputPort.emit(((TextMessage)message).getText());
           logger.info("Received Message: {}", ((TextMessage)message).getText());
         }
         catch (JMSException ex) {
-          Logger.getLogger(ActiveMQConsumerModuleTest.class.getName()).log(Level.SEVERE, null, ex);
+          java.util.logging.Logger.getLogger(ActiveMQConsumerModuleTest.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
       }
     }
@@ -132,76 +136,15 @@ public class ActiveMQConsumerModuleTest
     }
     generator.closeConnection();
 
-    // Setup winddow generator. This is needed to supply data into ActiveMQConsumerModule(i.e. node in here).
-    final ManualScheduledExecutorService mses = new ManualScheduledExecutorService(1);
-    final WindowGenerator wingen = new WindowGenerator(mses);
-    config.setLong(WindowGenerator.FIRST_WINDOW_MILLIS, 0);
-    config.setInt(WindowGenerator.WINDOW_WIDTH_MILLIS, 1);
-//    wingen.setup(config);
 
-    // The input port of node should be connected to window generator and
-    // the output port of node should be connected to a Test sink.
-  /*  Sink inSink = node.connect(Component.INPUT, wingen);
-    wingen.connect("mytestnode", inSink);
-    TestSink outSink = new TestSink();
-    node.connect(ActiveMQConsumerModule.OUTPUT, outSink);
+    // The output port of node should be connected to a Test sink.
+    TestSink<Object> outSink = new TestSink<Object>();
+    node.outputPort.setSink(outSink);
     node.setup(config);
 
-    // Activate the node
-    final AtomicBoolean inactive = new AtomicBoolean(true);
-    new Thread()
-    {
-      @Override
-      public void run()
-      {
-        node.activate(new ModuleContext("ActiveMQConsumerModuleTestNode", this));
-        inactive.set(false);
-      }
-    }.start();
+    node.run();
 
-    // Spin to allow the node gets activated. Do we always need this?? TBD
-    int sleeptimes = 0;
-    try {
-      do {
-        Thread.sleep(20);
-        sleeptimes++;
-        if (sleeptimes > 5) {
-          break;
-        }
-      }
-      while (inactive.get());
-    }
-    catch (InterruptedException ex) {
-      logger.debug(ex.getLocalizedMessage());
-    }
 
-    // Activate wingen
-    wingen.activate(null);
-
-    for (int i = 0; i < 500; i++) {
-      mses.tick(1);
-      try {
-        Thread.sleep(1);
-      }
-      catch (InterruptedException e) {
-        logger.error("Unexpected error while sleeping for 1 s", e);
-      }
-    }
-
-    node.deactivate(); // is this should be here or after generator? TBD
-
-    // Delay a bit to make sure we can receive data.
-    try {
-      for (int i = 0; i < 50; i++) {
-        Thread.sleep(20);
-        if (outSink.collectedTuples.size() >= 1) {
-          break;
-        }
-      }
-    }
-    catch (InterruptedException ex) {
-      logger.debug(ex.getLocalizedMessage());
-    }
 
     // Check values send vs received
     int totalCount = outSink.collectedTuples.size();
@@ -213,6 +156,6 @@ public class ActiveMQConsumerModuleTest
       Assert.assertEquals("Message content", generator.sendData.get(i), (String)(outSink.collectedTuples.get(i)));
       logger.debug(String.format("Received: %s", outSink.collectedTuples.get(i)));
     }
-    */
+
   }
 }
