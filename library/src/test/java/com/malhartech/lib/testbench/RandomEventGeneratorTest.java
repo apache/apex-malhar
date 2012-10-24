@@ -98,8 +98,8 @@ public class RandomEventGeneratorTest
 
   public static class CollectorOperator extends BaseOperator
   {
-    public final transient CollectorInputPort<String> sdata = new CollectorInputPort("strings", this);
-    public final transient CollectorInputPort<Integer> idata = new CollectorInputPort("integers", this);
+    public final transient CollectorInputPort<String> sdata = new CollectorInputPort<String>("strings", this);
+    public final transient CollectorInputPort<Integer> idata = new CollectorInputPort<Integer>("integers", this);
   }
 
   public void testSchemaNodeProcessing(boolean isstring) throws Exception
