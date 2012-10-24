@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.math;
 
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.algo.MatchString;
 import java.util.HashMap;
@@ -44,7 +45,10 @@ import java.util.HashMap;
  */
 public class CompareExceptString<K,String> extends MatchString<K,String>
 {
+  @OutputPortFieldAnnotation(name = "compare")
   public final transient DefaultOutputPort<HashMap<K,String>> compare = match;
+
+  @OutputPortFieldAnnotation(name = "except")
   public final transient DefaultOutputPort<HashMap<K,String>> except = new DefaultOutputPort<HashMap<K,String>>(this);
 
   @Override

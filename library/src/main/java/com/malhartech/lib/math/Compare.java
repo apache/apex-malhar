@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.math;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.algo.Match;
 import java.util.HashMap;
@@ -43,5 +45,6 @@ import java.util.HashMap;
  */
 public class Compare<K, V extends Number> extends Match<K,V>
 {
+    @OutputPortFieldAnnotation(name = "compare")
     public final transient DefaultOutputPort<HashMap<K, V>> compare = match;
 }

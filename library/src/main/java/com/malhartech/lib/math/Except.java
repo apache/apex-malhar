@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.math;
 
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.algo.Match;
 import java.util.HashMap;
@@ -43,12 +44,15 @@ import java.util.HashMap;
  */
 public class Except<K, V extends Number> extends Match<K, V>
 {
+    @OutputPortFieldAnnotation(name = "except")
   public final transient DefaultOutputPort<HashMap<K, V>> except = new DefaultOutputPort<HashMap<K, V>>(this);
 
+  @Override
   public void tupleMatched(HashMap<K, V> tuple)
   {
   }
 
+  @Override
   public void tupleNotMatched(HashMap<K, V> tuple)
   {
     except.emit(tuple);
