@@ -11,7 +11,6 @@ import com.malhartech.api.OperatorConfiguration;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Map;
 import javax.ws.rs.core.MediaType;
 import org.codehaus.jettison.json.JSONObject;
@@ -57,17 +56,9 @@ public class HttpOutputOperator<T> extends BaseOperator
   private transient Client wsClient;
   private transient WebResource resource;
 
-  public void setResourceURL(String urlStr)
+  public void setResourceURL(URI url)
   {
-    if (urlStr == null) {
-      throw new IllegalArgumentException("url string cannot be null.");
-    }
-    try {
-      this.resourceUrl = new URI(urlStr);
-    }
-    catch (URISyntaxException e) {
-      throw new IllegalArgumentException(String.format("Invalid value '%s' for url.", urlStr));
-    }
+      this.resourceUrl = url;
   }
 
   @Override

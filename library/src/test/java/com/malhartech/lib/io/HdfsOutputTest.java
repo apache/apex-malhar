@@ -69,7 +69,7 @@ public class HdfsOutputTest implements ApplicationFactory {
     for (Map.Entry<String, String> e : values.entrySet()) {
       this.config.set(e.getKey().replace(keyPrefix, ""), e.getValue());
     }
-    LOG.info("properties: " + DAGPropertiesBuilder.toProperties(config));
+    LOG.info("properties: " + DAGPropertiesBuilder.toProperties(config, ""));
 
     testThroughPut();
 
