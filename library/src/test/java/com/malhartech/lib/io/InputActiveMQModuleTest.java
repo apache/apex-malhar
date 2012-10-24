@@ -5,8 +5,7 @@
 package com.malhartech.lib.io;
 
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.annotation.ModuleAnnotation;
-import com.malhartech.annotation.PortAnnotation;
+import com.malhartech.api.Component;
 import com.malhartech.dag.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,35 +27,26 @@ public class InputActiveMQModuleTest
   static AbstractActiveMQInputModule instance;
   static MyStreamContext context;
 
-  private static final class MyStreamContext extends OperatorContext implements Sink
+  private static final class MyStreamContext extends OperatorContext
   {
     public MyStreamContext()
     {
       super("irrelevant_id", Thread.currentThread());  // the 2nd argument could be wrong. Please check.
     }
 
-    @Override
-    public void process(Object payload)
-    {
-      System.out.print("processing ".concat(payload.toString()));
-    }
+
   }
 
-  @ModuleAnnotation(ports = {
-    @PortAnnotation(name = Component.OUTPUT, type = PortAnnotation.PortType.OUTPUT)
-  })
+
   private static final class InputActiveMQStream extends AbstractActiveMQInputModule
   {
     @Override
     protected void emitMessage(Message message)
     {
       if (message instanceof TextMessage) {
-        try {
-          emit(Component.OUTPUT, ((TextMessage)message).getText());
-        }
-        catch (JMSException ex) {
-          Logger.getLogger(InputActiveMQModuleTest.class.getName()).log(Level.SEVERE, null, ex);
-        }
+
+          System.out.println();
+
       }
     }
 
@@ -75,6 +65,12 @@ public class InputActiveMQModuleTest
     {
       throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    @Override
+    public void injectTuples(long windowId)
+    {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
   }
 
   public InputActiveMQModuleTest()
@@ -84,7 +80,7 @@ public class InputActiveMQModuleTest
   @BeforeClass
   public static void setUpClass() throws Exception
   {
-    config = new OperatorConfiguration("instance", null);
+    config = new OperatorConfiguration();
     config.set("user", "");
     config.set("password", "");
     config.set("url", "tcp://localhost:61616");
@@ -162,21 +158,6 @@ public class InputActiveMQModuleTest
   {
     System.out.println("process");
 
-    instance.connect(Component.OUTPUT, context);
-    new Thread()
-    {
-      @Override
-      public void run()
-      {
-        instance.activate(context);
-      }
-    }.start();
 
-    try {
-      Thread.sleep(10000);
-    }
-    catch (InterruptedException ex) {
-      Logger.getLogger(InputActiveMQModuleTest.class.getName()).log(Level.SEVERE, null, ex);
-    }
   }
 }
