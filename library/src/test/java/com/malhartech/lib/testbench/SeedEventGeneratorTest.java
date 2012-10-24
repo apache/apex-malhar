@@ -3,7 +3,6 @@
  */
 package com.malhartech.lib.testbench;
 
-
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DAG;
 import com.malhartech.api.DefaultInputPort;
@@ -35,7 +34,7 @@ public class SeedEventGeneratorTest
 {
   private static Logger LOG = LoggerFactory.getLogger(SeedEventGenerator.class);
 
-    public static class CollectorInputPort<T> extends DefaultInputPort<T>
+  public static class CollectorInputPort<T> extends DefaultInputPort<T>
   {
     ArrayList<T> list;
     final String id;
@@ -52,6 +51,7 @@ public class SeedEventGeneratorTest
       list.add(tuple);
     }
   }
+
   class TestSink implements Sink
   {
     HashMap<String, Object> keys = new HashMap<String, Object>();
@@ -94,7 +94,7 @@ public class SeedEventGeneratorTest
                   }
                   else {
                     //LoadSeedGenerator.valueData vdata = (SeedEventGenerator.valueData) o;
-                    cval += ';' + ((Integer) o).toString();
+                    cval += ';' + ((Integer)o).toString();
                   }
                 }
               }
@@ -113,7 +113,6 @@ public class SeedEventGeneratorTest
       }
     }
   }
-
 
   /**
    * Test node logic emits correct results
@@ -140,7 +139,7 @@ public class SeedEventGeneratorTest
     testSchemaNodeProcessing(false, true, true, true);
   }
 
-    public static class CollectorOperator<T> extends BaseOperator
+  public static class CollectorOperator<T> extends BaseOperator
   {
     public final transient CollectorInputPort<T> sdata = new CollectorInputPort<T>("sdata", this);
     public final transient CollectorInputPort<T> vdata = new CollectorInputPort<T>("vdata", this);
@@ -151,11 +150,10 @@ public class SeedEventGeneratorTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testSchemaNodeProcessing(boolean isstring, boolean insert, boolean doseedkey, boolean emitkey) throws Exception
   {
-
     DAG dag = new DAG();
 
     SeedEventGenerator node = dag.addOperator("seedeventgen", SeedEventGenerator.class);
-     CollectorOperator collector = dag.addOperator("data collector", new CollectorOperator<Number>());
+    CollectorOperator collector = dag.addOperator("data collector", new CollectorOperator<Number>());
 
     dag.addStream("string_data", node.string_data, collector.sdata).setInline(true);
     dag.addStream("string_data", node.val_data, collector.vdata).setInline(true);
@@ -223,7 +221,6 @@ public class SeedEventGeneratorTest
         }
         catch (InterruptedException ex) {
         }
-
         lc.shutdown();
       }
     }.start();

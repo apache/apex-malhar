@@ -12,6 +12,7 @@ import com.malhartech.dag.StreamConfiguration;
 import com.malhartech.dag.Tuple;
 import com.malhartech.dag.WindowGenerator;
 import com.malhartech.stram.ManualScheduledExecutorService;
+import com.malhartech.stram.StramLocalCluster;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -95,28 +96,46 @@ public class RandomEventGeneratorTest
     testSchemaNodeProcessing(false);
   }
 
-    public static class CollectorOperator<T> extends BaseOperator
+  public static class CollectorOperator extends BaseOperator
   {
-    public final transient CollectorInputPort<T> sdata = new CollectorInputPort<T>("sdata", this);
-    public final transient CollectorInputPort<T> vdata = new CollectorInputPort<T>("vdata", this);
-    public final transient CollectorInputPort<T> vlist = new CollectorInputPort<T>("vlist", this);
-    public final transient CollectorInputPort<T> kvpair = new CollectorInputPort<T>("kvpair", this);
+    public final transient CollectorInputPort<String> sdata = new CollectorInputPort("strings", this);
+    public final transient CollectorInputPort<Integer> idata = new CollectorInputPort("integers", this);
   }
 
   public void testSchemaNodeProcessing(boolean isstring) throws Exception
   {
     DAG dag = new DAG();
     RandomEventGenerator node = dag.addOperator("randomgen", RandomEventGenerator.class);
+    CollectorOperator collector = dag.addOperator("data collector", new CollectorOperator());
 
-    TestSink lgenSink = new TestSink();
-    node.connect(RandomEventGenerator.OPORT_DATA, lgenSink);
-
-    lgenSink.isstring = isstring;
+    if (isstring) {
+      dag.addStream("test", node.string_data, collector.sdata).setInline(true);
+    }
+    else {
+      dag.addStream("test", node.integer_data, collector.idata).setInline(true);
+    }
 
     node.setMinvalue(0);
     node.setMaxvalue(1000);
     node.setTuplesblast(50000000);
 
-    LOG.debug("Processed {} tuples and {} unique strings", lgenSink.count, lgenSink.collectedTuples.size());
+    final StramLocalCluster lc = new StramLocalCluster(dag);
+    lc.setHeartbeatMonitoringEnabled(false);
+
+    new Thread("LocalClusterController")
+    {
+      @Override
+      public void run()
+      {
+        try {
+          Thread.sleep(1000);
+        }
+        catch (InterruptedException ex) {
+        }
+        lc.shutdown();
+      }
+    }.start();
+
+    //LOG.debug("Processed {} tuples and {} unique strings", lgenSink.count, lgenSink.collectedTuples.size());
   }
 }
