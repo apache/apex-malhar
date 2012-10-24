@@ -4,9 +4,15 @@
 package com.malhartech.lib.testbench;
 
 
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DAG;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.Operator;
+import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import com.malhartech.stram.ManualScheduledExecutorService;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hadoop.conf.Configuration;
@@ -34,6 +40,24 @@ public class EventGeneratorBenchmark
 {
   private static Logger LOG = LoggerFactory.getLogger(EventGenerator.class);
 
+    public static class CollectorInputPort<T> extends DefaultInputPort<T>
+  {
+    ArrayList<T> list;
+    final String id;
+
+    public CollectorInputPort(String id, Operator module)
+    {
+      super(module);
+      this.id = id;
+    }
+
+    @Override
+    public void process(T tuple)
+    {
+      list.add(tuple);
+    }
+  }
+
   class TestSink implements Sink
   {
     HashMap<String, Integer> collectedTuples = new HashMap<String, Integer>();
@@ -60,6 +84,11 @@ public class EventGeneratorBenchmark
     }
   }
 
+
+    public static class CollectorOperator extends BaseOperator
+  {
+    public final transient CollectorInputPort<String> sdata = new CollectorInputPort<String>("sdata", this);
+  }
   /**
    * Benchmark the maximum payload flow for String
    * The sink would simply ignore the payload as we are testing throughput
@@ -69,24 +98,11 @@ public class EventGeneratorBenchmark
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
+    DAG dag = new DAG();
+    EventGenerator node = dag.addOperator("eventgen", EventGenerator.class);
+    CollectorOperator collector = dag.addOperator("data collector", new CollectorOperator());
 
-    final EventGenerator node = new EventGenerator();
-    final ManualScheduledExecutorService mses = new ManualScheduledExecutorService(1);
-    final WindowGenerator wingen = new WindowGenerator(mses);
-
-    Configuration config = new Configuration();
-    config.setLong(WindowGenerator.FIRST_WINDOW_MILLIS, 0);
-    config.setInt(WindowGenerator.WINDOW_WIDTH_MILLIS, 1);
-    wingen.setup(config);
-
-    Sink input = node.connect(Component.INPUT, wingen);
-    wingen.connect("mytestnode", input);
-
-    TestSink lgenSink = new TestSink();
-    node.connect(EventGenerator.OPORT_DATA, lgenSink);
-
-    OperatorConfiguration conf = new OperatorConfiguration("mynode", new HashMap<String, String>());
-    lgenSink.dohash = false;
+    dag.addStream("stest", node.string_data, collector.sdata).setInline(true);
 
     int numchars = 1024;
     char[] chararray = new char[numchars + 1];
@@ -95,50 +111,12 @@ public class EventGeneratorBenchmark
     }
     chararray[numchars] = '\0';
     String key = new String(chararray);
-    conf.set(EventGenerator.KEY_KEYS, key);
-    conf.set(EventGenerator.KEY_STRING_SCHEMA, "false");
-    conf.setInt(EventGenerator.KEY_TUPLES_BLAST, 50000000);
-    node.setSpinMillis(2);
-    node.setBufferCapacity(2 * 1024 * 1024);
 
-    node.setup(conf);
-
-    final AtomicBoolean inactive = new AtomicBoolean(true);
-    new Thread()
-    {
-      @Override
-      public void run()
-      {
-        inactive.set(false);
-        node.activate(new OperatorContext("LoadGeneratorTestNode", this));
-      }
-    }.start();
-
-    /**
-     * spin while the node gets activated.
-     */
-    try {
-      do {
-        Thread.sleep(20);
-      }
-      while (inactive.get());
-    }
-    catch (InterruptedException ex) {
-      LOG.debug(ex.getLocalizedMessage());
-    }
-    wingen.activated(null);
-    for (int i = 0; i < 7000; i++) {
-      mses.tick(1);
-      try {
-        Thread.sleep(1);
-      }
-      catch (InterruptedException e) {
-        LOG.error("Unexpected error while sleeping for 1 s", e);
-      }
-    }
-    node.deactivate();
+    node.setKeys(key);
+    node.setTuplesBlast(50000000);
+    node.setup(new OperatorConfiguration());
 
     //LOG.debug(String.format("\nProcessed %d tuples from emitted %d in %d windows", lgenSink.count, countSink.count, countSink.num_tuples));
-    LOG.debug(String.format("\nProcessed %d tuples of size", lgenSink.count, key.length()));
+  /*  LOG.debug(String.format("\nProcessed %d tuples of size", lgenSink.count, key.length())); */
   }
 }
