@@ -44,13 +44,13 @@ public class ActiveMQConsumerModuleTest
     {
       //logger.info("emitMessage got called from {}", this);
       if (message instanceof TextMessage) {
-        /*try {
+        try {
           emit(Component.OUTPUT, ((TextMessage)message).getText());
           logger.info("Received Message: {}", ((TextMessage)message).getText());
         }
         catch (JMSException ex) {
           Logger.getLogger(ActiveMQConsumerModuleTest.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
+        }
       }
     }
 
