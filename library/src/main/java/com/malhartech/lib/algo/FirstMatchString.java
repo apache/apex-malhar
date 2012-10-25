@@ -43,7 +43,7 @@ import java.util.HashMap;
  *
  * @author amol
  */
-public class FirstMatchString<K, String> extends BaseMatchOperator<K>
+public class FirstMatchString<K, String> extends BaseMatchOperator<K,String>
 {
 
   @InputPortFieldAnnotation(name="data")
@@ -69,7 +69,7 @@ public class FirstMatchString<K, String> extends BaseMatchOperator<K>
       }
       if (!errortuple) {
         if (compareValue(tvalue)) {
-          first.emit(tuple);
+          first.emit(cloneTuple(tuple));
           emitted = true;
         }
       }

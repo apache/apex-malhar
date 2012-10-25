@@ -44,7 +44,7 @@ import java.util.HashMap;
  */
 public class Except<K, V extends Number> extends Match<K, V>
 {
-    @OutputPortFieldAnnotation(name = "except")
+  @OutputPortFieldAnnotation(name = "except")
   public final transient DefaultOutputPort<HashMap<K, V>> except = new DefaultOutputPort<HashMap<K, V>>(this);
 
   @Override
@@ -55,6 +55,6 @@ public class Except<K, V extends Number> extends Match<K, V>
   @Override
   public void tupleNotMatched(HashMap<K, V> tuple)
   {
-    except.emit(tuple);
+    except.emit(cloneTuple(tuple));
   }
 }

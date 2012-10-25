@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MarginTest
 {
-  private static Logger LOG = LoggerFactory.getLogger(Margin.class);
+  private static Logger LOG = LoggerFactory.getLogger(MarginTest.class);
 
   /**
    * Test node logic emits correct results

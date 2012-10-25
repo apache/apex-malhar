@@ -42,7 +42,7 @@ import java.util.HashMap;
  *
  * @author amol
  */
-public class FirstTillMatchString<K, String> extends BaseMatchOperator<K>
+public class FirstTillMatchString<K, String> extends BaseMatchOperator<K,String>
 {
   @InputPortFieldAnnotation(name="data")
   public final transient DefaultInputPort<HashMap<K, String>> data = new DefaultInputPort<HashMap<K, String>>(this)
@@ -71,7 +71,7 @@ public class FirstTillMatchString<K, String> extends BaseMatchOperator<K>
         }
       }
       if (!emitted) {
-        first.emit(tuple);
+        first.emit(cloneTuple(tuple));
       }
     }
   };

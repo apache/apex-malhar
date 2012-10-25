@@ -42,7 +42,7 @@ import java.util.HashMap;
  *
  * @author amol
  */
-public class AllAfterMatchStringValue<K, String> extends BaseMatchOperator<K>
+public class AllAfterMatchStringValue<K, String> extends BaseMatchOperator<K,String>
 {
   @InputPortFieldAnnotation(name="data")
   public final transient DefaultInputPort<HashMap<K, String>> data = new DefaultInputPort<HashMap<K, String>>(this)
@@ -51,7 +51,7 @@ public class AllAfterMatchStringValue<K, String> extends BaseMatchOperator<K>
     public void process(HashMap<K, String> tuple)
     {
       if (doemit) {
-        allafter.emit(tuple);
+        allafter.emit(cloneTuple(tuple));
         return;
       }
       String val = tuple.get(getKey());
@@ -69,7 +69,7 @@ public class AllAfterMatchStringValue<K, String> extends BaseMatchOperator<K>
       if (!error) {
         if (compareValue(tvalue)) {
           doemit = true;
-          allafter.emit(tuple);
+          allafter.emit(cloneTuple(tuple));
         }
       }
     }

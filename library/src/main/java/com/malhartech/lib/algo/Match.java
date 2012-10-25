@@ -9,6 +9,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -43,7 +44,7 @@ import java.util.HashMap;
  *
  * @author amol
  */
-public class Match<K, V extends Number> extends BaseMatchOperator<K>
+public class Match<K, V extends Number> extends BaseMatchOperator<K, V>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
@@ -56,10 +57,7 @@ public class Match<K, V extends Number> extends BaseMatchOperator<K>
         tupleNotMatched(tuple);
         return;
       }
-      double tvalue = v.doubleValue();
-      double val = getValue();
-      supported_type t = getType();
-      if (compareValue(tvalue)) {
+      if (compareValue(v.doubleValue())) {
         tupleMatched(tuple);
       }
       else {
@@ -67,14 +65,15 @@ public class Match<K, V extends Number> extends BaseMatchOperator<K>
       }
     }
   };
-
   @OutputPortFieldAnnotation(name = "match")
   public final transient DefaultOutputPort<HashMap<K, V>> match = new DefaultOutputPort<HashMap<K, V>>(this);
-  public void tupleMatched(HashMap<K,V> tuple)
+
+  public void tupleMatched(HashMap<K, V> tuple)
   {
-    match.emit(tuple);
+    match.emit(cloneTuple(tuple));
   }
-  public void tupleNotMatched(HashMap<K,V> tuple)
+
+  public void tupleNotMatched(HashMap<K, V> tuple)
   {
   }
 }

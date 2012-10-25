@@ -6,6 +6,8 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.InjectConfig;
 import com.malhartech.api.BaseOperator;
+import java.util.HashMap;
+import java.util.Map;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
@@ -31,16 +33,13 @@ import javax.validation.constraints.Pattern;
  *
  * @author amol
  */
-
-public class BaseMatchOperator<K> extends BaseOperator
+public class BaseMatchOperator<K, V> extends BaseOperator
 {
   @InjectConfig(key = "key")
   private K key;
-
   @Pattern(regexp = "lte|lt|eq|ne|gt|gte", message = "Value has to be one of \"lte\", \"lt\", \"eq\", \"ne\", \"gt\", \"gte\"")
   @InjectConfig(key = "cmp")
   private String cmp;
-
   @InjectConfig(key = "value")
   private double value = 0.0;
 
@@ -61,9 +60,8 @@ public class BaseMatchOperator<K> extends BaseOperator
     return key;
   }
 
-
-
-  public void setValue(double value) {
+  public void setValue(double value)
+  {
     this.value = value;
   }
 
@@ -88,7 +86,7 @@ public class BaseMatchOperator<K> extends BaseOperator
   }
 
   /**
-   * Setter function for compare type. Allowed values are lte, lt, eq, ne, gt, gte<p>   *
+   * Setter function for compare type. Allowed values are lte, lt, eq, ne, gt, gte<p> *
    */
   @Pattern(regexp = "lte|lt|eq|ne|gt|gte", message = "Value has to be one of lte, lt, eq, ne, gt, gte")
   public void setCmp(String cmp)
@@ -141,8 +139,17 @@ public class BaseMatchOperator<K> extends BaseOperator
     type = supported_type.GT;
   }
 
-   public void setTypeGTE()
+  public void setTypeGTE()
   {
     type = supported_type.GTE;
+  }
+
+  public HashMap<K, V> cloneTuple(HashMap<K, V> tuple)
+  {
+    HashMap<K, V> ret = new HashMap<K, V>(tuple.size());
+    for (Map.Entry<K, V> e: tuple.entrySet()) {
+      ret.put(e.getKey(), e.getValue());
+    }
+    return ret;
   }
 }

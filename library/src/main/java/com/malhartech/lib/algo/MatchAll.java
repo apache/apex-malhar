@@ -38,7 +38,7 @@ import java.util.HashMap;
  *
  * @author amol
  */
-public class MatchAll<K, V extends Number> extends BaseMatchOperator<K>
+public class MatchAll<K, V extends Number> extends BaseMatchOperator<K,V>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)

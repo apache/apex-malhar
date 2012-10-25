@@ -44,7 +44,7 @@ import java.util.Map;
  *
  * @author amol
  */
-public class LastMatchString<K, String> extends BaseMatchOperator<K>
+public class LastMatchString<K, String> extends BaseMatchOperator<K,String>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, String>> data = new DefaultInputPort<HashMap<K, String>>(this)
@@ -66,7 +66,7 @@ public class LastMatchString<K, String> extends BaseMatchOperator<K>
       }
       if (!errortuple) {
         if (compareValue(tvalue)) {
-          ltuple = tuple;
+          ltuple = cloneTuple(tuple);
         }
       }
     }

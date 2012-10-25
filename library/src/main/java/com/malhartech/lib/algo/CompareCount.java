@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * @author amol
  */
 
-public class CompareCount<K,V> extends BaseMatchOperator<K>
+public class CompareCount<K,V> extends BaseMatchOperator<K,V>
 {
 
   @InputPortFieldAnnotation(name="data")

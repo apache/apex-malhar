@@ -44,7 +44,7 @@ import java.util.Map;
  *
  * @author amol
  */
-public class LastMatch<K, V extends Number> extends BaseMatchOperator<K>
+public class LastMatch<K, V extends Number> extends BaseMatchOperator<K,V>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
@@ -57,13 +57,7 @@ public class LastMatch<K, V extends Number> extends BaseMatchOperator<K>
         return;
       }
       if (compareValue(val.doubleValue())) {
-        if (ltuple == null) {
-          ltuple = new HashMap<K, V>(1);
-        }
-        ltuple.clear(); // clear the previous match
-        for (Map.Entry<K, V> e: tuple.entrySet()) {
-          ltuple.put(e.getKey(), e.getValue());
-        }
+        ltuple = cloneTuple(tuple);
       }
     }
   };
