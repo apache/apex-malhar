@@ -6,8 +6,6 @@ package com.malhartech.lib.math;
 import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.TestSink;
-import com.malhartech.dag.Tuple;
-import com.malhartech.stream.StramTestSupport;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
@@ -33,48 +31,27 @@ public class MarginTest
     testNodeProcessingSchema(new Margin<String, Integer>());
   }
 
-  public void testNodeProcessingSchema(Margin node)
+  public void testNodeProcessingSchema(Margin oper)
   {
     TestSink marginSink = new TestSink();
-    Sink numSink = node.numerator.getSink();
-    Sink denSink = node.denominator.getSink();
-    node.margin.setSink(marginSink);
-    node.setup(new OperatorConfiguration());
 
-    node.setup(new OperatorConfiguration());
+    oper.margin.setSink(marginSink);
+    oper.setup(new OperatorConfiguration());
 
-    Tuple bt = StramTestSupport.generateBeginWindowTuple("doesn't matter", 1);
-    numSink.process(bt);
-    denSink.process(bt);
+    oper.beginWindow();
+    HashMap<String, Number> input = new HashMap<String, Number>();
+    input.put("a", 2);
+    input.put("b", 20);
+    input.put("c", 1000);
+    oper.numerator.process(input);
 
-    HashMap<String, Number> ninput = new HashMap<String, Number>();
-    ninput.put("a", 2);
-    ninput.put("b", 20);
-    ninput.put("c", 1000);
-    numSink.process(ninput);
+    input.clear();
+    input.put("a", 2);
+    input.put("b", 40);
+    input.put("c", 500);
+    oper.denominator.process(input);
 
-    HashMap<String, Number> dinput = new HashMap<String, Number>();
-    dinput.put("a", 2);
-    dinput.put("b", 40);
-    dinput.put("c", 500);
-    denSink.process(dinput);
-
-    Tuple et = StramTestSupport.generateEndWindowTuple("doesn't matter", 1, 1);
-    numSink.process(et);
-    denSink.process(et);
-
-    // Should get one bag of keys "a", "b", "c"
-    try {
-      for (int i = 0; i < 10; i++) {
-        Thread.sleep(20);
-        if (marginSink.collectedTuples.size() >= 1) {
-          break;
-        }
-      }
-    }
-    catch (InterruptedException ex) {
-      LOG.debug(ex.getLocalizedMessage());
-    }
+    oper.endWindow();
 
     // One for each key
     Assert.assertEquals("number emitted tuples", 1, marginSink.collectedTuples.size());

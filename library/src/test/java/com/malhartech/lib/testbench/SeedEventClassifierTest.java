@@ -6,9 +6,7 @@ package com.malhartech.lib.testbench;
 import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
-import com.malhartech.stream.StramTestSupport;
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -23,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  * Benchmarks: Currently does about 3 Million tuples/sec in debugging environment. Need to test on larger nodes<br>
  * <br>
- * Validates all DRC checks of the node<br>
+ * Validates all DRC checks of the oper<br>
  */
 public class SeedEventClassifierTest
 {
@@ -55,7 +53,7 @@ public class SeedEventClassifierTest
   }
 
   /**
-   * Test node logic emits correct results
+   * Test oper logic emits correct results
    */
   @Test
   public void testNodeProcessing() throws Exception
@@ -65,31 +63,30 @@ public class SeedEventClassifierTest
   }
 
   /**
-   * Test node logic emits correct results
+   * Test oper logic emits correct results
    */
   public void testSchemaNodeProcessing(boolean isstring) throws Exception
   {
-    final SeedEventClassifier node = new SeedEventClassifier();
+    final SeedEventClassifier oper = new SeedEventClassifier();
     TestSink classifySink = new TestSink();
 
-    Sink inSink1 = node.data1.getSink();
-    Sink inSink2 = node.data2.getSink();
+    Sink inSink1 = oper.data1.getSink();
+    Sink inSink2 = oper.data2.getSink();
     if (isstring) {
-      node.string_data.setSink(classifySink);
+      oper.string_data.setSink(classifySink);
     }
     else {
-      node.hash_data.setSink(classifySink);
+      oper.hash_data.setSink(classifySink);
     }
 
-    node.setKey1("x");
-    node.setKey2("y");
-    node.setSeedstart(1);
-    node.setSeedend(1000000);
-    node.setup(new OperatorConfiguration());
+    oper.setKey1("x");
+    oper.setKey2("y");
+    oper.setSeedstart(1);
+    oper.setSeedend(1000000);
+    oper.setup(new OperatorConfiguration());
 
-    Tuple bt = StramTestSupport.generateBeginWindowTuple("doesn't matter", 1);
-    inSink1.process(bt);
-    inSink2.process(bt);
+
+    oper.beginWindow();
 
     int numtuples = 50000000;
     if (isstring) {
@@ -109,9 +106,7 @@ public class SeedEventClassifierTest
       }
     }
 
-    Tuple et = StramTestSupport.generateEndWindowTuple("doesn't matter", 1, 1);
-    inSink1.process(et);
-    inSink2.process(et);
+    oper.endWindow();
 
     // Should get one bag of keys "a", "b", "c"
     try {

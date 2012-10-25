@@ -4,15 +4,12 @@
 package com.malhartech.lib.algo;
 
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.dag.OperatorContext;
 import com.malhartech.api.Sink;
-import com.malhartech.dag.Tuple;
-import com.malhartech.stream.StramTestSupport;
+import com.malhartech.dag.TestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -25,39 +22,22 @@ public class InvertIndexArrayTest
 {
   private static Logger LOG = LoggerFactory.getLogger(InvertIndexArray.class);
 
-  class TestSink implements Sink
-  {
-    ArrayList<Object> collectedTuples = new ArrayList<Object>();
-
-    @Override
-    public void process(Object payload)
-    {
-      if (payload instanceof Tuple) {
-        LOG.debug(payload.toString());
-      }
-      else {
-        collectedTuples.add(payload);
-      }
-    }
-  }
-
   /**
-   * Test node logic emits correct results
+   * Test oper logic emits correct results
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    InvertIndexArray node = new InvertIndexArray();
+    InvertIndexArray oper = new InvertIndexArray();
 
     TestSink indexSink = new TestSink();
 
-    Sink inSink = node.data.getSink();
-    node.index.setSink(indexSink);
-    node.setup(new OperatorConfiguration());
+    Sink inSink = oper.data.getSink();
+    oper.index.setSink(indexSink);
+    oper.setup(new OperatorConfiguration());
 
-    Tuple bt = StramTestSupport.generateBeginWindowTuple("doesn't matter", 1);
-    inSink.process(bt);
+    oper.beginWindow();
 
     HashMap<String, ArrayList> input = new HashMap<String, ArrayList>();
     ArrayList<String> alist = new ArrayList<String>();
@@ -74,8 +54,7 @@ public class InvertIndexArrayTest
     input.put("c", alist);
     inSink.process(input);
 
-    Tuple et = StramTestSupport.generateEndWindowTuple("doesn't matter", 1, 1);
-    inSink.process(et);
+    oper.endWindow();
     try {
       for (int i = 0; i < 10; i++) {
         Thread.sleep(5);

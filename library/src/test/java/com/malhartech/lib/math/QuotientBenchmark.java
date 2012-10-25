@@ -4,13 +4,9 @@
 package com.malhartech.lib.math;
 
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.api.Sink;
 import com.malhartech.dag.TestSink;
-import com.malhartech.dag.Tuple;
-import com.malhartech.stream.StramTestSupport;
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -21,7 +17,7 @@ import org.slf4j.LoggerFactory;
  */
 public class QuotientBenchmark
 {
-  private static Logger LOG = LoggerFactory.getLogger(Quotient.class);
+  private static Logger LOG = LoggerFactory.getLogger(QuotientBenchmark.class);
 
   /**
    * Test node logic emits correct results

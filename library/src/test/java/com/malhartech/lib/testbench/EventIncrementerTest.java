@@ -6,12 +6,9 @@ package com.malhartech.lib.testbench;
 import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
-import com.malhartech.stream.StramTestSupport;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +20,7 @@ import org.slf4j.LoggerFactory;
  * Processing tuples on seed port are at 3.5 Million tuples/sec<br>
  * Processing tuples on increment port are at 10 Million tuples/sec<br>
  * <br>
- * Validates all DRC checks of the node<br>
+ * Validates all DRC checks of the oper<br>
  */
 public class EventIncrementerTest
 {
@@ -86,21 +83,21 @@ public class EventIncrementerTest
   }
 
   /**
-   * Test node logic emits correct results
+   * Test oper logic emits correct results
    */
   @Test
   public void testNodeProcessing() throws Exception
   {
-    final EventIncrementer node = new EventIncrementer();
+    final EventIncrementer oper = new EventIncrementer();
 
     DataSink dataSink = new DataSink();
     CountSink countSink = new CountSink();
 
-    node.data.setSink(dataSink);
-    node.count.setSink(countSink);
+    oper.data.setSink(dataSink);
+    oper.count.setSink(countSink);
 
-    Sink seedSink = node.seed.getSink();
-    Sink incrSink = node.increment.getSink();
+    Sink seedSink = oper.seed.getSink();
+    Sink incrSink = oper.increment.getSink();
 
     ArrayList<String> keys = new ArrayList<String>(2);
     ArrayList<Double> low = new ArrayList<Double>(2);
@@ -111,14 +108,12 @@ public class EventIncrementerTest
     low.add(100.0);
     high.add(1.0);
     high.add(100.0);
-    node.setKeylimits(keys, low, high);
-    node.setDelta(1);
-    node.setup(new OperatorConfiguration());
+    oper.setKeylimits(keys, low, high);
+    oper.setDelta(1);
+    oper.setup(new OperatorConfiguration());
 
 
-    Tuple bt = StramTestSupport.generateBeginWindowTuple("doesn't matter", 1);
-    seedSink.process(bt);
-    incrSink.process(bt);
+    oper.beginWindow();
 
     HashMap<String, Object> stuple = new HashMap<String, Object>(1);
     //int numtuples = 100000000; // For benchmarking
@@ -132,9 +127,8 @@ public class EventIncrementerTest
       seedSink.process(stuple);
     }
 
-    Tuple et = StramTestSupport.generateEndWindowTuple("doesn't matter", 1, 1);
-    seedSink.process(et);
-    incrSink.process(et);
+
+    oper.endWindow();
 
     // Let the receiver get the tuples from the queue
     for (int i = 0; i < 20; i++) {
@@ -148,14 +142,13 @@ public class EventIncrementerTest
 
     LOG.debug(String.format("\n*************************\nEmitted %d tuples, Processed %d tuples, Received %d tuples\n******************\n",
                             numtuples,
-                            node.tuple_count,
+                            oper.tuple_count,
                             dataSink.count));
     for (Map.Entry<String, String> e: ((HashMap<String, String>)dataSink.collectedTuples).entrySet()) {
       LOG.debug(String.format("Got key (%s) and value (%s)", e.getKey(), e.getValue()));
     }
 
-    seedSink.process(bt);
-    incrSink.process(bt);
+    oper.beginWindow();
 
     HashMap<String, Object> ixtuple = new HashMap<String, Object>(1);
     HashMap<String, Integer> ixval = new HashMap<String, Integer>(1);
@@ -172,8 +165,7 @@ public class EventIncrementerTest
       incrSink.process(iytuple);
     }
 
-    seedSink.process(et);
-    incrSink.process(et);
+    oper.endWindow();
 
     // Let the receiver get the tuples from the queue
     for (int i = 0; i < 20; i++) {
@@ -187,7 +179,7 @@ public class EventIncrementerTest
 
     LOG.debug(String.format("\n*************************\nEmitted %d tuples, Processed %d tuples, Received %d tuples\n******************\n",
                             numtuples*2,
-                            node.tuple_count,
+                            oper.tuple_count,
                             countSink.count));
      for (Map.Entry<String, String> e: ((HashMap<String, String>)dataSink.collectedTuples).entrySet()) {
       LOG.debug(String.format("Got key (%s) and value (%s)", e.getKey(), e.getValue()));

@@ -5,14 +5,11 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.api.Sink;
-import com.malhartech.dag.OperatorContext;
 import com.malhartech.dag.Tuple;
 import com.malhartech.lib.testbench.*;
-import com.malhartech.stream.StramTestSupport;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TupleQueueTest
 {
-  private static Logger LOG = LoggerFactory.getLogger(EventGenerator.class);
+  private static Logger log = LoggerFactory.getLogger(TupleQueueTest.class);
 
   class QueueSink implements Sink
   {
@@ -86,26 +83,24 @@ public class TupleQueueTest
 
 
   /**
-   * Test node logic emits correct results
+   * Test oper logic emits correct results
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    final TupleQueue node = new TupleQueue();
+    final TupleQueue oper = new TupleQueue();
 
     QueueSink queueSink = new QueueSink();
     ConsoleSink consoleSink = new ConsoleSink();
 
-    Sink dataSink = node.data.getSink();
-    Sink querySink = node.query.getSink();
-    node.queue.setSink(queueSink);
-    node.console.setSink(consoleSink);
-    node.setup(new OperatorConfiguration());
+    Sink dataSink = oper.data.getSink();
+    Sink querySink = oper.query.getSink();
+    oper.queue.setSink(queueSink);
+    oper.console.setSink(consoleSink);
+    oper.setup(new OperatorConfiguration());
 
-    Tuple bt = StramTestSupport.generateBeginWindowTuple("doesn't matter", 1);
-    dataSink.process(bt);
-    querySink.process(bt);
+    oper.beginWindow();
 
     HashMap<String, Integer> dinput = null;
     int numtuples = 100;
@@ -116,14 +111,10 @@ public class TupleQueueTest
       dinput.put("c", new Integer(200+i));
       dataSink.process(dinput);
     }
-    Tuple et = StramTestSupport.generateEndWindowTuple("doesn't matter", 1, 1);
-    dataSink.process(et);
-    querySink.process(et);
 
-    bt = StramTestSupport.generateBeginWindowTuple("doesn't matter", 2);
-    dataSink.process(bt);
-    querySink.process(bt);
+    oper.endWindow();
 
+    oper.beginWindow();
     String key = "a";
     querySink.process(key);
     key = "b";
@@ -131,12 +122,10 @@ public class TupleQueueTest
     key = "c";
     querySink.process(key);
 
-    et = StramTestSupport.generateEndWindowTuple("doesn't matter", 2, 1);
-    dataSink.process(et);
-    querySink.process(et);
 
-    Thread.sleep(100);
-    LOG.debug(String.format("\n*************************\nQueue had %d tuples\n", queueSink.count));
-    LOG.debug(consoleSink.print());
+    oper.endWindow();
+
+    log.debug(String.format("\n*************************\nQueue had %d tuples\n", queueSink.count));
+    log.debug(consoleSink.print());
   }
 }
