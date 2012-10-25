@@ -4,8 +4,6 @@
  */
 package com.malhartech.contrib.zmq;
 
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.junit.Assert;
@@ -23,30 +21,35 @@ import com.malhartech.dag.TestSink;
  */
 public class ZeroMQInputOperatorTest
 {
+  String pubAddr = "tcp://*:5556";
+  String syncAddr = "tcp://*:5557";
   private static Logger logger = LoggerFactory.getLogger(ZeroMQInputOperatorTest.class);
 
   private static final class TestZeroMQInputOperator extends AbstractZeroMQInputOperator<String>
   {
     @Override
-    public void emitMessage(byte[] message) {
+    public void emitMessage(byte[] message)
+    {
 //    logger.debug(new String(payload));
       outputPort.emit(new String(message));
-   }
+    }
   }
 
-  private static final class ZeroMQMessageGenerator
+  private final class ZeroMQMessageGenerator
   {
     private ZMQ.Context context;
     private ZMQ.Socket publisher;
-    private String addr;
+    private ZMQ.Socket syncservice;
+    private final int SUBSCRIBERS_EXPECTED = 1;
 
     public void setup()
     {
       context = ZMQ.context(1);
       logger.debug("Publishing on ZeroMQ");
       publisher = context.socket(ZMQ.PUB);
-      addr = "tcp://*:5556";
-      publisher.bind(addr);
+      publisher.bind(pubAddr);
+      syncservice = context.socket(ZMQ.REP);
+      syncservice.bind(syncAddr);
     }
 
     public void process(Object payload)
@@ -62,9 +65,14 @@ public class ZeroMQInputOperatorTest
       context.term();
     }
 
-    public void generateMessages(int msgCount) throws InterruptedException {
-      Thread.sleep(500); // TODO: should not be here
-      for( int i=0; i<msgCount; i++ ) {
+    public void generateMessages(int msgCount) throws InterruptedException
+    {
+//      Thread.sleep(500); // TODO: should not be here
+      for( int subscribers=0; subscribers<SUBSCRIBERS_EXPECTED; subscribers++ ) {
+        byte[] value = syncservice.recv(0);
+        syncservice.send("".getBytes(), 0);
+      }
+      for (int i = 0; i < msgCount; i++) {
         HashMap<String, Integer> dataMapa = new HashMap<String, Integer>();
         dataMapa.put("a", 2);
         process(dataMapa);
@@ -81,37 +89,38 @@ public class ZeroMQInputOperatorTest
   }
 
   @Test
-  public void testProcess() throws Exception {
+  public void testProcess() throws Exception
+  {
+    final int testNum = 3;
+    Thread generatorThread = new Thread()
+    {
+      @Override
+      public void run()
+      {
+        // data generator with separate thread to external zmq server
+        ZeroMQMessageGenerator publisher = new ZeroMQMessageGenerator();
+        publisher.setup();
+        try {
+          publisher.generateMessages(testNum);
+        }
+        catch (InterruptedException ex) {
+          logger.debug("generator exiting", ex);
+        }
+        finally {
+          publisher.teardown();
+        }
+      }
+    };
+    generatorThread.start();
 
     final TestZeroMQInputOperator node = new TestZeroMQInputOperator();
-    final int testNum = 3;
 
     TestSink<String> testSink = new TestSink<String>();
     node.outputPort.setSink(testSink);
 
-/*
-    config = new OperatorConfiguration();
-    config.set("user", "");
-    config.set("password", "");
-    config.set("url", "tcp://localhost:5556");
-    config.set("filter", "");
-    config.set("ackMode", "AUTO_ACKNOWLEDGE");
-    config.set("clientId", "consumer1");
-    config.set("consumerName", "ChetanConsumer");
-    config.set("durable", "false");
-    config.set("maximumMessages", "10");
-    config.set("pauseBeforeShutdown", "true");
-    config.set("receiveTimeOut", "0");
-    config.set("sleepTime", "1000");
-    config.set("subject", "TEST.FOO");
-    config.set("parallelThreads", "1");
-    config.set("topic", "false");
-    config.set("transacted", "false");
-    config.set("verbose", "true");
-    config.set("batch", "10");
-*/
     node.setFilter("");
-    node.setUrl(new String("tcp://localhost:5556"));
+    node.setUrl("tcp://localhost:5556");
+    node.setSyncUrl("tcp://localhost:5557");
 
     node.setup(new OperatorConfiguration());
 
@@ -125,27 +134,7 @@ public class ZeroMQInputOperatorTest
     };
     nodeThread.start();
 
-    Thread generatorThread = new Thread()
-    {
-      @Override
-      public void run()
-      {
-        // data generator with separate thread to external zmq server
-        ZeroMQMessageGenerator publisher = new ZeroMQMessageGenerator();
-        publisher.setup();
-        try {
-          publisher.generateMessages(testNum);
-        } catch (InterruptedException ex) {
-          logger.debug("generator exiting", ex);
-        } finally {
-          publisher.teardown();
-        }
-      }
-    };
-    generatorThread.start();
-
-    testSink.waitForResultCount(testNum*3, 3000);
-    logger.debug("tuple size:"+testSink.collectedTuples.size());
+    testSink.waitForResultCount(testNum * 3, 3000);
     Assert.assertTrue("tuple emmitted", testSink.collectedTuples.size() > 0);
 
     Assert.assertEquals("emitted value for testNum was ", testNum * 3, testSink.collectedTuples.size());
@@ -167,10 +156,8 @@ public class ZeroMQInputOperatorTest
 
     //long end = System.currentTimeMillis();
     // logger.debug("execution time:"+(end-begin)+" ms");
-
     generatorThread.interrupt();
-    node.teardown();
-    logger.debug("end of test sent " + testSink.collectedTuples.size() + " messages");
-
-  }
+     node.teardown();
+     logger.debug("end of test sent " + testSink.collectedTuples.size() + " messages");
+ }
 }

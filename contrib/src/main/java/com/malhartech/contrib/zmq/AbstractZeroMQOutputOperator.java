@@ -18,30 +18,64 @@ import org.zeromq.ZMQ;
 public class AbstractZeroMQOutputOperator<T> extends BaseOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractZeroMQInputOperator.class);
-  private boolean transacted;
-  private int maxiumMessages;
-  private int receiveTimeOut;
+  private String url;
+  private String syncUrl;
   private ZMQ.Context context;
   private ZMQ.Socket publisher;
-  private String addr;
+  protected ZMQ.Socket syncservice;
+  private boolean isSynced;
+  protected int SUBSCRIBERS_EXPECTED;
+
+  public void setUrl(String url)
+  {
+    this.url = url;
+  }
+
+  public void setSyncUrl(String syncUrl)
+  {
+    this.syncUrl = syncUrl;
+  }
+
+  public void setIsSynced(boolean isSynced)
+  {
+    this.isSynced = isSynced;
+  }
+
+  public boolean getIsSynced()
+  {
+    return isSynced;
+  }
+
+  public void setSUBSCRIBERS_EXPECTED(int expected)
+  {
+    SUBSCRIBERS_EXPECTED = expected;
+  }
+
+  public int getSUBSCRIBERS_EXPECTED()
+  {
+    return SUBSCRIBERS_EXPECTED;
+  }
 
   @Override
   public void setup(OperatorConfiguration config)
   {
     super.setup(config);
-    //setupConnection(config);
     context = ZMQ.context(1);
-    logger.debug("Publishing on ZeroMQ");
     publisher = context.socket(ZMQ.PUB);
-    addr = config.get("url");
-    publisher.bind(addr);
-
-    maxiumMessages = config.getInt("maximumMessages", 0);
-    receiveTimeOut = config.getInt("receiveTimeOut", 0);
-    transacted = config.getBoolean("transacted", false);
+    publisher.bind(url);
+    syncservice = context.socket(ZMQ.REP);
+    syncservice.bind(syncUrl);
   }
+  // necessary for publisher side to synchronize publisher and subscriber, must run after setup()
 
-  public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>(this)
+  public void startSyncJob()
+  {
+    for (int subscribers = 0; subscribers < SUBSCRIBERS_EXPECTED; subscribers++) {
+      byte[] value = syncservice.recv(0);
+      syncservice.send("".getBytes(), 0);
+    }
+  }
+  public final transient DefaultInputPort<T> input = new DefaultInputPort<T>(this)
   {
     @Override
     public void process(Object payload)
@@ -51,35 +85,10 @@ public class AbstractZeroMQOutputOperator<T> extends BaseOperator
     }
   };
 
-/*  //@Override
-  public void process(Object payload)
-  {
-    // convert payload to message
-    String msg = payload.toString();
-    publisher.send(msg.getBytes(), 0);
-  }*/
-  /*
-  @Override
-  public void process(Object payload)
-  {
-    while(true) {
-      String data = "abc";
-      logger.debug("publishing data:"+data);
-      publisher.send(data.getBytes(), 0);
-      try {
-        Thread.sleep(1000);
-      }
-      catch (InterruptedException ex) {
-        java.util.logging.Logger.getLogger(AbstractZeroMQOutputOperator.class.getName()).log(Level.SEVERE, null, ex);
-      }
-    }
-    //throw new UnsupportedOperationException("Not supported yet.");
-  }
-*/
   @Override
   public void teardown()
   {
-      publisher.close();
-      context.term();
+    publisher.close();
+    context.term();
   }
 }

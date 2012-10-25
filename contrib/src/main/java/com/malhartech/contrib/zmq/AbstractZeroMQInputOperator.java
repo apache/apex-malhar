@@ -4,8 +4,6 @@
  */
 package com.malhartech.contrib.zmq;
 
-import java.net.URL;
-
 import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
@@ -25,21 +23,25 @@ import com.malhartech.api.SyncInputOperator;
 public abstract class AbstractZeroMQInputOperator<T> extends BaseOperator implements SyncInputOperator, Runnable
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractZeroMQInputOperator.class);
-  private URL url;
+  private String url;
+  private String syncUrl;
   private String filter;
   protected ZMQ.Context context;
   protected ZMQ.Socket subscriber;
-  protected Thread thr =null;
+  protected ZMQ.Socket syncclient;
   volatile boolean running = false;
 
   @OutputPortFieldAnnotation(name="outputPort")
   final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>(this);
 
   @NotNull
-  public void setUrl(URL url) {
+  public void setUrl(String url) {
     this.url = url;
   }
-
+  @NotNull
+  public void setSyncUrl(String url) {
+    this.syncUrl = url;
+  }
   @NotNull
   public void setFilter(String filter) {
     this.filter = filter;
@@ -51,8 +53,11 @@ public abstract class AbstractZeroMQInputOperator<T> extends BaseOperator implem
     super.setup(config);
     context = ZMQ.context(1);
     subscriber = context.socket(ZMQ.SUB);
-    subscriber.connect(url.toExternalForm());
+    subscriber.connect(url);
     subscriber.subscribe(filter.getBytes());
+    syncclient = context.socket(ZMQ.REQ);
+    syncclient.connect(syncUrl);
+    syncclient.send("".getBytes(), 0);
   }
 
   public abstract void emitMessage(byte[] message);
@@ -68,11 +73,12 @@ public abstract class AbstractZeroMQInputOperator<T> extends BaseOperator implem
     while(running) {
       try{
           byte[] message = subscriber.recv(0);
-          if( message!= null )
+          if( message!= null ) {
             onMessage(message);
+          }
       }
       catch(Exception e){
-        logger.debug(e.toString());
+//        logger.debug(e.toString());
       }
     }
   }
@@ -85,6 +91,7 @@ public abstract class AbstractZeroMQInputOperator<T> extends BaseOperator implem
   {
       running = false;
       subscriber.close();
+      syncclient.close();
       context.term();
   }
 
