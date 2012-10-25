@@ -5,6 +5,7 @@ package com.malhartech.lib.math;
 
 import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.api.Sink;
+import com.malhartech.dag.TestCountAndLastTupleSink;
 import com.malhartech.dag.Tuple;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,23 +22,6 @@ public class MinValueBenchmark
 {
   private static Logger log = LoggerFactory.getLogger(MinValueBenchmark.class);
 
-  class TestSink implements Sink
-  {
-    Object tuple = null;
-    int count = 0;
-
-    @Override
-    public void process(Object payload)
-    {
-      if (payload instanceof Tuple) {
-      }
-      else {
-        tuple = payload;
-        count++;
-      }
-    }
-  }
-
   /**
    * Test oper logic emits correct results
    */
@@ -46,7 +30,7 @@ public class MinValueBenchmark
   public void testNodeSchemaProcessing()
   {
     MinValue<Double> oper = new MinValue<Double>();
-    TestSink minSink = new TestSink();
+    TestCountAndLastTupleSink minSink = new TestCountAndLastTupleSink();
     oper.min.setSink(minSink);
 
     // Not needed, but still setup is being called as a matter of discipline

@@ -9,6 +9,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.MutableDouble;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,10 +27,11 @@ import java.util.Map;
  * None<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * Min operator processes >15 million tuples/sec. The processing is high as it only emits one tuple per window, and is not bound by outbound throughput<br>
  *<br>
  * @author amol
  */
-public class Max<K, V extends Number> extends BaseOperator
+public class Max<K, V extends Number> extends BaseNumberOperator<V>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
@@ -42,19 +44,21 @@ public class Max<K, V extends Number> extends BaseOperator
         if (e.getValue() == null) {
           continue;
         }
-        V val = high.get(e.getKey());
+        MutableDouble val = high.get(e.getKey());
         if (val == null) {
+          val = new MutableDouble(e.getValue().doubleValue());
+          high.put(e.getKey(), val);
           ; // TBD
         }
-        if (val.doubleValue() < e.getValue().doubleValue()) {
-          high.put(key, e.getValue());
+        if (val.value < e.getValue().doubleValue()) {
+          val.value = e.getValue().doubleValue();
         }
       }
     }
   };
   @OutputPortFieldAnnotation(name = "max")
   public final transient DefaultOutputPort<HashMap<K,V>> max = new DefaultOutputPort<HashMap<K,V>>(this);
-  HashMap<K,V> high = new HashMap<K,V>();
+  HashMap<K,MutableDouble> high = new HashMap<K,MutableDouble>();
 
   @Override
   public void beginWindow()
@@ -69,7 +73,11 @@ public class Max<K, V extends Number> extends BaseOperator
   public void endWindow()
   {
     if (!high.isEmpty()) {
-      max.emit(high);
+      HashMap<K, V> tuple = new HashMap<K, V>(high.size());
+      for (Map.Entry<K,MutableDouble> e: high.entrySet()) {
+        tuple.put(e.getKey(), getValue(e.getValue().value));
+      }
+      max.emit(tuple);
     }
   }
 }

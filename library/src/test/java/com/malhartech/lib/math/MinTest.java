@@ -5,6 +5,7 @@ package com.malhartech.lib.math;
 
 import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.api.Sink;
+import com.malhartech.dag.TestCountAndLastTupleSink;
 import com.malhartech.dag.TestSink;
 import com.malhartech.dag.Tuple;
 import java.util.HashMap;
@@ -38,7 +39,7 @@ public class MinTest
    */
   public void testSchemaNodeProcessing(Min oper, String type) throws InterruptedException
   {
-    TestSink minSink = new TestSink();
+    TestCountAndLastTupleSink minSink = new TestCountAndLastTupleSink();
     oper.min.setSink(minSink);
     oper.setup(new OperatorConfiguration());
 
@@ -83,9 +84,8 @@ public class MinTest
     }
     oper.endWindow();
 
-    minSink.waitForResultCount(1, 10);
-    Assert.assertEquals("number emitted tuples", 1, minSink.collectedTuples.size());
-    HashMap<String, Number> shash = (HashMap<String, Number>) minSink.collectedTuples.get(0);
+    Assert.assertEquals("number emitted tuples", 1, minSink.count);
+    HashMap<String, Number> shash = (HashMap<String, Number>) minSink.tuple;
     Number val = shash.get("a");
     Assert.assertEquals("number emitted tuples", 1, shash.size());
     Assert.assertEquals("emitted min value was ", new Double(0.0), val);

@@ -35,7 +35,7 @@ import java.util.Map;
  * <b>Benchmarks</b><br>
  * <br>
  * Benchmarks:<br>
- * With HashMap schema the node does about 3 Million/tuples per second<br>
+ * The operator does 20 million tuples/sec as it only emits one per end of window, and is not bounded by outbound I/O<br>
  * <br>
  * <br>
  * @author amol<br>

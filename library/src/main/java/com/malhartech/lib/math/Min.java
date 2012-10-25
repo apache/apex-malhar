@@ -28,7 +28,7 @@ import java.util.Map;
  * None<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Min operator processes about 25 million tuples/sec. The processing is high as it only emits one tuple per window, and is not bound by outbound throughput<br>
+ * Min operator processes >15 million tuples/sec. The processing is high as it only emits one tuple per window, and is not bound by outbound throughput<br>
  *<br>
  * @author amol
  */

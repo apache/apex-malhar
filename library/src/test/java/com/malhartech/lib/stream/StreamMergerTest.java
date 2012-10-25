@@ -41,6 +41,6 @@ public class StreamMergerTest
 
     oper.endWindow();
 
-    log.debug(String.format("\n********************\nProcessed %d tuples\n********************\n", mergeSink.numTuples));
+    log.debug(String.format("\n********************\nProcessed %d tuples\n********************\n", mergeSink.count));
   }
 }

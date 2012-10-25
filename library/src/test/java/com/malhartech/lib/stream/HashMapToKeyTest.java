@@ -48,10 +48,10 @@ public class HashMapToKeyTest {
 
       oper.endWindow();
 
-      Assert.assertEquals("number emitted tuples", numtuples, keySink.numTuples.intValue());
-      Assert.assertEquals("number emitted tuples", numtuples, valSink.numTuples.intValue());
-      Assert.assertEquals("number emitted tuples", numtuples, keyvalSink.numTuples.intValue());
+      Assert.assertEquals("number emitted tuples", numtuples, keySink.count);
+      Assert.assertEquals("number emitted tuples", numtuples, valSink.count);
+      Assert.assertEquals("number emitted tuples", numtuples, keyvalSink.count);
       log.debug(String.format("\n********************\nProcessed %d tuples\n********************\n",
-                              keySink.numTuples.intValue()+valSink.numTuples.intValue()+keyvalSink.numTuples.intValue()));
+                              keySink.count+valSink.count+keyvalSink.count));
     }
 }

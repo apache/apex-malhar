@@ -55,8 +55,6 @@ public class SumBenchmark
     }
 
     oper.endWindow(); //
-    sumSink.waitForResultCount(1, 10);
-    countSink.waitForResultCount(1, 10);
 
     HashMap<String, Double> dhash = (HashMap<String, Double>) sumSink.collectedTuples.get(0);
     HashMap<String, Double> ahash = (HashMap<String, Double>) averageSink.collectedTuples.get(0);

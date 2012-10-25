@@ -37,7 +37,7 @@ public class BaseMatchOperator<K> extends BaseOperator
   @InjectConfig(key = "key")
   private K key;
 
-  @Pattern(regexp = "lte|lt|eq|ne|gt|gte", message = "Value has to be one of lte, lt, eq, ne, gt, gte")
+  @Pattern(regexp = "lte|lt|eq|ne|gt|gte", message = "Value has to be one of \"lte\", \"lt\", \"eq\", \"ne\", \"gt\", \"gte\"")
   @InjectConfig(key = "cmp")
   private String cmp;
 
@@ -60,6 +60,8 @@ public class BaseMatchOperator<K> extends BaseOperator
   {
     return key;
   }
+
+
 
   public void setValue(double value) {
     this.value = value;

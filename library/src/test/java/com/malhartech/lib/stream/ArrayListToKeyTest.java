@@ -41,7 +41,7 @@ public class ArrayListToKeyTest {
       }
 
       oper.endWindow();
-      Assert.assertEquals("number emitted tuples", numtuples, itemSink.numTuples.intValue());
-      log.debug(String.format("\n********************\nProcessed %d tuples\n********************\n", itemSink.numTuples.intValue()));
+      Assert.assertEquals("number emitted tuples", numtuples, itemSink.count);
+      log.debug(String.format("\n********************\nProcessed %d tuples\n********************\n", itemSink.count));
     }
 }

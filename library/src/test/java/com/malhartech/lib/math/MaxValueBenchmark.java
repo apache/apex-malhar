@@ -7,35 +7,36 @@ import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.TestCountAndLastTupleSink;
 import com.malhartech.dag.Tuple;
-import java.util.ArrayList;
-import java.util.List;
-import junit.framework.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  *
  */
-public class MinValueTest
+public class MaxValueBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(Sum.class);
-
+  private static Logger log = LoggerFactory.getLogger(MaxValueBenchmark.class);
 
   /**
    * Test oper logic emits correct results
    */
   @Test
-  public void testNodeSchemaProcessing()
+  @Category(com.malhartech.PerformanceTestCategory.class)
+  public void testNodeProcessing()
   {
-    MinValue<Double> oper = new MinValue<Double>();
-    TestCountAndLastTupleSink minSink = new TestCountAndLastTupleSink();
-    oper.min.setSink(minSink);
+    MaxValue<Double> oper = new MaxValue<Double>();
+    TestCountAndLastTupleSink maxSink = new TestCountAndLastTupleSink();
+
+    oper.max.setSink(maxSink);
 
     // Not needed, but still setup is being called as a matter of discipline
     oper.setup(new OperatorConfiguration());
     oper.beginWindow(); //
 
+    int numTuples = 100000000;
+    for (int i = 0; i < numTuples; i++) {
     Double a = new Double(2.0);
     Double b = new Double(20.0);
     Double c = new Double(1000.0);
@@ -64,12 +65,10 @@ public class MinValueTest
     oper.data.process(b);
     a = 23.0;
     oper.data.process(a);
+    }
 
     oper.endWindow(); //
-
-
-    // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
-    Assert.assertEquals("number emitted tuples", 1, minSink.count);
-    Assert.assertEquals("emitted high value was ", new Double(1.0), (Double) minSink.tuple);
+    log.debug(String.format("\nBenchmark for %d tuples; expected 1.0, got %f from %d tuples", numTuples*12,
+                            (Double) maxSink.tuple, maxSink.count));
   }
 }
