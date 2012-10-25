@@ -23,7 +23,6 @@ import com.malhartech.dag.TestSink;
  */
 public class ZeroMQInputOperatorTest
 {
-  static ArrayList<String> recvList = new ArrayList<String>();
   private static Logger logger = LoggerFactory.getLogger(ZeroMQInputOperatorTest.class);
 
   private static final class TestZeroMQInputOperator extends AbstractZeroMQInputOperator<String>
@@ -64,7 +63,7 @@ public class ZeroMQInputOperatorTest
     }
 
     public void generateMessages(int msgCount) throws InterruptedException {
-      Thread.sleep(100); // TODO: should not be here
+      Thread.sleep(500); // TODO: should not be here
       for( int i=0; i<msgCount; i++ ) {
         HashMap<String, Integer> dataMapa = new HashMap<String, Integer>();
         dataMapa.put("a", 2);
@@ -79,7 +78,6 @@ public class ZeroMQInputOperatorTest
         process(dataMapc);
       }
     }
-
   }
 
   @Test
@@ -113,7 +111,7 @@ public class ZeroMQInputOperatorTest
     config.set("batch", "10");
 */
     node.setFilter("");
-    node.setUrl(new URL("tcp://localhost:5556"));
+    node.setUrl(new String("tcp://localhost:5556"));
 
     node.setup(new OperatorConfiguration());
 
@@ -147,6 +145,7 @@ public class ZeroMQInputOperatorTest
     generatorThread.start();
 
     testSink.waitForResultCount(testNum*3, 3000);
+    logger.debug("tuple size:"+testSink.collectedTuples.size());
     Assert.assertTrue("tuple emmitted", testSink.collectedTuples.size() > 0);
 
     Assert.assertEquals("emitted value for testNum was ", testNum * 3, testSink.collectedTuples.size());
