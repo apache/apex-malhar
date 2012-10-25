@@ -24,7 +24,7 @@ public class RandomWordInputModule implements AsyncInputOperator
 //  int totalIterations = 0;
 
   @Override
-  public void injectTuples(long windowId)
+  public void emitTuples(long windowId)
   {
     if (windowId == lastWindowId) {
       output.emit(new byte[64]);

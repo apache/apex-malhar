@@ -77,7 +77,7 @@ public class RandomEventGenerator extends BaseOperator implements AsyncInputOper
   }
 
   @Override
-  public void injectTuples(long windowId)
+  public void emitTuples(long windowId)
   {
     int range = max_value - min_value + 1;
     int i = 0;

@@ -15,7 +15,7 @@ import twitter4j.URLEntity;
 public class TwitterAsyncSampleInput extends TwitterSampleInput implements AsyncInputOperator
 {
   @Override
-  public void injectTuples(long windowId)
+  public void emitTuples(long windowId)
   {
     for (int size = statuses.size(); size-- > 0;) {
       Status s = statuses.poll();

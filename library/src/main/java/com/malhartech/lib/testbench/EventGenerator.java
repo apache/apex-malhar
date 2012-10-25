@@ -196,7 +196,7 @@ public class EventGenerator implements AsyncInputOperator
   }
 
   @Override
-  public void injectTuples(long windowId)
+  public void emitTuples(long windowId)
   {
     int j = 0;
 

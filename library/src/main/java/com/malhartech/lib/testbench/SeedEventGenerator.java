@@ -88,7 +88,7 @@ public class SeedEventGenerator extends BaseOperator implements AsyncInputOperat
   }
 
   @Override
-  public void injectTuples(long windowId)
+  public void emitTuples(long windowId)
   {
     int lstart = s_start;
     int lend = s_end;
