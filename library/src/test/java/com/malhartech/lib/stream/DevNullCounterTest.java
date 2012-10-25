@@ -16,8 +16,8 @@ import org.slf4j.LoggerFactory;
  *
  * Functional tests for {@link com.malhartech.lib.testbench.DevNullCounter}. <p>
  * <br>
- * node.process is called a billion times<br>
- * With extremely high throughput it does not impact the performance of any other node
+ * oper.process is called a billion times<br>
+ * With extremely high throughput it does not impact the performance of any other oper
  * <br>
  *  Benchmarks:<br>
  * Object payload benchmarked at over 125 Million/sec
@@ -36,18 +36,18 @@ public class DevNullCounterTest {
   @Test
   public void testSingleSchemaNodeProcessing() throws Exception
   {
-    DevNullCounter node = new DevNullCounter();
-    node.setup(new OperatorConfiguration());
-    node.setRollingwindowcount(5);
+    DevNullCounter oper = new DevNullCounter();
+    oper.setRollingwindowcount(5);
+    oper.setup(new OperatorConfiguration());
 
 
-    node.beginWindow();
+    oper.beginWindow();
     long numtuples = 1000000000;
     Object o = new Object();
     for (long i = 0; i < numtuples; i++) {
-      node.data.process(o);
+      oper.data.process(o);
     }
-    node.endWindow();
+    oper.endWindow();
     LOG.info(String.format("\n*******************************************************\nnumtuples(%d)",  numtuples));
   }
 }

@@ -4,9 +4,7 @@
 package com.malhartech.lib.stream;
 
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.api.Sink;
-import com.malhartech.dag.Tuple;
-import com.malhartech.stream.StramTestSupport;
+import com.malhartech.dag.TestCountSink;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -20,80 +18,40 @@ import org.slf4j.LoggerFactory;
  */
 public class HashMapToKeyTest {
 
-    private static Logger LOG = LoggerFactory.getLogger(StreamMerger.class);
+    private static Logger log = LoggerFactory.getLogger(HashMapToKeyTest.class);
 
-    class TestSink implements Sink {
-        int count = 0;
-
-        /**
-         *
-         * @param payload
-         */
-        @Override
-        public void process(Object payload) {
-          if (payload instanceof Tuple) {
-          }
-          else {
-            count++;
-          }
-        }
-    }
 
     /**
-     * Test node pass through. The Object passed is not relevant
+     * Test oper pass through. The Object passed is not relevant
      */
     @Test
     public void testNodeProcessing() throws Exception
     {
-      HashMapToKey node = new HashMapToKey();
-      TestSink keySink = new TestSink();
-      TestSink valSink = new TestSink();
-      TestSink keyvalSink = new TestSink();
-      Sink inSink = node.data.getSink();
-      node.key.setSink(keySink);
-      node.val.setSink(valSink);
-      node.keyval.setSink(keyvalSink);
-      node.setup(new OperatorConfiguration());
+      HashMapToKey oper = new HashMapToKey();
+      TestCountSink keySink = new TestCountSink();
+      TestCountSink valSink = new TestCountSink();
+      TestCountSink keyvalSink = new TestCountSink();
 
-      Tuple bt = StramTestSupport.generateBeginWindowTuple("doesn't matter", 1);
-      inSink.process(bt);
+      oper.key.setSink(keySink);
+      oper.val.setSink(valSink);
+      oper.keyval.setSink(keyvalSink);
+      oper.setup(new OperatorConfiguration());
 
+      oper.beginWindow();
       HashMap<String,String> input = new HashMap<String,String>();
       input.put("a", "1");
-      // Same input object can be used as the node is just pass through
+      // Same input object can be used as the oper is just pass through
       int numtuples = 50000000;
       for (int i = 0; i < numtuples; i++) {
-        inSink.process(input);
-      }
-      Tuple et = StramTestSupport.generateEndWindowTuple("doesn't matter", 1, 1);
-      inSink.process(et);
-
-      // Should get one bag of keys "a", "b", "c"
-      try {
-        for (int i = 0; i < 100; i++) {
-          Thread.sleep(10);
-          if (keySink.count >= numtuples*2 - 1) {
-            break;
-          }
-        }
-      }
-      catch (InterruptedException ex) {
-        LOG.debug(ex.getLocalizedMessage());
+        oper.data.process(input);
       }
 
-      // just sleep some more, for all tuples to flush out
-      for (int i = 0; i < 200; i++) {
-        try {
-          Thread.sleep(1);
-        }
-        catch (InterruptedException e) {
-          LOG.error("Unexpected error while sleeping for 1 s", e);
-        }
-      }
+      oper.endWindow();
 
-      Assert.assertEquals("number emitted tuples", numtuples, keySink.count);
-      Assert.assertEquals("number emitted tuples", numtuples, valSink.count);
-      Assert.assertEquals("number emitted tuples", numtuples, keyvalSink.count);
-      LOG.debug(String.format("\n********************\nProcessed %d tuples\n********************\n", keySink.count+valSink.count+keyvalSink.count));
+      Assert.assertEquals("number emitted tuples", numtuples, keySink.numTuples.intValue());
+      Assert.assertEquals("number emitted tuples", numtuples, valSink.numTuples.intValue());
+      Assert.assertEquals("number emitted tuples", numtuples, keyvalSink.numTuples.intValue());
+      log.debug(String.format("\n********************\nProcessed %d tuples\n********************\n",
+                              keySink.numTuples.intValue()+valSink.numTuples.intValue()+keyvalSink.numTuples.intValue()));
     }
 }
