@@ -4,6 +4,7 @@
  */
 package com.malhartech.contrib.zmq;
 
+import com.malhartech.annotation.InjectConfig;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.OperatorConfiguration;
@@ -18,12 +19,14 @@ import org.zeromq.ZMQ;
 public class AbstractZeroMQOutputOperator<T> extends BaseOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractZeroMQInputOperator.class);
-  private String url;
-  private String syncUrl;
   private ZMQ.Context context;
   private ZMQ.Socket publisher;
   protected ZMQ.Socket syncservice;
-  private boolean isSynced;
+  @InjectConfig(key = "url")
+  private String url;
+  @InjectConfig(key = "syncUrl")
+  private String syncUrl;
+  @InjectConfig(key = "SUBSCRIBERS_EXPECTED")
   protected int SUBSCRIBERS_EXPECTED;
 
   public void setUrl(String url)
@@ -34,16 +37,6 @@ public class AbstractZeroMQOutputOperator<T> extends BaseOperator
   public void setSyncUrl(String syncUrl)
   {
     this.syncUrl = syncUrl;
-  }
-
-  public void setIsSynced(boolean isSynced)
-  {
-    this.isSynced = isSynced;
-  }
-
-  public boolean getIsSynced()
-  {
-    return isSynced;
   }
 
   public void setSUBSCRIBERS_EXPECTED(int expected)

@@ -4,6 +4,7 @@
  */
 package com.malhartech.contrib.zmq;
 
+import com.malhartech.annotation.InjectConfig;
 import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
@@ -23,27 +24,34 @@ import com.malhartech.api.SyncInputOperator;
 public abstract class AbstractZeroMQInputOperator<T> extends BaseOperator implements SyncInputOperator, Runnable
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractZeroMQInputOperator.class);
-  private String url;
-  private String syncUrl;
-  private String filter;
   protected ZMQ.Context context;
   protected ZMQ.Socket subscriber;
   protected ZMQ.Socket syncclient;
-  volatile boolean running = false;
-
-  @OutputPortFieldAnnotation(name="outputPort")
+  @InjectConfig(key = "url")
+  private String url;
+  @InjectConfig(key = "syncUrl")
+  private String syncUrl;
+  @InjectConfig(key = "filter")
+  private String filter;
+  private volatile boolean running = false;
+  @OutputPortFieldAnnotation(name = "outputPort")
   final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>(this);
 
   @NotNull
-  public void setUrl(String url) {
+  public void setUrl(String url)
+  {
     this.url = url;
   }
+
   @NotNull
-  public void setSyncUrl(String url) {
+  public void setSyncUrl(String url)
+  {
     this.syncUrl = url;
   }
+
   @NotNull
-  public void setFilter(String filter) {
+  public void setFilter(String filter)
+  {
     this.filter = filter;
   }
 
@@ -63,36 +71,40 @@ public abstract class AbstractZeroMQInputOperator<T> extends BaseOperator implem
   public abstract void emitMessage(byte[] message);
 
   @Override
-  public Runnable getDataPoller() {
+  public Runnable getDataPoller()
+  {
     return this;
   }
 
   @Override
-  public void run() {
+  public void run()
+  {
     running = true;
-    while(running) {
-      try{
-          byte[] message = subscriber.recv(0);
-          if( message!= null ) {
-            onMessage(message);
-          }
+    while (running) {
+      try {
+        byte[] message = subscriber.recv(0);
+        if (message != null) {
+          onMessage(message);
+        }
       }
-      catch(Exception e){
+      catch (Exception e) {
 //        logger.debug(e.toString());
+        break;
       }
     }
   }
 
-  public void onMessage(byte[] message) {
+  public void onMessage(byte[] message)
+  {
     emitMessage(message);
   }
+
   @Override
   public void teardown()
   {
-      running = false;
-      subscriber.close();
-      syncclient.close();
-      context.term();
+    running = false;
+    subscriber.close();
+    syncclient.close();
+    context.term();
   }
-
 }
