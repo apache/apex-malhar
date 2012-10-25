@@ -5,6 +5,7 @@ package com.malhartech.lib.math;
 
 import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.api.Sink;
+import com.malhartech.dag.TestCountAndLastTupleSink;
 import com.malhartech.dag.TestSink;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +21,6 @@ public class MarginTest
 {
   private static Logger LOG = LoggerFactory.getLogger(Margin.class);
 
-
   /**
    * Test node logic emits correct results
    */
@@ -29,11 +29,15 @@ public class MarginTest
   public void testNodeProcessing() throws Exception
   {
     testNodeProcessingSchema(new Margin<String, Integer>());
+    testNodeProcessingSchema(new Margin<String, Double>());
+    testNodeProcessingSchema(new Margin<String, Float>());
+    testNodeProcessingSchema(new Margin<String, Short>());
+    testNodeProcessingSchema(new Margin<String, Long>());
   }
 
   public void testNodeProcessingSchema(Margin oper)
   {
-    TestSink marginSink = new TestSink();
+    TestCountAndLastTupleSink marginSink = new TestCountAndLastTupleSink();
 
     oper.margin.setSink(marginSink);
     oper.setup(new OperatorConfiguration());
@@ -54,24 +58,22 @@ public class MarginTest
     oper.endWindow();
 
     // One for each key
-    Assert.assertEquals("number emitted tuples", 1, marginSink.collectedTuples.size());
+    Assert.assertEquals("number emitted tuples", 1, marginSink.count);
 
-    for (Object o: marginSink.collectedTuples) {
-      HashMap<String, Number> output = (HashMap<String, Number>)o;
-      for (Map.Entry<String, Number> e: output.entrySet()) {
-        LOG.debug(String.format("Key, value is %s,%f", e.getKey(), e.getValue().doubleValue()));
-        if (e.getKey().equals("a")) {
-          Assert.assertEquals("emitted value for 'a' was ", new Double(0), e.getValue());
-        }
-        else if (e.getKey().equals("b")) {
-          Assert.assertEquals("emitted tuple for 'b' was ", new Double(0.5), e.getValue());
-        }
-        else if (e.getKey().equals("c")) {
-          Assert.assertEquals("emitted tuple for 'c' was ", new Double(-1.0), e.getValue());
-        }
-        else {
-          LOG.debug(String.format("key was %s", e.getKey()));
-        }
+    HashMap<String, Number> output = (HashMap<String, Number>) marginSink.tuple;
+    for (Map.Entry<String, Number> e: output.entrySet()) {
+      LOG.debug(String.format("Key, value is %s,%f", e.getKey(), e.getValue().doubleValue()));
+      if (e.getKey().equals("a")) {
+        Assert.assertEquals("emitted value for 'a' was ", new Double(0), e.getValue().doubleValue());
+      }
+      else if (e.getKey().equals("b")) {
+        Assert.assertEquals("emitted tuple for 'b' was ", new Double(0.5), e.getValue().doubleValue());
+      }
+      else if (e.getKey().equals("c")) {
+        Assert.assertEquals("emitted tuple for 'c' was ", new Double(-1.0), e.getValue().doubleValue());
+      }
+      else {
+        LOG.debug(String.format("key was %s", e.getKey()));
       }
     }
   }
