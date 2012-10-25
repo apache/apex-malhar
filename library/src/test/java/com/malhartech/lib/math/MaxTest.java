@@ -46,14 +46,16 @@ public class MaxTest {
     }
 
     /**
-     * Test node logic emits correct results for each schema
+     * Test oper logic emits correct results for each schema
      */
-    public void testSchemaNodeProcessing(Min node, String type)
+    public void testSchemaNodeProcessing(Min oper, String type)
     {
       TestSink minSink = new TestSink();
-      node.min.setSink(minSink);
-      node.setup(new OperatorConfiguration());
+      oper.min.setSink(minSink);
+      oper.setup(new OperatorConfiguration());
 
+      oper.beginWindow();
+      
       HashMap<String, Number> input = new HashMap<String, Number>();
       int numtuples = 1000000;
       // For benchmark do -> numtuples = numtuples * 100;
@@ -62,7 +64,7 @@ public class MaxTest {
         for (int i = 0; i < numtuples; i++) {
           tuple = new HashMap<String, Integer>();
           tuple.put("a", new Integer(i));
-          node.data.process(tuple);
+          oper.data.process(tuple);
         }
       }
       else if (type.equals("double")) {
@@ -70,7 +72,7 @@ public class MaxTest {
         for (int i = 0; i < numtuples; i++) {
           tuple = new HashMap<String, Double>();
           tuple.put("a", new Double(i));
-          node.data.process(tuple);
+          oper.data.process(tuple);
         }
       }
       else if (type.equals("long")) {
@@ -78,7 +80,7 @@ public class MaxTest {
         for (int i = 0; i < numtuples; i++) {
           tuple = new HashMap<String, Long>();
           tuple.put("a", new Long(i));
-          node.data.process(tuple);
+          oper.data.process(tuple);
         }
       }
       else if (type.equals("short")) {
@@ -88,7 +90,7 @@ public class MaxTest {
           for (short i = 0; i < 1000; i++) {
             tuple = new HashMap<String, Short>();
             tuple.put("a", new Short(i));
-            node.data.process(tuple);
+            oper.data.process(tuple);
           }
         }
       }
@@ -97,10 +99,10 @@ public class MaxTest {
         for (int i = 0; i < numtuples; i++) {
           tuple = new HashMap<String, Float>();
           tuple.put("a", new Float(i));
-          node.data.process(tuple);
+          oper.data.process(tuple);
         }
       }
-      node.endWindow();
+      oper.endWindow();
 
       Assert.assertEquals("number emitted tuples", 1, minSink.collect.size());
       Number val = minSink.collect.get("a");
