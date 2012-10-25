@@ -127,7 +127,7 @@ public class ActiveMQInputOperatorTest
       int N = 10;
       int timeoutMillis = 5000;
       while (outSink.collectedTuples.size() < 10 && timeoutMillis > 0) {
-        node.injectTuples(0);
+        node.emitTuples(0);
         timeoutMillis -= 20;
         Thread.sleep(20);
       }

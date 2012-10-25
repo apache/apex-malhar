@@ -34,7 +34,7 @@ public abstract class AbstractActiveMQInputOperator<T> extends BaseOperator impl
   private final transient ArrayList<T> tuples = new ArrayList<T>();
 
   @Override
-  public void injectTuples(long windowId)
+  public void emitTuples(long windowId)
   {
     synchronized (tuples) {
       for (T tuple: tuples) {
