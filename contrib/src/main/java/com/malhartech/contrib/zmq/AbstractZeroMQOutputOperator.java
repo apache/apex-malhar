@@ -78,9 +78,9 @@ public class AbstractZeroMQOutputOperator<T> extends BaseOperator
   public final transient DefaultInputPort<T> input = new DefaultInputPort<T>(this)
   {
     @Override
-    public void process(Object payload)
+    public void process(Object message)
     {
-      String msg = payload.toString();
+      String msg = message.toString();
       publisher.send(msg.getBytes(), 0);
     }
   };
