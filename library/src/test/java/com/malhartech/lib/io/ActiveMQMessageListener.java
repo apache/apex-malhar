@@ -91,10 +91,10 @@ public class ActiveMQMessageListener implements MessageListener, Runnable
         receivedData.put(new Integer(countMessages), msg);
       }
       catch (JMSException ex) {
-        Logger.getLogger(ActiveMQProducerModuleTest.class.getName()).log(Level.SEVERE, null, ex);
+        Logger.getLogger(ActiveMQOutputOperatorTest.class.getName()).log(Level.SEVERE, null, ex);
       }
 
-      //System.out.println("Received a TextMessage: '" + msg + "'");
+      System.out.println("Received a TextMessage: '" + msg + "'");
     }
     else {
       System.out.println(String.format("Not a string instance (%s)", message.toString()));
@@ -109,7 +109,7 @@ public class ActiveMQMessageListener implements MessageListener, Runnable
       Thread.sleep(2000);  // how long this should be?
     }
     catch (InterruptedException ex) {
-      Logger.getLogger(ActiveMQProducerModuleTest.class.getName()).log(Level.SEVERE, null, ex);
+      Logger.getLogger(ActiveMQOutputOperatorTest.class.getName()).log(Level.SEVERE, null, ex);
     }
   }
 

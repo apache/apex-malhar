@@ -5,10 +5,11 @@
 package com.malhartech.lib.io;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
+import com.malhartech.api.AsyncInputOperator;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.api.SyncInputOperator;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
@@ -20,15 +21,27 @@ import org.slf4j.LoggerFactory;
 /**
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
+ * This is ActiveMQ input adapter operator (which consume data from ActiveMQ message bus).
  */
-public abstract class AbstractActiveMQConsumerModule extends BaseOperator implements SyncInputOperator, Runnable, MessageListener, ExceptionListener
+public abstract class AbstractActiveMQInputOperator<T> extends BaseOperator implements AsyncInputOperator, Runnable, MessageListener, ExceptionListener
 {
-  private static final Logger logger = LoggerFactory.getLogger(AbstractActiveMQConsumerModule.class);
+  private static final Logger logger = LoggerFactory.getLogger(AbstractActiveMQInputOperator.class);
   private long maxMessages;
   public ActiveMQHelper activeMQHelper = new ActiveMQHelper(false);
 
-  @OutputPortFieldAnnotation(name="ActiveMQOutputPort")
-  final public transient DefaultOutputPort<Object> outputPort = new DefaultOutputPort<Object>(this);
+  @OutputPortFieldAnnotation(name = "ActiveMQOutputPort")
+  final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>(this);
+  private final transient ArrayList<T> tuples = new ArrayList<T>();
+
+  @Override
+  public void injectTuples(long windowId)
+  {
+    synchronized (tuples) {
+      for (T tuple: tuples) {
+        outputPort.emit(tuple);
+      }
+    }
+  }
 
   /**
    * Any concrete class derived from AbstractActiveQConsumerModule has to implement this method
@@ -36,7 +49,7 @@ public abstract class AbstractActiveMQConsumerModule extends BaseOperator implem
    *
    * @param message
    */
-  protected abstract void emitMessage(Message message);
+    protected abstract T getTuple(Message message) throws JMSException;
 
   @Override
   public void setup(OperatorConfiguration config)
@@ -48,8 +61,8 @@ public abstract class AbstractActiveMQConsumerModule extends BaseOperator implem
 
       maxMessages = activeMQHelper.getMaximumMessage();
     }
-    catch (JMSException ex) {
-      java.util.logging.Logger.getLogger(AbstractActiveMQConsumerModule.class.getName()).log(Level.SEVERE, null, ex);
+    catch (JMSException jmse) {
+      logger.error("Exception thrown by ActiveMQ consumer setup.", jmse.getCause());
     }
 
   }
@@ -74,6 +87,7 @@ public abstract class AbstractActiveMQConsumerModule extends BaseOperator implem
   /**
    * Whenever there is message available this will get called.
    * This just emit the message to Malhar platform.
+   *
    * @param message
    */
   @Override
@@ -95,13 +109,21 @@ public abstract class AbstractActiveMQConsumerModule extends BaseOperator implem
       }
     }
 
-    emitMessage(message);
+    synchronized (tuples) {
+      try {
+        tuples.add(getTuple(message));
+      }
+      catch (JMSException ex) {
+        java.util.logging.Logger.getLogger(AbstractActiveMQInputOperator.class.getName()).log(Level.SEVERE, null, ex);
+      }
+    }
+
     activeMQHelper.handleMessage(message);
   }
 
   @Override
   public void onException(JMSException jmse)
   {
-    logger.error("Exception thrown by ActiveMQ consumer setup.", jmse.getCause());
+    logger.error("Exception thrown by ActiveMQ consumer.", jmse.getCause());
   }
 }
