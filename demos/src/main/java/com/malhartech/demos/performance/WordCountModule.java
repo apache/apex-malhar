@@ -3,7 +3,6 @@ package com.malhartech.demos.performance;
 /*
  * To change this template, choose Tools | Templates and open the template in the editor.
  */
-import com.malhartech.api.Context;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.Operator;
 import com.malhartech.api.OperatorConfiguration;
@@ -57,17 +56,6 @@ public class WordCountModule<T> implements Operator
     counts = new ArrayList<Integer>();
   }
 
-  @Override
-  public void activated(Context context)
-  {
-    count = 0;
-    counts.clear();
-  }
-
-  @Override
-  public void deactivated()
-  {
-  }
   private static final long serialVersionUID = 201208061820L;
   private static final Logger logger = LoggerFactory.getLogger(WordCountModule.class);
 }

@@ -6,11 +6,12 @@ package com.malhartech.demos.twitter;
 
 import com.malhartech.api.DAG;
 import com.malhartech.api.Operator.InputPort;
+import com.malhartech.lib.algo.UniqueCounter;
 import com.malhartech.lib.algo.WindowedTopCounter;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.io.HttpOutputOperator;
-import com.malhartech.lib.math.UniqueCounter;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Properties;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
@@ -30,7 +31,7 @@ public class TwitterTopCounter extends DAG
     String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
     if (serverAddr != null) {
       HttpOutputOperator<Object> operator = addOperator(nodeName, HttpOutputOperator.class);
-      operator.setResourceURL("http://" + serverAddr + "/channel/" + nodeName);
+      operator.setResourceURL(URI.create("http://" + serverAddr + "/channel/" + nodeName));
       return operator.input;
     }
 
@@ -91,9 +92,9 @@ public class TwitterTopCounter extends DAG
     // Feed the statuses from feed into the input of the url extractor.
     addStream("TweetStream", twitterFeed.status, urlExtractor.input).setInline(true);
     //  Start counting the urls coming out of URL extractor
-    addStream("TwittedURLs", urlExtractor.url, uniqueCounter.input).setInline(inline);
+    addStream("TwittedURLs", urlExtractor.url, uniqueCounter.data).setInline(inline);
     // Count unique urls
-    addStream("UniqueURLCounts", uniqueCounter.output, topCounts.input).setInline(inline);
+    addStream("UniqueURLCounts", uniqueCounter.count, topCounts.input).setInline(inline);
     // Count top 10
     addStream("TopURLs", topCounts.output, consoleOutput("topURLs")).setInline(inline);
   }

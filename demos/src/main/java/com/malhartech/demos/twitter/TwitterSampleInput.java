@@ -5,10 +5,11 @@
 package com.malhartech.demos.twitter;
 
 import com.malhartech.annotation.ShipContainingJars;
+import com.malhartech.api.ActivationListener;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.Operator;
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.api.Context;
+import com.malhartech.dag.OperatorContext;
 import com.malhartech.util.CircularBuffer;
 import java.util.Properties;
 import org.slf4j.Logger;
@@ -21,7 +22,7 @@ import twitter4j.conf.ConfigurationBuilder;
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
 @ShipContainingJars(classes = {StatusListener.class, Status.class})
-public abstract class TwitterSampleInput implements Operator, StatusListener
+public abstract class TwitterSampleInput implements Operator, ActivationListener<OperatorContext>, StatusListener
 {
   private static final Logger logger = LoggerFactory.getLogger(TwitterSampleInput.class);
   public final transient DefaultOutputPort<Status> status = new DefaultOutputPort<Status>(this);
@@ -118,7 +119,7 @@ public abstract class TwitterSampleInput implements Operator, StatusListener
   }
 
   @Override
-  public void activated(Context context)
+  public void postActivate(OperatorContext context)
   {
     ts.addListener(this);
     // we can only listen to tweets containing links by callng ts.links().
@@ -127,7 +128,7 @@ public abstract class TwitterSampleInput implements Operator, StatusListener
   }
 
   @Override
-  public void deactivated()
+  public void preDeactivate()
   {
     ts.shutdown();
   }

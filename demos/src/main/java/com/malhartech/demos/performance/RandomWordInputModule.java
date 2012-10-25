@@ -8,6 +8,8 @@ import com.malhartech.api.AsyncInputOperator;
 import com.malhartech.api.Context;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.OperatorConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -15,9 +17,10 @@ import com.malhartech.api.OperatorConfiguration;
  */
 public class RandomWordInputModule implements AsyncInputOperator
 {
+  private static final Logger logger = LoggerFactory.getLogger(RandomWordInputModule.class);
   public final transient DefaultOutputPort<byte[]> output = new DefaultOutputPort<byte[]>(this);
   transient long lastWindowId = 0;
-  transient int count = 1;
+  transient int count;
 //  int totalIterations = 0;
 
   @Override
@@ -50,16 +53,6 @@ public class RandomWordInputModule implements AsyncInputOperator
 
   @Override
   public void setup(OperatorConfiguration config)
-  {
-  }
-
-  @Override
-  public void activated(Context context)
-  {
-  }
-
-  @Override
-  public void deactivated()
   {
   }
 
