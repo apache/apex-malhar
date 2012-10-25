@@ -84,7 +84,7 @@ public abstract class AbstractZeroMQInputOperator<T> extends BaseOperator implem
       try {
         byte[] message = subscriber.recv(0);
         if (message != null) {
-          onMessage(message);
+          emitMessage(message);
         }
       }
       catch (Exception e) {
@@ -92,11 +92,6 @@ public abstract class AbstractZeroMQInputOperator<T> extends BaseOperator implem
         break;
       }
     }
-  }
-
-  public void onMessage(byte[] message)
-  {
-    emitMessage(message);
   }
 
   @Override
