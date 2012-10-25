@@ -10,19 +10,20 @@ import java.util.ArrayList;
 import java.util.List;
 import junit.framework.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  *
  */
-public class RangeValueTest
+public class RangeValueBenchmark
 {
-  private static Logger LOG = LoggerFactory.getLogger(Sum.class);
+  private static Logger log = LoggerFactory.getLogger(RangeValueBenchmark.class);
 
   class TestSink implements Sink
   {
-    List<Object> collectedTuples = new ArrayList<Object>();
+    Object tuple;
 
     @Override
     public void process(Object payload)
@@ -30,7 +31,7 @@ public class RangeValueTest
       if (payload instanceof Tuple) {
       }
       else {
-        collectedTuples.add(payload);
+        tuple = payload;
       }
     }
   }
@@ -39,6 +40,7 @@ public class RangeValueTest
    * Test oper logic emits correct results
    */
   @Test
+  @Category(com.malhartech.PerformanceTestCategory.class)
   public void testNodeSchemaProcessing()
   {
     RangeValue<Double> oper = new RangeValue<Double>();
@@ -49,10 +51,10 @@ public class RangeValueTest
     oper.setup(new OperatorConfiguration());
     oper.beginWindow(); //
 
-    int numTuples = 1000;
+    int numTuples = 100000000;
     for (int i = 0; i < numTuples; i++) {
-      Double a = new Double(20.0);
-      Double b = new Double(2.0);
+      Double a = new Double(2.0);
+      Double b = new Double(20.0);
       Double c = new Double(1000.0);
 
       oper.data.process(a);
@@ -83,12 +85,9 @@ public class RangeValueTest
 
     oper.endWindow(); //
 
-    // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
-    Assert.assertEquals("number emitted tuples", 1, rangeSink.collectedTuples.size());
-    for (Object o: rangeSink.collectedTuples) { // sum is 1157
-      ArrayList<Double> list = (ArrayList<Double>)o;
-      Assert.assertEquals("emitted high value was ", new Double(1000.0), list.get(0));
-      Assert.assertEquals("emitted low value was ", new Double(1.0), list.get(1));
-    }
+    ArrayList list = (ArrayList) rangeSink.tuple;
+    log.debug(String.format("\nBenchmark total %d tuples was expected (1000,1) got (%f,%f)", numTuples * 12,
+                            list.get(0),
+                            list.get(1)));
   }
 }

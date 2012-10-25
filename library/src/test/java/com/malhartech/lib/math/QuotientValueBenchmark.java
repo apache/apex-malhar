@@ -10,19 +10,20 @@ import java.util.ArrayList;
 import java.util.List;
 import junit.framework.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  *
  */
-public class QuotientValueTest
+public class QuotientValueBenchmark
 {
-  private static Logger LOG = LoggerFactory.getLogger(Sum.class);
+  private static Logger log = LoggerFactory.getLogger(QuotientValueBenchmark.class);
 
   class TestSink implements Sink
   {
-    List<Object> collectedTuples = new ArrayList<Object>();
+    ArrayList<Object> collectedTuples = new ArrayList<Object>();
 
     @Override
     public void process(Object payload)
@@ -39,6 +40,7 @@ public class QuotientValueTest
    * Test oper logic emits correct results
    */
   @Test
+  @Category(com.malhartech.PerformanceTestCategory.class)
   public void testNodeSchemaProcessing()
   {
     QuotientValue<Double> oper = new QuotientValue<Double>();
@@ -49,41 +51,42 @@ public class QuotientValueTest
     oper.setup(new OperatorConfiguration());
     oper.setMult_by(2);
 
+    int numTuples = 100000000;
     oper.beginWindow(); //
-    Double a = new Double(30.0);
-    Double b = new Double(20.0);
-    Double c = new Double(100.0);
-    oper.denominator.process(a);
-    oper.denominator.process(b);
-    oper.denominator.process(c);
+    for (int i = 0; i < numTuples; i++) {
+      Double a = new Double(30.0);
+      Double b = new Double(20.0);
+      Double c = new Double(100.0);
+      oper.denominator.process(a);
+      oper.denominator.process(b);
+      oper.denominator.process(c);
 
-    a = 5.0;
-    oper.numerator.process(a);
-    a = 1.0;
-    oper.numerator.process(a);
-    b = 44.0;
-    oper.numerator.process(b);
+      a = 5.0;
+      oper.numerator.process(a);
+      a = 1.0;
+      oper.numerator.process(a);
+      b = 44.0;
+      oper.numerator.process(b);
 
-    b = 10.0;
-    oper.numerator.process(b);
-    c = 22.0;
-    oper.numerator.process(c);
-    c = 18.0;
-    oper.numerator.process(c);
+      b = 10.0;
+      oper.numerator.process(b);
+      c = 22.0;
+      oper.numerator.process(c);
+      c = 18.0;
+      oper.numerator.process(c);
 
-    a = 0.5;
-    oper.numerator.process(a);
-    b = 41.5;
-    oper.numerator.process(b);
-    a = 8.0;
-    oper.numerator.process(a);
+      a = 0.5;
+      oper.numerator.process(a);
+      b = 41.5;
+      oper.numerator.process(b);
+      a = 8.0;
+      oper.numerator.process(a);
+    }
     oper.endWindow(); //
 
     // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
     Assert.assertEquals("number emitted tuples", 1, quotientSink.collectedTuples.size());
-    for (Object o: quotientSink.collectedTuples) { // sum is 1157
-      Double val = (Double)o;
-      Assert.assertEquals("emitted quotient value was ", new Double(2.0), val);
-    }
+    Double val = (Double) quotientSink.collectedTuples.get(0);
+    log.debug(String.format("\nBenchmark for %d tuples (expected 2.0, got %f)", numTuples*12, val));
   }
 }

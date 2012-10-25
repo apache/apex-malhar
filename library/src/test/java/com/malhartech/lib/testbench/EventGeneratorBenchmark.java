@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  * Benchmark is at 26 Million tuples/src. Once we get to real Hadoop cluster, we should increase the buffer size to handle 100x more tuples and see what the raw
  * throughput would be. Then on we would not need to force either thread to wait, or be hampered by low memory on debugging
- * envinronment<br>
+ * environment<br>
  * <br>
  */
 public class EventGeneratorBenchmark

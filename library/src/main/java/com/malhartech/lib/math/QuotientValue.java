@@ -33,14 +33,15 @@ import java.util.Map;
  * <b>Benchmarks</b><br>
  * <br>
  * Benchmarks:<br>
- * With HashMap schema the node does about 3 Million/tuples per second<br>
+ * With Number schema the node does about >500 Million/tuples per second<br>
+ * The high throughput is due to the fact that only one tuple per window is emitted<br>
  * <br>
  *
  * @author amol<br>
  *
  */
 
-public class QuotientValue<V extends Number> extends BaseOperator
+public class QuotientValue<V extends Number> extends BaseNumberOperator<V>
 {
   @InputPortFieldAnnotation(name = "numerator")
   public final transient DefaultInputPort<V> numerator = new DefaultInputPort<V>(this)
@@ -48,7 +49,7 @@ public class QuotientValue<V extends Number> extends BaseOperator
     @Override
     public void process(V tuple)
     {
-      numerators.value += tuple.doubleValue();
+      nval += tuple.doubleValue();
     }
   };
 
@@ -58,14 +59,14 @@ public class QuotientValue<V extends Number> extends BaseOperator
     @Override
     public void process(V tuple)
     {
-      denominators.value += tuple.doubleValue();
+      dval += tuple.doubleValue();
     }
   };
 
   @InputPortFieldAnnotation(name = "quotient")
-  public final transient DefaultOutputPort<Double> quotient = new DefaultOutputPort<Double>(this);
-  MutableDouble numerators = new MutableDouble(0.0);
-  MutableDouble denominators = new MutableDouble(0.0);
+  public final transient DefaultOutputPort<V> quotient = new DefaultOutputPort<V>(this);
+  double nval = 0.0;
+  double dval = 0.0;
 
   int mult_by = 1;
 
@@ -77,16 +78,17 @@ public class QuotientValue<V extends Number> extends BaseOperator
   @Override
   public void beginWindow()
   {
-    numerators.value = 0.0;
-    denominators.value = 0.0;
+    nval = 0.0;
+    dval = 0.0;
   }
 
   @Override
   public void endWindow()
   {
-    if (denominators.value == 0) {
+    if (dval == 0) {
       return;
     }
-    quotient.emit(new Double((numerators.value/denominators.value)*mult_by));
+    double val = (nval/dval)*mult_by;
+    quotient.emit(getValue(val));
   }
 }
