@@ -17,12 +17,12 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class RangeTest {
-    private static Logger LOG = LoggerFactory.getLogger(Range.class);
+    private static Logger LOG = LoggerFactory.getLogger(RangeTest.class);
 
   class TestSink implements Sink
   {
-    int low = -1;
-    int high = -1;
+    double low = -1;
+    double high = -1;
 
     @Override
     public void process(Object payload)
@@ -32,9 +32,9 @@ public class RangeTest {
       else {
         HashMap<String, Object> tuple = (HashMap<String, Object>)payload;
         for (Map.Entry<String, Object> e: tuple.entrySet()) {
-          ArrayList<Number> alist = (ArrayList<Number>)e.getValue();
-          high = alist.get(0).intValue();
-          low = alist.get(1).intValue();
+          ArrayList<Number> alist = (ArrayList<Number>) e.getValue();
+          high = alist.get(0).doubleValue();
+          low = alist.get(1).doubleValue();
         }
       }
     }
@@ -63,7 +63,7 @@ public class RangeTest {
       node.setup(new OperatorConfiguration());
 
       HashMap<String, Number> input = new HashMap<String, Number>();
-      int numtuples = 1000000;
+      int numtuples = 1000;
       // For benchmark do -> numtuples = numtuples * 100;
       if (type.equals("integer")) {
         HashMap<String,Integer> tuple;
@@ -109,7 +109,7 @@ public class RangeTest {
         }
       }
       node.endWindow();
-      LOG.debug(String.format("\n****************************\nThe high is %d, and low is %d from %d tuples\n*************************\n",
+      LOG.debug(String.format("\n****************************\nThe high is %f, and low is %f from %d tuples\n*************************\n",
                               rangeSink.high, rangeSink.low, numtuples));
     }
 }

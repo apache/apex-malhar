@@ -54,11 +54,18 @@ public class Range<K, V extends Number> extends BaseOperator
         }
         double eval = e.getValue().doubleValue();
         V val = low.get(key);
-        if (val.doubleValue() > eval) {
+        if (val == null) {
           low.put(key, e.getValue());
         }
+        else if (val.doubleValue() > eval) {
+          low.put(key, e.getValue());
+        }
+
         val = high.get(key);
-        if (val.doubleValue() < eval) {
+        if (val == null) {
+          high.put(key, e.getValue());
+        }
+        else if (val.doubleValue() < eval) {
           high.put(key, e.getValue());
         }
       }

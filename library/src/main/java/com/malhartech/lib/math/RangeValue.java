@@ -10,8 +10,6 @@ import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  *
@@ -28,11 +26,11 @@ import java.util.Map;
  * <br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Integer: 8 million tuples/s<br>
- * Double: 8 million tuples/s<br>
- * Long: 8 million tuples/s<br>
- * Short: 8 million tuples/s<br>
- * Float: 8 million tuples/s<br>
+ * Integer: 10 million tuples/s<br>
+ * Double: 10 million tuples/s<br>
+ * Long: 10 million tuples/s<br>
+ * Short: 10 million tuples/s<br>
+ * Float: 10 million tuples/s<br>
  *
  * @author amol
  */
@@ -50,7 +48,6 @@ public class RangeValue<V extends Number> extends BaseOperator
       if (high == null) {
         high = tuple;
       }
-
       if (low.doubleValue() > tuple.doubleValue()) {
         low = tuple;
       }
