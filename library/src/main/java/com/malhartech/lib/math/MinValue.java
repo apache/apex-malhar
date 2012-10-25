@@ -9,6 +9,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.MutableDouble;
 
 /**
  *
@@ -25,11 +26,12 @@ import com.malhartech.api.DefaultOutputPort;
  * None<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * The operator does >500 million tuples/sec as it only emits one per end of window, and is not bounded by outbound I/O<br>
  * <br>
  *
  * @author amol
  */
-public class MinValue<V extends Number> extends BaseOperator
+public class MinValue<V extends Number> extends BaseNumberOperator<V>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<V> data = new DefaultInputPort<V>(this)
@@ -38,17 +40,17 @@ public class MinValue<V extends Number> extends BaseOperator
     public void process(V tuple)
     {
       if (low == null) {
-        low = tuple;
+        low = new MutableDouble(tuple.doubleValue());
       }
-      else if (low.doubleValue() > tuple.doubleValue()) {
-        low = tuple;
+      else if (low.value > tuple.doubleValue()) {
+        low.value = tuple.doubleValue();
       }
     }
   };
 
   @OutputPortFieldAnnotation(name = "min")
   public final transient DefaultOutputPort<V> min = new DefaultOutputPort<V>(this);
-  V low = null;
+  MutableDouble low = null;
 
   @Override
   public void beginWindow()
@@ -63,7 +65,7 @@ public class MinValue<V extends Number> extends BaseOperator
   public void endWindow()
   {
     if (low != null) {
-      min.emit(low);
+      min.emit(getValue(low.value));
     }
   }
 }

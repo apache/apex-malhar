@@ -69,7 +69,7 @@ public class Quotient<K,V extends Number> extends BaseOperator
     for (Map.Entry<K,V> e: tuple.entrySet()) {
       MutableDouble val = map.get(e.getKey());
       if (val == null) {
-        val.value = e.getValue().doubleValue();
+        val = new MutableDouble(e.getValue().doubleValue());
       }
       else {
         if (dokey) {

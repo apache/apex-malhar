@@ -10,20 +10,22 @@ import com.malhartech.dag.Tuple;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  *
  */
-public class MinTest
+public class MinBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(MinTest.class);
+  private static Logger log = LoggerFactory.getLogger(MinBenchmark.class);
 
   /**
    * Test functional logic
    */
   @Test
+  @Category(com.malhartech.PerformanceTestCategory.class)
   public void testNodeProcessing() throws InterruptedException
   {
     testSchemaNodeProcessing(new Min<String, Integer>(), "integer"); // 8million/s
@@ -43,39 +45,36 @@ public class MinTest
     oper.setup(new OperatorConfiguration());
 
     oper.beginWindow();
-    HashMap<String, Number> input = new HashMap<String, Number>();
-    int numtuples = 100;
+    int numtuples = 100000000;
     // For benchmark do -> numtuples = numtuples * 100;
+    HashMap<String, Number> tuple = new HashMap<String, Number>();
     if (type.equals("integer")) {
-      HashMap<String, Integer> tuple = new HashMap<String, Integer>();
       for (int i = 0; i < numtuples; i++) {
         tuple.put("a", new Integer(i));
         oper.data.process(tuple);
       }
     }
     else if (type.equals("double")) {
-      HashMap<String, Double> tuple = new HashMap<String, Double>();
       for (int i = 0; i < numtuples; i++) {
         tuple.put("a", new Double(i));
         oper.data.process(tuple);
       }
     }
     else if (type.equals("long")) {
-      HashMap<String, Long> tuple = new HashMap<String, Long>();
       for (int i = 0; i < numtuples; i++) {
         tuple.put("a", new Long(i));
         oper.data.process(tuple);
       }
     }
     else if (type.equals("short")) {
-      HashMap<String, Short> tuple = new HashMap<String, Short>();
-      for (short i = 0; i < numtuples; i++) {
-        tuple.put("a", new Short(i));
-        oper.data.process(tuple);
+      for (int j = 0; j < numtuples / 10000; j++) {
+        for (short i = 0; i < 10000; i++) {
+          tuple.put("a", new Short(i));
+          oper.data.process(tuple);
+        }
       }
     }
     else if (type.equals("float")) {
-      HashMap<String, Float> tuple = new HashMap<String, Float>();
       for (int i = 0; i < numtuples; i++) {
         tuple.put("a", new Float(i));
         oper.data.process(tuple);
@@ -83,11 +82,9 @@ public class MinTest
     }
     oper.endWindow();
 
-    minSink.waitForResultCount(1, 10);
-    Assert.assertEquals("number emitted tuples", 1, minSink.collectedTuples.size());
+    minSink.waitForResultCount(1, 100);
     HashMap<String, Number> shash = (HashMap<String, Number>) minSink.collectedTuples.get(0);
     Number val = shash.get("a");
-    Assert.assertEquals("number emitted tuples", 1, shash.size());
-    Assert.assertEquals("emitted min value was ", new Double(0.0), val);
+    log.debug(String.format("\nBenchmark total for %d tuples; expected 0.0, got %f", numtuples, val));
   }
 }

@@ -9,6 +9,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.MutableDouble;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,10 +28,11 @@ import java.util.Map;
  * None<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * Min operator processes about 25 million tuples/sec. The processing is high as it only emits one tuple per window, and is not bound by outbound throughput<br>
  *<br>
  * @author amol
  */
-public class Min<K, V extends Number> extends BaseOperator
+public class Min<K, V extends Number> extends BaseNumberOperator<V>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
@@ -39,20 +41,23 @@ public class Min<K, V extends Number> extends BaseOperator
     public void process(HashMap<K, V> tuple)
     {
       for (Map.Entry<K, V> e: tuple.entrySet()) {
-        K key = e.getKey();
         if (e.getValue() == null) {
           continue;
         }
-        V val = low.get(e.getKey());
-        if (val.doubleValue() > e.getValue().doubleValue()) {
-          low.put(key, e.getValue());
+        MutableDouble val = low.get(e.getKey());
+        if (val == null) {
+          val = new MutableDouble(e.getValue().doubleValue());
+          low.put(e.getKey(), val);
+        }
+        if (val.value > e.getValue().doubleValue()) {
+          val.value = e.getValue().doubleValue();
         }
       }
     }
   };
   @OutputPortFieldAnnotation(name = "min")
   public final transient DefaultOutputPort<HashMap<K,V>> min = new DefaultOutputPort<HashMap<K,V>>(this);
-  HashMap<K,V> low = new HashMap<K,V>();
+  HashMap<K,MutableDouble> low = new HashMap<K,MutableDouble>();
 
   @Override
   public void beginWindow()
@@ -67,7 +72,11 @@ public class Min<K, V extends Number> extends BaseOperator
   public void endWindow()
   {
     if (!low.isEmpty()) {
-      min.emit(low);
+      HashMap<K, V> tuple = new HashMap<K, V>(low.size());
+      for (Map.Entry<K,MutableDouble> e: low.entrySet()) {
+        tuple.put(e.getKey(), getValue(e.getValue().value));
+      }
+      min.emit(tuple);
     }
   }
 }

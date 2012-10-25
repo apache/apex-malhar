@@ -12,13 +12,14 @@ import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  *
  */
-public class QuotientTest
+public class QuotientBenchmark
 {
   private static Logger LOG = LoggerFactory.getLogger(Quotient.class);
 
@@ -27,10 +28,11 @@ public class QuotientTest
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
+  @Category(com.malhartech.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
-    testNodeProcessingSchema(new Quotient<String,Integer>());
-    testNodeProcessingSchema(new Quotient<String,Double>());
+    testNodeProcessingSchema(new Quotient<String, Integer>());
+    testNodeProcessingSchema(new Quotient<String, Double>());
   }
 
   public void testNodeProcessingSchema(Quotient oper) throws Exception
@@ -44,7 +46,7 @@ public class QuotientTest
 
     oper.beginWindow(); //
     HashMap<String,Number> input = new HashMap<String, Number>();
-    int numtuples = 100;
+    int numtuples = 100000000;
     for (int i = 0; i < numtuples; i++) {
       input.clear();
       input.put("a", 2);
@@ -59,24 +61,13 @@ public class QuotientTest
     }
 
     oper.endWindow();
-
     // One for each key
-    Assert.assertEquals("number emitted tuples", 1, quotientSink.collectedTuples.size());
+    LOG.debug(String.format("Processed %d tuples", numtuples * 6));
+
     for (Object o: quotientSink.collectedTuples) {
       HashMap<String, Number> output = (HashMap<String, Number>)o;
       for (Map.Entry<String, Number> e: output.entrySet()) {
-        if (e.getKey().equals("a")) {
-          Assert.assertEquals("emitted value for 'a' was ", new Double(2), e.getValue());
-        }
-        else if (e.getKey().equals("b")) {
-          Assert.assertEquals("emitted tuple for 'b' was ", new Double(1), e.getValue());
-        }
-        else if (e.getKey().equals("c")) {
-          Assert.assertEquals("emitted tuple for 'c' was ", new Double(4), e.getValue());
-        }
-        else {
-          LOG.debug(String.format("key was %s", e.getKey()));
-        }
+        LOG.debug(String.format("Key, value is %s,%f", e.getKey(), e.getValue().doubleValue()));
       }
     }
   }

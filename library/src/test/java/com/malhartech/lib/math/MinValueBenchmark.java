@@ -10,15 +10,16 @@ import java.util.ArrayList;
 import java.util.List;
 import junit.framework.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  *
  */
-public class MinValueTest
+public class MinValueBenchmark
 {
-  private static Logger LOG = LoggerFactory.getLogger(Sum.class);
+  private static Logger log = LoggerFactory.getLogger(MinValueBenchmark.class);
 
   class TestSink implements Sink
   {
@@ -41,6 +42,7 @@ public class MinValueTest
    * Test oper logic emits correct results
    */
   @Test
+  @Category(com.malhartech.PerformanceTestCategory.class)
   public void testNodeSchemaProcessing()
   {
     MinValue<Double> oper = new MinValue<Double>();
@@ -51,40 +53,39 @@ public class MinValueTest
     oper.setup(new OperatorConfiguration());
     oper.beginWindow(); //
 
-    Double a = new Double(2.0);
-    Double b = new Double(20.0);
-    Double c = new Double(1000.0);
+    int numTuples = 100000000;
+    for (int i = 0; i < numTuples; i++) {
+      Double a = new Double(2.0);
+      Double b = new Double(20.0);
+      Double c = new Double(1000.0);
 
-    oper.data.process(a);
-    oper.data.process(b);
-    oper.data.process(c);
+      oper.data.process(a);
+      oper.data.process(b);
+      oper.data.process(c);
 
-    a = 1.0;
-    oper.data.process(a);
-    a = 10.0;
-    oper.data.process(a);
-    b = 5.0;
-    oper.data.process(b);
+      a = 1.0;
+      oper.data.process(a);
+      a = 10.0;
+      oper.data.process(a);
+      b = 5.0;
+      oper.data.process(b);
 
-    b = 12.0;
-    oper.data.process(b);
-    c = 22.0;
-    oper.data.process(c);
-    c = 14.0;
-    oper.data.process(c);
+      b = 12.0;
+      oper.data.process(b);
+      c = 22.0;
+      oper.data.process(c);
+      c = 14.0;
+      oper.data.process(c);
 
-    a = 46.0;
-    oper.data.process(a);
-    b = 2.0;
-    oper.data.process(b);
-    a = 23.0;
-    oper.data.process(a);
-
+      a = 46.0;
+      oper.data.process(a);
+      b = 2.0;
+      oper.data.process(b);
+      a = 23.0;
+      oper.data.process(a);
+    }
     oper.endWindow(); //
-
-
-    // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
-    Assert.assertEquals("number emitted tuples", 1, minSink.count);
-    Assert.assertEquals("emitted high value was ", new Double(1.0), (Double) minSink.tuple);
+    log.debug(String.format("\nBenchmark for %d tuples; expected 1.0, got %f from %d tuples", numTuples*12,
+                            (Double) minSink.tuple, minSink.count));
   }
 }

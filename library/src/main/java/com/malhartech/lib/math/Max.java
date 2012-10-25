@@ -43,6 +43,9 @@ public class Max<K, V extends Number> extends BaseOperator
           continue;
         }
         V val = high.get(e.getKey());
+        if (val == null) {
+          ; // TBD
+        }
         if (val.doubleValue() < e.getValue().doubleValue()) {
           high.put(key, e.getValue());
         }
