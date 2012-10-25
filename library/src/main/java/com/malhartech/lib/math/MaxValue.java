@@ -25,7 +25,7 @@ import com.malhartech.lib.util.MutableDouble;
  * None<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * The operator does >500 million tuples/sec as it only emits one per end of window, and is not bounded by outbound I/O<br>
+ * The operator does >500 million tuples/sec as it only emits one per end of window, and is not bounded by outbound I/O. It uses a Mutable number and thus avoids memory allocation<br>
  *<br>
  * @author amol
  */
@@ -37,23 +37,25 @@ public class MaxValue<V extends Number> extends BaseNumberOperator<V>
     @Override
     public void process(V tuple)
     {
-      if (high == null) {
-        high = new MutableDouble(tuple.doubleValue());
+      if (!flag) {
+        high = tuple.doubleValue();
+        flag = true;
       }
-      else if (high.value < tuple.doubleValue()) {
-        high.value = tuple.doubleValue();
+      else if (high < tuple.doubleValue()) {
+        high = tuple.doubleValue();
       }
     }
   };
 
   @OutputPortFieldAnnotation(name = "max")
   public final transient DefaultOutputPort<V> max = new DefaultOutputPort<V>(this);
-  MutableDouble high = null;
+  double high;
+  boolean flag = false;
 
   @Override
   public void beginWindow()
   {
-    high = null;
+    flag = false;
   }
 
   /**
@@ -62,8 +64,8 @@ public class MaxValue<V extends Number> extends BaseNumberOperator<V>
   @Override
   public void endWindow()
   {
-    if (high != null) {
-      max.emit(getValue(high.value));
+    if (flag) {
+      max.emit(getValue(high));
     }
   }
 }

@@ -40,25 +40,21 @@ public class MaxValueBenchmark
     Double a = new Double(2.0);
     Double b = new Double(20.0);
     Double c = new Double(1000.0);
-
     oper.data.process(a);
     oper.data.process(b);
     oper.data.process(c);
-
     a = 1.0;
     oper.data.process(a);
     a = 10.0;
     oper.data.process(a);
     b = 5.0;
     oper.data.process(b);
-
     b = 12.0;
     oper.data.process(b);
     c = 22.0;
     oper.data.process(c);
     c = 14.0;
     oper.data.process(c);
-
     a = 46.0;
     oper.data.process(a);
     b = 2.0;

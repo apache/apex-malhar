@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MaxTest
 {
-  private static Logger log = LoggerFactory.getLogger(Range.class);
+  private static Logger log = LoggerFactory.getLogger(MaxTest.class);
 
   /**
    * Test functional logic

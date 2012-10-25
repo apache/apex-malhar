@@ -27,7 +27,7 @@ import java.util.Map;
  * None<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Min operator processes >15 million tuples/sec. The processing is high as it only emits one tuple per window, and is not bound by outbound throughput<br>
+ * Max operator processes >15 million tuples/sec. The processing is high as it only emits one tuple per window, and is not bound by outbound throughput<br>
  *<br>
  * @author amol
  */
@@ -48,7 +48,6 @@ public class Max<K, V extends Number> extends BaseNumberOperator<V>
         if (val == null) {
           val = new MutableDouble(e.getValue().doubleValue());
           high.put(e.getKey(), val);
-          ; // TBD
         }
         if (val.value < e.getValue().doubleValue()) {
           val.value = e.getValue().doubleValue();

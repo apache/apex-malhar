@@ -8,6 +8,7 @@ import com.malhartech.dag.TestCountAndLastTupleSink;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,12 +17,13 @@ import org.slf4j.LoggerFactory;
  */
 public class MaxBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(Range.class);
+  private static Logger log = LoggerFactory.getLogger(MaxBenchmark.class);
 
   /**
    * Test functional logic
    */
   @Test
+  @Category(com.malhartech.PerformanceTestCategory.class)
   public void testNodeProcessing()
   {
     testSchemaNodeProcessing(new Max<String, Integer>(), "integer"); // 8million/s
@@ -90,7 +92,7 @@ public class MaxBenchmark
     }
     oper.endWindow();
 
-    HashMap<String, Number> shash = (HashMap<String, Number>) maxSink.tuple;
+    HashMap<String, Number> shash = (HashMap<String, Number>)maxSink.tuple;
     Number val = shash.get("a");
     log.debug(String.format("\nBenchmark total for %d tuples; expected 0.0, got %f", numtuples, val));
   }

@@ -64,6 +64,7 @@ public class SumValue<V extends Number> extends BaseNumberOperator<V>
   @Override
   public void endWindow()
   {
+    // May want to send out only if count != 0
     if (sum.isConnected()) {
       sum.emit(getValue(sums));
     }

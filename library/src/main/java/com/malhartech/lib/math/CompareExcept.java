@@ -56,7 +56,7 @@ public class CompareExcept<K, V extends Number> extends Match<K, V>
   public void tupleMatched(HashMap<K, V> tuple)
   {
     if (compare.isConnected()) {
-      compare.emit(tuple);
+      compare.emit(cloneTuple(tuple));
     }
   }
 
@@ -64,7 +64,7 @@ public class CompareExcept<K, V extends Number> extends Match<K, V>
   public void tupleNotMatched(HashMap<K, V> tuple)
   {
     if (except.isConnected()) {
-      except.emit(tuple);
+      except.emit(cloneTuple(tuple));
     }
   }
 }

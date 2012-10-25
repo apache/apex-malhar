@@ -44,7 +44,7 @@ import java.util.Map;
  *
  * @author amol
  */
-public class LastMatchString<K, String> extends BaseMatchOperator<K,String>
+public class LastMatchString<K> extends BaseMatchOperator<K,String>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, String>> data = new DefaultInputPort<HashMap<K, String>>(this)

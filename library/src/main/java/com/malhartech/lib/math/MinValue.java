@@ -39,23 +39,25 @@ public class MinValue<V extends Number> extends BaseNumberOperator<V>
     @Override
     public void process(V tuple)
     {
-      if (low == null) {
-        low = new MutableDouble(tuple.doubleValue());
+      if (!flag) {
+        low = tuple.doubleValue();
+        flag = true;
       }
-      else if (low.value > tuple.doubleValue()) {
-        low.value = tuple.doubleValue();
+      else if (low > tuple.doubleValue()) {
+        low = tuple.doubleValue();
       }
     }
   };
 
   @OutputPortFieldAnnotation(name = "min")
   public final transient DefaultOutputPort<V> min = new DefaultOutputPort<V>(this);
-  MutableDouble low = null;
+  double low;
+  boolean flag = false;
 
   @Override
   public void beginWindow()
   {
-    low = null;
+    flag = false;
   }
 
   /**
@@ -64,8 +66,8 @@ public class MinValue<V extends Number> extends BaseNumberOperator<V>
   @Override
   public void endWindow()
   {
-    if (low != null) {
-      min.emit(getValue(low.value));
+    if (flag) {
+      min.emit(getValue(low));
     }
   }
 }

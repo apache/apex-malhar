@@ -12,21 +12,23 @@ import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  *
  */
-public class ExceptTest
+public class ExceptBenchmark
 {
-  private static Logger LOG = LoggerFactory.getLogger(ExceptTest.class);
+  private static Logger log = LoggerFactory.getLogger(ExceptBenchmark.class);
 
   /**
    * Test node logic emits correct results
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
+  @Category(com.malhartech.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     testNodeProcessingSchema(new Except<String, Integer>());
@@ -46,28 +48,20 @@ public class ExceptTest
     oper.setTypeEQ();
 
     oper.beginWindow();
-    HashMap<String, Number> input = new HashMap<String, Number>();
-    input.put("a", 2);
-    input.put("b", 20);
-    input.put("c", 1000);
-    oper.data.process(input);
-    input.clear();
-    input.put("a", 3);
-    oper.data.process(input);
+    int numTuples = 10000000;
+    HashMap<String, Number> input1 = new HashMap<String, Number>();
+    HashMap<String, Number> input2 = new HashMap<String, Number>();
+    input1.put("a", 2);
+    input1.put("b", 20);
+    input1.put("c", 1000);
+    input2.put("a", 3);
+    for (int i = 0; i < numTuples; i++) {
+      oper.data.process(input1);
+      oper.data.process(input2);
+    }
     oper.endWindow();
 
     // One for each key
-    Assert.assertEquals("number emitted tuples", 1, exceptSink.count);
-    for (Map.Entry<String, Number> e: ((HashMap<String, Number>) exceptSink.tuple).entrySet()) {
-      if (e.getKey().equals("a")) {
-        Assert.assertEquals("emitted value for 'a' was ", new Double(2), e.getValue().doubleValue());
-      }
-      else if (e.getKey().equals("b")) {
-        Assert.assertEquals("emitted tuple for 'b' was ", new Double(20), e.getValue().doubleValue());
-      }
-      else if (e.getKey().equals("c")) {
-        Assert.assertEquals("emitted tuple for 'c' was ", new Double(1000), e.getValue().doubleValue());
-      }
-    }
+    log.debug(String.format("\nBenchmark, processed %d tuples", numTuples * 2));
   }
 }

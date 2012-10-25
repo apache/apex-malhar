@@ -34,7 +34,7 @@ import java.util.Map;
  * towards the result.<br> Input tuple not an integer on numerator stream: This
  * tuple would not be counted towards the result.<br> <br>
  * <b>Benchmarks</b><br>
- * Min operator processes >40 million tuples/sec. The processing is high as it only emits one tuple per window, and is not bound by outbound throughput<br>
+ * Margin operator processes >40 million tuples/sec. The processing is high as it only emits one tuple per window, and is not bound by outbound throughput<br>
  * <br>
  *
  * @author amol<br>

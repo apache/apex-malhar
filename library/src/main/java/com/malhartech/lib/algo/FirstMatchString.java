@@ -43,7 +43,7 @@ import java.util.HashMap;
  *
  * @author amol
  */
-public class FirstMatchString<K, String> extends BaseMatchOperator<K,String>
+public class FirstMatchString<K> extends BaseMatchOperator<K,String>
 {
 
   @InputPortFieldAnnotation(name="data")
