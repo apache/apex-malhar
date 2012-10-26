@@ -1,16 +1,11 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.math;
+package com.malhartech.lib.algo;
 
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.api.Sink;
 import com.malhartech.dag.TestCountAndLastTupleSink;
-import com.malhartech.dag.TestSink;
-import com.malhartech.lib.util.MutableDouble;
 import java.util.HashMap;
-import java.util.Map;
-import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -19,9 +14,9 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class CompareBenchmark
+public class MatchAllBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(CompareBenchmark.class);
+  private static Logger log = LoggerFactory.getLogger(MatchAllBenchmark.class);
 
   /**
    * Test node logic emits correct results
@@ -31,37 +26,47 @@ public class CompareBenchmark
   @Category(com.malhartech.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
-    testNodeProcessingSchema(new Compare<String, Integer>());
-    testNodeProcessingSchema(new Compare<String, Double>());
-    testNodeProcessingSchema(new Compare<String, Float>());
-    testNodeProcessingSchema(new Compare<String, Short>());
-    testNodeProcessingSchema(new Compare<String, Long>());
+    testNodeProcessingSchema(new MatchAll<String, Integer>());
+    testNodeProcessingSchema(new MatchAll<String, Double>());
+    testNodeProcessingSchema(new MatchAll<String, Float>());
+    testNodeProcessingSchema(new MatchAll<String, Short>());
+    testNodeProcessingSchema(new MatchAll<String, Long>());
   }
 
-  public void testNodeProcessingSchema(Compare oper)
+  public void testNodeProcessingSchema(MatchAll oper)
   {
     TestCountAndLastTupleSink matchSink = new TestCountAndLastTupleSink();
-    oper.compare.setSink(matchSink);
+    oper.all.setSink(matchSink);
     oper.setup(new OperatorConfiguration());
     oper.setKey("a");
     oper.setValue(3.0);
-    oper.setTypeNEQ();
+    oper.setTypeEQ();
 
     oper.beginWindow();
-    int numTuples = 10000000;
     HashMap<String, Number> input1 = new HashMap<String, Number>();
     HashMap<String, Number> input2 = new HashMap<String, Number>();
-    input1.put("a", 2);
+    HashMap<String, Number> input3 = new HashMap<String, Number>();
+    input1.put("a", 3);
     input1.put("b", 20);
-    input1.put("c", 1000);
+    input2.put("c", 1000);
     input2.put("a", 3);
+    input3.put("a", 2);
+    input3.put("b", 20);
+    input3.put("c", 1000);
+
+    int numTuples = 100000000;
     for (int i = 0; i < numTuples; i++) {
       oper.data.process(input1);
       oper.data.process(input2);
     }
     oper.endWindow();
 
-    // One for each key
-    log.debug(String.format("\nBenchmark, processed %d tuples", numTuples * 2));
+    oper.beginWindow();
+    for (int i = 0; i < numTuples; i++) {
+      oper.data.process(input2);
+      oper.data.process(input3);
+    }
+    oper.endWindow();
+    log.debug(String.format("\nBenchmark for %d tuples", numTuples*4));
   }
 }

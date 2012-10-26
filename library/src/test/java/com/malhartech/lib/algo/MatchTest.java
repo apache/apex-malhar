@@ -1,10 +1,11 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.math;
+package com.malhartech.lib.algo;
 
 import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.dag.TestCountAndLastTupleSink;
+import com.malhartech.lib.math.*;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
@@ -15,9 +16,9 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class CompareTest
+public class MatchTest
 {
-  private static Logger LOG = LoggerFactory.getLogger(CompareTest.class);
+  private static Logger LOG = LoggerFactory.getLogger(MatchTest.class);
 
   /**
    * Test node logic emits correct results
@@ -26,17 +27,17 @@ public class CompareTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    testNodeProcessingSchema(new Compare<String, Integer>());
-    testNodeProcessingSchema(new Compare<String, Double>());
-    testNodeProcessingSchema(new Compare<String, Float>());
-    testNodeProcessingSchema(new Compare<String, Short>());
-    testNodeProcessingSchema(new Compare<String, Long>());
+    testNodeProcessingSchema(new Match<String, Integer>());
+    testNodeProcessingSchema(new Match<String, Double>());
+    testNodeProcessingSchema(new Match<String, Float>());
+    testNodeProcessingSchema(new Match<String, Short>());
+    testNodeProcessingSchema(new Match<String, Long>());
   }
 
-  public void testNodeProcessingSchema(Compare oper)
+  public void testNodeProcessingSchema(Match oper)
   {
     TestCountAndLastTupleSink matchSink = new TestCountAndLastTupleSink();
-    oper.compare.setSink(matchSink);
+    oper.match.setSink(matchSink);
     oper.setup(new OperatorConfiguration());
     oper.setKey("a");
     oper.setValue(3.0);

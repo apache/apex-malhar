@@ -35,7 +35,9 @@ import java.util.HashMap;
  * none<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- *
+ * Operator processes >between 12 to 500 million tuples/sec depending on all match (lower benchmark) and no match (higher benchmark.
+ * The processing is high as it only emits one tuple per window, and is not bound by outbound throughput<br>
+ * <br>
  * @author amol
  */
 public class MatchAnyString<K> extends BaseMatchOperator<K, String>
@@ -70,7 +72,7 @@ public class MatchAnyString<K> extends BaseMatchOperator<K, String>
 
   @OutputPortFieldAnnotation(name = "any")
   public final transient DefaultOutputPort<Boolean> any = new DefaultOutputPort<Boolean>(this);
-  Boolean result = false;
+  boolean result = false;
 
   @Override
   public void beginWindow()
