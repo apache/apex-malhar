@@ -4,19 +4,12 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.annotation.InjectConfig;
-import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.TopNSort;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import javax.validation.constraints.Min;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Takes a stream of key value pairs via input port "data", and they are ordered by key. Bottom N of the ordered tuples per key are emitted on

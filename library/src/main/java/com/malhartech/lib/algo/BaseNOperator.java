@@ -6,14 +6,9 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.InjectConfig;
 import com.malhartech.annotation.InputPortFieldAnnotation;
-import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.TopNSort;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import javax.validation.constraints.Min;
 
 /**
