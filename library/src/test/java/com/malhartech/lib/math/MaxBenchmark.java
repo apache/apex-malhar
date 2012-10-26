@@ -6,7 +6,6 @@ package com.malhartech.lib.math;
 import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.dag.TestCountAndLastTupleSink;
 import java.util.HashMap;
-import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;

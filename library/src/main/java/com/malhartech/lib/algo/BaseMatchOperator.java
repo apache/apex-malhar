@@ -72,12 +72,31 @@ public class BaseMatchOperator<K, V> extends BaseOperator
 
   public boolean compareValue(double value)
   {
-    return ((type == supported_type.LT) && (value < this.value))
-            || ((type == supported_type.LTE) && (value <= this.value))
-            || ((type == supported_type.EQ) && (value == this.value))
-            || ((type == supported_type.NEQ) && (value != this.value))
-            || ((type == supported_type.GT) && (value > this.value))
-            || ((type == supported_type.GTE) && (value >= this.value));
+    boolean ret;
+    switch(type) {
+      case LT:
+        ret = value < this.value;
+        break;
+      case LTE:
+        ret = value <= this.value;
+        break;
+      case EQ:
+        ret = value == this.value;
+        break;
+      case NEQ:
+        ret = value != this.value;
+        break;
+      case GT:
+        ret = value > this.value;
+        break;
+      case GTE:
+        ret = value >= this.value;
+        break;
+      default: // is EQ
+        ret = value == this.value;
+        break;
+    }
+    return ret;
   }
 
   public supported_type getType()

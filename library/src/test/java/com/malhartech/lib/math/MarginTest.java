@@ -4,9 +4,7 @@
 package com.malhartech.lib.math;
 
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.api.Sink;
 import com.malhartech.dag.TestCountAndLastTupleSink;
-import com.malhartech.dag.TestSink;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;

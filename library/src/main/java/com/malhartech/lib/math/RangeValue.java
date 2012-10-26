@@ -27,14 +27,8 @@ import java.util.ArrayList;
  * <br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Integer: >500 million tuples/s<br>
- * Double: >500 million tuples/s<br>
- * Long: >500 million tuples/s<br>
- * Short: >500 million tuples/s<br>
- * Float: >5010 million tuples/s<br>
- * High benchmark numbers are due to the fact that the operators takes in all the tuples and only sends out one per window, i.e.
- * not bound by outbound throughput<br>
- *
+ * The operator does >500 million tuples/sec as it only emits one per end of window, and is not bounded by outbound I/O. It uses a Mutable number and thus avoids memory allocation<br>
+ * <br>
  * @author amol
  */
 public class RangeValue<V extends Number> extends BaseNumberOperator<V>

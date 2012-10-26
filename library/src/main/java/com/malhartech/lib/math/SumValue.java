@@ -26,7 +26,7 @@ import javax.validation.constraints.NotNull;
  * Compile time checks<br>
  * None<br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Over 500 million tuples/sec as all tuples are absorbed, and only one goes out at end of window<br>
+ * Operator does >500 million tuples/sec as all tuples are processed, but only one goes out at end of window<br>
  * <br>
  * @author amol
  */

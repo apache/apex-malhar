@@ -34,7 +34,7 @@ import java.util.HashMap;
  * none<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Margin operator processes >10 million tuples/sec. The processing is high as it only emits one tuple per window, and is not bound by outbound throughput<br>
+ * Operator processes >10 million tuples/sec. The processing is high as it only emits one tuple per window, and is not bound by outbound throughput<br>
  *<br>
  * @author amol
  */

@@ -4,10 +4,7 @@
 package com.malhartech.lib.math;
 
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.api.Sink;
 import com.malhartech.dag.TestCountAndLastTupleSink;
-import com.malhartech.dag.TestSink;
-import com.malhartech.lib.util.MutableDouble;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
@@ -18,9 +15,9 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class ExceptTest
+public class CompareExceptTest
 {
-  private static Logger log = LoggerFactory.getLogger(ExceptTest.class);
+  private static Logger log = LoggerFactory.getLogger(CompareExceptTest.class);
 
   /**
    * Test node logic emits correct results
@@ -29,17 +26,20 @@ public class ExceptTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    testNodeProcessingSchema(new Except<String, Integer>());
-    testNodeProcessingSchema(new Except<String, Double>());
-    testNodeProcessingSchema(new Except<String, Float>());
-    testNodeProcessingSchema(new Except<String, Short>());
-    testNodeProcessingSchema(new Except<String, Long>());
+    testNodeProcessingSchema(new CompareExcept<String, Integer>());
+    testNodeProcessingSchema(new CompareExcept<String, Double>());
+    testNodeProcessingSchema(new CompareExcept<String, Float>());
+    testNodeProcessingSchema(new CompareExcept<String, Short>());
+    testNodeProcessingSchema(new CompareExcept<String, Long>());
   }
 
-  public void testNodeProcessingSchema(Except oper)
+  public void testNodeProcessingSchema(CompareExcept oper)
   {
+    TestCountAndLastTupleSink compareSink = new TestCountAndLastTupleSink();
     TestCountAndLastTupleSink exceptSink = new TestCountAndLastTupleSink();
+    oper.compare.setSink(compareSink);
     oper.except.setSink(exceptSink);
+
     oper.setup(new OperatorConfiguration());
     oper.setKey("a");
     oper.setValue(3.0);
@@ -53,6 +53,8 @@ public class ExceptTest
     oper.data.process(input);
     input.clear();
     input.put("a", 3);
+    input.put("b", 21);
+    input.put("c", 30);
     oper.data.process(input);
     oper.endWindow();
 
@@ -67,6 +69,19 @@ public class ExceptTest
       }
       else if (e.getKey().equals("c")) {
         Assert.assertEquals("emitted tuple for 'c' was ", new Double(1000), e.getValue().doubleValue());
+      }
+    }
+
+    Assert.assertEquals("number emitted tuples", 1, compareSink.count);
+    for (Map.Entry<String, Number> e: ((HashMap<String, Number>) compareSink.tuple).entrySet()) {
+      if (e.getKey().equals("a")) {
+        Assert.assertEquals("emitted value for 'a' was ", new Double(3), e.getValue().doubleValue());
+      }
+      else if (e.getKey().equals("b")) {
+        Assert.assertEquals("emitted tuple for 'b' was ", new Double(21), e.getValue().doubleValue());
+      }
+      else if (e.getKey().equals("c")) {
+        Assert.assertEquals("emitted tuple for 'c' was ", new Double(30), e.getValue().doubleValue());
       }
     }
   }

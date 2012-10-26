@@ -4,8 +4,13 @@
 package com.malhartech.lib.math;
 
 import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Sink;
 import com.malhartech.dag.TestCountAndLastTupleSink;
+import com.malhartech.dag.TestSink;
+import com.malhartech.lib.util.MutableDouble;
 import java.util.HashMap;
+import java.util.Map;
+import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -14,9 +19,9 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class ExceptBenchmark
+public class CompareBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(ExceptBenchmark.class);
+  private static Logger log = LoggerFactory.getLogger(CompareBenchmark.class);
 
   /**
    * Test node logic emits correct results
@@ -26,21 +31,21 @@ public class ExceptBenchmark
   @Category(com.malhartech.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
-    testNodeProcessingSchema(new Except<String, Integer>());
-    testNodeProcessingSchema(new Except<String, Double>());
-    testNodeProcessingSchema(new Except<String, Float>());
-    testNodeProcessingSchema(new Except<String, Short>());
-    testNodeProcessingSchema(new Except<String, Long>());
+    testNodeProcessingSchema(new Compare<String, Integer>());
+    testNodeProcessingSchema(new Compare<String, Double>());
+    testNodeProcessingSchema(new Compare<String, Float>());
+    testNodeProcessingSchema(new Compare<String, Short>());
+    testNodeProcessingSchema(new Compare<String, Long>());
   }
 
-  public void testNodeProcessingSchema(Except oper)
+  public void testNodeProcessingSchema(Compare oper)
   {
     TestCountAndLastTupleSink exceptSink = new TestCountAndLastTupleSink();
-    oper.except.setSink(exceptSink);
+    oper.compare.setSink(exceptSink);
     oper.setup(new OperatorConfiguration());
     oper.setKey("a");
     oper.setValue(3.0);
-    oper.setTypeEQ();
+    oper.setTypeNEQ();
 
     oper.beginWindow();
     int numTuples = 10000000;

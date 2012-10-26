@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class ExceptStringBenchmark
+public class CompareStringBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(ExceptStringBenchmark.class);
+  private static Logger log = LoggerFactory.getLogger(CompareStringBenchmark.class);
 
   /**
    * Test node logic emits correct results
@@ -26,13 +26,13 @@ public class ExceptStringBenchmark
   @Category(com.malhartech.PerformanceTestCategory.class)
   public void testNodeProcessingSchema()
   {
-    ExceptString<String> oper = new ExceptString<String>();
+    CompareString<String> oper = new CompareString<String>();
     TestCountAndLastTupleSink exceptSink = new TestCountAndLastTupleSink();
-    oper.except.setSink(exceptSink);
+    oper.compare.setSink(exceptSink);
     oper.setup(new OperatorConfiguration());
     oper.setKey("a");
     oper.setValue(3.0);
-    oper.setTypeEQ();
+    oper.setTypeNEQ();
     oper.beginWindow();
 
     int numTuples = 100000000;
