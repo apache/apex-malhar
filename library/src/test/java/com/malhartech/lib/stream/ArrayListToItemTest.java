@@ -16,9 +16,9 @@ import org.slf4j.LoggerFactory;
  * Benchmarks: Currently does about ?? Million tuples/sec in debugging environment. Need to test on larger nodes<br>
  * <br>
  */
-public class ArrayListToKeyTest {
+public class ArrayListToItemTest {
 
-    private static Logger log = LoggerFactory.getLogger(ArrayListToKeyTest.class);
+    private static Logger log = LoggerFactory.getLogger(ArrayListToItemTest.class);
 
     /**
      * Test oper pass through. The Object passed is not relevant
@@ -35,13 +35,12 @@ public class ArrayListToKeyTest {
       ArrayList<String> input = new ArrayList<String>();
       input.add("a");
       // Same input object can be used as the oper is just pass through
-      int numtuples = 50000000;
+      int numtuples = 1000;
       for (int i = 0; i < numtuples; i++) {
         oper.data.process(input);
       }
 
       oper.endWindow();
       Assert.assertEquals("number emitted tuples", numtuples, itemSink.count);
-      log.debug(String.format("\n********************\nProcessed %d tuples\n********************\n", itemSink.count));
     }
 }

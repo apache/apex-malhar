@@ -31,7 +31,8 @@ import org.slf4j.LoggerFactory;
  * <b>Benchmarks</b>
  * TBD
  * <br>
- *
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * Operator is able to emit >30 million tuples/sec<br>
  * @author amol
  */
 public class HashMapToKey<K, V> extends BaseOperator

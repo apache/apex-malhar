@@ -7,6 +7,7 @@ import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.dag.TestCountSink;
 import junit.framework.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,14 +16,15 @@ import org.slf4j.LoggerFactory;
  * Benchmarks: Currently does about 3 Million tuples/sec in debugging environment. Need to test on larger nodes<br>
  * <br>
  */
-public class StreamMergerTest
+public class StreamMergerBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(StreamMergerTest.class);
+  private static Logger log = LoggerFactory.getLogger(StreamMergerBenchmark.class);
 
   /**
    * Test oper pass through. The Object passed is not relevant
    */
   @Test
+  @Category(com.malhartech.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     StreamMerger oper = new StreamMerger();
@@ -31,15 +33,15 @@ public class StreamMergerTest
     oper.setup(new OperatorConfiguration());
 
     oper.beginWindow();
-    int numtuples = 500;
+    int numTuples = 500000000;
     Integer input = new Integer(0);
     // Same input object can be used as the oper is just pass through
-    for (int i = 0; i < numtuples; i++) {
+    for (int i = 0; i < numTuples; i++) {
       oper.data1.process(input);
       oper.data2.process(input);
     }
 
     oper.endWindow();
-    Assert.assertEquals("number emitted tuples", numtuples*2, mergeSink.count);
+    log.debug(String.format("\n********************\nProcessed %d tuples\n********************\n", numTuples*2));
   }
 }

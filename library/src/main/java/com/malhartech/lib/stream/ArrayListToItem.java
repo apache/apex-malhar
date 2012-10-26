@@ -22,8 +22,8 @@ import java.util.ArrayList;
  * <br>
  * <b>Compile time checks are</b>:<br>
  * None
- * <b>Benchmarks</b>
- * TBD
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * Operator is able to emit >150 million tuples/sec<br>
  * <br>
  *
  * @author amol

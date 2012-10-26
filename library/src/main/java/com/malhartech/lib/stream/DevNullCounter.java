@@ -4,9 +4,11 @@
  */
 package com.malhartech.lib.stream;
 
+import com.malhartech.annotation.InjectConfig;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.OperatorConfiguration;
+import javax.validation.constraints.Min;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,12 +17,10 @@ import org.slf4j.LoggerFactory;
  * Mainly to be used to benchmark other modules<br>
  * <br>
  * <br>
- * Benchmarks: This node has been benchmarked at over 125 million tuples/second in local/inline mode. i.e. it does not impact the dag<br>
- *
  * <b>Tuple Schema</b>
  * Not relevant
  * <b>Port Interface</b><br>
- * <b>data</b>: Input port for receiving the incoming tuple<br>
+ * <b>data</b>: expects <Object><br>
  * <br>
  * <b>Properties</b>:
  * rollingwindowcount: Number of windows to average over
@@ -28,7 +28,8 @@ import org.slf4j.LoggerFactory;
  * Compile time checks are:<br>
  * none
  * <br>
- *
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * Operator does >1000 million tuples/sec as all tuples are simply dumped<br>
  * @author amol
  */
 
@@ -48,8 +49,6 @@ public class DevNullCounter<T> extends BaseOperator
   };
   private static Logger log = LoggerFactory.getLogger(DevNullCounter.class);
   private long windowStartTime = 0;
-  private final int rolling_window_count_default = 1;
-  private int rollingwindowcount = rolling_window_count_default;
   long[] tuple_numbers = null;
   long[] time_numbers = null;
   int tuple_index = 0;
@@ -57,6 +56,11 @@ public class DevNullCounter<T> extends BaseOperator
   long count_windowid = 0;
   long tuple_count = 1; // so that the first begin window starts the count down
 
+  @Min(1)
+  @InjectConfig(key = "rollingwindow")
+  private int rollingwindowcount = 1;
+
+  @Min(1)
   public void setRollingwindowcount(int val) {
     rollingwindowcount = val;
   }

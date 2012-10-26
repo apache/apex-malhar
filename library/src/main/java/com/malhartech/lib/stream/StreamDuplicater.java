@@ -26,7 +26,8 @@ import com.malhartech.api.DefaultOutputPort;
  * Compile time checks are:<br>
  * no checks are done. Schema check is compile/instantiation time. Not runtime
  * <br>
- *
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * Operator does >400 million tuples/sec as all tuples simply forwarded as is<br>
  * @author amol
  */
 

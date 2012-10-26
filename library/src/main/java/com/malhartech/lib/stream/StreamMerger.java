@@ -26,9 +26,10 @@ import com.malhartech.api.DefaultOutputPort;
  * None
  * <br>
  * Compile time checks are:<br>
- * no checks are done. Schema check is compile/instantiation time. Not runtime
+ * no checks are done. Schema check is compile/instantiation time. Not runtime<br>
  * <br>
- *
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * Operator does >400 million tuples/sec as all tuples simply forwarded as is<br>
  * @author amol
  */
 public class StreamMerger<K> extends BaseOperator

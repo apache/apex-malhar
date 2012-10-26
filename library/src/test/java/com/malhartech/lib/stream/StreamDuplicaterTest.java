@@ -34,7 +34,7 @@ public class StreamDuplicaterTest {
       oper.setup(new OperatorConfiguration());
 
       oper.beginWindow();
-      int numtuples = 50000000;
+      int numtuples = 1000;
       Integer input = new Integer(0);
       // Same input object can be used as the oper is just pass through
       for (int i = 0; i < numtuples; i++) {
@@ -46,6 +46,5 @@ public class StreamDuplicaterTest {
       // One for each key
       Assert.assertEquals("number emitted tuples", numtuples, mergeSink1.count);
       Assert.assertEquals("number emitted tuples", numtuples, mergeSink2.count);
-      log.debug(String.format("\n********************\nProcessed %d tuples\n********************\n", mergeSink1.count+mergeSink2.count));
     }
 }

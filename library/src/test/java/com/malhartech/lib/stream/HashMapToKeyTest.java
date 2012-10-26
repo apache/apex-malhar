@@ -41,7 +41,7 @@ public class HashMapToKeyTest {
       HashMap<String,String> input = new HashMap<String,String>();
       input.put("a", "1");
       // Same input object can be used as the oper is just pass through
-      int numtuples = 50000000;
+      int numtuples = 1000;
       for (int i = 0; i < numtuples; i++) {
         oper.data.process(input);
       }
@@ -51,7 +51,5 @@ public class HashMapToKeyTest {
       Assert.assertEquals("number emitted tuples", numtuples, keySink.count);
       Assert.assertEquals("number emitted tuples", numtuples, valSink.count);
       Assert.assertEquals("number emitted tuples", numtuples, keyvalSink.count);
-      log.debug(String.format("\n********************\nProcessed %d tuples\n********************\n",
-                              keySink.count+valSink.count+keyvalSink.count));
     }
 }
