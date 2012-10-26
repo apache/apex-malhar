@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.api.SyncInputOperator;
+import com.malhartech.deprecated.api.SyncInputOperator;
 
 /**
  *
