@@ -47,6 +47,7 @@ public class MatchAnyStringTest
     Assert.assertEquals("number emitted tuples", 1, matchSink.count);
     Boolean result = (Boolean) matchSink.tuple;
     Assert.assertEquals("result was false", true, result.booleanValue());
+    matchSink.clear();
 
     oper.beginWindow();
     input.clear();
@@ -60,5 +61,6 @@ public class MatchAnyStringTest
     oper.endWindow();
     // There should be no emit as all tuples do not match
     Assert.assertEquals("number emitted tuples", 0, matchSink.count);
-  }
+    matchSink.clear();
+}
 }

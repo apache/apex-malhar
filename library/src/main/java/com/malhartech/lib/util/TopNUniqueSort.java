@@ -7,8 +7,6 @@ package com.malhartech.lib.util;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.PriorityQueue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -23,12 +21,9 @@ import org.slf4j.LoggerFactory;
  */
 public class TopNUniqueSort<E>
 {
-  private static Logger LOG = LoggerFactory.getLogger(TopNUniqueSort.class);
   int qbound = Integer.MAX_VALUE;
   boolean ascending = true;
-
   HashMap<E, MutableInteger> hmap = null;
-
   PriorityQueue<E> q = null;
 
   public TopNUniqueSort(int initialCapacity, int bound, boolean flag)
@@ -45,40 +40,50 @@ public class TopNUniqueSort<E>
     return offer(e);
   }
 
-  public int size() {
+  public int size()
+  {
     return q.size();
   }
 
-  public void clear() {
+  public void clear()
+  {
     q.clear();
   }
 
-  public boolean isEmpty() {
+  public boolean isEmpty()
+  {
     return q.isEmpty();
   }
 
   /*
    * Returns ArrayList<HashMap<E, Integer>>
    */
-  public ArrayList getTopN()
+  public ArrayList getTopN(int n)
   {
     ArrayList list = new ArrayList();
     E v;
+    int j = 0;
     while ((v = q.poll()) != null) {
       list.add(v);
+      j++;
+      if (j > n) {
+        break;
+      }
     }
     ArrayList ret = new ArrayList(list.size());
     int size = list.size();
-    for (int i = size; i > 0; i--) {
+    if (size > n) {
+      size = n;
+    }
+    for (int i = 0; i < size; i++) {
       E o = (E) list.get(i);
       HashMap<E, Integer> val = new HashMap<E, Integer>(1);
       MutableInteger ival = hmap.get(o);
       val.put(o, ival.value);
-      ret.add(size-i, val);
+      ret.add(val);
     }
     return ret;
   }
-
 
   //
   // If ascending, put the order in reverse
@@ -91,12 +96,15 @@ public class TopNUniqueSort<E>
       return true;
     }
     if (q.size() <= qbound) {
+      if (ival == null) {
+        hmap.put(e, new MutableInteger(1));
+      }
       return q.offer(e);
     }
 
     boolean ret = true;
     boolean insert;
-    Comparable<? super E> head = (Comparable<? super E>) q.peek();
+    Comparable<? super E> head = (Comparable<? super E>)q.peek();
 
     if (ascending) { // means head is the lowest value due to inversion
       insert = head.compareTo(e) < 0; // e > head
@@ -104,14 +112,12 @@ public class TopNUniqueSort<E>
     else { // means head is the highest value due to inversion
       insert = head.compareTo(e) > 0; // head is < e
     }
-    //
+
     // object e makes it, someone else gets dropped
-    //
-    ival = new MutableInteger(0);
-    ival.value = 1;
-    hmap.put(e, ival);
     if (insert && q.offer(e)) {
+      hmap.put(e, new MutableInteger(1));
       ret = true;
+
       // the dropped object will never make it to back in anymore
       E drop = q.poll();
       hmap.remove(drop);

@@ -35,9 +35,6 @@ public class TopNSort<E>
     ascending = flag;
     // Ascending use of pqueue needs a descending comparator
     q = new PriorityQueue<E>(initialCapacity, new ReversibleComparator<E>(!flag));
-    //MinMaxPriorityQueue.Builder<Number> builder = new MinMaxPriorityQueue.Builder<Number>(new Comparator<Number>());
-
-
   }
 
   public boolean add(E e)
@@ -57,17 +54,29 @@ public class TopNSort<E>
     return q.isEmpty();
   }
 
-  public ArrayList getTopN()
+  public ArrayList getTopN(int n)
   {
     ArrayList list = new ArrayList();
     E v;
+    int j = 0;
     while ((v = q.poll()) != null) {
       list.add(v);
+      j++;
+      if (j > n) {
+        break;
+      }
     }
+    if (list.isEmpty()) {
+      return list;
+    }
+
     ArrayList ret = new ArrayList(list.size());
     int size = list.size();
-    for (int i = size; i > 0; i--) {
-      ret.add(size-i, list.get(i));
+    if (size > n) {
+      size = n;
+    }
+    for (int i = 0; i < size; i++) {
+      ret.add(list.get(i));
     }
     return ret;
   }

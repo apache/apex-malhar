@@ -55,6 +55,7 @@ public class MatchAllTest
     Assert.assertEquals("number emitted tuples", 1, matchSink.count);
     Boolean result = (Boolean) matchSink.tuple;
     Assert.assertEquals("result was false", true, result.booleanValue());
+    matchSink.clear();
 
     oper.beginWindow();
     input.put("a", 2);
@@ -68,6 +69,6 @@ public class MatchAllTest
     Assert.assertEquals("number emitted tuples", 1, matchSink.count);
     result = (Boolean) matchSink.tuple;
     Assert.assertEquals("result was false", false, result.booleanValue());
-
+    matchSink.clear();
   }
 }

@@ -49,10 +49,9 @@ abstract public class BaseNOperator<K, V> extends BaseOperator
     }
   };
 
-  final int default_n_value = 1;
   @Min(1)
   @InjectConfig(key = "n")
-  int n = default_n_value;
+  int n = 1;
 
   abstract public void processTuple(HashMap<K, V> tuple);
 
@@ -60,5 +59,10 @@ abstract public class BaseNOperator<K, V> extends BaseOperator
   public void setN(int val)
   {
     n = val;
+  }
+
+  public int getN()
+  {
+    return n;
   }
 }

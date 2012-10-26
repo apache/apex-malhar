@@ -4,7 +4,6 @@
 package com.malhartech.lib.algo;
 
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.dag.TestCountAndLastTupleSink;
 import com.malhartech.dag.TestSink;
 import com.malhartech.lib.testbench.*;
 import java.util.HashMap;

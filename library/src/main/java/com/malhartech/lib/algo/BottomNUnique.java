@@ -33,51 +33,20 @@ import java.util.Map;
  * @author amol<br>
  *
  */
-public class BottomNUnique<K, V> extends BaseNOperator<K, V>
+public class BottomNUnique<K, V> extends BaseNUniqueOperator<K, V>
 {
-  /**
-   * Inserts tuples into the queue
-   * @param tuple to insert in the queue
-   */
-  @Override
-  public void processTuple(HashMap<K, V> tuple)
-  {
-    for (Map.Entry<K, V> e: tuple.entrySet()) {
-      TopNUniqueSort pqueue = kmap.get(e.getKey());
-      if (pqueue == null) {
-        pqueue = new TopNUniqueSort<V>(5, n, false);
-        kmap.put(e.getKey(), pqueue);
-      }
-      pqueue.offer(e.getValue());
-    }
-  }
-  /**
-   * Emits a HashMap<K,ArrayList<V>> tuple. ArrayList are the BottomNUnique values
-   */
   @OutputPortFieldAnnotation(name = "bottom")
   public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> bottom = new DefaultOutputPort<HashMap<K, ArrayList<V>>>(this);
 
-  private HashMap<K, TopNUniqueSort<V>> kmap = new HashMap<K, TopNUniqueSort<V>>();
-
-  /**
-   * Cleans up the cache to start anew
-   */
   @Override
-  public void beginWindow()
+  public boolean isAscending()
   {
-    kmap.clear();
+    return false;
   }
 
-  /**
-   * Emits a HashMap<K,ArrayList<V>> tuple. ArrayList are the BottomNUnique values
-   */
   @Override
-  public void endWindow()
+  void emit(HashMap<K, ArrayList<V>> tuple)
   {
-    for (Map.Entry<K, TopNUniqueSort<V>> e: kmap.entrySet()) {
-      HashMap<K, ArrayList<V>> tuple = new HashMap<K, ArrayList<V>>(1);
-      tuple.put(e.getKey(), e.getValue().getTopN());
-      bottom.emit(tuple);
-    }
+    bottom.emit(tuple);
   }
 }

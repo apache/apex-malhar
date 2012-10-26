@@ -4,8 +4,6 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.TopNSort;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,26 +27,46 @@ import java.util.Map;
  * <br>
  * Run time checks are:<br>
  * <br>
- * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Operator sorts  > 2 million tuples/sec. The sorting was done by adding 5 million values. Since only N tuples are emitted in endWindow
- * the operator is not output I/O bound<br>
  * @author amol<br>
  *
  */
-public class BottomN<K, V> extends BaseNNonUniqueOperator<K,V>
+public abstract class BaseNNonUniqueOperator<K, V> extends BaseNOperator<K,V>
 {
-  @OutputPortFieldAnnotation(name="bottom")
-  public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> bottom = new DefaultOutputPort<HashMap<K, ArrayList<V>>>(this);
+  abstract public boolean isAscending();
+  abstract void emit(HashMap<K, ArrayList<V>> tuple);
+
+  /**
+   * Inserts tuples into the queue
+   * @param tuple to insert in the queue
+   */
+  @Override
+  public void processTuple(HashMap<K, V> tuple)
+  {
+      for (Map.Entry<K,V> e: tuple.entrySet()) {
+        TopNSort pqueue = kmap.get(e.getKey());
+        if (pqueue == null) {
+          pqueue = new TopNSort<V>(5, n, isAscending());
+          kmap.put(e.getKey(), pqueue);
+        }
+        pqueue.offer(e.getValue());
+      }
+  }
+
+  HashMap<K, TopNSort<V>> kmap = new HashMap<K, TopNSort<V>>();
 
   @Override
-  public boolean isAscending()
+  public void beginWindow()
   {
-    return false;
+    kmap.clear();
   }
 
   @Override
-  void emit(HashMap<K, ArrayList<V>> tuple)
+  public void endWindow()
   {
-    bottom.emit(tuple);
+    for (Map.Entry<K, TopNSort<V>> e: kmap.entrySet()) {
+      HashMap<K, ArrayList<V>> tuple = new HashMap<K, ArrayList<V>>(1);
+      tuple.put(e.getKey(), e.getValue().getTopN(getN()));
+      emit(tuple);
+    }
   }
 }

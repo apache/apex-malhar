@@ -29,53 +29,26 @@ import java.util.Map;
  * <br>
  * Run time checks are:<br>
  * <br>
- *
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * Operator sorts  > 2 million tuples/sec. The sorting was done by adding 5 million values. Since only N tuples are emitted in endWindow
+ * the operator is not output I/O bound<br>
  * @author amol<br>
  *
  */
-public class TopN<K, V> extends BaseNOperator<K,V>
+public class TopN<K, V> extends BaseNNonUniqueOperator<K,V>
 {
   @OutputPortFieldAnnotation(name="top")
   public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> top = new DefaultOutputPort<HashMap<K, ArrayList<V>>>(this);
 
-  /**
-   * Inserts tuples into the queue
-   * @param tuple to insert in the queue
-   */
-  @Override
-  public void processTuple(HashMap<K,V> tuple)
+    @Override
+  public boolean isAscending()
   {
-    for (Map.Entry<K, V> e: tuple.entrySet()) {
-      TopNSort<V> pqueue = kmap.get(e.getKey());
-      if (pqueue == null) {
-        pqueue = new TopNSort<V>(5, n, true);
-        kmap.put(e.getKey(), pqueue);
-      }
-      pqueue.offer(e.getValue());
-    }
-  }
-  HashMap<K, TopNSort<V>> kmap = new HashMap<K, TopNSort<V>>();
-
-
-  /**
-   * Clears the cache for the next window to start fresh
-   */
-  @Override
-  public void beginWindow()
-  {
-    kmap.clear();
+    return true;
   }
 
-  /**
-   * Emits the TopN tuples
-   */
   @Override
-  public void endWindow()
+  void emit(HashMap<K, ArrayList<V>> tuple)
   {
-    for (Map.Entry<K, TopNSort<V>> e: kmap.entrySet()) {
-      HashMap<K, ArrayList<V>> tuple = new HashMap<K, ArrayList<V>>(1);
-      tuple.put(e.getKey(), e.getValue().getTopN());
-      top.emit(tuple);
-    }
+    top.emit(tuple);
   }
 }
