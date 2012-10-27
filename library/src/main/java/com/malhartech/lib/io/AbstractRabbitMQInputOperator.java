@@ -10,7 +10,6 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.*;
 import com.malhartech.dag.OperatorContext;
 import com.malhartech.util.CircularBuffer;
@@ -21,13 +20,9 @@ import java.io.IOException;
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
-public abstract class AbstractRabbitMQInputOperator<T> extends BaseOperator implements AsyncInputOperator, ActivationListener<OperatorContext>
+public abstract class AbstractRabbitMQInputOperator<T> implements AsyncInputOperator, ActivationListener<OperatorContext>
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractRabbitMQInputOperator.class);
-  private volatile boolean running = false;
-  @OutputPortFieldAnnotation(name = "outputPort")
-  final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>(this);
-  CircularBuffer<byte[]> tempBuffer = new CircularBuffer<byte[]>(1024 * 1024);
   @InjectConfig(key = "host")
   private String host;
   @InjectConfig(key = "exchange")
@@ -39,6 +34,7 @@ public abstract class AbstractRabbitMQInputOperator<T> extends BaseOperator impl
   TracingConsumer tracingConsumer = null;
   String cTag;
   String queueName;
+  CircularBuffer<byte[]> holdingBuffer;
 
   @NotNull
   public void setHost(String host)
@@ -51,16 +47,23 @@ public abstract class AbstractRabbitMQInputOperator<T> extends BaseOperator impl
   {
     this.exchange = exchange;
   }
+
   @NotNull
-  public String getQueueName() {
+  public String getQueueName()
+  {
     return queueName;
   }
 
   @Override
   public void setup(OperatorConfiguration config)
   {
+    holdingBuffer = new CircularBuffer<byte[]>(1024 * 1024);
+  }
+
+  @Override
+  public void postActivate(OperatorContext ctx)
+  {
     try {
-      super.setup(config);
       connFactory.setHost(host);
       connection = connFactory.newConnection();
       channel = connection.createChannel();
@@ -73,23 +76,37 @@ public abstract class AbstractRabbitMQInputOperator<T> extends BaseOperator impl
 //      channel.basicConsume(queueName, true, consumer);
       tracingConsumer = new TracingConsumer(channel);
       cTag = channel.basicConsume(queueName, true, tracingConsumer);
-      tracingConsumer.setInputOperator(this);
     }
     catch (IOException ex) {
       logger.debug(ex.toString());
     }
   }
 
+  @Override
+  public void emitTuples(long windowId)
+  {
+    for (int i = holdingBuffer.size(); i-- > 0;) {
+      emitTuple(holdingBuffer.pollUnsafe());
+    }
+  }
+
+  @Override
+  public void beginWindow()
+  {
+  }
+
+  @Override
+  public void endWindow()
+  {
+  }
+
   public class TracingConsumer extends DefaultConsumer
   {
-    AbstractRabbitMQInputOperator inputOperator = null;
     public TracingConsumer(Channel ch)
     {
       super(ch);
     }
-    public void setInputOperator(AbstractRabbitMQInputOperator inputOperator) {
-      this.inputOperator = inputOperator;
-    }
+
     @Override
     public void handleConsumeOk(String c)
     {
@@ -115,7 +132,7 @@ public abstract class AbstractRabbitMQInputOperator<T> extends BaseOperator impl
     public void handleDelivery(String consumer_Tag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException
     {
       logger.debug("Received Async message:" + new String(body));
-      inputOperator.emitTuple(body);
+      holdingBuffer.add(body);
     }
   }
 
@@ -142,7 +159,6 @@ public abstract class AbstractRabbitMQInputOperator<T> extends BaseOperator impl
 //      }
 //    }.start();
 //  }
-
   public abstract void emitTuple(byte[] message);
 
 //  @Override
@@ -152,9 +168,13 @@ public abstract class AbstractRabbitMQInputOperator<T> extends BaseOperator impl
 //      outputPort.emit(getOutputTuple(tempBuffer.pollUnsafe()));
 //    }
 //  }
-
   @Override
   public void teardown()
+  {
+  }
+
+  @Override
+  public void preDeactivate()
   {
     try {
       channel.close();
@@ -163,10 +183,5 @@ public abstract class AbstractRabbitMQInputOperator<T> extends BaseOperator impl
     catch (IOException ex) {
       logger.debug(ex.toString());
     }
-  }
-
-  public void preDeactivate()
-  {
-    running = false;
   }
 }

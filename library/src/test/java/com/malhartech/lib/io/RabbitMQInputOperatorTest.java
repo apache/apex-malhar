@@ -4,13 +4,7 @@
  */
 package com.malhartech.lib.io;
 
-import java.util.HashMap;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.dag.OperatorContext;
 import com.malhartech.dag.TestSink;
@@ -19,6 +13,11 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.QueueingConsumer;
 import java.io.IOException;
+import java.util.HashMap;
+import org.junit.Assert;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -30,6 +29,8 @@ public class RabbitMQInputOperatorTest
 
   private static final class TestRabbitMQInputOperator extends AbstractRabbitMQInputOperator<String>
   {
+    public final DefaultOutputPort<String> outputPort = new DefaultOutputPort<String>(this);
+
     @Override
     public void emitTuple(byte[] message)
     {
