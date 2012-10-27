@@ -22,12 +22,9 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.annotation.ShipContainingJars;
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.api.BaseInputOperator;
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.deprecated.api.SyncInputOperator;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -41,11 +38,10 @@ import com.sun.jersey.api.client.WebResource;
  *
  */
 @ShipContainingJars(classes = {com.sun.jersey.api.client.ClientHandler.class})
-public class HttpInputOperator extends BaseOperator implements SyncInputOperator, Runnable
+public class HttpInputOperator extends BaseInputOperator<Map<String, Object>> implements Runnable
 {
   private static final Logger LOG = LoggerFactory.getLogger(HttpInputOperator.class);
-  @OutputPortFieldAnnotation(name = "outputPort")
-  final public transient DefaultOutputPort<Map<String, Object>> outputPort = new DefaultOutputPort<Map<String, Object>>(this);
+
   /**
    * Timeout interval for reading from server. 0 or negative indicates no timeout.
    */
@@ -77,15 +73,9 @@ public class HttpInputOperator extends BaseOperator implements SyncInputOperator
   }
 
   @Override
-  public Runnable getDataPoller()
-  {
-    return this;
-  }
-
-  @Override
   public void run()
   {
-    while (true) {
+    while (super.isActive()) {
       try {
         ClientResponse response = resource.header("x-stream", "rockon").accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
         LOG.debug("Opening stream: " + resource);

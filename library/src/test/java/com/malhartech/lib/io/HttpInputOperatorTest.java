@@ -83,29 +83,22 @@ public class HttpInputOperatorTest {
 
     node.setup(new OperatorConfiguration());
 
-    Thread nodeThread = new Thread()
-    {
-      @Override
-      public void run()
-      {
-        node.getDataPoller().run();
-      }
-    };
-    nodeThread.start();
+    node.postActivate(null);
 
-    Thread.yield();
-    while (nodeThread.getState() != Thread.State.RUNNABLE) {
-      System.out.println("Waiting for node activation: " + nodeThread.getState());
-      Thread.sleep(10);
+//    sink.waitForResultCount(1, 3000);
+    int timeoutMillis = 3000;
+    while (sink.collectedTuples.size() == 0 && timeoutMillis > 0) {
+      node.emitTuples(0);
+      timeoutMillis -= 20;
+      Thread.sleep(20);
     }
 
-    sink.waitForResultCount(1, 3000);
     Assert.assertTrue("tuple emmitted", sink.collectedTuples.size() > 0);
 
     Map<String, Object> tuple = sink.collectedTuples.get(0);
     Assert.assertEquals("", tuple.get("responseId"), "response1");
 
-    nodeThread.interrupt();
+    node.preDeactivate();
     node.teardown();
     server.stop();
 
