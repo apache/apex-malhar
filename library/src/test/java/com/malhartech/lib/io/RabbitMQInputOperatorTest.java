@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.dag.OperatorContext;
 import com.malhartech.dag.TestSink;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -30,9 +31,26 @@ public class RabbitMQInputOperatorTest
   private static final class TestRabbitMQInputOperator extends AbstractRabbitMQInputOperator<String>
   {
     @Override
-    public String getOutputTuple(byte[] message)
+    public void emitTuple(byte[] message)
     {
-      return new String(message);
+      outputPort.emit(new String(message));
+    }
+
+//    @Override
+//    public String getOutputTuple(byte[] message)
+//    {
+//      return new String(message);
+//    }
+    @Override
+    public void emitTuples(long windowId)
+    {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void postActivate(OperatorContext ctx)
+    {
+      throw new UnsupportedOperationException("Not supported yet.");
     }
   }
 
@@ -43,20 +61,22 @@ public class RabbitMQInputOperatorTest
     Connection connection = null;
     Channel channel = null;
     final String exchange = "test";
+    public String queueName;
 
     public void setup() throws IOException
     {
       connFactory.setHost("localhost");
       connection = connFactory.newConnection();
       channel = connection.createChannel();
-      channel.exchangeDeclare(exchange, "fanout");
+//      channel.exchangeDeclare(exchange, "fanout");
     }
 
     public void process(Object message) throws IOException
     {
       String msg = message.toString();
 //      logger.debug("publish:" + msg);
-      channel.basicPublish(exchange, "", null, msg.getBytes());
+//      channel.basicPublish(exchange, "", null, msg.getBytes());
+      channel.basicPublish("", queueName, null, msg.getBytes());
     }
 
     public void teardown() throws IOException
@@ -93,33 +113,11 @@ public class RabbitMQInputOperatorTest
     node.outputPort.setSink(testSink);
     node.setHost("localhost");
     node.setExchange("test");
+    node.setup(new OperatorConfiguration());
 
-    Thread nodeThread = new Thread()
-    {
-      @Override
-      public void run()
-      {
-        node.setup(new OperatorConfiguration());
-        node.postActivate(null);
-        synchronized(node){  // notify publisher that subscriber is ready
-          node.notify();
-        }
-        try {
-        while (true) {
-          node.emitTuples(0);
-            Thread.sleep(10);
-        }
-        }
-        catch (InterruptedException ex) {
-        }
-      }
-    };
-    nodeThread.start();
-    synchronized(node) {  // got notified subscriber is ready
-      node.wait();
-    }
 
     final RabbitMQMessageGenerator publisher = new RabbitMQMessageGenerator();
+    publisher.queueName = node.getQueueName();
     Thread generatorThread = new Thread()
     {
       @Override
