@@ -5,7 +5,6 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.dag.TestCountAndLastTupleSink;
-import com.malhartech.lib.math.*;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
@@ -14,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ *
+ * Functional tests for {@link com.malhartech.lib.algo.Match}<p>
  *
  */
 public class MatchTest

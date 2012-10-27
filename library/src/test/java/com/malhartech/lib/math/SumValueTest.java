@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
+ * Functional tests for {@link com.malhartech.lib.math.SumValue}<p>
+ *
  */
 public class SumValueTest {
     private static Logger log = LoggerFactory.getLogger(SumValueTest.class);

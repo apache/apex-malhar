@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
+ * Performance tests for {@link com.malhartech.lib.math.Range}<p>
+ *
  */
 public class RangeBenchmark {
     private static Logger LOG = LoggerFactory.getLogger(RangeBenchmark.class);

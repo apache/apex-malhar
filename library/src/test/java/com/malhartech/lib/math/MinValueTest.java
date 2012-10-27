@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
+ * Functional tests for {@link com.malhartech.lib.math.MinValue}<p>
+ *
  */
 public class MinValueTest
 {

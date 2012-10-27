@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
+ * Functional tests for {@link com.malhartech.lib.math.CompareExcept}<p>
+ *
  */
 public class CompareExceptTest
 {

@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
+ * Performance tests for {@link com.malhartech.lib.algo.CompareCount} <p>
+ *
  */
 public class CompareCountBenchmark
 {

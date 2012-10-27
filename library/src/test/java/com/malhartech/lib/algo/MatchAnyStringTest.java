@@ -8,10 +8,13 @@ import com.malhartech.dag.TestCountAndLastTupleSink;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ *
+ * Functional tests for {@link com.malhartech.lib.algo.MatchAnyString}<p>
  *
  */
 public class MatchAnyStringTest

@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
+ * Functional tests for {@link com.malhartech.lib.algo.InvertIndex} <p>
+ *
  */
 public class InvertIndexArrayTest
 {

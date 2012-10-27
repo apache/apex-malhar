@@ -5,7 +5,6 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.dag.TestSink;
-import com.malhartech.lib.testbench.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,15 +15,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.testbench.EventGenerator}. <p>
- * <br>
- * Load is generated and the tuples are outputted to ensure that the numbers are roughly in line with the weights<br>
- * <br>
- * Benchmarks:<br>
- * String schema generates over 11 Million tuples/sec<br>
- * HashMap schema generates over 1.7 Million tuples/sec<br>
- * <br>
- * DRC checks are validated<br>
+ * Functional tests for {@link com.malhartech.lib.algo.BottomNUnique}. <p>
  *
  */
 public class BottomNUniqueTest

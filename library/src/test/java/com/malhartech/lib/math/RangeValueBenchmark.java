@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
+ * Performance tests for {@link com.malhartech.lib.math.RangeValue}<p>
+ *
  */
 public class RangeValueBenchmark
 {

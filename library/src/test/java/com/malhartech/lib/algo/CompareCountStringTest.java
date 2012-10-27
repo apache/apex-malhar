@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
+ * Functional tests for {@link com.malhartech.lib.algo.CompareCountString}. <p>
+ *
  */
 public class CompareCountStringTest
 {

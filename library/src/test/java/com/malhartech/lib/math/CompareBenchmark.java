@@ -4,19 +4,16 @@
 package com.malhartech.lib.math;
 
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.api.Sink;
 import com.malhartech.dag.TestCountAndLastTupleSink;
-import com.malhartech.dag.TestSink;
-import com.malhartech.lib.util.MutableDouble;
 import java.util.HashMap;
-import java.util.Map;
-import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ *
+ * Performance tests for {@link com.malhartech.lib.math.Compare} <p>
  *
  */
 public class CompareBenchmark

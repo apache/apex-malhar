@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
+ * Functional tests for {@link com.malhartech.lib.algo.CompareCount} <p>
+ *
  */
 public class CompareCountTest
 {

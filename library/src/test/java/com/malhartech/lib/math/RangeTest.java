@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
+ * Functional tests for {@link com.malhartech.lib.math.Range}<p>
+ *
  */
 public class RangeTest {
     private static Logger LOG = LoggerFactory.getLogger(RangeTest.class);

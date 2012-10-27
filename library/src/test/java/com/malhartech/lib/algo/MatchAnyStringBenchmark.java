@@ -7,10 +7,13 @@ import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.dag.TestCountAndLastTupleSink;
 import java.util.HashMap;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ *
+ * Performance tests for {@link com.malhartech.lib.algo.MatchAnyString}<p>
  *
  */
 public class MatchAnyStringBenchmark
@@ -22,6 +25,7 @@ public class MatchAnyStringBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
+  @Category(com.malhartech.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     MatchAnyString<String> oper = new MatchAnyString<String>();

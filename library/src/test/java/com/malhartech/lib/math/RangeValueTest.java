@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
+ * Functional tests for {@link com.malhartech.lib.math.RangeValue}<p>
+ *
  */
 public class RangeValueTest
 {

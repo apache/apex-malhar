@@ -30,9 +30,8 @@ import java.util.Map;
  * None
  * <br>
  * Run time checks are:<br>
- * None as yet
- *
- *
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * Operator can emit >4 million unique (k,v pairs) tuples/sec, and take in a lot more incoming tuples. The performance is directly proportional to unique key,val pairs emitted<br>
  * @author amol<br>
  *
  */

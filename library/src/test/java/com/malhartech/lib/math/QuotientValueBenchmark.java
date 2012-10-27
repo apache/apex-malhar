@@ -13,8 +13,9 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 /**
+ *
+ * Performance tests for {@link com.malhartech.lib.math.QuotientValue}<p>
  *
  */
 public class QuotientValueBenchmark

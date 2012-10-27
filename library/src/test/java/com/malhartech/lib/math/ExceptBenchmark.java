@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
+ * Performance tests for {@link com.malhartech.lib.math.Except}<p>
+ *
  */
 public class ExceptBenchmark
 {
