@@ -30,7 +30,7 @@ public class TopNUniqueSort<E>
   {
     ascending = flag;
     // Ascending use of pqueue needs a descending comparator
-    q = new PriorityQueue<E>(initialCapacity, new ReversibleComparator<E>(!flag));
+    q = new PriorityQueue<E>(initialCapacity, new ReversibleComparator<E>(flag));
     qbound = bound;
     hmap = new HashMap<E, MutableInteger>();
   }
@@ -72,11 +72,12 @@ public class TopNUniqueSort<E>
     }
     ArrayList ret = new ArrayList(list.size());
     int size = list.size();
-    if (size > n) {
-      size = n;
+    int depth = size;
+    if (depth > n) {
+      depth = n;
     }
-    for (int i = 0; i < size; i++) {
-      E o = (E) list.get(i);
+    for (int i = 0; i < depth; i++) {
+      E o = (E) list.get(size - i - 1);
       HashMap<E, Integer> val = new HashMap<E, Integer>(1);
       MutableInteger ival = hmap.get(o);
       val.put(o, ival.value);
@@ -104,7 +105,7 @@ public class TopNUniqueSort<E>
 
     boolean ret = true;
     boolean insert;
-    Comparable<? super E> head = (Comparable<? super E>)q.peek();
+    Comparable<? super E> head = (Comparable<? super E>) q.peek();
 
     if (ascending) { // means head is the lowest value due to inversion
       insert = head.compareTo(e) < 0; // e > head

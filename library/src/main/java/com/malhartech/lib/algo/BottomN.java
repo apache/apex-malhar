@@ -30,8 +30,8 @@ import java.util.Map;
  * Run time checks are:<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Operator sorts  > 2 million tuples/sec. The sorting was done by adding 5 million values. Since only N tuples are emitted in endWindow
- * the operator is not output I/O bound<br>
+ * Operator sorts  > 8 million tuples/sec for N = 5. The sorting was done by adding 5 million values. Since only N tuples are emitted in endWindow
+ * the operator is not output I/O bound and performance is proportional to N, and not to number of tuples<br>
  * @author amol<br>
  *
  */

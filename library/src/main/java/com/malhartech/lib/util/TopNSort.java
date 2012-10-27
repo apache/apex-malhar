@@ -4,11 +4,8 @@
  */
 package com.malhartech.lib.util;
 
-import com.google.common.collect.MinMaxPriorityQueue;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -23,18 +20,16 @@ import org.slf4j.LoggerFactory;
  */
 public class TopNSort<E>
 {
-  private static Logger LOG = LoggerFactory.getLogger(TopNSort.class);
   int qbound = Integer.MAX_VALUE;
   boolean ascending = true;
-
-  //MinMaxPriorityQueue<E> mq = null;
   PriorityQueue<E> q = null;
 
   public TopNSort(int initialCapacity, int bound, boolean flag)
   {
     ascending = flag;
     // Ascending use of pqueue needs a descending comparator
-    q = new PriorityQueue<E>(initialCapacity, new ReversibleComparator<E>(!flag));
+    q = new PriorityQueue<E>(initialCapacity, new ReversibleComparator<E>(flag));
+    qbound = bound;
   }
 
   public boolean add(E e)
@@ -42,15 +37,18 @@ public class TopNSort<E>
     return offer(e);
   }
 
-  public int size() {
+  public int size()
+  {
     return q.size();
   }
 
-  public void clear() {
+  public void clear()
+  {
     q.clear();
   }
 
-  public boolean isEmpty() {
+  public boolean isEmpty()
+  {
     return q.isEmpty();
   }
 
@@ -72,11 +70,12 @@ public class TopNSort<E>
 
     ArrayList ret = new ArrayList(list.size());
     int size = list.size();
-    if (size > n) {
-      size = n;
+    int depth = size;
+    if (depth > n) {
+      depth = n;
     }
-    for (int i = 0; i < size; i++) {
-      ret.add(list.get(i));
+    for (int i = 0; i < depth; i++) {
+      ret.add(list.get(size - i - 1));
     }
     return ret;
   }
@@ -89,7 +88,7 @@ public class TopNSort<E>
 
     boolean ret = true;
     boolean insert;
-    Comparable<? super E> head = (Comparable<? super E>) q.peek();
+    Comparable<? super E> head = (Comparable<? super E>)q.peek();
 
     if (ascending) { // means head is the lowest value due to inversion
       insert = head.compareTo(e) <= 0; // e >= head
@@ -97,7 +96,6 @@ public class TopNSort<E>
     else { // means head is the highest value due to inversion
       insert = head.compareTo(e) >= 0; // head is <= e
     }
-
     if (insert && q.offer(e)) {
       ret = true;
       q.poll();

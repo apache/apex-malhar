@@ -82,10 +82,12 @@ public class BottomNTest
 
     input.clear();
     input.put("b", 34);
+    input.put("a", 1001);
     oper.data.process(input);
 
     input.clear();
     input.put("b", 6);
+    input.put("a", 1);
     oper.data.process(input);
     input.clear();
     input.put("c", 9);

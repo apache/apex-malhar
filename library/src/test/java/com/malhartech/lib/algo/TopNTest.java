@@ -82,10 +82,12 @@ public class TopNTest
 
     input.clear();
     input.put("b", 34);
+    input.put("a", 1);
     oper.data.process(input);
-    
+
     input.clear();
     input.put("b", 6);
+    input.put("a", 1001);
     oper.data.process(input);
 
     input.clear();
@@ -95,7 +97,7 @@ public class TopNTest
 
     Assert.assertEquals("number emitted tuples", 3, sortSink.collectedTuples.size());
     for (Object o: sortSink.collectedTuples) {
-      for (Map.Entry<String, ArrayList<Number>> e: ((HashMap<String, ArrayList<Number>>) o).entrySet()) {
+      for (Map.Entry<String, ArrayList<Number>> e: ((HashMap<String, ArrayList<Number>>)o).entrySet()) {
         if (e.getKey().equals("a")) {
           Assert.assertEquals("emitted value for 'a' was ", 3, e.getValue().size());
         }
@@ -106,7 +108,7 @@ public class TopNTest
           Assert.assertEquals("emitted tuple for 'c' was ", 1, e.getValue().size());
         }
         log.debug(String.format("Sorted list for %s:", e.getKey()));
-        for (Number i : e.getValue()) {
+        for (Number i: e.getValue()) {
           log.debug(String.format("%s", i.toString()));
         }
       }
