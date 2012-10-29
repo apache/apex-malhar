@@ -4,9 +4,9 @@
  */
 package com.malhartech.lib.io;
 
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.dag.OperatorContext;
 import com.malhartech.dag.TestSink;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;

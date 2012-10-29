@@ -5,16 +5,14 @@
 package com.malhartech.lib.io;
 
 import com.malhartech.annotation.InjectConfig;
-import javax.validation.constraints.NotNull;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.malhartech.api.*;
-import com.malhartech.dag.OperatorContext;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.util.CircularBuffer;
 import com.rabbitmq.client.*;
 import java.io.IOException;
+import javax.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
