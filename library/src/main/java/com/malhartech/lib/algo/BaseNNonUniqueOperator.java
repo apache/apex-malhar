@@ -27,31 +27,36 @@ import java.util.Map;
  * <br>
  * Run time checks are:<br>
  * <br>
+ *
  * @author amol<br>
  *
  */
-public abstract class BaseNNonUniqueOperator<K, V> extends BaseNOperator<K,V>
+public abstract class BaseNNonUniqueOperator<K, V> extends BaseNOperator<K, V>
 {
   abstract public boolean isAscending();
+
   abstract void emit(HashMap<K, ArrayList<V>> tuple);
 
   /**
    * Inserts tuples into the queue
+   *
    * @param tuple to insert in the queue
    */
   @Override
   public void processTuple(HashMap<K, V> tuple)
   {
-      for (Map.Entry<K,V> e: tuple.entrySet()) {
-        TopNSort pqueue = kmap.get(e.getKey());
-        if (pqueue == null) {
-          pqueue = new TopNSort<V>(5, n, isAscending());
-          kmap.put(e.getKey(), pqueue);
-        }
+    for (Map.Entry<K, V> e: tuple.entrySet()) {
+      TopNSort pqueue = kmap.get(e.getKey());
+      if (pqueue == null) {
+        pqueue = new TopNSort<V>(5, n, isAscending());
+        kmap.put(cloneKey(e.getKey()), pqueue);
+        pqueue.offer(cloneValue(e.getValue()));
+      }
+      else {
         pqueue.offer(e.getValue());
       }
+    }
   }
-
   HashMap<K, TopNSort<V>> kmap = new HashMap<K, TopNSort<V>>();
 
   @Override

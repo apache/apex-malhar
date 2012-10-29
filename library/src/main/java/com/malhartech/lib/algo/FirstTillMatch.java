@@ -34,12 +34,8 @@ import java.util.HashMap;
  * none<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Integer: ?? million tuples/s<br>
- * Double: ?? million tuples/s<br>
- * Long: ?? million tuples/s<br>
- * Short: ?? million tuples/s<br>
- * Float: ?? million tuples/s<br>
- *
+ * Operator can process > 5 million unique (k,v immutable pairs) tuples/sec, and take in a lot more incoming tuples. The operator emits tuples per key per window
+ * till a match is found. So the benchmarks and the outbound I/O would change in runtime<br>
  * @author amol
  */
 public class FirstTillMatch<K, V extends Number> extends BaseMatchOperator<K,V>

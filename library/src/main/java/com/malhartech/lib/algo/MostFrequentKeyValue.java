@@ -21,7 +21,7 @@ import java.util.Map;
  * <br>
  * Ports:<br>
  * <b>data</b>: Input port, expects HashMap<String, String><br>
- * <b>count</b>: Output port, emits HashMap<String, HashMap<String, Integer>>(1), where first String is the key, the second String is the value, and Integer is the count of occurrence<br>
+ * <b>most</b>: Output port, emits HashMap<String, HashMap<String, Integer>>(1), where first String is the key, the second String is the value, and Integer is the count of occurrence<br>
  * <br>
  * Properties:<br>
  * none<br>
@@ -60,8 +60,8 @@ public class MostFrequentKeyValue extends BaseOperator
       }
     }
   };
-  @OutputPortFieldAnnotation(name = "data")
-  public final transient DefaultOutputPort<HashMap<String, HashMap<String, Integer>>> count = new DefaultOutputPort<HashMap<String, HashMap<String, Integer>>>(this);
+  @OutputPortFieldAnnotation(name = "most")
+  public final transient DefaultOutputPort<HashMap<String, HashMap<String, Integer>>> most = new DefaultOutputPort<HashMap<String, HashMap<String, Integer>>>(this);
   HashMap<String, HashMap<String, MutableInteger>> keyvals = new HashMap<String, HashMap<String, MutableInteger>>();
 
   @Override
@@ -89,7 +89,7 @@ public class MostFrequentKeyValue extends BaseOperator
         HashMap<String, Integer> valpair = new HashMap<String, Integer>(1);
         valpair.put(val, new Integer(kval));
         tuple.put(e.getKey(), valpair);
-        count.emit(tuple);
+        most.emit(tuple);
       }
     }
   }

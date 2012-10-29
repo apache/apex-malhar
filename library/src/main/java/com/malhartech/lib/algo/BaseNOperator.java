@@ -9,6 +9,7 @@ import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import java.util.HashMap;
+import java.util.Map;
 import javax.validation.constraints.Min;
 
 /**
@@ -34,12 +35,12 @@ import javax.validation.constraints.Min;
  * @author amol<br>
  *
  */
-abstract public class BaseNOperator<K, V> extends BaseOperator
+abstract public class BaseNOperator<K, V> extends BaseKeyOperator<K>
 {
-    /**
+  /**
    * Expects a HashMap<K,V> tuple
    */
-  @InputPortFieldAnnotation(name="data")
+  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
     @Override
@@ -48,7 +49,6 @@ abstract public class BaseNOperator<K, V> extends BaseOperator
       processTuple(tuple);
     }
   };
-
   @Min(1)
   @InjectConfig(key = "n")
   int n = 1;
@@ -64,5 +64,17 @@ abstract public class BaseNOperator<K, V> extends BaseOperator
   public int getN()
   {
     return n;
+  }
+
+  public HashMap<K, V> cloneTuple(K key, V val)
+  {
+    HashMap<K, V> ret = new HashMap<K, V>(1);
+    ret.put(cloneKey(key), cloneValue(val));
+    return ret;
+  }
+  
+  public V cloneValue(V v)
+  {
+    return v;
   }
 }

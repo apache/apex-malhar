@@ -29,7 +29,8 @@ import java.util.Map;
  * none<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- *
+ * Operator can process > 4 million unique (k,v immutable pairs) tuples/sec, and take in a lot more incoming tuples. The operator emits only N tuples per key per window
+ * and hence is not bound by outbound throughput<br>
  * @author amol
  */
 
@@ -55,9 +56,7 @@ public class FirstN<K,V> extends BaseNOperator<K, V>
       }
       count.value++;
       if (count.value <= n) {
-        HashMap<K, V> dtuple = new HashMap<K, V>(1);
-        dtuple.put(e.getKey(), e.getValue());
-        first.emit(dtuple);
+        first.emit(cloneTuple(e.getKey(), e.getValue()));
       }
     }
   }

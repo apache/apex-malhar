@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.annotation.InjectConfig;
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
@@ -17,6 +18,8 @@ import java.util.Map;
  *
  * Takes a stream on input port "data", and outputs only keys specified by property "keys" on put output port "filter". If
  * property "inverse" is set to "true", then all keys except those specified by "keys" are emitted<p>
+ * Operator assumes that the key, val pairs are immutable objects. If this operator has to be used for mutable objects, override "cloneKey" to make copy of K, and
+ * "cloneValue" to make copy of V.
  * <br>
  * This is a pass through node. It takes in HashMap<String, V> and outputs HashMap<String, V><br>
  * <br>
@@ -32,12 +35,14 @@ import java.util.Map;
  * Run time checks are:<br>
  * None
  * <br>
- *
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * Operator can emit about 8 million unique (k,v immutable pairs) tuples/sec, and take in a lot more incoming tuples. The performance is directly proportional to key,val pairs emitted<br>
+ * <br>
  * @author amol<br>
  *
  */
 
-public class FilterKeys<K,V> extends BaseOperator
+public class FilterKeys<K,V> extends BaseKeyOperator<K>
 {
   @InputPortFieldAnnotation(name="data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
@@ -52,7 +57,7 @@ public class FilterKeys<K,V> extends BaseOperator
           if (dtuple == null) {
             dtuple = new HashMap<K, V>(4); // usually the filter keys are very few, so 4 is just fine
           }
-          dtuple.put(e.getKey(), e.getValue());
+          dtuple.put(cloneKey(e.getKey()), cloneValue(e.getValue()));
         }
       }
       if (dtuple != null) {
@@ -65,13 +70,14 @@ public class FilterKeys<K,V> extends BaseOperator
   public final transient DefaultOutputPort<HashMap<K, V>> filter = new DefaultOutputPort<HashMap<K, V>>(this);
 
   HashMap<K, V> keys = new HashMap<K, V>();
+  @InjectConfig(key = "inverse")
   boolean inverse = false;
 
   public void setInverse(boolean val) {
     inverse = val;
   }
 
-  public void setKeys(K str) {
+  public void setKey(K str) {
       keys.put(str, null);
   }
 
@@ -81,4 +87,14 @@ public class FilterKeys<K,V> extends BaseOperator
       keys.put(e,null);
     }
   }
+  public void clearKeys()
+  {
+    keys.clear();
+  }
+
+  public V cloneValue(V v)
+  {
+    return v;
+  }
+
 }

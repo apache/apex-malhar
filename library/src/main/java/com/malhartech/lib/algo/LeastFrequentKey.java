@@ -10,6 +10,7 @@ import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.MutableInteger;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,10 +18,13 @@ import java.util.Map;
  *
  * Takes in one stream via input port "data". Occurrences of each key is counted and at the end of window the least frequent key is emitted on output port "count"<p>
  * This module is an end of window module<br>
+ * In case of a tie
  * <br>
  * Ports:<br>
  * <b>data</b>: expects K<br>
- * <b>count</b>: emits HashMap<K, Integer>(1); where String is the least frequent key, and Integer is the number of its occurrences in the window<br>
+ * <b>least</b>: emits HashMap<K, Integer>(1); where String is the least frequent key, and Integer is the number of its occurrences in the window. In case of tie
+ * any of th least key would be emitted<br>
+ * <b>list</b>: emits ArrayList<HashMap<K,Integer>(1)>; Where the list includes all the keys are least frequent<br>
  * <br>
  * Properties:<br>
  * none<br>
@@ -32,11 +36,12 @@ import java.util.Map;
  * none<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * TBD<br>
- *
+ * Operator can process > 60 million unique (k immutable object tuples/sec, and take in a lot more incoming tuples. The operator emits only one tuple per window
+ * and hence is not bound by outbound throughput<br>
+ * <br>
  * @author amol
  */
-public class LeastFrequentKey<K> extends BaseOperator
+public class LeastFrequentKey<K> extends BaseFrequentKey<K>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>(this)
@@ -44,42 +49,29 @@ public class LeastFrequentKey<K> extends BaseOperator
     @Override
     public void process(K tuple)
     {
-      MutableInteger count = keycount.get(tuple);
-      if (count == null) {
-        count = new MutableInteger(0);
-        keycount.put(tuple, count);
-      }
-      count.value++;
+      processTuple(tuple);
     }
   };
-
-  @OutputPortFieldAnnotation(name = "count")
-  public final transient DefaultOutputPort<HashMap<K, Integer>> count = new DefaultOutputPort<HashMap<K, Integer>>(this);
-  HashMap<K, MutableInteger> keycount = new HashMap<K, MutableInteger>();
+  @OutputPortFieldAnnotation(name = "least")
+  public final transient DefaultOutputPort<HashMap<K, Integer>> least = new DefaultOutputPort<HashMap<K, Integer>>(this);
+  @OutputPortFieldAnnotation(name = "list")
+  public final transient DefaultOutputPort<ArrayList<HashMap<K, Integer>>> list = new DefaultOutputPort<ArrayList<HashMap<K, Integer>>>(this);
 
   @Override
-  public void beginWindow()
+  public void emitTuple(HashMap<K, Integer> tuple)
   {
-    keycount.clear();
+    least.emit(tuple);
   }
 
   @Override
-  public void endWindow()
+    public boolean compareCount(int val1, int val2)
   {
-    K key = null;
-    int kval = -1;
-    for (Map.Entry<K, MutableInteger> e: keycount.entrySet()) {
-      if ((kval == -1) || // first key
-              (e.getValue().value < kval)) {
-        key = e.getKey();
-        kval = e.getValue().value;
-      }
-      e.getValue().value = 0; // clear the positions
-    }
-    if ((key != null) && (kval > 0)) { // key is null if no
-      HashMap<K, Integer> tuple = new HashMap<K, Integer>(1);
-      tuple.put(key, new Integer(kval));
-      count.emit(tuple);
-    }
+    return val1 < val2;
+  }
+
+  @Override
+  public void emitList(ArrayList<HashMap<K, Integer>> tlist)
+  {
+    list.emit(tlist);
   }
 }

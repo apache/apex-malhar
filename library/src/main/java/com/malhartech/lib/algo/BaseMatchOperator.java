@@ -33,7 +33,7 @@ import javax.validation.constraints.Pattern;
  *
  * @author amol
  */
-public class BaseMatchOperator<K, V> extends BaseOperator
+public class BaseMatchOperator<K, V> extends BaseKeyOperator<K>
 {
   @InjectConfig(key = "key")
   private K key;
@@ -73,7 +73,7 @@ public class BaseMatchOperator<K, V> extends BaseOperator
   public boolean compareValue(double value)
   {
     boolean ret;
-    switch(type) {
+    switch (type) {
       case LT:
         ret = value < this.value;
         break;
@@ -167,8 +167,14 @@ public class BaseMatchOperator<K, V> extends BaseOperator
   {
     HashMap<K, V> ret = new HashMap<K, V>(tuple.size());
     for (Map.Entry<K, V> e: tuple.entrySet()) {
-      ret.put(e.getKey(), e.getValue());
+      ret.put(cloneKey(e.getKey()), cloneValue(e.getValue()));
     }
     return ret;
+  }
+
+  // Currently all operators that extend BaseMatchOperator have immutable Value objects
+  public V cloneValue(V v)
+  {
+    return v;
   }
 }

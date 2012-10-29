@@ -16,6 +16,7 @@ import java.util.HashMap;
  * passed the test, it is emitted on the output port "first" as the first match. The comparison is done by getting double
  * value from the Number.<p>
  * This module is a pass through<br>
+ * The operators by default assumes immutable keys. If the key is mutable, use cloneKey to make a copy<br>
  * <br>
  * Ports:<br>
  * <b>data</b>: Input port, expects HashMap<K,V extends Number><br>
@@ -34,13 +35,11 @@ import java.util.HashMap;
  * Run time checks<br>
  * none<br>
  * <br>
+ * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Integer: ?? million tuples/s<br>
- * Double: ?? million tuples/s<br>
- * Long: ?? million tuples/s<br>
- * Short: ?? million tuples/s<br>
- * Float: ?? million tuples/s<br>
- *
+ * Operator can process > 15 million unique (k,v immutable pairs) tuples/sec, and take in a lot more incoming tuples. The operator emits only one tuple per window
+ * and hence is not bound by outbound throughput<br>
+ * <br>
  * @author amol
  */
 public class FirstMatch<K, V extends Number> extends BaseMatchOperator<K,V>
@@ -55,7 +54,7 @@ public class FirstMatch<K, V extends Number> extends BaseMatchOperator<K,V>
         return;
       }
       V val = tuple.get(getKey());
-      if (val != null) { // skip if key does not exist
+      if (val == null) { // skip if key does not exist
         return;
       }
       if (compareValue(val.doubleValue())) {

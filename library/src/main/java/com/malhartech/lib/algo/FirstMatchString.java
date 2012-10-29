@@ -35,12 +35,9 @@ import java.util.HashMap;
  * none<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Integer: ?? million tuples/s<br>
- * Double: ?? million tuples/s<br>
- * Long: ?? million tuples/s<br>
- * Short: ?? million tuples/s<br>
- * Float: ?? million tuples/s<br>
- *
+ * Operator can process > 15 million unique (k,String immutable pairs) tuples/sec, and take in a lot more incoming tuples. The operator emits only one tuple per window
+ * and hence is not bound by outbound throughput<br>
+ * <br>
  * @author amol
  */
 public class FirstMatchString<K> extends BaseMatchOperator<K,String>
