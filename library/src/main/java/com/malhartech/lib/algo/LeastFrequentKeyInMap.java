@@ -34,7 +34,7 @@ import java.util.Map;
  * none<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Operator can process > 30 million unique (k immutable object tuples/sec, and take in a lot more incoming tuples. The operator emits only one tuple per window
+ * Operator can process > 30 million unique (k immutable) object tuples/sec, and take in a lot more incoming tuples. The operator emits only one tuple per window
  * and hence is not bound by outbound throughput<br>
  * <br>
  * @author amol

@@ -33,64 +33,25 @@ import java.util.Map;
  * none<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * TBD<br>
- *
+ * Operator can process about 30 million unique (k,v immutable) object tuples/sec, and take in a lot more incoming tuples. The operator emits only one tuple per window
+ * and hence is not bound by outbound throughput<br>
+ * <br>
  * @author amol
  */
-public class MostFrequentKeyValue extends BaseOperator
+public class MostFrequentKeyValue<K, V> extends BaseFrequentKeyValue<K, V>
 {
-  @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<HashMap<String, String>> data = new DefaultInputPort<HashMap<String, String>>(this)
-  {
-    @Override
-    public void process(HashMap<String, String> tuple)
-    {
-      for (Map.Entry<String, String> e: tuple.entrySet()) {
-        HashMap<String, MutableInteger> vals = keyvals.get(e.getKey());
-        if (vals == null) {
-          vals = new HashMap<String, MutableInteger>();
-          keyvals.put(e.getKey(), vals);
-        }
-        MutableInteger count = vals.get(e.getValue());
-        if (count == null) {
-          count = new MutableInteger(0);
-          vals.put(e.getValue(), count);
-        }
-        count.value++;
-      }
-    }
-  };
   @OutputPortFieldAnnotation(name = "most")
-  public final transient DefaultOutputPort<HashMap<String, HashMap<String, Integer>>> most = new DefaultOutputPort<HashMap<String, HashMap<String, Integer>>>(this);
-  HashMap<String, HashMap<String, MutableInteger>> keyvals = new HashMap<String, HashMap<String, MutableInteger>>();
+  public final transient DefaultOutputPort<HashMap<K, HashMap<V, Integer>>> most = new DefaultOutputPort<HashMap<K, HashMap<V, Integer>>>(this);
 
   @Override
-  public void beginWindow()
+  public boolean compareValue(int val1, int val2)
   {
-    keyvals.clear();
+    return (val1 > val2);
   }
 
   @Override
-  public void endWindow()
+  public void emitTuple(HashMap<K, HashMap<V, Integer>> tuple)
   {
-    for (Map.Entry<String, HashMap<String, MutableInteger>> e: keyvals.entrySet()) {
-      String val = null;
-      int kval = -1;
-      HashMap<String, MutableInteger> vals = e.getValue();
-      for (Map.Entry<String, MutableInteger> v: vals.entrySet()) {
-        if ((kval == -1) || // first key
-                (v.getValue().value > kval)) {
-          val = v.getKey();
-          kval = v.getValue().value;
-        }
-      }
-      if ((val != null) && (kval > 0)) { // key should never be null
-        HashMap<String, HashMap<String, Integer>> tuple = new HashMap<String, HashMap<String, Integer>>(1);
-        HashMap<String, Integer> valpair = new HashMap<String, Integer>(1);
-        valpair.put(val, new Integer(kval));
-        tuple.put(e.getKey(), valpair);
-        most.emit(tuple);
-      }
-    }
+    most.emit(tuple);
   }
 }

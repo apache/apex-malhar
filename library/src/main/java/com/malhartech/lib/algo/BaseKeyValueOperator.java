@@ -4,18 +4,16 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.api.BaseOperator;
-
 /**
  * Abstract class for basic operators. Allows cloneKey for allowing users to use mutable objects
  *
  * @author amol<br>
  *
  */
-abstract public class BaseKeyOperator<K> extends BaseOperator
+abstract public class BaseKeyValueOperator<K,V> extends BaseKeyOperator<K>
 {
-  public K cloneKey(K k)
+  public V cloneValue(V v)
   {
-    return k;
+    return v;
   }
 }

@@ -6,7 +6,6 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import java.util.ArrayList;
@@ -31,13 +30,14 @@ import java.util.Map;
  * Run time checks are:<br>
  * None<br>
  * <br>
- *
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * Operator can process about 2 million unique (k,v immutable pairs) tuples/sec. The operator is proportional to both incoming tuples and outbound tuples
+ * as usually an invert index may not have as many duplicates<br>
  * @author amol<br>
  *
  */
-public class InvertIndex<K, V> extends BaseOperator
+public class InvertIndex<K, V> extends BaseKeyValueOperator<K, V>
 {
-
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
@@ -48,7 +48,10 @@ public class InvertIndex<K, V> extends BaseOperator
     public void process(HashMap<K, V> tuple)
     {
       for (Map.Entry<K, V> e: tuple.entrySet()) {
-          insert(e.getValue(), e.getKey());
+        if (e.getValue() == null) { // error tuple?
+          continue;
+        }
+        insert(cloneValue(e.getValue()), cloneKey(e.getKey()));
       }
     }
   };
