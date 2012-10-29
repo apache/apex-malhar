@@ -28,7 +28,7 @@ public class LeastFrequentKeyInMapBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.malhartech.PerformanceTestCategory.class)
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     LeastFrequentKeyInMap<String, Integer> oper = new LeastFrequentKeyInMap<String, Integer>();

@@ -27,7 +27,7 @@ public class FirstTillMatchStringBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.malhartech.PerformanceTestCategory.class)
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     FirstTillMatchString<String> oper = new FirstTillMatchString<String>();

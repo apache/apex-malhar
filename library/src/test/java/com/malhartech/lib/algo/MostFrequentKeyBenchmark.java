@@ -28,7 +28,7 @@ public class MostFrequentKeyBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.malhartech.PerformanceTestCategory.class)
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     MostFrequentKey<String> oper = new MostFrequentKey<String>();

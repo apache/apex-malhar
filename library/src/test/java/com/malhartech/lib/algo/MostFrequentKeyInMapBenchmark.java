@@ -28,7 +28,7 @@ public class MostFrequentKeyInMapBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.malhartech.PerformanceTestCategory.class)
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     MostFrequentKeyInMap<String, Integer> oper = new MostFrequentKeyInMap<String, Integer>();

@@ -38,7 +38,7 @@ public class FilterKeysBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.malhartech.PerformanceTestCategory.class)
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     FilterKeys<String, Number> oper = new FilterKeys<String, Number>();
