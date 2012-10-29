@@ -6,14 +6,18 @@ package com.malhartech.lib.io;
 
 import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.dag.TestSink;
+import java.io.IOException;
+import java.util.HashMap;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.TextMessage;
 import junit.framework.Assert;
 import org.apache.activemq.broker.BrokerService;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -22,126 +26,154 @@ import org.slf4j.LoggerFactory;
  */
 public class ActiveMQInputOperatorTest
 {
-  private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ActiveMQInputOperatorTest.class);
-  static OperatorConfiguration config;
- // static AbstractActiveMQInputOperator node;
+  private static final Logger logger = LoggerFactory.getLogger(ActiveMQInputOperatorTest.class);
   private static BrokerService broker;
+  private static ActiveMQBase amqConfig;
   static int debugMessageCount = 5;  // for debug, display first few messages
+  public HashMap<Integer, String> receivedData = new HashMap<Integer, String>();
+  private int receivedCount = 0;
 
   /**
    * Concrete class of ActiveMQInputOperator for testing.
    */
-  private static final class ActiveMQInputOperator extends AbstractActiveMQInputOperator<String>
+  private final class ActiveMQInputOperator extends AbstractActiveMQInputOperator<String>
   {
+    public ActiveMQInputOperator(ActiveMQBase helper)
+    {
+      super(helper);
+    }
+
     @Override
     protected String getTuple(Message message) throws JMSException
     {
-      //logger.info("emitMessage got called from {}", this);
+      //logger.debug("getTuple() got called from {}", this);
       if (message instanceof TextMessage) {
-        logger.info("Received Message: {}", ((TextMessage)message).getText());
-        return (((TextMessage)message).getText());
+        String msg = ((TextMessage)message).getText();
+        logger.debug("Received Message: {}", msg);
+        receivedData.put(new Integer(++receivedCount), msg);
+        return msg;
       }
       else {
-        throw new JMSException("Unexpected message type of " + message.getClass());
+        throw new IllegalArgumentException("Unhandled message type " + message.getClass().getName());
       }
     }
   }
 
-    @BeforeClass
-    public static void setUpClass() throws Exception
-    {
-      config = new OperatorConfiguration();
-      config.set("user", "");
-      config.set("password", "");
-      config.set("url", "tcp://localhost:61617");
-      config.set("ackMode", "AUTO_ACKNOWLEDGE");
-      config.set("clientId", "consumer1");
-      config.set("consumerName", "MyConsumer");
-      config.set("durable", "false");
-      config.set("maximumMessages", "10");  // 0 means unlimitted
-      config.set("pauseBeforeShutdown", "true");
-      config.set("receiveTimeOut", "0");
-      config.set("sleepTime", "1000");
-      config.set("subject", "TEST.FOO");
-      config.set("parallelThreads", "1");
-      config.set("topic", "false");
-      config.set("transacted", "false");
-      config.set("verbose", "true");
-      config.set("batch", "10");
-      config.set("messageSize", "225");
-
-      //node = new ActiveMQInputOperator();
-
-      startActiveMQService();
-    }
-
-    /**
-     * Start ActiveMQ broker from the Testcase.
-     *
-     * @throws Exception
-     */
-    private static void startActiveMQService() throws Exception
-    {
-      broker = new BrokerService();
-      broker.addConnector(config.get("url") + "?broker.persistent=false");
-      broker.start();
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception
-    {
-      //node = null;
-      config = null;
-    }
-
-    /**
-     * Test AbstractActiveMQInputOperator (i.e. an input adapter for ActiveMQ, aka consumer).
-     * This module receives data from an outside test generator through ActiveMQ message bus and
-     * feed that data into Malhar streaming platform.
-     *
-     * @throws Exception
-     */
-    @Test
-    @SuppressWarnings("SleepWhileInLoop")
-    public void testConsumer() throws Exception
-    {
-      // Setup a message generator to receive the message from.
-      ActiveMQMessageGenerator generator = new ActiveMQMessageGenerator(config);
-      try {
-        generator.setDebugMessageCount(debugMessageCount);
-        generator.setupConnection();
-        generator.sendMessage();
-
-      }
-      catch (JMSException ex) {
-        logger.debug(ex.getLocalizedMessage());
-      }
-      generator.closeConnection();
-
-      // The output port of node should be connected to a Test sink.
-      TestSink<String> outSink = new TestSink<String>();
-      ActiveMQInputOperator node  = new ActiveMQInputOperator();
-      node.outputPort.setSink(outSink);
-      node.setup(config);
-
-      int N = 10;
-      int timeoutMillis = 5000;
-      while (outSink.collectedTuples.size() < 10 && timeoutMillis > 0) {
-        node.emitTuples(0);
-        timeoutMillis -= 20;
-        Thread.sleep(20);
-      }
-
-      // Check values send vs received
-      int totalCount = outSink.collectedTuples.size();
-      Assert.assertEquals("Number of emitted tuples", generator.sendCount, totalCount);
-      logger.debug(String.format("Number of emitted tuples: %d", totalCount));
-
-      // Check contents only for first few.
-      for (int i = 0; i < debugMessageCount & i < totalCount; ++i) {
-        Assert.assertEquals("Message content", generator.sendData.get(i), (String)(outSink.collectedTuples.get(i)));
-        logger.debug(String.format("Received: %s", outSink.collectedTuples.get(i)));
-      }
-
-    }
+  @BeforeClass
+  public static void setUpClass() throws Exception
+  {
+    amqConfig = new ActiveMQBase(false); // false means not producer
+    startActiveMQService();
   }
+
+  /**
+   * Start ActiveMQ broker from the Testcase.
+   *
+   * @throws Exception
+   */
+  private static void startActiveMQService() throws Exception
+  {
+    broker = new BrokerService();
+    broker.addConnector("tcp://localhost:61617?broker.persistent=false");
+    broker.getSystemUsage().getStoreUsage().setLimit(1024 * 1024 * 1024);  // 1GB
+    broker.getSystemUsage().getTempUsage().setLimit(100 * 1024 * 1024);    // 100MB
+    broker.setDeleteAllMessagesOnStartup(true);
+    broker.start();
+  }
+
+  @AfterClass
+  public static void tearDownClass() throws Exception
+  {
+    //amqConfig.cleanup();
+    //broker.deleteAllMessages();
+    //broker.removeDestination(amqConfig.getDestination());
+    broker.stop();
+
+  }
+
+  @After
+  public void endTest() throws IOException {
+      broker.deleteAllMessages();
+
+  }
+
+  /**
+   * Test AbstractActiveMQInputOperator (i.e. an input adapter for ActiveMQ, aka consumer).
+   * This module receives data from an outside test generator through ActiveMQ message bus and
+   * feed that data into Malhar streaming platform.
+   *
+   * [Generate message and send that to ActiveMQ message bus] ==>
+   * [Receive that message through ActiveMQ input adapter(i.e. consumer) and send via emit() in output port during onMessage call]
+   *
+   * Note: We don't need to test the data is being send to sink through output port.
+   *
+   * @throws Exception
+   */
+  @SuppressWarnings("SleepWhileInLoop")
+  public void testActiveMQInputOperator() throws Exception
+  {
+    // Set configuation for ActiveMQ
+    amqConfig.setUser("");
+    amqConfig.setPassword("");
+    amqConfig.setUrl("tcp://localhost:61617");
+    amqConfig.setAckMode("CLIENT_ACKNOWLEDGE");
+    amqConfig.setClientId("Client1");
+    amqConfig.setConsumerName("Consumer1");
+    amqConfig.setSubject("TEST.FOO");
+    amqConfig.setMaximumMessage(20);
+    amqConfig.setMessageSize(255);
+    amqConfig.setBatch(10);
+    amqConfig.setTopic(false);
+    amqConfig.setDurable(false);
+    //amqConfig.setTransacted(false);
+    amqConfig.setVerbose(true);
+
+    // Setup a message generator to receive the message from.
+    ActiveMQMessageGenerator generator = new ActiveMQMessageGenerator(amqConfig);
+    try {
+      generator.setDebugMessageCount(debugMessageCount);
+      generator.setupConnection();
+      generator.sendMessage();
+    }
+    catch (JMSException ex) {
+      logger.debug(ex.getLocalizedMessage());
+    }
+    generator.closeConnection();
+
+    // The output port of node should be connected to a Test sink.
+    TestSink<String> outSink = new TestSink<String>();
+    ActiveMQInputOperator node = new ActiveMQInputOperator(amqConfig);
+    node.outputPort.setSink(outSink);
+    node.setup(new OperatorConfiguration());
+
+    // Allow some time to receive data.
+    Thread.sleep(2000);
+
+    // Check values send vs received.
+    int totalCount = receivedData.size();
+    Assert.assertEquals("Number of emitted tuples", generator.sendCount, totalCount);
+    logger.debug(String.format("Number of emitted tuples: %d", totalCount));
+
+    // Check contents only for first few.
+    for (int i = 1; i <= debugMessageCount & i < totalCount; ++i) {
+      Assert.assertEquals("Message content", generator.sendData.get(i), receivedData.get(new Integer(i)));
+      logger.debug(String.format("Received: %s", receivedData.get(new Integer(i))));
+    }
+
+  }
+
+  @Test
+  public void test1() throws Exception
+  {
+    amqConfig.setTransacted(false);
+    testActiveMQInputOperator();
+    Thread.sleep(3000);
+  }
+
+  //@Test
+  public void test2() throws Exception
+  {
+    amqConfig.setTransacted(true);
+    testActiveMQInputOperator();
+  }
+}

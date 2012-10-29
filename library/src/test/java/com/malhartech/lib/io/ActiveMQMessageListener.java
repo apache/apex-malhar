@@ -4,12 +4,10 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.api.OperatorConfiguration;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.jms.*;
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -19,19 +17,20 @@ import org.slf4j.LoggerFactory;
  */
 public class ActiveMQMessageListener implements MessageListener, Runnable
 {
-  private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ActiveMQMessageListener.class);
-  private OperatorConfiguration config;
+  private static final Logger logger = LoggerFactory.getLogger(ActiveMQMessageListener.class);
   private Connection connection;
   private Session session;
   private MessageConsumer consumer;
-  HashMap<Integer, String> receivedData = new HashMap<Integer, String>();
+  private Destination destination;
   private int countMessages = 0;
-  private int maximumReceiveMessages = 0;
+  private long maximumReceiveMessages = 0;
+  private ActiveMQBase amqConfig;
+  public HashMap<Integer, String> receivedData = new HashMap<Integer, String>();
 
-  public ActiveMQMessageListener(OperatorConfiguration config)
+  public ActiveMQMessageListener(ActiveMQBase config)
   {
-    this.config = config;
-    maximumReceiveMessages = config.getInt("maximumReceiveMessages", 0);
+    amqConfig = config;
+    maximumReceiveMessages = amqConfig.getMaximumReceiveMessages();
   }
 
   public void setupConnection() throws JMSException
@@ -39,31 +38,25 @@ public class ActiveMQMessageListener implements MessageListener, Runnable
     // Create connection
     ActiveMQConnectionFactory connectionFactory;
     connectionFactory = new ActiveMQConnectionFactory(
-            config.get("user"),
-            config.get("password"),
-            config.get("url"));
+            amqConfig.getUser(),
+            amqConfig.getPassword(),
+            amqConfig.getUrl());
 
     connection = connectionFactory.createConnection();
     connection.start();
 
     // Create session
-    session = connection.createSession(config.getBoolean("transacted", false), Session.AUTO_ACKNOWLEDGE);
+    session = connection.createSession(amqConfig.isTransacted(), amqConfig.getSessionAckMode(amqConfig.getAckMode()));
 
     // Create destination
-    Destination destination;
-    if (config.getBoolean("topic", false)) {
-      destination = session.createTopic(config.get("subject"));
-    }
-    else {
-      destination = session.createQueue(config.get("subject"));
-    }
+    destination = amqConfig.isTopic()
+                  ? session.createTopic(amqConfig.getSubject())
+                  : session.createQueue(amqConfig.getSubject());
 
-    if (config.getBoolean("durable", false) && config.getBoolean("topic", false)) {
-      consumer = session.createDurableSubscriber((Topic)destination, config.get("consumerName"));
-    }
-    else {
-      consumer = session.createConsumer(destination);
-    }
+    consumer = (amqConfig.isDurable() && amqConfig.isTopic())
+               ? session.createDurableSubscriber((Topic)destination, amqConfig.getConsumerName())
+               : session.createConsumer(destination);
+
     consumer.setMessageListener(this);
   }
 
@@ -71,13 +64,13 @@ public class ActiveMQMessageListener implements MessageListener, Runnable
   public void onMessage(Message message)
   {
     // Stop listener if captured maximum messages.
-    if (countMessages++ >= maximumReceiveMessages && maximumReceiveMessages != 0){
+    if (countMessages++ >= maximumReceiveMessages && maximumReceiveMessages != 0) {
       try {
         logger.warn("Reached maximum receive messages of {}", maximumReceiveMessages);
         consumer.setMessageListener(null);
       }
       catch (JMSException ex) {
-        Logger.getLogger(ActiveMQMessageListener.class.getName()).log(Level.SEVERE, null, ex);
+        logger.debug(ex.getLocalizedMessage());
       }
       return;
     }
@@ -91,7 +84,7 @@ public class ActiveMQMessageListener implements MessageListener, Runnable
         receivedData.put(new Integer(countMessages), msg);
       }
       catch (JMSException ex) {
-        Logger.getLogger(ActiveMQOutputOperatorTest.class.getName()).log(Level.SEVERE, null, ex);
+        logger.debug(ex.getLocalizedMessage());
       }
 
       System.out.println("Received a TextMessage: '" + msg + "'");
@@ -109,11 +102,11 @@ public class ActiveMQMessageListener implements MessageListener, Runnable
       Thread.sleep(2000);  // how long this should be?
     }
     catch (InterruptedException ex) {
-      Logger.getLogger(ActiveMQOutputOperatorTest.class.getName()).log(Level.SEVERE, null, ex);
+      logger.debug(ex.getLocalizedMessage());
     }
   }
 
-    public void closeConnection()
+  public void closeConnection()
   {
     try {
       consumer.close();
@@ -121,8 +114,7 @@ public class ActiveMQMessageListener implements MessageListener, Runnable
       connection.close();
     }
     catch (JMSException ex) {
-      Logger.getLogger(ActiveMQMessageGenerator.class.getName()).log(Level.SEVERE, null, ex);
+      logger.debug(ex.getLocalizedMessage());
     }
   }
-
 }

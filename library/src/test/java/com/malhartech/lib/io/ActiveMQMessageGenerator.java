@@ -4,12 +4,11 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.api.OperatorConfiguration;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.jms.*;
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the message generator outside of Malhar/Hadoop.
@@ -19,7 +18,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
  */
 public class ActiveMQMessageGenerator
 {
-  private OperatorConfiguration config;
+  private static final Logger logger = LoggerFactory.getLogger(ActiveMQMessageGenerator.class);
   private Connection connection;
   private Session session;
   private Destination destination;
@@ -27,55 +26,62 @@ public class ActiveMQMessageGenerator
   public HashMap<Integer, String> sendData = new HashMap<Integer, String>();
   public int sendCount = 0;
   private int debugMessageCount = 0;
+  private ActiveMQBase amqConfig;
+
+  public ActiveMQMessageGenerator(ActiveMQBase config)
+  {
+    amqConfig = config;
+  }
 
   public void setDebugMessageCount(int count)
   {
     debugMessageCount = count;
   }
 
-  public ActiveMQMessageGenerator(OperatorConfiguration config)
-  {
-    this.config = config;
-  }
-
+  /**
+   * Setup connection, producer, consumer so on.
+   *
+   * @throws JMSException
+   */
   public void setupConnection() throws JMSException
   {
     // Create connection
     ActiveMQConnectionFactory connectionFactory;
     connectionFactory = new ActiveMQConnectionFactory(
-            config.get("user"),
-            config.get("password"),
-            config.get("url"));
+            amqConfig.getUser(),
+            amqConfig.getPassword(),
+            amqConfig.getUrl());
 
     connection = connectionFactory.createConnection();
     connection.start();
 
     // Create session
-    session = connection.createSession(config.getBoolean("transacted", false), Session.AUTO_ACKNOWLEDGE);
+    session = connection.createSession(amqConfig.isTransacted(), amqConfig.getSessionAckMode(amqConfig.getAckMode()));
 
     // Create destination
-    //Destination destination;
-    if (config.getBoolean("topic", false)) {
-      destination = session.createTopic(config.get("subject"));
-    }
-    else {
-      destination = session.createQueue(config.get("subject"));
-    }
+    destination = amqConfig.isTopic()
+                  ? session.createTopic(amqConfig.getSubject())
+                  : session.createQueue(amqConfig.getSubject());
 
     // Create producer
     producer = session.createProducer(destination);
   }
 
+  /**
+   * Generate message and send it to ActiveMQ message bus.
+   *
+   * @throws Exception
+   */
   public void sendMessage() throws Exception
   {
-    int messageCount = config.getInt("maximumMessages", 0);
-    for (int i = 0; i < messageCount || messageCount == 0; i++) {
+    long messageCount = amqConfig.getMaximumMessage();
+    for (int i = 1; i <= messageCount || messageCount == 0; i++) {
 
       // Silly message
       String myMsg = "My TestMessage " + i;
       //String myMsg = "My TestMessage " + i + " sent at " + new Date();
 
-      int messageSize = config.getInt("messageSize", 0);
+      int messageSize = amqConfig.getMessageSize();
       if (myMsg.length() > messageSize) {
         myMsg = myMsg.substring(0, messageSize);
       }
@@ -87,18 +93,18 @@ public class ActiveMQMessageGenerator
       sendData.put(i, myMsg);
       sendCount++;
 
-      if (config.getBoolean("verbose", false)) {
+      if (amqConfig.isVerbose()) {
         String msg = message.getText();
         if (msg.length() > messageSize) {
           msg = msg.substring(0, messageSize) + "...";
         }
-        if (i < debugMessageCount) {
+        if (i <= debugMessageCount) {
           System.out.println("[" + this + "] Sending message from generator: '" + msg + "'");
         }
       }
 
-      if (config.getBoolean("transacted", false)) {
-        if (i < debugMessageCount) {
+      if (amqConfig.isTransacted()) {
+        if (i <= debugMessageCount) {
           System.out.println("[" + this + "] Committing " + messageCount + " messages");
         }
         session.commit();
@@ -106,6 +112,9 @@ public class ActiveMQMessageGenerator
     }
   }
 
+  /**
+   * Close connection resources.
+   */
   public void closeConnection()
   {
     try {
@@ -114,7 +123,7 @@ public class ActiveMQMessageGenerator
       connection.close();
     }
     catch (JMSException ex) {
-      Logger.getLogger(ActiveMQMessageGenerator.class.getName()).log(Level.SEVERE, null, ex);
+      logger.debug(ex.getLocalizedMessage());
     }
   }
 }

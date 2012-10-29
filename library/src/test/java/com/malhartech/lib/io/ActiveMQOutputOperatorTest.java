@@ -4,13 +4,7 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.api.*;
-import com.malhartech.dag.TestSink;
-import com.malhartech.lib.testbench.EventGeneratorTest.CollectorInputPort;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.malhartech.api.OperatorConfiguration;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import junit.framework.Assert;
@@ -18,6 +12,7 @@ import org.apache.activemq.broker.BrokerService;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -26,36 +21,14 @@ import org.slf4j.LoggerFactory;
  */
 public class ActiveMQOutputOperatorTest
 {
-  private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ActiveMQOutputOperatorTest.class);
-  private static OperatorConfiguration config;
+  private static final Logger logger = LoggerFactory.getLogger(ActiveMQOutputOperatorTest.class);
   private static BrokerService broker;
+  private static ActiveMQBase amqConfig;
 
   @BeforeClass
   public static void setUpClass() throws Exception
   {
-    // config parameters should be in some configuration xml file as opposed to in code TBD
-    config = new OperatorConfiguration(); // This is the master copy for configuration
-    config.set("user", "");  // test done
-    config.set("password", ""); // done
-    config.set("url", "tcp://localhost:61617"); // done
-    config.set("ackMode", "AUTO_ACKNOWLEDGE"); // done
-    config.set("clientId", "Producer"); // done
-    config.set("consumerName", "Consumer1");
-    config.set("durable", "false"); // done
-    config.set("maximumMessages", "30");  // 0 means unlimitted
-    config.set("maximumSendMessages", "20");  // 0 means unlimitted
-    config.set("maximumReceiveMessages", "20");  // 0 means unlimitted
-    config.set("pauseBeforeShutdown", "true");
-    config.set("receiveTimeOut", "0");
-    config.set("sleepTime", "1000");
-    config.set("subject", "TEST.FOO"); // done
-    config.set("parallelThreads", "1");
-    config.set("topic", "false");  // done
-    config.set("transacted", "false");  // done
-    config.set("verbose", "true");   // done
-    config.set("batch", "10");
-    config.set("messageSize", "225");
-
+    amqConfig = new ActiveMQBase(true);  // this is the producer
     startActiveMQService();
   }
 
@@ -67,7 +40,9 @@ public class ActiveMQOutputOperatorTest
   private static void startActiveMQService() throws Exception
   {
     broker = new BrokerService();
-    broker.addConnector(config.get("url") + "?broker.persistent=false");
+    broker.addConnector("tcp://localhost:61617?broker.persistent=false");
+    broker.getSystemUsage().getStoreUsage().setLimit(1024 * 1024 * 1024);
+    broker.getSystemUsage().getTempUsage().setLimit(100 * 1024 * 1024);
     broker.start();
   }
 
@@ -75,6 +50,7 @@ public class ActiveMQOutputOperatorTest
   public static void teardownClass() throws Exception
   {
     broker.stop();
+    amqConfig.cleanup();
   }
 
   /**
@@ -82,6 +58,11 @@ public class ActiveMQOutputOperatorTest
    */
   public static class ActiveMQOutputOperator extends AbstractActiveMQOutputOperator<String>
   {
+    public ActiveMQOutputOperator(ActiveMQBase helper)
+    {
+      super(helper);
+    }
+
     /**
      * Abstract Method, needs to implement by every concrete ActiveMQOutputOperator.
      *
@@ -94,38 +75,61 @@ public class ActiveMQOutputOperatorTest
       //System.out.println("we are in createMessage");
       Message msg = null;
       try {
-        msg = activeMQHelper.getSession().createTextMessage(obj);
+        msg = amqConfig.getSession().createTextMessage(obj);
       }
       catch (JMSException ex) {
-        Logger.getLogger(ActiveMQOutputOperatorTest.class.getName()).log(Level.SEVERE, null, ex);
+        logger.debug(ex.getLocalizedMessage());
       }
 
       return msg;
     }
   }
 
+  /**
+   * Test AbstractActiveMQOutputOperator (i.e. an output adapter for ActiveMQ, aka producer).
+   * This module sends data into an ActiveMQ message bus.
+   *
+   * [Generate tuple] ==> [send tuple through ActiveMQ output adapter(i.e. producer) into ActiveMQ message bus]
+   * ==> [receive data in outside ActiveMQ listener]
+   *
+   * @throws Exception
+   */
   @Test
   @SuppressWarnings({"SleepWhileInLoop", "empty-statement"})
-  public void testProducer() throws Exception
+  public void testActiveMQOutputOperator() throws Exception
   {
-    // [Generate tuple] ==> [send tuple through ActiveMQ output adapter(i.e. producer) into ActiveMQ message bus]
-    //       ==> [receive data in outside ActiveMQ listener]
+    // Set configuation for ActiveMQ
+    amqConfig.setUser("");
+    amqConfig.setPassword("");
+    amqConfig.setUrl("tcp://localhost:61617");
+    amqConfig.setAckMode("CLIENT_ACKNOWLEDGE");
+    amqConfig.setClientId("Client1");
+    amqConfig.setSubject("TEST.FOO");
+    amqConfig.setMaximumMessage(100);
+    amqConfig.setMaximumSendMessages(100);
+    amqConfig.setMaximumReceiveMessages(100);
+    amqConfig.setMessageSize(255);
+    amqConfig.setBatch(10);
+    amqConfig.setTopic(false);
+    amqConfig.setDurable(false);
+    amqConfig.setTransacted(false);
+    amqConfig.setVerbose(true);
 
     // Setup a message listener to receive the message
-    ActiveMQMessageListener listener = new ActiveMQMessageListener(config);
+    ActiveMQMessageListener listener = new ActiveMQMessageListener(amqConfig);
     try {
       listener.setupConnection();
     }
     catch (JMSException ex) {
-      logger.debug(ex.getLocalizedMessage());;
+      logger.debug(ex.getLocalizedMessage());
     }
     listener.run();
 
     // Malhar module to send message
-    ActiveMQOutputOperator node = new ActiveMQOutputOperator();
-    node.setup(config);
+    ActiveMQOutputOperator node = new ActiveMQOutputOperator(amqConfig);
+    node.setup(new OperatorConfiguration());
 
-    int numTuple = 10;
+    long numTuple = amqConfig.getMaximumSendMessages();
     for (int i = 0; i < numTuple; i++) {
       String str = "teststring " + (i + 1);
       node.inputPort.process(str);
