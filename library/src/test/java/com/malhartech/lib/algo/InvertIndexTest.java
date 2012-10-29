@@ -17,7 +17,7 @@ import org.junit.Test;
  * Functional tests for {@link com.malhartech.lib.algo.InvertIndex} <p>
  *
  */
-public class InvertIndexArrayTest
+public class InvertIndexTest
 {
   /**
    * Test oper logic emits correct results
@@ -26,7 +26,7 @@ public class InvertIndexArrayTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    InvertIndexArray<String,String> oper = new InvertIndexArray<String,String>();
+    InvertIndex<String,String> oper = new InvertIndex<String,String>();
     TestSink indexSink = new TestSink();
 
     Sink inSink = oper.data.getSink();
@@ -35,21 +35,20 @@ public class InvertIndexArrayTest
 
     oper.beginWindow();
 
-    HashMap<String, ArrayList> input = new HashMap<String, ArrayList>();
-    ArrayList<String> alist = new ArrayList<String>();
-    alist.add("str");
-    alist.add("str1");
-    input.put("a", alist);
-    input.put("b", alist);
+    HashMap<String, String> input = new HashMap<String, String>();
+
+    input.put("a", "str");
+    input.put("b", "str");
     inSink.process(input);
 
-    alist = new ArrayList<String>();
-    input = new HashMap<String, ArrayList>();
-    alist.add("blah");
-    alist.add("str1");
-    input.put("c", alist);
+    input.put("a", "str1");
+    input.put("b", "str1");
     inSink.process(input);
 
+    input.put("c", "blah");
+    inSink.process(input);
+    input.put("c", "str1");
+    inSink.process(input);
     oper.endWindow();
 
     Assert.assertEquals("number emitted tuples", 3, indexSink.collectedTuples.size());
@@ -57,7 +56,7 @@ public class InvertIndexArrayTest
       HashMap<String, ArrayList<String>> output = (HashMap<String, ArrayList<String>>)o;
       for (Map.Entry<String, ArrayList<String>> e: output.entrySet()) {
         String key = e.getKey();
-        alist = e.getValue();
+        ArrayList<String> alist = e.getValue();
         if (key.equals("str1")) {
           Assert.assertEquals("Index for \"str1\" contains \"a\"", true, alist.contains("a"));
           Assert.assertEquals("Index for \"str1\" contains \"b\"", true, alist.contains("b"));

@@ -11,19 +11,25 @@ import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * Functional tests for {@link com.malhartech.lib.algo.InvertIndex} <p>
  *
  */
-public class InvertIndexArrayTest
+public class InvertIndexArrayBenchmark
 {
+  private static Logger log = LoggerFactory.getLogger(InvertIndexArrayBenchmark.class);
+
   /**
    * Test oper logic emits correct results
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
+  @Category(com.malhartech.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     InvertIndexArray<String,String> oper = new InvertIndexArray<String,String>();
@@ -33,22 +39,27 @@ public class InvertIndexArrayTest
     oper.index.setSink(indexSink);
     oper.setup(new OperatorConfiguration());
 
-    oper.beginWindow();
-
     HashMap<String, ArrayList> input = new HashMap<String, ArrayList>();
     ArrayList<String> alist = new ArrayList<String>();
-    alist.add("str");
-    alist.add("str1");
-    input.put("a", alist);
-    input.put("b", alist);
-    inSink.process(input);
+    oper.beginWindow();
 
-    alist = new ArrayList<String>();
-    input = new HashMap<String, ArrayList>();
-    alist.add("blah");
-    alist.add("str1");
-    input.put("c", alist);
-    inSink.process(input);
+    int numTuples = 10000000;
+    for (int i = 0; i < numTuples; i++) {
+      alist.clear();
+      input.clear();
+      alist.add("str");
+      alist.add("str1");
+      input.put("a", alist);
+      input.put("b", alist);
+      inSink.process(input);
+      alist.clear();
+      input.clear();
+
+      alist.add("blah");
+      alist.add("str1");
+      input.put("c", alist);
+      inSink.process(input);
+    }
 
     oper.endWindow();
 
@@ -75,5 +86,6 @@ public class InvertIndexArrayTest
         }
       }
     }
+    log.debug(String.format("\nBenchmarked %d tuples", numTuples * 2));
   }
 }

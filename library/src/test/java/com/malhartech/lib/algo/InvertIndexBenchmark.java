@@ -11,44 +11,51 @@ import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * Functional tests for {@link com.malhartech.lib.algo.InvertIndex} <p>
  *
  */
-public class InvertIndexArrayTest
+public class InvertIndexBenchmark
 {
+  private static Logger log = LoggerFactory.getLogger(InvertIndexBenchmark.class);
+
   /**
    * Test oper logic emits correct results
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
+  @Category(com.malhartech.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
-    InvertIndexArray<String,String> oper = new InvertIndexArray<String,String>();
+    InvertIndex<String,String> oper = new InvertIndex<String,String>();
     TestSink indexSink = new TestSink();
 
     Sink inSink = oper.data.getSink();
     oper.index.setSink(indexSink);
     oper.setup(new OperatorConfiguration());
 
+    HashMap<String, String> input = new HashMap<String, String>();
     oper.beginWindow();
 
-    HashMap<String, ArrayList> input = new HashMap<String, ArrayList>();
-    ArrayList<String> alist = new ArrayList<String>();
-    alist.add("str");
-    alist.add("str1");
-    input.put("a", alist);
-    input.put("b", alist);
-    inSink.process(input);
+    int numTuples = 10000000;
+    for (int i = 0; i < numTuples; i++) {
+      input.clear();
+      input.put("a", "str");
+      input.put("b", "str");
+      inSink.process(input);
+      input.put("a", "str1");
+      input.put("b", "str1");
+      inSink.process(input);
 
-    alist = new ArrayList<String>();
-    input = new HashMap<String, ArrayList>();
-    alist.add("blah");
-    alist.add("str1");
-    input.put("c", alist);
-    inSink.process(input);
+      input.put("c", "blah");
+      inSink.process(input);
+      input.put("c", "str1");
+      inSink.process(input);    }
 
     oper.endWindow();
 
@@ -57,7 +64,7 @@ public class InvertIndexArrayTest
       HashMap<String, ArrayList<String>> output = (HashMap<String, ArrayList<String>>)o;
       for (Map.Entry<String, ArrayList<String>> e: output.entrySet()) {
         String key = e.getKey();
-        alist = e.getValue();
+        ArrayList<String> alist = e.getValue();
         if (key.equals("str1")) {
           Assert.assertEquals("Index for \"str1\" contains \"a\"", true, alist.contains("a"));
           Assert.assertEquals("Index for \"str1\" contains \"b\"", true, alist.contains("b"));
@@ -75,5 +82,6 @@ public class InvertIndexArrayTest
         }
       }
     }
+    log.debug(String.format("\nBenchmarked %d tuples", numTuples * 2));
   }
 }

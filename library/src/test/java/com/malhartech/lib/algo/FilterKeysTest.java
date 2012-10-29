@@ -35,7 +35,7 @@ public class FilterKeysTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    FilterKeys<String, Number> oper = new FilterKeys<String, Number>();
+    FilterKeys<String,Number> oper = new FilterKeys<String,Number>();
 
     TestSink<HashMap<String, Number>> sortSink = new TestSink<HashMap<String, Number>>();
     oper.filter.setSink(sortSink);
