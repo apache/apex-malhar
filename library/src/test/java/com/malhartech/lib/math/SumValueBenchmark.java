@@ -41,7 +41,7 @@ public class SumValueBenchmark {
    * Test oper logic emits correct results
    */
   @Test
-  @Category(com.malhartech.PerformanceTestCategory.class)
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeSchemaProcessing()
   {
     SumValue<Double> oper = new SumValue<Double>();

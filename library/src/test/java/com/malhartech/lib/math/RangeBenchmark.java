@@ -48,7 +48,7 @@ public class RangeBenchmark {
      * Test functional logic
      */
     @Test
-    @Category(com.malhartech.PerformanceTestCategory.class)
+    @Category(com.malhartech.annotation.PerformanceTestCategory.class)
     public void testNodeProcessing() {
       testSchemaNodeProcessing(new Range<String,Integer>(), "integer"); // 8million/s
       testSchemaNodeProcessing(new Range<String,Double>(), "double"); // 8 million/s

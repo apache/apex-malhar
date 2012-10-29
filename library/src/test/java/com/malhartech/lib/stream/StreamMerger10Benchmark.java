@@ -24,7 +24,7 @@ public class StreamMerger10Benchmark
    * Test oper pass through. The Object passed is not relevant
    */
   @Test
-  @Category(com.malhartech.PerformanceTestCategory.class)
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     final StreamMerger10 oper = new StreamMerger10();

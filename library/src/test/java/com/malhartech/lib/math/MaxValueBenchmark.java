@@ -23,7 +23,7 @@ public class MaxValueBenchmark
    * Test oper logic emits correct results
    */
   @Test
-  @Category(com.malhartech.PerformanceTestCategory.class)
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing()
   {
     MaxValue<Double> oper = new MaxValue<Double>();

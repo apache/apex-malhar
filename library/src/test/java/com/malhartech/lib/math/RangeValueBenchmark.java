@@ -42,7 +42,7 @@ public class RangeValueBenchmark
    * Test oper logic emits correct results
    */
   @Test
-  @Category(com.malhartech.PerformanceTestCategory.class)
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeSchemaProcessing()
   {
     RangeValue<Double> oper = new RangeValue<Double>();

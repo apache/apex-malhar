@@ -25,7 +25,7 @@ public class ArrayListToItemBenchmark
    * Test oper pass through. The Object passed is not relevant
    */
   @Test
-  @Category(com.malhartech.PerformanceTestCategory.class)
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     ArrayListToItem oper = new ArrayListToItem();

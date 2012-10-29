@@ -41,7 +41,7 @@ public class QuotientValueBenchmark
    * Test oper logic emits correct results
    */
   @Test
-  @Category(com.malhartech.PerformanceTestCategory.class)
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeSchemaProcessing()
   {
     QuotientValue<Double> oper = new QuotientValue<Double>();

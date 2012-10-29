@@ -25,7 +25,7 @@ public class AllAfterMatchStringValueBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.malhartech.PerformanceTestCategory.class)
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     AllAfterMatchStringValue<String> oper = new AllAfterMatchStringValue<String>();

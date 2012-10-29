@@ -28,7 +28,7 @@ public class MinBenchmark
    * Test functional logic
    */
   @Test
-  @Category(com.malhartech.PerformanceTestCategory.class)
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws InterruptedException
   {
     testSchemaNodeProcessing(new Min<String, Integer>(), "integer"); // 8million/s

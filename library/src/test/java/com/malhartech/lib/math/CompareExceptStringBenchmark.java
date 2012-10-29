@@ -25,7 +25,7 @@ public class CompareExceptStringBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.malhartech.PerformanceTestCategory.class)
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessingSchema()
   {
     CompareExceptString<String> oper = new CompareExceptString<String>();

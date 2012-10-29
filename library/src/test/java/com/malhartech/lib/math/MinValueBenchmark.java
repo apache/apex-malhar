@@ -28,7 +28,7 @@ public class MinValueBenchmark
    * Test oper logic emits correct results
    */
   @Test
-  @Category(com.malhartech.PerformanceTestCategory.class)
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeSchemaProcessing()
   {
     MinValue<Double> oper = new MinValue<Double>();

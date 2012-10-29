@@ -24,7 +24,7 @@ public class MaxBenchmark
    * Test functional logic
    */
   @Test
-  @Category(com.malhartech.PerformanceTestCategory.class)
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing()
   {
     testSchemaNodeProcessing(new Max<String, Integer>(), "integer"); // 8million/s

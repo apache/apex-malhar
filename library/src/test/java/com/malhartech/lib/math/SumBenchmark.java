@@ -30,7 +30,7 @@ public class SumBenchmark
    * Test oper logic emits correct results
    */
   @Test
-  @Category(com.malhartech.PerformanceTestCategory.class)
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeSchemaProcessing() throws InterruptedException
   {
     Sum<String, Double> oper = new Sum<String, Double>();

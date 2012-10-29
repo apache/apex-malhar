@@ -94,8 +94,7 @@ public class EventGeneratorBenchmark
    * The sink would simply ignore the payload as we are testing throughput
    */
   @Test
-  @Category(com.malhartech.PerformanceTestCategory.class)
-  @SuppressWarnings("SleepWhileInLoop")
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     DAG dag = new DAG();

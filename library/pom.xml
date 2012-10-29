@@ -14,7 +14,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <netbeans.hint.license>malhar-inc</netbeans.hint.license>
-    <test.excludedGroups>com.malhartech.PerformanceTestCategory</test.excludedGroups>
+    <test.excludedGroups>com.malhartech.annotation.PerformanceTestCategory</test.excludedGroups>
   </properties>
 
   <build>

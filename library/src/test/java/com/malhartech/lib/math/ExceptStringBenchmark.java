@@ -25,7 +25,7 @@ public class ExceptStringBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.malhartech.PerformanceTestCategory.class)
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessingSchema()
   {
     ExceptString<String> oper = new ExceptString<String>();
