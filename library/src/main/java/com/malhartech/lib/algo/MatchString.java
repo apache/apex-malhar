@@ -35,6 +35,7 @@ import java.util.HashMap;
  * none<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * Operator processes > 7 million tuples/sec (k as immutable). The processing is high as it only emits one tuple per window, and is not bound by outbound throughput<br>
  *
  * @author amol
  */
