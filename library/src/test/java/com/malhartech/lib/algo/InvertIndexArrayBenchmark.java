@@ -29,7 +29,7 @@ public class InvertIndexArrayBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.malhartech.PerformanceTestCategory.class)
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     InvertIndexArray<String,String> oper = new InvertIndexArray<String,String>();
