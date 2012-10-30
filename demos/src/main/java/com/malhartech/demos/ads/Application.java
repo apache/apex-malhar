@@ -95,31 +95,54 @@ public class Application implements ApplicationFactory
     return properties;
   }
 
-  private Operator getConsoleOperatorInstance(DAG b, String name)
+  private HttpOutputOperator<HashMap<String,Double>> getHttpOutputDoubleOperator(DAG b, String name)
   {
     // output to HTTP server when specified in environment setting
-    Operator ret;
     String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
-    if (serverAddr != null) {
-      HttpOutputOperator oper = b.addOperator(name, HttpOutputOperator.class);
-      URI u = null;
-      try {
-        u = new URI("http://" + serverAddr + "/channel/" + name);
-      }
-      catch (URISyntaxException ex) {
-        Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
-      }
-      oper.setResourceURL(u);
-      ret = oper;
+    HttpOutputOperator<HashMap<String,Double>> oper = b.addOperator(name, new HttpOutputOperator<HashMap<String,Double>>());
+    URI u = null;
+    try {
+      u = new URI("http://" + serverAddr + "/channel/" + name);
     }
-    else {
-      ConsoleOutputOperator oper = b.addOperator(name, ConsoleOutputOperator.class);
-      oper.setStringFormat(name + ": %s");
-      ret = oper;
+    catch (URISyntaxException ex) {
+      Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
     }
-    return ret;
+    oper.setResourceURL(u);
+    return oper;
   }
 
+    private HttpOutputOperator<HashMap<String,Number>> getHttpOutputNumberOperator(DAG b, String name)
+  {
+    // output to HTTP server when specified in environment setting
+    String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
+    HttpOutputOperator<HashMap<String,Number>> oper = b.addOperator(name, new HttpOutputOperator<HashMap<String,Number>>());
+    URI u = null;
+    try {
+      u = new URI("http://" + serverAddr + "/channel/" + name);
+    }
+    catch (URISyntaxException ex) {
+      Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
+    }
+    oper.setResourceURL(u);
+    return oper;
+  }
+
+  private ConsoleOutputOperator<HashMap<String,Number>> getConsoleNumberOperator(DAG b, String name)
+  {
+    // output to HTTP server when specified in environment setting
+    ConsoleOutputOperator<HashMap<String,Number>> oper = b.addOperator(name, new ConsoleOutputOperator<HashMap<String,Number>>());
+    oper.setStringFormat(name + ": %s");
+    return oper;
+  }
+
+  private ConsoleOutputOperator<HashMap<String,Double>> getConsoleDoubleOperator(DAG b, String name)
+  {
+    // output to HTTP server when specified in environment setting
+    ConsoleOutputOperator<HashMap<String,Double>> oper = b.addOperator(name, new ConsoleOutputOperator<HashMap<String,Double>>());
+    oper.setStringFormat(name + ": %s");
+    return oper;
+  }
+/*
   private DAG.InputPort getViewsToHdfsOperatorInstance(DAG dag, String operatorName)
   {
     Map<String, String> props = getOperatorInstanceProperties(dag.getConf(), this.getClass(), operatorName);
@@ -131,40 +154,42 @@ public class Application implements ApplicationFactory
     }
     return o.getInput(HdfsOutputModule.INPUT);
   }
+*/
 
-  public Operator getSumOperator(String name, DAG b, String debug)
+  public Sum<String,Double> getSumOperator(String name, DAG b)
   {
-    return b.addOperator(name, Sum.class);
+    return b.addOperator(name, new Sum<String,Double>());
   }
 
-  public Operator getStreamMerger(String name, DAG b)
+  public StreamMerger<HashMap<String,Integer>> getStreamMerger(String name, DAG b)
   {
-    return b.addOperator(name, StreamMerger.class);
+    StreamMerger<HashMap<String,Integer>> oper = b.addOperator(name, new StreamMerger<HashMap<String,Integer>>());
+    return oper;
   }
 
-  public Operator getThroughputCounter(String name, DAG b)
+  public ThroughputCounter<String> getThroughputCounter(String name, DAG b)
   {
-    ThroughputCounter oper = b.addOperator(name, ThroughputCounter.class);
+    ThroughputCounter<String> oper = b.addOperator(name, new ThroughputCounter<String>());
     oper.setRollingWindowCount(5);
     return oper;
   }
 
-  public Operator getMarginOperator(String name, DAG b)
+  public Margin<String,Double> getMarginOperator(String name, DAG b)
   {
-    Margin oper = b.addOperator(name, Margin.class);
+    Margin<String,Double> oper = b.addOperator(name, new Margin<String,Double>());
     oper.setPercent(true);
     return oper;
   }
 
-  public Operator getQuotientOperator(String name, DAG b)
+  public Quotient<String,Integer> getQuotientOperator(String name, DAG b)
   {
-    Quotient oper = b.addOperator(name, Quotient.class);
+    Quotient<String,Integer> oper = b.addOperator(name, new Quotient<String,Integer>());
     oper.setMult_by(100);
     oper.setDokey(true);
     return oper;
   }
 
-  public Operator getPageViewGenOperator(String name, DAG b)
+  public EventGenerator getPageViewGenOperator(String name, DAG b)
   {
     EventGenerator oper = b.addOperator(name, EventGenerator.class);
     oper.setKeys("home,finance,sports,mail");
@@ -177,7 +202,7 @@ public class Application implements ApplicationFactory
     return oper;
   }
 
-  public Operator getAdViewsStampOperator(String name, DAG b)
+  public EventClassifier getAdViewsStampOperator(String name, DAG b)
   {
     EventClassifier oper = b.addOperator(name, EventClassifier.class);
     HashMap<String, Double> kmap = new HashMap<String, Double>();
@@ -188,7 +213,7 @@ public class Application implements ApplicationFactory
     return oper;
   }
 
-  public Operator getInsertClicksOperator(String name, DAG b)
+  public FilteredEventClassifier<Double> getInsertClicksOperator(String name, DAG b)
   {
     FilteredEventClassifier<Double> oper = b.addOperator(name, new FilteredEventClassifier<Double>());
     HashMap<String, Double> kmap = new HashMap<String, Double>();
@@ -230,50 +255,62 @@ public class Application implements ApplicationFactory
     configure(conf);
     DAG dag = new DAG();
 
-    Operator viewGen = getPageViewGenOperator("viewGen", dag);
-    Operator adviews = getAdViewsStampOperator("adviews", dag);
-    Operator insertclicks = getInsertClicksOperator("insertclicks", dag);
-    Operator viewAggregate = getSumOperator("viewAggr", dag, "");
-    Operator clickAggregate = getSumOperator("clickAggr", dag, "");
+    EventGenerator viewGen = getPageViewGenOperator("viewGen", dag);
+    EventClassifier adviews = getAdViewsStampOperator("adviews", dag);
+    FilteredEventClassifier<Double> insertclicks = getInsertClicksOperator("insertclicks", dag);
+    Sum<String,Double> viewAggregate = getSumOperator("viewAggr", dag);
+    Sum<String,Double> clickAggregate = getSumOperator("clickAggr", dag);
 
-    Operator ctr = getQuotientOperator("ctr", dag);
-    Operator cost = getSumOperator("cost", dag, "");
-    Operator revenue = getSumOperator("rev", dag, "");
-    Operator margin = getMarginOperator("margin", dag);
+    Quotient<String,Integer> ctr = getQuotientOperator("ctr", dag);
+    Sum<String,Double> cost = getSumOperator("cost", dag);
+    Sum<String,Double> revenue = getSumOperator("rev", dag);
+    Margin<String,Double> margin = getMarginOperator("margin", dag);
 
-    Operator merge = getStreamMerger("countmerge", dag);
-    Operator tuple_counter = getThroughputCounter("tuple_counter", dag);
+    StreamMerger<HashMap<String,Integer>> merge = getStreamMerger("countmerge", dag);
+    ThroughputCounter<String> tuple_counter = getThroughputCounter("tuple_counter", dag);
 
-    dag.addStream("views", viewGen.getOutput(EventGenerator.OPORT_DATA), adviews.getInput(EventClassifier.IPORT_IN_DATA)).setInline(true);
-    StreamDecl viewsAggStream = dag.addStream("viewsaggregate", adviews.getOutput(EventClassifier.OPORT_OUT_DATA), insertclicks.getInput(FilteredEventClassifier.IPORT_IN_DATA),
-                                              viewAggregate.getInput(Sum.IPORT_DATA)).setInline(true);
+    dag.addStream("views", viewGen.hash_data, adviews.event).setInline(true);
+    dag.addStream("viewsaggregate", adviews.data, insertclicks.data, viewAggregate.data).setInline(true);
 
+    /*
     if (conf.getBoolean(P_enableHdfs, false)) {
       DAG.InputPort viewsToHdfs = getViewsToHdfsOperatorInstance(dag, "viewsToHdfs");
       viewsAggStream.addSink(viewsToHdfs);
     }
+*/
+    dag.addStream("clicksaggregate", insertclicks.filter, clickAggregate.data).setInline(true);
 
-    dag.addStream("clicksaggregate", insertclicks.getOutput(FilteredEventClassifier.OPORT_OUT_DATA), clickAggregate.getInput(Sum.IPORT_DATA)).setInline(true);
+    dag.addStream("adviewsdata", viewAggregate.sum, cost.data);
+    dag.addStream("clicksdata", clickAggregate.sum, revenue.data);
+    dag.addStream("viewtuplecount", viewAggregate.count, ctr.denominator, merge.data1);
+    dag.addStream("clicktuplecount", clickAggregate.count, ctr.numerator, merge.data2);
+    dag.addStream("total count", merge.out, tuple_counter.data);
 
-    dag.addStream("adviewsdata", viewAggregate.getOutput(Sum.OPORT_SUM), cost.getInput(Sum.IPORT_DATA));
-    dag.addStream("clicksdata", clickAggregate.getOutput(Sum.OPORT_SUM), revenue.getInput(Sum.IPORT_DATA));
-    dag.addStream("viewtuplecount", viewAggregate.getOutput(Sum.OPORT_COUNT), ctr.getInput(Quotient.IPORT_DENOMINATOR), merge.getInput(StreamMerger.IPORT_IN_DATA1));
-    dag.addStream("clicktuplecount", clickAggregate.getOutput(Sum.OPORT_COUNT), ctr.getInput(Quotient.IPORT_NUMERATOR), merge.getInput(StreamMerger.IPORT_IN_DATA2));
-    dag.addStream("total count", merge.getOutput(StreamMerger.OPORT_OUT_DATA), tuple_counter.getInput(ThroughputCounter.IPORT_DATA));
-
-
-    Operator revconsole = getConsoleOperatorInstance(dag, "revConsole");
-    Operator costconsole = getConsoleOperatorInstance(dag, "costConsole");
-    Operator marginconsole = getConsoleOperatorInstance(dag, "marginConsole");
-    Operator ctrconsole = getConsoleOperatorInstance(dag, "ctrConsole");
-    Operator viewcountconsole = getConsoleOperatorInstance(dag, "viewCountConsole");
-
-    dag.addStream("revenuedata", revenue.getOutput(Sum.OPORT_SUM), margin.getInput(Margin.IPORT_DENOMINATOR), revconsole.getInput(ConsoleOutputOperator.INPUT)).setInline(allInline);
-    dag.addStream("costdata", cost.getOutput(Sum.OPORT_SUM), margin.getInput(Margin.IPORT_NUMERATOR), costconsole.getInput(ConsoleOutputOperator.INPUT)).setInline(allInline);
-    dag.addStream("margindata", margin.getOutput(Margin.OPORT_MARGIN), marginconsole.getInput(ConsoleOutputOperator.INPUT)).setInline(allInline);
-    dag.addStream("ctrdata", ctr.getOutput(Quotient.OPORT_QUOTIENT), ctrconsole.getInput(ConsoleOutputOperator.INPUT)).setInline(allInline);
-    dag.addStream("tuplecount", tuple_counter.getOutput(ThroughputCounter.OPORT_COUNT), viewcountconsole.getInput(ConsoleOutputOperator.INPUT)).setInline(allInline);
-
+    String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
+    if (serverAddr != null) {
+      ConsoleOutputOperator<HashMap<String, Double>> revconsole = getConsoleDoubleOperator(dag, "revConsole");
+      ConsoleOutputOperator<HashMap<String, Double>> costconsole = getConsoleDoubleOperator(dag, "costConsole");
+      ConsoleOutputOperator<HashMap<String, Double>> marginconsole = getConsoleDoubleOperator(dag, "marginConsole");
+      ConsoleOutputOperator<HashMap<String, Double>> ctrconsole = getConsoleDoubleOperator(dag, "ctrConsole");
+      ConsoleOutputOperator<HashMap<String, Number>> viewcountconsole = getConsoleNumberOperator(dag, "viewCountConsole");
+      dag.addStream("revenuedata", revenue.sum, margin.denominator, revconsole.input).setInline(allInline);
+      dag.addStream("costdata", cost.sum, margin.numerator, costconsole.input).setInline(allInline);
+      dag.addStream("margindata", margin.margin, marginconsole.input).setInline(allInline);
+      dag.addStream("ctrdata", ctr.quotient, ctrconsole.input).setInline(allInline);
+      dag.addStream("tuplecount", tuple_counter.count, viewcountconsole.input).setInline(allInline);
+    }
+    else {
+      HttpOutputOperator<HashMap<String, Double>> revhttp = getHttpOutputDoubleOperator(dag, "revConsole");
+      HttpOutputOperator<HashMap<String, Double>> costhttp = getHttpOutputDoubleOperator(dag, "costConsole");
+      HttpOutputOperator<HashMap<String, Double>> marginhttp = getHttpOutputDoubleOperator(dag, "marginConsole");
+      HttpOutputOperator<HashMap<String, Double>> ctrhttp = getHttpOutputDoubleOperator(dag, "ctrConsole");
+      HttpOutputOperator<HashMap<String, Number>> viewcounthttp = getHttpOutputNumberOperator(dag, "viewCountConsole");
+      dag.addStream("revenuedata", revenue.sum, margin.denominator, revhttp.input).setInline(allInline);
+      dag.addStream("costdata", cost.sum, margin.numerator, costhttp.input).setInline(allInline);
+      dag.addStream("margindata", margin.margin, marginhttp.input).setInline(allInline);
+      dag.addStream("ctrdata", ctr.quotient, ctrhttp.input).setInline(allInline);
+      dag.addStream("tuplecount", tuple_counter.count, viewcounthttp.input).setInline(allInline);
+    }
     return dag;
   }
 }
