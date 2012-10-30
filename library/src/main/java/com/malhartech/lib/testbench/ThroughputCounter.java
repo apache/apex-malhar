@@ -67,7 +67,7 @@ public class ThroughputCounter<K> extends BaseOperator
   long count_windowid = 0;
   long tuple_count = 1; // so that the first begin window starts the count down
 
-  void setRollingWindowCount(int i)
+  public void setRollingWindowCount(int i)
   {
     rolling_window_count = i;
   }

@@ -113,17 +113,17 @@ public class FilteredEventClassifier<T> extends BaseOperator
   int total_filter = 0;
   private Random random = new Random();
 
-  void setPassFilter(int i)
+  public void setPassFilter(int i)
   {
     pass_filter = i;
   }
 
-  void setTotalFilter(int i)
+  public void setTotalFilter(int i)
   {
     total_filter = i;
   }
 
-  void setKeyMap(HashMap<String, T> map)
+  public void setKeyMap(HashMap<String, T> map)
   {
     int i = 0;
     // First load up the keys and the index hash (wtostr_index) for randomization to work
@@ -148,7 +148,7 @@ public class FilteredEventClassifier<T> extends BaseOperator
     }
   }
 
-  void setKeyWeights(HashMap<String, ArrayList<Integer>> map)
+  public void setKeyWeights(HashMap<String, ArrayList<Integer>> map)
   {
     if (inkeys == null) {
       inkeys = new HashMap<String, ArrayList<Integer>>();
