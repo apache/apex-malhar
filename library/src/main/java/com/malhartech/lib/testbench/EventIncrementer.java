@@ -4,7 +4,6 @@
  */
 package com.malhartech.lib.testbench;
 
-
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -42,7 +41,6 @@ import java.util.Map;
  *
  * @author amol
  */
-
 public class EventIncrementer extends BaseOperator
 {
   public final transient DefaultInputPort<HashMap<String, ArrayList<Integer>>> seed = new DefaultInputPort<HashMap<String, ArrayList<Integer>>>(this)
@@ -70,9 +68,8 @@ public class EventIncrementer extends BaseOperator
       }
     }
   };
-
-    public final transient DefaultInputPort<HashMap<String, HashMap<String,Integer>>> increment = new DefaultInputPort<HashMap<String, HashMap<String,Integer>>>(this) {
-
+  public final transient DefaultInputPort<HashMap<String, HashMap<String, Integer>>> increment = new DefaultInputPort<HashMap<String, HashMap<String, Integer>>>(this)
+  {
     @Override
     public void process(HashMap<String, HashMap<String, Integer>> tuple)
     {
@@ -82,58 +79,53 @@ public class EventIncrementer extends BaseOperator
         if (alist != null) { // if not seeded just ignore
           continue;
         }
-          for (Map.Entry<String, Integer> o: e.getValue().entrySet()) {
-            String dimension = o.getKey();
-            int j = 0;
-            int cur_slot = 0;
-            int new_slot = 0;
-            for (OneKeyValPair<String, Double> d: alist) {
-              if (dimension.equals(d.getKey())) { // Compute the new location
-                cur_slot = d.getValue().intValue();
-                Double nval = getNextNumber(d.getValue().doubleValue(), delta / 100 * (o.getValue().intValue() % 100), low_limits[j], high_limits[j]);
-                new_slot = nval.intValue();
-                alist.get(j).setValue(nval);
-                break;
-              }
-              j++;
+        for (Map.Entry<String, Integer> o: e.getValue().entrySet()) {
+          String dimension = o.getKey();
+          int j = 0;
+          int cur_slot = 0;
+          int new_slot = 0;
+          for (OneKeyValPair<String, Double> d: alist) {
+            if (dimension.equals(d.getKey())) { // Compute the new location
+              cur_slot = d.getValue().intValue();
+              Double nval = getNextNumber(d.getValue().doubleValue(), delta / 100 * (o.getValue().intValue() % 100), low_limits[j], high_limits[j]);
+              new_slot = nval.intValue();
+              alist.get(j).setValue(nval);
+              break;
             }
-            if (cur_slot != new_slot) {
-              emitDataTuple(key, alist);
-            }
+            j++;
           }
+          if (cur_slot != new_slot) {
+            emitDataTuple(key, alist);
+          }
+        }
       }
     }
   };
-  public final transient DefaultOutputPort<HashMap<String,String>> data = new DefaultOutputPort<HashMap<String, String>>(this);
-  public final transient DefaultOutputPort<HashMap<String,Integer>> count = new DefaultOutputPort<HashMap<String, Integer>>(this);
+  public final transient DefaultOutputPort<HashMap<String, String>> data = new DefaultOutputPort<HashMap<String, String>>(this);
+  public final transient DefaultOutputPort<HashMap<String, Integer>> count = new DefaultOutputPort<HashMap<String, Integer>>(this);
   public static final String OPORT_COUNT_TUPLE_COUNT = "count";
-
-
   HashMap<String, ArrayList<OneKeyValPair<String, Double>>> vmap = new HashMap<String, ArrayList<OneKeyValPair<String, Double>>>();
   String[] keys = null;
   double[] low_limits = null;
   double[] high_limits = null;
   private double sign = -1.0;
-
   final double low_limit_default_val = 0;
   final double high_limit_default_val = 100;
-
-  float delta = 1;
+  double delta = 1;
   int tuple_count = 0;
 
-
-  public void setDelta(float i)
+  public void setDelta(double i)
   {
     delta = i;
   }
 
-     public void setKeylimits(ArrayList<String> klist, ArrayList<Double> low, ArrayList<Double> high)
+  public void setKeylimits(ArrayList<String> klist, ArrayList<Double> low, ArrayList<Double> high)
   {
     if (low.size() != high.size()) {
-        throw new IllegalArgumentException(String.format("Array sizes for low limits (%d), and high limits (%d) do not match", low.size(), high.size()));
+      throw new IllegalArgumentException(String.format("Array sizes for low limits (%d), and high limits (%d) do not match", low.size(), high.size()));
     }
     if (klist.size() != low.size()) {
-        throw new IllegalArgumentException(String.format("Array sizes for low limits (%d), does not match number of keys (%d)", low.size(), klist.size()));
+      throw new IllegalArgumentException(String.format("Array sizes for low limits (%d), does not match number of keys (%d)", low.size(), klist.size()));
     }
     if (low_limits == null) {
       low_limits = new double[low.size()];
@@ -147,9 +139,9 @@ public class EventIncrementer extends BaseOperator
     }
 
     for (int i = 0; i < low.size(); i++) {
-        low_limits[i] = low.get(i).doubleValue();
-        high_limits[i] = high.get(i).doubleValue();
-        keys[i] = klist.get(i);
+      low_limits[i] = low.get(i).doubleValue();
+      high_limits[i] = high.get(i).doubleValue();
+      keys[i] = klist.get(i);
     }
   }
 
@@ -193,7 +185,7 @@ public class EventIncrementer extends BaseOperator
 
   @Override
   public void beginWindow()
-{
+  {
     tuple_count = 0;
   }
 

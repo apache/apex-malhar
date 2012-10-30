@@ -38,7 +38,7 @@ import com.sun.jersey.api.client.WebResource;
  *
  */
 @ShipContainingJars(classes = {com.sun.jersey.api.client.ClientHandler.class})
-public class HttpInputOperator extends BaseInputOperator<Map<String, Object>> implements Runnable
+public class HttpInputOperator extends BaseInputOperator<Map<String, String>> implements Runnable
 {
   private static final Logger LOG = LoggerFactory.getLogger(HttpInputOperator.class);
 
@@ -49,10 +49,15 @@ public class HttpInputOperator extends BaseInputOperator<Map<String, Object>> im
   /**
    * The URL of the web service resource for the POST request.
    */
-  public URI resourceUrl;
+  private URI resourceUrl;
   private transient Client wsClient;
   private transient WebResource resource;
 
+
+  public void setUrl(URI u)
+  {
+    resourceUrl = u;
+  }
   @Override
   public void setup(OperatorConfiguration config)
   {
@@ -172,13 +177,14 @@ public class HttpInputOperator extends BaseInputOperator<Map<String, Object>> im
       //LOG.debug("completed chunk: " + chunkStr);
       JSONObject json = new JSONObject(chunk.toString());
       chunk = new StringBuilder();
-      Map<String, Object> tuple = new HashMap<String, Object>();
+      Map<String, String> tuple = new HashMap<String, String>();
       Iterator<?> it = json.keys();
       while (it.hasNext()) {
         String key = (String)it.next();
         Object val = json.get(key);
         if (val != null) {
-          tuple.put(key, val);
+          String vstr = val.toString();
+          tuple.put(key, vstr);
         }
       }
       if (!tuple.isEmpty()) {

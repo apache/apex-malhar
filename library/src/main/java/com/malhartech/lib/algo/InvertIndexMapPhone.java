@@ -134,9 +134,9 @@ public class InvertIndexMapPhone extends BaseOperator
   public static final String OPORT_CONSOLE = "index";
   public static final String KEY_SEED_QUERYS_JSON = "seedQueries";
   HashMap<String, HashMap<String, Object>> kindex = null;
-  HashMap<String, String> secondary_index = null;
-  HashMap<String, String> phone_register = null;
-  HashMap<String, String> location_register = null;
+  HashMap<String, String> secondary_index = new HashMap<String,String>();
+  HashMap<String, String> phone_register = new HashMap<String,String>();
+  HashMap<String, String> location_register = new HashMap<String,String>();
   public static final String CHANNEL_PHONE = "phone";
   public static final String CHANNEL_LOCATION = "location";
   public static final String IDENTIFIER_CHANNEL = "queryId";
@@ -183,6 +183,17 @@ public class InvertIndexMapPhone extends BaseOperator
       tuples.put(CHANNEL_PHONE, phonelist);
     }
     console.emit(tuples);
+  }
+
+
+  public void setLocationQuery(String id, String val)
+  {
+    location_register.put(id, val);
+  }
+
+  public void setPhoneQuery(String id, String val)
+  {
+    phone_register.put(id, val);
   }
 
   private void parseSeedQueries(String s)

@@ -64,7 +64,7 @@ public class SeedEventClassifier<T> extends BaseOperator
     @Override
     public void process(T tuple)
     {
-      emitTuple(key1, tuple);
+      emitTuple(key2, tuple);
     }
   };
   public final transient DefaultOutputPort<String> string_data = new DefaultOutputPort<String>(this);
@@ -75,7 +75,7 @@ public class SeedEventClassifier<T> extends BaseOperator
     if (string_data.isConnected()) {
       String str = Integer.toString(seed);
       str += ":";
-      str += key1;
+      str += key;
       str += ",";
       str += tuple.toString();
       string_data.emit(str);
@@ -83,7 +83,7 @@ public class SeedEventClassifier<T> extends BaseOperator
     if (hash_data.isConnected()) {
       HashMap<String, HashMap<String, T>> hdata = new HashMap<String, HashMap<String, T>>(1);
       HashMap<String, T> val = new HashMap<String, T>(1);
-      val.put(key1, tuple);
+      val.put(key, tuple);
       hdata.put(Integer.toString(seed), val);
       hash_data.emit(hdata);
     }

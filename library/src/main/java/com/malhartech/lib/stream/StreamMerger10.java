@@ -35,7 +35,8 @@ import com.malhartech.api.DefaultInputPort;
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * Operator does >400 million tuples/sec as all tuples simply forwarded as is<br>
- *<br>
+ * <br>
+ *
  * @author amol
  */
 public class StreamMerger10<K> extends StreamMerger5<K>
@@ -80,6 +81,33 @@ public class StreamMerger10<K> extends StreamMerger5<K>
       out.emit(tuple);
     }
   };
+
+  @Override
+  public DefaultInputPort<K> getInputPort(int i)
+  {
+    DefaultInputPort<K> ret;
+    switch (i) {
+      case 6:
+        ret = data6;
+        break;
+      case 7:
+        ret = data7;
+        break;
+      case 8:
+        ret = data8;
+        break;
+      case 9:
+        ret = data9;
+        break;
+      case 10:
+        ret = data10;
+        break;
+      default:
+        ret = super.getInputPort(i);
+        break;
+    }
+    return ret;
+  }
 
   /**
    * Allows usage of StreamMerger in a automated way

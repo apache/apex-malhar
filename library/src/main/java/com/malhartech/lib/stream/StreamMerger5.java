@@ -81,4 +81,25 @@ public class StreamMerger5<K> extends StreamMerger<K>
   {
     return 5;
   }
+
+  @Override
+    public DefaultInputPort<K> getInputPort(int i)
+  {
+    DefaultInputPort<K> ret;
+    switch(i) {
+      case 3:
+        ret = data3;
+        break;
+      case 4:
+        ret = data4;
+        break;
+      case 5:
+        ret = data5;
+        break;
+      default:
+        ret = super.getInputPort(i);
+        break;
+    }
+    return ret;
+  }
 }

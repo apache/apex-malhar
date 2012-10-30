@@ -207,7 +207,7 @@ public class SeedEventGenerator extends BaseOperator implements InputOperator
    * @param low
    * @param high
    */
-  void addKeyData(String key, int low, int high)
+  public void addKeyData(String key, int low, int high)
   {
     if (keys == null) {
       keys = new ArrayList<String>();

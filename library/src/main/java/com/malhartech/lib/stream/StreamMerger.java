@@ -72,4 +72,20 @@ public class StreamMerger<K> extends BaseOperator
   {
     return 2;
   }
+
+  public DefaultInputPort<K> getInputPort(int i)
+  {
+    DefaultInputPort<K> ret = null;
+    switch(i) {
+      case 1:
+        ret = data1;
+        break;
+      case 2:
+        ret = data2;
+        break;
+      default:
+        break;
+    }
+    return ret;
+  }
 }
