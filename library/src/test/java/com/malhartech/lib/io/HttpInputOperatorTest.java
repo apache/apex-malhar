@@ -29,41 +29,43 @@ import org.mortbay.jetty.handler.AbstractHandler;
 import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.dag.TestSink;
 
-
-public class HttpInputOperatorTest {
-
+public class HttpInputOperatorTest
+{
   @Test
-  public void testHttpInputModule() throws Exception {
+  public void testHttpInputModule() throws Exception
+  {
 
     final List<String> receivedMessages = new ArrayList<String>();
-    Handler handler=new AbstractHandler()
+    Handler handler = new AbstractHandler()
     {
       int responseCount = 0;
-        @Override
-        public void handle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch)
-            throws IOException, ServletException
-        {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            IOUtils.copy(request.getInputStream(), bos);
-            receivedMessages.add(new String(bos.toByteArray()));
-            response.setContentType("application/json");
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.setHeader("Transfer-Encoding", "chunked");
-            try {
-              JSONObject json = new JSONObject();
-              json.put("responseId", "response" + ++responseCount);
-              byte[] bytes = json.toString().getBytes();
-              response.getOutputStream().println(bytes.length);
-              response.getOutputStream().write(bytes);
-              response.getOutputStream().println();
-              response.getOutputStream().println(0);
-              response.getOutputStream().flush();
-            } catch (JSONException e) {
-              response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error generating response: " + e.toString());
-            }
 
-            ((Request)request).setHandled(true);
+      @Override
+      public void handle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch)
+              throws IOException, ServletException
+      {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        IOUtils.copy(request.getInputStream(), bos);
+        receivedMessages.add(new String(bos.toByteArray()));
+        response.setContentType("application/json");
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setHeader("Transfer-Encoding", "chunked");
+        try {
+          JSONObject json = new JSONObject();
+          json.put("responseId", "response" + ++responseCount);
+          byte[] bytes = json.toString().getBytes();
+          response.getOutputStream().println(bytes.length);
+          response.getOutputStream().write(bytes);
+          response.getOutputStream().println();
+          response.getOutputStream().println(0);
+          response.getOutputStream().flush();
         }
+        catch (JSONException e) {
+          response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error generating response: " + e.toString());
+        }
+
+        ((Request)request).setHandled(true);
+      }
     };
 
     Server server = new Server(0);
@@ -73,22 +75,22 @@ public class HttpInputOperatorTest {
     String url = "http://localhost:" + server.getConnectors()[0].getLocalPort() + "/somecontext";
     //String url = "http://localhost:8080/channel/mobile/phoneLocationQuery";
 
-    final HttpInputOperator node = new HttpInputOperator();
+    final HttpInputOperator operator = new HttpInputOperator();
 
     TestSink<Map<String, Object>> sink = new TestSink<Map<String, Object>>();
 
-    node.outputPort.setSink(sink);
-    node.setName("testHttpInputNode");
-    node.resourceUrl = new URI(url);
+    operator.outputPort.setSink(sink);
+    operator.setName("testHttpInputNode");
+    operator.resourceUrl = new URI(url);
 
-    node.setup(new OperatorConfiguration());
+    operator.setup(new OperatorConfiguration());
 
-    node.postActivate(null);
+    operator.postActivate(null);
 
 //    sink.waitForResultCount(1, 3000);
     int timeoutMillis = 3000;
     while (sink.collectedTuples.size() == 0 && timeoutMillis > 0) {
-      node.emitTuples(0);
+      operator.replayEmitTuples(0);
       timeoutMillis -= 20;
       Thread.sleep(20);
     }
@@ -98,10 +100,9 @@ public class HttpInputOperatorTest {
     Map<String, Object> tuple = sink.collectedTuples.get(0);
     Assert.assertEquals("", tuple.get("responseId"), "response1");
 
-    node.preDeactivate();
-    node.teardown();
+    operator.preDeactivate();
+    operator.teardown();
     server.stop();
 
   }
-
 }

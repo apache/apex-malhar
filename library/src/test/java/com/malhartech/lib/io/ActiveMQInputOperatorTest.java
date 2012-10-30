@@ -91,9 +91,25 @@ public class ActiveMQInputOperatorTest
 
   }
 
-  @After
-  public void endTest() throws IOException {
-      broker.deleteAllMessages();
+      }
+      catch (JMSException ex) {
+        logger.debug(ex.getLocalizedMessage());
+      }
+      generator.closeConnection();
+
+      // The output port of node should be connected to a Test sink.
+      TestSink<String> outSink = new TestSink<String>();
+      ActiveMQInputOperator operator  = new ActiveMQInputOperator();
+      operator.outputPort.setSink(outSink);
+      operator.setup(config);
+
+      int N = 10;
+      int timeoutMillis = 5000;
+      while (outSink.collectedTuples.size() < 10 && timeoutMillis > 0) {
+        operator.replayEmitTuples(0);
+        timeoutMillis -= 20;
+        Thread.sleep(20);
+      }
 
   }
 

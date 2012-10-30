@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
-public abstract class AbstractRabbitMQInputOperator<T> implements AsyncInputOperator, ActivationListener<OperatorContext>
+public abstract class AbstractRabbitMQInputOperator<T> implements InputOperator, ActivationListener<OperatorContext>
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractRabbitMQInputOperator.class);
   @InjectConfig(key = "host")
@@ -81,7 +81,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements AsyncInputOper
   }
 
   @Override
-  public void emitTuples(long windowId)
+  public void replayEmitTuples(long windowId)
   {
     for (int i = holdingBuffer.size(); i-- > 0;) {
       emitTuple(holdingBuffer.pollUnsafe());
@@ -160,7 +160,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements AsyncInputOper
   public abstract void emitTuple(byte[] message);
 
 //  @Override
-//  public void emitTuples(long windowId)
+//  public void replayEmitTuples(long windowId)
 //  {
 //    for (int i = tempBuffer.size(); i-- > 0;) {
 //      outputPort.emit(getOutputTuple(tempBuffer.pollUnsafe()));

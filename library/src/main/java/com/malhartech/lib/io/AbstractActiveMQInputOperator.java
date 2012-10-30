@@ -4,7 +4,10 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.api.BaseInputOperator;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
+import com.malhartech.api.InputOperator;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.OperatorConfiguration;
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
@@ -18,13 +21,18 @@ import org.slf4j.LoggerFactory;
  * @author Locknath Shil <locknath@malhar-inc.com>
  * This is ActiveMQ input adapter operator (which consume data from ActiveMQ message bus).
  */
-public abstract class AbstractActiveMQInputOperator<T> extends BaseInputOperator<T> implements MessageListener, ExceptionListener
+public abstract class AbstractActiveMQInputOperator<T> extends BaseOperator implements InputOperator, Runnable, MessageListener, ExceptionListener
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractActiveMQInputOperator.class);
   private long maxMessages;
   public ActiveMQBase amqConfig;
 
-  public AbstractActiveMQInputOperator(ActiveMQBase config)
+  @OutputPortFieldAnnotation(name = "ActiveMQOutputPort")
+  final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>(this);
+  private final transient ArrayList<T> tuples = new ArrayList<T>();
+
+  @Override
+  public void replayEmitTuples(long windowId)
   {
     amqConfig = config;
   }

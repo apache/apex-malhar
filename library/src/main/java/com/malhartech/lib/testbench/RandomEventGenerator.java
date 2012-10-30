@@ -4,9 +4,7 @@
  */
 package com.malhartech.lib.testbench;
 
-import java.util.Random;
-
-import com.malhartech.api.AsyncInputOperator;
+import com.malhartech.api.InputOperator;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.OperatorConfiguration;
@@ -42,7 +40,7 @@ import com.malhartech.api.OperatorConfiguration;
  *
  * @author amol
  */
-public class RandomEventGenerator extends BaseOperator implements AsyncInputOperator
+public class RandomEventGenerator extends BaseOperator implements InputOperator
 {
   public final transient DefaultOutputPort<String> string_data = new DefaultOutputPort<String>(this);
   public final transient DefaultOutputPort<Integer> integer_data = new DefaultOutputPort<Integer>(this);
@@ -77,7 +75,7 @@ public class RandomEventGenerator extends BaseOperator implements AsyncInputOper
   }
 
   @Override
-  public void emitTuples(long windowId)
+  public void replayEmitTuples(long windowId)
   {
     int range = max_value - min_value + 1;
     int i = 0;

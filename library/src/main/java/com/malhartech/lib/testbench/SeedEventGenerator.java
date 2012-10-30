@@ -4,6 +4,10 @@
  */
 package com.malhartech.lib.testbench;
 
+import com.malhartech.api.InputOperator;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.OneKeyValPair;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -56,7 +60,7 @@ import com.malhartech.lib.util.OneKeyValPair;
  * @author amol
  */
 
-public class SeedEventGenerator extends BaseOperator implements AsyncInputOperator
+public class SeedEventGenerator extends BaseOperator implements InputOperator
 {
     public final transient DefaultOutputPort<HashMap<String, ArrayList<OneKeyValPair>>> keyvalpair_list = new DefaultOutputPort<HashMap<String, ArrayList<OneKeyValPair>>>(this);
     public final transient DefaultOutputPort<HashMap<String,ArrayList<Integer>>> val_list = new DefaultOutputPort<HashMap<String, ArrayList<Integer>>>(this);
@@ -88,7 +92,7 @@ public class SeedEventGenerator extends BaseOperator implements AsyncInputOperat
   }
 
   @Override
-  public void emitTuples(long windowId)
+  public void replayEmitTuples(long windowId)
   {
     int lstart = s_start;
     int lend = s_end;

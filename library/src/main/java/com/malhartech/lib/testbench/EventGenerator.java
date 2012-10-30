@@ -4,8 +4,7 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.api.AsyncInputOperator;
-import com.malhartech.api.Context;
+import com.malhartech.api.InputOperator;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.OperatorConfiguration;
 import java.util.ArrayList;
@@ -51,7 +50,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author amol
  */
-public class EventGenerator implements AsyncInputOperator
+public class EventGenerator implements InputOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(EventGenerator.class);
 
@@ -196,7 +195,7 @@ public class EventGenerator implements AsyncInputOperator
   }
 
   @Override
-  public void emitTuples(long windowId)
+  public void replayEmitTuples(long windowId)
   {
     int j = 0;
 

@@ -43,7 +43,7 @@ public class RabbitMQInputOperatorTest
 //      return new String(message);
 //    }
     @Override
-    public void emitTuples(long windowId)
+    public void replayEmitTuples(long windowId)
     {
       throw new UnsupportedOperationException("Not supported yet.");
     }
