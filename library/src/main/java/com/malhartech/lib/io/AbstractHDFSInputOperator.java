@@ -4,17 +4,15 @@
  */
 package com.malhartech.lib.io;
 
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.deprecated.api.SyncInputOperator;
 import java.io.IOException;
-
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.deprecated.api.SyncInputOperator;
 
 /**
  *
