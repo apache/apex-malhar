@@ -21,6 +21,7 @@ import com.malhartech.lib.testbench.SeedEventClassifier;
 import com.malhartech.lib.testbench.SeedEventGenerator;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -188,7 +189,15 @@ public class Application implements ApplicationFactory
       dag.addStream("consoledata", indexMap.console, httpconsole.input).setInline(true);
       // Waiting for local server to be set up. For now I hardcoded the phones to be dumped
       HttpInputOperator phoneLocationQuery = dag.addOperator("phoneLocationQuery", HttpInputOperator.class);
-      phoneLocationQuery.setProperty(HttpInputModule.P_RESOURCE_URL, "http://" + ajaxServerAddr + "/channel/mobile/phoneLocationQuery");
+      URI u = null;
+      try {
+        u = new URI("http://" + ajaxServerAddr + "/channel/mobile/phoneLocationQuery");
+      }
+      catch (URISyntaxException ex) {
+        java.util.logging.Logger.getLogger(com.malhartech.demos.ads.Application.class.getName()).log(Level.SEVERE, null, ex);
+      }
+
+      phoneLocationQuery.setUrl(u);
       dag.addStream("mobilequery", phoneLocationQuery.outputPort, indexMap.query).setInline(true);
     }
     else {
