@@ -21,21 +21,32 @@ import org.slf4j.LoggerFactory;
  * @author Locknath Shil <locknath@malhar-inc.com>
  * This is ActiveMQ input adapter operator (which consume data from ActiveMQ message bus).
  */
-public abstract class AbstractActiveMQInputOperator<T> extends BaseOperator implements InputOperator, Runnable, MessageListener, ExceptionListener
+public abstract class AbstractActiveMQInputOperator<T> extends BaseInputOperator<T> // implements MessageListener, ExceptionListener
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractActiveMQInputOperator.class);
-  private long maxMessages;
-  public ActiveMQBase amqConfig;
+ // private long maxMessages;
 
-  @OutputPortFieldAnnotation(name = "ActiveMQOutputPort")
-  final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>(this);
-  private final transient ArrayList<T> tuples = new ArrayList<T>();
+  private ActiveMQConsumerBase amqConsumer = new ActiveMQConsumerBase() {
 
-  @Override
-  public void replayEmitTuples(long windowId)
+    @Override
+    protected void emitMessage(Message message) throws JMSException
+    {
+     // super.outputPort.emit(getTuple(message));
+      emitTuple(getTuple(message));
+    }
+  };
+
+  protected abstract void emitTuple(T t) throws JMSException;
+
+  public AbstractActiveMQInputOperator()
   {
-    amqConfig = config;
   }
+
+  public ActiveMQConsumerBase getAmqConsumer()
+  {
+    return amqConsumer;
+  }
+
 
   /**
    * Any concrete class derived from AbstractActiveQConsumerModule has to implement this method
@@ -49,11 +60,11 @@ public abstract class AbstractActiveMQInputOperator<T> extends BaseOperator impl
   public void setup(OperatorConfiguration config)
   {
     try {
-      //logger.debug("setup got called");
-      amqConfig.setupConnection();
-      amqConfig.getConsumer().setMessageListener(this);
+      logger.debug("setup got called from {}", this);
+      amqConsumer.setupConnection();
+      //amqConfig.getConsumer().setMessageListener(this);
 
-      maxMessages = amqConfig.getMaximumMessage();
+      //maxMessages = amqConsumer.getMaximumMessage();
     }
     catch (JMSException ex) {
       logger.debug(ex.getLocalizedMessage());
@@ -65,7 +76,7 @@ public abstract class AbstractActiveMQInputOperator<T> extends BaseOperator impl
   public void teardown()
   {
     logger.debug("teardown got called from {}", this);
-    amqConfig.cleanup();
+    amqConsumer.cleanup();
   }
 
   /**
@@ -74,18 +85,15 @@ public abstract class AbstractActiveMQInputOperator<T> extends BaseOperator impl
    *
    * @param message
    */
-  @Override
+/*  @Override
   public void onMessage(Message message)
   {
-    /**
-     * make sure that we do not get called again if we have processed enough
-     * messages already.
-     */
-    //logger.debug("{} in call onMessage", this);
+    // Make sure that we do not get called again if we have processed enough messages already.
+    logger.debug("onMessage got called from {}", this);
     if (maxMessages > 0) {
       if (--maxMessages == 0) {
         try {
-          amqConfig.getConsumer().setMessageListener(null);
+          amqConsumer.getConsumer().setMessageListener(null);
         }
         catch (JMSException ex) {
           logger.error(ex.getLocalizedMessage());
@@ -101,12 +109,12 @@ public abstract class AbstractActiveMQInputOperator<T> extends BaseOperator impl
     }
 
 
-    amqConfig.handleMessage(message);
+    amqConsumer.acknowledgeMessage(message);
   }
 
   @Override
   public void onException(JMSException ex)
   {
     logger.error(ex.getLocalizedMessage());
-  }
+  } */
 }

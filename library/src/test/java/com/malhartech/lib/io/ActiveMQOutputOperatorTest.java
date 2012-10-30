@@ -23,12 +23,13 @@ public class ActiveMQOutputOperatorTest
 {
   private static final Logger logger = LoggerFactory.getLogger(ActiveMQOutputOperatorTest.class);
   private static BrokerService broker;
-  private static ActiveMQBase amqConfig;
+  //private static ActiveMQProducerBase amqConfig;
 
   @BeforeClass
   public static void setUpClass() throws Exception
   {
-    amqConfig = new ActiveMQBase(true);  // this is the producer
+    //amqConfig = new ActiveMQProducerBase();  // this is the producer
+
     startActiveMQService();
   }
 
@@ -43,6 +44,7 @@ public class ActiveMQOutputOperatorTest
     broker.addConnector("tcp://localhost:61617?broker.persistent=false");
     broker.getSystemUsage().getStoreUsage().setLimit(1024 * 1024 * 1024);
     broker.getSystemUsage().getTempUsage().setLimit(100 * 1024 * 1024);
+    broker.setDeleteAllMessagesOnStartup(true);
     broker.start();
   }
 
@@ -50,7 +52,7 @@ public class ActiveMQOutputOperatorTest
   public static void teardownClass() throws Exception
   {
     broker.stop();
-    amqConfig.cleanup();
+    //amqConfig.cleanup();
   }
 
   /**
@@ -58,9 +60,8 @@ public class ActiveMQOutputOperatorTest
    */
   public static class ActiveMQOutputOperator extends AbstractActiveMQOutputOperator<String>
   {
-    public ActiveMQOutputOperator(ActiveMQBase helper)
+    public ActiveMQOutputOperator()
     {
-      super(helper);
     }
 
     /**
@@ -75,7 +76,7 @@ public class ActiveMQOutputOperatorTest
       //System.out.println("we are in createMessage");
       Message msg = null;
       try {
-        msg = amqConfig.getSession().createTextMessage(obj);
+        msg = amqProducer.getSession().createTextMessage(obj);
       }
       catch (JMSException ex) {
         logger.debug(ex.getLocalizedMessage());
@@ -98,25 +99,10 @@ public class ActiveMQOutputOperatorTest
   @SuppressWarnings({"SleepWhileInLoop", "empty-statement"})
   public void testActiveMQOutputOperator() throws Exception
   {
-    // Set configuation for ActiveMQ
-    amqConfig.setUser("");
-    amqConfig.setPassword("");
-    amqConfig.setUrl("tcp://localhost:61617");
-    amqConfig.setAckMode("CLIENT_ACKNOWLEDGE");
-    amqConfig.setClientId("Client1");
-    amqConfig.setSubject("TEST.FOO");
-    amqConfig.setMaximumMessage(100);
-    amqConfig.setMaximumSendMessages(100);
-    amqConfig.setMaximumReceiveMessages(100);
-    amqConfig.setMessageSize(255);
-    amqConfig.setBatch(10);
-    amqConfig.setTopic(false);
-    amqConfig.setDurable(false);
-    amqConfig.setTransacted(false);
-    amqConfig.setVerbose(true);
+
 
     // Setup a message listener to receive the message
-    ActiveMQMessageListener listener = new ActiveMQMessageListener(amqConfig);
+    ActiveMQMessageListener listener = new ActiveMQMessageListener();
     try {
       listener.setupConnection();
     }
@@ -126,7 +112,25 @@ public class ActiveMQOutputOperatorTest
     listener.run();
 
     // Malhar module to send message
-    ActiveMQOutputOperator node = new ActiveMQOutputOperator(amqConfig);
+    ActiveMQOutputOperator node = new ActiveMQOutputOperator();
+        // Set configuation for ActiveMQ
+    ActiveMQProducerBase amqConfig = node.getAmqProducer();
+    amqConfig.setUser("");
+    amqConfig.setPassword("");
+    amqConfig.setUrl("tcp://localhost:61617");
+    amqConfig.setAckMode("CLIENT_ACKNOWLEDGE");
+    amqConfig.setClientId("Client1");
+    amqConfig.setSubject("TEST.FOO");
+    //amqConfig.setMaximumMessage(100);
+    amqConfig.setMaximumSendMessages(15);
+    //amqConfig.setMaximumReceiveMessages(100);
+    amqConfig.setMessageSize(255);
+    amqConfig.setBatch(10);
+    amqConfig.setTopic(false);
+    amqConfig.setDurable(false);
+    amqConfig.setTransacted(false);
+    amqConfig.setVerbose(true);
+
     node.setup(new OperatorConfiguration());
 
     long numTuple = amqConfig.getMaximumSendMessages();

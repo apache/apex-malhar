@@ -26,11 +26,21 @@ public class ActiveMQMessageGenerator
   public HashMap<Integer, String> sendData = new HashMap<Integer, String>();
   public int sendCount = 0;
   private int debugMessageCount = 0;
-  private ActiveMQBase amqConfig;
+  private String user = "";
+  private String password = "";
+  private String url = "tcp://localhost:61617";
+  private int ackMode = Session.CLIENT_ACKNOWLEDGE;
+  private String subject = "TEST.FOO";
+  private int batch = 10;
+  private int messageSize = 255;
+  private long maximumSendMessages = 20; // 0 means unlimitted, this has to run in seperate thread for unlimitted
+  private boolean durable = false;
+  private boolean topic = false;
+  private boolean transacted = false;
+  private boolean verbose = false;
 
-  public ActiveMQMessageGenerator(ActiveMQBase config)
+  public ActiveMQMessageGenerator()
   {
-    amqConfig = config;
   }
 
   public void setDebugMessageCount(int count)
@@ -47,21 +57,18 @@ public class ActiveMQMessageGenerator
   {
     // Create connection
     ActiveMQConnectionFactory connectionFactory;
-    connectionFactory = new ActiveMQConnectionFactory(
-            amqConfig.getUser(),
-            amqConfig.getPassword(),
-            amqConfig.getUrl());
+    connectionFactory = new ActiveMQConnectionFactory(user, password, url);
 
     connection = connectionFactory.createConnection();
     connection.start();
 
     // Create session
-    session = connection.createSession(amqConfig.isTransacted(), amqConfig.getSessionAckMode(amqConfig.getAckMode()));
+    session = connection.createSession(transacted, ackMode);
 
     // Create destination
-    destination = amqConfig.isTopic()
-                  ? session.createTopic(amqConfig.getSubject())
-                  : session.createQueue(amqConfig.getSubject());
+    destination = topic
+                  ? session.createTopic(subject)
+                  : session.createQueue(subject);
 
     // Create producer
     producer = session.createProducer(destination);
@@ -74,14 +81,12 @@ public class ActiveMQMessageGenerator
    */
   public void sendMessage() throws Exception
   {
-    long messageCount = amqConfig.getMaximumMessage();
-    for (int i = 1; i <= messageCount || messageCount == 0; i++) {
+    for (int i = 1; i <= maximumSendMessages || maximumSendMessages == 0; i++) {
 
       // Silly message
       String myMsg = "My TestMessage " + i;
       //String myMsg = "My TestMessage " + i + " sent at " + new Date();
 
-      int messageSize = amqConfig.getMessageSize();
       if (myMsg.length() > messageSize) {
         myMsg = myMsg.substring(0, messageSize);
       }
@@ -93,7 +98,7 @@ public class ActiveMQMessageGenerator
       sendData.put(i, myMsg);
       sendCount++;
 
-      if (amqConfig.isVerbose()) {
+      if (verbose) {
         String msg = message.getText();
         if (msg.length() > messageSize) {
           msg = msg.substring(0, messageSize) + "...";
@@ -101,13 +106,6 @@ public class ActiveMQMessageGenerator
         if (i <= debugMessageCount) {
           System.out.println("[" + this + "] Sending message from generator: '" + msg + "'");
         }
-      }
-
-      if (amqConfig.isTransacted()) {
-        if (i <= debugMessageCount) {
-          System.out.println("[" + this + "] Committing " + messageCount + " messages");
-        }
-        session.commit();
       }
     }
   }

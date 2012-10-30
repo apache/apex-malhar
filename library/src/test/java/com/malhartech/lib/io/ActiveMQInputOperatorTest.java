@@ -28,7 +28,6 @@ public class ActiveMQInputOperatorTest
 {
   private static final Logger logger = LoggerFactory.getLogger(ActiveMQInputOperatorTest.class);
   private static BrokerService broker;
-  private static ActiveMQBase amqConfig;
   static int debugMessageCount = 5;  // for debug, display first few messages
   public HashMap<Integer, String> receivedData = new HashMap<Integer, String>();
   private int receivedCount = 0;
@@ -38,14 +37,10 @@ public class ActiveMQInputOperatorTest
    */
   private final class ActiveMQInputOperator extends AbstractActiveMQInputOperator<String>
   {
-    public ActiveMQInputOperator(ActiveMQBase helper)
-    {
-      super(helper);
-    }
-
     @Override
     protected String getTuple(Message message) throws JMSException
     {
+     // outputPort.emit(message); should fail
       //logger.debug("getTuple() got called from {}", this);
       if (message instanceof TextMessage) {
         String msg = ((TextMessage)message).getText();
@@ -57,12 +52,17 @@ public class ActiveMQInputOperatorTest
         throw new IllegalArgumentException("Unhandled message type " + message.getClass().getName());
       }
     }
+
+    @Override
+    protected void emitTuple(String t) throws JMSException
+    {
+       super.outputPort.emit(t);
+    }
   }
 
   @BeforeClass
   public static void setUpClass() throws Exception
   {
-    amqConfig = new ActiveMQBase(false); // false means not producer
     startActiveMQService();
   }
 
@@ -91,26 +91,9 @@ public class ActiveMQInputOperatorTest
 
   }
 
-      }
-      catch (JMSException ex) {
-        logger.debug(ex.getLocalizedMessage());
-      }
-      generator.closeConnection();
-
-      // The output port of node should be connected to a Test sink.
-      TestSink<String> outSink = new TestSink<String>();
-      ActiveMQInputOperator operator  = new ActiveMQInputOperator();
-      operator.outputPort.setSink(outSink);
-      operator.setup(config);
-
-      int N = 10;
-      int timeoutMillis = 5000;
-      while (outSink.collectedTuples.size() < 10 && timeoutMillis > 0) {
-        operator.replayEmitTuples(0);
-        timeoutMillis -= 20;
-        Thread.sleep(20);
-      }
-
+  @After
+  public void endTest() throws IOException
+  {
   }
 
   /**
@@ -125,27 +108,12 @@ public class ActiveMQInputOperatorTest
    *
    * @throws Exception
    */
+  @Test
   @SuppressWarnings("SleepWhileInLoop")
   public void testActiveMQInputOperator() throws Exception
   {
-    // Set configuation for ActiveMQ
-    amqConfig.setUser("");
-    amqConfig.setPassword("");
-    amqConfig.setUrl("tcp://localhost:61617");
-    amqConfig.setAckMode("CLIENT_ACKNOWLEDGE");
-    amqConfig.setClientId("Client1");
-    amqConfig.setConsumerName("Consumer1");
-    amqConfig.setSubject("TEST.FOO");
-    amqConfig.setMaximumMessage(20);
-    amqConfig.setMessageSize(255);
-    amqConfig.setBatch(10);
-    amqConfig.setTopic(false);
-    amqConfig.setDurable(false);
-    //amqConfig.setTransacted(false);
-    amqConfig.setVerbose(true);
-
     // Setup a message generator to receive the message from.
-    ActiveMQMessageGenerator generator = new ActiveMQMessageGenerator(amqConfig);
+    ActiveMQMessageGenerator generator = new ActiveMQMessageGenerator();
     try {
       generator.setDebugMessageCount(debugMessageCount);
       generator.setupConnection();
@@ -158,7 +126,24 @@ public class ActiveMQInputOperatorTest
 
     // The output port of node should be connected to a Test sink.
     TestSink<String> outSink = new TestSink<String>();
-    ActiveMQInputOperator node = new ActiveMQInputOperator(amqConfig);
+    ActiveMQInputOperator node = new ActiveMQInputOperator();
+    ActiveMQConsumerBase config = node.getAmqConsumer();
+    config.setUser("");
+    config.setPassword("");
+    config.setUrl("tcp://localhost:61617");
+    config.setAckMode("CLIENT_ACKNOWLEDGE");
+    config.setClientId("Client1");
+    config.setConsumerName("Consumer1");
+    config.setSubject("TEST.FOO");
+    config.setMaximumMessage(20);
+    config.setMessageSize(255);
+    config.setBatch(10);
+    config.setTopic(false);
+    config.setDurable(false);
+    config.setTransacted(false);
+    config.setVerbose(true);
+
+
     node.outputPort.setSink(outSink);
     node.setup(new OperatorConfiguration());
 
@@ -175,21 +160,69 @@ public class ActiveMQInputOperatorTest
       Assert.assertEquals("Message content", generator.sendData.get(i), receivedData.get(new Integer(i)));
       logger.debug(String.format("Received: %s", receivedData.get(new Integer(i))));
     }
+    receivedData.clear();
+    config.cleanup();
 
   }
 
   @Test
-  public void test1() throws Exception
+  public void test2() throws Exception
   {
-    amqConfig.setTransacted(false);
-    testActiveMQInputOperator();
-    Thread.sleep(3000);
+    // Setup a message generator to receive the message from.
+    ActiveMQMessageGenerator generator = new ActiveMQMessageGenerator();
+    try {
+      generator.setDebugMessageCount(debugMessageCount);
+      generator.setupConnection();
+      generator.sendMessage();
+    }
+    catch (JMSException ex) {
+      logger.debug(ex.getLocalizedMessage());
+    }
+    generator.closeConnection();
+
+    // The output port of node should be connected to a Test sink.
+    TestSink<String> outSink = new TestSink<String>();
+    ActiveMQInputOperator node = new ActiveMQInputOperator();
+    ActiveMQConsumerBase config = node.getAmqConsumer();
+    //config.setUser("");
+    config.setPassword("");
+    config.setUrl("tcp://localhost:61617");
+    config.setAckMode("CLIENT_ACKNOWLEDGE");
+    config.setClientId("Client1");
+    config.setConsumerName("Consumer1");
+    config.setSubject("TEST.FOO");
+    config.setMaximumMessage(7);
+    config.setMessageSize(255);
+    config.setBatch(10);
+    config.setTopic(false);
+    config.setDurable(false);
+    config.setTransacted(true);
+    config.setVerbose(true);
+
+
+    node.outputPort.setSink(outSink);
+    node.setup(new OperatorConfiguration());
+
+    // Allow some time to receive data.
+    Thread.sleep(2000);
+
+    // Check values send vs received.
+    int totalCount = receivedData.size();
+    Assert.assertEquals("Number of emitted tuples", generator.sendCount, totalCount);
+    logger.debug(String.format("Number of emitted tuples: %d", totalCount));
+
+    // Check contents only for first few.
+    for (int i = 1; i <= debugMessageCount & i < totalCount; ++i) {
+      Assert.assertEquals("Message content", generator.sendData.get(i), receivedData.get(new Integer(i)));
+      logger.debug(String.format("Received: %s", receivedData.get(new Integer(i))));
+    }
+    receivedData.clear();
+    config.cleanup();
+
   }
 
   //@Test
-  public void test2() throws Exception
+  public void test3() throws Exception
   {
-    amqConfig.setTransacted(true);
-    testActiveMQInputOperator();
   }
 }

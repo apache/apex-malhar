@@ -23,38 +23,45 @@ public class ActiveMQMessageListener implements MessageListener, Runnable
   private MessageConsumer consumer;
   private Destination destination;
   private int countMessages = 0;
-  private long maximumReceiveMessages = 0;
-  private ActiveMQBase amqConfig;
   public HashMap<Integer, String> receivedData = new HashMap<Integer, String>();
+  private String user = "";
+  private String password = "";
+  private String url = "tcp://localhost:61617";
+  private int ackMode = Session.CLIENT_ACKNOWLEDGE;
+  private String subject = "TEST.FOO";
+  private int batch = 10;
+  private int messageSize = 255;
+  private long maximumReceiveMessages = 20; // 0 means unlimitted, this has to run in seperate thread for unlimitted
+  private boolean durable = false;
+  private boolean topic = false;
+  private boolean transacted = false;
+  private boolean verbose = false;
+  private String consumerName = "Consumer1";
 
-  public ActiveMQMessageListener(ActiveMQBase config)
+  public ActiveMQMessageListener()
   {
-    amqConfig = config;
-    maximumReceiveMessages = amqConfig.getMaximumReceiveMessages();
   }
 
   public void setupConnection() throws JMSException
   {
     // Create connection
     ActiveMQConnectionFactory connectionFactory;
-    connectionFactory = new ActiveMQConnectionFactory(
-            amqConfig.getUser(),
-            amqConfig.getPassword(),
-            amqConfig.getUrl());
+    connectionFactory = new ActiveMQConnectionFactory(user, password, url);
 
     connection = connectionFactory.createConnection();
     connection.start();
 
     // Create session
-    session = connection.createSession(amqConfig.isTransacted(), amqConfig.getSessionAckMode(amqConfig.getAckMode()));
+    session = connection.createSession(transacted, ackMode);
 
     // Create destination
-    destination = amqConfig.isTopic()
-                  ? session.createTopic(amqConfig.getSubject())
-                  : session.createQueue(amqConfig.getSubject());
+    destination = topic
+                  ? session.createTopic(subject)
+                  : session.createQueue(subject);
 
-    consumer = (amqConfig.isDurable() && amqConfig.isTopic())
-               ? session.createDurableSubscriber((Topic)destination, amqConfig.getConsumerName())
+    // Create consumer
+    consumer = (durable && topic)
+               ? session.createDurableSubscriber((Topic)destination, consumerName)
                : session.createConsumer(destination);
 
     consumer.setMessageListener(this);
@@ -87,10 +94,10 @@ public class ActiveMQMessageListener implements MessageListener, Runnable
         logger.debug(ex.getLocalizedMessage());
       }
 
-      System.out.println("Received a TextMessage: '" + msg + "'");
+      logger.debug("Received a TextMessage: {}", msg);
     }
     else {
-      System.out.println(String.format("Not a string instance (%s)", message.toString()));
+      throw new IllegalArgumentException("Unhandled message type " + message.getClass().getName());
     }
 
   }

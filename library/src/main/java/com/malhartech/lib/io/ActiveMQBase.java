@@ -4,8 +4,11 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.annotation.InjectConfig;
-import javax.jms.*;
+import javax.jms.Connection;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Session;
+import javax.validation.constraints.NotNull;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,62 +20,44 @@ import org.slf4j.LoggerFactory;
 public class ActiveMQBase
 {
   private static final Logger logger = LoggerFactory.getLogger(ActiveMQBase.class);
-  private boolean isProducer;
-  private Connection connection;
-  private Session session;
-  private MessageProducer producer;
-  private MessageProducer replyProducer;
-  private MessageConsumer consumer;
-  private Destination destination;
-  private long messagesReceived = 0;
-  @InjectConfig(key = "usr")
-  private String user = "";
-  @InjectConfig(key = "password")
+  //private boolean isProducer;
+  protected Connection connection;
+  protected Session session;
+ // private MessageProducer producer;
+ // private MessageProducer replyProducer;
+ // private MessageConsumer consumer;
+
+  protected Destination destination;
+
+  @NotNull
+  private String user;
+
+  @NotNull
   private String password = "";
-  @InjectConfig(key = "url")
+
+  @NotNull
   private String url;
-  @InjectConfig(key = "ackMode")
-  private String ackMode;
-  @InjectConfig(key = "clientId")
+
+  protected String ackMode;
   private String clientId;
-  @InjectConfig(key = "consumerName")
-  private String consumerName;
-  @InjectConfig(key = "subject")
+
   private String subject = "TEST.FOO";
-  @InjectConfig(key = "batch")
-  private int batch = 10;
-  @InjectConfig(key = "messageSize")
+  protected int batch = 10;
   private int messageSize = 255;
-  @InjectConfig(key = "maximumMessage")
   private long maximumMessage = 0; // means unlimitted
-  @InjectConfig(key = "maximumSendMessages")
-  private long maximumSendMessages = 0; // means unlimitted
-  @InjectConfig(key = "maximumReceiveMessages")
+
   private long maximumReceiveMessages = 0; // means unlimitted
-  @InjectConfig(key = "durable")
-  private boolean durable = false;
-  @InjectConfig(key = "topic")
-  private boolean topic = false;
-  @InjectConfig(key = "transacted")
-  private boolean transacted = false;
-  @InjectConfig(key = "verbose")
-  private boolean verbose = false;
+  protected boolean durable = false;
+  protected boolean topic = false;
+  protected boolean transacted = false;
+  protected boolean verbose = false;
 
 
-  ActiveMQBase(boolean isProducer)
+  ActiveMQBase()
   {
-    this.isProducer = isProducer;
   }
 
-  public boolean isIsProducer()
-  {
-    return isProducer;
-  }
 
-  public void setIsProducer(boolean isProducer)
-  {
-    this.isProducer = isProducer;
-  }
 
   public Connection getConnection()
   {
@@ -94,35 +79,6 @@ public class ActiveMQBase
     this.session = session;
   }
 
-  public MessageProducer getProducer()
-  {
-    return producer;
-  }
-
-  public void setProducer(MessageProducer producer)
-  {
-    this.producer = producer;
-  }
-
-  public MessageProducer getReplyProducer()
-  {
-    return replyProducer;
-  }
-
-  public void setReplyProducer(MessageProducer replyProducer)
-  {
-    this.replyProducer = replyProducer;
-  }
-
-  public MessageConsumer getConsumer()
-  {
-    return consumer;
-  }
-
-  public void setConsumer(MessageConsumer consumer)
-  {
-    this.consumer = consumer;
-  }
 
   public Destination getDestination()
   {
@@ -134,15 +90,7 @@ public class ActiveMQBase
     this.destination = destination;
   }
 
-  public long getMessagesReceived()
-  {
-    return messagesReceived;
-  }
 
-  public void setMessagesReceived(long messagesReceived)
-  {
-    this.messagesReceived = messagesReceived;
-  }
 
   public String getUser()
   {
@@ -194,15 +142,7 @@ public class ActiveMQBase
     this.clientId = clientId;
   }
 
-  public String getConsumerName()
-  {
-    return consumerName;
-  }
 
-  public void setConsumerName(String consumerName)
-  {
-    this.consumerName = consumerName;
-  }
 
   public String getSubject()
   {
@@ -242,16 +182,6 @@ public class ActiveMQBase
   public void setMaximumMessage(long maximumMessage)
   {
     this.maximumMessage = maximumMessage;
-  }
-
-  public long getMaximumSendMessages()
-  {
-    return maximumSendMessages;
-  }
-
-  public void setMaximumSendMessages(long maximumSendMessages)
-  {
-    this.maximumSendMessages = maximumSendMessages;
   }
 
   public long getMaximumReceiveMessages()
@@ -329,10 +259,9 @@ public class ActiveMQBase
   /**
    * Connection specific setup for ActiveMQ.
    *
-   * @param config
    * @throws JMSException
    */
-  public void setupConnection() throws JMSException
+  public void createConnection() throws JMSException
   {
     // Create connection
     ActiveMQConnectionFactory connectionFactory;
@@ -353,7 +282,7 @@ public class ActiveMQBase
                               ? session.createTopic(subject)
                               : session.createQueue(subject);
 
-
+/*
     if (isProducer) {
       // Create producer
       producer = session.createProducer(destination);
@@ -366,38 +295,7 @@ public class ActiveMQBase
                  ? session.createDurableSubscriber((Topic)destination, consumerName)
                  : session.createConsumer(destination);
     }
-  }
-
-  public void handleMessage(Message message)
-  {
-    ++messagesReceived;
-    try {
-      if (message.getJMSReplyTo() != null) {
-        // Send reply only if the replyTo destination is set
-        replyProducer.send(message.getJMSReplyTo(), session.createTextMessage("Reply: " + message.getJMSMessageID()));
-      }
-
-      if (transacted) {
-        if ((messagesReceived % batch) == 0) {
-          if (verbose) {
-            System.out.println("Commiting transaction for last " + batch + " messages; messages so far = " + messagesReceived);
-          }
-          session.commit();
-        }
-      }
-      else if (getSessionAckMode(ackMode) == Session.CLIENT_ACKNOWLEDGE) {
-        // we can use window boundary to ack the message.
-        if ((messagesReceived % batch) == 0) {
-          if (verbose) {
-            System.out.println("Acknowledging last " + batch + " messages; messages so far = " + messagesReceived);
-          }
-          message.acknowledge();
-        }
-      }
-    }
-    catch (JMSException ex) {
-      logger.debug(ex.getLocalizedMessage());
-    }
+    */
   }
 
   /**
@@ -408,7 +306,7 @@ public class ActiveMQBase
     logger.debug("cleanup got called from {}", this);
 
     try {
-      if (isProducer) {
+    /*  if (isProducer) {
         producer.close();
         producer = null;
       }
@@ -418,7 +316,7 @@ public class ActiveMQBase
         consumer.close();
         consumer = null;
       }
-
+*/
 
       session.close();
       connection.close();
