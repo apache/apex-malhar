@@ -160,7 +160,7 @@ public class Application implements ApplicationFactory
   {
     Quotient oper = b.addOperator(name, Quotient.class);
     oper.setMult_by(100);
-    oper.setDokey(true);;
+    oper.setDokey(true);
     return oper;
   }
 
