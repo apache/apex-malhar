@@ -8,6 +8,7 @@ import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.dag.TestSink;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.TextMessage;
@@ -56,7 +57,26 @@ public class ActiveMQInputOperatorTest
     @Override
     protected void emitTuple(String t) throws JMSException
     {
-       super.outputPort.emit(t);
+       //super.outputPort.emit(t);
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void replayEmitTuples(long windowId)
+    {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void postEmitTuples(long windowId, OutputPort<?> outputPort, Iterator<?> tuples)
+    {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void run()
+    {
+      throw new UnsupportedOperationException("Not supported yet.");
     }
   }
 
@@ -144,7 +164,7 @@ public class ActiveMQInputOperatorTest
     config.setVerbose(true);
 
 
-    node.outputPort.setSink(outSink);
+  //  node.outputPort.setSink(outSink);
     node.setup(new OperatorConfiguration());
 
     // Allow some time to receive data.
@@ -200,7 +220,7 @@ public class ActiveMQInputOperatorTest
     config.setVerbose(true);
 
 
-    node.outputPort.setSink(outSink);
+//    node.outputPort.setSink(outSink);
     node.setup(new OperatorConfiguration());
 
     // Allow some time to receive data.

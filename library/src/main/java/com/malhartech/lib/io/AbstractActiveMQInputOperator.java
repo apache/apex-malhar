@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * @author Locknath Shil <locknath@malhar-inc.com>
  * This is ActiveMQ input adapter operator (which consume data from ActiveMQ message bus).
  */
-public abstract class AbstractActiveMQInputOperator<T> extends BaseInputOperator<T> // implements MessageListener, ExceptionListener
+public abstract class AbstractActiveMQInputOperator<T> extends BaseOperator implements InputOperator, Runnable
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractActiveMQInputOperator.class);
  // private long maxMessages;
