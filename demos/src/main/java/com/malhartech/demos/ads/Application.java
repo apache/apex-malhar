@@ -5,7 +5,6 @@
 package com.malhartech.demos.ads;
 
 import com.malhartech.api.DAG;
-import com.malhartech.api.Operator;
 import com.malhartech.dag.ApplicationFactory;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.io.HttpOutputOperator;
@@ -120,7 +119,7 @@ public class Application implements ApplicationFactory
     return ret;
   }
 
-    private HttpOutputOperator<HashMap<String,Number>> getHttpOutputNumberOperator(DAG b, String name)
+  private HttpOutputOperator<HashMap<String,Number>> getHttpOutputNumberOperator(DAG b, String name)
   {
     // output to HTTP server when specified in environment setting
     String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");

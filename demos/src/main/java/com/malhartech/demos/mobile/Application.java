@@ -4,65 +4,68 @@
  */
 package com.malhartech.demos.mobile;
 
+import com.google.common.collect.Range;
+import com.google.common.collect.Ranges;
+import com.malhartech.api.DAG;
+import com.malhartech.api.Operator;
+import com.malhartech.dag.ApplicationFactory;
+import com.malhartech.lib.algo.InvertIndexMapPhone;
+import com.malhartech.lib.algo.TupleQueue;
+import com.malhartech.lib.io.ConsoleOutputOperator;
+import com.malhartech.lib.io.HttpInputModule;
+import com.malhartech.lib.io.HttpInputOperator;
+import com.malhartech.lib.io.HttpOutputOperator;
+import com.malhartech.lib.testbench.EventIncrementer;
+import com.malhartech.lib.testbench.RandomEventGenerator;
+import com.malhartech.lib.testbench.SeedEventClassifier;
+import com.malhartech.lib.testbench.SeedEventGenerator;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
+import java.util.logging.Level;
 import org.apache.hadoop.conf.Configuration;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Range;
-import com.google.common.collect.Ranges;
-import com.malhartech.dag.ApplicationFactory;
-import com.malhartech.dag.DAG;
-import com.malhartech.dag.DAG.OperatorInstance;
-import com.malhartech.lib.algo.InvertIndexMapPhone;
-import com.malhartech.lib.algo.TupleQueue;
-import com.malhartech.lib.io.ConsoleOutputOperator;
-import com.malhartech.lib.io.HttpInputModule;
-import com.malhartech.lib.io.HttpOutputModule;
-import com.malhartech.lib.testbench.EventIncrementer;
-import com.malhartech.lib.testbench.RandomEventGenerator;
-import com.malhartech.lib.testbench.SeedEventGenerator;
-import com.malhartech.lib.testbench.SeedEventClassifier;
-
-
 /**
  * Example of application configuration in Java using {@link com.malhartech.stram.conf.NewDAGBuilder}.<p>
  */
-
-public class Application implements ApplicationFactory {
-
+public class Application implements ApplicationFactory
+{
   private static final Logger LOG = LoggerFactory.getLogger(Application.class);
-
   public static final String P_phoneRange = com.malhartech.demos.mobile.Application.class.getName() + ".phoneRange";
-
   // adjust these depending on execution mode (junit, cli-local, cluster)
   private int generatorMaxWindowsCount = 100;
   private String ajaxServerAddr = null;
   private Range<Integer> phoneRange = Ranges.closed(9000000, 9999999);
 
-  public void setUnitTestMode() {
-     generatorMaxWindowsCount = 20;
-     this.phoneRange = Ranges.closed(9999900, 9999999);
+  public void setUnitTestMode()
+  {
+    generatorMaxWindowsCount = 20;
+    this.phoneRange = Ranges.closed(9999900, 9999999);
   }
 
-  public void setLocalMode() {
-     generatorMaxWindowsCount = 20;
+  public void setLocalMode()
+  {
+    generatorMaxWindowsCount = 20;
   }
 
-   private void configure(Configuration conf) {
+  private void configure(Configuration conf)
+  {
 
-     this.ajaxServerAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
-     LOG.debug(String.format("\n******************* Server address was %s", this.ajaxServerAddr));
+    this.ajaxServerAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
+    LOG.debug(String.format("\n******************* Server address was %s", this.ajaxServerAddr));
 
     if (LAUNCHMODE_YARN.equals(conf.get(DAG.STRAM_LAUNCH_MODE))) {
       // settings only affect distributed mode
       conf.setIfUnset(DAG.STRAM_CONTAINER_MEMORY_MB, "2048");
       conf.setIfUnset(DAG.STRAM_MASTER_MEMORY_MB, "1024");
       conf.setIfUnset(DAG.STRAM_MAX_CONTAINERS, "1");
-    } else if (LAUNCHMODE_LOCAL.equals(conf.get(DAG.STRAM_LAUNCH_MODE))) {
+    }
+    else if (LAUNCHMODE_LOCAL.equals(conf.get(DAG.STRAM_LAUNCH_MODE))) {
       setLocalMode();
     }
     String phoneRange = conf.get(P_phoneRange, null);
@@ -75,116 +78,127 @@ public class Application implements ApplicationFactory {
     }
   }
 
-  private OperatorInstance getConsoleOperator(DAG b, String operatorName)
+  private ConsoleOutputOperator<HashMap<String, Object>> getConsoleOperator(DAG b, String name)
   {
     // output to HTTP server when specified in environment setting
-    if (this.ajaxServerAddr != null) {
-      return b.addOperator(operatorName, HttpOutputOperator.class)
-              .setProperty(HttpOutputOperator.P_RESOURCE_URL, "http://" + ajaxServerAddr + "/channel/mobile/" + operatorName);
+    ConsoleOutputOperator<HashMap<String, Object>> oper = b.addOperator(name, new ConsoleOutputOperator<HashMap<String, Object>>());
+    oper.setStringFormat(name + ": %s");
+    return oper;
+  }
+
+  private HttpOutputOperator<HashMap<String, Object>> getHttpOutputNumberOperator(DAG b, String name)
+  {
+    // output to HTTP server when specified in environment setting
+    String serverAddr =  this.ajaxServerAddr;
+    HttpOutputOperator<HashMap<String, Object>> oper = b.addOperator(name, new HttpOutputOperator<HashMap<String, Object>>());
+    URI u = null;
+    try {
+      u = new URI("http://" + serverAddr + "/channel/mobile/" + name);
     }
-    return b.addOperator(operatorName, ConsoleOutputOperator.class)
-            //.setProperty(ConsoleOutputOperator.P_DEBUG, "true")
-            .setProperty(ConsoleOutputOperator.P_STRING_FORMAT, operatorName + ": %s");
-  }
-
-  public Operator getSeedGenerator(String name, DAG b) {
-    Operator oper = b.addOperator(name, SeedEventGenerator.class);
-    oper.setProperty(SeedEventGenerator.KEY_STRING_SCHEMA, "false");
-    oper.setProperty(SeedEventGenerator.KEY_EMITKEY, "false");
-    oper.setProperty(SeedEventGenerator.KEY_KEYS, "x:0,500;y:0,500");
-    oper.setProperty(SeedEventGenerator.KEY_SEED_START, String.valueOf(this.phoneRange.lowerEndpoint()));
-    oper.setProperty(SeedEventGenerator.KEY_SEED_END  , String.valueOf(this.phoneRange.upperEndpoint()));
-
+    catch (URISyntaxException ex) {
+      java.util.logging.Logger.getLogger(com.malhartech.demos.ads.Application.class.getName()).log(Level.SEVERE, null, ex);
+    }
+    oper.setResourceURL(u);
     return oper;
   }
 
-  public Operator getRandomGenerator(String name, DAG b) {
-    Operator oper = b.addOperator(name, RandomEventGenerator.class);
-    oper.setProperty(RandomEventGenerator.KEY_MAX_VALUE, "99");
-    oper.setProperty(RandomEventGenerator.KEY_MIN_VALUE, "0");
-    oper.setProperty(RandomEventGenerator.KEY_STRING_SCHEMA, "false");
-    oper.setProperty("debugid", name);
+  public SeedEventGenerator getSeedGenerator(String name, DAG b)
+  {
+    SeedEventGenerator oper = b.addOperator(name, SeedEventGenerator.class);
+    // oper.setProperty(SeedEventGenerator.KEY_STRING_SCHEMA, "false");
+    oper.setSeedstart(this.phoneRange.lowerEndpoint());
+    oper.setSeedend(this.phoneRange.upperEndpoint());
+    oper.addKeyData("x", 0, 500);
+    oper.addKeyData("y", 0, 500);
     return oper;
   }
 
-  public Operator getSeedClassifier(String name, DAG b) {
-    Operator oper = b.addOperator(name, SeedEventClassifier.class);
-    oper.setProperty(SeedEventClassifier.KEY_SEED_START, String.valueOf(this.phoneRange.lowerEndpoint()));
-    oper.setProperty(SeedEventClassifier.KEY_SEED_END  , String.valueOf(this.phoneRange.upperEndpoint()));
-    oper.setProperty(SeedEventClassifier.KEY_IN_DATA1_CLASSIFIER, "x");
-    oper.setProperty(SeedEventClassifier.KEY_IN_DATA2_CLASSIFIER, "y");
-    oper.setProperty(SeedEventClassifier.KEY_STRING_SCHEMA, "false");
+  public RandomEventGenerator getRandomGenerator(String name, DAG b)
+  {
+    RandomEventGenerator oper = b.addOperator(name, RandomEventGenerator.class);
+    oper.setMaxvalue(99);
+    oper.setMinvalue(0);
     return oper;
   }
 
-  public OperatorInstance getTupleQueue(String name, DAG b) {
-    OperatorInstance oper = b.addOperator(name, TupleQueue.class);
-    oper.setProperty(TupleQueue.KEY_DEPTH, "5");
-
+  public SeedEventClassifier getSeedClassifier(String name, DAG b)
+  {
+    SeedEventClassifier oper = b.addOperator(name, SeedEventClassifier.class);
+    oper.setSeedstart(this.phoneRange.lowerEndpoint());
+    oper.setSeedend(this.phoneRange.upperEndpoint());
+    oper.setKey1("x");
+    oper.setKey2("y");
+    // oper.setProperty(SeedEventClassifier.KEY_STRING_SCHEMA, "false");
     return oper;
   }
 
-  public OperatorInstance getInvertIndexMap(String name, DAG b) {
-    return b.addOperator(name, InvertIndexMapPhone.class);
+  public TupleQueue getTupleQueue(String name, DAG b)
+  {
+    TupleQueue oper = b.addOperator(name, TupleQueue.class);
+    oper.setDepth(5);
+    return oper;
   }
 
-  public Operator getIncrementer(String name, DAG b) {
-    Operator oper = b.addOperator(name, EventIncrementer.class);
-    oper.setProperty(EventIncrementer.KEY_KEYS, "x,y");
-    oper.setProperty(EventIncrementer.KEY_DELTA, "2");
-    oper.setProperty(EventIncrementer.KEY_LIMITS, "0,500;0,500");
+  public InvertIndexMapPhone getInvertIndexMap(String name, DAG b)
+  {
+    InvertIndexMapPhone oper = b.addOperator(name, InvertIndexMapPhone.class);
+    return oper;
+  }
+
+  public EventIncrementer getIncrementer(String name, DAG b)
+  {
+    EventIncrementer oper = b.addOperator(name, EventIncrementer.class);
+    oper.setDelta(2.0);
+    ArrayList<String> klist = new ArrayList<String>(2);
+    ArrayList<Double> low = new ArrayList<Double>(2);
+    ArrayList<Double> high = new ArrayList<Double>(2);
+    klist.add("x");
+    klist.add("y");
+    low.add(0.0);
+    low.add(0.0);
+    high.add(500.0);
+    high.add(500.0);
+    oper.setKeylimits(klist, low, high);
     return oper;
   }
 
   @Override
-  public DAG getApplication(Configuration conf) {
+  public DAG getApplication(Configuration conf)
+  {
 
     DAG dag = new DAG(conf);
     configure(conf);
 
-    OperatorInstance seedGen = getSeedGenerator("seedGen", dag);
-    OperatorInstance randomXGen = getRandomGenerator("xgen", dag);
-    OperatorInstance randomYGen = getRandomGenerator("ygen", dag);
-    OperatorInstance seedClassify = getSeedClassifier("seedclassify", dag);
-    OperatorInstance incrementer = getIncrementer("incrementer", dag);
+    SeedEventGenerator seedGen = getSeedGenerator("seedGen", dag);
+    RandomEventGenerator randomXGen = getRandomGenerator("xgen", dag);
+    RandomEventGenerator randomYGen = getRandomGenerator("ygen", dag);
+    SeedEventClassifier seedClassify = getSeedClassifier("seedclassify", dag);
+    EventIncrementer incrementer = getIncrementer("incrementer", dag);
     // Operator tupleQueue = getTupleQueue("location_queue", dag);
-    OperatorInstance indexMap = getInvertIndexMap("index_map", dag);
-    OperatorInstance phoneconsole = getConsoleOperator(dag, "phoneLocationQueryResult");
+    InvertIndexMapPhone indexMap = getInvertIndexMap("index_map", dag);
 
-    dag.addStream("seeddata", seedGen.getOutput(SeedEventGenerator.OPORT_DATA), incrementer.getInput(EventIncrementer.IPORT_SEED)).setInline(true);
-    dag.addStream("xdata", randomXGen.getOutput(RandomEventGenerator.OPORT_DATA), seedClassify.getInput(SeedEventClassifier.IPORT_IN_DATA1)).setInline(true);
-    dag.addStream("ydata", randomYGen.getOutput(RandomEventGenerator.OPORT_DATA), seedClassify.getInput(SeedEventClassifier.IPORT_IN_DATA2)).setInline(true);
-    dag.addStream("incrdata", seedClassify.getOutput(SeedEventClassifier.OPORT_OUT_DATA), incrementer.getInput(EventIncrementer.IPORT_INCREMENT)).setInline(true);
-    dag.addStream("mobilelocation", incrementer.getOutput(EventIncrementer.OPORT_DATA), indexMap.getInput(InvertIndexMapPhone.IPORT_DATA)).setInline(true);
+    dag.addStream("seeddata", seedGen.val_list, incrementer.seed).setInline(true);
+    dag.addStream("xdata", randomXGen.integer_data, seedClassify.data1).setInline(true);
+    dag.addStream("ydata", randomYGen.integer_data, seedClassify.data2).setInline(true);
+    dag.addStream("incrdata", seedClassify.hash_data, incrementer.increment).setInline(true);
+    dag.addStream("mobilelocation", incrementer.data, indexMap.data).setInline(true);
 
     if (this.ajaxServerAddr != null) {
-    // Waiting for local server to be set up. For now I hardcoded the phones to be dumped
-       OperatorInstance phoneLocationQuery = dag.addOperator("phoneLocationQuery", HttpInputModule.class);
-       phoneLocationQuery.setProperty(HttpInputModule.P_RESOURCE_URL, "http://" + ajaxServerAddr + "/channel/mobile/phoneLocationQuery");
-       dag.addStream("mobilequery", phoneLocationQuery.getOutput(HttpInputModule.OUTPUT), indexMap.getInput(InvertIndexMapPhone.IPORT_QUERY)).setInline(true);
-    } else {
-      try {
-        JSONObject seedQueries = new JSONObject();
-        Map<String, String> phoneQueries = new HashMap<String, String>();
-        phoneQueries.put("idBlah", "9999988");
-        phoneQueries.put("id102", "9999998");
-        seedQueries.put(InvertIndexMapPhone.CHANNEL_PHONE, phoneQueries);
-
-        Map<String, String> locQueries = new HashMap<String, String>();
-        locQueries.put("loc1", "34,87");
-        seedQueries.put(InvertIndexMapPhone.CHANNEL_LOCATION, locQueries);
-        //location_register.put("loc1", "34,87");
-        //phone_register.put("blah", "9905500");
-        //phone_register.put("id1002", "9999998");
-        indexMap.setProperty(InvertIndexMapPhone.KEY_SEED_QUERYS_JSON, seedQueries.toString());
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
+      HttpOutputOperator<HashMap<String, Object>> httpconsole = getHttpOutputNumberOperator(dag, "phoneLocationQueryResult");
+      dag.addStream("consoledata", indexMap.console, httpconsole.input).setInline(true);
+      // Waiting for local server to be set up. For now I hardcoded the phones to be dumped
+      HttpInputOperator phoneLocationQuery = dag.addOperator("phoneLocationQuery", HttpInputOperator.class);
+      phoneLocationQuery.setProperty(HttpInputModule.P_RESOURCE_URL, "http://" + ajaxServerAddr + "/channel/mobile/phoneLocationQuery");
+      dag.addStream("mobilequery", phoneLocationQuery.outputPort, indexMap.query).setInline(true);
     }
-
-    dag.addStream("consoledata", indexMap.getOutput(InvertIndexMapPhone.OPORT_CONSOLE), phoneconsole.getInput(HttpOutputOperator.INPUT)).setInline(true);
+    else {
+      ConsoleOutputOperator<HashMap<String, Object>> phoneconsole = getConsoleOperator(dag, "phoneLocationQueryResult");
+      dag.addStream("consoledata", indexMap.console, phoneconsole.input).setInline(true);
+      indexMap.setPhoneQuery("idBlah", "9999988");
+      indexMap.setPhoneQuery("id102", "9999998");
+      indexMap.setLocationQuery("loc1", "34,87");
+    }
 
     return dag;
   }
 }
-
