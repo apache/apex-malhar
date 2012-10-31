@@ -4,18 +4,18 @@
  */
 package com.malhartech.demos.performance;
 
-import com.malhartech.api.AsyncInputOperator;
-import com.malhartech.api.Context;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.OperatorConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.api.InputOperator;
+import com.malhartech.api.OperatorConfiguration;
 
 /**
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-public class RandomWordInputModule implements AsyncInputOperator
+public class RandomWordInputModule implements InputOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(RandomWordInputModule.class);
   public final transient DefaultOutputPort<byte[]> output = new DefaultOutputPort<byte[]>(this);
@@ -40,6 +40,11 @@ public class RandomWordInputModule implements AsyncInputOperator
 //      }
     }
   }
+
+  @Override
+  public void replayTuples(long arg0) {
+  }
+
 
   @Override
   public void beginWindow()

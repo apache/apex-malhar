@@ -4,15 +4,16 @@
  */
 package com.malhartech.demos.twitter;
 
-import com.malhartech.api.AsyncInputOperator;
 import twitter4j.Status;
 import twitter4j.URLEntity;
+
+import com.malhartech.api.InputOperator;
 
 /**
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-public class TwitterAsyncSampleInput extends TwitterSampleInput implements AsyncInputOperator
+public class TwitterAsyncSampleInput extends TwitterSampleInput implements InputOperator
 {
   @Override
   public void emitTuples(long windowId)

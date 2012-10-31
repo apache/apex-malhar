@@ -22,8 +22,6 @@ public class ApplicationTest
   public void testGetApplication() throws Exception
   {
     Application app = new Application();
-    app.setUnitTestMode(); // terminate quickly
-    //app.setLocalMode(); // run long time
     StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));
     lc.setHeartbeatMonitoringEnabled(false);
     lc.run();

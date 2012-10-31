@@ -4,12 +4,20 @@
  */
 package com.malhartech.demos.mobile;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.logging.Level;
+
+import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
 import com.malhartech.api.DAG;
 import com.malhartech.dag.ApplicationFactory;
-import com.malhartech.lib.algo.InvertIndexMapPhone;
-import com.malhartech.lib.algo.TupleQueue;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.io.HttpInputOperator;
 import com.malhartech.lib.io.HttpOutputOperator;
@@ -17,14 +25,6 @@ import com.malhartech.lib.testbench.EventIncrementer;
 import com.malhartech.lib.testbench.RandomEventGenerator;
 import com.malhartech.lib.testbench.SeedEventClassifier;
 import com.malhartech.lib.testbench.SeedEventGenerator;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.logging.Level;
-import org.apache.hadoop.conf.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Example of application configuration in Java using {@link com.malhartech.stram.conf.NewDAGBuilder}.<p>
@@ -33,21 +33,8 @@ public class Application implements ApplicationFactory
 {
   private static final Logger LOG = LoggerFactory.getLogger(Application.class);
   public static final String P_phoneRange = com.malhartech.demos.mobile.Application.class.getName() + ".phoneRange";
-  // adjust these depending on execution mode (junit, cli-local, cluster)
-  private int generatorMaxWindowsCount = 100;
   private String ajaxServerAddr = null;
   private Range<Integer> phoneRange = Ranges.closed(9000000, 9999999);
-
-  public void setUnitTestMode()
-  {
-    generatorMaxWindowsCount = 20;
-    this.phoneRange = Ranges.closed(9999900, 9999999);
-  }
-
-  public void setLocalMode()
-  {
-    generatorMaxWindowsCount = 20;
-  }
 
   private void configure(Configuration conf)
   {
@@ -62,8 +49,8 @@ public class Application implements ApplicationFactory
       conf.setIfUnset(DAG.STRAM_MAX_CONTAINERS, "1");
     }
     else if (LAUNCHMODE_LOCAL.equals(conf.get(DAG.STRAM_LAUNCH_MODE))) {
-      setLocalMode();
     }
+
     String phoneRange = conf.get(P_phoneRange, null);
     if (phoneRange != null) {
       String[] tokens = phoneRange.split("-");
@@ -117,21 +104,13 @@ public class Application implements ApplicationFactory
     return oper;
   }
 
-  public SeedEventClassifier getSeedClassifier(String name, DAG b)
+  public SeedEventClassifier<Integer> getSeedClassifier(String name, DAG b)
   {
-    SeedEventClassifier oper = b.addOperator(name, SeedEventClassifier.class);
+    SeedEventClassifier<Integer> oper = b.addOperator(name, new SeedEventClassifier<Integer>());
     oper.setSeedstart(this.phoneRange.lowerEndpoint());
     oper.setSeedend(this.phoneRange.upperEndpoint());
     oper.setKey1("x");
     oper.setKey2("y");
-    // oper.setProperty(SeedEventClassifier.KEY_STRING_SCHEMA, "false");
-    return oper;
-  }
-
-  public TupleQueue getTupleQueue(String name, DAG b)
-  {
-    TupleQueue oper = b.addOperator(name, TupleQueue.class);
-    oper.setDepth(5);
     return oper;
   }
 
@@ -168,7 +147,7 @@ public class Application implements ApplicationFactory
     SeedEventGenerator seedGen = getSeedGenerator("seedGen", dag);
     RandomEventGenerator randomXGen = getRandomGenerator("xgen", dag);
     RandomEventGenerator randomYGen = getRandomGenerator("ygen", dag);
-    SeedEventClassifier seedClassify = getSeedClassifier("seedclassify", dag);
+    SeedEventClassifier<Integer> seedClassify = getSeedClassifier("seedclassify", dag);
     EventIncrementer incrementer = getIncrementer("incrementer", dag);
     // Operator tupleQueue = getTupleQueue("location_queue", dag);
     InvertIndexMapPhone indexMap = getInvertIndexMap("index_map", dag);
@@ -182,7 +161,6 @@ public class Application implements ApplicationFactory
     if (this.ajaxServerAddr != null) {
       HttpOutputOperator<HashMap<String, Object>> httpconsole = getHttpOutputNumberOperator(dag, "phoneLocationQueryResult");
       dag.addStream("consoledata", indexMap.console, httpconsole.input).setInline(true);
-      // Waiting for local server to be set up. For now I hardcoded the phones to be dumped
       HttpInputOperator phoneLocationQuery = dag.addOperator("phoneLocationQuery", HttpInputOperator.class);
       URI u = null;
       try {
@@ -196,6 +174,7 @@ public class Application implements ApplicationFactory
       dag.addStream("mobilequery", phoneLocationQuery.outputPort, indexMap.query).setInline(true);
     }
     else {
+      // for testing purposes without server
       ConsoleOutputOperator<HashMap<String, Object>> phoneconsole = getConsoleOperator(dag, "phoneLocationQueryResult");
       dag.addStream("consoledata", indexMap.console, phoneconsole.input).setInline(true);
       indexMap.setPhoneQuery("idBlah", "9999988");

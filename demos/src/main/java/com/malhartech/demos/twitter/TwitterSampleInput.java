@@ -4,25 +4,32 @@
  */
 package com.malhartech.demos.twitter;
 
+import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import twitter4j.Status;
+import twitter4j.StatusDeletionNotice;
+import twitter4j.StatusListener;
+import twitter4j.TwitterStream;
+import twitter4j.TwitterStreamFactory;
+import twitter4j.conf.ConfigurationBuilder;
+
 import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.api.ActivationListener;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.Operator;
+import com.malhartech.api.InputOperator;
 import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.dag.OperatorContext;
 import com.malhartech.util.CircularBuffer;
-import java.util.Properties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import twitter4j.*;
-import twitter4j.conf.ConfigurationBuilder;
 
 /**
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
 @ShipContainingJars(classes = {StatusListener.class, Status.class})
-public abstract class TwitterSampleInput implements Operator, ActivationListener<OperatorContext>, StatusListener
+public abstract class TwitterSampleInput implements InputOperator, ActivationListener<OperatorContext>, StatusListener
 {
   private static final Logger logger = LoggerFactory.getLogger(TwitterSampleInput.class);
   public final transient DefaultOutputPort<Status> status = new DefaultOutputPort<Status>(this);
@@ -131,6 +138,10 @@ public abstract class TwitterSampleInput implements Operator, ActivationListener
   public void preDeactivate()
   {
     ts.shutdown();
+  }
+
+  @Override
+  public void replayTuples(long arg0) {
   }
 
   void setTwitterProperties(Properties properties)

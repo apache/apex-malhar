@@ -82,7 +82,7 @@ public class HttpInputOperatorTest
 
     operator.outputPort.setSink(sink);
     operator.setName("testHttpInputNode");
-    operator.resourceUrl = new URI(url);
+    operator.setUrl(new URI(url));
 
     operator.setup(new OperatorConfiguration());
 

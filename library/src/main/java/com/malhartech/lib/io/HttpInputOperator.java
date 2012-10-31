@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.io.IOUtils;
@@ -49,7 +50,8 @@ public class HttpInputOperator extends BaseInputOperator<Map<String, String>> im
   /**
    * The URL of the web service resource for the POST request.
    */
-  public URI resourceUrl;
+  @NotNull
+  private URI resourceUrl;
   private transient Client wsClient;
   private transient WebResource resource;
 

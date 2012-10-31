@@ -2,7 +2,7 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.algo;
+package com.malhartech.demos.mobile;
 
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
@@ -34,10 +34,10 @@ public class InvertIndexMapPhone extends BaseOperator
   private static Logger log = LoggerFactory.getLogger(InvertIndexMapPhone.class);
 
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<HashMap<String, String>> data = new DefaultInputPort<HashMap<String, String>>(this)
+  public final transient DefaultInputPort<Map<String, String>> data = new DefaultInputPort<Map<String, String>>(this)
   {
     @Override
-    public void process(HashMap<String, String> tuple)
+    public void process(Map<String, String> tuple)
     {
       for (Map.Entry<String, String> e: tuple.entrySet()) {
         HashMap<String, Object> values = kindex.get(e.getValue());
@@ -64,10 +64,10 @@ public class InvertIndexMapPhone extends BaseOperator
   };
 
   @InputPortFieldAnnotation(name = "query")
-  public final transient DefaultInputPort<HashMap<String, String>> query = new DefaultInputPort<HashMap<String, String>>(this)
+  public final transient DefaultInputPort<Map<String, String>> query = new DefaultInputPort<Map<String, String>>(this)
   {
     @Override
-    public void process(HashMap<String, String> tuple)
+    public void process(Map<String, String> tuple)
     {
       String qid = null;
       String phone = null;

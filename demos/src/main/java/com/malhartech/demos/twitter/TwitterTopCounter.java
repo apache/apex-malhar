@@ -30,12 +30,12 @@ public class TwitterTopCounter extends DAG
     // hack to output to HTTP based on actual environment
     String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
     if (serverAddr != null) {
-      HttpOutputOperator<Object> operator = addOperator(nodeName, HttpOutputOperator.class);
+      HttpOutputOperator<Object> operator = addOperator(nodeName, new HttpOutputOperator<Object>());
       operator.setResourceURL(URI.create("http://" + serverAddr + "/channel/" + nodeName));
       return operator.input;
     }
 
-    ConsoleOutputOperator<Object> operator = addOperator(nodeName, ConsoleOutputOperator.class);
+    ConsoleOutputOperator<Object> operator = addOperator(nodeName, new ConsoleOutputOperator<Object>());
     operator.setStringFormat(nodeName + ": %s");
     return operator.input;
   }
@@ -55,7 +55,7 @@ public class TwitterTopCounter extends DAG
      * Setup the operator to get the data from twitter sample stream injected into the system.
      */
     logger.info("Creating {}synchronous instance of TwitterSampleInput", sync? "": "a");
-    TwitterSampleInput oper = addOperator(name, sync? TwitterSyncSampleInput.class: TwitterAsyncSampleInput.class);
+    TwitterSampleInput oper = addOperator(name, TwitterAsyncSampleInput.class);
     oper.setTwitterProperties(properties);
     oper.setFeedMultiplier(multby);
     return oper;
