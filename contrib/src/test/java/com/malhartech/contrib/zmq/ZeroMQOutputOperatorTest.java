@@ -21,9 +21,14 @@ public class ZeroMQOutputOperatorTest
 {
   private static org.slf4j.Logger logger = LoggerFactory.getLogger(ZeroMQOutputOperatorTest.class);
 
-  private static final class TestZeroMQOutputOperator extends AbstractZeroMQOutputOperator<String>
+  private static final class TestStringZeroMQOutputOperator extends AbstractZeroMQOutputOperator<String>
   {
     private int testNum;
+
+    public void processTuple(String tuple)
+    {
+      publisher.send(tuple.getBytes(), 0);
+    }
 
     public void setTestNum(int testNum)
     {
@@ -37,15 +42,15 @@ public class ZeroMQOutputOperatorTest
       for (int i = 0; i < testNum; i++) {
         HashMap<String, Integer> dataMapa = new HashMap<String, Integer>();
         dataMapa.put("a", 2);
-        testSink.process(dataMapa);
+        testSink.process(dataMapa.toString());
 
         HashMap<String, Integer> dataMapb = new HashMap<String, Integer>();
         dataMapb.put("b", 20);
-        testSink.process(dataMapb);
+        testSink.process(dataMapb.toString());
 
         HashMap<String, Integer> dataMapc = new HashMap<String, Integer>();
         dataMapc.put("c", 1000);
-        testSink.process(dataMapc);
+        testSink.process(dataMapc.toString());
       }
       endWindow();
       teardown();
@@ -108,7 +113,7 @@ public class ZeroMQOutputOperatorTest
     {
       public void run()
       {
-        TestZeroMQOutputOperator node = new TestZeroMQOutputOperator();
+        TestStringZeroMQOutputOperator node = new TestStringZeroMQOutputOperator();
         node.setUrl("tcp://*:5556");
         node.setSyncUrl("tcp://*:5557");
         node.setup(new OperatorConfiguration());
@@ -140,6 +145,6 @@ public class ZeroMQOutputOperatorTest
       }
     }
     subThr.interrupt();
-    logger.debug("end of test");
+    logger.debug("end of test emitted "+testNum * 3+" msgs");
   }
 }

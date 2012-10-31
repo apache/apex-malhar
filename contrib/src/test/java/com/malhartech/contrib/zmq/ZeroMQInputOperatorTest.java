@@ -25,13 +25,18 @@ public class ZeroMQInputOperatorTest
   String syncAddr = "tcp://*:5557";
   private static Logger logger = LoggerFactory.getLogger(ZeroMQInputOperatorTest.class);
 
-  private static final class TestZeroMQInputOperator extends AbstractZeroMQInputOperator<String>
+  private static final class TestStringZeroMQInputOperator extends AbstractZeroMQInputOperator<String>
   {
     @Override
     public void emitMessage(byte[] message)
     {
 //    logger.debug(new String(payload));
       outputPort.emit(new String(message));
+    }
+
+    public void replayTuples(long windowId)
+    {
+      throw new UnsupportedOperationException("Not supported yet.");
     }
   }
 
@@ -67,8 +72,7 @@ public class ZeroMQInputOperatorTest
 
     public void generateMessages(int msgCount) throws InterruptedException
     {
-//      Thread.sleep(500); // TODO: should not be here
-      for( int subscribers=0; subscribers<SUBSCRIBERS_EXPECTED; subscribers++ ) {
+      for (int subscribers = 0; subscribers < SUBSCRIBERS_EXPECTED; subscribers++) {
         byte[] value = syncservice.recv(0);
         syncservice.send("".getBytes(), 0);
       }
@@ -113,7 +117,7 @@ public class ZeroMQInputOperatorTest
     };
     generatorThread.start();
 
-    final TestZeroMQInputOperator node = new TestZeroMQInputOperator();
+    final TestStringZeroMQInputOperator node = new TestStringZeroMQInputOperator();
 
     TestSink<String> testSink = new TestSink<String>();
     node.outputPort.setSink(testSink);
@@ -132,7 +136,7 @@ public class ZeroMQInputOperatorTest
         node.getDataPoller().run();
       }
     };
-    nodeThread.start();
+    t.start();
 
     testSink.waitForResultCount(testNum * 3, 3000);
     Assert.assertTrue("tuple emmitted", testSink.collectedTuples.size() > 0);
