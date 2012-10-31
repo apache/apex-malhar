@@ -10,9 +10,11 @@ import com.malhartech.api.Operator;
 import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
+import com.malhartech.stram.StramLocalCluster;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,105 +34,44 @@ import org.slf4j.LoggerFactory;
  */
 public class EventGeneratorTest
 {
-  private static Logger LOG = LoggerFactory.getLogger(EventGenerator.class);
+  private static Logger log = LoggerFactory.getLogger(EventGeneratorTest.class);
+  static int scount = 0;
+  static int hcount = 0;
+  static int ccount = 0;
 
-  public static class CollectorInputPort<T> extends DefaultInputPort<T>
+  /**
+   * Test node logic emits correct results
+   */
+  public static class CollectorOperator extends BaseOperator
   {
-    ArrayList<T> list;
-    final String id;
-
-    public CollectorInputPort(String id, Operator module)
+    public final transient DefaultInputPort<String> sdata = new DefaultInputPort<String>(this)
     {
-      super(module);
-      this.id = id;
-    }
-
-    @Override
-    public void process(T tuple)
-    {
-      list.add(tuple);
-    }
-  }
-
-  class TestSink implements Sink
-  {
-    HashMap<String, Integer> collectedTuples = new HashMap<String, Integer>();
-    //DefaultSerDe serde = new DefaultSerDe();
-    int count = 0;
-    boolean test_hashmap = false;
-    boolean skiphash = true;
-
-    /**
-     *
-     * @param payload
-     */
-    @Override
-    public void process(Object payload)
-    {
-      if (payload instanceof Tuple) {
-        // LOG.debug(payload.toString());
+      @Override
+      public void process(String tuple)
+      {
+        scount++;
       }
-      else {
-        if (!skiphash) {
-          if (test_hashmap) {
-            HashMap<String, Double> tuple = (HashMap<String, Double>)payload;
-            for (Map.Entry<String, Double> e: tuple.entrySet()) {
-              String str = e.getKey();
-              Integer val = collectedTuples.get(str);
-              if (val != null) {
-                val = val + 1;
-              }
-              else {
-                val = new Integer(1);
-              }
-              collectedTuples.put(str, val);
-            }
-          }
-          else {
-            String str = (String)payload;
-            Integer val = collectedTuples.get(str);
-            if (val != null) {
-              val = val + 1;
-            }
-            else {
-              val = new Integer(1);
-            }
-            collectedTuples.put(str, val);
-          }
+    };
+    public final transient DefaultInputPort<HashMap<String, Double>> hdata = new DefaultInputPort<HashMap<String, Double>>(this)
+    {
+      @Override
+      public void process(HashMap<String, Double> tuple)
+      {
+        hcount++;
+      }
+    };
+    public final transient DefaultInputPort<HashMap<String, Number>> count = new DefaultInputPort<HashMap<String, Number>>(this)
+    {
+      @Override
+      public void process(HashMap<String, Number> tuple)
+      {
+        ccount++;
+        for (Map.Entry<String, Number> e: tuple.entrySet()) {
+          log.debug(String.format("Count data \"%s\" = %f", e.getKey(), e.getValue().doubleValue()));
         }
-        count++;
-        //serde.toByteArray(payload);
       }
-    }
+    };
   }
-
-  class TestCountSink implements Sink
-  {
-    //DefaultSerDe serde = new DefaultSerDe();
-    int count = 0;
-    int average = 0;
-    int num_tuples = 0;
-
-    /**
-     *
-     * @param payload
-     */
-    @Override
-    public void process(Object payload)
-    {
-      if (payload instanceof Tuple) {
-        // LOG.debug(payload.toString());
-      }
-      else {
-        HashMap<String, Integer> tuples = (HashMap<String, Integer>)payload;
-        average = tuples.get(EventGenerator.OPORT_COUNT_TUPLE_AVERAGE).intValue();
-        count += tuples.get(EventGenerator.OPORT_COUNT_TUPLE_COUNT).intValue();
-        num_tuples++;
-        //serde.toByteArray(payload);
-      }
-    }
-  }
-
 
   /**
    * Tests both string and non string schema
@@ -144,17 +85,6 @@ public class EventGeneratorTest
     testSingleSchemaNodeProcessing(false, false); // 3 million/s
   }
 
-  /**
-   * Test node logic emits correct results
-   */
-
-  public static class CollectorOperator extends BaseOperator
-  {
-    public final transient CollectorInputPort<String> sdata = new CollectorInputPort<String>("sdata", this);
-    public final transient CollectorInputPort<HashMap<String, Double>> hdata = new CollectorInputPort<HashMap<String, Double>>("hdata", this);
-    public final transient CollectorInputPort<HashMap<String, Number>> count = new CollectorInputPort<HashMap<String, Number>>("count", this);
-  }
-
   public void testSingleSchemaNodeProcessing(boolean stringschema, boolean skiphash) throws Exception
   {
     DAG dag = new DAG();
@@ -163,6 +93,10 @@ public class EventGeneratorTest
 
     node.setKeys("a,b,c,d");
     node.setValues("");
+    node.setWeights("10,40,20,30");
+    node.setTuplesBlast(1000);
+    node.setRollingWindowCount(5);
+    
     if (stringschema) {
       dag.addStream("stest", node.string_data, collector.sdata).setInline(true);
     }
@@ -171,21 +105,29 @@ public class EventGeneratorTest
     }
     dag.addStream("hcest", node.count, collector.count).setInline(true);
 
-    node.setWeights("10,40,20,30");
-    node.setTuplesBlast(10000000);
-    node.setRollingWindowCount(5);
-    node.setup(new OperatorConfiguration());
 
-    // Assert.assertEquals("number emitted tuples", 5000, lgenSink.collectedTuples.size());
-//        LOG.debug("Processed {} tuples out of {}", lgenSink.collectedTuples.size(), lgenSink.count);
-    /*
-    LOG.debug(String.format("\n********************************************\nTesting with %s and%s insertion\nLoadGenerator emitted %d (%d) tuples in %d windows; Sink processed %d tuples",
-                            stringschema ? "String" : "HashMap", skiphash ? " no" : "",
-                            countSink.count, countSink.average, countSink.num_tuples, lgenSink.count));
 
-    for (Map.Entry<String, Integer> e: lgenSink.collectedTuples.entrySet()) {
-      LOG.debug("{} tuples for key {}", e.getValue().intValue(), e.getKey());
-    }
-*/
+    final StramLocalCluster lc = new StramLocalCluster(dag);
+    lc.setHeartbeatMonitoringEnabled(false);
+
+    new Thread()
+    {
+      @Override
+      public void run()
+      {
+        try {
+          Thread.sleep(1000);
+          lc.shutdown();
+        }
+        catch (InterruptedException ex) {
+          java.util.logging.Logger.getLogger(EventGeneratorBenchmark.class.getName()).log(Level.SEVERE, null, ex);
+        }
+      }
+    }.start();
+
+    lc.run();
+    log.debug(String.format("\nProcessed %d string tuples", scount));
+    log.debug(String.format("\nProcessed %d hash tuples", hcount));
+    log.debug(String.format("\nGot %d count tuples", ccount));
   }
 }

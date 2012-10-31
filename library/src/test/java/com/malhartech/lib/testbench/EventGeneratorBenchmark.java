@@ -98,7 +98,7 @@ public class EventGeneratorBenchmark
     String key = new String(chararray);
 
     node.setKeys(key);
-    node.setTuplesBlast(50000000);
+    node.setTuplesBlast(100000);
 
     final StramLocalCluster lc = new StramLocalCluster(dag);
     lc.setHeartbeatMonitoringEnabled(false);

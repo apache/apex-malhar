@@ -4,12 +4,14 @@
  */
 package com.malhartech.lib.testbench;
 
+import com.malhartech.annotation.InjectConfig;
 import com.malhartech.api.InputOperator;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.OperatorConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,9 +29,6 @@ import org.slf4j.LoggerFactory;
  * <b>count<b>: emits HashMap<String, Number>, contains per window count of throughput<br>
  * <br>
  * <b>Tuple Schema</b>: Has two choices HashMap<String, Double>, or String<br><br>
- * <b>Benchmarks></b>: Send as many tuples in in-line mode, the receiver just counts the tuples and drops the object<br>
- * String schema does about 26 Million tuples/sec in throughput<br>
- * HashMap schema does about 10 Million tuples/sec in throughput<br>
  * <b>Port Interface</b>:It has only one output port "data" and has no input ports<br><br>
  * <b>Properties</b>:
  * <b>keys</b> is a comma separated list of keys. This key are the <key> field in the tuple<br>
@@ -46,6 +45,9 @@ import org.slf4j.LoggerFactory;
  * <br>
  *
  * Compile time error checking includes<br>
+ * <b>Benchmarks></b>: Send as many tuples in in-line mode, the receiver just counts the tuples and drops the object<br>
+ * String schema does about 26 Million tuples/sec in throughput<br>
+ * HashMap schema does about 10 Million tuples/sec in throughput<br>
  *
  *
  * @author amol
@@ -53,11 +55,9 @@ import org.slf4j.LoggerFactory;
 public class EventGenerator implements InputOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(EventGenerator.class);
-
   public final transient DefaultOutputPort<String> string_data = new DefaultOutputPort<String>(this);
   public final transient DefaultOutputPort<HashMap<String, Double>> hash_data = new DefaultOutputPort<HashMap<String, Double>>(this);
   public final transient DefaultOutputPort<HashMap<String, Number>> count = new DefaultOutputPort<HashMap<String, Number>>(this);
-
   public static final String OPORT_COUNT_TUPLE_AVERAGE = "avg";
   public static final String OPORT_COUNT_TUPLE_COUNT = "count";
   public static final String OPORT_COUNT_TUPLE_TIME = "window_time";
@@ -66,25 +66,29 @@ public class EventGenerator implements InputOperator
   protected static final int TUPLES_BLAST_DEFAULT = 10000;
   private transient int tuples_blast = TUPLES_BLAST_DEFAULT;
   protected transient int maxCountOfWindows = Integer.MAX_VALUE;
-  transient HashMap<String, Double> keys = new HashMap<String, Double>();
-  transient HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();
-  transient ArrayList<Integer> weights;
-  transient int total_weight = 0;
+  HashMap<String, Double> keys = new HashMap<String, Double>();
+  HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();
+  ArrayList<Integer> weights;
+  int total_weight = 0;
   private transient final Random random = new Random();
   public static final int ROLLING_WINDOW_COUNT_DEFAULT = 1;
-  private transient int rolling_window_count = ROLLING_WINDOW_COUNT_DEFAULT;
+  private int rolling_window_count = ROLLING_WINDOW_COUNT_DEFAULT;
+
   transient long[] tuple_numbers = null;
   transient long[] time_numbers = null;
   transient int tuple_index = 0;
   transient int count_denominator = 1;
   transient int count_windowid = 0;
-  private transient long windowStartTime = 0;
+  private long windowStartTime = 0;
+  private int generatedTupleCount = 0;
 
-  private int generatedTupleCount;
-  private String[] key_keys = new String[0];
-  private String[] key_weights = new String[0];
-  private String[] key_values = new String[0];
-
+  @NotNull
+  @InjectConfig(key = "keys")
+  private String[] key_keys = null;
+  @InjectConfig(key = "weights")
+  private String[] key_weights = null;
+  @InjectConfig(key = "values")
+  private String[] key_values = null;
 
   /**
    * Sets up all the config parameters. Assumes checking is done and has passed
@@ -108,7 +112,7 @@ public class EventGenerator implements InputOperator
     int i = 0;
     total_weight = 0;
     for (String s: key_keys) {
-      if (key_weights.length != 0) {
+      if ((key_weights != null) && key_weights.length != 0) {
         if (weights == null) {
           weights = new ArrayList<Integer>();
         }
@@ -118,7 +122,7 @@ public class EventGenerator implements InputOperator
       else {
         total_weight += 1;
       }
-      if (key_values.length != 0) {
+      if ((key_values != null) && key_values.length != 0) {
         keys.put(s, new Double(Double.parseDouble(key_values[i])));
       }
       else {
@@ -150,7 +154,7 @@ public class EventGenerator implements InputOperator
         elapsedTime = 1; // prevent from / zero
       }
 
-      int tcount = generatedTupleCount;
+      long tcount = generatedTupleCount;
       long average;
       if (rolling_window_count == 1) {
         average = (tcount * 1000) / elapsedTime;
@@ -182,7 +186,7 @@ public class EventGenerator implements InputOperator
       }
       HashMap<String, Number> tuples = new HashMap<String, Number>();
       tuples.put(OPORT_COUNT_TUPLE_AVERAGE, new Long(average));
-      tuples.put(OPORT_COUNT_TUPLE_COUNT, new Integer(tcount));
+      tuples.put(OPORT_COUNT_TUPLE_COUNT, new Long(tcount));
       tuples.put(OPORT_COUNT_TUPLE_TIME, new Long(elapsedTime));
       tuples.put(OPORT_COUNT_TUPLE_TUPLES_PERSEC, new Long((tcount * 1000) / elapsedTime));
       tuples.put(OPORT_COUNT_TUPLE_WINDOWID, new Integer(count_windowid++));
@@ -199,7 +203,8 @@ public class EventGenerator implements InputOperator
   {
   }
 
-  public void setMaxcountofwindows(int i) {
+  public void setMaxcountofwindows(int i)
+  {
     maxCountOfWindows = i;
   }
 
@@ -210,12 +215,22 @@ public class EventGenerator implements InputOperator
 
   public void setWeights(String weight)
   {
-    key_weights = weight.split(",");
+    if (weight.isEmpty()) {
+      key_weights = null;
+    }
+    else {
+      key_weights = weight.split(",");
+    }
   }
 
   public void setValues(String value)
   {
-    key_values = value.split(",");
+    if (value.isEmpty()) {
+      key_values = null;
+    }
+    else {
+      key_values = value.split(",");
+    }
   }
 
   /**
@@ -227,11 +242,11 @@ public class EventGenerator implements InputOperator
   }
 
   /**
-   * @param rolling_window_count the rolling_window_count to set
+   * @param rolling_window_count the rolling_window_count for averaging across these many windows
    */
-  public void setRollingWindowCount(int rolling_window_count)
+  public void setRollingWindowCount(int r)
   {
-    this.rolling_window_count = rolling_window_count;
+    this.rolling_window_count = r;
   }
 
   @Override
@@ -264,11 +279,11 @@ public class EventGenerator implements InputOperator
       }
       // j is the key index
       String tuple_key = wtostr_index.get(j);
+      generatedTupleCount++;
 
       if (string_data.isConnected()) {
         string_data.emit(tuple_key);
       }
-
       if (hash_data.isConnected()) {
         HashMap<String, Double> tuple = new HashMap<String, Double>(1);
         tuple.put(tuple_key, keys.get(tuple_key));
