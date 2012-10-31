@@ -51,13 +51,18 @@
     <dependency>
       <!--
         jzmq not available from public repository at this time
-        http://lists.zeromq.org/pipermail/zeromq-dev/2012-May/017111.html 
+        http://lists.zeromq.org/pipermail/zeromq-dev/2012-May/017111.html
       -->
       <groupId>org.zeromq</groupId>
       <artifactId>jzmq</artifactId>
       <version>1.1.0-SNAPSHOT</version>
       <scope>system</scope>
       <systemPath>${project.basedir}/lib/zeromq-1.1.0-SNAPSHOT.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>com.rabbitmq</groupId>
+      <artifactId>amqp-client</artifactId>
+      <version>2.8.7</version>
     </dependency>
   </dependencies>
 </project>
