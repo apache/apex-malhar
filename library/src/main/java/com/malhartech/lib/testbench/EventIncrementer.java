@@ -23,10 +23,6 @@ import java.util.Map;
  * <br>
  * Description: tbd
  * <br>
- * Benchmarks: The benchmark was done in local/inline mode<br>
- * Processing tuples on seed port are at 3.5 Million tuples/sec<br>
- * Processing tuples on increment port are at 10 Million tuples/sec<br>
- * <br>
  * <b>Tuple Schema</b>: Each tuple is HashMap<String, ArrayList> on both the ports. Currently other schemas are not supported<br>
  * <b>Port Interface</b><br>
  * <b>seed</b>: The seed data for setting up the incrementor data to work on<br>
@@ -38,7 +34,10 @@ import java.util.Map;
  * <br>delta: The max value from an increment. The value on increment port is treated as a "percent" of this delta<br>
  * Compile time checks are:<br>
  * <br>
- *
+ * <b>Benchmarks</b>: The benchmark was done in local/inline mode<br>
+ * Processing tuples on seed port are at 3.5 Million tuples/sec<br>
+ * Processing tuples on increment port are at 10 Million tuples/sec<br>
+ * <br>
  * @author amol
  */
 public class EventIncrementer extends BaseOperator
@@ -73,10 +72,11 @@ public class EventIncrementer extends BaseOperator
     @Override
     public void process(HashMap<String, HashMap<String, Integer>> tuple)
     {
+      tuple_count++;
       for (Map.Entry<String, HashMap<String, Integer>> e: tuple.entrySet()) {
         String key = e.getKey(); // the key
         ArrayList<OneKeyValPair<String, Double>> alist = vmap.get(key); // does it have a location?
-        if (alist != null) { // if not seeded just ignore
+        if (alist == null) { // if not seeded just ignore
           continue;
         }
         for (Map.Entry<String, Integer> o: e.getValue().entrySet()) {

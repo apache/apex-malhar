@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,9 +23,9 @@ import org.slf4j.LoggerFactory;
  * <br>
  * Validates all DRC checks of the oper<br>
  */
-public class EventIncrementerTest
+public class EventIncrementerBenchmark
 {
-  private static Logger LOG = LoggerFactory.getLogger(EventIncrementerTest.class);
+  private static Logger LOG = LoggerFactory.getLogger(EventIncrementerBenchmark.class);
 
   class DataSink implements Sink
   {
@@ -86,6 +87,7 @@ public class EventIncrementerTest
    * Test oper logic emits correct results
    */
   @Test
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     final EventIncrementer oper = new EventIncrementer();
@@ -115,28 +117,19 @@ public class EventIncrementerTest
     oper.beginWindow();
 
     HashMap<String, Object> stuple = new HashMap<String, Object>(1);
-    //int numtuples = 100000000; // For benchmarking
-    int numtuples = 1000;
+    //int numTuples = 100000000; // For benchmarking
+    int numTuples = 10000000;
     String seed1 = "a";
     ArrayList val = new ArrayList();
     val.add(new Integer(10));
     val.add(new Integer(20));
     stuple.put(seed1, val);
-    for (int i = 0; i < numtuples; i++) {
+    for (int i = 0; i < numTuples; i++) {
       seedSink.process(stuple);
     }
     oper.endWindow();
 
-    LOG.debug(String.format("\n*************************\nEmitted %d tuples, Processed %d tuples, Received %d tuples\n******************\n",
-                            numtuples,
-                            oper.tuple_count,
-                            dataSink.count));
-    for (Map.Entry<String, String> e: ((HashMap<String, String>) dataSink.collectedTuples).entrySet()) {
-      LOG.debug(String.format("Got key (%s) and value (%s)", e.getKey(), e.getValue()));
-    }
-
     oper.beginWindow();
-
     HashMap<String, Object> ixtuple = new HashMap<String, Object>(1);
     HashMap<String, Integer> ixval = new HashMap<String, Integer>(1);
     ixval.put("x", new Integer(10));
@@ -147,19 +140,12 @@ public class EventIncrementerTest
     iyval.put("y", new Integer(10));
     iytuple.put("a", iyval);
 
-    for (int i = 0; i < numtuples; i++) {
+    for (int i = 0; i < numTuples; i++) {
       incrSink.process(ixtuple);
       incrSink.process(iytuple);
     }
 
     oper.endWindow();
-
-    LOG.debug(String.format("\n*************************\nEmitted %d tuples, Processed %d tuples, Received %d tuples\n******************\n",
-                            numtuples*2,
-                            oper.tuple_count,
-                            countSink.count));
-     for (Map.Entry<String, String> e: ((HashMap<String, String>) dataSink.collectedTuples).entrySet()) {
-      LOG.debug(String.format("Got key (%s) and value (%s)", e.getKey(), e.getValue()));
-    }
+    LOG.debug(String.format("\nBenchmarked %d tuples", numTuples * 3));
   }
 }
