@@ -9,19 +9,19 @@ import com.malhartech.dag.Tuple;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Functional test for {@link com.malhartech.lib.testbench.SeedEventClassifier}<br>
  */
-public class SeedEventClassifierTest
+public class SeedEventClassifierBenchmark
 {
-  private static Logger LOG = LoggerFactory.getLogger(SeedEventClassifierTest.class);
+  private static Logger LOG = LoggerFactory.getLogger(SeedEventClassifierBenchmark.class);
 
   class StringSink implements Sink
   {
-    HashMap<String, String> collectedTuples = new HashMap<String, String>();
     int count = 0;
 
     @Override
@@ -31,7 +31,6 @@ public class SeedEventClassifierTest
         // LOG.debug(payload.toString());
       }
       else {
-        collectedTuples.put((String) tuple, null);
         count++;
       }
     }
@@ -39,7 +38,6 @@ public class SeedEventClassifierTest
 
   class HashSink implements Sink
   {
-    HashMap<HashMap<String, HashMap<String, Integer>>, String> collectedTuples = new HashMap<HashMap<String, HashMap<String, Integer>>, String>();
     int count = 0;
 
     @Override
@@ -49,7 +47,6 @@ public class SeedEventClassifierTest
         // LOG.debug(payload.toString());
       }
       else {
-         collectedTuples.put((HashMap<String, HashMap<String, Integer>>) tuple, null);
          count++;
       }
     }
@@ -59,10 +56,11 @@ public class SeedEventClassifierTest
    * Test oper logic emits correct results
    */
   @Test
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
-    testSchemaNodeProcessing(true); // 5.9 million/sec
-    testSchemaNodeProcessing(false); // 4.4 million/sec
+    testSchemaNodeProcessing(true); // 13 million/sec
+    testSchemaNodeProcessing(false); // 7 million/sec
   }
 
   /**
@@ -91,7 +89,7 @@ public class SeedEventClassifierTest
 
     oper.beginWindow();
 
-    int numTuples = 1000;
+    int numTuples = 10000000;
     if (isstring) {
       String input;
       for (int j = 0; j < 5; j++) {
@@ -114,16 +112,10 @@ public class SeedEventClassifierTest
     }
     oper.endWindow();
     if (isstring) {
-      Assert.assertEquals("number emitted tuples", numTuples * 2 * 5, classifySink.count);
-      LOG.debug(String.format("\n********************\nProcessed %d tuples with %d uniques\n********************\n",
-                              classifySink.count,
-                              classifySink.collectedTuples.size()));
+      LOG.debug(String.format("\n********************\nProcessed %d tuples\n********************\n", classifySink.count));
     }
     else {
-      Assert.assertEquals("number emitted tuples", numTuples * 2 * 5, hashSink.count);
-      LOG.debug(String.format("\n********************\nProcessed %d tuples with %d uniques\n********************\n",
-                              hashSink.count,
-                              hashSink.collectedTuples.size()));
+      LOG.debug(String.format("\n********************\nProcessed %d tuples\n********************\n",  hashSink.count));
     }
   }
 }

@@ -92,7 +92,6 @@ public class SeedEventClassifier<T> extends BaseOperator
       seed = s_start;
     }
   }
-  private static Logger log = LoggerFactory.getLogger(SeedEventClassifier.class);
   /**
    * Data for classification values
    */
