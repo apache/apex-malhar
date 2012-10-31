@@ -28,8 +28,6 @@ import org.slf4j.LoggerFactory;
  * For each incoming key users can provide an insertion
  * probability for the insert keys. This allows for randomization of the insert key choice<br><br>
  * <br>
- * Benchmarks: This node has been benchmarked at over 22 million tuples/second in local/inline mode<br>
- *
  * <b>Tuple Schema</b>: Each tuple is HashMap<String, Double> on both the ports. Currently other schemas are not supported<br>
  * <b>Port Interface</b><br>
  * <b>out_data</b>: Output port for emitting the new tuple<br>
@@ -48,6 +46,9 @@ import org.slf4j.LoggerFactory;
  * number of keys in parameter <b>keys</b>. If not specified all weights are equal<br>
  * <b>filter</b> The first number has to be less than the second and both have to be positive<br>
  * <br>
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * This node has been benchmarked at over 15 million tuples/second in local/inline mode<br>
+ *<br>
  *
  * @author amol
  */

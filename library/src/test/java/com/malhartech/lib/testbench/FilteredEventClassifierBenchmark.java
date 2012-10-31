@@ -14,7 +14,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Functional test for {@link com.malhartech.lib.testbench.FilteredEventClassifier} for three configuration><p>
  * <br>
@@ -26,9 +25,9 @@ import org.slf4j.LoggerFactory;
  * <br>
  * Validates all DRC checks of the node<br>
  */
-public class FilteredEventClassifierTest
+public class FilteredEventClassifierBenchmark
 {
-  private static Logger LOG = LoggerFactory.getLogger(FilteredEventClassifier.class);
+  private static Logger log = LoggerFactory.getLogger(FilteredEventClassifierBenchmark.class);
 
   class TestSink implements Sink
   {
@@ -43,7 +42,7 @@ public class FilteredEventClassifierTest
     public void process(Object payload)
     {
       if (payload instanceof Tuple) {
-        // LOG.debug(payload.toString());
+        // log.debug(payload.toString());
       }
       else {
         HashMap<String, Double> tuple = (HashMap<String, Double>)payload;
@@ -117,7 +116,8 @@ public class FilteredEventClassifierTest
     node.setTotalFilter(100);
     node.setup(new OperatorConfiguration());
 
-    int numTuples = 10000;
+    int numTuples = 1000000;
+
     HashMap<String, Double> input = new HashMap<String, Double>();
     int sentval = 0;
     node.beginWindow();
@@ -145,7 +145,7 @@ public class FilteredEventClassifierTest
       ival += e.getValue().intValue();
     }
 
-    LOG.info(String.format("\n*******************************************************\nFiltered %d out of %d intuples with %d and %d unique keys",
+    log.info(String.format("\n*******************************************************\nFiltered %d out of %d intuples with %d and %d unique keys",
                            ival,
                            sentval,
                            classifySink.collectedTuples.size(),
@@ -164,8 +164,8 @@ public class FilteredEventClassifierTest
     nwnode.setTotalFilter(100);
     nwnode.setup(new OperatorConfiguration());
 
-    sentval = 0;
     node.beginWindow();
+    sentval = 0;
     for (int i = 0; i < numTuples; i++) {
       input.clear();
       input.put("a,ia", 2.0);
@@ -190,7 +190,7 @@ public class FilteredEventClassifierTest
       ival += e.getValue().intValue();
     }
 
-    LOG.info(String.format("\n*******************************************************\nFiltered %d out of %d intuples with %d and %d unique keys",
+    log.info(String.format("\n*******************************************************\nFiltered %d out of %d intuples with %d and %d unique keys",
                            ival,
                            sentval,
                            classifySink.collectedTuples.size(),
@@ -238,18 +238,11 @@ public class FilteredEventClassifierTest
     for (Map.Entry<String, Integer> e: classifySink.collectedTuples.entrySet()) {
       ival += e.getValue().intValue();
     }
-    LOG.info(String.format("\n*******************************************************\nFiltered %d out of %d intuples with %d and %d unique keys",
+    log.info(String.format("\n*******************************************************\nFiltered %d out of %d intuples with %d and %d unique keys",
                            ival,
                            sentval,
                            classifySink.collectedTuples.size(),
                            classifySink.collectedTupleValues.size()));
-
-    for (Map.Entry<String, Double> ve: classifySink.collectedTupleValues.entrySet()) {
-      Integer ieval = classifySink.collectedTuples.get(ve.getKey()); // ieval should not be null?
-      Log.info(String.format("%d tuples of key \"%s\" has value %f",
-                             ieval.intValue(),
-                             ve.getKey(),
-                             ve.getValue()));
-    }
+    log.debug(String.format("\nBenchmarked %d tuples", numTuples * 36));
   }
 }

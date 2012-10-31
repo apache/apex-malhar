@@ -110,7 +110,7 @@ public class ThroughputCounter<K> extends BaseOperator
       elapsedTime = 1; // prevent from / zero
     }
 
-    long average = 0;
+    long average;
     long tuples_per_sec = (tuple_count * 1000) / elapsedTime; // * 1000 as elapsedTime is in millis
     if (rolling_window_count == 1) {
       average = tuples_per_sec;
@@ -127,7 +127,7 @@ public class ThroughputCounter<K> extends BaseOperator
         }
       }
       else {
-        tuple_numbers[count_denominator - 1] =tuple_count;
+        tuple_numbers[count_denominator - 1] = tuple_count;
         time_numbers[count_denominator - 1] =elapsedTime;
         slots = count_denominator;
         count_denominator++;
