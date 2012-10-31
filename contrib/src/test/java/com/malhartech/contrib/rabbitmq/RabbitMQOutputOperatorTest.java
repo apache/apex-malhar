@@ -4,12 +4,15 @@
  */
 package com.malhartech.contrib.rabbitmq;
 
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.api.Sink;
+import com.malhartech.api.*;
+import com.malhartech.api.Context.OperatorContext;
+import com.malhartech.contrib.rabbitmq.RabbitMQInputOperatorTest.CollectorInputPort;
+import com.malhartech.stram.StramLocalCluster;
+import com.malhartech.util.CircularBuffer;
 import com.rabbitmq.client.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.*;
@@ -25,8 +28,7 @@ public class RabbitMQOutputOperatorTest
 
   private static final class TestRabbitMQOutputOperator extends AbstractRabbitMQOutputOperator<String>
   {
-    private int testNum;
-    public final transient DefaultInputPort<String> input = new DefaultInputPort<String>(this)
+    public final transient DefaultInputPort<String> inputPort = new DefaultInputPort<String>(this)
     {
       @Override
       public void process(String message)
@@ -40,31 +42,6 @@ public class RabbitMQOutputOperatorTest
       }
     };
 
-    public void setTestNum(int testNum)
-    {
-      this.testNum = testNum;
-    }
-
-    public void generateMessages()
-    {
-      Sink testSink = input.getSink();
-      beginWindow();
-      for (int i = 0; i < testNum; i++) {
-        HashMap<String, Integer> dataMapa = new HashMap<String, Integer>();
-        dataMapa.put("a", 2);
-        testSink.process(dataMapa.toString());
-
-        HashMap<String, Integer> dataMapb = new HashMap<String, Integer>();
-        dataMapb.put("b", 20);
-        testSink.process(dataMapb.toString());
-
-        HashMap<String, Integer> dataMapc = new HashMap<String, Integer>();
-        dataMapc.put("c", 1000);
-        testSink.process(dataMapc.toString());
-      }
-      endWindow();
-      teardown();
-    }
   }
 
   public class RabbitMQMessageReceiver
@@ -78,7 +55,7 @@ public class RabbitMQOutputOperatorTest
     Channel channel = null;
     TracingConsumer tracingConsumer = null;
     String cTag;
-    String queueName;
+    String queueName="testQ";
 
     public void setup() throws IOException
     {
@@ -87,7 +64,6 @@ public class RabbitMQOutputOperatorTest
       channel = connection.createChannel();
 
 //      channel.exchangeDeclare(exchange, "fanout");
-      queueName = channel.queueDeclare().getQueue();
 
 //      channel.queueBind(queueName, exchange, "");
 //      consumer = new QueueingConsumer(channel);
@@ -137,9 +113,7 @@ public class RabbitMQOutputOperatorTest
       public void handleDelivery(String consumer_Tag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException
       {
         logger.debug("Received Async message:" + new String(body));
-        // convert to HashMap and save the values for each key
-        // then expect c to be 1000, b=20, a=2
-        // and do count++ (where count now would be 30)
+
         String str = new String(body);
         if (str.indexOf("{") == -1) {
           return;
@@ -153,23 +127,105 @@ public class RabbitMQOutputOperatorTest
     }
   }
 
+  /**
+   *
+   * @param <T>
+   */
+  public static class SourceOutputPort<T> extends DefaultOutputPort<T>
+  {
+    SourceOutputPort(Operator op) {
+      super(op);
+    }
+  }
+
+  public static class SourceModule extends BaseOperator
+              implements InputOperator, ActivationListener<OperatorContext>
+  {
+    public final transient SourceOutputPort<String> outPort = new SourceOutputPort<String>(this);
+  transient CircularBuffer<byte[]> holdingBuffer;
+  int testNum;
+
+  @Override
+  public void setup(OperatorConfiguration config)
+  {
+    holdingBuffer = new CircularBuffer<byte[]>(1024 * 1024);
+  }
+    public void emitTuple(byte[] message)
+    {
+      outPort.emit(new String(message));
+    }
+  @Override
+    public void emitTuples(long windowId)
+    {
+      for (int i = holdingBuffer.size(); i-- > 0;) {
+        emitTuple(holdingBuffer.pollUnsafe());
+      }
+    }
+
+  @Override
+    public void postActivate(OperatorContext ctx)
+    {
+      for (int i = 0; i < testNum; i++) {
+        HashMap<String, Integer> dataMapa = new HashMap<String, Integer>();
+        dataMapa.put("a", 2);
+        holdingBuffer.add(dataMapa.toString().getBytes());
+
+        HashMap<String, Integer> dataMapb = new HashMap<String, Integer>();
+        dataMapb.put("b", 20);
+        holdingBuffer.add(dataMapb.toString().getBytes());
+
+        HashMap<String, Integer> dataMapc = new HashMap<String, Integer>();
+        dataMapc.put("c", 1000);
+        holdingBuffer.add(dataMapc.toString().getBytes());
+      }
+    }
+
+    public void setTestNum(int testNum) {
+      this.testNum = testNum;
+    }
+    public void preDeactivate()
+    {
+    }
+
+    public void replayTuples(long windowId)
+    {
+    }
+  }
+
   @Test
-  public void testProcess() throws InterruptedException, MalformedURLException, IOException
+  public void testProcess() throws InterruptedException, MalformedURLException, IOException, Exception
   {
     final int testNum = 3;
+
+    DAG dag = new DAG();
+    SourceModule source = dag.addOperator("source", SourceModule.class);
+    source.setTestNum(testNum);
+    TestRabbitMQOutputOperator collector = dag.addOperator("generator", new TestRabbitMQOutputOperator());
+    collector.setQueueName("testQ");
+    dag.addStream("Stream", source.outPort, collector.inputPort).setInline(true);
 
     RabbitMQMessageReceiver receiver = new RabbitMQMessageReceiver();
     receiver.setup();
 
-    TestRabbitMQOutputOperator node = new TestRabbitMQOutputOperator();
-    node.setup(new OperatorConfiguration());
-    node.setQueueName(receiver.getQueueName());
-    node.setTestNum(testNum);
-    node.generateMessages();
+    final StramLocalCluster lc = new StramLocalCluster(dag);
+    lc.setHeartbeatMonitoringEnabled(false);
 
-    while (receiver.count < testNum * 3) {
-      Thread.sleep(1);
-    }
+    new Thread("LocalClusterController")
+    {
+      @Override
+      public void run()
+      {
+        try {
+          Thread.sleep(1000);
+        }
+        catch (InterruptedException ex) {
+        }
+        lc.shutdown();
+      }
+    }.start();
+
+    lc.run();
+
     junit.framework.Assert.assertEquals("emitted value for testNum was ", testNum * 3, receiver.count);
     for (Map.Entry<String, Integer> e: receiver.dataMap.entrySet()) {
       if (e.getKey().equals("a")) {
@@ -182,7 +238,6 @@ public class RabbitMQOutputOperatorTest
         junit.framework.Assert.assertEquals("emitted value for 'c' was ", new Integer(1000), e.getValue());
       }
     }
-//    subThr.interrupt();
     logger.debug("end of test");
   }
 }

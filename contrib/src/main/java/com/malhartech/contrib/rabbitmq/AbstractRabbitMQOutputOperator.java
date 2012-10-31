@@ -21,12 +21,12 @@ import org.slf4j.LoggerFactory;
 public class AbstractRabbitMQOutputOperator<T> extends BaseOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractRabbitMQInputOperator.class);
-  ConnectionFactory connFactory = new ConnectionFactory();
-  QueueingConsumer consumer = null;
-  Connection connection = null;
-  Channel channel = null;
-  final String exchange = "test";
-  public String queueName;
+  transient ConnectionFactory connFactory = new ConnectionFactory();
+  transient QueueingConsumer consumer = null;
+  transient Connection connection = null;
+  transient Channel channel = null;
+  transient final String exchange = "test";
+  transient public String queueName="testQ";
 
   @Override
   public void setup(OperatorConfiguration config)
@@ -35,6 +35,7 @@ public class AbstractRabbitMQOutputOperator<T> extends BaseOperator
       connFactory.setHost("localhost");
       connection = connFactory.newConnection();
       channel = connection.createChannel();
+      channel.queueDeclare(queueName, false, false, false, null);
     }
     catch (IOException ex) {
       logger.debug(ex.toString());
