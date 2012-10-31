@@ -3,18 +3,20 @@
  */
 package com.malhartech.lib.testbench;
 
-
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DAG;
 import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.Operator;
 import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import com.malhartech.stram.ManualScheduledExecutorService;
+import com.malhartech.stram.StramLocalCluster;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -38,11 +40,11 @@ import org.slf4j.LoggerFactory;
  */
 public class EventGeneratorBenchmark
 {
-  private static Logger LOG = LoggerFactory.getLogger(EventGenerator.class);
+  private static Logger log = LoggerFactory.getLogger(EventGeneratorBenchmark.class);
+  int count = 0;
 
-    public static class CollectorInputPort<T> extends DefaultInputPort<T>
+  public class CollectorInputPort<T> extends DefaultInputPort<T>
   {
-    ArrayList<T> list;
     final String id;
 
     public CollectorInputPort(String id, Operator module)
@@ -54,41 +56,20 @@ public class EventGeneratorBenchmark
     @Override
     public void process(T tuple)
     {
-      list.add(tuple);
+      count++;
     }
   }
 
-  class TestSink implements Sink
+  public int getCount()
   {
-    HashMap<String, Integer> collectedTuples = new HashMap<String, Integer>();
-    //DefaultSerDe serde = new DefaultSerDe();
-    int count = 0;
-    boolean dohash = false;
-
-    /**
-     *
-     * @param payload
-     */
-    @Override
-    public void process(Object payload)
-    {
-      count++; // Behchmark counts all tuples as we are measuring throughput
-      if (dohash) {
-        if (payload instanceof Tuple) {
-          // LOG.debug(payload.toString());
-        }
-        else { // ignore the payload, just count it
-          count++;
-        }
-      }
-    }
+    return count;
   }
 
-
-    public static class CollectorOperator extends BaseOperator
+  public class CollectorOperator extends BaseOperator
   {
     public final transient CollectorInputPort<String> sdata = new CollectorInputPort<String>("sdata", this);
   }
+
   /**
    * Benchmark the maximum payload flow for String
    * The sink would simply ignore the payload as we are testing throughput
@@ -100,9 +81,14 @@ public class EventGeneratorBenchmark
     DAG dag = new DAG();
     EventGenerator node = dag.addOperator("eventgen", EventGenerator.class);
     CollectorOperator collector = dag.addOperator("data collector", new CollectorOperator());
-
     dag.addStream("stest", node.string_data, collector.sdata).setInline(true);
 
+
+    /*
+     * public final transient DefaultOutputPort<String> string_data = new DefaultOutputPort<String>(this);
+     public final transient DefaultOutputPort<HashMap<String, Double>> hash_data = new DefaultOutputPort<HashMap<String, Double>>(this);
+     public final transient DefaultOutputPort<HashMap<String, Number>> count = new DefaultOutputPort<HashMap<String, Number>>(this);
+     */
     int numchars = 1024;
     char[] chararray = new char[numchars + 1];
     for (int i = 0; i < numchars; i++) {
@@ -113,9 +99,26 @@ public class EventGeneratorBenchmark
 
     node.setKeys(key);
     node.setTuplesBlast(50000000);
-    node.setup(new OperatorConfiguration());
+    
+    final StramLocalCluster lc = new StramLocalCluster(dag);
+    lc.setHeartbeatMonitoringEnabled(false);
 
-    //LOG.debug(String.format("\nProcessed %d tuples from emitted %d in %d windows", lgenSink.count, countSink.count, countSink.num_tuples));
-  /*  LOG.debug(String.format("\nProcessed %d tuples of size", lgenSink.count, key.length())); */
+    new Thread()
+    {
+      @Override
+      public void run()
+      {
+        try {
+          Thread.sleep(5000);
+          lc.shutdown();
+        }
+        catch (InterruptedException ex) {
+          java.util.logging.Logger.getLogger(EventGeneratorBenchmark.class.getName()).log(Level.SEVERE, null, ex);
+        }
+      }
+    }.start();
+
+    lc.run();
+    log.debug("\nProcessed {} tuples", getCount());
   }
 }

@@ -93,6 +93,8 @@ public class EventClassifierTest {
       node.setKeyMap(keymap);
       node.setOperationReplace();
 
+      int numTuples = 1000;
+
       HashMap<String, ArrayList<Integer>> wmap = new HashMap<String, ArrayList<Integer>>();
       ArrayList<Integer> list = new ArrayList<Integer>(3);
       list.add(60);
@@ -119,7 +121,7 @@ public class EventClassifierTest {
 
       HashMap<String, Double> input = new HashMap<String, Double>();
       int sentval = 0;
-      for (int i = 0; i < 1000000; i++) {
+      for (int i = 0; i < numTuples; i++) {
         input.clear();
         input.put("ia", 2.0);
         input.put("ib", 20.0);
@@ -158,7 +160,7 @@ public class EventClassifierTest {
       nwnode.setup(new OperatorConfiguration());
 
       sentval = 0;
-      for (int i = 0; i < 1000000; i++) {
+      for (int i = 0; i < numTuples; i++) {
         input.clear();
         input.put("ia", 2.0);
         input.put("ib", 20.0);
@@ -196,12 +198,12 @@ public class EventClassifierTest {
       keymap.put("c", 0.0);
 
       nvnode.data.setSink(classifySink);
-      nwnode.setKeyMap(keymap);
+      nvnode.setKeyMap(keymap);
       nvnode.setOperationReplace();
       nvnode.setup(new OperatorConfiguration());
 
       sentval = 0;
-      for (int i = 0; i < 1000000; i++) {
+      for (int i = 0; i < numTuples; i++) {
         input.clear();
         input.put("ia", 2.0);
         input.put("ib", 20.0);
