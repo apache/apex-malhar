@@ -62,19 +62,19 @@ public class ActiveMQInputOperatorTest
     }
 
     @Override
-    public void replayEmitTuples(long windowId)
-    {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void postEmitTuples(long windowId, OutputPort<?> outputPort, Iterator<?> tuples)
-    {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
     public void run()
+    {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void replayTuples(long windowId)
+    {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void emitTuples(long windowId)
     {
       throw new UnsupportedOperationException("Not supported yet.");
     }

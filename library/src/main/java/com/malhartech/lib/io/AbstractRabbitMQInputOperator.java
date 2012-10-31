@@ -81,7 +81,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements InputOperator,
   }
 
   @Override
-  public void replayEmitTuples(long windowId)
+  public void emitTuples(long windowId)
   {
     for (int i = holdingBuffer.size(); i-- > 0;) {
       emitTuple(holdingBuffer.pollUnsafe());

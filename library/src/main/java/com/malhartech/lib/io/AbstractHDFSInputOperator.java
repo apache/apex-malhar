@@ -5,8 +5,8 @@
 package com.malhartech.lib.io;
 
 import com.malhartech.api.BaseOperator;
+import com.malhartech.api.InputOperator;
 import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.deprecated.api.SyncInputOperator;
 import java.io.IOException;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  * Users need to implement getRecord to get HDFS input adapter to work as per their choice<br>
  * <br>
  */
-public abstract class AbstractHDFSInputOperator extends BaseOperator implements SyncInputOperator, Runnable
+public abstract class AbstractHDFSInputOperator extends BaseOperator implements InputOperator, Runnable
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractHDFSInputOperator.class);
   protected FSDataInputStream input;
@@ -44,12 +44,6 @@ public abstract class AbstractHDFSInputOperator extends BaseOperator implements 
   public boolean isSkipEndStream()
   {
     return skipEndStream;
-  }
-
-  @Override
-  public Runnable getDataPoller()
-  {
-    return this;
   }
 
   @Override
@@ -94,29 +88,21 @@ public abstract class AbstractHDFSInputOperator extends BaseOperator implements 
     filepath = null;
   }
 
-  @Override
-  public void run()
+    @Override
+  public void emitTuples(long windowId)
   {
-    logger.debug("ready to read hdfs file");
     try {
-      while (true) {
         emitRecord(input);
-      }
     }
     catch (Exception e) {
       logger.info("Exception on HDFS Input: {}", e.getLocalizedMessage());
-      if (skipEndStream) {
-        logger.info("Skipping end stream as requested");
-      }
-      else {
-        logger.info("Ending the stream");
-        emitEndStream();
-      }
+      Thread.currentThread().interrupt();
     }
   }
 
-  public void setSkipEndStream(boolean skip)
+  @Override
+  public void replayTuples(long windowId)
   {
-    this.skipEndStream = skip;
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 }

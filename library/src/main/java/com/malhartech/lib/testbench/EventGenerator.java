@@ -195,43 +195,6 @@ public class EventGenerator implements InputOperator
   }
 
   @Override
-  public void replayEmitTuples(long windowId)
-  {
-    int j = 0;
-
-    for (int i = tuples_blast; i-- > 0;) {
-      if (weights != null) { // weights are not even
-        int rval = random.nextInt(total_weight);
-        j = 0; // for randomization, need to reset to 0
-        int wval = 0;
-        for (Integer e: weights) {
-          wval += e.intValue();
-          if (wval >= rval) {
-            break;
-          }
-          j++;
-        }
-      }
-      else {
-        j++;
-        j = j % keys.size();
-      }
-      // j is the key index
-      String tuple_key = wtostr_index.get(j);
-
-      if (string_data.isConnected()) {
-        string_data.emit(tuple_key);
-      }
-
-      if (hash_data.isConnected()) {
-        HashMap<String, Double> tuple = new HashMap<String, Double>(1);
-        tuple.put(tuple_key, keys.get(tuple_key));
-        hash_data.emit(tuple);
-      }
-    }
-  }
-
-  @Override
   public void teardown()
   {
   }
@@ -271,4 +234,46 @@ public class EventGenerator implements InputOperator
     this.rolling_window_count = rolling_window_count;
   }
 
+  @Override
+  public void replayTuples(long windowId)
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  @Override
+  public void emitTuples(long windowId)
+  {
+    int j = 0;
+
+    for (int i = tuples_blast; i-- > 0;) {
+      if (weights != null) { // weights are not even
+        int rval = random.nextInt(total_weight);
+        j = 0; // for randomization, need to reset to 0
+        int wval = 0;
+        for (Integer e: weights) {
+          wval += e.intValue();
+          if (wval >= rval) {
+            break;
+          }
+          j++;
+        }
+      }
+      else {
+        j++;
+        j = j % keys.size();
+      }
+      // j is the key index
+      String tuple_key = wtostr_index.get(j);
+
+      if (string_data.isConnected()) {
+        string_data.emit(tuple_key);
+      }
+
+      if (hash_data.isConnected()) {
+        HashMap<String, Double> tuple = new HashMap<String, Double>(1);
+        tuple.put(tuple_key, keys.get(tuple_key));
+        hash_data.emit(tuple);
+      }
+    }
+  }
 }

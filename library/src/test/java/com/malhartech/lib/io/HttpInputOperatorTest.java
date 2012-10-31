@@ -32,6 +32,7 @@ import com.malhartech.dag.TestSink;
 public class HttpInputOperatorTest
 {
   @Test
+  @SuppressWarnings("SleepWhileInLoop")
   public void testHttpInputModule() throws Exception
   {
 
@@ -77,7 +78,7 @@ public class HttpInputOperatorTest
 
     final HttpInputOperator operator = new HttpInputOperator();
 
-    TestSink<Map<String, Object>> sink = new TestSink<Map<String, Object>>();
+    TestSink<Map<String, String>> sink = new TestSink<Map<String, String>>();
 
     operator.outputPort.setSink(sink);
     operator.setName("testHttpInputNode");
@@ -89,15 +90,15 @@ public class HttpInputOperatorTest
 
 //    sink.waitForResultCount(1, 3000);
     int timeoutMillis = 3000;
-    while (sink.collectedTuples.size() == 0 && timeoutMillis > 0) {
-      operator.replayEmitTuples(0);
+    while (sink.collectedTuples.isEmpty() && timeoutMillis > 0) {
+      operator.emitTuples(0);
       timeoutMillis -= 20;
       Thread.sleep(20);
     }
 
     Assert.assertTrue("tuple emmitted", sink.collectedTuples.size() > 0);
 
-    Map<String, Object> tuple = sink.collectedTuples.get(0);
+    Map<String, String> tuple = sink.collectedTuples.get(0);
     Assert.assertEquals("", tuple.get("responseId"), "response1");
 
     operator.preDeactivate();

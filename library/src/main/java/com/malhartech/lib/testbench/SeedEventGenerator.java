@@ -59,27 +59,22 @@ import com.malhartech.lib.util.OneKeyValPair;
  *
  * @author amol
  */
-
 public class SeedEventGenerator extends BaseOperator implements InputOperator
 {
-    public final transient DefaultOutputPort<HashMap<String, ArrayList<OneKeyValPair>>> keyvalpair_list = new DefaultOutputPort<HashMap<String, ArrayList<OneKeyValPair>>>(this);
-    public final transient DefaultOutputPort<HashMap<String,ArrayList<Integer>>> val_list = new DefaultOutputPort<HashMap<String, ArrayList<Integer>>>(this);
-
-    public final transient DefaultOutputPort<HashMap<String,String>> string_data = new DefaultOutputPort<HashMap<String, String>>(this);
-    public final transient DefaultOutputPort<HashMap<String,String>> val_data = new DefaultOutputPort<HashMap<String, String>>(this);
-
-    private static Logger LOG = LoggerFactory.getLogger(SeedEventGenerator.class);
+  public final transient DefaultOutputPort<HashMap<String, ArrayList<OneKeyValPair>>> keyvalpair_list = new DefaultOutputPort<HashMap<String, ArrayList<OneKeyValPair>>>(this);
+  public final transient DefaultOutputPort<HashMap<String, ArrayList<Integer>>> val_list = new DefaultOutputPort<HashMap<String, ArrayList<Integer>>>(this);
+  public final transient DefaultOutputPort<HashMap<String, String>> string_data = new DefaultOutputPort<HashMap<String, String>>(this);
+  public final transient DefaultOutputPort<HashMap<String, String>> val_data = new DefaultOutputPort<HashMap<String, String>>(this);
+  private static Logger LOG = LoggerFactory.getLogger(SeedEventGenerator.class);
   /**
    * Data for classification values
    */
   ArrayList<String> keys = null;
   ArrayList<Integer> keys_min = null;
   ArrayList<Integer> keys_range = null;
-
   int s_start = 0;
   int s_end = 99;
   private final Random random = new Random();
-
 
   public void setSeedstart(int i)
   {
@@ -92,7 +87,7 @@ public class SeedEventGenerator extends BaseOperator implements InputOperator
   }
 
   @Override
-  public void replayEmitTuples(long windowId)
+  public void emitTuples(long windowId)
   {
     int lstart = s_start;
     int lend = s_end;
@@ -117,7 +112,7 @@ public class SeedEventGenerator extends BaseOperator implements InputOperator
    * @param tuples bag of tuples
    * @param key the key
    */
-  public void emitTuple (int i)
+  public void emitTuple(int i)
   {
     HashMap<String, String> stuple = null;
     HashMap<String, ArrayList<OneKeyValPair>> atuple = null;
@@ -138,7 +133,7 @@ public class SeedEventGenerator extends BaseOperator implements InputOperator
     ArrayList<OneKeyValPair> alist = null;
     ArrayList<Integer> vlist = null;
     String str = new String();
-    String vstr = new String ();
+    String vstr = new String();
     boolean iskv = keyvalpair_list.isConnected();
     boolean isvl = val_list.isConnected();
     boolean issd = string_data.isConnected();
@@ -193,11 +188,11 @@ public class SeedEventGenerator extends BaseOperator implements InputOperator
     }
 
     if (isvd) {
-      HashMap vtuple = new HashMap<String,String>(1);
+      HashMap vtuple = new HashMap<String, String>(1);
       vtuple.put(key, vstr);
       val_data.emit(vtuple);
     }
-}
+  }
 
   /**
    *
@@ -218,5 +213,11 @@ public class SeedEventGenerator extends BaseOperator implements InputOperator
     keys.add(key);
     keys_min.add(low);
     keys_range.add(high - low + 1);
+  }
+
+  @Override
+  public void replayTuples(long windowId)
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 }

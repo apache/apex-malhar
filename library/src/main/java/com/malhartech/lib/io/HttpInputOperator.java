@@ -49,7 +49,7 @@ public class HttpInputOperator extends BaseInputOperator<Map<String, String>> im
   /**
    * The URL of the web service resource for the POST request.
    */
-  private URI resourceUrl;
+  public URI resourceUrl;
   private transient Client wsClient;
   private transient WebResource resource;
 

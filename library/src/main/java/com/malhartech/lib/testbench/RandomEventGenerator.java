@@ -44,7 +44,6 @@ public class RandomEventGenerator extends BaseOperator implements InputOperator
 {
   public final transient DefaultOutputPort<String> string_data = new DefaultOutputPort<String>(this);
   public final transient DefaultOutputPort<Integer> integer_data = new DefaultOutputPort<Integer>(this);
-
   protected transient int maxCountOfWindows = Integer.MAX_VALUE;
   protected int tuples_blast = 1000;
   int min_value = 0;
@@ -74,8 +73,32 @@ public class RandomEventGenerator extends BaseOperator implements InputOperator
     }
   }
 
+  public void setMaxcountofwindows(int i)
+  {
+    maxCountOfWindows = i;
+  }
+
   @Override
-  public void replayEmitTuples(long windowId)
+  public void endWindow()
+  {
+    if (--maxCountOfWindows == 0) {
+      Thread.currentThread().interrupt();
+    }
+  }
+
+  @Override
+  public void teardown()
+  {
+  }
+
+  @Override
+  public void replayTuples(long windowId)
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  @Override
+  public void emitTuples(long windowId)
   {
     int range = max_value - min_value + 1;
     int i = 0;
@@ -91,18 +114,4 @@ public class RandomEventGenerator extends BaseOperator implements InputOperator
       i++;
     }
   }
-
-  public void setMaxcountofwindows(int i)
-  {
-    maxCountOfWindows = i;
-  }
-
-  @Override
-  public void endWindow()
-  {
-    if (--maxCountOfWindows == 0) {
-      Thread.currentThread().interrupt();
-    }
-  }
-
 }
