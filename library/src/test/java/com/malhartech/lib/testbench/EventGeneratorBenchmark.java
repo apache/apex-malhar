@@ -83,7 +83,6 @@ public class EventGeneratorBenchmark
     CollectorOperator collector = dag.addOperator("data collector", CollectorOperator.class);
     dag.addStream("stest", node.string_data, collector.sdata).setInline(true);
 
-
     /*
      * public final transient DefaultOutputPort<String> string_data = new DefaultOutputPort<String>(this);
      public final transient DefaultOutputPort<HashMap<String, Double>> hash_data = new DefaultOutputPort<HashMap<String, Double>>(this);
@@ -98,7 +97,7 @@ public class EventGeneratorBenchmark
     String key = new String(chararray);
 
     node.setKeys(key);
-    node.setTuplesBlast(100000);
+    node.setTuplesBlast(1000);
 
     final StramLocalCluster lc = new StramLocalCluster(dag);
     lc.setHeartbeatMonitoringEnabled(false);
@@ -109,7 +108,7 @@ public class EventGeneratorBenchmark
       public void run()
       {
         try {
-          Thread.sleep(5000);
+          Thread.sleep(20000);
           lc.shutdown();
         }
         catch (InterruptedException ex) {

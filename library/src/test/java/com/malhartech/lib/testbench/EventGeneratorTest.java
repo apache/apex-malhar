@@ -79,13 +79,11 @@ public class EventGeneratorTest
   @Test
   public void testNodeProcessing() throws Exception
   {
-    testSingleSchemaNodeProcessing(true, true); // 10.5 million/s
-    testSingleSchemaNodeProcessing(true, false); // 7.5 million/s
-    testSingleSchemaNodeProcessing(false, true); // 4.7 million/s
-    testSingleSchemaNodeProcessing(false, false); // 3 million/s
+    testSingleSchemaNodeProcessing(true); // 15 million/s
+    testSingleSchemaNodeProcessing(false); // 7.5 million/s
   }
 
-  public void testSingleSchemaNodeProcessing(boolean stringschema, boolean skiphash) throws Exception
+  public void testSingleSchemaNodeProcessing(boolean stringschema) throws Exception
   {
     DAG dag = new DAG();
     EventGenerator node = dag.addOperator("eventgen", EventGenerator.class);
@@ -96,7 +94,7 @@ public class EventGeneratorTest
     node.setWeights("10,40,20,30");
     node.setTuplesBlast(1000);
     node.setRollingWindowCount(5);
-    
+
     if (stringschema) {
       dag.addStream("stest", node.string_data, collector.sdata).setInline(true);
     }

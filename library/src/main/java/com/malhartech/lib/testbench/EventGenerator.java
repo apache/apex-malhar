@@ -79,8 +79,8 @@ public class EventGenerator implements InputOperator
   transient int tuple_index = 0;
   transient int count_denominator = 1;
   transient int count_windowid = 0;
-  private long windowStartTime = 0;
-  private int generatedTupleCount = 0;
+  private transient long windowStartTime = 0;
+  private transient int generatedTupleCount = 0;
 
   @NotNull
   @InjectConfig(key = "keys")
