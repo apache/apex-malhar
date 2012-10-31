@@ -23,7 +23,7 @@ public abstract class ActiveMQConsumerBase extends ActiveMQBase implements Messa
 
 
    /**
-   * Any concrete class derived from ActiveMQConsumerBase has to implement this method
+   * Any ActiveMQINputOperator has to implement this method
    * so that it knows how to emit message to what port.
    *
    * @param message

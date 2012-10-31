@@ -4,11 +4,15 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
+import com.malhartech.api.*;
 import com.malhartech.dag.TestSink;
+import com.malhartech.stram.StramLocalCluster;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.TextMessage;
@@ -30,18 +34,22 @@ public class ActiveMQInputOperatorTest
   private static final Logger logger = LoggerFactory.getLogger(ActiveMQInputOperatorTest.class);
   private static BrokerService broker;
   static int debugMessageCount = 5;  // for debug, display first few messages
-  public HashMap<Integer, String> receivedData = new HashMap<Integer, String>();
-  private int receivedCount = 0;
+  public static HashMap<Integer, String> receivedData = new HashMap<Integer, String>();
+  private static int receivedCount = 0;
+  static HashMap<String, List<?>> collections = new HashMap<String, List<?>>();
 
   /**
-   * Concrete class of ActiveMQInputOperator for testing.
+   * An example Concrete class of ActiveMQInputOperator for testing.
    */
-  private final class ActiveMQInputOperator extends AbstractActiveMQInputOperator<String>
+  public static class ActiveMQInputOperator extends AbstractActiveMQInputOperator<String>
   {
+    @OutputPortFieldAnnotation(name = "outputPort")
+    public final transient DefaultOutputPort<String> outputPort = new DefaultOutputPort<String>(this);
+
     @Override
     protected String getTuple(Message message) throws JMSException
     {
-     // outputPort.emit(message); should fail
+      // outputPort.emit(message); should fail
       //logger.debug("getTuple() got called from {}", this);
       if (message instanceof TextMessage) {
         String msg = ((TextMessage)message).getText();
@@ -70,8 +78,9 @@ public class ActiveMQInputOperatorTest
     @Override
     public void replayTuples(long windowId)
     {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
+      int count = 0;
+      while (tuples.hasNext()) {
+        //outputPort.emit(tuples.next());
 
     @Override
     public void emitTuples(long windowId)
@@ -104,16 +113,38 @@ public class ActiveMQInputOperatorTest
   @AfterClass
   public static void tearDownClass() throws Exception
   {
-    //amqConfig.cleanup();
-    //broker.deleteAllMessages();
-    //broker.removeDestination(amqConfig.getDestination());
     broker.stop();
-
   }
 
-  @After
-  public void endTest() throws IOException
+  public class CollectorInputPort<T> extends DefaultInputPort<T>
   {
+    ArrayList<T> list;
+    final String id;
+
+    public CollectorInputPort(String id, Operator module)
+    {
+      super(module);
+      this.id = id;
+    }
+
+    @Override
+    public void process(T tuple)
+    {
+      list.add(tuple);
+    }
+
+    @Override
+    public void setConnected(boolean flag)
+    {
+      if (flag) {
+        collections.put(id, list = new ArrayList<T>());
+      }
+    }
+  }
+
+  public class CollectorModule<T> extends BaseOperator
+  {
+    public final transient CollectorInputPort<T> inputPort = new CollectorInputPort<T>("myInput", this);
   }
 
   /**
@@ -128,7 +159,7 @@ public class ActiveMQInputOperatorTest
    *
    * @throws Exception
    */
-  @Test
+  // @Test
   @SuppressWarnings("SleepWhileInLoop")
   public void testActiveMQInputOperator() throws Exception
   {
@@ -164,7 +195,7 @@ public class ActiveMQInputOperatorTest
     config.setVerbose(true);
 
 
-  //  node.outputPort.setSink(outSink);
+    //  node.outputPort.setSink(outSink);
     node.setup(new OperatorConfiguration());
 
     // Allow some time to receive data.
@@ -200,11 +231,13 @@ public class ActiveMQInputOperatorTest
     }
     generator.closeConnection();
 
-    // The output port of node should be connected to a Test sink.
-    TestSink<String> outSink = new TestSink<String>();
-    ActiveMQInputOperator node = new ActiveMQInputOperator();
+
+
+
+    DAG dag = new DAG();
+    ActiveMQInputOperator node = dag.addOperator("AMQ message consumer", ActiveMQInputOperator.class);
     ActiveMQConsumerBase config = node.getAmqConsumer();
-    //config.setUser("");
+    config.setUser("");
     config.setPassword("");
     config.setUrl("tcp://localhost:61617");
     config.setAckMode("CLIENT_ACKNOWLEDGE");
@@ -216,33 +249,35 @@ public class ActiveMQInputOperatorTest
     config.setBatch(10);
     config.setTopic(false);
     config.setDurable(false);
-    config.setTransacted(true);
+    config.setTransacted(true); // this flag is different than prior test
     config.setVerbose(true);
 
+    CollectorModule<String> collector = dag.addOperator("TestMessageCollector", new CollectorModule<String>());
 
-//    node.outputPort.setSink(outSink);
-    node.setup(new OperatorConfiguration());
+    dag.addStream("AMQ message", node.outputPort, collector.inputPort).setInline(true);
 
-    // Allow some time to receive data.
-    Thread.sleep(2000);
+    final StramLocalCluster lc = new StramLocalCluster(dag);
+    lc.setHeartbeatMonitoringEnabled(false);
 
-    // Check values send vs received.
-    int totalCount = receivedData.size();
-    Assert.assertEquals("Number of emitted tuples", generator.sendCount, totalCount);
-    logger.debug(String.format("Number of emitted tuples: %d", totalCount));
+    new Thread("LocalClusterController")
+    {
+      @Override
+      public void run()
+      {
+        try {
+          Thread.sleep(1000);
+        }
+        catch (InterruptedException ex) {
+        }
 
-    // Check contents only for first few.
-    for (int i = 1; i <= debugMessageCount & i < totalCount; ++i) {
-      Assert.assertEquals("Message content", generator.sendData.get(i), receivedData.get(new Integer(i)));
-      logger.debug(String.format("Received: %s", receivedData.get(new Integer(i))));
-    }
-    receivedData.clear();
+        lc.shutdown();
+      }
+    }.start();
+
+    lc.run();
+
+    Assert.assertEquals("Collections size", 1, collections.size());
+    Assert.assertEquals("Tuple count", 10, collections.get(collector.inputPort.id).size());
     config.cleanup();
-
-  }
-
-  //@Test
-  public void test3() throws Exception
-  {
   }
 }
