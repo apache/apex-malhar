@@ -41,9 +41,9 @@ import org.slf4j.LoggerFactory;
 public class EventGeneratorBenchmark
 {
   private static Logger log = LoggerFactory.getLogger(EventGeneratorBenchmark.class);
-  int count = 0;
+  static int count = 0;
 
-  public class CollectorInputPort<T> extends DefaultInputPort<T>
+  public static class CollectorInputPort<T> extends DefaultInputPort<T>
   {
     final String id;
 
@@ -65,7 +65,7 @@ public class EventGeneratorBenchmark
     return count;
   }
 
-  public class CollectorOperator extends BaseOperator
+  public static class CollectorOperator extends BaseOperator
   {
     public final transient CollectorInputPort<String> sdata = new CollectorInputPort<String>("sdata", this);
   }
@@ -80,7 +80,7 @@ public class EventGeneratorBenchmark
   {
     DAG dag = new DAG();
     EventGenerator node = dag.addOperator("eventgen", EventGenerator.class);
-    CollectorOperator collector = dag.addOperator("data collector", new CollectorOperator());
+    CollectorOperator collector = dag.addOperator("data collector", CollectorOperator.class);
     dag.addStream("stest", node.string_data, collector.sdata).setInline(true);
 
 
@@ -99,7 +99,7 @@ public class EventGeneratorBenchmark
 
     node.setKeys(key);
     node.setTuplesBlast(50000000);
-    
+
     final StramLocalCluster lc = new StramLocalCluster(dag);
     lc.setHeartbeatMonitoringEnabled(false);
 
