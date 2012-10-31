@@ -12,8 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Takes a in_stream <b>in_data</b> and filters the tuples. Only sends out tuples as per filter numbers provided
@@ -47,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * <b>filter</b> The first number has to be less than the second and both have to be positive<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * This node has been benchmarked at over 15 million tuples/second in local/inline mode<br>
+ * This node has been benchmarked at over 20 million tuples/second in local/inline mode<br>
  *<br>
  *
  * @author amol

@@ -5,8 +5,8 @@
 package com.malhartech.lib.testbench;
 
 import com.malhartech.annotation.InjectConfig;
-import com.malhartech.api.InputOperator;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.api.InputOperator;
 import com.malhartech.api.OperatorConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;

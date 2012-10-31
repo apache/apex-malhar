@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,6 +75,7 @@ public class FilteredEventClassifierBenchmark
    * Test node logic emits correct results
    */
   @Test
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     FilteredEventClassifier<Double> node = new FilteredEventClassifier<Double>();
@@ -116,7 +118,7 @@ public class FilteredEventClassifierBenchmark
     node.setTotalFilter(100);
     node.setup(new OperatorConfiguration());
 
-    int numTuples = 1000000;
+    int numTuples = 10000000;
 
     HashMap<String, Double> input = new HashMap<String, Double>();
     int sentval = 0;

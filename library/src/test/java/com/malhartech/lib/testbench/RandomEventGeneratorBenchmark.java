@@ -10,11 +10,12 @@ import com.malhartech.stram.StramLocalCluster;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Functional test for {@link com.malhartech.lib.testbench.RandomEventGenerator}<p>
+ * Performance test for {@link com.malhartech.lib.testbench.RandomEventGenerator}<p>
  * <br>
  * Tests both string and integer. Sets range to 0 to 999 and generates random numbers. With millions
  * of tuple all the values are covered<br>
@@ -26,9 +27,9 @@ import org.slf4j.LoggerFactory;
  * DRC validation is done<br>
  * <br>
  */
-public class RandomEventGeneratorTest
+public class RandomEventGeneratorBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(RandomEventGeneratorTest.class);
+  private static Logger log = LoggerFactory.getLogger(RandomEventGeneratorBenchmark.class);
   static int icount = 0;
   static int imax = -1;
   static int imin = -1;
@@ -96,30 +97,16 @@ public class RandomEventGeneratorTest
    * Test node logic emits correct results
    */
   @Test
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
-    testSchemaNodeProcessing(true, true);
-    testSchemaNodeProcessing(true, false);
-    testSchemaNodeProcessing(false, true);
-  }
-
-  public void testSchemaNodeProcessing(boolean dostring, boolean dointeger) throws Exception
-  {
-    if (!dostring && !dointeger) {
-      return; // at least one has to be used
-    }
     DAG dag = new DAG();
     RandomEventGenerator node = dag.addOperator("randomgen", new RandomEventGenerator());
     CollectorOperator collector = dag.addOperator("data collector", new CollectorOperator());
     clear();
 
-    if (dostring) {
-      dag.addStream("tests", node.string_data, collector.sdata).setInline(true);
-    }
-
-    if (dointeger) {
-      dag.addStream("testi", node.integer_data, collector.idata).setInline(true);
-    }
+    dag.addStream("tests", node.string_data, collector.sdata).setInline(true);
+    dag.addStream("testi", node.integer_data, collector.idata).setInline(true);
 
     node.setMinvalue(0);
     node.setMaxvalue(999);
@@ -134,7 +121,7 @@ public class RandomEventGeneratorTest
       public void run()
       {
         try {
-          Thread.sleep(1000);
+          Thread.sleep(10000);
           lc.shutdown();
         }
         catch (InterruptedException ex) {

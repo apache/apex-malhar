@@ -4,9 +4,9 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.api.InputOperator;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.api.InputOperator;
 import com.malhartech.api.OperatorConfiguration;
 
 /**
@@ -16,8 +16,6 @@ import com.malhartech.api.OperatorConfiguration;
  * The load is generated as per config parameters. This class is mainly meant for testing nodes by creating a random number within
  * a range at a very high throughput. This node does not need to be windowed. It would just create tuple stream upto the limit set
  * by the config parameters.<br>
- * <br>
- * This node has been benchmarked at over 12 million tuples/second for String objects in local/inline mode<br>
  * <br>
  * <b>Tuple Schema</b>: Has two choices Integer, or String<br><br>
  * <b>Port Interface</b>:It has only one output port "data" and has no input ports<br><br>
@@ -34,7 +32,9 @@ import com.malhartech.api.OperatorConfiguration;
  * <b>max_value</b> has to be an integer and has to be >= min_value<br>
  * <b>tuples_burst</b>If specified must be an integer<br>
  * <br>
- *
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * This node has been benchmarked at over 10 million tuples/second in local/inline mode<br>
+ *<br>
  * Compile time error checking includes<br>
  * <br>
  *
@@ -106,7 +106,7 @@ public class RandomEventGenerator extends BaseOperator implements InputOperator
     while (i < tuples_blast) {
       int rval = min_value + random.nextInt(range);
       if (integer_data.isConnected()) {
-        integer_data.emit(new Integer(rval));
+        integer_data.emit(rval);
       }
       if (string_data.isConnected()) {
         string_data.emit(Integer.toString(rval));

@@ -103,8 +103,6 @@ public class EventGeneratorTest
     }
     dag.addStream("hcest", node.count, collector.count).setInline(true);
 
-
-
     final StramLocalCluster lc = new StramLocalCluster(dag);
     lc.setHeartbeatMonitoringEnabled(false);
 
