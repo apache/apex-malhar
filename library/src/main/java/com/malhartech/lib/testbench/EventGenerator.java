@@ -64,31 +64,25 @@ public class EventGenerator implements InputOperator
   public static final String OPORT_COUNT_TUPLE_TUPLES_PERSEC = "tuples_per_sec";
   public static final String OPORT_COUNT_TUPLE_WINDOWID = "window_id";
   protected static final int TUPLES_BLAST_DEFAULT = 10000;
-  private transient int tuples_blast = TUPLES_BLAST_DEFAULT;
-  protected transient int maxCountOfWindows = Integer.MAX_VALUE;
+  private int tuples_blast = TUPLES_BLAST_DEFAULT;
+  protected int maxCountOfWindows = Integer.MAX_VALUE;
   HashMap<String, Double> keys = new HashMap<String, Double>();
   HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();
   ArrayList<Integer> weights;
   int total_weight = 0;
   private transient final Random random = new Random();
   public static final int ROLLING_WINDOW_COUNT_DEFAULT = 1;
-  private int rolling_window_count = ROLLING_WINDOW_COUNT_DEFAULT;
-
+  private  int rolling_window_count = ROLLING_WINDOW_COUNT_DEFAULT;
   transient long[] tuple_numbers = null;
   transient long[] time_numbers = null;
   transient int tuple_index = 0;
   transient int count_denominator = 1;
   transient int count_windowid = 0;
   private transient long windowStartTime = 0;
-  private transient int generatedTupleCount = 0;
-
-  @NotNull
-  @InjectConfig(key = "keys")
-  private String[] key_keys = null;
-  @InjectConfig(key = "weights")
-  private String[] key_weights = null;
-  @InjectConfig(key = "values")
-  private String[] key_values = null;
+  private transient int generatedTupleCount;
+  private String[] key_keys = new String[0];
+  private String[] key_weights = new String[0];
+  private String[] key_values = new String[0];
 
   /**
    * Sets up all the config parameters. Assumes checking is done and has passed
