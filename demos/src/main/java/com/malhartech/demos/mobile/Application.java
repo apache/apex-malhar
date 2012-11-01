@@ -27,7 +27,7 @@ import com.malhartech.lib.testbench.SeedEventClassifier;
 import com.malhartech.lib.testbench.SeedEventGenerator;
 
 /**
- * Example of application configuration in Java using {@link com.malhartech.stram.conf.NewDAGBuilder}.<p>
+ * Mobile Demo Application.<p>
  */
 public class Application implements ApplicationFactory
 {
@@ -167,7 +167,7 @@ public class Application implements ApplicationFactory
         u = new URI("http://" + ajaxServerAddr + "/channel/mobile/phoneLocationQuery");
       }
       catch (URISyntaxException ex) {
-        java.util.logging.Logger.getLogger(com.malhartech.demos.ads.Application.class.getName()).log(Level.SEVERE, null, ex);
+        throw new IllegalArgumentException(ex);
       }
 
       phoneLocationQuery.setUrl(u);
@@ -177,6 +177,7 @@ public class Application implements ApplicationFactory
       // for testing purposes without server
       ConsoleOutputOperator<HashMap<String, Object>> phoneconsole = getConsoleOperator(dag, "phoneLocationQueryResult");
       dag.addStream("consoledata", indexMap.console, phoneconsole.input).setInline(true);
+
       indexMap.setPhoneQuery("idBlah", "9999988");
       indexMap.setPhoneQuery("id102", "9999998");
       indexMap.setLocationQuery("loc1", "34,87");

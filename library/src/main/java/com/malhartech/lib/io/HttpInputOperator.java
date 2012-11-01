@@ -65,7 +65,7 @@ public class HttpInputOperator extends BaseInputOperator<Map<String, String>> im
     wsClient = Client.create();
     wsClient.setFollowRedirects(true);
     wsClient.setReadTimeout(readTimeoutMillis);
-    resource = wsClient.resource(resourceUrl);
+    resource = wsClient.resource(resourceUrl.toString()); // side step "not absolute URL" after serialization
     LOG.info("URL: {}", resourceUrl);
   }
 

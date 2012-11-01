@@ -69,7 +69,7 @@ public class HttpOutputOperator<T> extends BaseOperator
   {
     wsClient = Client.create();
     wsClient.setFollowRedirects(true);
-    resource = wsClient.resource(resourceUrl.toString());
+    resource = wsClient.resource(resourceUrl.toString()); // side step "not absolute URL" after serialization
     LOG.info("URL: {}", resourceUrl);
   }
 
