@@ -4,9 +4,17 @@
  */
 package com.malhartech.demos.ads;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.hadoop.conf.Configuration;
+
 import com.malhartech.api.DAG;
 import com.malhartech.dag.ApplicationFactory;
 import com.malhartech.lib.io.ConsoleOutputOperator;
+import com.malhartech.lib.io.HdfsOutputOperator;
 import com.malhartech.lib.io.HttpOutputOperator;
 import com.malhartech.lib.math.Margin;
 import com.malhartech.lib.math.Quotient;
@@ -16,14 +24,6 @@ import com.malhartech.lib.testbench.EventClassifier;
 import com.malhartech.lib.testbench.EventGenerator;
 import com.malhartech.lib.testbench.FilteredEventClassifier;
 import com.malhartech.lib.testbench.ThroughputCounter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.hadoop.conf.Configuration;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 /**
@@ -99,22 +99,10 @@ public class Application implements ApplicationFactory
     // output to HTTP server when specified in environment setting
     Operator ret;
     String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
-    if (serverAddr != null) {
-      HttpOutputOperator oper = b.addOperator(name, HttpOutputOperator.class);
-      URI u = null;
-      try {
-        u = new URI("http://" + serverAddr + "/channel/" + name);
-      }
-      catch (URISyntaxException ex) {
-        Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
-      }
-      oper.setResourceURL(u);
-      ret = oper;
-    }
-    catch (URISyntaxException ex) {
-      throw new IllegalArgumentException(ex);
-    }
-    return ret;
+    HttpOutputOperator<HashMap<String,Double>> oper = b.addOperator(name, new HttpOutputOperator<HashMap<String,Double>>());
+    URI u = URI.create("http://" + serverAddr + "/channel/" + name);
+    oper.setResourceURL(u);
+    return oper;
   }
 
   private HttpOutputOperator<HashMap<String,Number>> getHttpOutputNumberOperator(DAG b, String name)
@@ -122,13 +110,7 @@ public class Application implements ApplicationFactory
     // output to HTTP server when specified in environment setting
     String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
     HttpOutputOperator<HashMap<String,Number>> oper = b.addOperator(name, new HttpOutputOperator<HashMap<String,Number>>());
-    URI u = null;
-    try {
-      u = new URI("http://" + serverAddr + "/channel/" + name);
-    }
-    catch (URISyntaxException ex) {
-      Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
-    }
+    URI u = URI.create("http://" + serverAddr + "/channel/" + name);
     oper.setResourceURL(u);
     return oper;
   }
@@ -148,19 +130,6 @@ public class Application implements ApplicationFactory
     oper.setStringFormat(name + ": %s");
     return oper;
   }
-/*
-  private DAG.InputPort getViewsToHdfsOperatorInstance(DAG dag, String operatorName)
-  {
-    Map<String, String> props = getOperatorInstanceProperties(dag.getConf(), this.getClass(), operatorName);
-    OperatorInstance o = dag.addOperator(operatorName, HdfsOutputModule.class);
-    o.setProperty(HdfsOutputModule.KEY_APPEND, "false");
-    o.setProperty(HdfsOutputModule.KEY_FILEPATH, "file:///tmp/adsdemo/views-%(moduleId)-part%(partIndex)");
-    for (Map.Entry<String, String> e: props.entrySet()) {
-      o.setProperty(e.getKey(), e.getValue());
-    }
-    return o.getInput(HdfsOutputModule.INPUT);
-  }
-*/
 
   public Operator getSumOperator(String name, DAG b, String debug)
   {
@@ -276,16 +245,15 @@ public class Application implements ApplicationFactory
     Operator merge = getStreamMerger("countmerge", dag);
     Operator tuple_counter = getThroughputCounter("tuple_counter", dag);
 
-    dag.addStream("views", viewGen.getOutput(EventGenerator.OPORT_DATA), adviews.getInput(EventClassifier.IPORT_IN_DATA)).setInline(true);
-    StreamDecl viewsAggStream = dag.addStream("viewsaggregate", adviews.getOutput(EventClassifier.OPORT_OUT_DATA), insertclicks.getInput(FilteredEventClassifier.IPORT_IN_DATA),
-                                              viewAggregate.getInput(Sum.IPORT_DATA)).setInline(true);
+    dag.addStream("views", viewGen.hash_data, adviews.event).setInline(true);
+    DAG.StreamDecl viewsAggStream = dag.addStream("viewsaggregate", adviews.data, insertclicks.data, viewAggregate.data).setInline(true);
 
-    /*
     if (conf.getBoolean(P_enableHdfs, false)) {
-      DAG.InputPort viewsToHdfs = getViewsToHdfsOperatorInstance(dag, "viewsToHdfs");
-      viewsAggStream.addSink(viewsToHdfs);
+      HdfsOutputOperator<HashMap<String, Double>> viewsToHdfs = dag.addOperator("viewsToHdfs", new HdfsOutputOperator<HashMap<String, Double>>());
+      viewsToHdfs.append = false;
+      viewsToHdfs.filePath = "file:///tmp/adsdemo/views-%(operatorId)-part%(partIndex)";
+      viewsAggStream.addSink(viewsToHdfs.input);
     }
-*/
 
     dag.addStream("clicksaggregate", insertclicks.filter, clickAggregate.data).setInline(true);
     dag.addStream("adviewsdata", viewAggregate.sum, cost.data).setInline(allInline);;
