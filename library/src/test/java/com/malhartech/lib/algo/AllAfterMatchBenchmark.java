@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.dag.OperatorContext;
 import com.malhartech.dag.TestCountAndLastTupleSink;
 import java.util.HashMap;
 import org.junit.Test;
@@ -39,7 +39,7 @@ public class AllAfterMatchBenchmark
   {
     TestCountAndLastTupleSink allSink = new TestCountAndLastTupleSink();
     oper.allafter.setSink(allSink);
-    oper.setup(new OperatorConfiguration());
+    oper.setup(new OperatorContext("irrlevant", null));
     oper.setKey("a");
     oper.setValue(3.0);
     oper.setTypeEQ();

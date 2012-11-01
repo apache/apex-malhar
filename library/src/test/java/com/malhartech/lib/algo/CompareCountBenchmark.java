@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.dag.TestCountAndLastTupleSink;
 import java.util.HashMap;
 import junit.framework.Assert;
@@ -44,7 +44,7 @@ public class CompareCountBenchmark
     oper.count.setSink(countSink);
     oper.except.setSink(exceptSink);
 
-    oper.setup(new OperatorConfiguration());
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
     oper.setKey("a");
     oper.setValue(3.0);
     oper.setTypeEQ();

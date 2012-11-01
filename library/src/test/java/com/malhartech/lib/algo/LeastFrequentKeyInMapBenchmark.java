@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.dag.TestCountAndLastTupleSink;
 import com.malhartech.dag.TestSink;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class LeastFrequentKeyInMapBenchmark
     TestCountAndLastTupleSink listSink = new TestCountAndLastTupleSink();
     oper.least.setSink(matchSink);
     oper.list.setSink(listSink);
-    oper.setup(new OperatorConfiguration());
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
     oper.beginWindow();
     HashMap<String, Integer> amap = new HashMap<String, Integer>(1);

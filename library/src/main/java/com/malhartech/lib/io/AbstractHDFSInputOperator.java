@@ -5,9 +5,10 @@
 package com.malhartech.lib.io;
 
 import com.malhartech.api.BaseOperator;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.InputOperator;
-import com.malhartech.api.OperatorConfiguration;
 import java.io.IOException;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -30,7 +31,7 @@ public abstract class AbstractHDFSInputOperator extends BaseOperator implements 
   private static final Logger logger = LoggerFactory.getLogger(AbstractHDFSInputOperator.class);
   protected FSDataInputStream input;
   private boolean skipEndStream = false;
-  private FileSystem fs;
+  private transient FileSystem fs;
   private Path filepath;
 
   protected abstract void emitRecord(FSDataInputStream input);
@@ -57,11 +58,10 @@ public abstract class AbstractHDFSInputOperator extends BaseOperator implements 
   }
 
   @Override
-  public void setup(OperatorConfiguration config)
+  public void setup(OperatorContext context)
   {
     try {
-      fs = FileSystem.get(config);
-      filepath = new Path(config.get("filepath"));
+      fs = FileSystem.get(new Configuration());
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
@@ -85,7 +85,7 @@ public abstract class AbstractHDFSInputOperator extends BaseOperator implements 
       logger.error(ex.getLocalizedMessage());
     }
     fs = null;
-    filepath = null;
+    setFilepath(null);
   }
 
     @Override
@@ -104,5 +104,13 @@ public abstract class AbstractHDFSInputOperator extends BaseOperator implements 
   public void replayTuples(long windowId)
   {
     throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  /**
+   * @param filepath the filepath to set
+   */
+  public void setFilepath(Path filepath)
+  {
+    this.filepath = filepath;
   }
 }

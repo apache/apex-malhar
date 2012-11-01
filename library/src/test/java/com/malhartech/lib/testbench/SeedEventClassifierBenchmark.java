@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import java.util.HashMap;
@@ -85,7 +85,7 @@ public class SeedEventClassifierBenchmark
     oper.setKey2("y");
     oper.setSeedstart(0);
     oper.setSeedend(1000);
-    oper.setup(new OperatorConfiguration());
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
     oper.beginWindow();
 

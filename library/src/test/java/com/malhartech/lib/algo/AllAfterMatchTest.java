@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.dag.TestSink;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +38,7 @@ public class AllAfterMatchTest
   {
     TestSink<HashMap<String, Number>> allSink = new TestSink<HashMap<String, Number>>();
     oper.allafter.setSink(allSink);
-    oper.setup(new OperatorConfiguration());
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
     oper.setKey("a");
     oper.setValue(3.0);
     oper.setTypeEQ();

@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.dag.TestSink;
 import com.malhartech.lib.util.MutableInteger;
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ public class LeastFrequentKeyValueBenchmark
     LeastFrequentKeyValue<String, Integer> oper = new LeastFrequentKeyValue<String, Integer>();
     TestSink matchSink = new TestSink();
     oper.least.setSink(matchSink);
-    oper.setup(new OperatorConfiguration());
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
     oper.beginWindow();
     HashMap<String, Integer> amap = new HashMap<String, Integer>(1);

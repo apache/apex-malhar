@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.TestSink;
 import com.malhartech.dag.Tuple;
@@ -44,7 +44,7 @@ public class SumBenchmark
 
     int numTuples = 100000000;
     // Not needed, but still setup is being called as a matter of discipline
-    oper.setup(new OperatorConfiguration());
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
     oper.beginWindow(); //
 
     HashMap<String, Double> input = new HashMap<String, Double>();

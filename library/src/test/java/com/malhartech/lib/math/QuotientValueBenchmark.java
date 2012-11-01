@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import java.util.ArrayList;
@@ -49,7 +49,7 @@ public class QuotientValueBenchmark
     oper.quotient.setSink(quotientSink);
 
     // Not needed, but still setup is being called as a matter of discipline
-    oper.setup(new OperatorConfiguration());
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
     oper.setMult_by(2);
 
     int numTuples = 100000000;

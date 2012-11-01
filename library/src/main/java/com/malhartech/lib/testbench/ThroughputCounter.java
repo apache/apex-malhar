@@ -6,9 +6,9 @@ package com.malhartech.lib.testbench;
 
 
 import com.malhartech.api.BaseOperator;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.OperatorConfiguration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -73,7 +73,7 @@ public class ThroughputCounter<K> extends BaseOperator
   }
 
   @Override
-  public void setup(OperatorConfiguration config)
+  public void setup(OperatorContext context)
   {
     windowStartTime = 0;
     if (rolling_window_count != 1) { // Initialized the tuple_numbers

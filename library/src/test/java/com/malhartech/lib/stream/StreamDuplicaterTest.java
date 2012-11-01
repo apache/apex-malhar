@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.stream;
 
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.dag.TestCountSink;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -31,7 +31,7 @@ public class StreamDuplicaterTest {
 
       oper.out1.setSink(mergeSink1);
       oper.out2.setSink(mergeSink2);
-      oper.setup(new OperatorConfiguration());
+      oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
       oper.beginWindow();
       int numtuples = 1000;

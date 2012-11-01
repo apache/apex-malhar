@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.api.BaseInputOperator;
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -42,7 +42,6 @@ import com.sun.jersey.api.client.WebResource;
 public class HttpInputOperator extends BaseInputOperator<Map<String, String>> implements Runnable
 {
   private static final Logger LOG = LoggerFactory.getLogger(HttpInputOperator.class);
-
   /**
    * Timeout interval for reading from server. 0 or negative indicates no timeout.
    */
@@ -55,13 +54,13 @@ public class HttpInputOperator extends BaseInputOperator<Map<String, String>> im
   private transient Client wsClient;
   private transient WebResource resource;
 
-
   public void setUrl(URI u)
   {
     resourceUrl = u;
   }
+
   @Override
-  public void setup(OperatorConfiguration config)
+  public void setup(OperatorContext context)
   {
     wsClient = Client.create();
     wsClient.setFollowRedirects(true);

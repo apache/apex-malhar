@@ -5,9 +5,9 @@
 package com.malhartech.lib.testbench;
 
 import com.malhartech.api.BaseOperator;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.OperatorConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -165,7 +165,7 @@ public class EventClassifier extends BaseOperator
   }
 
    @Override
-  public void setup(OperatorConfiguration config)
+  public void setup(OperatorContext context)
   {
     noweight = new ArrayList<Integer>();
     for (int i = 0; i < keys.size(); i++) {

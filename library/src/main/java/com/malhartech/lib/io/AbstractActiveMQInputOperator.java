@@ -4,10 +4,9 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.api.BaseOperator;
 import com.malhartech.api.InputOperator;
-import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.util.CircularBuffer;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.Context.OperatorContext;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import org.slf4j.Logger;
@@ -60,7 +59,7 @@ public abstract class AbstractActiveMQInputOperator<T> extends BaseOperator impl
    * @param config
    */
   @Override
-  public void setup(OperatorConfiguration config)
+  public void setup(OperatorContext context)
   {
     try {
       logger.debug("setup got called from {}", this);

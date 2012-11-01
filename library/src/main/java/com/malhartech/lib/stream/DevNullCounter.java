@@ -7,7 +7,7 @@ package com.malhartech.lib.stream;
 import com.malhartech.annotation.InjectConfig;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import javax.validation.constraints.Min;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +71,7 @@ public class DevNullCounter<T> extends BaseOperator
    * @param config
    */
   @Override
-  public void setup(OperatorConfiguration config)
+  public void setup(OperatorContext context)
   {
     windowStartTime = 0;
     if (rollingwindowcount != 1) { // Initialized the tuple_numbers

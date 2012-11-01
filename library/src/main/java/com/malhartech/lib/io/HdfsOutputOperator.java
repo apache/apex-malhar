@@ -16,9 +16,10 @@ import org.apache.hadoop.fs.Path;
 import org.slf4j.LoggerFactory;
 
 import com.malhartech.api.BaseOperator;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.dag.SerDe;
+import org.apache.hadoop.conf.Configuration;
 
 /**
  * Adapter for writing to HDFS<p>
@@ -139,11 +140,11 @@ public class HdfsOutputOperator<T> extends BaseOperator
    * @param config
    */
   @Override
-  public void setup(OperatorConfiguration config)
+  public void setup(OperatorContext context)
   {
     try {
       Path filepath = subFilePath(this.fileIndex);
-      fs = FileSystem.get(filepath.toUri(), config);
+      fs = FileSystem.get(filepath.toUri(), new Configuration());
 
       if (bytesPerFile > 0) {
         // ensure file path generates unique names

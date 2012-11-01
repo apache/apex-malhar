@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import java.util.ArrayList;
@@ -64,7 +64,7 @@ public class RangeBenchmark {
     {
       TestSink rangeSink = new TestSink();
       node.range.setSink(rangeSink);
-      node.setup(new OperatorConfiguration());
+      node.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
       HashMap<String, Number> input = new HashMap<String, Number>();
       int numtuples = 100000000;

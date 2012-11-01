@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import java.util.HashMap;
@@ -63,7 +63,7 @@ public class ThroughputCounterTest {
     TestCountSink countSink = new TestCountSink();
     node.count.setSink(countSink);
     node.setRollingWindowCount(5);
-    node.setup(new OperatorConfiguration());
+    node.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
     node.beginWindow();
     HashMap<String, Integer> input;

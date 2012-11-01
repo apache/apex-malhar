@@ -7,7 +7,7 @@ package com.malhartech.lib.stream;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;

@@ -4,7 +4,7 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import junit.framework.Assert;
@@ -131,7 +131,7 @@ public class ActiveMQOutputOperatorTest
     amqConfig.setTransacted(false);
     amqConfig.setVerbose(true);
 
-    node.setup(new OperatorConfiguration());
+    node.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
     long numTuple = amqConfig.getMaximumSendMessages();
     for (int i = 0; i < numTuple; i++) {

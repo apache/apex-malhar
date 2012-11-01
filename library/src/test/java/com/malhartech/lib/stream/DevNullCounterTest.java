@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.stream;
 
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.lib.testbench.EventGenerator;
 import com.malhartech.lib.testbench.ThroughputCounter;
 import java.util.HashMap;
@@ -38,7 +38,7 @@ public class DevNullCounterTest {
   {
     DevNullCounter oper = new DevNullCounter();
     oper.setRollingwindowcount(5);
-    oper.setup(new OperatorConfiguration());
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
 
     oper.beginWindow();

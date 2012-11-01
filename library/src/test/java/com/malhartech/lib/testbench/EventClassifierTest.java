@@ -4,7 +4,7 @@
 package com.malhartech.lib.testbench;
 
 import com.esotericsoftware.minlog.Log;
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import java.util.ArrayList;
@@ -117,7 +117,7 @@ public class EventClassifierTest {
       list.add(35);
       wmap.put("id", list);
       node.setKeyWeights(wmap);
-      node.setup(new OperatorConfiguration());
+      node.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
       HashMap<String, Double> input = new HashMap<String, Double>();
       int sentval = 0;
@@ -157,7 +157,7 @@ public class EventClassifierTest {
       nwnode.data.setSink(classifySink);
       nwnode.setKeyMap(keymap);
       nwnode.setOperationReplace();
-      nwnode.setup(new OperatorConfiguration());
+      nwnode.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
       sentval = 0;
       for (int i = 0; i < numTuples; i++) {
@@ -200,7 +200,7 @@ public class EventClassifierTest {
       nvnode.data.setSink(classifySink);
       nvnode.setKeyMap(keymap);
       nvnode.setOperationReplace();
-      nvnode.setup(new OperatorConfiguration());
+      nvnode.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
       sentval = 0;
       for (int i = 0; i < numTuples; i++) {

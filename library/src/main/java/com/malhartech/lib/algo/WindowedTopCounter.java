@@ -6,6 +6,7 @@ package com.malhartech.lib.algo;
  */
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.*;
+import com.malhartech.api.Context.OperatorContext;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -43,25 +44,25 @@ public class WindowedTopCounter<T> extends BaseOperator
   };
   @InputPortFieldAnnotation(name = "output")
   public final transient DefaultOutputPort<Map<T, Integer>> output = new DefaultOutputPort<Map<T, Integer>>(this);
-  private transient int windows;
-  private transient int topCount;
+  private int windows;
+  private int topCount;
   private transient PriorityQueue<WindowedHolder<T>> topCounter;
   private HashMap<T, WindowedHolder> objects;
 
-  @Override
-  public void setup(OperatorConfiguration config)
+  public void setSlidingWindowWidth(long slidingWindowWidth, int dagWindowWidth)
   {
-    topCount = config.getInt("topCount", topCount);
+    windows = (int)(slidingWindowWidth / dagWindowWidth);
+    if (slidingWindowWidth % dagWindowWidth != 0) {
+      logger.warn("slidingWindowWidth(" + slidingWindowWidth + ") is not exact multiple of dagWindowWidth(" + dagWindowWidth + ")");
+    }
+  }
+
+  @Override
+  public void setup(OperatorContext context)
+  {
     topCounter = new PriorityQueue<WindowedHolder<T>>(this.topCount, new TopSpotComparator());
     objects = new HashMap<T, WindowedHolder>(topCount);
-
-    long windowWidth = config.getInt("windowWidth", 500);
-    long samplePeriod = config.getInt("samplePeriod", 300000);
-    windows = (int)(samplePeriod / windowWidth);
-
-    if (samplePeriod % windowWidth != 0) {
-      logger.warn("samplePeriod(" + samplePeriod + ") is not exact multiple of windowWidth(" + windowWidth + ")");
-    }
+    throw new RuntimeException("the values which are being passed to setup need to looked at again as I changed the code here!");
   }
 
   @Override

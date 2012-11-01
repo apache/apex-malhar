@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.dag.TestCountAndLastTupleSink;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +37,7 @@ public class MarginBenchmark
     TestCountAndLastTupleSink marginSink = new TestCountAndLastTupleSink();
 
     oper.margin.setSink(marginSink);
-    oper.setup(new OperatorConfiguration());
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
     oper.beginWindow();
     HashMap<String, Number> ninput = new HashMap<String, Number>();
     HashMap<String, Number> dinput = new HashMap<String, Number>();

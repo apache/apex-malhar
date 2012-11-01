@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.TestCountAndLastTupleSink;
 import com.malhartech.dag.Tuple;
@@ -35,7 +35,7 @@ public class MinValueTest
     oper.min.setSink(minSink);
 
     // Not needed, but still setup is being called as a matter of discipline
-    oper.setup(new OperatorConfiguration());
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
     oper.beginWindow(); //
 
     Double a = new Double(2.0);

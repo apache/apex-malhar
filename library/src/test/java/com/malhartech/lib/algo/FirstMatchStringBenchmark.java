@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.dag.TestCountAndLastTupleSink;
 import java.util.HashMap;
 import junit.framework.Assert;
@@ -32,7 +32,7 @@ public class FirstMatchStringBenchmark
     FirstMatchString<String> oper = new FirstMatchString<String>();
     TestCountAndLastTupleSink matchSink = new TestCountAndLastTupleSink();
     oper.first.setSink(matchSink);
-    oper.setup(new OperatorConfiguration());
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
     oper.setKey("a");
     oper.setValue(3);
     oper.setTypeEQ();

@@ -4,8 +4,7 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.*;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.dag.TestSink;
 import com.malhartech.stram.StramLocalCluster;
 import java.io.IOException;
@@ -195,8 +194,8 @@ public class ActiveMQInputOperatorTest
     config.setVerbose(true);
 
 
-    //  node.outputPort.setSink(outSink);
-    node.setup(new OperatorConfiguration());
+  //  node.outputPort.setSink(outSink);
+    node.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
     // Allow some time to receive data.
     Thread.sleep(2000);
@@ -254,7 +253,8 @@ public class ActiveMQInputOperatorTest
 
     CollectorModule<String> collector = dag.addOperator("TestMessageCollector", new CollectorModule<String>());
 
-    dag.addStream("AMQ message", node.outputPort, collector.inputPort).setInline(true);
+//    node.outputPort.setSink(outSink);
+    node.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
     final StramLocalCluster lc = new StramLocalCluster(dag);
     lc.setHeartbeatMonitoringEnabled(false);

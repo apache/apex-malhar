@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.TestSink;
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ public class InvertIndexBenchmark
 
     Sink inSink = oper.data.getSink();
     oper.index.setSink(indexSink);
-    oper.setup(new OperatorConfiguration());
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
     HashMap<String, String> input = new HashMap<String, String>();
     oper.beginWindow();

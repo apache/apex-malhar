@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.dag.TestCountAndLastTupleSink;
 import com.malhartech.dag.TestSink;
 import java.util.HashMap;
@@ -38,7 +38,7 @@ public class QuotientTest
     TestCountAndLastTupleSink quotientSink = new TestCountAndLastTupleSink();
 
     oper.quotient.setSink(quotientSink);
-    oper.setup(new OperatorConfiguration());
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
     oper.setMult_by(2);
 
     oper.beginWindow(); //

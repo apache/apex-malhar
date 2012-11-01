@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.malhartech.api.DAG;
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.dag.ApplicationFactory;
 import com.malhartech.stram.DAGPropertiesBuilder;
 
@@ -36,7 +36,7 @@ public class HdfsOutputTest implements ApplicationFactory {
     module.filePath = config.get(KEY_FILEPATH, "hdfsoutputtest.txt");
     module.append = config.getBoolean(KEY_APPEND, false);
 
-    module.setup(new OperatorConfiguration());
+    module.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
     for (int i=0; i<=numTuples; i++) {
       module.input.process("testdata" + i);

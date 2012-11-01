@@ -6,8 +6,8 @@ package com.malhartech.lib.io;
 
 import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.api.BaseOperator;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.OperatorConfiguration;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import java.net.URI;
@@ -62,7 +62,7 @@ public class HttpOutputOperator<T> extends BaseOperator
   }
 
   @Override
-  public void setup(OperatorConfiguration config)
+  public void setup(OperatorContext context)
   {
     wsClient = Client.create();
     wsClient.setFollowRedirects(true);

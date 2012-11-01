@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.stream;
 
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.dag.TestCountSink;
 import java.util.HashMap;
 import junit.framework.Assert;
@@ -36,7 +36,7 @@ public class HashMapToKeyBenchmark
     oper.key.setSink(keySink);
     oper.val.setSink(valSink);
     oper.keyval.setSink(keyvalSink);
-    oper.setup(new OperatorConfiguration());
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
     oper.beginWindow();
     HashMap<String, String> input = new HashMap<String, String>();

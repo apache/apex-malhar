@@ -5,9 +5,10 @@
 package com.malhartech.lib.testbench;
 
 import com.malhartech.api.BaseOperator;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
-import com.malhartech.api.OperatorConfiguration;
+import java.util.Random;
 
 /**
  *
@@ -66,7 +67,7 @@ public class RandomEventGenerator extends BaseOperator implements InputOperator
   }
 
   @Override
-  public void setup(OperatorConfiguration config)
+  public void setup(OperatorContext context)
   {
     if (max_value <= min_value) {
       throw new IllegalArgumentException(String.format("min_value (%d) should be < max_value(%d)", min_value, max_value));

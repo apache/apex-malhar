@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.dag.TestSink;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ public class FilterValuesTest
 
     TestSink<Integer> sortSink = new TestSink<Integer>();
     oper.filter.setSink(sortSink);
-    oper.setup(new OperatorConfiguration());
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
     ArrayList<Integer> Values = new ArrayList<Integer>();
     oper.setValue(5);
     oper.clearValues();

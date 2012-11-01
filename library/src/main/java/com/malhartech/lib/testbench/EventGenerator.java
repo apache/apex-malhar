@@ -5,9 +5,9 @@
 package com.malhartech.lib.testbench;
 
 import com.malhartech.annotation.InjectConfig;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
-import com.malhartech.api.OperatorConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -90,7 +90,7 @@ public class EventGenerator implements InputOperator
    * @param config
    */
   @Override
-  public void setup(OperatorConfiguration config)
+  public void setup(OperatorContext context)
   {
     if (rolling_window_count != 1) { // Initialized the tuple_numbers
       tuple_numbers = new long[rolling_window_count];

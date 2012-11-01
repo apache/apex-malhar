@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.stream;
 
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.dag.TestCountSink;
 import java.util.ArrayList;
 import junit.framework.Assert;
@@ -31,7 +31,7 @@ public class ArrayListToItemBenchmark
     ArrayListToItem oper = new ArrayListToItem();
     TestCountSink itemSink = new TestCountSink();
     oper.item.setSink(itemSink);
-    oper.setup(new OperatorConfiguration());
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
     oper.beginWindow();
     ArrayList<String> input = new ArrayList<String>();

@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.dag.TestCountAndLastTupleSink;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +31,7 @@ public class MatchStringTest
     MatchString<String,String> oper = new MatchString<String,String>();
     TestCountAndLastTupleSink matchSink = new TestCountAndLastTupleSink();
     oper.match.setSink(matchSink);
-    oper.setup(new OperatorConfiguration());
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
     oper.setKey("a");
     oper.setValue(3.0);
     oper.setTypeNEQ();
