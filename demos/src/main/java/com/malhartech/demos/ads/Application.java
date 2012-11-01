@@ -288,11 +288,11 @@ public class Application implements ApplicationFactory
 */
 
     dag.addStream("clicksaggregate", insertclicks.filter, clickAggregate.data).setInline(true);
-    dag.addStream("adviewsdata", viewAggregate.sum, cost.data);
-    dag.addStream("clicksdata", clickAggregate.sum, revenue.data);
-    dag.addStream("viewtuplecount", viewAggregate.count, ctr.denominator, merge.data1);
-    dag.addStream("clicktuplecount", clickAggregate.count, ctr.numerator, merge.data2);
-    dag.addStream("total count", merge.out, tuple_counter.data);
+    dag.addStream("adviewsdata", viewAggregate.sum, cost.data).setInline(allInline);;
+    dag.addStream("clicksdata", clickAggregate.sum, revenue.data).setInline(allInline);;
+    dag.addStream("viewtuplecount", viewAggregate.count, ctr.denominator, merge.data1).setInline(allInline);;
+    dag.addStream("clicktuplecount", clickAggregate.count, ctr.numerator, merge.data2).setInline(allInline);;
+    dag.addStream("total count", merge.out, tuple_counter.data).setInline(allInline);;
 
     String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
     if (serverAddr == null) {
