@@ -40,10 +40,10 @@ import java.util.HashMap;
  */
 public class CompareExceptString<K> extends MatchString<K,String>
 {
-  @OutputPortFieldAnnotation(name = "compare")
+  @OutputPortFieldAnnotation(name = "compare", optional=true)
   public final transient DefaultOutputPort<HashMap<K,String>> compare = match;
 
-  @OutputPortFieldAnnotation(name = "except")
+  @OutputPortFieldAnnotation(name = "except", optional=true)
   public final transient DefaultOutputPort<HashMap<K,String>> except = new DefaultOutputPort<HashMap<K,String>>(this);
 
   @Override

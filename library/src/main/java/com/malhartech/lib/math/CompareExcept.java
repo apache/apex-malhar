@@ -42,10 +42,10 @@ import java.util.HashMap;
  */
 public class CompareExcept<K, V extends Number> extends Match<K, V>
 {
-  @OutputPortFieldAnnotation(name = "compare")
+  @OutputPortFieldAnnotation(name = "compare", optional=true)
   public final transient DefaultOutputPort<HashMap<K, V>> compare = match;
 
-  @OutputPortFieldAnnotation(name = "expect")
+  @OutputPortFieldAnnotation(name = "expect", optional=true)
   public final transient DefaultOutputPort<HashMap<K, V>> except = new DefaultOutputPort<HashMap<K, V>>(this);
 
   @Override

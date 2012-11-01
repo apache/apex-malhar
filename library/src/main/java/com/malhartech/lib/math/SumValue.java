@@ -43,9 +43,9 @@ public class SumValue<V extends Number> extends BaseNumberOperator<V>
     }
   };
 
-  @OutputPortFieldAnnotation(name = "sum")
+  @OutputPortFieldAnnotation(name = "sum", optional=true)
   public final transient DefaultOutputPort<V> sum = new DefaultOutputPort<V>(this);
-  @OutputPortFieldAnnotation(name = "count")
+  @OutputPortFieldAnnotation(name = "count", optional=true)
   public final transient DefaultOutputPort<Integer> count = new DefaultOutputPort<Integer>(this);
 
   double sums = 0;
