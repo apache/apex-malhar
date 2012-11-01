@@ -66,7 +66,7 @@ public class ThroughputCounterBenchmark {
     node.setRollingWindowCount(5);
     node.setup(new OperatorContext("irrelevant", null));
 
-    node.beginWindow();
+    node.beginWindow(0);
     HashMap<String, Integer> input;
     int aint = 100;
     int bint = 10;
