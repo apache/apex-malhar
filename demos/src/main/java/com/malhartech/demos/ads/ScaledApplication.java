@@ -149,7 +149,7 @@ public class ScaledApplication implements ApplicationFactory
   {
     Quotient<String, Integer> oper = b.addOperator(name, new Quotient<String, Integer>());
     oper.setMult_by(100);
-    oper.setDokey(true);
+    oper.setCountkey(true);
     return oper;
   }
 
