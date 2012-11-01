@@ -75,13 +75,6 @@ public class ActiveMQInputOperatorTest
     }
 
     @Override
-    public void replayTuples(long windowId)
-    {
-      int count = 0;
-      while (tuples.hasNext()) {
-        //outputPort.emit(tuples.next());
-
-    @Override
     public void emitTuples()
     {
       throw new UnsupportedOperationException("Not supported yet.");
