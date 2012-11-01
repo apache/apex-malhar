@@ -26,7 +26,7 @@ import javax.validation.constraints.NotNull;
 public class BaseNumberOperator<V extends Number> extends BaseOperator
 {
   @NotNull
-  Class <V> type;
+  private Class <? extends Number> type = Double.class;
 
   public void setType(Class <V> type)
   {
@@ -35,30 +35,26 @@ public class BaseNumberOperator<V extends Number> extends BaseOperator
 
   public V getValue(Number num)
   {
-    V val;
+    Number val;
     Double d = new Double(num.doubleValue());
     if (type == Double.class) {
-      val = (V)d;
+      val = d;
     }
     else if (type == Integer.class) {
-      Integer ival = d.intValue();
-      val = (V)ival;
+      val = d.intValue();
     }
     else if (type == Float.class) {
-      Float fval = d.floatValue();
-      val = (V)fval;
+      val = d.floatValue();
     }
     else if (type == Long.class) {
-      Long lval = d.longValue();
-      val = (V)lval;
+      val = d.longValue();
     }
     else if (type == Short.class) {
-      Short sval = d.shortValue();
-      val = (V)sval;
+      val = d.shortValue();
     }
     else {
-      val = (V) d;
+      val = d;
     }
-    return val;
+    return (V)val;
   }
 }
