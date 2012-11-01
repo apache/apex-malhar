@@ -76,7 +76,7 @@ public class TwitterTopCounter extends DAG
   {
     WindowedTopCounter oper = addOperator(name, WindowedTopCounter.class);
     oper.setTopCount(count);
-    oper.setSlidingWindowWidth(10, 1);
+    oper.setSlidingWindowWidth(600, 1);
     return oper;
   }
 
