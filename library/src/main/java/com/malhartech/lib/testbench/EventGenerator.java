@@ -128,7 +128,7 @@ public class EventGenerator implements InputOperator
   }
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     if (count.isConnected()) {
       generatedTupleCount = 0;
@@ -244,13 +244,7 @@ public class EventGenerator implements InputOperator
   }
 
   @Override
-  public void replayTuples(long windowId)
-  {
-    throw new UnsupportedOperationException("Not supported yet.");
-  }
-
-  @Override
-  public void emitTuples(long windowId)
+  public void emitTuples()
   {
     int j = 0;
 

@@ -71,7 +71,7 @@ public class QuotientValue<V extends Number> extends BaseNumberOperator<V>
   }
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     nval = 0.0;
     dval = 0.0;

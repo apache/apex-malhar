@@ -69,7 +69,7 @@ public class FirstMatch<K, V extends Number> extends BaseMatchOperator<K,V>
   boolean emitted = false;
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     emitted = false;
   }

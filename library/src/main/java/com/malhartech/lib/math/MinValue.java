@@ -55,7 +55,7 @@ public class MinValue<V extends Number> extends BaseNumberOperator<V>
   boolean flag = false;
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     flag = false;
   }

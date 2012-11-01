@@ -38,7 +38,7 @@ public class ZeroMQOutputOperatorTest
     public void generateMessages()
     {
       Sink testSink = input.getSink();
-      beginWindow();
+      beginWindow(long windowId);
       for (int i = 0; i < testNum; i++) {
         HashMap<String, Integer> dataMapa = new HashMap<String, Integer>();
         dataMapa.put("a", 2);

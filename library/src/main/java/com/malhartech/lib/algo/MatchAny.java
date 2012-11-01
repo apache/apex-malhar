@@ -62,7 +62,7 @@ public class MatchAny<K, V extends Number> extends BaseMatchOperator<K,V>
   boolean result = false;
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     result = false;
   }

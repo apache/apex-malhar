@@ -83,7 +83,7 @@ ActivationListener<OperatorContext>
   public abstract void emitTuple(byte[] message);
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
   }
 

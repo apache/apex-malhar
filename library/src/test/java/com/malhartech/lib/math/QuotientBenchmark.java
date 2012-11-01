@@ -46,7 +46,7 @@ public class QuotientBenchmark
     oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
     oper.setMult_by(2);
 
-    oper.beginWindow(); //
+    oper.beginWindow(0); //
     HashMap<String, Number> input = new HashMap<String, Number>();
     int numtuples = 100000000;
     for (int i = 0; i < numtuples; i++) {

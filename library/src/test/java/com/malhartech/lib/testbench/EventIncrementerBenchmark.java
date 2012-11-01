@@ -114,7 +114,7 @@ public class EventIncrementerBenchmark
     oper.setDelta(1);
     oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
-    oper.beginWindow();
+    oper.beginWindow(0);
 
     HashMap<String, Object> stuple = new HashMap<String, Object>(1);
     //int numTuples = 100000000; // For benchmarking
@@ -129,7 +129,7 @@ public class EventIncrementerBenchmark
     }
     oper.endWindow();
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     HashMap<String, Object> ixtuple = new HashMap<String, Object>(1);
     HashMap<String, Integer> ixval = new HashMap<String, Integer>(1);
     ixval.put("x", new Integer(10));

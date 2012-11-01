@@ -49,7 +49,7 @@ public abstract class BaseFrequentKeyValue<K, V> extends BaseKeyValueOperator<K,
   HashMap<K, HashMap<V, MutableInteger>> keyvals = new HashMap<K, HashMap<V, MutableInteger>>();
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     keyvals.clear();
   }

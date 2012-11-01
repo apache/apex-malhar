@@ -39,7 +39,7 @@ public abstract class BaseFrequentKey<K> extends BaseKeyOperator<K>
   abstract public boolean compareCount(int val1, int val2);
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     keycount.clear();
   }

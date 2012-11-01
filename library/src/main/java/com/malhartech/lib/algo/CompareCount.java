@@ -60,7 +60,7 @@ public class CompareCount<K, V extends Number> extends Match<K, V>
   }
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     tcount = 0;
     icount = 0;

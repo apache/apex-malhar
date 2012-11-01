@@ -63,7 +63,7 @@ public class LastMatch<K, V extends Number> extends BaseMatchOperator<K,V>
   HashMap<K, V> ltuple = null;
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     ltuple = null;
   }

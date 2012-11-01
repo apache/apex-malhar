@@ -19,36 +19,33 @@ public class RandomWordInputModule implements InputOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(RandomWordInputModule.class);
   public final transient DefaultOutputPort<byte[]> output = new DefaultOutputPort<byte[]>(this);
-  transient long lastWindowId = 0;
-  transient int count;
-//  int totalIterations = 0;
+  private transient int count;
+  private boolean firstTime;
+  // int totalIterations = 0;
 
   @Override
-  public void emitTuples(long windowId)
+  public void emitTuples()
   {
-    if (windowId == lastWindowId) {
-      output.emit(new byte[64]);
-      count++;
-    }
-    else {
+    if (firstTime) {
       for (int i = count--; i-- > 0;) {
         output.emit(new byte[64]);
       }
-      lastWindowId = windowId;
 //      if (++totalIterations > 20) {
 //        Thread.currentThread().interrupt();
 //      }
+
+      firstTime = false;
+    }
+    else {
+      output.emit(new byte[64]);
+      count++;
     }
   }
 
   @Override
-  public void replayTuples(long arg0) {
-  }
-
-
-  @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
+    firstTime = true;
   }
 
   @Override

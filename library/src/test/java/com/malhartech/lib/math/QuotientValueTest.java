@@ -51,7 +51,7 @@ public class QuotientValueTest
     oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
     oper.setMult_by(2);
 
-    oper.beginWindow(); //
+    oper.beginWindow(0); //
     Double a = new Double(30.0);
     Double b = new Double(20.0);
     Double c = new Double(100.0);

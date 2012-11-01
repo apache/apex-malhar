@@ -41,7 +41,7 @@ public class DevNullCounterTest {
     oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     long numtuples = 1000000;
     Object o = new Object();
     for (long i = 0; i < numtuples; i++) {

@@ -32,7 +32,7 @@ public class InvertIndexTest
     Sink inSink = oper.data.getSink();
     oper.index.setSink(indexSink);
 
-    oper.beginWindow();
+    oper.beginWindow(0);
 
     HashMap<String, String> input = new HashMap<String, String>();
 

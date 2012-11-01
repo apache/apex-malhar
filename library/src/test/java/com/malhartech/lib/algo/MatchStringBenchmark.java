@@ -36,7 +36,7 @@ public class MatchStringBenchmark
     oper.setValue(3.0);
     oper.setTypeNEQ();
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     int numTuples = 10000000;
     HashMap<String, String> input1 = new HashMap<String, String>();
     HashMap<String, String> input2 = new HashMap<String, String>();

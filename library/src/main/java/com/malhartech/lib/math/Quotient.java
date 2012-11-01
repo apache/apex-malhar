@@ -102,7 +102,7 @@ public class Quotient<K,V extends Number> extends BaseOperator
 
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     numerators.clear();
     denominators.clear();

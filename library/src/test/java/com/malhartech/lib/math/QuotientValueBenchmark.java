@@ -53,7 +53,7 @@ public class QuotientValueBenchmark
     oper.setMult_by(2);
 
     int numTuples = 100000000;
-    oper.beginWindow(); //
+    oper.beginWindow(0); //
     for (int i = 0; i < numTuples; i++) {
       Double a = new Double(30.0);
       Double b = new Double(20.0);

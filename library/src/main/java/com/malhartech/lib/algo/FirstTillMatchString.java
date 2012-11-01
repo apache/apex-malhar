@@ -78,7 +78,7 @@ public class FirstTillMatchString<K> extends BaseMatchOperator<K,String>
   boolean emitted = false;
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     emitted = false;
   }

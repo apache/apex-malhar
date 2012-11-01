@@ -46,7 +46,7 @@ public class CompareCountTest
     oper.setValue(3.0);
     oper.setTypeEQ();
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     HashMap<String, Number> input = new HashMap<String, Number>();
     input.put("a", 2);
     input.put("b", 20);

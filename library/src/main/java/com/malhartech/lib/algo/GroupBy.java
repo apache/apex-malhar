@@ -96,7 +96,7 @@ public class GroupBy<K, V> extends BaseOperator
   }
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     map1.clear();
     map2.clear();

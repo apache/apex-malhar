@@ -35,7 +35,7 @@ public class StreamDuplicaterBenchmark
     oper.out2.setSink(mergeSink2);
     oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     int numTuples = 200000000;
     Integer input = new Integer(0);
     // Same input object can be used as the oper is just pass through

@@ -120,7 +120,7 @@ public abstract class TwitterSampleInput implements InputOperator, ActivationLis
   }
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
   }
 
@@ -137,10 +137,6 @@ public abstract class TwitterSampleInput implements InputOperator, ActivationLis
   public void preDeactivate()
   {
     ts.shutdown();
-  }
-
-  @Override
-  public void replayTuples(long arg0) {
   }
 
   void setTwitterProperties(Properties properties)

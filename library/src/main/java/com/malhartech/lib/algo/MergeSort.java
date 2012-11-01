@@ -57,7 +57,7 @@ public class MergeSort<K> extends BaseOperator
    * Cleanup at the start of window
    */
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     mergedList = new ArrayList();
   }

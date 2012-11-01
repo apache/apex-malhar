@@ -120,7 +120,7 @@ public class FilteredEventClassifierTest
     int numTuples = 10000;
     HashMap<String, Double> input = new HashMap<String, Double>();
     int sentval = 0;
-    node.beginWindow();
+    node.beginWindow(0);
     for (int i = 0; i < numTuples; i++) {
       input.clear();
       input.put("a,ia", 2.0);
@@ -165,7 +165,7 @@ public class FilteredEventClassifierTest
     nwnode.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
     sentval = 0;
-    node.beginWindow();
+    node.beginWindow(0);
     for (int i = 0; i < numTuples; i++) {
       input.clear();
       input.put("a,ia", 2.0);
@@ -214,7 +214,7 @@ public class FilteredEventClassifierTest
 
 
     sentval = 0;
-    node.beginWindow();
+    node.beginWindow(0);
     for (int i = 0; i < numTuples; i++) {
       input.clear();
       input.put("a,ia", 2.0);

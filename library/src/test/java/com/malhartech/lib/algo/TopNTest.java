@@ -43,7 +43,7 @@ public class TopNTest
     oper.top.setSink(sortSink);
     oper.setN(3);
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     HashMap<String, Number> input = new HashMap<String, Number>();
 
     input.put("a", 2);

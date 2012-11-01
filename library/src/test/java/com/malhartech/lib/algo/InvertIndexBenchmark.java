@@ -39,7 +39,7 @@ public class InvertIndexBenchmark
     oper.index.setSink(indexSink);
 
     HashMap<String, String> input = new HashMap<String, String>();
-    oper.beginWindow();
+    oper.beginWindow(0);
 
     int numTuples = 10000000;
     for (int i = 0; i < numTuples; i++) {

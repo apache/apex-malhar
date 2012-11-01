@@ -35,7 +35,7 @@ public class MatchStringTest
     oper.setValue(3.0);
     oper.setTypeNEQ();
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     HashMap<String, String> input = new HashMap<String, String>();
     input.put("a", "2");
     input.put("b", "20");

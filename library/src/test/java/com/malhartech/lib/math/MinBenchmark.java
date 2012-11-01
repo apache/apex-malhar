@@ -47,7 +47,7 @@ public class MinBenchmark
     oper.min.setSink(minSink);
     oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     int numtuples = 100000000;
     // For benchmark do -> numtuples = numtuples * 100;
     HashMap<String, Number> tuple = new HashMap<String, Number>();

@@ -69,7 +69,7 @@ public class SumTest
 
     // Not needed, but still setup is being called as a matter of discipline
     oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
-    oper.beginWindow(); //
+    oper.beginWindow(0); //
 
     HashMap<String, Double> input = new HashMap<String, Double>();
 

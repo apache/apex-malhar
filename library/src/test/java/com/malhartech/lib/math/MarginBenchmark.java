@@ -38,7 +38,7 @@ public class MarginBenchmark
 
     oper.margin.setSink(marginSink);
     oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
-    oper.beginWindow();
+    oper.beginWindow(0);
     HashMap<String, Number> ninput = new HashMap<String, Number>();
     HashMap<String, Number> dinput = new HashMap<String, Number>();
 

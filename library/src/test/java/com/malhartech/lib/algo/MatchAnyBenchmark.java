@@ -54,14 +54,14 @@ public class MatchAnyBenchmark
     input3.put("a", 5);
 
     int numTuples = 10000000;
-    oper.beginWindow();
+    oper.beginWindow(0);
     for (int i = 0; i < numTuples; i++) {
       oper.data.process(input1);
       oper.data.process(input2);
     }
     oper.endWindow();
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     for (int i = 0; i < numTuples; i++) {
       oper.data.process(input2);
       oper.data.process(input3);

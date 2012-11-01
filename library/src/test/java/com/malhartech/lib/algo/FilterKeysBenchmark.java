@@ -51,7 +51,7 @@ public class FilterKeysBenchmark
     oper.setKey("a");
     oper.setKeys(keys);
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     HashMap<String, Number> input = new HashMap<String, Number>();
 
     int numTuples = 10000000;

@@ -37,7 +37,7 @@ public class LeastFrequentKeyInMapBenchmark
     oper.least.setSink(matchSink);
     oper.list.setSink(listSink);
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     HashMap<String, Integer> amap = new HashMap<String, Integer>(1);
     HashMap<String, Integer> bmap = new HashMap<String, Integer>(1);
     HashMap<String, Integer> cmap = new HashMap<String, Integer>(1);

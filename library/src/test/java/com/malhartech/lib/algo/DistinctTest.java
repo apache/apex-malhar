@@ -30,7 +30,7 @@ public class DistinctTest
     oper.distinct.setSink(sortSink);
 
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     HashMap<String, Number> input = new HashMap<String, Number>();
 
     input.put("a", 2);

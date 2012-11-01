@@ -76,7 +76,7 @@ public class AllAfterMatchStringValue<K> extends BaseMatchOperator<K,String>
   boolean doemit = false;
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     doemit = false;
   }

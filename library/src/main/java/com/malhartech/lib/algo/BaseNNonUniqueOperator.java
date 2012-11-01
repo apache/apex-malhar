@@ -60,7 +60,7 @@ public abstract class BaseNNonUniqueOperator<K, V> extends BaseNOperator<K, V>
   HashMap<K, TopNSort<V>> kmap = new HashMap<K, TopNSort<V>>();
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     kmap.clear();
   }

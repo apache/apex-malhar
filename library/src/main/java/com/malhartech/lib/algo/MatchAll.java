@@ -64,7 +64,7 @@ public class MatchAll<K, V extends Number> extends BaseMatchOperator<K,V>
   boolean result = true;
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     result = true;
   }

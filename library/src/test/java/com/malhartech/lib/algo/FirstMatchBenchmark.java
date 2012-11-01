@@ -46,7 +46,7 @@ public class FirstMatchBenchmark
 
     HashMap<String, Number> input = new HashMap<String, Number>();
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     matchSink.clear();
 
     int numTuples = 10000000;
@@ -80,7 +80,7 @@ public class FirstMatchBenchmark
     Number aval = tuple.get("a");
     Assert.assertEquals("Value of a was ", 3, aval.intValue());
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     matchSink.clear();
     for (int i = 0; i < numTuples; i++) {
       input.clear();

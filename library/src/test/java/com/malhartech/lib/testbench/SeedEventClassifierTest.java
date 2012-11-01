@@ -89,7 +89,7 @@ public class SeedEventClassifierTest
     oper.setSeedend(1000);
     oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
-    oper.beginWindow();
+    oper.beginWindow(0);
 
     int numTuples = 1000;
     if (isstring) {

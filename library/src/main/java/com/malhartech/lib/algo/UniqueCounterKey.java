@@ -43,7 +43,7 @@ public class UniqueCounterKey<K> extends BaseOperator
   transient HashMap<K, MutableInteger> map;
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     map.clear();
   }

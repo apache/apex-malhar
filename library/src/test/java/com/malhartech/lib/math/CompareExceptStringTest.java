@@ -39,7 +39,7 @@ public class CompareExceptStringTest
     oper.setValue(3.0);
     oper.setTypeEQ();
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     HashMap<String, String> input = new HashMap<String, String>();
     input.put("a", "2");
     input.put("b", "20");

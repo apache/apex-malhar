@@ -37,7 +37,7 @@ public class DistinctBenchmark
 
     int numTuples = 10000000;
     for (int i = 0; i < numTuples; i++) {
-      oper.beginWindow();
+      oper.beginWindow(0);
       input.put("a", 2);
       oper.data.process(input);
       input.clear();

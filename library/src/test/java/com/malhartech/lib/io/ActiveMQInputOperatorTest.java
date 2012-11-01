@@ -82,7 +82,7 @@ public class ActiveMQInputOperatorTest
         //outputPort.emit(tuples.next());
 
     @Override
-    public void emitTuples(long windowId)
+    public void emitTuples()
     {
       throw new UnsupportedOperationException("Not supported yet.");
     }

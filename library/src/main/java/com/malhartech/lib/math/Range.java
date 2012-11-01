@@ -77,7 +77,7 @@ public class Range<K, V extends Number> extends BaseOperator
   HashMap<K,V> low = new HashMap<K,V>();
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     high.clear();
     low.clear();

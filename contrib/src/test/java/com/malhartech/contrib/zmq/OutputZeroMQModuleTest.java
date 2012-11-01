@@ -44,7 +44,7 @@ public class OutputZeroMQModuleTest
   {
 /*
     @Override
-    public void beginWindow()
+    public void beginWindow(long windowId)
     {
     }
 

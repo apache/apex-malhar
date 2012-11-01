@@ -64,7 +64,7 @@ public class ThroughputCounterTest {
     node.setRollingWindowCount(5);
     node.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
-    node.beginWindow();
+    node.beginWindow(0);
     HashMap<String, Integer> input;
     int aint = 1000;
     int bint = 100;

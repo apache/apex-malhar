@@ -50,7 +50,7 @@ public abstract class BaseNUniqueOperator<K, V> extends BaseNOperator<K, V>
    * Clears cache to start fresh
    */
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     kmap.clear();
   }

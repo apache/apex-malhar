@@ -122,7 +122,7 @@ public class FilteredEventClassifierBenchmark
 
     HashMap<String, Double> input = new HashMap<String, Double>();
     int sentval = 0;
-    node.beginWindow();
+    node.beginWindow(0);
     for (int i = 0; i < numTuples; i++) {
       input.clear();
       input.put("a,ia", 2.0);
@@ -166,7 +166,7 @@ public class FilteredEventClassifierBenchmark
     nwnode.setTotalFilter(100);
     nwnode.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
-    node.beginWindow();
+    node.beginWindow(0);
     sentval = 0;
     for (int i = 0; i < numTuples; i++) {
       input.clear();
@@ -216,7 +216,7 @@ public class FilteredEventClassifierBenchmark
 
 
     sentval = 0;
-    node.beginWindow();
+    node.beginWindow(0);
     for (int i = 0; i < numTuples; i++) {
       input.clear();
       input.put("a,ia", 2.0);

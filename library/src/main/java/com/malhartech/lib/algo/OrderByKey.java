@@ -106,7 +106,7 @@ public class OrderByKey<K, V> extends BaseOperator
    * Cleanup at the start of window
    */
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     if (pqueue == null) {
       pqueue = initializePriorityQueue();

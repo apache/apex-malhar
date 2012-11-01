@@ -52,7 +52,7 @@ public class SumValue<V extends Number> extends BaseNumberOperator<V>
   int counts = 0;
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     sums = 0;
     counts = 0;

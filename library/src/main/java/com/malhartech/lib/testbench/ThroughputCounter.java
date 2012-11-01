@@ -90,7 +90,7 @@ public class ThroughputCounter<K> extends BaseOperator
   }
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     if (tuple_count != 0) { // Do not restart time if no tuples were sent
       windowStartTime = System.currentTimeMillis();

@@ -46,7 +46,7 @@ public class WordCountModule<T> implements Operator
   }
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
   }
 

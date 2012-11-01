@@ -87,7 +87,7 @@ public class SeedEventGenerator extends BaseOperator implements InputOperator
   }
 
   @Override
-  public void emitTuples(long windowId)
+  public void emitTuples()
   {
     int lstart = s_start;
     int lend = s_end;
@@ -212,11 +212,5 @@ public class SeedEventGenerator extends BaseOperator implements InputOperator
     keys.add(key);
     keys_min.add(low);
     keys_range.add(high - low + 1);
-  }
-
-  @Override
-  public void replayTuples(long windowId)
-  {
-    throw new UnsupportedOperationException("Not supported yet.");
   }
 }

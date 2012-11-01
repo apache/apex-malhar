@@ -46,7 +46,7 @@ public class LastMatchBenchmark
 
     HashMap<String, Number> input = new HashMap<String, Number>();
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     matchSink.clear();
 
     int numTuples = 10000000;
@@ -82,7 +82,7 @@ public class LastMatchBenchmark
     Assert.assertEquals("Value of a was ", 3, aval.intValue());
     Assert.assertEquals("Value of b was ", 52, bval.intValue());
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     for (int i = 0; i < numTuples; i++) {
       matchSink.clear();
       input.clear();

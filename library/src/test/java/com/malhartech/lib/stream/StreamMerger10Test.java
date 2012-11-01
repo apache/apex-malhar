@@ -31,7 +31,7 @@ public class StreamMerger10Test
     oper.out.setSink(mergeSink);
 
     oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
-    oper.beginWindow();
+    oper.beginWindow(0);
 
     int numTuples = 1000;
     Integer input = new Integer(0);

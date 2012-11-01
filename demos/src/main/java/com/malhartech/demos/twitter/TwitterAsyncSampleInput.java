@@ -16,7 +16,7 @@ import com.malhartech.api.InputOperator;
 public class TwitterAsyncSampleInput extends TwitterSampleInput implements InputOperator
 {
   @Override
-  public void emitTuples(long windowId)
+  public void emitTuples()
   {
     for (int size = statuses.size(); size-- > 0;) {
       Status s = statuses.poll();

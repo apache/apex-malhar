@@ -40,7 +40,7 @@ public class InvertIndexArrayBenchmark
 
     HashMap<String, ArrayList> input = new HashMap<String, ArrayList>();
     ArrayList<String> alist = new ArrayList<String>();
-    oper.beginWindow();
+    oper.beginWindow(0);
 
     int numTuples = 10000000;
     for (int i = 0; i < numTuples; i++) {

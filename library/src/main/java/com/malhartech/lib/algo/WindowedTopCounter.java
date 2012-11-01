@@ -66,7 +66,7 @@ public class WindowedTopCounter<T> extends BaseOperator
   }
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     topCounter.clear();
   }

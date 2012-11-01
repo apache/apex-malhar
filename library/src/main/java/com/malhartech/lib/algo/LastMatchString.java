@@ -73,7 +73,7 @@ public class LastMatchString<K> extends BaseMatchOperator<K,String>
   HashMap<K, String> ltuple = null;
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     ltuple = null;
   }

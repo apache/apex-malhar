@@ -45,7 +45,7 @@ public class MinTest
     oper.min.setSink(minSink);
     oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     HashMap<String, Number> input = new HashMap<String, Number>();
     int numtuples = 100;
     // For benchmark do -> numtuples = numtuples * 100;

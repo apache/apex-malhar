@@ -33,7 +33,7 @@ public class ArrayListToItemBenchmark
     oper.item.setSink(itemSink);
     oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     ArrayList<String> input = new ArrayList<String>();
     input.add("a");
     // Same input object can be used as the oper is just pass through

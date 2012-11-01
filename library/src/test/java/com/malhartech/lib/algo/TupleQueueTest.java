@@ -90,7 +90,7 @@ public class TupleQueueTest
     oper.queue.setSink(queueSink);
     oper.console.setSink(consoleSink);
 
-    oper.beginWindow();
+    oper.beginWindow(0);
 
     HashMap<String, Integer> dinput = null;
     int numtuples = 100;
@@ -104,7 +104,7 @@ public class TupleQueueTest
 
     oper.endWindow();
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     String key = "a";
     querySink.process(key);
     key = "b";

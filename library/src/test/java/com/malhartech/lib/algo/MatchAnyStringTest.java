@@ -35,7 +35,7 @@ public class MatchAnyStringTest
     oper.setValue(3.0);
     oper.setTypeEQ();
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     HashMap<String, String> input = new HashMap<String, String>();
     input.put("a", "3");
     input.put("b", "20");
@@ -51,7 +51,7 @@ public class MatchAnyStringTest
     Assert.assertEquals("result was false", true, result.booleanValue());
     matchSink.clear();
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     input.clear();
     input.put("a", "2");
     input.put("b", "20");

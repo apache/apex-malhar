@@ -37,7 +37,7 @@ public class MostFrequentKeyBenchmark
     oper.most.setSink(matchSink);
     oper.list.setSink(listSink);
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     int numTuples = 10000000;
     int atot = 5*numTuples;
     int btot = 6*numTuples;

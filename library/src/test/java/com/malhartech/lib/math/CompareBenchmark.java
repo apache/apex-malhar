@@ -44,7 +44,7 @@ public class CompareBenchmark
     oper.setValue(3.0);
     oper.setTypeNEQ();
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     int numTuples = 10000000;
     HashMap<String, Number> input1 = new HashMap<String, Number>();
     HashMap<String, Number> input2 = new HashMap<String, Number>();

@@ -37,7 +37,7 @@ public class HashMapToKeyTest {
       oper.keyval.setSink(keyvalSink);
       oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
-      oper.beginWindow();
+      oper.beginWindow(0);
       HashMap<String,String> input = new HashMap<String,String>();
       input.put("a", "1");
       // Same input object can be used as the oper is just pass through

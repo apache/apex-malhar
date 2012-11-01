@@ -70,7 +70,7 @@ public class Distinct<K,V> extends BaseOperator
   HashMap<K, HashMap<V, Object>> mapkeyval = new HashMap<K, HashMap<V, Object>>();
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     mapkeyval.clear();
   }

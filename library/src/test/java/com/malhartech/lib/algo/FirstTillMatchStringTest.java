@@ -35,7 +35,7 @@ public class FirstTillMatchStringTest
     oper.setValue(3);
     oper.setTypeEQ();
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     HashMap<String, String> input = new HashMap<String, String>();
     input.put("a", "4");
     input.put("b", "20");
@@ -70,7 +70,7 @@ public class FirstTillMatchStringTest
     Assert.assertEquals("Value of a was ", 6, atotal);
     matchSink.clear();
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     input.clear();
     input.put("a", "2");
     input.put("b", "20");

@@ -184,7 +184,7 @@ public class EventIncrementer extends BaseOperator
   }
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     tuple_count = 0;
   }

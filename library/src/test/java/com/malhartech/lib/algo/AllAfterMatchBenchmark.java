@@ -44,7 +44,7 @@ public class AllAfterMatchBenchmark
     oper.setValue(3.0);
     oper.setTypeEQ();
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     HashMap<String, Number> input1 = new HashMap<String, Number>();
     HashMap<String, Number> input2 = new HashMap<String, Number>();
     HashMap<String, Number> input3 = new HashMap<String, Number>();

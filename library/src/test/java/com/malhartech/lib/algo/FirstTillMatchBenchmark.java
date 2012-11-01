@@ -48,7 +48,7 @@ public class FirstTillMatchBenchmark
     int numTuples = 1000000;
     for (int i = 0; i < numTuples; i++) {
       matchSink.clear();
-      oper.beginWindow();
+      oper.beginWindow(0);
       HashMap<String, Number> input = new HashMap<String, Number>();
       input.put("a", 4);
       input.put("b", 20);

@@ -60,7 +60,7 @@ public class Max<K, V extends Number> extends BaseNumberOperator<V>
   HashMap<K,MutableDouble> high = new HashMap<K,MutableDouble>();
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     high.clear();
   }

@@ -52,7 +52,7 @@ public class FilterValuesBenchmark
     oper.setValue(4);
     oper.setValues(Values);
 
-    oper.beginWindow();
+    oper.beginWindow(0);
 
     int numTuples = 10000000;
     for (int i = 0; i < numTuples; i++) {

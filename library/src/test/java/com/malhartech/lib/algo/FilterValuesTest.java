@@ -46,7 +46,7 @@ public class FilterValuesTest
     oper.setValue(4);
     oper.setValues(Values);
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     oper.data.process( 2);
     oper.data.process(5);
     oper.data.process(7);

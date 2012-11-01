@@ -35,7 +35,7 @@ public class ExceptStringBenchmark
     oper.setKey("a");
     oper.setValue(3.0);
     oper.setTypeEQ();
-    oper.beginWindow();
+    oper.beginWindow(0);
 
     int numTuples = 100000000;
     HashMap<String, String> input1 = new HashMap<String, String>();

@@ -32,7 +32,7 @@ public class InvertIndexArrayTest
     Sink inSink = oper.data.getSink();
     oper.index.setSink(indexSink);
 
-    oper.beginWindow();
+    oper.beginWindow(0);
 
     HashMap<String, ArrayList> input = new HashMap<String, ArrayList>();
     ArrayList<String> alist = new ArrayList<String>();

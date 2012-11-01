@@ -77,7 +77,7 @@ public class InvertIndex<K, V> extends BaseKeyValueOperator<K, V>
   }
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     map.clear();
   }

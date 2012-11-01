@@ -48,7 +48,7 @@ public abstract class AbstractHDFSInputOperator extends BaseOperator implements 
   }
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
   }
 
@@ -88,22 +88,16 @@ public abstract class AbstractHDFSInputOperator extends BaseOperator implements 
     setFilepath(null);
   }
 
-    @Override
-  public void emitTuples(long windowId)
+  @Override
+  public void emitTuples()
   {
     try {
-        emitRecord(input);
+      emitRecord(input);
     }
     catch (Exception e) {
       logger.info("Exception on HDFS Input: {}", e.getLocalizedMessage());
       Thread.currentThread().interrupt();
     }
-  }
-
-  @Override
-  public void replayTuples(long windowId)
-  {
-    throw new UnsupportedOperationException("Not supported yet.");
   }
 
   /**

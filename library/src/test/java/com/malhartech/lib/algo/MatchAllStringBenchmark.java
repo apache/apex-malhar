@@ -34,7 +34,7 @@ public class MatchAllStringBenchmark
     oper.setValue(3.0);
     oper.setTypeEQ();
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     HashMap<String, String> input1 = new HashMap<String, String>();
     HashMap<String, String> input2 = new HashMap<String, String>();
     HashMap<String, String> input3 = new HashMap<String, String>();
@@ -53,7 +53,7 @@ public class MatchAllStringBenchmark
     }
     oper.endWindow();
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     for (int i = 0; i < numTuples; i++) {
       oper.data.process(input2);
       oper.data.process(input3);

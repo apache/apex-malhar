@@ -71,7 +71,7 @@ public class MatchAllString<K> extends BaseMatchOperator<K,String>
   boolean result = true;
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     result = true;
   }

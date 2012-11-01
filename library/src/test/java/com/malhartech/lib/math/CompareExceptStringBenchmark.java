@@ -39,7 +39,7 @@ public class CompareExceptStringBenchmark
     oper.setValue(3.0);
     oper.setTypeEQ();
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     int numTuples = 50000000;
     HashMap<String, String> input1 = new HashMap<String, String>();
     HashMap<String, String> input2 = new HashMap<String, String>();

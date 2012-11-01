@@ -41,7 +41,7 @@ public class UniqueCounter<K> extends BaseOperator
   transient HashMap<K, Integer> map;
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     map = new HashMap<K, Integer>();
   }

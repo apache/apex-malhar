@@ -74,7 +74,7 @@ public class Sum<K, V extends Number> extends BaseNumberOperator<V>
   HashMap<K, MutableInteger> counts = new HashMap<K, MutableInteger>();
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     sums.clear();
     counts.clear();

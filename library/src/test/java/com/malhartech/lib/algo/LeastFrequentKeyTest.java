@@ -35,7 +35,7 @@ public class LeastFrequentKeyTest
     oper.least.setSink(matchSink);
     oper.list.setSink(listSink);
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     int atot = 5;
     int btot = 3;
     int ctot = 6;
@@ -60,7 +60,7 @@ public class LeastFrequentKeyTest
 
     matchSink.clear();
     listSink.clear();
-    oper.beginWindow();
+    oper.beginWindow(0);
     atot = 5;
     btot = 10;
     ctot = 5;

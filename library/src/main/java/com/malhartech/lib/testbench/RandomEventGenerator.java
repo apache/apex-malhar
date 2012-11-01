@@ -93,13 +93,7 @@ public class RandomEventGenerator extends BaseOperator implements InputOperator
   }
 
   @Override
-  public void replayTuples(long windowId)
-  {
-    throw new UnsupportedOperationException("Not supported yet.");
-  }
-
-  @Override
-  public void emitTuples(long windowId)
+  public void emitTuples()
   {
     int range = max_value - min_value + 1;
     int i = 0;

@@ -87,7 +87,7 @@ public class SeedEventClassifierBenchmark
     oper.setSeedend(1000);
     oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
-    oper.beginWindow();
+    oper.beginWindow(0);
 
     int numTuples = 10000000;
     if (isstring) {

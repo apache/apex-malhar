@@ -91,7 +91,7 @@ public class HttpInputOperatorTest
 //    sink.waitForResultCount(1, 3000);
     int timeoutMillis = 3000;
     while (sink.collectedTuples.isEmpty() && timeoutMillis > 0) {
-      operator.emitTuples(0);
+      operator.emitTuples();
       timeoutMillis -= 20;
       Thread.sleep(20);
     }

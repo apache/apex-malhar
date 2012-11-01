@@ -60,7 +60,7 @@ public class CompareCountString<K> extends MatchString<K,String>
   }
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
      tcount = 0;
      icount = 0;

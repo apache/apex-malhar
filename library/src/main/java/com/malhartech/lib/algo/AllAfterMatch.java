@@ -66,7 +66,7 @@ public class AllAfterMatch<K, V extends Number> extends BaseMatchOperator<K,V>
   boolean doemit = false;
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     doemit = false;
   }

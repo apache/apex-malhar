@@ -42,7 +42,7 @@ public class FirstMatchTest
     oper.setValue(3);
     oper.setTypeEQ();
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     HashMap<String, Number> input = new HashMap<String, Number>();
     input.put("a", 4);
     input.put("b", 20);
@@ -73,7 +73,7 @@ public class FirstMatchTest
     Assert.assertEquals("Value of a was ", 3, aval.intValue());
     matchSink.clear();
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     input.clear();
     input.put("a", 2);
     input.put("b", 20);

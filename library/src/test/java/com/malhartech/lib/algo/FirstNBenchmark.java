@@ -44,7 +44,7 @@ public class FirstNBenchmark
     oper.first.setSink(sortSink);
     //oper.setN(3);
 
-    oper.beginWindow();
+    oper.beginWindow(0);
     HashMap<String, Number> input = new HashMap<String, Number>();
 
     int numTuples = 10000000;

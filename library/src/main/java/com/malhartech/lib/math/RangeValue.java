@@ -61,7 +61,7 @@ public class RangeValue<V extends Number> extends BaseNumberOperator<V>
   MutableDouble low = null;
 
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     high = null;
     low = null;
