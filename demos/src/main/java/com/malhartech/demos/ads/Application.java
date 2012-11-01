@@ -246,6 +246,7 @@ public class Application implements ApplicationFactory
     alist.add(10);
     alist.add(80);
     wmap.put("sports", alist);
+    alist = new ArrayList<Integer>(3);
     alist.add(50);
     alist.add(15);
     alist.add(35);
