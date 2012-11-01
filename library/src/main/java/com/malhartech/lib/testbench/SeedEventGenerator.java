@@ -147,7 +147,7 @@ public class SeedEventGenerator extends BaseOperator implements InputOperator
         alist.add(new OneKeyValPair<String, Integer>(s, new Integer(keys_min.get(j) + random.nextInt(keys_range.get(j)))));
       }
       if (isvl) {
-        if (alist == null) {
+        if (vlist == null) {
           vlist = new ArrayList<Integer>(keys.size());
         }
         vlist.add(new Integer(keys_min.get(j) + random.nextInt(keys_range.get(j))));
