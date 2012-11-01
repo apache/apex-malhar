@@ -213,9 +213,9 @@ public class Application implements ApplicationFactory
   {
     EventClassifier oper = b.addOperator(name, EventClassifier.class);
     HashMap<String, Double> kmap = new HashMap<String, Double>();
-    kmap.put("sprint", 0.0);
-    kmap.put("etrade", 0.0);
-    kmap.put("nike", 0.0);
+    kmap.put("sprint", null);
+    kmap.put("etrade", null);
+    kmap.put("nike", null);
     oper.setKeyMap(kmap);
     return oper;
   }

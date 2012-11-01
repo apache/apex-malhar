@@ -180,10 +180,13 @@ public class EventClassifier extends BaseOperator
     int i = 0;
     // First load up the keys and the index hash (wtostr_index) for randomization to work
 
+    boolean foundvalue = false;
     for (Map.Entry<String, Double> e: map.entrySet()) {
       keys.put(e.getKey(), e.getValue());
+      foundvalue = foundvalue && (e.getValue() != null);
       wtostr_index.put(i, e.getKey());
       i += 1;
     }
+    hasvalues = foundvalue;
   }
 }
