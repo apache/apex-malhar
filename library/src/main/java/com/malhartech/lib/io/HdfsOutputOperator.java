@@ -89,7 +89,7 @@ public class HdfsOutputOperator<T> extends BaseOperator
   {
     Map<String, String> params = new HashMap<String, String>();
     params.put(FNAME_SUB_PART_INDEX, String.valueOf(index));
-    // TODO: need access to the operator id
+    // TODO: get operator id from context
     String operatorId = this.getName();
     if (operatorId != null) {
       params.put(FNAME_SUB_OPERATOR_ID, operatorId.replace(":", ""));
