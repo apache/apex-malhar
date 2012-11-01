@@ -28,7 +28,6 @@ public class DistinctTest
 
     TestSink<HashMap<String, Number>> sortSink = new TestSink<HashMap<String, Number>>();
     oper.distinct.setSink(sortSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
 
     oper.beginWindow();

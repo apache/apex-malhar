@@ -33,7 +33,6 @@ public class MostFrequentKeyValueBenchmark
     MostFrequentKeyValue<String, Integer> oper = new MostFrequentKeyValue<String, Integer>();
     TestSink matchSink = new TestSink();
     oper.most.setSink(matchSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
     oper.beginWindow();
     HashMap<String, Integer> amap = new HashMap<String, Integer>(1);

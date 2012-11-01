@@ -42,7 +42,6 @@ public class CompareCountTest
     oper.count.setSink(countSink);
     oper.except.setSink(exceptSink);
 
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
     oper.setKey("a");
     oper.setValue(3.0);
     oper.setTypeEQ();

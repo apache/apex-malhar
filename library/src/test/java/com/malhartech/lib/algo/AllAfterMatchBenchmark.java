@@ -39,7 +39,7 @@ public class AllAfterMatchBenchmark
   {
     TestCountAndLastTupleSink allSink = new TestCountAndLastTupleSink();
     oper.allafter.setSink(allSink);
-    oper.setup(new OperatorContext("irrlevant", null));
+    oper.setup(null);
     oper.setKey("a");
     oper.setValue(3.0);
     oper.setTypeEQ();

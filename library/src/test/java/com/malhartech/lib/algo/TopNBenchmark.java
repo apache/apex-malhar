@@ -40,7 +40,6 @@ public class TopNBenchmark
   {
     TestSink<HashMap<String, Number>> sortSink = new TestSink<HashMap<String, Number>>();
     oper.top.setSink(sortSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
     oper.setN(3);
 
     oper.beginWindow();

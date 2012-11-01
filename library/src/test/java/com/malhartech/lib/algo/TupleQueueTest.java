@@ -89,7 +89,6 @@ public class TupleQueueTest
     Sink querySink = oper.query.getSink();
     oper.queue.setSink(queueSink);
     oper.console.setSink(consoleSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
     oper.beginWindow();
 

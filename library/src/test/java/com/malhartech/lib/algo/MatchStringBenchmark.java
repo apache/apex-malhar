@@ -32,7 +32,6 @@ public class MatchStringBenchmark
     MatchString<String,String> oper = new MatchString<String,String>();
     TestCountAndLastTupleSink matchSink = new TestCountAndLastTupleSink();
     oper.match.setSink(matchSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
     oper.setKey("a");
     oper.setValue(3.0);
     oper.setTypeNEQ();

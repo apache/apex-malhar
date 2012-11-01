@@ -38,7 +38,6 @@ public class FilterValuesTest
 
     TestSink<Integer> sortSink = new TestSink<Integer>();
     oper.filter.setSink(sortSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
     ArrayList<Integer> Values = new ArrayList<Integer>();
     oper.setValue(5);
     oper.clearValues();

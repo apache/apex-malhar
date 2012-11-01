@@ -33,7 +33,6 @@ public class LeastFrequentKeyValueTest
     LeastFrequentKeyValue<String, Integer> oper = new LeastFrequentKeyValue<String, Integer>();
     TestSink matchSink = new TestSink();
     oper.least.setSink(matchSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
     oper.beginWindow();
     HashMap<String, Integer> amap = new HashMap<String, Integer>(1);

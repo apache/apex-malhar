@@ -31,7 +31,6 @@ public class AllAfterMatchStringValueBenchmark
     AllAfterMatchStringValue<String> oper = new AllAfterMatchStringValue<String>();
     TestCountAndLastTupleSink allSink = new TestCountAndLastTupleSink();
     oper.allafter.setSink(allSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
     oper.setKey("a");
     oper.setValue(3.0);
     oper.setTypeEQ();

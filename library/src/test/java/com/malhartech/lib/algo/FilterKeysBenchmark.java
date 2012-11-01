@@ -44,7 +44,6 @@ public class FilterKeysBenchmark
 
     TestSink<HashMap<String, Number>> sortSink = new TestSink<HashMap<String, Number>>();
     oper.filter.setSink(sortSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
     ArrayList<String> keys = new ArrayList<String>();
     keys.add("e");
     keys.add("f");

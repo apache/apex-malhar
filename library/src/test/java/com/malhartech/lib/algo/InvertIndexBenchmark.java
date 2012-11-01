@@ -37,7 +37,6 @@ public class InvertIndexBenchmark
 
     Sink inSink = oper.data.getSink();
     oper.index.setSink(indexSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
     HashMap<String, String> input = new HashMap<String, String>();
     oper.beginWindow();

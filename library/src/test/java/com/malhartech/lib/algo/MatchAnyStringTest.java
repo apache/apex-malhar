@@ -31,7 +31,6 @@ public class MatchAnyStringTest
     MatchAnyString<String> oper = new MatchAnyString<String>();
     TestCountAndLastTupleSink matchSink = new TestCountAndLastTupleSink();
     oper.any.setSink(matchSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
     oper.setKey("a");
     oper.setValue(3.0);
     oper.setTypeEQ();

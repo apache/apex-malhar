@@ -31,7 +31,6 @@ public class InvertIndexArrayTest
 
     Sink inSink = oper.data.getSink();
     oper.index.setSink(indexSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
     oper.beginWindow();
 

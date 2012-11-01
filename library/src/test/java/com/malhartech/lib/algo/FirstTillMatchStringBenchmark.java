@@ -33,7 +33,6 @@ public class FirstTillMatchStringBenchmark
     FirstTillMatchString<String> oper = new FirstTillMatchString<String>();
     TestSink matchSink = new TestSink();
     oper.first.setSink(matchSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
     oper.setKey("a");
     oper.setValue(3);
     oper.setTypeEQ();

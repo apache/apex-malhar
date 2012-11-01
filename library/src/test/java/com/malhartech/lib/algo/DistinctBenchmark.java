@@ -32,7 +32,6 @@ public class DistinctBenchmark
 
     TestSink<HashMap<String, Number>> sortSink = new TestSink<HashMap<String, Number>>();
     oper.distinct.setSink(sortSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
     HashMap<String, Number> input = new HashMap<String, Number>();
 

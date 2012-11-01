@@ -34,7 +34,6 @@ public class LeastFrequentKeyTest
     TestCountAndLastTupleSink listSink = new TestCountAndLastTupleSink();
     oper.least.setSink(matchSink);
     oper.list.setSink(listSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
     oper.beginWindow();
     int atot = 5;

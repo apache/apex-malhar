@@ -42,7 +42,6 @@ public class FirstNBenchmark
     //FirstN<String,Float> aoper = new FirstN<String,Float>();
     TestSink<HashMap<String, Number>> sortSink = new TestSink<HashMap<String, Number>>();
     oper.first.setSink(sortSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
     //oper.setN(3);
 
     oper.beginWindow();

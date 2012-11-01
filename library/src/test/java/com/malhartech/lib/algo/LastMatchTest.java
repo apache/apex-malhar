@@ -38,7 +38,6 @@ public class LastMatchTest
   {
     TestCountAndLastTupleSink matchSink = new TestCountAndLastTupleSink();
     oper.last.setSink(matchSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
     oper.setKey("a");
     oper.setValue(3);
     oper.setTypeEQ();

@@ -32,7 +32,6 @@ public class AllAfterMatchStringValueTest
     AllAfterMatchStringValue<String> oper = new AllAfterMatchStringValue<String>();
     TestSink<HashMap<String, String>> allSink = new TestSink<HashMap<String, String>>();
     oper.allafter.setSink(allSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
     oper.setKey("a");
     oper.setValue(3.0);
     oper.setTypeEQ();

@@ -3,7 +3,6 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.dag.TestCountAndLastTupleSink;
 import java.util.HashMap;
 import org.junit.Test;
@@ -31,7 +30,6 @@ public class MatchAllStringBenchmark
     MatchAllString<String> oper = new MatchAllString<String>();
     TestCountAndLastTupleSink matchSink = new TestCountAndLastTupleSink();
     oper.all.setSink(matchSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
     oper.setKey("a");
     oper.setValue(3.0);
     oper.setTypeEQ();

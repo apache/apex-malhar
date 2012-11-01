@@ -30,7 +30,6 @@ public class LastMatchStringTest
     LastMatchString<String> oper = new LastMatchString<String>();
     TestCountAndLastTupleSink matchSink = new TestCountAndLastTupleSink();
     oper.last.setSink(matchSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
     oper.setKey("a");
     oper.setValue(3);
     oper.setTypeEQ();
