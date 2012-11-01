@@ -3,11 +3,11 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.api.OperatorConfiguration;
+
 import com.malhartech.api.Sink;
+import com.malhartech.dag.OperatorContext;
 import com.malhartech.dag.Tuple;
 import java.util.HashMap;
-import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.testbench.ThroughputCounter}. <p>
+ * Performance tests for {@link com.malhartech.lib.testbench.ThroughputCounter}. <p>
  * <br>
  * Load is generated and the tuples are outputted to ensure that the numbers are roughly in line with the weights<br>
  * <br>
@@ -64,7 +64,7 @@ public class ThroughputCounterBenchmark {
     TestCountSink countSink = new TestCountSink();
     node.count.setSink(countSink);
     node.setRollingWindowCount(5);
-    node.setup(new OperatorConfiguration());
+    node.setup(new OperatorContext("irrelevant", null));
 
     node.beginWindow();
     HashMap<String, Integer> input;

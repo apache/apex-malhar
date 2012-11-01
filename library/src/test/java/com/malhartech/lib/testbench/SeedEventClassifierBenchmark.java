@@ -3,11 +3,8 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
-import java.util.HashMap;
-import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -68,7 +65,7 @@ public class SeedEventClassifierBenchmark
    */
   public void testSchemaNodeProcessing(boolean isstring) throws Exception
   {
-    final SeedEventClassifier oper = new SeedEventClassifier();
+    SeedEventClassifier oper = new SeedEventClassifier();
     StringSink classifySink = new StringSink();
     HashSink hashSink = new HashSink();
 

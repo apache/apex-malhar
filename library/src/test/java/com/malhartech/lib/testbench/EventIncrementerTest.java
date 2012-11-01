@@ -3,7 +3,6 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import java.util.ArrayList;
@@ -88,7 +87,7 @@ public class EventIncrementerTest
   @Test
   public void testNodeProcessing() throws Exception
   {
-    final EventIncrementer oper = new EventIncrementer();
+    EventIncrementer oper = new EventIncrementer();
 
     DataSink dataSink = new DataSink();
     CountSink countSink = new CountSink();
@@ -110,7 +109,6 @@ public class EventIncrementerTest
     high.add(100.0);
     oper.setKeylimits(keys, low, high);
     oper.setDelta(1);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
     oper.beginWindow(0);
 

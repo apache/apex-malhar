@@ -4,7 +4,6 @@
 package com.malhartech.lib.testbench;
 
 import com.esotericsoftware.minlog.Log;
-import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import java.util.ArrayList;

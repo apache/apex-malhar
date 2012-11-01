@@ -3,8 +3,6 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.esotericsoftware.minlog.Log;
-import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import java.util.ArrayList;
@@ -85,7 +83,6 @@ public class EventClassifierBenchmark
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
-
     EventClassifier node = new EventClassifier();
     TestSink classifySink = new TestSink();
     classifySink.dohash = true;

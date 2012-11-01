@@ -7,7 +7,6 @@ import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DAG;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.stram.StramLocalCluster;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
