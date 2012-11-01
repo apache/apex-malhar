@@ -5,6 +5,7 @@
 package com.malhartech.lib.stream;
 
 import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -42,6 +43,6 @@ public class ArrayListToItem<K> extends BaseOperator
       }
     }
   };
-  @InputPortFieldAnnotation(name = "item")
+  @OutputPortFieldAnnotation(name = "item")
   public final transient DefaultOutputPort<K> item = new DefaultOutputPort<K>(this);
 }

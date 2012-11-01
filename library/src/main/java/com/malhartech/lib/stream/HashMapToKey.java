@@ -5,14 +5,12 @@
 package com.malhartech.lib.stream;
 
 import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.Context.OperatorContext;
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Takes a HashMap in stream <b>data</b> and just emits its keys, keyvals, vals. Used for breaking up a HashMap<p>
@@ -59,10 +57,10 @@ public class HashMapToKey<K, V> extends BaseOperator
       }
     }
   };
-  @InputPortFieldAnnotation(name = "key", optional=true)
+  @OutputPortFieldAnnotation(name = "key", optional=true)
   public final transient DefaultOutputPort<K> key = new DefaultOutputPort<K>(this);
-  @InputPortFieldAnnotation(name = "keyval", optional=true)
+  @OutputPortFieldAnnotation(name = "keyval", optional=true)
   public final transient DefaultOutputPort<HashMap<K, V>> keyval = new DefaultOutputPort<HashMap<K, V>>(this);
-  @InputPortFieldAnnotation(name = "val", optional=true)
+  @OutputPortFieldAnnotation(name = "val", optional=true)
   public final transient DefaultOutputPort<V> val = new DefaultOutputPort<V>(this);
 }

@@ -5,6 +5,7 @@
 package com.malhartech.lib.stream;
 
 import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -45,9 +46,9 @@ public class StreamDuplicater<K> extends BaseOperator
     }
   };
 
-  @InputPortFieldAnnotation(name = "out1")
+  @OutputPortFieldAnnotation(name = "out1")
   public final transient DefaultOutputPort<K> out1 = new DefaultOutputPort<K>(this);
-  @InputPortFieldAnnotation(name = "out2")
+  @OutputPortFieldAnnotation(name = "out2")
   public final transient DefaultOutputPort<K> out2 = new DefaultOutputPort<K>(this);
   final static int num_oport = 2;
 

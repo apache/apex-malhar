@@ -5,6 +5,7 @@
 package com.malhartech.lib.stream;
 
 import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -55,7 +56,7 @@ public class StreamMerger<K> extends BaseOperator
     }
   };
 
-  @InputPortFieldAnnotation(name = "out")
+  @OutputPortFieldAnnotation(name = "out")
   public final transient DefaultOutputPort<K> out = new DefaultOutputPort<K>(this);
 
   /**
