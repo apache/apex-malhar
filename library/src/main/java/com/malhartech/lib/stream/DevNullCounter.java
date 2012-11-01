@@ -5,6 +5,7 @@
 package com.malhartech.lib.stream;
 
 import com.malhartech.annotation.InjectConfig;
+import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.Context.OperatorContext;
@@ -35,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 public class DevNullCounter<T> extends BaseOperator
 {
+  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<T> data = new DefaultInputPort<T>(this)
   {
     /**

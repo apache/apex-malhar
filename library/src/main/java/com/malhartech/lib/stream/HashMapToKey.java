@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.stream;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -37,6 +38,7 @@ import org.slf4j.LoggerFactory;
  */
 public class HashMapToKey<K, V> extends BaseOperator
 {
+  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
     @Override
@@ -57,7 +59,10 @@ public class HashMapToKey<K, V> extends BaseOperator
       }
     }
   };
+  @InputPortFieldAnnotation(name = "key", optional=true)
   public final transient DefaultOutputPort<K> key = new DefaultOutputPort<K>(this);
+  @InputPortFieldAnnotation(name = "keyval", optional=true)
   public final transient DefaultOutputPort<HashMap<K, V>> keyval = new DefaultOutputPort<HashMap<K, V>>(this);
+  @InputPortFieldAnnotation(name = "val", optional=true)
   public final transient DefaultOutputPort<V> val = new DefaultOutputPort<V>(this);
 }

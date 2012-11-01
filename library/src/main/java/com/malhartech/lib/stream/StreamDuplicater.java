@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.stream;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -28,13 +29,14 @@ import com.malhartech.api.DefaultOutputPort;
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * Operator does >400 million tuples/sec as all tuples simply forwarded as is<br>
+ *
  * @author amol
  */
-
 public class StreamDuplicater<K> extends BaseOperator
 {
-    public final transient DefaultInputPort<K> data = new DefaultInputPort<K>(this) {
-
+  @InputPortFieldAnnotation(name = "data")
+  public final transient DefaultInputPort<K> data = new DefaultInputPort<K>(this)
+  {
     @Override
     public void process(K tuple)
     {
@@ -43,18 +45,20 @@ public class StreamDuplicater<K> extends BaseOperator
     }
   };
 
-    public final transient DefaultOutputPort<K> out1 = new DefaultOutputPort<K>(this);
-    public final transient DefaultOutputPort<K> out2 = new DefaultOutputPort<K>(this);
-
+  @InputPortFieldAnnotation(name = "out1")
+  public final transient DefaultOutputPort<K> out1 = new DefaultOutputPort<K>(this);
+  @InputPortFieldAnnotation(name = "out2")
+  public final transient DefaultOutputPort<K> out2 = new DefaultOutputPort<K>(this);
   final static int num_oport = 2;
+
   /**
    * Allows usage of StreamDuplicater in a automated way
    *
    * @param i port index
    * @return returns the proper input port name
    */
-
-  static public String getOutputName(int i) {
+  static public String getOutputName(int i)
+  {
     String ret = "illegal_portnumber";
     if ((i != 0) && (i <= num_oport)) {
       ret = "out";
@@ -63,7 +67,8 @@ public class StreamDuplicater<K> extends BaseOperator
     return ret;
   }
 
-  public int getNumOutputPorts(){
+  public int getNumOutputPorts()
+  {
     return num_oport;
   }
 }

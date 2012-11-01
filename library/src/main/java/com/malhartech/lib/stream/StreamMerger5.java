@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.stream;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 
 /**
@@ -36,6 +37,7 @@ import com.malhartech.api.DefaultInputPort;
  */
 public class StreamMerger5<K> extends StreamMerger<K>
 {
+  @InputPortFieldAnnotation(name = "data3")
   public final transient DefaultInputPort<K> data3 = new DefaultInputPort<K>(this)
   {
     @Override
@@ -44,6 +46,8 @@ public class StreamMerger5<K> extends StreamMerger<K>
       out.emit(tuple);
     }
   };
+
+  @InputPortFieldAnnotation(name = "data4", optional=true)
   public final transient DefaultInputPort<K> data4 = new DefaultInputPort<K>(this)
   {
     @Override
@@ -52,6 +56,8 @@ public class StreamMerger5<K> extends StreamMerger<K>
       out.emit(tuple);
     }
   };
+
+  @InputPortFieldAnnotation(name = "data5", optional=true)
   public final transient DefaultInputPort<K> data5 = new DefaultInputPort<K>(this)
   {
     @Override

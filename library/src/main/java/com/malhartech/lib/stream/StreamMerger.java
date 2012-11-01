@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.stream;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -34,7 +35,8 @@ import com.malhartech.api.DefaultOutputPort;
  */
 public class StreamMerger<K> extends BaseOperator
 {
-  public final transient DefaultInputPort<K> data1 = new DefaultInputPort<K>(this)
+  @InputPortFieldAnnotation(name = "data1")
+ public final transient DefaultInputPort<K> data1 = new DefaultInputPort<K>(this)
   {
     @Override
     public void process(K tuple)
@@ -42,6 +44,8 @@ public class StreamMerger<K> extends BaseOperator
       out.emit(tuple);
     }
   };
+
+  @InputPortFieldAnnotation(name = "data2")
   public final transient DefaultInputPort<K> data2 = new DefaultInputPort<K>(this)
   {
     @Override
@@ -50,6 +54,8 @@ public class StreamMerger<K> extends BaseOperator
       out.emit(tuple);
     }
   };
+
+  @InputPortFieldAnnotation(name = "out")
   public final transient DefaultOutputPort<K> out = new DefaultOutputPort<K>(this);
 
   /**

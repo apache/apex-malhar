@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.stream;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 
 /**
@@ -41,6 +42,7 @@ import com.malhartech.api.DefaultInputPort;
  */
 public class StreamMerger10<K> extends StreamMerger5<K>
 {
+  @InputPortFieldAnnotation(name = "data6")
   public final transient DefaultInputPort<K> data6 = new DefaultInputPort<K>(this)
   {
     @Override
@@ -49,6 +51,8 @@ public class StreamMerger10<K> extends StreamMerger5<K>
       out.emit(tuple);
     }
   };
+
+  @InputPortFieldAnnotation(name = "data7", optional=true)
   public final transient DefaultInputPort<K> data7 = new DefaultInputPort<K>(this)
   {
     @Override
@@ -57,6 +61,8 @@ public class StreamMerger10<K> extends StreamMerger5<K>
       out.emit(tuple);
     }
   };
+
+  @InputPortFieldAnnotation(name = "data8", optional=true)
   public final transient DefaultInputPort<K> data8 = new DefaultInputPort<K>(this)
   {
     @Override
@@ -65,6 +71,8 @@ public class StreamMerger10<K> extends StreamMerger5<K>
       out.emit(tuple);
     }
   };
+
+  @InputPortFieldAnnotation(name = "data9", optional=true)
   public final transient DefaultInputPort<K> data9 = new DefaultInputPort<K>(this)
   {
     @Override
@@ -73,6 +81,8 @@ public class StreamMerger10<K> extends StreamMerger5<K>
       out.emit(tuple);
     }
   };
+
+  @InputPortFieldAnnotation(name = "data10", optional=true)
   public final transient DefaultInputPort<K> data10 = new DefaultInputPort<K>(this)
   {
     @Override
