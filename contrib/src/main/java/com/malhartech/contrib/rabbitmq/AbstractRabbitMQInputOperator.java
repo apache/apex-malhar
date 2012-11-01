@@ -73,7 +73,7 @@ ActivationListener<OperatorContext>
   }
 
   @Override
-  public void emitTuples(long windowId)
+  public void emitTuples()
   {
     for (int i = holdingBuffer.size(); i-- > 0;) {
       emitTuple(holdingBuffer.pollUnsafe());
@@ -93,7 +93,7 @@ ActivationListener<OperatorContext>
   }
 
   @Override
-  public void setup(OperatorConfiguration config)
+  public void setup(OperatorContext context)
   {
     holdingBuffer = new CircularBuffer<byte[]>(1024 * 1024);
   }

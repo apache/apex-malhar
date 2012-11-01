@@ -4,8 +4,8 @@
  */
 package com.malhartech.contrib.zmq;
 
-import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.api.Sink;
+import com.malhartech.dag.OperatorContext;
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +38,7 @@ public class ZeroMQOutputOperatorTest
     public void generateMessages()
     {
       Sink testSink = input.getSink();
-      beginWindow(long windowId);
+      beginWindow(0);
       for (int i = 0; i < testNum; i++) {
         HashMap<String, Integer> dataMapa = new HashMap<String, Integer>();
         dataMapa.put("a", 2);
@@ -116,7 +116,7 @@ public class ZeroMQOutputOperatorTest
         TestStringZeroMQOutputOperator node = new TestStringZeroMQOutputOperator();
         node.setUrl("tcp://*:5556");
         node.setSyncUrl("tcp://*:5557");
-        node.setup(new OperatorConfiguration());
+        node.setup(new OperatorContext("irrelevant", null));
         node.setSUBSCRIBERS_EXPECTED(1);
         node.setTestNum(testNum);
         node.startSyncJob();

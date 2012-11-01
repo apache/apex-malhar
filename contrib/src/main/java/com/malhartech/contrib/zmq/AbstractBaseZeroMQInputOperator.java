@@ -15,7 +15,6 @@ import com.malhartech.api.ActivationListener;
 import com.malhartech.api.InputOperator;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.util.CircularBuffer;
 import javax.validation.constraints.Min;
 
@@ -65,9 +64,8 @@ public abstract class AbstractBaseZeroMQInputOperator extends BaseOperator imple
     this.tuple_blast = i;
   }
   @Override
-  public void setup(OperatorConfiguration config)
+  public void setup(OperatorContext ctx)
   {
-    super.setup(config);
     context = ZMQ.context(1);
     subscriber = context.socket(ZMQ.SUB);
     subscriber.connect(url);

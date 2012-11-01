@@ -4,6 +4,7 @@
  */
 package com.malhartech.contrib.kafka;
 
+import com.malhartech.api.Context.OperatorContext;
 import static org.junit.Assert.fail;
 
 import org.junit.After;
@@ -12,13 +13,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 
-import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.contrib.kafka.KafkaInputOperator;
 
 @Ignore
 public class KafkaInoutOperatorTest
 {
-  private static OperatorConfiguration config;
+  private static OperatorContext config;
   private static KafkaInputOperator instance;
 
 
@@ -29,11 +29,11 @@ public class KafkaInoutOperatorTest
   @BeforeClass
   public static void setUpClass() throws Exception
   {
-    config = new OperatorConfiguration();
-    config.set("zk.connect", "localhost:2181");
-    config.set("zk.connectiontimeout.ms", "1000000");
-    config.set("groupid", "test_group");
-    config.set("topic", "test");
+//    config = new OperatorConfiguration();
+//    config.set("zk.connect", "localhost:2181");
+//    config.set("zk.connectiontimeout.ms", "1000000");
+//    config.set("groupid", "test_group");
+//    config.set("topic", "test");
 
     instance = new KafkaInputOperator();
   }
@@ -64,7 +64,7 @@ public class KafkaInoutOperatorTest
   {
     System.out.println("setup");
     KafkaInputOperator instance = new KafkaInputOperator();
-    instance.setup(new OperatorConfiguration());
+//    instance.setup(new OperatorConfiguration());
     // TODO review the generated test code and remove the default call to fail.
     fail("The test case is a prototype.");
   }

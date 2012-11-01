@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.dag.OperatorContext;
 import com.malhartech.dag.TestSink;
 
 /**
@@ -133,7 +133,19 @@ public class ZeroMQInputOperatorTest
       @Override
       public void run()
       {
-        node.getDataPoller().run();
+        node.setup(new OperatorContext("irrelevant", null));
+        node.postActivate(null);
+        try {
+          while (true) {
+            node.emitTuples();
+            Thread.sleep(10);
+          }
+        }
+        catch (InterruptedException ex) {
+        }
+
+        node.preDeactivate();
+        node.teardown();
       }
     };
     t.start();

@@ -6,7 +6,7 @@ package com.malhartech.contrib.zmq;
 
 import com.malhartech.annotation.InjectConfig;
 import com.malhartech.api.BaseOperator;
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
@@ -49,9 +49,8 @@ public abstract class AbstractBaseZeroMQOutputOperator<T> extends BaseOperator
   }
 
   @Override
-  public void setup(OperatorConfiguration config)
+  public void setup(OperatorContext ctx)
   {
-    super.setup(config);
     context = ZMQ.context(1);
     publisher = context.socket(ZMQ.PUB);
     publisher.bind(url);

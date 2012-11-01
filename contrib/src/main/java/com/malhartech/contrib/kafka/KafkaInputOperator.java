@@ -18,28 +18,20 @@ import kafka.javaapi.consumer.ConsumerConnector;
 import kafka.message.Message;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.api.SyncInputOperator;
+import com.malhartech.api.*;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.dag.SerDe;
 
-public class KafkaInputOperator extends BaseOperator implements SyncInputOperator, Runnable
+public class KafkaInputOperator implements InputOperator, Runnable
 {
   private ConsumerConnector consumer;
   private String topic;
   private SerDe serde;
-
-  @OutputPortFieldAnnotation(name="outputPort")
+  @OutputPortFieldAnnotation(name = "outputPort")
   final public transient DefaultOutputPort<Object> outputPort = new DefaultOutputPort<Object>(this);
 
   @Override
-  public Runnable getDataPoller() {
-    return this;
-  }
-
-  @Override
-  public void setup(OperatorConfiguration config)
+  public void setup(OperatorContext context)
   {
     Properties props = new Properties();
     String interesting[] = {
@@ -49,14 +41,15 @@ public class KafkaInputOperator extends BaseOperator implements SyncInputOperato
       "topic"
     };
 
-    for (String s : interesting) {
-      if (config.get(s) != null) {
-        props.put(s, config.get(s));
-      }
-    }
-
-    topic = props.containsKey("topic") ? props.getProperty("topic") : "";
-    consumer = Consumer.createJavaConsumerConnector(new ConsumerConfig(props));
+    throw new RuntimeException("fix the logic to populate the props in order to make it work");
+//    for (String s : interesting) {
+//      if (config.get(s) != null) {
+//        props.put(s, config.get(s));
+//      }
+//    }
+//
+//    topic = props.containsKey("topic") ? props.getProperty("topic") : "";
+//    consumer = Consumer.createJavaConsumerConnector(new ConsumerConfig(props));
   }
 
   @Override
@@ -87,7 +80,7 @@ public class KafkaInputOperator extends BaseOperator implements SyncInputOperato
      * get the object from message
      */
     if (message instanceof Message) {
-      ByteBuffer buffer = ((Message) message).payload();
+      ByteBuffer buffer = ((Message)message).payload();
       byte[] bytes = new byte[buffer.remaining()];
       buffer.get(bytes);
 
@@ -97,4 +90,15 @@ public class KafkaInputOperator extends BaseOperator implements SyncInputOperato
     return null;
   }
 
+  public void emitTuples()
+  {
+  }
+
+  public void beginWindow(long windowId)
+  {
+  }
+
+  public void endWindow()
+  {
+  }
 }

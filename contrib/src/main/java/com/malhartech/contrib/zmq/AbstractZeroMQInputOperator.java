@@ -28,7 +28,7 @@ public abstract class AbstractZeroMQInputOperator<T> extends AbstractBaseZeroMQI
 
   // This is the beginWindow, <emitTuples: one or many as per time>, endWindow thread
   @Override
-  public void run()
+  public void emitTuples()
   {
     int ntuples = tuple_blast;
     if (ntuples > tempBuffer.size()) {

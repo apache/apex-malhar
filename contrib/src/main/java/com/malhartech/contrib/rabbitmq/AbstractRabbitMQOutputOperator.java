@@ -5,7 +5,7 @@
 package com.malhartech.contrib.rabbitmq;
 
 import com.malhartech.api.BaseOperator;
-import com.malhartech.api.OperatorConfiguration;
+import com.malhartech.api.Context.OperatorContext;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -29,7 +29,7 @@ public class AbstractRabbitMQOutputOperator<T> extends BaseOperator
   transient public String queueName="testQ";
 
   @Override
-  public void setup(OperatorConfiguration config)
+  public void setup(OperatorContext context)
   {
     try {
       connFactory.setHost("localhost");

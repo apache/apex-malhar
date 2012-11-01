@@ -4,18 +4,16 @@
  */
 package com.malhartech.contrib.rabbitmq;
 
-import com.malhartech.api.*;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.contrib.rabbitmq.RabbitMQInputOperatorTest.CollectorInputPort;
+import com.malhartech.api.*;
 import com.malhartech.stram.StramLocalCluster;
 import com.malhartech.util.CircularBuffer;
 import com.rabbitmq.client.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.*;
+import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -41,7 +39,6 @@ public class RabbitMQOutputOperatorTest
         }
       }
     };
-
   }
 
   public class RabbitMQMessageReceiver
@@ -55,7 +52,7 @@ public class RabbitMQOutputOperatorTest
     Channel channel = null;
     TracingConsumer tracingConsumer = null;
     String cTag;
-    String queueName="testQ";
+    String queueName = "testQ";
 
     public void setup() throws IOException
     {
@@ -72,9 +69,11 @@ public class RabbitMQOutputOperatorTest
       cTag = channel.basicConsume(queueName, true, tracingConsumer);
     }
 
-    public String getQueueName() {
+    public String getQueueName()
+    {
       return queueName;
     }
+
     public void teardown() throws IOException
     {
       channel.close();
@@ -133,36 +132,39 @@ public class RabbitMQOutputOperatorTest
    */
   public static class SourceOutputPort<T> extends DefaultOutputPort<T>
   {
-    SourceOutputPort(Operator op) {
+    SourceOutputPort(Operator op)
+    {
       super(op);
     }
   }
 
   public static class SourceModule extends BaseOperator
-              implements InputOperator, ActivationListener<OperatorContext>
+          implements InputOperator, ActivationListener<OperatorContext>
   {
     public final transient SourceOutputPort<String> outPort = new SourceOutputPort<String>(this);
-  transient CircularBuffer<byte[]> holdingBuffer;
-  int testNum;
+    transient CircularBuffer<byte[]> holdingBuffer;
+    int testNum;
 
-  @Override
-  public void setup(OperatorConfiguration config)
-  {
-    holdingBuffer = new CircularBuffer<byte[]>(1024 * 1024);
-  }
+    @Override
+    public void setup(OperatorContext context)
+    {
+      holdingBuffer = new CircularBuffer<byte[]>(1024 * 1024);
+    }
+
     public void emitTuple(byte[] message)
     {
       outPort.emit(new String(message));
     }
-  @Override
-    public void emitTuples(long windowId)
+
+    @Override
+    public void emitTuples()
     {
       for (int i = holdingBuffer.size(); i-- > 0;) {
         emitTuple(holdingBuffer.pollUnsafe());
       }
     }
 
-  @Override
+    @Override
     public void postActivate(OperatorContext ctx)
     {
       for (int i = 0; i < testNum; i++) {
@@ -180,9 +182,11 @@ public class RabbitMQOutputOperatorTest
       }
     }
 
-    public void setTestNum(int testNum) {
+    public void setTestNum(int testNum)
+    {
       this.testNum = testNum;
     }
+
     public void preDeactivate()
     {
     }
