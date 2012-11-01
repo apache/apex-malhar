@@ -183,7 +183,7 @@ public class EventClassifier extends BaseOperator
     boolean foundvalue = false;
     for (Map.Entry<String, Double> e: map.entrySet()) {
       keys.put(e.getKey(), e.getValue());
-      foundvalue = foundvalue && (e.getValue() != null);
+      foundvalue = foundvalue || (e.getValue() != null);
       wtostr_index.put(i, e.getKey());
       i += 1;
     }
