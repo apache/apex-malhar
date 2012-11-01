@@ -14,6 +14,7 @@ import com.malhartech.lib.math.Quotient;
 import com.malhartech.lib.math.Sum;
 import com.malhartech.lib.stream.StreamMerger;
 import com.malhartech.lib.stream.StreamMerger10;
+import com.malhartech.lib.stream.StreamMerger5;
 import com.malhartech.lib.testbench.EventClassifier;
 import com.malhartech.lib.testbench.EventGenerator;
 import com.malhartech.lib.testbench.FilteredEventClassifier;
@@ -170,9 +171,9 @@ public class ScaledApplication implements ApplicationFactory
   {
     EventClassifier oper = b.addOperator(name, EventClassifier.class);
     HashMap<String, Double> kmap = new HashMap<String, Double>();
-    kmap.put("sprint", 0.0);
-    kmap.put("etrade", 0.0);
-    kmap.put("nike", 0.0);
+    kmap.put("sprint", null);
+    kmap.put("etrade", null);
+    kmap.put("nike", null);
     oper.setKeyMap(kmap);
     return oper;
   }
@@ -203,6 +204,7 @@ public class ScaledApplication implements ApplicationFactory
     alist.add(10);
     alist.add(80);
     wmap.put("sports", alist);
+    alist = new ArrayList<Integer>(3);
     alist.add(50);
     alist.add(15);
     alist.add(35);
@@ -236,10 +238,10 @@ public class ScaledApplication implements ApplicationFactory
 
     DAG dag = new DAG(conf);
 
-    StreamMerger10<HashMap<String, Double>> viewAggrSum10 = getStreamMerger10DoubleOperator("viewaggregatesum", dag);
-    StreamMerger10<HashMap<String, Double>> clickAggrSum10 = getStreamMerger10DoubleOperator("clickaggregatesum", dag);
-    StreamMerger10<HashMap<String, Integer>> viewAggrCount10 = getStreamMerger10IntegerOperator("viewaggregatecount", dag);
-    StreamMerger10<HashMap<String, Integer>> clickAggrCount10 = getStreamMerger10IntegerOperator("clickaggregatecount", dag);
+    StreamMerger5<HashMap<String, Double>> viewAggrSum10 = getStreamMerger10DoubleOperator("viewaggregatesum", dag);
+    StreamMerger5<HashMap<String, Double>> clickAggrSum10 = getStreamMerger10DoubleOperator("clickaggregatesum", dag);
+    StreamMerger5<HashMap<String, Integer>> viewAggrCount10 = getStreamMerger10IntegerOperator("viewaggregatecount", dag);
+    StreamMerger5<HashMap<String, Integer>> clickAggrCount10 = getStreamMerger10IntegerOperator("clickaggregatecount", dag);
 
     for (int i = 1; i <= numGenerators; i++) {
       String viewgenstr = String.format("%s%d", "viewGen", i);
@@ -286,7 +288,7 @@ public class ScaledApplication implements ApplicationFactory
     dag.addStream("total count", merge.out, tuple_counter.data);
 
     String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
-    if (serverAddr != null) {
+    if (serverAddr == null) {
       ConsoleOutputOperator<HashMap<String, Double>> revconsole = getConsoleDoubleOperator(dag, "revConsole");
       ConsoleOutputOperator<HashMap<String, Double>> costconsole = getConsoleDoubleOperator(dag, "costConsole");
       ConsoleOutputOperator<HashMap<String, Double>> marginconsole = getConsoleDoubleOperator(dag, "marginConsole");

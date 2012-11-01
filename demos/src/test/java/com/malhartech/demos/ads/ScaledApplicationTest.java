@@ -4,12 +4,10 @@
  */
 package com.malhartech.demos.ads;
 
+import com.malhartech.stram.StramLocalCluster;
 import java.io.IOException;
-
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
-
-import com.malhartech.stram.StramLocalCluster;
 
 
 /**
@@ -26,5 +24,4 @@ public class ScaledApplicationTest {
     lc.setHeartbeatMonitoringEnabled(false);
     lc.run();
   }
-
 }
