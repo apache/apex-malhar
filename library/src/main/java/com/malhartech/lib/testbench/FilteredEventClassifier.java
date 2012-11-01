@@ -84,7 +84,7 @@ public class FilteredEventClassifier<T> extends BaseOperator
           }
           HashMap<String, T> otuple = new HashMap<String, T>(1);
           String key = wtostr_index.get(j); // the key
-          T keyval = null;
+          T keyval;
           if (hasvalues) {
             keyval = keys.get(key);
           }

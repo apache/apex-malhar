@@ -104,7 +104,7 @@ public class Margin<K, V extends Number> extends BaseNumberOperator<V>
         numerators.remove(e.getKey()); // so that all left over keys can be reported
       }
       if (percent) {
-        val = 1 - nval.value / e.getValue().value * 100;
+        val = (1 - nval.value / e.getValue().value) * 100;
       }
       else {
         val = 1 - nval.value / e.getValue().value;
@@ -116,3 +116,7 @@ public class Margin<K, V extends Number> extends BaseNumberOperator<V>
     }
   }
 }
+
+
+
+

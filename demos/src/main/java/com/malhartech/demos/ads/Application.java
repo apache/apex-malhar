@@ -192,7 +192,7 @@ public class Application implements ApplicationFactory
   {
     Quotient oper = b.addOperator(name, Quotient.class);
     oper.setMult_by(100);
-    oper.setDokey(true);
+    oper.setCountkey(true);
     return oper;
   }
 
@@ -214,7 +214,7 @@ public class Application implements ApplicationFactory
     EventClassifier oper = b.addOperator(name, EventClassifier.class);
     HashMap<String, Double> kmap = new HashMap<String, Double>();
     kmap.put("sprint", 0.0);
-    kmap.put("etrace", 0.0);
+    kmap.put("etrade", 0.0);
     kmap.put("nike", 0.0);
     oper.setKeyMap(kmap);
     return oper;

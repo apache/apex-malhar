@@ -60,7 +60,7 @@ public class Match<K, V extends Number> extends BaseMatchOperator<K, V>
       }
     }
   };
-  @OutputPortFieldAnnotation(name = "match")
+  @OutputPortFieldAnnotation(name = "match", optional=true)
   public final transient DefaultOutputPort<HashMap<K, V>> match = new DefaultOutputPort<HashMap<K, V>>(this);
 
   public void tupleMatched(HashMap<K, V> tuple)

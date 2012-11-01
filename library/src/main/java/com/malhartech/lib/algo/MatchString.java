@@ -74,7 +74,7 @@ public class MatchString<K, String> extends BaseMatchOperator<K,String>
     }
   };
 
-  @OutputPortFieldAnnotation(name = "match")
+  @OutputPortFieldAnnotation(name = "match", optional=true)
   public final transient DefaultOutputPort<HashMap<K, String>> match = new DefaultOutputPort<HashMap<K, String>>(this);
 
   public void tupleMatched(HashMap<K, String> tuple)
