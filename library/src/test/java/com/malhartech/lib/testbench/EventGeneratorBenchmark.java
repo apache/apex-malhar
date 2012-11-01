@@ -108,7 +108,7 @@ public class EventGeneratorBenchmark
       public void run()
       {
         try {
-          Thread.sleep(20000);
+          Thread.sleep(1000);
           lc.shutdown();
         }
         catch (InterruptedException ex) {
@@ -118,6 +118,6 @@ public class EventGeneratorBenchmark
     }.start();
 
     lc.run();
-    log.debug("\nProcessed {} tuples", getCount());
+    log.debug(String.format("\nProcessed %d tuples", getCount()));
   }
 }

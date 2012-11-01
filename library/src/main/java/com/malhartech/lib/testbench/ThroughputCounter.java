@@ -32,7 +32,9 @@ import java.util.Map;
  * Compile time checks are:<br>
  * none
  * <br>
- *
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * Benchmarked at over 17 million tuples/second in local/in-line mode<br>
+ * <br>
  * @author amol
  */
 

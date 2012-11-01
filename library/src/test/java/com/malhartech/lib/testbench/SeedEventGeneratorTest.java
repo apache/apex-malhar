@@ -6,14 +6,11 @@ package com.malhartech.lib.testbench;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DAG;
 import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.Operator;
-import com.malhartech.api.Sink;
-import com.malhartech.api.InputOperatorTest;
-import com.malhartech.dag.Tuple;
+import com.malhartech.lib.util.OneKeyValPair;
 import com.malhartech.stram.StramLocalCluster;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.logging.Level;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,26 +29,58 @@ import org.slf4j.LoggerFactory;
  */
 public class SeedEventGeneratorTest
 {
-  private static Logger LOG = LoggerFactory.getLogger(SeedEventGenerator.class);
+  private static Logger log = LoggerFactory.getLogger(SeedEventGeneratorTest.class);
+  static ArrayList<HashMap<String, String>> sdlist = new ArrayList<HashMap<String, String>>();
+  static ArrayList<HashMap<String, String>> vdlist = new ArrayList<HashMap<String, String>>();
+  static ArrayList<HashMap<String, ArrayList<Integer>>> vallist = new ArrayList<HashMap<String, ArrayList<Integer>>>();
+  static ArrayList<HashMap<String, ArrayList<OneKeyValPair>>> kvlist = new ArrayList<HashMap<String, ArrayList<OneKeyValPair>>>();
 
-  public static class CollectorInputPort<T> extends DefaultInputPort<T>
+  void clear()
   {
-    ArrayList<T> list;
-    final String id;
-
-    public CollectorInputPort(String id, Operator module)
-    {
-      super(module);
-      this.id = id;
-    }
-
-    @Override
-    public void process(T tuple)
-    {
-      list.add(tuple);
-    }
+    sdlist.clear();
+    vdlist.clear();
+    vallist.clear();
+    kvlist.clear();
   }
 
+  public static class CollectorOperator extends BaseOperator
+  {
+    public final transient DefaultInputPort<HashMap<String, String>> sdata = new DefaultInputPort<HashMap<String, String>>(this)
+    {
+      @Override
+      public void process(HashMap<String, String> tuple)
+      {
+        sdlist.add(tuple);
+      }
+    };
+    public final transient DefaultInputPort<HashMap<String, String>> vdata = new DefaultInputPort<HashMap<String, String>>(this)
+    {
+      @Override
+      public void process(HashMap<String, String> tuple)
+      {
+        vdlist.add(tuple);
+      }
+    };
+    public final transient DefaultInputPort<HashMap<String, ArrayList<Integer>>> vlist = new DefaultInputPort<HashMap<String, ArrayList<Integer>>>(this)
+    {
+      @Override
+      public void process(HashMap<String, ArrayList<Integer>> tuple)
+      {
+        vallist.add(tuple);
+      }
+    };
+
+    public final transient DefaultInputPort<HashMap<String, ArrayList<OneKeyValPair>>> kvpair = new DefaultInputPort<HashMap<String, ArrayList<OneKeyValPair>>>(this)
+    {
+      @Override
+      public void process(HashMap<String, ArrayList<OneKeyValPair>> tuple)
+      {
+        kvlist.add(tuple);
+      }
+    };
+  }
+
+  /*
   class TestSink implements Sink
   {
     HashMap<String, Object> keys = new HashMap<String, Object>();
@@ -63,10 +92,6 @@ public class SeedEventGeneratorTest
     int numwindows = 0;
     ArrayList<String> ikeys = new ArrayList<String>();
 
-    /**
-     *
-     * @param payload
-     */
     @Override
     public void process(Object payload)
     {
@@ -104,7 +129,7 @@ public class SeedEventGeneratorTest
             }
             Object kval = keys.get(key);
             if (kval != null) {
-              LOG.error(String.format("Got duplicate key (%s)", key));
+              log.error(String.format("Got duplicate key (%s)", key));
             }
             keys.put(key, null);
           }
@@ -113,6 +138,7 @@ public class SeedEventGeneratorTest
       }
     }
   }
+  */
 
   /**
    * Test node logic emits correct results
@@ -139,99 +165,92 @@ public class SeedEventGeneratorTest
     testSchemaNodeProcessing(false, true, true, true);
   }
 
-  public static class CollectorOperator<T> extends BaseOperator
-  {
-    public final transient CollectorInputPort<T> sdata = new CollectorInputPort<T>("sdata", this);
-    public final transient CollectorInputPort<T> vdata = new CollectorInputPort<T>("vdata", this);
-    public final transient CollectorInputPort<T> vlist = new CollectorInputPort<T>("vlist", this);
-    public final transient CollectorInputPort<T> kvpair = new CollectorInputPort<T>("kvpair", this);
-  }
-
   @SuppressWarnings("SleepWhileInLoop")
   public void testSchemaNodeProcessing(boolean isstring, boolean insert, boolean doseedkey, boolean emitkey) throws Exception
   {
     DAG dag = new DAG();
 
     SeedEventGenerator node = dag.addOperator("seedeventgen", SeedEventGenerator.class);
-    CollectorOperator collector = dag.addOperator("data collector", new CollectorOperator<Number>());
+    CollectorOperator collector = dag.addOperator("data collector", new CollectorOperator());
+    clear();
 
     dag.addStream("string_data", node.string_data, collector.sdata).setInline(true);
     dag.addStream("string_data", node.val_data, collector.vdata).setInline(true);
     dag.addStream("string_data", node.val_list, collector.vlist).setInline(true);
     dag.addStream("string_data", node.keyvalpair_list, collector.kvpair).setInline(true);
+    /*
+     TestSink sdataSink = new TestSink();
+     TestSink vdataSink = new TestSink();
+     TestSink vlistSink = new TestSink();
+     TestSink kvpairSink = new TestSink();
 
-    TestSink sdataSink = new TestSink();
-    TestSink vdataSink = new TestSink();
-    TestSink vlistSink = new TestSink();
-    TestSink kvpairSink = new TestSink();
 
+     if (doseedkey) {
+     node.addKeyData("x", 0, 9);
+     node.addKeyData("y", 0, 9);
+     node.addKeyData("gender", 0, 1);
+     node.addKeyData("age", 10, 19);
+     }
+     node.setSeedstart(1);
+     node.setSeedend(1000);
 
-    if (doseedkey) {
-      node.addKeyData("x", 0, 9);
-      node.addKeyData("y", 0, 9);
-      node.addKeyData("gender", 0, 1);
-      node.addKeyData("age", 10, 19);
-    }
-    node.setSeedstart(1);
-    node.setSeedend(1000000);
+     sdataSink.isstring = isstring;
+     sdataSink.insert = insert;
+     sdataSink.emitkey = emitkey;
+     if (sdataSink.ikeys.isEmpty()) {
+     sdataSink.ikeys.add("x");
+     sdataSink.ikeys.add("y");
+     sdataSink.ikeys.add("genger");
+     sdataSink.ikeys.add("age");
+     }
 
-    int numtuples = 500;
+     if (vdataSink.ikeys.isEmpty()) {
+     vdataSink.ikeys.add("x");
+     vdataSink.ikeys.add("y");
+     vdataSink.ikeys.add("genger");
+     vdataSink.ikeys.add("age");
+     }
 
-    sdataSink.isstring = isstring;
-    sdataSink.insert = insert;
-    sdataSink.emitkey = emitkey;
-    if (sdataSink.ikeys.isEmpty()) {
-      sdataSink.ikeys.add("x");
-      sdataSink.ikeys.add("y");
-      sdataSink.ikeys.add("genger");
-      sdataSink.ikeys.add("age");
-    }
+     if (vlistSink.ikeys.isEmpty()) {
+     vlistSink.ikeys.add("x");
+     vlistSink.ikeys.add("y");
+     vlistSink.ikeys.add("genger");
+     vlistSink.ikeys.add("age");
+     }
 
-    if (vdataSink.ikeys.isEmpty()) {
-      vdataSink.ikeys.add("x");
-      vdataSink.ikeys.add("y");
-      vdataSink.ikeys.add("genger");
-      vdataSink.ikeys.add("age");
-    }
-
-    if (vlistSink.ikeys.isEmpty()) {
-      vlistSink.ikeys.add("x");
-      vlistSink.ikeys.add("y");
-      vlistSink.ikeys.add("genger");
-      vlistSink.ikeys.add("age");
-    }
-
-    if (kvpairSink.ikeys.isEmpty()) {
-      kvpairSink.ikeys.add("x");
-      kvpairSink.ikeys.add("y");
-      kvpairSink.ikeys.add("genger");
-      kvpairSink.ikeys.add("age");
-    }
-
+     if (kvpairSink.ikeys.isEmpty()) {
+     kvpairSink.ikeys.add("x");
+     kvpairSink.ikeys.add("y");
+     kvpairSink.ikeys.add("genger");
+     kvpairSink.ikeys.add("age");
+     }
+     */
     final StramLocalCluster lc = new StramLocalCluster(dag);
     lc.setHeartbeatMonitoringEnabled(false);
 
-    new Thread("LocalClusterController")
+    new Thread()
     {
       @Override
       public void run()
       {
         try {
           Thread.sleep(1000);
+          lc.shutdown();
         }
         catch (InterruptedException ex) {
+          java.util.logging.Logger.getLogger(EventGeneratorBenchmark.class.getName()).log(Level.SEVERE, null, ex);
         }
-        lc.shutdown();
       }
     }.start();
 
     lc.run();
-    LOG.debug(String.format("\n********************************************\nSchema %s, %s, %s: Emitted %d tuples, with %d keys, and %d ckeys\n********************************************\n",
+    log.debug(String.format("\n********************************************\nSchema %s, %s, %s: Got s(%d), v(%d), vd(%d), kv(%d)\n********************************************\n",
                             isstring ? "String" : "ArrayList",
                             insert ? "insert values" : "skip insert",
                             emitkey ? "with classification key" : "no classification key",
-                            sdataSink.count,
-                            sdataSink.keys.size(),
-                            sdataSink.ckeys.size()));
+                            sdlist.size(),
+                            vallist.size(),
+                            vdlist.size(),
+                            kvlist.size()));
   }
 }

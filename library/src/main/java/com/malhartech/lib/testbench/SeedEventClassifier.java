@@ -22,10 +22,6 @@ import org.slf4j.LoggerFactory;
  * <br>
  * The seed is created from the values of properties <b>seed_start</b>, and <b>seed_end</b>
  * <br>
- * <b>Benchmarks</b>:<br>
- * String: Benchmarked at over 5.9 million tuples/second in local/in-line mode<br>
- * Integer: Benchmarked at over 4.4 million tuples/second in local/in-line mode<br>
- * <br>
  * <b>Default schema</b>:<br>
  * Schema for port <b>data</b>: The default schema is HashMap<String, ArrayList<valueData>>, where valueData is class{String, Integer}<br>
  * <b>String schema</b>: The string is "key;valkey1:value1;valkey2:value2;..."<br>
@@ -46,7 +42,10 @@ import org.slf4j.LoggerFactory;
  * <b>sedd_end</b>Has to be an integer<br>
  * <b>key</b>If provided has to be in format "key1,key1start,key1end;key2, key2start, key2end; ..."
  * <br>
- *
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * String: Benchmarked at over 13 million tuples/second in local/in-line mode<br>
+ * Integer: Benchmarked at over 7 million tuples/second in local/in-line mode<br>
+ * <br>
  * @author amol
  */
 public class SeedEventClassifier<T> extends BaseOperator

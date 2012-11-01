@@ -3,12 +3,13 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.api.Context.OperatorContext;
+import com.malhartech.api.OperatorConfiguration;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,9 +26,9 @@ import org.slf4j.LoggerFactory;
  * DRC checks are validated<br>
  *
  */
-public class ThroughputCounterTest {
+public class ThroughputCounterBenchmark {
 
-    private static Logger log = LoggerFactory.getLogger(ThroughputCounterTest.class);
+    private static Logger log = LoggerFactory.getLogger(ThroughputCounterBenchmark.class);
 
   class TestCountSink implements Sink
   {
@@ -55,6 +56,7 @@ public class ThroughputCounterTest {
    * Tests both string and non string schema
    */
   @Test
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testSingleSchemaNodeProcessing() throws Exception
   {
     ThroughputCounter<String> node = new ThroughputCounter<String>();
@@ -62,18 +64,17 @@ public class ThroughputCounterTest {
     TestCountSink countSink = new TestCountSink();
     node.count.setSink(countSink);
     node.setRollingWindowCount(5);
-    node.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
+    node.setup(new OperatorConfiguration());
 
     node.beginWindow();
     HashMap<String, Integer> input;
-    int aint = 1000;
-    int bint = 100;
+    int aint = 100;
+    int bint = 10;
     Integer aval = new Integer(aint);
     Integer bval = new Integer(bint);
-    long ntot = aint + bint;
-    long numtuples = 1000;
-    long sentval = 0;
-    for (long i = 0; i < numtuples; i++) {
+    int numtuples = 100000000;
+    int sentval = 0;
+    for (int i = 0; i < numtuples; i++) {
       input = new HashMap<String, Integer>();
       input.put("a", aval);
       input.put("b", bval);
@@ -85,7 +86,7 @@ public class ThroughputCounterTest {
     log.info(String.format("\n*******************************************************\nGot average per sec(%d), count(got %d, expected %d), numtuples(%d)",
                            countSink.average,
                            countSink.count,
-                           ntot * numtuples,
+                           (aint+bint) * numtuples,
                            sentval));
   }
 }
