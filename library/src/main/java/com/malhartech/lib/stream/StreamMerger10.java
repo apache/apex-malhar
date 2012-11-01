@@ -42,7 +42,7 @@ import com.malhartech.api.DefaultInputPort;
  */
 public class StreamMerger10<K> extends StreamMerger5<K>
 {
-  @InputPortFieldAnnotation(name = "data6")
+  @InputPortFieldAnnotation(name = "data6", optional=true)
   public final transient DefaultInputPort<K> data6 = new DefaultInputPort<K>(this)
   {
     @Override
