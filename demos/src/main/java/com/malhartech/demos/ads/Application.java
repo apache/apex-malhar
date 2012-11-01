@@ -310,7 +310,7 @@ public class Application implements ApplicationFactory
     dag.addStream("tuplecount", tuple_counter.getOutput(ThroughputCounter.OPORT_COUNT), viewcountconsole.getInput(ConsoleOutputOperator.INPUT)).setInline(allInline);
 
     String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
-    if (serverAddr != null) {
+    if (serverAddr == null) {
       ConsoleOutputOperator<HashMap<String, Double>> revconsole = getConsoleDoubleOperator(dag, "revConsole");
       ConsoleOutputOperator<HashMap<String, Double>> costconsole = getConsoleDoubleOperator(dag, "costConsole");
       ConsoleOutputOperator<HashMap<String, Double>> marginconsole = getConsoleDoubleOperator(dag, "marginConsole");
