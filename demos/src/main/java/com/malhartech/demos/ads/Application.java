@@ -111,10 +111,8 @@ public class Application implements ApplicationFactory
       oper.setResourceURL(u);
       ret = oper;
     }
-    else {
-      ConsoleOutputOperator oper = b.addOperator(name, ConsoleOutputOperator.class);
-      oper.setStringFormat(name + ": %s");
-      ret = oper;
+    catch (URISyntaxException ex) {
+      throw new IllegalArgumentException(ex);
     }
     return ret;
   }

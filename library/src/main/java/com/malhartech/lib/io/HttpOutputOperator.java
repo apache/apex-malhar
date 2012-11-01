@@ -58,7 +58,10 @@ public class HttpOutputOperator<T> extends BaseOperator
 
   public void setResourceURL(URI url)
   {
-      this.resourceUrl = url;
+    if (!url.isAbsolute()) {
+      throw new IllegalArgumentException("URL is not absolute: " + url);
+    }
+    this.resourceUrl = url;
   }
 
   @Override
@@ -66,7 +69,7 @@ public class HttpOutputOperator<T> extends BaseOperator
   {
     wsClient = Client.create();
     wsClient.setFollowRedirects(true);
-    resource = wsClient.resource(resourceUrl);
+    resource = wsClient.resource(resourceUrl.toString());
     LOG.info("URL: {}", resourceUrl);
   }
 
