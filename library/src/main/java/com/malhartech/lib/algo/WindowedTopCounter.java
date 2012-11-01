@@ -5,6 +5,7 @@ package com.malhartech.lib.algo;
  *  All Rights Reserved.
  */
 import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.*;
 import com.malhartech.api.Context.OperatorContext;
 import java.util.HashMap;
@@ -22,7 +23,6 @@ public class WindowedTopCounter<T> extends BaseOperator
 {
   private static final long serialVersionUID = 201208061826L;
   private static final Logger logger = LoggerFactory.getLogger(WindowedTopCounter.class);
-
   @InputPortFieldAnnotation(name = "input")
   public final transient DefaultInputPort<Map<T, Integer>> input = new DefaultInputPort<Map<T, Integer>>(this)
   {
@@ -42,7 +42,7 @@ public class WindowedTopCounter<T> extends BaseOperator
       }
     }
   };
-  @InputPortFieldAnnotation(name = "output")
+  @OutputPortFieldAnnotation(name = "output")
   public final transient DefaultOutputPort<Map<T, Integer>> output = new DefaultOutputPort<Map<T, Integer>>(this);
   private int windows;
   private int topCount;
