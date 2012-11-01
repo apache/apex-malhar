@@ -4,12 +4,18 @@
  */
 package com.malhartech.demos.ads;
 
-import com.malhartech.stram.DAGPropertiesBuilder;
-import com.malhartech.stram.StramLocalCluster;
 import java.io.IOException;
+
+import javax.validation.ConstraintViolationException;
+
+import junit.framework.Assert;
+
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import com.malhartech.stram.DAGPropertiesBuilder;
+import com.malhartech.stram.StramLocalCluster;
 
 
 /**
@@ -31,9 +37,13 @@ public class ApplicationTest {
     Application app = new Application();
     app.setUnitTestMode(); // terminate quickly
     //app.setLocalMode(); // terminate with a long run
-    StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));
-    lc.setHeartbeatMonitoringEnabled(false);
-    lc.run();
+    try {
+      StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));
+      lc.setHeartbeatMonitoringEnabled(false);
+      lc.run();
+    } catch (ConstraintViolationException e) {
+      Assert.fail("constraint violations: " + e.getConstraintViolations());
+    }
   }
 
 }

@@ -25,8 +25,9 @@ import javax.validation.constraints.NotNull;
  */
 public class BaseNumberOperator<V extends Number> extends BaseOperator
 {
-  Class <V> type;
   @NotNull
+  Class <V> type;
+
   public void setType(Class <V> type)
   {
     this.type = type;
