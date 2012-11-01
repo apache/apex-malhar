@@ -4,12 +4,12 @@
  */
 package com.malhartech.demos.performance;
 
+import com.malhartech.api.Context.OperatorContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
-import com.malhartech.api.OperatorConfiguration;
 
 /**
  *
@@ -57,7 +57,7 @@ public class RandomWordInputModule implements InputOperator
   }
 
   @Override
-  public void setup(OperatorConfiguration config)
+  public void setup(OperatorContext context)
   {
   }
 

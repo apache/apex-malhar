@@ -3,9 +3,9 @@ package com.malhartech.demos.performance;
 /*
  * To change this template, choose Tools | Templates and open the template in the editor.
  */
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.Operator;
-import com.malhartech.api.OperatorConfiguration;
 import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +51,7 @@ public class WordCountModule<T> implements Operator
   }
 
   @Override
-  public void setup(OperatorConfiguration config)
+  public void setup(OperatorContext context)
   {
     counts = new ArrayList<Integer>();
   }

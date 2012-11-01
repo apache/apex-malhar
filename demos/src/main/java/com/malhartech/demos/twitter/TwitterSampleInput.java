@@ -18,10 +18,9 @@ import twitter4j.conf.ConfigurationBuilder;
 
 import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.api.ActivationListener;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
-import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.dag.OperatorContext;
 import com.malhartech.util.CircularBuffer;
 
 /**
@@ -51,7 +50,7 @@ public abstract class TwitterSampleInput implements InputOperator, ActivationLis
   private Properties twitterProperties;
 
   @Override
-  public void setup(OperatorConfiguration config)
+  public void setup(OperatorContext context)
   {
     if (multiplier != 1) {
       logger.info("Load set to be {}% of the entire twitter feed", multiplier);
