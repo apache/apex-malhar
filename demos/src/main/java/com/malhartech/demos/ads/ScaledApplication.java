@@ -171,7 +171,7 @@ public class ScaledApplication implements ApplicationFactory
     EventClassifier oper = b.addOperator(name, EventClassifier.class);
     HashMap<String, Double> kmap = new HashMap<String, Double>();
     kmap.put("sprint", 0.0);
-    kmap.put("etrace", 0.0);
+    kmap.put("etrade", 0.0);
     kmap.put("nike", 0.0);
     oper.setKeyMap(kmap);
     return oper;
@@ -185,6 +185,7 @@ public class ScaledApplication implements ApplicationFactory
     kmap.put("sprint", 1.0);
     kmap.put("etrade", 5.0);
     kmap.put("nike", 4.0);
+   oper. setKeyMap(kmap);
 
     HashMap<String, ArrayList<Integer>> wmap = new HashMap<String, ArrayList<Integer>>();
     ArrayList<Integer> alist = new ArrayList<Integer>(3);
