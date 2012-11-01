@@ -4,15 +4,9 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.annotation.InputPortFieldAnnotation;
-import com.malhartech.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.MutableInteger;
-import java.util.HashMap;
-import java.util.Map;
 import javax.validation.constraints.NotNull;
+
+import com.malhartech.api.BaseOperator;
 
 /**
  *
