@@ -188,6 +188,7 @@ public class EventGenerator implements InputOperator
     }
 
     if (--maxCountOfWindows == 0) {
+      LOG.info("reached maxCountOfWindows, interrupting thread.");
       Thread.currentThread().interrupt();
     }
   }
