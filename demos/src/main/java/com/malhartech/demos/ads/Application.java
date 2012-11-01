@@ -228,6 +228,7 @@ public class Application implements ApplicationFactory
     kmap.put("sprint", 1.0);
     kmap.put("etrade", 5.0);
     kmap.put("nike", 4.0);
+    oper. setKeyMap(kmap);
 
     HashMap<String, ArrayList<Integer>> wmap = new HashMap<String, ArrayList<Integer>>();
     ArrayList<Integer> alist = new ArrayList<Integer>(3);
@@ -286,28 +287,13 @@ public class Application implements ApplicationFactory
       viewsAggStream.addSink(viewsToHdfs);
     }
 */
+
     dag.addStream("clicksaggregate", insertclicks.filter, clickAggregate.data).setInline(true);
-
-    dag.addStream("clicksaggregate", insertclicks.getOutput(FilteredEventClassifier.OPORT_OUT_DATA), clickAggregate.getInput(Sum.IPORT_DATA)).setInline(true);
-
-    dag.addStream("adviewsdata", viewAggregate.getOutput(Sum.OPORT_SUM), cost.getInput(Sum.IPORT_DATA));
-    dag.addStream("clicksdata", clickAggregate.getOutput(Sum.OPORT_SUM), revenue.getInput(Sum.IPORT_DATA));
-    dag.addStream("viewtuplecount", viewAggregate.getOutput(Sum.OPORT_COUNT), ctr.getInput(Quotient.IPORT_DENOMINATOR), merge.getInput(StreamMerger.IPORT_IN_DATA1));
-    dag.addStream("clicktuplecount", clickAggregate.getOutput(Sum.OPORT_COUNT), ctr.getInput(Quotient.IPORT_NUMERATOR), merge.getInput(StreamMerger.IPORT_IN_DATA2));
-    dag.addStream("total count", merge.getOutput(StreamMerger.OPORT_OUT_DATA), tuple_counter.getInput(ThroughputCounter.IPORT_DATA));
-
-
-    Operator revconsole = getConsoleOperatorInstance(dag, "revConsole");
-    Operator costconsole = getConsoleOperatorInstance(dag, "costConsole");
-    Operator marginconsole = getConsoleOperatorInstance(dag, "marginConsole");
-    Operator ctrconsole = getConsoleOperatorInstance(dag, "ctrConsole");
-    Operator viewcountconsole = getConsoleOperatorInstance(dag, "viewCountConsole");
-
-    dag.addStream("revenuedata", revenue.getOutput(Sum.OPORT_SUM), margin.getInput(Margin.IPORT_DENOMINATOR), revconsole.getInput(ConsoleOutputOperator.INPUT)).setInline(allInline);
-    dag.addStream("costdata", cost.getOutput(Sum.OPORT_SUM), margin.getInput(Margin.IPORT_NUMERATOR), costconsole.getInput(ConsoleOutputOperator.INPUT)).setInline(allInline);
-    dag.addStream("margindata", margin.getOutput(Margin.OPORT_MARGIN), marginconsole.getInput(ConsoleOutputOperator.INPUT)).setInline(allInline);
-    dag.addStream("ctrdata", ctr.getOutput(Quotient.OPORT_QUOTIENT), ctrconsole.getInput(ConsoleOutputOperator.INPUT)).setInline(allInline);
-    dag.addStream("tuplecount", tuple_counter.getOutput(ThroughputCounter.OPORT_COUNT), viewcountconsole.getInput(ConsoleOutputOperator.INPUT)).setInline(allInline);
+    dag.addStream("adviewsdata", viewAggregate.sum, cost.data);
+    dag.addStream("clicksdata", clickAggregate.sum, revenue.data);
+    dag.addStream("viewtuplecount", viewAggregate.count, ctr.denominator, merge.data1);
+    dag.addStream("clicktuplecount", clickAggregate.count, ctr.numerator, merge.data2);
+    dag.addStream("total count", merge.out, tuple_counter.data);
 
     String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
     if (serverAddr == null) {
