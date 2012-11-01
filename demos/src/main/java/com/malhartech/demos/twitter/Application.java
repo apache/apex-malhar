@@ -18,6 +18,6 @@ public class Application implements ApplicationFactory
   @Override
   public DAG getApplication(Configuration conf)
   {
-    return new TwitterTopCounter(conf, new Random().nextBoolean());
+    return new TwitterTopCounter(conf);
   }
 }

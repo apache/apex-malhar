@@ -4,31 +4,24 @@
  */
 package com.malhartech.demos.twitter;
 
-import java.util.Properties;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import twitter4j.Status;
-import twitter4j.StatusDeletionNotice;
-import twitter4j.StatusListener;
-import twitter4j.TwitterStream;
-import twitter4j.TwitterStreamFactory;
-import twitter4j.conf.ConfigurationBuilder;
-
 import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.api.ActivationListener;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
 import com.malhartech.util.CircularBuffer;
+import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import twitter4j.*;
+import twitter4j.conf.ConfigurationBuilder;
 
 /**
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
 @ShipContainingJars(classes = {StatusListener.class, Status.class})
-public abstract class TwitterSampleInput implements InputOperator, ActivationListener<OperatorContext>, StatusListener
+public class TwitterSampleInput implements InputOperator, ActivationListener<OperatorContext>, StatusListener
 {
   private static final Logger logger = LoggerFactory.getLogger(TwitterSampleInput.class);
   public final transient DefaultOutputPort<Status> status = new DefaultOutputPort<Status>(this);
@@ -147,5 +140,30 @@ public abstract class TwitterSampleInput implements InputOperator, ActivationLis
   void setFeedMultiplier(int multiplier)
   {
     this.multiplier = multiplier;
+  }
+
+  @Override
+  public void emitTuples()
+  {
+    for (int size = statuses.size(); size-- > 0;) {
+      Status s = statuses.poll();
+      if (status.isConnected()) {
+        status.emit(s);
+      }
+
+      if (text.isConnected()) {
+        text.emit(s.getText());
+      }
+
+      if (url.isConnected()) {
+        URLEntity[] entities = s.getURLEntities();
+        if (entities != null) {
+          for (URLEntity ue: entities) {
+            url.emit((ue.getExpandedURL() == null ? ue.getURL() : ue.getExpandedURL()).toString());
+          }
+        }
+      }
+      // do the same thing for all the other output ports.
+    }
   }
 }

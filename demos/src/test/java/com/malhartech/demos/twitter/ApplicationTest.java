@@ -7,6 +7,8 @@ package com.malhartech.demos.twitter;
 import com.malhartech.stram.DAGPropertiesBuilder;
 import com.malhartech.stram.StramLocalCluster;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -26,23 +28,24 @@ public class ApplicationTest
     lc.run();
   }
 
-  @Ignore
   @Test
-  public void testAsyncApplication() throws IOException, Exception
+  public void testApplication() throws Exception
   {
-    testApplication(false);
-  }
-
-  @Test
-  public void testSyncApplication() throws IOException, Exception
-  {
-    testApplication(true);
-  }
-
-  public void testApplication(boolean sync) throws Exception
-  {
-    StramLocalCluster lc = new StramLocalCluster(new TwitterTopCounter(new Configuration(false), sync));
+    final StramLocalCluster lc = new StramLocalCluster(new TwitterTopCounter(new Configuration(false)));
     lc.setHeartbeatMonitoringEnabled(false);
+    new Thread() {
+      @Override
+      public void run()
+      {
+        try {
+          Thread.sleep(10000);
+        }
+        catch (InterruptedException ex) {
+        }
+        lc.shutdown();
+      }
+    };//.start();
+
     lc.run();
   }
 }

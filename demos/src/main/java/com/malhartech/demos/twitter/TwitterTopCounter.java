@@ -40,7 +40,7 @@ public class TwitterTopCounter extends DAG
     return operator.input;
   }
 
-  public final TwitterSampleInput getTwitterFeed(String name, boolean sync, int multby)
+  public final TwitterSampleInput getTwitterFeed(String name, int multby)
   {
     final String propertyBase = "twitter4j";
     Properties properties = new Properties();
@@ -54,8 +54,7 @@ public class TwitterTopCounter extends DAG
     /*
      * Setup the operator to get the data from twitter sample stream injected into the system.
      */
-    logger.info("Creating {}synchronous instance of TwitterSampleInput", sync? "": "a");
-    TwitterSampleInput oper = addOperator(name, TwitterAsyncSampleInput.class);
+    TwitterSampleInput oper = addOperator(name, TwitterSampleInput.class);
     oper.setTwitterProperties(properties);
     oper.setFeedMultiplier(multby);
     return oper;
@@ -77,14 +76,15 @@ public class TwitterTopCounter extends DAG
   {
     WindowedTopCounter oper = addOperator(name, WindowedTopCounter.class);
     oper.setTopCount(count);
+    oper.setSlidingWindowWidth(10, 1);
     return oper;
   }
 
-  public TwitterTopCounter(Configuration conf, boolean sync)
+  public TwitterTopCounter(Configuration conf)
   {
     super(conf);
 
-    TwitterSampleInput twitterFeed = getTwitterFeed("TweetSampler", sync, 100); // Setup the operator to get the data from twitter sample stream injected into the system.
+    TwitterSampleInput twitterFeed = getTwitterFeed("TweetSampler", 100); // Setup the operator to get the data from twitter sample stream injected into the system.
     TwitterStatusURLExtractor urlExtractor = getTwitterUrlExtractor("URLExtractor"); //  Setup the operator to get the URLs extracted from the twitter statuses
     UniqueCounter uniqueCounter = getUniqueCounter("UniqueURLCounter"); // Setup a node to count the unique urls within a window.
     WindowedTopCounter topCounts = getTopCounter("TopCounter", 10);  // Get the aggregated url counts and count them over the timeframe

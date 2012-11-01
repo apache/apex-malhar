@@ -62,7 +62,6 @@ public class WindowedTopCounter<T> extends BaseOperator
   {
     topCounter = new PriorityQueue<WindowedHolder<T>>(this.topCount, new TopSpotComparator());
     objects = new HashMap<T, WindowedHolder>(topCount);
-    throw new RuntimeException("the values which are being passed to setup need to looked at again as I changed the code here!");
   }
 
   @Override
