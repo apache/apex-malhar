@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.stream;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
  */
 public class ArrayListToItem<K> extends BaseOperator
 {
+  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<ArrayList<K>> data = new DefaultInputPort<ArrayList<K>>(this)
   {
     @Override
@@ -40,5 +42,6 @@ public class ArrayListToItem<K> extends BaseOperator
       }
     }
   };
+  @InputPortFieldAnnotation(name = "item")
   public final transient DefaultOutputPort<K> item = new DefaultOutputPort<K>(this);
 }
