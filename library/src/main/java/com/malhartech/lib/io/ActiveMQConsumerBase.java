@@ -4,32 +4,35 @@
  */
 package com.malhartech.lib.io;
 
+import com.malhartech.annotation.InjectConfig;
 import javax.jms.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  *
- * @author Locknath Shil <locknath@malhar-inc.com>
+ *  @author Locknath Shil <locknath@malhar-inc.com>
  */
 public abstract class ActiveMQConsumerBase extends ActiveMQBase implements MessageListener, ExceptionListener
 {
   private static final Logger logger = LoggerFactory.getLogger(ActiveMQConsumerBase.class);
-  private MessageProducer replyProducer;
-  private MessageConsumer consumer;
-  private long messagesReceived = 0;
+  private transient MessageProducer replyProducer;
+  private transient MessageConsumer consumer;
+  private long messageReceivedCount = 0;
+
+  // Config parameters that user can set.
+  @InjectConfig(key = "consumerName")
   private String consumerName;
- private long maxMessages;
+  @InjectConfig(key = "maximumReceiveMessages")
+  private long maximumReceiveMessages = 0; // 0 means unlimitted, can be set by user
 
-
-   /**
-   * Any ActiveMQINputOperator has to implement this method
-   * so that it knows how to emit message to what port.
+  /**
+   *  Any ActiveMQINputOperator has to implement this method
+   *  so that it knows how to emit message to what port.
    *
-   * @param message
+   *  @param message
    */
   protected abstract void emitMessage(Message message) throws JMSException;
-
 
   public MessageProducer getReplyProducer()
   {
@@ -53,12 +56,12 @@ public abstract class ActiveMQConsumerBase extends ActiveMQBase implements Messa
 
   public long getMessagesReceived()
   {
-    return messagesReceived;
+    return messageReceivedCount;
   }
 
   public void setMessagesReceived(long messagesReceived)
   {
-    this.messagesReceived = messagesReceived;
+    this.messageReceivedCount = messagesReceived;
   }
 
   public String getConsumerName()
@@ -71,51 +74,60 @@ public abstract class ActiveMQConsumerBase extends ActiveMQBase implements Messa
     this.consumerName = consumerName;
   }
 
+  public long getMaximumReceiveMessages()
+  {
+    return maximumReceiveMessages;
+  }
+
+  public void setMaximumReceiveMessages(long maximumReceiveMessages)
+  {
+    this.maximumReceiveMessages = maximumReceiveMessages;
+  }
+
   /**
-   * Connection specific setup for ActiveMQ.
+   *  Connection specific setup for ActiveMQ.
    *
-   * @throws JMSException
+   *  @throws JMSException
    */
   public void setupConnection() throws JMSException
   {
     super.createConnection();
-    replyProducer = session.createProducer(null);
+    replyProducer = getSession().createProducer(null);
 
-    consumer = (durable && topic)
-               ? session.createDurableSubscriber((Topic)destination, consumerName)
-               : session.createConsumer(destination);
+    consumer = (isDurable() && isTopic())
+               ? getSession().createDurableSubscriber((Topic)getDestination(), consumerName)
+               : getSession().createConsumer(getDestination());
     consumer.setMessageListener(this);
-    maxMessages = super.getMaximumMessage();
   }
 
   /**
-   * Commit/Acknowledge message that has been received.
-   * @param message
+   *  Commit/Acknowledge message that has been received.
+   *
+   *  @param message
    */
   public void acknowledgeMessage(Message message)
   {
-    ++messagesReceived;
     try {
       if (message.getJMSReplyTo() != null) {
         // Send reply only if the replyTo destination is set
-        replyProducer.send(message.getJMSReplyTo(), session.createTextMessage("Reply: " + message.getJMSMessageID()));
+        replyProducer.send(message.getJMSReplyTo(), getSession().createTextMessage("Reply: " + message.getJMSMessageID()));
       }
 
-      if (transacted) {
-        if ((messagesReceived % batch) == 0) {
-          if (verbose) {
-            System.out.println("Commiting transaction for last " + batch + " messages; messages so far = " + messagesReceived);
+      if (isTransacted()) {
+        if ((messageReceivedCount % getBatch()) == 0) {
+          if (isVerbose()) {
+            System.out.println("Commiting transaction for last " + getBatch() + " messages; messages so far = " + messageReceivedCount);
           }
-          session.commit();
+          getSession().commit();
         }
       }
-      else if (getSessionAckMode(ackMode) == Session.CLIENT_ACKNOWLEDGE) {
+      else if (getSessionAckMode(getAckMode()) == Session.CLIENT_ACKNOWLEDGE) {
         // we can use window boundary to ack the message.
-        if ((messagesReceived % batch) == 0) {
-          if (verbose) {
-            System.out.println("Acknowledging last " + batch + " messages; messages so far = " + messagesReceived);
+        if ((messageReceivedCount % getBatch()) == 0) {
+          if (isVerbose()) {
+            System.out.println("Acknowledging last " + getBatch() + " messages; messages so far = " + messageReceivedCount);
           }
-          message.acknowledge();
+          message.acknowledge(); // acknowledge all consumed messages upto now
         }
       }
     }
@@ -124,40 +136,46 @@ public abstract class ActiveMQConsumerBase extends ActiveMQBase implements Messa
     }
   }
 
-    /**
-   * Whenever there is message available this will get called.
-   * This just emit the message to Malhar platform.
+  /**
+   *  Implement MessageListener interface.
    *
-   * @param message
+   *  Whenever there is message available in ActiveMQ message bus this will get called.
+   *  This just emit the message to Malhar platform.
+   *
+   *  @param message
    */
   @Override
   public void onMessage(Message message)
   {
+    ++messageReceivedCount;
+
     // Make sure that we do not get called again if we have processed enough messages already.
-    logger.debug("onMessage got called from {}", this);
-    if (maxMessages > 0) {
-      if (--maxMessages == 0) {
-        try {
-          consumer.setMessageListener(null);
-        }
-        catch (JMSException ex) {
-          logger.error(ex.getLocalizedMessage());
-        }
+    logger.debug("onMessage got called from {} with {}", this, messageReceivedCount);
+
+    if (messageReceivedCount == maximumReceiveMessages) {
+      try {
+        consumer.setMessageListener(null);
+      }
+      catch (JMSException ex) {
+        logger.error(ex.getLocalizedMessage());
       }
     }
 
     try {
-      //super.outputPort.emit(getTuple(message));
-      emitMessage(message);
+      emitMessage(message); // Call abstract method to send message to ActiveMQ input operator.
     }
     catch (JMSException ex) {
       logger.debug(ex.getLocalizedMessage());
     }
 
-
     acknowledgeMessage(message);
   }
 
+  /**
+   *  Implement ExceptionListener interface.
+   *
+   *  @param ex
+   */
   @Override
   public void onException(JMSException ex)
   {
@@ -165,13 +183,12 @@ public abstract class ActiveMQConsumerBase extends ActiveMQBase implements Messa
   }
 
   /**
-   * Release resources.
+   *  Release resources.
    */
   @Override
   public void cleanup()
   {
     try {
-
       replyProducer.close();
       replyProducer = null;
       consumer.close();

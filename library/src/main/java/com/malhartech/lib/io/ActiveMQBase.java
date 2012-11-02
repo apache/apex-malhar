@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.io;
 
+import com.malhartech.annotation.InjectConfig;
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -15,58 +16,47 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * @author Locknath Shil <locknath@malhar-inc.com>
+ *  @author Locknath Shil <locknath@malhar-inc.com>
  */
 public class ActiveMQBase
 {
   private static final Logger logger = LoggerFactory.getLogger(ActiveMQBase.class);
-  //private boolean isProducer;
-  protected Connection connection;
-  protected Session session;
- // private MessageProducer producer;
- // private MessageProducer replyProducer;
- // private MessageConsumer consumer;
+  private transient Connection connection;
+  private transient Session session;
+  private transient Destination destination;
 
-  protected Destination destination;
-
+  // Config parameters that user can set.
   @NotNull
-  private String user;
-
+  @InjectConfig(key = "user")
+  private String user = "";
   @NotNull
+  @InjectConfig(key = "password")
   private String password = "";
-
   @NotNull
+  @InjectConfig(key = "url")
   private String url;
-
-  protected String ackMode;
-  private String clientId;
-
+  @InjectConfig(key = "ackMode")
+  private String ackMode = "CLIENT_ACKNOWLEDGE";
+  @InjectConfig(key = "clientId")
+  private String clientId = "TestClient";
+  @InjectConfig(key = "subject")
   private String subject = "TEST.FOO";
-  protected int batch = 10;
+  @InjectConfig(key = "batch")
+  private int batch = 10;
+  @InjectConfig(key = "messageSize")
   private int messageSize = 255;
-  private long maximumMessage = 0; // means unlimitted
-
-  private long maximumReceiveMessages = 0; // means unlimitted
-  protected boolean durable = false;
-  protected boolean topic = false;
-  protected boolean transacted = false;
-  protected boolean verbose = false;
-
-
-  ActiveMQBase()
-  {
-  }
-
-
+  @InjectConfig(key = "durable")
+  private boolean durable = false;
+  @InjectConfig(key = "topic")
+  private boolean topic = false;
+  @InjectConfig(key = "transacted")
+  private boolean transacted = false;
+  @InjectConfig(key = "verbose")
+  private boolean verbose = false;
 
   public Connection getConnection()
   {
     return connection;
-  }
-
-  public void setConnection(Connection connection)
-  {
-    this.connection = connection;
   }
 
   public Session getSession()
@@ -74,23 +64,10 @@ public class ActiveMQBase
     return session;
   }
 
-  public void setSession(Session session)
-  {
-    this.session = session;
-  }
-
-
   public Destination getDestination()
   {
     return destination;
   }
-
-  public void setDestination(Destination destination)
-  {
-    this.destination = destination;
-  }
-
-
 
   public String getUser()
   {
@@ -142,8 +119,6 @@ public class ActiveMQBase
     this.clientId = clientId;
   }
 
-
-
   public String getSubject()
   {
     return subject;
@@ -172,26 +147,6 @@ public class ActiveMQBase
   public void setMessageSize(int messageSize)
   {
     this.messageSize = messageSize;
-  }
-
-  public long getMaximumMessage()
-  {
-    return maximumMessage;
-  }
-
-  public void setMaximumMessage(long maximumMessage)
-  {
-    this.maximumMessage = maximumMessage;
-  }
-
-  public long getMaximumReceiveMessages()
-  {
-    return maximumReceiveMessages;
-  }
-
-  public void setMaximumReceiveMessages(long maximumReceiveMessages)
-  {
-    this.maximumReceiveMessages = maximumReceiveMessages;
   }
 
   public boolean isDurable()
@@ -235,7 +190,8 @@ public class ActiveMQBase
   }
 
   /**
-   * Get session acknowledge
+   *  Get session acknowledge.
+   *  Converts acknowledge string into JMS Session variable.
    */
   public int getSessionAckMode(String ackMode)
   {
@@ -257,9 +213,9 @@ public class ActiveMQBase
   }
 
   /**
-   * Connection specific setup for ActiveMQ.
+   *  Connection specific setup for ActiveMQ.
    *
-   * @throws JMSException
+   *  @throws JMSException
    */
   public void createConnection() throws JMSException
   {
@@ -271,7 +227,6 @@ public class ActiveMQBase
     if (durable && clientId != null) {
       connection.setClientID(clientId);
     }
-    //connection.setExceptionListener(this); // Needed only for consumer which extends from ExceptionListener
     connection.start();
 
     // Create session
@@ -279,45 +234,18 @@ public class ActiveMQBase
 
     // Create destination
     destination = topic
-                              ? session.createTopic(subject)
-                              : session.createQueue(subject);
-
-/*
-    if (isProducer) {
-      // Create producer
-      producer = session.createProducer(destination);
-      //producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-    }
-    else {
-      replyProducer = session.createProducer(null);
-
-      consumer = (durable && topic)
-                 ? session.createDurableSubscriber((Topic)destination, consumerName)
-                 : session.createConsumer(destination);
-    }
-    */
+                  ? session.createTopic(subject)
+                  : session.createQueue(subject);
   }
 
   /**
-   * cleanup implementation.
+   *  cleanup connection resources.
    */
-  public void cleanup()
+  public void cleanup() // where should be called TBD
   {
     logger.debug("cleanup got called from {}", this);
 
     try {
-    /*  if (isProducer) {
-        producer.close();
-        producer = null;
-      }
-      else {
-        replyProducer.close();
-        replyProducer = null;
-        consumer.close();
-        consumer = null;
-      }
-*/
-
       session.close();
       connection.close();
       session = null;

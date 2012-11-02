@@ -11,10 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is the message generator outside of Malhar/Hadoop.
- * This generates data and send to ActiveMQ message bus so that Malhar input adapter for ActiveMQ can receive it.
+ *  This is the message generator outside of Malhar/Hadoop.
+ *  This generates data and send to ActiveMQ message bus so that Malhar input adapter for ActiveMQ can receive it.
  *
- * @author Locknath <locknath@malhar-inc.com>
+ *  @author Locknath <locknath@malhar-inc.com>
  */
 public class ActiveMQMessageGenerator
 {
@@ -49,9 +49,9 @@ public class ActiveMQMessageGenerator
   }
 
   /**
-   * Setup connection, producer, consumer so on.
+   *  Setup connection, producer, consumer so on.
    *
-   * @throws JMSException
+   *  @throws JMSException
    */
   public void setupConnection() throws JMSException
   {
@@ -75,9 +75,9 @@ public class ActiveMQMessageGenerator
   }
 
   /**
-   * Generate message and send it to ActiveMQ message bus.
+   *  Generate message and send it to ActiveMQ message bus.
    *
-   * @throws Exception
+   *  @throws Exception
    */
   public void sendMessage() throws Exception
   {
@@ -111,7 +111,7 @@ public class ActiveMQMessageGenerator
   }
 
   /**
-   * Close connection resources.
+   *  Close connection resources.
    */
   public void closeConnection()
   {

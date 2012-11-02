@@ -8,6 +8,8 @@ import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.Operator;
+import com.malhartech.api.OperatorConfiguration;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -16,83 +18,93 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * @author Locknath Shil <locknath@malhar-inc.com>
+ *  @author Locknath Shil <locknath@malhar-inc.com>
  *
- * This is ActiveMQ output adapter operator (which produce data into ActiveMQ message bus).
+ *  This is ActiveMQ output adapter operator (which produce data into ActiveMQ message bus).
  */
-public abstract class AbstractActiveMQOutputOperator<T> extends BaseOperator
+public abstract class AbstractActiveMQOutputOperator<T> extends ActiveMQProducerBase implements Operator
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractActiveMQOutputOperator.class);
-  protected ActiveMQProducerBase amqProducer = new ActiveMQProducerBase();
-  long maximumSendMessages = 0;
-  long countMessages = 0; // Number of message produced
+  long maxSendMessage = 0; // max send limit
+  long countMessages = 0; // Number of message produced so far
 
   protected abstract Message createMessage(T obj);
 
-  public AbstractActiveMQOutputOperator()
-  {
-  }
-
-  public ActiveMQProducerBase getAmqProducer()
-  {
-    return amqProducer;
-  }
-
   /**
-   * Do connection setup with activeMQ service.
+   *  Implements Sink interface.
+   */
+  /* @InputPortFieldAnnotation(name = "ActiveMQInputPort")
+   public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>(this)
+   {
+   @Override
+   public void process(T t)
+   {
+   logger.debug("process got called from {}", this);
+
+   // Stop sending messages after max limit.
+   if (countMessages >= maxSendMessage && maxSendMessage != 0) {
+   if (countMessages == maxSendMessage) {
+   logger.warn("Reached maximum send messages of {}", maxSendMessage);
+   }
+   return;
+   }
+
+   try {
+   Message msg = createMessage(t);
+   getProducer().send(msg);
+
+   logger.debug("process got called from {} with message {}", this, t.toString());
+   }
+   catch (JMSException ex) {
+   logger.debug(ex.getLocalizedMessage());
+   }
+   countMessages++;
+   }
+   };
+   */
+  /**
+   *  Implement Component Interface.
    *
-   * @param config
+   *  @param config
    */
   @Override
   public void setup(OperatorContext context)
   {
+    logger.debug("setup got called from {}", this);
     try {
-      logger.debug("setup got called from {}", this);
-      amqProducer.setupConnection();
+      setupConnection();
     }
     catch (JMSException ex) {
       logger.debug(ex.getLocalizedMessage());
     }
-    maximumSendMessages = amqProducer.getMaximumSendMessages();
+    maxSendMessage = getMaximumSendMessages();
   }
 
   /**
-   * Implements Sink interface.
-   */
-  @InputPortFieldAnnotation(name = "ActiveMQInputPort")
-  public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>(this)
-  {
-    @Override
-    public void process(T t)
-    {
-      logger.debug("process got called from {}", this);
-
-      if (countMessages++ >= maximumSendMessages && maximumSendMessages != 0) {
-        if (countMessages == maximumSendMessages) {
-          logger.warn("Reached maximum send messages of {}", maximumSendMessages);
-        }
-        return;
-      }
-
-      try {
-        Message msg = createMessage(t);
-        amqProducer.getProducer().send(msg);
-
-        logger.debug("process got called from {} with message {}", this, t.toString());
-      }
-      catch (JMSException ex) {
-        logger.debug(ex.getLocalizedMessage());
-      }
-    }
-  };
-
-  /**
-   * Close connection attributes.
+   *  Implement Component Interface.
    */
   @Override
   public void teardown()
   {
     logger.debug("teardown got called from {}", this);
-    amqProducer.cleanup();
+    // cleanup(); TBD
+  }
+
+  /**
+   *  Implement Operator Interface.
+   */
+  @Override
+  public void beginWindow()
+  {
+    logger.debug("beginWindow got called from {}", this);
+  }
+
+  /**
+   *  Implement Operator Interface.
+   */
+  @Override
+  public void endWindow()
+  {
+    logger.debug("endWindow got called from {}", this);
   }
 }

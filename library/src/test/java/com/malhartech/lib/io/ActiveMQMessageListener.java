@@ -11,9 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is the AcctiveMQ message listener (i.e. consumer) outside of Malhar/Hadoop.
+ *  This is the AcctiveMQ message listener (i.e. consumer) outside of Malhar/Hadoop.
  *
- * @author Locknath Shil <locknath@malhar-inc.com>
+ *  @author Locknath Shil <locknath@malhar-inc.com>
  */
 public class ActiveMQMessageListener implements MessageListener, Runnable
 {
@@ -37,10 +37,6 @@ public class ActiveMQMessageListener implements MessageListener, Runnable
   private boolean transacted = false;
   private boolean verbose = false;
   private String consumerName = "Consumer1";
-
-  public ActiveMQMessageListener()
-  {
-  }
 
   public void setupConnection() throws JMSException
   {
