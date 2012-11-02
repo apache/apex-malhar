@@ -56,7 +56,9 @@ import com.malhartech.lib.util.OneKeyValPair;
  * <b>seed_end</b>Has to be an integer<br>
  * <b>key</b>If provided has to be in format "key1,key1start,key1end;key2, key2start, key2end; ..."
  * <br>
- *
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * With key: Benchmarked at over 1 million tuples/second in local/in-line mode<br>
+ * Without key: Benchmarked at over 4 million tuples/second in local/in-line mode<br>
  * @author amol
  */
 public class SeedEventGenerator extends BaseOperator implements InputOperator
