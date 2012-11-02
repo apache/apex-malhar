@@ -6,10 +6,8 @@ package com.malhartech.lib.io;
 
 import com.malhartech.annotation.InjectConfig;
 import com.malhartech.api.ActivationListener;
-import com.malhartech.api.BaseOperator;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.InputOperator;
-import com.malhartech.api.OperatorConfiguration;
-import com.malhartech.dag.OperatorContext;
 import com.malhartech.util.CircularBuffer;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -86,7 +84,7 @@ public abstract class AbstractActiveMQInputOperator<T> extends ActiveMQConsumerB
    *  Implement Operator Interface.
    */
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     logger.debug("beginWindow got called from {}", this);
   }
@@ -98,15 +96,6 @@ public abstract class AbstractActiveMQInputOperator<T> extends ActiveMQConsumerB
   public void endWindow()
   {
     logger.debug("endWindow got called from {}", this);
-  }
-
-  /**
-   *  Implement InputOperator Interface.
-   */
-  @Override
-  public void replayTuples(long windowId)
-  {
-    logger.debug("replayTuples got called from {}", this);
   }
 
   /**

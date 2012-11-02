@@ -4,13 +4,8 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.annotation.InputPortFieldAnnotation;
-import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.Operator;
-import com.malhartech.api.OperatorConfiguration;
-import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import org.slf4j.Logger;
@@ -94,7 +89,7 @@ public abstract class AbstractActiveMQOutputOperator<T> extends ActiveMQProducer
    *  Implement Operator Interface.
    */
   @Override
-  public void beginWindow()
+  public void beginWindow(long windowId)
   {
     logger.debug("beginWindow got called from {}", this);
   }

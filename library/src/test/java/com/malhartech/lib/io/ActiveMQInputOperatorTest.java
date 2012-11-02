@@ -4,20 +4,21 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.dag.TestSink;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
+import com.malhartech.api.*;
 import com.malhartech.stram.StramLocalCluster;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.TextMessage;
 import junit.framework.Assert;
 import org.apache.activemq.broker.BrokerService;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,11 +61,11 @@ public class ActiveMQInputOperatorTest
       }
     }
 
-    /**
-     *  Implement InputOperator Interface.
-     */
+  /**
+   *  Implement InputOperator Interface.
+   */
     @Override
-    public void emitTuples(long windowId)
+    public void emitTuples()
     {
       //logger.debug("emitTuples got called from {}", this);
       int bufferSize = holdingBuffer.size();

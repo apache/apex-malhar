@@ -121,12 +121,7 @@ public class ActiveMQOutputOperatorTest
     private volatile Thread dataGeneratorThread;
 
     @Override
-    public void replayTuples(long windowId)
-    {
-    }
-
-    @Override
-    public void beginWindow()
+    public void beginWindow(long windowId)
     {
     }
 
@@ -136,7 +131,7 @@ public class ActiveMQOutputOperatorTest
     }
 
     @Override
-    public void setup(OperatorConfiguration config)
+    public void setup(OperatorContext context)
     {
     }
 
@@ -176,7 +171,7 @@ public class ActiveMQOutputOperatorTest
     }
 
     @Override
-    public void emitTuples(long windowId)
+    public void emitTuples()
     {
       for (int i = stringBuffer.size(); i-- > 0;) {
         outputPort.emit(stringBuffer.pollUnsafe());
