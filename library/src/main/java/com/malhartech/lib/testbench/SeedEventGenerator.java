@@ -113,16 +113,18 @@ public class SeedEventGenerator extends BaseOperator implements InputOperator
    */
   public void emitTuple(int i)
   {
-    HashMap<String, String> stuple = null;
-    HashMap<String, ArrayList<OneKeyValPair>> atuple = null;
+    HashMap<String, String> stuple;
+    HashMap<String, ArrayList<OneKeyValPair>> atuple;
     String key = Integer.toString(i);
 
     if (keys == null) {
       if (string_data.isConnected()) {
+        stuple = new HashMap<String, String>(1);
         stuple.put(key, null);
         string_data.emit(stuple);
       }
       if (keyvalpair_list.isConnected()) {
+        atuple = new HashMap<String, ArrayList<OneKeyValPair>>(1);
         atuple.put(key, null);
         keyvalpair_list.emit(atuple);
       }
