@@ -4,7 +4,6 @@
 package com.malhartech.lib.algo;
 
 import com.malhartech.dag.TestCountSink;
-import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,9 +13,9 @@ import org.slf4j.LoggerFactory;
  * Functional tests for {@link com.malhartech.lib.algo.Sampler}<p>
  *
  */
-public class SamplerTest
+public class SamplerBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(SamplerTest.class);
+  private static Logger log = LoggerFactory.getLogger(SamplerBenchmark.class);
 
   /**
    * Test node logic emits correct results
@@ -32,20 +31,13 @@ public class SamplerTest
     oper.setTotalrate(100);
 
     String tuple = "a";
-
-
-    int numTuples = 10000;
+    int numTuples = 500000000;
     oper.beginWindow(0);
     for (int i = 0; i < numTuples; i++) {
       oper.data.process(tuple);
     }
 
     oper.endWindow();
-    int lowerlimit = 5;
-    int upperlimit = 15;
-    int actual = (100 * sink.count) / numTuples;
-
-    Assert.assertEquals("number emitted tuples", true, lowerlimit < actual);
-    Assert.assertEquals("number emitted tuples", true, upperlimit > actual);
+    log.debug(String.format("\nBenchmarked %d tuples", numTuples));
   }
 }

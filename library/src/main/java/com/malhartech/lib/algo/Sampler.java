@@ -30,11 +30,12 @@ import java.util.Random;
  * Run time checks are:<br>
  * None<br>
  * <br>
- *
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * Operator emits  > 65 million tuples/sec.<br>
  * @author amol<br>
  *
  */
-public class Sampler<K> extends BaseOperator
+public class Sampler<K> extends BaseKeyOperator<K>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>(this)
@@ -46,7 +47,7 @@ public class Sampler<K> extends BaseOperator
       if (fval >= passrate) {
         return;
       }
-      sample.emit(tuple);
+      sample.emit(cloneKey(tuple));
     }
   };
   @OutputPortFieldAnnotation(name = "sample")
