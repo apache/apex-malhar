@@ -238,7 +238,7 @@ public class SeedEventGeneratorTest
           lc.shutdown();
         }
         catch (InterruptedException ex) {
-          java.util.logging.Logger.getLogger(EventGeneratorBenchmark.class.getName()).log(Level.SEVERE, null, ex);
+          log.debug("Interrupted", ex);
         }
       }
     }.start();
