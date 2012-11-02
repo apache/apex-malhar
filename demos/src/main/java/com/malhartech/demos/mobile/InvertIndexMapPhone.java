@@ -69,6 +69,7 @@ public class InvertIndexMapPhone extends BaseOperator
     @Override
     public void process(Map<String, String> tuple)
     {
+      log.info("new query: " + tuple);
       String qid = null;
       String phone = null;
       String location = null;
@@ -133,10 +134,10 @@ public class InvertIndexMapPhone extends BaseOperator
   public static final String OPORT_INDEX = "index";
   public static final String OPORT_CONSOLE = "index";
   public static final String KEY_SEED_QUERYS_JSON = "seedQueries";
-  private final HashMap<String, HashMap<String, Object>> kindex = new HashMap<String, HashMap<String, Object>>();
-  private final HashMap<String, String> secondary_index = new HashMap<String,String>();
-  private final HashMap<String, String> phone_register = new HashMap<String,String>();
-  private final HashMap<String, String> location_register = new HashMap<String,String>();
+  private final transient HashMap<String, HashMap<String, Object>> kindex = new HashMap<String, HashMap<String, Object>>();
+  private final transient HashMap<String, String> secondary_index = new HashMap<String,String>();
+  private final transient HashMap<String, String> phone_register = new HashMap<String,String>();
+  private final transient HashMap<String, String> location_register = new HashMap<String,String>();
   public static final String CHANNEL_PHONE = "phone";
   public static final String CHANNEL_LOCATION = "location";
   public static final String IDENTIFIER_CHANNEL = "queryId";

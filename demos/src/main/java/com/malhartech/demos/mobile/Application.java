@@ -96,8 +96,8 @@ public class Application implements ApplicationFactory
     RandomEventGenerator oper = b.addOperator(name, RandomEventGenerator.class);
     oper.setMaxvalue(99);
     oper.setMinvalue(0);
-    //oper.setTuplesBlast(10);
-    oper.setTuplesBlastIntervalMillis(100);
+    oper.setTuplesBlast(1000);
+    oper.setTuplesBlastIntervalMillis(50);
     return oper;
   }
 
@@ -158,6 +158,7 @@ public class Application implements ApplicationFactory
     if (this.ajaxServerAddr != null) {
       HttpOutputOperator<HashMap<String, Object>> httpconsole = getHttpOutputNumberOperator(dag, "phoneLocationQueryResult");
       dag.addStream("consoledata", indexMap.console, httpconsole.input).setInline(true);
+
       HttpInputOperator phoneLocationQuery = dag.addOperator("phoneLocationQuery", HttpInputOperator.class);
       URI u = URI.create("http://" + ajaxServerAddr + "/channel/mobile/phoneLocationQuery");
       phoneLocationQuery.setUrl(u);
