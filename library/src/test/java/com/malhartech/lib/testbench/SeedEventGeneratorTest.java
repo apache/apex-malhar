@@ -146,85 +146,29 @@ public class SeedEventGeneratorTest
   @Test
   public void testNodeProcessing() throws Exception
   {
-    testSchemaNodeProcessing(true, false, false, false);
-    testSchemaNodeProcessing(true, true, false, false);
-    testSchemaNodeProcessing(false, false, false, false);
-    testSchemaNodeProcessing(false, true, false, false);
-    testSchemaNodeProcessing(true, false, true, false);
-    testSchemaNodeProcessing(true, true, true, false);
-    testSchemaNodeProcessing(false, false, true, false);
-    testSchemaNodeProcessing(false, true, true, false);
-
-    testSchemaNodeProcessing(true, false, false, true);
-    testSchemaNodeProcessing(true, true, false, true);
-    testSchemaNodeProcessing(false, false, false, true);
-    testSchemaNodeProcessing(false, true, false, true);
-    testSchemaNodeProcessing(true, false, true, true);
-    testSchemaNodeProcessing(true, true, true, true);
-    testSchemaNodeProcessing(false, false, true, true);
-    testSchemaNodeProcessing(false, true, true, true);
+    testSchemaNodeProcessing(true);
+    testSchemaNodeProcessing(false);
   }
 
   @SuppressWarnings("SleepWhileInLoop")
-  public void testSchemaNodeProcessing(boolean isstring, boolean insert, boolean doseedkey, boolean emitkey) throws Exception
+  public void testSchemaNodeProcessing(boolean doseedkey) throws Exception
   {
     DAG dag = new DAG();
 
     SeedEventGenerator node = dag.addOperator("seedeventgen", SeedEventGenerator.class);
     CollectorOperator collector = dag.addOperator("data collector", new CollectorOperator());
     clear();
-
+    if (doseedkey) {
+      node.addKeyData("x", 0, 9);
+      node.addKeyData("y", 0, 9);
+      node.addKeyData("gender", 0, 1);
+      node.addKeyData("age", 10, 19);
+    }
     dag.addStream("string_data", node.string_data, collector.sdata).setInline(true);
-    dag.addStream("string_data", node.val_data, collector.vdata).setInline(true);
-    dag.addStream("string_data", node.val_list, collector.vlist).setInline(true);
-    dag.addStream("string_data", node.keyvalpair_list, collector.kvpair).setInline(true);
-    /*
-     TestSink sdataSink = new TestSink();
-     TestSink vdataSink = new TestSink();
-     TestSink vlistSink = new TestSink();
-     TestSink kvpairSink = new TestSink();
+    dag.addStream("val_data", node.val_data, collector.vdata).setInline(true);
+    dag.addStream("vallist_data", node.val_list, collector.vlist).setInline(true);
+    dag.addStream("keyval_data", node.keyvalpair_list, collector.kvpair).setInline(true);
 
-
-     if (doseedkey) {
-     node.addKeyData("x", 0, 9);
-     node.addKeyData("y", 0, 9);
-     node.addKeyData("gender", 0, 1);
-     node.addKeyData("age", 10, 19);
-     }
-     node.setSeedstart(1);
-     node.setSeedend(1000);
-
-     sdataSink.isstring = isstring;
-     sdataSink.insert = insert;
-     sdataSink.emitkey = emitkey;
-     if (sdataSink.ikeys.isEmpty()) {
-     sdataSink.ikeys.add("x");
-     sdataSink.ikeys.add("y");
-     sdataSink.ikeys.add("genger");
-     sdataSink.ikeys.add("age");
-     }
-
-     if (vdataSink.ikeys.isEmpty()) {
-     vdataSink.ikeys.add("x");
-     vdataSink.ikeys.add("y");
-     vdataSink.ikeys.add("genger");
-     vdataSink.ikeys.add("age");
-     }
-
-     if (vlistSink.ikeys.isEmpty()) {
-     vlistSink.ikeys.add("x");
-     vlistSink.ikeys.add("y");
-     vlistSink.ikeys.add("genger");
-     vlistSink.ikeys.add("age");
-     }
-
-     if (kvpairSink.ikeys.isEmpty()) {
-     kvpairSink.ikeys.add("x");
-     kvpairSink.ikeys.add("y");
-     kvpairSink.ikeys.add("genger");
-     kvpairSink.ikeys.add("age");
-     }
-     */
     final StramLocalCluster lc = new StramLocalCluster(dag);
     lc.setHeartbeatMonitoringEnabled(false);
 
@@ -234,7 +178,7 @@ public class SeedEventGeneratorTest
       public void run()
       {
         try {
-          Thread.sleep(1000);
+          Thread.sleep(500);
           lc.shutdown();
         }
         catch (InterruptedException ex) {
@@ -244,13 +188,7 @@ public class SeedEventGeneratorTest
     }.start();
 
     lc.run();
-    log.debug(String.format("\n********************************************\nSchema %s, %s, %s: Got s(%d), v(%d), vd(%d), kv(%d)\n********************************************\n",
-                            isstring ? "String" : "ArrayList",
-                            insert ? "insert values" : "skip insert",
-                            emitkey ? "with classification key" : "no classification key",
-                            sdlist.size(),
-                            vallist.size(),
-                            vdlist.size(),
-                            kvlist.size()));
+    log.debug(String.format("\n********************************************\n%s: Got s(%d), v(%d), vd(%d), kv(%d)\n********************************************\n",
+                            doseedkey ? "Key seeded" : "Key not seeded", sdlist.size(), vallist.size(), vdlist.size(), kvlist.size()));
   }
 }
