@@ -59,11 +59,7 @@ public class UniqueCounterBenchmark
     }
     oper.endWindow();
     HashMap<String,Integer> tuple = (HashMap<String,Integer>) sink.tuple;
-    int acount = tuple.get("a").intValue();
-    int bcount = tuple.get("b").intValue();
-    int ccount = tuple.get("c").intValue();
-    int dcount = tuple.get("d").intValue();
-    int ecount = tuple.get("e").intValue();
-    log.debug(String.format("\nBenchmarked %d tuples", acount + bcount/2 + ccount/3 + dcount/5 + ecount/10));
+    int count = tuple.get("a").intValue() + tuple.get("b").intValue() + tuple.get("c").intValue() + tuple.get("d").intValue() + tuple.get("e").intValue();
+    log.debug(String.format("\nBenchmarked %d tuples", count));
   }
 }

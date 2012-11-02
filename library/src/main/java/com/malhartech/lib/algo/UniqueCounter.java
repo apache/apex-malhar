@@ -6,16 +6,18 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.MutableInteger;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Operator emits  > 30 million tuples/sec.<br>
+ * Operator processes > 110 million tuples/sec. Only one tuple per unique key is emitted on end of window, so this operator is not bound by outbound throughput<br>
+ *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
 public class UniqueCounter<K> extends BaseKeyOperator<K>
@@ -26,12 +28,12 @@ public class UniqueCounter<K> extends BaseKeyOperator<K>
     @Override
     public void process(K tuple)
     {
-      Integer i = map.get(tuple);
+      MutableInteger i = map.get(tuple);
       if (i == null) {
-        map.put(cloneKey(tuple), 1);
+        map.put(cloneKey(tuple), new MutableInteger(1));
       }
       else {
-        map.put(tuple, i + 1);
+        i.value++;
       }
     }
   };
@@ -41,17 +43,26 @@ public class UniqueCounter<K> extends BaseKeyOperator<K>
    * Bucket counting mechanism.
    * Since we clear the bucket at the beginning of the window, we make this object transient.
    */
-  transient HashMap<K, Integer> map;
+  transient HashMap<K, MutableInteger> map = new HashMap<K, MutableInteger>();
 
   @Override
   public void beginWindow(long windowId)
   {
-    map = new HashMap<K, Integer>();
+    map.clear();
   }
 
   @Override
   public void endWindow()
   {
-    count.emit(map);
+    HashMap<K, Integer> tuple = null;
+    for (Map.Entry<K, MutableInteger> e: map.entrySet()) {
+      if (tuple == null) {
+        tuple = new HashMap<K, Integer>();
+      }
+      tuple.put(e.getKey(), new Integer(e.getValue().value));
+    }
+    if (tuple != null) {
+      count.emit(tuple);
+    }
   }
 }

@@ -17,7 +17,8 @@ import java.util.Map;
  *
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Operator emits  > 60 million tuples/sec.<br>
+ * Operator processes > 110 million tuples/sec. Only one tuple per unique key is emitted on end of window, so this operator is not bound by outbound throughput<br>
+ *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
 public class UniqueCounterKey<K> extends BaseKeyOperator<K>
