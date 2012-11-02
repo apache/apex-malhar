@@ -102,6 +102,9 @@ public class SeedEventGenerator extends BaseOperator implements InputOperator
         emitTuple(i);
       }
     }
+    // done generating data
+    LOG.info("Finished generating data.");
+    Thread.currentThread().interrupt();
   }
 
   /**

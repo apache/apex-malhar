@@ -59,6 +59,7 @@ public class Application implements ApplicationFactory
       }
       this.phoneRange = Ranges.closed(Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1]));
     }
+    System.out.println("Phone range: " + this.phoneRange);
   }
 
   private ConsoleOutputOperator<HashMap<String, Object>> getConsoleOperator(DAG b, String name)
@@ -74,13 +75,7 @@ public class Application implements ApplicationFactory
     // output to HTTP server when specified in environment setting
     String serverAddr =  this.ajaxServerAddr;
     HttpOutputOperator<HashMap<String, Object>> oper = b.addOperator(name, new HttpOutputOperator<HashMap<String, Object>>());
-    URI u = null;
-    try {
-      u = new URI("http://" + serverAddr + "/channel/mobile/" + name);
-    }
-    catch (URISyntaxException ex) {
-      java.util.logging.Logger.getLogger(com.malhartech.demos.ads.Application.class.getName()).log(Level.SEVERE, null, ex);
-    }
+    URI u = URI.create("http://" + serverAddr + "/channel/mobile/" + name);
     oper.setResourceURL(u);
     return oper;
   }
@@ -101,6 +96,8 @@ public class Application implements ApplicationFactory
     RandomEventGenerator oper = b.addOperator(name, RandomEventGenerator.class);
     oper.setMaxvalue(99);
     oper.setMinvalue(0);
+    //oper.setTuplesBlast(10);
+    oper.setTuplesBlastIntervalMillis(100);
     return oper;
   }
 
@@ -162,14 +159,7 @@ public class Application implements ApplicationFactory
       HttpOutputOperator<HashMap<String, Object>> httpconsole = getHttpOutputNumberOperator(dag, "phoneLocationQueryResult");
       dag.addStream("consoledata", indexMap.console, httpconsole.input).setInline(true);
       HttpInputOperator phoneLocationQuery = dag.addOperator("phoneLocationQuery", HttpInputOperator.class);
-      URI u = null;
-      try {
-        u = new URI("http://" + ajaxServerAddr + "/channel/mobile/phoneLocationQuery");
-      }
-      catch (URISyntaxException ex) {
-        throw new IllegalArgumentException(ex);
-      }
-
+      URI u = URI.create("http://" + ajaxServerAddr + "/channel/mobile/phoneLocationQuery");
       phoneLocationQuery.setUrl(u);
       dag.addStream("mobilequery", phoneLocationQuery.outputPort, indexMap.query).setInline(true);
     }

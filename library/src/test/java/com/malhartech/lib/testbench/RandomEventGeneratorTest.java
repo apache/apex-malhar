@@ -122,7 +122,7 @@ public class RandomEventGeneratorTest
 
     node.setMinvalue(0);
     node.setMaxvalue(999);
-    node.setTuplesblast(5000);
+    node.setTuplesBlast(5000);
 
     final StramLocalCluster lc = new StramLocalCluster(dag);
     lc.setHeartbeatMonitoringEnabled(false);

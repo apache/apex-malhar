@@ -45,10 +45,11 @@ public class RandomEventGenerator extends BaseOperator implements InputOperator
 {
   public final transient DefaultOutputPort<String> string_data = new DefaultOutputPort<String>(this);
   public final transient DefaultOutputPort<Integer> integer_data = new DefaultOutputPort<Integer>(this);
-  protected transient int maxCountOfWindows = Integer.MAX_VALUE;
-  protected int tuples_blast = 1000;
-  int min_value = 0;
-  int max_value = 100;
+  private int maxCountOfWindows = Integer.MAX_VALUE;
+  private int tuplesBlast = 1000;
+  private int tuplesBlastIntervalMillis = 10;
+  private int min_value = 0;
+  private int max_value = 100;
   private final Random random = new Random();
 
   public void setMaxvalue(int i)
@@ -61,9 +62,13 @@ public class RandomEventGenerator extends BaseOperator implements InputOperator
     min_value = i;
   }
 
-  public void setTuplesblast(int i)
+  public void setTuplesBlast(int i)
   {
-    tuples_blast = i;
+    tuplesBlast = i;
+  }
+
+  public void setTuplesBlastIntervalMillis(int tuplesBlastIntervalMillis) {
+    this.tuplesBlastIntervalMillis = tuplesBlastIntervalMillis;
   }
 
   @Override
@@ -98,7 +103,7 @@ public class RandomEventGenerator extends BaseOperator implements InputOperator
     int range = max_value - min_value + 1;
     int i = 0;
     // Need to add a key, if key is provided send HashMap
-    while (i < tuples_blast) {
+    while (i < tuplesBlast) {
       int rval = min_value + random.nextInt(range);
       if (integer_data.isConnected()) {
         integer_data.emit(rval);
@@ -107,6 +112,13 @@ public class RandomEventGenerator extends BaseOperator implements InputOperator
         string_data.emit(Integer.toString(rval));
       }
       i++;
+    }
+
+    if (tuplesBlastIntervalMillis > 0) {
+      try {
+        Thread.sleep(tuplesBlastIntervalMillis);
+      } catch (InterruptedException e) {
+      }
     }
   }
 }
