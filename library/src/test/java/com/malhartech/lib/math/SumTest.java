@@ -3,7 +3,6 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.Sink;
 import com.malhartech.dag.Tuple;
 import java.util.ArrayList;

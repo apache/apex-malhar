@@ -3,11 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.dag.TestCountAndLastTupleSink;
-import com.malhartech.dag.TestSink;
-import com.malhartech.dag.Tuple;
-import com.malhartech.stream.StramTestSupport;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;

@@ -3,12 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.Sink;
 import com.malhartech.dag.TestCountAndLastTupleSink;
-import com.malhartech.dag.Tuple;
-import java.util.ArrayList;
-import java.util.List;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
