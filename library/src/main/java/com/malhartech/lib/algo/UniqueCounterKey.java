@@ -15,6 +15,9 @@ import java.util.Map;
 
 /**
  *
+ * <br>
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * Operator emits  > 60 million tuples/sec.<br>
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
 public class UniqueCounterKey<K> extends BaseKeyOperator<K>
@@ -27,10 +30,10 @@ public class UniqueCounterKey<K> extends BaseKeyOperator<K>
     {
       MutableInteger i = map.get(tuple);
       if (i == null) {
-        map.put(tuple, new MutableInteger(1));
+        map.put(cloneKey(tuple), new MutableInteger(1));
       }
       else {
-        i.increment();
+        i.value++;
       }
     }
   };
@@ -40,7 +43,7 @@ public class UniqueCounterKey<K> extends BaseKeyOperator<K>
    * Bucket counting mechanism.
    * Since we clear the bucket at the beginning of the window, we make this object transient.
    */
-  transient HashMap<K, MutableInteger> map;
+  transient HashMap<K, MutableInteger> map = new HashMap<K, MutableInteger>();
 
   @Override
   public void beginWindow(long windowId)
@@ -56,7 +59,7 @@ public class UniqueCounterKey<K> extends BaseKeyOperator<K>
     // just emit(map) would suffice
     for (Map.Entry<K, MutableInteger> e: map.entrySet()) {
       HashMap<K, Integer> tuple = new HashMap<K, Integer>(1);
-      tuple.put(cloneKey(e.getKey()), new Integer(e.getValue().value));
+      tuple.put(e.getKey(), new Integer(e.getValue().value));
       count.emit(tuple);
     }
   }

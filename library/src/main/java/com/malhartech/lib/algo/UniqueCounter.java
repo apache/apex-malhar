@@ -13,6 +13,9 @@ import java.util.HashMap;
 
 /**
  *
+ * <br>
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * Operator emits  > 30 million tuples/sec.<br>
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
 public class UniqueCounter<K> extends BaseKeyOperator<K>

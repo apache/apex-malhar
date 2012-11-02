@@ -9,23 +9,25 @@ import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.algo.UniqueCounter}<p>
+ * Performance tests for {@link com.malhartech.lib.algo.UniqueCounter}<p>
  *
  */
-public class UniqueCounterTest
+public class UniqueCounterBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(UniqueCounterTest.class);
+  private static Logger log = LoggerFactory.getLogger(UniqueCounterBenchmark.class);
 
   /**
    * Test node logic emits correct results
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     UniqueCounter<String> oper = new UniqueCounter<String>();
@@ -38,7 +40,7 @@ public class UniqueCounterTest
     String dtuple = "d";
     String etuple = "e";
 
-    int numTuples = 10000;
+    int numTuples = 100000000;
     oper.beginWindow(0);
     for (int i = 0; i < numTuples; i++) {
       oper.data.process(atuple);
@@ -62,11 +64,6 @@ public class UniqueCounterTest
     int ccount = tuple.get("c").intValue();
     int dcount = tuple.get("d").intValue();
     int ecount = tuple.get("e").intValue();
-    Assert.assertEquals("number emitted tuples", 1, sink.count);
-    Assert.assertEquals("number emitted tuples", numTuples, acount);
-    Assert.assertEquals("number emitted tuples", numTuples/2, bcount);
-    Assert.assertEquals("number emitted tuples", numTuples/3 + 1, ccount);
-    Assert.assertEquals("number emitted tuples", numTuples/5, dcount);
-    Assert.assertEquals("number emitted tuples", numTuples/10, ecount);
+    log.debug(String.format("\nBenchmarked %d tuples", acount + bcount/2 + ccount/3 + dcount/5 + ecount/10));
   }
 }
