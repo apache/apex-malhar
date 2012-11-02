@@ -13,9 +13,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- *  @author Locknath Shil <locknath@malhar-inc.com>
+ * @author Locknath Shil <locknath@malhar-inc.com>
  *
- *  This is ActiveMQ output adapter operator (which produce data into ActiveMQ message bus).
+ * This is ActiveMQ output adapter operator (which produce data into ActiveMQ message bus).
  */
 public abstract class AbstractActiveMQOutputOperator<T> extends ActiveMQProducerBase implements Operator
 {
@@ -26,41 +26,9 @@ public abstract class AbstractActiveMQOutputOperator<T> extends ActiveMQProducer
   protected abstract Message createMessage(T obj);
 
   /**
-   *  Implements Sink interface.
-   */
-  /* @InputPortFieldAnnotation(name = "ActiveMQInputPort")
-   public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>(this)
-   {
-   @Override
-   public void process(T t)
-   {
-   logger.debug("process got called from {}", this);
-
-   // Stop sending messages after max limit.
-   if (countMessages >= maxSendMessage && maxSendMessage != 0) {
-   if (countMessages == maxSendMessage) {
-   logger.warn("Reached maximum send messages of {}", maxSendMessage);
-   }
-   return;
-   }
-
-   try {
-   Message msg = createMessage(t);
-   getProducer().send(msg);
-
-   logger.debug("process got called from {} with message {}", this, t.toString());
-   }
-   catch (JMSException ex) {
-   logger.debug(ex.getLocalizedMessage());
-   }
-   countMessages++;
-   }
-   };
-   */
-  /**
-   *  Implement Component Interface.
+   * Implement Component Interface.
    *
-   *  @param config
+   * @param config
    */
   @Override
   public void setup(OperatorContext context)
@@ -76,7 +44,7 @@ public abstract class AbstractActiveMQOutputOperator<T> extends ActiveMQProducer
   }
 
   /**
-   *  Implement Component Interface.
+   * Implement Component Interface.
    */
   @Override
   public void teardown()
@@ -86,7 +54,7 @@ public abstract class AbstractActiveMQOutputOperator<T> extends ActiveMQProducer
   }
 
   /**
-   *  Implement Operator Interface.
+   * Implement Operator Interface.
    */
   @Override
   public void beginWindow(long windowId)
@@ -95,7 +63,7 @@ public abstract class AbstractActiveMQOutputOperator<T> extends ActiveMQProducer
   }
 
   /**
-   *  Implement Operator Interface.
+   * Implement Operator Interface.
    */
   @Override
   public void endWindow()

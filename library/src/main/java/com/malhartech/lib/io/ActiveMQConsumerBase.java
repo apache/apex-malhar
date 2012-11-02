@@ -39,19 +39,9 @@ public abstract class ActiveMQConsumerBase extends ActiveMQBase implements Messa
     return replyProducer;
   }
 
-  public void setReplyProducer(MessageProducer replyProducer)
-  {
-    this.replyProducer = replyProducer;
-  }
-
   public MessageConsumer getConsumer()
   {
     return consumer;
-  }
-
-  public void setConsumer(MessageConsumer consumer)
-  {
-    this.consumer = consumer;
   }
 
   public long getMessagesReceived()

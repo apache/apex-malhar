@@ -9,12 +9,13 @@ import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.*;
 import com.malhartech.stram.StramLocalCluster;
 import com.malhartech.util.CircularBuffer;
+import java.io.File;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import junit.framework.Assert;
 import org.apache.activemq.broker.BrokerService;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,40 +31,49 @@ public class ActiveMQOutputOperatorTest
   public static int tupleCount = 0;
   public static final transient int maxTuple = 20;
 
-  @BeforeClass
-  public static void setUpClass() throws Exception
-  {
-    startActiveMQService();
-  }
-
-  /**
-   *    Start ActiveMQ broker from the Testcase.
+   /**
+   * Start ActiveMQ broker from the Testcase.
    *
-   *    @throws Exception
+   * @throws Exception
    */
-  private static void startActiveMQService() throws Exception
+  private void startActiveMQService() throws Exception
   {
     broker = new BrokerService();
+    String brokerName = "ActiveMQOutputOperator-broker";
+    broker.setBrokerName(brokerName);
+    broker.getPersistenceAdapter().setDirectory(new File("target/test-data/activemq-data/" + broker.getBrokerName() + "/KahaDB"));
     broker.addConnector("tcp://localhost:61617?broker.persistent=false");
-    broker.getSystemUsage().getStoreUsage().setLimit(1024 * 1024 * 1024);
-    broker.getSystemUsage().getTempUsage().setLimit(100 * 1024 * 1024);
+    broker.getSystemUsage().getStoreUsage().setLimit(1024 * 1024 * 1024);  // 1GB
+    broker.getSystemUsage().getTempUsage().setLimit(100 * 1024 * 1024);    // 100MB
     broker.setDeleteAllMessagesOnStartup(true);
     broker.start();
   }
 
-  @AfterClass
-  public static void teardownClass() throws Exception
+  @Before
+  public void beforTest() throws Exception
+  {
+    startActiveMQService();
+  }
+
+  @After
+  public void afterTest() throws Exception
   {
     broker.stop();
+    try {
+      Thread.sleep(1000);
+    }
+    catch (InterruptedException ex) {
+      logger.debug(ex.getLocalizedMessage());
+    }
   }
 
   /**
-   *    Concrete class of ActiveMQOutputOperator for testing.
+   *    Concrete class of ActiveMQStringOutputOperator for testing.
    */
-  public static class ActiveMQOutputOperator extends AbstractActiveMQOutputOperator<String>
+  public static class ActiveMQStringOutputOperator extends AbstractActiveMQOutputOperator<String>
   {
     /**
-     *    Abstract Method, needs to implement by every concrete ActiveMQOutputOperator.
+     *    Abstract Method, needs to implement by every concrete ActiveMQStringOutputOperator.
      *
      *    @param obj
      *    @return
@@ -190,7 +200,7 @@ public class ActiveMQOutputOperatorTest
    */
   //@Test
   @SuppressWarnings({"SleepWhileInLoop", "empty-statement"})
-  public void testActiveMQOutputOperator() throws Exception
+  public void testActiveMQOutputOperatorWithoutUsingDAG() throws Exception
   {
     // Setup a message listener to receive the message
     ActiveMQMessageListener listener = new ActiveMQMessageListener();
@@ -203,7 +213,7 @@ public class ActiveMQOutputOperatorTest
     listener.run();
 
     // Malhar module to send message
-    ActiveMQOutputOperator node = new ActiveMQOutputOperator();
+    ActiveMQStringOutputOperator node = new ActiveMQStringOutputOperator();
     node.setUser("");
     node.setPassword("");
     node.setUrl("tcp://localhost:61617");
@@ -255,9 +265,9 @@ public class ActiveMQOutputOperatorTest
     // Create DAG for testing.
     DAG dag = new DAG();
 
-    // Create ActiveMQOutputOperator
+    // Create ActiveMQStringOutputOperator
     StringGeneratorInputOperator generator = dag.addOperator("NumberGenerator", StringGeneratorInputOperator.class);
-    ActiveMQOutputOperator node = dag.addOperator("AMQ message producer", ActiveMQOutputOperator.class);
+    ActiveMQStringOutputOperator node = dag.addOperator("AMQ message producer", ActiveMQStringOutputOperator.class);
     // Set configuration parameters for ActiveMQ
     node.setUser("");
     node.setPassword("");
