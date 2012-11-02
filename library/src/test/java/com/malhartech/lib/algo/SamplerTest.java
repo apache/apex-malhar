@@ -14,12 +14,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.algo.BottomN}. <p>
+ * Functional tests for {@link com.malhartech.lib.algo.TopN}<p>
  *
  */
-public class BottomNTest
+
+public class SamplerTest
 {
-  private static Logger log = LoggerFactory.getLogger(BottomNTest.class);
+  private static Logger log = LoggerFactory.getLogger(SamplerTest.class);
 
   /**
    * Test node logic emits correct results
@@ -28,17 +29,17 @@ public class BottomNTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    testNodeProcessingSchema(new BottomN<String, Integer>());
-    testNodeProcessingSchema(new BottomN<String, Double>());
-    testNodeProcessingSchema(new BottomN<String, Float>());
-    testNodeProcessingSchema(new BottomN<String, Short>());
-    testNodeProcessingSchema(new BottomN<String, Long>());
+    testNodeProcessingSchema(new TopN<String, Integer>());
+    testNodeProcessingSchema(new TopN<String, Double>());
+    testNodeProcessingSchema(new TopN<String, Float>());
+    testNodeProcessingSchema(new TopN<String, Short>());
+    testNodeProcessingSchema(new TopN<String, Long>());
   }
 
-  public void testNodeProcessingSchema(BottomN oper)
+  public void testNodeProcessingSchema(TopN oper)
   {
     TestSink<HashMap<String, Number>> sortSink = new TestSink<HashMap<String, Number>>();
-    oper.bottom.setSink(sortSink);
+    oper.top.setSink(sortSink);
     oper.setN(3);
 
     oper.beginWindow(0);
@@ -47,8 +48,8 @@ public class BottomNTest
     input.put("a", 2);
     oper.data.process(input);
 
-     input.clear();
-     input.put("a", 20);
+    input.clear();
+    input.put("a", 20);
     oper.data.process(input);
 
     input.clear();
@@ -71,13 +72,14 @@ public class BottomNTest
 
     input.clear();
     input.put("b", 34);
-    input.put("a", 1001);
+    input.put("a", 1);
     oper.data.process(input);
 
     input.clear();
     input.put("b", 6);
-    input.put("a", 1);
+    input.put("a", 1001);
     oper.data.process(input);
+
     input.clear();
     input.put("c", 9);
     oper.data.process(input);
@@ -85,7 +87,7 @@ public class BottomNTest
 
     Assert.assertEquals("number emitted tuples", 3, sortSink.collectedTuples.size());
     for (Object o: sortSink.collectedTuples) {
-      for (Map.Entry<String, ArrayList<Number>> e: ((HashMap<String, ArrayList<Number>>) o).entrySet()) {
+      for (Map.Entry<String, ArrayList<Number>> e: ((HashMap<String, ArrayList<Number>>)o).entrySet()) {
         if (e.getKey().equals("a")) {
           Assert.assertEquals("emitted value for 'a' was ", 3, e.getValue().size());
         }
@@ -96,7 +98,7 @@ public class BottomNTest
           Assert.assertEquals("emitted tuple for 'c' was ", 1, e.getValue().size());
         }
         log.debug(String.format("Sorted list for %s:", e.getKey()));
-        for (Number i : e.getValue()) {
+        for (Number i: e.getValue()) {
           log.debug(String.format("%s", i.toString()));
         }
       }

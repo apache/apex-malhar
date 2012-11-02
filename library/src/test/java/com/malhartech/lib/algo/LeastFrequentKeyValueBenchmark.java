@@ -3,10 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.dag.TestSink;
-import com.malhartech.lib.util.MutableInteger;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;

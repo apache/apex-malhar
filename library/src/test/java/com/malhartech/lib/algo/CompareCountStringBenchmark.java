@@ -3,7 +3,6 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.dag.TestCountAndLastTupleSink;
 import java.util.HashMap;
 import org.junit.Test;
