@@ -15,7 +15,7 @@ import java.util.HashMap;
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-public class UniqueCounter<K> extends BaseOperator
+public class UniqueCounter<K> extends BaseKeyOperator<K>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>(this)
@@ -25,7 +25,7 @@ public class UniqueCounter<K> extends BaseOperator
     {
       Integer i = map.get(tuple);
       if (i == null) {
-        map.put(tuple, 1);
+        map.put(cloneKey(tuple), 1);
       }
       else {
         map.put(tuple, i + 1);

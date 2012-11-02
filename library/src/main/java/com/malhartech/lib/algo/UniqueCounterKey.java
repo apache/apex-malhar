@@ -17,7 +17,7 @@ import java.util.Map;
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-public class UniqueCounterKey<K> extends BaseOperator
+public class UniqueCounterKey<K> extends BaseKeyOperator<K>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>(this)
@@ -56,7 +56,7 @@ public class UniqueCounterKey<K> extends BaseOperator
     // just emit(map) would suffice
     for (Map.Entry<K, MutableInteger> e: map.entrySet()) {
       HashMap<K, Integer> tuple = new HashMap<K, Integer>(1);
-      tuple.put(e.getKey(), new Integer(e.getValue().value));
+      tuple.put(cloneKey(e.getKey()), new Integer(e.getValue().value));
       count.emit(tuple);
     }
   }

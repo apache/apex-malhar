@@ -5,12 +5,13 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.dag.TestCountSink;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.algo.Sampler}<p>
+ * Performance tests for {@link com.malhartech.lib.algo.Sampler}<p>
  *
  */
 public class SamplerBenchmark
@@ -22,6 +23,7 @@ public class SamplerBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     Sampler<String> oper = new Sampler<String>();
