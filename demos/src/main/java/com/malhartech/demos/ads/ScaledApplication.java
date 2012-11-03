@@ -235,7 +235,6 @@ public class ScaledApplication implements ApplicationFactory
   {
 
     configure(conf);
-
     DAG dag = new DAG(conf);
 
     StreamMerger5<HashMap<String, Double>> viewAggrSum10 = getStreamMerger10DoubleOperator("viewaggregatesum", dag);

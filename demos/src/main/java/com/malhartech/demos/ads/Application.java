@@ -229,7 +229,7 @@ public class Application implements ApplicationFactory
   {
 
     configure(conf);
-    DAG dag = new DAG();
+    DAG dag = new DAG(conf);
 
     Operator viewGen = getPageViewGenOperator("viewGen", dag);
     Operator adviews = getAdViewsStampOperator("adviews", dag);
