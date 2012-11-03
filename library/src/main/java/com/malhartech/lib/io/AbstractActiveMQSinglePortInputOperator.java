@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
-public abstract class AbstractActiveMQSinglePortInputOperator<T> extends AbstractActiveMQInputOperator
+public abstract class AbstractActiveMQSinglePortInputOperator<T> extends AbstractActiveMQInputOperator<T>
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractActiveMQSinglePortInputOperator.class);
 
