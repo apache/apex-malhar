@@ -4,14 +4,15 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.*;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DAG;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.Operator;
 import com.malhartech.stram.StramLocalCluster;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.TextMessage;
@@ -37,12 +38,12 @@ public class ActiveMQInputOperatorTest
   static HashMap<String, List<?>> collections = new HashMap<String, List<?>>();
 
   /**
-   * An example Concrete class of ActiveMQStringInputOperator for testing.
+   * An example Concrete class of ActiveMQStringSinglePortInputOperator for testing.
    */
-  public static class ActiveMQStringInputOperator extends AbstractActiveMQInputOperator<String>
+  public static class ActiveMQStringSinglePortInputOperator extends AbstractActiveMQSinglePortInputOperator<String>
   {
-    @OutputPortFieldAnnotation(name = "outputPort")
-    public final transient DefaultOutputPort<String> outputPort = new DefaultOutputPort<String>(this);
+   // @OutputPortFieldAnnotation(name = "outputPort")
+  //  public final transient DefaultOutputPort<String> outputPort = new DefaultOutputPort<String>(this);
 
     /**
      * Implement abstract method of AbstractActiveMQInputOperator
@@ -65,7 +66,7 @@ public class ActiveMQInputOperatorTest
     /**
      * Implement InputOperator Interface.
      */
-    @Override
+  /*  @Override
     public void emitTuples()
     {
       //logger.debug("emitTuples got called from {}", this);
@@ -75,8 +76,8 @@ public class ActiveMQInputOperatorTest
         outputPort.emit(tuple);
         logger.debug("emitTuples() got called from {} with tuple: {}", this, tuple);
       }
-    }
-  } // End of ActiveMQStringInputOperator
+    }*/
+  } // End of ActiveMQStringSinglePortInputOperator
 
   /**
    * Start ActiveMQ broker from the Testcase.
@@ -115,7 +116,7 @@ public class ActiveMQInputOperatorTest
   }
 
   /**
-   * Test Operator to collect tuples from ActiveMQStringInputOperator.
+   * Test Operator to collect tuples from ActiveMQStringSinglePortInputOperator.
    *
    * @param <T>
    */
@@ -179,7 +180,7 @@ public class ActiveMQInputOperatorTest
 
      // The output port of node should be connected to a Test sink.
      TestSink<String> outSink = new TestSink<String>();
-     ActiveMQStringInputOperator node = new ActiveMQStringInputOperator();
+     ActiveMQStringSinglePortInputOperator node = new ActiveMQStringSinglePortInputOperator();
      ActiveMQConsumerBase config = node.getAmqConsumer();
      config.setUser("");
      config.setPassword("");
@@ -245,8 +246,8 @@ public class ActiveMQInputOperatorTest
 
     // Create DAG for testing.
     DAG dag = new DAG();
-    // Create ActiveMQStringInputOperator
-    ActiveMQStringInputOperator node = dag.addOperator("AMQ message consumer", ActiveMQStringInputOperator.class);
+    // Create ActiveMQStringSinglePortInputOperator
+    ActiveMQStringSinglePortInputOperator node = dag.addOperator("AMQ message consumer", ActiveMQStringSinglePortInputOperator.class);
     // Set configuration parameters for ActiveMQ
     node.setUser("");
     node.setPassword("");
@@ -265,9 +266,6 @@ public class ActiveMQInputOperatorTest
 
     // Create Test tuple collector
     CollectorModule<String> collector = dag.addOperator("TestMessageCollector", new CollectorModule<String>());
-
-    //  node.outputPort.setSink(outSink);
-    node.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
 
     // Connect ports
     dag.addStream("AMQ message", node.outputPort, collector.inputPort).setInline(true);
@@ -315,8 +313,8 @@ public class ActiveMQInputOperatorTest
 
     // Create DAG for testing.
     DAG dag = new DAG();
-    // Create ActiveMQStringInputOperator
-    ActiveMQStringInputOperator node = dag.addOperator("AMQ message consumer", ActiveMQStringInputOperator.class);
+    // Create ActiveMQStringSinglePortInputOperator
+    ActiveMQStringSinglePortInputOperator node = dag.addOperator("AMQ message consumer", ActiveMQStringSinglePortInputOperator.class);
     // Set configuration parameters for ActiveMQ
     node.setUser("");
     node.setPassword("");
@@ -364,4 +362,4 @@ public class ActiveMQInputOperatorTest
     Assert.assertEquals("Collections size", 1, collections.size());
     Assert.assertEquals("Tuple count", 20, collections.get(collector.inputPort.id).size());
   }
-}
+  }

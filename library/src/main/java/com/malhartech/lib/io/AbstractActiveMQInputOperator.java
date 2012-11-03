@@ -16,26 +16,29 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- *  @author Locknath Shil <locknath@malhar-inc.com>
- *  This is ActiveMQ input adapter operator (which consume data from ActiveMQ message bus).
+ * @author Locknath Shil <locknath@malhar-inc.com>
+ * This is ActiveMQ input adapter operator (which consume data from ActiveMQ message bus).
  */
 public abstract class AbstractActiveMQInputOperator<T> extends ActiveMQConsumerBase implements InputOperator, ActivationListener<OperatorContext>
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractActiveMQInputOperator.class);
-  private final transient int bufferSize = 1024 * 1024;
-  protected transient CircularBuffer<T> holdingBuffer = new CircularBuffer<T>(bufferSize); // Should this be transient?
-  protected static final int TUPLES_BLAST_DEFAULT = 10000;
+  protected static final int TUPLES_BLAST_DEFAULT = 10 * 1024; // 10k
+  protected static final int BUFFER_SIZE_DEFAULT = 1024 * 1024; // 1M
+
   // Config parameters that user can set.
   @InjectConfig(key = "tuplesBlast")
   private int tuplesBlast = TUPLES_BLAST_DEFAULT;
+  @InjectConfig(key = "bufferSize")
+  private int bufferSize = BUFFER_SIZE_DEFAULT;
+  protected transient CircularBuffer<T> holdingBuffer = new CircularBuffer<T>(bufferSize); // Should this be transient?
 
   /**
-   *  Any concrete class derived from AbstractActiveQConsumerModule has to implement this method
-   *  so that it knows what type of message it is going to send to Malhar.
-   *  It converts a JMS message into a Tuple. A Tuple can be of any type (derived from Java Object) that
-   *  operator user intends to.
+   * Any concrete class derived from AbstractActiveQConsumerModule has to implement this method
+   * so that it knows what type of message it is going to send to Malhar.
+   * It converts a JMS message into a Tuple. A Tuple can be of any type (derived from Java Object) that
+   * operator user intends to.
    *
-   *  @param message
+   * @param message
    */
   protected abstract T getTuple(Message message) throws JMSException;
 
@@ -49,8 +52,18 @@ public abstract class AbstractActiveMQInputOperator<T> extends ActiveMQConsumerB
     this.tuplesBlast = tuplesBlast;
   }
 
+  public int getBufferSize()
+  {
+    return bufferSize;
+  }
+
+  public void setBufferSize(int bufferSize)
+  {
+    this.bufferSize = bufferSize;
+  }
+
   /**
-   *  Implement abstract method of ActiveMQConsumerBase
+   * Implement abstract method of ActiveMQConsumerBase
    */
   @Override
   protected void emitMessage(Message message) throws JMSException
@@ -60,9 +73,9 @@ public abstract class AbstractActiveMQInputOperator<T> extends ActiveMQConsumerB
   }
 
   /**
-   *  Implement Component Interface.
+   * Implement Component Interface.
    *
-   *  @param config
+   * @param config
    */
   @Override
   public void setup(OperatorConfiguration config)
@@ -71,7 +84,7 @@ public abstract class AbstractActiveMQInputOperator<T> extends ActiveMQConsumerB
   }
 
   /**
-   *  Implement Component Interface.
+   * Implement Component Interface.
    */
   @Override
   public void teardown()
@@ -81,7 +94,7 @@ public abstract class AbstractActiveMQInputOperator<T> extends ActiveMQConsumerB
   }
 
   /**
-   *  Implement Operator Interface.
+   * Implement Operator Interface.
    */
   @Override
   public void beginWindow(long windowId)
@@ -90,7 +103,7 @@ public abstract class AbstractActiveMQInputOperator<T> extends ActiveMQConsumerB
   }
 
   /**
-   *  Implement Operator Interface.
+   * Implement Operator Interface.
    */
   @Override
   public void endWindow()
@@ -99,7 +112,7 @@ public abstract class AbstractActiveMQInputOperator<T> extends ActiveMQConsumerB
   }
 
   /**
-   *  Implement ActivationListener Interface.
+   * Implement ActivationListener Interface.
    */
   @Override
   public void postActivate(OperatorContext ctx)
@@ -114,7 +127,7 @@ public abstract class AbstractActiveMQInputOperator<T> extends ActiveMQConsumerB
   }
 
   /**
-   *  Implement ActivationListener Interface.
+   * Implement ActivationListener Interface.
    */
   @Override
   public void preDeactivate()

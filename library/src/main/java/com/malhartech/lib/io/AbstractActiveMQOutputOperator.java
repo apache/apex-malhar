@@ -21,7 +21,6 @@ public abstract class AbstractActiveMQOutputOperator<T> extends ActiveMQProducer
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractActiveMQOutputOperator.class);
   long maxSendMessage = 0; // max send limit
-  long countMessages = 0; // Number of message produced so far
 
   protected abstract Message createMessage(T obj);
 

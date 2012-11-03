@@ -4,9 +4,11 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.api.ActivationListener;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.*;
+import com.malhartech.api.DAG;
+import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.api.InputOperator;
 import com.malhartech.stram.StramLocalCluster;
 import com.malhartech.util.CircularBuffer;
 import java.io.File;
@@ -22,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- *    @author Locknath Shil <locknath@malhar-inc.com>
+ * @author Locknath Shil <locknath@malhar-inc.com>
  */
 public class ActiveMQOutputOperatorTest
 {
@@ -31,7 +33,34 @@ public class ActiveMQOutputOperatorTest
   public static int tupleCount = 0;
   public static final transient int maxTuple = 20;
 
-   /**
+  /**
+   * Concrete class of ActiveMQStringSinglePortOutputOperator for testing.
+   */
+  public static class ActiveMQStringSinglePortOutputOperator extends AbstractActiveMQSinglePortOutputOperator<String>
+  {
+    /**
+     * Abstract Method, needs to implement by every concrete ActiveMQStringSinglePortOutputOperator.
+     *
+     * @param obj
+     * @return
+     */
+    @Override
+    protected Message createMessage(String obj)
+    {
+      //logger.debug("createMessage got called in {}", this);
+      Message msg = null;
+      try {
+        msg = getSession().createTextMessage(obj);
+      }
+      catch (JMSException ex) {
+        logger.debug(ex.getLocalizedMessage());
+      }
+
+      return msg;
+    }
+  }
+
+  /**
    * Start ActiveMQ broker from the Testcase.
    *
    * @throws Exception
@@ -68,62 +97,8 @@ public class ActiveMQOutputOperatorTest
   }
 
   /**
-   *    Concrete class of ActiveMQStringOutputOperator for testing.
+   * Tuple generator for testing.
    */
-  public static class ActiveMQStringOutputOperator extends AbstractActiveMQOutputOperator<String>
-  {
-    /**
-     *    Abstract Method, needs to implement by every concrete ActiveMQStringOutputOperator.
-     *
-     *    @param obj
-     *    @return
-     */
-    @Override
-    protected Message createMessage(String obj)
-    {
-      //logger.debug("createMessage got called in {}", this);
-      Message msg = null;
-      try {
-        msg = getSession().createTextMessage(obj);
-      }
-      catch (JMSException ex) {
-        logger.debug(ex.getLocalizedMessage());
-      }
-
-      return msg;
-    }
-    /**
-     *    Define input ports as needed.
-     */
-    @InputPortFieldAnnotation(name = "ActiveMQInputPort")
-    public final transient DefaultInputPort<String> inputPort = new DefaultInputPort<String>(this)
-    {
-      @Override
-      public void process(String t)
-      {
-        logger.debug("process got called from {}", this);
-        countMessages++;
-        // Stop sending messages after max limit.
-        if (countMessages > maxSendMessage && maxSendMessage != 0) {
-          if (countMessages == maxSendMessage + 1) {
-            logger.warn("Reached maximum send messages of {}", maxSendMessage);
-          }
-          return;
-        }
-
-        try {
-          Message msg = createMessage(t);
-          getProducer().send(msg);
-
-          logger.debug("process got called from {} with message {}", this, t.toString());
-        }
-        catch (JMSException ex) {
-          logger.debug(ex.getLocalizedMessage());
-        }
-      }
-    };
-  }
-
   public static class StringGeneratorInputOperator implements InputOperator, ActivationListener<OperatorContext>
   {
     public final transient DefaultOutputPort<String> outputPort = new DefaultOutputPort<String>(this);
@@ -190,13 +165,13 @@ public class ActiveMQOutputOperatorTest
   }
 
   /**
-   *    Test AbstractActiveMQOutputOperator (i.e. an output adapter for ActiveMQ, aka producer).
-   *    This module sends data into an ActiveMQ message bus.
+   * Test AbstractActiveMQOutputOperator (i.e. an output adapter for ActiveMQ, aka producer).
+   * This module sends data into an ActiveMQ message bus.
    *
-   *    [Generate tuple] ==> [send tuple through ActiveMQ output adapter(i.e. producer) into ActiveMQ message bus]
-   *    ==> [receive data in outside ActiveMQ listener]
+   * [Generate tuple] ==> [send tuple through ActiveMQ output adapter(i.e. producer) into ActiveMQ message bus]
+   * ==> [receive data in outside ActiveMQ listener]
    *
-   *    @throws Exception
+   * @throws Exception
    */
   //@Test
   @SuppressWarnings({"SleepWhileInLoop", "empty-statement"})
@@ -213,7 +188,7 @@ public class ActiveMQOutputOperatorTest
     listener.run();
 
     // Malhar module to send message
-    ActiveMQStringOutputOperator node = new ActiveMQStringOutputOperator();
+    ActiveMQStringSinglePortOutputOperator node = new ActiveMQStringSinglePortOutputOperator();
     node.setUser("");
     node.setPassword("");
     node.setUrl("tcp://localhost:61617");
@@ -233,7 +208,7 @@ public class ActiveMQOutputOperatorTest
     long numTuple = node.getMaximumSendMessages();
     for (int i = 0; i < numTuple; i++) {
       String str = "teststring " + (i + 1);
-      node.inputPort.process(str);
+//      node.inputPort.process(str);
     }
 
     // wait so that other side can receive data
@@ -265,9 +240,9 @@ public class ActiveMQOutputOperatorTest
     // Create DAG for testing.
     DAG dag = new DAG();
 
-    // Create ActiveMQStringOutputOperator
+    // Create ActiveMQStringSinglePortOutputOperator
     StringGeneratorInputOperator generator = dag.addOperator("NumberGenerator", StringGeneratorInputOperator.class);
-    ActiveMQStringOutputOperator node = dag.addOperator("AMQ message producer", ActiveMQStringOutputOperator.class);
+    ActiveMQStringSinglePortOutputOperator node = dag.addOperator("AMQ message producer", ActiveMQStringSinglePortOutputOperator.class);
     // Set configuration parameters for ActiveMQ
     node.setUser("");
     node.setPassword("");
