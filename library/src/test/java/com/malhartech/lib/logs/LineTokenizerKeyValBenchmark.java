@@ -14,12 +14,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.logs.LineSplitterKeyVal}<p>
+ * Performance tests for {@link com.malhartech.lib.logs.LineTokenizerKeyVal}<p>
  *
  */
-public class LineSplitterKeyValBenchmark
+public class LineTokenizerKeyValBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(LineSplitterKeyValBenchmark.class);
+  private static Logger log = LoggerFactory.getLogger(LineTokenizerKeyValBenchmark.class);
 
   /**
    * Test oper logic emits correct results
@@ -28,7 +28,7 @@ public class LineSplitterKeyValBenchmark
   public void testNodeProcessing()
   {
 
-    LineSplitterKeyVal oper = new LineSplitterKeyVal();
+    LineTokenizerKeyVal oper = new LineTokenizerKeyVal();
     TestHashSink tokenSink = new TestHashSink();
 
     oper.setSplitBy(",");

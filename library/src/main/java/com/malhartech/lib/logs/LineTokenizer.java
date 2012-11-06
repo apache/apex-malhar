@@ -34,7 +34,7 @@ import com.malhartech.api.DefaultOutputPort;
  * <br>
  *
  */
-public class LineSplitter extends BaseLineTokenizer
+public class LineTokenizer extends BaseLineTokenizer
 {
   @OutputPortFieldAnnotation(name = "tokens")
   public final transient DefaultOutputPort<String> tokens = new DefaultOutputPort<String>(this);

@@ -12,12 +12,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.logs.LineSplitter}<p>
+ * Performance tests for {@link com.malhartech.lib.logs.LineTokenizer}<p>
  *
  */
-public class LineSplitterBenchmark
+public class LineTokenizerBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(LineSplitterBenchmark.class);
+  private static Logger log = LoggerFactory.getLogger(LineTokenizerBenchmark.class);
 
   /**
    * Test oper logic emits correct results
@@ -26,7 +26,7 @@ public class LineSplitterBenchmark
   public void testNodeProcessing()
   {
 
-    LineSplitter oper = new LineSplitter();
+    LineTokenizer oper = new LineTokenizer();
     TestHashSink tokenSink = new TestHashSink();
 
     oper.setSplitBy(",");

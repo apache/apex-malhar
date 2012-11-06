@@ -37,7 +37,7 @@ import java.util.HashMap;
  * <br>
  *
  */
-public class LineSplitterKeyVal extends BaseLineTokenizer
+public class LineTokenizerKeyVal extends BaseLineTokenizer
 {
   @OutputPortFieldAnnotation(name = "tokens")
   public final transient DefaultOutputPort<HashMap<String, String>> tokens = new DefaultOutputPort<HashMap<String, String>>(this);
