@@ -7,6 +7,7 @@ import com.malhartech.dag.TestHashSink;
 import com.malhartech.lib.math.*;
 import junit.framework.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +24,7 @@ public class LineTokenizerBenchmark
    * Test oper logic emits correct results
    */
   @Test
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing()
   {
 

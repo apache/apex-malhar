@@ -8,12 +8,9 @@ import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 
 /**
- * Merges five streams with identical schema and emits tuples on to the output port in order<br>
- * The aim is to simply getUnifier two streams of same schema type<p>
+ * Merges u to five streams with identical schema and emits tuples on to the output port in order<br>
  * <br>
  * <br>
- * Benchmarks: This node has been benchmarked at over 18 million tuples/second in local/inline mode<br>
- *
  * <b>Tuple Schema</b>: All tuples were treated as Object
  * <b>Port Interface</b><br>
  * <b>out</b>: Output port for emitting tuples<br>

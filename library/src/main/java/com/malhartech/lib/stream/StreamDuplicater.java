@@ -14,8 +14,6 @@ import com.malhartech.api.DefaultOutputPort;
  * Takes one stream and emits exactly same tuple on both the output ports. Needed to allow separation of listeners into two streams<p>
  * <br>
  * <br>
- * Benchmarks: This node has been benchmarked at over ?? million tuples/second in local/inline mode<br>
- *
  * <b>Tuple Schema</b>: All tuples were treated as Object
  * <b>Port Interface</b><br>
  * <b>data</b>: Input port<br>

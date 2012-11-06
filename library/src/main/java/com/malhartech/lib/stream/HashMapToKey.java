@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Takes a HashMap in stream <b>data</b> and just emits its keys, keyvals, vals. Used for breaking up a HashMap<p>
+ * Takes a HashMap and emits its keys, keyvals, vals. Used for breaking up a HashMap ito objects (keys, vals, or key/val pairs)<p>
  * <br>
  * <br>
  * <b>Port Interface</b><br>

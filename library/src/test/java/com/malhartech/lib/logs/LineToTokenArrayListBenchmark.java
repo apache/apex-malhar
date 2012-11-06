@@ -6,6 +6,7 @@ package com.malhartech.lib.logs;
 import com.malhartech.dag.TestArrayListSink;
 import junit.framework.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +23,7 @@ public class LineToTokenArrayListBenchmark
    * Test oper logic emits correct results
    */
   @Test
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing()
   {
 
