@@ -13,7 +13,7 @@ import java.util.HashMap;
  * Takes in one stream via input port "data". The tuples are String objects and are split into String tokens. Each token is emitted on output port "tokens"<p>
  * This module is a pass through. <br>
  * <br>
- * Ideal for applications like word count
+ * Ideal for applications like log processing<br>
  * Ports:<br>
  * <b>data</b>: expects String<br>
  * <b>tokens</b>: emits HashMap<String,String><br>

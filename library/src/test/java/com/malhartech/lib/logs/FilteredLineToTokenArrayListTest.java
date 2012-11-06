@@ -66,22 +66,18 @@ public class FilteredLineToTokenArrayListTest
       for (Map.Entry<String, ArrayList<String>> l: item.entrySet()) {
         String key = l.getKey();
         ArrayList<String> list = l.getValue();
+        Assert.assertTrue(!key.equals("b"));
+        Assert.assertTrue(!key.equals("d"));
         if (key.equals("a")) {
           Assert.assertEquals("number emitted values for \"a\"", 2, list.size());
           Assert.assertEquals("first value for \"a\"", "2", list.get(0));
           Assert.assertEquals("second value for \"a\"", "3", list.get(1));
-        }
-        else if (key.equals("b")) {
-          Assert.assertEquals("Number of emitted values for \"b\" should be 0", 0, 1);
         }
         else if (key.equals("c")) {
           Assert.assertEquals("number emitted values for \"c\"", 3, list.size());
           Assert.assertEquals("first value for \"c\"", "4", list.get(0));
           Assert.assertEquals("second value for \"c\"", "5", list.get(1));
           Assert.assertEquals("second value for \"c\"", "6", list.get(2));
-        }
-        else if (key.equals("d")) {
-          Assert.assertEquals("Number of emitted values for \"d\" should be 0", 0, 1);
         }
       }
     }

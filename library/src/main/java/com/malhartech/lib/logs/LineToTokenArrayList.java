@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
  *
  * Takes in one stream via input port "data". The tuples are String objects and are split into tkns. An ArrayList of all tkns are emitted on output port "tkns"<p>
  * This module is a pass through<br>
+ * Ideal for applications like log processing<br>
  * <br>
  * Ports:<br>
  * <b>data</b>: expects String<br>
