@@ -45,7 +45,7 @@ public class FilteredLineToTokenArrayList extends LineToTokenArrayList
   }
 
   @Override
-  public boolean addToken(String t) {
-    return super.addToken(t) && filters.containsKey(t);
+  public boolean validToken(String t) {
+    return super.validToken(t) && filters.containsKey(t);
   }
 }

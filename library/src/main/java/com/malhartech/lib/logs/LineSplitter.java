@@ -4,10 +4,7 @@
  */
 package com.malhartech.lib.logs;
 
-import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 
 /**
@@ -30,38 +27,23 @@ import com.malhartech.api.DefaultOutputPort;
  * none<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * TBD<br>
+ * Operator processes > 9 million tuples/sec. The processing was done with 3 keys per line. The performance is proportional to number of keys
+ * and their length. For every tuple processed and average of N tuples are emitted, where N is the average number of keys per tuple<br>
+ * <br>
+ * @author amol<br>
  * <br>
  *
- * @author amol
  */
-public class LineSplitter extends BaseOperator
+public class LineSplitter extends BaseLineSplitter
 {
-  @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<String> data = new DefaultInputPort<String>(this)
-  {
-    @Override
-    public void process(String tuple)
-    {
-      if (!tuple.isEmpty()) {
-        // emit error token?
-        return;
-      }
-      String[] tkns = tuple.split(splitby);
-      for (String t : tkns) {
-        if (!t.isEmpty()) {
-          tokens.emit(t);
-        }
-      }
-    }
-  };
   @OutputPortFieldAnnotation(name = "tokens")
   public final transient DefaultOutputPort<String> tokens = new DefaultOutputPort<String>(this);
-  String splitby_default = ";\t ";
-  String splitby = null;
 
-  void setSplitby(String str)
+  @Override
+    public void processToken(String tok)
   {
-    splitby = str;
+    if (!tok.isEmpty()) {
+      tokens.emit(tok);
+    }
   }
 }
