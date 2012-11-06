@@ -4,19 +4,14 @@
  */
 package com.malhartech.lib.logs;
 
-import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import java.util.ArrayList;
 import java.util.HashMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
- * Takes in one stream via input port "data". The tuples are String objects and are split into tokens. A HashMap of all tokens are emitted on output port "tokens"<p>
+ * Takes in one stream via input port "data". The tuples are String objects and are split into tokens. A HashMap of all tokens are emitted on output port "tokens".<p>
  * This module is a pass through<br>
  * <br>
  * Ports:<br>

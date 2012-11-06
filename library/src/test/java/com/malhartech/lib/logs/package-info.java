@@ -5,7 +5,7 @@
  */
 
 /**
- * <b>{@link com.malhartech.lib.stream}</b> is a library of stream flow operators reuse<p>
+ * <b>{@link com.malhartech.lib.logs}</b> is a library operators for log line processing<p>
  * <br>
  * <br>The modules are<br>
  * <b>{@link com.malhartech.lib.logs.FilteredLineToTokenArrayListBenchmark}</b>: Performance test for {@link com.malhartech.lib.logs.FilteredLineToTokenArrayList}<br>

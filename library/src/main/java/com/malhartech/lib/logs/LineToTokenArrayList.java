@@ -4,10 +4,7 @@
  */
 package com.malhartech.lib.logs;
 
-import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +13,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Takes in one stream via input port "data". The tuples are String objects and are split into tkns. An ArrayList of all tkns are emitted on output port "tkns"<p>
+ * Takes in one stream via input port "data". The tuples are String objects and are split into tkns. An ArrayList of all tkns are emitted on output port "tokens". An ArrayList
+ * of all subtokens are emitted on port splittokens<p>
  * This module is a pass through<br>
  * Ideal for applications like log processing<br>
  * <br>
