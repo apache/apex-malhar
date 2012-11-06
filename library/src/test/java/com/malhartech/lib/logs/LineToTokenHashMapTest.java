@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
  * Functional tests for {@link com.malhartech.lib.logs.LineToTokenHashMap}<p>
  *
  */
-public class LineToTokenHashMapText
+public class LineToTokenHashMapTest
 {
-  private static Logger log = LoggerFactory.getLogger(LineToTokenHashMapText.class);
+  private static Logger log = LoggerFactory.getLogger(LineToTokenHashMapTest.class);
 
   /**
    * Test oper logic emits correct results

@@ -3,7 +3,6 @@
  */
 package com.malhartech.lib.logs;
 
-import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.dag.TestArrayListSink;
 import java.util.ArrayList;
 import java.util.HashMap;
