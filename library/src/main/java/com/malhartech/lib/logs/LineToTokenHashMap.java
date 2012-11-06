@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * @author amol<br>
  * <br>
  */
-public class LineToTokenHashMap extends BaseLineSplitter
+public class LineToTokenHashMap extends BaseLineTokenizer
 {
   @OutputPortFieldAnnotation(name = "tokens")
   public final transient DefaultOutputPort<HashMap<String, ArrayList<String>>> tokens = new DefaultOutputPort<HashMap<String, ArrayList<String>>>(this);

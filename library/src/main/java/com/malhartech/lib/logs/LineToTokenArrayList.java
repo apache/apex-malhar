@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  * @author amol
  */
-public class LineToTokenArrayList extends BaseLineSplitter
+public class LineToTokenArrayList extends BaseLineTokenizer
 {
   @OutputPortFieldAnnotation(name = "tokens")
   public final transient DefaultOutputPort<ArrayList<String>> tokens = new DefaultOutputPort<ArrayList<String>>(this);

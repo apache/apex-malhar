@@ -24,7 +24,7 @@ import com.malhartech.api.DefaultOutputPort;
  * @author amol<br>
  *
  */
-public class BaseLineSplitter extends BaseOperator
+public class BaseLineTokenizer extends BaseOperator
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<String> data = new DefaultInputPort<String>(this)
