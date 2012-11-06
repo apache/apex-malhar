@@ -104,8 +104,13 @@ public class BaseLineTokenizer extends BaseOperator
     }
     else {
       String[] subtoks = tok.split(splitTokenBy);
+      int i = 0;
       for (String subtok: subtoks) {
+        if ((i ==0) && !validSubTokenKey(subtok)) { // first subtoken is the key
+          break;
+        }
         processSubToken(subtok);
+        i++;
       }
     }
     endProcessSubTokens();
@@ -123,5 +128,10 @@ public class BaseLineTokenizer extends BaseOperator
   public boolean validToken(String tok)
   {
     return !tok.isEmpty();
+  }
+
+  public boolean validSubTokenKey(String subtok)
+  {
+    return !subtok.isEmpty();
   }
 }

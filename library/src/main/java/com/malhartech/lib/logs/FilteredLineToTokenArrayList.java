@@ -20,7 +20,7 @@ import java.util.HashMap;
  * Properties:<br>
  * <b>splitby</b>: The characters used to split the line. Default is ";\t "<br>
  * <b>splittokenby</b>: The characters used to split a token into key,val pair. If not specified the value is set to null. Default is ",", i.e. tokens are split<br>
- * <b>filterby</b>: The keys to be filters. If a key is not  in this comma separated list it is ignored<br>
+ * <b>filterby</b>: Only emit the keys that are in filterby<br>
  * <br>
  * Compile time checks<br>
  * Property "splittokenby" cannot be empty<br>
@@ -28,24 +28,25 @@ import java.util.HashMap;
  * Run time checks<br>
  * none<br>
  * <br>
- * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * TBD
+* <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * Operator processes > 2 million tuples/sec. The benchmarking was done with 3 keys per line. The performance is proportional to number of keys
+ * and their length. For every tuple processed and average of N tuples are emitted, where N is the average number of keys per tuple<br>
  * <br>
  * @author amol
  */
 
 public class FilteredLineToTokenArrayList extends LineToTokenArrayList
 {
-  HashMap<String, Object> filters = new HashMap<String, Object>();
+  HashMap<String, Object> subTokenFilters = new HashMap<String, Object>();
 
-  public void setFilters(ArrayList<String> list) {
+  public void setSubTokenFilters(ArrayList<String> list) {
     for (String s : list) {
-      filters.put(s, null);
+      subTokenFilters.put(s, null);
     }
   }
 
   @Override
-  public boolean validToken(String t) {
-    return super.validToken(t) && filters.containsKey(t);
+  public boolean validSubTokenKey(String subtok) {
+    return super.validToken(subtok) && subTokenFilters.containsKey(subtok);
   }
 }

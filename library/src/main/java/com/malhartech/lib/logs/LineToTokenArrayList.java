@@ -80,7 +80,9 @@ public class LineToTokenArrayList extends BaseLineTokenizer
   @Override
   public void endProcessSubTokens()
   {
-    stokentuple.add(smap);
+    if (!smap.isEmpty()) {
+      stokentuple.add(smap);
+    }
     smap = null;
     vals = null;
   }
