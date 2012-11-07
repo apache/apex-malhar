@@ -11,7 +11,7 @@ import java.util.HashMap;
 /**
  *
  * Takes in one stream via input port "data". A count is done on how many tuples satisfy the compare function. The function is given by
- * "key", "value", and "compare". If a tuple passed the test count is incremented. On end of window count iss emitted on the output port "count".
+ * "key", "value", and "compare". If a tuple passed the test count is incremented. On end of window count is emitted on the output port "count".
  * The comparison is done by getting double value from the Number.<p>
  *  This module is an end of window module<br>
  * <br>

@@ -17,7 +17,6 @@
  * <b>{@link com.malhartech.lib.stream.StreamMerger5}</b>: Merges up to five streams with identical schema and emits the tuples to the output port in order<br>
  * <br>
  * <br>
- * <br>
  */
 
 package com.malhartech.lib.stream;
