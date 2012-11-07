@@ -7,7 +7,6 @@ package com.malhartech.lib.io;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.Operator;
 import javax.jms.JMSException;
-import javax.jms.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,12 +16,10 @@ import org.slf4j.LoggerFactory;
  *
  * This is ActiveMQ output adapter operator (which produce data into ActiveMQ message bus).
  */
-public abstract class AbstractActiveMQOutputOperator<T> extends ActiveMQProducerBase implements Operator
+public abstract class AbstractActiveMQOutputOperator extends ActiveMQProducerBase implements Operator
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractActiveMQOutputOperator.class);
   long maxSendMessage = 0; // max send limit
-
-  protected abstract Message createMessage(T obj);
 
   /**
    * Implement Component Interface.
@@ -32,7 +29,6 @@ public abstract class AbstractActiveMQOutputOperator<T> extends ActiveMQProducer
   @Override
   public void setup(OperatorContext context)
   {
-    logger.debug("setup got called from {}", this);
     try {
       setupConnection();
     }
@@ -48,8 +44,7 @@ public abstract class AbstractActiveMQOutputOperator<T> extends ActiveMQProducer
   @Override
   public void teardown()
   {
-    logger.debug("teardown got called from {}", this);
-    // cleanup(); TBD
+    cleanup();
   }
 
   /**
@@ -58,7 +53,6 @@ public abstract class AbstractActiveMQOutputOperator<T> extends ActiveMQProducer
   @Override
   public void beginWindow(long windowId)
   {
-    logger.debug("beginWindow got called from {}", this);
   }
 
   /**
@@ -67,6 +61,5 @@ public abstract class AbstractActiveMQOutputOperator<T> extends ActiveMQProducer
   @Override
   public void endWindow()
   {
-    logger.debug("endWindow got called from {}", this);
   }
 }

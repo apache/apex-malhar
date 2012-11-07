@@ -15,35 +15,35 @@ import org.slf4j.LoggerFactory;
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
-public abstract class AbstractActiveMQSinglePortOutputOperator<T> extends AbstractActiveMQOutputOperator<T>
+public abstract class AbstractActiveMQSinglePortOutputOperator<T> extends AbstractActiveMQOutputOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractActiveMQSinglePortOutputOperator.class);
-  long countMessages = 0;  // Number of message produced so far
+  long countMessages = 0;  // Number of messages produced so far
 
+  protected abstract Message createMessage(T tuple);
+    
   /**
-   * Define input ports as needed.
+   * The single input port.
    */
   @InputPortFieldAnnotation(name = "ActiveMQInputPort")
   public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>(this)
   {
     @Override
-    public void process(T t)
+    public void process(T tuple)
     {
-      logger.debug("process got called from {}", this);
       countMessages++;
-      // Stop sending messages after max limit.
+
       if (countMessages > maxSendMessage && maxSendMessage != 0) {
         if (countMessages == maxSendMessage + 1) {
           logger.warn("Reached maximum send messages of {}", maxSendMessage);
         }
-        return;
+        return; // Stop sending messages after max limit.
       }
 
       try {
-        Message msg = createMessage(t);
+        Message msg = createMessage(tuple);
         getProducer().send(msg);
-
-        logger.debug("process got called from {} with message {}", this, t.toString());
+        //logger.debug("process message {}", tuple.toString());
       }
       catch (JMSException ex) {
         logger.debug(ex.getLocalizedMessage());

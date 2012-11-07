@@ -4,7 +4,6 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.annotation.InjectConfig;
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -27,31 +26,19 @@ public class ActiveMQBase
 
   // Config parameters that user can set.
   @NotNull
-  @InjectConfig(key = "user")
   private String user = "";
   @NotNull
-  @InjectConfig(key = "password")
   private String password = "";
   @NotNull
-  @InjectConfig(key = "url")
   private String url;
-  @InjectConfig(key = "ackMode")
   private String ackMode = "CLIENT_ACKNOWLEDGE";
-  @InjectConfig(key = "clientId")
   private String clientId = "TestClient";
-  @InjectConfig(key = "subject")
   private String subject = "TEST.FOO";
-  @InjectConfig(key = "batch")
   private int batch = 10;
-  @InjectConfig(key = "messageSize")
   private int messageSize = 255;
-  @InjectConfig(key = "durable")
   private boolean durable = false;
-  @InjectConfig(key = "topic")
   private boolean topic = false;
-  @InjectConfig(key = "transacted")
   private boolean transacted = false;
-  @InjectConfig(key = "verbose")
   private boolean verbose = false;
 
   public Connection getConnection()
@@ -241,10 +228,8 @@ public class ActiveMQBase
   /**
    *  cleanup connection resources.
    */
-  public void cleanup() // where should be called TBD
+  public void cleanup()
   {
-    logger.debug("cleanup got called from {}", this);
-
     try {
       session.close();
       connection.close();

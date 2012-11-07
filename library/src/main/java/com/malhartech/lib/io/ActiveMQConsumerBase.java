@@ -4,14 +4,13 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.annotation.InjectConfig;
 import javax.jms.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  *
- *  @author Locknath Shil <locknath@malhar-inc.com>
+ * @author Locknath Shil <locknath@malhar-inc.com>
  */
 public abstract class ActiveMQConsumerBase extends ActiveMQBase implements MessageListener, ExceptionListener
 {
@@ -19,18 +18,15 @@ public abstract class ActiveMQConsumerBase extends ActiveMQBase implements Messa
   private transient MessageProducer replyProducer;
   private transient MessageConsumer consumer;
   private long messageReceivedCount = 0;
-
   // Config parameters that user can set.
-  @InjectConfig(key = "consumerName")
   private String consumerName;
-  @InjectConfig(key = "maximumReceiveMessages")
   private long maximumReceiveMessages = 0; // 0 means unlimitted, can be set by user
 
   /**
-   *  Any ActiveMQINputOperator has to implement this method
-   *  so that it knows how to emit message to what port.
+   * Any ActiveMQINputOperator has to implement this method
+   * so that it knows how to emit message to what port.
    *
-   *  @param message
+   * @param message
    */
   protected abstract void emitMessage(Message message) throws JMSException;
 
@@ -75,9 +71,9 @@ public abstract class ActiveMQConsumerBase extends ActiveMQBase implements Messa
   }
 
   /**
-   *  Connection specific setup for ActiveMQ.
+   * Connection specific setup for ActiveMQ.
    *
-   *  @throws JMSException
+   * @throws JMSException
    */
   public void setupConnection() throws JMSException
   {
@@ -91,34 +87,15 @@ public abstract class ActiveMQConsumerBase extends ActiveMQBase implements Messa
   }
 
   /**
-   *  Commit/Acknowledge message that has been received.
+   * If getJMSReplyTo is set then send message back to reply producer.
    *
-   *  @param message
+   * @param message
    */
-  public void acknowledgeMessage(Message message)
+  public void sendReply(Message message)
   {
     try {
-      if (message.getJMSReplyTo() != null) {
-        // Send reply only if the replyTo destination is set
+      if (message.getJMSReplyTo() != null) { // Send reply only if the replyTo destination is set
         replyProducer.send(message.getJMSReplyTo(), getSession().createTextMessage("Reply: " + message.getJMSMessageID()));
-      }
-
-      if (isTransacted()) {
-        if ((messageReceivedCount % getBatch()) == 0) {
-          if (isVerbose()) {
-            System.out.println("Commiting transaction for last " + getBatch() + " messages; messages so far = " + messageReceivedCount);
-          }
-          getSession().commit();
-        }
-      }
-      else if (getSessionAckMode(getAckMode()) == Session.CLIENT_ACKNOWLEDGE) {
-        // we can use window boundary to ack the message.
-        if ((messageReceivedCount % getBatch()) == 0) {
-          if (isVerbose()) {
-            System.out.println("Acknowledging last " + getBatch() + " messages; messages so far = " + messageReceivedCount);
-          }
-          message.acknowledge(); // acknowledge all consumed messages upto now
-        }
       }
     }
     catch (JMSException ex) {
@@ -127,58 +104,72 @@ public abstract class ActiveMQConsumerBase extends ActiveMQBase implements Messa
   }
 
   /**
-   *  Implement MessageListener interface.
+   * Commit/Acknowledge message that has been received.
    *
-   *  Whenever there is message available in ActiveMQ message bus this will get called.
-   *  This just emit the message to Malhar platform.
+   * @param message
+   */
+  public void acknowledgeMessage(Message message)
+  {
+    try {
+      if (isTransacted()) {
+        getSession().commit();
+      }
+      else if (getSessionAckMode(getAckMode()) == Session.CLIENT_ACKNOWLEDGE) {
+        message.acknowledge(); // acknowledge all consumed messages upto now
+      }
+    }
+    catch (JMSException ex) {
+      logger.debug(ex.getLocalizedMessage());
+    }
+  }
+
+  /**
+   * Implement MessageListener interface.
    *
-   *  @param message
+   * Whenever there is message available in ActiveMQ message bus this will get called.
+   * This just emit the message to Malhar platform.
+   *
+   * @param message
    */
   @Override
   public void onMessage(Message message)
   {
     ++messageReceivedCount;
 
-    // Make sure that we do not get called again if we have processed enough messages already.
-    logger.debug("onMessage got called from {} with {}", this, messageReceivedCount);
-
-    if (messageReceivedCount == maximumReceiveMessages) {
-      try {
-        consumer.setMessageListener(null);
-      }
-      catch (JMSException ex) {
-        logger.error(ex.getLocalizedMessage());
-      }
-    }
-
+    //logger.debug("onMessage got called from {} with {}", this, messageReceivedCount);
     try {
+      if (messageReceivedCount == maximumReceiveMessages) {
+        consumer.setMessageListener(null); // Make sure that we do not get called again if we have processed enough messages already.
+      }
       emitMessage(message); // Call abstract method to send message to ActiveMQ input operator.
     }
     catch (JMSException ex) {
       logger.debug(ex.getLocalizedMessage());
     }
 
-    acknowledgeMessage(message);
+    sendReply(message);
   }
 
   /**
-   *  Implement ExceptionListener interface.
+   * Implement ExceptionListener interface.
    *
-   *  @param ex
+   * @param ex
    */
   @Override
   public void onException(JMSException ex)
   {
+    cleanup();
     logger.error(ex.getLocalizedMessage());
   }
 
   /**
-   *  Release resources.
+   * Release resources.
    */
   @Override
   public void cleanup()
   {
     try {
+      consumer.setMessageListener(null);
       replyProducer.close();
       replyProducer = null;
       consumer.close();

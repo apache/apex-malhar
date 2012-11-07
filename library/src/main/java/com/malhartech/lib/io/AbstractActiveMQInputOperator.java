@@ -4,7 +4,6 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.annotation.InjectConfig;
 import com.malhartech.api.ActivationListener;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.InputOperator;
@@ -17,30 +16,26 @@ import org.slf4j.LoggerFactory;
 /**
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
+ *
  * This is ActiveMQ input adapter operator (which consume data from ActiveMQ message bus).
  */
-public abstract class AbstractActiveMQInputOperator<T> extends ActiveMQConsumerBase implements InputOperator, ActivationListener<OperatorContext>
+public abstract class AbstractActiveMQInputOperator extends ActiveMQConsumerBase implements InputOperator, ActivationListener<OperatorContext>
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractActiveMQInputOperator.class);
   protected static final int TUPLES_BLAST_DEFAULT = 10 * 1024; // 10k
   protected static final int BUFFER_SIZE_DEFAULT = 1024 * 1024; // 1M
-
-  // Config parameters that user can set.
-  @InjectConfig(key = "tuplesBlast")
+  // Config parameters that user can set.-
   private int tuplesBlast = TUPLES_BLAST_DEFAULT;
-  @InjectConfig(key = "bufferSize")
   private int bufferSize = BUFFER_SIZE_DEFAULT;
-  protected transient CircularBuffer<T> holdingBuffer = new CircularBuffer<T>(bufferSize); // Should this be transient?
+  protected transient CircularBuffer<Message> holdingBuffer = new CircularBuffer<Message>(bufferSize); // Should this be transient?
 
   /**
-   * Any concrete class derived from AbstractActiveQConsumerModule has to implement this method
-   * so that it knows what type of message it is going to send to Malhar.
-   * It converts a JMS message into a Tuple. A Tuple can be of any type (derived from Java Object) that
-   * operator user intends to.
+   * Any concrete class derived from AbstractActiveMQInputOperator has to implement this method
+   * so that it knows what type of message it is going to send to Malhar in which output port.
    *
    * @param message
    */
-  protected abstract T getTuple(Message message) throws JMSException;
+  protected abstract void emitTuple(Message message);
 
   public int getTuplesBlast()
   {
@@ -66,10 +61,9 @@ public abstract class AbstractActiveMQInputOperator<T> extends ActiveMQConsumerB
    * Implement abstract method of ActiveMQConsumerBase
    */
   @Override
-  protected void emitMessage(Message message) throws JMSException
+  protected final void emitMessage(Message message) throws JMSException
   {
-    T tuple = getTuple(message);
-    holdingBuffer.add(tuple); // do we need to check buffer capacity?? TBD
+    holdingBuffer.add(message);
   }
 
   /**
@@ -80,7 +74,6 @@ public abstract class AbstractActiveMQInputOperator<T> extends ActiveMQConsumerB
   @Override
   public void setup(OperatorConfiguration config)
   {
-    logger.debug("setup got called from {}", this);
   }
 
   /**
@@ -89,8 +82,6 @@ public abstract class AbstractActiveMQInputOperator<T> extends ActiveMQConsumerB
   @Override
   public void teardown()
   {
-    logger.debug("teardown got called from {}", this);
-    // cleanup(); TBD
   }
 
   /**
@@ -99,7 +90,6 @@ public abstract class AbstractActiveMQInputOperator<T> extends ActiveMQConsumerB
   @Override
   public void beginWindow(long windowId)
   {
-    logger.debug("beginWindow got called from {}", this);
   }
 
   /**
@@ -108,7 +98,6 @@ public abstract class AbstractActiveMQInputOperator<T> extends ActiveMQConsumerB
   @Override
   public void endWindow()
   {
-    logger.debug("endWindow got called from {}", this);
   }
 
   /**
@@ -117,7 +106,6 @@ public abstract class AbstractActiveMQInputOperator<T> extends ActiveMQConsumerB
   @Override
   public void postActivate(OperatorContext ctx)
   {
-    logger.debug("postActivate got called from {}", this);
     try {
       setupConnection();
     }
@@ -132,6 +120,26 @@ public abstract class AbstractActiveMQInputOperator<T> extends ActiveMQConsumerB
   @Override
   public void preDeactivate()
   {
-    logger.debug("preDeactivate got called from {}", this);
+    cleanup();
+  }
+
+  /**
+   * Implement InputOperator Interface.
+   */
+  @Override
+  public void emitTuples()
+  {
+    int messageCount = getTuplesBlast() < holdingBuffer.size() ? getTuplesBlast() : holdingBuffer.size();
+    while (messageCount > 1) {
+      emitTuple(holdingBuffer.pollUnsafe());
+      messageCount--;
+    }
+
+    // Acknowledge all message with last message in buffer.
+    if (messageCount == 1) {
+      Message msg = holdingBuffer.pollUnsafe();
+      emitTuple(msg);
+      acknowledgeMessage(msg);
+    }
   }
 }

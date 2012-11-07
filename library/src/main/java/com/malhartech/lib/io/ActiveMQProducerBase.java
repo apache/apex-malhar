@@ -4,7 +4,6 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.annotation.InjectConfig;
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import org.slf4j.Logger;
@@ -20,7 +19,6 @@ public class ActiveMQProducerBase extends ActiveMQBase
   private transient MessageProducer producer;
 
   // Config parameters that user can set.
-  @InjectConfig(key = "maximumSendMessages")
   private long maximumSendMessages = 0; // 0 means unlimitted
 
   public MessageProducer getProducer()

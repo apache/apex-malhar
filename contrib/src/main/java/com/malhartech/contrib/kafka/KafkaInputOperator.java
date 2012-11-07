@@ -21,9 +21,117 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.*;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.dag.SerDe;
+import com.malhartech.util.CircularBuffer;
+import javax.jms.JMSException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class KafkaInputOperator implements InputOperator, Runnable
+public class KafkaInputOperator extends KafkaBase implements InputOperator, ActivationListener<OperatorContext>
 {
+    private static final Logger logger = LoggerFactory.getLogger(KafkaInputOperator.class);
+  protected static final int TUPLES_BLAST_DEFAULT = 10 * 1024; // 10k
+  protected static final int BUFFER_SIZE_DEFAULT = 1024 * 1024; // 1M
+
+  // Config parameters that user can set.-
+  private int tuplesBlast = TUPLES_BLAST_DEFAULT;
+  private int bufferSize = BUFFER_SIZE_DEFAULT;
+  protected transient CircularBuffer<Message> holdingBuffer = new CircularBuffer<Message>(bufferSize);
+
+   public int getTuplesBlast()
+  {
+    return tuplesBlast;
+  }
+
+  public void setTuplesBlast(int tuplesBlast)
+  {
+    this.tuplesBlast = tuplesBlast;
+  }
+
+  public int getBufferSize()
+  {
+    return bufferSize;
+  }
+
+  public void setBufferSize(int bufferSize)
+  {
+    this.bufferSize = bufferSize;
+  }
+
+  /**
+   * Implement abstract method of ActiveMQConsumerBase
+   */
+  protected final void emitMessage(Message message) throws JMSException
+  {
+    holdingBuffer.add(message);
+  }
+
+  /**
+   * Implement Component Interface.
+   *
+   * @param config
+   */
+  @Override
+  public void setup(OperatorContext context)
+  {
+  }
+
+  /**
+   * Implement Component Interface.
+   */
+  @Override
+  public void teardown()
+  {
+  }
+
+  /**
+   * Implement Operator Interface.
+   */
+  @Override
+  public void beginWindow(long windowId)
+  {
+  }
+
+  /**
+   * Implement Operator Interface.
+   */
+  @Override
+  public void endWindow()
+  {
+  }
+
+  /**
+   * Implement ActivationListener Interface.
+   */
+  @Override
+  public void postActivate(OperatorContext ctx)
+  {
+      createConsumer("mytopic");
+
+  }
+
+  /**
+   * Implement ActivationListener Interface.
+   */
+  @Override
+  public void preDeactivate()
+  {
+    //cleanup();
+  }
+
+  /**
+   * Implement InputOperator Interface.
+   */
+  @Override
+  public void emitTuples()
+  {
+    int bufferLength = holdingBuffer.size();
+    for (int i = getTuplesBlast() < bufferLength ? getTuplesBlast() : bufferLength; i-- > 0;) {
+      Message msg = holdingBuffer.pollUnsafe();
+     // emitTuple(msg);
+      //logger.debug("emitTuples() got called from {} with tuple: {}", this, msg);
+    }
+  }
+  /*
   private ConsumerConnector consumer;
   private String topic;
   private SerDe serde;
@@ -76,9 +184,9 @@ public class KafkaInputOperator implements InputOperator, Runnable
 
   public Object getObject(Object message)
   {
-    /*
-     * get the object from message
-     */
+
+     //get the object from message
+
     if (message instanceof Message) {
       ByteBuffer buffer = ((Message)message).payload();
       byte[] bytes = new byte[buffer.remaining()];
@@ -100,5 +208,6 @@ public class KafkaInputOperator implements InputOperator, Runnable
 
   public void endWindow()
   {
-  }
+  } */
+
 }

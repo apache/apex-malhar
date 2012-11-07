@@ -76,7 +76,7 @@ public class KafkaInoutOperatorTest
   {
     System.out.println("run");
     KafkaInputOperator instance = new KafkaInputOperator();
-    instance.run();
+    //instance.run();
     // TODO review the generated test code and remove the default call to fail.
     fail("The test case is a prototype.");
   }

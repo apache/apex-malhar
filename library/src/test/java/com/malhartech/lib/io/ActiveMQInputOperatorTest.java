@@ -4,17 +4,17 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DAG;
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.Operator;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
+import com.malhartech.api.*;
 import com.malhartech.stram.StramLocalCluster;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
 import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 import junit.framework.Assert;
 import org.apache.activemq.broker.BrokerService;
@@ -27,56 +27,45 @@ import org.slf4j.LoggerFactory;
 /**
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
+ *
  */
 public class ActiveMQInputOperatorTest
 {
   private static final Logger logger = LoggerFactory.getLogger(ActiveMQInputOperatorTest.class);
   private BrokerService broker;
   static int debugMessageCount = 5;  // for debug, display first few messages
-  public static HashMap<Integer, String> receivedData = new HashMap<Integer, String>();
-  private static int receivedCount = 0;
   static HashMap<String, List<?>> collections = new HashMap<String, List<?>>();
 
   /**
-   * An example Concrete class of ActiveMQStringSinglePortInputOperator for testing.
+   * An example Concrete class of ActiveMQSinglePortInputOperator for testing.
    */
   public static class ActiveMQStringSinglePortInputOperator extends AbstractActiveMQSinglePortInputOperator<String>
   {
-   // @OutputPortFieldAnnotation(name = "outputPort")
-  //  public final transient DefaultOutputPort<String> outputPort = new DefaultOutputPort<String>(this);
-
     /**
-     * Implement abstract method of AbstractActiveMQInputOperator
+     * Implement abstract method of AbstractActiveMQSinglePortInputOperator
      */
     @Override
-    protected String getTuple(Message message) throws JMSException
+    public String getTuple(Message message)
     {
-      //logger.debug("getTuple got called from {}", this);
-      if (message instanceof TextMessage) {
-        String msg = ((TextMessage)message).getText();
-        logger.debug("Received Message: {}", msg);
-        receivedData.put(new Integer(++receivedCount), msg);
+      String msg = null;
+      try {
+        if (message instanceof TextMessage) {
+          msg = ((TextMessage)message).getText();
+          //logger.debug("Received Message: {}", msg);
+        }
+        else if (message instanceof StreamMessage) {
+          msg = ((StreamMessage)message).readString();
+        }
+        else {
+          throw new IllegalArgumentException("Unhandled message type " + message.getClass().getName());
+        }
+      }
+      catch (JMSException ex) {
+        logger.debug(ex.getLocalizedMessage());
         return msg;
       }
-      else {
-        throw new IllegalArgumentException("Unhandled message type " + message.getClass().getName());
-      }
+      return msg;
     }
-
-    /**
-     * Implement InputOperator Interface.
-     */
-  /*  @Override
-    public void emitTuples()
-    {
-      //logger.debug("emitTuples got called from {}", this);
-      int bufferSize = holdingBuffer.size();
-      for (int i = getTuplesBlast() < bufferSize ? getTuplesBlast() : bufferSize; i-- > 0;) {
-        String tuple = holdingBuffer.pollUnsafe();
-        outputPort.emit(tuple);
-        logger.debug("emitTuples() got called from {} with tuple: {}", this, tuple);
-      }
-    }*/
   } // End of ActiveMQStringSinglePortInputOperator
 
   /**
@@ -107,12 +96,7 @@ public class ActiveMQInputOperatorTest
   public void afterTest() throws Exception
   {
     broker.stop();
-    try {
-      Thread.sleep(1000);
-    }
-    catch (InterruptedException ex) {
-      logger.debug(ex.getLocalizedMessage());
-    }
+    collections.clear();
   }
 
   /**
@@ -123,6 +107,17 @@ public class ActiveMQInputOperatorTest
   public static class CollectorModule<T> extends BaseOperator
   {
     public final transient CollectorInputPort<T> inputPort = new CollectorInputPort<T>("myInput", this);
+  }
+
+  /**
+   * Test Operator to collect tuples from ActiveMQMultiPortInputOperator.
+   *
+   * @param <T1, T2>
+   */
+  public static class CollectorModule2<T1, T2> extends BaseOperator
+  {
+    public final transient CollectorInputPort<T1> inputPort1 = new CollectorInputPort<T1>("myInput1", this);
+    public final transient CollectorInputPort<T2> inputPort2 = new CollectorInputPort<T2>("myInput2", this);
   }
 
   public static class CollectorInputPort<T> extends DefaultInputPort<T>
@@ -152,74 +147,7 @@ public class ActiveMQInputOperatorTest
   }
 
   /**
-   * Test AbstractActiveMQInputOperator (i.e. an input adapter for ActiveMQ, aka consumer).
-   * This module receives data from an outside test generator through ActiveMQ message bus and
-   * feed that data into Malhar streaming platform.
-   *
-   * [Generate message and send that to ActiveMQ message bus] ==>
-   * [Receive that message through ActiveMQ input adapter(i.e. consumer) and send using emitTuples() interface on output port during onMessage call]
-   *
-   *
-   * @throws Exception
-   */
-//@Test
-  @SuppressWarnings("SleepWhileInLoop")
-  public void testActiveMQInputOperatorWithoutUsingDAG() throws Exception
-  {
-    /*   // Setup a message generator to receive the message from.
-     ActiveMQMessageGenerator generator = new ActiveMQMessageGenerator();
-     try {
-     generator.setDebugMessageCount(debugMessageCount);
-     generator.setupConnection();
-     generator.sendMessage();
-     }
-     catch (JMSException ex) {
-     logger.debug(ex.getLocalizedMessage());
-     }
-     generator.closeConnection();
-
-     // The output port of node should be connected to a Test sink.
-     TestSink<String> outSink = new TestSink<String>();
-     ActiveMQStringSinglePortInputOperator node = new ActiveMQStringSinglePortInputOperator();
-     ActiveMQConsumerBase config = node.getAmqConsumer();
-     config.setUser("");
-     config.setPassword("");
-     config.setUrl("tcp://localhost:61617");
-     config.setAckMode("CLIENT_ACKNOWLEDGE");
-     config.setClientId("Client1");
-     config.setConsumerName("Consumer1");
-     config.setSubject("TEST.FOO");
-     config.setMaximumReceiveMessages(20);
-     config.setMessageSize(255);
-     config.setBatch(10);
-     config.setTopic(false);
-     config.setDurable(false);
-     config.setTransacted(false);
-     config.setVerbose(true);
-
-
-     //  node.outputPort.setSink(outSink);
-     node.setup(new OperatorConfiguration());
-
-     // Allow some time to receive data.
-     Thread.sleep(2000);
-
-     // Check values send vs received.
-     int totalCount = receivedData.size();
-     Assert.assertEquals("Number of emitted tuples", generator.sendCount, totalCount);
-     logger.debug(String.format("Number of emitted tuples: %d", totalCount));
-
-     // Check contents only for first few.
-     for (int i = 1; i <= debugMessageCount & i < totalCount; ++i) {
-     Assert.assertEquals("Message content", generator.sendData.get(i), receivedData.get(new Integer(i)));
-     logger.debug(String.format("Received: %s", receivedData.get(new Integer(i))));
-     }
-     receivedData.clear();
-     config.cleanup(); */
-  }
-
-  /**
-   * Test AbstractActiveMQInputOperator (i.e. an input adapter for ActiveMQ, aka consumer).
+   * Test AbstractActiveMQSinglePortInputOperator (i.e. an input adapter for ActiveMQ, aka consumer).
    * This module receives data from an outside test generator through ActiveMQ message bus and
    * feed that data into Malhar streaming platform.
    *
@@ -362,4 +290,107 @@ public class ActiveMQInputOperatorTest
     Assert.assertEquals("Collections size", 1, collections.size());
     Assert.assertEquals("Tuple count", 20, collections.get(collector.inputPort.id).size());
   }
+
+  public static class ActiveMQMultiPortInputOperator extends AbstractActiveMQInputOperator
+  {
+    @OutputPortFieldAnnotation(name = "outputPort1")
+    public final transient DefaultOutputPort<String> outputPort1 = new DefaultOutputPort<String>(this);
+    @OutputPortFieldAnnotation(name = "outputPort2")
+    public final transient DefaultOutputPort<Integer> outputPort2 = new DefaultOutputPort<Integer>(this);
+
+    /**
+     * Implement abstract method.
+     */
+    @Override
+    public void emitTuple(Message message)
+    {
+      //logger.debug("getTuple got called from {}", this);
+      try {
+        if (message instanceof TextMessage) {
+          String msg = (String)((TextMessage)message).getText();
+          outputPort1.emit(msg);
+          logger.debug("emitted tuple : {}", msg);
+        }
+        else if (message instanceof StreamMessage) {
+          Integer msg = new Integer(((StreamMessage)message).readInt());
+          outputPort2.emit(msg);
+        }
+        else {
+          throw new IllegalArgumentException("Unhandled message type " + message.getClass().getName());
+        }
+      }
+      catch (JMSException ex) {
+        logger.debug(ex.getLocalizedMessage());
+      }
+    }
   }
+
+  //@Test
+  public void testActiveMQMultiPortInputOperator() throws Exception
+  {
+    // Setup a message generator to receive the message from.
+    ActiveMQMessageGenerator generator = new ActiveMQMessageGenerator();
+    try {
+      generator.setDebugMessageCount(debugMessageCount);
+      generator.setupConnection();
+      generator.sendMessage();
+    }
+    catch (JMSException ex) {
+      logger.debug(ex.getLocalizedMessage());
+    }
+    generator.closeConnection();
+
+    // Create DAG for testing.
+    DAG dag = new DAG();
+    // Create ActiveMQStringSinglePortInputOperator
+    ActiveMQMultiPortInputOperator node = dag.addOperator("AMQ message consumer", ActiveMQMultiPortInputOperator.class);
+    // Set configuration parameters for ActiveMQ
+    node.setUser("");
+    node.setPassword("");
+    node.setUrl("tcp://localhost:61617");
+    node.setAckMode("CLIENT_ACKNOWLEDGE");
+    node.setClientId("Client1");
+    node.setConsumerName("Consumer1");
+    node.setSubject("TEST.FOO");
+    node.setMaximumReceiveMessages(0);
+    node.setMessageSize(255);
+    node.setBatch(10);
+    node.setTopic(false);
+    node.setDurable(false);
+    node.setTransacted(false);
+    node.setVerbose(true);
+
+    // Create Test tuple collector
+    CollectorModule2<String, Integer> collector = dag.addOperator("TestMessageCollector", new CollectorModule2<String, Integer>());
+
+    // Connect ports
+    dag.addStream("AMQ message", node.outputPort1, collector.inputPort1).setInline(true);
+    dag.addStream("AMQ message2", node.outputPort2, collector.inputPort2).setInline(true);
+
+    // Create local cluster
+    final StramLocalCluster lc = new StramLocalCluster(dag);
+    lc.setHeartbeatMonitoringEnabled(false);
+
+    // Run local cluster
+    new Thread("LocalClusterController")
+    {
+      @Override
+      public void run()
+      {
+        try {
+          Thread.sleep(1000);
+        }
+        catch (InterruptedException ex) {
+        }
+
+        lc.shutdown();
+      }
+    }.start();
+    lc.run();
+
+    // Check results
+    Assert.assertEquals("Collections size", 2, collections.size());
+    Assert.assertEquals("Tuple count", 20, collections.get(collector.inputPort1.id).size());
+    Assert.assertEquals("Tuple count", 0, collections.get(collector.inputPort2.id).size());
+  }
+}

@@ -38,6 +38,72 @@ public class ActiveMQMessageListener implements MessageListener, Runnable
   private boolean verbose = false;
   private String consumerName = "Consumer1";
 
+  public void setUser(String user)
+  {
+    this.user = user;
+  }
+
+  public void setPassword(String password)
+  {
+    this.password = password;
+  }
+
+  public void setUrl(String url)
+  {
+    this.url = url;
+  }
+
+  public void setAckMode(int ackMode)
+  {
+    this.ackMode = ackMode;
+  }
+
+  public void setSubject(String subject)
+  {
+    this.subject = subject;
+  }
+
+  public void setBatch(int batch)
+  {
+    this.batch = batch;
+  }
+
+  public void setMessageSize(int messageSize)
+  {
+    this.messageSize = messageSize;
+  }
+
+  public void setMaximumReceiveMessages(long maximumReceiveMessages)
+  {
+    this.maximumReceiveMessages = maximumReceiveMessages;
+  }
+
+  public void setDurable(boolean durable)
+  {
+    this.durable = durable;
+  }
+
+  public void setTopic(boolean topic)
+  {
+    this.topic = topic;
+  }
+
+  public void setTransacted(boolean transacted)
+  {
+    this.transacted = transacted;
+  }
+
+  public void setVerbose(boolean verbose)
+  {
+    this.verbose = verbose;
+  }
+
+  public void setConsumerName(String consumerName)
+  {
+    this.consumerName = consumerName;
+  }
+
+
   public void setupConnection() throws JMSException
   {
     // Create connection
