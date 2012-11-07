@@ -233,7 +233,7 @@ public class ActiveMQOutputOperatorTest
     listener.closeConnection();
   }
 
-  //@Test
+  @Test
   @SuppressWarnings({"SleepWhileInLoop", "empty-statement"})
   public void testActiveMQOutputOperator2() throws Exception
   {
@@ -420,13 +420,14 @@ public class ActiveMQOutputOperatorTest
     };
   } // End of ActiveMQMultiPortOutputOperator
 
- // @Test
+  @Test
   @SuppressWarnings({"SleepWhileInLoop", "empty-statement"})
   public void testActiveMQMultiPortOutputOperator() throws Exception
   {
     // Setup a message listener to receive the message
     ActiveMQMessageListener listener = new ActiveMQMessageListener();
     try {
+      listener.setMaximumReceiveMessages(0);
       listener.setupConnection();
     }
     catch (JMSException ex) {
@@ -448,7 +449,7 @@ public class ActiveMQOutputOperatorTest
     node.setAckMode("CLIENT_ACKNOWLEDGE");
     node.setClientId("Client1");
     node.setSubject("TEST.FOO");
-    node.setMaximumSendMessages(15);
+    node.setMaximumSendMessages(0);
     node.setMessageSize(255);
     node.setBatch(10);
     node.setTopic(false);
@@ -458,7 +459,7 @@ public class ActiveMQOutputOperatorTest
 
     // Connect ports
     dag.addStream("AMQ message", generator.outputPort1, node.inputPort1).setInline(true);
-    dag.addStream("AMQ message", generator.outputPort2, node.inputPort2).setInline(true);
+    dag.addStream("AMQ message2", generator.outputPort2, node.inputPort2).setInline(true);
 
     // Create local cluster
     final StramLocalCluster lc = new StramLocalCluster(dag);
@@ -482,7 +483,7 @@ public class ActiveMQOutputOperatorTest
     lc.run();
 
     // Check values send vs received
-    long emittedCount = tupleCount < node.getMaximumSendMessages() ? tupleCount : node.getMaximumSendMessages();
+    long emittedCount = 40;
     Assert.assertEquals("Number of emitted tuples", emittedCount, listener.receivedData.size());
     logger.debug(String.format("Number of emitted tuples: %d", listener.receivedData.size()));
     Assert.assertEquals("First tuple", "testString 1", listener.receivedData.get(new Integer(1)));

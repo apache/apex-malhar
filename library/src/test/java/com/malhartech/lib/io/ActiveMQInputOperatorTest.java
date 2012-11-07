@@ -325,7 +325,7 @@ public class ActiveMQInputOperatorTest
     }
   }
 
-  //@Test
+  @Test
   public void testActiveMQMultiPortInputOperator() throws Exception
   {
     // Setup a message generator to receive the message from.
