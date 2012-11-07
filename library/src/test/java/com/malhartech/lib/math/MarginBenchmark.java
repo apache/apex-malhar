@@ -36,7 +36,7 @@ public class MarginBenchmark
     TestCountAndLastTupleSink marginSink = new TestCountAndLastTupleSink();
 
     oper.margin.setSink(marginSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
     oper.beginWindow(0);
     HashMap<String, Number> ninput = new HashMap<String, Number>();
     HashMap<String, Number> dinput = new HashMap<String, Number>();

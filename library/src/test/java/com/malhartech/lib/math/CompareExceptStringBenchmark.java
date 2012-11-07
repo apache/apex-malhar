@@ -33,7 +33,7 @@ public class CompareExceptStringBenchmark
     oper.compare.setSink(compareSink);
     oper.except.setSink(exceptSink);
 
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
     oper.setKey("a");
     oper.setValue(3.0);
     oper.setTypeEQ();

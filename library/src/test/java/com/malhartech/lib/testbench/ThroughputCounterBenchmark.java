@@ -64,7 +64,7 @@ public class ThroughputCounterBenchmark {
     TestCountSink countSink = new TestCountSink();
     node.count.setSink(countSink);
     node.setRollingWindowCount(5);
-    node.setup(new OperatorContext("irrelevant", null));
+    node.setup(new OperatorContext("irrelevant", null, null));
 
     node.beginWindow(0);
     HashMap<String, Integer> input;

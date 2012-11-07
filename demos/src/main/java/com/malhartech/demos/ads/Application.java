@@ -4,13 +4,6 @@
  */
 package com.malhartech.demos.ads;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.hadoop.conf.Configuration;
-
 import com.malhartech.api.DAG;
 import com.malhartech.dag.ApplicationFactory;
 import com.malhartech.lib.io.ConsoleOutputOperator;
@@ -24,6 +17,11 @@ import com.malhartech.lib.testbench.EventClassifier;
 import com.malhartech.lib.testbench.EventGenerator;
 import com.malhartech.lib.testbench.FilteredEventClassifier;
 import com.malhartech.lib.testbench.ThroughputCounter;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.hadoop.conf.Configuration;
 
 
 /**
@@ -256,11 +254,11 @@ public class Application implements ApplicationFactory
     }
 
     dag.addStream("clicksaggregate", insertclicks.filter, clickAggregate.data).setInline(true);
-    dag.addStream("adviewsdata", viewAggregate.sum, cost.data).setInline(allInline);;
-    dag.addStream("clicksdata", clickAggregate.sum, revenue.data).setInline(allInline);;
-    dag.addStream("viewtuplecount", viewAggregate.count, ctr.denominator, merge.data1).setInline(allInline);;
-    dag.addStream("clicktuplecount", clickAggregate.count, ctr.numerator, merge.data2).setInline(allInline);;
-    dag.addStream("total count", merge.out, tuple_counter.data).setInline(allInline);;
+    dag.addStream("adviewsdata", viewAggregate.sum, cost.data).setInline(allInline);
+    dag.addStream("clicksdata", clickAggregate.sum, revenue.data).setInline(allInline);
+    dag.addStream("viewtuplecount", viewAggregate.count, ctr.denominator, merge.data1).setInline(allInline);
+    dag.addStream("clicktuplecount", clickAggregate.count, ctr.numerator, merge.data2).setInline(allInline);
+    dag.addStream("total count", merge.out, tuple_counter.data).setInline(allInline);
 
     String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
     if (serverAddr == null) {

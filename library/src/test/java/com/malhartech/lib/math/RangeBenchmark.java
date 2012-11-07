@@ -63,7 +63,7 @@ public class RangeBenchmark {
     {
       TestSink rangeSink = new TestSink();
       node.range.setSink(rangeSink);
-      node.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
+      node.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
 
       HashMap<String, Number> input = new HashMap<String, Number>();
       int numtuples = 100000000;

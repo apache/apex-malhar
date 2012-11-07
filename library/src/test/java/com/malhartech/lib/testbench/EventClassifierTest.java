@@ -116,7 +116,7 @@ public class EventClassifierTest {
       list.add(35);
       wmap.put("id", list);
       node.setKeyWeights(wmap);
-      node.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
+      node.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
 
       HashMap<String, Double> input = new HashMap<String, Double>();
       int sentval = 0;
@@ -156,7 +156,7 @@ public class EventClassifierTest {
       nwnode.data.setSink(classifySink);
       nwnode.setKeyMap(keymap);
       nwnode.setOperationReplace();
-      nwnode.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
+      nwnode.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
 
       sentval = 0;
       for (int i = 0; i < numTuples; i++) {
@@ -199,7 +199,7 @@ public class EventClassifierTest {
       nvnode.data.setSink(classifySink);
       nvnode.setKeyMap(keymap);
       nvnode.setOperationReplace();
-      nvnode.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
+      nvnode.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
 
       sentval = 0;
       for (int i = 0; i < numTuples; i++) {

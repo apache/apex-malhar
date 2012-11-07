@@ -62,7 +62,7 @@ public class HttpOutputOperatorTest {
     HttpOutputOperator<Object> node = new HttpOutputOperator<Object>();
     node.setResourceURL(new URI(url));
 
-    node.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
+    node.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
 
     Map<String, String> data = new HashMap<String, String>();
     data.put("somekey", "somevalue");

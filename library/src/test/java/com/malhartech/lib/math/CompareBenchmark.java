@@ -38,7 +38,7 @@ public class CompareBenchmark
   {
     TestCountAndLastTupleSink matchSink = new TestCountAndLastTupleSink();
     oper.compare.setSink(matchSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
     oper.setKey("a");
     oper.setValue(3.0);
     oper.setTypeNEQ();

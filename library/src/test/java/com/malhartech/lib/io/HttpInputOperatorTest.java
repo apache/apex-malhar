@@ -84,7 +84,7 @@ public class HttpInputOperatorTest
     operator.setName("testHttpInputNode");
     operator.setUrl(new URI(url));
 
-    operator.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
+    operator.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
 
     operator.postActivate(null);
 

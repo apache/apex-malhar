@@ -28,7 +28,7 @@ public class StreamMergerTest
     StreamMerger oper = new StreamMerger();
     TestCountSink mergeSink = new TestCountSink();
     oper.out.setSink(mergeSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
 
     oper.beginWindow(0);
     int numtuples = 500;

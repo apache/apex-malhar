@@ -82,7 +82,7 @@ public class SeedEventClassifierBenchmark
     oper.setKey2("y");
     oper.setSeedstart(0);
     oper.setSeedend(1000);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
 
     oper.beginWindow(0);
 

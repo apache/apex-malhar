@@ -39,7 +39,7 @@ public class FilteredLineTokenizerKeyValTest
     filters.add("c");
     oper.setSubTokenFilters(filters);
 
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
     oper.beginWindow(0); //
 
     String input1 = "a=2,b=3,c=4";

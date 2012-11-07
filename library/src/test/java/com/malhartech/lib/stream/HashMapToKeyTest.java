@@ -35,7 +35,7 @@ public class HashMapToKeyTest {
       oper.key.setSink(keySink);
       oper.val.setSink(valSink);
       oper.keyval.setSink(keyvalSink);
-      oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
+      oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
 
       oper.beginWindow(0);
       HashMap<String,String> input = new HashMap<String,String>();

@@ -47,7 +47,7 @@ public class QuotientValueTest
     oper.quotient.setSink(quotientSink);
 
     // Not needed, but still setup is being called as a matter of discipline
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
     oper.setMult_by(2);
 
     oper.beginWindow(0); //

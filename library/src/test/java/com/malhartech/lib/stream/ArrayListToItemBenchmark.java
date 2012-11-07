@@ -31,7 +31,7 @@ public class ArrayListToItemBenchmark
     ArrayListToItem oper = new ArrayListToItem();
     TestCountSink itemSink = new TestCountSink();
     oper.item.setSink(itemSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
 
     oper.beginWindow(0);
     ArrayList<String> input = new ArrayList<String>();

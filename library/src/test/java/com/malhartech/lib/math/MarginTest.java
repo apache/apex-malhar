@@ -39,7 +39,7 @@ public class MarginTest
     TestCountAndLastTupleSink marginSink = new TestCountAndLastTupleSink();
 
     oper.margin.setSink(marginSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
 
     oper.beginWindow(0);
     HashMap<String, Number> input = new HashMap<String, Number>();

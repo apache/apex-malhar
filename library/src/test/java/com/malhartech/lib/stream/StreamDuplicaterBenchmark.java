@@ -33,7 +33,7 @@ public class StreamDuplicaterBenchmark
 
     oper.out1.setSink(mergeSink1);
     oper.out2.setSink(mergeSink2);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
 
     oper.beginWindow(0);
     int numTuples = 200000000;

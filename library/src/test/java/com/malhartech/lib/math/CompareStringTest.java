@@ -30,7 +30,7 @@ public class CompareStringTest
     CompareString<String> oper = new CompareString<String>();
     TestCountAndLastTupleSink exceptSink = new TestCountAndLastTupleSink();
     oper.compare.setSink(exceptSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
     oper.setKey("a");
     oper.setValue(3.0);
     oper.setTypeNEQ();

@@ -39,7 +39,7 @@ public class MinTest
   {
     TestCountAndLastTupleSink minSink = new TestCountAndLastTupleSink();
     oper.min.setSink(minSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
 
     oper.beginWindow(0);
     HashMap<String, Number> input = new HashMap<String, Number>();

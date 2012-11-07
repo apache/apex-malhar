@@ -40,7 +40,7 @@ public class MinBenchmark
   {
     TestCountAndLastTupleSink minSink = new TestCountAndLastTupleSink();
     oper.min.setSink(minSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
 
     oper.beginWindow(0);
     int numtuples = 100000000;

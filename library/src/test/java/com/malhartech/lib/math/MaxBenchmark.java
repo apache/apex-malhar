@@ -40,7 +40,7 @@ public class MaxBenchmark
   {
     TestCountAndLastTupleSink maxSink = new TestCountAndLastTupleSink();
     oper.max.setSink(maxSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null));
+    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
 
     oper.beginWindow(0);
 
