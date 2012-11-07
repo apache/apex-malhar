@@ -4,8 +4,6 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.annotation.InjectConfig;
-import com.malhartech.api.BaseOperator;
 import java.util.HashMap;
 import java.util.Map;
 import javax.validation.constraints.NotNull;
@@ -35,12 +33,8 @@ import javax.validation.constraints.Pattern;
  */
 public class BaseMatchOperator<K, V> extends BaseKeyOperator<K>
 {
-  @InjectConfig(key = "key")
   private K key;
-  @Pattern(regexp = "lte|lt|eq|ne|gt|gte", message = "Value has to be one of \"lte\", \"lt\", \"eq\", \"ne\", \"gt\", \"gte\"")
-  @InjectConfig(key = "cmp")
   private String cmp;
-  @InjectConfig(key = "value")
   private double value = 0.0;
 
   public enum supported_type

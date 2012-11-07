@@ -4,11 +4,10 @@
  */
 package com.malhartech.lib.stream;
 
-import com.malhartech.annotation.InjectConfig;
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.Context.OperatorContext;
+import com.malhartech.api.DefaultInputPort;
 import javax.validation.constraints.Min;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +57,6 @@ public class DevNullCounter<T> extends BaseOperator
   long tuple_count = 1; // so that the first begin window starts the count down
 
   @Min(1)
-  @InjectConfig(key = "rollingwindow")
   private int rollingwindowcount = 1;
 
   @Min(1)

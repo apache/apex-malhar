@@ -4,7 +4,6 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.annotation.InjectConfig;
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
@@ -86,9 +85,7 @@ public class Quotient<K, V extends Number> extends BaseOperator
   HashMap<K, MutableDouble> numerators = new HashMap<K, MutableDouble>();
   HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();
 
-  @InjectConfig(key = "countkey")
   boolean countkey = false;
-  @InjectConfig(key = "mult_by")
   int mult_by = 1;
 
   public void setMult_by(int i)

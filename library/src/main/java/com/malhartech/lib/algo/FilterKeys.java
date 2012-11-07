@@ -4,7 +4,6 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.annotation.InjectConfig;
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
@@ -69,7 +68,6 @@ public class FilterKeys<K,V> extends BaseKeyOperator<K>
   public final transient DefaultOutputPort<HashMap<K, V>> filter = new DefaultOutputPort<HashMap<K, V>>(this);
 
   HashMap<K, V> keys = new HashMap<K, V>();
-  @InjectConfig(key = "inverse")
   boolean inverse = false;
 
   public void setInverse(boolean val) {

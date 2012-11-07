@@ -4,12 +4,9 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.annotation.InjectConfig;
 import com.malhartech.annotation.InputPortFieldAnnotation;
-import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import java.util.HashMap;
-import java.util.Map;
 import javax.validation.constraints.Min;
 
 /**
@@ -50,7 +47,6 @@ abstract public class BaseNOperator<K, V> extends BaseKeyOperator<K>
     }
   };
   @Min(1)
-  @InjectConfig(key = "n")
   int n = 1;
 
   abstract public void processTuple(HashMap<K, V> tuple);
@@ -72,7 +68,7 @@ abstract public class BaseNOperator<K, V> extends BaseKeyOperator<K>
     ret.put(cloneKey(key), cloneValue(val));
     return ret;
   }
-  
+
   public V cloneValue(V v)
   {
     return v;

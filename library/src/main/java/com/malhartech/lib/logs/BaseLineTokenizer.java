@@ -4,12 +4,9 @@
  */
 package com.malhartech.lib.logs;
 
-import com.malhartech.annotation.InjectConfig;
 import com.malhartech.annotation.InputPortFieldAnnotation;
-import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.DefaultOutputPort;
 
 /**
  *
@@ -40,9 +37,7 @@ public class BaseLineTokenizer extends BaseOperator
       endProcessTokens();
     }
   };
-  @InjectConfig(key = "splitby")
   String splitBy = ";\t";
-  @InjectConfig(key = "splittokenby")
   String splitTokenBy = "";
 
   public String getSplitBy()

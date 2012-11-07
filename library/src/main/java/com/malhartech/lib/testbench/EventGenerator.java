@@ -4,7 +4,6 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.annotation.InjectConfig;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
@@ -79,10 +78,12 @@ public class EventGenerator implements InputOperator
   transient int count_denominator = 1;
   transient int count_windowid = 0;
   private transient long windowStartTime = 0;
-  private transient int generatedTupleCount;
-  private String[] key_keys = new String[0];
-  private String[] key_weights = new String[0];
-  private String[] key_values = new String[0];
+  private transient int generatedTupleCount = 0;
+
+  @NotNull
+  private String[] key_keys = null;
+  private String[] key_weights = null;
+  private String[] key_values = null;
 
   /**
    * Sets up all the config parameters. Assumes checking is done and has passed
