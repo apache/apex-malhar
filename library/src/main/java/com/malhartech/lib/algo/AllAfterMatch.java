@@ -23,7 +23,7 @@ import java.util.HashMap;
  * Properties:<br>
  * <b>key</b>: The key on which compare is done<br>
  * <b>value</b>: The value to compare with<br>
- * <b>comp<b>: The compare function. Supported values are "lte", "lt", "eq", "neq", "gt", "gte". Default is "eq"<br>
+ * <b>comp</b>: The compare function. Supported values are "lte", "lt", "eq", "neq", "gt", "gte". Default is "eq"<br>
  * <br>
  * Compile time checks<br>
  * Key must be non empty<br>
