@@ -5,7 +5,7 @@
 package com.malhartech.demos.performance;
 
 import com.malhartech.api.DAG;
-import com.malhartech.engine.ApplicationFactory;
+import com.malhartech.api.ApplicationFactory;
 import com.malhartech.lib.stream.DevNullCounter;
 import com.malhartech.lib.testbench.EventGenerator;
 import org.apache.hadoop.conf.Configuration;

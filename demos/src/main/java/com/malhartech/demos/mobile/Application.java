@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
 import com.malhartech.api.DAG;
-import com.malhartech.engine.ApplicationFactory;
+import com.malhartech.api.ApplicationFactory;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.io.HttpInputOperator;
 import com.malhartech.lib.io.HttpOutputOperator;

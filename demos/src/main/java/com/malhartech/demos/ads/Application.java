@@ -6,7 +6,7 @@ package com.malhartech.demos.ads;
 
 import com.malhartech.api.DAG;
 import com.malhartech.api.Operator.InputPort;
-import com.malhartech.engine.ApplicationFactory;
+import com.malhartech.api.ApplicationFactory;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.io.HdfsOutputOperator;
 import com.malhartech.lib.io.HttpOutputOperator;
