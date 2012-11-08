@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.logs;
 
-import com.malhartech.dag.TestHashSink;
+import com.malhartech.engine.TestHashSink;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -30,7 +30,7 @@ public class LineTokenizerTest
 
     oper.setSplitBy(",");
     oper.tokens.setSink(tokenSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
+    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
     oper.beginWindow(0); //
 
     String input1 = "a,b,c";

@@ -5,7 +5,7 @@ package com.malhartech.lib.testbench;
 
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.Sink;
-import com.malhartech.dag.Tuple;
+import com.malhartech.engine.Tuple;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -62,7 +62,7 @@ public class ThroughputCounterTest {
     TestCountSink countSink = new TestCountSink();
     node.count.setSink(countSink);
     node.setRollingWindowCount(5);
-    node.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
+    node.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
 
     node.beginWindow(0);
     HashMap<String, Integer> input;

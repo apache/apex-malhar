@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.dag.TestCountAndLastTupleSink;
+import com.malhartech.engine.TestCountAndLastTupleSink;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -30,7 +30,7 @@ public class MinValueTest
     oper.min.setSink(minSink);
 
     // Not needed, but still setup is being called as a matter of discipline
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
+    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
     oper.beginWindow(0); //
 
     Double a = new Double(2.0);

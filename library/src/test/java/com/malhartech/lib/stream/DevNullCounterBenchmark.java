@@ -36,7 +36,7 @@ public class DevNullCounterBenchmark
   {
     DevNullCounter oper = new DevNullCounter();
     oper.setRollingwindowcount(5);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
+    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
 
 
     oper.beginWindow(0);

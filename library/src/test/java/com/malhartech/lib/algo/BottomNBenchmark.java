@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.dag.TestSink;
+import com.malhartech.engine.TestSink;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;

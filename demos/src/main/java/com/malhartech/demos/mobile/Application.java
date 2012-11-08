@@ -5,10 +5,8 @@
 package com.malhartech.demos.mobile;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.logging.Level;
 
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
@@ -17,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
 import com.malhartech.api.DAG;
-import com.malhartech.dag.ApplicationFactory;
+import com.malhartech.engine.ApplicationFactory;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.io.HttpInputOperator;
 import com.malhartech.lib.io.HttpOutputOperator;

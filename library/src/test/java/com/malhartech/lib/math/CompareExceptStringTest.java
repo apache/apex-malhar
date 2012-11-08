@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.dag.TestCountAndLastTupleSink;
+import com.malhartech.engine.TestCountAndLastTupleSink;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
@@ -33,7 +33,7 @@ public class CompareExceptStringTest
     oper.compare.setSink(compareSink);
     oper.except.setSink(exceptSink);
 
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
+    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
     oper.setKey("a");
     oper.setValue(3.0);
     oper.setTypeEQ();

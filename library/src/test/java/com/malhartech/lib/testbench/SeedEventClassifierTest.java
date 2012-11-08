@@ -4,7 +4,7 @@
 package com.malhartech.lib.testbench;
 
 import com.malhartech.api.Sink;
-import com.malhartech.dag.Tuple;
+import com.malhartech.engine.Tuple;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -86,7 +86,7 @@ public class SeedEventClassifierTest
     oper.setKey2("y");
     oper.setSeedstart(0);
     oper.setSeedend(1000);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
+    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
 
     oper.beginWindow(0);
 

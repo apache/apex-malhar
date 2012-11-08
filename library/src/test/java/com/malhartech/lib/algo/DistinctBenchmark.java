@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.dag.TestSink;
+import com.malhartech.engine.TestSink;
 import java.util.HashMap;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;

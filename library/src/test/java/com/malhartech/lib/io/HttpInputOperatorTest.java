@@ -27,7 +27,7 @@ import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.AbstractHandler;
 
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.dag.TestSink;
+import com.malhartech.engine.TestSink;
 
 public class HttpInputOperatorTest
 {
@@ -84,7 +84,7 @@ public class HttpInputOperatorTest
     operator.setName("testHttpInputNode");
     operator.setUrl(new URI(url));
 
-    operator.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
+    operator.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
 
     operator.activate(null);
 

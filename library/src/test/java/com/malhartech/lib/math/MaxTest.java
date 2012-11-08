@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.dag.TestCountAndLastTupleSink;
+import com.malhartech.engine.TestCountAndLastTupleSink;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -39,7 +39,7 @@ public class MaxTest
   {
     TestCountAndLastTupleSink maxSink = new TestCountAndLastTupleSink();
     oper.max.setSink(maxSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
+    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
 
     oper.beginWindow(0);
 

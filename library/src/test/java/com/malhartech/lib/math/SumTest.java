@@ -4,7 +4,7 @@
 package com.malhartech.lib.math;
 
 import com.malhartech.api.Sink;
-import com.malhartech.dag.Tuple;
+import com.malhartech.engine.Tuple;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -67,7 +67,7 @@ public class SumTest
 
 
     // Not needed, but still setup is being called as a matter of discipline
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
+    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
     oper.beginWindow(0); //
 
     HashMap<String, Double> input = new HashMap<String, Double>();

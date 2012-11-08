@@ -4,7 +4,7 @@
 package com.malhartech.lib.stream;
 
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.dag.TestCountSink;
+import com.malhartech.engine.TestCountSink;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -30,7 +30,7 @@ public class StreamMergerBenchmark
     StreamMerger oper = new StreamMerger();
     TestCountSink mergeSink = new TestCountSink();
     oper.out.setSink(mergeSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
+    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
 
     oper.beginWindow(0);
     int numTuples = 500000000;

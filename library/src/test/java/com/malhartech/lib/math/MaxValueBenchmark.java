@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.dag.TestCountAndLastTupleSink;
+import com.malhartech.engine.TestCountAndLastTupleSink;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -31,7 +31,7 @@ public class MaxValueBenchmark
     oper.max.setSink(maxSink);
 
     // Not needed, but still setup is being called as a matter of discipline
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
+    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
     oper.beginWindow(0); //
 
     int numTuples = 100000000;

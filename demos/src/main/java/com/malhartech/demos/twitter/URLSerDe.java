@@ -5,7 +5,7 @@
 package com.malhartech.demos.twitter;
 
 import com.malhartech.api.Operator;
-import com.malhartech.dag.SerDe;
+import com.malhartech.engine.SerDe;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import org.slf4j.Logger;

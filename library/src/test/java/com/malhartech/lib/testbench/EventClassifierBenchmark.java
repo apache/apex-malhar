@@ -4,7 +4,7 @@
 package com.malhartech.lib.testbench;
 
 import com.malhartech.api.Sink;
-import com.malhartech.dag.Tuple;
+import com.malhartech.engine.Tuple;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -119,7 +119,7 @@ public class EventClassifierBenchmark
     list.add(35);
     wmap.put("id", list);
     node.setKeyWeights(wmap);
-    node.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
+    node.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
 
     HashMap<String, Double> input = new HashMap<String, Double>();
     int sentval = 0;
@@ -155,7 +155,7 @@ public class EventClassifierBenchmark
     nwnode.data.setSink(classifySink);
     nwnode.setKeyMap(keymap);
     nwnode.setOperationReplace();
-    nwnode.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
+    nwnode.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
 
     sentval = 0;
     for (int i = 0; i < numTuples; i++) {
@@ -193,7 +193,7 @@ public class EventClassifierBenchmark
     nvnode.data.setSink(classifySink);
     nvnode.setKeyMap(keymap);
     nvnode.setOperationReplace();
-    nvnode.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
+    nvnode.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
 
     sentval = 0;
     for (int i = 0; i < numTuples; i++) {

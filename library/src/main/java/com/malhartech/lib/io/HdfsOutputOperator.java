@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.text.StrSubstitutor;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -18,8 +19,7 @@ import org.slf4j.LoggerFactory;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
-import com.malhartech.dag.SerDe;
-import org.apache.hadoop.conf.Configuration;
+import com.malhartech.engine.SerDe;
 
 /**
  * Adapter for writing to HDFS<p>

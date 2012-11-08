@@ -6,7 +6,7 @@ package com.malhartech.lib.testbench;
 import com.esotericsoftware.minlog.Log;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.Sink;
-import com.malhartech.dag.Tuple;
+import com.malhartech.engine.Tuple;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -115,7 +115,7 @@ public class FilteredEventClassifierTest
     node.setKeyWeights(wmap);
     node.setPassFilter(10);
     node.setTotalFilter(100);
-    node.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
+    node.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
 
     int numTuples = 10000;
     HashMap<String, Double> input = new HashMap<String, Double>();
@@ -162,7 +162,7 @@ public class FilteredEventClassifierTest
     nwnode.setKeyMap(kmap);
     nwnode.setPassFilter(10);
     nwnode.setTotalFilter(100);
-    nwnode.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
+    nwnode.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
 
     sentval = 0;
     node.beginWindow(0);
@@ -210,7 +210,7 @@ public class FilteredEventClassifierTest
     nvnode.setKeyMap(kmap);
     nvnode.setPassFilter(10);
     nvnode.setTotalFilter(100);
-    nvnode.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
+    nvnode.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
 
 
     sentval = 0;

@@ -12,7 +12,7 @@ import org.apache.hadoop.conf.Configuration;
 
 import com.malhartech.api.DAG;
 import com.malhartech.api.Operator.InputPort;
-import com.malhartech.dag.ApplicationFactory;
+import com.malhartech.engine.ApplicationFactory;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.io.HttpOutputOperator;
 import com.malhartech.lib.math.Margin;

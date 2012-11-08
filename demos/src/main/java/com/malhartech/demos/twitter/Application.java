@@ -5,7 +5,7 @@
 package com.malhartech.demos.twitter;
 
 import com.malhartech.api.DAG;
-import com.malhartech.dag.ApplicationFactory;
+import com.malhartech.engine.ApplicationFactory;
 import java.util.Random;
 import org.apache.hadoop.conf.Configuration;
 

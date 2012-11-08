@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.dag.TestCountAndLastTupleSink;
+import com.malhartech.engine.TestCountAndLastTupleSink;
 import java.util.HashMap;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -30,7 +30,7 @@ public class CompareStringBenchmark
     CompareString<String> oper = new CompareString<String>();
     TestCountAndLastTupleSink exceptSink = new TestCountAndLastTupleSink();
     oper.compare.setSink(exceptSink);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
+    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
     oper.setKey("a");
     oper.setValue(3.0);
     oper.setTypeNEQ();

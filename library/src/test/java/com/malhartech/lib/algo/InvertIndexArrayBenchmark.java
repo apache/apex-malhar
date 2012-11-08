@@ -4,7 +4,7 @@
 package com.malhartech.lib.algo;
 
 import com.malhartech.api.Sink;
-import com.malhartech.dag.TestSink;
+import com.malhartech.engine.TestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;

@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.logs;
 
-import com.malhartech.dag.TestHashSink;
+import com.malhartech.engine.TestHashSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +41,7 @@ public class FilteredLineTokenizerKeyValBenchmark
     filters.add("c");
     oper.setSubTokenFilters(filters);
 
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
+    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
     oper.beginWindow(0); //
 
     String input1 = "a=2,b=3,c=4";

@@ -5,7 +5,7 @@
 package com.malhartech.demos.performance;
 
 import com.malhartech.api.DAG;
-import com.malhartech.dag.ApplicationFactory;
+import com.malhartech.engine.ApplicationFactory;
 import org.apache.hadoop.conf.Configuration;
 
 /**

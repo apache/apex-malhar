@@ -5,8 +5,8 @@ package com.malhartech.lib.testbench;
 
 
 import com.malhartech.api.Sink;
-import com.malhartech.dag.OperatorContext;
-import com.malhartech.dag.Tuple;
+import com.malhartech.engine.OperatorContext;
+import com.malhartech.engine.Tuple;
 import java.util.HashMap;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;

@@ -4,7 +4,7 @@
 package com.malhartech.lib.logs;
 
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.dag.TestArrayListSink;
+import com.malhartech.engine.TestArrayListSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +43,7 @@ public class FilteredLineToTokenArrayListBenchmark
     filters.add("a");
     filters.add("c");
     oper.setSubTokenFilters(filters);
-    oper.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
+    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
     oper.beginWindow(0); //
 
     String input1 = "a,2,3;b,1,2;c,4,5,6";
