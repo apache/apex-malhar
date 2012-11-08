@@ -5,6 +5,7 @@
 package com.malhartech.demos.ads;
 
 import com.malhartech.api.DAG;
+import com.malhartech.api.Operator.InputPort;
 import com.malhartech.dag.ApplicationFactory;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.io.HdfsOutputOperator;
@@ -92,41 +93,20 @@ public class Application implements ApplicationFactory
     return properties;
   }
 
-  private Operator getConsoleOperatorInstance(DAG b, String name)
+  private <T extends Number> InputPort<HashMap<String, T>> getConsolePort(DAG b, String name)
   {
     // output to HTTP server when specified in environment setting
     Operator ret;
     String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
-    HttpOutputOperator<HashMap<String,Double>> oper = b.addOperator(name, new HttpOutputOperator<HashMap<String,Double>>());
+    if (serverAddr == null) {
+      ConsoleOutputOperator<HashMap<String, T>> oper = b.addOperator(name, new ConsoleOutputOperator<HashMap<String, T>>());
+      oper.setStringFormat(name + ": %s");
+      return oper.input;
+    }
+    HttpOutputOperator<HashMap<String, T>> oper = b.addOperator(name, new HttpOutputOperator<HashMap<String, T>>());
     URI u = URI.create("http://" + serverAddr + "/channel/" + name);
     oper.setResourceURL(u);
-    return oper;
-  }
-
-  private HttpOutputOperator<HashMap<String,Number>> getHttpOutputNumberOperator(DAG b, String name)
-  {
-    // output to HTTP server when specified in environment setting
-    String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
-    HttpOutputOperator<HashMap<String,Number>> oper = b.addOperator(name, new HttpOutputOperator<HashMap<String,Number>>());
-    URI u = URI.create("http://" + serverAddr + "/channel/" + name);
-    oper.setResourceURL(u);
-    return oper;
-  }
-
-  private ConsoleOutputOperator<HashMap<String,Number>> getConsoleNumberOperator(DAG b, String name)
-  {
-    // output to HTTP server when specified in environment setting
-    ConsoleOutputOperator<HashMap<String,Number>> oper = b.addOperator(name, new ConsoleOutputOperator<HashMap<String,Number>>());
-    oper.setStringFormat(name + ": %s");
-    return oper;
-  }
-
-  private ConsoleOutputOperator<HashMap<String,Double>> getConsoleDoubleOperator(DAG b, String name)
-  {
-    // output to HTTP server when specified in environment setting
-    ConsoleOutputOperator<HashMap<String,Double>> oper = b.addOperator(name, new ConsoleOutputOperator<HashMap<String,Double>>());
-    oper.setStringFormat(name + ": %s");
-    return oper;
+    return oper.input;
   }
 
   public Operator getSumOperator(String name, DAG b, String debug)
@@ -260,31 +240,16 @@ public class Application implements ApplicationFactory
     dag.addStream("clicktuplecount", clickAggregate.count, ctr.numerator, merge.data2).setInline(allInline);
     dag.addStream("total count", merge.out, tuple_counter.data).setInline(allInline);
 
-    String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
-    if (serverAddr == null) {
-      ConsoleOutputOperator<HashMap<String, Double>> revconsole = getConsoleDoubleOperator(dag, "revConsole");
-      ConsoleOutputOperator<HashMap<String, Double>> costconsole = getConsoleDoubleOperator(dag, "costConsole");
-      ConsoleOutputOperator<HashMap<String, Double>> marginconsole = getConsoleDoubleOperator(dag, "marginConsole");
-      ConsoleOutputOperator<HashMap<String, Double>> ctrconsole = getConsoleDoubleOperator(dag, "ctrConsole");
-      ConsoleOutputOperator<HashMap<String, Number>> viewcountconsole = getConsoleNumberOperator(dag, "viewCountConsole");
-      dag.addStream("revenuedata", revenue.sum, margin.denominator, revconsole.input).setInline(allInline);
-      dag.addStream("costdata", cost.sum, margin.numerator, costconsole.input).setInline(allInline);
-      dag.addStream("margindata", margin.margin, marginconsole.input).setInline(allInline);
-      dag.addStream("ctrdata", ctr.quotient, ctrconsole.input).setInline(allInline);
-      dag.addStream("tuplecount", tuple_counter.count, viewcountconsole.input).setInline(allInline);
-    }
-    else {
-      HttpOutputOperator<HashMap<String, Double>> revhttp = getHttpOutputDoubleOperator(dag, "revConsole");
-      HttpOutputOperator<HashMap<String, Double>> costhttp = getHttpOutputDoubleOperator(dag, "costConsole");
-      HttpOutputOperator<HashMap<String, Double>> marginhttp = getHttpOutputDoubleOperator(dag, "marginConsole");
-      HttpOutputOperator<HashMap<String, Double>> ctrhttp = getHttpOutputDoubleOperator(dag, "ctrConsole");
-      HttpOutputOperator<HashMap<String, Number>> viewcounthttp = getHttpOutputNumberOperator(dag, "viewCountConsole");
-      dag.addStream("revenuedata", revenue.sum, margin.denominator, revhttp.input).setInline(allInline);
-      dag.addStream("costdata", cost.sum, margin.numerator, costhttp.input).setInline(allInline);
-      dag.addStream("margindata", margin.margin, marginhttp.input).setInline(allInline);
-      dag.addStream("ctrdata", ctr.quotient, ctrhttp.input).setInline(allInline);
-      dag.addStream("tuplecount", tuple_counter.count, viewcounthttp.input).setInline(allInline);
-    }
+    InputPort<HashMap<String, Double>> revconsole = getConsolePort(dag, "revConsole");
+    InputPort<HashMap<String, Double>> costconsole = getConsolePort(dag, "costConsole");
+    InputPort<HashMap<String, Double>> marginconsole = getConsolePort(dag, "marginConsole");
+    InputPort<HashMap<String, Double>> ctrconsole = getConsolePort(dag, "ctrConsole");
+    InputPort<HashMap<String, Number>> viewcountconsole = getConsolePort(dag, "viewCountConsole");
+    dag.addStream("revenuedata", revenue.sum, margin.denominator, revconsole).setInline(allInline);
+    dag.addStream("costdata", cost.sum, margin.numerator, costconsole).setInline(allInline);
+    dag.addStream("margindata", margin.margin, marginconsole).setInline(allInline);
+    dag.addStream("ctrdata", ctr.quotient, ctrconsole).setInline(allInline);
+    dag.addStream("tuplecount", tuple_counter.count, viewcountconsole).setInline(allInline);
     return dag;
   }
 }
