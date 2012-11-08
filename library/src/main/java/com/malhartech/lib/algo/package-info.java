@@ -46,7 +46,7 @@
  * value from the Number<br>
  * <b>{@link com.malhartech.lib.algo.LeastFrequentKey}</b>: Takes in one stream via input port "data". Occurrences of each key is counted and at the end of window the least frequent key is emitted on output port "count"<br>
  * <b>{@link com.malhartech.lib.algo.LeastFrequentKeyInMap}</b>:  * Takes in one stream via input port "data". Occurrences of each key is counted and at the end of window the least frequent key is emitted on output port "count"<br>
- * <b>{@link coma.malhartech.lib.algo.LeastFrequentKeyValue}</b>: Takes in one stream via input port "data". Occurrences of all values for each key is counted and at the end of window the least frequent value is emitted
+ * <b>{@link com.malhartech.lib.algo.LeastFrequentKeyValue}</b>: Takes in one stream via input port "data". Occurrences of all values for each key is counted and at the end of window the least frequent value is emitted
  * on output port "count" per key<br>
  * <b>{@link com.malhartech.lib.algo.Match}</b>: Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". If the tuple
  * passed the test, it is emitted on the output port "match". The comparison is done by getting double value from the Number. Both output ports are optional, but at least one has to be connected<br>
