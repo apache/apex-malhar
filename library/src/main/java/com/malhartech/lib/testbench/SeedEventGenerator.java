@@ -113,8 +113,7 @@ public class SeedEventGenerator extends BaseOperator implements InputOperator
    *
    * Inserts a tuple for a given outbound key
    *
-   * @param tuples bag of tuples
-   * @param key the key
+   * @param i
    */
   public void emitTuple(int i)
   {

@@ -66,8 +66,7 @@ public class DevNullCounter<T> extends BaseOperator
 
   /**
    * Sets up all the config parameters. Assumes checking is done and has passed
-   *
-   * @param config
+   * @param context
    */
   @Override
   public void setup(OperatorContext context)

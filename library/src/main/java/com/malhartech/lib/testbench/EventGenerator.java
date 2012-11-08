@@ -10,6 +10,7 @@ import com.malhartech.api.InputOperator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +72,7 @@ public class EventGenerator implements InputOperator
   int total_weight = 0;
   private transient final Random random = new Random();
   public static final int ROLLING_WINDOW_COUNT_DEFAULT = 1;
-  private  int rolling_window_count = ROLLING_WINDOW_COUNT_DEFAULT;
+  private int rolling_window_count = ROLLING_WINDOW_COUNT_DEFAULT;
   transient long[] tuple_numbers = null;
   transient long[] time_numbers = null;
   transient int tuple_index = 0;
@@ -79,16 +80,15 @@ public class EventGenerator implements InputOperator
   transient int count_windowid = 0;
   private transient long windowStartTime = 0;
   private transient int generatedTupleCount = 0;
-
   @NotNull
   private String[] key_keys = null;
   private String[] key_weights = null;
   private String[] key_values = null;
 
   /**
-   * Sets up all the config parameters. Assumes checking is done and has passed
    *
-   * @param config
+   * Sets up all the config parameters. Assumes checking is done and has passed
+   * @param context
    */
   @Override
   public void setup(OperatorContext context)
@@ -199,11 +199,13 @@ public class EventGenerator implements InputOperator
   {
   }
 
+  @Min(1)
   public void setMaxcountofwindows(int i)
   {
     maxCountOfWindows = i;
   }
 
+  @NotNull
   public void setKeys(String key)
   {
     key_keys = key.split(",");
@@ -232,14 +234,16 @@ public class EventGenerator implements InputOperator
   /**
    * @param tuples_blast the tuples_blast to set
    */
+  @Min(1)
   public void setTuplesBlast(int tuples_blast)
   {
     this.tuples_blast = tuples_blast;
   }
 
   /**
-   * @param rolling_window_count the rolling_window_count for averaging across these many windows
+   * @param r the rolling_window_count for averaging across these many windows
    */
+  @Min(1)
   public void setRollingWindowCount(int r)
   {
     this.rolling_window_count = r;
