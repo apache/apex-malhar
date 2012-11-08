@@ -9,6 +9,7 @@ import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
 import java.util.Random;
+import javax.validation.constraints.Min;
 
 /**
  *
@@ -48,11 +49,35 @@ public class RandomEventGenerator extends BaseOperator implements InputOperator
   public final transient DefaultOutputPort<String> string_data = new DefaultOutputPort<String>(this);
   public final transient DefaultOutputPort<Integer> integer_data = new DefaultOutputPort<Integer>(this);
   private int maxCountOfWindows = Integer.MAX_VALUE;
+  @Min(1)
   private int tuplesBlast = 1000;
+  @Min(1)
   private int tuplesBlastIntervalMillis = 10;
   private int min_value = 0;
   private int max_value = 100;
   private final Random random = new Random();
+
+  public int getMaxvalue()
+  {
+    return max_value;
+  }
+
+  public int getMinvalue()
+  {
+    return min_value;
+  }
+
+  @Min(1)
+  public int getTuplesBlast()
+  {
+    return tuplesBlast;
+  }
+
+  @Min(1)
+  public int getTuplesBlastIntervalMillis()
+  {
+    return this.tuplesBlastIntervalMillis;
+  }
 
   public void setMaxvalue(int i)
   {

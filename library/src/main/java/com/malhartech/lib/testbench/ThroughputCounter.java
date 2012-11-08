@@ -11,6 +11,7 @@ import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import java.util.HashMap;
 import java.util.Map;
+import javax.validation.constraints.Min;
 
 /**
  * Takes a in stream <b>data</b> as a HashMap<String, Integer> and add all integer values. On end of window this total and average is
@@ -61,6 +62,7 @@ public class ThroughputCounter<K> extends BaseOperator
 
   private long windowStartTime = 0;
   private int rolling_window_count_default = 1;
+  @Min(1)
   private int rolling_window_count = rolling_window_count_default;
   long[] tuple_numbers = null;
   long[] time_numbers = null;
@@ -68,6 +70,13 @@ public class ThroughputCounter<K> extends BaseOperator
   int count_denominator = 1;
   long count_windowid = 0;
   long tuple_count = 1; // so that the first begin window starts the count down
+
+
+  @Min(1)
+  public int getRollingWindowCount()
+  {
+    return rolling_window_count;
+  }
 
   public void setRollingWindowCount(int i)
   {

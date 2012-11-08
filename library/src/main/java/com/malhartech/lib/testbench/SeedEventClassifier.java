@@ -9,6 +9,7 @@ import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import java.util.HashMap;
+import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,11 +99,25 @@ public class SeedEventClassifier<T> extends BaseOperator
    * Data for classification values
    */
   HashMap<String, Object> keys = new HashMap<String, Object>();
+  @NotNull
   String key1 = new String();
+  @NotNull
   String key2 = new String();
   int s_start = 0;
   int s_end = 99;
   int seed = 0;
+
+  @NotNull
+  public String getKey1()
+  {
+    return key1;
+  }
+
+  @NotNull
+  public String getKey2()
+  {
+    return key2;
+  }
 
   public void setSeedstart(int i)
   {
