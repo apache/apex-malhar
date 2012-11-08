@@ -11,7 +11,7 @@ import java.util.HashMap;
 
 /**
  *
- * Takes in one stream via input port "data". The tuples are String objects and are split into tokens. A HashMap of all tokens are emitted on output port "tokens".<p>
+ * Takes in one stream via input port "data", and splits the String tuples into tokens. A HashMap of all tokens are emitted on output port "tokens".<p>
  * This module is a pass through<br>
  * <br>
  * Ports:<br>
