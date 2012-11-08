@@ -6,7 +6,7 @@ package com.malhartech.lib.util;
 
 /**
  *
- * A mutable double for basic operations. Less memory needs for adding<p>
+ * A mutable double for basic operations. Better performance<p>
  * <br>
  *
  * @author amol<br>
