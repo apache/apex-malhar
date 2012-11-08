@@ -10,8 +10,8 @@ import com.malhartech.api.DefaultInputPort;
 
 /**
  *
- * Base class for line split operators. Takes in one stream via input port "data". Lines are split into tokens and tokens are processed<p>
- * processToken, and processSubToken are called for each token. Users should override calls backs to intercept at any level.<br>
+ * Base class for line split operators. Takes in one stream via input port "data". Lines are split into tokens and tokens are processed<br>
+ * processToken, and processSubToken are called for each token. Users should override calls backs to intercept at any level.<p>
  * This module is a pass through<br>
  * <br>
  * Ideal for applications like word count
