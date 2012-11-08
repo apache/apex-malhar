@@ -14,8 +14,8 @@ import java.util.Map;
 import javax.validation.constraints.Min;
 
 /**
- * Takes a in stream <b>data</b> as a HashMap<String, Integer> and add all integer values. On end of window this total and average is
- * emitted on output port <b>count</b>
+ * Expects incoming stream to be a HashMap<String, Integer> and add all integer values to compute throughput. These
+ * values are throughput per window from upstream operators. On end of window this total and average is emitted<p>
  * <br>
  * <br>
  * Benchmarks: This node has been benchmarked at over 5 million tuples/second in local/inline mode<br>

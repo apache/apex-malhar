@@ -14,8 +14,8 @@
  * <b>{@link com.malhartech.lib.testbench.FilterClassifier}</b>: Takes in a stream data and filters the tuples. Only sends out tuples as per filter numbers provided on output port filter. The aim is to create another stream representing a subsection of incoming load<br>
  * <b>{@link com.malhartech.lib.testbench.FilteredEventClassifier}</b>: Takes in a stream data and filters the tuples. Only sends out tuples as per filter numbers provided on output port filter. The aim is to create another stream representing a subsection of incoming load<br>
  * <b>{@link com.malhartech.lib.testbench.RandomEventGenerator}</b>: Generates synthetic load. Creates tuples using random numbers and keeps emitting them on the output port string_data and integer_data<br
- * <b>{@link com.malhartech.lib.testbench.SeedEventClassifier}</b>:  * Generates seeds and merges data as it comes in from input ports (data1, and data2). The new tuple is emitted on the output ports string_data and hash_data<br>
- * <b>{@link com.malhartech.lib.testbench.SeedEventGenerator}</b>:  * Generates one time seed load based on range provided for the keys, and adds new classification to incoming keys. The new tuple is emitted on the output port keyvalpair_list, val_list, string_data, val_data<br>
+ * <b>{@link com.malhartech.lib.testbench.SeedEventClassifier}</b>: Generates seeds and merges data as it comes in from input ports (data1, and data2). The new tuple is emitted on the output ports string_data and hash_data<br>
+ * <b>{@link com.malhartech.lib.testbench.SeedEventGenerator}</b>: Generates one time seed load based on range provided for the keys, and adds new classification to incoming keys. The new tuple is emitted on the output port keyvalpair_list, val_list, string_data, val_data<br>
  * <b>{@link com.malhartech.lib.testbench.ThroughputCounter}</b>: Takes a in stream data as a HashMap<String, Integer> and add all integer values. On end of window this total and average is emitted on output port count<br>
  * <br>
  * <br>
