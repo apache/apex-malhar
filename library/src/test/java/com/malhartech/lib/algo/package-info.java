@@ -3,8 +3,9 @@
  * All rights reserved.
  *
  */
+
 /**
- * <b>com.malhartech.lib.algo</b> is a library of algorithmic modules for reuse<br>
+ * <b>{@link com.malhartech.lib.algo}</b> is a library of algorithmic modules<p>
  * <br>
  * <br>The modules are<br>
  * <b>{@link com.malhartech.lib.algo.AllAfterMatchBenchmark}</b>: Performance test for {@link com.malhartech.lib.stream.AllAfterMatch}<br>

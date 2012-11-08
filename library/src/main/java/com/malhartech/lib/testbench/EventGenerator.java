@@ -64,7 +64,11 @@ public class EventGenerator implements InputOperator
   public static final String OPORT_COUNT_TUPLE_TUPLES_PERSEC = "tuples_per_sec";
   public static final String OPORT_COUNT_TUPLE_WINDOWID = "window_id";
   protected static final int TUPLES_BLAST_DEFAULT = 10000;
+
+  @Min(1)
   private int tuples_blast = TUPLES_BLAST_DEFAULT;
+
+  @Min(1)
   protected int maxCountOfWindows = Integer.MAX_VALUE;
   HashMap<String, Double> keys = new HashMap<String, Double>();
   HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();
@@ -72,6 +76,7 @@ public class EventGenerator implements InputOperator
   int total_weight = 0;
   private transient final Random random = new Random();
   public static final int ROLLING_WINDOW_COUNT_DEFAULT = 1;
+  @Min(1)
   private int rolling_window_count = ROLLING_WINDOW_COUNT_DEFAULT;
   transient long[] tuple_numbers = null;
   transient long[] time_numbers = null;
@@ -199,13 +204,11 @@ public class EventGenerator implements InputOperator
   {
   }
 
-  @Min(1)
   public void setMaxcountofwindows(int i)
   {
     maxCountOfWindows = i;
   }
 
-  @NotNull
   public void setKeys(String key)
   {
     key_keys = key.split(",");
@@ -234,7 +237,6 @@ public class EventGenerator implements InputOperator
   /**
    * @param tuples_blast the tuples_blast to set
    */
-  @Min(1)
   public void setTuplesBlast(int tuples_blast)
   {
     this.tuples_blast = tuples_blast;
@@ -243,7 +245,6 @@ public class EventGenerator implements InputOperator
   /**
    * @param r the rolling_window_count for averaging across these many windows
    */
-  @Min(1)
   public void setRollingWindowCount(int r)
   {
     this.rolling_window_count = r;

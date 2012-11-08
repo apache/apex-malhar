@@ -11,7 +11,7 @@ import javax.validation.constraints.Pattern;
 
 /**
  *
- * An abstract class that sets up the basic operator functionality needed for match based operators
+ * An abstract class that sets up the basic operator functionality needed for match based operators<p>
  * <br>
  * Ports:<br>
  * none
