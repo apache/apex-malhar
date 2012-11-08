@@ -78,7 +78,7 @@
  * <b>{@link com.malhartech.lib.algo.UniqueCounter}</b>: Count unique occurrences of keys within a window<br>
  * <b>{@link com.malhartech.lib.algo.UniqueCounterKey}</b>: Count unique occurrences of keys within a window<br>
  * <b>{@link com.malhartech.lib.algo.WindowedHolder}</b>: TBD<br>
- * <b>{@link com.malhartech.lib.algo.WindowTopCounter}</b>: TBD<br>
+ * <b>{@link com.malhartech.lib.algo.WindowedTopCounter}</b>: TBD<br>
  * <br>
  */
 

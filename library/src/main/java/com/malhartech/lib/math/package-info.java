@@ -35,7 +35,6 @@
  * <b>{@link com.malhartech.lib.math.RangeValue}</b>: Takes in one stream via input port "data". At end of window sends range of all values on port "range"<br>
  * <b>{@link com.malhartech.lib.math.Sum}</b>: Takes in one stream via input port "data". At end of window sums all values for each key and emits them on port sum; emits number of occurrences on port count; and average on port average<br>
  * <b>{@link com.malhartech.lib.math.SumValue}</b>: Takes in one stream via input port "data". At end of window sums all values and emits them on port sum; emits number of occurrences on port count; and average on port average<br>
- * <b>{@link com.malhartech.lib.math.UniqueCounter}</b>: Counts payloads and send unique count for each on end of window<br>
  * <br>
  */
 
