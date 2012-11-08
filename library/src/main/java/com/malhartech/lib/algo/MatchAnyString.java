@@ -12,7 +12,7 @@ import java.util.HashMap;
 
 /**
  *
- * Takes in one stream via input port "data". Each tuple is tested for the compare function. The function is given by
+ * Each tuple is tested for the compare function. The function is given by
  * "key", "value", and "compare". If any tuple passes a Boolean(true) is emitted, else a Boolean(false) is emitted on the output port "any".
  * The comparison is done by getting double value from the Number.<p>
  * This module is a pass through as it emits the moment the condition is met<br>

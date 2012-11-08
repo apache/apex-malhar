@@ -14,7 +14,7 @@ import java.util.Map;
 
 /**
  *
- * Takes in a stream via input port "data". Inverts the index and sends out the tuple on output port "index" at the end of the window<p>
+ * Inverts the index and sends out the tuple on output port "index" at the end of the window<p>
  * This is an end of window operator<br>
  * At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
  * <br>

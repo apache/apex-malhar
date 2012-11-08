@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Takes in stream of tuples on port data and counts the number of times a key exists in a window. Count is emitted at end of window<p>
+ * Counts the number of times a key exists in a window. Count is emitted at end of window<p>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * Operator processes > 110 million tuples/sec. Only one tuple per unique key is emitted on end of window, so this operator is not bound by outbound throughput<br>

@@ -14,7 +14,7 @@ import java.util.Map;
 
 /**
  *
- * Takes a stream on input port "data", and outputs only keys specified by property "keys" on put output port "filter". If
+ * Filters the incoming stream based of keys specified by property "keys". If
  * property "inverse" is set to "true", then all keys except those specified by "keys" are emitted<p>
  * Operator assumes that the key, val pairs are immutable objects. If this operator has to be used for mutable objects, override "cloneKey" to make copy of K, and
  * "cloneValue" to make copy of V.

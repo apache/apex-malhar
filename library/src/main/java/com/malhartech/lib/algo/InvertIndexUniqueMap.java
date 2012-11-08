@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Takes in a stream via input port "data". Inverts the map and sends out the tuple on output port "index".<br>
+ * Inverts the map and sends out the tuple on output port "index".<br>
  * Takes in specific queries on query port and outputs the data in the cache through console port on receiving the tuple
  * and on each subsequent end_of_window tuple<p>
  * THIS OPERATOR NEEDS TO BE TEMPLATIZED<br>

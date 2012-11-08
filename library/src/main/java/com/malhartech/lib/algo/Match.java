@@ -12,7 +12,7 @@ import java.util.HashMap;
 
 /**
  *
- * Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". If the tuple
+ * A compare function is imposed based on the property "key", "value", and "compare". If the tuple
  * passed the test, it is emitted on the output port "match". The comparison is done by getting double
  * value from the Number. Both output ports are optional, but at least one has to be connected<p>
  *  * This module is a pass through<br>

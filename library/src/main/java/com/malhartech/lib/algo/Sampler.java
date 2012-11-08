@@ -13,7 +13,7 @@ import java.util.Random;
 
 /**
  *
- * Takes a stream via input port "data" and emits sample tuple on output port out_data<p>
+ * Emits sample percentage tuples<p>
  * <br>
  * An efficient filter to allow sample analysis of a stream. Very useful is the incoming stream has high throughput<p>
  * <br>

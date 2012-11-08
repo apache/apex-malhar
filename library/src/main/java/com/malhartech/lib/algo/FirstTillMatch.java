@@ -12,8 +12,8 @@ import java.util.HashMap;
 
 /**
  *
- * Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". All tuples
- * are emitted till a tuple matches this test. Then on no tuple is emitted in that window. The comparison is done by getting double value from the Number.<p>
+ * All tuples of sub-classed from Number are emitted till the first match;  A compare operation is done based on the property "key", "value", and "compare".
+ * Then on no tuple is emitted in that window. The comparison is done by getting double value of the Number.<p>
  * This module is a pass through<br>
  * <br>
  * Ports:<br>

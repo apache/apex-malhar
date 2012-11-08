@@ -12,8 +12,8 @@ import java.util.HashMap;
 
 /**
  *
- * Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". If the tuple
- * passed the test, it is emitted on the output port "first" as the first match. The comparison is done by getting double value from the Number.<p>
+ * A compare operation on a tuple with value type String, based on the property "key", "value", and "compare"; the first match is emitted. The comparison is done by getting double
+ * value from the Number.<p>
  * This module is a pass through<br>
  * <br>
  * Ports:<br>

@@ -15,7 +15,7 @@ import java.util.Map;
 
 /**
  *
- * Takes two streams via input port "data1" and "data2", and outputs GroupBy property "Key" on output port "groupby"<p>
+ * Takes two streams, and emits groupby result as per property Key<p>
  * <br>
  * Even though this module produces continuous tuples, at end of window all data is flushed. Thus the data set is windowed
  * and no history is kept of previous windows<br>

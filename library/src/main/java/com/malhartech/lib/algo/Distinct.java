@@ -14,7 +14,7 @@ import java.util.Map;
 
 /**
  *
- * Takes a stream via input port "data" and emits distinct key,val pairs (i.e drops duplicates) on output port "distinct". Restarts at end of window boundary<p>
+ * Computes and emits distinct key,val pairs (i.e drops duplicates) at end of window<p>
  * <br>
  * This module is same as a "FirstOf" operation on any key, val pair
  * Even though this module produces continuous tuples, at end of window all data is flushed. Thus the data set is windowed

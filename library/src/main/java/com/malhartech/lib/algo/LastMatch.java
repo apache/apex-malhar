@@ -12,7 +12,7 @@ import java.util.HashMap;
 
 /**
  *
- * Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". Every tuple
+ * A compare function is  operated on a tuple value sub-classed from Number based on the property "key", "value", and "compare". Every tuple
  * is checked and the last one that passes the condition is send during end of window on port "last". The comparison is done by getting double
  * value from the Number<p>
  * This module is an end of window module<br>

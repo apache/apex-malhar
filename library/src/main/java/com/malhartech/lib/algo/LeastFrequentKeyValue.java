@@ -4,18 +4,13 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.MutableInteger;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  *
- * Takes in one stream via input port "data". Occurrences of all values for each key is counted and at the end of window the least frequent value is emitted
+ *Occurrences of all values for each key is counted and at the end of window the least frequent value is emitted
  * on output port "count" per key<p>
  * This module is an end of window module<br>
  * <br>

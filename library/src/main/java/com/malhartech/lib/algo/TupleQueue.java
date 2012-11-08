@@ -15,8 +15,7 @@ import java.util.Map;
 
 /**
  *
- * Takes in one stream via input port <b>data</b>. The data is key, value pair. It retains the last N values on that key.
- * Output port gets the last N values. The node also provides a lookup via port <b>lookup</b>
+ * Retains the last N values on any key, in effect acts like a fifo. The node also provides a lookup via port <b>lookup</b>
  * <br>
  * <br>
  * <b>Schema</b>:
