@@ -5,7 +5,7 @@
  */
 
 /**
- * <b>{@link com.malhartech.lib.algo}</b> is a library of algorithmic modules<p>
+ * <b>{@link com.malhartech.lib.algo}</b> is a library of algorithmic operators<p>
  * <br>
  * <br>The modules are<br>
  * <b>{@link com.malhartech.lib.algo.AllAfterMatch}</b>:  * Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". All tuples

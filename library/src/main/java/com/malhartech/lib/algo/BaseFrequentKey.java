@@ -16,7 +16,7 @@ import java.util.Map;
 
 /**
  *
- * Takes in one stream via input port "data". Occurrences of each key is counted and at the end of window the winning frequent key is emitted on output port "count"<p>
+ * Occurrences of each key is counted in the input stream, and at the end of window the winning frequent key is emitted on output port "count"<p>
  * This module is an end of window module<br>
  *
  * @author amol

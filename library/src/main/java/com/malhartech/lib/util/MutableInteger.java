@@ -18,6 +18,15 @@ import java.util.Comparator;
 public class MutableInteger
 {
   public int value;
+
+  /**
+   * Added default constructor for deserializer
+   */
+  public MutableInteger()
+  {
+    value = 0;
+  }
+
   public MutableInteger(int i)
   {
     value = i;

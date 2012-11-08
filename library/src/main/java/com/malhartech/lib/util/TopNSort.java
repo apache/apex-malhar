@@ -24,6 +24,13 @@ public class TopNSort<E>
   boolean ascending = true;
   PriorityQueue<E> q = null;
 
+  /**
+   * Added default constructor for deserializer
+   */
+  public TopNSort()
+  {
+  }
+
   public TopNSort(int initialCapacity, int bound, boolean flag)
   {
     ascending = flag;

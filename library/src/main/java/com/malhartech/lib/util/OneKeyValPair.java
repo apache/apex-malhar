@@ -18,6 +18,13 @@ public class OneKeyValPair<K,V>
 {
   K key;
   V value;
+  /**
+   * Added default constructor for deserializer
+   */
+  public OneKeyValPair()
+  {
+  }
+
 
   public void setValue (V i)
   {

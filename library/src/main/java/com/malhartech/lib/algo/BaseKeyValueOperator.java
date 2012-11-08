@@ -5,7 +5,7 @@
 package com.malhartech.lib.algo;
 
 /**
- * Abstract class for basic operators. Allows cloneKey for allowing users to use mutable objects
+ * Abstract class for basic operators that allows cloneValue for enabling users to use mutable objects
  *
  * @author amol<br>
  *

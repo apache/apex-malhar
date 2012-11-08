@@ -7,7 +7,7 @@ package com.malhartech.lib.algo;
 import com.malhartech.api.BaseOperator;
 
 /**
- * Abstract class for basic operators. Allows cloneKey for allowing users to use mutable objects
+ * Abstract class for basic operators that allows cloneKey for enabling users to use mutable objects
  *
  * @author amol<br>
  *

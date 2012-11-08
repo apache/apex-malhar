@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Takes a stream of key value pairs via input port "data", and they are ordered by key. Bottom N of the ordered tuples per key are emitted on
+ * Input stream of key value pairs is ordered by key, and bottom N of the ordered tuples per key are emitted on
  * port "bottom" at the end of window<p>
  * This is an end of window module. At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
  * The operator assumes that the key, val pairs in the incoming tuple is immutable. If the tuple is mutable users should override makeCopyKey(), and makeCopyValue()

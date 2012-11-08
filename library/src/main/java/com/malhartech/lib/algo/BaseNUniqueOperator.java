@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Base class for sorting NUnique key, val pairs. emit is done at end of window<p>
+ * Base class for sorting NUnique key, val pairs, emit is done at end of window<p>
  * At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
  * <br>
  * @author amol<br>

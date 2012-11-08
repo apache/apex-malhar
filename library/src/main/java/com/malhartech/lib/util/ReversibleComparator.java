@@ -17,6 +17,13 @@ import java.util.Comparator;
 
 public class ReversibleComparator<E> implements Comparator<E>
 {
+  /**
+   * Added default constructor for deserializer
+   */
+  public ReversibleComparator()
+  {
+  }
+
   public ReversibleComparator(boolean flag)
   {
     ascending = flag;

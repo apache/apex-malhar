@@ -15,7 +15,7 @@ import java.util.Map;
 
 /**
  *
- * Takes in one stream via input port "data". Occurrences of all values for each key is counted and at the end of window the least frequent value is emitted
+ * Occurrences of all values for each key in a stream is counted and at the end of window the least frequent value is emitted
  * on output port "count" per key<p>
  * This module is an end of window module<br>
  * <br>

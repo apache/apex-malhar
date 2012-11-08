@@ -16,6 +16,14 @@ package com.malhartech.lib.util;
 public class MutableDouble
 {
   public double value;
+  /**
+   * Added default constructor for deserializer
+   */
+  public MutableDouble()
+  {
+    value = 0;
+  }
+
   public MutableDouble(double i)
   {
     value = i;

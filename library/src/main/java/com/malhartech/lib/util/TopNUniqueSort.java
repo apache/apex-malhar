@@ -26,6 +26,13 @@ public class TopNUniqueSort<E>
   HashMap<E, MutableInteger> hmap = null;
   PriorityQueue<E> q = null;
 
+  /**
+   * Added default constructor for deserializer
+   */
+  public TopNUniqueSort()
+  {
+  }
+
   public TopNUniqueSort(int initialCapacity, int bound, boolean flag)
   {
     ascending = flag;
