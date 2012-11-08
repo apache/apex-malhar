@@ -11,7 +11,7 @@ import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 
 /**
- * Merges two streams with identical schema and emits the tuples to the output port in order<br>
+ * Merges two streams with identical schema and emits the tuples to the output port in order<p>
  * <br>
  * <b>Tuple Schema</b>: All tuples were treated as Object
  * <b>Port Interface</b><br>

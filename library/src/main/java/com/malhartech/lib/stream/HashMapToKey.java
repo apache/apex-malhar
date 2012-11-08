@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Takes a HashMap and emits its keys, keyvals, vals. Used for breaking up a HashMap ito objects (keys, vals, or key/val pairs)<p>
+ * Takes a HashMap and emits its keys, keyvals, vals; used for breaking up a HashMap tuple into objects (keys, vals, or key/val pairs)<p>
  * <br>
  * <br>
  * <b>Port Interface</b><br>

@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Takes a in stream <b>data</b> and just drops the tuple. Used for logging. Increments a count and writes the net number (rate) to console. Mainly to be used to benchmark other modules<p>
+ * Counts and then drops the tuple; mainly used for logging. Increments a count and writes the net number (rate) to console. Useful to benchmark other modules<p>
  * <br>
  * <br>
  * <b>Tuple Schema</b>

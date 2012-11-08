@@ -8,7 +8,7 @@ import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 
 /**
- * Merges u to five streams with identical schema and emits tuples on to the output port in order<br>
+ * Merges u to five streams with identical schema and emits tuples on to the output port in order<p>
  * <br>
  * <br>
  * <b>Tuple Schema</b>: All tuples were treated as Object

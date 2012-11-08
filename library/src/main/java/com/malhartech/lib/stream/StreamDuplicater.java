@@ -11,7 +11,8 @@ import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 
 /**
- * Takes one stream and emits exactly same tuple on both the output ports. Needed to allow separation of listeners into two streams<p>
+ * Duplicates an input stream as is into two output streams; needed to allow separation of listeners into two streams with different properties (for example
+ * inline vs in-rack)<p>
  * <br>
  * <br>
  * <b>Tuple Schema</b>: All tuples were treated as Object

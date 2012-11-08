@@ -12,7 +12,7 @@ import com.malhartech.api.DefaultOutputPort;
 import java.util.ArrayList;
 
 /**
- * Takes in an ArrayList and emits each item in the array. Used for breaking up a ArrayList into Objects<p>
+ * Takes in an ArrayList and emits each item in the array; mainly used for breaking up a ArrayList tuple into Objects<p>
  * <br>
  * <br>
  * <b>Port Interface</b><br>
