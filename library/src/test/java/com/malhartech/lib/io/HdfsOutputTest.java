@@ -11,13 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.malhartech.api.DAG;
-import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.dag.ApplicationFactory;
 import com.malhartech.stram.DAGPropertiesBuilder;
 
-/**
- *
- */
 public class HdfsOutputTest implements ApplicationFactory {
 
   private static Logger LOG = LoggerFactory.getLogger(HdfsOutputTest.class);
@@ -33,8 +29,8 @@ public class HdfsOutputTest implements ApplicationFactory {
     long startMillis = System.currentTimeMillis();
 
     HdfsOutputOperator<Object> module = new HdfsOutputOperator<Object>();
-    module.filePath = config.get(KEY_FILEPATH, "hdfsoutputtest.txt");
-    module.append = config.getBoolean(KEY_APPEND, false);
+    module.setFilePath(config.get(KEY_FILEPATH, "hdfsoutputtest.txt"));
+    module.setAppend(config.getBoolean(KEY_APPEND, false));
 
     module.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
 

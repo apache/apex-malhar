@@ -46,6 +46,13 @@ public class HdfsOutputOperator<T> extends BaseOperator
   public static final String FNAME_SUB_OPERATOR_ID = "operatorId";
   public static final String FNAME_SUB_PART_INDEX = "partIndex";
 
+  private String contextId;
+  private String filePath;
+  private boolean append = true;
+  private int bufferSize = 0;
+  private int bytesPerFile = 0;
+  private int replication = 0;
+
   /**
    * The file name. This can be a relative path for the default file system
    * or fully qualified URL as accepted by ({@link org.apache.hadoop.fs.Path}).
@@ -53,12 +60,16 @@ public class HdfsOutputOperator<T> extends BaseOperator
    * contain substitution tokens to generate unique file names.
    * Example: file:///mydir/adviews.out.%(operatorId).part-%(partIndex)
    */
-  public String filePath;
+  public void setFilePath(String filePath) {
+    this.filePath = filePath;
+  }
 
   /**
    * Append to existing file. Default is true.
    */
-  public boolean append = true;
+  public void setAppend(boolean append) {
+    this.append = append;
+  }
 
   /**
    * Bytes are written to the underlying file stream once they cross this size.<br>
@@ -67,18 +78,24 @@ public class HdfsOutputOperator<T> extends BaseOperator
    * but other file system abstractions may not.
    * <br>
    */
-  public int bufferSize = 0;
+  public void setBufferSize(int bufferSize) {
+    this.bufferSize = bufferSize;
+  }
 
   /**
    * Replication factor. Value <= 0 indicates that the file systems default
    * replication setting is used.
    */
-  private int replication = 0;
+  public void setReplication(int replication) {
+    this.replication = replication;
+  }
 
   /**
    * Byte limit for a single file. Once the size is reached, a new file will be created.
    */
-  public int bytesPerFile = 0;
+  public void setBytesPerFile(int bytesPerFile) {
+    this.bytesPerFile = bytesPerFile;
+  }
 
   public long getTotalBytesWritten()
   {
@@ -89,11 +106,7 @@ public class HdfsOutputOperator<T> extends BaseOperator
   {
     Map<String, String> params = new HashMap<String, String>();
     params.put(FNAME_SUB_PART_INDEX, String.valueOf(index));
-    // TODO: get operator id from context
-    String operatorId = this.getName();
-    if (operatorId != null) {
-      params.put(FNAME_SUB_OPERATOR_ID, operatorId.replace(":", ""));
-    }
+    params.put(FNAME_SUB_OPERATOR_ID, contextId);
     StrSubstitutor sub = new StrSubstitutor(params, "%(", ")");
     return new Path(sub.replace(filePath.toString()));
   }
@@ -142,6 +155,7 @@ public class HdfsOutputOperator<T> extends BaseOperator
   @Override
   public void setup(OperatorContext context)
   {
+    this.contextId = context.getId();
     try {
       Path filepath = subFilePath(this.fileIndex);
       fs = FileSystem.get(filepath.toUri(), new Configuration());

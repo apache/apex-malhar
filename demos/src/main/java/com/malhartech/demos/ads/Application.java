@@ -228,8 +228,8 @@ public class Application implements ApplicationFactory
 
     if (conf.getBoolean(P_enableHdfs, false)) {
       HdfsOutputOperator<HashMap<String, Double>> viewsToHdfs = dag.addOperator("viewsToHdfs", new HdfsOutputOperator<HashMap<String, Double>>());
-      viewsToHdfs.append = false;
-      viewsToHdfs.filePath = "file:///tmp/adsdemo/views-%(operatorId)-part%(partIndex)";
+      viewsToHdfs.setAppend(false);
+      viewsToHdfs.setFilePath("file:///tmp/adsdemo/views-%(operatorId)-part%(partIndex)");
       viewsAggStream.addSink(viewsToHdfs.input);
     }
 
