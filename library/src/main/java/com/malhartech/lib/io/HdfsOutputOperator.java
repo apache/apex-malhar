@@ -43,7 +43,20 @@ public class HdfsOutputOperator<T> extends BaseOperator
   private int currentBytesWritten = 0;
   private long totalBytesWritten = 0;
 
+  /**
+   * File name substitution parameter: The system assigned id of the operator
+   * instance, which is unique for the application.
+   */
+  public static final String FNAME_SUB_CONTEXT_ID = "contextId";
+
+  /**
+   * File name substitution parameter: The logical id assigned to the operator when assembling the DAG.
+   */
   public static final String FNAME_SUB_OPERATOR_ID = "operatorId";
+
+  /**
+   * File name substitution parameter: Index of part file when a file size limit is specified.
+   */
   public static final String FNAME_SUB_PART_INDEX = "partIndex";
 
   private String contextId;
@@ -106,7 +119,8 @@ public class HdfsOutputOperator<T> extends BaseOperator
   {
     Map<String, String> params = new HashMap<String, String>();
     params.put(FNAME_SUB_PART_INDEX, String.valueOf(index));
-    params.put(FNAME_SUB_OPERATOR_ID, contextId);
+    params.put(FNAME_SUB_CONTEXT_ID, contextId);
+    params.put(FNAME_SUB_OPERATOR_ID, this.getName());
     StrSubstitutor sub = new StrSubstitutor(params, "%(", ")");
     return new Path(sub.replace(filePath.toString()));
   }
