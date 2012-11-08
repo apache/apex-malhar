@@ -10,7 +10,7 @@ import com.malhartech.api.DefaultInputPort;
 
 /**
  *
- * Takes in one stream via input port "data", Lines are split into tokens and tokens are processed. Base class for line split operators.<br>
+ * Base class for splitting lines into tokens and tokens into sub-tokens. Base class for line split operators.<br>
  * processToken, and processSubToken are called for each token. Users should override calls backs to intercept at any level.<p>
  * This module is a pass through<br>
  * <br>

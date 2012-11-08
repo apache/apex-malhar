@@ -10,7 +10,7 @@ import java.util.HashMap;
 
 /**
  *
- * Takes in one stream via input port "data", and splits the String objects into tokens. An ArrayList of all tokens that pass the filter are emitted on output port "tokens"<p>
+ * Splits String objects into tokens, and emits filtered keys as ArrayList. An ArrayList of all tokens that pass the filter are emitted<p>
  *  This module is a pass through<br>
  * <br>
  * Ports:<br>

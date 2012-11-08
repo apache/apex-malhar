@@ -9,7 +9,7 @@ import com.malhartech.api.DefaultOutputPort;
 
 /**
  *
- * Takes in one stream via input port "data", and splits the String tuples into tokens. Each token is emitted on output port "tokens"<p>
+ *  Splits lines into tokens and emits Strings<p>
  * This module is a pass through<br>
  * <br>
  * Ideal for applications like word count
