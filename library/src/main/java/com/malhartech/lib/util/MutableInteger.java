@@ -4,11 +4,9 @@
  */
 package com.malhartech.lib.util;
 
-import java.util.Comparator;
-
 /**
  *
- * A mutable integer for basic operations. Makes things easy for incrementing etc.<p>
+ * A mutable integer for basic operations. Better performance<p>
  * <br>
  *
  * @author amol<br>

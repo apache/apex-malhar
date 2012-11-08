@@ -6,7 +6,7 @@ package com.malhartech.lib.util;
 
 /**
  *
- * A single KeyValPair for basic data passing. It is a write once, and read often model<p>
+ * A single KeyValPair for basic data passing, It is a write once, and read often model<p>
  * <br>
  * Key and Value are to be treated as immutable objects.
  *
