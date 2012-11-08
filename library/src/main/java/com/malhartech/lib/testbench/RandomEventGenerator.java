@@ -12,14 +12,16 @@ import java.util.Random;
 
 /**
  *
- * Generates synthetic load. Creates tuples using random numbers and keeps emitting them on the output port "data"<p>
+ * Generates synthetic load. Creates tuples using random numbers and keeps emitting them on the output port string_data and integer_data<p>
  * <br>
  * The load is generated as per config parameters. This class is mainly meant for testing nodes by creating a random number within
  * a range at a very high throughput. This node does not need to be windowed. It would just create tuple stream upto the limit set
  * by the config parameters.<br>
  * <br>
  * <b>Tuple Schema</b>: Has two choices Integer, or String<br><br>
- * <b>Port Interface</b>:It has only one output port "data" and has no input ports<br><br>
+ * <b>Port Interface</b>
+ * <b>string_data</b>: Emits String tuples<br>
+ * <b>integer_data</b>: Emits Integer tuples<br>
  * <b>Properties</b>:
  * <b>key</b> is an optional parameter, the generator sends an HashMap if key is specified<br>
  * <b>min_value</b> is the minimum value of the range of numbers. Default is 0<br>

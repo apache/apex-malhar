@@ -14,8 +14,9 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * Takes a in_stream <b>in_data</b> and filters the tuples. Only sends out tuples as per filter numbers provided
- * on output port <b>out_data</b>. The aim is to create another stream representing a subsection of incoming load<p>
+ * 
+ * Takes in a stream data and filters the tuples. Only sends out tuples as per filter numbers provided
+ * on output port filter. The aim is to create another stream representing a subsection of incoming load<p>
  * <br>
  * Examples of pairs include<br>
  * publisher,advertizer<br>

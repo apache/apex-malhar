@@ -13,8 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Generates seeds and merges data as it comes in from input ports (<b>in_data1</b>, and <b>in_data2</b>. The new tuple is emitted
- * on the output port <b>out_data</b>
+ * Generates seeds and merges data as it comes in from input ports (data1, and data2). The new tuple is emitted
+ * on the output ports string_data and hash_data<p>
  * <br>
  * Examples of getting seed distributions include<br>
  * Chages in mobile co-ordinates of a phone<br>
@@ -29,7 +29,10 @@ import org.slf4j.LoggerFactory;
  * The value in both the schemas is an integer (for choice of strings, these are enum values)
  * <br>
  * <b>Port Interface</b><br>
- * <b>data</b>: Output port for emitting the new classified seed<br>
+ * <b>data1</b>: Expects tuples of type <T><br>
+ * <b>data2</b>: Expects tuples of type <T><br>
+ * <b>string_data</b>: Emits new classified seed of schema String<br>
+ * <b>hash_data</b>: Emits new classified seed of schema HashMap<String, HashMap<String, T>><br>
  * <br>
  * <b>Properties</b>:
  * <b>seed_start</b>: An integer for the seed to start from<br>

@@ -13,8 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Takes in a seed stream on port <b>seed</b> and then on increments this data based on increments on port <b>increment</b>.
- * Data is immediately emitted on output port <b>data</b>.<p>
+ * Takes in a seed stream on port seed and then on increments this data based on increments on port increment. Data is immediately emitted on output port data.
+ * Emits number of tuples on port count<p>
  * The aim is to create a random movement
  * <br>
  * Examples of application includes<br>
@@ -28,6 +28,7 @@ import java.util.Map;
  * <b>seed</b>: The seed data for setting up the incrementor data to work on<br>
  * <b>increment</b>: Small random increments to the seed data. This now creates a randomized change in the seed<br>
  * <b>data</b>: Output of seed + increment<br>
+ * <b>count</b>: Emits number of processed tuples per window<br>
  * <br>
  * <b>Properties</b>:
  * <br>keys: In case the value has multiple dimensions. They can be accessed via keys<br>

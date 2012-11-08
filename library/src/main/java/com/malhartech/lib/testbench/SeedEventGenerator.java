@@ -4,9 +4,9 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.api.InputOperator;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.api.InputOperator;
 import com.malhartech.lib.util.OneKeyValPair;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,7 +22,7 @@ import com.malhartech.lib.util.OneKeyValPair;
 
 /**
  * Generates one time seed load based on range provided for the keys, and adds new classification to incoming keys. The new tuple is emitted
- * on the output port <b>data</b>
+ * on the output port keyvalpair_list, val_list, string_data, val_data<p>
  * <br>
  * Examples of getting seed distributions include<br>
  * Clients data of a company for every clientId (key is clienId)<br>

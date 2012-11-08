@@ -16,8 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Takes a in stream <b>in_data</b> and adds to incoming keys to create a new tuple that is emitted
- * on output port <b>out_data</b>. The aim is to create a load with pair of keys<p>
+ * Takes a in stream event and adds to incoming keys to create a new tuple that is emitted on output port data. The aim is to create a load with pair of keys<p>
  * <br>
  * Examples of pairs include<br>
  * publisher,advertizer<br>
