@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 /**
  *
- * Takes in one stream via input port "data". At end of window sends range of all values on port "range"<p>
+ * Emits the range of values at the end of window<p>
  * <br>
  * <b>Ports</b>
  * <b>data</b> expects V extends Number<br>

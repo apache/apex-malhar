@@ -15,9 +15,8 @@ import java.util.Map;
 
 /**
  *
- * Takes in two streams via input ports "numerator" and "denominator". At the
- * end of window computes the margin for each key and emits the result on port
- * "margin" (1 - numerator/denominator).<p> <br> Each stream is added to a hash.
+ * Adds all values for each key in "numerator" and "denominator", and at the end of window emits the margin for each key
+ * (1 - numerator/denominator).<p> <br> Each stream is added to a hash.
  * The values are added for each key within the window and for each stream.<<br>
  * This node only functions in a windowed stram application<br> <br> Compile
  * time error processing is done on configuration parameters<br>

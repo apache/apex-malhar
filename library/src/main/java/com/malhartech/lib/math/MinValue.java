@@ -13,8 +13,8 @@ import com.malhartech.lib.util.MutableDouble;
 
 /**
  *
- * Takes in one stream via input port "data". At end of window sends minimum of all values
- * for each key and emits them on port "min"<p>
+ * Emits at end of window minimum of all values sub-classed from Number in the incoming stream<p>
+
  * <br>
  * <b>Ports</b>:
  * <b>data</b> expects V extends Number<br>

@@ -15,9 +15,7 @@ import java.util.Map;
 
 /**
  *
- * Takes in two streams via input ports "numerator" and "denominator". At the
- * end of window computes the quotient for each key and emits the result on port
- * "quotient".<p>
+ * Add all the values for each key on "numerator" and "denominator" and emits quotient at end of window<p>
  * <br>
  * <b>Ports</b>:
  * <b>numerator</b> expects HashMap<K,V extends Number><br>

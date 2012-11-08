@@ -16,8 +16,7 @@ import javax.validation.constraints.NotNull;
 
 /**
  *
- * Takes in one stream via input port "data". At end of window sums all values
- * and emits them on port <b>sum</b>; emits number of tuples on port <b>count</b><p>
+ * Emits the sum, average, and count of values at the end of window<p>
  * This is an end of window operator<br>
  * <b>Ports</b>:
  * <b>data</b> expects V extends Number<br>

@@ -15,8 +15,7 @@ import java.util.Map;
 
 /**
  *
- * Takes in one stream via input port "data". At end of window sends range of all values
- * for each key and emits them on port "range"<p>
+ * Emits the range for each key at the end of window<p>
  * <br>
  * <b>Ports</b>
  * <b>data</b> expects HashMap<K,V extends Number><br>

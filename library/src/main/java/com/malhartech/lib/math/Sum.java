@@ -16,8 +16,7 @@ import javax.validation.constraints.NotNull;
 
 /**
  *
- * Takes in one stream via input port "data". At end of window sums all values
- * for each key and emits them on port <b>sum</b>; emits number of occurrences on port <b>count</b>; and average on port <b>average</b><p>
+ * Emits the sum, average, and count of values for each key at the end of window<p>
  * <br>
  * Is an end of window operator<br>
  * <b>Ports</b>:

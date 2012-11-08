@@ -10,8 +10,7 @@ import com.malhartech.api.DefaultOutputPort;
 
 /**
  *
- * Takes in two streams via input ports "numerator" and "denominator". At the
- * end of window computes the quotient for all the tuples and emits the result on port "quotient".<p>
+ * Adds all the values on "numerator" and "denominator" and emits quotient at end of window<p>
  * <br>
  * <b>Ports</b>:
  * <b>numerator</b> expects V extends Number<br>

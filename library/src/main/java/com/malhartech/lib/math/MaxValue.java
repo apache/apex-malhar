@@ -13,7 +13,7 @@ import com.malhartech.lib.util.MutableDouble;
 
 /**
  *
- * Takes in one stream via input port "data". At end of window sends maximum of all incoming tuples on port "max"<p>
+ * Emits at end of window maximum of all values sub-classed from Number in the incoming stream<p>
  * <br>
  * <b>Ports</b>:
  * <b>data</b> expects V extends Number<br>

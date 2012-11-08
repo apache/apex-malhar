@@ -15,7 +15,7 @@ import java.util.Map;
 
 /**
  *
- * Takes in one stream via input port "data". At end of window sends maximum of all values for each key and emits them on port "max"<p>
+ * Emits at end of window maximum of all values sub-classed from Number for each key<p>
  * <br>
  * <b>Ports</b>:
  * <b>data</b> expects HashMap<K,V extends Number><br>

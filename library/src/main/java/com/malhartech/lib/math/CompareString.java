@@ -11,7 +11,7 @@ import java.util.HashMap;
 
 /**
  *
- * Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". If the tuple
+ * A compare operation is done on String tuples based on the property "key", "value", and "compare" and all matching tuples are emitted. If the tuple
  * passed the test, it is emitted on the output port "compare". The comparison is done by parsing double
  * value from the String.<p>
  *  * This module is a pass through<br>
