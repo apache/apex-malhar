@@ -104,7 +104,7 @@ ActivationListener<OperatorContext>
   }
 
   @Override
-  public void postActivate(OperatorContext ctx)
+  public void activate(OperatorContext ctx)
   {
     try {
       connFactory = new ConnectionFactory();
@@ -133,7 +133,7 @@ ActivationListener<OperatorContext>
 //      holdingBuffer.add("ccc".getBytes());
 //  }
   @Override
-  public void preDeactivate()
+  public void deactivate()
   {
     try {
       channel.close();

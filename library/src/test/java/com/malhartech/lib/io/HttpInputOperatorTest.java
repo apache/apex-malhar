@@ -86,7 +86,7 @@ public class HttpInputOperatorTest
 
     operator.setup(new com.malhartech.dag.OperatorContext("irrelevant", null, null));
 
-    operator.postActivate(null);
+    operator.activate(null);
 
 //    sink.waitForResultCount(1, 3000);
     int timeoutMillis = 3000;
@@ -101,7 +101,7 @@ public class HttpInputOperatorTest
     Map<String, String> tuple = sink.collectedTuples.get(0);
     Assert.assertEquals("", tuple.get("responseId"), "response1");
 
-    operator.preDeactivate();
+    operator.deactivate();
     operator.teardown();
     server.stop();
 

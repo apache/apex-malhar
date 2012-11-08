@@ -84,7 +84,7 @@ public abstract class AbstractBaseZeroMQInputOperator extends BaseOperator imple
   }
 
   // The other thread
-  public void postActivate(OperatorContext ctx)
+  public void activate(OperatorContext ctx)
   {
     new Thread()
     {
@@ -108,7 +108,7 @@ public abstract class AbstractBaseZeroMQInputOperator extends BaseOperator imple
     }.start();
   }
 
-  public void preDeactivate()
+  public void deactivate()
   {
     running = false;
   }

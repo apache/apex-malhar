@@ -117,7 +117,7 @@ public class ActiveMQOutputOperatorTest
     }
 
     @Override
-    public void postActivate(OperatorContext ctx)
+    public void activate(OperatorContext ctx)
     {
       dataGeneratorThread = new Thread("String Generator")
       {
@@ -141,7 +141,7 @@ public class ActiveMQOutputOperatorTest
     }
 
     @Override
-    public void preDeactivate()
+    public void deactivate()
     {
       dataGeneratorThread = null;
     }
@@ -335,7 +335,7 @@ public class ActiveMQOutputOperatorTest
     }
 
     @Override
-    public void postActivate(OperatorContext ctx)
+    public void activate(OperatorContext ctx)
     {
       dataGeneratorThread = new Thread("String Generator")
       {
@@ -361,7 +361,7 @@ public class ActiveMQOutputOperatorTest
     }
 
     @Override
-    public void preDeactivate()
+    public void deactivate()
     {
       dataGeneratorThread = null;
     }

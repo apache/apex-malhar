@@ -165,7 +165,7 @@ public class RabbitMQOutputOperatorTest
     }
 
     @Override
-    public void postActivate(OperatorContext ctx)
+    public void activate(OperatorContext ctx)
     {
       for (int i = 0; i < testNum; i++) {
         HashMap<String, Integer> dataMapa = new HashMap<String, Integer>();
@@ -187,7 +187,7 @@ public class RabbitMQOutputOperatorTest
       this.testNum = testNum;
     }
 
-    public void preDeactivate()
+    public void deactivate()
     {
     }
 

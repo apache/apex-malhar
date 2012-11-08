@@ -103,7 +103,7 @@ public class KafkaInputOperator extends KafkaBase implements InputOperator, Acti
    * Implement ActivationListener Interface.
    */
   @Override
-  public void postActivate(OperatorContext ctx)
+  public void activate(OperatorContext ctx)
   {
       createConsumer("mytopic");
 
@@ -113,7 +113,7 @@ public class KafkaInputOperator extends KafkaBase implements InputOperator, Acti
    * Implement ActivationListener Interface.
    */
   @Override
-  public void preDeactivate()
+  public void deactivate()
   {
     //cleanup();
   }

@@ -104,7 +104,7 @@ public abstract class AbstractActiveMQInputOperator extends ActiveMQConsumerBase
    * Implement ActivationListener Interface.
    */
   @Override
-  public void postActivate(OperatorContext ctx)
+  public void activate(OperatorContext ctx)
   {
     try {
       setupConnection();
@@ -118,7 +118,7 @@ public abstract class AbstractActiveMQInputOperator extends ActiveMQConsumerBase
    * Implement ActivationListener Interface.
    */
   @Override
-  public void preDeactivate()
+  public void deactivate()
   {
     cleanup();
   }

@@ -134,7 +134,7 @@ public class ZeroMQInputOperatorTest
       public void run()
       {
         node.setup(new OperatorContext("irrelevant", null));
-        node.postActivate(null);
+        node.activate(null);
         try {
           while (true) {
             node.emitTuples();
@@ -144,7 +144,7 @@ public class ZeroMQInputOperatorTest
         catch (InterruptedException ex) {
         }
 
-        node.preDeactivate();
+        node.deactivate();
         node.teardown();
       }
     };

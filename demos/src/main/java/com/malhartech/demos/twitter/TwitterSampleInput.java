@@ -118,7 +118,7 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   }
 
   @Override
-  public void postActivate(OperatorContext context)
+  public void activate(OperatorContext context)
   {
     ts.addListener(this);
     // we can only listen to tweets containing links by callng ts.links().
@@ -127,7 +127,7 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   }
 
   @Override
-  public void preDeactivate()
+  public void deactivate()
   {
     ts.shutdown();
   }
