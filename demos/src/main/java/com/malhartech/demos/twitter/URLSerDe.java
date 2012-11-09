@@ -5,7 +5,7 @@
 package com.malhartech.demos.twitter;
 
 import com.malhartech.api.Operator;
-import com.malhartech.engine.SerDe;
+import com.malhartech.api.StreamCodec;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import org.slf4j.Logger;
@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-public class URLSerDe implements SerDe
+public class URLSerDe implements StreamCodec<Object>
 {
   private static final Logger logger = LoggerFactory.getLogger(URLSerDe.class);
   private static final byte[][] partitions = new byte[][]{
