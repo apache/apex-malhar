@@ -13,8 +13,7 @@ import java.util.ArrayList;
 import java.util.PriorityQueue;
 
 /**
- * <b>Not done yet</b><br>
- * Takes a stream of key value pairs via input port "data". The incoming is merged into already existing sorted list.
+ * <b>Not done yet</b>. Takes a stream of key value pairs via input port "data". The incoming is merged into already existing sorted list.
  * At the end of the window the entire sorted list is emitted on output port "sort"<p>
  * At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
  * <br>
