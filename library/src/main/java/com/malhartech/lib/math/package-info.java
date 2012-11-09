@@ -5,7 +5,7 @@
  */
 
 /**
- * <b>com.malhartech.lib.math</b> is a library of arithmetic modules for reuse<p>
+ * <b>{@link com.malhartech.lib.math}</b> is a library of arithmetic modules for reuse<p>
  * <br>
  * <br>The modules are<br>
  * <b>{@link com.malhartech.lib.math.BaseNumberOperator}</b>: Base class for operators that take in V extends Number. Provides basic methods for value conversion<br>

@@ -5,7 +5,7 @@
  */
 
 /**
- * <b>com.malhartech.lib.util</b> is a library of utility classes<p>
+ * <b>{@link com.malhartech.lib.util}</b> is a library of utility classes<p>
  * <br>
  * <br> The classes are<br>
  * <b>{@link com.malhartech.lib.util.MutableDouble}</b>: A mutable double for basic operations. Makes things easy for incrementing etc.<br>

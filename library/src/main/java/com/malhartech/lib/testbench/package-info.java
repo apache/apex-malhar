@@ -5,7 +5,7 @@
  */
 
 /**
- * <b>com.malhartech.lib.testbench</b> is a library of test bench modules for reuse<p>
+ * <b>{@link com.malhartech.lib.testbench}</b> is a library of test bench modules for reuse<p>
  * <br>
  * <br>The modules are<br>
  * <b>{@link com.malhartech.lib.testbench.EventClassifier}</b>: Takes a in stream event and adds to incoming keys to create a new tuple that is emitted on output port data. The aim is to create a load with pair of keys<br>
