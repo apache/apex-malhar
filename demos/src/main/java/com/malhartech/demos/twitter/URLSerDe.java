@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-public class URLSerDe implements StreamCodec<Object>
+public class URLSerDe implements StreamCodec<byte[]>
 {
   private static final Logger logger = LoggerFactory.getLogger(URLSerDe.class);
   private static final byte[][] partitions = new byte[][]{
@@ -39,7 +39,7 @@ public class URLSerDe implements StreamCodec<Object>
    * @return WindowedURLHolder object which represents the bytes.
    */
   @Override
-  public Object fromByteArray(byte[] bytes)
+  public byte[] fromByteArray(byte[] bytes)
   {
     return bytes;
   }
@@ -50,9 +50,9 @@ public class URLSerDe implements StreamCodec<Object>
    * @return the same object as input
    */
   @Override
-  public byte[] toByteArray(Object o)
+  public byte[] toByteArray(byte[] o)
   {
-    return (byte[]) o;
+    return o;
   }
 
   @Override
