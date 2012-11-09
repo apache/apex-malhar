@@ -4,7 +4,10 @@
  */
 package com.malhartech.contrib.kafka;
 
+import java.io.File;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
 import java.util.*;
 import kafka.consumer.ConsumerConfig;
 import kafka.consumer.ConsumerIterator;
@@ -23,7 +26,6 @@ import kafka.javaapi.message.ByteBufferMessageSet;
 import kafka.message.Message;
 import kafka.message.MessageAndOffset;
 import kafka.utils.Utils;
-
 
 public class KafkaInoutOperatorTest
 {
@@ -71,6 +73,23 @@ public class KafkaInoutOperatorTest
   {
     // create a consumer to connect to the kafka server running on localhost, port 2182, socket timeout of 10 secs, socket receive buffer of ~1MB
     SimpleConsumer consumer = new SimpleConsumer("localhost", 2182, 10000, 1024000);
+    public Charset charset = Charset.forName("UTF-8");
+    public CharsetDecoder decoder = charset.newDecoder();
+
+    public String bb_to_str(ByteBuffer buffer)
+    {
+      String data = "";
+      try {
+        int old_position = buffer.position();
+        data = decoder.decode(buffer).toString();
+        // reset buffer's position to its original so it is not altered:
+        buffer.position(old_position);
+      }
+      catch (Exception e) {
+        return data;
+      }
+      return data;
+    }
 
     @Override
     public void run()
@@ -86,10 +105,11 @@ public class KafkaInoutOperatorTest
 
         while (itr.hasNext()) {
           MessageAndOffset msg = itr.next();
-          System.out.println("consumed: " + msg.message().payload().toString());
-         // System.out.println("consumed: " + Utils.toString(msg.message.payload(), "UTF-8"));
+          System.out.println("consumed: " + bb_to_str(msg.message().payload()).toString());
+          // System.out.println("consumed: " + Utils.toString(msg.message.payload(), "UTF-8"));
           // advance the offset after consuming each message
           offset = msg.offset();
+          System.out.println(String.format("offset %d", offset));
         }
       }
     }
@@ -102,11 +122,8 @@ public class KafkaInoutOperatorTest
 
     public KafkaConsumer(String topic)
     {
-      consumer = kafka.consumer.Consumer.createJavaConsumerConnector(
-              createConsumerConfig());
+      consumer = kafka.consumer.Consumer.createJavaConsumerConnector(createConsumerConfig());
       this.topic = topic;
-
-
     }
 
     private ConsumerConfig createConsumerConfig()
@@ -167,8 +184,15 @@ public class KafkaInoutOperatorTest
   @After
   public void afterTest()
   {
+    //server.getLogManager().cleanupLogs();
+   // System.out.println(String.format("File %s", server.getLogManager().logDir().getAbsolutePath()));
+   // server.getLogManager().logDir().deleteOnExit();
+   // server.getLogManager().StopActor();
+    //server.CLEAN_SHUTDOWN_FILE();
+
     server.shutdown();
-    server.awaitShutdown();
+    //server.awaitShutdown();
+    Utils.rm(server.getLogManager().logDir());
   }
 
   @Test
@@ -176,8 +200,8 @@ public class KafkaInoutOperatorTest
   {
     KafkaProducer p = new KafkaProducer("topic1");
     p.start();
-    //Thread.sleep(1000);
-   // KafkaConsumer c = new KafkaConsumer("topic1");
+    Thread.sleep(1000);
+    // KafkaConsumer c = new KafkaConsumer("topic1");
     KafkaSimpleConsumer c = new KafkaSimpleConsumer();
     c.start();
     System.out.println();

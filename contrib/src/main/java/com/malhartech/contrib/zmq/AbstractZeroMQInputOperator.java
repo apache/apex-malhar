@@ -4,7 +4,6 @@
  */
 package com.malhartech.contrib.zmq;
 
-import com.malhartech.annotation.InjectConfig;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
 
@@ -16,7 +15,6 @@ public abstract class AbstractZeroMQInputOperator<T> extends AbstractBaseZeroMQI
 {
     @OutputPortFieldAnnotation(name = "outputPort")
   final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>(this);
-  @InjectConfig(key = "tuple_blast")
   private int tuple_blast = 1000;
 
   public abstract void emitMessage(byte[] message);

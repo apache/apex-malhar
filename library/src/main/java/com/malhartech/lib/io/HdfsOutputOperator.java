@@ -164,7 +164,7 @@ public class HdfsOutputOperator<T> extends BaseOperator
 
   /**
    *
-   * @param config
+   * @param context
    */
   @Override
   public void setup(OperatorContext context)

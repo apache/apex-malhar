@@ -9,7 +9,7 @@ import com.malhartech.api.DefaultOutputPort;
 import javax.jms.Message;
 
 /**
- * ActiveMQ input adapter operator with single output port, which consume data from ActiveMQ message bus.<br>
+ * ActiveMQ input adapter operator with single output port, which consume data from ActiveMQ message bus.<p><br>
  *
  * <br>
  * Ports:<br>

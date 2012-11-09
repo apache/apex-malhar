@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * ActiveMQ input adapter operator, which consume data from ActiveMQ message bus.<br>
+ * ActiveMQ input adapter operator, which consume data from ActiveMQ message bus.<p><br>
  *
  * <br>
  * Ports:<br>

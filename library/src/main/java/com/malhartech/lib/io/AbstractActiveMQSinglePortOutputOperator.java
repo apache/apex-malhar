@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * ActiveMQ output adapter operator with only one input port, which produce data into ActiveMQ message bus.<br>
+ * ActiveMQ output adapter operator with only one input port, which produce data into ActiveMQ message bus.<p><br>
  *
  * <br>
  * Ports:<br>

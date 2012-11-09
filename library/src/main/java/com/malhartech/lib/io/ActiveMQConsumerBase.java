@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Base class for any ActiveMQ input adapter operator. Input Operators should not be derived from this,
+ * Base class for any ActiveMQ input adapter operator. <p>Input Operators should not be derived from this,
  * rather from AbstractActiveMQInputOperator or AbstractActiveMQSinglePortInputOperator. This consumes message
  * from active MQ message bus through onMessage() call.<br>
  *
