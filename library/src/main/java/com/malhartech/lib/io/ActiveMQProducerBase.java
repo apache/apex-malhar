@@ -10,8 +10,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Base class for any ActiveMQ output adapter operator. Output Operators should not be derived from this,
+ * rather from AbstractActiveMQOutputOperator or AbstractActiveMQSinglePortOutputOperator. It creates the producer
+ * to send message into active MQ message bus.<br>
  *
- *  @author Locknath Shil <locknath@malhar-inc.com>
+ * <br>
+ * Ports:<br>
+ * None<br>
+ * <br>
+ * Properties:<br>
+ * None<br>
+ * <br>
+ * Compile time checks:<br>
+ * None<br>
+ * <br>
+ * Run time checks:<br>
+ * None<br>
+ * <br>
+ * Benchmarks:<br>
+ * NA<br>
+ * <br>
+ * @author Locknath Shil <locknath@malhar-inc.com>
+ *
  */
 public class ActiveMQProducerBase extends ActiveMQBase
 {
@@ -46,7 +66,6 @@ public class ActiveMQProducerBase extends ActiveMQBase
     super.createConnection();
     // Create producer
     producer = getSession().createProducer(getDestination());
-    //producer.setDeliveryMode(DeliveryMode.PERSISTENT);
   }
 
   /**

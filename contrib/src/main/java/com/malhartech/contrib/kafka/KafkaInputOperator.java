@@ -20,7 +20,6 @@ import kafka.message.Message;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.*;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.dag.SerDe;
 import com.malhartech.util.CircularBuffer;
 import javax.jms.JMSException;
 import org.slf4j.Logger;

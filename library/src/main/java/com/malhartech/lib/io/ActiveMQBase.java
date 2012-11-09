@@ -14,8 +14,38 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Base class for any ActiveMQ input or output adapter operator. Operators should not be derived from this,
+ * rather from AbstractActiveMQInputOperator or AbstractActiveMQSinglePortInputOperator or AbstractActiveMQOutputOperator
+ * or AbstractActiveMQSinglePortOutputOperator. This creates connection with active MQ broker.<br>
  *
- *  @author Locknath Shil <locknath@malhar-inc.com>
+ * <br>
+ * Ports:<br>
+ * None<br>
+ * <br>
+ * Properties:<br>
+ * <b>usr</b>: userid for connecting to active MQ message bus<br>
+ * <b>password</b>: password for connecting to active MQ message bus<br>
+ * <b>url</b>: URL for connecting to active MQ message bus<br>
+ * <b>ackMode</b>: message acknowledgment mode<br>
+ * <b>clientId</b>: client id<br>
+ * <b>subject</b>: name of destination<br>
+ * <b>durable</b>: flag to indicate durable consumer<br>
+ * <b>topic</b>: flag to indicate if the destination is a topic or queue<br>
+ * <b>transacted</b>: flag whether the messages should be transacted or not<br>
+ * <br>
+ * Compile time checks:<br>
+ * usr should not be null<br>
+ * password should not be null<br>
+ * url should not be null<br>
+ * <br>
+ * Run time checks:<br>
+ * None<br>
+ * <br>
+ * Benchmarks:<br>
+ * NA<br>
+ * <br>
+ * @author Locknath Shil <locknath@malhar-inc.com>
+ *
  */
 public class ActiveMQBase
 {

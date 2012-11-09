@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *  This is the AcctiveMQ message listener (i.e. consumer) outside of Malhar/Hadoop.
+ *  This is the AcctiveMQ message listener (consumer) outside of Malhar/Hadoop.
  *
  *  @author Locknath Shil <locknath@malhar-inc.com>
  */

@@ -11,10 +11,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * ActiveMQ output adapter operator, which produce data into ActiveMQ message bus.<br>
  *
+ * <br>
+ * Ports:<br>
+ * <b>Input</b>: Can have any number of input ports<br>
+ * <b>Output</b>: No output port<br>
+ * <br>
+ * Properties:<br>
+ * None<br>
+ * <br>
+ * Compile time checks:<br>
+ * None<br>
+ * <br>
+ * Run time checks:<br>
+ * None<br>
+ * <br>
+ * Benchmarks:<br>
+ * TBD<br>
+ * <br>
  * @author Locknath Shil <locknath@malhar-inc.com>
  *
- * This is ActiveMQ output adapter operator (which produce data into ActiveMQ message bus).
  */
 public abstract class AbstractActiveMQOutputOperator extends ActiveMQProducerBase implements Operator
 {
@@ -24,7 +41,7 @@ public abstract class AbstractActiveMQOutputOperator extends ActiveMQProducerBas
   /**
    * Implement Component Interface.
    *
-   * @param config
+   * @param context
    */
   @Override
   public void setup(OperatorContext context)

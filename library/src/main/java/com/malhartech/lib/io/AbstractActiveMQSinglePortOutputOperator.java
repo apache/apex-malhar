@@ -12,8 +12,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * ActiveMQ output adapter operator with only one input port, which produce data into ActiveMQ message bus.<br>
  *
+ * <br>
+ * Ports:<br>
+ * <b>Input</b>: Have only one input port<br>
+ * <b>Output</b>: No output port<br>
+ * <br>
+ * Properties:<br>
+ * None<br>
+ * <br>
+ * Compile time checks:<br>
+ * Class derived from this has to implement the abstract method createMessage() <br>
+ * <br>
+ * Run time checks:<br>
+ * None<br>
+ * <br>
+ * Benchmarks:<br>
+ * TBD<br>
+ * <br>
  * @author Locknath Shil <locknath@malhar-inc.com>
+ *
  */
 public abstract class AbstractActiveMQSinglePortOutputOperator<T> extends AbstractActiveMQOutputOperator
 {
@@ -21,7 +40,7 @@ public abstract class AbstractActiveMQSinglePortOutputOperator<T> extends Abstra
   long countMessages = 0;  // Number of messages produced so far
 
   protected abstract Message createMessage(T tuple);
-    
+
   /**
    * The single input port.
    */

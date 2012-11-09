@@ -87,7 +87,7 @@ public class ActiveMQInputOperatorTest
   }
 
   @Before
-  public void beforTest() throws Exception
+  public void beforeTest() throws Exception
   {
     startActiveMQService();
   }

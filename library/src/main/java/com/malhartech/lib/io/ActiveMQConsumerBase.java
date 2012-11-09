@@ -9,8 +9,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Base class for any ActiveMQ input adapter operator. Input Operators should not be derived from this,
+ * rather from AbstractActiveMQInputOperator or AbstractActiveMQSinglePortInputOperator. This consumes message
+ * from active MQ message bus through onMessage() call.<br>
  *
+ * <br>
+ * Ports:<br>
+ * None<br>
+ * <br>
+ * Properties:<br>
+ * None<br>
+ * <br>
+ * Compile time checks:<br>
+ * Class derived from this has to implement the abstract method emitMessage() <br>
+ * <br>
+ * Run time checks:<br>
+ * None<br>
+ * <br>
+ * Benchmarks:<br>
+ * NA<br>
+ * <br>
  * @author Locknath Shil <locknath@malhar-inc.com>
+ *
  */
 public abstract class ActiveMQConsumerBase extends ActiveMQBase implements MessageListener, ExceptionListener
 {

@@ -14,10 +14,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * ActiveMQ input adapter operator, which consume data from ActiveMQ message bus.<br>
  *
+ * <br>
+ * Ports:<br>
+ * <b>Input</b>: No input port<br>
+ * <b>Output</b>: Can have any number of output ports<br>
+ * <br>
+ * Properties:<br>
+ * <b>tuplesBlast</b>: Number of tuples emitted in each burst<br>
+ * <b>bufferSize</b>: Size of holding buffer<br>
+ * <br>
+ * Compile time checks:<br>
+ * Class derived from this has to implement the abstract method emitTuple() <br>
+ * <br>
+ * Run time checks:<br>
+ * None<br>
+ * <br>
+ * Benchmarks:<br>
+ * TBD<br>
+ * <br>
  * @author Locknath Shil <locknath@malhar-inc.com>
  *
- * This is ActiveMQ input adapter operator (which consume data from ActiveMQ message bus).
  */
 public abstract class AbstractActiveMQInputOperator extends ActiveMQConsumerBase implements InputOperator, ActivationListener<OperatorContext>
 {
@@ -69,7 +87,7 @@ public abstract class AbstractActiveMQInputOperator extends ActiveMQConsumerBase
   /**
    * Implement Component Interface.
    *
-   * @param config
+   * @param context
    */
   @Override
   public void setup(OperatorConfiguration config)

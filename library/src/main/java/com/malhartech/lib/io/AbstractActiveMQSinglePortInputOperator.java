@@ -6,17 +6,30 @@ package com.malhartech.lib.io;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
-import java.util.logging.Level;
-import javax.jms.JMSException;
 import javax.jms.Message;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
+ * ActiveMQ input adapter operator with single output port, which consume data from ActiveMQ message bus.<br>
  *
+ * <br>
+ * Ports:<br>
+ * <b>Input</b>: No input port<br>
+ * <b>Output</b>: Have only one output port<br>
+ * <br>
+ * Properties:<br>
+ * None<br>
+ * <br>
+ * Compile time checks:<br>
+ * Class derived from this has to implement the abstract method getTuple() <br>
+ * <br>
+ * Run time checks:<br>
+ * None<br>
+ * <br>
+ * Benchmarks:<br>
+ * TBD<br>
+ * <br>
  * @author Locknath Shil <locknath@malhar-inc.com>
  *
- * This Input Operator has only one output port.
  */
 public abstract class AbstractActiveMQSinglePortInputOperator<T> extends AbstractActiveMQInputOperator
 {
@@ -32,7 +45,7 @@ public abstract class AbstractActiveMQSinglePortInputOperator<T> extends Abstrac
    * It converts a JMS message into a Tuple. A Tuple can be of any type (derived from Java Object) that
    * operator user intends to.
    *
-   * @param message
+   * @param msg
    */
   public abstract T getTuple(Message msg);
 
