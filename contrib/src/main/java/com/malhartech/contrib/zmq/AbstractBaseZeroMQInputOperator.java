@@ -16,7 +16,29 @@ import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.util.CircularBuffer;
 
 /**
+ * ZeroMQ input adapter operator, which consume data from ZeroMQ message bus.<p><br>
  *
+ * <br>
+ * Ports:<br>
+ * <b>Input</b>: No input port<br>
+ * <b>Output</b>: Can have any number of output ports<br>
+ * <br>
+ * Properties:<br>
+ * <b>tuple_blast</b>: Number of tuples emitted in each burst<br>
+ * <b>bufferSize</b>: Size of holding buffer<br>
+ * <b>url</b>:the url for the subscriber to connect to ZeroMQ publisher<br>
+ * <b>syncUrl</b>: the url for the subscriber to synchronize with publisher<br>
+ * <b>filter</b>: the filter that subscriber wants to subscribe, default is ""<br>
+ * <br>
+ * Compile time checks:<br>
+ * Class derived from this has to implement the abstract method emitTuple() <br>
+ * <br>
+ * Run time checks:<br>
+ * None<br>
+ * <br>
+ * Benchmarks:<br>
+ * TBD<br>
+ * <br>
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
 public abstract class AbstractBaseZeroMQInputOperator extends BaseOperator implements InputOperator, ActivationListener<OperatorContext>
@@ -28,13 +50,14 @@ public abstract class AbstractBaseZeroMQInputOperator extends BaseOperator imple
   private String url;
   @InjectConfig(key = "syncUrl")
   private String syncUrl;
-  @InjectConfig(key = "filter")
-  private String filter;
+  private String filter="";
 
-  @InjectConfig(key = "tuple_blast")
-  private int tuple_blast = 1000;
+  private static final int DEFAULT_BLAST_SIZE = 1000;
+  private static final int DEFAULT_BUFFER_SIZE = 1024*1024;
+  private int tuple_blast = DEFAULT_BLAST_SIZE;
+  private int bufferSize = DEFAULT_BUFFER_SIZE;
   private volatile boolean running = false;
-  transient CircularBuffer<byte[]> tempBuffer = new CircularBuffer<byte[]>(1024 * 1024);
+  transient CircularBuffer<byte[]> holdingBuffer = new CircularBuffer<byte[]>(bufferSize);
 
   public void setUrl(String url)
   {
@@ -55,6 +78,9 @@ public abstract class AbstractBaseZeroMQInputOperator extends BaseOperator imple
   public void setTupleBlast(int i)
   {
     this.tuple_blast = i;
+  }
+  public void setBufferSize(int size) {
+    this.bufferSize = size;
   }
   @Override
   public void setup(OperatorContext ctx)
@@ -89,7 +115,7 @@ public abstract class AbstractBaseZeroMQInputOperator extends BaseOperator imple
           try {
             byte[] message = subscriber.recv(0);
             if (message != null) {
-              tempBuffer.add(message);
+              holdingBuffer.add(message);
             }
           }
           catch (Exception e) {
@@ -112,11 +138,11 @@ public abstract class AbstractBaseZeroMQInputOperator extends BaseOperator imple
   public void emitTuples()
   {
     int ntuples = tuple_blast;
-    if (ntuples > tempBuffer.size()) {
-      ntuples = tempBuffer.size();
+    if (ntuples > holdingBuffer.size()) {
+      ntuples = holdingBuffer.size();
     }
     for (int i = ntuples; i-- > 0;) {
-      emitTuple(tempBuffer.pollUnsafe());
+      emitTuple(holdingBuffer.pollUnsafe());
     }
   }
 }

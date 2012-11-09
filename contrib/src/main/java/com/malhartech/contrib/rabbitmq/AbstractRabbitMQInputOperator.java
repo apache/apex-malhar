@@ -15,7 +15,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * RabbitMQ input adapter operator, which consume data from RabbitMQ message bus.<p><br>
  *
+ * <br>
+ * Ports:<br>
+ * <b>Input</b>: No input port<br>
+ * <b>Output</b>: Can have any number of output ports<br>
+ * <br>
+ * Properties:<br>
+ * <b>tuple_blast</b>: Number of tuples emitted in each burst<br>
+ * <b>bufferSize</b>: Size of holding buffer<br>
+ * <b>host</b>:the address for the consumer to connect to rabbitMQ producer<br>
+ * <br>
+ * Compile time checks:<br>
+ * Class derived from this has to implement the abstract method emitTuple() <br>
+ * <br>
+ * Run time checks:<br>
+ * None<br>
+ * <br>
+ * Benchmarks:<br>
+ * TBD<br>
+ * <br>
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
 public abstract class AbstractRabbitMQInputOperator<T>
@@ -29,6 +49,12 @@ ActivationListener<OperatorContext>
   private String exchange;
   transient ConnectionFactory connFactory;
 //  QueueingConsumer consumer = null;
+
+  private static final int DEFAULT_BLAST_SIZE = 1000;
+  private static final int DEFAULT_BUFFER_SIZE = 1024*1024;
+  private int tuple_blast = DEFAULT_BLAST_SIZE;
+  private int bufferSize = DEFAULT_BUFFER_SIZE;
+
   transient Connection connection = null;
   transient Channel channel = null;
   transient TracingConsumer tracingConsumer = null;
@@ -95,7 +121,7 @@ ActivationListener<OperatorContext>
   @Override
   public void setup(OperatorContext context)
   {
-    holdingBuffer = new CircularBuffer<byte[]>(1024 * 1024);
+    holdingBuffer = new CircularBuffer<byte[]>(bufferSize);
   }
 
   @Override
@@ -120,7 +146,6 @@ ActivationListener<OperatorContext>
 //      channel.basicConsume(queueName, true, consumer);
       tracingConsumer = new TracingConsumer(channel);
       cTag = channel.basicConsume(queueName, true, tracingConsumer);
-//      addBuffer();
     }
     catch (IOException ex) {
       logger.debug(ex.toString());

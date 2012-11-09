@@ -12,7 +12,27 @@ import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
 /**
+ * ZeroMQ output adapter operator, which send data to ZeroMQ message bus.<p><br>
  *
+ * <br>
+ * Ports:<br>
+ * <b>Input</b>: Can have any number of input ports<br>
+ * <b>Output</b>: no output port<br>
+ * <br>
+ * Properties:<br>
+ * <b>url</b>:the url for the publisher to listen to subscriber <br>
+ * <b>syncUrl</b>: the url for the publisher to synchronize with subscriber<br>
+ * <b>SUBSCRIBERS_EXPECTED</b>: the expected number of subscribers<br>
+ * <br>
+ * Compile time checks:<br>
+ * None<br>
+ * <br>
+ * Run time checks:<br>
+ * None<br>
+ * <br>
+ * Benchmarks:<br>
+ * TBD<br>
+ * <br>
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
 public abstract class AbstractBaseZeroMQOutputOperator<T> extends BaseOperator

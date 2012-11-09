@@ -15,7 +15,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * RabbitMQ output adapter operator, which send data to RabbitMQ message bus.<p><br>
  *
+ * <br>
+ * Ports:<br>
+ * <b>Input</b>: Can have any number of input ports<br>
+ * <b>Output</b>: no output port<br>
+ * <br>
+ * Properties:<br>
+ * <b>host</b>:the address for the consumer to connect <br>
+ * <br>
+ * Compile time checks:<br>
+ * None<br>
+ * <br>
+ * Run time checks:<br>
+ * None<br>
+ * <br>
+ * Benchmarks:<br>
+ * TBD<br>
+ * <br>
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
 public class AbstractRabbitMQOutputOperator<T> extends BaseOperator
