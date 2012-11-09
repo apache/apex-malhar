@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
-import com.malhartech.engine.SerDe;
+import com.malhartech.api.StreamCodec;
 
 /**
  * Adapter for writing to HDFS<p>
@@ -35,7 +35,7 @@ public class HdfsOutputOperator<T> extends BaseOperator
   private static org.slf4j.Logger logger = LoggerFactory.getLogger(HdfsOutputOperator.class);
   private transient FSDataOutputStream fsOutput;
   private transient BufferedOutputStream bufferedOutput;
-  private SerDe serde; // it was taken from context before, but now what, it's not a stream but a node!
+  private StreamCodec serde; // it was taken from context before, but now what, it's not a stream but a node!
   private transient FileSystem fs;
 
   // internal persistent state
