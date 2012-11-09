@@ -143,6 +143,10 @@ ActivationListener<OperatorContext>
       logger.debug(ex.toString());
     }
   }
+  public void setTupleBlast(int i)
+  {
+    this.tuple_blast = i;
+  }
 
   public void setHost(String host)
   {

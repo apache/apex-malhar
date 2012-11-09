@@ -4,6 +4,10 @@
  */
 package com.malhartech.contrib.zmq;
 
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DAG;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.Operator;
 import java.util.HashMap;
 
 import org.junit.Assert;
@@ -25,7 +29,7 @@ public class ZeroMQInputOperatorTest
   String syncAddr = "tcp://*:5557";
   private static Logger logger = LoggerFactory.getLogger(ZeroMQInputOperatorTest.class);
 
-  private static final class TestStringZeroMQInputOperator extends AbstractZeroMQInputOperator<String>
+  public static final class TestStringZeroMQInputOperator extends AbstractSinglePortZeroMQInputOperator<String>
   {
     @Override
     public void emitMessage(byte[] message)
@@ -57,9 +61,9 @@ public class ZeroMQInputOperatorTest
       syncservice.bind(syncAddr);
     }
 
-    public void process(Object payload)
+    public void send(Object message)
     {
-      String msg = payload.toString();
+      String msg = message.toString();
       // logger.debug("publish:"+msg);
       publisher.send(msg.getBytes(), 0);
     }
@@ -79,83 +83,104 @@ public class ZeroMQInputOperatorTest
       for (int i = 0; i < msgCount; i++) {
         HashMap<String, Integer> dataMapa = new HashMap<String, Integer>();
         dataMapa.put("a", 2);
-        process(dataMapa);
+        send(dataMapa);
 
         HashMap<String, Integer> dataMapb = new HashMap<String, Integer>();
         dataMapb.put("b", 20);
-        process(dataMapb);
+        send(dataMapb);
 
         HashMap<String, Integer> dataMapc = new HashMap<String, Integer>();
         dataMapc.put("c", 1000);
-        process(dataMapc);
+        send(dataMapc);
       }
     }
   }
 
-  @Test
-  public void testProcess() throws Exception
+
+  public static class CollectorInputPort<T> extends DefaultInputPort<T>
   {
-    final int testNum = 3;
-    Thread generatorThread = new Thread()
+    ArrayList<T> list;
+    final String id;
+
+    public CollectorInputPort(String id, Operator module)
     {
+      super(module);
+      this.id = id;
+    }
+
+    @Override
+    public void process(T tuple)
+    {
+      System.out.print("collector process:"+tuple);
+      list.add(tuple);
+    }
+
+    @Override
+    public void setConnected(boolean flag)
+    {
+      if (flag) {
+        collections.put(id, list = new ArrayList<T>());
+      }
+    }
+  }
+
+  public static class CollectorModule<T> extends BaseOperator
+  {
+    public final transient CollectorInputPort<T> inputPort = new CollectorInputPort<T>("collector", this);
+  }
+
+  @Test
+  public void testDag() throws InterruptedException, Exception {
+      final int testNum = 3;
+    DAG dag = new DAG();
+    final ZeroMQMessageGenerator publisher = new ZeroMQMessageGenerator();
+    publisher.setup();
+
+    TestStringZeroMQInputOperator generator = dag.addOperator("Generator", TestStringZeroMQInputOperator.class);
+    CollectorModule<String> collector = dag.addOperator("Collector", new CollectorModule<String>());
+
+    generator.setFilter("");
+    generator.setUrl("tcp://localhost:5556");
+    generator.setSyncUrl("tcp://localhost:5557");
+
+    dag.addStream("Stream", generator.outputPort, collector.inputPort).setInline(true);
+    new Thread() {
       @Override
-      public void run()
-      {
-        // data generator with separate thread to external zmq server
-        ZeroMQMessageGenerator publisher = new ZeroMQMessageGenerator();
-        publisher.setup();
+      public void run() {
         try {
           publisher.generateMessages(testNum);
         }
         catch (InterruptedException ex) {
-          logger.debug("generator exiting", ex);
-        }
-        finally {
-          publisher.teardown();
+          logger.debug(ex.toString());
         }
       }
-    };
-    generatorThread.start();
+    }.start();
 
-    final TestStringZeroMQInputOperator node = new TestStringZeroMQInputOperator();
+    final StramLocalCluster lc = new StramLocalCluster(dag);
+    lc.setHeartbeatMonitoringEnabled(false);
 
-    TestSink<String> testSink = new TestSink<String>();
-    node.outputPort.setSink(testSink);
-
-    node.setFilter("");
-    node.setUrl("tcp://localhost:5556");
-    node.setSyncUrl("tcp://localhost:5557");
-
-    node.setup(new OperatorConfiguration());
-
-    Thread nodeThread = new Thread()
+    new Thread("LocalClusterController")
     {
       @Override
       public void run()
       {
-        node.setup(new OperatorContext("irrelevant", null));
-        node.activate(null);
         try {
-          while (true) {
-            node.emitTuples();
-            Thread.sleep(10);
-          }
+          Thread.sleep(1000);
         }
         catch (InterruptedException ex) {
         }
-
-        node.deactivate();
-        node.teardown();
+        lc.shutdown();
       }
-    };
-    t.start();
+    }.start();
 
-    testSink.waitForResultCount(testNum * 3, 3000);
-    Assert.assertTrue("tuple emmitted", testSink.collectedTuples.size() > 0);
+    lc.run();
 
-    Assert.assertEquals("emitted value for testNum was ", testNum * 3, testSink.collectedTuples.size());
-    for (int i = 0; i < testSink.collectedTuples.size(); i++) {
-      String str = testSink.collectedTuples.get(i);
+    logger.debug("collection size:"+collections.size()+" "+collections.toString());
+
+    ArrayList<String> strList =(ArrayList<String>)collections.get("collector");
+    Assert.assertEquals("emitted value for testNum was ", testNum * 3, strList.size());
+    for (int i = 0; i < strList.size(); i++) {
+      String str = strList.get(i);
       int eq = str.indexOf('=');
       String key = str.substring(1, eq);
       Integer value = Integer.parseInt(str.substring(eq + 1, str.length() - 1));
@@ -169,11 +194,7 @@ public class ZeroMQInputOperatorTest
         Assert.assertEquals("emitted value for 'c' was ", new Integer(1000), value);
       }
     }
+    logger.debug("end of test");
+  }
 
-    //long end = System.currentTimeMillis();
-    // logger.debug("execution time:"+(end-begin)+" ms");
-    generatorThread.interrupt();
-     node.teardown();
-     logger.debug("end of test sent " + testSink.collectedTuples.size() + " messages");
- }
 }

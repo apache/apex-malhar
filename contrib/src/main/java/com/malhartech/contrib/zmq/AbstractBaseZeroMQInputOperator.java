@@ -4,8 +4,6 @@
  */
 package com.malhartech.contrib.zmq;
 
-import com.malhartech.annotation.InjectConfig;
-import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +14,6 @@ import com.malhartech.api.InputOperator;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.util.CircularBuffer;
-import javax.validation.constraints.Min;
 
 /**
  *
@@ -25,10 +22,9 @@ import javax.validation.constraints.Min;
 public abstract class AbstractBaseZeroMQInputOperator extends BaseOperator implements InputOperator, ActivationListener<OperatorContext>
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractBaseZeroMQInputOperator.class);
-  protected ZMQ.Context context;
-  protected ZMQ.Socket subscriber;
-  protected ZMQ.Socket syncclient;
-  @InjectConfig(key = "url")
+  transient protected ZMQ.Context context;
+  transient protected ZMQ.Socket subscriber;
+  transient protected ZMQ.Socket syncclient;
   private String url;
   @InjectConfig(key = "syncUrl")
   private String syncUrl;
@@ -38,27 +34,24 @@ public abstract class AbstractBaseZeroMQInputOperator extends BaseOperator imple
   @InjectConfig(key = "tuple_blast")
   private int tuple_blast = 1000;
   private volatile boolean running = false;
-  CircularBuffer<byte[]> tempBuffer = new CircularBuffer<byte[]>(1024 * 1024);
+  transient CircularBuffer<byte[]> tempBuffer = new CircularBuffer<byte[]>(1024 * 1024);
 
-  @NotNull
   public void setUrl(String url)
   {
     this.url = url;
   }
 
-  @NotNull
   public void setSyncUrl(String url)
   {
     this.syncUrl = url;
   }
 
-  @NotNull
   public void setFilter(String filter)
   {
     this.filter = filter;
   }
 
-  @Min(1)
+//  @Min(1)
   public void setTupleBlast(int i)
   {
     this.tuple_blast = i;
@@ -111,5 +104,19 @@ public abstract class AbstractBaseZeroMQInputOperator extends BaseOperator imple
   public void deactivate()
   {
     running = false;
+  }
+
+  public abstract void emitTuple(byte[] message);
+
+  @Override
+  public void emitTuples()
+  {
+    int ntuples = tuple_blast;
+    if (ntuples > tempBuffer.size()) {
+      ntuples = tempBuffer.size();
+    }
+    for (int i = ntuples; i-- > 0;) {
+      emitTuple(tempBuffer.pollUnsafe());
+    }
   }
 }

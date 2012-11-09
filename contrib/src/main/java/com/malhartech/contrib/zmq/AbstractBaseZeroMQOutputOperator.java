@@ -18,15 +18,14 @@ import org.zeromq.ZMQ;
 public abstract class AbstractBaseZeroMQOutputOperator<T> extends BaseOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractBaseZeroMQInputOperator.class);
-  protected ZMQ.Context context;
-  protected ZMQ.Socket publisher;
-  protected ZMQ.Socket syncservice;
-  @InjectConfig(key = "url")
+  transient protected ZMQ.Context context;
+  transient protected ZMQ.Socket publisher;
+  transient protected ZMQ.Socket syncservice;
+  protected int SUBSCRIBERS_EXPECTED = 1;
   private String url;
   @InjectConfig(key = "syncUrl")
   private String syncUrl;
-  @InjectConfig(key = "SUBSCRIBERS_EXPECTED")
-  protected int SUBSCRIBERS_EXPECTED;
+  protected boolean syncStarted = false;
 
   public void setUrl(String url)
   {
@@ -51,6 +50,7 @@ public abstract class AbstractBaseZeroMQOutputOperator<T> extends BaseOperator
   @Override
   public void setup(OperatorContext ctx)
   {
+    logger.debug("O/P setup");
     context = ZMQ.context(1);
     publisher = context.socket(ZMQ.PUB);
     publisher.bind(url);
@@ -65,6 +65,7 @@ public abstract class AbstractBaseZeroMQOutputOperator<T> extends BaseOperator
       byte[] value = syncservice.recv(0);
       syncservice.send("".getBytes(), 0);
     }
+    syncStarted = true;
   }
 
   @Override
