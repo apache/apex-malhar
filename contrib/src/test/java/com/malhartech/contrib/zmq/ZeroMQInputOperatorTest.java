@@ -32,10 +32,8 @@ public class ZeroMQInputOperatorTest
   public static final class TestStringZeroMQInputOperator extends AbstractSinglePortZeroMQInputOperator<String>
   {
     @Override
-    public void emitMessage(byte[] message)
-    {
-//    logger.debug(new String(payload));
-      outputPort.emit(new String(message));
+    public String getTuple(byte[] message) {
+      return new String(message);
     }
 
     public void replayTuples(long windowId)
