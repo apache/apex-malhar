@@ -66,6 +66,8 @@ public class Quotient<K, V extends Number> extends BaseOperator
       addTuple(tuple, denominators);
     }
   };
+  @OutputPortFieldAnnotation(name = "quotient")
+  public final transient DefaultOutputPort<HashMap<K, Double>> quotient = new DefaultOutputPort<HashMap<K, Double>>(this);
 
   public void addTuple(HashMap<K, V> tuple, HashMap<K, MutableDouble> map)
   {
@@ -85,11 +87,8 @@ public class Quotient<K, V extends Number> extends BaseOperator
       map.put(e.getKey(), val);
     }
   }
-  @OutputPortFieldAnnotation(name = "quotient")
-  public final transient DefaultOutputPort<HashMap<K, Double>> quotient = new DefaultOutputPort<HashMap<K, Double>>(this);
   HashMap<K, MutableDouble> numerators = new HashMap<K, MutableDouble>();
   HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();
-
   boolean countkey = false;
   int mult_by = 1;
 
