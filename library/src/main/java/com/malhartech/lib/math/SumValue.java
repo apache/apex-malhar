@@ -34,6 +34,9 @@ public class SumValue<V extends Number> extends BaseNumberOperator<V>
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<V> data = new DefaultInputPort<V>(this)
   {
+    /**
+     * Computes sum and count with each tuple
+     */
     @Override
     public void process(V tuple)
     {
@@ -44,12 +47,18 @@ public class SumValue<V extends Number> extends BaseNumberOperator<V>
 
   @OutputPortFieldAnnotation(name = "sum", optional=true)
   public final transient DefaultOutputPort<V> sum = new DefaultOutputPort<V>(this);
+  @OutputPortFieldAnnotation(name = "average", optional=true)
+  public final transient DefaultOutputPort<V> average = new DefaultOutputPort<V>(this);
   @OutputPortFieldAnnotation(name = "count", optional=true)
   public final transient DefaultOutputPort<Integer> count = new DefaultOutputPort<Integer>(this);
 
   double sums = 0;
   int counts = 0;
 
+  /**
+   * clears sum and count
+   * @param windowId
+   */
   @Override
   public void beginWindow(long windowId)
   {
@@ -58,7 +67,7 @@ public class SumValue<V extends Number> extends BaseNumberOperator<V>
   }
 
   /**
-   * Node only works in windowed mode. Emits all data upon end of window tuple
+   * Emits sum and count if ports are connected
    */
   @Override
   public void endWindow()
@@ -70,5 +79,40 @@ public class SumValue<V extends Number> extends BaseNumberOperator<V>
     if (count.isConnected()) {
       count.emit(new Integer(counts));
     }
+    if (average.isConnected() && (counts != 0)) {
+      average.emit(getAverage());
+    }
+  }
+
+  public V getAverage()
+  {
+    if (counts == 0) {
+      return null;
+    }
+    V num = getValue(sums);
+    Number val;
+    switch (type) {
+      case DOUBLE:
+        val = new Double(num.doubleValue()/counts);
+        break;
+      case INTEGER:
+        val = new Integer(num.intValue()/counts);
+        break;
+      case FLOAT:
+        val = new Float(num.floatValue()/counts);
+        break;
+      case LONG:
+        val = new Long(num.longValue()/counts);
+        break;
+      case SHORT:
+        short scount = (short) counts;
+        scount = (short) (num.shortValue()/scount);
+        val = new Short(scount);
+        break;
+      default:
+        val = new Double(num.doubleValue()/counts);
+        break;
+    }
+    return (V) val;
   }
 }

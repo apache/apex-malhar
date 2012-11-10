@@ -37,6 +37,12 @@ public class Sum<K, V extends Number> extends BaseNumberOperator<V>
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
+    /**
+     * For each tuple (a HashMap of keys,val pairs)
+     * Adds the values for each key.
+     * Counts the number of occurences of each key
+     * Computes the average
+     */
     @Override
     public void process(HashMap<K, V> tuple)
     {
@@ -72,6 +78,10 @@ public class Sum<K, V extends Number> extends BaseNumberOperator<V>
   HashMap<K, Double> sums = new HashMap<K, Double>();
   HashMap<K, MutableInteger> counts = new HashMap<K, MutableInteger>();
 
+  /**
+   * Clears the cache/hash
+   * @param windowId
+   */
   @Override
   public void beginWindow(long windowId)
   {
@@ -80,7 +90,8 @@ public class Sum<K, V extends Number> extends BaseNumberOperator<V>
   }
 
   /**
-   * Node only works in windowed mode. Emits all data upon end of window tuple
+   * Emits on all ports that are connected. Data is precomputed during process on input port
+   * endWindow just emits it for each key
    */
   @Override
   public void endWindow()

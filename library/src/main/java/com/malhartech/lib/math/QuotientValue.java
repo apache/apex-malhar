@@ -40,6 +40,9 @@ public class QuotientValue<V extends Number> extends BaseNumberOperator<V>
   @InputPortFieldAnnotation(name = "numerator")
   public final transient DefaultInputPort<V> numerator = new DefaultInputPort<V>(this)
   {
+    /**
+     * Adds to the numerator value
+     */
     @Override
     public void process(V tuple)
     {
@@ -50,6 +53,9 @@ public class QuotientValue<V extends Number> extends BaseNumberOperator<V>
   @InputPortFieldAnnotation(name = "denominator")
   public final transient DefaultInputPort<V> denominator = new DefaultInputPort<V>(this)
   {
+    /**
+     * Adds to the denominator value
+     */
     @Override
     public void process(V tuple)
     {
@@ -69,6 +75,10 @@ public class QuotientValue<V extends Number> extends BaseNumberOperator<V>
     mult_by = i;
   }
 
+  /**
+   * Clears denominator and numerator values
+   * @param windowId
+   */
   @Override
   public void beginWindow(long windowId)
   {
@@ -76,6 +86,9 @@ public class QuotientValue<V extends Number> extends BaseNumberOperator<V>
     dval = 0.0;
   }
 
+ /**
+   * Generates tuple emits it as long as denomitor is not 0
+   */
   @Override
   public void endWindow()
   {

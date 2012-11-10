@@ -93,6 +93,7 @@ public class Quotient<K, V extends Number> extends BaseOperator
   boolean countkey = false;
   int mult_by = 1;
 
+  @Min(0)
   public int getMult_by()
   {
     return mult_by;
@@ -114,6 +115,9 @@ public class Quotient<K, V extends Number> extends BaseOperator
     countkey = i;
   }
 
+  /*
+   * Clears the cache/hash
+   */
   @Override
   public void beginWindow(long windowId)
   {
@@ -121,6 +125,10 @@ public class Quotient<K, V extends Number> extends BaseOperator
     denominators.clear();
   }
 
+  /**
+   * Generates tuples for each key and emits them. Only keys that are in the denominator are iterated on
+   * If the key is only in the numerator, it gets ignored (cannot do divide by 0)
+   */
   @Override
   public void endWindow()
   {

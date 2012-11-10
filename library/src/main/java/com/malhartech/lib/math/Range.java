@@ -20,12 +20,12 @@ import java.util.Map;
  * <b>Ports</b>
  * <b>data</b> expects HashMap<K,V extends Number><br>
  * <b>range</b> emits HashMap<K,ArrayList<V>>, each key has two entries, first Max and next Min<br>
-* <b>Compile time check</b>
-* None<br>
-* <br>
-* <b>Run time checks</b><br>
-* None<br>
-* <br>
+ * <b>Compile time check</b>
+ * None<br>
+ * <br>
+ * <b>Run time checks</b><br>
+ * None<br>
+ * <br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * Integer: 8 million tuples/s<br>
@@ -36,13 +36,14 @@ import java.util.Map;
  *
  * @author amol
  */
-
-
 public class Range<K, V extends Number> extends BaseOperator
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
+    /**
+     * Process each key and computes new high and low
+     */
     @Override
     public void process(HashMap<K, V> tuple)
     {
@@ -71,10 +72,15 @@ public class Range<K, V extends Number> extends BaseOperator
     }
   };
   @OutputPortFieldAnnotation(name = "range")
-  public final transient DefaultOutputPort<HashMap<K,ArrayList<V>>> range = new DefaultOutputPort<HashMap<K,ArrayList<V>>>(this);
-  HashMap<K,V> high = new HashMap<K,V>();
-  HashMap<K,V> low = new HashMap<K,V>();
+  public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> range = new DefaultOutputPort<HashMap<K, ArrayList<V>>>(this);
+  HashMap<K, V> high = new HashMap<K, V>();
+  HashMap<K, V> low = new HashMap<K, V>();
 
+  /**
+   * Clears the cache/hash
+   *
+   * @param windowId
+   */
   @Override
   public void beginWindow(long windowId)
   {
@@ -82,14 +88,14 @@ public class Range<K, V extends Number> extends BaseOperator
     low.clear();
   }
 
-/**
-   * Node only works in windowed mode. Emits all data upon end of window tuple
+  /**
+   * Emits range for each key. If no data is received, no emit is done
    */
   @Override
   public void endWindow()
   {
-    HashMap<K,ArrayList<V>> tuples = new HashMap<K,ArrayList<V>>(1);
-    for (Map.Entry<K,V> e: high.entrySet()) {
+    HashMap<K, ArrayList<V>> tuples = new HashMap<K, ArrayList<V>>(1);
+    for (Map.Entry<K, V> e: high.entrySet()) {
       ArrayList alist = new ArrayList();
       alist.add(e.getValue());
       alist.add(low.get(e.getKey())); // cannot be null
@@ -100,4 +106,3 @@ public class Range<K, V extends Number> extends BaseOperator
     }
   }
 }
-

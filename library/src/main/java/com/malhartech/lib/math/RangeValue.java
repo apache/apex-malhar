@@ -36,6 +36,9 @@ public class RangeValue<V extends Number> extends BaseNumberOperator<V>
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<V> data = new DefaultInputPort<V>(this)
   {
+    /**
+     * Process each tuple to compute new high and low
+     */
     @Override
     public void process(V tuple)
     {
@@ -60,6 +63,10 @@ public class RangeValue<V extends Number> extends BaseNumberOperator<V>
   MutableDouble high = null;
   MutableDouble low = null;
 
+  /**
+   * Clears the values
+   * @param windowId
+   */
   @Override
   public void beginWindow(long windowId)
   {
@@ -68,7 +75,7 @@ public class RangeValue<V extends Number> extends BaseNumberOperator<V>
   }
 
   /**
-   * Node only works in windowed mode. Emits all data upon end of window tuple
+   * Emits the range. If no tuple was received in the window, no emit is done
    */
   @Override
   public void endWindow()
