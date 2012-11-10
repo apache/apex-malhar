@@ -14,6 +14,7 @@ import com.malhartech.api.DAG;
 import com.malhartech.api.Operator.InputPort;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.lib.io.ConsoleOutputOperator;
+import com.malhartech.lib.io.HdfsOutputOperator;
 import com.malhartech.lib.io.HttpOutputOperator;
 import com.malhartech.lib.math.Margin;
 import com.malhartech.lib.math.Quotient;
@@ -35,6 +36,8 @@ public class ScaledApplication implements ApplicationFactory
   public static final String P_generatorVTuplesBlast = ScaledApplication.class.getName() + ".generatorVTuplesBlast";
   public static final String P_generatorMaxWindowsCount = ScaledApplication.class.getName() + ".generatorMaxWindowsCount";
   public static final String P_allInline = ScaledApplication.class.getName() + ".allInline";
+  public static final String P_enableHdfs = Application.class.getName() + ".enableHdfs";
+
   // adjust these depending on execution mode (junit, cli-local, cluster)
   private int generatorVTuplesBlast = 1000;
   private int generatorMaxWindowsCount = 100;
@@ -199,7 +202,6 @@ public class ScaledApplication implements ApplicationFactory
   @Override
   public DAG getApplication(Configuration conf)
   {
-
     configure(conf);
     DAG dag = new DAG(conf);
 
@@ -209,34 +211,27 @@ public class ScaledApplication implements ApplicationFactory
     StreamMerger5<HashMap<String, Integer>> clickAggrCount10 = getStreamMerger10IntegerOperator("clickaggregatecount", dag);
 
     for (int i = 1; i <= numGenerators; i++) {
-      String viewgenstr = String.format("%s%d", "viewGen", i);
-      String adviewstr = String.format("%s%d", "adviews", i);
-      String insertclicksstr = String.format("%s%d", "insertclicks", i);
-      String viewAggrstr = String.format("%s%d", "viewAggr", i);
-      String clickAggrstr = String.format("%s%d", "clickAggr", i);
+      EventGenerator viewGen = getPageViewGenOperator("viewGen"+i, dag);
+      EventClassifier adviews = getAdViewsStampOperator("adviews"+i, dag);
+      FilteredEventClassifier<Double> insertclicks = getInsertClicksOperator("insertclicks"+i, dag);
+      Sum<String, Double> viewAggregate = getSumOperator("viewAggr"+i, dag);
+      Sum<String, Double> clickAggregate = getSumOperator("clickAggr"+i, dag);
 
-      String viewsstreamstr = String.format("%s%d", "views", i);
-      String viewsaggregatesrteamstr = String.format("%s%d", "viewsaggregate", i);
-      String clicksaggregatestreamstr = String.format("%s%d", "clicksaggregate", i);
-      String viewaggrsumstreamstr = String.format("%s%d", "viewsaggrsum", i);
-      String clickaggrsumstreamstr = String.format("%s%d", "clicksaggrsum", i);
-      String viewaggrcountstreamstr = String.format("%s%d", "viewsaggrcount", i);
-      String clickaggrcountstreamstr = String.format("%s%d", "clicksaggrcount", i);
+      dag.addStream("views"+i, viewGen.hash_data, adviews.event).setInline(true);
+      DAG.StreamDecl viewsAggStream = dag.addStream("viewsaggregate"+i, adviews.data, insertclicks.data, viewAggregate.data).setInline(true);
 
-      EventGenerator viewGen = getPageViewGenOperator(viewgenstr, dag);
-      EventClassifier adviews = getAdViewsStampOperator(adviewstr, dag);
-      FilteredEventClassifier<Double> insertclicks = getInsertClicksOperator(insertclicksstr, dag);
-      Sum<String, Double> viewAggregate = getSumOperator(viewAggrstr, dag);
-      Sum<String, Double> clickAggregate = getSumOperator(clickAggrstr, dag);
+      if (conf.getBoolean(P_enableHdfs, false)) {
+        HdfsOutputOperator<HashMap<String, Double>> viewsToHdfs = dag.addOperator("viewsToHdfs"+i, new HdfsOutputOperator<HashMap<String, Double>>());
+        viewsToHdfs.setAppend(false);
+        viewsToHdfs.setFilePath("file:///tmp/adsdemo/views-%(operatorId)-part%(partIndex)");
+        viewsAggStream.addSink(viewsToHdfs.input);
+      }
 
-      dag.addStream(viewsstreamstr, viewGen.hash_data, adviews.event).setInline(true);
-      dag.addStream(viewsaggregatesrteamstr, adviews.data, insertclicks.data, viewAggregate.data).setInline(true);
-      dag.addStream(clicksaggregatestreamstr, insertclicks.filter, clickAggregate.data).setInline(true);
-
-      dag.addStream(viewaggrsumstreamstr, viewAggregate.sum, viewAggrSum10.getInputPort(i));
-      dag.addStream(clickaggrsumstreamstr, clickAggregate.sum, clickAggrSum10.getInputPort(i));
-      dag.addStream(viewaggrcountstreamstr, viewAggregate.count, viewAggrCount10.getInputPort(i));
-      dag.addStream(clickaggrcountstreamstr, clickAggregate.count, clickAggrCount10.getInputPort(i));
+      dag.addStream("clicksaggregate"+i, insertclicks.filter, clickAggregate.data).setInline(true);
+      dag.addStream("viewsaggrsum"+i, viewAggregate.sum, viewAggrSum10.getInputPort(i));
+      dag.addStream("clicksaggrsum"+i, clickAggregate.sum, clickAggrSum10.getInputPort(i));
+      dag.addStream("viewsaggrcount"+i, viewAggregate.count, viewAggrCount10.getInputPort(i));
+      dag.addStream("clicksaggrcount"+i, clickAggregate.count, clickAggrCount10.getInputPort(i));
     }
 
     Quotient<String, Integer> ctr = getQuotientOperator("ctr", dag);
