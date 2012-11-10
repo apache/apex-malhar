@@ -36,7 +36,7 @@ public class ScaledApplication implements ApplicationFactory
   public static final String P_generatorVTuplesBlast = ScaledApplication.class.getName() + ".generatorVTuplesBlast";
   public static final String P_generatorMaxWindowsCount = ScaledApplication.class.getName() + ".generatorMaxWindowsCount";
   public static final String P_allInline = ScaledApplication.class.getName() + ".allInline";
-  public static final String P_enableHdfs = Application.class.getName() + ".enableHdfs";
+  public static final String P_enableHdfs = ScaledApplication.class.getName() + ".enableHdfs";
 
   // adjust these depending on execution mode (junit, cli-local, cluster)
   private int generatorVTuplesBlast = 1000;
