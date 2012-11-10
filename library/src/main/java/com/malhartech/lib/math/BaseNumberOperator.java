@@ -4,9 +4,8 @@
  */
 package com.malhartech.lib.math;
 
-import javax.validation.constraints.NotNull;
-
 import com.malhartech.api.BaseOperator;
+import javax.validation.constraints.NotNull;
 
 /**
  *
@@ -15,39 +14,75 @@ import com.malhartech.api.BaseOperator;
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * Over >500 million tuples/sec as all tuples are absorbed, and only one goes out at end of window<br>
  * <br>
+ *
  * @author amol
  */
 public class BaseNumberOperator<V extends Number> extends BaseOperator
 {
-  @NotNull
-  private Class <? extends Number> type = Double.class;
-
-  public void setType(Class <V> type)
+  public enum V_TYPE
   {
-    this.type = type;
+    DOUBLE, INTEGER, FLOAT, LONG, SHORT, UNKNOWN
+  };
+  @NotNull
+  V_TYPE type = V_TYPE.DOUBLE;
+
+  /**
+   * This call ensures that type enum is set at setup time. At run time a switch statement suffices
+   * If you derive your
+   * @param type
+   */
+
+  public void setType(Class<V> ctype)
+  {
+    if (ctype == Double.class) {
+      type = V_TYPE.DOUBLE;
+    }
+    else if (ctype == Integer.class) {
+      type = V_TYPE.INTEGER;
+    }
+    else if (ctype == Float.class) {
+      type = V_TYPE.FLOAT;
+    }
+    else if (ctype == Long.class) {
+      type = V_TYPE.LONG;
+    }
+    else if (ctype == Short.class) {
+      type = V_TYPE.SHORT;
+    }
+    else {
+      type = V_TYPE.UNKNOWN;
+    }
   }
 
+  /**
+   * This is a constructor provided to clone Number. Since V is instantiation time and not known during module creation, a copy
+   * is needed. Currently only the following are supported: Double, Integer, Float, Long, and Short. If you derive your own class from Number
+   * then you need to override getValue to help make a correct copy.
+   * @param num
+   * @return
+   */
   public V getValue(Number num)
   {
     Number val;
-    Double d = new Double(num.doubleValue());
-    if (type == Double.class) {
-      val = d;
-    }
-    else if (type == Integer.class) {
-      val = d.intValue();
-    }
-    else if (type == Float.class) {
-      val = d.floatValue();
-    }
-    else if (type == Long.class) {
-      val = d.longValue();
-    }
-    else if (type == Short.class) {
-      val = d.shortValue();
-    }
-    else {
-      val = d;
+    switch (type) {
+      case DOUBLE:
+        val = new Double(num.doubleValue());
+        break;
+      case INTEGER:
+        val = new Integer(num.intValue());
+        break;
+      case FLOAT:
+        val = new Float(num.floatValue());
+        break;
+      case LONG:
+        val = new Long(num.longValue());
+        break;
+      case SHORT:
+        val = new Short(num.shortValue());
+        break;
+      default:
+        val = new Double(num.doubleValue());
+        break;
     }
     return (V)val;
   }

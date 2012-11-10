@@ -44,6 +44,9 @@ public class Margin<K, V extends Number> extends BaseNumberOperator<V>
   @InputPortFieldAnnotation(name = "numerator")
   public final transient DefaultInputPort<HashMap<K, V>> numerator = new DefaultInputPort<HashMap<K, V>>(this)
   {
+    /**
+     * Adds tuple to the numerator hash
+     */
     @Override
     public void process(HashMap<K, V> tuple)
     {
@@ -53,6 +56,9 @@ public class Margin<K, V extends Number> extends BaseNumberOperator<V>
   @InputPortFieldAnnotation(name = "denominator")
   public final transient DefaultInputPort<HashMap<K, V>> denominator = new DefaultInputPort<HashMap<K, V>>(this)
   {
+    /**
+     * Adds tuple to the denominator hash
+     */
     @Override
     public void process(HashMap<K, V> tuple)
     {
@@ -60,6 +66,11 @@ public class Margin<K, V extends Number> extends BaseNumberOperator<V>
     }
   };
 
+  /**
+   * Adds the value for each key.
+   * @param tuple
+   * @param map
+   */
   public void addTuple(HashMap<K, V> tuple, HashMap<K, MutableDouble> map)
   {
     for (Map.Entry<K, V> e: tuple.entrySet()) {
@@ -77,11 +88,20 @@ public class Margin<K, V extends Number> extends BaseNumberOperator<V>
   HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();
   boolean percent = false;
 
+  public boolean getPercent()
+  {
+    return percent;
+  }
+
   public void setPercent(boolean val)
   {
     percent = val;
   }
 
+  /**
+   * Clears the hash for a fresh window start
+   * @param windowId
+   */
   @Override
   public void beginWindow(long windowId)
   {
@@ -89,6 +109,10 @@ public class Margin<K, V extends Number> extends BaseNumberOperator<V>
     denominators.clear();
   }
 
+  /**
+   * Generates tuples for each key and emits them. Only keys that are in the denominator are iterated on
+   * If the key is only in the numerator, it gets ignored (cannot do divide by 0)
+   */
   @Override
   public void endWindow()
   {

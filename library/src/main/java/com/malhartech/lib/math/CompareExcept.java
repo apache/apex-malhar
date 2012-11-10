@@ -47,6 +47,10 @@ public class CompareExcept<K, V extends Number> extends Match<K, V>
   @OutputPortFieldAnnotation(name = "expect", optional=true)
   public final transient DefaultOutputPort<HashMap<K, V>> except = new DefaultOutputPort<HashMap<K, V>>(this);
 
+  /**
+   * Emits if compare port is connected
+   * @param tuple
+   */
   @Override
   public void tupleMatched(HashMap<K, V> tuple)
   {
@@ -55,6 +59,10 @@ public class CompareExcept<K, V extends Number> extends Match<K, V>
     }
   }
 
+  /**
+   * Emits if except port is connected
+   * @param tuple
+   */
   @Override
   public void tupleNotMatched(HashMap<K, V> tuple)
   {

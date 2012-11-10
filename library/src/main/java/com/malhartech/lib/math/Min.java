@@ -36,6 +36,9 @@ public class Min<K, V extends Number> extends BaseNumberOperator<V>
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
+    /**
+     * For each key, updates the hash if the new value is a new min
+     */
     @Override
     public void process(HashMap<K, V> tuple)
     {
@@ -58,6 +61,10 @@ public class Min<K, V extends Number> extends BaseNumberOperator<V>
   public final transient DefaultOutputPort<HashMap<K,V>> min = new DefaultOutputPort<HashMap<K,V>>(this);
   HashMap<K,MutableDouble> low = new HashMap<K,MutableDouble>();
 
+  /**
+   * Clears the cache/hash
+   * @param windowId
+   */
   @Override
   public void beginWindow(long windowId)
   {
@@ -65,7 +72,8 @@ public class Min<K, V extends Number> extends BaseNumberOperator<V>
   }
 
   /**
-   * Node only works in windowed mode. Emits all data upon end of window tuple
+   * Node only works in windowed mode. Emits all key,minval pairs
+   * Override getValue() if you have your own class extended from Number
    */
   @Override
   public void endWindow()

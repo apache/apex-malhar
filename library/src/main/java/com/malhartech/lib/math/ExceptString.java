@@ -44,11 +44,19 @@ public class ExceptString<K> extends MatchString<K,String>
   @OutputPortFieldAnnotation(name = "except")
   public final transient DefaultOutputPort<HashMap<K,String>> except = new DefaultOutputPort<HashMap<K,String>>(this);
 
+  /**
+   * Does nothing. Overrides base as call super.tupleMatched() would emit the tuple
+   * @param tuple
+   */
   @Override
   public void tupleMatched(HashMap<K,String> tuple)
   {
   }
 
+  /**
+   * Emits the tuple. Calls cloneTuple to get a copy, allowing users to override in case objects are mutable
+   * @param tuple
+   */
   @Override
   public void tupleNotMatched(HashMap<K,String> tuple)
   {

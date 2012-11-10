@@ -12,6 +12,7 @@ import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.MutableDouble;
 import java.util.HashMap;
 import java.util.Map;
+import javax.validation.constraints.Min;
 
 /**
  *
@@ -44,6 +45,9 @@ public class Quotient<K, V extends Number> extends BaseOperator
   @InputPortFieldAnnotation(name = "numerator")
   public final transient DefaultInputPort<HashMap<K, V>> numerator = new DefaultInputPort<HashMap<K, V>>(this)
   {
+    /**
+     * Added tuple to the numerator hash
+     */
     @Override
     public void process(HashMap<K, V> tuple)
     {
@@ -53,6 +57,9 @@ public class Quotient<K, V extends Number> extends BaseOperator
   @InputPortFieldAnnotation(name = "denominator")
   public final transient DefaultInputPort<HashMap<K, V>> denominator = new DefaultInputPort<HashMap<K, V>>(this)
   {
+    /**
+     * Added tuple to the denominator hash
+     */
     @Override
     public void process(HashMap<K, V> tuple)
     {
@@ -85,6 +92,17 @@ public class Quotient<K, V extends Number> extends BaseOperator
 
   boolean countkey = false;
   int mult_by = 1;
+
+  public int getMult_by()
+  {
+    return mult_by;
+  }
+
+  public boolean getCountkey()
+  {
+    return countkey;
+  }
+
 
   public void setMult_by(int i)
   {

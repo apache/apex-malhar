@@ -36,6 +36,9 @@ public class MinValue<V extends Number> extends BaseNumberOperator<V>
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<V> data = new DefaultInputPort<V>(this)
   {
+    /**
+     * Each tuple is compared to the min and a new min (if so) is stored
+     */
     @Override
     public void process(V tuple)
     {
@@ -54,6 +57,10 @@ public class MinValue<V extends Number> extends BaseNumberOperator<V>
   double low;
   boolean flag = false;
 
+  /**
+   * Old max is reset
+   * @param windowId
+   */
   @Override
   public void beginWindow(long windowId)
   {
@@ -61,7 +68,7 @@ public class MinValue<V extends Number> extends BaseNumberOperator<V>
   }
 
   /**
-   * Node only works in windowed mode. Emits all data upon end of window tuple
+   * Node only works in windowed mode. Emits the max. Override getValue if tuple type is mutable
    */
   @Override
   public void endWindow()
