@@ -46,6 +46,10 @@ public class FirstMatch<K, V extends Number> extends BaseMatchOperator<K,V>
   @InputPortFieldAnnotation(name="data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
+    /**
+     * Checks if required key,val pair exists in the HashMap. If so tuple is emitted, and emitted flag is set
+     * to true
+     */
     @Override
     public void process(HashMap<K, V> tuple)
     {
@@ -67,6 +71,10 @@ public class FirstMatch<K, V extends Number> extends BaseMatchOperator<K,V>
   public final transient DefaultOutputPort<HashMap<K, V>> first = new DefaultOutputPort<HashMap<K, V>>(this);
   boolean emitted = false;
 
+  /**
+   * Resets emitted flag to false
+   * @param windowId
+   */
   @Override
   public void beginWindow(long windowId)
   {

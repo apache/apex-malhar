@@ -44,6 +44,10 @@ public class FirstTillMatchString<K> extends BaseMatchOperator<K,String>
   @InputPortFieldAnnotation(name="data")
   public final transient DefaultInputPort<HashMap<K, String>> data = new DefaultInputPort<HashMap<K, String>>(this)
   {
+    /**
+     * Compares the key,val pair with the match condition. Till a match is found tuples are emitted.
+     * Once a match is found, state is set to emitted, and no more tuples are compared (no more emits).
+     */
     @Override
     public void process(HashMap<K, String> tuple)
     {
@@ -77,6 +81,10 @@ public class FirstTillMatchString<K> extends BaseMatchOperator<K,String>
   public final transient DefaultOutputPort<HashMap<K, String>> first = new DefaultOutputPort<HashMap<K, String>>(this);
   boolean emitted = false;
 
+  /**
+   * Emitted set is reset to false
+   * @param windowId
+   */
   @Override
   public void beginWindow(long windowId)
   {

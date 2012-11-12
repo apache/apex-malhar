@@ -9,11 +9,14 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.MutableInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.PriorityQueue;
+import javax.validation.constraints.Min;
 
 /**
- * <b>Not done yet</b>. Takes a stream of key value pairs via input port "data". The incoming is merged into already existing sorted list.
+ * <b>Not done yet optimally</b>. Takes a stream of key value pairs via input port "data". The incoming tuple is merged into already existing sorted list.
  * At the end of the window the entire sorted list is emitted on output port "sort"<p>
  * At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
  * <br>
@@ -29,57 +32,78 @@ import java.util.PriorityQueue;
  * Run time checks are:<br>
  * None<br>
  * <br>
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * Operator can process > 3Million/tuples with over 1 million unique immutable tuples/sec, and take in a lot more incoming tuples. All tuples
+ * are emitted per window. The above benchmark would change if N is larger<br>
+ * <br>
  *
  * @author amol<br>
  *
  */
-public class InsertSort<K> extends BaseOperator
+//
+// TODO: Override PriorityQueue and rewrite addAll to insert with location
+//
+public class InsertSort<K> extends AbstractBaseSortOperator<K>
 {
+  /**
+   * Input port that takes in one tuple at a time
+   */
+  @InputPortFieldAnnotation(name = "data", optional = true)
+  public final transient DefaultInputPort<K> data = new DefaultInputPort<K>(this)
+  {
+    /**
+     * Adds tuple to sorted queue
+     */
+    @Override
+    public void process(K tuple)
+    {
+      processTuple(tuple);
+    }
+  };
   /**
    * Input port that takes in an array of Objects to insert
    */
-
-  @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<ArrayList<K>> data = new DefaultInputPort<ArrayList<K>>(this)
+  @InputPortFieldAnnotation(name = "datalist", optional = true)
+  public final transient DefaultInputPort<ArrayList<K>> datalist = new DefaultInputPort<ArrayList<K>>(this)
   {
+    /**
+     * Adds tuples to sorted queue
+     */
     @Override
     public void process(ArrayList<K> tuple)
     {
-      // Need to optimzie by insert sorting into an ArrayList
-      // and then just emitting the ArrayList as is
-      for (K o: tuple) {
-        pqueue.add(o);
-      }
+      processTuple(tuple);
     }
   };
 
-  @OutputPortFieldAnnotation(name = "sort")
+  @OutputPortFieldAnnotation(name = "sort", optional = true)
   public final transient DefaultOutputPort<ArrayList<K>> sort = new DefaultOutputPort<ArrayList<K>>(this);
-  protected PriorityQueue<K> pqueue = new PriorityQueue<K>();
+  @OutputPortFieldAnnotation(name = "sorthash", optional = true)
+  public final transient DefaultOutputPort<HashMap<K, Integer>> sorthash = new DefaultOutputPort<HashMap<K, Integer>>(this);
 
-  /**
-   * Cleanup at the start of window
-   */
+
+
   @Override
-  public void beginWindow(long windowId)
+  public void emitToList(ArrayList<K> list)
   {
-    pqueue.clear();
+    sort.emit(list);
   }
 
-  /**
-   * Emit sorted tuple at end of window
-   */
   @Override
-  public void endWindow()
+  public void emitToHash(HashMap<K,Integer> map)
   {
-    if (pqueue.isEmpty()) {
-      return;
-    }
-    ArrayList tuple = new ArrayList();
-    Object o;
-    while ((o = pqueue.poll()) != null) {
-      tuple.add(o);
-    }
-    sort.emit(tuple);
+    sorthash.emit(map);
+  }
+
+  @Override
+  public boolean doEmitList()
+  {
+    return sort.isConnected();
+  }
+
+  @Override
+  public boolean doEmitHash()
+  {
+    return sorthash.isConnected();
   }
 }

@@ -44,6 +44,9 @@ public class MatchAny<K, V extends Number> extends BaseMatchOperator<K,V>
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
+    /**
+     * Emits true on first matching tuple
+     */
     @Override
     public void process(HashMap<K, V> tuple)
     {
@@ -61,6 +64,10 @@ public class MatchAny<K, V extends Number> extends BaseMatchOperator<K,V>
   public final transient DefaultOutputPort<Boolean> any = new DefaultOutputPort<Boolean>(this);
   boolean result = false;
 
+  /**
+   * Resets match flag
+   * @param windowId
+   */
   @Override
   public void beginWindow(long windowId)
   {

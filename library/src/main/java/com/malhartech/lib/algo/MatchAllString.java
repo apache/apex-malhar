@@ -37,13 +37,17 @@ import java.util.HashMap;
  * Operator processes >between 12 to 500 million tuples/sec depending on all match (lower benchmark) and no match (higher benchmark.
  * The processing is high as it only emits one tuple per window, and is not bound by outbound throughput<br>
  * <br>
+ *
  * @author amol
  */
-public class MatchAllString<K> extends BaseMatchOperator<K,String>
+public class MatchAllString<K> extends BaseMatchOperator<K, String>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, String>> data = new DefaultInputPort<HashMap<K, String>>(this)
   {
+    /**
+     * Sets match flag to false for on first non matching tuple
+     */
     @Override
     public void process(HashMap<K, String> tuple)
     {
@@ -70,12 +74,19 @@ public class MatchAllString<K> extends BaseMatchOperator<K,String>
   public final transient DefaultOutputPort<Boolean> all = new DefaultOutputPort<Boolean>(this);
   boolean result = true;
 
+  /**
+   * Resets the match flag
+   * @param windowId
+   */
   @Override
   public void beginWindow(long windowId)
   {
     result = true;
   }
 
+  /**
+   * Emits the match flag
+   */
   @Override
   public void endWindow()
   {

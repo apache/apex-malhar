@@ -44,6 +44,9 @@ public class LeastFrequentKeyInMap<K, V> extends BaseFrequentKey<K>
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
+    /**
+     * Calls super.processTuple(tuple) for each key in the HashMap
+     */
     @Override
     public void process(HashMap<K, V> tuple)
     {
@@ -52,23 +55,37 @@ public class LeastFrequentKeyInMap<K, V> extends BaseFrequentKey<K>
       }
     }
   };
-  @OutputPortFieldAnnotation(name = "least")
+  @OutputPortFieldAnnotation(name = "least", optional=true)
   public final transient DefaultOutputPort<HashMap<K, Integer>> least = new DefaultOutputPort<HashMap<K, Integer>>(this);
-  @OutputPortFieldAnnotation(name = "list")
+  @OutputPortFieldAnnotation(name = "list", optional=true)
   public final transient DefaultOutputPort<ArrayList<HashMap<K, Integer>>> list = new DefaultOutputPort<ArrayList<HashMap<K, Integer>>>(this);
 
+  /**
+   * Emits tuple on port "least"
+   * @param tuple
+   */
   @Override
   public void emitTuple(HashMap<K, Integer> tuple)
   {
     least.emit(tuple);
   }
 
+  /**
+   * Emits tuple on port "list"
+   * @param tlist
+   */
   @Override
   public void emitList(ArrayList<HashMap<K, Integer>> tlist)
   {
     list.emit(tlist);
   }
 
+  /**
+   * returns val1 < val2
+   * @param val1
+   * @param val2
+   * @return
+   */
   @Override
   public boolean compareCount(int val1, int val2)
   {

@@ -40,11 +40,14 @@ import java.util.HashMap;
  *
  * @author amol
  */
-public class LastMatchString<K> extends BaseMatchOperator<K,String>
+public class LastMatchString<K> extends BaseMatchOperator<K, String>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, String>> data = new DefaultInputPort<HashMap<K, String>>(this)
   {
+    /**
+     * Processes tuples and keeps a copy of last matched tuple
+     */
     @Override
     public void process(HashMap<K, String> tuple)
     {
@@ -67,17 +70,24 @@ public class LastMatchString<K> extends BaseMatchOperator<K,String>
       }
     }
   };
-
   @OutputPortFieldAnnotation(name = "last")
   public final transient DefaultOutputPort<HashMap<K, String>> last = new DefaultOutputPort<HashMap<K, String>>(this);
   HashMap<K, String> ltuple = null;
 
+  
+  /**
+   * Clears cache/hash
+   * @param windowId
+   */
   @Override
   public void beginWindow(long windowId)
   {
     ltuple = null;
   }
 
+  /**
+   * Emits last matching tuple
+   */
   @Override
   public void endWindow()
   {

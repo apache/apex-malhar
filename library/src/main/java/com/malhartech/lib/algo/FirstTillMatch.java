@@ -36,6 +36,7 @@ import java.util.HashMap;
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * Operator can process > 5 million unique (k,v immutable pairs) tuples/sec, and take in a lot more incoming tuples. The operator emits tuples per key per window
  * till a match is found. So the benchmarks and the outbound I/O would change in runtime<br>
+ * <br>
  * @author amol
  */
 public class FirstTillMatch<K, V extends Number> extends BaseMatchOperator<K,V>
@@ -43,6 +44,10 @@ public class FirstTillMatch<K, V extends Number> extends BaseMatchOperator<K,V>
   @InputPortFieldAnnotation(name="data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
+    /**
+     * Compares the key,val pair with the match condition. Till a match is found tuples are emitted.
+     * Once a match is found, state is set to emitted, and no more tuples are compared (no more emits).
+     */
     @Override
     public void process(HashMap<K, V> tuple)
     {
@@ -66,6 +71,10 @@ public class FirstTillMatch<K, V extends Number> extends BaseMatchOperator<K,V>
   public final transient DefaultOutputPort<HashMap<K, V>> first = new DefaultOutputPort<HashMap<K, V>>(this);
   boolean emitted = false;
 
+  /**
+   * Emitted set is reset to false
+   * @param windowId
+   */
   @Override
   public void beginWindow(long windowId)
   {

@@ -80,6 +80,11 @@ public class InvertIndexArray<K, V> extends BaseKeyValueOperator<K,V>
     list.add(key);
   }
 
+
+  /**
+   * Clears cache/hash
+   * @param windowId
+   */
   @Override
   public void beginWindow(long windowId)
   {

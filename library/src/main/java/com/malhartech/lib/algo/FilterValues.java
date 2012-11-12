@@ -35,6 +35,7 @@ import java.util.HashMap;
  * Operator can emit about 25 million unique V (immutable) tuples/sec, and take in a lot more incoming tuples. The performance is directly proportional to number
  * of objects emitted. If the Object is mutable, then the cost of cloning has to factored in<br>
  * <br>
+ *
  * @author amol<br>
  *
  */
@@ -43,6 +44,10 @@ public class FilterValues<T> extends BaseOperator
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<T> data = new DefaultInputPort<T>(this)
   {
+    /**
+     * Processes tuple to see if it matches the filter. Emits if at least one key makes the cut
+     * By setting inverse as true, match is changed to un-matched
+     */
     @Override
     public void process(T tuple)
     {
@@ -52,7 +57,6 @@ public class FilterValues<T> extends BaseOperator
       }
     }
   };
-
   @OutputPortFieldAnnotation(name = "filter")
   public final transient DefaultOutputPort<T> filter = new DefaultOutputPort<T>(this);
   HashMap<T, Object> values = new HashMap<T, Object>();
@@ -63,6 +67,11 @@ public class FilterValues<T> extends BaseOperator
     inverse = val;
   }
 
+  /**
+   * Adds a value to the filter list
+   *
+   * @param str
+   */
   public void setValue(T val)
   {
     if (val != null) {
@@ -70,18 +79,32 @@ public class FilterValues<T> extends BaseOperator
     }
   }
 
+  /**
+   * Adds the list of values to the filter list
+   *
+   * @param list
+   */
   public void setValues(ArrayList<T> vals)
   {
-    for (T e : vals) {
+    for (T e: vals) {
       values.put(e, null);
     }
   }
 
+  /**
+   * Clears the filter
+   */
   public void clearValues()
   {
     values.clear();
   }
 
+  /**
+   * Clones V object. By default assumes immutable object (i.e. a copy is not made). If object is mutable, override this method
+   *
+   * @param v
+   * @return
+   */
   public T cloneValue(T val)
   {
     return val;

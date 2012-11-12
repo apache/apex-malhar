@@ -45,6 +45,10 @@ public class FilterKeys<K,V> extends BaseKeyOperator<K>
   @InputPortFieldAnnotation(name="data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
+    /**
+     * Processes incoming tuples one key,val at a time. Emits if at least one key makes the cut
+     * By setting inverse as true, match is changed to un-matched
+     */
     @Override
     public void process(HashMap<K, V> tuple)
     {
@@ -70,28 +74,48 @@ public class FilterKeys<K,V> extends BaseKeyOperator<K>
   HashMap<K, V> keys = new HashMap<K, V>();
   boolean inverse = false;
 
+  /**
+   * True means match; False means unmatched
+   * @param val
+   */
   public void setInverse(boolean val) {
     inverse = val;
   }
 
+  /**
+   * Adds a key to the filter list
+   * @param str
+   */
   public void setKey(K str) {
       keys.put(str, null);
   }
 
+  /**
+   * Adds the list of keys to the filter list
+   * @param list
+   */
   public void setKeys(ArrayList<K> list)
   {
     for (K e : list) {
       keys.put(e,null);
     }
   }
+
+  /*
+   * Clears the filter list
+   */
   public void clearKeys()
   {
     keys.clear();
   }
 
+  /**
+   * Clones V object. By default assumes immutable object (i.e. a copy is not made). If object is mutable, override this method
+   * @param v
+   * @return
+   */
   public V cloneValue(V v)
   {
     return v;
   }
-
 }

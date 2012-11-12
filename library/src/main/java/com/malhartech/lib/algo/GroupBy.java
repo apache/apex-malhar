@@ -42,6 +42,9 @@ public class GroupBy<K, V> extends BaseOperator
   @InputPortFieldAnnotation(name = "data1")
   public final transient DefaultInputPort<HashMap<K, V>> data1 = new DefaultInputPort<HashMap<K, V>>(this)
   {
+    /**
+     * Checks if key exists. If so emits all current combinations with matching tuples received on port "data2"
+     */
     @Override
     public void process(HashMap<K, V> tuple)
     {
@@ -56,6 +59,9 @@ public class GroupBy<K, V> extends BaseOperator
   @InputPortFieldAnnotation(name = "data2")
   public final transient DefaultInputPort<HashMap<K, V>> data2 = new DefaultInputPort<HashMap<K, V>>(this)
   {
+    /**
+     * Checks if key exists. If so emits all current combinations with matching tuples received on port "data1"
+     */
     @Override
     public void process(HashMap<K, V> tuple)
     {
@@ -70,6 +76,12 @@ public class GroupBy<K, V> extends BaseOperator
   @OutputPortFieldAnnotation(name = "groupby")
   public final transient DefaultOutputPort<HashMap<K, V>> groupby = new DefaultOutputPort<HashMap<K, V>>(this);
 
+  /**
+   * Adds tuples to the list associated with its port
+   * @param tuple
+   * @param map
+   * @param val
+   */
   protected void registerTuple(HashMap<K, V> tuple, HashMap<V, ArrayList<HashMap<K, V>>> map, V val)
   {
     // Construct the data (HashMap) to be inserted into sourcemap
@@ -90,11 +102,19 @@ public class GroupBy<K, V> extends BaseOperator
   HashMap<V, ArrayList<HashMap<K, V>>> map1 = new HashMap<V, ArrayList<HashMap<K, V>>>();
   HashMap<V, ArrayList<HashMap<K, V>>> map2 = new HashMap<V, ArrayList<HashMap<K, V>>>();
 
+  /**
+   * Sets key to groupby
+   * @param str
+   */
   public void setKey(K str)
   {
     key = str;
   }
 
+  /**
+   * Clears cache/hash for both ports
+   * @param windowId
+   */
   @Override
   public void beginWindow(long windowId)
   {
@@ -102,6 +122,12 @@ public class GroupBy<K, V> extends BaseOperator
     map2.clear();
   }
 
+  /**
+   * Emits all combinations of source and matching other list
+   * @param source
+   * @param list
+   * @param val
+   */
   public void emitTuples(HashMap<K, V> source, ArrayList<HashMap<K, V>> list, V val)
   {
     if (list == null) { // The currentList does not have the value yet

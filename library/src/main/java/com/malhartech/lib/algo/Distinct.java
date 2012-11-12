@@ -44,7 +44,8 @@ public class Distinct<K,V> extends BaseOperator
   public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>(this)
   {
     /**
-     * Process HashMap<K,V> tuple on input port data
+     * Process HashMap<K,V> tuple on input port data, and emits if match not found. Updates the cache
+     * with new key,val pair
      */
     @Override
     public void process(HashMap<K,V> tuple)
@@ -69,6 +70,10 @@ public class Distinct<K,V> extends BaseOperator
   public final transient DefaultOutputPort<HashMap<K,V>> distinct = new DefaultOutputPort<HashMap<K,V>>(this);
   HashMap<K, HashMap<V, Object>> mapkeyval = new HashMap<K, HashMap<V, Object>>();
 
+  /**
+   * Clears the cache/hash
+   * @param windowId
+   */
   @Override
   public void beginWindow(long windowId)
   {

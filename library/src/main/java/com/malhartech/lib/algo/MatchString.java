@@ -90,7 +90,7 @@ public class MatchString<K, String> extends BaseMatchOperator<K,String>
   }
 
   /**
-   * Does not emit tuple, an empty call
+   * Does not emit tuple, an empty call. Sub class can override
    * @param tuple
    */
   public void tupleNotMatched(HashMap<K, String> tuple)

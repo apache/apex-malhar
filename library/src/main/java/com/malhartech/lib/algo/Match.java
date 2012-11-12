@@ -44,6 +44,9 @@ public class Match<K, V extends Number> extends BaseMatchOperator<K, V>
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
+    /**
+     * If tuple matches, tupleMatched is called, if not tupleNotMatched is called
+     */
     @Override
     public void process(HashMap<K, V> tuple)
     {
@@ -63,11 +66,19 @@ public class Match<K, V extends Number> extends BaseMatchOperator<K, V>
   @OutputPortFieldAnnotation(name = "match", optional=true)
   public final transient DefaultOutputPort<HashMap<K, V>> match = new DefaultOutputPort<HashMap<K, V>>(this);
 
+  /**
+   * Emits tuple if it. Call cloneTuple to allow users who have mutable objects to make a copy
+   * @param tuple
+   */
   public void tupleMatched(HashMap<K, V> tuple)
   {
     match.emit(cloneTuple(tuple));
   }
 
+  /**
+   * No operation is done. Sub-classes can override and customize as needed
+   * @param tuple
+   */
   public void tupleNotMatched(HashMap<K, V> tuple)
   {
   }
