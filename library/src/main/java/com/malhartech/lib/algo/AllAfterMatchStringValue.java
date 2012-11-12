@@ -35,14 +35,18 @@ import java.util.HashMap;
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * Operator processes >10 million tuples/sec. It is a clone and emit once a tuple matches<br>
- *<br>
+ * <br>
+ *
  * @author amol
  */
-public class AllAfterMatchStringValue<K> extends BaseMatchOperator<K,String>
+public class AllAfterMatchStringValue<K> extends BaseMatchOperator<K, String>
 {
-  @InputPortFieldAnnotation(name="data")
+  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, String>> data = new DefaultInputPort<HashMap<K, String>>(this)
   {
+    /**
+     * Process HashMap<K,V> and emit all tuples at and after match
+     */
     @Override
     public void process(HashMap<K, String> tuple)
     {
@@ -70,11 +74,15 @@ public class AllAfterMatchStringValue<K> extends BaseMatchOperator<K,String>
       }
     }
   };
-
-  @OutputPortFieldAnnotation(name="allafter")
+  @OutputPortFieldAnnotation(name = "allafter")
   public final transient DefaultOutputPort<HashMap<K, String>> allafter = new DefaultOutputPort<HashMap<K, String>>(this);
   boolean doemit = false;
 
+  /**
+   * Resets the matched variable
+   *
+   * @param windowId
+   */
   @Override
   public void beginWindow(long windowId)
   {

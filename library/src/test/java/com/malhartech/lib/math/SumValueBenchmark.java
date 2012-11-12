@@ -16,12 +16,14 @@ import org.slf4j.LoggerFactory;
  * Performance tests for {@link com.malhartech.lib.math.SumValue}<p>
  *
  */
-public class SumValueBenchmark {
-    private static Logger log = LoggerFactory.getLogger(SumValueBenchmark.class);
+public class SumValueBenchmark
+{
+  private static Logger log = LoggerFactory.getLogger(SumValueBenchmark.class);
 
   class TestSink implements Sink
   {
     ArrayList<Object> collectedTuples = new ArrayList<Object>();
+
     @Override
     public void process(Object payload)
     {
@@ -38,14 +40,34 @@ public class SumValueBenchmark {
    */
   @Test
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
-  public void testNodeSchemaProcessing()
+  public void testNodeProcessing()
   {
-    SumValue<Double> oper = new SumValue<Double>();
-    oper.setType(Double.class);
+    SumValue<Double> doper = new SumValue<Double>();
+    SumValue<Float> foper = new SumValue<Float>();
+    SumValue<Integer> ioper = new SumValue<Integer>();
+    SumValue<Long> loper = new SumValue<Long>();
+    SumValue<Short> soper = new SumValue<Short>();
+    doper.setType(Double.class);
+    foper.setType(Float.class);
+    ioper.setType(Integer.class);
+    loper.setType(Long.class);
+    soper.setType(Short.class);
+
+    testNodeSchemaProcessing(doper, "Double");
+    testNodeSchemaProcessing(foper, "Float");
+    testNodeSchemaProcessing(ioper, "Integer");
+    testNodeSchemaProcessing(loper, "Long");
+    testNodeSchemaProcessing(soper, "Short");
+  }
+
+  public void testNodeSchemaProcessing(SumValue oper, String debug)
+  {
     TestSink sumSink = new TestSink();
     TestSink countSink = new TestSink();
+    TestSink averageSink = new TestSink();
     oper.sum.setSink(sumSink);
     oper.count.setSink(countSink);
+    oper.average.setSink(averageSink);
 
     // Not needed, but still setup is being called as a matter of discipline
     oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
@@ -56,17 +78,17 @@ public class SumValueBenchmark {
     Double c = new Double(1.0);
 
     int numTuples = 100000000;
-    double val = 5.0;
     for (int i = 0; i < numTuples; i++) {
       oper.data.process(a);
       oper.data.process(b);
       oper.data.process(c);
-      val += 5.0;
     }
     oper.endWindow(); //
 
-    Double dval = (Double) sumSink.collectedTuples.get(0);
+    Number dval = (Number) sumSink.collectedTuples.get(0);
     Integer count = (Integer) countSink.collectedTuples.get(0);
-    log.debug(String.format("\nBenchmark total was %f, expected %f; count was %d, expected %d tuples", dval, val, count, numTuples*3));
+    Number average = (Number) averageSink.collectedTuples.get(0);
+    log.debug(String.format("\nBenchmark %d tuples of type %s: total was %f; count was %d; average was %f",
+                            numTuples * 3, debug, dval.doubleValue(), count, average.doubleValue()));
   }
 }

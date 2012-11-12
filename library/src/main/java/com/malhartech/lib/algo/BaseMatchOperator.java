@@ -49,6 +49,7 @@ public class BaseMatchOperator<K, V> extends BaseKeyOperator<K>
     this.key = key;
   }
 
+  @NotNull()
   public K getKey()
   {
     return key;
@@ -166,7 +167,11 @@ public class BaseMatchOperator<K, V> extends BaseKeyOperator<K>
     return ret;
   }
 
-  // Currently all operators that extend BaseMatchOperator have immutable Value objects
+  /**
+   * By default an immutable object is assumed. Override if V is mutable
+   * @param v
+   * @return
+   */
   public V cloneValue(V v)
   {
     return v;

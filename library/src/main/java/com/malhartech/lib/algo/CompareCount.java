@@ -47,18 +47,30 @@ public class CompareCount<K, V extends Number> extends Match<K, V>
   int tcount = 0;
   int icount = 0;
 
+  /**
+   * Increments matched tuple count
+   * @param tuple
+   */
   @Override
   public void tupleMatched(HashMap<K, V> tuple)
   {
     tcount++;
-    icount++;
   }
 
+  /**
+   * Increments not-matched tuple count
+   * @param tuple
+   */
   @Override
   public void tupleNotMatched(HashMap<K, V> tuple)
   {
+    icount++;
   }
 
+  /**
+   * Resets matched and non-matched values to 0
+   * @param windowId
+   */
   @Override
   public void beginWindow(long windowId)
   {
@@ -66,6 +78,9 @@ public class CompareCount<K, V extends Number> extends Match<K, V>
     icount = 0;
   }
 
+  /**
+   * Emits the counts
+   */
   @Override
   public void endWindow()
   {

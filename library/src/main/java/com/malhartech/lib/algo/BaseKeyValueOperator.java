@@ -12,6 +12,11 @@ package com.malhartech.lib.algo;
  */
 abstract public class BaseKeyValueOperator<K,V> extends BaseKeyOperator<K>
 {
+  /**
+   * By default an immutable object is assumed. Override if V is mutable
+   * @param v
+   * @return
+   */
   public V cloneValue(V v)
   {
     return v;

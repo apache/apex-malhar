@@ -49,19 +49,35 @@ abstract public class BaseNOperator<K, V> extends BaseKeyOperator<K>
   @Min(1)
   int n = 1;
 
+  /**
+   * Implementations should specify exactly how tuples should be processed
+   *
+   * @param tuple
+   */
   abstract public void processTuple(HashMap<K, V> tuple);
 
+  /**
+   * Sets value of N (depth)
+   * @param val
+   */
   @Min(1)
   public void setN(int val)
   {
     n = val;
   }
 
+  @Min(1)
   public int getN()
   {
     return n;
   }
 
+  /**
+   * Creates a HashMap<K,V>(1) by using cloneKey(K) and cloneValue(V)
+   *
+   * @param v
+   * @return
+   */
   public HashMap<K, V> cloneTuple(K key, V val)
   {
     HashMap<K, V> ret = new HashMap<K, V>(1);
@@ -69,6 +85,12 @@ abstract public class BaseNOperator<K, V> extends BaseKeyOperator<K>
     return ret;
   }
 
+  /**
+   * By default an immutable object is assumed. Override if V is mutable
+   *
+   * @param v
+   * @return
+   */
   public V cloneValue(V v)
   {
     return v;

@@ -41,12 +41,20 @@ public class BottomN<K, V> extends BaseNNonUniqueOperator<K,V>
   @OutputPortFieldAnnotation(name="bottom")
   public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> bottom = new DefaultOutputPort<HashMap<K, ArrayList<V>>>(this);
 
+  /**
+   * Ascending is set to false as we are looking for Bottom N
+   * @return
+   */
   @Override
   public boolean isAscending()
   {
     return false;
   }
 
+  /**
+   * Emits tuple to port "bottom"
+   * @param tuple
+   */
   @Override
   void emit(HashMap<K, ArrayList<V>> tuple)
   {

@@ -20,8 +20,16 @@ public abstract class BaseNUniqueOperator<K, V> extends BaseNOperator<K, V>
 {
   HashMap<K, TopNUniqueSort<V>> kmap = new HashMap<K, TopNUniqueSort<V>>();
 
+  /**
+   * Override to decide the direction (ascending vs descending)
+   * @return
+   */
   abstract public boolean isAscending();
 
+  /**
+   * Override to decide which port to emit to and its schema
+   * @param tuple
+   */
   abstract void emit(HashMap<K, ArrayList<V>> tuple);
 
   /**
@@ -55,6 +63,10 @@ public abstract class BaseNUniqueOperator<K, V> extends BaseNOperator<K, V>
     kmap.clear();
   }
 
+
+  /**
+   * Emits the result
+   */
   @Override
   public void endWindow()
   {

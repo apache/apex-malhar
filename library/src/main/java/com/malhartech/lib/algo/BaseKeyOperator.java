@@ -14,6 +14,11 @@ import com.malhartech.api.BaseOperator;
  */
 abstract public class BaseKeyOperator<K> extends BaseOperator
 {
+  /**
+   * Override this call in case you have mutable objects. By default the objects are assumed to be immutable
+   * @param k
+   * @return
+   */
   public K cloneKey(K k)
   {
     return k;

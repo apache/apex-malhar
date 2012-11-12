@@ -4,11 +4,6 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.annotation.InputPortFieldAnnotation;
-import com.malhartech.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.MutableInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +18,10 @@ import java.util.Map;
  */
 public abstract class BaseFrequentKey<K> extends BaseKeyOperator<K>
 {
+  /**
+   * Counts frequency of a key
+   * @param tuple
+   */
   public void processTuple(K tuple)
   {
     MutableInteger count = keycount.get(tuple);
@@ -34,16 +33,37 @@ public abstract class BaseFrequentKey<K> extends BaseKeyOperator<K>
   }
   HashMap<K, MutableInteger> keycount = new HashMap<K, MutableInteger>();
 
+  /**
+   * override emitTuple to decide the port to emit to
+   * @param tuple
+   */
   abstract public void emitTuple(HashMap<K,Integer> tuple);
+  /**
+   * Overide emitList to specify the emit schema
+   * @param tlist
+   */
   abstract public void emitList(ArrayList<HashMap<K, Integer>> tlist);
+  /**
+   * Override compareCount to decide most vs least
+   * @param val1
+   * @param val2
+   * @return
+   */
   abstract public boolean compareCount(int val1, int val2);
 
+  /**
+   * Clears the cache/hash
+   * @param windowId
+   */
   @Override
   public void beginWindow(long windowId)
   {
     keycount.clear();
   }
 
+  /**
+   * Emits the result.
+   */
   @Override
   public void endWindow()
   {

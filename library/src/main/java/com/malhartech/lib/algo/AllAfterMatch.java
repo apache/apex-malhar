@@ -43,6 +43,9 @@ public class AllAfterMatch<K, V extends Number> extends BaseMatchOperator<K,V>
   @InputPortFieldAnnotation(name="data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
+    /**
+     * Process HashMap<K,V> and emit all tuples at and after match
+     */
     @Override
     public void process(HashMap<K, V> tuple)
     {
@@ -65,6 +68,10 @@ public class AllAfterMatch<K, V extends Number> extends BaseMatchOperator<K,V>
   public final transient DefaultOutputPort<HashMap<K, V>> allafter = new DefaultOutputPort<HashMap<K, V>>(this);
   boolean doemit = false;
 
+  /**
+   * Resets the matched variable
+   * @param windowId
+   */
   @Override
   public void beginWindow(long windowId)
   {

@@ -21,6 +21,7 @@ import java.util.Map;
  * <br>
  * Ports:<br>
  * <b>data</b>: Input port, expects HashMap<K, V><br>
+ *
  * @author amol
  */
 public abstract class BaseFrequentKeyValue<K, V> extends BaseKeyValueOperator<K, V>
@@ -28,6 +29,9 @@ public abstract class BaseFrequentKeyValue<K, V> extends BaseKeyValueOperator<K,
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
+    /**
+     * Process every tuple to count occurrences of key,val pairs
+     */
     @Override
     public void process(HashMap<K, V> tuple)
     {
@@ -48,16 +52,36 @@ public abstract class BaseFrequentKeyValue<K, V> extends BaseKeyValueOperator<K,
   };
   HashMap<K, HashMap<V, MutableInteger>> keyvals = new HashMap<K, HashMap<V, MutableInteger>>();
 
+  /**
+   * Clears the cache/hash
+   *
+   * @param windowId
+   */
   @Override
   public void beginWindow(long windowId)
   {
     keyvals.clear();
   }
 
+  /**
+   * Override compareCount to decide most vs least
+   *
+   * @param val1
+   * @param val2
+   * @return
+   */
   public abstract boolean compareValue(int val1, int val2);
+
+  /**
+   * override emitTuple to decide the port to emit to
+   *
+   * @param tuple
+   */
   public abstract void emitTuple(HashMap<K, HashMap<V, Integer>> tuple);
 
-
+  /**
+   * Emits the result.
+   */
   @Override
   public void endWindow()
   {
@@ -73,7 +97,7 @@ public abstract class BaseFrequentKeyValue<K, V> extends BaseKeyValueOperator<K,
           kval = v.getValue().value;
           vmap.put(val, null);
         }
-        else if (compareValue(v.getValue().value,kval)) {
+        else if (compareValue(v.getValue().value, kval)) {
           val = v.getKey();
           kval = v.getValue().value;
           vmap.clear();

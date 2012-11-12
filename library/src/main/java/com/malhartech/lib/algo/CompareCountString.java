@@ -10,10 +10,10 @@ import java.util.HashMap;
 
 /**
  *
- *A count is done on how many tuples of value type String satisfy the compare function. The function is given by
+ * A count is done on how many tuples of value type String satisfy the compare function. The function is given by
  * "key", "value", and "compare". If a tuple passed the test count is incremented. On end of window count is emitted on the output port "count".
  * The comparison is done by getting double value from the Number.<p>
- *  This module is an end of window module<br>
+ * This module is an end of window module<br>
  * <br>
  * Ports:<br>
  * <b>data</b>: expects HashMap<K,V><br>
@@ -34,38 +34,55 @@ import java.util.HashMap;
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * Operator processes >16 million tuples/sec. The processing is high as it only emits one tuple per window, and is not bound by outbound throughput<br>
+ *
  * @author amol
  */
-
-public class CompareCountString<K> extends MatchString<K,String>
+public class CompareCountString<K> extends MatchString<K, String>
 {
-  @OutputPortFieldAnnotation(name="count")
+  @OutputPortFieldAnnotation(name = "count")
   public final transient DefaultOutputPort<Integer> count = new DefaultOutputPort<Integer>(this);
-  @OutputPortFieldAnnotation(name="except")
+  @OutputPortFieldAnnotation(name = "except")
   public final transient DefaultOutputPort<Integer> except = new DefaultOutputPort<Integer>(this);
-
   private int tcount = 0;
   private int icount = 0;
 
+  /**
+   * Increments matched tuple count
+   *
+   * @param tuple
+   */
   @Override
   public void tupleMatched(HashMap<K, String> tuple)
   {
     tcount++;
   }
 
+  /**
+   * Increments not-matched tuple count
+   *
+   * @param tuple
+   */
   @Override
   public void tupleNotMatched(HashMap<K, String> tuple)
   {
     icount++;
   }
 
+  /**
+   * Resets matched and non-matched values to 0
+   *
+   * @param windowId
+   */
   @Override
   public void beginWindow(long windowId)
   {
-     tcount = 0;
-     icount = 0;
+    tcount = 0;
+    icount = 0;
   }
 
+  /**
+   * Emits the counts
+   */
   @Override
   public void endWindow()
   {

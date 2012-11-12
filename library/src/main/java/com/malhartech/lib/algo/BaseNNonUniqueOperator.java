@@ -32,13 +32,21 @@ import java.util.Map;
  */
 public abstract class BaseNNonUniqueOperator<K, V> extends BaseNOperator<K, V>
 {
+  /**
+   * Override to decide the direction (ascending vs descending)
+   * @return
+   */
   abstract public boolean isAscending();
 
+  /**
+   * Override to decide which port to emit to and its schema
+   * @param tuple
+   */
   abstract void emit(HashMap<K, ArrayList<V>> tuple);
 
   /**
-   * Inserts tuples into the queue
    *
+   * Inserts tuples into the queue
    * @param tuple to insert in the queue
    */
   @Override
@@ -58,12 +66,19 @@ public abstract class BaseNNonUniqueOperator<K, V> extends BaseNOperator<K, V>
   }
   HashMap<K, TopNSort<V>> kmap = new HashMap<K, TopNSort<V>>();
 
+  /**
+   * Clears cache/hash
+   * @param windowId
+   */
   @Override
   public void beginWindow(long windowId)
   {
     kmap.clear();
   }
 
+  /**
+   * Emits the result
+   */
   @Override
   public void endWindow()
   {

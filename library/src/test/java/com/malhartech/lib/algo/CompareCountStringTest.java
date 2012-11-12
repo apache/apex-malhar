@@ -46,12 +46,15 @@ public class CompareCountStringTest
     input.clear();
     input.put("a", "3");
     oper.data.process(input);
+    input.clear();
+    input.put("a", "5");
+    oper.data.process(input);
     oper.endWindow();
 
     // One for each key
     Assert.assertEquals("number emitted tuples", 1, exceptSink.count);
     Assert.assertEquals("number emitted tuples", 1, countSink.count);
-    Assert.assertEquals("number emitted tuples", "1", exceptSink.tuple.toString());
+    Assert.assertEquals("number emitted tuples", "2", exceptSink.tuple.toString());
     Assert.assertEquals("number emitted tuples", "1", countSink.tuple.toString());
 
   }
