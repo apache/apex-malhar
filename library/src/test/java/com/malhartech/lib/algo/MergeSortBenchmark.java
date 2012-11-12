@@ -14,11 +14,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.algo.InsertSort}<p>
+ * Performance tests for {@link com.malhartech.lib.algo.MergeSort}<p>
  */
-public class InsertSortBenchmark
+public class MergeSortBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(InsertSortBenchmark.class);
+  private static Logger log = LoggerFactory.getLogger(MergeSortBenchmark.class);
 
   /**
    * Test node logic emits correct results
@@ -27,13 +27,13 @@ public class InsertSortBenchmark
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    testNodeProcessingSchema(new InsertSort<Integer>(), "Integer");
-    testNodeProcessingSchema(new InsertSort<Double>(), "Double");
-    testNodeProcessingSchema(new InsertSort<Float>(), "Float");
-    testNodeProcessingSchema(new InsertSort<String>(), "String");
+    testNodeProcessingSchema(new MergeSort<Integer>(), "Integer");
+    testNodeProcessingSchema(new MergeSort<Double>(), "Double");
+    testNodeProcessingSchema(new MergeSort<Float>(), "Float");
+    testNodeProcessingSchema(new MergeSort<String>(), "String");
   }
 
-  public void testNodeProcessingSchema(InsertSort oper, String debug)
+  public void testNodeProcessingSchema(MergeSort oper, String debug)
   {
     //FirstN<String,Float> aoper = new FirstN<String,Float>();
     TestSink sortSink = new TestSink();
@@ -46,12 +46,15 @@ public class InsertSortBenchmark
     for (int i = 0; i < numTuples; i++) {
       input.clear();
       input.add(numTuples-i);
-      oper.datalist.process(input);
-      oper.data.process(2);
+      oper.data.process(input);
+
+      input.clear();
+      input.add(2);
+      oper.data.process(input);
 
       input.clear();
       input.add(20);
-      oper.datalist.process(input);
+      oper.data.process(input);
 
       input.clear();
       input.add(1000);
@@ -60,7 +63,7 @@ public class InsertSortBenchmark
       input.add(33);
       input.add(33);
       input.add(34);
-      oper.datalist.process(input);
+      oper.data.process(input);
 
       input.clear();
       input.add(34);
@@ -68,7 +71,7 @@ public class InsertSortBenchmark
       input.add(6);
       input.add(1);
       input.add(9);
-      oper.datalist.process(input);
+      oper.data.process(input);
     }
 
     oper.endWindow();
