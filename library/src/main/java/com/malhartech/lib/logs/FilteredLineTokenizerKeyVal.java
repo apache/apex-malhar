@@ -41,6 +41,10 @@ public class FilteredLineTokenizerKeyVal extends LineTokenizerKeyVal
 {
   HashMap<String, Object> subTokenFilters = new HashMap<String, Object>(4);
 
+  /**
+   * setter function for filter
+   * @param list list of keys for subtoken filters
+   */
   public void setSubTokenFilters(ArrayList<String> list)
   {
     for (String s: list) {
@@ -48,6 +52,11 @@ public class FilteredLineTokenizerKeyVal extends LineTokenizerKeyVal
     }
   }
 
+  /**
+   * If the key is in the filter, returns true
+   * @param subtok
+   * @return true if super.validToken (!isEmpty()) and filter has they token
+   */
   @Override
   public boolean validSubTokenKey(String subtok)
   {

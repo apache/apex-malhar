@@ -44,12 +44,19 @@ public class LineToTokenHashMap extends BaseLineTokenizer
   private ArrayList<String> vals = null;
   private String tok = "";
 
+  /**
+   * sets up output tuple
+   */
   @Override
   public void beginProcessTokens()
   {
     otuple = new HashMap<String, ArrayList<String>>();
   }
 
+
+  /**
+   * clears data for subtokens
+   */
   @Override
   public void beginProcessSubTokens()
   {
@@ -57,6 +64,10 @@ public class LineToTokenHashMap extends BaseLineTokenizer
     tok = "";
   }
 
+  /**
+   * first token is key, the rest are added to ArrayList
+   * @param subtok
+   */
   @Override
   public void processSubToken(String subtok)
   {
@@ -69,6 +80,10 @@ public class LineToTokenHashMap extends BaseLineTokenizer
     }
   }
 
+
+  /**
+   * Adds key,Arraylist pair to output tuple
+   */
   @Override
   public void endProcessSubTokens()
   {
@@ -77,6 +92,9 @@ public class LineToTokenHashMap extends BaseLineTokenizer
     vals = null;
   }
 
+  /**
+   * emits output tuple
+   */
   @Override
   public void endProcessTokens()
   {

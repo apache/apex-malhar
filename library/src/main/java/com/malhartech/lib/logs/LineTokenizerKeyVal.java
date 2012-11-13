@@ -46,12 +46,18 @@ public class LineTokenizerKeyVal extends BaseLineTokenizer
   private String skey = "";
   private String sval = "";
 
+  /**
+   * sets up the cache
+   */
   @Override
   public void beginProcessTokens()
   {
     map = new HashMap<String, String>();
   }
 
+  /**
+   * emits tokens on port "tokens", and clears the cache
+   */
   @Override
   public void endProcessTokens()
   {
@@ -61,6 +67,9 @@ public class LineTokenizerKeyVal extends BaseLineTokenizer
     }
   }
 
+  /**
+   * clears subtoken key,val pair
+   */
   @Override
   public void beginProcessSubTokens()
   {
@@ -68,6 +77,9 @@ public class LineTokenizerKeyVal extends BaseLineTokenizer
     sval = "";
   }
 
+  /**
+   * inserts subtoken key,val pair in subtoken hash
+   */
   @Override
   public void endProcessSubTokens()
   {
@@ -76,6 +88,11 @@ public class LineTokenizerKeyVal extends BaseLineTokenizer
     }
   }
 
+  /**
+   * first subtoken is the key, the next is the val.
+   * No error is flagged for third token as yet.
+   * @param subtok
+   */
   @Override
   public void processSubToken(String subtok)
   {

@@ -11,7 +11,7 @@ import java.util.HashMap;
 /**
  *
  * Splits String objects into tokens, and emits filtered keys as ArrayList. An ArrayList of all tokens that pass the filter are emitted<p>
- *  This module is a pass through<br>
+ * This module is a pass through<br>
  * <br>
  * Ports:<br>
  * <b>data</b>: Input port, expects String<br>
@@ -28,25 +28,38 @@ import java.util.HashMap;
  * Run time checks<br>
  * none<br>
  * <br>
-* <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * Operator processes > 2 million tuples/sec. The benchmarking was done with 3 keys per line. The performance is proportional to number of keys
  * and their length. For every tuple processed and average of N tuples are emitted, where N is the average number of keys per tuple<br>
  * <br>
+ *
  * @author amol
  */
-
 public class FilteredLineToTokenArrayList extends LineToTokenArrayList
 {
   HashMap<String, Object> subTokenFilters = new HashMap<String, Object>();
 
-  public void setSubTokenFilters(ArrayList<String> list) {
-    for (String s : list) {
+  /**
+   * setter function for filter
+   *
+   * @param list list of keys for subtoken filters
+   */
+  public void setSubTokenFilters(ArrayList<String> list)
+  {
+    for (String s: list) {
       subTokenFilters.put(s, null);
     }
   }
 
+  /**
+   * If the key is in the filter, returns true
+   *
+   * @param subtok
+   * @return true if super.validToken (!isEmpty()) and filter has they token
+   */
   @Override
-  public boolean validSubTokenKey(String subtok) {
+  public boolean validSubTokenKey(String subtok)
+  {
     return super.validToken(subtok) && subTokenFilters.containsKey(subtok);
   }
 }

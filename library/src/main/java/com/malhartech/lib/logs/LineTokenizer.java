@@ -39,6 +39,10 @@ public class LineTokenizer extends BaseLineTokenizer
   @OutputPortFieldAnnotation(name = "tokens")
   public final transient DefaultOutputPort<String> tokens = new DefaultOutputPort<String>(this);
 
+  /**
+   * emits tokens on port "tokens" if tok is not empty
+   * @param tok
+   */
   @Override
     public void processToken(String tok)
   {

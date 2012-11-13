@@ -51,6 +51,9 @@ public class LineToTokenArrayList extends BaseLineTokenizer
   private HashMap<String, ArrayList<String>> smap = null;
   private ArrayList<String> vals = null;
 
+  /**
+   * sets up output tuples
+   */
   @Override
   public void beginProcessTokens()
   {
@@ -58,6 +61,11 @@ public class LineToTokenArrayList extends BaseLineTokenizer
     stokentuple = new ArrayList<HashMap<String, ArrayList<String>>>();
   }
 
+  /**
+   * adds tok to output token tuple
+   * if splittoken is set starts subtoken processing
+   * @param tok
+   */
   @Override
   public void processToken(String tok)
   {
@@ -69,6 +77,9 @@ public class LineToTokenArrayList extends BaseLineTokenizer
     }
   }
 
+  /**
+   * sets up data for sub token processing
+   */
   @Override
   public void beginProcessSubTokens()
   {
@@ -76,6 +87,9 @@ public class LineToTokenArrayList extends BaseLineTokenizer
     vals = new ArrayList<String>(4);
   }
 
+  /**
+   * Added data to subtoken tuple
+   */
   @Override
   public void endProcessSubTokens()
   {
@@ -86,6 +100,10 @@ public class LineToTokenArrayList extends BaseLineTokenizer
     vals = null;
   }
 
+  /**
+   * Addd first subtoken to key, and rest to value ArrayList
+   * @param subtok
+   */
   @Override
   public void processSubToken(String subtok)
   {
@@ -97,6 +115,9 @@ public class LineToTokenArrayList extends BaseLineTokenizer
     }
   }
 
+  /**
+   * emits token tuple and subtoken tuple if respective ports are connected
+   */
   @Override
   public void endProcessTokens()
   {
