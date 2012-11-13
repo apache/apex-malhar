@@ -91,6 +91,7 @@ public class Quotient<K, V extends Number> extends BaseOperator
   HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();
   boolean countkey = false;
   int mult_by = 1;
+  @Min(1)
   int minCount = 1;
 
 
@@ -98,6 +99,7 @@ public class Quotient<K, V extends Number> extends BaseOperator
    * getter for minCount
    * @return minCount
    */
+  @Min(1)
   public int getMinCount()
   {
     return minCount;

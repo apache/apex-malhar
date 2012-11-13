@@ -88,11 +88,19 @@ public class Margin<K, V extends Number> extends BaseNumberOperator<V>
   HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();
   boolean percent = false;
 
+  /**
+   * getter function for percent
+   * @return percent
+   */
   public boolean getPercent()
   {
     return percent;
   }
 
+  /**
+   * setter function for percent
+   * @param val sets percent
+   */
   public void setPercent(boolean val)
   {
     percent = val;
