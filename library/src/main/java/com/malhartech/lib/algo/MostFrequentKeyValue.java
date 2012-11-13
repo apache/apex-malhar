@@ -38,12 +38,22 @@ public class MostFrequentKeyValue<K, V> extends BaseFrequentKeyValue<K, V>
   @OutputPortFieldAnnotation(name = "most")
   public final transient DefaultOutputPort<HashMap<K, HashMap<V, Integer>>> most = new DefaultOutputPort<HashMap<K, HashMap<V, Integer>>>(this);
 
+  /**
+   * returns val1 < val2
+   * @param val1
+   * @param val2
+   * @return
+   */
   @Override
   public boolean compareValue(int val1, int val2)
   {
     return (val1 > val2);
   }
 
+  /**
+   * Emits tuple on port "most"
+   * @param tuple
+   */
   @Override
   public void emitTuple(HashMap<K, HashMap<V, Integer>> tuple)
   {

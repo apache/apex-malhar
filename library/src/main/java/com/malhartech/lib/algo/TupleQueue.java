@@ -12,6 +12,7 @@ import com.malhartech.api.DefaultOutputPort;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import javax.validation.constraints.Min;
 
 /**
  *
@@ -44,6 +45,10 @@ public class TupleQueue<K, V> extends BaseOperator
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
+    /**
+     * Process tuple to create a queue (FIFO)
+     * Emits only if depth is reached
+     */
     @Override
     public void process(HashMap<K, V> tuple)
     {
@@ -69,6 +74,9 @@ public class TupleQueue<K, V> extends BaseOperator
   @InputPortFieldAnnotation(name = "query")
   public final transient DefaultInputPort<K> query = new DefaultInputPort<K>(this)
   {
+    /**
+     * Processes query, and emits Console tuple
+     */
     @Override
     public void process(K tuple)
     {
@@ -85,8 +93,24 @@ public class TupleQueue<K, V> extends BaseOperator
   HashMap<K, ValueData> vmap = new HashMap<K, ValueData>();
   HashMap<K, Object> queryHash = new HashMap<K, Object>();
   final int depth_default = 10;
+  @Min(1)
   int depth = depth_default;
 
+
+  /**
+   * return depth
+   * @return
+   */
+  @Min(1)
+  public int getDepth()
+  {
+    return depth;
+  }
+
+  /**
+   * sets depth
+   * @param d
+   */
   public void setDepth(int d)
   {
     depth = d;
@@ -151,6 +175,10 @@ public class TupleQueue<K, V> extends BaseOperator
     }
   }
 
+  /**
+   * Emits tuple to console port
+   * @param key
+   */
   void emitConsoleTuple(K key)
   {
     ValueData val = vmap.get(key);
@@ -166,6 +194,9 @@ public class TupleQueue<K, V> extends BaseOperator
     console.emit(tuple);
   }
 
+  /**
+   * Emits all query tuples
+   */
   @Override
   public void endWindow()
   {

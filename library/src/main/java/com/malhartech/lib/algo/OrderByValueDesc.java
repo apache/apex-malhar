@@ -28,6 +28,10 @@ import java.util.PriorityQueue;
  */
 public class OrderByValueDesc<K, V> extends OrderByValue<K,V>
 {
+  /**
+   * Initializes priorityQueue in descending order
+   * @return
+   */
   @Override
   public PriorityQueue<V> initializePriorityQueue()
   {

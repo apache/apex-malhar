@@ -21,7 +21,7 @@ import java.util.Map;
  * <br>
  * Ports:<br>
  * <b>data</b>: expects K<br>
- * <b>most</b>: emits HashMap<K, Integer>(1); where String is the least frequent key, and Integer is the number of its occurrences in the window<br>
+ * <b>most</b>: emits HashMap<K, Integer>(1); where String is the most frequent key, and Integer is the number of its occurrences in the window<br>
  * <b>list</b>: emits ArrayList<HashMap<K,Integer>(1)>; Where the list includes all the keys are most frequent<br>
  * <br>
  * Properties:<br>
@@ -44,6 +44,9 @@ public class MostFrequentKey<K> extends BaseFrequentKey<K>
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>(this)
   {
+    /**
+     * Calls super.processTuple(tuple)
+     */
     @Override
     public void process(K tuple)
     {
@@ -55,18 +58,32 @@ public class MostFrequentKey<K> extends BaseFrequentKey<K>
   @OutputPortFieldAnnotation(name = "list")
   public final transient DefaultOutputPort<ArrayList<HashMap<K, Integer>>> list = new DefaultOutputPort<ArrayList<HashMap<K, Integer>>>(this);
 
+  /**
+   * Emits tuple on port "most"
+   * @param tuple
+   */
   @Override
   public void emitTuple(HashMap<K, Integer> tuple)
   {
     most.emit(tuple);
   }
 
+  /**
+   * Emits tuple on port "list"
+   * @param tlist
+   */
   @Override
   public void emitList(ArrayList<HashMap<K, Integer>> tlist)
   {
     list.emit(tlist);
   }
 
+  /**
+   * returns val1 < val2
+   * @param val1
+   * @param val2
+   * @return
+   */
   @Override
   public boolean compareCount(int val1, int val2)
   {

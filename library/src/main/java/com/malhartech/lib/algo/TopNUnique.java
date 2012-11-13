@@ -34,15 +34,23 @@ import java.util.Map;
  */
 public class TopNUnique<K, V> extends BaseNUniqueOperator<K, V>
 {
-    @OutputPortFieldAnnotation(name="top")
+  @OutputPortFieldAnnotation(name = "top")
   public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> top = new DefaultOutputPort<HashMap<K, ArrayList<V>>>(this);
 
+  /**
+   * returns true
+   * @return
+   */
   @Override
   public boolean isAscending()
   {
     return true;
   }
 
+  /**
+   * Emits tuple on port "top"
+   * @param tuple
+   */
   @Override
   void emit(HashMap<K, ArrayList<V>> tuple)
   {

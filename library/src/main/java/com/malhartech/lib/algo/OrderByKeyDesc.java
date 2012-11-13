@@ -31,6 +31,10 @@ import java.util.PriorityQueue;
  */
 public class OrderByKeyDesc<K, V> extends OrderByKey<K, V>
 {
+  /**
+   * Initializes descending priority queue
+   * @return
+   */
   @Override
   public PriorityQueue<V> initializePriorityQueue()
   {

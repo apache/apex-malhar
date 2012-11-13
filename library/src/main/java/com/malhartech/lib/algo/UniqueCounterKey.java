@@ -21,36 +21,20 @@ import java.util.Map;
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-public class UniqueCounterKey<K> extends BaseKeyOperator<K>
+public class UniqueCounterKey<K> extends BaseUniqueCounter<K>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>(this)
   {
+
     @Override
     public void process(K tuple)
     {
-      MutableInteger i = map.get(tuple);
-      if (i == null) {
-        map.put(cloneKey(tuple), new MutableInteger(1));
-      }
-      else {
-        i.value++;
-      }
+      processTuple(tuple);
     }
   };
   @OutputPortFieldAnnotation(name = "count")
   public final transient DefaultOutputPort<HashMap<K, Integer>> count = new DefaultOutputPort<HashMap<K, Integer>>(this);
-  /**
-   * Bucket counting mechanism.
-   * Since we clear the bucket at the beginning of the window, we make this object transient.
-   */
-  transient HashMap<K, MutableInteger> map = new HashMap<K, MutableInteger>();
-
-  @Override
-  public void beginWindow(long windowId)
-  {
-    map.clear();
-  }
 
   @Override
   public void endWindow()

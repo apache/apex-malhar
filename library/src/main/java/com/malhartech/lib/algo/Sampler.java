@@ -10,6 +10,7 @@ import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import java.util.Random;
+import javax.validation.constraints.Min;
 
 /**
  *
@@ -31,7 +32,8 @@ import java.util.Random;
  * None<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Operator emits  > 65 million tuples/sec.<br>
+ * Operator emits > 65 million tuples/sec.<br>
+ *
  * @author amol<br>
  *
  */
@@ -40,6 +42,9 @@ public class Sampler<K> extends BaseKeyOperator<K>
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>(this)
   {
+    /**
+     * Emits the tuple as per probability of passrate out of totalrate
+     */
     @Override
     public void process(K tuple)
     {
@@ -52,16 +57,44 @@ public class Sampler<K> extends BaseKeyOperator<K>
   };
   @OutputPortFieldAnnotation(name = "sample")
   public final transient DefaultOutputPort<K> sample = new DefaultOutputPort<K>(this);
-
+  @Min(1)
   int passrate = 1;
   int totalrate = 100;
   private Random random = new Random();
 
+  /**
+   * Returns pass rate
+   */
+  public int getPassrate()
+  {
+    return passrate;
+  }
+
+  /**
+   * returns total rate
+   *
+   * @return
+   */
+  public int getTotalrate()
+  {
+    return totalrate;
+  }
+
+  /**
+   * Sets pass rate
+   *
+   * @param val
+   */
   public void setPassrate(int val)
   {
     passrate = val;
   }
 
+  /**
+   * Sets total rate
+   *
+   * @param val
+   */
   public void setTotalrate(int val)
   {
     totalrate = val;

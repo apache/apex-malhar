@@ -42,6 +42,9 @@ public class OrderByKey<K, V> extends BaseOperator
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
+    /**
+     * process the tuple is orderby key exists.
+     */
     @Override
     public void process(HashMap<K, V> tuple)
     {
@@ -87,15 +90,27 @@ public class OrderByKey<K, V> extends BaseOperator
   protected HashMap<V, MutableInteger> countmap = new HashMap<V, MutableInteger>();
   protected HashMap<V, ArrayList<HashMap<K, V>>> smap = new HashMap<V, ArrayList<HashMap<K, V>>>();
 
+  /**
+   * Sets orderby key
+   * @param str
+   */
   public void setOrderby(String str)
   {
     orderby = str;
   }
 
+  /**
+   * First cut of the priority queue in ascending order
+   * @return
+   */
   public PriorityQueue<V> initializePriorityQueue() {
     return new PriorityQueue<V>(5);
   }
 
+  /**
+   * Sets up the priority queue
+   * @param context
+   */
   @Override
   public void setup(OperatorContext context)
   {
@@ -117,7 +132,7 @@ public class OrderByKey<K, V> extends BaseOperator
   }
 
   /**
-   *
+   * Emits tuples
    */
   @Override
   public void endWindow()

@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
+ *
  * Orders tuples per key and emits top N tuples per key on end of window<p>
  * This is an end of window module<br>
  * At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
@@ -40,12 +40,19 @@ public class TopN<K, V> extends BaseNNonUniqueOperator<K,V>
   @OutputPortFieldAnnotation(name="top")
   public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> top = new DefaultOutputPort<HashMap<K, ArrayList<V>>>(this);
 
-    @Override
+  /**
+   * returns true
+   * @return
+   */
+  @Override
   public boolean isAscending()
   {
     return true;
   }
 
+  /**
+   * Emits tuple on port "top"
+   */
   @Override
   void emit(HashMap<K, ArrayList<V>> tuple)
   {

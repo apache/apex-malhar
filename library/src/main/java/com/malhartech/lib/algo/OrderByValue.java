@@ -39,6 +39,9 @@ public class OrderByValue<K, V> extends BaseOperator
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
+    /**
+     * Processes each tuple, and orders by the given value
+     */
     @Override
     public void process(HashMap<K, V> tuple)
     {
@@ -68,18 +71,28 @@ public class OrderByValue<K, V> extends BaseOperator
   HashMap<V, HashMap<K, MutableInteger>> smap = new HashMap<V, HashMap<K, MutableInteger>>();
 
 
+  /**
+   * Initializes the priority queue in ascending order
+   * @return
+   */
   public PriorityQueue<V> initializePriorityQueue()
   {
     return new PriorityQueue<V>(5);
   }
 
+  /**
+   * Sets up the priority queue
+   * @param context
+   */
   @Override
   public void setup(OperatorContext context)
   {
     initializePriorityQueue();
   }
+
   /**
-   * Cleanup at the start of window
+   * Clears cache/hash
+   * @param windowId
    */
   @Override
   public void beginWindow(long windowId)
@@ -92,7 +105,7 @@ public class OrderByValue<K, V> extends BaseOperator
   }
 
   /**
-   *
+   * Emits tuples
    */
   @Override
   public void endWindow()
