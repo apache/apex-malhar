@@ -9,6 +9,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.BaseKeyOperator;
 import java.util.ArrayList;
 
 /**
@@ -30,7 +31,7 @@ import java.util.ArrayList;
  *
  * @author amol
  */
-public class ArrayListToItem<K> extends BaseOperator
+public class ArrayListToItem<K> extends BaseKeyOperator<K>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<ArrayList<K>> data = new DefaultInputPort<ArrayList<K>>(this)
@@ -42,7 +43,7 @@ public class ArrayListToItem<K> extends BaseOperator
     public void process(ArrayList<K> tuple)
     {
       for (K k: tuple) {
-        item.emit(k);
+        item.emit(cloneKey(k));
       }
     }
   };

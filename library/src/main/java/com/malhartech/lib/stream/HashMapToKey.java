@@ -9,6 +9,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.BaseKeyValueOperator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +35,7 @@ import java.util.Map;
  * Operator is able to emit >30 million tuples/sec<br>
  * @author amol
  */
-public class HashMapToKey<K, V> extends BaseOperator
+public class HashMapToKey<K,V> extends BaseKeyValueOperator<K,V>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
@@ -47,14 +48,14 @@ public class HashMapToKey<K, V> extends BaseOperator
     {
       for (Map.Entry<K, V> e: tuple.entrySet()) {
         if (key.isConnected()) {
-          key.emit(e.getKey());
+          key.emit(cloneKey(e.getKey()));
         }
         if (val.isConnected()) {
-          val.emit(e.getValue());
+          val.emit(cloneValue(e.getValue()));
         }
         if (keyval.isConnected()) {
           HashMap<K,V> otuple = new HashMap<K,V>(1);
-          otuple.put(e.getKey(), e.getValue());
+          otuple.put(cloneKey(e.getKey()), cloneValue(e.getValue()));
           keyval.emit(otuple);
         }
       }
