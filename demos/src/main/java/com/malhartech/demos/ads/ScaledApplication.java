@@ -81,13 +81,14 @@ public class ScaledApplication implements ApplicationFactory
 
   }
 
-  private <T extends Number> InputPort<HashMap<String, T>> getConsolePort(DAG b, String name)
+  private <T extends Number> InputPort<HashMap<String, T>> getConsolePort(DAG b, String name, boolean silent)
   {
     // output to HTTP server when specified in environment setting
     String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
     if (serverAddr == null) {
       ConsoleOutputOperator<HashMap<String, T>> oper = b.addOperator(name, new ConsoleOutputOperator<HashMap<String, T>>());
-      oper.setStringFormat(name + ": %s");
+      oper.setStringFormat(name + "(%d): %s");
+      oper.silent = silent;
       return oper.input;
     }
     HttpOutputOperator<HashMap<String, T>> oper = b.addOperator(name, new HttpOutputOperator<HashMap<String, T>>());
@@ -120,6 +121,7 @@ public class ScaledApplication implements ApplicationFactory
     Quotient<String, Integer> oper = b.addOperator(name, new Quotient<String, Integer>());
     oper.setMult_by(100);
     oper.setCountkey(true);
+    oper.setMinCount(5000); // Only report if at least 5000 tuples are processed in a window to avoid noise
     return oper;
   }
 
@@ -243,15 +245,15 @@ public class ScaledApplication implements ApplicationFactory
 
     dag.addStream("adviewsdata", viewAggrSum10.out, cost.data);
     dag.addStream("clicksdata", clickAggrSum10.out, revenue.data);
-    dag.addStream("viewtuplecount", viewAggrCount10.out, ctr.denominator, merge.data1);
-    dag.addStream("clicktuplecount", clickAggrCount10.out, ctr.numerator, merge.data2);
-    dag.addStream("total count", merge.out, tuple_counter.data);
+    dag.addStream("viewtuplecount", viewAggrCount10.out, ctr.denominator, merge.data1).setInline(true);
+    dag.addStream("clicktuplecount", clickAggrCount10.out, ctr.numerator, merge.data2).setInline(true);
+    dag.addStream("total count", merge.out, tuple_counter.data).setInline(true);
 
-    InputPort<HashMap<String, Double>> revconsole = getConsolePort(dag, "revConsole");
-    InputPort<HashMap<String, Double>> costconsole = getConsolePort(dag, "costConsole");
-    InputPort<HashMap<String, Double>> marginconsole = getConsolePort(dag, "marginConsole");
-    InputPort<HashMap<String, Double>> ctrconsole = getConsolePort(dag, "ctrConsole");
-    InputPort<HashMap<String, Number>> viewcountconsole = getConsolePort(dag, "viewCountConsole");
+    InputPort<HashMap<String, Double>> revconsole = getConsolePort(dag, "revConsole", true);
+    InputPort<HashMap<String, Double>> costconsole = getConsolePort(dag, "costConsole", true);
+    InputPort<HashMap<String, Double>> marginconsole = getConsolePort(dag, "marginConsole", true);
+    InputPort<HashMap<String, Double>> ctrconsole = getConsolePort(dag, "ctrConsole", false);
+    InputPort<HashMap<String, Number>> viewcountconsole = getConsolePort(dag, "viewCountConsole", true);
 
     dag.addStream("revenuedata", revenue.sum, margin.denominator, revconsole).setInline(allInline);
     dag.addStream("costdata", cost.sum, margin.numerator, costconsole).setInline(allInline);
