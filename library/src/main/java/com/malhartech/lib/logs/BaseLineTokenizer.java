@@ -7,6 +7,7 @@ package com.malhartech.lib.logs;
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
+import javax.validation.constraints.NotNull;
 
 /**
  *
@@ -26,6 +27,10 @@ public class BaseLineTokenizer extends BaseOperator
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<String> data = new DefaultInputPort<String>(this)
   {
+    /**
+     * Processes tuples if validTuple returns true
+     * Calls: beginProcessTokens, processTokens, endProcessTokens
+     */
     @Override
     public void process(String tuple)
     {
@@ -37,45 +42,81 @@ public class BaseLineTokenizer extends BaseOperator
       endProcessTokens();
     }
   };
+
+  @NotNull()
   String splitBy = ";\t";
   String splitTokenBy = "";
 
+
+  /**
+   * getter function for splitBy
+   * @return
+   */
+  @NotNull()
   public String getSplitBy()
   {
     return splitBy;
   }
 
+  /**
+   * getter function for splitTokeBy
+   * @return
+   */
   public String getSplitTokenBy()
   {
     return splitTokenBy;
   }
 
+  /**
+   * setter function for splitBy
+   * @param str
+   */
   public void setSplitBy(String str)
   {
     splitBy = str;
   }
 
+  /**
+   * setter function for splitTokenBy
+   * @param str
+   */
   public void setSplitTokenBy(String str)
   {
     splitTokenBy = str;
   }
 
+  /**
+   * Called at the start of token processing
+   */
   public void beginProcessTokens()
   {
   }
 
+  /**
+   * Called at the end of token processing
+   */
   public void endProcessTokens()
   {
   }
 
+  /**
+   * Called at the start of sub token processing
+   */
   public void beginProcessSubTokens()
   {
   }
 
+  /**
+   * Called at the end of sub token processing
+   */
   public void endProcessSubTokens()
   {
   }
 
+  /**
+   * Processed each token one at a time in the order received if it is not null and if validToken returns true
+   * @param tokens
+   */
   public void processTokens(String[] tokens)
   {
     if (tokens == null) {
@@ -88,6 +129,10 @@ public class BaseLineTokenizer extends BaseOperator
     }
   }
 
+  /**
+   * Processes token
+   * @param tok
+   */
   public void processToken(String tok)
   {
     if (tok.isEmpty()) {
@@ -111,20 +156,39 @@ public class BaseLineTokenizer extends BaseOperator
     endProcessSubTokens();
   }
 
+  /**
+   * Called for processing subtoken
+   * @param subtok
+   */
   public void processSubToken(String subtok)
   {
   }
 
+  /**
+   *
+   * @param tuple
+   * @return true is tuple is not empty
+   */
   public boolean validTuple(String tuple)
   {
     return !tuple.isEmpty();
   }
 
+  /**
+   *
+   * @param tok
+   * @return true is tok is not empty
+   */
   public boolean validToken(String tok)
   {
     return !tok.isEmpty();
   }
 
+  /**
+   *
+   * @param subtok
+   * @return true is subtok is not empty
+   */
   public boolean validSubTokenKey(String subtok)
   {
     return !subtok.isEmpty();
