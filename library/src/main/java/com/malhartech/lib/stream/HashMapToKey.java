@@ -39,6 +39,9 @@ public class HashMapToKey<K, V> extends BaseOperator
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
+    /**
+     * Emits key, key/val pair, and val based on port connections
+     */
     @Override
     public void process(HashMap<K, V> tuple)
     {

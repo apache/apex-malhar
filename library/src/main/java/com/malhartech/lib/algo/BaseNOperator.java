@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.lib.util.BaseKeyOperator;
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import java.util.HashMap;

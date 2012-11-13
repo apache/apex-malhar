@@ -2,7 +2,9 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.algo;
+package com.malhartech.lib.util;
+
+import com.malhartech.lib.util.BaseKeyOperator;
 
 /**
  * Abstract class for basic operators that allows cloneValue for enabling users to use mutable objects

@@ -9,6 +9,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.BaseKeyOperator;
 
 /**
  * Duplicates an input stream as is into two output streams; needed to allow separation of listeners into two streams with different properties (for example
@@ -32,16 +33,19 @@ import com.malhartech.api.DefaultOutputPort;
  *
  * @author amol
  */
-public class StreamDuplicater<K> extends BaseOperator
+public class StreamDuplicater<K> extends BaseKeyOperator<K>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>(this)
   {
+    /**
+     * Emits tuple on both streams
+     */
     @Override
     public void process(K tuple)
     {
-      out1.emit(tuple);
-      out2.emit(tuple);
+      out1.emit(cloneKey(tuple));
+      out2.emit(cloneKey(tuple));
     }
   };
 

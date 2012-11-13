@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.lib.util.BaseKeyOperator;
 import java.util.HashMap;
 import java.util.Map;
 import javax.validation.constraints.NotNull;
