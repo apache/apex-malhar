@@ -249,11 +249,11 @@ public class ScaledApplication implements ApplicationFactory
     dag.addStream("clicktuplecount", clickAggrCount10.out, ctr.numerator, merge.data2).setInline(true);
     dag.addStream("total count", merge.out, tuple_counter.data).setInline(true);
 
-    InputPort<HashMap<String, Double>> revconsole = getConsolePort(dag, "revConsole", true);
-    InputPort<HashMap<String, Double>> costconsole = getConsolePort(dag, "costConsole", true);
-    InputPort<HashMap<String, Double>> marginconsole = getConsolePort(dag, "marginConsole", true);
+    InputPort<HashMap<String, Double>> revconsole = getConsolePort(dag, "revConsole", false);
+    InputPort<HashMap<String, Double>> costconsole = getConsolePort(dag, "costConsole", false);
+    InputPort<HashMap<String, Double>> marginconsole = getConsolePort(dag, "marginConsole", false);
     InputPort<HashMap<String, Double>> ctrconsole = getConsolePort(dag, "ctrConsole", false);
-    InputPort<HashMap<String, Number>> viewcountconsole = getConsolePort(dag, "viewCountConsole", true);
+    InputPort<HashMap<String, Number>> viewcountconsole = getConsolePort(dag, "viewCountConsole", false);
 
     dag.addStream("revenuedata", revenue.sum, margin.denominator, revconsole).setInline(allInline);
     dag.addStream("costdata", cost.sum, margin.numerator, costconsole).setInline(allInline);
