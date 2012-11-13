@@ -8,6 +8,8 @@
  * <b>{@link com.malhartech.lib.util}</b> is a library of utility classes<p>
  * <br>
  * <br> The classes are<br>
+ * <br>{@link com.malhartech.lib.util.BaseKeyOperator}</b>: Abstract class for basic operators that allows cloneKey for enabling users to use mutable objects<br>
+ * <br>{@link com.malhartech.lib.util.BaseKeyValueOperator}</b>: Abstract class for basic operators that allows cloneValue and cloneKey for enabling users to use mutable objects<br>
  * <b>{@link com.malhartech.lib.util.MutableDouble}</b>: A mutable double for basic operations. Makes things easy for incrementing etc.<br>
  * <b>{@link com.malhartech.lib.util.MutableInteger}</b>: A mutable integer for basic operations. Makes things easy for incrementing etc.<br>
  * <b>{@link com.malhartech.lib.util.OneKeyValPair}</b>: A single KeyValPair for basic data passing. It is a write once, and read often model<br>
