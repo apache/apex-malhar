@@ -41,6 +41,9 @@ public class StreamMerger10<K> extends StreamMerger5<K>
   @InputPortFieldAnnotation(name = "data6", optional=true)
   public final transient DefaultInputPort<K> data6 = new DefaultInputPort<K>(this)
   {
+    /**
+     * Emits to port "out"
+     */
     @Override
     public void process(K tuple)
     {
@@ -51,6 +54,9 @@ public class StreamMerger10<K> extends StreamMerger5<K>
   @InputPortFieldAnnotation(name = "data7", optional=true)
   public final transient DefaultInputPort<K> data7 = new DefaultInputPort<K>(this)
   {
+    /**
+     * Emits to port "out"
+     */
     @Override
     public void process(K tuple)
     {
@@ -61,6 +67,9 @@ public class StreamMerger10<K> extends StreamMerger5<K>
   @InputPortFieldAnnotation(name = "data8", optional=true)
   public final transient DefaultInputPort<K> data8 = new DefaultInputPort<K>(this)
   {
+    /**
+     * Emits to port "out"
+     */
     @Override
     public void process(K tuple)
     {
@@ -71,6 +80,9 @@ public class StreamMerger10<K> extends StreamMerger5<K>
   @InputPortFieldAnnotation(name = "data9", optional=true)
   public final transient DefaultInputPort<K> data9 = new DefaultInputPort<K>(this)
   {
+    /**
+     * Emits to port "out"
+     */
     @Override
     public void process(K tuple)
     {
@@ -81,6 +93,9 @@ public class StreamMerger10<K> extends StreamMerger5<K>
   @InputPortFieldAnnotation(name = "data10", optional=true)
   public final transient DefaultInputPort<K> data10 = new DefaultInputPort<K>(this)
   {
+    /**
+     * Emits to port "out"
+     */
     @Override
     public void process(K tuple)
     {
@@ -88,6 +103,11 @@ public class StreamMerger10<K> extends StreamMerger5<K>
     }
   };
 
+  /**
+   * Enables dynamic construction of port name
+   * @param i
+   * @return
+   */
   @Override
   public DefaultInputPort<K> getInputPort(int i)
   {
@@ -131,6 +151,9 @@ public class StreamMerger10<K> extends StreamMerger5<K>
     return ret;
   }
 
+  /**
+   * Number of input ports in this operator
+   */
   static public int getNumberOfInputPorts()
   {
     return 10;

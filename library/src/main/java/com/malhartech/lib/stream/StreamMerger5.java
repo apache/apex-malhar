@@ -29,34 +29,42 @@ import com.malhartech.api.DefaultInputPort;
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * Operator does >400 million tuples/sec as all tuples simply forwarded as is<br>
- *<br>
+ * <br>
+ *
  * @author amol
  */
 public class StreamMerger5<K> extends StreamMerger<K>
 {
-  @InputPortFieldAnnotation(name = "data3", optional=true)
+  @InputPortFieldAnnotation(name = "data3", optional = true)
   public final transient DefaultInputPort<K> data3 = new DefaultInputPort<K>(this)
   {
+    /**
+     * Emits to port "out"
+     */
     @Override
     public void process(K tuple)
     {
       out.emit(tuple);
     }
   };
-
-  @InputPortFieldAnnotation(name = "data4", optional=true)
+  @InputPortFieldAnnotation(name = "data4", optional = true)
   public final transient DefaultInputPort<K> data4 = new DefaultInputPort<K>(this)
   {
+    /**
+     * Emits to port "out"
+     */
     @Override
     public void process(K tuple)
     {
       out.emit(tuple);
     }
   };
-
-  @InputPortFieldAnnotation(name = "data5", optional=true)
+  @InputPortFieldAnnotation(name = "data5", optional = true)
   public final transient DefaultInputPort<K> data5 = new DefaultInputPort<K>(this)
   {
+    /**
+     * Emits to port "out"
+     */
     @Override
     public void process(K tuple)
     {
@@ -80,16 +88,25 @@ public class StreamMerger5<K> extends StreamMerger<K>
     return ret;
   }
 
+  /**
+   * Number of input ports in this operator
+   */
   static public int getNumberOfInputPorts()
   {
     return 5;
   }
 
+  /**
+   * Allows usage of StreamMerger in a automated way
+   *
+   * @param i port index
+   * @return returns the proper input port name
+   */
   @Override
-    public DefaultInputPort<K> getInputPort(int i)
+  public DefaultInputPort<K> getInputPort(int i)
   {
     DefaultInputPort<K> ret;
-    switch(i) {
+    switch (i) {
       case 3:
         ret = data3;
         break;

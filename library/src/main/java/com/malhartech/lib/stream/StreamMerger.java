@@ -34,6 +34,9 @@ public class StreamMerger<K> extends BaseOperator
   @InputPortFieldAnnotation(name = "data1")
  public final transient DefaultInputPort<K> data1 = new DefaultInputPort<K>(this)
   {
+    /**
+     * Emits to port "out"
+     */
     @Override
     public void process(K tuple)
     {
@@ -44,6 +47,9 @@ public class StreamMerger<K> extends BaseOperator
   @InputPortFieldAnnotation(name = "data2")
   public final transient DefaultInputPort<K> data2 = new DefaultInputPort<K>(this)
   {
+    /**
+     * Emits to port "out"
+     */
     @Override
     public void process(K tuple)
     {

@@ -71,6 +71,9 @@ public class StreamDuplicater<K> extends BaseKeyOperator<K>
     return ret;
   }
 
+  /**
+   * returns number of output ports on this operator
+   */
   public int getNumOutputPorts()
   {
     return num_oport;
