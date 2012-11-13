@@ -65,9 +65,8 @@ public class ThroughputCounter<K> extends BaseOperator
   public static final String OPORT_COUNT_TUPLE_WINDOWID = "window_id";
 
   private long windowStartTime = 0;
-  private int rolling_window_count_default = 1;
   @Min(1)
-  private int rolling_window_count = rolling_window_count_default;
+  private int rolling_window_count = 1;
   long[] tuple_numbers = null;
   long[] time_numbers = null;
   int tuple_index = 0;
