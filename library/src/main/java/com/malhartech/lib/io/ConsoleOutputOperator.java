@@ -30,7 +30,7 @@ public class ConsoleOutputOperator<T> extends BaseOperator
         s = t.toString();
       }
       else {
-        s = String.format(stringFormat, t);
+        s = String.format(stringFormat, wid, t);
       }
       if (!silent) {
         System.out.println(s);
@@ -41,6 +41,7 @@ public class ConsoleOutputOperator<T> extends BaseOperator
     }
   };
 
+  private long wid = 0;
   public boolean silent = false;
   /**
    * When set to true, tuples are also logged at INFO level.
@@ -70,4 +71,12 @@ public class ConsoleOutputOperator<T> extends BaseOperator
   {
     this.stringFormat = stringFormat;
   }
+
+  @Override
+  public void beginWindow(long windowId)
+  {
+    wid = windowId;
+  }
+
+
 }

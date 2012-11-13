@@ -91,6 +91,23 @@ public class Quotient<K, V extends Number> extends BaseOperator
   HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();
   boolean countkey = false;
   int mult_by = 1;
+  int minCount = 1;
+
+
+  /**
+   * getter for minCount
+   * @return minCount
+   */
+  public int getMinCount()
+  {
+    return minCount;
+  }
+
+
+  /**
+   * getter for mult_by
+   * @return mult_by
+   */
 
   @Min(0)
   public int getMult_by()
@@ -98,22 +115,42 @@ public class Quotient<K, V extends Number> extends BaseOperator
     return mult_by;
   }
 
+  /**
+   * getter for countkey
+   * @return countkey
+   */
   public boolean getCountkey()
   {
     return countkey;
   }
 
 
+  /**
+   * Setter for mult_by
+   * @param i
+   */
   public void setMult_by(int i)
   {
     mult_by = i;
   }
 
+  /**
+   * setter for countkey
+   * @param i sets countkey
+   */
   public void setCountkey(boolean i)
   {
     countkey = i;
   }
 
+  /**
+   * setter for minCount
+   * @param i sets minCount
+   */
+  public void setMinCount(int i)
+  {
+    minCount = i;
+  }
   /*
    * Clears the cache/hash
    */
@@ -131,6 +168,7 @@ public class Quotient<K, V extends Number> extends BaseOperator
   @Override
   public void endWindow()
   {
+    int tcount = 0;
     HashMap<K, Double> tuples = new HashMap<K, Double>();
     for (Map.Entry<K, MutableDouble> e: denominators.entrySet()) {
       MutableDouble nval = numerators.get(e.getKey());
@@ -140,8 +178,9 @@ public class Quotient<K, V extends Number> extends BaseOperator
       else {
         tuples.put(e.getKey(), new Double((nval.value / e.getValue().value) * mult_by));
       }
+      tcount += e.getValue().value;
     }
-    if (!tuples.isEmpty()) {
+    if (!tuples.isEmpty() && (tcount > minCount)) {
       quotient.emit(tuples);
     }
   }
