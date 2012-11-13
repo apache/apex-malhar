@@ -32,12 +32,16 @@ public class ConsoleOutputOperator<T> extends BaseOperator
       else {
         s = String.format(stringFormat, t);
       }
-      System.out.println(s);
+      if (!silent) {
+        System.out.println(s);
+      }
       if (debug) {
         LOG.info(s);
       }
     }
   };
+
+  public boolean silent = false;
   /**
    * When set to true, tuples are also logged at INFO level.
    */

@@ -12,6 +12,8 @@ import com.malhartech.api.DefaultOutputPort;
 import java.util.HashMap;
 import java.util.Map;
 import javax.validation.constraints.Min;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Expects incoming stream to be a HashMap<String, Integer> and add all integer values to compute throughput. These
@@ -41,6 +43,8 @@ import javax.validation.constraints.Min;
 
 public class ThroughputCounter<K> extends BaseOperator
 {
+  private static Logger log = LoggerFactory.getLogger(ThroughputCounter.class);
+
   public final transient DefaultInputPort<HashMap<K, Integer>> data = new DefaultInputPort<HashMap<K, Integer>>(this)
   {
     @Override
@@ -70,6 +74,7 @@ public class ThroughputCounter<K> extends BaseOperator
   int count_denominator = 1;
   long count_windowid = 0;
   long tuple_count = 1; // so that the first begin window starts the count down
+  boolean didemit = false;
 
 
   @Min(1)
@@ -86,7 +91,8 @@ public class ThroughputCounter<K> extends BaseOperator
   @Override
   public void setup(OperatorContext context)
   {
-    windowStartTime = 0;
+    windowStartTime = System.currentTimeMillis();
+    log.debug(String.format("\nTupleCounter: set window to %d", rolling_window_count));
     if (rolling_window_count != 1) { // Initialized the tuple_numbers
       tuple_numbers = new long[rolling_window_count];
       time_numbers = new long[rolling_window_count];
@@ -103,7 +109,9 @@ public class ThroughputCounter<K> extends BaseOperator
   {
     if (tuple_count != 0) { // Do not restart time if no tuples were sent
       windowStartTime = System.currentTimeMillis();
-      tuple_count = 0;
+      if (didemit) {
+        tuple_count = 0;
+      }
     }
   }
 
@@ -116,9 +124,11 @@ public class ThroughputCounter<K> extends BaseOperator
     if (tuple_count == 0) {
       return;
     }
+
     long elapsedTime = System.currentTimeMillis() - windowStartTime;
     if (elapsedTime == 0) {
-      elapsedTime = 1; // prevent from / zero
+      didemit = false;
+      return;
     }
 
     long average;
@@ -139,7 +149,7 @@ public class ThroughputCounter<K> extends BaseOperator
       }
       else {
         tuple_numbers[count_denominator - 1] = tuple_count;
-        time_numbers[count_denominator - 1] =elapsedTime;
+        time_numbers[count_denominator - 1] = elapsedTime;
         slots = count_denominator;
         count_denominator++;
       }
@@ -158,5 +168,6 @@ public class ThroughputCounter<K> extends BaseOperator
     tuples.put(OPORT_COUNT_TUPLE_TUPLES_PERSEC, new Long(tuples_per_sec));
     tuples.put(OPORT_COUNT_TUPLE_WINDOWID, new Long(count_windowid++));
     count.emit(tuples);
+    didemit = true;
   }
 }
