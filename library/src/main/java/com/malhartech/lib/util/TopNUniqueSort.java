@@ -33,6 +33,12 @@ public class TopNUniqueSort<E>
   {
   }
 
+  /**
+   * Constructs and sets values accordingly
+   * @param initialCapacity
+   * @param bound
+   * @param flag
+   */
   public TopNUniqueSort(int initialCapacity, int bound, boolean flag)
   {
     ascending = flag;
@@ -42,28 +48,46 @@ public class TopNUniqueSort<E>
     hmap = new HashMap<E, MutableInteger>();
   }
 
+  /**
+   * adds an object
+   * @param e
+   * @return
+   */
   public boolean add(E e)
   {
     return offer(e);
   }
 
+  /**
+   * Size of the queue
+   * @return
+   */
   public int size()
   {
     return q.size();
   }
 
+  /**
+   * Clears the queue
+   */
   public void clear()
   {
     q.clear();
   }
 
+  /**
+   *
+   * @return true if queue is empty
+   */
   public boolean isEmpty()
   {
     return q.isEmpty();
   }
 
-  /*
-   * Returns ArrayList<HashMap<E, Integer>>
+  /**
+   * Returns topN objects
+   * @param n
+   * @return
    */
   public ArrayList getTopN(int n)
   {
@@ -96,6 +120,11 @@ public class TopNUniqueSort<E>
   //
   // If ascending, put the order in reverse
   //
+  /**
+   * Adds object
+   * @param e object to be added
+   * @return
+   */
   public boolean offer(E e)
   {
     MutableInteger ival = hmap.get(e);

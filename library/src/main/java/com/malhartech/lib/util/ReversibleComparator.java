@@ -24,12 +24,22 @@ public class ReversibleComparator<E> implements Comparator<E>
   {
   }
 
+  /**
+   *
+   * @param flag true for ascending, false for descending
+   */
   public ReversibleComparator(boolean flag)
   {
     ascending = flag;
   }
   public boolean ascending = true;
 
+  /**
+   * Compare function
+   * @param e1
+   * @param e2
+   * @return
+   */
   @Override
   public int compare(E e1, E e2)
   {

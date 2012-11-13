@@ -24,11 +24,19 @@ public class MutableDouble
     value = 0;
   }
 
+  /**
+   * Sets value to i
+   * @param i
+   */
   public MutableDouble(double i)
   {
     value = i;
   }
 
+  /**
+   * Increaments value by i
+   * @param i
+   */
   public void add(double i) {
     value += i;
   }

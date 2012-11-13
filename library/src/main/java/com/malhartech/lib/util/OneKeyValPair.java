@@ -26,25 +26,47 @@ public class OneKeyValPair<K,V>
   }
 
 
+  /**
+   * Setter function for value
+   * @param i
+   */
   public void setValue (V i)
   {
     value = i;
   }
 
+  /**
+   * Setter function for key
+   * @param i
+   */
   public void setKey(K i)
   {
     key = i;
   }
 
+  /**
+   * getter function for value
+   * @return
+   */
   public V getValue()
   {
     return value;
   }
 
+  /**
+   * getter function for key
+   * @return
+   */
   public K getKey()
   {
     return key;
   }
+
+  /**
+   * Constructor
+   * @param k
+   * @param v
+   */
   public OneKeyValPair(K k, V v)
   {
     key = k;

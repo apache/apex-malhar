@@ -6,6 +6,7 @@ package com.malhartech.lib.util;
 
 import java.util.ArrayList;
 import java.util.PriorityQueue;
+import javax.validation.constraints.Min;
 
 /**
  *
@@ -20,6 +21,7 @@ import java.util.PriorityQueue;
  */
 public class TopNSort<E>
 {
+  @Min(1)
   int qbound = Integer.MAX_VALUE;
   boolean ascending = true;
   PriorityQueue<E> q = null;
@@ -31,6 +33,12 @@ public class TopNSort<E>
   {
   }
 
+  /**
+   * Constructs and sets values accordingly
+   * @param initialCapacity
+   * @param bound
+   * @param flag
+   */
   public TopNSort(int initialCapacity, int bound, boolean flag)
   {
     ascending = flag;
@@ -39,26 +47,47 @@ public class TopNSort<E>
     qbound = bound;
   }
 
+  /**
+   * adds an object
+   * @param e
+   * @return
+   */
   public boolean add(E e)
   {
     return offer(e);
   }
 
+  /**
+   * Size of the queue
+   * @return
+   */
   public int size()
   {
     return q.size();
   }
 
+  /**
+   * Clears the queue
+   */
   public void clear()
   {
     q.clear();
   }
 
+  /**
+   *
+   * @return true if queue is empty
+   */
   public boolean isEmpty()
   {
     return q.isEmpty();
   }
 
+  /**
+   * Returns topN objects
+   * @param n
+   * @return
+   */
   public ArrayList getTopN(int n)
   {
     ArrayList list = new ArrayList();
@@ -87,6 +116,11 @@ public class TopNSort<E>
     return ret;
   }
 
+  /**
+   * Adds object
+   * @param e object to be added
+   * @return
+   */
   public boolean offer(E e)
   {
     if (q.size() <= qbound) {

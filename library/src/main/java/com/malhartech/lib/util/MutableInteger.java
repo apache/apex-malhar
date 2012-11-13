@@ -25,15 +25,26 @@ public class MutableInteger
     value = 0;
   }
 
+  /**
+   * Constructs and sets value to i
+   * @param i
+   */
   public MutableInteger(int i)
   {
     value = i;
   }
 
+  /**
+   * Increments by i
+   * @param i
+   */
   public void add(int i) {
     value += i;
   }
 
+  /**
+   * Increments by 1
+   */
   public void increment() {
     value++;
   }
