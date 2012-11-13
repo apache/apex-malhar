@@ -35,6 +35,9 @@ public class ArrayListToItem<K> extends BaseOperator
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<ArrayList<K>> data = new DefaultInputPort<ArrayList<K>>(this)
   {
+    /**
+     * Emitting one item at a time
+     */
     @Override
     public void process(ArrayList<K> tuple)
     {
