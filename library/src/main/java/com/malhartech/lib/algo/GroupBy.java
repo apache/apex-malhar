@@ -9,9 +9,11 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.BaseKeyValueOperator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import javax.validation.constraints.NotNull;
 
 /**
  *
@@ -37,10 +39,10 @@ import java.util.Map;
  * @author amol<br>
  *
  */
-public class GroupBy<K, V> extends BaseOperator
+public class GroupBy<K,V> extends BaseKeyValueOperator<K,V>
 {
   @InputPortFieldAnnotation(name = "data1")
-  public final transient DefaultInputPort<HashMap<K, V>> data1 = new DefaultInputPort<HashMap<K, V>>(this)
+  public final transient DefaultInputPort<HashMap<K,V>> data1 = new DefaultInputPort<HashMap<K,V>>(this)
   {
     /**
      * Checks if key exists. If so emits all current combinations with matching tuples received on port "data2"
@@ -57,13 +59,13 @@ public class GroupBy<K, V> extends BaseOperator
     }
   };
   @InputPortFieldAnnotation(name = "data2")
-  public final transient DefaultInputPort<HashMap<K, V>> data2 = new DefaultInputPort<HashMap<K, V>>(this)
+  public final transient DefaultInputPort<HashMap<K,V>> data2 = new DefaultInputPort<HashMap<K,V>>(this)
   {
     /**
      * Checks if key exists. If so emits all current combinations with matching tuples received on port "data1"
      */
     @Override
-    public void process(HashMap<K, V> tuple)
+    public void process(HashMap<K,V> tuple)
     {
       V val = tuple.get(key);
       if (val == null) { // emit error tuple
@@ -74,7 +76,7 @@ public class GroupBy<K, V> extends BaseOperator
     }
   };
   @OutputPortFieldAnnotation(name = "groupby")
-  public final transient DefaultOutputPort<HashMap<K, V>> groupby = new DefaultOutputPort<HashMap<K, V>>(this);
+  public final transient DefaultOutputPort<HashMap<K,V>> groupby = new DefaultOutputPort<HashMap<K,V>>(this);
 
   /**
    * Adds tuples to the list associated with its port
@@ -82,25 +84,27 @@ public class GroupBy<K, V> extends BaseOperator
    * @param map
    * @param val
    */
-  protected void registerTuple(HashMap<K, V> tuple, HashMap<V, ArrayList<HashMap<K, V>>> map, V val)
+  protected void registerTuple(HashMap<K,V> tuple, HashMap<V,ArrayList<HashMap<K,V>>> map, V val)
   {
     // Construct the data (HashMap) to be inserted into sourcemap
-    HashMap<K, V> data = new HashMap<K, V>();
-    for (Map.Entry<K, V> e: tuple.entrySet()) {
+    HashMap<K,V> data = new HashMap<K,V>();
+    for (Map.Entry<K,V> e: tuple.entrySet()) {
       if (!e.getKey().equals(key)) {
-        data.put(e.getKey(), e.getValue());
+        data.put(cloneKey(e.getKey()), cloneValue(e.getValue()));
       }
     }
-    ArrayList<HashMap<K, V>> list = map.get(val);
+    ArrayList<HashMap<K,V>> list = map.get(val);
     if (list == null) {
-      list = new ArrayList<HashMap<K, V>>();
+      list = new ArrayList<HashMap<K,V>>();
       map.put(val, list);
     }
     list.add(data);
   }
+
+  @NotNull
   K key;
-  HashMap<V, ArrayList<HashMap<K, V>>> map1 = new HashMap<V, ArrayList<HashMap<K, V>>>();
-  HashMap<V, ArrayList<HashMap<K, V>>> map2 = new HashMap<V, ArrayList<HashMap<K, V>>>();
+  HashMap<V,ArrayList<HashMap<K,V>>> map1 = new HashMap<V,ArrayList<HashMap<K,V>>>();
+  HashMap<V,ArrayList<HashMap<K,V>>> map2 = new HashMap<V,ArrayList<HashMap<K,V>>>();
 
   /**
    * Sets key to groupby
@@ -109,6 +113,12 @@ public class GroupBy<K, V> extends BaseOperator
   public void setKey(K str)
   {
     key = str;
+  }
+
+  @NotNull
+  public K getKey()
+  {
+    return key;
   }
 
   /**
@@ -128,22 +138,22 @@ public class GroupBy<K, V> extends BaseOperator
    * @param list
    * @param val
    */
-  public void emitTuples(HashMap<K, V> source, ArrayList<HashMap<K, V>> list, V val)
+  public void emitTuples(HashMap<K,V> source, ArrayList<HashMap<K,V>> list, V val)
   {
     if (list == null) { // The currentList does not have the value yet
       return;
     }
 
-    HashMap<K, V> tuple;
-    for (HashMap<K, V> e: list) {
+    HashMap<K,V> tuple;
+    for (HashMap<K,V> e: list) {
       tuple = new HashMap<K, V>();
       tuple.put(key, val);
-      for (Map.Entry<K, V> o: e.entrySet()) {
-        tuple.put(o.getKey(), o.getValue());
+      for (Map.Entry<K,V> o: e.entrySet()) {
+        tuple.put(cloneKey(o.getKey()), cloneValue(o.getValue()));
       }
-      for (Map.Entry<K, V> o: source.entrySet()) {
+      for (Map.Entry<K,V> o: source.entrySet()) {
         if (!o.getKey().equals(key)) {
-          tuple.put(o.getKey(), o.getValue());
+          tuple.put(cloneKey(o.getKey()), cloneValue(o.getValue()));
         }
       }
       groupby.emit(tuple);
