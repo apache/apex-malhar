@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Kestrel output adapter operator, which send data to Kestrel message bus.<p><br>
+ * Kestrel output adapter operator, which produce data to Kestrel message bus.<p><br>
  *
  * <br>
  * Ports:<br>
@@ -19,7 +19,8 @@ import org.slf4j.LoggerFactory;
  * <b>Output</b>: no output port<br>
  * <br>
  * Properties:<br>
- * <b>host</b>:the address for the consumer to connect <br>
+ * <b>queueName</b>:the queueName to interact with kestrel server<br>
+ * <b>servers</b>:the kestrel server url list<br>
  * <br>
  * Compile time checks:<br>
  * None<br>

@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
  * Properties:<br>
  * <b>tuple_blast</b>: Number of tuples emitted in each burst<br>
  * <b>bufferSize</b>: Size of holding buffer<br>
+ * <b>queueName</b>: the queueName to interact with kestrel server<br>
+ * <b>servers</b>: the kestrel server url list<br>
  * <br>
  * Compile time checks:<br>
  * Class derived from this has to implement the abstract method emitTuple() <br>
