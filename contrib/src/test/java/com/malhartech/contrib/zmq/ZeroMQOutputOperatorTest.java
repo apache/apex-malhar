@@ -90,18 +90,10 @@ public class ZeroMQOutputOperatorTest
     }
   }
 
-  public static class SourceOutputPort<T> extends DefaultOutputPort<T>
-  {
-    SourceOutputPort(Operator op)
-    {
-      super(op);
-    }
-  }
-
   public static class SourceModule extends BaseOperator
           implements InputOperator, ActivationListener<OperatorContext>
   {
-    public final transient SourceOutputPort<String> outPort = new SourceOutputPort<String>(this);
+    public final transient DefaultOutputPort<String> outPort = new DefaultOutputPort<String>(this);
     transient CircularBuffer<byte[]> holdingBuffer;
     int testNum;
 
