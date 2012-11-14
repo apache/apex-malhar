@@ -4,17 +4,37 @@
  */
 package com.malhartech.contrib.kafka;
 
-import java.util.Properties;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.util.*;
+import kafka.api.FetchRequest;
 import kafka.consumer.ConsumerConfig;
+import kafka.consumer.ConsumerIterator;
+import kafka.consumer.KafkaStream;
 import kafka.javaapi.consumer.ConsumerConnector;
+import kafka.javaapi.consumer.SimpleConsumer;
+import kafka.javaapi.message.ByteBufferMessageSet;
+import kafka.message.MessageAndOffset;
+import kafka.message.Message;
 
 /**
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
-public class KafkaBase
+public abstract class KafkaBase //implements Runnable
 {
-  private String zkConnect = "127.0.0.1:2181";
+  private transient SimpleConsumer simpleConsumer;
+  ConsumerConnector consumer;
+  private int sendCount = 20;
+  private int receiveCount = 0;
+  public transient Charset charset = Charset.forName("UTF-8");
+  public transient CharsetDecoder decoder = charset.newDecoder();
+  private Thread simpleConsumerThread;
+  private Thread consumerThread;
+
+  public abstract void emitMessage(ByteBuffer message);
+  private String zkConnect = "127.0.0.1:2182";
   private String groupId = "group1";
   private String topic = "topic1";
   private String kafkaServerURL = "localhost";
@@ -33,9 +53,108 @@ public class KafkaBase
     props.put("zk.sessiontimeout.ms", "400");
     props.put("zk.synctime.ms", "200");
     props.put("autocommit.interval.ms", "1000");
-    ConsumerConnector    consumer = kafka.consumer.Consumer.createJavaConsumerConnector(new ConsumerConfig(props));
+    consumer = kafka.consumer.Consumer.createJavaConsumerConnector(new ConsumerConfig(props));
     this.topic = topic;
   }
 
-  
+  public void createSimpleConsumer()
+  {
+    simpleConsumer = new SimpleConsumer("localhost", 2182, 10000, 1024000);
+  }
+
+  public String bb_to_str(ByteBuffer buffer)
+  {
+    String data = "";
+    try {
+      int old_position = buffer.position();
+      data = decoder.decode(buffer).toString();
+      // reset buffer's position to its original so it is not altered:
+      buffer.position(old_position);
+    }
+    catch (Exception e) {
+      return data;
+    }
+    return data;
+  }
+
+  public void simpleConsumerOnMessage()
+  {
+    simpleConsumerThread = new Thread("SimpleConsumerThread")
+    {
+      @Override
+      public void run()
+      {
+        long offset = 0;
+        boolean isAlive = true;
+        //while (receiveCount < sendCount) {
+        while (isAlive) {
+          // create a fetch request for topic “topic1”, partition 0, current offset, and fetch size of 1MB
+          FetchRequest fetchRequest = new FetchRequest("topic1", 0, offset, 1000000);
+
+          // get the message set from the consumer and print them out
+          ByteBufferMessageSet messages = simpleConsumer.fetch(fetchRequest);
+          Iterator<MessageAndOffset> itr = messages.iterator();
+
+          while (itr.hasNext()) {
+            MessageAndOffset msg = itr.next();
+            emitMessage(msg.message().payload());
+            System.out.println("consumed: " + bb_to_str(msg.message().payload()).toString());
+
+            // advance the offset after consuming each message
+            offset = msg.offset();
+            //System.out.println(String.format("offset %d", offset));
+            receiveCount++;
+          }
+          if (Thread.interrupted()) {
+            isAlive = false;
+          }
+        }
+      }
+    };
+    simpleConsumerThread.start();
+
+  }
+
+  public String getMessage(Message message)
+  {
+    ByteBuffer buffer = message.payload();
+    byte[] bytes = new byte[buffer.remaining()];
+    buffer.get(bytes);
+    return new String(bytes);
+  }
+
+  public void onMessage()
+  {
+    consumerThread = new Thread("ConsumerThread")
+    {
+      @Override
+      public void run()
+      {
+        boolean isAlive = true;
+        while (isAlive) {
+          Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
+          topicCountMap.put(topic, new Integer(1));
+          Map<String, List<KafkaStream<Message>>> consumerMap = consumer.createMessageStreams(topicCountMap);
+          KafkaStream<Message> stream = consumerMap.get(topic).get(0);
+          ConsumerIterator<Message> itr = stream.iterator();
+          while (itr.hasNext()) {
+            Message msg = itr.next().message();
+            emitMessage(msg.payload());
+            System.out.println(String.format("Consuming rr %s", getMessage(msg)));
+          }
+          if (Thread.interrupted()) {
+            isAlive = false;
+          }
+        }
+      }
+    };
+    consumerThread.start();
+  }
+
+  public void cleanup()
+  {
+    // simpleConsumerThread.interrupt();
+    consumerThread.interrupt();
+    //simpleConsumer.close();
+  }
 }
