@@ -73,4 +73,10 @@ public class URLSerDe implements StreamCodec<byte[]>
   {
     return false;
   }
+
+  @Override
+  public void reset() {
+  }
+
+
 }
