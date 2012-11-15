@@ -15,25 +15,27 @@ import kafka.consumer.KafkaStream;
 import kafka.javaapi.consumer.ConsumerConnector;
 import kafka.javaapi.consumer.SimpleConsumer;
 import kafka.javaapi.message.ByteBufferMessageSet;
-import kafka.message.MessageAndOffset;
 import kafka.message.Message;
+import kafka.message.MessageAndOffset;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
-public abstract class KafkaBase //implements Runnable
+public abstract class KafkaBase
 {
+  private static final Logger logger = LoggerFactory.getLogger(KafkaBase.class);
   private transient SimpleConsumer simpleConsumer;
-  ConsumerConnector consumer;
+  private transient ConsumerConnector consumer;
   private int sendCount = 20;
   private int receiveCount = 0;
   public transient Charset charset = Charset.forName("UTF-8");
   public transient CharsetDecoder decoder = charset.newDecoder();
   private Thread simpleConsumerThread;
   private Thread consumerThread;
-
-  public abstract void emitMessage(ByteBuffer message);
+  private boolean isAlive = true;
   private String zkConnect = "127.0.0.1:2182";
   private String groupId = "group1";
   private String topic = "topic1";
@@ -45,16 +47,16 @@ public abstract class KafkaBase //implements Runnable
   private String topic2 = "topic2";
   private String topic3 = "topic3";
 
-  public void createConsumer(String topic)
+  public abstract void emitMessage(Message message);
+
+  public boolean isIsAlive()
   {
-    Properties props = new Properties();
-    props.put("zk.connect", zkConnect);
-    props.put("groupid", groupId);
-    props.put("zk.sessiontimeout.ms", "400");
-    props.put("zk.synctime.ms", "200");
-    props.put("autocommit.interval.ms", "1000");
-    consumer = kafka.consumer.Consumer.createJavaConsumerConnector(new ConsumerConfig(props));
-    this.topic = topic;
+    return isAlive;
+  }
+
+  public void setIsAlive(boolean isAlive)
+  {
+    this.isAlive = isAlive;
   }
 
   public void createSimpleConsumer()
@@ -97,7 +99,7 @@ public abstract class KafkaBase //implements Runnable
 
           while (itr.hasNext()) {
             MessageAndOffset msg = itr.next();
-            emitMessage(msg.message().payload());
+            emitMessage(msg.message());
             System.out.println("consumed: " + bb_to_str(msg.message().payload()).toString());
 
             // advance the offset after consuming each message
@@ -115,6 +117,18 @@ public abstract class KafkaBase //implements Runnable
 
   }
 
+  public void createConsumer(String topic)
+  {
+    Properties props = new Properties();
+    props.put("zk.connect", zkConnect);
+    props.put("groupid", groupId);
+    //props.put("zk.sessiontimeout.ms", "400");
+    // props.put("zk.synctime.ms", "200");
+    //  props.put("autocommit.interval.ms", "1000");
+    consumer = kafka.consumer.Consumer.createJavaConsumerConnector(new ConsumerConfig(props));
+    this.topic = topic;
+  }
+
   public String getMessage(Message message)
   {
     ByteBuffer buffer = message.payload();
@@ -125,36 +139,33 @@ public abstract class KafkaBase //implements Runnable
 
   public void onMessage()
   {
-    consumerThread = new Thread("ConsumerThread")
+    consumerThread = new Thread("KafkaConsumerThread")
     {
       @Override
       public void run()
       {
-        boolean isAlive = true;
-        while (isAlive) {
-          Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
-          topicCountMap.put(topic, new Integer(1));
-          Map<String, List<KafkaStream<Message>>> consumerMap = consumer.createMessageStreams(topicCountMap);
-          KafkaStream<Message> stream = consumerMap.get(topic).get(0);
-          ConsumerIterator<Message> itr = stream.iterator();
-          while (itr.hasNext()) {
-            Message msg = itr.next().message();
-            emitMessage(msg.payload());
-            System.out.println(String.format("Consuming rr %s", getMessage(msg)));
-          }
-          if (Thread.interrupted()) {
-            isAlive = false;
-          }
+        Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
+        topicCountMap.put(topic, new Integer(1));
+        Map<String, List<KafkaStream<Message>>> consumerMap = consumer.createMessageStreams(topicCountMap);
+        KafkaStream<Message> stream = consumerMap.get(topic).get(0);
+        ConsumerIterator<Message> itr = stream.iterator();
+        while (itr.hasNext() && isAlive) {
+          Message msg = itr.next().message();
+          emitMessage(msg);
+          logger.debug("Consuming {}", getMessage(msg));
         }
       }
     };
+
     consumerThread.start();
   }
 
   public void cleanup()
   {
     // simpleConsumerThread.interrupt();
-    consumerThread.interrupt();
+    //consumerThread.interrupt();
+    isAlive = false;
+    consumer.shutdown();
     //simpleConsumer.close();
   }
 }

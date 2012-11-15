@@ -6,8 +6,8 @@ package com.malhartech.contrib.kafka;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
-import java.nio.ByteBuffer;
-import javax.jms.Message;
+import kafka.message.Message;
+
 
 /**
  *
@@ -29,13 +29,13 @@ public abstract class KafkaSinglePortInputOperator<T> extends KafkaInputOperator
    *
    * @param msg
    */
-  public abstract T getTuple(ByteBuffer msg);
+  public abstract T getTuple(Message msg);
 
   /**
    * Implement abstract method.
    */
   @Override
-  public void emitTuple(ByteBuffer msg)
+  public void emitTuple(Message msg)
   {
     outputPort.emit(getTuple(msg));
   }
