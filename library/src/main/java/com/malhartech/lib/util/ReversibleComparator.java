@@ -38,7 +38,7 @@ public class ReversibleComparator<E> implements Comparator<E>
    * Compare function
    * @param e1
    * @param e2
-   * @return
+   * @return e1.compareTo(e2) if acscending, else 0 - e1.compareTo(e2)
    */
   @Override
   public int compare(E e1, E e2)

@@ -70,7 +70,7 @@ public class FilterValues<T> extends BaseOperator
   /**
    * Adds a value to the filter list
    *
-   * @param str
+   * @param val adds to filter list
    */
   public void setValue(T val)
   {
@@ -82,7 +82,7 @@ public class FilterValues<T> extends BaseOperator
   /**
    * Adds the list of values to the filter list
    *
-   * @param list
+   * @param vals ArrayList of items to add to filter list
    */
   public void setValues(ArrayList<T> vals)
   {
@@ -102,8 +102,8 @@ public class FilterValues<T> extends BaseOperator
   /**
    * Clones V object. By default assumes immutable object (i.e. a copy is not made). If object is mutable, override this method
    *
-   * @param v
-   * @return
+   * @param val object bo be cloned
+   * @return cloned Val
    */
   public T cloneValue(T val)
   {

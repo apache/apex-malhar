@@ -69,7 +69,7 @@ public abstract class BaseFrequentKeyValue<K, V> extends BaseKeyValueOperator<K,
    *
    * @param val1
    * @param val2
-   * @return
+   * @return result of compareValue to be done by sub-class
    */
   public abstract boolean compareValue(int val1, int val2);
 

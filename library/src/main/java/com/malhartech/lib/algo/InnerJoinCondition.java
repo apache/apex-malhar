@@ -169,10 +169,10 @@ public class InnerJoinCondition<K, V extends Comparable> extends AbstractBaseMat
 
   /**
    * Emits all combinations of source and matching other list
-   *
-   * @param source
-   * @param list
-   * @param val
+   * @param row to emit on
+   * @param list of other table/stream
+   * @param val value of the key
+   * @param filter filters keys from row
    */
   public void emitTuples(HashMap<K, V> row,
           ArrayList<HashMap<K, V>> list,

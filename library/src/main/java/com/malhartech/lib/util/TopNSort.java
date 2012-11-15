@@ -50,7 +50,7 @@ public class TopNSort<E>
   /**
    * adds an object
    * @param e
-   * @return
+   * @return true is add succeeds
    */
   public boolean add(E e)
   {
@@ -59,7 +59,7 @@ public class TopNSort<E>
 
   /**
    * Size of the queue
-   * @return
+   * @return size of the priority queue
    */
   public int size()
   {
@@ -86,7 +86,7 @@ public class TopNSort<E>
   /**
    * Returns topN objects
    * @param n
-   * @return
+   * @return ArrayList of top N object
    */
   public ArrayList getTopN(int n)
   {
@@ -119,7 +119,7 @@ public class TopNSort<E>
   /**
    * Adds object
    * @param e object to be added
-   * @return
+   * @return true is offer() succeeds
    */
   public boolean offer(E e)
   {

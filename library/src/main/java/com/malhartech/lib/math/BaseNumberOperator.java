@@ -29,7 +29,7 @@ public class BaseNumberOperator<V extends Number> extends BaseOperator
   /**
    * This call ensures that type enum is set at setup time. At run time a switch statement suffices
    * If you derive your
-   * @param type
+   * @param ctype the type to set the operator to
    */
 
   public void setType(Class<V> ctype)
@@ -58,8 +58,8 @@ public class BaseNumberOperator<V extends Number> extends BaseOperator
    * This is a constructor provided to clone Number. Since V is instantiation time and not known during module creation, a copy
    * is needed. Currently only the following are supported: Double, Integer, Float, Long, and Short. If you derive your own class from Number
    * then you need to override getValue to help make a correct copy.
-   * @param num
-   * @return
+   * @param num to clone from
+   * @return value as a correct sub-class (V) object
    */
   public V getValue(Number num)
   {

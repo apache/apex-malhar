@@ -50,7 +50,7 @@ public class BaseLineTokenizer extends BaseOperator
 
   /**
    * getter function for splitBy
-   * @return
+   * @return splitBy
    */
   @NotNull()
   public String getSplitBy()
@@ -60,7 +60,7 @@ public class BaseLineTokenizer extends BaseOperator
 
   /**
    * getter function for splitTokeBy
-   * @return
+   * @return splitTokenBy
    */
   public String getSplitTokenBy()
   {

@@ -128,7 +128,7 @@ public class InnerJoin<K,V> extends BaseKeyValueOperator<K,V>
 
   /**
    * getter function for key
-   * @return
+   * @return returns key
    */
   @NotNull
   public K getKey()
@@ -186,9 +186,10 @@ public class InnerJoin<K,V> extends BaseKeyValueOperator<K,V>
 
   /**
    * Emits all combinations of source and matching other list
-   * @param source
-   * @param list
-   * @param val
+   * @param row to emit on
+   * @param list of other table/stream
+   * @param val value of the key
+   * @param filter filters keys from row
    */
   public void emitTuples(HashMap<K,V> row,
           ArrayList<HashMap<K,V>> list,

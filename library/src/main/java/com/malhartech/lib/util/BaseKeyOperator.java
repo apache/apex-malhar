@@ -16,8 +16,8 @@ abstract public class BaseKeyOperator<K> extends BaseOperator
 {
   /**
    * Override this call in case you have mutable objects. By default the objects are assumed to be immutable
-   * @param k
-   * @return
+   * @param k to be cloned
+   * @return k as is
    */
   public K cloneKey(K k)
   {

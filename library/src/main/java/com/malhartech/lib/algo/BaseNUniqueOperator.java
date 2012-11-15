@@ -22,7 +22,7 @@ public abstract class BaseNUniqueOperator<K, V> extends BaseNOperator<K, V>
 
   /**
    * Override to decide the direction (ascending vs descending)
-   * @return
+   * @return true if ascending
    */
   abstract public boolean isAscending();
 
@@ -56,6 +56,7 @@ public abstract class BaseNUniqueOperator<K, V> extends BaseNOperator<K, V>
 
   /**
    * Clears cache to start fresh
+   * @param windowId is the window id
    */
   @Override
   public void beginWindow(long windowId)

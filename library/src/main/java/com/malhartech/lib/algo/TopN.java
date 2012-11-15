@@ -42,7 +42,7 @@ public class TopN<K, V> extends BaseNNonUniqueOperator<K,V>
 
   /**
    * returns true
-   * @return
+   * @return true
    */
   @Override
   public boolean isAscending()

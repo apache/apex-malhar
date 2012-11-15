@@ -39,7 +39,7 @@ public class TopNUnique<K, V> extends BaseNUniqueOperator<K, V>
 
   /**
    * returns true
-   * @return
+   * @return true
    */
   @Override
   public boolean isAscending()

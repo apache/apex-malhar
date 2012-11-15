@@ -40,7 +40,7 @@ public class BottomNUnique<K, V> extends BaseNUniqueOperator<K, V>
 
   /**
    * Ascending is set to false as we are looking for Bottom N
-   * @return
+   * @return false
    */
   @Override
   public boolean isAscending()

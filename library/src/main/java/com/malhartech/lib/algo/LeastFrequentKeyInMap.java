@@ -21,7 +21,7 @@ import java.util.Map;
  * <br>
  * Ports:<br>
  * <b>data</b>: expects HashMap<K,V>, V is ignored/not used<br>
- * <b>least</b>: emits HashMap<K, Integer>(1); where String is the least frequent key, and Integer is the number of its occurrences in the window<br>
+ * <b>least</b>: emits HashMap<K,Integer>(1); where String is the least frequent key, and Integer is the number of its occurrences in the window<br>
  * <b>list</b>: emits ArrayList<HashMap<K,Integer>(1)>; Where the list includes all the keys are least frequent<br>
  * <br>
  * Properties:<br>
@@ -39,33 +39,33 @@ import java.util.Map;
  * <br>
  * @author amol
  */
-public class LeastFrequentKeyInMap<K, V> extends BaseFrequentKey<K>
+public class LeastFrequentKeyInMap<K,V> extends BaseFrequentKey<K>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
+  public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>(this)
   {
     /**
      * Calls super.processTuple(tuple) for each key in the HashMap
      */
     @Override
-    public void process(HashMap<K, V> tuple)
+    public void process(HashMap<K,V> tuple)
     {
-      for (Map.Entry<K, V> e: tuple.entrySet()) {
+      for (Map.Entry<K,V> e: tuple.entrySet()) {
         processTuple(e.getKey());
       }
     }
   };
   @OutputPortFieldAnnotation(name = "least", optional=true)
-  public final transient DefaultOutputPort<HashMap<K, Integer>> least = new DefaultOutputPort<HashMap<K, Integer>>(this);
+  public final transient DefaultOutputPort<HashMap<K,Integer>> least = new DefaultOutputPort<HashMap<K,Integer>>(this);
   @OutputPortFieldAnnotation(name = "list", optional=true)
-  public final transient DefaultOutputPort<ArrayList<HashMap<K, Integer>>> list = new DefaultOutputPort<ArrayList<HashMap<K, Integer>>>(this);
+  public final transient DefaultOutputPort<ArrayList<HashMap<K,Integer>>> list = new DefaultOutputPort<ArrayList<HashMap<K,Integer>>>(this);
 
   /**
    * Emits tuple on port "least"
    * @param tuple
    */
   @Override
-  public void emitTuple(HashMap<K, Integer> tuple)
+  public void emitTuple(HashMap<K,Integer> tuple)
   {
     least.emit(tuple);
   }
@@ -75,7 +75,7 @@ public class LeastFrequentKeyInMap<K, V> extends BaseFrequentKey<K>
    * @param tlist
    */
   @Override
-  public void emitList(ArrayList<HashMap<K, Integer>> tlist)
+  public void emitList(ArrayList<HashMap<K,Integer>> tlist)
   {
     list.emit(tlist);
   }
@@ -84,7 +84,7 @@ public class LeastFrequentKeyInMap<K, V> extends BaseFrequentKey<K>
    * returns val1 < val2
    * @param val1
    * @param val2
-   * @return
+   * @return val1 < val2
    */
   @Override
   public boolean compareCount(int val1, int val2)

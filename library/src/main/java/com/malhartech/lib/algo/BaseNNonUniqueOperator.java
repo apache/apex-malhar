@@ -34,7 +34,7 @@ public abstract class BaseNNonUniqueOperator<K, V> extends BaseNOperator<K, V>
 {
   /**
    * Override to decide the direction (ascending vs descending)
-   * @return
+   * @return true if ascending, to be done by sub-class
    */
   abstract public boolean isAscending();
 

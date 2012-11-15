@@ -28,25 +28,25 @@ public class OneKeyValPair<K,V>
 
   /**
    * Setter function for value
-   * @param i
+   * @param value sets value
    */
-  public void setValue (V i)
+  public void setValue (V value)
   {
-    value = i;
+    this.value = value;
   }
 
   /**
    * Setter function for key
-   * @param i
+   * @param key sets key
    */
-  public void setKey(K i)
+  public void setKey(K key)
   {
-    key = i;
+    this.key = key;
   }
 
   /**
    * getter function for value
-   * @return
+   * @return value
    */
   public V getValue()
   {
@@ -55,7 +55,7 @@ public class OneKeyValPair<K,V>
 
   /**
    * getter function for key
-   * @return
+   * @return key
    */
   public K getKey()
   {
@@ -64,8 +64,8 @@ public class OneKeyValPair<K,V>
 
   /**
    * Constructor
-   * @param k
-   * @param v
+   * @param k sets key
+   * @param v sets value
    */
   public OneKeyValPair(K k, V v)
   {

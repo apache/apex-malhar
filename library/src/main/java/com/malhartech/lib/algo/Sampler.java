@@ -65,6 +65,7 @@ public class Sampler<K> extends BaseKeyOperator<K>
 
   /**
    * Returns pass rate
+   * @return passrate
    */
   public int getPassrate()
   {
@@ -74,7 +75,7 @@ public class Sampler<K> extends BaseKeyOperator<K>
   /**
    * returns total rate
    *
-   * @return
+   * @return totalrate
    */
   public int getTotalrate()
   {
@@ -84,7 +85,7 @@ public class Sampler<K> extends BaseKeyOperator<K>
   /**
    * Sets pass rate
    *
-   * @param val
+   * @param val passrate is set to val
    */
   public void setPassrate(int val)
   {
@@ -94,7 +95,7 @@ public class Sampler<K> extends BaseKeyOperator<K>
   /**
    * Sets total rate
    *
-   * @param val
+   * @param val total rate is set to val
    */
   public void setTotalrate(int val)
   {

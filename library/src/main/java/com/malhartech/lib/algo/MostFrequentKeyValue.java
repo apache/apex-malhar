@@ -42,7 +42,7 @@ public class MostFrequentKeyValue<K, V> extends BaseFrequentKeyValue<K, V>
    * returns val1 < val2
    * @param val1
    * @param val2
-   * @return
+   * @return val1 > val2
    */
   @Override
   public boolean compareValue(int val1, int val2)
@@ -52,7 +52,7 @@ public class MostFrequentKeyValue<K, V> extends BaseFrequentKeyValue<K, V>
 
   /**
    * Emits tuple on port "most"
-   * @param tuple
+   * @param tuple is emitted on port "most"
    */
   @Override
   public void emitTuple(HashMap<K, HashMap<V, Integer>> tuple)

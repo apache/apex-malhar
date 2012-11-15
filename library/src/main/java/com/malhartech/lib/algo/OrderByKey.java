@@ -22,9 +22,9 @@ import java.util.PriorityQueue;
  * At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
  * <br>
  * <b>Ports</b>
- * <b>data</b>: Input data port expects HashMap<String, Object><br>
- * <b>ordered_count</b>: emits HashMap<Object, Integer><br>
- * <b>ordered_list</b>: Output data port, emits ArrayList<HashMap<String, Object>><br>
+ * <b>data</b>: Input data port expects HashMap<String,Object><br>
+ * <b>ordered_count</b>: emits HashMap<Object,Integer><br>
+ * <b>ordered_list</b>: Output data port, emits ArrayList<HashMap<String,Object>><br>
  * <b>Properties</b>:
  * <b>orderby</b>: The key to order by<br>
  * <b>Benchmarks></b>: TBD<br>
@@ -37,16 +37,16 @@ import java.util.PriorityQueue;
  * @author amol<br>
  *
  */
-public class OrderByKey<K, V> extends BaseOperator
+public class OrderByKey<K,V> extends BaseOperator
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
+  public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>(this)
   {
     /**
      * process the tuple is orderby key exists.
      */
     @Override
-    public void process(HashMap<K, V> tuple)
+    public void process(HashMap<K,V> tuple)
     {
       V val = tuple.get(orderby);
       if (val == null) {
@@ -82,13 +82,13 @@ public class OrderByKey<K, V> extends BaseOperator
   };
 
   @OutputPortFieldAnnotation(name = "ordered_list")
-  public final transient DefaultOutputPort<HashMap<K, V>> ordered_list = new DefaultOutputPort<HashMap<K, V>>(this);
+  public final transient DefaultOutputPort<HashMap<K,V>> ordered_list = new DefaultOutputPort<HashMap<K,V>>(this);
   @OutputPortFieldAnnotation(name = "ordered_count")
-  public final transient DefaultOutputPort<HashMap<V, Integer>> ordered_count = new DefaultOutputPort<HashMap<V, Integer>>(this);
+  public final transient DefaultOutputPort<HashMap<V,Integer>> ordered_count = new DefaultOutputPort<HashMap<V,Integer>>(this);
   String orderby = "";
   protected PriorityQueue<V> pqueue = null;
-  protected HashMap<V, MutableInteger> countmap = new HashMap<V, MutableInteger>();
-  protected HashMap<V, ArrayList<HashMap<K, V>>> smap = new HashMap<V, ArrayList<HashMap<K, V>>>();
+  protected HashMap<V,MutableInteger> countmap = new HashMap<V,MutableInteger>();
+  protected HashMap<V,ArrayList<HashMap<K,V>>> smap = new HashMap<V,ArrayList<HashMap<K,V>>>();
 
   /**
    * Sets orderby key
@@ -101,7 +101,7 @@ public class OrderByKey<K, V> extends BaseOperator
 
   /**
    * First cut of the priority queue in ascending order
-   * @return
+   * @return constructed PriorityQueue
    */
   public PriorityQueue<V> initializePriorityQueue() {
     return new PriorityQueue<V>(5);

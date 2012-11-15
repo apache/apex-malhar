@@ -82,7 +82,7 @@ public class MostFrequentKey<K> extends BaseFrequentKey<K>
    * returns val1 < val2
    * @param val1
    * @param val2
-   * @return
+   * @return val1 > val2
    */
   @Override
   public boolean compareCount(int val1, int val2)

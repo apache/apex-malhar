@@ -20,7 +20,7 @@ import javax.validation.constraints.Min;
  * <br>
  * <br>
  * <b>Schema</b>:
- * <b>data</b>: expects HashMap<K, V>, a HashMap of key value pairs<br>
+ * <b>data</b>: expects HashMap<K,V>, a HashMap of key value pairs<br>
  * <b>query</b>: expects K. This is the key on which a query is done<br>
  * <b>queue</b>: emits the V that pops on insert<br>
  * <b>console</b>: emits HashMap<K, ArrayList<V>>, the current queue<br>
@@ -40,29 +40,29 @@ import javax.validation.constraints.Min;
  *
  * @author amol
  */
-public class TupleQueue<K, V> extends BaseOperator
+public class TupleQueue<K,V> extends BaseOperator
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
+  public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>(this)
   {
     /**
      * Process tuple to create a queue (FIFO)
      * Emits only if depth is reached
      */
     @Override
-    public void process(HashMap<K, V> tuple)
+    public void process(HashMap<K,V> tuple)
     {
-      for (Map.Entry<K, V> e: tuple.entrySet()) {
+      for (Map.Entry<K,V> e: tuple.entrySet()) {
         K key = e.getKey();
         ValueData val = vmap.get(key);
         if (val == null) {
           val = new ValueData(e.getValue());
-          vmap.put(key, val);
+          vmap.put(key,val);
         }
         else {
           V ret = val.insert(e.getValue(), depth);
           if (queue.isConnected() && (ret != null)) { // means something popped out of the queue
-            HashMap<K, V> qtuple = new HashMap<K, V>(1);
+            HashMap<K,V> qtuple = new HashMap<K,V>(1);
             qtuple.put(key, ret);
             queue.emit(qtuple);
           }
@@ -86,12 +86,12 @@ public class TupleQueue<K, V> extends BaseOperator
   };
 
   @OutputPortFieldAnnotation(name = "queue")
-  public final transient DefaultOutputPort<HashMap<K, V>> queue = new DefaultOutputPort<HashMap<K, V>>(this);
+  public final transient DefaultOutputPort<HashMap<K,V>> queue = new DefaultOutputPort<HashMap<K,V>>(this);
 
   @OutputPortFieldAnnotation(name = "console")
-  public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> console = new DefaultOutputPort<HashMap<K, ArrayList<V>>>(this);
-  HashMap<K, ValueData> vmap = new HashMap<K, ValueData>();
-  HashMap<K, Object> queryHash = new HashMap<K, Object>();
+  public final transient DefaultOutputPort<HashMap<K,ArrayList<V>>> console = new DefaultOutputPort<HashMap<K,ArrayList<V>>>(this);
+  HashMap<K,ValueData> vmap = new HashMap<K,ValueData>();
+  HashMap<K,Object> queryHash = new HashMap<K,Object>();
   final int depth_default = 10;
   @Min(1)
   int depth = depth_default;
@@ -99,7 +99,7 @@ public class TupleQueue<K, V> extends BaseOperator
 
   /**
    * return depth
-   * @return
+   * @return depth
    */
   @Min(1)
   public int getDepth()
@@ -109,7 +109,7 @@ public class TupleQueue<K, V> extends BaseOperator
 
   /**
    * sets depth
-   * @param d
+   * @param d depth is set to d
    */
   public void setDepth(int d)
   {

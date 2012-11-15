@@ -17,8 +17,8 @@ import javax.validation.constraints.Min;
  * At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
  * <br>
  * <b>Ports</b>
- * <b>data</b>: expects HashMap<K, V><br>
- * <b>top</b>: emits HashMap<K, ArrayList<V>><br>
+ * <b>data</b>: expects HashMap<K,V><br>
+ * <b>top</b>: emits HashMap<K,ArrayList<V>><br>
  * <b>Properties</b>:
  * <b>N</b>: The number of top values to be emitted per key<br>
  * <br>
@@ -33,16 +33,16 @@ import javax.validation.constraints.Min;
  * @author amol<br>
  *
  */
-abstract public class BaseNOperator<K, V> extends BaseKeyOperator<K>
+abstract public class BaseNOperator<K,V> extends BaseKeyOperator<K>
 {
   /**
    * Expects a HashMap<K,V> tuple
    */
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
+  public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>(this)
   {
     @Override
-    public void process(HashMap<K, V> tuple)
+    public void process(HashMap<K,V> tuple)
     {
       processTuple(tuple);
     }
@@ -55,7 +55,7 @@ abstract public class BaseNOperator<K, V> extends BaseKeyOperator<K>
    *
    * @param tuple
    */
-  abstract public void processTuple(HashMap<K, V> tuple);
+  abstract public void processTuple(HashMap<K,V> tuple);
 
   /**
    * Sets value of N (depth)
@@ -76,12 +76,13 @@ abstract public class BaseNOperator<K, V> extends BaseKeyOperator<K>
   /**
    * Creates a HashMap<K,V>(1) by using cloneKey(K) and cloneValue(V)
    *
-   * @param v
-   * @return
+   * @param key key to be cloned
+   * @param val value to be cloned
+   * @return HashMap<K,V>(1)
    */
-  public HashMap<K, V> cloneTuple(K key, V val)
+  public HashMap<K,V> cloneTuple(K key, V val)
   {
-    HashMap<K, V> ret = new HashMap<K, V>(1);
+    HashMap<K,V> ret = new HashMap<K,V>(1);
     ret.put(cloneKey(key), cloneValue(val));
     return ret;
   }
@@ -89,8 +90,8 @@ abstract public class BaseNOperator<K, V> extends BaseKeyOperator<K>
   /**
    * By default an immutable object is assumed. Override if V is mutable
    *
-   * @param v
-   * @return
+   * @param v object to be cloned
+   * @return v as is since object is assumed to be immutable
    */
   public V cloneValue(V v)
   {

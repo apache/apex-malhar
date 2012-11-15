@@ -22,7 +22,7 @@ import java.util.Map;
  * <br>
  * Ports:<br>
  * <b>data</b>: expects K<br>
- * <b>least</b>: emits HashMap<K, Integer>(1); where String is the least frequent key, and Integer is the number of its occurrences in the window. In case of tie
+ * <b>least</b>: emits HashMap<K,Integer>(1); where String is the least frequent key, and Integer is the number of its occurrences in the window. In case of tie
  * any of th least key would be emitted<br>
  * <b>list</b>: emits ArrayList<HashMap<K,Integer>(1)>; Where the list includes all the keys are least frequent<br>
  * <br>
@@ -75,7 +75,7 @@ public class LeastFrequentKey<K> extends BaseFrequentKey<K>
    * returns val1 < val2
    * @param val1
    * @param val2
-   * @return
+   * @return val1 < val2
    */
   @Override
     public boolean compareCount(int val1, int val2)

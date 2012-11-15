@@ -112,8 +112,8 @@ public class FilterKeys<K,V> extends BaseKeyOperator<K>
 
   /**
    * Clones V object. By default assumes immutable object (i.e. a copy is not made). If object is mutable, override this method
-   * @param v
-   * @return
+   * @param v value to be cloned
+   * @return returns v as is (assumes immutable object)
    */
   public V cloneValue(V v)
   {

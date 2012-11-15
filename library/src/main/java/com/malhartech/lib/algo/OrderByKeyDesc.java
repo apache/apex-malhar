@@ -14,9 +14,9 @@ import java.util.PriorityQueue;
  * At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
  * <br>
  * <b>Ports</b>
- * <b>data</b>: Input data port expects HashMap<String, Object><br>
- * <b>ordered_count</b>: emits HashMap<Object, Integer><br>
- * <b>ordered_list</b>: Output data port, emits ArrayList<HashMap<String, Object>><br>
+ * <b>data</b>: Input data port expects HashMap<String,Object><br>
+ * <b>ordered_count</b>: emits HashMap<Object,Integer><br>
+ * <b>ordered_list</b>: Output data port, emits ArrayList<HashMap<String,Object>><br>
  * <b>Properties</b>:
  * <b>orderby</b>: The key to order by<br>
  * <b>Benchmarks></b>: TBD<br>
@@ -29,11 +29,11 @@ import java.util.PriorityQueue;
  * @author amol<br>
  *
  */
-public class OrderByKeyDesc<K, V> extends OrderByKey<K, V>
+public class OrderByKeyDesc<K,V> extends OrderByKey<K,V>
 {
   /**
    * Initializes descending priority queue
-   * @return
+   * @return constructed PriorityQueue
    */
   @Override
   public PriorityQueue<V> initializePriorityQueue()

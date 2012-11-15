@@ -51,7 +51,7 @@ public class TopNUniqueSort<E>
   /**
    * adds an object
    * @param e
-   * @return
+   * @return true if add() succeeds
    */
   public boolean add(E e)
   {
@@ -60,7 +60,7 @@ public class TopNUniqueSort<E>
 
   /**
    * Size of the queue
-   * @return
+   * @return size of the queue
    */
   public int size()
   {
@@ -87,7 +87,7 @@ public class TopNUniqueSort<E>
   /**
    * Returns topN objects
    * @param n
-   * @return
+   * @return Top N in an ArrayList
    */
   public ArrayList getTopN(int n)
   {
@@ -123,7 +123,7 @@ public class TopNUniqueSort<E>
   /**
    * Adds object
    * @param e object to be added
-   * @return
+   * @return true if offer() succeeds
    */
   public boolean offer(E e)
   {

@@ -17,7 +17,7 @@ abstract public class BaseKeyValueOperator<K,V> extends BaseKeyOperator<K>
   /**
    * By default an immutable object is assumed. Override if V is mutable
    * @param v
-   * @return
+   * @return v as is
    */
   public V cloneValue(V v)
   {

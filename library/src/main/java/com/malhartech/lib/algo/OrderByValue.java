@@ -22,8 +22,8 @@ import java.util.PriorityQueue;
  * At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
  * <br>
  * <b>Ports</b>
- * <b>data</b>: Input data port expects HashMap<String, Integer><br>
- * <b>out_data</b>: Output data port, emits HashMap<String, Integer><br>
+ * <b>data</b>: Input data port expects HashMap<String,Integer><br>
+ * <b>out_data</b>: Output data port, emits HashMap<String,Integer><br>
  * <b>Properties</b>:
  * <b>Benchmarks></b>: TBD<br>
  * Compile time checks are:<br>
@@ -34,18 +34,18 @@ import java.util.PriorityQueue;
  * @author amol<br>
  *
  */
-public class OrderByValue<K, V> extends BaseOperator
+public class OrderByValue<K,V> extends BaseOperator
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
+  public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>(this)
   {
     /**
      * Processes each tuple, and orders by the given value
      */
     @Override
-    public void process(HashMap<K, V> tuple)
+    public void process(HashMap<K,V> tuple)
     {
-      for (Map.Entry<K, V> e: tuple.entrySet()) {
+      for (Map.Entry<K,V> e: tuple.entrySet()) {
         HashMap<K, MutableInteger> istr = smap.get(e.getValue());
         if (istr == null) { // not in priority queue
           istr = new HashMap<K, MutableInteger>(4);
@@ -64,16 +64,16 @@ public class OrderByValue<K, V> extends BaseOperator
     }
   };
   @OutputPortFieldAnnotation(name = "ordered_list")
-  public final transient DefaultOutputPort<HashMap<K, V>> ordered_list = new DefaultOutputPort<HashMap<K, V>>(this);
+  public final transient DefaultOutputPort<HashMap<K,V>> ordered_list = new DefaultOutputPort<HashMap<K,V>>(this);
   @OutputPortFieldAnnotation(name = "ordered_count")
-  public final transient DefaultOutputPort<HashMap<K, HashMap<V, Integer>>> ordered_count = new DefaultOutputPort<HashMap<K, HashMap<V, Integer>>>(this);
+  public final transient DefaultOutputPort<HashMap<K,HashMap<V,Integer>>> ordered_count = new DefaultOutputPort<HashMap<K, HashMap<V,Integer>>>(this);
   PriorityQueue<V> pqueue = new PriorityQueue<V>(5);
-  HashMap<V, HashMap<K, MutableInteger>> smap = new HashMap<V, HashMap<K, MutableInteger>>();
+  HashMap<V,HashMap<K,MutableInteger>> smap = new HashMap<V,HashMap<K,MutableInteger>>();
 
 
   /**
    * Initializes the priority queue in ascending order
-   * @return
+   * @return consructed PriorityQueue
    */
   public PriorityQueue<V> initializePriorityQueue()
   {
@@ -112,7 +112,7 @@ public class OrderByValue<K, V> extends BaseOperator
   {
     V ival;
     while ((ival = pqueue.poll()) != null) {
-      HashMap<K, MutableInteger> istr = smap.get(ival);
+      HashMap<K,MutableInteger> istr = smap.get(ival);
       if (istr == null) { // Should never be null
         continue;
       }
@@ -120,14 +120,14 @@ public class OrderByValue<K, V> extends BaseOperator
         final int count = e.getValue().value;
         if (ordered_list.isConnected()) {
           for (int i = 0; i < count; i++) {
-            HashMap<K, V> tuple = new HashMap<K, V>(1);
+            HashMap<K,V> tuple = new HashMap<K,V>(1);
             tuple.put(e.getKey(), ival);
             ordered_list.emit(tuple);
           }
         }
         if (ordered_count.isConnected()) {
-          HashMap<K, HashMap<V, Integer>> tuple = new HashMap<K, HashMap<V, Integer>>(1);
-          HashMap<V, Integer> data = new HashMap<V, Integer>(1);
+          HashMap<K,HashMap<V,Integer>> tuple = new HashMap<K,HashMap<V,Integer>>(1);
+          HashMap<V,Integer> data = new HashMap<V,Integer>(1);
           data.put(ival, new Integer(count));
           tuple.put(e.getKey(), data);
           ordered_count.emit(tuple);

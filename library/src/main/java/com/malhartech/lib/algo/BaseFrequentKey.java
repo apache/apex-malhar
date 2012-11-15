@@ -48,7 +48,7 @@ public abstract class BaseFrequentKey<K> extends BaseKeyOperator<K>
    * Override compareCount to decide most vs least
    * @param val1
    * @param val2
-   * @return
+   * @return result of compareCount to be done by subclass
    */
   abstract public boolean compareCount(int val1, int val2);
 

@@ -43,7 +43,7 @@ public class BottomN<K, V> extends BaseNNonUniqueOperator<K,V>
 
   /**
    * Ascending is set to false as we are looking for Bottom N
-   * @return
+   * @return false
    */
   @Override
   public boolean isAscending()

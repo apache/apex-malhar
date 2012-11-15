@@ -105,8 +105,8 @@ public class StreamMerger10<K> extends StreamMerger5<K>
 
   /**
    * Enables dynamic construction of port name
-   * @param i
-   * @return
+   * @param i the port number
+   * @return the proper InputPort
    */
   @Override
   public DefaultInputPort<K> getInputPort(int i)

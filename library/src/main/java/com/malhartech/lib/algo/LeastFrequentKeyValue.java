@@ -15,8 +15,8 @@ import java.util.HashMap;
  * This module is an end of window module<br>
  * <br>
  * Ports:<br>
- * <b>data</b>: Input port, expects HashMap<K, V><br>
- * <b>least</b>: Output port, emits HashMap<K, HashMap<V, Integer>(1)>(1), where first String is the key, the second String is the value, and Integer is the count of occurrence<br>
+ * <b>data</b>: Input port, expects HashMap<K,V><br>
+ * <b>least</b>: Output port, emits HashMap<K,HashMap<V,Integer>(1)>(1), where first String is the key, the second String is the value, and Integer is the count of occurrence<br>
  * <br>
  * Properties:<br>
  * none<br>
@@ -42,7 +42,7 @@ public class LeastFrequentKeyValue<K, V> extends BaseFrequentKeyValue<K, V>
    * returns val1 < val2
    * @param val1
    * @param val2
-   * @return
+   * @return val1 < val2
    */
   @Override
   public boolean compareValue(int val1, int val2)
