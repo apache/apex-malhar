@@ -87,7 +87,7 @@ public class ScaledApplication implements ApplicationFactory
     String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
     if (serverAddr == null) {
       ConsoleOutputOperator<HashMap<String, T>> oper = b.addOperator(name, new ConsoleOutputOperator<HashMap<String, T>>());
-      oper.setStringFormat(name + "(%d): %s");
+      oper.setStringFormat(name + "%s");
       oper.silent = silent;
       return oper.input;
     }
