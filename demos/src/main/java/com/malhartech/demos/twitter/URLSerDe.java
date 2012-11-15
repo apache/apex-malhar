@@ -75,7 +75,7 @@ public class URLSerDe implements StreamCodec<byte[]>
   }
 
   @Override
-  public void reset()
+  public void checkpoint()
   {
     /* there is nothing to reset in this serde */
   }
