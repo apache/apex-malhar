@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ConsoleOutputOperator<T> extends BaseOperator
 {
-  private static final Logger LOG = LoggerFactory.getLogger(ConsoleOutputOperator.class);
+  private static final Logger logger = LoggerFactory.getLogger(ConsoleOutputOperator.class);
   public final transient DefaultInputPort<T> input = new DefaultInputPort<T>(this)
   {
     @Override
@@ -36,11 +36,10 @@ public class ConsoleOutputOperator<T> extends BaseOperator
         System.out.println(s);
       }
       if (debug) {
-        LOG.info(s);
+        logger.info(s);
       }
     }
   };
-
   public boolean silent = false;
   /**
    * When set to true, tuples are also logged at INFO level.

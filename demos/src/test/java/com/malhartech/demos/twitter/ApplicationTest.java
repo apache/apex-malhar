@@ -32,7 +32,7 @@ public class ApplicationTest
   public void testApplication() throws Exception
   {
     final StramLocalCluster lc = new StramLocalCluster(new TwitterTopCounter(new Configuration(false)));
-    lc.setHeartbeatMonitoringEnabled(false);
+    lc.setHeartbeatMonitoringEnabled(true);
     new Thread() {
       @Override
       public void run()
