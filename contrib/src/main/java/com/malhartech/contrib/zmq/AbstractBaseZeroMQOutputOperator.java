@@ -35,7 +35,7 @@ import org.zeromq.ZMQ;
  * <br>
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
-public abstract class AbstractBaseZeroMQOutputOperator<T> extends BaseOperator
+public abstract class AbstractBaseZeroMQOutputOperator extends BaseOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractBaseZeroMQInputOperator.class);
   transient protected ZMQ.Context context;

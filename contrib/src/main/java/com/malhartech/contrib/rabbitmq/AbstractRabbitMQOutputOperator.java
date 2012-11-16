@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
-public class AbstractRabbitMQOutputOperator<T> extends BaseOperator
+public class AbstractRabbitMQOutputOperator extends BaseOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractRabbitMQInputOperator.class);
   transient ConnectionFactory connFactory = new ConnectionFactory();

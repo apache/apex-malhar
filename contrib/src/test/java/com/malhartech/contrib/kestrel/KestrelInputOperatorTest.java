@@ -23,14 +23,11 @@ public class KestrelInputOperatorTest
   private static Logger logger = LoggerFactory.getLogger(KestrelInputOperatorTest.class);
   static HashMap<String, List<?>> collections = new HashMap<String, List<?>>();
 
-  public static final class TestStringKestrelInputOperator extends AbstractKestrelInputOperator
+  public static final class TestStringKestrelInputOperator extends AbstractSinglePortKestrelInputOperator<String>
   {
-    public final transient DefaultOutputPort<String> outputPort = new DefaultOutputPort<String>(this);
-
     @Override
-    public void emitTuple(byte[] message)
-    {
-      outputPort.emit(new String(message));
+    public String getTuple(byte[] message) {
+      return new String(message);
     }
 
     public void replayTuples(long windowId)

@@ -24,21 +24,18 @@ public class RabbitMQOutputOperatorTest
 {
   private static org.slf4j.Logger logger = LoggerFactory.getLogger(RabbitMQOutputOperatorTest.class);
 
-  private static final class TestRabbitMQOutputOperator extends AbstractRabbitMQOutputOperator<String>
+  private static final class TestRabbitMQOutputOperator extends AbstractSinglePortRabbitMQOutputOperator<String>
   {
-    public final transient DefaultInputPort<String> inputPort = new DefaultInputPort<String>(this)
+    @Override
+    public void processTuple(String tuple)
     {
-      @Override
-      public void process(String message)
-      {
-        try {
-          channel.basicPublish("", queueName, null, message.getBytes());
-        }
-        catch (IOException ex) {
-          logger.debug(ex.toString());
-        }
+      try {
+        channel.basicPublish("", queueName, null, tuple.getBytes());
       }
-    };
+      catch (IOException ex) {
+        logger.debug(ex.toString());
+      }
+    }
   }
 
   public class RabbitMQMessageReceiver
@@ -219,7 +216,7 @@ public class RabbitMQOutputOperatorTest
     lc.run();
 
     junit.framework.Assert.assertEquals("emitted value for testNum was ", testNum * 3, receiver.count);
-    for (Map.Entry<String, Integer> e: receiver.dataMap.entrySet()) {
+    for (Map.Entry<String, Integer> e : receiver.dataMap.entrySet()) {
       if (e.getKey().equals("a")) {
         junit.framework.Assert.assertEquals("emitted value for 'a' was ", new Integer(2), e.getValue());
       }

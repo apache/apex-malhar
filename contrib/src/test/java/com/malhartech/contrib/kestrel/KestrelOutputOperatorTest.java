@@ -21,18 +21,15 @@ public class KestrelOutputOperatorTest
 {
   private static org.slf4j.Logger logger = LoggerFactory.getLogger(KestrelOutputOperatorTest.class);
 
-  private static final class TestKestrelOutputOperator extends AbstractKestrelOutputOperator<String>
+  private static final class TestKestrelOutputOperator extends AbstractSinglePortKestrelOutputOperator<String>
   {
-    public final transient DefaultInputPort<String> inputPort = new DefaultInputPort<String>(this)
+    @Override
+    public void processTuple(String tuple)
     {
-      @Override
-      public void process(String message)
-      {
-        if (mcc.set(queueName, message.getBytes()) == false) {
-          logger.debug("Set message:" + message + " Error!");
+        if (mcc.set(queueName, tuple.getBytes()) == false) {
+          logger.debug("Set message:" + tuple + " Error!");
         }
-      }
-    };
+    }
   }
 
   public class RabbitMQMessageReceiver

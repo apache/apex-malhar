@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
-public class AbstractKestrelOutputOperator<T> extends BaseOperator
+public class AbstractKestrelOutputOperator extends BaseOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractKestrelOutputOperator.class);
   public String queueName;
