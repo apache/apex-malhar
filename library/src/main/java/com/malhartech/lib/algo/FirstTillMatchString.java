@@ -12,7 +12,7 @@ import java.util.HashMap;
 
 /**
  *
- * All tuples of type String are emitted till the first match;  A compare operation is done based on the property "key", "value", and "compare".
+ * All key,val pairs with val of type String are emitted till the first match;  A compare operation is done based on the property "key", "value", and "compare".
  * Then on no tuple is emitted in that window. The comparison is done by getting double value of the Number.<p>
  * This module is a pass through<br>
  * <br>

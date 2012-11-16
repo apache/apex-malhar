@@ -12,7 +12,7 @@ import java.util.HashMap;
 
 /**
  *
- * All tuples of sub-classed from Number are emitted till the first match;  A compare operation is done based on the property "key", "value", and "compare".
+ * All key.val pairs with val sub-classed from Number are emitted till the first match;  A compare operation is done based on the property "key", "value", and "compare".
  * Then on no tuple is emitted in that window. The comparison is done by getting double value of the Number.<p>
  * This module is a pass through<br>
  * <br>
@@ -39,7 +39,7 @@ import java.util.HashMap;
  * <br>
  * @author amol
  */
-public class FirstTillMatch<K, V extends Number> extends BaseMatchOperator<K,V>
+public class FirstTillMatch<K, V extends Number> extends BaseMatchOperator<K, V>
 {
   @InputPortFieldAnnotation(name="data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)

@@ -9,16 +9,17 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.BaseKeyValueOperator;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  *
- * Computes and emits distinct key,val pairs (i.e drops duplicates) at end of window<p>
+ * Computes and emits distinct key,val pairs (i.e drops duplicates)<p>
+ * This is a pass through operator<br>
  * <br>
  * This module is same as a "FirstOf" operation on any key, val pair
- * Even though this module produces continuous tuples, at end of window all data is flushed. Thus the data set is windowed
- * and no history is kept of previous windows<br>
+ * At end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
  * <br>
  * <b>Ports</b>
  * <b>data</b>: Input data port expects HashMap<K,V>
@@ -28,13 +29,15 @@ import java.util.Map;
  * <b>Run time checks</b>:<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Operator can emit >4 million unique (k,v pairs) tuples/sec, and take in a lot more incoming tuples. The performance is directly proportional to unique key,val pairs emitted<br>
+ * Operator can emit >4 million unique (k,v pairs) tuples/sec, and take in a lot more incoming tuples.
+ * The performance is directly proportional to unique key,val pairs in the window<br>
  * <br>
+ *
  * @author amol<br>
  *
  */
 
-public class Distinct<K,V> extends BaseOperator
+public class Distinct<K,V> extends BaseKeyValueOperator<K,V>
 {
   @InputPortFieldAnnotation(name="data")
   public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>(this)
@@ -50,13 +53,13 @@ public class Distinct<K,V> extends BaseOperator
         HashMap<V, Object> vals = mapkeyval.get(e.getKey());
         if ((vals == null) || !vals.containsKey(e.getValue())) {
           HashMap<K,V> otuple = new HashMap<K,V>(1);
-          otuple.put(e.getKey(), e.getValue());
+          otuple.put(cloneKey(e.getKey()), cloneValue(e.getValue()));
           distinct.emit(otuple);
           if (vals == null) {
             vals = new HashMap<V, Object>();
-            mapkeyval.put(e.getKey(), vals);
+            mapkeyval.put(cloneKey(e.getKey()), vals);
           }
-          vals.put(e.getValue(), null);
+          vals.put(cloneValue(e.getValue()), null);
         }
       }
     }
