@@ -12,6 +12,8 @@ import kafka.api.FetchRequest;
 import kafka.javaapi.consumer.SimpleConsumer;
 import kafka.javaapi.message.ByteBufferMessageSet;
 import kafka.message.MessageAndOffset;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -19,6 +21,7 @@ import kafka.message.MessageAndOffset;
  */
 public class KafkaSimpleConsumer implements Runnable
 {
+  private static final Logger logger = LoggerFactory.getLogger(KafkaSimpleConsumer.class);
   private SimpleConsumer consumer;
   private Charset charset = Charset.forName("UTF-8");
   private CharsetDecoder decoder = charset.newDecoder();
@@ -75,11 +78,9 @@ public class KafkaSimpleConsumer implements Runnable
 
       while (itr.hasNext() && isAlive) {
         MessageAndOffset msg = itr.next();
-        System.out.println("consumed: " + byteBufferToString(msg.message().payload()).toString());
-
         // advance the offset after consuming each message
         offset = msg.offset();
-        System.out.println(String.format("offset %d", offset));
+        logger.debug("consumed: {} offset: {}", byteBufferToString(msg.message().payload()).toString(), offset);
         receiveCount++;
       }
     }

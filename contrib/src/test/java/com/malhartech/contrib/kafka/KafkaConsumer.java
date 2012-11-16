@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
-public class KafkaConsumer implements Runnable // extends Thread
+public class KafkaConsumer implements Runnable
 {
   private static final Logger logger = LoggerFactory.getLogger(KafkaConsumer.class);
   private final ConsumerConnector consumer;
@@ -55,12 +55,6 @@ public class KafkaConsumer implements Runnable // extends Thread
     Properties props = new Properties();
     props.setProperty("zk.connect", "localhost:2182");
     props.setProperty("groupid", "group1");
-    //props.setProperty("hostname", "localhost");
-    //props.setProperty("port", "2182");
-    // props.put("zk.sessiontimeout.ms", "400");
-    // props.put("zk.synctime.ms", "200");
-    // props.put("autocommit.interval.ms", "1000");
-
     return new ConsumerConfig(props);
   }
 
@@ -80,10 +74,10 @@ public class KafkaConsumer implements Runnable // extends Thread
     Map<String, List<KafkaStream<Message>>> consumerMap = consumer.createMessageStreams(topicCountMap);
     KafkaStream<Message> stream = consumerMap.get(topic).get(0);
     ConsumerIterator<Message> it = stream.iterator();
-    logger.debug("Inside consumer::run receiveCount= %d ", receiveCount);
+    logger.debug("Inside consumer::run receiveCount= {}", receiveCount);
     while (it.hasNext() & isAlive) {
       receiveCount++;
-      logger.debug(String.format("Consuming %s, receiveCount= %d", getMessage(it.next().message()), receiveCount));
+      logger.debug("Consuming {}, receiveCount= {}", getMessage(it.next().message()), receiveCount);
     }
     logger.debug("DONE consuming");
   }

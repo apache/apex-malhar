@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import junit.framework.Assert;
+import kafka.consumer.ConsumerConfig;
 import kafka.message.Message;
 import kafka.server.KafkaConfig;
 import kafka.server.KafkaServer;
@@ -37,9 +38,14 @@ public class KafkaInputOperatorTest
   private NIOServerCnxn.Factory standaloneServerFactory;
   private final String zklogdir = "/tmp/zookeeper-server-data";
   private final String kafkalogdir = "/tmp/kafka-server-data";
+  private boolean isSimpleConsumer = false;  // false means standard consumer
 
   public void startZookeeper()
   {
+    if (isSimpleConsumer) { // Do not use zookeeper for simpleconsumer
+      return;
+    }
+
     try {
       int clientPort = 2182;
       int numConnections = 5000;
@@ -60,6 +66,10 @@ public class KafkaInputOperatorTest
 
   public void stopZookeeper()
   {
+    if (isSimpleConsumer) {
+      return;
+    }
+
     standaloneServerFactory.shutdown();
     Utils.rm(zklogdir);
   }
@@ -67,13 +77,20 @@ public class KafkaInputOperatorTest
   public void startKafkaServer()
   {
     Properties props = new Properties();
+    if (isSimpleConsumer) {
+      props.setProperty("enable.zookeeper", "false");
+      props.setProperty("hostname", "localhost");
+      props.setProperty("port", "2182");
+    }
+    else {
+      props.setProperty("enable.zookeeper", "true");
+      props.setProperty("zk.connect", "localhost:2182");
+      props.setProperty("topic", "topic1");
+      props.setProperty("log.flush.interval", "10"); // Controls the number of messages accumulated in each topic (partition) before the data is flushed to disk and made available to consumers.
+      //   props.setProperty("log.default.flush.scheduler.interval.ms", "100");  // optional if we have the flush.interval
+    }
     props.setProperty("brokerid", "1");
     props.setProperty("log.dir", kafkalogdir);
-    props.setProperty("enable.zookeeper", "true");
-    props.setProperty("topic", "topic1");
-    props.setProperty("log.flush.interval", "10"); // Controls the number of messages accumulated in each topic (partition) before the data is flushed to disk and made available to consumers.
-    //   props.setProperty("log.default.flush.scheduler.interval.ms", "100");  // optional if we have the flush.interval
-    props.setProperty("zk.connect", "localhost:2182");
 
     kserver = new KafkaServer(new KafkaConfig(props));
     kserver.startup();
@@ -100,20 +117,39 @@ public class KafkaInputOperatorTest
     stopZookeeper();
   }
 
-  @Test
+  //@Test
   public void testKafkaProducerConsumer() throws InterruptedException
   {
     // Start producer
-    KafkaProducer p = new KafkaProducer("topic1");
+    KafkaProducer p = new KafkaProducer("topic1", false);
     new Thread(p).start();
     Thread.sleep(1000);  // wait to flush message to disk and make available for consumer
-    // p.close();
+    p.close();
 
     // Start consumer
     KafkaConsumer c = new KafkaConsumer("topic1");
-    //KafkaSimpleConsumer c = new KafkaSimpleConsumer();
     new Thread(c).start();
     Thread.sleep(1000); // make sure to consume all available message
+    c.setIsAlive(true);
+    c.close();
+
+    // Check send vs receive message
+    Assert.assertEquals("Message count: ", p.getSendCount(), c.getReceiveCount());
+  }
+
+  //  @Test
+  public void testKafkaProducerSimpleConsumer() throws InterruptedException
+  {
+    // Start producer
+    KafkaProducer p = new KafkaProducer("topic1", true);
+    new Thread(p).start();
+    Thread.sleep(1000);  // wait to flush message to disk and make available for consumer
+    p.close();
+
+    // Start consume
+    KafkaSimpleConsumer c = new KafkaSimpleConsumer();
+    new Thread(c).start();
+    Thread.sleep(10000); // make sure to consume all available message; need more time for simple consumer
     c.setIsAlive(true);
     c.close();
 
@@ -127,6 +163,17 @@ public class KafkaInputOperatorTest
    */
   public static class KafkaStringSinglePortInputOperator extends KafkaSinglePortInputOperator<String>
   {
+    public ConsumerConfig createKafkaConsumerConfig()
+    {
+      Properties props = new Properties();
+      props.put("zk.connect", "localhost:2182");
+      props.put("groupid", "group1");
+      //props.put("zk.sessiontimeout.ms", "400");
+      //props.put("zk.synctime.ms", "200");
+      //props.put("autocommit.interval.ms", "1000");
+      return new ConsumerConfig(props);
+    }
+
     /**
      * Implement abstract method of AbstractActiveMQSinglePortInputOperator
      */
@@ -139,8 +186,9 @@ public class KafkaInputOperatorTest
         byte[] bytes = new byte[buffer.remaining()];
         buffer.get(bytes);
         data = new String(bytes);
+        logger.debug("Consuming {}", data);
       }
-      catch (Exception e) {
+      catch (Exception ex) {
         return data;
       }
       return data;
@@ -205,19 +253,19 @@ public class KafkaInputOperatorTest
    *
    * @throws Exception
    */
-  @Test
-  public void testKafkaInputOperator() throws Exception
+  public void testKafkaInputOperator(boolean isSimple, String consumerType, int sleepTime) throws Exception
   {
     // Start producer
-    KafkaProducer p = new KafkaProducer("topic1");
+    KafkaProducer p = new KafkaProducer("topic1", isSimple);
     new Thread(p).start();
-    Thread.sleep(1000);  // wait to flush message to disk and make available for consumer
+    Thread.sleep(sleepTime);  // wait to flush message to disk and make available for consumer
     p.close();
 
     // Create DAG for testing.
     DAG dag = new DAG();
     // Create KafkaStringSinglePortInputOperator
     KafkaStringSinglePortInputOperator node = dag.addOperator("Kafka message consumer", KafkaStringSinglePortInputOperator.class);
+    node.setConsumerType(consumerType);
 
     // Create Test tuple collector
     CollectorModule<String> collector = dag.addOperator("TestMessageCollector", new CollectorModule<String>());
@@ -250,4 +298,13 @@ public class KafkaInputOperatorTest
     Assert.assertEquals("Collections size", 1, collections.size());
     Assert.assertEquals("Tuple count", 20, collections.get(collector.inputPort.id).size());
   }
+
+  @Test
+  public void testKafkaInputOperator_standard() throws Exception
+  {
+
+    testKafkaInputOperator(false, "standard", 1000);
+    //testKafkaInputOperator(true, "simple", 10000); // simpleConsumer
+  }
+
 }

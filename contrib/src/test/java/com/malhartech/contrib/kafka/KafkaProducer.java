@@ -32,24 +32,29 @@ public class KafkaProducer implements Runnable
     this.sendCount = sendCount;
   }
 
-  private ProducerConfig createProducerConfig()
+  private ProducerConfig createProducerConfig(boolean isSimple)
   {
     Properties props = new Properties();
     props.setProperty("serializer.class", "kafka.serializer.StringEncoder");
-    props.setProperty("zk.connect", "localhost:2182");
-    //props.setProperty("hostname", "localhost");
-    //props.setProperty("port", "2182");
-    //props.setProperty("broker.list", "1:localhost:2182");
-    //props.setProperty("producer.type", "async");
+    if (isSimple) {
+      props.setProperty("broker.list", "1:localhost:2182");
+      props.setProperty("producer.type", "async");
+      props.setProperty("queue.time", "2000");
+      props.setProperty("queue.size", "100");
+      props.setProperty("batch.size", "10");
+    }
+    else {
+      props.setProperty("zk.connect", "localhost:2182");
+    }
 
     return new ProducerConfig(props);
   }
 
-  public KafkaProducer(String topic)
+  public KafkaProducer(String topic, boolean isSimple)
   {
     // Use random partitioner. Don't need the key type. Just set it to Integer.
     // The message is of type String.
-    producer = new Producer<Integer, String>(createProducerConfig());
+    producer = new Producer<Integer, String>(createProducerConfig(isSimple));
     this.topic = topic;
   }
 
