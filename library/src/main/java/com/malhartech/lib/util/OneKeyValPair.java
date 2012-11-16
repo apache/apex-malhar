@@ -25,7 +25,6 @@ public class OneKeyValPair<K,V>
   {
   }
 
-
   /**
    * Setter function for value
    * @param value sets value
