@@ -39,9 +39,9 @@ public class URLSerDe implements StreamCodec<byte[]>
    * @return WindowedURLHolder object which represents the bytes.
    */
   @Override
-  public byte[] fromByteArray(byte[] bytes)
+  public byte[] fromByteArray(DataStatePair dspair)
   {
-    return bytes;
+    return dspair.data;
   }
 
   /**
@@ -50,9 +50,12 @@ public class URLSerDe implements StreamCodec<byte[]>
    * @return the same object as input
    */
   @Override
-  public byte[] toByteArray(byte[] o)
+  public DataStatePair toByteArray(byte[] o)
   {
-    return o;
+    DataStatePair dspair = new DataStatePair();
+    dspair.data = o;
+    dspair.state = null;
+    return dspair;
   }
 
   @Override
