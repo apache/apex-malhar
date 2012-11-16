@@ -35,30 +35,24 @@ public class HdfsOutputOperator<T> extends BaseOperator
   private static org.slf4j.Logger logger = LoggerFactory.getLogger(HdfsOutputOperator.class);
   private transient FSDataOutputStream fsOutput;
   private transient BufferedOutputStream bufferedOutput;
-  private StreamCodec serde; // it was taken from context before, but now what, it's not a stream but a node!
   private transient FileSystem fs;
-
   // internal persistent state
   private int fileIndex = 0;
   private int currentBytesWritten = 0;
   private long totalBytesWritten = 0;
-
   /**
    * File name substitution parameter: The system assigned id of the operator
    * instance, which is unique for the application.
    */
   public static final String FNAME_SUB_CONTEXT_ID = "contextId";
-
   /**
    * File name substitution parameter: The logical id assigned to the operator when assembling the DAG.
    */
   public static final String FNAME_SUB_OPERATOR_ID = "operatorId";
-
   /**
    * File name substitution parameter: Index of part file when a file size limit is specified.
    */
   public static final String FNAME_SUB_PART_INDEX = "partIndex";
-
   private String contextId;
   private String filePath;
   private boolean append = true;
@@ -73,14 +67,16 @@ public class HdfsOutputOperator<T> extends BaseOperator
    * contain substitution tokens to generate unique file names.
    * Example: file:///mydir/adviews.out.%(operatorId).part-%(partIndex)
    */
-  public void setFilePath(String filePath) {
+  public void setFilePath(String filePath)
+  {
     this.filePath = filePath;
   }
 
   /**
    * Append to existing file. Default is true.
    */
-  public void setAppend(boolean append) {
+  public void setAppend(boolean append)
+  {
     this.append = append;
   }
 
@@ -91,7 +87,8 @@ public class HdfsOutputOperator<T> extends BaseOperator
    * but other file system abstractions may not.
    * <br>
    */
-  public void setBufferSize(int bufferSize) {
+  public void setBufferSize(int bufferSize)
+  {
     this.bufferSize = bufferSize;
   }
 
@@ -99,14 +96,16 @@ public class HdfsOutputOperator<T> extends BaseOperator
    * Replication factor. Value <= 0 indicates that the file systems default
    * replication setting is used.
    */
-  public void setReplication(int replication) {
+  public void setReplication(int replication)
+  {
     this.replication = replication;
   }
 
   /**
    * Byte limit for a single file. Once the size is reached, a new file will be created.
    */
-  public void setBytesPerFile(int bytesPerFile) {
+  public void setBytesPerFile(int bytesPerFile)
+  {
     this.bytesPerFile = bytesPerFile;
   }
 
@@ -199,12 +198,10 @@ public class HdfsOutputOperator<T> extends BaseOperator
       logger.info("", ex);
     }
 
-    serde = null;
     fs = null;
     filePath = null;
     append = false;
   }
-
   public final transient DefaultInputPort<T> input = new DefaultInputPort<T>(this)
   {
     @Override
@@ -212,13 +209,7 @@ public class HdfsOutputOperator<T> extends BaseOperator
     {
       // writing directly to the stream, assuming that HDFS already buffers block size.
       // check whether writing to separate in memory byte stream would be faster
-      byte[] tupleBytes;
-      if (serde == null) {
-        tupleBytes = t.toString().concat("\n").getBytes();
-      }
-      else {
-        tupleBytes = serde.toByteArray(t);
-      }
+      byte[] tupleBytes = t.toString().concat("\n").getBytes();
       try {
         if (bytesPerFile > 0 && currentBytesWritten + tupleBytes.length > bytesPerFile) {
           closeFile();
@@ -243,5 +234,4 @@ public class HdfsOutputOperator<T> extends BaseOperator
       }
     }
   };
-
 }
