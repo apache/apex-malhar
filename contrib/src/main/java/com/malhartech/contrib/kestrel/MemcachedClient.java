@@ -293,7 +293,7 @@ public class MemcachedClient {
 
 		// get a pool instance to work with for the life of this instance
 		this.pool               = SockIOPool.getInstance( poolName );
-//        log.setLevel(Level.INFO);
+        log.setLevel(Level.WARN);
 	}
 
 	/**
@@ -1786,7 +1786,7 @@ public class MemcachedClient {
 			return false;
 		}
 
-		// get all servers and iterate over them
+		// get all servers and iterate overl them
 		servers = ( servers == null )
 			? pool.getServers()
 			: servers;
@@ -1853,6 +1853,89 @@ public class MemcachedClient {
 		return success;
 	}
 
+	/**
+	 * Invalidates the specific queue cache.
+	 *
+	 * Will return true only if succeeds in clearing all servers.
+	 * If pass in null, then will try to flush all servers.
+	 *
+	 * @param servers optional array of host(s) to flush (host:port)
+	 * @return success true/false
+	 */
+	public boolean flush( String queue, String[] servers ) {
+		// get SockIOPool instance
+		// return false if unable to get SockIO obj
+		if ( pool == null ) {
+			log.error( "++++ unable to get SockIOPool instance" );
+			return false;
+		}
+
+		// get all servers and iterate overl them
+		servers = ( servers == null )
+			? pool.getServers()
+			: servers;
+
+		// if no servers, then return early
+		if ( servers == null || servers.length <= 0 ) {
+			log.error( "++++ no servers to flush" );
+			return false;
+		}
+
+		boolean success = true;
+
+		for ( int i = 0; i < servers.length; i++ ) {
+
+			SockIOPool.SockIO sock = pool.getConnection( servers[i] );
+			if ( sock == null ) {
+				log.error( "++++ unable to get connection to : " + servers[i] );
+				success = false;
+				if ( errorHandler != null )
+					errorHandler.handleErrorOnFlush( this, new IOException( "no socket to server available" ) );
+				continue;
+			}
+
+			// build command
+			String command = "flush "+queue+"\r\n";
+
+			try {
+				sock.write( command.getBytes() );
+				sock.flush();
+
+				// if we get appropriate response back, then we return true
+				String line = sock.readLine();
+				success = ( OK.equals( line ) )
+					? success && true
+					: false;
+			}
+			catch ( IOException e ) {
+
+				// if we have an errorHandler, use its hook
+				if ( errorHandler != null )
+					errorHandler.handleErrorOnFlush( this, e );
+
+				// exception thrown
+				log.error( "++++ exception thrown while writing bytes to server on flushAll" );
+				log.error( e.getMessage(), e );
+
+				try {
+					sock.trueClose();
+				}
+				catch ( IOException ioe ) {
+					log.error( "++++ failed to close socket : " + sock.toString() );
+				}
+
+				success = false;
+				sock = null;
+			}
+
+			if ( sock != null ) {
+				sock.close();
+				sock = null;
+			}
+		}
+
+		return success;
+	}
 	/**
 	 * Retrieves stats for all servers.
 	 *

@@ -178,6 +178,7 @@ public class SockIOPool {
 	private boolean failback          = true;				// only used if failover is also set ... controls putting a dead server back into rotation
 	private boolean nagle             = false;				// enable/disable Nagle's algorithm
 	private int hashingAlg 		      = NATIVE_HASH;		// default to using the native hash as it is the fastest
+    private boolean debugEnabled = false;
 
 	// locks
 	private final ReentrantLock hostDeadLock = new ReentrantLock();
@@ -212,6 +213,7 @@ public class SockIOPool {
 	 * @return instance of SockIOPool
 	 */
 	public static synchronized SockIOPool getInstance( String poolName ) {
+      log.setLevel(Level.WARN);
         if ( pools.containsKey( poolName ) )
 			return pools.get( poolName );
 
@@ -1563,6 +1565,7 @@ public class SockIOPool {
 			out = new BufferedOutputStream( sock.getOutputStream() );
 
 			this.host = host + ":" + port;
+            log.setLevel(Level.WARN);
 		}
 
 		/**
@@ -1596,6 +1599,8 @@ public class SockIOPool {
 			out  = new BufferedOutputStream( sock.getOutputStream() );
 
 			this.host = host;
+            log.setLevel(Level.WARN);
+
 		}
 
 		/**
@@ -1707,6 +1712,7 @@ public class SockIOPool {
 		void close() {
 			// check in to pool
 			if ( log.isDebugEnabled() )
+//            if( debugEnabled == true )
 				log.debug("++++ marking socket (" + this.toString() + ") as closed and available to return to avail pool");
 			pool.checkIn( this );
 		}

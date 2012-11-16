@@ -38,9 +38,9 @@ public class AbstractKestrelOutputOperator<T> extends BaseOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractKestrelOutputOperator.class);
   public String queueName;
-  private SockIOPool pool;
   String[] servers;
-  MemcachedClient mcc;
+  private transient SockIOPool pool;
+  protected transient MemcachedClient mcc;
 
   @Override
   public void setup(OperatorContext context)
@@ -58,7 +58,7 @@ public class AbstractKestrelOutputOperator<T> extends BaseOperator
     pool.initialize();
 
     mcc = new MemcachedClient();
-
+    mcc.flush(queueName, null);
   }
 
   public void setQueueName(String queueName)

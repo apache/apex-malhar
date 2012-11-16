@@ -9,8 +9,10 @@ import com.malhartech.stram.StramLocalCluster;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +20,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
-public class KestrelInputOperatorTest
+public class KestrelInputOperatorBenchmark
 {
   private static Logger logger = LoggerFactory.getLogger(KestrelInputOperatorTest.class);
   static HashMap<String, List<?>> collections = new HashMap<String, List<?>>();
@@ -54,6 +56,7 @@ public class KestrelInputOperatorTest
       pool.setInitConn(10);
       pool.setMinConn(5);
       pool.setMaxConn(250);
+
       pool.setMaintSleep(30);
       pool.setNagle(false);
       pool.setSocketTO(3000);
@@ -62,6 +65,7 @@ public class KestrelInputOperatorTest
 
       mcc = new MemcachedClient();
       mcc.flush(queueName,null);
+
     }
 
     public void setQueueName(String queueName)
@@ -109,6 +113,7 @@ public class KestrelInputOperatorTest
     {
       super(module);
       this.id = id;
+      collections.put(id, list = new ArrayList<T>());
     }
 
     @Override
@@ -122,7 +127,7 @@ public class KestrelInputOperatorTest
     public void setConnected(boolean flag)
     {
       if (flag) {
-        collections.put(id, list = new ArrayList<T>());
+//        collections.put(id, list = new ArrayList<T>());
       }
     }
   }
@@ -133,9 +138,11 @@ public class KestrelInputOperatorTest
   }
 
   @Test
-  public void testDag() throws Exception
+  @SuppressWarnings("SleepWhileInLoop")
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  public void testBechmark() throws Exception
   {
-    final int testNum = 3;
+    final int testNum = 20000;
     DAG dag = new DAG();
     TestStringKestrelInputOperator consumer = dag.addOperator("Generator", TestStringKestrelInputOperator.class);
     CollectorModule<String> collector = dag.addOperator("Collector", new CollectorModule<String>());
@@ -143,10 +150,21 @@ public class KestrelInputOperatorTest
     consumer.setServers(servers);
     consumer.setQueueName("testQ");
 
-    final KestrelMessageGenerator producer = new KestrelMessageGenerator();
-    producer.setQueueName("testQ");
-    producer.setup();
-    producer.generateMessages(testNum);
+    new Thread()
+    {
+      public void run()
+      {
+        KestrelMessageGenerator producer = new KestrelMessageGenerator();
+        producer.setQueueName("testQ");
+        producer.setup();
+        try {
+          producer.generateMessages(testNum);
+        }
+        catch (InterruptedException ex) {
+          logger.debug(ex.toString());
+        }
+      }
+    }.start();
 
     dag.addStream("Stream", consumer.outputPort, collector.inputPort).setInline(true);
 
@@ -159,7 +177,17 @@ public class KestrelInputOperatorTest
       public void run()
       {
         try {
-          Thread.sleep(1000);
+          while (true) {
+            ArrayList<String> strList = (ArrayList<String>)collections.get("collector");
+            if (testNum * 3 > strList.size()) {
+              Thread.sleep(10);
+              if( strList.size() % 1000 == 0)
+                logger.debug("processed "+strList.size()+" tuples");
+            }
+            else {
+              break;
+            }
+          }
         }
         catch (InterruptedException ex) {
         }
