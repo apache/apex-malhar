@@ -13,12 +13,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.algo.UniqueCounterKey}<p>
+ * Functional tests for {@link com.malhartech.lib.algo.UniqueCounterEach}<p>
  *
  */
-public class UniqueCounterKeyTest
+public class UniqueCounterEachTest
 {
-  private static Logger log = LoggerFactory.getLogger(UniqueCounterKeyTest.class);
+  private static Logger log = LoggerFactory.getLogger(UniqueCounterEachTest.class);
 
   /**
    * Test node logic emits correct results
@@ -27,7 +27,7 @@ public class UniqueCounterKeyTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    UniqueCounterKey<String> oper = new UniqueCounterKey<String>();
+    UniqueCounterEach<String> oper = new UniqueCounterEach<String>();
     TestSink<HashMap<String, Integer>> sink = new TestSink<HashMap<String, Integer>>();
     oper.count.setSink(sink);
 

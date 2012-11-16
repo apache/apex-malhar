@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
  * Performance tests for {@link com.malhartech.lib.algo.UniqueCounterKey}<p>
  *
  */
-public class UniqueCounterKeyBenchmark
+public class UniqueCounterEachBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(UniqueCounterKeyBenchmark.class);
+  private static Logger log = LoggerFactory.getLogger(UniqueCounterEachBenchmark.class);
 
   /**
    * Test node logic emits correct results
