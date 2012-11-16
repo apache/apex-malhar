@@ -78,8 +78,12 @@
  * <b>{@link com.malhartech.lib.algo.TupleQueue}</b>: Unit test for {@link com.malhartech.lib.stream.TupleQueue}<br>
  * <b>{@link com.malhartech.lib.algo.UniqueCounterBenchmark}</b>: Performance test for {@link com.malhartech.lib.stream.UniqueCounter}<br>
  * <b>{@link com.malhartech.lib.algo.UniqueCounter}</b>: Unit test for {@link com.malhartech.lib.stream.UniqueCounter}<br>
- * <b>{@link com.malhartech.lib.algo.UniqueCounterKeyBenchmark}</b>: Performance test for {@link com.malhartech.lib.stream.UniqueCounterKey}<br>
- * <b>{@link com.malhartech.lib.algo.UniqueCounterKey}</b>: Unit test for {@link com.malhartech.lib.stream.UniqueCounterKey}<br> * <br>
+ * <b>{@link com.malhartech.lib.algo.UniqueCounterEachBenchmark}</b>: Performance test for {@link com.malhartech.lib.stream.UniqueCounterEach}<br>
+ * <b>{@link com.malhartech.lib.algo.UniqueCounterEach}</b>: Unit test for {@link com.malhartech.lib.stream.UniqueCounterEach}<br>
+ * <b>{@link com.malhartech.lib.algo.UniqueKeyValCounterBenchmark}</b>: Performance test for {@link com.malhartech.lib.stream.UniqueKeyValCounter}<br>
+ * <b>{@link com.malhartech.lib.algo.UniqueKeyValCounter}</b>: Unit test for {@link com.malhartech.lib.stream.UniqueKeyValCounter}<br>
+ * <b>{@link com.malhartech.lib.algo.UniqueKeyValCounterEachBenchmark}</b>: Performance test for {@link com.malhartech.lib.stream.UniqueKeyValCounterEach}<br>
+ * <b>{@link com.malhartech.lib.algo.UniqueKeyValCounterEach}</b>: Unit test for {@link com.malhartech.lib.stream.UniqueKeyValCounterEach}<br> * <br>
  * <br>
  */
 package com.malhartech.lib.algo;
