@@ -22,6 +22,7 @@ public class ScaledApplicationTest {
     //app.setLocalMode(); // terminate with a long run
     StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));
     lc.setHeartbeatMonitoringEnabled(false);
+    //lc.setPerContainerBufferServer(true);
     lc.run();
   }
 }
