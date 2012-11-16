@@ -23,13 +23,9 @@ import java.util.Map;
  * <b>Ports</b>
  * <b>data</b>: Input data port expects HashMap<K,V>
  * <b>distinct</b>: Output data port, emits HashMap<K,V>(1)
- * <b>Properties</b>:
- * None
- * <b>Benchmarks></b>: TBD<br>
- * Compile time checks are:<br>
- * None
- * <br>
- * Run time checks are:<br>
+ * <b>Properties</b>: None<br>
+ * <b>Compile time checks</b>: None<br>
+ * <b>Run time checks</b>:<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * Operator can emit >4 million unique (k,v pairs) tuples/sec, and take in a lot more incoming tuples. The performance is directly proportional to unique key,val pairs emitted<br>

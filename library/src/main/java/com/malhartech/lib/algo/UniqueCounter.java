@@ -13,7 +13,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Count unique occurances of keys within a window<p>
+ * Counts the number of times a key exists in a window; Count is emitted at end of window in a single HashMap<p>
+ * <br>
+ * <b>Ports</b>
+ * <b>data</b>: Input data port expects HashMap<K,V><br>
+ * <b>count</b>: Output data port, emits HashMap<HashMap<K,V>,Integer><br>
+ * <b>Properties</b>: None<br>
+ * <b>Compile time checks</b>: None<br>
+ * <b>Run time checks</b>:<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * Operator processes > 110 million tuples/sec. Only one tuple per unique key is emitted on end of window, so this operator is not bound by outbound throughput<br>

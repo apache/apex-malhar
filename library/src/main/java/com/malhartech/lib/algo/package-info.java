@@ -75,8 +75,10 @@
  * <b>{@link com.malhartech.lib.algo.TopNUnique}</b>: Takes a stream of key value pairs via input port "data", and they are ordered by key. Top N of the ordered unique tuples per key are emitted on port "top" at the end of window<br>
  * <b>{@link com.malhartech.lib.algo.Sampler}</b>: Takes a stream via input port "data" and emits sample tuple on output port out_data<br>
  * <b>{@link com.malhartech.lib.algo.TupleQueue}</b>: Takes in one stream via input port <b>data</b>. The data is key, value pair. It retains the last N values on that key. Output port gets the last N values. The node also provides a lookup via port <b>lookup</b><br>
- * <b>{@link com.malhartech.lib.algo.UniqueCounter}</b>: Count unique occurrences of keys within a window<br>
- * <b>{@link com.malhartech.lib.algo.UniqueCounterKey}</b>: Count unique occurrences of keys within a window<br>
+ * <b>{@link com.malhartech.lib.algo.UniqueCounter}</b>: Count unique occurrences of keys within a window and emits a single HashMap<br>
+ * <b>{@link com.malhartech.lib.algo.UniqueCounterEach}</b>: Count unique occurrences of keys within a window and emits one HashMap(1) per unique key<br>
+ * <b>{@link com.malhartech.lib.algo.UniqueKeyValCounter}</b>: Count unique occurrences of key,val pairs within a window and emits a single HashMap<br>
+ * <b>{@link com.malhartech.lib.algo.UniqueKeyValCounterEach}</b>: Count unique occurrences of key,val pairs within a window, and emits a tuple per unique key,val pair<br>
  * <b>{@link com.malhartech.lib.algo.WindowedHolder}</b>: TBD<br>
  * <b>{@link com.malhartech.lib.algo.WindowedTopCounter}</b>: TBD<br>
  * <br>

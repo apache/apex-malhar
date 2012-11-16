@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.algo.UniqueCounterKey}<p>
+ * Performance tests for {@link com.malhartech.lib.algo.UniqueCounterEach}<p>
  *
  */
 public class UniqueCounterEachBenchmark
