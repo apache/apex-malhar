@@ -33,8 +33,8 @@ import org.slf4j.LoggerFactory;
  * Run time checks:<br>
  * None<br>
  * <br>
- * Benchmarks:<br>
- * TBD<br>
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * Operator can emit about 10 thousand unique (k,v immutable pairs) tuples/sec as RabbitMQ DAG. The performance is directly proportional to key,val pairs emitted<br>
  * <br>
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
@@ -138,10 +138,10 @@ ActivationListener<OperatorContext>
       connection = connFactory.newConnection();
       channel = connection.createChannel();
 
-//      channel.exchangeDeclare(exchange, "fanout");
-//      queueName = channel.queueDeclare().getQueue();
+      channel.exchangeDeclare(exchange, "fanout");
+      queueName = channel.queueDeclare().getQueue();
+      channel.queueBind(queueName, exchange, "");
 
-//      channel.queueBind(queueName, exchange, "");
 //      consumer = new QueueingConsumer(channel);
 //      channel.basicConsume(queueName, true, consumer);
       tracingConsumer = new TracingConsumer(channel);

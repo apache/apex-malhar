@@ -2,17 +2,24 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.contrib.kestrel;
+package com.malhartech.contrib.rabbitmq;
 
-import com.malhartech.api.*;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DAG;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.Operator;
 import com.malhartech.stram.StramLocalCluster;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.QueueingConsumer;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,15 +27,16 @@ import org.slf4j.LoggerFactory;
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
-public class KestrelInputOperatorBenchmark
+public class RabbitMQInputOperatorBenchmark
 {
-  private static Logger logger = LoggerFactory.getLogger(KestrelInputOperatorTest.class);
+  private static Logger logger = LoggerFactory.getLogger(RabbitMQInputOperatorTest.class);
   static HashMap<String, List<?>> collections = new HashMap<String, List<?>>();
 
-  public static final class TestStringKestrelInputOperator extends AbstractSinglePortKestrelInputOperator<String>
+  public static final class TestStringRabbitMQInputOperator extends AbstractSinglePortRabbitMQInputOperator<String>
   {
     @Override
-    public String getTuple(byte[] message) {
+    public String getTuple(byte[] message)
+    {
       return new String(message);
     }
 
@@ -38,31 +46,22 @@ public class KestrelInputOperatorBenchmark
     }
   }
 
-  private final class KestrelMessageGenerator
+  private final class RabbitMQMessageGenerator
   {
+    ConnectionFactory connFactory = new ConnectionFactory();
+    QueueingConsumer consumer = null;
+    Connection connection = null;
+    Channel channel = null;
+    final String exchange = "testEx";
     public String queueName = "testQ";
-    private SockIOPool pool;
-    String[] servers = {"localhost:22133"};
-    MemcachedClient mcc;
 
-    public void setup()
+    public void setup() throws IOException
     {
-      pool = SockIOPool.getInstance();
-      pool.setServers(servers);
-      pool.setFailover(true);
-      pool.setInitConn(10);
-      pool.setMinConn(5);
-      pool.setMaxConn(250);
-
-      pool.setMaintSleep(30);
-      pool.setNagle(false);
-      pool.setSocketTO(3000);
-      pool.setAliveCheck(true);
-      pool.initialize();
-
-      mcc = new MemcachedClient();
-      mcc.flush(queueName,null);
-
+      connFactory.setHost("localhost");
+      connection = connFactory.newConnection();
+      channel = connection.createChannel();
+      channel.exchangeDeclare(exchange, "fanout");
+//      channel.queueDeclare(queueName, false, false, false, null);
     }
 
     public void setQueueName(String queueName)
@@ -70,20 +69,21 @@ public class KestrelInputOperatorBenchmark
       this.queueName = queueName;
     }
 
-    public void send(Object message)
+    public void send(Object message) throws IOException
     {
       String msg = message.toString();
-      if (mcc.set(queueName, msg.getBytes()) == false) {
-        logger.debug("Set message:" + msg + " Error!");
-      }
+//      logger.debug("publish:" + msg);
+      channel.basicPublish(exchange, "", null, msg.getBytes());
+//      channel.basicPublish("", queueName, null, msg.getBytes());
     }
 
-    public void teardown()
+    public void teardown() throws IOException
     {
-      pool.shutDown();
+      channel.close();
+      connection.close();
     }
 
-    public void generateMessages(int msgCount) throws InterruptedException
+    public void generateMessages(int msgCount) throws InterruptedException, IOException
     {
       for (int i = 0; i < msgCount; i++) {
         HashMap<String, Integer> dataMapa = new HashMap<String, Integer>();
@@ -110,7 +110,6 @@ public class KestrelInputOperatorBenchmark
     {
       super(module);
       this.id = id;
-      collections.put(id, list = new ArrayList<T>());
     }
 
     @Override
@@ -124,7 +123,7 @@ public class KestrelInputOperatorBenchmark
     public void setConnected(boolean flag)
     {
       if (flag) {
-//        collections.put(id, list = new ArrayList<T>());
+        collections.put(id, list = new ArrayList<T>());
       }
     }
   }
@@ -135,35 +134,21 @@ public class KestrelInputOperatorBenchmark
   }
 
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
-  public void testBechmark() throws Exception
+  public void testDag() throws Exception
   {
-    final int testNum = 20000;
+    final int testNum = 100000;
     DAG dag = new DAG();
-    TestStringKestrelInputOperator consumer = dag.addOperator("Generator", TestStringKestrelInputOperator.class);
+    TestStringRabbitMQInputOperator subscriber = dag.addOperator("Generator", TestStringRabbitMQInputOperator.class);
     CollectorModule<String> collector = dag.addOperator("Collector", new CollectorModule<String>());
-    String[] servers = {"localhost:22133"};
-    consumer.setServers(servers);
-    consumer.setQueueName("testQ");
 
-    new Thread()
-    {
-      public void run()
-      {
-        KestrelMessageGenerator producer = new KestrelMessageGenerator();
-        producer.setQueueName("testQ");
-        producer.setup();
-        try {
-          producer.generateMessages(testNum);
-        }
-        catch (InterruptedException ex) {
-          logger.debug(ex.toString());
-        }
-      }
-    }.start();
+    subscriber.setHost("localhost");
+    subscriber.setExchange("testEx");
 
-    dag.addStream("Stream", consumer.outputPort, collector.inputPort).setInline(true);
+    final RabbitMQMessageGenerator publisher = new RabbitMQMessageGenerator();
+    publisher.setup();
+//    publisher.generateMessages(testNum);
+
+    dag.addStream("Stream", subscriber.outputPort, collector.inputPort).setInline(true);
 
     final StramLocalCluster lc = new StramLocalCluster(dag);
     lc.setHeartbeatMonitoringEnabled(false);
@@ -174,12 +159,12 @@ public class KestrelInputOperatorBenchmark
       public void run()
       {
         try {
+          Thread.sleep(500);
+          publisher.generateMessages(testNum);
           while (true) {
             ArrayList<String> strList = (ArrayList<String>)collections.get("collector");
-            if (testNum * 3 > strList.size()) {
+            if (strList.size() < testNum * 3) {
               Thread.sleep(10);
-              if( strList.size() % 1000 == 0)
-                logger.debug("processed "+strList.size()+" tuples");
             }
             else {
               break;
@@ -187,6 +172,10 @@ public class KestrelInputOperatorBenchmark
           }
         }
         catch (InterruptedException ex) {
+          logger.debug(ex.toString());
+        }
+        catch (IOException ex) {
+          logger.debug(ex.toString());
         }
         lc.shutdown();
       }
@@ -194,7 +183,7 @@ public class KestrelInputOperatorBenchmark
 
     lc.run();
 
-    logger.debug("collection size:" + collections.size() + " " + collections.toString());
+//    logger.debug("collection size:" + collections.size() + " " + collections.toString());
 
     ArrayList<String> strList = (ArrayList<String>)collections.get("collector");
     Assert.assertEquals("emitted value for testNum was ", testNum * 3, strList.size());

@@ -28,8 +28,8 @@ import org.slf4j.LoggerFactory;
  * Run time checks:<br>
  * None<br>
  * <br>
- * Benchmarks:<br>
- * TBD<br>
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * Operator can process about 1 thousand unique (k,v immutable pairs) tuples/sec as Kestrel DAG. The performance is directly proportional to key,val pairs emitted<br>
  * <br>
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>

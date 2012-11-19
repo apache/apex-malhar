@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory;
  * Run time checks:<br>
  * None<br>
  * <br>
- * Benchmarks:<br>
- * TBD<br>
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * Operator can process about 10 thousand unique (k,v immutable pairs) tuples/sec as RabbitMQ DAG. The performance is directly proportional to key,val pairs emitted<br>
  * <br>
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
@@ -43,8 +43,8 @@ public class AbstractRabbitMQOutputOperator extends BaseOperator
   transient QueueingConsumer consumer = null;
   transient Connection connection = null;
   transient Channel channel = null;
-  transient final String exchange = "test";
-  transient public String queueName="testQ";
+  transient String exchange = "testEx";
+  transient String queueName="testQ";
 
   @Override
   public void setup(OperatorContext context)
@@ -53,7 +53,8 @@ public class AbstractRabbitMQOutputOperator extends BaseOperator
       connFactory.setHost("localhost");
       connection = connFactory.newConnection();
       channel = connection.createChannel();
-      channel.queueDeclare(queueName, false, false, false, null);
+      channel.exchangeDeclare(exchange, "fanout");
+//      channel.queueDeclare(queueName, false, false, false, null);
     }
     catch (IOException ex) {
       logger.debug(ex.toString());
@@ -64,6 +65,9 @@ public class AbstractRabbitMQOutputOperator extends BaseOperator
     this.queueName = queueName;
   }
 
+  public void setExchange(String exchange) {
+    this.exchange = exchange;
+  }
   @Override
   public void teardown()
   {

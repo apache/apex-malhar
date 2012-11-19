@@ -1,18 +1,21 @@
 /*
- *  Copyright (c) 2012 Malhar, Inc.
- *  All Rights Reserved.
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
  */
 package com.malhartech.contrib.rabbitmq;
 
-import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.*;
+import com.malhartech.api.Context.OperatorContext;
+import com.malhartech.contrib.rabbitmq.RabbitMQOutputOperatorTest.RabbitMQMessageReceiver.TracingConsumer;
 import com.malhartech.stram.StramLocalCluster;
 import com.malhartech.util.CircularBuffer;
 import com.rabbitmq.client.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +23,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
-public class RabbitMQOutputOperatorTest
+public class RabbitMQOutputOperatorBenchmark
 {
   private static org.slf4j.Logger logger = LoggerFactory.getLogger(RabbitMQOutputOperatorTest.class);
 
@@ -187,11 +190,12 @@ public class RabbitMQOutputOperatorTest
   @Test
   public void testDag() throws InterruptedException, MalformedURLException, IOException, Exception
   {
-    final int testNum = 3;
-    RabbitMQMessageReceiver receiver = new RabbitMQMessageReceiver();
-    receiver.setup();
+    final int testNum = 100000;
 
     DAG dag = new DAG();
+    final RabbitMQMessageReceiver receiver = new RabbitMQMessageReceiver();
+    receiver.setup();
+
     SourceModule source = dag.addOperator("source", SourceModule.class);
     source.setTestNum(testNum);
     TestRabbitMQOutputOperator collector = dag.addOperator("generator", new TestRabbitMQOutputOperator());
@@ -210,6 +214,14 @@ public class RabbitMQOutputOperatorTest
       {
         try {
           Thread.sleep(1000);
+          while (true) {
+            if (receiver.count < testNum * 3) {
+              Thread.sleep(10);
+            }
+            else {
+              break;
+            }
+          }
         }
         catch (InterruptedException ex) {
         }
@@ -219,18 +231,18 @@ public class RabbitMQOutputOperatorTest
 
     lc.run();
 
-    junit.framework.Assert.assertEquals("emitted value for testNum was ", testNum * 3, receiver.count);
+    Assert.assertEquals("emitted value for testNum was ", testNum * 3, receiver.count);
     for (Map.Entry<String, Integer> e : receiver.dataMap.entrySet()) {
       if (e.getKey().equals("a")) {
-        junit.framework.Assert.assertEquals("emitted value for 'a' was ", new Integer(2), e.getValue());
+        Assert.assertEquals("emitted value for 'a' was ", new Integer(2), e.getValue());
       }
       else if (e.getKey().equals("b")) {
-        junit.framework.Assert.assertEquals("emitted value for 'b' was ", new Integer(20), e.getValue());
+        Assert.assertEquals("emitted value for 'b' was ", new Integer(20), e.getValue());
       }
       else if (e.getKey().equals("c")) {
-        junit.framework.Assert.assertEquals("emitted value for 'c' was ", new Integer(1000), e.getValue());
+        Assert.assertEquals("emitted value for 'c' was ", new Integer(1000), e.getValue());
       }
     }
-    logger.debug("end of test");
-  }
+    logger.debug(String.format("\nBenchmarked %d tuples", testNum * 3));
+    logger.debug("end of test");  }
 }

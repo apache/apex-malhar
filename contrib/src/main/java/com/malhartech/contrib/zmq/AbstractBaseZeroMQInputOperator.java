@@ -36,8 +36,8 @@ import com.malhartech.util.CircularBuffer;
  * Run time checks:<br>
  * None<br>
  * <br>
- * Benchmarks:<br>
- * TBD<br>
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * Operator can emit about 400 thousand unique (k,v immutable pairs) tuples/sec as ZeroMQ DAG. The performance is directly proportional to key,val pairs emitted<br>
  * <br>
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */

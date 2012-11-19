@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -56,8 +57,8 @@ public class RabbitMQInputOperatorTest
       connFactory.setHost("localhost");
       connection = connFactory.newConnection();
       channel = connection.createChannel();
-//      channel.exchangeDeclare(exchange, "fanout");
-      channel.queueDeclare(queueName, false, false, false, null);
+      channel.exchangeDeclare(exchange, "fanout");
+//      channel.queueDeclare(queueName, false, false, false, null);
     }
 
     public void setQueueName(String queueName) {
@@ -67,8 +68,8 @@ public class RabbitMQInputOperatorTest
     {
       String msg = message.toString();
 //      logger.debug("publish:" + msg);
-//      channel.basicPublish(exchange, "", null, msg.getBytes());
-      channel.basicPublish("", queueName, null, msg.getBytes());
+      channel.basicPublish(exchange, "", null, msg.getBytes());
+//      channel.basicPublish("", queueName, null, msg.getBytes());
     }
 
     public void teardown() throws IOException
@@ -109,7 +110,7 @@ public class RabbitMQInputOperatorTest
     @Override
     public void process(T tuple)
     {
-      System.out.print("collector process:"+tuple);
+//      System.out.print("collector process:"+tuple);
       list.add(tuple);
     }
 
@@ -135,10 +136,11 @@ public class RabbitMQInputOperatorTest
     CollectorModule<String> collector = dag.addOperator("Collector", new CollectorModule<String>());
 
     generator.setHost("localhost");
+    generator.setExchange("testEx");
 
     final RabbitMQMessageGenerator publisher = new RabbitMQMessageGenerator();
     publisher.setup();
-    publisher.generateMessages(testNum);
+//    publisher.generateMessages(testNum);
 
     dag.addStream("Stream", generator.outputPort, collector.inputPort).setInline(true);
 
@@ -151,7 +153,20 @@ public class RabbitMQInputOperatorTest
       public void run()
       {
         try {
-          Thread.sleep(1000);
+          Thread.sleep(500);
+          publisher.generateMessages(testNum);
+          while (true) {
+            ArrayList<String> strList = (ArrayList<String>)collections.get("collector");
+            if (strList.size() < testNum * 3) {
+              Thread.sleep(10);
+            }
+            else {
+              break;
+            }
+          }
+        }
+        catch (IOException ex) {
+          logger.debug(ex.toString());
         }
         catch (InterruptedException ex) {
         }

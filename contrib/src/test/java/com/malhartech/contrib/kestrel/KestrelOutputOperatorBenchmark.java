@@ -209,6 +209,7 @@ public class KestrelOutputOperatorBenchmark
         junit.framework.Assert.assertEquals("emitted value for 'c' was ", new Integer(1000), e.getValue());
       }
     }
+    logger.debug(String.format("\nBenchmarked %d tuples", testNum * 3));
     logger.debug("end of test");
   }
 }

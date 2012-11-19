@@ -2,30 +2,34 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.contrib.kestrel;
+package com.malhartech.contrib.zmq;
 
-import com.malhartech.api.*;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DAG;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.Operator;
 import com.malhartech.stram.StramLocalCluster;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zeromq.ZMQ;
 
 /**
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
-public class KestrelInputOperatorBenchmark
+public class ZeroMQInputOperatorBenchmark
 {
-  private static Logger logger = LoggerFactory.getLogger(KestrelInputOperatorTest.class);
+  String pubAddr = "tcp://*:5556";
+  String syncAddr = "tcp://*:5557";
+  private static Logger logger = LoggerFactory.getLogger(ZeroMQInputOperatorTest.class);
   static HashMap<String, List<?>> collections = new HashMap<String, List<?>>();
 
-  public static final class TestStringKestrelInputOperator extends AbstractSinglePortKestrelInputOperator<String>
+  public static final class TestStringZeroMQInputOperator extends AbstractSinglePortZeroMQInputOperator<String>
   {
     @Override
     public String getTuple(byte[] message) {
@@ -38,53 +42,42 @@ public class KestrelInputOperatorBenchmark
     }
   }
 
-  private final class KestrelMessageGenerator
+  private final class ZeroMQMessageGenerator
   {
-    public String queueName = "testQ";
-    private SockIOPool pool;
-    String[] servers = {"localhost:22133"};
-    MemcachedClient mcc;
+    private ZMQ.Context context;
+    private ZMQ.Socket publisher;
+    private ZMQ.Socket syncservice;
+    private final int SUBSCRIBERS_EXPECTED = 1;
 
     public void setup()
     {
-      pool = SockIOPool.getInstance();
-      pool.setServers(servers);
-      pool.setFailover(true);
-      pool.setInitConn(10);
-      pool.setMinConn(5);
-      pool.setMaxConn(250);
-
-      pool.setMaintSleep(30);
-      pool.setNagle(false);
-      pool.setSocketTO(3000);
-      pool.setAliveCheck(true);
-      pool.initialize();
-
-      mcc = new MemcachedClient();
-      mcc.flush(queueName,null);
-
-    }
-
-    public void setQueueName(String queueName)
-    {
-      this.queueName = queueName;
+      context = ZMQ.context(1);
+      logger.debug("Publishing on ZeroMQ");
+      publisher = context.socket(ZMQ.PUB);
+      publisher.bind(pubAddr);
+      syncservice = context.socket(ZMQ.REP);
+      syncservice.bind(syncAddr);
     }
 
     public void send(Object message)
     {
       String msg = message.toString();
-      if (mcc.set(queueName, msg.getBytes()) == false) {
-        logger.debug("Set message:" + msg + " Error!");
-      }
+      // logger.debug("publish:"+msg);
+      publisher.send(msg.getBytes(), 0);
     }
 
     public void teardown()
     {
-      pool.shutDown();
+      publisher.close();
+      context.term();
     }
 
     public void generateMessages(int msgCount) throws InterruptedException
     {
+      for (int subscribers = 0; subscribers < SUBSCRIBERS_EXPECTED; subscribers++) {
+        byte[] value = syncservice.recv(0);
+        syncservice.send("".getBytes(), 0);
+      }
       for (int i = 0; i < msgCount; i++) {
         HashMap<String, Integer> dataMapa = new HashMap<String, Integer>();
         dataMapa.put("a", 2);
@@ -101,6 +94,7 @@ public class KestrelInputOperatorBenchmark
     }
   }
 
+
   public static class CollectorInputPort<T> extends DefaultInputPort<T>
   {
     ArrayList<T> list;
@@ -110,13 +104,12 @@ public class KestrelInputOperatorBenchmark
     {
       super(module);
       this.id = id;
-      collections.put(id, list = new ArrayList<T>());
     }
 
     @Override
     public void process(T tuple)
     {
-//      System.out.print("collector process:" + tuple);
+//      System.out.print("collector process:"+tuple);
       list.add(tuple);
     }
 
@@ -124,7 +117,7 @@ public class KestrelInputOperatorBenchmark
     public void setConnected(boolean flag)
     {
       if (flag) {
-//        collections.put(id, list = new ArrayList<T>());
+        collections.put(id, list = new ArrayList<T>());
       }
     }
   }
@@ -135,35 +128,31 @@ public class KestrelInputOperatorBenchmark
   }
 
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
-  public void testBechmark() throws Exception
-  {
-    final int testNum = 20000;
+  public void testDag() throws InterruptedException, Exception {
+      final int testNum = 2000000;
     DAG dag = new DAG();
-    TestStringKestrelInputOperator consumer = dag.addOperator("Generator", TestStringKestrelInputOperator.class);
-    CollectorModule<String> collector = dag.addOperator("Collector", new CollectorModule<String>());
-    String[] servers = {"localhost:22133"};
-    consumer.setServers(servers);
-    consumer.setQueueName("testQ");
+    final ZeroMQMessageGenerator publisher = new ZeroMQMessageGenerator();
+    publisher.setup();
 
-    new Thread()
-    {
-      public void run()
-      {
-        KestrelMessageGenerator producer = new KestrelMessageGenerator();
-        producer.setQueueName("testQ");
-        producer.setup();
+    TestStringZeroMQInputOperator generator = dag.addOperator("Generator", TestStringZeroMQInputOperator.class);
+    CollectorModule<String> collector = dag.addOperator("Collector", new CollectorModule<String>());
+
+    generator.setFilter("");
+    generator.setUrl("tcp://localhost:5556");
+    generator.setSyncUrl("tcp://localhost:5557");
+
+    dag.addStream("Stream", generator.outputPort, collector.inputPort).setInline(true);
+    new Thread() {
+      @Override
+      public void run() {
         try {
-          producer.generateMessages(testNum);
+          publisher.generateMessages(testNum);
         }
         catch (InterruptedException ex) {
           logger.debug(ex.toString());
         }
       }
     }.start();
-
-    dag.addStream("Stream", consumer.outputPort, collector.inputPort).setInline(true);
 
     final StramLocalCluster lc = new StramLocalCluster(dag);
     lc.setHeartbeatMonitoringEnabled(false);
@@ -174,12 +163,11 @@ public class KestrelInputOperatorBenchmark
       public void run()
       {
         try {
+          Thread.sleep(1000);
           while (true) {
             ArrayList<String> strList = (ArrayList<String>)collections.get("collector");
-            if (testNum * 3 > strList.size()) {
+            if (strList.size() < testNum * 3) {
               Thread.sleep(10);
-              if( strList.size() % 1000 == 0)
-                logger.debug("processed "+strList.size()+" tuples");
             }
             else {
               break;
@@ -194,9 +182,9 @@ public class KestrelInputOperatorBenchmark
 
     lc.run();
 
-    logger.debug("collection size:" + collections.size() + " " + collections.toString());
+//    logger.debug("collection size:"+collections.size()+" "+collections.toString());
 
-    ArrayList<String> strList = (ArrayList<String>)collections.get("collector");
+    ArrayList<String> strList =(ArrayList<String>)collections.get("collector");
     Assert.assertEquals("emitted value for testNum was ", testNum * 3, strList.size());
     for (int i = 0; i < strList.size(); i++) {
       String str = strList.get(i);

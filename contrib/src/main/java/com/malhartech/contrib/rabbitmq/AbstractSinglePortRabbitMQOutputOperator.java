@@ -23,8 +23,8 @@ import com.malhartech.api.DefaultInputPort;
  * Run time checks:<br>
  * None<br>
  * <br>
- * Benchmarks:<br>
- * TBD<br>
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * Operator can process about 10 thousand unique (k,v immutable pairs) tuples/sec as RabbitMQ DAG. The performance is directly proportional to key,val pairs emitted<br>
  * <br>
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */

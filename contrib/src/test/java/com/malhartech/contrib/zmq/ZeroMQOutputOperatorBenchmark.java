@@ -1,6 +1,6 @@
 /*
- *  Copyright (c) 2012 Malhar, Inc.
- *  All Rights Reserved.
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
  */
 package com.malhartech.contrib.zmq;
 
@@ -8,10 +8,9 @@ import com.malhartech.api.*;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.stram.StramLocalCluster;
 import com.malhartech.util.CircularBuffer;
-import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.*;
+import org.junit.Test;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
@@ -19,11 +18,11 @@ import org.zeromq.ZMQ;
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
-public class ZeroMQOutputOperatorTest
+public class ZeroMQOutputOperatorBenchmark
 {
   private static org.slf4j.Logger logger = LoggerFactory.getLogger(ZeroMQOutputOperatorTest.class);
 
-  private static final class TestStringZeroMQOutputOperator extends AbstractZeroMQOutputOperator<String>
+  private static final class TestStringZeroMQOutputOperator extends AbstractSinglePortZeroMQOutputOperator<String>
   {
     @Override
     public void processTuple(String tuple)
@@ -100,7 +99,7 @@ public class ZeroMQOutputOperatorTest
     @Override
     public void setup(OperatorContext context)
     {
-      holdingBuffer = new CircularBuffer<byte[]>(1024 * 1024);
+      holdingBuffer = new CircularBuffer<byte[]>(10240 * 1024);
     }
 
     public void emitTuple(byte[] message)
@@ -151,7 +150,7 @@ public class ZeroMQOutputOperatorTest
   @Test
   public void testDag() throws Exception
   {
-    final int testNum = 3;
+    final int testNum = 2000000;
 
     DAG dag = new DAG();
     SourceModule source = dag.addOperator("source", SourceModule.class);
@@ -206,6 +205,7 @@ public class ZeroMQOutputOperatorTest
         junit.framework.Assert.assertEquals("emitted value for 'c' was ", new Integer(1000), e.getValue());
       }
     }
+    logger.debug(String.format("\nBenchmarked %d tuples", testNum * 3));
     logger.debug("end of test");
   }
 }
