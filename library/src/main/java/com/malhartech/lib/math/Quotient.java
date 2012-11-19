@@ -40,7 +40,7 @@ import javax.validation.constraints.Min;
  * @author amol<br>
  *
  */
-public class Quotient<K, V extends Number> extends BaseOperator
+public class Quotient<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
 {
   @InputPortFieldAnnotation(name = "numerator")
   public final transient DefaultInputPort<HashMap<K, V>> numerator = new DefaultInputPort<HashMap<K, V>>(this)
@@ -84,7 +84,7 @@ public class Quotient<K, V extends Number> extends BaseOperator
           val.value += e.getValue().doubleValue();
         }
       }
-      map.put(e.getKey(), val);
+      map.put(cloneKey(e.getKey()), val);
     }
   }
   HashMap<K, MutableDouble> numerators = new HashMap<K, MutableDouble>();

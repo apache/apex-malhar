@@ -36,7 +36,7 @@ import java.util.Map;
  *
  * @author amol
  */
-public class Range<K, V extends Number> extends BaseOperator
+public class Range<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
@@ -55,18 +55,18 @@ public class Range<K, V extends Number> extends BaseOperator
         double eval = e.getValue().doubleValue();
         V val = low.get(key);
         if (val == null) {
-          low.put(key, e.getValue());
+          low.put(cloneKey(key), e.getValue());
         }
         else if (val.doubleValue() > eval) {
-          low.put(key, e.getValue());
+          low.put(cloneKey(key), e.getValue());
         }
 
         val = high.get(key);
         if (val == null) {
-          high.put(key, e.getValue());
+          high.put(cloneKey(key), e.getValue());
         }
         else if (val.doubleValue() < eval) {
-          high.put(key, e.getValue());
+          high.put(cloneKey(key), e.getValue());
         }
       }
     }

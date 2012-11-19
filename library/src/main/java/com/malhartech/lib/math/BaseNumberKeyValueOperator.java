@@ -4,20 +4,20 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.api.BaseOperator;
+import com.malhartech.lib.util.BaseKeyValueOperator;
 import javax.validation.constraints.NotNull;
 
 /**
  *
  * Base class for operators that take in V extends Number. Provides basic methods for value conversion<p>
  * <br>
- * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Over >500 million tuples/sec as all tuples are absorbed, and only one goes out at end of window<br>
+ * <b>Benchmarks</b>: Not done as emit is done by sub-classes<br>
  * <br>
  *
  * @author amol
  */
-public class BaseNumberOperator<V extends Number> extends BaseOperator
+public class BaseNumberKeyValueOperator<K,V extends Number> extends BaseKeyValueOperator<K,V>
+
 {
   public enum V_TYPE
   {

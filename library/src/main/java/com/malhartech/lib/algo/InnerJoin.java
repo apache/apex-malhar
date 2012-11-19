@@ -19,7 +19,7 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 /**
- *
+ * <b>Not certified yet</b>
  * Takes two streams, and emits innerJoin result as per Key<p>
  * <br>
  * Tuples with same value for "key" are merged into one tuple. Even though this module produces continuous tuples, at end of window all data is flushed. Thus the data set is windowed

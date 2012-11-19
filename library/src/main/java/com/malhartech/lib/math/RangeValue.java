@@ -31,7 +31,7 @@ import java.util.ArrayList;
  * <br>
  * @author amol
  */
-public class RangeValue<V extends Number> extends BaseNumberOperator<V>
+public class RangeValue<V extends Number> extends BaseNumberValueOperator<V>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<V> data = new DefaultInputPort<V>(this)

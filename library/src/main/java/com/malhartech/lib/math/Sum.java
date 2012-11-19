@@ -6,33 +6,54 @@ package com.malhartech.lib.math;
 
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.MutableDouble;
 import com.malhartech.lib.util.MutableInteger;
 import java.util.HashMap;
 import java.util.Map;
-import javax.validation.constraints.NotNull;
 
 /**
  *
  * Emits the sum, average, and count of values for each key at the end of window<p>
- * <br>
  * Is an end of window operator<br>
- * <b>Ports</b>:
- * <b>data</b>: expects HashMap<K,V extends Number><br>
- * <b>sum</b>: emits HashMap<K,V><br>
- * <b>count</b>: emits HashMap<K,Integer></b><br>
- * <b>average</b>: emits HashMap<K,V></b><br>
- * Compile time checks<br>
- * None<br>
- * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Over 6 million tuples/sec as all tuples are absorbed, and only one goes out at end of window<br>
  * <br>
- *
- * @author amol
+ * <b>Ports</b>:
+ * <b>data</b>: expects HashMap&lt;K,V extends Number&gt;<br>
+ * <b>sum</b>: emits HashMap&lt;K,V&gt;<br>
+ * <b>count</b>: emits HashMap&lt;K,Integer&gt;</b><br>
+ * <b>average</b>: emits HashMap&lt;K,V&gt;</b><br>
+ * <b>Specific compile time checks</b>: None<br>
+ * <b>Specific run time checks</b>: None<br>
+ * <p>
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for Sum&lt;K,V&gt; operator template. K and V can be any POJO">
+ * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
+ * <tr><td><b>18 Million K,V pairs/s</td><td>One tuple per key per window per port</td><td>Out-bound tuples rarely affect performance. Tuples are assumed to be
+ * immutable. If you use mutable tuples and have lots of keys, the benchmarks may differ</td></tr>
+ * </table><br>
+ * <p>
+ * <b>Function Table (K=String, V=Integer)</b>:
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for Sum&lt;K,V&gt; operator template. K and V can be any POJO">
+ * <caption><em>Function table for Sum operator</em></caption>
+ * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th colspan=3>Out-bound (emit)</th></tr>
+ * <tr><th><i>data</i> HashMap&lt;K,V&gt;</th><th><i>sum</i> HashMap&lt;K,V&gt;</th><th><i>count</i> HashMap&lt;K,Integer&gt;</th><th><i>average</i> HashMap&lt;K,V&gt;</th></tr>
+ * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
+ * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td></td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{a=1}</td><td></td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{a=10,b=5}</td><td></td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=55,b=12}</td><td></td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=22}</td><td></td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=14}</td><td></td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=46,e=2}</td><td></td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=4,a=23}</td><td></td><td></td><td></td></tr>
+ * <tr><td>End Window (endWindow())</td><td>N/A</td><td>{a=36,b=37,c=1000,d=141,e=2}</td><td>{a=4,b=3,c=1,d=5,e=1}</td><td>{a=9,b=12,c=1000,d=28,e=2}</td></tr>
+ * </table>
+ * <br>
+ * @author Amol Kekre (amol@malhar-inc.com)<br>
+ * <br>
  */
-public class Sum<K, V extends Number> extends BaseNumberOperator<V>
+public class Sum<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
@@ -49,20 +70,21 @@ public class Sum<K, V extends Number> extends BaseNumberOperator<V>
       for (Map.Entry<K, V> e: tuple.entrySet()) {
         K key = e.getKey();
         if (sum.isConnected()) {
-          Double val = sums.get(key);
+          MutableDouble val = sums.get(key);
           if (val == null) {
-            val = e.getValue().doubleValue();
+            val = new MutableDouble();
+            val.value = e.getValue().doubleValue();
           }
           else {
-            val = val + e.getValue().doubleValue();
+            val.add(e.getValue().doubleValue());
           }
-          sums.put(key, val);
+          sums.put(cloneKey(key), val);
         }
         if (count.isConnected() || average.isConnected()) {
           MutableInteger count = counts.get(key);
           if (count == null) {
             count = new MutableInteger(0);
-            counts.put(key, count);
+            counts.put(cloneKey(key), count);
           }
           count.value++;
         }
@@ -75,7 +97,7 @@ public class Sum<K, V extends Number> extends BaseNumberOperator<V>
   public final transient DefaultOutputPort<HashMap<K, V>> average = new DefaultOutputPort<HashMap<K, V>>(this);
   @OutputPortFieldAnnotation(name = "count", optional=true)
   public final transient DefaultOutputPort<HashMap<K, Integer>> count = new DefaultOutputPort<HashMap<K, Integer>>(this);
-  HashMap<K, Double> sums = new HashMap<K, Double>();
+  HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
   HashMap<K, MutableInteger> counts = new HashMap<K, MutableInteger>();
 
   /**
@@ -116,16 +138,16 @@ public class Sum<K, V extends Number> extends BaseNumberOperator<V>
     }
 
     if (sum.isConnected()) {
-      for (Map.Entry<K, Double> e: sums.entrySet()) {
+      for (Map.Entry<K, MutableDouble> e: sums.entrySet()) {
         K key = e.getKey();
         if (sum.isConnected()) {
-          stuples.put(key, getValue(e.getValue()));
+          stuples.put(key, getValue(e.getValue().value));
         }
         if (count.isConnected()) {
           ctuples.put(key, new Integer(counts.get(e.getKey()).value));
         }
         if (average.isConnected()) {
-          atuples.put(e.getKey(), getValue(e.getValue().doubleValue() / counts.get(e.getKey()).value));
+          atuples.put(e.getKey(), getValue(e.getValue().value / counts.get(e.getKey()).value));
         }
       }
     }

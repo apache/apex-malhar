@@ -38,8 +38,7 @@ public class SumBenchmark
     int numTuples = 100000000;
     // Not needed, but still setup is being called as a matter of discipline
     oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
-    oper.beginWindow(0); //
-
+    oper.beginWindow(0);
     HashMap<String, Double> input = new HashMap<String, Double>();
 
     for (int i = 0; i < numTuples; i++) {
@@ -48,22 +47,22 @@ public class SumBenchmark
       input.put("c", 10.0);
       oper.data.process(input);
     }
+    oper.endWindow();
 
-    oper.endWindow(); //
+    HashMap<String, Double> dhash = (HashMap<String, Double>)sumSink.collectedTuples.get(0);
+    HashMap<String, Double> ahash = (HashMap<String, Double>)averageSink.collectedTuples.get(0);
+    HashMap<String, Integer> chash = (HashMap<String, Integer>)countSink.collectedTuples.get(0);
+    log.debug(String.format("\nBenchmark sums for %d key/val pairs", numTuples * 3));
 
-    HashMap<String, Double> dhash = (HashMap<String, Double>) sumSink.collectedTuples.get(0);
-    HashMap<String, Double> ahash = (HashMap<String, Double>) averageSink.collectedTuples.get(0);
-    HashMap<String, Integer> chash = (HashMap<String, Integer>) countSink.collectedTuples.get(0);
+    log.debug(String.format("\nFor sum expected(%d,%d,%d), got(%.1f,%.1f,%.1f);",
+                            2 * numTuples, 20 * numTuples, 10 * numTuples,
+                            dhash.get("a"), dhash.get("b"), dhash.get("c")));
 
-    log.debug(String.format("\nBenchmark sums for %d tuples, expected(%d,%d,%d), got(%f,%f,%f);", numTuples,
-                                                                                                 2*numTuples, 20*numTuples, 10*numTuples,
-                                                                                                 dhash.get("a"), dhash.get("b"), dhash.get("c")));
+    log.debug(String.format("\nFor average expected(2,20,10), got(%d,%d,%d);",
+                            ahash.get("a").intValue(), ahash.get("b").intValue(), ahash.get("c").intValue()));
 
-    log.debug(String.format("\nBenchmark sums for %d tuples, expected(2,20,10), got(%f,%f,%f);", numTuples,
-                                                                                                 ahash.get("a"), ahash.get("b"), ahash.get("c")));
-
-    log.debug(String.format("\nBenchmark counts for %d tuples, expected(%d,%d,%d), got(%d,%d,%d);", numTuples,
-                                                                                                 2*numTuples, 20*numTuples, 10*numTuples,
-                                                                                                 chash.get("a"), chash.get("b"), chash.get("c")));
+    log.debug(String.format("\nFor count expected(%d,%d,%d), got(%d,%d,%d);",
+                            numTuples, numTuples, numTuples,
+                            chash.get("a"), chash.get("b"), chash.get("c")));
   }
 }

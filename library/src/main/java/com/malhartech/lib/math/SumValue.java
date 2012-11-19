@@ -22,14 +22,37 @@ import javax.validation.constraints.NotNull;
  * <b>data</b> expects V extends Number<br>
  * <b>sum</b> emits V extends Number<br>
  * <b>count</b> emits Integer</b>
- * Compile time checks<br>
- * None<br>
+ * <b>average</b> emits V extends Number<br>
+ * <b>Specific compile time checks</b>: None<br>
+ * <b>Specific run time checks</b>: None<br>
+ * <p>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Operator does >500 million tuples/sec as all tuples are processed, but only one goes out at end of window<br>
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for Sum&lt;K,V&gt; operator template. K and V can be any POJO">
+ * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
+ * <tr><td><b>&gt; 500 Million tuples/s</td><td>One tuple per window per port</td><td>Out-bound tuples do not affect performance</td></tr>
+ * </table><br>
+ * <p>
+ * <b>Function Table (V=Integer)</b>:
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for Sum&lt;K,V&gt; operator template. K and V can be any POJO">
+ * <caption><em>Function table for Sum operator</em></caption>
+ * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th colspan=3>Out-bound (emit)</th></tr>
+ * <tr><th><i>data</i> HashMap&lt;K,V&gt;</th><th><i>sum</i> HashMap&lt;K,V&gt;</th><th><i>count</i> HashMap&lt;K,Integer&gt;</th><th><i>average</i> HashMap&lt;K,V&gt;</th></tr>
+ * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
+ * <tr><td>Data (process())</td><td>2</td><td></td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>1000</td><td></td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>10</td><td></td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>52</td><td></td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>22</td><td></td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>14</td><td></td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>2</td><td></td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>4</td><td></td><td></td><td></td></tr>
+ * <tr><td>End Window (endWindow())</td><td>N/A</td><td>1106</td><td>8</td><td>138</td></tr>
+ * </table>
  * <br>
- * @author amol
+ * @author Amol Kekre (amol@malhar-inc.com)<br>
+ * <br>
  */
-public class SumValue<V extends Number> extends BaseNumberOperator<V>
+public class SumValue<V extends Number> extends BaseNumberValueOperator<V>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<V> data = new DefaultInputPort<V>(this)

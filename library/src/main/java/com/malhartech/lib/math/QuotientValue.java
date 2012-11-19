@@ -35,7 +35,7 @@ import com.malhartech.api.DefaultOutputPort;
  *
  */
 
-public class QuotientValue<V extends Number> extends BaseNumberOperator<V>
+public class QuotientValue<V extends Number> extends BaseNumberValueOperator<V>
 {
   @InputPortFieldAnnotation(name = "numerator")
   public final transient DefaultInputPort<V> numerator = new DefaultInputPort<V>(this)

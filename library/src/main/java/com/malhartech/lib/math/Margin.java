@@ -39,7 +39,7 @@ import java.util.Map;
  * @author amol<br>
  *
  */
-public class Margin<K, V extends Number> extends BaseNumberOperator<V>
+public class Margin<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
 {
   @InputPortFieldAnnotation(name = "numerator")
   public final transient DefaultInputPort<HashMap<K, V>> numerator = new DefaultInputPort<HashMap<K, V>>(this)
@@ -77,7 +77,7 @@ public class Margin<K, V extends Number> extends BaseNumberOperator<V>
       MutableDouble val = map.get(e.getKey());
       if (val == null) {
         val = new MutableDouble(0.0);
-        map.put(e.getKey(), val);
+        map.put(cloneKey(e.getKey()), val);
       }
       val.value += e.getValue().doubleValue();
     }

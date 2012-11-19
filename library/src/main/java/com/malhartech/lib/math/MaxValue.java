@@ -29,7 +29,7 @@ import com.malhartech.lib.util.MutableDouble;
  *<br>
  * @author amol
  */
-public class MaxValue<V extends Number> extends BaseNumberOperator<V>
+public class MaxValue<V extends Number> extends BaseNumberValueOperator<V>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<V> data = new DefaultInputPort<V>(this)

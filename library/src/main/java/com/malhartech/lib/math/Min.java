@@ -31,7 +31,7 @@ import java.util.Map;
  *<br>
  * @author amol
  */
-public class Min<K, V extends Number> extends BaseNumberOperator<V>
+public class Min<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
@@ -49,7 +49,7 @@ public class Min<K, V extends Number> extends BaseNumberOperator<V>
         MutableDouble val = low.get(e.getKey());
         if (val == null) {
           val = new MutableDouble(e.getValue().doubleValue());
-          low.put(e.getKey(), val);
+          low.put(cloneKey(e.getKey()), val);
         }
         if (val.value > e.getValue().doubleValue()) {
           val.value = e.getValue().doubleValue();
