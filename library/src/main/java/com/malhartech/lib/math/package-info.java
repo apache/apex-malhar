@@ -25,7 +25,8 @@
  * value from the Number. Both output ports are optional, but at least one has to be connected<br>
  * <b>{@link com.malhartech.lib.math.ExceptString}</b>:  Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". If the tuple
  * fails the test, it is emitted on the output port "except". The comparison is done by parsing double value from the String. Both output ports are optional, but at least one has to be connected<br>
- * <b>{@link com.malhartech.lib.math.Margin}</b>: For every window computes margins of sums of values of a key in two streams<br>
+ * <b>{@link com.malhartech.lib.math.Margin}</b>: For every window computes margins of sums of values of a key in two streams. Emits margin of eack key at end of window<br>
+ * <b>{@link com.malhartech.lib.math.MarginValue}</b>: For every window computes margins of sums of tuples in two streams. Emits tuple at the end of window<br>
  * <b>{@link com.malhartech.lib.math.Max}</b>: Takes in one stream via input port "data". At end of window sends maximum of all values for each key and emits them on port "max"<br>
  * <b>{@link com.malhartech.lib.math.MaxValue}</b>: Takes in one stream via input port "data". At end of window sends maximum of all incoming tuples on port "max"<br>
  * <b>{@link com.malhartech.lib.math.Min}</b>: Takes in one stream via input port "data". At end of window sends minimum of all values for each key and emits them on port "min"<br>

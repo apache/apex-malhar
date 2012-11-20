@@ -16,10 +16,8 @@ import java.util.Map;
 /**
  *
  * Adds all values for each key in "numerator" and "denominator", and at the end of window emits the margin for each key
- * (1 - numerator/denominator).<p> <br> Each stream is added to a hash.
- * The values are added for each key within the window and for each stream.<<br>
- * This node only functions in a windowed stram application<br> <br> Compile
- * time error processing is done on configuration parameters<br>
+ * (1 - numerator/denominator).<p>
+ * <br>The values are added for each key within the window and for each stream.<br>
  * <b>Ports</b>:
  * <b>numerator</b> expects HashMap&lt;K,V&gt;<br>
  * <b>denominator</b> expects HashMap&lt;K,V&gt;<br>
@@ -51,7 +49,7 @@ import java.util.Map;
  * <tr><td>Data (process())</td><td></td><td>{b=7,e=3}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{d=46,e=2}</td><td></td><td></td></tr>
  * <tr><td>Data (process())</td><td>{d=4,a=23,g=5,h=44}</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td></td><td>{a=2,c=1500}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td></td><td>{c=1500}</td><td></td></tr>
  * <tr><td>Data (process())</td><td></td><td>{a=40,b=30}</td><td></td></tr>
  * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td><td>{a=28,b=0,c=-100,d=50,e=33.3}</td></tr>
  * </table>
