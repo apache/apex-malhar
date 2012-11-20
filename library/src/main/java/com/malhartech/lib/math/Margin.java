@@ -20,9 +20,9 @@ import java.util.Map;
  * <br>The values are added for each key within the window and for each stream.<br>
  * <br>
  * <b>Ports</b>:<br>
- * <b>numerator</b> expects HashMap&lt;K,V&gt;<br>
- * <b>denominator</b> expects HashMap&lt;K,V&gt;<br>
- * <b>margin</b> emits HashMap&lt;K,Double&gt;, one entry per key per window<br>
+ * <b>numerator</b>: expects HashMap&lt;K,V&gt;<br>
+ * <b>denominator</b>: expects HashMap&lt;K,V&gt;<br>
+ * <b>margin</b>: emits HashMap&lt;K,Double&gt;, one entry per key per window<br>
  * <br>
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
@@ -30,8 +30,8 @@ import java.util.Map;
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for Margin&lt;K,V extends Number&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>40 Million K,V pairs/s</td><td>One tuple per key per window per port</td><td>In-bound rate is the main determinant of performance. Tuples are assumed to be
- * immutable. If you use mutable tuples and have lots of keys, the benchmarks may differ</td></tr>
+ * <tr><td><b>40 Million K,V pairs/s</b></td><td>One tuple per key per window per port</td><td>In-bound rate is the main determinant of performance. Tuples are assumed to be
+ * immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
  * </table><br>
  * <p>
  * <b>Function Table (K=String, V=Integer) and percent set to true</b>:

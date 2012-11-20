@@ -19,17 +19,17 @@ import javax.validation.constraints.Min;
  * Add all the values for each key on "numerator" and "denominator" and emits quotient at end of window for all keys in the denominator<p>
  * <br>
  * <b>Ports</b>:<br>
- * <b>numerator</b> expects HashMap&lt;K,V extends Number&gt;<br>
- * <b>denominator</b> expects HashMap&lt;K,V extends Number&gt;<br>
- * <b>quotient</b> emits HashMap&lt;K,Double&gt;<br>
+ * <b>numerator</b>: expects HashMap&lt;K,V extends Number&gt;<br>
+ * <b>denominator</b>: expects HashMap&lt;K,V extends Number&gt;<br>
+ * <b>quotient</b>: emits HashMap&lt;K,Double&gt;<br>
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
  * <p>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for Quotien&lt;K,V extends Number&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>18 Million K,V pairs/s</td><td>One key,val pair per key per window</td><td>In-bound is the main determinant of performance. Tuples are assumed to be
- * immutable. If you use mutable tuples and have lots of keys, the benchmarks may differ</td></tr>
+ * <tr><td><b>18 Million K,V pairs/s</b></td><td>One K,V pair per key per window</td><td>In-bound is the main determinant of performance. Tuples are assumed to be
+ * immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
  * </table><br>
  * <p>
  * <b>Function Table (K=String, V=Integer)</b>:

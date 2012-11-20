@@ -36,7 +36,7 @@ import java.util.HashMap;
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for CompareString&lt;K,String&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>8 Million K,String pairs/s</td><td>Each not matched tuple is emitted</td><td>In-bound rate and number of tuples that do not match determine performance.
+ * <tr><td><b>8 Million K,String pairs/s</b></td><td>Each matched tuple is emitted</td><td>In-bound rate and number of tuples that match determine performance.
  * Immutable tuples were used in the benchmarking. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
  * </table><br>
  * <p>

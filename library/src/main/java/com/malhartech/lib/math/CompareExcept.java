@@ -18,13 +18,13 @@ import java.util.HashMap;
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects HashMap&lt;K,V&gt;<br>
- * <b>compare</b>: emits HashMap&lt;K,V&gt; if compare function returns true<br>
- * <b>except</b>: emits HashMap&lt;K,V&gt; if compare function is false<br>
+ * <b>compare</b>: emits HashMap&lt;K,V&gt;<br>
+ * <b>except</b>: emits HashMap&lt;K,V&gt;<br>
  * <br>
  * <b>Properties</b>:<br>
  * <b>key</b>: The key on which compare is done<br>
  * <b>value</b>: The value to compare with<br>
- * <b>comp<b>: The compare function. Supported values are "lte", "lt", "eq", "neq", "gt", "gte". Default is "eq"<br>
+ * <b>comp</b>: The compare function. Supported values are "lte", "lt", "eq", "neq", "gt", "gte". Default is "eq"<br>
  * <br>
  * Compile time checks<br>
  * Key must be non empty<br>
@@ -37,7 +37,7 @@ import java.util.HashMap;
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for CompareExcept&lt;K,V extends Number&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>5 Million K,String pairs/s</td><td>Each not matched tuple is emitted</td><td>In-bound rate determines performance as every tuple is emitted (if emitError is true).
+ * <tr><td><b>5 Million K,V pairs/s</b></td><td>Each tuple is emitted if emitError is set to true</td><td>In-bound rate determines performance as every tuple is emitted.
  * Immutable tuples were used in the benchmarking. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
  * </table><br>
  * <p>

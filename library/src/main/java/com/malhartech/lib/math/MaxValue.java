@@ -16,8 +16,8 @@ import com.malhartech.lib.util.MutableDouble;
  * Emits at end of window maximum of all values sub-classed from Number in the incoming stream<p>
  * <br>
  * <b>Ports</b>:<br>
- * <b>data</b> expects V extends Number<br>
- * <b>high</b> emits V<br>
+ * <b>data</b>: expects V extends Number<br>
+ * <b>high</b>: emits V<br>
  * <br>
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
@@ -25,8 +25,8 @@ import com.malhartech.lib.util.MutableDouble;
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for MaxValue&lt;V extends Number&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>&gt; 500 Million tuples/s</td><td>One Double tuple per window</td><td>In-bound rate is the main determinant of performance</td></tr>
- * </table><br>
+ * <tr><td><b>&gt; 500 Million tuples/s</b></td><td>One Double tuple per window</td><td>In-bound rate is the main determinant of performance. Tuples are assumed to be
+ * immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
  * <p>
  * <b>Function Table (V=Integer)</b>:
  * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for MaxValue&lt;V extends Number&gt; operator template">
