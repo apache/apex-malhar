@@ -20,6 +20,7 @@ import com.malhartech.lib.util.BaseNumberValueOperator;
  * <b>count</b>: emits Integer</b>
  * <b>average</b>: emits V extends Number<br><br>
  * <br>
+ * <b>Properties</b>: None<br>
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
  * <p>
@@ -33,7 +34,7 @@ import com.malhartech.lib.util.BaseNumberValueOperator;
  * <b>Function Table (V=Integer)</b>:
  * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for SumValue&lt;V extends Number&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th colspan=3>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(&lt;V&gt;)</th><th><i>sum</i>(&lt;V&gt;)</th><th><i>count</i>(Integer)</th><th><i>average</i>(&lt;V&gt;)</th></tr>
+ * <tr><th><i>data</i>(V)</th><th><i>sum</i>(V)</th><th><i>count</i>(Integer)</th><th><i>average</i>(V)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
  * <tr><td>Data (process())</td><td>2</td><td></td><td></td><td></td></tr>
  * <tr><td>Data (process())</td><td>1000</td><td></td><td></td><td></td></tr>

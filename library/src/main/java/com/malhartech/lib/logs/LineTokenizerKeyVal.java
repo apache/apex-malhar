@@ -4,39 +4,48 @@
  */
 package com.malhartech.lib.logs;
 
-import com.malhartech.lib.util.BaseLineTokenizer;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.BaseLineTokenizer;
 import java.util.HashMap;
 
 /**
  *
- * Splits lines into tokens, and tokens into sub-tokens and emits HashMap<Key,Val><p>
- * This module is a pass through. <br>
+ * Splits lines into tokens, and tokens into sub-tokens and emits key,val pairs in a HashMap. Useful to convert String (log lines) into a POJO (HashMap)<p>
+ * This module is a pass through<br>
  * <br>
  * Ideal for applications like log processing<br>
- * Ports:<br>
+ * <b>Ports</b>:<br>
  * <b>data</b>: expects String<br>
- * <b>tokens</b>: emits HashMap<String,String><br>
+ * <b>tokens</b>: emits HashMap&lt;String,String&gt;<br>
  * <br>
- * Properties:<br>
+ * <b>Properties</b>:<br>
  * <b>splitby</b>: The characters used to split the line. Default is ";\t "<br>
  * <b>splittokenby</b>: The characters used to split a token into key,val pair. Default is "", i.e. tokens are not split, and key is set to token, and val is null<br>
  * <br>
- * Compile time checks<br>
- * None<br>
- * <br>
- * Run time checks<br>
- * none<br>
- * <br>
+ * <b>Specific compile time checks</b>: None<br>
+ * <b>Specific run time checks</b>: None<br>
+ * <p>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Operator processes > 2.5 million tuples/sec. The processing was done with 3 keys per line. The performance is proportional to number of keys
- * and their length. For every tuple processed and average of N tuples are emitted, where N is the average number of keys per tuple<br>
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for LineTokenizer&lt;V extends Number&gt; operator template">
+ * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
+ * <tr><td><b>&gt; 2.5 Million tuples/s (for N=3)</b></td><td>For every in-bound tuple N tuples are emitted, where N is the average number of keys per tuple</td>
+ * <td>In-bound rate and the number of keys in the String are the main determinant of performance</td></tr>
+ * </table><br>
+ * <p>
+ * <b>Function Table (splitby=",", splittokenby="=")</b>:
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for LineTokenizer&lt;V extends Number&gt; operator template">
+ * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th>Out-bound (emit)</th></tr>
+ * <tr><th><i>data</i>(String)</th><th><i>tokens</i>(HashMap&lt;String,String&gt;)</th></tr>
+ * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
+ * <tr><td>Data (process())</td><td>"a=2,a=5,b=5,c=33,f"</td><td>{"a"="2"} ; {"a"="5"} ; {"b"="5"} ; {"c"="33"} ; {"f"=""}</td></tr>
+ * <tr><td>Data (process())</td><td>""</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>"a=d,,b=66"</td><td>{"a"="d"} ; {"b"="66"}</td></tr>
+ * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td></tr>
+ * </table>
  * <br>
- *
- * @author amol<br>
+ * @author Amol Kekre (amol@malhar-inc.com)<br>
  * <br>
- *
  */
 public class LineTokenizerKeyVal extends BaseLineTokenizer
 {

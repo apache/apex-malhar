@@ -33,7 +33,7 @@ import com.malhartech.lib.util.MutableDouble;
  * <b>Function Table (V=Integer)</b>:
  * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for MinValue&lt;V extends Number&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(&lt;V&gt;)</th><th><i>min</i>(&lt;V&gt;)</th></tr>
+ * <tr><th><i>data</i>(V)</th><th><i>min</i>(V)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
  * <tr><td>Data (process())</td><td>44</td><td></td></tr>
  * <tr><td>Data (process())</td><td>2</td><td></td></tr>

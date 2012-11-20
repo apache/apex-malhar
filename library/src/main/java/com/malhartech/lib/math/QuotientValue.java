@@ -31,7 +31,7 @@ import com.malhartech.api.DefaultOutputPort;
  * <b>Function Table (V=Integer)</b>:
  * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for QuotientValue&lt;V extends Number&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th colspan=2>In-bound (process)</th><th>Out-bound (emit)</th></tr>
- * <tr><th><i>numerator</i>(&lt;V&gt;)</th><th><i>denominator</i>(&lt;V&gt;)</th><th><i>quotient</i>(&lt;V&gt;)</th></tr>
+ * <tr><th><i>numerator</i>(V)</th><th><i>denominator</i>(V)</th><th><i>quotient</i>(V)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
  * <tr><td>Data (process())</td><td></td><td>28</td><td></td></tr>
  * <tr><td>Data (process())</td><td>2</td><td></td><td></td></tr>

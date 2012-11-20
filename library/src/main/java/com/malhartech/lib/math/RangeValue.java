@@ -34,7 +34,7 @@ import java.util.ArrayList;
  * <b>Function Table (V=Integer)</b>:
  * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for RangeValue&lt;V extends Number&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i> (&lt;V&gt;)</th><th><i>range</i> (ArrayList&lt;V&gt;)</th></tr>
+ * <tr><th><i>data</i> (V)</th><th><i>range</i> (ArrayList&lt;V&gt;(2))</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
  * <tr><td>Data (process())</td><td>2</td><td></td></tr>
  * <tr><td>Data (process())</td><td>1000</td><td></td></tr>
