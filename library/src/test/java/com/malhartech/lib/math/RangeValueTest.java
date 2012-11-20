@@ -86,7 +86,7 @@ public class RangeValueTest
 
     // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
     Assert.assertEquals("number emitted tuples", 1, rangeSink.collectedTuples.size());
-    for (Object o: rangeSink.collectedTuples) { // sum is 1157
+    for (Object o: rangeSink.collectedTuples) {
       ArrayList<Double> list = (ArrayList<Double>)o;
       Assert.assertEquals("emitted high value was ", new Double(1000.0), list.get(0));
       Assert.assertEquals("emitted low value was ", new Double(1.0), list.get(1));

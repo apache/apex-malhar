@@ -22,22 +22,21 @@ import java.util.Map;
  * <b>data</b>: expects HashMap&lt;K,V extends Number&gt;<br>
  * <b>sum</b>: emits HashMap&lt;K,V&gt;<br>
  * <b>count</b>: emits HashMap&lt;K,Integer&gt;</b><br>
- * <b>average</b>: emits HashMap&lt;K,V&gt;</b><br>
+ * <b>average</b>: emits HashMap&lt;K,V&gt;</b><br><br>
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
  * <p>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for Sum&lt;K,V&gt; operator template. K and V can be any POJO">
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for Sum&lt;K,V extends Number&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>18 Million K,V pairs/s</td><td>One tuple per key per window per port</td><td>Out-bound tuples rarely affect performance. Tuples are assumed to be
+ * <tr><td><b>18 Million K,V pairs/s</td><td>One tuple per key per window per port</td><td>In-bound rate is the main determinant of performance. Tuples are assumed to be
  * immutable. If you use mutable tuples and have lots of keys, the benchmarks may differ</td></tr>
  * </table><br>
  * <p>
  * <b>Function Table (K=String, V=Integer)</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for Sum&lt;K,V&gt; operator template. K and V can be any POJO">
- * <caption><em>Function table for Sum operator</em></caption>
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for Sum&lt;K,V extends Number&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th colspan=3>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i> HashMap&lt;K,V&gt;</th><th><i>sum</i> HashMap&lt;K,V&gt;</th><th><i>count</i> HashMap&lt;K,Integer&gt;</th><th><i>average</i> HashMap&lt;K,V&gt;</th></tr>
+ * <tr><th><i>data</i>(HashMap&lt;K,V&gt;)</th><th><i>sum</i>(HashMap&lt;K,V&gt;)</th><th><i>count</i>(HashMap&lt;K,Integer&gt;)</th><th><i>average</i>(HashMap&lt;K,V&gt;)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
  * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td></td><td></td><td></td></tr>
  * <tr><td>Data (process())</td><td>{a=1}</td><td></td><td></td><td></td></tr>
@@ -72,8 +71,7 @@ public class Sum<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
         if (sum.isConnected()) {
           MutableDouble val = sums.get(key);
           if (val == null) {
-            val = new MutableDouble();
-            val.value = e.getValue().doubleValue();
+            val = new MutableDouble(e.getValue().doubleValue());
           }
           else {
             val.add(e.getValue().doubleValue());

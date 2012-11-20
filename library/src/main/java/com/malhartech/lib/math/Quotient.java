@@ -16,29 +16,43 @@ import javax.validation.constraints.Min;
 
 /**
  *
- * Add all the values for each key on "numerator" and "denominator" and emits quotient at end of window<p>
+ * Add all the values for each key on "numerator" and "denominator" and emits quotient at end of window for all keys in the denominator<p>
  * <br>
  * <b>Ports</b>:
- * <b>numerator</b> expects HashMap<K,V extends Number><br>
- * <b>denominator</b> expects HashMap<K,V extends Number><br>
- * <b>quotient</b> emits HashMap<K,Double><br>
+ * <b>numerator</b> expects HashMap&lt;K,V extends Number&gt;<br>
+ * <b>denominator</b> expects HashMap&lt;K,V extends Number&gt;<br>
+ * <b>quotient</b> emits HashMap&lt;K,Double&gt;<br>
+ * <b>Specific compile time checks</b>: None<br>
+ * <b>Specific run time checks</b>: None<br>
+ * <p>
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for Quotien&lt;K,V extends Number&gt; operator template">
+ * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
+ * <tr><td><b>18 Million K,V pairs/s</td><td>One key,val pair per key per window</td><td>In-bound is the main determinant of performance. Tuples are assumed to be
+ * immutable. If you use mutable tuples and have lots of keys, the benchmarks may differ</td></tr>
+ * </table><br>
+ * <p>
+ * <b>Function Table (K=String, V=Integer)</b>:
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for Quotient&lt;K,V extends Number&gt; operator template">
+ * <tr><th rowspan=2>Tuple Type (api)</th><th colspan=2>In-bound (process)</th><th>Out-bound (emit)</th></tr>
+ * <tr><th><i>numerator</i>(HashMap&lt;K,V&gt;)</th><th><i>denominator</i>(HashMap&lt;K,V&gt;)</th><th><i>quotient</i>(HashMap&lt;K,Double&gt;)</th></tr>
+ * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
+ * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{a=1}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{a=10,b=5}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td></td><td>{a=5,b=5}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td></td><td>{a=5,h=20,c=2}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=55,b=12}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=22}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=14}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=46,e=2}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td></td><td>{d=1,d=5,d=4}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=4,a=23}</td><td></td><td></td></tr>
+ * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td><td>{a=3.6,b=7.4,c=500.0,d=14.1,h=0.0}</td></tr>
+ * </table>
  * <br>
+ * @author Amol Kekre (amol@malhar-inc.com)<br>
  * <br>
- * <b>Compile time checks</b>
- * None<br>
- * <br>
- * <b>Runtime checks</b>
- * None<br>
- * <br>
- * <b>Benchmarks</b><br>
- * <br>
- * Benchmarks:<br>
- * The operator does 20 million tuples/sec as it only emits one per end of window, and is not bounded by outbound I/O<br>
- * <br>
- * <br>
- *
- * @author amol<br>
- *
  */
 public class Quotient<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
 {

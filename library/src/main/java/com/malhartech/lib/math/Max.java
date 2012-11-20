@@ -18,18 +18,37 @@ import java.util.Map;
  * Emits at end of window maximum of all values sub-classed from Number for each key<p>
  * <br>
  * <b>Ports</b>:
- * <b>data</b> expects HashMap<K,V extends Number><br>
- * <b>high</b> emits HashMap<K,V>, one entry per key<br>
- * <br>
- * <b>Compile time checks</b>:
- * None<br>
- * <b>Run time checks</b>:
- * None<br>
- * <br>
+ * <b>data</b> expects HashMap&lt;K,V extends Number&gt;<br>
+ * <b>high</b> emits HashMap&lt;K,V&gt;, one entry per key<br>
+ * <b>Specific compile time checks</b>: None<br>
+ * <b>Specific run time checks</b>: None<br>
+ * <p>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Max operator processes >15 million tuples/sec. The processing is high as it only emits one tuple per window, and is not bound by outbound throughput<br>
- *<br>
- * @author amol
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for Max&lt;K,V extends Number&gt; operator template">
+ * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
+ * <tr><td><b>20 Million K,V pairs/s</td><td>One tuple per key per window per port</td><td>In-bound rate is the main determinant of performance. Tuples are assumed to be
+ * immutable. If you use mutable tuples and have lots of keys, the benchmarks may differ</td></tr>
+ * </table><br>
+ * <p>
+ * <b>Function Table (K=String, V=Integer)</b>:
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for Max&lt;K,V extends Number&gt; operator template">
+ * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th>Out-bound (emit)</th></tr>
+ * <tr><th><i>data</i>(HashMap&lt;K,V&gt;)</th><th><i>max</i>(HashMap&lt;K,V&gt;)</th></tr>
+ * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
+ * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{a=1}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{a=10,b=5}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=55,b=12}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=22}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=14}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=46,e=2}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=4,a=-23}</td><td></td></tr>
+ * <tr><td>End Window (endWindow())</td><td>N/A</td><td>{a=10,b=20,c=1000,d=55,e=2}</td></tr>
+ * </table>
+ * <br>
+ *
+ * @author Amol Kekre (amol@malhar-inc.com)<br>
+ * <br>
  */
 public class Max<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
 {

@@ -18,18 +18,34 @@ import java.util.ArrayList;
  * <br>
  * <b>Ports</b>
  * <b>data</b> expects V extends Number<br>
- * <b>range</b> emits ArrayList<V>(2), first Max and next Min<br>
- * <b>Compile time check</b>
- * None<br>
- * <br>
- * <b>Run time checks</b><br>
- * None<br>
- * <br>
- * <br>
+ * <b>range</b> emits ArrayList&lt;V&gt;(2); .get(0) gives max; .get(1) gives min<br>
+ * <b>Specific compile time checks</b>: None<br>
+ * <b>Specific run time checks</b>: None<br>
+ * <p>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * The operator does >500 million tuples/sec as it only emits one per end of window, and is not bounded by outbound I/O. It uses a Mutable number and thus avoids memory allocation<br>
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for RangeValue&lt;V extends Number&gt; operator template">
+ * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
+ * <tr><td><b>&gt; 500 Million tuples/s</td><td>One ArrayList&lt;V&gt;(2) tuple per window</td><td>In-bound rate is the main determinant of performance</td></tr>
+ * </table><br>
+ * <p>
+ * <b>Function Table (V=Integer)</b>:
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for RangeValue&lt;V extends Number&gt; operator template">
+ * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th>Out-bound (emit)</th></tr>
+ * <tr><th><i>data</i> (&lt;V&gt;)</th><th><i>range</i> (ArrayList&lt;V&gt;)</th></tr>
+ * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
+ * <tr><td>Data (process())</td><td>2</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>1000</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>10</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>52</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>22</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>14</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>2</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>4</td><td></td></tr>
+ * <tr><td>End Window (endWindow())</td><td>N/A</td><td>{1000,2}</td></tr>
+ * </table>
  * <br>
- * @author amol
+ * @author Amol Kekre (amol@malhar-inc.com)<br>
+ * <br>
  */
 public class RangeValue<V extends Number> extends BaseNumberValueOperator<V>
 {
