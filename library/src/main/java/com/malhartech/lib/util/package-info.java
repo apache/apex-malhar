@@ -3,11 +3,11 @@
  * All rights reserved.
  *
  */
-
 /**
  * <b>{@link com.malhartech.lib.util}</b> is a library of utility classes<p>
  * <br>
  * <br> The classes are<br>
+ * <b>{@link com.malhartech.lib.util.BaseLineTokenizer}</b>: Base class for line split operators. Takes in one stream via input port "data". Lines are split into tokens and tokens are processed<br>
  * <br>{@link com.malhartech.lib.util.BaseKeyOperator}</b>: Abstract class for basic operators that allows cloneKey for enabling users to use mutable objects<br>
  * <br>{@link com.malhartech.lib.util.BaseKeyValueOperator}</b>: Abstract class for basic operators that allows cloneValue and cloneKey for enabling users to use mutable objects<br>
  * <b>{@link com.malhartech.lib.util.BaseNumberKeyValueOperator}</b>: Base class for operators that take in V extends Number. Provides basic methods for value conversion, and cloning of keys and values<br>
@@ -21,5 +21,4 @@
  * <br>
  * <br>
  */
-
 package com.malhartech.lib.util;

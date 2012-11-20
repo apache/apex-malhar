@@ -2,7 +2,7 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.logs;
+package com.malhartech.lib.util;
 
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
@@ -13,11 +13,13 @@ import javax.validation.constraints.NotNull;
  *
  * Base class for splitting lines into tokens and tokens into sub-tokens. Base class for line split operators.<br>
  * processToken, and processSubToken are called for each token. Users should override calls backs to intercept at any level.<p>
- * This module is a pass through<br>
+ * This operator is a base class for pass through operators<br>
  * <br>
  * Ideal for applications like word count
  * Ports:<br>
  * <b>data</b>: expects String<br>
+ *
+ * <b>Benchmarks</b>: None done as this operator is for other operators to override and this operator does not emit any tuple<br>
  *
  * @author amol<br>
  *
@@ -65,6 +67,15 @@ public class BaseLineTokenizer extends BaseOperator
   public String getSplitTokenBy()
   {
     return splitTokenBy;
+  }
+
+  /**
+   * getter function for splitTokeBy
+   * @return splitTokenBy
+   */
+  public boolean hasSplitTokenBy()
+  {
+    return !splitTokenBy.isEmpty();
   }
 
   /**

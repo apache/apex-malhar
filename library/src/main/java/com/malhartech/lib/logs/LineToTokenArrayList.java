@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.logs;
 
+import com.malhartech.lib.util.BaseLineTokenizer;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
 import java.util.ArrayList;
@@ -72,7 +73,7 @@ public class LineToTokenArrayList extends BaseLineTokenizer
     if (tokens.isConnected()) {
       tokentuple.add(tok);
     }
-    if (splittokens.isConnected() && !splitTokenBy.isEmpty()) {
+    if (splittokens.isConnected() && hasSplitTokenBy()) {
       super.processToken(tok);
     }
   }

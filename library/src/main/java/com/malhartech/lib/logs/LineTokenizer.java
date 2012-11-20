@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.logs;
 
+import com.malhartech.lib.util.BaseLineTokenizer;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
 
