@@ -24,6 +24,7 @@ public class TwitterTopCounter extends DAG
 {
   private static final Logger logger = LoggerFactory.getLogger(TwitterTopCounter.class);
   private static final boolean inline = false;
+  private static final long serialVersionUID = 201211201543L;
 
   private InputPort<Object> consoleOutput(String nodeName)
   {
@@ -66,15 +67,15 @@ public class TwitterTopCounter extends DAG
     return oper;
   }
 
-  public final UniqueCounter getUniqueCounter(String name)
+  public final UniqueCounter<String> getUniqueCounter(String name)
   {
-    UniqueCounter oper = addOperator(name, UniqueCounter.class);
+    UniqueCounter<String> oper = addOperator(name, new UniqueCounter<String>());
     return oper;
   }
 
-  public final WindowedTopCounter getTopCounter(String name, int count)
+  public final WindowedTopCounter<String> getTopCounter(String name, int count)
   {
-    WindowedTopCounter oper = addOperator(name, WindowedTopCounter.class);
+    WindowedTopCounter<String> oper = addOperator(name, new WindowedTopCounter<String>());
     oper.setTopCount(count);
     oper.setSlidingWindowWidth(600, 1);
     return oper;
@@ -84,10 +85,10 @@ public class TwitterTopCounter extends DAG
   {
     super(conf);
 
-    TwitterSampleInput twitterFeed = getTwitterFeed("TweetSampler", 100); // Setup the operator to get the data from twitter sample stream injected into the system.
+    TwitterSampleInput twitterFeed = getTwitterFeed("TweetSampler", 1); // Setup the operator to get the data from twitter sample stream injected into the system.
     TwitterStatusURLExtractor urlExtractor = getTwitterUrlExtractor("URLExtractor"); //  Setup the operator to get the URLs extracted from the twitter statuses
-    UniqueCounter uniqueCounter = getUniqueCounter("UniqueURLCounter"); // Setup a node to count the unique urls within a window.
-    WindowedTopCounter topCounts = getTopCounter("TopCounter", 10);  // Get the aggregated url counts and count them over the timeframe
+    UniqueCounter<String> uniqueCounter = getUniqueCounter("UniqueURLCounter"); // Setup a node to count the unique urls within a window.
+    WindowedTopCounter<String> topCounts = getTopCounter("TopCounter", 10);  // Get the aggregated url counts and count them over the timeframe
 
     // Feed the statuses from feed into the input of the url extractor.
     addStream("TweetStream", twitterFeed.status, urlExtractor.input).setInline(true);
