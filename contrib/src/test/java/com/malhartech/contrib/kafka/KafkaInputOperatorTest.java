@@ -38,11 +38,11 @@ public class KafkaInputOperatorTest
   private NIOServerCnxn.Factory standaloneServerFactory;
   private final String zklogdir = "/tmp/zookeeper-server-data";
   private final String kafkalogdir = "/tmp/kafka-server-data";
-  private boolean isSimpleConsumer = false;  // false means standard consumer
+  private boolean useZookeeper = true;  // standard consumer use zookeeper, whereas simpleConsumer don't
 
   public void startZookeeper()
   {
-    if (isSimpleConsumer) { // Do not use zookeeper for simpleconsumer
+    if (!useZookeeper) { // Do not use zookeeper for simpleconsumer
       return;
     }
 
@@ -66,7 +66,7 @@ public class KafkaInputOperatorTest
 
   public void stopZookeeper()
   {
-    if (isSimpleConsumer) {
+    if (!useZookeeper) {
       return;
     }
 
@@ -77,17 +77,17 @@ public class KafkaInputOperatorTest
   public void startKafkaServer()
   {
     Properties props = new Properties();
-    if (isSimpleConsumer) {
-      props.setProperty("enable.zookeeper", "false");
-      props.setProperty("hostname", "localhost");
-      props.setProperty("port", "2182");
-    }
-    else {
+    if (useZookeeper) {
       props.setProperty("enable.zookeeper", "true");
       props.setProperty("zk.connect", "localhost:2182");
       props.setProperty("topic", "topic1");
       props.setProperty("log.flush.interval", "10"); // Controls the number of messages accumulated in each topic (partition) before the data is flushed to disk and made available to consumers.
       //   props.setProperty("log.default.flush.scheduler.interval.ms", "100");  // optional if we have the flush.interval
+    }
+    else {
+      props.setProperty("enable.zookeeper", "false");
+      props.setProperty("hostname", "localhost");
+      props.setProperty("port", "2182");
     }
     props.setProperty("brokerid", "1");
     props.setProperty("log.dir", kafkalogdir);
@@ -99,22 +99,33 @@ public class KafkaInputOperatorTest
   public void stopKafkaServer()
   {
     kserver.shutdown();
+    kserver.awaitShutdown();
     Utils.rm(kafkalogdir);
   }
 
   @Before
   public void beforeTest()
   {
-    startZookeeper();
-    startKafkaServer();
+    try {
+      startZookeeper();
+      startKafkaServer();
+    }
+    catch (java.nio.channels.CancelledKeyException ex) {
+      logger.debug("LSHIL {}", ex.getLocalizedMessage());
+    }
   }
 
   @After
   public void afterTest()
   {
-    collections.clear();
-    stopKafkaServer();
-    stopZookeeper();
+    try {
+      collections.clear();
+      stopKafkaServer();
+      stopZookeeper();
+    }
+    catch (java.nio.channels.CancelledKeyException ex) {
+      logger.debug("LSHIL {}", ex.getLocalizedMessage());
+    }
   }
 
   //@Test
@@ -265,7 +276,13 @@ public class KafkaInputOperatorTest
     DAG dag = new DAG();
     // Create KafkaStringSinglePortInputOperator
     KafkaStringSinglePortInputOperator node = dag.addOperator("Kafka message consumer", KafkaStringSinglePortInputOperator.class);
-    node.setConsumerType(consumerType);
+    if (consumerType.equals("standard")) {
+      node.setConsumerType("standard");
+    }
+    else {
+      node.setConsumerType("simple");
+    }
+    node.setBufferSize(1000);
 
     // Create Test tuple collector
     CollectorModule<String> collector = dag.addOperator("TestMessageCollector", new CollectorModule<String>());
@@ -306,5 +323,4 @@ public class KafkaInputOperatorTest
     testKafkaInputOperator(false, "standard", 1000);
     //testKafkaInputOperator(true, "simple", 10000); // simpleConsumer
   }
-
 }

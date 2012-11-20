@@ -4,6 +4,7 @@
  */
 package com.malhartech.contrib.kafka;
 
+import com.malhartech.util.CircularBuffer;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +25,11 @@ import org.slf4j.LoggerFactory;
 public class KafkaConsumer implements Runnable
 {
   private static final Logger logger = LoggerFactory.getLogger(KafkaConsumer.class);
-  private final ConsumerConnector consumer;
+  private final transient ConsumerConnector consumer;
+  protected static final int BUFFER_SIZE_DEFAULT = 1024 * 1024; // 1M
+  // Config parameters that user can set.
+  private int bufferSize = BUFFER_SIZE_DEFAULT;
+  public transient CircularBuffer<Message> holdingBuffer = new CircularBuffer<Message>(bufferSize);;
   private final String topic;
   private boolean isAlive = true;
   private int receiveCount = 0;
@@ -76,14 +81,17 @@ public class KafkaConsumer implements Runnable
     ConsumerIterator<Message> it = stream.iterator();
     logger.debug("Inside consumer::run receiveCount= {}", receiveCount);
     while (it.hasNext() & isAlive) {
+      Message msg = it.next().message();
+      holdingBuffer.add(msg);
       receiveCount++;
-      logger.debug("Consuming {}, receiveCount= {}", getMessage(it.next().message()), receiveCount);
+      logger.debug("Consuming {}, receiveCount= {}", getMessage(msg), receiveCount);
     }
     logger.debug("DONE consuming");
   }
 
   public void close()
   {
+    holdingBuffer.clear();
     consumer.shutdown();
   }
 } // End of KafkaConsumer

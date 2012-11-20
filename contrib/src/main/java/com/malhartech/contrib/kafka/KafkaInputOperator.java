@@ -8,11 +8,13 @@ import com.malhartech.api.ActivationListener;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.InputOperator;
 import com.malhartech.util.CircularBuffer;
+import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import kafka.api.FetchRequest;
 import kafka.consumer.ConsumerConfig;
 import kafka.consumer.ConsumerIterator;
@@ -25,6 +27,30 @@ import kafka.message.MessageAndOffset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Kafka input adapter operator, which consume data from Kafka message bus.<p><br>
+ *
+ * <br>
+ * Ports:<br>
+ * <b>Input</b>: No input port<br>
+ * <b>Output</b>: Can have any number of output ports<br>
+ * <br>
+ * Properties:<br>
+ * <b>tuplesBlast</b>: Number of tuples emitted in each burst<br>
+ * <b>bufferSize</b>: Size of holding buffer<br>
+ * <br>
+ * Compile time checks:<br>
+ * Class derived from this has to implement the abstract method emitTuple() <br>
+ * <br>
+ * Run time checks:<br>
+ * None<br>
+ * <br>
+ * Benchmarks:<br>
+ * TBD<br>
+ * <br>
+ * @author Locknath Shil <locknath@malhar-inc.com>
+ *
+ */
 public abstract class KafkaInputOperator implements InputOperator, ActivationListener<OperatorContext>
 {
   private static final Logger logger = LoggerFactory.getLogger(KafkaInputOperator.class);
@@ -33,7 +59,7 @@ public abstract class KafkaInputOperator implements InputOperator, ActivationLis
   // Config parameters that user can set.
   private int tuplesBlast = TUPLES_BLAST_DEFAULT;
   private int bufferSize = BUFFER_SIZE_DEFAULT;
-  protected transient CircularBuffer<Message> holdingBuffer = new CircularBuffer<Message>(bufferSize);
+  protected transient CircularBuffer<Message> holdingBuffer;
   private int receiveCount = 0;
   private transient ConsumerConnector standardConsumer;
   private transient SimpleConsumer simpleConsumer;
@@ -44,6 +70,7 @@ public abstract class KafkaInputOperator implements InputOperator, ActivationLis
   String consumerType = "standard"; // can be standard, simple, console
   @NotNull
   private String topic = "topic1";
+  private int numStream = 1;
 
   /**
    * Any concrete class derived from KafkaInputOperator has to implement this method
@@ -80,6 +107,7 @@ public abstract class KafkaInputOperator implements InputOperator, ActivationLis
     return consumerType;
   }
 
+ // @Pattern(regexp = "standard|simple|console", message = "Consumer type has to be standard, or simple, or console")
   public void setConsumerType(String consumerType)
   {
     this.consumerType = consumerType;
@@ -105,6 +133,16 @@ public abstract class KafkaInputOperator implements InputOperator, ActivationLis
     this.isAlive = isAlive;
   }
 
+  public int getNumStream()
+  {
+    return numStream;
+  }
+
+  public void setNumStream(int numStream)
+  {
+    this.numStream = numStream;
+  }
+
   /**
    * Implement Component Interface.
    *
@@ -113,6 +151,7 @@ public abstract class KafkaInputOperator implements InputOperator, ActivationLis
   @Override
   public void setup(OperatorContext context)
   {
+    holdingBuffer = new CircularBuffer<Message>(bufferSize);
   }
 
   /**
@@ -121,6 +160,7 @@ public abstract class KafkaInputOperator implements InputOperator, ActivationLis
   @Override
   public void teardown()
   {
+    holdingBuffer.clear();
   }
 
   /**
@@ -151,9 +191,13 @@ public abstract class KafkaInputOperator implements InputOperator, ActivationLis
     else if ("simple".equals(consumerType)) {
       consumer = new SimpleKafkaConsumer();
     }
+    else if ("console".equals(consumerType)) {
+      consumer = null;
+      throw new InvalidParameterException("console type is not supported yet.");
+    }
     else {
       consumer = null;
-      //throw new illegalArgument
+      throw new InvalidParameterException("Consumer type should be standard, or simple, or console");
     }
 
     consumer.create();
@@ -209,12 +253,14 @@ public abstract class KafkaInputOperator implements InputOperator, ActivationLis
     public void start()
     {
       Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
-      topicCountMap.put(topic, new Integer(1)); // take care int, how to handle multiple topics
+      topicCountMap.put(topic, new Integer(numStream)); // take care int, how to handle multiple topics
       Map<String, List<KafkaStream<Message>>> consumerMap = standardConsumer.createMessageStreams(topicCountMap); // there is another api createMessageStreamsByFilter
-      KafkaStream<Message> stream = consumerMap.get(topic).get(0);
-      ConsumerIterator<Message> itr = stream.iterator();
-      while (itr.hasNext() && isAlive) {
-        holdingBuffer.add(itr.next().message());
+      for (int i = 0; i < numStream; ++i) {
+        KafkaStream<Message> stream = consumerMap.get(topic).get(i);
+        ConsumerIterator<Message> itr = stream.iterator();
+        while (itr.hasNext() && isAlive) {
+          holdingBuffer.add(itr.next().message());
+        }
       }
     }
 
