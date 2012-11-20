@@ -12,22 +12,35 @@ import com.malhartech.api.DefaultOutputPort;
 
 /**
  * Merges two streams with identical schema and emits the tuples to the output port in order<p>
+ * This is a pass through operator<br>
+ * <b>Ports</b>:<br>
+ * <b>data1</b>: expects K<br>
+ * <b>data2</b>: expects K<br>
+ * <b>out</b>: emits K<br>
  * <br>
- * <b>Tuple Schema</b>: All tuples were treated as Object
- * <b>Port Interface</b><br>
- * <b>out</b>: Output port for emitting tuples<br>
- * <b>data1</b>: Input port for receiving the first stream of incoming tuple<br>
- * <b>data2</b>: Input port for receiving the second stream of incoming tuple<br>
+ * <b>Properties</b>: None<br>
  * <br>
- * <b>Properties</b>:
- * None
- * <br>
- * Compile time checks are:<br>
- * no checks are done. Schema check is compile/instantiation time. Not runtime<br>
- * <br>
+ * <b>Specific compile time checks</b>: None<br>
+ * <b>Specific run time checks</b>: None<br>
+ * <p>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Operator does >400 million tuples/sec as all tuples simply forwarded as is<br>
- * @author amol
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for StreamMerger&lt;K&gt; operator template">
+ * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
+ * <tr><td><b>&gt; 500 Million tuples/s</td><td>Each in-bound tuple results in emit of 1 out-bound tuples</td><td>In-bound rate is the main determinant of performance</td></tr>
+ * </table><br>
+ * <p>
+ * <b>Function Table (K=String)</b>:
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for StreamMerger&lt;K&gt; operator template">
+ * <tr><th rowspan=2>Tuple Type (api)</th><th colspan=2>In-bound (process)</th><th>Out-bound (emit)</th></tr>
+ * <tr><th><i>data1</i>(K)</th><th><i>data2</i>(K)</th><th><i>out</i>(K)</th></tr>
+ * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
+ * <tr><td>Data (process())</td><td>a</td><td></td><td>a</td></tr>
+ * <tr><td>Data (process())</td><td></td><td>b</td><td>b</td></tr>
+ * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
+ * </table>
+ * <br>
+ * @author Amol Kekre (amol@malhar-inc.com)<br>
+ * <br>
  */
 public class StreamMerger<K> extends BaseOperator
 {

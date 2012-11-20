@@ -14,24 +14,37 @@ import com.malhartech.lib.util.BaseKeyOperator;
 /**
  * Duplicates an input stream as is into two output streams; needed to allow separation of listeners into two streams with different properties (for example
  * inline vs in-rack)<p>
+ * This is a pass through operator<br>
  * <br>
- * <br>
- * <b>Tuple Schema</b>: All tuples were treated as Object
  * <b>Port Interface</b><br>
- * <b>data</b>: Input port<br>
- * <b>out1</b>: Output port 1<br>
- * <b>out2</b>: Output port 2<br>
+ * <b>data</b>: expects &lt;K&gt;<br>
+ * <b>out1</b>: emits &lt;K&gt;<br>
+ * <b>out2</b>: emits &lt;K&gt;<br>
  * <br>
- * <b>Properties</b>:
- * None
+ * <b>Properties</b>: None<br>
  * <br>
- * Compile time checks are:<br>
- * no checks are done. Schema check is compile/instantiation time. Not runtime
- * <br>
+ * <b>Specific compile time checks</b>: None<br>
+ * <b>Specific run time checks</b>: None<br>
+ * <p>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Operator does >400 million tuples/sec as all tuples simply forwarded as is<br>
- *
- * @author amol
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for StreamDuplicater&lt;K&gt; operator template">
+ * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
+ * <tr><td><b>&gt; 500 Million tuples/s</td><td>Each in-bound tuple results in emit of 2 out-bound tuples</td><td>In-bound rate is the main determinant of performance</td></tr>
+ * </table><br>
+ * <p>
+ * <b>Function Table (K=String)</b>:
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for StreamDuplicater&lt;K&gt; operator template">
+ * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th colspan=2>Out-bound (emit)</th></tr>
+ * <tr><th><i>data</i>(K)</th><th><i>out1</i>(K)</th><th><i>out1</i>(K)</th>/tr>
+ * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
+ * <tr><td>Data (process())</td><td>a</td><td>a</td><td>a</td></tr>
+ * <tr><td>Data (process())</td><td>b</td><td>b</td><td>b</td></tr>
+ * <tr><td>Data (process())</td><td>c</td><td>c</td><td>c</td></td></tr>
+ * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
+ * </table>
+ * <br>
+ * @author Amol Kekre (amol@malhar-inc.com)<br>
+ * <br>
  */
 public class StreamDuplicater<K> extends BaseKeyOperator<K>
 {

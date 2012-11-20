@@ -2,7 +2,7 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.math;
+package com.malhartech.lib.util;
 
 import com.malhartech.lib.util.BaseKeyValueOperator;
 import javax.validation.constraints.NotNull;

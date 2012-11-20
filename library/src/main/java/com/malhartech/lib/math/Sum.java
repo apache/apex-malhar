@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.math;
 
+import com.malhartech.lib.util.BaseNumberKeyValueOperator;
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;

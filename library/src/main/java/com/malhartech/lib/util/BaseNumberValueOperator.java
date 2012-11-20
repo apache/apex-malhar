@@ -2,7 +2,7 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.math;
+package com.malhartech.lib.util;
 
 import com.malhartech.lib.util.BaseKeyOperator;
 import javax.validation.constraints.NotNull;
@@ -26,6 +26,11 @@ public class BaseNumberValueOperator<V extends Number> extends BaseKeyOperator<V
   };
   @NotNull
   V_TYPE type = V_TYPE.DOUBLE;
+
+  public V_TYPE getType()
+  {
+    return type;
+  }
 
   /**
    * This call ensures that type enum is set at setup time. At run time a switch statement suffices

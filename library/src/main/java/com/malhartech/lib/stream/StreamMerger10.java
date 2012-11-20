@@ -9,36 +9,56 @@ import com.malhartech.api.DefaultInputPort;
 
 /**
  * Merges up to ten streams with identical schema and emits tuples on to the output port in order.<p>
+ * This is a pass through operator<br>
  * <br>
- * <b>Tuple Schema</b>: All tuples were treated as Object
- * <b>Port Interface</b><br>
- * <b>out</b>: Output port for emitting tuples<br>
- * <b>data1</b>: Input port for receiving the 1st stream of incoming tuple<br>
- * <b>data2</b>: Input port for receiving the 2nd stream of incoming tuple<br>
- * <b>data3</b>: Input port for receiving the 3rd stream of incoming tuple<br>
- * <b>data4</b>: Input port for receiving the 4th stream of incoming tuple<br>
- * <b>data5</b>: Input port for receiving the 5th stream of incoming tuple<br>
- * <b>data6</b>: Input port for receiving the 6th stream of incoming tuple<br>
- * <b>data7</b>: Input port for receiving the 7th stream of incoming tuple<br>
- * <b>data8</b>: Input port for receiving the 8th stream of incoming tuple<br>
- * <b>data9</b>: Input port for receiving the 9th stream of incoming tuple<br>
- * <b>data10</b>: Input port for receiving the 10th stream of incoming tuple<br>
+ * <b>Ports</b>:<br>
+ * <b>data1</b>: expects K<br>
+ * <b>data2</b>: expects K<br>
+ * <b>data3</b>: expects K<br>
+ * <b>data4</b>: expects K<br>
+ * <b>data5</b>: expects K<br>
+ * <b>data6</b>: expects K<br>
+ * <b>data7</b>: expects K<br>
+ * <b>data8</b>: expects K<br>
+ * <b>data9</b>: expects K<br>
+ * <b>data10</b>: expects K<br>
+ * <b>out</b>: emits K<br>
  * <br>
- * <b>Properties</b>:
- * None
+ * <b>Properties</b>: None<br>
  * <br>
- * Compile time checks are:<br>
- * no checks are done. Schema check is compile/instantiation time. Not runtime<br>
- * <br>
+ * <b>Specific compile time checks</b>: None<br>
+ * <b>Specific run time checks</b>: None<br>
+ * <p>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Operator does >400 million tuples/sec as all tuples simply forwarded as is<br>
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for StreamMerger10&lt;K&gt; operator template">
+ * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
+ * <tr><td><b>&gt; 500 Million tuples/s</td><td>Each in-bound tuple results in emit of 1 out-bound tuples</td><td>In-bound rate is the main determinant of performance</td></tr>
+ * </table><br>
+ * <p>
+ * <b>Function Table (K=String)</b>:
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for StreamMerger10&lt;K&gt; operator template">
+ * <tr><th rowspan=2>Tuple Type (api)</th><th colspan=10>In-bound (process)</th><th>Out-bound (emit)</th></tr>
+ * <tr><th><i>data1</i>(K)</th><th><i>data2</i>(K)</th><th><i>data3</i>(K)</th><th><i>data4</i>(K)</th><th><i>data5</i>(K)</th><th><i>data6</i>(K)</th><th><i>data7</i>(K)</th><th><i>data8</i>(K)</th><th><i>data9</i>(K)</th><th><i>data10</i>(K)</th><th><i>out</i>(K)</th></tr>
+ * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
+ * <tr><td>Data (process())</td><td>a</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>a</td></tr>
+ * <tr><td>Data (process())</td><td></td><td>b</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>b</td></tr>
+ * <tr><td>Data (process())</td><td></td><td></td><td>c</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>c</td></tr>
+ * <tr><td>Data (process())</td><td></td><td></td><td></td><td>d</td><td></td><td></td><td></td><td></td><td></td><td></td><td>d</td></tr>
+ * <tr><td>Data (process())</td><td></td><td></td><td></td><td></td><td>e</td><td></td><td></td><td></td><td></td><td></td><td>e</td></tr>
+ * <tr><td>Data (process())</td><td></td><td></td><td></td><td></td><td></td><td>d</td><td></td><td></td><td></td><td></td><td>d</td></tr>
+ * <tr><td>Data (process())</td><td></td><td></td><td></td><td></td><td></td><td></td><td>c</td><td></td><td></td><td></td><td>c</td></tr>
+ * <tr><td>Data (process())</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>b</td><td></td><td></td><td>b</td></tr>
+ * <tr><td>Data (process())</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>a</td><td></td><td>a</td></tr>
+ * <tr><td>Data (process())</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>z</td><td>z</td></tr>
+ * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
+ * </table>
  * <br>
- *
- * @author amol
+ * @author Amol Kekre (amol@malhar-inc.com)<br>
+ * <br>
  */
 public class StreamMerger10<K> extends StreamMerger5<K>
 {
-  @InputPortFieldAnnotation(name = "data6", optional=true)
+  @InputPortFieldAnnotation(name = "data6", optional = true)
   public final transient DefaultInputPort<K> data6 = new DefaultInputPort<K>(this)
   {
     /**
@@ -50,8 +70,7 @@ public class StreamMerger10<K> extends StreamMerger5<K>
       out.emit(tuple);
     }
   };
-
-  @InputPortFieldAnnotation(name = "data7", optional=true)
+  @InputPortFieldAnnotation(name = "data7", optional = true)
   public final transient DefaultInputPort<K> data7 = new DefaultInputPort<K>(this)
   {
     /**
@@ -63,8 +82,7 @@ public class StreamMerger10<K> extends StreamMerger5<K>
       out.emit(tuple);
     }
   };
-
-  @InputPortFieldAnnotation(name = "data8", optional=true)
+  @InputPortFieldAnnotation(name = "data8", optional = true)
   public final transient DefaultInputPort<K> data8 = new DefaultInputPort<K>(this)
   {
     /**
@@ -76,8 +94,7 @@ public class StreamMerger10<K> extends StreamMerger5<K>
       out.emit(tuple);
     }
   };
-
-  @InputPortFieldAnnotation(name = "data9", optional=true)
+  @InputPortFieldAnnotation(name = "data9", optional = true)
   public final transient DefaultInputPort<K> data9 = new DefaultInputPort<K>(this)
   {
     /**
@@ -89,8 +106,7 @@ public class StreamMerger10<K> extends StreamMerger5<K>
       out.emit(tuple);
     }
   };
-
-  @InputPortFieldAnnotation(name = "data10", optional=true)
+  @InputPortFieldAnnotation(name = "data10", optional = true)
   public final transient DefaultInputPort<K> data10 = new DefaultInputPort<K>(this)
   {
     /**
@@ -105,6 +121,7 @@ public class StreamMerger10<K> extends StreamMerger5<K>
 
   /**
    * Enables dynamic construction of port name
+   *
    * @param i the port number
    * @return the proper InputPort
    */

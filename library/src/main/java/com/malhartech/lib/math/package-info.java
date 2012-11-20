@@ -8,8 +8,6 @@
  * <b>{@link com.malhartech.lib.math}</b> is a library of arithmetic modules for reuse<p>
  * <br>
  * <br>The modules are<br>
- * <b>{@link com.malhartech.lib.math.BaseNumberKeyValueOperator}</b>: Base class for operators that take in V extends Number. Provides basic methods for value conversion, and cloning of keys and values<br>
- * <b>{@link com.malhartech.lib.math.BaseNumberValueOperator}</b>: Base class for operators that take in K,V extends Number. Provides basic methods for value conversion and key cloning<br>
  * <b>{@link com.malhartech.lib.math.Compare}</b>:Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". If the tuple
  * passed the test, it is emitted on the output port "compare". The comparison is done by getting double value from the Number. Both output ports are optional, but at least one has to be connected<br>
  * <b>{@link com.malhartech.lib.math.CompareExcept}</b>: Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". If the tuple
