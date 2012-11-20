@@ -23,6 +23,7 @@ import javax.validation.constraints.NotNull;
  * <b>sum</b>: emits V extends Number<br>
  * <b>count</b>: emits Integer</b>
  * <b>average</b>: emits V extends Number<br><br>
+ * <br>
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
  * <p>

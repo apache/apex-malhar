@@ -18,6 +18,7 @@ import com.malhartech.lib.util.MutableDouble;
  * <b>Ports</b>:<br>
  * <b>data</b>: expects V extends Number<br>
  * <b>min</b>: emits V<br>
+ * <br>
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
  * <p>

@@ -20,6 +20,7 @@ import java.util.Map;
  * <b>Ports</b>:<br>
  * <b>data</b>: expects HashMap&lt;K,V extends Number&gt;<br>
  * <b>high</b>: emits HashMap&lt;K,V&gt;, one entry per key<br>
+ * <br>
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
  * <p>

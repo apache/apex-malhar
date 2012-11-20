@@ -19,6 +19,7 @@ import com.malhartech.api.DefaultOutputPort;
  * <b>numerator</b>: expects V extends Number<br>
  * <b>denominator</b>: expects V extends Number<br>
  * <b>margin</b>: emits Double<br>
+ * <br>
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
  * <p>

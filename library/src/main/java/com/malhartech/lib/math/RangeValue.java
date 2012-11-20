@@ -19,6 +19,7 @@ import java.util.ArrayList;
  * <b>Ports</b>:<br>
  * <b>data</b>: expects V extends Number<br>
  * <b>range</b>: emits ArrayList&lt;V&gt;(2); .get(0) gives max; .get(1) gives min<br>
+ * <br>
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
  * <p>

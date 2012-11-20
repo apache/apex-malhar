@@ -22,6 +22,7 @@ import javax.validation.constraints.Min;
  * <b>numerator</b>: expects HashMap&lt;K,V extends Number&gt;<br>
  * <b>denominator</b>: expects HashMap&lt;K,V extends Number&gt;<br>
  * <b>quotient</b>: emits HashMap&lt;K,Double&gt;<br>
+ * <br>
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
  * <p>

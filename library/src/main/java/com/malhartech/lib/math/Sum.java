@@ -23,6 +23,7 @@ import java.util.Map;
  * <b>sum</b>: emits HashMap&lt;K,V&gt;<br>
  * <b>count</b>: emits HashMap&lt;K,Integer&gt;</b><br>
  * <b>average</b>: emits HashMap&lt;K,V&gt;</b><br><br>
+ * <br>
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
  * <p>
