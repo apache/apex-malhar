@@ -17,7 +17,7 @@ import java.util.Map;
  *
  * Emits at end of window maximum of all values sub-classed from Number for each key<p>
  * <br>
- * <b>Ports</b>:
+ * <b>Ports</b>:<br>
  * <b>data</b> expects HashMap&lt;K,V extends Number&gt;<br>
  * <b>high</b> emits HashMap&lt;K,V&gt;, one entry per key<br>
  * <b>Specific compile time checks</b>: None<br>

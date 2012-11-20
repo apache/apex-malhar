@@ -13,9 +13,9 @@ import com.malhartech.api.DefaultOutputPort;
  *
  * Adds all values for each key in "numerator" and "denominator", and at the end of window emits the margin as
  * (1 - numerator/denominator).<p>
- * The values are added for each key within the window and for each stream.<<br>
+ * The values are added for each key within the window and for each stream.<br>
  * <br>
- * <b>Ports</b>:
+ * <b>Ports</b>:<br>
  * <b>numerator</b> expects V extends Number<br>
  * <b>denominator</b> expects V extends Number<br>
  * <b>margin</b> emits Double<br>

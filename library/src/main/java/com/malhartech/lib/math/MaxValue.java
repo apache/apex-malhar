@@ -15,7 +15,7 @@ import com.malhartech.lib.util.MutableDouble;
  *
  * Emits at end of window maximum of all values sub-classed from Number in the incoming stream<p>
  * <br>
- * <b>Ports</b>:
+ * <b>Ports</b>:<br>
  * <b>data</b> expects V extends Number<br>
  * <b>high</b> emits V<br>
  * <br>

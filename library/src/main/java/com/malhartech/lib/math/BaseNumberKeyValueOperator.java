@@ -9,12 +9,13 @@ import javax.validation.constraints.NotNull;
 
 /**
  *
- * Base class for operators that take in V extends Number. Provides basic methods for value conversion<p>
+ * Base class for operators that take in &lt;K,V extends Number&gt;. Provides basic methods for value conversion<p>
  * <br>
  * <b>Benchmarks</b>: Not done as emit is done by sub-classes<br>
  * <br>
- *
- * @author amol
+ * <br>
+ * @author Amol Kekre (amol@malhar-inc.com)<br>
+ * <br>
  */
 public class BaseNumberKeyValueOperator<K,V extends Number> extends BaseKeyValueOperator<K,V>
 

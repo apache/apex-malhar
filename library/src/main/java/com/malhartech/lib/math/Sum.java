@@ -18,7 +18,7 @@ import java.util.Map;
  * Emits the sum, average, and count of values for each key at the end of window<p>
  * Is an end of window operator<br>
  * <br>
- * <b>Ports</b>:
+ * <b>Ports</b>:<br>
  * <b>data</b>: expects HashMap&lt;K,V extends Number&gt;<br>
  * <b>sum</b>: emits HashMap&lt;K,V&gt;<br>
  * <b>count</b>: emits HashMap&lt;K,Integer&gt;</b><br>

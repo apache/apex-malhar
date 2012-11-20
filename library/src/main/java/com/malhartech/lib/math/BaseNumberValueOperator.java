@@ -13,8 +13,9 @@ import javax.validation.constraints.NotNull;
  * <br>
  * <b>Benchmarks</b>: Not done as there is emit tuple is done by sub-classes<br>
  * <br>
- *
- * @author amol
+ * <br>
+ * @author Amol Kekre (amol@malhar-inc.com)<br>
+ * <br>
  */
 public class BaseNumberValueOperator<V extends Number> extends BaseKeyOperator<V>
 

@@ -18,7 +18,8 @@ import java.util.Map;
  * Adds all values for each key in "numerator" and "denominator", and at the end of window emits the margin for each key
  * (1 - numerator/denominator).<p>
  * <br>The values are added for each key within the window and for each stream.<br>
- * <b>Ports</b>:
+ * <br>
+ * <b>Ports</b>:<br>
  * <b>numerator</b> expects HashMap&lt;K,V&gt;<br>
  * <b>denominator</b> expects HashMap&lt;K,V&gt;<br>
  * <b>margin</b> emits HashMap&lt;K,Double&gt;, one entry per key per window<br>

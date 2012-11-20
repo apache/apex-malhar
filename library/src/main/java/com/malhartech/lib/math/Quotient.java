@@ -18,7 +18,7 @@ import javax.validation.constraints.Min;
  *
  * Add all the values for each key on "numerator" and "denominator" and emits quotient at end of window for all keys in the denominator<p>
  * <br>
- * <b>Ports</b>:
+ * <b>Ports</b>:<br>
  * <b>numerator</b> expects HashMap&lt;K,V extends Number&gt;<br>
  * <b>denominator</b> expects HashMap&lt;K,V extends Number&gt;<br>
  * <b>quotient</b> emits HashMap&lt;K,Double&gt;<br>

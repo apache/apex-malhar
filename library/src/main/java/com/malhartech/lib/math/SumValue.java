@@ -18,7 +18,7 @@ import javax.validation.constraints.NotNull;
  *
  * Emits the sum, average, and count of values at the end of window<p>
  * This is an end of window operator<br>
- * <b>Ports</b>:
+ * <b>Ports</b>:<br>
  * <b>data</b> expects V extends Number<br>
  * <b>sum</b> emits V extends Number<br>
  * <b>count</b> emits Integer</b>

@@ -12,7 +12,7 @@ import com.malhartech.api.DefaultOutputPort;
  *
  * Adds all the values on "numerator" and "denominator" and emits quotient at end of window<p>
  * <br>
- * <b>Ports</b>:
+ * <b>Ports</b>:<br>
  * <b>numerator</b> expects V extends Number<br>
  * <b>denominator</b> expects V extends Number<br>
  * <b>quotient</b> emits Double<br>
