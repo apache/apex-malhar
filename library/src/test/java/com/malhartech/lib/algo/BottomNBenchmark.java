@@ -53,6 +53,6 @@ public class BottomNBenchmark
     oper.endWindow();
 
     Assert.assertEquals("number emitted tuples", 2, sortSink.collectedTuples.size());
-    log.debug(String.format("\nBenchmaked %d tuples", numTuples));
+    log.debug(String.format("\nBenchmaked %d key,val pairs", numTuples*2));
   }
 }

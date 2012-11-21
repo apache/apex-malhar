@@ -56,6 +56,6 @@ public class AllAfterMatchStringValueBenchmark
     }
 
     oper.endWindow();
-    log.debug(String.format("\nBenchmarked %d tuples", numTuples*4));
+    log.debug(String.format("\nBenchmarked %d tuples", numTuples*6));
   }
 }

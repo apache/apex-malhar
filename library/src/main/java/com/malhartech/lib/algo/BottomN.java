@@ -17,22 +17,50 @@ import java.util.HashMap;
  * The operator assumes that the key, val pairs in the incoming tuple is immutable. If the tuple is mutable users should override makeCopyKey(), and makeCopyValue()
  * methods<br>
  * <br>
- * <b>Ports</b>
- * <b>data</b>: Input data port expects HashMap<StriK,V> (<key, value><br>
- * <b>bottom</b>: Output data port, emits HashMap<K, ArrayList<V>> (<key, ArraList<values>>)<br>
- * <b>Properties</b>:
+ * <b>Ports</b>:<br>
+ * <b>data</b>: Input data port expects HashMap&lt;K,V&gt;<br>
+ * <b>bottom</b>: Output data port, emits HashMap&lt;K, ArrayList&lt;V&gt;&gt;<br>
+ * <br>
+ * <b>Properties</b>:<br>
  * <b>N</b>: The number of top values to be emitted per key<br>
  * <br>
- * <b>Benchmarks></b>: TBD<br>
- * Compile time checks are:<br>
+ * <b>Specific compile time checks are</b>:<br>
  * N: Has to be an integer<br>
  * <br>
- * Run time checks are:<br>
+ * <b>Specific run time checks are</b>: None<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * Operator sorts  > 8 million tuples/sec for N = 5. The sorting was done by adding 5 million values. Since only N tuples are emitted in endWindow
  * the operator is not output I/O bound and performance is proportional to N, and not to number of tuples<br>
- * @author amol<br>
+ * <br>
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for AllAfterMatch&lt;K,V extends Number&gt; operator template">
+ * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
+ * <tr><td><b>&gt; 15 Million K,V pairs/s</b></td><td>Top N values per key per window</td><td>In-bound is the main determinant of performance. Tuples are assumed to be
+ * immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
+ * </table><br>
+ * <p>
+ * <b>Function Table (K=String,V=Integer); n=2</b>:
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for AllAfterMatch&lt;K,V extends Number&gt; operator template">
+ * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th>Out-bound (emit)</th></tr>
+ * <tr><th><i>data</i>(HashMap&lt;K,V&gt;)</th><th><i>bottom</i>(HashMap&lt;K,ArrayList&lt;V&gt;&gt;)</th></tr>
+ * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
+ * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{a=-1}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{a=10,b=5}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{a=5,b=-5}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{a=3,h=20,c=2}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=55,b=12}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=22}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=14}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=46,e=2}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=1,d=5,d=4}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=4,a=23}</td><td></td></tr>
+ * <tr><td>End Window (endWindow())</td><td>N/A</td><td>{a=[-1,2],b=[-5,5],c=[2,1000],d=[1,4],e=[2],h=[20]}</td></tr>
+ * </table>
+ * <br>
+ * @author Amol Kekre (amol@malhar-inc.com)<br>
+ * <br>
  *
  */
 public class BottomN<K, V> extends AbstractBaseNNonUniqueOperator<K,V>

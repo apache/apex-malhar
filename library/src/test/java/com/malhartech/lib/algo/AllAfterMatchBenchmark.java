@@ -64,6 +64,6 @@ public class AllAfterMatchBenchmark
       oper.data.process(input4);
     }
     oper.endWindow();
-    log.debug(String.format("\nBenchmarked %d tuples", numTuples * 4));
+    log.debug(String.format("\nBenchmarked %d tuples", numTuples * 6));
   }
 }
