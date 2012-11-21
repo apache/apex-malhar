@@ -21,9 +21,9 @@ import java.util.Map;
  * This module is same as a "FirstOf" operation on any key, val pair
  * At end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
  * <br>
- * <b>Ports</b>
- * <b>data</b>: Input data port expects HashMap<K,V>
- * <b>distinct</b>: Output data port, emits HashMap<K,V>(1)
+ * <b>Ports</b>:<br>
+ * <b>data</b>: Input data port expects HashMap&lt;K,V&gt;<br>
+ * <b>distinct</b>: Output data port, emits HashMap&lt;K,V&gt;(1)<br>
  * <b>Properties</b>: None<br>
  * <b>Compile time checks</b>: None<br>
  * <b>Run time checks</b>:<br>

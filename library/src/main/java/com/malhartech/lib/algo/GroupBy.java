@@ -21,14 +21,15 @@ import javax.validation.constraints.NotNull;
  * Even though this module produces continuous tuples, at end of window all data is flushed. Thus the data set is windowed
  * and no history is kept of previous windows<br>
  * <br>
- * <b>Ports</b>
- * <b>data1</b>: expects HashMap<K,V><br>
- * <b>data2</b>: expects HashMap<K,V><br>
- * <b>groupby</b>: emits HashMap<K,V><br>
+ * <b>Ports</b>:<br>
+ * <b>data1</b>: expects HashMap&lt;K,V&gt;<br>
+ * <b>data2</b>: expects HashMap&lt;K,V&gt;<br>
+ * <b>groupby</b>: emits HashMap&lt;K,V&gt;<br>
+ * <br>
  * <b>Properties</b>:<br>
  * <b>key</b>: The key to "groupby"<br>
- * <b>Benchmarks></b>: TBD<br>
- * Compile time checks are:<br>
+ * <br>
+ * <b>Specific compile time checks are</b>:<br>
  * <b>key</b> cannot be empty<br>
  * <br>
  * Run time checks are:<br>

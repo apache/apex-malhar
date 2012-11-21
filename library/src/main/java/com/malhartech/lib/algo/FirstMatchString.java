@@ -4,29 +4,29 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.lib.util.BaseMatchOperator;
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.BaseMatchOperator;
 import java.util.HashMap;
 
 /**
  *
- * A compare operation on a tuple with value type String, based on the property "key", "value", and "compare"; the first match is emitted. The comparison is done by getting double
+ * A compare operation on a tuple with value type String, based on the property "key", "value", and "cmp"; the first match is emitted. The comparison is done by getting double
  * value from the Number.<p>
  * This module is a pass through<br>
  * <br>
- * Ports:<br>
- * <b>data</b>: Input port, expects HashMap<K,String><br>
- * <b>first</b>: Output port, emits HashMap<K,String> after if compare function returns true<br>
+ * <b>Ports</b>:<br>
+ * <b>data</b>: Input port, expects HashMap&lt;K,String&gt;><br>
+ * <b>first</b>: Output port, emits HashMap&lt;K,String&gt; after if compare function returns true<br>
  * <br>
- * Properties:<br>
+ * <b>Properties</b>:<br>
  * <b>key</b>: The key on which compare is done<br>
  * <b>value</b>: The value to compare with<br>
- * <b>comp<b>: The compare function. Supported values are "lte", "lt", "eq", "neq", "gt", "gte". Default is "eq"<br>
+ * <b>cmp<b>: The compare function. Supported values are "lte", "lt", "eq", "neq", "gt", "gte". Default is "eq"<br>
  * <br>
- * Compile time checks<br>
+ * <b>Specifci compile time checks</b><br>
  * Key must be non empty<br>
  * Value must be able to convert to a "double"<br>
  * Compare string, if specified, must be one of "lte", "lt", "eq", "neq", "gt", "gte"<br>

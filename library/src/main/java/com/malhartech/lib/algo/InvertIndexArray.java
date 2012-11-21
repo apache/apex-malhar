@@ -19,17 +19,13 @@ import java.util.Map;
  * This is an end of window operator<br>
  * At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
  * <br>
- * <b>Ports</b>:
- * <b>data</b>: expects <K, ArrayList<V>><br>
- * <b>index</b>: emits <V, ArrayList<K>><br>
- * <b>Properties</b>:
- * None<br>
- * <b>Benchmarks></b>: TBD<br>
- * Compile time checks are:<br>
- * None<br>
+ * <b>Ports</b>:<br>
+ * <b>data</b>: expects HashMap&lt;K,ArrayList&lt;V&gt;&gt;<br>
+ * <b>index</b>: emits HashMap&lt;V,ArrayList&lt;K&gt;&gt;<br>
  * <br>
- * Run time checks are:<br>
- * None<br>
+ * <b>Properties</b>: None<br>
+ * <b>Specific compile time checks are</b>: None<br>
+ * <b>Specific run time checks are</b>: None<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * Operator can process about 2 million unique (k,v immutable pairs) tuples/sec. The operator is proportional to both incoming tuples and outbound tuples

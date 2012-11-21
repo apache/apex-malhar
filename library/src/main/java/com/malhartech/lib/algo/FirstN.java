@@ -16,14 +16,14 @@ import java.util.Map;
  * Emits first N tuples of a particular key.<p>
  * This module is a pass through module<br>
  * <br>
- * Ports:<br>
- * <b>data</b>: expects HashMap<K, V><br>
- * <b>first</b>: emits HashMap<K, V><br>
+ * <b>Ports</b>:<br>
+ * <b>data</b>: expects HashMap&lt;K,V&gt;<br>
+ * <b>first</b>: emits HashMap&lt;K,V&gt;<br>
  * <br>
- * Properties:<br>
+ * <b>Properties</b>:<br>
  * <b>n</b>: Number of tuples to pass through for each key. Default value of N is 1.<br>
  * <br>
- * Compile time checks<br>
+ * <b>Specific compile time checks</b>:<br>
  * N if specified must be an integer<br>
  * <br>
  * Run time checks<br>

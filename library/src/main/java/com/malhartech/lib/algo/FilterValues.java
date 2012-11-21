@@ -20,13 +20,14 @@ import java.util.HashMap;
  * <br>
  * This is a pass through node. It takes in an Object and outputs an Object<br>
  * <br>
- * <b>Ports</b>
- * <b>data</b>: Input data port expects HashMap<String, V>
- * <b>filter</b>: Output data port, emits HashMap<String, V>
- * <b>Properties</b>:
+ * <b>Ports</b>:<br>
+ * <b>data</b>: Input data port expects HashMap&lt;String,V&gt;<br>
+ * <b>filter</b>: Output data port, emits HashMap&lt;String,V&gt;<br>
+ * <br>
+ * <b>Properties</b>:<br>
  * <b>keys</b>: The keys to pass through, rest are filtered/dropped. A comma separated list of keys<br>
- * <b>Benchmarks></b>: TBD<br>
- * Compile time checks are:<br>
+ * <br>
+ * <b>Specific compile time checks are</b>:<br>
  * <b>keys</b> cannot be empty<br>
  * <br>
  * Run time checks are:<br>

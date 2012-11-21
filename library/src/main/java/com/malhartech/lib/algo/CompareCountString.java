@@ -15,11 +15,11 @@ import java.util.HashMap;
  * The comparison is done by getting double value from the Number.<p>
  * This module is an end of window module<br>
  * <br>
- * Ports:<br>
- * <b>data</b>: expects HashMap<K,V><br>
+ * <b>Ports</b>:<br>
+ * <b>data</b>: expects HashMap&lt;K,String&gt;<br>
  * <b>count</b>: emits Integer<br>
  * <br>
- * Properties:<br>
+ * <b>Properties</b>:<br>
  * <b>key</b>: The key on which compare is done<br>
  * <b>value</b>: The value to compare with<br>
  * <b>compare<b>: The compare function. Supported values are "lte", "lt", "eq", "neq", "gt", "gte". Default is "eq"<br>

@@ -4,11 +4,11 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.lib.util.BaseKeyOperator;
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.BaseKeyOperator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,14 +22,15 @@ import java.util.Map;
  * <br>
  * This is a pass through node. It takes in HashMap<String, V> and outputs HashMap<String, V><br>
  * <br>
- * <b>Ports</b>
- * <b>data</b>: Input data port expects HashMap<String, V>
- * <b>filter</b>: Output data port, emits HashMap<String, V>
- * <b>Properties</b>:
+ * <b>Ports</b>:<br>
+ * <b>data</b>: Input data port expects HashMap&lt;String,V>&gt;<br>
+ * <b>filter</b>: Output data port, emits HashMap&lt;String,V&gt;<br>
+ * <br>
+ * <b>Properties</b>:<br>
  * <b>keys</b>: The keys to pass through, rest are filtered/dropped. A comma separated list of keys<br>
  * <b>Benchmarks></b>: TBD<br>
- * Compile time checks are:<br>
- * <b>keys</b> cannot be empty<br>
+ * <b>Specific compile time checks are</b>:<br>
+ * keys cannot be empty<br>
  * <br>
  * Run time checks are:<br>
  * None

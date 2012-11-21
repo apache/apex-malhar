@@ -21,12 +21,11 @@ import javax.validation.constraints.Min;
  * At the end of the window the entire sorted list is emitted on output port "sort"<p>
  * At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
  * <br>
- * <b>Ports</b>
- * <b>data</b>: expects ArrayList<K><br>
- * <b>sort</b>: emits ArrayList<K> at the end of window<br>
+ * <b>Ports</b>:<br>
+ * <b>data</b>: expects ArrayList&lt;K&gt;<br>
+ * <b>sort</b>: emits ArrayList&lt;K&gt; at the end of window<br>
  * <b>Properties</b>:
  * None<br>
- * <b>Benchmarks></b>: TBD<br>
  * Compile time checks are:<br>
  * None<br>
  * <br>
