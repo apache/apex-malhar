@@ -6,10 +6,9 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.TopNSort;
+import com.malhartech.lib.util.BaseNNonUniqueOperator;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  *
@@ -54,7 +53,7 @@ public class TopN<K, V> extends BaseNNonUniqueOperator<K,V>
    * Emits tuple on port "top"
    */
   @Override
-  void emit(HashMap<K, ArrayList<V>> tuple)
+  public void emit(HashMap<K, ArrayList<V>> tuple)
   {
     top.emit(tuple);
   }

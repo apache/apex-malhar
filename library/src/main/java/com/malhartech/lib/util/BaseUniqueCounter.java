@@ -2,7 +2,7 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.algo;
+package com.malhartech.lib.util;
 
 import com.malhartech.lib.util.BaseKeyOperator;
 import com.malhartech.lib.util.MutableInteger;

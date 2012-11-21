@@ -6,6 +6,7 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.BaseNOperator;
 import com.malhartech.lib.util.MutableInteger;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,7 +56,7 @@ public class FirstN<K,V> extends BaseNOperator<K, V>
         keycount.put(e.getKey(), count);
       }
       count.value++;
-      if (count.value <= n) {
+      if (count.value <= getN()) {
         first.emit(cloneTuple(e.getKey(), e.getValue()));
       }
     }

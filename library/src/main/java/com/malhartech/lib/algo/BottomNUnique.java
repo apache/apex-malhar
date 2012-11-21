@@ -6,10 +6,9 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.TopNUniqueSort;
+import com.malhartech.lib.util.BaseNUniqueOperator;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Input stream of key value pairs are ordered by key, and bottom N of the ordered unique tuples per key are emitted on
@@ -53,7 +52,7 @@ public class BottomNUnique<K, V> extends BaseNUniqueOperator<K, V>
    * @param tuple
    */
   @Override
-  void emit(HashMap<K, ArrayList<V>> tuple)
+  public void emit(HashMap<K, ArrayList<V>> tuple)
   {
     bottom.emit(tuple);
   }

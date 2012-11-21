@@ -4,6 +4,7 @@ package com.malhartech.lib.algo;
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
+import com.malhartech.lib.util.AbstractBaseMatchOperator;
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.Context.OperatorContext;

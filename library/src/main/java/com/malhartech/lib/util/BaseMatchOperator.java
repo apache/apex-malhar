@@ -2,9 +2,8 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.algo;
+package com.malhartech.lib.util;
 
-import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.lib.util.BaseKeyOperator;
 import com.malhartech.lib.util.BaseKeyValueOperator;
 import java.util.HashMap;
@@ -34,12 +33,12 @@ import javax.validation.constraints.Pattern;
  *
  * @author amol
  */
-public abstract class AbstractBaseMatchOperator<K,V extends Comparable> extends BaseKeyValueOperator<K,V>
+public class BaseMatchOperator<K,V> extends BaseKeyValueOperator<K,V>
 {
   @NotNull
   private K key;
   private String cmp;
-  private V value;
+  private double value = 0.0;
 
   public enum supported_type
   {
@@ -59,36 +58,43 @@ public abstract class AbstractBaseMatchOperator<K,V extends Comparable> extends 
     return key;
   }
 
-  public void setValue(V value)
+  public void setValue(double value)
   {
     this.value = value;
   }
 
-  public V getValue()
+  public double getValue()
   {
     return value;
   }
 
-  @Override
-  public void setup(OperatorContext context)
+  public boolean compareValue(double value)
   {
-    if (getKey() == null) {
-      throw new IllegalArgumentException("Key not set");
+    boolean ret;
+    switch (type) {
+      case LT:
+        ret = value < this.value;
+        break;
+      case LTE:
+        ret = value <= this.value;
+        break;
+      case EQ:
+        ret = value == this.value;
+        break;
+      case NEQ:
+        ret = value != this.value;
+        break;
+      case GT:
+        ret = value > this.value;
+        break;
+      case GTE:
+        ret = value >= this.value;
+        break;
+      default: // is EQ
+        ret = value == this.value;
+        break;
     }
-    if (getValue() == null) {
-      throw new IllegalArgumentException("Value not set");
-    }
-  }
-
-
-  /**
-   * Compares with getValue() and returns the result
-   * @param value
-   * @return is value.compareTo(getValue())
-   */
-  public int compareValue(V value)
-  {
-    return getValue().compareTo(value);
+    return ret;
   }
 
   public supported_type getType()
@@ -96,35 +102,6 @@ public abstract class AbstractBaseMatchOperator<K,V extends Comparable> extends 
     return type;
   }
 
-  public boolean matchCondition(V value)
-  {
-    boolean ret;
-    int cval = compareValue(value);
-    switch (type) {
-      case LT:
-        ret = (cval < 0);
-        break;
-      case LTE:
-        ret = (cval < 0) || (cval == 0);
-        break;
-      case EQ:
-        ret = (cval == 0);
-        break;
-      case NEQ:
-        ret = (cval != 0);
-        break;
-      case GT:
-        ret = (cval > 0);
-        break;
-      case GTE:
-        ret = (cval > 0) || (cval == 0);
-        break;
-      default: // is EQ
-        ret = (cval == 0);
-        break;
-    }
-    return ret;
-  }
   /**
    * Setter function for compare type. Allowed values are lte, lt, eq, ne, gt, gte<p> *
    */
@@ -182,5 +159,14 @@ public abstract class AbstractBaseMatchOperator<K,V extends Comparable> extends 
   public void setTypeGTE()
   {
     type = supported_type.GTE;
+  }
+
+  public HashMap<K, V> cloneTuple(HashMap<K, V> tuple)
+  {
+    HashMap<K, V> ret = new HashMap<K, V>(tuple.size());
+    for (Map.Entry<K, V> e: tuple.entrySet()) {
+      ret.put(cloneKey(e.getKey()), cloneValue(e.getValue()));
+    }
+    return ret;
   }
 }

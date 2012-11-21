@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.lib.util.BaseMatchOperator;
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
@@ -74,7 +75,7 @@ public class LastMatchString<K> extends BaseMatchOperator<K, String>
   public final transient DefaultOutputPort<HashMap<K, String>> last = new DefaultOutputPort<HashMap<K, String>>(this);
   HashMap<K, String> ltuple = null;
 
-  
+
   /**
    * Clears cache/hash
    * @param windowId
