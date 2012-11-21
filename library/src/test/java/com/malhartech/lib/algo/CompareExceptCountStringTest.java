@@ -12,12 +12,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.algo.CompareCountString}. <p>
+ * Functional tests for {@link com.malhartech.lib.algo.CompareExceptCountString}. <p>
  *
  */
-public class CompareCountStringTest
+public class CompareExceptCountStringTest
 {
-  private static Logger log = LoggerFactory.getLogger(CompareCountStringTest.class);
+  private static Logger log = LoggerFactory.getLogger(CompareExceptCountStringTest.class);
 
   /**
    * Test node logic emits correct results
@@ -26,7 +26,7 @@ public class CompareCountStringTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    CompareCountString<String> oper = new CompareCountString<String>();
+    CompareExceptCountString<String> oper = new CompareExceptCountString<String>();
     TestCountAndLastTupleSink countSink = new TestCountAndLastTupleSink();
     TestCountAndLastTupleSink exceptSink = new TestCountAndLastTupleSink();
 

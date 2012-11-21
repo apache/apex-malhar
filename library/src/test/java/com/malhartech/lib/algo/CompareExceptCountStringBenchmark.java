@@ -12,12 +12,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.algo.CompareCount} <p>
+ * Performance tests for {@link com.malhartech.lib.algo.CompareExceptCountString} <p>
  *
  */
-public class CompareCountBenchmark
+public class CompareExceptCountStringBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(CompareCountBenchmark.class);
+  private static Logger log = LoggerFactory.getLogger(CompareExceptCountStringBenchmark.class);
 
   /**
    * Test node logic emits correct results
@@ -27,39 +27,31 @@ public class CompareCountBenchmark
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
-    testNodeProcessingSchema(new CompareCount<String, Integer>());
-    testNodeProcessingSchema(new CompareCount<String, Double>());
-    testNodeProcessingSchema(new CompareCount<String, Float>());
-    testNodeProcessingSchema(new CompareCount<String, Short>());
-    testNodeProcessingSchema(new CompareCount<String, Long>());
-  }
-
-  public void testNodeProcessingSchema(CompareCount oper)
-  {
+    CompareExceptCountString<String> oper = new CompareExceptCountString<String>();
     TestCountAndLastTupleSink countSink = new TestCountAndLastTupleSink();
     TestCountAndLastTupleSink exceptSink = new TestCountAndLastTupleSink();
 
     oper.count.setSink(countSink);
     oper.except.setSink(exceptSink);
-
     oper.setKey("a");
     oper.setValue(3.0);
     oper.setTypeEQ();
     oper.beginWindow(0);
 
-    HashMap<String, Number> input1 = new HashMap<String, Number>();
-    HashMap<String, Number> input2 = new HashMap<String, Number>();
-    input1.put("a", 2);
-    input1.put("b", 20);
-    input1.put("c", 1000);
-    input2.put("a", 3);
+    HashMap<String, String> input1 = new HashMap<String, String>();
+    HashMap<String, String> input2 = new HashMap<String, String>();
+    input1.put("a", "2");
+    input1.put("b", "20");
+    input1.put("c", "1000");
+    input2.put("a", "3");
 
     int numTuples = 100000000;
     for (int i = 0; i < numTuples; i++) {
       oper.data.process(input1);
       oper.data.process(input2);
     }
+
     oper.endWindow();
-    log.debug(String.format("\nBenchmarked %d tuples", numTuples*2));
+    log.debug(String.format(String.format("\nBenchmarked %d tuples", numTuples*4)));
   }
 }

@@ -12,12 +12,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.algo.CompareCount} <p>
+ * Functional tests for {@link com.malhartech.lib.algo.CompareExceptCount} <p>
  *
  */
-public class CompareCountTest
+public class CompareExceptCountTest
 {
-  private static Logger log = LoggerFactory.getLogger(CompareCountTest.class);
+  private static Logger log = LoggerFactory.getLogger(CompareExceptCountTest.class);
 
   /**
    * Test node logic emits correct results
@@ -26,14 +26,14 @@ public class CompareCountTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    testNodeProcessingSchema(new CompareCount<String, Integer>());
-    testNodeProcessingSchema(new CompareCount<String, Double>());
-    testNodeProcessingSchema(new CompareCount<String, Float>());
-    testNodeProcessingSchema(new CompareCount<String, Short>());
-    testNodeProcessingSchema(new CompareCount<String, Long>());
+    testNodeProcessingSchema(new CompareExceptCount<String, Integer>());
+    testNodeProcessingSchema(new CompareExceptCount<String, Double>());
+    testNodeProcessingSchema(new CompareExceptCount<String, Float>());
+    testNodeProcessingSchema(new CompareExceptCount<String, Short>());
+    testNodeProcessingSchema(new CompareExceptCount<String, Long>());
   }
 
-  public void testNodeProcessingSchema(CompareCount oper)
+  public void testNodeProcessingSchema(CompareExceptCount oper)
   {
     TestCountAndLastTupleSink countSink = new TestCountAndLastTupleSink();
     TestCountAndLastTupleSink exceptSink = new TestCountAndLastTupleSink();
