@@ -14,13 +14,14 @@
  * are emitted (inclusive) once a match is made. The comparison is done by getting double value from the Number.<br>
  * <b>{@link com.malhartech.lib.algo.BottomN}</b>: Takes a stream of key value pairs via input port "data", and they are ordered by key. Bottom N of the ordered tuples per key are emitted on port "bottom" at the end of window<br>
  * <b>{@link com.malhartech.lib.algo.BottomNUnique}</b>: Takes a stream of key value pairs via input port "data", and they are ordered by key. Bottom N of the ordered unique tuples per key are emitted on port "top" at the end of window<br>
- * <b>{@link com.malhartech.lib.algo.CompareCount}</b>: Takes in one stream via input port "data". A count is done on how many tuples satisfy the compare function. The function is given by
+ * <b>{@link com.malhartech.lib.algo.CompareExceptCount}</b>: Takes in one stream via input port "data". A count is done on how many tuples satisfy the compare function. The function is given by
  * "key", "value", and "compare". If a tuple passed the test count is incremented. On end of window count is emitted on the output port "count". The comparison is done by getting double value from the Number.<br>
- * <b>{@link com.malhartech.lib.algo.CompareCountString}</b>: Takes in one stream via input port "data". A count is done on how many tuples satisfy the compare function. The function is given by
+ * <b>{@link com.malhartech.lib.algo.CompareExceptCountString}</b>: Takes in one stream via input port "data". A count is done on how many tuples satisfy the compare function. The function is given by
  * "key", "value", and "compare". If a tuple passed the test count is incremented. On end of window count is emitted on the output port "count". The comparison is done by getting double value from the Number.<br>
  * <b>{@link com.malhartech.lib.algo.Distinct}</b>: Takes a stream via input port "data" and emits distinct key,val pairs (i.e drops duplicates) on output port "distinct". Restarts at end of window boundary<br>
- * <b>{@link com.malhartech.lib.algo.FilterKeys}</b>: Takes a stream on input port "in_data", and outputs only keys specified by property "keys" on put output port out_data. If
- * property "inverse" is set to "true", then all keys except those specified by "keys" are emitted<br>
+ * <b>{@link com.malhartech.lib.algo.FilterKeys}</b>: Filters the incoming stream based of keys specified by property "keys". If property "inverse" is set to "true", then all keys except those specified by "keys" are emitted<br>
+ * <b>{@link com.malhartech.lib.algo.FilterKeyVals}</b>: Filters the incoming stream based of specified key,val pairs, and emits those that match the filter. If
+ * property "inverse" is set to "true", then all key,val pairs except those specified by in keyvals parameter are emitted<br:
  * <b>{@link com.malhartech.lib.algo.FilterValues}</b>: Takes a stream on input port "data", and outputs only values as specified by the user on put output port "filter". If
  * property "inverse" is set to "true", then all keys except those specified by "keys" are emitted. The values are expected to be immutable<br>
  * <b>{@link com.malhartech.lib.algo.FirstMatch}</b>: Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". If the tuple

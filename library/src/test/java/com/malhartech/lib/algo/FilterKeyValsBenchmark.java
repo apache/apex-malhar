@@ -5,7 +5,6 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.engine.TestCountSink;
 import java.util.HashMap;
-import java.util.Map;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -13,22 +12,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.algo.FilterKeys}<p>
+ * Performance tests for {@link com.malhartech.lib.algo.FilterKeyVals}<p>
  *
  */
-public class FilterKeysBenchmark
+public class FilterKeyValsBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(FilterKeysBenchmark.class);
-
-  int getTotal(Object o)
-  {
-    HashMap<String, Number> map = (HashMap<String, Number>)o;
-    int ret = 0;
-    for (Map.Entry<String, Number> e: map.entrySet()) {
-      ret += e.getValue().intValue();
-    }
-    return ret;
-  }
+  private static Logger log = LoggerFactory.getLogger(FilterKeyValsBenchmark.class);
 
   /**
    * Test node logic emits correct results
@@ -38,27 +27,34 @@ public class FilterKeysBenchmark
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
-    FilterKeys<String, Number> oper = new FilterKeys<String, Number>();
+    FilterKeyVals<String, Number> oper = new FilterKeyVals<String, Number>();
 
     TestCountSink<HashMap<String, Number>> sortSink = new TestCountSink<HashMap<String, Number>>();
     oper.filter.setSink(sortSink);
-    String [] keys = new String[3];
-    keys[0] = "e";
-    keys[1] = "f";
-    keys[2] = "blah";
-    oper.setKey("a");
-    oper.setKeys(keys);
+    HashMap<String, Number> filter = new HashMap<String, Number>();
+    filter.put("b", 2);
+    oper.setKeyVals(filter);
+    oper.clearKeys();
+
+    filter.clear();
+    filter.put("e", 200);
+    filter.put("f", 2);
+    filter.put("blah", 2);
+    oper.setKeyVals(filter);
+    filter.clear();
+    filter.put("a", 2);
+    oper.setKeyVals(filter);
 
     oper.beginWindow(0);
-    HashMap<String, Number> input = new HashMap<String, Number>();
-
     int numTuples = 10000000;
-
+    HashMap<String, Number> input = new HashMap<String, Number>();
     for (int i = 0; i < numTuples; i++) {
+      oper.setInverse(false);
       input.put("a", 2);
       input.put("b", 5);
       input.put("c", 7);
       input.put("d", 42);
+      input.put("e", 202);
       input.put("e", 200);
       input.put("f", 2);
       oper.data.process(input);
@@ -66,7 +62,6 @@ public class FilterKeysBenchmark
       input.clear();
       input.put("a", 5);
       oper.data.process(input);
-
       input.clear();
       input.put("a", 2);
       input.put("b", 33);
@@ -83,10 +78,10 @@ public class FilterKeysBenchmark
       input.put("another", 6);
       input.put("notmakingit", 2);
       oper.data.process(input);
+
       input.clear();
       input.put("c", 9);
-      input.put("dd", 9);
-      input.put("a", 9);
+      oper.setInverse(true);
       oper.data.process(input);
     }
     oper.endWindow();

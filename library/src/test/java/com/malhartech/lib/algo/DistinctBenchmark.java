@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.engine.TestSink;
+import com.malhartech.engine.TestCountSink;
 import java.util.HashMap;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -29,7 +29,7 @@ public class DistinctBenchmark
   {
     Distinct<String, Number> oper = new Distinct<String, Number>();
 
-    TestSink<HashMap<String, Number>> sortSink = new TestSink<HashMap<String, Number>>();
+    TestCountSink<HashMap<String, Number>> sortSink = new TestCountSink<HashMap<String, Number>>();
     oper.distinct.setSink(sortSink);
 
     HashMap<String, Number> input = new HashMap<String, Number>();
@@ -73,8 +73,7 @@ public class DistinctBenchmark
       input.put("c", 9);
       oper.data.process(input);
       oper.endWindow();
-      sortSink.clear();
     }
-    log.debug(String.format("\nBenchmarked %d tuples", 8*numTuples));
+    log.debug(String.format("\nBenchmarked %d tuples with %d emits", numTuples*12, sortSink.getCount()));
   }
 }

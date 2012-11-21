@@ -3,10 +3,9 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.engine.TestSink;
+import com.malhartech.engine.TestCountSink;
 import java.util.ArrayList;
 import java.util.List;
-import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -41,22 +40,21 @@ public class FilterValuesBenchmark
   {
     FilterValues<Integer> oper = new FilterValues<Integer>();
 
-    TestSink<Integer> sortSink = new TestSink<Integer>();
+    TestCountSink<Integer> sortSink = new TestCountSink<Integer>();
     oper.filter.setSink(sortSink);
-    ArrayList<Integer> Values = new ArrayList<Integer>();
+    Integer [] values = new Integer[2];
     oper.setValue(5);
     oper.clearValues();
-    Values.add(200);
-    Values.add(2);
+    values[0] = 200;
+    values[1] = 2;
     oper.setValue(4);
-    oper.setValues(Values);
+    oper.setValues(values);
 
     oper.beginWindow(0);
 
     int numTuples = 10000000;
     for (int i = 0; i < numTuples; i++) {
       oper.setInverse(false);
-      sortSink.clear();
       oper.data.process(2);
       oper.data.process(5);
       oper.data.process(7);
@@ -78,8 +76,7 @@ public class FilterValuesBenchmark
       oper.data.process(9);
     }
 
-    log.debug(String.format("\nBenchmarked %d tuples", numTuples * 17));
-    Assert.assertEquals("Sum of each round was ", 225, getTotal(sortSink.collectedTuples));
+    log.debug(String.format("\nBenchmarked %d tuples, and emitted %d tuples", numTuples * 17, sortSink.getCount()));
     oper.endWindow();
   }
 }

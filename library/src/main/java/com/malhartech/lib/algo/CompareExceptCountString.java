@@ -55,7 +55,7 @@ import java.util.HashMap;
  * <tr><td>Data (process())</td><td>{d=22}</td><td></td><td></td></tr>
  * <tr><td>Data (process())</td><td>{a=3}</td><td></td><td></td></tr>
  * <tr><td>Data (process())</td><td>{d=46,e=2}</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=1,d=5,d=4}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=1,a=5,b=4}</td><td></td><td></td></tr>
  * <tr><td>Data (process())</td><td>{d=4,a=23}</td><td></td><td></td></tr>
  * <tr><td>End Window (endWindow())</td><td>N/A</td><td>2</td><td>9</td></tr>
  * <tr><td>Begin Window (begindWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>

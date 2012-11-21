@@ -37,13 +37,13 @@ public class FilterValuesTest
 
     TestSink<Integer> sortSink = new TestSink<Integer>();
     oper.filter.setSink(sortSink);
-    ArrayList<Integer> Values = new ArrayList<Integer>();
+    Integer [] values = new Integer[2];
     oper.setValue(5);
     oper.clearValues();
-    Values.add(200);
-    Values.add(2);
+    values[0] = 200;
+    values[1] = 2;
     oper.setValue(4);
-    oper.setValues(Values);
+    oper.setValues(values);
 
     oper.beginWindow(0);
     oper.data.process( 2);
