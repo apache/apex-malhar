@@ -6,7 +6,7 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.BaseNOperator;
+import com.malhartech.lib.util.AbstractBaseNOperator;
 import com.malhartech.lib.util.MutableInteger;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +35,7 @@ import java.util.Map;
  * @author amol
  */
 
-public class FirstN<K,V> extends BaseNOperator<K, V>
+public class FirstN<K,V> extends AbstractBaseNOperator<K, V>
 {
   @OutputPortFieldAnnotation(name="first")
   public final transient DefaultOutputPort<HashMap<K, V>> first = new DefaultOutputPort<HashMap<K, V>>(this);

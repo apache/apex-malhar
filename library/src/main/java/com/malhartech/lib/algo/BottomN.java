@@ -6,7 +6,7 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.BaseNNonUniqueOperator;
+import com.malhartech.lib.util.AbstractBaseNNonUniqueOperator;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -35,7 +35,7 @@ import java.util.HashMap;
  * @author amol<br>
  *
  */
-public class BottomN<K, V> extends BaseNNonUniqueOperator<K,V>
+public class BottomN<K, V> extends AbstractBaseNNonUniqueOperator<K,V>
 {
   @OutputPortFieldAnnotation(name="bottom")
   public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> bottom = new DefaultOutputPort<HashMap<K, ArrayList<V>>>(this);

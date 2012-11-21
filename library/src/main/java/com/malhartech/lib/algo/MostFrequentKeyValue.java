@@ -4,7 +4,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.lib.util.BaseFrequentKeyValue;
+import com.malhartech.lib.util.AbstractBaseFrequentKeyValue;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
 import java.util.HashMap;
@@ -34,7 +34,7 @@ import java.util.HashMap;
  * <br>
  * @author amol
  */
-public class MostFrequentKeyValue<K, V> extends BaseFrequentKeyValue<K, V>
+public class MostFrequentKeyValue<K, V> extends AbstractBaseFrequentKeyValue<K, V>
 {
   @OutputPortFieldAnnotation(name = "most")
   public final transient DefaultOutputPort<HashMap<K, HashMap<V, Integer>>> most = new DefaultOutputPort<HashMap<K, HashMap<V, Integer>>>(this);

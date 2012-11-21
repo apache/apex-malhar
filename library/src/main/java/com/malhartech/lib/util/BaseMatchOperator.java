@@ -4,8 +4,6 @@
  */
 package com.malhartech.lib.util;
 
-import com.malhartech.lib.util.BaseKeyOperator;
-import com.malhartech.lib.util.BaseKeyValueOperator;
 import java.util.HashMap;
 import java.util.Map;
 import javax.validation.constraints.NotNull;
@@ -13,7 +11,7 @@ import javax.validation.constraints.Pattern;
 
 /**
  *
- * An abstract class that sets up the basic operator functionality needed for match based operators<p>
+ * Base class that sets up the operator functionality needed for match based operators<p>
  * <br>
  * Ports:<br>
  * none

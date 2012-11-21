@@ -7,12 +7,12 @@ package com.malhartech.lib.util;
 import com.malhartech.api.BaseOperator;
 
 /**
- * Abstract class for basic operators that allows cloneKey for enabling users to use mutable objects
+ * Base class for operators that allows cloneKey for enabling users to use mutable objects<p>
  *
  * @author amol<br>
  *
  */
-abstract public class BaseKeyOperator<K> extends BaseOperator
+public class BaseKeyOperator<K> extends BaseOperator
 {
   /**
    * Override this call in case you have mutable objects. By default the objects are assumed to be immutable

@@ -4,13 +4,8 @@
  */
 package com.malhartech.lib.util;
 
-import com.malhartech.lib.util.BaseKeyValueOperator;
 import com.malhartech.annotation.InputPortFieldAnnotation;
-import com.malhartech.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.MutableInteger;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +20,7 @@ import java.util.Map;
  *
  * @author amol
  */
-public abstract class BaseFrequentKeyValue<K, V> extends BaseKeyValueOperator<K, V>
+public abstract class AbstractBaseFrequentKeyValue<K, V> extends BaseKeyValueOperator<K, V>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)

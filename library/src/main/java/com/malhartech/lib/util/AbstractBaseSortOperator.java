@@ -4,20 +4,13 @@
  */
 package com.malhartech.lib.util;
 
-import com.malhartech.lib.util.BaseKeyOperator;
-import com.malhartech.annotation.InputPortFieldAnnotation;
-import com.malhartech.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.MutableInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 import javax.validation.constraints.Min;
 
 /**
- * Takes a stream of key value pairs via input port "data". The incoming tuple is merged into already existing sorted list.
+ * Takes a stream of key value pairs via input port "data"; The incoming tuple is merged into already existing sorted list.
  * At the end of the window the entire sorted list is emitted on output port "sort"<p>
  * At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
  * <br>

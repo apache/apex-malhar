@@ -4,7 +4,6 @@
  */
 package com.malhartech.lib.util;
 
-import com.malhartech.lib.util.BaseKeyOperator;
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import java.util.HashMap;
@@ -33,7 +32,7 @@ import javax.validation.constraints.Min;
  * @author amol<br>
  *
  */
-abstract public class BaseNOperator<K,V> extends BaseKeyOperator<K>
+abstract public class AbstractBaseNOperator<K,V> extends BaseKeyOperator<K>
 {
   /**
    * Expects a HashMap<K,V> tuple

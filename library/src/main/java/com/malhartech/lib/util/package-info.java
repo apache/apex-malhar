@@ -7,11 +7,20 @@
  * <b>{@link com.malhartech.lib.util}</b> is a library of utility classes<p>
  * <br>
  * <br> The classes are<br>
- * <b>{@link com.malhartech.lib.util.BaseLineTokenizer}</b>: Base class for line split operators. Takes in one stream via input port "data". Lines are split into tokens and tokens are processed<br>
- * <br>{@link com.malhartech.lib.util.BaseKeyOperator}</b>: Abstract class for basic operators that allows cloneKey for enabling users to use mutable objects<br>
- * <br>{@link com.malhartech.lib.util.BaseKeyValueOperator}</b>: Abstract class for basic operators that allows cloneValue and cloneKey for enabling users to use mutable objects<br>
+ * <b>{@link com.malhartech.lib.util.AbstractBaseFrequentKey}</b>: Occurrences of each key is counted in the input stream, and at the end of window the winning frequent key is emitted on output port "count"<p>
+ * <b>{@link com.malhartech.lib.util.AbstractBaseFrequentKeyValue}</b>: Occurrences of all values for each key in a stream is counted and at the end of window the least frequent value is emitted on output port "count" per key<br>
+ * <b>{@link com.malhartech.lib.util.AbstractBaseMatchOperator}</b>: An abstract class that sets up the basic operator functionality needed for match based operators<br>
+ * <b>{@link com.malhartech.lib.util.AbstractBaseNOperator}</b>: Abstract class for basic topN operators; users need to provide processTuple, beginWindow, and endWindow to implement TopN operator<br>
+ * <b>{@link com.malhartech.lib.util.AbstractBaseNNonUniqueOperator}</b>: Tuples are ordered by key, and bottom N of the ordered tuples per key are emitted at the end of window<br>
+ * <b>{@link com.malhartech.lib.util.AbstractBaseNUniqueOperator}</b>: Abstract class for sorting NUnique key, val pairs, emit is done at end of window<<br>
+ * <b>{@link com.malhartech.lib.util.AbstractBaseSortOperator}</b>: Takes a stream of key value pairs via input port "data"; The incoming tuple is merged into already existing sorted list. At the end of the window the entire sorted list is emitted on output port "sort"<br>
+ * <b>{@link com.malhartech.lib.util.BaseKeyOperator}</b>: Base class for operators that allows cloneKey for enabling users to use mutable objects<br>
+ * <b>{@link com.malhartech.lib.util.BaseKeyValueOperator}</b>: Base class for operators that allows cloneValue and cloneKey for enabling users to use mutable objects<br>
+ * <b>{@link com.malhartech.lib.util.BaseLineTokenizer}</b>: Base class for splitting lines into tokens and tokens into sub-tokens<br>
+ * <b>{@link com.malhartech.lib.util.BaseMatchOperator}</b>:  * Base class that sets up the operator functionality needed for match based operators<br>
  * <b>{@link com.malhartech.lib.util.BaseNumberKeyValueOperator}</b>: Base class for operators that take in V extends Number. Provides basic methods for value conversion, and cloning of keys and values<br>
  * <b>{@link com.malhartech.lib.util.BaseNumberValueOperator}</b>: Base class for operators that take in K,V extends Number. Provides basic methods for value conversion and key cloning<br>
+ * <b>{@link com.malhartech.lib.util.BaseUniqueCounter}</b>: Count unique occurances of keys within a window<<br>
  * <b>{@link com.malhartech.lib.util.MutableDouble}</b>: A mutable double for basic operations. Makes things easy for incrementing etc.<br>
  * <b>{@link com.malhartech.lib.util.MutableInteger}</b>: A mutable integer for basic operations. Makes things easy for incrementing etc.<br>
  * <b>{@link com.malhartech.lib.util.OneKeyValPair}</b>: A single KeyValPair for basic data passing. It is a write once, and read often model<br>

@@ -4,8 +4,6 @@
  */
 package com.malhartech.lib.util;
 
-import com.malhartech.lib.util.BaseKeyOperator;
-import com.malhartech.lib.util.MutableInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +15,7 @@ import java.util.Map;
  *
  * @author amol
  */
-public abstract class BaseFrequentKey<K> extends BaseKeyOperator<K>
+public abstract class AbstractBaseFrequentKey<K> extends BaseKeyOperator<K>
 {
   /**
    * Counts frequency of a key
