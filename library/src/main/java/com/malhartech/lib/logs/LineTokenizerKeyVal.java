@@ -27,20 +27,20 @@ import java.util.HashMap;
  * <b>Specific run time checks</b>: None<br>
  * <p>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for LineTokenizer&lt;V extends Number&gt; operator template">
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for LineTokenizerKeyVal operator">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
  * <tr><td><b>&gt; 2.5 Million tuples/s (for N=3)</b></td><td>For every in-bound tuple N tuples are emitted, where N is the average number of keys per tuple</td>
  * <td>In-bound rate and the number of keys in the String are the main determinant of performance</td></tr>
  * </table><br>
  * <p>
  * <b>Function Table (splitby=",", splittokenby="=")</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for LineTokenizer&lt;V extends Number&gt; operator template">
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for LineTokenizerKeyVal operator">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th>Out-bound (emit)</th></tr>
  * <tr><th><i>data</i>(String)</th><th><i>tokens</i>(HashMap&lt;String,String&gt;)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
- * <tr><td>Data (process())</td><td>"a=2,a=5,b=5,c=33,f"</td><td>{"a"="2"} ; {"a"="5"} ; {"b"="5"} ; {"c"="33"} ; {"f"=""}</td></tr>
+ * <tr><td>Data (process())</td><td>"a=2,a=5,b=5,c=33,f"</td><td>{a=2,a=5,b=5,c=33,f=}</td></tr>
  * <tr><td>Data (process())</td><td>""</td><td></td></tr>
- * <tr><td>Data (process())</td><td>"a=d,,b=66"</td><td>{"a"="d"} ; {"b"="66"}</td></tr>
+ * <tr><td>Data (process())</td><td>"a=d,,b=66"</td><td>{a=d,b=66}</td></tr>
  * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td></tr>
  * </table>
  * <br>

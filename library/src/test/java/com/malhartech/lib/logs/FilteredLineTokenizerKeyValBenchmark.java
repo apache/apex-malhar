@@ -36,10 +36,10 @@ public class FilteredLineTokenizerKeyValBenchmark
     oper.setSplitBy(",");
     oper.setSplitTokenBy("=");
     oper.tokens.setSink(tokenSink);
-    ArrayList<String> filters = new ArrayList<String>();
-    filters.add("a");
-    filters.add("c");
-    oper.setSubTokenFilters(filters);
+    String [] filters = new String[2];
+    filters[0] = "a";
+    filters[1] = "c";
+    oper.setFilterBy(filters);
 
     oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
     oper.beginWindow(0); //
