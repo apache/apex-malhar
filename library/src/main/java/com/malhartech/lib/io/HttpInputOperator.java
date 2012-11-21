@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.malhartech.annotation.ShipContainingJars;
-import com.malhartech.api.BaseInputOperator;
 import com.malhartech.api.Context.OperatorContext;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -39,7 +38,7 @@ import com.sun.jersey.api.client.WebResource;
  *
  */
 @ShipContainingJars(classes = {com.sun.jersey.api.client.ClientHandler.class})
-public class HttpInputOperator extends BaseInputOperator<Map<String, String>> implements Runnable
+public class HttpInputOperator extends SimpleSinglePortInputOperator<Map<String, String>> implements Runnable
 {
   private static final Logger LOG = LoggerFactory.getLogger(HttpInputOperator.class);
   /**
