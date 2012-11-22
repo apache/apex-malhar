@@ -17,7 +17,7 @@ class WindowedHolder<T>
   int position;
   int windowedCount[];
 
-  WindowedHolder()
+  private WindowedHolder()
   {
   }
 

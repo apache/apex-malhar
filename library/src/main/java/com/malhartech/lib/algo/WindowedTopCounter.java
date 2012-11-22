@@ -44,14 +44,14 @@ public class WindowedTopCounter<T> extends BaseOperator
   };
   @OutputPortFieldAnnotation(name = "output")
   public final transient DefaultOutputPort<Map<T, Integer>> output = new DefaultOutputPort<Map<T, Integer>>(this);
+  private transient PriorityQueue<WindowedHolder<T>> topCounter;
   private int windows;
   private int topCount;
-  private transient PriorityQueue<WindowedHolder<T>> topCounter;
-  private HashMap<T, WindowedHolder<T>> objects;
+  private HashMap<T, WindowedHolder<T>> objects = new HashMap<T, WindowedHolder<T>>();
 
   public void setSlidingWindowWidth(long slidingWindowWidth, int dagWindowWidth)
   {
-    windows = (int)(slidingWindowWidth / dagWindowWidth);
+    windows = (int)(slidingWindowWidth / dagWindowWidth) + 1;
     if (slidingWindowWidth % dagWindowWidth != 0) {
       logger.warn("slidingWindowWidth(" + slidingWindowWidth + ") is not exact multiple of dagWindowWidth(" + dagWindowWidth + ")");
     }
@@ -61,7 +61,6 @@ public class WindowedTopCounter<T> extends BaseOperator
   public void setup(OperatorContext context)
   {
     topCounter = new PriorityQueue<WindowedHolder<T>>(this.topCount, new TopSpotComparator());
-    objects = new HashMap<T, WindowedHolder<T>>(topCount);
   }
 
   @Override
