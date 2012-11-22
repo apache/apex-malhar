@@ -115,7 +115,7 @@ public class FilterKeyVals<K,V> extends BaseKeyOperator<K>
 
   /**
    * True means match; False means unmatched
-   * @param val
+   * @return keyvals hash
    */
   @NotNull()
   public HashMap<HashMap<K,V>,Object> getKeyVals() {
@@ -124,14 +124,14 @@ public class FilterKeyVals<K,V> extends BaseKeyOperator<K>
 
   /**
    * Adds a key to the filter list
-   * @param str
+   * @param map with key,val pairs to set as filters
    */
   public void setKeyVals(HashMap<K,V> map)
   {
     for (Map.Entry<K, V> e: map.entrySet()) {
-      HashMap entry = new HashMap<K,V>(1);
-      entry.put(cloneKey(e.getKey()), cloneValue(e.getValue()));
-      keyvals.put(entry, null);
+      HashMap kvpair = new HashMap<K,V>(1);
+      kvpair.put(cloneKey(e.getKey()), cloneValue(e.getValue()));
+      keyvals.put(kvpair, null);
     }
   }
 
