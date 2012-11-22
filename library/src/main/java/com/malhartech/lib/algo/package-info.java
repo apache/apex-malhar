@@ -45,8 +45,8 @@
  * <b>{@link com.malhartech.lib.algo.LastMatch}</b>: Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". Every tuple
  * is checked and the last one that passes the condition is send during end of window on port "last". The comparison is done by getting double
  * value from the Number<br>
- * <b>{@link com.malhartech.lib.algo.LeastFrequentKey}</b>: Takes in one stream via input port "data". Occurrences of each key is counted and at the end of window the least frequent key is emitted on output port "count"<br>
- * <b>{@link com.malhartech.lib.algo.LeastFrequentKeyInMap}</b>:  * Takes in one stream via input port "data". Occurrences of each key is counted and at the end of window the least frequent key is emitted on output port "count"<br>
+ * <b>{@link com.malhartech.lib.algo.LeastFrequentKey}</b>: Occurrences of each tuple is counted and at the end of window any of the least frequent tuple is emitted on output port least and all least frequent tuples on output port list<p>
+ * <b>{@link com.malhartech.lib.algo.LeastFrequentKeyInMap}</b>: Occurrences of each key is counted in a HashMap and at the end of window any of the least frequent key is emitted on output port least and all least frequent keys on output port list<p>
  * <b>{@link com.malhartech.lib.algo.LeastFrequentKeyValue}</b>: Takes in one stream via input port "data". Occurrences of all values for each key is counted and at the end of window the least frequent value is emitted
  * on output port "count" per key<br>
  * <b>{@link com.malhartech.lib.algo.Match}</b>: Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". If the tuple

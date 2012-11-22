@@ -94,6 +94,6 @@ public class FirstMatchBenchmark
     oper.endWindow();
     // There should be no emit as all tuples do not match
     Assert.assertEquals("number emitted tuples", 0, matchSink.count);
-    log.debug(String.format("\nBenchmarked %d tuples", numTuples * 7));
+    log.debug(String.format("\nBenchmarked %d tuples", numTuples * 17));
   }
 }

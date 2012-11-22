@@ -4,43 +4,67 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.lib.util.AbstractBaseFrequentKey;
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.MutableInteger;
+import com.malhartech.lib.util.AbstractBaseFrequentKey;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  *
- *  Occurrences of each key is counted and at the end of window the least frequent key is emitted on output port "count"<p>
+ * Occurrences of each tuple is counted and at the end of window any of the least frequent tuple is emitted on output port least and all least frequent
+ * tuples on output port list<p>
  * This module is an end of window module<br>
- * In case of a tie
+ * In case of a tie any of the least key would be emitted. The list port would however have all the tied keys
  * <br>
- * Ports:<br>
+ * <b>Ports</b>:<br>
  * <b>data</b>: expects K<br>
- * <b>least</b>: emits HashMap<K,Integer>(1); where String is the least frequent key, and Integer is the number of its occurrences in the window. In case of tie
- * any of th least key would be emitted<br>
- * <b>list</b>: emits ArrayList<HashMap<K,Integer>(1)>; Where the list includes all the keys are least frequent<br>
+ * <b>least</b>: emits HashMap&lt;K,Integer&gt;(1), Where K is the least occurring key in the window. In case of tie any of the least key would be emitted<br>
+ * <b>list</b>: emits ArrayList&lt;HashMap&lt;K,Integer&gt;(1)&gt, Where the list includes all the keys that are least frequent<br>
  * <br>
- * Properties:<br>
- * none<br>
+ * <b>Properties</b>: None<br>
  * <br>
- * Compile time checks<br>
- * none<br>
- * <br>
- * Run time checks<br>
- * none<br>
+ * <b>Compile time checks</b>: None<br>
+ * <b>Specific run time checks</b>: None <br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Operator can process > 60 million unique (k immutable object tuples/sec, and take in a lot more incoming tuples. The operator emits only one tuple per window
- * and hence is not bound by outbound throughput<br>
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for LeastFrequentKey&lt;K&gt; operator template">
+ * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
+ * <tr><td><b>&gt; 60 Million tuple/s</b></td><td>Emits only 1 tuple per window per port</td><td>In-bound throughput is the main determinant of performance.
+ * The benchmark was done with immutable K. If K is mutable the benchmark may be lower</td></tr>
+ * </table><br>
+ * <p>
+ * <b>Function Table (K=String);</b>:
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for LeastFrequentKey&lt;K&gt; operator template">
+ * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th colspan=2>Out-bound (emit)</th></tr>
+ * <tr><th><i>data</i>(K)</th><th><i>least</i>(HashMap&lt;K,Integer&gt;)</th><th><i>list</i>(ArrayList&kt;HashMap&lt;K,Integer&gt;&gt;)</th></tr>
+ * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
+ * <tr><td>Data (process())</td><td>a</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>a</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>d</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>a</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>c</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>a</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>h</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>b</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>a</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>a</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>f</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>a</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>c</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>a</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>b</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>a</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>b</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>a</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>z</td><td></td><td></td></tr>
+ * <tr><td>End Window (endWindow())</td><td>N/A</td><td>{z=1}</td><td>[{d=1},{z=1},{h=1},{f=1}]</td></tr>
+ * </table>
  * <br>
- * @author amol
+ * @author Amol Kekre (amol@malhar-inc.com)<br>
+ * <br>
  */
 public class LeastFrequentKey<K> extends AbstractBaseFrequentKey<K>
 {

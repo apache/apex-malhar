@@ -67,7 +67,7 @@ public class FirstMatchStringBenchmark
     oper.endWindow();
 
     Assert.assertEquals("number emitted tuples", 1, matchSink.count);
-    HashMap<String, String> tuple = (HashMap<String, String>)matchSink.tuple;
+    HashMap<String, String> tuple = (HashMap<String, String>) matchSink.tuple;
     String aval = tuple.get("a");
     Assert.assertEquals("Value of a was ", "3", aval);
 
@@ -86,6 +86,6 @@ public class FirstMatchStringBenchmark
     oper.endWindow();
     // There should be no emit as all tuples do not match
     Assert.assertEquals("number emitted tuples", 0, matchSink.count);
-    log.debug(String.format("\nBenchmarked %d tuples", numTuples * 7));
+    log.debug(String.format("\nBenchmarked %d tuples", numTuples * 17));
   }
 }

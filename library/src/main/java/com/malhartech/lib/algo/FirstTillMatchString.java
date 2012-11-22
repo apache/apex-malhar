@@ -24,21 +24,48 @@ import java.util.HashMap;
  * <b>Properties</b>:<br>
  * <b>key</b>: The key on which compare is done<br>
  * <b>value</b>: The value to compare with<br>
- * <b>cmp<b>: The compare function. Supported values are "lte", "lt", "eq", "neq", "gt", "gte". Default is "eq"<br>
+ * <b>cmp</b>: The compare function. Supported values are "lte", "lt", "eq", "neq", "gt", "gte". Default is "eq"<br>
  * <br>
  * Compile time checks<br>
  * Key must be non empty<br>
  * Value must be able to convert to a "double"<br>
  * Compare string, if specified, must be one of "lte", "lt", "eq", "neq", "gt", "gte"<br>
  * <br>
- * Run time checks<br>
- * none<br>
+ * <b>Specific compile time checks</b>:<br>
+ * Key must be non empty<br>
+ * Value must be able to convert to a "double"<br>
+ * Compare string, if specified, must be one of "lte", "lt", "eq", "neq", "gt", "gte"<br>
+ * <br>
+ * <b>Specific run time checks are</b>: None<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Operator can process > 5 million unique (k,v immutable pairs) tuples/sec, and take in a lot more incoming tuples. The operator emits tuples per key per window
- * till a match is found. So the benchmarks and the outbound I/O would change in runtime<br>
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for FirstTillMatchString&lt;K,StringV&gt; operator template">
+ * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
+ * <tr><td><b>&gt; 18 Million K,String pairs/s</b></td><td>All tuples till a matching key,String pair is found</td><td>In-bound throughput and the occurrence of
+ * matching key,String pair are the main determinant of performance. K is assumed to be immutable. If K is mutable, the benchmarks may be lower</td></tr>
+ * </table><br>
+ * <p>
+ * <b>Function Table (K=String); key=a; value=3; cmp=eq</b>:
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for FirstTillMatchString&lt;K,String&gt; operator template">
+ * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th>Out-bound (emit)</th></tr>
+ * <tr><th><i>data</i>(HashMap&lt;K,V&gt;)</th><th><i>first</i>(HashMap&lt;K,V&gt;)</th></tr>
+ * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
+ * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td>{a=2,b=20,c=1000}</td></tr>
+ * <tr><td>Data (process())</td><td>{a=-1}</td><td>{a=-1}</td></tr>
+ * <tr><td>Data (process())</td><td>{a=10,b=5}</td><td>{a=10,b=5}</td></tr>
+ * <tr><td>Data (process())</td><td>{a=3,b=-5}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{a=2,d=14,h=20,c=2,b=-5}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=55,b=12}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=22,b=5}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=14}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=46,e=2,b=5}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=1}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=14,a=23,e=2,b=5}</td><td></td></tr>
+ * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td></tr>
+ * </table>
  * <br>
- * @author amol
+ * @author Amol Kekre (amol@malhar-inc.com)<br>
+ * <br>
  */
 public class FirstTillMatchString<K> extends BaseMatchOperator<K,String>
 {

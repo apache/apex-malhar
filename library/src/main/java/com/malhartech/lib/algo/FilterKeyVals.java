@@ -35,7 +35,7 @@ import javax.validation.constraints.NotNull;
  * <b>Specific run time checks</b>: None<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for Distinct&lt;K,V&gt; operator template">
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for FilterKeyVals&lt;K,V&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
  * <tr><td><b>&gt; 8 Million K,V pairs/s (4 million out-bound emits/s)</b></td><td>Emits all K,V pairs in a tuple such that K,V is in the filter list
  * (or not in the list if inverse is set to true)</td><td>In-bound throughput and number of matching K,V pairs are the main determinant of performance.
@@ -43,7 +43,7 @@ import javax.validation.constraints.NotNull;
  * </table><br>
  * <p>
  * <b>Function Table (K=String,V=Integer); inverse=false; keyvals={a=2,d=5,e=2}</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for Distinct&lt;K,V&gt; operator template">
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for FilterKeyVals&lt;K,V&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th>Out-bound (emit)</th></tr>
  * <tr><th><i>data</i>(HashMap&lt;K,V&gt;)</th><th><i>filter</i>(HashMap&lt;K,V&gt;)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>

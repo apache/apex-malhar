@@ -4,35 +4,50 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.lib.util.AbstractBaseFrequentKeyValue;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.AbstractBaseFrequentKeyValue;
 import java.util.HashMap;
 
 /**
  *
- * Occurrences of all values for each key is counted and at the end of window the most frequent value is emitted
- * on output port "count" per key<p>
+ * Occurrences of all values for each key is counted and at the end of window the most frequent values are emitted on output port least per key<p>
  * This module is an end of window module<br>
  * <br>
- * Ports:<br>
- * <b>data</b>: Input port, expects HashMap<String, String><br>
- * <b>most</b>: Output port, emits HashMap<String, HashMap<String, Integer>>(1), where first String is the key, the second String is the value, and Integer is the count of occurrence<br>
+ * <b>Ports</b>:<br>
+ * <b>data</b>: expects HashMap&lt;K,V&gt;<br>
+ * <b>most</b>: emits HashMap&lt;String, HashMap&lt;String, Integer&gt;&gt;(1)<br>
  * <br>
- * Properties:<br>
- * none<br>
  * <br>
- * Compile time checks<br>
- * none<br>
+ * <b>Properties</b>: None<br>
  * <br>
- * Run time checks<br>
- * none<br>
+ * <b>Compile time checks</b>: None<br>
+ * <b>Specific run time checks</b>: None <br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Operator can process about 30 million unique (k,v immutable) object tuples/sec, and take in a lot more incoming tuples. The operator emits only one tuple per window
- * and hence is not bound by outbound throughput<br>
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for MostFrequentKeyValue&lt;K,V&gt; operator template">
+ * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
+ * <tr><td><b>&gt; 30 Million K,V pairs/s</b></td><td>Emits only 1 tuple per window per key</td><td>In-bound throughput is the main determinant of performance.
+ * The benchmark was done with immutable objects. If K or V are mutable the benchmark may be lower</td></tr>
+ * </table><br>
+ * <p>
+ * <b>Function Table (K=String,V=Integer);</b>:
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for MostFrequentKeyValue&lt;K,V&gt; operator template">
+ * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th>Out-bound (emit)</th></tr>
+ * <tr><th><i>data</i>(HashMap&lt;K,V&gt;)</th><th><i>most</i>(HashMap&lt;K,HashMap&lt;Integer&gt;&gt;)</th></tr>
+ * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
+ * <tr><td>Data (process())</td><td>{a=1,b=5,c=110}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{a=55,c=2000,b=45}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=2}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{a=55,b=5,c=22}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{h=20,a=2,z=5}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{a=4,c=110}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{a=4,z=5}</td><td></td><td></td></tr>
+ * <tr><td>End Window (endWindow())</td><td>N/A</td><td>{a={4=2,55=2},b={5=2},c={110=2},d={2=1},h={20=1},z={5=2}</td></tr>
+ * </table>
  * <br>
- * @author amol
+ * @author Amol Kekre (amol@malhar-inc.com)<br>
+ * <br>
  */
 public class MostFrequentKeyValue<K, V> extends AbstractBaseFrequentKeyValue<K, V>
 {

@@ -81,6 +81,6 @@ public class FirstTillMatchBenchmark
       atotal += aval.intValue();
     }
     Assert.assertEquals("Value of a was ", 6, atotal);
-    log.debug(String.format("\nBenchmarked %d tuples", numTuples * 5));
+    log.debug(String.format("\nBenchmarked %d tuples", numTuples * 13));
   }
 }
