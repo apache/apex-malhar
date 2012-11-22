@@ -24,10 +24,10 @@
  * property "inverse" is set to "true", then all key,val pairs except those specified by in keyvals parameter are emitted<br:
  * <b>{@link com.malhartech.lib.algo.FilterValues}</b>: Takes a stream on input port "data", and outputs only values as specified by the user on put output port "filter". If
  * property "inverse" is set to "true", then all keys except those specified by "keys" are emitted. The values are expected to be immutable<br>
- * <b>{@link com.malhartech.lib.algo.FirstMatch}</b>: Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". If the tuple
- * passed the test, it is emitted on the output port "first". The comparison is done by getting double value from the Number. Both output ports are optional, but at least one has to be connected<br>
- * <b>{@link com.malhartech.lib.algo.FirstMatchString}</b>: Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". If the tuple
- * passed the test, it is emitted on the output port "first" as the first match. The comparison is done by getting double value from the Number.<br>
+ * <b>{@link com.malhartech.lib.algo.FirstMatch}</b>: A compare operation on a Number tuple based on the property "key", "value", and "cmp"; the first match is emitted. The comparison is done by getting double
+ * value from the Number<br>
+ * <b>{@link com.malhartech.lib.algo.FirstMatchString}</b>: A compare operation on a tuple with value type String, based on the property "key", "value", and "cmp"; the first match is emitted. The comparison is done by getting double
+ * value from the Number<br>
  * <b>{@link com.malhartech.lib.algo.FirstN}</b>: Takes in one stream via input port "data". Takes the first N tuples of a particular key and emits them as they come in on output port "first"<br>
  * <b>{@link com.malhartech.lib.algo.FirstTillMatch}</b>: Takes in one stream via input port "data". A compare function is imposed based on the property "key", "value", and "compare". All tuples
  * are emitted till a tuple matches this test. Then on no tuple is emitted in that window. The comparison is done by getting double value from the Number.<br>
