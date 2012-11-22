@@ -47,6 +47,6 @@ public class MatchStringBenchmark
       oper.data.process(input2);
     }
     oper.endWindow();
-    log.debug(String.format("\nBenchmark, processed %d tuples", numTuples * 2));
+    log.debug(String.format("\nBenchmark, processed %d tuples", numTuples * 4));
   }
 }

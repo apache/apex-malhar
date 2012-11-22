@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.engine.TestCountAndLastTupleSink;
+import com.malhartech.engine.TestCountSink;
 import java.util.HashMap;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -36,7 +36,7 @@ public class MatchBenchmark
 
   public void testNodeProcessingSchema(Match oper)
   {
-    TestCountAndLastTupleSink matchSink = new TestCountAndLastTupleSink();
+    TestCountSink matchSink = new TestCountSink();
     oper.match.setSink(matchSink);
     oper.setKey("a");
     oper.setValue(3.0);
@@ -57,6 +57,6 @@ public class MatchBenchmark
     oper.endWindow();
 
     // One for each key
-    log.debug(String.format("\nBenchmark, processed %d tuples", numTuples * 2));
+    log.debug(String.format("\nBenchmark, processed %d key/val pairs", numTuples * 4));
   }
 }
