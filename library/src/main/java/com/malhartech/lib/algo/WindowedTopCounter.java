@@ -30,9 +30,9 @@ public class WindowedTopCounter<T> extends BaseOperator
     public void process(Map<T, Integer> map)
     {
       for (Map.Entry<T, Integer> e: map.entrySet()) {
-        WindowedHolder holder = objects.get(e.getKey());
+        WindowedHolder<T> holder = objects.get(e.getKey());
         if (holder == null) {
-          holder = new WindowedHolder(e.getKey(), windows);
+          holder = new WindowedHolder<T>(e.getKey(), windows);
           holder.totalCount = e.getValue();
           objects.put(e.getKey(), holder);
         }
@@ -47,7 +47,7 @@ public class WindowedTopCounter<T> extends BaseOperator
   private int windows;
   private int topCount;
   private transient PriorityQueue<WindowedHolder<T>> topCounter;
-  private HashMap<T, WindowedHolder> objects;
+  private HashMap<T, WindowedHolder<T>> objects;
 
   public void setSlidingWindowWidth(long slidingWindowWidth, int dagWindowWidth)
   {
@@ -61,7 +61,7 @@ public class WindowedTopCounter<T> extends BaseOperator
   public void setup(OperatorContext context)
   {
     topCounter = new PriorityQueue<WindowedHolder<T>>(this.topCount, new TopSpotComparator());
-    objects = new HashMap<T, WindowedHolder>(topCount);
+    objects = new HashMap<T, WindowedHolder<T>>(topCount);
   }
 
   @Override
@@ -73,13 +73,13 @@ public class WindowedTopCounter<T> extends BaseOperator
   @Override
   public void endWindow()
   {
-    Iterator<Map.Entry<T, WindowedHolder>> iterator = objects.entrySet().iterator();
+    Iterator<Map.Entry<T, WindowedHolder<T>>> iterator = objects.entrySet().iterator();
     int i = topCount;
 
     /*
      * Try to fill the priority queue with the first topCount URLs.
      */
-    WindowedHolder holder;
+    WindowedHolder<T> holder;
     while (iterator.hasNext()) {
       holder = iterator.next().getValue();
       holder.slide();
