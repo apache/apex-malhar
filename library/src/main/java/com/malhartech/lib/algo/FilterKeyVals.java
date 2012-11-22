@@ -49,13 +49,13 @@ import javax.validation.constraints.NotNull;
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
  * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td>{a=2}</td></tr>
  * <tr><td>Data (process())</td><td>{a=-1}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{a=2,b=5}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{a=2,b=5}</td><td>{a=2}</td></tr>
  * <tr><td>Data (process())</td><td>{a=5,b=-5}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{a=3,h=20,c=1000,b=-5}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{d=55,b=5}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{d=14}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{d=55,e=2}</td><td>{e=2}</td></tr>
- * <tr><td>Data (process())</td><td>{d=1,d=5,d=55}</td><td>{d=5}</td></tr>
+ * <tr><td>Data (process())</td><td>{f=1,d=5,e=55,a=2}</td><td>{d=5}<br>{a=2}</td></tr>
  * <tr><td>Data (process())</td><td>{d=1,a=3,e=2}</td><td>{e=2}</td></tr>
  * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td></tr>
  * </table>

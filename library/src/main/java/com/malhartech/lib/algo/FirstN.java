@@ -40,11 +40,11 @@ import java.util.Map;
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th>Out-bound (emit)</th></tr>
  * <tr><th><i>data</i>(HashMap&lt;K,V&gt;)</th><th><i>first</i>(HashMap&lt;K,V&gt;)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
- * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td>{a=2} ; {b=20} ; {c=1000}</td></tr>
+ * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td>{a=2}<br>{b=20}<br>{c=1000}</td></tr>
  * <tr><td>Data (process())</td><td>{a=-1}</td><td>{a=-1}</td></tr>
  * <tr><td>Data (process())</td><td>{a=10,b=5}</td><td>{b=5}</td></tr>
  * <tr><td>Data (process())</td><td>{a=5,b=-5}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{a=2,d=14,h=20,c=2,b=-5}</td><td>{d=14} ; {h=20} ; {c=2}</td></tr>
+ * <tr><td>Data (process())</td><td>{a=2,d=14,h=20,c=2,b=-5}</td><td>{d=14}<br>{h=20}<br>{c=2}</td></tr>
  * <tr><td>Data (process())</td><td>{d=55,b=12}</td><td>{d=55}</td></tr>
  * <tr><td>Data (process())</td><td>{d=22,b=5}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{d=14}</td><td></td></tr>
