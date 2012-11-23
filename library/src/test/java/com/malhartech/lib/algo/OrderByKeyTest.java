@@ -91,6 +91,7 @@ public class OrderByKeyTest
 
     int state = -1;
     for (Object e: countSink.collectedTuples) {
+      log.debug(e.toString());
       HashMap<Integer, Integer> map = (HashMap<Integer, Integer>)e;
       if (map.get(-1) != null) {
         Assert.assertEquals("count of -1", 1, map.get(-1).intValue());
@@ -116,6 +117,7 @@ public class OrderByKeyTest
     state = -1;
     int jump = 0;
     for (Object e: listSink.collectedTuples) {
+      log.debug(e.toString());
       HashMap<String, Integer> map = (HashMap<String, Integer>) e;
       int aval = map.get("a").intValue();
       if (aval == -1) {

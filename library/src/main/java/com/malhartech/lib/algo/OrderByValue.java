@@ -111,8 +111,6 @@ public class OrderByValue<K, V> extends BaseKeyValueOperator<K, V>
 
   /**
    * Initializes the priority queue in ascending order
-   *
-   * @return consructed PriorityQueue
    */
   public void initializePriorityQueue()
   {

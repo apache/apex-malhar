@@ -30,7 +30,6 @@ public class OrderByValueDesc<K,V> extends OrderByValue<K,V>
 {
   /**
    * Initializes priorityQueue in descending order
-   * @return constructed PriorityQueue
    */
   @Override
   public void initializePriorityQueue()
