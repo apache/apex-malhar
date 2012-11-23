@@ -36,8 +36,8 @@ public class OrderByKeyDesc<K,V> extends OrderByKey<K,V>
    * @return constructed PriorityQueue
    */
   @Override
-  public PriorityQueue<V> initializePriorityQueue()
+  public void initializePriorityQueue()
   {
-    return new PriorityQueue<V>(5, new ReversibleComparator<V>(false));
+    pqueue = new PriorityQueue<V>(5, new ReversibleComparator<V>(false));
   }
 }

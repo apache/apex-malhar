@@ -121,7 +121,7 @@ public class FilterValues<T> extends BaseOperator
   /**
    * Adds the list of values to the filter list
    *
-   * @param vals ArrayList of items to add to filter list
+   * @param list ArrayList of items to add to filter list
    */
   public void setValues(T[] list)
   {

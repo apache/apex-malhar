@@ -6,30 +6,31 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.BaseKeyValueOperator;
 import com.malhartech.lib.util.MutableInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.PriorityQueue;
+import javax.validation.constraints.NotNull;
 
 /**
- *
- * Order by ascending is done on the incoming stream based on key, and result is emitted on end of window<p>
+ * TBD: Not certified yet
+ * Order by ascending is done on the incoming stream based on val, and result is emitted on end of window<p>
  * This is an end of window module<br>
  * At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
  * <br>
  * <b>Ports</b>
- * <b>data</b>: Input data port expects HashMap<String,Object><br>
- * <b>ordered_count</b>: emits HashMap<Object,Integer><br>
- * <b>ordered_list</b>: Output data port, emits ArrayList<HashMap<String,Object>><br>
+ * <b>data</b>: expects HashMap&lt;String,V&gt;<br>
+ * <b>ordered_count</b>: emits HashMap&lt;V,Integer&gt;<br>
+ * <b>ordered_list</b>: Output data port, emits ArrayList&lt;HashMap&lt;String,Object&gt;&gt;<br>
  * <b>Properties</b>:
- * <b>orderby</b>: The key to order by<br>
+ * <b>orderby</b>: The val to order by<br>
  * <b>Benchmarks></b>: TBD<br>
  * Compile time checks are:<br>
- * Parameter "key" cannot be empty<br>
+ * Parameter "val" cannot be empty<br>
  * <br>
  * Run time checks are:<br>
  * <br>
@@ -37,13 +38,13 @@ import java.util.PriorityQueue;
  * @author amol<br>
  *
  */
-public class OrderByKey<K,V> extends BaseOperator
+public class OrderByKey<K,V> extends BaseKeyValueOperator<K,V>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>(this)
   {
     /**
-     * process the tuple is orderby key exists.
+     * process the tuple is orderby val exists.
      */
     @Override
     public void process(HashMap<K,V> tuple)
@@ -57,26 +58,23 @@ public class OrderByKey<K,V> extends BaseOperator
       if (ordered_count.isConnected()) {
         MutableInteger count = countmap.get(val);
         if (count == null) {
-          count = new MutableInteger(1);
+          count = new MutableInteger(0);
+          countmap.put(cloneValue(val), count);
           first = true;
         }
-        else {
-          count.value++;
-        }
-        countmap.put(val, count);
+        count.value++;
       }
       if (ordered_list.isConnected()) {
-        ArrayList list = (ArrayList)smap.get(val);
-        if (list == null) { // already in the queue
-          list = new ArrayList();
-          list.add(tuple);
-          smap.put(val, list);
+        ArrayList<HashMap<K,V>> list = smap.get(val);
+        if (list == null) {
+          list = new ArrayList<HashMap<K,V>>();
+          smap.put(cloneValue(val), list);
           first = true;
         }
-        list.add(tuple);
+        list.add(cloneTuple(tuple));
       }
       if (first) {
-        pqueue.add(val);
+        pqueue.add(cloneValue(val));
       }
     }
   };
@@ -85,16 +83,28 @@ public class OrderByKey<K,V> extends BaseOperator
   public final transient DefaultOutputPort<HashMap<K,V>> ordered_list = new DefaultOutputPort<HashMap<K,V>>(this);
   @OutputPortFieldAnnotation(name = "ordered_count")
   public final transient DefaultOutputPort<HashMap<V,Integer>> ordered_count = new DefaultOutputPort<HashMap<V,Integer>>(this);
-  String orderby = "";
+
+  @NotNull()
+  K orderby = null;
   protected PriorityQueue<V> pqueue = null;
   protected HashMap<V,MutableInteger> countmap = new HashMap<V,MutableInteger>();
   protected HashMap<V,ArrayList<HashMap<K,V>>> smap = new HashMap<V,ArrayList<HashMap<K,V>>>();
 
   /**
-   * Sets orderby key
+   * getter function for orderby
+   * @return orderby
+   */
+  @NotNull()
+  public K getOrderby()
+  {
+    return orderby;
+  }
+
+  /**
+   * setter function for orderby val
    * @param str
    */
-  public void setOrderby(String str)
+  public void setOrderby(K str)
   {
     orderby = str;
   }
@@ -103,8 +113,8 @@ public class OrderByKey<K,V> extends BaseOperator
    * First cut of the priority queue in ascending order
    * @return constructed PriorityQueue
    */
-  public PriorityQueue<V> initializePriorityQueue() {
-    return new PriorityQueue<V>(5);
+  public void initializePriorityQueue() {
+    pqueue = new PriorityQueue<V>(5);
   }
 
   /**
@@ -114,6 +124,9 @@ public class OrderByKey<K,V> extends BaseOperator
   @Override
   public void setup(OperatorContext context)
   {
+    if (getOrderby() == null) {
+      throw new IllegalArgumentException("Orderby key not set");
+    }
     initializePriorityQueue();
   }
 
@@ -124,7 +137,7 @@ public class OrderByKey<K,V> extends BaseOperator
   public void beginWindow(long windowId)
   {
     if (pqueue == null) {
-      pqueue = initializePriorityQueue();
+      initializePriorityQueue();
     }
     pqueue.clear();
     countmap.clear();
@@ -137,15 +150,15 @@ public class OrderByKey<K,V> extends BaseOperator
   @Override
   public void endWindow()
   {
-    V key;
-    while ((key = pqueue.poll()) != null) {
+    V val;
+    while ((val = pqueue.poll()) != null) {
       if (ordered_count.isConnected()) {
         HashMap<V, Integer> tuple = new HashMap<V, Integer>(1);
-        tuple.put(key, countmap.get(key).value);
+        tuple.put(val, countmap.get(val).value);
         ordered_count.emit(tuple);
       }
       if (ordered_list.isConnected()) {
-        ArrayList<HashMap<K, V>> list = (ArrayList<HashMap<K, V>>)smap.get(key);
+        ArrayList<HashMap<K, V>> list = smap.get(val);
         for (HashMap<K, V> o: list) {
           ordered_list.emit(o);
         }
