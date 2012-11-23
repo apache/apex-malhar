@@ -36,7 +36,7 @@ import javax.validation.constraints.NotNull;
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for OrderByKey&lt;K,V&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>&gt; 5 Million tuples pairs/s</b></td><td>All tuples are emitted on port ordered_list, and one per value is emitted on port ordered_count</td>
+ * <tr><td><b>&gt; 5 Million K,V pairs/s</b></td><td>All tuples are emitted on port ordered_list, and one per value is emitted on port ordered_count</td>
  * <td>In-bound throughput and value diversity is the main determinant of performance.
  * The benchmark was done with immutable objects. If K or V are mutable the benchmark may be lower</td></tr>
  * </table><br>
