@@ -158,13 +158,4 @@ public class BaseMatchOperator<K,V> extends BaseKeyValueOperator<K,V>
   {
     type = supported_type.GTE;
   }
-
-  public HashMap<K, V> cloneTuple(HashMap<K, V> tuple)
-  {
-    HashMap<K, V> ret = new HashMap<K, V>(tuple.size());
-    for (Map.Entry<K, V> e: tuple.entrySet()) {
-      ret.put(cloneKey(e.getKey()), cloneValue(e.getValue()));
-    }
-    return ret;
-  }
 }
