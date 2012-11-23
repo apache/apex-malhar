@@ -29,7 +29,7 @@ public abstract class AbstractBaseNUniqueOperator<K, V> extends AbstractBaseNOpe
    * Override to decide which port to emit to and its schema
    * @param tuple
    */
-  abstract public void emit(HashMap<K, ArrayList<V>> tuple);
+  abstract public void emit(HashMap<K, ArrayList<HashMap<V,Integer>>> tuple);
 
   /**
    * Inserts tuples into the queue
@@ -48,7 +48,7 @@ public abstract class AbstractBaseNUniqueOperator<K, V> extends AbstractBaseNOpe
         pqueue.offer(cloneValue(e.getValue()));
       }
       else {
-        pqueue.offer(e.getValue());
+        pqueue.offer(cloneValue(e.getValue()));
       }
     }
   }
@@ -71,7 +71,7 @@ public abstract class AbstractBaseNUniqueOperator<K, V> extends AbstractBaseNOpe
   public void endWindow()
   {
     for (Map.Entry<K, TopNUniqueSort<V>> e: kmap.entrySet()) {
-      HashMap<K, ArrayList<V>> tuple = new HashMap<K, ArrayList<V>>(1);
+      HashMap<K, ArrayList<HashMap<V,Integer>>> tuple = new HashMap<K, ArrayList<HashMap<V,Integer>>>(1);
       tuple.put(e.getKey(), e.getValue().getTopN(getN()));
       emit(tuple);
     }

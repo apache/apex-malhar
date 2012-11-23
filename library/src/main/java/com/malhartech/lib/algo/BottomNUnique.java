@@ -13,11 +13,11 @@ import java.util.HashMap;
 /**
  * Input stream of key value pairs are ordered by key, and bottom N of the ordered unique tuples per key are emitted on
  * port "top" at the end of window<p>
- * This is an end of window module. Thus the data set is windowed and no history is kept of previous windows<br>
+ * This is an end of window module<br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: Input data port expects HashMap&lt;K,V&gt;<br>
- * <b>bottom</b>: Output data port, emits HashMap&lt;K, ArrayList&lt;V&gt;&gt;<br>
+ * <b>bottom</b>: Output data port, emits HashMap&lt;K, ArrayList&lt;HashMap&lt;V,Integer&gt;&gt;&gt;<br>
  * <br>
  * <b>Properties</b>:<br>
  * <b>N</b>: The number of top values to be emitted per key<br>
@@ -30,14 +30,14 @@ import java.util.HashMap;
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for BottomNUnique&lt;K,V&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>&gt; 8 Million K,V pairs/s</b></td><td>Top N values per key per window</td><td>In-bound throughput and number of keys is the main determinant of performance.
+ * <tr><td><b>&gt; 15 Million K,V pairs/s</b></td><td>Bottom N unique values per key per window</td><td>In-bound throughput and number of keys is the main determinant of performance.
  * Tuples are assumed to be immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
  * </table><br>
  * <p>
  * <b>Function Table (K=String,V=Integer); n=2</b>:
  * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for BottomNUnique&lt;K,V&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(HashMap&lt;K,V&gt;)</th><th><i>bottom</i>(HashMap&lt;K,ArrayList&lt;V&gt;&gt;)</th></tr>
+ * <tr><th><i>data</i>(HashMap&lt;K,V&gt;)</th><th><i>bottom</i>(HashMap&lt;K,ArrayList&lt;HashMap&lt;V,Integer&gt;&gt;&gt;)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
  * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{a=-1}</td><td></td></tr>
@@ -48,9 +48,10 @@ import java.util.HashMap;
  * <tr><td>Data (process())</td><td>{d=22}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{d=14}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{d=46,e=2}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=1,d=5,d=4}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=1,a=5}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{d=4,a=23,e=2}</td><td></td></tr>
- * <tr><td>End Window (endWindow())</td><td>N/A</td><td>{a=[-1,2],b=[-5,5],c=[2,1000],d=[1,4],e=[2],h=[20]}</td></tr>
+ * <tr><td>End Window (endWindow())</td><td>N/A</td><td>{a=[{-1=1},{2=1}]}<br>{b=[{-5=2},{5=1}]}<br>{c=[{2=1},{1000=1}]}
+ * <br>{d=[{1=1},{4=1}]]<br>{e=[{2=2}]}<br>{h=[{20=1}]}</td></tr>
  * </table>
  * <br>
  * @author Amol Kekre (amol@malhar-inc.com)<br>
@@ -60,7 +61,7 @@ import java.util.HashMap;
 public class BottomNUnique<K, V> extends AbstractBaseNUniqueOperator<K, V>
 {
   @OutputPortFieldAnnotation(name = "bottom")
-  public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> bottom = new DefaultOutputPort<HashMap<K, ArrayList<V>>>(this);
+  public final transient DefaultOutputPort<HashMap<K, ArrayList<HashMap<V,Integer>>>> bottom = new DefaultOutputPort<HashMap<K, ArrayList<HashMap<V,Integer>>>>(this);
 
   /**
    * Ascending is set to false as we are looking for Bottom N
@@ -77,7 +78,7 @@ public class BottomNUnique<K, V> extends AbstractBaseNUniqueOperator<K, V>
    * @param tuple
    */
   @Override
-  public void emit(HashMap<K, ArrayList<V>> tuple)
+  public void emit(HashMap<K, ArrayList<HashMap<V,Integer>>> tuple)
   {
     bottom.emit(tuple);
   }

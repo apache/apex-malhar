@@ -47,8 +47,8 @@ public class BottomNTest
     input.put("a", 2);
     oper.data.process(input);
 
-     input.clear();
-     input.put("a", 20);
+    input.clear();
+    input.put("a", 20);
     oper.data.process(input);
 
     input.clear();
@@ -85,7 +85,8 @@ public class BottomNTest
 
     Assert.assertEquals("number emitted tuples", 3, sortSink.collectedTuples.size());
     for (Object o: sortSink.collectedTuples) {
-      for (Map.Entry<String, ArrayList<Number>> e: ((HashMap<String, ArrayList<Number>>) o).entrySet()) {
+      log.debug(o.toString());
+      for (Map.Entry<String, ArrayList<Number>> e: ((HashMap<String, ArrayList<Number>>)o).entrySet()) {
         if (e.getKey().equals("a")) {
           Assert.assertEquals("emitted value for 'a' was ", 3, e.getValue().size());
         }
@@ -94,10 +95,6 @@ public class BottomNTest
         }
         else if (e.getKey().equals("c")) {
           Assert.assertEquals("emitted tuple for 'c' was ", 1, e.getValue().size());
-        }
-        log.debug(String.format("Sorted list for %s:", e.getKey()));
-        for (Number i : e.getValue()) {
-          log.debug(String.format("%s", i.toString()));
         }
       }
     }

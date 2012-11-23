@@ -31,7 +31,7 @@ import java.util.HashMap;
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for BottomN&lt;K,V&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>&gt; 15 Million K,V pairs/s</b></td><td>Top N values per key per window</td><td>In-bound throughput and number of keys is the main determinant of performance.
+ * <tr><td><b>&gt; 15 Million K,V pairs/s</b></td><td>Bottom N values per key per window</td><td>In-bound throughput and number of keys is the main determinant of performance.
  * Tuples are assumed to be immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
  * </table><br>
  * <p>
@@ -49,9 +49,9 @@ import java.util.HashMap;
  * <tr><td>Data (process())</td><td>{d=22}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{d=14}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{d=46,e=2}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=1,d=5,d=4}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=1,a=4}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{d=4,a=23,e=2}</td><td></td></tr>
- * <tr><td>End Window (endWindow())</td><td>N/A</td><td>{a=[-1,2],b=[-5,-5],c=[2,1000],d=[1,4],e=[2,2],h=[20]}</td></tr>
+ * <tr><td>End Window (endWindow())</td><td>N/A</td><td>{a=[-1,2]}<br>{b=[-5,-5]}<br>{c=[2,1000]}<br>{d=[1,4]}<br>{e=[2,2]}<br>{h=[20]}</td></tr>
  * </table>
  * <br>
  * @author Amol Kekre (amol@malhar-inc.com)<br>

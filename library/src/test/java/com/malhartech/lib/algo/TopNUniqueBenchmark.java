@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.engine.TestSink;
+import com.malhartech.engine.TestCountSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +39,7 @@ public class TopNUniqueBenchmark
 
   public void testNodeProcessingSchema(TopNUnique oper)
   {
-    TestSink<HashMap<String, Number>> sortSink = new TestSink<HashMap<String, Number>>();
+    TestCountSink<HashMap<String, Number>> sortSink = new TestCountSink<HashMap<String, Number>>();
     oper.top.setSink(sortSink);
     oper.setN(3);
 
@@ -56,17 +56,7 @@ public class TopNUniqueBenchmark
     }
     oper.endWindow();
 
-    Assert.assertEquals("number emitted tuples", 2, sortSink.collectedTuples.size());
-    log.debug(String.format("\nBenchmaked %d tuples", numTuples));
-    for (Object o: sortSink.collectedTuples) {
-      for (Map.Entry<String, ArrayList<HashMap<Number, Integer>>> e: ((HashMap<String, ArrayList<HashMap<Number, Integer>>>)o).entrySet()) {
-        log.debug(String.format("Sorted list for %s:", e.getKey()));
-        for (HashMap<Number, Integer> ival: e.getValue()) {
-          for (Map.Entry<Number, Integer> ie: ival.entrySet()) {
-            log.debug(String.format("%s occurs %d times", ie.getKey().toString(), ie.getValue()));
-          }
-        }
-      }
-    }
+    Assert.assertEquals("number emitted tuples", 2, sortSink.getCount());
+    log.debug(String.format("\nBenchmaked %d tuples", numTuples * 2));
   }
 }

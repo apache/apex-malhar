@@ -101,7 +101,7 @@ public class TopNUniqueSort<E>
         break;
       }
     }
-    ArrayList ret = new ArrayList(list.size());
+    ArrayList<HashMap<E,Integer>> ret = new ArrayList<HashMap<E,Integer>>(list.size());
     int size = list.size();
     int depth = size;
     if (depth > n) {

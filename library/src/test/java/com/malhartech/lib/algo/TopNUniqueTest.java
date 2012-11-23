@@ -87,6 +87,7 @@ public class TopNUniqueTest
 
     Assert.assertEquals("number emitted tuples", 3, sortSink.collectedTuples.size());
     for (Object o: sortSink.collectedTuples) {
+      log.debug(o.toString());
       for (Map.Entry<String, ArrayList<HashMap<Number, Integer>>> e: ((HashMap<String, ArrayList<HashMap<Number, Integer>>>)o).entrySet()) {
         if (e.getKey().equals("a")) {
           Assert.assertEquals("emitted value for 'a' was ", 3, e.getValue().size());
@@ -96,12 +97,6 @@ public class TopNUniqueTest
         }
         else if (e.getKey().equals("c")) {
           Assert.assertEquals("emitted tuple for 'c' was ", 1, e.getValue().size());
-        }
-        log.debug(String.format("Sorted list for %s:", e.getKey()));
-        for (HashMap<Number, Integer> ival: e.getValue()) {
-          for (Map.Entry<Number, Integer> ie: ival.entrySet()) {
-            log.debug(String.format("%s occurs %d times", ie.getKey().toString(), ie.getValue()));
-          }
         }
       }
     }
