@@ -4,11 +4,11 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.lib.util.BaseUniqueCounter;
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.BaseUniqueKeyValueCounter;
 import com.malhartech.lib.util.MutableInteger;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,19 +17,44 @@ import java.util.Map;
  * Count unique occurances of key,val pairs within a window, and emits one HashMap tuple per unique key,val pair<p>
  * <br>
  * This operator is same as the combination of {@link com.malhartech.lib.algo.UniqueKeyValCounter} followed by {@link com.malhartech.lib.stream.HashMapToKey}<br>
- * <b>Ports</b>
- * <b>data</b>: Input data port expects HashMap<K,V><br>
- * <b>count</b>: Output data port, emits HashMap<HashMap<K,V>,Integer>(1)<br>
+ * <br>
+ * <b>Ports</b>:<br>
+ * <b>data</b>: expects HashMap&lt;K,V&gt;<br>
+ * <b>count</b>: emits HashMap&lt;HashMap&lt;K,V&gt;(1),Integer&gt;(1)<br>
+ * <br>
  * <b>Properties</b>: None<br>
- * <b>Compile time checks</b>: None<br>
- * <b>Run time checks</b>:<br>
+ * <br>
+ * <b>Specific compile time checks</b>: None<br>
+ * <b>Specific run time checks</b>:<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * Operator processes > 8 million tuples/sec. Only one tuple per unique key is emitted on end of window, so this operator is not bound by outbound throughput<br>
- *
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for UniqueKeyValCounter&lt;K,V&gt; operator template">
+ * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
+ * <tr><td><b>&gt; processes 8 Million K,V pairs/s</b></td><td>Emits one tuple per K,V pair per window</td><td>In-bound throughput
+ * and number of unique K,V pairs are the main determinant of performance. Tuples are assumed to be immutable. If you use mutable tuples and have lots of keys,
+ * the benchmarks may be lower</td></tr>
+ * </table><br>
+ * <p>
+ * <b>Function Table (K=String)</b>: The order of the K,V pairs in the tuple is undeterminable
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for UniqueKeyValCounter&lt;K,V&gt; operator template">
+ * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th>Out-bound (emit)</th></tr>
+ * <tr><th><i>data</i>(K)</th><th><i>count</i>(HashMap&lt;HashMap&lt;K,V&gt;(1),Integer&gt;(1))</th></tr>
+ * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
+ * <tr><td>Data (process())</td><td>{a=1,b=2,c=3}</td></tr>
+ * <tr><td>Data (process())</td><td>{b=5}</td><td></td>/tr>
+ * <tr><td>Data (process())</td><td>{c=1000}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{5ah=10}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{a=4,b=5}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{a=1,c=3}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{5ah=10}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{a=4,b=2}</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{c=3,b=2}</td><td></td></tr>
+ * <tr><td>End Window (endWindow())</td><td>N/A</td><td>{{a=1}=2}<br>{{5ah=10}=2}<br>{{b=5}=2}<br>{{b=2}=3}<br>{{c=1000}=1}<br>{{c=3}=3}<br>{{a=4}=2}</td></tr>
+ * </table>
+ * <br>
  * @author Amol Kekre <amol@malhar-inc.com>
  */
-public class UniqueKeyValCounterEach<K,V> extends BaseUniqueCounter<HashMap<K,V>>
+public class UniqueKeyValCounterEach<K,V> extends BaseUniqueKeyValueCounter<K,V>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>(this)
@@ -40,11 +65,8 @@ public class UniqueKeyValCounterEach<K,V> extends BaseUniqueCounter<HashMap<K,V>
     @Override
     public void process(HashMap<K,V> tuple)
     {
-      HashMap<K,V> keyvalpair;
       for (Map.Entry<K,V> e: tuple.entrySet()) {
-        keyvalpair = new HashMap<K,V>(1);
-        keyvalpair.put(e.getKey(), e.getValue());
-        processTuple(keyvalpair);
+        processTuple(e.getKey(), e.getValue());
       }
     }
   };

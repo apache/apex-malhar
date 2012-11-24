@@ -14,7 +14,7 @@ import java.util.HashMap;
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-public class BaseUniqueCounter<K> extends BaseKeyOperator<K>
+public class BaseUniqueKeyCounter<K> extends BaseKeyOperator<K>
 {
   /**
    * Reference counts each tuple
