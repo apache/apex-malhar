@@ -53,11 +53,20 @@
         jzmq not available from public repository at this time
         http://lists.zeromq.org/pipermail/zeromq-dev/2012-May/017111.html
       -->
+      <!-- the solution to avoid using systemPath
+      http://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html
+      my example: mvn install:install-file -Dfile=/home/wzj/work/core/contrib/lib/zeromq-1.1.0-SNAPSHOT.jar -DgroupId=org.zeromq -DartifactId=jzmq -Dversion=1.1.0-SNAPSHOT -Dpackaging=jar
+      -->
       <groupId>org.zeromq</groupId>
       <artifactId>jzmq</artifactId>
       <version>1.1.0-SNAPSHOT</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/zeromq-1.1.0-SNAPSHOT.jar</systemPath>
+<!--      <scope>system</scope>
+      <systemPath>${project.basedir}/lib/zeromq-1.1.0-SNAPSHOT.jar</systemPath>-->
+    </dependency>
+    <dependency>
+      <groupId>org.mongodb</groupId>
+      <artifactId>mongo-java-driver</artifactId>
+      <version>2.9.3</version>
     </dependency>
     <dependency>
       <groupId>com.rabbitmq</groupId>
