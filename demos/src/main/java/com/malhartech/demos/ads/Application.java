@@ -149,7 +149,7 @@ public class Application implements ApplicationFactory
     oper.setValues("0.00215,0.003,0.00175,0.0006");
     oper.setWeights("25,25,25,25");
     oper.setTuplesBlast(this.generatorVTuplesBlast);
-    oper.setMaxcountofwindows(generatorMaxWindowsCount);
+    oper.setMaxCountOfWindows(generatorMaxWindowsCount);
     oper.setRollingWindowCount(this.generatorWindowCount);
     return oper;
   }

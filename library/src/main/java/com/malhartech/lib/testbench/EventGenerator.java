@@ -204,7 +204,7 @@ public class EventGenerator implements InputOperator
   {
   }
 
-  public void setMaxcountofwindows(int i)
+  public void setMaxCountOfWindows(int i)
   {
     maxCountOfWindows = i;
   }

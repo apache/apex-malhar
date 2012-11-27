@@ -65,16 +65,9 @@ public class URLSerDe implements StreamCodec<byte[]>
     return partitions[Math.abs(bb.hashCode()) % partitionsCount];
   }
 
-  @Override
   public byte[][] getPartitions()
   {
     return partitions;
-  }
-
-  @Override
-  public boolean transferState(Operator destination, Operator source, Collection<byte[]> partitions)
-  {
-    return false;
   }
 
   @Override
