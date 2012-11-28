@@ -25,7 +25,9 @@ public class TwitterStatusURLExtractor extends BaseOperator
       URLEntity[] entities = status.getURLEntities();
       if (entities != null) {
         for (URLEntity ue: entities) {
-          url.emit((ue.getExpandedURL() == null ? ue.getURL() : ue.getExpandedURL()).toString());
+          if (ue != null) { // see why we intermittently get NPEs
+            url.emit((ue.getExpandedURL() == null ? ue.getURL() : ue.getExpandedURL()).toString());
+          }
         }
       }
     }
