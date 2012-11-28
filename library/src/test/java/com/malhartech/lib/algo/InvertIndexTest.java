@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -18,6 +20,8 @@ import org.junit.Test;
  */
 public class InvertIndexTest
 {
+    private static Logger log = LoggerFactory.getLogger(InvertIndexTest.class);
+
   /**
    * Test oper logic emits correct results
    */
@@ -39,18 +43,23 @@ public class InvertIndexTest
     input.put("b", "str");
     inSink.process(input);
 
+    input.clear();
     input.put("a", "str1");
     input.put("b", "str1");
     inSink.process(input);
 
+    input.clear();
     input.put("c", "blah");
     inSink.process(input);
+
+    input.clear();
     input.put("c", "str1");
     inSink.process(input);
     oper.endWindow();
 
     Assert.assertEquals("number emitted tuples", 3, indexSink.collectedTuples.size());
     for (Object o: indexSink.collectedTuples) {
+      log.debug(o.toString());
       HashMap<String, ArrayList<String>> output = (HashMap<String, ArrayList<String>>)o;
       for (Map.Entry<String, ArrayList<String>> e: output.entrySet()) {
         String key = e.getKey();

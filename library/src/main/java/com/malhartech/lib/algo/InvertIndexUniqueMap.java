@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Inverts the map and sends out the tuple on output port index on end of window<p>
+ * Inverts the map and sends out the tuple on output port index on end of window. This operator is demo specific and should be moved<p>
  * Has been templatized, but not tested<br>
  *
  *

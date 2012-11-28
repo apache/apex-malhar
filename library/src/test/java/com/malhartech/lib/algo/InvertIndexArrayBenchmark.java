@@ -84,6 +84,6 @@ public class InvertIndexArrayBenchmark
         }
       }
     }
-    log.debug(String.format("\nBenchmarked %d tuples", numTuples * 2));
+    log.debug(String.format("\nBenchmarked %d tuples", numTuples * 3));
   }
 }

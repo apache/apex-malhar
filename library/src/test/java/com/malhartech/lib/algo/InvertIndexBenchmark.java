@@ -46,14 +46,20 @@ public class InvertIndexBenchmark
       input.put("a", "str");
       input.put("b", "str");
       inSink.process(input);
+
+      input.clear();
       input.put("a", "str1");
       input.put("b", "str1");
       inSink.process(input);
 
+      input.clear();
       input.put("c", "blah");
       inSink.process(input);
+
+      input.clear();
       input.put("c", "str1");
-      inSink.process(input);    }
+      inSink.process(input);
+    }
 
     oper.endWindow();
 
@@ -80,6 +86,6 @@ public class InvertIndexBenchmark
         }
       }
     }
-    log.debug(String.format("\nBenchmarked %d tuples", numTuples * 2));
+    log.debug(String.format("\nBenchmarked %d tuples", numTuples * 6));
   }
 }
