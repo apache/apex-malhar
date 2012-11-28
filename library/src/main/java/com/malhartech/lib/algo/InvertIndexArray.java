@@ -34,7 +34,7 @@ import java.util.Map;
  * <td>In-bound throughput and value distribution are the main determinant of performance. Tuples are assumed to be immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
  * </table><br>
  * <p>
- * <b>Function Table (K=String,V=Integer); key=a; value=3; cmp=eq</b>:
+ * <b>Function Table (K=String,V=String)</b>:
  * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for InvertIndexArray&lt;K,ArrayList&lt;V&gt;&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th>Out-bound (emit)</th></tr>
  * <tr><th><i>data</i>(HashMap&lt;K,ArrayList&lt;V&gt;&gt;)</th><th><i>index</i>(HashMap&lt;V,ArrayList&lt;K&gt;&gt;(1))</th></tr>

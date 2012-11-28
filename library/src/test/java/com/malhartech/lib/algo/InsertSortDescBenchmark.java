@@ -5,6 +5,8 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.engine.TestSink;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -12,11 +14,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.algo.MergeSort}<p>
+ * Performance tests for {@link com.malhartech.lib.algo.InsertSortDesc}<p>
  */
-public class MergeSortBenchmark
+public class InsertSortDescBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(MergeSortBenchmark.class);
+  private static Logger log = LoggerFactory.getLogger(InsertSortDescBenchmark.class);
 
   /**
    * Test node logic emits correct results
@@ -25,13 +27,13 @@ public class MergeSortBenchmark
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    testNodeProcessingSchema(new MergeSort<Integer>(), "Integer");
-    testNodeProcessingSchema(new MergeSort<Double>(), "Double");
-    testNodeProcessingSchema(new MergeSort<Float>(), "Float");
-    testNodeProcessingSchema(new MergeSort<String>(), "String");
+    testNodeProcessingSchema(new InsertSortDesc<Integer>(), "Integer");
+    testNodeProcessingSchema(new InsertSortDesc<Double>(), "Double");
+    testNodeProcessingSchema(new InsertSortDesc<Float>(), "Float");
+    testNodeProcessingSchema(new InsertSortDesc<String>(), "String");
   }
 
-  public void testNodeProcessingSchema(MergeSort oper, String debug)
+  public void testNodeProcessingSchema(InsertSortDesc oper, String debug)
   {
     //FirstN<String,Float> aoper = new FirstN<String,Float>();
     TestSink sortSink = new TestSink();
@@ -44,15 +46,12 @@ public class MergeSortBenchmark
     for (int i = 0; i < numTuples; i++) {
       input.clear();
       input.add(numTuples-i);
-      oper.data.process(input);
-
-      input.clear();
-      input.add(2);
-      oper.data.process(input);
+      oper.datalist.process(input);
+      oper.data.process(2);
 
       input.clear();
       input.add(20);
-      oper.data.process(input);
+      oper.datalist.process(input);
 
       input.clear();
       input.add(1000);
@@ -61,7 +60,7 @@ public class MergeSortBenchmark
       input.add(33);
       input.add(33);
       input.add(34);
-      oper.data.process(input);
+      oper.datalist.process(input);
 
       input.clear();
       input.add(34);
@@ -69,7 +68,7 @@ public class MergeSortBenchmark
       input.add(6);
       input.add(1);
       input.add(9);
-      oper.data.process(input);
+      oper.datalist.process(input);
     }
 
     oper.endWindow();

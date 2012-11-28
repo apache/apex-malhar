@@ -12,11 +12,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.algo.MergeSort}<p>
+ * Performance tests for {@link com.malhartech.lib.algo.MergeSortDesc}<p>
  */
-public class MergeSortBenchmark
+public class MergeSortDescBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(MergeSortBenchmark.class);
+  private static Logger log = LoggerFactory.getLogger(MergeSortDescBenchmark.class);
 
   /**
    * Test node logic emits correct results

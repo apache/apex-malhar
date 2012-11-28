@@ -18,7 +18,8 @@ public class BaseUniqueKeyValueCounter<K,V> extends BaseKeyValueOperator<K,V>
 {
   /**
    * Reference counts each tuple
-   * @param tuple
+   * @param key tuple key
+   * @param val tuple value
    */
   public void processTuple(K key, V val)
   {

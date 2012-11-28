@@ -1,20 +1,24 @@
+package com.malhartech.lib.algo;
+
 /*
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.algo;
+
 
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.AbstractBaseSortOperator;
+import com.malhartech.lib.util.ReversibleComparator;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.PriorityQueue;
 
 /**
  * <b>performance can be further improved</b>
- * Incoming sorted list is merged into already existing sorted list. The input list is expected to be sorted. At the end of the window the resultant sorted
+ * Incoming sorted list is merged into already existing sorted list in a descending order. The input list is expected to be sorted. At the end of the window the resultant sorted
  * list is emitted on the output ports<b>
  * <br>
  * <b>Ports</b>:<br>
@@ -27,7 +31,7 @@ import java.util.HashMap;
  * <b>Specific run time checks</b>:<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for MergeSort&lt;K&gt; operator template">
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for MergeSortDesc&lt;K&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
  * <tr><td><b>&gt; 2.5 Million tuples/s on average</b></td><td>All tuples inserted one at a time</td>
  * <td>In-bound throughput (i.e. total number of tuples in the window) is the main determinant of performance. Tuples are assumed to be
@@ -35,7 +39,7 @@ import java.util.HashMap;
  * </table><br>
  * <p>
  * <b>Function Table (K=Integer)</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for MergeSort&lt;K&gt; operator template">
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for MergeSortDesc&lt;K&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th colspan=2>Out-bound (emit)</th></tr>
  * <tr><th><i>datalsit</i>(ArrayList&lt;K&gt;)</th><th><i>sort</i>(ArrayList&lt;K&gt;)</th><th><i>sorthash</i>(HashMap&lt;K,Integer&gt;)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
@@ -44,14 +48,14 @@ import java.util.HashMap;
  * <tr><td>Data (process())</td><td></td><td>[1,2,3,3,10,15,100]</td><td></td><td></td></tr>
  * <tr><td>Data (process())</td><td></td><td>[1,1,2]</td><td></td><td></td></tr>
  * <tr><td>Data (process())</td><td></td><td>[15,20]</td><td></td><td></td></tr>
- * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td><td>[-10,-10,-5,-4,-4,1,1,1,2,2,2,3,3,15,15,20,20,100]</td>
- * <td>{-10=2,-5=1,-4=2,1=3,2=3,3=2,15=2,20=2,100=1}</td></tr>
+ * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td><td>[100,20,20,15,15,3,3,2,2,2,1,1,1,-4,-4,-5,-10,-10]</td>
+ * <td>{100=1,20=2,15=2,3=2,2=3,1=3,-4=2,-5=1,-10=2}</td></tr>
  * </table>
  * <br>
  * @author Amol Kekre (amol@malhar-inc.com)<br>
  * <br>
  */
-public class MergeSort<K> extends AbstractBaseSortOperator<K>
+public class MergeSortDesc<K> extends AbstractBaseSortOperator<K>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<ArrayList<K>> data = new DefaultInputPort<ArrayList<K>>(this)
@@ -68,13 +72,19 @@ public class MergeSort<K> extends AbstractBaseSortOperator<K>
   public final transient DefaultOutputPort<HashMap<K, Integer>> sorthash = new DefaultOutputPort<HashMap<K, Integer>>(this);
 
   /*
-   * <b>Currently implemented with individual keys inserted. Needs to be reimplemented</b>
+   * <b>Currently implemented with individual keys inserted. Needs to be reimplemented as a merge sort</b>
    *
    */
   @Override
   public void processTuple(ArrayList<K> tuple)
   {
     super.processTuple(tuple);
+  }
+
+  @Override
+  public void initializeQueue()
+  {
+    pqueue = new PriorityQueue<K>(getSize(), new ReversibleComparator<K>(false));
   }
 
 

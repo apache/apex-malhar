@@ -84,11 +84,17 @@ public abstract class AbstractBaseSortOperator<K> extends BaseKeyOperator<K>
   public void beginWindow(long windowId)
   {
     if (pqueue == null) {
-      pqueue = new PriorityQueue<K>(size);
+      initializeQueue();
     }
     pmap.clear();
     pqueue.clear();
   }
+
+  public void initializeQueue()
+  {
+    pqueue = new PriorityQueue<K>(getSize());
+  }
+
 
   abstract public boolean doEmitList();
   abstract public boolean doEmitHash();

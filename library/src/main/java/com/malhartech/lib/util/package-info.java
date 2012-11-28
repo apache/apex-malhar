@@ -20,7 +20,8 @@
  * <b>{@link com.malhartech.lib.util.BaseMatchOperator}</b>:  * Base class that sets up the operator functionality needed for match based operators<br>
  * <b>{@link com.malhartech.lib.util.BaseNumberKeyValueOperator}</b>: Base class for operators that take in V extends Number. Provides basic methods for value conversion, and cloning of keys and values<br>
  * <b>{@link com.malhartech.lib.util.BaseNumberValueOperator}</b>: Base class for operators that take in K,V extends Number. Provides basic methods for value conversion and key cloning<br>
- * <b>{@link com.malhartech.lib.util.BaseUniqueCounter}</b>: Count unique occurances of keys within a window<<br>
+ * <b>{@link com.malhartech.lib.util.BaseUniqueKeyCounter}</b>: Count unique occurrences of keys within a window<<br>
+ * <b>{@link com.malhartech.lib.util.BaseUniqueKeyValueCounter}</b>: Count unique occurrences of key,val pairs within a window<<br>
  * <b>{@link com.malhartech.lib.util.MutableDouble}</b>: A mutable double for basic operations. Makes things easy for incrementing etc.<br>
  * <b>{@link com.malhartech.lib.util.MutableInteger}</b>: A mutable integer for basic operations. Makes things easy for incrementing etc.<br>
  * <b>{@link com.malhartech.lib.util.OneKeyValPair}</b>: A single KeyValPair for basic data passing. It is a write once, and read often model<br>

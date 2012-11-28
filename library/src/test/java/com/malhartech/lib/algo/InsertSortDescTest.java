@@ -13,11 +13,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.algo.MergeSort}<p>
+ * Functional tests for {@link com.malhartech.lib.algo.InsertSortDesc}<p>
  */
-public class MergeSortTest
+public class InsertSortDescTest
 {
-  private static Logger log = LoggerFactory.getLogger(MergeSortTest.class);
+  private static Logger log = LoggerFactory.getLogger(InsertSortDescTest.class);
 
   /**
    * Test node logic emits correct results
@@ -26,13 +26,13 @@ public class MergeSortTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    testNodeProcessingSchema(new MergeSort<Integer>(), "Integer");
-    testNodeProcessingSchema(new MergeSort<Double>(), "Double");
-    testNodeProcessingSchema(new MergeSort<Float>(), "Float");
-    testNodeProcessingSchema(new MergeSort<String>(), "String");
+    testNodeProcessingSchema(new InsertSortDesc<Integer>(), "Integer");
+    testNodeProcessingSchema(new InsertSortDesc<Double>(), "Double");
+    testNodeProcessingSchema(new InsertSortDesc<Float>(), "Float");
+    testNodeProcessingSchema(new InsertSortDesc<String>(), "String");
   }
 
-  public void testNodeProcessingSchema(MergeSort oper, String debug)
+  public void testNodeProcessingSchema(InsertSortDesc oper, String debug)
   {
     //FirstN<String,Float> aoper = new FirstN<String,Float>();
     TestSink sortSink = new TestSink();
@@ -44,13 +44,9 @@ public class MergeSortTest
 
     oper.beginWindow(0);
 
-    input.clear();
     input.add(2);
-    oper.data.process(input);
-
-    input.clear();
-    input.add(20);
-    oper.data.process(input);
+    oper.datalist.process(input);
+    oper.data.process(20);
 
     input.clear();
     input.add(1000);
@@ -59,7 +55,7 @@ public class MergeSortTest
     input.add(33);
     input.add(33);
     input.add(34);
-    oper.data.process(input);
+    oper.datalist.process(input);
 
     input.clear();
     input.add(34);
@@ -68,7 +64,7 @@ public class MergeSortTest
     input.add(1);
     input.add(33);
     input.add(9);
-    oper.data.process(input);
+    oper.datalist.process(input);
     oper.endWindow();
 
     Assert.assertEquals("number emitted tuples", 1, sortSink.collectedTuples.size());

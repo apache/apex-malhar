@@ -13,11 +13,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.algo.MergeSort}<p>
+ * Functional tests for {@link com.malhartech.lib.algo.MergeSortDesc}<p>
  */
-public class MergeSortTest
+public class MergeSortDescTest
 {
-  private static Logger log = LoggerFactory.getLogger(MergeSortTest.class);
+  private static Logger log = LoggerFactory.getLogger(MergeSortDescTest.class);
 
   /**
    * Test node logic emits correct results
@@ -26,13 +26,13 @@ public class MergeSortTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    testNodeProcessingSchema(new MergeSort<Integer>(), "Integer");
-    testNodeProcessingSchema(new MergeSort<Double>(), "Double");
-    testNodeProcessingSchema(new MergeSort<Float>(), "Float");
-    testNodeProcessingSchema(new MergeSort<String>(), "String");
+    testNodeProcessingSchema(new MergeSortDesc<Integer>(), "Integer");
+    testNodeProcessingSchema(new MergeSortDesc<Double>(), "Double");
+    testNodeProcessingSchema(new MergeSortDesc<Float>(), "Float");
+    testNodeProcessingSchema(new MergeSortDesc<String>(), "String");
   }
 
-  public void testNodeProcessingSchema(MergeSort oper, String debug)
+  public void testNodeProcessingSchema(MergeSortDesc oper, String debug)
   {
     //FirstN<String,Float> aoper = new FirstN<String,Float>();
     TestSink sortSink = new TestSink();
