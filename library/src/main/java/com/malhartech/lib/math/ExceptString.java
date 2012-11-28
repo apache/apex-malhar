@@ -6,7 +6,6 @@ package com.malhartech.lib.math;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.algo.Match;
 import com.malhartech.lib.algo.MatchString;
 import java.util.HashMap;
 
