@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
+ * Developed for a demo<br>
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
 public class WindowedTopCounter<T> extends BaseOperator

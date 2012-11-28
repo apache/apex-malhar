@@ -16,15 +16,14 @@ import javax.validation.constraints.NotNull;
 
 /**
  *
- * Takes two streams, and emits groupby result as per property Key<p>
+ * Takes two streams, and emits groupby result on port groupby<p>
  * <br>
- * Even though this module produces continuous tuples, at end of window all data is flushed. Thus the data set is windowed
- * and no history is kept of previous windows<br>
+ * This module produces continuous tuples. At end of window all data is flushed<br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data1</b>: expects HashMap&lt;K,V&gt;<br>
  * <b>data2</b>: expects HashMap&lt;K,V&gt;<br>
- * <b>groupby</b>: emits HashMap&lt;K,V&gt;<br>
+ * <b>groupby</b>: emits HashMap&lt;K,V&gt;(1)<br>
  * <br>
  * <b>Properties</b>:<br>
  * <b>key</b>: The key to "groupby"<br>
@@ -32,10 +31,36 @@ import javax.validation.constraints.NotNull;
  * <b>Specific compile time checks are</b>:<br>
  * <b>key</b> cannot be empty<br>
  * <br>
- * Run time checks are:<br>
- * All incoming tuples must include the key to groupby
+ * <b>Specific run time checks are</b>: None<br>
+ * All incoming tuples must include the key to groupby, else the tuple is dropped<br>
  * <br>
- *
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode; Number will vary based on data set<br>
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for GroupBy&lt;K,V&gt; operator template">
+ * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
+ * <tr><td><b>&gt; 20K in-bound tuples/s (each with two k,v pairs) and 6 million out-bound tuples/s</b></td>
+ * <td>Emits one tuple per match in both the sets per window</td>
+ * <td>In-bound throughput on both ports and out-bound throughput (number of matches) are the main determinant of performance.</td></tr>
+ * </table><br>
+ * <p>
+ * <b>Function Table (K=String,V=Integer); key=a</b>:
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for GroupBy&lt;K,V&gt; operator template">
+ * <tr><th rowspan=2>Tuple Type (api)</th><th colspan=2>In-bound (process)</th><th>Out-bound (emit)</th></tr>
+ * <tr><th><i>data1</i>(HashMap&lt;K,V&gt;)</th><th><i>data2</i>(HashMap&lt;K,V&gt;)</th><th><i>groupby</i>(HashMap&lt;K,V&gt;)</th></tr>
+ * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
+ * <tr><td>Data (process())</td><td>{a=2,b=5}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{a=3,b=4}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{a=1000,b=1}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td></td><td>{a=2,c=3}</td><td>{a=2,b=5,c=3}</td></tr>
+ * <tr><td>Data (process())</td><td></td><td>{a=2,c=33}</td><td>{a=2,b=5,c=33}</td></tr>
+ * <tr><td>Data (process())</td><td></td><td>{a=1000,c=34}</td><td>{a=1000,b=1,c=34}</td></tr>
+ * <tr><td>Data (process())</td><td></td><td>{a=1000,c=4}</td><td>{a=1000,b=1,c=4}</td></tr>
+ * <tr><td>Data (process())</td><td>{a=1000,b=2}</td><td></td><td>{a=1000,b=2,c=34}<br>{a=1000,b=2,c=4}</td></tr>
+ * <tr><td>Data (process())</td><td>{b=2}</td><td></td><td><br></td></tr>
+ * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
+ * </table>
+ * <br>
+ * @author Amol Kekre (amol@malhar-inc.com)<br>
+ * <br>
  * @author amol<br>
  *
  */

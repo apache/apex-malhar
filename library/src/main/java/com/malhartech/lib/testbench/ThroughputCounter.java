@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Developed for a demo. Stram now has this data for all streams via its web-service<br>
  * Expects incoming stream to be a HashMap<String, Integer> and add all integer values to compute throughput. These
  * values are throughput per window from upstream operators. On end of window this total and average is emitted<p>
  * <br>

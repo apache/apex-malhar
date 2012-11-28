@@ -16,26 +16,23 @@ import javax.validation.constraints.Min;
 
 /**
  *
- * Retains the last N values on any key, in effect acts like a fifo. The node also provides a lookup via port <b>lookup</b>
+ * Retains the last N values on any key, in effect acts like a fifo. The node also provides a lookup via port <b>lookup</b>. This module
+ * was mainly developed for a demo<p>
  * <br>
- * <br>
- * <b>Schema</b>:
- * <b>data</b>: expects HashMap<K,V>, a HashMap of key value pairs<br>
- * <b>query</b>: expects K. This is the key on which a query is done<br>
+ * <b>Ports</b>:<br>
+ * <b>data</b>: expects HashMap&lt;K,V&gt;<br>
+ * <b>query</b>: expects K<br>
  * <b>queue</b>: emits the V that pops on insert<br>
- * <b>console</b>: emits HashMap<K, ArrayList<V>>, the current queue<br>
+ * <b>console</b>: emits HashMap&lt;K, ArrayList&lt;V&gt;&gt;, the current queue<br>
  * <br>
  * <b>Propertoes</b>:
  * <b>depth</b>: The depth of the queue. The number of objects to be retainrd<br>
  * <br>
- * <b>Benchmarks</b>: The benchmarks are done by blasting as many HashMaps as possible on inline mode<br>
- * TBD<br>
+ * <b>Benchmarks</b>: Not done as this operator was mainly developed for a demo<br>
  * <br>
  * Compile time checks:<br>
  * depth has to be an integer<br>
  * <br>
- * Run time checks<br>
- * none<br>
  * <br>
  *
  * @author amol
