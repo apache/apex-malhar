@@ -9,6 +9,8 @@ import com.malhartech.api.DAG;
 import com.malhartech.api.Operator.InputPort;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.math.ChangeAlert;
+import com.malhartech.lib.math.SumValue;
+import com.malhartech.lib.stream.DevNullCounter;
 import com.malhartech.lib.testbench.EventClassifierNumberToHashDouble;
 import com.malhartech.lib.testbench.RandomEventGenerator;
 import java.util.HashMap;
@@ -84,9 +86,9 @@ public class Application implements ApplicationFactory
     return properties;
   }
 
-  private <T> InputPort<HashMap<String, T>> getConsolePort(DAG b, String name)
+  private InputPort<Integer> getConsolePort(DAG b, String name)
   {
-    ConsoleOutputOperator<HashMap<String, T>> oper = b.addOperator(name, new ConsoleOutputOperator<HashMap<String, T>>());
+    ConsoleOutputOperator<Integer> oper = b.addOperator(name, new ConsoleOutputOperator<Integer>());
     oper.setStringFormat(name + ": %s");
     return oper.input;
   }
@@ -115,6 +117,17 @@ public class Application implements ApplicationFactory
     return oper;
   }
 
+  public DevNullCounter<HashMap<String, HashMap<Double,Double>>> getDevNullOperator(String name, DAG b)
+  {
+    DevNullCounter<HashMap<String, HashMap<Double,Double>>> oper = b.addOperator(name, new DevNullCounter<HashMap<String, HashMap<Double,Double>>>());
+    oper.setRollingwindowcount(10);
+    return oper;
+  }
+
+  public SumValue<Integer> getSumValue(String name, DAG b)
+  {
+    return b.addOperator(name, new SumValue<Integer>());
+  }
 
   @Override
   public DAG getApplication(Configuration conf)
@@ -126,14 +139,18 @@ public class Application implements ApplicationFactory
     RandomEventGenerator rGen = getRandomGenerator("randomgen", dag);
     EventClassifierNumberToHashDouble<Integer> hGen = getEventClassifier("hgen", dag);
     ChangeAlert<String,Double> alert = getChangeAlertOperator("alert", dag);
+    DevNullCounter<HashMap<String, HashMap<Double,Double>>> onull = getDevNullOperator("null", dag);
+    SumValue<Integer> scount = getSumValue("count", dag);
+
     // Need an operator that converts Integer from rGen to {"a"=val} a String,Double
     // That is to be input to alert, and that should directly write to console
 
-    dag.addStream("randomdata", rGen.integer_data, hGen.event).setInline(true);
+    dag.addStream("randomdata", rGen.integer_data, hGen.event, scount.data).setInline(true);
     dag.addStream("pricedata", hGen.data, alert.data).setInline(true);
 
-    InputPort<HashMap<String, HashMap<Double,Double>>> alertConsole = getConsolePort(dag, "alertConsole");
-    dag.addStream("consolestream", alert.alert, alertConsole).setInline(allInline);
+    InputPort<Integer> alertconsole = getConsolePort(dag, "alertConsole");
+    dag.addStream("nullstream", alert.alert, onull.data).setInline(allInline);
+    dag.addStream("consolestream", scount.count, alertconsole).setInline(allInline);
     return dag;
   }
 }
