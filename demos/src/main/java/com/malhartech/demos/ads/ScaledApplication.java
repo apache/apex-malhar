@@ -102,9 +102,9 @@ public class ScaledApplication implements ApplicationFactory
     return b.addOperator(name, new Sum<String, Double>());
   }
 
-  public ThroughputCounter<String> getThroughputCounter(String name, DAG b)
+  public ThroughputCounter<String, Integer> getThroughputCounter(String name, DAG b)
   {
-    ThroughputCounter<String> oper = b.addOperator(name, new ThroughputCounter<String>());
+    ThroughputCounter<String, Integer> oper = b.addOperator(name, new ThroughputCounter<String, Integer>());
     oper.setRollingWindowCount(5);
     return oper;
   }
@@ -241,7 +241,7 @@ public class ScaledApplication implements ApplicationFactory
     Sum<String, Double> revenue = getSumOperator("rev", dag);
     Margin<String, Double> margin = getMarginOperator("margin", dag);
     StreamMerger<HashMap<String, Integer>> merge = getStreamMerger("countmerge", dag);
-    ThroughputCounter<String> tuple_counter = getThroughputCounter("tuple_counter", dag);
+    ThroughputCounter<String, Integer> tuple_counter = getThroughputCounter("tuple_counter", dag);
 
     dag.addStream("adviewsdata", viewAggrSum10.out, cost.data);
     dag.addStream("clicksdata", clickAggrSum10.out, revenue.data);

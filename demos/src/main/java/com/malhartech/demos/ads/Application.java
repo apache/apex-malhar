@@ -119,9 +119,9 @@ public class Application implements ApplicationFactory
     return b.addOperator(name, StreamMerger.class);
   }
 
-  public Operator getThroughputCounter(String name, DAG b)
+  public ThroughputCounter<String, Integer> getThroughputCounter(String name, DAG b)
   {
-    ThroughputCounter oper = b.addOperator(name, ThroughputCounter.class);
+    ThroughputCounter<String, Integer> oper = b.addOperator(name, new ThroughputCounter<String, Integer>());
     oper.setRollingWindowCount(5);
     return oper;
   }
@@ -220,8 +220,8 @@ public class Application implements ApplicationFactory
     Operator revenue = getSumOperator("rev", dag, "");
     Operator margin = getMarginOperator("margin", dag);
 
-    Operator merge = getStreamMerger("countmerge", dag);
-    Operator tuple_counter = getThroughputCounter("tuple_counter", dag);
+    StreamMerger<HashMap<String,Integer>> merge = getStreamMerger("countmerge", dag);
+    ThroughputCounter<String, Integer> tuple_counter = getThroughputCounter("tuple_counter", dag);
 
     dag.addStream("views", viewGen.hash_data, adviews.event).setInline(true);
     DAG.StreamDecl viewsAggStream = dag.addStream("viewsaggregate", adviews.data, insertclicks.data, viewAggregate.data).setInline(true);

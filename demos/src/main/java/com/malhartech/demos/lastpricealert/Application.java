@@ -13,6 +13,7 @@ import com.malhartech.lib.math.SumValue;
 import com.malhartech.lib.stream.DevNullCounter;
 import com.malhartech.lib.testbench.EventClassifierNumberToHashDouble;
 import com.malhartech.lib.testbench.RandomEventGenerator;
+import com.malhartech.lib.testbench.ThroughputCounter;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.hadoop.conf.Configuration;
@@ -86,9 +87,9 @@ public class Application implements ApplicationFactory
     return properties;
   }
 
-  private InputPort<Integer> getConsolePort(DAG b, String name)
+  private InputPort<HashMap<String,Number>> getConsolePort(DAG b, String name)
   {
-    ConsoleOutputOperator<Integer> oper = b.addOperator(name, new ConsoleOutputOperator<Integer>());
+    ConsoleOutputOperator<HashMap<String,Number>> oper = b.addOperator(name, new ConsoleOutputOperator<HashMap<String,Number>>());
     oper.setStringFormat(name + ": %s");
     return oper.input;
   }
@@ -105,7 +106,7 @@ public class Application implements ApplicationFactory
     RandomEventGenerator oper = b.addOperator(name, new RandomEventGenerator());
     oper.setMaxvalue(1000);
     oper.setMinvalue(940);
-    oper.setTuplesBlast(1000);
+    oper.setTuplesBlast(1000000);
     oper.setTuplesBlastIntervalMillis(50);
     return oper;
   }
@@ -121,12 +122,20 @@ public class Application implements ApplicationFactory
   {
     DevNullCounter<HashMap<String, HashMap<Double,Double>>> oper = b.addOperator(name, new DevNullCounter<HashMap<String, HashMap<Double,Double>>>());
     oper.setRollingwindowcount(10);
+    oper.setDebug(false);
     return oper;
   }
 
   public SumValue<Integer> getSumValue(String name, DAG b)
   {
     return b.addOperator(name, new SumValue<Integer>());
+  }
+
+  public ThroughputCounter<String, Double> getThroughputCounter(String name, DAG b)
+  {
+    ThroughputCounter<String, Double> oper = b.addOperator(name, new ThroughputCounter<String, Double>());
+    oper.setRollingWindowCount(5);
+    return oper;
   }
 
   @Override
@@ -140,7 +149,11 @@ public class Application implements ApplicationFactory
     EventClassifierNumberToHashDouble<Integer> hGen = getEventClassifier("hgen", dag);
     ChangeAlert<String,Double> alert = getChangeAlertOperator("alert", dag);
     DevNullCounter<HashMap<String, HashMap<Double,Double>>> onull = getDevNullOperator("null", dag);
+
     SumValue<Integer> scount = getSumValue("count", dag);
+    EventClassifierNumberToHashDouble<Integer> hGentput = getEventClassifier("hgentput", dag);
+    ThroughputCounter<String, Double> toper = getThroughputCounter("tcount", dag);
+
 
     // Need an operator that converts Integer from rGen to {"a"=val} a String,Double
     // That is to be input to alert, and that should directly write to console
@@ -148,9 +161,12 @@ public class Application implements ApplicationFactory
     dag.addStream("randomdata", rGen.integer_data, hGen.event, scount.data).setInline(true);
     dag.addStream("pricedata", hGen.data, alert.data).setInline(true);
 
-    InputPort<Integer> alertconsole = getConsolePort(dag, "alertConsole");
+    InputPort<HashMap<String,Number>> alertconsole = getConsolePort(dag, "alertConsole");
     dag.addStream("nullstream", alert.alert, onull.data).setInline(allInline);
-    dag.addStream("consolestream", scount.count, alertconsole).setInline(allInline);
+    dag.addStream("countstream", scount.count, hGentput.event).setInline(allInline);
+    dag.addStream("tcountstream", hGentput.data, toper.data).setInline(allInline);
+    dag.addStream("consolestream", toper.count, alertconsole).setInline(allInline);
+
     return dag;
   }
 }
