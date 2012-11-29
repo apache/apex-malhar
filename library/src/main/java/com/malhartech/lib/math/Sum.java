@@ -25,6 +25,10 @@ import java.util.Map;
  * <b>count</b>: emits HashMap&lt;K,Integer&gt;</b><br>
  * <b>average</b>: emits HashMap&lt;K,V&gt;</b><br><br>
  * <br>
+ * <b>Properties</b>:<br>
+ * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
+ * <b>filterBy</b>: List of keys to filter on<br>
+ * <br>
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
  * <p>
@@ -70,6 +74,9 @@ public class Sum<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
     {
       for (Map.Entry<K, V> e: tuple.entrySet()) {
         K key = e.getKey();
+        if (!doprocessKey(key)) {
+          continue;
+        }
         if (sum.isConnected()) {
           MutableDouble val = sums.get(key);
           if (val == null) {

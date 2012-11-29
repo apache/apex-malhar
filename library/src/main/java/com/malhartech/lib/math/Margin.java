@@ -24,6 +24,10 @@ import java.util.Map;
  * <b>denominator</b>: expects HashMap&lt;K,V&gt;<br>
  * <b>margin</b>: emits HashMap&lt;K,Double&gt;, one entry per key per window<br>
  * <br>
+ * <b>Properties</b>:<br>
+ * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
+ * <b>filterBy</b>: List of keys to filter on<br>
+ * <br>
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
  * <p>
@@ -93,6 +97,9 @@ public class Margin<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
   public void addTuple(HashMap<K, V> tuple, HashMap<K, MutableDouble> map)
   {
     for (Map.Entry<K, V> e: tuple.entrySet()) {
+      if (!doprocessKey(e.getKey()) || (e.getValue() == null)) {
+        continue;
+      }
       MutableDouble val = map.get(e.getKey());
       if (val == null) {
         val = new MutableDouble(0.0);

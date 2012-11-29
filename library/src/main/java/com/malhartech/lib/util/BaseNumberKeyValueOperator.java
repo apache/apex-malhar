@@ -4,7 +4,6 @@
  */
 package com.malhartech.lib.util;
 
-import com.malhartech.lib.util.BaseKeyValueOperator;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -17,7 +16,7 @@ import javax.validation.constraints.NotNull;
  * @author Amol Kekre (amol@malhar-inc.com)<br>
  * <br>
  */
-public class BaseNumberKeyValueOperator<K,V extends Number> extends BaseKeyValueOperator<K,V>
+public class BaseNumberKeyValueOperator<K,V extends Number> extends BaseFilteredKeyValueOperator<K,V>
 
 {
   public enum V_TYPE

@@ -114,6 +114,8 @@ public class Application implements ApplicationFactory
   public EventClassifierNumberToHashDouble<Integer> getEventClassifier(String name, DAG b)
   {
     EventClassifierNumberToHashDouble<Integer> oper = b.addOperator(name, new EventClassifierNumberToHashDouble<Integer>());
+    // have 1470 keys
+    // Watch list of only 300
     oper.setKey("a");
     return oper;
   }
@@ -122,7 +124,7 @@ public class Application implements ApplicationFactory
   {
     DevNullCounter<HashMap<String, HashMap<Double,Double>>> oper = b.addOperator(name, new DevNullCounter<HashMap<String, HashMap<Double,Double>>>());
     oper.setRollingwindowcount(10);
-    oper.setDebug(false);
+    oper.setDebug(true);
     return oper;
   }
 
@@ -154,15 +156,19 @@ public class Application implements ApplicationFactory
     EventClassifierNumberToHashDouble<Integer> hGentput = getEventClassifier("hgentput", dag);
     ThroughputCounter<String, Double> toper = getThroughputCounter("tcount", dag);
 
+    InputPort<HashMap<String,Number>> alertconsole = getConsolePort(dag, "alertConsole");
 
     // Need an operator that converts Integer from rGen to {"a"=val} a String,Double
     // That is to be input to alert, and that should directly write to console
+    // RandomGen -> Insert key -> PriceChange -> DevNull
 
     dag.addStream("randomdata", rGen.integer_data, hGen.event, scount.data).setInline(true);
     dag.addStream("pricedata", hGen.data, alert.data).setInline(true);
-
-    InputPort<HashMap<String,Number>> alertconsole = getConsolePort(dag, "alertConsole");
     dag.addStream("nullstream", alert.alert, onull.data).setInline(allInline);
+
+    // ThroughputCounter and console are no longer required as Stram stats shows the throughtput
+    // scount.count gives the count of number of tuples in that window
+    // This number is streamed into a ThroughputCounter and logged on alertconsole (stdout of IDE)
     dag.addStream("countstream", scount.count, hGentput.event).setInline(allInline);
     dag.addStream("tcountstream", hGentput.data, toper.data).setInline(allInline);
     dag.addStream("consolestream", toper.count, alertconsole).setInline(allInline);

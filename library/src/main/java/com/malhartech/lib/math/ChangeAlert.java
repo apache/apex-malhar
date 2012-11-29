@@ -25,6 +25,9 @@ import java.util.Map;
  * <br>
  * <b>Properties</b>:<br>
  * <b>threshold</b>: The threshold of change between consequtive tuples of the same key that triggers an alert tuple<br>
+ * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
+ * <b>filterBy</b>: List of keys to filter on<br>
+ * <br>
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
  * <br>
@@ -68,6 +71,9 @@ public class ChangeAlert<K, V extends Number> extends BaseNumberKeyValueOperator
     {
       for (Map.Entry<K, V> e: tuple.entrySet()) {
         MutableDouble val = basemap.get(e.getKey());
+        if (!doprocessKey(e.getKey())) {
+          continue;
+        }
         if (val == null) { // Only process keys that are in the basemap
           val = new MutableDouble(e.getValue().doubleValue());
           basemap.put(cloneKey(e.getKey()), val);

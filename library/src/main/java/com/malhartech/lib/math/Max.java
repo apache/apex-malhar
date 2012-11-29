@@ -21,6 +21,10 @@ import java.util.Map;
  * <b>data</b>: expects HashMap&lt;K,V extends Number&gt;<br>
  * <b>high</b>: emits HashMap&lt;K,V&gt;, one entry per key<br>
  * <br>
+ * <b>Properties</b>:<br>
+ * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
+ * <b>filterBy</b>: List of keys to filter on<br>
+ * <br>
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
  * <p>
@@ -64,7 +68,7 @@ public class Max<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
     {
       for (Map.Entry<K, V> e: tuple.entrySet()) {
         K key = e.getKey();
-        if (e.getValue() == null) {
+        if (!doprocessKey(key) || (e.getValue() == null)) {
           continue;
         }
         MutableDouble val = high.get(e.getKey());
