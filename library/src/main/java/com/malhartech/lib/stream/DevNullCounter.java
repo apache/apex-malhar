@@ -68,10 +68,29 @@ public class DevNullCounter<K> extends BaseOperator
   long count_windowid = 0;
   long tuple_count = 1; // so that the first begin window starts the count down
 
+  private boolean debug = true;
+
+  /**
+   * getter function for debug state
+   * @return debug state
+   */
+  public boolean getDebug()
+  {
+    return debug;
+  }
+
+  /**
+   * setter function for debug state
+   * @param i sets debug to i
+   */
+  public void setDebug(boolean i)
+  {
+    debug = i;
+  }
+
   @Min(1)
   private int rollingwindowcount = 1;
 
-  @Min(1)
   public void setRollingwindowcount(int val) {
     rollingwindowcount = val;
   }
@@ -110,6 +129,9 @@ public class DevNullCounter<K> extends BaseOperator
   @Override
   public void endWindow()
   {
+    if (!debug) {
+      return;
+    }
     if (tuple_count == 0) {
       return;
     }

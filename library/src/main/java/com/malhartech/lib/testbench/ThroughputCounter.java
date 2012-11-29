@@ -42,16 +42,16 @@ import org.slf4j.LoggerFactory;
  * @author amol
  */
 
-public class ThroughputCounter<K> extends BaseOperator
+public class ThroughputCounter<K, V extends Number> extends BaseOperator
 {
   private static Logger log = LoggerFactory.getLogger(ThroughputCounter.class);
 
-  public final transient DefaultInputPort<HashMap<K, Integer>> data = new DefaultInputPort<HashMap<K, Integer>>(this)
+  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
     @Override
-    public void process(HashMap<K, Integer> tuple)
+    public void process(HashMap<K, V> tuple)
     {
-      for (Map.Entry<K, Integer> e: tuple.entrySet()) {
+      for (Map.Entry<K, V> e: tuple.entrySet()) {
         tuple_count += e.getValue().longValue();
       }
     }

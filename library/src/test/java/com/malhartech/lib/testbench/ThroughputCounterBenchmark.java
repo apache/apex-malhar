@@ -59,7 +59,7 @@ public class ThroughputCounterBenchmark {
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testSingleSchemaNodeProcessing() throws Exception
   {
-    ThroughputCounter<String> node = new ThroughputCounter<String>();
+    ThroughputCounter<String, Integer> node = new ThroughputCounter<String, Integer>();
 
     TestCountSink countSink = new TestCountSink();
     node.count.setSink(countSink);

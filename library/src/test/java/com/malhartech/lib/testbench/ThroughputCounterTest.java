@@ -57,7 +57,7 @@ public class ThroughputCounterTest {
   @Test
   public void testSingleSchemaNodeProcessing() throws Exception
   {
-    ThroughputCounter<String> node = new ThroughputCounter<String>();
+    ThroughputCounter<String, Integer> node = new ThroughputCounter<String, Integer>();
 
     TestCountSink countSink = new TestCountSink();
     node.count.setSink(countSink);
