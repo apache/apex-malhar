@@ -4,10 +4,10 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.lib.util.BaseNumberValueOperator;
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.BaseNumberValueOperator;
 
 /**
  *

@@ -12,7 +12,8 @@ import java.util.HashMap;
 /**
  *
  * A compare operation is done on tuple subclassed from Number based on the property "key", "value", and "cmp", and matching tuples are emitted. If the tuple
- * passed the test, it is emitted on the output port "compare". The comparison is done by getting double value from the Number. Both output ports are optional, but at least one has to be connected<p>
+ * passed the test, it is emitted on the output port "compare". The comparison is done by getting double value from the Number.
+ * Both output ports are optional, but at least one has to be connected<p>
  * This module is a pass through<br>
  * <br>
  * <b>Ports</b>:<br>
