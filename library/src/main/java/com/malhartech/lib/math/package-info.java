@@ -5,7 +5,7 @@
  */
 
 /**
- * <b>{@link com.malhartech.lib.math}</b> is a library of arithmetic modules for reuse<p>
+ * <b>{@link com.malhartech.lib.math}</b> is a library of arithmetic operators for reuse<p>
  * <br>
  * <br>The modules are<br>
  * <b>{@link com.malhartech.lib.math.Change}</b>: Emits the change in the value of the key in stream on port data (as compared to a base value set via port base) for every tuple<br>
