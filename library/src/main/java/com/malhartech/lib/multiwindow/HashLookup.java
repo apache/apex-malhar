@@ -4,19 +4,14 @@
  */
 package com.malhartech.lib.multiwindow;
 
-import com.malhartech.annotation.InputPortFieldAnnotation;
-import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseFilteredKeyValueOperator;
-import com.malhartech.lib.util.BaseMatchOperator;
 import java.util.HashMap;
 import javax.validation.constraints.Min;
 
 /**
  *
- * A hash lookup operator. Maintains hashs for as many previous windows as users asks and returns the oldest matching lookup on query, and clears the oldest hash
+ * A hash lookup class, maintains hashes for as many previous windows as users asks and returns the oldest matching lookup on query, and clears the oldest hash
  * on beginWindow<p>
  * This module is a pass through<br>
  * <br>
@@ -41,6 +36,7 @@ import javax.validation.constraints.Min;
  * @author Amol Kekre (amol@malhar-inc.com)<br>
  * <br>
  */
+
 public class HashLookup<K, V> extends BaseFilteredKeyValueOperator<K,V>
 {
   HashMap<K,V> [] maps = null;
