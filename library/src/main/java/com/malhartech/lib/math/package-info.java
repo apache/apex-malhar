@@ -7,7 +7,7 @@
 /**
  * <b>{@link com.malhartech.lib.math}</b> is a library of arithmetic operators for reuse<p>
  * <br>
- * <br>The modules are<br>
+ * <br>The operators are<br>
  * <b>{@link com.malhartech.lib.math.Change}</b>: Emits the change in the value of the key in stream on port data (as compared to a base value set via port base) for every tuple<br>
  * <b>{@link com.malhartech.lib.math.ChangeAlert}</b>: Emits the change in the value of the key in stream on port data (as compared to a base value set via port base) for every tuple<br>
  * <b>{@link com.malhartech.lib.math.Compare}</b>: A compare operation is done on tuple subclassed from Number based on the property "key", "value", and "cmp",

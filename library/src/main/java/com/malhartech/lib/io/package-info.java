@@ -8,7 +8,7 @@
  * <b>{@link com.malhartech.lib.io}</b> is a library input operators for write into streams and output operators for reading from streams. The I/O
  * operators interact with entities outside of DAG, and at times outside of Hadoop<p>
  * <br>
- * <br> The classes are<br>
+ * <br> The operators are<br>
  * <b>{@link com.malhartech.lib.io.AbstractActiveMQInputOperator}</b>: Abstract class for ActiveMQ Input adaptors<br>
  * <b>{@link com.malhartech.lib.io.AbstractActiveMQOutputOperator}</b>: Abstract class for ActiveMQ Output adaptors<br>
  * <b>{@link com.malhartech.lib.io.AbstractActiveMQSinglePortInputOperator}</b>: Abstract class for ActiveMQ Input adapters with one port (schema)<br>

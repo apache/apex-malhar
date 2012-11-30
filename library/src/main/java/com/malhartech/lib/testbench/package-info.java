@@ -7,7 +7,7 @@
 /**
  * <b>{@link com.malhartech.lib.testbench}</b> is a library of test bench modules for reuse<p>
  * <br>
- * <br>The modules are<br>
+ * <br>The operators are<br>
  * <b>{@link com.malhartech.lib.testbench.EventClassifier}</b>: Takes a in stream event and adds to incoming keys to create a new tuple that is emitted on output port data. The aim is to create a load with pair of keys<br>
  * <b>{@link com.malhartech.lib.testbench.EventGenerator}</b>: Generates synthetic load. Creates tuples and keeps emitting them on the output port data<br>
  * <b>{@link com.malhartech.lib.testbench.EventIncrementer}</b>: Takes in a seed stream on port seed and then on increments this data based on increments on port increment. Data is immediately emitted on output port data. Emits number of tuples on port count<br>
