@@ -4,15 +4,10 @@
  */
 package com.malhartech.demos.ads;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import org.apache.hadoop.conf.Configuration;
+import com.malhartech.api.ApplicationFactory;
 
 import com.malhartech.api.DAG;
 import com.malhartech.api.Operator.InputPort;
-import com.malhartech.api.ApplicationFactory;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.io.HdfsOutputOperator;
 import com.malhartech.lib.io.HttpOutputOperator;
@@ -26,9 +21,13 @@ import com.malhartech.lib.testbench.EventClassifier;
 import com.malhartech.lib.testbench.EventGenerator;
 import com.malhartech.lib.testbench.FilteredEventClassifier;
 import com.malhartech.lib.testbench.ThroughputCounter;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import org.apache.hadoop.conf.Configuration;
 
 /**
- * Example of application configuration in Java using {@link com.malhartech.stram.conf.NewDAGBuilder}.<p>
+ * Example of application configuration for a scalable ads demo<p>
  */
 public class ScaledApplication implements ApplicationFactory
 {

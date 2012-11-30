@@ -20,7 +20,7 @@ import org.apache.hadoop.conf.Configuration;
 
 
 /**
- * Example of application configuration in Java using {@link com.malhartech.stram.conf.NewDAGBuilder}.<p>
+ * Example of application configuration for a last price demo<p>
  */
 public class Application implements ApplicationFactory
 {
@@ -72,9 +72,6 @@ public class Application implements ApplicationFactory
 
   /**
    * Map properties from application to operator scope
-   *
-   * @param dag
-   * @param op
    */
   public static Map<String, String> getOperatorInstanceProperties(Configuration appConf, Class<?> appClass, String operatorId)
   {

@@ -4,18 +4,10 @@
  */
 package com.malhartech.demos.mobile;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import org.apache.hadoop.conf.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
-import com.malhartech.api.DAG;
 import com.malhartech.api.ApplicationFactory;
+import com.malhartech.api.DAG;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.io.HttpInputOperator;
 import com.malhartech.lib.io.HttpOutputOperator;
@@ -23,6 +15,12 @@ import com.malhartech.lib.testbench.EventIncrementer;
 import com.malhartech.lib.testbench.RandomEventGenerator;
 import com.malhartech.lib.testbench.SeedEventClassifier;
 import com.malhartech.lib.testbench.SeedEventGenerator;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Mobile Demo Application.<p>

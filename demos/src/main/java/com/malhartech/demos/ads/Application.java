@@ -4,9 +4,9 @@
  */
 package com.malhartech.demos.ads;
 
+import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
 import com.malhartech.api.Operator.InputPort;
-import com.malhartech.api.ApplicationFactory;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.io.HdfsOutputOperator;
 import com.malhartech.lib.io.HttpOutputOperator;
@@ -26,7 +26,7 @@ import org.apache.hadoop.conf.Configuration;
 
 
 /**
- * Example of application configuration in Java using {@link com.malhartech.stram.conf.NewDAGBuilder}.<p>
+ * Example of application configuration for an ads demo<p>
  */
 public class Application implements ApplicationFactory
 {
@@ -79,8 +79,6 @@ public class Application implements ApplicationFactory
   /**
    * Map properties from application to operator scope
    *
-   * @param dag
-   * @param op
    */
   public static Map<String, String> getOperatorInstanceProperties(Configuration appConf, Class<?> appClass, String operatorId)
   {

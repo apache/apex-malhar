@@ -4,10 +4,8 @@
  */
 package com.malhartech.demos.twitter;
 
-import com.malhartech.api.Operator;
 import com.malhartech.api.StreamCodec;
 import java.nio.ByteBuffer;
-import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,8 +32,6 @@ public class URLSerDe implements StreamCodec<byte[]>
 
   /**
    * Covert the bytes into object useful for downstream node.
-   *
-   * @param bytes constituents of the String representation of the URL.
    * @return WindowedURLHolder object which represents the bytes.
    */
   @Override
