@@ -56,6 +56,10 @@ public abstract class AbstractKestrelInputOperator implements InputOperator, Act
   private transient SockIOPool pool;
   public abstract void emitTuple(byte[] message);
 
+/**
+ * a thread actively pulling data from Kestrel bus,
+ * and added to the holdingBuffer
+ */
   private class GetQueueThread extends Thread
   {
     @Override

@@ -81,8 +81,11 @@ public abstract class AbstractBaseZeroMQOutputOperator extends BaseOperator
     syncservice = context.socket(ZMQ.REP);
     syncservice.bind(syncUrl);
   }
-  // necessary for publisher side to synchronize publisher and subscriber, must run after setup()
 
+/**
+ * necessary for publisher side to synchronize publisher and subscriber, must run after setup()
+ * make sure subscribers all connected to the publisher, then the publisher send data after that
+ */
   public void startSyncJob()
   {
     for (int subscribers = 0; subscribers < SUBSCRIBERS_EXPECTED; subscribers++) {

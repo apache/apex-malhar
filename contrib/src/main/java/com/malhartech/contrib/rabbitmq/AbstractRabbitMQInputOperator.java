@@ -66,6 +66,10 @@ ActivationListener<OperatorContext>
   transient String queueName="testQ";
   transient CircularBuffer<byte[]> holdingBuffer;
 
+/**
+ * define a consumer which can asynchronously receive data,
+ * and added to holdingBuffer
+ */
  public class TracingConsumer extends DefaultConsumer
   {
     public TracingConsumer(Channel ch)

@@ -106,8 +106,12 @@ public abstract class AbstractBaseZeroMQInputOperator extends BaseOperator imple
     context.term();
   }
 
-  // The other thread
-  public void activate(OperatorContext ctx)
+/**
+ * start a thread receiving data,
+ * and add into holdingBuffer
+ * @param ctx
+ */
+public void activate(OperatorContext ctx)
   {
     new Thread()
     {
