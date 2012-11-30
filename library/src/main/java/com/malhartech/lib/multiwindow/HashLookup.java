@@ -82,7 +82,7 @@ public class HashLookup<K, V> extends BaseFilteredKeyValueOperator<K,V>
 
   public V put(K key, V val)
   {
-    return currentmap.put(key,val);
+    return currentmap.put(cloneKey(key),cloneValue(val));
   }
 
   /**
