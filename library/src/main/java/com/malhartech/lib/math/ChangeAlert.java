@@ -113,7 +113,6 @@ public class ChangeAlert<K, V extends Number> extends BaseNumberKeyValueOperator
 
   /**
    * setter function for threshold value
-   * @return threshold value
    */
   public void setPercentThreshold(double d)
   {
