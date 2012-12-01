@@ -5,6 +5,7 @@
 package com.malhartech.lib.testbench;
 
 import com.malhartech.api.BaseOperator;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import java.util.HashMap;
@@ -43,7 +44,6 @@ import org.slf4j.LoggerFactory;
  *
  * @author amol
  */
-
 public class EventClassifierNumberToHashDouble<K extends Number> extends BaseOperator
 {
   public final transient DefaultInputPort<K> event = new DefaultInputPort<K>(this)
@@ -52,23 +52,107 @@ public class EventClassifierNumberToHashDouble<K extends Number> extends BaseOpe
     public void process(K tuple)
     {
       double val = tuple.doubleValue();
-      HashMap<String,Double> otuple = new HashMap<String,Double>(1);
-      otuple.put(getKey(), val);
+      HashMap<String, Double> otuple = new HashMap<String, Double>(1);
+      String tkey;
+      otuple.put(keys[seed], val);
       data.emit(otuple);
+      seed++;
+      if (seed >= seed_size) {
+        seed = 0;
+      }
     }
   };
   public final transient DefaultOutputPort<HashMap<String, Double>> data = new DefaultOutputPort<HashMap<String, Double>>(this);
 
   @NotNull
   String key = "";
+  int s_start = 0;
+  int s_end = 0;
+  int seed = 0;
+  int seed_size = 1;
 
+  String [] keys = null;
+
+  /**
+   * setup before dag is run (pre-runtime, and post compile time)
+   * @param context
+   */
+  @Override
+  public void setup(OperatorContext context)
+  {
+    seed_size = s_start - s_end;
+    if (seed_size < 0) {
+      seed_size = s_end - s_start;
+    }
+    seed_size++;
+    seed = 0;
+    keys = new String[seed_size];
+    if (s_start < s_end) {
+      for (int i = s_start; i <= s_end; i++) {
+        Integer ival = i;
+        keys[i] = getKey() + ival.toString();
+      }
+    }
+    else {
+      for (int i = s_end; i <= s_start; i++) {
+        Integer ival = i;
+        keys[i] = getKey() + ival.toString();
+      }
+    }
+  }
+
+
+  /**
+   * getter function for key
+   * @return key
+   */
   public String getKey()
   {
     return key;
   }
 
+  /**
+   * getter function for seed start
+   * @return seed start
+   */
+  public int getSeedstart()
+  {
+    return s_start;
+  }
+
+  /**
+   * getter function for seed end
+   * @return seed end
+   */
+  public int getSeedend()
+  {
+    return s_end;
+  }
+
+  /**
+   * setter function for key
+   * @param i key is set to i
+   */
   public void setKey(String i)
   {
     key = i;
+  }
+
+  /**
+   * setter function for seed start
+   * @param i seed start is set to i
+   */
+  public void setSeedstart(int i)
+  {
+    s_start = i;
+  }
+
+  /**
+   * setter function for seed end
+   * @param i seed end is set to i
+   */
+  public void setSeedend(int i)
+  {
+    s_end = i;
   }
 }
