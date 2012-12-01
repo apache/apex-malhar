@@ -67,7 +67,7 @@ public class KafkaProducer implements Runnable
       String messageStr = "Message_" + messageNo;
       producer.send(new ProducerData<Integer, String>(topic, messageStr));
       messageNo++;
-      logger.debug(String.format("Producing %s", messageStr));
+     // logger.debug(String.format("Producing %s", messageStr));
     }
   }
 

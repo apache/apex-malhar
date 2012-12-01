@@ -7,6 +7,8 @@ package com.malhartech.lib.io;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.*;
 import com.malhartech.stram.StramLocalCluster;
+import com.malhartech.stream.StramTestSupport;
+import com.malhartech.stream.StramTestSupport.WaitCondition;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -193,31 +195,28 @@ public class ActiveMQInputOperatorTest
     node.setVerbose(true);
 
     // Create Test tuple collector
-    CollectorModule<String> collector = dag.addOperator("TestMessageCollector", new CollectorModule<String>());
+    final CollectorModule<String> collector = dag.addOperator("TestMessageCollector", new CollectorModule<String>());
 
     // Connect ports
     dag.addStream("AMQ message", node.outputPort, collector.inputPort).setInline(true);
 
-    // Create local cluster
+    // Create and run local cluster
     final StramLocalCluster lc = new StramLocalCluster(dag);
     lc.setHeartbeatMonitoringEnabled(false);
-
-    // Run local cluster
-    new Thread("LocalClusterController")
-    {
+    lc.runAsync();
+    WaitCondition c = new WaitCondition() {
       @Override
-      public void run()
-      {
-        try {
-          Thread.sleep(1000);
+      public boolean isComplete() {
+        if ( collections.size() > 0) {
+          return collections.get(collector.inputPort.id).size() >= 7;
         }
-        catch (InterruptedException ex) {
+        else {
+          return false;
         }
-
-        lc.shutdown();
       }
-    }.start();
-    lc.run();
+    };
+    StramTestSupport.awaitCompletion(c, 10000);
+    lc.shutdown();
 
     // Check results
     Assert.assertEquals("Collections size", 1, collections.size());
@@ -260,31 +259,28 @@ public class ActiveMQInputOperatorTest
     node.setVerbose(true);
 
     // Create Test tuple collector
-    CollectorModule<String> collector = dag.addOperator("TestMessageCollector", new CollectorModule<String>());
+    final CollectorModule<String> collector = dag.addOperator("TestMessageCollector", new CollectorModule<String>());
 
     // Connect ports
     dag.addStream("AMQ message", node.outputPort, collector.inputPort).setInline(true);
 
-    // Create local cluster
+    // Create and run local cluster
     final StramLocalCluster lc = new StramLocalCluster(dag);
     lc.setHeartbeatMonitoringEnabled(false);
-
-    // Run local cluster
-    new Thread("LocalClusterController")
-    {
+    lc.runAsync();
+    WaitCondition c = new WaitCondition() {
       @Override
-      public void run()
-      {
-        try {
-          Thread.sleep(1000);
+      public boolean isComplete() {
+        if ( collections.size() > 0) {
+          return collections.get(collector.inputPort.id).size() >= 20;
         }
-        catch (InterruptedException ex) {
+        else {
+          return false;
         }
-
-        lc.shutdown();
       }
-    }.start();
-    lc.run();
+    };
+    StramTestSupport.awaitCompletion(c, 10000);
+    lc.shutdown();
 
     // Check results
     Assert.assertEquals("Collections size", 1, collections.size());
@@ -361,32 +357,29 @@ public class ActiveMQInputOperatorTest
     node.setVerbose(true);
 
     // Create Test tuple collector
-    CollectorModule2<String, Integer> collector = dag.addOperator("TestMessageCollector", new CollectorModule2<String, Integer>());
+    final CollectorModule2<String, Integer> collector = dag.addOperator("TestMessageCollector", new CollectorModule2<String, Integer>());
 
     // Connect ports
     dag.addStream("AMQ message", node.outputPort1, collector.inputPort1).setInline(true);
     dag.addStream("AMQ message2", node.outputPort2, collector.inputPort2).setInline(true);
 
-    // Create local cluster
+    // Create and run local cluster
     final StramLocalCluster lc = new StramLocalCluster(dag);
     lc.setHeartbeatMonitoringEnabled(false);
-
-    // Run local cluster
-    new Thread("LocalClusterController")
-    {
+    lc.runAsync();
+    WaitCondition c = new WaitCondition() {
       @Override
-      public void run()
-      {
-        try {
-          Thread.sleep(1000);
+      public boolean isComplete() {
+        if ( collections.size() > 1) {
+          return collections.get(collector.inputPort1.id).size() >= 20;
         }
-        catch (InterruptedException ex) {
+        else {
+          return false;
         }
-
-        lc.shutdown();
       }
-    }.start();
-    lc.run();
+    };
+    StramTestSupport.awaitCompletion(c, 10000);
+    lc.shutdown();
 
     // Check results
     Assert.assertEquals("Collections size", 2, collections.size());

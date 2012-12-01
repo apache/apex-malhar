@@ -10,7 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Base class for any ActiveMQ output adapter operator. <p>Output Operators should not be derived from this,
+ * Base class for any ActiveMQ output adapter operator. <p><br>
+ * Output Operators should not be derived from this,
  * rather from AbstractActiveMQOutputOperator or AbstractActiveMQSinglePortOutputOperator. It creates the producer
  * to send message into active MQ message bus.<br>
  *

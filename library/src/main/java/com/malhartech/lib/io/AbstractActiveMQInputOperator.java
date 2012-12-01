@@ -16,6 +16,14 @@ import org.slf4j.LoggerFactory;
 /**
  * ActiveMQ input adapter operator, which consume data from ActiveMQ message bus.<p><br>
  *
+ * It uses PUSH model to get message. When there is a message available in AMQ message bus,
+ * onMessage() got called which buffer the message into a holding buffer. At the same time
+ * Malhar Streaming Platform calls emitTuples() on this operator to process message from
+ * the holding buffer through output port. Output port simply emit the message to next
+ * connected operator.
+ * This class can be used if operator has more than one output ports. If it has only one
+ * output port it can conveniently derived from AbstractActiveMQSinglePortInputOperator class.
+ *
  * <br>
  * Ports:<br>
  * <b>Input</b>: No input port<br>
@@ -45,7 +53,7 @@ public abstract class AbstractActiveMQInputOperator extends ActiveMQConsumerBase
   // Config parameters that user can set.-
   private int tuplesBlast = TUPLES_BLAST_DEFAULT;
   private int bufferSize = BUFFER_SIZE_DEFAULT;
-  protected transient CircularBuffer<Message> holdingBuffer = new CircularBuffer<Message>(bufferSize); // Should this be transient?
+  protected transient CircularBuffer<Message> holdingBuffer;
 
   /**
    * Any concrete class derived from AbstractActiveMQInputOperator has to implement this method
@@ -92,6 +100,7 @@ public abstract class AbstractActiveMQInputOperator extends ActiveMQConsumerBase
   @Override
   public void setup(OperatorConfiguration config)
   {
+    holdingBuffer = new CircularBuffer<Message>(bufferSize);
   }
 
   /**
@@ -143,6 +152,10 @@ public abstract class AbstractActiveMQInputOperator extends ActiveMQConsumerBase
 
   /**
    * Implement InputOperator Interface.
+   * Pull message from temporary buffer and pass in emitTuple() in order to be processed/consumed
+   * or pass to next operator.
+   * To be more efficient emit all the tuples in buffer upto blastSize.
+   * It also acknowledge that all messages have been received.
    */
   @Override
   public void emitTuples()

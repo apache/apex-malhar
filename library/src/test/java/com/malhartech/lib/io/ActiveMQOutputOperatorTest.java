@@ -8,6 +8,8 @@ import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.*;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.stram.StramLocalCluster;
+import com.malhartech.stream.StramTestSupport;
+import com.malhartech.stream.StramTestSupport.WaitCondition;
 import com.malhartech.util.CircularBuffer;
 import java.io.File;
 import javax.jms.JMSException;
@@ -169,7 +171,7 @@ public class ActiveMQOutputOperatorTest
   public void testActiveMQOutputOperator() throws Exception
   {
     // Setup a message listener to receive the message
-    ActiveMQMessageListener listener = new ActiveMQMessageListener();
+    final ActiveMQMessageListener listener = new ActiveMQMessageListener();
     try {
       listener.setupConnection();
     }
@@ -203,29 +205,22 @@ public class ActiveMQOutputOperatorTest
     // Connect ports
     dag.addStream("AMQ message", generator.outputPort, node.inputPort).setInline(true);
 
-    // Create local cluster
+    final long emittedCount = 15; //tupleCount < node.getMaximumSendMessages() ? tupleCount : node.getMaximumSendMessages();
+
+    // Create and run local cluster
     final StramLocalCluster lc = new StramLocalCluster(dag);
     lc.setHeartbeatMonitoringEnabled(false);
-
-    // Run local cluster
-    new Thread("LocalClusterController")
-    {
+    lc.runAsync();
+    WaitCondition c = new WaitCondition() {
       @Override
-      public void run()
-      {
-        try {
-          Thread.sleep(1000);
-        }
-        catch (InterruptedException ex) {
-        }
-
-        lc.shutdown();
+      public boolean isComplete() {
+          return listener.receivedData.size() >= emittedCount;
       }
-    }.start();
-    lc.run();
+    };
+    StramTestSupport.awaitCompletion(c, 10000);
+    lc.shutdown();
 
     // Check values send vs received
-    long emittedCount = tupleCount < node.getMaximumSendMessages() ? tupleCount : node.getMaximumSendMessages();
     Assert.assertEquals("Number of emitted tuples", emittedCount, listener.receivedData.size());
     logger.debug(String.format("Number of emitted tuples: %d", listener.receivedData.size()));
     Assert.assertEquals("First tuple", "testString 1", listener.receivedData.get(new Integer(1)));
@@ -238,7 +233,7 @@ public class ActiveMQOutputOperatorTest
   public void testActiveMQOutputOperator2() throws Exception
   {
     // Setup a message listener to receive the message
-    ActiveMQMessageListener listener = new ActiveMQMessageListener();
+    final ActiveMQMessageListener listener = new ActiveMQMessageListener();
     try {
       listener.setTopic(true);
       listener.setupConnection();
@@ -273,29 +268,22 @@ public class ActiveMQOutputOperatorTest
     // Connect ports
     dag.addStream("AMQ message", generator.outputPort, node.inputPort).setInline(true);
 
-    // Create local cluster
+    final long emittedCount = tupleCount < node.getMaximumSendMessages() ? tupleCount : node.getMaximumSendMessages();
+
+    // Create and run local cluster
     final StramLocalCluster lc = new StramLocalCluster(dag);
     lc.setHeartbeatMonitoringEnabled(false);
-
-    // Run local cluster
-    new Thread("LocalClusterController")
-    {
+    lc.runAsync();
+    WaitCondition c = new WaitCondition() {
       @Override
-      public void run()
-      {
-        try {
-          Thread.sleep(1000);
-        }
-        catch (InterruptedException ex) {
-        }
-
-        lc.shutdown();
+      public boolean isComplete() {
+          return listener.receivedData.size() >= emittedCount;
       }
-    }.start();
-    lc.run();
+    };
+    StramTestSupport.awaitCompletion(c, 10000);
+    lc.shutdown();
 
     // Check values send vs received
-    long emittedCount = tupleCount < node.getMaximumSendMessages() ? tupleCount : node.getMaximumSendMessages();
     Assert.assertEquals("Number of emitted tuples", emittedCount, listener.receivedData.size());
     logger.debug(String.format("Number of emitted tuples: %d", listener.receivedData.size()));
     Assert.assertEquals("First tuple", "testString 1", listener.receivedData.get(new Integer(1)));
@@ -425,7 +413,7 @@ public class ActiveMQOutputOperatorTest
   public void testActiveMQMultiPortOutputOperator() throws Exception
   {
     // Setup a message listener to receive the message
-    ActiveMQMessageListener listener = new ActiveMQMessageListener();
+    final ActiveMQMessageListener listener = new ActiveMQMessageListener();
     try {
       listener.setMaximumReceiveMessages(0);
       listener.setupConnection();
@@ -461,29 +449,22 @@ public class ActiveMQOutputOperatorTest
     dag.addStream("AMQ message", generator.outputPort1, node.inputPort1).setInline(true);
     dag.addStream("AMQ message2", generator.outputPort2, node.inputPort2).setInline(true);
 
-    // Create local cluster
+    final long emittedCount = 40;
+
+    // Create and run local cluster
     final StramLocalCluster lc = new StramLocalCluster(dag);
     lc.setHeartbeatMonitoringEnabled(false);
-
-    // Run local cluster
-    new Thread("LocalClusterController")
-    {
+    lc.runAsync();
+    WaitCondition c = new WaitCondition() {
       @Override
-      public void run()
-      {
-        try {
-          Thread.sleep(1000);
-        }
-        catch (InterruptedException ex) {
-        }
-
-        lc.shutdown();
+      public boolean isComplete() {
+          return listener.receivedData.size() >= emittedCount;
       }
-    }.start();
-    lc.run();
+    };
+    StramTestSupport.awaitCompletion(c, 10000);
+    lc.shutdown();
 
     // Check values send vs received
-    long emittedCount = 40;
     Assert.assertEquals("Number of emitted tuples", emittedCount, listener.receivedData.size());
     logger.debug(String.format("Number of emitted tuples: %d", listener.receivedData.size()));
     Assert.assertEquals("First tuple", "testString 1", listener.receivedData.get(new Integer(1)));

@@ -9,6 +9,8 @@ import com.malhartech.api.DAG;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.Operator;
 import com.malhartech.stram.StramLocalCluster;
+import com.malhartech.stream.StramTestSupport;
+import com.malhartech.stream.StramTestSupport.WaitCondition;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -17,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 import junit.framework.Assert;
 import kafka.consumer.ConsumerConfig;
 import kafka.message.Message;
@@ -39,6 +42,7 @@ public class KafkaInputOperatorTest
   private final String zklogdir = "/tmp/zookeeper-server-data";
   private final String kafkalogdir = "/tmp/kafka-server-data";
   private boolean useZookeeper = true;  // standard consumer use zookeeper, whereas simpleConsumer don't
+  static AtomicInteger tupleCount = new AtomicInteger();
 
   public void startZookeeper()
   {
@@ -197,7 +201,7 @@ public class KafkaInputOperatorTest
         byte[] bytes = new byte[buffer.remaining()];
         buffer.get(bytes);
         data = new String(bytes);
-        logger.debug("Consuming {}", data);
+        //logger.debug("Consuming {}", data);
       }
       catch (Exception ex) {
         return data;
@@ -242,6 +246,7 @@ public class KafkaInputOperatorTest
     public void process(T tuple)
     {
       list.add(tuple);
+      tupleCount.incrementAndGet();
     }
 
     @Override
@@ -264,13 +269,14 @@ public class KafkaInputOperatorTest
    *
    * @throws Exception
    */
-  public void testKafkaInputOperator(boolean isSimple, String consumerType, int sleepTime) throws Exception
+  public void testKafkaInputOperator(boolean isSimple, String consumerType, int sleepTime, final int totalCount) throws Exception
   {
     // Start producer
     KafkaProducer p = new KafkaProducer("topic1", isSimple);
+    p.setSendCount(totalCount);
     new Thread(p).start();
-    Thread.sleep(sleepTime);  // wait to flush message to disk and make available for consumer
-    p.close();
+    //Thread.sleep(sleepTime);  // wait to flush message to disk and make available for consumer
+    //p.close();
 
     // Create DAG for testing.
     DAG dag = new DAG();
@@ -282,7 +288,6 @@ public class KafkaInputOperatorTest
     else {
       node.setConsumerType("simple");
     }
-    node.setBufferSize(1000);
 
     // Create Test tuple collector
     CollectorModule<String> collector = dag.addOperator("TestMessageCollector", new CollectorModule<String>());
@@ -294,33 +299,30 @@ public class KafkaInputOperatorTest
     final StramLocalCluster lc = new StramLocalCluster(dag);
     lc.setHeartbeatMonitoringEnabled(false);
 
-    // Run local cluster
-    new Thread("LocalClusterController")
-    {
+    lc.runAsync();
+    WaitCondition c = new WaitCondition() {
       @Override
-      public void run()
-      {
-        try {
-          Thread.sleep(1000);
-        }
-        catch (InterruptedException ex) {
-        }
-
-        lc.shutdown();
+      public boolean isComplete() {
+        return tupleCount.get() > totalCount;
       }
-    }.start();
-    lc.run();
+    };
+    StramTestSupport.awaitCompletion(c, 26000);  // 10k tuples takes 13 sec => 770 tuple/sec
+
+    lc.shutdown();
 
     // Check results
     Assert.assertEquals("Collections size", 1, collections.size());
-    Assert.assertEquals("Tuple count", 20, collections.get(collector.inputPort.id).size());
+    Assert.assertEquals("Tuple count", totalCount, collections.get(collector.inputPort.id).size());
+    logger.debug(String.format("Number of emitted tuples: %d", collections.get(collector.inputPort.id).size()));
+
+    p.close();
   }
 
   @Test
   public void testKafkaInputOperator_standard() throws Exception
   {
-
-    testKafkaInputOperator(false, "standard", 1000);
+    int totalCount = 10000;
+    testKafkaInputOperator(false, "standard", 1000, totalCount);
     //testKafkaInputOperator(true, "simple", 10000); // simpleConsumer
   }
 }

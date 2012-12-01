@@ -14,7 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Base class for any ActiveMQ input or output adapter operator. <p>Operators should not be derived from this,
+ * Base class for any ActiveMQ input or output adapter operator. <p><br>
+ * Operators should not be derived from this,
  * rather from AbstractActiveMQInputOperator or AbstractActiveMQSinglePortInputOperator or AbstractActiveMQOutputOperator
  * or AbstractActiveMQSinglePortOutputOperator. This creates connection with active MQ broker.<br>
  *

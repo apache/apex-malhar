@@ -39,6 +39,11 @@ public abstract class AbstractActiveMQSinglePortOutputOperator<T> extends Abstra
   private static final Logger logger = LoggerFactory.getLogger(AbstractActiveMQSinglePortOutputOperator.class);
   long countMessages = 0;  // Number of messages produced so far
 
+  /**
+   * Convert tuple into JMS message. Tuple can be any Java Object.
+   * @param tuple
+   * @return
+   */
   protected abstract Message createMessage(T tuple);
 
   /**
