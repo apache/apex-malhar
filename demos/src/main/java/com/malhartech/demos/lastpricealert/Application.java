@@ -95,6 +95,15 @@ public class Application implements ApplicationFactory
   {
     ChangeAlert<String,Double> oper = b.addOperator(name, new ChangeAlert<String,Double>());
     oper.setPercentThreshold(5);
+    String [] filters = new String[300];
+    for (int i = 0; i < 300; i++) {
+      String key = "a";
+      Integer ival = i;
+      key += ival.toString();
+      filters[i] = key;
+    }
+    oper.setFilterBy(filters);
+    oper.setInverse(false);
     return oper;
   }
 
@@ -114,6 +123,8 @@ public class Application implements ApplicationFactory
     // have 1470 keys
     // Watch list of only 300
     oper.setKey("a");
+    oper.setSeedstart(0);
+    oper.setSeedend(1500);
     return oper;
   }
 
