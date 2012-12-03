@@ -11,6 +11,8 @@ import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.math.ChangeAlert;
 import com.malhartech.lib.math.SumValue;
 import com.malhartech.lib.stream.DevNullCounter;
+import com.malhartech.lib.stream.StreamMerger;
+import com.malhartech.lib.stream.StreamMerger5;
 import com.malhartech.lib.testbench.EventClassifierNumberToHashDouble;
 import com.malhartech.lib.testbench.RandomEventGenerator;
 import com.malhartech.lib.testbench.ThroughputCounter;
@@ -22,12 +24,12 @@ import org.apache.hadoop.conf.Configuration;
 /**
  * Example of application configuration for a last price demo<p>
  */
-public class Application implements ApplicationFactory
+public class ScaledApplication implements ApplicationFactory
 {
-  public static final String P_generatorVTuplesBlast = Application.class.getName() + ".generatorVTuplesBlast";
-  public static final String P_generatorMaxWindowsCount = Application.class.getName() + ".generatorMaxWindowsCount";
-  public static final String P_allInline = Application.class.getName() + ".allInline";
-  public static final String P_enableHdfs = Application.class.getName() + ".enableHdfs";
+  public static final String P_generatorVTuplesBlast = ScaledApplication.class.getName() + ".generatorVTuplesBlast";
+  public static final String P_generatorMaxWindowsCount = ScaledApplication.class.getName() + ".generatorMaxWindowsCount";
+  public static final String P_allInline = ScaledApplication.class.getName() + ".allInline";
+  public static final String P_enableHdfs = ScaledApplication.class.getName() + ".enableHdfs";
   // adjust these depending on execution mode (junit, cli-local, cluster)
   private int generatorVTuplesBlast = 1000;
   private int generatorMaxWindowsCount = 100;
@@ -155,10 +157,15 @@ public class Application implements ApplicationFactory
     configure(conf);
     DAG dag = new DAG(conf);
 
-    RandomEventGenerator rGen = getRandomGenerator("randomgen", dag);
+    RandomEventGenerator rGen1 = getRandomGenerator("randomgen1", dag);
+    RandomEventGenerator rGen2 = getRandomGenerator("randomgen2", dag);
+    RandomEventGenerator rGen3 = getRandomGenerator("randomgen3", dag);
+    RandomEventGenerator rGen4 = getRandomGenerator("randomgen4", dag);
     EventClassifierNumberToHashDouble<Integer> hGen = getEventClassifier("hgen", dag);
     ChangeAlert<String,Double> alert = getChangeAlertOperator("alert", dag);
     DevNullCounter<HashMap<String, HashMap<Double,Double>>> onull = getDevNullOperator("null", dag);
+
+    StreamMerger5 mGen = dag.addOperator("twogens", new StreamMerger5<Integer>());
 
     SumValue<Integer> scount = getSumValue("count", dag);
     EventClassifierNumberToHashDouble<Integer> hGentput = getEventClassifier("hgentput", dag);
@@ -170,7 +177,12 @@ public class Application implements ApplicationFactory
     // That is to be input to alert, and that should directly write to console
     // RandomGen -> Insert key -> PriceChange -> DevNull
 
-    dag.addStream("randomdata", rGen.integer_data, hGen.event, scount.data).setInline(true);
+    dag.addStream("mergeddata1", rGen1.integer_data, mGen.data1).setInline(true);
+    dag.addStream("mergeddata2", rGen2.integer_data, mGen.data2).setInline(true);
+    dag.addStream("mergeddata3", rGen2.integer_data, mGen.data3).setInline(true);
+    dag.addStream("mergeddata4", rGen2.integer_data, mGen.data4).setInline(true);
+
+    dag.addStream("randomdata", mGen.out, hGen.event, scount.data).setInline(true);
     dag.addStream("pricedata", hGen.data, alert.data).setInline(true);
     dag.addStream("nullstream", alert.alert, onull.data).setInline(allInline);
 

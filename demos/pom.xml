@@ -45,6 +45,7 @@
       <groupId>com.malhartech</groupId>
       <artifactId>malhar-library</artifactId>
       <version>0.1-SNAPSHOT</version>
+      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.twitter4j</groupId>
