@@ -132,12 +132,12 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
     ts.shutdown();
   }
 
-  void setTwitterProperties(Properties properties)
+  public void setTwitterProperties(Properties properties)
   {
     twitterProperties = properties;
   }
 
-  void setFeedMultiplier(int multiplier)
+  public void setFeedMultiplier(int multiplier)
   {
     this.multiplier = multiplier;
   }
