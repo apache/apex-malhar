@@ -6,7 +6,6 @@ package com.malhartech.lib.stream;
 
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseKeyValueOperator;
@@ -45,10 +44,11 @@ import java.util.Map;
  * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
  * </table>
  * <br>
+ *
  * @author Amol Kekre (amol@malhar-inc.com)<br>
  * <br>
  */
-public class HashMapToKey<K,V> extends BaseKeyValueOperator<K,V>
+public class HashMapToKey<K, V> extends BaseKeyValueOperator<K, V>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
@@ -67,17 +67,17 @@ public class HashMapToKey<K,V> extends BaseKeyValueOperator<K,V>
           val.emit(cloneValue(e.getValue()));
         }
         if (keyval.isConnected()) {
-          HashMap<K,V> otuple = new HashMap<K,V>(1);
+          HashMap<K, V> otuple = new HashMap<K, V>(1);
           otuple.put(cloneKey(e.getKey()), cloneValue(e.getValue()));
           keyval.emit(otuple);
         }
       }
     }
   };
-  @OutputPortFieldAnnotation(name = "key", optional=true)
+  @OutputPortFieldAnnotation(name = "key", optional = true)
   public final transient DefaultOutputPort<K> key = new DefaultOutputPort<K>(this);
-  @OutputPortFieldAnnotation(name = "keyval", optional=true)
+  @OutputPortFieldAnnotation(name = "keyval", optional = true)
   public final transient DefaultOutputPort<HashMap<K, V>> keyval = new DefaultOutputPort<HashMap<K, V>>(this);
-  @OutputPortFieldAnnotation(name = "val", optional=true)
+  @OutputPortFieldAnnotation(name = "val", optional = true)
   public final transient DefaultOutputPort<V> val = new DefaultOutputPort<V>(this);
 }

@@ -52,9 +52,9 @@ public class LineTokenizerKeyVal extends BaseLineTokenizer
   @OutputPortFieldAnnotation(name = "tokens")
   public final transient DefaultOutputPort<HashMap<String, String>> tokens = new DefaultOutputPort<HashMap<String, String>>(this);
 
-  private HashMap<String, String> map = null;
-  private String skey = "";
-  private String sval = "";
+  private transient HashMap<String, String> map = null;
+  private transient String skey = "";
+  private transient String sval = "";
 
   /**
    * sets up the cache
@@ -88,13 +88,16 @@ public class LineTokenizerKeyVal extends BaseLineTokenizer
   }
 
   /**
-   * inserts subtoken key,val pair in subtoken hash
+   * inserts subtoken key,val pair in subtoken hash. If there are multiple keys with the same value
+   * override this call and append values
    */
   @Override
   public void endProcessSubTokens()
   {
     if (!skey.isEmpty()) {
       map.put(skey, sval);
+      skey = "";
+      sval = "";
     }
   }
 

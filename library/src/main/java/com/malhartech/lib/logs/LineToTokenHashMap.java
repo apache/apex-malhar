@@ -52,9 +52,9 @@ public class LineToTokenHashMap extends BaseLineTokenizer
   @OutputPortFieldAnnotation(name = "tokens")
   public final transient DefaultOutputPort<HashMap<String, ArrayList<String>>> tokens = new DefaultOutputPort<HashMap<String, ArrayList<String>>>(this);
 
-  private HashMap<String, ArrayList<String>> otuple = null;
-  private ArrayList<String> vals = null;
-  private String tok = "";
+  protected transient HashMap<String, ArrayList<String>> otuple = null;
+  protected transient ArrayList<String> vals = null;
+  protected transient String tok = "";
 
   /**
    * sets up output tuple
@@ -94,14 +94,25 @@ public class LineToTokenHashMap extends BaseLineTokenizer
 
 
   /**
-   * Adds key,Arraylist pair to output tuple
+   * Adds key,Arraylist pair to output tuple.
    */
   @Override
   public void endProcessSubTokens()
   {
-    otuple.put(tok, vals);
+    addSubToken(tok, vals);
     tok = "";
     vals = null;
+  }
+
+  /**
+   * If you have multiple subtokens with same value, override and aggregate the values and then put
+   * in the map
+   * @param stok subtoken
+   * @param vals subtoken val list
+   */
+  public void addSubToken(String stok, ArrayList<String> svals)
+  {
+    otuple.put(stok, svals);
   }
 
   /**

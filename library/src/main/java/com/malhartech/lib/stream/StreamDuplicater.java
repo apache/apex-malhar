@@ -66,7 +66,7 @@ public class StreamDuplicater<K> extends BaseKeyOperator<K>
   public final transient DefaultOutputPort<K> out1 = new DefaultOutputPort<K>(this);
   @OutputPortFieldAnnotation(name = "out2")
   public final transient DefaultOutputPort<K> out2 = new DefaultOutputPort<K>(this);
-  final static int num_oport = 2;
+  final transient static int num_oport = 2;
 
   /**
    * Allows usage of StreamDuplicater in a automated way

@@ -4,9 +4,9 @@
  */
 package com.malhartech.lib.logs;
 
-import com.malhartech.lib.util.BaseLineTokenizer;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.BaseLineTokenizer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.slf4j.Logger;
@@ -48,20 +48,20 @@ import org.slf4j.LoggerFactory;
  * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
  * </table>
  * <br>
+ *
  * @author Amol Kekre (amol@malhar-inc.com)<br>
  * <br>
  */
 public class LineToTokenArrayList extends BaseLineTokenizer
 {
-  @OutputPortFieldAnnotation(name = "tokens")
+  @OutputPortFieldAnnotation(name = "tokens", optional = true)
   public final transient DefaultOutputPort<ArrayList<String>> tokens = new DefaultOutputPort<ArrayList<String>>(this);
-  @OutputPortFieldAnnotation(name = "splittokens")
+  @OutputPortFieldAnnotation(name = "splittokens", optional = true)
   public final transient DefaultOutputPort<ArrayList<HashMap<String, ArrayList<String>>>> splittokens = new DefaultOutputPort<ArrayList<HashMap<String, ArrayList<String>>>>(this);
-
-  private ArrayList<String> tokentuple = null;
-  private ArrayList<HashMap<String, ArrayList<String>>> stokentuple = null;
-  private HashMap<String, ArrayList<String>> smap = null;
-  private ArrayList<String> vals = null;
+  protected transient ArrayList<String> tokentuple = null;
+  protected transient ArrayList<HashMap<String, ArrayList<String>>> stokentuple = null;
+  protected transient HashMap<String, ArrayList<String>> smap = null;
+  protected transient ArrayList<String> vals = null;
 
   /**
    * sets up output tuples
@@ -76,6 +76,7 @@ public class LineToTokenArrayList extends BaseLineTokenizer
   /**
    * adds tok to output token tuple
    * if splittoken is set starts subtoken processing
+   *
    * @param tok
    */
   @Override
@@ -108,12 +109,14 @@ public class LineToTokenArrayList extends BaseLineTokenizer
     if (!smap.isEmpty()) {
       stokentuple.add(smap);
     }
+
     smap = null;
     vals = null;
   }
 
   /**
    * Addd first subtoken to key, and rest to value ArrayList
+   *
    * @param subtok
    */
   @Override
