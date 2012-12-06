@@ -108,7 +108,7 @@ public class LineToTokenHashMap extends BaseLineTokenizer
    * If you have multiple subtokens with same value, override and aggregate the values and then put
    * in the map
    * @param stok subtoken
-   * @param vals subtoken val list
+   * @param svals subtoken val list
    */
   public void addSubToken(String stok, ArrayList<String> svals)
   {

@@ -10,7 +10,7 @@ import java.util.HashMap;
 import javax.validation.constraints.Min;
 
 /**
- *
+ * <b>Not certified yet. Do not use</b>
  * A hash lookup class, maintains hashes for as many previous windows as users asks and returns the oldest matching lookup on query, and clears the oldest hash
  * on beginWindow<p>
  * This module is a pass through<br>
@@ -26,7 +26,7 @@ import javax.validation.constraints.Min;
  * <b>Specific run time checks</b>: None<br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for AllAfterMatch&lt;K,V extends Number&gt; operator template">
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for HashLookup&lt;K,V&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
  * <tr><td><b>TBD</b></td><td>TBD</td><td>TBD</td></tr>
  * </table><br>
