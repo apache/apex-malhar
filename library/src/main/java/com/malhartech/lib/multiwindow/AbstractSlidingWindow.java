@@ -39,16 +39,17 @@ import javax.validation.constraints.Min;
  * </table><br>
  * <p>
  * <b>Function Table</b>: Not relevant as it is a AbstractSlidingWindow class<br>
- * <b>State Table</b>: For state of type String; and n = 3; saveWindowState(String) called in endWindow()<br>
+ * <b>State Table</b>: For state of type String; and n = 3; Assume saveWindowState(String) called in endWindow() by user's operator extended from AbstractSlidingWindow<br>
  * <table border="1" cellspacing=1 cellpadding=1 summary="State table for AbstractSlidingWindow&lt;T&gt; operator template">
- * <tr><th rowspan=2>End of Window</th><th>saveWindowState data</th><th>Value returned by getWindowState(i)</th></tr>
- * <tr><td>0</td><td>"s0"</td><td>i=2 returns "s0"<br>i=1 returns null<br>i=0 returns null</td></tr>
- * <tr><td>1</td><td>"s1"</td><td>i=2 returns "s1"<br>i=1 returns "s0"<br>i=0 returns null</td></tr>
- * <tr><td>2</td><td>"s2"</td><td>i=2 returns "s2"<br>i=1 returns "s1"<br>i=0 returns "s0"</td></tr>
- * <tr><td>3</td><td>"s3"</td><td>i=2 returns "s3"<br>i=1 returns "s2"<br>i=0 returns "s1"</td></tr>
- * <tr><td>4</td><td>"s4"</td><td>i=2 returns "s4"<br>i=1 returns "s3"<br>i=0 returns "s2"</td></tr>
- * <tr><td>5</td><td>"s5"</td><td>i=2 returns "s5"<br>i=1 returns "s4"<br>i=0 returns "s3"</td></tr>
- * <tr><td>6</td><td>"s6"</td><td>i=2 returns "s6"<br>i=1 returns "s5"<br>i=0 returns "s4"</td></tr>
+ * <tr><th>Window Id</th><th>saveWindowState(Object o)</th>
+ * <th>Values returned by getWindowState(i) before saveWindowState(o) is called</th><th>Values returned by getWindowState(i) after saveWindowState(o) is called</th></tr>
+ * <tr><td>0</td><td>o = "s0"</td><td>i=2 returns null<br>i=1 returns null<br>i=0 returns null</td><td>i=2 returns "s0"<br>i=1 returns null<br>i=0 returns null</td></tr>
+ * <tr><td>1</td><td>o = "s1"</td><td>i=2 returns null<br>i=1 returns "s0"<br>i=0 returns null</td><td>i=2 returns "s1"<br>i=1 returns "s0"<br>i=0 returns null</td></tr>
+ * <tr><td>2</td><td>o = "s2"</td><td>i=2 returns null<br>i=1 returns "s1"<br>i=0 returns "s0"</td><td>i=2 returns "s2"<br>i=1 returns "s1"<br>i=0 returns "s0"</td></tr>
+ * <tr><td>3</td><td>o = "s3"</td><td>i=2 returns null<br>i=1 returns "s2"<br>i=0 returns "s1"</td><td>i=2 returns "s3"<br>i=1 returns "s2"<br>i=0 returns "s1"</td></tr>
+ * <tr><td>4</td><td>o = "s4"</td><td>i=2 returns null<br>i=1 returns "s3"<br>i=0 returns "s2"</td><td>i=2 returns "s4"<br>i=1 returns "s3"<br>i=0 returns "s2"</td></tr>
+ * <tr><td>5</td><td>o = "s5"</td><td>i=2 returns null<br>i=1 returns "s4"<br>i=0 returns "s3"</td><td>i=2 returns "s5"<br>i=1 returns "s4"<br>i=0 returns "s3"</td></tr>
+ * <tr><td>6</td><td>o = "s6"</td><td>i=2 returns null<br>i=1 returns "s5"<br>i=0 returns "s4"</td><td>i=2 returns "s6"<br>i=1 returns "s5"<br>i=0 returns "s4"</td></tr>
  * </table>
  *
  * @author Amol Kekre (amol@malhar-inc.com)<br>
@@ -129,9 +130,8 @@ public abstract class AbstractSlidingWindow<T> extends BaseOperator
   }
 
   /**
-   * Increments the state counter. If you override this, you must include super.beginWindow(windowId) to ensure proper operator
-   * behavior
-   *
+   * Moves states by 1 and sets current state to null. If you override beginWindow, you must call super.beginWindow(windowId) to ensure
+   * proper operator behavior.
    * @param windowId
    */
   @Override
