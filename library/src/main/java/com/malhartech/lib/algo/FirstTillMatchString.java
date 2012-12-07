@@ -107,7 +107,7 @@ public class FirstTillMatchString<K> extends BaseMatchOperator<K,String>
 
   @OutputPortFieldAnnotation(name="first")
   public final transient DefaultOutputPort<HashMap<K, String>> first = new DefaultOutputPort<HashMap<K, String>>(this);
-  boolean emitted = false;
+  transient boolean emitted = false;
 
   /**
    * Emitted set is reset to false

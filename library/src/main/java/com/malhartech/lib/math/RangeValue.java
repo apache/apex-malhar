@@ -78,8 +78,8 @@ public class RangeValue<V extends Number> extends BaseNumberValueOperator<V>
 
   @OutputPortFieldAnnotation(name = "range")
   public final transient DefaultOutputPort<ArrayList<V>> range = new DefaultOutputPort<ArrayList<V>>(this);
-  MutableDouble high = null;
-  MutableDouble low = null;
+  protected transient MutableDouble high = null;
+  protected transient MutableDouble low = null;
 
   /**
    * Clears the values

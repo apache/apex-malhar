@@ -72,7 +72,7 @@ public class InvertIndexArray<K, V> extends BaseKeyValueOperator<K,V>
 
   @OutputPortFieldAnnotation(name = "index")
   public final transient DefaultOutputPort<HashMap<V, ArrayList<K>>> index = new DefaultOutputPort<HashMap<V, ArrayList<K>>>(this);
-  HashMap<V, ArrayList<K>> map = new HashMap<V, ArrayList<K>>();
+  protected transient HashMap<V, ArrayList<K>> map = new HashMap<V, ArrayList<K>>();
 
   /**
    *

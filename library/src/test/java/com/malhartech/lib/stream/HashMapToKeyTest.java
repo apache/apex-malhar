@@ -3,7 +3,6 @@
  */
 package com.malhartech.lib.stream;
 
-import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.engine.TestCountSink;
 import java.util.HashMap;
 import junit.framework.Assert;

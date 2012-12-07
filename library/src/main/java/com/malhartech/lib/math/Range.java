@@ -92,8 +92,8 @@ public class Range<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
   };
   @OutputPortFieldAnnotation(name = "range")
   public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> range = new DefaultOutputPort<HashMap<K, ArrayList<V>>>(this);
-  HashMap<K,MutableDouble> high = new HashMap<K,MutableDouble>();
-  HashMap<K,MutableDouble> low = new HashMap<K,MutableDouble>();
+  protected transient HashMap<K,MutableDouble> high = new HashMap<K,MutableDouble>();
+  protected transient HashMap<K,MutableDouble> low = new HashMap<K,MutableDouble>();
 
   /**
    * Clears the cache/hash

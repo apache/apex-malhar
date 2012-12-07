@@ -83,7 +83,7 @@ public class Min<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
   };
   @OutputPortFieldAnnotation(name = "min")
   public final transient DefaultOutputPort<HashMap<K, V>> min = new DefaultOutputPort<HashMap<K, V>>(this);
-  HashMap<K, MutableDouble> low = new HashMap<K, MutableDouble>();
+  protected transient HashMap<K, MutableDouble> low = new HashMap<K, MutableDouble>();
 
   /**
    * Clears the cache/hash

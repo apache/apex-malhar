@@ -98,6 +98,9 @@ public class ChangeAlert<K, V extends Number> extends BaseNumberKeyValueOperator
   @OutputPortFieldAnnotation(name = "alert")
   public final transient DefaultOutputPort<HashMap<K, HashMap<V,Double>>> alert = new DefaultOutputPort<HashMap<K, HashMap<V,Double>>>(this);
 
+  /**
+   * basemap is a stateful field. It is retained across windows
+   */
   private HashMap<K,MutableDouble> basemap = new HashMap<K,MutableDouble>();
   private double percentThreshold = 0.0;
 

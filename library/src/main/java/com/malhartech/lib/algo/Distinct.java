@@ -53,28 +53,28 @@ import java.util.Map;
  * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td></tr>
  * </table>
  * <br>
+ *
  * @author Amol Kekre (amol@malhar-inc.com)<br>
  * <br>
  *
  *
  */
-
-public class Distinct<K,V> extends BaseKeyValueOperator<K,V>
+public class Distinct<K, V> extends BaseKeyValueOperator<K, V>
 {
-  @InputPortFieldAnnotation(name="data")
-  public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>(this)
+  @InputPortFieldAnnotation(name = "data")
+  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
   {
     /**
      * Process HashMap<K,V> tuple on input port data, and emits if match not found. Updates the cache
      * with new key,val pair
      */
     @Override
-    public void process(HashMap<K,V> tuple)
+    public void process(HashMap<K, V> tuple)
     {
-      for (Map.Entry<K,V> e: tuple.entrySet()) {
+      for (Map.Entry<K, V> e: tuple.entrySet()) {
         HashMap<V, Object> vals = mapkeyval.get(e.getKey());
         if ((vals == null) || !vals.containsKey(e.getValue())) {
-          HashMap<K,V> otuple = new HashMap<K,V>(1);
+          HashMap<K, V> otuple = new HashMap<K, V>(1);
           otuple.put(cloneKey(e.getKey()), cloneValue(e.getValue()));
           distinct.emit(otuple);
           if (vals == null) {
@@ -86,13 +86,13 @@ public class Distinct<K,V> extends BaseKeyValueOperator<K,V>
       }
     }
   };
-
-  @OutputPortFieldAnnotation(name="distinct")
-  public final transient DefaultOutputPort<HashMap<K,V>> distinct = new DefaultOutputPort<HashMap<K,V>>(this);
-  HashMap<K, HashMap<V, Object>> mapkeyval = new HashMap<K, HashMap<V, Object>>();
+  @OutputPortFieldAnnotation(name = "distinct")
+  public final transient DefaultOutputPort<HashMap<K, V>> distinct = new DefaultOutputPort<HashMap<K, V>>(this);
+  protected transient HashMap<K, HashMap<V, Object>> mapkeyval = new HashMap<K, HashMap<V, Object>>();
 
   /**
    * Clears the cache/hash
+   *
    * @param windowId
    */
   @Override

@@ -12,6 +12,7 @@ import com.malhartech.lib.util.BaseKeyOperator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import javax.validation.constraints.NotNull;
 
 /**
  *
@@ -94,6 +95,7 @@ public class FilterKeys<K,V> extends BaseKeyOperator<K>
   @OutputPortFieldAnnotation(name="filter")
   public final transient DefaultOutputPort<HashMap<K, V>> filter = new DefaultOutputPort<HashMap<K, V>>(this);
 
+  @NotNull()
   HashMap<K, V> keys = new HashMap<K, V>();
   boolean inverse = false;
 

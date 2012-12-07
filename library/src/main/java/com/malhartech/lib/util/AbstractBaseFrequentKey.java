@@ -30,7 +30,7 @@ public abstract class AbstractBaseFrequentKey<K> extends BaseKeyOperator<K>
     }
     count.value++;
   }
-  HashMap<K, MutableInteger> keycount = new HashMap<K, MutableInteger>();
+  protected transient HashMap<K, MutableInteger> keycount = new HashMap<K, MutableInteger>();
 
   /**
    * override emitTuple to decide the port to emit to

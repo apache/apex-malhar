@@ -101,7 +101,7 @@ public class AllAfterMatchStringValue<K> extends BaseMatchOperator<K, String>
   };
   @OutputPortFieldAnnotation(name = "allafter")
   public final transient DefaultOutputPort<HashMap<K, String>> allafter = new DefaultOutputPort<HashMap<K, String>>(this);
-  boolean doemit = false;
+  transient boolean doemit = false;
 
   /**
    * Resets the matched variable

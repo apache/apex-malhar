@@ -84,7 +84,7 @@ public class Max<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
   };
   @OutputPortFieldAnnotation(name = "max")
   public final transient DefaultOutputPort<HashMap<K,V>> max = new DefaultOutputPort<HashMap<K,V>>(this);
-  HashMap<K,MutableDouble> high = new HashMap<K,MutableDouble>();
+  protected transient HashMap<K,MutableDouble> high = new HashMap<K,MutableDouble>();
 
   /**
    * Clears the cache/hash

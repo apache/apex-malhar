@@ -15,7 +15,7 @@ import java.util.Map;
 import javax.validation.constraints.Min;
 
 /**
- *
+ * <b>A demo operator. Needs to be moved to demo library</b>
  * Retains the last N values on any key, in effect acts like a fifo. The node also provides a lookup via port <b>lookup</b>. This module
  * was mainly developed for a demo<p>
  * <br>

@@ -85,7 +85,7 @@ public class Sampler<K> extends BaseKeyOperator<K>
   int passrate = 1;
   @Min(1)
   int totalrate = 100;
-  private Random random = new Random();
+  private transient Random random = new Random();
 
   /**
    * getter function for pass rate

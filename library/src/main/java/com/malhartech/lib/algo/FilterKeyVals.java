@@ -93,9 +93,10 @@ public class FilterKeyVals<K,V> extends BaseKeyOperator<K>
   @OutputPortFieldAnnotation(name="filter")
   public final transient DefaultOutputPort<HashMap<K, V>> filter = new DefaultOutputPort<HashMap<K, V>>(this);
 
+  @NotNull()
   HashMap<HashMap<K,V>,Object> keyvals = new HashMap<HashMap<K,V>,Object>();
   boolean inverse = false;
-  HashMap<K,V> entry = new HashMap<K,V>(1);
+  private transient HashMap<K,V> entry = new HashMap<K,V>(1);
 
   /**
    * getter function for parameter inverse

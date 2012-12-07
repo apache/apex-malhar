@@ -93,7 +93,7 @@ public class MatchAll<K, V extends Number> extends BaseMatchOperator<K, V>
   };
   @OutputPortFieldAnnotation(name = "all")
   public final transient DefaultOutputPort<Boolean> all = new DefaultOutputPort<Boolean>(this);
-  boolean result = true;
+  protected transient boolean result = true;
 
   /**
    * Resets the match flag

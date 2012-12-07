@@ -98,8 +98,8 @@ public class OrderByValue<K, V> extends BaseKeyValueOperator<K, V>
   public final transient DefaultOutputPort<HashMap<K, V>> ordered_list = new DefaultOutputPort<HashMap<K, V>>(this);
   @OutputPortFieldAnnotation(name = "ordered_count")
   public final transient DefaultOutputPort<HashMap<K, HashMap<V, Integer>>> ordered_count = new DefaultOutputPort<HashMap<K, HashMap<V, Integer>>>(this);
-  PriorityQueue<V> pqueue = null;
-  HashMap<V, HashMap<K, MutableInteger>> smap = new HashMap<V, HashMap<K, MutableInteger>>();
+  protected transient PriorityQueue<V> pqueue = null;
+  protected transient HashMap<V, HashMap<K, MutableInteger>> smap = new HashMap<V, HashMap<K, MutableInteger>>();
   HashMap<K, Object> filterBy = new HashMap<K, Object>();
   boolean inverse = false;
 

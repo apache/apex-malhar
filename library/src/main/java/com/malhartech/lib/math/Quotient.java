@@ -109,8 +109,8 @@ public class Quotient<K, V extends Number> extends BaseNumberKeyValueOperator<K,
       map.put(cloneKey(e.getKey()), val);
     }
   }
-  HashMap<K, MutableDouble> numerators = new HashMap<K, MutableDouble>();
-  HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();
+  protected transient HashMap<K, MutableDouble> numerators = new HashMap<K, MutableDouble>();
+  protected transient HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();
   boolean countkey = false;
   int mult_by = 1;
   @Min(1)

@@ -74,8 +74,8 @@ public class MinValue<V extends Number> extends BaseNumberValueOperator<V>
 
   @OutputPortFieldAnnotation(name = "min")
   public final transient DefaultOutputPort<V> min = new DefaultOutputPort<V>(this);
-  double low;
-  boolean flag = false;
+  protected transient double low;
+  protected transient boolean flag = false;
 
   /**
    * Old max is reset

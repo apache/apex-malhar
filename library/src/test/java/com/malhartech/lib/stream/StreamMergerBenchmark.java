@@ -3,9 +3,7 @@
  */
 package com.malhartech.lib.stream;
 
-import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.engine.TestCountSink;
-import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -24,6 +22,7 @@ public class StreamMergerBenchmark
    * Test oper pass through. The Object passed is not relevant
    */
   @Test
+  @SuppressWarnings("SleepWhileInLoop")
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {

@@ -104,8 +104,8 @@ public class Sum<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
   public final transient DefaultOutputPort<HashMap<K, V>> average = new DefaultOutputPort<HashMap<K, V>>(this);
   @OutputPortFieldAnnotation(name = "count", optional=true)
   public final transient DefaultOutputPort<HashMap<K, Integer>> count = new DefaultOutputPort<HashMap<K, Integer>>(this);
-  HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
-  HashMap<K, MutableInteger> counts = new HashMap<K, MutableInteger>();
+  protected transient HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
+  protected transient HashMap<K, MutableInteger> counts = new HashMap<K, MutableInteger>();
 
   /**
    * Clears the cache/hash

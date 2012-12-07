@@ -110,8 +110,8 @@ public class Margin<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
   }
   @OutputPortFieldAnnotation(name = "margin")
   public final transient DefaultOutputPort<HashMap<K, V>> margin = new DefaultOutputPort<HashMap<K, V>>(this);
-  HashMap<K, MutableDouble> numerators = new HashMap<K, MutableDouble>();
-  HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();
+  protected transient HashMap<K, MutableDouble> numerators = new HashMap<K, MutableDouble>();
+  protected transient HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();
   boolean percent = false;
 
   /**

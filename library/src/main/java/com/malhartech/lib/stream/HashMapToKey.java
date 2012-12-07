@@ -48,6 +48,7 @@ import java.util.Map;
  * @author Amol Kekre (amol@malhar-inc.com)<br>
  * <br>
  */
+
 public class HashMapToKey<K, V> extends BaseKeyValueOperator<K, V>
 {
   @InputPortFieldAnnotation(name = "data")

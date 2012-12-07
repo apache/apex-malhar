@@ -73,8 +73,8 @@ public class MaxValue<V extends Number> extends BaseNumberValueOperator<V>
 
   @OutputPortFieldAnnotation(name = "max")
   public final transient DefaultOutputPort<V> max = new DefaultOutputPort<V>(this);
-  double high;
-  boolean flag = false;
+  protected transient double high;
+  protected transient boolean flag = false;
 
   /**
    * Old max is reset

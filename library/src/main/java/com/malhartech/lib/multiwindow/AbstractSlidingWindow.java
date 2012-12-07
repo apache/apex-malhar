@@ -67,7 +67,7 @@ public abstract class AbstractSlidingWindow<T> extends BaseOperator
     }
   };
 
-  Object[] states = null;
+  protected Object[] states = null;
   protected int currentstate = -1;
 
   @Min(2)

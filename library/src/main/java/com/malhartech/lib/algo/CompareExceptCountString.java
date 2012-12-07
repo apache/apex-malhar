@@ -74,8 +74,9 @@ public class CompareExceptCountString<K> extends MatchString<K, String>
   public final transient DefaultOutputPort<Integer> count = new DefaultOutputPort<Integer>(this);
   @OutputPortFieldAnnotation(name = "except")
   public final transient DefaultOutputPort<Integer> except = new DefaultOutputPort<Integer>(this);
-  private int tcount = 0;
-  private int icount = 0;
+
+  protected transient int tcount = 0;
+  protected transient int icount = 0;
 
   /**
    * Increments matched tuple count

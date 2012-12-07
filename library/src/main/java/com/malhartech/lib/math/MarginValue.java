@@ -82,8 +82,8 @@ public class MarginValue<V extends Number> extends BaseNumberValueOperator<V>
   };
   @InputPortFieldAnnotation(name = "margin")
   public final transient DefaultOutputPort<V> margin = new DefaultOutputPort<V>(this);
-  double nval = 0.0;
-  double dval = 0.0;
+  protected transient double nval = 0.0;
+  protected transient double dval = 0.0;
 
   boolean percent = false;
 

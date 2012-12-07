@@ -79,8 +79,8 @@ public class QuotientValue<V extends Number> extends BaseNumberValueOperator<V>
   };
   @InputPortFieldAnnotation(name = "quotient")
   public final transient DefaultOutputPort<V> quotient = new DefaultOutputPort<V>(this);
-  double nval = 0.0;
-  double dval = 0.0;
+  protected transient double nval = 0.0;
+  protected transient double dval = 0.0;
   int mult_by = 1;
 
   public void setMult_by(int i)

@@ -73,8 +73,8 @@ public class SumValue<V extends Number> extends BaseNumberValueOperator<V>
   @OutputPortFieldAnnotation(name = "count", optional=true)
   public final transient DefaultOutputPort<Integer> count = new DefaultOutputPort<Integer>(this);
 
-  double sums = 0;
-  int counts = 0;
+  protected transient double sums = 0;
+  protected transient int counts = 0;
 
   /**
    * clears sum and count

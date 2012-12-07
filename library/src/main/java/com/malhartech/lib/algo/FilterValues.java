@@ -11,6 +11,7 @@ import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import java.util.ArrayList;
 import java.util.HashMap;
+import javax.validation.constraints.NotNull;
 
 /**
  *
@@ -84,6 +85,8 @@ public class FilterValues<T> extends BaseOperator
   };
   @OutputPortFieldAnnotation(name = "filter")
   public final transient DefaultOutputPort<T> filter = new DefaultOutputPort<T>(this);
+
+  @NotNull()
   HashMap<T, Object> values = new HashMap<T, Object>();
   boolean inverse = false;
 

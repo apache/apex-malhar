@@ -16,12 +16,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * <b>Demo only module. do not use</b>
  * Inverts the map and sends out the tuple on output port index on end of window. This operator is demo specific and should be moved<p>
  * Has been templatized, but not tested<br>
- *
- *
- *
+ * TBD: Move it to demo library
  * @author amol<br>
  *
  */

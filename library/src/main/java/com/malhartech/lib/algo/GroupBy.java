@@ -128,8 +128,8 @@ public class GroupBy<K,V> extends BaseKeyValueOperator<K,V>
 
   @NotNull
   K key;
-  HashMap<V,ArrayList<HashMap<K,V>>> map1 = new HashMap<V,ArrayList<HashMap<K,V>>>();
-  HashMap<V,ArrayList<HashMap<K,V>>> map2 = new HashMap<V,ArrayList<HashMap<K,V>>>();
+  protected transient HashMap<V,ArrayList<HashMap<K,V>>> map1 = new HashMap<V,ArrayList<HashMap<K,V>>>();
+  protected transient HashMap<V,ArrayList<HashMap<K,V>>> map2 = new HashMap<V,ArrayList<HashMap<K,V>>>();
 
   /**
    * Sets key to groupby

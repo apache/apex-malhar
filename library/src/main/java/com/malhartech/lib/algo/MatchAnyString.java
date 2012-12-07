@@ -102,7 +102,7 @@ public class MatchAnyString<K> extends BaseMatchOperator<K, String>
   };
   @OutputPortFieldAnnotation(name = "any")
   public final transient DefaultOutputPort<Boolean> any = new DefaultOutputPort<Boolean>(this);
-  boolean result = false;
+  protected transient boolean result = false;
 
   /**
    * Resets match flag

@@ -4,7 +4,6 @@ package com.malhartech.lib.algo;
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
@@ -63,6 +62,7 @@ import java.util.HashMap;
  * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td></tr>
  * </table>
  * <br>
+ *
  * @author Amol Kekre (amol@malhar-inc.com)<br>
  * <br>
  */
@@ -86,7 +86,7 @@ public class DistinctKey<K> extends BaseKeyOperator<K>
   };
   @OutputPortFieldAnnotation(name = "distinct")
   public final transient DefaultOutputPort<K> distinct = new DefaultOutputPort<K>(this);
-  HashMap<K, Object> map = new HashMap<K, Object>();
+  protected transient HashMap<K, Object> map = new HashMap<K, Object>();
 
   /**
    * Clears the cache/hash

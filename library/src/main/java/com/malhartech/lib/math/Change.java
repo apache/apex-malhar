@@ -115,5 +115,8 @@ public class Change<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
   @OutputPortFieldAnnotation(name = "percent", optional = true)
   public final transient DefaultOutputPort<HashMap<K, Double>> percent = new DefaultOutputPort<HashMap<K, Double>>(this);
 
+  /**
+   * basemap is a stateful field. It is retained across windows
+   */
   private HashMap<K,MutableDouble> basemap = new HashMap<K,MutableDouble>();
 }

@@ -89,7 +89,7 @@ public class AllAfterMatch<K, V extends Number> extends BaseMatchOperator<K,V>
 
   @OutputPortFieldAnnotation(name="allafter")
   public final transient DefaultOutputPort<HashMap<K, V>> allafter = new DefaultOutputPort<HashMap<K, V>>(this);
-  boolean doemit = false;
+  transient boolean doemit = false;
 
   /**
    * Resets the matched variable

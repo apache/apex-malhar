@@ -110,9 +110,9 @@ public class OrderByKey<K,V> extends BaseKeyValueOperator<K,V>
 
   @NotNull()
   K orderby = null;
-  protected PriorityQueue<V> pqueue = null;
-  protected HashMap<V,MutableInteger> countmap = new HashMap<V,MutableInteger>();
-  protected HashMap<V,ArrayList<HashMap<K,V>>> smap = new HashMap<V,ArrayList<HashMap<K,V>>>();
+  protected transient PriorityQueue<V> pqueue = null;
+  protected transient HashMap<V,MutableInteger> countmap = new HashMap<V,MutableInteger>();
+  protected transient HashMap<V,ArrayList<HashMap<K,V>>> smap = new HashMap<V,ArrayList<HashMap<K,V>>>();
 
   /**
    * getter function for orderby

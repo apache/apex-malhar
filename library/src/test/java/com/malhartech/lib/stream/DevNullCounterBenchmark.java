@@ -31,6 +31,7 @@ public class DevNullCounterBenchmark
    * Tests both string and non string schema
    */
   @Test
+  @SuppressWarnings("SleepWhileInLoop")
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testSingleSchemaNodeProcessing() throws Exception
   {
