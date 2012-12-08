@@ -7,8 +7,6 @@ package com.malhartech.demos.twitter;
 import com.malhartech.stram.DAGPropertiesBuilder;
 import com.malhartech.stram.StramLocalCluster;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Ignore;
 import org.junit.Test;
