@@ -77,7 +77,7 @@ public abstract class AbstractBaseMatchOperator<K,V extends Comparable> extends 
 
   /**
    * getter function for value
-   * @return
+   * @return value
    */
   public V getValue()
   {
