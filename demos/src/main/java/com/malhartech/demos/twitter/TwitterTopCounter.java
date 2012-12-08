@@ -41,7 +41,7 @@ public class TwitterTopCounter extends DAG
     return operator.input;
   }
 
-  public final TwitterSampleInput getTwitterFeed(String name, int multby)
+  public final TwitterSampleInput getTwitterFeed(String name)
   {
     final String propertyBase = "twitter4j";
     Properties properties = new Properties();
@@ -57,7 +57,7 @@ public class TwitterTopCounter extends DAG
      */
     TwitterSampleInput oper = addOperator(name, TwitterSampleInput.class);
     oper.setTwitterProperties(properties);
-    oper.setFeedMultiplier(multby);
+    oper.setFeedMultiplier(1);
     return oper;
   }
 
@@ -85,7 +85,7 @@ public class TwitterTopCounter extends DAG
   {
     super(conf);
 
-    TwitterSampleInput twitterFeed = getTwitterFeed("TweetSampler", 1); // Setup the operator to get the data from twitter sample stream injected into the system.
+    TwitterSampleInput twitterFeed = getTwitterFeed("TweetSampler"); // Setup the operator to get the data from twitter sample stream injected into the system.
     TwitterStatusURLExtractor urlExtractor = getTwitterUrlExtractor("URLExtractor"); //  Setup the operator to get the URLs extracted from the twitter statuses
     UniqueCounter<String> uniqueCounter = getUniqueCounter("UniqueURLCounter"); // Setup a node to count the unique urls within a window.
     WindowedTopCounter<String> topCounts = getTopCounter("TopCounter", 10);  // Get the aggregated url counts and count them over the timeframe
