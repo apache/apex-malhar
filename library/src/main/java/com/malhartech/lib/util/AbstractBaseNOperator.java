@@ -58,12 +58,15 @@ abstract public class AbstractBaseNOperator<K,V> extends BaseKeyValueOperator<K,
    * Sets value of N (depth)
    * @param val
    */
-  @Min(1)
   public void setN(int val)
   {
     n = val;
   }
 
+  /**
+   * getter function for N
+   * @return n
+   */
   @Min(1)
   public int getN()
   {

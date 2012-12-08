@@ -44,23 +44,38 @@ public class BaseMatchOperator<K,V> extends BaseKeyValueOperator<K,V>
   };
   supported_type type = supported_type.EQ;
 
-  @NotNull
+  /**
+   * setter function for key
+   * @param key
+   */
   public void setKey(K key)
   {
     this.key = key;
   }
 
+  /**
+   * getter function for key
+   * @return key
+   */
   @NotNull()
   public K getKey()
   {
     return key;
   }
 
+  /**
+   * setter function for value
+   * @param value
+   */
   public void setValue(double value)
   {
     this.value = value;
   }
 
+  /**
+   * getter function for value
+   * @return value
+   */
   public double getValue()
   {
     return value;

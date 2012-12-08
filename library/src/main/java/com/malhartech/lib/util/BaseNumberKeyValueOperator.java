@@ -31,7 +31,6 @@ public class BaseNumberKeyValueOperator<K,V extends Number> extends BaseFiltered
    * If you derive your
    * @param ctype the type to set the operator to
    */
-
   public void setType(Class<V> ctype)
   {
     if (ctype == Double.class) {

@@ -60,6 +60,10 @@ public abstract class AbstractBaseSortOperator<K> extends BaseKeyOperator<K>
   protected transient PriorityQueue<K> pqueue = null;
   protected transient HashMap<K, MutableInteger> pmap = new HashMap<K, MutableInteger>();
 
+  /**
+   * getter function for size
+   * @return size
+   */
   @Min(1)
   public int getSize()
   {

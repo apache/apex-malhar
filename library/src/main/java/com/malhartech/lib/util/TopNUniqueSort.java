@@ -7,6 +7,7 @@ package com.malhartech.lib.util;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.PriorityQueue;
+import javax.validation.constraints.Min;
 
 /**
  *
@@ -21,10 +22,31 @@ import java.util.PriorityQueue;
  */
 public class TopNUniqueSort<E>
 {
+  @Min(1)
   int qbound = Integer.MAX_VALUE;
   boolean ascending = true;
   HashMap<E, MutableInteger> hmap = null;
   PriorityQueue<E> q = null;
+
+  /**
+   * getter function for qbound
+   * @return qbound
+   */
+  @Min(1)
+  public int getQbound()
+  {
+    return qbound;
+  }
+
+  /**
+   * setter function for qbound
+   * @param i
+   */
+  public void setQbound(int i)
+  {
+    qbound = i;
+  }
+
 
   /**
    * Added default constructor for deserializer

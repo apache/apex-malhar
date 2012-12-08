@@ -47,23 +47,38 @@ public abstract class AbstractBaseMatchOperator<K,V extends Comparable> extends 
   };
   supported_type type = supported_type.EQ;
 
-  @NotNull
+  /**
+   * Setter function for key
+   * @param key
+   */
   public void setKey(K key)
   {
     this.key = key;
   }
 
+  /**
+   * getter function for key
+   * @return key
+   */
   @NotNull()
   public K getKey()
   {
     return key;
   }
 
+  /**
+   * setter function for value
+   * @param value
+   */
   public void setValue(V value)
   {
     this.value = value;
   }
 
+  /**
+   * getter function for value
+   * @return
+   */
   public V getValue()
   {
     return value;
@@ -125,6 +140,7 @@ public abstract class AbstractBaseMatchOperator<K,V extends Comparable> extends 
     }
     return ret;
   }
+
   /**
    * Setter function for compare type. Allowed values are lte, lt, eq, ne, gt, gte<p> *
    */

@@ -27,6 +27,25 @@ public class TopNSort<E>
   PriorityQueue<E> q = null;
 
   /**
+   * getter function for qbound
+   * @return qbound
+   */
+  @Min(1)
+  public int getQbound()
+  {
+    return qbound;
+  }
+
+  /**
+   * setter function for qbound
+   * @param i
+   */
+  public void setQbound(int i)
+  {
+    qbound = i;
+  }
+
+  /**
    * Added default constructor for deserializer
    */
   public TopNSort()
