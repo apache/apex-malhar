@@ -16,6 +16,12 @@
   <url>http://maven.apache.org</url>
 
   <repositories>
+    <!-- 
+      Workaround for dependencies that are not available from a remote repository.
+      Only works for building the module, dependencies need to be scoped as provided
+      to allow for assembly plugin to work and allow for resolvable transitive closure
+      see http://jira.codehaus.org/browse/MNG-5181 
+    --> 
     <repository>
       <id>malhar-contrib-local</id>
       <name>Embedded repository for dependencies not available online</name>
@@ -59,11 +65,7 @@
       <groupId>kafka</groupId>
       <artifactId>kafka</artifactId>
       <version>0.7.1</version>
-      <!-- 
-        prevent assembly repository check failure
-        see http://jira.codehaus.org/browse/MNG-5181 
-      -->
-      <scope>provided</scope>
+      <scope>provided</scope> <!-- local repository -->
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -95,7 +97,7 @@
       <groupId>org.zeromq</groupId>
       <artifactId>jzmq</artifactId>
       <version>1.1.0-SNAPSHOT</version>
-      <scope>provided</scope>
+      <scope>provided</scope> <!-- local repository -->
     </dependency>
     <dependency>
       <groupId>org.mongodb</groupId>
