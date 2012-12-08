@@ -17,9 +17,15 @@
 
   <repositories>
     <repository>
-      <id>malhar-local</id>
+      <id>malhar-contrib-local</id>
       <name>Embedded repository for dependencies not available online</name>
       <url>file://${project.basedir}/maven2</url>
+      <snapshots>
+        <updatePolicy>never</updatePolicy>
+      </snapshots>
+      <releases>
+        <updatePolicy>never</updatePolicy>
+      </releases>
     </repository>
   </repositories>
 
@@ -44,15 +50,20 @@
 
   <dependencies>
     <dependency>
-          <!-- Since Kafka is not published on the standard mvn repository,
-               you will need to download it, compile it and install using
-               mvn install:install-file -Dfile=kafka-0.7.1.jar -DgroupId=kafka -DartifactId=kafka -Dversion=0.7.1 -Dpackaging=jar
-              Download:
-              https://www.apache.org/dyn/closer.cgi/incubator/kafka/kafka-0.7.1-incubating/kafka-0.7.1-incubating-src.tgz
-          -->
+     <!-- Since Kafka is not published on the standard mvn repository,
+        you will need to download it, compile it and install using
+        mvn install:install-file -Dfile=kafka-0.7.1.jar -DgroupId=kafka -DartifactId=kafka -Dversion=0.7.1 -Dpackaging=jar
+        Download:
+       https://www.apache.org/dyn/closer.cgi/incubator/kafka/kafka-0.7.1-incubating/kafka-0.7.1-incubating-src.tgz
+     -->
       <groupId>kafka</groupId>
       <artifactId>kafka</artifactId>
       <version>0.7.1</version>
+      <!-- 
+        prevent assembly repository check failure
+        see http://jira.codehaus.org/browse/MNG-5181 
+      -->
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -84,6 +95,7 @@
       <groupId>org.zeromq</groupId>
       <artifactId>jzmq</artifactId>
       <version>1.1.0-SNAPSHOT</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.mongodb</groupId>
