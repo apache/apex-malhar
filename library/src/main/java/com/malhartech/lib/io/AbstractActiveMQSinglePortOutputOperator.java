@@ -42,7 +42,7 @@ public abstract class AbstractActiveMQSinglePortOutputOperator<T> extends Abstra
   /**
    * Convert tuple into JMS message. Tuple can be any Java Object.
    * @param tuple
-   * @return
+   * @return Message
    */
   protected abstract Message createMessage(T tuple);
 
