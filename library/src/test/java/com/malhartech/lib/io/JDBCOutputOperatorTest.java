@@ -144,7 +144,7 @@ public class JDBCOutputOperatorTest
       super.setup(context);
       createDatabase(getDbName(), getConnection());
       createTable(getTableName(), getConnection(), getOrderedColumns(), getColumnToType());
-      initTransactionInfo();
+      initTransactionInfo(context);
     }
 
     @Override
