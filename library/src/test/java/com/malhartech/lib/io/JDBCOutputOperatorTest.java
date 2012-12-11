@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -28,6 +29,7 @@ public class JDBCOutputOperatorTest
   private static int tupleCount = 0;
   private static final int maxTuple = 20;
   private static int columnCount = 7;
+  private static int dataset = 1;
 
   public static void createDatabase(String dbName, Connection con)
   {
@@ -62,8 +64,7 @@ public class JDBCOutputOperatorTest
   {
     int num = columns.size();
     String cols = columns.get(0) + " " + colTypes.get(columns.get(0));
-    for (int i=1; i<num; i++)
-    {
+    for (int i = 1; i < num; i++) {
       cols = cols + ", " + columns.get(i) + " " + colTypes.get(columns.get(i));
     }
 
@@ -98,41 +99,26 @@ public class JDBCOutputOperatorTest
       ResultSet rs = stmt.executeQuery(query);
 
       while (rs.next()) {
-        logger.debug(String.format("%d, %d, %d, %d, %d, %d, %d",
-                                   rs.getInt("col1"), rs.getInt("col2"), rs.getInt("col3"),
-                                   rs.getInt("col4"), rs.getInt("col5"), rs.getInt("col6"),
-                                   rs.getInt("col7")));
-        tupleCount++;
-      }
-    }
-    catch (SQLException ex) {
-      logger.debug("exception during reading from table", ex);
-    }
-    finally {
-      try {
-        if (stmt != null) {
-          stmt.close();
+        if (dataset == 1) {
+          logger.debug(String.format("%d, %d, %d, %d, %d, %d, %d",
+                                     rs.getInt("col1"), rs.getInt("col2"), rs.getInt("col3"),
+                                     rs.getInt("col4"), rs.getInt("col5"), rs.getInt("col6"),
+                                     rs.getInt("col7")));
         }
-      }
-      catch (SQLException ex) {
-      }
-    }
-  }
-
-  public static void readTableText(String tableName, Connection con)
-  {
-    String query = "SELECT * FROM " + tableName;
-    Statement stmt = null;
-    try {
-      stmt = con.createStatement();
-      ResultSet rs = stmt.executeQuery(query);
-
-      while (rs.next()) {
-        logger.debug(String.format("%d, %s, %d, %s, %d, %s, %d",
-                                   rs.getInt("col1"), rs.getString("col2"),
-                                   rs.getInt("col3"), rs.getString("col4"),
-                                   rs.getInt("col5"), rs.getString("col6"),
-                                   rs.getInt("col7")));
+        else if (dataset == 2) {
+          logger.debug(String.format("%d, %s, %d, %s, %d, %s, %d",
+                                     rs.getInt("col1"), rs.getString("col2"),
+                                     rs.getInt("col3"), rs.getString("col4"),
+                                     rs.getInt("col5"), rs.getString("col6"),
+                                     rs.getInt("col7")));
+        }
+        else if (dataset == 3) {
+          logger.debug(String.format("%d, %d, %s, %s, %s, %s, %f",
+                                     rs.getInt("col1"), rs.getInt("col2"),
+                                     rs.getDate("col3"), rs.getDate("col4"),
+                                     rs.getString("col5"), rs.getString("col6"),
+                                     rs.getDouble("col7")));
+        }
         tupleCount++;
       }
     }
@@ -179,6 +165,8 @@ public class JDBCOutputOperatorTest
   @Test
   public void JDBCHashMapOutputOperatorTest() throws Exception
   {
+    tupleCount = 0; // reset
+    dataset = 1;
     MyHashMapOutputOperator oper = new MyHashMapOutputOperator();
 
     oper.setDbUrl("jdbc:mysql://localhost/");
@@ -241,20 +229,21 @@ public class JDBCOutputOperatorTest
     public void endWindow()
     {
       super.endWindow();
-      //readTable(getTableName(), getConnection());
-      readTableText(getTableName(), getConnection());
+      readTable(getTableName(), getConnection());
     }
   }
 
- //@Test
+  @Test
   public void JDBCArrayListOutputOperatorTest() throws Exception
   {
+    tupleCount = 0; // reset
+    dataset = 2;
     MyArrayListOutputOperator oper = new MyArrayListOutputOperator();
 
     oper.setDbUrl("jdbc:mysql://localhost/");
-    oper.setDbName("myTestDatabase");
-    oper.setDbUser("root");
-    oper.setDbPassword("root");
+    oper.setDbName("test");
+    oper.setDbUser("test");
+    oper.setDbPassword("");
     oper.setDbDriver("com.mysql.jdbc.Driver");
     oper.setTableName("Test_Tuple");
     String[] mapping = new String[7];
@@ -272,13 +261,76 @@ public class JDBCOutputOperatorTest
     for (int i = 0; i < maxTuple; ++i) {
       ArrayList<AbstractMap.SimpleEntry<String, Object>> al = new ArrayList<AbstractMap.SimpleEntry<String, Object>>();
       for (int j = 1; j <= columnCount; ++j) {
-        if ("INTEGER".equals(oper.getKeyToType().get("prop"+j))) {
+        if ("INTEGER".equals(oper.getKeyToType().get("prop" + j))) {
           al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, new Integer(columnCount * i + j)));
         }
         else {
-          //al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, new Integer(columnCount * i + j)));
-          //al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, new Double((columnCount * i + j)/3.0)));
           al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, "Test"));
+        }
+      }
+
+      oper.inputPort.process(al);
+    }
+    oper.endWindow();
+
+    oper.teardown();
+
+    // Check values send vs received
+    Assert.assertEquals("Number of emitted tuples", maxTuple, tupleCount);
+    logger.debug(String.format("Number of emitted tuples: %d", tupleCount));
+  }
+
+  @Test
+  public void JDBCArrayListOutputOperator_multiType_Test() throws Exception
+  {
+    tupleCount = 0; // reset
+    dataset = 3;
+    MyArrayListOutputOperator oper = new MyArrayListOutputOperator();
+
+    oper.setDbUrl("jdbc:mysql://localhost/");
+    oper.setDbName("test");
+    oper.setDbUser("test");
+    oper.setDbPassword("");
+    oper.setDbDriver("com.mysql.jdbc.Driver");
+    oper.setTableName("Test_Tuple");
+    String[] mapping = new String[7];
+    mapping[0] = "prop1:col1:INTEGER";
+    mapping[1] = "prop2:col2:BIGINT";
+    mapping[2] = "prop5:col5:CHAR";
+    mapping[3] = "prop6:col4:DATE";
+    mapping[4] = "prop7:col7:DOUBLE";
+    mapping[5] = "prop3:col6:VARCHAR(10)";
+    mapping[6] = "prop4:col3:DATE";
+    oper.setOrderedColumnMapping(mapping);
+
+    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
+    oper.beginWindow(0);
+    for (int i = 0; i < maxTuple; ++i) {
+      ArrayList<AbstractMap.SimpleEntry<String, Object>> al = new ArrayList<AbstractMap.SimpleEntry<String, Object>>();
+      for (int j = 1; j <= columnCount; ++j) {
+        if ("INTEGER".equals(oper.getKeyToType().get("prop" + j))) {
+          al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, new Integer(columnCount * i + j)));
+        }
+        else if ("BIGINT".equals(oper.getKeyToType().get("prop" + j))) {
+          al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, new Integer(columnCount * i + j)));
+        }
+        else if ("CHAR".equals(oper.getKeyToType().get("prop" + j))) {
+          al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, 'a'));
+        }
+        else if ("DATE".equals(oper.getKeyToType().get("prop" + j))) {
+          al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, new Date()));
+        }
+        else if ("DOUBLE".equals(oper.getKeyToType().get("prop" + j))) {
+          al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, new Double((columnCount * i + j) / 3.0)));
+        }
+        else if ("VARCHAR(10)".equals(oper.getKeyToType().get("prop" + j))) {
+          al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, "Test"));
+        }
+        else if ("TIME".equals(oper.getKeyToType().get("prop" + j))) {
+          al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, new Date()));
+        }
+        else {
+          throw new Exception();
         }
       }
 

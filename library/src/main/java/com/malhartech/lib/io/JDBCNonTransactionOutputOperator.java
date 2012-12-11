@@ -76,10 +76,10 @@ public class JDBCNonTransactionOutputOperator<V> extends JDBCOutputOperator<V>
   @Override
   public void setup(OperatorContext context)
   {
-    setTransactionType("nonTransaction");
+    ///setTransactionType("nonTransaction");
     buildMapping();
     setupJDBCConnection();
-    prepareInsertStatement();
+    //prepareInsertStatement();
   }
 
   /**

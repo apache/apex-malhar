@@ -33,7 +33,11 @@ public class JDBCArrayListOutputOperator extends JDBCOutputOperator<Object>
       try {
         int num = tuple.size();
         for (int idx=0; idx<num; idx++) {
-          getInsertStatement().setString(getKeyToIndex().get(tuple.get(idx).getKey()).intValue(), tuple.get(idx).getValue().toString());
+          String key = tuple.get(idx).getKey();
+          getInsertStatement().setObject(
+                  getKeyToIndex().get(key).intValue(),
+                  tuple.get(idx).getValue(),
+                  SQLType(getKeyToType().get(key)));
           count++;
         }
         //logger.debug(String.format("ps: %s", getInsertStatement().toString()));

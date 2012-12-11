@@ -160,6 +160,101 @@ public class JDBCOutputOperator<V> implements Operator
     return columnToType;
   }
 
+  /*
+   *
+   *  o BIGINT
+o BINARY
+o BIT
+o CHAR
+o DATE
+o DECIMAL
+o DOUBLE
+o FLOAT
+o INTEGER
+o LONGVARBINARY
+o LONGVARCHAR
+o NULL
+o NUMERIC
+o OTHER
+    OTHER indicates that the SQL type is database specific and gets mapped to a Java object which can be accessed via getObject and setObject.
+o REAL
+o SMALLINT
+o TIME
+o TIMESTAMP
+o TINYINT
+o VARBINARY
+o VARCHAR
+   */
+  public int SQLType(String type)
+  {
+    if ("BIGINT".equals(type)) {
+      return java.sql.Types.BIGINT;
+    }
+    else if ("BINARY".equals(type)) {
+      return java.sql.Types.BINARY;
+    }
+    else if ("BIT".equals(type)) {
+      return java.sql.Types.BIT;
+    }
+    else if ("CHAR".equals(type)) {
+      return java.sql.Types.CHAR;
+    }
+    else if ("DATE".equals(type)) {
+      return java.sql.Types.DATE;
+    }
+    else if ("DECIMAL".equals(type)) {
+      return java.sql.Types.DECIMAL;
+    }
+    else if ("DOUBLE".equals(type)) {
+      return java.sql.Types.DOUBLE;
+    }
+    else if ("FLOAT".equals(type)) {
+      return java.sql.Types.FLOAT;
+    }
+    else if ("INTEGER".equals(type)) {
+      return java.sql.Types.INTEGER;
+    }
+    else if ("LONGVARBINARY".equals(type)) {
+      return java.sql.Types.LONGVARBINARY;
+    }
+    else if ("LONGVARCHAR".equals(type)) {
+      return java.sql.Types.LONGVARCHAR;
+    }
+    else if ("NULL".equals(type)) {
+      return java.sql.Types.NULL;
+    }
+    else if ("NUMERIC".equals(type)) {
+      return java.sql.Types.NUMERIC;
+    }
+    else if ("OTHER".equals(type)) {
+      return java.sql.Types.OTHER;
+    }
+    else if ("REAL".equals(type)) {
+      return java.sql.Types.REAL;
+    }
+    else if ("SMALLINT".equals(type)) {
+      return java.sql.Types.SMALLINT;
+    }
+    else if ("TIME".equals(type)) {
+      return java.sql.Types.TIME;
+    }
+    else if ("TIMESTAMP".equals(type)) {
+      return java.sql.Types.TIMESTAMP;
+    }
+    else if ("TINYINT".equals(type)) {
+      return java.sql.Types.TINYINT;
+    }
+    else if ("VARBINARY".equals(type)) {
+      return java.sql.Types.VARBINARY;
+    }
+    else if ("VARCHAR".equals(type.substring(0, 7))) {
+      return java.sql.Types.VARCHAR;
+    }
+    else {
+      return 0;
+    }
+  }
+
   public void buildMapping()
   {
     try {
