@@ -4,15 +4,15 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.Operator;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,11 +33,10 @@ public class JDBCOutputOperator<V> implements Operator
   private ArrayList<String> orderedColumns = new ArrayList<String>(); // follow same order as items in tuple
   private HashMap<String, Integer> keyToIndex = new HashMap<String, Integer>();
   private HashMap<String, String> keyToType = new HashMap<String, String>();
-  private HashMap<String, String> keyToColumn = new HashMap<String, String>(); // only used for debugging
-  private Properties prop = null;
+  private HashMap<String, String> keyToColumn = new HashMap<String, String>();
+  private HashMap<String, String> columnToType = new HashMap<String, String>();
   private Connection connection = null;
-  private PreparedStatement ps = null;
-  private static int count = 0; // for debugging
+  private PreparedStatement insertStatement = null;
 
   public String getDbUrl()
   {
@@ -111,39 +110,40 @@ public class JDBCOutputOperator<V> implements Operator
     }
   }
 
-  public Properties getProp()
-  {
-    return prop;
-  }
-
   public Connection getConnection()
   {
     return connection;
   }
-  /**
-   * The input port.
-   */
-  @InputPortFieldAnnotation(name = "inputPort")
-  public final transient DefaultInputPort<HashMap<String, V>> inputPort = new DefaultInputPort<HashMap<String, V>>(this)
+
+  public PreparedStatement getInsertStatement()
   {
-    @Override
-    public void process(HashMap<String, V> tuple)
-    {
-      try {
-        for (Map.Entry<String, V> e: tuple.entrySet()) {
-          ps.setString(keyToIndex.get(e.getKey()).intValue(), e.getValue().toString());
-          count++;
-        }
-        ps.executeUpdate();
-      }
-      catch (SQLException ex) {
-        logger.debug("exception while update", ex);
-      }
+    return insertStatement;
+  }
 
-      logger.debug(String.format("count %d", count));
-    }
-  };
+  public ArrayList<String> getOrderedColumns()
+  {
+    return orderedColumns;
+  }
 
+  public HashMap<String, String> getKeyToType()
+  {
+    return keyToType;
+  }
+
+  public HashMap<String, String> getKeyToColumn()
+  {
+    return keyToColumn;
+  }
+
+  public HashMap<String, Integer> getKeyToIndex()
+  {
+    return keyToIndex;
+  }
+
+  public HashMap<String, String> getColumnToType()
+  {
+    return columnToType;
+  }
 
   public void buildMapping()
   {
@@ -161,6 +161,7 @@ public class JDBCOutputOperator<V> implements Operator
         keyToIndex.put(cols[0], new Integer(idx + 1));
         orderedColumns.add(cols[1]);
         keyToType.put(cols[0], (cols.length == 3) ? cols[2] : "UNSPECIFIED");
+        columnToType.put(cols[1], (cols.length == 3) ? cols[2] : "UNSPECIFIED");
       }
       logger.debug(keyToColumn.toString());
     }
@@ -215,7 +216,7 @@ public class JDBCOutputOperator<V> implements Operator
     String insertQuery = "INSERT INTO " + tableName + " (" + columns + ") VALUES (" + values + ")";
     logger.debug(String.format("%s", insertQuery));
     try {
-      ps = connection.prepareStatement(insertQuery);
+      insertStatement = connection.prepareStatement(insertQuery);
     }
     catch (SQLException ex) {
       logger.debug("exception during prepare statement", ex);
@@ -242,8 +243,8 @@ public class JDBCOutputOperator<V> implements Operator
   public void teardown()
   {
     try {
-      if (ps != null) {
-        ps.close();
+      if (insertStatement != null) {
+        insertStatement.close();
       }
       connection.close();
     }

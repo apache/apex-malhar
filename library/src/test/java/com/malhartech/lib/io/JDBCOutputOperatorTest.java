@@ -28,7 +28,6 @@ public class JDBCOutputOperatorTest
   private static int tupleCount = 0;
   private static final int maxTuple = 20;
   private static int columnCount = 7;
-  private static boolean readDone = false;
 
   public static void createDatabase(String dbName, Connection con)
   {
@@ -59,18 +58,21 @@ public class JDBCOutputOperatorTest
     logger.debug("JDBC DB creation Success");
   }
 
-  public static void createTable(String tableName, Connection con)
+  public static void createTable(String tableName, Connection con, ArrayList<String> columns, HashMap<String, String> colTypes)
   {
-    Statement stmt = null;
+    int num = columns.size();
+    String cols = columns.get(0) + " " + colTypes.get(columns.get(0));
+    for (int i=1; i<num; i++)
+    {
+      cols = cols + ", " + columns.get(i) + " " + colTypes.get(columns.get(i));
+    }
 
+    String str = "CREATE TABLE " + tableName + " (" + cols + ")";
+
+    Statement stmt = null;
     try {
       stmt = con.createStatement();
-      //String table = "CREATE TABLE " + tableName + " (col1 INT, col2 INT, col3 INT, col4 INT, "
-      //       + "col5 INT, col6 INT, col7 INT)";
-      String table = "CREATE TABLE " + tableName + " (col1 INT, col2 VARCHAR(10), col3 INT, col4 VARCHAR(10), "
-              + "col5 INT, col6 VARCHAR(10), col7 INT)";
-
-      stmt.executeUpdate(table);
+      stmt.executeUpdate(str);
     }
     catch (SQLException ex) {
       logger.debug("exception during creating database", ex);
@@ -148,14 +150,14 @@ public class JDBCOutputOperatorTest
     }
   }
 
-  public static class MyHashMapOutputOperator extends JDBCOutputOperator<Integer>
+  public static class MyHashMapOutputOperator extends JDBCHashMapOutputOperator<Integer>
   {
     @Override
     public void setup(OperatorContext context)
     {
       super.setup(context);
       createDatabase(getDbName(), getConnection());
-      createTable(getTableName(), getConnection());
+      createTable(getTableName(), getConnection(), getOrderedColumns(), getColumnToType());
     }
 
     @Override
@@ -192,9 +194,7 @@ public class JDBCOutputOperatorTest
     mapping[4] = "prop7:col7:INTEGER";
     mapping[5] = "prop3:col6:INTEGER";
     mapping[6] = "prop4:col3:INTEGER";
-
     oper.setOrderedColumnMapping(mapping);
-
 
     //oper.setColumnMapping("prop1:col1,prop2:col2,prop5:col5,prop6:col6,prop7:col7,prop3:col3,prop4:col4");
     //columnMapping=prop1:col1,prop2:col2,prop3:col3,prop4:col4,prop5:col5,prop6:col6,prop7:col7
@@ -225,8 +225,8 @@ public class JDBCOutputOperatorTest
     public void setup(OperatorContext context)
     {
       super.setup(context);
-      createDatabase(getProp().getProperty("dbName"), getConnection());
-      createTable(getProp().getProperty("tableName"), getConnection());
+      createDatabase(getDbName(), getConnection());
+      createTable(getTableName(), getConnection(), getOrderedColumns(), getColumnToType());
     }
 
     @Override
@@ -240,35 +240,52 @@ public class JDBCOutputOperatorTest
     public void endWindow()
     {
       super.endWindow();
-      //readTable(getProp().getProperty("tableName"), getConnection());
-      readTableText(getProp().getProperty("tableName"), getConnection());
+      //readTable(getTableName(), getConnection());
+      readTableText(getTableName(), getConnection());
     }
   }
 
-  //@Test
+ //@Test
   public void JDBCArrayListOutputOperatorTest() throws Exception
   {
-    MyArrayListOutputOperator node = new MyArrayListOutputOperator();
+    MyArrayListOutputOperator oper = new MyArrayListOutputOperator();
 
-    node.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
-    node.beginWindow(0);
+    oper.setDbUrl("jdbc:mysql://localhost/");
+    oper.setDbName("myTestDatabase");
+    oper.setDbUser("root");
+    oper.setDbPassword("root");
+    oper.setDbDriver("com.mysql.jdbc.Driver");
+    oper.setTableName("Test_Tuple");
+    String[] mapping = new String[7];
+    mapping[0] = "prop1:col1:INTEGER";
+    mapping[1] = "prop2:col2:VARCHAR(10)";
+    mapping[2] = "prop5:col5:INTEGER";
+    mapping[3] = "prop6:col4:VARCHAR(10)";
+    mapping[4] = "prop7:col7:INTEGER";
+    mapping[5] = "prop3:col6:VARCHAR(10)";
+    mapping[6] = "prop4:col3:INTEGER";
+    oper.setOrderedColumnMapping(mapping);
+
+    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
+    oper.beginWindow(0);
     for (int i = 0; i < maxTuple; ++i) {
       ArrayList<AbstractMap.SimpleEntry<String, Object>> al = new ArrayList<AbstractMap.SimpleEntry<String, Object>>();
       for (int j = 1; j <= columnCount; ++j) {
-        if (j % 2 == 1) {
+        if ("INTEGER".equals(oper.getKeyToType().get("prop"+j))) {
           al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, new Integer(columnCount * i + j)));
         }
         else {
+          //al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, new Integer(columnCount * i + j)));
           //al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, new Double((columnCount * i + j)/3.0)));
           al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, "Test"));
         }
       }
 
-      node.inputPort.process(al);
+      oper.inputPort.process(al);
     }
-    node.endWindow();
+    oper.endWindow();
 
-    node.teardown();
+    oper.teardown();
 
     // Check values send vs received
     Assert.assertEquals("Number of emitted tuples", maxTuple, tupleCount);
