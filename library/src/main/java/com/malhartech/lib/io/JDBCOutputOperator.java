@@ -7,7 +7,9 @@ package com.malhartech.lib.io;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.Operator;
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,9 +33,8 @@ public class JDBCOutputOperator<V> implements Operator
   private HashMap<String, String> keyToColumn = new HashMap<String, String>();
   private HashMap<String, String> columnToType = new HashMap<String, String>();
   private Connection connection = null;
-  private PreparedStatement ps = null;
-  private static int count = 0; // for debugging
-  protected Statement statement;
+  private PreparedStatement insertStatement = null;
+  protected Statement transactionStatement;
   protected long windowId;
   protected long lastWindowId;
 
@@ -239,19 +240,19 @@ public class JDBCOutputOperator<V> implements Operator
 
   public void initTransactionInfo() {
     try {
-      statement = connection.createStatement();
+      transactionStatement = connection.createStatement();
       DatabaseMetaData meta = connection.getMetaData();
       ResultSet rs1 = meta.getTables(null, null, "maxwindowid", null);
       if( rs1.next() == false ) {
 //        logger.debug("table not exist!");
         String createSQL = "CREATE TABLE maxwindowid(id int not null, winid bigint not null)";
-        statement.execute(createSQL);
+        transactionStatement.execute(createSQL);
         String insertSQL = "INSERT maxwindowid set id=0, winid=0";
-        statement.executeUpdate(insertSQL);
+        transactionStatement.executeUpdate(insertSQL);
       }
 
       String querySQL = "SELECT winid FROM maxwindowid LIMIT 1";
-      ResultSet rs = statement.executeQuery(querySQL);
+      ResultSet rs = transactionStatement.executeQuery(querySQL);
       if( rs.next() == false ) {
         logger.error("max windowId table not ready!");
         return;
@@ -313,7 +314,7 @@ public class JDBCOutputOperator<V> implements Operator
     try {
       if (windowId > lastWindowId) {
         String str = "UPDATE maxwindowid set winid="+windowId+" WHERE id=0";
-        statement.execute(str);
+        transactionStatement.execute(str);
         connection.commit();
 //       lastWindowId = windowId;
       }

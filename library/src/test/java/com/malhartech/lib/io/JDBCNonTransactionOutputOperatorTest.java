@@ -59,18 +59,21 @@ public class JDBCNonTransactionOutputOperatorTest
     logger.debug("JDBC DB creation Success");
   }
 
-  public static void createTable(String tableName, Connection con)
+  public static void createTable(String tableName, Connection con, ArrayList<String> columns, HashMap<String, String> colTypes)
   {
-    Statement stmt = null;
+    int num = columns.size();
+    String cols = columns.get(0) + " " + colTypes.get(columns.get(0));
+    for (int i=1; i<num; i++)
+    {
+      cols = cols + ", " + columns.get(i) + " " + colTypes.get(columns.get(i));
+    }
 
+    String str = "CREATE TABLE " + tableName + " (" + cols + ")";
+
+    Statement stmt = null;
     try {
       stmt = con.createStatement();
-      //String table = "CREATE TABLE " + tableName + " (col1 INT, col2 INT, col3 INT, col4 INT, "
-      //       + "col5 INT, col6 INT, col7 INT)";
-      String table = "CREATE TABLE " + tableName + " (col1 INT, col2 VARCHAR(10), col3 INT, col4 VARCHAR(10), "
-              + "col5 INT, col6 VARCHAR(10), col7 INT, winid INT)";
-
-      stmt.executeUpdate(table);
+      stmt.executeUpdate(str);
     }
     catch (SQLException ex) {
       logger.debug("exception during creating database", ex);
@@ -155,7 +158,7 @@ public class JDBCNonTransactionOutputOperatorTest
     {
       super.setup(context);
       createDatabase(getDbName(), getConnection());
-      createTable(getTableName(), getConnection());
+      //createTable(getTableName(), getConnection(), getOrderedColumns(), getColumnToType());
       initLastWindowInfo(getTableName());
     }
 
@@ -235,8 +238,8 @@ public class JDBCNonTransactionOutputOperatorTest
     public void setup(OperatorContext context)
     {
       super.setup(context);
-      createDatabase(getProp().getProperty("dbName"), getConnection());
-      createTable(getProp().getProperty("tableName"), getConnection());
+     createDatabase(getDbName(), getConnection());
+   //   createTable(getTableName(), getConnection(), getOrderedColumns(), getColumnToType());
     }
 
     @Override
@@ -251,7 +254,7 @@ public class JDBCNonTransactionOutputOperatorTest
     {
       super.endWindow();
       //readTable(getProp().getProperty("tableName"), getConnection());
-      readTableText(getProp().getProperty("tableName"), getConnection());
+  //    readTableText(getProp().getProperty("tableName"), getConnection());
     }
   }
 
