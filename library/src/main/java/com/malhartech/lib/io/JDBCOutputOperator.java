@@ -26,6 +26,7 @@ public class JDBCOutputOperator<V> implements Operator
   private String dbPassword;
   private String dbDriver;
   private String tableName;
+  private String transactionType;
   private ArrayList<String> orderedColumnMapping = new ArrayList<String>();
   private ArrayList<String> orderedColumns = new ArrayList<String>(); // follow same order as items in tuple
   private HashMap<String, Integer> keyToIndex = new HashMap<String, Integer>();
@@ -96,6 +97,16 @@ public class JDBCOutputOperator<V> implements Operator
   public void setTableName(String tableName)
   {
     this.tableName = tableName;
+  }
+
+  public String getTransactionType()
+  {
+    return transactionType;
+  }
+
+  public void setTransactionType(String transactionType)
+  {
+    this.transactionType = transactionType;
   }
 
   public ArrayList<String> getOrderedColumnMapping()
@@ -300,7 +311,7 @@ o VARCHAR
    * Prepare insert query statement using column names from mapping.
    *
    */
-  private void prepareInsertStatement()
+  protected void prepareInsertStatement()
   {
     int num = orderedColumns.size();
     if (num < 1) {
@@ -323,6 +334,11 @@ o VARCHAR
       }
     }
 
+    if (transactionType.equals("nonTransaction")) {
+      columns = columns + comma + space + "winid";
+        values = values + comma + space + question;
+    }
+
     String insertQuery = "INSERT INTO " + tableName + " (" + columns + ") VALUES (" + values + ")";
     logger.debug(String.format("%s", insertQuery));
     try {
@@ -333,16 +349,16 @@ o VARCHAR
     }
   }
 
-  public void initTransactionInfo() {
+  public void initTransactionInfo(OperatorContext context) {
     try {
       transactionStatement = connection.createStatement();
       DatabaseMetaData meta = connection.getMetaData();
       ResultSet rs1 = meta.getTables(null, null, "maxwindowid", null);
       if( rs1.next() == false ) {
 //        logger.debug("table not exist!");
-        String createSQL = "CREATE TABLE maxwindowid(id int not null, winid bigint not null)";
+        String createSQL = "CREATE TABLE maxwindowid(appid varchar(32) not null, operatorid varchar(32) not null, winid bigint not null)";
         transactionStatement.execute(createSQL);
-        String insertSQL = "INSERT maxwindowid set id=0, winid=0";
+        String insertSQL = "INSERT maxwindowid set appid=0, winid=0, operatorid='"+context.getId()+"'";
         transactionStatement.executeUpdate(insertSQL);
       }
 
@@ -372,6 +388,7 @@ o VARCHAR
     buildMapping();
     setupJDBCConnection();
     prepareInsertStatement();
+//    initTransactionInfo(context);
   }
 
   /**
@@ -408,7 +425,7 @@ o VARCHAR
   {
     try {
       if (windowId > lastWindowId) {
-        String str = "UPDATE maxwindowid set winid="+windowId+" WHERE id=0";
+        String str = "UPDATE maxwindowid set winid="+windowId+" WHERE appid=0";
         transactionStatement.execute(str);
         connection.commit();
 //       lastWindowId = windowId;
