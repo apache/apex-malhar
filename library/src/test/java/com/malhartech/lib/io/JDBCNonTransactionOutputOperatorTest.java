@@ -68,6 +68,7 @@ public class JDBCNonTransactionOutputOperatorTest
       cols = cols + ", " + columns.get(i) + " " + colTypes.get(columns.get(i));
     }
 
+    cols += ",winid bigint";
     String str = "CREATE TABLE " + tableName + " (" + cols + ")";
 
     Statement stmt = null;
@@ -158,7 +159,7 @@ public class JDBCNonTransactionOutputOperatorTest
     {
       super.setup(context);
       createDatabase(getDbName(), getConnection());
-      //createTable(getTableName(), getConnection(), getOrderedColumns(), getColumnToType());
+      createTable(getTableName(), getConnection(), getOrderedColumns(), getColumnToType());
       initLastWindowInfo(getTableName());
     }
 
