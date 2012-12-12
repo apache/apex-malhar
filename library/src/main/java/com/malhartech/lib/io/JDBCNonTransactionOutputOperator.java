@@ -4,13 +4,8 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.Operator;
 import java.sql.*;
-import java.util.*;
-import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,38 +13,52 @@ import org.slf4j.LoggerFactory;
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
-public class JDBCNonTransactionOutputOperator<V> extends JDBCOutputOperator<V>
+public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOperator<T>
 {
   private static final Logger logger = LoggerFactory.getLogger(JDBCNonTransactionOutputOperator.class);
-  private static int count = 0; // for debugging
   protected Statement statement;
-  /**
-   * The input port.
-   */
-  @InputPortFieldAnnotation(name = "inputPort")
-  public final transient DefaultInputPort<HashMap<String, V>> inputPort = new DefaultInputPort<HashMap<String, V>>(this)
-  {
-    @Override
-    public void process(HashMap<String, V> tuple)
-    {
-      if (windowId < lastWindowId) {
-        return;
-      }
-      try {
-        for (Map.Entry<String, V> e : tuple.entrySet()) {
-          getInsertStatement().setString(getKeyToIndex().get(e.getKey()).intValue(), e.getValue().toString());
-          count++;
-        }
-        getInsertStatement().setString(tuple.size() + 1, String.valueOf(windowId));
-        getInsertStatement().executeUpdate();
-      }
-      catch (SQLException ex) {
-        logger.debug("exception while update", ex);
-      }
 
-      logger.debug(String.format("count %d", count));
+
+  /**
+   * Prepare insert query statement using column names from mapping.
+   *
+   */
+  @Override
+  protected void prepareInsertStatement()
+  {
+    int num = getOrderedColumns().size();
+    if (num < 1) {
+      return;
     }
-  };
+    String columns = "";
+    String values = "";
+    String space = " ";
+    String comma = ",";
+    String question = "?";
+
+    for (int idx = 0; idx < num; ++idx) {
+      if (idx == 0) {
+        columns = getOrderedColumns().get(idx);
+        values = question;
+      }
+      else {
+        columns = columns + comma + space + getOrderedColumns().get(idx);
+        values = values + comma + space + question;
+      }
+    }
+
+    columns = columns + comma + space + "winid";
+    values = values + comma + space + question;
+
+    String insertQuery = "INSERT INTO " + getTableName() + " (" + columns + ") VALUES (" + values + ")";
+    logger.debug(String.format("%s", insertQuery));
+    try {
+      setInsertStatement(getConnection().prepareStatement(insertQuery));
+    }
+    catch (SQLException ex) {
+      logger.debug("exception during prepare statement", ex);
+    }
+  }
 
   public void initLastWindowInfo(String table)
   {
@@ -76,27 +85,8 @@ public class JDBCNonTransactionOutputOperator<V> extends JDBCOutputOperator<V>
   @Override
   public void setup(OperatorContext context)
   {
-    ///setTransactionType("nonTransaction");
-    buildMapping();
-    setupJDBCConnection();
-    //prepareInsertStatement();
-  }
-
-  /**
-   * Implement Component Interface.
-   */
-  @Override
-  public void teardown()
-  {
-    try {
-      if (getInsertStatement() != null) {
-        getInsertStatement().close();
-      }
-      getConnection().close();
-    }
-    catch (SQLException ex) {
-      logger.debug("exception during teardown", ex);
-    }
+    super.setup(context);
+    // add initLastWindowInfo()
   }
 
   /**
@@ -106,11 +96,11 @@ public class JDBCNonTransactionOutputOperator<V> extends JDBCOutputOperator<V>
   public void beginWindow(long windowId)
   {
     this.windowId = windowId;
-    logger.debug("window:" + windowId);
     if (windowId == lastWindowId) {
       try {
         String stmt = "DELETE FROM " + getTableName() + " WHERE winid=" + windowId;
         statement.execute(stmt);
+        logger.debug("window:" + windowId);
       }
       catch (SQLException ex) {
         logger.debug(ex.toString());

@@ -4,7 +4,9 @@
  */
 package com.malhartech.lib.io;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.Context.OperatorContext;
+import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.Operator;
 import java.sql.*;
 import java.util.ArrayList;
@@ -19,7 +21,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
-public class JDBCOutputOperator<V> implements Operator
+public abstract class JDBCOutputOperator<T> implements Operator
 {
   private static final Logger logger = LoggerFactory.getLogger(JDBCOutputOperator.class);
   private String dbUrl;
@@ -28,7 +30,6 @@ public class JDBCOutputOperator<V> implements Operator
   private String dbPassword;
   private String dbDriver;
   private String tableName;
-  private String transactionType = "transaction";
   private ArrayList<String> orderedColumnMapping = new ArrayList<String>();
   private ArrayList<String> orderedColumns = new ArrayList<String>(); // follow same order as items in tuple
   private HashMap<String, Integer> keyToIndex = new HashMap<String, Integer>();
@@ -38,9 +39,26 @@ public class JDBCOutputOperator<V> implements Operator
   private HashMap<String, Integer> columnSQLTypes = new HashMap<String, Integer>();
   private Connection connection = null;
   private PreparedStatement insertStatement = null;
-  protected Statement transactionStatement;
   protected long windowId;
   protected long lastWindowId;
+  protected boolean ignoreWindow;
+
+  public abstract void processTuple(T tuple);
+
+   /**
+   * The input port.
+   */
+  @InputPortFieldAnnotation(name = "inputPort")
+  public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>(this)
+  {
+    @Override
+    public void process(T tuple)
+    {
+    if( ignoreWindow )
+      return;
+    processTuple(tuple);
+    }
+  };
 
   public String getDbUrl()
   {
@@ -102,16 +120,6 @@ public class JDBCOutputOperator<V> implements Operator
     this.tableName = tableName;
   }
 
-  public String getTransactionType()
-  {
-    return transactionType;
-  }
-
-  public void setTransactionType(String transactionType)
-  {
-    this.transactionType = transactionType;
-  }
-
   public ArrayList<String> getOrderedColumnMapping()
   {
     return orderedColumnMapping;
@@ -132,6 +140,10 @@ public class JDBCOutputOperator<V> implements Operator
   public PreparedStatement getInsertStatement()
   {
     return insertStatement;
+  }
+
+  public void setInsertStatement(PreparedStatement insertStatement) {
+    this.insertStatement = insertStatement;
   }
 
   public ArrayList<String> getOrderedColumns()
@@ -299,11 +311,6 @@ public class JDBCOutputOperator<V> implements Operator
       }
     }
 
-    if (transactionType.equals("nonTransaction")) {
-      columns = columns + comma + space + "winid";
-      values = values + comma + space + question;
-    }
-
     String insertQuery = "INSERT INTO " + tableName + " (" + columns + ") VALUES (" + values + ")";
     logger.debug(String.format("%s", insertQuery));
     try {
@@ -312,36 +319,6 @@ public class JDBCOutputOperator<V> implements Operator
     catch (SQLException ex) {
       logger.debug("exception during prepare statement", ex);
     }
-  }
-
-  public void initTransactionInfo(OperatorContext context)
-  {
-    try {
-      transactionStatement = connection.createStatement();
-      DatabaseMetaData meta = connection.getMetaData();
-      ResultSet rs1 = meta.getTables(null, null, "maxwindowid", null);
-      if (rs1.next() == false) {
-//        logger.debug("table not exist!");
-        String createSQL = "CREATE TABLE maxwindowid(appid varchar(32) not null, operatorid varchar(32) not null, winid bigint not null)";
-        transactionStatement.execute(createSQL);
-        String insertSQL = "INSERT maxwindowid set appid=0, winid=0, operatorid='" + context.getId() + "'";
-        transactionStatement.executeUpdate(insertSQL);
-      }
-
-      String querySQL = "SELECT winid FROM maxwindowid LIMIT 1";
-      ResultSet rs = transactionStatement.executeQuery(querySQL);
-      if (rs.next() == false) {
-        logger.error("max windowId table not ready!");
-        return;
-      }
-      lastWindowId = rs.getLong("winid");
-      connection.setAutoCommit(false);
-      logger.debug("lastWindowId:" + lastWindowId);
-    }
-    catch (SQLException ex) {
-      logger.debug(ex.toString());
-    }
-
   }
 
   /**
@@ -355,7 +332,6 @@ public class JDBCOutputOperator<V> implements Operator
     buildMapping();
     setupJDBCConnection();
     prepareInsertStatement();
-//    initTransactionInfo(context);
   }
 
   /**
@@ -390,16 +366,5 @@ public class JDBCOutputOperator<V> implements Operator
   @Override
   public void endWindow()
   {
-    try {
-      if (windowId > lastWindowId) {
-        String str = "UPDATE maxwindowid set winid=" + windowId + " WHERE appid=0";
-        transactionStatement.execute(str);
-        connection.commit();
-//       lastWindowId = windowId;
-      }
-    }
-    catch (SQLException ex) {
-      logger.debug(ex.toString());
-    }
   }
 }
