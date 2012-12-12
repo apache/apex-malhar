@@ -12,6 +12,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+//import org.springframework.integration.jdbc.config;
+
 
 /**
  *
@@ -26,13 +28,14 @@ public class JDBCOutputOperator<V> implements Operator
   private String dbPassword;
   private String dbDriver;
   private String tableName;
-  private String transactionType;
+  private String transactionType = "transaction";
   private ArrayList<String> orderedColumnMapping = new ArrayList<String>();
   private ArrayList<String> orderedColumns = new ArrayList<String>(); // follow same order as items in tuple
   private HashMap<String, Integer> keyToIndex = new HashMap<String, Integer>();
   private HashMap<String, String> keyToType = new HashMap<String, String>();
   private HashMap<String, String> keyToColumn = new HashMap<String, String>();
   private HashMap<String, String> columnToType = new HashMap<String, String>();
+  private HashMap<String, Integer> columnSQLTypes = new HashMap<String, Integer>();
   private Connection connection = null;
   private PreparedStatement insertStatement = null;
   protected Statement transactionStatement;
@@ -171,103 +174,59 @@ public class JDBCOutputOperator<V> implements Operator
     return columnToType;
   }
 
-  /*
-   *
-   *  o BIGINT
-o BINARY
-o BIT
-o CHAR
-o DATE
-o DECIMAL
-o DOUBLE
-o FLOAT
-o INTEGER
-o LONGVARBINARY
-o LONGVARCHAR
-o NULL
-o NUMERIC
-o OTHER
-    OTHER indicates that the SQL type is database specific and gets mapped to a Java object which can be accessed via getObject and setObject.
-o REAL
-o SMALLINT
-o TIME
-o TIMESTAMP
-o TINYINT
-o VARBINARY
-o VARCHAR
-   */
-  public int SQLType(String type)
+  public HashMap<String, Integer> getColumnSQLTypes()
   {
-    if ("BIGINT".equals(type)) {
-      return java.sql.Types.BIGINT;
-    }
-    else if ("BINARY".equals(type)) {
-      return java.sql.Types.BINARY;
-    }
-    else if ("BIT".equals(type)) {
-      return java.sql.Types.BIT;
-    }
-    else if ("CHAR".equals(type)) {
-      return java.sql.Types.CHAR;
-    }
-    else if ("DATE".equals(type)) {
-      return java.sql.Types.DATE;
-    }
-    else if ("DECIMAL".equals(type)) {
-      return java.sql.Types.DECIMAL;
-    }
-    else if ("DOUBLE".equals(type)) {
-      return java.sql.Types.DOUBLE;
-    }
-    else if ("FLOAT".equals(type)) {
-      return java.sql.Types.FLOAT;
-    }
-    else if ("INTEGER".equals(type)) {
-      return java.sql.Types.INTEGER;
-    }
-    else if ("LONGVARBINARY".equals(type)) {
-      return java.sql.Types.LONGVARBINARY;
-    }
-    else if ("LONGVARCHAR".equals(type)) {
-      return java.sql.Types.LONGVARCHAR;
-    }
-    else if ("NULL".equals(type)) {
-      return java.sql.Types.NULL;
-    }
-    else if ("NUMERIC".equals(type)) {
-      return java.sql.Types.NUMERIC;
-    }
-    else if ("OTHER".equals(type)) {
-      return java.sql.Types.OTHER;
-    }
-    else if ("REAL".equals(type)) {
-      return java.sql.Types.REAL;
-    }
-    else if ("SMALLINT".equals(type)) {
-      return java.sql.Types.SMALLINT;
-    }
-    else if ("TIME".equals(type)) {
-      return java.sql.Types.TIME;
-    }
-    else if ("TIMESTAMP".equals(type)) {
-      return java.sql.Types.TIMESTAMP;
-    }
-    else if ("TINYINT".equals(type)) {
-      return java.sql.Types.TINYINT;
-    }
-    else if ("VARBINARY".equals(type)) {
-      return java.sql.Types.VARBINARY;
-    }
-    else if ("VARCHAR".equals(type.substring(0, 7))) {
-      return java.sql.Types.VARCHAR;
-    }
-    else {
-      return 0;
-    }
+    return columnSQLTypes;
   }
 
+  
   public void buildMapping()
   {
+     /*  BIGINT
+   BINARY
+   BIT
+   CHAR
+   DATE
+   DECIMAL
+   DOUBLE
+   FLOAT
+   INTEGER
+   LONGVARBINARY
+   LONGVARCHAR
+   NULL
+   NUMERIC
+   OTHER
+   REAL
+   SMALLINT
+   TIME
+   TIMESTAMP
+   TINYINT
+   VARBINARY
+   VARCHAR */
+    columnSQLTypes.put("BIGINT", new Integer(Types.BIGINT));
+    columnSQLTypes.put("BINARY", new Integer(Types.BINARY));
+    columnSQLTypes.put("BIT", new Integer(Types.BIT));
+    columnSQLTypes.put("CHAR", new Integer(Types.CHAR));
+    columnSQLTypes.put("DATE", new Integer(Types.DATE));
+    columnSQLTypes.put("DECIMAL", new Integer(Types.DECIMAL));
+    columnSQLTypes.put("DOUBLE", new Integer(Types.DOUBLE));
+    columnSQLTypes.put("FLOAT", new Integer(Types.FLOAT));
+    columnSQLTypes.put("INTEGER", new Integer(Types.INTEGER));
+    columnSQLTypes.put("LONGVARBINARY", new Integer(Types.LONGVARBINARY));
+    columnSQLTypes.put("LONGVARCHAR", new Integer(Types.LONGVARCHAR));
+    columnSQLTypes.put("NULL", new Integer(Types.NULL));
+    columnSQLTypes.put("NUMERIC", new Integer(Types.NUMERIC));
+    columnSQLTypes.put("OTHER", new Integer(Types.OTHER));
+    columnSQLTypes.put("REAL", new Integer(Types.REAL));
+    columnSQLTypes.put("SMALLINT", new Integer(Types.SMALLINT));
+    columnSQLTypes.put("TIME", new Integer(Types.TIME));
+    columnSQLTypes.put("TIMESTAMP", new Integer(Types.TIMESTAMP));
+    columnSQLTypes.put("TINYINT", new Integer(Types.TINYINT));
+    columnSQLTypes.put("VARBINARY", new Integer(Types.VARBINARY));
+    columnSQLTypes.put("VARCHAR", new Integer(Types.VARCHAR));
+
+    //JdbcTypesEnum e = new JdbcTypesEnum();
+
     try {
       // Each entry in orderedColumnMapping is Tuple key followed by Tuple value separated by colon (:)
       int num = orderedColumnMapping.size();
@@ -281,8 +240,14 @@ o VARCHAR
         keyToColumn.put(cols[0], cols[1]);
         keyToIndex.put(cols[0], new Integer(idx + 1));
         orderedColumns.add(cols[1]);
-        keyToType.put(cols[0], (cols.length == 3) ? cols[2] : "UNSPECIFIED");
-        columnToType.put(cols[1], (cols.length == 3) ? cols[2] : "UNSPECIFIED");
+        if (cols.length == 3) {
+          keyToType.put(cols[0], cols[2].contains("VARCHAR") ? "VARCHAR": cols[2]);
+          columnToType.put(cols[1],cols[2]);
+        }
+        else {
+          keyToType.put(cols[0], "UNSPECIFIED");
+          columnToType.put(cols[1], "UNSPECIFIED");
+        }
       }
       logger.debug(keyToColumn.toString());
     }
@@ -336,7 +301,7 @@ o VARCHAR
 
     if (transactionType.equals("nonTransaction")) {
       columns = columns + comma + space + "winid";
-        values = values + comma + space + question;
+      values = values + comma + space + question;
     }
 
     String insertQuery = "INSERT INTO " + tableName + " (" + columns + ") VALUES (" + values + ")";
@@ -349,34 +314,36 @@ o VARCHAR
     }
   }
 
-  public void initTransactionInfo(OperatorContext context) {
+  public void initTransactionInfo(OperatorContext context)
+  {
     try {
       transactionStatement = connection.createStatement();
       DatabaseMetaData meta = connection.getMetaData();
       ResultSet rs1 = meta.getTables(null, null, "maxwindowid", null);
-      if( rs1.next() == false ) {
+      if (rs1.next() == false) {
 //        logger.debug("table not exist!");
         String createSQL = "CREATE TABLE maxwindowid(appid varchar(32) not null, operatorid varchar(32) not null, winid bigint not null)";
         transactionStatement.execute(createSQL);
-        String insertSQL = "INSERT maxwindowid set appid=0, winid=0, operatorid='"+context.getId()+"'";
+        String insertSQL = "INSERT maxwindowid set appid=0, winid=0, operatorid='" + context.getId() + "'";
         transactionStatement.executeUpdate(insertSQL);
       }
 
       String querySQL = "SELECT winid FROM maxwindowid LIMIT 1";
       ResultSet rs = transactionStatement.executeQuery(querySQL);
-      if( rs.next() == false ) {
+      if (rs.next() == false) {
         logger.error("max windowId table not ready!");
         return;
       }
       lastWindowId = rs.getLong("winid");
       connection.setAutoCommit(false);
-      logger.debug("lastWindowId:"+lastWindowId);
+      logger.debug("lastWindowId:" + lastWindowId);
     }
     catch (SQLException ex) {
       logger.debug(ex.toString());
     }
 
   }
+
   /**
    * Implement Component Interface.
    *
@@ -425,7 +392,7 @@ o VARCHAR
   {
     try {
       if (windowId > lastWindowId) {
-        String str = "UPDATE maxwindowid set winid="+windowId+" WHERE appid=0";
+        String str = "UPDATE maxwindowid set winid=" + windowId + " WHERE appid=0";
         transactionStatement.execute(str);
         connection.commit();
 //       lastWindowId = windowId;

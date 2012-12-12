@@ -323,7 +323,7 @@ public class JDBCOutputOperatorTest
         else if ("DOUBLE".equals(oper.getKeyToType().get("prop" + j))) {
           al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, new Double((columnCount * i + j) / 3.0)));
         }
-        else if ("VARCHAR(10)".equals(oper.getKeyToType().get("prop" + j))) {
+        else if ("VARCHAR".equals(oper.getKeyToType().get("prop" + j))) {
           al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, "Test"));
         }
         else if ("TIME".equals(oper.getKeyToType().get("prop" + j))) {
