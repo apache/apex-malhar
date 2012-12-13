@@ -89,7 +89,7 @@ public class JDBCTransactionOutputOperator<T> extends JDBCOutputOperator<T>
       if (ignoreWindow) {
         return;
       }
-      String str = "UPDATE maxwindowid set winid=" + windowId + " WHERE appid=0 AND operatorid='"+operatorid+"'";
+      String str = "UPDATE maxwindowid set winid=" + windowId + " WHERE appid=0 AND operatorid='" + operatorid + "'";
       transactionStatement.execute(str);
       logger.debug(str);
       getConnection().commit();

@@ -229,7 +229,6 @@ public class JDBCOutputOperatorTest
       super.endWindow();
       readTable(getTableName(), getConnection());
     }
-
   }
 
   @Test
