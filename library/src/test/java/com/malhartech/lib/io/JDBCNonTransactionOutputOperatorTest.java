@@ -10,9 +10,10 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import junit.framework.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,13 +37,15 @@ public class JDBCNonTransactionOutputOperatorTest
       stmt = con.createStatement();
 
       String createDB = "CREATE DATABASE IF NOT EXISTS " + dbName;
+      // create table Test_Tuple (col1 integer, col2 integer, col5 integer, col4 integer, col7 integer, col6 integer, col3 integer, winid bigint);
+      // create table Test_Tuple (col1 integer, col2 bigint, col5 char, col4 date, col7 double, col6 varchar(10), col3 date, winid bigint);
       String useDB = "USE " + dbName;
 
       stmt.executeUpdate(createDB);
       stmt.executeQuery(useDB);
     }
     catch (SQLException ex) {
-      logger.debug("exception during creating database", ex);
+      throw new RuntimeException("Exception while creating database", ex);
     }
     finally {
       try {
@@ -51,6 +54,7 @@ public class JDBCNonTransactionOutputOperatorTest
         }
       }
       catch (SQLException ex) {
+        throw new RuntimeException("Exception while closing database resource", ex);
       }
     }
 
@@ -65,16 +69,17 @@ public class JDBCNonTransactionOutputOperatorTest
       cols = cols + ", " + columns.get(i) + " " + colTypes.get(columns.get(i));
     }
     cols += ",winid BIGINT";
-    String str = "CREATE TABLE " + tableName + " (" + cols + ")";
+    String createStr = "CREATE TABLE " + tableName + " (" + cols + ")";
+    String dropStr = "DROP TABLE IF EXISTS " + tableName;
 
     Statement stmt = null;
     try {
       stmt = con.createStatement();
-      stmt.execute("DROP TABLE " + tableName);
-      stmt.executeUpdate(str);
+      stmt.execute(dropStr);
+      stmt.executeUpdate(createStr);
     }
     catch (SQLException ex) {
-      logger.debug("exception during creating database", ex);
+      throw new RuntimeException(String.format("Exception during drop/create table. Create query: %s Drop query: %s", createStr, dropStr), ex);
     }
     finally {
       try {
@@ -83,6 +88,7 @@ public class JDBCNonTransactionOutputOperatorTest
         }
       }
       catch (SQLException ex) {
+        throw new RuntimeException("Exception while closing database resource", ex);
       }
     }
     logger.debug("JDBC Table creation Success");
@@ -121,7 +127,7 @@ public class JDBCNonTransactionOutputOperatorTest
       }
     }
     catch (SQLException ex) {
-      logger.debug("exception during reading from table", ex);
+      throw new RuntimeException("Exception during reading from table", ex);
     }
     finally {
       try {
@@ -130,6 +136,7 @@ public class JDBCNonTransactionOutputOperatorTest
         }
       }
       catch (SQLException ex) {
+        throw new RuntimeException("Exception while closing database resource", ex);
       }
     }
   }
@@ -182,11 +189,6 @@ public class JDBCNonTransactionOutputOperatorTest
     mapping[6] = "prop4:col3:INTEGER";
     oper.setOrderedColumnMapping(mapping);
 
-    //oper.setColumnMapping("prop1:col1,prop2:col2,prop5:col5,prop6:col6,prop7:col7,prop3:col3,prop4:col4");
-    //columnMapping=prop1:col1,prop2:col2,prop3:col3,prop4:col4,prop5:col5,prop6:col6,prop7:col7
-    //columnMapping=prop1:col1,prop2:col2,prop5:col5,prop6:col6,prop7:col7,prop3:col3,prop4:col4
-    ///columnMapping=prop1:col1,prop2:col2,prop5:col5,prop6:col4,prop7:col7,prop3:col6,prop4:col3
-
     oper.setup(new com.malhartech.engine.OperatorContext("op1", null, null));
     oper.beginWindow(oper.lastWindowId+1);
     for (int i = 0; i < maxTuple; ++i) {
@@ -212,7 +214,7 @@ public class JDBCNonTransactionOutputOperatorTest
     {
       super.setup(context);
       createDatabase(getDbName(), getConnection());
-      createTable(getTableName(), getConnection(), getColumnNames(), getColumnToType());
+      createTable(getTableName(), getConnection(), getColumnNames(), simpleColumnToType2);
     }
 
     @Override
@@ -231,54 +233,7 @@ public class JDBCNonTransactionOutputOperatorTest
   }
 
   @Test
-  public void JDBCArrayListOutputOperatorTest() throws Exception
-  {
-    tupleCount = 0; // reset
-    dataset = 2;
-    MyArrayListOutputOperator oper = new MyArrayListOutputOperator();
-
-    oper.setDbUrl("jdbc:mysql://localhost/");
-    oper.setDbName("test");
-    oper.setDbUser("test");
-    oper.setDbPassword("");
-    oper.setDbDriver("com.mysql.jdbc.Driver");
-    oper.setTableName("Test_Tuple");
-    String[] mapping = new String[7];
-    mapping[0] = "prop1:col1:INTEGER";
-    mapping[1] = "prop2:col2:VARCHAR(10)";
-    mapping[2] = "prop5:col5:INTEGER";
-    mapping[3] = "prop6:col4:VARCHAR(10)";
-    mapping[4] = "prop7:col7:INTEGER";
-    mapping[5] = "prop3:col6:VARCHAR(10)";
-    mapping[6] = "prop4:col3:INTEGER";
-    oper.setOrderedColumnMapping(mapping);
-
-    oper.setup(new com.malhartech.engine.OperatorContext("op2", null, null));
-    oper.beginWindow(oper.lastWindowId+1);
-    for (int i = 0; i < maxTuple; ++i) {
-      ArrayList<AbstractMap.SimpleEntry<String, Object>> al = new ArrayList<AbstractMap.SimpleEntry<String, Object>>();
-      for (int j = 1; j <= columnCount; ++j) {
-        if ("INTEGER".equals(oper.getKeyToType().get("prop" + j))) {
-          al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, new Integer(columnCount * i + j)));
-        }
-        else {
-          al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, "Test"));
-        }
-      }
-
-      oper.inputPort.process(al);
-    }
-    oper.endWindow();
-
-    oper.teardown();
-
-    // Check values send vs received
-    Assert.assertEquals("Number of emitted tuples", maxTuple, tupleCount);
-    logger.debug(String.format("Number of emitted tuples: %d", tupleCount));
-  }
-
-  @Test
-  public void JDBCArrayListOutputOperator_multiType_Test() throws Exception
+  public void JDBCArrayListOutputOperatorTest4() throws Exception
   {
     tupleCount = 0; // reset
     dataset = 3;
@@ -291,40 +246,40 @@ public class JDBCNonTransactionOutputOperatorTest
     oper.setDbDriver("com.mysql.jdbc.Driver");
     oper.setTableName("Test_Tuple");
     String[] mapping = new String[7];
-    mapping[0] = "prop1:col1:INTEGER";
-    mapping[1] = "prop2:col2:BIGINT";
-    mapping[2] = "prop5:col5:CHAR";
-    mapping[3] = "prop6:col4:DATE";
-    mapping[4] = "prop7:col7:DOUBLE";
-    mapping[5] = "prop3:col6:VARCHAR(10)";
-    mapping[6] = "prop4:col3:DATE";
-    oper.setOrderedColumnMapping(mapping);
+    mapping[0] = "col1:INTEGER";
+    mapping[1] = "col2:BIGINT";
+    mapping[2] = "col5:CHAR";
+    mapping[3] = "col4:DATE";
+    mapping[4] = "col7:DOUBLE";
+    mapping[5] = "col6:VARCHAR(10)";
+    mapping[6] = "col3:DATE";
+    oper.setSimpleColumnMapping(mapping);
 
-    oper.setup(new com.malhartech.engine.OperatorContext("op3", null, null));
-    oper.beginWindow(oper.lastWindowId+1);
+    oper.setup(new com.malhartech.engine.OperatorContext("op4", null, null));
+    oper.beginWindow(oper.lastWindowId + 1);
     for (int i = 0; i < maxTuple; ++i) {
-      ArrayList<AbstractMap.SimpleEntry<String, Object>> al = new ArrayList<AbstractMap.SimpleEntry<String, Object>>();
+      ArrayList<Object> al = new ArrayList<Object>();
       for (int j = 1; j <= columnCount; ++j) {
-        if ("INTEGER".equals(oper.getKeyToType().get("prop" + j))) {
-          al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, new Integer(columnCount * i + j)));
+        if ("INTEGER".equals(oper.getSimpleColumnToType().get(oper.getColumnNames().get(j - 1)))) {
+          al.add(new Integer((columnCount * i) + j));
         }
-        else if ("BIGINT".equals(oper.getKeyToType().get("prop" + j))) {
-          al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, new Integer(columnCount * i + j)));
+        else if ("BIGINT".equals(oper.getSimpleColumnToType().get(oper.getColumnNames().get(j - 1)))) {
+          al.add(new Integer((columnCount * i) + j));
         }
-        else if ("CHAR".equals(oper.getKeyToType().get("prop" + j))) {
-          al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, 'a'));
+        else if ("CHAR".equals(oper.getSimpleColumnToType().get(oper.getColumnNames().get(j - 1)))) {
+          al.add('a');
         }
-        else if ("DATE".equals(oper.getKeyToType().get("prop" + j))) {
-          al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, new Date()));
+        else if ("DATE".equals(oper.getSimpleColumnToType().get(oper.getColumnNames().get(j - 1)))) {
+          al.add(new Date());
         }
-        else if ("DOUBLE".equals(oper.getKeyToType().get("prop" + j))) {
-          al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, new Double((columnCount * i + j) / 3.0)));
+        else if ("DOUBLE".equals(oper.getSimpleColumnToType().get(oper.getColumnNames().get(j - 1)))) {
+          al.add(new Double((columnCount * i + j) / 3.0));
         }
-        else if ("VARCHAR".equals(oper.getKeyToType().get("prop" + j))) {
-          al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, "Test"));
+        else if ("VARCHAR".equals(oper.getSimpleColumnToType().get(oper.getColumnNames().get(j - 1)))) {
+          al.add("Test");
         }
-        else if ("TIME".equals(oper.getKeyToType().get("prop" + j))) {
-          al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, new Date()));
+        else if ("TIME".equals(oper.getSimpleColumnToType().get(oper.getColumnNames().get(j - 1)))) {
+          al.add(new Date());
         }
         else {
           throw new Exception();

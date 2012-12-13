@@ -6,7 +6,10 @@ package com.malhartech.lib.io;
 
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.bufferserver.util.Codec;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,7 +29,6 @@ public class JDBCOutputOperatorTest
   private static final int maxTuple = 20;
   private static int columnCount = 7;
   private static int dataset = 1;
-  private static long testWindowId = 0;
 
   /*
    * Todo:
@@ -51,7 +53,7 @@ public class JDBCOutputOperatorTest
       stmt.executeQuery(useDB);
     }
     catch (SQLException ex) {
-      logger.debug("exception during creating database", ex);
+      throw new RuntimeException("Exception during creating database", ex);
     }
     finally {
       try {
@@ -60,6 +62,7 @@ public class JDBCOutputOperatorTest
         }
       }
       catch (SQLException ex) {
+        throw new RuntimeException("Exception while closing database resource", ex);
       }
     }
 
@@ -83,7 +86,7 @@ public class JDBCOutputOperatorTest
       stmt.executeUpdate(str);
     }
     catch (SQLException ex) {
-      logger.debug("exception during creating database", ex);
+      throw new RuntimeException("Exception during creating table", ex);
     }
     finally {
       try {
@@ -92,6 +95,7 @@ public class JDBCOutputOperatorTest
         }
       }
       catch (SQLException ex) {
+        throw new RuntimeException("Exception while closing database resource", ex);
       }
     }
     logger.debug("JDBC Table creation Success");
@@ -130,7 +134,7 @@ public class JDBCOutputOperatorTest
       }
     }
     catch (SQLException ex) {
-      logger.debug("exception during reading from table", ex);
+      throw new RuntimeException("Exception during reading from table", ex);
     }
     finally {
       try {
@@ -139,6 +143,7 @@ public class JDBCOutputOperatorTest
         }
       }
       catch (SQLException ex) {
+        throw new RuntimeException("Exception while closing database resource", ex);
       }
     }
   }
@@ -197,11 +202,6 @@ public class JDBCOutputOperatorTest
     oper.setOrderedColumnMapping(mapping);
     oper.setBatchSize(100);
 
-    //oper.setColumnMapping("prop1:col1,prop2:col2,prop5:col5,prop6:col6,prop7:col7,prop3:col3,prop4:col4");
-    //columnMapping=prop1:col1,prop2:col2,prop3:col3,prop4:col4,prop5:col5,prop6:col6,prop7:col7
-    //columnMapping=prop1:col1,prop2:col2,prop5:col5,prop6:col6,prop7:col7,prop3:col3,prop4:col4
-    ///columnMapping=prop1:col1,prop2:col2,prop5:col5,prop6:col4,prop7:col7,prop3:col6,prop4:col3
-
     oper.setup(new com.malhartech.engine.OperatorContext("op1", null, null));
     oper.beginWindow(oper.lastWindowId + 1);
     for (int i = 0; i < maxTuple; ++i) {
@@ -227,7 +227,7 @@ public class JDBCOutputOperatorTest
     {
       super.setup(context);
       try {
-        //      createDatabase(getDbName(), getConnection());
+        createDatabase(getDbName(), getConnection());
         createTable(getTableName(), getConnection(), getColumnNames(), simpleColumnToType2);
       }
       catch (Exception ex) {
