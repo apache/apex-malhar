@@ -366,6 +366,9 @@ public abstract class JDBCOutputOperator<T> implements Operator
   public void endWindow()
   {
     try {
+      if (ignoreWindow) {
+        return;
+      }
       insertStatement.executeBatch();
     }
     catch (SQLException ex) {

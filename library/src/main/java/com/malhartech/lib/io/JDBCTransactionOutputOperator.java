@@ -86,11 +86,11 @@ public abstract class JDBCTransactionOutputOperator<T> extends JDBCOutputOperato
   @Override
   public void endWindow()
   {
+    if (ignoreWindow) {
+      return;
+    }
     super.endWindow();
     try {
-      if (ignoreWindow) {
-        return;
-      }
       String str = "UPDATE maxwindowid set winid=" + windowId + " WHERE appid=0 AND operatorid='" + operatorid + "'";
       transactionStatement.execute(str);
       logger.debug(str);
@@ -100,5 +100,4 @@ public abstract class JDBCTransactionOutputOperator<T> extends JDBCOutputOperato
       logger.error(ex.toString());
     }
   }
-
 }

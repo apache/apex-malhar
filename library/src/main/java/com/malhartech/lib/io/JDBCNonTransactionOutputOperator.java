@@ -18,7 +18,6 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
   private static final Logger logger = LoggerFactory.getLogger(JDBCNonTransactionOutputOperator.class);
   protected Statement statement;
 
-
   /**
    * Prepare insert query statement using column names from mapping.
    *
@@ -60,15 +59,16 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
     }
   }
 
-  public void initLastWindowInfo(String table)
+  public void initLastWindowInfo()
   {
     try {
       statement = getConnection().createStatement();
-      String stmt = "SELECT MAX(winid) AS winid FROM " + table;
+      String stmt = "SELECT MAX(winid) AS winid FROM " + getTableName();
       ResultSet rs = statement.executeQuery(stmt);
+        logger.debug(stmt);
       if (rs.next() == false) {
-        logger.error("table " + table + " winid column not ready!");
-        return;
+        logger.error("table " + getTableName() + " winid column not ready!");
+        throw new RuntimeException("table " + getTableName() + " winid column not ready!");
       }
       lastWindowId = rs.getLong("winid");
     }
@@ -86,7 +86,7 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
   public void setup(OperatorContext context)
   {
     super.setup(context);
-    // add initLastWindowInfo() // need to read table
+    initLastWindowInfo();
   }
 
   /**
@@ -97,7 +97,7 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
   {
     super.beginWindow(windowId);
     this.windowId = windowId;
-    if( windowId < lastWindowId ) {
+    if (windowId < lastWindowId) {
       ignoreWindow = true;
     }
     else if (windowId == lastWindowId) {
@@ -114,14 +114,5 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
     else {
       ignoreWindow = false;
     }
-  }
-
-  /**
-   * Implement Operator Interface.
-   */
-  @Override
-  public void endWindow()
-  {
-    super.endWindow();
   }
 }

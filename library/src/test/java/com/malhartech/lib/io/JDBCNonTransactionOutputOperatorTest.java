@@ -134,7 +134,7 @@ public class JDBCNonTransactionOutputOperatorTest
     }
   }
 
-  public static class MyHashMapOutputOperator extends JDBCHashMapOutputOperator<HashMap<String, Integer>>
+  public static class MyHashMapOutputOperator extends JDBCHashMapNonTransactionOutputOperator<Integer>
   {
     @Override
     public void setup(OperatorContext context)
@@ -188,13 +188,13 @@ public class JDBCNonTransactionOutputOperatorTest
     ///columnMapping=prop1:col1,prop2:col2,prop5:col5,prop6:col4,prop7:col7,prop3:col6,prop4:col3
 
     oper.setup(new com.malhartech.engine.OperatorContext("op1", null, null));
-    oper.beginWindow(2);
+    oper.beginWindow(oper.lastWindowId+1);
     for (int i = 0; i < maxTuple; ++i) {
       HashMap<String, Integer> hm = new HashMap<String, Integer>();
       for (int j = 1; j <= columnCount; ++j) {
         hm.put("prop" + (j), new Integer((columnCount * i) + j));
       }
-//      oper.inputPort.process(hm);
+      oper.inputPort.process(hm);
     }
     oper.endWindow();
 
@@ -205,15 +205,13 @@ public class JDBCNonTransactionOutputOperatorTest
     logger.debug(String.format("Number of emitted tuples: %d", tupleCount));
   }
 
-  public static class MyArrayListOutputOperator extends JDBCNonTransactionOutputOperator<ArrayList<AbstractMap.SimpleEntry<String, Object>>>
+  public static class MyArrayListOutputOperator extends JDBCArrayListNonTransactionOutputOperator
   {
-    private int count = 0;
-
     @Override
     public void setup(OperatorContext context)
     {
       super.setup(context);
-//      createDatabase(getDbName(), getConnection());
+      createDatabase(getDbName(), getConnection());
       createTable(getTableName(), getConnection(), getOrderedColumns(), getColumnToType());
     }
 
@@ -230,33 +228,8 @@ public class JDBCNonTransactionOutputOperatorTest
       super.endWindow();
       readTable(getTableName(), getConnection());
     }
-
-    @Override
-    public void processTuple(ArrayList<AbstractMap.SimpleEntry<String, Object>> tuple)
-    {
-      try {
-        int num = tuple.size();
-        for (int idx = 0; idx < num; idx++) {
-          String key = tuple.get(idx).getKey();
-          getInsertStatement().setObject(
-                  getKeyToIndex().get(key).intValue(),
-                  tuple.get(idx).getValue(),
-                  getColumnSQLTypes().get(getKeyToType().get(key)));
-          count++;
-        }
-        //logger.debug(String.format("ps: %s", getInsertStatement().toString()));
-        getInsertStatement().executeUpdate();
-
-      }
-      catch (SQLException ex) {
-        logger.debug("exception while update", ex);
-      }
-
-      logger.debug(String.format("count %d", count));
-    }
   }
 
-  @Ignore
   @Test
   public void JDBCArrayListOutputOperatorTest() throws Exception
   {
@@ -280,8 +253,8 @@ public class JDBCNonTransactionOutputOperatorTest
     mapping[6] = "prop4:col3:INTEGER";
     oper.setOrderedColumnMapping(mapping);
 
-    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
-    oper.beginWindow(0);
+    oper.setup(new com.malhartech.engine.OperatorContext("op2", null, null));
+    oper.beginWindow(oper.lastWindowId+1);
     for (int i = 0; i < maxTuple; ++i) {
       ArrayList<AbstractMap.SimpleEntry<String, Object>> al = new ArrayList<AbstractMap.SimpleEntry<String, Object>>();
       for (int j = 1; j <= columnCount; ++j) {
@@ -304,7 +277,6 @@ public class JDBCNonTransactionOutputOperatorTest
     logger.debug(String.format("Number of emitted tuples: %d", tupleCount));
   }
 
-  @Ignore
   @Test
   public void JDBCArrayListOutputOperator_multiType_Test() throws Exception
   {
@@ -328,8 +300,8 @@ public class JDBCNonTransactionOutputOperatorTest
     mapping[6] = "prop4:col3:DATE";
     oper.setOrderedColumnMapping(mapping);
 
-    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
-    oper.beginWindow(0);
+    oper.setup(new com.malhartech.engine.OperatorContext("op3", null, null));
+    oper.beginWindow(oper.lastWindowId+1);
     for (int i = 0; i < maxTuple; ++i) {
       ArrayList<AbstractMap.SimpleEntry<String, Object>> al = new ArrayList<AbstractMap.SimpleEntry<String, Object>>();
       for (int j = 1; j <= columnCount; ++j) {
@@ -348,7 +320,7 @@ public class JDBCNonTransactionOutputOperatorTest
         else if ("DOUBLE".equals(oper.getKeyToType().get("prop" + j))) {
           al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, new Double((columnCount * i + j) / 3.0)));
         }
-        else if ("VARCHAR(10)".equals(oper.getKeyToType().get("prop" + j))) {
+        else if ("VARCHAR".equals(oper.getKeyToType().get("prop" + j))) {
           al.add(new AbstractMap.SimpleEntry<String, Object>("prop" + j, "Test"));
         }
         else if ("TIME".equals(oper.getKeyToType().get("prop" + j))) {
