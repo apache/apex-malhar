@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 //import org.springframework.integration.jdbc.config;
 
-
 /**
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
@@ -44,8 +43,7 @@ public abstract class JDBCOutputOperator<T> implements Operator
   protected boolean ignoreWindow;
 
   public abstract void processTuple(T tuple);
-
-   /**
+  /**
    * The input port.
    */
   @InputPortFieldAnnotation(name = "inputPort")
@@ -54,9 +52,10 @@ public abstract class JDBCOutputOperator<T> implements Operator
     @Override
     public void process(T tuple)
     {
-    if( ignoreWindow )
-      return;
-    processTuple(tuple);
+      if (ignoreWindow) {
+        return;
+      }
+      processTuple(tuple);
     }
   };
 
@@ -142,7 +141,8 @@ public abstract class JDBCOutputOperator<T> implements Operator
     return insertStatement;
   }
 
-  public void setInsertStatement(PreparedStatement insertStatement) {
+  public void setInsertStatement(PreparedStatement insertStatement)
+  {
     this.insertStatement = insertStatement;
   }
 
@@ -191,30 +191,29 @@ public abstract class JDBCOutputOperator<T> implements Operator
     return columnSQLTypes;
   }
 
-  
   public void buildMapping()
   {
-     /*  BIGINT
-   BINARY
-   BIT
-   CHAR
-   DATE
-   DECIMAL
-   DOUBLE
-   FLOAT
-   INTEGER
-   LONGVARBINARY
-   LONGVARCHAR
-   NULL
-   NUMERIC
-   OTHER
-   REAL
-   SMALLINT
-   TIME
-   TIMESTAMP
-   TINYINT
-   VARBINARY
-   VARCHAR */
+    /*  BIGINT
+     BINARY
+     BIT
+     CHAR
+     DATE
+     DECIMAL
+     DOUBLE
+     FLOAT
+     INTEGER
+     LONGVARBINARY
+     LONGVARCHAR
+     NULL
+     NUMERIC
+     OTHER
+     REAL
+     SMALLINT
+     TIME
+     TIMESTAMP
+     TINYINT
+     VARBINARY
+     VARCHAR */
     columnSQLTypes.put("BIGINT", new Integer(Types.BIGINT));
     columnSQLTypes.put("BINARY", new Integer(Types.BINARY));
     columnSQLTypes.put("BIT", new Integer(Types.BIT));
@@ -253,8 +252,8 @@ public abstract class JDBCOutputOperator<T> implements Operator
         keyToIndex.put(cols[0], new Integer(idx + 1));
         orderedColumns.add(cols[1]);
         if (cols.length == 3) {
-          keyToType.put(cols[0], cols[2].contains("VARCHAR") ? "VARCHAR": cols[2]);
-          columnToType.put(cols[1],cols[2]);
+          keyToType.put(cols[0], cols[2].contains("VARCHAR") ? "VARCHAR" : cols[2]);
+          columnToType.put(cols[1], cols[2]);
         }
         else {
           keyToType.put(cols[0], "UNSPECIFIED");

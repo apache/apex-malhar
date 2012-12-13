@@ -17,6 +17,7 @@ public class JDBCTransactionOutputOperator<T> extends JDBCOutputOperator<T>
 {
   private static final Logger logger = LoggerFactory.getLogger(JDBCTransactionOutputOperator.class);
   protected Statement transactionStatement;
+  private String operatorid;
 
   public void initTransactionInfo(OperatorContext context)
   {
@@ -25,25 +26,27 @@ public class JDBCTransactionOutputOperator<T> extends JDBCOutputOperator<T>
       DatabaseMetaData meta = getConnection().getMetaData();
       ResultSet rs1 = meta.getTables(null, null, "maxwindowid", null);
       if (rs1.next() == false) {
-//        logger.debug("table not exist!");
-        String createSQL = "CREATE TABLE maxwindowid(appid varchar(32) not null, operatorid varchar(32) not null, winid bigint not null)";
-        transactionStatement.execute(createSQL);
-        String insertSQL = "INSERT maxwindowid set appid=0, winid=0, operatorid='" + context.getId() + "'";
-        transactionStatement.executeUpdate(insertSQL);
+        logger.error("maxwindowid table not exist!");
+        throw new RuntimeException("maxwindowid table not exist!");
+//        String createSQL = "CREATE TABLE maxwindowid(appid varchar(32) not null, operatorid varchar(32) not null, winid bigint not null)";
+//        transactionStatement.execute(createSQL);
       }
 
-      String querySQL = "SELECT winid FROM maxwindowid LIMIT 1";
+      String querySQL = "SELECT winid FROM maxwindowid WHERE operatorid ='" + context.getId() + "' AND appid=" + 0; // how can I get the appid
       ResultSet rs = transactionStatement.executeQuery(querySQL);
       if (rs.next() == false) {
-        logger.error("max windowId table not ready!");
-        return;
+        String insertSQL = "INSERT maxwindowid set appid=0, winid=0, operatorid='" + context.getId() + "'";
+        transactionStatement.executeUpdate(insertSQL);
+        logger.debug(insertSQL);
+        lastWindowId = 0;
       }
-      lastWindowId = rs.getLong("winid");
+      else {
+        lastWindowId = rs.getLong("winid");
+      }
       getConnection().setAutoCommit(false);
-      logger.debug("lastWindowId:" + lastWindowId);
     }
     catch (SQLException ex) {
-      logger.debug(ex.toString());
+      logger.error(ex.toString());
     }
 
   }
@@ -58,6 +61,7 @@ public class JDBCTransactionOutputOperator<T> extends JDBCOutputOperator<T>
   {
     super.setup(context);
     initTransactionInfo(context);
+    operatorid = context.getId();
   }
 
   /**
@@ -70,7 +74,9 @@ public class JDBCTransactionOutputOperator<T> extends JDBCOutputOperator<T>
     if (windowId <= lastWindowId) {
       ignoreWindow = true;
     }
-
+    else {
+      ignoreWindow = false;
+    }
   }
 
   /**
@@ -80,14 +86,16 @@ public class JDBCTransactionOutputOperator<T> extends JDBCOutputOperator<T>
   public void endWindow()
   {
     try {
-      if (windowId > lastWindowId) {
-        String str = "UPDATE maxwindowid set winid=" + windowId + " WHERE appid=0";
-        transactionStatement.execute(str);
-        getConnection().commit();
+      if (ignoreWindow) {
+        return;
       }
+      String str = "UPDATE maxwindowid set winid=" + windowId + " WHERE appid=0 AND operatorid='"+operatorid+"'";
+      transactionStatement.execute(str);
+      logger.debug(str);
+      getConnection().commit();
     }
     catch (SQLException ex) {
-      logger.debug(ex.toString());
+      logger.error(ex.toString());
     }
   }
 

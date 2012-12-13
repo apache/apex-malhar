@@ -134,7 +134,7 @@ public class JDBCNonTransactionOutputOperatorTest
     }
   }
 
-  public static class MyHashMapOutputOperator extends JDBCNonTransactionOutputOperator<HashMap<String, Integer>>
+  public static class MyHashMapOutputOperator extends JDBCHashMapOutputOperator<HashMap<String, Integer>>
   {
     @Override
     public void setup(OperatorContext context)
@@ -156,25 +156,6 @@ public class JDBCNonTransactionOutputOperatorTest
     {
       super.endWindow();
       readTable(getTableName(), getConnection());
-    }
-    private int count = 0;
-
-    @Override
-    public void processTuple(HashMap<String, Integer> tuple)
-    {
-
-      try {
-        for (Map.Entry<String, Integer> e : tuple.entrySet()) {
-          getInsertStatement().setString(getKeyToIndex().get(e.getKey()).intValue(), e.getValue().toString());
-          count++;
-        }
-        getInsertStatement().executeUpdate();
-      }
-      catch (SQLException ex) {
-        logger.debug("exception while update", ex);
-      }
-
-      logger.debug(String.format("count %d", count));
     }
   }
 
@@ -213,7 +194,7 @@ public class JDBCNonTransactionOutputOperatorTest
       for (int j = 1; j <= columnCount; ++j) {
         hm.put("prop" + (j), new Integer((columnCount * i) + j));
       }
-      oper.inputPort.process(hm);
+//      oper.inputPort.process(hm);
     }
     oper.endWindow();
 

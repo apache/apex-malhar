@@ -86,7 +86,7 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
   public void setup(OperatorContext context)
   {
     super.setup(context);
-    // add initLastWindowInfo()
+    // add initLastWindowInfo() // need to read table
   }
 
   /**
@@ -96,15 +96,22 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
   public void beginWindow(long windowId)
   {
     this.windowId = windowId;
-    if (windowId == lastWindowId) {
+    if( windowId < lastWindowId ) {
+      ignoreWindow = true;
+    }
+    else if (windowId == lastWindowId) {
+      ignoreWindow = false;
       try {
         String stmt = "DELETE FROM " + getTableName() + " WHERE winid=" + windowId;
         statement.execute(stmt);
-        logger.debug("window:" + windowId);
+        logger.debug(stmt);
       }
       catch (SQLException ex) {
-        logger.debug(ex.toString());
+        logger.error(ex.toString());
       }
+    }
+    else {
+      ignoreWindow = false;
     }
   }
 

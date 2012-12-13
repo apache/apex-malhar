@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
+import java.util.logging.Level;
 import junit.framework.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -70,7 +71,7 @@ public class JDBCOutputOperatorTest
     Statement stmt = null;
     try {
       stmt = con.createStatement();
-      stmt.execute("DROP TABLE " + tableName);
+      stmt.execute("DROP TABLE IF EXISTS " + tableName);
       stmt.executeUpdate(str);
     }
     catch (SQLException ex) {
@@ -134,7 +135,7 @@ public class JDBCOutputOperatorTest
     }
   }
 
-  public static class MyHashMapOutputOperator extends JDBCTransactionOutputOperator<HashMap<String, Integer>>
+  public static class MyHashMapOutputOperator extends JDBCHashMapOutputOperator<Integer>
   {
     @Override
     public void setup(OperatorContext context)
@@ -156,24 +157,6 @@ public class JDBCOutputOperatorTest
     {
       super.endWindow();
       readTable(getTableName(), getConnection());
-    }
-    private int count = 0;
-
-    @Override
-    public void processTuple(HashMap<String, Integer> tuple)
-    {
-      try {
-        for (Map.Entry<String, Integer> e : tuple.entrySet()) {
-          getInsertStatement().setString(getKeyToIndex().get(e.getKey()).intValue(), e.getValue().toString());
-          count++;
-        }
-        getInsertStatement().executeUpdate();
-      }
-      catch (SQLException ex) {
-        logger.debug("exception while update", ex);
-      }
-
-      logger.debug(String.format("count %d", count));
     }
   }
 
@@ -206,7 +189,7 @@ public class JDBCOutputOperatorTest
     ///columnMapping=prop1:col1,prop2:col2,prop5:col5,prop6:col4,prop7:col7,prop3:col6,prop4:col3
 
     oper.setup(new com.malhartech.engine.OperatorContext("op1", null, null));
-    oper.beginWindow(4);
+    oper.beginWindow(1);
     for (int i = 0; i < maxTuple; ++i) {
       HashMap<String, Integer> hm = new HashMap<String, Integer>();
       for (int j = 1; j <= columnCount; ++j) {
@@ -219,19 +202,17 @@ public class JDBCOutputOperatorTest
     oper.teardown();
 
     // Check values send vs received
-//    Assert.assertEquals("Number of emitted tuples", maxTuple, tupleCount);
+    Assert.assertEquals("Number of emitted tuples", maxTuple, tupleCount);
     logger.debug(String.format("Number of emitted tuples: %d", tupleCount));
   }
 
-  public static class MyArrayListOutputOperator extends JDBCTransactionOutputOperator<ArrayList<AbstractMap.SimpleEntry<String, Object>>>
+  public static class MyArrayListOutputOperator extends JDBCArrayListOutputOperator
   {
-    private int count = 0;
-
     @Override
     public void setup(OperatorContext context)
     {
       super.setup(context);
-//      createDatabase(getDbName(), getConnection());
+      createDatabase(getDbName(), getConnection());
       createTable(getTableName(), getConnection(), getOrderedColumns(), getColumnToType());
     }
 
@@ -249,32 +230,8 @@ public class JDBCOutputOperatorTest
       readTable(getTableName(), getConnection());
     }
 
-    @Override
-    public void processTuple(ArrayList<AbstractMap.SimpleEntry<String, Object>> tuple)
-    {
-      try {
-        int num = tuple.size();
-        for (int idx = 0; idx < num; idx++) {
-          String key = tuple.get(idx).getKey();
-          getInsertStatement().setObject(
-                  getKeyToIndex().get(key).intValue(),
-                  tuple.get(idx).getValue(),
-                  getColumnSQLTypes().get(getKeyToType().get(key)));
-          count++;
-        }
-        //logger.debug(String.format("ps: %s", getInsertStatement().toString()));
-        getInsertStatement().executeUpdate();
-
-      }
-      catch (SQLException ex) {
-        logger.debug("exception while update", ex);
-      }
-
-      logger.debug(String.format("count %d", count));
-    }
   }
 
-  @Ignore
   @Test
   public void JDBCArrayListOutputOperatorTest() throws Exception
   {
@@ -298,8 +255,8 @@ public class JDBCOutputOperatorTest
     mapping[6] = "prop4:col3:INTEGER";
     oper.setOrderedColumnMapping(mapping);
 
-    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
-    oper.beginWindow(0);
+    oper.setup(new com.malhartech.engine.OperatorContext("op2", null, null));
+    oper.beginWindow(1);
     for (int i = 0; i < maxTuple; ++i) {
       ArrayList<AbstractMap.SimpleEntry<String, Object>> al = new ArrayList<AbstractMap.SimpleEntry<String, Object>>();
       for (int j = 1; j <= columnCount; ++j) {
@@ -322,7 +279,6 @@ public class JDBCOutputOperatorTest
     logger.debug(String.format("Number of emitted tuples: %d", tupleCount));
   }
 
-  @Ignore
   @Test
   public void JDBCArrayListOutputOperator_multiType_Test() throws Exception
   {
@@ -346,8 +302,8 @@ public class JDBCOutputOperatorTest
     mapping[6] = "prop4:col3:DATE";
     oper.setOrderedColumnMapping(mapping);
 
-    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
-    oper.beginWindow(0);
+    oper.setup(new com.malhartech.engine.OperatorContext("op3", null, null));
+    oper.beginWindow(1);
     for (int i = 0; i < maxTuple; ++i) {
       ArrayList<AbstractMap.SimpleEntry<String, Object>> al = new ArrayList<AbstractMap.SimpleEntry<String, Object>>();
       for (int j = 1; j <= columnCount; ++j) {
