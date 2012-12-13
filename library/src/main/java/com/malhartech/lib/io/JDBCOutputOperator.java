@@ -48,11 +48,12 @@ public abstract class JDBCOutputOperator<T> implements Operator
   private ArrayList<String> simpleColumnMapping = new ArrayList<String>();
   private HashMap<String, String> simpleColumnToType = new HashMap<String, String>();
   public HashMap<String, String> simpleColumnToType2 = new HashMap<String, String>();
-  private Connection connection = null;
-  private PreparedStatement insertStatement = null;
-  protected long windowId;
-  protected long lastWindowId;
-  protected boolean ignoreWindow;
+
+  private transient Connection connection = null;
+  private transient PreparedStatement insertStatement = null;
+  protected transient long windowId;
+  protected transient long lastWindowId;
+  protected transient boolean ignoreWindow;
   private long tupleCount = 0;
   protected boolean emptyTuple = false;
   private boolean hashMapping = true;

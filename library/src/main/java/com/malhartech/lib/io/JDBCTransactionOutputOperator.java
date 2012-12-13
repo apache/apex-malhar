@@ -17,7 +17,7 @@ public abstract class JDBCTransactionOutputOperator<T> extends JDBCOutputOperato
 {
   private static final Logger logger = LoggerFactory.getLogger(JDBCTransactionOutputOperator.class);
   protected Statement transactionStatement;
-  private String operatorid;
+  private String operatorId;
 
   public void initTransactionInfo(OperatorContext context)
   {
@@ -61,7 +61,7 @@ public abstract class JDBCTransactionOutputOperator<T> extends JDBCOutputOperato
   {
     super.setup(context);
     initTransactionInfo(context);
-    operatorid = context.getId();
+    operatorId = context.getId();
   }
 
   /**
@@ -91,7 +91,7 @@ public abstract class JDBCTransactionOutputOperator<T> extends JDBCOutputOperato
     }
     super.endWindow();
     try {
-      String str = "UPDATE maxwindowid set winid=" + windowId + " WHERE appid=0 AND operatorid='" + operatorid + "'";
+      String str = "UPDATE maxwindowid set winid=" + windowId + " WHERE appid=0 AND operatorid='" + operatorId + "'";
       transactionStatement.execute(str);
       logger.debug(str);
       getConnection().commit();

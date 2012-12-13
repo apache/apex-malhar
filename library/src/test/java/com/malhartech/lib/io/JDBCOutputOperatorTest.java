@@ -81,23 +81,6 @@ public class JDBCOutputOperatorTest
       stmt = con.createStatement();
       stmt.execute("DROP TABLE IF EXISTS " + tableName);
       stmt.executeUpdate(str);
-
-      // Read maxWindowId
-      DatabaseMetaData meta = con.getMetaData();
-      ResultSet rs1 = meta.getTables(null, null, "maxwindowid", null);
-      if (rs1.next() == true) {
-        String querySQL = "SELECT winid FROM maxwindowid LIMIT 1";
-        ResultSet rs = stmt.executeQuery(querySQL);
-        if (rs.next() == false) {
-          logger.error("maxwindowid table is empty");
-          throw new Exception();
-        }
-        testWindowId = rs.getLong("winid");
-      }
-      else {
-        logger.debug("maxwindowid table not exist!");
-        throw new Exception();
-      }
     }
     catch (SQLException ex) {
       logger.debug("exception during creating database", ex);
@@ -220,7 +203,7 @@ public class JDBCOutputOperatorTest
     ///columnMapping=prop1:col1,prop2:col2,prop5:col5,prop6:col4,prop7:col7,prop3:col6,prop4:col3
 
     oper.setup(new com.malhartech.engine.OperatorContext("op1", null, null));
-    oper.beginWindow(testWindowId + 1);
+    oper.beginWindow(oper.lastWindowId + 1);
     for (int i = 0; i < maxTuple; ++i) {
       HashMap<String, Object> hm = new HashMap<String, Object>();
       for (int j = 1; j <= columnCount; ++j) {
@@ -291,7 +274,7 @@ public class JDBCOutputOperatorTest
     oper.setOrderedColumnMapping(mapping);
 
     oper.setup(new com.malhartech.engine.OperatorContext("op2", null, null));
-    oper.beginWindow(testWindowId + 1);
+    oper.beginWindow(oper.lastWindowId + 1);
     for (int i = 0; i < maxTuple; ++i) {
       HashMap<String, Object> hm = new HashMap<String, Object>();
       for (int j = 1; j <= columnCount; ++j) {
@@ -346,7 +329,7 @@ public class JDBCOutputOperatorTest
     oper.setOrderedColumnMapping(mapping);
 
     oper.setup(new com.malhartech.engine.OperatorContext("op3", null, null));
-    oper.beginWindow(testWindowId + 1);
+    oper.beginWindow(oper.lastWindowId + 1);
     for (int i = 0; i < maxTuple; ++i) {
       HashMap<String, Object> hm = new HashMap<String, Object>();
       //ArrayList<AbstractMap.SimpleEntry<String, Object>> al = new ArrayList<AbstractMap.SimpleEntry<String, Object>>();
@@ -412,7 +395,7 @@ public class JDBCOutputOperatorTest
     oper.setSimpleColumnMapping(mapping);
 
     oper.setup(new com.malhartech.engine.OperatorContext("op4", null, null));
-    oper.beginWindow(testWindowId + 1);
+    oper.beginWindow(oper.lastWindowId + 1);
     for (int i = 0; i < maxTuple; ++i) {
       ArrayList<Object> al = new ArrayList<Object>();
       for (int j = 1; j <= columnCount; ++j) {
