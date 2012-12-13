@@ -211,7 +211,7 @@ public class JDBCNonTransactionOutputOperatorTest
     public void setup(OperatorContext context)
     {
       super.setup(context);
-//      createDatabase(getDbName(), getConnection());
+      createDatabase(getDbName(), getConnection());
       createTable(getTableName(), getConnection(), getColumnNames(), getColumnToType());
     }
 
