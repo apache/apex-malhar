@@ -33,7 +33,7 @@ import com.sun.jersey.api.client.WebResource;
  *
  * Reads via GET from given URL as input stream (entities on stream delimited by leading length)<p>
  * <br>
- * Data of type {@link java.util.Map} is converted to JSON. All other types are sent in their {@link Object#toString()} representation.<br>
+ * Incoming data is interpreted as JSONObject and converted to {@link java.util.Map}.<br>
  * <br>
  *
  */
