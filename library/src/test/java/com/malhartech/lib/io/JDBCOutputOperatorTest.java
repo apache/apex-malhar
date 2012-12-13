@@ -6,14 +6,12 @@ package com.malhartech.lib.io;
 
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.bufferserver.util.Codec;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.*;
-import java.util.logging.Level;
+import java.sql.*;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import junit.framework.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +27,7 @@ public class JDBCOutputOperatorTest
   private static final int maxTuple = 20;
   private static int columnCount = 7;
   private static int dataset = 1;
+  private static long testWindowId = 0;
 
   public static void createDatabase(String dbName, Connection con)
   {
@@ -58,7 +57,7 @@ public class JDBCOutputOperatorTest
     logger.debug("JDBC DB creation Success");
   }
 
-  public static void createTable(String tableName, Connection con, ArrayList<String> columns, HashMap<String, String> colTypes)
+  public static void createTable(String tableName, Connection con, ArrayList<String> columns, HashMap<String, String> colTypes) throws Exception
   {
     int num = columns.size();
     String cols = columns.get(0) + " " + colTypes.get(columns.get(0));
@@ -73,6 +72,23 @@ public class JDBCOutputOperatorTest
       stmt = con.createStatement();
       stmt.execute("DROP TABLE IF EXISTS " + tableName);
       stmt.executeUpdate(str);
+
+      // Read maxWindowId
+      DatabaseMetaData meta = con.getMetaData();
+      ResultSet rs1 = meta.getTables(null, null, "maxwindowid", null);
+      if (rs1.next() == true) {
+        String querySQL = "SELECT winid FROM maxwindowid LIMIT 1";
+        ResultSet rs = stmt.executeQuery(querySQL);
+        if (rs.next() == false) {
+          logger.error("maxwindowid table is empty");
+          throw new Exception();
+        }
+        testWindowId = rs.getLong("winid");
+      }
+      else {
+        logger.debug("maxwindowid table not exist!");
+        throw new Exception();
+      }
     }
     catch (SQLException ex) {
       logger.debug("exception during creating database", ex);
@@ -142,7 +158,12 @@ public class JDBCOutputOperatorTest
     {
       super.setup(context);
       createDatabase(getDbName(), getConnection());
-      createTable(getTableName(), getConnection(), getOrderedColumns(), getColumnToType());
+      try {
+        createTable(getTableName(), getConnection(), getOrderedColumns(), getColumnToType());
+      }
+      catch (Exception ex) {
+        logger.debug("Exception during setup: create table: %s", ex.getLocalizedMessage());
+      }
     }
 
     @Override
@@ -182,6 +203,7 @@ public class JDBCOutputOperatorTest
     mapping[5] = "prop3:col6:INTEGER";
     mapping[6] = "prop4:col3:INTEGER";
     oper.setOrderedColumnMapping(mapping);
+    oper.setBatchSize(100);
 
     //oper.setColumnMapping("prop1:col1,prop2:col2,prop5:col5,prop6:col6,prop7:col7,prop3:col3,prop4:col4");
     //columnMapping=prop1:col1,prop2:col2,prop3:col3,prop4:col4,prop5:col5,prop6:col6,prop7:col7
@@ -189,7 +211,7 @@ public class JDBCOutputOperatorTest
     ///columnMapping=prop1:col1,prop2:col2,prop5:col5,prop6:col4,prop7:col7,prop3:col6,prop4:col3
 
     oper.setup(new com.malhartech.engine.OperatorContext("op1", null, null));
-    oper.beginWindow(1);
+    oper.beginWindow(testWindowId+1);
     for (int i = 0; i < maxTuple; ++i) {
       HashMap<String, Integer> hm = new HashMap<String, Integer>();
       for (int j = 1; j <= columnCount; ++j) {
@@ -212,8 +234,13 @@ public class JDBCOutputOperatorTest
     public void setup(OperatorContext context)
     {
       super.setup(context);
-      createDatabase(getDbName(), getConnection());
-      createTable(getTableName(), getConnection(), getOrderedColumns(), getColumnToType());
+      try {
+        //      createDatabase(getDbName(), getConnection());
+              createTable(getTableName(), getConnection(), getOrderedColumns(), getColumnToType());
+      }
+      catch (Exception ex) {
+        logger.debug("exception while update", ex);
+      }
     }
 
     @Override
@@ -254,8 +281,8 @@ public class JDBCOutputOperatorTest
     mapping[6] = "prop4:col3:INTEGER";
     oper.setOrderedColumnMapping(mapping);
 
-    oper.setup(new com.malhartech.engine.OperatorContext("op2", null, null));
-    oper.beginWindow(1);
+    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
+    oper.beginWindow(testWindowId+1);
     for (int i = 0; i < maxTuple; ++i) {
       ArrayList<AbstractMap.SimpleEntry<String, Object>> al = new ArrayList<AbstractMap.SimpleEntry<String, Object>>();
       for (int j = 1; j <= columnCount; ++j) {
@@ -301,8 +328,8 @@ public class JDBCOutputOperatorTest
     mapping[6] = "prop4:col3:DATE";
     oper.setOrderedColumnMapping(mapping);
 
-    oper.setup(new com.malhartech.engine.OperatorContext("op3", null, null));
-    oper.beginWindow(1);
+    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
+    oper.beginWindow(testWindowId+1);
     for (int i = 0; i < maxTuple; ++i) {
       ArrayList<AbstractMap.SimpleEntry<String, Object>> al = new ArrayList<AbstractMap.SimpleEntry<String, Object>>();
       for (int j = 1; j <= columnCount; ++j) {

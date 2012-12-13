@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
-public class JDBCTransactionOutputOperator<T> extends JDBCOutputOperator<T>
+public abstract class JDBCTransactionOutputOperator<T> extends JDBCOutputOperator<T>
 {
   private static final Logger logger = LoggerFactory.getLogger(JDBCTransactionOutputOperator.class);
   protected Statement transactionStatement;
@@ -85,6 +85,7 @@ public class JDBCTransactionOutputOperator<T> extends JDBCOutputOperator<T>
   @Override
   public void endWindow()
   {
+    super.endWindow();
     try {
       if (ignoreWindow) {
         return;
@@ -99,8 +100,4 @@ public class JDBCTransactionOutputOperator<T> extends JDBCOutputOperator<T>
     }
   }
 
-  @Override
-  public void processTuple(T tuple)
-  {
-  }
 }

@@ -12,9 +12,9 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-//import org.springframework.integration.jdbc.config;
 
 /**
  *
@@ -23,12 +23,14 @@ import org.slf4j.LoggerFactory;
 public abstract class JDBCOutputOperator<T> implements Operator
 {
   private static final Logger logger = LoggerFactory.getLogger(JDBCOutputOperator.class);
+  private static final int DEFAULT_BATCH_SIZE = 1000;
   private String dbUrl;
   private String dbName;
   private String dbUser;
   private String dbPassword;
   private String dbDriver;
   private String tableName;
+  private long batchSize = DEFAULT_BATCH_SIZE;
   private ArrayList<String> orderedColumnMapping = new ArrayList<String>();
   private ArrayList<String> orderedColumns = new ArrayList<String>(); // follow same order as items in tuple
   private HashMap<String, Integer> keyToIndex = new HashMap<String, Integer>();
@@ -41,6 +43,7 @@ public abstract class JDBCOutputOperator<T> implements Operator
   protected long windowId;
   protected long lastWindowId;
   protected boolean ignoreWindow;
+  private long count = 0;
 
   public abstract void processTuple(T tuple);
   /**
@@ -55,7 +58,17 @@ public abstract class JDBCOutputOperator<T> implements Operator
       if (ignoreWindow) {
         return;
       }
-      processTuple(tuple);
+      try {
+        processTuple(tuple);
+        insertStatement.addBatch();
+        if (++count % batchSize == 0) {
+          insertStatement.executeBatch();
+        }
+      }
+      catch (SQLException ex) {
+        logger.debug("exception during insert tuple", ex);
+      }
+      logger.debug(String.format("count %d", count));
     }
   };
 
@@ -117,6 +130,16 @@ public abstract class JDBCOutputOperator<T> implements Operator
   public void setTableName(String tableName)
   {
     this.tableName = tableName;
+  }
+
+  public long getBatchSize()
+  {
+    return batchSize;
+  }
+
+  public void setBatchSize(long batchSize)
+  {
+    this.batchSize = batchSize;
   }
 
   public ArrayList<String> getOrderedColumnMapping()
@@ -193,27 +216,7 @@ public abstract class JDBCOutputOperator<T> implements Operator
 
   public void buildMapping()
   {
-    /*  BIGINT
-     BINARY
-     BIT
-     CHAR
-     DATE
-     DECIMAL
-     DOUBLE
-     FLOAT
-     INTEGER
-     LONGVARBINARY
-     LONGVARCHAR
-     NULL
-     NUMERIC
-     OTHER
-     REAL
-     SMALLINT
-     TIME
-     TIMESTAMP
-     TINYINT
-     VARBINARY
-     VARCHAR */
+    // JDBC SQL type data mapping
     columnSQLTypes.put("BIGINT", new Integer(Types.BIGINT));
     columnSQLTypes.put("BINARY", new Integer(Types.BINARY));
     columnSQLTypes.put("BIT", new Integer(Types.BIT));
@@ -235,8 +238,6 @@ public abstract class JDBCOutputOperator<T> implements Operator
     columnSQLTypes.put("TINYINT", new Integer(Types.TINYINT));
     columnSQLTypes.put("VARBINARY", new Integer(Types.VARBINARY));
     columnSQLTypes.put("VARCHAR", new Integer(Types.VARCHAR));
-
-    //JdbcTypesEnum e = new JdbcTypesEnum();
 
     try {
       // Each entry in orderedColumnMapping is Tuple key followed by Tuple value separated by colon (:)
@@ -365,5 +366,11 @@ public abstract class JDBCOutputOperator<T> implements Operator
   @Override
   public void endWindow()
   {
+    try {
+      insertStatement.executeBatch();
+    }
+    catch (SQLException ex) {
+      logger.debug("exception during executing batch", ex);
+    }
   }
 }

@@ -17,22 +17,20 @@ import org.slf4j.LoggerFactory;
 public class JDBCHashMapOutputOperator<V> extends JDBCTransactionOutputOperator<HashMap<String, V>>
 {
   private static final Logger logger = LoggerFactory.getLogger(JDBCHashMapOutputOperator.class);
-  private int count = 0;
 
   @Override
   public void processTuple(HashMap<String, V> tuple)
   {
     try {
-      for (Map.Entry<String, V> e : tuple.entrySet()) {
-        getInsertStatement().setString(getKeyToIndex().get(e.getKey()).intValue(), e.getValue().toString());
-        count++;
+      for (Map.Entry<String, V> e: tuple.entrySet()) {
+        getInsertStatement().setObject(
+                getKeyToIndex().get(e.getKey()).intValue(),
+                e.getValue(),
+                getColumnSQLTypes().get(getKeyToType().get(e.getKey())));
       }
-      getInsertStatement().executeUpdate();
     }
     catch (SQLException ex) {
       logger.debug("exception while update", ex);
     }
-
-    logger.debug(String.format("count %d", count));
   }
 }

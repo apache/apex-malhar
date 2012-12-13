@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 public class JDBCArrayListOutputOperator extends JDBCTransactionOutputOperator<ArrayList<AbstractMap.SimpleEntry<String, Object>>>
 {
   private static final Logger logger = LoggerFactory.getLogger(JDBCArrayListOutputOperator.class);
-  private int count = 0;
 
   @Override
   public void processTuple(ArrayList<AbstractMap.SimpleEntry<String, Object>> tuple)
@@ -30,16 +29,10 @@ public class JDBCArrayListOutputOperator extends JDBCTransactionOutputOperator<A
                 getKeyToIndex().get(key).intValue(),
                 tuple.get(idx).getValue(),
                 getColumnSQLTypes().get(getKeyToType().get(key)));
-        count++;
       }
-      //logger.debug(String.format("ps: %s", getInsertStatement().toString()));
-      getInsertStatement().executeUpdate();
-
     }
     catch (SQLException ex) {
       logger.debug("exception while update", ex);
     }
-
-    logger.debug(String.format("count %d", count));
   }
 }
