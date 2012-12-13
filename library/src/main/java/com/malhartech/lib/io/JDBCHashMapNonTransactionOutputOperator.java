@@ -20,19 +20,14 @@ public class JDBCHashMapNonTransactionOutputOperator<V> extends JDBCNonTransacti
   private static final Logger logger = LoggerFactory.getLogger(JDBCHashMapNonTransactionOutputOperator.class);
 
   @Override
-  public void processTuple(HashMap<String, V> tuple)
+  public void processTuple(HashMap<String, V> tuple) throws SQLException
   {
-    try {
-      for (Map.Entry<String, V> e: tuple.entrySet()) {
-        getInsertStatement().setObject(
-                getKeyToIndex().get(e.getKey()).intValue(),
-                e.getValue(),
-                getColumnSQLTypes().get(getKeyToType().get(e.getKey())));
-      }
-      getInsertStatement().setObject(tuple.size()+1, windowId, new Integer(Types.BIGINT));
+    for (Map.Entry<String, V> e: tuple.entrySet()) {
+      getInsertStatement().setObject(
+              getKeyToIndex().get(e.getKey()).intValue(),
+              e.getValue(),
+              getColumnSQLTypes().get(getKeyToType().get(e.getKey())));
     }
-    catch (SQLException ex) {
-      logger.debug("exception while update", ex);
-    }
+    getInsertStatement().setObject(tuple.size() + 1, windowId, new Integer(Types.BIGINT));
   }
 }

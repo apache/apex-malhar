@@ -58,7 +58,8 @@ public abstract class JDBCOutputOperator<T> implements Operator
   protected boolean emptyTuple = false;
   private boolean hashMapping = true;
 
-  public abstract void processTuple(T tuple);
+  public abstract void processTuple(T tuple) throws SQLException;
+
   /**
    * The input port.
    */
@@ -80,7 +81,7 @@ public abstract class JDBCOutputOperator<T> implements Operator
         }
       }
       catch (SQLException ex) {
-        logger.debug("exception during insert tuple", ex);
+        throw new RuntimeException("Unable to insert data", ex);
       }
       logger.debug(String.format("count %d", tupleCount));
     }
@@ -356,7 +357,7 @@ public abstract class JDBCOutputOperator<T> implements Operator
       insertStatement = connection.prepareStatement(insertQuery);
     }
     catch (SQLException ex) {
-      logger.debug("exception during prepare statement", ex);
+      throw new RuntimeException(String.format("Error while preparing insert query: %s", insertStatement), ex);
     }
   }
 
@@ -386,7 +387,7 @@ public abstract class JDBCOutputOperator<T> implements Operator
       connection.close();
     }
     catch (SQLException ex) {
-      logger.debug("exception during teardown", ex);
+      throw new RuntimeException("Error while closing database resource", ex);
     }
   }
 
@@ -412,7 +413,7 @@ public abstract class JDBCOutputOperator<T> implements Operator
       insertStatement.executeBatch();
     }
     catch (SQLException ex) {
-      logger.debug("exception during executing batch", ex);
+      throw new RuntimeException("Unable to insert data", ex);
     }
   }
 }

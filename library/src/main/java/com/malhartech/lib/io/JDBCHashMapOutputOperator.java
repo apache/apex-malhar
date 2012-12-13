@@ -21,21 +21,16 @@ public class JDBCHashMapOutputOperator<V> extends JDBCTransactionOutputOperator<
   private static final Logger logger = LoggerFactory.getLogger(JDBCHashMapOutputOperator.class);
 
   @Override
-  public void processTuple(HashMap<String, V> tuple)
+  public void processTuple(HashMap<String, V> tuple) throws SQLException
   {
-    try {
-      if (tuple.isEmpty()) {
-        emptyTuple = true;
-      }
-      for (Map.Entry<String, V> e: tuple.entrySet()) {
-        getInsertStatement().setObject(
-                getKeyToIndex().get(e.getKey()).intValue(),
-                e.getValue(),
-                getColumnSQLTypes().get(getKeyToType().get(e.getKey())));
-      }
+    if (tuple.isEmpty()) {
+      emptyTuple = true;
     }
-    catch (SQLException ex) {
-      logger.debug("exception while update", ex);
+    for (Map.Entry<String, V> e: tuple.entrySet()) {
+      getInsertStatement().setObject(
+              getKeyToIndex().get(e.getKey()).intValue(),
+              e.getValue(),
+              getColumnSQLTypes().get(getKeyToType().get(e.getKey())));
     }
   }
 }

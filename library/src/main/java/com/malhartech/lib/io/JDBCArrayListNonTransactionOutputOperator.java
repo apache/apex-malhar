@@ -15,26 +15,20 @@ import org.slf4j.LoggerFactory;
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
-public class JDBCArrayListNonTransactionOutputOperator extends JDBCNonTransactionOutputOperator<ArrayList<AbstractMap.SimpleEntry<String, Object>>>
+public class JDBCArrayListNonTransactionOutputOperator extends JDBCNonTransactionOutputOperator<ArrayList<Object>>
 {
   private static final Logger logger = LoggerFactory.getLogger(JDBCArrayListNonTransactionOutputOperator.class);
 
   @Override
-  public void processTuple(ArrayList<AbstractMap.SimpleEntry<String, Object>> tuple)
+  public void processTuple(ArrayList<Object> tuple) throws SQLException
   {
-    try {
-      int num = tuple.size();
-      for (int idx = 0; idx < num; idx++) {
-        String key = tuple.get(idx).getKey();
-        getInsertStatement().setObject(
-                getKeyToIndex().get(key).intValue(),
-                tuple.get(idx).getValue(),
-                getColumnSQLTypes().get(getKeyToType().get(key)));
-      }
-      getInsertStatement().setObject(num+1, windowId, new Integer(Types.BIGINT));
+    int num = tuple.size();
+    for (int idx = 0; idx < num; idx++) {
+      getInsertStatement().setObject(
+              idx + 1,
+              tuple.get(idx),
+              getColumnSQLTypes().get(getSimpleColumnToType().get(getColumnNames().get(idx))));
     }
-    catch (SQLException ex) {
-      logger.debug("exception while update", ex);
-    }
+    getInsertStatement().setObject(num + 1, windowId, new Integer(Types.BIGINT));
   }
 }

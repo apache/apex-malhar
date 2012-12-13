@@ -28,8 +28,6 @@ public abstract class JDBCTransactionOutputOperator<T> extends JDBCOutputOperato
       if (rs1.next() == false) {
         logger.error("maxwindowid table not exist!");
         throw new RuntimeException("maxwindowid table not exist!");
-//        String createSQL = "CREATE TABLE maxwindowid(appid varchar(32) not null, operatorid varchar(32) not null, winid bigint not null)";
-//        transactionStatement.execute(createSQL);
       }
 
       String querySQL = "SELECT winid FROM maxwindowid WHERE operatorid ='" + context.getId() + "' AND appid=" + 0; // how can I get the appid
@@ -46,7 +44,7 @@ public abstract class JDBCTransactionOutputOperator<T> extends JDBCOutputOperato
       getConnection().setAutoCommit(false);
     }
     catch (SQLException ex) {
-      logger.error(ex.toString());
+      throw new RuntimeException(ex);
     }
 
   }
@@ -97,7 +95,7 @@ public abstract class JDBCTransactionOutputOperator<T> extends JDBCOutputOperato
       getConnection().commit();
     }
     catch (SQLException ex) {
-      logger.error(ex.toString());
+      throw new RuntimeException(ex);
     }
   }
 }

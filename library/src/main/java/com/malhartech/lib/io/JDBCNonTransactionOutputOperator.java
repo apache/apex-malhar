@@ -57,7 +57,7 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
       setInsertStatement(getConnection().prepareStatement(insertQuery));
     }
     catch (SQLException ex) {
-      logger.debug("exception during prepare statement", ex);
+      throw new RuntimeException("Error while preparing insert statement", ex);
     }
   }
 
@@ -75,7 +75,7 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
       lastWindowId = rs.getLong("winid");
     }
     catch (SQLException ex) {
-      logger.debug(ex.toString());
+      throw new RuntimeException(ex);
     }
   }
 
@@ -98,7 +98,6 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
   public void beginWindow(long windowId)
   {
     super.beginWindow(windowId);
-    this.windowId = windowId;
     if (windowId < lastWindowId) {
       ignoreWindow = true;
     }
@@ -110,7 +109,7 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
         logger.debug(stmt);
       }
       catch (SQLException ex) {
-        logger.error(ex.toString());
+        throw new RuntimeException("Error while deleting windowId from db", ex);
       }
     }
     else {
