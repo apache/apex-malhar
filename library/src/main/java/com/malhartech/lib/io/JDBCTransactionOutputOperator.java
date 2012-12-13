@@ -70,6 +70,7 @@ public abstract class JDBCTransactionOutputOperator<T> extends JDBCOutputOperato
   @Override
   public void beginWindow(long windowId)
   {
+    super.beginWindow(windowId);
     this.windowId = windowId;
     if (windowId <= lastWindowId) {
       ignoreWindow = true;

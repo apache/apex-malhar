@@ -12,7 +12,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +42,7 @@ public abstract class JDBCOutputOperator<T> implements Operator
   protected long windowId;
   protected long lastWindowId;
   protected boolean ignoreWindow;
-  private long count = 0;
+  private long tupleCount = 0;
 
   public abstract void processTuple(T tuple);
   /**
@@ -61,14 +60,14 @@ public abstract class JDBCOutputOperator<T> implements Operator
       try {
         processTuple(tuple);
         insertStatement.addBatch();
-        if (++count % batchSize == 0) {
+        if (++tupleCount % batchSize == 0) {
           insertStatement.executeBatch();
         }
       }
       catch (SQLException ex) {
         logger.debug("exception during insert tuple", ex);
       }
-      logger.debug(String.format("count %d", count));
+      logger.debug(String.format("count %d", tupleCount));
     }
   };
 

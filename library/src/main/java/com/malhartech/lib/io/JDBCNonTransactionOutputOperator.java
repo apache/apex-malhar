@@ -95,6 +95,7 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
   @Override
   public void beginWindow(long windowId)
   {
+    super.beginWindow(windowId);
     this.windowId = windowId;
     if( windowId < lastWindowId ) {
       ignoreWindow = true;
@@ -121,5 +122,6 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
   @Override
   public void endWindow()
   {
+    super.endWindow();
   }
 }

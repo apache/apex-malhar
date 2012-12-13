@@ -281,7 +281,7 @@ public class JDBCOutputOperatorTest
     mapping[6] = "prop4:col3:INTEGER";
     oper.setOrderedColumnMapping(mapping);
 
-    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
+    oper.setup(new com.malhartech.engine.OperatorContext("op2", null, null));
     oper.beginWindow(testWindowId+1);
     for (int i = 0; i < maxTuple; ++i) {
       ArrayList<AbstractMap.SimpleEntry<String, Object>> al = new ArrayList<AbstractMap.SimpleEntry<String, Object>>();
@@ -328,7 +328,7 @@ public class JDBCOutputOperatorTest
     mapping[6] = "prop4:col3:DATE";
     oper.setOrderedColumnMapping(mapping);
 
-    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
+    oper.setup(new com.malhartech.engine.OperatorContext("op3", null, null));
     oper.beginWindow(testWindowId+1);
     for (int i = 0; i < maxTuple; ++i) {
       ArrayList<AbstractMap.SimpleEntry<String, Object>> al = new ArrayList<AbstractMap.SimpleEntry<String, Object>>();
