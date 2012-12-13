@@ -5,7 +5,6 @@
 package com.malhartech.lib.io;
 
 import java.sql.SQLException;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,21 +13,23 @@ import org.slf4j.LoggerFactory;
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
-public class JDBCArrayListOutputOperator extends JDBCTransactionOutputOperator<ArrayList<AbstractMap.SimpleEntry<String, Object>>>
+public class JDBCArrayListOutputOperator extends JDBCTransactionOutputOperator<ArrayList<Object>>
 {
   private static final Logger logger = LoggerFactory.getLogger(JDBCArrayListOutputOperator.class);
 
   @Override
-  public void processTuple(ArrayList<AbstractMap.SimpleEntry<String, Object>> tuple)
+  public void processTuple(ArrayList<Object> tuple)
   {
     try {
       int num = tuple.size();
+      if (num < 1) {
+        emptyTuple = true;
+      }
       for (int idx = 0; idx < num; idx++) {
-        String key = tuple.get(idx).getKey();
         getInsertStatement().setObject(
-                getKeyToIndex().get(key).intValue(),
-                tuple.get(idx).getValue(),
-                getColumnSQLTypes().get(getKeyToType().get(key)));
+                idx+1,
+                tuple.get(idx),
+                getColumnSQLTypes().get(getSimpleColumnToType().get(getColumnNames().get(idx))));
       }
     }
     catch (SQLException ex) {

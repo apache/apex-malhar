@@ -141,7 +141,7 @@ public class JDBCNonTransactionOutputOperatorTest
     {
       super.setup(context);
       createDatabase(getDbName(), getConnection());
-      createTable(getTableName(), getConnection(), getOrderedColumns(), getColumnToType());
+      createTable(getTableName(), getConnection(), getColumnNames(), getColumnToType());
     }
 
     @Override
@@ -211,8 +211,8 @@ public class JDBCNonTransactionOutputOperatorTest
     public void setup(OperatorContext context)
     {
       super.setup(context);
-      createDatabase(getDbName(), getConnection());
-      createTable(getTableName(), getConnection(), getOrderedColumns(), getColumnToType());
+//      createDatabase(getDbName(), getConnection());
+      createTable(getTableName(), getConnection(), getColumnNames(), getColumnToType());
     }
 
     @Override

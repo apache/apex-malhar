@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
+ * Key is string, Value can be any type derived from Java object.
+ *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
 public class JDBCHashMapOutputOperator<V> extends JDBCTransactionOutputOperator<HashMap<String, V>>
@@ -22,6 +24,9 @@ public class JDBCHashMapOutputOperator<V> extends JDBCTransactionOutputOperator<
   public void processTuple(HashMap<String, V> tuple)
   {
     try {
+      if (tuple.isEmpty()) {
+        emptyTuple = true;
+      }
       for (Map.Entry<String, V> e: tuple.entrySet()) {
         getInsertStatement().setObject(
                 getKeyToIndex().get(e.getKey()).intValue(),

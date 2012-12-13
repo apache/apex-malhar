@@ -5,7 +5,9 @@
 package com.malhartech.lib.io;
 
 import com.malhartech.api.Context.OperatorContext;
-import java.sql.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +27,7 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
   @Override
   protected void prepareInsertStatement()
   {
-    int num = getOrderedColumns().size();
+    int num = getColumnNames().size();
     if (num < 1) {
       return;
     }
@@ -37,11 +39,11 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
 
     for (int idx = 0; idx < num; ++idx) {
       if (idx == 0) {
-        columns = getOrderedColumns().get(idx);
+        columns = getColumnNames().get(idx);
         values = question;
       }
       else {
-        columns = columns + comma + space + getOrderedColumns().get(idx);
+        columns = columns + comma + space + getColumnNames().get(idx);
         values = values + comma + space + question;
       }
     }
