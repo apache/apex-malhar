@@ -56,6 +56,7 @@ import java.util.Map;
  * <tr><td>End Window (endWindow())</td><td>N/A</td><td>{a=6,b=2,c=3,5ah=2,h=1,4=1}</td></tr>
  * </table>
  * <br>
+ *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
 public class UniqueCounter<K> extends BaseUniqueKeyCounter<K>
@@ -71,6 +72,7 @@ public class UniqueCounter<K> extends BaseUniqueKeyCounter<K>
     {
       processTuple(tuple);
     }
+
   };
   @OutputPortFieldAnnotation(name = "count")
   public final transient DefaultOutputPort<HashMap<K, Integer>> count = new DefaultOutputPort<HashMap<K, Integer>>(this);
@@ -92,4 +94,5 @@ public class UniqueCounter<K> extends BaseUniqueKeyCounter<K>
       count.emit(tuple);
     }
   }
+
 }

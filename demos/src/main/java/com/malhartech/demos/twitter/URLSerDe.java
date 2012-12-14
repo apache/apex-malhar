@@ -16,19 +16,6 @@ import org.slf4j.LoggerFactory;
 public class URLSerDe implements StreamCodec<byte[]>
 {
   private static final Logger logger = LoggerFactory.getLogger(URLSerDe.class);
-  private static final byte[][] partitions = new byte[][]{
-    //    {0x0},
-    //    {1},
-    //    {2},
-    //    {3},
-    //    {4},
-    //    {5},
-    //    {6},
-    //    {7},
-    {'a'},
-    {'b'}
-  };
-  private static final int partitionsCount = partitions.length;
 
   /**
    * Covert the bytes into object useful for downstream node.
@@ -55,15 +42,10 @@ public class URLSerDe implements StreamCodec<byte[]>
   }
 
   @Override
-  public byte[] getPartition(Object o)
+  public int getPartition(Object o)
   {
     ByteBuffer bb = ByteBuffer.wrap((byte[]) o);
-    return partitions[Math.abs(bb.hashCode()) % partitionsCount];
-  }
-
-  public byte[][] getPartitions()
-  {
-    return partitions;
+    return bb.hashCode();
   }
 
   @Override
