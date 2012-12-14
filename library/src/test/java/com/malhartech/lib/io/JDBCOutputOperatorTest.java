@@ -33,7 +33,6 @@ public class JDBCOutputOperatorTest
   /*
    * Todo:
    * - refactor prepared statement
-   * - Handle exception
    * - Handle null name in column mapping
    * - embedded sql
    * - multi table support
@@ -159,7 +158,7 @@ public class JDBCOutputOperatorTest
         createTable(getTableName(), getConnection(), getColumnNames(), getColumnToType());
       }
       catch (Exception ex) {
-        logger.debug("Exception during setup: create table: %s", ex.getLocalizedMessage());
+        throw new RuntimeException("Exception during creating table", ex);
       }
     }
 
@@ -186,10 +185,13 @@ public class JDBCOutputOperatorTest
     MyHashMapOutputOperator oper = new MyHashMapOutputOperator();
 
     oper.setDbUrl("jdbc:mysql://localhost/");
+    //oper.setDbUrl("jdbc:derby://localhost:1527/");
     oper.setDbName("test");
     oper.setDbUser("test");
     oper.setDbPassword("");
     oper.setDbDriver("com.mysql.jdbc.Driver");
+    //oper.setDbDriver("org.apache.derby.jdbc.EmbeddedDriver");
+    //oper.setDbDriver("org.apache.derby.jdbc.ClientDriver");
     oper.setTableName("Test_Tuple");
     String[] mapping = new String[7];
     mapping[0] = "prop1:col1:INTEGER";
@@ -231,7 +233,7 @@ public class JDBCOutputOperatorTest
         createTable(getTableName(), getConnection(), getColumnNames(), simpleColumnToType2);
       }
       catch (Exception ex) {
-        logger.debug("exception while update", ex);
+        throw new RuntimeException("Exception during creating table", ex);
       }
     }
 
@@ -318,21 +320,12 @@ public class JDBCOutputOperatorTest
     mapping[4] = "prop7:col7:DOUBLE";
     mapping[5] = "prop3:col6:VARCHAR(10)";
     mapping[6] = "prop4:col3:DATE";
-    /*
-     mapping[0] = "col1:INTEGER";
-     mapping[1] = "col2:BIGINT";
-     mapping[2] = "col5:CHAR";
-     mapping[3] = "col4:DATE";
-     mapping[4] = "col7:DOUBLE";
-     mapping[5] = "col6:VARCHAR(10)";
-     mapping[6] = "col3:DATE";*/
     oper.setOrderedColumnMapping(mapping);
 
     oper.setup(new com.malhartech.engine.OperatorContext("op3", null, null));
     oper.beginWindow(oper.lastWindowId + 1);
     for (int i = 0; i < maxTuple; ++i) {
       HashMap<String, Object> hm = new HashMap<String, Object>();
-      //ArrayList<AbstractMap.SimpleEntry<String, Object>> al = new ArrayList<AbstractMap.SimpleEntry<String, Object>>();
       for (int j = 1; j <= columnCount; ++j) {
         if ("INTEGER".equals(oper.getKeyToType().get("prop" + j))) {
           hm.put("prop" + (j), new Integer((columnCount * i) + j));

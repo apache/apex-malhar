@@ -12,6 +12,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +49,6 @@ public abstract class JDBCOutputOperator<T> implements Operator
   private ArrayList<String> simpleColumnMapping = new ArrayList<String>();
   private HashMap<String, String> simpleColumnToType = new HashMap<String, String>();
   public HashMap<String, String> simpleColumnToType2 = new HashMap<String, String>();
-
   private transient Connection connection = null;
   private transient PreparedStatement insertStatement = null;
   protected transient long windowId;
@@ -59,7 +59,6 @@ public abstract class JDBCOutputOperator<T> implements Operator
   private boolean hashMapping = true;
 
   public abstract void processTuple(T tuple) throws SQLException;
-
   /**
    * The input port.
    */
@@ -81,7 +80,7 @@ public abstract class JDBCOutputOperator<T> implements Operator
         }
       }
       catch (SQLException ex) {
-        throw new RuntimeException("Unable to insert data", ex);
+        throw new RuntimeException(String.format("Unable to insert data with insert query: %s", insertStatement.toString()), ex);
       }
       logger.debug(String.format("count %d", tupleCount));
     }
@@ -304,24 +303,38 @@ public abstract class JDBCOutputOperator<T> implements Operator
       }
     }
     catch (Exception ex) {
-      logger.debug("exception during table column mapping", ex);
+      throw new RuntimeException("Exception during column mapping", ex);
     }
   }
 
   public void setupJDBCConnection()
   {
     try {
-      // This will load the MySQL driver, each DB has its own driver
+      // This will load the JDBC driver, each DB has its own driver
       Class.forName(dbDriver).newInstance();
+      //String temp = "jdbc:derby:test;create=true";
+
       connection = DriverManager.getConnection(dbUrl + dbName, dbUser, dbPassword);
+      //connection = DriverManager.getConnection(temp, dbUser, dbPassword);
+
+
       logger.debug("JDBC connection Success");
     }
     catch (ClassNotFoundException ex) {
-      logger.debug("exception during JBDC connection", ex);
+      throw new RuntimeException("Exception during JBDC connection", ex);
     }
     catch (Exception ex) {
-      logger.debug("exception during JDBC connection", ex);
+      throw new RuntimeException("Exception during JBDC connection", ex);
     }
+  }
+
+  /**
+   * Additional column names, needed for non-transactional database.
+   * @return
+   */
+  protected HashMap<String, String> windowColumn()
+  {
+    return null;
   }
 
   /**
@@ -346,8 +359,16 @@ public abstract class JDBCOutputOperator<T> implements Operator
         values = question;
       }
       else {
-        columns = columns + comma + space + columnNames.get(idx);
-        values = values + comma + space + question;
+        columns += comma + space + columnNames.get(idx);
+        values += comma + space + question;
+      }
+    }
+
+    HashMap<String, String> windowCol = windowColumn();
+    if (windowCol != null && windowCol.size() > 0) {
+      for (Map.Entry<String, String> e: windowCol.entrySet()) {
+        columns += comma + space + e.getKey();
+        values += comma + space + question;
       }
     }
 
@@ -357,7 +378,7 @@ public abstract class JDBCOutputOperator<T> implements Operator
       insertStatement = connection.prepareStatement(insertQuery);
     }
     catch (SQLException ex) {
-      throw new RuntimeException(String.format("Error while preparing insert query: %s", insertStatement), ex);
+      throw new RuntimeException(String.format("Error while preparing insert query: %s", insertQuery), ex);
     }
   }
 

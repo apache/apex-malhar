@@ -8,6 +8,7 @@ import com.malhartech.api.Context.OperatorContext;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,44 +22,15 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
   protected Statement statement;
 
   /**
-   * Prepare insert query statement using column names from mapping.
-   *
+   * Additional column name needed for non-transactional database.
+   * @return
    */
   @Override
-  protected void prepareInsertStatement()
+  public HashMap<String, String> windowColumn()
   {
-    int num = getColumnNames().size();
-    if (num < 1) {
-      return;
-    }
-    String columns = "";
-    String values = "";
-    String space = " ";
-    String comma = ",";
-    String question = "?";
-
-    for (int idx = 0; idx < num; ++idx) {
-      if (idx == 0) {
-        columns = getColumnNames().get(idx);
-        values = question;
-      }
-      else {
-        columns = columns + comma + space + getColumnNames().get(idx);
-        values = values + comma + space + question;
-      }
-    }
-
-    columns = columns + comma + space + "winid";
-    values = values + comma + space + question;
-
-    String insertQuery = "INSERT INTO " + getTableName() + " (" + columns + ") VALUES (" + values + ")";
-    logger.debug(String.format("%s", insertQuery));
-    try {
-      setInsertStatement(getConnection().prepareStatement(insertQuery));
-    }
-    catch (SQLException ex) {
-      throw new RuntimeException("Error while preparing insert statement", ex);
-    }
+    HashMap<String, String> hm = new HashMap<String, String>();
+    hm.put("winid", "?");
+    return hm;
   }
 
   public void initLastWindowInfo()
