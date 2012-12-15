@@ -28,7 +28,7 @@ public class JDBCArrayListOutputOperator extends JDBCTransactionOutputOperator<A
       getInsertStatement().setObject(
               idx + 1,
               tuple.get(idx),
-              getColumnSQLTypes().get(getSimpleColumnToType().get(getColumnNames().get(idx))));
+              getSQLColumnType(getSimpleColumnToType().get(getColumnNames().get(idx))));
     }
   }
 }

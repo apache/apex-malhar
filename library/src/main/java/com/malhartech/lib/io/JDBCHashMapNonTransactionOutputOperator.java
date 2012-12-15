@@ -26,8 +26,8 @@ public class JDBCHashMapNonTransactionOutputOperator<V> extends JDBCNonTransacti
       getInsertStatement().setObject(
               getKeyToIndex().get(e.getKey()).intValue(),
               e.getValue(),
-              getColumnSQLTypes().get(getKeyToType().get(e.getKey())));
+              getSQLColumnType(getKeyToType().get(e.getKey())));
     }
-    getInsertStatement().setObject(tuple.size() + 1, windowId, new Integer(Types.BIGINT));
+    getInsertStatement().setObject(tuple.size() + 1, windowId, Types.BIGINT);
   }
 }

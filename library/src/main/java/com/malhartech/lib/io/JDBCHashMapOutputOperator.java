@@ -30,7 +30,7 @@ public class JDBCHashMapOutputOperator<V> extends JDBCTransactionOutputOperator<
       getInsertStatement().setObject(
               getKeyToIndex().get(e.getKey()).intValue(),
               e.getValue(),
-              getColumnSQLTypes().get(getKeyToType().get(e.getKey())));
+              getSQLColumnType(getKeyToType().get(e.getKey())));
     }
   }
 }

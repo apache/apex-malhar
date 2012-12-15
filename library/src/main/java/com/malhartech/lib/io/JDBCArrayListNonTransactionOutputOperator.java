@@ -6,7 +6,6 @@ package com.malhartech.lib.io;
 
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +26,8 @@ public class JDBCArrayListNonTransactionOutputOperator extends JDBCNonTransactio
       getInsertStatement().setObject(
               idx + 1,
               tuple.get(idx),
-              getColumnSQLTypes().get(getSimpleColumnToType().get(getColumnNames().get(idx))));
+              getSQLColumnType(getSimpleColumnToType().get(getColumnNames().get(idx))));
     }
-    getInsertStatement().setObject(num + 1, windowId, new Integer(Types.BIGINT));
+    getInsertStatement().setObject(num + 1, windowId, Types.BIGINT);
   }
 }

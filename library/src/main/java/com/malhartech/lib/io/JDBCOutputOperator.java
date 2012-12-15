@@ -82,6 +82,9 @@ public abstract class JDBCOutputOperator<T> implements Operator
       catch (SQLException ex) {
         throw new RuntimeException(String.format("Unable to insert data with insert query: %s", insertStatement.toString()), ex);
       }
+      catch (Exception ex) {
+        throw new RuntimeException("Exception during process tuple", ex);
+      }
       logger.debug(String.format("count %d", tupleCount));
     }
   };
@@ -236,6 +239,18 @@ public abstract class JDBCOutputOperator<T> implements Operator
     return columnSQLTypes;
   }
 
+  public int getSQLColumnType(String type)
+  {
+    int SQLType = 0;
+    try {
+      SQLType = columnSQLTypes.get(type);
+    }
+    catch (Exception ex) {
+      throw new RuntimeException(String.format("Unsupported SQL type %s in column mapping.", type), ex);
+    }
+    return SQLType;
+  }
+
   public void buildMapping()
   {
     // JDBC SQL type data mapping
@@ -248,6 +263,7 @@ public abstract class JDBCOutputOperator<T> implements Operator
     columnSQLTypes.put("DOUBLE", new Integer(Types.DOUBLE));
     columnSQLTypes.put("FLOAT", new Integer(Types.FLOAT));
     columnSQLTypes.put("INTEGER", new Integer(Types.INTEGER));
+    columnSQLTypes.put("INT", new Integer(Types.INTEGER));
     columnSQLTypes.put("LONGVARBINARY", new Integer(Types.LONGVARBINARY));
     columnSQLTypes.put("LONGVARCHAR", new Integer(Types.LONGVARCHAR));
     columnSQLTypes.put("NULL", new Integer(Types.NULL));
@@ -277,8 +293,8 @@ public abstract class JDBCOutputOperator<T> implements Operator
           keyToIndex.put(cols[0], new Integer(idx + 1));
           columnNames.add(cols[1]);
           if (cols.length == 3) {
-            keyToType.put(cols[0], cols[2].contains("VARCHAR") ? "VARCHAR" : cols[2]);
-            columnToType.put(cols[1], cols[2]);
+            keyToType.put(cols[0], cols[2].toUpperCase().contains("VARCHAR") ? "VARCHAR" : cols[2].toUpperCase());
+            columnToType.put(cols[1], cols[2].toUpperCase());
           }
           else {
             keyToType.put(cols[0], "UNSPECIFIED");
@@ -296,8 +312,8 @@ public abstract class JDBCOutputOperator<T> implements Operator
           if (cols.length != 2) {
             throw new Exception("bad column mapping");
           }
-          simpleColumnToType.put(cols[0], cols[1].contains("VARCHAR") ? "VARCHAR" : cols[1]);
-          simpleColumnToType2.put(cols[0], cols[1]);
+          simpleColumnToType.put(cols[0], cols[1].toUpperCase().contains("VARCHAR") ? "VARCHAR" : cols[1].toUpperCase());
+          simpleColumnToType2.put(cols[0], cols[1].toUpperCase());
         }
         logger.debug(simpleColumnToType.toString());
       }
@@ -330,6 +346,7 @@ public abstract class JDBCOutputOperator<T> implements Operator
 
   /**
    * Additional column names, needed for non-transactional database.
+   *
    * @return
    */
   protected HashMap<String, String> windowColumn()
