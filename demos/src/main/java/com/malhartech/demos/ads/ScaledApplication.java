@@ -65,9 +65,9 @@ public class ScaledApplication implements ApplicationFactory
     if (LAUNCHMODE_YARN.equals(conf.get(DAG.STRAM_LAUNCH_MODE))) {
       setLocalMode();
       // settings only affect distributed mode
-      conf.setIfUnset(DAG.STRAM_CONTAINER_MEMORY_MB, "2048");
-      conf.setIfUnset(DAG.STRAM_MASTER_MEMORY_MB, "1024");
-      conf.setIfUnset(DAG.STRAM_MAX_CONTAINERS, "1");
+      conf.setIfUnset(DAG.STRAM_CONTAINER_MEMORY_MB.name(), "2048");
+      conf.setIfUnset(DAG.STRAM_MASTER_MEMORY_MB.name(), "1024");
+      conf.setIfUnset(DAG.STRAM_MAX_CONTAINERS.name(), "1");
     }
     else if (LAUNCHMODE_LOCAL.equals(conf.get(DAG.STRAM_LAUNCH_MODE))) {
       setLocalMode();

@@ -21,7 +21,6 @@ import com.malhartech.lib.testbench.ThroughputCounter;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import org.apache.hadoop.conf.Configuration;
 
 
@@ -62,9 +61,9 @@ public class Application implements ApplicationFactory
     if (LAUNCHMODE_YARN.equals(conf.get(DAG.STRAM_LAUNCH_MODE))) {
       setLocalMode();
       // settings only affect distributed mode
-      conf.setIfUnset(DAG.STRAM_CONTAINER_MEMORY_MB, "2048");
-      conf.setIfUnset(DAG.STRAM_MASTER_MEMORY_MB, "1024");
-      conf.setIfUnset(DAG.STRAM_MAX_CONTAINERS, "1");
+      conf.setIfUnset(DAG.STRAM_CONTAINER_MEMORY_MB.name(), "2048");
+      conf.setIfUnset(DAG.STRAM_MASTER_MEMORY_MB.name(), "1024");
+      conf.setIfUnset(DAG.STRAM_MAX_CONTAINERS.name(), "1");
     }
     else if (LAUNCHMODE_LOCAL.equals(conf.get(DAG.STRAM_LAUNCH_MODE))) {
       setLocalMode();
@@ -74,21 +73,6 @@ public class Application implements ApplicationFactory
     this.generatorMaxWindowsCount = conf.getInt(P_generatorMaxWindowsCount, this.generatorMaxWindowsCount);
     this.allInline = conf.getBoolean(P_allInline, this.allInline);
 
-  }
-
-  /**
-   * Map properties from application to operator scope
-   *
-   */
-  public static Map<String, String> getOperatorInstanceProperties(Configuration appConf, Class<?> appClass, String operatorId)
-  {
-    String keyPrefix = appClass.getName() + "." + operatorId + ".";
-    Map<String, String> values = appConf.getValByRegex(keyPrefix + "*");
-    Map<String, String> properties = new HashMap<String, String>(values.size());
-    for (Map.Entry<String, String> e: values.entrySet()) {
-      properties.put(e.getKey().replace(keyPrefix, ""), e.getValue());
-    }
-    return properties;
   }
 
   private <T extends Number> InputPort<HashMap<String, T>> getConsolePort(DAG b, String name)
