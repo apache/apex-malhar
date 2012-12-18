@@ -112,12 +112,13 @@ public class JDBCOutputOperatorTest
    */
   public static void readDB(String tableName, String[] mapping, boolean isHashMap)
   {
+    int num = mapping.length;
     String query = "SELECT * FROM " + tableName;
     try {
       ResultSet rs = stmt.executeQuery(query);
       while (rs.next()) {
         String str = "";
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < num; i++) {
           str += rs.getObject(i + 1).toString() + " ";
         }
         logger.debug(str);
