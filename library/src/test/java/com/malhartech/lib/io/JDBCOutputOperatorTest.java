@@ -5,12 +5,7 @@
 package com.malhartech.lib.io;
 
 import com.malhartech.bufferserver.util.Codec;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.sql.*;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -25,7 +20,11 @@ public class JDBCOutputOperatorTest
   private static final Logger logger = LoggerFactory.getLogger(JDBCOutputOperatorTest.class);
   private static int tupleCount = 0;
   private static final int maxTuple = 20;
-  private static int dataset = 1;
+  private static final String driver = "com.mysql.jdbc.Driver";
+  private static final String url = "jdbc:mysql://localhost/test?user=test&password=";
+  private static final String db_name = "test";
+  private static Connection con = null;
+  private static Statement stmt = null;
   JDBCOperatorTestHelper helper = new JDBCOperatorTestHelper();
 
   public JDBCOutputOperatorTest()
@@ -41,122 +40,112 @@ public class JDBCOutputOperatorTest
    * - refactor unit tests
    * - fix unit test if no database exist
    * - in arraylist if tuple has less or more columns
+   * - AssertFalse for negative test
+   * - dbuser/pw cleanup
+   *
    */
-  public static void createDatabase(String dbName, Connection con)
+
+  /*
+   * Create database connection.
+   * Create database if not exist.
+   * Create two tables - one for tuple, one for maxwindowid.
+   */
+  public static void setupDB(String tableName, String[] mapping, boolean isHashMap)
   {
-    Statement stmt = null;
+    int num = mapping.length;
+    int colIdx = isHashMap ? 1 : 0;
+    int typeIdx = isHashMap ? 2 : 1;
+
+    String str = "";
+    for (int i = 0; i < num; i++) {
+      String[] parts = mapping[i].split(":");
+      if (i == 0) {
+        str += parts[colIdx] + " " + parts[typeIdx];
+      }
+      else {
+        if (parts[typeIdx].equals("BAD_COLUMN_TYPE")) {
+          str += ", " + parts[colIdx] + " INTEGER";
+        }
+        else {
+          str += ", " + parts[colIdx] + " " + parts[typeIdx];
+        }
+      }
+    }
+
+    str += ", winid BIGINT";
+    String createTable = "CREATE TABLE " + tableName + " (" + str + ")";
+
     try {
+      // This will load the JDBC driver, each DB has its own driver
+      Class.forName(driver).newInstance();
+      //String temp = "jdbc:derby:test;create=true";
+
+      con = DriverManager.getConnection(url);
       stmt = con.createStatement();
 
-      String createDB = "CREATE DATABASE IF NOT EXISTS " + dbName;
-      String useDB = "USE " + dbName;
+      String createDB = "CREATE DATABASE IF NOT EXISTS " + db_name;
+      String useDB = "USE " + db_name;
 
       stmt.executeUpdate(createDB);
       stmt.executeQuery(useDB);
-    }
-    catch (SQLException ex) {
-      throw new RuntimeException("Exception during creating database", ex);
-    }
-    finally {
-      try {
-        if (stmt != null) {
-          stmt.close();
-        }
-      }
-      catch (SQLException ex) {
-        throw new RuntimeException("Exception while closing database resource", ex);
-      }
-    }
 
-    logger.debug("JDBC DB creation Success");
-  }
-
-  public static void createTable(String tableName, Connection con, ArrayList<String> columns, HashMap<String, String> colTypes) throws Exception
-  {
-    int num = columns.size();
-    String cols = columns.get(0) + " " + colTypes.get(columns.get(0));
-    for (int i = 1; i < num; i++) {
-      // Handle negative test case
-      if ("BAD_COLUMN_TYPE".equals(colTypes.get(columns.get(i)))) {
-        cols += ", " + columns.get(i) + " INTEGER";
-      }
-      else {
-        cols += ", " + columns.get(i) + " " + colTypes.get(columns.get(i));
-      }
-    }
-
-    cols += ", winid BIGINT";
-    String str = "CREATE TABLE " + tableName + " (" + cols + ")";
-
-    Statement stmt = null;
-    try {
-      stmt = con.createStatement();
       stmt.execute("DROP TABLE IF EXISTS " + tableName);
-      stmt.executeUpdate(str);
+      stmt.executeUpdate(createTable);
+
+      stmt.executeUpdate("CREATE TABLE IF NOT EXISTS maxwindowid (appid VARCHAR(10), winid BIGINT, operatorid VARCHAR(10))");
+    }
+    catch (ClassNotFoundException ex) {
+      throw new RuntimeException("Exception during JBDC connection", ex);
     }
     catch (SQLException ex) {
-      throw new RuntimeException("Exception during creating table", ex);
+      throw new RuntimeException(String.format("Exception during creating table with query: %s", createTable), ex);
     }
-    finally {
-      try {
-        if (stmt != null) {
-          stmt.close();
-        }
-      }
-      catch (SQLException ex) {
-        throw new RuntimeException("Exception while closing database resource", ex);
-      }
+    catch (Exception ex) {
+      throw new RuntimeException("Exception during JBDC connection", ex);
     }
+
     logger.debug("JDBC Table creation Success");
   }
 
-  public static void readTable(String tableName, Connection con)
+  /*
+   * Read tuple from database after running the operator.
+   */
+  public static void readDB(String tableName, String[] mapping, boolean isHashMap)
   {
     String query = "SELECT * FROM " + tableName;
-    Statement stmt = null;
     try {
-      stmt = con.createStatement();
       ResultSet rs = stmt.executeQuery(query);
-
       while (rs.next()) {
-        if (dataset == 1) {
-          logger.debug(String.format("%d, %d, %d, %d, %d, %d, %d",
-                                     rs.getInt("col1"), rs.getInt("col2"), rs.getInt("col3"),
-                                     rs.getInt("col4"), rs.getInt("col5"), rs.getInt("col6"),
-                                     rs.getInt("col7")));
+        String str = "";
+        for (int i = 0; i < 7; i++) {
+          str += rs.getObject(i + 1).toString() + " ";
         }
-        else if (dataset == 2) {
-          logger.debug(String.format("%d, %s, %d, %s, %d, %s, %d",
-                                     rs.getInt("col1"), rs.getString("col2"),
-                                     rs.getInt("col3"), rs.getString("col4"),
-                                     rs.getInt("col5"), rs.getString("col6"),
-                                     rs.getInt("col7")));
-        }
-        else if (dataset == 3) {
-          logger.debug(String.format("%d, %d, %s, %s, %s, %s, %f",
-                                     rs.getInt("col1"), rs.getInt("col2"),
-                                     rs.getDate("col3"), rs.getDate("col4"),
-                                     rs.getString("col5"), rs.getString("col6"),
-                                     rs.getDouble("col7")));
-        }
+        logger.debug(str);
         tupleCount++;
       }
     }
     catch (SQLException ex) {
       throw new RuntimeException("Exception during reading from table", ex);
     }
-    finally {
-      try {
-        if (stmt != null) {
-          stmt.close();
-        }
-      }
-      catch (SQLException ex) {
-        throw new RuntimeException("Exception while closing database resource", ex);
-      }
+  }
+
+  /*
+   * Close database resources.
+   */
+  public void cleanupDB()
+  {
+    try {
+      stmt.close();
+      con.close();
+    }
+    catch (SQLException ex) {
+      throw new RuntimeException("Exception while closing database resource", ex);
     }
   }
 
+  /*
+   * Template for running test.
+   */
   public class JDBCOutputOperatorTestTemplate
   {
     JDBCOutputOperator oper = null;
@@ -164,16 +153,13 @@ public class JDBCOutputOperatorTest
     JDBCOutputOperatorTestTemplate(JDBCOutputOperator op)
     {
       oper = op;
-      oper.setDbUrl("jdbc:mysql://localhost/");
-      oper.setDbName("test");
-      oper.setDbUser("test");
-      oper.setDbPassword("");
+      oper.setDbUrl("jdbc:mysql://localhost/test?user=test&password=");
       oper.setDbDriver("com.mysql.jdbc.Driver");
       oper.setTableName("Test_Tuple");
       oper.setBatchSize(100);
     }
 
-    public void runTest(String opId, String[] mapping, int set, boolean isHashMap)
+    public void runTest(String opId, String[] mapping, boolean isHashMap)
     {
       tupleCount = 0; // reset
 
@@ -184,28 +170,19 @@ public class JDBCOutputOperatorTest
         oper.setSimpleColumnMapping(mapping);
       }
 
+      setupDB(oper.getTableName(), mapping, isHashMap);
       oper.setup(new com.malhartech.engine.OperatorContext(opId, null, null));
-
-      createDatabase(oper.getDbName(), oper.getConnection());
-      try {
-
-        createTable(oper.getTableName(), oper.getConnection(), oper.getColumnNames(),
-                    isHashMap ? oper.getColumnToType() : oper.simpleColumnToType2);
-      }
-      catch (Exception ex) {
-        throw new RuntimeException("Exception during creating table", ex);
-      }
-
       oper.beginWindow(oper.lastWindowId + 1);
       logger.debug("beginwindow {}", Codec.getStringWindowId(oper.lastWindowId + 1));
 
       for (int i = 0; i < maxTuple; ++i) {
-        oper.inputPort.process(isHashMap ? helper.hashMapData(set, i) : helper.arrayListData(set, i));
+        oper.inputPort.process(isHashMap ? helper.hashMapData(mapping, i) : helper.arrayListData(mapping, i));
       }
       oper.endWindow();
-      readTable(oper.getTableName(), oper.getConnection());
+      readDB(oper.getTableName(), mapping, isHashMap);
 
       oper.teardown();
+      cleanupDB();
 
       // Check values send vs received
       Assert.assertEquals("Number of emitted tuples", maxTuple, tupleCount);
@@ -216,123 +193,113 @@ public class JDBCOutputOperatorTest
   @Test
   public void JDBCHashMapOutputOperatorTest() throws Exception
   {
-    dataset = 1;
     JDBCHashMapOutputOperator oper = new JDBCHashMapOutputOperator();
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
-    tp.runTest("op1", helper.hashMapping1, 1, true);
+    tp.runTest("op1", helper.hashMapping1, true);
   }
 
   @Test
   public void JDBCHashMapOutputOperatorTest2() throws Exception
   {
-    dataset = 2;
     JDBCHashMapOutputOperator oper = new JDBCHashMapOutputOperator();
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
     // You can set additional operator parameter here (see below) before calling runTest().
     oper.setBatchSize(6);
-    tp.runTest("op2", helper.hashMapping2, 2, true);
+    tp.runTest("op2", helper.hashMapping2, true);
   }
 
   @Test
   public void JDBCHashMapOutputOperatorTest3() throws Exception
   {
-    dataset = 3;
     JDBCHashMapOutputOperator oper = new JDBCHashMapOutputOperator();
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
-    tp.runTest("op3", helper.hashMapping3, 3, true);
+    tp.runTest("op3", helper.hashMapping3, true);
   }
 
   @Test
   public void JDBCArrayListOutputOperatorTest4() throws Exception
   {
-    dataset = 3;
     JDBCArrayListOutputOperator oper = new JDBCArrayListOutputOperator();
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
-    tp.runTest("op4", helper.arrayMapping1, 1, false);
+    tp.runTest("op4", helper.arrayMapping1, false);
   }
 
   @Test
   public void JDBCArrayListOutputOperatorTest5() throws Exception
   {
-    dataset = 3;
     JDBCArrayListOutputOperator oper = new JDBCArrayListOutputOperator();
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
-    tp.runTest("op5", helper.arrayMapping2, 2, false);
+    try {
+      tp.runTest("op5", helper.arrayMapping2, false);
+      Assert.assertFalse("This test failed if it ever comes to this line", true);
+    }
+    catch (Exception ex) {
+      logger.debug("Expected exception for bad column type: ", ex.getLocalizedMessage());
+    }
   }
 
   @Test
   public void JDBCArrayListOutputOperatorTest6() throws Exception
   {
-    dataset = 3;
     JDBCArrayListOutputOperator oper = new JDBCArrayListOutputOperator();
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
-    try {
-      tp.runTest("op6", helper.arrayMapping3, 3, false);
-    }
-    catch (Exception ex) {
-      logger.debug("Expected exception for bad column type: ", ex.getLocalizedMessage());
-    }
+    tp.runTest("op6", helper.arrayMapping3, false);
+
   }
 
-    @Test
+  @Test
   public void JDBCHashMapOutputOperatorTest21() throws Exception
   {
-    dataset = 1;
     JDBCHashMapNonTransactionOutputOperator oper = new JDBCHashMapNonTransactionOutputOperator();
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
-    tp.runTest("op21", helper.hashMapping1, 1, true);
+    tp.runTest("op21", helper.hashMapping1, true);
   }
 
- @Test
+  @Test
   public void JDBCHashMapOutputOperatorTest22() throws Exception
   {
-    dataset = 2;
     JDBCHashMapNonTransactionOutputOperator oper = new JDBCHashMapNonTransactionOutputOperator();
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
     // You can set additional operator parameter here (see below) before calling runTest().
     oper.setBatchSize(6);
-    tp.runTest("op22", helper.hashMapping2, 2, true);
+    tp.runTest("op22", helper.hashMapping2, true);
   }
 
   @Test
   public void JDBCHashMapOutputOperatorTest23() throws Exception
   {
-    dataset = 3;
     JDBCHashMapNonTransactionOutputOperator oper = new JDBCHashMapNonTransactionOutputOperator();
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
-    tp.runTest("op23", helper.hashMapping3, 3, true);
+    tp.runTest("op23", helper.hashMapping3, true);
   }
 
-   @Test
+  @Test
   public void JDBCArrayListOutputOperatorTest24() throws Exception
   {
-    dataset = 3;
     JDBCArrayListNonTransactionOutputOperator oper = new JDBCArrayListNonTransactionOutputOperator();
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
-    tp.runTest("op24", helper.arrayMapping1, 1, false);
+    tp.runTest("op24", helper.arrayMapping1, false);
   }
-
 
   @Test
   public void JDBCArrayListOutputOperatorTest25() throws Exception
   {
-    dataset = 3;
     JDBCArrayListNonTransactionOutputOperator oper = new JDBCArrayListNonTransactionOutputOperator();
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
-    tp.runTest("op25", helper.arrayMapping2, 2, false);
+    try {
+      tp.runTest("op25", helper.arrayMapping2, false);
+      Assert.assertFalse("This test failed if it ever comes to this line", true);
+    }
+    catch (Exception ex) {
+      logger.debug("Expected exception for bad column type: ", ex.getLocalizedMessage());
+    }
   }
 
   @Test
   public void JDBCArrayListOutputOperatorTest26() throws Exception
   {
-    dataset = 3;
     JDBCArrayListNonTransactionOutputOperator oper = new JDBCArrayListNonTransactionOutputOperator();
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
-    try {
-      tp.runTest("op26", helper.arrayMapping3, 3, false);
-    }
-    catch (Exception ex) {
-      logger.debug("Expected exception for bad column type: ", ex.getLocalizedMessage());
-    }
+    tp.runTest("op26", helper.arrayMapping3, false);
   }
 }

@@ -62,7 +62,7 @@ public class JDBCOperatorTestHelper
 
     // mapping 5
     arrayMapping2[0] = "col1:integer";
-    arrayMapping2[1] = "col2:BIGINT";
+    arrayMapping2[1] = "col2:BAD_COLUMN_TYPE";
     arrayMapping2[2] = "col5:char";
     arrayMapping2[3] = "col4:DATE";
     arrayMapping2[4] = "col7:DOUBLE";
@@ -71,7 +71,7 @@ public class JDBCOperatorTestHelper
 
     // mapping 6
     arrayMapping3[0] = "col1:INTEGER";
-    arrayMapping3[1] = "col2:BAD_COLUMN_TYPE";
+    arrayMapping3[1] = "col2:BIGINT";
     arrayMapping3[2] = "col5:char";
     arrayMapping3[3] = "col4:DATE";
     arrayMapping3[4] = "col7:DOUBLE";
@@ -80,22 +80,8 @@ public class JDBCOperatorTestHelper
 
   }
 
-  public HashMap<String, Object> hashMapData(int map, int i)
+  public HashMap<String, Object> hashMapData(String[] mapping, int i)
   {
-    String[] mapping = new String[7];
-    if (map == 1) {
-      mapping = hashMapping1;
-    }
-    else if (map == 2) {
-      mapping = hashMapping2;
-    }
-    else if (map == 3) {
-      mapping = hashMapping3;
-    }
-    else {
-      throw new RuntimeException("Unknown hash mapping");
-    }
-
     HashMap<String, Object> hm = new HashMap<String, Object>();
     for (int j = 1; j <= columnCount; ++j) {
       String[] parts = mapping[j - 1].split(":");
@@ -132,22 +118,8 @@ public class JDBCOperatorTestHelper
     return hm;
   }
 
-  public ArrayList<Object> arrayListData(int ar, int i)
+  public ArrayList<Object> arrayListData(String[] mapping, int i)
   {
-    String[] mapping = new String[7];
-    if (ar == 1) {
-      mapping = arrayMapping1;
-    }
-    else if (ar == 2) {
-      mapping = arrayMapping2;
-    }
-    else if (ar == 3) {
-      mapping = arrayMapping3;
-    }
-    else {
-      throw new RuntimeException("Unknown array mapping");
-    }
-
     ArrayList<Object> al = new ArrayList<Object>();
     for (int j = 1; j <= columnCount; ++j) {
       String[] parts = mapping[j - 1].split(":");

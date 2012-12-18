@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,16 +29,10 @@ public abstract class JDBCOutputOperator<T> implements Operator
   @NotNull
   private String dbUrl;
   @NotNull
-  private String dbName;
-  @NotNull
-  private String dbUser;
-  @NotNull
-  private String dbPassword;
-  @NotNull
   private String dbDriver;
   @NotNull
   private String tableName;
-  @NotNull
+  @Min(1)
   private long batchSize = DEFAULT_BATCH_SIZE;
   private ArrayList<String> orderedColumnMapping = new ArrayList<String>();
   private ArrayList<String> columnNames = new ArrayList<String>(); // follow same order as items in tuple
@@ -98,39 +93,6 @@ public abstract class JDBCOutputOperator<T> implements Operator
   public void setDbUrl(String dbUrl)
   {
     this.dbUrl = dbUrl;
-  }
-
-  @NotNull
-  public String getDbName()
-  {
-    return dbName;
-  }
-
-  public void setDbName(String dbName)
-  {
-    this.dbName = dbName;
-  }
-
-  @NotNull
-  public String getDbUser()
-  {
-    return dbUser;
-  }
-
-  public void setDbUser(String dbUser)
-  {
-    this.dbUser = dbUser;
-  }
-
-  @NotNull
-  public String getDbPassword()
-  {
-    return dbPassword;
-  }
-
-  public void setDbPassword(String dbPassword)
-  {
-    this.dbPassword = dbPassword;
   }
 
   @NotNull
@@ -328,11 +290,7 @@ public abstract class JDBCOutputOperator<T> implements Operator
     try {
       // This will load the JDBC driver, each DB has its own driver
       Class.forName(dbDriver).newInstance();
-      //String temp = "jdbc:derby:test;create=true";
-
-      connection = DriverManager.getConnection(dbUrl + dbName, dbUser, dbPassword);
-      //connection = DriverManager.getConnection(temp, dbUser, dbPassword);
-
+      connection = DriverManager.getConnection(dbUrl);
 
       logger.debug("JDBC connection Success");
     }
