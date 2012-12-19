@@ -26,6 +26,7 @@ public abstract class JDBCOutputOperator<T> implements Operator
 {
   private static final Logger logger = LoggerFactory.getLogger(JDBCOutputOperator.class);
   private static final int DEFAULT_BATCH_SIZE = 1000;
+  protected static final String DELIMITER = ":";
   @NotNull
   private String dbUrl;
   @NotNull
@@ -34,21 +35,21 @@ public abstract class JDBCOutputOperator<T> implements Operator
   private String tableName;
   @Min(1)
   private long batchSize = DEFAULT_BATCH_SIZE;
-  private ArrayList<String> orderedColumnMapping = new ArrayList<String>();
-  private ArrayList<String> columnNames = new ArrayList<String>(); // follow same order as items in tuple
-  private HashMap<String, Integer> keyToIndex = new HashMap<String, Integer>();
-  private HashMap<String, String> keyToType = new HashMap<String, String>();
-  private HashMap<String, Integer> columnSQLTypes = new HashMap<String, Integer>();
-  private ArrayList<String> simpleColumnMapping = new ArrayList<String>();
-  private HashMap<String, String> simpleColumnToType = new HashMap<String, String>();
+  @NotNull
+  private ArrayList<String> columnMapping = new ArrayList<String>();
+  protected transient ArrayList<String> columnNames = new ArrayList<String>(); // follow same order as items in tuple
+  protected transient HashMap<String, Integer> keyToIndex = new HashMap<String, Integer>();
+  protected transient HashMap<String, String> keyToType = new HashMap<String, String>();
+  private transient HashMap<String, Integer> columnSQLTypes = new HashMap<String, Integer>();
   private transient Connection connection = null;
   private transient PreparedStatement insertStatement = null;
   protected transient long windowId;
   protected transient long lastWindowId;
   protected transient boolean ignoreWindow;
   private long tupleCount = 0;
-  protected boolean emptyTuple = false;
-  private boolean hashMapping = true;
+  protected transient boolean emptyTuple = false;
+
+  protected abstract void parseMapping(ArrayList<String> mapping);
 
   public abstract void processTuple(T tuple) throws SQLException;
   /**
@@ -124,33 +125,16 @@ public abstract class JDBCOutputOperator<T> implements Operator
     this.batchSize = batchSize;
   }
 
-  public ArrayList<String> getOrderedColumnMapping()
+  public ArrayList<String> getColumnMapping()
   {
-    return orderedColumnMapping;
+    return columnMapping;
   }
 
-  public void setOrderedColumnMapping(String[] orderedColumnMapping)
+  public void setColumnMapping(String[] columnMapping)
   {
-    if (orderedColumnMapping != null) {
-      this.orderedColumnMapping.addAll(Arrays.asList(orderedColumnMapping));
+    if (columnMapping != null) {
+      this.columnMapping.addAll(Arrays.asList(columnMapping));
     }
-  }
-
-  public ArrayList<String> getSimpleColumnMapping()
-  {
-    return simpleColumnMapping;
-  }
-
-  public void setSimpleColumnMapping(String[] simpleColumnMapping)
-  {
-    if (simpleColumnMapping != null) {
-      this.simpleColumnMapping.addAll(Arrays.asList(simpleColumnMapping));
-    }
-  }
-
-  public HashMap<String, String> getSimpleColumnToType()
-  {
-    return simpleColumnToType;
   }
 
   public Connection getConnection()
@@ -171,16 +155,6 @@ public abstract class JDBCOutputOperator<T> implements Operator
   public ArrayList<String> getColumnNames()
   {
     return columnNames;
-  }
-
-  public HashMap<String, String> getKeyToType()
-  {
-    return keyToType;
-  }
-
-  public HashMap<String, Integer> getKeyToIndex()
-  {
-    return keyToIndex;
   }
 
   public int getSQLColumnType(String type)
@@ -221,47 +195,13 @@ public abstract class JDBCOutputOperator<T> implements Operator
     columnSQLTypes.put("VARBINARY", new Integer(Types.VARBINARY));
     columnSQLTypes.put("VARCHAR", new Integer(Types.VARCHAR));
 
-    try {
-      // Each entry in orderedColumnMapping is Tuple key followed by Tuple value separated by colon (:)
-      int num = orderedColumnMapping.size();
-      String delimiter = ":";
+    if (columnMapping.isEmpty()) { // can be validation check
+      throw new RuntimeException("Empty column mapping");
+    }
 
-      if (num > 0) {
-        hashMapping = true;
-        for (int idx = 0; idx < num; ++idx) {
-          String[] cols = orderedColumnMapping.get(idx).split(delimiter);
-          if (cols.length < 2 || cols.length > 3) {
-            throw new Exception("Incorrect column mapping");
-          }
-          keyToIndex.put(cols[0], new Integer(idx + 1));
-          columnNames.add(cols[1]);
-          if (cols.length == 3) {
-            keyToType.put(cols[0], cols[2].toUpperCase().contains("VARCHAR") ? "VARCHAR" : cols[2].toUpperCase());
-          }
-          else {
-            keyToType.put(cols[0], "UNSPECIFIED");
-          }
-        }
-        logger.debug(keyToIndex.toString());
-        logger.debug(keyToType.toString());
-      }
-      else {
-        hashMapping = false;
-        int num2 = simpleColumnMapping.size();
-        for (int idx = 0; idx < num2; ++idx) {
-          String[] cols = simpleColumnMapping.get(idx).split(delimiter);
-          columnNames.add(cols[0]);
-          if (cols.length != 2) {
-            throw new Exception("Incorrect column mapping");
-          }
-          simpleColumnToType.put(cols[0], cols[1].toUpperCase().contains("VARCHAR") ? "VARCHAR" : cols[1].toUpperCase());
-        }
-        logger.debug(simpleColumnToType.toString());
-      }
-    }
-    catch (Exception ex) {
-      throw new RuntimeException("Exception during column mapping", ex);
-    }
+    parseMapping(columnMapping);
+    logger.debug(keyToIndex.toString());
+    logger.debug(keyToType.toString());
   }
 
   public void setupJDBCConnection()

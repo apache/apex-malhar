@@ -35,14 +35,16 @@ public class JDBCOutputOperatorTest
   /*
    * Todo:
    * - Handle null name in column hashMapping2
+   * - in arraylist if tuple has less or more columns
    * - embedded sql
    * - multi table support
-   * - refactor unit tests
-   * - fix unit test if no database exist
-   * - in arraylist if tuple has less or more columns
+   * -
+   *
+   * Done
    * - AssertFalse for negative test
    * - dbuser/pw cleanup
-   *
+   * - refactor unit tests
+   * - fix unit test if no database exist
    */
 
   /*
@@ -163,13 +165,7 @@ public class JDBCOutputOperatorTest
     public void runTest(String opId, String[] mapping, boolean isHashMap)
     {
       tupleCount = 0; // reset
-
-      if (isHashMap) {
-        oper.setOrderedColumnMapping(mapping);
-      }
-      else {
-        oper.setSimpleColumnMapping(mapping);
-      }
+      oper.setColumnMapping(mapping);
 
       setupDB(oper.getTableName(), mapping, isHashMap);
       oper.setup(new com.malhartech.engine.OperatorContext(opId, null, null));

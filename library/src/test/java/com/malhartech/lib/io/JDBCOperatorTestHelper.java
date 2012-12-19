@@ -21,6 +21,7 @@ public class JDBCOperatorTestHelper
   public String[] arrayMapping1 = new String[7];
   public String[] arrayMapping2 = new String[7];
   public String[] arrayMapping3 = new String[7];
+  public String[] hashMapping4 = new String[7];
 
   public void buildDataset()
   {
@@ -77,6 +78,16 @@ public class JDBCOperatorTestHelper
     arrayMapping3[4] = "col7:DOUBLE";
     arrayMapping3[5] = "col6:VARCHAR(10)";
     arrayMapping3[6] = "col3:date";
+
+    //Multi table mapping
+    hashMapping4[0] = "prop1:t1.col1:INTEGER";
+    hashMapping4[1] = "prop2:t3.col2:BIGINT";
+    hashMapping4[2] = "prop5:t3.col5:CHAR";
+    hashMapping4[3] = "prop6:t2.col4:DATE";
+    hashMapping4[4] = "prop7:t1.col7:DOUBLE";
+    hashMapping4[5] = "prop3:t2.col6:VARCHAR(10)";
+    hashMapping4[6] = "prop4:t1.col3:DATE";
+
 
   }
 
