@@ -39,12 +39,12 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
   {
     try {
       statement = getConnection().createStatement();
-      String stmt = "SELECT MAX("+sWindowId+") AS maxwinid FROM " + getTableName();
+      String stmt = "SELECT MAX(winid) AS winid FROM " + tableNames.get(0); // Need to work on multi table
       ResultSet rs = statement.executeQuery(stmt);
         logger.debug(stmt);
       if (rs.next() == false) {
-        logger.error("table " + getTableName() + " "+sWindowId+" column not ready!");
-        throw new RuntimeException("table " + getTableName() +" "+sWindowId+" column not ready!");
+        logger.error("table " + tableNames.get(0) + " winid column not ready!");
+        throw new RuntimeException("table " + tableNames.get(0) + " winid column not ready!");
       }
       lastWindowId = rs.getLong("maxwinid");
     }

@@ -26,23 +26,31 @@ public abstract class JDBCOutputOperator<T> implements Operator
 {
   private static final Logger logger = LoggerFactory.getLogger(JDBCOutputOperator.class);
   private static final int DEFAULT_BATCH_SIZE = 1000;
-  protected static final String DELIMITER = ":";
+  protected static final String FIELD_DELIMITER = ":";
+  protected static final String COLUMN_DELIMITER = ".";
+  //
+  // Followings are  user input
   @NotNull
   private String dbUrl;
   @NotNull
   private String dbDriver;
-  @NotNull
-  private String tableName;
+  // tableName is required only if not mentioned in mapping in case of single table.
+  private String tableName = "";
   @Min(1)
   private long batchSize = DEFAULT_BATCH_SIZE;
   @NotNull
   private ArrayList<String> columnMapping = new ArrayList<String>();
-  protected transient ArrayList<String> columnNames = new ArrayList<String>(); // follow same order as items in tuple
+  // end of user input
+  //
+  protected transient ArrayList<String> columnNames = new ArrayList<String>(); // follow same order as items in tuple; could be table.column
+  protected transient ArrayList<String> tableNames = new ArrayList<String>();
   protected transient HashMap<String, Integer> keyToIndex = new HashMap<String, Integer>();
   protected transient HashMap<String, String> keyToType = new HashMap<String, String>();
+  protected transient HashMap<String, String> keyToTable = new HashMap<String, String>();
+  protected transient HashMap<String, ArrayList<String>> tableToColumns = new HashMap<String, ArrayList<String>>();
   private transient HashMap<String, Integer> columnSQLTypes = new HashMap<String, Integer>();
+  protected transient HashMap<String, PreparedStatement> tableToInsertStatement = new HashMap<String, PreparedStatement>();
   private transient Connection connection = null;
-  private transient PreparedStatement insertStatement = null;
   protected transient long windowId;
   protected transient long lastWindowId;
   protected transient boolean ignoreWindow;
@@ -54,8 +62,26 @@ public abstract class JDBCOutputOperator<T> implements Operator
   private long tupleCount = 0;
   protected transient boolean emptyTuple = false;
 
+  // additional variables for arraylist mapping
+  protected transient ArrayList<String> tableArray = new ArrayList<String>();
+  protected transient ArrayList<String> typeArray = new ArrayList<String>();
+  protected transient ArrayList<Integer> columnIndexArray = new ArrayList<Integer>();
+
+  /**
+   * Parse column mapping set by the user.
+   * Since the mapping is different based on HashMap or ArrayList do this in concrete derived class.
+   *
+   * @param mapping
+   */
   protected abstract void parseMapping(ArrayList<String> mapping);
 
+  /**
+   * Implement how to process tuple in derived class based on HashMap or ArrayList.
+   * The tuple values are binded with SQL prepared statement to be inserted to database.
+   *
+   * @param tuple
+   * @throws SQLException
+   */
   public abstract void processTuple(T tuple) throws SQLException;
   /**
    * The input port.
@@ -72,18 +98,21 @@ public abstract class JDBCOutputOperator<T> implements Operator
 
       try {
         processTuple(tuple);
-        insertStatement.addBatch();
-        if (++tupleCount % batchSize == 0) {
-          insertStatement.executeBatch();
+        ++tupleCount;
+        for (Map.Entry<String, PreparedStatement> entry: tableToInsertStatement.entrySet()) {
+          entry.getValue().addBatch();
+          if (tupleCount % batchSize == 0) {
+            entry.getValue().executeBatch();
+          }
         }
       }
       catch (SQLException ex) {
-        throw new RuntimeException(String.format("Unable to insert data with insert query: %s", insertStatement.toString()), ex);
+        throw new RuntimeException(String.format("Unable to insert data during process"), ex);
       }
       catch (Exception ex) {
         throw new RuntimeException("Exception during process tuple", ex);
       }
-      logger.debug(String.format("count %d", tupleCount));
+      //logger.debug(String.format("generated tuple count so far: %d", tupleCount));
     }
   };
 
@@ -187,19 +216,14 @@ public abstract class JDBCOutputOperator<T> implements Operator
     return connection;
   }
 
-  public PreparedStatement getInsertStatement()
-  {
-    return insertStatement;
-  }
-
-  public void setInsertStatement(PreparedStatement insertStatement)
-  {
-    this.insertStatement = insertStatement;
-  }
-
   public ArrayList<String> getColumnNames()
   {
     return columnNames;
+  }
+
+  public long getTupleCount()
+  {
+    return tupleCount;
   }
 
   public int getSQLColumnType(String type)
@@ -282,42 +306,52 @@ public abstract class JDBCOutputOperator<T> implements Operator
    */
   protected void prepareInsertStatement()
   {
-    int num = columnNames.size();
-    if (num < 1) {
+    if (tableToColumns.isEmpty()) {
       return;
     }
-    String columns = "";
-    String values = "";
+
     String space = " ";
     String comma = ",";
     String question = "?";
 
-    for (int idx = 0; idx < num; ++idx) {
-      if (idx == 0) {
-        columns = columnNames.get(idx);
-        values = question;
+    for (Map.Entry<String, ArrayList<String>> entry: tableToColumns.entrySet()) {
+      //int num = columnNames.size();
+      int num = entry.getValue().size();
+      if (num < 1) {
+        return;
       }
-      else {
-        columns += comma + space + columnNames.get(idx);
-        values += comma + space + question;
-      }
-    }
+      String columns = "";
+      String values = "";
 
-    HashMap<String, String> windowCol = windowColumn();
-    if (windowCol != null && windowCol.size() > 0) {
-      for (Map.Entry<String, String> e: windowCol.entrySet()) {
-        columns += comma + space + e.getKey();
-        values += comma + space + question;
-      }
-    }
 
-    String insertQuery = "INSERT INTO " + tableName + " (" + columns + ") VALUES (" + values + ")";
-    logger.debug(String.format("%s", insertQuery));
-    try {
-      insertStatement = connection.prepareStatement(insertQuery);
-    }
-    catch (SQLException ex) {
-      throw new RuntimeException(String.format("Error while preparing insert query: %s", insertQuery), ex);
+      for (int idx = 0; idx < num; ++idx) {
+        if (idx == 0) {
+          columns = entry.getValue().get(idx);
+          values = question;
+        }
+        else {
+          columns += comma + space + entry.getValue().get(idx);
+          values += comma + space + question;
+        }
+      }
+
+      HashMap<String, String> windowCol = windowColumn();
+      if (windowCol != null && windowCol.size() > 0) {
+        for (Map.Entry<String, String> e: windowCol.entrySet()) {
+          columns += comma + space + e.getKey();
+          values += comma + space + question;
+        }
+      }
+
+      String insertQuery = "INSERT INTO " + entry.getKey() + " (" + columns + ") VALUES (" + values + ")";
+      logger.debug(String.format("%s", insertQuery));
+      try {
+        //insertStatement = connection.prepareStatement(insertQuery);
+        tableToInsertStatement.put(entry.getKey(), connection.prepareStatement(insertQuery));
+      }
+      catch (SQLException ex) {
+        throw new RuntimeException(String.format("Error while preparing insert query: %s", insertQuery), ex);
+      }
     }
   }
 
@@ -342,8 +376,8 @@ public abstract class JDBCOutputOperator<T> implements Operator
   public void teardown()
   {
     try {
-      if (insertStatement != null) {
-        insertStatement.close();
+      for (Map.Entry<String, PreparedStatement> entry: tableToInsertStatement.entrySet()) {
+        entry.getValue().close();
       }
       connection.close();
     }
@@ -371,10 +405,12 @@ public abstract class JDBCOutputOperator<T> implements Operator
       if (ignoreWindow) {
         return;
       }
-      insertStatement.executeBatch();
+      for (Map.Entry<String, PreparedStatement> entry: tableToInsertStatement.entrySet()) {
+        entry.getValue().executeBatch();
+      }
     }
     catch (SQLException ex) {
-      throw new RuntimeException("Unable to insert data", ex);
+      throw new RuntimeException("Unable to insert data while in endWindow", ex);
     }
   }
 }

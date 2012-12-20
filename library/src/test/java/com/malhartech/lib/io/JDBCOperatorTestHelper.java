@@ -22,6 +22,9 @@ public class JDBCOperatorTestHelper
   public String[] arrayMapping2 = new String[7];
   public String[] arrayMapping3 = new String[7];
   public String[] hashMapping4 = new String[7];
+  public String[] hashMapping5 = new String[7];
+  public String[] arrayMapping4 = new String[7];
+  public String[] arrayMapping5 = new String[7];
 
   public void buildDataset()
   {
@@ -79,15 +82,41 @@ public class JDBCOperatorTestHelper
     arrayMapping3[5] = "col6:VARCHAR(10)";
     arrayMapping3[6] = "col3:date";
 
-    //Multi table mapping
+    // Single table mapping
     hashMapping4[0] = "prop1:t1.col1:INTEGER";
-    hashMapping4[1] = "prop2:t3.col2:BIGINT";
-    hashMapping4[2] = "prop5:t3.col5:CHAR";
-    hashMapping4[3] = "prop6:t2.col4:DATE";
+    hashMapping4[1] = "prop2:t1.col2:BIGINT";
+    hashMapping4[2] = "prop5:t1.col5:CHAR";
+    hashMapping4[3] = "prop6:t1.col4:DATE";
     hashMapping4[4] = "prop7:t1.col7:DOUBLE";
-    hashMapping4[5] = "prop3:t2.col6:VARCHAR(10)";
+    hashMapping4[5] = "prop3:t1.col6:VARCHAR(10)";
     hashMapping4[6] = "prop4:t1.col3:DATE";
 
+    // Multi table mapping
+    hashMapping5[0] = "prop1:t1.col1:INTEGER";
+    hashMapping5[1] = "prop2:t3.col2:BIGINT";
+    hashMapping5[2] = "prop5:t3.col5:CHAR";
+    hashMapping5[3] = "prop6:t2.col4:DATE";
+    hashMapping5[4] = "prop7:t1.col7:DOUBLE";
+    hashMapping5[5] = "prop3:t2.col6:VARCHAR(10)";
+    hashMapping5[6] = "prop4:t1.col3:DATE";
+
+    // Single table mapping
+    arrayMapping4[0] = "t1.col1:INTEGER";
+    arrayMapping4[1] = "t1.col2:BIGINT";
+    arrayMapping4[2] = "t1.col5:CHAR";
+    arrayMapping4[3] = "t1.col4:DATE";
+    arrayMapping4[4] = "t1.col7:DOUBLE";
+    arrayMapping4[5] = "t1.col6:VARCHAR(10)";
+    arrayMapping4[6] = "t1.col3:DATE";
+
+    // Multi table mapping
+    arrayMapping5[0] = "t1.col1:INTEGER";
+    arrayMapping5[1] = "t3.col2:BIGINT";
+    arrayMapping5[2] = "t3.col5:CHAR";
+    arrayMapping5[3] = "t2.col4:DATE";
+    arrayMapping5[4] = "t1.col7:DOUBLE";
+    arrayMapping5[5] = "t2.col6:VARCHAR(10)";
+    arrayMapping5[6] = "t1.col3:DATE";
 
   }
 
