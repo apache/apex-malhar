@@ -29,7 +29,9 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
   public HashMap<String, String> windowColumn()
   {
     HashMap<String, String> hm = new HashMap<String, String>();
-    hm.put("winid", "?");
+    hm.put(sOperatorId, "?");
+    hm.put(sApplicationId, "?");
+    hm.put(sWindowId, "?");
     return hm;
   }
 
@@ -37,14 +39,14 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
   {
     try {
       statement = getConnection().createStatement();
-      String stmt = "SELECT MAX(winid) AS winid FROM " + getTableName();
+      String stmt = "SELECT MAX("+sWindowId+") AS maxwinid FROM " + getTableName();
       ResultSet rs = statement.executeQuery(stmt);
         logger.debug(stmt);
       if (rs.next() == false) {
-        logger.error("table " + getTableName() + " winid column not ready!");
-        throw new RuntimeException("table " + getTableName() + " winid column not ready!");
+        logger.error("table " + getTableName() + " "+sWindowId+" column not ready!");
+        throw new RuntimeException("table " + getTableName() +" "+sWindowId+" column not ready!");
       }
-      lastWindowId = rs.getLong("winid");
+      lastWindowId = rs.getLong("maxwinid");
     }
     catch (SQLException ex) {
       throw new RuntimeException(ex);
@@ -76,7 +78,7 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
     else if (windowId == lastWindowId) {
       ignoreWindow = false;
       try {
-        String stmt = "DELETE FROM " + getTableName() + " WHERE winid=" + windowId;
+        String stmt = "DELETE FROM " + getTableName() + " WHERE "+sWindowId+"=" + windowId;
         statement.execute(stmt);
         logger.debug(stmt);
       }

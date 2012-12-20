@@ -46,6 +46,8 @@ public abstract class JDBCOutputOperator<T> implements Operator
   protected transient long windowId;
   protected transient long lastWindowId;
   protected transient boolean ignoreWindow;
+  protected transient String operatorId;
+
   protected String sWindowId;
   protected String sOperatorId;
   protected String sApplicationId;
@@ -84,6 +86,16 @@ public abstract class JDBCOutputOperator<T> implements Operator
       logger.debug(String.format("count %d", tupleCount));
     }
   };
+
+  public String getOperatorId()
+  {
+    return operatorId;
+  }
+
+  public void setOperatorId(String operatorId)
+  {
+    this.operatorId = operatorId;
+  }
 
   public String getsWindowId()
   {
@@ -320,6 +332,7 @@ public abstract class JDBCOutputOperator<T> implements Operator
     buildMapping();
     setupJDBCConnection();
     prepareInsertStatement();
+    setOperatorId(context.getId());
   }
 
   /**

@@ -40,16 +40,28 @@ public class JDBCHashMapNonTransactionOutputOperator<V> extends JDBCNonTransacti
     }
   }
 
-
   @Override
   public void processTuple(HashMap<String, V> tuple) throws SQLException
   {
-    for (Map.Entry<String, V> e: tuple.entrySet()) {
+    for (Map.Entry<String, V> e : tuple.entrySet()) {
       getInsertStatement().setObject(
               keyToIndex.get(e.getKey()).intValue(),
               e.getValue(),
               getSQLColumnType(keyToType.get(e.getKey())));
     }
-    getInsertStatement().setObject(tuple.size() + 1, windowId, Types.BIGINT);
+    HashMap<String, String> windowCol = windowColumn();
+    int i = 1;
+    for (Map.Entry<String, String> e : windowCol.entrySet()) {
+      if (e.getKey().equals(sWindowId)) {
+        getInsertStatement().setObject(tuple.size() + i, windowId, Types.BIGINT);
+      }
+      else if (e.getKey().equals(sApplicationId)) {
+        getInsertStatement().setObject(tuple.size() + i, "0", Types.VARCHAR);
+      }
+      else if (e.getKey().equals(sOperatorId)) {
+        getInsertStatement().setObject(tuple.size() + i, operatorId, Types.VARCHAR);
+      }
+      i++;
+    }
   }
 }

@@ -94,13 +94,13 @@ public class JDBCRecoveryTest
     @Override
     public void checkpointed(long windowId)
     {
-      logger.debug("JDBCRecoveryTest checkpointed windowId:" + windowId);
-      if (simulateFailure > 0 && --simulateFailure == 0) {
-        nexttime = true;
-      }
-      else if (nexttime) {
-        throw new RuntimeException("JDBCRecoveryTest Failure Simulation from " + this);
-      }
+//      logger.debug("JDBCRecoveryTest checkpointed windowId:" + windowId);
+//      if (simulateFailure > 0 && --simulateFailure == 0) {
+//        nexttime = true;
+//      }
+//      else if (nexttime) {
+//        throw new RuntimeException("JDBCRecoveryTest Failure Simulation from " + this);
+//      }
     }
 
     @Override
@@ -109,10 +109,10 @@ public class JDBCRecoveryTest
     }
   }
 
-  @Test
+//  @Test
   public void testInputOperatorRecovery() throws Exception
   {
-    setupDB("Test_Tuple", helper.hashMapping1, true);
+    setupDB("Test_Tuple", helper.hashMapping1, true, true);
 
     DAG dag = new DAG();
     dag.getAttributes().attr(DAG.STRAM_CHECKPOINT_INTERVAL_MILLIS).set(500);
@@ -123,17 +123,17 @@ public class JDBCRecoveryTest
     rip.setMaximumTuples(maxTuple);
 
     MyHashMapOutputOperator oper = dag.addOperator("Collector", MyHashMapOutputOperator.class);
-      oper.setDbUrl("jdbc:mysql://localhost/test?user=test&password=");
-      oper.setDbDriver("com.mysql.jdbc.Driver");
-      oper.setTableName("Test_Tuple");
+    oper.setDbUrl("jdbc:mysql://localhost/test?user=test&password=");
+    oper.setDbDriver("com.mysql.jdbc.Driver");
+    oper.setTableName("Test_Tuple");
 
-      oper.setMaxWindowTable("maxwindowid");
-      oper.setsApplicationId("appid");
-      oper.setsOperatorId("operatorid");
-      oper.setsWindowId("winid");
+    oper.setMaxWindowTable("maxwindowid");
+    oper.setsApplicationId("appid");
+    oper.setsOperatorId("operatorid");
+    oper.setsWindowId("winid");
 
-      oper.setBatchSize(100);
-      oper.setColumnMapping(helper.hashMapping1);//    oper.setSimulateFailure(true);
+    oper.setBatchSize(100);
+    oper.setColumnMapping(helper.hashMapping1);//    oper.setSimulateFailure(true);
 
     dag.addStream("connection", rip.output, oper.inputPort);
 
@@ -159,7 +159,7 @@ public class JDBCRecoveryTest
     logger.debug(String.format("Number of emitted tuples: %d", tupleCount));
   }
 
-  public void setupDB(String tableName, String[] mapping, boolean isHashMap)
+  public void setupDB(String tableName, String[] mapping, boolean isHashMap, boolean isTransaction)
   {
     int num = mapping.length;
     int colIdx = isHashMap ? 1 : 0;
@@ -181,7 +181,9 @@ public class JDBCRecoveryTest
       }
     }
 
-//    str += ", winid BIGINT";
+    if (isTransaction == false) {
+      str += ",appid VARCHAR(32), operatorid VARCHAR(32), winid BIGINT";
+    }
     String createTable = "CREATE TABLE " + tableName + " (" + str + ")";
 
     try {
@@ -203,8 +205,10 @@ public class JDBCRecoveryTest
       stmt.executeUpdate(createTable);
       logger.debug(createTable);
 
-      stmt.executeUpdate("CREATE TABLE IF NOT EXISTS maxwindowid (appid VARCHAR(10), winid BIGINT, operatorid VARCHAR(10))");
-      logger.debug("CREATE TABLE IF NOT EXISTS maxwindowid (appid VARCHAR(10), winid BIGINT, operatorid VARCHAR(10))");
+      if (isTransaction) {
+        stmt.executeUpdate("CREATE TABLE IF NOT EXISTS maxwindowid (appid VARCHAR(10), winid BIGINT, operatorid VARCHAR(10))");
+        logger.debug("CREATE TABLE IF NOT EXISTS maxwindowid (appid VARCHAR(10), winid BIGINT, operatorid VARCHAR(10))");
+      }
     }
     catch (ClassNotFoundException ex) {
       throw new RuntimeException("Exception during JBDC connection", ex);
@@ -217,6 +221,122 @@ public class JDBCRecoveryTest
     }
 
     logger.debug("JDBC Table creation Success");
+  }
+
+  public static class MyNonTransactionHashMapOutputOperator extends JDBCHashMapNonTransactionOutputOperator<Object> implements CheckpointListener
+  {
+    private int simulateFailure;
+    private transient boolean nexttime;
+
+    @Override
+    public void setup(OperatorContext context)
+    {
+      logger.debug("MyNonTransactionHashMapOutputOperator: context:" + context.getId());
+
+      try {
+        super.setup(context);
+      }
+      catch (Exception e) {
+        logger.debug(e.toString());
+      }
+    }
+
+    @Override
+    public void beginWindow(long windowId)
+    {
+      super.beginWindow(windowId);
+      logger.debug(windowId + " MyNonTransactionHashMapOutputOperator beginwindow {}", Codec.getStringWindowId(windowId));
+    }
+
+    @Override
+    public void endWindow()
+    {
+      if (ignoreWindow) {
+        return;
+      }
+      super.endWindow();
+      readTable(getTableName(), getConnection());
+      logger.debug("MyNonTransactionHashMapOutputOperator endWindow {}", Codec.getStringWindowId(windowId));
+    }
+
+    /**
+     * @param simulateFailure the simulateFailure to set
+     */
+    public void setSimulateFailure(boolean simulateFailure)
+    {
+      if (simulateFailure) {
+        this.simulateFailure = 1;
+      }
+      else {
+        this.simulateFailure = 0;
+      }
+    }
+
+    @Override
+    public void checkpointed(long windowId)
+    {
+      logger.debug("JDBCRecoveryTest checkpointed windowId:" + windowId);
+      if (simulateFailure > 0 && --simulateFailure == 0) {
+        nexttime = true;
+      }
+      else if (nexttime) {
+        throw new RuntimeException("JDBCRecoveryTest Failure Simulation from " + this);
+      }
+    }
+
+    @Override
+    public void committed(long windowId)
+    {
+    }
+  }
+
+  @Test
+  public void testNonTransactionInputOperatorRecovery() throws Exception
+  {
+    setupDB("Test_Tuple", helper.hashMapping1, true, false);
+
+    DAG dag = new DAG();
+    dag.getAttributes().attr(DAG.STRAM_CHECKPOINT_INTERVAL_MILLIS).set(500);
+    dag.getAttributes().attr(DAG.STRAM_WINDOW_SIZE_MILLIS).set(300);
+    dag.getAttributes().attr(DAG.STRAM_MAX_CONTAINERS).set(1);
+
+    JDBCRecoverInputOperator rip = dag.addOperator("Generator", JDBCRecoverInputOperator.class);
+    rip.setMaximumTuples(maxTuple);
+
+    MyNonTransactionHashMapOutputOperator oper = dag.addOperator("Collector", MyNonTransactionHashMapOutputOperator.class);
+    oper.setDbUrl("jdbc:mysql://localhost/test?user=test&password=");
+    oper.setDbDriver("com.mysql.jdbc.Driver");
+    oper.setTableName("Test_Tuple");
+
+    oper.setsApplicationId("appid");
+    oper.setsOperatorId("operatorid");
+    oper.setsWindowId("winid");
+
+    oper.setBatchSize(100);
+    oper.setColumnMapping(helper.hashMapping1);//    oper.setSimulateFailure(true);
+
+    dag.addStream("connection", rip.output, oper.inputPort);
+
+    final StramLocalCluster lc = new StramLocalCluster(dag);
+    lc.setHeartbeatMonitoringEnabled(false);
+//    new Thread("LocalClusterController")
+//    {
+//      @Override
+//      public void run()
+//      {
+//        try {
+//          Thread.sleep(10000);
+//        }
+//        catch (InterruptedException ex) {
+//        }
+//        lc.shutdown();
+//      }
+//    }.start();
+
+    lc.run();
+
+    junit.framework.Assert.assertEquals("Number of emitted tuples", maxTuple, tupleCount);
+    logger.debug(String.format("Number of emitted tuples: %d", tupleCount));
   }
 
   public static void createDatabase(String dbName, Connection con)

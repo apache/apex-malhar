@@ -29,28 +29,28 @@ public abstract class JDBCTransactionOutputOperator<T> extends JDBCOutputOperato
   {
     this.maxWindowTable = maxWindowTable;
   }
-  
+
   public void initTransactionInfo(OperatorContext context)
   {
     try {
       transactionStatement = getConnection().createStatement();
       DatabaseMetaData meta = getConnection().getMetaData();
-      ResultSet rs1 = meta.getTables(null, null, "maxwindowid", null);
+      ResultSet rs1 = meta.getTables(null, null,maxWindowTable, null);
       if (rs1.next() == false) {
-        logger.error("maxwindowid table not exist!");
-        throw new RuntimeException("maxwindowid table not exist!");
+        logger.error(maxWindowTable+" table not exist!");
+        throw new RuntimeException(maxWindowTable+" table not exist!");
       }
 
-      String querySQL = "SELECT winid FROM maxwindowid WHERE operatorid ='" + context.getId() + "' AND appid=" + 0; // how can I get the appid
+      String querySQL = "SELECT "+sWindowId+" FROM "+maxWindowTable+" WHERE "+sOperatorId+"='" + context.getId() + "' AND "+sApplicationId+"=" + 0; // how can I get the appid
       ResultSet rs = transactionStatement.executeQuery(querySQL);
       if (rs.next() == false) {
-        String insertSQL = "INSERT maxwindowid set appid=0, winid=0, operatorid='" + context.getId() + "'";
+        String insertSQL = "INSERT "+maxWindowTable+" set "+sApplicationId+"=0, "+sWindowId+"=0, "+sOperatorId+"='" + context.getId() + "'";
         transactionStatement.executeUpdate(insertSQL);
         logger.debug(insertSQL);
         lastWindowId = 0;
       }
       else {
-        lastWindowId = rs.getLong("winid");
+        lastWindowId = rs.getLong(sWindowId);
       }
       getConnection().setAutoCommit(false);
     }
@@ -100,7 +100,7 @@ public abstract class JDBCTransactionOutputOperator<T> extends JDBCOutputOperato
     }
     super.endWindow();
     try {
-      String str = "UPDATE maxwindowid set winid=" + windowId + " WHERE appid=0 AND operatorid='" + operatorId + "'";
+      String str = "UPDATE "+maxWindowTable+" set "+sWindowId+"=" + windowId + " WHERE "+sApplicationId+"=0 AND "+sOperatorId+"='" + operatorId + "'";
       transactionStatement.execute(str);
       logger.debug(str);
       getConnection().commit();
