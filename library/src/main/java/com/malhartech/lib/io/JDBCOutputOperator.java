@@ -46,6 +46,9 @@ public abstract class JDBCOutputOperator<T> implements Operator
   protected transient long windowId;
   protected transient long lastWindowId;
   protected transient boolean ignoreWindow;
+  protected String sWindowId;
+  protected String sOperatorId;
+  protected String sApplicationId;
   private long tupleCount = 0;
   protected transient boolean emptyTuple = false;
 
@@ -81,6 +84,36 @@ public abstract class JDBCOutputOperator<T> implements Operator
       logger.debug(String.format("count %d", tupleCount));
     }
   };
+
+  public String getsWindowId()
+  {
+    return sWindowId;
+  }
+
+  public void setsWindowId(String sWindowId)
+  {
+    this.sWindowId = sWindowId;
+  }
+
+  public String getsOperatorId()
+  {
+    return sOperatorId;
+  }
+
+  public void setsOperatorId(String sOperatorId)
+  {
+    this.sOperatorId = sOperatorId;
+  }
+
+  public String getsApplicationId()
+  {
+    return sApplicationId;
+  }
+
+  public void setsApplicationId(String sApplicationId)
+  {
+    this.sApplicationId = sApplicationId;
+  }
 
   @NotNull
   public String getDbUrl()

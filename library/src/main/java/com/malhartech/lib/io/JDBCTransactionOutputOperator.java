@@ -18,7 +18,18 @@ public abstract class JDBCTransactionOutputOperator<T> extends JDBCOutputOperato
   private static final Logger logger = LoggerFactory.getLogger(JDBCTransactionOutputOperator.class);
   protected Statement transactionStatement;
   private String operatorId;
+  private String maxWindowTable;
 
+  public String getMaxWindowTable()
+  {
+    return maxWindowTable;
+  }
+
+  public void setMaxWindowTable(String maxWindowTable)
+  {
+    this.maxWindowTable = maxWindowTable;
+  }
+  
   public void initTransactionInfo(OperatorContext context)
   {
     try {
