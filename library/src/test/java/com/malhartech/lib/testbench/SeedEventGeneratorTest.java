@@ -6,7 +6,7 @@ package com.malhartech.lib.testbench;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DAG;
 import com.malhartech.api.DefaultInputPort;
-import com.malhartech.lib.util.OneKeyValPair;
+import com.malhartech.lib.util.KeyValPair;
 import com.malhartech.stram.StramLocalCluster;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +33,7 @@ public class SeedEventGeneratorTest
   static ArrayList<HashMap<String, String>> sdlist = new ArrayList<HashMap<String, String>>();
   static ArrayList<HashMap<String, String>> vdlist = new ArrayList<HashMap<String, String>>();
   static ArrayList<HashMap<String, ArrayList<Integer>>> vallist = new ArrayList<HashMap<String, ArrayList<Integer>>>();
-  static ArrayList<HashMap<String, ArrayList<OneKeyValPair>>> kvlist = new ArrayList<HashMap<String, ArrayList<OneKeyValPair>>>();
+  static ArrayList<HashMap<String, ArrayList<KeyValPair>>> kvlist = new ArrayList<HashMap<String, ArrayList<KeyValPair>>>();
 
   void clear()
   {
@@ -70,10 +70,10 @@ public class SeedEventGeneratorTest
       }
     };
 
-    public final transient DefaultInputPort<HashMap<String, ArrayList<OneKeyValPair>>> kvpair = new DefaultInputPort<HashMap<String, ArrayList<OneKeyValPair>>>(this)
+    public final transient DefaultInputPort<HashMap<String, ArrayList<KeyValPair>>> kvpair = new DefaultInputPort<HashMap<String, ArrayList<KeyValPair>>>(this)
     {
       @Override
-      public void process(HashMap<String, ArrayList<OneKeyValPair>> tuple)
+      public void process(HashMap<String, ArrayList<KeyValPair>> tuple)
       {
         kvlist.add(tuple);
       }

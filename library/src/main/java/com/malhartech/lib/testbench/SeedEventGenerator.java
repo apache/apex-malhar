@@ -7,7 +7,7 @@ package com.malhartech.lib.testbench;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
-import com.malhartech.lib.util.OneKeyValPair;
+import com.malhartech.lib.util.KeyValPair;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -63,7 +63,7 @@ import com.malhartech.lib.util.OneKeyValPair;
  */
 public class SeedEventGenerator extends BaseOperator implements InputOperator
 {
-  public final transient DefaultOutputPort<HashMap<String, ArrayList<OneKeyValPair>>> keyvalpair_list = new DefaultOutputPort<HashMap<String, ArrayList<OneKeyValPair>>>(this);
+  public final transient DefaultOutputPort<HashMap<String, ArrayList<KeyValPair>>> keyvalpair_list = new DefaultOutputPort<HashMap<String, ArrayList<KeyValPair>>>(this);
   public final transient DefaultOutputPort<HashMap<String, ArrayList<Integer>>> val_list = new DefaultOutputPort<HashMap<String, ArrayList<Integer>>>(this);
   public final transient DefaultOutputPort<HashMap<String, String>> string_data = new DefaultOutputPort<HashMap<String, String>>(this);
   public final transient DefaultOutputPort<HashMap<String, String>> val_data = new DefaultOutputPort<HashMap<String, String>>(this);
@@ -118,7 +118,7 @@ public class SeedEventGenerator extends BaseOperator implements InputOperator
   public void emitTuple(int i)
   {
     HashMap<String, String> stuple;
-    HashMap<String, ArrayList<OneKeyValPair>> atuple;
+    HashMap<String, ArrayList<KeyValPair>> atuple;
     String key = Integer.toString(i);
 
     if (keys == null) {
@@ -128,14 +128,14 @@ public class SeedEventGenerator extends BaseOperator implements InputOperator
         string_data.emit(stuple);
       }
       if (keyvalpair_list.isConnected()) {
-        atuple = new HashMap<String, ArrayList<OneKeyValPair>>(1);
+        atuple = new HashMap<String, ArrayList<KeyValPair>>(1);
         atuple.put(key, null);
         keyvalpair_list.emit(atuple);
       }
       return;
     }
 
-    ArrayList<OneKeyValPair> alist = null;
+    ArrayList<KeyValPair> alist = null;
     ArrayList<Integer> vlist = null;
     String str = new String();
     String vstr = new String();
@@ -148,9 +148,9 @@ public class SeedEventGenerator extends BaseOperator implements InputOperator
     for (String s: keys) {
       if (iskv) {
         if (alist == null) {
-          alist = new ArrayList<OneKeyValPair>(keys.size());
+          alist = new ArrayList<KeyValPair>(keys.size());
         }
-        alist.add(new OneKeyValPair<String, Integer>(s, new Integer(keys_min.get(j) + random.nextInt(keys_range.get(j)))));
+        alist.add(new KeyValPair<String, Integer>(s, new Integer(keys_min.get(j) + random.nextInt(keys_range.get(j)))));
       }
       if (isvl) {
         if (vlist == null) {
@@ -175,7 +175,7 @@ public class SeedEventGenerator extends BaseOperator implements InputOperator
     }
 
     if (iskv) {
-      atuple = new HashMap<String, ArrayList<OneKeyValPair>>(1);
+      atuple = new HashMap<String, ArrayList<KeyValPair>>(1);
       atuple.put(key, alist);
       keyvalpair_list.emit(atuple);
     }

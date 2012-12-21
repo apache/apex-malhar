@@ -9,8 +9,10 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseKeyValueOperator;
+import com.malhartech.lib.util.KeyValPair;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Takes a HashMap and emits its keys, keyvals, vals; used for breaking up a HashMap tuple into objects (keys, vals, or key/val pairs)<p>
@@ -19,7 +21,7 @@ import java.util.Map;
  * <b>Ports</b>:<br>
  * <b>data</b>: expects HashMap&lt;K,V&gt;<br>
  * <b>key</b>: emits K<br>
- * <b>keyval</b>: emits HashMap&lt;K,V&gt;(1)<br>
+ * <b>keyval</b>: emits Entry&lt;K,V&gt;<br>
  * <b>val</b>: emits V<br>
  * <br>
  * <b>Properties</b>: None<br>
@@ -28,13 +30,13 @@ import java.util.Map;
  * <b>Specific run time checks</b>: None<br>
  * <p>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for HashMapToKey&lt;K,V&gt; operator template">
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for HashMapToKeyValPair&lt;K,V&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>&gt; 10 Million tuples/s</td><td>Each in-bound tuple results in emits 3*N out-bound tuples, where N is average size of HashMap</td><td>In-bound rate and average HashMap size is the main determinant of performance</td></tr>
+ * <tr><td><b>&gt; 25 Million tuples/s</td><td>Each in-bound tuple results in emits 3*N out-bound tuples, where N is average size of HashMap</td><td>In-bound rate and average HashMap size is the main determinant of performance</td></tr>
  * </table><br>
  * <p>
  * <b>Function Table (K=String,V=Integer)</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for HashMapToKey&lt;K,V&gt; operator template">
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for HashMapToKeyValPair&lt;K,V&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th colspan=3>Out-bound (emit)</th></tr>
  * <tr><th><i>data</i>(HashMap&lt;K,V&gt;)</th><th><i>key</i>(K)</th><th><i>val</i>(V)</th><th><i>keyval</i>(HashMap&lt;K,V&gt;(1))</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
@@ -49,7 +51,7 @@ import java.util.Map;
  * <br>
  */
 
-public class HashMapToKey<K, V> extends BaseKeyValueOperator<K, V>
+public class HashMapToKeyValPair<K, V> extends BaseKeyValueOperator<K, V>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
@@ -68,9 +70,7 @@ public class HashMapToKey<K, V> extends BaseKeyValueOperator<K, V>
           val.emit(cloneValue(e.getValue()));
         }
         if (keyval.isConnected()) {
-          HashMap<K, V> otuple = new HashMap<K, V>(1);
-          otuple.put(cloneKey(e.getKey()), cloneValue(e.getValue()));
-          keyval.emit(otuple);
+          keyval.emit(new KeyValPair<K, V>(cloneKey(e.getKey()), cloneValue(e.getValue())));
         }
       }
     }
@@ -78,7 +78,7 @@ public class HashMapToKey<K, V> extends BaseKeyValueOperator<K, V>
   @OutputPortFieldAnnotation(name = "key", optional = true)
   public final transient DefaultOutputPort<K> key = new DefaultOutputPort<K>(this);
   @OutputPortFieldAnnotation(name = "keyval", optional = true)
-  public final transient DefaultOutputPort<HashMap<K, V>> keyval = new DefaultOutputPort<HashMap<K, V>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, V>> keyval = new DefaultOutputPort<KeyValPair<K, V>>(this);
   @OutputPortFieldAnnotation(name = "val", optional = true)
   public final transient DefaultOutputPort<V> val = new DefaultOutputPort<V>(this);
 }

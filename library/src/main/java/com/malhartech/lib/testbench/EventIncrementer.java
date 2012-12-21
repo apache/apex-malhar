@@ -7,7 +7,7 @@ package com.malhartech.lib.testbench;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.OneKeyValPair;
+import com.malhartech.lib.util.KeyValPair;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,10 +55,10 @@ public class EventIncrementer extends BaseOperator
           // emit error tuple here
         }
         else {
-          ArrayList<OneKeyValPair<String, Double>> alist = new ArrayList<OneKeyValPair<String, Double>>(keys.length);
+          ArrayList<KeyValPair<String, Double>> alist = new ArrayList<KeyValPair<String, Double>>(keys.length);
           int j = 0;
           for (Integer s: e.getValue()) {
-            OneKeyValPair<String, Double> d = new OneKeyValPair<String, Double>(keys[j], new Double(s.doubleValue()));
+            KeyValPair<String, Double> d = new KeyValPair<String, Double>(keys[j], new Double(s.doubleValue()));
             alist.add(d);
             j++;
           }
@@ -76,7 +76,7 @@ public class EventIncrementer extends BaseOperator
       tuple_count++;
       for (Map.Entry<String, HashMap<String, Integer>> e: tuple.entrySet()) {
         String key = e.getKey(); // the key
-        ArrayList<OneKeyValPair<String, Double>> alist = vmap.get(key); // does it have a location?
+        ArrayList<KeyValPair<String, Double>> alist = vmap.get(key); // does it have a location?
         if (alist == null) { // if not seeded just ignore
           continue;
         }
@@ -85,7 +85,7 @@ public class EventIncrementer extends BaseOperator
           int j = 0;
           int cur_slot = 0;
           int new_slot = 0;
-          for (OneKeyValPair<String, Double> d: alist) {
+          for (KeyValPair<String, Double> d: alist) {
             if (dimension.equals(d.getKey())) { // Compute the new location
               cur_slot = d.getValue().intValue();
               Double nval = getNextNumber(d.getValue().doubleValue(), delta / 100 * (o.getValue().intValue() % 100), low_limits[j], high_limits[j]);
@@ -105,7 +105,7 @@ public class EventIncrementer extends BaseOperator
   public final transient DefaultOutputPort<HashMap<String, String>> data = new DefaultOutputPort<HashMap<String, String>>(this);
   public final transient DefaultOutputPort<HashMap<String, Integer>> count = new DefaultOutputPort<HashMap<String, Integer>>(this);
   public static final String OPORT_COUNT_TUPLE_COUNT = "count";
-  HashMap<String, ArrayList<OneKeyValPair<String, Double>>> vmap = new HashMap<String, ArrayList<OneKeyValPair<String, Double>>>();
+  HashMap<String, ArrayList<KeyValPair<String, Double>>> vmap = new HashMap<String, ArrayList<KeyValPair<String, Double>>>();
   String[] keys = null;
   double[] low_limits = null;
   double[] high_limits = null;
@@ -166,14 +166,14 @@ public class EventIncrementer extends BaseOperator
     return ret;
   }
 
-  public void emitDataTuple(String key, ArrayList<OneKeyValPair<String, Double>> list)
+  public void emitDataTuple(String key, ArrayList<KeyValPair<String, Double>> list)
   {
     if (!data.isConnected()) {
       return;
     }
     HashMap<String, String> tuple = new HashMap<String, String>(1);
     String val = new String();
-    for (OneKeyValPair<String, Double> d: list) {
+    for (KeyValPair<String, Double> d: list) {
       if (!val.isEmpty()) {
         val += ",";
       }

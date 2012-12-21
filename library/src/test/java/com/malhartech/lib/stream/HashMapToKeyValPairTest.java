@@ -11,13 +11,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Performance test for {@link com.malhartech.lib.testbench.StreamDuplicater}<p>
- * Benchmarks: Currently does about ?? Million tuples/sec in debugging environment. Need to test on larger nodes<br>
+ * Functional test for {@link com.malhartech.lib.testbench.HashMapToKeyValPair}<p>
  * <br>
  */
-public class HashMapToKeyTest {
+public class HashMapToKeyValPairTest {
 
-    private static Logger log = LoggerFactory.getLogger(HashMapToKeyTest.class);
+    private static Logger log = LoggerFactory.getLogger(HashMapToKeyValPairTest.class);
 
 
     /**
@@ -26,7 +25,7 @@ public class HashMapToKeyTest {
     @Test
     public void testNodeProcessing() throws Exception
     {
-      HashMapToKey oper = new HashMapToKey();
+      HashMapToKeyValPair oper = new HashMapToKeyValPair();
       TestCountSink keySink = new TestCountSink();
       TestCountSink valSink = new TestCountSink();
       TestCountSink keyvalSink = new TestCountSink();
