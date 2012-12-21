@@ -26,6 +26,7 @@ import javax.validation.constraints.Min;
  * <b>Properties</b>:<br>
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
+ * <b>minCount</b>: Only emit tuple if
  * <br>
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
@@ -91,42 +92,34 @@ public class Quotient<K, V extends Number> extends BaseNumberKeyValueOperator<K,
   public void addTuple(HashMap<K, V> tuple, HashMap<K, MutableDouble> map)
   {
     for (Map.Entry<K, V> e: tuple.entrySet()) {
-      if (!doprocessKey(e.getKey()) || (e.getValue() == null)) {
-        continue;
-      }
-      MutableDouble val = map.get(e.getKey());
-      if (val == null) {
-        val = new MutableDouble(e.getValue().doubleValue());
-      }
-      else {
-        if (countkey) {
-          val.value++;
-        }
-        else {
-          val.value += e.getValue().doubleValue();
-        }
-      }
-      map.put(cloneKey(e.getKey()), val);
+      addEntry(e.getKey(), e.getValue(), map);
     }
   }
+
+  public void addEntry(K key, V value, HashMap<K, MutableDouble> map)
+  {
+    if (!doprocessKey(key) || (value == null)) {
+      return;
+    }
+    MutableDouble val = map.get(key);
+    if (val == null) {
+      val = new MutableDouble(value.doubleValue());
+    }
+    else {
+      if (countkey) {
+        val.value++;
+      }
+      else {
+        val.value += value.doubleValue();
+      }
+    }
+    map.put(cloneKey(key), val);
+  }
+
   protected transient HashMap<K, MutableDouble> numerators = new HashMap<K, MutableDouble>();
   protected transient HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();
   boolean countkey = false;
   int mult_by = 1;
-  @Min(1)
-  int minCount = 1;
-
-
-  /**
-   * getter for minCount
-   * @return minCount
-   */
-  @Min(1)
-  public int getMinCount()
-  {
-    return minCount;
-  }
-
 
   /**
    * getter for mult_by
@@ -167,14 +160,6 @@ public class Quotient<K, V extends Number> extends BaseNumberKeyValueOperator<K,
     countkey = i;
   }
 
-  /**
-   * setter for minCount
-   * @param i sets minCount
-   */
-  public void setMinCount(int i)
-  {
-    minCount = i;
-  }
   /*
    * Clears the cache/hash
    */
@@ -192,7 +177,6 @@ public class Quotient<K, V extends Number> extends BaseNumberKeyValueOperator<K,
   @Override
   public void endWindow()
   {
-    int tcount = 0;
     HashMap<K, Double> tuples = new HashMap<K, Double>();
     for (Map.Entry<K, MutableDouble> e: denominators.entrySet()) {
       MutableDouble nval = numerators.get(e.getKey());
@@ -202,9 +186,8 @@ public class Quotient<K, V extends Number> extends BaseNumberKeyValueOperator<K,
       else {
         tuples.put(e.getKey(), new Double((nval.value / e.getValue().value) * mult_by));
       }
-      tcount += e.getValue().value;
     }
-    if (!tuples.isEmpty() && (tcount > minCount)) {
+    if (!tuples.isEmpty()) {
       quotient.emit(tuples);
     }
   }
