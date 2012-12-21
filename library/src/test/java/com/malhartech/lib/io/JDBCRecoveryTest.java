@@ -109,10 +109,10 @@ public class JDBCRecoveryTest
     }
   }
 
-//  @Test
+  @Test
   public void testInputOperatorRecovery() throws Exception
   {
-    setupDB("Test_Tuple", helper.hashMapping1, true, true);
+    setupDB("Test_Tuple1", helper.hashMapping1, true, true);
 
     DAG dag = new DAG();
     dag.getAttributes().attr(DAG.STRAM_CHECKPOINT_INTERVAL_MILLIS).set(500);
@@ -125,7 +125,7 @@ public class JDBCRecoveryTest
     MyHashMapOutputOperator oper = dag.addOperator("Collector", MyHashMapOutputOperator.class);
     oper.setDbUrl("jdbc:mysql://localhost/test?user=test&password=");
     oper.setDbDriver("com.mysql.jdbc.Driver");
-    oper.setTableName("Test_Tuple");
+    oper.setTableName("Test_Tuple1");
 
     oper.setMaxWindowTable("maxwindowid");
     oper.setsApplicationId("appid");
@@ -293,7 +293,7 @@ public class JDBCRecoveryTest
   @Test
   public void testNonTransactionInputOperatorRecovery() throws Exception
   {
-    setupDB("Test_Tuple", helper.hashMapping1, true, false);
+    setupDB("Test_Tuple2", helper.hashMapping1, true, false);
 
     DAG dag = new DAG();
     dag.getAttributes().attr(DAG.STRAM_CHECKPOINT_INTERVAL_MILLIS).set(500);
@@ -306,7 +306,7 @@ public class JDBCRecoveryTest
     MyNonTransactionHashMapOutputOperator oper = dag.addOperator("Collector", MyNonTransactionHashMapOutputOperator.class);
     oper.setDbUrl("jdbc:mysql://localhost/test?user=test&password=");
     oper.setDbDriver("com.mysql.jdbc.Driver");
-    oper.setTableName("Test_Tuple");
+    oper.setTableName("Test_Tuple2");
 
     oper.setsApplicationId("appid");
     oper.setsOperatorId("operatorid");

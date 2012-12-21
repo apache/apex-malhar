@@ -295,7 +295,7 @@ public abstract class JDBCOutputOperator<T> implements Operator
    *
    * @return
    */
-  protected HashMap<String, String> windowColumn()
+  protected ArrayList<String> windowColumn()
   {
     return null;
   }
@@ -335,10 +335,10 @@ public abstract class JDBCOutputOperator<T> implements Operator
         }
       }
 
-      HashMap<String, String> windowCol = windowColumn();
+      ArrayList<String> windowCol = windowColumn();
       if (windowCol != null && windowCol.size() > 0) {
-        for (Map.Entry<String, String> e: windowCol.entrySet()) {
-          columns += comma + space + e.getKey();
+        for (int i =0; i<windowCol.size(); i++) {
+          columns += comma + space + windowCol.get(i);
           values += comma + space + question;
         }
       }

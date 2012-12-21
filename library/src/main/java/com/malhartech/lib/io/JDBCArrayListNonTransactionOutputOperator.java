@@ -91,6 +91,8 @@ public class JDBCArrayListNonTransactionOutputOperator extends JDBCNonTransactio
 
     for (Map.Entry<String, PreparedStatement> entry: tableToInsertStatement.entrySet()) {
       entry.getValue().setObject(tableToColumns.get(entry.getKey()).size() + 1, windowId, Types.BIGINT);
+      entry.getValue().setObject(tableToColumns.get(entry.getKey()).size() + 2, "0", Types.VARCHAR);
+      entry.getValue().setObject(tableToColumns.get(entry.getKey()).size() + 3, operatorId, Types.VARCHAR);
     }
   }
 }

@@ -17,7 +17,6 @@ public abstract class JDBCTransactionOutputOperator<T> extends JDBCOutputOperato
 {
   private static final Logger logger = LoggerFactory.getLogger(JDBCTransactionOutputOperator.class);
   protected Statement transactionStatement;
-  private String operatorId;
   private String maxWindowTable;
 
   public String getMaxWindowTable()
@@ -32,6 +31,9 @@ public abstract class JDBCTransactionOutputOperator<T> extends JDBCOutputOperato
 
   public void initTransactionInfo(OperatorContext context)
   {
+    String querySQL = null;
+    String insertSQL = null;
+
     try {
       transactionStatement = getConnection().createStatement();
       DatabaseMetaData meta = getConnection().getMetaData();
@@ -41,10 +43,10 @@ public abstract class JDBCTransactionOutputOperator<T> extends JDBCOutputOperato
         throw new RuntimeException(maxWindowTable+" table not exist!");
       }
 
-      String querySQL = "SELECT "+sWindowId+" FROM "+maxWindowTable+" WHERE "+sOperatorId+"='" + context.getId() + "' AND "+sApplicationId+"=" + 0; // how can I get the appid
+      querySQL = "SELECT "+sWindowId+" FROM "+maxWindowTable+" WHERE "+sOperatorId+"='" + context.getId() + "' AND "+sApplicationId+"=" + 0; // how can I get the appid
       ResultSet rs = transactionStatement.executeQuery(querySQL);
       if (rs.next() == false) {
-        String insertSQL = "INSERT "+maxWindowTable+" set "+sApplicationId+"=0, "+sWindowId+"=0, "+sOperatorId+"='" + context.getId() + "'";
+        insertSQL = "INSERT "+maxWindowTable+" set "+sApplicationId+"=0, "+sWindowId+"=0, "+sOperatorId+"='" + context.getId() + "'";
         transactionStatement.executeUpdate(insertSQL);
         logger.debug(insertSQL);
         lastWindowId = 0;
@@ -55,7 +57,7 @@ public abstract class JDBCTransactionOutputOperator<T> extends JDBCOutputOperato
       getConnection().setAutoCommit(false);
     }
     catch (SQLException ex) {
-      throw new RuntimeException(ex);
+      throw new RuntimeException(String.format("Exception while setting maxwindowid table. select query: %s, insert query: %s", querySQL, insertSQL), ex);
     }
 
   }

@@ -87,6 +87,29 @@ public class JDBCHashMapNonTransactionOutputOperator<V> extends JDBCNonTransacti
 
     for (Map.Entry<String, PreparedStatement> entry: tableToInsertStatement.entrySet()) {
       entry.getValue().setObject(tableToColumns.get(entry.getKey()).size() + 1, windowId, Types.BIGINT);
+      entry.getValue().setObject(tableToColumns.get(entry.getKey()).size() + 2, "0", Types.VARCHAR);
+      entry.getValue().setObject(tableToColumns.get(entry.getKey()).size() + 3, operatorId, Types.VARCHAR);
     }
+
+  /*  for (Map.Entry<String, V> e: tuple.entrySet()) {
+      getInsertStatement().setObject(
+              keyToIndex.get(e.getKey()).intValue(),
+              e.getValue(),
+              getSQLColumnType(keyToType.get(e.getKey())));
+    }
+    HashMap<String, String> windowCol = windowColumn();
+    int i = 1;
+    for (Map.Entry<String, String> e: windowCol.entrySet()) {
+      if (e.getKey().equals(sWindowId)) {
+        getInsertStatement().setObject(tuple.size() + i, windowId, Types.BIGINT);
+      }
+      else if (e.getKey().equals(sApplicationId)) {
+        getInsertStatement().setObject(tuple.size() + i, "0", Types.VARCHAR);
+      }
+      else if (e.getKey().equals(sOperatorId)) {
+        getInsertStatement().setObject(tuple.size() + i, operatorId, Types.VARCHAR);
+      }
+      i++;
+    }*/
   }
 }
