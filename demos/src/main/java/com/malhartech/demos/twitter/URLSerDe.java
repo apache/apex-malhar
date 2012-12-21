@@ -42,9 +42,9 @@ public class URLSerDe implements StreamCodec<byte[]>
   }
 
   @Override
-  public int getPartition(Object o)
+  public int getPartition(byte[] o)
   {
-    ByteBuffer bb = ByteBuffer.wrap((byte[]) o);
+    ByteBuffer bb = ByteBuffer.wrap(o);
     return bb.hashCode();
   }
 
