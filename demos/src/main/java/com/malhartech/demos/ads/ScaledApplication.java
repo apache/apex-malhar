@@ -120,7 +120,6 @@ public class ScaledApplication implements ApplicationFactory
     Quotient<String, Integer> oper = b.addOperator(name, new Quotient<String, Integer>());
     oper.setMult_by(100);
     oper.setCountkey(true);
-    oper.setMinCount(5000); // Only report if at least 5000 tuples are processed in a window to avoid noise
     return oper;
   }
 
