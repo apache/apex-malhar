@@ -2,7 +2,7 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.io;
+package com.malhartech.contrib.mysql;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

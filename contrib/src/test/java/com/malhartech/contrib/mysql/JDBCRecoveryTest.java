@@ -2,19 +2,16 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.io;
+package com.malhartech.contrib.mysql;
 
 import com.malhartech.api.*;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.bufferserver.util.Codec;
-import com.malhartech.lib.io.JDBCOutputOperatorTest.JDBCOutputOperatorTestTemplate;
 import com.malhartech.stram.StramLocalCluster;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import java.util.HashSet;
-import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

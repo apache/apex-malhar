@@ -2,7 +2,7 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.io;
+package com.malhartech.contrib.mysql;
 
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.Context.OperatorContext;
