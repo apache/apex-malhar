@@ -23,7 +23,7 @@ public class Application implements ApplicationFactory
 
     RandomWordInputModule wordGenerator = dag.addOperator("wordGenerator", RandomWordInputModule.class);
 //    DoNothingModule<byte[]> noOpProcessor = dag.addOperator("noOpProcessor", new DoNothingModule<byte[]>());
-    WordCountModule<byte[]> counter = dag.addOperator("counter", WordCountModule.class);
+    WordCountModule<byte[]> counter = dag.addOperator("counter", new WordCountModule<byte[]>());
 
 //    dag.addStream("Generator2Processor", wordGenerator.output, noOpProcessor.input).setInline(inline);
 //    dag.addStream("Processor2Counter", noOpProcessor.output, counter.input).setInline(inline);
