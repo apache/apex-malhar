@@ -2,7 +2,7 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.contrib.mysql;
+package com.malhartech.contrib.jdbc;
 
 import java.util.ArrayList;
 import java.util.Date;

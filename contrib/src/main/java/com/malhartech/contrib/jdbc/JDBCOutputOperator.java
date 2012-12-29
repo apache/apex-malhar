@@ -2,7 +2,7 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.contrib.mysql;
+package com.malhartech.contrib.jdbc;
 
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.Context.OperatorContext;
@@ -57,7 +57,7 @@ public abstract class JDBCOutputOperator<T> implements Operator
   protected transient String operatorId;
 
   protected String sWindowId;
-  protected String sOperatorId;
+  protected String sOperatorId;  // Storing operator id is for partitioning purpose
   protected String sApplicationId;
   private long tupleCount = 0;
   protected transient boolean emptyTuple = false;

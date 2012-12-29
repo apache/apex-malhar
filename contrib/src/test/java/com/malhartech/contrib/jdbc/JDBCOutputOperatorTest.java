@@ -2,8 +2,14 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.contrib.mysql;
+package com.malhartech.contrib.jdbc;
 
+import com.malhartech.contrib.jdbc.JDBCOutputOperator;
+import com.malhartech.contrib.jdbc.JDBCTransactionOutputOperator;
+import com.malhartech.contrib.jdbc.JDBCHashMapNonTransactionOutputOperator;
+import com.malhartech.contrib.jdbc.JDBCArrayListOutputOperator;
+import com.malhartech.contrib.jdbc.JDBCHashMapOutputOperator;
+import com.malhartech.contrib.jdbc.JDBCArrayListNonTransactionOutputOperator;
 import com.malhartech.bufferserver.util.Codec;
 import java.sql.*;
 import java.util.ArrayList;

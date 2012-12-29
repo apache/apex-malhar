@@ -2,7 +2,7 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.contrib.mysql;
+package com.malhartech.contrib.jdbc;
 
 import com.malhartech.api.Context.OperatorContext;
 import java.sql.ResultSet;
