@@ -10,6 +10,7 @@ import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.Operator;
 import com.mongodb.*;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,6 +20,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,26 +34,26 @@ public abstract class MongoDBOutputOperator<T> implements Operator
   private static final int DEFAULT_BATCH_SIZE = 1000;
   @NotNull
   private String dbUrl;
-  @NotNull
-  private String tableName;
   private String dataBase;
   @Min(1)
   private long batchSize = DEFAULT_BATCH_SIZE;
   private String userName;
   private String passWord;
-  private ArrayList<String> tableNames = new ArrayList<String>();
   private transient MongoClient mongoClient;
   protected transient DB db;
-  protected HashMap<String, String> propTable = new HashMap<String, String>();
-  protected transient DBCollection dbCollection;
+  protected transient HashMap<String, String> propTable = new HashMap<String, String>();  // prop-table mapping for HashMap
+  protected transient ArrayList<String> tableNames = new ArrayList<String>();
+  private String maxWindowTable;
+  protected transient DBCollection maxWindowCollection;
   protected transient long windowId;
   protected transient String operatorId;
-  protected transient String applicationId;
+//  protected transient String applicationId;
   protected transient long lastWindowId;
   protected transient boolean ignoreWindow;
+  protected transient int tupleId;
   protected String windowIdName;
   protected String operatorIdName;
-  protected String applicationIdName;
+//  protected String applicationIdName;
 
   /**
    * Implement how to process tuple in derived class based on HashMap or ArrayList.
@@ -86,16 +88,24 @@ public abstract class MongoDBOutputOperator<T> implements Operator
 
   public void initLastWindowInfo()
   {
-//      String stmt = tableName
-    DBCursor cursor = dbCollection.find().sort(new BasicDBObject(windowIdName, -1)).limit(1);
+    maxWindowCollection = db.getCollection(maxWindowTable);
+    BasicDBObject query = new BasicDBObject();
+    query.put(operatorIdName, operatorId);
+//    query.put(applicationIdName, "0");
+    DBCursor cursor = maxWindowCollection.find();
     if (cursor.hasNext()) {
-      Long winid = (Long)cursor.next().get(windowIdName);
-      if( winid == null ) {
-        throw new RuntimeException("table "+dbCollection.getFullName()+" column "+windowIdName+" not ready!");
-      }
-      lastWindowId = winid;
-      System.out.println("last windowid:" + lastWindowId);
+      Object obj = cursor.next().get(windowIdName);
+      lastWindowId = (Long)obj;
     }
+    else {
+      BasicDBObject doc = new BasicDBObject();
+      doc.put(windowIdName, (long)0);
+//      doc.put(applicationIdName, 0);
+      doc.put(operatorIdName, operatorId);
+      maxWindowCollection.save(doc);
+    }
+
+    System.out.println("last windowid:" + lastWindowId);
   }
 
   /**
@@ -105,15 +115,28 @@ public abstract class MongoDBOutputOperator<T> implements Operator
   public void beginWindow(long windowId)
   {
     this.windowId = windowId;
+    tupleId = 0;
     if (windowId < lastWindowId) {
       ignoreWindow = true;
     }
     else if (windowId == lastWindowId) {
       ignoreWindow = false;
       BasicDBObject query = new BasicDBObject();
-      query.put(windowIdName, windowId);
-      dbCollection.remove(query);
-//      String stmt = "DELETE FROM " + getTableName() + " WHERE " + windowIdName + "=" + windowId;
+//      query.put(windowIdName, windowId);
+      query.put(operatorIdName, operatorId);
+      ByteBuffer bb = ByteBuffer.allocate(12);
+      bb.putLong(windowId);
+      bb.putInt(0);
+      StringBuilder low = new StringBuilder();
+      for (byte b : bb.array()) {
+        low.append(String.format("02x", b&0xff));
+      }
+
+      query.put("_id", new BasicDBObject("$gte",new ObjectId(low.toString())));
+//      query.put(applicationIdName, 0);
+      for (String table : tableNames) {
+        db.getCollection(table).remove(query);
+      }
     }
     else {
       ignoreWindow = false;
@@ -135,7 +158,6 @@ public abstract class MongoDBOutputOperator<T> implements Operator
       if (userName != null && passWord != null) {
         db.authenticate(userName, passWord.toCharArray());
       }
-      dbCollection = db.getCollection(tableName);
       initLastWindowInfo();
     }
     catch (UnknownHostException ex) {
@@ -145,7 +167,6 @@ public abstract class MongoDBOutputOperator<T> implements Operator
 
   public void buildMapping()
   {
-
   }
 
   @Override
@@ -173,14 +194,14 @@ public abstract class MongoDBOutputOperator<T> implements Operator
     this.passWord = passWord;
   }
 
-  public String getTableName()
+  public void addTable(String table)
   {
-    return tableName;
+    tableNames.add(table);
   }
 
-  public void setTableName(String tableName)
+  public ArrayList<String> getTableNames()
   {
-    this.tableName = tableName;
+    return tableNames;
   }
 
   public long getBatchSize()
@@ -191,6 +212,16 @@ public abstract class MongoDBOutputOperator<T> implements Operator
   public void setBatchSize(long batchSize)
   {
     this.batchSize = batchSize;
+  }
+
+  public String getMaxWindowTable()
+  {
+    return maxWindowTable;
+  }
+
+  public void setMaxWindowTable(String maxWindowTable)
+  {
+    this.maxWindowTable = maxWindowTable;
   }
 
   public String getWindowIdName()
@@ -213,16 +244,15 @@ public abstract class MongoDBOutputOperator<T> implements Operator
     this.operatorIdName = operatorIdName;
   }
 
-  public String getApplicationIdName()
-  {
-    return applicationIdName;
-  }
-
-  public void setApplicationIdName(String applicationIdName)
-  {
-    this.applicationIdName = applicationIdName;
-  }
-
+//  public String getApplicationIdName()
+//  {
+//    return applicationIdName;
+//  }
+//
+//  public void setApplicationIdName(String applicationIdName)
+//  {
+//    this.applicationIdName = applicationIdName;
+//  }
   public String getDataBase()
   {
     return dataBase;

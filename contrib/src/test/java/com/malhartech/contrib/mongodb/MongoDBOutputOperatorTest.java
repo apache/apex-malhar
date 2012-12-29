@@ -21,6 +21,7 @@ public class MongoDBOutputOperatorTest
 {
   private static final Logger logger = LoggerFactory.getLogger(MongoDBOutputOperatorTest.class);
   public String[] hashMapping1 = new String[columnNum];
+  public String[] arrayMapping1 = new String[columnNum];
   public final static int maxTuple = 20;
   public final static int columnNum = 3;
 
@@ -37,6 +38,13 @@ public class MongoDBOutputOperatorTest
     hashMapping1[2] = "prop2:t1.col2:DATE";
 //    hashMapping1[3] = "prop5:t1.col5:STRING";
 //    hashMapping1[4] = "prop4:t1.col4:INT";
+
+    arrayMapping1[0] = "t1.col1:INT";
+    arrayMapping1[1] = "t1.col3:STRING";
+    arrayMapping1[2] = "t1.col2:DATE";
+//    arrayMapping1[3] = "t1.col5:STRING";
+//    arrayMapping1[4] = "t1.col4:INT";
+
   }
 
   public HashMap<String, Object> generateHashMapData(int j, MongoDBHashMapOutputOperator oper)
@@ -65,11 +73,12 @@ public class MongoDBOutputOperatorTest
 
   public void readDB(MongoDBHashMapOutputOperator oper)
   {
-//    oper.dbCollection.find().sort(null)
-
-    DBCursor cursor = oper.dbCollection.find();
-    while (cursor.hasNext()) {
-      System.out.println(cursor.next());
+    for (Object o : oper.getTableNames()) {
+      String table = (String)o;
+      DBCursor cursor = oper.db.getCollection(table).find();
+      while (cursor.hasNext()) {
+        System.out.println(cursor.next());
+      }
     }
   }
 
@@ -79,8 +88,8 @@ public class MongoDBOutputOperatorTest
     buildDataset();
 
     MongoDBHashMapOutputOperator oper = new MongoDBHashMapOutputOperator();
-    oper.setTableName("t1");
 
+    oper.addTable("t1");
     oper.setBatchSize(100);
     oper.setDbUrl("localhost");
     oper.setDataBase("test");
@@ -88,18 +97,20 @@ public class MongoDBOutputOperatorTest
     oper.setPassWord("123");
     oper.setWindowIdName("winid");
     oper.setOperatorIdName("operatorid");
-    oper.setApplicationIdName("appid");
+    oper.setMaxWindowTable("maxWindowTable");
 
     oper.setup(new com.malhartech.engine.OperatorContext("op1", null, null));
-
-    oper.dbCollection.drop();
+    for (Object o : oper.getTableNames()) {
+      String table = (String)o;
+      oper.db.getCollection(table).drop();
+    }
 
 //    oper.beginWindow(oper.getLastWindowId());
     oper.beginWindow(oper.getLastWindowId() + 1);
     logger.debug("beginwindow {}", Codec.getStringWindowId(oper.getLastWindowId() + 1));
 
     for (int i = 0; i < maxTuple; ++i) {
-      HashMap<String, Object> hm = generateHashMapData(i,oper);
+      HashMap<String, Object> hm = generateHashMapData(i, oper);
 //      logger.debug(hm.toString());
       oper.inputPort.process(hm);
 

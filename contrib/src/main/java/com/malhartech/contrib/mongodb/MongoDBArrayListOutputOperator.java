@@ -4,6 +4,7 @@
  */
 package com.malhartech.contrib.mongodb;
 
+import com.mongodb.BasicDBObject;
 import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,25 @@ public class MongoDBArrayListOutputOperator extends MongoDBOutputOperator<ArrayL
   @Override
   public void processTuple(ArrayList<Object> tuple)
   {
-    
+    BasicDBObject doc = new BasicDBObject();
+
+//    doc.put(applicationIdName, 0);
+    doc.put(operatorIdName, operatorId);
+    doc.put(windowIdName, windowId);
+//    db.getCollection(table).insert(doc);
+
+    if (windowId > lastWindowId) {
+      lastWindowId = windowId;
+      BasicDBObject where = new BasicDBObject();
+//      doc1.put(applicationIdName, 0);
+      where.put(operatorIdName, operatorId);
+      BasicDBObject value = new BasicDBObject();
+//      doc2.put(applicationIdName, 0);
+      value.put(operatorIdName, operatorId);
+      value.put(windowIdName, windowId);
+      maxWindowCollection.update(where, value);
+
+    }
   }
 
 }
