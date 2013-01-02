@@ -98,8 +98,9 @@ public class MongoDBOutputOperatorTest
     oper.setWindowIdName("winid");
     oper.setOperatorIdName("operatorid");
     oper.setMaxWindowTable("maxWindowTable");
+    oper.setQueryFunction(1);
 
-    oper.setup(new com.malhartech.engine.OperatorContext("op1", null, null));
+    oper.setup(new com.malhartech.engine.OperatorContext("1", null, null));
     for (Object o : oper.getTableNames()) {
       String table = (String)o;
       oper.db.getCollection(table).drop();

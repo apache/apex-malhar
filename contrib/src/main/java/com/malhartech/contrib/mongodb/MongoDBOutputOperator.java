@@ -11,6 +11,7 @@ import com.malhartech.api.Operator;
 import com.mongodb.*;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -54,6 +55,7 @@ public abstract class MongoDBOutputOperator<T> implements Operator
   protected String windowIdName;
   protected String operatorIdName;
 //  protected String applicationIdName;
+  protected int queryFunction;
 
   /**
    * Implement how to process tuple in derived class based on HashMap or ArrayList.
@@ -123,16 +125,25 @@ public abstract class MongoDBOutputOperator<T> implements Operator
       ignoreWindow = false;
       BasicDBObject query = new BasicDBObject();
 //      query.put(windowIdName, windowId);
-      query.put(operatorIdName, operatorId);
+//      query.put(operatorIdName, operatorId);
       ByteBuffer bb = ByteBuffer.allocate(12);
-      bb.putLong(windowId);
-      bb.putInt(0);
+      bb.order(ByteOrder.BIG_ENDIAN);
       StringBuilder low = new StringBuilder();
-      for (byte b : bb.array()) {
-        low.append(String.format("02x", b&0xff));
+      StringBuilder high = new StringBuilder();
+      if (queryFunction == 1) {
+        queryFunction1(bb, high, low);
+      }
+      else if (queryFunction == 2) {
+        queryFunction2(bb, high, low);
+      }
+      else if (queryFunction == 3) {
+        queryFunction3(bb, high, low);
+      }
+      else {
+        throw new RuntimeException("unknown queryFunction type:" + queryFunction);
       }
 
-      query.put("_id", new BasicDBObject("$gte",new ObjectId(low.toString())));
+      query.put("_id", new BasicDBObject("$gte", new ObjectId(low.toString())).append("$lte", new ObjectId(high.toString())));
 //      query.put(applicationIdName, 0);
       for (String table : tableNames) {
         db.getCollection(table).remove(query);
@@ -140,6 +151,92 @@ public abstract class MongoDBOutputOperator<T> implements Operator
     }
     else {
       ignoreWindow = false;
+    }
+  }
+
+  /* 8B windowId | 4B tupleId */ // does not have operatorId, should not use
+  public void queryFunction0(ByteBuffer bb, StringBuilder high, StringBuilder low)
+  {
+  }
+
+  /* 8B windowId | 1B opratorId | 3B tupleId */
+  public void queryFunction1(ByteBuffer bb, StringBuilder high, StringBuilder low)
+  {
+    bb.putLong(windowId);
+    byte opId = (byte)Integer.parseInt(operatorId);
+    bb.put(opId);
+    ByteBuffer lowbb = bb;
+    lowbb.put((byte)0);
+    lowbb.put((byte)0);
+    lowbb.put((byte)0);
+    for (byte b : lowbb.array()) {
+      low.append(String.format("02x", b & 0xff));
+    }
+
+    ByteBuffer highbb = bb;
+    highbb.put((byte)0xff);
+    highbb.put((byte)0xff);
+    highbb.put((byte)0xff);
+    for (byte b : highbb.array()) {
+      high.append(String.format("02x", b & 0xff));
+    }
+  }
+
+  /* 4B baseSec | 2B windowId | 3B operatorId | 3B tupleId */
+  public void queryFunction2(ByteBuffer bb, StringBuilder high, StringBuilder low)
+  {
+    int baseSec = (int)(windowId >> 32);
+    bb.putInt(baseSec);
+    short winId = (short)(windowId & 0xffff);
+    bb.putShort(winId);
+    Integer operId = Integer.parseInt(operatorId);
+    for (int i = 0; i < 3; i++) {
+      byte num = (byte)(operId >> 8 * (2 - i));
+      bb.put(num);
+    }
+    ByteBuffer lowbb = bb.duplicate();
+    lowbb.put((byte)0);
+    lowbb.put((byte)0);
+    lowbb.put((byte)0);
+    for (byte b : lowbb.array()) {
+      low.append(String.format("%02x", b & 0xff));
+    }
+
+    ByteBuffer highbb = bb.duplicate();
+    highbb.put((byte)0xff);
+    highbb.put((byte)0xff);
+    highbb.put((byte)0xff);
+    for (byte b : highbb.array()) {
+      high.append(String.format("%02x", b & 0xff));
+    }
+  }
+
+  /* 4B baseSec | 3B operatorId | 2B windowId | 3B tupleId */
+  public void queryFunction3(ByteBuffer bb, StringBuilder high, StringBuilder low)
+  {
+    int baseSec = (int)(windowId >> 32);
+    bb.putInt(baseSec);
+    Integer operId = Integer.parseInt(operatorId);
+    for (int i = 0; i < 3; i++) {
+      byte num = (byte)(operId >> 8 * (2 - i));
+      bb.put(num);
+    }
+    short winId = (short)(windowId & 0xffff);
+    bb.putShort(winId);
+
+    ByteBuffer lowbb = bb.duplicate();
+    lowbb.put((byte)0);
+    lowbb.put((byte)0);
+    lowbb.put((byte)0);
+    for (byte b : lowbb.array()) {
+      low.append(String.format("%02x", b & 0xff));
+    }
+    ByteBuffer highbb = bb.duplicate();
+    highbb.put((byte)0xff);
+    highbb.put((byte)0xff);
+    highbb.put((byte)0xff);
+    for (byte b : highbb.array()) {
+      high.append(String.format("%02x", b & 0xff));
     }
   }
 
@@ -281,5 +378,10 @@ public abstract class MongoDBOutputOperator<T> implements Operator
   public void setLastWindowId(long lastWindowId)
   {
     this.lastWindowId = lastWindowId;
+  }
+
+  public void setQueryFunction(int queryFunction)
+  {
+    this.queryFunction = queryFunction;
   }
 }
