@@ -35,6 +35,8 @@ public class BaseMatchOperator<K,V> extends BaseKeyValueOperator<K,V>
 {
   @NotNull
   private K key;
+  
+  @Pattern(regexp = "lte|lt|eq|ne|gt|gte", message = "Value has to be one of lte, lt, eq, ne, gt, gte")
   private String cmp;
   private double value = 0.0;
 
