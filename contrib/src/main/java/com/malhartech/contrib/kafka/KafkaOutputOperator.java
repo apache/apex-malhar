@@ -46,7 +46,7 @@ public abstract class KafkaOutputOperator<K, V> implements Operator
 
   /**
    * Abstract method to setup producer configuration.
-   * @return
+   * @return ProducerConfig
    */
   public abstract ProducerConfig createKafkaProducerConfig();
 

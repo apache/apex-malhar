@@ -14,6 +14,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * JDBC output adapter operator, for HashMap column mapping and non-transaction type database write. Key is string, Value can be any type derived from Java object.<p><br>
+ * <br>
+ * Ports:<br>
+ * <b>Input</b>: This has a single input port that writes data into database.<br>
+ * <b>Output</b>: No output port<br>
+ * <br>
+ * Properties:<br>
+ * None<br>
+ * <br>
+ * Compile time checks:<br>
+ * None<br>
+ * <br>
+ * Run time checks:<br>
+ * None <br>
+ * <br>
+ * Benchmarks:<br>
+ * TBD<br>
+ * <br>
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
@@ -24,6 +42,15 @@ public class JDBCHashMapNonTransactionOutputOperator<V> extends JDBCNonTransacti
   private static final int colIdx = 1;
   private static final int typeIdx = 2;
 
+  /**
+   * The column mapping will have following pattern: <br>
+   * Property:[Table.]Column:Type <br>
+   * Followings are two examples: <br>
+   * prop1:t1.col1:INTEGER,prop2:t3.col2:BIGINT,prop5:t3.col5:CHAR,prop6:t2.col4:DATE,prop7:t1.col7:DOUBLE,prop3:t2.col6:VARCHAR(10),prop4:t1.col3:DATE <br>
+   * prop1:col1:INTEGER,prop2:col2:BIGINT,prop5:col5:CHAR,prop6:col4:DATE,prop7:col7:DOUBLE,prop3:col6:VARCHAR(10),prop4:col3:DATE <br>
+   *
+   * @param mapping
+   */
   @Override
   protected void parseMapping(ArrayList<String> mapping)
   {
@@ -72,6 +99,10 @@ public class JDBCHashMapNonTransactionOutputOperator<V> extends JDBCNonTransacti
     }
   }
 
+  /*
+   * Bind tuple values into insert statements.
+   * @param tuple
+   */
   @Override
   public void processTuple(HashMap<String, V> tuple) throws SQLException
   {
@@ -90,26 +121,5 @@ public class JDBCHashMapNonTransactionOutputOperator<V> extends JDBCNonTransacti
       entry.getValue().setObject(tableToColumns.get(entry.getKey()).size() + 2, "0", Types.VARCHAR);
       entry.getValue().setObject(tableToColumns.get(entry.getKey()).size() + 3, operatorId, Types.VARCHAR);
     }
-
-  /*  for (Map.Entry<String, V> e: tuple.entrySet()) {
-      getInsertStatement().setObject(
-              keyToIndex.get(e.getKey()).intValue(),
-              e.getValue(),
-              getSQLColumnType(keyToType.get(e.getKey())));
-    }
-    HashMap<String, String> windowCol = windowColumn();
-    int i = 1;
-    for (Map.Entry<String, String> e: windowCol.entrySet()) {
-      if (e.getKey().equals(sWindowId)) {
-        getInsertStatement().setObject(tuple.size() + i, windowId, Types.BIGINT);
-      }
-      else if (e.getKey().equals(sApplicationId)) {
-        getInsertStatement().setObject(tuple.size() + i, "0", Types.VARCHAR);
-      }
-      else if (e.getKey().equals(sOperatorId)) {
-        getInsertStatement().setObject(tuple.size() + i, operatorId, Types.VARCHAR);
-      }
-      i++;
-    }*/
   }
 }

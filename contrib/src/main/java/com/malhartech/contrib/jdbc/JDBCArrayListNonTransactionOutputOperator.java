@@ -13,7 +13,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * JDBC output adapter operator, for ArrayList column mapping and non-transaction type database write.<p><br>
+ * The tuple can contain an array of java object. <br>
  *
+ * Ports:<br>
+ * <b>Input</b>: This has a single input port that writes data into database.<br>
+ * <b>Output</b>: No output port<br>
+ * <br>
+ * Properties:<br>
+ * None<br>
+ * <br>
+ * Compile time checks:<br>
+ * None<br>
+ * <br>
+ * Run time checks:<br>
+ * None <br>
+ * <br>
+ * Benchmarks:<br>
+ * TBD<br>
+ * <br>
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
 public class JDBCArrayListNonTransactionOutputOperator extends JDBCNonTransactionOutputOperator<ArrayList<Object>>
@@ -22,6 +40,15 @@ public class JDBCArrayListNonTransactionOutputOperator extends JDBCNonTransactio
   private static final int colIdx = 0;
   private static final int typeIdx = 1;
 
+  /**
+   * The column mapping will have following pattern: <br>
+   * [Table.]Column:Type <br>
+   * Followings are two examples: <br>
+   * t1.col1:INTEGER,t3.col2:BIGINT,t3.col5:CHAR,t2.col4:DATE,t1.col7:DOUBLE,t2.col6:VARCHAR(10),t1.col3:DATE <br>
+   * col1:INTEGER,col2:BIGINT,col5:CHAR,col4:DATE,col7:DOUBLE,col6:VARCHAR(10),col3:DATE <br>
+   *
+   * @param mapping
+   */
   @Override
   protected void parseMapping(ArrayList<String> mapping)
   {
@@ -74,6 +101,10 @@ public class JDBCArrayListNonTransactionOutputOperator extends JDBCNonTransactio
     }
   }
 
+  /*
+   * Bind tuple values into insert statements.
+   * @param tuple
+   */
   @Override
   public void processTuple(ArrayList<Object> tuple) throws SQLException
   {

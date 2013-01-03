@@ -14,7 +14,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import kafka.api.FetchRequest;
 import kafka.consumer.ConsumerConfig;
 import kafka.consumer.ConsumerIterator;
@@ -146,7 +145,7 @@ public abstract class KafkaInputOperator implements InputOperator, ActivationLis
   /**
    * Implement Component Interface.
    *
-   * @param config
+   * @param context
    */
   @Override
   public void setup(OperatorContext context)

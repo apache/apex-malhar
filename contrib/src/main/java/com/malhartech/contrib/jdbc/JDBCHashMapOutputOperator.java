@@ -12,9 +12,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
- * Key is string, Value can be any type derived from Java object.
- *
+ * JDBC output adapter operator, for HashMap column mapping and transaction type database write.  Key is string, Value can be any type derived from Java object.<p><br>
+ * <br>
+ * Ports:<br>
+ * <b>Input</b>: This has a single input port that writes data into database.<br>
+ * <b>Output</b>: No output port<br>
+ * <br>
+ * Properties:<br>
+ * None<br>
+ * <br>
+ * Compile time checks:<br>
+ * None<br>
+ * <br>
+ * Run time checks:<br>
+ * None <br>
+ * <br>
+ * Benchmarks:<br>
+ * TBD<br>
+ * <br>
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
 public class JDBCHashMapOutputOperator<V> extends JDBCTransactionOutputOperator<HashMap<String, V>>
@@ -24,6 +39,15 @@ public class JDBCHashMapOutputOperator<V> extends JDBCTransactionOutputOperator<
   private static final int colIdx = 1;
   private static final int typeIdx = 2;
 
+  /**
+   * The column mapping will have following pattern: <br>
+   * Property:[Table.]Column:Type <br>
+   * Followings are two examples: <br>
+   * prop1:t1.col1:INTEGER,prop2:t3.col2:BIGINT,prop5:t3.col5:CHAR,prop6:t2.col4:DATE,prop7:t1.col7:DOUBLE,prop3:t2.col6:VARCHAR(10),prop4:t1.col3:DATE <br>
+   * prop1:col1:INTEGER,prop2:col2:BIGINT,prop5:col5:CHAR,prop6:col4:DATE,prop7:col7:DOUBLE,prop3:col6:VARCHAR(10),prop4:col3:DATE <br>
+   *
+   * @param mapping
+   */
   @Override
   protected void parseMapping(ArrayList<String> mapping)
   {
@@ -72,6 +96,10 @@ public class JDBCHashMapOutputOperator<V> extends JDBCTransactionOutputOperator<
     }
   }
 
+  /*
+   * Bind tuple values into insert statements.
+   * @param tuple
+   */
   @Override
   public void processTuple(HashMap<String, V> tuple) throws SQLException
   {

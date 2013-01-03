@@ -25,7 +25,7 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
   /**
    * Additional column name needed for non-transactional database.
    *
-   * @return
+   * @return list of column names
    */
   @Override
   public ArrayList<String> windowColumn()
