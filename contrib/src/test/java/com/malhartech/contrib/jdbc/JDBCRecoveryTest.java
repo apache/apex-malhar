@@ -127,9 +127,9 @@ public class JDBCRecoveryTest
     oper.setTableName("Test_Tuple1");
 
     oper.setMaxWindowTable("maxwindowid");
-    oper.setsApplicationId("appid");
-    oper.setsOperatorId("operatorid");
-    oper.setsWindowId("winid");
+    oper.setApplicationIdColumnName("appid");
+    oper.setOperatorIdColumnName("operatorid");
+    oper.setWindowIdColumnName("winid");
 
     oper.setBatchSize(100);
     oper.setColumnMapping(helper.hashMapping1);//    oper.setSimulateFailure(true);
@@ -307,9 +307,9 @@ public class JDBCRecoveryTest
     oper.setDbDriver("com.mysql.jdbc.Driver");
     oper.setTableName("Test_Tuple2");
 
-    oper.setsApplicationId("appid");
-    oper.setsOperatorId("operatorid");
-    oper.setsWindowId("winid");
+    oper.setApplicationIdColumnName("appid");
+    oper.setOperatorIdColumnName("operatorid");
+    oper.setWindowIdColumnName("winid");
 
     oper.setBatchSize(100);
     oper.setColumnMapping(helper.hashMapping1);//    oper.setSimulateFailure(true);

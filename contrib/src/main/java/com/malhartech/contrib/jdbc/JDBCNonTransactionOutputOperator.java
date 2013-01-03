@@ -14,7 +14,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * JDBCNonTransaction output adapter operator, which send insertion data to nontransaction database.<p><br>
  *
+ * <br>
+ * Ports:<br>
+ * <b>Input</b>: Can have one input port which is derived from JDBCOutputOperator base class <br>
+ * <b>Output</b>: no output port<br>
+ * <br>
+ * Properties:<br>
+ * <b>statement</b>:the statement being used to save nontransaction database last windowId information in the tables <br>
+ * <br>
+ * Compile time checks:<br>
+ * None<br>
+ * <br>
+ * Run time checks:<br>
+ * Nontransaction database requires additional operatorId, windowId, applicationId column,<br>
+ * to store the last committed windowId information for recovery purpose<br>
+ * user needs to create the additional columns and assign the column names as windowIdColumnName,operatorIdColumnName,applicationIdColumnName<br>
+ * <br>
+ * <b>Benchmarks</b>:
+ * <br>
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
 public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOperator<T>
@@ -23,34 +42,38 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
   protected Statement statement;
 
   /**
-   * Additional column name needed for non-transactional database.
-   *
+   * Additional column name needed for non-transactional database recovery.
+   * Currently has windowId, operatorId, applicationId column information to be saved in the tables
    * @return list of column names
    */
   @Override
   public ArrayList<String> windowColumn()
   {
     ArrayList<String> al = new ArrayList<String>();
-    al.add(sWindowId);
-    al.add(sOperatorId);
-    al.add(sApplicationId);
+    al.add(windowIdColumnName);
+    al.add(operatorIdColumnName);
+    al.add(applicationIdColumnName);
     return al;
   }
 
+  /**
+   * initialize the last completed windowId as lastWindowId for the specific operatorId
+   * if the table is empty, the lastWindowId would be 0
+   */
   public void initLastWindowInfo()
   {
     int num = tableNames.size();
     for (int i = 0; i < num; ++i) {
       try {
         statement = getConnection().createStatement();
-        String stmt = "SELECT MAX(" + sWindowId + ") AS maxwinid FROM " + tableNames.get(0);
+        String stmt = "SELECT MAX(" + windowIdColumnName + ") AS maxwinid FROM " + tableNames.get(0);
         ResultSet rs = statement.executeQuery(stmt);
         logger.debug(stmt);
         if (rs.next() == false) {
-          logger.error("table " + tableNames.get(0) + " " + sWindowId + " column not ready!");
-          throw new RuntimeException("table " + tableNames.get(0) + " " + sWindowId + " column not ready!");
+          logger.error("table " + tableNames.get(0) + " " + windowIdColumnName + " column not ready!");
+          throw new RuntimeException("table " + tableNames.get(0) + " " + windowIdColumnName + " column not ready!");
         }
-        lastWindowId = rs.getLong("maxwinid");
+        lastWindowId = rs.getLong(windowIdColumnName);
       }
       catch (SQLException ex) {
         throw new RuntimeException(ex);
@@ -60,7 +83,7 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
 
   /**
    * Implement Component Interface.
-   *
+   * init last finished window information during setup, get the lastWindowId for the last completed windowId for the specific operatorId
    * @param context
    */
   @Override
@@ -72,6 +95,9 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
 
   /**
    * Implement Operator Interface.
+   * compare windowId with lastWindowId, if it is less, it is out of date window, thus ignore it.
+   * If it is the same as windowId, then it is the previously partially done window, then remove all the rows of this window, and reprocess all the tuples of this window
+   * if it is greater than windowId, then process it.
    */
   @Override
   public void beginWindow(long windowId)
@@ -83,7 +109,7 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
     else if (windowId == lastWindowId) {
       ignoreWindow = false;
       try {
-        String stmt = "DELETE FROM " + getTableName() + " WHERE " + sWindowId + "=" + windowId;
+        String stmt = "DELETE FROM " + getTableName() + " WHERE " + windowIdColumnName + "=" + windowId;
         statement.execute(stmt);
         logger.debug(stmt);
       }

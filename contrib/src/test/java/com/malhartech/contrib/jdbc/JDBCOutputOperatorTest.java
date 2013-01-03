@@ -205,9 +205,9 @@ public class JDBCOutputOperatorTest
       oper.setDbDriver("com.mysql.jdbc.Driver");
       oper.setBatchSize(100);
 
-      oper.setsWindowId("winid");
-      oper.setsOperatorId("operatorid");
-      oper.setsApplicationId("appid");
+      oper.setWindowIdColumnName("winid");
+      oper.setOperatorIdColumnName("operatorid");
+      oper.setApplicationIdColumnName("appid");
     }
 
     public void runTest(String opId, String[] mapping, boolean isHashMap)
