@@ -154,11 +154,6 @@ public abstract class MongoDBOutputOperator<T> implements Operator
     }
   }
 
-  /* 8B windowId | 4B tupleId */ // does not have operatorId, should not use
-  public void queryFunction0(ByteBuffer bb, StringBuilder high, StringBuilder low)
-  {
-  }
-
   /* 8B windowId | 1B opratorId | 3B tupleId */
   public void queryFunction1(ByteBuffer bb, StringBuilder high, StringBuilder low)
   {

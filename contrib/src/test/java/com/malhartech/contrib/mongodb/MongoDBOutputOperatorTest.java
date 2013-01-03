@@ -23,7 +23,7 @@ public class MongoDBOutputOperatorTest
   public String[] hashMapping1 = new String[columnNum];
   public String[] arrayMapping1 = new String[columnNum];
   public final static int maxTuple = 20;
-  public final static int columnNum = 3;
+  public final static int columnNum = 5;
 
   public void buildDataset()
   {
@@ -36,14 +36,14 @@ public class MongoDBOutputOperatorTest
     hashMapping1[0] = "prop1:t1.col1:INT";
     hashMapping1[1] = "prop3:t1.col3:STRING";
     hashMapping1[2] = "prop2:t1.col2:DATE";
-//    hashMapping1[3] = "prop5:t1.col5:STRING";
-//    hashMapping1[4] = "prop4:t1.col4:INT";
+    hashMapping1[3] = "prop1:t2.col1:STRING";
+    hashMapping1[4] = "prop2:t2.col2:INT";
 
     arrayMapping1[0] = "t1.col1:INT";
     arrayMapping1[1] = "t1.col3:STRING";
     arrayMapping1[2] = "t1.col2:DATE";
-//    arrayMapping1[3] = "t1.col5:STRING";
-//    arrayMapping1[4] = "t1.col4:INT";
+    arrayMapping1[3] = "t2.col2:STRING";
+    arrayMapping1[4] = "t2.col1:INT";
 
   }
 
@@ -83,13 +83,14 @@ public class MongoDBOutputOperatorTest
   }
 
   @Test
-  public void MongoDBOutputOperatorTest1()
+  public void MongoDBHashMapOutputOperatorTest()
   {
     buildDataset();
 
     MongoDBHashMapOutputOperator oper = new MongoDBHashMapOutputOperator();
 
     oper.addTable("t1");
+    oper.addTable("t2");
     oper.setBatchSize(100);
     oper.setDbUrl("localhost");
     oper.setDataBase("test");
@@ -120,5 +121,12 @@ public class MongoDBOutputOperatorTest
     readDB(oper);
 
     oper.teardown();
+  }
+
+  @Test
+  public void MongoDBArrayListOutputOperatorTest() {
+    buildDataset();
+    MongoDBArrayListOutputOperator oper = new MongoDBArrayListOutputOperator();
+
   }
 }
