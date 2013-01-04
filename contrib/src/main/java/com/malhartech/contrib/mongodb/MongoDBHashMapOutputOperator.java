@@ -5,9 +5,12 @@
 package com.malhartech.contrib.mongodb;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.bson.types.ObjectId;
 
@@ -20,10 +23,22 @@ public class MongoDBHashMapOutputOperator<T> extends MongoDBOutputOperator<HashM
   @Override
   public void processTuple(HashMap<String, T> tuple)
   {
+    if (windowId > lastWindowId) {
+      lastWindowId = windowId;
+      BasicDBObject doc1 = new BasicDBObject();
+//      doc1.put(applicationIdName, 0);
+      doc1.put(operatorIdColumnName, operatorId);
+      BasicDBObject doc2 = new BasicDBObject();
+//      doc2.put(applicationIdName, 0);
+      doc2.put(operatorIdColumnName, operatorId);
+      doc2.put(windowIdColumnName, windowId);
+      maxWindowCollection.update(doc1, doc2);
+    }
+
     HashMap<String, BasicDBObject> tableDoc = new HashMap<String, BasicDBObject>();
+      BasicDBObject doc=null;
     for (Map.Entry<String, T> entry : tuple.entrySet()) {
-      BasicDBObject doc;
-      String table = propTable.get(entry.getKey());
+      String table = propTableMap.get(entry.getKey());
       if ((doc = tableDoc.get(table)) == null) {
         doc = new BasicDBObject();
         doc.put(entry.getKey(), entry.getValue());
@@ -33,7 +48,6 @@ public class MongoDBHashMapOutputOperator<T> extends MongoDBOutputOperator<HashM
       }
       tableDoc.put(table, doc);
     }
-//    doc.put(applicationIdName, 0);
 
     ByteBuffer bb = ByteBuffer.allocate(12);
     bb.order(ByteOrder.BIG_ENDIAN);
@@ -56,76 +70,20 @@ public class MongoDBHashMapOutputOperator<T> extends MongoDBOutputOperator<HashM
     }
 
     for (Map.Entry<String, BasicDBObject> entry : tableDoc.entrySet()) {
-      BasicDBObject doc = entry.getValue();
+      String table = entry.getKey();
+      doc = entry.getValue();
       doc.put("_id", new ObjectId(sb.toString()));
-      db.getCollection(entry.getKey()).insert(doc);
+      List<DBObject> docList = tableDocumentList.get(table);
+      docList.add(doc);
+      if (tupleId % batchSize == 0) { // do batch insert here
+        db.getCollection(table).insert(docList);
+        tableDocumentList.put(table, new ArrayList<DBObject>());
+      }
+      else {
+        tableDocumentList.put(table, docList);
+      }
     }
-//    doc.put("_id", new ObjectId(sb.toString()));
-//    doc.put(operatorIdName, operatorId);
-//    doc.put(windowIdName, windowId);
 
-//    db.getCollection(table).insert(doc);
-
-    if (windowId > lastWindowId) {
-      lastWindowId = windowId;
-      BasicDBObject doc1 = new BasicDBObject();
-//      doc1.put(applicationIdName, 0);
-      doc1.put(operatorIdName, operatorId);
-      BasicDBObject doc2 = new BasicDBObject();
-//      doc2.put(applicationIdName, 0);
-      doc2.put(operatorIdName, operatorId);
-      doc2.put(windowIdName, windowId);
-      maxWindowCollection.update(doc1, doc2);
-
-    }
-    tupleId++;
-  }
-
-  /*  8B windowId | 1B operatorId | 3B tupleId */
-  void insertFunction1(ByteBuffer bb)
-  {
-    bb.putLong(windowId);
-    byte oid = (byte)Integer.parseInt(operatorId);
-    bb.put(oid);
-    for (int i = 0; i < 3; i++) {
-      byte num = (byte)(tupleId >> 8 * (2 - i));
-      bb.put(num);
-    }
-  }
-
-  /* 4B baseSec | 3B operatorId | 2B windowId | 3B tupleId */
-  void insertFunction2(ByteBuffer bb)
-  {
-    int baseSec = (int)(windowId >> 32);
-    bb.putInt(baseSec);
-    Integer operId = Integer.parseInt(operatorId);
-    for (int i = 0; i < 3; i++) {
-      byte num = (byte)(operId >> 8 * (2 - i));
-      bb.put(num);
-    }
-    bb.putShort((short)(windowId & 0xffff));
-    for (int i = 0; i < 3; i++) {
-      byte num = (byte)(tupleId >> 8 * (2 - i));
-      bb.put(num);
-    }
-  }
-
-  /* 4B baseSec | 2B windowId | 3B operatorId | 3B tupleId */
-  void insertFunction3(ByteBuffer bb)
-  {
-    int baseSec = (int)(windowId >> 32);
-    bb.putInt(baseSec);
-    short winId = (short)(windowId & 0xffff);
-    bb.putShort(winId);
-    Integer operId = Integer.parseInt(operatorId);
-    for (int i = 0; i < 3; i++) {
-      byte num = (byte)(operId >> 8 * (2 - i));
-      bb.put(num);
-    }
-    for (int i = 0; i < 3; i++) {
-      byte num = (byte)(tupleId >> 8 * (2 - i));
-      bb.put(num);
-    }
-//    System.out.println("sec:" + baseSec + " winId:" + winId + " tupleId:" + tupleId);
+    ++tupleId;
   }
 }

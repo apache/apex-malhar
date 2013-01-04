@@ -17,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import javax.validation.constraints.Min;
@@ -26,6 +27,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * MongoDB output adapter operator, which send insertion data to nontransaction database.<p><br>
+ *
+ * <br>
+ * Ports:<br>
+ * <b>Input</b>: Can have one input port <br>
+ * <b>Output</b>: no output port<br>
+ * <br>
+ * Properties:<br>
+ * <b>hostName</b>:the host name of the database to connect to<br>
+ * <b>database</b>:the database to connect to <br>
+ * <b></b>: <br>
+ * <br>
+ * Compile time checks:<br>
+ * None<br>
+ * <br>
+ * Run time checks:<br>
+ * Nontransaction database requires additional operatorId, windowId, applicationId column,<br>
+ * to store the last committed windowId information for recovery purpose<br>
+ * user needs to create the additional columns and assign the column names as windowIdColumnName,operatorIdColumnName,applicationIdColumnName<br>
+ * <br>
+ * <b>Benchmarks</b>:
+ * <br>
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
@@ -34,16 +57,17 @@ public abstract class MongoDBOutputOperator<T> implements Operator
   private static final Logger logger = LoggerFactory.getLogger(MongoDBOutputOperator.class);
   private static final int DEFAULT_BATCH_SIZE = 1000;
   @NotNull
-  private String dbUrl;
+  private String hostName;
   private String dataBase;
   @Min(1)
-  private long batchSize = DEFAULT_BATCH_SIZE;
+  protected long batchSize = DEFAULT_BATCH_SIZE;
   private String userName;
   private String passWord;
   private transient MongoClient mongoClient;
   protected transient DB db;
-  protected transient HashMap<String, String> propTable = new HashMap<String, String>();  // prop-table mapping for HashMap
-  protected transient ArrayList<String> tableNames = new ArrayList<String>();
+  protected transient HashMap<String, String> propTableMap = new HashMap<String, String>();  // prop-table mapping for HashMap
+  protected transient ArrayList<String> tableList = new ArrayList<String>();
+  protected transient HashMap<String, List<DBObject>> tableDocumentList = new HashMap<String, List<DBObject>>();
   private String maxWindowTable;
   protected transient DBCollection maxWindowCollection;
   protected transient long windowId;
@@ -52,8 +76,8 @@ public abstract class MongoDBOutputOperator<T> implements Operator
   protected transient long lastWindowId;
   protected transient boolean ignoreWindow;
   protected transient int tupleId;
-  protected String windowIdName;
-  protected String operatorIdName;
+  protected String windowIdColumnName;
+  protected String operatorIdColumnName;
 //  protected String applicationIdName;
   protected int queryFunction;
 
@@ -92,18 +116,18 @@ public abstract class MongoDBOutputOperator<T> implements Operator
   {
     maxWindowCollection = db.getCollection(maxWindowTable);
     BasicDBObject query = new BasicDBObject();
-    query.put(operatorIdName, operatorId);
+    query.put(operatorIdColumnName, operatorId);
 //    query.put(applicationIdName, "0");
-    DBCursor cursor = maxWindowCollection.find();
+    DBCursor cursor = maxWindowCollection.find(query);
     if (cursor.hasNext()) {
-      Object obj = cursor.next().get(windowIdName);
+      Object obj = cursor.next().get(windowIdColumnName);
       lastWindowId = (Long)obj;
     }
     else {
       BasicDBObject doc = new BasicDBObject();
-      doc.put(windowIdName, (long)0);
+      doc.put(windowIdColumnName, (long)0);
 //      doc.put(applicationIdName, 0);
-      doc.put(operatorIdName, operatorId);
+      doc.put(operatorIdColumnName, operatorId);
       maxWindowCollection.save(doc);
     }
 
@@ -117,15 +141,15 @@ public abstract class MongoDBOutputOperator<T> implements Operator
   public void beginWindow(long windowId)
   {
     this.windowId = windowId;
-    tupleId = 0;
+    tupleId = 1;
     if (windowId < lastWindowId) {
       ignoreWindow = true;
     }
     else if (windowId == lastWindowId) {
       ignoreWindow = false;
       BasicDBObject query = new BasicDBObject();
-//      query.put(windowIdName, windowId);
-//      query.put(operatorIdName, operatorId);
+//      query.put(windowIdColumnName, windowId);
+//      query.put(operatorIdColumnName, operatorId);
       ByteBuffer bb = ByteBuffer.allocate(12);
       bb.order(ByteOrder.BIG_ENDIAN);
       StringBuilder low = new StringBuilder();
@@ -145,13 +169,57 @@ public abstract class MongoDBOutputOperator<T> implements Operator
 
       query.put("_id", new BasicDBObject("$gte", new ObjectId(low.toString())).append("$lte", new ObjectId(high.toString())));
 //      query.put(applicationIdName, 0);
-      for (String table : tableNames) {
+      for (String table : tableList) {
         db.getCollection(table).remove(query);
       }
     }
     else {
       ignoreWindow = false;
     }
+  }
+
+
+  @Override
+  public void endWindow()
+  {
+    if (ignoreWindow) {
+      return;
+    }
+    
+    for( String table : tableList ) {
+      List<DBObject> docList = tableDocumentList.get(table);
+      db.getCollection(table).insert(docList);
+    }
+  }
+
+  @Override
+  public void setup(OperatorContext context)
+  {
+    operatorId = context.getId();
+    try {
+      mongoClient = new MongoClient(hostName);
+      db = mongoClient.getDB(dataBase);
+      if (userName != null && passWord != null) {
+        db.authenticate(userName, passWord.toCharArray());
+      }
+      initLastWindowInfo();
+      buildMapping();
+    }
+    catch (UnknownHostException ex) {
+      logger.debug(ex.toString());
+    }
+  }
+
+  public void buildMapping()
+  {
+    for (String table : tableList) {
+      tableDocumentList.put(table, new ArrayList<DBObject>());
+    }
+  }
+
+  @Override
+  public void teardown()
+  {
   }
 
   /* 8B windowId | 1B opratorId | 3B tupleId */
@@ -164,6 +232,7 @@ public abstract class MongoDBOutputOperator<T> implements Operator
     lowbb.put((byte)0);
     lowbb.put((byte)0);
     lowbb.put((byte)0);
+//    String str = Hex.encodeHexString(lowbb.array());
     for (byte b : lowbb.array()) {
       low.append(String.format("02x", b & 0xff));
     }
@@ -235,35 +304,51 @@ public abstract class MongoDBOutputOperator<T> implements Operator
     }
   }
 
-  @Override
-  public void endWindow()
+  /*  8B windowId | 1B operatorId | 3B tupleId */
+  void insertFunction1(ByteBuffer bb)
   {
-  }
-
-  @Override
-  public void setup(OperatorContext context)
-  {
-    operatorId = context.getId();
-    try {
-      mongoClient = new MongoClient(dbUrl);
-      db = mongoClient.getDB(dataBase);
-      if (userName != null && passWord != null) {
-        db.authenticate(userName, passWord.toCharArray());
-      }
-      initLastWindowInfo();
-    }
-    catch (UnknownHostException ex) {
-      logger.debug(ex.toString());
+    bb.putLong(windowId);
+    byte oid = (byte)Integer.parseInt(operatorId);
+    bb.put(oid);
+    for (int i = 0; i < 3; i++) {
+      byte num = (byte)(tupleId >> 8 * (2 - i));
+      bb.put(num);
     }
   }
 
-  public void buildMapping()
+  /* 4B baseSec | 3B operatorId | 2B windowId | 3B tupleId */
+  void insertFunction2(ByteBuffer bb)
   {
+    int baseSec = (int)(windowId >> 32);
+    bb.putInt(baseSec);
+    Integer operId = Integer.parseInt(operatorId);
+    for (int i = 0; i < 3; i++) {
+      byte num = (byte)(operId >> 8 * (2 - i));
+      bb.put(num);
+    }
+    bb.putShort((short)(windowId & 0xffff));
+    for (int i = 0; i < 3; i++) {
+      byte num = (byte)(tupleId >> 8 * (2 - i));
+      bb.put(num);
+    }
   }
 
-  @Override
-  public void teardown()
+  /* 4B baseSec | 2B windowId | 3B operatorId | 3B tupleId */
+  void insertFunction3(ByteBuffer bb)
   {
+    int baseSec = (int)(windowId >> 32);
+    bb.putInt(baseSec);
+    short winId = (short)(windowId & 0xffff);
+    bb.putShort(winId);
+    Integer operId = Integer.parseInt(operatorId);
+    for (int i = 0; i < 3; i++) {
+      byte num = (byte)(operId >> 8 * (2 - i));
+      bb.put(num);
+    }
+    for (int i = 0; i < 3; i++) {
+      byte num = (byte)(tupleId >> 8 * (2 - i));
+      bb.put(num);
+    }
   }
 
   public String getUserName()
@@ -288,12 +373,12 @@ public abstract class MongoDBOutputOperator<T> implements Operator
 
   public void addTable(String table)
   {
-    tableNames.add(table);
+    tableList.add(table);
   }
 
-  public ArrayList<String> getTableNames()
+  public ArrayList<String> getTableList()
   {
-    return tableNames;
+    return tableList;
   }
 
   public long getBatchSize()
@@ -316,24 +401,24 @@ public abstract class MongoDBOutputOperator<T> implements Operator
     this.maxWindowTable = maxWindowTable;
   }
 
-  public String getWindowIdName()
+  public String getWindowIdColumnName()
   {
-    return windowIdName;
+    return windowIdColumnName;
   }
 
-  public void setWindowIdName(String windowIdName)
+  public void setWindowIdColumnName(String windowIdColumnName)
   {
-    this.windowIdName = windowIdName;
+    this.windowIdColumnName = windowIdColumnName;
   }
 
-  public String getOperatorIdName()
+  public String getOperatorIdColumnName()
   {
-    return operatorIdName;
+    return operatorIdColumnName;
   }
 
-  public void setOperatorIdName(String operatorIdName)
+  public void setOperatorIdColumnName(String operatorIdColumnName)
   {
-    this.operatorIdName = operatorIdName;
+    this.operatorIdColumnName = operatorIdColumnName;
   }
 
 //  public String getApplicationIdName()
@@ -355,14 +440,14 @@ public abstract class MongoDBOutputOperator<T> implements Operator
     this.dataBase = dataBase;
   }
 
-  public String getDbUrl()
+  public String getHostName()
   {
-    return dbUrl;
+    return hostName;
   }
 
-  public void setDbUrl(String dbUrl)
+  public void setHostName(String dbUrl)
   {
-    this.dbUrl = dbUrl;
+    this.hostName = dbUrl;
   }
 
   public long getLastWindowId()

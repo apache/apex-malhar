@@ -7,8 +7,10 @@ package com.malhartech.contrib.mongodb;
 import com.malhartech.bufferserver.util.Codec;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +38,8 @@ public class MongoDBOutputOperatorTest
     hashMapping1[0] = "prop1:t1.col1:INT";
     hashMapping1[1] = "prop3:t1.col3:STRING";
     hashMapping1[2] = "prop2:t1.col2:DATE";
-    hashMapping1[3] = "prop1:t2.col1:STRING";
-    hashMapping1[4] = "prop2:t2.col2:INT";
+    hashMapping1[3] = "prop4:t2.col1:STRING";
+    hashMapping1[4] = "prop5:t2.col2:INT";
 
     arrayMapping1[0] = "t1.col1:INT";
     arrayMapping1[1] = "t1.col3:STRING";
@@ -66,14 +68,38 @@ public class MongoDBOutputOperatorTest
       else if (type.equals("DATE")) {
         hm.put(prop, new Date());
       }
-      oper.propTable.put(prop, table);
+      oper.propTableMap.put(prop, table);
     }
     return hm;
   }
 
-  public void readDB(MongoDBHashMapOutputOperator oper)
+  public ArrayList<Object> generateArrayListData(int j, MongoDBArrayListOutputOperator oper) {
+    ArrayList<Object> al = new ArrayList<Object>();
+    for( int i=0; i< columnNum; i++ ) {
+      String[] tokens = arrayMapping1[i].split("[:]");
+      String[] subtok = tokens[0].split("[.]");
+      String table = subtok[0];
+      oper.addTableMapping(table);
+      String prop = subtok[1];
+      oper.addProp(prop);
+      String type = tokens[1];
+      if (type.contains("INT")) {
+        al.add(j*columnNum+i);
+      }
+      else if (type.equals("STRING")) {
+        al.add(String.valueOf(j*columnNum+i));
+      }
+      else if (type.equals("DATE")) {
+        al.add(new Date());
+      }
+
+    }
+    return al;
+  }
+
+  public void readDB(MongoDBOutputOperator oper)
   {
-    for (Object o : oper.getTableNames()) {
+    for (Object o : oper.getTableList()) {
       String table = (String)o;
       DBCursor cursor = oper.db.getCollection(table).find();
       while (cursor.hasNext()) {
@@ -81,7 +107,7 @@ public class MongoDBOutputOperatorTest
       }
     }
   }
-
+//  @Ignore
   @Test
   public void MongoDBHashMapOutputOperatorTest()
   {
@@ -92,22 +118,21 @@ public class MongoDBOutputOperatorTest
     oper.addTable("t1");
     oper.addTable("t2");
     oper.setBatchSize(100);
-    oper.setDbUrl("localhost");
+    oper.setHostName("localhost");
     oper.setDataBase("test");
     oper.setUserName("test");
     oper.setPassWord("123");
-    oper.setWindowIdName("winid");
-    oper.setOperatorIdName("operatorid");
+    oper.setWindowIdColumnName("winid");
+    oper.setOperatorIdColumnName("operatorid");
     oper.setMaxWindowTable("maxWindowTable");
     oper.setQueryFunction(1);
 
     oper.setup(new com.malhartech.engine.OperatorContext("1", null, null));
-    for (Object o : oper.getTableNames()) {
+    for (Object o : oper.getTableList()) {
       String table = (String)o;
       oper.db.getCollection(table).drop();
     }
 
-//    oper.beginWindow(oper.getLastWindowId());
     oper.beginWindow(oper.getLastWindowId() + 1);
     logger.debug("beginwindow {}", Codec.getStringWindowId(oper.getLastWindowId() + 1));
 
@@ -122,11 +147,41 @@ public class MongoDBOutputOperatorTest
 
     oper.teardown();
   }
-
+  @Ignore
   @Test
   public void MongoDBArrayListOutputOperatorTest() {
     buildDataset();
     MongoDBArrayListOutputOperator oper = new MongoDBArrayListOutputOperator();
 
+    oper.addTable("t1");
+    oper.addTable("t2");
+    oper.setBatchSize(3);
+    oper.setHostName("localhost");
+    oper.setDataBase("test");
+    oper.setUserName("test");
+    oper.setPassWord("123");
+    oper.setWindowIdColumnName("winid");
+    oper.setOperatorIdColumnName("operatorid");
+    oper.setMaxWindowTable("maxWindowTable");
+    oper.setQueryFunction(1);
+
+    oper.setup(new com.malhartech.engine.OperatorContext("2", null, null));
+    for (Object o : oper.getTableList()) {
+      String table = (String)o;
+      oper.db.getCollection(table).drop();
+    }
+
+    oper.beginWindow(oper.getLastWindowId() + 1);
+    logger.debug("beginwindow {}", Codec.getStringWindowId(oper.getLastWindowId() + 1));
+
+    for (int i = 0; i < maxTuple; ++i) {
+      ArrayList<Object> al = generateArrayListData(i, oper);
+      oper.inputPort.process(al);
+
+    }
+    oper.endWindow();
+    readDB(oper);
+
+    oper.teardown();
   }
 }
