@@ -79,9 +79,7 @@ public class MongoDBOutputOperatorTest
       String[] tokens = arrayMapping1[i].split("[:]");
       String[] subtok = tokens[0].split("[.]");
       String table = subtok[0];
-      oper.addTableMapping(table);
       String prop = subtok[1];
-      oper.addProp(prop);
       String type = tokens[1];
       if (type.contains("INT")) {
         al.add(j*columnNum+i);
@@ -115,9 +113,7 @@ public class MongoDBOutputOperatorTest
 
     MongoDBHashMapOutputOperator oper = new MongoDBHashMapOutputOperator();
 
-    oper.addTable("t1");
-    oper.addTable("t2");
-    oper.setBatchSize(100);
+    oper.setBatchSize(3);
     oper.setHostName("localhost");
     oper.setDataBase("test");
     oper.setUserName("test");
@@ -126,6 +122,7 @@ public class MongoDBOutputOperatorTest
     oper.setOperatorIdColumnName("operatorid");
     oper.setMaxWindowTable("maxWindowTable");
     oper.setQueryFunction(1);
+    oper.setColumnMapping(hashMapping1);
 
     oper.setup(new com.malhartech.engine.OperatorContext("1", null, null));
     for (Object o : oper.getTableList()) {
@@ -153,8 +150,6 @@ public class MongoDBOutputOperatorTest
     buildDataset();
     MongoDBArrayListOutputOperator oper = new MongoDBArrayListOutputOperator();
 
-    oper.addTable("t1");
-    oper.addTable("t2");
     oper.setBatchSize(3);
     oper.setHostName("localhost");
     oper.setDataBase("test");
@@ -164,6 +159,7 @@ public class MongoDBOutputOperatorTest
     oper.setOperatorIdColumnName("operatorid");
     oper.setMaxWindowTable("maxWindowTable");
     oper.setQueryFunction(1);
+    oper.setColumnMapping(arrayMapping1);
 
     oper.setup(new com.malhartech.engine.OperatorContext("2", null, null));
     for (Object o : oper.getTableList()) {

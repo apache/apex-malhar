@@ -8,82 +8,82 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.bson.types.ObjectId;
 
 /**
+ * MongoDB HashMap output adapter operator, which send insertion data to database.<p><br>
+ *
+ * <br>
+ * Ports:<br>
+ * <b>Input</b>: Can have one input port, derived from base class <br>
+ * <b>Output</b>: no output port<br>
+ * <br>
+ * Properties:<br>
+ * <b>propTableMap</b>:prop-Table mapping, used for insertion tuple mapping<br>
+ * <b>propColumnMap</b>:prop-Column mapping, used for insertion tuple mapping<br>
+ * <br>
+ * Compile time checks:<br>
+ * None<br>
+ * <br>
+ * Run time checks:<br>
+ * None<br>
+ * <br>
+ * <b>Benchmarks</b>:
+ * <br>
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
 public class MongoDBHashMapOutputOperator<T> extends MongoDBOutputOperator<HashMap<String, T>>
 {
+  public transient HashMap<String, String> propTableMap = new HashMap<String, String>();  // prop-table mapping for HashMap
+  public transient HashMap<String, String> propColumnMap = new HashMap<String, String>();  // prop-column mapping for HashMap
+
+  /**
+   * set Column mapping information at operator creation time
+   * @param mapping
+   */
+  @Override
+  public void setColumnMapping(String[] mapping)
+  {
+    for (String str : mapping) {
+      String[] tokens = str.split("[:]");
+      String[] subtok = tokens[1].split("[.]");
+      String table = subtok[0];
+      String column = subtok[1];
+      String prop = tokens[0];
+      String type = tokens[2];
+      if (tableList.contains(table) == false) {
+        tableList.add(table);
+      }
+      propTableMap.put(prop, table);
+      propColumnMap.put(prop, column);
+    }
+  }
+
+  /**
+   * process tuple based on HashMap tuple
+   * @param tuple
+   */
   @Override
   public void processTuple(HashMap<String, T> tuple)
   {
-    if (windowId > lastWindowId) {
-      lastWindowId = windowId;
-      BasicDBObject doc1 = new BasicDBObject();
-//      doc1.put(applicationIdName, 0);
-      doc1.put(operatorIdColumnName, operatorId);
-      BasicDBObject doc2 = new BasicDBObject();
-//      doc2.put(applicationIdName, 0);
-      doc2.put(operatorIdColumnName, operatorId);
-      doc2.put(windowIdColumnName, windowId);
-      maxWindowCollection.update(doc1, doc2);
-    }
-
-    HashMap<String, BasicDBObject> tableDoc = new HashMap<String, BasicDBObject>();
-      BasicDBObject doc=null;
+    tableToDocument.clear();
+    BasicDBObject doc = null;
     for (Map.Entry<String, T> entry : tuple.entrySet()) {
-      String table = propTableMap.get(entry.getKey());
-      if ((doc = tableDoc.get(table)) == null) {
+      String prop = entry.getKey();
+      String table = propTableMap.get(prop);
+      String column = propColumnMap.get(prop);
+      if ((doc = tableToDocument.get(table)) == null) {
         doc = new BasicDBObject();
-        doc.put(entry.getKey(), entry.getValue());
+        doc.put(column, entry.getValue());
       }
       else {
-        doc.put(entry.getKey(), entry.getValue());
+        doc.put(column, entry.getValue());
       }
-      tableDoc.put(table, doc);
+      tableToDocument.put(table, doc);
     }
 
-    ByteBuffer bb = ByteBuffer.allocate(12);
-    bb.order(ByteOrder.BIG_ENDIAN);
-    if (queryFunction == 1) {
-      insertFunction1(bb);
-    }
-    else if (queryFunction == 2) {
-      insertFunction2(bb);
-    }
-    else if (queryFunction == 3) {
-      insertFunction3(bb);
-    }
-    else {
-        throw new RuntimeException("unknown insertFunction type:" + queryFunction);
-    }
-//    String str = Hex.encodeHexString(bb.array());
-    StringBuilder sb = new StringBuilder();
-    for (byte b : bb.array()) {
-      sb.append(String.format("%02x", b & 0xff));
-    }
-
-    for (Map.Entry<String, BasicDBObject> entry : tableDoc.entrySet()) {
-      String table = entry.getKey();
-      doc = entry.getValue();
-      doc.put("_id", new ObjectId(sb.toString()));
-      List<DBObject> docList = tableDocumentList.get(table);
-      docList.add(doc);
-      if (tupleId % batchSize == 0) { // do batch insert here
-        db.getCollection(table).insert(docList);
-        tableDocumentList.put(table, new ArrayList<DBObject>());
-      }
-      else {
-        tableDocumentList.put(table, docList);
-      }
-    }
-
-    ++tupleId;
+    processTupleCommon();
   }
 }

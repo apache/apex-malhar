@@ -35,18 +35,37 @@ import org.slf4j.LoggerFactory;
  * <b>Output</b>: no output port<br>
  * <br>
  * Properties:<br>
- * <b>hostName</b>:the host name of the database to connect to<br>
- * <b>database</b>:the database to connect to <br>
- * <b></b>: <br>
+ * <b>hostName</b>:the host name of the database to connect to, not null<br>
+ * <b>dataBase</b>:the database to connect to<br>
+ * <b>batchSize</b>:size for each batch insert, default value is 1000<br>
+ * <b>userName</b>:userName for connection to database<br>
+ * <b>passWord</b>:password for connection to database<br>
+ * <b>mongoClient</b>:created when connected to database<br>
+ * <b>db</b>:created when connected to database<br>
+ * <b>tableList</b>: the list of all the tables of the mapping<br>
+ * <b>tableToDocument</b>:each tuple corresponds to one document for one collection to be inserted<br>
+ * <b>tableToDocumentList</b>:for bulk insert, each table has a document list to insert. This is table and document list map <br>
+ * <b>maxWindowTable</b>:the table to save the most recent inserted windowId, operatorId information for recovery use<br>
+ * <b>maxWindowCollection</b>:mongoDB collection of the maxWindowTable<br>
+ * <b>windowId</b>:Id of current window<br>
+ * <b>operatorId</b>:Id of the operator<br>
+ * <b>lastWindowId</b>:last inserted windowId, is obtained at setup from maxWindowTable with specific operatorId<br>
+ * <b>ignoreWindow</b>:the flag to indicate ignoring out of date window <br>
+ * <b>tupleId</b>:the Id of the tuple, incrementing at each tuple process, start from 1 at beginWindow()<br>
+ * <b>windowIdColumnName</b>:the name of the windowId column in maxWindowTable, should be set by the user<br>
+ * <b>operatorIdColumnName</b>:the name of the operatorId column in maxWindowTable, should be set by the user<br>
+ * <b>queryFunction</b>:corresponding to the option for the ObjectId of 12 bytes format saving. The windowId, tupleId, operatorId of each tuple are saved in each collection as the column ObjectId for recovery<br>
+ * It Currently has 3 format for the ObjectId. When the operator recovers, it will remove the document which has the same windowId, operatorId as maxWindowTable in the collections, and insert the documents again<br>
+ * <b></b>:<br>
  * <br>
  * Compile time checks:<br>
  * None<br>
  * <br>
  * Run time checks:<br>
- * Nontransaction database requires additional operatorId, windowId, applicationId column,<br>
- * to store the last committed windowId information for recovery purpose<br>
- * user needs to create the additional columns and assign the column names as windowIdColumnName,operatorIdColumnName,applicationIdColumnName<br>
- * <br>
+ * hostName
+ * batchSize <br>
+ * <b>data type:</br>the insertion data can support all the Objects mongoDB supports<br>
+ *
  * <b>Benchmarks</b>:
  * <br>
  *
@@ -65,9 +84,9 @@ public abstract class MongoDBOutputOperator<T> implements Operator
   private String passWord;
   private transient MongoClient mongoClient;
   protected transient DB db;
-  protected transient HashMap<String, String> propTableMap = new HashMap<String, String>();  // prop-table mapping for HashMap
-  protected transient ArrayList<String> tableList = new ArrayList<String>();
-  protected transient HashMap<String, List<DBObject>> tableDocumentList = new HashMap<String, List<DBObject>>();
+  protected transient ArrayList<String> tableList = new ArrayList<String>(); // all the tables in the mapping
+  protected transient HashMap<String, BasicDBObject> tableToDocument = new HashMap<String, BasicDBObject>(); // each table has one document to insert
+  protected transient HashMap<String, List<DBObject>> tableToDocumentList = new HashMap<String, List<DBObject>>();
   private String maxWindowTable;
   protected transient DBCollection maxWindowCollection;
   protected transient long windowId;
@@ -104,7 +123,6 @@ public abstract class MongoDBOutputOperator<T> implements Operator
 
       try {
         processTuple(tuple);
-
       }
       catch (Exception ex) {
         throw new RuntimeException("Exception during process tuple", ex);
@@ -112,6 +130,10 @@ public abstract class MongoDBOutputOperator<T> implements Operator
     }
   };
 
+  /**
+   * init last completed windowId information with operatorId, read from maxWindowTable.
+   * If the table is empty, insert a default value document
+   */
   public void initLastWindowInfo()
   {
     maxWindowCollection = db.getCollection(maxWindowTable);
@@ -136,6 +158,11 @@ public abstract class MongoDBOutputOperator<T> implements Operator
 
   /**
    * Implement Operator Interface.
+   * If windowId is less than the last completed windowId, then ignore the window.
+   * If windowId is equal to the last completed windowId, then remove the documents with same windowId of the operatorId, and insert the documents later
+   * If windowId is greater then the last completed windowId, then process the window
+   *
+   * @param windowId
    */
   @Override
   public void beginWindow(long windowId)
@@ -178,20 +205,34 @@ public abstract class MongoDBOutputOperator<T> implements Operator
     }
   }
 
-
+  /**
+   * At endWindow, if not ignoring window, then insert bulk document list
+   */
   @Override
   public void endWindow()
   {
     if (ignoreWindow) {
       return;
     }
-    
-    for( String table : tableList ) {
-      List<DBObject> docList = tableDocumentList.get(table);
+
+    BasicDBObject where = new BasicDBObject(); // update maxWindowTable for windowId information
+    where.put(operatorIdColumnName, operatorId);
+    BasicDBObject value = new BasicDBObject();
+    value.put(operatorIdColumnName, operatorId);
+    value.put(windowIdColumnName, windowId);
+    maxWindowCollection.update(where, value);
+
+    for (String table : tableList) {
+      List<DBObject> docList = tableToDocumentList.get(table);
       db.getCollection(table).insert(docList);
     }
   }
 
+  /**
+   * At setup time, init last completed windowId from maxWindowTable
+   *
+   * @param context
+   */
   @Override
   public void setup(OperatorContext context)
   {
@@ -203,26 +244,76 @@ public abstract class MongoDBOutputOperator<T> implements Operator
         db.authenticate(userName, passWord.toCharArray());
       }
       initLastWindowInfo();
-      buildMapping();
+      for (String table : tableList) {
+        tableToDocumentList.put(table, new ArrayList<DBObject>());
+        tableToDocument.put(table, new BasicDBObject());
+      }
     }
     catch (UnknownHostException ex) {
       logger.debug(ex.toString());
     }
   }
 
-  public void buildMapping()
-  {
-    for (String table : tableList) {
-      tableDocumentList.put(table, new ArrayList<DBObject>());
-    }
-  }
+  abstract public void setColumnMapping(String[] mapping);
 
   @Override
   public void teardown()
   {
   }
 
-  /* 8B windowId | 1B opratorId | 3B tupleId */
+  /**
+   * shared processTuple for HashMap and ArrayList output Operator.
+   */
+  public void processTupleCommon()
+  {
+    ByteBuffer bb = ByteBuffer.allocate(12);
+    bb.order(ByteOrder.BIG_ENDIAN);
+    if (queryFunction == 1) {
+      insertFunction1(bb);
+    }
+    else if (queryFunction == 2) {
+      insertFunction2(bb);
+    }
+    else if (queryFunction == 3) {
+      insertFunction3(bb);
+    }
+    else {
+      throw new RuntimeException("unknown insertFunction type:" + queryFunction);
+    }
+//    String str = Hex.encodeHexString(bb.array());
+    StringBuilder objStr = new StringBuilder();
+    for (byte b : bb.array()) {
+      objStr.append(String.format("%02x", b & 0xff));
+    }
+
+    BasicDBObject doc = null;
+    for (Map.Entry<String, BasicDBObject> entry : tableToDocument.entrySet()) {
+      String table = entry.getKey();
+      doc = entry.getValue();
+      doc.put("_id", new ObjectId(objStr.toString()));
+      List<DBObject> docList = tableToDocumentList.get(table);
+      docList.add(doc);
+      if (tupleId % batchSize == 0) { // do batch insert here
+        BasicDBObject where = new BasicDBObject(); // update maxWindowTable for windowId information
+        where.put(operatorIdColumnName, operatorId);
+        BasicDBObject value = new BasicDBObject();
+        value.put(operatorIdColumnName, operatorId);
+        value.put(windowIdColumnName, windowId);
+        maxWindowCollection.update(where, value);
+
+        db.getCollection(table).insert(docList);
+        tableToDocumentList.put(table, new ArrayList<DBObject>());
+      }
+      else {
+        tableToDocumentList.put(table, docList);
+      }
+    }
+    ++tupleId;
+  }
+
+  /**
+   * 8B windowId | 1B opratorId | 3B tupleId
+   */
   public void queryFunction1(ByteBuffer bb, StringBuilder high, StringBuilder low)
   {
     bb.putLong(windowId);
@@ -246,7 +337,9 @@ public abstract class MongoDBOutputOperator<T> implements Operator
     }
   }
 
-  /* 4B baseSec | 2B windowId | 3B operatorId | 3B tupleId */
+  /**
+   * 4B baseSec | 2B windowId | 3B operatorId | 3B tupleId
+   */
   public void queryFunction2(ByteBuffer bb, StringBuilder high, StringBuilder low)
   {
     int baseSec = (int)(windowId >> 32);
@@ -275,7 +368,9 @@ public abstract class MongoDBOutputOperator<T> implements Operator
     }
   }
 
-  /* 4B baseSec | 3B operatorId | 2B windowId | 3B tupleId */
+  /**
+   * 4B baseSec | 3B operatorId | 2B windowId | 3B tupleId
+   */
   public void queryFunction3(ByteBuffer bb, StringBuilder high, StringBuilder low)
   {
     int baseSec = (int)(windowId >> 32);
@@ -304,7 +399,9 @@ public abstract class MongoDBOutputOperator<T> implements Operator
     }
   }
 
-  /*  8B windowId | 1B operatorId | 3B tupleId */
+  /**
+   * 8B windowId | 1B operatorId | 3B tupleId
+   */
   void insertFunction1(ByteBuffer bb)
   {
     bb.putLong(windowId);
@@ -316,7 +413,9 @@ public abstract class MongoDBOutputOperator<T> implements Operator
     }
   }
 
-  /* 4B baseSec | 3B operatorId | 2B windowId | 3B tupleId */
+  /**
+   * 4B baseSec | 3B operatorId | 2B windowId | 3B tupleId
+   */
   void insertFunction2(ByteBuffer bb)
   {
     int baseSec = (int)(windowId >> 32);
@@ -333,7 +432,9 @@ public abstract class MongoDBOutputOperator<T> implements Operator
     }
   }
 
-  /* 4B baseSec | 2B windowId | 3B operatorId | 3B tupleId */
+  /**
+   * 4B baseSec | 2B windowId | 3B operatorId | 3B tupleId
+   */
   void insertFunction3(ByteBuffer bb)
   {
     int baseSec = (int)(windowId >> 32);
