@@ -246,9 +246,10 @@ public class JDBCOperatorTestHelper
   /*
    * Create database connection.
    * Create database if not exist.
-   * Create two tables - one for tuple, one for maxwindowid.
+   * For Transaction db, create data table as well as maxwindowid table.
+   * For non-transation db, create only data table with additional columns application id, operator id, window id.
    */
-  public void setupDB(JDBCOperatorBase oper, String[] mapping, boolean isHashMap)
+  public void setupDB(JDBCOperatorBase oper, String[] mapping, boolean isHashMap, boolean transaction)
   {
     int num = mapping.length;
     int propIdx = isHashMap ? 0 : -1;
@@ -314,7 +315,14 @@ public class JDBCOperatorTestHelper
         }
       }
 
-      str += ", winid BIGINT, operatorid VARCHAR(32), appid VARCHAR(32)";
+
+
+      if (!transaction) {
+        str += ", " + oper.getApplicationIdColumnName() + " VARCHAR(10), "
+                    + oper.getOperatorIdColumnName() + " VARCHAR(10), "
+                    + oper.getWindowIdColumnName() + " BIGINT";
+      }
+
       String createTable = "CREATE TABLE " + entry.getKey() + " (" + str + ")";
       tableToCreate.put(entry.getKey(), createTable);
       logger.debug(createTable);
@@ -335,10 +343,16 @@ public class JDBCOperatorTestHelper
       stmt.executeQuery(useDB);
 
       for (Map.Entry<String, String> entry: tableToCreate.entrySet()) {
-        stmt.execute("DROP TABLE IF EXISTS " + entry.getKey());
-        stmt.executeUpdate(entry.getValue());
+        stmt.execute("DROP TABLE IF EXISTS " + entry.getKey()); // drop data table
+        stmt.executeUpdate(entry.getValue());                   // create new data table
       }
-      stmt.executeUpdate("CREATE TABLE IF NOT EXISTS maxwindowid (appid VARCHAR(10), winid BIGINT, operatorid VARCHAR(10))");
+
+      if (transaction) { // create maxwindowid table only first time
+        stmt.executeUpdate("CREATE TABLE IF NOT EXISTS maxwindowid ("
+                + oper.getApplicationIdColumnName() + " VARCHAR(10), "
+                + oper.getOperatorIdColumnName() + " VARCHAR(10), "
+                + oper.getWindowIdColumnName() + " BIGINT)");
+      }
     }
     catch (ClassNotFoundException ex) {
       throw new RuntimeException("Exception during JBDC connection", ex);

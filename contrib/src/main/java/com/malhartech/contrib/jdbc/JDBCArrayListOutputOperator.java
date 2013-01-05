@@ -10,8 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * JDBC output adapter operator, for ArrayList column mapping and transaction type database write.<p><br>
- * The tuple can contain an array of java object. <br>
+ * JDBC output adapter operator, for ArrayList column mapping and transaction type database write. <p><br>
+ * Each tuple contains an array of java object. <br>
  * <br>
  * Ports:<br>
  * <b>Input</b>: This has a single input port that writes data into database.<br>

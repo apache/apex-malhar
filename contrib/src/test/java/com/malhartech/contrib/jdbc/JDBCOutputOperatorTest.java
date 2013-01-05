@@ -47,16 +47,16 @@ public class JDBCOutputOperatorTest
       oper.setDbDriver("com.mysql.jdbc.Driver");
       oper.setBatchSize(100);
 
-      oper.setWindowIdColumnName("winid");
-      oper.setOperatorIdColumnName("operatorid");
-      oper.setApplicationIdColumnName("appid");
+      oper.setWindowIdColumnName("window_id");
+      oper.setOperatorIdColumnName("operator_id");
+      oper.setApplicationIdColumnName("application_id");
     }
 
-    public void runTest(String opId, String[] mapping, boolean isHashMap)
+    public void runTest(String opId, String[] mapping, boolean isHashMap, boolean transaction)
     {
       oper.setColumnMapping(mapping);
 
-      helper.setupDB(oper, mapping, isHashMap);
+      helper.setupDB(oper, mapping, isHashMap, transaction);
       oper.setup(new com.malhartech.engine.OperatorContext(opId, null, null));
       oper.beginWindow(oper.lastWindowId + 1);
       logger.debug("beginwindow {}", Codec.getStringWindowId(oper.lastWindowId + 1));
@@ -88,7 +88,7 @@ public class JDBCOutputOperatorTest
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
     transactionOperatorSetting(oper);
     oper.setTableName("Test_Tuple");
-    tp.runTest("op1", helper.hashMapping1, true);
+    tp.runTest("op1", helper.hashMapping1, true, true);
   }
 
   @Test
@@ -100,7 +100,7 @@ public class JDBCOutputOperatorTest
     // You can set additional operator parameter here (see below) before calling runTest().
     oper.setBatchSize(6);
     oper.setTableName("Test_Tuple");
-    tp.runTest("op2", helper.hashMapping2, true);
+    tp.runTest("op2", helper.hashMapping2, true, true);
   }
 
   @Test
@@ -110,7 +110,7 @@ public class JDBCOutputOperatorTest
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
     transactionOperatorSetting(oper);
     oper.setTableName("Test_Tuple");
-    tp.runTest("op3", helper.hashMapping3, true);
+    tp.runTest("op3", helper.hashMapping3, true, true);
   }
 
   @Test
@@ -120,7 +120,7 @@ public class JDBCOutputOperatorTest
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
     transactionOperatorSetting(oper);
     oper.setTableName("Test_Tuple");
-    tp.runTest("op4", helper.arrayMapping1, false);
+    tp.runTest("op4", helper.arrayMapping1, false, true);
   }
 
   @Test
@@ -131,7 +131,7 @@ public class JDBCOutputOperatorTest
     transactionOperatorSetting(oper);
     oper.setTableName("Test_Tuple");
     try {
-      tp.runTest("op5", helper.arrayMapping2, false);
+      tp.runTest("op5", helper.arrayMapping2, false, true);
       Assert.assertFalse("This test failed if it ever comes to this line", true);
     }
     catch (Exception ex) {
@@ -146,17 +146,18 @@ public class JDBCOutputOperatorTest
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
     transactionOperatorSetting(oper);
     oper.setTableName("Test_Tuple");
-    tp.runTest("op6", helper.arrayMapping3, false);
+    tp.runTest("op6", helper.arrayMapping3, false, true);
 
   }
 
+  // Section for non-transaction operators
   @Test
   public void JDBCHashMapOutputOperatorTest21() throws Exception
   {
     JDBCHashMapNonTransactionOutputOperator oper = new JDBCHashMapNonTransactionOutputOperator();
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
     oper.setTableName("Test_Tuple");
-    tp.runTest("op21", helper.hashMapping1, true);
+    tp.runTest("op21", helper.hashMapping1, true, false);
   }
 
   @Test
@@ -167,7 +168,7 @@ public class JDBCOutputOperatorTest
     // You can set additional operator parameter here (see below) before calling runTest().
     oper.setBatchSize(6);
     oper.setTableName("Test_Tuple");
-    tp.runTest("op22", helper.hashMapping2, true);
+    tp.runTest("op22", helper.hashMapping2, true, false);
   }
 
   @Test
@@ -176,7 +177,7 @@ public class JDBCOutputOperatorTest
     JDBCHashMapNonTransactionOutputOperator oper = new JDBCHashMapNonTransactionOutputOperator();
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
     oper.setTableName("Test_Tuple");
-    tp.runTest("op23", helper.hashMapping3, true);
+    tp.runTest("op23", helper.hashMapping3, true, false);
   }
 
   @Test
@@ -185,7 +186,7 @@ public class JDBCOutputOperatorTest
     JDBCArrayListNonTransactionOutputOperator oper = new JDBCArrayListNonTransactionOutputOperator();
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
     oper.setTableName("Test_Tuple");
-    tp.runTest("op24", helper.arrayMapping1, false);
+    tp.runTest("op24", helper.arrayMapping1, false, false);
   }
 
   @Test
@@ -195,7 +196,7 @@ public class JDBCOutputOperatorTest
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
     oper.setTableName("Test_Tuple");
     try {
-      tp.runTest("op25", helper.arrayMapping2, false);
+      tp.runTest("op25", helper.arrayMapping2, false, false);
       Assert.assertFalse("This test failed if it ever comes to this line", true);
     }
     catch (Exception ex) {
@@ -209,7 +210,7 @@ public class JDBCOutputOperatorTest
     JDBCArrayListNonTransactionOutputOperator oper = new JDBCArrayListNonTransactionOutputOperator();
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
     oper.setTableName("Test_Tuple");
-    tp.runTest("op26", helper.arrayMapping3, false);
+    tp.runTest("op26", helper.arrayMapping3, false, false);
   }
 
   @Test
@@ -219,7 +220,7 @@ public class JDBCOutputOperatorTest
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
     transactionOperatorSetting(oper);
     // For mulit table mapping you don't need to set table name
-    tp.runTest("op31", helper.hashMapping4, true);
+    tp.runTest("op31", helper.hashMapping4, true, true);
   }
 
   @Test
@@ -228,7 +229,7 @@ public class JDBCOutputOperatorTest
     JDBCHashMapOutputOperator oper = new JDBCHashMapOutputOperator();
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
     transactionOperatorSetting(oper);
-    tp.runTest("op32", helper.hashMapping5, true);
+    tp.runTest("op32", helper.hashMapping5, true, true);
   }
 
   @Test
@@ -236,7 +237,7 @@ public class JDBCOutputOperatorTest
   {
     JDBCHashMapNonTransactionOutputOperator oper = new JDBCHashMapNonTransactionOutputOperator();
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
-    tp.runTest("op33", helper.hashMapping4, true);
+    tp.runTest("op33", helper.hashMapping4, true, false);
   }
 
   @Test
@@ -244,7 +245,7 @@ public class JDBCOutputOperatorTest
   {
     JDBCHashMapNonTransactionOutputOperator oper = new JDBCHashMapNonTransactionOutputOperator();
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
-    tp.runTest("op34", helper.hashMapping5, true);
+    tp.runTest("op34", helper.hashMapping5, true, false);
   }
 
   @Test
@@ -253,7 +254,7 @@ public class JDBCOutputOperatorTest
     JDBCArrayListOutputOperator oper = new JDBCArrayListOutputOperator();
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
     transactionOperatorSetting(oper);
-    tp.runTest("op41", helper.arrayMapping4, false);
+    tp.runTest("op41", helper.arrayMapping4, false, true);
   }
 
   @Test
@@ -262,7 +263,7 @@ public class JDBCOutputOperatorTest
     JDBCArrayListOutputOperator oper = new JDBCArrayListOutputOperator();
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
     transactionOperatorSetting(oper);
-    tp.runTest("op42", helper.arrayMapping5, false);
+    tp.runTest("op42", helper.arrayMapping5, false, true);
   }
 
   @Test
@@ -270,7 +271,7 @@ public class JDBCOutputOperatorTest
   {
     JDBCArrayListNonTransactionOutputOperator oper = new JDBCArrayListNonTransactionOutputOperator();
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
-    tp.runTest("op43", helper.arrayMapping4, false);
+    tp.runTest("op43", helper.arrayMapping4, false, false);
   }
 
   @Test
@@ -278,6 +279,6 @@ public class JDBCOutputOperatorTest
   {
     JDBCArrayListNonTransactionOutputOperator oper = new JDBCArrayListNonTransactionOutputOperator();
     JDBCOutputOperatorTestTemplate tp = new JDBCOutputOperatorTestTemplate(oper);
-    tp.runTest("op44", helper.arrayMapping5, false);
+    tp.runTest("op44", helper.arrayMapping5, false, false);
   }
 }

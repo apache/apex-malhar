@@ -12,7 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * JDBC output adapter operator, for HashMap column mapping and transaction type database write.  Key is string, Value can be any type derived from Java object.<p><br>
+ * JDBC output adapter operator, for HashMap column mapping and transaction type database write. <p><br>
+ * Each tuple contain a HahMap or Java object. Key is string, Value can be any type derived from Java object. <br>
  * <br>
  * Ports:<br>
  * <b>Input</b>: This has a single input port that writes data into database.<br>

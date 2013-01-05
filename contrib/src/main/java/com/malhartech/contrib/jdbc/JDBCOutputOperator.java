@@ -70,8 +70,8 @@ public abstract class JDBCOutputOperator<T> extends JDBCOperatorBase implements 
   private static final Logger logger = LoggerFactory.getLogger(JDBCOutputOperator.class);
 
   /**
-   * Implement how to process tuple in derived class based on HashMap or ArrayList column mapping.
-   * The tuple values are binded with SQL prepared statement to be inserted to database.
+   * Bind tuple values with SQL prepared statement to be inserted to database based on tuple type.
+   * Tuple can be HashMap or ArrayList or any other Java object datatype.
    *
    * @param tuple
    * @throws SQLException
@@ -84,6 +84,9 @@ public abstract class JDBCOutputOperator<T> extends JDBCOperatorBase implements 
   @InputPortFieldAnnotation(name = "inputPort")
   public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>(this)
   {
+    /**
+     * Write a batch of tuple into database. The batch size can be configured by the user in batchSize variable.
+     */
     @Override
     public void process(T tuple)
     {
@@ -176,7 +179,7 @@ public abstract class JDBCOutputOperator<T> extends JDBCOperatorBase implements 
   }
 
   /**
-   * Implement Component Interface.
+   * This is the place to have initial setup for the operator. This creates JDBC connection and prepare insert statement for database write.
    *
    * @param context
    */
@@ -190,7 +193,7 @@ public abstract class JDBCOutputOperator<T> extends JDBCOperatorBase implements 
   }
 
   /**
-   * Implement Component Interface.
+   * Write to database any remaining tuple and close JDBC connection.
    */
   @Override
   public void teardown()
@@ -207,7 +210,7 @@ public abstract class JDBCOutputOperator<T> extends JDBCOperatorBase implements 
   }
 
   /**
-   * Implement Operator Interface.
+   * Do things needed for beginning of window.
    */
   @Override
   public void beginWindow(long windowId)
@@ -216,7 +219,7 @@ public abstract class JDBCOutputOperator<T> extends JDBCOperatorBase implements 
   }
 
   /**
-   * Implement Operator Interface.
+   * Write any remaining tuples before closing window.
    */
   @Override
   public void endWindow()

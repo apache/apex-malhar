@@ -14,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Base class for all JDBC input output operators.
+ * This handles JDBC connection and column mapping for output operators.
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
@@ -33,7 +35,14 @@ public abstract class JDBCOperatorBase
   private String tableName = "";
   @Min(1)
   protected long batchSize = DEFAULT_BATCH_SIZE;
+  // column mapping is required only for output operator.
   protected ArrayList<String> columnMapping = new ArrayList<String>();
+  @NotNull
+  protected String windowIdColumnName;
+  @NotNull
+  protected String operatorIdColumnName;  // Storing operator id is for partitioning purpose
+  @NotNull
+  protected String applicationIdColumnName;
   // end of user input
   //
   protected transient ArrayList<String> columnNames = new ArrayList<String>();
@@ -51,9 +60,6 @@ public abstract class JDBCOperatorBase
   protected transient long lastWindowId;
   protected transient boolean ignoreWindow;
   protected transient String operatorId;
-  protected String windowIdColumnName;
-  protected String operatorIdColumnName;  // Storing operator id is for partitioning purpose
-  protected String applicationIdColumnName;
   protected long tupleCount = 0;
   protected transient boolean emptyTuple = false;
   // additional variables for arraylist mapping
@@ -192,6 +198,33 @@ public abstract class JDBCOperatorBase
     return SQLType;
   }
 
+  /**
+   * Followings are SQL datatypes that JDBC support. The column mapping has to contain
+   * one of these types.
+   *   BIGINT
+   *   BINARY
+   *   BIT
+   *   CHAR
+   *   DATE
+   *   DECIMAL
+   *   DOUBLE
+   *   FLOAT
+   *   INTEGER
+   *   INT
+   *   LONGVARBINARY
+   *   LONGVARCHAR
+   *   NULL
+   *   NUMERIC
+   *   OTHER
+   *   REAL
+   *   SMALLINT
+   *   TIME
+   *   TIMESTAMP
+   *   TINYINT
+   *   VARBINARY
+   *   VARCHAR
+   *
+   */
   public void buildMapping()
   {
     // JDBC SQL type data mapping
@@ -218,7 +251,7 @@ public abstract class JDBCOperatorBase
     columnSQLTypes.put("VARBINARY", new Integer(Types.VARBINARY));
     columnSQLTypes.put("VARCHAR", new Integer(Types.VARCHAR));
 
-    if (columnMapping.isEmpty()) { // can be validation check
+    if (columnMapping.isEmpty()) {
       throw new RuntimeException("Empty column mapping");
     }
 
@@ -349,6 +382,9 @@ public abstract class JDBCOperatorBase
     }
   }
 
+  /**
+   * Create connection with database using JDBC.
+   */
   public void setupJDBCConnection()
   {
     try {
@@ -366,6 +402,9 @@ public abstract class JDBCOperatorBase
     }
   }
 
+  /**
+   * Close JDBC connection.
+   */
   public void closeJDBCConnection()
   {
     try {

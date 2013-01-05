@@ -9,32 +9,32 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * JDBCNonTransaction output adapter operator, which send insertion data to nontransaction database.<p><br>
+ * JDBCNonTransaction output adapter operator, which send insertion data to non-transaction database. <p><br>
+ * For non-transactional database, each row is committed as they are inserted into database.
  *
  * <br>
  * Ports:<br>
- * <b>Input</b>: Can have one input port which is derived from JDBCOutputOperator base class <br>
- * <b>Output</b>: no output port<br>
+ * <b>Input</b>: Can have one input port which is derived from JDBCOutputOperator base class. <br>
+ * <b>Output</b>: No output port. <br>
  * <br>
  * Properties:<br>
- * <b>statement</b>:the statement being used to save nontransaction database last windowId information in the tables <br>
+ * <b>statement</b>:The statement being used to save non-transaction database last windowId information in the tables. <br>
  * <br>
  * Compile time checks:<br>
  * None<br>
  * <br>
  * Run time checks:<br>
- * Nontransaction database requires additional operatorId, windowId, applicationId column,<br>
- * to store the last committed windowId information for recovery purpose<br>
- * user needs to create the additional columns and assign the column names as windowIdColumnName,operatorIdColumnName,applicationIdColumnName<br>
+ * Non-transaction database requires additional columns operatorId, windowId, applicationId <br>
+ * to store the last committed windowId information for recovery purpose.<br>
+ * User needs to create the additional columns and assign the column names as windowIdColumnName,operatorIdColumnName,applicationIdColumnName.<br>
  * <br>
  * <b>Benchmarks</b>:
  * <br>
- * @author Locknath Shil <locknath@malhar-inc.com>
+ * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
 public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOperator<T>
 {
@@ -43,7 +43,8 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
 
   /**
    * Additional column name needed for non-transactional database recovery.
-   * Currently has windowId, operatorId, applicationId column information to be saved in the tables
+   * These column names should be present in addition to data columns that at coming from tuple.
+   * Currently has windowId, operatorId, applicationId column information to be saved in the tables.
    * @return list of column names
    */
   @Override
@@ -57,8 +58,8 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
   }
 
   /**
-   * initialize the last completed windowId as lastWindowId for the specific operatorId
-   * if the table is empty, the lastWindowId would be 0
+   * Initialize the last completed windowId as lastWindowId for the specific operatorId.
+   * If the table is empty, the lastWindowId would be 0.
    */
   public void initLastWindowInfo()
   {
@@ -83,7 +84,7 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
 
   /**
    * Implement Component Interface.
-   * init last finished window information during setup, get the lastWindowId for the last completed windowId for the specific operatorId
+   * Initialize last finished window information during setup. Get the lastWindowId for the last completed windowId for the specific operatorId.
    * @param context
    */
   @Override
@@ -95,7 +96,7 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
 
   /**
    * Implement Operator Interface.
-   * compare windowId with lastWindowId, if it is less, it is out of date window, thus ignore it.
+   * Compare windowId with lastWindowId, if it is less, it is out of date window, thus ignore it.
    * If it is the same as windowId, then it is the previously partially done window, then remove all the rows of this window, and reprocess all the tuples of this window
    * if it is greater than windowId, then process it.
    */

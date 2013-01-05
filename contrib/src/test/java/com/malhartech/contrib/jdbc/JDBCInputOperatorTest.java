@@ -72,7 +72,7 @@ public class JDBCInputOperatorTest
 
     oper.setColumnMapping(helper.hashMapping1);
 
-    helper.setupDB(oper, helper.hashMapping1, true);
+    helper.setupDB(oper, helper.hashMapping1, true, true);
     oper.setup(new com.malhartech.engine.OperatorContext("op1", null, null));
     oper.beginWindow(oper.lastWindowId + 1);
     helper.insertData(helper.hashMapping1, true);
