@@ -82,10 +82,10 @@ public abstract class JDBCTransactionOutputOperator<T> extends JDBCOutputOperato
         throw new RuntimeException(maxWindowTable+" table not exist!");
       }
 
-      selectSQL = "SELECT "+windowIdColumnName+" FROM "+maxWindowTable+" WHERE "+operatorIdColumnName+"='" + context.getId() + "' AND "+applicationIdColumnName+"=" + 0; // how can I get the appid
+      selectSQL = "SELECT "+windowIdColumnName+" FROM "+maxWindowTable+" WHERE "+operatorIdColumnName+"=" + operatorId + " AND "+applicationIdColumnName+"='" + applicationId + "'";
       ResultSet rs = transactionStatement.executeQuery(selectSQL);
       if (rs.next() == false) {
-        insertSQL = "INSERT "+maxWindowTable+" set "+applicationIdColumnName+"=0, "+windowIdColumnName+"=0, "+operatorIdColumnName+"='" + context.getId() + "'";
+        insertSQL = "INSERT "+maxWindowTable+" set "+applicationIdColumnName+ "='" +  applicationId + "', " +windowIdColumnName+"=0, "+operatorIdColumnName+"=" + operatorId;
         transactionStatement.executeUpdate(insertSQL);
         logger.debug(insertSQL);
         lastWindowId = 0;
@@ -111,8 +111,9 @@ public abstract class JDBCTransactionOutputOperator<T> extends JDBCOutputOperato
   public void setup(OperatorContext context)
   {
     super.setup(context);
+    //operatorId = context.getId();
     initTransactionInfo(context);
-    operatorId = context.getId();
+    //operatorId = context.getId();
   }
 
   /**
@@ -146,7 +147,7 @@ public abstract class JDBCTransactionOutputOperator<T> extends JDBCOutputOperato
     }
     super.endWindow();
     try {
-      String str = "UPDATE "+maxWindowTable+" set "+windowIdColumnName+"=" + windowId + " WHERE "+applicationIdColumnName+"=0 AND "+operatorIdColumnName+"='" + operatorId + "'";
+      String str = "UPDATE "+maxWindowTable+" set "+windowIdColumnName+"=" + windowId + " WHERE "+applicationIdColumnName+"='" + applicationId + "' AND "+operatorIdColumnName+"=" + operatorId;
       transactionStatement.execute(str);
       logger.debug(str);
       getConnection().commit();

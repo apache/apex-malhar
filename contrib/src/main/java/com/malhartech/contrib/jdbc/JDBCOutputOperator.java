@@ -6,6 +6,8 @@ package com.malhartech.contrib.jdbc;
 
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.Context.OperatorContext;
+import com.malhartech.api.DAG;
+import com.malhartech.api.DAGConstants;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.Operator;
 import java.sql.PreparedStatement;
@@ -106,6 +108,7 @@ public abstract class JDBCOutputOperator<T> extends JDBCOperatorBase implements 
 
   protected transient long windowId;
   protected transient long lastWindowId;
+  protected transient String applicationId;
   protected transient boolean ignoreWindow;
   protected transient int operatorId;
   protected long tupleCount = 0;
@@ -527,6 +530,7 @@ public abstract class JDBCOutputOperator<T> extends JDBCOperatorBase implements 
     setupJDBCConnection();
     prepareInsertStatement();
     setOperatorId(context.getId());
+    applicationId = context.getApplicationAttributes().attr(DAG.STRAM_APP_ID).get();
   }
 
   /**

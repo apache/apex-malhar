@@ -168,7 +168,7 @@ public class JDBCOperatorTestHelper
     columnSQLTypes.put("VARBINARY", new Integer(Types.VARBINARY));
     columnSQLTypes.put("VARCHAR", new Integer(Types.VARCHAR));
 
-    attrmap.attr(DAG.STRAM_APP_ID).set("myJDBCOouputOperatorAppId");
+    attrmap.attr(DAG.STRAM_APP_ID).set("myJDBCOutputOperatorAppId");
 
   }
 
@@ -322,11 +322,9 @@ public class JDBCOperatorTestHelper
         }
       }
 
-
-
       if (!transaction) {
-        str += ", " + oper.getApplicationIdColumnName() + " VARCHAR(10), "
-                    + oper.getOperatorIdColumnName() + " VARCHAR(10), "
+        str += ", " + oper.getApplicationIdColumnName() + " VARCHAR(32), "
+                    + oper.getOperatorIdColumnName() + " INTEGER, "
                     + oper.getWindowIdColumnName() + " BIGINT";
       }
 
@@ -355,8 +353,8 @@ public class JDBCOperatorTestHelper
 
       if (transaction) { // create maxwindowid table only first time
         stmt.executeUpdate("CREATE TABLE IF NOT EXISTS maxwindowid ("
-                + oper.getApplicationIdColumnName() + " VARCHAR(10), "
-                + oper.getOperatorIdColumnName() + " VARCHAR(10), "
+                + oper.getApplicationIdColumnName() + " VARCHAR(32), "
+                + oper.getOperatorIdColumnName() + " INTEGER, "
                 + oper.getWindowIdColumnName() + " BIGINT)");
       }
     }

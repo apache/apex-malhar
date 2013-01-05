@@ -4,14 +4,8 @@
  */
 package com.malhartech.contrib.jdbc;
 
-import com.malhartech.api.DAG;
-import com.malhartech.api.DAGConstants;
 import com.malhartech.bufferserver.util.Codec;
 import com.malhartech.engine.OperatorContext;
-import com.malhartech.util.AttributeMap;
-import com.malhartech.util.AttributeMap.AttributeKey;
-import com.malhartech.util.AttributeMap.DefaultAttributeMap;
-import io.netty.util.Attribute;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
