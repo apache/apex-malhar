@@ -4,9 +4,14 @@
  */
 package com.malhartech.contrib.jdbc;
 
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -14,6 +19,22 @@ import java.util.HashMap;
  */
 public class JDBCOperatorTestHelper
 {
+  private static final Logger logger = LoggerFactory.getLogger(JDBCOperatorTestHelper.class);
+  protected static final String FIELD_DELIMITER = ":";
+  protected static final String COLUMN_DELIMITER = ".";
+  private Connection con = null;
+  private Statement stmt = null;
+  private static final String driver = "com.mysql.jdbc.Driver";
+  private static final String url = "jdbc:mysql://localhost/test?user=test&password=";
+  private static final String db_name = "test";
+  private HashMap<String, ArrayList<String>> tableToColumns2 = new HashMap<String, ArrayList<String>>(); // same as tableToColumn in operator
+  protected transient HashMap<String, PreparedStatement> tableToInsertStatement = new HashMap<String, PreparedStatement>();
+  protected transient HashMap<String, Integer> keyToIndex = new HashMap<String, Integer>();
+  protected transient HashMap<String, String> keyToType = new HashMap<String, String>();
+  protected transient HashMap<String, String> keyToTable = new HashMap<String, String>();
+  protected transient ArrayList<String> columnNames = new ArrayList<String>();
+  protected transient ArrayList<String> tableNames = new ArrayList<String>();
+  private transient HashMap<String, Integer> columnSQLTypes = new HashMap<String, Integer>();
   private int columnCount = 7;
   public String[] hashMapping1 = new String[7];
   public String[] hashMapping2 = new String[7];
@@ -118,6 +139,30 @@ public class JDBCOperatorTestHelper
     arrayMapping5[5] = "t2.col6:VARCHAR(10)";
     arrayMapping5[6] = "t1.col3:DATE";
 
+    // JDBC SQL type data mapping
+    columnSQLTypes.put("BIGINT", new Integer(Types.BIGINT));
+    columnSQLTypes.put("BINARY", new Integer(Types.BINARY));
+    columnSQLTypes.put("BIT", new Integer(Types.BIT));
+    columnSQLTypes.put("CHAR", new Integer(Types.CHAR));
+    columnSQLTypes.put("DATE", new Integer(Types.DATE));
+    columnSQLTypes.put("DECIMAL", new Integer(Types.DECIMAL));
+    columnSQLTypes.put("DOUBLE", new Integer(Types.DOUBLE));
+    columnSQLTypes.put("FLOAT", new Integer(Types.FLOAT));
+    columnSQLTypes.put("INTEGER", new Integer(Types.INTEGER));
+    columnSQLTypes.put("INT", new Integer(Types.INTEGER));
+    columnSQLTypes.put("LONGVARBINARY", new Integer(Types.LONGVARBINARY));
+    columnSQLTypes.put("LONGVARCHAR", new Integer(Types.LONGVARCHAR));
+    columnSQLTypes.put("NULL", new Integer(Types.NULL));
+    columnSQLTypes.put("NUMERIC", new Integer(Types.NUMERIC));
+    columnSQLTypes.put("OTHER", new Integer(Types.OTHER));
+    columnSQLTypes.put("REAL", new Integer(Types.REAL));
+    columnSQLTypes.put("SMALLINT", new Integer(Types.SMALLINT));
+    columnSQLTypes.put("TIME", new Integer(Types.TIME));
+    columnSQLTypes.put("TIMESTAMP", new Integer(Types.TIMESTAMP));
+    columnSQLTypes.put("TINYINT", new Integer(Types.TINYINT));
+    columnSQLTypes.put("VARBINARY", new Integer(Types.VARBINARY));
+    columnSQLTypes.put("VARCHAR", new Integer(Types.VARCHAR));
+
   }
 
   public HashMap<String, Object> hashMapData(String[] mapping, int i)
@@ -196,5 +241,246 @@ public class JDBCOperatorTestHelper
     }
 
     return al;
+  }
+
+  /*
+   * Create database connection.
+   * Create database if not exist.
+   * Create two tables - one for tuple, one for maxwindowid.
+   */
+  public void setupDB(JDBCOperatorBase oper, String[] mapping, boolean isHashMap)
+  {
+    int num = mapping.length;
+    int propIdx = isHashMap ? 0 : -1;
+    int colIdx = isHashMap ? 1 : 0;
+    int typeIdx = isHashMap ? 2 : 1;
+    HashMap<String, String> columnToType = new HashMap<String, String>();
+    tableToColumns2.clear();
+
+    String table;
+    String column;
+
+    for (int idx = 0; idx < num; ++idx) {
+      String[] fields = mapping[idx].split(":");
+      if (fields.length < 2 || fields.length > 3) {
+        throw new RuntimeException("Incorrect column mapping for HashMap. Correct mapping should be Property:\"[Table.]Column:Type\"");
+      }
+
+      int colDelIdx = fields[colIdx].indexOf(".");
+      if (colDelIdx != -1) { // table name is used
+        table = fields[colIdx].substring(0, colDelIdx);
+        column = fields[colIdx].substring(colDelIdx + 1);
+      }
+      else { // table name not used; so this must be single table
+        table = oper.getTableName();
+        if (table.isEmpty()) {
+          throw new RuntimeException("Table name can not be empty");
+        }
+        column = fields[colIdx];
+      }
+
+      if (tableToColumns2.containsKey(table)) {
+        tableToColumns2.get(table).add(column);
+      }
+      else {
+        ArrayList<String> cols = new ArrayList<String>();
+        cols.add(column);
+        tableToColumns2.put(table, cols);
+      }
+      columnToType.put(column, fields[typeIdx]);
+
+      if (isHashMap) {
+        keyToTable.put(fields[propIdx], table);
+        keyToIndex.put(fields[propIdx], tableToColumns2.get(table).size());
+        keyToType.put(fields[propIdx], fields[typeIdx].toUpperCase().contains("VARCHAR") ? "VARCHAR" : fields[typeIdx].toUpperCase());
+      }
+    }
+
+    HashMap<String, String> tableToCreate = new HashMap<String, String>();
+    for (Map.Entry<String, ArrayList<String>> entry: tableToColumns2.entrySet()) {
+      String str = "";
+      ArrayList<String> parts = entry.getValue();
+      for (int i = 0; i < parts.size(); i++) {
+        if (i == 0) {
+          str += parts.get(i) + " " + columnToType.get(parts.get(i));
+        }
+        else {
+          if (columnToType.get(parts.get(i)).equals("BAD_COLUMN_TYPE")) {
+            str += ", " + parts.get(i) + " INTEGER";
+          }
+          else {
+            str += ", " + parts.get(i) + " " + columnToType.get(parts.get(i));
+          }
+        }
+      }
+
+      str += ", winid BIGINT, operatorid VARCHAR(32), appid VARCHAR(32)";
+      String createTable = "CREATE TABLE " + entry.getKey() + " (" + str + ")";
+      tableToCreate.put(entry.getKey(), createTable);
+      logger.debug(createTable);
+    }
+
+    try {
+      // This will load the JDBC driver, each DB has its own driver
+      Class.forName(driver).newInstance();
+      //String temp = "jdbc:derby:test;create=true";
+
+      con = DriverManager.getConnection(url);
+      stmt = con.createStatement();
+
+      String createDB = "CREATE DATABASE IF NOT EXISTS " + db_name;
+      String useDB = "USE " + db_name;
+
+      stmt.executeUpdate(createDB);
+      stmt.executeQuery(useDB);
+
+      for (Map.Entry<String, String> entry: tableToCreate.entrySet()) {
+        stmt.execute("DROP TABLE IF EXISTS " + entry.getKey());
+        stmt.executeUpdate(entry.getValue());
+      }
+      stmt.executeUpdate("CREATE TABLE IF NOT EXISTS maxwindowid (appid VARCHAR(10), winid BIGINT, operatorid VARCHAR(10))");
+    }
+    catch (ClassNotFoundException ex) {
+      throw new RuntimeException("Exception during JBDC connection", ex);
+    }
+    catch (SQLException ex) {
+      throw new RuntimeException(String.format("Exception during setupDB"), ex);
+    }
+    catch (Exception ex) {
+      throw new RuntimeException("Exception during JBDC connection", ex);
+    }
+
+    logger.debug("JDBC Table creation Success");
+  }
+
+  public void prepareInsertStatement(String[] mapping)
+  {
+    if (tableToColumns2.isEmpty()) {
+      return;
+    }
+
+    String space = " ";
+    String comma = ",";
+    String question = "?";
+
+    for (Map.Entry<String, ArrayList<String>> entry: tableToColumns2.entrySet()) {
+      int num = entry.getValue().size();
+      if (num < 1) {
+        return;
+      }
+      String columns = "";
+      String values = "";
+
+
+      for (int idx = 0; idx < num; ++idx) {
+        if (idx == 0) {
+          columns = entry.getValue().get(idx);
+          values = question;
+        }
+        else {
+          columns += comma + space + entry.getValue().get(idx);
+          values += comma + space + question;
+        }
+      }
+
+      /*   ArrayList<String> windowCol = windowColumn();
+       if (windowCol != null && windowCol.size() > 0) {
+       for (int i =0; i<windowCol.size(); i++) {
+       columns += comma + space + windowCol.get(i);
+       values += comma + space + question;
+       }
+       }*/
+
+      String insertQuery = "INSERT INTO " + entry.getKey() + " (" + columns + ") VALUES (" + values + ")";
+      logger.debug(String.format("%s", insertQuery));
+      try {
+        tableToInsertStatement.put(entry.getKey(), con.prepareStatement(insertQuery));
+      }
+      catch (SQLException ex) {
+        throw new RuntimeException(String.format("Error while preparing insert query: %s", insertQuery), ex);
+      }
+    }
+
+
+  }
+
+  public void insertData(String[] mapping, boolean isHashMap)
+  {
+    prepareInsertStatement(mapping);
+    for (int i = 1; i <= 20; ++i) {
+      HashMap<String, Object> hm = hashMapData(mapping, i);
+      for (Map.Entry<String, Object> e: hm.entrySet()) {
+        try {
+          tableToInsertStatement.get(keyToTable.get(e.getKey())).setObject(
+                  keyToIndex.get(e.getKey()).intValue(),
+                  e.getValue(),
+                  getSQLColumnType(keyToType.get(e.getKey())));
+        }
+        catch (SQLException ex) {
+          java.util.logging.Logger.getLogger(JDBCOperatorTestHelper.class.getName()).log(Level.SEVERE, null, ex);
+        }
+      }
+
+      ////
+      for (Map.Entry<String, ArrayList<String>> entry: tableToColumns2.entrySet()) {
+        int num = entry.getValue().size();
+        try {
+          tableToInsertStatement.get(entry.getKey()).execute();
+        }
+        catch (SQLException ex) {
+          throw new RuntimeException(String.format("Exception during insert into table %s", entry.getKey()), ex);
+        }
+      }
+    }
+  }
+
+  public int getSQLColumnType(String type)
+  {
+    int SQLType = 0;
+    try {
+      SQLType = columnSQLTypes.get(type);
+    }
+    catch (Exception ex) {
+      throw new RuntimeException(String.format("Unsupported SQL type %s in column mapping.", type), ex);
+    }
+    return SQLType;
+  }
+
+  /*
+   * Read tuple from database after running the operator.
+   */
+  public void readDB(String tableName, String[] mapping, boolean isHashMap)
+  {
+    for (Map.Entry<String, ArrayList<String>> entry: tableToColumns2.entrySet()) {
+      int num = entry.getValue().size();
+      String query = "SELECT * FROM " + entry.getKey();
+      try {
+        ResultSet rs = stmt.executeQuery(query);
+        while (rs.next()) {
+          String str = "";
+          for (int i = 0; i < num; i++) {
+            str += rs.getObject(i + 1).toString() + " ";
+          }
+          logger.debug(str);
+        }
+      }
+      catch (SQLException ex) {
+        throw new RuntimeException(String.format("Exception during reading from table %s", entry.getKey()), ex);
+      }
+    }
+  }
+
+  /*
+   * Close database resources.
+   */
+  public void cleanupDB()
+  {
+    try {
+      stmt.close();
+      con.close();
+    }
+    catch (SQLException ex) {
+      throw new RuntimeException("Exception while closing database resource", ex);
+    }
   }
 }

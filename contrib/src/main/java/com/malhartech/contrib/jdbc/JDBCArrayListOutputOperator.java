@@ -34,68 +34,14 @@ import org.slf4j.LoggerFactory;
 public class JDBCArrayListOutputOperator extends JDBCTransactionOutputOperator<ArrayList<Object>>
 {
   private static final Logger logger = LoggerFactory.getLogger(JDBCArrayListOutputOperator.class);
-  private static final int colIdx = 0;
-  private static final int typeIdx = 1;
 
   /**
-   * The column mapping will have following pattern: <br>
-   * [Table.]Column:Type <br>
-   * Followings are two examples: <br>
-   * t1.col1:INTEGER,t3.col2:BIGINT,t3.col5:CHAR,t2.col4:DATE,t1.col7:DOUBLE,t2.col6:VARCHAR(10),t1.col3:DATE <br>
-   * col1:INTEGER,col2:BIGINT,col5:CHAR,col4:DATE,col7:DOUBLE,col6:VARCHAR(10),col3:DATE <br>
-   *
    * @param mapping
    */
   @Override
   protected void parseMapping(ArrayList<String> mapping)
   {
-    int num = mapping.size();
-    String table;
-    String column;
-
-    for (int idx = 0; idx < num; ++idx) {
-      String[] fields = mapping.get(idx).split(FIELD_DELIMITER);
-      if (fields.length != 2) {
-        throw new RuntimeException("Incorrect column mapping for ArrayList. Correct mapping should be \"[Table.]Column:Type\"");
-      }
-
-      int colDelIdx = fields[colIdx].indexOf(COLUMN_DELIMITER);
-      if (colDelIdx != -1) { // table name is used
-        table = fields[colIdx].substring(0, colDelIdx);
-        column = fields[colIdx].substring(colDelIdx + 1);
-        if (!tableNames.contains(table)) {
-          tableNames.add(table);
-        }
-      }
-      else { // table name not used; so this must be single table
-        table = getTableName();
-        if (table.isEmpty()) {
-          throw new RuntimeException("Table name can not be empty");
-        }
-        if (tableNames.isEmpty()) {
-          tableNames.add(table);
-        }
-        column = fields[colIdx];
-      }
-      columnNames.add(column);
-      keyToTable.put(fields[colIdx], table);
-
-      if (tableToColumns.containsKey(table)) {
-        tableToColumns.get(table).add(column);
-      }
-      else {
-        ArrayList<String> cols = new ArrayList<String>();
-        cols.add(column);
-        tableToColumns.put(table, cols);
-      }
-
-      keyToIndex.put(fields[colIdx], tableToColumns.get(table).size());
-      columnIndexArray.add(tableToColumns.get(table).size());
-      tableArray.add(table);
-
-      keyToType.put(fields[colIdx], fields[typeIdx].toUpperCase().contains("VARCHAR") ? "VARCHAR" : fields[typeIdx].toUpperCase());
-      typeArray.add(fields[typeIdx].toUpperCase().contains("VARCHAR") ? "VARCHAR" : fields[typeIdx].toUpperCase());
-    }
+    parseArrayListColumnMapping(mapping);
   }
 
   /*
