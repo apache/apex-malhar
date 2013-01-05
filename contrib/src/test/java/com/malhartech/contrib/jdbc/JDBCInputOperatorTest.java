@@ -4,9 +4,9 @@
  */
 package com.malhartech.contrib.jdbc;
 
+import com.malhartech.engine.OperatorContext;
 import com.malhartech.engine.TestSink;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -21,6 +21,12 @@ public class JDBCInputOperatorTest
   private static final Logger logger = LoggerFactory.getLogger(JDBCInputOperatorTest.class);
   private static final int maxTuple = 20;
   private int count = 0;
+  private Connection con = null;
+  private Statement stmt = null;
+  private static final String driver = "com.mysql.jdbc.Driver";
+  private static final String url = "jdbc:mysql://localhost/test?user=test&password=";
+  private static final String db_name = "test";
+  private String tableName = "Test_Tuple";
 
   /**
    * Test class for JDBCInputOperator
@@ -52,6 +58,55 @@ public class JDBCInputOperatorTest
     }
   }
 
+  public void setupDB(String[] mapping)
+  {
+    try {
+      // This will load the JDBC driver, each DB has its own driver
+      Class.forName(driver).newInstance();
+
+      con = DriverManager.getConnection(url);
+      stmt = con.createStatement();
+
+      String createDB = "CREATE DATABASE IF NOT EXISTS " + db_name;
+      String useDB = "USE " + db_name;
+
+      stmt.executeUpdate(createDB);
+      stmt.executeQuery(useDB);
+
+      String dropTable = "DROP TABLE IF EXISTS " + tableName;
+      String createTable = "CREATE TABLE " + tableName + " (col1 INTEGER, col2 INTEGER, col5 INTEGER, col4 INTEGER, col7 INTEGER, col6 INTEGER, col3 INTEGER)";
+
+      stmt.executeUpdate(dropTable);
+      stmt.executeUpdate(createTable);
+
+    }
+    catch (InstantiationException ex) {
+      throw new RuntimeException("Exception during setupDB", ex);
+    }
+    catch (IllegalAccessException ex) {
+      throw new RuntimeException("Exception during setupDB", ex);
+    }
+    catch (ClassNotFoundException ex) {
+      throw new RuntimeException("Exception during setupDB", ex);
+    }
+    catch (SQLException ex) {
+      throw new RuntimeException(String.format("Exception during setupDB"), ex);
+    }
+  }
+
+  public void insertData(String[] mapping, JDBCOperatorTestHelper helper)
+  {
+    for (int i = 1; i <= maxTuple; ++i) {
+      try {
+        String insert = "INSERT INTO Test_Tuple (col1, col2, col5, col4, col7, col6, col3) VALUES (1, 2, 3, 4, 5, 6, 7)";
+        stmt.executeUpdate(insert);
+      }
+      catch (SQLException ex) {
+        throw new RuntimeException(String.format("Exception during insert data"), ex);
+      }
+    }
+  }
+
   @Test
   public void JDBCInputOperatorTest() throws Exception
   {
@@ -59,27 +114,20 @@ public class JDBCInputOperatorTest
     helper.buildDataset();
 
     MyJDBCInputOperator oper = new MyJDBCInputOperator();
-    oper.setTableName("Test_Tuple");
     oper.setDbUrl("jdbc:mysql://localhost/test?user=test&password=");
     oper.setDbDriver("com.mysql.jdbc.Driver");
-    oper.setBatchSize(100);
-    oper.setWindowIdColumnName("winid");
-    oper.setOperatorIdColumnName("operatorid");
-    oper.setApplicationIdColumnName("appid");
 
     TestSink<String> sink = new TestSink<String>();
     oper.outputPort.setSink(sink);
 
-    oper.setColumnMapping(helper.hashMapping1);
+    setupDB(helper.hashMapping1);
 
-    helper.setupDB(oper, helper.hashMapping1, true, true);
-    oper.setup(new com.malhartech.engine.OperatorContext("op1", null, null));
-    oper.beginWindow(oper.lastWindowId + 1);
-    helper.insertData(helper.hashMapping1, true);
+    oper.setup(new OperatorContext("op1", null, null));
+    oper.beginWindow(1);
+    insertData(helper.hashMapping1, helper);
     oper.emitTuples();
     oper.endWindow();
     oper.teardown();
-    helper.cleanupDB();
 
     // Check values send vs received
     Assert.assertEquals("Number of emitted tuples", maxTuple, count);

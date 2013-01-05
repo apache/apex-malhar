@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -249,7 +248,7 @@ public class JDBCOperatorTestHelper
    * For Transaction db, create data table as well as maxwindowid table.
    * For non-transation db, create only data table with additional columns application id, operator id, window id.
    */
-  public void setupDB(JDBCOperatorBase oper, String[] mapping, boolean isHashMap, boolean transaction)
+  public void setupDB(JDBCOutputOperator oper, String[] mapping, boolean isHashMap, boolean transaction)
   {
     int num = mapping.length;
     int propIdx = isHashMap ? 0 : -1;
@@ -331,7 +330,6 @@ public class JDBCOperatorTestHelper
     try {
       // This will load the JDBC driver, each DB has its own driver
       Class.forName(driver).newInstance();
-      //String temp = "jdbc:derby:test;create=true";
 
       con = DriverManager.getConnection(url);
       stmt = con.createStatement();
@@ -365,99 +363,6 @@ public class JDBCOperatorTestHelper
     }
 
     logger.debug("JDBC Table creation Success");
-  }
-
-  public void prepareInsertStatement(String[] mapping)
-  {
-    if (tableToColumns2.isEmpty()) {
-      return;
-    }
-
-    String space = " ";
-    String comma = ",";
-    String question = "?";
-
-    for (Map.Entry<String, ArrayList<String>> entry: tableToColumns2.entrySet()) {
-      int num = entry.getValue().size();
-      if (num < 1) {
-        return;
-      }
-      String columns = "";
-      String values = "";
-
-
-      for (int idx = 0; idx < num; ++idx) {
-        if (idx == 0) {
-          columns = entry.getValue().get(idx);
-          values = question;
-        }
-        else {
-          columns += comma + space + entry.getValue().get(idx);
-          values += comma + space + question;
-        }
-      }
-
-      /*   ArrayList<String> windowCol = windowColumn();
-       if (windowCol != null && windowCol.size() > 0) {
-       for (int i =0; i<windowCol.size(); i++) {
-       columns += comma + space + windowCol.get(i);
-       values += comma + space + question;
-       }
-       }*/
-
-      String insertQuery = "INSERT INTO " + entry.getKey() + " (" + columns + ") VALUES (" + values + ")";
-      logger.debug(String.format("%s", insertQuery));
-      try {
-        tableToInsertStatement.put(entry.getKey(), con.prepareStatement(insertQuery));
-      }
-      catch (SQLException ex) {
-        throw new RuntimeException(String.format("Error while preparing insert query: %s", insertQuery), ex);
-      }
-    }
-
-
-  }
-
-  public void insertData(String[] mapping, boolean isHashMap)
-  {
-    prepareInsertStatement(mapping);
-    for (int i = 1; i <= 20; ++i) {
-      HashMap<String, Object> hm = hashMapData(mapping, i);
-      for (Map.Entry<String, Object> e: hm.entrySet()) {
-        try {
-          tableToInsertStatement.get(keyToTable.get(e.getKey())).setObject(
-                  keyToIndex.get(e.getKey()).intValue(),
-                  e.getValue(),
-                  getSQLColumnType(keyToType.get(e.getKey())));
-        }
-        catch (SQLException ex) {
-          java.util.logging.Logger.getLogger(JDBCOperatorTestHelper.class.getName()).log(Level.SEVERE, null, ex);
-        }
-      }
-
-      ////
-      for (Map.Entry<String, ArrayList<String>> entry: tableToColumns2.entrySet()) {
-        int num = entry.getValue().size();
-        try {
-          tableToInsertStatement.get(entry.getKey()).execute();
-        }
-        catch (SQLException ex) {
-          throw new RuntimeException(String.format("Exception during insert into table %s", entry.getKey()), ex);
-        }
-      }
-    }
-  }
-
-  public int getSQLColumnType(String type)
-  {
-    int SQLType = 0;
-    try {
-      SQLType = columnSQLTypes.get(type);
-    }
-    catch (Exception ex) {
-      throw new RuntimeException(String.format("Unsupported SQL type %s in column mapping.", type), ex);
-    }
-    return SQLType;
   }
 
   /*

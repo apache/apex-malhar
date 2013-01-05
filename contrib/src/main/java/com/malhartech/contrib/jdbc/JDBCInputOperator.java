@@ -112,7 +112,6 @@ public abstract class JDBCInputOperator<T> extends JDBCOperatorBase implements I
 
   public void beginWindow(long windowId)
   {
-    this.windowId = windowId;
   }
 
   public void endWindow()
@@ -144,13 +143,4 @@ public abstract class JDBCInputOperator<T> extends JDBCOperatorBase implements I
     closeJDBCConnection();
   }
 
-  /**
-   * Not Needed for input operator. Only needed for output operator.
-   * @param mapping
-   */
-  @Override
-  protected void parseMapping(ArrayList<String> mapping)
-  {
-    // No op.
-  }
 }
