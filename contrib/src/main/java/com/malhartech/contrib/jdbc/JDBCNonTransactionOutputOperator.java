@@ -73,7 +73,7 @@ public abstract class JDBCNonTransactionOutputOperator<T> extends JDBCOutputOper
           logger.error("table " + tableNames.get(0) + " " + windowIdColumnName + " column not ready!");
           throw new RuntimeException("table " + tableNames.get(0) + " " + windowIdColumnName + " column not ready!");
         }
-        lastWindowId = rs.getLong(windowIdColumnName);
+        lastWindowId = rs.getLong("maxwinid");
       }
       catch (SQLException ex) {
         throw new RuntimeException(ex);

@@ -51,9 +51,9 @@ public abstract class JDBCOperatorBase
   protected transient long lastWindowId;
   protected transient boolean ignoreWindow;
   protected transient String operatorId;
-  protected String sWindowId;
-  protected String sOperatorId;  // Storing operator id is for partitioning purpose
-  protected String sApplicationId;
+  protected String windowIdColumnName;
+  protected String operatorIdColumnName;  // Storing operator id is for partitioning purpose
+  protected String applicationIdColumnName;
   protected long tupleCount = 0;
   protected transient boolean emptyTuple = false;
   // additional variables for arraylist mapping
@@ -140,35 +140,36 @@ public abstract class JDBCOperatorBase
     this.operatorId = operatorId;
   }
 
-  public String getsWindowId()
+  public String getWindowIdColumnName()
   {
-    return sWindowId;
+    return windowIdColumnName;
   }
 
-  public void setsWindowId(String sWindowId)
+  public void setWindowIdColumnName(String sWindowId)
   {
-    this.sWindowId = sWindowId;
+    this.windowIdColumnName = sWindowId;
   }
 
-  public String getsOperatorId()
+  public String getOperatorIdColumnName()
   {
-    return sOperatorId;
+    return operatorIdColumnName;
   }
 
-  public void setsOperatorId(String sOperatorId)
+  public void setOperatorIdColumnName(String sOperatorId)
   {
-    this.sOperatorId = sOperatorId;
+    this.operatorIdColumnName = sOperatorId;
   }
 
-  public String getsApplicationId()
+  public String getApplicationIdColumnName()
   {
-    return sApplicationId;
+    return applicationIdColumnName;
   }
 
-  public void setsApplicationId(String sApplicationId)
+  public void setApplicationIdColumnName(String sApplicationId)
   {
-    this.sApplicationId = sApplicationId;
+    this.applicationIdColumnName = sApplicationId;
   }
+
   public ArrayList<String> getColumnNames()
   {
     return columnNames;

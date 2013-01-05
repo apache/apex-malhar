@@ -5,7 +5,10 @@
 package com.malhartech.contrib.jdbc;
 
 import com.malhartech.api.Context.OperatorContext;
-import java.sql.*;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

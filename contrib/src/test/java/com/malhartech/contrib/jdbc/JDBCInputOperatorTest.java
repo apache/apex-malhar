@@ -63,9 +63,9 @@ public class JDBCInputOperatorTest
     oper.setDbUrl("jdbc:mysql://localhost/test?user=test&password=");
     oper.setDbDriver("com.mysql.jdbc.Driver");
     oper.setBatchSize(100);
-    oper.setsWindowId("winid");
-    oper.setsOperatorId("operatorid");
-    oper.setsApplicationId("appid");
+    oper.setWindowIdColumnName("winid");
+    oper.setOperatorIdColumnName("operatorid");
+    oper.setApplicationIdColumnName("appid");
 
     TestSink<String> sink = new TestSink<String>();
     oper.outputPort.setSink(sink);

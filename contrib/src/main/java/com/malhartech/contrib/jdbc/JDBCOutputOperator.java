@@ -111,6 +111,7 @@ public abstract class JDBCOutputOperator<T> extends JDBCOperatorBase implements 
     }
   };
 
+
   /**
    * Additional column names, needed for non-transactional database.
    *
