@@ -4,16 +4,14 @@
  */
 package com.malhartech.contrib.jdbc;
 
-import com.malhartech.contrib.jdbc.JDBCHashMapNonTransactionOutputOperator;
-import com.malhartech.contrib.jdbc.JDBCHashMapOutputOperator;
-import com.malhartech.api.*;
+import com.malhartech.api.CheckpointListener;
 import com.malhartech.api.Context.OperatorContext;
+import com.malhartech.api.DAG;
 import com.malhartech.bufferserver.util.Codec;
 import com.malhartech.stram.StramLocalCluster;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +40,7 @@ public class JDBCRecoveryTest
     helper.buildDataset();
   }
 
-  public static class MyHashMapOutputOperator extends JDBCHashMapOutputOperator<Object> implements CheckpointListener
+  public static class MyHashMapOutputOperator extends JDBCTransactionHashMapOutputOperator<Object> implements CheckpointListener
   {
     private int simulateFailure;
     private transient boolean nexttime;
@@ -223,7 +221,7 @@ public class JDBCRecoveryTest
     logger.debug("JDBC Table creation Success");
   }
 
-  public static class MyNonTransactionHashMapOutputOperator extends JDBCHashMapNonTransactionOutputOperator<Object> implements CheckpointListener
+  public static class MyNonTransactionHashMapOutputOperator extends JDBCNonTransactionHashMapOutputOperator<Object> implements CheckpointListener
   {
     private int simulateFailure;
     private transient boolean nexttime;

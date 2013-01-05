@@ -4,7 +4,9 @@
  */
 package com.malhartech.contrib.jdbc;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,8 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * JDBC output adapter operator, for HashMap column mapping and transaction type database write. <p><br>
- * Each tuple contain a HahMap or Java object. Key is string, Value can be any type derived from Java object. <br>
+ * JDBC output adapter operator, for HashMap column mapping and non-transaction type database write. Key is string, Value can be any type derived from Java object.<p><br>
  * <br>
  * Ports:<br>
  * <b>Input</b>: This has a single input port that writes data into database.<br>
@@ -31,14 +32,16 @@ import org.slf4j.LoggerFactory;
  * Benchmarks:<br>
  * TBD<br>
  * <br>
+ *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
-public class JDBCHashMapOutputOperator<V> extends JDBCTransactionOutputOperator<HashMap<String, V>>
+public class JDBCNonTransactionHashMapOutputOperator<V> extends JDBCNonTransactionOutputOperator<HashMap<String, V>>
 {
-  private static final Logger logger = LoggerFactory.getLogger(JDBCHashMapOutputOperator.class);
+  private static final Logger logger = LoggerFactory.getLogger(JDBCNonTransactionHashMapOutputOperator.class);
 
   /**
    * @param mapping
+   *
    */
   @Override
   protected void parseMapping(ArrayList<String> mapping)
@@ -61,6 +64,12 @@ public class JDBCHashMapOutputOperator<V> extends JDBCTransactionOutputOperator<
               keyToIndex.get(e.getKey()).intValue(),
               e.getValue(),
               getSQLColumnType(keyToType.get(e.getKey())));
+    }
+
+    for (Map.Entry<String, PreparedStatement> entry: tableToInsertStatement.entrySet()) {
+      entry.getValue().setObject(tableToColumns.get(entry.getKey()).size() + 1, windowId, Types.BIGINT);
+      entry.getValue().setObject(tableToColumns.get(entry.getKey()).size() + 2, operatorId, Types.VARCHAR);
+      entry.getValue().setObject(tableToColumns.get(entry.getKey()).size() + 3, "0", Types.VARCHAR);
     }
   }
 }

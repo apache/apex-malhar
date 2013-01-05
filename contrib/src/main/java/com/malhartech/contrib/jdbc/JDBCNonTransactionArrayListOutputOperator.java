@@ -4,15 +4,18 @@
  */
 package com.malhartech.contrib.jdbc;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * JDBC output adapter operator, for ArrayList column mapping and transaction type database write. <p><br>
- * Each tuple contains an array of java object. <br>
- * <br>
+ * JDBC output adapter operator, for ArrayList column mapping and non-transaction type database write.<p><br>
+ * The tuple can contain an array of java object. <br>
+ *
  * Ports:<br>
  * <b>Input</b>: This has a single input port that writes data into database.<br>
  * <b>Output</b>: No output port<br>
@@ -31,9 +34,9 @@ import org.slf4j.LoggerFactory;
  * <br>
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
-public class JDBCArrayListOutputOperator extends JDBCTransactionOutputOperator<ArrayList<Object>>
+public class JDBCNonTransactionArrayListOutputOperator extends JDBCNonTransactionOutputOperator<ArrayList<Object>>
 {
-  private static final Logger logger = LoggerFactory.getLogger(JDBCArrayListOutputOperator.class);
+  private static final Logger logger = LoggerFactory.getLogger(JDBCNonTransactionArrayListOutputOperator.class);
 
   /**
    * @param mapping
@@ -54,13 +57,19 @@ public class JDBCArrayListOutputOperator extends JDBCTransactionOutputOperator<A
     if (tuple.isEmpty()) {
       emptyTuple = true;
     }
-    int num = tuple.size();
 
+    int num = tuple.size();
     for (int idx = 0; idx < num; idx++) {
       tableToInsertStatement.get(tableArray.get(idx)).setObject(
               columnIndexArray.get(idx),
               tuple.get(idx),
               getSQLColumnType(typeArray.get(idx)));
+    }
+
+    for (Map.Entry<String, PreparedStatement> entry: tableToInsertStatement.entrySet()) {
+      entry.getValue().setObject(tableToColumns.get(entry.getKey()).size() + 1, windowId, Types.BIGINT);
+      entry.getValue().setObject(tableToColumns.get(entry.getKey()).size() + 2, operatorId, Types.VARCHAR);
+      entry.getValue().setObject(tableToColumns.get(entry.getKey()).size() + 3, "0", Types.VARCHAR);
     }
   }
 }
