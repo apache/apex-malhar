@@ -105,13 +105,13 @@ public class MongoDBOutputOperatorTest
       }
     }
   }
-//  @Ignore
+  @Ignore
   @Test
   public void MongoDBHashMapOutputOperatorTest()
   {
     buildDataset();
 
-    MongoDBHashMapOutputOperator oper = new MongoDBHashMapOutputOperator();
+    MongoDBHashMapOutputOperator<Object> oper = new MongoDBHashMapOutputOperator<Object>();
 
     oper.setBatchSize(3);
     oper.setHostName("localhost");
@@ -180,4 +180,5 @@ public class MongoDBOutputOperatorTest
 
     oper.teardown();
   }
+
 }

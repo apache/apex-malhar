@@ -35,28 +35,22 @@ import org.slf4j.LoggerFactory;
  * <b>Output</b>: no output port<br>
  * <br>
  * Properties:<br>
- * <b>hostName</b>:the host name of the database to connect to, not null<br>
- * <b>dataBase</b>:the database to connect to<br>
- * <b>batchSize</b>:size for each batch insert, default value is 1000<br>
- * <b>userName</b>:userName for connection to database<br>
- * <b>passWord</b>:password for connection to database<br>
- * <b>mongoClient</b>:created when connected to database<br>
- * <b>db</b>:created when connected to database<br>
- * <b>tableList</b>: the list of all the tables of the mapping<br>
- * <b>tableToDocument</b>:each tuple corresponds to one document for one collection to be inserted<br>
- * <b>tableToDocumentList</b>:for bulk insert, each table has a document list to insert. This is table and document list map <br>
- * <b>maxWindowTable</b>:the table to save the most recent inserted windowId, operatorId information for recovery use<br>
+  * <b>maxWindowTable</b>:the table to save the most recent inserted windowId, operatorId information for recovery use<br>
  * <b>maxWindowCollection</b>:mongoDB collection of the maxWindowTable<br>
  * <b>windowId</b>:Id of current window<br>
  * <b>operatorId</b>:Id of the operator<br>
+ * <b>batchSize</b>:size for each batch insert, default value is 1000<br>
  * <b>lastWindowId</b>:last inserted windowId, is obtained at setup from maxWindowTable with specific operatorId<br>
  * <b>ignoreWindow</b>:the flag to indicate ignoring out of date window <br>
  * <b>tupleId</b>:the Id of the tuple, incrementing at each tuple process, start from 1 at beginWindow()<br>
  * <b>windowIdColumnName</b>:the name of the windowId column in maxWindowTable, should be set by the user<br>
  * <b>operatorIdColumnName</b>:the name of the operatorId column in maxWindowTable, should be set by the user<br>
+ * <b>tableList</b>: the list of all the tables of the mapping<br>
+ * <b>tableToDocument</b>:each tuple corresponds to one document for one collection to be inserted<br>
+ * <b>tableToDocumentList</b>:for bulk insert, each table has a document list to insert. This is table and document list map <br>
+ * <b>tupleId</b>:the Id of the tuple, incrementing at each tuple process, start from 1 at beginWindow()<br>
  * <b>queryFunction</b>:corresponding to the option for the ObjectId of 12 bytes format saving. The windowId, tupleId, operatorId of each tuple are saved in each collection as the column ObjectId for recovery<br>
  * It Currently has 3 format for the ObjectId. When the operator recovers, it will remove the document which has the same windowId, operatorId as maxWindowTable in the collections, and insert the documents again<br>
- * <b></b>:<br>
  * <br>
  * Compile time checks:<br>
  * None<br>
@@ -71,33 +65,25 @@ import org.slf4j.LoggerFactory;
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
-public abstract class MongoDBOutputOperator<T> implements Operator
+public abstract class MongoDBOutputOperator<T> extends MongoDBBaseOperator implements Operator
 {
   private static final Logger logger = LoggerFactory.getLogger(MongoDBOutputOperator.class);
-  private static final int DEFAULT_BATCH_SIZE = 1000;
-  @NotNull
-  private String hostName;
-  private String dataBase;
+  protected static final int DEFAULT_BATCH_SIZE = 1000;
   @Min(1)
   protected long batchSize = DEFAULT_BATCH_SIZE;
-  private String userName;
-  private String passWord;
-  private transient MongoClient mongoClient;
-  protected transient DB db;
   protected transient ArrayList<String> tableList = new ArrayList<String>(); // all the tables in the mapping
   protected transient HashMap<String, BasicDBObject> tableToDocument = new HashMap<String, BasicDBObject>(); // each table has one document to insert
   protected transient HashMap<String, List<DBObject>> tableToDocumentList = new HashMap<String, List<DBObject>>();
-  private String maxWindowTable;
+  protected String maxWindowTable;
   protected transient DBCollection maxWindowCollection;
   protected transient long windowId;
   protected transient String operatorId;
 //  protected transient String applicationId;
   protected transient long lastWindowId;
   protected transient boolean ignoreWindow;
-  protected transient int tupleId;
   protected String windowIdColumnName;
   protected String operatorIdColumnName;
-//  protected String applicationIdName;
+  protected transient int tupleId;
   protected int queryFunction;
 
   /**
@@ -452,26 +438,6 @@ public abstract class MongoDBOutputOperator<T> implements Operator
     }
   }
 
-  public String getUserName()
-  {
-    return userName;
-  }
-
-  public void setUserName(String userName)
-  {
-    this.userName = userName;
-  }
-
-  public String getPassWord()
-  {
-    return passWord;
-  }
-
-  public void setPassWord(String passWord)
-  {
-    this.passWord = passWord;
-  }
-
   public void addTable(String table)
   {
     tableList.add(table);
@@ -480,6 +446,11 @@ public abstract class MongoDBOutputOperator<T> implements Operator
   public ArrayList<String> getTableList()
   {
     return tableList;
+  }
+
+  public void setQueryFunction(int queryFunction)
+  {
+    this.queryFunction = queryFunction;
   }
 
   public long getBatchSize()
@@ -522,35 +493,6 @@ public abstract class MongoDBOutputOperator<T> implements Operator
     this.operatorIdColumnName = operatorIdColumnName;
   }
 
-//  public String getApplicationIdName()
-//  {
-//    return applicationIdName;
-//  }
-//
-//  public void setApplicationIdName(String applicationIdName)
-//  {
-//    this.applicationIdName = applicationIdName;
-//  }
-  public String getDataBase()
-  {
-    return dataBase;
-  }
-
-  public void setDataBase(String dataBase)
-  {
-    this.dataBase = dataBase;
-  }
-
-  public String getHostName()
-  {
-    return hostName;
-  }
-
-  public void setHostName(String dbUrl)
-  {
-    this.hostName = dbUrl;
-  }
-
   public long getLastWindowId()
   {
     return lastWindowId;
@@ -559,10 +501,5 @@ public abstract class MongoDBOutputOperator<T> implements Operator
   public void setLastWindowId(long lastWindowId)
   {
     this.lastWindowId = lastWindowId;
-  }
-
-  public void setQueryFunction(int queryFunction)
-  {
-    this.queryFunction = queryFunction;
   }
 }
