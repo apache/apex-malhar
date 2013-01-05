@@ -77,7 +77,7 @@ public abstract class MongoDBOutputOperator<T> extends MongoDBBaseOperator imple
   protected String maxWindowTable;
   protected transient DBCollection maxWindowCollection;
   protected transient long windowId;
-  protected transient String operatorId;
+  protected transient int operatorId;
 //  protected transient String applicationId;
   protected transient long lastWindowId;
   protected transient boolean ignoreWindow;
@@ -303,7 +303,7 @@ public abstract class MongoDBOutputOperator<T> extends MongoDBBaseOperator imple
   public void queryFunction1(ByteBuffer bb, StringBuilder high, StringBuilder low)
   {
     bb.putLong(windowId);
-    byte opId = (byte)Integer.parseInt(operatorId);
+    byte opId = (byte)(operatorId);
     bb.put(opId);
     ByteBuffer lowbb = bb;
     lowbb.put((byte)0);
@@ -332,7 +332,7 @@ public abstract class MongoDBOutputOperator<T> extends MongoDBBaseOperator imple
     bb.putInt(baseSec);
     short winId = (short)(windowId & 0xffff);
     bb.putShort(winId);
-    Integer operId = Integer.parseInt(operatorId);
+    Integer operId = operatorId;
     for (int i = 0; i < 3; i++) {
       byte num = (byte)(operId >> 8 * (2 - i));
       bb.put(num);
@@ -361,7 +361,7 @@ public abstract class MongoDBOutputOperator<T> extends MongoDBBaseOperator imple
   {
     int baseSec = (int)(windowId >> 32);
     bb.putInt(baseSec);
-    Integer operId = Integer.parseInt(operatorId);
+    Integer operId = operatorId;
     for (int i = 0; i < 3; i++) {
       byte num = (byte)(operId >> 8 * (2 - i));
       bb.put(num);
@@ -391,7 +391,7 @@ public abstract class MongoDBOutputOperator<T> extends MongoDBBaseOperator imple
   void insertFunction1(ByteBuffer bb)
   {
     bb.putLong(windowId);
-    byte oid = (byte)Integer.parseInt(operatorId);
+    byte oid = (byte)(operatorId);
     bb.put(oid);
     for (int i = 0; i < 3; i++) {
       byte num = (byte)(tupleId >> 8 * (2 - i));
@@ -406,7 +406,7 @@ public abstract class MongoDBOutputOperator<T> extends MongoDBBaseOperator imple
   {
     int baseSec = (int)(windowId >> 32);
     bb.putInt(baseSec);
-    Integer operId = Integer.parseInt(operatorId);
+    Integer operId = operatorId;
     for (int i = 0; i < 3; i++) {
       byte num = (byte)(operId >> 8 * (2 - i));
       bb.put(num);
@@ -427,7 +427,7 @@ public abstract class MongoDBOutputOperator<T> extends MongoDBBaseOperator imple
     bb.putInt(baseSec);
     short winId = (short)(windowId & 0xffff);
     bb.putShort(winId);
-    Integer operId = Integer.parseInt(operatorId);
+    Integer operId = operatorId;
     for (int i = 0; i < 3; i++) {
       byte num = (byte)(operId >> 8 * (2 - i));
       bb.put(num);

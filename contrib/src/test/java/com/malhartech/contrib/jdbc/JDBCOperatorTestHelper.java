@@ -4,6 +4,10 @@
  */
 package com.malhartech.contrib.jdbc;
 
+import com.malhartech.api.DAG;
+import com.malhartech.api.DAGConstants;
+import com.malhartech.util.AttributeMap;
+import com.malhartech.util.AttributeMap.DefaultAttributeMap;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,6 +39,8 @@ public class JDBCOperatorTestHelper
   protected transient ArrayList<String> tableNames = new ArrayList<String>();
   private transient HashMap<String, Integer> columnSQLTypes = new HashMap<String, Integer>();
   private int columnCount = 7;
+  public AttributeMap<DAGConstants> attrmap = new DefaultAttributeMap<DAGConstants>();
+
   public String[] hashMapping1 = new String[7];
   public String[] hashMapping2 = new String[7];
   public String[] hashMapping3 = new String[7];
@@ -161,6 +167,8 @@ public class JDBCOperatorTestHelper
     columnSQLTypes.put("TINYINT", new Integer(Types.TINYINT));
     columnSQLTypes.put("VARBINARY", new Integer(Types.VARBINARY));
     columnSQLTypes.put("VARCHAR", new Integer(Types.VARCHAR));
+
+    attrmap.attr(DAG.STRAM_APP_ID).set("myJDBCOouputOperatorAppId");
 
   }
 

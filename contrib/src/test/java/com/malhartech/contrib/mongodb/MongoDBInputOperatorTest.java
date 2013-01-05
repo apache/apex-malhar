@@ -4,8 +4,13 @@
  */
 package com.malhartech.contrib.mongodb;
 
+import com.malhartech.api.DAG;
+import com.malhartech.api.DAGConstants;
 import com.malhartech.bufferserver.util.Codec;
+import com.malhartech.engine.OperatorContext;
 import com.malhartech.engine.TestSink;
+import com.malhartech.util.AttributeMap;
+import com.malhartech.util.AttributeMap.DefaultAttributeMap;
 import com.mongodb.DBCursor;
 import java.util.HashMap;
 import org.junit.Ignore;
@@ -48,10 +53,12 @@ public class MongoDBInputOperatorTest
     oper.setPassWord("123");
     oper.setTable("t1");
 
-    oper.setup(new com.malhartech.engine.OperatorContext("1", null, null));
+    AttributeMap<DAGConstants> attrmap = new DefaultAttributeMap<DAGConstants>();
+    attrmap.attr(DAG.STRAM_APP_ID).set("myMongoDBInputOperatorAppId");
+    oper.setup(new OperatorContext(1, null, null, attrmap));
 
     oper.beginWindow(0);
-    
+
     TestSink sink = new TestSink();
     oper.outputPort.setSink(sink);
 

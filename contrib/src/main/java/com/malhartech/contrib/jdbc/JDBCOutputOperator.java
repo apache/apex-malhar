@@ -107,7 +107,7 @@ public abstract class JDBCOutputOperator<T> extends JDBCOperatorBase implements 
   protected transient long windowId;
   protected transient long lastWindowId;
   protected transient boolean ignoreWindow;
-  protected transient String operatorId;
+  protected transient int operatorId;
   protected long tupleCount = 0;
   protected transient boolean emptyTuple = false;
   // additional variables for arraylist mapping
@@ -148,12 +148,12 @@ public abstract class JDBCOutputOperator<T> extends JDBCOperatorBase implements 
       this.columnMapping.addAll(Arrays.asList(columnMapping));
     }
   }
-  public String getOperatorId()
+  public int getOperatorId()
   {
     return operatorId;
   }
 
-  public void setOperatorId(String operatorId)
+  public void setOperatorId(int operatorId)
   {
     this.operatorId = operatorId;
   }
