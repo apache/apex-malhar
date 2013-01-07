@@ -19,29 +19,24 @@ import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * MongoDB input adapter operator, which send selection data from database.<p><br>
+ * MongoDB input adapter operator, which send query data from database.<p><br>
  *
  * <br>
  * Ports:<br>
- * <b>Input</b>: Can have one input port <br>
- * <b>Output</b>: no output port<br>
+ * <b>Input</b>: no input port <br>
+ * <b>Output</b>: can have one output port<br>
  * <br>
  * Properties:<br>
- * <b>tableList</b>: the list of all the tables of the mapping<br>
- * <b>tableToDocument</b>:each tuple corresponds to one document for one collection to be inserted<br>
- * <b>tableToDocumentList</b>:for bulk insert, each table has a document list to insert. This is table and document list map <br>
- * <b>tupleId</b>:the Id of the tuple, incrementing at each tuple process, start from 1 at beginWindow()<br>
- * <b>queryFunction</b>:corresponding to the option for the ObjectId of 12 bytes format saving. The windowId, tupleId, operatorId of each tuple are saved in each collection as the column ObjectId for recovery<br>
- * It Currently has 3 format for the ObjectId. When the operator recovers, it will remove the document which has the same windowId, operatorId as maxWindowTable in the collections, and insert the documents again<br>
+ * <b>table</b>: the collection which query is get from<br>
+ * <b>query</b>:the query object which can has any condition the user wants<br>
+ * <b>resultCursor</b>:the result cursor that the query is returned<br>
  * <br>
  * Compile time checks:<br>
  * None<br>
  * <br>
  * Run time checks:<br>
- * hostName
- * batchSize <br>
- * <b>data type:</br>the insertion data can support all the Objects mongoDB supports<br>
- *
+ * None <br>
+ * <br>
  * <b>Benchmarks</b>:
  * <br>
  *
@@ -59,13 +54,15 @@ public abstract class MongoDBInputOperator<T> extends MongoDBBaseOperator implem
   /**
    * Any concrete class derived from this has to implement this method
    * so that it knows what type of message it is going to send to Malhar.
-   * It converts a byte message into a Tuple. A Tuple can be of any type (derived from Java Object) that
+   * It converts DBCursor into a Tuple. A Tuple can be of any type (derived from Java Object) that
    * operator user intends to.
    *
    * @param message
    */
   public abstract T getTuple(DBCursor result);
-
+  /**
+   * query from collection
+   */
   @Override
   public void emitTuples()
   {
