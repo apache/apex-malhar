@@ -27,6 +27,7 @@ public class JDBCRecoveryTest
   private static final Logger logger = LoggerFactory.getLogger(JDBCRecoveryTest.class);
   private static int tupleCount = 0;
   private static final int maxTuple = 30;
+  private static final int expectedTuples = 4;
   private static int columnCount = 7;
   private static int dataset = 1;
   private static final String driver = "com.mysql.jdbc.Driver";
@@ -154,7 +155,7 @@ public class JDBCRecoveryTest
 
     lc.run();
 
-    junit.framework.Assert.assertEquals("Number of emitted tuples", maxTuple, tupleCount);
+    junit.framework.Assert.assertEquals("Number of emitted tuples", expectedTuples, tupleCount);
     logger.debug(String.format("Number of emitted tuples: %d", tupleCount));
   }
 
@@ -334,7 +335,8 @@ public class JDBCRecoveryTest
 
     lc.run();
 
-    junit.framework.Assert.assertEquals("Number of emitted tuples", maxTuple, tupleCount);
+
+    junit.framework.Assert.assertEquals("Number of emitted tuples", expectedTuples, tupleCount);
     logger.debug(String.format("Number of emitted tuples: %d", tupleCount));
   }
 
@@ -405,6 +407,7 @@ public class JDBCRecoveryTest
   {
     String query = "SELECT * FROM " + tableName;
     Statement stmt = null;
+    tupleCount = 0;
     try {
       stmt = con.createStatement();
       ResultSet rs = stmt.executeQuery(query);
@@ -432,6 +435,7 @@ public class JDBCRecoveryTest
         }
         tupleCount++;
       }
+      logger.debug("after reading table tupleCount:"+tupleCount);
     }
     catch (SQLException ex) {
       throw new RuntimeException("Exception during reading from table", ex);
