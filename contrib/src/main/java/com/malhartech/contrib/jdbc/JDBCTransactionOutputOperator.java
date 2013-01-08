@@ -111,7 +111,9 @@ public abstract class JDBCTransactionOutputOperator<T> extends JDBCOutputOperato
   public void setup(OperatorContext context)
   {
     super.setup(context);
+    //operatorId = context.getId();
     initTransactionInfo(context);
+    //operatorId = context.getId();
   }
 
   /**
