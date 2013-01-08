@@ -190,6 +190,8 @@ public class Application implements ApplicationFactory
 
     configure(conf);
     DAG dag = new DAG(conf);
+    // Example of naming an application
+    // dag.getAttributes().attr(DAG.STRAM_APPNAME).set("blah");
 
     Operator viewGen = getPageViewGenOperator("viewGen", dag);
     Operator adviews = getAdViewsStampOperator("adviews", dag);
