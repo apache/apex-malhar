@@ -68,8 +68,8 @@ public class JDBCNonTransactionHashMapOutputOperator<V> extends JDBCNonTransacti
 
     for (Map.Entry<String, PreparedStatement> entry: tableToInsertStatement.entrySet()) {
       entry.getValue().setObject(tableToColumns.get(entry.getKey()).size() + 1, windowId, Types.BIGINT);
-      entry.getValue().setObject(tableToColumns.get(entry.getKey()).size() + 2, operatorId, Types.VARCHAR);
-      entry.getValue().setObject(tableToColumns.get(entry.getKey()).size() + 3, "0", Types.VARCHAR);
+      entry.getValue().setObject(tableToColumns.get(entry.getKey()).size() + 2, operatorId, Types.INTEGER);
+      entry.getValue().setObject(tableToColumns.get(entry.getKey()).size() + 3, applicationId, Types.VARCHAR);
     }
   }
 }
