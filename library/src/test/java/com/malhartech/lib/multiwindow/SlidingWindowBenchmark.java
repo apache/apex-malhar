@@ -70,7 +70,7 @@ public class SlidingWindowBenchmark
     TestCountSink<String> swinSink = new TestCountSink<String>();
     oper.out.setSink(swinSink);
     oper.setN(3);
-    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
+    oper.setup(null);
 
     int numWindows = 100000000;
     String a0 = "a0";

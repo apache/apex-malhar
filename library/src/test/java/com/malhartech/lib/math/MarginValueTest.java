@@ -40,7 +40,6 @@ public class MarginValueTest
 
     oper.margin.setSink(marginSink);
     oper.setPercent(true);
-    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
 
     oper.beginWindow(0);
     oper.numerator.process(2);

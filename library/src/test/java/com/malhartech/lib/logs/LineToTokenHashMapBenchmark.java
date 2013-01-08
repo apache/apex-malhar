@@ -36,7 +36,6 @@ public class LineToTokenHashMapBenchmark
     oper.setSplitBy(";");
     oper.setSplitTokenBy(",");
     oper.tokens.setSink(tokenSink);
-    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
 
     oper.beginWindow(0); //
     String input1 = "a,2,3;b,1,2;c,4,5,6";

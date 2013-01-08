@@ -26,8 +26,6 @@ import org.mortbay.jetty.Request;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.AbstractHandler;
 
-import com.malhartech.api.Context.OperatorContext;
-
 
 public class HttpOutputOperatorTest {
 
@@ -62,7 +60,7 @@ public class HttpOutputOperatorTest {
     HttpOutputOperator<Object> node = new HttpOutputOperator<Object>();
     node.setResourceURL(new URI(url));
 
-    node.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
+    node.setup(null);
 
     Map<String, String> data = new HashMap<String, String>();
     data.put("somekey", "somevalue");

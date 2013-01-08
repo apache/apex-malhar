@@ -40,7 +40,6 @@ public class FilteredLineToTokenHashMapBenchmark
     filters[0] = "a";
     filters[1] = "c";
     oper.setFilterBy(filters);
-    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
 
     oper.beginWindow(0); //
     String input1 = "a,2,3;b,1,2;c,4,5,6";

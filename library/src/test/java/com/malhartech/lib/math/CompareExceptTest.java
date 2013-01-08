@@ -41,7 +41,6 @@ public class CompareExceptTest
     oper.compare.setSink(compareSink);
     oper.except.setSink(exceptSink);
 
-    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
     oper.setKey("a");
     oper.setValue(3.0);
     oper.setTypeEQ();

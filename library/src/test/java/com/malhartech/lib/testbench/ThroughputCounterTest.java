@@ -62,7 +62,7 @@ public class ThroughputCounterTest {
     TestCountSink countSink = new TestCountSink();
     node.count.setSink(countSink);
     node.setRollingWindowCount(5);
-    node.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
+    node.setup(null);
 
     node.beginWindow(0);
     HashMap<String, Integer> input;

@@ -36,7 +36,7 @@ public class OrderByValueTest
     keys[1] = "b";
     oper.setFilterBy(keys);
     oper.setInverse(false);
-    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
+    oper.setup(null);
 
     HashMap<String, Integer> input = new HashMap<String, Integer>();
 

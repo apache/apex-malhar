@@ -30,7 +30,6 @@ public class StreamMerger5Benchmark
     StreamMerger5 oper = new StreamMerger5();
     TestCountSink mergeSink = new TestCountSink();
     oper.out.setSink(mergeSink);
-    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
 
     oper.beginWindow(0);
     int numTuples = 200000000;

@@ -47,8 +47,6 @@ public class MaxValueTest
     oper.max.setSink(rangeSink);
 
 
-    // Not needed, but still setup is being called as a matter of discipline
-    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
     oper.beginWindow(0); //
 
     Double a = new Double(2.0);

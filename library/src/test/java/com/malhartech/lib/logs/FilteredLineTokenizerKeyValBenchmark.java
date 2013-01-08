@@ -41,7 +41,6 @@ public class FilteredLineTokenizerKeyValBenchmark
     filters[1] = "c";
     oper.setFilterBy(filters);
 
-    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
     oper.beginWindow(0); //
 
     String input1 = "a=2,b=3,c=4";

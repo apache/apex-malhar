@@ -29,8 +29,6 @@ public class MinValueTest
     TestCountAndLastTupleSink minSink = new TestCountAndLastTupleSink();
     oper.min.setSink(minSink);
 
-    // Not needed, but still setup is being called as a matter of discipline
-    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
     oper.beginWindow(0); //
 
     Double a = new Double(2.0);
@@ -67,6 +65,6 @@ public class MinValueTest
 
     // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
     Assert.assertEquals("number emitted tuples", 1, minSink.count);
-    Assert.assertEquals("emitted high value was ", new Double(1.0), (Double) minSink.tuple);
+    Assert.assertEquals("emitted high value was ", new Double(1.0), minSink.tuple);
   }
 }

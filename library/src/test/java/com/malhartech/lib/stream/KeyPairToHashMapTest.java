@@ -30,7 +30,6 @@ public class KeyPairToHashMapTest {
       TestCountSink mapSink = new TestCountSink();
 
       oper.map.setSink(mapSink);
-      oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
 
       oper.beginWindow(0);
       KeyValPair<String,String> input = new KeyValPair<String,String>("a", "1");

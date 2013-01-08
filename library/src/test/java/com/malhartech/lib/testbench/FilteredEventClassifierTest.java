@@ -115,7 +115,7 @@ public class FilteredEventClassifierTest
     node.setKeyWeights(wmap);
     node.setPassFilter(10);
     node.setTotalFilter(100);
-    node.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
+    node.setup(null);
 
     int numTuples = 10000;
     HashMap<String, Double> input = new HashMap<String, Double>();
@@ -162,7 +162,7 @@ public class FilteredEventClassifierTest
     nwnode.setKeyMap(kmap);
     nwnode.setPassFilter(10);
     nwnode.setTotalFilter(100);
-    nwnode.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
+    nwnode.setup(null);
 
     sentval = 0;
     node.beginWindow(0);
@@ -210,7 +210,7 @@ public class FilteredEventClassifierTest
     nvnode.setKeyMap(kmap);
     nvnode.setPassFilter(10);
     nvnode.setTotalFilter(100);
-    nvnode.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
+    nvnode.setup(null);
 
 
     sentval = 0;

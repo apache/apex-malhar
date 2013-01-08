@@ -69,7 +69,7 @@ public class SlidingWindowTest
     TestSink<ArrayList<String>> swinSink = new TestSink<ArrayList<String>>();
     oper.out.setSink(swinSink);
     oper.setN(3);
-    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
+    oper.setup(null);
 
     oper.beginWindow(0);
     oper.data.process("a0");

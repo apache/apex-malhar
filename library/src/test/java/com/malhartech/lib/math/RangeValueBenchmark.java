@@ -46,8 +46,6 @@ public class RangeValueBenchmark
     TestSink rangeSink = new TestSink();
     oper.range.setSink(rangeSink);
 
-    // Not needed, but still setup is being called as a matter of discipline
-    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
     oper.beginWindow(0); //
 
     int numTuples = 100000000;

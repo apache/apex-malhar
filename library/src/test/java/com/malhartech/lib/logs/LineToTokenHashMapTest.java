@@ -34,7 +34,6 @@ public class LineToTokenHashMapTest
     oper.setSplitBy(";");
     oper.setSplitTokenBy(",");
     oper.tokens.setSink(tokenSink);
-    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
 
     oper.beginWindow(0); //
     String input1 = "a,2,3;b,1,2;c,4,5,6";
@@ -48,7 +47,7 @@ public class LineToTokenHashMapTest
     }
     oper.endWindow(); //
     Assert.assertEquals("number emitted tuples", 2, tokenSink.map.size());
-    HashMap<HashMap<String,ArrayList<String>>, Object> smap = (HashMap<HashMap<String,ArrayList<String>>, Object>) tokenSink.map;
+    HashMap<HashMap<String,ArrayList<String>>, Object> smap = tokenSink.map;
      for (Map.Entry<HashMap<String,ArrayList<String>>, Object> e: smap.entrySet()) {
        for (Map.Entry<String,ArrayList<String>> l: e.getKey().entrySet()) {
          String key = l.getKey();

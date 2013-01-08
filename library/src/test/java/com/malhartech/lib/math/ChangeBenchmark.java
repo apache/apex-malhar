@@ -44,8 +44,6 @@ public class ChangeBenchmark
     oper.change.setSink(changeSink);
     oper.percent.setSink(percentSink);
 
-    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
-
     oper.beginWindow(0);
     HashMap<String, Number> input = new HashMap<String, Number>();
     input.put("a", 2);

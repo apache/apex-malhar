@@ -63,7 +63,6 @@ public class RangeTest
   {
     TestSink rangeSink = new TestSink();
     node.range.setSink(rangeSink);
-    node.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
 
     HashMap<String, Number> input = new HashMap<String, Number>();
     int numtuples = 1000;

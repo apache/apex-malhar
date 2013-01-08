@@ -36,7 +36,6 @@ public class QuotientTest
     TestCountAndLastTupleSink quotientSink = new TestCountAndLastTupleSink();
 
     oper.quotient.setSink(quotientSink);
-    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
     oper.setMult_by(2);
 
     oper.beginWindow(0); //

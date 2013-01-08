@@ -31,7 +31,6 @@ public class MaxValueBenchmark
     oper.max.setSink(maxSink);
 
     // Not needed, but still setup is being called as a matter of discipline
-    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
     oper.beginWindow(0); //
 
     int numTuples = 100000000;
@@ -64,6 +63,6 @@ public class MaxValueBenchmark
 
     oper.endWindow(); //
     log.debug(String.format("\nBenchmark for %d tuples; expected 1.0, got %f from %d tuples", numTuples*12,
-                            (Double) maxSink.tuple, maxSink.count));
+                            maxSink.tuple, maxSink.count));
   }
 }

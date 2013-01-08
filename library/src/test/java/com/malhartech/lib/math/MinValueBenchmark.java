@@ -29,8 +29,6 @@ public class MinValueBenchmark
     TestCountAndLastTupleSink minSink = new TestCountAndLastTupleSink();
     oper.min.setSink(minSink);
 
-    // Not needed, but still setup is being called as a matter of discipline
-    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
     oper.beginWindow(0); //
 
     int numTuples = 100000000;
@@ -66,6 +64,6 @@ public class MinValueBenchmark
     }
     oper.endWindow(); //
     log.debug(String.format("\nBenchmark for %d tuples; expected 1.0, got %f from %d tuples", numTuples*12,
-                            (Double) minSink.tuple, minSink.count));
+                            minSink.tuple, minSink.count));
   }
 }

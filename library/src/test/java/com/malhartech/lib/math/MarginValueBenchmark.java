@@ -35,7 +35,6 @@ public class MarginValueBenchmark
     TestCountAndLastTupleSink marginSink = new TestCountAndLastTupleSink();
 
     oper.margin.setSink(marginSink);
-    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
     oper.setPercent(true);
     oper.beginWindow(0);
 

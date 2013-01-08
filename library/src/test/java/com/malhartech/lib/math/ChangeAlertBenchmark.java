@@ -43,8 +43,6 @@ public class ChangeAlertBenchmark
     oper.alert.setSink(alertSink);
     oper.setPercentThreshold(5);
 
-    oper.setup(new com.malhartech.engine.OperatorContext("irrelevant", null, null));
-
     oper.beginWindow(0);
     HashMap<String, Number> input = new HashMap<String, Number>();
 
