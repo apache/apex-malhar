@@ -5,8 +5,8 @@
 package com.malhartech.lib.io;
 
 import com.malhartech.annotation.InputPortFieldAnnotation;
-import com.malhartech.api.*;
 import com.malhartech.api.Context.OperatorContext;
+import com.malhartech.api.*;
 import com.malhartech.stram.StramLocalCluster;
 import com.malhartech.stream.StramTestSupport;
 import com.malhartech.stream.StramTestSupport.WaitCondition;
@@ -211,10 +211,12 @@ public class ActiveMQOutputOperatorTest
     final StramLocalCluster lc = new StramLocalCluster(dag);
     lc.setHeartbeatMonitoringEnabled(false);
     lc.runAsync();
-    WaitCondition c = new WaitCondition() {
+    WaitCondition c = new WaitCondition()
+    {
       @Override
-      public boolean isComplete() {
-          return listener.receivedData.size() >= emittedCount;
+      public boolean isComplete()
+      {
+        return listener.receivedData.size() >= emittedCount;
       }
     };
     StramTestSupport.awaitCompletion(c, 10000);
@@ -243,13 +245,8 @@ public class ActiveMQOutputOperatorTest
     }
     listener.run();
 
-    // Malhar module to send message
-    // Create DAG for testing.
-    DAG dag = new DAG();
-
     // Create ActiveMQStringSinglePortOutputOperator
-    StringGeneratorInputOperator generator = dag.addOperator("NumberGenerator", StringGeneratorInputOperator.class);
-    ActiveMQStringSinglePortOutputOperator node = dag.addOperator("AMQ message producer", ActiveMQStringSinglePortOutputOperator.class);
+    ActiveMQStringSinglePortOutputOperator node = new ActiveMQStringSinglePortOutputOperator();
     // Set configuration parameters for ActiveMQ
     node.setUser("");
     node.setPassword("");
@@ -265,23 +262,25 @@ public class ActiveMQOutputOperatorTest
     node.setTransacted(false);
     node.setVerbose(true);
 
-    // Connect ports
-    dag.addStream("AMQ message", generator.outputPort, node.inputPort).setInline(true);
+    node.setup(null);
+    node.beginWindow(1);
+
+    // produce data and process
+    try {
+      int i = 0;
+      while (i < maxTuple) {
+        String tuple = "testString " + (++i);
+        node.inputPort.process(tuple);
+        tupleCount++;
+        Thread.sleep(20);
+      }
+    }
+    catch (InterruptedException ie) {
+    }
+    node.endWindow();
+    node.teardown();
 
     final long emittedCount = tupleCount < node.getMaximumSendMessages() ? tupleCount : node.getMaximumSendMessages();
-
-    // Create and run local cluster
-    final StramLocalCluster lc = new StramLocalCluster(dag);
-    lc.setHeartbeatMonitoringEnabled(false);
-    lc.runAsync();
-    WaitCondition c = new WaitCondition() {
-      @Override
-      public boolean isComplete() {
-          return listener.receivedData.size() >= emittedCount;
-      }
-    };
-    StramTestSupport.awaitCompletion(c, 10000);
-    lc.shutdown();
 
     // Check values send vs received
     Assert.assertEquals("Number of emitted tuples", emittedCount, listener.receivedData.size());
@@ -455,10 +454,12 @@ public class ActiveMQOutputOperatorTest
     final StramLocalCluster lc = new StramLocalCluster(dag);
     lc.setHeartbeatMonitoringEnabled(false);
     lc.runAsync();
-    WaitCondition c = new WaitCondition() {
+    WaitCondition c = new WaitCondition()
+    {
       @Override
-      public boolean isComplete() {
-          return listener.receivedData.size() >= emittedCount;
+      public boolean isComplete()
+      {
+        return listener.receivedData.size() >= emittedCount;
       }
     };
     StramTestSupport.awaitCompletion(c, 10000);
