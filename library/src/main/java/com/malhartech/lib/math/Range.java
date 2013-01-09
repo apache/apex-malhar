@@ -96,19 +96,8 @@ public class Range<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
   protected transient HashMap<K,MutableDouble> low = new HashMap<K,MutableDouble>();
 
   /**
-   * Clears the cache/hash
-   *
-   * @param windowId
-   */
-  @Override
-  public void beginWindow(long windowId)
-  {
-    high.clear();
-    low.clear();
-  }
-
-  /**
    * Emits range for each key. If no data is received, no emit is done
+   * Clears the internal data before return
    */
   @Override
   public void endWindow()
@@ -123,5 +112,7 @@ public class Range<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
     if (!tuples.isEmpty()) {
       range.emit(tuples);
     }
+    high.clear();
+    low.clear();
   }
 }

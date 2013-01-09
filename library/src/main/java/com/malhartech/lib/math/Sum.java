@@ -108,19 +108,9 @@ public class Sum<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
   protected transient HashMap<K, MutableInteger> counts = new HashMap<K, MutableInteger>();
 
   /**
-   * Clears the cache/hash
-   * @param windowId
-   */
-  @Override
-  public void beginWindow(long windowId)
-  {
-    sums.clear();
-    counts.clear();
-  }
-
-  /**
    * Emits on all ports that are connected. Data is precomputed during process on input port
    * endWindow just emits it for each key
+   * Clears the internal data before return
    */
   @Override
   public void endWindow()
@@ -173,5 +163,7 @@ public class Sum<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
     if ((atuples != null) && !atuples.isEmpty()) {
       average.emit(atuples);
     }
+    sums.clear();
+    counts.clear();
   }
 }

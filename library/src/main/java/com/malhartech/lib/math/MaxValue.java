@@ -77,17 +77,8 @@ public class MaxValue<V extends Number> extends BaseNumberValueOperator<V>
   protected transient boolean flag = false;
 
   /**
-   * Old max is reset
-   * @param windowId
-   */
-  @Override
-  public void beginWindow(long windowId)
-  {
-    flag = false;
-  }
-
-  /**
    * Node only works in windowed mode. Emits the max. Override getValue if tuple type is mutable
+   * Clears internal data
    */
   @Override
   public void endWindow()
@@ -95,5 +86,6 @@ public class MaxValue<V extends Number> extends BaseNumberValueOperator<V>
     if (flag) {
       max.emit(getValue(high));
     }
+    flag = false;
   }
 }

@@ -89,19 +89,8 @@ public class QuotientValue<V extends Number> extends BaseNumberValueOperator<V>
   }
 
   /**
-   * Clears denominator and numerator values
-   *
-   * @param windowId
-   */
-  @Override
-  public void beginWindow(long windowId)
-  {
-    nval = 0.0;
-    dval = 0.0;
-  }
-
-  /**
    * Generates tuple emits it as long as denomitor is not 0
+   * Clears internal data
    */
   @Override
   public void endWindow()
@@ -111,5 +100,7 @@ public class QuotientValue<V extends Number> extends BaseNumberValueOperator<V>
     }
     double val = (nval / dval) * mult_by;
     quotient.emit(getValue(val));
+    nval = 0.0;
+    dval = 0.0;
   }
 }

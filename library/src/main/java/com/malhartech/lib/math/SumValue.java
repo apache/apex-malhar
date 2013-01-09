@@ -77,17 +77,6 @@ public class SumValue<V extends Number> extends BaseNumberValueOperator<V>
   protected transient int counts = 0;
 
   /**
-   * clears sum and count
-   * @param windowId
-   */
-  @Override
-  public void beginWindow(long windowId)
-  {
-    sums = 0;
-    counts = 0;
-  }
-
-  /**
    * Emits sum and count if ports are connected
    */
   @Override
@@ -103,6 +92,8 @@ public class SumValue<V extends Number> extends BaseNumberValueOperator<V>
     if (average.isConnected() && (counts != 0)) {
       average.emit(getAverage());
     }
+    sums = 0;
+    counts = 0;
   }
 
   public V getAverage()

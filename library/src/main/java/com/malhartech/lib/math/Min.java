@@ -86,19 +86,9 @@ public class Min<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
   protected transient HashMap<K, MutableDouble> low = new HashMap<K, MutableDouble>();
 
   /**
-   * Clears the cache/hash
-   *
-   * @param windowId
-   */
-  @Override
-  public void beginWindow(long windowId)
-  {
-    low.clear();
-  }
-
-  /**
    * Node only works in windowed mode. Emits all key,minval pairs
    * Override getValue() if you have your own class extended from Number
+   * Clears internal data
    */
   @Override
   public void endWindow()
@@ -110,5 +100,6 @@ public class Min<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
       }
       min.emit(tuple);
     }
+    low.clear();
   }
 }

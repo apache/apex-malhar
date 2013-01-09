@@ -133,19 +133,9 @@ public class Margin<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
   }
 
   /**
-   * Clears the hash for a fresh window start
-   * @param windowId
-   */
-  @Override
-  public void beginWindow(long windowId)
-  {
-    numerators.clear();
-    denominators.clear();
-  }
-
-  /**
    * Generates tuples for each key and emits them. Only keys that are in the denominator are iterated on
    * If the key is only in the numerator, it gets ignored (cannot do divide by 0)
+   * Clears internal data
    */
   @Override
   public void endWindow()
@@ -171,6 +161,8 @@ public class Margin<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
     if (!tuples.isEmpty()) {
       margin.emit(tuples);
     }
+    numerators.clear();
+    denominators.clear();
   }
 }
 

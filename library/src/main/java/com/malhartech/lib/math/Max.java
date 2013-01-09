@@ -87,18 +87,9 @@ public class Max<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
   protected transient HashMap<K,MutableDouble> high = new HashMap<K,MutableDouble>();
 
   /**
-   * Clears the cache/hash
-   * @param windowId
-   */
-  @Override
-  public void beginWindow(long windowId)
-  {
-    high.clear();
-  }
-
-  /**
    * Node only works in windowed mode. Emits all key,maxval pairs
    * Override getValue() if you have your own class extended from Number
+   * Clears internal data
    */
   @Override
   public void endWindow()
@@ -109,6 +100,7 @@ public class Max<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
         tuple.put(e.getKey(), getValue(e.getValue().value));
       }
       max.emit(tuple);
+      high.clear();
     }
   }
 }

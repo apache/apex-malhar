@@ -81,19 +81,10 @@ public class RangeValue<V extends Number> extends BaseNumberValueOperator<V>
   protected transient MutableDouble high = null;
   protected transient MutableDouble low = null;
 
-  /**
-   * Clears the values
-   * @param windowId
-   */
-  @Override
-  public void beginWindow(long windowId)
-  {
-    high = null;
-    low = null;
-  }
 
   /**
    * Emits the range. If no tuple was received in the window, no emit is done
+   * Clears the internal data before return
    */
   @Override
   public void endWindow()
@@ -104,5 +95,7 @@ public class RangeValue<V extends Number> extends BaseNumberValueOperator<V>
       tuple.add(getValue(low.value));
       range.emit(tuple);
     }
+    high = null;
+    low = null;
   }
 }
