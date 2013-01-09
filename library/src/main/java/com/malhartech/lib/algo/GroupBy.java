@@ -147,17 +147,6 @@ public class GroupBy<K,V> extends BaseKeyValueOperator<K,V>
   }
 
   /**
-   * Clears cache/hash for both ports
-   * @param windowId
-   */
-  @Override
-  public void beginWindow(long windowId)
-  {
-    map1.clear();
-    map2.clear();
-  }
-
-  /**
    * Emits all combinations of source and matching other list
    * @param source
    * @param list
@@ -183,5 +172,15 @@ public class GroupBy<K,V> extends BaseKeyValueOperator<K,V>
       }
       groupby.emit(tuple);
     }
+  }
+
+  /**
+   * Clears internal data
+   */
+  @Override
+  public void endWindow()
+  {
+    map1.clear();
+    map2.clear();
   }
 }

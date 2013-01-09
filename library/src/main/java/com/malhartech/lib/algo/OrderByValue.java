@@ -159,7 +159,7 @@ public class OrderByValue<K, V> extends BaseKeyValueOperator<K, V>
   }
 
   /**
-   * Clears cache/hash
+   * Initializes queue once in the life of the operator
    *
    * @param windowId
    */
@@ -169,8 +169,6 @@ public class OrderByValue<K, V> extends BaseKeyValueOperator<K, V>
     if (pqueue == null) {
       initializePriorityQueue();
     }
-    pqueue.clear();
-    smap.clear();
   }
 
   /**
@@ -203,5 +201,7 @@ public class OrderByValue<K, V> extends BaseKeyValueOperator<K, V>
         }
       }
     }
+    pqueue.clear();
+    smap.clear();
   }
 }

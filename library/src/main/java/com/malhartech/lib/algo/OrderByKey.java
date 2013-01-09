@@ -154,7 +154,7 @@ public class OrderByKey<K,V> extends BaseKeyValueOperator<K,V>
   }
 
   /**
-   * Cleanup at the start of window
+   * Initializes queue once in the life of the operator
    */
   @Override
   public void beginWindow(long windowId)
@@ -162,13 +162,11 @@ public class OrderByKey<K,V> extends BaseKeyValueOperator<K,V>
     if (pqueue == null) {
       initializePriorityQueue();
     }
-    pqueue.clear();
-    countmap.clear();
-    smap.clear();
   }
 
   /**
    * Emits tuples
+   * Clears internal data
    */
   @Override
   public void endWindow()
@@ -187,5 +185,8 @@ public class OrderByKey<K,V> extends BaseKeyValueOperator<K,V>
         }
       }
     }
+    pqueue.clear();
+    countmap.clear();
+    smap.clear();
   }
 }

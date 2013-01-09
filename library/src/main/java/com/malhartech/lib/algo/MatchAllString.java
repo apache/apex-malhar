@@ -105,21 +105,12 @@ public class MatchAllString<K> extends BaseMatchOperator<K, String>
   protected transient boolean result = true;
 
   /**
-   * Resets the match flag
-   * @param windowId
-   */
-  @Override
-  public void beginWindow(long windowId)
-  {
-    result = true;
-  }
-
-  /**
    * Emits the match flag
    */
   @Override
   public void endWindow()
   {
     all.emit(result);
+    result = true;
   }
 }

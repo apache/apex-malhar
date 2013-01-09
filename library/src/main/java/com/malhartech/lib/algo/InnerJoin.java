@@ -176,10 +176,9 @@ public class InnerJoin<K,V> extends BaseKeyValueOperator<K,V>
 
   /**
    * Clears cache/hash for both ports
-   * @param windowId
    */
   @Override
-  public void beginWindow(long windowId)
+  public void endWindow()
   {
     map1.clear();
     map2.clear();

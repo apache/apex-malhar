@@ -95,16 +95,6 @@ public class MatchAll<K, V extends Number> extends BaseMatchOperator<K, V>
   public final transient DefaultOutputPort<Boolean> all = new DefaultOutputPort<Boolean>(this);
   protected transient boolean result = true;
 
-  /**
-   * Resets the match flag
-   *
-   * @param windowId
-   */
-  @Override
-  public void beginWindow(long windowId)
-  {
-    result = true;
-  }
 
   /**
    * Emits the match flag
@@ -113,5 +103,6 @@ public class MatchAll<K, V extends Number> extends BaseMatchOperator<K, V>
   public void endWindow()
   {
     all.emit(result);
+    result = true;
   }
 }

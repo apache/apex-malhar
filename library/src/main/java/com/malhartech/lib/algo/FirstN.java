@@ -89,7 +89,7 @@ public class FirstN<K,V> extends AbstractBaseNOperator<K, V>
    * Clears the cache to start anew in a new window
    */
   @Override
-  public void beginWindow(long windowId)
+  public void endWindow()
   {
     keycount.clear();
   }

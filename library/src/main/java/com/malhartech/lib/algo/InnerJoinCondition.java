@@ -158,15 +158,15 @@ public class InnerJoinCondition<K, V extends Comparable> extends AbstractBaseMat
 
   /**
    * Clears cache/hash for both ports
-   *
-   * @param windowId
    */
   @Override
-  public void beginWindow(long windowId)
+  public void endWindow()
   {
     map1.clear();
     map2.clear();
   }
+
+
 
   /**
    * Emits all combinations of source and matching other list

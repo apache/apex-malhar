@@ -90,17 +90,8 @@ public class InvertIndex<K, V> extends BaseKeyValueOperator<K, V>
   }
 
   /**
-   * Clears cache/hash
-   * @param windowId
-   */
-  @Override
-  public void beginWindow(long windowId)
-  {
-    map.clear();
-  }
-
-  /**
    * Emit all the data and clear the hash
+   * Clears internal data
    */
   @Override
   public void endWindow()
@@ -110,5 +101,6 @@ public class InvertIndex<K, V> extends BaseKeyValueOperator<K, V>
       tuple.put(e.getKey(), e.getValue());
       index.emit(tuple);
     }
+    map.clear();
   }
 }
