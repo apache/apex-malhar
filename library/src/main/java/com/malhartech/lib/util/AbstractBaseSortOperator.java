@@ -82,7 +82,7 @@ public abstract class AbstractBaseSortOperator<K> extends BaseKeyOperator<K>
   }
 
   /**
-   * Cleanup at the start of window
+   * Initializes queue if not done (once at the start)
    */
   @Override
   public void beginWindow(long windowId)
@@ -90,8 +90,6 @@ public abstract class AbstractBaseSortOperator<K> extends BaseKeyOperator<K>
     if (pqueue == null) {
       initializeQueue();
     }
-    pmap.clear();
-    pqueue.clear();
   }
 
   public void initializeQueue()
@@ -107,6 +105,7 @@ public abstract class AbstractBaseSortOperator<K> extends BaseKeyOperator<K>
 
   /**
    * Emit sorted tuple at end of window
+   * Clears internal cache
    */
   @Override
   public void endWindow()
@@ -146,5 +145,7 @@ public abstract class AbstractBaseSortOperator<K> extends BaseKeyOperator<K>
     if (hok) {
       emitToHash(htuple);
     }
+    pmap.clear();
+    pqueue.clear();
   }
 }

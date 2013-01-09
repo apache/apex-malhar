@@ -67,17 +67,8 @@ public abstract class AbstractBaseNNonUniqueOperator<K, V> extends AbstractBaseN
   protected transient HashMap<K, TopNSort<V>> kmap = new HashMap<K, TopNSort<V>>();
 
   /**
-   * Clears cache/hash
-   * @param windowId
-   */
-  @Override
-  public void beginWindow(long windowId)
-  {
-    kmap.clear();
-  }
-
-  /**
    * Emits the result
+   * Clears the internal data
    */
   @Override
   public void endWindow()
@@ -87,5 +78,6 @@ public abstract class AbstractBaseNNonUniqueOperator<K, V> extends AbstractBaseN
       tuple.put(e.getKey(), e.getValue().getTopN(getN()));
       emit(tuple);
     }
+    kmap.clear();
   }
 }
