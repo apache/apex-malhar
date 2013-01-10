@@ -9,9 +9,12 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Session;
 import javax.validation.constraints.NotNull;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.malhartech.annotation.ShipContainingJars;
 
 /**
  * Base class for any ActiveMQ input or output adapter operator. <p><br>
@@ -48,6 +51,7 @@ import org.slf4j.LoggerFactory;
  * @author Locknath Shil <locknath@malhar-inc.com>
  *
  */
+@ShipContainingJars(classes = {javax.jms.Message.class, org.apache.activemq.ActiveMQConnectionFactory.class, javax.management.j2ee.statistics.Stats.class})
 public class ActiveMQBase
 {
   private static final Logger logger = LoggerFactory.getLogger(ActiveMQBase.class);
@@ -55,7 +59,6 @@ public class ActiveMQBase
   private transient Session session;
   private transient Destination destination;
 
-  // Config parameters that user can set.
   @NotNull
   private String user = "";
   @NotNull
