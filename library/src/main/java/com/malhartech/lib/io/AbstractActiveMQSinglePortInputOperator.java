@@ -28,6 +28,7 @@ import javax.jms.Message;
  * Benchmarks:<br>
  * TBD<br>
  * <br>
+ *
  * @author Locknath Shil <locknath@malhar-inc.com>
  *
  */
@@ -55,6 +56,9 @@ public abstract class AbstractActiveMQSinglePortInputOperator<T> extends Abstrac
   @Override
   public void emitTuple(Message msg)
   {
-    outputPort.emit(getTuple(msg));
+    T payload = getTuple(msg);
+    if (payload != null) {
+      outputPort.emit(payload);
+    }
   }
 }
