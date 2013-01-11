@@ -11,6 +11,7 @@ import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
 import com.malhartech.util.CircularBuffer;
 import java.util.Properties;
+import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import twitter4j.*;
@@ -42,6 +43,56 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   int multiplier;
   private Properties twitterProperties;
 
+  // Following twitter access credentials should be set before using this operator.
+  @NotNull
+  String consumerKey;
+  @NotNull
+  String consumerSecret;
+  @NotNull
+  String accessToken;
+  @NotNull
+  String accessTokenSecret;
+
+  public String getConsumerKey()
+  {
+    return consumerKey;
+  }
+
+  public void setConsumerKey(String consumerKey)
+  {
+    this.consumerKey = consumerKey;
+  }
+
+  public String getConsumerSecret()
+  {
+    return consumerSecret;
+  }
+
+  public void setConsumerSecret(String consumerSecret)
+  {
+    this.consumerSecret = consumerSecret;
+  }
+
+  public String getAccessToken()
+  {
+    return accessToken;
+  }
+
+  public void setAccessToken(String accessToken)
+  {
+    this.accessToken = accessToken;
+  }
+
+  public String getAccessTokenSecret()
+  {
+    return accessTokenSecret;
+  }
+
+  public void setAccessTokenSecret(String accessTokenSecret)
+  {
+    this.accessTokenSecret = accessTokenSecret;
+  }
+
   @Override
   public void setup(OperatorContext context)
   {
@@ -51,10 +102,11 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
 
     ConfigurationBuilder cb = new ConfigurationBuilder();
     cb.setDebugEnabled(Boolean.valueOf(twitterProperties.getProperty("debug"))).
-            setOAuthConsumerKey(twitterProperties.getProperty("oauth.consumerKey")).
-            setOAuthConsumerSecret(twitterProperties.getProperty("oauth.consumerSecret")).
-            setOAuthAccessToken(twitterProperties.getProperty("oauth.accessToken")).
-            setOAuthAccessTokenSecret(twitterProperties.getProperty("oauth.accessTokenSecret"));
+            setOAuthConsumerKey(consumerKey).
+            setOAuthConsumerSecret(consumerSecret).
+            setOAuthAccessToken(accessToken).
+            setOAuthAccessTokenSecret(accessTokenSecret);
+
     ts = new TwitterStreamFactory(cb.build()).getInstance();
   }
 
