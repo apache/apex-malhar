@@ -29,7 +29,7 @@ public class YahooFinanceTest
     lc.run();
   }
 
-    @Test
+   // @Test
   public void testApplication2() throws Exception
   {
     YahooFinanceApplication app = new YahooFinanceApplication();
