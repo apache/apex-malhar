@@ -29,6 +29,7 @@ import javax.jms.Message;
  * TBD<br>
  * <br>
  *
+ * @param <T>
  * @author Locknath Shil <locknath@malhar-inc.com>
  *
  */
@@ -47,11 +48,13 @@ public abstract class AbstractActiveMQSinglePortInputOperator<T> extends Abstrac
    * operator user intends to.
    *
    * @param msg
+   * @return
    */
   public abstract T getTuple(Message msg);
 
   /**
    * Implement abstract method.
+   * @param msg
    */
   @Override
   public void emitTuple(Message msg)
