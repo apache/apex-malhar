@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Test to verify ActiveMQ output operator adapter.
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
@@ -90,74 +91,6 @@ public class ActiveMQOutputOperatorTest
   }
 
   /**
-   * Tuple generator for testing.
-   */
-  public static class StringGeneratorInputOperator implements InputOperator, ActivationListener<OperatorContext>
-  {
-    public final transient DefaultOutputPort<String> outputPort = new DefaultOutputPort<String>(this);
-    private final transient CircularBuffer<String> stringBuffer = new CircularBuffer<String>(1024);
-    private volatile Thread dataGeneratorThread;
-
-    @Override
-    public void beginWindow(long windowId)
-    {
-    }
-
-    @Override
-    public void endWindow()
-    {
-    }
-
-    @Override
-    public void setup(OperatorContext context)
-    {
-    }
-
-    @Override
-    public void teardown()
-    {
-    }
-
-    @Override
-    public void activate(OperatorContext ctx)
-    {
-      dataGeneratorThread = new Thread("String Generator")
-      {
-        @Override
-        @SuppressWarnings("SleepWhileInLoop")
-        public void run()
-        {
-          try {
-            int i = 0;
-            while (dataGeneratorThread != null && i < maxTuple) {
-              stringBuffer.put("testString " + (++i));
-              tupleCount++;
-              Thread.sleep(20);
-            }
-          }
-          catch (InterruptedException ie) {
-          }
-        }
-      };
-      dataGeneratorThread.start();
-    }
-
-    @Override
-    public void deactivate()
-    {
-      dataGeneratorThread = null;
-    }
-
-    @Override
-    public void emitTuples()
-    {
-      for (int i = stringBuffer.size(); i-- > 0;) {
-        outputPort.emit(stringBuffer.pollUnsafe());
-      }
-    }
-  }
-
-  /**
    * Test AbstractActiveMQOutputOperator (i.e. an output adapter for ActiveMQ, aka producer).
    * This module sends data into an ActiveMQ message bus.
    *
@@ -168,7 +101,7 @@ public class ActiveMQOutputOperatorTest
    */
   @Test
   @SuppressWarnings({"SleepWhileInLoop", "empty-statement"})
-  public void testActiveMQOutputOperator() throws Exception
+  public void testActiveMQOutputOperator1() throws Exception
   {
     // Setup a message listener to receive the message
     final ActiveMQMessageListener listener = new ActiveMQMessageListener();
@@ -181,12 +114,8 @@ public class ActiveMQOutputOperatorTest
     listener.run();
 
     // Malhar module to send message
-    // Create DAG for testing.
-    DAG dag = new DAG();
-
     // Create ActiveMQStringSinglePortOutputOperator
-    StringGeneratorInputOperator generator = dag.addOperator("NumberGenerator", StringGeneratorInputOperator.class);
-    ActiveMQStringSinglePortOutputOperator node = dag.addOperator("AMQ message producer", ActiveMQStringSinglePortOutputOperator.class);
+    ActiveMQStringSinglePortOutputOperator node = new ActiveMQStringSinglePortOutputOperator();
     // Set configuration parameters for ActiveMQ
     node.setUser("");
     node.setPassword("");
@@ -202,25 +131,25 @@ public class ActiveMQOutputOperatorTest
     node.setTransacted(false);
     node.setVerbose(true);
 
-    // Connect ports
-    dag.addStream("AMQ message", generator.outputPort, node.inputPort).setInline(true);
+    node.setup(null);
+    node.beginWindow(1);
+
+    // produce data and process
+    try {
+      int i = 0;
+      while (i < maxTuple) {
+        String tuple = "testString " + (++i);
+        node.inputPort.process(tuple);
+        tupleCount++;
+        Thread.sleep(20);
+      }
+    }
+    catch (InterruptedException ie) {
+    }
+    node.endWindow();
+    node.teardown();
 
     final long emittedCount = 15; //tupleCount < node.getMaximumSendMessages() ? tupleCount : node.getMaximumSendMessages();
-
-    // Create and run local cluster
-    final StramLocalCluster lc = new StramLocalCluster(dag);
-    lc.setHeartbeatMonitoringEnabled(false);
-    lc.runAsync();
-    WaitCondition c = new WaitCondition()
-    {
-      @Override
-      public boolean isComplete()
-      {
-        return listener.receivedData.size() >= emittedCount;
-      }
-    };
-    StramTestSupport.awaitCompletion(c, 10000);
-    lc.shutdown();
 
     // Check values send vs received
     Assert.assertEquals("Number of emitted tuples", emittedCount, listener.receivedData.size());
@@ -230,6 +159,11 @@ public class ActiveMQOutputOperatorTest
     listener.closeConnection();
   }
 
+  /**
+   * This test is same as prior one except maxMessage and topic setting is different.
+   *
+   * @throws Exception
+   */
   @Test
   @SuppressWarnings({"SleepWhileInLoop", "empty-statement"})
   public void testActiveMQOutputOperator2() throws Exception
@@ -254,10 +188,10 @@ public class ActiveMQOutputOperatorTest
     node.setAckMode("CLIENT_ACKNOWLEDGE");
     node.setClientId("Client1");
     node.setSubject("TEST.FOO");
-    node.setMaximumSendMessages(10);
+    node.setMaximumSendMessages(10); // topic setting is different than prior test
     node.setMessageSize(255);
     node.setBatch(10);
-    node.setTopic(true);
+    node.setTopic(true); // topic setting is different than prior test
     node.setDurable(false);
     node.setTransacted(false);
     node.setVerbose(true);
@@ -288,81 +222,6 @@ public class ActiveMQOutputOperatorTest
     Assert.assertEquals("First tuple", "testString 1", listener.receivedData.get(new Integer(1)));
 
     listener.closeConnection();
-  }
-
-  /**
-   * Tuple generator for testing.
-   */
-  public static class StringGeneratorInputOperator2 implements InputOperator, ActivationListener<OperatorContext>
-  {
-    public final transient DefaultOutputPort<String> outputPort1 = new DefaultOutputPort<String>(this);
-    public final transient DefaultOutputPort<Integer> outputPort2 = new DefaultOutputPort<Integer>(this);
-    private final transient CircularBuffer<String> stringBuffer = new CircularBuffer<String>(1024);
-    private final transient CircularBuffer<Integer> integerBuffer = new CircularBuffer<Integer>(1024);
-    private volatile Thread dataGeneratorThread;
-
-    @Override
-    public void beginWindow(long windowId)
-    {
-    }
-
-    @Override
-    public void endWindow()
-    {
-    }
-
-    @Override
-    public void setup(OperatorContext context)
-    {
-    }
-
-    @Override
-    public void teardown()
-    {
-    }
-
-    @Override
-    public void activate(OperatorContext ctx)
-    {
-      dataGeneratorThread = new Thread("String Generator")
-      {
-        @Override
-        @SuppressWarnings("SleepWhileInLoop")
-        public void run()
-        {
-          try {
-            int i = 1;
-            while (dataGeneratorThread != null && i <= maxTuple) {
-              stringBuffer.put("testString " + i);
-              integerBuffer.put(new Integer(i));
-              tupleCount++;
-              i++;
-              Thread.sleep(20);
-            }
-          }
-          catch (InterruptedException ie) {
-          }
-        }
-      };
-      dataGeneratorThread.start();
-    }
-
-    @Override
-    public void deactivate()
-    {
-      dataGeneratorThread = null;
-    }
-
-    @Override
-    public void emitTuples()
-    {
-      for (int i = stringBuffer.size(); i-- > 0;) {
-        outputPort1.emit(stringBuffer.pollUnsafe());
-      }
-      for (int i = integerBuffer.size(); i-- > 0;) {
-        outputPort2.emit(integerBuffer.pollUnsafe());
-      }
-    }
   }
 
   /**
@@ -423,12 +282,7 @@ public class ActiveMQOutputOperatorTest
     listener.run();
 
     // Malhar module to send message
-    // Create DAG for testing.
-    DAG dag = new DAG();
-
-    // Create ActiveMQStringSinglePortOutputOperator
-    StringGeneratorInputOperator2 generator = dag.addOperator("NumberGenerator", StringGeneratorInputOperator2.class);
-    ActiveMQMultiPortOutputOperator node = dag.addOperator("AMQ message producer", ActiveMQMultiPortOutputOperator.class);
+    ActiveMQMultiPortOutputOperator node = new ActiveMQMultiPortOutputOperator();
     // Set configuration parameters for ActiveMQ
     node.setUser("");
     node.setPassword("");
@@ -444,26 +298,26 @@ public class ActiveMQOutputOperatorTest
     node.setTransacted(false);
     node.setVerbose(true);
 
-    // Connect ports
-    dag.addStream("AMQ message", generator.outputPort1, node.inputPort1).setInline(true);
-    dag.addStream("AMQ message2", generator.outputPort2, node.inputPort2).setInline(true);
+    node.setup(null);
+    node.beginWindow(1);
+
+    // produce data and process
+    try {
+      int i = 0;
+      while (i < maxTuple) {
+        String tuple = "testString " + (++i);
+        node.inputPort1.process(tuple);
+        node.inputPort2.process(new Integer(i));
+        tupleCount++;
+        Thread.sleep(20);
+      }
+    }
+    catch (InterruptedException ie) {
+    }
+    node.endWindow();
+    node.teardown();
 
     final long emittedCount = 40;
-
-    // Create and run local cluster
-    final StramLocalCluster lc = new StramLocalCluster(dag);
-    lc.setHeartbeatMonitoringEnabled(false);
-    lc.runAsync();
-    WaitCondition c = new WaitCondition()
-    {
-      @Override
-      public boolean isComplete()
-      {
-        return listener.receivedData.size() >= emittedCount;
-      }
-    };
-    StramTestSupport.awaitCompletion(c, 10000);
-    lc.shutdown();
 
     // Check values send vs received
     Assert.assertEquals("Number of emitted tuples", emittedCount, listener.receivedData.size());
