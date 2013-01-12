@@ -41,7 +41,7 @@ public class KeyValPair<K, V> extends AbstractMap.SimpleEntry<K, V>
   public class Codec extends DefaultStreamCodec<KeyValPair<K, V>>
   {
     /**
-     * A codec to allow partitioning to be done by key
+     * A codec to enable partitioning to be done by key
      */
     @Override
     public int getPartition(KeyValPair<K, V> o)
