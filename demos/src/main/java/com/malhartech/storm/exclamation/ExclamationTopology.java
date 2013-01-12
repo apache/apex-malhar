@@ -31,7 +31,6 @@ public class ExclamationTopology implements ApplicationFactory
     ExclamationBolt exclaim1Operator = dag.addOperator("exclaim1", new ExclamationBolt());
     ExclamationBolt exclaim2Operator = dag.addOperator("exclaim2", new ExclamationBolt());
 
-    // we need to support partitioning on the input operator!!!!!!!!!!!
     dag.getContextAttributes(wordOperator).attr(OperatorContext.INITIAL_PARTITION_COUNT).set(10);
     //dag.getContextAttributes(exclaim1Operator).attr(OperatorContext.INITIAL_PARTITION_COUNT).set(3);
     //dag.getContextAttributes(exclaim2Operator).attr(OperatorContext.INITIAL_PARTITION_COUNT).set(2);
