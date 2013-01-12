@@ -4,7 +4,9 @@
  */
 package com.malhartech.lib.util;
 
+import com.malhartech.api.StreamCodec;
 import com.malhartech.engine.DefaultStreamCodec;
+import com.malhartech.lib.util.KeyValPair.Codec;
 import java.util.HashMap;
 import javax.validation.constraints.NotNull;
 
@@ -88,16 +90,9 @@ public class BaseNumberKeyValueOperator<K,V extends Number> extends BaseFiltered
     return (V)val;
   }
 
-  /*
-  class myStreamCodec extends DefaultStreamCodec<HashMap<K,V>>
+  public Class<? extends StreamCodec<KeyValPair<K, V>>> getKeyValPairStreamCodec()
   {
-
-    @Override
-    public int getPartition(HashMap<K, V> o)
-    {
-
-      return ..getPartition(o);
-    }
+    Class c = Codec.class;
+    return (Class<? extends StreamCodec<KeyValPair<K, V>>>)c;
   }
-*/
 }

@@ -111,8 +111,7 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
     @Override
     public Class<? extends StreamCodec<KeyValPair<K, V>>> getStreamCodec()
     {
-      Class c = Codec.class;
-      return (Class<? extends StreamCodec<KeyValPair<K, V>>>) c;
+      return getKeyValPairStreamCodec();
     }
   };
   @OutputPortFieldAnnotation(name = "sum", optional=true)

@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.util;
 
+import com.malhartech.api.StreamCodec;
+import com.malhartech.engine.DefaultStreamCodec;
 import java.util.AbstractMap;
 
 /**
@@ -15,25 +17,36 @@ import java.util.AbstractMap;
  * @author amol<br>
  *
  */
-
-public class KeyValPair<K,V> extends AbstractMap.SimpleEntry<K,V>
+public class KeyValPair<K, V> extends AbstractMap.SimpleEntry<K, V>
 {
-
   /**
    * Added default constructor for deserializer
    */
   private KeyValPair()
   {
-    super(null,null);
+    super(null, null);
   }
 
   /**
    * Constructor
+   *
    * @param k sets key
    * @param v sets value
    */
   public KeyValPair(K k, V v)
   {
-    super(k,v);
+    super(k, v);
+  }
+
+  public class Codec extends DefaultStreamCodec<KeyValPair<K, V>>
+  {
+    /**
+     * A codec to allow partitioning to be done by key
+     */
+    @Override
+    public int getPartition(KeyValPair<K, V> o)
+    {
+      return o.getKey().hashCode();
+    }
   }
 }
