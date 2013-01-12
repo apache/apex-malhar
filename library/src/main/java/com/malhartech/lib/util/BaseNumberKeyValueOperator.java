@@ -89,10 +89,4 @@ public class BaseNumberKeyValueOperator<K,V extends Number> extends BaseFiltered
     }
     return (V)val;
   }
-
-  public Class<? extends StreamCodec<KeyValPair<K, V>>> getKeyValPairStreamCodec()
-  {
-    Class c = Codec.class;
-    return (Class<? extends StreamCodec<KeyValPair<K, V>>>)c;
-  }
 }

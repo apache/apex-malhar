@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.util;
 
+import com.malhartech.api.StreamCodec;
+import com.malhartech.lib.util.KeyValPair.Codec;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -67,5 +69,14 @@ public class BaseKeyValueOperator<K, V> extends BaseKeyOperator<K>
     HashMap<K, V> ret = new HashMap<K, V>(1);
     ret.put(cloneKey(key), cloneValue(val));
     return ret;
+  }
+
+  /**
+   * A codec to enable partitioning to be done by key
+   */
+  public Class<? extends StreamCodec<KeyValPair<K, V>>> getKeyValPairStreamCodec()
+  {
+    Class c = Codec.class;
+    return (Class<? extends StreamCodec<KeyValPair<K, V>>>)c;
   }
 }
