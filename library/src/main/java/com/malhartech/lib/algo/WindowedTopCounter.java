@@ -17,13 +17,23 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Developed for a demo<br>
+ * WindowedTopCounter is an operator which counts the most often occurring tuples in a sliding window of a specific size.
+ * The operator expects to receive a map object which contains a set of objects mapped to their respective frequency of
+ * occurrences. e.g. if we are looking at most commonly occurring names then the operator expects to receive the tuples
+ * of type Map<String, Intenger> on its input port, and at the end of the window it emits 1 object of type Map<String, Integer>
+ * with a pre determined size. The emitted object contains the most frequently occurring keys.
+ *
+ * @param <T> Type of the key in the map object which is accepted on input port as payload. Note that this key must be HashMap friendly.
+ *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
 public class WindowedTopCounter<T> extends BaseOperator
 {
   private static final long serialVersionUID = 201208061826L;
   private static final Logger logger = LoggerFactory.getLogger(WindowedTopCounter.class);
+  /**
+   * Input port on which map objects containing keys with their respective frequency as values will be accepted.
+   */
   @InputPortFieldAnnotation(name = "input")
   public final transient DefaultInputPort<Map<T, Integer>> input = new DefaultInputPort<Map<T, Integer>>(this)
   {
@@ -42,14 +52,28 @@ public class WindowedTopCounter<T> extends BaseOperator
         }
       }
     }
+
   };
+  /**
+   * Output port on which a map object containing most frequently occurring keys with their frequency will be emitted.
+   */
   @OutputPortFieldAnnotation(name = "output")
   public final transient DefaultOutputPort<Map<T, Integer>> output = new DefaultOutputPort<Map<T, Integer>>(this);
   private transient PriorityQueue<WindowedHolder<T>> topCounter;
   private int windows;
-  private int topCount;
+  private int topCount = 10;
   private HashMap<T, WindowedHolder<T>> objects = new HashMap<T, WindowedHolder<T>>();
 
+  /**
+   * Set the width of the sliding window.
+   *
+   * Sliding window is typically much larger than the dag window. e.g. One may want to measure the most frequently
+   * occurring keys over the period of 5 minutes. So if dagWindowWidth (which is by default 500ms) is set to 500ms,
+   * the slidingWindowWidth would be (60 * 5 * 1000 =) 300000.
+   *
+   * @param slidingWindowWidth - Sliding window width to be set for this operator, recommended to be multiple of DAG window.
+   * @param dagWindowWidth - DAG's native window width. It has to be the value of the native window set at the application level.
+   */
   public void setSlidingWindowWidth(long slidingWindowWidth, int dagWindowWidth)
   {
     windows = (int)(slidingWindowWidth / dagWindowWidth) + 1;
@@ -136,8 +160,13 @@ public class WindowedTopCounter<T> extends BaseOperator
     objects = null;
   }
 
-  public void setTopCount(int i)
+  /**
+   * Set the count of most frequently occurring keys to emit per map object.
+   * @param count count of the objects in the map emitted at the output port.
+   */
+  public void setTopCount(int count)
   {
-    topCount = i;
+    topCount = count;
   }
+
 }
