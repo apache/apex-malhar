@@ -8,8 +8,10 @@ import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.api.StreamCodec;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
 import com.malhartech.lib.util.KeyValPair;
+import com.malhartech.lib.util.KeyValPair.Codec;
 import com.malhartech.lib.util.MutableDouble;
 import com.malhartech.lib.util.MutableInteger;
 import java.util.HashMap;
@@ -104,6 +106,13 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
         count.value++;
       }
       processMetaData(tuple);
+    }
+
+    @Override
+    public Class<? extends StreamCodec<KeyValPair<K, V>>> getStreamCodec()
+    {
+      Class c = Codec.class;
+      return (Class<? extends StreamCodec<KeyValPair<K, V>>>) c;
     }
   };
   @OutputPortFieldAnnotation(name = "sum", optional=true)
