@@ -17,13 +17,14 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class ExclamationTopology implements ApplicationFactory
 {
-  private boolean allInline = true;
+  private final boolean allInline = true;
 
   @Override
   public DAG getApplication(Configuration conf)
   {
     /* dag is equivalent to topology so we build it directly */
     DAG dag = new DAG(conf);
+    dag.getAttributes().attr(DAG.STRAM_MAX_CONTAINERS).set(1); /* inline is ignored with partitioning */
 
     /* add all the input operators (spouts) and operators (bolts) to the dag */
     TestWordSpout wordOperator = dag.addOperator("word", new TestWordSpout());
@@ -31,9 +32,9 @@ public class ExclamationTopology implements ApplicationFactory
     ExclamationBolt exclaim2Operator = dag.addOperator("exclaim2", new ExclamationBolt());
 
     // we need to support partitioning on the input operator!!!!!!!!!!!
-    //dag.getContextAttributes(wordOperator).attr(OperatorContext.INITIAL_PARTITION_COUNT).set(10);
-    dag.getContextAttributes(exclaim1Operator).attr(OperatorContext.INITIAL_PARTITION_COUNT).set(3);
-    dag.getContextAttributes(exclaim2Operator).attr(OperatorContext.INITIAL_PARTITION_COUNT).set(2);
+    dag.getContextAttributes(wordOperator).attr(OperatorContext.INITIAL_PARTITION_COUNT).set(10);
+    //dag.getContextAttributes(exclaim1Operator).attr(OperatorContext.INITIAL_PARTITION_COUNT).set(3);
+    //dag.getContextAttributes(exclaim2Operator).attr(OperatorContext.INITIAL_PARTITION_COUNT).set(2);
 
     /* wire the operators together using streams */
     dag.addStream("word_exclaim", wordOperator.output, exclaim1Operator.input).setInline(allInline);
