@@ -36,7 +36,7 @@ import java.util.Map;
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for Sum&lt;K,V extends Number&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>TBD</b></td><td>TBD</td><td>TBD</td></tr>
+ * <tr><td><b>20 million tuples/s</b></td><td>One tuple per key per port</td><td>Mainly dependant on in-bound throughput</td></tr>
  * </table><br>
  * <p>
  * <b>Function Table (K=String, V=Integer)</b>:
@@ -81,28 +81,29 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
     @Override
     public void process(KeyValPair<K, V> tuple)
     {
-        K key = tuple.getKey();
-        if (!doprocessKey(key)) {
-          return;
+      K key = tuple.getKey();
+      if (!doprocessKey(key)) {
+        return;
+      }
+      if (sum.isConnected()) {
+        MutableDouble val = sums.get(key);
+        if (val == null) {
+          val = new MutableDouble(tuple.getValue().doubleValue());
         }
-        if (sum.isConnected()) {
-          MutableDouble val = sums.get(key);
-          if (val == null) {
-            val = new MutableDouble(tuple.getValue().doubleValue());
-          }
-          else {
-            val.add(tuple.getValue().doubleValue());
-          }
-          sums.put(cloneKey(key), val);
+        else {
+          val.add(tuple.getValue().doubleValue());
         }
-        if (count.isConnected() || average.isConnected()) {
-          MutableInteger count = counts.get(key);
-          if (count == null) {
-            count = new MutableInteger(0);
-            counts.put(cloneKey(key), count);
-          }
-          count.value++;
+        sums.put(cloneKey(key), val);
+      }
+      if (count.isConnected() || average.isConnected()) {
+        MutableInteger count = counts.get(key);
+        if (count == null) {
+          count = new MutableInteger(0);
+          counts.put(cloneKey(key), count);
         }
+        count.value++;
+      }
+      processMetaData(tuple);
     }
   };
   @OutputPortFieldAnnotation(name = "sum", optional=true)
@@ -114,6 +115,49 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
 
   protected transient HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
   protected transient HashMap<K, MutableInteger> counts = new HashMap<K, MutableInteger>();
+
+  /*
+   * If you have extended from KeyValPair class and want to do some processing per tuple
+   * overrise this call back.
+   */
+  public void processMetaData(KeyValPair<K, V> tuple)
+  {
+
+  }
+
+  /**
+   * Creates a KeyValPair tuple, override if you want to extend KeyValPair
+   * @param k
+   * @param v
+   * @return
+   */
+
+  public KeyValPair<K, V> cloneSumTuple(K k, V v)
+  {
+    return new KeyValPair(k, v);
+  }
+
+  /**
+   * Creates a KeyValPair tuple, override if you want to extend KeyValPair
+   * @param k
+   * @param v
+   * @return
+   */
+  public KeyValPair<K, V> cloneAverageTuple(K k, V v)
+  {
+    return new KeyValPair(k, v);
+  }
+
+  /**
+   * Creates a KeyValPair tuple, override if you want to extend KeyValPair
+   * @param k
+   * @param v
+   * @return
+   */
+  public KeyValPair<K, Integer> cloneCountTuple(K k, Integer v)
+  {
+    return new KeyValPair(k, v);
+  }
 
   /**
    * Emits on all ports that are connected. Data is precomputed during process on input port
@@ -127,21 +171,15 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
     boolean doaverage = average.isConnected();
     boolean docount = count.isConnected();
 
-    KeyValPair<K, V> stuple = null;
-    KeyValPair<K, V> atuple = null;
-    KeyValPair<K, V> ctuple = null;
-
-
     if (dosum) {
       for (Map.Entry<K, MutableDouble> e: sums.entrySet()) {
         K key = e.getKey();
-        stuple = new KeyValPair(key, getValue(e.getValue().value));
-        sum.emit(stuple);
+        sum.emit(cloneSumTuple(key, getValue(e.getValue().value)));
         if (docount) {
-          count.emit(new KeyValPair(key, new Integer(counts.get(e.getKey()).value)));
+          count.emit(cloneCountTuple(key, new Integer(counts.get(e.getKey()).value)));
         }
         if (doaverage) {
-          average.emit(new KeyValPair(key, getValue(e.getValue().value / counts.get(e.getKey()).value)));
+          average.emit(cloneAverageTuple(key, getValue(e.getValue().value / counts.get(e.getKey()).value)));
         }
       }
     }
