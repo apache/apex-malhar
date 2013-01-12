@@ -32,6 +32,10 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   public final transient DefaultOutputPort<?> hashtag = null;
   public final transient DefaultOutputPort<?> media = null;
   /**
+   * Enable debugging.
+   */
+  private boolean debug;
+  /**
    * For tapping into the tweets.
    */
   transient TwitterStream ts;
@@ -40,58 +44,17 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   /**
    * The state which we would like to save for this operator.
    */
-  int multiplier;
-  private Properties twitterProperties;
+  int multiplier = 1;
 
-  // Following twitter access credentials should be set before using this operator.
+  /* Following twitter access credentials should be set before using this operator. */
   @NotNull
-  String consumerKey;
+  private String consumerKey;
   @NotNull
-  String consumerSecret;
+  private String consumerSecret;
   @NotNull
-  String accessToken;
+  private String accessToken;
   @NotNull
-  String accessTokenSecret;
-
-  public String getConsumerKey()
-  {
-    return consumerKey;
-  }
-
-  public void setConsumerKey(String consumerKey)
-  {
-    this.consumerKey = consumerKey;
-  }
-
-  public String getConsumerSecret()
-  {
-    return consumerSecret;
-  }
-
-  public void setConsumerSecret(String consumerSecret)
-  {
-    this.consumerSecret = consumerSecret;
-  }
-
-  public String getAccessToken()
-  {
-    return accessToken;
-  }
-
-  public void setAccessToken(String accessToken)
-  {
-    this.accessToken = accessToken;
-  }
-
-  public String getAccessTokenSecret()
-  {
-    return accessTokenSecret;
-  }
-
-  public void setAccessTokenSecret(String accessTokenSecret)
-  {
-    this.accessTokenSecret = accessTokenSecret;
-  }
+  private String accessTokenSecret;
 
   @Override
   public void setup(OperatorContext context)
@@ -101,7 +64,7 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
     }
 
     ConfigurationBuilder cb = new ConfigurationBuilder();
-    cb.setDebugEnabled(Boolean.valueOf(twitterProperties.getProperty("debug"))).
+    cb.setDebugEnabled(debug).
             setOAuthConsumerKey(consumerKey).
             setOAuthConsumerSecret(consumerSecret).
             setOAuthAccessToken(accessToken).
@@ -184,11 +147,6 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
     ts.shutdown();
   }
 
-  public void setTwitterProperties(Properties properties)
-  {
-    twitterProperties = properties;
-  }
-
   public void setFeedMultiplier(int multiplier)
   {
     this.multiplier = multiplier;
@@ -218,4 +176,45 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
       // do the same thing for all the other output ports.
     }
   }
+
+  /**
+   * @param debug the debug to set
+   */
+  public void setDebug(boolean debug)
+  {
+    this.debug = debug;
+  }
+
+  /**
+   * @param consumerKey the consumerKey to set
+   */
+  public void setConsumerKey(String consumerKey)
+  {
+    this.consumerKey = consumerKey;
+  }
+
+  /**
+   * @param consumerSecret the consumerSecret to set
+   */
+  public void setConsumerSecret(String consumerSecret)
+  {
+    this.consumerSecret = consumerSecret;
+  }
+
+  /**
+   * @param accessToken the accessToken to set
+   */
+  public void setAccessToken(String accessToken)
+  {
+    this.accessToken = accessToken;
+  }
+
+  /**
+   * @param accessTokenSecret the accessTokenSecret to set
+   */
+  public void setAccessTokenSecret(String accessTokenSecret)
+  {
+    this.accessTokenSecret = accessTokenSecret;
+  }
+
 }

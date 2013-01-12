@@ -43,21 +43,10 @@ public class TwitterTopCounter extends DAG
 
   public final TwitterSampleInput getTwitterFeed(String name)
   {
-    final String propertyBase = "twitter4j";
-    Properties properties = new Properties();
-    try {
-      properties.load(this.getClass().getResourceAsStream(propertyBase.concat(".properties")));
-    }
-    catch (IOException e) {
-      logger.error("Could not read the much needed credentials file because of {}", e.getLocalizedMessage());
-      return null;
-    }
     /*
      * Setup the operator to get the data from twitter sample stream injected into the system.
      */
     TwitterSampleInput oper = addOperator(name, TwitterSampleInput.class);
-    oper.setTwitterProperties(properties);
-    oper.setFeedMultiplier(1);
     return oper;
   }
 
