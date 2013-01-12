@@ -27,6 +27,17 @@ public class BaseKeyValueOperator<K, V> extends BaseKeyOperator<K>
   }
 
   /**
+   * By default an immutable object is assumed. Override if V is mutable
+   *
+   * @param kv
+   * @return v as is
+   */
+  public KeyValPair<K, V> cloneKeyValPair(KeyValPair<K,V> kv)
+  {
+    return kv;
+  }
+
+  /**
    * Creates a HashMap&lt;K,V&gt; by using cloneKey(K) and cloneValue(V)
    *
    * @param tuple to be cloned
