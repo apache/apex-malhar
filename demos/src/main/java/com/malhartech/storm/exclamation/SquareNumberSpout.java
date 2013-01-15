@@ -15,25 +15,18 @@ import org.slf4j.LoggerFactory;
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-public class TestWordSpout implements InputOperator
+public class SquareNumberSpout implements InputOperator
 {
-  private static final Logger logger = LoggerFactory.getLogger(TestWordSpout.class);
-  public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>(this);
+  private static final Logger logger = LoggerFactory.getLogger(SquareNumberSpout.class);
+  public final transient DefaultOutputPort<Integer> output = new DefaultOutputPort<Integer>(this);
+  public transient OperatorContext context;
+  final Random rand = new Random(System.nanoTime());
 
   @Override
   public void emitTuples()
   {
-    try {
-      Thread.sleep(100);
-    }
-    catch (InterruptedException ie) {
-      logger.debug("interrupted while sleeping for 100 ms!");
-    }
-
-    final String[] words = new String[] {"nathan", "mike", "jackson", "golda", "bertels"};
-    final Random rand = new Random();
-    final String word = words[rand.nextInt(words.length)];
-    output.emit(word);
+    Integer num = rand.nextInt(30000 + 1);
+    output.emit(num * num);
   }
 
   @Override
@@ -49,11 +42,11 @@ public class TestWordSpout implements InputOperator
   @Override
   public void setup(OperatorContext context)
   {
+    this.context = context;
   }
 
   @Override
   public void teardown()
   {
   }
-
 }

@@ -4,7 +4,6 @@
  */
 package com.malhartech.storm.exclamation;
 
-import com.malhartech.storm.exclamation.ExclamationTopology;
 import com.malhartech.stram.StramLocalCluster;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
@@ -13,16 +12,16 @@ import org.junit.Test;
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-public class ExclamationTopologyTest
+public class PiCompareApplicationTest
 {
-  public ExclamationTopologyTest()
+  public PiCompareApplicationTest()
   {
   }
 
   @Test
   public void testSomeMethod() throws Exception
   {
-    ExclamationTopology topology = new ExclamationTopology();
+    PiCompareApplication topology = new PiCompareApplication();
     final StramLocalCluster lc = new StramLocalCluster(topology.getApplication(new Configuration(false)));
 
     new Thread("LocalClusterController")
@@ -38,10 +37,8 @@ public class ExclamationTopologyTest
 
         lc.shutdown();
       }
-
     }.start();
 
     lc.run();
   }
-
 }
