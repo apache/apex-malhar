@@ -12,16 +12,16 @@ import org.junit.Test;
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-public class PiCompareApplicationTest
+public class PiCalculateApplicationTest
 {
-  public PiCompareApplicationTest()
+  public PiCalculateApplicationTest()
   {
   }
 
   @Test
   public void testSomeMethod() throws Exception
   {
-    PiCompareApplication topology = new PiCompareApplication();
+    PiCalculateApplication topology = new PiCalculateApplication();
     final StramLocalCluster lc = new StramLocalCluster(topology.getApplication(new Configuration(false)));
 
     new Thread("LocalClusterController")

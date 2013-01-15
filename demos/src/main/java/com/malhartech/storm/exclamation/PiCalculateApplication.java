@@ -11,11 +11,11 @@ import com.malhartech.lib.io.ConsoleOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- * This is an PiCompareApplication example of using Malhar model.
+ * This is an PiCalculateApplication example of using Malhar model.
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-public class PiCompareApplication implements ApplicationFactory
+public class PiCalculateApplication implements ApplicationFactory
 {
   private final boolean allInline = true;
 
@@ -32,9 +32,9 @@ public class PiCompareApplication implements ApplicationFactory
     SumCompareBolt sumOperator = dag.addOperator("sum", new SumCompareBolt());
 //    SumCompareBolt exclaim2Operator = dag.addOperator("exclaim2", new SumCompareBolt());
 
-//    dag.getContextAttributes(randOperator1).attr(OperatorContext.INITIAL_PARTITION_COUNT).set(10);
-    //dag.getContextAttributes(exclaim1Operator).attr(OperatorContext.INITIAL_PARTITION_COUNT).set(3);
-    //dag.getContextAttributes(exclaim2Operator).attr(OperatorContext.INITIAL_PARTITION_COUNT).set(2);
+//    dag.getContextAttributes(randOperator1).attr(OperatorContext.INITIAL_PARTITION_COUNT).set(3);
+//    dag.getContextAttributes(randOperator2).attr(OperatorContext.INITIAL_PARTITION_COUNT).set(3);
+//    dag.getContextAttributes(sumOperator).attr(OperatorContext.INITIAL_PARTITION_COUNT).set(2);
 
     /* wire the operators together using streams */
     dag.addStream("rand1_sum", randOperator1.output, sumOperator.input1).setInline(allInline);

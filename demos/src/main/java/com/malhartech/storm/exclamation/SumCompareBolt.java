@@ -12,14 +12,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The result of rate should be closed to the pi/4 value which is approximately 0.785398
+ * The result of rate should be closed to the pi value
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
 public class SumCompareBolt extends BaseOperator
 {
-  public int inArea = 0;
-  public int outArea = 0;
+  public long inArea = 0;
+  public long outArea = 0;
   private transient double rate = 0;
   final public int base = 30000 * 30000;
   private static final Logger logger = LoggerFactory.getLogger(SumCompareBolt.class);
@@ -65,7 +65,7 @@ public class SumCompareBolt extends BaseOperator
       }
       rate = (double)inArea / (inArea + outArea);
     }
-    logger.debug("all:" + (inArea + outArea) + " in:" + inArea + " out:" + outArea + " rate:" + rate);
+    logger.debug("all:" + (inArea + outArea) + " in:" + inArea + " out:" + outArea + " calculated pi:"+rate*4);
     list1.clear();
     list2.clear();
   }
