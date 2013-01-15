@@ -26,6 +26,13 @@ public class ApplicationTest
     lc.run();
   }
 
+  /**
+   * This test requires twitter authentication setup and is skipped by default
+   * (see {@link TwitterSampleInput}).
+   *
+   * @throws Exception
+   */
+  @Ignore
   @Test
   public void testApplication() throws Exception
   {

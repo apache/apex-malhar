@@ -10,19 +10,14 @@ import com.malhartech.lib.algo.UniqueCounter;
 import com.malhartech.lib.algo.WindowedTopCounter;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.io.HttpOutputOperator;
-import java.io.IOException;
 import java.net.URI;
-import java.util.Properties;
 import org.apache.hadoop.conf.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Example of application configuration in Java.<p>
  */
 public class TwitterTopCounter extends DAG
 {
-  private static final Logger logger = LoggerFactory.getLogger(TwitterTopCounter.class);
   private static final boolean inline = false;
   private static final long serialVersionUID = 201211201543L;
 
@@ -41,43 +36,23 @@ public class TwitterTopCounter extends DAG
     return operator.input;
   }
 
-  public final TwitterSampleInput getTwitterFeed(String name)
-  {
-    /*
-     * Setup the operator to get the data from twitter sample stream injected into the system.
-     */
-    TwitterSampleInput oper = addOperator(name, TwitterSampleInput.class);
-    return oper;
-  }
-
-  public final TwitterStatusURLExtractor getTwitterUrlExtractor(String name)
-  {
-    TwitterStatusURLExtractor oper = addOperator(name, TwitterStatusURLExtractor.class);
-    return oper;
-  }
-
-  public final UniqueCounter<String> getUniqueCounter(String name)
-  {
-    UniqueCounter<String> oper = addOperator(name, new UniqueCounter<String>());
-    return oper;
-  }
-
-  public final WindowedTopCounter<String> getTopCounter(String name, int count)
-  {
-    WindowedTopCounter<String> oper = addOperator(name, new WindowedTopCounter<String>());
-    oper.setTopCount(count);
-    oper.setSlidingWindowWidth(600, 1);
-    return oper;
-  }
-
   public TwitterTopCounter(Configuration conf)
   {
     super(conf);
 
-    TwitterSampleInput twitterFeed = getTwitterFeed("TweetSampler"); // Setup the operator to get the data from twitter sample stream injected into the system.
-    TwitterStatusURLExtractor urlExtractor = getTwitterUrlExtractor("URLExtractor"); //  Setup the operator to get the URLs extracted from the twitter statuses
-    UniqueCounter<String> uniqueCounter = getUniqueCounter("UniqueURLCounter"); // Setup a node to count the unique urls within a window.
-    WindowedTopCounter<String> topCounts = getTopCounter("TopCounter", 10);  // Get the aggregated url counts and count them over the timeframe
+    // Setup the operator to get the data from twitter sample stream injected into the system.
+    TwitterSampleInput twitterFeed = addOperator("TweetSampler", TwitterSampleInput.class);
+
+    //  Setup the operator to get the URLs extracted from the twitter statuses
+    TwitterStatusURLExtractor urlExtractor = addOperator("URLExtractor", TwitterStatusURLExtractor.class);
+
+    // Setup a node to count the unique urls within a window.
+    UniqueCounter<String> uniqueCounter = addOperator("UniqueURLCounter", new UniqueCounter<String>());
+
+    // Get the aggregated url counts and count them over the timeframe
+    WindowedTopCounter<String> topCounts = addOperator("TopCounter", new WindowedTopCounter<String>());
+    topCounts.setTopCount(10);
+    topCounts.setSlidingWindowWidth(600, 1);
 
     // Feed the statuses from feed into the input of the url extractor.
     addStream("TweetStream", twitterFeed.status, urlExtractor.input).setInline(true);
