@@ -11,19 +11,21 @@ import com.malhartech.lib.util.KeyValPair;
 import java.util.ArrayList;
 import junit.framework.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Functional test for {@link com.malhartech.lib.stream.KeyValueConsolidator}<p>
+ * Performance test for {@link com.malhartech.lib.stream.KeyValueConsolidator}. <p>
+ * Current benchmark 6400 tuples per second. This is since you need to construct object on the output side before sending out.
  * <br>
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  * <br>
  */
-public class KeyValueConsolidatorTest
+public class KeyValueConsolidatorBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(KeyValueConsolidatorTest.class);
+  private static Logger log = LoggerFactory.getLogger(KeyValueConsolidatorBenchmark.class);
 
   public class MyKeyValueConsolidator extends KeyValueConsolidator<String, String, Long>
   {
@@ -88,6 +90,7 @@ public class KeyValueConsolidatorTest
    * Test
    */
   @Test
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     MyKeyValueConsolidator oper = new MyKeyValueConsolidator();
@@ -95,7 +98,7 @@ public class KeyValueConsolidatorTest
     oper.out.setSink(sink);
 
     oper.beginWindow(0);
-    int numTuples = 10;
+    int numTuples = 10000;
     for (long i = 0; i < numTuples; i++) {
       oper.data1.process(new KeyValPair<String, String>("key1", "a"));
       oper.data2.process(new KeyValPair<String, Long>("key1", i));
@@ -105,6 +108,6 @@ public class KeyValueConsolidatorTest
 
     oper.endWindow();
     Assert.assertEquals("number emitted tuples", 2, sink.collectedTuples.size());
-    //Assert.assertEquals("tuple contents", "aaaaaaaaaa45", sink.collectedTuples.get(0)); TBD
+    log.debug(String.format("\n********************\nProcessed %d tuples\n********************\n", numTuples*4));
   }
 }

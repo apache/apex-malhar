@@ -16,9 +16,9 @@ import java.util.Map;
  * Merges two streams of Key Value pair and emits the tuples to the output port at the end of window.<p>
  * <br>
  * <b>Ports</b>:<br>
- * <b>data1</b>: expects KeyValPair of K, V1<br>
- * <b>data2</b>: expects KeyValPair of K, V2<br>
- * <b>out</b>: No output port in this abstract class. The concrete class should define the output port and emit on it. K<br>
+ * <b>data1</b>: expects KeyValPair of K, V1 <br>
+ * <b>data2</b>: expects KeyValPair of K, V2 <br>
+ * <b>out</b>: No output port in this abstract class. The concrete class should define the output port and emit on it. <br>
  * <br>
  * <b>Properties</b>: None<br>
  * <br>
@@ -28,7 +28,7 @@ import java.util.Map;
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for StreamMerger&lt;K&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>&gt; 500 Million tuples/s</td><td>Each in-bound tuple results in emit of 1 out-bound tuples</td><td>In-bound rate is the main determinant of performance</td></tr>
+ * <tr><td><b>&gt; 6400 tuples/s</td><td>All 2 in-bound tuples result in emit of 1 out-bound tuples</td><td>In-bound rate is the main determinant of performance</td></tr>
  * </table><br>
  * <p>
  * <b>Function Table (K=String)</b>:
@@ -66,13 +66,13 @@ public abstract class KeyValueConsolidator<K, V1 extends Object, V2 extends Obje
    * @param tuple_val Value of current tuple.
    * @param list Current existing values.
    * @param port Input port number starting from 0.
-   * @return
+   * @return combined tuple by consolidating current tuple value with new tuple value.
    */
   public abstract Object mergeKeyValue(K tuple_key, Object tuple_val, ArrayList list, int port);
 
   /**
-   *
-   * @param obj
+   * Override this to construct new tuple and emit on your own defined output port.
+   * @param obj arrayList of consolidated values identified by key.
    */
   public abstract void emitConsolidatedTuple(KeyValPair<K, ArrayList<Object>> obj);
 
@@ -91,9 +91,8 @@ public abstract class KeyValueConsolidator<K, V1 extends Object, V2 extends Obje
     public void process(KeyValPair<K, V1> tuple)
     {
       K key = tuple.getKey();
-      V1 value = tuple.getValue();
       ArrayList list = getObject(key);
-      list.set(idx, mergeKeyValue(key, value, list, idx));
+      list.set(idx, mergeKeyValue(key, tuple.getValue(), list, idx));
     }
   };
   /**
@@ -111,9 +110,8 @@ public abstract class KeyValueConsolidator<K, V1 extends Object, V2 extends Obje
     public void process(KeyValPair<K, V2> tuple)
     {
       K key = tuple.getKey();
-      V2 value = tuple.getValue();
       ArrayList list = getObject(key);
-      list.set(idx, mergeKeyValue(key, value, list, idx));
+      list.set(idx, mergeKeyValue(key, tuple.getValue(), list, idx));
     }
   };
   /**
