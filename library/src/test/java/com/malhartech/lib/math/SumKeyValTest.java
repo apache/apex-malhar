@@ -7,9 +7,7 @@ import com.malhartech.api.Sink;
 import com.malhartech.engine.Tuple;
 import com.malhartech.lib.util.KeyValPair;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -45,12 +43,15 @@ public class SumKeyValTest
   @Test
   public void testNodeProcessing()
   {
-    testNodeSchemaProcessing(true, false);
-    testNodeSchemaProcessing(true, true);
-    testNodeSchemaProcessing(false, true);
+    testNodeSchemaProcessing(true, false,  false);
+    testNodeSchemaProcessing(false, true, false);
+    testNodeSchemaProcessing(false, false, true);
+    testNodeSchemaProcessing(true, true, false);
+    testNodeSchemaProcessing(false, true, true);
+    testNodeSchemaProcessing(true, false, true);
   }
 
-  public void testNodeSchemaProcessing(boolean sum, boolean count)
+  public void testNodeSchemaProcessing(boolean sum, boolean count, boolean average)
   {
 
     SumKeyVal<String, Double> oper = new SumKeyVal<String, Double>();
@@ -60,6 +61,8 @@ public class SumKeyValTest
     TestSink averageSink = new TestSink();
     if (sum) {
       oper.sum.setSink(sumSink);
+    }
+    if (average){
       oper.average.setSink(averageSink);
     }
     if (count) {
@@ -109,7 +112,8 @@ public class SumKeyValTest
           Assert.assertEquals("emitted tuple for 'e' was ", new Double(2), val);
         }
       }
-
+    }
+    if (average) {
       Assert.assertEquals("number emitted tuples", 5, averageSink.collectedTuples.size());
       for (Object o: averageSink.collectedTuples) {
         KeyValPair<String, Double> e = (KeyValPair<String, Double>)o;

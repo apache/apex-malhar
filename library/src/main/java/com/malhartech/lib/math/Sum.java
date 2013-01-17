@@ -16,8 +16,8 @@ import java.util.Map;
 
 /**
  *
- * Emits the sum, average, and count of values for each key at the end of window<p>
- * Is an end of window operator<br>
+ * Emits the sum, average, and count of values for each key at the end of window. <p>
+ * This is an end of window operator<br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects HashMap&lt;K,V extends Number&gt;<br>
@@ -65,8 +65,8 @@ public class Sum<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
   {
     /**
      * For each tuple (a HashMap of keys,val pairs)
-     * Adds the values for each key.
-     * Counts the number of occurences of each key
+     * Adds the values for each key,
+     * Counts the number of occurrences of each key
      * Computes the average
      */
     @Override
@@ -77,7 +77,7 @@ public class Sum<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
         if (!doprocessKey(key)) {
           continue;
         }
-        if (sum.isConnected()) {
+        if (sum.isConnected() || average.isConnected()) {
           MutableDouble val = sums.get(key);
           if (val == null) {
             val = new MutableDouble(e.getValue().doubleValue());
@@ -134,7 +134,7 @@ public class Sum<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
       atuples = new HashMap<K, V>();
     }
 
-    if (sum.isConnected()) {
+    if (sum.isConnected() || average.isConnected()) {
       for (Map.Entry<K, MutableDouble> e: sums.entrySet()) {
         K key = e.getKey();
         if (sum.isConnected()) {

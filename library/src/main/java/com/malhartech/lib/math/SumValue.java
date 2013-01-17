@@ -12,7 +12,7 @@ import com.malhartech.lib.util.BaseNumberValueOperator;
 
 /**
  *
- * Emits the sum, average, and count of values at the end of window<p>
+ * Emits the sum, average, and count of values at the end of window. <p>
  * This is an end of window operator<br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects V extends Number<br>

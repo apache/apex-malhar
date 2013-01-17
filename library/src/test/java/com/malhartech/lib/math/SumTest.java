@@ -44,12 +44,15 @@ public class SumTest
   @Test
   public void testNodeProcessing()
   {
-    testNodeSchemaProcessing(true, false);
-    testNodeSchemaProcessing(true, true);
-    testNodeSchemaProcessing(false, true);
+    testNodeSchemaProcessing(true, false,  false);
+    testNodeSchemaProcessing(false, true, false);
+    testNodeSchemaProcessing(false, false, true);
+    testNodeSchemaProcessing(true, true, false);
+    testNodeSchemaProcessing(false, true, true);
+    testNodeSchemaProcessing(true, false, true);
   }
 
-  public void testNodeSchemaProcessing(boolean sum, boolean count)
+  public void testNodeSchemaProcessing(boolean sum, boolean count, boolean average)
   {
 
     Sum<String, Double> oper = new Sum<String, Double>();
@@ -59,6 +62,8 @@ public class SumTest
     TestSink averageSink = new TestSink();
     if (sum) {
       oper.sum.setSink(sumSink);
+    }
+    if (average){
       oper.average.setSink(averageSink);
     }
     if (count) {
@@ -130,7 +135,8 @@ public class SumTest
           }
         }
       }
-
+    }
+    if (average) {
       Assert.assertEquals("number emitted tuples", 1, averageSink.collectedTuples.size());
       for (Object o: averageSink.collectedTuples) {
         HashMap<String, Object> output = (HashMap<String, Object>)o;

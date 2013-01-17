@@ -11,7 +11,6 @@ import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.StreamCodec;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
 import com.malhartech.lib.util.KeyValPair;
-import com.malhartech.lib.util.KeyValPair.Codec;
 import com.malhartech.lib.util.MutableDouble;
 import com.malhartech.lib.util.MutableInteger;
 import java.util.HashMap;
@@ -19,8 +18,8 @@ import java.util.Map;
 
 /**
  *
- * Emits the sum, average, and count of values for each key at the end of window<p>
- * Is an end of window operator<br>
+ * Emits the sum, average, and count of values for each key at the end of window. <p>
+ * This is an end of window operator<br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects KeyValPair&lt;K,V extends Number&gt;<br>
@@ -66,19 +65,20 @@ import java.util.Map;
  * <td>{a=9}<br>{b=12}<br>{c=1000}<br>{d=28}<br>{e=2}</td></tr>
  * </table>
  * <br>
+ *
  * @author Amol Kekre (amol@malhar-inc.com)<br>
  * <br>
  */
-public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
+public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>(this)
   {
     /**
-     * For each tuple (a HashMap of keys,val pairs)
-     * Adds the values for each key.
-     * Counts the number of occurences of each key
-     * Computes the average
+     * For each tuple (a key value pair):
+     * Adds the values for each key,
+     * Counts the number of occurrence of each key, and
+     * Computes the average.
      */
     @Override
     public void process(KeyValPair<K, V> tuple)
@@ -87,7 +87,7 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
       if (!doprocessKey(key)) {
         return;
       }
-      if (sum.isConnected()) {
+      if (sum.isConnected() || average.isConnected()) {
         MutableDouble val = sums.get(key);
         if (val == null) {
           val = new MutableDouble(tuple.getValue().doubleValue());
@@ -114,13 +114,12 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
       return getKeyValPairStreamCodec();
     }
   };
-  @OutputPortFieldAnnotation(name = "sum", optional=true)
+  @OutputPortFieldAnnotation(name = "sum", optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, V>> sum = new DefaultOutputPort<KeyValPair<K, V>>(this);
-  @OutputPortFieldAnnotation(name = "average", optional=true)
+  @OutputPortFieldAnnotation(name = "average", optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, V>> average = new DefaultOutputPort<KeyValPair<K, V>>(this);
-  @OutputPortFieldAnnotation(name = "count", optional=true)
+  @OutputPortFieldAnnotation(name = "count", optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, Integer>> count = new DefaultOutputPort<KeyValPair<K, Integer>>(this);
-
   protected transient HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
   protected transient HashMap<K, MutableInteger> counts = new HashMap<K, MutableInteger>();
 
@@ -130,16 +129,15 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
    */
   public void processMetaData(KeyValPair<K, V> tuple)
   {
-
   }
 
   /**
    * Creates a KeyValPair tuple, override if you want to extend KeyValPair
+   *
    * @param k
    * @param v
    * @return
    */
-
   public KeyValPair<K, V> cloneSumTuple(K k, V v)
   {
     return new KeyValPair(k, v);
@@ -147,6 +145,7 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
 
   /**
    * Creates a KeyValPair tuple, override if you want to extend KeyValPair
+   *
    * @param k
    * @param v
    * @return
@@ -158,6 +157,7 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
 
   /**
    * Creates a KeyValPair tuple, override if you want to extend KeyValPair
+   *
    * @param k
    * @param v
    * @return
@@ -179,11 +179,13 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
     boolean doaverage = average.isConnected();
     boolean docount = count.isConnected();
 
-    if (dosum) {
+    if (dosum || doaverage) {
       for (Map.Entry<K, MutableDouble> e: sums.entrySet()) {
         K key = e.getKey();
-        sum.emit(cloneSumTuple(key, getValue(e.getValue().value)));
-        if (docount) {
+        if (dosum) {
+          sum.emit(cloneSumTuple(key, getValue(e.getValue().value)));
+        }
+        if (docount) { // emit here instead of doing another iteration
           count.emit(cloneCountTuple(key, new Integer(counts.get(e.getKey()).value)));
         }
         if (doaverage) {
@@ -191,9 +193,9 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
         }
       }
     }
-    else if (count.isConnected()) { // sum is not connected, only counts is connected
+    else if (docount) { // sum is not connected, only counts is connected
       for (Map.Entry<K, MutableInteger> e: counts.entrySet()) {
-        count.emit(new KeyValPair(e.getKey(), new Integer(e.getValue().value)));
+        count.emit(cloneCountTuple(e.getKey(), new Integer(e.getValue().value)));
       }
     }
     sums.clear();

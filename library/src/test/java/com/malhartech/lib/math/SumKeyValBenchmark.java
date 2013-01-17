@@ -5,7 +5,6 @@ package com.malhartech.lib.math;
 
 import com.malhartech.engine.TestSink;
 import com.malhartech.lib.util.KeyValPair;
-import java.util.HashMap;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
