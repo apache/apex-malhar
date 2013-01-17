@@ -21,13 +21,15 @@ public class RandomSentenceSpout implements InputOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(RandomSentenceSpout.class);
   public transient DefaultOutputPort<String> output = new DefaultOutputPort<String>(this);
-  public static final String filename = "/home/wzj/Downloads/hadoop-1.0.4/terafile-10M";
+//  public static final String filename = "/home/wzj/Downloads/hadoop-1.0.4/terafile-10M";
+  public static final String filename = "samplefile";
   private BufferedReader br;
   private transient DataInputStream in;
   private final int batchSize = 1000;
   private int readedBatch = 0;
   private transient String sentence;
-  public static final int linesInFile = 10000000;
+//  public static final int linesInFile = 10000000;
+  public static final int linesInFile = 10000;
 
   @Override
   public void emitTuples()

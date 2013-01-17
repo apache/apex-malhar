@@ -103,7 +103,6 @@ public class PrintSampleStream implements ApplicationFactory
 
     return dag;
   }
-*/
   public DAG getTwitterApplication(Configuration conf) {
     String username = "whatisfacetwit";
     String pwd = "111222";
@@ -115,4 +114,5 @@ public class PrintSampleStream implements ApplicationFactory
     dag.addStream("spout-bolt", spout.output, bolt.input).setInline(allInline);
     return dag;
   }
+*/
 }
