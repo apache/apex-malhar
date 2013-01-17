@@ -21,10 +21,15 @@ public class SumCompareBolt extends BaseOperator
   public long inArea = 0;
   public long outArea = 0;
   private transient double rate = 0;
-  final public int base = 30000 * 30000;
+  public static int base;
   private static final Logger logger = LoggerFactory.getLogger(SumCompareBolt.class);
   public transient LinkedList<Integer> list1 = new LinkedList<Integer>();
   public transient LinkedList<Integer> list2 = new LinkedList<Integer>();
+
+  public void setBase(int num) {
+    base = num;
+  }
+
   public final transient DefaultInputPort<Integer> input1 = new DefaultInputPort<Integer>(this)
   {
     @Override
@@ -57,7 +62,7 @@ public class SumCompareBolt extends BaseOperator
     for (int i = 0; i < min; i++) {
       num1 = list1.poll();
       num2 = list2.poll();
-      if (num1 + num2 <= base) {
+      if (num1*num1 + num2*num2 <= base) {
         ++inArea;
       }
       else {
