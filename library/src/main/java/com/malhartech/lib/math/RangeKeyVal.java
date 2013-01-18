@@ -18,7 +18,7 @@ import java.util.Map;
 
 /**
  *
- * Emits the range for each key at the end of window.<p>
+ * Emits the range for each key at the end of window. <p>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects KeyValPair&lt;K,V extends Number&gt;<br>
@@ -58,13 +58,13 @@ import java.util.Map;
  * @author Locknath Shil<br>
  * <br>
  */
-public class RangeKeyValue<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
+public class RangeKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>(this)
   {
     /**
-     * Process each key and computes new high and low
+     * Process each key and computes new high and low.
      */
     @Override
     public void process(KeyValPair<K, V> tuple)
@@ -107,16 +107,16 @@ public class RangeKeyValue<K, V extends Number> extends BaseNumberKeyValueOperat
   protected transient HashMap<K, MutableDouble> high = new HashMap<K, MutableDouble>();
   protected transient HashMap<K, MutableDouble> low = new HashMap<K, MutableDouble>();
 
-  /*
+  /**
    * If you have extended from KeyValPair class and want to do some processing per tuple
-   * overrise this call back.
+   * override this call back.
    */
   public void processMetaData(KeyValPair<K, V> tuple)
   {
   }
 
   /**
-   * Creates a KeyValPair tuple, override if you want to extend KeyValPair
+   * Creates a KeyValPair tuple, override if you want to extend KeyValPair.
    *
    * @param k
    * @param v

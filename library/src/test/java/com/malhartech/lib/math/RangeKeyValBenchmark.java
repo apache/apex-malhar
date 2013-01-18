@@ -14,12 +14,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.RangeKeyValue}<p>
+ * Functional tests for {@link com.malhartech.lib.math.RangeKeyVal}<p>
  *
  */
-public class RangeKeyValueBenchmark
+public class RangeKeyValBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(RangeKeyValueBenchmark.class);
+  private static Logger log = LoggerFactory.getLogger(RangeKeyValBenchmark.class);
 
   class TestSink implements Sink
   {
@@ -47,17 +47,17 @@ public class RangeKeyValueBenchmark
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing()
   {
-    testSchemaNodeProcessing(new RangeKeyValue<String, Integer>(), "integer"); // 8million/s  10.657s  29.809
-    testSchemaNodeProcessing(new RangeKeyValue<String, Double>(), "double"); // 8 million/s 10.319
-    testSchemaNodeProcessing(new RangeKeyValue<String, Long>(), "long"); // 8 million/s 10.654
-    testSchemaNodeProcessing(new RangeKeyValue<String, Short>(), "short"); // 8 million/s 10.239s
-    testSchemaNodeProcessing(new RangeKeyValue<String, Float>(), "float"); // 8 million/s 10.323s
+    testSchemaNodeProcessing(new RangeKeyVal<String, Integer>(), "integer"); // 8million/s
+    testSchemaNodeProcessing(new RangeKeyVal<String, Double>(), "double"); // 8 million/s
+    testSchemaNodeProcessing(new RangeKeyVal<String, Long>(), "long"); // 8 million/s
+    testSchemaNodeProcessing(new RangeKeyVal<String, Short>(), "short"); // 8 million/s
+    testSchemaNodeProcessing(new RangeKeyVal<String, Float>(), "float"); // 8 million/s
   }
 
   /**
    * Test node logic emits correct results for each schema
    */
-  public void testSchemaNodeProcessing(RangeKeyValue node, String type)
+  public void testSchemaNodeProcessing(RangeKeyVal node, String type)
   {
     TestSink rangeSink = new TestSink();
     node.range.setSink(rangeSink);

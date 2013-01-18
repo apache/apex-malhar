@@ -14,12 +14,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.RangeKeyValue}<p>
+ * Functional tests for {@link com.malhartech.lib.math.RangeKeyVal}<p>
  *
  */
-public class RangeKeyValueTest
+public class RangeKeyValTest
 {
-  private static Logger log = LoggerFactory.getLogger(RangeKeyValueTest.class);
+  private static Logger log = LoggerFactory.getLogger(RangeKeyValTest.class);
 
   class TestSink implements Sink
   {
@@ -46,17 +46,17 @@ public class RangeKeyValueTest
   @Test
   public void testNodeProcessing()
   {
-    testSchemaNodeProcessing(new RangeKeyValue<String, Integer>(), "integer");
-    testSchemaNodeProcessing(new RangeKeyValue<String, Double>(), "double");
-    testSchemaNodeProcessing(new RangeKeyValue<String, Long>(), "long");
-    testSchemaNodeProcessing(new RangeKeyValue<String, Short>(), "short");
-    testSchemaNodeProcessing(new RangeKeyValue<String, Float>(), "float");
+    testSchemaNodeProcessing(new RangeKeyVal<String, Integer>(), "integer");
+    testSchemaNodeProcessing(new RangeKeyVal<String, Double>(), "double");
+    testSchemaNodeProcessing(new RangeKeyVal<String, Long>(), "long");
+    testSchemaNodeProcessing(new RangeKeyVal<String, Short>(), "short");
+    testSchemaNodeProcessing(new RangeKeyVal<String, Float>(), "float");
   }
 
   /**
    * Test node logic emits correct results for each schema
    */
-  public void testSchemaNodeProcessing(RangeKeyValue node, String type)
+  public void testSchemaNodeProcessing(RangeKeyVal node, String type)
   {
     TestSink rangeSink = new TestSink();
     node.range.setSink(rangeSink);
