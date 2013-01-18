@@ -14,8 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Counts the number of times a key exists in a window; one tuple is emitted per unique key pair<p>
- * This is an end of window operator. This operator is same as the combination of {@link com.malhartech.lib.algo.UniqueCounter} followed by {@link com.malhartech.lib.stream.HashMapToKey}<br>
+ * Counts the number of times a key exists in a window; one tuple is emitted per unique key pair. <p>
+ * This is an end of window operator. This operator is same as the combination of {@link com.malhartech.lib.algo.UniqueCounter} followed by {@link com.malhartech.lib.stream.HashMapToKeyValPair}<br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects K<br>

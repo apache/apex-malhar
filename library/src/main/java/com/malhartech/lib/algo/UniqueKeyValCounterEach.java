@@ -14,9 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Count unique occurances of key,val pairs within a window, and emits one HashMap tuple per unique key,val pair<p>
+ * Count unique occurrences of key,val pairs within a window, and emits one HashMap tuple per unique key,val pair. <p>
  * <br>
- * This operator is same as the combination of {@link com.malhartech.lib.algo.UniqueKeyValCounter} followed by {@link com.malhartech.lib.stream.HashMapToKey}<br>
+ * This operator is same as the combination of {@link com.malhartech.lib.algo.UniqueKeyValCounter} followed by {@link com.malhartech.lib.stream.HashMapToKeyValPair}<br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects HashMap&lt;K,V&gt;<br>

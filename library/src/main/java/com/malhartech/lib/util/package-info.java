@@ -6,7 +6,7 @@
 /**
  * <b>{@link com.malhartech.lib.util}</b> is a library of utility classes<p>
  * <br>
- * <br> The classes are<br>
+ * <br> The classes are.. <br>
  * <b>{@link com.malhartech.lib.util.AbstractBaseFrequentKey}</b>: Occurrences of each key is counted in the input stream, and at the end of window the winning frequent key is emitted on output port "count"<p>
  * <b>{@link com.malhartech.lib.util.AbstractBaseFrequentKeyValue}</b>: Occurrences of all values for each key in a stream is counted and at the end of window the least frequent value is emitted on output port "count" per key<br>
  * <b>{@link com.malhartech.lib.util.AbstractBaseMatchOperator}</b>: An abstract class that sets up the basic operator functionality needed for match based operators<br>
@@ -24,11 +24,11 @@
  * <b>{@link com.malhartech.lib.util.BaseUniqueKeyCounter}</b>: Count unique occurrences of keys within a window<<br>
  * <b>{@link com.malhartech.lib.util.BaseUniqueKeyValueCounter}</b>: Count unique occurrences of key,val pairs within a window<<br>
  * <b>{@link com.malhartech.lib.util.MutableDouble}</b>: A mutable double for basic operations. Makes things faster for incrementing etc. To be used for operations internal to operators<br>
- * <b>{@link com.malhartech.lib.util.MutableInteger}</b>: A mutable integer for basic operations. Makes things fasterfor incrementing etc. To be used for operations internal to operators<br>
+ * <b>{@link com.malhartech.lib.util.MutableInteger}</b>: A mutable integer for basic operations. Makes things faster for incrementing etc. To be used for operations internal to operators<br>
  * <b>{@link com.malhartech.lib.util.MutableLong}</b>: A mutable long for basic operations. Makes things easy faster incrementing etc. To be used for operations internal to operators<br>
  * <b>{@link com.malhartech.lib.util.MutableShort}</b>: A mutable short for basic operations. Makes things faster for incrementing etc. To be used for operations internal to operators<br>
  * <b>{@link com.malhartech.lib.util.MutableFloat}</b>: A mutable float for basic operations. Makes things faster for incrementing etc. To be used for operations internal to operators<br>
- * <b>{@link com.malhartech.lib.util.OneKeyValPair}</b>: A single KeyValPair for basic data passing. It is a write once, and read often model<br>
+ * <b>{@link com.malhartech.lib.util.KeyValPair}</b>: A single KeyValPair for basic data passing. It is a write once, and read often model<br>
  * <b>{@link com.malhartech.lib.util.ReversibleComparator}</b>: A comparator for ascending and descending lists<br>
  * <b>{@link com.malhartech.lib.util.TopNSort}</b>: Gives top N objects in ascending or descending order<br>
  * <b>{@link com.malhartech.lib.util.TopNUniqueSort}</b>: Gives top N objects in ascending or descending order and counts only unique objects<br>

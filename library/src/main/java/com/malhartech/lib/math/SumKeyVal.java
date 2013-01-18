@@ -136,7 +136,7 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
    *
    * @param k
    * @param v
-   * @return
+   * @return new key value pair.
    */
   public KeyValPair<K, V> cloneSumTuple(K k, V v)
   {
@@ -148,7 +148,7 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
    *
    * @param k
    * @param v
-   * @return
+   * @return new key value pair.
    */
   public KeyValPair<K, V> cloneAverageTuple(K k, V v)
   {
@@ -160,7 +160,7 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
    *
    * @param k
    * @param v
-   * @return
+   * @return new key value pair.
    */
   public KeyValPair<K, Integer> cloneCountTuple(K k, Integer v)
   {

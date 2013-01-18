@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Count unique occurances of key,val pairs within a window, and emits one HashMap tuple<p>
+ * Count unique occurrences of key,val pairs within a window, and emits one HashMap tuple. <p>
  * This is an end of window operator<br>
  * <br>
  * <b>Ports</b>:<br>

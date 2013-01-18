@@ -48,7 +48,7 @@ public abstract class AbstractActiveMQSinglePortInputOperator<T> extends Abstrac
    * operator user intends to.
    *
    * @param msg
-   * @return
+   * @return newly constructed tuple from the message.
    */
   public abstract T getTuple(Message msg);
 
