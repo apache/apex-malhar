@@ -38,7 +38,7 @@ public class SumKeyValTest
   }
 
   /**
-   * Test oper logic emits correct results
+   * Test operator logic emits correct results
    */
   @Test
   public void testNodeProcessing()
@@ -53,7 +53,6 @@ public class SumKeyValTest
 
   public void testNodeSchemaProcessing(boolean sum, boolean count, boolean average)
   {
-
     SumKeyVal<String, Double> oper = new SumKeyVal<String, Double>();
     oper.setType(Double.class);
     TestSink sumSink = new TestSink();
@@ -69,10 +68,8 @@ public class SumKeyValTest
       oper.count.setSink(countSink);
     }
 
-
     oper.beginWindow(0); //
 
-    KeyValPair<String, Double> input = new KeyValPair("a", 2.0);
     oper.data.process(new KeyValPair("a", 2.0));
     oper.data.process(new KeyValPair("b", 20.0));
     oper.data.process(new KeyValPair("c", 1000.0));
@@ -90,8 +87,8 @@ public class SumKeyValTest
 
     oper.endWindow(); //
 
+    // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
     if (sum) {
-      // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
       Assert.assertEquals("number emitted tuples", 5, sumSink.collectedTuples.size());
       for (Object o: sumSink.collectedTuples) {
         KeyValPair<String, Double> e = (KeyValPair<String, Double>)o;
@@ -137,7 +134,6 @@ public class SumKeyValTest
     }
 
     if (count) {
-      // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
       Assert.assertEquals("number emitted tuples", 5, countSink.collectedTuples.size());
       for (Object o: countSink.collectedTuples) {
         KeyValPair<String, Integer> e = (KeyValPair<String, Integer>) o;

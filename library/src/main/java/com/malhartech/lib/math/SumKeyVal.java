@@ -19,7 +19,7 @@ import java.util.Map;
 /**
  *
  * Emits the sum, average, and count of values for each key at the end of window. <p>
- * This is an end of window operator<br>
+ * This is an end window operator.<br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects KeyValPair&lt;K,V extends Number&gt;<br>
@@ -189,7 +189,7 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
           count.emit(cloneCountTuple(key, new Integer(counts.get(e.getKey()).value)));
         }
         if (doaverage) {
-          average.emit(cloneAverageTuple(key, getValue(e.getValue().value / counts.get(e.getKey()).value)));
+          average.emit(cloneAverageTuple(key, getValue(e.getValue().value / counts.get(key).value)));
         }
       }
     }
