@@ -16,13 +16,13 @@ import org.slf4j.LoggerFactory;
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-public class SumCompareBolt extends BaseOperator
+public class SumCompareOperator extends BaseOperator
 {
   public long inArea = 0;
   public long outArea = 0;
   private transient double rate = 0;
   public static int base;
-  private static final Logger logger = LoggerFactory.getLogger(SumCompareBolt.class);
+  private static final Logger logger = LoggerFactory.getLogger(SumCompareOperator.class);
   public transient LinkedList<Integer> list1 = new LinkedList<Integer>();
   public transient LinkedList<Integer> list2 = new LinkedList<Integer>();
 
@@ -30,7 +30,6 @@ public class SumCompareBolt extends BaseOperator
   {
     base = num;
   }
-
   public final transient DefaultInputPort<Integer> input1 = new DefaultInputPort<Integer>(this)
   {
     @Override
@@ -38,7 +37,6 @@ public class SumCompareBolt extends BaseOperator
     {
       list1.add(num);
     }
-
   };
   public final transient DefaultInputPort<Integer> input2 = new DefaultInputPort<Integer>(this)
   {
@@ -47,7 +45,6 @@ public class SumCompareBolt extends BaseOperator
     {
       list2.add(num);
     }
-
   };
   public final transient DefaultOutputPort<Integer> output = new DefaultOutputPort<Integer>(this);
 
@@ -61,7 +58,6 @@ public class SumCompareBolt extends BaseOperator
   {
     int min = list1.size() > list2.size() ? list2.size() : list1.size();
     int num1, num2;
-    double rate = 0;
     for (int i = 0; i < min; i++) {
       num1 = list1.poll();
       num2 = list2.poll();
@@ -71,11 +67,10 @@ public class SumCompareBolt extends BaseOperator
       else {
         ++outArea;
       }
-      rate = (double)inArea / (inArea + outArea);
+      rate = (double)inArea / (inArea + outArea)*4;
     }
-    logger.debug("all:" + (inArea + outArea) + " in:" + inArea + " out:" + outArea + " calculated pi:" + rate * 4);
+    logger.debug("all:" + (inArea + outArea) + " in:" + inArea + " out:" + outArea + " calculated pi:" + rate);
     list1.clear();
     list2.clear();
   }
-
 }

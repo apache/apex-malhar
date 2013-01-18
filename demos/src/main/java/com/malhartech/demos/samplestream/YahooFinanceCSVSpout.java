@@ -2,44 +2,25 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.storm.samplestream;
+package com.malhartech.demos.samplestream;
 
 import au.com.bytecode.opencsv.CSVReader;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.InputOperator;
 import com.malhartech.lib.io.SimpleSinglePortInputOperator;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.core.MediaType;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.DefaultHttpParams;
-import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 /**
  *
@@ -121,14 +102,13 @@ public class YahooFinanceCSVSpout extends SimpleSinglePortInputOperator<ArrayLis
           System.err.println("Method failed: " + method.getStatusLine());
         }
         else {
-          InputStream istream = null;
+          InputStream istream ;
           istream = method.getResponseBodyAsStream();
           // Process response
           InputStreamReader isr = new InputStreamReader(istream);
           CSVReader reader = new CSVReader(isr);
           List<String[]> myEntries;
           myEntries = reader.readAll();
-//          logger.debug("myEntries size:" + myEntries.size());
           for (String[] stringArr : myEntries) {
             ArrayList<String> al = new ArrayList(Arrays.asList(stringArr));
             outputPort.emit(al);

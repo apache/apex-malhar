@@ -2,8 +2,9 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.storm.samplestream;
+package com.malhartech.demos.samplestream;
 
+import com.malhartech.demos.samplestream.Application;
 import com.malhartech.stram.StramLocalCluster;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
@@ -13,16 +14,16 @@ import static org.junit.Assert.*;
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
-public class PrintSampleStreamTest
+public class ApplicationTest
 {
-  public PrintSampleStreamTest()
+  public ApplicationTest()
   {
   }
 
   @Test
   public void testSomeMethod() throws Exception
   {
-    PrintSampleStream topology = new PrintSampleStream();
+    Application topology = new Application();
     final StramLocalCluster lc = new StramLocalCluster(topology.getApplication(new Configuration(false)));
 
     new Thread("LocalClusterController")
