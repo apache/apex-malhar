@@ -4,22 +4,22 @@
  */
 package com.malhartech.demos.pi;
 
-import com.malhartech.demos.pi.PiCompareApplication;
 import com.malhartech.stram.StramLocalCluster;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-public class PiCompareApplicationTest
+public class CalculatorTest
 {
   @Test
   public void testSomeMethod() throws Exception
   {
-    PiCompareApplication topology = new PiCompareApplication();
-    final StramLocalCluster lc = new StramLocalCluster(topology.getApplication(new Configuration(false)));
+    Calculator calculator = new Calculator();
+    final StramLocalCluster lc = new StramLocalCluster(calculator.getApplication(new Configuration(false)));
 
     new Thread("LocalClusterController")
     {
@@ -39,5 +39,4 @@ public class PiCompareApplicationTest
 
     lc.run();
   }
-
 }
