@@ -6,15 +6,12 @@ package com.malhartech.demos.pi;
 
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.Operator.OutputPort;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.math.*;
 import com.malhartech.lib.stream.AbstractAggregator;
 import com.malhartech.lib.stream.ArrayListAggregator;
 import com.malhartech.lib.stream.Counter;
 import com.malhartech.lib.testbench.RandomEventGenerator;
-import java.util.Collection;
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -23,28 +20,32 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class Calculator implements ApplicationFactory
 {
+  private boolean allInline = false;
+
   @Override
   @SuppressWarnings("unchecked")
   public DAG getApplication(Configuration conf)
   {
     DAG dag = new DAG(conf);
 
+    ConsoleOutputOperator console = dag.addOperator("Console", ConsoleOutputOperator.class);
+
     /* keep generating random values between 0 and 30000 */
     RandomEventGenerator xyGenerator = dag.addOperator("GenerateX", RandomEventGenerator.class);
     xyGenerator.setMinvalue(0);
-    xyGenerator.setMaxcountofwindows(30000);
+    xyGenerator.setMaxvalue(30000);
 
     /* calculate square of each of the values it receives */
-    IntegerSquareCalculus squareOperator = dag.addOperator("SquareX", IntegerSquareCalculus.class);
+    SquareCalculus squareOperator = dag.addOperator("SquareX", SquareCalculus.class);
 
     /* pair the consecutive values */
-    AbstractAggregator<Long> pairOperator = dag.addOperator("PairXY", new ArrayListAggregator<Long>());
+    AbstractAggregator<Integer> pairOperator = dag.addOperator("PairXY", new ArrayListAggregator<Integer>());
     pairOperator.setSize(2);
 
-    IntegerSumCalculus sumOperator = dag.addOperator("SumXY", IntegerSumCalculus.class);
+    Sigma<Integer> sumOperator = dag.addOperator("SumXY", new Sigma<Integer>());
 
-    LogicalCompareToConstant<Long> comparator = dag.addOperator("AnalyzeLocation", new LogicalCompareToConstant<Long>());
-    comparator.setConstant(30000 * 30000L);
+    LogicalCompareToConstant<Integer> comparator = dag.addOperator("AnalyzeLocation", new LogicalCompareToConstant<Integer>());
+    comparator.setConstant(30000 * 30000);
 
     Counter inCircle = dag.addOperator("CountInCircle", Counter.class);
     Counter inSquare = dag.addOperator("CountInSquare", Counter.class);
@@ -54,25 +55,15 @@ public class Calculator implements ApplicationFactory
     MultiplyByConstant multiplication = dag.addOperator("InstantPI", MultiplyByConstant.class);
     multiplication.setMultiplier(4);
 
-    ConsoleOutputOperator<Double> console = dag.addOperator("Console", new ConsoleOutputOperator<Double>());
-    console.setStringFormat("instantPI = %.2d");
-
-    dag.addStream("x", xyGenerator.integer_data, squareOperator.input);
-    dag.addStream("sqr(x)", squareOperator.output, pairOperator.input);
-
-    DefaultOutputPort pairOutput = pairOperator.output;
-    dag.addStream("x2,y2", (OutputPort<Collection<Integer>>)pairOutput, sumOperator.input, inSquare.input);
-
-    dag.addStream("x2+y2", sumOperator.output, comparator.input);
-
-    dag.addStream("inCirclePoints", comparator.lessThanOrEqualTo, inCircle.input);
-
-    dag.addStream("numerator", inCircle.output, division.numerator);
-    dag.addStream("denominator", inSquare.output, division.denominator);
-
-    dag.addStream("ratio", division.doubleQuotient, multiplication.input);
-
-    dag.addStream("instantPi", multiplication.doubleProduct, console.input);
+    dag.addStream("x", xyGenerator.integer_data, squareOperator.input).setInline(allInline);
+    dag.addStream("sqr", squareOperator.integerResult, pairOperator.input).setInline(allInline);
+    dag.addStream("x2andy2", pairOperator.output, sumOperator.input).setInline(allInline);
+    dag.addStream("x2plusy2", sumOperator.integerResult, comparator.input, inSquare.input).setInline(allInline);
+    dag.addStream("inCirclePoints", comparator.greaterThan, inCircle.input).setInline(allInline);
+    dag.addStream("numerator", inCircle.output, division.numerator).setInline(allInline);
+    dag.addStream("denominator", inSquare.output, division.denominator).setInline(allInline);
+    dag.addStream("ratio", division.doubleQuotient, multiplication.input).setInline(allInline);
+    dag.addStream("instantPi", multiplication.doubleProduct, console.input).setInline(allInline);
 
     return dag;
   }

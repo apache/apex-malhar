@@ -58,7 +58,7 @@ public class Application implements ApplicationFactory
     }
     url += "&e=.csv";
     spout.setUrl(url);
-    ConsoleOutputOperator<ArrayList<String>> consoleOperator = dag.addOperator("console", new ConsoleOutputOperator<ArrayList<String>>());
+    ConsoleOutputOperator consoleOperator = dag.addOperator("console", new ConsoleOutputOperator());
     dag.addStream("spout-console", spout.outputPort, consoleOperator.input).setInline(allInline);
 
     return dag;

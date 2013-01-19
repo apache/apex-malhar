@@ -9,12 +9,18 @@ package com.malhartech.lib.math;
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-public class IntegerSquareCalculus extends AbstractUnaryCalculus<Integer, Long>
+public class SquareCalculus extends SingleVariableAbstractCalculus
 {
   @Override
-  public Long function(Integer inputNumber)
+  public double function(double dval)
   {
-    return (long)inputNumber * inputNumber;
+    return dval * dval;
+  }
+
+  @Override
+  public long function(long lval)
+  {
+    return lval * lval;
   }
 
 }

@@ -80,17 +80,17 @@ public class ScaledApplication implements ApplicationFactory
 
   }
 
-  private <T extends Number> InputPort<HashMap<String, T>> getConsolePort(DAG b, String name, boolean silent)
+  private InputPort<Object> getConsolePort(DAG b, String name, boolean silent)
   {
     // output to HTTP server when specified in environment setting
     String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
     if (serverAddr == null) {
-      ConsoleOutputOperator<HashMap<String, T>> oper = b.addOperator(name, new ConsoleOutputOperator<HashMap<String, T>>());
+      ConsoleOutputOperator oper = b.addOperator(name, new ConsoleOutputOperator());
       oper.setStringFormat(name + "%s");
       oper.silent = silent;
       return oper.input;
     }
-    HttpOutputOperator<HashMap<String, T>> oper = b.addOperator(name, new HttpOutputOperator<HashMap<String, T>>());
+    HttpOutputOperator<Object> oper = b.addOperator(name, new HttpOutputOperator<Object>());
     URI u = URI.create("http://" + serverAddr + "/channel/" + name);
     oper.setResourceURL(u);
     return oper.input;
@@ -247,11 +247,11 @@ public class ScaledApplication implements ApplicationFactory
     dag.addStream("clicktuplecount", clickAggrCount10.out, ctr.numerator, merge.data2).setInline(true);
     dag.addStream("total count", merge.out, tuple_counter.data).setInline(true);
 
-    InputPort<HashMap<String, Double>> revconsole = getConsolePort(dag, "revConsole", false);
-    InputPort<HashMap<String, Double>> costconsole = getConsolePort(dag, "costConsole", false);
-    InputPort<HashMap<String, Double>> marginconsole = getConsolePort(dag, "marginConsole", false);
-    InputPort<HashMap<String, Double>> ctrconsole = getConsolePort(dag, "ctrConsole", false);
-    InputPort<HashMap<String, Number>> viewcountconsole = getConsolePort(dag, "viewCountConsole", false);
+    InputPort<Object> revconsole = getConsolePort(dag, "revConsole", false);
+    InputPort<Object> costconsole = getConsolePort(dag, "costConsole", false);
+    InputPort<Object> marginconsole = getConsolePort(dag, "marginConsole", false);
+    InputPort<Object> ctrconsole = getConsolePort(dag, "ctrConsole", false);
+    InputPort<Object> viewcountconsole = getConsolePort(dag, "viewCountConsole", false);
 
     dag.addStream("revenuedata", revenue.sum, margin.denominator, revconsole).setInline(allInline);
     dag.addStream("costdata", cost.sum, margin.numerator, costconsole).setInline(allInline);

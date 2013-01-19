@@ -31,7 +31,7 @@ public class TwitterTopCounter extends DAG
       return operator.input;
     }
 
-    ConsoleOutputOperator<Object> operator = addOperator(nodeName, new ConsoleOutputOperator<Object>());
+    ConsoleOutputOperator operator = addOperator(nodeName, new ConsoleOutputOperator());
     operator.setStringFormat(nodeName + ": %s");
     return operator.input;
   }

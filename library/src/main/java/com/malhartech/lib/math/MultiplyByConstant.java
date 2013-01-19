@@ -48,7 +48,6 @@ public class MultiplyByConstant extends BaseOperator
   /**
    * @param multiplier the multiplier to set
    */
-  @NotNull
   public void setMultiplier(Number multiplier)
   {
     this.multiplier = multiplier;

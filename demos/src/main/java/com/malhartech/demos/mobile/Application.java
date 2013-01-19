@@ -58,10 +58,10 @@ public class Application implements ApplicationFactory
     System.out.println("Phone range: " + this.phoneRange);
   }
 
-  private ConsoleOutputOperator<HashMap<String, Object>> getConsoleOperator(DAG b, String name)
+  private ConsoleOutputOperator getConsoleOperator(DAG b, String name)
   {
     // output to HTTP server when specified in environment setting
-    ConsoleOutputOperator<HashMap<String, Object>> oper = b.addOperator(name, new ConsoleOutputOperator<HashMap<String, Object>>());
+    ConsoleOutputOperator oper = b.addOperator(name, new ConsoleOutputOperator());
     oper.setStringFormat(name + ": %s");
     return oper;
   }
@@ -162,7 +162,7 @@ public class Application implements ApplicationFactory
     }
     else {
       // for testing purposes without server
-      ConsoleOutputOperator<HashMap<String, Object>> phoneconsole = getConsoleOperator(dag, "phoneLocationQueryResult");
+      ConsoleOutputOperator phoneconsole = getConsoleOperator(dag, "phoneLocationQueryResult");
       dag.addStream("consoledata", indexMap.console, phoneconsole.input).setInline(true);
 
       indexMap.setPhoneQuery("idBlah", "9999988");

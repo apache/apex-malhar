@@ -17,13 +17,14 @@ import org.slf4j.LoggerFactory;
  * <br>
  *
  */
-public class ConsoleOutputOperator<T> extends BaseOperator
+public class ConsoleOutputOperator extends BaseOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(ConsoleOutputOperator.class);
-  public final transient DefaultInputPort<T> input = new DefaultInputPort<T>(this)
+  public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>(this)
   {
     @Override
-    public void process(T t)
+    @SuppressWarnings("UseOfSystemOutOrSystemErr")
+    public void process(Object t)
     {
       String s;
       if (stringFormat == null) {

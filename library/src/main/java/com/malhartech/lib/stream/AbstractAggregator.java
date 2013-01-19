@@ -31,6 +31,7 @@ public abstract class AbstractAggregator<T> implements Operator
 
       if (collection.size() == size) {
         output.emit(collection);
+        collection = null;
       }
     }
 

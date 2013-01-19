@@ -68,7 +68,6 @@ public class LogicalCompareToConstant<T extends Comparable<? super T>> extends B
   /**
    * @param constant the constant to set
    */
-  @NotNull
   public void setConstant(T constant)
   {
     this.constant = constant;
