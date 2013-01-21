@@ -15,7 +15,7 @@ import com.malhartech.api.Operator.Unifier;
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-public class Counter implements Operator, Unifier<Integer>
+public class Counter implements Operator//, Unifier<Integer>
 {
   public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>(this)
   {
@@ -28,11 +28,11 @@ public class Counter implements Operator, Unifier<Integer>
   };
   public final transient DefaultOutputPort<Integer> output = new DefaultOutputPort<Integer>(this)
   {
-    @Override
-    public Unifier<Integer> getUnifier()
-    {
-      return Counter.this;
-    }
+//    @Override
+//    public Unifier<Integer> getUnifier()
+//    {
+//      return Counter.this;
+//    }
 
   };
 
@@ -42,7 +42,7 @@ public class Counter implements Operator, Unifier<Integer>
     count = 0;
   }
 
-  @Override
+//  @Override
   public void merge(Integer tuple)
   {
     count += tuple;
