@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
  * Functional tests for {@link com.malhartech.lib.math.Sum}<p>
  *
  */
-public class SumValueTest
+public class SumTest
 {
-  private static Logger log = LoggerFactory.getLogger(SumValueTest.class);
+  private static Logger log = LoggerFactory.getLogger(SumTest.class);
 
   class TestSink implements Sink
   {

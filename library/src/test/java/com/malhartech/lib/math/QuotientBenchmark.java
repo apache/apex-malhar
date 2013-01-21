@@ -3,67 +3,87 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.engine.TestCountAndLastTupleSink;
-import java.util.HashMap;
-import java.util.Map;
+import com.malhartech.api.Sink;
+import com.malhartech.engine.Tuple;
+import java.util.ArrayList;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 /**
  *
- * Performance tests for {@link com.malhartech.lib.math.QuotientMap}<p>
+ * Performance tests for {@link com.malhartech.lib.math.Quotient}<p>
  *
  */
 public class QuotientBenchmark
 {
-  private static Logger LOG = LoggerFactory.getLogger(Quotient.class);
+  private static Logger log = LoggerFactory.getLogger(QuotientBenchmark.class);
 
-  /**
-   * Test node logic emits correct results
-   */
-  @Test
-  @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
-  public void testNodeProcessing() throws Exception
+  class TestSink implements Sink
   {
-    testNodeProcessingSchema(new QuotientMap<String, Integer>());
-    testNodeProcessingSchema(new QuotientMap<String, Double>());
+    ArrayList<Object> collectedTuples = new ArrayList<Object>();
+
+    @Override
+    public void process(Object payload)
+    {
+      if (payload instanceof Tuple) {
+      }
+      else {
+        collectedTuples.add(payload);
+      }
+    }
   }
 
-  public void testNodeProcessingSchema(QuotientMap oper) throws Exception
+  /**
+   * Test oper logic emits correct results
+   */
+  @Test
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  public void testNodeSchemaProcessing()
   {
-
-    TestCountAndLastTupleSink quotientSink = new TestCountAndLastTupleSink();
-
+    Quotient<Double> oper = new Quotient<Double>();
+    TestSink quotientSink = new TestSink();
     oper.quotient.setSink(quotientSink);
+
     oper.setMult_by(2);
 
+    int numTuples = 100000000;
     oper.beginWindow(0); //
-    HashMap<String, Number> input = new HashMap<String, Number>();
-    int numtuples = 100000000;
-    for (int i = 0; i < numtuples; i++) {
-      input.clear();
-      input.put("a", 2);
-      input.put("b", 20);
-      input.put("c", 1000);
-      oper.numerator.process(input);
-      input.clear();
-      input.put("a", 2);
-      input.put("b", 40);
-      input.put("c", 500);
-      oper.denominator.process(input);
-    }
+    for (int i = 0; i < numTuples; i++) {
+      Double a = new Double(30.0);
+      Double b = new Double(20.0);
+      Double c = new Double(100.0);
+      oper.denominator.process(a);
+      oper.denominator.process(b);
+      oper.denominator.process(c);
 
-    oper.endWindow();
-    // One for each key
-    LOG.debug(String.format("Processed %d tuples", numtuples * 6));
+      a = 5.0;
+      oper.numerator.process(a);
+      a = 1.0;
+      oper.numerator.process(a);
+      b = 44.0;
+      oper.numerator.process(b);
 
-    HashMap<String, Number> output = (HashMap<String, Number>)quotientSink.tuple;
-    for (Map.Entry<String, Number> e: output.entrySet()) {
-      LOG.debug(String.format("Key, value is %s,%f", e.getKey(), e.getValue().doubleValue()));
+      b = 10.0;
+      oper.numerator.process(b);
+      c = 22.0;
+      oper.numerator.process(c);
+      c = 18.0;
+      oper.numerator.process(c);
+
+      a = 0.5;
+      oper.numerator.process(a);
+      b = 41.5;
+      oper.numerator.process(b);
+      a = 8.0;
+      oper.numerator.process(a);
     }
+    oper.endWindow(); //
+
+    // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
+    Assert.assertEquals("number emitted tuples", 1, quotientSink.collectedTuples.size());
+    Double val = (Double) quotientSink.collectedTuples.get(0);
+    log.debug(String.format("\nBenchmark for %d tuples (expected 2.0, got %f)", numTuples*12, val));
   }
 }

@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
  * Functional tests for {@link com.malhartech.lib.math.AverageValue}<p>
  *
  */
-public class AverageValueTest
+public class AverageTest
 {
-  private static Logger log = LoggerFactory.getLogger(AverageValueTest.class);
+  private static Logger log = LoggerFactory.getLogger(AverageTest.class);
 
   class TestSink implements Sink
   {

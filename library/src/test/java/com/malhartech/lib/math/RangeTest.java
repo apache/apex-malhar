@@ -6,8 +6,7 @@ package com.malhartech.lib.math;
 import com.malhartech.api.Sink;
 import com.malhartech.engine.Tuple;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -15,17 +14,16 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.RangeMap}<p>
+ * Functional tests for {@link com.malhartech.lib.math.Range}<p>
  *
  */
 public class RangeTest
 {
-  private static Logger log = LoggerFactory.getLogger(RangeTest.class);
+  private static Logger LOG = LoggerFactory.getLogger(SumMap.class);
 
   class TestSink implements Sink
   {
-    double low = -1;
-    double high = -1;
+    List<Object> collectedTuples = new ArrayList<Object>();
 
     @Override
     public void process(Object payload)
@@ -33,83 +31,63 @@ public class RangeTest
       if (payload instanceof Tuple) {
       }
       else {
-        HashMap<String, Object> tuple = (HashMap<String, Object>)payload;
-        for (Map.Entry<String, Object> e: tuple.entrySet()) {
-          ArrayList<Number> alist = (ArrayList<Number>)e.getValue();
-          high = alist.get(0).doubleValue();
-          low = alist.get(1).doubleValue();
-        }
+        collectedTuples.add(payload);
       }
     }
   }
 
   /**
-   * Test functional logic
+   * Test oper logic emits correct results
    */
   @Test
-  public void testNodeProcessing()
+  public void testNodeSchemaProcessing()
   {
-    testSchemaNodeProcessing(new RangeMap<String, Integer>(), "integer"); // 8million/s
-    testSchemaNodeProcessing(new RangeMap<String, Double>(), "double"); // 8 million/s
-    testSchemaNodeProcessing(new RangeMap<String, Long>(), "long"); // 8 million/s
-    testSchemaNodeProcessing(new RangeMap<String, Short>(), "short"); // 8 million/s
-    testSchemaNodeProcessing(new RangeMap<String, Float>(), "float"); // 8 million/s
-  }
-
-  /**
-   * Test node logic emits correct results for each schema
-   */
-  public void testSchemaNodeProcessing(RangeMap node, String type)
-  {
+    Range<Double> oper = new Range<Double>();
     TestSink rangeSink = new TestSink();
-    node.range.setSink(rangeSink);
+    oper.range.setSink(rangeSink);
 
-    HashMap<String, Number> input = new HashMap<String, Number>();
-    int numtuples = 1000;
-    // For benchmark do -> numtuples = numtuples * 100;
-    if (type.equals("integer")) {
-      HashMap<String, Integer> tuple;
-      for (int i = -10; i < numtuples; i++) {
-        tuple = new HashMap<String, Integer>();
-        tuple.put("a", new Integer(i));
-        node.data.process(tuple);
-      }
+    oper.beginWindow(0); //
+
+    int numTuples = 1000;
+    for (int i = 0; i < numTuples; i++) {
+      Double a = new Double(20.0);
+      Double b = new Double(2.0);
+      Double c = new Double(1000.0);
+
+      oper.data.process(a);
+      oper.data.process(b);
+      oper.data.process(c);
+
+      a = 1.0;
+      oper.data.process(a);
+      a = 10.0;
+      oper.data.process(a);
+      b = 5.0;
+      oper.data.process(b);
+
+      b = 12.0;
+      oper.data.process(b);
+      c = 22.0;
+      oper.data.process(c);
+      c = 14.0;
+      oper.data.process(c);
+
+      a = 46.0;
+      oper.data.process(a);
+      b = 2.0;
+      oper.data.process(b);
+      a = 23.0;
+      oper.data.process(a);
     }
-    else if (type.equals("double")) {
-      HashMap<String, Double> tuple;
-      for (int i = -10; i < numtuples; i++) {
-        tuple = new HashMap<String, Double>();
-        tuple.put("a", new Double(i));
-        node.data.process(tuple);
-      }
+
+    oper.endWindow(); //
+
+    // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
+    Assert.assertEquals("number emitted tuples", 1, rangeSink.collectedTuples.size());
+    for (Object o: rangeSink.collectedTuples) {
+      ArrayList<Double> list = (ArrayList<Double>)o;
+      Assert.assertEquals("emitted high value was ", new Double(1000.0), list.get(0));
+      Assert.assertEquals("emitted low value was ", new Double(1.0), list.get(1));
     }
-    else if (type.equals("long")) {
-      HashMap<String, Long> tuple;
-      for (int i = -10; i < numtuples; i++) {
-        tuple = new HashMap<String, Long>();
-        tuple.put("a", new Long(i));
-        node.data.process(tuple);
-      }
-    }
-    else if (type.equals("short")) {
-      HashMap<String, Short> tuple;
-      for (short i = -10; i < 1000; i++) {
-        tuple = new HashMap<String, Short>();
-        tuple.put("a", new Short(i));
-        node.data.process(tuple);
-      }
-    }
-    else if (type.equals("float")) {
-      HashMap<String, Float> tuple;
-      for (int i = -10; i < numtuples; i++) {
-        tuple = new HashMap<String, Float>();
-        tuple.put("a", new Float(i));
-        node.data.process(tuple);
-      }
-    }
-    node.endWindow();
-    Assert.assertEquals("high was ", new Double(999.0), rangeSink.high);
-    Assert.assertEquals("low was ", new Double(-10.0), rangeSink.low);
-    log.debug(String.format("\nTested %d tuples", numtuples));
   }
 }

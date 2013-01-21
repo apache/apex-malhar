@@ -3,9 +3,10 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.engine.TestCountAndLastTupleSink;
-import java.util.HashMap;
-import java.util.Map;
+import com.malhartech.api.Sink;
+import com.malhartech.engine.Tuple;
+import java.util.ArrayList;
+import java.util.List;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -13,65 +14,75 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.QuotientMap}<p>
+ * Functional tests for {@link com.malhartech.lib.math.Quotient}<p>
  *
  */
 public class QuotientTest
 {
-  private static Logger LOG = LoggerFactory.getLogger(QuotientMap.class);
+  private static Logger LOG = LoggerFactory.getLogger(SumMap.class);
 
-  /**
-   * Test node logic emits correct results
-   */
-  @Test
-  @SuppressWarnings("SleepWhileInLoop")
-  public void testNodeProcessing() throws Exception
+  class TestSink implements Sink
   {
-    testNodeProcessingSchema(new QuotientMap<String, Integer>());
-    testNodeProcessingSchema(new QuotientMap<String, Double>());
+    List<Object> collectedTuples = new ArrayList<Object>();
+
+    @Override
+    public void process(Object payload)
+    {
+      if (payload instanceof Tuple) {
+      }
+      else {
+        collectedTuples.add(payload);
+      }
+    }
   }
 
-  public void testNodeProcessingSchema(QuotientMap oper) throws Exception
+  /**
+   * Test oper logic emits correct results
+   */
+  @Test
+  public void testNodeSchemaProcessing()
   {
-    TestCountAndLastTupleSink quotientSink = new TestCountAndLastTupleSink();
-
+    Quotient<Double> oper = new Quotient<Double>();
+    TestSink quotientSink = new TestSink();
     oper.quotient.setSink(quotientSink);
+
     oper.setMult_by(2);
 
     oper.beginWindow(0); //
-    HashMap<String, Number> input = new HashMap<String, Number>();
-    int numtuples = 100;
-    for (int i = 0; i < numtuples; i++) {
-      input.clear();
-      input.put("a", 2);
-      input.put("b", 20);
-      input.put("c", 1000);
-      oper.numerator.process(input);
-      input.clear();
-      input.put("a", 2);
-      input.put("b", 40);
-      input.put("c", 500);
-      oper.denominator.process(input);
-    }
+    Double a = new Double(30.0);
+    Double b = new Double(20.0);
+    Double c = new Double(100.0);
+    oper.denominator.process(a);
+    oper.denominator.process(b);
+    oper.denominator.process(c);
 
-    oper.endWindow();
+    a = 5.0;
+    oper.numerator.process(a);
+    a = 1.0;
+    oper.numerator.process(a);
+    b = 44.0;
+    oper.numerator.process(b);
 
-    // One for each key
-    Assert.assertEquals("number emitted tuples", 1, quotientSink.count);
-    HashMap<String, Number> output = (HashMap<String, Number>) quotientSink.tuple;
-    for (Map.Entry<String, Number> e: output.entrySet()) {
-      if (e.getKey().equals("a")) {
-        Assert.assertEquals("emitted value for 'a' was ", new Double(2), e.getValue());
-      }
-      else if (e.getKey().equals("b")) {
-        Assert.assertEquals("emitted tuple for 'b' was ", new Double(1), e.getValue());
-      }
-      else if (e.getKey().equals("c")) {
-        Assert.assertEquals("emitted tuple for 'c' was ", new Double(4), e.getValue());
-      }
-      else {
-        LOG.debug(String.format("key was %s", e.getKey()));
-      }
+    b = 10.0;
+    oper.numerator.process(b);
+    c = 22.0;
+    oper.numerator.process(c);
+    c = 18.0;
+    oper.numerator.process(c);
+
+    a = 0.5;
+    oper.numerator.process(a);
+    b = 41.5;
+    oper.numerator.process(b);
+    a = 8.0;
+    oper.numerator.process(a);
+    oper.endWindow(); //
+
+    // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
+    Assert.assertEquals("number emitted tuples", 1, quotientSink.collectedTuples.size());
+    for (Object o: quotientSink.collectedTuples) { // sum is 1157
+      Double val = (Double)o;
+      Assert.assertEquals("emitted quotient value was ", new Double(2.0), val);
     }
   }
 }

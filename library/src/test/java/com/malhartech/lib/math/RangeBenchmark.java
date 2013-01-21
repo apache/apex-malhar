@@ -6,8 +6,6 @@ package com.malhartech.lib.math;
 import com.malhartech.api.Sink;
 import com.malhartech.engine.Tuple;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -15,16 +13,16 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.math.RangeMap}<p>
+ * Performance tests for {@link com.malhartech.lib.math.Range}<p>
  *
  */
-public class RangeBenchmark {
-    private static Logger LOG = LoggerFactory.getLogger(RangeBenchmark.class);
+public class RangeBenchmark
+{
+  private static Logger log = LoggerFactory.getLogger(RangeBenchmark.class);
 
   class TestSink implements Sink
   {
-    double low = -1;
-    double high = -1;
+    Object tuple;
 
     @Override
     public void process(Object payload)
@@ -32,86 +30,61 @@ public class RangeBenchmark {
       if (payload instanceof Tuple) {
       }
       else {
-        HashMap<String, Object> tuple = (HashMap<String, Object>)payload;
-        for (Map.Entry<String, Object> e: tuple.entrySet()) {
-          ArrayList<Number> alist = (ArrayList<Number>) e.getValue();
-          high = alist.get(0).doubleValue();
-          low = alist.get(1).doubleValue();
-        }
+        tuple = payload;
       }
     }
   }
 
+  /**
+   * Test oper logic emits correct results
+   */
+  @Test
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  public void testNodeSchemaProcessing()
+  {
+    Range<Double> oper = new Range<Double>();
+    TestSink rangeSink = new TestSink();
+    oper.range.setSink(rangeSink);
 
-    /**
-     * Test functional logic
-     */
-    @Test
-    @Category(com.malhartech.annotation.PerformanceTestCategory.class)
-    public void testNodeProcessing() {
-      testSchemaNodeProcessing(new RangeMap<String,Integer>(), "integer"); // 8million/s
-      testSchemaNodeProcessing(new RangeMap<String,Double>(), "double"); // 8 million/s
-      testSchemaNodeProcessing(new RangeMap<String,Long>(), "long"); // 8 million/s
-      testSchemaNodeProcessing(new RangeMap<String,Short>(),"short"); // 8 million/s
-      testSchemaNodeProcessing(new RangeMap<String,Float>(),"float"); // 8 million/s
+    oper.beginWindow(0); //
+
+    int numTuples = 100000000;
+    for (int i = 0; i < numTuples; i++) {
+      Double a = new Double(2.0);
+      Double b = new Double(20.0);
+      Double c = new Double(1000.0);
+
+      oper.data.process(a);
+      oper.data.process(b);
+      oper.data.process(c);
+
+      a = 1.0;
+      oper.data.process(a);
+      a = 10.0;
+      oper.data.process(a);
+      b = 5.0;
+      oper.data.process(b);
+
+      b = 12.0;
+      oper.data.process(b);
+      c = 22.0;
+      oper.data.process(c);
+      c = 14.0;
+      oper.data.process(c);
+
+      a = 46.0;
+      oper.data.process(a);
+      b = 2.0;
+      oper.data.process(b);
+      a = 23.0;
+      oper.data.process(a);
     }
 
-    /**
-     * Test node logic emits correct results for each schema
-     */
-    public void testSchemaNodeProcessing(RangeMap node, String type)
-    {
-      TestSink rangeSink = new TestSink();
-      node.range.setSink(rangeSink);
+    oper.endWindow(); //
 
-      HashMap<String, Number> input = new HashMap<String, Number>();
-      int numtuples = 100000000;
-      // For benchmark do -> numtuples = numtuples * 100;
-      if (type.equals("integer")) {
-        HashMap<String,Integer> tuple;
-        for (int i = 0; i < numtuples; i++) {
-          tuple = new HashMap<String, Integer>();
-          tuple.put("a", new Integer(i));
-          node.data.process(tuple);
-        }
-      }
-      else if (type.equals("double")) {
-        HashMap<String,Double> tuple;
-        for (int i = 0; i < numtuples; i++) {
-          tuple = new HashMap<String, Double>();
-          tuple.put("a", new Double(i));
-          node.data.process(tuple);
-        }
-      }
-      else if (type.equals("long")) {
-        HashMap<String,Long> tuple;
-        for (int i = 0; i < numtuples; i++) {
-          tuple = new HashMap<String, Long>();
-          tuple.put("a", new Long(i));
-          node.data.process(tuple);
-        }
-      }
-      else if (type.equals("short")) {
-        HashMap<String,Short> tuple;
-        int count = numtuples/1000; // cannot cross 64K
-        for (int j = 0; j < count; j++) {
-          for (short i = 0; i < 1000; i++) {
-            tuple = new HashMap<String, Short>();
-            tuple.put("a", new Short(i));
-            node.data.process(tuple);
-          }
-        }
-      }
-       else if (type.equals("float")) {
-        HashMap<String,Float> tuple;
-        for (int i = 0; i < numtuples; i++) {
-          tuple = new HashMap<String, Float>();
-          tuple.put("a", new Float(i));
-          node.data.process(tuple);
-        }
-      }
-      node.endWindow();
-      LOG.debug(String.format("\n****************************\nThe high is %f, and low is %f from %d tuples of type %s\n*************************\n",
-                              rangeSink.high, rangeSink.low, numtuples, type));
-    }
+    ArrayList list = (ArrayList) rangeSink.tuple;
+    log.debug(String.format("\nBenchmark total %d tuples was expected (1000,1) got (%f,%f)", numTuples * 12,
+                            list.get(0),
+                            list.get(1)));
+  }
 }

@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * Current benchmark is 12 million tuples/sec.
  *
  */
-public class MapAverageBenchmark
+public class AverageMapBenchmark
 {
   private static Logger log = LoggerFactory.getLogger(SumMap.class);
 

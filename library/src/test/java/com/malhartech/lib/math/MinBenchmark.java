@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
  * Performance tests for {@link com.malhartech.lib.math.Min}<p>
  *
  */
-public class MinValueBenchmark
+public class MinBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(MinValueBenchmark.class);
+  private static Logger log = LoggerFactory.getLogger(MinBenchmark.class);
 
   /**
    * Test oper logic emits correct results

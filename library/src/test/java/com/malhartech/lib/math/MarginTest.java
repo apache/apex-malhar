@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.MarginMap}<p>
+ * Functional tests for {@link com.malhartech.lib.math.Margin}<p>
  *
  */
 public class MarginTest
@@ -27,52 +27,55 @@ public class MarginTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    testNodeProcessingSchema(new MarginMap<String, Integer>());
-    testNodeProcessingSchema(new MarginMap<String, Double>());
-    testNodeProcessingSchema(new MarginMap<String, Float>());
-    testNodeProcessingSchema(new MarginMap<String, Short>());
-    testNodeProcessingSchema(new MarginMap<String, Long>());
+    testNodeProcessingSchema(new Margin<Integer>());
+    testNodeProcessingSchema(new Margin<Double>());
+    testNodeProcessingSchema(new Margin<Float>());
+    testNodeProcessingSchema(new Margin<Short>());
+    testNodeProcessingSchema(new Margin<Long>());
   }
 
-  public void testNodeProcessingSchema(MarginMap oper)
+  public void testNodeProcessingSchema(Margin oper)
   {
     TestCountAndLastTupleSink marginSink = new TestCountAndLastTupleSink();
 
     oper.margin.setSink(marginSink);
+    oper.setPercent(true);
 
     oper.beginWindow(0);
-    HashMap<String, Number> input = new HashMap<String, Number>();
-    input.put("a", 2);
-    input.put("b", 20);
-    input.put("c", 1000);
-    oper.numerator.process(input);
-
-    input.clear();
-    input.put("a", 2);
-    input.put("b", 40);
-    input.put("c", 500);
-    oper.denominator.process(input);
-
+    oper.numerator.process(2);
+    oper.numerator.process(20);
+    oper.numerator.process(100);
+    oper.denominator.process(200);
+    oper.denominator.process(22);
+    oper.denominator.process(22);
     oper.endWindow();
 
-    // One for each key
     Assert.assertEquals("number emitted tuples", 1, marginSink.count);
+    Assert.assertEquals("margin was ", 50, ((Number) marginSink.tuple).intValue());
 
-    HashMap<String, Number> output = (HashMap<String, Number>) marginSink.tuple;
-    for (Map.Entry<String, Number> e: output.entrySet()) {
-      LOG.debug(String.format("Key, value is %s,%f", e.getKey(), e.getValue().doubleValue()));
-      if (e.getKey().equals("a")) {
-        Assert.assertEquals("emitted value for 'a' was ", new Double(0), e.getValue().doubleValue());
-      }
-      else if (e.getKey().equals("b")) {
-        Assert.assertEquals("emitted tuple for 'b' was ", new Double(0.5), e.getValue().doubleValue());
-      }
-      else if (e.getKey().equals("c")) {
-        Assert.assertEquals("emitted tuple for 'c' was ", new Double(-1.0), e.getValue().doubleValue());
-      }
-      else {
-        LOG.debug(String.format("key was %s", e.getKey()));
-      }
-    }
+    marginSink.clear();
+    oper.beginWindow(0);
+    oper.numerator.process(2);
+    oper.numerator.process(20);
+    oper.numerator.process(100);
+    oper.denominator.process(17);
+    oper.denominator.process(22);
+    oper.denominator.process(22);
+    oper.endWindow();
+
+    Assert.assertEquals("number emitted tuples", 1, marginSink.count);
+    Assert.assertEquals("margin was ", -100, ((Number) marginSink.tuple).intValue());
+
+    marginSink.clear();
+    oper.beginWindow(0);
+    oper.numerator.process(2);
+    oper.numerator.process(20);
+    oper.numerator.process(100);
+    oper.denominator.process(17);
+    oper.denominator.process(22);
+    oper.denominator.process(-39);
+    oper.endWindow();
+
+    Assert.assertEquals("number emitted tuples", 0, marginSink.count);
   }
 }

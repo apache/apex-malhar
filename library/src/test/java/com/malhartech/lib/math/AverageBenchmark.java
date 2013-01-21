@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
  * Current benchmark is 175 million tuples per second.
  *
  */
-public class AverageValueBenchmark
+public class AverageBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(AverageValueBenchmark.class);
+  private static Logger log = LoggerFactory.getLogger(AverageBenchmark.class);
 
   class TestSink implements Sink
   {
