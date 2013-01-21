@@ -8,13 +8,14 @@ import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.Operator;
+import com.malhartech.api.Operator.Unifier;
 
 /**
  * Counter counts the number of tuples delivered to it in each window and emits the count.
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-public class Counter implements Operator
+public class Counter implements Operator, Unifier<Integer>
 {
   public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>(this)
   {
@@ -27,11 +28,10 @@ public class Counter implements Operator
   };
   public final transient DefaultOutputPort<Integer> output = new DefaultOutputPort<Integer>(this)
   {
-
     @Override
     public Unifier<Integer> getUnifier()
     {
-      return super.getUnifier();
+      return Counter.this;
     }
 
   };
@@ -40,6 +40,12 @@ public class Counter implements Operator
   public void beginWindow(long windowId)
   {
     count = 0;
+  }
+
+  @Override
+  public void merge(Integer tuple)
+  {
+    count += tuple;
   }
 
   @Override

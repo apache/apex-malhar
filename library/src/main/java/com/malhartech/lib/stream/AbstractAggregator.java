@@ -11,6 +11,7 @@ import com.malhartech.api.Operator;
 import java.util.Collection;
 import javax.validation.constraints.Min;
 
+// should this be partitionable?
 /**
  *
  * @param <T>
@@ -37,9 +38,6 @@ public abstract class AbstractAggregator<T> implements Operator
 
   };
   public final transient DefaultOutputPort<Collection<T>> output = new DefaultOutputPort<Collection<T>>(this);
-  @Min(0)
-  private int size;
-  Collection<T> collection;
 
   /**
    * Set the size of the collection.
@@ -82,4 +80,7 @@ public abstract class AbstractAggregator<T> implements Operator
   {
   }
 
+  protected Collection<T> collection;
+  @Min(0)
+  private int size;
 }
