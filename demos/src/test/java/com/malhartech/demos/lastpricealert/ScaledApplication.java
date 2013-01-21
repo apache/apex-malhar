@@ -8,8 +8,8 @@ import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
 import com.malhartech.api.Operator.InputPort;
 import com.malhartech.lib.io.ConsoleOutputOperator;
-import com.malhartech.lib.math.ChangeAlert;
-import com.malhartech.lib.math.SumValue;
+import com.malhartech.lib.math.ChangeAlertMap;
+import com.malhartech.lib.math.Sum;
 import com.malhartech.lib.stream.DevNullCounter;
 import com.malhartech.lib.stream.StreamMerger5;
 import com.malhartech.lib.testbench.EventClassifierNumberToHashDouble;
@@ -77,9 +77,9 @@ public class ScaledApplication implements ApplicationFactory
     return oper.input;
   }
 
-  public ChangeAlert<String,Double> getChangeAlertOperator(String name, DAG b)
+  public ChangeAlertMap<String,Double> getChangeAlertOperator(String name, DAG b)
   {
-    ChangeAlert<String,Double> oper = b.addOperator(name, new ChangeAlert<String,Double>());
+    ChangeAlertMap<String,Double> oper = b.addOperator(name, new ChangeAlertMap<String,Double>());
     oper.setPercentThreshold(2);
     String [] filters = new String[300];
     for (int i = 0; i < 300; i++) {
@@ -122,9 +122,9 @@ public class ScaledApplication implements ApplicationFactory
     return oper;
   }
 
-  public SumValue<Integer> getSumValue(String name, DAG b)
+  public Sum<Integer> getSumValue(String name, DAG b)
   {
-    return b.addOperator(name, new SumValue<Integer>());
+    return b.addOperator(name, new Sum<Integer>());
   }
 
   public ThroughputCounter<String, Double> getThroughputCounter(String name, DAG b)
@@ -146,12 +146,12 @@ public class ScaledApplication implements ApplicationFactory
     RandomEventGenerator rGen3 = getRandomGenerator("randomgen3", dag);
     RandomEventGenerator rGen4 = getRandomGenerator("randomgen4", dag);
     EventClassifierNumberToHashDouble<Integer> hGen = getEventClassifier("hgen", dag);
-    ChangeAlert<String,Double> alert = getChangeAlertOperator("alert", dag);
+    ChangeAlertMap<String,Double> alert = getChangeAlertOperator("alert", dag);
     DevNullCounter<HashMap<String, HashMap<Double,Double>>> onull = getDevNullOperator("null", dag);
 
     StreamMerger5 mGen = dag.addOperator("twogens", new StreamMerger5<Integer>());
 
-    SumValue<Integer> scount = getSumValue("count", dag);
+    Sum<Integer> scount = getSumValue("count", dag);
     EventClassifierNumberToHashDouble<Integer> hGentput = getEventClassifier("hgentput", dag);
     ThroughputCounter<String, Double> toper = getThroughputCounter("tcount", dag);
 
