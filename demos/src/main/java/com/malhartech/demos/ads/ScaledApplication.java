@@ -11,9 +11,9 @@ import com.malhartech.api.Operator.InputPort;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.io.HdfsOutputOperator;
 import com.malhartech.lib.io.HttpOutputOperator;
-import com.malhartech.lib.math.Margin;
-import com.malhartech.lib.math.Quotient;
-import com.malhartech.lib.math.MapSum;
+import com.malhartech.lib.math.MarginMap;
+import com.malhartech.lib.math.QuotientMap;
+import com.malhartech.lib.math.SumMap;
 import com.malhartech.lib.stream.StreamMerger;
 import com.malhartech.lib.stream.StreamMerger10;
 import com.malhartech.lib.stream.StreamMerger5;
@@ -96,9 +96,9 @@ public class ScaledApplication implements ApplicationFactory
     return oper.input;
   }
 
-  public MapSum<String, Double> getSumOperator(String name, DAG b)
+  public SumMap<String, Double> getSumOperator(String name, DAG b)
   {
-    return b.addOperator(name, new MapSum<String, Double>());
+    return b.addOperator(name, new SumMap<String, Double>());
   }
 
   public ThroughputCounter<String, Integer> getThroughputCounter(String name, DAG b)
@@ -108,16 +108,16 @@ public class ScaledApplication implements ApplicationFactory
     return oper;
   }
 
-  public Margin<String, Double> getMarginOperator(String name, DAG b)
+  public MarginMap<String, Double> getMarginOperator(String name, DAG b)
   {
-    Margin<String, Double> oper = b.addOperator(name, new Margin<String, Double>());
+    MarginMap<String, Double> oper = b.addOperator(name, new MarginMap<String, Double>());
     oper.setPercent(true);
     return oper;
   }
 
-  public Quotient<String, Integer> getQuotientOperator(String name, DAG b)
+  public QuotientMap<String, Integer> getQuotientOperator(String name, DAG b)
   {
-    Quotient<String, Integer> oper = b.addOperator(name, new Quotient<String, Integer>());
+    QuotientMap<String, Integer> oper = b.addOperator(name, new QuotientMap<String, Integer>());
     oper.setMult_by(100);
     oper.setCountkey(true);
     return oper;
@@ -214,8 +214,8 @@ public class ScaledApplication implements ApplicationFactory
       EventGenerator viewGen = getPageViewGenOperator("viewGen"+i, dag);
       EventClassifier adviews = getAdViewsStampOperator("adviews"+i, dag);
       FilteredEventClassifier<Double> insertclicks = getInsertClicksOperator("insertclicks"+i, dag);
-      MapSum<String, Double> viewAggregate = getSumOperator("viewAggr"+i, dag);
-      MapSum<String, Double> clickAggregate = getSumOperator("clickAggr"+i, dag);
+      SumMap<String, Double> viewAggregate = getSumOperator("viewAggr"+i, dag);
+      SumMap<String, Double> clickAggregate = getSumOperator("clickAggr"+i, dag);
 
       dag.addStream("views"+i, viewGen.hash_data, adviews.event).setInline(true);
       DAG.StreamDecl viewsAggStream = dag.addStream("viewsaggregate"+i, adviews.data, insertclicks.data, viewAggregate.data).setInline(true);
@@ -234,10 +234,10 @@ public class ScaledApplication implements ApplicationFactory
       dag.addStream("clicksaggrcount"+i, clickAggregate.count, clickAggrCount10.getInputPort(i));
     }
 
-    Quotient<String, Integer> ctr = getQuotientOperator("ctr", dag);
-    MapSum<String, Double> cost = getSumOperator("cost", dag);
-    MapSum<String, Double> revenue = getSumOperator("rev", dag);
-    Margin<String, Double> margin = getMarginOperator("margin", dag);
+    QuotientMap<String, Integer> ctr = getQuotientOperator("ctr", dag);
+    SumMap<String, Double> cost = getSumOperator("cost", dag);
+    SumMap<String, Double> revenue = getSumOperator("rev", dag);
+    MarginMap<String, Double> margin = getMarginOperator("margin", dag);
     StreamMerger<HashMap<String, Integer>> merge = getStreamMerger("countmerge", dag);
     ThroughputCounter<String, Integer> tuple_counter = getThroughputCounter("tuple_counter", dag);
 
