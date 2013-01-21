@@ -6,6 +6,7 @@ package com.malhartech.demos.pi;
 
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
+import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.testbench.RandomEventGenerator;
 import org.apache.hadoop.conf.Configuration;
 
@@ -48,8 +49,8 @@ public class Application implements ApplicationFactory
     dag.addStream("rand1_sum", randOperator1.integer_data, sumOperator.input1).setInline(allInline);
     dag.addStream("rand2_sum", randOperator2.integer_data, sumOperator.input2).setInline(allInline);
 
-//    ConsoleOutputOperator<Integer> consoleOperator = dag.addOperator("console", new ConsoleOutputOperator<Integer>());
-//    dag.addStream("sum_console", sumOperator.output, consoleOperator.input).setInline(allInline);
+    ConsoleOutputOperator consoleOperator = dag.addOperator("console", new ConsoleOutputOperator());
+    dag.addStream("sum_console", sumOperator.output, consoleOperator.input).setInline(allInline);
 
     return dag;
   }

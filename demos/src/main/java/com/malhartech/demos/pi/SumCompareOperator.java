@@ -46,7 +46,7 @@ public class SumCompareOperator extends BaseOperator
       list2.add(num);
     }
   };
-  public final transient DefaultOutputPort<Integer> output = new DefaultOutputPort<Integer>(this);
+  public final transient DefaultOutputPort<Double> output = new DefaultOutputPort<Double>(this);
 
   @Override
   public void beginWindow(long windowId)
@@ -69,7 +69,8 @@ public class SumCompareOperator extends BaseOperator
       }
       rate = (double)inArea / (inArea + outArea)*4;
     }
-    logger.debug("all:" + (inArea + outArea) + " in:" + inArea + " out:" + outArea + " calculated pi:" + rate);
+    output.emit(rate);
+//    logger.debug("all:" + (inArea + outArea) + " in:" + inArea + " out:" + outArea + " calculated pi:" + rate);
     list1.clear();
     list2.clear();
   }

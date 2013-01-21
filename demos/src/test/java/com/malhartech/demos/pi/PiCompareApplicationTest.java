@@ -35,7 +35,7 @@ public class PiCompareApplicationTest
         lc.shutdown();
       }
 
-    }.start();
+    }/*.start()*/;
 
     lc.run();
   }
