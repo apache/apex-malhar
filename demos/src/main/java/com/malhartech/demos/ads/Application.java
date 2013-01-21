@@ -12,7 +12,7 @@ import com.malhartech.lib.io.HdfsOutputOperator;
 import com.malhartech.lib.io.HttpOutputOperator;
 import com.malhartech.lib.math.Margin;
 import com.malhartech.lib.math.Quotient;
-import com.malhartech.lib.math.Sum;
+import com.malhartech.lib.math.MapSum;
 import com.malhartech.lib.stream.StreamMerger;
 import com.malhartech.lib.testbench.EventClassifier;
 import com.malhartech.lib.testbench.EventGenerator;
@@ -91,9 +91,9 @@ public class Application implements ApplicationFactory
     return oper.input;
   }
 
-  public Operator getSumOperator(String name, DAG b, String debug)
+  public MapSum<String,Double> getSumOperator(String name, DAG b)
   {
-    return b.addOperator(name, Sum.class);
+    return b.addOperator(name, new MapSum<String,Double>());
   }
 
   public Operator getStreamMerger(String name, DAG b)
@@ -193,16 +193,16 @@ public class Application implements ApplicationFactory
     // Example of naming an application
     // dag.getAttributes().attr(DAG.STRAM_APPNAME).set("blah");
 
-    Operator viewGen = getPageViewGenOperator("viewGen", dag);
-    Operator adviews = getAdViewsStampOperator("adviews", dag);
-    Operator insertclicks = getInsertClicksOperator("insertclicks", dag);
-    Operator viewAggregate = getSumOperator("viewAggr", dag, "");
-    Operator clickAggregate = getSumOperator("clickAggr", dag, "");
+    EventGenerator viewGen = getPageViewGenOperator("viewGen", dag);
+    EventClassifier adviews = getAdViewsStampOperator("adviews", dag);
+    FilteredEventClassifier<Double> insertclicks = getInsertClicksOperator("insertclicks", dag);
+    MapSum<String,Double> viewAggregate = getSumOperator("viewAggr", dag);
+    MapSum<String,Double> clickAggregate = getSumOperator("clickAggr", dag);
 
-    Operator ctr = getQuotientOperator("ctr", dag);
-    Operator cost = getSumOperator("cost", dag, "");
-    Operator revenue = getSumOperator("rev", dag, "");
-    Operator margin = getMarginOperator("margin", dag);
+    Quotient<String,Integer> ctr = getQuotientOperator("ctr", dag);
+    MapSum<String,Double> cost = getSumOperator("cost", dag);
+    MapSum<String,Double> revenue = getSumOperator("rev", dag);
+    Margin<String,Double> margin = getMarginOperator("margin", dag);
 
     StreamMerger<HashMap<String,Integer>> merge = getStreamMerger("countmerge", dag);
     ThroughputCounter<String, Integer> tuple_counter = getThroughputCounter("tuple_counter", dag);
