@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  */
 public class QuotientValueTest
 {
-  private static Logger LOG = LoggerFactory.getLogger(Sum.class);
+  private static Logger LOG = LoggerFactory.getLogger(MapSum.class);
 
   class TestSink implements Sink
   {

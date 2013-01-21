@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MapAverageTest
 {
-  private static Logger LOG = LoggerFactory.getLogger(Sum.class);
+  private static Logger LOG = LoggerFactory.getLogger(MapSum.class);
 
   class TestSink implements Sink
   {

@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.math.Sum}<p>
+ * Performance tests for {@link com.malhartech.lib.math.MapSum}<p>
  *
  */
 public class SumBenchmark
@@ -26,7 +26,7 @@ public class SumBenchmark
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeSchemaProcessing() throws InterruptedException
   {
-    Sum<String, Double> oper = new Sum<String, Double>();
+    MapSum<String, Double> oper = new MapSum<String, Double>();
     oper.setType(Double.class);
     TestSink sumSink = new TestSink();
     TestSink countSink = new TestSink();
