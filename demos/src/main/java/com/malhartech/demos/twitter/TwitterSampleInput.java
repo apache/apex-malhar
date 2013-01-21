@@ -44,7 +44,7 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   /**
    * The state which we would like to save for this operator.
    */
-  int multiplier = 1;
+  private int multiplier = 1;
 
   /* Following twitter access credentials should be set before using this operator. */
   @NotNull
