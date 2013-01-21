@@ -70,9 +70,9 @@ public class ScaledApplication implements ApplicationFactory
 
   }
 
-  private InputPort<HashMap<String,Number>> getConsolePort(DAG b, String name)
+  private InputPort<Object> getConsolePort(DAG b, String name)
   {
-    ConsoleOutputOperator<HashMap<String,Number>> oper = b.addOperator(name, new ConsoleOutputOperator<HashMap<String,Number>>());
+    ConsoleOutputOperator oper = b.addOperator(name, new ConsoleOutputOperator());
     oper.setStringFormat(name + ": %s");
     return oper.input;
   }
@@ -155,7 +155,7 @@ public class ScaledApplication implements ApplicationFactory
     EventClassifierNumberToHashDouble<Integer> hGentput = getEventClassifier("hgentput", dag);
     ThroughputCounter<String, Double> toper = getThroughputCounter("tcount", dag);
 
-    InputPort<HashMap<String,Number>> alertconsole = getConsolePort(dag, "throughputConsole");
+    InputPort<Object> alertconsole = getConsolePort(dag, "throughputConsole");
 
     // Need an operator that converts Integer from rGen to {"a"=val} a String,Double
     // That is to be input to alert, and that should directly write to console
