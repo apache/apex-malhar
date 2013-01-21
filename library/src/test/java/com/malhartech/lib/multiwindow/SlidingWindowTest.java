@@ -7,7 +7,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.engine.TestCountAndLastTupleSink;
 import com.malhartech.engine.TestSink;
-import com.malhartech.lib.math.Min;
+import com.malhartech.lib.math.MinMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import junit.framework.Assert;

@@ -14,12 +14,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.QuotientValue}<p>
+ * Functional tests for {@link com.malhartech.lib.math.Quotient}<p>
  *
  */
 public class QuotientValueTest
 {
-  private static Logger LOG = LoggerFactory.getLogger(MapSum.class);
+  private static Logger LOG = LoggerFactory.getLogger(SumMap.class);
 
   class TestSink implements Sink
   {
@@ -42,7 +42,7 @@ public class QuotientValueTest
   @Test
   public void testNodeSchemaProcessing()
   {
-    QuotientValue<Double> oper = new QuotientValue<Double>();
+    Quotient<Double> oper = new Quotient<Double>();
     TestSink quotientSink = new TestSink();
     oper.quotient.setSink(quotientSink);
 

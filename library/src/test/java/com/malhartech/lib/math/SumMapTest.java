@@ -16,12 +16,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.MapSum}<p>
+ * Functional tests for {@link com.malhartech.lib.math.SumMap}<p>
  *
  */
-public class MapSumTest
+public class SumMapTest
 {
-  private static Logger LOG = LoggerFactory.getLogger(MapSum.class);
+  private static Logger LOG = LoggerFactory.getLogger(SumMap.class);
 
   class TestSink implements Sink
   {
@@ -55,7 +55,7 @@ public class MapSumTest
   public void testNodeSchemaProcessing(boolean sum, boolean count, boolean average)
   {
 
-    MapSum<String, Double> oper = new MapSum<String, Double>();
+    SumMap<String, Double> oper = new SumMap<String, Double>();
     oper.setType(Double.class);
     TestSink sumSink = new TestSink();
     TestSink countSink = new TestSink();

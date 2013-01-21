@@ -4,7 +4,6 @@
 package com.malhartech.lib.math;
 
 import com.malhartech.engine.TestCountAndLastTupleSink;
-import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -17,74 +16,55 @@ import org.slf4j.LoggerFactory;
  */
 public class MinTest
 {
-  private static Logger log = LoggerFactory.getLogger(MinTest.class);
+  private static Logger log = LoggerFactory.getLogger(SumMap.class);
+
 
   /**
-   * Test functional logic
+   * Test oper logic emits correct results
    */
   @Test
-  public void testNodeProcessing() throws InterruptedException
+  public void testNodeSchemaProcessing()
   {
-    testSchemaNodeProcessing(new Min<String, Integer>(), "integer"); // 8million/s
-    testSchemaNodeProcessing(new Min<String, Double>(), "double"); // 8 million/s
-    testSchemaNodeProcessing(new Min<String, Long>(), "long"); // 8 million/s
-    testSchemaNodeProcessing(new Min<String, Short>(), "short"); // 8 million/s
-    testSchemaNodeProcessing(new Min<String, Float>(), "float"); // 8 million/s
-  }
-
-  /**
-   * Test oper logic emits correct results for each schema
-   */
-  public void testSchemaNodeProcessing(Min oper, String type) throws InterruptedException
-  {
+    Min<Double> oper = new Min<Double>();
     TestCountAndLastTupleSink minSink = new TestCountAndLastTupleSink();
     oper.min.setSink(minSink);
 
-    oper.beginWindow(0);
-    HashMap<String, Number> input = new HashMap<String, Number>();
-    int numtuples = 100;
-    // For benchmark do -> numtuples = numtuples * 100;
-    if (type.equals("integer")) {
-      HashMap<String, Integer> tuple = new HashMap<String, Integer>();
-      for (int i = 0; i < numtuples; i++) {
-        tuple.put("a", new Integer(i));
-        oper.data.process(tuple);
-      }
-    }
-    else if (type.equals("double")) {
-      HashMap<String, Double> tuple = new HashMap<String, Double>();
-      for (int i = 0; i < numtuples; i++) {
-        tuple.put("a", new Double(i));
-        oper.data.process(tuple);
-      }
-    }
-    else if (type.equals("long")) {
-      HashMap<String, Long> tuple = new HashMap<String, Long>();
-      for (int i = 0; i < numtuples; i++) {
-        tuple.put("a", new Long(i));
-        oper.data.process(tuple);
-      }
-    }
-    else if (type.equals("short")) {
-      HashMap<String, Short> tuple = new HashMap<String, Short>();
-      for (short i = 0; i < numtuples; i++) {
-        tuple.put("a", new Short(i));
-        oper.data.process(tuple);
-      }
-    }
-    else if (type.equals("float")) {
-      HashMap<String, Float> tuple = new HashMap<String, Float>();
-      for (int i = 0; i < numtuples; i++) {
-        tuple.put("a", new Float(i));
-        oper.data.process(tuple);
-      }
-    }
-    oper.endWindow();
+    oper.beginWindow(0); //
 
+    Double a = new Double(2.0);
+    Double b = new Double(20.0);
+    Double c = new Double(1000.0);
+
+    oper.data.process(a);
+    oper.data.process(b);
+    oper.data.process(c);
+
+    a = 1.0;
+    oper.data.process(a);
+    a = 10.0;
+    oper.data.process(a);
+    b = 5.0;
+    oper.data.process(b);
+
+    b = 12.0;
+    oper.data.process(b);
+    c = 22.0;
+    oper.data.process(c);
+    c = 14.0;
+    oper.data.process(c);
+
+    a = 46.0;
+    oper.data.process(a);
+    b = 2.0;
+    oper.data.process(b);
+    a = 23.0;
+    oper.data.process(a);
+
+    oper.endWindow(); //
+
+
+    // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
     Assert.assertEquals("number emitted tuples", 1, minSink.count);
-    HashMap<String, Number> shash = (HashMap<String, Number>) minSink.tuple;
-    Number val = shash.get("a");
-    Assert.assertEquals("number emitted tuples", 1, shash.size());
-    Assert.assertEquals("emitted min value was ", new Double(0.0), val);
+    Assert.assertEquals("emitted high value was ", new Double(1.0), minSink.tuple);
   }
 }

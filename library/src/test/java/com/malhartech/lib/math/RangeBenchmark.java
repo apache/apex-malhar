@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.math.Range}<p>
+ * Performance tests for {@link com.malhartech.lib.math.RangeMap}<p>
  *
  */
 public class RangeBenchmark {
@@ -49,17 +49,17 @@ public class RangeBenchmark {
     @Test
     @Category(com.malhartech.annotation.PerformanceTestCategory.class)
     public void testNodeProcessing() {
-      testSchemaNodeProcessing(new Range<String,Integer>(), "integer"); // 8million/s
-      testSchemaNodeProcessing(new Range<String,Double>(), "double"); // 8 million/s
-      testSchemaNodeProcessing(new Range<String,Long>(), "long"); // 8 million/s
-      testSchemaNodeProcessing(new Range<String,Short>(),"short"); // 8 million/s
-      testSchemaNodeProcessing(new Range<String,Float>(),"float"); // 8 million/s
+      testSchemaNodeProcessing(new RangeMap<String,Integer>(), "integer"); // 8million/s
+      testSchemaNodeProcessing(new RangeMap<String,Double>(), "double"); // 8 million/s
+      testSchemaNodeProcessing(new RangeMap<String,Long>(), "long"); // 8 million/s
+      testSchemaNodeProcessing(new RangeMap<String,Short>(),"short"); // 8 million/s
+      testSchemaNodeProcessing(new RangeMap<String,Float>(),"float"); // 8 million/s
     }
 
     /**
      * Test node logic emits correct results for each schema
      */
-    public void testSchemaNodeProcessing(Range node, String type)
+    public void testSchemaNodeProcessing(RangeMap node, String type)
     {
       TestSink rangeSink = new TestSink();
       node.range.setSink(rangeSink);

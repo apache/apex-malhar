@@ -33,14 +33,14 @@ import java.util.Map;
  * <b>Specific run time checks</b>: None<br>
  * <p>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for MapSum&lt;K,V extends Number&gt; operator template">
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for SumMap&lt;K,V extends Number&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
  * <tr><td><b>18 Million K,V pairs/s</b></td><td>One K,V or K,Integer per key per window per port</td><td>In-bound rate is the main determinant of performance. Tuples are assumed to be
  * immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
  * </table><br>
  * <p>
  * <b>Function Table (K=String, V=Integer)</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for MapSum&lt;K,V extends Number&gt; operator template">
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for SumMap&lt;K,V extends Number&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th colspan=3>Out-bound (emit)</th></tr>
  * <tr><th><i>data</i>(HashMap&lt;K,V&gt;)</th><th><i>sum</i>(HashMap&lt;K,V&gt;)</th><th><i>count</i>(HashMap&lt;K,Integer&gt;)</th><th><i>average</i>(HashMap&lt;K,V&gt;)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
@@ -58,10 +58,10 @@ import java.util.Map;
  * @author Amol Kekre (amol@malhar-inc.com)<br>
  * <br>
  */
-public class MapSum<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
+public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
+  public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>(this)
   {
     /**
      * For each tuple (a HashMap of keys,val pairs)
@@ -70,7 +70,7 @@ public class MapSum<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
      * Computes the average
      */
     @Override
-    public void process(HashMap<K, V> tuple)
+    public void process(Map<K, V> tuple)
     {
       for (Map.Entry<K, V> e: tuple.entrySet()) {
         K key = e.getKey();

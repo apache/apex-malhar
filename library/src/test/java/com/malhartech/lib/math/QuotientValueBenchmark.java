@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 /**
  *
- * Performance tests for {@link com.malhartech.lib.math.QuotientValue}<p>
+ * Performance tests for {@link com.malhartech.lib.math.Quotient}<p>
  *
  */
 public class QuotientValueBenchmark
@@ -42,7 +42,7 @@ public class QuotientValueBenchmark
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeSchemaProcessing()
   {
-    QuotientValue<Double> oper = new QuotientValue<Double>();
+    Quotient<Double> oper = new Quotient<Double>();
     TestSink quotientSink = new TestSink();
     oper.quotient.setSink(quotientSink);
 

@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.math.SumValue}<p>
+ * Performance tests for {@link com.malhartech.lib.math.Sum}<p>
  *
  */
 public class SumValueBenchmark
@@ -42,11 +42,11 @@ public class SumValueBenchmark
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing()
   {
-    SumValue<Double> doper = new SumValue<Double>();
-    SumValue<Float> foper = new SumValue<Float>();
-    SumValue<Integer> ioper = new SumValue<Integer>();
-    SumValue<Long> loper = new SumValue<Long>();
-    SumValue<Short> soper = new SumValue<Short>();
+    Sum<Double> doper = new Sum<Double>();
+    Sum<Float> foper = new Sum<Float>();
+    Sum<Integer> ioper = new Sum<Integer>();
+    Sum<Long> loper = new Sum<Long>();
+    Sum<Short> soper = new Sum<Short>();
     doper.setType(Double.class);
     foper.setType(Float.class);
     ioper.setType(Integer.class);
@@ -60,7 +60,7 @@ public class SumValueBenchmark
     testNodeSchemaProcessing(soper, "Short");
   }
 
-  public void testNodeSchemaProcessing(SumValue oper, String debug)
+  public void testNodeSchemaProcessing(Sum oper, String debug)
   {
     TestSink sumSink = new TestSink();
     TestSink countSink = new TestSink();

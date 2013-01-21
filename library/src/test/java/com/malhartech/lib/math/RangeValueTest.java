@@ -14,12 +14,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.RangeValue}<p>
+ * Functional tests for {@link com.malhartech.lib.math.Range}<p>
  *
  */
 public class RangeValueTest
 {
-  private static Logger LOG = LoggerFactory.getLogger(MapSum.class);
+  private static Logger LOG = LoggerFactory.getLogger(SumMap.class);
 
   class TestSink implements Sink
   {
@@ -42,7 +42,7 @@ public class RangeValueTest
   @Test
   public void testNodeSchemaProcessing()
   {
-    RangeValue<Double> oper = new RangeValue<Double>();
+    Range<Double> oper = new Range<Double>();
     TestSink rangeSink = new TestSink();
     oper.range.setSink(rangeSink);
 

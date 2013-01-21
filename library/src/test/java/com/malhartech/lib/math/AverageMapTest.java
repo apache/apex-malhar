@@ -16,12 +16,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.MapAverage}<p>
+ * Functional tests for {@link com.malhartech.lib.math.AverageMap}<p>
  *
  */
-public class MapAverageTest
+public class AverageMapTest
 {
-  private static Logger LOG = LoggerFactory.getLogger(MapSum.class);
+  private static Logger LOG = LoggerFactory.getLogger(SumMap.class);
 
   class TestSink implements Sink
   {
@@ -44,7 +44,7 @@ public class MapAverageTest
   @Test
   public void testNodeProcessing()
   {
-    MapAverage<String, Double> oper = new MapAverage<String, Double>();
+    AverageMap<String, Double> oper = new AverageMap<String, Double>();
     oper.setType(Double.class);
 
     TestSink averageSink = new TestSink();

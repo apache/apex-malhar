@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.math.MarginValue}<p>
+ * Performance tests for {@link com.malhartech.lib.math.Margin}<p>
  *
  */
 public class MarginValueBenchmark
@@ -27,10 +27,10 @@ public class MarginValueBenchmark
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
-    testNodeProcessingSchema(new MarginValue<Double>());
+    testNodeProcessingSchema(new Margin<Double>());
   }
 
-  public void testNodeProcessingSchema(MarginValue oper)
+  public void testNodeProcessingSchema(Margin oper)
   {
     TestCountAndLastTupleSink marginSink = new TestCountAndLastTupleSink();
 

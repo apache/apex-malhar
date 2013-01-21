@@ -13,12 +13,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.Quotient}<p>
+ * Functional tests for {@link com.malhartech.lib.math.QuotientMap}<p>
  *
  */
 public class QuotientTest
 {
-  private static Logger LOG = LoggerFactory.getLogger(Quotient.class);
+  private static Logger LOG = LoggerFactory.getLogger(QuotientMap.class);
 
   /**
    * Test node logic emits correct results
@@ -27,11 +27,11 @@ public class QuotientTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    testNodeProcessingSchema(new Quotient<String, Integer>());
-    testNodeProcessingSchema(new Quotient<String, Double>());
+    testNodeProcessingSchema(new QuotientMap<String, Integer>());
+    testNodeProcessingSchema(new QuotientMap<String, Double>());
   }
 
-  public void testNodeProcessingSchema(Quotient oper) throws Exception
+  public void testNodeProcessingSchema(QuotientMap oper) throws Exception
   {
     TestCountAndLastTupleSink quotientSink = new TestCountAndLastTupleSink();
 

@@ -57,13 +57,13 @@ import java.util.Map;
  * @author Locknath Shil <locknath@malhar-inc.com><br>
  * <br>
  */
-public class MapAverage<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
+public class AverageMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
   /**
    * Data input port.
    */
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
+  public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>(this)
   {
     /**
      * For each tuple (a HashMap of keys,val pairs)
@@ -72,7 +72,7 @@ public class MapAverage<K, V extends Number> extends BaseNumberKeyValueOperator<
      * computes the average.
      */
     @Override
-    public void process(HashMap<K, V> tuple)
+    public void process(Map<K, V> tuple)
     {
       for (Map.Entry<K, V> e: tuple.entrySet()) {
         K key = e.getKey();

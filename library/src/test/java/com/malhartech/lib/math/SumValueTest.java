@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.SumValue}<p>
+ * Functional tests for {@link com.malhartech.lib.math.Sum}<p>
  *
  */
 public class SumValueTest
@@ -53,11 +53,11 @@ public class SumValueTest
 
   public void testNodeTypeProcessing(boolean sum, boolean count, boolean average)
   {
-    SumValue<Double> doper = new SumValue<Double>();
-    SumValue<Float> foper = new SumValue<Float>();
-    SumValue<Integer> ioper = new SumValue<Integer>();
-    SumValue<Long> loper = new SumValue<Long>();
-    SumValue<Short> soper = new SumValue<Short>();
+    Sum<Double> doper = new Sum<Double>();
+    Sum<Float> foper = new Sum<Float>();
+    Sum<Integer> ioper = new Sum<Integer>();
+    Sum<Long> loper = new Sum<Long>();
+    Sum<Short> soper = new Sum<Short>();
     doper.setType(Double.class);
     foper.setType(Float.class);
     ioper.setType(Integer.class);
@@ -71,7 +71,7 @@ public class SumValueTest
     testNodeSchemaProcessing(sum, count, average, soper);
  }
 
-  public void testNodeSchemaProcessing(boolean sum, boolean count, boolean average, SumValue oper)
+  public void testNodeSchemaProcessing(boolean sum, boolean count, boolean average, Sum oper)
   {
     TestSink sumSink = new TestSink();
     TestSink countSink = new TestSink();

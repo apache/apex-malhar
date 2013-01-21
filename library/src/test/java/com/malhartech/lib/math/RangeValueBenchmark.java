@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.math.RangeValue}<p>
+ * Performance tests for {@link com.malhartech.lib.math.Range}<p>
  *
  */
 public class RangeValueBenchmark
@@ -42,7 +42,7 @@ public class RangeValueBenchmark
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeSchemaProcessing()
   {
-    RangeValue<Double> oper = new RangeValue<Double>();
+    Range<Double> oper = new Range<Double>();
     TestSink rangeSink = new TestSink();
     oper.range.setSink(rangeSink);
 

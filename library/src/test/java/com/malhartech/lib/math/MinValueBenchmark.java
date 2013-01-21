@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.math.MinValue}<p>
+ * Performance tests for {@link com.malhartech.lib.math.Min}<p>
  *
  */
 public class MinValueBenchmark
@@ -25,7 +25,7 @@ public class MinValueBenchmark
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeSchemaProcessing()
   {
-    MinValue<Double> oper = new MinValue<Double>();
+    Min<Double> oper = new Min<Double>();
     TestCountAndLastTupleSink minSink = new TestCountAndLastTupleSink();
     oper.min.setSink(minSink);
 

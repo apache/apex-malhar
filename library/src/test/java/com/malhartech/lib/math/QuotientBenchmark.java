@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.math.Quotient}<p>
+ * Performance tests for {@link com.malhartech.lib.math.QuotientMap}<p>
  *
  */
 public class QuotientBenchmark
@@ -29,11 +29,11 @@ public class QuotientBenchmark
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
-    testNodeProcessingSchema(new Quotient<String, Integer>());
-    testNodeProcessingSchema(new Quotient<String, Double>());
+    testNodeProcessingSchema(new QuotientMap<String, Integer>());
+    testNodeProcessingSchema(new QuotientMap<String, Double>());
   }
 
-  public void testNodeProcessingSchema(Quotient oper) throws Exception
+  public void testNodeProcessingSchema(QuotientMap oper) throws Exception
   {
 
     TestCountAndLastTupleSink quotientSink = new TestCountAndLastTupleSink();

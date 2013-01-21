@@ -29,16 +29,17 @@
  * (1 - numerator/denominator)<br>
  * <b>{@link com.malhartech.lib.math.MarginValue}</b>:Adds all values for each key in "numerator" and "denominator", and at the end of window emits the margin as
  * (1 - numerator/denominator)<br>
- * <b>{@link com.malhartech.lib.math.Max}</b>: Emits at end of window maximum of all values sub-classed from Number for each key<br>
- * <b>{@link com.malhartech.lib.math.MaxValue}</b>: Emits at end of window maximum of all values sub-classed from Number in the incoming stream<br>
- * <b>{@link com.malhartech.lib.math.Min}</b>: Emits at end of window minimum of all values sub-classed from Number for each key<br>
- * <b>{@link com.malhartech.lib.math.MinValue}</b>: Emits at end of window minimum of all values sub-classed from Number in the incoming stream<br>
- * <b>{@link com.malhartech.lib.math.Quotient}</b>: Add all the values for each key on "numerator" and "denominator" and emits quotient at end of window for all keys in the denominator<br>
- * <b>{@link com.malhartech.lib.math.QuotientValue}</b>: Adds all the values on "numerator" and "denominator" and emits quotient at end of window<br>
- * <b>{@link com.malhartech.lib.math.Range}</b>: Emits the range for each key at the end of window<br>
- * <b>{@link com.malhartech.lib.math.RangeValue}</b>: Emits the range of values at the end of window<br>
- * <b>{@link com.malhartech.lib.math.Sum}</b>: Emits the sum, average, and count of values for each key at the end of window<br>
- * <b>{@link com.malhartech.lib.math.SumValue}</b>: Emits the sum, average, and count of values at the end of window<br>
+ * <b>{@link com.malhartech.lib.math.MaxMap}</b>: Emits at end of window maximum of all values sub-classed from Number for each key<br>
+ * <b>{@link com.malhartech.lib.math.Max}</b>: Emits at end of window maximum of all values sub-classed from Number in the incoming stream<br>
+ * <b>{@link com.malhartech.lib.math.MinMap}</b>: Emits at end of window minimum of all values sub-classed from Number for each key<br>
+ * <b>{@link com.malhartech.lib.math.Min}</b>: Emits at end of window minimum of all values sub-classed from Number in the incoming stream<br>
+ * <b>{@link com.malhartech.lib.math.QuotientMap}</b>: Add all the values for each key on "numerator" and "denominator" and emits quotient at end of window for all keys in the denominator<br>
+ * <b>{@link com.malhartech.lib.math.Quotient}</b>: Adds all the values on "numerator" and "denominator" and emits quotient at end of window<br>
+ * <b>{@link com.malhartech.lib.math.RangeMap}</b>: Emits the range for each key at the end of window<br>
+ * <b>{@link com.malhartech.lib.math.Range}</b>: Emits the range of values at the end of window<br>
+ * <b>{@link com.malhartech.lib.math.SumMap}</b>: Emits the sum, average, and count of values for each key at the end of window<br>
+ * <b>{@link com.malhartech.lib.math.SumKeyVal}</b>: Emits the sum, average, and count of values for each key at the end of window<br>
+ * <b>{@link com.malhartech.lib.math.Sum}</b>: Emits the sum, average, and count of values at the end of window<br>
  * <br>
  */
 

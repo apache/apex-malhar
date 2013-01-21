@@ -49,7 +49,7 @@ import com.malhartech.lib.util.BaseNumberValueOperator;
  * @author Locknath Shil <locknath@malhar-inc.com><br>
  * <br>
  */
-public class AverageValue<V extends Number> extends BaseNumberValueOperator<V>
+public class Average<V extends Number> extends BaseNumberValueOperator<V>
 {
   /**
    * Input port

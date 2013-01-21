@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SumKeyValTest
 {
-  private static Logger LOG = LoggerFactory.getLogger(MapSum.class);
+  private static Logger LOG = LoggerFactory.getLogger(SumMap.class);
 
   class TestSink implements Sink
   {

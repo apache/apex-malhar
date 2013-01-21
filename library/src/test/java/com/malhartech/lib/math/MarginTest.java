@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.Margin}<p>
+ * Functional tests for {@link com.malhartech.lib.math.MarginMap}<p>
  *
  */
 public class MarginTest
@@ -27,14 +27,14 @@ public class MarginTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    testNodeProcessingSchema(new Margin<String, Integer>());
-    testNodeProcessingSchema(new Margin<String, Double>());
-    testNodeProcessingSchema(new Margin<String, Float>());
-    testNodeProcessingSchema(new Margin<String, Short>());
-    testNodeProcessingSchema(new Margin<String, Long>());
+    testNodeProcessingSchema(new MarginMap<String, Integer>());
+    testNodeProcessingSchema(new MarginMap<String, Double>());
+    testNodeProcessingSchema(new MarginMap<String, Float>());
+    testNodeProcessingSchema(new MarginMap<String, Short>());
+    testNodeProcessingSchema(new MarginMap<String, Long>());
   }
 
-  public void testNodeProcessingSchema(Margin oper)
+  public void testNodeProcessingSchema(MarginMap oper)
   {
     TestCountAndLastTupleSink marginSink = new TestCountAndLastTupleSink();
 
