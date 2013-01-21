@@ -34,6 +34,10 @@
           <optimize>true</optimize>
           <showDeprecation>true</showDeprecation>
           <showWarnings>true</showWarnings>
+          <testExcludes>
+            <!-- TODO: probably be better to delete those -->
+            <exclude>**/package-info.java</exclude>
+          </testExcludes>
         </configuration>
       </plugin>
       <!-- create tests jar -->
