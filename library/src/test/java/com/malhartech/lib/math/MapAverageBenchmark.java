@@ -15,11 +15,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.math.Average}. <p>
+ * Performance tests for {@link com.malhartech.lib.math.MapAverage}. <p>
  * Current benchmark is 12 million tuples/sec.
  *
  */
-public class AverageBenchmark
+public class MapAverageBenchmark
 {
   private static Logger log = LoggerFactory.getLogger(Sum.class);
 
@@ -45,7 +45,7 @@ public class AverageBenchmark
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing()
   {
-    Average<String, Double> oper = new Average<String, Double>();
+    MapAverage<String, Double> oper = new MapAverage<String, Double>();
     oper.setType(Double.class);
     com.malhartech.engine.TestSink averageSink = new com.malhartech.engine.TestSink();
     oper.average.setSink(averageSink);

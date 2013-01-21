@@ -57,7 +57,7 @@ import java.util.Map;
  * @author Locknath Shil <locknath@malhar-inc.com><br>
  * <br>
  */
-public class Average<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
+public class MapAverage<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
   /**
    * Data input port.

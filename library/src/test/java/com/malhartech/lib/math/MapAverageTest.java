@@ -16,10 +16,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.Average}<p>
+ * Functional tests for {@link com.malhartech.lib.math.MapAverage}<p>
  *
  */
-public class AverageTest
+public class MapAverageTest
 {
   private static Logger LOG = LoggerFactory.getLogger(Sum.class);
 
@@ -44,7 +44,7 @@ public class AverageTest
   @Test
   public void testNodeProcessing()
   {
-    Average<String, Double> oper = new Average<String, Double>();
+    MapAverage<String, Double> oper = new MapAverage<String, Double>();
     oper.setType(Double.class);
 
     TestSink averageSink = new TestSink();
