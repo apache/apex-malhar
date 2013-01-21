@@ -20,8 +20,8 @@ import java.util.Map;
  * <br>The values are added for each key within the window and for each stream.<br>
  * <br>
  * <b>Ports</b>:<br>
- * <b>numerator</b>: expects HashMap&lt;K,V&gt;<br>
- * <b>denominator</b>: expects HashMap&lt;K,V&gt;<br>
+ * <b>numerator</b>: expects Map&lt;K,V&gt;<br>
+ * <b>denominator</b>: expects Map&lt;K,V&gt;<br>
  * <b>margin</b>: emits HashMap&lt;K,Double&gt;, one entry per key per window<br>
  * <br>
  * <b>Properties</b>:<br>
@@ -41,7 +41,7 @@ import java.util.Map;
  * <b>Function Table (K=String, V=Integer) and percent set to true</b>:
  * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for MarginMap&lt;K,V extends Number&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th colspan=2>In-bound (process)</th><th>Out-bound (emit)</th></tr>
- * <tr><th><i>numerator</i>(HashMap&lt;K,V&gt;)</th><th><i>denominator</i>(HashMap&lt;K,V&gt;)</th><th><i>margin</i>(HashMap&lt;K,Double&gt;)</th></tr>
+ * <tr><th><i>numerator</i>(Map&lt;K,V&gt;)</th><th><i>denominator</i>(Map&lt;K,V&gt;)</th><th><i>margin</i>(HashMap&lt;K,Double&gt;)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
  * <tr><td>Data (process())</td><td></td><td>{a=2,a=8}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td></td><td></td></tr>

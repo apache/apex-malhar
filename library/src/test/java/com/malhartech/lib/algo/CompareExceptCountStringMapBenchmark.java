@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.math;
+package com.malhartech.lib.algo;
 
 import com.malhartech.engine.TestCountAndLastTupleSink;
 import java.util.HashMap;
@@ -12,12 +12,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.math.CompareStringMap}<p>
+ * Performance tests for {@link com.malhartech.lib.algo.CompareExceptCountStringMap} <p>
  *
  */
-public class CompareStringBenchmark
+public class CompareExceptCountStringMapBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(CompareStringBenchmark.class);
+  private static Logger log = LoggerFactory.getLogger(CompareExceptCountStringMapBenchmark.class);
 
   /**
    * Test node logic emits correct results
@@ -25,30 +25,33 @@ public class CompareStringBenchmark
   @Test
   @SuppressWarnings("SleepWhileInLoop")
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
-  public void testNodeProcessingSchema()
+  public void testNodeProcessing() throws Exception
   {
-    CompareStringMap<String> oper = new CompareStringMap<String>();
+    CompareExceptCountStringMap<String> oper = new CompareExceptCountStringMap<String>();
+    TestCountAndLastTupleSink countSink = new TestCountAndLastTupleSink();
     TestCountAndLastTupleSink exceptSink = new TestCountAndLastTupleSink();
-    oper.compare.setSink(exceptSink);
+
+    oper.count.setSink(countSink);
+    oper.except.setSink(exceptSink);
     oper.setKey("a");
     oper.setValue(3.0);
-    oper.setTypeNEQ();
+    oper.setTypeEQ();
     oper.beginWindow(0);
 
-    int numTuples = 100000000;
     HashMap<String, String> input1 = new HashMap<String, String>();
     HashMap<String, String> input2 = new HashMap<String, String>();
     input1.put("a", "2");
     input1.put("b", "20");
     input1.put("c", "1000");
     input2.put("a", "3");
+
+    int numTuples = 100000000;
     for (int i = 0; i < numTuples; i++) {
       oper.data.process(input1);
       oper.data.process(input2);
     }
-    oper.endWindow();
 
-    // One for each key
-    log.debug(String.format("\nBenchmark for %d tuples", numTuples*2));
+    oper.endWindow();
+    log.debug(String.format(String.format("\nBenchmarked %d tuples", numTuples*4)));
   }
 }

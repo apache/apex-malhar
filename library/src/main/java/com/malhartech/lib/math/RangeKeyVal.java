@@ -41,7 +41,7 @@ import java.util.Map;
  * <b>Function Table (K=String, V=Integer)</b>:
  * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for Range&lt;K,V extends Number&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(HashMap&lt;K,V&gt;)</th><th><i>range</i>(HashMap&lt;K,ArrayList&lt;V&gt;&gt;)</th></tr>
+ * <tr><th><i>data</i>(KeyValPair&lt;K,V&gt;)</th><th><i>range</i>(HashMap&lt;K,ArrayList&lt;V&gt;&gt;)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
  * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{a=-1}</td><td></td></tr>

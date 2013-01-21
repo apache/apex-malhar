@@ -4,7 +4,8 @@
 package com.malhartech.lib.algo;
 
 import com.malhartech.engine.TestCountSink;
-import java.util.HashMap;
+import com.malhartech.engine.TestHashSink;
+import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -12,13 +13,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.algo.Distinct} <p>
+ * Performance tests for {@link com.malhartech.lib.algo.Distinct<p>
  *
  */
 public class DistinctBenchmark
 {
   private static Logger log = LoggerFactory.getLogger(DistinctBenchmark.class);
-
   /**
    * Test node logic emits correct results
    */
@@ -27,53 +27,44 @@ public class DistinctBenchmark
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
-    Distinct<String, Number> oper = new Distinct<String, Number>();
+    Distinct<Integer> oper = new Distinct<Integer>();
 
-    TestCountSink<HashMap<String, Number>> sortSink = new TestCountSink<HashMap<String, Number>>();
+    TestCountSink<Integer> sortSink = new TestCountSink<Integer>();
     oper.distinct.setSink(sortSink);
 
-    HashMap<String, Number> input = new HashMap<String, Number>();
-
+    oper.beginWindow(0);
     int numTuples = 10000000;
     for (int i = 0; i < numTuples; i++) {
-      oper.beginWindow(0);
-      input.put("a", 2);
-      oper.data.process(input);
-      input.clear();
-      input.put("a", 2);
-      oper.data.process(input);
+      oper.data.process(1);
+      oper.data.process(i % 13);
+      oper.data.process(1);
+      oper.data.process(i % 5);
+      oper.data.process(1);
 
-      input.clear();
-      input.put("a", 1000);
-      oper.data.process(input);
+      oper.data.process(i % 20);
+      oper.data.process(i % 2);
+      oper.data.process(2);
+      oper.data.process(i % 3);
+      oper.data.process(1);
 
-      input.clear();
-      input.put("a", 5);
-      oper.data.process(input);
+      oper.data.process(i % 5);
+      oper.data.process(i % 10);
+      oper.data.process(i % 25);
+      oper.data.process(1);
+      oper.data.process(3);
 
-      input.clear();
-      input.put("a", 2);
-      input.put("b", 33);
-      oper.data.process(input);
-
-      input.clear();
-      input.put("a", 33);
-      input.put("b", 34);
-      oper.data.process(input);
-
-      input.clear();
-      input.put("b", 34);
-      oper.data.process(input);
-
-      input.clear();
-      input.put("b", 6);
-      input.put("a", 2);
-      oper.data.process(input);
-      input.clear();
-      input.put("c", 9);
-      oper.data.process(input);
-      oper.endWindow();
+      oper.data.process(i % 4);
+      oper.data.process(3);
+      oper.data.process(1);
+      oper.data.process(3);
+      oper.data.process(4);
+      oper.data.process(i);
     }
-    log.debug(String.format("\nBenchmarked %d tuples with %d emits", numTuples*12, sortSink.getCount()));
+    oper.endWindow();
+
+    //Assert.assertEquals("number emitted tuples", 4, sortSink.size());
+    log.debug(String.format("\nBenchmarked %d tuples (emitted %d tupled)",
+                            numTuples*20,
+                            sortSink.getCount()));
   }
 }

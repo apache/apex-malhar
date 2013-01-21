@@ -20,7 +20,7 @@ import java.util.Map;
  * This is an end window operator.<br>
  * <br>
  * <b>Ports</b>:<br>
- * <b>data</b>: expects HashMap&lt;K,V extends Number&gt;<br>
+ * <b>data</b>: expects Map&lt;K,V extends Number&gt;<br>
  * <b>average</b>: emits HashMap&lt;K,V&gt;</b><br><br>
  * <br>
  * <b>Properties</b>:<br>
@@ -40,7 +40,7 @@ import java.util.Map;
  * <b>Function Table (K=String, V=Integer)</b>:
  * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for Sum&lt;K,V extends Number&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th colspan=3>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(HashMap&lt;K,V&gt;)</th><th><i>average</i>(HashMap&lt;K,V&gt;)</th></tr>
+ * <tr><th><i>data</i>(Map&lt;K,V&gt;)</th><th><i>average</i>(HashMap&lt;K,V&gt;)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
  * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{a=1}</td><td></td></tr>

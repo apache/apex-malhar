@@ -3,15 +3,13 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.engine.TestSink;
-import java.util.HashMap;
-import java.util.Map;
+import com.malhartech.engine.TestHashSink;
 import junit.framework.Assert;
 import org.junit.Test;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.algo.Distinct}<p>
+ * Functional tests for {@link com.malhartech.lib.algo.Distinct<p>
  *
  */
 public class DistinctTest
@@ -23,72 +21,36 @@ public class DistinctTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    Distinct<String, Number> oper = new Distinct<String, Number>();
+    Distinct<String> oper = new Distinct<String>();
 
-    TestSink<HashMap<String, Number>> sortSink = new TestSink<HashMap<String, Number>>();
+    TestHashSink<String> sortSink = new TestHashSink<String>();
     oper.distinct.setSink(sortSink);
 
-
     oper.beginWindow(0);
-    HashMap<String, Number> input = new HashMap<String, Number>();
-
-    input.put("a", 2);
-    oper.data.process(input);
-    input.clear();
-    input.put("a", 2);
-    oper.data.process(input);
-
-    input.clear();
-    input.put("a", 1000);
-    oper.data.process(input);
-
-    input.clear();
-    input.put("a", 5);
-    oper.data.process(input);
-
-    input.clear();
-    input.put("a", 2);
-    input.put("b", 33);
-    oper.data.process(input);
-
-    input.clear();
-    input.put("a", 33);
-    input.put("b", 34);
-    oper.data.process(input);
-
-    input.clear();
-    input.put("b", 34);
-    oper.data.process(input);
-
-    input.clear();
-    input.put("b", 6);
-    input.put("a", 2);
-    oper.data.process(input);
-    input.clear();
-    input.put("c", 9);
-    oper.data.process(input);
+    oper.data.process("a");
+    oper.data.process("a");
+    oper.data.process("a");
+    oper.data.process("a");
+    oper.data.process("a");
+    oper.data.process("b");
+    oper.data.process("a");
+    oper.data.process("a");
+    oper.data.process("a");
+    oper.data.process("b");
+    oper.data.process("a");
+    oper.data.process("a");
+    oper.data.process("a");
+    oper.data.process("c");
+    oper.data.process("a");
+    oper.data.process("a");
+    oper.data.process("c");
+    oper.data.process("d");
     oper.endWindow();
 
-    Assert.assertEquals("number emitted tuples", 8, sortSink.collectedTuples.size());
-    int aval = 0;
-    int bval = 0;
-    int cval = 0;
-    for (Object o: sortSink.collectedTuples) {
-      for (Map.Entry<String, Integer> e: ((HashMap<String, Integer>)o).entrySet()) {
-        String key = e.getKey();
-        if (key.equals("a")) {
-          aval += e.getValue().intValue();
-        }
-        else if (key.equals("b")) {
-          bval += e.getValue().intValue();
-        }
-        else if (key.equals("c")) {
-          cval += e.getValue().intValue();
-        }
-      }
-    }
-    Assert.assertEquals("Total for key \"a\" ", 1040, aval);
-    Assert.assertEquals("Total for key \"a\" ", 73, bval);
-    Assert.assertEquals("Total for key \"a\" ", 9, cval);
+    Assert.assertEquals("number emitted tuples", 4, sortSink.size());
+    Assert.assertEquals("number of \"a\"", 1, sortSink.getCount("a"));
+    Assert.assertEquals("number of \"b\"", 1, sortSink.getCount("b"));
+    Assert.assertEquals("number of \"c\"", 1, sortSink.getCount("c"));
+    Assert.assertEquals("number of \"d\"", 1, sortSink.getCount("d"));
   }
 }

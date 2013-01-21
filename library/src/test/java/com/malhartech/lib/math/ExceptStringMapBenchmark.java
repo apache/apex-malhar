@@ -12,12 +12,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.math.CompareStringMap}<p>
+ * Performance tests for {@link com.malhartech.lib.math.ExceptStringMap}<p>
  *
  */
-public class CompareStringBenchmark
+public class ExceptStringMapBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(CompareStringBenchmark.class);
+  private static Logger log = LoggerFactory.getLogger(ExceptStringMapBenchmark.class);
 
   /**
    * Test node logic emits correct results
@@ -27,12 +27,12 @@ public class CompareStringBenchmark
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessingSchema()
   {
-    CompareStringMap<String> oper = new CompareStringMap<String>();
+    ExceptStringMap<String> oper = new ExceptStringMap<String>();
     TestCountAndLastTupleSink exceptSink = new TestCountAndLastTupleSink();
-    oper.compare.setSink(exceptSink);
+    oper.except.setSink(exceptSink);
     oper.setKey("a");
     oper.setValue(3.0);
-    oper.setTypeNEQ();
+    oper.setTypeEQ();
     oper.beginWindow(0);
 
     int numTuples = 100000000;

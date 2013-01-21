@@ -45,7 +45,7 @@ public class BaseKeyValueOperator<K, V> extends BaseKeyOperator<K>
    * @param tuple to be cloned
    * @return HashMap&lt;K,V&gt;
    */
-  public HashMap<K, V> cloneTuple(HashMap<K, V> tuple)
+  public HashMap<K, V> cloneTuple(Map<K, V> tuple)
   {
     if (tuple == null) {
       return null;

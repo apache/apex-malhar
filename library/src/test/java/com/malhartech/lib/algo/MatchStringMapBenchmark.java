@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.math;
+package com.malhartech.lib.algo;
 
 import com.malhartech.engine.TestCountAndLastTupleSink;
 import java.util.HashMap;
@@ -12,12 +12,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.math.CompareStringMap}<p>
+ * Performance tests for {@link com.malhartech.lib.algo.MatchStringMap}<p>
  *
  */
-public class CompareStringBenchmark
+public class MatchStringMapBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(CompareStringBenchmark.class);
+  private static Logger log = LoggerFactory.getLogger(MatchStringMapBenchmark.class);
 
   /**
    * Test node logic emits correct results
@@ -25,17 +25,17 @@ public class CompareStringBenchmark
   @Test
   @SuppressWarnings("SleepWhileInLoop")
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
-  public void testNodeProcessingSchema()
+  public void testNodeProcessing() throws Exception
   {
-    CompareStringMap<String> oper = new CompareStringMap<String>();
-    TestCountAndLastTupleSink exceptSink = new TestCountAndLastTupleSink();
-    oper.compare.setSink(exceptSink);
+    MatchStringMap<String,String> oper = new MatchStringMap<String,String>();
+    TestCountAndLastTupleSink matchSink = new TestCountAndLastTupleSink();
+    oper.match.setSink(matchSink);
     oper.setKey("a");
     oper.setValue(3.0);
     oper.setTypeNEQ();
-    oper.beginWindow(0);
 
-    int numTuples = 100000000;
+    oper.beginWindow(0);
+    int numTuples = 10000000;
     HashMap<String, String> input1 = new HashMap<String, String>();
     HashMap<String, String> input2 = new HashMap<String, String>();
     input1.put("a", "2");
@@ -47,8 +47,6 @@ public class CompareStringBenchmark
       oper.data.process(input2);
     }
     oper.endWindow();
-
-    // One for each key
-    log.debug(String.format("\nBenchmark for %d tuples", numTuples*2));
+    log.debug(String.format("\nBenchmark, processed %d tuples", numTuples * 4));
   }
 }

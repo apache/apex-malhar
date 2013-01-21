@@ -19,8 +19,8 @@ import javax.validation.constraints.Min;
  * Add all the values for each key on "numerator" and "denominator" and emits quotient at end of window for all keys in the denominator<p>
  * <br>
  * <b>Ports</b>:<br>
- * <b>numerator</b>: expects HashMap&lt;K,V extends Number&gt;<br>
- * <b>denominator</b>: expects HashMap&lt;K,V extends Number&gt;<br>
+ * <b>numerator</b>: expects Map&lt;K,V extends Number&gt;<br>
+ * <b>denominator</b>: expects Map&lt;K,V extends Number&gt;<br>
  * <b>quotient</b>: emits HashMap&lt;K,Double&gt;<br>
  * <br>
  * <b>Properties</b>:<br>
@@ -41,7 +41,7 @@ import javax.validation.constraints.Min;
  * <b>Function Table (K=String, V=Integer)</b>:
  * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for QuotientMap&lt;K,V extends Number&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th colspan=2>In-bound (process)</th><th>Out-bound (emit)</th></tr>
- * <tr><th><i>numerator</i>(HashMap&lt;K,V&gt;)</th><th><i>denominator</i>(HashMap&lt;K,V&gt;)</th><th><i>quotient</i>(HashMap&lt;K,Double&gt;)</th></tr>
+ * <tr><th><i>numerator</i>(Map&lt;K,V&gt;)</th><th><i>denominator</i>(Map&lt;K,V&gt;)</th><th><i>quotient</i>(HashMap&lt;K,Double&gt;)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
  * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td></td><td></td></tr>
  * <tr><td>Data (process())</td><td>{a=1}</td><td></td><td></td></tr>
