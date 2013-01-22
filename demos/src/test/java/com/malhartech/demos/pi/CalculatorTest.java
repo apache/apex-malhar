@@ -19,23 +19,6 @@ public class CalculatorTest
   {
     Calculator calculator = new Calculator();
     final StramLocalCluster lc = new StramLocalCluster(calculator.getApplication(new Configuration(false)));
-
-    new Thread("LocalClusterController")
-    {
-      @Override
-      public void run()
-      {
-        try {
-          Thread.sleep(10000);
-        }
-        catch (InterruptedException ex) {
-        }
-
-        lc.shutdown();
-      }
-
-    }.start();
-
-    lc.run();
+    lc.run(10000);
   }
 }
