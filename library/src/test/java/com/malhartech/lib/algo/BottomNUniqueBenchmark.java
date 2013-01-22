@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.algo.BottomNUnique} <p>
+ * Performance tests for {@link com.malhartech.lib.algo.BottomNUniqueMap} <p>
  */
 public class BottomNUniqueBenchmark
 {
@@ -27,14 +27,14 @@ public class BottomNUniqueBenchmark
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
-    testNodeProcessingSchema(new BottomNUnique<String, Integer>());
-    testNodeProcessingSchema(new BottomNUnique<String, Double>());
-    testNodeProcessingSchema(new BottomNUnique<String, Float>());
-    testNodeProcessingSchema(new BottomNUnique<String, Short>());
-    testNodeProcessingSchema(new BottomNUnique<String, Long>());
+    testNodeProcessingSchema(new BottomNUniqueMap<String, Integer>());
+    testNodeProcessingSchema(new BottomNUniqueMap<String, Double>());
+    testNodeProcessingSchema(new BottomNUniqueMap<String, Float>());
+    testNodeProcessingSchema(new BottomNUniqueMap<String, Short>());
+    testNodeProcessingSchema(new BottomNUniqueMap<String, Long>());
   }
 
-  public void testNodeProcessingSchema(BottomNUnique oper)
+  public void testNodeProcessingSchema(BottomNUniqueMap oper)
   {
     TestCountSink<HashMap<String, Number>> sortSink = new TestCountSink<HashMap<String, Number>>();
     oper.bottom.setSink(sortSink);

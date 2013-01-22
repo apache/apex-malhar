@@ -29,7 +29,7 @@ import java.util.Map;
  * @author amol<br>
  *
  */
-public abstract class AbstractBaseNNonUniqueOperator<K, V> extends AbstractBaseNOperator<K, V>
+public abstract class AbstractBaseNNonUniqueOperatorMap<K, V> extends AbstractBaseNOperatorMap<K, V>
 {
   /**
    * Override to decide the direction (ascending vs descending)
@@ -49,7 +49,7 @@ public abstract class AbstractBaseNNonUniqueOperator<K, V> extends AbstractBaseN
    * @param tuple to insert in the queue
    */
   @Override
-  public void processTuple(HashMap<K, V> tuple)
+  public void processTuple(Map<K, V> tuple)
   {
     for (Map.Entry<K, V> e: tuple.entrySet()) {
       TopNSort pqueue = kmap.get(e.getKey());

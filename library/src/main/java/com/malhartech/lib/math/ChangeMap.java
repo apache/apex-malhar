@@ -9,6 +9,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
+import com.malhartech.lib.util.CombinerHashMap;
 import com.malhartech.lib.util.MutableDouble;
 import java.util.HashMap;
 import java.util.Map;
@@ -111,9 +112,25 @@ public class ChangeMap<K, V extends Number> extends BaseNumberKeyValueOperator<K
     }
   };
   @OutputPortFieldAnnotation(name = "change", optional = true)
-  public final transient DefaultOutputPort<HashMap<K, V>> change = new DefaultOutputPort<HashMap<K, V>>(this);
+  public final transient DefaultOutputPort<HashMap<K, V>> change = new DefaultOutputPort<HashMap<K, V>>(this)
+  {
+    @Override
+    public Unifier<HashMap<K, V>> getUnifier()
+    {
+      return new CombinerHashMap<K, V>();
+    }
+  };
+
+
   @OutputPortFieldAnnotation(name = "percent", optional = true)
-  public final transient DefaultOutputPort<HashMap<K, Double>> percent = new DefaultOutputPort<HashMap<K, Double>>(this);
+  public final transient DefaultOutputPort<HashMap<K, Double>> percent = new DefaultOutputPort<HashMap<K, Double>>(this)
+  {
+    @Override
+    public Unifier<HashMap<K, Double>> getUnifier()
+    {
+      return new CombinerHashMap<K, Double>();
+    }
+  };
 
   /**
    * basemap is a stateful field. It is retained across windows

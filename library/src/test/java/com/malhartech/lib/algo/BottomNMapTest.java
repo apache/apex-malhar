@@ -14,12 +14,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.algo.BottomN}. <p>
+ * Functional tests for {@link com.malhartech.lib.algo.BottomNMap}. <p>
  *
  */
-public class BottomNTest
+public class BottomNMapTest
 {
-  private static Logger log = LoggerFactory.getLogger(BottomNTest.class);
+  private static Logger log = LoggerFactory.getLogger(BottomNMapTest.class);
 
   /**
    * Test node logic emits correct results
@@ -28,14 +28,14 @@ public class BottomNTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    testNodeProcessingSchema(new BottomN<String, Integer>());
-    testNodeProcessingSchema(new BottomN<String, Double>());
-    testNodeProcessingSchema(new BottomN<String, Float>());
-    testNodeProcessingSchema(new BottomN<String, Short>());
-    testNodeProcessingSchema(new BottomN<String, Long>());
+    testNodeProcessingSchema(new BottomNMap<String, Integer>());
+    testNodeProcessingSchema(new BottomNMap<String, Double>());
+    testNodeProcessingSchema(new BottomNMap<String, Float>());
+    testNodeProcessingSchema(new BottomNMap<String, Short>());
+    testNodeProcessingSchema(new BottomNMap<String, Long>());
   }
 
-  public void testNodeProcessingSchema(BottomN oper)
+  public void testNodeProcessingSchema(BottomNMap oper)
   {
     TestSink<HashMap<String, Number>> sortSink = new TestSink<HashMap<String, Number>>();
     oper.bottom.setSink(sortSink);

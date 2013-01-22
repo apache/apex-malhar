@@ -7,6 +7,7 @@ package com.malhartech.lib.math;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.algo.MatchMap;
+import com.malhartech.lib.util.CombinerHashMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,7 +62,14 @@ import java.util.Map;
 public class ExceptMap<K, V extends Number> extends MatchMap<K, V>
 {
   @OutputPortFieldAnnotation(name = "except")
-  public final transient DefaultOutputPort<HashMap<K, V>> except = new DefaultOutputPort<HashMap<K, V>>(this);
+  public final transient DefaultOutputPort<HashMap<K, V>> except = new DefaultOutputPort<HashMap<K, V>>(this)
+  {
+    @Override
+    public Unifier<HashMap<K, V>> getUnifier()
+    {
+      return new CombinerHashMap<K, V>();
+    }
+  };
 
   /**
    * Does nothing. Overrides base as call super.tupleMatched() would emit the tuple

@@ -9,6 +9,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseKeyValueOperator;
+import com.malhartech.lib.util.CombinerHashMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -87,7 +88,16 @@ public class DistinctMap<K, V> extends BaseKeyValueOperator<K, V>
     }
   };
   @OutputPortFieldAnnotation(name = "distinct")
-  public final transient DefaultOutputPort<HashMap<K, V>> distinct = new DefaultOutputPort<HashMap<K, V>>(this);
+  public final transient DefaultOutputPort<HashMap<K, V>> distinct = new DefaultOutputPort<HashMap<K, V>>(this)
+  {
+    @Override
+    public Unifier<HashMap<K, V>> getUnifier()
+    {
+      return new CombinerHashMap<K, V>();
+    }
+  };
+
+
   protected transient HashMap<K, HashMap<V, Object>> mapkeyval = new HashMap<K, HashMap<V, Object>>();
 
   /**

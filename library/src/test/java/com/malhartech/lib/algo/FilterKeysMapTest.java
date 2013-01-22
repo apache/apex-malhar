@@ -11,10 +11,10 @@ import org.junit.Test;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.algo.FilterKeys}<p>
+ * Functional tests for {@link com.malhartech.lib.algo.FilterKeysMap}<p>
  *
  */
-public class FilterKeysTest
+public class FilterKeysMapTest
 {
   int getTotal(Object o)
   {
@@ -33,7 +33,7 @@ public class FilterKeysTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    FilterKeys<String,Number> oper = new FilterKeys<String,Number>();
+    FilterKeysMap<String,Number> oper = new FilterKeysMap<String,Number>();
 
     TestSink<HashMap<String, Number>> sortSink = new TestSink<HashMap<String, Number>>();
     oper.filter.setSink(sortSink);

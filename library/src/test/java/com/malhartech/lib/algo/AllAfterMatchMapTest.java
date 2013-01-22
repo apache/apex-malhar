@@ -15,9 +15,9 @@ import org.slf4j.LoggerFactory;
  *
  * Functional tests for {@link com.malhartech.lib.algo.AllAfter} <p>
  */
-public class AllAfterMatchTest
+public class AllAfterMatchMapTest
 {
-  private static Logger log = LoggerFactory.getLogger(AllAfterMatchTest.class);
+  private static Logger log = LoggerFactory.getLogger(AllAfterMatchMapTest.class);
 
   /**
    * Test node logic emits correct results
@@ -26,14 +26,14 @@ public class AllAfterMatchTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    testNodeProcessingSchema(new AllAfterMatch<String, Integer>());
-    testNodeProcessingSchema(new AllAfterMatch<String, Double>());
-    testNodeProcessingSchema(new AllAfterMatch<String, Float>());
-    testNodeProcessingSchema(new AllAfterMatch<String, Short>());
-    testNodeProcessingSchema(new AllAfterMatch<String, Long>());
+    testNodeProcessingSchema(new AllAfterMatchMap<String, Integer>());
+    testNodeProcessingSchema(new AllAfterMatchMap<String, Double>());
+    testNodeProcessingSchema(new AllAfterMatchMap<String, Float>());
+    testNodeProcessingSchema(new AllAfterMatchMap<String, Short>());
+    testNodeProcessingSchema(new AllAfterMatchMap<String, Long>());
   }
 
-  public void testNodeProcessingSchema(AllAfterMatch oper)
+  public void testNodeProcessingSchema(AllAfterMatchMap oper)
   {
     TestSink<HashMap<String, Number>> allSink = new TestSink<HashMap<String, Number>>();
     oper.allafter.setSink(allSink);

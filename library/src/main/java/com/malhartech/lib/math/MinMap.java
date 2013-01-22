@@ -9,6 +9,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
+import com.malhartech.lib.util.CombinerHashMap;
 import com.malhartech.lib.util.MutableDouble;
 import java.util.HashMap;
 import java.util.Map;
@@ -82,7 +83,15 @@ public class MinMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
     }
   };
   @OutputPortFieldAnnotation(name = "min")
-  public final transient DefaultOutputPort<HashMap<K, V>> min = new DefaultOutputPort<HashMap<K, V>>(this);
+  public final transient DefaultOutputPort<HashMap<K, V>> min = new DefaultOutputPort<HashMap<K, V>>(this)
+  {
+    @Override
+    public Unifier<HashMap<K, V>> getUnifier()
+    {
+      return new CombinerHashMap<K, V>();
+    }
+  };
+
   protected transient HashMap<K, MutableDouble> low = new HashMap<K, MutableDouble>();
 
   /**

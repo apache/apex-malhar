@@ -6,7 +6,7 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.AbstractBaseNUniqueOperator;
+import com.malhartech.lib.util.AbstractBaseNUniqueOperatorMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -57,7 +57,7 @@ import java.util.HashMap;
  * @author Amol Kekre (amol@malhar-inc.com)<br>
  * <br>
  */
-public class TopNUnique<K, V> extends AbstractBaseNUniqueOperator<K, V>
+public class TopNUnique<K, V> extends AbstractBaseNUniqueOperatorMap<K, V>
 {
   @OutputPortFieldAnnotation(name = "top")
   public final transient DefaultOutputPort<HashMap<K, ArrayList<HashMap<V,Integer>>>> top = new DefaultOutputPort<HashMap<K, ArrayList<HashMap<V,Integer>>>>(this);

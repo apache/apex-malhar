@@ -6,7 +6,7 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.AbstractBaseNOperator;
+import com.malhartech.lib.util.AbstractBaseNOperatorMap;
 import com.malhartech.lib.util.MutableInteger;
 import java.util.HashMap;
 import java.util.Map;
@@ -58,7 +58,7 @@ import java.util.Map;
  * <br>
  */
 
-public class FirstN<K,V> extends AbstractBaseNOperator<K, V>
+public class FirstN<K,V> extends AbstractBaseNOperatorMap<K, V>
 {
   @OutputPortFieldAnnotation(name="first")
   public final transient DefaultOutputPort<HashMap<K, V>> first = new DefaultOutputPort<HashMap<K, V>>(this);
@@ -70,7 +70,7 @@ public class FirstN<K,V> extends AbstractBaseNOperator<K, V>
    * @param tuple to insert in the queue
    */
   @Override
-  public void processTuple(HashMap<K, V> tuple)
+  public void processTuple(Map<K, V> tuple)
   {
     for (Map.Entry<K, V> e: tuple.entrySet()) {
       MutableInteger count = keycount.get(e.getKey());

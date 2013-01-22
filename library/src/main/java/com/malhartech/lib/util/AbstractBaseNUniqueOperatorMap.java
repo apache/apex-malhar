@@ -15,7 +15,7 @@ import java.util.Map;
  * @author amol<br>
  *
  */
-public abstract class AbstractBaseNUniqueOperator<K, V> extends AbstractBaseNOperator<K, V>
+public abstract class AbstractBaseNUniqueOperatorMap<K, V> extends AbstractBaseNOperatorMap<K, V>
 {
   HashMap<K, TopNUniqueSort<V>> kmap = new HashMap<K, TopNUniqueSort<V>>();
 
@@ -37,7 +37,7 @@ public abstract class AbstractBaseNUniqueOperator<K, V> extends AbstractBaseNOpe
    * @param tuple to insert in the queue
    */
   @Override
-  public void processTuple(HashMap<K, V> tuple)
+  public void processTuple(Map<K, V> tuple)
   {
     for (Map.Entry<K, V> e: tuple.entrySet()) {
 

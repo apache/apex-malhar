@@ -10,8 +10,10 @@ import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
 import com.malhartech.lib.util.MutableDouble;
+import com.malhartech.lib.util.CombinerHashMap;
 import java.util.HashMap;
 import java.util.Map;
+
 
 /**
  *
@@ -109,7 +111,15 @@ public class MarginMap<K, V extends Number> extends BaseNumberKeyValueOperator<K
     }
   }
   @OutputPortFieldAnnotation(name = "margin")
-  public final transient DefaultOutputPort<HashMap<K, V>> margin = new DefaultOutputPort<HashMap<K, V>>(this);
+  public final transient DefaultOutputPort<HashMap<K, V>> margin = new DefaultOutputPort<HashMap<K, V>>(this)
+  {
+    @Override
+    public Unifier<HashMap<K, V>> getUnifier()
+    {
+      return new CombinerHashMap<K,V>();
+    }
+  };
+
   protected transient HashMap<K, MutableDouble> numerators = new HashMap<K, MutableDouble>();
   protected transient HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();
   boolean percent = false;

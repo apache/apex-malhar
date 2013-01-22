@@ -12,12 +12,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.algo.FirstMatch}<p>
+ * Functional tests for {@link com.malhartech.lib.algo.FirstMatchMap}<p>
  *
  */
-public class FirstMatchTest
+public class FirstMatchMapTest
 {
-  private static Logger log = LoggerFactory.getLogger(FirstMatchTest.class);
+  private static Logger log = LoggerFactory.getLogger(FirstMatchMapTest.class);
 
   /**
    * Test node logic emits correct results
@@ -26,14 +26,14 @@ public class FirstMatchTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    testNodeProcessingSchema(new FirstMatch<String, Integer>());
-    testNodeProcessingSchema(new FirstMatch<String, Double>());
-    testNodeProcessingSchema(new FirstMatch<String, Float>());
-    testNodeProcessingSchema(new FirstMatch<String, Short>());
-    testNodeProcessingSchema(new FirstMatch<String, Long>());
+    testNodeProcessingSchema(new FirstMatchMap<String, Integer>());
+    testNodeProcessingSchema(new FirstMatchMap<String, Double>());
+    testNodeProcessingSchema(new FirstMatchMap<String, Float>());
+    testNodeProcessingSchema(new FirstMatchMap<String, Short>());
+    testNodeProcessingSchema(new FirstMatchMap<String, Long>());
   }
 
-  public void testNodeProcessingSchema(FirstMatch oper)
+  public void testNodeProcessingSchema(FirstMatchMap oper)
   {
     TestCountAndLastTupleSink matchSink = new TestCountAndLastTupleSink();
     oper.first.setSink(matchSink);

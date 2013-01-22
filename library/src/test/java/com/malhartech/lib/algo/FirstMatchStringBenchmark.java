@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.algo.FirstMatchString}<p>
+ * Performance tests for {@link com.malhartech.lib.algo.FirstMatchStringMap}<p>
  *
  */
 public class FirstMatchStringBenchmark
@@ -28,7 +28,7 @@ public class FirstMatchStringBenchmark
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
-    FirstMatchString<String> oper = new FirstMatchString<String>();
+    FirstMatchStringMap<String> oper = new FirstMatchStringMap<String>();
     TestCountAndLastTupleSink matchSink = new TestCountAndLastTupleSink();
     oper.first.setSink(matchSink);
     oper.setKey("a");

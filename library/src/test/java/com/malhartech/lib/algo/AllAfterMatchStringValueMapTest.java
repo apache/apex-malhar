@@ -13,12 +13,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.algo.AllAfterMatchStringValue}. <p>
+ * Functional tests for {@link com.malhartech.lib.algo.AllAfterMatchStringValueMap}. <p>
  *
  */
-public class AllAfterMatchStringValueTest
+public class AllAfterMatchStringValueMapTest
 {
-  private static Logger log = LoggerFactory.getLogger(AllAfterMatchStringValueTest.class);
+  private static Logger log = LoggerFactory.getLogger(AllAfterMatchStringValueMapTest.class);
 
   /**
    * Test node logic emits correct results
@@ -28,7 +28,7 @@ public class AllAfterMatchStringValueTest
   public void testNodeProcessing() throws Exception
   {
 
-    AllAfterMatchStringValue<String> oper = new AllAfterMatchStringValue<String>();
+    AllAfterMatchStringValueMap<String> oper = new AllAfterMatchStringValueMap<String>();
     TestSink<HashMap<String, String>> allSink = new TestSink<HashMap<String, String>>();
     oper.allafter.setSink(allSink);
     oper.setKey("a");

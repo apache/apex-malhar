@@ -24,7 +24,7 @@ import javax.validation.constraints.NotNull;
  * the port schema is different. <br>
  * <br>
  * <b>Ports</b>:<br>
- * <b>data</b>: Expects HashMap&lt;K, HashMap&lt;K,V&gt;&gt. Filters are applied only on keys of second hash map.<br>
+ * <b>data</b>: Expects Map&lt;K, HashMap&lt;K,V&gt;&gt. Filters are applied only on keys of second hash map.<br>
  * <b>filter</b>: Emits HashMap&lt;K, HashMap&lt;K,V&gt;&gt.<br>
  * <br>
  * <b>Properties</b>:<br>
@@ -67,14 +67,14 @@ import javax.validation.constraints.NotNull;
 public class FilterKeysHashMap<K, V> extends BaseKeyOperator<K>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<HashMap<K, HashMap<K, V>>> data = new DefaultInputPort<HashMap<K, HashMap<K, V>>>(this)
+  public final transient DefaultInputPort<Map<K, HashMap<K, V>>> data = new DefaultInputPort<Map<K, HashMap<K, V>>>(this)
   {
     /**
      * Processes incoming tuples one key,val at a time. Emits if at least one key makes the cut.
      * By setting inverse as true, match is changed to un-matched.
      */
     @Override
-    public void process(HashMap<K, HashMap<K, V>> tuple)
+    public void process(Map<K, HashMap<K, V>> tuple)
     {
       HashMap<K, HashMap<K, V>> dtuple = null;
       for (Map.Entry<K, HashMap<K, V>> e: tuple.entrySet()) {

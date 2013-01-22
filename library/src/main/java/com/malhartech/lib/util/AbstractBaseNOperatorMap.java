@@ -7,6 +7,7 @@ package com.malhartech.lib.util;
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import java.util.HashMap;
+import java.util.Map;
 import javax.validation.constraints.Min;
 
 /**
@@ -30,16 +31,16 @@ import javax.validation.constraints.Min;
  * @author amol<br>
  *
  */
-abstract public class AbstractBaseNOperator<K,V> extends BaseKeyValueOperator<K,V>
+abstract public class AbstractBaseNOperatorMap<K,V> extends BaseKeyValueOperator<K,V>
 {
   /**
    * Expects a HashMap<K,V> tuple
    */
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>(this)
+  public final transient DefaultInputPort<Map<K,V>> data = new DefaultInputPort<Map<K,V>>(this)
   {
     @Override
-    public void process(HashMap<K,V> tuple)
+    public void process(Map<K,V> tuple)
     {
       processTuple(tuple);
     }
@@ -52,7 +53,7 @@ abstract public class AbstractBaseNOperator<K,V> extends BaseKeyValueOperator<K,
    *
    * @param tuple
    */
-  abstract public void processTuple(HashMap<K,V> tuple);
+  abstract public void processTuple(Map<K,V> tuple);
 
   /**
    * Sets value of N (depth)

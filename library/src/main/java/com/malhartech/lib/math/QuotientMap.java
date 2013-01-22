@@ -9,6 +9,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
+import com.malhartech.lib.util.CombinerHashMap;
 import com.malhartech.lib.util.MutableDouble;
 import java.util.HashMap;
 import java.util.Map;
@@ -87,7 +88,15 @@ public class QuotientMap<K, V extends Number> extends BaseNumberKeyValueOperator
     }
   };
   @OutputPortFieldAnnotation(name = "quotient")
-  public final transient DefaultOutputPort<HashMap<K, Double>> quotient = new DefaultOutputPort<HashMap<K, Double>>(this);
+  public final transient DefaultOutputPort<HashMap<K, Double>> quotient = new DefaultOutputPort<HashMap<K, Double>>(this)
+  {
+    @Override
+    public Unifier<HashMap<K, Double>> getUnifier()
+    {
+      return new CombinerHashMap<K, Double>();
+    }
+  };
+
 
   public void addTuple(Map<K, V> tuple, Map<K, MutableDouble> map)
   {

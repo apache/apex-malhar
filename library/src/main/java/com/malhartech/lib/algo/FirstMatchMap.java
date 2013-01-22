@@ -10,6 +10,7 @@ import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseMatchOperator;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -19,7 +20,7 @@ import java.util.HashMap;
  * The operators by default assumes immutable keys. If the key is mutable, use cloneKey to make a copy<br>
  * <br>
  * <b>Ports</b>:<br>
- * <b>data</b>: Input port, expects HashMap&lt;K,V extends Number&gt;<br>
+ * <b>data</b>: Input port, expects Map&lt;K,V extends Number&gt;<br>
  * <b>first</b>: Output port, emits HashMap&lt;K,V&gt;<br>
  * <br>
  * <b>Properties</b>:<br>
@@ -35,16 +36,16 @@ import java.util.HashMap;
  * <b>Specific run time checks</b>: None <br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for FirstMatch&lt;K,V extends Number&gt; operator template">
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for FirstMatchMap&lt;K,V extends Number&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
  * <tr><td><b>&gt; 50 Million K,V pairs/s</b></td><td>Emits only 1 tuple per window</td><td>In-bound throughput and the occurrence of the
  * first match are the main determinant of performance.</td></tr>
  * </table><br>
  * <p>
  * <b>Function Table (K=String,V=Integer); keys=a; cmp=eq; value=3</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for FirstMatch&lt;K,V extends Number&gt; operator template">
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for FirstMatchMap&lt;K,V extends Number&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(HashMap&lt;K,V&gt;)</th><th><i>first</i>(HashMap&lt;K,V&gt;)</th></tr>
+ * <tr><th><i>data</i>(Map&lt;K,V&gt;)</th><th><i>first</i>(HashMap&lt;K,V&gt;)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
  * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{a=-1}</td><td></td></tr>
@@ -63,17 +64,17 @@ import java.util.HashMap;
  * <br>
  *
  */
-public class FirstMatch<K, V extends Number> extends BaseMatchOperator<K,V>
+public class FirstMatchMap<K, V extends Number> extends BaseMatchOperator<K,V>
 {
   @InputPortFieldAnnotation(name="data")
-  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
+  public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>(this)
   {
     /**
      * Checks if required key,val pair exists in the HashMap. If so tuple is emitted, and emitted flag is set
      * to true
      */
     @Override
-    public void process(HashMap<K, V> tuple)
+    public void process(Map<K, V> tuple)
     {
       if (emitted) {
         return;

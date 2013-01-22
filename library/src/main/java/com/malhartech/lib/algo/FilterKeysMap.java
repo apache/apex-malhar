@@ -9,6 +9,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseKeyOperator;
+import com.malhartech.lib.util.CombinerHashMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +24,7 @@ import javax.validation.constraints.NotNull;
  * This is a pass through node<br>
  * <br>
  * <b>Ports</b>:<br>
- * <b>data</b>: Expects HashMap&lt;K,V&gt;<br>
+ * <b>data</b>: Expects Map&lt;K,V&gt;<br>
  * <b>filter</b>: Emits HashMap&lt;K,V&gt;<br>
  * <br>
  * <b>Properties</b>:<br>
@@ -34,7 +35,7 @@ import javax.validation.constraints.NotNull;
  * <b>Specific run time checks</b>: None <br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for FilterKeys&lt;K,V&gt; operator template">
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for FilterKeysMap&lt;K,V&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
  * <tr><td><b>&gt; 15 Million K,V pairs/s (4 million out-bound emits/s)</b></td><td>Emits all K,V pairs in a tuple such that K is in the filter list
  * (or not in the list if inverse is set to true)</td><td>In-bound throughput and number of matching K are the main determinant of performance.
@@ -42,9 +43,9 @@ import javax.validation.constraints.NotNull;
  * </table><br>
  * <p>
  * <b>Function Table (K=String,V=Integer); inverse=false; keys="a,b,h"</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for FilterKeys&lt;K,V&gt; operator template">
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for FilterKeysMap&lt;K,V&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(HashMap&lt;K,V&gt;)</th><th><i>filter</i>(HashMap&lt;K,V&gt;)</th></tr>
+ * <tr><th><i>data</i>(Map&lt;K,V&gt;)</th><th><i>filter</i>(HashMap&lt;K,V&gt;)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
  * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td>{a=2}<br>{b=20}</td></tr>
  * <tr><td>Data (process())</td><td>{a=-1}</td><td>{a=-1}</td></tr>
@@ -64,17 +65,17 @@ import javax.validation.constraints.NotNull;
  *
  */
 
-public class FilterKeys<K,V> extends BaseKeyOperator<K>
+public class FilterKeysMap<K,V> extends BaseKeyOperator<K>
 {
   @InputPortFieldAnnotation(name="data")
-  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
+  public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>(this)
   {
     /**
      * Processes incoming tuples one key,val at a time. Emits if at least one key makes the cut
      * By setting inverse as true, match is changed to un-matched
      */
     @Override
-    public void process(HashMap<K, V> tuple)
+    public void process(Map<K, V> tuple)
     {
       HashMap<K, V> dtuple = null;
       for (Map.Entry<K, V> e: tuple.entrySet()) {
@@ -93,7 +94,14 @@ public class FilterKeys<K,V> extends BaseKeyOperator<K>
   };
 
   @OutputPortFieldAnnotation(name="filter")
-  public final transient DefaultOutputPort<HashMap<K, V>> filter = new DefaultOutputPort<HashMap<K, V>>(this);
+  public final transient DefaultOutputPort<HashMap<K, V>> filter = new DefaultOutputPort<HashMap<K, V>>(this)
+  {
+    @Override
+    public Unifier<HashMap<K, V>> getUnifier()
+    {
+      return new CombinerHashMap<K, V>();
+    }
+  };
 
   @NotNull()
   HashMap<K, V> keys = new HashMap<K, V>();

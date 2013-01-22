@@ -12,12 +12,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.algo.FirstMatchString}<p>
+ * Functional tests for {@link com.malhartech.lib.algo.FirstMatchStringMap}<p>
  *
  */
-public class FirstMatchStringTest
+public class FirstMatchStringMapTest
 {
-  private static Logger log = LoggerFactory.getLogger(FirstMatchStringTest.class);
+  private static Logger log = LoggerFactory.getLogger(FirstMatchStringMapTest.class);
 
   /**
    * Test node logic emits correct results
@@ -26,7 +26,7 @@ public class FirstMatchStringTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    FirstMatchString<String> oper = new FirstMatchString<String>();
+    FirstMatchStringMap<String> oper = new FirstMatchStringMap<String>();
     TestCountAndLastTupleSink matchSink = new TestCountAndLastTupleSink();
     oper.first.setSink(matchSink);
     oper.setKey("a");

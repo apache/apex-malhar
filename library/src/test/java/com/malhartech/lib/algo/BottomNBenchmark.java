@@ -28,14 +28,14 @@ public class BottomNBenchmark
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
-    testNodeProcessingSchema(new BottomN<String, Integer>());
-    testNodeProcessingSchema(new BottomN<String, Double>());
-    testNodeProcessingSchema(new BottomN<String, Float>());
-    testNodeProcessingSchema(new BottomN<String, Short>());
-    testNodeProcessingSchema(new BottomN<String, Long>());
+    testNodeProcessingSchema(new BottomNMap<String, Integer>());
+    testNodeProcessingSchema(new BottomNMap<String, Double>());
+    testNodeProcessingSchema(new BottomNMap<String, Float>());
+    testNodeProcessingSchema(new BottomNMap<String, Short>());
+    testNodeProcessingSchema(new BottomNMap<String, Long>());
   }
 
-  public void testNodeProcessingSchema(BottomN oper)
+  public void testNodeProcessingSchema(BottomNMap oper)
   {
     TestSink<HashMap<String, Number>> sortSink = new TestSink<HashMap<String, Number>>();
     oper.bottom.setSink(sortSink);

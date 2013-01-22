@@ -9,6 +9,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseMatchOperator;
+import com.malhartech.lib.util.CombinerHashMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -105,7 +106,14 @@ public class MatchStringMap<K, String> extends BaseMatchOperator<K,String>
   };
 
   @OutputPortFieldAnnotation(name = "match", optional=true)
-  public final transient DefaultOutputPort<HashMap<K, String>> match = new DefaultOutputPort<HashMap<K, String>>(this);
+  public final transient DefaultOutputPort<HashMap<K, String>> match = new DefaultOutputPort<HashMap<K, String>>(this)
+  {
+    @Override
+    public Unifier<HashMap<K, String>> getUnifier()
+    {
+      return new CombinerHashMap<K, String>();
+    }
+  };
 
   boolean emitError = true;
 

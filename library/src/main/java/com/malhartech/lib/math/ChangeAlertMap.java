@@ -9,7 +9,9 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
+import com.malhartech.lib.util.CombinerHashMap;
 import com.malhartech.lib.util.MutableDouble;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -96,7 +98,14 @@ public class ChangeAlertMap<K, V extends Number> extends BaseNumberKeyValueOpera
   };
 
   @OutputPortFieldAnnotation(name = "alert")
-  public final transient DefaultOutputPort<HashMap<K, HashMap<V,Double>>> alert = new DefaultOutputPort<HashMap<K, HashMap<V,Double>>>(this);
+  public final transient DefaultOutputPort<HashMap<K, HashMap<V,Double>>> alert = new DefaultOutputPort<HashMap<K, HashMap<V,Double>>>(this)
+  {
+    @Override
+    public Unifier<HashMap<K, HashMap<V,Double>>> getUnifier()
+    {
+      return new CombinerHashMap<K, HashMap<V,Double>>();
+    }
+  };
 
   /**
    * basemap is a stateful field. It is retained across windows

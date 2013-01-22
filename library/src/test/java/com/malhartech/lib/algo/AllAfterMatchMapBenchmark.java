@@ -12,12 +12,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.algo.AllAfterMatch} <p>
+ * Performance tests for {@link com.malhartech.lib.algo.AllAfterMatchMap} <p>
  *
  */
-public class AllAfterMatchBenchmark
+public class AllAfterMatchMapBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(AllAfterMatchBenchmark.class);
+  private static Logger log = LoggerFactory.getLogger(AllAfterMatchMapBenchmark.class);
 
   /**
    * Test node logic emits correct results
@@ -27,14 +27,14 @@ public class AllAfterMatchBenchmark
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
-    testNodeProcessingSchema(new AllAfterMatch<String, Integer>());
-    testNodeProcessingSchema(new AllAfterMatch<String, Double>());
-    testNodeProcessingSchema(new AllAfterMatch<String, Float>());
-    testNodeProcessingSchema(new AllAfterMatch<String, Short>());
-    testNodeProcessingSchema(new AllAfterMatch<String, Long>());
+    testNodeProcessingSchema(new AllAfterMatchMap<String, Integer>());
+    testNodeProcessingSchema(new AllAfterMatchMap<String, Double>());
+    testNodeProcessingSchema(new AllAfterMatchMap<String, Float>());
+    testNodeProcessingSchema(new AllAfterMatchMap<String, Short>());
+    testNodeProcessingSchema(new AllAfterMatchMap<String, Long>());
   }
 
-  public void testNodeProcessingSchema(AllAfterMatch oper)
+  public void testNodeProcessingSchema(AllAfterMatchMap oper)
   {
     TestCountAndLastTupleSink allSink = new TestCountAndLastTupleSink();
     oper.allafter.setSink(allSink);

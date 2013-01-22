@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.algo.FilterKeys}<p>
+ * Functional tests for {@link com.malhartech.lib.algo.FilterKeysMap}<p>
  *
  */
 public class FilterKeysBenchmark
@@ -38,7 +38,7 @@ public class FilterKeysBenchmark
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
-    FilterKeys<String, Number> oper = new FilterKeys<String, Number>();
+    FilterKeysMap<String, Number> oper = new FilterKeysMap<String, Number>();
 
     TestCountSink<HashMap<String, Number>> sortSink = new TestCountSink<HashMap<String, Number>>();
     oper.filter.setSink(sortSink);

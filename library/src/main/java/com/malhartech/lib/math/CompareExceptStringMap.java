@@ -7,6 +7,7 @@ package com.malhartech.lib.math;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.algo.MatchStringMap;
+import com.malhartech.lib.util.CombinerHashMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,7 +66,14 @@ public class CompareExceptStringMap<K> extends MatchStringMap<K,String>
   public final transient DefaultOutputPort<HashMap<K,String>> compare = match;
 
   @OutputPortFieldAnnotation(name = "except", optional=true)
-  public final transient DefaultOutputPort<HashMap<K,String>> except = new DefaultOutputPort<HashMap<K,String>>(this);
+  public final transient DefaultOutputPort<HashMap<K,String>> except = new DefaultOutputPort<HashMap<K,String>>(this)
+  {
+    @Override
+    public Unifier<HashMap<K, String>> getUnifier()
+    {
+      return new CombinerHashMap<K, String>();
+    }
+  };
 
   /**
    * Emits if compare port is connected

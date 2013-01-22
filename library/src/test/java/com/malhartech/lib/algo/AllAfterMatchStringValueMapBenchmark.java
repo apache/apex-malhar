@@ -12,12 +12,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Perforamnce tests for {@link com.malhartech.lib.algo.AllAfterMatchStringValue} <p>
+ * Perforamnce tests for {@link com.malhartech.lib.algo.AllAfterMatchStringValueMap} <p>
  *
  */
-public class AllAfterMatchStringValueBenchmark
+public class AllAfterMatchStringValueMapBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(AllAfterMatchStringValueBenchmark.class);
+  private static Logger log = LoggerFactory.getLogger(AllAfterMatchStringValueMapBenchmark.class);
 
   /**
    * Test node logic emits correct results
@@ -27,7 +27,7 @@ public class AllAfterMatchStringValueBenchmark
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
-    AllAfterMatchStringValue<String> oper = new AllAfterMatchStringValue<String>();
+    AllAfterMatchStringValueMap<String> oper = new AllAfterMatchStringValueMap<String>();
     TestCountAndLastTupleSink allSink = new TestCountAndLastTupleSink();
     oper.allafter.setSink(allSink);
     oper.setKey("a");
