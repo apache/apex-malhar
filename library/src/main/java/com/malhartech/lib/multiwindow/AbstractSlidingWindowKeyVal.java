@@ -26,7 +26,7 @@ import javax.validation.constraints.Min;
  * <b>data</b>: expects T (any POJO)<br>
  * <br>
  * <b>Properties</b>:<br>
- * <b>windoeSize i.e. N</b>: Number of windows to keep state on<br>
+ * <b>windowSize i.e. N</b>: Number of windows to keep state on<br>
  * <br>
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
