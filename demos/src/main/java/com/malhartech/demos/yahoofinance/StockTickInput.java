@@ -4,31 +4,54 @@
  */
 package com.malhartech.demos.yahoofinance;
 
+import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.Context.OperatorContext;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.InputOperator;
 import com.malhartech.lib.util.KeyValPair;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Random;
+import java.util.HashMap;
 
 /**
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
-public class StockTickInput implements InputOperator
+public class StockTickInput extends BaseOperator
 {
-  private static final int total = 20;
-  private final Random random = new Random();
-  private ArrayList<String> symbols = new ArrayList<String>();
-  private final transient SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS"); // new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-  // This will generate
-  // Stock symbol as String
-  // Stock price as Double
-  // Stock volume as Long
-  // Stock time String
+  HashMap<String, Long> startVolume = new HashMap<String, Long>();
+  HashMap<String, Long> lastVolume = new HashMap<String, Long>();
+
+  // Input data will have following entries.
+  // 1st entry is stock symbol as String,
+  // 2nd entry is stock price as Double,
+  // 3rd entry is stock total daily volume as Long, and
+  // 4th entry is stock last trade time String.
+  @InputPortFieldAnnotation(name = "data")
+  public final transient DefaultInputPort<ArrayList<String>> data = new DefaultInputPort<ArrayList<String>>(this)
+  {
+    @Override
+    public void process(ArrayList<String> tuple)
+    {
+      if (tuple.size() != 4) {
+        return;
+      }
+      String symbol = tuple.get(0);
+
+      if (!lastVolume.containsKey(symbol)){
+        long vol = Long.valueOf(tuple.get(2));
+        startVolume.put(symbol, vol);
+        lastVolume.put(symbol, vol);
+        return;
+      }
+
+      long currentVolume = Long.valueOf(tuple.get(2));
+      price.emit(new KeyValPair(symbol, new Double(tuple.get(1))));
+      volume.emit(new KeyValPair(symbol, currentVolume-lastVolume.get(symbol)));
+      time.emit(new KeyValPair(symbol, tuple.get(3)));
+      lastVolume.put(symbol,currentVolume);
+    }
+  };
   /**
    * The output port that will emit tuple into DAG.
    */
@@ -38,64 +61,4 @@ public class StockTickInput implements InputOperator
   public final transient DefaultOutputPort<KeyValPair<String, Long>> volume = new DefaultOutputPort<KeyValPair<String, Long>>(this);
   @OutputPortFieldAnnotation(name = "time", optional = true)
   public final transient DefaultOutputPort<KeyValPair<String, String>> time = new DefaultOutputPort<KeyValPair<String, String>>(this);
-
-  @Override
-  public void emitTuples()
-  {
-    int sym = random.nextInt(1);
-
-    // price
-    double pr = random.nextInt(500) / 100.0;
-    if (sym == 0) { // YHOO
-      pr += 20;
-    }
-    else if (sym == 1) { // EBAY
-      pr += 52;
-    }
-    else if (sym == 2) { // AAPL
-      pr += 506;
-    }
-    else { // GOOG
-      pr += 715;
-    }
-
-    // volume
-    int vol = 10; // 0 + random.nextInt(100);
-
-    if (price.isConnected()) {
-      price.emit(new KeyValPair(symbols.get(sym), new Double(pr)));
-    }
-    if (volume.isConnected()) {
-      volume.emit(new KeyValPair(symbols.get(sym), new Long(vol)));
-    }
-    if (time.isConnected()) {  // generate current time
-      Date now = new Date();
-      String strDate = sdf.format(now);
-      time.emit(new KeyValPair(symbols.get(sym), strDate));
-    }
-  }
-
-  @Override
-  public void beginWindow(long windowId)
-  {
-  }
-
-  @Override
-  public void endWindow()
-  {
-  }
-
-  @Override
-  public void setup(OperatorContext context)
-  {
-    symbols.add("YHOO");
-    symbols.add("EBAY");
-    symbols.add("AAPL");
-    symbols.add("GOOG");
-  }
-
-  @Override
-  public void teardown()
-  {
-  }
 }

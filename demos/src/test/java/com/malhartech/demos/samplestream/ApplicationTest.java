@@ -4,11 +4,9 @@
  */
 package com.malhartech.demos.samplestream;
 
-import com.malhartech.demos.samplestream.Application;
 import com.malhartech.stram.StramLocalCluster;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *

@@ -13,7 +13,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.validation.constraints.NotNull;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
@@ -23,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Get stock information from Yahoo finance site. <p>
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
@@ -32,11 +32,11 @@ public class YahooFinanceCSVSpout extends SimpleSinglePortInputOperator<ArrayLis
   /**
    * Timeout interval for reading from server. 0 or negative indicates no timeout.
    */
-  public int readTimeoutMillis = 0;
+  private int readIntervalMillis = 500;
+
   /**
    * The URL of the web service resource for the POST request.
    */
-  @NotNull
   private String url;
   private transient HttpClient client;
   private transient GetMethod method;
@@ -50,12 +50,7 @@ public class YahooFinanceCSVSpout extends SimpleSinglePortInputOperator<ArrayLis
   public static final String DaysLow = "g";
   public static final String Volume = "v";
   private ArrayList<String> symbolList = new ArrayList<String>();
-  private ArrayList<String> formatList = new ArrayList<String>();
-
-  public void setUrl(String url)
-  {
-    this.url = url;
-  }
+  private ArrayList<String> parameterList = new ArrayList<String>();
 
   public void addSymbol(String symbol)
   {
@@ -64,7 +59,7 @@ public class YahooFinanceCSVSpout extends SimpleSinglePortInputOperator<ArrayLis
 
   public void addFormat(String format)
   {
-    formatList.add(format);
+    parameterList.add(format);
   }
 
   public ArrayList<String> getSymbolList()
@@ -72,24 +67,55 @@ public class YahooFinanceCSVSpout extends SimpleSinglePortInputOperator<ArrayLis
     return symbolList;
   }
 
-  public ArrayList<String> getFormatList()
+  public ArrayList<String> getParameterList()
   {
-    return formatList;
+    return parameterList;
+  }
+
+  public int getReadIntervalMillis()
+  {
+    return readIntervalMillis;
+  }
+
+  public void setReadIntervalMillis(int readIntervalMillis)
+  {
+    this.readIntervalMillis = readIntervalMillis;
+  }
+
+  /**
+   * Prepare URL from symbols and parameters.
+   * URL will be something like: http://download.finance.yahoo.com/d/quotes.csv?s=GOOG,FB,YHOO&f=sl1vt1&e=.csv
+   * @return
+   */
+  private String prepareURL()
+  {
+    String str = "http://download.finance.yahoo.com/d/quotes.csv?";
+
+    str += "s=";
+    for (int i = 0; i < symbolList.size(); i++) {
+      if (i == 0) {
+        str += symbolList.get(i);
+      }
+      else {
+        str += ",";
+        str += symbolList.get(i);
+      }
+    }
+    str += "&f=";
+    for (String format: parameterList) {
+      str += format;
+    }
+    str += "&e=.csv";
+    return str;
   }
 
   @Override
   public void setup(OperatorContext context)
   {
+    url = prepareURL();
     client = new HttpClient();
     method = new GetMethod(url);
     DefaultHttpParams.getDefaultParams().setParameter("http.protocol.cookie-policy", CookiePolicy.BROWSER_COMPATIBILITY);
-
-  }
-
-  @Override
-  public void teardown()
-  {
-    super.teardown();
   }
 
   @Override
@@ -102,19 +128,19 @@ public class YahooFinanceCSVSpout extends SimpleSinglePortInputOperator<ArrayLis
           System.err.println("Method failed: " + method.getStatusLine());
         }
         else {
-          InputStream istream ;
+          InputStream istream;
           istream = method.getResponseBodyAsStream();
           // Process response
           InputStreamReader isr = new InputStreamReader(istream);
           CSVReader reader = new CSVReader(isr);
           List<String[]> myEntries;
           myEntries = reader.readAll();
-          for (String[] stringArr : myEntries) {
+          for (String[] stringArr: myEntries) {
             ArrayList<String> al = new ArrayList(Arrays.asList(stringArr));
-            outputPort.emit(al);
+            outputPort.emit(al); // send out one symbol at a time
           }
         }
-        Thread.sleep(500);
+        Thread.sleep(readIntervalMillis);
       }
       catch (InterruptedException ex) {
         logger.debug(ex.toString());
@@ -123,15 +149,5 @@ public class YahooFinanceCSVSpout extends SimpleSinglePortInputOperator<ArrayLis
         logger.debug(ex.toString());
       }
     }
-  }
-
-  @Override
-  public void beginWindow(long windowId)
-  {
-  }
-
-  @Override
-  public void endWindow()
-  {
   }
 }

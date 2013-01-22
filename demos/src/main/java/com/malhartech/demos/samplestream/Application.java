@@ -7,7 +7,6 @@ package com.malhartech.demos.samplestream;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
 import com.malhartech.lib.io.ConsoleOutputOperator;
-import java.util.ArrayList;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.LoggerFactory;
 
@@ -29,21 +28,9 @@ public class Application implements ApplicationFactory
   public DAG getYahooFinanceCSVApplication(Configuration conf) {
     DAG dag = new DAG();
     YahooFinanceCSVSpout spout = dag.addOperator("spout", new YahooFinanceCSVSpout());
-    String url = "http://download.finance.yahoo.com/d/quotes.csv?";
     spout.addSymbol("GOOG");
     spout.addSymbol("FB");
     spout.addSymbol("YHOO");
-    url += "s=";
-    for( int i=0; i<spout.getSymbolList().size(); i++ ) {
-      if( i == 0 ) {
-        url += spout.getSymbolList().get(i);
-      }
-      else {
-        url += ",";
-        url += spout.getSymbolList().get(i);
-      }
-    }
-    url += "&f=";
     spout.addFormat(YahooFinanceCSVSpout.Symbol);
     spout.addFormat(YahooFinanceCSVSpout.LastTrade);
     spout.addFormat(YahooFinanceCSVSpout.LastTradeDate);
@@ -53,11 +40,7 @@ public class Application implements ApplicationFactory
     spout.addFormat(YahooFinanceCSVSpout.DaysHigh);
     spout.addFormat(YahooFinanceCSVSpout.DaysLow);
     spout.addFormat(YahooFinanceCSVSpout.Volume);
-    for( String format : spout.getFormatList() ) {
-      url += format;
-    }
-    url += "&e=.csv";
-    spout.setUrl(url);
+
     ConsoleOutputOperator consoleOperator = dag.addOperator("console", new ConsoleOutputOperator());
     dag.addStream("spout-console", spout.outputPort, consoleOperator.input).setInline(allInline);
 

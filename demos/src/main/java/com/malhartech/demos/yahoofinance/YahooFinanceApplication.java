@@ -6,12 +6,15 @@ package com.malhartech.demos.yahoofinance;
 
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
+import com.malhartech.demos.samplestream.YahooFinanceCSVSpout;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.math.AverageKeyVal;
 import com.malhartech.lib.multiwindow.MultiWindowRangeKeyVal;
 import com.malhartech.lib.multiwindow.MultiWindowSumKeyVal;
 import com.malhartech.lib.multiwindow.SimpleMovingAverage;
 import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -19,9 +22,35 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class YahooFinanceApplication implements ApplicationFactory
 {
-  public StockTickInput getStockTickInput(String name, DAG dag)
+  private static final Logger logger = LoggerFactory.getLogger(YahooFinanceApplication.class);
+
+  public YahooFinanceCSVSpout getYahooFinanceTick(String name, DAG dag)
+  {
+    // url: http://download.finance.yahoo.com/d/quotes.csv?s=GOOG,FB,YHOO&f=sl1vt1&e=.csv
+    YahooFinanceCSVSpout oper = dag.addOperator(name, YahooFinanceCSVSpout.class);
+    oper.addSymbol("GOOG");
+    oper.addSymbol("FB");
+    oper.addSymbol("YHOO");
+
+    oper.addFormat(YahooFinanceCSVSpout.Symbol);
+    oper.addFormat(YahooFinanceCSVSpout.LastTrade);
+    oper.addFormat(YahooFinanceCSVSpout.Volume);
+    oper.addFormat(YahooFinanceCSVSpout.LastTradeTime);
+
+    return oper;
+  }
+
+
+  public StockTickInput getTicks(String name, DAG dag)
   {
     StockTickInput oper = dag.addOperator(name, StockTickInput.class);
+
+    return oper;
+  }
+
+  public DummyStockTickInput getDummyStockTickInput(String name, DAG dag)
+  {
+    DummyStockTickInput oper = dag.addOperator(name, DummyStockTickInput.class);
 
     return oper;
   }
@@ -94,9 +123,11 @@ public class YahooFinanceApplication implements ApplicationFactory
     int streamingWindowSize = 1000;
     dag.getAttributes().attr(DAG.STRAM_WINDOW_SIZE_MILLIS).set(streamingWindowSize);
     boolean windowTest = false;
-    boolean timeTest = true;
+    boolean timeTest = false;
+    boolean smatest = false;
+    boolean financetick = true;
 
-    StockTickInput tick = getStockTickInput("tick", dag);
+    DummyStockTickInput tick = getDummyStockTickInput("tick", dag);
     if (windowTest) {
       DailyVolume windowedVolume = getDailyVolume("windowedVolume", dag);
       PriceVolumeConsolidator priceVolumeConsolidator = getPriceVolumeConsolidator("priceVolumeMerger", dag);
@@ -128,7 +159,7 @@ public class YahooFinanceApplication implements ApplicationFactory
 
       dag.addStream("windowed_console", consolidator2.out, timedConsole.input).setInline(true);
     }
-    else { // sma test
+    else if (smatest){ // sma test
       int appWindow = 4;
       AverageKeyVal<String, Double> priceAvg = getPriceAverage("priceAvg", dag);
       ConsoleOutputOperator smaConsole = getConsole("smaConsole", dag);
@@ -138,6 +169,23 @@ public class YahooFinanceApplication implements ApplicationFactory
       dag.addStream("average_sma", priceAvg.average, sma.data).setInline(allInline);
       dag.addStream("sma_console", sma.doubleSMA, smaConsole.input).setInline(true);
     }
+    else if (financetick){
+      YahooFinanceCSVSpout tick2 = getYahooFinanceTick("tick2", dag);
+      StockTickInput ticks = getTicks("ticks", dag);
+      PriceVolumeConsolidator priceVolumeConsolidator = getPriceVolumeConsolidator("priceVolumeMerger", dag);
+      ConsoleOutputOperator financeConsole = getConsole("financeConsole", dag);
+
+      dag.addStream("tick2_ticks", tick2.outputPort, ticks.data).setInline(true);
+      dag.addStream("ticks_price", ticks.price, priceVolumeConsolidator.data1).setInline(allInline);
+      dag.addStream("ticks_volume", ticks.volume, priceVolumeConsolidator.data2).setInline(allInline);
+      dag.addStream("ticks_time", ticks.time, priceVolumeConsolidator.data3).setInline(allInline);
+
+      dag.addStream("consolidator_console", priceVolumeConsolidator.out, financeConsole.input).setInline(true);
+    }
+    else {
+      // nothing
+    }
+
     return dag;
   }
 }
