@@ -6,7 +6,7 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.AbstractBaseFrequentKeyValue;
+import com.malhartech.lib.util.AbstractBaseFrequentKeyValueMap;
 import java.util.HashMap;
 
 /**
@@ -15,7 +15,7 @@ import java.util.HashMap;
  * This module is an end of window module<br>
  * <br>
  * <b>Ports</b>:<br>
- * <b>data</b>: expects HashMap&lt;K,V&gt;<br>
+ * <b>data</b>: expects Map&lt;K,V&gt;<br>
  * <b>least</b>: Output port, emits HashMap&lt;K,HashMap&lt;V,Integer&gt;&gt;(1)<br>
  * <br>
  * <b>Properties</b>: None<br>
@@ -24,16 +24,16 @@ import java.util.HashMap;
  * <b>Specific run time checks</b>: None <br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for LeastFrequentKeyValue&lt;K,V&gt; operator template">
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for LeastFrequentKeyValueMap&lt;K,V&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
  * <tr><td><b>&gt; 30 Million K,V pairs/s</b></td><td>Emits only 1 tuple per window per key</td><td>In-bound throughput is the main determinant of performance.
  * The benchmark was done with immutable objects. If K or V are mutable the benchmark may be lower</td></tr>
  * </table><br>
  * <p>
  * <b>Function Table (K=String,V=Integer);</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for LeastFrequentKeyValue&lt;K,V&gt; operator template">
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for LeastFrequentKeyValueMap&lt;K,V&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(HashMap&lt;K,V&gt;)</th><th><i>least</i>(HashMap&lt;K,HashMap&lt;Integer&gt;&gt;)</th></tr>
+ * <tr><th><i>data</i>(Map&lt;K,V&gt;)</th><th><i>least</i>(HashMap&lt;K,HashMap&lt;Integer&gt;&gt;)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
  * <tr><td>Data (process())</td><td>{a=1,b=5,c=110}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{a=55,c=2000,b=45}</td><td></td></tr>
@@ -48,7 +48,7 @@ import java.util.HashMap;
  * @author Amol Kekre (amol@malhar-inc.com)<br>
  * <br>
  */
-public class LeastFrequentKeyValue<K, V> extends AbstractBaseFrequentKeyValue<K, V>
+public class LeastFrequentKeyValueMap<K, V> extends AbstractBaseFrequentKeyValueMap<K, V>
 {
   @OutputPortFieldAnnotation(name = "least")
   public final transient DefaultOutputPort<HashMap<K, HashMap<V, Integer>>> least = new DefaultOutputPort<HashMap<K, HashMap<V, Integer>>>(this);

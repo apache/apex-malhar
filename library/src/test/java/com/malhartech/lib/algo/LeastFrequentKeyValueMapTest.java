@@ -13,12 +13,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.algo.MostFrequentKeyValue}<p>
+ * Functional tests for {@link com.malhartech.lib.algo.LeastFrequentKeyValueMap}<p>
  *
  */
-public class MostFrequentKeyValueTest
+public class LeastFrequentKeyValueMapTest
 {
-  private static Logger log = LoggerFactory.getLogger(MostFrequentKeyValueTest.class);
+  private static Logger log = LoggerFactory.getLogger(LeastFrequentKeyValueMapTest.class);
 
   /**
    * Test node logic emits correct results
@@ -27,9 +27,9 @@ public class MostFrequentKeyValueTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    MostFrequentKeyValue<String, Integer> oper = new MostFrequentKeyValue<String, Integer>();
+    LeastFrequentKeyValueMap<String, Integer> oper = new LeastFrequentKeyValueMap<String, Integer>();
     TestSink matchSink = new TestSink();
-    oper.most.setSink(matchSink);
+    oper.least.setSink(matchSink);
 
     oper.beginWindow(0);
     HashMap<String, Integer> amap = new HashMap<String, Integer>(1);
@@ -69,14 +69,14 @@ public class MostFrequentKeyValueTest
 
     oper.endWindow();
     Assert.assertEquals("number emitted tuples", 3, matchSink.collectedTuples.size());
-    int vcount = 0;
+    int vcount;
     for (Object o: matchSink.collectedTuples) {
       HashMap<String, HashMap<Integer, Integer>> omap = (HashMap<String, HashMap<Integer, Integer>>)o;
       for (Map.Entry<String, HashMap<Integer, Integer>> e: omap.entrySet()) {
         String key = e.getKey();
         if (key.equals("a")) {
-          vcount = e.getValue().get(1);
-          Assert.assertEquals("Key \"a\" has value ", 5, vcount);
+          vcount = e.getValue().get(5);
+          Assert.assertEquals("Key \"a\" has value ", 4, vcount);
         }
         else if (key.equals("b")) {
           vcount = e.getValue().get(2);
@@ -85,8 +85,8 @@ public class MostFrequentKeyValueTest
           Assert.assertEquals("Key \"a\" has value ", 3, vcount);
         }
         else if (key.equals("c")) {
-          vcount = e.getValue().get(3);
-          Assert.assertEquals("Key \"a\" has value ", 10, vcount);
+          vcount = e.getValue().get(4);
+          Assert.assertEquals("Key \"a\" has value ", 6, vcount);
         }
       }
     }

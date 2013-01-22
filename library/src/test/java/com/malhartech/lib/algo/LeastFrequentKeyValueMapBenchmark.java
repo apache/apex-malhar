@@ -14,12 +14,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.algo.LeastFrequentKeyValue}<p>
+ * Performance tests for {@link com.malhartech.lib.algo.LeastFrequentKeyValueMap}<p>
  *
  */
-public class LeastFrequentKeyValueBenchmark
+public class LeastFrequentKeyValueMapBenchmark
 {
-  private static Logger log = LoggerFactory.getLogger(LeastFrequentKeyValueBenchmark.class);
+  private static Logger log = LoggerFactory.getLogger(LeastFrequentKeyValueMapBenchmark.class);
 
   /**
    * Test node logic emits correct results
@@ -29,7 +29,7 @@ public class LeastFrequentKeyValueBenchmark
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
-    LeastFrequentKeyValue<String, Integer> oper = new LeastFrequentKeyValue<String, Integer>();
+    LeastFrequentKeyValueMap<String, Integer> oper = new LeastFrequentKeyValueMap<String, Integer>();
     TestSink matchSink = new TestSink();
     oper.least.setSink(matchSink);
 

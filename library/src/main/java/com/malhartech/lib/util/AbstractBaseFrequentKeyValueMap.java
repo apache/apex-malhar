@@ -16,20 +16,20 @@ import java.util.Map;
  * This module is an end of window module<br>
  * <br>
  * Ports:<br>
- * <b>data</b>: Input port, expects HashMap<K, V><br>
+ * <b>data</b>: expects Map<K, V><br>
  *
  * @author amol
  */
-public abstract class AbstractBaseFrequentKeyValue<K, V> extends BaseKeyValueOperator<K, V>
+public abstract class AbstractBaseFrequentKeyValueMap<K, V> extends BaseKeyValueOperator<K, V>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
+  public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>(this)
   {
     /**
      * Process every tuple to count occurrences of key,val pairs
      */
     @Override
-    public void process(HashMap<K, V> tuple)
+    public void process(Map<K, V> tuple)
     {
       for (Map.Entry<K, V> e: tuple.entrySet()) {
         HashMap<V, MutableInteger> vals = keyvals.get(e.getKey());

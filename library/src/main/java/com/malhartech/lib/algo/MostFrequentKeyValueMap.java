@@ -6,7 +6,7 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.AbstractBaseFrequentKeyValue;
+import com.malhartech.lib.util.AbstractBaseFrequentKeyValueMap;
 import java.util.HashMap;
 
 /**
@@ -25,14 +25,14 @@ import java.util.HashMap;
  * <b>Specific run time checks</b>: None <br>
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for MostFrequentKeyValue&lt;K,V&gt; operator template">
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for MostFrequentKeyValueMap&lt;K,V&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
  * <tr><td><b>&gt; 30 Million K,V pairs/s</b></td><td>Emits only 1 tuple per window per key</td><td>In-bound throughput is the main determinant of performance.
  * The benchmark was done with immutable objects. If K or V are mutable the benchmark may be lower</td></tr>
  * </table><br>
  * <p>
  * <b>Function Table (K=String,V=Integer);</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for MostFrequentKeyValue&lt;K,V&gt; operator template">
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for MostFrequentKeyValueMap&lt;K,V&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th>Out-bound (emit)</th></tr>
  * <tr><th><i>data</i>(HashMap&lt;K,V&gt;)</th><th><i>most</i>(HashMap&lt;K,HashMap&lt;Integer&gt;&gt;)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
@@ -49,7 +49,7 @@ import java.util.HashMap;
  * @author Amol Kekre (amol@malhar-inc.com)<br>
  * <br>
  */
-public class MostFrequentKeyValue<K, V> extends AbstractBaseFrequentKeyValue<K, V>
+public class MostFrequentKeyValueMap<K, V> extends AbstractBaseFrequentKeyValueMap<K, V>
 {
   @OutputPortFieldAnnotation(name = "most")
   public final transient DefaultOutputPort<HashMap<K, HashMap<V, Integer>>> most = new DefaultOutputPort<HashMap<K, HashMap<V, Integer>>>(this);
