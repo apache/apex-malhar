@@ -20,8 +20,8 @@ import java.util.Map;
  * The operators by default assumes immutable keys. If the key is mutable, use cloneKey to make a copy<br>
  * <br>
  * <b>Ports</b>:<br>
- * <b>data</b>: Input port, expects Map&lt;K,V extends Number&gt;<br>
- * <b>first</b>: Output port, emits HashMap&lt;K,V&gt;<br>
+ * <b>data</b>: expects Map&lt;K,V extends Number&gt;<br>
+ * <b>first</b>: emits HashMap&lt;K,V&gt;<br>
  * <br>
  * <b>Properties</b>:<br>
  * <b>key</b>: The key on which compare is done<br>

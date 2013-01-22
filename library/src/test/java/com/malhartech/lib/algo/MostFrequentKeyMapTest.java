@@ -13,12 +13,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.algo.MostFrequentKeyInMap}<p>
+ * Functional tests for {@link com.malhartech.lib.algo.MostFrequentKeyMap}<p>
  *
  */
-public class MostFrequentKeyInMapTest
+public class MostFrequentKeyMapTest
 {
-  private static Logger log = LoggerFactory.getLogger(MostFrequentKeyInMapTest.class);
+  private static Logger log = LoggerFactory.getLogger(MostFrequentKeyMapTest.class);
 
   /**
    * Test node logic emits correct results
@@ -27,7 +27,7 @@ public class MostFrequentKeyInMapTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    MostFrequentKeyInMap<String, Integer> oper = new MostFrequentKeyInMap<String, Integer>();
+    MostFrequentKeyMap<String, Integer> oper = new MostFrequentKeyMap<String, Integer>();
     TestCountAndLastTupleSink matchSink = new TestCountAndLastTupleSink();
     TestCountAndLastTupleSink listSink = new TestCountAndLastTupleSink();
     oper.most.setSink(matchSink);

@@ -6,6 +6,8 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.CombinerAggregateInteger;
+import com.malhartech.lib.util.CombinerHashMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -72,10 +74,26 @@ import java.util.Map;
 public class CompareExceptCountMap<K, V extends Number> extends MatchMap<K, V>
 {
   @OutputPortFieldAnnotation(name = "count")
-  public final transient DefaultOutputPort<Integer> count = new DefaultOutputPort<Integer>(this);
+  public final transient DefaultOutputPort<Integer> count = new DefaultOutputPort<Integer>(this)
+  {
+    @Override
+    public Unifier<Integer> getUnifier()
+    {
+      return new CombinerAggregateInteger();
+    }
+  };
+
 
   @OutputPortFieldAnnotation(name = "except")
-  public final transient DefaultOutputPort<Integer> except = new DefaultOutputPort<Integer>(this);
+  public final transient DefaultOutputPort<Integer> except = new DefaultOutputPort<Integer>(this)
+  {
+    @Override
+    public Unifier<Integer> getUnifier()
+    {
+      return new CombinerAggregateInteger();
+    }
+  };
+
 
   protected transient int tcount = 0;
   protected transient int icount = 0;

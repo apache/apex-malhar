@@ -21,7 +21,7 @@ import java.util.Map;
  * This module is a pass through<br>
  * <br>
  * <b>Ports</b>:<br>
- * <b>data</b>: expects HashMap&lt;K,String&gt;<br>
+ * <b>data</b>: expects Map&lt;K,String&gt;<br>
  * <b>match</b>: emits HashMap&lt;K,String&gt; if compare function returns true<br>
  * <br>
  * <b>Properties</b>:<br>
@@ -46,7 +46,7 @@ import java.util.Map;
  * <b>Function Table (K=String,V=Integer); key=a; value=3; cmp=eq</b>:
  * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for Match&lt;K,V extends Number&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(HashMap&lt;K,String&gt;)</th><th><i>match</i>(HashMap&lt;K,String&gt;)</th></tr>
+ * <tr><th><i>data</i>(Map&lt;K,String&gt;)</th><th><i>match</i>(HashMap&lt;K,String&gt;)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
  * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{a=1}</td><td></td></tr>

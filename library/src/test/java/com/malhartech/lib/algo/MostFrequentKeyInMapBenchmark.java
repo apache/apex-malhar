@@ -29,7 +29,7 @@ public class MostFrequentKeyInMapBenchmark
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
-    MostFrequentKeyInMap<String, Integer> oper = new MostFrequentKeyInMap<String, Integer>();
+    MostFrequentKeyMap<String, Integer> oper = new MostFrequentKeyMap<String, Integer>();
     TestCountAndLastTupleSink matchSink = new TestCountAndLastTupleSink();
     TestCountAndLastTupleSink listSink = new TestCountAndLastTupleSink();
     oper.most.setSink(matchSink);

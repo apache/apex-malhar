@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.algo.LeastFrequentKeyInMap}<p>
+ * Performance tests for {@link com.malhartech.lib.algo.LeastFrequentKeyMap}<p>
  *
  */
 public class LeastFrequentKeyInMapBenchmark
@@ -29,7 +29,7 @@ public class LeastFrequentKeyInMapBenchmark
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
-    LeastFrequentKeyInMap<String, Integer> oper = new LeastFrequentKeyInMap<String, Integer>();
+    LeastFrequentKeyMap<String, Integer> oper = new LeastFrequentKeyMap<String, Integer>();
     TestCountAndLastTupleSink matchSink = new TestCountAndLastTupleSink();
     TestCountAndLastTupleSink listSink = new TestCountAndLastTupleSink();
     oper.least.setSink(matchSink);
