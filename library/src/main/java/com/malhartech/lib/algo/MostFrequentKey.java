@@ -9,6 +9,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.AbstractBaseFrequentKey;
+import com.malhartech.lib.util.CombinerHashMapFrequent;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -81,7 +82,18 @@ public class MostFrequentKey<K> extends AbstractBaseFrequentKey<K>
     }
   };
   @OutputPortFieldAnnotation(name = "most")
-  public final transient DefaultOutputPort<HashMap<K, Integer>> most = new DefaultOutputPort<HashMap<K, Integer>>(this);
+  public final transient DefaultOutputPort<HashMap<K, Integer>> most = new DefaultOutputPort<HashMap<K, Integer>>(this)
+  {
+    @Override
+    public Unifier<HashMap<K, Integer>> getUnifier()
+    {
+      CombinerHashMapFrequent ret = new CombinerHashMapFrequent<K>();
+      ret.setLeast(false);
+      return ret;
+    }
+  };
+
+
   @OutputPortFieldAnnotation(name = "list")
   public final transient DefaultOutputPort<ArrayList<HashMap<K, Integer>>> list = new DefaultOutputPort<ArrayList<HashMap<K, Integer>>>(this);
 
