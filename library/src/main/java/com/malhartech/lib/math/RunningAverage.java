@@ -22,7 +22,7 @@ public class RunningAverage<NUMBER extends Number> extends BaseOperator
     public void process(NUMBER tuple)
     {
       //logger.debug("before average = {}, count = {}, tuple = {}", new Object[] {average, count, tuple});
-      average = (count++ * average + tuple.doubleValue()) / count;
+      average = ((double)(count++) / count) * average + tuple.doubleValue() / count;
       //logger.debug("after average = {}, count = {}, tuple = {}", new Object[] {average, count, tuple});
     }
 

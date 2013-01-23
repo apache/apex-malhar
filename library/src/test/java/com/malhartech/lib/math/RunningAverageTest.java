@@ -4,8 +4,10 @@
  */
 package com.malhartech.lib.math;
 
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -18,8 +20,9 @@ public class RunningAverageTest
   }
 
   @Test
-  public void testEndWindow()
+  public void testLogicForSmallValues()
   {
+    logger.debug("small values");
     RunningAverage<Double> instance = new RunningAverage<Double>();
     instance.input.process(1.0);
 
@@ -32,4 +35,18 @@ public class RunningAverageTest
     assertEquals("second count", 2, instance.count);
   }
 
+  @Test
+  public void testLogicForLargeValues()
+  {
+    logger.debug("large values");
+    RunningAverage<Long> instance = new RunningAverage<Long>();
+    instance.input.process(Long.MAX_VALUE);
+
+    assertEquals("first average", Long.MAX_VALUE, (long)instance.average);
+
+    instance.input.process(Long.MAX_VALUE);
+    assertEquals("second average", Long.MAX_VALUE, (long)instance.average);
+  }
+
+  private static final Logger logger = LoggerFactory.getLogger(RunningAverageTest.class);
 }
