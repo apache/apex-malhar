@@ -6,7 +6,7 @@ package com.malhartech.demos.yahoofinance;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.algo.KeyValueConsolidator5;
+import com.malhartech.lib.algo.KeyValueConsolidator;
 import com.malhartech.lib.util.KeyValPair;
 import java.util.ArrayList;
 import org.slf4j.Logger;
@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
-public class RangeVolumeConsolidator extends KeyValueConsolidator5<String, ArrayList<Double>, Long, Long, Integer, Double>
+public class RangeVolumeConsolidator extends KeyValueConsolidator<String, ArrayList<Double>, Long>
 {
   private static final Logger logger = LoggerFactory.getLogger(RangeVolumeConsolidator.class);
   /**
@@ -32,7 +32,7 @@ public class RangeVolumeConsolidator extends KeyValueConsolidator5<String, Array
   @Override
   public Object mergeKeyValue(String tuple_key, Object tuple_val, ArrayList list, int port)
   {
-    if (port >= 0 && port < 4) { // price(high & low), volume, time, count
+    if (port >= 0 && port < 2) { // price(high & low), volume
       return tuple_val;
     }
     else {
@@ -49,9 +49,7 @@ public class RangeVolumeConsolidator extends KeyValueConsolidator5<String, Array
     ConsolidatedTuple t = new ConsolidatedTuple(obj.getKey(),
                                                 d.get(0),
                                                 d.get(1),
-                                                (Long)o.get(1),
-                                                (Long)o.get(2),
-                                                (Integer)o.get(3));
+                                                (Long)o.get(1));
 
     //logger.debug(String.format("Emitted tuple: %s", t.toString()));
     out.emit(t);
@@ -66,23 +64,19 @@ public class RangeVolumeConsolidator extends KeyValueConsolidator5<String, Array
     private Double high;
     private Double low;
     private Long volume;
-    private Long average;
-    private Integer count;
 
-    public ConsolidatedTuple(String symbol, Double high, Double low, Long volume, Long average, Integer count)
+    public ConsolidatedTuple(String symbol, Double high, Double low, Long volume)
     {
       this.symbol = symbol;
       this.high = high;
       this.low = low;
       this.volume = volume;
-      this.average = average;
-      this.count = count;
     }
 
     @Override
     public String toString()
     {
-      return String.format("%4s high: %6.2f low: %6.2f volume: %9d average: %9d count: %9d", symbol, high, low, volume, average, count);
+      return String.format("Chart %4s high: %6.2f low: %6.2f volume: %9d", symbol, high, low, volume);
     }
   }
 }

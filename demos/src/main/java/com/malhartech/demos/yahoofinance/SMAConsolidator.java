@@ -67,7 +67,7 @@ public class SMAConsolidator extends KeyValueConsolidator<String, Double, Long>
     @Override
     public String toString()
     {
-      return String.format("%4s price: %6.2f volume: %9d", symbol, smaPrice, smaVolume);
+      return String.format("SMA   %4s price: %6.2f volume: %9d", symbol, smaPrice, smaVolume);
     }
   }
 }

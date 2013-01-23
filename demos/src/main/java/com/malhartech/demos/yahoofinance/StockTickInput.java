@@ -13,10 +13,8 @@ import com.malhartech.lib.util.KeyValPair;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
@@ -26,19 +24,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This sends price, volume and time into separate ports and calculates incremental volume.
+ *   This sends price, volume and time into separate ports and calculates incremental volume.
  *
- * @author Locknath Shil <locknath@malhar-inc.com>
+ *   @author Locknath Shil <locknath@malhar-inc.com>
  */
 public class StockTickInput implements InputOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(StockTickInput.class);
   /**
-   *   Timeout interval for reading from server. 0 or negative indicates no timeout.
+   *     Timeout interval for reading from server. 0 or negative indicates no timeout.
    */
   private int readIntervalMillis = 500;
   /**
-   *   The URL of the web service resource for the POST request.
+   *     The URL of the web service resource for the POST request.
    */
   private String url;
   private transient HttpClient client;
@@ -54,6 +52,9 @@ public class StockTickInput implements InputOperator
   public static final String Volume = "v";
   private ArrayList<String> symbolList = new ArrayList<String>();
   private HashMap<String, Long> lastVolume = new HashMap<String, Long>();
+  private final Random random = new Random();
+  private final transient SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS"); // new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+  private boolean isDummy = false;
 
   public void addSymbol(String symbol)
   {
@@ -70,11 +71,16 @@ public class StockTickInput implements InputOperator
     this.readIntervalMillis = readIntervalMillis;
   }
 
+  public void setIsDummy(boolean isDummy)
+  {
+    this.isDummy = isDummy;
+  }
+
   /**
-   *   Prepare URL from symbols and parameters.
-   *   URL will be something like: http://download.finance.yahoo.com/d/quotes.csv?s=GOOG,FB,YHOO&f=sl1vt1&e=.csv
+   *     Prepare URL from symbols and parameters.
+   *     URL will be something like: http://download.finance.yahoo.com/d/quotes.csv?s=GOOG,FB,YHOO&f=sl1vt1&e=.csv
    *
-   *   @return
+   *     @return
    */
   private String prepareURL()
   {
@@ -98,10 +104,12 @@ public class StockTickInput implements InputOperator
   @Override
   public void setup(OperatorContext context)
   {
-    url = prepareURL();
-    client = new HttpClient();
-    method = new GetMethod(url);
-    DefaultHttpParams.getDefaultParams().setParameter("http.protocol.cookie-policy", CookiePolicy.BROWSER_COMPATIBILITY);
+    if (!isDummy) {
+      url = prepareURL();
+      client = new HttpClient();
+      method = new GetMethod(url);
+      DefaultHttpParams.getDefaultParams().setParameter("http.protocol.cookie-policy", CookiePolicy.BROWSER_COMPATIBILITY);
+    }
   }
 
   @Override
@@ -112,6 +120,11 @@ public class StockTickInput implements InputOperator
   @Override
   public void emitTuples()
   {
+    if (isDummy) {
+      emitDummyTuples();
+      return;
+    }
+
     try {
       int statusCode = client.executeMethod(method);
       if (statusCode != HttpStatus.SC_OK) {
@@ -159,18 +172,56 @@ public class StockTickInput implements InputOperator
       logger.debug(ex.toString());
     }
   }
+
   /**
-   *   The output port to emit price.
+   *  Send Dummy tuple for testing.
+   */
+  public void emitDummyTuples()
+  {
+    int sym = random.nextInt(symbolList.size());
+
+    // price
+    double pr = random.nextInt(500) / 100.0;
+    if (sym == 0) { // YHOO
+      pr += 20;
+    }
+    else if (sym == 1) { // EBAY
+      pr += 52;
+    }
+    else if (sym == 2) { // AAPL
+      pr += 506;
+    }
+    else { // GOOG
+      pr += 715;
+    }
+
+    // volume
+    int vol = 10; // 0 + random.nextInt(100);
+
+    if (price.isConnected()) {
+      price.emit(new KeyValPair(symbolList.get(sym), new Double(pr)));
+    }
+    if (volume.isConnected()) {
+      volume.emit(new KeyValPair(symbolList.get(sym), new Long(vol)));
+    }
+    if (time.isConnected()) {  // generate current time
+      Date now = new Date();
+      String strDate = sdf.format(now);
+      time.emit(new KeyValPair(symbolList.get(sym), strDate));
+    }
+  }
+  /**
+   *     The output port to emit price.
    */
   @OutputPortFieldAnnotation(name = "price", optional = true)
   public final transient DefaultOutputPort<KeyValPair<String, Double>> price = new DefaultOutputPort<KeyValPair<String, Double>>(this);
   /**
-   *   The output port to emit incremental volume.
+   *     The output port to emit incremental volume.
    */
   @OutputPortFieldAnnotation(name = "volume", optional = true)
   public final transient DefaultOutputPort<KeyValPair<String, Long>> volume = new DefaultOutputPort<KeyValPair<String, Long>>(this);
   /**
-   *   The output port to emit last traded time.
+   *     The output port to emit last traded time.
    */
   @OutputPortFieldAnnotation(name = "time", optional = true)
   public final transient DefaultOutputPort<KeyValPair<String, String>> time = new DefaultOutputPort<KeyValPair<String, String>>(this);

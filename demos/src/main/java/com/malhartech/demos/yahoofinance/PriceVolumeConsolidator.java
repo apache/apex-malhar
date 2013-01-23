@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Consolidate price, volume and time. <p>
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
@@ -28,7 +29,7 @@ public class PriceVolumeConsolidator extends KeyValueConsolidator5<String, Doubl
   @Override
   public Object mergeKeyValue(String tuple_key, Object tuple_val, ArrayList list, int port)
   {
-    if (port >= 0 && port < 4) { // price, volume, time, count
+    if (port >= 0 && port < 3) { // price, volume, time
       return tuple_val;
     }
     else {
@@ -42,8 +43,7 @@ public class PriceVolumeConsolidator extends KeyValueConsolidator5<String, Doubl
     ConsolidatedTuple t = new ConsolidatedTuple(obj.getKey(),
                                                 (Double)obj.getValue().get(0),
                                                 (Long)obj.getValue().get(1),
-                                                (String)obj.getValue().get(2),
-                                                (Integer)obj.getValue().get(3));
+                                                (String)obj.getValue().get(2));
 
     //logger.debug(String.format("Emitted tuple: %s", t.toString()));
     out.emit(t);
@@ -58,21 +58,19 @@ public class PriceVolumeConsolidator extends KeyValueConsolidator5<String, Doubl
     private Double price;
     private Long totalVolume;
     private String time;
-    private Integer count;
 
-    public ConsolidatedTuple(String symbol, Double price, Long totalVolume, String time, Integer count)
+    public ConsolidatedTuple(String symbol, Double price, Long totalVolume, String time)
     {
       this.symbol = symbol;
       this.price = price;
       this.totalVolume = totalVolume;
       this.time = time;
-      this.count = count;
     }
 
     @Override
     public String toString()
     {
-      return String.format("%4s time: %s price: %6.2f volume: %9d count: %9d", symbol, time, price, totalVolume, count);
+      return String.format("Quote %4s price: %6.2f volume: %9d time: %s ", symbol, price, totalVolume, time);
     }
   }
 }
