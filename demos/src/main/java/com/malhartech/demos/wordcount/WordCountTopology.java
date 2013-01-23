@@ -5,10 +5,8 @@
 package com.malhartech.demos.wordcount;
 
 import com.malhartech.api.ApplicationFactory;
-import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DAG;
 import com.malhartech.lib.io.ConsoleOutputOperator;
-import java.util.ArrayList;
 import org.apache.hadoop.conf.Configuration;
 
 /**
