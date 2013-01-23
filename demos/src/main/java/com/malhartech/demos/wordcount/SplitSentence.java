@@ -2,7 +2,7 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.storm.wordcount;
+package com.malhartech.demos.wordcount;
 
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;

@@ -2,18 +2,16 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.storm.wordcount;
+package com.malhartech.demos.wordcount;
 
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +37,7 @@ public class WordCount extends BaseOperator
             ArrayList<Object> al = new ArrayList<Object>();
             al.add(word);
             al.add(count);
-//            output.emit(al);
+            output.emit(al);
             ++words;
     }
   };
@@ -65,11 +63,7 @@ public class WordCount extends BaseOperator
   @Override
   public void teardown()
   {
-    logger.debug("END of WordCount test words:"+words);
     ArrayList sortedKeys = new ArrayList(counts.keySet());
     Collections.sort(sortedKeys);
-    for( Object key : sortedKeys ) {
-      logger.debug(key+"="+counts.get(key));
-    }
   }
 }

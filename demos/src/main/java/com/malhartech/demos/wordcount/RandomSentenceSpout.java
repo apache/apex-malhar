@@ -2,14 +2,12 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.storm.wordcount;
+package com.malhartech.demos.wordcount;
 
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
 import java.io.*;
-import java.util.Random;
-import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +69,7 @@ public class RandomSentenceSpout implements InputOperator
         return;
       }
       FileInputStream fstream = new FileInputStream(filename);
-      DataInputStream in = new DataInputStream(fstream);
+      in = new DataInputStream(fstream);
       br = new BufferedReader(new InputStreamReader(in));
     }
     catch (FileNotFoundException ex) {

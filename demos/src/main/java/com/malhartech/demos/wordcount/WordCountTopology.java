@@ -2,7 +2,7 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.storm.wordcount;
+package com.malhartech.demos.wordcount;
 
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.Context.OperatorContext;
@@ -39,8 +39,8 @@ public class WordCountTopology implements ApplicationFactory
     dag.addStream("spout-split",spout.output, split.input).setInline(allInline);
     dag.addStream("split-count", split.output, wordCount.input).setInline(allInline);
 
-//    ConsoleOutputOperator<ArrayList<Object>> consoleOperator = dag.addOperator("console", new ConsoleOutputOperator<ArrayList<Object>>());
-//    dag.addStream("count-console",wordCount.output, consoleOperator.input);
+    ConsoleOutputOperator consoleOperator = dag.addOperator("console", new ConsoleOutputOperator());
+    dag.addStream("count-console",wordCount.output, consoleOperator.input);
 
 
     return dag;
