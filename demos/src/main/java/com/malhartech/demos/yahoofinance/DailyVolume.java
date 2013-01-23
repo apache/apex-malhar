@@ -14,13 +14,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * This sends cumulative daily volume at the end of window. <p>
+ *
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
 public class DailyVolume extends SumKeyVal<String, Long>
 {
   private static final Logger logger = LoggerFactory.getLogger(DailyVolume.class);
-  long windowId;
+  private long windowId;
+  /**
+   * Cumulative sum of volumes to get daily volume.
+   */
   protected transient HashMap<String, MutableDouble> csums = new HashMap<String, MutableDouble>();
 
   @Override
@@ -47,7 +52,7 @@ public class DailyVolume extends SumKeyVal<String, Long>
           val.add(e.getValue().value);
         }
         sum.emit(new KeyValPair<String, Long>(cloneKey(key), getValue(val.value)));
-        csums.put(cloneKey(key), val);
+        csums.put(cloneKey(key), val); // update cumulative volume
 
         if (docount) {
           count.emit(cloneCountTuple(key, new Integer(counts.get(e.getKey()).value)));

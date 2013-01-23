@@ -13,22 +13,28 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
+ * This generates dummy data used for testing.
  *
+ * This generates
+ * Stock symbol as String,
+ * Stock price as Double,
+ * Stock volume as Long, and
+ * Stock time String.
+ * 
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
 public class DummyStockTickInput implements InputOperator
 {
-  private static final int total = 20;
+  private static final Logger logger = LoggerFactory.getLogger(DummyStockTickInput.class);
+
   private final Random random = new Random();
   private ArrayList<String> symbols = new ArrayList<String>();
   private final transient SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS"); // new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-  // This will generate
-  // Stock symbol as String
-  // Stock price as Double
-  // Stock volume as Long
-  // Stock time String
+
   /**
    * The output port that will emit tuple into DAG.
    */
@@ -42,7 +48,7 @@ public class DummyStockTickInput implements InputOperator
   @Override
   public void emitTuples()
   {
-    int sym = random.nextInt(1);
+    int sym = random.nextInt(4);
 
     // price
     double pr = random.nextInt(500) / 100.0;

@@ -4,8 +4,8 @@
  */
 package com.malhartech.demos.twitter;
 
-import com.malhartech.api.DAG;
 import com.malhartech.api.ApplicationFactory;
+import com.malhartech.api.DAG;
 import org.apache.hadoop.conf.Configuration;
 
 /**

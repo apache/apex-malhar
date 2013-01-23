@@ -10,7 +10,6 @@ import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
 import com.malhartech.util.CircularBuffer;
-import java.util.Properties;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +17,15 @@ import twitter4j.*;
 import twitter4j.conf.ConfigurationBuilder;
 
 /**
+ * Read input from Twitter. <p> <br>
+ *
+ * This test can only be run from command line using command line interface script.
+ * You need to set twitter authentication credentials in $HOME/.stram/stram-site.xml file in order to run this.
+ * The authentication requires following 4 information.
+ *   Your application consumer key,
+ *   Your application consumer secret,
+ *   Your twitter access token, and
+ *   Your twitter access token secret.
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
