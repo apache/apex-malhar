@@ -12,16 +12,16 @@ import org.junit.Test;
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
-public class WordCountTopologyTest
+public class ApplicationTest
 {
-  public WordCountTopologyTest()
+  public ApplicationTest()
   {
   }
 
   @Test
   public void testSomeMethod() throws Exception
   {
-    WordCountTopology topology = new WordCountTopology();
+    Application topology = new Application();
     final StramLocalCluster lc = new StramLocalCluster(topology.getApplication(new Configuration(false)));
 
 //    new Thread("LocalClusterController")

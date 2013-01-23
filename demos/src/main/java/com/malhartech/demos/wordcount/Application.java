@@ -13,10 +13,11 @@ import org.apache.hadoop.conf.Configuration;
  * To run the test, you need to generate a data file as sample file.
  * You can use "hadoop jar hadoop-*-examples.jar teragen 10000000000 in-dir" command to generate the data file. The number here is the line number of the file.
  * The "samplefile" provided contains 10000 files
+ * The program will count the number of words of consecutive letters as "SSSSSSSSSS","HHHHHHHH" etc.
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
-public class WordCountTopology implements ApplicationFactory
+public class Application implements ApplicationFactory
 {
   private boolean allInline =  false;
 

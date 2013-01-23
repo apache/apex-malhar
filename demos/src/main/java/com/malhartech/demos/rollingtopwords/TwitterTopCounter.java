@@ -6,6 +6,7 @@ package com.malhartech.demos.rollingtopwords;
 
 import com.malhartech.api.DAG;
 import com.malhartech.api.Operator.InputPort;
+import com.malhartech.demos.twitter.TwitterSampleInput;
 import com.malhartech.lib.algo.UniqueCounter;
 import com.malhartech.lib.algo.WindowedTopCounter;
 import com.malhartech.lib.io.ConsoleOutputOperator;
@@ -14,6 +15,8 @@ import java.net.URI;
 import org.apache.hadoop.conf.Configuration;
 
 /**
+ * In this demo, it will output the most frequent words with the number of appearance in the last time window from the text of twitter sample stream
+ *
  * Example of application configuration in Java.<p>
  */
 public class TwitterTopCounter extends DAG

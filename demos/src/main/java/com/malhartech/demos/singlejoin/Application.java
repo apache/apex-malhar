@@ -10,6 +10,8 @@ import com.malhartech.lib.io.ConsoleOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 
 /**
+ * In this application, ageGenerator will generate [id,age] pair [3,23], ...; nameGenerator will generate [id,name] pair [3,bob], ...
+ * SingleJoinBolt will join the age pair and name pair by same id value and output the age name pair. In the above case, it will output [23,bob]
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
