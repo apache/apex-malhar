@@ -55,6 +55,7 @@ public class StockTickInput implements InputOperator
   private final Random random = new Random();
   private final transient SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS"); // new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
   private boolean isDummy = false;
+  private boolean logTime = true;
 
   public void addSymbol(String symbol)
   {
@@ -74,6 +75,11 @@ public class StockTickInput implements InputOperator
   public void setIsDummy(boolean isDummy)
   {
     this.isDummy = isDummy;
+  }
+
+  public void setLogTime(boolean logTime)
+  {
+    this.logTime = logTime;
   }
 
   /**
@@ -159,7 +165,9 @@ public class StockTickInput implements InputOperator
 
           price.emit(new KeyValPair(symbol, new Double(tuple.get(1))));
           volume.emit(new KeyValPair(symbol, vol));
-          time.emit(new KeyValPair(symbol, tuple.get(3)));
+          if (logTime){
+            time.emit(new KeyValPair(symbol, tuple.get(3)));
+          }
           lastVolume.put(symbol, currentVolume);
         }
       }

@@ -28,8 +28,10 @@ import java.util.Map;
  * <b>average</b>: emits KeyValPair&lt;K,V&gt;</b><br><br>
  * <br>
  * <b>Properties</b>:<br>
- * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
+ * <b>inverse</b>: If set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
+ * <b>resetAtEndWindow</b>: If set to true sum, average, and count are calculated separately for each window.
+ * <b> If set to false sum, average, and count are calculated spanned over all windows. Default value is true.<br>
  * <br>
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
@@ -71,6 +73,15 @@ import java.util.Map;
  */
 public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
+  /**
+   * If set to true sum, average, and count are calculated separately for each window.
+   * If set to false sum, average, and count are calculated spanned over all windows. Default value is true.
+   */
+  boolean resetAtEndWindow = true;
+
+  /**
+   * Input port to receive data.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>(this)
   {
@@ -123,54 +134,28 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
   protected transient HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
   protected transient HashMap<K, MutableInteger> counts = new HashMap<K, MutableInteger>();
 
-  /*
+  /**
    * If you have extended from KeyValPair class and want to do some processing per tuple
-   * overrise this call back.
+   * override this call back.
    */
   public void processMetaData(KeyValPair<K, V> tuple)
   {
   }
 
-  /**
-   * Creates a KeyValPair tuple, override if you want to extend KeyValPair
-   *
-   * @param k
-   * @param v
-   * @return new key value pair.
-   */
-  public KeyValPair<K, V> cloneSumTuple(K k, V v)
+  public boolean isResetAtEndWindow()
   {
-    return new KeyValPair(k, v);
+    return resetAtEndWindow;
   }
 
-  /**
-   * Creates a KeyValPair tuple, override if you want to extend KeyValPair
-   *
-   * @param k
-   * @param v
-   * @return new key value pair.
-   */
-  public KeyValPair<K, V> cloneAverageTuple(K k, V v)
+  public void setResetAtEndWindow(boolean resetAtEndWindow)
   {
-    return new KeyValPair(k, v);
-  }
-
-  /**
-   * Creates a KeyValPair tuple, override if you want to extend KeyValPair
-   *
-   * @param k
-   * @param v
-   * @return new key value pair.
-   */
-  public KeyValPair<K, Integer> cloneCountTuple(K k, Integer v)
-  {
-    return new KeyValPair(k, v);
+    this.resetAtEndWindow = resetAtEndWindow;
   }
 
   /**
    * Emits on all ports that are connected. Data is precomputed during process on input port
-   * endWindow just emits it for each key
-   * Clears the internal data before return
+   * and endWindow just emits it for each key.
+   * Clears the internal data if resetAtEndWindow is true.
    */
   @Override
   public void endWindow()
@@ -183,22 +168,25 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
       for (Map.Entry<K, MutableDouble> e: sums.entrySet()) {
         K key = e.getKey();
         if (dosum) {
-          sum.emit(cloneSumTuple(key, getValue(e.getValue().value)));
+          sum.emit(new KeyValPair(key, getValue(e.getValue().value)));
         }
         if (docount) { // emit here instead of doing another iteration
-          count.emit(cloneCountTuple(key, new Integer(counts.get(e.getKey()).value)));
+          count.emit(new KeyValPair(key, new Integer(counts.get(key).value)));
         }
         if (doaverage) {
-          average.emit(cloneAverageTuple(key, getValue(e.getValue().value / counts.get(key).value)));
+          average.emit(new KeyValPair(key, getValue(e.getValue().value / counts.get(key).value)));
         }
       }
     }
     else if (docount) { // sum is not connected, only counts is connected
       for (Map.Entry<K, MutableInteger> e: counts.entrySet()) {
-        count.emit(cloneCountTuple(e.getKey(), new Integer(e.getValue().value)));
+        count.emit(new KeyValPair(e.getKey(), new Integer(e.getValue().value)));
       }
     }
-    sums.clear();
-    counts.clear();
+
+    if (resetAtEndWindow) {
+      sums.clear();
+      counts.clear();
+    }
   }
 }

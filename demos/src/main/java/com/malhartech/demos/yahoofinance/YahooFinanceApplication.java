@@ -8,6 +8,7 @@ import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.math.AverageKeyVal;
+import com.malhartech.lib.math.SumKeyVal;
 import com.malhartech.lib.multiwindow.MultiWindowRangeKeyVal;
 import com.malhartech.lib.multiwindow.MultiWindowSumKeyVal;
 import com.malhartech.lib.multiwindow.SimpleMovingAverage;
@@ -33,13 +34,15 @@ public class YahooFinanceApplication implements ApplicationFactory
    *       @param dag
    *       @return inputs
    */
-  public StockTickInput getTicks(String name, DAG dag, boolean dummy)
+  public StockTickInput getTicks(String name, DAG dag, boolean dummy, boolean logTime)
   {
     StockTickInput oper = dag.addOperator(name, StockTickInput.class);
-    oper.addSymbol("YHOO");
-    oper.addSymbol("EBAY");
+    oper.setReadIntervalMillis(200);
+    oper.setLogTime(logTime);
+    //oper.addSymbol("YHOO");
+    //oper.addSymbol("EBAY");
     oper.addSymbol("AAPL");
-    oper.addSymbol("GOOG");
+   // oper.addSymbol("GOOG");
     oper.setIsDummy(dummy);
     return oper;
   }
@@ -51,10 +54,11 @@ public class YahooFinanceApplication implements ApplicationFactory
    *       @param dag
    *       @return daily volume
    */
-  public DailyVolume getDailyVolume(String name, DAG dag)
+  public SumKeyVal<String, Long> getDailyVolume(String name, DAG dag)
   {
-    DailyVolume oper = dag.addOperator(name, DailyVolume.class);
+    SumKeyVal<String, Long> oper = dag.addOperator(name, SumKeyVal.class);
     oper.setType(Long.class);
+    oper.setResetAtEndWindow(false);
     return oper;
   }
 
@@ -213,17 +217,18 @@ public class YahooFinanceApplication implements ApplicationFactory
     int streamingWindowSize = 1000; // Default streaming window size is 500 msec. Set this to 1 sec.
     dag.getAttributes().attr(DAG.STRAM_WINDOW_SIZE_MILLIS).set(streamingWindowSize);
     boolean allInline = true;
-    boolean isDummy = true;  // true for dummy data
-    int winSize = 4;
-    int appWindow = 4;
-    boolean windowTest = false;
+    boolean isDummy = false;  // true for dummy data
+    int winSize = 60;
+    int appWindow = 300;
+    boolean windowTest = true;
     boolean timeTest = false;
-    boolean smatest = false;
-    boolean alltest = true;
+    boolean smaTest = false;
+    boolean allTest = true;
 
-    StockTickInput tick = getTicks("tick", dag, isDummy);
+
     if (windowTest) {
-      DailyVolume dailyVolume = getDailyVolume("dailyVolume", dag);
+      StockTickInput tick = getTicks("tick", dag, isDummy, true);
+      SumKeyVal<String, Long> dailyVolume = getDailyVolume("dailyVolume", dag);
       PriceVolumeConsolidator pvConsolidator = getPriceVolumeConsolidator("priceVolumeMerger", dag);
       ConsoleOutputOperator windowedConsole = getConsole("windowedConsole", dag);
 
@@ -234,6 +239,7 @@ public class YahooFinanceApplication implements ApplicationFactory
       dag.addStream("pvConsolidator_console", pvConsolidator.out, windowedConsole.input).setInline(true);
     }
     else if (timeTest) {
+      StockTickInput tick = getTicks("tick", dag, isDummy, false);
       MultiWindowRangeKeyVal<String, Double> highlow = getTimedPriceRange("highlow", dag, winSize);
       MultiWindowSumKeyVal<String, Long> minuteVolume = getTimedVolume("timedVolume", dag, winSize);
       RangeVolumeConsolidator rvConsolidator = getRangeVolumeConsolidator("con2", dag);
@@ -245,7 +251,8 @@ public class YahooFinanceApplication implements ApplicationFactory
       dag.addStream("volume_merge", minuteVolume.sum, rvConsolidator.data2).setInline(true);
       dag.addStream("minute_console", rvConsolidator.out, minuteConsole.input).setInline(true);
     }
-    else if (smatest) {
+    else if (smaTest) {
+      StockTickInput tick = getTicks("tick", dag, isDummy, false);
       AverageKeyVal<String, Double> priceAvg = getPriceAverage("priceAvg", dag);
       AverageKeyVal<String, Long> volumeAvg = getVolumeAverage("volumeAvg", dag);
       SimpleMovingAverage priceSMA = getPriceSimpleMovingAverage("smaPrice", dag, appWindow);
@@ -261,8 +268,9 @@ public class YahooFinanceApplication implements ApplicationFactory
       dag.addStream("volumeSma_smaCconsolidator", volumeSMA.longSMA, smaConsolidator.data2).setInline(true);
       dag.addStream("smaConsolidator_console", smaConsolidator.out, smaConsole.input).setInline(true);
     }
-    else if (alltest) {
-      DailyVolume dailyVolume = getDailyVolume("dailyVolume", dag);
+    else if (allTest) {
+      StockTickInput tick = getTicks("tick", dag, isDummy, true);
+      SumKeyVal<String, Long> dailyVolume = getDailyVolume("dailyVolume", dag);
       PriceVolumeConsolidator pvConsolidator = getPriceVolumeConsolidator("priceVolumeMerger", dag);
       ConsoleOutputOperator windowedConsole = getConsole("windowedConsole", dag);
       MultiWindowRangeKeyVal<String, Double> highlow = getTimedPriceRange("highlow", dag, winSize);

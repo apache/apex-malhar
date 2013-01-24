@@ -4,7 +4,6 @@
  */
 package com.malhartech.lib.util;
 
-import com.malhartech.api.StreamCodec;
 import com.malhartech.engine.DefaultStreamCodec;
 import java.util.AbstractMap;
 

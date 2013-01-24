@@ -5,6 +5,7 @@
 package com.malhartech.lib.multiwindow;
 
 import com.malhartech.lib.math.SumKeyVal;
+import com.malhartech.lib.util.KeyValPair;
 import com.malhartech.lib.util.MutableDouble;
 import com.malhartech.lib.util.MutableInteger;
 import java.util.Map;
@@ -102,19 +103,19 @@ public class MultiWindowSumKeyVal<K, V extends Number> extends SumKeyVal<K, V>
       for (Map.Entry<K, MutableDouble> e: sums.entrySet()) {
         K key = e.getKey();
         if (dosum) {
-          sum.emit(cloneSumTuple(key, getValue(e.getValue().value)));
+          sum.emit(new KeyValPair(key, getValue(e.getValue().value)));
         }
         if (docount) {
-          count.emit(cloneCountTuple(key, new Integer(counts.get(key).value)));
+          count.emit(new KeyValPair(key, new Integer(counts.get(key).value)));
         }
         if (doaverage) {
-          average.emit(cloneAverageTuple(key, getValue(e.getValue().value / counts.get(key).value)));
+          average.emit(new KeyValPair(key, getValue(e.getValue().value / counts.get(key).value)));
         }
       }
     }
     else if (docount) { // sum is not connected, only counts is connected
       for (Map.Entry<K, MutableInteger> e: counts.entrySet()) {
-        count.emit(cloneCountTuple(e.getKey(), new Integer(e.getValue().value)));
+        count.emit(new KeyValPair(e.getKey(), new Integer(e.getValue().value)));
       }
     }
 

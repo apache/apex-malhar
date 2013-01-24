@@ -29,7 +29,7 @@ public class SMAConsolidator extends KeyValueConsolidator<String, Double, Long>
   @Override
   public Object mergeKeyValue(String tuple_key, Object tuple_val, ArrayList list, int port)
   {
-    if (port >= 0 && port < 2) { // smaPrice, volume
+    if (port >= 0 && port < 2) { // smaPrice, smaVolume
       return tuple_val;
     }
     else {

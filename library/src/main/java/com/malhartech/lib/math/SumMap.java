@@ -29,6 +29,8 @@ import java.util.Map;
  * <b>Properties</b>:<br>
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
+ * <b>resetAtEndWindow</b>: If set to true sum, average, and count are calculated separately for each window.
+ * <b> If set to false sum, average, and count are calculated spanned over all windows. Default value is true.<br>
  * <br>
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
@@ -56,11 +58,20 @@ import java.util.Map;
  * <tr><td>End Window (endWindow())</td><td>N/A</td><td>{a=36,b=37,c=1000,d=141,e=2}</td><td>{a=4,b=3,c=1,d=5,e=1}</td><td>{a=9,b=12,c=1000,d=28,e=2}</td></tr>
  * </table>
  * <br>
+ *
  * @author Amol Kekre (amol@malhar-inc.com)<br>
  * <br>
  */
-public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
+public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
+  /**
+   * If set to true sum, average, and count are calculated separately for each window.
+   * If set to false sum, average, and count are calculated spanned over all windows. Default value is true.
+   */
+  boolean resetAtEndWindow = true;
+  /**
+   * Input port to receive data.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>(this)
   {
@@ -108,8 +119,7 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
       return new CombinerHashMap<K, V>();
     }
   };
-
-  @OutputPortFieldAnnotation(name = "average", optional=true)
+  @OutputPortFieldAnnotation(name = "average", optional = true)
   public final transient DefaultOutputPort<HashMap<K, V>> average = new DefaultOutputPort<HashMap<K, V>>(this)
   {
     @Override
@@ -118,8 +128,7 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
       return new CombinerHashMap<K, V>();
     }
   };
-
-  @OutputPortFieldAnnotation(name = "count", optional=true)
+  @OutputPortFieldAnnotation(name = "count", optional = true)
   public final transient DefaultOutputPort<HashMap<K, Integer>> count = new DefaultOutputPort<HashMap<K, Integer>>(this)
   {
     @Override
@@ -128,11 +137,18 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
       return new CombinerHashMap<K, Integer>();
     }
   };
-  
-
   protected transient HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
   protected transient HashMap<K, MutableInteger> counts = new HashMap<K, MutableInteger>();
 
+  public boolean isResetAtEndWindow()
+  {
+    return resetAtEndWindow;
+  }
+
+  public void setResetAtEndWindow(boolean resetAtEndWindow)
+  {
+    this.resetAtEndWindow = resetAtEndWindow;
+  }
   /**
    * Emits on all ports that are connected. Data is precomputed during process on input port
    * endWindow just emits it for each key
@@ -189,7 +205,9 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
     if ((atuples != null) && !atuples.isEmpty()) {
       average.emit(atuples);
     }
-    sums.clear();
-    counts.clear();
+    if (resetAtEndWindow) {
+      sums.clear();
+      counts.clear();
+    }
   }
 }

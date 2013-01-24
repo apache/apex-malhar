@@ -20,7 +20,10 @@ import com.malhartech.lib.util.BaseNumberValueOperator;
  * <b>count</b>: emits Integer</b>
  * <b>average</b>: emits V extends Number<br><br>
  * <br>
- * <b>Properties</b>: None<br>
+ * <b>Properties</b>:<br>
+ * <b>resetAtEndWindow</b>: If set to true sum, average, and count are calculated separately for each window.
+ * <b> If set to false sum, average, and count are calculated spanned over all windows. Default value is true.<br>
+ * <br>
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
  * <p>
@@ -47,12 +50,21 @@ import com.malhartech.lib.util.BaseNumberValueOperator;
  * <tr><td>End Window (endWindow())</td><td>N/A</td><td>1106</td><td>8</td><td>138</td></tr>
  * </table>
  * <br>
+ *
  * @param <V>
  * @author Amol Kekre (amol@malhar-inc.com)<br>
  * <br>
  */
 public class Sum<V extends Number> extends BaseNumberValueOperator<V>
 {
+  /**
+   * If set to true sum, average, and count are calculated separately for each window.
+   * If set to false sum, average, and count are calculated spanned over all windows. Default value is true.
+   */
+  boolean resetAtEndWindow = true;
+  /**
+   * Input port to receive data.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<V> data = new DefaultInputPort<V>(this)
   {
@@ -66,16 +78,24 @@ public class Sum<V extends Number> extends BaseNumberValueOperator<V>
       counts++;
     }
   };
-
-  @OutputPortFieldAnnotation(name = "sum", optional=true)
+  @OutputPortFieldAnnotation(name = "sum", optional = true)
   public final transient DefaultOutputPort<V> sum = new DefaultOutputPort<V>(this);
-  @OutputPortFieldAnnotation(name = "average", optional=true)
+  @OutputPortFieldAnnotation(name = "average", optional = true)
   public final transient DefaultOutputPort<V> average = new DefaultOutputPort<V>(this);
-  @OutputPortFieldAnnotation(name = "count", optional=true)
+  @OutputPortFieldAnnotation(name = "count", optional = true)
   public final transient DefaultOutputPort<Integer> count = new DefaultOutputPort<Integer>(this);
-
   protected transient double sums = 0;
   protected transient int counts = 0;
+
+  public boolean isResetAtEndWindow()
+  {
+    return resetAtEndWindow;
+  }
+
+  public void setResetAtEndWindow(boolean resetAtEndWindow)
+  {
+    this.resetAtEndWindow = resetAtEndWindow;
+  }
 
   /**
    * Emits sum and count if ports are connected
@@ -93,16 +113,10 @@ public class Sum<V extends Number> extends BaseNumberValueOperator<V>
     if (doAverageEmit()) {
       average.emit(getAverage());
     }
-    clear();
-  }
-
-  /**
-   * Clears the cache making this operator stateless on window boundary
-   */
-  public void clear()
-  {
-    sums = 0;
-    counts = 0;
+    if (resetAtEndWindow) {
+      sums = 0;
+      counts = 0;
+    }
   }
 
   /**
@@ -147,26 +161,26 @@ public class Sum<V extends Number> extends BaseNumberValueOperator<V>
     Number val;
     switch (getType()) {
       case DOUBLE:
-        val = new Double(num.doubleValue()/counts);
+        val = new Double(num.doubleValue() / counts);
         break;
       case INTEGER:
-        val = new Integer(num.intValue()/counts);
+        val = new Integer(num.intValue() / counts);
         break;
       case FLOAT:
-        val = new Float(num.floatValue()/counts);
+        val = new Float(num.floatValue() / counts);
         break;
       case LONG:
-        val = new Long(num.longValue()/counts);
+        val = new Long(num.longValue() / counts);
         break;
       case SHORT:
-        short scount = (short) counts;
-        scount = (short) (num.shortValue()/scount);
+        short scount = (short)counts;
+        scount = (short)(num.shortValue() / scount);
         val = new Short(scount);
         break;
       default:
-        val = new Double(num.doubleValue()/counts);
+        val = new Double(num.doubleValue() / counts);
         break;
     }
-    return (V) val;
+    return (V)val;
   }
 }
