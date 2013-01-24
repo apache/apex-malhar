@@ -5,7 +5,6 @@
 package com.malhartech.lib.math;
 
 import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 
 /**
