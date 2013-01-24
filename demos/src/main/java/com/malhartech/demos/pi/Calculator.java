@@ -20,10 +20,9 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class Calculator implements ApplicationFactory
 {
-  private boolean allInline = false;
+  private final boolean allInline = false;
 
   @Override
-  @SuppressWarnings("unchecked")
   public DAG getApplication(Configuration conf)
   {
     DAG dag = new DAG(conf);
