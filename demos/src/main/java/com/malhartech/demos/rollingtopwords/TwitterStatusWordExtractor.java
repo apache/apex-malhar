@@ -11,7 +11,7 @@ import twitter4j.Status;
 
 /**
  *
- * @author Chetan Narsude <chetan@malhar-inc.com>
+ * @author Zhongjian Wang<zhongjian@malhar-inc.com>
  */
 public class TwitterStatusWordExtractor extends BaseOperator
 {

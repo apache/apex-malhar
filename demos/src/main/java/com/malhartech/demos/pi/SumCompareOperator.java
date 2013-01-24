@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 /**
  * The result of rate should be closed to the pi value
  *
- * @author Chetan Narsude <chetan@malhar-inc.com>
+ * @author Zhongjian Wang<zhongjian@malhar-inc.com>
  */
 public class SumCompareOperator extends BaseOperator
 {

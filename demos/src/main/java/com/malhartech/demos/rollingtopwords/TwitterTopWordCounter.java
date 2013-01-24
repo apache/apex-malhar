@@ -17,9 +17,9 @@ import org.apache.hadoop.conf.Configuration;
 /**
  * In this demo, it will output the most frequent words with the number of appearance in the last time window from the text of twitter sample stream
  *
- * Example of application configuration in Java.<p>
+ * @author Zhongjian Wang<zhongjian@malhar-inc.com>
  */
-public class TwitterTopCounter extends DAG
+public class TwitterTopWordCounter extends DAG
 {
   private static final boolean inline = false;
   private static final long serialVersionUID = 201211201543L;
@@ -39,7 +39,7 @@ public class TwitterTopCounter extends DAG
     return operator.input;
   }
 
-  public TwitterTopCounter(Configuration conf)
+  public TwitterTopWordCounter(Configuration conf)
   {
     super(conf);
     // Setup the operator to get the data from twitter sample stream injected into the system.
