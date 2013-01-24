@@ -54,7 +54,7 @@ public class Calculator implements ApplicationFactory
     MultiplyByConstant multiplication = dag.addOperator("InstantPI", MultiplyByConstant.class);
     multiplication.setMultiplier(4);
 
-    RunningAverage<Double> average = dag.addOperator("AveragePI", new RunningAverage<Double>());
+    RunningAverage average = dag.addOperator("AveragePI", new RunningAverage());
 
     dag.addStream("x", xyGenerator.integer_data, squareOperator.input).setInline(allInline);
     dag.addStream("sqr", squareOperator.integerResult, pairOperator.input).setInline(allInline);
