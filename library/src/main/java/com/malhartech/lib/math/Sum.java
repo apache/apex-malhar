@@ -114,13 +114,22 @@ public class Sum<V extends Number> extends BaseNumberValueOperator<V>
       average.emit(getAverage());
     }
     if (resetAtEndWindow) {
-      sums = 0;
-      counts = 0;
+      clear();
     }
   }
 
   /**
+   * Clears the cache making this operator stateless on window boundary
+   */
+  public void clear()
+  {
+    sums = 0;
+    counts = 0;
+  }
+
+  /**
    * Decides whether emit has to be done in this window on port "sum"
+   *
    * @return true is sum port is connected
    */
   public boolean doSumEmit()
@@ -148,10 +157,11 @@ public class Sum<V extends Number> extends BaseNumberValueOperator<V>
     return count.isConnected();
   }
 
-/**
- * Computes average based on type
- * @return average
- */
+  /**
+   * Computes average based on type
+   *
+   * @return average
+   */
   public V getAverage()
   {
     if (counts == 0) {
