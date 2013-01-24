@@ -9,17 +9,16 @@ import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 
 /**
- * Calculate the running average and emit it at the end of the window.
+ * Calculate the running average of the input numbers and emit it at the end of the window.
  *
- * @param <NUMBER> Type of the value which needs to be averaged.
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-public class RunningAverage<NUMBER extends Number> extends BaseOperator
+public class RunningAverage extends BaseOperator
 {
-  public final transient DefaultInputPort<NUMBER> input = new DefaultInputPort<NUMBER>(this)
+  public final transient DefaultInputPort<Number> input = new DefaultInputPort<Number>(this)
   {
     @Override
-    public void process(NUMBER tuple)
+    public void process(Number tuple)
     {
       //logger.debug("before average = {}, count = {}, tuple = {}", new Object[] {average, count, tuple});
       average = ((double)(count++) / count) * average + tuple.doubleValue() / count;
