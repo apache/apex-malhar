@@ -23,7 +23,7 @@ public class RunningAverageTest
   public void testLogicForSmallValues()
   {
     logger.debug("small values");
-    RunningAverage<Double> instance = new RunningAverage<Double>();
+    RunningAverage instance = new RunningAverage();
     instance.input.process(1.0);
 
     assertEquals("first average", 1.0, instance.average, 0.00001);
@@ -39,7 +39,7 @@ public class RunningAverageTest
   public void testLogicForLargeValues()
   {
     logger.debug("large values");
-    RunningAverage<Long> instance = new RunningAverage<Long>();
+    RunningAverage instance = new RunningAverage();
     instance.input.process(Long.MAX_VALUE);
 
     assertEquals("first average", Long.MAX_VALUE, (long)instance.average);
