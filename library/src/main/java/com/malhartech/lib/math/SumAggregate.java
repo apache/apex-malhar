@@ -51,122 +51,15 @@ import com.malhartech.lib.util.BaseNumberValueOperator;
  * @author Amol Kekre (amol@malhar-inc.com)<br>
  * <br>
  */
-public class Sum<V extends Number> extends BaseNumberValueOperator<V>
+public class SumAggregate<V extends Number> extends Sum<V>
 {
-  @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<V> data = new DefaultInputPort<V>(this)
-  {
-    /**
-     * Computes sum and count with each tuple
-     */
-    @Override
-    public void process(V tuple)
-    {
-      sums += tuple.doubleValue();
-      counts++;
-    }
-  };
-
-  @OutputPortFieldAnnotation(name = "sum", optional=true)
-  public final transient DefaultOutputPort<V> sum = new DefaultOutputPort<V>(this);
-  @OutputPortFieldAnnotation(name = "average", optional=true)
-  public final transient DefaultOutputPort<V> average = new DefaultOutputPort<V>(this);
-  @OutputPortFieldAnnotation(name = "count", optional=true)
-  public final transient DefaultOutputPort<Integer> count = new DefaultOutputPort<Integer>(this);
-
-  protected transient double sums = 0;
-  protected transient int counts = 0;
-
   /**
    * Emits sum and count if ports are connected
    */
   @Override
   public void endWindow()
   {
-    // May want to send out only if count != 0
-    if (doSumEmit()) {
-      sum.emit(getValue(sums));
-    }
-    if (doCountEmit()) {
-      count.emit(new Integer(counts));
-    }
-    if (doAverageEmit()) {
-      average.emit(getAverage());
-    }
-    clear();
-  }
+    //TBD
 
-  /**
-   * Clears the cache making this operator stateless on window boundary
-   */
-  public void clear()
-  {
-    sums = 0;
-    counts = 0;
-  }
-
-  /**
-   * Decides whether emit has to be done in this window on port "sum"
-   * @return true is sum port is connected
-   */
-  public boolean doSumEmit()
-  {
-    return sum.isConnected();
-  }
-
-  /**
-   * Decides whether emit has to be done in this window on port "average"
-   *
-   * @return true is sum port is connected
-   */
-  public boolean doAverageEmit()
-  {
-    return average.isConnected() && (counts != 0);
-  }
-
-  /**
-   * Decides whether emit has to be done in this window on port "count"
-   *
-   * @return true is sum port is connected
-   */
-  public boolean doCountEmit()
-  {
-    return count.isConnected();
-  }
-
-/**
- * Computes average based on type
- * @return average
- */
-  public V getAverage()
-  {
-    if (counts == 0) {
-      return null;
-    }
-    V num = getValue(sums);
-    Number val;
-    switch (getType()) {
-      case DOUBLE:
-        val = new Double(num.doubleValue()/counts);
-        break;
-      case INTEGER:
-        val = new Integer(num.intValue()/counts);
-        break;
-      case FLOAT:
-        val = new Float(num.floatValue()/counts);
-        break;
-      case LONG:
-        val = new Long(num.longValue()/counts);
-        break;
-      case SHORT:
-        short scount = (short) counts;
-        scount = (short) (num.shortValue()/scount);
-        val = new Short(scount);
-        break;
-      default:
-        val = new Double(num.doubleValue()/counts);
-        break;
-    }
-    return (V) val;
   }
 }
