@@ -27,24 +27,24 @@ import java.util.HashMap;
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for SumValue&lt;V extends Number&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>&gt; 175 Million tuples/s</b></td><td>One K,V or K,Integer tuples per window per port</td><td>In-bound rate is the main determinant of performance. Tuples are assumed to be
+ * <tr><td><b>&gt; 175 Million tuples/s</b></td><td>Average value of tuples per window per port</td><td>In-bound rate is the main determinant of performance. Tuples are assumed to be
  * immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
  * </table><br>
  * <p>
  * <b>Function Table (K=String, V=Integer)</b>:
  * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for Sum&lt;K,V extends Number&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th colspan=3>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(HashMap&lt;K,V&gt;)</th><th><i>average</i>(HashMap&lt;K,V&gt;)</th></tr>
+ * <tr><th><i>data</i>(V)</th><th><i>average</i>(V)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
- * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{a=1}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{a=10,b=5}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=55,b=12}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=22}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=14}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=46,e=2}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=4,a=23}</td><td></td></tr>
- * <tr><td>End Window (endWindow())</td><td>N/A</td><td>{a=9,b=12,c=1000,d=28,e=2}</td></tr>
+ * <tr><td>Data (process())</td><td>2</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>1</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>10</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>9</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>22</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>14</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>2</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>20</td><td></td></tr>
+ * <tr><td>End Window (endWindow())</td><td>N/A</td><td>10</td></tr>
  * </table>
  * <br>
  *

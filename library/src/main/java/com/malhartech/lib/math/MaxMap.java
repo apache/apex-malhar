@@ -16,11 +16,11 @@ import java.util.Map;
 
 /**
  *
- * Emits at end of window maximum of all values sub-classed from Number for each key<p>
+ * Emits at end of window maximum of all values sub-classed from Number for each key in HashMap. <p>
  * <br>
  * <b>Ports</b>:<br>
- * <b>data</b>: expects Map&lt;K,V extends Number&gt;<br>
- * <b>high</b>: emits HashMap&lt;K,V&gt;, one entry per key<br>
+ * <b>data</b>: expects HashMap&lt;K,V extends Number&gt;<br>
+ * <b>max</b>: emits HashMap&lt;K,V&gt;, one entry per key<br>
  * <br>
  * <b>Properties</b>:<br>
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
@@ -39,7 +39,7 @@ import java.util.Map;
  * <b>Function Table (K=String, V=Integer)</b>:
  * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for MaxMap&lt;K,V extends Number&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(Map&lt;K,V&gt;)</th><th><i>max</i>(HashMap&lt;K,V&gt;)</th></tr>
+ * <tr><th><i>data</i>(HashMap&lt;K,V&gt;)</th><th><i>max</i>(HashMap&lt;K,V&gt;)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
  * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{a=1}</td><td></td></tr>
@@ -72,10 +72,10 @@ public class MaxMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
         if (!doprocessKey(key) || (e.getValue() == null)) {
           continue;
         }
-        MutableDouble val = high.get(e.getKey());
+        MutableDouble val = high.get(key);
         if (val == null) {
           val = new MutableDouble(e.getValue().doubleValue());
-          high.put(cloneKey(e.getKey()), val);
+          high.put(cloneKey(key), val);
         }
         if (val.value < e.getValue().doubleValue()) {
           val.value = e.getValue().doubleValue();
