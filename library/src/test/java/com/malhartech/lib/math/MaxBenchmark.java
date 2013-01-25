@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.math.Max}<p>
+ * Performance tests for {@link com.malhartech.lib.math.Max}. <p>
  *
  */
 public class MaxBenchmark
@@ -19,7 +19,7 @@ public class MaxBenchmark
   private static Logger log = LoggerFactory.getLogger(MaxBenchmark.class);
 
   /**
-   * Test oper logic emits correct results
+   * Test operator logic emits correct results.
    */
   @Test
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)

@@ -3,11 +3,8 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.api.Sink;
-import com.malhartech.engine.Tuple;
-import java.util.ArrayList;
+import com.malhartech.engine.TestSink;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -22,21 +19,6 @@ import org.slf4j.LoggerFactory;
 public class AverageMapTest
 {
   private static Logger LOG = LoggerFactory.getLogger(SumMap.class);
-
-  class TestSink implements Sink
-  {
-    List<Object> collectedTuples = new ArrayList<Object>();
-
-    @Override
-    public void process(Object payload)
-    {
-      if (payload instanceof Tuple) {
-      }
-      else {
-        collectedTuples.add(payload);
-      }
-    }
-  }
 
   /**
    * Test operator logic emits correct results.

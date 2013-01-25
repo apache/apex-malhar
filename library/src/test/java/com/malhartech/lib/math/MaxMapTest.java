@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.MaxMap}<p>
+ * Functional tests for {@link com.malhartech.lib.math.MaxMap}. <p>
  *
  */
 public class MaxMapTest

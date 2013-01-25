@@ -3,9 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.api.Sink;
-import com.malhartech.engine.Tuple;
-import java.util.ArrayList;
+import com.malhartech.engine.TestSink;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -20,21 +18,6 @@ import org.slf4j.LoggerFactory;
 public class AverageBenchmark
 {
   private static Logger log = LoggerFactory.getLogger(AverageBenchmark.class);
-
-  class TestSink implements Sink
-  {
-    ArrayList<Object> collectedTuples = new ArrayList<Object>();
-
-    @Override
-    public void process(Object payload)
-    {
-      if (payload instanceof Tuple) {
-      }
-      else {
-        collectedTuples.add(payload);
-      }
-    }
-  }
 
   /**
    * Test operator logic emits correct results.

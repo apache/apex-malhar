@@ -3,10 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.api.Sink;
-import com.malhartech.engine.Tuple;
-import java.util.ArrayList;
-import java.util.List;
+import com.malhartech.engine.TestSink;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -14,30 +11,15 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.Max}<p>
+ * Functional tests for {@link com.malhartech.lib.math.Max}. <p>
  *
  */
 public class MaxTest
 {
   private static Logger LOG = LoggerFactory.getLogger(MaxTest.class);
 
-  class TestSink implements Sink
-  {
-    List<Object> collectedTuples = new ArrayList<Object>();
-
-    @Override
-    public void process(Object payload)
-    {
-      if (payload instanceof Tuple) {
-      }
-      else {
-        collectedTuples.add(payload);
-      }
-    }
-  }
-
-  /**
-   * Test oper logic emits correct results
+   /**
+   * Test operator logic emits correct results.
    */
   @Test
   public void testNodeProcessing()
@@ -45,7 +27,6 @@ public class MaxTest
     Max<Double> oper = new Max<Double>();
     TestSink rangeSink = new TestSink();
     oper.max.setSink(rangeSink);
-
 
     oper.beginWindow(0); //
 
@@ -86,6 +67,5 @@ public class MaxTest
       Double val = (Double)o;
       Assert.assertEquals("emitted high value was ", new Double(1000.0), val);
     }
-
   }
 }

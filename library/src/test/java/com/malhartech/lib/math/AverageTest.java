@@ -3,10 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.api.Sink;
-import com.malhartech.engine.Tuple;
-import java.util.ArrayList;
-import java.util.List;
+import com.malhartech.engine.TestSink;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -14,27 +11,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.Average}<p>
+ * Functional tests for {@link com.malhartech.lib.math.Average}. <p>
  *
  */
 public class AverageTest
 {
   private static Logger log = LoggerFactory.getLogger(AverageTest.class);
-
-  class TestSink implements Sink
-  {
-    List<Object> collectedTuples = new ArrayList<Object>();
-
-    @Override
-    public void process(Object payload)
-    {
-      if (payload instanceof Tuple) {
-      }
-      else {
-        collectedTuples.add(payload);
-      }
-    }
-  }
 
   /**
    * Test operator logic emits correct results.
