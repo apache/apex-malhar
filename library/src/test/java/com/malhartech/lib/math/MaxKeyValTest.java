@@ -32,7 +32,7 @@ public class MaxKeyValTest
   /**
    * Test functional logic
    */
-  //@Test
+  @Test
   public void testNodeProcessing()
   {
     testSchemaNodeProcessing(new MaxKeyVal<String, Integer>(), "integer");
@@ -123,13 +123,13 @@ public class MaxKeyValTest
     @Override
     public void beginWindow(long windowId)
     {
-      first = true;
+      //first = true;
     }
   }
 
   public static class CollectorOperator extends BaseOperator
   {
-    public ArrayList<KeyValPair<String, Integer>> buffer = new ArrayList<KeyValPair<String, Integer>>();
+    public static final ArrayList<KeyValPair<String, Integer>> buffer = new ArrayList<KeyValPair<String, Integer>>();
     public final transient DefaultInputPort<KeyValPair<String, Integer>> input = new DefaultInputPort<KeyValPair<String, Integer>>(this)
     {
       @Override
@@ -151,7 +151,7 @@ public class MaxKeyValTest
    *
    *
    */
-  //@Test
+  @Test
   public void partitionTest()
   {
     try {
@@ -161,6 +161,7 @@ public class MaxKeyValTest
 
       TestInputOperator test = dag.addOperator("test", new TestInputOperator());
       MaxKeyVal<String, Integer> oper = dag.addOperator("max", new MaxKeyVal<String, Integer>());
+      oper.setType(Integer.class);
       CollectorOperator collector = dag.addOperator("collector", new CollectorOperator());
 
       dag.getOperatorWrapper(oper).getAttributes().attr(OperatorContext.INITIAL_PARTITION_COUNT).set(N);
@@ -170,6 +171,7 @@ public class MaxKeyValTest
 
       final StramLocalCluster lc = new StramLocalCluster(dag);
       lc.setHeartbeatMonitoringEnabled(false);
+
       new Thread()
       {
         @Override
@@ -186,16 +188,13 @@ public class MaxKeyValTest
 
       lc.run();
 
-      //Thread.sleep(100);
-
-      Assert.assertEquals("received tuples ", 3, collector.buffer.size());
-
-      lc.shutdown();
+      Assert.assertEquals("received tuples ", 3, CollectorOperator.buffer.size());
+      log.debug(String.format("max of a value %s",CollectorOperator.buffer.get(0).toString()));
+      log.debug(String.format("max of a value %s",CollectorOperator.buffer.get(1).toString()));
+      log.debug(String.format("max of a value %s",CollectorOperator.buffer.get(2).toString()));
     }
     catch (Exception ex) {
       log.debug("got exception", ex);
     }
-
-
   }
 }
