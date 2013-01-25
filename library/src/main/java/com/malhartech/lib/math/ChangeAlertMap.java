@@ -97,15 +97,9 @@ public class ChangeAlertMap<K, V extends Number> extends BaseNumberKeyValueOpera
     }
   };
 
+  // Default "pass through" unifier works as tuple is emitted as pass through
   @OutputPortFieldAnnotation(name = "alert")
-  public final transient DefaultOutputPort<HashMap<K, HashMap<V,Double>>> alert = new DefaultOutputPort<HashMap<K, HashMap<V,Double>>>(this)
-  {
-    @Override
-    public Unifier<HashMap<K, HashMap<V,Double>>> getUnifier()
-    {
-      return new UnifierHashMap<K, HashMap<V,Double>>();
-    }
-  };
+  public final transient DefaultOutputPort<HashMap<K, HashMap<V,Double>>> alert = new DefaultOutputPort<HashMap<K, HashMap<V,Double>>>(this);
 
   /**
    * basemap is a stateful field. It is retained across windows

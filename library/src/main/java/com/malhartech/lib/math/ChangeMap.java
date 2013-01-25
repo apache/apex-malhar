@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  *
  * Emits the change in the value of the key in stream on port data (as compared to a base value set via port base) for every tuple<p>
- * This is a pass through node<br>
+ * This is a pass through node. Tuples that arrive on base port are kept in cache forever<br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects Map&lt;K,V extends Number&gt;<br>
@@ -111,26 +111,12 @@ public class ChangeMap<K, V extends Number> extends BaseNumberKeyValueOperator<K
       }
     }
   };
+
+  // Default partition "pass through" works for change and percent, as it is done per tuple
   @OutputPortFieldAnnotation(name = "change", optional = true)
-  public final transient DefaultOutputPort<HashMap<K, V>> change = new DefaultOutputPort<HashMap<K, V>>(this)
-  {
-    @Override
-    public Unifier<HashMap<K, V>> getUnifier()
-    {
-      return new UnifierHashMap<K, V>();
-    }
-  };
-
-
+  public final transient DefaultOutputPort<HashMap<K, V>> change = new DefaultOutputPort<HashMap<K, V>>(this);
   @OutputPortFieldAnnotation(name = "percent", optional = true)
-  public final transient DefaultOutputPort<HashMap<K, Double>> percent = new DefaultOutputPort<HashMap<K, Double>>(this)
-  {
-    @Override
-    public Unifier<HashMap<K, Double>> getUnifier()
-    {
-      return new UnifierHashMap<K, Double>();
-    }
-  };
+  public final transient DefaultOutputPort<HashMap<K, Double>> percent = new DefaultOutputPort<HashMap<K, Double>>(this);
 
   /**
    * basemap is a stateful field. It is retained across windows

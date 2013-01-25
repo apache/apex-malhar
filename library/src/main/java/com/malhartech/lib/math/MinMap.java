@@ -8,6 +8,7 @@ import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.api.Operator.Unifier;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
 import com.malhartech.lib.util.UnifierHashMap;
 import com.malhartech.lib.util.MutableDouble;
@@ -56,7 +57,7 @@ import java.util.Map;
  * @author Amol Kekre (amol@malhar-inc.com)<br>
  * <br>
  */
-public class MinMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
+public class MinMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V> implements Unifier<HashMap<K,V>>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
@@ -67,28 +68,35 @@ public class MinMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
     @Override
     public void process(HashMap<K, V> tuple)
     {
-      for (Map.Entry<K, V> e: tuple.entrySet()) {
-        if (!doprocessKey(e.getKey()) || (e.getValue() == null)) {
-          continue;
-        }
-        MutableDouble val = low.get(e.getKey());
-        if (val == null) {
-          val = new MutableDouble(e.getValue().doubleValue());
-          low.put(cloneKey(e.getKey()), val);
-        }
-        if (val.value > e.getValue().doubleValue()) {
-          val.value = e.getValue().doubleValue();
-        }
-      }
+      merge(tuple);
     }
   };
+
+  @Override
+  public void merge(HashMap<K, V> tuple)
+  {
+    for (Map.Entry<K, V> e: tuple.entrySet()) {
+      if (!doprocessKey(e.getKey()) || (e.getValue() == null)) {
+        continue;
+      }
+      MutableDouble val = low.get(e.getKey());
+      if (val == null) {
+        val = new MutableDouble(e.getValue().doubleValue());
+        low.put(cloneKey(e.getKey()), val);
+      }
+      if (val.value > e.getValue().doubleValue()) {
+        val.value = e.getValue().doubleValue();
+      }
+    }
+  }
+
   @OutputPortFieldAnnotation(name = "min")
   public final transient DefaultOutputPort<HashMap<K, V>> min = new DefaultOutputPort<HashMap<K, V>>(this)
   {
     @Override
     public Unifier<HashMap<K, V>> getUnifier()
     {
-      return new UnifierHashMap<K, V>();
+      return MinMap.this;
     }
   };
 

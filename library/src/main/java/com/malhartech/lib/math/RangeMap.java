@@ -8,9 +8,11 @@ import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.api.Operator.Unifier;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
 import com.malhartech.lib.util.UnifierHashMap;
 import com.malhartech.lib.util.MutableDouble;
+import com.malhartech.lib.util.UnifierHashMapRange;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -91,13 +93,15 @@ public class RangeMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,
       }
     }
   };
+
+
   @OutputPortFieldAnnotation(name = "range")
   public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> range = new DefaultOutputPort<HashMap<K, ArrayList<V>>>(this)
   {
     @Override
     public Unifier<HashMap<K, ArrayList<V>>> getUnifier()
     {
-      return new UnifierHashMap<K, ArrayList<V>>();
+      return new UnifierHashMapRange<K, V>();
     }
   };
 

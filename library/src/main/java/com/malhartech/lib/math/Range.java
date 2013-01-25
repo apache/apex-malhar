@@ -10,6 +10,7 @@ import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseNumberValueOperator;
 import com.malhartech.lib.util.MutableDouble;
+import com.malhartech.lib.util.UnifierRange;
 import java.util.ArrayList;
 
 /**
@@ -77,7 +78,15 @@ public class Range<V extends Number> extends BaseNumberValueOperator<V>
   };
 
   @OutputPortFieldAnnotation(name = "range")
-  public final transient DefaultOutputPort<ArrayList<V>> range = new DefaultOutputPort<ArrayList<V>>(this);
+  public final transient DefaultOutputPort<ArrayList<V>> range = new DefaultOutputPort<ArrayList<V>>(this)
+  {
+    @Override
+    public Unifier<ArrayList<V>> getUnifier()
+    {
+      return new UnifierRange<V>();
+    }
+  };
+
   protected transient MutableDouble high = null;
   protected transient MutableDouble low = null;
 

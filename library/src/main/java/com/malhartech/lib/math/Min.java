@@ -8,6 +8,7 @@ import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.api.Operator.Unifier;
 import com.malhartech.lib.util.BaseNumberValueOperator;
 
 /**
@@ -51,7 +52,7 @@ import com.malhartech.lib.util.BaseNumberValueOperator;
  * @author Amol Kekre (amol@malhar-inc.com)<br>
  * <br>
  */
-public class Min<V extends Number> extends BaseNumberValueOperator<V>
+public class Min<V extends Number> extends BaseNumberValueOperator<V> implements Unifier<V>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<V> data = new DefaultInputPort<V>(this)
@@ -62,18 +63,32 @@ public class Min<V extends Number> extends BaseNumberValueOperator<V>
     @Override
     public void process(V tuple)
     {
-      if (!flag) {
-        low = tuple.doubleValue();
-        flag = true;
-      }
-      else if (low > tuple.doubleValue()) {
-        low = tuple.doubleValue();
-      }
+      merge(tuple);
     }
   };
 
+  @Override
+  public void merge(V tuple)
+  {
+    if (!flag) {
+      low = tuple.doubleValue();
+      flag = true;
+    }
+    else if (low > tuple.doubleValue()) {
+      low = tuple.doubleValue();
+    }
+  }
+
   @OutputPortFieldAnnotation(name = "min")
-  public final transient DefaultOutputPort<V> min = new DefaultOutputPort<V>(this);
+  public final transient DefaultOutputPort<V> min = new DefaultOutputPort<V>(this)
+  {
+    @Override
+    public Unifier<V> getUnifier()
+    {
+      return Min.this;
+    }
+  };
+
   protected transient double low;
   protected transient boolean flag = false;
 

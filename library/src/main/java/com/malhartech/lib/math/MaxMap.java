@@ -8,16 +8,16 @@ import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.StreamCodec;
+import com.malhartech.api.Operator.Unifier;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
 import com.malhartech.lib.util.MutableDouble;
-import com.malhartech.lib.util.UnifierHashMap;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  *
  * Emits at end of window maximum of all values sub-classed from Number for each key in HashMap. <p>
+ * Emits tuple in end of window. Partition is round robin<br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects HashMap&lt;K,V extends Number&gt;<br>
@@ -57,7 +57,7 @@ import java.util.Map;
  * @author Amol Kekre (amol@malhar-inc.com)<br>
  * <br>
  */
-public class MaxMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
+public class MaxMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V> implements Unifier<HashMap<K,V>>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
@@ -68,30 +68,38 @@ public class MaxMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
     @Override
     public void process(HashMap<K, V> tuple)
     {
-      for (Map.Entry<K, V> e: tuple.entrySet()) {
-        K key = e.getKey();
-        if (!doprocessKey(key) || (e.getValue() == null)) {
-          continue;
-        }
-        MutableDouble val = high.get(key);
-        if (val == null) {
-          val = new MutableDouble(e.getValue().doubleValue());
-          high.put(cloneKey(key), val);
-        }
-        if (val.value < e.getValue().doubleValue()) {
-          val.value = e.getValue().doubleValue();
-        }
-      }
+      merge(tuple);
     }
 
   };
+
+  @Override
+  public void merge(HashMap<K, V> tuple)
+  {
+    for (Map.Entry<K, V> e: tuple.entrySet()) {
+      K key = e.getKey();
+      if (!doprocessKey(key) || (e.getValue() == null)) {
+        continue;
+      }
+      MutableDouble val = high.get(key);
+      if (val == null) {
+        val = new MutableDouble(e.getValue().doubleValue());
+        high.put(cloneKey(key), val);
+      }
+      if (val.value < e.getValue().doubleValue()) {
+        val.value = e.getValue().doubleValue();
+      }
+    }
+  }
+
+
   @OutputPortFieldAnnotation(name = "max")
   public final transient DefaultOutputPort<HashMap<K, V>> max = new DefaultOutputPort<HashMap<K, V>>(this)
   {
     @Override
     public Unifier<HashMap<K, V>> getUnifier()
     {
-      return new UnifierHashMap<K, V>();
+      return MaxMap.this;
     }
   };
   protected transient HashMap<K, MutableDouble> high = new HashMap<K, MutableDouble>();

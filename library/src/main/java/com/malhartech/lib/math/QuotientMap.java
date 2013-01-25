@@ -88,15 +88,7 @@ public class QuotientMap<K, V extends Number> extends BaseNumberKeyValueOperator
     }
   };
   @OutputPortFieldAnnotation(name = "quotient")
-  public final transient DefaultOutputPort<HashMap<K, Double>> quotient = new DefaultOutputPort<HashMap<K, Double>>(this)
-  {
-    @Override
-    public Unifier<HashMap<K, Double>> getUnifier()
-    {
-      return new UnifierHashMap<K, Double>();
-    }
-  };
-
+  public final transient DefaultOutputPort<HashMap<K, Double>> quotient = new DefaultOutputPort<HashMap<K, Double>>(this);
 
   public void addTuple(Map<K, V> tuple, Map<K, MutableDouble> map)
   {

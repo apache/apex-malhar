@@ -8,6 +8,7 @@ import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.api.Operator.Unifier;
 import com.malhartech.lib.util.BaseNumberValueOperator;
 
 /**
@@ -50,7 +51,7 @@ import com.malhartech.lib.util.BaseNumberValueOperator;
  * @author Amol Kekre (amol@malhar-inc.com)<br>
  * <br>
  */
-public class Max<V extends Number> extends BaseNumberValueOperator<V>
+public class Max<V extends Number> extends BaseNumberValueOperator<V> implements Unifier<V>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<V> data = new DefaultInputPort<V>(this)
@@ -61,18 +62,32 @@ public class Max<V extends Number> extends BaseNumberValueOperator<V>
     @Override
     public void process(V tuple)
     {
-      if (!flag) {
-        high = tuple.doubleValue();
-        flag = true;
-      }
-      else if (high < tuple.doubleValue()) {
-        high = tuple.doubleValue();
-      }
+      merge(tuple);
     }
   };
 
+  @Override
+  public void merge(V tuple)
+  {
+    if (!flag) {
+      high = tuple.doubleValue();
+      flag = true;
+    }
+    else if (high < tuple.doubleValue()) {
+      high = tuple.doubleValue();
+    }
+  }
+
   @OutputPortFieldAnnotation(name = "max")
-  public final transient DefaultOutputPort<V> max = new DefaultOutputPort<V>(this);
+  public final transient DefaultOutputPort<V> max = new DefaultOutputPort<V>(this)
+   {
+    @Override
+    public Unifier<V> getUnifier()
+    {
+      return Max.this;
+    }
+  };
+
   protected transient double high;
   protected transient boolean flag = false;
 

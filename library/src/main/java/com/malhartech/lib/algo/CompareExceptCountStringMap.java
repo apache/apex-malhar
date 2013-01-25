@@ -6,7 +6,7 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.UnifierNumber;
+import com.malhartech.lib.util.UnifierSumNumber;
 import java.util.Map;
 
 /**
@@ -77,7 +77,7 @@ public class CompareExceptCountStringMap<K> extends MatchStringMap<K, String>
     @Override
     public Unifier<Integer> getUnifier()
     {
-      return new UnifierNumber();
+      return new UnifierSumNumber();
     }
   };
 
@@ -87,7 +87,7 @@ public class CompareExceptCountStringMap<K> extends MatchStringMap<K, String>
     @Override
     public Unifier<Integer> getUnifier()
     {
-      return new UnifierNumber();
+      return new UnifierSumNumber();
     }
   };
 

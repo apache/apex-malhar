@@ -18,7 +18,7 @@ import java.util.HashMap;
  * @author amol<br>
  *
  */
-public class UnifierNumber<V extends Number> extends BaseNumberValueOperator<V> implements Unifier<V>
+public class UnifierSumNumber<V extends Number> extends BaseNumberValueOperator<V> implements Unifier<V>
 {
   Double result = 0.0;
   public final transient DefaultOutputPort<V> mergedport = new DefaultOutputPort<V>(this);
