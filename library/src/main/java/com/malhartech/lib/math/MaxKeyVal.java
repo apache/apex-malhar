@@ -8,6 +8,7 @@ import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.api.StreamCodec;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
 import com.malhartech.lib.util.KeyValPair;
 import com.malhartech.lib.util.MutableDouble;
@@ -86,6 +87,15 @@ public class MaxKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
       if (val.value < tval.doubleValue()) {
         val.value = tval.doubleValue();
       }
+    }
+
+    /**
+     * Set StreamCodec used for partitioning.
+     */
+    @Override
+    public Class<? extends StreamCodec<KeyValPair<K, V>>> getStreamCodec()
+    {
+      return getKeyValPairStreamCodec();
     }
   };
   @OutputPortFieldAnnotation(name = "max")

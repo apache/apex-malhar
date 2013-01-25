@@ -4,10 +4,6 @@
  */
 package com.malhartech.lib.util;
 
-import com.malhartech.api.StreamCodec;
-import com.malhartech.engine.DefaultStreamCodec;
-import com.malhartech.lib.util.KeyValPair.Codec;
-import java.util.HashMap;
 import javax.validation.constraints.NotNull;
 
 /**

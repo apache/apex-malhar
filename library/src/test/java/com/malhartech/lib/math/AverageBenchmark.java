@@ -43,11 +43,11 @@ public class AverageBenchmark
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing()
   {
-    Sum<Double> doper = new Sum<Double>();
-    Sum<Float> foper = new Sum<Float>();
-    Sum<Integer> ioper = new Sum<Integer>();
-    Sum<Long> loper = new Sum<Long>();
-    Sum<Short> soper = new Sum<Short>();
+    Average<Double> doper = new Average<Double>();
+    Average<Float> foper = new Average<Float>();
+    Average<Integer> ioper = new Average<Integer>();
+    Average<Long> loper = new Average<Long>();
+    Average<Short> soper = new Average<Short>();
     doper.setType(Double.class);
     foper.setType(Float.class);
     ioper.setType(Integer.class);
@@ -61,7 +61,7 @@ public class AverageBenchmark
     testNodeSchemaProcessing(soper, "Short");
   }
 
-  public void testNodeSchemaProcessing(Sum oper, String debug)
+  public void testNodeSchemaProcessing(Average oper, String debug)
   {
     TestSink averageSink = new TestSink();
     oper.average.setSink(averageSink);

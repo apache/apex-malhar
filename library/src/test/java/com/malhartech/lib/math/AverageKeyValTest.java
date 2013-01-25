@@ -43,7 +43,7 @@ public class AverageKeyValTest
   @Test
   public void testNodeProcessing()
   {
-    SumKeyVal<String, Double> oper = new SumKeyVal<String, Double>();
+    AverageKeyVal<String, Double> oper = new AverageKeyVal<String, Double>();
     oper.setType(Double.class);
     TestSink averageSink = new TestSink();
 

@@ -8,8 +8,10 @@ import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.api.StreamCodec;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
-import com.malhartech.lib.util.UnifierHashMap;
+import com.malhartech.lib.util.CombinerHashMap;
+import com.malhartech.lib.util.KeyValPair;
 import com.malhartech.lib.util.MutableDouble;
 import java.util.HashMap;
 import java.util.Map;
@@ -56,7 +58,7 @@ import java.util.Map;
  * @author Amol Kekre (amol@malhar-inc.com)<br>
  * <br>
  */
-public class MaxMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
+public class MaxMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
@@ -82,9 +84,10 @@ public class MaxMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
         }
       }
     }
+
   };
   @OutputPortFieldAnnotation(name = "max")
-  public final transient DefaultOutputPort<HashMap<K,V>> max = new DefaultOutputPort<HashMap<K,V>>(this)
+  public final transient DefaultOutputPort<HashMap<K, V>> max = new DefaultOutputPort<HashMap<K, V>>(this)
   {
     @Override
     public Unifier<HashMap<K, V>> getUnifier()
@@ -92,8 +95,7 @@ public class MaxMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
       return new UnifierHashMap<K, V>();
     }
   };
-
-  protected transient HashMap<K,MutableDouble> high = new HashMap<K,MutableDouble>();
+  protected transient HashMap<K, MutableDouble> high = new HashMap<K, MutableDouble>();
 
   /**
    * Node only works in windowed mode. Emits all key,maxval pairs
@@ -105,7 +107,7 @@ public class MaxMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
   {
     if (!high.isEmpty()) {
       HashMap<K, V> tuple = new HashMap<K, V>(high.size());
-      for (Map.Entry<K,MutableDouble> e: high.entrySet()) {
+      for (Map.Entry<K, MutableDouble> e: high.entrySet()) {
         tuple.put(e.getKey(), getValue(e.getValue().value));
       }
       max.emit(tuple);

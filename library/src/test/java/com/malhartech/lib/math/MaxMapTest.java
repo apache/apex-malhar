@@ -3,7 +3,15 @@
  */
 package com.malhartech.lib.math;
 
+import com.malhartech.annotation.OutputPortFieldAnnotation;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.Context.OperatorContext;
+import com.malhartech.api.DAG;
+import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.api.InputOperator;
 import com.malhartech.engine.TestCountAndLastTupleSink;
+import com.malhartech.lib.io.ConsoleOutputOperator;
+import com.malhartech.stram.StramLocalCluster;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -25,15 +33,15 @@ public class MaxMapTest
   @Test
   public void testNodeProcessing()
   {
-    testSchemaNodeProcessing(new MaxMap<String, Integer>(), "integer"); // 8million/s
-    testSchemaNodeProcessing(new MaxMap<String, Double>(), "double"); // 8 million/s
-    testSchemaNodeProcessing(new MaxMap<String, Long>(), "long"); // 8 million/s
-    testSchemaNodeProcessing(new MaxMap<String, Short>(), "short"); // 8 million/s
-    testSchemaNodeProcessing(new MaxMap<String, Float>(), "float"); // 8 million/s
+    testSchemaNodeProcessing(new MaxMap<String, Integer>(), "integer");
+    testSchemaNodeProcessing(new MaxMap<String, Double>(), "double");
+    testSchemaNodeProcessing(new MaxMap<String, Long>(), "long");
+    testSchemaNodeProcessing(new MaxMap<String, Short>(), "short");
+    testSchemaNodeProcessing(new MaxMap<String, Float>(), "float");
   }
 
   /**
-   * Test oper logic emits correct results for each schema
+   * Test operator logic emits correct results for each schema.
    */
   public void testSchemaNodeProcessing(MaxMap oper, String type)
   {
@@ -42,7 +50,6 @@ public class MaxMapTest
 
     oper.beginWindow(0);
 
-    HashMap<String, Number> input = new HashMap<String, Number>();
     int numtuples = 10000;
     // For benchmark do -> numtuples = numtuples * 100;
     if (type.equals("integer")) {
@@ -92,10 +99,94 @@ public class MaxMapTest
     Assert.assertEquals("number emitted tuples", 1, maxSink.count);
     Number val = ((HashMap<String, Number>)maxSink.tuple).get("a");
     if (type.equals("short")) {
-      Assert.assertEquals("emitted min value was ", new Double(numtuples / 1000 - 1), val);
+      Assert.assertEquals("emitted max value was ", new Double(numtuples / 1000 - 1), val);
     }
     else {
-      Assert.assertEquals("emitted min value was ", new Double(numtuples - 1), val);
+      Assert.assertEquals("emitted max value was ", new Double(numtuples - 1), val);
     }
+  }
+
+  /**
+   * Used to test partitioning.
+   */
+  public static class TestInputOperator extends BaseOperator implements InputOperator
+  {
+    @OutputPortFieldAnnotation(name = "max")
+    public final transient DefaultOutputPort<HashMap<String, Integer>> output = new DefaultOutputPort<HashMap<String, Integer>>(this);
+    transient boolean first;
+
+    @Override
+    public void emitTuples()
+    {
+      if (first) {
+        for (int i = 0; i < 100; i++) {
+          HashMap<String, Integer> tuple = new HashMap<String, Integer>();
+          tuple.put("a", new Integer(i));
+          output.emit(tuple);
+        }
+        for (int i = 0; i < 80; i++) {
+          HashMap<String, Integer> tuple = new HashMap<String, Integer>();
+          tuple.put("b", new Integer(i));
+          output.emit(tuple);
+        }
+        for (int i = 0; i < 60; i++) {
+          HashMap<String, Integer> tuple = new HashMap<String, Integer>();
+          tuple.put("c", new Integer(i));
+          output.emit(tuple);
+        }
+        first = false;
+      }
+    }
+
+    @Override
+    public void beginWindow(long windowId)
+    {
+      first = true;
+    }
+  }
+
+  /**
+   * Test partitioning.
+   *
+   * Disabled since partitioning is not done yet.
+   */
+  //@Test
+  public void partitionTest()
+  {
+    try {
+      DAG dag = new DAG();
+      int N =4; // number of partitions.
+
+      TestInputOperator test = dag.addOperator("test", new TestInputOperator());
+      MaxMap<String, Integer> oper = dag.addOperator("max", new MaxMap<String, Integer>());
+      ConsoleOutputOperator console = dag.addOperator("console", new ConsoleOutputOperator());
+
+      dag.getOperatorWrapper(oper).getAttributes().attr(OperatorContext.INITIAL_PARTITION_COUNT).set(N);
+
+      dag.addStream("test_max", test.output, oper.data).setInline(true);
+      dag.addStream("max_console", oper.max, console.input).setInline(true);
+
+      final StramLocalCluster lc = new StramLocalCluster(dag);
+      lc.setHeartbeatMonitoringEnabled(false);
+      new Thread()
+      {
+        @Override
+        public void run()
+        {
+          try {
+            Thread.sleep(10000);
+          }
+          catch (InterruptedException ex) {
+          }
+          lc.shutdown();
+        }
+      }.start();
+
+      lc.run();
+    }
+    catch (Exception ex) {
+      log.debug("got exception", ex);
+    }
+
   }
 }
