@@ -19,7 +19,7 @@ import java.util.Map;
 /**
  *
  * Emits the sum, and count of values for each key at the end of window. <p>
- * This is an end window operator.<br>
+ * This is an end window operator. Default unifier works as this operator follows sticky partition<br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects KeyValPair&lt;K,V extends Number&gt;<br>
@@ -117,6 +117,8 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
       return getKeyValPairStreamCodec();
     }
   };
+
+
   @OutputPortFieldAnnotation(name = "sum", optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, V>> sum = new DefaultOutputPort<KeyValPair<K, V>>(this);
   @OutputPortFieldAnnotation(name = "count", optional = true)

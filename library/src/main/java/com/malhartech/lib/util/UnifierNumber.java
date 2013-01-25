@@ -18,19 +18,20 @@ import java.util.HashMap;
  * @author amol<br>
  *
  */
-public class UnifierAggregateInteger implements Unifier<Integer>
+public class UnifierNumber<V extends Number> extends BaseNumberValueOperator<V> implements Unifier<V>
 {
-  Integer result = 0;
-  public final transient DefaultOutputPort<Integer> mergedport = new DefaultOutputPort<Integer>(this);
+  Double result = 0.0;
+  public final transient DefaultOutputPort<V> mergedport = new DefaultOutputPort<V>(this);
 
   /**
    * Adds tuple with result so far
    * @param tuple incoming tuple from a partition
    */
   @Override
-  public void merge(Integer tuple)
+  public void merge(V tuple)
   {
-    result = result + tuple;
+    result += tuple.doubleValue();
+    //result = result + tuple;
   }
 
   /**
@@ -48,8 +49,8 @@ public class UnifierAggregateInteger implements Unifier<Integer>
   @Override
   public void endWindow()
   {
-    mergedport.emit(result);
-    result = 0;
+    mergedport.emit(getValue(result));
+    result = 0.0;
   }
 
   /**

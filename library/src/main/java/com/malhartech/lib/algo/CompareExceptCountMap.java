@@ -6,7 +6,7 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.UnifierAggregateInteger;
+import com.malhartech.lib.util.UnifierNumber;
 import com.malhartech.lib.util.UnifierHashMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -79,7 +79,7 @@ public class CompareExceptCountMap<K, V extends Number> extends MatchMap<K, V>
     @Override
     public Unifier<Integer> getUnifier()
     {
-      return new UnifierAggregateInteger();
+      return new UnifierNumber();
     }
   };
 
@@ -90,7 +90,7 @@ public class CompareExceptCountMap<K, V extends Number> extends MatchMap<K, V>
     @Override
     public Unifier<Integer> getUnifier()
     {
-      return new UnifierAggregateInteger();
+      return new UnifierNumber();
     }
   };
 
