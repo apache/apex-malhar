@@ -9,7 +9,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseKeyOperator;
-import com.malhartech.lib.util.CombinerHashMap;
+import com.malhartech.lib.util.UnifierHashMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -99,7 +99,7 @@ public class FilterKeysMap<K,V> extends BaseKeyOperator<K>
     @Override
     public Unifier<HashMap<K, V>> getUnifier()
     {
-      return new CombinerHashMap<K, V>();
+      return new UnifierHashMap<K, V>();
     }
   };
 

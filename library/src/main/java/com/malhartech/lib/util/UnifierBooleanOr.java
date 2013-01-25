@@ -18,38 +18,42 @@ import java.util.HashMap;
  * @author amol<br>
  *
  */
-public class CombinerBooleanAnd implements Unifier<Boolean>
+public class UnifierBooleanOr implements Unifier<Boolean>
 {
-  boolean result = true;
+  boolean result = false;
   public final transient DefaultOutputPort<Boolean> mergedport = new DefaultOutputPort<Boolean>(this);
 
   /**
-   * ANDs tuple with result so far
+   * emits result if any partition returns true. Then on the window emits no more tuples
    * @param tuple incoming tuple from a partition
    */
   @Override
   public void merge(Boolean tuple)
   {
-    result = tuple && result;
+    if (!result) {
+      if (tuple) {
+        mergedport.emit(true);
+      }
+      result = true;
+    }
   }
 
   /**
-   * resets flag to true
+   * resets flag
    * @param windowId
    */
   @Override
   public void beginWindow(long windowId)
   {
-    result = true;
+    result = false;
   }
 
   /**
-   * emits the result
+   * noop
    */
   @Override
   public void endWindow()
   {
-    mergedport.emit(result);
   }
 
   /**

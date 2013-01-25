@@ -9,7 +9,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseMatchOperator;
-import com.malhartech.lib.util.CombinerHashMap;
+import com.malhartech.lib.util.UnifierHashMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -111,7 +111,7 @@ public class MatchStringMap<K, String> extends BaseMatchOperator<K,String>
     @Override
     public Unifier<HashMap<K, String>> getUnifier()
     {
-      return new CombinerHashMap<K, String>();
+      return new UnifierHashMap<K, String>();
     }
   };
 

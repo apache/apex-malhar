@@ -18,23 +18,23 @@ import java.util.HashMap;
  * @author amol<br>
  *
  */
-public class CombinerAggregateInteger implements Unifier<Integer>
+public class UnifierHashMap<K, V> implements Unifier<HashMap<K, V>>
 {
-  Integer result = 0;
-  public final transient DefaultOutputPort<Integer> mergedport = new DefaultOutputPort<Integer>(this);
+  public HashMap<K, V> mergedTuple = new HashMap<K, V>();
+  public final transient DefaultOutputPort<HashMap<K, V>> mergedport = new DefaultOutputPort<HashMap<K, V>>(this);
 
   /**
-   * Adds tuple with result so far
+   * combines the tuple into a single final tuple which is emitted in endWindow
    * @param tuple incoming tuple from a partition
    */
   @Override
-  public void merge(Integer tuple)
+  public void merge(HashMap<K, V> tuple)
   {
-    result = result + tuple;
+    mergedTuple.putAll(tuple);
   }
 
   /**
-   * no-op
+   * a no op
    * @param windowId
    */
   @Override
@@ -42,14 +42,17 @@ public class CombinerAggregateInteger implements Unifier<Integer>
   {
   }
 
+
   /**
-   * emits the result, and resets it
+   * emits mergedTuple on mergedport if it is not empty
    */
   @Override
   public void endWindow()
   {
-    mergedport.emit(result);
-    result = 0;
+    if (!mergedTuple.isEmpty())  {
+      mergedport.emit(mergedTuple);
+      mergedTuple = new HashMap<K, V>();
+    }
   }
 
   /**

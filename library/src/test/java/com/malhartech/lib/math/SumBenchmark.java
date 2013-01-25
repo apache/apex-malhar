@@ -67,7 +67,6 @@ public class SumBenchmark
     TestSink averageSink = new TestSink();
     oper.sum.setSink(sumSink);
     oper.count.setSink(countSink);
-    oper.average.setSink(averageSink);
 
     oper.beginWindow(0); //
 
@@ -85,8 +84,7 @@ public class SumBenchmark
 
     Number dval = (Number) sumSink.collectedTuples.get(0);
     Integer count = (Integer) countSink.collectedTuples.get(0);
-    Number average = (Number) averageSink.collectedTuples.get(0);
-    log.debug(String.format("\nBenchmark %d tuples of type %s: total was %f; count was %d; average was %f",
-                            numTuples * 3, debug, dval.doubleValue(), count, average.doubleValue()));
+    log.debug(String.format("\nBenchmark %d tuples of type %s: total was %f; count was %d",
+                            numTuples * 3, debug, dval.doubleValue(), count));
   }
 }

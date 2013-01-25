@@ -7,7 +7,7 @@ package com.malhartech.lib.math;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.algo.MatchStringMap;
-import com.malhartech.lib.util.CombinerHashMap;
+import com.malhartech.lib.util.UnifierHashMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -71,7 +71,7 @@ public class CompareExceptStringMap<K> extends MatchStringMap<K,String>
     @Override
     public Unifier<HashMap<K, String>> getUnifier()
     {
-      return new CombinerHashMap<K, String>();
+      return new UnifierHashMap<K, String>();
     }
   };
 

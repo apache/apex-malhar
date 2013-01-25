@@ -9,8 +9,8 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.AbstractBaseFrequentKey;
-import com.malhartech.lib.util.CombinerHashMap;
-import com.malhartech.lib.util.CombinerHashMapFrequent;
+import com.malhartech.lib.util.UnifierHashMap;
+import com.malhartech.lib.util.UnifierHashMapFrequent;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -89,7 +89,7 @@ public class LeastFrequentKey<K> extends AbstractBaseFrequentKey<K>
     @Override
     public Unifier<HashMap<K, Integer>> getUnifier()
     {
-      CombinerHashMapFrequent ret = new CombinerHashMapFrequent<K>();
+      UnifierHashMapFrequent ret = new UnifierHashMapFrequent<K>();
       ret.setLeast(true);
       return ret;
     }

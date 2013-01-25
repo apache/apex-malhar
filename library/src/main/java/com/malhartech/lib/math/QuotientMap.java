@@ -9,7 +9,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
-import com.malhartech.lib.util.CombinerHashMap;
+import com.malhartech.lib.util.UnifierHashMap;
 import com.malhartech.lib.util.MutableDouble;
 import java.util.HashMap;
 import java.util.Map;
@@ -93,7 +93,7 @@ public class QuotientMap<K, V extends Number> extends BaseNumberKeyValueOperator
     @Override
     public Unifier<HashMap<K, Double>> getUnifier()
     {
-      return new CombinerHashMap<K, Double>();
+      return new UnifierHashMap<K, Double>();
     }
   };
 

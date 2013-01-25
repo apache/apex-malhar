@@ -18,20 +18,19 @@ import java.util.Map;
 
 /**
  *
- * Emits the sum, average, and count of values for each key at the end of window. <p>
+ * Emits the sum, and count of values for each key at the end of window. <p>
  * This is an end window operator.<br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects KeyValPair&lt;K,V extends Number&gt;<br>
  * <b>sum</b>: emits KeyValPair&lt;K,V&gt;<br>
  * <b>count</b>: emits KeyValPair&lt;K,Integer&gt;</b><br>
- * <b>average</b>: emits KeyValPair&lt;K,V&gt;</b><br><br>
  * <br>
  * <b>Properties</b>:<br>
  * <b>inverse</b>: If set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
- * <b>resetAtEndWindow</b>: If set to true sum, average, and count are calculated separately for each window.
- * <b> If set to false sum, average, and count are calculated spanned over all windows. Default value is true.<br>
+ * <b>resetAtEndWindow</b>: If set to true sum, and count are calculated separately for each window.
+ * <b> If set to false sum, and count are calculated spanned over all windows. Default value is true.<br>
  * <br>
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
@@ -45,22 +44,22 @@ import java.util.Map;
  * <b>Function Table (K=String, V=Integer)</b>:
  * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for Sum&lt;K,V extends Number&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th colspan=3>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(KeyValPair&lt;K,V&gt;)</th><th><i>sum</i>(KeyValPair&lt;K,V&gt;)</th><th><i>count</i>(KeyValPair&lt;K,Integer&gt;)</th><th><i>average</i>(KeyValPair&lt;K,V&gt;)</th></tr>
- * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
- * <tr><td>Data (process())</td><td>{a=2}</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>{b=20}</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>{c=1000}</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>{a=1}</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>{a=10}</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>{b=5}</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=55}</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>{b=12}</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=22}</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=14}</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>{e=2}</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=46}</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=4}</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>{a=23}</td><td></td><td></td><td></td></tr>
+ * <tr><th><i>data</i>(KeyValPair&lt;K,V&gt;)</th><th><i>sum</i>(KeyValPair&lt;K,V&gt;)</th><th><i>count</i>(KeyValPair&lt;K,Integer&gt;)</th></tr>
+ * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
+ * <tr><td>Data (process())</td><td>{a=2}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{b=20}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{c=1000}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{a=1}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{a=10}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{b=5}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=55}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{b=12}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=22}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=14}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{e=2}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=46}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=4}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{a=23}</td><td></td><td></td></tr>
  * <tr><td>End Window (endWindow())</td><td>N/A</td>
  * <td>{a=36}<br>{b=37}<br>{c=1000}<br>{d=141}<br>{e=2}</td>
  * <td>{a=4}<br>{b=3}<br>{c=1}<br>{d=5}<br>{e=1}</td>
@@ -74,12 +73,6 @@ import java.util.Map;
 public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
   /**
-   * If set to true sum, average, and count are calculated separately for each window.
-   * If set to false sum, average, and count are calculated spanned over all windows. Default value is true.
-   */
-  boolean resetAtEndWindow = true;
-
-  /**
    * Input port to receive data.
    */
   @InputPortFieldAnnotation(name = "data")
@@ -89,7 +82,6 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
      * For each tuple (a key value pair):
      * Adds the values for each key,
      * Counts the number of occurrence of each key, and
-     * Computes the average.
      */
     @Override
     public void process(KeyValPair<K, V> tuple)
@@ -98,7 +90,7 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
       if (!doprocessKey(key)) {
         return;
       }
-      if (sum.isConnected() || average.isConnected()) {
+      if (sum.isConnected()) {
         MutableDouble val = sums.get(key);
         if (val == null) {
           val = new MutableDouble(tuple.getValue().doubleValue());
@@ -108,7 +100,7 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
         }
         sums.put(cloneKey(key), val);
       }
-      if (count.isConnected() || average.isConnected()) {
+      if (count.isConnected()) {
         MutableInteger count = counts.get(key);
         if (count == null) {
           count = new MutableInteger(0);
@@ -127,12 +119,12 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
   };
   @OutputPortFieldAnnotation(name = "sum", optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, V>> sum = new DefaultOutputPort<KeyValPair<K, V>>(this);
-  @OutputPortFieldAnnotation(name = "average", optional = true)
-  public final transient DefaultOutputPort<KeyValPair<K, V>> average = new DefaultOutputPort<KeyValPair<K, V>>(this);
   @OutputPortFieldAnnotation(name = "count", optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, Integer>> count = new DefaultOutputPort<KeyValPair<K, Integer>>(this);
+
   protected transient HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
   protected transient HashMap<K, MutableInteger> counts = new HashMap<K, MutableInteger>();
+
 
   /**
    * If you have extended from KeyValPair class and want to do some processing per tuple
@@ -140,16 +132,6 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
    */
   public void processMetaData(KeyValPair<K, V> tuple)
   {
-  }
-
-  public boolean isResetAtEndWindow()
-  {
-    return resetAtEndWindow;
-  }
-
-  public void setResetAtEndWindow(boolean resetAtEndWindow)
-  {
-    this.resetAtEndWindow = resetAtEndWindow;
   }
 
   /**
@@ -161,10 +143,9 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
   public void endWindow()
   {
     boolean dosum = sum.isConnected();
-    boolean doaverage = average.isConnected();
     boolean docount = count.isConnected();
 
-    if (dosum || doaverage) {
+    if (dosum) {
       for (Map.Entry<K, MutableDouble> e: sums.entrySet()) {
         K key = e.getKey();
         if (dosum) {
@@ -173,9 +154,6 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
         if (docount) { // emit here instead of doing another iteration
           count.emit(new KeyValPair(key, new Integer(counts.get(key).value)));
         }
-        if (doaverage) {
-          average.emit(new KeyValPair(key, getValue(e.getValue().value / counts.get(key).value)));
-        }
       }
     }
     else if (docount) { // sum is not connected, only counts is connected
@@ -183,10 +161,11 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
         count.emit(new KeyValPair(e.getKey(), new Integer(e.getValue().value)));
       }
     }
+  }
 
-    if (resetAtEndWindow) {
-      sums.clear();
-      counts.clear();
-    }
+  public void clearCache()
+  {
+    sums.clear();
+    counts.clear();
   }
 }

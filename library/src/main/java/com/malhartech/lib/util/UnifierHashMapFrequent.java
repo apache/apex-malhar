@@ -19,7 +19,7 @@ import java.util.Map;
  * @author amol<br>
  *
  */
-public class CombinerHashMapFrequent<K> implements Unifier<HashMap<K, Integer>>
+public class UnifierHashMapFrequent<K> implements Unifier<HashMap<K, Integer>>
 {
   HashMap<K, Integer> mergedTuple = new HashMap<K, Integer>();
   public final transient DefaultOutputPort<HashMap<K, Integer>> mergedport = new DefaultOutputPort<HashMap<K, Integer>>(this);
@@ -46,9 +46,9 @@ public class CombinerHashMapFrequent<K> implements Unifier<HashMap<K, Integer>>
         if ((least && (e.getValue() < lval))
                 || (!least && (e.getValue() > lval))) {
           mergedTuple.clear();
-          mergedTuple.putAll(tuple);
+          mergedTuple.put(e.getKey(), e.getValue());
+          break;
         }
-        break;
       }
     }
   }

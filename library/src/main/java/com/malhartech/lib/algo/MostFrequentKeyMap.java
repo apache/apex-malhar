@@ -9,7 +9,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.AbstractBaseFrequentKey;
-import com.malhartech.lib.util.CombinerHashMapFrequent;
+import com.malhartech.lib.util.UnifierHashMapFrequent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -78,7 +78,7 @@ public class MostFrequentKeyMap<K,V> extends AbstractBaseFrequentKey<K>
     @Override
     public Unifier<HashMap<K, Integer>> getUnifier()
     {
-      CombinerHashMapFrequent ret = new CombinerHashMapFrequent<K>();
+      UnifierHashMapFrequent ret = new UnifierHashMapFrequent<K>();
       ret.setLeast(false);
       return ret;
     }

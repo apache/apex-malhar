@@ -44,27 +44,21 @@ public class SumMapTest
   @Test
   public void testNodeProcessing()
   {
-    testNodeSchemaProcessing(true, false,  false);
-    testNodeSchemaProcessing(false, true, false);
-    testNodeSchemaProcessing(false, false, true);
-    testNodeSchemaProcessing(true, true, false);
-    testNodeSchemaProcessing(false, true, true);
-    testNodeSchemaProcessing(true, false, true);
+    testNodeSchemaProcessing(true, true);
+    testNodeSchemaProcessing(true, false);
+    testNodeSchemaProcessing(false, true);
+    testNodeSchemaProcessing(false, false);
   }
 
-  public void testNodeSchemaProcessing(boolean sum, boolean count, boolean average)
+  public void testNodeSchemaProcessing(boolean sum, boolean count)
   {
 
     SumMap<String, Double> oper = new SumMap<String, Double>();
     oper.setType(Double.class);
     TestSink sumSink = new TestSink();
     TestSink countSink = new TestSink();
-    TestSink averageSink = new TestSink();
     if (sum) {
       oper.sum.setSink(sumSink);
-    }
-    if (average){
-      oper.average.setSink(averageSink);
     }
     if (count) {
       oper.count.setSink(countSink);
@@ -132,30 +126,6 @@ public class SumMapTest
           }
           else if (e.getKey().equals("e")) {
             Assert.assertEquals("emitted tuple for 'e' was ", new Double(2), val);
-          }
-        }
-      }
-    }
-    if (average) {
-      Assert.assertEquals("number emitted tuples", 1, averageSink.collectedTuples.size());
-      for (Object o: averageSink.collectedTuples) {
-        HashMap<String, Object> output = (HashMap<String, Object>)o;
-        for (Map.Entry<String, Object> e: output.entrySet()) {
-          Double val = (Double)e.getValue();
-          if (e.getKey().equals("a")) {
-            Assert.assertEquals("emitted value for 'a' was ", new Double(36/4.0), val);
-          }
-          else if (e.getKey().equals("b")) {
-            Assert.assertEquals("emitted tuple for 'b' was ", new Double(37/3.0), val);
-          }
-          else if (e.getKey().equals("c")) {
-            Assert.assertEquals("emitted tuple for 'c' was ", new Double(1000/1.0), val);
-          }
-          else if (e.getKey().equals("d")) {
-            Assert.assertEquals("emitted tuple for 'd' was ", new Double(141.2/5), val);
-          }
-          else if (e.getKey().equals("e")) {
-            Assert.assertEquals("emitted tuple for 'e' was ", new Double(2/1.0), val);
           }
         }
       }

@@ -18,40 +18,38 @@ import java.util.HashMap;
  * @author amol<br>
  *
  */
-public class CombinerHashMap<K, V> implements Unifier<HashMap<K, V>>
+public class UnifierBooleanAnd implements Unifier<Boolean>
 {
-  HashMap<K, V> mergedTuple = new HashMap<K, V>();
-  public final transient DefaultOutputPort<HashMap<K, V>> mergedport = new DefaultOutputPort<HashMap<K, V>>(this);
+  boolean result = true;
+  public final transient DefaultOutputPort<Boolean> mergedport = new DefaultOutputPort<Boolean>(this);
 
   /**
-   * combines the tuple into a single final tuple which is emitted in endWindow
+   * ANDs tuple with result so far
    * @param tuple incoming tuple from a partition
    */
   @Override
-  public void merge(HashMap<K, V> tuple)
+  public void merge(Boolean tuple)
   {
-    mergedTuple.putAll(tuple);
+    result = tuple && result;
   }
 
   /**
-   * a no op
+   * resets flag to true
    * @param windowId
    */
   @Override
   public void beginWindow(long windowId)
   {
+    result = true;
   }
 
   /**
-   * emits mergedTuple on mergedport if it is not empty
+   * emits the result
    */
   @Override
   public void endWindow()
   {
-    if (!mergedTuple.isEmpty()) {
-      mergedport.emit(mergedTuple);
-      mergedTuple = new HashMap<K, V>();
-    }
+    mergedport.emit(result);
   }
 
   /**

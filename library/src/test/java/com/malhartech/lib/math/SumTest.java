@@ -42,16 +42,13 @@ public class SumTest
   @Test
   public void testNodeProcessing()
   {
-    testNodeTypeProcessing(true, false, true);
-    testNodeTypeProcessing(true, false, false);
-    testNodeTypeProcessing(true, true, true);
-    testNodeTypeProcessing(true, true, false);
-    testNodeTypeProcessing(false, true, true);
-    testNodeTypeProcessing(false, true, false);
-    testNodeTypeProcessing(false, false, true);
+    testNodeTypeProcessing(true, false);
+    testNodeTypeProcessing(true, true);
+    testNodeTypeProcessing(false, true);
+    testNodeTypeProcessing(false, false);
   }
 
-  public void testNodeTypeProcessing(boolean sum, boolean count, boolean average)
+  public void testNodeTypeProcessing(boolean sum, boolean count)
   {
     Sum<Double> doper = new Sum<Double>();
     Sum<Float> foper = new Sum<Float>();
@@ -64,18 +61,17 @@ public class SumTest
     loper.setType(Long.class);
     soper.setType(Short.class);
 
-    testNodeSchemaProcessing(sum, count, average, doper);
-    testNodeSchemaProcessing(sum, count, average, foper);
-    testNodeSchemaProcessing(sum, count, average, ioper);
-    testNodeSchemaProcessing(sum, count, average, loper);
-    testNodeSchemaProcessing(sum, count, average, soper);
+    testNodeSchemaProcessing(sum, count, doper);
+    testNodeSchemaProcessing(sum, count, foper);
+    testNodeSchemaProcessing(sum, count, ioper);
+    testNodeSchemaProcessing(sum, count, loper);
+    testNodeSchemaProcessing(sum, count, soper);
  }
 
-  public void testNodeSchemaProcessing(boolean sum, boolean count, boolean average, Sum oper)
+  public void testNodeSchemaProcessing(boolean sum, boolean count, Sum oper)
   {
     TestSink sumSink = new TestSink();
     TestSink countSink = new TestSink();
-    TestSink averageSink = new TestSink();
 
     if (sum) {
       oper.sum.setSink(sumSink);
@@ -83,9 +79,7 @@ public class SumTest
     if (count) {
       oper.count.setSink(countSink);
     }
-    if (average) {
-      oper.average.setSink(averageSink);
-    }
+
 
     oper.beginWindow(0); //
 
@@ -134,13 +128,6 @@ public class SumTest
       for (Object o: countSink.collectedTuples) { // count is 12
         Integer val = (Integer) o;
         Assert.assertEquals("emitted count value was was ", new Integer(12), val);
-      }
-    }
-    if (average) {
-      Assert.assertEquals("number emitted tuples", 1, averageSink.collectedTuples.size());
-      for (Object o: averageSink.collectedTuples) { // count is 12
-        Integer val = ((Number)o).intValue();
-        Assert.assertEquals("emitted average value was was ", new Integer(1157 / 12), val);
       }
     }
   }

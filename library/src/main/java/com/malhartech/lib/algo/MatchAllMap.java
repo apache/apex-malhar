@@ -9,7 +9,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseMatchOperator;
-import com.malhartech.lib.util.CombinerBooleanAnd;
+import com.malhartech.lib.util.UnifierBooleanAnd;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -99,7 +99,7 @@ public class MatchAllMap<K, V extends Number> extends BaseMatchOperator<K, V>
     @Override
     public Unifier<Boolean> getUnifier()
     {
-      return new CombinerBooleanAnd();
+      return new UnifierBooleanAnd();
     }
   };
 

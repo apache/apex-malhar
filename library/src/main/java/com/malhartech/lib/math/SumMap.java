@@ -8,29 +8,23 @@ import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.BaseNumberKeyValueOperator;
-import com.malhartech.lib.util.CombinerHashMap;
-import com.malhartech.lib.util.MutableDouble;
-import com.malhartech.lib.util.MutableInteger;
+import com.malhartech.lib.util.*;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  *
- * Emits the sum, average, and count of values for each key at the end of window. <p>
+ * Emits the sum, and count of values for each key at the end of window. <p>
  * This is an end of window operator<br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects Map&lt;K,V extends Number&gt;<br>
  * <b>sum</b>: emits HashMap&lt;K,V&gt;<br>
  * <b>count</b>: emits HashMap&lt;K,Integer&gt;</b><br>
- * <b>average</b>: emits HashMap&lt;K,V&gt;</b><br><br>
  * <br>
  * <b>Properties</b>:<br>
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
- * <b>resetAtEndWindow</b>: If set to true sum, average, and count are calculated separately for each window.
- * <b> If set to false sum, average, and count are calculated spanned over all windows. Default value is true.<br>
  * <br>
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
@@ -45,17 +39,17 @@ import java.util.Map;
  * <b>Function Table (K=String, V=Integer)</b>:
  * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for SumMap&lt;K,V extends Number&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th colspan=3>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(Map&lt;K,V&gt;)</th><th><i>sum</i>(HashMap&lt;K,V&gt;)</th><th><i>count</i>(HashMap&lt;K,Integer&gt;)</th><th><i>average</i>(HashMap&lt;K,V&gt;)</th></tr>
- * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
- * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>{a=1}</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>{a=10,b=5}</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=55,b=12}</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=22}</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=14}</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=46,e=2}</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=4,a=23}</td><td></td><td></td><td></td></tr>
- * <tr><td>End Window (endWindow())</td><td>N/A</td><td>{a=36,b=37,c=1000,d=141,e=2}</td><td>{a=4,b=3,c=1,d=5,e=1}</td><td>{a=9,b=12,c=1000,d=28,e=2}</td></tr>
+ * <tr><th><i>data</i>(Map&lt;K,V&gt;)</th><th><i>sum</i>(HashMap&lt;K,V&gt;)</th><th><i>count</i>(HashMap&lt;K,Integer&gt;)</th></tr>
+ * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
+ * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{a=1}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{a=10,b=5}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=55,b=12}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=22}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=14}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=46,e=2}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{d=4,a=23}</td><td></td><td></td></tr>
+ * <tr><td>End Window (endWindow())</td><td>N/A</td><td>{a=36,b=37,c=1000,d=141,e=2}</td><td>{a=4,b=3,c=1,d=5,e=1}</td></tr>
  * </table>
  * <br>
  *
@@ -64,11 +58,6 @@ import java.util.Map;
  */
 public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
-  /**
-   * If set to true sum, average, and count are calculated separately for each window.
-   * If set to false sum, average, and count are calculated spanned over all windows. Default value is true.
-   */
-  boolean resetAtEndWindow = true;
   /**
    * Input port to receive data.
    */
@@ -79,7 +68,6 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
      * For each tuple (a HashMap of keys,val pairs)
      * Adds the values for each key,
      * Counts the number of occurrences of each key
-     * Computes the average
      */
     @Override
     public void process(Map<K, V> tuple)
@@ -89,7 +77,7 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
         if (!doprocessKey(key)) {
           continue;
         }
-        if (sum.isConnected() || average.isConnected()) {
+        if (sum.isConnected()) {
           MutableDouble val = sums.get(key);
           if (val == null) {
             val = new MutableDouble(e.getValue().doubleValue());
@@ -99,7 +87,7 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
           }
           sums.put(cloneKey(key), val);
         }
-        if (count.isConnected() || average.isConnected()) {
+        if (count.isConnected()) {
           MutableInteger count = counts.get(key);
           if (count == null) {
             count = new MutableInteger(0);
@@ -110,22 +98,14 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
       }
     }
   };
+
   @OutputPortFieldAnnotation(name = "sum", optional = true)
   public final transient DefaultOutputPort<HashMap<K, V>> sum = new DefaultOutputPort<HashMap<K, V>>(this)
   {
     @Override
     public Unifier<HashMap<K, V>> getUnifier()
     {
-      return new CombinerHashMap<K, V>();
-    }
-  };
-  @OutputPortFieldAnnotation(name = "average", optional = true)
-  public final transient DefaultOutputPort<HashMap<K, V>> average = new DefaultOutputPort<HashMap<K, V>>(this)
-  {
-    @Override
-    public Unifier<HashMap<K, V>> getUnifier()
-    {
-      return new CombinerHashMap<K, V>();
+      return new UnifierHashMapSumKeys<K, V>();
     }
   };
   @OutputPortFieldAnnotation(name = "count", optional = true)
@@ -134,21 +114,12 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
     @Override
     public Unifier<HashMap<K, Integer>> getUnifier()
     {
-      return new CombinerHashMap<K, Integer>();
+      return new UnifierHashMapInteger<K>();
     }
   };
   protected transient HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
   protected transient HashMap<K, MutableInteger> counts = new HashMap<K, MutableInteger>();
 
-  public boolean isResetAtEndWindow()
-  {
-    return resetAtEndWindow;
-  }
-
-  public void setResetAtEndWindow(boolean resetAtEndWindow)
-  {
-    this.resetAtEndWindow = resetAtEndWindow;
-  }
   /**
    * Emits on all ports that are connected. Data is precomputed during process on input port
    * endWindow just emits it for each key
@@ -171,12 +142,7 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
       ctuples = new HashMap<K, Integer>();
     }
 
-    HashMap<K, V> atuples = null;
-    if (average.isConnected()) {
-      atuples = new HashMap<K, V>();
-    }
-
-    if (sum.isConnected() || average.isConnected()) {
+    if (sum.isConnected()) {
       for (Map.Entry<K, MutableDouble> e: sums.entrySet()) {
         K key = e.getKey();
         if (sum.isConnected()) {
@@ -184,9 +150,6 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
         }
         if (count.isConnected()) {
           ctuples.put(key, new Integer(counts.get(e.getKey()).value));
-        }
-        if (average.isConnected()) {
-          atuples.put(e.getKey(), getValue(e.getValue().value / counts.get(e.getKey()).value));
         }
       }
     }
@@ -202,12 +165,12 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
     if ((ctuples != null) && !ctuples.isEmpty()) {
       count.emit(ctuples);
     }
-    if ((atuples != null) && !atuples.isEmpty()) {
-      average.emit(atuples);
-    }
-    if (resetAtEndWindow) {
-      sums.clear();
-      counts.clear();
-    }
+    clearCache();
+  }
+
+  public void clearCache()
+  {
+    sums.clear();
+    counts.clear();
   }
 }

@@ -9,7 +9,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
-import com.malhartech.lib.util.CombinerHashMap;
+import com.malhartech.lib.util.UnifierHashMap;
 import com.malhartech.lib.util.MutableDouble;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -103,7 +103,7 @@ public class ChangeAlertMap<K, V extends Number> extends BaseNumberKeyValueOpera
     @Override
     public Unifier<HashMap<K, HashMap<V,Double>>> getUnifier()
     {
-      return new CombinerHashMap<K, HashMap<V,Double>>();
+      return new UnifierHashMap<K, HashMap<V,Double>>();
     }
   };
 

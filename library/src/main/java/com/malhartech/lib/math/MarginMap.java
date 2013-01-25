@@ -10,7 +10,7 @@ import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
 import com.malhartech.lib.util.MutableDouble;
-import com.malhartech.lib.util.CombinerHashMap;
+import com.malhartech.lib.util.UnifierHashMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -116,7 +116,7 @@ public class MarginMap<K, V extends Number> extends BaseNumberKeyValueOperator<K
     @Override
     public Unifier<HashMap<K, V>> getUnifier()
     {
-      return new CombinerHashMap<K,V>();
+      return new UnifierHashMap<K,V>();
     }
   };
 
