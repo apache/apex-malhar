@@ -9,20 +9,19 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
-import com.malhartech.lib.util.UnifierHashMap;
 import com.malhartech.lib.util.MutableDouble;
-import com.malhartech.lib.util.MutableInteger;
+import com.malhartech.lib.util.MutableLong;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  *
  * Emits the average value for each key at the end of window. <p>
- * This is an end window operator.<br>
+ * This is an end window operator. This can not be partitioned. Partitioning this will yield incorrect result.<br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects HashMap&lt;K,V extends Number&gt;<br>
- * <b>average</b>: emits HashMap&lt;K,V&gt;</b><br><br>
+ * <b>average</b>: emits HashMap&lt;K,V extends Number&gt;</b><br><br>
  * <br>
  * <b>Properties</b>:<br>
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
@@ -35,7 +34,7 @@ import java.util.Map;
  * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for Sum&lt;K,V extends Number&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
  * <tr><td><b>12 millions K,V pairs/s</b></td><td>One K,V per key per window per port</td><td>In-bound rate is the main determinant of performance. Tuples are assumed to be
- * immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
+ * immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower.</td></tr>
  * </table><br>
  * <p>
  * <b>Function Table (K=String, V=Integer)</b>:
@@ -67,7 +66,7 @@ public class AverageMap<K, V extends Number> extends BaseNumberKeyValueOperator<
   public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>(this)
   {
     /**
-     * For each tuple (a HashMap of keys,val pairs)
+     * For each tuple (a HashMap of key,val pairs)
      * adds the values for each key,
      * counts the number of occurrences of each key and
      * computes the average.
@@ -90,9 +89,9 @@ public class AverageMap<K, V extends Number> extends BaseNumberKeyValueOperator<
         }
         sums.put(cloneKey(key), val);
 
-        MutableInteger count = counts.get(key);
+        MutableLong count = counts.get(key);
         if (count == null) {
-          count = new MutableInteger(0);
+          count = new MutableLong(0);
           counts.put(cloneKey(key), count);
         }
         count.value++;
@@ -102,15 +101,10 @@ public class AverageMap<K, V extends Number> extends BaseNumberKeyValueOperator<
   @OutputPortFieldAnnotation(name = "average")
   public final transient DefaultOutputPort<HashMap<K, V>> average = new DefaultOutputPort<HashMap<K, V>>(this)
   {
-    @Override
-    public Unifier<HashMap<K, V>> getUnifier()
-    {
-      return new UnifierHashMap<K, V>();
-    }
   };
 
   protected transient HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
-  protected transient HashMap<K, MutableInteger> counts = new HashMap<K, MutableInteger>();
+  protected transient HashMap<K, MutableLong> counts = new HashMap<K, MutableLong>();
 
   /**
    * Emits average for each key in end window. Data is precomputed during process on input port

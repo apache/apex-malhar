@@ -9,13 +9,11 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseNumberValueOperator;
-import com.malhartech.lib.util.UnifierHashMap;
-import java.util.HashMap;
 
 /**
  *
  * Emits the average of values at the end of window. <p>
- * This is an end window operator.<br>
+ * This is an end window operator. This can not be partitioned. Partitioning this will yield incorrect result.<br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects V extends Number<br>
  * <b>average</b>: emits V extends Number<br><br>
@@ -28,10 +26,10 @@ import java.util.HashMap;
  * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for SumValue&lt;V extends Number&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
  * <tr><td><b>&gt; 175 Million tuples/s</b></td><td>Average value of tuples per window per port</td><td>In-bound rate is the main determinant of performance. Tuples are assumed to be
- * immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
+ * immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower.</td></tr>
  * </table><br>
  * <p>
- * <b>Function Table (K=String, V=Integer)</b>:
+ * <b>Function Table (V=Integer)</b>:
  * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for Sum&lt;K,V extends Number&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th colspan=3>Out-bound (emit)</th></tr>
  * <tr><th><i>data</i>(V)</th><th><i>average</i>(V)</th></tr>
@@ -77,7 +75,7 @@ public class Average<V extends Number> extends BaseNumberValueOperator<V>
   public final transient DefaultOutputPort<V> average = new DefaultOutputPort<V>(this);
 
   protected transient double sums = 0;
-  protected transient int counts = 0;
+  protected transient long counts = 0;
 
   /**
    * Emit average.
@@ -108,7 +106,8 @@ public class Average<V extends Number> extends BaseNumberValueOperator<V>
         val = new Double(num.doubleValue()/counts);
         break;
       case INTEGER:
-        val = new Integer(num.intValue()/counts);
+        int icount = (int)(num.intValue()/counts);
+        val = new Integer(icount);
         break;
       case FLOAT:
         val = new Float(num.floatValue()/counts);
@@ -117,8 +116,7 @@ public class Average<V extends Number> extends BaseNumberValueOperator<V>
         val = new Long(num.longValue()/counts);
         break;
       case SHORT:
-        short scount = (short) counts;
-        scount = (short) (num.shortValue()/scount);
+        short scount = (short) (num.shortValue()/counts);
         val = new Short(scount);
         break;
       default:

@@ -21,7 +21,7 @@ public class AverageKeyValBenchmark
   private static Logger log = LoggerFactory.getLogger(AverageKeyValBenchmark.class);
 
   /**
-   * Test operator logic emits correct results
+   * Test operator logic emits correct results.
    */
   @Test
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)

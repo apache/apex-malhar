@@ -4,17 +4,12 @@
 package com.malhartech.lib.math;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.*;
 import com.malhartech.api.Context.OperatorContext;
+import com.malhartech.api.*;
 import com.malhartech.engine.TestCountAndLastTupleSink;
-import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.util.KeyValPair;
 import com.malhartech.stram.StramLocalCluster;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

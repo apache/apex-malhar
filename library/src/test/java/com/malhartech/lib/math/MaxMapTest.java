@@ -4,14 +4,11 @@
 package com.malhartech.lib.math;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DAG;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.InputOperator;
+import com.malhartech.api.*;
 import com.malhartech.engine.TestCountAndLastTupleSink;
-import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.stram.StramLocalCluster;
+import java.util.ArrayList;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -28,7 +25,7 @@ public class MaxMapTest
   private static Logger log = LoggerFactory.getLogger(MaxMapTest.class);
 
   /**
-   * Test functional logic
+   * Test functional logic.
    */
   @Test
   public void testNodeProcessing()
@@ -107,33 +104,38 @@ public class MaxMapTest
   }
 
   /**
-   * Used to test partitioning.
+   * Tuple generator to test partitioning.
    */
   public static class TestInputOperator extends BaseOperator implements InputOperator
   {
     @OutputPortFieldAnnotation(name = "max")
     public final transient DefaultOutputPort<HashMap<String, Integer>> output = new DefaultOutputPort<HashMap<String, Integer>>(this);
-    transient boolean first;
+    transient boolean first = true;
 
     @Override
     public void emitTuples()
     {
       if (first) {
-        for (int i = 0; i < 100; i++) {
+        int i = 0;
+        for (; i < 60; i++) {
+          HashMap<String, Integer> tuple = new HashMap<String, Integer>();
+          tuple.put("a", new Integer(i));
+          tuple.put("b", new Integer(i));
+          tuple.put("c", new Integer(i));
+          output.emit(tuple);
+        }
+        for (; i < 80; i++) {
+          HashMap<String, Integer> tuple = new HashMap<String, Integer>();
+          tuple.put("a", new Integer(i));
+          tuple.put("b", new Integer(i));
+          output.emit(tuple);
+        }
+        for (; i < 100; i++) {
           HashMap<String, Integer> tuple = new HashMap<String, Integer>();
           tuple.put("a", new Integer(i));
           output.emit(tuple);
         }
-        for (int i = 0; i < 80; i++) {
-          HashMap<String, Integer> tuple = new HashMap<String, Integer>();
-          tuple.put("b", new Integer(i));
-          output.emit(tuple);
-        }
-        for (int i = 0; i < 60; i++) {
-          HashMap<String, Integer> tuple = new HashMap<String, Integer>();
-          tuple.put("c", new Integer(i));
-          output.emit(tuple);
-        }
+        // a = 0..99, b = 0..79, c = 0..59
         first = false;
       }
     }
@@ -141,30 +143,44 @@ public class MaxMapTest
     @Override
     public void beginWindow(long windowId)
     {
-      first = true;
+      //first = true;
     }
+  }
+  /**
+   * Tuple collector to test partitioning.
+   */
+  public static class CollectorOperator extends BaseOperator
+  {
+    public static final ArrayList<HashMap<String, Integer>> buffer = new ArrayList<HashMap<String, Integer>>();
+    public final transient DefaultInputPort<HashMap<String, Integer>> input = new DefaultInputPort<HashMap<String, Integer>>(this)
+    {
+      @Override
+      public void process(HashMap<String, Integer> tuple)
+      {
+        buffer.add(tuple);
+      }
+    };
   }
 
   /**
    * Test partitioning.
    *
-   * Disabled since partitioning is not done yet.
    */
-  //@Test
+  @Test
   public void partitionTest()
   {
     try {
       DAG dag = new DAG();
-      int N =4; // number of partitions.
+      int N = 4; // number of partitions.
 
       TestInputOperator test = dag.addOperator("test", new TestInputOperator());
       MaxMap<String, Integer> oper = dag.addOperator("max", new MaxMap<String, Integer>());
-      ConsoleOutputOperator console = dag.addOperator("console", new ConsoleOutputOperator());
+      CollectorOperator collector = dag.addOperator("console", new CollectorOperator());
 
       dag.getOperatorWrapper(oper).getAttributes().attr(OperatorContext.INITIAL_PARTITION_COUNT).set(N);
 
-      dag.addStream("test_max", test.output, oper.data).setInline(true);
-      dag.addStream("max_console", oper.max, console.input).setInline(true);
+      dag.addStream("test_max", test.output, oper.data).setInline(false);
+      dag.addStream("max_console", oper.max, collector.input).setInline(false);
 
       final StramLocalCluster lc = new StramLocalCluster(dag);
       lc.setHeartbeatMonitoringEnabled(false);
@@ -183,10 +199,12 @@ public class MaxMapTest
       }.start();
 
       lc.run();
+
+      Assert.assertEquals("received tuples ", 1, CollectorOperator.buffer.size());
+      log.debug(String.format("max of a value %s", CollectorOperator.buffer.get(0).toString()));
     }
     catch (Exception ex) {
       log.debug("got exception", ex);
     }
-
   }
 }

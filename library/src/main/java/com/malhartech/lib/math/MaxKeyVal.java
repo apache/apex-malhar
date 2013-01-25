@@ -21,7 +21,7 @@ import java.util.Map;
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects KeyValPair&lt;K,V extends Number&gt;<br>
- * <b>max</b>: emits KeyValPair&lt;K,V&gt;, one entry per key<br>
+ * <b>max</b>: emits KeyValPair&lt;K,V extends Number&gt;, one entry per key<br>
  * <br>
  * <b>Properties</b>:<br>
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
@@ -34,7 +34,7 @@ import java.util.Map;
  * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for MaxMap&lt;K,V extends Number&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
  * <tr><td><b>35 Million K,V pairs/s</b></td><td>One tuple per key per window per port</td><td>In-bound rate is the main determinant of performance. Tuples are assumed to be
- * immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
+ * immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower.</td></tr>
  * </table><br>
  * <p>
  * <b>Function Table (K=String, V=Integer)</b>:

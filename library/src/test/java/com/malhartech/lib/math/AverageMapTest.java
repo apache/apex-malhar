@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.AverageMap}<p>
+ * Functional tests for {@link com.malhartech.lib.math.AverageMap}. <p>
  *
  */
 public class AverageMapTest
@@ -39,7 +39,7 @@ public class AverageMapTest
   }
 
   /**
-   * Test oper logic emits correct results
+   * Test operator logic emits correct results.
    */
   @Test
   public void testNodeProcessing()

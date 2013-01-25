@@ -39,7 +39,7 @@ public class AverageMapBenchmark
   }
 
   /**
-   * Test oper logic emits correct results
+   * Test operator logic emits correct results.
    */
   @Test
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)

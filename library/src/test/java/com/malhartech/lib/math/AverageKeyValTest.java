@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.AverageKeyVal}<p>
+ * Functional tests for {@link com.malhartech.lib.math.AverageKeyVal}. <p>
  *
  */
 public class AverageKeyValTest
@@ -38,7 +38,7 @@ public class AverageKeyValTest
   }
 
   /**
-   * Test oper logic emits correct results
+   * Test operator logic emits correct results.
    */
   @Test
   public void testNodeProcessing()

@@ -8,22 +8,21 @@ import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.StreamCodec;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
 import com.malhartech.lib.util.KeyValPair;
 import com.malhartech.lib.util.MutableDouble;
-import com.malhartech.lib.util.MutableInteger;
+import com.malhartech.lib.util.MutableLong;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  *
  * Emits the average of values for each key at the end of window. <p>
- * This is an end window operator.<br>
+ * This is an end window operator. This can not be partitioned. Partitioning this will yield incorrect result.<br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects KeyValPair&lt;K,V extends Number&gt;<br>
- * <b>average</b>: emits KeyValPair&lt;K,V&gt;</b><br><br>
+ * <b>average</b>: emits KeyValPair&lt;K,V extends Number&gt;</b><br><br>
  * <br>
  * <b>Properties</b>:<br>
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
@@ -93,26 +92,20 @@ public class AverageKeyVal<K, V extends Number> extends BaseNumberKeyValueOperat
       }
       sums.put(cloneKey(key), val);
 
-      MutableInteger count = counts.get(key);
+      MutableLong count = counts.get(key);
       if (count == null) {
-        count = new MutableInteger(0);
+        count = new MutableLong(0);
         counts.put(cloneKey(key), count);
       }
       count.value++;
 
       processMetaData(tuple);
     }
-
-    @Override
-    public Class<? extends StreamCodec<KeyValPair<K, V>>> getStreamCodec()
-    {
-      return getKeyValPairStreamCodec();
-    }
   };
   @OutputPortFieldAnnotation(name = "average")
   public final transient DefaultOutputPort<KeyValPair<K, V>> average = new DefaultOutputPort<KeyValPair<K, V>>(this);
   protected transient HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
-  protected transient HashMap<K, MutableInteger> counts = new HashMap<K, MutableInteger>();
+  protected transient HashMap<K, MutableLong> counts = new HashMap<K, MutableLong>();
 
   /*
    * If you have extended from KeyValPair class and want to do some processing per tuple
