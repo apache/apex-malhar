@@ -58,7 +58,7 @@ public class YahooFinanceApplication implements ApplicationFactory
   {
     SumKeyVal<String, Long> oper = dag.addOperator(name, SumKeyVal.class);
     oper.setType(Long.class);
-    oper.setResetAtEndWindow(false);
+    //oper.setResetAtEndWindow(false);
     return oper;
   }
 
