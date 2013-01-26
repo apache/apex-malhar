@@ -17,12 +17,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.MaxKeyVal}. <p>
+ * Functional tests for {@link com.malhartech.lib.math.MinKeyVal}. <p>
  *
  */
-public class MaxKeyValTest
+public class MinKeyValTest
 {
-  private static Logger log = LoggerFactory.getLogger(MaxKeyValTest.class);
+  private static Logger log = LoggerFactory.getLogger(MinKeyValTest.class);
 
   /**
    * Test functional logic
@@ -30,61 +30,60 @@ public class MaxKeyValTest
   @Test
   public void testNodeProcessing()
   {
-    testSchemaNodeProcessing(new MaxKeyVal<String, Integer>(), "integer");
-    testSchemaNodeProcessing(new MaxKeyVal<String, Double>(), "double");
-    testSchemaNodeProcessing(new MaxKeyVal<String, Long>(), "long");
-    testSchemaNodeProcessing(new MaxKeyVal<String, Short>(), "short");
-    testSchemaNodeProcessing(new MaxKeyVal<String, Float>(), "float");
+    testSchemaNodeProcessing(new MinKeyVal<String, Integer>(), "integer");
+    testSchemaNodeProcessing(new MinKeyVal<String, Double>(), "double");
+    testSchemaNodeProcessing(new MinKeyVal<String, Long>(), "long");
+    testSchemaNodeProcessing(new MinKeyVal<String, Short>(), "short");
+    testSchemaNodeProcessing(new MinKeyVal<String, Float>(), "float");
   }
 
   /**
    * Test operator logic emits correct results for each schema.
    *
    */
-  public void testSchemaNodeProcessing(MaxKeyVal oper, String type)
+  public void testSchemaNodeProcessing(MinKeyVal oper, String type)
   {
-    TestCountAndLastTupleSink maxSink = new TestCountAndLastTupleSink();
-    oper.max.setSink(maxSink);
+    TestCountAndLastTupleSink minSink = new TestCountAndLastTupleSink();
+    oper.min.setSink(minSink);
 
     oper.beginWindow(0);
 
     int numtuples = 10000;
     if (type.equals("integer")) {
-      for (int i = 0; i < numtuples; i++) {
+      for (int i = numtuples; i > 0; i--) {
         oper.data.process(new KeyValPair("a", new Integer(i)));
       }
     }
     else if (type.equals("double")) {
-      for (int i = 0; i < numtuples; i++) {
+      for (int i = numtuples; i > 0; i--) {
         oper.data.process(new KeyValPair("a", new Double(i)));
       }
     }
     else if (type.equals("long")) {
-      for (int i = 0; i < numtuples; i++) {
+      for (int i = numtuples; i > 0; i--) {
         oper.data.process(new KeyValPair("a", new Long(i)));
       }
     }
     else if (type.equals("short")) {
-      int count = numtuples / 1000; // cannot cross 64K
-      for (short j = 0; j < count; j++) {
+      for (short j = 1000; j > 0; j--) { // cannot cross 64K
         oper.data.process(new KeyValPair("a", new Short(j)));
       }
     }
     else if (type.equals("float")) {
-      for (int i = 0; i < numtuples; i++) {
+      for (int i = numtuples; i > 0; i--) {
         oper.data.process(new KeyValPair("a", new Float(i)));
       }
     }
 
     oper.endWindow();
 
-    Assert.assertEquals("number emitted tuples", 1, maxSink.count);
-    Number val = ((KeyValPair<String, Number>)maxSink.tuple).getValue();
+    Assert.assertEquals("number emitted tuples", 1, minSink.count);
+    Number val = ((KeyValPair<String, Number>)minSink.tuple).getValue();
     if (type.equals("short")) {
-      Assert.assertEquals("emitted max value was ", new Double(numtuples / 1000 - 1), val);
+      Assert.assertEquals("emitted min value was ", new Double(1), val);
     }
     else {
-      Assert.assertEquals("emitted max value was ", new Double(numtuples - 1), val);
+      Assert.assertEquals("emitted min value was ", new Double(1), val);
     }
   }
 
@@ -101,13 +100,13 @@ public class MaxKeyValTest
     public void emitTuples()
     {
       if (first) {
-        for (int i = 0; i < 100; i++) {
+        for (int i = 40; i < 100; i++) {
           output.emit(new KeyValPair("a", new Integer(i)));
         }
-        for (int i = 0; i < 80; i++) {
+        for (int i = 50; i < 100; i++) {
           output.emit(new KeyValPair("b", new Integer(i)));
         }
-        for (int i = 0; i < 60; i++) {
+        for (int i = 60; i < 100; i++) {
           output.emit(new KeyValPair("c", new Integer(i)));
         }
         first = false;
@@ -138,18 +137,17 @@ public class MaxKeyValTest
   {
     try {
       DAG dag = new DAG();
-      //dag.getAttributes().attr(DAG.STRAM_MAX_CONTAINERS).set(1);
       int N = 4; // number of partitions.
 
       TestInputOperator test = dag.addOperator("test", new TestInputOperator());
-      MaxKeyVal<String, Integer> oper = dag.addOperator("max", new MaxKeyVal<String, Integer>());
+      MinKeyVal<String, Integer> oper = dag.addOperator("min", new MinKeyVal<String, Integer>());
       oper.setType(Integer.class);
       CollectorOperator collector = dag.addOperator("collector", new CollectorOperator());
 
       dag.getOperatorWrapper(oper).getAttributes().attr(OperatorContext.INITIAL_PARTITION_COUNT).set(N);
 
-      dag.addStream("test_max", test.output, oper.data).setInline(false); // inline has to be false to make partition working, o/w you get assertion error in assert (nodi.isInline() == false) in StramChild.java
-      dag.addStream("max_console", oper.max, collector.input).setInline(false);
+      dag.addStream("test_min", test.output, oper.data).setInline(false); // inline has to be false to make partition working, o/w you get assertion error in assert (nodi.isInline() == false) in StramChild.java
+      dag.addStream("min_console", oper.min, collector.input).setInline(false);
 
       final StramLocalCluster lc = new StramLocalCluster(dag);
       lc.setHeartbeatMonitoringEnabled(false);
@@ -171,9 +169,9 @@ public class MaxKeyValTest
       lc.run();
 
       Assert.assertEquals("received tuples ", 3, CollectorOperator.buffer.size());
-      log.debug(String.format("max of a value %s",CollectorOperator.buffer.get(0).toString()));
-      log.debug(String.format("max of a value %s",CollectorOperator.buffer.get(1).toString()));
-      log.debug(String.format("max of a value %s",CollectorOperator.buffer.get(2).toString()));
+      log.debug(String.format("min of a value %s",CollectorOperator.buffer.get(0).toString()));
+      log.debug(String.format("min of a value %s",CollectorOperator.buffer.get(1).toString()));
+      log.debug(String.format("min of a value %s",CollectorOperator.buffer.get(2).toString()));
     }
     catch (Exception ex) {
       log.debug("got exception", ex);
