@@ -26,9 +26,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
-public class YahooFinanceCSVSpout extends SimpleSinglePortInputOperator<ArrayList<String>> implements Runnable
+public class YahooFinanceCSVInputOperator extends SimpleSinglePortInputOperator<ArrayList<String>> implements Runnable
 {
-  private static final Logger logger = LoggerFactory.getLogger(YahooFinanceCSVSpout.class);
+  private static final Logger logger = LoggerFactory.getLogger(YahooFinanceCSVInputOperator.class);
   /**
    * Timeout interval for reading from server. 0 or negative indicates no timeout.
    */
@@ -93,13 +93,10 @@ public class YahooFinanceCSVSpout extends SimpleSinglePortInputOperator<ArrayLis
 
     str += "s=";
     for (int i = 0; i < symbolList.size(); i++) {
-      if (i == 0) {
-        str += symbolList.get(i);
-      }
-      else {
+      if (i != 0) {
         str += ",";
-        str += symbolList.get(i);
       }
+       str += symbolList.get(i);
     }
     str += "&f=";
     for (String format: parameterList) {

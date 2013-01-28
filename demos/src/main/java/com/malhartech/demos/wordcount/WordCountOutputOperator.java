@@ -19,9 +19,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
-public class WordCount extends BaseOperator
+public class WordCountOutputOperator extends BaseOperator
 {
-  private static final Logger logger = LoggerFactory.getLogger(WordCount.class);
+  private static final Logger logger = LoggerFactory.getLogger(WordCountOutputOperator.class);
   public static Map<String, Integer> counts = new HashMap<String, Integer>();
   public static int words = 0;
 
@@ -57,7 +57,7 @@ public class WordCount extends BaseOperator
   @Override
   public void endWindow()
   {
-//    logger.debug("WordCount END words:"+words+" size:"+counts.size()+","+counts.toString());
+//    logger.debug("WordCountOutputOperator END words:"+words+" size:"+counts.size()+","+counts.toString());
   }
 
   @Override

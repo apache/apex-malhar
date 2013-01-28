@@ -11,7 +11,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * This demo will output the stock market data from yahoo finance
+ * 
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
 public class Application implements ApplicationFactory
@@ -27,19 +28,19 @@ public class Application implements ApplicationFactory
 
   public DAG getYahooFinanceCSVApplication(Configuration conf) {
     DAG dag = new DAG();
-    YahooFinanceCSVSpout spout = dag.addOperator("spout", new YahooFinanceCSVSpout());
+    YahooFinanceCSVInputOperator spout = dag.addOperator("spout", new YahooFinanceCSVInputOperator());
     spout.addSymbol("GOOG");
     spout.addSymbol("FB");
     spout.addSymbol("YHOO");
-    spout.addFormat(YahooFinanceCSVSpout.Symbol);
-    spout.addFormat(YahooFinanceCSVSpout.LastTrade);
-    spout.addFormat(YahooFinanceCSVSpout.LastTradeDate);
-    spout.addFormat(YahooFinanceCSVSpout.LastTradeTime);
-    spout.addFormat(YahooFinanceCSVSpout.Change);
-    spout.addFormat(YahooFinanceCSVSpout.Open);
-    spout.addFormat(YahooFinanceCSVSpout.DaysHigh);
-    spout.addFormat(YahooFinanceCSVSpout.DaysLow);
-    spout.addFormat(YahooFinanceCSVSpout.Volume);
+    spout.addFormat(YahooFinanceCSVInputOperator.Symbol);
+    spout.addFormat(YahooFinanceCSVInputOperator.LastTrade);
+    spout.addFormat(YahooFinanceCSVInputOperator.LastTradeDate);
+    spout.addFormat(YahooFinanceCSVInputOperator.LastTradeTime);
+    spout.addFormat(YahooFinanceCSVInputOperator.Change);
+    spout.addFormat(YahooFinanceCSVInputOperator.Open);
+    spout.addFormat(YahooFinanceCSVInputOperator.DaysHigh);
+    spout.addFormat(YahooFinanceCSVInputOperator.DaysLow);
+    spout.addFormat(YahooFinanceCSVInputOperator.Volume);
 
     ConsoleOutputOperator consoleOperator = dag.addOperator("console", new ConsoleOutputOperator());
     dag.addStream("spout-console", spout.outputPort, consoleOperator.input).setInline(allInline);

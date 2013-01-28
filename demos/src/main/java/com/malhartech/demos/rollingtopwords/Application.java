@@ -9,7 +9,8 @@ import com.malhartech.api.ApplicationFactory;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- *
+ * This program will output the top N frequent word from twitter feed
+ * 
  * @author Zhongjian Wang<zhongjian@malhar-inc.com>
  */
 public class Application implements ApplicationFactory

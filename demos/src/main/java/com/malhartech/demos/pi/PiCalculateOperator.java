@@ -15,12 +15,12 @@ import com.malhartech.api.DefaultOutputPort;
  */
 public class PiCalculateOperator extends BaseOperator
 {
-  private transient int x;
-  private transient int y;
+  private transient int x = -1;
+  private transient int y = -1;
   private static int base;
   private transient double pi;
-  private int inArea;
-  private int outArea;
+  private long inArea = 0;
+  private long totalArea = 0;
   public final transient DefaultInputPort<Integer> input = new DefaultInputPort<Integer>(this) {
 
     @Override
@@ -34,20 +34,13 @@ public class PiCalculateOperator extends BaseOperator
           if( x*x+y*y <= base ) {
             inArea++;
           }
-          outArea ++;
+          totalArea ++;
           x=y=-1;
       }
     }
   };
 
   public final transient DefaultOutputPort<Double> output = new DefaultOutputPort<Double>(this);
-
-  @Override
-  public void setup(OperatorContext context)
-  {
-    x=y=-1;
-    inArea = outArea = 0;
-  }
 
   @Override
   public void beginWindow(long windowId)
@@ -57,7 +50,7 @@ public class PiCalculateOperator extends BaseOperator
   @Override
   public void endWindow()
   {
-    pi = (double)inArea/outArea*4;
+    pi = (double) (inArea/totalArea)*4;
     output.emit(pi);
   }
 

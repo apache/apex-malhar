@@ -10,8 +10,8 @@ import com.malhartech.lib.io.ConsoleOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- * In this application, ageGenerator will generate [id,age] pair [3,23], ...; nameGenerator will generate [id,name] pair [3,bob], ...
- * SingleJoinBolt will join the age pair and name pair by same id value and output the age name pair. In the above case, it will output [23,bob]
+ * In this application, ageInputOperator will generate [id,age] pair [3,23], ...; nameInputOperator will generate [id,name] pair [3,bob], ...
+ * SingleJoinOutputOperator will join the age pair and name pair by same id value and output the age name pair. In the above case, it will output [23,bob]
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
@@ -24,10 +24,10 @@ public class Application implements ApplicationFactory
   {
     DAG dag = new DAG(conf);
 
-    AgeGenerator ageGen = dag.addOperator("age", new AgeGenerator());
-    NameGenerator nameGen  = dag.addOperator("name", new NameGenerator());
+    AgeInputOperator ageGen = dag.addOperator("age", new AgeInputOperator());
+    NameInputOperator nameGen  = dag.addOperator("name", new NameInputOperator());
 
-    SingleJoinBolt joinBolt = dag.addOperator("join", new SingleJoinBolt());
+    SingleJoinOutputOperator joinBolt = dag.addOperator("join", new SingleJoinOutputOperator());
 
     dag.addStream("age-join", ageGen.output, joinBolt.age).setInline(allInline);
     dag.addStream("name-join", nameGen.output, joinBolt.name ).setInline(allInline);

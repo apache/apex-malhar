@@ -14,7 +14,7 @@ import java.util.HashMap;
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
-public class SingleJoinBolt extends BaseOperator
+public class SingleJoinOutputOperator extends BaseOperator
 {
   private HashMap<Integer, Object> map1 = new HashMap<Integer, Object>();
   private HashMap<Integer, Object> map2 = new HashMap<Integer, Object>();

@@ -8,10 +8,11 @@ import com.malhartech.demos.pi.PiCompareApplication;
 import com.malhartech.stram.StramLocalCluster;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  *
- * @author Chetan Narsude <chetan@malhar-inc.com>
+ * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
 public class PiCompareApplicationTest
 {
@@ -39,5 +40,4 @@ public class PiCompareApplicationTest
 
     lc.run();
   }
-
 }

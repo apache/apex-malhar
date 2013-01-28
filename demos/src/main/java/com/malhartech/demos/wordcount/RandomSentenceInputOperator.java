@@ -15,9 +15,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
-public class RandomSentenceSpout implements InputOperator
+public class RandomSentenceInputOperator implements InputOperator
 {
-  private static final Logger logger = LoggerFactory.getLogger(RandomSentenceSpout.class);
+  private static final Logger logger = LoggerFactory.getLogger(RandomSentenceInputOperator.class);
   public transient DefaultOutputPort<String> output = new DefaultOutputPort<String>(this);
 //  public static final String filename = "/home/wzj/Downloads/hadoop-1.0.4/terafile-10M";
   public static final String filename = "samplefile";

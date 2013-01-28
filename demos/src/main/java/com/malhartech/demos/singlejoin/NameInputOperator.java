@@ -14,19 +14,19 @@ import java.util.Random;
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
-public class AgeGenerator implements InputOperator
+public class NameInputOperator implements InputOperator
 {
   public transient DefaultOutputPort<ArrayList<Object>> output = new DefaultOutputPort<ArrayList<Object>>(this);
   private Random random;
+  private String[] name = {"mark", "steve", "allen","bob","john","mary","hellen","christina","beyonce","alex"};
 
   @Override
   public void emitTuples()
   {
-    Integer id = random.nextInt(10);
-    Integer age = id+20;
+    Integer id = random.nextInt(name.length);
     ArrayList<Object> list = new ArrayList<Object>();
     list.add(id);
-    list.add(age);
+    list.add(name[id]);
     output.emit(list);
   }
 
@@ -50,4 +50,5 @@ public class AgeGenerator implements InputOperator
   public void teardown()
   {
   }
+
 }
