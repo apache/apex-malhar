@@ -8,22 +8,22 @@ import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.api.StreamCodec;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
+import com.malhartech.lib.util.KeyValPair;
 import com.malhartech.lib.util.MutableDouble;
-import com.malhartech.lib.util.UnifierHashMap;
 import java.util.HashMap;
 import java.util.Map;
-
 
 /**
  *
  * Adds all values for each key in "numerator" and "denominator", and at the end of window emits the margin for each key
- * (1 - numerator/denominator).<p>
+ * (1 - numerator/denominator). <p>
  * <br>The values are added for each key within the window and for each stream.<br>
  * <br>
  * <b>Ports</b>:<br>
- * <b>numerator</b>: expects Map&lt;K,V&gt;<br>
- * <b>denominator</b>: expects Map&lt;K,V&gt;<br>
+ * <b>numerator</b>: expects KeyValPair&lt;K,V&gt;<br>
+ * <b>denominator</b>: expects KeyValPair&lt;K,V&gt;<br>
  * <b>margin</b>: emits HashMap&lt;K,Double&gt;, one entry per key per window<br>
  * <br>
  * <b>Properties</b>:<br>
@@ -36,14 +36,14 @@ import java.util.Map;
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for MarginMap&lt;K,V extends Number&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>40 Million K,V pairs/s</b></td><td>One tuple per key per window per port</td><td>In-bound rate is the main determinant of performance. Tuples are assumed to be
+ * <tr><td><b>37 Million K,V pairs/s</b></td><td>One tuple per key per window per port</td><td>In-bound rate is the main determinant of performance. Tuples are assumed to be
  * immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
  * </table><br>
  * <p>
  * <b>Function Table (K=String, V=Integer) and percent set to true</b>:
  * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for MarginMap&lt;K,V extends Number&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th colspan=2>In-bound (process)</th><th>Out-bound (emit)</th></tr>
- * <tr><th><i>numerator</i>(Map&lt;K,V&gt;)</th><th><i>denominator</i>(Map&lt;K,V&gt;)</th><th><i>margin</i>(HashMap&lt;K,Double&gt;)</th></tr>
+ * <tr><th><i>numerator</i>(KeyValPair&lt;K,V&gt;)</th><th><i>denominator</i>(KeyValPair&lt;K,V&gt;)</th><th><i>margin</i>(KeyValPair&lt;K,Double&gt;)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
  * <tr><td>Data (process())</td><td></td><td>{a=2,a=8}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{a=2,b=20,c=4000}</td><td></td><td></td></tr>
@@ -58,74 +58,87 @@ import java.util.Map;
  * <tr><td>Data (process())</td><td>{d=4,a=23,g=5,h=44}</td><td></td><td></td></tr>
  * <tr><td>Data (process())</td><td></td><td>{c=1500}</td><td></td></tr>
  * <tr><td>Data (process())</td><td></td><td>{a=40,b=30}</td><td></td></tr>
- * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td><td>{a=28,b=0,c=-100,d=50,e=33.3}</td></tr>
+ * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td><td>a=28<br>b=0<br>c=-100<br>d=50<br>e=33.3</td></tr>
  * </table>
  * <br>
- * @author Amol Kekre (amol@malhar-inc.com)<br>
+ *
+ * @author Locknath Shil <locknath@malhar-inc.com><br>
  * <br>
  */
-public class MarginMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
+public class MarginKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
   @InputPortFieldAnnotation(name = "numerator")
-  public final transient DefaultInputPort<Map<K, V>> numerator = new DefaultInputPort<Map<K, V>>(this)
+  public final transient DefaultInputPort<KeyValPair<K, V>> numerator = new DefaultInputPort<KeyValPair<K, V>>(this)
   {
     /**
-     * Adds tuple to the numerator hash
+     * Adds tuple to the numerator hash.
      */
     @Override
-    public void process(Map<K, V> tuple)
+    public void process(KeyValPair<K, V> tuple)
     {
       addTuple(tuple, numerators);
     }
-  };
-  @InputPortFieldAnnotation(name = "denominator")
-  public final transient DefaultInputPort<Map<K, V>> denominator = new DefaultInputPort<Map<K, V>>(this)
-  {
+
     /**
-     * Adds tuple to the denominator hash
+     * Set StreamCodec used for partitioning.
      */
     @Override
-    public void process(Map<K, V> tuple)
+    public Class<? extends StreamCodec<KeyValPair<K, V>>> getStreamCodec()
+    {
+      return getKeyValPairStreamCodec();
+    }
+  };
+  @InputPortFieldAnnotation(name = "denominator")
+  public final transient DefaultInputPort<KeyValPair<K, V>> denominator = new DefaultInputPort<KeyValPair<K, V>>(this)
+  {
+    /**
+     * Adds tuple to the denominator hash.
+     */
+    @Override
+    public void process(KeyValPair<K, V> tuple)
     {
       addTuple(tuple, denominators);
+    }
+
+    /**
+     * Set StreamCodec used for partitioning.
+     */
+    @Override
+    public Class<? extends StreamCodec<KeyValPair<K, V>>> getStreamCodec()
+    {
+      return getKeyValPairStreamCodec();
     }
   };
 
   /**
    * Adds the value for each key.
+   *
    * @param tuple
    * @param map
    */
-  public void addTuple(Map<K, V> tuple, Map<K, MutableDouble> map)
+  public void addTuple(KeyValPair<K, V> tuple, Map<K, MutableDouble> map)
   {
-    for (Map.Entry<K, V> e: tuple.entrySet()) {
-      if (!doprocessKey(e.getKey()) || (e.getValue() == null)) {
-        continue;
-      }
-      MutableDouble val = map.get(e.getKey());
-      if (val == null) {
-        val = new MutableDouble(0.0);
-        map.put(cloneKey(e.getKey()), val);
-      }
-      val.value += e.getValue().doubleValue();
+    K key = tuple.getKey();
+    if (!doprocessKey(key) || (tuple.getValue() == null)) {
+      return;
     }
+    MutableDouble val = map.get(key);
+    if (val == null) {
+      val = new MutableDouble(0.0);
+      map.put(cloneKey(key), val);
+    }
+    val.value += tuple.getValue().doubleValue();
   }
   @OutputPortFieldAnnotation(name = "margin")
-  public final transient DefaultOutputPort<HashMap<K, V>> margin = new DefaultOutputPort<HashMap<K, V>>(this)
-  {
-    @Override
-    public Unifier<HashMap<K, V>> getUnifier()
-    {
-      return new UnifierHashMap<K,V>();
-    }
-  };
+  public final transient DefaultOutputPort<KeyValPair<K, V>> margin = new DefaultOutputPort<KeyValPair<K, V>>(this);
 
   protected transient HashMap<K, MutableDouble> numerators = new HashMap<K, MutableDouble>();
   protected transient HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();
-  boolean percent = false;
+  protected boolean percent = false;
 
   /**
    * getter function for percent
+   *
    * @return percent
    */
   public boolean getPercent()
@@ -135,6 +148,7 @@ public class MarginMap<K, V extends Number> extends BaseNumberKeyValueOperator<K
 
   /**
    * setter function for percent
+   *
    * @param val sets percent
    */
   public void setPercent(boolean val)
@@ -150,15 +164,15 @@ public class MarginMap<K, V extends Number> extends BaseNumberKeyValueOperator<K
   @Override
   public void endWindow()
   {
-    HashMap<K, V> tuples = new HashMap<K, V>();
     Double val;
     for (Map.Entry<K, MutableDouble> e: denominators.entrySet()) {
-      MutableDouble nval = numerators.get(e.getKey());
+      K key = e.getKey();
+      MutableDouble nval = numerators.get(key);
       if (nval == null) {
         nval = new MutableDouble(0.0);
       }
       else {
-        numerators.remove(e.getKey()); // so that all left over keys can be reported
+        numerators.remove(key); // so that all left over keys can be reported
       }
       if (percent) {
         val = (1 - nval.value / e.getValue().value) * 100;
@@ -166,16 +180,11 @@ public class MarginMap<K, V extends Number> extends BaseNumberKeyValueOperator<K
       else {
         val = 1 - nval.value / e.getValue().value;
       }
-      tuples.put(e.getKey(), getValue(val.doubleValue()));
+
+      margin.emit(new KeyValPair(key, getValue(val.doubleValue())));
     }
-    if (!tuples.isEmpty()) {
-      margin.emit(tuples);
-    }
+
     numerators.clear();
     denominators.clear();
   }
 }
-
-
-
-
