@@ -6,12 +6,15 @@ package com.malhartech.demos.pi;
 
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
+import com.malhartech.api.Operator.InputPort;
 import com.malhartech.lib.io.ConsoleOutputOperator;
+import com.malhartech.lib.io.HttpOutputOperator;
 import com.malhartech.lib.math.*;
 import com.malhartech.lib.stream.AbstractAggregator;
 import com.malhartech.lib.stream.ArrayListAggregator;
 import com.malhartech.lib.stream.Counter;
 import com.malhartech.lib.testbench.RandomEventGenerator;
+import java.net.URI;
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -22,12 +25,25 @@ public class Calculator implements ApplicationFactory
 {
   private final boolean allInline = false;
 
+  private InputPort<Object> getConsolePort(DAG b, String name)
+  {
+    // output to HTTP server when specified in environment setting
+    String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
+    if (serverAddr == null) {
+      ConsoleOutputOperator oper = b.addOperator(name, new ConsoleOutputOperator());
+      oper.setStringFormat(name + ": %s");
+      return oper.input;
+    }
+    HttpOutputOperator<Object> oper = b.addOperator(name, new HttpOutputOperator<Object>());
+    URI u = URI.create("http://" + serverAddr + "/channel/" + name);
+    oper.setResourceURL(u);
+    return oper.input;
+  }
+
   @Override
   public DAG getApplication(Configuration conf)
   {
     DAG dag = new DAG(conf);
-
-    ConsoleOutputOperator console = dag.addOperator("Console", ConsoleOutputOperator.class);
 
     /* keep generating random values between 0 and 30000 */
     RandomEventGenerator xyGenerator = dag.addOperator("GenerateX", RandomEventGenerator.class);
@@ -65,7 +81,7 @@ public class Calculator implements ApplicationFactory
     dag.addStream("denominator", inSquare.output, division.denominator).setInline(allInline);
     dag.addStream("ratio", division.doubleQuotient, multiplication.input).setInline(allInline);
     dag.addStream("instantPi", multiplication.doubleProduct, average.input).setInline(allInline);
-    dag.addStream("averagePi", average.doubleAverage, console.input).setInline(allInline);
+    dag.addStream("averagePi", average.doubleAverage, getConsolePort(dag, "Console")).setInline(allInline);
 
     return dag;
   }
