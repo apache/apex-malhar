@@ -60,15 +60,15 @@ import org.apache.commons.lang3.mutable.MutableInt;
 public class UniqueValueMap<K> extends BaseKeyOperator<K>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<Map<K,Object>> data = new DefaultInputPort<Map<K,Object>>(this)
+  public final transient DefaultInputPort<Map<K, ? extends Object>> data = new DefaultInputPort<Map<K, ? extends Object>>(this)
   {
     /**
      * Reference counts tuples
      */
     @Override
-    public void process(Map<K,Object> tuple)
+    public void process(Map<K, ? extends Object> tuple)
     {
-      for (Map.Entry<K,Object> e: tuple.entrySet()) {
+      for (Map.Entry<K, ? extends Object> e: tuple.entrySet()) {
         HashSet<Object> vals = map.get(e.getKey());
         if (vals == null) {
           vals = new HashSet<Object>();

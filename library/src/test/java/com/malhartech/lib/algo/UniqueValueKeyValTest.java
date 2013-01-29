@@ -26,7 +26,7 @@ public class UniqueValueKeyValTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
-    UniqueValueKeyVal<String,Integer> oper = new UniqueValueKeyVal<String,Integer>();
+    UniqueValueKeyVal<String> oper = new UniqueValueKeyVal<String>();
     TestSink<KeyValPair<String,Integer>> sink = new TestSink<KeyValPair<String,Integer>>();
     oper.count.setSink(sink);
 

@@ -57,13 +57,13 @@ import java.util.Map;
 public class UniqueValueKeyVal<K> extends BaseKeyOperator<K>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<KeyValPair<K,Object>> data = new DefaultInputPort<KeyValPair<K,Object>>(this)
+  public final transient DefaultInputPort<KeyValPair<K,? extends Object>> data = new DefaultInputPort<KeyValPair<K,? extends Object>>(this)
   {
     /**
      * Reference counts tuples
      */
     @Override
-    public void process(KeyValPair<K,Object> tuple)
+    public void process(KeyValPair<K,? extends Object> tuple)
     {
       HashSet<Object> vals = map.get(tuple.getKey());
       if (vals == null) {
