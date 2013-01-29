@@ -13,6 +13,7 @@ package com.malhartech.lib.util;
  *
  */
 
+@Deprecated
 public class MutableDouble
 {
   public double value;
@@ -34,7 +35,7 @@ public class MutableDouble
   }
 
   /**
-   * Increaments value by i
+   * Increments value by i
    * @param i
    */
   public void add(double i) {

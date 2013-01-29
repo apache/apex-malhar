@@ -13,6 +13,7 @@ package com.malhartech.lib.util;
  *
  */
 
+@Deprecated
 public class MutableLong
 {
   public long value;

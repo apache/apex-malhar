@@ -13,6 +13,7 @@ package com.malhartech.lib.util;
  *
  */
 
+@Deprecated
 public class MutableFloat
 {
   public float value;
