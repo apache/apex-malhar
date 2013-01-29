@@ -12,6 +12,7 @@ import com.malhartech.lib.util.BaseUniqueKeyCounter;
 import com.malhartech.lib.util.MutableInteger;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
  * Counts the number of times a key exists in a window; one tuple is emitted per unique key pair. <p>
@@ -79,9 +80,9 @@ public class UniqueCounterEach<K> extends BaseUniqueKeyCounter<K>
     // emitting one key at a time helps in load balancing
     // If MutableInteger is supported, then there is no need to create a new hash
     // just emit(map) would suffice
-    for (Map.Entry<K, MutableInteger> e: map.entrySet()) {
+    for (Map.Entry<K, MutableInt> e: map.entrySet()) {
       HashMap<K, Integer> tuple = new HashMap<K, Integer>(1);
-      tuple.put(e.getKey(), new Integer(e.getValue().value));
+      tuple.put(e.getKey(), e.getValue().toInteger());
       count.emit(tuple);
     }
   }

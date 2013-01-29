@@ -12,11 +12,15 @@ import java.util.AbstractMap;
  * <br>
  * Key and Value are to be treated as immutable objects.
  *
+ * @param <K>
+ * @param <V>
  * @author amol<br>
  *
  */
 public class KeyValPair<K, V> extends AbstractMap.SimpleEntry<K, V>
 {
+  private static final long serialVersionUID = 201301281547L;
+
   /**
    * Added default constructor for deserializer.
    */
@@ -35,4 +39,5 @@ public class KeyValPair<K, V> extends AbstractMap.SimpleEntry<K, V>
   {
     super(k, v);
   }
+
 }

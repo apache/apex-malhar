@@ -9,9 +9,9 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseUniqueKeyCounter;
-import com.malhartech.lib.util.MutableInteger;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
  * Counts the number of times a key exists in a window; Count is emitted at end of window in a single HashMap<p>
@@ -84,11 +84,11 @@ public class UniqueCounter<K> extends BaseUniqueKeyCounter<K>
   public void endWindow()
   {
     HashMap<K, Integer> tuple = null;
-    for (Map.Entry<K, MutableInteger> e: map.entrySet()) {
+    for (Map.Entry<K, MutableInt> e: map.entrySet()) {
       if (tuple == null) {
         tuple = new HashMap<K, Integer>();
       }
-      tuple.put(e.getKey(), e.getValue().value);
+      tuple.put(e.getKey(), e.getValue().toInteger());
     }
     if (tuple != null) {
       count.emit(tuple);
