@@ -11,7 +11,6 @@ import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.StreamCodec;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
 import com.malhartech.lib.util.KeyValPair;
-import com.malhartech.lib.util.MutableDouble;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -79,13 +78,12 @@ public class MinKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
       if (!doprocessKey(key) || (tval == null)) {
         return;
       }
-      MutableDouble val = mins.get(key);
+      V val = mins.get(key);
       if (val == null) {
-        val = new MutableDouble(tval.doubleValue());
-        mins.put(cloneKey(key), val);
+        mins.put(cloneKey(key), tval);
       }
-      if (val.value > tval.doubleValue()) {
-        val.value = tval.doubleValue();
+      else if (val.doubleValue() > tval.doubleValue()) {
+        mins.put(key, tval);
       }
     }
 
@@ -100,19 +98,18 @@ public class MinKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
   };
   @OutputPortFieldAnnotation(name = "max")
   public final transient DefaultOutputPort<KeyValPair<K, V>> min = new DefaultOutputPort<KeyValPair<K, V>>(this);
-  protected transient HashMap<K, MutableDouble> mins = new HashMap<K, MutableDouble>();
+  protected transient HashMap<K, V> mins = new HashMap<K, V>();
 
   /**
    * Emits all key,min value pairs.
-   * Override getValue() if you have your own class extended from Number.
    * Clears internal data. Node only works in windowed mode.
    */
   @Override
   public void endWindow()
   {
     if (!mins.isEmpty()) {
-      for (Map.Entry<K, MutableDouble> e: mins.entrySet()) {
-        min.emit(new KeyValPair(e.getKey(), getValue(e.getValue().value)));
+      for (Map.Entry<K, V> e: mins.entrySet()) {
+        min.emit(new KeyValPair(e.getKey(), e.getValue()));
       }
       mins.clear();
     }

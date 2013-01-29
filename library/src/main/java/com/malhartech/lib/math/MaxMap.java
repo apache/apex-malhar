@@ -81,13 +81,14 @@ public class MaxMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
       if (!doprocessKey(key) || (e.getValue() == null)) {
         continue;
       }
-      MutableDouble val = high.get(key);
+      V val = high.get(key);
       if (val == null) {
-        val = new MutableDouble(e.getValue().doubleValue());
+        val = e.getValue();
         high.put(cloneKey(key), val);
       }
       if (val.doubleValue() < e.getValue().doubleValue()) {
-        val.setValue(e.getValue());
+        val = e.getValue();
+        high.put(key, val);
       }
     }
   }
@@ -102,7 +103,8 @@ public class MaxMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
       return MaxMap.this;
     }
   };
-  protected transient HashMap<K, MutableDouble> high = new HashMap<K, MutableDouble>();
+
+  protected transient HashMap<K,V> high = new HashMap<K,V>();
 
   /**
    * Emits all key,max value pairs.
@@ -114,8 +116,8 @@ public class MaxMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
   {
     if (!high.isEmpty()) {
       HashMap<K, V> tuple = new HashMap<K, V>(high.size());
-      for (Map.Entry<K,MutableDouble> e: high.entrySet()) {
-        tuple.put(e.getKey(), getValue(e.getValue().doubleValue()));
+      for (Map.Entry<K,V> e: high.entrySet()) {
+        tuple.put(e.getKey(), e.getValue());
       }
       max.emit(tuple);
       high.clear();

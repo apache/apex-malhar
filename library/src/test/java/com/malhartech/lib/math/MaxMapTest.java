@@ -95,12 +95,12 @@ public class MaxMapTest
     oper.endWindow();
 
     Assert.assertEquals("number emitted tuples", 1, maxSink.count);
-    Number val = ((HashMap<String, Number>)maxSink.tuple).get("a");
+    Number val = ((HashMap<String, Number>)maxSink.tuple).get("a").intValue();
     if (type.equals("short")) {
-      Assert.assertEquals("emitted max value was ", new Double(numtuples / 1000 - 1), val);
+      Assert.assertEquals("emitted max value was ", (new Double(numtuples / 1000 - 1)).intValue(), val);
     }
     else {
-      Assert.assertEquals("emitted max value was ", new Double(numtuples - 1), val);
+      Assert.assertEquals("emitted max value was ", (new Double(numtuples - 1)).intValue(), val);
     }
   }
 

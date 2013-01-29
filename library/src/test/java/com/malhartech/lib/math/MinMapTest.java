@@ -83,8 +83,8 @@ public class MinMapTest
 
     Assert.assertEquals("number emitted tuples", 1, minSink.count);
     HashMap<String, Number> shash = (HashMap<String, Number>) minSink.tuple;
-    Number val = shash.get("a");
+    Number val = shash.get("a").intValue();
     Assert.assertEquals("number emitted tuples", 1, shash.size());
-    Assert.assertEquals("emitted min value was ", new Double(0.0), val);
+    Assert.assertEquals("emitted min value was ", 0, val);
   }
 }

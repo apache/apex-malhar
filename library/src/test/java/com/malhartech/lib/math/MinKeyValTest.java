@@ -78,12 +78,12 @@ public class MinKeyValTest
     oper.endWindow();
 
     Assert.assertEquals("number emitted tuples", 1, minSink.count);
-    Number val = ((KeyValPair<String, Number>)minSink.tuple).getValue();
+    Number val = ((KeyValPair<String, Number>)minSink.tuple).getValue().intValue();
     if (type.equals("short")) {
-      Assert.assertEquals("emitted min value was ", new Double(1), val);
+      Assert.assertEquals("emitted min value was ", 1, val);
     }
     else {
-      Assert.assertEquals("emitted min value was ", new Double(1), val);
+      Assert.assertEquals("emitted min value was ", 1, val);
     }
   }
 

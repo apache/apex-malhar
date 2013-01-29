@@ -76,16 +76,16 @@ public class MinMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
   public void merge(HashMap<K, V> tuple)
   {
     for (Map.Entry<K, V> e: tuple.entrySet()) {
-      if (!doprocessKey(e.getKey()) || (e.getValue() == null)) {
+      K key = e.getKey();
+      if (!doprocessKey(key) || (e.getValue() == null)) {
         continue;
       }
-      MutableDouble val = low.get(e.getKey());
+      V val = low.get(key);
       if (val == null) {
-        val = new MutableDouble(e.getValue().doubleValue());
-        low.put(cloneKey(e.getKey()), val);
+        low.put(cloneKey(key), e.getValue());
       }
-      if (val.value > e.getValue().doubleValue()) {
-        val.value = e.getValue().doubleValue();
+      else if (val.doubleValue() > e.getValue().doubleValue()) {
+        low.put(key, e.getValue());
       }
     }
   }
@@ -100,7 +100,7 @@ public class MinMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
     }
   };
 
-  protected transient HashMap<K, MutableDouble> low = new HashMap<K, MutableDouble>();
+  protected transient HashMap<K, V> low = new HashMap<K, V>();
 
   /**
    * Emits all key,min value pairs.
@@ -112,8 +112,8 @@ public class MinMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
   {
     if (!low.isEmpty()) {
       HashMap<K, V> tuple = new HashMap<K, V>(low.size());
-      for (Map.Entry<K, MutableDouble> e: low.entrySet()) {
-        tuple.put(e.getKey(), getValue(e.getValue().value));
+      for (Map.Entry<K, V> e: low.entrySet()) {
+        tuple.put(e.getKey(), e.getValue());
       }
       min.emit(tuple);
     }

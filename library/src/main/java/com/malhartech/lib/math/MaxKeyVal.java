@@ -79,13 +79,13 @@ public class MaxKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
       if (!doprocessKey(key) || (tval == null)) {
         return;
       }
-      MutableDouble val = highs.get(key);
+      V val = highs.get(key);
       if (val == null) {
-        val = new MutableDouble(tval);
+        val = tval;
         highs.put(cloneKey(key), val);
       }
-      if (val.doubleValue() < tval.doubleValue()) {
-        val.setValue(tval.doubleValue());
+      else if (val.doubleValue() < tval.doubleValue()) {
+        highs.put(key, tval);
       }
     }
 
@@ -100,7 +100,8 @@ public class MaxKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
   };
   @OutputPortFieldAnnotation(name = "max")
   public final transient DefaultOutputPort<KeyValPair<K, V>> max = new DefaultOutputPort<KeyValPair<K, V>>(this);
-  protected transient HashMap<K, MutableDouble> highs = new HashMap<K, MutableDouble>();
+
+  protected transient HashMap<K, V> highs = new HashMap<K, V>();
 
   /**
    * Emits all key,max value pairs.
@@ -111,8 +112,8 @@ public class MaxKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
   public void endWindow()
   {
     if (!highs.isEmpty()) {
-      for (Map.Entry<K, MutableDouble> e: highs.entrySet()) {
-        max.emit(new KeyValPair(e.getKey(), getValue(e.getValue().doubleValue())));
+      for (Map.Entry<K, V> e: highs.entrySet()) {
+        max.emit(new KeyValPair(e.getKey(), e.getValue()));
       }
       clearCache();
     }

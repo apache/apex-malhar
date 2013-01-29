@@ -71,11 +71,11 @@ public class Min<V extends Number> extends BaseNumberValueOperator<V> implements
   public void merge(V tuple)
   {
     if (!flag) {
-      low = tuple.doubleValue();
+      low = tuple;
       flag = true;
     }
-    else if (low > tuple.doubleValue()) {
-      low = tuple.doubleValue();
+    else if (low.doubleValue() > tuple.doubleValue()) {
+      low = tuple;
     }
   }
 
@@ -89,7 +89,7 @@ public class Min<V extends Number> extends BaseNumberValueOperator<V> implements
     }
   };
 
-  protected transient double low;
+  protected transient V low;
   protected transient boolean flag = false;
 
   /**
@@ -100,7 +100,7 @@ public class Min<V extends Number> extends BaseNumberValueOperator<V> implements
   public void endWindow()
   {
     if (flag) {
-      min.emit(getValue(low));
+      min.emit(low);
     }
     flag = false;
   }

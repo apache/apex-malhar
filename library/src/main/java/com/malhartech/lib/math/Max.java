@@ -70,11 +70,11 @@ public class Max<V extends Number> extends BaseNumberValueOperator<V> implements
   public void merge(V tuple)
   {
     if (!flag) {
-      high = tuple.doubleValue();
+      high = tuple;
       flag = true;
     }
-    else if (high < tuple.doubleValue()) {
-      high = tuple.doubleValue();
+    else if (high.doubleValue() < tuple.doubleValue()) {
+      high = tuple;
     }
   }
 
@@ -88,7 +88,7 @@ public class Max<V extends Number> extends BaseNumberValueOperator<V> implements
     }
   };
 
-  protected transient double high;
+  protected transient V high;
   protected transient boolean flag = false;
 
   /**
@@ -99,7 +99,7 @@ public class Max<V extends Number> extends BaseNumberValueOperator<V> implements
   public void endWindow()
   {
     if (flag) {
-      max.emit(getValue(high));
+      max.emit(high);
     }
     flag = false;
   }

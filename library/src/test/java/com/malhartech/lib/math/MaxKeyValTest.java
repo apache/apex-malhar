@@ -79,12 +79,12 @@ public class MaxKeyValTest
     oper.endWindow();
 
     Assert.assertEquals("number emitted tuples", 1, maxSink.count);
-    Number val = ((KeyValPair<String, Number>)maxSink.tuple).getValue();
+    Number val = ((KeyValPair<String, Number>)maxSink.tuple).getValue().intValue();
     if (type.equals("short")) {
-      Assert.assertEquals("emitted max value was ", new Double(numtuples / 1000 - 1), val);
+      Assert.assertEquals("emitted max value was ", (new Double(numtuples / 1000 - 1)).intValue(), val);
     }
     else {
-      Assert.assertEquals("emitted max value was ", new Double(numtuples - 1), val);
+      Assert.assertEquals("emitted max value was ", (new Double(numtuples - 1)).intValue(), val);
     }
   }
 
