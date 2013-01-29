@@ -12,7 +12,6 @@ import com.malhartech.api.StreamCodec;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
 import com.malhartech.lib.util.KeyValPair;
 import com.malhartech.lib.util.MutableDouble;
-import com.malhartech.lib.util.MutableInteger;
 import java.util.HashMap;
 import java.util.Map;
 

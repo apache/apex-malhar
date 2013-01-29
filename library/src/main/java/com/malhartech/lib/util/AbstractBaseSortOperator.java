@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 import javax.validation.constraints.Min;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
  * Takes a stream of key value pairs via input port "data"; The incoming tuple is merged into already existing sorted list.
@@ -46,19 +47,19 @@ public abstract class AbstractBaseSortOperator<K> extends BaseKeyOperator<K>
       return;
     }
 
-    MutableInteger count = pmap.get(e);
+    MutableInt count = pmap.get(e);
     if (count == null) {
-      count = new MutableInteger(0);
+      count = new MutableInt(0);
       pmap.put(e, count);
       pqueue.add(e);
     }
-    count.value++;
+    count.increment();
   }
 
   @Min(1)
   int size = 10;
   protected transient PriorityQueue<K> pqueue = null;
-  protected transient HashMap<K, MutableInteger> pmap = new HashMap<K, MutableInteger>();
+  protected transient HashMap<K, MutableInt> pmap = new HashMap<K, MutableInt>();
 
   /**
    * getter function for size
@@ -128,15 +129,15 @@ public abstract class AbstractBaseSortOperator<K> extends BaseKeyOperator<K>
 
     K o;
     while ((o = pqueue.poll()) != null) {
-      MutableInteger count = pmap.get(o);
+      MutableInt count = pmap.get(o);
       if (sok) {
-        for (int i = 0; i < count.value; i++) {
+        for (int i = 0; i < count.intValue(); i++) {
           tuple.add(cloneKey(o));
         }
       }
 
       if (hok) {
-        htuple.put(cloneKey(o), count.value);
+        htuple.put(cloneKey(o), count.intValue());
       }
     }
     if (sok) {

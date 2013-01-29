@@ -5,6 +5,7 @@
 package com.malhartech.lib.util;
 
 import java.util.HashMap;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
  * Count unique occurances of keys within a window<p>
@@ -25,19 +26,19 @@ public class BaseUniqueKeyValueCounter<K,V> extends BaseKeyValueOperator<K,V>
   {
     HashMap<K,V> tuple = new HashMap<K,V>(1);
     tuple.put(key,val);
-    MutableInteger i = map.get(tuple);
+    MutableInt i = map.get(tuple);
     if (i == null) {
-      i = new MutableInteger(0);
+      i = new MutableInt(0);
       map.put(cloneTuple(tuple), i);
     }
-    i.value++;
+    i.increment();
   }
 
   /**
    * Bucket counting mechanism.
    * Since we clear the bucket at the beginning of the window, we make this object transient.
    */
-  protected transient HashMap<HashMap<K,V>, MutableInteger> map = new HashMap<HashMap<K,V>, MutableInteger>();
+  protected transient HashMap<HashMap<K,V>, MutableInt> map = new HashMap<HashMap<K,V>, MutableInt>();
 
   /**
    * Clears cache/hash

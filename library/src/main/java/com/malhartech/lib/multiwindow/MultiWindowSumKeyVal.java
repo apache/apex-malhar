@@ -7,7 +7,6 @@ package com.malhartech.lib.multiwindow;
 import com.malhartech.lib.math.SumKeyVal;
 import com.malhartech.lib.util.KeyValPair;
 import com.malhartech.lib.util.MutableDouble;
-import com.malhartech.lib.util.MutableInteger;
 import java.util.Map;
 import javax.validation.constraints.Min;
 import org.slf4j.Logger;

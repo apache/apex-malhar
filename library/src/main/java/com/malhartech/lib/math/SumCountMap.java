@@ -11,6 +11,7 @@ import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.*;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
  *
@@ -88,12 +89,12 @@ public class SumCountMap<K, V extends Number> extends BaseNumberKeyValueOperator
           sums.put(cloneKey(key), val);
         }
         if (count.isConnected()) {
-          MutableInteger count = counts.get(key);
+          MutableInt count = counts.get(key);
           if (count == null) {
-            count = new MutableInteger(0);
+            count = new MutableInt(0);
             counts.put(cloneKey(key), count);
           }
-          count.value++;
+          count.increment();
         }
       }
     }
@@ -118,7 +119,7 @@ public class SumCountMap<K, V extends Number> extends BaseNumberKeyValueOperator
     }
   };
   protected transient HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
-  protected transient HashMap<K, MutableInteger> counts = new HashMap<K, MutableInteger>();
+  protected transient HashMap<K, MutableInt> counts = new HashMap<K, MutableInt>();
 
   /**
    * Emits on all ports that are connected. Data is precomputed during process on input port
@@ -149,13 +150,13 @@ public class SumCountMap<K, V extends Number> extends BaseNumberKeyValueOperator
           stuples.put(key, getValue(e.getValue().value));
         }
         if (count.isConnected()) {
-          ctuples.put(key, new Integer(counts.get(e.getKey()).value));
+          ctuples.put(key, counts.get(e.getKey()).toInteger());
         }
       }
     }
     else if (count.isConnected()) { // sum is not connected, only counts is connected
-      for (Map.Entry<K, MutableInteger> e: counts.entrySet()) {
-        ctuples.put(e.getKey(), new Integer(e.getValue().value));
+      for (Map.Entry<K, MutableInt> e: counts.entrySet()) {
+        ctuples.put(e.getKey(), e.getValue().toInteger());
       }
     }
 

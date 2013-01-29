@@ -5,7 +5,7 @@
 package com.malhartech.lib.multiwindow;
 
 import com.malhartech.lib.util.MutableDouble;
-import com.malhartech.lib.util.MutableInteger;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
  * Information needed to calculate simple moving average.
@@ -15,7 +15,7 @@ import com.malhartech.lib.util.MutableInteger;
 public class SimpleMovingAverageObject implements SlidingWindowObject
 {
   private MutableDouble sum;
-  private MutableInteger count;
+  private MutableInt count;
 
   public double getSum()
   {
@@ -24,13 +24,13 @@ public class SimpleMovingAverageObject implements SlidingWindowObject
 
   public int getCount()
   {
-    return count.value;
+    return count.intValue();
   }
 
   public SimpleMovingAverageObject()
   {
     sum = new MutableDouble(0);
-    count = new MutableInteger(0);
+    count = new MutableInt(0);
   }
 
   public void add(double d)
@@ -43,6 +43,6 @@ public class SimpleMovingAverageObject implements SlidingWindowObject
   public void clear()
   {
     sum.value = 0.0;
-    count.value = 0;
+    count.setValue(0);
   }
 }

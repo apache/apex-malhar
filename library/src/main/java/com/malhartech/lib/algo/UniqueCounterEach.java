@@ -9,7 +9,6 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseUniqueKeyCounter;
-import com.malhartech.lib.util.MutableInteger;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -78,7 +77,7 @@ public class UniqueCounterEach<K> extends BaseUniqueKeyCounter<K>
   public void endWindow()
   {
     // emitting one key at a time helps in load balancing
-    // If MutableInteger is supported, then there is no need to create a new hash
+    // If MutableInt is supported, then there is no need to create a new hash
     // just emit(map) would suffice
     for (Map.Entry<K, MutableInt> e: map.entrySet()) {
       HashMap<K, Integer> tuple = new HashMap<K, Integer>(1);

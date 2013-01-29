@@ -10,11 +10,11 @@ import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseKeyValueOperator;
-import com.malhartech.lib.util.MutableInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 import javax.validation.constraints.NotNull;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
  * Order by ascending is done on the incoming stream based on val, and result is emitted on end of window<p>
@@ -80,13 +80,13 @@ public class OrderByKey<K,V> extends BaseKeyValueOperator<K,V>
       }
       boolean first = false;
       if (ordered_count.isConnected()) {
-        MutableInteger count = countmap.get(val);
+        MutableInt count = countmap.get(val);
         if (count == null) {
-          count = new MutableInteger(0);
+          count = new MutableInt(0);
           countmap.put(cloneValue(val), count);
           first = true;
         }
-        count.value++;
+        count.increment();
       }
       if (ordered_list.isConnected()) {
         ArrayList<HashMap<K,V>> list = smap.get(val);
@@ -111,7 +111,7 @@ public class OrderByKey<K,V> extends BaseKeyValueOperator<K,V>
   @NotNull()
   K orderby = null;
   protected transient PriorityQueue<V> pqueue = null;
-  protected transient HashMap<V,MutableInteger> countmap = new HashMap<V,MutableInteger>();
+  protected transient HashMap<V,MutableInt> countmap = new HashMap<V,MutableInt>();
   protected transient HashMap<V,ArrayList<HashMap<K,V>>> smap = new HashMap<V,ArrayList<HashMap<K,V>>>();
 
   /**
@@ -175,7 +175,7 @@ public class OrderByKey<K,V> extends BaseKeyValueOperator<K,V>
     while ((val = pqueue.poll()) != null) {
       if (ordered_count.isConnected()) {
         HashMap<V, Integer> tuple = new HashMap<V, Integer>(1);
-        tuple.put(val, countmap.get(val).value);
+        tuple.put(val, countmap.get(val).toInteger());
         ordered_count.emit(tuple);
       }
       if (ordered_list.isConnected()) {

@@ -10,10 +10,10 @@ import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseKeyValueOperator;
-import com.malhartech.lib.util.MutableInteger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
  * Order by ascending on value is done on the incoming stream based on key, and result is emitted on end of window<p>
@@ -79,18 +79,18 @@ public class OrderByValue<K, V> extends BaseKeyValueOperator<K, V>
           continue;
         }
 
-        HashMap<K, MutableInteger> istr = smap.get(e.getValue());
+        HashMap<K, MutableInt> istr = smap.get(e.getValue());
         if (istr == null) { // not in priority queue
-          istr = new HashMap<K, MutableInteger>(4);
+          istr = new HashMap<K, MutableInt>(4);
           smap.put(cloneValue(e.getValue()), istr);
           pqueue.add(cloneValue(e.getValue()));
         }
-        MutableInteger scount = istr.get(e.getKey());
+        MutableInt scount = istr.get(e.getKey());
         if (scount == null) { // this key does not exist
-          scount = new MutableInteger(0);
+          scount = new MutableInt(0);
           istr.put(cloneKey(e.getKey()), scount);
         }
-        scount.value++;
+        scount.increment();
       }
     }
   };
@@ -99,7 +99,7 @@ public class OrderByValue<K, V> extends BaseKeyValueOperator<K, V>
   @OutputPortFieldAnnotation(name = "ordered_count")
   public final transient DefaultOutputPort<HashMap<K, HashMap<V, Integer>>> ordered_count = new DefaultOutputPort<HashMap<K, HashMap<V, Integer>>>(this);
   protected transient PriorityQueue<V> pqueue = null;
-  protected transient HashMap<V, HashMap<K, MutableInteger>> smap = new HashMap<V, HashMap<K, MutableInteger>>();
+  protected transient HashMap<V, HashMap<K, MutableInt>> smap = new HashMap<V, HashMap<K, MutableInt>>();
   HashMap<K, Object> filterBy = new HashMap<K, Object>();
   boolean inverse = false;
 
@@ -179,12 +179,12 @@ public class OrderByValue<K, V> extends BaseKeyValueOperator<K, V>
   {
     V ival;
     while ((ival = pqueue.poll()) != null) {
-      HashMap<K, MutableInteger> istr = smap.get(ival);
+      HashMap<K, MutableInt> istr = smap.get(ival);
       if (istr == null) { // Should never be null
         continue;
       }
-      for (Map.Entry<K, MutableInteger> e: istr.entrySet()) {
-        final int count = e.getValue().value;
+      for (Map.Entry<K, MutableInt> e: istr.entrySet()) {
+        final int count = e.getValue().intValue();
         if (ordered_list.isConnected()) {
           for (int i = 0; i < count; i++) {
             HashMap<K, V> tuple = new HashMap<K, V>(1);

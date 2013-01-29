@@ -8,6 +8,7 @@ import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
  *
@@ -32,21 +33,21 @@ public abstract class AbstractBaseFrequentKeyValueMap<K, V> extends BaseKeyValue
     public void process(Map<K, V> tuple)
     {
       for (Map.Entry<K, V> e: tuple.entrySet()) {
-        HashMap<V, MutableInteger> vals = keyvals.get(e.getKey());
+        HashMap<V, MutableInt> vals = keyvals.get(e.getKey());
         if (vals == null) {
-          vals = new HashMap<V, MutableInteger>(4);
+          vals = new HashMap<V, MutableInt>(4);
           keyvals.put(cloneKey(e.getKey()), vals);
         }
-        MutableInteger count = vals.get(e.getValue());
+        MutableInt count = vals.get(e.getValue());
         if (count == null) {
-          count = new MutableInteger(0);
+          count = new MutableInt(0);
           vals.put(cloneValue(e.getValue()), count);
         }
-        count.value++;
+        count.increment();
       }
     }
   };
-  HashMap<K, HashMap<V, MutableInteger>> keyvals = new HashMap<K, HashMap<V, MutableInteger>>();
+  HashMap<K, HashMap<V, MutableInt>> keyvals = new HashMap<K, HashMap<V, MutableInt>>();
 
   /**
    * Clears the cache/hash
@@ -82,24 +83,24 @@ public abstract class AbstractBaseFrequentKeyValueMap<K, V> extends BaseKeyValue
   public void endWindow()
   {
     HashMap<V, Object> vmap = new HashMap<V, Object>();
-    for (Map.Entry<K, HashMap<V, MutableInteger>> e: keyvals.entrySet()) {
+    for (Map.Entry<K, HashMap<V, MutableInt>> e: keyvals.entrySet()) {
       V val = null;
       int kval = -1;
       vmap.clear();
-      HashMap<V, MutableInteger> vals = e.getValue();
-      for (Map.Entry<V, MutableInteger> v: vals.entrySet()) {
+      HashMap<V, MutableInt> vals = e.getValue();
+      for (Map.Entry<V, MutableInt> v: vals.entrySet()) {
         if (kval == -1) {
           val = v.getKey();
-          kval = v.getValue().value;
+          kval = v.getValue().intValue();
           vmap.put(val, null);
         }
-        else if (compareValue(v.getValue().value, kval)) {
+        else if (compareValue(v.getValue().intValue(), kval)) {
           val = v.getKey();
-          kval = v.getValue().value;
+          kval = v.getValue().intValue();
           vmap.clear();
           vmap.put(val, null);
         }
-        else if (v.getValue().value == kval) {
+        else if (v.getValue().intValue() == kval) {
           vmap.put(v.getKey(), null);
         }
       }

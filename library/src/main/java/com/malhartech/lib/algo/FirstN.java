@@ -7,9 +7,9 @@ package com.malhartech.lib.algo;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.AbstractBaseNOperatorMap;
-import com.malhartech.lib.util.MutableInteger;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
  *
@@ -63,7 +63,7 @@ public class FirstN<K,V> extends AbstractBaseNOperatorMap<K, V>
   @OutputPortFieldAnnotation(name="first")
   public final transient DefaultOutputPort<HashMap<K, V>> first = new DefaultOutputPort<HashMap<K, V>>(this);
 
-  transient HashMap<K, MutableInteger> keycount = new HashMap<K, MutableInteger>();
+  transient HashMap<K, MutableInt> keycount = new HashMap<K, MutableInt>();
 
   /**
    * Inserts tuples into the queue
@@ -73,13 +73,13 @@ public class FirstN<K,V> extends AbstractBaseNOperatorMap<K, V>
   public void processTuple(Map<K, V> tuple)
   {
     for (Map.Entry<K, V> e: tuple.entrySet()) {
-      MutableInteger count = keycount.get(e.getKey());
+      MutableInt count = keycount.get(e.getKey());
       if (count == null) {
-        count = new MutableInteger(0);
+        count = new MutableInt(0);
         keycount.put(e.getKey(), count);
       }
-      count.value++;
-      if (count.value <= getN()) {
+      count.increment();
+      if (count.intValue() <= getN()) {
         first.emit(cloneTuple(e.getKey(), e.getValue()));
       }
     }

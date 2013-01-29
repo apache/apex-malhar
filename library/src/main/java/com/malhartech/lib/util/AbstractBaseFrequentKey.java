@@ -7,6 +7,7 @@ package com.malhartech.lib.util;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
  *
@@ -23,14 +24,14 @@ public abstract class AbstractBaseFrequentKey<K> extends BaseKeyOperator<K>
    */
   public void processTuple(K tuple)
   {
-    MutableInteger count = keycount.get(tuple);
+    MutableInt count = keycount.get(tuple);
     if (count == null) {
-      count = new MutableInteger(0);
+      count = new MutableInt(0);
       keycount.put(cloneKey(tuple), count);
     }
-    count.value++;
+    count.increment();
   }
-  protected transient HashMap<K, MutableInteger> keycount = new HashMap<K, MutableInteger>();
+  protected transient HashMap<K, MutableInt> keycount = new HashMap<K, MutableInt>();
 
   /**
    * override emitTuple to decide the port to emit to
@@ -69,19 +70,19 @@ public abstract class AbstractBaseFrequentKey<K> extends BaseKeyOperator<K>
     K key = null;
     int kval = -1;
     HashMap<K, Object> map = new HashMap<K, Object>();
-    for (Map.Entry<K, MutableInteger> e: keycount.entrySet()) {
+    for (Map.Entry<K, MutableInt> e: keycount.entrySet()) {
       if ((kval == -1)) {
         key = e.getKey();
-        kval = e.getValue().value;
+        kval = e.getValue().intValue();
         map.put(key, null);
       }
-      else if (compareCount(e.getValue().value, kval)) {
+      else if (compareCount(e.getValue().intValue(), kval)) {
         key = e.getKey();
-        kval = e.getValue().value;
+        kval = e.getValue().intValue();
         map.clear();
         map.put(key, null);
       }
-      else if (e.getValue().value == kval) {
+      else if (e.getValue().intValue() == kval) {
         map.put(e.getKey(), null);
       }
     }

@@ -24,7 +24,7 @@
  * <b>{@link com.malhartech.lib.util.BaseUniqueKeyCounter}</b>: Count unique occurrences of keys within a window<<br>
  * <b>{@link com.malhartech.lib.util.BaseUniqueKeyValueCounter}</b>: Count unique occurrences of key,val pairs within a window<<br>
  * <b>{@link com.malhartech.lib.util.MutableDouble}</b>: A mutable double for basic operations. Makes things faster for incrementing etc. To be used for operations internal to operators<br>
- * <b>{@link com.malhartech.lib.util.MutableInteger}</b>: A mutable integer for basic operations. Makes things faster for incrementing etc. To be used for operations internal to operators<br>
+ * <b>{@link com.malhartech.lib.util.MutableInt}</b>: A mutable integer for basic operations. Makes things faster for incrementing etc. To be used for operations internal to operators<br>
  * <b>{@link com.malhartech.lib.util.MutableLong}</b>: A mutable long for basic operations. Makes things easy faster incrementing etc. To be used for operations internal to operators<br>
  * <b>{@link com.malhartech.lib.util.MutableShort}</b>: A mutable short for basic operations. Makes things faster for incrementing etc. To be used for operations internal to operators<br>
  * <b>{@link com.malhartech.lib.util.MutableFloat}</b>: A mutable float for basic operations. Makes things faster for incrementing etc. To be used for operations internal to operators<br>

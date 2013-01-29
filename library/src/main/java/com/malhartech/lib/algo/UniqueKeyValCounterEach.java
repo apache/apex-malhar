@@ -9,9 +9,9 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseUniqueKeyValueCounter;
-import com.malhartech.lib.util.MutableInteger;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
  * Count unique occurrences of key,val pairs within a window, and emits one HashMap tuple per unique key,val pair. <p>
@@ -80,9 +80,9 @@ public class UniqueKeyValCounterEach<K,V> extends BaseUniqueKeyValueCounter<K,V>
   public void endWindow()
   {
     HashMap<HashMap<K,V>, Integer> tuple;
-    for (Map.Entry<HashMap<K,V>, MutableInteger> e: map.entrySet()) {
+    for (Map.Entry<HashMap<K,V>, MutableInt> e: map.entrySet()) {
       tuple = new HashMap<HashMap<K,V>,Integer>(1);
-      tuple.put(e.getKey(), new Integer(e.getValue().value));
+      tuple.put(e.getKey(), e.getValue().toInteger());
       count.emit(tuple);
     }
   }

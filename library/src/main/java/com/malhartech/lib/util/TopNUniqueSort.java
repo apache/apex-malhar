@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 import javax.validation.constraints.Min;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
  *
@@ -25,7 +26,7 @@ public class TopNUniqueSort<E>
   @Min(1)
   int qbound = Integer.MAX_VALUE;
   boolean ascending = true;
-  HashMap<E, MutableInteger> hmap = null;
+  HashMap<E, MutableInt> hmap = null;
   PriorityQueue<E> q = null;
 
   /**
@@ -67,7 +68,7 @@ public class TopNUniqueSort<E>
     // Ascending use of pqueue needs a descending comparator
     q = new PriorityQueue<E>(initialCapacity, new ReversibleComparator<E>(flag));
     qbound = bound;
-    hmap = new HashMap<E, MutableInteger>();
+    hmap = new HashMap<E, MutableInt>();
   }
 
   /**
@@ -132,8 +133,8 @@ public class TopNUniqueSort<E>
     for (int i = 0; i < depth; i++) {
       E o = (E) list.get(size - i - 1);
       HashMap<E, Integer> val = new HashMap<E, Integer>(1);
-      MutableInteger ival = hmap.get(o);
-      val.put(o, ival.value);
+      MutableInt ival = hmap.get(o);
+      val.put(o, ival.toInteger());
       ret.add(val);
     }
     return ret;
@@ -149,14 +150,14 @@ public class TopNUniqueSort<E>
    */
   public boolean offer(E e)
   {
-    MutableInteger ival = hmap.get(e);
+    MutableInt ival = hmap.get(e);
     if (ival != null) { // already exists, so no insertion
-      ival.value++;
+      ival.increment();
       return true;
     }
     if (q.size() <= qbound) {
       if (ival == null) {
-        hmap.put(e, new MutableInteger(1));
+        hmap.put(e, new MutableInt(1));
       }
       return q.offer(e);
     }
@@ -174,7 +175,7 @@ public class TopNUniqueSort<E>
 
     // object e makes it, someone else gets dropped
     if (insert && q.offer(e)) {
-      hmap.put(e, new MutableInteger(1));
+      hmap.put(e, new MutableInt(1));
       ret = true;
 
       // the dropped object will never make it to back in anymore
