@@ -26,26 +26,14 @@ import org.slf4j.LoggerFactory;
  * Users need to implement getRecord to get HDFS input adapter to work as per their choice<br>
  * <br>
  */
-public abstract class AbstractHDFSInputOperator extends BaseOperator implements InputOperator, Runnable
+public abstract class AbstractHDFSInputOperator extends BaseOperator implements InputOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractHDFSInputOperator.class);
-  protected FSDataInputStream input;
-  private boolean skipEndStream = false;
+  protected transient FSDataInputStream input;
   private transient FileSystem fs;
   private Path filepath;
 
   protected abstract void emitRecord(FSDataInputStream input);
-
-  protected abstract void emitEndStream();
-
-  /**
-   *
-   * @return boolean
-   */
-  public boolean isSkipEndStream()
-  {
-    return skipEndStream;
-  }
 
   @Override
   public void beginWindow(long windowId)
@@ -107,4 +95,5 @@ public abstract class AbstractHDFSInputOperator extends BaseOperator implements 
   {
     this.filepath = filepath;
   }
+
 }
