@@ -11,9 +11,9 @@ import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.StreamCodec;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
 import com.malhartech.lib.util.KeyValPair;
-import com.malhartech.lib.util.MutableDouble;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.mutable.MutableDouble;
 
 /**
  *
@@ -81,11 +81,11 @@ public class MaxKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
       }
       MutableDouble val = highs.get(key);
       if (val == null) {
-        val = new MutableDouble(tval.doubleValue());
+        val = new MutableDouble(tval);
         highs.put(cloneKey(key), val);
       }
-      if (val.value < tval.doubleValue()) {
-        val.value = tval.doubleValue();
+      if (val.doubleValue() < tval.doubleValue()) {
+        val.setValue(tval.doubleValue());
       }
     }
 
@@ -112,9 +112,14 @@ public class MaxKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
   {
     if (!highs.isEmpty()) {
       for (Map.Entry<K, MutableDouble> e: highs.entrySet()) {
-        max.emit(new KeyValPair(e.getKey(), getValue(e.getValue().value)));
+        max.emit(new KeyValPair(e.getKey(), getValue(e.getValue().doubleValue())));
       }
-      highs.clear();
+      clearCache();
     }
+  }
+
+  public void clearCache()
+  {
+    highs.clear();
   }
 }

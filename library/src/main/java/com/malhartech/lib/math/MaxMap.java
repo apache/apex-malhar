@@ -10,9 +10,9 @@ import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.Operator.Unifier;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
-import com.malhartech.lib.util.MutableDouble;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.mutable.MutableDouble;
 
 /**
  *
@@ -86,8 +86,8 @@ public class MaxMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
         val = new MutableDouble(e.getValue().doubleValue());
         high.put(cloneKey(key), val);
       }
-      if (val.value < e.getValue().doubleValue()) {
-        val.value = e.getValue().doubleValue();
+      if (val.doubleValue() < e.getValue().doubleValue()) {
+        val.setValue(e.getValue());
       }
     }
   }
@@ -114,8 +114,8 @@ public class MaxMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
   {
     if (!high.isEmpty()) {
       HashMap<K, V> tuple = new HashMap<K, V>(high.size());
-      for (Map.Entry<K, MutableDouble> e: high.entrySet()) {
-        tuple.put(e.getKey(), getValue(e.getValue().value));
+      for (Map.Entry<K,MutableDouble> e: high.entrySet()) {
+        tuple.put(e.getKey(), getValue(e.getValue().doubleValue()));
       }
       max.emit(tuple);
       high.clear();
