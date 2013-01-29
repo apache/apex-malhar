@@ -7,6 +7,7 @@ package com.malhartech.demos.yahoofinance;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.algo.KeyValueConsolidator;
+import com.malhartech.lib.util.HighLow;
 import com.malhartech.lib.util.KeyValPair;
 import java.util.ArrayList;
 import org.slf4j.Logger;
@@ -20,7 +21,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
-public class RangeVolumeConsolidator extends KeyValueConsolidator<String, ArrayList<Double>, Long>
+public class RangeVolumeConsolidator extends KeyValueConsolidator<String, HighLow<Double>, Long>
 {
   private static final Logger logger = LoggerFactory.getLogger(RangeVolumeConsolidator.class);
   /**
