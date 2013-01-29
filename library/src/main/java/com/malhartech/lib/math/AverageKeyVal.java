@@ -60,16 +60,17 @@ import org.apache.commons.lang3.mutable.MutableLong;
  * </table>
  * <br>
  *
+ * @param <K>
  * @author Locknath Shil <locknath@malhar-inc.com><br>
  * <br>
  */
-public class AverageKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
+public class AverageKeyVal<K> extends BaseNumberKeyValueOperator<K, Number>
 {
   /**
    * Data input port.
    */
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>(this)
+  public final transient DefaultInputPort<KeyValPair<K, ? extends Number>> data = new DefaultInputPort<KeyValPair<K, ? extends Number>>(this)
   {
     /**
      * Adds the values for each key,
@@ -77,7 +78,7 @@ public class AverageKeyVal<K, V extends Number> extends BaseNumberKeyValueOperat
      * computes the average.
      */
     @Override
-    public void process(KeyValPair<K, V> tuple)
+    public void process(KeyValPair<K, ? extends Number> tuple)
     {
       K key = tuple.getKey();
       if (!doprocessKey(key)) {
@@ -99,10 +100,12 @@ public class AverageKeyVal<K, V extends Number> extends BaseNumberKeyValueOperat
       }
       count.increment();
     }
-  };
-  @OutputPortFieldAnnotation(name = "average")
-  public final transient DefaultOutputPort<KeyValPair<K, V>> average = new DefaultOutputPort<KeyValPair<K, V>>(this);
 
+  };
+  @OutputPortFieldAnnotation(name = "doubleAverage")
+  public final transient DefaultOutputPort<KeyValPair<K, Double>> doubleAverage = new DefaultOutputPort<KeyValPair<K, Double>>(this);
+  @OutputPortFieldAnnotation(name = "intAverage")
+  public final transient DefaultOutputPort<KeyValPair<K, Integer>> intAverage = new DefaultOutputPort<KeyValPair<K, Integer>>(this);
   protected transient HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
   protected transient HashMap<K, MutableLong> counts = new HashMap<K, MutableLong>();
 
@@ -115,9 +118,12 @@ public class AverageKeyVal<K, V extends Number> extends BaseNumberKeyValueOperat
   {
     for (Map.Entry<K, MutableDouble> e: sums.entrySet()) {
       K key = e.getKey();
-      average.emit(new KeyValPair(key, getValue(e.getValue().doubleValue() / counts.get(key).doubleValue())));
+      double d;
+      doubleAverage.emit(new KeyValPair<K, Double>(key, d = e.getValue().doubleValue() / counts.get(key).doubleValue()));
+      intAverage.emit(new KeyValPair<K, Integer>(key, (int)d));
     }
     sums.clear();
     counts.clear();
   }
+
 }

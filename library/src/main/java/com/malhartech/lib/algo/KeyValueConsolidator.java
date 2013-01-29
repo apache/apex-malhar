@@ -45,7 +45,7 @@ import java.util.Map;
  * @author Locknath Shil <locknath@malhar-inc.com><br>
  * <br>
  */
-public abstract class KeyValueConsolidator<K, V1 extends Object, V2 extends Object> extends BaseOperator
+public abstract class KeyValueConsolidator<K, V1, V2> extends BaseOperator
 {
   public ArrayList getObject(K k)
   {
