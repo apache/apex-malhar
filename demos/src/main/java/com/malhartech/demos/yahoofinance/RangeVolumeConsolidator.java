@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
-public class RangeVolumeConsolidator extends KeyValueConsolidator<String, HighLow<Double>, Long>
+public class RangeVolumeConsolidator extends KeyValueConsolidator<String, HighLow, Long>
 {
   private static final Logger logger = LoggerFactory.getLogger(RangeVolumeConsolidator.class);
   /**
