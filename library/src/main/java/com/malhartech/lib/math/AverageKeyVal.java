@@ -10,10 +10,10 @@ import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
 import com.malhartech.lib.util.KeyValPair;
-import com.malhartech.lib.util.MutableDouble;
-import com.malhartech.lib.util.MutableLong;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.mutable.MutableDouble;
+import org.apache.commons.lang3.mutable.MutableLong;
 
 /**
  *
@@ -97,35 +97,14 @@ public class AverageKeyVal<K, V extends Number> extends BaseNumberKeyValueOperat
         count = new MutableLong(0);
         counts.put(cloneKey(key), count);
       }
-      count.value++;
-
-      processMetaData(tuple);
+      count.increment();
     }
   };
   @OutputPortFieldAnnotation(name = "average")
   public final transient DefaultOutputPort<KeyValPair<K, V>> average = new DefaultOutputPort<KeyValPair<K, V>>(this);
+
   protected transient HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
   protected transient HashMap<K, MutableLong> counts = new HashMap<K, MutableLong>();
-
-  /*
-   * If you have extended from KeyValPair class and want to do some processing per tuple
-   * overrise this call back.
-   */
-  public void processMetaData(KeyValPair<K, V> tuple)
-  {
-  }
-
-  /**
-   * Creates a KeyValPair tuple, override if you want to extend KeyValPair
-   *
-   * @param k
-   * @param v
-   * @return new key value pair.
-   */
-  public KeyValPair<K, V> cloneAverageTuple(K k, V v)
-  {
-    return new KeyValPair(k, v);
-  }
 
   /**
    * Emits average for each key in end window. Data is precomputed during process on input port
@@ -136,9 +115,8 @@ public class AverageKeyVal<K, V extends Number> extends BaseNumberKeyValueOperat
   {
     for (Map.Entry<K, MutableDouble> e: sums.entrySet()) {
       K key = e.getKey();
-      average.emit(cloneAverageTuple(key, getValue(e.getValue().value / counts.get(key).value)));
+      average.emit(new KeyValPair(key, getValue(e.getValue().doubleValue() / counts.get(key).doubleValue())));
     }
-
     sums.clear();
     counts.clear();
   }
