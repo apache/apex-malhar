@@ -11,9 +11,9 @@ import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.StreamCodec;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
 import com.malhartech.lib.util.KeyValPair;
-import com.malhartech.lib.util.MutableDouble;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.mutable.MutableDouble;
 
 /**
  *
@@ -127,7 +127,7 @@ public class MarginKeyVal<K, V extends Number> extends BaseNumberKeyValueOperato
       val = new MutableDouble(0.0);
       map.put(cloneKey(key), val);
     }
-    val.value += tuple.getValue().doubleValue();
+    val.add(tuple.getValue().doubleValue());
   }
   @OutputPortFieldAnnotation(name = "margin")
   public final transient DefaultOutputPort<KeyValPair<K, V>> margin = new DefaultOutputPort<KeyValPair<K, V>>(this);
@@ -175,10 +175,10 @@ public class MarginKeyVal<K, V extends Number> extends BaseNumberKeyValueOperato
         numerators.remove(key); // so that all left over keys can be reported
       }
       if (percent) {
-        val = (1 - nval.value / e.getValue().value) * 100;
+        val = (1 - nval.doubleValue() / e.getValue().doubleValue()) * 100;
       }
       else {
-        val = 1 - nval.value / e.getValue().value;
+        val = 1 - nval.doubleValue() / e.getValue().doubleValue();
       }
 
       margin.emit(new KeyValPair(key, getValue(val.doubleValue())));
