@@ -10,12 +10,12 @@ import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.Operator.Unifier;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
-import com.malhartech.lib.util.UnifierHashMap;
-import com.malhartech.lib.util.MutableDouble;
+import com.malhartech.lib.util.HighLow;
 import com.malhartech.lib.util.UnifierHashMapRange;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.mutable.MutableDouble;
 
 /**
  *
@@ -23,7 +23,7 @@ import java.util.Map;
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects Map&lt;K,V extends Number&gt;<br>
- * <b>range</b>: emits HashMap&lt;K,ArrayList&lt;V&gt;&gt; each key has two entries; .get(0) gives Max, .get(1) gives Min<br>
+ * <b>range</b>: emits HashMap&lt;K,HighLow&lt;V&gt;&gt; each key has two entries; .get(0) gives Max, .get(1) gives Min<br>
  * <br>
  * <b>Properties</b>:<br>
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
@@ -42,7 +42,7 @@ import java.util.Map;
  * <b>Function Table (K=String, V=Integer)</b>:
  * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for RangeMap&lt;K,V extends Number&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(Map&lt;K,V&gt;)</th><th><i>range</i>(HashMap&lt;K,ArrayList&lt;V&gt;&gt;)</th></tr>
+ * <tr><th><i>data</i>(Map&lt;K,V&gt;)</th><th><i>range</i>(HashMap&lt;K,HighLow&lt;V&gt;&gt;)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
  * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{a=-1}</td><td></td></tr>
@@ -79,16 +79,15 @@ public class RangeMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,
         if (val == null) {
           low.put(cloneKey(key), new MutableDouble(eval));
         }
-        else if (val.value > eval) {
-          val.value = eval;
+        else if (val.doubleValue() > eval) {
+          val.setValue(eval);
         }
-
         val = high.get(key);
         if (val == null) {
           high.put(cloneKey(key), new MutableDouble(eval));
         }
-        else if (val.value < eval) {
-          val.value = eval;
+        else if (val.doubleValue() < eval) {
+          val.setValue(eval);
         }
       }
     }
@@ -96,10 +95,10 @@ public class RangeMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,
 
 
   @OutputPortFieldAnnotation(name = "range")
-  public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> range = new DefaultOutputPort<HashMap<K, ArrayList<V>>>(this)
+  public final transient DefaultOutputPort<HashMap<K, HighLow<V>>> range = new DefaultOutputPort<HashMap<K, HighLow<V>>>(this)
   {
     @Override
-    public Unifier<HashMap<K, ArrayList<V>>> getUnifier()
+    public Unifier<HashMap<K, HighLow<V>>> getUnifier()
     {
       return new UnifierHashMapRange<K, V>();
     }
@@ -115,12 +114,12 @@ public class RangeMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,
   @Override
   public void endWindow()
   {
-    HashMap<K, ArrayList<V>> tuples = new HashMap<K, ArrayList<V>>(1);
+    HashMap<K, HighLow<V>> tuples = new HashMap<K, HighLow<V>>(1);
     for (Map.Entry<K,MutableDouble> e: high.entrySet()) {
-      ArrayList<V> alist = new ArrayList<V>();
-      alist.add(getValue(e.getValue().value));
-      alist.add(getValue(low.get(e.getKey()).value)); // cannot be null
-      tuples.put(e.getKey(), alist);
+      HighLow<V> hl = new HighLow<V>();
+      hl.setHigh(getValue(e.getValue().doubleValue()));
+      hl.setLow(getValue(low.get(e.getKey()).doubleValue())); // cannot be null
+      tuples.put(e.getKey(), hl);
     }
     if (!tuples.isEmpty()) {
       range.emit(tuples);

@@ -19,34 +19,31 @@ import java.util.Map;
  * @author amol<br>
  *
  */
-public class UnifierHashMapRange<K, V extends Number> implements Unifier<HashMap<K, HighLow<V>>>
+public class UnifierKeyValRange<K, V extends Number> implements Unifier<KeyValPair<K, HighLow<V>>>
 {
-  public HashMap<K, HighLow<V>> mergedTuple = new HashMap<K, HighLow<V>>();
-  public final transient DefaultOutputPort<HashMap<K, HighLow<V>>> mergedport = new DefaultOutputPort<HashMap<K, HighLow<V>>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, HighLow<V>>> mergedport = new DefaultOutputPort<KeyValPair<K, HighLow<V>>>(this);
 
   /**
    * combines the tuple into a single final tuple which is emitted in endWindow
    * @param tuple incoming tuple from a partition
    */
   @Override
-  public void merge(HashMap<K, HighLow<V>> tuple)
+  public void merge(KeyValPair<K, HighLow<V>> tuple)
   {
-    for (Map.Entry<K, HighLow<V>> e: tuple.entrySet()) {
-      HighLow<V> val = mergedTuple.get(e.getKey());
-      if (val == null) {
-        val = new HighLow<V>(e.getValue().getHigh(), e.getValue().getLow());
-        mergedTuple.put(e.getKey(), val);
-      }
-      else {
-        if (val.getHigh().doubleValue() < e.getValue().getHigh().doubleValue()) {
-          val.setHigh(e.getValue().getHigh());
-        }
-        if (val.getLow().doubleValue() > e.getValue().getLow().doubleValue()) {
-          val.setLow(e.getValue().getLow());
-        }
-      }
+    HighLow<V> val = map.get(tuple.getKey());
+    if (val == null) {
+      val = new HighLow(tuple.getValue().getHigh(), tuple.getValue().getLow());
+    }
+
+    if (val.getHigh().doubleValue() < tuple.getValue().getHigh().doubleValue()) {
+      val.setHigh(tuple.getValue().getHigh());
+    }
+    if (val.getLow().doubleValue() > tuple.getValue().getLow().doubleValue()) {
+      val.setLow(tuple.getValue().getLow());
     }
   }
+
+  HashMap<K, HighLow<V>> map = new HashMap<K, HighLow<V>>();
 
   /**
    * a no op
@@ -64,9 +61,11 @@ public class UnifierHashMapRange<K, V extends Number> implements Unifier<HashMap
   @Override
   public void endWindow()
   {
-    if (!mergedTuple.isEmpty())  {
-      mergedport.emit(mergedTuple);
-      mergedTuple = new HashMap<K, HighLow<V>>();
+    if (!map.isEmpty()) {
+      for (Map.Entry<K, HighLow<V>> e: map.entrySet()) {
+        mergedport.emit(new KeyValPair(e.getKey(), new HighLow(e.getValue().getHigh(), e.getValue().getLow())));
+      }
+      map.clear();
     }
   }
 

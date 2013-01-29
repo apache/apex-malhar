@@ -5,6 +5,7 @@ package com.malhartech.lib.math;
 
 import com.malhartech.api.Sink;
 import com.malhartech.engine.Tuple;
+import com.malhartech.lib.util.HighLow;
 import java.util.ArrayList;
 import java.util.List;
 import junit.framework.Assert;
@@ -85,9 +86,9 @@ public class RangeTest
     // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
     Assert.assertEquals("number emitted tuples", 1, rangeSink.collectedTuples.size());
     for (Object o: rangeSink.collectedTuples) {
-      ArrayList<Double> list = (ArrayList<Double>)o;
-      Assert.assertEquals("emitted high value was ", new Double(1000.0), list.get(0));
-      Assert.assertEquals("emitted low value was ", new Double(1.0), list.get(1));
+      HighLow<Double> hl = (HighLow<Double>)o;
+      Assert.assertEquals("emitted high value was ", new Double(1000.0), hl.getHigh());
+      Assert.assertEquals("emitted low value was ", new Double(1.0), hl.getLow());
     }
   }
 }

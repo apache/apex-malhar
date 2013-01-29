@@ -24,7 +24,7 @@ public class KeyValPair<K, V> extends AbstractMap.SimpleEntry<K, V>
   /**
    * Added default constructor for deserializer.
    */
-  private KeyValPair()
+  public KeyValPair()
   {
     super(null, null);
   }

@@ -9,12 +9,11 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.StreamCodec;
-import com.malhartech.lib.util.BaseNumberKeyValueOperator;
-import com.malhartech.lib.util.KeyValPair;
-import com.malhartech.lib.util.MutableDouble;
+import com.malhartech.lib.util.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.mutable.MutableDouble;
 
 /**
  *
@@ -22,7 +21,7 @@ import java.util.Map;
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects KeyValPair&lt;K,V extends Number&gt;<br>
- * <b>range</b>: emits KeyValPair&lt;K,ArrayList&lt;V&gt;&gt; each key has two entries; .get(0) gives Max, .get(1) gives Min<br>
+ * <b>range</b>: emits KeyValPair&lt;K,HighLow&lt;V&gt;&gt;<br>
  * <br>
  * <b>Properties</b>:<br>
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
@@ -41,7 +40,7 @@ import java.util.Map;
  * <b>Function Table (K=String, V=Integer)</b>:
  * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for Range&lt;K,V extends Number&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(KeyValPair&lt;K,V&gt;)</th><th><i>range</i>(HashMap&lt;K,ArrayList&lt;V&gt;&gt;)</th></tr>
+ * <tr><th><i>data</i>(KeyValPair&lt;K,V&gt;)</th><th><i>range</i>(HashMap&lt;K,HighLow&lt;V&gt;&gt;)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
  * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{a=-1}</td><td></td></tr>
@@ -78,18 +77,17 @@ public class RangeKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator
       if (val == null) {
         low.put(cloneKey(key), new MutableDouble(eval));
       }
-      else if (val.value > eval) { // update low
-        val.value = eval;
+      else if (val.doubleValue() > eval) { // update low
+        val.setValue(eval);
       }
 
       val = high.get(key);
       if (val == null) {
         high.put(cloneKey(key), new MutableDouble(eval));
       }
-      else if (val.value < eval) { // updagte high
-        val.value = eval;
+      else if (val.doubleValue() < eval) { // updagte high
+        val.setValue(eval);
       }
-      processMetaData(tuple);
     }
 
     @Override
@@ -103,29 +101,17 @@ public class RangeKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator
    * Output port to send out the high low range.
    */
   @OutputPortFieldAnnotation(name = "range")
-  public final transient DefaultOutputPort<KeyValPair<K, ArrayList<V>>> range = new DefaultOutputPort<KeyValPair<K, ArrayList<V>>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, HighLow<V>>> range = new DefaultOutputPort<KeyValPair<K, HighLow<V>>>(this)
+  {
+    @Override
+    public Unifier<KeyValPair<K, HighLow<V>>> getUnifier()
+    {
+      return new UnifierKeyValRange<K,V>();
+    }
+  };
+
   protected transient HashMap<K, MutableDouble> high = new HashMap<K, MutableDouble>();
   protected transient HashMap<K, MutableDouble> low = new HashMap<K, MutableDouble>();
-
-  /**
-   * If you have extended from KeyValPair class and want to do some processing per tuple
-   * override this call back.
-   */
-  public void processMetaData(KeyValPair<K, V> tuple)
-  {
-  }
-
-  /**
-   * Creates a KeyValPair tuple, override if you want to extend KeyValPair.
-   *
-   * @param k
-   * @param v
-   * @return new key value pair.
-   */
-  public KeyValPair<K, ArrayList<V>> cloneRangeTuple(K k, ArrayList<V> v)
-  {
-    return new KeyValPair(k, v);
-  }
 
   /**
    * Emits range for each key. If no data is received, no emit is done
@@ -135,13 +121,16 @@ public class RangeKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator
   public void endWindow()
   {
     for (Map.Entry<K, MutableDouble> e: high.entrySet()) {
-      ArrayList<V> alist = new ArrayList<V>();
-      alist.add(getValue(e.getValue().value));
-      alist.add(getValue(low.get(e.getKey()).value)); // cannot be null
-
-      range.emit(cloneRangeTuple(e.getKey(), alist));
+      HighLow<V> hl = new HighLow<V>();
+      hl.setHigh(getValue(e.getValue().doubleValue()));
+      hl.setLow(getValue(low.get(e.getKey()).doubleValue())); // cannot be null
+      range.emit(new KeyValPair(e.getKey(), hl));
     }
+    clearCache();
+  }
 
+  public void clearCache()
+  {
     high.clear();
     low.clear();
   }

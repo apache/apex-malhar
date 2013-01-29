@@ -5,10 +5,11 @@
 package com.malhartech.lib.multiwindow;
 
 import com.malhartech.lib.math.RangeKeyVal;
-import com.malhartech.lib.util.MutableDouble;
-import java.util.ArrayList;
+import com.malhartech.lib.util.HighLow;
+import com.malhartech.lib.util.KeyValPair;
 import java.util.Map;
 import javax.validation.constraints.Min;
+import org.apache.commons.lang3.mutable.MutableDouble;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects KeyValPair&lt;K,V extends Number&gt;<br>
- * <b>range</b>: emits KeyValPair&lt;K,ArrayList&lt;V&gt;&gt; each key has two entries; .get(0) gives Max, .get(1) gives Min<br>
+ * <b>range</b>: emits KeyValPair&lt;K,HighLow&lt;V&gt;&gt;<br>
  * <br>
  * <b>Properties</b>:<br>
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
@@ -38,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * <b>Function Table (K=String, V=Integer)</b>:
  * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for Range&lt;K,V extends Number&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(KeyValPair&lt;K,V&gt;)</th><th><i>range</i>(HashMap&lt;K,ArrayList&lt;V&gt;&gt;)</th></tr>
+ * <tr><th><i>data</i>(KeyValPair&lt;K,V&gt;)</th><th><i>range</i>(KeyValPair&lt;K,HighLow&lt;V&gt;&gt;)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
  * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{a=-1}</td><td></td></tr>
@@ -85,15 +86,13 @@ public class MultiWindowRangeKeyVal<K, V extends Number> extends RangeKeyVal<K, 
     }
 
     for (Map.Entry<K, MutableDouble> e: high.entrySet()) {
-      ArrayList<V> alist = new ArrayList<V>();
-      alist.add(getValue(e.getValue().value));
-      alist.add(getValue(low.get(e.getKey()).value)); // cannot be null
+      HighLow<V> hl = new HighLow<V>();
+      hl.setHigh(getValue(e.getValue().doubleValue()));
+      hl.setLow(getValue(low.get(e.getKey()).doubleValue())); // cannot be null
 
-      range.emit(cloneRangeTuple(e.getKey(), alist));
+      range.emit(new KeyValPair(e.getKey(), hl));
     }
-
-    high.clear();
-    low.clear();
+    clearCache();
   }
 }
 

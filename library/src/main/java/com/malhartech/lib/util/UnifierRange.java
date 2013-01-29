@@ -18,27 +18,27 @@ import java.util.ArrayList;
  * @author amol<br>
  *
  */
-public class UnifierRange<V extends Number> implements Unifier<ArrayList<V>>
+public class UnifierRange<V extends Number> implements Unifier<HighLow<V>>
 {
-  public ArrayList<V> mergedTuple = new ArrayList<V>(2);
-  public final transient DefaultOutputPort<ArrayList<V>> mergedport = new DefaultOutputPort<ArrayList<V>>(this);
+  public HighLow<V> mergedTuple = null;
+  public final transient DefaultOutputPort<HighLow<V>> mergedport = new DefaultOutputPort<HighLow<V>>(this);
 
   /**
    * combines the tuple into a single final tuple which is emitted in endWindow
    * @param tuple incoming tuple from a partition
    */
   @Override
-  public void merge(ArrayList<V> tuple)
+  public void merge(HighLow<V> tuple)
   {
-    if (mergedTuple.isEmpty()) {
-      mergedTuple.addAll(tuple);
+    if (mergedTuple == null) {
+      mergedTuple = new HighLow(tuple.getHigh(), tuple.getLow());
     }
     else {
-      if (mergedTuple.get(0).doubleValue() < tuple.get(0).doubleValue()) {
-        mergedTuple.set(0, tuple.get(0));
+      if (mergedTuple.getHigh().doubleValue() < tuple.getHigh().doubleValue()) {
+        mergedTuple.setHigh(tuple.getHigh());
       }
-      if (mergedTuple.get(1).doubleValue() > tuple.get(1).doubleValue()) {
-        mergedTuple.set(1, tuple.get(1));
+      if (mergedTuple.getLow().doubleValue() > tuple.getLow().doubleValue()) {
+        mergedTuple.setLow(tuple.getLow());
       }
     }
   }
@@ -51,10 +51,11 @@ public class UnifierRange<V extends Number> implements Unifier<ArrayList<V>>
   @Override
   public void endWindow()
   {
-    if (!mergedTuple.isEmpty())  {
+    if (mergedTuple != null) {
       mergedport.emit(mergedTuple);
-      mergedTuple = new ArrayList<V>(2);
-    }  }
+      mergedTuple = null;
+    }
+  }
 
   @Override
   public void setup(OperatorContext context)

@@ -5,6 +5,7 @@ package com.malhartech.lib.math;
 
 import com.malhartech.api.Sink;
 import com.malhartech.engine.Tuple;
+import com.malhartech.lib.util.HighLow;
 import com.malhartech.lib.util.KeyValPair;
 import java.util.ArrayList;
 import org.junit.Test;
@@ -33,9 +34,9 @@ public class RangeKeyValBenchmark
       }
       else {
         KeyValPair<String, Object> tuple = (KeyValPair<String, Object>)payload;
-        ArrayList<Number> alist = (ArrayList<Number>)tuple.getValue();
-        high = alist.get(0).doubleValue();
-        low = alist.get(1).doubleValue();
+        HighLow<Number> hl = (HighLow<Number>)tuple.getValue();
+        high = hl.getHigh().doubleValue();
+        low = hl.getLow().doubleValue();
       }
     }
   }

@@ -5,6 +5,7 @@ package com.malhartech.lib.math;
 
 import com.malhartech.api.Sink;
 import com.malhartech.engine.Tuple;
+import com.malhartech.lib.util.HighLow;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,9 +36,9 @@ public class RangeMapTest
       else {
         HashMap<String, Object> tuple = (HashMap<String, Object>)payload;
         for (Map.Entry<String, Object> e: tuple.entrySet()) {
-          ArrayList<Number> alist = (ArrayList<Number>)e.getValue();
-          high = alist.get(0).doubleValue();
-          low = alist.get(1).doubleValue();
+          HighLow<Number> hl = (HighLow<Number>)e.getValue();
+          high = hl.getHigh().doubleValue();
+          low = hl.getLow().doubleValue();
         }
       }
     }
