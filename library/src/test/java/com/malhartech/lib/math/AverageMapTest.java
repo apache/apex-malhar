@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AverageMapTest
 {
-  private static Logger LOG = LoggerFactory.getLogger(SumMap.class);
+  private static Logger LOG = LoggerFactory.getLogger(SumCountMap.class);
 
   /**
    * Test operator logic emits correct results.

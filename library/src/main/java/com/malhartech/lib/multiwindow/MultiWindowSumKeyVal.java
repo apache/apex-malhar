@@ -94,7 +94,6 @@ public class MultiWindowSumKeyVal<K, V extends Number> extends SumKeyVal<K, V>
 
     // Emit only at the end of application window boundary.
     boolean dosum = sum.isConnected();
-    boolean docount = count.isConnected();
 
     if (dosum) {
       for (Map.Entry<K, MutableDouble> e: sums.entrySet()) {
@@ -102,20 +101,11 @@ public class MultiWindowSumKeyVal<K, V extends Number> extends SumKeyVal<K, V>
         if (dosum) {
           sum.emit(new KeyValPair(key, getValue(e.getValue().value)));
         }
-        if (docount) {
-          count.emit(new KeyValPair(key, new Integer(counts.get(key).value)));
-        }
-      }
-    }
-    else if (docount) { // sum is not connected, only counts is connected
-      for (Map.Entry<K, MutableInteger> e: counts.entrySet()) {
-        count.emit(new KeyValPair(e.getKey(), new Integer(e.getValue().value)));
       }
     }
 
     // Clear cumulative sum at the end of application window boundary.
     sums.clear();
-    counts.clear();
   }
 }
 

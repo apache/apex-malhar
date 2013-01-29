@@ -12,7 +12,7 @@ import com.malhartech.lib.io.HdfsOutputOperator;
 import com.malhartech.lib.io.HttpOutputOperator;
 import com.malhartech.lib.math.MarginMap;
 import com.malhartech.lib.math.QuotientMap;
-import com.malhartech.lib.math.SumMap;
+import com.malhartech.lib.math.SumCountMap;
 import com.malhartech.lib.stream.StreamMerger;
 import com.malhartech.lib.testbench.EventClassifier;
 import com.malhartech.lib.testbench.EventGenerator;
@@ -91,9 +91,9 @@ public class Application implements ApplicationFactory
     return oper.input;
   }
 
-  public SumMap<String,Double> getSumOperator(String name, DAG b)
+  public SumCountMap<String,Double> getSumOperator(String name, DAG b)
   {
-    return b.addOperator(name, new SumMap<String,Double>());
+    return b.addOperator(name, new SumCountMap<String,Double>());
   }
 
   public Operator getStreamMerger(String name, DAG b)
@@ -196,12 +196,12 @@ public class Application implements ApplicationFactory
     EventGenerator viewGen = getPageViewGenOperator("viewGen", dag);
     EventClassifier adviews = getAdViewsStampOperator("adviews", dag);
     FilteredEventClassifier<Double> insertclicks = getInsertClicksOperator("insertclicks", dag);
-    SumMap<String,Double> viewAggregate = getSumOperator("viewAggr", dag);
-    SumMap<String,Double> clickAggregate = getSumOperator("clickAggr", dag);
+    SumCountMap<String,Double> viewAggregate = getSumOperator("viewAggr", dag);
+    SumCountMap<String,Double> clickAggregate = getSumOperator("clickAggr", dag);
 
     QuotientMap<String,Integer> ctr = getQuotientOperator("ctr", dag);
-    SumMap<String,Double> cost = getSumOperator("cost", dag);
-    SumMap<String,Double> revenue = getSumOperator("rev", dag);
+    SumCountMap<String,Double> cost = getSumOperator("cost", dag);
+    SumCountMap<String,Double> revenue = getSumOperator("rev", dag);
     MarginMap<String,Double> margin = getMarginOperator("margin", dag);
 
     StreamMerger<HashMap<String,Integer>> merge = getStreamMerger("countmerge", dag);

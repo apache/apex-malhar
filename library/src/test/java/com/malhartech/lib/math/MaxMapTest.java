@@ -7,6 +7,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.*;
 import com.malhartech.engine.TestCountAndLastTupleSink;
+import com.malhartech.engine.TestSink;
 import com.malhartech.stram.StramLocalCluster;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -108,9 +109,9 @@ public class MaxMapTest
    */
   public static class TestInputOperator extends BaseOperator implements InputOperator
   {
-    @OutputPortFieldAnnotation(name = "max")
+    @OutputPortFieldAnnotation(name = "output")
     public final transient DefaultOutputPort<HashMap<String, Integer>> output = new DefaultOutputPort<HashMap<String, Integer>>(this);
-    transient boolean first = true;
+    public transient boolean first = true;
 
     @Override
     public void emitTuples()
@@ -139,13 +140,8 @@ public class MaxMapTest
         first = false;
       }
     }
-
-    @Override
-    public void beginWindow(long windowId)
-    {
-      //first = true;
-    }
   }
+
   /**
    * Tuple collector to test partitioning.
    */
@@ -175,7 +171,7 @@ public class MaxMapTest
 
       TestInputOperator test = dag.addOperator("test", new TestInputOperator());
       MaxMap<String, Integer> oper = dag.addOperator("max", new MaxMap<String, Integer>());
-      CollectorOperator collector = dag.addOperator("console", new CollectorOperator());
+      CollectorOperator collector = dag.addOperator("collector", new CollectorOperator());
 
       dag.getOperatorWrapper(oper).getAttributes().attr(OperatorContext.INITIAL_PARTITION_COUNT).set(N);
 
@@ -194,6 +190,7 @@ public class MaxMapTest
           }
           catch (InterruptedException ex) {
           }
+
           lc.shutdown();
         }
       }.start();

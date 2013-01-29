@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MinTest
 {
-  private static Logger log = LoggerFactory.getLogger(SumMap.class);
+  private static Logger log = LoggerFactory.getLogger(SumCountMap.class);
 
 
   /**

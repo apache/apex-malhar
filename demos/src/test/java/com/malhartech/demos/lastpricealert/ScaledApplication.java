@@ -7,9 +7,11 @@ package com.malhartech.demos.lastpricealert;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
 import com.malhartech.api.Operator.InputPort;
+import com.malhartech.lib.algo.UniqueCounterValue;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.math.ChangeAlertMap;
 import com.malhartech.lib.math.Sum;
+import com.malhartech.lib.stream.Counter;
 import com.malhartech.lib.stream.DevNullCounter;
 import com.malhartech.lib.stream.StreamMerger5;
 import com.malhartech.lib.testbench.EventClassifierNumberToHashDouble;
@@ -122,9 +124,9 @@ public class ScaledApplication implements ApplicationFactory
     return oper;
   }
 
-  public Sum<Integer> getSumValue(String name, DAG b)
+  public UniqueCounterValue<Integer> getSumValue(String name, DAG b)
   {
-    return b.addOperator(name, new Sum<Integer>());
+    return b.addOperator(name, new UniqueCounterValue<Integer>());
   }
 
   public ThroughputCounter<String, Double> getThroughputCounter(String name, DAG b)
@@ -151,7 +153,7 @@ public class ScaledApplication implements ApplicationFactory
 
     StreamMerger5 mGen = dag.addOperator("twogens", new StreamMerger5<Integer>());
 
-    Sum<Integer> scount = getSumValue("count", dag);
+    UniqueCounterValue<Integer> scount = getSumValue("count", dag);
     EventClassifierNumberToHashDouble<Integer> hGentput = getEventClassifier("hgentput", dag);
     ThroughputCounter<String, Double> toper = getThroughputCounter("tcount", dag);
 

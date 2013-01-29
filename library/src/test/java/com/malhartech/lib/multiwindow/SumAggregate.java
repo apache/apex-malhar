@@ -1,14 +1,10 @@
 /*
- *  Copyright (c) 2012 Malhar, Inc.
+ *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.math;
+package com.malhartech.lib.multiwindow;
 
-import com.malhartech.annotation.InputPortFieldAnnotation;
-import com.malhartech.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.BaseNumberValueOperator;
+import com.malhartech.lib.math.Sum;
 
 /**
  *

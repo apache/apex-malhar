@@ -3,9 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.api.Sink;
-import com.malhartech.engine.Tuple;
-import java.util.ArrayList;
+import com.malhartech.engine.TestSink;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -13,30 +11,15 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.math.Sum}<p>
+ * Performance tests for {@link com.malhartech.lib.math.Sum}. <p>
  *
  */
 public class SumBenchmark
 {
   private static Logger log = LoggerFactory.getLogger(SumBenchmark.class);
 
-  class TestSink implements Sink
-  {
-    ArrayList<Object> collectedTuples = new ArrayList<Object>();
-
-    @Override
-    public void process(Object payload)
-    {
-      if (payload instanceof Tuple) {
-      }
-      else {
-        collectedTuples.add(payload);
-      }
-    }
-  }
-
   /**
-   * Test oper logic emits correct results
+   * Test operator logic emits correct results.
    */
   @Test
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
@@ -63,10 +46,7 @@ public class SumBenchmark
   public void testNodeSchemaProcessing(Sum oper, String debug)
   {
     TestSink sumSink = new TestSink();
-    TestSink countSink = new TestSink();
-    TestSink averageSink = new TestSink();
     oper.sum.setSink(sumSink);
-    oper.count.setSink(countSink);
 
     oper.beginWindow(0); //
 
@@ -83,8 +63,7 @@ public class SumBenchmark
     oper.endWindow(); //
 
     Number dval = (Number) sumSink.collectedTuples.get(0);
-    Integer count = (Integer) countSink.collectedTuples.get(0);
-    log.debug(String.format("\nBenchmark %d tuples of type %s: total was %f; count was %d",
-                            numTuples * 3, debug, dval.doubleValue(), count));
+    log.debug(String.format("\nBenchmark %d tuples of type %s: total was %f",
+                            numTuples * 3, debug, dval.doubleValue()));
   }
 }

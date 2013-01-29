@@ -7,7 +7,6 @@ package com.malhartech.lib.util;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.Operator.Unifier;
-import java.util.HashMap;
 
 /**
  *
@@ -20,22 +19,25 @@ import java.util.HashMap;
  */
 public class UnifierSumNumber<V extends Number> extends BaseNumberValueOperator<V> implements Unifier<V>
 {
-  Double result = 0.0;
+  private Double result = 0.0;
+  private boolean doEmit = false;
   public final transient DefaultOutputPort<V> mergedport = new DefaultOutputPort<V>(this);
 
   /**
    * Adds tuple with result so far
+   *
    * @param tuple incoming tuple from a partition
    */
   @Override
   public void merge(V tuple)
   {
     result += tuple.doubleValue();
-    //result = result + tuple;
+    doEmit = true;
   }
 
   /**
    * no-op
+   *
    * @param windowId
    */
   @Override
@@ -49,12 +51,16 @@ public class UnifierSumNumber<V extends Number> extends BaseNumberValueOperator<
   @Override
   public void endWindow()
   {
-    mergedport.emit(getValue(result));
-    result = 0.0;
+    if (doEmit) {
+      mergedport.emit(getValue(result));
+      result = 0.0;
+      doEmit = false;
+    }
   }
 
   /**
    * a no-op
+   *
    * @param context
    */
   @Override

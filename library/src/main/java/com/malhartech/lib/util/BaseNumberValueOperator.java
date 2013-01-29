@@ -25,11 +25,16 @@ public class BaseNumberValueOperator<V extends Number> extends BaseKeyOperator<V
     DOUBLE, INTEGER, FLOAT, LONG, SHORT, UNKNOWN
   };
   @NotNull
-  V_TYPE type = V_TYPE.DOUBLE;
+  protected V_TYPE type = V_TYPE.DOUBLE;
 
   public V_TYPE getType()
   {
     return type;
+  }
+  
+  public void setVType(V_TYPE type)
+  {
+    this.type = type;
   }
 
   /**

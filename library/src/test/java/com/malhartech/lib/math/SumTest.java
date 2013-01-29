@@ -3,10 +3,12 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.api.Sink;
-import com.malhartech.engine.Tuple;
+import com.malhartech.annotation.OutputPortFieldAnnotation;
+import com.malhartech.api.Context.OperatorContext;
+import com.malhartech.api.*;
+import com.malhartech.engine.TestSink;
+import com.malhartech.stram.StramLocalCluster;
 import java.util.ArrayList;
-import java.util.List;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -14,41 +16,18 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.Sum}<p>
+ * Functional tests for {@link com.malhartech.lib.math.Sum}. <p>
  *
  */
 public class SumTest
 {
   private static Logger log = LoggerFactory.getLogger(SumTest.class);
 
-  class TestSink implements Sink
-  {
-    List<Object> collectedTuples = new ArrayList<Object>();
-
-    @Override
-    public void process(Object payload)
-    {
-      if (payload instanceof Tuple) {
-      }
-      else {
-        collectedTuples.add(payload);
-      }
-    }
-  }
-
   /**
-   * Test oper logic emits correct results
+   * Test operator logic emits correct results.
    */
   @Test
-  public void testNodeProcessing()
-  {
-    testNodeTypeProcessing(true, false);
-    testNodeTypeProcessing(true, true);
-    testNodeTypeProcessing(false, true);
-    testNodeTypeProcessing(false, false);
-  }
-
-  public void testNodeTypeProcessing(boolean sum, boolean count)
+  public void testNodeTypeProcessing()
   {
     Sum<Double> doper = new Sum<Double>();
     Sum<Float> foper = new Sum<Float>();
@@ -61,25 +40,17 @@ public class SumTest
     loper.setType(Long.class);
     soper.setType(Short.class);
 
-    testNodeSchemaProcessing(sum, count, doper);
-    testNodeSchemaProcessing(sum, count, foper);
-    testNodeSchemaProcessing(sum, count, ioper);
-    testNodeSchemaProcessing(sum, count, loper);
-    testNodeSchemaProcessing(sum, count, soper);
- }
+    testNodeSchemaProcessing(doper);
+    testNodeSchemaProcessing(foper);
+    testNodeSchemaProcessing(ioper);
+    testNodeSchemaProcessing(loper);
+    testNodeSchemaProcessing(soper);
+  }
 
-  public void testNodeSchemaProcessing(boolean sum, boolean count, Sum oper)
+  public void testNodeSchemaProcessing(Sum oper)
   {
     TestSink sumSink = new TestSink();
-    TestSink countSink = new TestSink();
-
-    if (sum) {
-      oper.sum.setSink(sumSink);
-    }
-    if (count) {
-      oper.count.setSink(countSink);
-    }
-
+    oper.sum.setSink(sumSink);
 
     oper.beginWindow(0); //
 
@@ -114,21 +85,98 @@ public class SumTest
 
     oper.endWindow(); //
 
-    if (sum) {
-      // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
-      Assert.assertEquals("number emitted tuples", 1, sumSink.collectedTuples.size());
-      for (Object o: sumSink.collectedTuples) { // sum is 1157
-        Double val = ((Number) o).doubleValue();
-        Assert.assertEquals("emitted sum value was was ", new Double(1157.0), val);
+    // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
+    Assert.assertEquals("number emitted tuples", 1, sumSink.collectedTuples.size());
+    for (Object o: sumSink.collectedTuples) { // sum is 1157
+      Double val = ((Number)o).doubleValue();
+      Assert.assertEquals("emitted sum value was was ", new Double(1157.0), val);
+    }
+  }
+
+  /**
+   * Tuple generator to test partitioning.
+   */
+  public static class TestInputOperator extends BaseOperator implements InputOperator
+  {
+    @OutputPortFieldAnnotation(name = "output")
+    public final transient DefaultOutputPort<Integer> output = new DefaultOutputPort<Integer>(this);
+    public transient boolean first = true;
+
+    @Override
+    public void emitTuples()
+    {
+      if (first) {
+        for (int i = 0; i < 60; i++) {
+          output.emit(new Integer(i));  // send just only one tuple
+        }
+        first = false;
       }
     }
-    if (count) {
-      // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
-      Assert.assertEquals("number emitted tuples", 1, countSink.collectedTuples.size());
-      for (Object o: countSink.collectedTuples) { // count is 12
-        Integer val = (Integer) o;
-        Assert.assertEquals("emitted count value was was ", new Integer(12), val);
+  }
+
+  /**
+   * Tuple collector to test partitioning.
+   */
+  public static class CollectorOperator extends BaseOperator
+  {
+    public static final ArrayList<Integer> buffer = new ArrayList<Integer>();
+    public final transient DefaultInputPort<Integer> input = new DefaultInputPort<Integer>(this)
+    {
+      @Override
+      public void process(Integer tuple)
+      {
+        buffer.add(tuple);
       }
+    };
+  }
+
+  /**
+   * Test partitioning.
+   *
+   */
+  @Test
+  public void partitionTest()
+  {
+    try {
+      DAG dag = new DAG();
+      int N = 4; // number of partitions.
+
+      TestInputOperator test = dag.addOperator("test", new TestInputOperator());
+      Sum<Integer> oper = dag.addOperator("sum", new Sum<Integer>());
+      oper.setType(Integer.class);
+      CollectorOperator collector = dag.addOperator("collector", new CollectorOperator());
+
+      dag.getOperatorWrapper(oper).getAttributes().attr(OperatorContext.INITIAL_PARTITION_COUNT).set(N);
+
+      dag.addStream("test_sum", test.output, oper.data).setInline(false);
+      dag.addStream("sum_console", oper.sum, collector.input).setInline(false);
+
+      final StramLocalCluster lc = new StramLocalCluster(dag);
+      lc.setHeartbeatMonitoringEnabled(false);
+      new Thread()
+      {
+        @Override
+        public void run()
+        {
+          try {
+            Thread.sleep(10000);
+          }
+          catch (InterruptedException ex) {
+          }
+
+          lc.shutdown();
+        }
+      }.start();
+
+      lc.run();
+
+      Assert.assertEquals("received tuples ", 1, CollectorOperator.buffer.size());
+      log.debug(String.format("sum of a value %s", CollectorOperator.buffer.get(0).toString()));
+      log.debug(String.format("sum of a value %s", CollectorOperator.buffer.toString()));
+      CollectorOperator.buffer.clear();
+    }
+    catch (Exception ex) {
+      log.debug("got exception", ex);
     }
   }
 }
