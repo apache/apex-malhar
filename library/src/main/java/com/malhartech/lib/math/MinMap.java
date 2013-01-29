@@ -10,8 +10,6 @@ import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.Operator.Unifier;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
-import com.malhartech.lib.util.UnifierHashMap;
-import com.malhartech.lib.util.MutableDouble;
 import java.util.HashMap;
 import java.util.Map;
 

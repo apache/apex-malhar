@@ -11,7 +11,7 @@ import com.malhartech.lib.util.BaseNumberValueOperator;
 
 /**
  *
- * Adds all the values on "numerator" and "denominator" and emits quotient at end of window<p>
+ * Adds all the values on "numerator" and "denominator" and emits quotient at end of window. <p>
  * <br>
  * <b>Ports</b>:<br>
  * <b>numerator</b>: expects V extends Number<br>
@@ -89,7 +89,7 @@ public class Quotient<V extends Number> extends BaseNumberValueOperator<V>
   }
 
   /**
-   * Generates tuple emits it as long as denomitor is not 0
+   * Generates tuple emits it as long as denominator is not 0.
    * Clears internal data
    */
   @Override

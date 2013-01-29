@@ -6,9 +6,9 @@ package com.malhartech.lib.multiwindow;
 
 import com.malhartech.lib.math.SumKeyVal;
 import com.malhartech.lib.util.KeyValPair;
-import com.malhartech.lib.util.MutableDouble;
 import java.util.Map;
 import javax.validation.constraints.Min;
+import org.apache.commons.lang3.mutable.MutableDouble;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,7 +98,7 @@ public class MultiWindowSumKeyVal<K, V extends Number> extends SumKeyVal<K, V>
       for (Map.Entry<K, MutableDouble> e: sums.entrySet()) {
         K key = e.getKey();
         if (dosum) {
-          sum.emit(new KeyValPair(key, getValue(e.getValue().value)));
+          sum.emit(new KeyValPair(key, getValue(e.getValue().doubleValue())));
         }
       }
     }

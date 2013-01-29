@@ -4,7 +4,8 @@
  */
 package com.malhartech.lib.multiwindow;
 
-import com.malhartech.lib.util.MutableDouble;
+
+import org.apache.commons.lang3.mutable.MutableDouble;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
@@ -19,7 +20,7 @@ public class SimpleMovingAverageObject implements SlidingWindowObject
 
   public double getSum()
   {
-    return sum.value;
+    return sum.doubleValue();
   }
 
   public int getCount()
@@ -42,7 +43,7 @@ public class SimpleMovingAverageObject implements SlidingWindowObject
   @Override
   public void clear()
   {
-    sum.value = 0.0;
+    sum.setValue(0);
     count.setValue(0);
   }
 }

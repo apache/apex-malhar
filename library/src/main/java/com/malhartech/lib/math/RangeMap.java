@@ -12,14 +12,13 @@ import com.malhartech.api.Operator.Unifier;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
 import com.malhartech.lib.util.HighLow;
 import com.malhartech.lib.util.UnifierHashMapRange;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.mutable.MutableDouble;
 
 /**
  *
- * Emits the range for each key at the end of window<p>
+ * Emits the range for each key at the end of window. <p>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects Map&lt;K,V extends Number&gt;<br>

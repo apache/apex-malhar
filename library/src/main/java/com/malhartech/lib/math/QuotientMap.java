@@ -10,10 +10,11 @@ import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
 import com.malhartech.lib.util.UnifierHashMap;
-import com.malhartech.lib.util.MutableDouble;
+
 import java.util.HashMap;
 import java.util.Map;
 import javax.validation.constraints.Min;
+import org.apache.commons.lang3.mutable.MutableDouble;
 
 /**
  *
@@ -108,10 +109,10 @@ public class QuotientMap<K, V extends Number> extends BaseNumberKeyValueOperator
     }
     else {
       if (countkey) {
-        val.value++;
+        val.increment();
       }
       else {
-        val.value += value.doubleValue();
+        val.add(value.doubleValue());
       }
     }
     map.put(cloneKey(key), val);
@@ -176,7 +177,7 @@ public class QuotientMap<K, V extends Number> extends BaseNumberKeyValueOperator
         tuples.put(e.getKey(), new Double(0.0));
       }
       else {
-        tuples.put(e.getKey(), new Double((nval.value / e.getValue().value) * mult_by));
+        tuples.put(e.getKey(), new Double((nval.doubleValue() / e.getValue().doubleValue()) * mult_by));
       }
     }
     if (!tuples.isEmpty()) {

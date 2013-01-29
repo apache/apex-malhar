@@ -4,7 +4,6 @@
  */
 package com.malhartech.lib.util;
 
-import com.malhartech.lib.util.BaseKeyOperator;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -31,7 +30,7 @@ public class BaseNumberValueOperator<V extends Number> extends BaseKeyOperator<V
   {
     return type;
   }
-  
+
   public void setVType(V_TYPE type)
   {
     this.type = type;

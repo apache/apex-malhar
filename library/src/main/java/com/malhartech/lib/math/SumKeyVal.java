@@ -11,9 +11,9 @@ import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.StreamCodec;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
 import com.malhartech.lib.util.KeyValPair;
-import com.malhartech.lib.util.MutableDouble;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.mutable.MutableDouble;
 
 /**
  *
@@ -123,7 +123,7 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
   /**
    * Emits on all ports that are connected. Data is precomputed during process on input port
    * and endWindow just emits it for each key.
-   * Clears the internal data if resetAtEndWindow is true.
+   * Clears the internal data.
    */
   @Override
   public void endWindow()
@@ -134,7 +134,7 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
       for (Map.Entry<K, MutableDouble> e: sums.entrySet()) {
         K key = e.getKey();
         if (dosum) {
-          sum.emit(new KeyValPair(key, getValue(e.getValue().value)));
+          sum.emit(new KeyValPair(key, getValue(e.getValue().doubleValue())));
         }
       }
     }

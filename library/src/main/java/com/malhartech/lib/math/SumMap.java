@@ -9,10 +9,10 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
-import com.malhartech.lib.util.MutableDouble;
 import com.malhartech.lib.util.UnifierHashMapSumKeys;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.mutable.MutableDouble;
 
 /**
  *
@@ -115,7 +115,7 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
       for (Map.Entry<K, MutableDouble> e: sums.entrySet()) {
         K key = e.getKey();
         if (sum.isConnected()) {
-          stuples.put(key, getValue(e.getValue().value));
+          stuples.put(key, getValue(e.getValue().doubleValue()));
         }
       }
     }

@@ -8,9 +8,12 @@ import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.*;
+import com.malhartech.lib.util.BaseNumberKeyValueOperator;
+import com.malhartech.lib.util.UnifierHashMapInteger;
+import com.malhartech.lib.util.UnifierHashMapSumKeys;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.mutable.MutableDouble;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
@@ -147,7 +150,7 @@ public class SumCountMap<K, V extends Number> extends BaseNumberKeyValueOperator
       for (Map.Entry<K, MutableDouble> e: sums.entrySet()) {
         K key = e.getKey();
         if (sum.isConnected()) {
-          stuples.put(key, getValue(e.getValue().value));
+          stuples.put(key, getValue(e.getValue().doubleValue()));
         }
         if (count.isConnected()) {
           ctuples.put(key, counts.get(e.getKey()).toInteger());

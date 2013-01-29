@@ -12,7 +12,6 @@ import com.malhartech.api.Operator.Unifier;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.lang3.mutable.MutableDouble;
 
 /**
  *
