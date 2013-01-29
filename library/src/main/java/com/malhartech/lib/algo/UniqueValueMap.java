@@ -11,6 +11,7 @@ import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseKeyOperator;
 import com.malhartech.lib.util.BaseKeyValueOperator;
 import com.malhartech.lib.util.KeyValPair;
+import com.malhartech.lib.util.UnifierHashMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -78,7 +79,14 @@ public class UniqueValueMap<K> extends BaseKeyOperator<K>
     }
   };
   @OutputPortFieldAnnotation(name = "count")
-  public final transient DefaultOutputPort<HashMap<K,Integer>> count = new DefaultOutputPort<HashMap<K,Integer>>(this);
+  public final transient DefaultOutputPort<HashMap<K, Integer>> count = new DefaultOutputPort<HashMap<K, Integer>>(this)
+  {
+    @Override
+    public Unifier<HashMap<K, Integer>> getUnifier()
+    {
+      return new UnifierHashMap<K, Integer>();
+    }
+  };
 
   /**
    * Bucket counting mechanism.
