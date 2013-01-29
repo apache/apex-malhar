@@ -7,6 +7,7 @@ import com.malhartech.engine.TestSink;
 import com.malhartech.lib.util.KeyValPair;
 import junit.framework.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +25,7 @@ public class UniqueValueKeyValBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
+  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     UniqueValueKeyVal<String> oper = new UniqueValueKeyVal<String>();
@@ -58,6 +60,8 @@ public class UniqueValueKeyValBenchmark
     }
     oper.endWindow();
     Assert.assertEquals("number emitted tuples", 5, sink.collectedTuples.size());
+    log.debug(String.format("\nBenchmark sums for %d key/val pairs", numTuples * 6));
+
     for (KeyValPair<String,Integer> e : sink.collectedTuples) {
       int val = e.getValue().intValue();
       if (e.getKey().equals("a")) {
