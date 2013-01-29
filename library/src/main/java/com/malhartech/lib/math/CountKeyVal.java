@@ -38,7 +38,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
  * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for Sum&lt;K,V extends Number&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th colspan=3>Out-bound (emit)</th></tr>
  * <tr><th><i>data</i>(KeyValPair&lt;K,V&gt;)</th><th><i>count</i>(KeyValPair&lt;K,Integer&gt;)</th></tr>
- * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
+ * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
  * <tr><td>Data (process())</td><td>{a=2}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{b=20}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{c=1000}</td><td></td></tr>
@@ -54,8 +54,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
  * <tr><td>Data (process())</td><td>{d=4}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{a=23}</td><td></td></tr>
  * <tr><td>End Window (endWindow())</td><td>N/A</td>
- * <td>{a=36}<br>{b=37}<br>{c=1000}<br>{d=141}<br>{e=2}</td>
- * <td>{a=9}<br>{b=12}<br>{c=1000}<br>{d=28}<br>{e=2}</td></tr>
+ * <td>{a=4}<br>{b=3}<br>{c=1}<br>{d=5}<br>{e=1}</td></tr>
  * </table>
  * <br>
  *
