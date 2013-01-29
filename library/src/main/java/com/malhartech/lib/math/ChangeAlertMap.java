@@ -9,15 +9,13 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
-import com.malhartech.lib.util.UnifierHashMap;
-import com.malhartech.lib.util.MutableDouble;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.mutable.MutableDouble;
 
 /**
  *
- * Emits the change in the value of the key in stream on port data (as compared to a base value set via port base) for every tuple<p>
+ * Emits the change in the value of the key in stream on port data (as compared to a base value set via port base) for every tuple. <p>
  * This is a pass through node<br>
  * <br>
  * <b>Ports</b>:<br>
@@ -80,8 +78,8 @@ public class ChangeAlertMap<K, V extends Number> extends BaseNumberKeyValueOpera
           basemap.put(cloneKey(e.getKey()), val);
           continue;
         }
-        double change = e.getValue().doubleValue() - val.value;
-        double percent = (change/val.value)*100;
+        double change = e.getValue().doubleValue() - val.doubleValue();
+        double percent = (change/val.doubleValue())*100;
         if (percent < 0.0) {
           percent = 0.0 - percent;
         }
@@ -92,7 +90,7 @@ public class ChangeAlertMap<K, V extends Number> extends BaseNumberKeyValueOpera
           otuple.put(cloneKey(e.getKey()), dmap);
           alert.emit(otuple);
         }
-        val.value = e.getValue().doubleValue();
+        val.setValue(e.getValue().doubleValue());
       }
     }
   };

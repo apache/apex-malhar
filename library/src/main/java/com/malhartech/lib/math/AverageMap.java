@@ -9,10 +9,10 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
-import com.malhartech.lib.util.MutableDouble;
-import com.malhartech.lib.util.MutableLong;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.mutable.MutableDouble;
+import org.apache.commons.lang3.mutable.MutableLong;
 
 /**
  *
@@ -94,7 +94,7 @@ public class AverageMap<K, V extends Number> extends BaseNumberKeyValueOperator<
           count = new MutableLong(0);
           counts.put(cloneKey(key), count);
         }
-        count.value++;
+        count.increment();
       }
     }
   };
@@ -116,7 +116,7 @@ public class AverageMap<K, V extends Number> extends BaseNumberKeyValueOperator<
     HashMap<K, V> atuples = new HashMap<K, V>();
     for (Map.Entry<K, MutableDouble> e: sums.entrySet()) {
       K key = e.getKey();
-      atuples.put(key, getValue(e.getValue().value / counts.get(key).value));
+      atuples.put(key, getValue(e.getValue().doubleValue() / counts.get(key).doubleValue()));
     }
 
     if (!atuples.isEmpty()) {

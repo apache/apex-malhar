@@ -9,16 +9,16 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
-import com.malhartech.lib.util.MutableDouble;
 import com.malhartech.lib.util.UnifierHashMap;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.mutable.MutableDouble;
 
 
 /**
  *
  * Adds all values for each key in "numerator" and "denominator", and at the end of window emits the margin for each key
- * (1 - numerator/denominator).<p>
+ * (1 - numerator/denominator). <p>
  * <br>The values are added for each key within the window and for each stream.<br>
  * <br>
  * <b>Ports</b>:<br>
@@ -107,7 +107,7 @@ public class MarginMap<K, V extends Number> extends BaseNumberKeyValueOperator<K
         val = new MutableDouble(0.0);
         map.put(cloneKey(e.getKey()), val);
       }
-      val.value += e.getValue().doubleValue();
+      val.add(e.getValue().doubleValue());
     }
   }
   @OutputPortFieldAnnotation(name = "margin")
@@ -161,10 +161,10 @@ public class MarginMap<K, V extends Number> extends BaseNumberKeyValueOperator<K
         numerators.remove(e.getKey()); // so that all left over keys can be reported
       }
       if (percent) {
-        val = (1 - nval.value / e.getValue().value) * 100;
+        val = (1 - nval.doubleValue() / e.getValue().doubleValue()) * 100;
       }
       else {
-        val = 1 - nval.value / e.getValue().value;
+        val = 1 - nval.doubleValue() / e.getValue().doubleValue();
       }
       tuples.put(e.getKey(), getValue(val.doubleValue()));
     }

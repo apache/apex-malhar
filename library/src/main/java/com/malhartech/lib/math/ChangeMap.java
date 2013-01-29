@@ -9,10 +9,9 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
-import com.malhartech.lib.util.UnifierHashMap;
-import com.malhartech.lib.util.MutableDouble;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.mutable.MutableDouble;
 
 /**
  *
@@ -75,7 +74,7 @@ public class ChangeMap<K, V extends Number> extends BaseNumberKeyValueOperator<K
         }
         MutableDouble bval = basemap.get(e.getKey());
         if (bval != null) { // Only process keys that are in the basemap
-          double cval = e.getValue().doubleValue() - bval.value;
+          double cval = e.getValue().doubleValue() - bval.doubleValue();
           if (c_on) {
             HashMap<K,V> ctuple = new HashMap<K,V>(1);
             ctuple.put(cloneKey(e.getKey()), getValue(cval));
@@ -83,7 +82,7 @@ public class ChangeMap<K, V extends Number> extends BaseNumberKeyValueOperator<K
           }
           if (p_on) {
             HashMap<K,Double> ptuple = new HashMap<K,Double>(1);
-            ptuple.put(cloneKey(e.getKey()), (cval/bval.value) * 100);
+            ptuple.put(cloneKey(e.getKey()), (cval/bval.doubleValue()) * 100);
             percent.emit(ptuple);
           }
         }
@@ -106,7 +105,7 @@ public class ChangeMap<K, V extends Number> extends BaseNumberKeyValueOperator<K
             val = new MutableDouble(0.0);
             basemap.put(cloneKey(e.getKey()), val);
           }
-          val.value = e.getValue().doubleValue();
+          val.setValue(e.getValue().doubleValue());
         }
       }
     }
