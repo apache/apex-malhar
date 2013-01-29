@@ -18,17 +18,17 @@ import java.util.ArrayList;
  * @author amol<br>
  *
  */
-public class UnifierRange<V extends Number> implements Unifier<HighLow<V>>
+public class UnifierRange implements Unifier<HighLow>
 {
-  public HighLow<V> mergedTuple = null;
-  public final transient DefaultOutputPort<HighLow<V>> mergedport = new DefaultOutputPort<HighLow<V>>(this);
+  public HighLow mergedTuple = null;
+  public final transient DefaultOutputPort<HighLow> mergedport = new DefaultOutputPort<HighLow>(this);
 
   /**
    * combines the tuple into a single final tuple which is emitted in endWindow
    * @param tuple incoming tuple from a partition
    */
   @Override
-  public void merge(HighLow<V> tuple)
+  public void merge(HighLow tuple)
   {
     if (mergedTuple == null) {
       mergedTuple = new HighLow(tuple.getHigh(), tuple.getLow());

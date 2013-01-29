@@ -10,15 +10,13 @@ package com.malhartech.lib.util;
  * <br>
  * Key and Value are to be treated as immutable objects.
  *
- * @param <K>
- * @param <V>
  * @author amol<br>
  *
  */
-public class HighLow<V extends Number>
+public class HighLow
 {
-  V high;
-  V low;
+  Number high;
+  Number low;
 
   /**
    * Added default constructor for deserializer.
@@ -31,8 +29,10 @@ public class HighLow<V extends Number>
 
   /**
    * Constructor
+   * @param h
+   * @param l 
    */
-  public HighLow(V h, V l)
+  public HighLow(Number h, Number l)
   {
     high = h;
     low = l;
@@ -41,7 +41,7 @@ public class HighLow<V extends Number>
   /**
    * @return high value
    */
-  public V getHigh()
+  public Number getHigh()
   {
     return high;
   }
@@ -50,7 +50,7 @@ public class HighLow<V extends Number>
    *
    * @return low value
    */
-  public V getLow()
+  public Number getLow()
   {
     return low;
   }
@@ -58,7 +58,7 @@ public class HighLow<V extends Number>
   /**
    * @param h sets high value
    */
-  public void setHigh(V h)
+  public void setHigh(Number h)
   {
     high = h;
   }
@@ -67,7 +67,7 @@ public class HighLow<V extends Number>
    *
    * @param l sets low value
    */
-  public void setLow(V l)
+  public void setLow(Number l)
   {
     low = l;
   }

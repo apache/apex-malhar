@@ -19,22 +19,22 @@ import java.util.Map;
  * @author amol<br>
  *
  */
-public class UnifierHashMapRange<K, V extends Number> implements Unifier<HashMap<K, HighLow<V>>>
+public class UnifierHashMapRange<K> implements Unifier<HashMap<K, HighLow>>
 {
-  public HashMap<K, HighLow<V>> mergedTuple = new HashMap<K, HighLow<V>>();
-  public final transient DefaultOutputPort<HashMap<K, HighLow<V>>> mergedport = new DefaultOutputPort<HashMap<K, HighLow<V>>>(this);
+  public HashMap<K, HighLow> mergedTuple = new HashMap<K, HighLow>();
+  public final transient DefaultOutputPort<HashMap<K, HighLow>> mergedport = new DefaultOutputPort<HashMap<K, HighLow>>(this);
 
   /**
    * combines the tuple into a single final tuple which is emitted in endWindow
    * @param tuple incoming tuple from a partition
    */
   @Override
-  public void merge(HashMap<K, HighLow<V>> tuple)
+  public void merge(HashMap<K, HighLow> tuple)
   {
-    for (Map.Entry<K, HighLow<V>> e: tuple.entrySet()) {
-      HighLow<V> val = mergedTuple.get(e.getKey());
+    for (Map.Entry<K, HighLow> e: tuple.entrySet()) {
+      HighLow val = mergedTuple.get(e.getKey());
       if (val == null) {
-        val = new HighLow<V>(e.getValue().getHigh(), e.getValue().getLow());
+        val = new HighLow(e.getValue().getHigh(), e.getValue().getLow());
         mergedTuple.put(e.getKey(), val);
       }
       else {
@@ -66,7 +66,7 @@ public class UnifierHashMapRange<K, V extends Number> implements Unifier<HashMap
   {
     if (!mergedTuple.isEmpty())  {
       mergedport.emit(mergedTuple);
-      mergedTuple = new HashMap<K, HighLow<V>>();
+      mergedTuple = new HashMap<K, HighLow>();
     }
   }
 

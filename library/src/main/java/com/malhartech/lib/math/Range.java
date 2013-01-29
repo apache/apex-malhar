@@ -79,12 +79,12 @@ public class Range<V extends Number> extends BaseNumberValueOperator<V>
   };
 
   @OutputPortFieldAnnotation(name = "range")
-  public final transient DefaultOutputPort<HighLow<V>> range = new DefaultOutputPort<HighLow<V>>(this)
+  public final transient DefaultOutputPort<HighLow> range = new DefaultOutputPort<HighLow>(this)
   {
     @Override
-    public Unifier<HighLow<V>> getUnifier()
+    public Unifier<HighLow> getUnifier()
     {
-      return new UnifierRange<V>();
+      return new UnifierRange();
     }
   };
 
@@ -100,7 +100,7 @@ public class Range<V extends Number> extends BaseNumberValueOperator<V>
   public void endWindow()
   {
     if ((low != null) && (high != null)) {
-      HighLow<V> tuple = new HighLow<V>(getValue(high.doubleValue()), getValue(low.doubleValue()));
+      HighLow tuple = new HighLow(getValue(high.doubleValue()), getValue(low.doubleValue()));
       range.emit(tuple);
     }
     high = null;

@@ -86,7 +86,7 @@ public class MultiWindowRangeKeyVal<K, V extends Number> extends RangeKeyVal<K, 
     }
 
     for (Map.Entry<K, MutableDouble> e: high.entrySet()) {
-      HighLow<V> hl = new HighLow<V>();
+      HighLow hl = new HighLow();
       hl.setHigh(getValue(e.getValue().doubleValue()));
       hl.setLow(getValue(low.get(e.getKey()).doubleValue())); // cannot be null
 

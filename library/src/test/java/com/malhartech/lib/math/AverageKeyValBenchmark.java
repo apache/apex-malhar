@@ -27,10 +27,9 @@ public class AverageKeyValBenchmark
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeSchemaProcessing() throws InterruptedException
   {
-    AverageKeyVal<String, Double> oper = new AverageKeyVal<String, Double>();
-    oper.setType(Double.class);
-    TestSink averageSink = new TestSink();
-    oper.average.setSink(averageSink);
+    AverageKeyVal<String> oper = new AverageKeyVal<String>();
+    TestSink<KeyValPair<String, Double>> averageSink = new TestSink<KeyValPair<String, Double>>();
+    oper.doubleAverage.setSink(averageSink);
 
     int numTuples = 100000000;
     oper.beginWindow(0);
