@@ -9,10 +9,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.StreamCodec;
-import com.malhartech.lib.util.BaseNumberKeyValueOperator;
-import com.malhartech.lib.util.HighLow;
-import com.malhartech.lib.util.KeyValPair;
-import com.malhartech.lib.util.UnifierKeyValRange;
+import com.malhartech.lib.util.*;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.mutable.MutableDouble;
@@ -74,21 +71,15 @@ public class RangeKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator
       if (!doprocessKey(key) || (tuple.getValue() == null)) {
         return;
       }
-      double eval = tuple.getValue().doubleValue();
-      MutableDouble val = low.get(key);
-      if (val == null) {
-        low.put(cloneKey(key), new MutableDouble(eval));
-      }
-      else if (val.doubleValue() > eval) { // update low
-        val.setValue(eval);
+      V val = low.get(key);
+      V eval = tuple.getValue();
+      if ((val == null) || (val.doubleValue() > eval.doubleValue())) {
+        low.put(cloneKey(key), eval);
       }
 
       val = high.get(key);
-      if (val == null) {
-        high.put(cloneKey(key), new MutableDouble(eval));
-      }
-      else if (val.doubleValue() < eval) { // updagte high
-        val.setValue(eval);
+      if ((val == null) || (val.doubleValue() < eval.doubleValue())) {
+        high.put(cloneKey(key), eval);
       }
     }
 
@@ -112,8 +103,8 @@ public class RangeKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator
     }
   };
 
-  protected transient HashMap<K, MutableDouble> high = new HashMap<K, MutableDouble>();
-  protected transient HashMap<K, MutableDouble> low = new HashMap<K, MutableDouble>();
+  protected transient HashMap<K, V> high = new HashMap<K, V>();
+  protected transient HashMap<K, V> low = new HashMap<K, V>();
 
   /**
    * Emits range for each key. If no data is received, no emit is done
@@ -122,11 +113,8 @@ public class RangeKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator
   @Override
   public void endWindow()
   {
-    for (Map.Entry<K, MutableDouble> e: high.entrySet()) {
-      HighLow hl = new HighLow();
-      hl.setHigh(getValue(e.getValue().doubleValue()));
-      hl.setLow(getValue(low.get(e.getKey()).doubleValue())); // cannot be null
-      range.emit(new KeyValPair<K, HighLow>(e.getKey(), hl));
+    for (Map.Entry<K, V> e: high.entrySet()) {
+      range.emit(new KeyValPair<K, HighLow>(e.getKey(), new HighLow(e.getValue(), low.get(e.getKey()))));
     }
     clearCache();
   }

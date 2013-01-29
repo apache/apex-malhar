@@ -61,18 +61,12 @@ public class Range<V extends Number> extends BaseNumberValueOperator<V>
     @Override
     public void process(V tuple)
     {
-      if (low == null) {
-        low = new MutableDouble(tuple.doubleValue());
-      }
-      else if (low.doubleValue() > tuple.doubleValue()) {
-        low.setValue(tuple);
+      if ((low == null) || (low.doubleValue() > tuple.doubleValue())) {
+        low = tuple;
       }
 
-      if (high == null) {
-        high = new MutableDouble(tuple.doubleValue());
-      }
-      else if (high.doubleValue() < tuple.doubleValue()) {
-        high.setValue(tuple);
+      if ((high == null) || (high.doubleValue() < tuple.doubleValue())) {
+        high = tuple;
       }
     }
   };
@@ -87,8 +81,8 @@ public class Range<V extends Number> extends BaseNumberValueOperator<V>
     }
   };
 
-  protected transient MutableDouble high = null;
-  protected transient MutableDouble low = null;
+  protected transient V high = null;
+  protected transient V low = null;
 
 
   /**

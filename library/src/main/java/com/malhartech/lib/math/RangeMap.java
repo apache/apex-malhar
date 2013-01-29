@@ -73,20 +73,15 @@ public class RangeMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,
         if (!doprocessKey(key) || (e.getValue() == null)) {
           continue;
         }
-        double eval = e.getValue().doubleValue();
-        MutableDouble val = low.get(key);
-        if (val == null) {
-          low.put(cloneKey(key), new MutableDouble(eval));
+        V eval = e.getValue();
+        V val = low.get(key);
+        if ((val == null) || (val.doubleValue() > eval.doubleValue())) {
+          low.put(cloneKey(key), eval);
         }
-        else if (val.doubleValue() > eval) {
-          val.setValue(eval);
-        }
+
         val = high.get(key);
-        if (val == null) {
-          high.put(cloneKey(key), new MutableDouble(eval));
-        }
-        else if (val.doubleValue() < eval) {
-          val.setValue(eval);
+        if ((val == null) || (val.doubleValue() < eval.doubleValue())) {
+          high.put(cloneKey(key), eval);
         }
       }
     }
@@ -103,8 +98,8 @@ public class RangeMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,
     }
   };
 
-  protected transient HashMap<K,MutableDouble> high = new HashMap<K,MutableDouble>();
-  protected transient HashMap<K,MutableDouble> low = new HashMap<K,MutableDouble>();
+  protected transient HashMap<K,V> high = new HashMap<K,V>();
+  protected transient HashMap<K,V> low = new HashMap<K,V>();
 
   /**
    * Emits range for each key. If no data is received, no emit is done
@@ -114,15 +109,17 @@ public class RangeMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,
   public void endWindow()
   {
     HashMap<K, HighLow> tuples = new HashMap<K, HighLow>(1);
-    for (Map.Entry<K,MutableDouble> e: high.entrySet()) {
-      HighLow hl = new HighLow();
-      hl.setHigh(getValue(e.getValue().doubleValue()));
-      hl.setLow(getValue(low.get(e.getKey()).doubleValue())); // cannot be null
-      tuples.put(e.getKey(), hl);
+    for (Map.Entry<K,V> e: high.entrySet()) {
+      tuples.put(e.getKey(), new HighLow(e.getValue(), low.get(e.getKey())));
     }
     if (!tuples.isEmpty()) {
       range.emit(tuples);
     }
+    clearCache();
+  }
+
+  public void clearCache()
+  {
     high.clear();
     low.clear();
   }
