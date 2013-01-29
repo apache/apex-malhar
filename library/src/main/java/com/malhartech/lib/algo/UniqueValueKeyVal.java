@@ -8,12 +8,11 @@ import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.BaseKeyValueOperator;
+import com.malhartech.lib.util.BaseKeyOperator;
 import com.malhartech.lib.util.KeyValPair;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
  * Count unique occurrences of vals for every key within a window, and emits Key,Integer pairs tuple.<p>
@@ -55,20 +54,20 @@ import org.apache.commons.lang3.mutable.MutableInt;
  * <br>
  * @author Amol Kekre <amol@malhar-inc.com>
  */
-public class UniqueValueKeyVal<K,V> extends BaseKeyValueOperator<K,V>
+public class UniqueValueKeyVal<K> extends BaseKeyOperator<K>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<KeyValPair<K,V>> data = new DefaultInputPort<KeyValPair<K,V>>(this)
+  public final transient DefaultInputPort<KeyValPair<K,Object>> data = new DefaultInputPort<KeyValPair<K,Object>>(this)
   {
     /**
      * Reference counts tuples
      */
     @Override
-    public void process(KeyValPair<K,V> tuple)
+    public void process(KeyValPair<K,Object> tuple)
     {
-      HashSet<V> vals = map.get(tuple.getKey());
+      HashSet<Object> vals = map.get(tuple.getKey());
       if (vals == null) {
-        vals = new HashSet<V>();
+        vals = new HashSet<Object>();
         map.put(cloneKey(tuple.getKey()), vals);
       }
       vals.add(tuple.getValue());
@@ -80,7 +79,7 @@ public class UniqueValueKeyVal<K,V> extends BaseKeyValueOperator<K,V>
   /**
    * Bucket counting mechanism.
    */
-  protected HashMap<K, HashSet<V>> map = new HashMap<K, HashSet<V>>();
+  protected HashMap<K, HashSet<Object>> map = new HashMap<K, HashSet<Object>>();
 
 
   /**
@@ -89,7 +88,7 @@ public class UniqueValueKeyVal<K,V> extends BaseKeyValueOperator<K,V>
   @Override
   public void endWindow()
   {
-    for (Map.Entry<K,HashSet<V>> e: map.entrySet()) {
+    for (Map.Entry<K,HashSet<Object>> e: map.entrySet()) {
       count.emit(new KeyValPair(e.getKey(), e.getValue().size()));
     }
     clearCache();
