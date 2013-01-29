@@ -5,6 +5,7 @@ package com.malhartech.lib.math;
 
 import com.malhartech.api.Sink;
 import com.malhartech.engine.Tuple;
+import com.malhartech.lib.util.HighLow;
 import java.util.ArrayList;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -82,9 +83,9 @@ public class RangeBenchmark
 
     oper.endWindow(); //
 
-    ArrayList list = (ArrayList) rangeSink.tuple;
+    HighLow hl = (HighLow) rangeSink.tuple;
     log.debug(String.format("\nBenchmark total %d tuples was expected (1000,1) got (%f,%f)", numTuples * 12,
-                            list.get(0),
-                            list.get(1)));
+                            hl.getHigh().doubleValue(),
+                            hl.getLow().doubleValue()));
   }
 }
