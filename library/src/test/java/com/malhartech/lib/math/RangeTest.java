@@ -86,7 +86,7 @@ public class RangeTest
     // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
     Assert.assertEquals("number emitted tuples", 1, rangeSink.collectedTuples.size());
     for (Object o: rangeSink.collectedTuples) {
-      HighLow<Double> hl = (HighLow<Double>)o;
+      HighLow hl = (HighLow)o;
       Assert.assertEquals("emitted high value was ", new Double(1000.0), hl.getHigh());
       Assert.assertEquals("emitted low value was ", new Double(1.0), hl.getLow());
     }

@@ -35,7 +35,7 @@ public class RangeMapBenchmark {
       else {
         HashMap<String, Object> tuple = (HashMap<String, Object>)payload;
         for (Map.Entry<String, Object> e: tuple.entrySet()) {
-          HighLow<Number> hl = (HighLow<Number>) e.getValue();
+          HighLow hl = (HighLow) e.getValue();
           high = hl.getHigh().doubleValue();
           low = hl.getLow().doubleValue();
         }

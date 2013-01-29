@@ -34,7 +34,7 @@ public class RangeKeyValTest
       }
       else {
         KeyValPair<String, Object> tuple = (KeyValPair<String, Object>)payload;
-        HighLow<Number> hl = (HighLow<Number>)tuple.getValue();
+        HighLow hl = (HighLow)tuple.getValue();
         high = hl.getHigh().doubleValue();
         low = hl.getLow().doubleValue();
       }
