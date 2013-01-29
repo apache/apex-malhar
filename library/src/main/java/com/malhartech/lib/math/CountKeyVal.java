@@ -17,7 +17,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
  *
- * Emits the sum, and count of values for each key at the end of window. <p>
+ * Emits the count of occurrences for each key at the end of window. <p>
  * This is an end window operator. Default unifier works as this operator follows sticky partition<br>
  * <br>
  * <b>Ports</b>:<br>
@@ -29,13 +29,13 @@ import org.apache.commons.lang3.mutable.MutableInt;
  * <b>Specific run time checks</b>: None<br>
  * <p>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for Sum&lt;K,V extends Number&gt; operator template">
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for CountKeyVal&lt;K,V&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
  * <tr><td><b>100 million tuples/s</b></td><td>One tuple per key per port</td><td>Mainly dependant on in-bound throughput</td></tr>
  * </table><br>
  * <p>
  * <b>Function Table (K=String, V=Integer)</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for Sum&lt;K,V extends Number&gt; operator template">
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for CountKeyVal&lt;K,V&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th colspan=3>Out-bound (emit)</th></tr>
  * <tr><th><i>data</i>(KeyValPair&lt;K,V&gt;)</th><th><i>count</i>(KeyValPair&lt;K,Integer&gt;)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>

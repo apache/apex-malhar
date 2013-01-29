@@ -15,7 +15,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
  *
- * Emits the sum of values for each key at the end of window. <p>
+ * Emits the count of occurrences of each key at the end of window. <p>
  * This is an end of window operator<br>
  * <br>
  * <b>Ports</b>:<br>
@@ -28,14 +28,14 @@ import org.apache.commons.lang3.mutable.MutableInt;
  * <b>Specific run time checks</b>: None<br>
  * <p>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for SumMap&lt;K,V extends Number&gt; operator template">
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for CountMap&lt;K,V&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
  * <tr><td><b>30 Million K,V pairs/s</b></td><td>One HashMap with one K,Integer pair per key per window</td><td>In-bound rate is the main determinant of performance. Tuples are assumed to be
  * immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
  * </table><br>
  * <p>
  * <b>Function Table (K=String, V=Integer)</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for SumMap&lt;K,V extends Number&gt; operator template">
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for CountMap&lt;K,V&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th colspan=3>Out-bound (emit)</th></tr>
  * <tr><th><i>data</i>(Map&lt;K,V&gt;)</th><th><i>count</i>(HashMap&lt;K,Integer&gt;)</th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
