@@ -24,10 +24,7 @@ public class RandomSentenceInputOperator implements InputOperator
   private BufferedReader br;
   private transient DataInputStream in;
   private final int batchSize = 1000;
-  private int readedBatch = 0;
   private transient String sentence;
-//  public static final int linesInFile = 10000000;
-  public static final int linesInFile = 10000;
 
   @Override
   public void emitTuples()
@@ -42,7 +39,7 @@ public class RandomSentenceInputOperator implements InputOperator
           break;
         }
       }
-      if (++readedBatch == linesInFile / batchSize) {
+      if( line == null ) {
         throw new RuntimeException(new InterruptedException("No more tuples to emit!"));
       }
     }

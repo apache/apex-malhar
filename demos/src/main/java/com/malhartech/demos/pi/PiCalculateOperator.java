@@ -50,7 +50,7 @@ public class PiCalculateOperator extends BaseOperator
   @Override
   public void endWindow()
   {
-    pi = (double) (inArea/totalArea)*4;
+    pi = (double)inArea/totalArea*4;
     output.emit(pi);
   }
 
