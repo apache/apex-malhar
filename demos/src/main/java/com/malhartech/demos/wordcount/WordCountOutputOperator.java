@@ -34,15 +34,11 @@ public class WordCountOutputOperator extends BaseOperator
             if(count==null) count = 0;
             count++;
             counts.put(word, count);
-            ArrayList<Object> al = new ArrayList<Object>();
-            al.add(word);
-            al.add(count);
-            output.emit(al);
             ++words;
     }
   };
 
-  public transient DefaultOutputPort<ArrayList<Object>> output = new DefaultOutputPort<ArrayList<Object>>(this);
+  public transient DefaultOutputPort<Map<String, Integer>> output = new DefaultOutputPort<Map<String, Integer>>(this);
 
   @Override
   public void setup(OperatorContext context)
@@ -57,13 +53,11 @@ public class WordCountOutputOperator extends BaseOperator
   @Override
   public void endWindow()
   {
-//    logger.debug("WordCountOutputOperator END words:"+words+" size:"+counts.size()+","+counts.toString());
+    output.emit(counts);
   }
 
   @Override
   public void teardown()
   {
-    ArrayList sortedKeys = new ArrayList(counts.keySet());
-    Collections.sort(sortedKeys);
   }
 }

@@ -2,10 +2,11 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.demos.singlejoin;
+package com.malhartech.demos.groupby;
 
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
+import com.malhartech.lib.algo.GroupBy;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 
@@ -22,18 +23,22 @@ public class Application implements ApplicationFactory
   @Override
   public DAG getApplication(Configuration conf)
   {
+    int interval = 100;
     DAG dag = new DAG(conf);
 
-    AgeInputOperator ageGen = dag.addOperator("age", new AgeInputOperator());
-    NameInputOperator nameGen  = dag.addOperator("name", new NameInputOperator());
+    IdAgeInputOperator idAge = dag.addOperator("age", new IdAgeInputOperator());
+    IdNameInputOperator idName  = dag.addOperator("name", new IdNameInputOperator());
+    idAge.setInterval(interval);
+    idName.setInterval(interval);
 
-    SingleJoinOutputOperator joinBolt = dag.addOperator("join", new SingleJoinOutputOperator());
+    GroupBy groupBy = dag.addOperator("groupby", new GroupBy());
+    groupBy.setKey("id");
 
-    dag.addStream("age-join", ageGen.output, joinBolt.age).setInline(allInline);
-    dag.addStream("name-join", nameGen.output, joinBolt.name ).setInline(allInline);
+    dag.addStream("age-group", idAge.output, groupBy.data1).setInline(allInline);
+    dag.addStream("name-group", idName.output, groupBy.data2 ).setInline(allInline);
 
     ConsoleOutputOperator consoleOperator = dag.addOperator("console", new ConsoleOutputOperator());
-    dag.addStream("count-console",joinBolt.output, consoleOperator.input).setInline(allInline);
+    dag.addStream("group-console",groupBy.groupby, consoleOperator.input).setInline(allInline);
 
     return dag;
   }

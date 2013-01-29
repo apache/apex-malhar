@@ -14,7 +14,7 @@ import org.apache.hadoop.conf.Configuration;
  * You can use "hadoop jar hadoop-*-examples.jar teragen 10000000000 in-dir" command to generate the data file. The number here is the line number of the file.
  * The "samplefile" provided contains 10000 files
  *
- * This program will count the number of words of consecutive letters as "SSSSSSSSSS","HHHHHHHH" etc.
+ * This program will count the number of words.
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
@@ -28,16 +28,10 @@ public class Application implements ApplicationFactory
     allInline = true;
     DAG dag =new DAG(conf);
 
-    RandomSentenceInputOperator spout = dag.addOperator("spout", new RandomSentenceInputOperator());
-    SplitSentence split = dag.addOperator("split", new SplitSentence());
+    RandomSentenceInputOperator input = dag.addOperator("sentence", new RandomSentenceInputOperator());
     WordCountOutputOperator wordCount = dag.addOperator("count", new WordCountOutputOperator());
 
-//    dag.getContextAttributes(spout).attr(OperatorContext.INITIAL_PARTITION_COUNT).set(4);
-//    dag.getContextAttributes(split).attr(OperatorContext.INITIAL_PARTITION_COUNT).set(2);
-//    dag.getContextAttributes(wordCount).attr(OperatorContext.INITIAL_PARTITION_COUNT).set(2);
-
-    dag.addStream("spout-split",spout.output, split.input).setInline(allInline);
-    dag.addStream("split-count", split.output, wordCount.input).setInline(allInline);
+    dag.addStream("sentence-count", input.output, wordCount.input).setInline(allInline);
 
     ConsoleOutputOperator consoleOperator = dag.addOperator("console", new ConsoleOutputOperator());
     dag.addStream("count-console",wordCount.output, consoleOperator.input);

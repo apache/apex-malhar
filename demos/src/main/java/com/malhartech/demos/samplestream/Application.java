@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This demo will output the stock market data from yahoo finance
- * 
+ *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
 public class Application implements ApplicationFactory
@@ -28,22 +28,22 @@ public class Application implements ApplicationFactory
 
   public DAG getYahooFinanceCSVApplication(Configuration conf) {
     DAG dag = new DAG();
-    YahooFinanceCSVInputOperator spout = dag.addOperator("spout", new YahooFinanceCSVInputOperator());
-    spout.addSymbol("GOOG");
-    spout.addSymbol("FB");
-    spout.addSymbol("YHOO");
-    spout.addFormat(YahooFinanceCSVInputOperator.Symbol);
-    spout.addFormat(YahooFinanceCSVInputOperator.LastTrade);
-    spout.addFormat(YahooFinanceCSVInputOperator.LastTradeDate);
-    spout.addFormat(YahooFinanceCSVInputOperator.LastTradeTime);
-    spout.addFormat(YahooFinanceCSVInputOperator.Change);
-    spout.addFormat(YahooFinanceCSVInputOperator.Open);
-    spout.addFormat(YahooFinanceCSVInputOperator.DaysHigh);
-    spout.addFormat(YahooFinanceCSVInputOperator.DaysLow);
-    spout.addFormat(YahooFinanceCSVInputOperator.Volume);
+    YahooFinanceCSVInputOperator input = dag.addOperator("input", new YahooFinanceCSVInputOperator());
+    input.addSymbol("GOOG");
+    input.addSymbol("FB");
+    input.addSymbol("YHOO");
+    input.addFormat(YahooFinanceCSVInputOperator.Symbol);
+    input.addFormat(YahooFinanceCSVInputOperator.LastTrade);
+    input.addFormat(YahooFinanceCSVInputOperator.LastTradeDate);
+    input.addFormat(YahooFinanceCSVInputOperator.LastTradeTime);
+    input.addFormat(YahooFinanceCSVInputOperator.Change);
+    input.addFormat(YahooFinanceCSVInputOperator.Open);
+    input.addFormat(YahooFinanceCSVInputOperator.DaysHigh);
+    input.addFormat(YahooFinanceCSVInputOperator.DaysLow);
+    input.addFormat(YahooFinanceCSVInputOperator.Volume);
 
     ConsoleOutputOperator consoleOperator = dag.addOperator("console", new ConsoleOutputOperator());
-    dag.addStream("spout-console", spout.outputPort, consoleOperator.input).setInline(allInline);
+    dag.addStream("input-console", input.outputPort, consoleOperator.input).setInline(allInline);
 
     return dag;
   }

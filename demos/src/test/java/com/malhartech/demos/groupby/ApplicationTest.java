@@ -2,7 +2,7 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.demos.singlejoin;
+package com.malhartech.demos.groupby;
 
 import com.malhartech.stram.StramLocalCluster;
 import org.apache.hadoop.conf.Configuration;
