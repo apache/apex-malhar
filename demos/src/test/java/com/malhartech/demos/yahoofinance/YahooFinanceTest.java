@@ -63,6 +63,7 @@ public class YahooFinanceTest
   }
 
   //@Test
+/*
   public void testTypeCompatibility() {
 
     OutputPort<KeyValPair<String, Double>> oport = null;
@@ -73,6 +74,6 @@ public class YahooFinanceTest
     dag.addStream("id", oport, iport1, iport2);
 
   }
-
+*/
 
 }
