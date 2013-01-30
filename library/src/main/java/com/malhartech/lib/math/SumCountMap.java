@@ -218,12 +218,13 @@ public class SumCountMap<K, V extends Number> extends BaseNumberKeyValueOperator
 
     for (Map.Entry<K, MutableDouble> e: sums.entrySet()) {
       K key = e.getKey();
-      tuples.put(key, getValue(e.getValue().doubleValue()));
-      dtuples.put(key, e.getValue().doubleValue());
-      ituples.put(key, e.getValue().intValue());
-      ftuples.put(key, e.getValue().floatValue());
-      ltuples.put(key, e.getValue().longValue());
-      stuples.put(key, e.getValue().shortValue());
+      MutableDouble val = e.getValue();
+      tuples.put(key, getValue(val.doubleValue()));
+      dtuples.put(key, val.doubleValue());
+      ituples.put(key, val.intValue());
+      ftuples.put(key, val.floatValue());
+      ltuples.put(key, val.longValue());
+      stuples.put(key, val.shortValue());
       ctuples.put(key, counts.get(e.getKey()).toInteger());
     }
 

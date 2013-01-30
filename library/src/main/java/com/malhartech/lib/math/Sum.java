@@ -165,7 +165,7 @@ public class Sum<V extends Number> extends BaseNumberValueOperator<V> implements
   @Override
   public void endWindow()
   {
-    if (doSumEmit()) {
+    if (doEmit()) {
       sum.emit(getValue(sums));
       sumDouble.emit(sums);
       sumInteger.emit((int) sums);
@@ -192,8 +192,8 @@ public class Sum<V extends Number> extends BaseNumberValueOperator<V> implements
    *
    * @return true is sum port is connected
    */
-  public boolean doSumEmit()
+  public boolean doEmit()
   {
-    return sum.isConnected() && tupleAvailable;
+    return tupleAvailable;
   }
 }
