@@ -237,23 +237,22 @@ public class ScaledApplication implements ApplicationFactory
       dag.addStream("clicksaggrcount"+i, clickAggregate.count, clickAggrCount10.getInputPort(i));
     }
 */
-    int i=1;
-    EventGenerator viewGen = getPageViewGenOperator("viewGen"+i, dag);
-    dag.getOperatorWrapper(viewGen).getAttributes().attr(OperatorContext.INITIAL_PARTITION_COUNT).set(2);
+    EventGenerator viewGen = getPageViewGenOperator("viewGen", dag);
+    dag.getOperatorWrapper(viewGen).getAttributes().attr(OperatorContext.INITIAL_PARTITION_COUNT).set(numGenerators);
 
-    EventClassifier adviews = getAdViewsStampOperator("adviews"+i, dag);
-    FilteredEventClassifier<Double> insertclicks = getInsertClicksOperator("insertclicks"+i, dag);
-    SumCountMap<String, Double> viewAggregate = getSumOperator("viewAggr"+i, dag);
-    SumCountMap<String, Double> clickAggregate = getSumOperator("clickAggr"+i, dag);
+    EventClassifier adviews = getAdViewsStampOperator("adviews", dag);
+    FilteredEventClassifier<Double> insertclicks = getInsertClicksOperator("insertclicks", dag);
+    SumCountMap<String, Double> viewAggregate = getSumOperator("viewAggr", dag);
+    SumCountMap<String, Double> clickAggregate = getSumOperator("clickAggr", dag);
 
     dag.setInputPortAttribute(adviews.event, PortContext.PARTITION_PARALLEL, true);
-    dag.addStream("views"+i, viewGen.hash_data, adviews.event).setInline(true);
+    dag.addStream("views", viewGen.hash_data, adviews.event).setInline(true);
     dag.setInputPortAttribute(insertclicks.data, PortContext.PARTITION_PARALLEL, true);
     dag.setInputPortAttribute(viewAggregate.data, PortContext.PARTITION_PARALLEL, true);
-    DAG.StreamDecl viewsAggStream = dag.addStream("viewsaggregate"+i, adviews.data, insertclicks.data, viewAggregate.data).setInline(true);
+    DAG.StreamDecl viewsAggStream = dag.addStream("viewsaggregate", adviews.data, insertclicks.data, viewAggregate.data).setInline(true);
 
     if (conf.getBoolean(P_enableHdfs, false)) {
-      HdfsOutputOperator<HashMap<String, Double>> viewsToHdfs = dag.addOperator("viewsToHdfs"+i, new HdfsOutputOperator<HashMap<String, Double>>());
+      HdfsOutputOperator<HashMap<String, Double>> viewsToHdfs = dag.addOperator("viewsToHdfs", new HdfsOutputOperator<HashMap<String, Double>>());
       viewsToHdfs.setAppend(false);
       viewsToHdfs.setFilePath("file:///tmp/adsdemo/views-%(operatorId)-part%(partIndex)");
       dag.setInputPortAttribute(viewsToHdfs.input, PortContext.PARTITION_PARALLEL, true);
@@ -261,7 +260,7 @@ public class ScaledApplication implements ApplicationFactory
     }
 
     dag.setInputPortAttribute(clickAggregate.data, PortContext.PARTITION_PARALLEL, true);
-    dag.addStream("clicksaggregate"+i, insertclicks.filter, clickAggregate.data).setInline(true);
+    dag.addStream("clicksaggregate", insertclicks.filter, clickAggregate.data).setInline(true);
 
 
     QuotientMap<String, Integer> ctr = getQuotientOperator("ctr", dag);
