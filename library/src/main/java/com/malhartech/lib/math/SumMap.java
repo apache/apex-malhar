@@ -26,6 +26,8 @@ import org.apache.commons.lang3.mutable.MutableDouble;
  * <b>Properties</b>:<br>
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
+ * <b>cumulative</b>: boolean flag, if set the sum is not cleared at the end of window, <br>
+ * hence generating cumulative sum across streaming windows. Default is false.<br>
  * <br>
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
@@ -100,6 +102,17 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
     }
   };
   protected transient HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
+  protected boolean cumulative = false;
+
+  public boolean isCumulative()
+  {
+    return cumulative;
+  }
+
+  public void setCumulative(boolean cumulative)
+  {
+    this.cumulative = cumulative;
+  }
 
   /**
    * Emits on all ports that are connected. Data is precomputed during process on input port
@@ -127,8 +140,13 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
     clearCache();
   }
 
+  /**
+   * Clears the cache making this operator stateless on window boundary
+   */
   public void clearCache()
   {
-    sums.clear();
+    if (!cumulative) {
+      sums.clear();
+    }
   }
 }

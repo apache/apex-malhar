@@ -58,7 +58,7 @@ public class YahooFinanceApplication implements ApplicationFactory
   {
     SumKeyVal<String, Long> oper = dag.addOperator(name, SumKeyVal.class);
     oper.setType(Long.class);
-    //oper.setResetAtEndWindow(false);
+    oper.setCumulative(true);
     return oper;
   }
 
@@ -217,8 +217,8 @@ public class YahooFinanceApplication implements ApplicationFactory
     DAG dag = new DAG(conf);
     int streamingWindowSize = 1000; // Default streaming window size is 500 msec. Set this to 1 sec.
     dag.getAttributes().attr(DAG.STRAM_WINDOW_SIZE_MILLIS).set(streamingWindowSize);
-    boolean allInline = false;
-    boolean isDummy = true;  // true for dummy data
+    boolean allInline = false; // inline true is not working TBD
+    boolean isDummy = false;  // true for dummy data
     int winSize = 60;
     int appWindow = 300;
     boolean windowTest = true;

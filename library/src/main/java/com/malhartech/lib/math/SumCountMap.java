@@ -29,6 +29,8 @@ import org.apache.commons.lang3.mutable.MutableInt;
  * <b>Properties</b>:<br>
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
+ * <b>cumulative</b>: boolean flag, if set the sum is not cleared at the end of window, <br>
+ * hence generating cumulative sum across streaming windows. Default is false.<br>
  * <br>
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
@@ -102,7 +104,6 @@ public class SumCountMap<K, V extends Number> extends BaseNumberKeyValueOperator
       }
     }
   };
-
   @OutputPortFieldAnnotation(name = "sum", optional = true)
   public final transient DefaultOutputPort<HashMap<K, V>> sum = new DefaultOutputPort<HashMap<K, V>>(this)
   {
@@ -123,6 +124,17 @@ public class SumCountMap<K, V extends Number> extends BaseNumberKeyValueOperator
   };
   protected transient HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
   protected transient HashMap<K, MutableInt> counts = new HashMap<K, MutableInt>();
+  protected boolean cumulative = false;
+
+  public boolean isCumulative()
+  {
+    return cumulative;
+  }
+
+  public void setCumulative(boolean cumulative)
+  {
+    this.cumulative = cumulative;
+  }
 
   /**
    * Emits on all ports that are connected. Data is precomputed during process on input port
@@ -174,7 +186,9 @@ public class SumCountMap<K, V extends Number> extends BaseNumberKeyValueOperator
 
   public void clearCache()
   {
-    sums.clear();
-    counts.clear();
+    if (!cumulative) {
+      sums.clear();
+      counts.clear();
+    }
   }
 }
