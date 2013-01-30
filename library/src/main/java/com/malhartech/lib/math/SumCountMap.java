@@ -225,7 +225,11 @@ public class SumCountMap<K, V extends Number> extends BaseNumberKeyValueOperator
       ftuples.put(key, val.floatValue());
       ltuples.put(key, val.longValue());
       stuples.put(key, val.shortValue());
-      ctuples.put(key, counts.get(e.getKey()).toInteger());
+      //ctuples.put(key, counts.get(e.getKey()).toInteger());
+      MutableInt c = counts.get(e.getKey());
+      if (c != null) {
+        ctuples.put(key, c.toInteger());
+      }
     }
 
     sum.emit(tuples);

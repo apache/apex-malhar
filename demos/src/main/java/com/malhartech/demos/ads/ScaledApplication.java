@@ -206,7 +206,7 @@ public class ScaledApplication implements ApplicationFactory
   {
     configure(conf);
     DAG dag = new DAG(conf);
-    dag.getAttributes().attr(DAG.STRAM_MAX_CONTAINERS).setIfAbsent(20);
+    //dag.getAttributes().attr(DAG.STRAM_MAX_CONTAINERS).setIfAbsent(9);
 /*
     StreamMerger5<HashMap<String, Double>> viewAggrSum10 = getStreamMerger10DoubleOperator("viewaggregatesum", dag);
     StreamMerger5<HashMap<String, Double>> clickAggrSum10 = getStreamMerger10DoubleOperator("clickaggregatesum", dag);
