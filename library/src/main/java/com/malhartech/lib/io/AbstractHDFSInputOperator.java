@@ -31,7 +31,20 @@ public abstract class AbstractHDFSInputOperator extends BaseOperator implements 
   private static final Logger logger = LoggerFactory.getLogger(AbstractHDFSInputOperator.class);
   protected transient FSDataInputStream input;
   private transient FileSystem fs;
-  private Path filepath;
+  private String filePath;
+
+  /**
+   * The file name. This can be a relative path for the default file system
+   * or fully qualified URL as accepted by ({@link org.apache.hadoop.fs.Path}).
+   * For splits with per file size limit, the name needs to
+   * contain substitution tokens to generate unique file names.
+   * Example: file:///mydir/adviews.out.%(operatorId).part-%(partIndex)
+   * @param filePath 
+   */
+  public void setFilePath(String filePath)
+  {
+    this.filePath = filePath;
+  }
 
   protected abstract void emitRecord(FSDataInputStream input);
 
@@ -55,7 +68,7 @@ public abstract class AbstractHDFSInputOperator extends BaseOperator implements 
       throw new RuntimeException(ex);
     }
     try {
-      input = fs.open(filepath);
+      input = fs.open(new Path(filePath));
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
@@ -73,7 +86,7 @@ public abstract class AbstractHDFSInputOperator extends BaseOperator implements 
       logger.error(ex.getLocalizedMessage());
     }
     fs = null;
-    setFilepath(null);
+    setFilePath(null);
   }
 
   @Override
@@ -86,14 +99,6 @@ public abstract class AbstractHDFSInputOperator extends BaseOperator implements 
       logger.info("Exception on HDFS Input: {}", e.getLocalizedMessage());
       Thread.currentThread().interrupt();
     }
-  }
-
-  /**
-   * @param filepath the filepath to set
-   */
-  public void setFilepath(Path filepath)
-  {
-    this.filepath = filepath;
   }
 
 }
