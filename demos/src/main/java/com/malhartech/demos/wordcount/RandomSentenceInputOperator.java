@@ -20,7 +20,7 @@ public class RandomSentenceInputOperator implements InputOperator
   private static final Logger logger = LoggerFactory.getLogger(RandomSentenceInputOperator.class);
   public transient DefaultOutputPort<String> output = new DefaultOutputPort<String>(this);
 //  public static final String filename = "/home/wzj/Downloads/hadoop-1.0.4/terafile-10M";
-  public static final String filename = "samplefile";
+  public static final String filename = "src/main/resources/com/malhartech/demos/wordcount/samplefile.txt";
   private BufferedReader br;
   private transient DataInputStream in;
   private final int batchSize = 1000;
@@ -33,8 +33,14 @@ public class RandomSentenceInputOperator implements InputOperator
       String line;
       int i = 0;
       while ((line = br.readLine()) != null) {
-        sentence = line.substring(20, 20 + 78);
-        output.emit(sentence);
+        String[] words = line.trim().split("[\\p{Punct}\\s\\\"\\'“”]+");
+        for (String word : words) {
+            word = word.trim();
+            if (!word.isEmpty()) {
+                //System.out.println("emitting "+word.toLowerCase());
+                output.emit(word.toLowerCase());
+            }
+        }
         if (++i == batchSize) {
           break;
         }
