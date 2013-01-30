@@ -102,48 +102,63 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
     }
   };
 
+  @OutputPortFieldAnnotation(name = "sumDouble", optional = true)
   public final transient DefaultOutputPort<HashMap<K, Double>> sumDouble = new DefaultOutputPort<HashMap<K, Double>>(this)
   {
     @Override
     public Unifier<HashMap<K, Double>> getUnifier()
     {
-      return new UnifierHashMapSumKeys<K, Double>();
+      UnifierHashMapSumKeys ret = new UnifierHashMapSumKeys<K, Double>();
+      ret.setType(Double.class);
+      return ret;
     }
   };
 
+  @OutputPortFieldAnnotation(name = "sumInteger", optional = true)
   public final transient DefaultOutputPort<HashMap<K, Integer>> sumInteger = new DefaultOutputPort<HashMap<K, Integer>>(this)
   {
     @Override
     public Unifier<HashMap<K, Integer>> getUnifier()
     {
-      return new UnifierHashMapSumKeys<K, Integer>();
+      UnifierHashMapSumKeys ret = new UnifierHashMapSumKeys<K, Integer>();
+      ret.setType(Integer.class);
+      return ret;
     }
   };
 
+  @OutputPortFieldAnnotation(name = "sumLong", optional = true)
   public final transient DefaultOutputPort<HashMap<K, Long>> sumLong = new DefaultOutputPort<HashMap<K, Long>>(this)
   {
     @Override
     public Unifier<HashMap<K, Long>> getUnifier()
     {
-      return new UnifierHashMapSumKeys<K, Long>();
+      UnifierHashMapSumKeys ret = new UnifierHashMapSumKeys<K, Long>();
+      ret.setType(Long.class);
+      return ret;
     }
   };
 
+  @OutputPortFieldAnnotation(name = "sumShort", optional = true)
   public final transient DefaultOutputPort<HashMap<K, Short>> sumShort = new DefaultOutputPort<HashMap<K, Short>>(this)
   {
     @Override
     public Unifier<HashMap<K, Short>> getUnifier()
     {
-      return new UnifierHashMapSumKeys<K, Short>();
+      UnifierHashMapSumKeys ret = new UnifierHashMapSumKeys<K, Short>();
+      ret.setType(Short.class);
+      return ret;
     }
   };
 
+  @OutputPortFieldAnnotation(name = "sumFloat", optional = true)
   public final transient DefaultOutputPort<HashMap<K, Float>> sumFloat = new DefaultOutputPort<HashMap<K, Float>>(this)
   {
     @Override
     public Unifier<HashMap<K, Float>> getUnifier()
     {
-      return new UnifierHashMapSumKeys<K, Float>();
+      UnifierHashMapSumKeys ret = new UnifierHashMapSumKeys<K, Float>();
+      ret.setType(Float.class);
+      return ret;
     }
   };
 

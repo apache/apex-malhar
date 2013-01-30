@@ -21,6 +21,7 @@ import java.util.HashMap;
 public class UnifierBooleanAnd implements Unifier<Boolean>
 {
   boolean result = true;
+  boolean doemit = false;
   public final transient DefaultOutputPort<Boolean> mergedport = new DefaultOutputPort<Boolean>(this);
 
   /**
@@ -30,6 +31,7 @@ public class UnifierBooleanAnd implements Unifier<Boolean>
   @Override
   public void merge(Boolean tuple)
   {
+    doemit = true;
     result = tuple && result;
   }
 
@@ -41,6 +43,7 @@ public class UnifierBooleanAnd implements Unifier<Boolean>
   public void beginWindow(long windowId)
   {
     result = true;
+    doemit = false;
   }
 
   /**
@@ -49,7 +52,9 @@ public class UnifierBooleanAnd implements Unifier<Boolean>
   @Override
   public void endWindow()
   {
-    mergedport.emit(result);
+    if (doemit) {
+      mergedport.emit(result);
+    }
   }
 
   /**

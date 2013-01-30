@@ -113,6 +113,57 @@ public class SumCountMap<K, V extends Number> extends BaseNumberKeyValueOperator
       return new UnifierHashMapSumKeys<K, V>();
     }
   };
+
+  @OutputPortFieldAnnotation(name = "sumDouble", optional = true)
+  public final transient DefaultOutputPort<HashMap<K, Double>> sumDouble = new DefaultOutputPort<HashMap<K, Double>>(this)
+  {
+    @Override
+    public Unifier<HashMap<K, Double>> getUnifier()
+    {
+      return new UnifierHashMapSumKeys<K, Double>();
+    }
+  };
+
+
+  @OutputPortFieldAnnotation(name = "sumInteger", optional = true)
+  public final transient DefaultOutputPort<HashMap<K, Integer>> sumInteger = new DefaultOutputPort<HashMap<K, Integer>>(this)
+  {
+    @Override
+    public Unifier<HashMap<K, Integer>> getUnifier()
+    {
+      return new UnifierHashMapSumKeys<K, Integer>();
+    }
+  };
+
+  @OutputPortFieldAnnotation(name = "sumLong", optional = true)
+  public final transient DefaultOutputPort<HashMap<K, Long>> sumLong = new DefaultOutputPort<HashMap<K, Long>>(this)
+  {
+    @Override
+    public Unifier<HashMap<K, Long>> getUnifier()
+    {
+      return new UnifierHashMapSumKeys<K, Long>();
+    }
+  };
+
+  @OutputPortFieldAnnotation(name = "sumShort", optional = true)
+  public final transient DefaultOutputPort<HashMap<K, Short>> sumShort = new DefaultOutputPort<HashMap<K, Short>>(this)
+  {
+    @Override
+    public Unifier<HashMap<K, Short>> getUnifier()
+    {
+      return new UnifierHashMapSumKeys<K, Short>();
+    }
+  };
+  @OutputPortFieldAnnotation(name = "sumFloat", optional = true)
+  public final transient DefaultOutputPort<HashMap<K, Float>> sumFloat = new DefaultOutputPort<HashMap<K, Float>>(this)
+  {
+    @Override
+    public Unifier<HashMap<K, Float>> getUnifier()
+    {
+      return new UnifierHashMapSumKeys<K, Float>();
+    }
+  };
+
   @OutputPortFieldAnnotation(name = "count", optional = true)
   public final transient DefaultOutputPort<HashMap<K, Integer>> count = new DefaultOutputPort<HashMap<K, Integer>>(this)
   {
