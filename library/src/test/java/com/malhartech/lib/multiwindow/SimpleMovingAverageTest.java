@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Functional test for {@link com.malhartech.lib.multiwindow.SimpleMovingAverage}<p>
+ * Functional test for {@link com.malhartech.lib.multiwindow.SimpleMovingAverage}. <p>
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
@@ -37,31 +37,31 @@ public class SimpleMovingAverageTest
     double val = 30;
     double val2 = 51;
     oper.beginWindow(0);
-    oper.data.process(new KeyValPair("a", ++val));
-    oper.data.process(new KeyValPair("a", ++val));
-    oper.data.process(new KeyValPair("b", ++val2));
-    oper.data.process(new KeyValPair("b", ++val2));
+    oper.data.process(new KeyValPair<String, Double>("a", ++val));
+    oper.data.process(new KeyValPair<String, Double>("a", ++val));
+    oper.data.process(new KeyValPair<String, Double>("b", ++val2));
+    oper.data.process(new KeyValPair<String, Double>("b", ++val2));
     oper.endWindow();
 
     oper.beginWindow(1);
-    oper.data.process(new KeyValPair("a", ++val));
-    oper.data.process(new KeyValPair("a", ++val));
-    oper.data.process(new KeyValPair("b", ++val2));
-    oper.data.process(new KeyValPair("b", ++val2));
+    oper.data.process(new KeyValPair<String, Double>("a", ++val));
+    oper.data.process(new KeyValPair<String, Double>("a", ++val));
+    oper.data.process(new KeyValPair<String, Double>("b", ++val2));
+    oper.data.process(new KeyValPair<String, Double>("b", ++val2));
     oper.endWindow();
 
     oper.beginWindow(2);
-    oper.data.process(new KeyValPair("a", ++val));
-    oper.data.process(new KeyValPair("a", ++val));
-    oper.data.process(new KeyValPair("b", ++val2));
-    oper.data.process(new KeyValPair("b", ++val2));
+    oper.data.process(new KeyValPair<String, Double>("a", ++val));
+    oper.data.process(new KeyValPair<String, Double>("a", ++val));
+    oper.data.process(new KeyValPair<String, Double>("b", ++val2));
+    oper.data.process(new KeyValPair<String, Double>("b", ++val2));
     oper.endWindow();
 
     oper.beginWindow(3);
-    oper.data.process(new KeyValPair("a", ++val));
-    oper.data.process(new KeyValPair("a", ++val));
-    oper.data.process(new KeyValPair("b", ++val2));
-    oper.data.process(new KeyValPair("b", ++val2));
+    oper.data.process(new KeyValPair<String, Double>("a", ++val));
+    oper.data.process(new KeyValPair<String, Double>("a", ++val));
+    oper.data.process(new KeyValPair<String, Double>("b", ++val2));
+    oper.data.process(new KeyValPair<String, Double>("b", ++val2));
     oper.endWindow();
 
     Assert.assertEquals("number emitted tuples", 8, sink.collectedTuples.size());

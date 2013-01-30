@@ -143,7 +143,7 @@ public class StockTickInput implements InputOperator
         CSVReader reader = new CSVReader(isr);
         List<String[]> myEntries = reader.readAll();
         for (String[] stringArr: myEntries) {
-          ArrayList<String> tuple = new ArrayList(Arrays.asList(stringArr));
+          ArrayList<String> tuple = new ArrayList<String>(Arrays.asList(stringArr));
           if (tuple.size() != 4) {
             return;
           }
@@ -163,10 +163,10 @@ public class StockTickInput implements InputOperator
             vol -= lastVolume.get(symbol);
           }
 
-          price.emit(new KeyValPair(symbol, new Double(tuple.get(1))));
-          volume.emit(new KeyValPair(symbol, vol));
+          price.emit(new KeyValPair<String, Double>(symbol, new Double(tuple.get(1))));
+          volume.emit(new KeyValPair<String, Long>(symbol, vol));
           if (logTime){
-            time.emit(new KeyValPair(symbol, tuple.get(3)));
+            time.emit(new KeyValPair<String, String>(symbol, tuple.get(3)));
           }
           lastVolume.put(symbol, currentVolume);
         }
@@ -207,15 +207,15 @@ public class StockTickInput implements InputOperator
     int vol = 10; // 0 + random.nextInt(100);
 
     if (price.isConnected()) {
-      price.emit(new KeyValPair(symbolList.get(sym), new Double(pr)));
+      price.emit(new KeyValPair<String, Double>(symbolList.get(sym), new Double(pr)));
     }
     if (volume.isConnected()) {
-      volume.emit(new KeyValPair(symbolList.get(sym), new Long(vol)));
+      volume.emit(new KeyValPair<String, Long>(symbolList.get(sym), new Long(vol)));
     }
     if (time.isConnected()) {  // generate current time
       Date now = new Date();
       String strDate = sdf.format(now);
-      time.emit(new KeyValPair(symbolList.get(sym), strDate));
+      time.emit(new KeyValPair<String, String>(symbolList.get(sym), strDate));
     }
   }
   /**

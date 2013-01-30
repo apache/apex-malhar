@@ -10,7 +10,7 @@ import com.malhartech.lib.util.KeyValPair;
 import java.util.ArrayList;
 
 /**
- * Merges upto 10 streams of Key Value pair and emits the tuples to the output port at the end of window.<p>
+ * Merges upto 10 streams of Key Value pair and emits the tuples to the output port at the end of window. <p>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data1</b>: expects KeyValPair of K, V1<br>
@@ -50,15 +50,14 @@ import java.util.ArrayList;
  * @author Locknath Shil <locknath@malhar-inc.com><br>
  * <br>
  */
-public abstract class KeyValueConsolidator10<K, V1 extends Object, V2 extends Object, V3 extends Object, V4 extends Object, V5 extends Object,
-        V6 extends Object, V7 extends Object, V8 extends Object, V9 extends Object, V10 extends Object> extends KeyValueConsolidator5<K, V1, V2, V3, V4, V5>
+public abstract class Consolidator10KeyVal<K, V1, V2, V3, V4, V5, V6, V7, V8, V9, V10> extends Consolidator5KeyVal<K, V1, V2, V3, V4, V5>
 {
   @Override
-  public ArrayList getObject(K k)
+  public ArrayList<Object> getObject(K k)
   {
-    ArrayList val = result.get(k);
+    ArrayList<Object> val = result.get(k);
     if (val == null) {
-      val = new ArrayList(5);
+      val = new ArrayList<Object>(10);
       val.add(0, null);
       val.add(1, null);
       val.add(2, null);
@@ -82,13 +81,13 @@ public abstract class KeyValueConsolidator10<K, V1 extends Object, V2 extends Ob
     int idx = 5;
 
     /**
-     * Merge with existing value
+     * Merge with existing value.
      */
     @Override
     public void process(KeyValPair<K, V6> tuple)
     {
       K key = tuple.getKey();
-      ArrayList list = getObject(key);
+      ArrayList<Object> list = getObject(key);
       list.set(idx, mergeKeyValue(key, tuple.getValue(), list, idx));
     }
   };
@@ -101,13 +100,13 @@ public abstract class KeyValueConsolidator10<K, V1 extends Object, V2 extends Ob
     int idx = 6;
 
     /**
-     * Merge with existing value
+     * Merge with existing value.
      */
     @Override
     public void process(KeyValPair<K, V7> tuple)
     {
       K key = tuple.getKey();
-      ArrayList list = getObject(key);
+      ArrayList<Object> list = getObject(key);
       list.set(idx, mergeKeyValue(key, tuple.getValue(), list, idx));
     }
   };
@@ -120,13 +119,13 @@ public abstract class KeyValueConsolidator10<K, V1 extends Object, V2 extends Ob
     int idx = 7;
 
     /**
-     * Merge with existing value
+     * Merge with existing value.
      */
     @Override
     public void process(KeyValPair<K, V8> tuple)
     {
       K key = tuple.getKey();
-      ArrayList list = getObject(key);
+      ArrayList<Object> list = getObject(key);
       list.set(idx, mergeKeyValue(key, tuple.getValue(), list, idx));
     }
   };
@@ -139,13 +138,13 @@ public abstract class KeyValueConsolidator10<K, V1 extends Object, V2 extends Ob
     int idx = 8;
 
     /**
-     * Merge with existing value
+     * Merge with existing value.
      */
     @Override
     public void process(KeyValPair<K, V9> tuple)
     {
       K key = tuple.getKey();
-      ArrayList list = getObject(key);
+      ArrayList<Object> list = getObject(key);
       list.set(idx, mergeKeyValue(key, tuple.getValue(), list, idx));
     }
   };
@@ -158,13 +157,13 @@ public abstract class KeyValueConsolidator10<K, V1 extends Object, V2 extends Ob
     int idx = 9;
 
     /**
-     * Merge with existing value
+     * Merge with existing value.
      */
     @Override
     public void process(KeyValPair<K, V10> tuple)
     {
       K key = tuple.getKey();
-      ArrayList list = getObject(key);
+      ArrayList<Object> list = getObject(key);
       list.set(idx, mergeKeyValue(key, tuple.getValue(), list, idx));
     }
   };

@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Performance test for {@link com.malhartech.lib.stream.KeyValueConsolidator}. <p>
+ * Performance test for {@link com.malhartech.lib.stream.ConsolidatorKeyVal}. <p>
  * Current benchmark 6400 tuples per second. This is since you need to construct object on the output side before sending out.
  * <br>
  *
@@ -27,7 +27,7 @@ public class KeyValueConsolidatorBenchmark
 {
   private static Logger log = LoggerFactory.getLogger(KeyValueConsolidatorBenchmark.class);
 
-  public class MyKeyValueConsolidator extends KeyValueConsolidator<String, String, Long>
+  public class MyKeyValueConsolidator extends ConsolidatorKeyVal<String, String, Long>
   {
     /**
      * Output port which consolidate the key value pairs.

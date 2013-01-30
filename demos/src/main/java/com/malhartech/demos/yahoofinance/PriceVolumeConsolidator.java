@@ -6,7 +6,7 @@ package com.malhartech.demos.yahoofinance;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.algo.KeyValueConsolidator5;
+import com.malhartech.lib.algo.Consolidator5KeyVal;
 import com.malhartech.lib.util.KeyValPair;
 import java.util.ArrayList;
 import org.slf4j.Logger;
@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
-public class PriceVolumeConsolidator extends KeyValueConsolidator5<String, Double, Long, String, Integer, Double>
+public class PriceVolumeConsolidator extends Consolidator5KeyVal<String, Double, Long, String, Integer, Double>
 {
   private static final Logger logger = LoggerFactory.getLogger(PriceVolumeConsolidator.class);
   /**
@@ -27,7 +27,7 @@ public class PriceVolumeConsolidator extends KeyValueConsolidator5<String, Doubl
   public final transient DefaultOutputPort<ConsolidatedTuple> out = new DefaultOutputPort<ConsolidatedTuple>(this);
 
   @Override
-  public Object mergeKeyValue(String tuple_key, Object tuple_val, ArrayList list, int port)
+  public Object mergeKeyValue(String tuple_key, Object tuple_val, ArrayList<Object> list, int port)
   {
     if (port >= 0 && port < 3) { // price, volume, time
       return tuple_val;
@@ -59,7 +59,7 @@ public class PriceVolumeConsolidator extends KeyValueConsolidator5<String, Doubl
     private Long totalVolume;
     private String time;
 
-    public ConsolidatedTuple()
+    private ConsolidatedTuple()
     {
     }
 

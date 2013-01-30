@@ -6,7 +6,7 @@ package com.malhartech.demos.yahoofinance;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.algo.KeyValueConsolidator;
+import com.malhartech.lib.algo.ConsolidatorKeyVal;
 import com.malhartech.lib.util.HighLow;
 import com.malhartech.lib.util.KeyValPair;
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
-public class RangeVolumeConsolidator extends KeyValueConsolidator<String, HighLow, Long>
+public class RangeVolumeConsolidator extends ConsolidatorKeyVal<String, HighLow, Long>
 {
   private static final Logger logger = LoggerFactory.getLogger(RangeVolumeConsolidator.class);
   /**
@@ -31,7 +31,7 @@ public class RangeVolumeConsolidator extends KeyValueConsolidator<String, HighLo
   public final transient DefaultOutputPort<ConsolidatedTuple> out = new DefaultOutputPort<ConsolidatedTuple>(this);
 
   @Override
-  public Object mergeKeyValue(String tuple_key, Object tuple_val, ArrayList list, int port)
+  public Object mergeKeyValue(String tuple_key, Object tuple_val, ArrayList<Object> list, int port)
   {
     if (port >= 0 && port < 2) { // price(high & low), volume
       return tuple_val;
@@ -45,11 +45,11 @@ public class RangeVolumeConsolidator extends KeyValueConsolidator<String, HighLo
   public void emitConsolidatedTuple(KeyValPair<String, ArrayList<Object>> obj)
   {
     ArrayList<Object> o = obj.getValue();
-    ArrayList<Double> d = (ArrayList<Double>)(o.get(0));
+    HighLow d = (HighLow)(o.get(0));
 
     ConsolidatedTuple t = new ConsolidatedTuple(obj.getKey(),
-                                                d.get(0),
-                                                d.get(1),
+                                                d.getHigh().doubleValue(),
+                                                d.getLow().doubleValue(),
                                                 (Long)o.get(1));
 
     //logger.debug(String.format("Emitted tuple: %s", t.toString()));
@@ -59,12 +59,16 @@ public class RangeVolumeConsolidator extends KeyValueConsolidator<String, HighLo
   /**
    * Consolidated tuple generated from all coming inputs.
    */
-  public class ConsolidatedTuple
+  public static class ConsolidatedTuple // make static to help Kryo
   {
     private String symbol;
     private Double high;
     private Double low;
     private Long volume;
+
+    private ConsolidatedTuple()
+    {
+    }
 
     public ConsolidatedTuple(String symbol, Double high, Double low, Long volume)
     {

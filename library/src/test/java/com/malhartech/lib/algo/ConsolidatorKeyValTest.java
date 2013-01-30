@@ -15,17 +15,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Functional test for {@link com.malhartech.lib.stream.KeyValueConsolidator}<p>
+ * Functional test for {@link com.malhartech.lib.stream.ConsolidatorKeyVal}. <p>
  * <br>
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  * <br>
  */
-public class KeyValueConsolidatorTest
+public class ConsolidatorKeyValTest
 {
-  private static Logger log = LoggerFactory.getLogger(KeyValueConsolidatorTest.class);
+  private static Logger log = LoggerFactory.getLogger(ConsolidatorKeyValTest.class);
 
-  public class MyKeyValueConsolidator extends KeyValueConsolidator<String, String, Long>
+  public class MyConsolidatorKeyVal extends ConsolidatorKeyVal<String, String, Long>
   {
     /**
      * Output port which consolidate the key value pairs.
@@ -34,7 +34,7 @@ public class KeyValueConsolidatorTest
     public final transient DefaultOutputPort<ConsolidatedTuple> out = new DefaultOutputPort<ConsolidatedTuple>(this);
 
     @Override
-    public Object mergeKeyValue(String tuple_key, Object tuple_val, ArrayList list, int port)
+    public Object mergeKeyValue(String tuple_key, Object tuple_val, ArrayList<Object> list, int port)
     {
       Object obj = list.get(port);
 
@@ -79,7 +79,7 @@ public class KeyValueConsolidatorTest
       @Override
       public String toString()
       {
-        return name.toString() + volume.toString();
+        return name.toString() +  " " + volume.toString();
       }
     }
   }
@@ -90,8 +90,8 @@ public class KeyValueConsolidatorTest
   @Test
   public void testNodeProcessing() throws Exception
   {
-    MyKeyValueConsolidator oper = new MyKeyValueConsolidator();
-    TestSink sink = new TestSink();
+    MyConsolidatorKeyVal oper = new MyConsolidatorKeyVal();
+    TestSink<MyConsolidatorKeyVal.ConsolidatedTuple> sink = new TestSink<MyConsolidatorKeyVal.ConsolidatedTuple>();
     oper.out.setSink(sink);
 
     oper.beginWindow(0);
@@ -105,6 +105,9 @@ public class KeyValueConsolidatorTest
 
     oper.endWindow();
     Assert.assertEquals("number emitted tuples", 2, sink.collectedTuples.size());
-    //Assert.assertEquals("tuple contents", "aaaaaaaaaa45", sink.collectedTuples.get(0)); TBD
+    for (int i = 0; i < sink.collectedTuples.size(); i++) {
+      log.debug(String.format("tuple contents: %s", sink.collectedTuples.get(i)));
+      //Assert.assertEquals("tuple contents", "aaaaaaaaaa45", sink.collectedTuples.get(0)); TBD
+    }
   }
 }

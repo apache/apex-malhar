@@ -100,12 +100,13 @@ public class AverageKeyVal<K> extends BaseNumberKeyValueOperator<K, Number>
       }
       count.increment();
     }
-
   };
   @OutputPortFieldAnnotation(name = "doubleAverage")
   public final transient DefaultOutputPort<KeyValPair<K, Double>> doubleAverage = new DefaultOutputPort<KeyValPair<K, Double>>(this);
   @OutputPortFieldAnnotation(name = "intAverage")
   public final transient DefaultOutputPort<KeyValPair<K, Integer>> intAverage = new DefaultOutputPort<KeyValPair<K, Integer>>(this);
+  @OutputPortFieldAnnotation(name = "longAverage")
+  public final transient DefaultOutputPort<KeyValPair<K, Long>> longAverage = new DefaultOutputPort<KeyValPair<K, Long>>(this);
   protected transient HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
   protected transient HashMap<K, MutableLong> counts = new HashMap<K, MutableLong>();
 
@@ -121,9 +122,9 @@ public class AverageKeyVal<K> extends BaseNumberKeyValueOperator<K, Number>
       double d;
       doubleAverage.emit(new KeyValPair<K, Double>(key, d = e.getValue().doubleValue() / counts.get(key).doubleValue()));
       intAverage.emit(new KeyValPair<K, Integer>(key, (int)d));
+      longAverage.emit(new KeyValPair<K, Long>(key, (long)d));
     }
     sums.clear();
     counts.clear();
   }
-
 }

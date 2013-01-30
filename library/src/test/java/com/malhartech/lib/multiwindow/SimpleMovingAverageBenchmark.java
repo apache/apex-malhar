@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Performance test for {@link com.malhartech.lib.multiwindow.SimpleMovingAverage}<p>
+ * Performance test for {@link com.malhartech.lib.multiwindow.SimpleMovingAverage}. <p>
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
@@ -22,7 +22,7 @@ public class SimpleMovingAverageBenchmark
   private static final Logger logger = LoggerFactory.getLogger(SimpleMovingAverageBenchmark.class);
 
   /**
-   * Test functional logic
+   * Test functional logic.
    */
   @Test
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
@@ -39,31 +39,31 @@ public class SimpleMovingAverageBenchmark
       double val = 30;
       double val2 = 51;
       oper.beginWindow(0);
-      oper.data.process(new KeyValPair("a", ++val));
-      oper.data.process(new KeyValPair("a", ++val));
-      oper.data.process(new KeyValPair("b", ++val2));
-      oper.data.process(new KeyValPair("b", ++val2));
+      oper.data.process(new KeyValPair<String, Double>("a", ++val));
+      oper.data.process(new KeyValPair<String, Double>("a", ++val));
+      oper.data.process(new KeyValPair<String, Double>("b", ++val2));
+      oper.data.process(new KeyValPair<String, Double>("b", ++val2));
       oper.endWindow();
 
       oper.beginWindow(1);
-      oper.data.process(new KeyValPair("a", ++val));
-      oper.data.process(new KeyValPair("a", ++val));
-      oper.data.process(new KeyValPair("b", ++val2));
-      oper.data.process(new KeyValPair("b", ++val2));
+      oper.data.process(new KeyValPair<String, Double>("a", ++val));
+      oper.data.process(new KeyValPair<String, Double>("a", ++val));
+      oper.data.process(new KeyValPair<String, Double>("b", ++val2));
+      oper.data.process(new KeyValPair<String, Double>("b", ++val2));
       oper.endWindow();
 
       oper.beginWindow(2);
-      oper.data.process(new KeyValPair("a", ++val));
-      oper.data.process(new KeyValPair("a", ++val));
-      oper.data.process(new KeyValPair("b", ++val2));
-      oper.data.process(new KeyValPair("b", ++val2));
+      oper.data.process(new KeyValPair<String, Double>("a", ++val));
+      oper.data.process(new KeyValPair<String, Double>("a", ++val));
+      oper.data.process(new KeyValPair<String, Double>("b", ++val2));
+      oper.data.process(new KeyValPair<String, Double>("b", ++val2));
       oper.endWindow();
 
       oper.beginWindow(3);
-      oper.data.process(new KeyValPair("a", ++val));
-      oper.data.process(new KeyValPair("a", ++val));
-      oper.data.process(new KeyValPair("b", ++val2));
-      oper.data.process(new KeyValPair("b", ++val2));
+      oper.data.process(new KeyValPair<String, Double>("a", ++val));
+      oper.data.process(new KeyValPair<String, Double>("a", ++val));
+      oper.data.process(new KeyValPair<String, Double>("b", ++val2));
+      oper.data.process(new KeyValPair<String, Double>("b", ++val2));
       oper.endWindow();
     }
 

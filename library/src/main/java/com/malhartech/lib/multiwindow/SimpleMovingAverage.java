@@ -121,16 +121,16 @@ public class SimpleMovingAverage<K, V extends Number> extends AbstractSlidingWin
       return;
     }
     if (doubleSMA.isConnected()) {
-      doubleSMA.emit(new KeyValPair(key, (sum / count)));
+      doubleSMA.emit(new KeyValPair<K,Double>(key, (sum / count)));
     }
     if (floatSMA.isConnected()) {
-      floatSMA.emit(new KeyValPair(key, (float)(sum / count)));
+      floatSMA.emit(new KeyValPair<K,Float>(key, (float)(sum / count)));
     }
     if (longSMA.isConnected()) {
-      longSMA.emit(new KeyValPair(key, (long)(sum / count)));
+      longSMA.emit(new KeyValPair<K,Long>(key, (long)(sum / count)));
     }
     if (integerSMA.isConnected()) {
-      integerSMA.emit(new KeyValPair(key, (int)(sum / count)));
+      integerSMA.emit(new KeyValPair<K,Integer>(key, (int)(sum / count)));
     }
   }
 }

@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Merges two streams of Key Value pair and emits the tuples to the output port at the end of window.<p>
+ * Merges two streams of Key Value pair and emits the tuples to the output port at the end of window. <p>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data1</b>: expects KeyValPair of K, V1 <br>
@@ -45,13 +45,13 @@ import java.util.Map;
  * @author Locknath Shil <locknath@malhar-inc.com><br>
  * <br>
  */
-public abstract class KeyValueConsolidator<K, V1, V2> extends BaseOperator
+public abstract class ConsolidatorKeyVal<K, V1, V2> extends BaseOperator
 {
-  public ArrayList getObject(K k)
+  public ArrayList<Object> getObject(K k)
   {
-    ArrayList val = result.get(k);
+    ArrayList<Object> val = result.get(k);
     if (val == null) {
-      val = new ArrayList(2);
+      val = new ArrayList<Object>(2);
       val.add(0, null);
       val.add(1, null);
       result.put(k, val);
@@ -68,7 +68,7 @@ public abstract class KeyValueConsolidator<K, V1, V2> extends BaseOperator
    * @param port Input port number starting from 0.
    * @return combined tuple by consolidating current tuple value with new tuple value.
    */
-  public abstract Object mergeKeyValue(K tuple_key, Object tuple_val, ArrayList list, int port);
+  public abstract Object mergeKeyValue(K tuple_key, Object tuple_val, ArrayList<Object> list, int port);
 
   /**
    * Override this to construct new tuple and emit on your own defined output port.
@@ -85,13 +85,13 @@ public abstract class KeyValueConsolidator<K, V1, V2> extends BaseOperator
     int idx = 0;
 
     /**
-     * Merge with existing value
+     * Merge with existing value.
      */
     @Override
     public void process(KeyValPair<K, V1> tuple)
     {
       K key = tuple.getKey();
-      ArrayList list = getObject(key);
+      ArrayList<Object> list = getObject(key);
       list.set(idx, mergeKeyValue(key, tuple.getValue(), list, idx));
     }
   };
@@ -104,18 +104,18 @@ public abstract class KeyValueConsolidator<K, V1, V2> extends BaseOperator
     int idx = 1;
 
     /**
-     * Merge with existing value
+     * Merge with existing value.
      */
     @Override
     public void process(KeyValPair<K, V2> tuple)
     {
       K key = tuple.getKey();
-      ArrayList list = getObject(key);
+      ArrayList<Object> list = getObject(key);
       list.set(idx, mergeKeyValue(key, tuple.getValue(), list, idx));
     }
   };
   /**
-   * Container for consolidated result
+   * Container for consolidated result.
    */
   HashMap<K, ArrayList<Object>> result = new HashMap<K, ArrayList<Object>>();
 

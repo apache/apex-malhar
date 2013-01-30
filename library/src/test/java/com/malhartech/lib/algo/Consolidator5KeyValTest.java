@@ -15,17 +15,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Functional test for {@link com.malhartech.lib.stream.KeyValueConsolidator5}<p>
+ * Functional test for {@link com.malhartech.lib.stream.Consolidator5KeyVal}. <p>
  * <br>
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  * <br>
  */
-public class KeyValueConsolidator5Test
+public class Consolidator5KeyValTest
 {
-  private static Logger log = LoggerFactory.getLogger(KeyValueConsolidator5Test.class);
+  private static Logger log = LoggerFactory.getLogger(Consolidator5KeyValTest.class);
 
-  public class MyKeyValueConsolidator5 extends KeyValueConsolidator5<String, String, Long, Long, Double, Double>
+  public class MyConsolidator5KeyVal extends Consolidator5KeyVal<String, String, Long, Long, Double, Double>
   {
     /**
      * Output port which consolidate the key value pairs.
@@ -34,7 +34,7 @@ public class KeyValueConsolidator5Test
     public final transient DefaultOutputPort<ConsolidatedTuple> out = new DefaultOutputPort<ConsolidatedTuple>(this);
 
     @Override
-    public Object mergeKeyValue(String tuple_key, Object tuple_val, ArrayList list, int port)
+    public Object mergeKeyValue(String tuple_key, Object tuple_val, ArrayList<Object> list, int port)
     {
       Object obj = list.get(port);
 
@@ -90,7 +90,7 @@ public class KeyValueConsolidator5Test
       @Override
       public String toString()
       {
-        return  name.toString() + volume.toString() + volume2.toString() + price.toString();
+        return name.toString() + " " + volume.toString() + " " +  volume2.toString() + " " + price.toString();
       }
     }
   }
@@ -101,8 +101,8 @@ public class KeyValueConsolidator5Test
   @Test
   public void testNodeProcessing() throws Exception
   {
-    MyKeyValueConsolidator5 oper = new MyKeyValueConsolidator5();
-    TestSink sink = new TestSink();
+    MyConsolidator5KeyVal oper = new MyConsolidator5KeyVal();
+    TestSink<MyConsolidator5KeyVal.ConsolidatedTuple> sink = new TestSink<MyConsolidator5KeyVal.ConsolidatedTuple>();
     oper.out.setSink(sink);
 
     oper.beginWindow(0);
@@ -111,16 +111,18 @@ public class KeyValueConsolidator5Test
     for (long i = 0; i < numTuples; i++) {
       oper.data1.process(new KeyValPair<String, String>("key1", "a"));
       oper.data2.process(new KeyValPair<String, Long>("key1", i));
-      oper.data3.process(new KeyValPair<String, Long>("key1", i+2));
+      oper.data3.process(new KeyValPair<String, Long>("key1", i + 2));
       oper.data4.process(new KeyValPair<String, Double>("key1", d));
       oper.data1.process(new KeyValPair<String, String>("key2", "b"));
       oper.data2.process(new KeyValPair<String, Long>("key2", i + 10));
-      oper.data3.process(new KeyValPair<String, Long>("key2", i+12));
-      oper.data4.process(new KeyValPair<String, Double>("key2", d+10));
+      oper.data3.process(new KeyValPair<String, Long>("key2", i + 12));
+      oper.data4.process(new KeyValPair<String, Double>("key2", d + 10));
     }
 
     oper.endWindow();
     Assert.assertEquals("number emitted tuples", 2, sink.collectedTuples.size());
-    //Assert.assertEquals("tuple contents", "aaaaaaaaaa45", sink.collectedTuples.get(0)); // TBD
+    for (int i = 0; i < sink.collectedTuples.size(); i++) {
+      log.debug(String.format("tuple contents: %s", sink.collectedTuples.get(i)));
+    }
   }
 }

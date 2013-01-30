@@ -6,7 +6,7 @@ package com.malhartech.demos.yahoofinance;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.algo.KeyValueConsolidator;
+import com.malhartech.lib.algo.ConsolidatorKeyVal;
 import com.malhartech.lib.util.KeyValPair;
 import java.util.ArrayList;
 import org.slf4j.Logger;
@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
-public class SMAConsolidator extends KeyValueConsolidator<String, Double, Long>
+public class SMAConsolidator extends ConsolidatorKeyVal<String, Double, Long>
 {
   private static final Logger logger = LoggerFactory.getLogger(SMAConsolidator.class);
   /**
@@ -27,7 +27,7 @@ public class SMAConsolidator extends KeyValueConsolidator<String, Double, Long>
   public final transient DefaultOutputPort<ConsolidatedTuple> out = new DefaultOutputPort<ConsolidatedTuple>(this);
 
   @Override
-  public Object mergeKeyValue(String tuple_key, Object tuple_val, ArrayList list, int port)
+  public Object mergeKeyValue(String tuple_key, Object tuple_val, ArrayList<Object> list, int port)
   {
     if (port >= 0 && port < 2) { // smaPrice, smaVolume
       return tuple_val;
@@ -51,11 +51,15 @@ public class SMAConsolidator extends KeyValueConsolidator<String, Double, Long>
   /**
    * Consolidated tuple generated from all coming inputs.
    */
-  public class ConsolidatedTuple
+  public static class ConsolidatedTuple
   {
     private String symbol;
     private Double smaPrice;
     private Long smaVolume;
+
+    private ConsolidatedTuple()
+    {
+    }
 
     public ConsolidatedTuple(String symbol, Double price, Long volume)
     {
