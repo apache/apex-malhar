@@ -85,8 +85,10 @@ public class Sum<V extends Number> extends BaseNumberValueOperator<V> implements
   {
     @Override
     public Unifier<V> getUnifier()
-    { // UnifierSumNumber
-      return Sum.this;
+    {
+      UnifierSumNumber ret = new UnifierSumNumber<V>();
+      ret.setVType(getType());
+      return ret;
     }
   };
   @OutputPortFieldAnnotation(name = "sumDouble", optional = true)
