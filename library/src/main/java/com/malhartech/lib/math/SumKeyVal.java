@@ -138,6 +138,8 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
         }
       }
     }
+
+    clearCache();
   }
 
   public void clearCache()

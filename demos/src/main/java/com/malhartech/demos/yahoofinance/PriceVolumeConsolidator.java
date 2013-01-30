@@ -52,12 +52,16 @@ public class PriceVolumeConsolidator extends KeyValueConsolidator5<String, Doubl
   /**
    * Consolidated tuple generated from all coming inputs.
    */
-  public class ConsolidatedTuple
+  public static class ConsolidatedTuple
   {
     private String symbol;
     private Double price;
     private Long totalVolume;
     private String time;
+
+    public ConsolidatedTuple()
+    {
+    }
 
     public ConsolidatedTuple(String symbol, Double price, Long totalVolume, String time)
     {
