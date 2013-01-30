@@ -10,9 +10,8 @@ import com.malhartech.api.Operator.Unifier;
 
 /**
  *
- * Combiner for an output port that emits object with Map<K,V> interface and has the processing done
- * with sticky key partition, i.e. each one key belongs only to one partition. The final output of the
- * combiner is a simple merge into a single object that implements Map
+ * Combiner for an output port that emits object with <V> interface and has the processing done
+ * with round robin partitioning. The final tuple is sum of all partition values
  *
  * @author amol<br>
  *
@@ -33,16 +32,6 @@ public class UnifierSumNumber<V extends Number> extends BaseNumberValueOperator<
   {
     result += tuple.doubleValue();
     doEmit = true;
-  }
-
-  /**
-   * no-op
-   *
-   * @param windowId
-   */
-  @Override
-  public void beginWindow(long windowId)
-  {
   }
 
   /**

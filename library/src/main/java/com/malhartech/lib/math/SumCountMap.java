@@ -120,10 +120,11 @@ public class SumCountMap<K, V extends Number> extends BaseNumberKeyValueOperator
     @Override
     public Unifier<HashMap<K, Double>> getUnifier()
     {
-      return new UnifierHashMapSumKeys<K, Double>();
+      UnifierHashMapSumKeys ret = new UnifierHashMapSumKeys<K, Double>();
+      ret.setType(Double.class);
+      return ret;
     }
   };
-
 
   @OutputPortFieldAnnotation(name = "sumInteger", optional = true)
   public final transient DefaultOutputPort<HashMap<K, Integer>> sumInteger = new DefaultOutputPort<HashMap<K, Integer>>(this)
@@ -131,7 +132,9 @@ public class SumCountMap<K, V extends Number> extends BaseNumberKeyValueOperator
     @Override
     public Unifier<HashMap<K, Integer>> getUnifier()
     {
-      return new UnifierHashMapSumKeys<K, Integer>();
+      UnifierHashMapSumKeys ret = new UnifierHashMapSumKeys<K, Integer>();
+      ret.setType(Integer.class);
+      return ret;
     }
   };
 
@@ -141,7 +144,9 @@ public class SumCountMap<K, V extends Number> extends BaseNumberKeyValueOperator
     @Override
     public Unifier<HashMap<K, Long>> getUnifier()
     {
-      return new UnifierHashMapSumKeys<K, Long>();
+      UnifierHashMapSumKeys ret = new UnifierHashMapSumKeys<K, Long>();
+      ret.setType(Long.class);
+      return ret;
     }
   };
 
@@ -151,7 +156,9 @@ public class SumCountMap<K, V extends Number> extends BaseNumberKeyValueOperator
     @Override
     public Unifier<HashMap<K, Short>> getUnifier()
     {
-      return new UnifierHashMapSumKeys<K, Short>();
+      UnifierHashMapSumKeys ret = new UnifierHashMapSumKeys<K, Short>();
+      ret.setType(Short.class);
+      return ret;
     }
   };
   @OutputPortFieldAnnotation(name = "sumFloat", optional = true)
@@ -160,7 +167,9 @@ public class SumCountMap<K, V extends Number> extends BaseNumberKeyValueOperator
     @Override
     public Unifier<HashMap<K, Float>> getUnifier()
     {
-      return new UnifierHashMapSumKeys<K, Float>();
+      UnifierHashMapSumKeys ret = new UnifierHashMapSumKeys<K, Float>();
+      ret.setType(Float.class);
+      return ret;
     }
   };
 
@@ -199,39 +208,32 @@ public class SumCountMap<K, V extends Number> extends BaseNumberKeyValueOperator
     // Should allow users to send each key as a separate tuple to load balance
     // This is an aggregate node, so load balancing would most likely not be needed
 
-    HashMap<K, V> stuples = null;
-    if (sum.isConnected()) {
-      stuples = new HashMap<K, V>();
+    HashMap<K, V> tuples = new HashMap<K, V>();
+    HashMap<K, Integer> ctuples = new HashMap<K, Integer>();
+    HashMap<K, Double> dtuples = new HashMap<K, Double>();
+    HashMap<K, Integer> ituples = new HashMap<K, Integer>();
+    HashMap<K, Float> ftuples = new HashMap<K, Float>();
+    HashMap<K, Long> ltuples = new HashMap<K, Long>();
+    HashMap<K, Short> stuples = new HashMap<K, Short>();
+
+    for (Map.Entry<K, MutableDouble> e: sums.entrySet()) {
+      K key = e.getKey();
+      tuples.put(key, getValue(e.getValue().doubleValue()));
+      dtuples.put(key, e.getValue().doubleValue());
+      ituples.put(key, e.getValue().intValue());
+      ftuples.put(key, e.getValue().floatValue());
+      ltuples.put(key, e.getValue().longValue());
+      stuples.put(key, e.getValue().shortValue());
+      ctuples.put(key, counts.get(e.getKey()).toInteger());
     }
 
-    HashMap<K, Integer> ctuples = null;
-    if (count.isConnected()) {
-      ctuples = new HashMap<K, Integer>();
-    }
-
-    if (sum.isConnected()) {
-      for (Map.Entry<K, MutableDouble> e: sums.entrySet()) {
-        K key = e.getKey();
-        if (sum.isConnected()) {
-          stuples.put(key, getValue(e.getValue().doubleValue()));
-        }
-        if (count.isConnected()) {
-          ctuples.put(key, counts.get(e.getKey()).toInteger());
-        }
-      }
-    }
-    else if (count.isConnected()) { // sum is not connected, only counts is connected
-      for (Map.Entry<K, MutableInt> e: counts.entrySet()) {
-        ctuples.put(e.getKey(), e.getValue().toInteger());
-      }
-    }
-
-    if ((stuples != null) && !stuples.isEmpty()) {
-      sum.emit(stuples);
-    }
-    if ((ctuples != null) && !ctuples.isEmpty()) {
-      count.emit(ctuples);
-    }
+    sum.emit(tuples);
+    sumDouble.emit(dtuples);
+    sumInteger.emit(ituples);
+    sumLong.emit(ltuples);
+    sumShort.emit(stuples);
+    sumFloat.emit(ftuples);
+    count.emit(ctuples);
     clearCache();
   }
 

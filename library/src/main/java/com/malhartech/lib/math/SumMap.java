@@ -162,7 +162,6 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
     }
   };
 
-
   protected transient HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
   protected boolean cumulative = false;
 
@@ -184,21 +183,29 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
   @Override
   public void endWindow()
   {
-    HashMap<K, V> stuples = new HashMap<K, V>();
+    HashMap<K, V> tuples = new HashMap<K, V>();
+    HashMap<K, Double> dtuples = new HashMap<K, Double>();
+    HashMap<K, Integer> ituples = new HashMap<K, Integer>();
+    HashMap<K, Float> ftuples = new HashMap<K, Float>();
+    HashMap<K, Long> ltuples = new HashMap<K, Long>();
+    HashMap<K, Short> stuples = new HashMap<K, Short>();
 
-    if (sum.isConnected()) {
-      for (Map.Entry<K, MutableDouble> e: sums.entrySet()) {
-        K key = e.getKey();
-        if (sum.isConnected()) {
-          stuples.put(key, getValue(e.getValue().doubleValue()));
-        }
-      }
+    for (Map.Entry<K, MutableDouble> e: sums.entrySet()) {
+      K key = e.getKey();
+      MutableDouble val = e.getValue();
+      tuples.put(key, getValue(val.doubleValue()));
+      dtuples.put(key, val.doubleValue());
+      ituples.put(key, val.intValue());
+      ltuples.put(key, val.longValue());
+      stuples.put(key, val.shortValue());
+      ftuples.put(key, val.floatValue());
     }
-
-    if (!stuples.isEmpty()) {
-      sum.emit(stuples);
-    }
-
+    sum.emit(tuples);
+    sumDouble.emit(dtuples);
+    sumInteger.emit(ituples);
+    sumFloat.emit(ftuples);
+    sumLong.emit(ltuples);
+    sumShort.emit(stuples);
     clearCache();
   }
 

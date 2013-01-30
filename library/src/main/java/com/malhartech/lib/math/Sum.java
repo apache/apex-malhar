@@ -10,6 +10,7 @@ import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.Operator.Unifier;
 import com.malhartech.lib.util.BaseNumberValueOperator;
+import com.malhartech.lib.util.UnifierSumNumber;
 
 /**
  *
@@ -84,10 +85,66 @@ public class Sum<V extends Number> extends BaseNumberValueOperator<V> implements
   {
     @Override
     public Unifier<V> getUnifier()
-    {
+    { // UnifierSumNumber
       return Sum.this;
     }
   };
+  @OutputPortFieldAnnotation(name = "sumDouble", optional = true)
+  public final transient DefaultOutputPort<Double> sumDouble = new DefaultOutputPort<Double>(this)
+  {
+    @Override
+    public Unifier<Double> getUnifier()
+    {
+      UnifierSumNumber ret = new UnifierSumNumber<Double>();
+      ret.setType(Double.class);
+      return ret;
+    }
+  };
+  @OutputPortFieldAnnotation(name = "sumInteger", optional = true)
+  public final transient DefaultOutputPort<Integer> sumInteger = new DefaultOutputPort<Integer>(this)
+  {
+    @Override
+    public Unifier<Integer> getUnifier()
+    {
+      UnifierSumNumber ret = new UnifierSumNumber<Integer>();
+      ret.setType(Integer.class);
+      return ret;
+    }
+  };
+  @OutputPortFieldAnnotation(name = "sumLong", optional = true)
+  public final transient DefaultOutputPort<Long> sumLong = new DefaultOutputPort<Long>(this)
+  {
+    @Override
+    public Unifier<Long> getUnifier()
+    {
+      UnifierSumNumber ret = new UnifierSumNumber<Long>();
+      ret.setType(Long.class);
+      return ret;
+    }
+  };
+  @OutputPortFieldAnnotation(name = "sumShort", optional = true)
+  public final transient DefaultOutputPort<Short> sumShort = new DefaultOutputPort<Short>(this)
+  {
+    @Override
+    public Unifier<Short> getUnifier()
+    {
+      UnifierSumNumber ret = new UnifierSumNumber<Short>();
+      ret.setType(Short.class);
+      return ret;
+    }
+  };
+  @OutputPortFieldAnnotation(name = "sumFloat", optional = true)
+  public final transient DefaultOutputPort<Float> sumFloat = new DefaultOutputPort<Float>(this)
+  {
+    @Override
+    public Unifier<Float> getUnifier()
+    {
+      UnifierSumNumber ret = new UnifierSumNumber<Float>();
+      ret.setType(Float.class);
+      return ret;
+    }
+  };
+
   protected transient double sums = 0;
   protected transient boolean tupleAvailable = false;
   protected boolean cumulative = false;
@@ -110,6 +167,11 @@ public class Sum<V extends Number> extends BaseNumberValueOperator<V> implements
   {
     if (doSumEmit()) {
       sum.emit(getValue(sums));
+      sumDouble.emit(sums);
+      sumInteger.emit((int) sums);
+      sumLong.emit((long) sums);
+      sumShort.emit((short) sums);
+      sumFloat.emit((float) sums);
       tupleAvailable = false;
     }
     clearCache();
