@@ -6,6 +6,7 @@ package com.malhartech.lib.math;
 
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.StreamCodec;
@@ -85,16 +86,14 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
       if (!doprocessKey(key)) {
         return;
       }
-      if (sum.isConnected()) {
-        MutableDouble val = sums.get(key);
-        if (val == null) {
-          val = new MutableDouble(tuple.getValue().doubleValue());
-        }
-        else {
-          val.add(tuple.getValue().doubleValue());
-        }
-        sums.put(cloneKey(key), val);
+      MutableDouble val = sums.get(key);
+      if (val == null) {
+        val = new MutableDouble(tuple.getValue().doubleValue());
       }
+      else {
+        val.add(tuple.getValue().doubleValue());
+      }
+      sums.put(cloneKey(key), val);
       processMetaData(tuple);
     }
 
@@ -109,6 +108,12 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
   };
   @OutputPortFieldAnnotation(name = "sum", optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, V>> sum = new DefaultOutputPort<KeyValPair<K, V>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, Double>> sumDouble = new DefaultOutputPort<KeyValPair<K, Double>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, Integer>> sumInteger = new DefaultOutputPort<KeyValPair<K, Integer>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, Long>> sumLong = new DefaultOutputPort<KeyValPair<K, Long>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, Short>> sumShort = new DefaultOutputPort<KeyValPair<K, Short>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, Float>> sumFloat = new DefaultOutputPort<KeyValPair<K, Float>>(this);
+
   protected transient HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
   protected boolean cumulative = false;
 
@@ -138,17 +143,16 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
   @Override
   public void endWindow()
   {
-    boolean dosum = sum.isConnected();
-
-    if (dosum) {
-      for (Map.Entry<K, MutableDouble> e: sums.entrySet()) {
-        K key = e.getKey();
-        if (dosum) {
-          sum.emit(new KeyValPair(key, getValue(e.getValue().doubleValue())));
-        }
-      }
+    for (Map.Entry<K, MutableDouble> e: sums.entrySet()) {
+      K key = e.getKey();
+      MutableDouble val = e.getValue();
+      sum.emit(new KeyValPair(key, getValue(val.doubleValue())));
+      sumDouble.emit(new KeyValPair(key, val.doubleValue()));
+      sumInteger.emit(new KeyValPair(key, val.intValue()));
+      sumFloat.emit(new KeyValPair(key, val.floatValue()));
+      sumShort.emit(new KeyValPair(key, val.shortValue()));
+      sumLong.emit(new KeyValPair(key, val.longValue()));
     }
-
     clearCache();
   }
 

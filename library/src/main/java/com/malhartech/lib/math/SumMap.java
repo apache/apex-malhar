@@ -101,6 +101,53 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
       return new UnifierHashMapSumKeys<K, V>();
     }
   };
+
+  public final transient DefaultOutputPort<HashMap<K, Double>> sumDouble = new DefaultOutputPort<HashMap<K, Double>>(this)
+  {
+    @Override
+    public Unifier<HashMap<K, Double>> getUnifier()
+    {
+      return new UnifierHashMapSumKeys<K, Double>();
+    }
+  };
+
+  public final transient DefaultOutputPort<HashMap<K, Integer>> sumInteger = new DefaultOutputPort<HashMap<K, Integer>>(this)
+  {
+    @Override
+    public Unifier<HashMap<K, Integer>> getUnifier()
+    {
+      return new UnifierHashMapSumKeys<K, Integer>();
+    }
+  };
+
+  public final transient DefaultOutputPort<HashMap<K, Long>> sumLong = new DefaultOutputPort<HashMap<K, Long>>(this)
+  {
+    @Override
+    public Unifier<HashMap<K, Long>> getUnifier()
+    {
+      return new UnifierHashMapSumKeys<K, Long>();
+    }
+  };
+
+  public final transient DefaultOutputPort<HashMap<K, Short>> sumShort = new DefaultOutputPort<HashMap<K, Short>>(this)
+  {
+    @Override
+    public Unifier<HashMap<K, Short>> getUnifier()
+    {
+      return new UnifierHashMapSumKeys<K, Short>();
+    }
+  };
+
+  public final transient DefaultOutputPort<HashMap<K, Float>> sumFloat = new DefaultOutputPort<HashMap<K, Float>>(this)
+  {
+    @Override
+    public Unifier<HashMap<K, Float>> getUnifier()
+    {
+      return new UnifierHashMapSumKeys<K, Float>();
+    }
+  };
+
+
   protected transient HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
   protected boolean cumulative = false;
 
