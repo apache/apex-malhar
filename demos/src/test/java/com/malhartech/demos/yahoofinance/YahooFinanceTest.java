@@ -4,9 +4,14 @@
  */
 package com.malhartech.demos.yahoofinance;
 
-import com.malhartech.stram.StramLocalCluster;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
+
+import com.malhartech.api.DAG;
+import com.malhartech.api.Operator.InputPort;
+import com.malhartech.api.Operator.OutputPort;
+import com.malhartech.lib.util.KeyValPair;
+import com.malhartech.stram.StramLocalCluster;
 
 /**
  * Run Yahoo Finance application demo.
@@ -56,4 +61,18 @@ public class YahooFinanceTest
 
     lc.run();
   }
+
+  //@Test
+  public void testTypeCompatibility() {
+
+    OutputPort<KeyValPair<String, Double>> oport = null;
+    InputPort<KeyValPair<String, Double>> iport1 = null;
+    InputPort<KeyValPair<String, ? extends Number>> iport2 = null;
+
+    DAG dag = new DAG();
+    dag.addStream("id", oport, iport1, iport2);
+
+  }
+
+
 }
