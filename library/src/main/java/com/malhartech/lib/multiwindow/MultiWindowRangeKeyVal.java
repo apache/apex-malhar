@@ -9,7 +9,7 @@ import com.malhartech.lib.util.HighLow;
 import com.malhartech.lib.util.KeyValPair;
 import java.util.Map;
 import javax.validation.constraints.Min;
-import org.apache.commons.lang3.mutable.MutableDouble;
+import org.apache.commons.lang.mutable.MutableDouble;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -14,7 +14,7 @@ import com.malhartech.lib.util.BaseNumberKeyValueOperator;
 import com.malhartech.lib.util.KeyValPair;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.lang3.mutable.MutableDouble;
+import org.apache.commons.lang.mutable.MutableDouble;
 
 /**
  *

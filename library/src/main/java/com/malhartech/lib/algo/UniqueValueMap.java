@@ -15,7 +15,7 @@ import com.malhartech.lib.util.UnifierHashMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.commons.lang.mutable.MutableInt;
 
 /**
  * Count unique occurrences of vals for every key within a window, and emits Key,Integer pairs tuple.<p>

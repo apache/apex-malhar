@@ -11,7 +11,7 @@ import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseUniqueKeyCounter;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.commons.lang.mutable.MutableInt;
 
 /**
  * Counts the number of times a key exists in a window; Count is emitted at end of window in a single HashMap<p>
