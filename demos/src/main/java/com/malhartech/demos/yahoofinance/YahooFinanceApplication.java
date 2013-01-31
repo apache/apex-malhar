@@ -39,7 +39,7 @@ public class YahooFinanceApplication implements ApplicationFactory
     StockTickInput oper = dag.addOperator(name, StockTickInput.class);
     oper.setReadIntervalMillis(200);
     oper.setLogTime(logTime);
-    //oper.addSymbol("YHOO");
+    oper.addSymbol("YHOO");
     //oper.addSymbol("EBAY");
     oper.addSymbol("AAPL");
     //oper.addSymbol("GOOG");
@@ -220,8 +220,8 @@ public class YahooFinanceApplication implements ApplicationFactory
     boolean allInline = false;
     boolean shouldbeInline = true;
     boolean isDummy = false;  // true for dummy data
-    int appWindowCountMinute = 60; // 1 minute
-    int appWindowCountSMA = 2*60;  // 2 minute
+    int appWindowCountMinute = 60 * 1000 / streamingWindowSizeMilliSeconds;   // 1 minute
+    int appWindowCountSMA = 5 * 60 * 1000 / streamingWindowSizeMilliSeconds;  // 5 minute
     String test = "all"; // can be window, time, sma, all
 
     if (test.equals("window")) {
