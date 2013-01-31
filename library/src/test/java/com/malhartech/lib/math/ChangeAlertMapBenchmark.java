@@ -4,9 +4,7 @@
 package com.malhartech.lib.math;
 
 import com.malhartech.engine.TestCountSink;
-import com.malhartech.engine.TestSink;
 import java.util.HashMap;
-import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -14,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.math.ChangeAlertMap}<p>
+ * Performance tests for {@link com.malhartech.lib.math.ChangeAlertMap}. <p>
  *
  */
 public class ChangeAlertMapBenchmark
@@ -22,10 +20,9 @@ public class ChangeAlertMapBenchmark
   private static Logger log = LoggerFactory.getLogger(ChangeAlertMapBenchmark.class);
 
   /**
-   * Test node logic emits correct results
+   * Test node logic emits correct results.
    */
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
@@ -36,31 +33,32 @@ public class ChangeAlertMapBenchmark
     testNodeProcessingSchema(new ChangeAlertMap<String, Long>());
   }
 
-  public void testNodeProcessingSchema(ChangeAlertMap oper)
+  public <V extends Number> void testNodeProcessingSchema(ChangeAlertMap<String, V> oper)
   {
-    TestCountSink alertSink = new TestCountSink();
+    TestCountSink<HashMap<String, HashMap<V, Double>>> alertSink = new TestCountSink<HashMap<String, HashMap<V, Double>>>();
 
     oper.alert.setSink(alertSink);
     oper.setPercentThreshold(5);
 
     oper.beginWindow(0);
-    HashMap<String, Number> input = new HashMap<String, Number>();
+    HashMap<String, V> input = new HashMap<String, V>();
 
     int numTuples = 10000000;
     for (int i = 0; i < numTuples; i++) {
       input.clear();
-      input.put("a", i);
-      input.put("b", i+2);
+      input.put("a", oper.getValue(i));
+      input.put("b", oper.getValue(i + 2));
       oper.data.process(input);
 
       input.clear();
-      input.put("a", i+1);
-      input.put("b", i+3);
+      input.put("a", oper.getValue(i + 1));
+      input.put("b", oper.getValue(i + 3));
+
       oper.data.process(input);
       if (i % 100000 == 0) {
         input.clear();
-        input.put("a", 10);
-        input.put("b", 33);
+        input.put("a", oper.getValue(10));
+        input.put("b", oper.getValue(33));
         oper.data.process(input);
       }
     }

@@ -9,7 +9,6 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseNumberValueOperator;
-import org.apache.commons.lang.mutable.MutableDouble;
 
 /**
  *
@@ -64,11 +63,10 @@ public class Change<V extends Number> extends BaseNumberValueOperator<V>
     @Override
     public void process(V tuple)
     {
-      double val = baseValue.doubleValue();
-      if (val != 0.0) { // Avoid divide by zero, Emit an error tuple?
-        double cval = tuple.doubleValue() - val;
+      if (baseValue != 0) { // Avoid divide by zero, Emit an error tuple?
+        double cval = tuple.doubleValue() - baseValue;
         change.emit(getValue(cval));
-        percent.emit((cval / val) * 100);
+        percent.emit((cval / baseValue) * 100);
       }
     }
   };
@@ -82,7 +80,7 @@ public class Change<V extends Number> extends BaseNumberValueOperator<V>
     public void process(V tuple)
     {
       if (tuple.doubleValue() != 0.0) { // Avoid divide by zero, Emit an error tuple?
-        baseValue.setValue(tuple.doubleValue());
+        baseValue = tuple.doubleValue();
       }
     }
   };
@@ -94,5 +92,5 @@ public class Change<V extends Number> extends BaseNumberValueOperator<V>
   /**
    * baseValue is a stateful field. It is retained across windows.
    */
-  private MutableDouble baseValue = new MutableDouble();
+  private double baseValue = 0;
 }

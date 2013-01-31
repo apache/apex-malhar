@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.ChangeAlertMap}<p>
+ * Functional tests for {@link com.malhartech.lib.math.ChangeAlertMap}. <p>
  *
  */
 public class ChangeAlertMapTest
@@ -20,10 +20,9 @@ public class ChangeAlertMapTest
   private static Logger log = LoggerFactory.getLogger(ChangeAlertMapTest.class);
 
   /**
-   * Test node logic emits correct results
+   * Test node logic emits correct results.
    */
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
     testNodeProcessingSchema(new ChangeAlertMap<String, Integer>());
@@ -33,60 +32,61 @@ public class ChangeAlertMapTest
     testNodeProcessingSchema(new ChangeAlertMap<String, Long>());
   }
 
-  public void testNodeProcessingSchema(ChangeAlertMap oper)
+  public <V extends Number> void testNodeProcessingSchema(ChangeAlertMap<String, V> oper)
   {
-    TestSink alertSink = new TestSink();
+    TestSink<HashMap<String, HashMap<V, Double>>> alertSink = new TestSink<HashMap<String, HashMap<V, Double>>>();
 
     oper.alert.setSink(alertSink);
     oper.setPercentThreshold(5);
 
     oper.beginWindow(0);
-    HashMap<String, Number> input = new HashMap<String, Number>();
-    input.put("a", 200);
-    input.put("b", 10);
-    input.put("c", 100);
+    HashMap<String, V> input = new HashMap<String, V>();
+    input.put("a", oper.getValue(200));
+    input.put("b", oper.getValue(10));
+    input.put("c", oper.getValue(100));
     oper.data.process(input);
 
     input.clear();
-    input.put("a", 203);
-    input.put("b", 12);
-    input.put("c", 101);
+    input.put("a", oper.getValue(203));
+    input.put("b", oper.getValue(12));
+    input.put("c", oper.getValue(101));
     oper.data.process(input);
 
     input.clear();
-    input.put("a", 210);
-    input.put("b", 12);
-    input.put("c", 102);
+    input.put("a", oper.getValue(210));
+    input.put("b", oper.getValue(12));
+    input.put("c", oper.getValue(102));
     oper.data.process(input);
 
     input.clear();
-    input.put("a", 231);
-    input.put("b", 18);
-    input.put("c", 103);
+    input.put("a", oper.getValue(231));
+    input.put("b", oper.getValue(18));
+    input.put("c", oper.getValue(103));
     oper.data.process(input);
     oper.endWindow();
 
-    // One for each key
+    // One for a, Two for b
     Assert.assertEquals("number emitted tuples", 3, alertSink.collectedTuples.size());
 
     double aval = 0;
     double bval = 0;
     log.debug("\nLogging tuples");
     for (Object o: alertSink.collectedTuples) {
+      @SuppressWarnings("unchecked")
       HashMap<String, HashMap<Number, Double>> map = (HashMap<String, HashMap<Number, Double>>)o;
       Assert.assertEquals("map size", 1, map.size());
       log.debug(o.toString());
       HashMap<Number, Double> vmap = map.get("a");
       if (vmap != null) {
-        aval += vmap.get(231).doubleValue();
+        aval += vmap.get(231.0).doubleValue();
       }
       vmap = map.get("b");
       if (vmap != null) {
-        if (vmap.get(12) != null) {
-          bval += vmap.get(12).doubleValue();
+        if (vmap.get(12.0) != null) {
+          bval += vmap.get(12.0).doubleValue();
         }
         else {
-          bval += vmap.get(18).doubleValue();
+          bval += vmap.get(18.0).doubleValue();
         }
       }
     }
