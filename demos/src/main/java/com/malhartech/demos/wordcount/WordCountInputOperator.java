@@ -4,7 +4,6 @@
  */
 package com.malhartech.demos.wordcount;
 
-import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.lib.io.SimpleSinglePortInputOperator;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
