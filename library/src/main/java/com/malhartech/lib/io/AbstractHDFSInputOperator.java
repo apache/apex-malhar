@@ -39,14 +39,13 @@ public abstract class AbstractHDFSInputOperator extends BaseOperator implements 
    * For splits with per file size limit, the name needs to
    * contain substitution tokens to generate unique file names.
    * Example: file:///mydir/adviews.out.%(operatorId).part-%(partIndex)
-   * @param filePath 
+   *
+   * @param filePath
    */
   public void setFilePath(String filePath)
   {
     this.filePath = filePath;
   }
-
-  protected abstract void emitRecord(FSDataInputStream input);
 
   @Override
   public void beginWindow(long windowId)
@@ -87,18 +86,6 @@ public abstract class AbstractHDFSInputOperator extends BaseOperator implements 
     }
     fs = null;
     setFilePath(null);
-  }
-
-  @Override
-  public void emitTuples()
-  {
-    try {
-      emitRecord(input);
-    }
-    catch (Exception e) {
-      logger.info("Exception on HDFS Input: {}", e.getLocalizedMessage());
-      Thread.currentThread().interrupt();
-    }
   }
 
 }
