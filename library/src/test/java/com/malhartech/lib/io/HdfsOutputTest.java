@@ -28,7 +28,7 @@ public class HdfsOutputTest implements ApplicationFactory {
 
     long startMillis = System.currentTimeMillis();
 
-    HdfsOutputOperator<Object> module = new HdfsOutputOperator<Object>();
+    HdfsOutputOperator module = new HdfsOutputOperator();
     module.setFilePath(config.get(KEY_FILEPATH, "hdfsoutputtest.txt"));
     module.setAppend(config.getBoolean(KEY_APPEND, false));
 

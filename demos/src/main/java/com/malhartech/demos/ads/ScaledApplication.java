@@ -252,7 +252,7 @@ public class ScaledApplication implements ApplicationFactory
     DAG.StreamDecl viewsAggStream = dag.addStream("viewsaggregate", adviews.data, insertclicks.data, viewAggregate.data).setInline(true);
 
     if (conf.getBoolean(P_enableHdfs, false)) {
-      HdfsOutputOperator<HashMap<String, Double>> viewsToHdfs = dag.addOperator("viewsToHdfs", new HdfsOutputOperator<HashMap<String, Double>>());
+      HdfsOutputOperator viewsToHdfs = dag.addOperator("viewsToHdfs", new HdfsOutputOperator());
       viewsToHdfs.setAppend(false);
       viewsToHdfs.setFilePath("file:///tmp/adsdemo/views-%(operatorId)-part%(partIndex)");
       dag.setInputPortAttribute(viewsToHdfs.input, PortContext.PARTITION_PARALLEL, true);

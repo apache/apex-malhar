@@ -30,7 +30,7 @@ import com.malhartech.api.StreamCodec;
  * Future enhancements may include options to write into a time slot/windows based files<br>
  * <br>
  */
-public class HdfsOutputOperator<T> extends BaseOperator
+public class HdfsOutputOperator extends BaseOperator
 {
   private static org.slf4j.Logger logger = LoggerFactory.getLogger(HdfsOutputOperator.class);
   private transient FSDataOutputStream fsOutput;
@@ -202,10 +202,10 @@ public class HdfsOutputOperator<T> extends BaseOperator
     filePath = null;
     append = false;
   }
-  public final transient DefaultInputPort<T> input = new DefaultInputPort<T>(this)
+  public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>(this)
   {
     @Override
-    public void process(T t)
+    public void process(Object t)
     {
       // writing directly to the stream, assuming that HDFS already buffers block size.
       // check whether writing to separate in memory byte stream would be faster
