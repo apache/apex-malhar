@@ -4,7 +4,6 @@
 package com.malhartech.lib.math;
 
 import com.malhartech.engine.TestCountSink;
-import com.malhartech.engine.TestSink;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -14,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.math.ChangeMap}<p>
+ * Performance tests for {@link com.malhartech.lib.math.ChangeMap}. <p>
  *
  */
 public class ChangeMapBenchmark
@@ -22,10 +21,9 @@ public class ChangeMapBenchmark
   private static Logger log = LoggerFactory.getLogger(ChangeMapBenchmark.class);
 
   /**
-   * Test node logic emits correct results
+   * Test node logic emits correct results.
    */
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
@@ -36,34 +34,34 @@ public class ChangeMapBenchmark
     testNodeProcessingSchema(new ChangeMap<String, Long>());
   }
 
-  public void testNodeProcessingSchema(ChangeMap oper)
+  public <V extends Number> void testNodeProcessingSchema(ChangeMap<String, V> oper)
   {
-    TestCountSink changeSink = new TestCountSink();
-    TestCountSink percentSink = new TestCountSink();
+    TestCountSink<HashMap<String, V>> changeSink = new TestCountSink<HashMap<String, V>>();
+    TestCountSink<HashMap<String, Double>> percentSink = new TestCountSink<HashMap<String, Double>>();
 
     oper.change.setSink(changeSink);
     oper.percent.setSink(percentSink);
 
     oper.beginWindow(0);
-    HashMap<String, Number> input = new HashMap<String, Number>();
-    input.put("a", 2);
-    input.put("b", 10);
-    input.put("c", 100);
+    HashMap<String, V> input = new HashMap<String, V>();
+    input.put("a", oper.getValue(2));
+    input.put("b", oper.getValue(10));
+    input.put("c", oper.getValue(100));
     oper.base.process(input);
 
     int numTuples = 1000000;
 
     for (int i = 0; i < numTuples; i++) {
       input.clear();
-      input.put("a", 3);
-      input.put("b", 2);
-      input.put("c", 4);
+      input.put("a", oper.getValue(3));
+      input.put("b", oper.getValue(2));
+      input.put("c", oper.getValue(4));
       oper.data.process(input);
 
       input.clear();
-      input.put("a", 4);
-      input.put("b", 19);
-      input.put("c", 150);
+      input.put("a", oper.getValue(4));
+      input.put("b", oper.getValue(19));
+      input.put("c", oper.getValue(150));
       oper.data.process(input);
     }
 

@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.ChangeMap}<p>
+ * Functional tests for {@link com.malhartech.lib.math.ChangeMap}. <p>
  *
  */
 public class ChangeMapTest
@@ -20,10 +20,9 @@ public class ChangeMapTest
   private static Logger log = LoggerFactory.getLogger(ChangeMapTest.class);
 
   /**
-   * Test node logic emits correct results
+   * Test node logic emits correct results.
    */
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
     testNodeProcessingSchema(new ChangeMap<String, Integer>());
@@ -33,31 +32,31 @@ public class ChangeMapTest
     testNodeProcessingSchema(new ChangeMap<String, Long>());
   }
 
-  public void testNodeProcessingSchema(ChangeMap oper)
+  public <V extends Number> void testNodeProcessingSchema(ChangeMap<String, V> oper)
   {
-    TestSink changeSink = new TestSink();
-    TestSink percentSink = new TestSink();
+    TestSink<HashMap<String, V>> changeSink = new TestSink<HashMap<String, V>>();
+    TestSink<HashMap<String, Double>> percentSink = new TestSink<HashMap<String, Double>>();
 
     oper.change.setSink(changeSink);
     oper.percent.setSink(percentSink);
 
     oper.beginWindow(0);
-    HashMap<String, Number> input = new HashMap<String, Number>();
-    input.put("a", 2);
-    input.put("b", 10);
-    input.put("c", 100);
+    HashMap<String, V> input = new HashMap<String, V>();
+    input.put("a", oper.getValue(2));
+    input.put("b", oper.getValue(10));
+    input.put("c", oper.getValue(100));
     oper.base.process(input);
 
     input.clear();
-    input.put("a", 3);
-    input.put("b", 2);
-    input.put("c", 4);
+    input.put("a", oper.getValue(3));
+    input.put("b", oper.getValue(2));
+    input.put("c", oper.getValue(4));
     oper.data.process(input);
 
     input.clear();
-    input.put("a", 4);
-    input.put("b", 19);
-    input.put("c", 150);
+    input.put("a", oper.getValue(4));
+    input.put("b", oper.getValue(19));
+    input.put("c", oper.getValue(150));
     oper.data.process(input);
 
     oper.endWindow();
@@ -71,6 +70,7 @@ public class ChangeMapTest
     double cval = 0;
     log.debug("\nLogging tuples");
     for (Object o: changeSink.collectedTuples) {
+      @SuppressWarnings("unchecked")
       HashMap<String, Number> map = (HashMap<String, Number>)o;
       Assert.assertEquals("map size", 1, map.size());
       Number anum = map.get("a");
@@ -95,6 +95,7 @@ public class ChangeMapTest
     cval = 0.0;
 
     for (Object o: percentSink.collectedTuples) {
+      @SuppressWarnings("unchecked")
       HashMap<String, Number> map = (HashMap<String, Number>)o;
       Assert.assertEquals("map size", 1, map.size());
       Number anum = map.get("a");
