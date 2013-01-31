@@ -4,14 +4,9 @@
  */
 package com.malhartech.demos.yahoofinance;
 
+import com.malhartech.stram.StramLocalCluster;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
-
-import com.malhartech.api.DAG;
-import com.malhartech.api.Operator.InputPort;
-import com.malhartech.api.Operator.OutputPort;
-import com.malhartech.lib.util.KeyValPair;
-import com.malhartech.stram.StramLocalCluster;
 
 /**
  * Run Yahoo Finance application demo.
