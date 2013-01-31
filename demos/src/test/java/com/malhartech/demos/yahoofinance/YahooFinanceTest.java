@@ -21,7 +21,7 @@ public class YahooFinanceTest
    *
    * @throws Exception
    */
-  //@Test
+  @Test
   public void testApplication() throws Exception
   {
     YahooFinanceApplication app = new YahooFinanceApplication();
@@ -35,7 +35,7 @@ public class YahooFinanceTest
    *
    * @throws Exception
    */
- @Test
+ //@Test
   public void testApplication2() throws Exception
   {
     YahooFinanceApplication app = new YahooFinanceApplication();
