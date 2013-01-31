@@ -202,6 +202,20 @@ public class HdfsOutputOperator extends BaseOperator
     filePath = null;
     append = false;
   }
+
+  @Override
+  public void endWindow() {
+    try {
+      if (bufferedOutput != null) {
+        bufferedOutput.flush();
+      } else {
+        fsOutput.flush();
+      }
+    } catch (IOException ex) {
+      throw new RuntimeException("Failed to flush", ex);
+    }
+  }
+
   public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>(this)
   {
     @Override
