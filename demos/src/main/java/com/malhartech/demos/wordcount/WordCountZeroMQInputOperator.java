@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zeromq.ZMQ;
 
 /**
  *
@@ -24,39 +23,12 @@ public class WordCountZeroMQInputOperator extends SimpleSinglePortInputOperator<
 
     private static final Logger logger = LoggerFactory.getLogger(WordCountZeroMQInputOperator.class);
     private transient Thread wordReadThread;
-    private String zmqAddress = "tcp://127.0.0.1:5555";
-    public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>(this);
     protected long averageSleep = 300;
     protected long sleepPlusMinus = 100;
     protected String fileName = "src/main/resources/com/malhartech/demos/wordcount/samplefile.txt";
     private transient BufferedReader br;
     private transient DataInputStream in;
 
-    @Override
-    public void emitTuples() {
-        ZMQ.Context context = ZMQ.context(1);
-        ZMQ.Socket socket = context.socket(ZMQ.PULL);
-
-        socket.connect(zmqAddress);
-        int i = 0;
-        while (true) {
-            byte[] buf = socket.recv(0);
-            if (buf == null) {
-                //System.out.println("RECV: NO MORE DATA");
-                break;
-            }
-            String word = "";
-            for (int j = 0; j < buf.length; j++) {
-                word += (char) buf[j];
-            }
-            //System.out.println("Emitting "+word);
-            output.emit(word);
-            if (++i > 100) {
-                break;
-            }
-        }
-        socket.close();
-    }
 
     @Override
     public void beginWindow(long windowId) {
@@ -91,11 +63,6 @@ public class WordCountZeroMQInputOperator extends SimpleSinglePortInputOperator<
 
     @Override
     public void run() {
-        ZMQ.Context context = ZMQ.context(1);
-        ZMQ.Socket socket = context.socket(ZMQ.PUSH);
-
-        socket.bind(zmqAddress);
-
         while (true) {
             try {
                 String line;
@@ -110,9 +77,7 @@ public class WordCountZeroMQInputOperator extends SimpleSinglePortInputOperator<
                         word = word.trim().toLowerCase();
                         if (!word.isEmpty()) {
                             //System.out.println("Sending "+word);
-                            if (!socket.send(word)) {
-                                throw new IOException("Cannot send to ZeroMQ Socket");
-                            }
+                            outputPort.emit(word);
                         }
                     }
                     try {
