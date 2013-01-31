@@ -6,8 +6,6 @@ package com.malhartech.demos.ads;
 
 import com.malhartech.api.ApplicationFactory;
 
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.Context.PortContext;
 import com.malhartech.api.DAG;
 import com.malhartech.api.Operator.InputPort;
 import com.malhartech.lib.io.ConsoleOutputOperator;
@@ -29,7 +27,8 @@ import java.util.HashMap;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- * Example of application configuration for a scalable ads demo<p>
+ * Version of ads demo that creates multiple generators in the DAG<p>
+ * This demo is left for comparison only now that the original DAG has partitioning enabled.
  */
 public class ScaledApplication implements ApplicationFactory
 {
@@ -206,8 +205,7 @@ public class ScaledApplication implements ApplicationFactory
   {
     configure(conf);
     DAG dag = new DAG(conf);
-    //dag.getAttributes().attr(DAG.STRAM_MAX_CONTAINERS).setIfAbsent(9);
-/*
+
     StreamMerger5<HashMap<String, Double>> viewAggrSum10 = getStreamMerger10DoubleOperator("viewaggregatesum", dag);
     StreamMerger5<HashMap<String, Double>> clickAggrSum10 = getStreamMerger10DoubleOperator("clickaggregatesum", dag);
     StreamMerger5<HashMap<String, Integer>> viewAggrCount10 = getStreamMerger10IntegerOperator("viewaggregatecount", dag);
@@ -224,7 +222,7 @@ public class ScaledApplication implements ApplicationFactory
       DAG.StreamDecl viewsAggStream = dag.addStream("viewsaggregate"+i, adviews.data, insertclicks.data, viewAggregate.data).setInline(true);
 
       if (conf.getBoolean(P_enableHdfs, false)) {
-        HdfsOutputOperator<HashMap<String, Double>> viewsToHdfs = dag.addOperator("viewsToHdfs"+i, new HdfsOutputOperator<HashMap<String, Double>>());
+        HdfsOutputOperator viewsToHdfs = dag.addOperator("viewsToHdfs"+i, new HdfsOutputOperator());
         viewsToHdfs.setAppend(false);
         viewsToHdfs.setFilePath("file:///tmp/adsdemo/views-%(operatorId)-part%(partIndex)");
         viewsAggStream.addSink(viewsToHdfs.input);
@@ -236,32 +234,6 @@ public class ScaledApplication implements ApplicationFactory
       dag.addStream("viewsaggrcount"+i, viewAggregate.count, viewAggrCount10.getInputPort(i));
       dag.addStream("clicksaggrcount"+i, clickAggregate.count, clickAggrCount10.getInputPort(i));
     }
-*/
-    EventGenerator viewGen = getPageViewGenOperator("viewGen", dag);
-    dag.getOperatorWrapper(viewGen).getAttributes().attr(OperatorContext.INITIAL_PARTITION_COUNT).set(numGenerators);
-
-    EventClassifier adviews = getAdViewsStampOperator("adviews", dag);
-    FilteredEventClassifier<Double> insertclicks = getInsertClicksOperator("insertclicks", dag);
-    SumCountMap<String, Double> viewAggregate = getSumOperator("viewAggr", dag);
-    SumCountMap<String, Double> clickAggregate = getSumOperator("clickAggr", dag);
-
-    dag.setInputPortAttribute(adviews.event, PortContext.PARTITION_PARALLEL, true);
-    dag.addStream("views", viewGen.hash_data, adviews.event).setInline(true);
-    dag.setInputPortAttribute(insertclicks.data, PortContext.PARTITION_PARALLEL, true);
-    dag.setInputPortAttribute(viewAggregate.data, PortContext.PARTITION_PARALLEL, true);
-    DAG.StreamDecl viewsAggStream = dag.addStream("viewsaggregate", adviews.data, insertclicks.data, viewAggregate.data).setInline(true);
-
-    if (conf.getBoolean(P_enableHdfs, false)) {
-      HdfsOutputOperator viewsToHdfs = dag.addOperator("viewsToHdfs", new HdfsOutputOperator());
-      viewsToHdfs.setAppend(false);
-      viewsToHdfs.setFilePath("file:///tmp/adsdemo/views-%(operatorId)-part%(partIndex)");
-      dag.setInputPortAttribute(viewsToHdfs.input, PortContext.PARTITION_PARALLEL, true);
-      viewsAggStream.addSink(viewsToHdfs.input);
-    }
-
-    dag.setInputPortAttribute(clickAggregate.data, PortContext.PARTITION_PARALLEL, true);
-    dag.addStream("clicksaggregate", insertclicks.filter, clickAggregate.data).setInline(true);
-
 
     QuotientMap<String, Integer> ctr = getQuotientOperator("ctr", dag);
     SumCountMap<String, Double> cost = getSumOperator("cost", dag);
@@ -270,10 +242,10 @@ public class ScaledApplication implements ApplicationFactory
     StreamMerger<HashMap<String, Integer>> merge = getStreamMerger("countmerge", dag);
     ThroughputCounter<String, Integer> tuple_counter = getThroughputCounter("tuple_counter", dag);
 
-    dag.addStream("adviewsdata", viewAggregate.sum, cost.data);
-    dag.addStream("clicksdata", clickAggregate.sum, revenue.data);
-    dag.addStream("viewtuplecount", viewAggregate.count, ctr.denominator, merge.data1).setInline(true);
-    dag.addStream("clicktuplecount", clickAggregate.count, ctr.numerator, merge.data2).setInline(true);
+    dag.addStream("adviewsdata", viewAggrSum10.out, cost.data);
+    dag.addStream("clicksdata", clickAggrSum10.out, revenue.data);
+    dag.addStream("viewtuplecount", viewAggrCount10.out, ctr.denominator, merge.data1).setInline(true);
+    dag.addStream("clicktuplecount", clickAggrCount10.out, ctr.numerator, merge.data2).setInline(true);
     dag.addStream("total count", merge.out, tuple_counter.data).setInline(true);
 
     InputPort<Object> revconsole = getConsolePort(dag, "revConsole", false);
