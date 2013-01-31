@@ -6,14 +6,13 @@ package com.malhartech.demos.wordcount;
 
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
+import com.malhartech.lib.algo.UniqueCounterEach;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 
 /**
  * To run the test, you need to generate a data file as sample file.
- * You can use "hadoop jar hadoop-*-examples.jar teragen 10000000000 in-dir" command to generate the data file. The number here is the line number of the file.
- * The "samplefile" provided contains 10000 files
- *
+ * default location is 
  * This program will count the number of words.
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
@@ -26,15 +25,16 @@ public class Application implements ApplicationFactory
   public DAG getApplication(Configuration conf)
   {
     allInline = true;
-    DAG dag =new DAG(conf);
 
-    RandomSentenceInputOperator input = dag.addOperator("sentence", new RandomSentenceInputOperator());
-    WordCountOutputOperator wordCount = dag.addOperator("count", new WordCountOutputOperator());
+    DAG dag = new DAG(conf);
+    
+    WordCountZeroMQInputOperator input = dag.addOperator("wordinput", new WordCountZeroMQInputOperator());
+    UniqueCounterEach<String> wordCount = dag.addOperator("count", new UniqueCounterEach<String>());
 
-    dag.addStream("sentence-count", input.output, wordCount.input).setInline(allInline);
+    dag.addStream("wordinput-count", input.output, wordCount.data).setInline(allInline);
 
     ConsoleOutputOperator consoleOperator = dag.addOperator("console", new ConsoleOutputOperator());
-    dag.addStream("count-console",wordCount.output, consoleOperator.input);
+    dag.addStream("count-console",wordCount.count, consoleOperator.input);
 
 
     return dag;
