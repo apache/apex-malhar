@@ -5,7 +5,6 @@
 package com.malhartech.demos.wordcount;
 
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.io.SimpleSinglePortInputOperator;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -19,9 +18,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author David Yan <davidyan@malhar-inc.com>
  */
-public class WordCountZeroMQInputOperator extends SimpleSinglePortInputOperator<String> implements Runnable {
+public class WordCountInputOperator extends SimpleSinglePortInputOperator<String> implements Runnable {
 
-    private static final Logger logger = LoggerFactory.getLogger(WordCountZeroMQInputOperator.class);
+    private static final Logger logger = LoggerFactory.getLogger(WordCountInputOperator.class);
     private transient Thread wordReadThread;
     protected long averageSleep = 300;
     protected long sleepPlusMinus = 100;

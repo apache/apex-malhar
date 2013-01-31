@@ -28,7 +28,7 @@ public class Application implements ApplicationFactory
 
     DAG dag = new DAG(conf);
     
-    WordCountZeroMQInputOperator input = dag.addOperator("wordinput", new WordCountZeroMQInputOperator());
+    WordCountInputOperator input = dag.addOperator("wordinput", new WordCountInputOperator());
     UniqueCounterEach<String> wordCount = dag.addOperator("count", new UniqueCounterEach<String>());
 
     dag.addStream("wordinput-count", input.outputPort, wordCount.data).setInline(allInline);
