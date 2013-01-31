@@ -11,6 +11,7 @@ import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
 import java.util.HashMap;
 import java.util.Map;
+import javax.validation.constraints.Min;
 import org.apache.commons.lang.mutable.MutableDouble;
 
 /**
@@ -23,7 +24,7 @@ import org.apache.commons.lang.mutable.MutableDouble;
  * <b>alert</b>: emits HashMap&lt;K,HashMap&lt;V,Double&gt;&gt;(1)<br>
  * <br>
  * <b>Properties</b>:<br>
- * <b>threshold</b>: The threshold of change between consequtive tuples of the same key that triggers an alert tuple<br>
+ * <b>threshold</b>: The threshold of change between consecutive tuples of the same key that triggers an alert tuple<br>
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
@@ -103,12 +104,14 @@ public class ChangeAlertMap<K, V extends Number> extends BaseNumberKeyValueOpera
    * basemap is a stateful field. It is retained across windows
    */
   private HashMap<K,MutableDouble> basemap = new HashMap<K,MutableDouble>();
+  @Min(1)
   private double percentThreshold = 0.0;
 
   /**
    * getter function for threshold value
    * @return threshold value
    */
+  @Min(1)
   public double getPercentThreshold()
   {
     return percentThreshold;
