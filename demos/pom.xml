@@ -62,11 +62,5 @@
       <artifactId>opencsv</artifactId>
       <version>2.0</version>
     </dependency>
-    <dependency>
-      <groupId>com.malhartech</groupId>
-      <artifactId>malhar-contrib</artifactId>
-      <version>0.1-SNAPSHOT</version>
-      <type>jar</type>
-    </dependency>
   </dependencies>
 </project>
