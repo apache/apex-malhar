@@ -21,32 +21,11 @@ import org.slf4j.LoggerFactory;
 public class WordCountInputOperator extends SimpleSinglePortInputOperator<String> implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(WordCountInputOperator.class);
-    private transient Thread wordReadThread;
     protected long averageSleep = 300;
     protected long sleepPlusMinus = 100;
     protected String fileName = "src/main/resources/com/malhartech/demos/wordcount/samplefile.txt";
     private transient BufferedReader br;
     private transient DataInputStream in;
-
-
-    @Override
-    public void beginWindow(long windowId) {
-        //System.out.println("BEGIN WINDOW " + windowId);
-    }
-
-    @Override
-    public void endWindow() {
-        //System.out.println("END WINDOW");
-    }
-
-    @Override
-    public void setup(OperatorContext c) {
-    }
-
-    @Override
-    public void teardown() {
-        wordReadThread.interrupt();
-    }
 
     public void setAverageSleep(long as) {
         averageSleep = as;
