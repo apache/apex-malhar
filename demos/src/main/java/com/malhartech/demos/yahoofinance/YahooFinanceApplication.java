@@ -208,7 +208,7 @@ public class YahooFinanceApplication implements ApplicationFactory
     String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
     if (serverAddr != null) {
       HttpOutputOperator<Object> oper = dag.addOperator(name, new HttpOutputOperator<Object>());
-      oper.setResourceURL(URI.create("http://" + serverAddr + "/channel/YahooFinance" + name));
+      oper.setResourceURL(URI.create("http://" + serverAddr + "/channel/YahooFinance"));
       return oper.input;
     }
 
@@ -233,7 +233,7 @@ public class YahooFinanceApplication implements ApplicationFactory
     boolean isDummy = false;  // true for dummy data
     int appWindowCountMinute = 4 * 1000 / streamingWindowSizeMilliSeconds;   // 1 minute
     int appWindowCountSMA = 10 * 1000 / streamingWindowSizeMilliSeconds;  // 5 minute
-    String test = "window"; // can be window, time, sma, all
+    String test = "time"; // can be window, time, sma, all
 
 
     if (test.equals("window")) {
