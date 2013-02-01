@@ -87,6 +87,13 @@
       <artifactId>malhar-stram</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.malhartech</groupId>
+      <artifactId>malhar-library</artifactId>
+      <version>${project.version}</version>
+      <type>jar</type>
+    </dependency>
+
 
     <dependency>
      <!-- Since Kafka is not published on the standard mvn repository,
