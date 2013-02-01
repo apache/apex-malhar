@@ -6,6 +6,7 @@ package com.malhartech.demos.yahoofinance;
 
 import au.com.bytecode.opencsv.CSVReader;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
+import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory;
  *
  *   @author Locknath Shil <locknath@malhar-inc.com>
  */
+@ShipContainingJars(classes = {au.com.bytecode.opencsv.CSVReader.class})
 public class StockTickInput implements InputOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(StockTickInput.class);
