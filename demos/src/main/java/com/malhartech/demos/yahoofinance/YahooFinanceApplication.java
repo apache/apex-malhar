@@ -208,7 +208,7 @@ public class YahooFinanceApplication implements ApplicationFactory
     String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
     if (serverAddr != null) {
       HttpOutputOperator<Object> oper = dag.addOperator(name, new HttpOutputOperator<Object>());
-      oper.setResourceURL(URI.create("http://" + serverAddr + "/channel/" + nodeName));
+      oper.setResourceURL(URI.create("http://" + serverAddr + "/channel/YahooFinance-" + name));
       return oper.input;
     }
 
@@ -234,6 +234,7 @@ public class YahooFinanceApplication implements ApplicationFactory
     int appWindowCountMinute = 60 * 1000 / streamingWindowSizeMilliSeconds;   // 1 minute
     int appWindowCountSMA = 5 * 60 * 1000 / streamingWindowSizeMilliSeconds;  // 5 minute
     String test = "all"; // can be window, time, sma, all
+
 
     if (test.equals("window")) {
       StockTickInput tick = getTicks("tick", dag, isDummy, true);
@@ -264,8 +265,8 @@ public class YahooFinanceApplication implements ApplicationFactory
       StockTickInput tick = getTicks("tick", dag, isDummy, false);
       AverageKeyVal<String> priceAvg = getPriceAverage("priceAvg", dag);
       AverageKeyVal<String> volumeAvg = getVolumeAverage("volumeAvg", dag);
-      SimpleMovingAverage<String, Double> priceSMA = getPriceSimpleMovingAverage("smaPrice", dag, appWindowCountSMA);
-      SimpleMovingAverage<String, Long> volumeSMA = getVolumeSimpleMovingAverage("smaVolume", dag, appWindowCountSMA);
+      SimpleMovingAverage<String, Double> priceSMA = getPriceSimpleMovingAverage("priceSMA", dag, appWindowCountSMA);
+      SimpleMovingAverage<String, Long> volumeSMA = getVolumeSimpleMovingAverage("volumeSMA", dag, appWindowCountSMA);
       SMAConsolidator smaConsolidator = getSMAConsolidator("smaConsolidator", dag);
       InputPort<Object> console = getConsole("smaConsole", "YahooFinance", dag);
 
@@ -288,9 +289,9 @@ public class YahooFinanceApplication implements ApplicationFactory
 
       AverageKeyVal<String> priceAvg = getPriceAverage("priceAvg", dag);
       AverageKeyVal<String> volumeAvg = getVolumeAverage("volumeAvg", dag);
-      SimpleMovingAverage<String, Double> priceSMA = getPriceSimpleMovingAverage("smaPrice", dag, appWindowCountSMA);
-      SimpleMovingAverage<String, Long> volumeSMA = getVolumeSimpleMovingAverage("smaVolume", dag, appWindowCountSMA);
-      SMAConsolidator smaConsolidator = getSMAConsolidator("consolidator", dag);
+      SimpleMovingAverage<String, Double> priceSMA = getPriceSimpleMovingAverage("priceSMA", dag, appWindowCountSMA);
+      SimpleMovingAverage<String, Long> volumeSMA = getVolumeSimpleMovingAverage("volumeSMA", dag, appWindowCountSMA);
+      SMAConsolidator smaConsolidator = getSMAConsolidator("smaConsolidator", dag);
 
       //dag.addStream("price_tick", tick.price, pvConsolidator.data1, highlow.data, priceAvg.data).setInline(allInline);  // setting output with unchecked type doesn't work. TBD
       //dag.addStream("volume_tick", tick.volume, dailyVolume.data, minuteVolume.data, volumeAvg.data).setInline(allInline);
