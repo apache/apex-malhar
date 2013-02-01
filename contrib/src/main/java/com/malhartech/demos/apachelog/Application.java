@@ -37,16 +37,17 @@ public class Application implements ApplicationFactory {
         UniqueCounter urlCount = dag.addOperator("urlCount", new UniqueCounter<String>());
         UniqueCounter httpStatusCount = dag.addOperator("httpStatusCount", new UniqueCounter<String>());
         Sum<Long> numOfBytesSum = dag.addOperator("numOfBytesSum", new Sum<Long>());
-        ArrayListAggregator<Long> agg = dag.addOperator("agg", new ArrayListAggregator<Long>());
+        //ArrayListAggregator<Long> agg = dag.addOperator("agg", new ArrayListAggregator<Long>());
         
-        dag.getOperatorWrapper(agg).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(3);
+        //dag.getOperatorWrapper(agg).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(3);
+        dag.getOperatorWrapper(numOfBytesSum).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(3);
 
         dag.addStream("input-parse", input.outputPort, parse.data).setInline(allInline);
         dag.addStream("parse-ipAddrCount", parse.outputIPAddress, ipAddrCount.data).setInline(allInline);
         dag.addStream("parse-urlCount", parse.outputUrl, urlCount.data).setInline(allInline);
         dag.addStream("parse-httpStatusCount", parse.outputStatusCode, httpStatusCount.data).setInline(allInline);
         dag.addStream("parse-numOfBytesSum", parse.outputBytes, numOfBytesSum.data).setInline(allInline);
-        dag.addStream("numOfBytesSum-agg", numOfBytesSum.sumLong, agg.input);
+        //dag.addStream("numOfBytesSum-agg", numOfBytesSum.sumLong, agg.input);
 
         ConsoleOutputOperator consoleOperator1 = dag.addOperator("console1", new ConsoleOutputOperator());
         ConsoleOutputOperator consoleOperator2 = dag.addOperator("console2", new ConsoleOutputOperator());
@@ -56,7 +57,8 @@ public class Application implements ApplicationFactory {
         dag.addStream("ipAddrCount-console", ipAddrCount.count, consoleOperator1.input);
         dag.addStream("urlCount-console", urlCount.count, consoleOperator2.input);
         dag.addStream("httpStatusCount-console", httpStatusCount.count, consoleOperator3.input);
-        dag.addStream("agg-console", agg.output, consoleOperator4.input);
+        //dag.addStream("agg-console", agg.output, consoleOperator4.input);
+        dag.addStream("numOfBytesSum-console", numOfBytesSum.sumLong, consoleOperator4.input);
 
         return dag;
     }
