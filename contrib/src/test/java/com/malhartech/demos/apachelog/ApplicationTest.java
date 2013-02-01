@@ -2,8 +2,9 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.demos.wordcount;
+package com.malhartech.demos.apachelog;
 
+import com.malhartech.demos.apachelog.*;
 import com.malhartech.stram.StramLocalCluster;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
