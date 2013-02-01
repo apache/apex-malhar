@@ -8,6 +8,9 @@ import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.InputOperator;
 import java.io.IOException;
+
+import javax.validation.constraints.NotNull;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -31,7 +34,12 @@ public abstract class AbstractHDFSInputOperator extends BaseOperator implements 
   private static final Logger logger = LoggerFactory.getLogger(AbstractHDFSInputOperator.class);
   protected transient FSDataInputStream input;
   private transient FileSystem fs;
+  @NotNull
   private String filePath;
+
+  public String getFilePath() {
+    return filePath;
+  }
 
   /**
    * The file name. This can be a relative path for the default file system
