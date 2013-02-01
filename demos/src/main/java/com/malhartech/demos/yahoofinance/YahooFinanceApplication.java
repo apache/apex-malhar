@@ -202,7 +202,7 @@ public class YahooFinanceApplication implements ApplicationFactory
    * @param dag
    * @return console input port
    */
-  public InputPort<Object> getConsole(String name, String nodeName, DAG dag)
+  public InputPort<Object> getConsole(String name, DAG dag)
   {
     // hack to output to HTTP based on actual environment
     String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
@@ -233,14 +233,13 @@ public class YahooFinanceApplication implements ApplicationFactory
     boolean isDummy = false;  // true for dummy data
     int appWindowCountMinute = 4 * 1000 / streamingWindowSizeMilliSeconds;   // 1 minute
     int appWindowCountSMA = 10 * 1000 / streamingWindowSizeMilliSeconds;  // 5 minute
-    String test = "time"; // can be window, time, sma, all
-
+    String test = "sma"; // can be window, time, sma, all
 
     if (test.equals("window")) {
       StockTickInput tick = getTicks("tick", dag, isDummy, true);
       SumKeyVal<String, Long> dailyVolume = getDailyVolume("dailyVolume", dag);
       PriceVolumeConsolidator pvConsolidator = getPriceVolumeConsolidator("pvConsolidator", dag);
-      InputPort<Object> console = getConsole("pvConsole", "YahooFinance", dag);
+      InputPort<Object> console = getConsole("pvConsole", dag);
 
       dag.addStream("volume_tick", tick.volume, dailyVolume.data).setInline(allInline);
       dag.addStream("price_tick", tick.price, pvConsolidator.data1).setInline(allInline);
@@ -253,7 +252,7 @@ public class YahooFinanceApplication implements ApplicationFactory
       RangeKeyVal<String, Double> highlow = getTimedPriceRange("highlow", dag, appWindowCountMinute);
       SumKeyVal<String, Long> minuteVolume = getTimedVolume("timedVolume", dag, appWindowCountMinute);
       RangeVolumeConsolidator rvConsolidator = getRangeVolumeConsolidator("rvConsolidator", dag);
-      InputPort<Object> console = getConsole("rvConsole", "YahooFinance", dag);
+      InputPort<Object> console = getConsole("rvConsole", dag);
 
       dag.addStream("price_tick", tick.price, highlow.data).setInline(allInline);
       dag.addStream("volume_tick", tick.volume, minuteVolume.data).setInline(allInline);
@@ -268,7 +267,7 @@ public class YahooFinanceApplication implements ApplicationFactory
       SimpleMovingAverage<String, Double> priceSMA = getPriceSimpleMovingAverage("priceSMA", dag, appWindowCountSMA);
       SimpleMovingAverage<String, Long> volumeSMA = getVolumeSimpleMovingAverage("volumeSMA", dag, appWindowCountSMA);
       SMAConsolidator smaConsolidator = getSMAConsolidator("smaConsolidator", dag);
-      InputPort<Object> console = getConsole("smaConsole", "YahooFinance", dag);
+      InputPort<Object> console = getConsole("smaConsole", dag);
 
       dag.addStream("price_tick", tick.price, priceAvg.data).setInline(allInline);
       dag.addStream("priceAverage_priceSma", priceAvg.doubleAverage, priceSMA.data).setInline(shouldbeInline);
@@ -301,18 +300,18 @@ public class YahooFinanceApplication implements ApplicationFactory
       dag.addStream("time_tick", tick.time, pvConsolidator.data3).setInline(allInline);
 
       dag.addStream("volume_pvConsolidator", dailyVolume.sum, pvConsolidator.data2).setInline(shouldbeInline);
-      dag.addStream("pvConsolidator_console", pvConsolidator.out, getConsole("pvConsole", "YahooFinance", dag)).setInline(shouldbeInline);
+      dag.addStream("pvConsolidator_console", pvConsolidator.out, getConsole("pvConsole", dag)).setInline(shouldbeInline);
 
       dag.addStream("highlow_merge", highlow.range, rvConsolidator.data1).setInline(shouldbeInline);
       dag.addStream("volume_merge", minuteVolume.sum, rvConsolidator.data2).setInline(shouldbeInline);
-      dag.addStream("minute_console", rvConsolidator.out, getConsole("rvConsole", "YahooFinance", dag)).setInline(shouldbeInline);
+      dag.addStream("minute_console", rvConsolidator.out, getConsole("rvConsole", dag)).setInline(shouldbeInline);
 
       dag.addStream("priceAverage_priceSma", priceAvg.doubleAverage, priceSMA.data).setInline(shouldbeInline);
       dag.addStream("priceSma_smaCconsolidator", priceSMA.doubleSMA, smaConsolidator.data1).setInline(shouldbeInline);
 
       dag.addStream("volumeAverage_volumeSma", volumeAvg.longAverage, volumeSMA.data).setInline(shouldbeInline);
       dag.addStream("volumeSma_smaCconsolidator", volumeSMA.longSMA, smaConsolidator.data2).setInline(shouldbeInline);
-      dag.addStream("smaConsolidator_console", smaConsolidator.out, getConsole("smaConsole", "YahooFinance", dag)).setInline(shouldbeInline);
+      dag.addStream("smaConsolidator_console", smaConsolidator.out, getConsole("smaConsole", dag)).setInline(shouldbeInline);
     }
     else {
       // nothing
