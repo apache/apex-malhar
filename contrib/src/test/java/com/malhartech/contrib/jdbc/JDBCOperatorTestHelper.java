@@ -5,7 +5,7 @@
 package com.malhartech.contrib.jdbc;
 
 import com.malhartech.api.DAG;
-import com.malhartech.api.DAGConstants;
+import com.malhartech.api.DAGContext;
 import com.malhartech.util.AttributeMap;
 import com.malhartech.util.AttributeMap.DefaultAttributeMap;
 import java.sql.*;
@@ -30,7 +30,7 @@ public class JDBCOperatorTestHelper
   private static final String driver = "com.mysql.jdbc.Driver";
   private static final String url = "jdbc:mysql://localhost/test?user=test&password=";
   private static final String db_name = "test";
-  private HashMap<String, ArrayList<String>> tableToColumns2 = new HashMap<String, ArrayList<String>>(); // same as tableToColumn in operator
+  private final HashMap<String, ArrayList<String>> tableToColumns2 = new HashMap<String, ArrayList<String>>(); // same as tableToColumn in operator
   protected transient HashMap<String, PreparedStatement> tableToInsertStatement = new HashMap<String, PreparedStatement>();
   protected transient HashMap<String, Integer> keyToIndex = new HashMap<String, Integer>();
   protected transient HashMap<String, String> keyToType = new HashMap<String, String>();
@@ -38,8 +38,8 @@ public class JDBCOperatorTestHelper
   protected transient ArrayList<String> columnNames = new ArrayList<String>();
   protected transient ArrayList<String> tableNames = new ArrayList<String>();
   private transient HashMap<String, Integer> columnSQLTypes = new HashMap<String, Integer>();
-  private int columnCount = 7;
-  public AttributeMap<DAGConstants> attrmap = new DefaultAttributeMap<DAGConstants>();
+  private final int columnCount = 7;
+  public AttributeMap<DAGContext> attrmap = new DefaultAttributeMap<DAGContext>();
 
   public String[] hashMapping1 = new String[7];
   public String[] hashMapping2 = new String[7];

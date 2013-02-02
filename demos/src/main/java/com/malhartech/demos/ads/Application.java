@@ -211,7 +211,7 @@ public class Application implements ApplicationFactory
     dag.addStream("views", viewGen.hash_data, adviews.event).setInline(true);
     dag.setInputPortAttribute(insertclicks.data, PortContext.PARTITION_PARALLEL, true);
     dag.setInputPortAttribute(viewAggregate.data, PortContext.PARTITION_PARALLEL, true);
-    DAG.StreamDecl viewsAggStream = dag.addStream("viewsaggregate", adviews.data, insertclicks.data, viewAggregate.data).setInline(true);
+    DAG.StreamMeta viewsAggStream = dag.addStream("viewsaggregate", adviews.data, insertclicks.data, viewAggregate.data).setInline(true);
 
     if (conf.getBoolean(P_enableHdfs, false)) {
       HdfsOutputOperator viewsToHdfs = dag.addOperator("viewsToHdfs", new HdfsOutputOperator());

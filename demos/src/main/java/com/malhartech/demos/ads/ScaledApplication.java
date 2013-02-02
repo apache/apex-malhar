@@ -219,7 +219,7 @@ public class ScaledApplication implements ApplicationFactory
       SumCountMap<String, Double> clickAggregate = getSumOperator("clickAggr"+i, dag);
 
       dag.addStream("views"+i, viewGen.hash_data, adviews.event).setInline(true);
-      DAG.StreamDecl viewsAggStream = dag.addStream("viewsaggregate"+i, adviews.data, insertclicks.data, viewAggregate.data).setInline(true);
+      DAG.StreamMeta viewsAggStream = dag.addStream("viewsaggregate"+i, adviews.data, insertclicks.data, viewAggregate.data).setInline(true);
 
       if (conf.getBoolean(P_enableHdfs, false)) {
         HdfsOutputOperator viewsToHdfs = dag.addOperator("viewsToHdfs"+i, new HdfsOutputOperator());

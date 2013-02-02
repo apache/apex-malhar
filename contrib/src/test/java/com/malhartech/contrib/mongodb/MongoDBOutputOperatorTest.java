@@ -5,12 +5,11 @@
 package com.malhartech.contrib.mongodb;
 
 import com.malhartech.api.DAG;
-import com.malhartech.api.DAGConstants;
+import com.malhartech.api.DAGContext;
 import com.malhartech.bufferserver.util.Codec;
 import com.malhartech.engine.OperatorContext;
 import com.malhartech.util.AttributeMap;
 import com.malhartech.util.AttributeMap.DefaultAttributeMap;
-import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 import java.util.ArrayList;
 import java.util.Date;
@@ -31,7 +30,7 @@ public class MongoDBOutputOperatorTest
   public String[] arrayMapping1 = new String[columnNum];
   public final static int maxTuple = 20;
   public final static int columnNum = 5;
-  public AttributeMap<DAGConstants> attrmap = new DefaultAttributeMap<DAGConstants>();
+  public AttributeMap<DAGContext> attrmap = new DefaultAttributeMap<DAGContext>();
 
   public void buildDataset()
   {

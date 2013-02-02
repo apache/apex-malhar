@@ -7,7 +7,6 @@ package com.malhartech.contrib.jdbc;
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DAG;
-import com.malhartech.api.DAGConstants;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.Operator;
 import java.sql.PreparedStatement;
