@@ -115,7 +115,8 @@ public class RandomEventGenerator extends BaseOperator implements InputOperator
   public void endWindow()
   {
     if (--maxCountOfWindows == 0) {
-      Thread.currentThread().interrupt();
+      //Thread.currentThread().interrupt();
+      throw new RuntimeException(new InterruptedException("Finished generating data."));
     }
   }
 
