@@ -69,14 +69,13 @@ public abstract class AbstractHDFSInputOperator extends BaseOperator implements 
   @Override
   public void setup(OperatorContext context)
   {
-    if (fs == null) {
-      try {
-        fs = FileSystem.get(new Configuration());
-      }
-      catch (IOException ex) {
-        throw new RuntimeException(ex);
-      }
+    try {
+      fs = FileSystem.get(new Configuration());
     }
+    catch (IOException ex) {
+      throw new RuntimeException(ex);
+    }
+
     try {
       input = fs.open(new Path(filePath));
     }
@@ -91,6 +90,8 @@ public abstract class AbstractHDFSInputOperator extends BaseOperator implements 
     try {
       input.close();
       input = null;
+      // fs.close();/* input.close() above closes the filesystem as well! */
+      fs = null;
     }
     catch (IOException ex) {
       logger.error("exception on close", ex);
