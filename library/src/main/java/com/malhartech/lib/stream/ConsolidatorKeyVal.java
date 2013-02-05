@@ -72,7 +72,6 @@ public class ConsolidatorKeyVal<K> implements Operator
       val = new ArrayList<Object>(5);
       val.add(0, null);
       val.add(1, null);
-      if (in3.isConnected())
       val.add(2, null);
       val.add(3, null);
       val.add(4, null);
