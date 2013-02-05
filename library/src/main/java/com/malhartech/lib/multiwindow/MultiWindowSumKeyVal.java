@@ -95,10 +95,10 @@ public class MultiWindowSumKeyVal<K, V extends Number> extends SumKeyVal<K, V>
     boolean dosum = sum.isConnected();
 
     if (dosum) {
-      for (Map.Entry<K, MutableDouble> e: sums.entrySet()) {
+      for (Map.Entry<K, SumEntry> e: sums.entrySet()) {
         K key = e.getKey();
         if (dosum) {
-          sum.emit(new KeyValPair(key, getValue(e.getValue().doubleValue())));
+          sum.emit(new KeyValPair(key, getValue(e.getValue().sum.doubleValue())));
         }
       }
     }

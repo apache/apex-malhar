@@ -29,8 +29,9 @@ public class HighLow
 
   /**
    * Constructor
+   *
    * @param h
-   * @param l 
+   * @param l
    */
   public HighLow(Number h, Number l)
   {
@@ -71,4 +72,11 @@ public class HighLow
   {
     low = l;
   }
+
+  @Override
+  public String toString()
+  {
+    return "(" + low.toString() + "," + high.toString() + ")";
+  }
+
 }

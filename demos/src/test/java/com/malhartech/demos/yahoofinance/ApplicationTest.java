@@ -13,7 +13,7 @@ import org.junit.Test;
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */
-public class YahooFinanceTest
+public class ApplicationTest
 {
 
   /**
@@ -24,7 +24,7 @@ public class YahooFinanceTest
   @Test
   public void testApplication() throws Exception
   {
-    YahooFinanceApplication app = new YahooFinanceApplication();
+    Application app = new Application();
     StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));
     lc.setHeartbeatMonitoringEnabled(false);
     lc.run();
@@ -38,7 +38,7 @@ public class YahooFinanceTest
  //@Test
   public void testApplication2() throws Exception
   {
-    YahooFinanceApplication app = new YahooFinanceApplication();
+    Application app = new Application();
     final StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));
     new Thread()
     {
