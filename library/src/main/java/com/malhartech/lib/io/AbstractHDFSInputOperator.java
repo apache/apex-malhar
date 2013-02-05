@@ -69,7 +69,6 @@ public abstract class AbstractHDFSInputOperator extends BaseOperator implements 
   @Override
   public void setup(OperatorContext context)
   {
-    logger.debug("trying to reopen file {}", filePath);
     try {
       fs = FileSystem.get(new Configuration());
     }
@@ -83,8 +82,6 @@ public abstract class AbstractHDFSInputOperator extends BaseOperator implements 
     catch (IOException ex) {
       throw new RuntimeException(ex);
     }
-
-    logger.debug("reopened file {}", filePath);
   }
 
   @Override
