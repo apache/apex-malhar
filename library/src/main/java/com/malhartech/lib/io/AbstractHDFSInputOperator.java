@@ -37,7 +37,8 @@ public abstract class AbstractHDFSInputOperator extends BaseOperator implements 
   @NotNull
   private String filePath;
 
-  public String getFilePath() {
+  public String getFilePath()
+  {
     return filePath;
   }
 
@@ -88,11 +89,12 @@ public abstract class AbstractHDFSInputOperator extends BaseOperator implements 
     try {
       input.close();
       input = null;
+      fs.close();
+      fs = null;
     }
     catch (IOException ex) {
-      logger.error(ex.getLocalizedMessage());
+      logger.error("exception on close", ex);
     }
-    fs = null;
   }
 
 }
