@@ -93,7 +93,6 @@ public abstract class AbstractHDFSInputOperator extends BaseOperator implements 
       logger.error(ex.getLocalizedMessage());
     }
     fs = null;
-    setFilePath(null);
   }
 
 }
