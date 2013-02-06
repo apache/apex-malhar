@@ -14,7 +14,7 @@ import java.util.HashMap;
  *
  * @author davidyan
  */
-public class ConsolidatorKeyVal<K> implements Operator
+public class ConsolidatorKeyVal<K,V1,V2,V3,V4,V5> implements Operator
 {
   @Override
   public void setup(OperatorContext context)
@@ -26,7 +26,7 @@ public class ConsolidatorKeyVal<K> implements Operator
   {
   }
 
-  public class ConsolidatorInputPort extends DefaultInputPort<KeyValPair<K, Object>>
+  public class ConsolidatorInputPort<V> extends DefaultInputPort<KeyValPair<K, V>>
   {
     private int number;
 
@@ -37,7 +37,7 @@ public class ConsolidatorKeyVal<K> implements Operator
     }
 
     @Override
-    public void process(KeyValPair<K, Object> tuple)
+    public void process(KeyValPair<K, V> tuple)
     {
       K key = tuple.getKey();
       ArrayList<Object> list = getObject(key);
@@ -53,15 +53,15 @@ public class ConsolidatorKeyVal<K> implements Operator
   //
   //protected int numOfInputs;
   @InputPortFieldAnnotation(name = "in1")
-  public transient ConsolidatorInputPort in1 = new ConsolidatorInputPort(this, 0);
+  public final transient ConsolidatorInputPort<V1> in1 = new ConsolidatorInputPort<V1>(this, 0);
   @InputPortFieldAnnotation(name = "in2")
-  public transient ConsolidatorInputPort in2 = new ConsolidatorInputPort(this, 1);
+  public final transient ConsolidatorInputPort<V2> in2 = new ConsolidatorInputPort<V2>(this, 1);
   @InputPortFieldAnnotation(name = "in3", optional = true)
-  public transient ConsolidatorInputPort in3 = new ConsolidatorInputPort(this, 2);
+  public final transient ConsolidatorInputPort<V3> in3 = new ConsolidatorInputPort<V3>(this, 2);
   @InputPortFieldAnnotation(name = "in4", optional = true)
-  public transient ConsolidatorInputPort in4 = new ConsolidatorInputPort(this, 3);
+  public final transient ConsolidatorInputPort<V4> in4 = new ConsolidatorInputPort<V4>(this, 3);
   @InputPortFieldAnnotation(name = "in5", optional = true)
-  public transient ConsolidatorInputPort in5 = new ConsolidatorInputPort(this, 4);
+  public final transient ConsolidatorInputPort<V5> in5 = new ConsolidatorInputPort<V5>(this, 4);
   @OutputPortFieldAnnotation(name = "out")
   public final transient DefaultOutputPort<HashMap<K, ArrayList<Object>>> out = new DefaultOutputPort<HashMap<K, ArrayList<Object>>>(this);
 

@@ -13,6 +13,7 @@ import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.math.RangeKeyVal;
 import com.malhartech.lib.math.SumKeyVal;
 import com.malhartech.lib.multiwindow.SimpleMovingAverage;
+import com.malhartech.lib.util.HighLow;
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -76,18 +77,18 @@ public class Application implements ApplicationFactory
   /**
    * Quote (Merge price, daily volume, time)
    */
-  public ConsolidatorKeyVal<String> getQuoteOperator(String name, DAG dag)
+  public ConsolidatorKeyVal<String,Double,Long,String,?,?> getQuoteOperator(String name, DAG dag)
   {
-    ConsolidatorKeyVal<String> oper = dag.addOperator(name, new ConsolidatorKeyVal<String>());
+    ConsolidatorKeyVal<String,Double,Long,String,?,?> oper = dag.addOperator(name, new ConsolidatorKeyVal<String,Double,Long,String,Object,Object>());
     return oper;
   }
 
   /**
    * Chart (Merge minute volume and minute high-low)
    */
-  public ConsolidatorKeyVal<String> getChartOperator(String name, DAG dag)
+  public ConsolidatorKeyVal<String,HighLow,Long,?,?,?> getChartOperator(String name, DAG dag)
   {
-    ConsolidatorKeyVal<String> oper = dag.addOperator(name, new ConsolidatorKeyVal<String>());
+    ConsolidatorKeyVal<String,HighLow,Long,?,?,?> oper = dag.addOperator(name, new ConsolidatorKeyVal<String,HighLow,Long,Object,Object,Object>());
     return oper;
   }
 
@@ -126,7 +127,6 @@ public class Application implements ApplicationFactory
    * Create Yahoo Finance Application DAG.
    */
   @Override
-  @SuppressWarnings("unchecked")
   public DAG getApplication(Configuration conf)
   {
     DAG dag = new DAG(conf);
@@ -135,23 +135,23 @@ public class Application implements ApplicationFactory
 
     StockTickInput tick = getStockTickInputOperator("StockTickInput", dag);
     SumKeyVal<String, Long> dailyVolume = getDailyVolumeOperator("DailyVolume", dag);
-    ConsolidatorKeyVal<String> quoteOperator = getQuoteOperator("Quote", dag);
+    ConsolidatorKeyVal<String,Double,Long,String,?,?> quoteOperator = getQuoteOperator("Quote", dag);
 
     RangeKeyVal<String, Double> highlow = getHighLowOperator("HighLow", dag, appWindowCountMinute);
     SumKeyVal<String, Long> minuteVolume = getMinuteVolumeOperator("MinuteVolume", dag, appWindowCountMinute);
-    ConsolidatorKeyVal<String> chartOperator = getChartOperator("Chart", dag);
+    ConsolidatorKeyVal<String,HighLow,Long,?,?,?> chartOperator = getChartOperator("Chart", dag);
 
     SimpleMovingAverage<String, Double> priceSMA = getPriceSimpleMovingAverageOperator("PriceSMA", dag, appWindowCountSMA);
 
-    dag.addStream("price", tick.price).addSink(quoteOperator.in1).addSink(highlow.data).addSink(priceSMA.data);
+    dag.addStream("price", tick.price, quoteOperator.in1, highlow.data, priceSMA.data);
     dag.addStream("vol", tick.volume, dailyVolume.data, minuteVolume.data);
-    dag.addStream("time", tick.time).addSink(quoteOperator.in3);
-    dag.addStream("daily_vol", dailyVolume.sum).addSink(quoteOperator.in2);
+    dag.addStream("time", tick.time, quoteOperator.in3);
+    dag.addStream("daily_vol", dailyVolume.sum, quoteOperator.in2);
 
     dag.addStream("quote_data", quoteOperator.out, getConsole("quoteConsole", dag, "QUOTE"));
 
-    dag.addStream("high_low", highlow.range).addSink(chartOperator.in1);
-    dag.addStream("vol_1min", minuteVolume.sum).addSink(chartOperator.in2);
+    dag.addStream("high_low", highlow.range, chartOperator.in1);
+    dag.addStream("vol_1min", minuteVolume.sum, chartOperator.in2);
     dag.addStream("chart_data", chartOperator.out, getConsole("chartConsole", dag, "CHART"));
 
     dag.addStream("sma_price", priceSMA.doubleSMA, getConsole("priceSMAConsole", dag, "Price SMA"));
