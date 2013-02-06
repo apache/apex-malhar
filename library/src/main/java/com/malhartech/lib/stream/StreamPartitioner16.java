@@ -10,10 +10,10 @@ import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseKeyOperator;
+import javax.validation.constraints.Min;
 
 /**
- * Duplicates an input stream as is into two output streams; needed to allow separation of listeners into two streams with different properties (for example
- * inline vs in-rack)<p>
+ * Partitions the incoming stream into 12 streams. A hardcoded partitioner<p>
  * This is a pass through operator<br>
  * <br>
  * <b>Port Interface</b><br>
@@ -61,7 +61,7 @@ import com.malhartech.lib.util.BaseKeyOperator;
  * <br>
  */
 
-public class StreamPartitioner12<K> extends BaseKeyOperator<K>
+public class StreamPartitioner16<K> extends BaseKeyOperator<K>
 {
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>(this)
@@ -164,10 +164,22 @@ public class StreamPartitioner12<K> extends BaseKeyOperator<K>
 
 
   final transient static int num_oport = 16;
+  @Min(2)
+  public int numpartitions = 16;
 
   public int getPartition(K tuple)
   {
     return 0;
+  }
+
+  public int getNumpartiions()
+  {
+    return numpartitions;
+  }
+
+  public void setNumpartitions(int i)
+  {
+    numpartitions = i;
   }
 
   /**
