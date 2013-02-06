@@ -11,7 +11,7 @@ import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseUniqueKeyValueCounter;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.lang.mutable.MutableInt;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
  * Count unique occurrences of key,val pairs within a window, and emits one HashMap tuple. <p>

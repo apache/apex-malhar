@@ -5,7 +5,7 @@
 package com.malhartech.lib.util;
 
 import java.util.HashMap;
-import org.apache.commons.lang.mutable.MutableInt;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
  * Count unique occurrences of keys within a window

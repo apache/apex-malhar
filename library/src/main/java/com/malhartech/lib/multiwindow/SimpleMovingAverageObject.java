@@ -5,8 +5,8 @@
 package com.malhartech.lib.multiwindow;
 
 
-import org.apache.commons.lang.mutable.MutableDouble;
-import org.apache.commons.lang.mutable.MutableInt;
+import org.apache.commons.lang3.mutable.MutableDouble;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
  * Information needed to calculate simple moving average.

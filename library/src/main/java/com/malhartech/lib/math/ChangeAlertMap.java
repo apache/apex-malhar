@@ -12,7 +12,7 @@ import com.malhartech.lib.util.BaseNumberKeyValueOperator;
 import java.util.HashMap;
 import java.util.Map;
 import javax.validation.constraints.Min;
-import org.apache.commons.lang.mutable.MutableDouble;
+import org.apache.commons.lang3.mutable.MutableDouble;
 
 /**
  *

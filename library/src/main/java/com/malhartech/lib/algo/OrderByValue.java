@@ -13,7 +13,7 @@ import com.malhartech.lib.util.BaseKeyValueOperator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
-import org.apache.commons.lang.mutable.MutableInt;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
  * Order by ascending on value is done on the incoming stream based on key, and result is emitted on end of window<p>
