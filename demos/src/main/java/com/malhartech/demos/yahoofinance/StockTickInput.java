@@ -97,7 +97,7 @@ public class StockTickInput implements InputOperator
     try {
       int statusCode = client.executeMethod(method);
       if (statusCode != HttpStatus.SC_OK) {
-        System.err.println("Method failed: " + method.getStatusLine());
+        logger.error("Method failed: " + method.getStatusLine());
       }
       else {
         InputStream istream = method.getResponseBodyAsStream();
