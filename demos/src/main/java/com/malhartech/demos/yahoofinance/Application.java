@@ -4,7 +4,6 @@
  */
 package com.malhartech.demos.yahoofinance;
 
-import com.malhartech.lib.stream.ConsolidatorKeyVal;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DAG;
@@ -13,6 +12,7 @@ import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.math.RangeKeyVal;
 import com.malhartech.lib.math.SumKeyVal;
 import com.malhartech.lib.multiwindow.SimpleMovingAverage;
+import com.malhartech.lib.stream.ConsolidatorKeyVal;
 import com.malhartech.lib.util.HighLow;
 import org.apache.hadoop.conf.Configuration;
 
@@ -30,6 +30,9 @@ public class Application implements ApplicationFactory
 
   /**
    * Get actual Yahoo finance ticks of symbol, last price, total daily volume, and last traded price.
+   * @param name
+   * @param dag
+   * @return
    */
   public StockTickInput getStockTickInputOperator(String name, DAG dag)
   {
@@ -41,6 +44,9 @@ public class Application implements ApplicationFactory
 
   /**
    * This sends total daily volume by adding volumes from each ticks.
+   * @param name
+   * @param dag
+   * @return
    */
   public SumKeyVal<String, Long> getDailyVolumeOperator(String name, DAG dag)
   {
@@ -53,6 +59,10 @@ public class Application implements ApplicationFactory
 
   /**
    * Get aggregated volume of 1 minute and send at the end window of 1 minute.
+   * @param name
+   * @param dag
+   * @param appWindowCount
+   * @return
    */
   public SumKeyVal<String, Long> getMinuteVolumeOperator(String name, DAG dag, int appWindowCount)
   {
@@ -65,6 +75,10 @@ public class Application implements ApplicationFactory
 
   /**
    * Get High-low range for 1 minute.
+   * @param name
+   * @param dag
+   * @param appWindowCount
+   * @return
    */
   public RangeKeyVal<String, Double> getHighLowOperator(String name, DAG dag, int appWindowCount)
   {
@@ -76,6 +90,9 @@ public class Application implements ApplicationFactory
 
   /**
    * Quote (Merge price, daily volume, time)
+   * @param name
+   * @param dag
+   * @return
    */
   public ConsolidatorKeyVal<String,Double,Long,String,?,?> getQuoteOperator(String name, DAG dag)
   {
@@ -85,6 +102,9 @@ public class Application implements ApplicationFactory
 
   /**
    * Chart (Merge minute volume and minute high-low)
+   * @param name
+   * @param dag
+   * @return
    */
   public ConsolidatorKeyVal<String,HighLow,Long,?,?,?> getChartOperator(String name, DAG dag)
   {
@@ -94,6 +114,10 @@ public class Application implements ApplicationFactory
 
   /**
    * Get simple moving average of price.
+   * @param name
+   * @param dag
+   * @param appWindowCount
+   * @return
    */
   public SimpleMovingAverage<String, Double> getPriceSimpleMovingAverageOperator(String name, DAG dag, int appWindowCount)
   {
@@ -105,6 +129,10 @@ public class Application implements ApplicationFactory
 
   /**
    * Get console for output.
+   * @param name
+   * @param dag
+   * @param prefix
+   * @return
    */
   public InputPort<Object> getConsole(String name, /*String nodeName,*/ DAG dag, String prefix)
   {
@@ -125,6 +153,8 @@ public class Application implements ApplicationFactory
 
   /**
    * Create Yahoo Finance Application DAG.
+   * @param conf
+   * @return
    */
   @Override
   public DAG getApplication(Configuration conf)
