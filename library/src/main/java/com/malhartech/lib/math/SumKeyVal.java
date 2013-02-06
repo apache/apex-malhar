@@ -148,12 +148,12 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
       K key = e.getKey();
       SumEntry val = e.getValue();
       if (val.changed || !emitOnlyWhenChanged) {
-        sum.emit(new KeyValPair(key, getValue(val.sum.doubleValue())));
-        sumDouble.emit(new KeyValPair(key, val.sum.doubleValue()));
-        sumInteger.emit(new KeyValPair(key, val.sum.intValue()));
-        sumFloat.emit(new KeyValPair(key, val.sum.floatValue()));
-        sumShort.emit(new KeyValPair(key, val.sum.shortValue()));
-        sumLong.emit(new KeyValPair(key, val.sum.longValue()));
+        sum.emit(new KeyValPair<K, V>(key, getValue(val.sum.doubleValue())));
+        sumDouble.emit(new KeyValPair<K, Double>(key, val.sum.doubleValue()));
+        sumInteger.emit(new KeyValPair<K, Integer>(key, val.sum.intValue()));
+        sumFloat.emit(new KeyValPair<K, Float>(key, val.sum.floatValue()));
+        sumShort.emit(new KeyValPair<K, Short>(key, val.sum.shortValue()));
+        sumLong.emit(new KeyValPair<K, Long>(key, val.sum.longValue()));
       }
     }
     clearCache();
