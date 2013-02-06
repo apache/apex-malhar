@@ -11,7 +11,7 @@ import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseNumberValueOperator;
 import com.malhartech.lib.util.HighLow;
 import com.malhartech.lib.util.UnifierRange;
-import org.apache.commons.lang3.mutable.MutableDouble;
+import org.apache.commons.lang.mutable.MutableDouble;
 
 /**
  *
