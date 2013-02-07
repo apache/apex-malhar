@@ -26,13 +26,6 @@ import org.apache.commons.lang.StringEscapeUtils;
  */
 public class SqliteStreamOperator extends BaseOperator
 {
-
-  public SqliteStreamOperator()
-  {
-    super();
-    Logger.getLogger("com.almworks.sqlite4java").setLevel(Level.OFF);
-  }
-
   public static class InputSchema
   {
     /**
@@ -141,6 +134,8 @@ public class SqliteStreamOperator extends BaseOperator
   public void beginWindow(long windowId)
   {
     db = new SQLiteConnection(new File("/tmp/sqlite.db"));
+    Logger.getLogger("com.almworks.sqlite4java").setLevel(Level.SEVERE);
+
     try {
       db.open(true);
       // create the temporary tables here
