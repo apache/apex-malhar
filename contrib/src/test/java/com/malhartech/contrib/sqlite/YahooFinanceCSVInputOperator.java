@@ -1,0 +1,146 @@
+/*
+ *  Copyright (c) 2012-2013 Malhar, Inc.
+ *  All Rights Reserved.
+ */
+package com.malhartech.contrib.sqlite;
+
+import au.com.bytecode.opencsv.CSVReader;
+import com.malhartech.api.Context.OperatorContext;
+import com.malhartech.lib.io.SimpleSinglePortInputOperator;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.cookie.CookiePolicy;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Get stock information from Yahoo finance site. <p>
+ *
+ * @author Zhongjian Wang <zhongjian@malhar-inc.com>
+ */
+public class YahooFinanceCSVInputOperator extends SimpleSinglePortInputOperator<HashMap<String, Object>> implements Runnable
+{
+  private static final Logger logger = LoggerFactory.getLogger(YahooFinanceCSVInputOperator.class);
+  /**
+   * Timeout interval for reading from server. 0 or negative indicates no timeout.
+   */
+  private int readIntervalMillis = 500;
+
+  /**
+   * The URL of the web service resource for the POST request.
+   */
+  private String url;
+  private transient HttpClient client;
+  private transient GetMethod method;
+
+  private ArrayList<String> symbolList = new ArrayList<String>();
+  private ArrayList<String> parameterList = new ArrayList<String>();
+
+  public void addSymbol(String symbol)
+  {
+    symbolList.add(symbol);
+  }
+
+  public void addFormat(String format)
+  {
+    parameterList.add(format);
+  }
+
+  public ArrayList<String> getSymbolList()
+  {
+    return symbolList;
+  }
+
+  public ArrayList<String> getParameterList()
+  {
+    return parameterList;
+  }
+
+  public int getReadIntervalMillis()
+  {
+    return readIntervalMillis;
+  }
+
+  public void setReadIntervalMillis(int readIntervalMillis)
+  {
+    this.readIntervalMillis = readIntervalMillis;
+  }
+
+  /**
+   * Prepare URL from symbols and parameters.
+   * URL will be something like: http://download.finance.yahoo.com/d/quotes.csv?s=GOOG,FB,YHOO&f=sl1vt1&e=.csv
+   * @return
+   */
+  private String prepareURL()
+  {
+    String str = "http://download.finance.yahoo.com/d/quotes.csv?";
+
+    str += "s=";
+    for (int i = 0; i < symbolList.size(); i++) {
+      if (i != 0) {
+        str += ",";
+      }
+       str += symbolList.get(i);
+    }
+    str += "&f=";
+    for (String format: parameterList) {
+      str += format;
+    }
+    str += "&e=.csv";
+    return str;
+  }
+
+  @Override
+  public void setup(OperatorContext context)
+  {
+    url = prepareURL();
+    client = new HttpClient();
+    method = new GetMethod(url);
+    DefaultHttpParams.getDefaultParams().setParameter("http.protocol.cookie-policy", CookiePolicy.BROWSER_COMPATIBILITY);
+  }
+
+  @Override
+  public void run()
+  {
+    while (true) {
+      try {
+        int statusCode = client.executeMethod(method);
+        if (statusCode != HttpStatus.SC_OK) {
+          System.err.println("Method failed: " + method.getStatusLine());
+        }
+        else {
+          InputStream istream;
+          istream = method.getResponseBodyAsStream();
+          // Process response
+          InputStreamReader isr = new InputStreamReader(istream);
+          CSVReader reader = new CSVReader(isr);
+          List<String[]> myEntries;
+          myEntries = reader.readAll();
+          for (String[] stringArr: myEntries) {
+            HashMap<String,Object> hm = new HashMap<String,Object>();
+            for (int i = 0; i < parameterList.size(); i++) {
+              hm.put(parameterList.get(i), stringArr[i]);
+            }
+            outputPort.emit(hm); // send out one symbol at a time
+          }
+        }
+        Thread.sleep(readIntervalMillis);
+      }
+      catch (InterruptedException ex) {
+        logger.debug(ex.toString());
+      }
+      catch (IOException ex) {
+        logger.debug(ex.toString());
+      }
+    }
+  }
+}

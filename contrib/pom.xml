@@ -49,6 +49,7 @@
           <version>2.12</version>
           <configuration>
               <skipTests>${skip.contrib.module.tests}</skipTests>
+              <argLine>-Djava.library.path=/usr/local/lib</argLine>
           </configuration>
       </plugin>
       <plugin>
@@ -151,10 +152,23 @@
       <version>3.3.5</version>
     </dependency>
     <dependency>
-      <groupId>com.malhartech</groupId>
-      <artifactId>malhar-library</artifactId>
-      <version>0.1-SNAPSHOT</version>
+      <groupId>com.almworks.sqlite4java</groupId>
+      <artifactId>sqlite4java</artifactId>
+      <version>0.282</version>
       <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.opencsv</groupId>
+      <artifactId>opencsv</artifactId>
+      <version>2.0</version>
+      <scope>test</scope>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.almworks.sqlite4java</groupId>
+      <artifactId>libsqlite4java-linux-amd64</artifactId>
+      <version>0.282</version>
+      <type>so</type>
     </dependency>
   </dependencies>
 </project>
