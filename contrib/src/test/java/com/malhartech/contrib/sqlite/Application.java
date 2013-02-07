@@ -36,22 +36,23 @@ public class Application implements ApplicationFactory
       input2.addSymbol(symbol);
     }
     input1.addFormat("s0");
-    input1.addFormat("l1"); // symbol, last trade
+    input1.addFormat("l1");
     input2.addFormat("s0");
     input2.addFormat("e0");
-    input2.addFormat("b4"); // symbol, eps, book
+    input2.addFormat("b4");
 
     SqliteStreamOperator.InputSchema inputSchema1 = new SqliteStreamOperator.InputSchema("t1");
     SqliteStreamOperator.InputSchema inputSchema2 = new SqliteStreamOperator.InputSchema("t2");
-    inputSchema1.setColumnType("s0", "string");
-    inputSchema1.setColumnType("l1", "float");
-    inputSchema2.setColumnType("s0", "string");
-    inputSchema2.setColumnType("e0", "float");
-    inputSchema2.setColumnType("b4", "float");
+    inputSchema1.setColumnType("s0", "string"); // symbol
+    inputSchema1.setColumnType("l1", "float");  // last trade
+    inputSchema2.setColumnType("s0", "string"); // symbol
+    inputSchema2.setColumnType("e0", "float");  // EPS
+    inputSchema2.setColumnType("b4", "float");  // Book value
 
     sqlOper.setInputSchema(0, inputSchema1);
     sqlOper.setInputSchema(1, inputSchema2);
 
+    // Calculate PE Ratio and PB Ratio using SQL
     sqlOper.setStatement("SELECT t1.s0 AS symbol, t1.l1 / t2.e0 AS pe_ratio, t1.l1 / t2.b4 AS pb_ratio FROM t1,t2 WHERE t1.s0 = t2.s0");
 
     dag.addStream("input1_sql", input1.outputPort, sqlOper.in1);
