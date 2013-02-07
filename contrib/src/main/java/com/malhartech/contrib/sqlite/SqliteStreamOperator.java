@@ -74,7 +74,7 @@ public class SqliteStreamOperator extends BaseOperator
     }
 
   };
-  @InputPortFieldAnnotation(name = "in1", optional = true)
+  @InputPortFieldAnnotation(name = "in1")
   public final transient DefaultInputPort<HashMap<String, Object>> in1 = new DefaultInputPort<HashMap<String, Object>>(this)
   {
     @Override
