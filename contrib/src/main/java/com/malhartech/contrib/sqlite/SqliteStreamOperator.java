@@ -209,6 +209,7 @@ public class SqliteStreamOperator extends BaseOperator
     catch (SQLiteException ex) {
       Logger.getLogger(SqliteStreamOperator.class.getName()).log(Level.SEVERE, null, ex);
     }
+    bindings = null;
     db.dispose();
   }
 
