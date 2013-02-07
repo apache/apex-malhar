@@ -12,11 +12,7 @@ import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import java.util.HashMap;
 import java.util.Map;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-import javax.script.SimpleBindings;
+import javax.script.*;
 
 /**
  *
@@ -28,8 +24,9 @@ public class Script extends BaseOperator
   protected transient ScriptEngine engine = sem.getEngineByName("JavaScript");
   protected String script;
   protected boolean keepBindings = false;
+  protected boolean isPassThru = true;
   protected SimpleBindings bindings = new SimpleBindings();
-
+  protected Object evalResult;
   @InputPortFieldAnnotation(name = "inBindings", optional = true)
   public final transient DefaultInputPort<Map<String, Object>> inBindings = new DefaultInputPort<Map<String, Object>>(this)
   {
@@ -41,13 +38,17 @@ public class Script extends BaseOperator
       }
       Object res;
       try {
-        res = engine.eval(script);
-        result.emit(res);
+        evalResult = engine.eval(script);
+        if (isPassThru) {
+          result.emit(evalResult);
+        }
       }
       catch (ScriptException ex) {
-         System.err.println("Script Error: "+ex.toString());
+        System.err.println("Script Error: " + ex.toString());
       }
-      outBindings.emit(new HashMap<String, Object>(engine.getBindings(ScriptContext.ENGINE_SCOPE)));
+      if (isPassThru) {
+        outBindings.emit(new HashMap<String, Object>(engine.getBindings(ScriptContext.ENGINE_SCOPE)));
+      }
     }
 
   };
@@ -71,9 +72,18 @@ public class Script extends BaseOperator
     this.script = script;
   }
 
+  public void setPassThru(boolean isPassThru)
+  {
+    this.isPassThru = isPassThru;
+  }
+
   @Override
   public void endWindow()
   {
+    if (!isPassThru) {
+      result.emit(evalResult);
+      outBindings.emit(new HashMap<String, Object>(engine.getBindings(ScriptContext.ENGINE_SCOPE)));
+    }
     if (!keepBindings) {
       engine.getBindings(ScriptContext.ENGINE_SCOPE).clear();
     }
@@ -85,7 +95,8 @@ public class Script extends BaseOperator
     engine.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
   }
 
-  public void put(String key, Object val) {
+  public void put(String key, Object val)
+  {
     bindings.put(key, val);
   }
 
