@@ -4,13 +4,8 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.InputOperator;
 import java.io.IOException;
-
-import javax.validation.constraints.NotNull;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -19,55 +14,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Input Adapter for reading from HDFS File
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-/**
- * Input Adapter for reading from HDFS<p>
- * <br>
- * Extends AbstractInputAdapter<br>
- * Users need to implement getRecord to get HDFS input adapter to work as per their choice<br>
- * <br>
- */
-public abstract class AbstractHDFSInputOperator extends BaseOperator implements InputOperator
+public abstract class AbstractHDFSInputOperator extends AbstractFileInputOperator<FSDataInputStream>
 {
-  private static final Logger logger = LoggerFactory.getLogger(AbstractHDFSInputOperator.class);
-  protected transient FSDataInputStream input;
-  private transient FileSystem fs;
-  @NotNull
-  private String filePath;
-
-  public String getFilePath()
-  {
-    return filePath;
-  }
-
-  /**
-   * The file name. This can be a relative path for the default file system
-   * or fully qualified URL as accepted by ({@link org.apache.hadoop.fs.Path}).
-   * For splits with per file size limit, the name needs to
-   * contain substitution tokens to generate unique file names.
-   * Example: file:///mydir/adviews.out.%(operatorId).part-%(partIndex)
-   *
-   * @param filePath
-   */
-  public void setFilePath(String filePath)
-  {
-    this.filePath = filePath;
-  }
-
   @Override
-  public void beginWindow(long windowId)
-  {
-  }
-
-  @Override
-  public void endWindow()
-  {
-  }
-
-  @Override
-  public void setup(OperatorContext context)
+  public FSDataInputStream openFile(String filePath)
   {
     try {
       fs = FileSystem.get(new Configuration());
@@ -77,7 +31,7 @@ public abstract class AbstractHDFSInputOperator extends BaseOperator implements 
     }
 
     try {
-      input = fs.open(new Path(filePath));
+      return fs.open(new Path(filePath));
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
@@ -85,17 +39,42 @@ public abstract class AbstractHDFSInputOperator extends BaseOperator implements 
   }
 
   @Override
+  public void beginWindow(long windowId)
+  {
+  }
+
+  @Override
+  public void setup(OperatorContext context)
+  {
+  }
+
+  @Override
   public void teardown()
   {
+  }
+
+  @Override
+  public long getFilePointer(FSDataInputStream stream)
+  {
     try {
-      input.close();
-      input = null;
-      // fs.close();/* input.close() above closes the filesystem as well! */
-      fs = null;
+      return stream.getPos();
     }
     catch (IOException ex) {
-      logger.error("exception on close", ex);
+      throw new RuntimeException(ex.getCause());
     }
   }
 
+  @Override
+  public void seek(FSDataInputStream stream, long pos)
+  {
+    try {
+      stream.seek(pos);
+    }
+    catch (IOException ex) {
+      throw new RuntimeException(ex.getCause());
+    }
+  }
+
+  private transient FileSystem fs;
+  private static final Logger logger = LoggerFactory.getLogger(AbstractHDFSInputOperator.class);
 }

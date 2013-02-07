@@ -4,12 +4,9 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.InputOperator;
 import java.io.FileInputStream;
 import java.io.IOException;
-import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,30 +21,17 @@ import org.slf4j.LoggerFactory;
  * Users need to implement getRecord to get HDFS input adapter to work as per their choice<br>
  * <br>
  */
-public abstract class AbstractLocalFSInputOperator extends BaseOperator implements InputOperator
+public abstract class AbstractLocalFSInputOperator extends AbstractFileInputOperator<FileInputStream>
 {
-  private static final Logger logger = LoggerFactory.getLogger(AbstractLocalFSInputOperator.class);
-  protected transient FileInputStream input;
-  @NotNull
-  private String filePath;
-
-  public String getFilePath()
+  @Override
+  public FileInputStream openFile(String filePath)
   {
-    return filePath;
-  }
-
-  /**
-   * The file name. This can be a relative path for the default file system
-   * or fully qualified URL as accepted by ({@link org.apache.hadoop.fs.Path}).
-   * For splits with per file size limit, the name needs to
-   * contain substitution tokens to generate unique file names.
-   * Example: file:///mydir/adviews.out.%(operatorId).part-%(partIndex)
-   *
-   * @param filePath
-   */
-  public void setFilePath(String filePath)
-  {
-    this.filePath = filePath;
+    try {
+      return new FileInputStream(filePath);
+    }
+    catch (IOException ex) {
+      throw new RuntimeException(ex);
+    }
   }
 
   @Override
@@ -56,15 +40,20 @@ public abstract class AbstractLocalFSInputOperator extends BaseOperator implemen
   }
 
   @Override
-  public void endWindow()
+  public void setup(OperatorContext context)
   {
   }
 
   @Override
-  public void setup(OperatorContext context)
+  public void teardown()
+  {
+  }
+
+  @Override
+  public long getFilePointer(FileInputStream stream)
   {
     try {
-      input = new FileInputStream(filePath);
+      return stream.getChannel().position();
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
@@ -72,15 +61,15 @@ public abstract class AbstractLocalFSInputOperator extends BaseOperator implemen
   }
 
   @Override
-  public void teardown()
+  public void seek(FileInputStream stream, long pos)
   {
     try {
-      input.close();
-      input = null;
+      stream.getChannel().position(pos);
     }
     catch (IOException ex) {
-      logger.error("exception on close", ex);
+      throw new RuntimeException(ex);
     }
   }
 
+  private static final Logger logger = LoggerFactory.getLogger(AbstractLocalFSInputOperator.class);
 }
