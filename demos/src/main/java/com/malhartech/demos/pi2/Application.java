@@ -34,6 +34,7 @@ public class Application implements ApplicationFactory
 
     Script calc = dag.addOperator("picalc", new Script());
     calc.setKeepBindings(true);
+    calc.setPassThru(false);
     calc.put("i",0);
     calc.put("count",0);
     calc.setScript("if (x*x+y*y <= "+maxValue*maxValue+") { i++; } count++; i / count * 4");
