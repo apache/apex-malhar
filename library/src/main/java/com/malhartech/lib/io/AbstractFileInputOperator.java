@@ -5,19 +5,11 @@
 package com.malhartech.lib.io;
 
 import com.malhartech.api.ActivationListener;
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.Context;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.InputOperator;
 import java.io.IOException;
 import java.io.InputStream;
-
 import javax.validation.constraints.NotNull;
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,12 +25,9 @@ import org.slf4j.LoggerFactory;
  *
  * @param <STREAM>
  */
-public abstract class AbstractFileInputOperator<STREAM extends InputStream> implements InputOperator, ActivationListener<Context>
+public abstract class AbstractFileInputOperator<STREAM extends InputStream> implements InputOperator, ActivationListener<OperatorContext>
 {
   protected transient STREAM input;
-  private long filepos;
-  @NotNull
-  private String filePath;
 
   public String getFilePath()
   {
@@ -60,7 +49,7 @@ public abstract class AbstractFileInputOperator<STREAM extends InputStream> impl
   }
 
   @Override
-  public void activate(Context ctx)
+  public void activate(OperatorContext ctx)
   {
     input = openFile(filePath);
     seek(input, filepos);
@@ -69,6 +58,7 @@ public abstract class AbstractFileInputOperator<STREAM extends InputStream> impl
   @Override
   public void deactivate()
   {
+    filepos = 0;
     try {
       input.close();
       input = null;
@@ -93,7 +83,15 @@ public abstract class AbstractFileInputOperator<STREAM extends InputStream> impl
   @Override
   public void endWindow()
   {
-    filepos = getFilePointer(input);
+    try {
+      filepos = getFilePointer(input);
+    }
+    catch (RuntimeException re) {
+      if (notWarned) {
+        logger.warn("Exception while saving the file position, it makes the recovery impossible!", re.getCause());
+        notWarned = false;
+      }
+    }
   }
 
   /**
@@ -122,5 +120,9 @@ public abstract class AbstractFileInputOperator<STREAM extends InputStream> impl
    */
   public abstract void seek(STREAM stream, long pos);
 
+  @NotNull
+  private String filePath;
+  private long filepos;
+  private transient boolean notWarned;
   private static final Logger logger = LoggerFactory.getLogger(AbstractFileInputOperator.class);
 }
