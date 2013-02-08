@@ -19,7 +19,6 @@ public class Application implements ApplicationFactory
   public DAG getApplication(Configuration conf)
   {
     DAG dag = new DAG(conf);
-    dag.getAttributes().attr(DAG.STRAM_CHECKPOINT_INTERVAL_MILLIS).set(0); // disable operator state saving
 
     RandomWordInputModule wordGenerator = dag.addOperator("wordGenerator", RandomWordInputModule.class);
 //    DoNothingModule<byte[]> noOpProcessor = dag.addOperator("noOpProcessor", new DoNothingModule<byte[]>());
