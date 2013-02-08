@@ -12,6 +12,8 @@ import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.script.*;
 
 /**
@@ -44,7 +46,7 @@ public class Script extends BaseOperator
         }
       }
       catch (ScriptException ex) {
-        System.err.println("Script Error: " + ex.toString());
+        Logger.getLogger(Script.class.getName()).log(Level.SEVERE, null, ex);
       }
       if (isPassThru) {
         outBindings.emit(new HashMap<String, Object>(engine.getBindings(ScriptContext.ENGINE_SCOPE)));
