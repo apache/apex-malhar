@@ -7,7 +7,6 @@ package com.malhartech.contrib.sqlite;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
 import com.malhartech.lib.io.ConsoleOutputOperator;
-import java.util.logging.Logger;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.LoggerFactory;
 

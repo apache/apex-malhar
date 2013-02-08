@@ -23,9 +23,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Get stock information from Yahoo finance site. <p>
+ * Demonstrates SQL stream feature by having two separate feeds from Yahoo Finance and join them together in SQL <p>
  *
- * @author Zhongjian Wang <zhongjian@malhar-inc.com>
+ * @author David Yan <davidyan@malhar-inc.com>
  */
 public class YahooFinanceCSVInputOperator extends SimpleSinglePortInputOperator<HashMap<String, Object>> implements Runnable
 {

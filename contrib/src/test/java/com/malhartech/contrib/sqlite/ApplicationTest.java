@@ -5,7 +5,6 @@
 package com.malhartech.contrib.sqlite;
 
 import com.malhartech.demos.apachelog.*;
-import com.malhartech.demos.apachelog.*;
 import com.malhartech.stram.StramLocalCluster;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;

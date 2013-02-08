@@ -14,7 +14,7 @@ import org.apache.hadoop.conf.Configuration;
 
 /**
  *
- * @author Zhongjian Wang <zhongjian@malhar-inc.com>
+ * @author David Yan <davidyan@malhar-inc.com>
  */
 public class Application implements ApplicationFactory
 {
