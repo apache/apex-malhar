@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Demonstrates SQL stream feature by having two separate feeds from Yahoo Finance and join them together in SQL <p>
+ * Grabs Yahoo Finance quotes data and emits HashMap, with key equals the format name (e.g. "s0") <p>
  *
  * @author David Yan <davidyan@malhar-inc.com>
  */

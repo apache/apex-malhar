@@ -8,7 +8,6 @@ import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import org.apache.hadoop.conf.Configuration;
-import org.slf4j.LoggerFactory;
 
 /**
  * This demo will output the stock market data from yahoo finance
@@ -17,9 +16,6 @@ import org.slf4j.LoggerFactory;
  */
 public class Application implements ApplicationFactory
 {
-  private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Application.class);
-  private boolean allInline = false;
-
   @Override
   public DAG getApplication(Configuration conf) {
     String[] symbols = {"YHOO","GOOG","AAPL","FB","AMZN","NFLX","IBM"};
@@ -57,7 +53,7 @@ public class Application implements ApplicationFactory
     dag.addStream("input1_sql", input1.outputPort, sqlOper.in1);
     dag.addStream("input2_sql", input2.outputPort, sqlOper.in2);
 
-    dag.addStream("result_console", sqlOper.result, consoleOperator.input).setInline(allInline);
+    dag.addStream("result_console", sqlOper.result, consoleOperator.input);
 
     return dag;
   }
