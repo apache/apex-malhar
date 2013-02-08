@@ -49,7 +49,7 @@
           <version>2.12</version>
           <configuration>
               <skipTests>${skip.contrib.module.tests}</skipTests>
-              <argLine>-Djava.library.path=/usr/local/lib</argLine>
+              <argLine>-Djava.library.path=${user.home}/.m2/repository/com/almworks/sqlite4java/libsqlite4java-linux-amd64/0.282</argLine>
           </configuration>
       </plugin>
       <plugin>
