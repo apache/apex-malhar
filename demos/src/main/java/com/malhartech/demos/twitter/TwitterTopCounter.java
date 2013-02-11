@@ -39,6 +39,7 @@ public class TwitterTopCounter extends DAG
   public TwitterTopCounter(Configuration conf)
   {
     super(conf);
+    setAttribute(DAG.STRAM_APPNAME, "TwitterDemoApplication");
 
     // Setup the operator to get the data from twitter sample stream injected into the system.
     TwitterSampleInput twitterFeed = addOperator("TweetSampler", TwitterSampleInput.class);
