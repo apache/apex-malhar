@@ -19,22 +19,6 @@ public class ApplicationTest
   {
     Application app = new Application();
     final StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));
-
-    new Thread("LocalClusterController")
-    {
-      @Override
-      public void run()
-      {
-        try {
-          Thread.sleep(60000);
-        }
-        catch (InterruptedException ex) {
-        }
-
-        lc.shutdown();
-      }
-    }.start();
-
-    lc.run();
+    lc.run(60000);
   }
 }
