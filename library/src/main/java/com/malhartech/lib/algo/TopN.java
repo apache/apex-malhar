@@ -50,7 +50,7 @@ import java.util.HashMap;
  * <tr><td>Data (process())</td><td>{d=46,e=2}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{d=1,a=4}</td><td></td></tr>
  * <tr><td>Data (process())</td><td>{d=4,a=23,e=2}</td><td></td></tr>
- * <tr><td>End Window (endWindow())</td><td>N/A</td><td>{a=[10,5]}<br>{b=[20,5]}<br>{c=[1000,2]}<br>{d=[55,46}<br>{e=[2,2]}<br>{h=[20]}</td></tr>
+ * <tr><td>End Window (endWindow())</td><td>N/A</td><td>{a=[10,5]}<br>{b=[20,12]}<br>{c=[1000,2]}<br>{d=[55,46}<br>{e=[2,2]}<br>{h=[20]}</td></tr>
  * </table>
  * <br>
  * @author Amol Kekre (amol@malhar-inc.com)<br>
