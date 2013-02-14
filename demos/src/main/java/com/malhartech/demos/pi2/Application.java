@@ -10,6 +10,9 @@ import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.math.Script;
 import com.malhartech.lib.stream.RoundRobinHashMap;
 import com.malhartech.lib.testbench.RandomEventGenerator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.script.ScriptException;
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -37,7 +40,9 @@ public class Application implements ApplicationFactory
     calc.setPassThru(false);
     calc.put("i",0);
     calc.put("count",0);
-    calc.setScript("if (x*x+y*y <= "+maxValue*maxValue+") { i++; } count++; i / count * 4");
+    calc.addPrerunScript("function pi() { if (x*x+y*y <= "+maxValue*maxValue+") { i++; } count++; return i / count * 4; }");
+
+    calc.setInvoke("pi");
 
     dag.addStream("rand_rrhm", rand.integer_data, rrhm.data);
     dag.addStream("rrhm_calc", rrhm.map, calc.inBindings);

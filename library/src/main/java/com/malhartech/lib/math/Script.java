@@ -23,9 +23,15 @@ import javax.script.*;
  */
 public class Script extends BaseOperator
 {
+  public enum Type
+  {
+    EVAL, INVOKE
+  };
+
   protected transient ScriptEngineManager sem = new ScriptEngineManager();
   protected transient ScriptEngine engine = sem.getEngineByName("JavaScript");
-  protected String script;
+  protected String scriptOrFunction;
+  protected Type type = Type.EVAL;
   protected boolean keepContext = true;
   protected boolean isPassThru = true;
   protected transient SimpleScriptContext scriptContext = new SimpleScriptContext();
@@ -44,12 +50,23 @@ public class Script extends BaseOperator
       }
       Object res;
       try {
-        evalResult = engine.eval(script, scriptContext);
+        switch (type) {
+          case EVAL:
+            evalResult = engine.eval(scriptOrFunction, scriptContext);
+            break;
+          case INVOKE:
+            evalResult = ((Invocable)engine).invokeFunction(scriptOrFunction);
+            break;
+        }
+
         if (isPassThru) {
           result.emit(evalResult);
         }
       }
       catch (ScriptException ex) {
+        Logger.getLogger(Script.class.getName()).log(Level.SEVERE, null, ex);
+      }
+      catch (NoSuchMethodException ex) {
         Logger.getLogger(Script.class.getName()).log(Level.SEVERE, null, ex);
       }
       if (isPassThru) {
@@ -73,12 +90,19 @@ public class Script extends BaseOperator
     this.keepContext = keepContext;
   }
 
-  public void setScript(String script)
+  public void setEval(String script)
   {
-    this.script = script;
+    this.type = Type.EVAL;
+    this.scriptOrFunction = script;
   }
 
-  public void addPrerunScript(String script) throws ScriptException
+  public void setInvoke(String functionName)
+  {
+    this.type = Type.INVOKE;
+    this.scriptOrFunction = functionName;
+  }
+
+  public void addPrerunScript(String script)
   {
     prerunScripts.add(script);
   }
