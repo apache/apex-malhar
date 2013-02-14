@@ -65,7 +65,7 @@ public class SqliteStreamOperator extends BaseOperator
   }
 
   protected String statement;
-  protected ArrayList<SQLiteStatement> preparedInsertStatements = new ArrayList<SQLiteStatement>(5);
+  protected transient ArrayList<SQLiteStatement> preparedInsertStatements = new ArrayList<SQLiteStatement>(5);
   protected ArrayList<InputSchema> inputSchemas = new ArrayList<InputSchema>(5);
   protected transient ArrayList<Object> bindings;
   protected transient SQLiteConnection db;
