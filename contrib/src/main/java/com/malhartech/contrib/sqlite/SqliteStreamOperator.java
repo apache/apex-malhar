@@ -204,16 +204,6 @@ public class SqliteStreamOperator extends BaseOperator
   public void processTuple(int tableNum, HashMap<String, Object> tuple)
   {
     InputSchema inputSchema = inputSchemas.get(tableNum);
-    String columnNames = "";
-    String columnValues = "";
-    for (Map.Entry<String, Object> entry: tuple.entrySet()) {
-      if (!columnNames.isEmpty()) {
-        columnNames += ",";
-        columnValues += ",";
-      }
-      columnNames += entry.getKey();
-      columnValues += "'" + StringEscapeUtils.escapeSql(entry.getValue().toString()) + "'";
-    }
 
     SQLiteStatement insertStatement = preparedInsertStatements.get(tableNum);
     try {
