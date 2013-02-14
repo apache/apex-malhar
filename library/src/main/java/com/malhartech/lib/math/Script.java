@@ -36,7 +36,7 @@ public class Script extends BaseOperator
   protected boolean isPassThru = true;
   protected transient SimpleScriptContext scriptContext = new SimpleScriptContext();
   protected SimpleBindings scriptBindings = new SimpleBindings();
-  protected ArrayList<String> prerunScripts = new ArrayList<String>();
+  protected ArrayList<String> setupScripts = new ArrayList<String>();
   protected Object evalResult;
 
   @InputPortFieldAnnotation(name = "inBindings", optional = true)
@@ -102,9 +102,9 @@ public class Script extends BaseOperator
     this.scriptOrFunction = functionName;
   }
 
-  public void addPrerunScript(String script)
+  public void addSetupScript(String script)
   {
-    prerunScripts.add(script);
+    setupScripts.add(script);
   }
 
   public void setPassThru(boolean isPassThru)
@@ -131,7 +131,7 @@ public class Script extends BaseOperator
     this.scriptContext.setBindings(scriptBindings, ScriptContext.ENGINE_SCOPE);
     engine.setContext(this.scriptContext);
     try {
-      for (String s: prerunScripts) {
+      for (String s: setupScripts) {
         engine.eval(s, this.scriptContext);
       }
     }

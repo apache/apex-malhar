@@ -40,7 +40,7 @@ public class Application implements ApplicationFactory
     calc.setPassThru(false);
     calc.put("i",0);
     calc.put("count",0);
-    calc.addPrerunScript("function pi() { if (x*x+y*y <= "+maxValue*maxValue+") { i++; } count++; return i / count * 4; }");
+    calc.addSetupScript("function pi() { if (x*x+y*y <= "+maxValue*maxValue+") { i++; } count++; return i / count * 4; }");
 
     calc.setInvoke("pi");
 
