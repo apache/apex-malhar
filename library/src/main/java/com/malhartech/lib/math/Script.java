@@ -10,6 +10,7 @@ import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -27,7 +28,9 @@ public class Script extends BaseOperator
   protected String script;
   protected boolean keepContext = true;
   protected boolean isPassThru = true;
-  protected SimpleScriptContext context = new SimpleScriptContext();
+  protected transient SimpleScriptContext scriptContext = new SimpleScriptContext();
+  protected SimpleBindings scriptBindings = new SimpleBindings();
+  protected ArrayList<String> prerunScripts = new ArrayList<String>();
   protected Object evalResult;
 
   @InputPortFieldAnnotation(name = "inBindings", optional = true)
@@ -41,7 +44,7 @@ public class Script extends BaseOperator
       }
       Object res;
       try {
-        evalResult = engine.eval(script, context);
+        evalResult = engine.eval(script, scriptContext);
         if (isPassThru) {
           result.emit(evalResult);
         }
@@ -75,9 +78,9 @@ public class Script extends BaseOperator
     this.script = script;
   }
 
-  public void runScript(String script) throws ScriptException
+  public void addPrerunScript(String script) throws ScriptException
   {
-    engine.eval(script, context);
+    prerunScripts.add(script);
   }
 
   public void setPassThru(boolean isPassThru)
@@ -90,23 +93,32 @@ public class Script extends BaseOperator
   {
     if (!isPassThru) {
       result.emit(evalResult);
-      outBindings.emit(new HashMap<String, Object>(this.context.getBindings(ScriptContext.ENGINE_SCOPE)));
+      outBindings.emit(new HashMap<String, Object>(this.scriptContext.getBindings(ScriptContext.ENGINE_SCOPE)));
     }
     if (!keepContext) {
-      this.context = new SimpleScriptContext();
-      engine.setContext(this.context);
+      this.scriptContext = new SimpleScriptContext();
+      engine.setContext(this.scriptContext);
     }
   }
 
   @Override
   public void setup(OperatorContext context)
   {
-    engine.setContext(this.context);
+    this.scriptContext.setBindings(scriptBindings, ScriptContext.ENGINE_SCOPE);
+    engine.setContext(this.scriptContext);
+    try {
+      for (String s: prerunScripts) {
+        engine.eval(s, this.scriptContext);
+      }
+    }
+    catch (ScriptException ex) {
+      Logger.getLogger(Script.class.getName()).log(Level.SEVERE, null, ex);
+    }
   }
 
   public void put(String key, Object val)
   {
-    this.context.getBindings(ScriptContext.ENGINE_SCOPE).put(key, val);
+    scriptBindings.put(key, val);
   }
 
 }
