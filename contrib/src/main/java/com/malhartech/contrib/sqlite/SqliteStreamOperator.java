@@ -12,6 +12,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.contrib.sqlite.SqliteStreamOperator.InputSchema.ColumnTypeAndIndex;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,6 +29,13 @@ public class SqliteStreamOperator extends BaseOperator
 {
   public static class InputSchema
   {
+    public static class ColumnTypeAndIndex
+    {
+      public String type;
+      public int bindIndex = 0;
+      public boolean isColumnIndex = false;
+    }
+
     /**
      * the name of the input "table"
      */
@@ -35,7 +43,7 @@ public class SqliteStreamOperator extends BaseOperator
     /**
      * key is the name of the column, and value is the SQL type
      */
-    public HashMap<String, String> columnTypes = new HashMap<String, String>();
+    public HashMap<String, ColumnTypeAndIndex> columnTypes = new HashMap<String, ColumnTypeAndIndex>();
 
     private InputSchema()
     {
@@ -46,15 +54,19 @@ public class SqliteStreamOperator extends BaseOperator
       this.name = name;
     }
 
-    public void setColumnType(String columnName, String columnType)
+    public void setColumnType(String columnName, String columnType, boolean isColumnIndex)
     {
-      columnTypes.put(columnName, columnType);
+      ColumnTypeAndIndex t = new ColumnTypeAndIndex();
+      t.type = columnType;
+      t.isColumnIndex = isColumnIndex;
+      columnTypes.put(columnName, t);
     }
 
   }
 
   protected String statement;
-  protected InputSchema[] inputSchemas = new InputSchema[5];
+  protected ArrayList<SQLiteStatement> preparedInsertStatements = new ArrayList<SQLiteStatement>(5);
+  protected ArrayList<InputSchema> inputSchemas = new ArrayList<InputSchema>(5);
   protected transient ArrayList<Object> bindings;
   protected transient SQLiteConnection db;
   @InputPortFieldAnnotation(name = "bindings", optional = true)
@@ -127,7 +139,7 @@ public class SqliteStreamOperator extends BaseOperator
 
   public void setInputSchema(int inputPortIndex, InputSchema inputSchema)
   {
-    inputSchemas[inputPortIndex] = inputSchema;
+    inputSchemas.add(inputPortIndex, inputSchema);
   }
 
   @Override
@@ -139,24 +151,50 @@ public class SqliteStreamOperator extends BaseOperator
     try {
       db.open(true);
       // create the temporary tables here
-      for (InputSchema inputSchema: inputSchemas) {
+      SQLiteStatement st = db.prepare("BEGIN");
+      st.step();
+      st.dispose();
+      for (int i = 0; i < inputSchemas.size(); i++) {
+        InputSchema inputSchema = inputSchemas.get(i);
+        ArrayList<String> indexes = new ArrayList<String>();
         if (inputSchema == null || inputSchema.columnTypes.isEmpty()) {
           continue;
         }
         String columnSpec = "";
-        for (Map.Entry<String, String> entry: inputSchema.columnTypes.entrySet()) {
+        String columnNames = "";
+        String insertQuestionMarks = "";
+        int j = 0;
+        for (Map.Entry<String, ColumnTypeAndIndex> entry: inputSchema.columnTypes.entrySet()) {
           if (!columnSpec.isEmpty()) {
             columnSpec += ",";
+            columnNames += ",";
+            insertQuestionMarks += ",";
           }
           columnSpec += entry.getKey();
           columnSpec += " ";
-          columnSpec += entry.getValue();
+          columnSpec += entry.getValue().type;
+          if (entry.getValue().isColumnIndex) {
+            indexes.add(entry.getKey());
+          }
+          columnNames += entry.getKey();
+          insertQuestionMarks += "?";
+          entry.getValue().bindIndex = ++j;
         }
         String createTempTableStmt = "CREATE TEMP TABLE " + inputSchema.name + "(" + columnSpec + ")";
-        SQLiteStatement st = db.prepare(createTempTableStmt);
+        st = db.prepare(createTempTableStmt);
         st.step();
         st.dispose();
+        for (String index : indexes) {
+          String createIndexStmt = "CREATE INDEX " + inputSchema.name + "_" + index + "_idx ON " + inputSchema.name + " (" + index + ")";
+          st = db.prepare(createIndexStmt);
+          st.step();
+          st.dispose();
+        }
+        String insertStmt = "INSERT INTO " + inputSchema.name + " (" + columnNames + ") VALUES (" + insertQuestionMarks + ")";
+
+        preparedInsertStatements.add(i, db.prepare(insertStmt));
       }
+
     }
     catch (SQLiteException ex) {
       Logger.getLogger(SqliteStreamOperator.class.getName()).log(Level.SEVERE, null, ex);
@@ -165,7 +203,7 @@ public class SqliteStreamOperator extends BaseOperator
 
   public void processTuple(int tableNum, HashMap<String, Object> tuple)
   {
-    InputSchema inputSchema = inputSchemas[tableNum];
+    InputSchema inputSchema = inputSchemas.get(tableNum);
     String columnNames = "";
     String columnValues = "";
     for (Map.Entry<String, Object> entry: tuple.entrySet()) {
@@ -177,10 +215,18 @@ public class SqliteStreamOperator extends BaseOperator
       columnValues += "'" + StringEscapeUtils.escapeSql(entry.getValue().toString()) + "'";
     }
 
-    String insertStmt = "INSERT INTO " + inputSchema.name + " (" + columnNames + ") VALUES (" + columnValues + ")";
+    SQLiteStatement insertStatement = preparedInsertStatements.get(tableNum);
     try {
-      SQLiteStatement st = db.prepare(insertStmt);
-      st.step();
+      for (Map.Entry<String, Object> entry: tuple.entrySet()) {
+        ColumnTypeAndIndex t = inputSchema.columnTypes.get(entry.getKey());
+        if (t != null && t.bindIndex != 0) {
+          //System.out.println("Binding: "+entry.getValue().toString()+" to "+t.bindIndex);
+          insertStatement.bind(t.bindIndex, entry.getValue().toString());
+        }
+      }
+
+      insertStatement.step();
+      insertStatement.reset();
     }
     catch (SQLiteException ex) {
       Logger.getLogger(SqliteStreamOperator.class.getName()).log(Level.SEVERE, null, ex);
@@ -191,7 +237,10 @@ public class SqliteStreamOperator extends BaseOperator
   public void endWindow()
   {
     try {
-      SQLiteStatement st = db.prepare(statement);
+      SQLiteStatement st = db.prepare("COMMIT");
+      st.step();
+      st.dispose();
+      st = db.prepare(statement);
       if (bindings != null) {
         for (int i = 0; i < bindings.size(); i++) {
           st.bind(i, bindings.get(i).toString());
