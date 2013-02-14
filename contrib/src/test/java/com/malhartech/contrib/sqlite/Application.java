@@ -38,11 +38,11 @@ public class Application implements ApplicationFactory
 
     SqliteStreamOperator.InputSchema inputSchema1 = new SqliteStreamOperator.InputSchema("t1");
     SqliteStreamOperator.InputSchema inputSchema2 = new SqliteStreamOperator.InputSchema("t2");
-    inputSchema1.setColumnType("s0", "string", true); // symbol
-    inputSchema1.setColumnType("l1", "float", false);  // last trade
-    inputSchema2.setColumnType("s0", "string", true); // symbol
-    inputSchema2.setColumnType("e0", "float", false);  // EPS
-    inputSchema2.setColumnType("b4", "float", false);  // Book value
+    inputSchema1.setColumnInfo("s0", "string", true); // symbol
+    inputSchema1.setColumnInfo("l1", "float", false);  // last trade
+    inputSchema2.setColumnInfo("s0", "string", true); // symbol
+    inputSchema2.setColumnInfo("e0", "float", false);  // EPS
+    inputSchema2.setColumnInfo("b4", "float", false);  // Book value
 
     sqlOper.setInputSchema(0, inputSchema1);
     sqlOper.setInputSchema(1, inputSchema2);

@@ -12,7 +12,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.contrib.sqlite.SqliteStreamOperator.InputSchema.ColumnTypeAndIndex;
+import com.malhartech.contrib.sqlite.SqliteStreamOperator.InputSchema.ColumnInfo;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +29,7 @@ public class SqliteStreamOperator extends BaseOperator
 {
   public static class InputSchema
   {
-    public static class ColumnTypeAndIndex
+    public static class ColumnInfo
     {
       public String type;
       public int bindIndex = 0;
@@ -43,7 +43,7 @@ public class SqliteStreamOperator extends BaseOperator
     /**
      * key is the name of the column, and value is the SQL type
      */
-    public HashMap<String, ColumnTypeAndIndex> columnTypes = new HashMap<String, ColumnTypeAndIndex>();
+    public HashMap<String, ColumnInfo> columnTypes = new HashMap<String, ColumnInfo>();
 
     private InputSchema()
     {
@@ -54,9 +54,9 @@ public class SqliteStreamOperator extends BaseOperator
       this.name = name;
     }
 
-    public void setColumnType(String columnName, String columnType, boolean isColumnIndex)
+    public void setColumnInfo(String columnName, String columnType, boolean isColumnIndex)
     {
-      ColumnTypeAndIndex t = new ColumnTypeAndIndex();
+      ColumnInfo t = new ColumnInfo();
       t.type = columnType;
       t.isColumnIndex = isColumnIndex;
       columnTypes.put(columnName, t);
@@ -164,7 +164,7 @@ public class SqliteStreamOperator extends BaseOperator
         String columnNames = "";
         String insertQuestionMarks = "";
         int j = 0;
-        for (Map.Entry<String, ColumnTypeAndIndex> entry: inputSchema.columnTypes.entrySet()) {
+        for (Map.Entry<String, ColumnInfo> entry: inputSchema.columnTypes.entrySet()) {
           if (!columnSpec.isEmpty()) {
             columnSpec += ",";
             columnNames += ",";
@@ -208,7 +208,7 @@ public class SqliteStreamOperator extends BaseOperator
     SQLiteStatement insertStatement = preparedInsertStatements.get(tableNum);
     try {
       for (Map.Entry<String, Object> entry: tuple.entrySet()) {
-        ColumnTypeAndIndex t = inputSchema.columnTypes.get(entry.getKey());
+        ColumnInfo t = inputSchema.columnTypes.get(entry.getKey());
         if (t != null && t.bindIndex != 0) {
           //System.out.println("Binding: "+entry.getValue().toString()+" to "+t.bindIndex);
           insertStatement.bind(t.bindIndex, entry.getValue().toString());
