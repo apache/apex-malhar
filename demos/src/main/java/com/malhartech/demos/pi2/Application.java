@@ -33,7 +33,7 @@ public class Application implements ApplicationFactory
     rrhm.setKeys(new String[] { "x", "y" });
 
     Script calc = dag.addOperator("picalc", new Script());
-    calc.setKeepBindings(true);
+    calc.setKeepContext(true);
     calc.setPassThru(false);
     calc.put("i",0);
     calc.put("count",0);

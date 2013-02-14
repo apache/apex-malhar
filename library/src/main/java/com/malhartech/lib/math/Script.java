@@ -25,10 +25,11 @@ public class Script extends BaseOperator
   protected transient ScriptEngineManager sem = new ScriptEngineManager();
   protected transient ScriptEngine engine = sem.getEngineByName("JavaScript");
   protected String script;
-  protected boolean keepBindings = false;
+  protected boolean keepContext = true;
   protected boolean isPassThru = true;
-  protected SimpleBindings bindings = new SimpleBindings();
+  protected SimpleScriptContext context = new SimpleScriptContext();
   protected Object evalResult;
+
   @InputPortFieldAnnotation(name = "inBindings", optional = true)
   public final transient DefaultInputPort<Map<String, Object>> inBindings = new DefaultInputPort<Map<String, Object>>(this)
   {
@@ -40,7 +41,7 @@ public class Script extends BaseOperator
       }
       Object res;
       try {
-        evalResult = engine.eval(script);
+        evalResult = engine.eval(script, context);
         if (isPassThru) {
           result.emit(evalResult);
         }
@@ -64,14 +65,19 @@ public class Script extends BaseOperator
     engine = sem.getEngineByName(name);
   }
 
-  public void setKeepBindings(boolean keepBindings)
+  public void setKeepContext(boolean keepContext)
   {
-    this.keepBindings = keepBindings;
+    this.keepContext = keepContext;
   }
 
   public void setScript(String script)
   {
     this.script = script;
+  }
+
+  public void runScript(String script) throws ScriptException
+  {
+    engine.eval(script, context);
   }
 
   public void setPassThru(boolean isPassThru)
@@ -84,22 +90,23 @@ public class Script extends BaseOperator
   {
     if (!isPassThru) {
       result.emit(evalResult);
-      outBindings.emit(new HashMap<String, Object>(engine.getBindings(ScriptContext.ENGINE_SCOPE)));
+      outBindings.emit(new HashMap<String, Object>(this.context.getBindings(ScriptContext.ENGINE_SCOPE)));
     }
-    if (!keepBindings) {
-      engine.getBindings(ScriptContext.ENGINE_SCOPE).clear();
+    if (!keepContext) {
+      this.context = new SimpleScriptContext();
+      engine.setContext(this.context);
     }
   }
 
   @Override
   public void setup(OperatorContext context)
   {
-    engine.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
+    engine.setContext(this.context);
   }
 
   public void put(String key, Object val)
   {
-    bindings.put(key, val);
+    this.context.getBindings(ScriptContext.ENGINE_SCOPE).put(key, val);
   }
 
 }
