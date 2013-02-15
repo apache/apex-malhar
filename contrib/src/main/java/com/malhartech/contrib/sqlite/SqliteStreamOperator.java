@@ -10,6 +10,7 @@ import com.almworks.sqlite4java.SQLiteStatement;
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.contrib.sqlite.SqliteStreamOperator.InputSchema.ColumnInfo;
@@ -43,7 +44,7 @@ public class SqliteStreamOperator extends BaseOperator
     /**
      * key is the name of the column, and value is the SQL type
      */
-    public HashMap<String, ColumnInfo> columnTypes = new HashMap<String, ColumnInfo>();
+    public HashMap<String, ColumnInfo> columnInfoMap = new HashMap<String, ColumnInfo>();
 
     private InputSchema()
     {
@@ -59,13 +60,17 @@ public class SqliteStreamOperator extends BaseOperator
       ColumnInfo t = new ColumnInfo();
       t.type = columnType;
       t.isColumnIndex = isColumnIndex;
-      columnTypes.put(columnName, t);
+      columnInfoMap.put(columnName, t);
     }
 
   }
 
   protected String statement;
-  protected transient ArrayList<SQLiteStatement> preparedInsertStatements = new ArrayList<SQLiteStatement>(5);
+  protected transient ArrayList<SQLiteStatement> insertStatements = new ArrayList<SQLiteStatement>(5);
+  protected transient SQLiteStatement beginStatement;
+  protected transient SQLiteStatement commitStatement;
+  protected transient SQLiteStatement execStatement;
+  protected transient ArrayList<SQLiteStatement> deleteStatements = new ArrayList<SQLiteStatement>(5);
   protected ArrayList<InputSchema> inputSchemas = new ArrayList<InputSchema>(5);
   protected transient ArrayList<Object> bindings;
   protected transient SQLiteConnection db;
@@ -143,28 +148,26 @@ public class SqliteStreamOperator extends BaseOperator
   }
 
   @Override
-  public void beginWindow(long windowId)
+  public void setup(OperatorContext context)
   {
     db = new SQLiteConnection(new File("/tmp/sqlite.db"));
     Logger.getLogger("com.almworks.sqlite4java").setLevel(Level.SEVERE);
+    SQLiteStatement st;
 
     try {
       db.open(true);
       // create the temporary tables here
-      SQLiteStatement st = db.prepare("BEGIN");
-      st.step();
-      st.dispose();
       for (int i = 0; i < inputSchemas.size(); i++) {
         InputSchema inputSchema = inputSchemas.get(i);
         ArrayList<String> indexes = new ArrayList<String>();
-        if (inputSchema == null || inputSchema.columnTypes.isEmpty()) {
+        if (inputSchema == null || inputSchema.columnInfoMap.isEmpty()) {
           continue;
         }
         String columnSpec = "";
         String columnNames = "";
         String insertQuestionMarks = "";
         int j = 0;
-        for (Map.Entry<String, ColumnInfo> entry: inputSchema.columnTypes.entrySet()) {
+        for (Map.Entry<String, ColumnInfo> entry: inputSchema.columnInfoMap.entrySet()) {
           if (!columnSpec.isEmpty()) {
             columnSpec += ",";
             columnNames += ",";
@@ -184,7 +187,7 @@ public class SqliteStreamOperator extends BaseOperator
         st = db.prepare(createTempTableStmt);
         st.step();
         st.dispose();
-        for (String index : indexes) {
+        for (String index: indexes) {
           String createIndexStmt = "CREATE INDEX " + inputSchema.name + "_" + index + "_idx ON " + inputSchema.name + " (" + index + ")";
           st = db.prepare(createIndexStmt);
           st.step();
@@ -192,9 +195,26 @@ public class SqliteStreamOperator extends BaseOperator
         }
         String insertStmt = "INSERT INTO " + inputSchema.name + " (" + columnNames + ") VALUES (" + insertQuestionMarks + ")";
 
-        preparedInsertStatements.add(i, db.prepare(insertStmt));
+        insertStatements.add(i, db.prepare(insertStmt));
+        // We are calling "DELETE FROM" on the tables and because of the "truncate optimization" in sqlite, it should be fast.
+        // See http://sqlite.org/lang_delete.html
+        deleteStatements.add(i, db.prepare("DELETE FROM " + inputSchema.name));
       }
+      beginStatement = db.prepare("BEGIN");
+      commitStatement = db.prepare("COMMIT");
+      execStatement = db.prepare(statement);
+    }
+    catch (SQLiteException ex) {
+      Logger.getLogger(SqliteStreamOperator.class.getName()).log(Level.SEVERE, null, ex);
+    }
+  }
 
+  @Override
+  public void beginWindow(long windowId)
+  {
+    try {
+      beginStatement.step();
+      beginStatement.reset();
     }
     catch (SQLiteException ex) {
       Logger.getLogger(SqliteStreamOperator.class.getName()).log(Level.SEVERE, null, ex);
@@ -205,10 +225,10 @@ public class SqliteStreamOperator extends BaseOperator
   {
     InputSchema inputSchema = inputSchemas.get(tableNum);
 
-    SQLiteStatement insertStatement = preparedInsertStatements.get(tableNum);
+    SQLiteStatement insertStatement = insertStatements.get(tableNum);
     try {
       for (Map.Entry<String, Object> entry: tuple.entrySet()) {
-        ColumnInfo t = inputSchema.columnTypes.get(entry.getKey());
+        ColumnInfo t = inputSchema.columnInfoMap.get(entry.getKey());
         if (t != null && t.bindIndex != 0) {
           //System.out.println("Binding: "+entry.getValue().toString()+" to "+t.bindIndex);
           insertStatement.bind(t.bindIndex, entry.getValue().toString());
@@ -227,28 +247,37 @@ public class SqliteStreamOperator extends BaseOperator
   public void endWindow()
   {
     try {
-      SQLiteStatement st = db.prepare("COMMIT");
-      st.step();
-      st.dispose();
-      st = db.prepare(statement);
+      commitStatement.step();
+      commitStatement.reset();
       if (bindings != null) {
         for (int i = 0; i < bindings.size(); i++) {
-          st.bind(i, bindings.get(i).toString());
+          execStatement.bind(i, bindings.get(i).toString());
         }
       }
-      while (st.step()) {
-        int columnCount = st.columnCount();
+      while (execStatement.step()) {
+        int columnCount = execStatement.columnCount();
         HashMap<String, Object> resultRow = new HashMap<String, Object>();
         for (int i = 0; i < columnCount; i++) {
-          resultRow.put(st.getColumnName(i), st.columnValue(i));
+          resultRow.put(execStatement.getColumnName(i), execStatement.columnValue(i));
         }
         this.result.emit(resultRow);
+      }
+      execStatement.reset();
+
+      for (SQLiteStatement st: deleteStatements) {
+        st.step();
+        st.reset();
       }
     }
     catch (SQLiteException ex) {
       Logger.getLogger(SqliteStreamOperator.class.getName()).log(Level.SEVERE, null, ex);
     }
     bindings = null;
+  }
+
+  @Override
+  public void teardown()
+  {
     db.dispose();
   }
 
