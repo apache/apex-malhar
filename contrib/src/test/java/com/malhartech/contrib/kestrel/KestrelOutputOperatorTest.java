@@ -32,7 +32,7 @@ public class KestrelOutputOperatorTest
     }
   }
 
-  public class RabbitMQMessageReceiver
+  public class KestrelMessageReceiver
   {
     public HashMap<String, Integer> dataMap = new HashMap<String, Integer>();
     public int count = 0;
@@ -166,7 +166,7 @@ public class KestrelOutputOperatorTest
     producer.setServers(servers);
     dag.addStream("Stream", source.outPort, producer.inputPort).setInline(true);
 
-    RabbitMQMessageReceiver consumer = new RabbitMQMessageReceiver();
+    KestrelMessageReceiver consumer = new KestrelMessageReceiver();
     consumer.setup();
 
     final StramLocalCluster lc = new StramLocalCluster(dag);

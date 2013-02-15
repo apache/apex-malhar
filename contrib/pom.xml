@@ -170,5 +170,11 @@
       <version>0.282</version>
       <type>so</type>
     </dependency>
+    <dependency>
+      <groupId>com.whalin</groupId>
+      <artifactId>Memcached-Java-Client</artifactId>
+      <version>3.0.1</version>
+      <type>jar</type>
+    </dependency>
   </dependencies>
 </project>
