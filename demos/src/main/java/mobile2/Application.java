@@ -113,7 +113,6 @@ public class Application implements ApplicationFactory
       // for testing purposes without server
       ConsoleOutputOperator phoneconsole = getConsoleOperator(dag, "phoneLocationQueryResult");
       dag.addStream("consoledata", movementgen.locations, phoneconsole.input).setInline(true);
-
     }
     return dag;
   }
