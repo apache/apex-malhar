@@ -31,12 +31,15 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class Application implements ApplicationFactory
 {
+  public static final int WINDOW_SIZE_MILLIS = 500;
+
   public static final String P_numGenerators = Application.class.getName() + ".numGenerators";
   public static final String P_generatorVTuplesBlast = Application.class.getName() + ".generatorVTuplesBlast";
   public static final String P_generatorMaxWindowsCount = Application.class.getName() + ".generatorMaxWindowsCount";
   public static final String P_allInline = Application.class.getName() + ".allInline";
   public static final String P_enableHdfs = Application.class.getName() + ".enableHdfs";
   // adjust these depending on execution mode (junit, cli-local, cluster)
+  private int applicationWindow = 5 * 1000 / WINDOW_SIZE_MILLIS;
   private int generatorVTuplesBlast = 1000;
   private int generatorMaxWindowsCount = 100;
   private int generatorWindowCount = 1;
@@ -48,15 +51,16 @@ public class Application implements ApplicationFactory
     generatorVTuplesBlast = 10;
     generatorWindowCount = 5;
     generatorMaxWindowsCount = 20;
+    applicationWindow = 5;
   }
 
   public void setLocalMode()
   {
-    generatorVTuplesBlast = 1000; // keep this number low to not distort window boundaries
+    generatorVTuplesBlast = 1000; // keep low to not distort window boundaries
     //generatorVTuplesBlast = 500000;
     generatorWindowCount = 5;
     //generatorMaxWindowsCount = 50;
-    generatorMaxWindowsCount = 1000;
+    generatorMaxWindowsCount = 1000000;
   }
 
   private void configure(Configuration conf)
@@ -197,6 +201,7 @@ public class Application implements ApplicationFactory
     DAG dag = new DAG(conf);
     // Example of naming an application
     dag.setAttribute(DAG.STRAM_APPNAME, "AdsDemoApplication");
+    dag.setAttribute(DAG.STRAM_WINDOW_SIZE_MILLIS, WINDOW_SIZE_MILLIS); // set the streaming window size to 1 millisec
 
     //dag.getAttributes().attr(DAG.STRAM_MAX_CONTAINERS).setIfAbsent(9);
     EventGenerator viewGen = getPageViewGenOperator("viewGen", dag);
@@ -205,7 +210,10 @@ public class Application implements ApplicationFactory
     EventClassifier adviews = getAdViewsStampOperator("adviews", dag);
     FilteredEventClassifier<Double> insertclicks = getInsertClicksOperator("insertclicks", dag);
     SumCountMap<String, Double> viewAggregate = getSumOperator("viewAggr", dag);
+    dag.setAttribute(viewAggregate, OperatorContext.APPLICATION_WINDOW_COUNT, applicationWindow);
+
     SumCountMap<String, Double> clickAggregate = getSumOperator("clickAggr", dag);
+    dag.setAttribute(clickAggregate, OperatorContext.APPLICATION_WINDOW_COUNT, applicationWindow);
 
     dag.setInputPortAttribute(adviews.event, PortContext.PARTITION_PARALLEL, true);
     dag.addStream("views", viewGen.hash_data, adviews.event).setInline(true);
