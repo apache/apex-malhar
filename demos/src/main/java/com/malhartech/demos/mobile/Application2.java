@@ -2,13 +2,12 @@
  * Copyright (c) 2012-2012 Malhar, Inc.
  * All rights reserved.
  */
-package mobile2;
+package com.malhartech.demos.mobile;
 
 import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
-import com.malhartech.demos.mobile.InvertIndexMapPhone;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.io.HttpInputOperator;
 import com.malhartech.lib.io.HttpOutputOperator;
@@ -26,9 +25,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Mobile Demo Application.<p>
  */
-public class Application implements ApplicationFactory
+public class Application2 implements ApplicationFactory
 {
-  private static final Logger LOG = LoggerFactory.getLogger(Application.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Application2.class);
   public static final String P_phoneRange = com.malhartech.demos.mobile.Application.class.getName() + ".phoneRange";
   private String ajaxServerAddr = null;
   private Range<Integer> phoneRange = Ranges.closed(9000000, 9999999);

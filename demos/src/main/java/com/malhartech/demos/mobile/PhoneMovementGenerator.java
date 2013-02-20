@@ -2,7 +2,7 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package mobile2;
+package com.malhartech.demos.mobile;
 
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
@@ -10,7 +10,6 @@ import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.demos.mobile.InvertIndexMapPhone;
 import com.malhartech.lib.util.HighLow;
 import com.malhartech.lib.util.KeyValPair;
 import java.util.HashMap;

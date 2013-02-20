@@ -2,16 +2,17 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package mobile2;
+package com.malhartech.demos.mobile;
 
+import com.malhartech.demos.mobile.Application2;
 import com.malhartech.stram.StramLocalCluster;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 
 
-public class ApplicationTest
+public class Application2Test
 {
-  public ApplicationTest()
+  public Application2Test()
   {
   }
 
@@ -21,7 +22,7 @@ public class ApplicationTest
   @Test
   public void testGetApplication() throws Exception
   {
-    Application app = new Application();
+    Application2 app = new Application2();
     StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));
     lc.setHeartbeatMonitoringEnabled(false);
     lc.run();
