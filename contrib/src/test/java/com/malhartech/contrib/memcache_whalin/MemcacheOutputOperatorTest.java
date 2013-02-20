@@ -2,22 +2,21 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.contrib.memcache;
+package com.malhartech.contrib.memcache_whalin;
 
+import com.malhartech.contrib.memcache_whalin.AbstractSinglePortMemcacheOutputOperator;
 import com.malhartech.api.*;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.stram.StramLocalCluster;
 import com.malhartech.util.CircularBuffer;
-import java.io.IOException;
-import java.util.ArrayList;
+import com.whalin.MemCached.MemCachedClient;
+import com.whalin.MemCached.SockIOPool;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import net.spy.memcached.AddrUtil;
-import net.spy.memcached.MemcachedClient;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -26,7 +25,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MemcacheOutputOperatorTest
 {
-  private static final Logger logger = LoggerFactory.getLogger(MemcacheOutputOperatorTest.class);
+  private static org.slf4j.Logger logger = LoggerFactory.getLogger(MemcacheOutputOperatorTest.class);
   private static HashMap<String, Integer> sendingData = new HashMap<String, Integer>();
   static int sentTuples = 0;
   final static int totalTuples = 9;
@@ -36,41 +35,54 @@ public class MemcacheOutputOperatorTest
     @Override
     public void processTuple(HashMap<String, Integer> tuple)
     {
-      int exp = 60*60*24*30;
       Iterator it = tuple.entrySet().iterator();
-      Entry<String, Integer> entry = (Entry)it.next();
+      Entry entry = (Entry)it.next();
 
-      client.set(entry.getKey(), exp, entry.getValue());
-//      Object o = client.get(entry.getKey());
-//      System.out.println("o:"+o);
-      ++sentTuples;
+      if (mcc.set((String)entry.getKey(),entry.getValue()) == false) {
+        logger.debug("Set message:" + tuple + " Error!");
+      }
+      else {
+        ++sentTuples;
+      }
     }
   }
 
   public class MemcacheMessageReceiver
   {
-    MemcachedClient client;
-  ArrayList<String> servers = new ArrayList<String>();
     public HashMap<String, Integer> dataMap = new HashMap<String, Integer>();
     public int count = 0;
+    private SockIOPool pool;
+    String[] servers = {"localhost:11211"};
+    MemCachedClient mcc;
 
-    public void addSever(String server) {
-      servers.add(server);
-    }
-    public void setup() {
-    try {
-      client = new MemcachedClient(AddrUtil.getAddresses(servers));
-    }
-    catch (IOException ex) {
-      System.out.println(ex.toString());
-    }
-    GetDataThread gdt = new GetDataThread();
-    gdt.start();
+    public void setMcc(MemCachedClient mcc) {
+      this.mcc = mcc;
     }
 
-    public class GetDataThread extends Thread {
+    public void setup()
+    {
+      pool = SockIOPool.getInstance();
+      pool.setServers(servers);
+      pool.setFailover(true);
+      pool.setInitConn(10);
+      pool.setMinConn(5);
+      pool.setMaxConn(250);
+      pool.setMaintSleep(30);
+      pool.setNagle(false);
+      pool.setSocketTO(3000);
+      pool.setAliveCheck(true);
+      pool.initialize();
+
+      mcc = new MemCachedClient();
+      GetDataThread gdt = new GetDataThread();
+      gdt.start();
+    }
+
+    private class GetDataThread extends Thread
+    {
       @Override
-      public void run() {
+      public void run()
+      {
         boolean working = true;
         while( working ) {
           if( sentTuples != totalTuples ) {
@@ -84,7 +96,7 @@ public class MemcacheOutputOperatorTest
           }
           for(  Entry<String, Integer> e: sendingData.entrySet() ) {
             String key = e.getKey();
-            Object value = client.get(key);
+            Object value = mcc.get(key);
             if( value == null ) {
               System.err.println("Exception get null value!!!!!");
               working = false;
@@ -101,6 +113,9 @@ public class MemcacheOutputOperatorTest
       }
     }
 
+    public void teardown()
+    {
+    }
   }
 
   public static class SourceModule extends BaseOperator
@@ -159,21 +174,20 @@ public class MemcacheOutputOperatorTest
     }
   }
 
-
   @Test
-  public void testDag() throws Exception {
+  public void testDag() throws Exception
+  {
     final int testNum = 3;
-    String server = "localhost:11211";
 
     DAG dag = new DAG();
     SourceModule source = dag.addOperator("source", SourceModule.class);
     source.setTestNum(testNum);
     TestMemcacheOutputOperator producer = dag.addOperator("producer", new TestMemcacheOutputOperator());
-    producer.addServer(server);
+    String[] servers = {"localhost:11211"};
+    producer.setServers(servers);
     dag.addStream("Stream", source.outPort, producer.inputPort).setInline(true);
 
     MemcacheMessageReceiver consumer = new MemcacheMessageReceiver();
-    consumer.addSever(server);
     consumer.setup();
 
     final StramLocalCluster lc = new StramLocalCluster(dag);
@@ -210,5 +224,4 @@ public class MemcacheOutputOperatorTest
     }
     logger.debug("end of test");
   }
-
 }

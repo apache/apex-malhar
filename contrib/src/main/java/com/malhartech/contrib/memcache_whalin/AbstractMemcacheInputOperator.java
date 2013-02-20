@@ -2,23 +2,17 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.contrib.memcache;
+package com.malhartech.contrib.memcache_whalin;
 
 import com.malhartech.api.ActivationListener;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.InputOperator;
 import com.malhartech.util.CircularBuffer;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Map.Entry;
-import net.spy.memcached.AddrUtil;
-import net.spy.memcached.MemcachedClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.whalin.MemCached.MemCachedClient;
+import com.whalin.MemCached.SockIOPool;
 
 /**
- * Memcache input adapter operator, which get data from Memcached using spymemcached library<p><br>
+ * Memcache input adapter operator, which get data from Memcached using whalin library<p><br>
  *
  * <br>
  * Ports:<br>
@@ -44,26 +38,17 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractMemcacheInputOperator implements InputOperator, ActivationListener<OperatorContext>
 {
-  private static final Logger logger = LoggerFactory.getLogger(AbstractMemcacheInputOperator.class);
   private static final int DEFAULT_BLAST_SIZE = 1000;
   private static final int DEFAULT_BUFFER_SIZE = 1024 * 1024;
   private int tuple_blast = DEFAULT_BLAST_SIZE;
   private int bufferSize = DEFAULT_BUFFER_SIZE;
-  transient CircularBuffer<Entry<String,Object>> holdingBuffer;
-  protected transient MemcachedClient client;
-  ArrayList<String> servers = new ArrayList<String>();
-  ArrayList<String> keys = new ArrayList<String>();
-  protected transient GetDataThread gdt;
-
-  public abstract void emitTuple(Entry<String,Object> e);
-
-  public void addServer(String server) {
-    servers.add(server);
-  }
-
-  public void addKey(String key) {
-    keys.add(key);
-  }
+  transient CircularBuffer<Object> holdingBuffer;
+  private String[] servers;
+  private String[] keys;
+  protected transient MemCachedClient mcc;
+  private transient SockIOPool pool;
+  public abstract void emitTuple(Object obj);
+  public transient GetDataThread gqt;
 
 /**
  * a thread actively pulling data from Memcached
@@ -74,9 +59,9 @@ public abstract class AbstractMemcacheInputOperator implements InputOperator, Ac
     @Override
     public void run()
     {
-      Map<String, Object> map = client.getBulk(keys);
-      for( Entry<String, Object> e : map.entrySet() ) {
-        holdingBuffer.add(e);
+      Object[] objs = mcc.getMultiArray(keys);
+      for( Object o : objs ) {
+        holdingBuffer.add(o);
       }
     }
   }
@@ -91,6 +76,7 @@ public abstract class AbstractMemcacheInputOperator implements InputOperator, Ac
     for (int i = ntuples; i-- > 0;) {
       emitTuple(holdingBuffer.pollUnsafe());
     }
+
   }
 
   @Override
@@ -106,13 +92,36 @@ public abstract class AbstractMemcacheInputOperator implements InputOperator, Ac
   @Override
   public void setup(OperatorContext context)
   {
-    holdingBuffer = new CircularBuffer<Entry<String,Object>>(bufferSize);
-    try {
-      client = new MemcachedClient(AddrUtil.getAddresses(servers));
-    }
-    catch (IOException ex) {
-      logger.info(ex.toString());
-    }
+    holdingBuffer = new CircularBuffer<Object>(bufferSize);
+    pool = SockIOPool.getInstance();
+    pool.setServers( servers );
+    //		pool.setWeights( weights );
+
+    // set some basic pool settings
+    // 5 initial, 5 min, and 250 max conns
+    // and set the max idle time for a conn
+    // to 6 hours
+    pool.setInitConn( 5 );
+    pool.setMinConn( 5 );
+    pool.setMaxConn( 250 );
+    pool.setMaxIdle( 1000 * 60 * 60 * 6 );
+
+    // set the sleep for the maint thread
+    // it will wake up every x seconds and
+    // maintain the pool size
+    pool.setMaintSleep( 30 );
+
+    // set some TCP settings
+    // disable nagle
+    // set the read timeout to 3 secs
+    // and don't set a connect timeout
+    pool.setNagle( false );
+    pool.setSocketTO( 3000 );
+    pool.setSocketConnectTO( 0 );
+
+    pool.initialize();
+
+    mcc = new MemCachedClient();
   }
 
   @Override
@@ -123,17 +132,27 @@ public abstract class AbstractMemcacheInputOperator implements InputOperator, Ac
   @Override
   public void activate(OperatorContext ctx)
   {
-    gdt = new GetDataThread();
-    gdt.start();
+    gqt = new GetDataThread();
+    gqt.start();
   }
 
   @Override
   public void deactivate()
   {
+    pool.shutDown();
   }
 
   public void setTupleBlast(int i)
   {
     this.tuple_blast = i;
+  }
+
+  public void setServers(String[] servers)
+  {
+    this.servers = servers;
+  }
+
+  public void setKeys(String[] keys) {
+    this.keys = keys;
   }
 }

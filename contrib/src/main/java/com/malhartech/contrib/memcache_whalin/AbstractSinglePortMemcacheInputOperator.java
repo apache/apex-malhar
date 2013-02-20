@@ -2,14 +2,13 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.contrib.memcache;
+package com.malhartech.contrib.memcache_whalin;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
-import java.util.Map.Entry;
 
 /**
- * Memcache input adapter single port operator, which get Data from Memcached using spymemcached library.<p><br>
+ * Memcache input adapter single port operator, which get Data from Memcached using whalin library.<p><br>
  *
  * <br>
  * Ports:<br>
@@ -42,10 +41,10 @@ public abstract class AbstractSinglePortMemcacheInputOperator<T> extends Abstrac
    *
    * @param message
    */
-    public abstract T getTuple(Entry<String, Object> e);
+    public abstract T getTuple(Object obj);
 
     @Override
-    public void emitTuple(Entry<String, Object> e) {
-      outputPort.emit(getTuple(e));
+    public void emitTuple(Object obj) {
+      outputPort.emit(getTuple(obj));
     }
 }
