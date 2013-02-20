@@ -44,7 +44,7 @@ public class HttpOutputOperator<T> extends BaseOperator
         }
       }
       catch (Exception e) {
-        LOG.error("Failed to send tuple to " + resource.getURI());
+        LOG.error("Failed to send tuple to {} {}", resource.getURI(), e.getMessage());
       }
     }
   };

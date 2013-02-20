@@ -126,7 +126,7 @@ public class PhoneMovementGenerator extends BaseOperator
   public static final String CHANNEL_PHONE = "phone";
   public static final String IDENTIFIER_CHANNEL = "queryId";
 
-  private final transient HashMap<String, Integer> phone_register = new HashMap<String,Integer>();
+  final HashMap<String, Integer> phone_register = new HashMap<String,Integer>();
 
 
   private final transient HashMap<Integer, HighLow> gps = new HashMap<Integer, HighLow>();
@@ -165,9 +165,6 @@ public class PhoneMovementGenerator extends BaseOperator
   @Override
   public void setup(OperatorContext context)
   {
-    // Temporary for testing, remove once http query works
-    phone_register.put("q1", 9994995);
-    phone_register.put("q3", 9996101);
   }
 
   /**

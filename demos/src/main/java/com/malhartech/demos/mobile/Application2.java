@@ -4,6 +4,13 @@
  */
 package com.malhartech.demos.mobile;
 
+import java.net.URI;
+import java.util.HashMap;
+
+import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
 import com.malhartech.api.ApplicationFactory;
@@ -11,16 +18,7 @@ import com.malhartech.api.DAG;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.io.HttpInputOperator;
 import com.malhartech.lib.io.HttpOutputOperator;
-import com.malhartech.lib.testbench.EventIncrementer;
 import com.malhartech.lib.testbench.RandomEventGenerator;
-import com.malhartech.lib.testbench.SeedEventClassifier;
-import com.malhartech.lib.testbench.SeedEventGenerator;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import org.apache.hadoop.conf.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Mobile Demo Application.<p>
@@ -30,7 +28,7 @@ public class Application2 implements ApplicationFactory
   private static final Logger LOG = LoggerFactory.getLogger(Application2.class);
   public static final String P_phoneRange = com.malhartech.demos.mobile.Application.class.getName() + ".phoneRange";
   private String ajaxServerAddr = null;
-  private Range<Integer> phoneRange = Ranges.closed(9000000, 9999999);
+  private Range<Integer> phoneRange = Ranges.closed(9990000, 9999999);
 
   private void configure(Configuration conf)
   {
@@ -76,23 +74,7 @@ public class Application2 implements ApplicationFactory
     return oper;
   }
 
-  public RandomEventGenerator getRandomGenerator(String name, DAG b)
-  {
-    RandomEventGenerator oper = b.addOperator(name, RandomEventGenerator.class);
-    oper.setMaxvalue(9999999);
-    oper.setMinvalue(9990000);
-    oper.setTuplesBlast(100000);
-    oper.setTuplesBlastIntervalMillis(5);
-    return oper;
-  }
 
-  public PhoneMovementGenerator getPhoneMovementGenerator(String name, DAG b)
-  {
-    PhoneMovementGenerator oper = b.addOperator(name, PhoneMovementGenerator.class);
-    oper.setRange(20);
-    oper.setThreshold(80);
-    return oper;
-  }
   @Override
   public DAG getApplication(Configuration conf)
   {
@@ -100,16 +82,34 @@ public class Application2 implements ApplicationFactory
     DAG dag = new DAG(conf);
     configure(conf);
 
-    RandomEventGenerator phones = getRandomGenerator("phonegen", dag);
-    PhoneMovementGenerator movementgen = getPhoneMovementGenerator("pmove", dag);
+    RandomEventGenerator phones = dag.addOperator("phonegen", RandomEventGenerator.class);
+    phones.setMinvalue(this.phoneRange.lowerEndpoint());
+    phones.setMaxvalue(this.phoneRange.upperEndpoint());
+    phones.setTuplesBlast(100000);
+    phones.setTuplesBlastIntervalMillis(5);
+
+    PhoneMovementGenerator movementgen = dag.addOperator("pmove", PhoneMovementGenerator.class);
+    movementgen.setRange(20);
+    movementgen.setThreshold(80);
+
     dag.addStream("phonedata", phones.integer_data, movementgen.data).setInline(true);
 
     if (this.ajaxServerAddr != null) {
-      // TBD
+      HttpOutputOperator<Object> httpOut = dag.addOperator("phoneLocationQueryResult", new HttpOutputOperator<Object>());
+      httpOut.setResourceURL(URI.create("http://" + this.ajaxServerAddr + "/channel/mobile/phoneLocationQueryResult"));
 
+      dag.addStream("consoledata", movementgen.locations, httpOut.input).setInline(true);
+
+      HttpInputOperator phoneLocationQuery = dag.addOperator("phoneLocationQuery", HttpInputOperator.class);
+      URI u = URI.create("http://" + ajaxServerAddr + "/channel/mobile/phoneLocationQuery");
+      phoneLocationQuery.setUrl(u);
+      dag.addStream("query", phoneLocationQuery.outputPort, movementgen.query);
     }
     else {
       // for testing purposes without server
+      movementgen.phone_register.put("q1", 9994995);
+      movementgen.phone_register.put("q3", 9996101);
+
       ConsoleOutputOperator phoneconsole = getConsoleOperator(dag, "phoneLocationQueryResult");
       dag.addStream("consoledata", movementgen.locations, phoneconsole.input).setInline(true);
     }
