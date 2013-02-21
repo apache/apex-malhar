@@ -55,13 +55,6 @@ public class Application2 implements ApplicationFactory
     System.out.println("Phone range: " + this.phoneRange);
   }
 
-  private ConsoleOutputOperator getConsoleOperator(DAG b, String name)
-  {
-    // output to HTTP server when specified in environment setting
-    ConsoleOutputOperator oper = b.addOperator(name, new ConsoleOutputOperator());
-    oper.setStringFormat(name + ": %s");
-    return oper;
-  }
 
   @Override
   public DAG getApplication(Configuration conf)
@@ -87,20 +80,20 @@ public class Application2 implements ApplicationFactory
       HttpOutputOperator<Object> httpOut = dag.addOperator("phoneLocationQueryResult", new HttpOutputOperator<Object>());
       httpOut.setResourceURL(URI.create("http://" + this.ajaxServerAddr + "/channel/mobile/phoneLocationQueryResult"));
 
-      dag.addStream("consoledata", movementgen.locations, httpOut.input).setInline(true);
+      dag.addStream("consoledata", movementgen.locationQueryResult, httpOut.input).setInline(true);
 
       HttpInputOperator phoneLocationQuery = dag.addOperator("phoneLocationQuery", HttpInputOperator.class);
       URI u = URI.create("http://" + ajaxServerAddr + "/channel/mobile/phoneLocationQuery");
       phoneLocationQuery.setUrl(u);
-      dag.addStream("query", phoneLocationQuery.outputPort, movementgen.query);
+      dag.addStream("query", phoneLocationQuery.outputPort, movementgen.locationQuery);
     }
     else {
       // for testing purposes without server
       movementgen.phone_register.put("q1", 9994995);
       movementgen.phone_register.put("q3", 9996101);
-
-      ConsoleOutputOperator phoneconsole = getConsoleOperator(dag, "phoneLocationQueryResult");
-      dag.addStream("consoledata", movementgen.locations, phoneconsole.input).setInline(true);
+      ConsoleOutputOperator out = dag.addOperator("phoneLocationQueryResult", new ConsoleOutputOperator());
+      out.setStringFormat("phoneLocationQueryResult" + ": %s");
+      dag.addStream("consoledata", movementgen.locationQueryResult, out.input).setInline(true);
     }
     return dag;
   }

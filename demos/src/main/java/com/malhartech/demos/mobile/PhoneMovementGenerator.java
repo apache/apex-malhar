@@ -88,7 +88,7 @@ public class PhoneMovementGenerator extends BaseOperator
   };
 
   @InputPortFieldAnnotation(name = "query", optional=true)
-  public final transient DefaultInputPort<Map<String, String>> query = new DefaultInputPort<Map<String, String>>(this)
+  public final transient DefaultInputPort<Map<String, String>> locationQuery = new DefaultInputPort<Map<String, String>>(this)
   {
     @Override
     public void process(Map<String, String> tuple)
@@ -96,12 +96,11 @@ public class PhoneMovementGenerator extends BaseOperator
       log.info("new query: " + tuple);
       String qid = null;
       String phone = null;
-      String location = null;
       for (Map.Entry<String, String> e: tuple.entrySet()) {
-        if (e.getKey().equals(IDENTIFIER_CHANNEL)) {
+        if (e.getKey().equals(KEY_QUERYID)) {
           qid = e.getValue();
         }
-        else if (e.getKey().equals(CHANNEL_PHONE)) {
+        else if (e.getKey().equals(KEY_PHONE)) {
           phone = e.getValue();
         }
       }
@@ -123,8 +122,9 @@ public class PhoneMovementGenerator extends BaseOperator
     }
   };
 
-  public static final String CHANNEL_PHONE = "phone";
-  public static final String IDENTIFIER_CHANNEL = "queryId";
+  public static final String KEY_PHONE = "phone";
+  public static final String KEY_QUERYID = "queryId";
+  public static final String KEY_LOCATION = "location";
 
   final HashMap<String, Integer> phone_register = new HashMap<String,Integer>();
 
@@ -160,7 +160,7 @@ public class PhoneMovementGenerator extends BaseOperator
   }
 
   @OutputPortFieldAnnotation(name = "console")
-  public final transient DefaultOutputPort<KeyValPair<Integer, HighLow>> locations = new DefaultOutputPort<KeyValPair<Integer, HighLow>>(this);
+  public final transient DefaultOutputPort<Map<String, String>> locationQueryResult = new DefaultOutputPort<Map<String, String>>(this);
 
   @Override
   public void setup(OperatorContext context)
@@ -186,8 +186,11 @@ public class PhoneMovementGenerator extends BaseOperator
     for (Map.Entry<String, Integer> p: phone_register.entrySet()) {
       HighLow loc = gps.get(p.getValue());
       if (loc != null) {
-        KeyValPair<Integer, HighLow> tuple = new KeyValPair<Integer, HighLow>(p.getValue(), new HighLow(loc.getHigh(), loc.getLow()));
-        locations.emit(tuple);
+        Map<String, String> queryResult = new HashMap<String, String>();
+        queryResult.put(KEY_QUERYID, p.getKey());
+        queryResult.put(KEY_PHONE, String.valueOf(p.getValue()));
+        queryResult.put(KEY_LOCATION, loc.toString());
+        locationQueryResult.emit(queryResult);
       }
     }
     newgps.clear();
