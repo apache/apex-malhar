@@ -5,7 +5,6 @@
 package com.malhartech.demos.mobile;
 
 import java.net.URI;
-import java.util.HashMap;
 
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
@@ -64,22 +63,12 @@ public class Application2 implements ApplicationFactory
     return oper;
   }
 
-  private HttpOutputOperator<HashMap<String, Object>> getHttpOutputNumberOperator(DAG b, String name)
-  {
-    // output to HTTP server when specified in environment setting
-    String serverAddr =  this.ajaxServerAddr;
-    HttpOutputOperator<HashMap<String, Object>> oper = b.addOperator(name, new HttpOutputOperator<HashMap<String, Object>>());
-    URI u = URI.create("http://" + serverAddr + "/channel/mobile/" + name);
-    oper.setResourceURL(u);
-    return oper;
-  }
-
-
   @Override
   public DAG getApplication(Configuration conf)
   {
 
     DAG dag = new DAG(conf);
+    dag.setAttribute(DAG.STRAM_APPNAME, "MobileDemoApplication");
     configure(conf);
 
     RandomEventGenerator phones = dag.addOperator("phonegen", RandomEventGenerator.class);
