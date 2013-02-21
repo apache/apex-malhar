@@ -14,16 +14,17 @@ import java.util.concurrent.ExecutionException;
 import net.spy.memcached.internal.OperationFuture;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
-public class MemcacheInputOperatorTest
+public class MemcacheInputOperatorBenchmark
 {
-  private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MemcacheInputOperatorTest.class);
- private static HashMap<String, Object> resultMap = new HashMap<String, Object>();
+  private static final Logger logger = LoggerFactory.getLogger(MemcacheInputOperatorBenchmark.class);
+  private static HashMap<String, Object> resultMap = new HashMap<String, Object>();
   private static int resultCount=0;
 
   public static class TestMemcacheInputOperator extends AbstractSinglePortMemcacheInputOperator<Object>
@@ -38,8 +39,8 @@ public class MemcacheInputOperatorTest
     {
       HashMap<String, Integer> map = new HashMap<String, Integer>();
       map.put("a", 10);
-      map.put("b", 200);
-      map.put("c", 3000);
+//      map.put("b", 200);
+//      map.put("c", 3000);
       System.out.println("Data generator map:"+map.toString());
       int exp = 60*60*24*30;
       for( Entry<String, Integer> entry : map.entrySet()) {
@@ -68,8 +69,8 @@ public class MemcacheInputOperatorTest
       {
         HashMap<String, Object> map = (HashMap<String, Object>)t;
         resultMap.put("a", map.get("a"));
-        resultMap.put("b", map.get("b"));
-        resultMap.put("c", map.get("c"));
+//        resultMap.put("b", map.get("b"));
+//        resultMap.put("c", map.get("c"));
         resultCount++;
       }
     };
@@ -87,10 +88,10 @@ public class MemcacheInputOperatorTest
     final TestMemcacheInputOperator input = dag.addOperator("input", TestMemcacheInputOperator.class);
     CollectorModule<Object> collector = dag.addOperator("collector", new CollectorModule<Object>());
 
-    final int readNum = 1;
+    final int readNum = 10000;
     input.addKey("a");
-    input.addKey("b");
-    input.addKey("c");
+//    input.addKey("b");
+//    input.addKey("c");
     input.addServer(server);
     input.setReadNum(readNum);
 
@@ -105,6 +106,7 @@ public class MemcacheInputOperatorTest
       public void run()
       {
         try {
+
           while (true) {
             if (resultCount < readNum) {
               Thread.sleep(10);
@@ -125,10 +127,10 @@ public class MemcacheInputOperatorTest
     lc.run();
 
 
-    Assert.assertEquals("Number of emitted tuples", 3, resultMap.size());
+    Assert.assertEquals("Number of emitted tuples", 1, resultMap.size());
     Assert.assertEquals("value of a is ", 10, resultMap.get("a"));
-    Assert.assertEquals("value of b is ", 200, resultMap.get("b"));
-    Assert.assertEquals("value of c is ", 3000, resultMap.get("c"));
+//    Assert.assertEquals("value of b is ", 200, resultMap.get("b"));
+//    Assert.assertEquals("value of c is ", 3000, resultMap.get("c"));
     System.out.println("resultCount:"+resultCount);
   }
 }

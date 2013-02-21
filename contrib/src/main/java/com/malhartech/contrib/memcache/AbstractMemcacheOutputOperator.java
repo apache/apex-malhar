@@ -24,8 +24,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  * Properties:<br>
  * <b>servers</b>:the memcache server url list<br>
- * <b>pool</b>:memcache sockIOPool<br>
- * <b>mcc</b>:MemCachedClient instance<br>
+ * <b>client</b>:MemcachedClient instance<br>
  * <br>
  * Compile time checks:<br>
  * None<br>
@@ -33,7 +32,12 @@ import org.slf4j.LoggerFactory;
  * Run time checks:<br>
  * None<br>
  * <br>
- * <b>Benchmarks</b>:TBD
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for AbstractMemcacheOutputOperator&lt;K,V extends Number&gt; operator template">
+ * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
+ * <tr><td>One tuple per key per window per port</td><td><b>1 thousand K,V pairs/s</td><td>Out-bound rate is the main determinant of performance. Operator can process about 1 thousand unique (k,v immutable pairs) tuples/sec as Memcache DAG. Tuples are assumed to be
+ * immutable. If you use mutable tuples and have lots of keys, the benchmarks may differ</td></tr>
+ * </table><br>
  * <br>
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
@@ -42,7 +46,7 @@ public class AbstractMemcacheOutputOperator extends BaseOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractMemcacheOutputOperator.class);
   protected transient MemcachedClient client;
-  ArrayList<String> servers = new ArrayList<String>();
+  private ArrayList<String> servers = new ArrayList<String>();
 
   @Override
   public void setup(OperatorContext context)

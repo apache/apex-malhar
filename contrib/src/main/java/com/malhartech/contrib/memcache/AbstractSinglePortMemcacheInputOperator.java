@@ -42,10 +42,10 @@ public abstract class AbstractSinglePortMemcacheInputOperator<T> extends Abstrac
    *
    * @param message
    */
-    public abstract T getTuple(Entry<String, Object> e);
+    public abstract T getTuple(Object o);
 
     @Override
-    public void emitTuple(Entry<String, Object> e) {
-      outputPort.emit(getTuple(e));
+    public void emitTuple(Object o) {
+      outputPort.emit(getTuple(o));
     }
 }

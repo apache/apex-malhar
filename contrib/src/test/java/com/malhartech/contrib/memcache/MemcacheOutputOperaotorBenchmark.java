@@ -6,6 +6,9 @@ package com.malhartech.contrib.memcache;
 
 import com.malhartech.api.*;
 import com.malhartech.api.Context.OperatorContext;
+import com.malhartech.contrib.memcache.MemcacheOutputOperatorTest.MemcacheMessageReceiver.GetDataThread;
+import static com.malhartech.contrib.memcache.MemcacheOutputOperatorTest.SourceModule.holdingBuffer;
+import static com.malhartech.contrib.memcache.MemcacheOutputOperatorTest.sentTuples;
 import com.malhartech.stram.StramLocalCluster;
 import com.malhartech.util.CircularBuffer;
 import java.io.IOException;
@@ -15,7 +18,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
 import net.spy.memcached.AddrUtil;
 import net.spy.memcached.MemcachedClient;
 import net.spy.memcached.internal.OperationFuture;
@@ -27,12 +29,13 @@ import org.slf4j.LoggerFactory;
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
-public class MemcacheOutputOperatorTest
+public class MemcacheOutputOperaotorBenchmark
 {
-  private static final Logger logger = LoggerFactory.getLogger(MemcacheOutputOperatorTest.class);
+  private static final Logger logger = LoggerFactory.getLogger(MemcacheOutputOperaotorBenchmark.class);
   private static HashMap<String, Integer> sendingData = new HashMap<String, Integer>();
   static int sentTuples = 0;
-  final static int totalTuples = 9;
+  final static int testNum = 3000;
+  final static int totalTuples = testNum*3;
 
   private static final class TestMemcacheOutputOperator extends AbstractSinglePortMemcacheOutputOperator<HashMap<String, Integer>>
   {
@@ -63,27 +66,29 @@ public class MemcacheOutputOperatorTest
   ArrayList<String> servers = new ArrayList<String>();
     public HashMap<String, Integer> dataMap = new HashMap<String, Integer>();
     public int count = 0;
+    public GetDataThread gdt;
 
     public void addSever(String server) {
       servers.add(server);
     }
     public void setup() {
-    try {
-      client = new MemcachedClient(AddrUtil.getAddresses(servers));
-    }
-    catch (IOException ex) {
-      System.out.println(ex.toString());
-    }
-    GetDataThread gdt = new GetDataThread();
-    gdt.start();
+      try {
+        client = new MemcachedClient(AddrUtil.getAddresses(servers));
+      }
+      catch (IOException ex) {
+        System.out.println(ex.toString());
+      }
+      gdt = new GetDataThread();
+      gdt.start();
     }
 
     public class GetDataThread extends Thread {
+      public volatile boolean working;
       @Override
       public void run() {
-        boolean working = true;
+        working = true;
         while( working ) {
-          if( sentTuples != totalTuples ) {
+          if( sentTuples < totalTuples ) {
             try {
               Thread.sleep(10);
             }
@@ -103,14 +108,14 @@ public class MemcacheOutputOperatorTest
               Integer i = (Integer)value;
               dataMap.put(key, i);
               count++;
-              if( count == totalTuples )
+              if( count == 3 )
                 working = false;
             }
           }
         }
+        System.out.println("sending Data:"+sendingData.toString());
       }
     }
-
   }
 
   public static class SourceModule extends BaseOperator
@@ -172,7 +177,6 @@ public class MemcacheOutputOperatorTest
 
   @Test
   public void testDag() throws Exception {
-    final int testNum = 3;
     String server = "localhost:11211";
 
     DAG dag = new DAG();
@@ -182,7 +186,7 @@ public class MemcacheOutputOperatorTest
     producer.addServer(server);
     dag.addStream("Stream", source.outPort, producer.inputPort).setInline(true);
 
-    MemcacheMessageReceiver consumer = new MemcacheMessageReceiver();
+    final MemcacheMessageReceiver consumer = new MemcacheMessageReceiver();
     consumer.addSever(server);
     consumer.setup();
 
@@ -195,7 +199,10 @@ public class MemcacheOutputOperatorTest
       public void run()
       {
         try {
-          Thread.sleep(2000);
+          while( consumer.gdt.working == true ) {
+            Thread.sleep(100);
+//            System.out.println("receiver count:"+consumer.count);
+          }
         }
         catch (InterruptedException ex) {
         }
@@ -205,9 +212,11 @@ public class MemcacheOutputOperatorTest
 
     lc.run();
 
-    System.out.println("consumer count:"+consumer.count);
-    junit.framework.Assert.assertEquals("emitted value for testNum was ", testNum * 3, consumer.count);
-    for (Map.Entry<String, Integer> e: consumer.dataMap.entrySet()) {
+    System.out.println("consumer count:"+sentTuples);
+    junit.framework.Assert.assertEquals("emitted value for testNum was ", sentTuples, totalTuples);
+    junit.framework.Assert.assertEquals("emitted value for testNum was ", consumer.count, 3);
+//    for (Map.Entry<String, Integer> e: consumer.dataMap.entrySet()) {
+    for (Map.Entry<String, Integer> e: sendingData.entrySet()) {
       if (e.getKey().equals("a")) {
         junit.framework.Assert.assertEquals("emitted value for 'a' was ", new Integer(2), e.getValue());
       }
@@ -220,5 +229,4 @@ public class MemcacheOutputOperatorTest
     }
     logger.debug("end of test");
   }
-
 }
