@@ -8,6 +8,7 @@ import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import net.spy.memcached.AddrUtil;
 import net.spy.memcached.MemcachedClient;
@@ -35,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for AbstractMemcacheOutputOperator&lt;K,V extends Number&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td>One tuple per key per window per port</td><td><b>1 thousand K,V pairs/s</td><td>Out-bound rate is the main determinant of performance. Operator can process about 1 thousand unique (k,v immutable pairs) tuples/sec as Memcache DAG. Tuples are assumed to be
+ * <tr><td>One tuple per key per window per port</td><td><b>39 thousand K,V pairs/s</td><td>Out-bound rate is the main determinant of performance. Operator can process about 39 thousand unique (k,v immutable pairs) tuples/sec as Memcache DAG. Tuples are assumed to be
  * immutable. If you use mutable tuples and have lots of keys, the benchmarks may differ</td></tr>
  * </table><br>
  * <br>
@@ -65,9 +66,14 @@ public class AbstractMemcacheOutputOperator extends BaseOperator
     servers.add(server);
   }
 
+  public void watiForQueue(int timeout) {
+    client.waitForQueues(timeout, TimeUnit.SECONDS);
+  }
+
   @Override
   public void teardown()
   {
+    client.shutdown(2000, TimeUnit.MILLISECONDS);
   }
 
 }

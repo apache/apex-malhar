@@ -6,21 +6,22 @@ package com.malhartech.contrib.memcache;
 
 import com.malhartech.api.*;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.contrib.memcache.MemcacheOutputOperatorTest.MemcacheMessageReceiver.GetDataThread;
-import static com.malhartech.contrib.memcache.MemcacheOutputOperatorTest.SourceModule.holdingBuffer;
-import static com.malhartech.contrib.memcache.MemcacheOutputOperatorTest.sentTuples;
 import com.malhartech.stram.StramLocalCluster;
 import com.malhartech.util.CircularBuffer;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.net.InetSocketAddress;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
-import net.spy.memcached.AddrUtil;
-import net.spy.memcached.MemcachedClient;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import kafka.javaapi.producer.Producer;
+import net.spy.memcached.*;
 import net.spy.memcached.internal.OperationFuture;
+import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,38 +33,39 @@ import org.slf4j.LoggerFactory;
 public class MemcacheOutputOperaotorBenchmark
 {
   private static final Logger logger = LoggerFactory.getLogger(MemcacheOutputOperaotorBenchmark.class);
-  private static HashMap<String, Integer> sendingData = new HashMap<String, Integer>();
-  static int sentTuples = 0;
-  final static int testNum = 3000;
-  final static int totalTuples = testNum*3;
+  private static ArrayList<Object> resultList = new ArrayList<Object>();
+  private static int numberOfOps=500000;
+  private static int resultCount=0;
 
-  private static final class TestMemcacheOutputOperator extends AbstractSinglePortMemcacheOutputOperator<HashMap<String, Integer>>
+  private static final class TestMemcacheOutputOperator extends AbstractSinglePortMemcacheOutputOperator<HashMap<String, String>>
   {
     @Override
-    public void processTuple(HashMap<String, Integer> tuple)
+    public void processTuple(HashMap<String, String> tuple)
     {
       int exp = 60*60*24*30;
       Iterator it = tuple.entrySet().iterator();
       Entry<String, Integer> entry = (Entry)it.next();
 
-      OperationFuture<Boolean> of = client.set(entry.getKey(), exp, entry.getValue());
-      try {
-        if( of.get() == true )
-        ++sentTuples;
-      }
-      catch (InterruptedException ex) {
-        logger.debug(ex.toString());
-      }
-      catch (ExecutionException ex) {
-        logger.debug(ex.toString());
-      }
+//      OperationFuture<Boolean> of = client.set(entry.getKey(), exp, entry.getValue());
+      client.set(entry.getKey(), exp, entry.getValue());
+      resultCount++;
+//      try {
+//        if( of.get() == true )
+//          ++sentTuples;
+//      }
+//      catch (InterruptedException ex) {
+//        logger.debug(ex.toString());
+//      }
+//      catch (ExecutionException ex) {
+//        logger.debug(ex.toString());
+//      }
     }
   }
 
   public class MemcacheMessageReceiver
   {
     MemcachedClient client;
-  ArrayList<String> servers = new ArrayList<String>();
+    ArrayList<String> servers = new ArrayList<String>();
     public HashMap<String, Integer> dataMap = new HashMap<String, Integer>();
     public int count = 0;
     public GetDataThread gdt;
@@ -73,7 +75,8 @@ public class MemcacheOutputOperaotorBenchmark
     }
     public void setup() {
       try {
-        client = new MemcachedClient(AddrUtil.getAddresses(servers));
+      ConnectionFactory factory = new ConnectionFactoryBuilder().setOpTimeout(1000000).build();
+       client = new MemcachedClient(factory, AddrUtil.getAddresses("localhost:11211"));
       }
       catch (IOException ex) {
         System.out.println(ex.toString());
@@ -83,12 +86,11 @@ public class MemcacheOutputOperaotorBenchmark
     }
 
     public class GetDataThread extends Thread {
-      public volatile boolean working;
+      public volatile boolean working = true;
       @Override
       public void run() {
-        working = true;
         while( working ) {
-          if( sentTuples < totalTuples ) {
+          if( resultCount < numberOfOps ) {
             try {
               Thread.sleep(10);
             }
@@ -97,23 +99,13 @@ public class MemcacheOutputOperaotorBenchmark
             }
             continue;
           }
-          for(  Entry<String, Integer> e: sendingData.entrySet() ) {
-            String key = e.getKey();
-            Object value = client.get(key);
-            if( value == null ) {
-              System.err.println("Exception get null value!!!!!");
-              working = false;
-            }
-            else {
-              Integer i = (Integer)value;
-              dataMap.put(key, i);
-              count++;
-              if( count == 3 )
-                working = false;
-            }
+
+          for( int i=0; i<numberOfOps; i++ ) {
+            Object o = client.asyncGet(Integer.toString(i));
+            resultList.add(o);
           }
+          break;
         }
-        System.out.println("sending Data:"+sendingData.toString());
       }
     }
   }
@@ -121,17 +113,16 @@ public class MemcacheOutputOperaotorBenchmark
   public static class SourceModule extends BaseOperator
   implements InputOperator, ActivationListener<OperatorContext>
   {
-    public final transient DefaultOutputPort<HashMap<String, Integer>> outPort = new DefaultOutputPort<HashMap<String, Integer>>(this);
-    static transient CircularBuffer<HashMap<String, Integer>> holdingBuffer;
-    int testNum;
+    public final transient DefaultOutputPort<HashMap<String, String>> outPort = new DefaultOutputPort<HashMap<String, String>>(this);
+    static transient CircularBuffer<HashMap<String, String>> holdingBuffer;
 
     @Override
     public void setup(OperatorContext context)
     {
-      holdingBuffer = new CircularBuffer<HashMap<String, Integer>>(1024 * 1024);
+      holdingBuffer = new CircularBuffer<HashMap<String, String>>(1024 * 1024);
     }
 
-    public void emitTuple(HashMap<String, Integer> message)
+    public void emitTuple(HashMap<String, String> message)
     {
       outPort.emit(message);
     }
@@ -147,22 +138,11 @@ public class MemcacheOutputOperaotorBenchmark
     @Override
     public void activate(OperatorContext ctx)
     {
-      sendingData.put("a",2);
-      sendingData.put("b",20);
-      sendingData.put("c",1000);
-
-      for( int i=0; i<testNum; i++ ) {
-        for( Entry<String, Integer> e : sendingData.entrySet() ) {
-          HashMap<String, Integer> map  = new HashMap<String, Integer>();
-          map.put(e.getKey(), e.getValue());
+      for (int i = 0; i < numberOfOps; i++) {
+          HashMap<String, String> map  = new HashMap<String, String>();
+          map.put(Integer.toString(i), "Hello this is a test " + i);
           holdingBuffer.add(map);
-        }
       }
-    }
-
-    public void setTestNum(int testNum)
-    {
-      this.testNum = testNum;
     }
 
     public void deactivate()
@@ -174,34 +154,30 @@ public class MemcacheOutputOperaotorBenchmark
     }
   }
 
-
   @Test
   public void testDag() throws Exception {
     String server = "localhost:11211";
 
     DAG dag = new DAG();
     SourceModule source = dag.addOperator("source", SourceModule.class);
-    source.setTestNum(testNum);
-    TestMemcacheOutputOperator producer = dag.addOperator("producer", new TestMemcacheOutputOperator());
+    final TestMemcacheOutputOperator producer = dag.addOperator("producer", new TestMemcacheOutputOperator());
     producer.addServer(server);
     dag.addStream("Stream", source.outPort, producer.inputPort).setInline(true);
 
     final MemcacheMessageReceiver consumer = new MemcacheMessageReceiver();
     consumer.addSever(server);
-    consumer.setup();
 
     final StramLocalCluster lc = new StramLocalCluster(dag);
     lc.setHeartbeatMonitoringEnabled(false);
-
+    long start = System.currentTimeMillis();
     new Thread("LocalClusterController")
     {
       @Override
       public void run()
       {
         try {
-          while( consumer.gdt.working == true ) {
+          while( resultCount < numberOfOps ) {
             Thread.sleep(100);
-//            System.out.println("receiver count:"+consumer.count);
           }
         }
         catch (InterruptedException ex) {
@@ -212,21 +188,58 @@ public class MemcacheOutputOperaotorBenchmark
 
     lc.run();
 
-    System.out.println("consumer count:"+sentTuples);
-    junit.framework.Assert.assertEquals("emitted value for testNum was ", sentTuples, totalTuples);
-    junit.framework.Assert.assertEquals("emitted value for testNum was ", consumer.count, 3);
-//    for (Map.Entry<String, Integer> e: consumer.dataMap.entrySet()) {
-    for (Map.Entry<String, Integer> e: sendingData.entrySet()) {
-      if (e.getKey().equals("a")) {
-        junit.framework.Assert.assertEquals("emitted value for 'a' was ", new Integer(2), e.getValue());
-      }
-      else if (e.getKey().equals("b")) {
-        junit.framework.Assert.assertEquals("emitted value for 'b' was ", new Integer(20), e.getValue());
-      }
-      else if (e.getKey().equals("c")) {
-        junit.framework.Assert.assertEquals("emitted value for 'c' was ", new Integer(1000), e.getValue());
-      }
+    long end = System.currentTimeMillis();
+    long time = end - start;
+    consumer.setup();
+    consumer.gdt.join();
+
+    System.out.println("processed "+numberOfOps+" tuples in DAG used "+time+" ms or "+numberOfOps*1.0/time*1000.0+" ops resultCount:"+resultCount);
+    Assert.assertEquals("Number of emitted tuples", numberOfOps, resultList.size());
+    int i=0;
+    for( Object o : resultList ) {
+      Future f = (Future)o;
+      String str = (String)f.get();
+      Assert.assertEquals("value of "+i+" is ", str, "Hello this is a test " + i);
+      i++;
     }
-    logger.debug("end of test");
+    System.out.println("resultCount:"+resultCount+" i:"+i);
   }
+
+  @Ignore
+  @Test
+    public void testSimple2() throws IOException, InterruptedException, ExecutionException, TimeoutException {
+//    ConnectionFactory factory = new BinaryConnectionFactory();
+      ConnectionFactory factory = new ConnectionFactoryBuilder().setOpTimeout(1000000).build();
+       MemcachedClient client = new MemcachedClient(factory, AddrUtil.getAddresses("localhost:11211"));
+       client.flush();
+
+       int numberOfOps = 1000000;
+        long time1 = System.nanoTime();
+        for (int i = 0; i < numberOfOps; i++) {
+            client.set(Integer.toString(i), 86400, "Hello this is a test " + i);
+        }
+
+        long time2 = System.nanoTime();
+        System.out.println("Time to set data = " + ((time2 - time1) / 1000000.0) + "ms ");
+
+        client.waitForQueues(86400, TimeUnit.SECONDS);
+        long time3 = System.nanoTime();
+        System.out.println("Time for queues to drain 1 = " + ((time3 - time2) / 1000000.0) + "ms  Set data speed:"+numberOfOps/(time3-time1)*1000000000.0);
+
+        long time4 = System.nanoTime();
+        ArrayList<Future> list = new ArrayList<Future>();
+        for( int i=0; i<numberOfOps; i++ ) {
+          Future f = client.asyncGet(Integer.toString(i));
+          list.add(f);
+        }
+        long time5 = System.nanoTime();
+        System.out.println("Time to get future = " + ((time5 - time4) / 1000000.0) + "ms");
+        for( Future f : list ) {
+          Object o = f.get(1, TimeUnit.SECONDS);
+        }
+        long time6 = System.nanoTime();
+        System.out.println("Time to get data = " + ((time6 - time5) / 1000000.0) + "ms Get data speed:"+numberOfOps/(time6-time4)*1000000000.0);
+
+        client.shutdown(2000, TimeUnit.MILLISECONDS);
+    }
 }

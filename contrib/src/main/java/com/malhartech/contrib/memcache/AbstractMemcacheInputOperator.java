@@ -12,7 +12,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 import net.spy.memcached.AddrUtil;
+import net.spy.memcached.ConnectionFactory;
+import net.spy.memcached.ConnectionFactoryBuilder;
 import net.spy.memcached.MemcachedClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for AbstractMemcacheInputOperator&lt;K,V extends Number&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>1 thousand K,V pairs/s</td><td>One tuple per key per window per port</td><td>In-bound rate is the main determinant of performance. Operator can emit about 1 thousand unique (k,v immutable pairs) tuples/sec as Memcache DAG. Tuples are assumed to be
+ * <tr><td><b>34 thousand K,V pairs/s</td><td>One tuple per key per window per port</td><td>In-bound rate is the main determinant of performance. Operator can emit about 34 thousand unique (k,v immutable pairs) tuples/sec as Memcache DAG. Tuples are assumed to be
  * immutable. If you use mutable tuples and have lots of keys, the benchmarks may differ</td></tr>
  * </table><br>
  * <br>
@@ -54,18 +57,15 @@ public abstract class AbstractMemcacheInputOperator implements InputOperator, Ac
   private static final int DEFAULT_BUFFER_SIZE = 1024 * 1024;
   private int tuple_blast = DEFAULT_BLAST_SIZE;
   private int bufferSize = DEFAULT_BUFFER_SIZE;
-  private transient CircularBuffer<Object> holdingBuffer;
+  protected transient CircularBuffer<Object> holdingBuffer;
   protected transient MemcachedClient client;
   private ArrayList<String> servers = new ArrayList<String>();
   private ArrayList<String> keys = new ArrayList<String>();
-  public transient GetDataThread gdt;
-  private int readNum=1;
+  public Thread getDataThread;
+  private GetDataRunnable runnable = new GetDataRunnable();
+//  private Runnable runnable = new GetDataRunnable();
 
   public abstract void emitTuple(Object o);
-
-  public void setReadNum(int num) {
-    readNum = num;
-  }
 
   public void addServer(String server) {
     servers.add(server);
@@ -75,19 +75,32 @@ public abstract class AbstractMemcacheInputOperator implements InputOperator, Ac
     keys.add(key);
   }
 
+  public void setRunnable(GetDataRunnable r) {
+    runnable = r;
+  }
+
+  public void runFunction() {
+        Map<String, Object> map = client.getBulk(keys);
+        holdingBuffer.add(map);
+        System.out.println("run Ssssssssuper function");
+  }
+
 /**
  * a thread actively pulling data from Memcached
- * and added to the holdingBuffer
+ * and add to the holdingBuffer, user can write their own Runnable interface
+ * to retreive desired data
  */
-  public class GetDataThread extends Thread
+
+  public static class GetDataRunnable implements Runnable
   {
+    AbstractMemcacheInputOperator op;
+    public void setOp(AbstractMemcacheInputOperator op) {
+      this.op = op;
+    }
     @Override
     public void run()
     {
-      for( int i=0; i<readNum; i++ ) {
-        Map<String, Object> map = client.getBulk(keys);
-        holdingBuffer.add(map);
-      }
+      op.runFunction();
     }
   }
 
@@ -118,7 +131,9 @@ public abstract class AbstractMemcacheInputOperator implements InputOperator, Ac
   {
     holdingBuffer = new CircularBuffer<Object>(bufferSize);
     try {
-      client = new MemcachedClient(AddrUtil.getAddresses(servers));
+    ConnectionFactory factory = new ConnectionFactoryBuilder().setOpTimeout(1000000).build();
+      client = new MemcachedClient(factory, AddrUtil.getAddresses(servers));
+//      client = new MemcachedClient(AddrUtil.getAddresses(servers));
     }
     catch (IOException ex) {
       logger.info(ex.toString());
@@ -128,13 +143,15 @@ public abstract class AbstractMemcacheInputOperator implements InputOperator, Ac
   @Override
   public void teardown()
   {
+    client.shutdown(2000, TimeUnit.MILLISECONDS);
   }
 
   @Override
   public void activate(OperatorContext ctx)
   {
-    gdt = new GetDataThread();
-    gdt.start();
+    runnable.setOp(this);
+    getDataThread = new Thread(runnable);
+    getDataThread.start();
   }
 
   @Override

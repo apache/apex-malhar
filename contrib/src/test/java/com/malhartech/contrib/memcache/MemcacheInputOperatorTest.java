@@ -87,12 +87,10 @@ public class MemcacheInputOperatorTest
     final TestMemcacheInputOperator input = dag.addOperator("input", TestMemcacheInputOperator.class);
     CollectorModule<Object> collector = dag.addOperator("collector", new CollectorModule<Object>());
 
-    final int readNum = 1;
     input.addKey("a");
     input.addKey("b");
     input.addKey("c");
     input.addServer(server);
-    input.setReadNum(readNum);
 
     dag.addStream("stream",input.outputPort, collector.inputPort);
 
@@ -106,10 +104,8 @@ public class MemcacheInputOperatorTest
       {
         try {
           while (true) {
-            if (resultCount < readNum) {
+            if (resultCount != 1) {
               Thread.sleep(10);
-//              if( resultCount % 1000 == 0)
-//                logger.debug("processed "+resultCount+" tuples");
             }
             else {
               break;

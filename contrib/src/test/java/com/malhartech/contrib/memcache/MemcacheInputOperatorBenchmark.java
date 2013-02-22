@@ -8,10 +8,9 @@ import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DAG;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.stram.StramLocalCluster;
-import java.util.HashMap;
-import java.util.Map.Entry;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
-import net.spy.memcached.internal.OperationFuture;
+import java.util.concurrent.Future;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -24,38 +23,42 @@ import org.slf4j.LoggerFactory;
 public class MemcacheInputOperatorBenchmark
 {
   private static final Logger logger = LoggerFactory.getLogger(MemcacheInputOperatorBenchmark.class);
-  private static HashMap<String, Object> resultMap = new HashMap<String, Object>();
+  private static ArrayList<Object> resultList = new ArrayList<Object>();
   private static int resultCount=0;
+  private static int numberOfOps=500000;
 
   public static class TestMemcacheInputOperator extends AbstractSinglePortMemcacheInputOperator<Object>
   {
+
+    @Override
+    public void runFunction() {
+        for( int i=0; i<numberOfOps; i++ ) {
+          Future f = client.asyncGet(Integer.toString(i));
+          holdingBuffer.add(f);
+        }
+    }
+
     @Override
     public Object getTuple(Object o)
     {
-      return o;
+      Future f = (Future)o;
+      Object obj=null;
+      try {
+        obj = f.get();
+      }
+      catch (InterruptedException ex) {
+        logger.debug(ex.toString());
+      }
+      catch (ExecutionException ex) {
+        logger.debug(ex.toString());
+      }
+      return obj;
     }
 
     public void generateData()
     {
-      HashMap<String, Integer> map = new HashMap<String, Integer>();
-      map.put("a", 10);
-//      map.put("b", 200);
-//      map.put("c", 3000);
-      System.out.println("Data generator map:"+map.toString());
-      int exp = 60*60*24*30;
-      for( Entry<String, Integer> entry : map.entrySet()) {
-        OperationFuture<Boolean> of = client.set(entry.getKey(), exp, entry.getValue());
-        try {
-          if ( of.get() == false) {
-            System.err.println("Set message:" + entry.getKey() + " Error!");
-          }
-        }
-        catch (InterruptedException ex) {
-          logger.debug(ex.toString());
-        }
-        catch (ExecutionException ex) {
-          logger.debug(ex.toString());
-        }
+      for (int i = 0; i < numberOfOps; i++) {
+        client.set(Integer.toString(i), 86400, "Hello this is a test " + i);
       }
     }
   }
@@ -67,10 +70,8 @@ public class MemcacheInputOperatorBenchmark
       @Override
       public void process(T t)
       {
-        HashMap<String, Object> map = (HashMap<String, Object>)t;
-        resultMap.put("a", map.get("a"));
-//        resultMap.put("b", map.get("b"));
-//        resultMap.put("c", map.get("c"));
+//        resultList.add((Future)t);
+        resultList.add(t);
         resultCount++;
       }
     };
@@ -83,54 +84,54 @@ public class MemcacheInputOperatorBenchmark
     gen.addServer(server);
     gen.setup(null);
     gen.generateData();
+    gen.teardown();
 
     DAG dag = new DAG();
     final TestMemcacheInputOperator input = dag.addOperator("input", TestMemcacheInputOperator.class);
     CollectorModule<Object> collector = dag.addOperator("collector", new CollectorModule<Object>());
 
-    final int readNum = 10000;
-    input.addKey("a");
-//    input.addKey("b");
-//    input.addKey("c");
     input.addServer(server);
-    input.setReadNum(readNum);
+//    input.setRunnable();
 
     dag.addStream("stream",input.outputPort, collector.inputPort);
 
     final StramLocalCluster lc = new StramLocalCluster(dag);
     lc.setHeartbeatMonitoringEnabled(false);
-
+    long start = System.currentTimeMillis();
     new Thread("LocalClusterController")
     {
       @Override
       public void run()
       {
-        try {
-
           while (true) {
-            if (resultCount < readNum) {
-              Thread.sleep(10);
-//              if( resultCount % 1000 == 0)
-//                logger.debug("processed "+resultCount+" tuples");
+            if (resultCount < numberOfOps) {
+              try {
+                Thread.sleep(100);
+              }
+              catch (InterruptedException ex) {
+                logger.debug(ex.toString());
+              }
             }
             else {
               break;
             }
           }
-        }
-        catch (InterruptedException ex) {
-        }
         lc.shutdown();
       }
     }.start();
 
     lc.run();
+    long end = System.currentTimeMillis();
+    long time = end - start;
+    System.out.println("processed "+numberOfOps+" tuples in DAG used "+time+" ms or "+numberOfOps*1.0/time*1000.0+" ops");
 
-
-    Assert.assertEquals("Number of emitted tuples", 1, resultMap.size());
-    Assert.assertEquals("value of a is ", 10, resultMap.get("a"));
-//    Assert.assertEquals("value of b is ", 200, resultMap.get("b"));
-//    Assert.assertEquals("value of c is ", 3000, resultMap.get("c"));
-    System.out.println("resultCount:"+resultCount);
+    Assert.assertEquals("Number of emitted tuples", numberOfOps, resultList.size());
+    int i=0;
+    for( Object o : resultList ) {
+      String str = (String)o;
+      Assert.assertEquals("value of "+i+" is ", str, "Hello this is a test " + i);
+      i++;
+    }
+    System.out.println("resultCount:"+resultCount+" i:"+i);
   }
 }

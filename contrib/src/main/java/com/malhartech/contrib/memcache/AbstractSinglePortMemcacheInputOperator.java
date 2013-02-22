@@ -31,7 +31,7 @@ import java.util.Map.Entry;
  */
 public abstract class AbstractSinglePortMemcacheInputOperator<T> extends AbstractMemcacheInputOperator
 {
-    @OutputPortFieldAnnotation(name = "outputPort")
+  @OutputPortFieldAnnotation(name = "outputPort")
   final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>(this);
 
   /**
@@ -42,10 +42,13 @@ public abstract class AbstractSinglePortMemcacheInputOperator<T> extends Abstrac
    *
    * @param message
    */
-    public abstract T getTuple(Object o);
+  public abstract T getTuple(Object o);
 
-    @Override
-    public void emitTuple(Object o) {
-      outputPort.emit(getTuple(o));
+  @Override
+  public void emitTuple(Object o) {
+    T t = getTuple(o);
+    if( t != null ) {
+      outputPort.emit(t);
     }
+  }
 }
