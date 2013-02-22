@@ -11,7 +11,6 @@ import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.HighLow;
-import com.malhartech.lib.util.KeyValPair;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -116,6 +115,7 @@ public class PhoneMovementGenerator extends BaseOperator
           else { // register the phone channel
             phone_register.put(qid, new Integer(phone));
             log.debug(String.format("Registered query id \"%s\", with phonenum \"%s\"", qid, phone));
+            emitQueryResult(qid, new Integer(phone));
           }
         }
       }
@@ -184,15 +184,21 @@ public class PhoneMovementGenerator extends BaseOperator
       }
     }
     for (Map.Entry<String, Integer> p: phone_register.entrySet()) {
-      HighLow loc = gps.get(p.getValue());
-      if (loc != null) {
-        Map<String, String> queryResult = new HashMap<String, String>();
-        queryResult.put(KEY_QUERYID, p.getKey());
-        queryResult.put(KEY_PHONE, String.valueOf(p.getValue()));
-        queryResult.put(KEY_LOCATION, loc.toString());
-        locationQueryResult.emit(queryResult);
-      }
+      emitQueryResult(p.getKey(), p.getValue());
     }
     newgps.clear();
   }
+
+  private void emitQueryResult(String queryId, Integer phone) {
+    HighLow loc = gps.get(phone);
+    if (loc != null) {
+      Map<String, String> queryResult = new HashMap<String, String>();
+      queryResult.put(KEY_QUERYID, queryId);
+      queryResult.put(KEY_PHONE, String.valueOf(phone));
+      queryResult.put(KEY_LOCATION, loc.toString());
+      locationQueryResult.emit(queryResult);
+    }
+  }
+
+
 }
