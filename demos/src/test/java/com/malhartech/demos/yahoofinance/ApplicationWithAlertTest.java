@@ -2,26 +2,27 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.contrib.sqlite;
+package com.malhartech.demos.yahoofinance;
 
+import com.malhartech.demos.yahoofinance.ApplicationWithSQL;
 import com.malhartech.stram.StramLocalCluster;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 
 /**
  *
- * @author Zhongjian Wang <zhongjian@malhar-inc.com>
+ * @author David Yan <davidyan@malhar-inc.com>
  */
-public class ApplicationTest
+public class ApplicationWithAlertTest
 {
-  public ApplicationTest()
+  public ApplicationWithAlertTest()
   {
   }
 
   @Test
   public void testSomeMethod() throws Exception
   {
-    Application topology = new Application();
+    ApplicationWithAlert topology = new ApplicationWithAlert();
     final StramLocalCluster lc = new StramLocalCluster(topology.getApplication(new Configuration(false)));
 
 //    new Thread("LocalClusterController")

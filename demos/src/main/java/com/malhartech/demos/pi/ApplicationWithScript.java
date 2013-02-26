@@ -2,7 +2,7 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.demos.pi2;
+package com.malhartech.demos.pi;
 
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
@@ -19,7 +19,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @author David Yan <davidyan@malhar-inc.com>
  */
-public class Application implements ApplicationFactory
+public class ApplicationWithScript implements ApplicationFactory
 {
 
   @Override

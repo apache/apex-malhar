@@ -2,7 +2,7 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.demos.pi2;
+package com.malhartech.demos.pi;
 
 import com.malhartech.stram.StramLocalCluster;
 import org.apache.hadoop.conf.Configuration;
@@ -11,12 +11,12 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
-public class ApplicationTest
+public class ApplicationWithScriptTest
 {
   //@Test
   public void testSomeMethod() throws Exception
   {
-    Application topology = new Application();
+    ApplicationWithScript topology = new ApplicationWithScript();
     final StramLocalCluster lc = new StramLocalCluster(topology.getApplication(new Configuration(false)));
 
     new Thread("LocalClusterController")

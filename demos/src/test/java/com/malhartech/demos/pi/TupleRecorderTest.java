@@ -2,7 +2,7 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.demos.pi2;
+package com.malhartech.demos.pi;
 
 import com.malhartech.api.DAG;
 import com.malhartech.demos.pi.*;
@@ -24,7 +24,7 @@ private static File testWorkDir = new File("target", "TupleRecorderTest");
   @Test
   public void testTupleRecorder() throws Exception
   {
-    Application topology = new Application();
+    ApplicationWithScript topology = new ApplicationWithScript();
     DAG dag = topology.getApplication(new Configuration(false));
     dag.getAttributes().attr(DAG.STRAM_APP_PATH).set("file://" + testWorkDir.getAbsolutePath());
     final StramLocalCluster lc = new StramLocalCluster(dag);

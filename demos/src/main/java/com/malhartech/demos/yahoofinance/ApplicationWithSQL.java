@@ -2,10 +2,11 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.contrib.sqlite;
+package com.malhartech.demos.yahoofinance;
 
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
+import com.malhartech.contrib.sqlite.SqliteStreamOperator;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 
@@ -14,7 +15,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @author David Yan <davidyan@malhar-inc.com>
  */
-public class Application implements ApplicationFactory
+public class ApplicationWithSQL implements ApplicationFactory
 {
   @Override
   public DAG getApplication(Configuration conf) {
