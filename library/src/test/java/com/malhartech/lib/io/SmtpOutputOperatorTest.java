@@ -6,9 +6,6 @@ package com.malhartech.lib.io;
 
 import java.util.HashMap;
 import java.util.Map;
-import javax.mail.Message.RecipientType;
-import javax.mail.internet.InternetAddress;
-import org.junit.Test;
 
 
 public class SmtpOutputOperatorTest {
@@ -17,8 +14,8 @@ public class SmtpOutputOperatorTest {
   public void testSmtpOutputNode() throws Exception {
 
     SmtpOutputOperator<Object> node = new SmtpOutputOperator<Object>();
-    node.setFrom(new InternetAddress("jenkins@malhar-inc.com"));
-    node.addRecipient(RecipientType.TO, new InternetAddress("jenkins@malhar-inc.com"));
+    node.setFrom("jenkins@malhar-inc.com");
+    node.addRecipient(SmtpOutputOperator.RecipientType.TO, "jenkins@malhar-inc.com");
     node.setContent("This is an SMTP operator test: {}");
     node.setSmtpHost("secure.emailsrvr.com");
     node.setSmtpPort(465);

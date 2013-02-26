@@ -8,37 +8,35 @@ import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.logging.Level;
 import javax.mail.*;
-import javax.mail.Message.RecipientType;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ShipContainingJars(classes = {javax.net.ssl.SSLSocketFactory.class})
 public class SmtpOutputOperator<T> extends BaseOperator
 {
+  public enum RecipientType
+  {
+    TO, CC, BCC
+  };
+
   private static final Logger LOG = LoggerFactory.getLogger(SmtpOutputOperator.class);
   protected String subject;
   protected String content;
-  protected Session session;
-  protected Message message;
-  protected InternetAddress fromAddress;
-  protected HashMap<Message.RecipientType, ArrayList<InternetAddress>> recAddresses = new HashMap<RecipientType, ArrayList<InternetAddress>>();
-  protected Properties properties = System.getProperties();
-  protected Authenticator auth;
+  protected transient Session session;
+  protected transient Message message;
+  protected String fromAddress;
+  protected HashMap<RecipientType, ArrayList<String>> recAddresses = new HashMap<RecipientType, ArrayList<String>>();
+  protected transient Properties properties = System.getProperties();
+  protected transient Authenticator auth;
   protected int smtpPort = 587;
   protected String smtpHost;
   protected String smtpUserName;
@@ -88,15 +86,15 @@ public class SmtpOutputOperator<T> extends BaseOperator
     this.smtpPassword = password;
   }
 
-  public void setFrom(InternetAddress from)
+  public void setFrom(String from)
   {
     fromAddress = from;
   }
 
-  public void addRecipient(Message.RecipientType type, InternetAddress rec)
+  public void addRecipient(RecipientType type, String rec)
   {
     if (!recAddresses.containsKey(type)) {
-      recAddresses.put(type, new ArrayList<InternetAddress>());
+      recAddresses.put(type, new ArrayList<String>());
     }
     recAddresses.get(type).add(rec);
   }
@@ -147,10 +145,23 @@ public class SmtpOutputOperator<T> extends BaseOperator
 
     try {
       message = new MimeMessage(session);
-      message.setFrom(fromAddress);
-      for (Map.Entry<RecipientType, ArrayList<InternetAddress>> entry: recAddresses.entrySet()) {
-        for (InternetAddress addr: entry.getValue()) {
-          message.addRecipient(entry.getKey(), addr);
+      message.setFrom(new InternetAddress(fromAddress));
+      for (Map.Entry<RecipientType, ArrayList<String>> entry: recAddresses.entrySet()) {
+        for (String addr: entry.getValue()) {
+          Message.RecipientType mtype;
+          switch (entry.getKey()) {
+            case TO:
+              mtype = Message.RecipientType.TO;
+              break;
+            case CC:
+              mtype = Message.RecipientType.CC;
+              break;
+            case BCC:
+            default:
+              mtype = Message.RecipientType.BCC;
+              break;
+          }
+          message.addRecipient(mtype, new InternetAddress(addr));
         }
       }
       message.setSubject(subject);
