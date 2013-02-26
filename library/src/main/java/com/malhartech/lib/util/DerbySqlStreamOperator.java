@@ -32,6 +32,7 @@ public class DerbySqlStreamOperator extends AbstractSqlStreamOperator
     }
     catch (Exception ex) {
       Logger.getLogger(DerbySqlStreamOperator.class.getName()).log(Level.SEVERE, null, ex);
+      return;
     }
 
     String connUrl = "jdbc:derby:memory:MALHAR_TEMP;create=true";
@@ -42,7 +43,6 @@ public class DerbySqlStreamOperator extends AbstractSqlStreamOperator
       // create the temporary tables here
       for (int i = 0; i < inputSchemas.size(); i++) {
         InputSchema inputSchema = inputSchemas.get(i);
-        ArrayList<String> indexes = new ArrayList<String>();
         if (inputSchema == null || inputSchema.columnInfoMap.isEmpty()) {
           continue;
         }
@@ -59,9 +59,6 @@ public class DerbySqlStreamOperator extends AbstractSqlStreamOperator
           columnSpec += entry.getKey();
           columnSpec += " ";
           columnSpec += entry.getValue().type;
-          if (entry.getValue().isColumnIndex) {
-            indexes.add(entry.getKey());
-          }
           columnNames += entry.getKey();
           insertQuestionMarks += "?";
           entry.getValue().bindIndex = ++j;
@@ -70,19 +67,10 @@ public class DerbySqlStreamOperator extends AbstractSqlStreamOperator
         st = db.prepareStatement(createTempTableStmt);
         st.execute();
         st.close();
-        /*
-        for (String index: indexes) {
-          String createIndexStmt = "CREATE INDEX SESSION." + inputSchema.name + "_" + index + "_idx ON SESSION." + inputSchema.name + " (" + index + ")";
-          st = db.prepareStatement(createIndexStmt);
-          st.execute();
-          st.close();
-        }
-        */
+
         String insertStmt = "INSERT INTO SESSION." + inputSchema.name + " (" + columnNames + ") VALUES (" + insertQuestionMarks + ")";
 
         insertStatements.add(i, db.prepareStatement(insertStmt));
-        // We are calling "DELETE FROM" on the tables and because of the "truncate optimization" in sqlite, it should be fast.
-        // See http://sqlite.org/lang_delete.html
         deleteStatements.add(i, db.prepareStatement("DELETE FROM SESSION." + inputSchema.name));
       }
       execStatement = db.prepareStatement(statement);
