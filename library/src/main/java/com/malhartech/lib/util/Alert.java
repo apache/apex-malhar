@@ -18,6 +18,7 @@ public class Alert<T> extends BaseOperator
 {
   protected long lastAlertTimeStamp = -1;
   protected long inAlertSince = -1;
+  protected long lastTupleTimeStamp = -1;
   protected long timeout = 5000; // 5 seconds
   protected long alertFrequency = 0;
   protected long levelOneTimeStamp = 0;
@@ -33,6 +34,7 @@ public class Alert<T> extends BaseOperator
       if (inAlertSince < 0) {
         inAlertSince = now;
       }
+      lastTupleTimeStamp = now;
       if (lastAlertTimeStamp + alertFrequency < now) {
         if (inAlertSince >= levelOneTimeStamp) {
           alert1.emit(tuple);
@@ -50,9 +52,9 @@ public class Alert<T> extends BaseOperator
   };
   @OutputPortFieldAnnotation(name = "alert1", optional = false)
   public final transient DefaultOutputPort<T> alert1 = new DefaultOutputPort<T>(this);
-  @OutputPortFieldAnnotation(name = "alert2", optional = false)
+  @OutputPortFieldAnnotation(name = "alert2", optional = true)
   public final transient DefaultOutputPort<T> alert2 = new DefaultOutputPort<T>(this);
-  @OutputPortFieldAnnotation(name = "alert3", optional = false)
+  @OutputPortFieldAnnotation(name = "alert3", optional = true)
   public final transient DefaultOutputPort<T> alert3 = new DefaultOutputPort<T>(this);
 
   public void setAlertFrequency(long millis)
@@ -89,7 +91,7 @@ public class Alert<T> extends BaseOperator
 
   protected void checkTimeout()
   {
-    if (System.currentTimeMillis() - inAlertSince > timeout) {
+    if (System.currentTimeMillis() - lastTupleTimeStamp > timeout) {
       inAlertSince = -1;
       lastAlertTimeStamp = -1;
     }
