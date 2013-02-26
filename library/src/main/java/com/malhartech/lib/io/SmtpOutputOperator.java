@@ -27,7 +27,6 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class SmtpOutputOperator<T> extends BaseOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(SmtpOutputOperator.class);
@@ -36,7 +35,7 @@ public class SmtpOutputOperator<T> extends BaseOperator
   protected Session session;
   protected Message message;
   protected InternetAddress fromAddress;
-  protected HashMap<Message.RecipientType, ArrayList<InternetAddress>> recAddresses;
+  protected HashMap<Message.RecipientType, ArrayList<InternetAddress>> recAddresses = new HashMap<RecipientType, ArrayList<InternetAddress>>();
   protected Properties properties = System.getProperties();
   protected Authenticator auth;
   protected int smtpPort = 587;
@@ -44,13 +43,14 @@ public class SmtpOutputOperator<T> extends BaseOperator
   protected String smtpUserName;
   protected String smtpPassword;
   protected String contentType = "text/plain";
+  protected boolean useSsl = false;
   public final transient DefaultInputPort<T> input = new DefaultInputPort<T>(this)
   {
     @Override
     public void process(T t)
     {
       try {
-        String mailContent = content.replace("\\{\\}", t.toString());
+        String mailContent = content.replace("{}", t.toString());
         message.setContent(mailContent, contentType);
         Transport.send(message);
       }
@@ -77,7 +77,7 @@ public class SmtpOutputOperator<T> extends BaseOperator
     this.smtpPort = port;
   }
 
-  public void setSmtpUser(String user)
+  public void setSmtpUserName(String user)
   {
     this.smtpUserName = user;
   }
@@ -105,9 +105,14 @@ public class SmtpOutputOperator<T> extends BaseOperator
     this.subject = subject;
   }
 
-  public void setContent(String content, String mimeType)
+  public void setContent(String content)
   {
     this.content = content;
+  }
+
+  public void setUseSsl(boolean useSsl)
+  {
+    this.useSsl = useSsl;
   }
 
   @Override
@@ -118,6 +123,11 @@ public class SmtpOutputOperator<T> extends BaseOperator
     if (!StringUtils.isBlank(smtpPassword)) {
       properties.setProperty("mail.smtp.auth", "true");
       properties.setProperty("mail.smtp.starttls.enable", "true");
+      if (useSsl) {
+        properties.setProperty("mail.smtp.socketFactory.port", String.valueOf(smtpPort));
+        properties.setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+        properties.setProperty("mail.smtp.socketFactory.fallback", "false");
+      }
 
       auth = new Authenticator()
       {
@@ -135,6 +145,7 @@ public class SmtpOutputOperator<T> extends BaseOperator
     session = Session.getInstance(properties, auth);
 
     try {
+      message = new MimeMessage(session);
       message.setFrom(fromAddress);
       for (Map.Entry<RecipientType, ArrayList<InternetAddress>> entry: recAddresses.entrySet()) {
         for (InternetAddress addr: entry.getValue()) {
