@@ -27,6 +27,7 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@ShipContainingJars(classes = {javax.net.ssl.SSLSocketFactory.class})
 public class SmtpOutputOperator<T> extends BaseOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(SmtpOutputOperator.class);
