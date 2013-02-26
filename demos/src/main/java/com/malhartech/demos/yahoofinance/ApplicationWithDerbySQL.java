@@ -6,8 +6,8 @@ package com.malhartech.demos.yahoofinance;
 
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
-import com.malhartech.contrib.sqlite.SqliteStreamOperator;
 import com.malhartech.lib.io.ConsoleOutputOperator;
+import com.malhartech.lib.util.AbstractSqlStreamOperator;
 import com.malhartech.lib.util.DerbySqlStreamOperator;
 import org.apache.hadoop.conf.Configuration;
 
@@ -38,8 +38,8 @@ public class ApplicationWithDerbySQL implements ApplicationFactory
     input2.addFormat("e0");
     input2.addFormat("b4");
 
-    SqliteStreamOperator.InputSchema inputSchema1 = new SqliteStreamOperator.InputSchema("t1");
-    SqliteStreamOperator.InputSchema inputSchema2 = new SqliteStreamOperator.InputSchema("t2");
+    AbstractSqlStreamOperator.InputSchema inputSchema1 = new AbstractSqlStreamOperator.InputSchema("t1");
+    AbstractSqlStreamOperator.InputSchema inputSchema2 = new AbstractSqlStreamOperator.InputSchema("t2");
     inputSchema1.setColumnInfo("s0", "varchar(100)", true); // symbol
     inputSchema1.setColumnInfo("l1", "float", false);  // last trade
     inputSchema2.setColumnInfo("s0", "varchar(100)", true); // symbol
