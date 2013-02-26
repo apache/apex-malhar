@@ -55,7 +55,7 @@ public class ApplicationWithAlert implements ApplicationFactory
 
     sqlOper.setInputSchema(0, inputSchema1);
 
-    // Calculate PE Ratio and PB Ratio using SQL
+    // select the alert using SQL
     sqlOper.setStatement("SELECT t1.s0 AS symbol, t1.l1 AS last_trade FROM t1 WHERE t1.s0 = 'AAPL' AND t1.l1 < 450");
 
     dag.addStream("input1_sql", input1.outputPort, sqlOper.in1);
