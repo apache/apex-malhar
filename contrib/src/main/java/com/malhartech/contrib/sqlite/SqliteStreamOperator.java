@@ -104,6 +104,7 @@ public class SqliteStreamOperator extends AbstractSqlStreamOperator
     }
   }
 
+  @Override
   public void processTuple(int tableNum, HashMap<String, Object> tuple)
   {
     InputSchema inputSchema = inputSchemas.get(tableNum);
