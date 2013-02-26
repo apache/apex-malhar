@@ -27,15 +27,7 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- * Sends tuple as POST with JSON content to the given URL<p>
- * <br>
- * Data of type {@link java.util.Map} is converted to JSON. All other types are sent in their {@link Object#toString()} representation.<br>
- * <br>
- *
- */
-@ShipContainingJars(classes = {com.sun.jersey.api.client.ClientHandler.class})
+
 public class SmtpOutputOperator<T> extends BaseOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(SmtpOutputOperator.class);
@@ -51,6 +43,7 @@ public class SmtpOutputOperator<T> extends BaseOperator
   protected String smtpHost;
   protected String smtpUserName;
   protected String smtpPassword;
+  protected String contentType = "text/plain";
   public final transient DefaultInputPort<T> input = new DefaultInputPort<T>(this)
   {
     @Override
@@ -58,7 +51,7 @@ public class SmtpOutputOperator<T> extends BaseOperator
     {
       try {
         String mailContent = content.replace("\\{\\}", t.toString());
-        message.setContent(mailContent, "text/html");
+        message.setContent(mailContent, contentType);
         Transport.send(message);
       }
       catch (MessagingException ex) {
@@ -68,6 +61,11 @@ public class SmtpOutputOperator<T> extends BaseOperator
     }
 
   };
+
+  public void setContentType(String type)
+  {
+    contentType = type;
+  }
 
   public void setSmtpHost(String host)
   {
@@ -148,7 +146,7 @@ public class SmtpOutputOperator<T> extends BaseOperator
     catch (MessagingException ex) {
       java.util.logging.Logger.getLogger(SmtpOutputOperator.class.getName()).log(Level.SEVERE, null, ex);
     }
-    
+
   }
 
 }
