@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.engine.TestCountAndLastTupleSink;
+import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;

@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.engine.TestCountAndLastTupleSink;
+import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
@@ -44,6 +44,7 @@ public class CompareMapTest
 
     oper.beginWindow(0);
     HashMap<String, Number> input = new HashMap<String, Number>();
+
     input.put("a", 2);
     input.put("b", 20);
     input.put("c", 1000);

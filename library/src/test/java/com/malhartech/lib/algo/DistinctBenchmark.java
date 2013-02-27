@@ -3,8 +3,8 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.engine.TestCountSink;
-import com.malhartech.engine.TestHashSink;
+import com.malhartech.lib.testbench.TestCountSink;
+import com.malhartech.lib.testbench.TestHashSink;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;

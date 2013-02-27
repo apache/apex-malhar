@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.engine.TestCountAndLastTupleSink;
+import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import junit.framework.Assert;

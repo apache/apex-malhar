@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.engine.TestCountSink;
+import com.malhartech.lib.testbench.TestCountSink;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

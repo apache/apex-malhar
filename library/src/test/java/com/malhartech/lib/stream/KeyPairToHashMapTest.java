@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.stream;
 
-import com.malhartech.engine.TestCountSink;
+import com.malhartech.lib.testbench.TestCountSink;
 import com.malhartech.lib.util.KeyValPair;
 import java.util.HashMap;
 import junit.framework.Assert;

@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.logs;
 
-import com.malhartech.engine.TestArrayListSink;
+import com.malhartech.lib.testbench.TestArrayListSink;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;

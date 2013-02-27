@@ -6,7 +6,7 @@ package com.malhartech.lib.math;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.*;
-import com.malhartech.engine.TestCountAndLastTupleSink;
+import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
 import com.malhartech.engine.TestSink;
 import com.malhartech.stram.StramLocalCluster;
 import java.util.ArrayList;

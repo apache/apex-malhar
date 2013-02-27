@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.logs;
 
-import com.malhartech.engine.TestArrayListSink;
+import com.malhartech.lib.testbench.TestArrayListSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;

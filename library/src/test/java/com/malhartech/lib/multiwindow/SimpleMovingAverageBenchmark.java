@@ -4,7 +4,7 @@
  */
 package com.malhartech.lib.multiwindow;
 
-import com.malhartech.engine.TestCountSink;
+import com.malhartech.lib.testbench.TestCountSink;
 import com.malhartech.lib.util.KeyValPair;
 import junit.framework.Assert;
 import org.junit.Test;

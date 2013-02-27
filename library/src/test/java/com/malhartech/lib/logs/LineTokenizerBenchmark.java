@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.logs;
 
-import com.malhartech.engine.TestHashSink;
+import com.malhartech.lib.testbench.TestHashSink;
 import com.malhartech.lib.math.*;
 import junit.framework.Assert;
 import org.junit.Test;

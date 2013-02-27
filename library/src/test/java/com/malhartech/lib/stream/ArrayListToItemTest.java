@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.stream;
 
-import com.malhartech.engine.TestCountSink;
+import com.malhartech.lib.testbench.TestCountSink;
 import java.util.ArrayList;
 import junit.framework.Assert;
 import org.junit.Test;
