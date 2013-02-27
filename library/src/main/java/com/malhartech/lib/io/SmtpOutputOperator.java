@@ -8,10 +8,7 @@ import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Level;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -34,7 +31,7 @@ public class SmtpOutputOperator<T> extends BaseOperator
   protected transient Session session;
   protected transient Message message;
   protected String fromAddress;
-  protected HashMap<RecipientType, ArrayList<String>> recAddresses = new HashMap<RecipientType, ArrayList<String>>();
+  protected Map<RecipientType, ArrayList<String>> recAddresses = new EnumMap<RecipientType, ArrayList<String>>(RecipientType.class);
   protected transient Properties properties = System.getProperties();
   protected transient Authenticator auth;
   protected int smtpPort = 587;
@@ -54,7 +51,7 @@ public class SmtpOutputOperator<T> extends BaseOperator
         Transport.send(message);
       }
       catch (MessagingException ex) {
-        java.util.logging.Logger.getLogger(SmtpOutputOperator.class.getName()).log(Level.SEVERE, null, ex);
+        LOG.error(ex.toString());
       }
 
     }
@@ -167,7 +164,7 @@ public class SmtpOutputOperator<T> extends BaseOperator
       message.setSubject(subject);
     }
     catch (MessagingException ex) {
-      java.util.logging.Logger.getLogger(SmtpOutputOperator.class.getName()).log(Level.SEVERE, null, ex);
+      LOG.error(ex.toString());
     }
 
   }
