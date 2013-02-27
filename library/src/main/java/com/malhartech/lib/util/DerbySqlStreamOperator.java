@@ -10,8 +10,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -31,8 +29,7 @@ public class DerbySqlStreamOperator extends AbstractSqlStreamOperator
       Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
     }
     catch (Exception ex) {
-      Logger.getLogger(DerbySqlStreamOperator.class.getName()).log(Level.SEVERE, null, ex);
-      return;
+      throw new RuntimeException(ex);
     }
 
     String connUrl = "jdbc:derby:memory:MALHAR_TEMP;create=true";
@@ -76,7 +73,7 @@ public class DerbySqlStreamOperator extends AbstractSqlStreamOperator
       execStatement = db.prepareStatement(statement);
     }
     catch (SQLException ex) {
-      Logger.getLogger(DerbySqlStreamOperator.class.getName()).log(Level.SEVERE, null, ex);
+      throw new RuntimeException(ex);
     }
   }
 
@@ -87,7 +84,7 @@ public class DerbySqlStreamOperator extends AbstractSqlStreamOperator
       db.setAutoCommit(false);
     }
     catch (SQLException ex) {
-      Logger.getLogger(DerbySqlStreamOperator.class.getName()).log(Level.SEVERE, null, ex);
+      throw new RuntimeException(ex);
     }
   }
 
@@ -110,7 +107,7 @@ public class DerbySqlStreamOperator extends AbstractSqlStreamOperator
       insertStatement.clearParameters();
     }
     catch (SQLException ex) {
-      Logger.getLogger(DerbySqlStreamOperator.class.getName()).log(Level.SEVERE, null, ex);
+      throw new RuntimeException(ex);
     }
   }
 
@@ -142,7 +139,7 @@ public class DerbySqlStreamOperator extends AbstractSqlStreamOperator
       }
     }
     catch (SQLException ex) {
-      Logger.getLogger(DerbySqlStreamOperator.class.getName()).log(Level.SEVERE, null, ex);
+      throw new RuntimeException(ex);
     }
     bindings = null;
   }
@@ -154,7 +151,7 @@ public class DerbySqlStreamOperator extends AbstractSqlStreamOperator
       db.close();
     }
     catch (SQLException ex) {
-      Logger.getLogger(DerbySqlStreamOperator.class.getName()).log(Level.SEVERE, null, ex);
+      throw new RuntimeException(ex);
     }
   }
 

@@ -9,13 +9,10 @@ import com.malhartech.api.ActivationListener;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
-import com.malhartech.util.CircularBuffer;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import java.net.UnknownHostException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
 
 /**

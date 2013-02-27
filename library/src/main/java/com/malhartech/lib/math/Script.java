@@ -13,8 +13,6 @@ import com.malhartech.api.DefaultOutputPort;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.script.*;
 
 /**
@@ -63,12 +61,10 @@ public class Script extends BaseOperator
           result.emit(evalResult);
         }
       }
-      catch (ScriptException ex) {
-        Logger.getLogger(Script.class.getName()).log(Level.SEVERE, null, ex);
+      catch (Exception ex) {
+        throw new RuntimeException(ex);
       }
-      catch (NoSuchMethodException ex) {
-        Logger.getLogger(Script.class.getName()).log(Level.SEVERE, null, ex);
-      }
+
       if (isPassThru) {
         outBindings.emit(new HashMap<String, Object>(engine.getBindings(ScriptContext.ENGINE_SCOPE)));
       }
@@ -136,7 +132,7 @@ public class Script extends BaseOperator
       }
     }
     catch (ScriptException ex) {
-      Logger.getLogger(Script.class.getName()).log(Level.SEVERE, null, ex);
+      throw new RuntimeException(ex);
     }
   }
 

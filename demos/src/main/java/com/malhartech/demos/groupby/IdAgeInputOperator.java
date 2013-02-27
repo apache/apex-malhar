@@ -7,11 +7,8 @@ package com.malhartech.demos.groupby;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *

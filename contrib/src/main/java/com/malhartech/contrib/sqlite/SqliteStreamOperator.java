@@ -14,8 +14,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -23,6 +23,7 @@ import java.util.logging.Logger;
  */
 public class SqliteStreamOperator extends AbstractSqlStreamOperator
 {
+  private static final Logger logger = LoggerFactory.getLogger(SqliteStreamOperator.class);
   protected transient ArrayList<SQLiteStatement> insertStatements = new ArrayList<SQLiteStatement>(5);
   protected transient SQLiteStatement beginStatement;
   protected transient SQLiteStatement commitStatement;
@@ -34,7 +35,7 @@ public class SqliteStreamOperator extends AbstractSqlStreamOperator
   public void setup(OperatorContext context)
   {
     db = new SQLiteConnection(new File("/tmp/sqlite.db"));
-    Logger.getLogger("com.almworks.sqlite4java").setLevel(Level.SEVERE);
+    java.util.logging.Logger.getLogger("com.almworks.sqlite4java").setLevel(java.util.logging.Level.SEVERE);
     SQLiteStatement st;
 
     try {
@@ -50,7 +51,7 @@ public class SqliteStreamOperator extends AbstractSqlStreamOperator
         String columnNames = "";
         String insertQuestionMarks = "";
         int j = 0;
-        for (Map.Entry<String, ColumnInfo> entry: inputSchema.columnInfoMap.entrySet()) {
+        for (Map.Entry<String, ColumnInfo> entry : inputSchema.columnInfoMap.entrySet()) {
           if (!columnSpec.isEmpty()) {
             columnSpec += ",";
             columnNames += ",";
@@ -70,7 +71,7 @@ public class SqliteStreamOperator extends AbstractSqlStreamOperator
         st = db.prepare(createTempTableStmt);
         st.step();
         st.dispose();
-        for (String index: indexes) {
+        for (String index : indexes) {
           String createIndexStmt = "CREATE INDEX " + inputSchema.name + "_" + index + "_idx ON " + inputSchema.name + " (" + index + ")";
           st = db.prepare(createIndexStmt);
           st.step();
@@ -88,7 +89,7 @@ public class SqliteStreamOperator extends AbstractSqlStreamOperator
       execStatement = db.prepare(statement);
     }
     catch (SQLiteException ex) {
-      Logger.getLogger(SqliteStreamOperator.class.getName()).log(Level.SEVERE, null, ex);
+      throw new RuntimeException(ex);
     }
   }
 
@@ -100,7 +101,7 @@ public class SqliteStreamOperator extends AbstractSqlStreamOperator
       beginStatement.reset();
     }
     catch (SQLiteException ex) {
-      Logger.getLogger(SqliteStreamOperator.class.getName()).log(Level.SEVERE, null, ex);
+      throw new RuntimeException(ex);
     }
   }
 
@@ -111,7 +112,7 @@ public class SqliteStreamOperator extends AbstractSqlStreamOperator
 
     SQLiteStatement insertStatement = insertStatements.get(tableNum);
     try {
-      for (Map.Entry<String, Object> entry: tuple.entrySet()) {
+      for (Map.Entry<String, Object> entry : tuple.entrySet()) {
         ColumnInfo t = inputSchema.columnInfoMap.get(entry.getKey());
         if (t != null && t.bindIndex != 0) {
           //System.out.println("Binding: "+entry.getValue().toString()+" to "+t.bindIndex);
@@ -123,7 +124,7 @@ public class SqliteStreamOperator extends AbstractSqlStreamOperator
       insertStatement.reset();
     }
     catch (SQLiteException ex) {
-      Logger.getLogger(SqliteStreamOperator.class.getName()).log(Level.SEVERE, null, ex);
+      throw new RuntimeException(ex);
     }
   }
 
@@ -148,13 +149,13 @@ public class SqliteStreamOperator extends AbstractSqlStreamOperator
       }
       execStatement.reset();
 
-      for (SQLiteStatement st: deleteStatements) {
+      for (SQLiteStatement st : deleteStatements) {
         st.step();
         st.reset();
       }
     }
     catch (SQLiteException ex) {
-      Logger.getLogger(SqliteStreamOperator.class.getName()).log(Level.SEVERE, null, ex);
+      throw new RuntimeException(ex);
     }
     bindings = null;
   }

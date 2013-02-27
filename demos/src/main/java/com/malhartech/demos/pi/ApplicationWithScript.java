@@ -10,9 +10,6 @@ import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.math.Script;
 import com.malhartech.lib.stream.RoundRobinHashMap;
 import com.malhartech.lib.testbench.RandomEventGenerator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.script.ScriptException;
 import org.apache.hadoop.conf.Configuration;
 
 /**
