@@ -4,15 +4,14 @@
  */
 package com.malhartech.demos.mobile;
 
-import com.malhartech.demos.mobile.Application2;
 import com.malhartech.stram.StramLocalCluster;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 
 
-public class Application2Test
+public class ApplicationAlertTest
 {
-  public Application2Test()
+  public ApplicationAlertTest()
   {
   }
 
@@ -22,7 +21,7 @@ public class Application2Test
   @Test
   public void testGetApplication() throws Exception
   {
-    Application2 app = new Application2();
+    ApplicationAlert app = new ApplicationAlert();
     StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));
     lc.setHeartbeatMonitoringEnabled(false);
     lc.run();
