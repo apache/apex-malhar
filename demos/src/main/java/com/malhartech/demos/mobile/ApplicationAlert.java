@@ -70,6 +70,7 @@ public class ApplicationAlert implements ApplicationFactory
     movementgen.phone_register.put("q3", 9996101);
 
     Alert alertOper = dag.addOperator("palert", Alert.class);
+    alertOper.setAlertFrequency(10000);
     ConsoleOutputOperator console = dag.addOperator("phoneLocationQueryResult", new ConsoleOutputOperator());
     console.setStringFormat("result: %s");
 
@@ -80,8 +81,8 @@ public class ApplicationAlert implements ApplicationFactory
 
     mailOper.setFrom("jenkins@malhar-inc.com");
     mailOper.addRecipient(SmtpOutputOperator.RecipientType.TO, "jenkins@malhar-inc.com");
-    mailOper.setContent("AAPL: {}\nThis is an auto-generated message. Do not reply.");
-    mailOper.setSubject("ALERT: AAPL is less than 450");
+    mailOper.setContent("Phone Location: {}\nThis is an auto-generated message. Do not reply.");
+    mailOper.setSubject("Update New Location");
     mailOper.setSmtpHost("secure.emailsrvr.com");
     mailOper.setSmtpPort(465);
     mailOper.setSmtpUserName("jenkins@malhar-inc.com");
