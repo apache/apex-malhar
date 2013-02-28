@@ -12,6 +12,7 @@ import com.malhartech.api.DefaultOutputPort;
 
 /**
  *
+ * @param <T>
  * @author David Yan <davidyan@malhar-inc.com>
  */
 public class Alert<T> extends BaseOperator
@@ -70,7 +71,6 @@ public class Alert<T> extends BaseOperator
   public void setLevelTwoAlertTimeStamp(long millis)
   {
     levelTwoTimeStamp = millis;
-
   }
 
   public void setLevelThreeAlertTimeStamp(long millis)
