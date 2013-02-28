@@ -9,19 +9,19 @@ import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 
 
-public class ApplicationTest
+public class ApplicationObsoleteTest
 {
-  public ApplicationTest()
+  public ApplicationObsoleteTest()
   {
   }
 
   /**
-   * Test of getApplication method, of class Application.
+   * Test of getApplication method, of class ApplicationObsolete.
    */
   @Test
   public void testGetApplication() throws Exception
   {
-    Application app = new Application();
+    ApplicationObsolete app = new ApplicationObsolete();
     StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));
     lc.setHeartbeatMonitoringEnabled(false);
     lc.run();
