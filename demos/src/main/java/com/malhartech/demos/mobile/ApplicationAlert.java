@@ -12,6 +12,7 @@ import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.io.HttpInputOperator;
 import com.malhartech.lib.io.HttpOutputOperator;
 import com.malhartech.lib.testbench.RandomEventGenerator;
+import com.malhartech.lib.util.Alert;
 import java.net.URI;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
@@ -20,9 +21,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Mobile Demo ApplicationObsolete.<p>
  */
-public class Application2 implements ApplicationFactory
+public class ApplicationAlert implements ApplicationFactory
 {
-  private static final Logger LOG = LoggerFactory.getLogger(Application2.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ApplicationAlert.class);
   public static final String P_phoneRange = com.malhartech.demos.mobile.ApplicationObsolete.class.getName() + ".phoneRange";
   private String ajaxServerAddr = null;
   private Range<Integer> phoneRange = Ranges.closed(9990000, 9999999);
@@ -71,6 +72,9 @@ public class Application2 implements ApplicationFactory
     PhoneMovementGenerator movementgen = dag.addOperator("pmove", PhoneMovementGenerator.class);
     movementgen.setRange(20);
     movementgen.setThreshold(80);
+
+    Alert aoper = dag.addOperator("palert", Alert.class);
+
 
     dag.addStream("phonedata", phones.integer_data, movementgen.data).setInline(true);
 

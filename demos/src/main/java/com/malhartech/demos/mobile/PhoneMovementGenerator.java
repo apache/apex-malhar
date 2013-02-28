@@ -159,7 +159,7 @@ public class PhoneMovementGenerator extends BaseOperator
     threshold = i;
   }
 
-  @OutputPortFieldAnnotation(name = "console")
+  @OutputPortFieldAnnotation(name = "locationQueryResult")
   public final transient DefaultOutputPort<Map<String, String>> locationQueryResult = new DefaultOutputPort<Map<String, String>>(this);
 
   @Override

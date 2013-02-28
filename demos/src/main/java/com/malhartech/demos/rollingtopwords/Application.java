@@ -4,8 +4,8 @@
  */
 package com.malhartech.demos.rollingtopwords;
 
-import com.malhartech.api.DAG;
 import com.malhartech.api.ApplicationFactory;
+import com.malhartech.api.DAG;
 import com.malhartech.demos.twitter.TwitterSampleInput;
 import com.malhartech.lib.algo.UniqueCounter;
 import com.malhartech.lib.algo.WindowedTopCounter;
