@@ -23,7 +23,7 @@ public class ApplicationAlert implements ApplicationFactory
 {
   private static final Logger LOG = LoggerFactory.getLogger(ApplicationAlert.class);
   public static final String P_phoneRange = com.malhartech.demos.mobile.ApplicationObsolete.class.getName() + ".phoneRange";
-  private Range<Integer> phoneRange = Ranges.closed(9990000, 9999999);
+  private Range<Integer> phoneRange = Ranges.closed(9900000, 9999999);
 
   private void configure(Configuration conf)
   {
@@ -70,11 +70,11 @@ public class ApplicationAlert implements ApplicationFactory
     movementgen.phone_register.put("q3", 9996101);
 
     Alert alertOper = dag.addOperator("palert", Alert.class);
-    ConsoleOutputOperator out = dag.addOperator("phoneLocationQueryResult", new ConsoleOutputOperator());
-    out.setStringFormat("phoneLocationQueryResult" + ": %s");
+    ConsoleOutputOperator console = dag.addOperator("phoneLocationQueryResult", new ConsoleOutputOperator());
+    console.setStringFormat("result: %s");
 
     dag.addStream("phonedata", phones.integer_data, movementgen.data).setInline(true);
-    dag.addStream("consoledata", movementgen.locationQueryResult, out.input, alertOper.in).setInline(true);
+    dag.addStream("consoledata", movementgen.locationQueryResult, console.input, alertOper.in).setInline(true);
 
     SmtpOutputOperator mailOper = dag.addOperator("mail", new SmtpOutputOperator());
 
@@ -88,7 +88,7 @@ public class ApplicationAlert implements ApplicationFactory
     mailOper.setSmtpPassword("Testing1");
     mailOper.setUseSsl(true);
 
-    dag.addStream("alert_mail", alertOper.alert1, mailOper.input);
+    dag.addStream("alert_mail", alertOper.alert1, mailOper.input).setInline(true);
 
     return dag;
   }
