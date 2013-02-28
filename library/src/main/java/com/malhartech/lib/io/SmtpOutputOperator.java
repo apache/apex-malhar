@@ -9,7 +9,7 @@ import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
 import java.util.ArrayList;
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import javax.mail.*;
@@ -33,7 +33,7 @@ public class SmtpOutputOperator<T> extends BaseOperator
   protected transient Session session;
   protected transient Message message;
   protected String fromAddress;
-  protected Map<RecipientType, ArrayList<String>> recAddresses = new EnumMap<RecipientType, ArrayList<String>>(RecipientType.class);
+  protected Map<RecipientType, ArrayList<String>> recAddresses = new HashMap<RecipientType, ArrayList<String>>();
   protected transient Properties properties = System.getProperties();
   protected transient Authenticator auth;
   protected int smtpPort = 587;
