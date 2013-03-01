@@ -21,7 +21,7 @@ import org.apache.hadoop.conf.Configuration;
 public class Application implements ApplicationFactory
 {
   private boolean allInline = false;
-  private String addr = "tcp://127.0.0.1:5555";
+  private final String addr = "tcp://127.0.0.1:5555";
 
   @Override
   public DAG getApplication(Configuration conf)

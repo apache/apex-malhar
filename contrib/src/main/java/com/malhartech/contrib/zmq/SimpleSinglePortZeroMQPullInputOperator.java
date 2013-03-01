@@ -17,10 +17,11 @@ import org.zeromq.ZMQ;
 public abstract class SimpleSinglePortZeroMQPullInputOperator<T> extends SimpleSinglePortInputOperator<T> implements Runnable
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractBaseZeroMQInputOperator.class);
-  protected transient ZMQ.Context context;
-  protected transient ZMQ.Socket sock;
-  protected String zmqAddress = "tcp://127.0.0.1:5555";
+  private transient ZMQ.Context context;
+  private transient ZMQ.Socket sock;
+  private String zmqAddress = "tcp://127.0.0.1:5555";
 
+  @SuppressWarnings("unused")
   private SimpleSinglePortZeroMQPullInputOperator()
   {
     super();

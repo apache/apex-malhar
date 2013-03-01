@@ -107,6 +107,7 @@
       <artifactId>kafka</artifactId>
       <version>0.7.1</version>
       <scope>provided</scope> <!-- local repository -->
+      <optional>true</optional>
     </dependency>
     <dependency>
       <!--
@@ -119,22 +120,25 @@
       <groupId>org.zeromq</groupId>
       <artifactId>jzmq</artifactId>
       <version>2.1.0</version>
-      <scope>provided</scope> <!-- local repository -->
+      <optional>true</optional> <!-- local repository -->
     </dependency>
     <dependency>
       <groupId>org.mongodb</groupId>
       <artifactId>mongo-java-driver</artifactId>
       <version>2.10.1</version>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
       <version>5.1.22</version>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.rabbitmq</groupId>
       <artifactId>amqp-client</artifactId>
       <version>2.8.7</version>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.scala-lang</groupId>
@@ -146,16 +150,17 @@
       <artifactId>zkclient</artifactId>
       <version>0.1</version>
     </dependency>
-    <dependency>
+    <!--dependency>
       <groupId>org.apache.zookeeper</groupId>
       <artifactId>zookeeper</artifactId>
       <version>3.3.5</version>
-    </dependency>
+    </dependency-->
     <dependency>
       <groupId>com.almworks.sqlite4java</groupId>
       <artifactId>sqlite4java</artifactId>
       <version>0.282</version>
       <type>jar</type>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>net.sf.opencsv</groupId>
@@ -163,24 +168,28 @@
       <version>2.0</version>
       <scope>test</scope>
       <type>jar</type>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.almworks.sqlite4java</groupId>
       <artifactId>libsqlite4java-linux-amd64</artifactId>
       <version>0.282</version>
       <type>so</type>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.whalin</groupId>
       <artifactId>Memcached-Java-Client</artifactId>
       <version>3.0.1</version>
       <type>jar</type>
+      <optional>true</optional>      
     </dependency>
     <dependency>
       <groupId>com.google.code.simple-spring-memcached</groupId>
       <artifactId>spymemcached</artifactId>
       <version>2.8.4</version>
       <type>jar</type>
+      <optional>true</optional>      
     </dependency>
   </dependencies>
 </project>
