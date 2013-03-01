@@ -4,7 +4,7 @@
 package com.malhartech.lib.logs;
 
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.testbench.TestArrayListSink;
+import com.malhartech.lib.testbench.ArrayListTestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,8 +30,8 @@ public class FilteredLineToTokenArrayListTest
   {
 
     FilteredLineToTokenArrayList oper = new FilteredLineToTokenArrayList();
-    TestArrayListSink tokenSink = new TestArrayListSink();
-    TestArrayListSink stokenSink = new TestArrayListSink();
+    ArrayListTestSink tokenSink = new ArrayListTestSink();
+    ArrayListTestSink stokenSink = new ArrayListTestSink();
 
     oper.setSplitBy(";");
     oper.setSplitTokenBy(",");

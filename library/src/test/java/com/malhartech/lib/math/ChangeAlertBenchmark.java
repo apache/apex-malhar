@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.lib.testbench.TestCountSink;
+import com.malhartech.lib.testbench.CountTestSink;
 import com.malhartech.lib.util.KeyValPair;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -36,7 +36,7 @@ public class ChangeAlertBenchmark
 
   public <V extends Number> void testNodeProcessingSchema(ChangeAlert<V> oper)
   {
-    TestCountSink<KeyValPair<V, Double>> alertSink = new TestCountSink<KeyValPair<V, Double>>();
+    CountTestSink<KeyValPair<V, Double>> alertSink = new CountTestSink<KeyValPair<V, Double>>();
 
 
     oper.alert.setSink(alertSink);

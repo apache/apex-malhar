@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
+import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
@@ -28,7 +28,7 @@ public class CompareStringMapTest
   public void testNodeProcessingSchema()
   {
     CompareStringMap<String> oper = new CompareStringMap<String>();
-    TestCountAndLastTupleSink exceptSink = new TestCountAndLastTupleSink();
+    CountAndLastTupleTestSink exceptSink = new CountAndLastTupleTestSink();
     oper.compare.setSink(exceptSink);
     oper.setKey("a");
     oper.setValue(3.0);

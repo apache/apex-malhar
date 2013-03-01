@@ -6,7 +6,7 @@ package com.malhartech.lib.math;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.*;
-import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
+import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
 import com.malhartech.lib.util.KeyValPair;
 import com.malhartech.stram.StramLocalCluster;
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class MinKeyValTest
    */
   public void testSchemaNodeProcessing(MinKeyVal oper, String type)
   {
-    TestCountAndLastTupleSink minSink = new TestCountAndLastTupleSink();
+    CountAndLastTupleTestSink minSink = new CountAndLastTupleTestSink();
     oper.min.setSink(minSink);
 
     oper.beginWindow(0);

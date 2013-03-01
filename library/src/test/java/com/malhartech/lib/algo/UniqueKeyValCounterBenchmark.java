@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
+import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +31,7 @@ public class UniqueKeyValCounterBenchmark
   public void testNodeProcessing() throws Exception
   {
     UniqueKeyValCounter<String,Integer> oper = new UniqueKeyValCounter<String,Integer>();
-    TestCountAndLastTupleSink<HashMap<HashMap<String,Integer>, Integer>> sink = new TestCountAndLastTupleSink<HashMap<HashMap<String,Integer>, Integer>>();
+    CountAndLastTupleTestSink<HashMap<HashMap<String,Integer>, Integer>> sink = new CountAndLastTupleTestSink<HashMap<HashMap<String,Integer>, Integer>>();
     oper.count.setSink(sink);
 
     HashMap<String,Integer> a1tuple = new HashMap<String,Integer>(1);

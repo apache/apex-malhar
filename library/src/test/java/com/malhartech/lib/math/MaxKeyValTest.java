@@ -6,7 +6,7 @@ package com.malhartech.lib.math;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.*;
-import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
+import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
 import com.malhartech.lib.util.KeyValPair;
 import com.malhartech.stram.StramLocalCluster;
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class MaxKeyValTest
    */
   public void testSchemaNodeProcessing(MaxKeyVal oper, String type)
   {
-    TestCountAndLastTupleSink maxSink = new TestCountAndLastTupleSink();
+    CountAndLastTupleTestSink maxSink = new CountAndLastTupleTestSink();
     oper.max.setSink(maxSink);
 
     oper.beginWindow(0);

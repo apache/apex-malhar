@@ -4,19 +4,17 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.api.Sink;
-import java.util.ArrayList;
+import com.malhartech.engine.Tuple;
 import java.util.HashMap;
 import org.apache.commons.lang.mutable.MutableInt;
 
 /**
  * A sink implementation to collect expected test results in a HashMap
  */
-@ShipContainingJars(classes={MutableInt.class})
-public class TestArrayListSink<T> implements Sink<T>
+public class HashTestSink<T> implements Sink<T>
 {
-  public HashMap<Object, MutableInt> map = new HashMap<Object, MutableInt>();
+  public HashMap<T, MutableInt> map = new HashMap<T, MutableInt>();
   public int count = 0;
 
   /**
@@ -29,11 +27,17 @@ public class TestArrayListSink<T> implements Sink<T>
     this.count = 0;
   }
 
+  public int size()
+  {
+    return map.size();
+  }
+
   public int getCount(T key)
   {
     int ret = -1;
     MutableInt val = map.get(key);
-    if (val != null) {
+    if (val != null)
+    {
       ret = val.intValue();
     }
     return ret;
@@ -42,13 +46,14 @@ public class TestArrayListSink<T> implements Sink<T>
   @Override
   public void process(T tuple)
   {
-    this.count++;
-    ArrayList list = (ArrayList) tuple;
-    for (Object o: list) {
-      MutableInt val = map.get(o);
+    if (tuple instanceof Tuple) {
+    }
+    else {
+      this.count++;
+      MutableInt val = map.get(tuple);
       if (val == null) {
         val = new MutableInt(0);
-        map.put(o, val);
+        map.put(tuple, val);
       }
       val.increment();
     }

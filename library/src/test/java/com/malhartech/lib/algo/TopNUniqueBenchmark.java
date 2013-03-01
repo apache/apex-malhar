@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.lib.testbench.TestCountSink;
+import com.malhartech.lib.testbench.CountTestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +39,7 @@ public class TopNUniqueBenchmark
 
   public void testNodeProcessingSchema(TopNUnique oper)
   {
-    TestCountSink<HashMap<String, Number>> sortSink = new TestCountSink<HashMap<String, Number>>();
+    CountTestSink<HashMap<String, Number>> sortSink = new CountTestSink<HashMap<String, Number>>();
     oper.top.setSink(sortSink);
     oper.setN(3);
 

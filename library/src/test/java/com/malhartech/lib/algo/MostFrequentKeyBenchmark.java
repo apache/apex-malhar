@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
+import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import junit.framework.Assert;
@@ -30,8 +30,8 @@ public class MostFrequentKeyBenchmark
   public void testNodeProcessing() throws Exception
   {
     MostFrequentKey<String> oper = new MostFrequentKey<String>();
-    TestCountAndLastTupleSink matchSink = new TestCountAndLastTupleSink();
-    TestCountAndLastTupleSink listSink = new TestCountAndLastTupleSink();
+    CountAndLastTupleTestSink matchSink = new CountAndLastTupleTestSink();
+    CountAndLastTupleTestSink listSink = new CountAndLastTupleTestSink();
     oper.most.setSink(matchSink);
     oper.list.setSink(listSink);
 

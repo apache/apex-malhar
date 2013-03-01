@@ -4,7 +4,7 @@
  */
 package com.malhartech.lib.multiwindow;
 
-import com.malhartech.lib.testbench.TestCountSink;
+import com.malhartech.lib.testbench.CountTestSink;
 import com.malhartech.lib.util.KeyValPair;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -30,7 +30,7 @@ public class SimpleMovingAverageBenchmark
   {
     SimpleMovingAverage<String, Double> oper = new SimpleMovingAverage<String, Double>();
 
-    TestCountSink<KeyValPair<String, Double>> sink = new TestCountSink<KeyValPair<String, Double>>();
+    CountTestSink<KeyValPair<String, Double>> sink = new CountTestSink<KeyValPair<String, Double>>();
     oper.doubleSMA.setSink(sink);
     oper.setWindowSize(3);
 

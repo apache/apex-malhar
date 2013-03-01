@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
+import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -35,7 +35,7 @@ public class MatchAllMapTest
 
   public void testNodeProcessingSchema(MatchAllMap oper)
   {
-    TestCountAndLastTupleSink matchSink = new TestCountAndLastTupleSink();
+    CountAndLastTupleTestSink matchSink = new CountAndLastTupleTestSink();
     oper.all.setSink(matchSink);
     oper.setKey("a");
     oper.setValue(3.0);

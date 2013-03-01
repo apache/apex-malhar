@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.lib.testbench.TestCountSink;
+import com.malhartech.lib.testbench.CountTestSink;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -39,8 +39,8 @@ public class ChangeBenchmark
    */
   public <V extends Number> void testNodeProcessingSchema(Change<V> oper)
   {
-    TestCountSink<V> changeSink = new TestCountSink<V>();
-    TestCountSink<Double> percentSink = new TestCountSink<Double>();
+    CountTestSink<V> changeSink = new CountTestSink<V>();
+    CountTestSink<Double> percentSink = new CountTestSink<Double>();
 
     oper.change.setSink(changeSink);
     oper.percent.setSink(percentSink);

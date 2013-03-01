@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
+import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -37,7 +37,7 @@ public class MinMapTest
    */
   public void testSchemaNodeProcessing(MinMap oper, String type) throws InterruptedException
   {
-    TestCountAndLastTupleSink minSink = new TestCountAndLastTupleSink();
+    CountAndLastTupleTestSink minSink = new CountAndLastTupleTestSink();
     oper.min.setSink(minSink);
 
     oper.beginWindow(0);

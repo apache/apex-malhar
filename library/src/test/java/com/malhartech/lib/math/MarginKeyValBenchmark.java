@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
+import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
 import com.malhartech.lib.util.KeyValPair;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -29,7 +29,7 @@ public class MarginKeyValBenchmark
   {
     MarginKeyVal<String, Integer> oper = new MarginKeyVal<String, Integer>();
 
-    TestCountAndLastTupleSink marginSink = new TestCountAndLastTupleSink();
+    CountAndLastTupleTestSink marginSink = new CountAndLastTupleTestSink();
 
     oper.margin.setSink(marginSink);
     oper.beginWindow(0);

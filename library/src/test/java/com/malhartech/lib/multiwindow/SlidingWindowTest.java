@@ -5,7 +5,7 @@ package com.malhartech.lib.multiwindow;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
+import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
 import com.malhartech.engine.TestSink;
 import com.malhartech.lib.math.MinMap;
 import java.util.ArrayList;

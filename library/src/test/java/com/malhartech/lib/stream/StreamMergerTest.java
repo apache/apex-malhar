@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.stream;
 
-import com.malhartech.lib.testbench.TestCountSink;
+import com.malhartech.lib.testbench.CountTestSink;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -25,7 +25,7 @@ public class StreamMergerTest
   public void testNodeProcessing() throws Exception
   {
     StreamMerger oper = new StreamMerger();
-    TestCountSink mergeSink = new TestCountSink();
+    CountTestSink mergeSink = new CountTestSink();
     oper.out.setSink(mergeSink);
 
     oper.beginWindow(0);

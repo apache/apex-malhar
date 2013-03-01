@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.logs;
 
-import com.malhartech.lib.testbench.TestHashSink;
+import com.malhartech.lib.testbench.HashTestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +31,7 @@ public class FilteredLineToTokenHashMapBenchmark
   {
 
     FilteredLineToTokenHashMap oper = new FilteredLineToTokenHashMap();
-    TestHashSink tokenSink = new TestHashSink();
+    HashTestSink tokenSink = new HashTestSink();
 
     oper.setSplitBy(";");
     oper.setSplitTokenBy(",");

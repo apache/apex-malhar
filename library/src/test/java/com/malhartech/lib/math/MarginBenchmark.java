@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
+import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -32,7 +32,7 @@ public class MarginBenchmark
 
   public void testNodeProcessingSchema(Margin oper)
   {
-    TestCountAndLastTupleSink marginSink = new TestCountAndLastTupleSink();
+    CountAndLastTupleTestSink marginSink = new CountAndLastTupleTestSink();
 
     oper.margin.setSink(marginSink);
     oper.setPercent(true);

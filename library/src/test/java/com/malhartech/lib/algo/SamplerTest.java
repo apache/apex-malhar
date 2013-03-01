@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.lib.testbench.TestCountSink;
+import com.malhartech.lib.testbench.CountTestSink;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -26,7 +26,7 @@ public class SamplerTest
   public void testNodeProcessing() throws Exception
   {
     Sampler<String> oper = new Sampler<String>();
-    TestCountSink<String> sink = new TestCountSink<String>();
+    CountTestSink<String> sink = new CountTestSink<String>();
     oper.sample.setSink(sink);
     oper.setPassrate(10);
     oper.setTotalrate(100);

@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.lib.testbench.TestCountSink;
+import com.malhartech.lib.testbench.CountTestSink;
 import com.malhartech.engine.TestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,8 +30,8 @@ public class OrderByKeyDescBenchmark
   public void testNodeProcessing() throws Exception
   {
     OrderByKeyDesc<String, Integer> oper = new OrderByKeyDesc<String, Integer>();
-    TestCountSink<HashMap<Integer, Integer>> countSink = new TestCountSink<HashMap<Integer, Integer>>();
-    TestCountSink<HashMap<String, Integer>> listSink = new TestCountSink<HashMap<String, Integer>>();
+    CountTestSink<HashMap<Integer, Integer>> countSink = new CountTestSink<HashMap<Integer, Integer>>();
+    CountTestSink<HashMap<String, Integer>> listSink = new CountTestSink<HashMap<String, Integer>>();
     oper.ordered_count.setSink(countSink);
     oper.ordered_list.setSink(listSink);
     oper.setOrderby("a");

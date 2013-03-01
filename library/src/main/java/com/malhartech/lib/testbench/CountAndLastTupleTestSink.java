@@ -5,11 +5,13 @@
 package com.malhartech.lib.testbench;
 
 import com.malhartech.engine.Tuple;
+import com.malhartech.lib.testbench.CountTestSink;
+import com.malhartech.lib.testbench.CountTestSink;
 
 /**
  * A sink implementation to collect expected test results.
  */
-public class TestCountAndLastTupleSink<T> extends TestCountSink<T>
+public class CountAndLastTupleTestSink<T> extends CountTestSink<T>
 {
   public  Object tuple = null;
   /**

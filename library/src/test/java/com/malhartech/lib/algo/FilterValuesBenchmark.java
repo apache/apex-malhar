@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.lib.testbench.TestCountSink;
+import com.malhartech.lib.testbench.CountTestSink;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class FilterValuesBenchmark
   {
     FilterValues<Integer> oper = new FilterValues<Integer>();
 
-    TestCountSink<Integer> sortSink = new TestCountSink<Integer>();
+    CountTestSink<Integer> sortSink = new CountTestSink<Integer>();
     oper.filter.setSink(sortSink);
     Integer [] values = new Integer[2];
     oper.setValue(5);

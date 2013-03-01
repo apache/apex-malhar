@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.lib.testbench.TestCountSink;
+import com.malhartech.lib.testbench.CountTestSink;
 import com.malhartech.lib.util.KeyValPair;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -37,8 +37,8 @@ public class ChangeKeyValBenchmark
 
   public <V extends Number> void testNodeProcessingSchema(ChangeKeyVal<String, V> oper)
   {
-    TestCountSink<KeyValPair<String, V>> changeSink = new TestCountSink<KeyValPair<String, V>>();
-    TestCountSink<KeyValPair<String, Double>> percentSink = new TestCountSink<KeyValPair<String, Double>>();
+    CountTestSink<KeyValPair<String, V>> changeSink = new CountTestSink<KeyValPair<String, V>>();
+    CountTestSink<KeyValPair<String, Double>> percentSink = new CountTestSink<KeyValPair<String, Double>>();
 
     oper.change.setSink(changeSink);
     oper.percent.setSink(percentSink);

@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.lib.testbench.TestCountSink;
+import com.malhartech.lib.testbench.CountTestSink;
 import java.util.HashMap;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -36,7 +36,7 @@ public class MatchMapBenchmark
 
   public void testNodeProcessingSchema(MatchMap oper)
   {
-    TestCountSink matchSink = new TestCountSink();
+    CountTestSink matchSink = new CountTestSink();
     oper.match.setSink(matchSink);
     oper.setKey("a");
     oper.setValue(3.0);

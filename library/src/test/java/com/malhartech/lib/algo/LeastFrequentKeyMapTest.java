@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
+import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import junit.framework.Assert;
@@ -28,8 +28,8 @@ public class LeastFrequentKeyMapTest
   public void testNodeProcessing() throws Exception
   {
     LeastFrequentKeyMap<String, Integer> oper = new LeastFrequentKeyMap<String, Integer>();
-    TestCountAndLastTupleSink matchSink = new TestCountAndLastTupleSink();
-    TestCountAndLastTupleSink listSink = new TestCountAndLastTupleSink();
+    CountAndLastTupleTestSink matchSink = new CountAndLastTupleTestSink();
+    CountAndLastTupleTestSink listSink = new CountAndLastTupleTestSink();
     oper.least.setSink(matchSink);
     oper.list.setSink(listSink);
 

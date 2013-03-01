@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
+import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
 import java.util.HashMap;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -38,7 +38,7 @@ public class MaxMapBenchmark
    */
   public void testSchemaNodeProcessing(MaxMap oper, String type)
   {
-    TestCountAndLastTupleSink maxSink = new TestCountAndLastTupleSink();
+    CountAndLastTupleTestSink maxSink = new CountAndLastTupleTestSink();
     oper.max.setSink(maxSink);
 
     oper.beginWindow(0);

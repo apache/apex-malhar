@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.lib.testbench.TestCountSink;
+import com.malhartech.lib.testbench.CountTestSink;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -36,8 +36,8 @@ public class ChangeMapBenchmark
 
   public <V extends Number> void testNodeProcessingSchema(ChangeMap<String, V> oper)
   {
-    TestCountSink<HashMap<String, V>> changeSink = new TestCountSink<HashMap<String, V>>();
-    TestCountSink<HashMap<String, Double>> percentSink = new TestCountSink<HashMap<String, Double>>();
+    CountTestSink<HashMap<String, V>> changeSink = new CountTestSink<HashMap<String, V>>();
+    CountTestSink<HashMap<String, Double>> percentSink = new CountTestSink<HashMap<String, Double>>();
 
     oper.change.setSink(changeSink);
     oper.percent.setSink(percentSink);

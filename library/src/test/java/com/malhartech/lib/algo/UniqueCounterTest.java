@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
+import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +29,7 @@ public class UniqueCounterTest
   public void testNodeProcessing() throws Exception
   {
     UniqueCounter<String> oper = new UniqueCounter<String>();
-    TestCountAndLastTupleSink<HashMap<String, Integer>> sink = new TestCountAndLastTupleSink<HashMap<String, Integer>>();
+    CountAndLastTupleTestSink<HashMap<String, Integer>> sink = new CountAndLastTupleTestSink<HashMap<String, Integer>>();
     oper.count.setSink(sink);
 
     String atuple = "a";

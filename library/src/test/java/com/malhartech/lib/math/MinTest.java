@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
+import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -26,7 +26,7 @@ public class MinTest
   public void testNodeSchemaProcessing()
   {
     Min<Double> oper = new Min<Double>();
-    TestCountAndLastTupleSink minSink = new TestCountAndLastTupleSink();
+    CountAndLastTupleTestSink minSink = new CountAndLastTupleTestSink();
     oper.min.setSink(minSink);
 
     oper.beginWindow(0); //

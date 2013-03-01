@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
+import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
 import java.util.HashMap;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -28,7 +28,7 @@ public class ExceptStringMapBenchmark
   public void testNodeProcessingSchema()
   {
     ExceptStringMap<String> oper = new ExceptStringMap<String>();
-    TestCountAndLastTupleSink exceptSink = new TestCountAndLastTupleSink();
+    CountAndLastTupleTestSink exceptSink = new CountAndLastTupleTestSink();
     oper.except.setSink(exceptSink);
     oper.setKey("a");
     oper.setValue(3.0);

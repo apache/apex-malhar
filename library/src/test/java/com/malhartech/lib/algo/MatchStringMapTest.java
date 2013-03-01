@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
+import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
@@ -28,7 +28,7 @@ public class MatchStringMapTest
   public void testNodeProcessing() throws Exception
   {
     MatchStringMap<String,String> oper = new MatchStringMap<String,String>();
-    TestCountAndLastTupleSink matchSink = new TestCountAndLastTupleSink();
+    CountAndLastTupleTestSink matchSink = new CountAndLastTupleTestSink();
     oper.match.setSink(matchSink);
     oper.setKey("a");
     oper.setValue(3.0);

@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.stream;
 
-import com.malhartech.lib.testbench.TestCountSink;
+import com.malhartech.lib.testbench.CountTestSink;
 import java.util.HashMap;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -27,9 +27,9 @@ public class HashMapToKeyValPairBenchmark
   public void testNodeProcessing() throws Exception
   {
     HashMapToKeyValPair oper = new HashMapToKeyValPair();
-    TestCountSink keySink = new TestCountSink();
-    TestCountSink valSink = new TestCountSink();
-    TestCountSink keyvalSink = new TestCountSink();
+    CountTestSink keySink = new CountTestSink();
+    CountTestSink valSink = new CountTestSink();
+    CountTestSink keyvalSink = new CountTestSink();
 
     oper.key.setSink(keySink);
     oper.val.setSink(valSink);

@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
+import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
@@ -36,7 +36,7 @@ public class MarginMapTest
 
   public void testNodeProcessingSchema(MarginMap oper)
   {
-    TestCountAndLastTupleSink marginSink = new TestCountAndLastTupleSink();
+    CountAndLastTupleTestSink marginSink = new CountAndLastTupleTestSink();
 
     oper.margin.setSink(marginSink);
 

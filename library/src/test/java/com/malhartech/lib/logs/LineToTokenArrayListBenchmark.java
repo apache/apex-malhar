@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.logs;
 
-import com.malhartech.lib.testbench.TestArrayListSink;
+import com.malhartech.lib.testbench.ArrayListTestSink;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -28,8 +28,8 @@ public class LineToTokenArrayListBenchmark
   {
 
     LineToTokenArrayList oper = new LineToTokenArrayList();
-    TestArrayListSink tokenSink = new TestArrayListSink();
-    TestArrayListSink stokenSink = new TestArrayListSink();
+    ArrayListTestSink tokenSink = new ArrayListTestSink();
+    ArrayListTestSink stokenSink = new ArrayListTestSink();
 
     oper.setSplitBy(";");
     oper.setSplitTokenBy(",");

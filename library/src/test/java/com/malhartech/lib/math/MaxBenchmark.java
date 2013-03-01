@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
+import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -26,7 +26,7 @@ public class MaxBenchmark
   public void testNodeProcessing()
   {
     Max<Double> oper = new Max<Double>();
-    TestCountAndLastTupleSink maxSink = new TestCountAndLastTupleSink();
+    CountAndLastTupleTestSink maxSink = new CountAndLastTupleTestSink();
 
     oper.max.setSink(maxSink);
 

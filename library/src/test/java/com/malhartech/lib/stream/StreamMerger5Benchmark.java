@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.stream;
 
-import com.malhartech.lib.testbench.TestCountSink;
+import com.malhartech.lib.testbench.CountTestSink;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -28,7 +28,7 @@ public class StreamMerger5Benchmark
   {
 
     StreamMerger5 oper = new StreamMerger5();
-    TestCountSink mergeSink = new TestCountSink();
+    CountTestSink mergeSink = new CountTestSink();
     oper.out.setSink(mergeSink);
 
     oper.beginWindow(0);

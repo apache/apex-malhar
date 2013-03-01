@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.lib.testbench.TestCountSink;
+import com.malhartech.lib.testbench.CountTestSink;
 import java.util.HashMap;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -35,7 +35,7 @@ public class ChangeAlertMapBenchmark
 
   public <V extends Number> void testNodeProcessingSchema(ChangeAlertMap<String, V> oper)
   {
-    TestCountSink<HashMap<String, HashMap<V, Double>>> alertSink = new TestCountSink<HashMap<String, HashMap<V, Double>>>();
+    CountTestSink<HashMap<String, HashMap<V, Double>>> alertSink = new CountTestSink<HashMap<String, HashMap<V, Double>>>();
 
     oper.alert.setSink(alertSink);
     oper.setPercentThreshold(5);

@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.stream;
 
-import com.malhartech.lib.testbench.TestCountSink;
+import com.malhartech.lib.testbench.CountTestSink;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -27,8 +27,8 @@ public class StreamDuplicaterBenchmark
   public void testNodeProcessing() throws Exception
   {
     StreamDuplicater oper = new StreamDuplicater();
-    TestCountSink mergeSink1 = new TestCountSink();
-    TestCountSink mergeSink2 = new TestCountSink();
+    CountTestSink mergeSink1 = new CountTestSink();
+    CountTestSink mergeSink2 = new CountTestSink();
 
     oper.out1.setSink(mergeSink1);
     oper.out2.setSink(mergeSink2);

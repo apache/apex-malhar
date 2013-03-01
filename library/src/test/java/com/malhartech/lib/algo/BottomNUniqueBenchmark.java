@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.lib.testbench.TestCountSink;
+import com.malhartech.lib.testbench.CountTestSink;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -36,7 +36,7 @@ public class BottomNUniqueBenchmark
 
   public void testNodeProcessingSchema(BottomNUniqueMap oper)
   {
-    TestCountSink<HashMap<String, Number>> sortSink = new TestCountSink<HashMap<String, Number>>();
+    CountTestSink<HashMap<String, Number>> sortSink = new CountTestSink<HashMap<String, Number>>();
     oper.bottom.setSink(sortSink);
     oper.setN(3);
 

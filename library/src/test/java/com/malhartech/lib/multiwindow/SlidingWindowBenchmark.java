@@ -5,8 +5,8 @@ package com.malhartech.lib.multiwindow;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
-import com.malhartech.lib.testbench.TestCountSink;
+import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
+import com.malhartech.lib.testbench.CountTestSink;
 import com.malhartech.engine.TestSink;
 import com.malhartech.lib.math.MinMap;
 import java.util.ArrayList;
@@ -67,7 +67,7 @@ public class SlidingWindowBenchmark
   {
     mySlidingWindow oper = new mySlidingWindow();
 
-    TestCountSink<String> swinSink = new TestCountSink<String>();
+    CountTestSink<String> swinSink = new CountTestSink<String>();
     oper.out.setSink(swinSink);
     oper.setN(3);
     oper.setup(null);

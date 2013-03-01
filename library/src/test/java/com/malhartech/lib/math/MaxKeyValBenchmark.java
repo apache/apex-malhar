@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
+import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
 import com.malhartech.lib.util.KeyValPair;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -40,7 +40,7 @@ public class MaxKeyValBenchmark
    */
   public void testSchemaNodeProcessing(MaxKeyVal oper, String type)
   {
-    TestCountAndLastTupleSink maxSink = new TestCountAndLastTupleSink();
+    CountAndLastTupleTestSink maxSink = new CountAndLastTupleTestSink();
     oper.max.setSink(maxSink);
 
     oper.beginWindow(0);

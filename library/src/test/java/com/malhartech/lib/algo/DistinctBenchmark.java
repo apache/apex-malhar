@@ -3,8 +3,8 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.lib.testbench.TestCountSink;
-import com.malhartech.lib.testbench.TestHashSink;
+import com.malhartech.lib.testbench.CountTestSink;
+import com.malhartech.lib.testbench.HashTestSink;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -29,7 +29,7 @@ public class DistinctBenchmark
   {
     Distinct<Integer> oper = new Distinct<Integer>();
 
-    TestCountSink<Integer> sortSink = new TestCountSink<Integer>();
+    CountTestSink<Integer> sortSink = new CountTestSink<Integer>();
     oper.distinct.setSink(sortSink);
 
     oper.beginWindow(0);

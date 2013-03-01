@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
+import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
@@ -35,7 +35,7 @@ public class QuotientMapBenchmark
   public void testNodeProcessingSchema(QuotientMap oper) throws Exception
   {
 
-    TestCountAndLastTupleSink quotientSink = new TestCountAndLastTupleSink();
+    CountAndLastTupleTestSink quotientSink = new CountAndLastTupleTestSink();
 
     oper.quotient.setSink(quotientSink);
     oper.setMult_by(2);

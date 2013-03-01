@@ -4,13 +4,12 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.engine.TestSink;
 import com.malhartech.engine.Tuple;
 
 /**
  * A sink implementation to collect expected test results.
  */
-public class TestCountSink<T> extends TestSink<T>
+public class CountTestSink<T> extends CollectorTestSink<T>
 {
   public  int count = 0;
 

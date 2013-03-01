@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
+import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
@@ -36,8 +36,8 @@ public class CompareExceptMapTest
 
   public void testNodeProcessingSchema(CompareExceptMap oper)
   {
-    TestCountAndLastTupleSink compareSink = new TestCountAndLastTupleSink();
-    TestCountAndLastTupleSink exceptSink = new TestCountAndLastTupleSink();
+    CountAndLastTupleTestSink compareSink = new CountAndLastTupleTestSink();
+    CountAndLastTupleTestSink exceptSink = new CountAndLastTupleTestSink();
     oper.compare.setSink(compareSink);
     oper.except.setSink(exceptSink);
 

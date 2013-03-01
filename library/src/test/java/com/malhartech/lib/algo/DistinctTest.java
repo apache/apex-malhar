@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.lib.testbench.TestHashSink;
+import com.malhartech.lib.testbench.HashTestSink;
 import junit.framework.Assert;
 import org.junit.Test;
 
@@ -23,7 +23,7 @@ public class DistinctTest
   {
     Distinct<String> oper = new Distinct<String>();
 
-    TestHashSink<String> sortSink = new TestHashSink<String>();
+    HashTestSink<String> sortSink = new HashTestSink<String>();
     oper.distinct.setSink(sortSink);
 
     oper.beginWindow(0);

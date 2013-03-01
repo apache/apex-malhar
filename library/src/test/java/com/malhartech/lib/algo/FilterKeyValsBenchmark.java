@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.lib.testbench.TestCountSink;
+import com.malhartech.lib.testbench.CountTestSink;
 import java.util.HashMap;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -29,7 +29,7 @@ public class FilterKeyValsBenchmark
   {
     FilterKeyVals<String, Number> oper = new FilterKeyVals<String, Number>();
 
-    TestCountSink<HashMap<String, Number>> sortSink = new TestCountSink<HashMap<String, Number>>();
+    CountTestSink<HashMap<String, Number>> sortSink = new CountTestSink<HashMap<String, Number>>();
     oper.filter.setSink(sortSink);
     HashMap<String, Number> filter = new HashMap<String, Number>();
     filter.put("b", 2);

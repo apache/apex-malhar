@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.stream;
 
-import com.malhartech.lib.testbench.TestCountSink;
+import com.malhartech.lib.testbench.CountTestSink;
 import java.util.ArrayList;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class ArrayListToItemTest {
     public void testNodeProcessing() throws Exception
     {
       ArrayListToItem oper = new ArrayListToItem();
-      TestCountSink itemSink = new TestCountSink();
+      CountTestSink itemSink = new CountTestSink();
       oper.item.setSink(itemSink);
 
       oper.beginWindow(0);

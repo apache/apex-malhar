@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.lib.testbench.TestCountAndLastTupleSink;
+import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
 import java.util.HashMap;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -36,7 +36,7 @@ public class AllAfterMatchMapBenchmark
 
   public void testNodeProcessingSchema(AllAfterMatchMap oper)
   {
-    TestCountAndLastTupleSink allSink = new TestCountAndLastTupleSink();
+    CountAndLastTupleTestSink allSink = new CountAndLastTupleTestSink();
     oper.allafter.setSink(allSink);
     oper.setup(null);
     oper.setKey("a");

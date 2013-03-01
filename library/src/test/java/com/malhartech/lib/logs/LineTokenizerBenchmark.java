@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.logs;
 
-import com.malhartech.lib.testbench.TestHashSink;
+import com.malhartech.lib.testbench.HashTestSink;
 import com.malhartech.lib.math.*;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -29,7 +29,7 @@ public class LineTokenizerBenchmark
   {
 
     LineTokenizer oper = new LineTokenizer();
-    TestHashSink tokenSink = new TestHashSink();
+    HashTestSink tokenSink = new HashTestSink();
 
     oper.setSplitBy(",");
     oper.tokens.setSink(tokenSink);
