@@ -199,7 +199,7 @@ public class Application implements ApplicationFactory
   {
     configure(conf);
     DAG dag = new DAG(conf);
-    dag.setAttribute(DAG.STRAM_APPNAME, "AdsDemoApplication");
+    dag.setAttribute(DAG.STRAM_APPNAME, "AdsDevApplication");
     dag.setAttribute(DAG.STRAM_WINDOW_SIZE_MILLIS, WINDOW_SIZE_MILLIS); // set the streaming window size to 1 millisec
 
     //dag.getAttributes().attr(DAG.STRAM_MAX_CONTAINERS).setIfAbsent(9);

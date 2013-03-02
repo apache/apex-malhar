@@ -59,7 +59,7 @@ public class Application implements ApplicationFactory
   {
 
     DAG dag = new DAG(conf);
-    dag.setAttribute(DAG.STRAM_APPNAME, "MobileDemoApplication");
+    dag.setAttribute(DAG.STRAM_APPNAME, "MobileDevApplication");
     configure(conf);
 
     RandomEventGenerator phones = dag.addOperator("phonegen", RandomEventGenerator.class);
