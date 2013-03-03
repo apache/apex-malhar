@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 public class Application implements ApplicationFactory
 {
   private static final Logger LOG = LoggerFactory.getLogger(Application.class);
-  public static final String P_phoneRange = com.malhartech.demos.mobile.ApplicationObsolete.class.getName() + ".phoneRange";
+  public static final String P_phoneRange = com.malhartech.demos.mobile.Application.class.getName() + ".phoneRange";
   private String ajaxServerAddr = null;
   private Range<Integer> phoneRange = Ranges.closed(9900000, 9999999);
 

@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PhoneMovementGenerator extends BaseOperator
 {
-  private static Logger log = LoggerFactory.getLogger(InvertIndexMapPhone.class);
+  private static Logger log = LoggerFactory.getLogger(PhoneMovementGenerator.class);
 
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Integer> data = new DefaultInputPort<Integer>(this)
