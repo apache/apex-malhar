@@ -34,7 +34,7 @@ public class Application implements ApplicationFactory
     this.ajaxServerAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
     LOG.debug(String.format("\n******************* Server address was %s", this.ajaxServerAddr));
 
-    conf.set(DAG.STRAM_MAX_CONTAINERS.name(), "1");
+    //conf.set(DAG.STRAM_MAX_CONTAINERS.name(), "1");
     if (LAUNCHMODE_YARN.equals(conf.get(DAG.STRAM_LAUNCH_MODE))) {
       // settings only affect distributed mode
       conf.setIfUnset(DAG.STRAM_CONTAINER_MEMORY_MB.name(), "2048");
@@ -73,8 +73,8 @@ public class Application implements ApplicationFactory
     movementGen.setRange(20);
     movementGen.setThreshold(80);
     dag.setAttribute(movementGen, OperatorContext.INITIAL_PARTITION_COUNT, 2);
-    dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MIN, 10000);
-    dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MAX, 50000);
+    //dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MIN, 10000);
+    //dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MAX, 50000);
 
     // default partitioning: first connected stream to movementGen will be partitioned
     dag.addStream("phonedata", phones.integer_data, movementGen.data).setInline(true);
