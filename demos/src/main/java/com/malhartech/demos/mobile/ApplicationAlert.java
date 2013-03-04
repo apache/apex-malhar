@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Mobile Demo ApplicationObsolete.<p>
+ * Mobile Demo Application.<p>
  */
 public class ApplicationAlert implements ApplicationFactory
 {

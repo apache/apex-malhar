@@ -24,7 +24,7 @@ public class ApplicationTest
   {
     Application app = new Application();
     StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));
-    lc.setHeartbeatMonitoringEnabled(false);
+    //lc.setHeartbeatMonitoringEnabled(false);
     lc.run();
   }
 }

@@ -130,7 +130,6 @@ public class RandomEventGenerator extends BaseOperator implements InputOperator
   {
     int range = max_value - min_value + 1;
     int i = 0;
-    // Need to add a key, if key is provided send HashMap
     while (i < tuplesBlast) {
       int rval = min_value + random.nextInt(range);
       if (integer_data.isConnected()) {
