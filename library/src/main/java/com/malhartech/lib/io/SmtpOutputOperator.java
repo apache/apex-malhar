@@ -50,10 +50,11 @@ public class SmtpOutputOperator<T> extends BaseOperator
       try {
         String mailContent = content.replace("{}", t.toString());
         message.setContent(mailContent, contentType);
+        LOG.info("Sending email for tuple {}", t.toString());
         Transport.send(message);
       }
       catch (MessagingException ex) {
-        LOG.error(ex.toString());
+        LOG.error("Something wrong with sending email.", ex);
       }
 
     }
