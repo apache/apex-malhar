@@ -78,7 +78,8 @@ public class ApplicationAlert implements ApplicationFactory
     alertOper.setAlertFrequency(10000);
 
     dag.addStream("phonedata", phones.integer_data, movementgen.data).setInline(true);
-
+    movementgen.phone_register.put("q1", 9994995);
+    
     if (this.ajaxServerAddr != null) {
       HttpOutputOperator<Object> httpOut = dag.addOperator("phoneLocationQueryResult", new HttpOutputOperator<Object>());
       httpOut.setResourceURL(URI.create("http://" + this.ajaxServerAddr + "/channel/mobile/phoneLocationQueryResult"));
@@ -91,8 +92,8 @@ public class ApplicationAlert implements ApplicationFactory
       dag.addStream("httpdata", movementgen.locationQueryResult, httpOut.input, alertOper.in).setInline(true);
     }
     else { // If no ajax, need to do phone seeding
-      movementgen.phone_register.put("q1", 9994995);
       movementgen.phone_register.put("q3", 9996101);
+
       ConsoleOutputOperator console = dag.addOperator("phoneLocationQueryResult", new ConsoleOutputOperator());
       console.setStringFormat("result: %s");
       dag.addStream("consoledata", movementgen.locationQueryResult, console.input, alertOper.in).setInline(true);
