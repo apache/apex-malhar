@@ -77,7 +77,7 @@ public class ApplicationAlert implements ApplicationFactory
     Alert alertOper = dag.addOperator("palert", Alert.class);
     alertOper.setAlertFrequency(10000);
 
-    dag.addStream("phonedata", phones.integer_data, movementgen.data).setInline(true);
+    dag.addStream("phonedata", phones.integer_data, movementgen.data);
 
     if (this.ajaxServerAddr != null) {
       HttpOutputOperator<Object> httpOut = dag.addOperator("phoneLocationQueryResult", new HttpOutputOperator<Object>());
@@ -88,7 +88,7 @@ public class ApplicationAlert implements ApplicationFactory
       phoneLocationQuery.setUrl(u);
       dag.addStream("query", phoneLocationQuery.outputPort, movementgen.locationQuery);
 
-      dag.addStream("httpdata", movementgen.locationQueryResult, httpOut.input, alertOper.in).setInline(true);
+      dag.addStream("httpdata", movementgen.locationQueryResult, httpOut.input, alertOper.in);
     }
     else { // If no ajax, need to do phone seeding
       movementgen.phone_register.put("q3", 9996101);
@@ -96,7 +96,7 @@ public class ApplicationAlert implements ApplicationFactory
 
       ConsoleOutputOperator console = dag.addOperator("phoneLocationQueryResult", new ConsoleOutputOperator());
       console.setStringFormat("result: %s");
-      dag.addStream("consoledata", movementgen.locationQueryResult, console.input, alertOper.in).setInline(true);
+      dag.addStream("consoledata", movementgen.locationQueryResult, console.input, alertOper.in);
     }
 
     SmtpOutputOperator mailOper = dag.addOperator("mail", new SmtpOutputOperator());
@@ -110,7 +110,7 @@ public class ApplicationAlert implements ApplicationFactory
     mailOper.setSmtpPassword("Testing1");
     mailOper.setUseSsl(true);
 
-    dag.addStream("alert_mail", alertOper.alert1, mailOper.input).setInline(true);
+    dag.addStream("alert_mail", alertOper.alert1, mailOper.input);
     return dag;
   }
 }
