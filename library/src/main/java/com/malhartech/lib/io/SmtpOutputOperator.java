@@ -15,11 +15,11 @@ import java.util.Properties;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ShipContainingJars(classes = {javax.net.ssl.SSLSocketFactory.class})
+@ShipContainingJars(classes = {javax.mail.Session.class})
 public class SmtpOutputOperator<T> extends BaseOperator
 {
   public enum RecipientType

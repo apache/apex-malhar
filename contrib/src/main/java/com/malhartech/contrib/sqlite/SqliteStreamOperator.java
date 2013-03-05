@@ -7,6 +7,7 @@ package com.malhartech.contrib.sqlite;
 import com.almworks.sqlite4java.SQLiteConnection;
 import com.almworks.sqlite4java.SQLiteException;
 import com.almworks.sqlite4java.SQLiteStatement;
+import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.lib.util.AbstractSqlStreamOperator;
 import com.malhartech.lib.util.AbstractSqlStreamOperator.InputSchema.ColumnInfo;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author David Yan <davidyan@malhar-inc.com>
  */
+@ShipContainingJars(classes = {com.almworks.sqlite4java.SQLiteConnection.class})
 public class SqliteStreamOperator extends AbstractSqlStreamOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(SqliteStreamOperator.class);

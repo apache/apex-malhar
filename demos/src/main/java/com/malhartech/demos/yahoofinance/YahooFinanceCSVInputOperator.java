@@ -5,6 +5,7 @@
 package com.malhartech.demos.yahoofinance;
 
 import au.com.bytecode.opencsv.CSVReader;
+import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.lib.io.SimpleSinglePortInputOperator;
 import java.io.IOException;
@@ -27,6 +28,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author David Yan <davidyan@malhar-inc.com>
  */
+@ShipContainingJars(classes = {au.com.bytecode.opencsv.CSVReader.class})
 public class YahooFinanceCSVInputOperator extends SimpleSinglePortInputOperator<HashMap<String, Object>> implements Runnable
 {
   private static final Logger logger = LoggerFactory.getLogger(YahooFinanceCSVInputOperator.class);

@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.util;
 
+import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.lib.util.AbstractSqlStreamOperator.InputSchema.ColumnInfo;
 import java.sql.*;
@@ -15,6 +16,7 @@ import java.util.Map;
  *
  * @author David Yan <davidyan@malhar-inc.com>
  */
+@ShipContainingJars(classes = {org.apache.derby.jdbc.EmbeddedDriver.class})
 public class DerbySqlStreamOperator extends AbstractSqlStreamOperator
 {
   protected transient ArrayList<PreparedStatement> insertStatements = new ArrayList<PreparedStatement>(5);

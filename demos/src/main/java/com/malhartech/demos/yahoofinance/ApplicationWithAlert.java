@@ -6,9 +6,9 @@ package com.malhartech.demos.yahoofinance;
 
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
-import com.malhartech.contrib.sqlite.SqliteStreamOperator;
 import com.malhartech.lib.io.SmtpOutputOperator;
 import com.malhartech.lib.util.Alert;
+import com.malhartech.lib.util.DerbySqlStreamOperator;
 import java.util.HashMap;
 import org.apache.hadoop.conf.Configuration;
 
@@ -26,7 +26,7 @@ public class ApplicationWithAlert implements ApplicationFactory
     DAG dag = new DAG();
 
     YahooFinanceCSVInputOperator input1 = dag.addOperator("input1", new YahooFinanceCSVInputOperator());
-    SqliteStreamOperator sqlOper = dag.addOperator("sqlOper", new SqliteStreamOperator());
+    DerbySqlStreamOperator sqlOper = dag.addOperator("sqlOper", new DerbySqlStreamOperator());
     Alert<HashMap<String, Object>> alertOper = dag.addOperator("alert", new Alert<HashMap<String, Object>>());
     //ConsoleOutputOperator consoleOperator = dag.addOperator("console", new ConsoleOutputOperator());
     SmtpOutputOperator<HashMap<String, Object>> mailOper = dag.addOperator("mail", new SmtpOutputOperator<HashMap<String, Object>>());
@@ -49,14 +49,14 @@ public class ApplicationWithAlert implements ApplicationFactory
     input1.addFormat("s0");
     input1.addFormat("l1");
 
-    SqliteStreamOperator.InputSchema inputSchema1 = new SqliteStreamOperator.InputSchema("t1");
-    inputSchema1.setColumnInfo("s0", "string", true); // symbol
+    DerbySqlStreamOperator.InputSchema inputSchema1 = new DerbySqlStreamOperator.InputSchema("t1");
+    inputSchema1.setColumnInfo("s0", "varchar(100)", true); // symbol
     inputSchema1.setColumnInfo("l1", "float", false);  // last trade
 
     sqlOper.setInputSchema(0, inputSchema1);
 
     // select the alert using SQL
-    sqlOper.setStatement("SELECT t1.s0 AS symbol, t1.l1 AS last_trade FROM t1 WHERE t1.s0 = 'AAPL' AND t1.l1 < 450");
+    sqlOper.setStatement("SELECT SESSION.t1.s0 AS symbol, SESSION.t1.l1 AS last_trade FROM SESSION.t1 WHERE SESSION.t1.s0 = 'AAPL' AND SESSION.t1.l1 < 450");
 
     dag.addStream("input1_sql", input1.outputPort, sqlOper.in1);
     dag.addStream("sql_alert", sqlOper.result, alertOper.in);
