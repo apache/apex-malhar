@@ -32,7 +32,7 @@ public class SmtpOutputOperator<T> extends BaseOperator
   protected String content;
   protected transient Session session;
   protected transient Message message;
-  protected String fromAddress;
+  protected String from;
   protected Map<RecipientType, ArrayList<String>> recAddresses = new HashMap<RecipientType, ArrayList<String>>();
   protected transient Properties properties = System.getProperties();
   protected transient Authenticator auth;
@@ -61,34 +61,94 @@ public class SmtpOutputOperator<T> extends BaseOperator
 
   };
 
-  public void setContentType(String type)
+  public String getSubject()
   {
-    contentType = type;
+    return subject;
   }
 
-  public void setSmtpHost(String host)
+  public void setSubject(String subject)
   {
-    this.smtpHost = host;
+    this.subject = subject;
   }
 
-  public void setSmtpPort(int port)
+  public String getContent()
   {
-    this.smtpPort = port;
+    return content;
   }
 
-  public void setSmtpUserName(String user)
+  public void setContent(String content)
   {
-    this.smtpUserName = user;
+    this.content = content;
   }
 
-  public void setSmtpPassword(String password)
+  public String getFrom()
   {
-    this.smtpPassword = password;
+    return from;
   }
 
   public void setFrom(String from)
   {
-    fromAddress = from;
+    this.from = from;
+  }
+
+  public int getSmtpPort()
+  {
+    return smtpPort;
+  }
+
+  public void setSmtpPort(int smtpPort)
+  {
+    this.smtpPort = smtpPort;
+  }
+
+  public String getSmtpHost()
+  {
+    return smtpHost;
+  }
+
+  public void setSmtpHost(String smtpHost)
+  {
+    this.smtpHost = smtpHost;
+  }
+
+  public String getSmtpUserName()
+  {
+    return smtpUserName;
+  }
+
+  public void setSmtpUserName(String smtpUserName)
+  {
+    this.smtpUserName = smtpUserName;
+  }
+
+  public String getSmtpPassword()
+  {
+    return smtpPassword;
+  }
+
+  public void setSmtpPassword(String smtpPassword)
+  {
+    this.smtpPassword = smtpPassword;
+  }
+
+  public String getContentType()
+  {
+    return contentType;
+  }
+
+  public void setContentType(String contentType)
+  {
+    this.contentType = contentType;
+  }
+
+  public boolean isUseSsl()
+  {
+    return useSsl;
+  }
+
+  public void setUseSsl(boolean useSsl)
+  {
+    this.useSsl = useSsl;
   }
 
   public void addRecipient(RecipientType type, String rec)
@@ -97,21 +157,6 @@ public class SmtpOutputOperator<T> extends BaseOperator
       recAddresses.put(type, new ArrayList<String>());
     }
     recAddresses.get(type).add(rec);
-  }
-
-  public void setSubject(String subject)
-  {
-    this.subject = subject;
-  }
-
-  public void setContent(String content)
-  {
-    this.content = content;
-  }
-
-  public void setUseSsl(boolean useSsl)
-  {
-    this.useSsl = useSsl;
   }
 
   @Override
@@ -145,7 +190,7 @@ public class SmtpOutputOperator<T> extends BaseOperator
 
     try {
       message = new MimeMessage(session);
-      message.setFrom(new InternetAddress(fromAddress));
+      message.setFrom(new InternetAddress(from));
       for (Map.Entry<RecipientType, ArrayList<String>> entry: recAddresses.entrySet()) {
         for (String addr: entry.getValue()) {
           Message.RecipientType mtype;
