@@ -47,7 +47,7 @@ private static File testWorkDir = new File("target", "TupleRecorderTest");
 
     lc.runAsync();
 
-    PTOperator ptOp = lc.findByLogicalNode(dag.getOperatorWrapper("picalc"));
+    PTOperator ptOp = lc.findByLogicalNode(dag.getOperatorMeta("picalc"));
     Thread.sleep(5000);
 
     lc.getStreamingContainerManager().startRecording(ptOp.getId(), "doesNotMatter");

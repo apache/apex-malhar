@@ -146,7 +146,7 @@ public class SumTest
       oper.setType(Integer.class);
       CollectorOperator collector = dag.addOperator("collector", new CollectorOperator());
 
-      dag.getOperatorWrapper(oper).getAttributes().attr(OperatorContext.INITIAL_PARTITION_COUNT).set(N);
+      dag.getOperatorMeta(oper).getAttributes().attr(OperatorContext.INITIAL_PARTITION_COUNT).set(N);
 
       dag.addStream("test_sum", test.output, oper.data).setInline(false);
       dag.addStream("sum_console", oper.sum, collector.input).setInline(false);

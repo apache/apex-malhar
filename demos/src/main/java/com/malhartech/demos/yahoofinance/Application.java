@@ -69,7 +69,7 @@ public class Application implements ApplicationFactory
     SumKeyVal<String, Long> oper = dag.addOperator(name, new SumKeyVal<String, Long>());
     oper.setType(Long.class);
     oper.setEmitOnlyWhenChanged(true);
-    dag.getOperatorWrapper(name).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(appWindowCount);
+    dag.getOperatorMeta(name).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(appWindowCount);
     return oper;
   }
 
@@ -83,7 +83,7 @@ public class Application implements ApplicationFactory
   public RangeKeyVal<String, Double> getHighLowOperator(String name, DAG dag, int appWindowCount)
   {
     RangeKeyVal<String, Double> oper = dag.addOperator(name, new RangeKeyVal<String, Double>());
-    dag.getOperatorWrapper(name).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(appWindowCount);
+    dag.getOperatorMeta(name).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(appWindowCount);
     oper.setType(Double.class);
     return oper;
   }
