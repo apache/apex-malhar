@@ -186,7 +186,7 @@ public class PhoneMovementGenerator extends BaseOperator
     boolean found = false;
     for (Map.Entry<String, Integer> p: phone_register.entrySet()) {
       emitQueryResult(p.getKey(), p.getValue());
-      log.debug(String.format("Query id is \"%s\", and phone is \"%d\"", p.getKey(), p.getValue()));
+      //log.debug(String.format("Query id is \"%s\", and phone is \"%d\"", p.getKey(), p.getValue()));
       found = true;
     }
     if (!found) {
