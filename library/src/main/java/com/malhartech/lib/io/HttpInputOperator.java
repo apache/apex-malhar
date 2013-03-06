@@ -58,12 +58,6 @@ public class HttpInputOperator extends SimpleSinglePortInputOperator<Map<String,
     resourceUrl = u;
   }
 
-  @Override
-  public void endWindow()
-  {
-    LOG.info("URL: {}", resourceUrl);
-  }
-
 
   @Override
   public void setup(OperatorContext context)
