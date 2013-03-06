@@ -59,6 +59,13 @@ public class HttpInputOperator extends SimpleSinglePortInputOperator<Map<String,
   }
 
   @Override
+  public void endWindow()
+  {
+    LOG.info("URL: {}", resourceUrl);
+  }
+
+
+  @Override
   public void setup(OperatorContext context)
   {
     wsClient = Client.create();
