@@ -42,6 +42,7 @@ public class SmtpOutputOperator<T> extends BaseOperator
   protected String smtpPassword;
   protected String contentType = "text/plain";
   protected boolean useSsl = false;
+  protected boolean setupCalled = false;
   public final transient DefaultInputPort<T> input = new DefaultInputPort<T>(this)
   {
     @Override
@@ -56,7 +57,6 @@ public class SmtpOutputOperator<T> extends BaseOperator
       catch (MessagingException ex) {
         LOG.error("Something wrong with sending email.", ex);
       }
-
     }
 
   };
@@ -69,6 +69,7 @@ public class SmtpOutputOperator<T> extends BaseOperator
   public void setSubject(String subject)
   {
     this.subject = subject;
+    resetMessage();
   }
 
   public String getContent()
@@ -79,6 +80,7 @@ public class SmtpOutputOperator<T> extends BaseOperator
   public void setContent(String content)
   {
     this.content = content;
+    resetMessage();
   }
 
   public String getFrom()
@@ -89,6 +91,7 @@ public class SmtpOutputOperator<T> extends BaseOperator
   public void setFrom(String from)
   {
     this.from = from;
+    resetMessage();
   }
 
   public int getSmtpPort()
@@ -99,6 +102,7 @@ public class SmtpOutputOperator<T> extends BaseOperator
   public void setSmtpPort(int smtpPort)
   {
     this.smtpPort = smtpPort;
+    reset();
   }
 
   public String getSmtpHost()
@@ -109,6 +113,7 @@ public class SmtpOutputOperator<T> extends BaseOperator
   public void setSmtpHost(String smtpHost)
   {
     this.smtpHost = smtpHost;
+    reset();
   }
 
   public String getSmtpUserName()
@@ -119,6 +124,7 @@ public class SmtpOutputOperator<T> extends BaseOperator
   public void setSmtpUserName(String smtpUserName)
   {
     this.smtpUserName = smtpUserName;
+    reset();
   }
 
   public String getSmtpPassword()
@@ -129,6 +135,7 @@ public class SmtpOutputOperator<T> extends BaseOperator
   public void setSmtpPassword(String smtpPassword)
   {
     this.smtpPassword = smtpPassword;
+    reset();
   }
 
   public String getContentType()
@@ -139,6 +146,7 @@ public class SmtpOutputOperator<T> extends BaseOperator
   public void setContentType(String contentType)
   {
     this.contentType = contentType;
+    resetMessage();
   }
 
   public boolean isUseSsl()
@@ -149,6 +157,7 @@ public class SmtpOutputOperator<T> extends BaseOperator
   public void setUseSsl(boolean useSsl)
   {
     this.useSsl = useSsl;
+    reset();
   }
 
   public void addRecipient(RecipientType type, String rec)
@@ -157,13 +166,21 @@ public class SmtpOutputOperator<T> extends BaseOperator
       recAddresses.put(type, new ArrayList<String>());
     }
     recAddresses.get(type).add(rec);
+    resetMessage();
   }
 
   @Override
   public void setup(OperatorContext context)
   {
-    super.setup(context);
+    setupCalled = true;
+    reset();
+  }
 
+  private void reset()
+  {
+    if (!setupCalled) {
+      return;
+    }
     if (!StringUtils.isBlank(smtpPassword)) {
       properties.setProperty("mail.smtp.auth", "true");
       properties.setProperty("mail.smtp.starttls.enable", "true");
@@ -187,7 +204,14 @@ public class SmtpOutputOperator<T> extends BaseOperator
     properties.setProperty("mail.smtp.host", smtpHost);
     properties.setProperty("mail.smtp.port", String.valueOf(smtpPort));
     session = Session.getInstance(properties, auth);
+    resetMessage();
+  }
 
+  private void resetMessage()
+  {
+    if (!setupCalled) {
+      return;
+    }
     try {
       message = new MimeMessage(session);
       message.setFrom(new InternetAddress(from));
