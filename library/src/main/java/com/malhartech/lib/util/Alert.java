@@ -22,9 +22,10 @@ public class Alert<T> extends BaseOperator
   protected long lastTupleTimeStamp = -1;
   protected long timeout = 5000; // 5 seconds
   protected long alertFrequency = 0;
-  protected long levelOneTimeStamp = 0;
-  protected long levelTwoTimeStamp = 0;
-  protected long levelThreeTimeStamp = 0;
+  protected long levelOneAlertTime = 0;
+  protected long levelTwoAlertTime = 0;
+  protected long levelThreeAlertTime = 0;
+  protected boolean activated = true;
   @InputPortFieldAnnotation(name = "in", optional = false)
   public final transient DefaultInputPort<T> in = new DefaultInputPort<T>(this)
   {
@@ -36,14 +37,14 @@ public class Alert<T> extends BaseOperator
         inAlertSince = now;
       }
       lastTupleTimeStamp = now;
-      if (lastAlertTimeStamp + alertFrequency < now) {
-        if (inAlertSince >= levelOneTimeStamp) {
+      if (activated && lastAlertTimeStamp + alertFrequency < now) {
+        if (inAlertSince >= levelOneAlertTime) {
           alert1.emit(tuple);
         }
-        if (inAlertSince >= levelTwoTimeStamp) {
+        if (inAlertSince >= levelTwoAlertTime) {
           alert2.emit(tuple);
         }
-        if (inAlertSince >= levelThreeTimeStamp) {
+        if (inAlertSince >= levelThreeAlertTime) {
           alert3.emit(tuple);
         }
         lastAlertTimeStamp = now;
@@ -58,29 +59,64 @@ public class Alert<T> extends BaseOperator
   @OutputPortFieldAnnotation(name = "alert3", optional = true)
   public final transient DefaultOutputPort<T> alert3 = new DefaultOutputPort<T>(this);
 
-  public void setAlertFrequency(long millis)
+  public long getTimeout()
   {
-    alertFrequency = millis;
+    return timeout;
   }
 
-  public void setLevelOneAlertTimeStamp(long millis)
+  public void setTimeout(long timeout)
   {
-    levelOneTimeStamp = millis;
+    this.timeout = timeout;
   }
 
-  public void setLevelTwoAlertTimeStamp(long millis)
+  public long getAlertFrequency()
   {
-    levelTwoTimeStamp = millis;
+    return alertFrequency;
   }
 
-  public void setLevelThreeAlertTimeStamp(long millis)
+  public void setAlertFrequency(long alertFrequency)
   {
-    levelThreeTimeStamp = millis;
+    this.alertFrequency = alertFrequency;
   }
 
-  public void setTimeout(long millis)
+  public long getLevelOneAlertTime()
   {
-    timeout = millis;
+    return levelOneAlertTime;
+  }
+
+  public void setLevelOneAlertTime(long levelOneAlertTime)
+  {
+    this.levelOneAlertTime = levelOneAlertTime;
+  }
+
+  public long getLevelTwoAlertTime()
+  {
+    return levelTwoAlertTime;
+  }
+
+  public void setLevelTwoAlertTime(long levelTwoAlertTime)
+  {
+    this.levelTwoAlertTime = levelTwoAlertTime;
+  }
+
+  public long getLevelThreeAlertTime()
+  {
+    return levelThreeAlertTime;
+  }
+
+  public void setLevelThreeAlertTime(long levelThreeAlertTime)
+  {
+    this.levelThreeAlertTime = levelThreeAlertTime;
+  }
+
+  public boolean isActivated()
+  {
+    return activated;
+  }
+
+  public void setActivated(boolean activated)
+  {
+    this.activated = activated;
   }
 
   @Override
