@@ -183,8 +183,14 @@ public class PhoneMovementGenerator extends BaseOperator
         loc.setLow(e.getValue().getLow());
       }
     }
+    boolean found = false;
     for (Map.Entry<String, Integer> p: phone_register.entrySet()) {
       emitQueryResult(p.getKey(), p.getValue());
+      log.debug(String.format("Phone was \"%s\", and value is \"%d\"", p.getKey(), p.getValue()));
+      found = true;
+    }
+    if (!found) {
+      log.debug("No phone number");
     }
     newgps.clear();
   }
