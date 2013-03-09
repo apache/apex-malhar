@@ -36,20 +36,7 @@ public class ApplicationTest
   @Test
   public void testApplication() throws Exception
   {
-    final StramLocalCluster lc = new StramLocalCluster(new TwitterTopCounter(new Configuration(false)));
-     new Thread() {
-      @Override
-      public void run()
-      {
-        try {
-          Thread.sleep(10000);
-        }
-        catch (InterruptedException ex) {
-        }
-        lc.shutdown();
-      }
-    };//.start();
-
-    lc.run();
+    final StramLocalCluster lc = new StramLocalCluster(new TwitterTopCounterApplication().getApplication(new Configuration(false)));
+    lc.run(10000);
   }
 }

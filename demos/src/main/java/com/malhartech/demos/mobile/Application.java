@@ -62,6 +62,7 @@ public class Application implements ApplicationFactory
     configure(conf);
     DAG dag = new DAG(conf);
     dag.setAttribute(DAG.STRAM_APPNAME, "MobileDevApplication");
+    dag.setAttribute(DAG.STRAM_DEBUG, true);
 
     RandomEventGenerator phones = dag.addOperator("phonegen", RandomEventGenerator.class);
     phones.setMinvalue(this.phoneRange.lowerEndpoint());
