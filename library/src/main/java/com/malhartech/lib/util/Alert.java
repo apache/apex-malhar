@@ -9,6 +9,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import javax.validation.constraints.Min;
 
 /**
  *
@@ -20,12 +21,18 @@ public class Alert<T> extends BaseOperator
   protected long lastAlertTimeStamp = -1;
   protected long inAlertSince = -1;
   protected long lastTupleTimeStamp = -1;
+
+  @Min(0)
   protected long timeout = 5000; // 5 seconds
+
+  @Min(0)
   protected long alertFrequency = 0;
-  protected long levelOneAlertTime = 0;
-  protected long levelTwoAlertTime = 0;
-  protected long levelThreeAlertTime = 0;
-  protected boolean activated = true;
+  protected long levelOneTimeStamp = 0;
+  protected long levelTwoTimeStamp = 0;
+  protected long levelThreeTimeStamp = 0;
+
+  protected boolean alertOn = true;
+
   @InputPortFieldAnnotation(name = "in", optional = false)
   public final transient DefaultInputPort<T> in = new DefaultInputPort<T>(this)
   {
@@ -37,15 +44,21 @@ public class Alert<T> extends BaseOperator
         inAlertSince = now;
       }
       lastTupleTimeStamp = now;
-      if (activated && lastAlertTimeStamp + alertFrequency < now) {
-        if (inAlertSince >= levelOneAlertTime) {
-          alert1.emit(tuple);
+      if (lastAlertTimeStamp + alertFrequency < now) {
+        if (inAlertSince >= levelOneTimeStamp) {
+          if (alertOn) {
+            alert1.emit(tuple);
+          }
         }
-        if (inAlertSince >= levelTwoAlertTime) {
-          alert2.emit(tuple);
+        if (inAlertSince >= levelTwoTimeStamp) {
+          if (alertOn) {
+            alert2.emit(tuple);
+          }
         }
-        if (inAlertSince >= levelThreeAlertTime) {
-          alert3.emit(tuple);
+        if (inAlertSince >= levelThreeTimeStamp) {
+          if (alertOn) {
+            alert3.emit(tuple);
+          }
         }
         lastAlertTimeStamp = now;
       }
@@ -117,6 +130,12 @@ public class Alert<T> extends BaseOperator
   public void setActivated(boolean activated)
   {
     this.activated = activated;
+  }
+
+
+  public void setAlertOn(boolean flag)
+  {
+    alertOn = flag;
   }
 
   @Override
