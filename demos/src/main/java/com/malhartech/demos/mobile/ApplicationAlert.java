@@ -76,6 +76,7 @@ public class ApplicationAlert implements ApplicationFactory
 
     Alert alertOper = dag.addOperator("palert", Alert.class);
     alertOper.setAlertFrequency(10000);
+    alertOper.setActivated(false);
 
     dag.addStream("phonedata", phones.integer_data, movementgen.data);
 
