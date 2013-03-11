@@ -31,7 +31,7 @@ public class Alert<T> extends BaseOperator
   protected long levelTwoTimeStamp = 0;
   protected long levelThreeTimeStamp = 0;
 
-  protected boolean alertOn = true;
+  boolean alertOn = true;
 
   @InputPortFieldAnnotation(name = "in", optional = false)
   public final transient DefaultInputPort<T> in = new DefaultInputPort<T>(this)
@@ -131,7 +131,6 @@ public class Alert<T> extends BaseOperator
   {
     this.activated = activated;
   }
-
 
   public void setAlertOn(boolean flag)
   {
