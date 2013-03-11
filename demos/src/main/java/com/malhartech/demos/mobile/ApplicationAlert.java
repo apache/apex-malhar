@@ -7,6 +7,7 @@ package com.malhartech.demos.mobile;
 import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
 import com.malhartech.api.ApplicationFactory;
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DAG;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.io.HttpInputOperator;
@@ -35,6 +36,7 @@ public class ApplicationAlert implements ApplicationFactory
     this.ajaxServerAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
     LOG.debug(String.format("\n******************* Server address was %s", this.ajaxServerAddr));
 
+    conf.set(DAG.STRAM_MAX_CONTAINERS.name(), "1");
     if (LAUNCHMODE_YARN.equals(conf.get(DAG.STRAM_LAUNCH_MODE))) {
       // settings only affect distributed mode
       conf.setIfUnset(DAG.STRAM_CONTAINER_MEMORY_MB.name(), "2048");
@@ -59,37 +61,40 @@ public class ApplicationAlert implements ApplicationFactory
   @Override
   public DAG getApplication(Configuration conf)
   {
-
+    configure(conf);
     DAG dag = new DAG(conf);
     dag.setAttribute(DAG.STRAM_APPNAME, "MobileAlertApplication");
-    configure(conf);
+    dag.setAttribute(DAG.STRAM_DEBUG, true);
 
     RandomEventGenerator phones = dag.addOperator("phonegen", RandomEventGenerator.class);
     phones.setMinvalue(this.phoneRange.lowerEndpoint());
     phones.setMaxvalue(this.phoneRange.upperEndpoint());
-    phones.setTuplesBlast(100000);
+    phones.setTuplesBlast(1000);
     phones.setTuplesBlastIntervalMillis(5);
 
     PhoneMovementGenerator movementgen = dag.addOperator("pmove", PhoneMovementGenerator.class);
     movementgen.setRange(20);
     movementgen.setThreshold(80);
+    dag.setAttribute(movementgen, OperatorContext.INITIAL_PARTITION_COUNT, 2);
+    dag.setAttribute(movementgen, OperatorContext.PARTITION_TPS_MIN, 10000);
+    dag.setAttribute(movementgen, OperatorContext.PARTITION_TPS_MAX, 50000);
 
     Alert alertOper = dag.addOperator("palert", Alert.class);
     alertOper.setAlertFrequency(10000);
     alertOper.setActivated(false);
 
-    dag.addStream("phonedata", phones.integer_data, movementgen.data);
+    dag.addStream("phonedata", phones.integer_data, movementgen.data).setInline(true);
 
     if (this.ajaxServerAddr != null) {
       HttpOutputOperator<Object> httpOut = dag.addOperator("phoneLocationQueryResult", new HttpOutputOperator<Object>());
       httpOut.setResourceURL(URI.create("http://" + this.ajaxServerAddr + "/channel/mobile/phoneLocationQueryResult"));
 
+      dag.addStream("httpdata", movementgen.locationQueryResult, httpOut.input, alertOper.in).setInline(true);
+
       HttpInputOperator phoneLocationQuery = dag.addOperator("phoneLocationQuery", HttpInputOperator.class);
       URI u = URI.create("http://" + ajaxServerAddr + "/channel/mobile/phoneLocationQuery");
       phoneLocationQuery.setUrl(u);
       dag.addStream("query", phoneLocationQuery.outputPort, movementgen.locationQuery);
-
-      dag.addStream("httpdata", movementgen.locationQueryResult, httpOut.input, alertOper.in);
     }
     else { // If no ajax, need to do phone seeding
       movementgen.phone_register.put("q3", 9996101);
@@ -111,7 +116,7 @@ public class ApplicationAlert implements ApplicationFactory
     mailOper.setSmtpPassword("Testing1");
     mailOper.setUseSsl(true);
 
-    dag.addStream("alert_mail", alertOper.alert1, mailOper.input);
+    dag.addStream("alert_mail", alertOper.alert1, mailOper.input).setInline(true);
     return dag;
   }
 }
