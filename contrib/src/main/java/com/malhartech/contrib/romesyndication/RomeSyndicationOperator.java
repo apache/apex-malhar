@@ -22,14 +22,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Operator for getting syndication feeds processed using Rome.<p><br>
  *
- * @author Pramod Immaneni <pramod@malhar-inc.com>
- * This class provides a news syndication operator that uses rome library to
+ * <br>
+ * This class provides a news syndication operator that uses Rome library to
  * parse the syndication feeds. Rome can parse most syndication formats including
  * RSS and Atom. The location of the feed is specified to the operator. The
  * operator spawns a thread that will poll the syndication source location.
  * The poll interval can also be specified. When the operator encounters new
- * syndication entries it emits them through the default output port.
+ * syndication entries it emits them through the default output port.<br>
+ *
+ * <br>
+ * @author Pramod Immaneni <pramod@malhar-inc.com>
  */
 public class RomeSyndicationOperator extends SimpleSinglePortInputOperator<RomeFeedEntry> implements Runnable
 {

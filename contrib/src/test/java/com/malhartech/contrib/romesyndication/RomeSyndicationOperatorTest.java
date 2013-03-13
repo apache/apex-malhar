@@ -122,11 +122,12 @@ public class RomeSyndicationOperatorTest {
         try {
             StramLocalCluster lc = new StramLocalCluster(dag);
             lc.setHeartbeatMonitoringEnabled(false);
-            lc.run(6000);
+            lc.run(10000);
 
             // TODO review the generated test code and remove the default call to fail.
             //fail("The test case is a prototype.");
             // Check total number
+            System.out.println("entries size " + entries.size());
             assert entries.size() == 81;
             // Check first entry
             assert entries.get(0).getSyndEntry().getTitle().equals("Our favorite surprise homecomings");
