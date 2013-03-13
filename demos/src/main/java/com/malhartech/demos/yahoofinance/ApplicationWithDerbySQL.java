@@ -21,7 +21,7 @@ public class ApplicationWithDerbySQL implements ApplicationFactory
   @Override
   public DAG getApplication(Configuration conf) {
     String[] symbols = {"YHOO","GOOG","AAPL","FB","AMZN","NFLX","IBM"};
-    DAG dag = new DAG();
+    DAG dag = new DAG(conf);
 
     YahooFinanceCSVInputOperator input1 = dag.addOperator("input1", new YahooFinanceCSVInputOperator());
     YahooFinanceCSVInputOperator input2 = dag.addOperator("input2", new YahooFinanceCSVInputOperator());

@@ -27,7 +27,7 @@ public class Application implements ApplicationFactory
   }
 
   public DAG getYahooFinanceCSVApplication(Configuration conf) {
-    DAG dag = new DAG();
+    DAG dag = new DAG(conf);
     YahooFinanceCSVInputOperator input = dag.addOperator("input", new YahooFinanceCSVInputOperator());
     input.addSymbol("GOOG");
     input.addSymbol("FB");

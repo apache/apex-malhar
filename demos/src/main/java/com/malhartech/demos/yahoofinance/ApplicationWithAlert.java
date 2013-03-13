@@ -23,7 +23,7 @@ public class ApplicationWithAlert implements ApplicationFactory
   public DAG getApplication(Configuration conf)
   {
     String[] symbols = {"YHOO", "GOOG", "AAPL", "FB", "AMZN", "NFLX", "IBM"};
-    DAG dag = new DAG();
+    DAG dag = new DAG(conf);
 
     YahooFinanceCSVInputOperator input1 = dag.addOperator("input1", new YahooFinanceCSVInputOperator());
     DerbySqlStreamOperator sqlOper = dag.addOperator("sqlOper", new DerbySqlStreamOperator());
