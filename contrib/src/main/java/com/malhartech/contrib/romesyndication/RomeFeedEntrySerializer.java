@@ -16,7 +16,7 @@ import java.io.ObjectOutputStream;
 
 /**
  *
- * @author pramod
+ * @author Pramod Immaneni <pramod@malhar-inc.com>
  */
 public class RomeFeedEntrySerializer extends Serializer<RomeFeedEntry> {
 
@@ -53,6 +53,6 @@ public class RomeFeedEntrySerializer extends Serializer<RomeFeedEntry> {
             throw new RuntimeException(ex.getMessage());
         }
         return t;
-    }        
-    
+    }
+
 }

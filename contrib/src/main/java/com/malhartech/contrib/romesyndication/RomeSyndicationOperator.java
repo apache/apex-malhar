@@ -12,6 +12,7 @@ import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndEntryImpl;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.SyndFeedInput;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -22,105 +23,176 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * @author pramod
- * This class provides a news syndication operator that uses rome library to 
+ * @author Pramod Immaneni <pramod@malhar-inc.com>
+ * This class provides a news syndication operator that uses rome library to
  * parse the syndication feeds. Rome can parse most syndication formats including
  * RSS and Atom. The location of the feed is specified to the operator. The
  * operator spawns a thread that will poll the syndication source location.
  * The poll interval can also be specified. When the operator encounters new
  * syndication entries it emits them through the default output port.
  */
-public class RomeSyndicationOperator extends SimpleSinglePortInputOperator<RomeFeedEntry> implements Runnable {
-    
-    private static final Logger logger = LoggerFactory.getLogger(RomeSyndicationOperator.class);
-    private String location;
-    private int interval;
-    private List<RomeFeedEntry> feedItems;
-    
-    public RomeSyndicationOperator() {
-        feedItems = new ArrayList<RomeFeedEntry>();
-    }
-    
-    /**
-     * Set the syndication feed location
-     * @param location The syndication feed location
-     */
-    public void setLocation( String location ) {
-        this.location = location;
-    }
-    
-    /**
-     * Get the syndication feed location
-     * @return The syndication feed location
-     */
-    public String getLocation() {
-        return location;
-    }
-    
-    /**
-     * Set the syndication feed poll interval
-     * @param interval The poll interval
-     */
-    public void setInterval( int interval ) {
-        this.interval = interval;
-    }
-    
-    /**
-     * Get the syndication feed poll interval
-     * @return The poll interval 
-     */
-    public int getInterval() {
-        return interval;
-    }
-    
+public class RomeSyndicationOperator extends SimpleSinglePortInputOperator<RomeFeedEntry> implements Runnable
+{
+  private static final Logger logger = LoggerFactory.getLogger(RomeSyndicationOperator.class);
+  private String location;
+  private RomeStreamProvider streamProvider;
+  private int interval;
+  private boolean orderedUpdate;
+  private List<RomeFeedEntry> feedItems;
 
-    @Override
-    /**
-     * Thread processing of the syndication feeds
-     */
-    public void run() {
+  public RomeSyndicationOperator()
+  {
+    orderedUpdate = false;
+    feedItems = new ArrayList<RomeFeedEntry>();
+  }
+
+  /**
+   * Set the syndication feed location
+   *
+   * @param location The syndication feed location
+   */
+  public void setLocation(String location)
+  {
+    this.location = location;
+  }
+
+  /**
+   * Get the syndication feed location
+   *
+   * @return The syndication feed location
+   */
+  public String getLocation()
+  {
+    return location;
+  }
+
+  /**
+   * Set the syndication feed poll interval
+   *
+   * @param interval The poll interval
+   */
+  public void setInterval(int interval)
+  {
+    this.interval = interval;
+  }
+
+  /**
+   * Get the syndication feed poll interval
+   *
+   * @return The poll interval
+   */
+  public int getInterval()
+  {
+    return interval;
+  }
+
+  /**
+   * Set the syndication feed location
+   *
+   * @param location The syndication feed location
+   */
+  public void setStreamProvider(RomeStreamProvider streamProvider)
+  {
+    this.streamProvider = streamProvider;
+  }
+
+  /**
+   * Get the syndication feed location
+   *
+   * @return The syndication feed location
+   */
+  public RomeStreamProvider getStreamProvider()
+  {
+    return streamProvider;
+  }
+
+  public void setOrderedUpdate(boolean orderedUpdate) {
+    this.orderedUpdate = orderedUpdate;
+  }
+
+  public boolean isOrderedUpdate() {
+    return orderedUpdate;
+  }
+
+  private InputStream getFeedInputStream() throws IOException {
+    InputStream is = null;
+    if (streamProvider != null) {
+      is = streamProvider.getInputStream();
+    }else {
+      URL url = new URL(location);
+      is = url.openStream();
+    }
+    return is;
+  }
+
+  @Override
+  /**
+   * Thread processing of the syndication feeds
+   */
+  public void run()
+  {
+    try {
+      while (true) {
+        InputStreamReader isr = null;
         try {
-            while ( true ) {
-                try {
-                    URL url = new URL( location );
-                    SyndFeedInput feedInput = new SyndFeedInput();
-                    InputStream ips = url.openStream();
-                    SyndFeed feed = feedInput.build(new InputStreamReader(ips));
-                    List entries = feed.getEntries();
-                    List<RomeFeedEntry> nfeedItems = new ArrayList<RomeFeedEntry>();
-                    for ( int i = 0; i < entries.size(); ++i ) {
-                        SyndEntry syndEntry = (SyndEntry)entries.get( i );
-                        RomeFeedEntry romeFeedEntry = getSerializableEntry(syndEntry);
-                        if (!feedItems.contains(romeFeedEntry)) {                            
-                            outputPort.emit(romeFeedEntry);
-                        }
-                        nfeedItems.add(romeFeedEntry);
-                    }
-                    feedItems = nfeedItems;
-                } catch ( Exception e ){
-                    logger.error(e.getMessage());
-                }
-                Thread.sleep(interval);
+          isr = new InputStreamReader(getFeedInputStream());
+          SyndFeedInput feedInput = new SyndFeedInput();
+          SyndFeed feed = feedInput.build(isr);
+          List entries = feed.getEntries();
+          List<RomeFeedEntry> nfeedItems = new ArrayList<RomeFeedEntry>();
+          boolean oldEntries = false;
+          for (int i = 0; i < entries.size(); ++i) {
+            SyndEntry syndEntry = (SyndEntry)entries.get(i);
+            RomeFeedEntry romeFeedEntry = getSerializableEntry(syndEntry);
+            if (!oldEntries) {
+              if (!feedItems.contains(romeFeedEntry)) {
+                outputPort.emit(romeFeedEntry);
+              } else if (orderedUpdate) {
+                oldEntries = true;
+              }
             }
-        } catch ( InterruptedException ie ) {
-            logger.error( "Interrupted: " + ie.getMessage() );
+            nfeedItems.add(romeFeedEntry);
+          }
+          feedItems = nfeedItems;
         }
+        catch (Exception e) {
+          e.printStackTrace();
+          logger.error(e.getMessage());
+        }
+        finally {
+          if (isr != null) {
+            try {
+              isr.close();
+            }
+            catch (Exception ce) {
+              logger.error(ce.getMessage());
+            }
+          }
+        }
+        Thread.sleep(interval);
+      }
     }
-    
-    /**
-     * Get a serializable syndEntry for the given syndEntry.
-     * Not all implementations of syndEntry are serializable according to rome
-     * documentation. This method creates and returns a copy of the original
-     * syndEntry that is java serializable.
-     * @param syndEntry The syndEntry to create a serializable copy of
-     * @return The serializable copy syndEntry
-     */
-    private RomeFeedEntry getSerializableEntry(SyndEntry syndEntry) {
-        SyndEntry serSyndEntry = new SyndEntryImpl();
-        serSyndEntry.copyFrom(syndEntry);
-        //return serSyndEntry;
-        RomeFeedEntry romeFeedEntry = new RomeFeedEntry(serSyndEntry);
-        return romeFeedEntry;
+    catch (InterruptedException ie) {
+      logger.error("Interrupted: " + ie.getMessage());
     }
-    
+  }
+
+  /**
+   * Get a serializable syndEntry for the given syndEntry.
+   * Not all implementations of syndEntry are serializable according to rome
+   * documentation. This method creates and returns a copy of the original
+   * syndEntry that is java serializable.
+   *
+   * @param syndEntry The syndEntry to create a serializable copy of
+   * @return The serializable copy syndEntry
+   */
+  private RomeFeedEntry getSerializableEntry(SyndEntry syndEntry)
+  {
+    SyndEntry serSyndEntry = new SyndEntryImpl();
+    serSyndEntry.copyFrom(syndEntry);
+    //return serSyndEntry;
+    RomeFeedEntry romeFeedEntry = new RomeFeedEntry(serSyndEntry);
+    return romeFeedEntry;
+  }
+
 }
