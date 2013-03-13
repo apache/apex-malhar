@@ -50,10 +50,10 @@ private static File testWorkDir = new File("target", "TupleRecorderTest");
     PTOperator ptOp = lc.findByLogicalNode(dag.getOperatorMeta("picalc"));
     Thread.sleep(5000);
 
-    lc.getStreamingContainerManager().startRecording(ptOp.getId(), "doesNotMatter");
+    lc.getStreamingContainerManager().startRecording(ptOp.getId(), null);
 
     Thread.sleep(10000);
-    lc.getStreamingContainerManager().stopRecording(ptOp.getId());
+    lc.getStreamingContainerManager().stopRecording(ptOp.getId(), null);
     Thread.sleep(5000);
     lc.shutdown();
   }
