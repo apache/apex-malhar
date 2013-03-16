@@ -37,15 +37,14 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
    * Timeout interval for reading from server. 0 or negative indicates no timeout.
    */
   public int readTimeoutMillis = 0;
-  /**
-   * The URL of the web service resource for the POST request.
-   */
+
   @NotNull
-  private WebSocketClientFactory factory = new WebSocketClientFactory();
-  private WebSocketClient client;
   private URI channelUrl;
-  private JsonFactory jsonFactory = new JsonFactory();
-  private ObjectMapper mapper = new ObjectMapper(jsonFactory);
+
+  private transient final WebSocketClientFactory factory = new WebSocketClientFactory();
+  private transient WebSocketClient client;
+  private transient final JsonFactory jsonFactory = new JsonFactory();
+  private transient final ObjectMapper mapper = new ObjectMapper(jsonFactory);
 
   public void setUrl(URI u)
   {

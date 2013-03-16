@@ -4,19 +4,24 @@
  */
 package com.malhartech.demos.mobile;
 
+import java.net.URI;
+import java.util.Map;
+
+import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DAG;
+import com.malhartech.api.Operator.OutputPort;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.io.HttpInputOperator;
 import com.malhartech.lib.io.HttpOutputOperator;
+import com.malhartech.lib.io.WebSocketInputOperator;
 import com.malhartech.lib.testbench.RandomEventGenerator;
-import java.net.URI;
-import org.apache.hadoop.conf.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Mobile Demo Application.<p>
@@ -73,7 +78,7 @@ public class Application implements ApplicationFactory
     PhoneMovementGenerator movementGen = dag.addOperator("pmove", PhoneMovementGenerator.class);
     movementGen.setRange(20);
     movementGen.setThreshold(80);
-    dag.setAttribute(movementGen, OperatorContext.INITIAL_PARTITION_COUNT, 2);
+    //dag.setAttribute(movementGen, OperatorContext.INITIAL_PARTITION_COUNT, 2);
     dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MIN, 10000);
     dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MAX, 50000);
 
@@ -86,10 +91,20 @@ public class Application implements ApplicationFactory
 
       dag.addStream("consoledata", movementGen.locationQueryResult, httpOut.input).setInline(true);
 
-      HttpInputOperator phoneLocationQuery = dag.addOperator("phoneLocationQuery", HttpInputOperator.class);
-      URI u = URI.create("http://" + ajaxServerAddr + "/channel/mobile/phoneLocationQuery");
-      phoneLocationQuery.setUrl(u);
-      dag.addStream("query", phoneLocationQuery.outputPort, movementGen.locationQuery);
+      OutputPort<Map<String, String>> queryPort;
+      String daemonUrl = dag.getAttributes().attrValue(DAG.STRAM_DAEMON_URL, null);
+      if (conf.getBoolean("demos.useWebSocket", false) && daemonUrl != null) {
+        WebSocketInputOperator wsIn = dag.addOperator("phoneLocationQueryWS", new WebSocketInputOperator());
+        LOG.info("WebSocket with daemon at: {}", daemonUrl);
+        URI uri = URI.create(daemonUrl);
+        wsIn.setUrl(URI.create("ws://" + uri.getHost() + ":" + uri.getPort() + "/channel/mobile/phoneLocationQuery"));
+        queryPort = wsIn.outputPort;
+      } else {
+        HttpInputOperator phoneLocationQuery = dag.addOperator("phoneLocationQuery", HttpInputOperator.class);
+        phoneLocationQuery.setUrl(URI.create("http://" + ajaxServerAddr + "/channel/mobile/phoneLocationQuery"));
+        queryPort = phoneLocationQuery.outputPort;
+      }
+      dag.addStream("query", queryPort, movementGen.locationQuery);
     }
     else {
       // for testing purposes without server
