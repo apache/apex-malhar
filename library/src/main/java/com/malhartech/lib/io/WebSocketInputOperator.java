@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Reads via GET from given URL as input stream (entities on stream delimited by leading length)<p>
+ * Reads via WebSocket from given URL as input stream<p>
  * <br>
  * Incoming data is interpreted as JSONObject and converted to {@link java.util.Map}.<br>
  * <br>
