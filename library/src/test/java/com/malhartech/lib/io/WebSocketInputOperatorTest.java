@@ -19,16 +19,14 @@ public class WebSocketInputOperatorTest
   public void testWebSocketInputModule() throws Exception
   {
 
-    System.out.println("Starting Daemon...");
-    Daemon.setPort(9090);
-    Daemon.setLocalMode(true);
-    Daemon.setup();
-    Daemon.start();
-
-    SampleWebSocketPublisher sp = new SampleWebSocketPublisher();
-    sp.setChannelUrl("http://localhost:9090/channel/testChannel");
-    Thread t = new Thread(sp);
-    t.start();
+    if (false) {
+      // this is not working yet - start server manually for this test
+      System.out.println("Starting Daemon...");
+      Daemon.setPort(9090);
+      Daemon.setLocalMode(true);
+      Daemon.setup();
+      Daemon.start();
+    }
 
     String url = "ws://localhost:9090/channel/testChannel";
     final WebSocketInputOperator operator = new WebSocketInputOperator();
@@ -41,6 +39,13 @@ public class WebSocketInputOperatorTest
 
     operator.setup(null);
     operator.activate(null);
+
+    // start publisher after subscriber listens to ensure we don't miss the message
+    SampleWebSocketPublisher sp = new SampleWebSocketPublisher();
+    sp.setChannelUrl("http://localhost:9090/channel/testChannel");
+    Thread t = new Thread(sp);
+    t.start();
+
 
     int timeoutMillis = 2000;
     while (sink.collectedTuples.isEmpty() && timeoutMillis > 0) {
