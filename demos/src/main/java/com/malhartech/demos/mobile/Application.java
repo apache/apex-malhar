@@ -92,12 +92,11 @@ public class Application implements ApplicationFactory
       dag.addStream("consoledata", movementGen.locationQueryResult, httpOut.input).setInline(true);
 
       OutputPort<Map<String, String>> queryPort;
-      String daemonUrl = dag.getAttributes().attrValue(DAG.STRAM_DAEMON_URL, null);
-      if (conf.getBoolean("demos.useWebSocket", false) && daemonUrl != null) {
+      String daemonAddress = dag.getAttributes().attrValue(DAG.STRAM_DAEMON_ADDRESS, null);
+      if (conf.getBoolean("demos.useWebSocket", false) && daemonAddress != null) {
         WebSocketInputOperator wsIn = dag.addOperator("phoneLocationQueryWS", new WebSocketInputOperator());
-        LOG.info("WebSocket with daemon at: {}", daemonUrl);
-        URI uri = URI.create(daemonUrl);
-        wsIn.setUrl(URI.create("ws://" + uri.getHost() + ":" + uri.getPort() + "/channel/mobile/phoneLocationQuery"));
+        LOG.info("WebSocket with daemon at: {}", daemonAddress);
+        wsIn.setUrl(URI.create("ws://" + daemonAddress  + "/channel/mobile/phoneLocationQuery"));
         queryPort = wsIn.outputPort;
       } else {
         HttpInputOperator phoneLocationQuery = dag.addOperator("phoneLocationQuery", HttpInputOperator.class);
