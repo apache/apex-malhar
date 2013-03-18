@@ -5,8 +5,8 @@
 package com.malhartech.contrib.romesyndication;
 
 import com.esotericsoftware.kryo.DefaultSerializer;
-import com.malhartech.lib.util.KryoJavaContainer;
-import com.malhartech.lib.util.KryoJavaSerializer;
+import com.malhartech.util.KryoJdkContainer;
+import com.malhartech.util.KryoJdkSerializer;
 import com.sun.syndication.feed.synd.SyndEntry;
 import java.io.Serializable;
 
@@ -21,8 +21,8 @@ import java.io.Serializable;
  *
  * @author Pramod Immaneni <pramod@malhar-inc.com>
  */
-@DefaultSerializer(KryoJavaSerializer.class)
-public class RomeFeedEntry extends KryoJavaContainer<SyndEntry> implements Serializable {
+@DefaultSerializer(KryoJdkSerializer.class)
+public class RomeFeedEntry extends KryoJdkContainer<SyndEntry> implements Serializable {
 
     /**
      * Empty constructor.
@@ -45,7 +45,7 @@ public class RomeFeedEntry extends KryoJavaContainer<SyndEntry> implements Seria
      * @param syndEntry The SyndEntry object
      */
     public void setSyndEntry(SyndEntry syndEntry) {
-        setMember(syndEntry);
+        setComponent(syndEntry);
     }
 
     /**
@@ -53,7 +53,7 @@ public class RomeFeedEntry extends KryoJavaContainer<SyndEntry> implements Seria
      * @return The SyndEntry object
      */
     public SyndEntry getSyndEntry() {
-        return getMember();
+        return getComponent();
     }
 
     /**
@@ -67,9 +67,9 @@ public class RomeFeedEntry extends KryoJavaContainer<SyndEntry> implements Seria
         boolean equal = false;
         if (o instanceof RomeFeedEntry) {
             RomeFeedEntry rfe = (RomeFeedEntry)o;
-            SyndEntry syndEntry = getMember();
-            equal = syndEntry.getTitle().equals(rfe.getMember().getTitle())
-                          && syndEntry.getUri().equals(rfe.getMember().getUri());
+            SyndEntry syndEntry = getComponent();
+            equal = syndEntry.getTitle().equals(rfe.getComponent().getTitle())
+                          && syndEntry.getUri().equals(rfe.getComponent().getUri());
         }
         return equal;
     }
