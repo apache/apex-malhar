@@ -10,10 +10,12 @@ import com.malhartech.stream.SampleWebSocketPublisher;
 import java.net.URI;
 import java.util.Map;
 import junit.framework.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class WebSocketInputOperatorTest
 {
+  @Ignore // ignore until daemon can be started automatically within the test
   @Test
   @SuppressWarnings("SleepWhileInLoop")
   public void testWebSocketInputModule() throws Exception
@@ -22,13 +24,12 @@ public class WebSocketInputOperatorTest
     if (false) {
       // this is not working yet - start server manually for this test
       System.out.println("Starting Daemon...");
-      Daemon.setPort(9090);
       Daemon.setLocalMode(true);
-      Daemon.setup();
+      Daemon.setup("localhost:19090");
       Daemon.start();
     }
 
-    String url = "ws://localhost:9090/channel/testChannel";
+    String url = "ws://localhost:19090/channel/testChannel";
     final WebSocketInputOperator operator = new WebSocketInputOperator();
 
     TestSink<Map<String, String>> sink = new TestSink<Map<String, String>>();
@@ -42,7 +43,7 @@ public class WebSocketInputOperatorTest
 
     // start publisher after subscriber listens to ensure we don't miss the message
     SampleWebSocketPublisher sp = new SampleWebSocketPublisher();
-    sp.setChannelUrl("http://localhost:9090/channel/testChannel");
+    sp.setChannelUrl("http://localhost:19090/channel/testChannel");
     Thread t = new Thread(sp);
     t.start();
 
