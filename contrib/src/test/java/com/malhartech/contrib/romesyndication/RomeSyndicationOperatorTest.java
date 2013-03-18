@@ -32,8 +32,6 @@ import static org.junit.Assert.*;
 /**
  *
  * @author Pramod Immaneni <pramod@malhar-inc.com>
- * Pramod: Need to implement a better test such as reading from a test rss file
- * and checking the entry contents. Would also need to simulate rss updates.
  */
 public class RomeSyndicationOperatorTest {
 

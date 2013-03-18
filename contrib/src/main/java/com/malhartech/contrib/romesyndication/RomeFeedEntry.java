@@ -5,24 +5,24 @@
 package com.malhartech.contrib.romesyndication;
 
 import com.esotericsoftware.kryo.DefaultSerializer;
+import com.malhartech.lib.util.KryoJavaContainer;
+import com.malhartech.lib.util.KryoJavaSerializer;
 import com.sun.syndication.feed.synd.SyndEntry;
+import java.io.Serializable;
 
 /**
  * RomeFeedEntry that wraps a Rome syndication entry.<p><br>
  *
  * <br>
- * Need to wrap Rome SyndEntry with a custom class since the default serializer
- * in Kryo needs an object and all its contained objects to have a default constructor
- * which is not the case for SyndEntry. The solution is to create a custom wrapper
- * class and implement a custom kryo serializer.<br>
+ * The Rome SyndEntry needs to be wrapped up with a custom class since it cannot be
+ * directly serialized by Kryo as a contained object does not have a default constructor.
+ * Also implementing a simpler equals method to make checks for the object in collections faster.<br>
  * <br>
  *
  * @author Pramod Immaneni <pramod@malhar-inc.com>
  */
-@DefaultSerializer(RomeFeedEntrySerializer.class)
-public class RomeFeedEntry {
-
-    private SyndEntry syndEntry;
+@DefaultSerializer(KryoJavaSerializer.class)
+public class RomeFeedEntry extends KryoJavaContainer<SyndEntry> implements Serializable {
 
     /**
      * Empty constructor.
@@ -36,7 +36,8 @@ public class RomeFeedEntry {
      * @param syndEntry The Rome SyndEntry object
      */
     public RomeFeedEntry(SyndEntry syndEntry) {
-        this.syndEntry = syndEntry;
+        //this.syndEntry = syndEntry;
+        super(syndEntry);
     }
 
     /**
@@ -44,7 +45,7 @@ public class RomeFeedEntry {
      * @param syndEntry The SyndEntry object
      */
     public void setSyndEntry(SyndEntry syndEntry) {
-        this.syndEntry = syndEntry;
+        setMember(syndEntry);
     }
 
     /**
@@ -52,7 +53,7 @@ public class RomeFeedEntry {
      * @return The SyndEntry object
      */
     public SyndEntry getSyndEntry() {
-        return syndEntry;
+        return getMember();
     }
 
     /**
@@ -66,8 +67,9 @@ public class RomeFeedEntry {
         boolean equal = false;
         if (o instanceof RomeFeedEntry) {
             RomeFeedEntry rfe = (RomeFeedEntry)o;
-            equal = syndEntry.getTitle().equals(rfe.getSyndEntry().getTitle())
-                          && syndEntry.getUri().equals(rfe.getSyndEntry().getUri());
+            SyndEntry syndEntry = getMember();
+            equal = syndEntry.getTitle().equals(rfe.getMember().getTitle())
+                          && syndEntry.getUri().equals(rfe.getMember().getUri());
         }
         return equal;
     }
