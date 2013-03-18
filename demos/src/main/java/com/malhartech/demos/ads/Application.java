@@ -43,7 +43,7 @@ public class Application implements ApplicationFactory
   private int generatorVTuplesBlast = 1000;
   private int generatorMaxWindowsCount = 100;
   private int generatorWindowCount = 1;
-  private boolean allInline = true;
+  private boolean allInline = false;
   private int numGenerators = 1;
 
   public void setUnitTestMode()
@@ -241,9 +241,9 @@ public class Application implements ApplicationFactory
 
     dag.addStream("adviewsdata", viewAggregate.sum, cost.data);
     dag.addStream("clicksdata", clickAggregate.sum, revenue.data);
-    dag.addStream("viewtuplecount", viewAggregate.count, ctr.denominator, merge.data1).setInline(true);
-    dag.addStream("clicktuplecount", clickAggregate.count, ctr.numerator, merge.data2).setInline(true);
-    dag.addStream("total count", merge.out, tuple_counter.data).setInline(true);
+    dag.addStream("viewtuplecount", viewAggregate.count, ctr.denominator, merge.data1).setInline(allInline);
+    dag.addStream("clicktuplecount", clickAggregate.count, ctr.numerator, merge.data2).setInline(allInline);
+    dag.addStream("total count", merge.out, tuple_counter.data).setInline(allInline);
 
     InputPort<Object> revconsole = getConsolePort(dag, "revConsole", false);
     InputPort<Object> costconsole = getConsolePort(dag, "costConsole", false);
