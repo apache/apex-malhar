@@ -11,20 +11,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import junit.framework.Assert;
-
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jettison.json.JSONObject;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.junit.Test;
-import org.mortbay.jetty.Handler;
-import org.mortbay.jetty.Request;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.handler.AbstractHandler;
 
 
 public class HttpOutputOperatorTest {
@@ -35,18 +32,17 @@ public class HttpOutputOperatorTest {
     final List<String> receivedMessages = new ArrayList<String>();
     Handler handler=new AbstractHandler()
     {
-        @Override
-        public void handle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch)
-            throws IOException, ServletException
-        {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            IOUtils.copy(request.getInputStream(), bos);
-            receivedMessages.add(new String(bos.toByteArray()));
-            response.setContentType("text/html");
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.getWriter().println("<h1>Thanks</h1>");
-            ((Request)request).setHandled(true);
-        }
+      @Override
+      public void handle(String string, Request rq, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException
+      {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        IOUtils.copy(request.getInputStream(), bos);
+        receivedMessages.add(new String(bos.toByteArray()));
+        response.setContentType("text/html");
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.getWriter().println("<h1>Thanks</h1>");
+        ((Request)request).setHandled(true);
+      }
     };
 
     Server server = new Server(0);

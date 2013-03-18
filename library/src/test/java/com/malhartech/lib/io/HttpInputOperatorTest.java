@@ -4,29 +4,25 @@
  */
 package com.malhartech.lib.io;
 
+import com.malhartech.engine.TestSink;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import junit.framework.Assert;
-
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.junit.Test;
-import org.mortbay.jetty.Handler;
-import org.mortbay.jetty.Request;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.handler.AbstractHandler;
-
-import com.malhartech.engine.TestSink;
 
 public class HttpInputOperatorTest
 {
@@ -41,8 +37,7 @@ public class HttpInputOperatorTest
       int responseCount = 0;
 
       @Override
-      public void handle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch)
-              throws IOException, ServletException
+      public void handle(String string, Request rq, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException
       {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         IOUtils.copy(request.getInputStream(), bos);
