@@ -55,6 +55,8 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
   public void setup(OperatorContext context)
   {
     try {
+      channelUrl = URI.create(channelUrl.toString()); // force reparse after deserialization
+
       factory.setBufferSize(8192);
       factory.start();
 
