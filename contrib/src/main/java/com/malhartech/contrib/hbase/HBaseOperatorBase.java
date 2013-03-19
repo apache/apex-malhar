@@ -56,8 +56,8 @@ public class HBaseOperatorBase
 
   protected void setupConfiguration() {
     configuration = HBaseConfiguration.create();
-    configuration.set("hbase.zookeeper.quorum", "127.0.0.1");
-    configuration.set("hbase.zookeeper.property.clientPort", "2222");
+    configuration.set("hbase.zookeeper.quorum", zookeeperQuorum);
+    configuration.set("hbase.zookeeper.property.clientPort", "" + zookeeperClientPort);
   }
 
   protected HTable getTable() throws IOException {

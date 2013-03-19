@@ -4,6 +4,7 @@
  */
 package com.malhartech.contrib.hbase;
 
+import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
@@ -22,7 +23,8 @@ public abstract class HBaseGetOperator<T> extends HBaseInputOperator<T>
       HTable table = getTable();
       Get get = operationGet();
       Result result = table.get(get);
-      T t = getTuple(result);
+      KeyValue[] kvs = result.raw();
+      T t = getTuple(kvs);
       outputPort.emit(t);
     } catch (Exception e) {
       e.printStackTrace();
