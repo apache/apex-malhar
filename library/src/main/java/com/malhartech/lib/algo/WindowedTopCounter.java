@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
  */
 public class WindowedTopCounter<T> extends BaseOperator
 {
-  private static final long serialVersionUID = 201208061826L;
   private static final Logger logger = LoggerFactory.getLogger(WindowedTopCounter.class);
   /**
    * Input port on which map objects containing keys with their respective frequency as values will be accepted.
@@ -118,6 +117,7 @@ public class WindowedTopCounter<T> extends BaseOperator
         }
       }
     }
+    logger.debug("objects.size(): {}", objects.size());
 
     /*
      * Make room for the new element in the priority queue by deleting the
