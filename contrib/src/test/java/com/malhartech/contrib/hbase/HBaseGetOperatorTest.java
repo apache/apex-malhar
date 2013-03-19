@@ -21,6 +21,8 @@ import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -28,7 +30,7 @@ import static org.junit.Assert.*;
  */
 public class HBaseGetOperatorTest
 {
-
+  private static final Logger logger = LoggerFactory.getLogger(HBaseGetOperatorTest.class);
   private static final byte[] table_bytes = Bytes.toBytes("table1");
   private static final byte[] cf1_bytes = Bytes.toBytes("cf1");
   private static final byte[] col1_bytes = Bytes.toBytes("col1");
@@ -45,10 +47,7 @@ public class HBaseGetOperatorTest
   {
     System.out.println("run");
     try {
-      Configuration conf = HBaseConfiguration.create();
-      conf.set("hbase.zookeeper.quorum", "127.0.0.1");
-      conf.set("hbase.zookeeper.property.clientPort", "2822");
-      populateHBase(conf);
+      populateHBase();
       DAG dag = new DAG();
       TestHBaseGetOperator thop = dag.addOperator("testhbaseget", TestHBaseGetOperator.class);
       TupleCollector tc = dag.addOperator("tuplecollector", TupleCollector.class);
@@ -60,7 +59,7 @@ public class HBaseGetOperatorTest
 
       StramLocalCluster lc = new StramLocalCluster(dag);
       lc.setHeartbeatMonitoringEnabled(false);
-      lc.run(5000);
+      lc.run(10000);
       /*
       tuples = new ArrayList<HBaseTuple>();
       TestHBaseGetOperator thop = new TestHBaseGetOperator();
@@ -76,14 +75,22 @@ public class HBaseGetOperatorTest
       //fail("The test case is a prototype.");
       // Check total number
       System.out.println("tuples size " + tuples.size());
-      assert true;
+      assert tuples.size() > 0;
+      assert tuples.get(0).getCol1val().equals("val01");
+      assert tuples.get(0).getCol2val().equals("val02");
+      assert tuples.size() >= 499;
+      assert tuples.get(499).getCol1val().equals("val4991");
+      assert tuples.get(499).getCol2val().equals("val4992");
     } catch (Exception ex) {
-      ex.printStackTrace();
+      logger.error(ex.getMessage());
       assert false;
     }
   }
 
-  private void populateHBase(Configuration conf) throws IOException {
+  private void populateHBase() throws IOException {
+      Configuration conf = HBaseConfiguration.create();
+      conf.set("hbase.zookeeper.quorum", "127.0.0.1");
+      conf.set("hbase.zookeeper.property.clientPort", "2822");
       HBaseAdmin admin = new HBaseAdmin(conf);
       if (admin.isTableAvailable(table_bytes)) {
         admin.disableTable(table_bytes);
