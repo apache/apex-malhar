@@ -43,12 +43,9 @@ public class WindowedTopCounter<T> extends BaseOperator
         WindowedHolder<T> holder = objects.get(e.getKey());
         if (holder == null) {
           holder = new WindowedHolder<T>(e.getKey(), windows);
-          holder.totalCount = e.getValue();
           objects.put(e.getKey(), holder);
         }
-        else {
-          holder.adjustCount(e.getValue());
-        }
+        holder.adjustCount(e.getValue());
       }
     }
 

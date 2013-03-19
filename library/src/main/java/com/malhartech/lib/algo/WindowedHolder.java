@@ -18,6 +18,7 @@ class WindowedHolder<T>
   int position;
   int windowedCount[];
 
+  @SuppressWarnings("unused")
   private WindowedHolder()
   {
   }
