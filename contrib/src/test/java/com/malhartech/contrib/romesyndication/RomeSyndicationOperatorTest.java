@@ -4,19 +4,10 @@
  */
 package com.malhartech.contrib.romesyndication;
 
-import com.malhartech.contrib.romesyndication.RomeFeedEntry;
-import com.malhartech.contrib.romesyndication.RomeSyndicationOperator;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DAG;
-import com.malhartech.api.DAGContext;
 import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.Sink;
-import com.malhartech.api.StreamCodec;
-import com.malhartech.lib.codec.JavaSerializationStreamCodec;
 import com.malhartech.stram.StramLocalCluster;
-import com.malhartech.util.AttributeMap;
-import com.malhartech.util.AttributeMap.DefaultAttributeMap;
-import com.sun.syndication.feed.synd.SyndEntry;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -27,7 +18,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -63,10 +53,10 @@ public class RomeSyndicationOperatorTest {
         }
 
         public final transient DefaultInputPort<RomeFeedEntry> input = new DefaultInputPort<RomeFeedEntry>(this) {
+
+            @Override
             public void process(RomeFeedEntry tuple) {
                 entries.add( tuple );
-                SyndEntry syndEntry = tuple.getSyndEntry();
-                System.out.println( syndEntry.getTitle() + " " + syndEntry.getUri() );
             }
 
             /*
@@ -88,8 +78,9 @@ public class RomeSyndicationOperatorTest {
           index = 0;
         }
 
+        @Override
         public InputStream getInputStream() throws IOException {
-          InputStream is = null;
+          InputStream is;
           if (index == 0) {
             is = getClass().getResourceAsStream("/com/malhartech/contrib/romesyndication/cnn_topstories.rss");
             ++index;
@@ -106,8 +97,6 @@ public class RomeSyndicationOperatorTest {
      */
     @Test
     public void testRun() {
-        System.out.println("run");
-
         DAG dag = new DAG();
         RomeSyndicationOperator rop = dag.addOperator("romesyndication", RomeSyndicationOperator.class);
         FeedCollector fc = dag.addOperator("feedcollector", FeedCollector.class);
@@ -121,11 +110,6 @@ public class RomeSyndicationOperatorTest {
             StramLocalCluster lc = new StramLocalCluster(dag);
             lc.setHeartbeatMonitoringEnabled(false);
             lc.run(10000);
-
-            // TODO review the generated test code and remove the default call to fail.
-            //fail("The test case is a prototype.");
-            // Check total number
-            System.out.println("entries size " + entries.size());
             assert entries.size() == 81;
             // Check first entry
             assert entries.get(0).getSyndEntry().getTitle().equals("Our favorite surprise homecomings");
