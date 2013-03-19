@@ -18,21 +18,21 @@ import org.slf4j.LoggerFactory;
  *
  * @author Pramod Immaneni <pramod@malhar-inc.com>
  */
-public class HBaseGetOperatorTest
+public class HBaseScanOperatorTest
 {
-  private static final Logger logger = LoggerFactory.getLogger(HBaseGetOperatorTest.class);
+  private static final Logger logger = LoggerFactory.getLogger(HBaseScanOperatorTest.class);
 
-  public HBaseGetOperatorTest()
+  public HBaseScanOperatorTest()
   {
   }
 
   @Test
-  public void testGet()
+  public void testScan()
   {
     try {
       HBaseTestHelper.populateHBase();
       DAG dag = new DAG();
-      TestHBaseGetOperator thop = dag.addOperator("testhbaseget", TestHBaseGetOperator.class);
+      TestHBaseScanOperator thop = dag.addOperator("testhbasescan", TestHBaseScanOperator.class);
       HBaseTupleCollector tc = dag.addOperator("tuplecollector", HBaseTupleCollector.class);
       dag.addStream("ss", thop.outputPort, tc.input);
 
@@ -45,7 +45,7 @@ public class HBaseGetOperatorTest
       lc.run(10000);
       /*
       tuples = new ArrayList<HBaseTuple>();
-      TestHBaseGetOperator thop = new TestHBaseGetOperator();
+      TestHBaseScanOperator thop = new TestHBaseScanOperator();
            thop.setTableName("table1");
       thop.setZookeeperQuorum("127.0.0.1");
       thop.setZookeeperClientPort(2822);
@@ -62,25 +62,29 @@ public class HBaseGetOperatorTest
       assert tuples.get(0).getCol1val().equals("val0-1");
       assert tuples.get(0).getCol2val().equals("val0-2");
       assert tuples.size() >= 499;
-      assert tuples.get(499).getCol1val().equals("val499-1");
-      assert tuples.get(499).getCol2val().equals("val499-2");
+      boolean found = false;
+      for (int i = 0; i < 500; ++i) {
+        if (tuples.get(i).getCol1val().equals("val499-1")
+                && tuples.get(i).getCol2val().equals("val499-2")) {
+          found = true;
+          break;
+        }
+      }
+      assert found;
     } catch (Exception ex) {
       logger.error(ex.getMessage());
       assert false;
     }
   }
 
-  public static class TestHBaseGetOperator extends HBaseGetOperator<HBaseTuple>
+  public static class TestHBaseScanOperator extends HBaseScanOperator<HBaseTuple>
   {
     private int rowIndex = 0;
 
     @Override
-    public Get operationGet()
+    public Scan operationScan()
     {
-      Get get = new Get(Bytes.toBytes("row" + rowIndex++));
-      get.addFamily(HBaseTestHelper.cf1_bytes);
-      if (rowIndex >= 500) rowIndex = 0;
-      return get;
+      return new Scan();
     }
 
     @Override
@@ -95,6 +99,7 @@ public class HBaseGetOperatorTest
           tuple.setCol2val(new String(kv.getValue()));
         }
       }
+      //System.out.println(tuple.getCol1val() + " " + tuple.getCol2val());
       return tuple;
     }
 

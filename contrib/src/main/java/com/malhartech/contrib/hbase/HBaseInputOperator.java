@@ -27,7 +27,6 @@ public abstract class HBaseInputOperator<T> extends HBaseOperatorBase implements
   @Override
   public void beginWindow(long windowId)
   {
-    setupConfiguration();
   }
 
   @Override
@@ -38,6 +37,7 @@ public abstract class HBaseInputOperator<T> extends HBaseOperatorBase implements
   @Override
   public void setup(OperatorContext context)
   {
+      setupConfiguration();
   }
 
   @Override

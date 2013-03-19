@@ -18,6 +18,7 @@ public class HBaseOperatorBase
   private String zookeeperQuorum;
   private int zookeeperClientPort;
   protected String tableName;
+  
   protected transient Configuration configuration;
 
   public String getZookeeperQuorum()
