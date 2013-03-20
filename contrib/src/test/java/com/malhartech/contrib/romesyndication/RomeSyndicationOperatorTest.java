@@ -110,6 +110,17 @@ public class RomeSyndicationOperatorTest {
             StramLocalCluster lc = new StramLocalCluster(dag);
             lc.setHeartbeatMonitoringEnabled(false);
             lc.run(10000);
+            Assert.assertEquals("Entries size", entries.size(), 81);
+            // Check first entry
+            Assert.assertEquals("First entry title", entries.get(0).getSyndEntry().getTitle(), "Our favorite surprise homecomings");
+            Assert.assertEquals("First entry URI", entries.get(0).getSyndEntry().getUri(), "http://www.cnn.com/video/#/video/us/2012/09/21/soldier-surprises-daughter-maine.wabi");
+            // Check first entry from second run
+            Assert.assertEquals("Second run first entry title", entries.get(74).getSyndEntry().getTitle(), "Watch chimney deliver the news");
+            Assert.assertEquals("Second run first entry URI", entries.get(74).getSyndEntry().getUri(), "http://www.cnn.com/video/#/video/world/2013/03/13/nr-white-smoke-means-new-pope.cnn");
+            // Check last entry
+            Assert.assertEquals("Last entry title", entries.get(80).getSyndEntry().getTitle(), "How the smoke process works");
+            Assert.assertEquals("Last entry URI", entries.get(80).getSyndEntry().getUri(), "http://www.cnn.com/2013/03/12/world/europe/vatican-chapel-stove/index.html");
+            /*
             assert entries.size() == 81;
             // Check first entry
             assert entries.get(0).getSyndEntry().getTitle().equals("Our favorite surprise homecomings");
@@ -120,6 +131,7 @@ public class RomeSyndicationOperatorTest {
             // Check last entry
             assert entries.get(80).getSyndEntry().getTitle().equals("How the smoke process works");
             assert entries.get(80).getSyndEntry().getUri().equals("http://www.cnn.com/2013/03/12/world/europe/vatican-chapel-stove/index.html");
+            */
         } catch ( Exception ex ) {
             Assert.assertFalse(true);
         }

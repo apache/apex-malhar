@@ -6,6 +6,7 @@ package com.malhartech.contrib.hbase;
 
 import com.malhartech.api.DAG;
 import com.malhartech.stram.StramLocalCluster;
+import junit.framework.Assert;
 import org.apache.hadoop.hbase.client.Append;
 import org.apache.hadoop.hbase.client.Put;
 import org.junit.Test;
@@ -56,17 +57,17 @@ private static final Logger logger = LoggerFactory.getLogger(HBasePutOperatorTes
       //fail("The test case is a prototype.");
       // Check total number
       HBaseTuple tuple = HBaseTestHelper.getHBaseTuple("row0", "colfam0", "col-0");
-      assert tuple != null;
-      assert tuple.getRow().equals("row0");
-      assert tuple.getColFamily().equals("colfam0");
-      assert tuple.getColName().equals("col-0");
-      assert tuple.getColValue().equals("val-0-0");
+      Assert.assertNotNull("Tuple", tuple);
+      Assert.assertEquals("Tuple row", tuple.getRow(), "row0");
+      Assert.assertEquals("Tuple column family", tuple.getColFamily(), "colfam0");
+      Assert.assertEquals("Tuple column name", tuple.getColName(), "col-0");
+      Assert.assertEquals("Tuple column value", tuple.getColValue(), "val-0-0");
       tuple = HBaseTestHelper.getHBaseTuple("row0", "colfam0","col-499");
-      assert tuple != null;
-      assert tuple.getRow().equals("row0");
-      assert tuple.getColFamily().equals("colfam0");
-      assert tuple.getColName().equals("col-499");
-      assert tuple.getColValue().equals("val-0-499");
+      Assert.assertNotNull("Tuple", tuple);
+      Assert.assertEquals("Tuple row", tuple.getRow(), "row0");
+      Assert.assertEquals("Tuple column family", tuple.getColFamily(), "colfam0");
+      Assert.assertEquals("Tuple column name", tuple.getColName(), "col-499");
+      Assert.assertEquals("Tuple column value", tuple.getColValue(), "val-0-499");
     } catch (Exception ex) {
       logger.error(ex.getMessage());
       assert false;

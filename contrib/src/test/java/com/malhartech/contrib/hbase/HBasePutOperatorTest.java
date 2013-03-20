@@ -6,6 +6,7 @@ package com.malhartech.contrib.hbase;
 
 import com.malhartech.api.DAG;
 import com.malhartech.stram.StramLocalCluster;
+import junit.framework.Assert;
 import org.apache.hadoop.hbase.client.Put;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -36,6 +37,7 @@ public class HBasePutOperatorTest
       thop.setTableName("table1");
       thop.setZookeeperQuorum("127.0.0.1");
       thop.setZookeeperClientPort(2822);
+      thop.setBatchSize(500);
 
       StramLocalCluster lc = new StramLocalCluster(dag);
       lc.setHeartbeatMonitoringEnabled(false);
@@ -55,17 +57,17 @@ public class HBasePutOperatorTest
       //fail("The test case is a prototype.");
       // Check total number
       HBaseTuple tuple = HBaseTestHelper.getHBaseTuple("row0", "colfam0", "col-0");
-      assert tuple != null;
-      assert tuple.getRow().equals("row0");
-      assert tuple.getColFamily().equals("colfam0");
-      assert tuple.getColName().equals("col-0");
-      assert tuple.getColValue().equals("val-0-0");
+      Assert.assertNotNull("Tuple", tuple);
+      Assert.assertEquals("Tuple row", tuple.getRow(), "row0");
+      Assert.assertEquals("Tuple column family", tuple.getColFamily(), "colfam0");
+      Assert.assertEquals("Tuple column name", tuple.getColName(), "col-0");
+      Assert.assertEquals("Tuple column value", tuple.getColValue(), "val-0-0");
       tuple = HBaseTestHelper.getHBaseTuple("row499", "colfam0", "col-0");
-      assert tuple != null;
-      assert tuple.getRow().equals("row499");
-      assert tuple.getColFamily().equals("colfam0");
-      assert tuple.getColName().equals("col-0");
-      assert tuple.getColValue().equals("val-499-0");
+      Assert.assertNotNull("Tuple", tuple);
+      Assert.assertEquals("Tuple row", tuple.getRow(), "row499");
+      Assert.assertEquals("Tuple column family", tuple.getColFamily(), "colfam0");
+      Assert.assertEquals("Tuple column name", tuple.getColName(), "col-0");
+      Assert.assertEquals("Tuple column value", tuple.getColValue(), "val-499-0");
     } catch (Exception ex) {
       logger.error(ex.getMessage());
       assert false;

@@ -22,8 +22,10 @@ import org.slf4j.LoggerFactory;
 public abstract class HBaseOutputOperator<T> extends HBaseOperatorBase implements Operator {
 
   private static final transient Logger logger = LoggerFactory.getLogger(HBaseOutputOperator.class);
+  protected static final int DEFAULT_BATCH_SIZE = 1000;
+
   private List<T> tuples;
-  private int flushLimit;
+  private int batchSize = DEFAULT_BATCH_SIZE;
   private int tupleCount;
 
   @InputPortFieldAnnotation(name="inputPort")
@@ -33,21 +35,21 @@ public abstract class HBaseOutputOperator<T> extends HBaseOperatorBase implement
     public void process(T tuple)
     {
       tuples.add(tuple);
-      if (++tupleCount >= flushLimit) {
+      if (++tupleCount >= batchSize) {
         processTuples();
       }
     }
 
   };
 
-  public int getFlushLimit()
+  public int getBatchSize()
   {
-    return flushLimit;
+    return batchSize;
   }
 
-  public void setFlushLimit(int flushLimit)
+  public void setBatchSize(int batchSize)
   {
-    this.flushLimit = flushLimit;
+    this.batchSize = batchSize;
   }
 
   @Override
