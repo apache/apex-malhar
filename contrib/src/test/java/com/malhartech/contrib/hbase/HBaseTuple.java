@@ -14,8 +14,8 @@ public class HBaseTuple implements Serializable
 {
   private String row;
   private String colFamily;
-  private String col1Value;
-  private String col2Value;
+  private String colName;
+  private String colValue;
 
   public String getRow()
   {
@@ -37,24 +37,24 @@ public class HBaseTuple implements Serializable
     this.colFamily = colFamily;
   }
 
-  public String getCol1Value()
+  public String getColName()
   {
-    return col1Value;
+    return colName;
   }
 
-  public void setCol1Value(String col1Value)
+  public void setColName(String colName)
   {
-    this.col1Value = col1Value;
+    this.colName = colName;
   }
 
-  public String getCol2Value()
+  public String getColValue()
   {
-    return col2Value;
+    return colValue;
   }
 
-  public void setCol2Value(String col2Value)
+  public void setColValue(String colValue)
   {
-    this.col2Value = col2Value;
+    this.colValue = colValue;
   }
 
 }

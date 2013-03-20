@@ -37,4 +37,6 @@ public abstract class HBaseScanOperator<T> extends HBaseInputOperator<T>
 
   protected abstract Scan operationScan();
 
+  protected abstract T getTuple(Result result);
+
 }

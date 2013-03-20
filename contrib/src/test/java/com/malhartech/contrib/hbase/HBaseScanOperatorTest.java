@@ -9,6 +9,8 @@ import com.malhartech.stram.StramLocalCluster;
 import java.util.List;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.filter.ColumnPrefixFilter;
+import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -59,20 +61,18 @@ public class HBaseScanOperatorTest
       // Check total number
       List<HBaseTuple> tuples = HBaseTupleCollector.tuples;
       assert tuples.size() > 0;
-      assert tuples.get(0).getCol1Value().equals("val0-1");
-      assert tuples.get(0).getCol2Value().equals("val0-2");
-      assert tuples.size() >= 499;
-      boolean found = false;
-      for (int i = 0; i < 500; ++i) {
-        if (tuples.get(i).getRow().equals("row499")
-                && tuples.get(i).getColFamily().equals("cf1")
-                && tuples.get(i).getCol1Value().equals("val499-1")
-                && tuples.get(i).getCol2Value().equals("val499-2")) {
-          found = true;
-          break;
-        }
-      }
-      assert found;
+       HBaseTuple tuple = HBaseTestHelper.findTuple(tuples, "row0", "colfam0", "col-0");
+      assert tuple != null;
+      assert tuple.getRow().equals("row0");
+      assert tuple.getColFamily().equals("colfam0");
+      assert tuple.getColName().equals("col-0");
+      assert tuple.getColValue().equals("val-0-0");
+      tuple = HBaseTestHelper.findTuple(tuples, "row499", "colfam0", "col-0");
+      assert tuple != null;
+      assert tuple.getRow().equals("row499");
+      assert tuple.getColFamily().equals("colfam0");
+      assert tuple.getColName().equals("col-0");
+      assert tuple.getColValue().equals("val-499-0");
     } catch (Exception ex) {
       logger.error(ex.getMessage());
       assert false;
@@ -86,7 +86,10 @@ public class HBaseScanOperatorTest
     @Override
     public Scan operationScan()
     {
-      return new Scan();
+      Scan scan = new Scan();
+      Filter f = new ColumnPrefixFilter(Bytes.toBytes("col-0"));
+      scan.setFilter(f);
+      return scan;
     }
 
     @Override

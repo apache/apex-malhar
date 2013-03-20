@@ -6,6 +6,7 @@ package com.malhartech.contrib.hbase;
 
 import com.malhartech.api.DAG;
 import com.malhartech.stram.StramLocalCluster;
+import org.apache.hadoop.hbase.client.Append;
 import org.apache.hadoop.hbase.client.Put;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -15,23 +16,23 @@ import org.slf4j.LoggerFactory;
  *
  * @author Pramod Immaneni <pramod@malhar-inc.com>
  */
-public class HBasePutOperatorTest
+public class HBaseAppendOperatorTest
 {
-  private static final Logger logger = LoggerFactory.getLogger(HBasePutOperatorTest.class);
+private static final Logger logger = LoggerFactory.getLogger(HBasePutOperatorTest.class);
 
-  public HBasePutOperatorTest()
+  public HBaseAppendOperatorTest()
   {
   }
 
   @Test
-  public void testPut()
+  public void testAppend()
   {
     try {
       HBaseTestHelper.clearHBase();
       DAG dag = new DAG();
-      HBaseRowTupleGenerator rtg = dag.addOperator("tuplegenerator", HBaseRowTupleGenerator.class);
-      TestHBasePutOperator thop = dag.addOperator("testhbaseput", TestHBasePutOperator.class);
-      dag.addStream("ss", rtg.outputPort, thop.inputPort);
+      HBaseColTupleGenerator ctg = dag.addOperator("coltuplegenerator", HBaseColTupleGenerator.class);
+      TestHBaseAppendOperator thop = dag.addOperator("testhbaseput", TestHBaseAppendOperator.class);
+      dag.addStream("ss", ctg.outputPort, thop.inputPort);
 
       thop.setTableName("table1");
       thop.setZookeeperQuorum("127.0.0.1");
@@ -60,26 +61,26 @@ public class HBasePutOperatorTest
       assert tuple.getColFamily().equals("colfam0");
       assert tuple.getColName().equals("col-0");
       assert tuple.getColValue().equals("val-0-0");
-      tuple = HBaseTestHelper.getHBaseTuple("row499", "colfam0", "col-0");
+      tuple = HBaseTestHelper.getHBaseTuple("row0", "colfam0","col-499");
       assert tuple != null;
-      assert tuple.getRow().equals("row499");
+      assert tuple.getRow().equals("row0");
       assert tuple.getColFamily().equals("colfam0");
-      assert tuple.getColName().equals("col-0");
-      assert tuple.getColValue().equals("val-499-0");
+      assert tuple.getColName().equals("col-499");
+      assert tuple.getColValue().equals("val-0-499");
     } catch (Exception ex) {
       logger.error(ex.getMessage());
       assert false;
     }
   }
 
-  public static class TestHBasePutOperator extends HBasePutOperator<HBaseTuple> {
+  public static class TestHBaseAppendOperator extends HBaseAppendOperator<HBaseTuple> {
 
     @Override
-    public Put operationPut(HBaseTuple t)
+    public Append operationAppend(HBaseTuple t)
     {
-      Put put = new Put(t.getRow().getBytes());
-      put.add(t.getColFamily().getBytes(), t.getColName().getBytes(), t.getColValue().getBytes());
-      return put;
+      Append append = new Append(t.getRow().getBytes());
+      append.add(t.getColFamily().getBytes(), t.getColName().getBytes(), t.getColValue().getBytes());
+      return append;
     }
 
   }

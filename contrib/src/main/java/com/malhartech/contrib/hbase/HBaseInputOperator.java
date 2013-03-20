@@ -22,8 +22,8 @@ public abstract class HBaseInputOperator<T> extends HBaseOperatorBase implements
   @OutputPortFieldAnnotation(name = "outputPort")
   public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>(this);
 
-  protected abstract T getTuple(Result result);
-  //protected abstract T getTuple(KeyValue[] kvs);
+  //protected abstract T getTuple(Result result);
+  //protected abstract T getTuple(KeyValue kv);
 
   @Override
   public void beginWindow(long windowId)

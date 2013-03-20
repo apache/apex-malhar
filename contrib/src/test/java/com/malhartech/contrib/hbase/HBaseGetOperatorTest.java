@@ -59,15 +59,19 @@ public class HBaseGetOperatorTest
       // Check total number
       List<HBaseTuple> tuples = HBaseTupleCollector.tuples;
       assert tuples.size() > 0;
-      assert tuples.get(0).getRow().equals("row0");
-      assert tuples.get(0).getColFamily().equals("cf1");
-      assert tuples.get(0).getCol1Value().equals("val0-1");
-      assert tuples.get(0).getCol2Value().equals("val0-2");
+      HBaseTuple tuple = HBaseTestHelper.findTuple(tuples, "row0", "colfam0", "col-0");
+      assert tuple != null;
+      assert tuple.getRow().equals("row0");
+      assert tuple.getColFamily().equals("colfam0");
+      assert tuple.getColName().equals("col-0");
+      assert tuple.getColValue().equals("val-0-0");
       assert tuples.size() >= 499;
-      assert tuples.get(499).getRow().equals("row499");
-      assert tuples.get(499).getColFamily().equals("cf1");
-      assert tuples.get(499).getCol1Value().equals("val499-1");
-      assert tuples.get(499).getCol2Value().equals("val499-2");
+      tuple = HBaseTestHelper.findTuple(tuples, "row0", "colfam0", "col-499");
+      assert tuple != null;
+      assert tuple.getRow().equals("row0");
+      assert tuple.getColFamily().equals("colfam0");
+      assert tuple.getColName().equals("col-499");
+      assert tuple.getColValue().equals("val-0-499");
     } catch (Exception ex) {
       logger.error(ex.getMessage());
       assert false;
@@ -76,22 +80,20 @@ public class HBaseGetOperatorTest
 
   public static class TestHBaseGetOperator extends HBaseGetOperator<HBaseTuple>
   {
-    private int rowIndex = 0;
 
     @Override
     public Get operationGet()
     {
-      Get get = new Get(Bytes.toBytes("row" + rowIndex++));
-      get.addFamily(HBaseTestHelper.cf1_bytes);
-      if (rowIndex >= 500) rowIndex = 0;
+      Get get = new Get(Bytes.toBytes("row0"));
+      get.addFamily(HBaseTestHelper.colfam0_bytes);
       return get;
     }
 
     @Override
     //protected HBaseTuple getTuple(KeyValue[] kvs)
-    protected HBaseTuple getTuple(Result result)
+    protected HBaseTuple getTuple(KeyValue kv)
     {
-      return HBaseTestHelper.getHBaseTuple(result);
+      return HBaseTestHelper.getHBaseTuple(kv);
     }
 
   }
