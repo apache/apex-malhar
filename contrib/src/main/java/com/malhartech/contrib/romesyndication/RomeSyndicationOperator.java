@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
  * syndication entries it emits them through the default output port.<br>
  *
  * <br>
+ *
  * @author Pramod Immaneni <pramod@malhar-inc.com>
  */
 public class RomeSyndicationOperator extends SimpleSinglePortInputOperator<RomeFeedEntry> implements Runnable
@@ -91,9 +92,9 @@ public class RomeSyndicationOperator extends SimpleSinglePortInputOperator<RomeF
   }
 
   /**
-   * Set the syndication feed location
+   * Set the syndication feed provider
    *
-   * @param location The syndication feed location
+   * @param streamProvider The syndication feed provider
    */
   public void setStreamProvider(RomeStreamProvider streamProvider)
   {
@@ -101,28 +102,32 @@ public class RomeSyndicationOperator extends SimpleSinglePortInputOperator<RomeF
   }
 
   /**
-   * Get the syndication feed location
+   * Get the syndication feed provider
    *
-   * @return The syndication feed location
+   * @return The syndication feed provider
    */
   public RomeStreamProvider getStreamProvider()
   {
     return streamProvider;
   }
 
-  public void setOrderedUpdate(boolean orderedUpdate) {
+  public void setOrderedUpdate(boolean orderedUpdate)
+  {
     this.orderedUpdate = orderedUpdate;
   }
 
-  public boolean isOrderedUpdate() {
+  public boolean isOrderedUpdate()
+  {
     return orderedUpdate;
   }
 
-  private InputStream getFeedInputStream() throws IOException {
-    InputStream is = null;
+  private InputStream getFeedInputStream() throws IOException
+  {
+    InputStream is;
     if (streamProvider != null) {
       is = streamProvider.getInputStream();
-    }else {
+    }
+    else {
       URL url = new URL(location);
       is = url.openStream();
     }
@@ -151,7 +156,8 @@ public class RomeSyndicationOperator extends SimpleSinglePortInputOperator<RomeF
             if (!oldEntries) {
               if (!feedItems.contains(romeFeedEntry)) {
                 outputPort.emit(romeFeedEntry);
-              } else if (orderedUpdate) {
+              }
+              else if (orderedUpdate) {
                 oldEntries = true;
               }
             }
@@ -160,7 +166,6 @@ public class RomeSyndicationOperator extends SimpleSinglePortInputOperator<RomeF
           feedItems = nfeedItems;
         }
         catch (Exception e) {
-          e.printStackTrace();
           logger.error(e.getMessage());
         }
         finally {

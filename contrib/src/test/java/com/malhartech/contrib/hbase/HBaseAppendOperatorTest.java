@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  */
 public class HBaseAppendOperatorTest
 {
-private static final Logger logger = LoggerFactory.getLogger(HBasePutOperatorTest.class);
+  private static final Logger logger = LoggerFactory.getLogger(HBasePutOperatorTest.class);
 
   public HBaseAppendOperatorTest()
   {

@@ -11,14 +11,17 @@ import java.io.InputStream;
  * The interface to implement for any provider that wants to provide syndication feed.<p><br>
  *
  * <br>
+ *
  * @author Pramod Immaneni <pramod@malhar-inc.com>
  */
 public interface RomeStreamProvider
 {
   /**
    * Get the feed input stream.
+   *
    * @return The feed input stream
    * @throws IOException
    */
   public InputStream getInputStream() throws IOException;
+
 }

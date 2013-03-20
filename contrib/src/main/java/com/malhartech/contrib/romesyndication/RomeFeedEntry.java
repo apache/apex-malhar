@@ -22,56 +22,64 @@ import java.io.Serializable;
  * @author Pramod Immaneni <pramod@malhar-inc.com>
  */
 @DefaultSerializer(KryoJdkSerializer.class)
-public class RomeFeedEntry extends KryoJdkContainer<SyndEntry> implements Serializable {
+public class RomeFeedEntry extends KryoJdkContainer<SyndEntry> implements Serializable
+{
+  /**
+   * Empty constructor.
+   */
+  public RomeFeedEntry()
+  {
+  }
 
-    /**
-     * Empty constructor.
-     */
-    public RomeFeedEntry() {
+  /**
+   * Create a RomeFeedEntry using a Rome SyndEntry object.
+   *
+   * @param syndEntry The Rome SyndEntry object
+   */
+  public RomeFeedEntry(SyndEntry syndEntry)
+  {
+    //this.syndEntry = syndEntry;
+    super(syndEntry);
+  }
 
+  /**
+   * Set the Rome SyndEntry object.
+   *
+   * @param syndEntry The SyndEntry object
+   */
+  public void setSyndEntry(SyndEntry syndEntry)
+  {
+    setComponent(syndEntry);
+  }
+
+  /**
+   * Get the Rome SyndEntry object.
+   *
+   * @return The SyndEntry object
+   */
+  public SyndEntry getSyndEntry()
+  {
+    return getComponent();
+  }
+
+  /**
+   * Override equals to tell if the given object is equal to this RomeFeedEntry object.
+   * Compares the title and uri of the underlying SyndEntrys of both objects to determine equality.
+   *
+   * @param o The given object
+   * @return Whether the given object is equal to this object or not
+   */
+  @Override
+  public boolean equals(Object o)
+  {
+    boolean equal = false;
+    if (o instanceof RomeFeedEntry) {
+      RomeFeedEntry rfe = (RomeFeedEntry)o;
+      SyndEntry syndEntry = getComponent();
+      equal = syndEntry.getTitle().equals(rfe.getComponent().getTitle())
+              && syndEntry.getUri().equals(rfe.getComponent().getUri());
     }
-
-    /**
-     * Create a RomeFeedEntry using a Rome SyndEntry object.
-     * @param syndEntry The Rome SyndEntry object
-     */
-    public RomeFeedEntry(SyndEntry syndEntry) {
-        //this.syndEntry = syndEntry;
-        super(syndEntry);
-    }
-
-    /**
-     * Set the Rome SyndEntry object.
-     * @param syndEntry The SyndEntry object
-     */
-    public void setSyndEntry(SyndEntry syndEntry) {
-        setComponent(syndEntry);
-    }
-
-    /**
-     * Get the Rome SyndEntry object.
-     * @return The SyndEntry object
-     */
-    public SyndEntry getSyndEntry() {
-        return getComponent();
-    }
-
-    /**
-     * Override equals to tell if the given object is equal to this RomeFeedEntry object.
-     * Compares the title and uri of the underlying SyndEntrys of both objects to determine equality.
-     * @param o The given object
-     * @return Whether the given object is equal to this object or not
-     */
-    @Override
-    public boolean equals(Object o) {
-        boolean equal = false;
-        if (o instanceof RomeFeedEntry) {
-            RomeFeedEntry rfe = (RomeFeedEntry)o;
-            SyndEntry syndEntry = getComponent();
-            equal = syndEntry.getTitle().equals(rfe.getComponent().getTitle())
-                          && syndEntry.getUri().equals(rfe.getComponent().getUri());
-        }
-        return equal;
-    }
+    return equal;
+  }
 
 }
