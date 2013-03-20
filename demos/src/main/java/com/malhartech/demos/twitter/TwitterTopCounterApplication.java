@@ -15,7 +15,31 @@ import java.net.URI;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- * Takes Twitter feed and computes top URLs in sliding window.<p>
+ * Takes Twitter feed and computes top URLs in sliding window.
+ * <p>
+ * Before running this application, you need to configure the Twitter authentication.
+ * For the CLI, those go into ~/.stram/stram-site.xml:
+ * <pre>
+ * {@code
+ * <?xml version="1.0" encoding="UTF-8"?>
+ * <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+ * <configuration>
+ *
+ *   <property> <name>stram.operator.TweetSampler.consumerKey</name>
+ *   <value>TBD</value> </property>
+ *
+ *   <property> <name>stram.operator.TweetSampler.consumerSecret</name>
+ *   <value>TBD</value> </property>
+ *
+ *   <property> <name>stram.operator.TweetSampler.accessToken</name>
+ *   <value>TBD</value> </property>
+ *
+ *   <property> <name>stram.operator.TweetSampler.accessTokenSecret</name>
+ *   <value>TBD</value> </property>
+
+ * </configuration>
+ * }
+ * </pre>
  */
 public class TwitterTopCounterApplication implements ApplicationFactory
 {
