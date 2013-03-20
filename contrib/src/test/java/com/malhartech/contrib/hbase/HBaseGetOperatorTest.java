@@ -34,7 +34,7 @@ public class HBaseGetOperatorTest
       DAG dag = new DAG();
       TestHBaseGetOperator thop = dag.addOperator("testhbaseget", TestHBaseGetOperator.class);
       HBaseTupleCollector tc = dag.addOperator("tuplecollector", HBaseTupleCollector.class);
-      dag.addStream("ss", thop.outputPort, tc.input);
+      dag.addStream("ss", thop.outputPort, tc.inputPort);
 
       thop.setTableName("table1");
       thop.setZookeeperQuorum("127.0.0.1");
@@ -59,11 +59,15 @@ public class HBaseGetOperatorTest
       // Check total number
       List<HBaseTuple> tuples = HBaseTupleCollector.tuples;
       assert tuples.size() > 0;
-      assert tuples.get(0).getCol1val().equals("val0-1");
-      assert tuples.get(0).getCol2val().equals("val0-2");
+      assert tuples.get(0).getRow().equals("row0");
+      assert tuples.get(0).getColFamily().equals("cf1");
+      assert tuples.get(0).getCol1Value().equals("val0-1");
+      assert tuples.get(0).getCol2Value().equals("val0-2");
       assert tuples.size() >= 499;
-      assert tuples.get(499).getCol1val().equals("val499-1");
-      assert tuples.get(499).getCol2val().equals("val499-2");
+      assert tuples.get(499).getRow().equals("row499");
+      assert tuples.get(499).getColFamily().equals("cf1");
+      assert tuples.get(499).getCol1Value().equals("val499-1");
+      assert tuples.get(499).getCol2Value().equals("val499-2");
     } catch (Exception ex) {
       logger.error(ex.getMessage());
       assert false;
@@ -84,18 +88,10 @@ public class HBaseGetOperatorTest
     }
 
     @Override
-    protected HBaseTuple getTuple(KeyValue[] kvs)
+    //protected HBaseTuple getTuple(KeyValue[] kvs)
+    protected HBaseTuple getTuple(Result result)
     {
-      HBaseTuple tuple = new HBaseTuple();
-      for (KeyValue kv : kvs) {
-        if (kv.matchingQualifier(HBaseTestHelper.col1_bytes)) {
-          tuple.setCol1val(new String(kv.getValue()));
-        }
-        else if (kv.matchingQualifier(HBaseTestHelper.col2_bytes)) {
-          tuple.setCol2val(new String(kv.getValue()));
-        }
-      }
-      return tuple;
+      return HBaseTestHelper.getHBaseTuple(result);
     }
 
   }

@@ -12,27 +12,49 @@ import java.io.Serializable;
  */
 public class HBaseTuple implements Serializable
 {
-  private String col1val;
-  private String col2val;
+  private String row;
+  private String colFamily;
+  private String col1Value;
+  private String col2Value;
 
-  public String getCol1val()
+  public String getRow()
   {
-    return col1val;
+    return row;
   }
 
-  public void setCol1val(String col1val)
+  public void setRow(String row)
   {
-    this.col1val = col1val;
+    this.row = row;
   }
 
-  public String getCol2val()
+  public String getColFamily()
   {
-    return col2val;
+    return colFamily;
   }
 
-  public void setCol2val(String col2val)
+  public void setColFamily(String colFamily)
   {
-    this.col2val = col2val;
+    this.colFamily = colFamily;
+  }
+
+  public String getCol1Value()
+  {
+    return col1Value;
+  }
+
+  public void setCol1Value(String col1Value)
+  {
+    this.col1Value = col1Value;
+  }
+
+  public String getCol2Value()
+  {
+    return col2Value;
+  }
+
+  public void setCol2Value(String col2Value)
+  {
+    this.col2Value = col2Value;
   }
 
 }

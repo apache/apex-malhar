@@ -10,6 +10,7 @@ import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.Operator;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,8 @@ public abstract class HBaseOutputOperator<T> extends HBaseOperatorBase implement
 
   private static final transient Logger logger = LoggerFactory.getLogger(HBaseOutputOperator.class);
   private List<T> tuples;
+  private int flushLimit;
+  private int tupleCount;
 
   @InputPortFieldAnnotation(name="inputPort")
   public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>(this) {
@@ -30,14 +33,29 @@ public abstract class HBaseOutputOperator<T> extends HBaseOperatorBase implement
     public void process(T tuple)
     {
       tuples.add(tuple);
+      if (++tupleCount >= flushLimit) {
+        processTuples();
+      }
     }
 
   };
+
+  public int getFlushLimit()
+  {
+    return flushLimit;
+  }
+
+  public void setFlushLimit(int flushLimit)
+  {
+    this.flushLimit = flushLimit;
+  }
 
   @Override
   public void setup(OperatorContext context)
   {
     tuples = new ArrayList<T>();
+    tupleCount = 0;
+    setupConfiguration();
   }
 
   @Override
@@ -53,17 +71,22 @@ public abstract class HBaseOutputOperator<T> extends HBaseOperatorBase implement
   @Override
   public void endWindow()
   {
-    int size = tuples.size();
-    for (int i = 0; i < size; ++i) {
-      T t = tuples.get(i);
+    processTuples();
+  }
+
+  private void processTuples() {
+    Iterator<T> it = tuples.iterator();
+    while (it.hasNext()) {
+      T t = it.next();
       try {
         processTuple(t);
+        --tupleCount;
       } catch (IOException e) {
         logger.error("Could not output tuple", e);
         throw new RuntimeException("Could not output tuple " + e.getMessage());
       }
+      it.remove();
     }
-    tuples.clear();
   }
 
   public abstract void processTuple(T t) throws IOException;

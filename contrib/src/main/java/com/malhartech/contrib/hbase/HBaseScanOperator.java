@@ -25,8 +25,9 @@ public abstract class HBaseScanOperator<T> extends HBaseInputOperator<T>
       Scan scan = operationScan();
       ResultScanner scanner = table.getScanner(scan);
       for (Result result : scanner) {
-        KeyValue[] kvs = result.raw();
-        T t = getTuple(kvs);
+        //KeyValue[] kvs = result.raw();
+        //T t = getTuple(kvs);
+        T t = getTuple(result);
         outputPort.emit(t);
       }
     } catch (Exception e) {

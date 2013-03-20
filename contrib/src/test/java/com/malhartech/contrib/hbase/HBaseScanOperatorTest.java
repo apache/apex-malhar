@@ -34,7 +34,7 @@ public class HBaseScanOperatorTest
       DAG dag = new DAG();
       TestHBaseScanOperator thop = dag.addOperator("testhbasescan", TestHBaseScanOperator.class);
       HBaseTupleCollector tc = dag.addOperator("tuplecollector", HBaseTupleCollector.class);
-      dag.addStream("ss", thop.outputPort, tc.input);
+      dag.addStream("ss", thop.outputPort, tc.inputPort);
 
       thop.setTableName("table1");
       thop.setZookeeperQuorum("127.0.0.1");
@@ -59,13 +59,15 @@ public class HBaseScanOperatorTest
       // Check total number
       List<HBaseTuple> tuples = HBaseTupleCollector.tuples;
       assert tuples.size() > 0;
-      assert tuples.get(0).getCol1val().equals("val0-1");
-      assert tuples.get(0).getCol2val().equals("val0-2");
+      assert tuples.get(0).getCol1Value().equals("val0-1");
+      assert tuples.get(0).getCol2Value().equals("val0-2");
       assert tuples.size() >= 499;
       boolean found = false;
       for (int i = 0; i < 500; ++i) {
-        if (tuples.get(i).getCol1val().equals("val499-1")
-                && tuples.get(i).getCol2val().equals("val499-2")) {
+        if (tuples.get(i).getRow().equals("row499")
+                && tuples.get(i).getColFamily().equals("cf1")
+                && tuples.get(i).getCol1Value().equals("val499-1")
+                && tuples.get(i).getCol2Value().equals("val499-2")) {
           found = true;
           break;
         }
@@ -88,19 +90,10 @@ public class HBaseScanOperatorTest
     }
 
     @Override
-    protected HBaseTuple getTuple(KeyValue[] kvs)
+    //protected HBaseTuple getTuple(KeyValue[] kvs)
+    protected HBaseTuple getTuple(Result result)
     {
-      HBaseTuple tuple = new HBaseTuple();
-      for (KeyValue kv : kvs) {
-        if (kv.matchingQualifier(HBaseTestHelper.col1_bytes)) {
-          tuple.setCol1val(new String(kv.getValue()));
-        }
-        else if (kv.matchingQualifier(HBaseTestHelper.col2_bytes)) {
-          tuple.setCol2val(new String(kv.getValue()));
-        }
-      }
-      //System.out.println(tuple.getCol1val() + " " + tuple.getCol2val());
-      return tuple;
+      return HBaseTestHelper.getHBaseTuple(result);
     }
 
   }

@@ -23,7 +23,7 @@ public class HBaseTupleCollector extends BaseOperator
       tuples = new ArrayList<HBaseTuple>();
     }
 
-    public final transient DefaultInputPort<HBaseTuple> input = new DefaultInputPort<HBaseTuple>(this)
+    public final transient DefaultInputPort<HBaseTuple> inputPort = new DefaultInputPort<HBaseTuple>(this)
     {
       public void process(HBaseTuple tuple)
       {
