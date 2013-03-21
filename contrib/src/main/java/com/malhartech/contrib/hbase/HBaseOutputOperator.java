@@ -22,9 +22,10 @@ import org.slf4j.LoggerFactory;
 public abstract class HBaseOutputOperator<T> extends HBaseOperatorBase implements Operator {
 
   private static final transient Logger logger = LoggerFactory.getLogger(HBaseOutputOperator.class);
-  protected static final int DEFAULT_BATCH_SIZE = 1000;
+  protected static final int DEFAULT_BATCH_SIZE = Integer.MAX_VALUE;
 
   private List<T> tuples;
+  // By default flush tuples only on end window
   private int batchSize = DEFAULT_BATCH_SIZE;
   private int tupleCount;
 

@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  */
 public class HBaseGetOperatorTest
 {
-  private static final Logger logger = LoggerFactory.getLogger(HBaseGetOperatorTest.class);
+  //private static final Logger logger = LoggerFactory.getLogger(HBaseGetOperatorTest.class);
 
   public HBaseGetOperatorTest()
   {
@@ -31,6 +31,7 @@ public class HBaseGetOperatorTest
   public void testGet()
   {
     try {
+      //HBaseTestHelper.startLocalCluster();
       HBaseTestHelper.populateHBase();
       DAG dag = new DAG();
       TestHBaseGetOperator thop = dag.addOperator("testhbaseget", TestHBaseGetOperator.class);
@@ -39,7 +40,7 @@ public class HBaseGetOperatorTest
 
       thop.setTableName("table1");
       thop.setZookeeperQuorum("127.0.0.1");
-      thop.setZookeeperClientPort(2822);
+      thop.setZookeeperClientPort(2181);
 
       StramLocalCluster lc = new StramLocalCluster(dag);
       lc.setHeartbeatMonitoringEnabled(false);
@@ -74,7 +75,8 @@ public class HBaseGetOperatorTest
       Assert.assertEquals("Tuple column name", tuple.getColName(), "col-499");
       Assert.assertEquals("Tuple column value", tuple.getColValue(), "val-0-499");
     } catch (Exception ex) {
-      logger.error(ex.getMessage());
+      ex.printStackTrace();
+      //logger.error(ex.getMessage());
       assert false;
     }
   }

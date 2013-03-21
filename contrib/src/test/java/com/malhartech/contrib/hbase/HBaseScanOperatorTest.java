@@ -41,7 +41,7 @@ public class HBaseScanOperatorTest
 
       thop.setTableName("table1");
       thop.setZookeeperQuorum("127.0.0.1");
-      thop.setZookeeperClientPort(2822);
+      thop.setZookeeperClientPort(2181);
 
       StramLocalCluster lc = new StramLocalCluster(dag);
       lc.setHeartbeatMonitoringEnabled(false);

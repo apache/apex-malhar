@@ -36,7 +36,7 @@ public class HBasePutOperatorTest
 
       thop.setTableName("table1");
       thop.setZookeeperQuorum("127.0.0.1");
-      thop.setZookeeperClientPort(2822);
+      thop.setZookeeperClientPort(2181);
       thop.setBatchSize(500);
 
       StramLocalCluster lc = new StramLocalCluster(dag);

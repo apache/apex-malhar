@@ -4,16 +4,24 @@
  */
 package com.malhartech.contrib.hbase;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.InetSocketAddress;
 import java.util.List;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.EmptyWatcher;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.LocalHBaseCluster;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.server.NIOServerCnxn;
+//import org.apache.zookeeper.server.NIOServerCnxnFactory;
+import org.apache.zookeeper.server.ZooKeeperServer;
 
 /**
  *
@@ -25,6 +33,26 @@ public class HBaseTestHelper
   public static final byte[] table_bytes = Bytes.toBytes("table1");
   public static final byte[] colfam0_bytes = Bytes.toBytes("colfam0");
   public static final byte[] col0_bytes = Bytes.toBytes("col-0");
+
+  public static void startLocalCluster() throws IOException, InterruptedException {
+    startZooKeeperServer();
+    //Configuration conf = HBaseConfiguration.create();
+    Configuration conf = getConfiguration();
+    LocalHBaseCluster lc = new LocalHBaseCluster(conf);
+    lc.startup();
+  }
+
+  private static void startZooKeeperServer() throws IOException, InterruptedException {
+    String zooLocation = System.getProperty("java.io.tmpdir");
+    File zooFile = new File(zooLocation, "zookeeper-malhartest");
+    ZooKeeperServer zooKeeper = new ZooKeeperServer(zooFile, zooFile, 2000);
+
+    NIOServerCnxn.Factory serverFactory
+              = new NIOServerCnxn.Factory(new InetSocketAddress(2182),10);
+    //NIOServerCnxnFactory serverFactory = new NIOServerCnxnFactory();
+    //serverFactory.configure(new InetSocketAddress(2182),10);
+    serverFactory.startup(zooKeeper);
+  }
 
   public static void populateHBase() throws IOException {
       Configuration conf = getConfiguration();
@@ -100,7 +128,7 @@ public class HBaseTestHelper
   private static Configuration getConfiguration() {
     Configuration conf = HBaseConfiguration.create();
     conf.set("hbase.zookeeper.quorum", "127.0.0.1");
-    conf.set("hbase.zookeeper.property.clientPort", "2822");
+    conf.set("hbase.zookeeper.property.clientPort", "2181");
     return conf;
   }
 
