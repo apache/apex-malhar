@@ -44,7 +44,8 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
   private transient final WebSocketClientFactory factory = new WebSocketClientFactory();
   private transient WebSocketClient client;
   private transient final JsonFactory jsonFactory = new JsonFactory();
-  private transient final ObjectMapper mapper = new ObjectMapper(jsonFactory);
+  protected transient final ObjectMapper mapper = new ObjectMapper(jsonFactory);
+  protected Connection connection;
 
   public void setUrl(URI u)
   {
@@ -77,18 +78,23 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
     super.teardown();
   }
 
+  public Map<String,String> convertMessageToMap(String string) throws IOException
+  {
+    return mapper.readValue(string, HashMap.class);
+  }
+
   @Override
   public void run()
   {
     try {
-      client.open(channelUrl, new WebSocket.OnTextMessage()
+      connection = client.open(channelUrl, new WebSocket.OnTextMessage()
       {
         @Override
         public void onMessage(String string)
         {
           LOG.debug("Got: " + string);
           try {
-            Map<String, String> o = mapper.readValue(string, HashMap.class);
+            Map<String, String> o = convertMessageToMap(string);
             outputPort.emit(o);
           }
           catch (IOException ex) {

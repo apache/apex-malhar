@@ -6,22 +6,21 @@ package com.malhartech.lib.io;
 
 import com.malhartech.daemon.Daemon;
 import com.malhartech.engine.TestSink;
-import com.malhartech.stream.SampleWebSocketPublisher;
+import com.malhartech.stream.SamplePubSubWebSocketPublisher;
 import java.net.URI;
 import java.util.Map;
 import junit.framework.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class WebSocketInputOperatorTest
+public class PubSubWebSocketInputOperatorTest
 {
-  @Ignore // ignore until daemon can be started automatically within the test
   @Test
   @SuppressWarnings("SleepWhileInLoop")
   public void testWebSocketInputModule() throws Exception
   {
 
-    if (false) {
+    if (true) {
       // this is not working yet - start server manually for this test
       System.out.println("Starting Daemon...");
       Daemon.setLocalMode(true);
@@ -29,8 +28,8 @@ public class WebSocketInputOperatorTest
       Daemon.start();
     }
 
-    String url = "ws://localhost:19090/channel/testChannel";
-    final WebSocketInputOperator operator = new WebSocketInputOperator();
+    String url = "ws://localhost:19090/pubsub";
+    final PubSubWebSocketInputOperator operator = new PubSubWebSocketInputOperator();
 
     TestSink<Map<String, String>> sink = new TestSink<Map<String, String>>();
 
@@ -42,8 +41,8 @@ public class WebSocketInputOperatorTest
     operator.activate(null);
 
     // start publisher after subscriber listens to ensure we don't miss the message
-    SampleWebSocketPublisher sp = new SampleWebSocketPublisher();
-    sp.setChannelUrl("http://localhost:19090/channel/testChannel");
+    SamplePubSubWebSocketPublisher sp = new SamplePubSubWebSocketPublisher();
+    sp.setChannelUrl(url);
     Thread t = new Thread(sp);
     t.start();
 
@@ -58,7 +57,7 @@ public class WebSocketInputOperatorTest
     Assert.assertTrue("tuple emitted", sink.collectedTuples.size() > 0);
 
     Map<String, String> tuple = sink.collectedTuples.get(0);
-    Assert.assertEquals("", tuple.get("hello"), "world");
+    Assert.assertEquals("Expects {\"hello\":\"world\"} as data", tuple.get("hello"), "world");
 
     operator.deactivate();
     operator.teardown();
