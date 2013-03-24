@@ -30,7 +30,7 @@ public class PubSubWebSocketInputOperatorTest
 
     String url = "ws://localhost:19090/pubsub";
     final PubSubWebSocketInputOperator operator = new PubSubWebSocketInputOperator();
-
+    operator.addTopic("testTopic");
     TestSink<Map<String, String>> sink = new TestSink<Map<String, String>>();
 
     operator.outputPort.setSink(sink);
