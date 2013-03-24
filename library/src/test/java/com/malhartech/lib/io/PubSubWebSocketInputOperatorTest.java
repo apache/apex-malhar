@@ -10,7 +10,6 @@ import com.malhartech.stream.SamplePubSubWebSocketPublisher;
 import java.net.URI;
 import java.util.Map;
 import junit.framework.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class PubSubWebSocketInputOperatorTest
@@ -19,14 +18,10 @@ public class PubSubWebSocketInputOperatorTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testWebSocketInputModule() throws Exception
   {
-
-    if (true) {
-      // this is not working yet - start server manually for this test
-      System.out.println("Starting Daemon...");
-      Daemon.setLocalMode(true);
-      Daemon.setup("localhost:19090");
-      Daemon.start();
-    }
+    System.out.println("Starting Daemon...");
+    Daemon.setLocalMode(true);
+    Daemon.setup("localhost:19090");
+    Daemon.start();
 
     String url = "ws://localhost:19090/pubsub";
     final PubSubWebSocketInputOperator operator = new PubSubWebSocketInputOperator();
@@ -35,7 +30,7 @@ public class PubSubWebSocketInputOperatorTest
 
     operator.outputPort.setSink(sink);
     operator.setName("testWebSocketInputNode");
-    operator.setUrl(new URI(url));
+    operator.setUri(new URI(url));
 
     operator.setup(null);
     operator.activate(null);

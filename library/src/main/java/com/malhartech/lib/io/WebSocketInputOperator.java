@@ -39,30 +39,30 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
   public int readTimeoutMillis = 0;
 
   @NotNull
-  private URI channelUrl;
+  private URI uri;
 
   private transient final WebSocketClientFactory factory = new WebSocketClientFactory();
   private transient WebSocketClient client;
   private transient final JsonFactory jsonFactory = new JsonFactory();
   protected transient final ObjectMapper mapper = new ObjectMapper(jsonFactory);
-  protected Connection connection;
+  protected transient Connection connection;
 
-  public void setUrl(URI u)
+  public void setUri(URI uri)
   {
-    channelUrl = u;
+    this.uri = uri;
   }
 
   @Override
   public void setup(OperatorContext context)
   {
     try {
-      channelUrl = URI.create(channelUrl.toString()); // force reparse after deserialization
+      uri = URI.create(uri.toString()); // force reparse after deserialization
 
       factory.setBufferSize(8192);
       factory.start();
 
       client = factory.newWebSocketClient();
-      LOG.info("URL: {}", channelUrl);
+      LOG.info("URL: {}", uri);
     }
     catch (Exception ex) {
       throw new RuntimeException(ex);
@@ -87,7 +87,7 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
   public void run()
   {
     try {
-      connection = client.open(channelUrl, new WebSocket.OnTextMessage()
+      connection = client.open(uri, new WebSocket.OnTextMessage()
       {
         @Override
         public void onMessage(String string)
@@ -117,7 +117,7 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
       }).get(5, TimeUnit.SECONDS);
     }
     catch (Exception ex) {
-      LOG.error("Error reading from " + channelUrl, ex);
+      LOG.error("Error reading from " + uri, ex);
     }
 
   }

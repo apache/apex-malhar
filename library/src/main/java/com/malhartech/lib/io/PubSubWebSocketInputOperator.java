@@ -4,7 +4,6 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.api.Context.OperatorContext;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,6 +25,7 @@ public class PubSubWebSocketInputOperator extends WebSocketInputOperator
     topics.add(topic);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public Map<String, String> convertMessageToMap(String string) throws IOException
   {
