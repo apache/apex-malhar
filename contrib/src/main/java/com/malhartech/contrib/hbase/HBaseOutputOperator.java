@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,12 +24,17 @@ import org.slf4j.LoggerFactory;
 public abstract class HBaseOutputOperator<T> extends HBaseOperatorBase implements Operator {
 
   private static final transient Logger logger = LoggerFactory.getLogger(HBaseOutputOperator.class);
-  protected static final int DEFAULT_BATCH_SIZE = Integer.MAX_VALUE;
+  private static final String DEFAULT_LAST_WINDOW_PREFIX_COLUMN_NAME = "hbase_outputop_last_window";
 
-  private List<T> tuples;
+  private transient String lastWindowColumnName;
+  private transient byte[] lastWindowColumnBytes;
+
+  private transient List<T> tuples;
   // By default flush tuples only on end window
-  private int batchSize = DEFAULT_BATCH_SIZE;
-  private int tupleCount;
+  private transient long lastProcessedWindow;
+  private transient long currentWindow;
+
+  private transient HBaseStatePersistenceStrategy persistenceStrategy;
 
   @InputPortFieldAnnotation(name="inputPort")
   public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>(this) {
@@ -35,30 +42,48 @@ public abstract class HBaseOutputOperator<T> extends HBaseOperatorBase implement
     @Override
     public void process(T tuple)
     {
-      tuples.add(tuple);
-      if (++tupleCount >= batchSize) {
-        processTuples();
+      if (currentWindow > lastProcessedWindow) {
+        tuples.add(tuple);
       }
     }
 
   };
 
-  public int getBatchSize()
-  {
-    return batchSize;
+  public HBaseOutputOperator() {
+    tuples = new ArrayList<T>();
+    lastProcessedWindow = -1;
+    currentWindow = 0;
+    lastWindowColumnName = DEFAULT_LAST_WINDOW_PREFIX_COLUMN_NAME;
+    constructKeys();
   }
 
-  public void setBatchSize(int batchSize)
+  public String getLastWindowColumnName()
   {
-    this.batchSize = batchSize;
+    return lastWindowColumnName;
+  }
+
+  public void setLastWindowColumnName(String lastWindowColumnName)
+  {
+    this.lastWindowColumnName = lastWindowColumnName;
+    constructKeys();
+  }
+
+  private void constructKeys() {
+    lastWindowColumnBytes = Bytes.toBytes(lastWindowColumnName);
   }
 
   @Override
   public void setup(OperatorContext context)
   {
-    tuples = new ArrayList<T>();
-    tupleCount = 0;
-    setupConfiguration();
+    try {
+      setupConfiguration();
+      persistenceStrategy = getPersistenceStrategy();
+      persistenceStrategy.setTable(getTable());
+      persistenceStrategy.setup();
+      loadProcessState();
+    }catch (IOException ie) {
+      new RuntimeException(ie);
+    }
   }
 
   @Override
@@ -69,28 +94,48 @@ public abstract class HBaseOutputOperator<T> extends HBaseOperatorBase implement
   @Override
   public void beginWindow(long windowId)
   {
+    currentWindow = windowId;
   }
 
   @Override
   public void endWindow()
   {
-    processTuples();
+    try {
+      processTuples();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
-  private void processTuples() {
+  private void processTuples() throws IOException {
     Iterator<T> it = tuples.iterator();
     while (it.hasNext()) {
       T t = it.next();
       try {
         processTuple(t);
-        --tupleCount;
       } catch (IOException e) {
         logger.error("Could not output tuple", e);
         throw new RuntimeException("Could not output tuple " + e.getMessage());
       }
       it.remove();
     }
+    lastProcessedWindow = currentWindow;
+    saveProcessState();
   }
+
+  private void loadProcessState() throws IOException {
+    byte[] lastProcessedWindowBytes = persistenceStrategy.getState(lastWindowColumnBytes);
+    if (lastProcessedWindowBytes != null) {
+      lastProcessedWindow = Bytes.toLong(lastProcessedWindowBytes);
+    }
+  }
+
+  private void saveProcessState() throws IOException {
+    byte[] lastProcessedWindowBytes = Bytes.toBytes(lastProcessedWindow);
+    persistenceStrategy.saveState(lastWindowColumnBytes, lastProcessedWindowBytes);
+  }
+
+  public abstract HBaseStatePersistenceStrategy getPersistenceStrategy();
 
   public abstract void processTuple(T t) throws IOException;
 

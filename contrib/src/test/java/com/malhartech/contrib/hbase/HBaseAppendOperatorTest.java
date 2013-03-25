@@ -84,5 +84,10 @@ public class HBaseAppendOperatorTest
       return append;
     }
 
+    @Override
+    public HBaseStatePersistenceStrategy getPersistenceStrategy() {
+      return new HBaseRowStatePersistence();
+    }
+
   }
 }

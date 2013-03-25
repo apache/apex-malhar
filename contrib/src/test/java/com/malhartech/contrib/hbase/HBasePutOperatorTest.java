@@ -37,7 +37,6 @@ public class HBasePutOperatorTest
       thop.setTableName("table1");
       thop.setZookeeperQuorum("127.0.0.1");
       thop.setZookeeperClientPort(2181);
-      thop.setBatchSize(500);
 
       StramLocalCluster lc = new StramLocalCluster(dag);
       lc.setHeartbeatMonitoringEnabled(false);
@@ -69,6 +68,7 @@ public class HBasePutOperatorTest
       Assert.assertEquals("Tuple column name", tuple.getColName(), "col-0");
       Assert.assertEquals("Tuple column value", tuple.getColValue(), "val-499-0");
     } catch (Exception ex) {
+      ex.printStackTrace();
       logger.error(ex.getMessage());
       assert false;
     }
@@ -82,6 +82,11 @@ public class HBasePutOperatorTest
       Put put = new Put(t.getRow().getBytes());
       put.add(t.getColFamily().getBytes(), t.getColName().getBytes(), t.getColValue().getBytes());
       return put;
+    }
+
+    @Override
+    public HBaseStatePersistenceStrategy getPersistenceStrategy() {
+      return new HBaseRowStatePersistence();
     }
 
   }

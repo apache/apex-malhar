@@ -74,9 +74,15 @@ public class HBaseTestHelper
 
   private static void clearHBase(Configuration conf) throws IOException {
     HBaseAdmin admin = new HBaseAdmin(conf);
-    if (admin.isTableAvailable(table_bytes)) {
+    if (admin.tableExists(table_bytes)) {
+      try {
         admin.disableTable(table_bytes);
+      } catch (Exception ex) {
+      }
+      try {
         admin.deleteTable(table_bytes);
+      } catch (Exception ex) {
+      }
     }
     HTableDescriptor tdesc = new HTableDescriptor(table_bytes);
     HColumnDescriptor cdesc = new HColumnDescriptor(colfam0_bytes);

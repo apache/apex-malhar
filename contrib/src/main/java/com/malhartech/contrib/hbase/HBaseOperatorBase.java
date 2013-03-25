@@ -18,7 +18,8 @@ public class HBaseOperatorBase
   private String zookeeperQuorum;
   private int zookeeperClientPort;
   protected String tableName;
-  
+
+  protected transient HTable table;
   protected transient Configuration configuration;
 
   public String getZookeeperQuorum()
@@ -55,14 +56,15 @@ public class HBaseOperatorBase
     return configuration;
   }
 
-  protected void setupConfiguration() {
+  protected void setupConfiguration() throws IOException {
     configuration = HBaseConfiguration.create();
     configuration.set("hbase.zookeeper.quorum", zookeeperQuorum);
     configuration.set("hbase.zookeeper.property.clientPort", "" + zookeeperClientPort);
+    table = new HTable(configuration, tableName);
   }
 
   protected HTable getTable() throws IOException {
-    return new HTable(configuration, tableName);
+    return table;
   }
 
 }

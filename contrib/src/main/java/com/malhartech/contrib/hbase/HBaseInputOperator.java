@@ -8,6 +8,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
+import java.io.IOException;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
@@ -38,7 +39,11 @@ public abstract class HBaseInputOperator<T> extends HBaseOperatorBase implements
   @Override
   public void setup(OperatorContext context)
   {
+    try{
       setupConfiguration();
+    } catch (IOException ie) {
+      throw new RuntimeException(ie);
+    }
   }
 
   @Override
