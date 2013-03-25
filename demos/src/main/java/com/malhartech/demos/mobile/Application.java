@@ -96,7 +96,7 @@ public class Application implements ApplicationFactory
       if (conf.getBoolean("demos.useWebSocket", false) && daemonAddress != null) {
         WebSocketInputOperator wsIn = dag.addOperator("phoneLocationQueryWS", new WebSocketInputOperator());
         LOG.info("WebSocket with daemon at: {}", daemonAddress);
-        wsIn.setUrl(URI.create("ws://" + daemonAddress  + "/channel/mobile/phoneLocationQuery"));
+        wsIn.setUri(URI.create("ws://" + daemonAddress  + "/channel/mobile/phoneLocationQuery"));
         queryPort = wsIn.outputPort;
       } else {
         HttpInputOperator phoneLocationQuery = dag.addOperator("phoneLocationQuery", HttpInputOperator.class);
