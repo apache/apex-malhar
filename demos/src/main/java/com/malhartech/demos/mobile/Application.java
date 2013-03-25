@@ -4,23 +4,20 @@
  */
 package com.malhartech.demos.mobile;
 
-import java.net.URI;
-import java.util.Map;
-
-import org.apache.hadoop.conf.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DAG;
-import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.Operator.InputPort;
 import com.malhartech.api.Operator.OutputPort;
 import com.malhartech.lib.io.*;
 import com.malhartech.lib.testbench.RandomEventGenerator;
+import java.net.URI;
+import java.util.Map;
+import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Mobile Demo Application.<p>
