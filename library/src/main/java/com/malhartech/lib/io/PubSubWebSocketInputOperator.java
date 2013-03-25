@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.io;
 
+import com.malhartech.util.PubSubWebSocketClient;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,9 +28,9 @@ public class PubSubWebSocketInputOperator extends WebSocketInputOperator
 
   @SuppressWarnings("unchecked")
   @Override
-  public Map<String, String> convertMessageToMap(String string) throws IOException
+  public Map<String, String> convertMessageToMap(String message) throws IOException
   {
-    Map<String, Object> map = mapper.readValue(string, HashMap.class);
+    Map<String, Object> map = mapper.readValue(message, HashMap.class);
     return (Map<String, String>)map.get("data");
   }
 
@@ -37,13 +38,9 @@ public class PubSubWebSocketInputOperator extends WebSocketInputOperator
   public void run()
   {
     super.run();
-    HashMap<String, String> map = new HashMap<String, String>();
-    map.put("type", "subscribe");
     try {
       for (String topic: topics) {
-        map.put("topic", topic);
-        String message = mapper.writeValueAsString(map);
-        connection.sendMessage(message);
+        connection.sendMessage(PubSubWebSocketClient.constructSubscribeMessage(topic, mapper));
       }
     }
     catch (IOException ex) {

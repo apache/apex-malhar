@@ -23,21 +23,21 @@ public class PubSubWebSocketInputOperatorTest
     Daemon.setup("localhost:19090");
     Daemon.start();
 
-    String url = "ws://localhost:19090/pubsub";
+    URI uri = new URI("ws://localhost:19090/pubsub");
     final PubSubWebSocketInputOperator operator = new PubSubWebSocketInputOperator();
-    operator.addTopic("testTopic");
     TestSink<Map<String, String>> sink = new TestSink<Map<String, String>>();
 
     operator.outputPort.setSink(sink);
     operator.setName("testWebSocketInputNode");
-    operator.setUri(new URI(url));
+    operator.setUri(uri);
+    operator.addTopic("testTopic");
 
     operator.setup(null);
     operator.activate(null);
 
     // start publisher after subscriber listens to ensure we don't miss the message
     SamplePubSubWebSocketPublisher sp = new SamplePubSubWebSocketPublisher();
-    sp.setChannelUrl(url);
+    sp.setUri(uri);
     Thread t = new Thread(sp);
     t.start();
 

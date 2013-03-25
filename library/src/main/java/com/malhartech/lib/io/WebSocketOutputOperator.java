@@ -5,10 +5,11 @@
 package com.malhartech.lib.io;
 
 import com.malhartech.annotation.ShipContainingJars;
+import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;
+import com.malhartech.api.DefaultInputPort;
 import java.io.IOException;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.NotNull;
@@ -28,19 +29,18 @@ import org.slf4j.LoggerFactory;
  * Incoming data is interpreted as JSONObject and converted to {@link java.util.Map}.<br>
  * <br>
  *
+ * @param <T> tuple type
  */
-@ShipContainingJars(classes = {org.codehaus.jackson.JsonFactory.class,org.eclipse.jetty.websocket.WebSocket.class})
-public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<String, String>> implements Runnable
+@ShipContainingJars(classes = {org.codehaus.jackson.JsonFactory.class, org.eclipse.jetty.websocket.WebSocket.class})
+public class WebSocketOutputOperator<T> extends BaseOperator
 {
-  private static final Logger LOG = LoggerFactory.getLogger(WebSocketInputOperator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(WebSocketOutputOperator.class);
   /**
    * Timeout interval for reading from server. 0 or negative indicates no timeout.
    */
   public int readTimeoutMillis = 0;
-
   @NotNull
   private URI uri;
-
   private transient final WebSocketClientFactory factory = new WebSocketClientFactory();
   private transient WebSocketClient client;
   private transient final JsonFactory jsonFactory = new JsonFactory();
@@ -51,6 +51,21 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
   {
     this.uri = uri;
   }
+
+  public final transient DefaultInputPort<T> input = new DefaultInputPort<T>(this)
+  {
+    @Override
+    public void process(T t)
+    {
+      try {
+        connection.sendMessage(convertMapToMessage(t));
+      }
+      catch (IOException ex) {
+        LOG.error("error sending message through web socket", ex);
+      }
+    }
+
+  };
 
   @Override
   public void setup(OperatorContext context)
@@ -63,43 +78,11 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
 
       client = factory.newWebSocketClient();
       LOG.info("URL: {}", uri);
-    }
-    catch (Exception ex) {
-      throw new RuntimeException(ex);
-    }
-  }
-
-  @Override
-  public void teardown()
-  {
-    if (factory != null) {
-      factory.destroy();
-    }
-    super.teardown();
-  }
-
-  public Map<String,String> convertMessageToMap(String message) throws IOException
-  {
-    return mapper.readValue(message, HashMap.class);
-  }
-
-  @Override
-  public void run()
-  {
-    try {
       connection = client.open(uri, new WebSocket.OnTextMessage()
       {
         @Override
         public void onMessage(String string)
         {
-          LOG.debug("Got: " + string);
-          try {
-            Map<String, String> o = convertMessageToMap(string);
-            outputPort.emit(o);
-          }
-          catch (IOException ex) {
-            LOG.error("Got exception: ", ex);
-          }
         }
 
         @Override
@@ -117,9 +100,22 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
       }).get(5, TimeUnit.SECONDS);
     }
     catch (Exception ex) {
-      LOG.error("Error reading from " + uri, ex);
+      throw new RuntimeException(ex);
     }
+  }
 
+  @Override
+  public void teardown()
+  {
+    if (factory != null) {
+      factory.destroy();
+    }
+    super.teardown();
+  }
+
+  public String convertMapToMessage(T t) throws IOException
+  {
+    return mapper.writeValueAsString(t);
   }
 
 }
