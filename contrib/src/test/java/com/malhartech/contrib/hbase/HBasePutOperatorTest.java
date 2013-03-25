@@ -30,6 +30,7 @@ public class HBasePutOperatorTest
     try {
       HBaseTestHelper.clearHBase();
       DAG dag = new DAG();
+      dag.setAttribute(DAG.STRAM_APPNAME, "HBasePutOperatorTest");
       HBaseRowTupleGenerator rtg = dag.addOperator("tuplegenerator", HBaseRowTupleGenerator.class);
       TestHBasePutOperator thop = dag.addOperator("testhbaseput", TestHBasePutOperator.class);
       dag.addStream("ss", rtg.outputPort, thop.inputPort);

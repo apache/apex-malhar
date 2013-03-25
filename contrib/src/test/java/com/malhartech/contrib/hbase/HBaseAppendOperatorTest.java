@@ -31,6 +31,7 @@ public class HBaseAppendOperatorTest
     try {
       HBaseTestHelper.clearHBase();
       DAG dag = new DAG();
+      dag.setAttribute(DAG.STRAM_APPNAME, "HBaseAppendOperatorTest");
       HBaseColTupleGenerator ctg = dag.addOperator("coltuplegenerator", HBaseColTupleGenerator.class);
       TestHBaseAppendOperator thop = dag.addOperator("testhbaseput", TestHBaseAppendOperator.class);
       dag.addStream("ss", ctg.outputPort, thop.inputPort);

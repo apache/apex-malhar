@@ -18,8 +18,8 @@ import org.apache.hadoop.hbase.util.Bytes;
 public class HBaseRowStatePersistence extends HBaseBaseStatePersistence
 {
 
-  private static final String DEFAULT_ROW_NAME = "hbase_outputop_row";
-  private static final String DEFAULT_COLUMN_FAMILY_NAME = "hbase_outputop_cf";
+  private static final String DEFAULT_ROW_NAME = "HBaseOperator_row";
+  private static final String DEFAULT_COLUMN_FAMILY_NAME = "HBaseOutputOperator_cf";
 
   private transient String rowName;
   private transient String columnFamilyName;

@@ -35,6 +35,7 @@ public class HBaseScanOperatorTest
     try {
       HBaseTestHelper.populateHBase();
       DAG dag = new DAG();
+      dag.setAttribute(DAG.STRAM_APPNAME, "HBaseScanOperatorTest");
       TestHBaseScanOperator thop = dag.addOperator("testhbasescan", TestHBaseScanOperator.class);
       HBaseTupleCollector tc = dag.addOperator("tuplecollector", HBaseTupleCollector.class);
       dag.addStream("ss", thop.outputPort, tc.inputPort);

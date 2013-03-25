@@ -34,6 +34,7 @@ public class HBaseGetOperatorTest
       //HBaseTestHelper.startLocalCluster();
       HBaseTestHelper.populateHBase();
       DAG dag = new DAG();
+      dag.setAttribute(DAG.STRAM_APPNAME, "HBaseGetOperatorTest");
       TestHBaseGetOperator thop = dag.addOperator("testhbaseget", TestHBaseGetOperator.class);
       HBaseTupleCollector tc = dag.addOperator("tuplecollector", HBaseTupleCollector.class);
       dag.addStream("ss", thop.outputPort, tc.inputPort);

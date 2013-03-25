@@ -6,6 +6,8 @@ package com.malhartech.contrib.hbase;
 
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.Context.OperatorContext;
+import com.malhartech.api.DAG;
+import com.malhartech.api.DAGContext;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.Operator;
 import java.io.IOException;
@@ -24,11 +26,14 @@ import org.slf4j.LoggerFactory;
 public abstract class HBaseOutputOperator<T> extends HBaseOperatorBase implements Operator {
 
   private static final transient Logger logger = LoggerFactory.getLogger(HBaseOutputOperator.class);
-  private static final String DEFAULT_LAST_WINDOW_PREFIX_COLUMN_NAME = "hbase_outputop_last_window";
+  private static final String DEFAULT_LAST_WINDOW_PREFIX_COLUMN_NAME = "last_window";
 
   private transient String lastWindowColumnName;
   private transient byte[] lastWindowColumnBytes;
 
+  private transient String appName;
+  private transient String appId;
+  private transient int operatorId;
   private transient List<T> tuples;
   // By default flush tuples only on end window
   private transient long lastProcessedWindow;
@@ -54,7 +59,6 @@ public abstract class HBaseOutputOperator<T> extends HBaseOperatorBase implement
     lastProcessedWindow = -1;
     currentWindow = 0;
     lastWindowColumnName = DEFAULT_LAST_WINDOW_PREFIX_COLUMN_NAME;
-    constructKeys();
   }
 
   public String getLastWindowColumnName()
@@ -65,17 +69,21 @@ public abstract class HBaseOutputOperator<T> extends HBaseOperatorBase implement
   public void setLastWindowColumnName(String lastWindowColumnName)
   {
     this.lastWindowColumnName = lastWindowColumnName;
-    constructKeys();
   }
 
   private void constructKeys() {
-    lastWindowColumnBytes = Bytes.toBytes(lastWindowColumnName);
+    String columnKey = appName + "_" + appId + "_" + operatorId + "_" + lastWindowColumnName;
+    lastWindowColumnBytes = Bytes.toBytes(columnKey);
   }
 
   @Override
   public void setup(OperatorContext context)
   {
     try {
+      appName = context.getApplicationAttributes().attrValue(DAG.STRAM_APPNAME, "HBaseOutputOperator");
+      appId = context.getApplicationAttributes().attrValue(DAG.STRAM_APP_ID, "AppId");
+      operatorId = context.getId();
+      constructKeys();
       setupConfiguration();
       persistenceStrategy = getPersistenceStrategy();
       persistenceStrategy.setTable(getTable());
