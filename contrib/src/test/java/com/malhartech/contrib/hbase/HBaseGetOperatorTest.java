@@ -44,7 +44,7 @@ public class HBaseGetOperatorTest
 
       StramLocalCluster lc = new StramLocalCluster(dag);
       lc.setHeartbeatMonitoringEnabled(false);
-      lc.run(10000);
+      lc.run(30000);
       /*
       tuples = new ArrayList<HBaseTuple>();
       TestHBaseGetOperator thop = new TestHBaseGetOperator();

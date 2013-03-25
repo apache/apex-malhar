@@ -41,7 +41,7 @@ public class HBaseAppendOperatorTest
 
       StramLocalCluster lc = new StramLocalCluster(dag);
       lc.setHeartbeatMonitoringEnabled(false);
-      lc.run(10000);
+      lc.run(30000);
       /*
       tuples = new ArrayList<HBaseTuple>();
       TestHBaseScanOperator thop = new TestHBaseScanOperator();
