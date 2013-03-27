@@ -7,7 +7,7 @@ package com.malhartech.lib.io;
 import com.malhartech.api.ActivationListener;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.InputOperator;
-import com.malhartech.util.CircularBuffer;
+import java.util.concurrent.ArrayBlockingQueue;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import org.slf4j.Logger;
@@ -53,7 +53,7 @@ public abstract class AbstractActiveMQInputOperator extends ActiveMQConsumerBase
   // Config parameters that user can set.-
   private int tuplesBlast = TUPLES_BLAST_DEFAULT;
   private int bufferSize = BUFFER_SIZE_DEFAULT;
-  protected transient CircularBuffer<Message> holdingBuffer;
+  protected transient ArrayBlockingQueue<Message> holdingBuffer;
 
   /**
    * Any concrete class derived from AbstractActiveMQInputOperator has to implement this method
@@ -100,7 +100,7 @@ public abstract class AbstractActiveMQInputOperator extends ActiveMQConsumerBase
   @Override
   public void setup(OperatorConfiguration config)
   {
-    holdingBuffer = new CircularBuffer<Message>(bufferSize);
+    holdingBuffer = new ArrayBlockingQueue<Message>(bufferSize);
   }
 
   /**
@@ -162,13 +162,13 @@ public abstract class AbstractActiveMQInputOperator extends ActiveMQConsumerBase
   {
     int messageCount = getTuplesBlast() < holdingBuffer.size() ? getTuplesBlast() : holdingBuffer.size();
     while (messageCount > 1) {
-      emitTuple(holdingBuffer.pollUnsafe());
+      emitTuple(holdingBuffer.poll());
       messageCount--;
     }
 
     // Acknowledge all message with last message in buffer.
     if (messageCount == 1) {
-      Message msg = holdingBuffer.pollUnsafe();
+      Message msg = holdingBuffer.poll();
       emitTuple(msg);
       acknowledgeMessage(msg);
     }
