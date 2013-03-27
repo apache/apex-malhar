@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <groupId>com.malhartech</groupId>
+  <version>0.1-SNAPSHOT</version>
+  <artifactId>project-template</artifactId>
+  <packaging>jar</packaging>
+
+  <name>Project Template</name>
+
+  <!-- inline repository to provide the Malhar artifacts until a public maven server becomes available -->
+  <repositories>
+    <repository>
+      <id>malhar-local</id>
+      <name>Offline Malhar Release Repository</name>
+      <url>file://${project.basedir}/../maven2</url>
+    </repository>
+  </repositories>
+
+  <build>
+    <plugins>
+       <plugin>
+           <groupId>org.apache.maven.plugins</groupId>
+           <artifactId>maven-eclipse-plugin</artifactId>
+           <version>2.9</version>
+           <configuration>
+               <downloadSources>true</downloadSources>
+               <!--downloadJavadocs>true</downloadJavadocs-->
+           </configuration>
+       </plugin>
+       <plugin>
+         <artifactId>maven-compiler-plugin</artifactId>
+         <version>2.3.2</version>
+         <configuration>
+           <encoding>UTF-8</encoding>
+           <source>1.6</source>
+           <target>1.6</target>
+           <debug>true</debug>
+           <!--optimize>true</optimize-->
+           <showDeprecation>true</showDeprecation>
+           <showWarnings>true</showWarnings>
+         </configuration>
+       </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.malhartech</groupId>
+      <artifactId>malhar-daemon</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.malhartech</groupId>
+      <artifactId>malhar-contrib</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.malhartech</groupId>
+      <artifactId>malhar-demos</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.10</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+</project>
+

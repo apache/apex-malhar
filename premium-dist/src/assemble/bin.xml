@@ -1,0 +1,55 @@
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+  <id>bin</id>
+  <formats>
+    <format>zip</format>
+  </formats>
+  <repositories>
+    <repository>
+      <includeMetadata>false</includeMetadata>
+      <outputDirectory>maven2</outputDirectory>
+      <includes>
+        <include>com.malhartech:*</include>
+        <!--include>com.esotericsoftware.kryo:*</include-->
+        <include>com.sun.jersey:jersey-client</include>
+      </includes>
+      <excludes>
+        <exclude>org.apache.hadoop:hadoop-minicluster</exclude>
+        <exclude>*:malhar-demos:jar:*:tests</exclude>
+      </excludes>
+    </repository>
+  </repositories>
+
+  <fileSets>
+    <fileSet>
+      <directory>${basedir}/src</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+         <include>install.sh</include>
+         <include>*</include>
+      </includes>
+      <excludes>
+         <exclude>assemble</exclude>
+      </excludes>
+    </fileSet>
+    <fileSet>
+      <directory>${basedir}/../stram/src/main/scripts</directory>
+      <outputDirectory>/bin</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>${basedir}/../daemon/src/main/scripts</directory>
+      <outputDirectory>/bin</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>${project.build.directory}/site</directory>
+      <outputDirectory>/docs</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>${basedir}/src/project-template</directory>
+      <outputDirectory>/project-template</outputDirectory>
+    </fileSet>
+  </fileSets>
+
+</assembly>
+

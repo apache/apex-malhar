@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <parent>
+    <groupId>com.malhartech</groupId>
+    <artifactId>malhar-framework</artifactId>
+    <version>0.1-SNAPSHOT</version>
+  </parent>
+  
+  <artifactId>malhar-premium-dist</artifactId>
+
+  <packaging>pom</packaging>
+
+  <name>Premium Distribution</name>
+
+  <profiles>
+    <profile>
+      <id>premium-release</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <properties>
+      </properties>
+
+      <build>
+	<plugins>
+
+	  <plugin>
+	    <artifactId>maven-javadoc-plugin</artifactId>
+	    <version>2.9</version>
+	    <executions>
+	      <execution>
+		<id>javadoc-aggregate</id>
+		<phase>package</phase>
+		<goals>
+		  <goal>aggregate</goal>
+		</goals>
+		<configuration>
+		  <!-- switch on dependency-driven aggregation -->
+		  <!--includeDependencySources>true</includeDependencySources>
+		      <dependencySourceIncludes>
+		      <dependencySourceInclude>com.malhartech:*</dependencySourceInclude>
+		      </dependencySourceIncludes-->
+		  <sourcepath>
+		    ${project.basedir}/../bufferserver/src/main/java
+		    :${project.basedir}/../stram/src/main/java
+		    :${project.basedir}/../daemon/src/main/java
+		    :${project.basedir}/../library/src/main/java
+		    :${project.basedir}/../demos/src/main/java
+		    :${project.basedir}/../contrib/src/main/java
+		  </sourcepath>
+		  <doctitle>Malhar Streaming Platform ${project.version} API</doctitle>
+		  <overview>${project.basedir}/../stram/src/main/javadoc/overview.html</overview>
+		  <docfilessubdirs>true</docfilessubdirs>
+		</configuration>
+	      </execution>
+	    </executions>
+	  </plugin>
+
+
+	  <plugin>
+	    <artifactId>maven-assembly-plugin</artifactId>
+	    <executions>
+	      <execution>
+		<id>distro-assembly</id>
+		<phase>package</phase>
+		<goals>
+		  <goal>single</goal>
+		</goals>
+		<configuration>
+		  <finalName>${project.build.finalName}_${maven.build.timestamp}</finalName>
+		  <descriptors>
+		    <descriptor>src/assemble/bin.xml</descriptor>
+		  </descriptors>
+		</configuration>
+	      </execution>
+	    </executions>
+	  </plugin>
+	</plugins>
+      </build>
+
+    </profile>
+  </profiles>
+  
+  <dependencies>
+    <!-- sort this project to end of line in multimodule build. -->
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>malhar-demos</artifactId>
+      <version>${project.version}</version>
+
+      <!-- exclude everything that we don't ship (including defunct POMs etc.) -->
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.hadoop</groupId>
+          <artifactId>hadoop-minicluster</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!-- 
+	 include sources and javadoc into assembly,
+	 dependencies need to be added one by one 
+    -->
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>malhar-demos</artifactId>
+      <version>${project.version}</version>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>malhar-demos</artifactId>
+      <version>${project.version}</version>
+      <classifier>javadoc</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>malhar-library</artifactId>
+      <version>${project.version}</version>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>malhar-library</artifactId>
+      <version>${project.version}</version>
+      <classifier>javadoc</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>malhar-contrib</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>malhar-contrib</artifactId>
+      <version>${project.version}</version>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>malhar-contrib</artifactId>
+      <version>${project.version}</version>
+      <classifier>javadoc</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>malhar-daemon</artifactId>
+      <version>${project.version}</version>
+      <classifier>javadoc</classifier>
+    </dependency>
+
+  </dependencies>
+
+</project>
+
