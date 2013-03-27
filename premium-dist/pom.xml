@@ -27,7 +27,44 @@
 
       <build>
 	<plugins>
-
+	  <plugin>
+	    <groupId>org.codehaus.mojo</groupId>
+	    <artifactId>exec-maven-plugin</artifactId>
+	    <version>1.2.1</version>
+	    <executions>
+	      <execution>
+                <!-- this execution happens just after compiling the java classes, and builds the native code. -->
+                <id>npm-build</id>
+                <phase>process-classes</phase>
+                <goals>
+                    <goal>exec</goal>
+                </goals>
+                <configuration>
+                    <executable>/usr/bin/npm</executable>
+		    <arguments>
+		      <argument>install</argument>
+		      <argument>.</argument>
+		    </arguments>
+                    <workingDirectory>${project.basedir}/../../dt-front</workingDirectory>
+                </configuration>
+	      </execution>
+	      <execution>
+                <!-- this execution happens just after compiling the java classes, and builds the native code. -->
+                <id>make-build</id>
+                <phase>prepare-package</phase>
+                <goals>
+                    <goal>exec</goal>
+                </goals>
+                <configuration>
+                    <executable>/usr/bin/make</executable>
+		    <arguments>
+		      <argument>build</argument>
+		    </arguments>
+                    <workingDirectory>${project.basedir}/../../dt-front</workingDirectory>
+                </configuration>
+	      </execution>
+	    </executions>  
+	  </plugin>
 	  <plugin>
 	    <artifactId>maven-javadoc-plugin</artifactId>
 	    <version>2.9</version>

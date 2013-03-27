@@ -16,4 +16,28 @@ mvn dependency:build-classpath \
  -Dmdep.includeScope="runtime" -Dmdep.excludeScope="test" \
  -f $BASE_DIR/project-template/pom.xml
 
+if [ ! -f $HOME/.stram/stram-site.xml ] 
+then
+    ipaddrs=`ifconfig -a | grep 'inet addr' | sed -e 's/.*inet addr:\([0-9\.]*\) .*/\1/'`
+    for ipaddr in $ipaddrs
+    do
+	first=`echo $ipaddr | cut -f 1 -d .`
+	second=`echo $ipaddr | cut -f 2 -d .`
+	if [ \( $first -eq 10 \) -o \
+	    \( \( $first -eq 172 \) -a \( $second -ge 16 \) -a \( $second -le 31 \) \) -o \
+	    \( \( $first -eq 192 \) -a \( $second -eq 168 \) \) ]
+	then
+	    selected_ipaddr=$ipaddr
+	fi
+    done
 
+    if [ "$selected_ipaddr" ]
+    then
+	echo "Selected IP is $selected_ipaddr"
+    else
+	echo "Cannot determine NAT IP address. Please specify the daemon address in $HOME/.stam/stram-site.xml"
+	selected_ipaddr="myhostipaddr"
+    fi
+
+    sed "s/my\.host\.ip\.addr/$selected_ipaddr/" $BASE_DIR/sample-stram-site.xml | sed "s!/my/htdocs/dir!$BASE_DIR/htdocs!" > $HOME/.stram/stram-site.xml
+fi
