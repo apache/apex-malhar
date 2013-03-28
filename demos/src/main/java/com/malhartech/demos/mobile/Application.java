@@ -73,7 +73,7 @@ public class Application implements ApplicationFactory
     PhoneMovementGenerator movementGen = dag.addOperator("pmove", PhoneMovementGenerator.class);
     movementGen.setRange(20);
     movementGen.setThreshold(80);
-    //dag.setAttribute(movementGen, OperatorContext.INITIAL_PARTITION_COUNT, 2);
+    dag.setAttribute(movementGen, OperatorContext.INITIAL_PARTITION_COUNT, 2);
     dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MIN, 10000);
     dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MAX, 50000);
 
