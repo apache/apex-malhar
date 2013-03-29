@@ -58,7 +58,7 @@ public class JDBCOutputOperatorTest
       oper.setColumnMapping(mapping);
 
       helper.setupDB(oper, mapping, isHashMap, transaction);
-      oper.setup(new OperatorContext(opId, null, null, helper.attrmap));
+      oper.setup(new OperatorContext(opId, null, null, helper.attrmap, null, null));
 
       oper.beginWindow(oper.lastWindowId + 1);
       logger.debug("beginwindow {}", Codec.getStringWindowId(oper.lastWindowId + 1));

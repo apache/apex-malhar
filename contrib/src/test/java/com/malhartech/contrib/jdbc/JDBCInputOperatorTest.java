@@ -122,7 +122,7 @@ public class JDBCInputOperatorTest
 
     setupDB(helper.hashMapping1);
 
-    oper.setup(new OperatorContext(111, null, null, helper.attrmap));
+    oper.setup(new OperatorContext(111, null, null, helper.attrmap, null, null));
     oper.beginWindow(1);
     insertData(helper.hashMapping1, helper);
     oper.emitTuples();

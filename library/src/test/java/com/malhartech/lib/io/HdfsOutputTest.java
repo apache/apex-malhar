@@ -32,7 +32,7 @@ public class HdfsOutputTest implements ApplicationFactory {
     module.setFilePath(config.get(KEY_FILEPATH, "hdfsoutputtest.txt"));
     module.setAppend(config.getBoolean(KEY_APPEND, false));
 
-    module.setup(new com.malhartech.engine.OperatorContext(0, null, null, null));
+    module.setup(new com.malhartech.engine.OperatorContext(0, null, null, null, null, null));
 
     for (int i=0; i<=numTuples; i++) {
       module.input.process("testdata" + i);

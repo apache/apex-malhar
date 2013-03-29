@@ -131,7 +131,7 @@ public class MongoDBOutputOperatorTest
     oper.setQueryFunction(1);
     oper.setColumnMapping(hashMapping1);
 
-    oper.setup(new OperatorContext(1, null, null, attrmap));
+    oper.setup(new OperatorContext(1, null, null, attrmap, null, null));
 
     for (Object o : oper.getTableList()) {
       String table = (String)o;
@@ -169,7 +169,7 @@ public class MongoDBOutputOperatorTest
     oper.setQueryFunction(1);
     oper.setColumnMapping(arrayMapping1);
 
-    oper.setup(new OperatorContext(2, null, null, attrmap));
+    oper.setup(new OperatorContext(2, null, null, attrmap, null, null));
     for (Object o : oper.getTableList()) {
       String table = (String)o;
       oper.db.getCollection(table).drop();

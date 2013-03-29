@@ -7,10 +7,13 @@ package com.malhartech.lib.chart;
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
+import com.malhartech.api.Context.OperatorContext;
+import com.malhartech.api.Context.PortContext;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.PartitionableOperator;
 import com.malhartech.lib.util.KeyValPair;
+import com.malhartech.util.AttributeMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -36,9 +39,13 @@ public abstract class ChartOperator<T1, T2> extends BaseOperator implements Part
   @OutputPortFieldAnnotation(name = "chart")
   public final transient DefaultOutputPort<KeyValPair<T1, T2>> chart = new DefaultOutputPort<KeyValPair<T1, T2>>(this);
 
-  public ChartOperator()
+  @Override
+  public void setup(OperatorContext context)
   {
-    chart.setAutoRecord(true);
+    AttributeMap<PortContext> outputPortAttributes = context.getOutputPortAttributes("chart");
+    if (outputPortAttributes != null) {
+      outputPortAttributes.attr(PortContext.AUTO_RECORD).set(true);
+    }
   }
 
   @Override

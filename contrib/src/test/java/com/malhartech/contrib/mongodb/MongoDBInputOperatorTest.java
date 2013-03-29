@@ -52,7 +52,7 @@ public class MongoDBInputOperatorTest
 
     AttributeMap<DAGContext> attrmap = new DefaultAttributeMap<DAGContext>();
     attrmap.attr(DAG.STRAM_APP_ID).set("myMongoDBInputOperatorAppId");
-    oper.setup(new OperatorContext(1, null, null, attrmap));
+    oper.setup(new OperatorContext(1, null, null, attrmap, null, null));
 
     oper.beginWindow(0);
 

@@ -35,7 +35,7 @@ public class OrderByKeyBenchmark
     oper.ordered_count.setSink(countSink);
     oper.ordered_list.setSink(listSink);
     oper.setOrderby("a");
-    oper.setup(new com.malhartech.engine.OperatorContext(0, null, null, null));
+    oper.setup(new com.malhartech.engine.OperatorContext(0, null, null, null, null, null));
 
     HashMap<String, Integer> input = new HashMap<String, Integer>();
     oper.beginWindow(0);
