@@ -20,7 +20,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * The base class for HBase output operators. The output operator collects all the tuples that arrive in a window and writes them to
+ * HBase in endWindow.<br>
  *
+ * The tuples are stored in an application specific manner. The concrete implementation that extends this operator provides a method that
+ * specifies where to store the tuple. The operator also stores the last processed window id into the table and loads it during setup time.
+ * If the processing window id is not greater than the last processed window id that was loaded those tuples are ignored till the processing
+ * window id becomes greater than the last processed window id.<br>
+ * 
+ * @param <T>
  * @author Pramod Immaneni <pramod@malhar-inc.com>
  */
 public abstract class HBaseOutputOperator<T> extends HBaseOperatorBase implements Operator {
@@ -61,11 +69,19 @@ public abstract class HBaseOutputOperator<T> extends HBaseOperatorBase implement
     lastWindowColumnName = DEFAULT_LAST_WINDOW_PREFIX_COLUMN_NAME;
   }
 
+  /**
+   * Get the name of the column where the last processed window id is stored.
+   * @return The column name
+   */
   public String getLastWindowColumnName()
   {
     return lastWindowColumnName;
   }
 
+   /**
+   * Set the name of the column where the last processed window id is stored.
+   * @return The column name
+   */
   public void setLastWindowColumnName(String lastWindowColumnName)
   {
     this.lastWindowColumnName = lastWindowColumnName;
@@ -90,7 +106,7 @@ public abstract class HBaseOutputOperator<T> extends HBaseOperatorBase implement
       persistenceStrategy.setup();
       loadProcessState();
     }catch (IOException ie) {
-      new RuntimeException(ie);
+      throw new RuntimeException(ie);
     }
   }
 
@@ -115,6 +131,10 @@ public abstract class HBaseOutputOperator<T> extends HBaseOperatorBase implement
     }
   }
 
+  /**
+   * Process the tuples that arrived in the window.
+   * @throws IOException
+   */
   private void processTuples() throws IOException {
     Iterator<T> it = tuples.iterator();
     while (it.hasNext()) {
@@ -131,6 +151,11 @@ public abstract class HBaseOutputOperator<T> extends HBaseOperatorBase implement
     saveProcessState();
   }
 
+  /**
+   * Retrieve the processing state that was saved in a prior run.
+   * The state is loaded from the HBase table in an application specific way.
+   * @throws IOException
+   */
   private void loadProcessState() throws IOException {
     byte[] lastProcessedWindowBytes = persistenceStrategy.getState(lastWindowColumnBytes);
     if (lastProcessedWindowBytes != null) {
@@ -138,13 +163,29 @@ public abstract class HBaseOutputOperator<T> extends HBaseOperatorBase implement
     }
   }
 
+  /**
+   * Save the current processing state.
+   * The state is saved to the HBase table in an application specific way.
+   * @throws IOException
+   */
   private void saveProcessState() throws IOException {
     byte[] lastProcessedWindowBytes = Bytes.toBytes(lastProcessedWindow);
     persistenceStrategy.saveState(lastWindowColumnBytes, lastProcessedWindowBytes);
   }
 
+  /**
+   * Get the persistence strategy.
+   * Get the persistence strategy to use to save and retrieve state. The concrete class that
+   * extends this calls should implement this method to specify how to save and load state.
+   * @return The persistence strategy
+   */
   public abstract HBaseStatePersistenceStrategy getPersistenceStrategy();
 
+  /**
+   * Process a tuple.
+   * @param t The tuple
+   * @throws IOException
+   */
   public abstract void processTuple(T t) throws IOException;
 
 }

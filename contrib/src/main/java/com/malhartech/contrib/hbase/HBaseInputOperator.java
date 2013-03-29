@@ -9,12 +9,12 @@ import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
 import java.io.IOException;
-import org.apache.hadoop.hbase.KeyValue;
-import org.apache.hadoop.hbase.client.HTable;
-import org.apache.hadoop.hbase.client.Result;
 
 /**
+ * The base class for HBase input operators.
  *
+ * <br>
+ * @param <T> The tuple type
  * @author Pramod Immaneni <pramod@malhar-inc.com>
  */
 public abstract class HBaseInputOperator<T> extends HBaseOperatorBase implements InputOperator
