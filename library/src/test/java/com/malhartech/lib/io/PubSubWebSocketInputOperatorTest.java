@@ -58,6 +58,7 @@ public class PubSubWebSocketInputOperatorTest
     operator.teardown();
     t.interrupt();
     t.join();
+    Daemon.stop();
   }
 
 }
