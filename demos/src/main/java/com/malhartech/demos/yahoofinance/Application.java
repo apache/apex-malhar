@@ -23,10 +23,10 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class Application implements ApplicationFactory
 {
-  private int streamingWindowSizeMilliSeconds = 1000; // 1 second (default is 500ms)
-  private int appWindowCountMinute = 3 * 1000 / streamingWindowSizeMilliSeconds;   // 1 minute
-  private int appWindowCountSMA = 5 * 1000 / streamingWindowSizeMilliSeconds;  // 5 minute
-  private String[] tickers = {"IBM", "GOOG", "AAPL", "YHOO"};
+  protected int streamingWindowSizeMilliSeconds = 1000; // 1 second (default is 500ms)
+  protected int appWindowCountMinute = 3 * 1000 / streamingWindowSizeMilliSeconds;   // 1 minute
+  protected int appWindowCountSMA = 5 * 1000 / streamingWindowSizeMilliSeconds;  // 5 minute
+  protected String[] tickers = {"IBM", "GOOG", "AAPL", "YHOO"};
 
   /**
    * Get actual Yahoo finance ticks of symbol, last price, total daily volume, and last traded price.
