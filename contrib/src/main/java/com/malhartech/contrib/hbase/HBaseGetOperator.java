@@ -1,6 +1,6 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *  Copyright (c) 2012-2013 Malhar, Inc.
+ *  All Rights Reserved.
  */
 package com.malhartech.contrib.hbase;
 
@@ -10,7 +10,7 @@ import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
 
 /**
-  * Operator for retrieving tuples from HBase columns.<p><br>
+  * Operator for retrieving tuples from HBase columns.<br>
  *
  * <br>
  * This class provides a HBase input operator that can be used to retrieve tuples from columns in a

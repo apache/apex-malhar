@@ -1,6 +1,6 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *  Copyright (c) 2012-2013 Malhar, Inc.
+ *  All Rights Reserved.
  */
 package com.malhartech.contrib.hbase;
 
@@ -8,9 +8,9 @@ import java.io.IOException;
 import org.apache.hadoop.hbase.client.Append;
 
 /**
- * Operator for storing tuples in HBase columns.<p><br>
+ * Operator for storing tuples in HBase columns.<br>
  *
- * <br>
+ *<br>
  * This class provides a HBase output operator that can be used to store tuples in columns in a
  * HBase table. It should be extended by the end-operator developer. The extending class should implement
  * operationAppend method and provide a HBase Append operation object that specifies where and what to

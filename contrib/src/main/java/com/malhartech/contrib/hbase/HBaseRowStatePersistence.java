@@ -1,18 +1,24 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *  Copyright (c) 2012-2013 Malhar, Inc.
+ *  All Rights Reserved.
  */
 package com.malhartech.contrib.hbase;
 
 import java.io.IOException;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 
 /**
+ * This class implements a persistence strategy that stores the state parameters in columns
+ * in a specific column family and a specific row in the table.<br>
  *
+ * <br>
+ * The row name and column family name can be configured by setting them on the object. The
+ * parameter name is used as the column name and the parameter value is used as the column value.<br>
+ *
+ * <br>
  * @author Pramod Immaneni <pramod@malhar-inc.com>
  */
 public class HBaseRowStatePersistence extends HBaseBaseStatePersistence
@@ -38,22 +44,38 @@ public class HBaseRowStatePersistence extends HBaseBaseStatePersistence
     columnFamilyBytes = Bytes.toBytes(columnFamilyName);
   }
 
+  /**
+   * Get the row name in the table.
+   * @return The row name
+   */
   public String getRowName()
   {
     return rowName;
   }
 
+  /**
+   * Set the row name in the table.
+   * @param rowName The row name
+   */
   public void setRowName(String rowName)
   {
     this.rowName = rowName;
     constructKeys();
   }
 
+  /**
+   * Get the column family name in the table.
+   * @return The column family name
+   */
   public String getColumnFamilyName()
   {
     return columnFamilyName;
   }
 
+  /**
+   * Set the column family name in the table.
+   * @param columnFamilyName The column family name
+   */
   public void setColumnFamilyName(String columnFamilyName)
   {
     this.columnFamilyName = columnFamilyName;

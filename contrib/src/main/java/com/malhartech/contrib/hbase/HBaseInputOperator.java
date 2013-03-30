@@ -1,6 +1,6 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *  Copyright (c) 2012-2013 Malhar, Inc.
+ *  All Rights Reserved.
  */
 package com.malhartech.contrib.hbase;
 
@@ -11,7 +11,7 @@ import com.malhartech.api.InputOperator;
 import java.io.IOException;
 
 /**
- * The base class for HBase input operators.
+ * The base class for HBase input operators.<br>
  *
  * <br>
  * @param <T> The tuple type

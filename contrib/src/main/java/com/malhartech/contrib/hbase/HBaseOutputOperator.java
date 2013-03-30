@@ -1,6 +1,6 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *  Copyright (c) 2012-2013 Malhar, Inc.
+ *  All Rights Reserved.
  */
 package com.malhartech.contrib.hbase;
 
@@ -20,15 +20,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The base class for HBase output operators. The output operator collects all the tuples that arrive in a window and writes them to
- * HBase in endWindow.<br>
+ * The base class for HBase output operators. <br>
  *
- * The tuples are stored in an application specific manner. The concrete implementation that extends this operator provides a method that
- * specifies where to store the tuple. The operator also stores the last processed window id into the table and loads it during setup time.
- * If the processing window id is not greater than the last processed window id that was loaded those tuples are ignored till the processing
- * window id becomes greater than the last processed window id.<br>
- * 
- * @param <T>
+ * <br>
+ * The output operator collects all the tuples that arrive in a window and writes them to
+ * HBase in endWindow. The tuples are stored in an application specific manner. The concrete
+ * implementation that extends this operator provides a method that specifies where to store the
+ * tuple. The operator also stores the last processed window id into the table and loads it during setup time.
+ * If the processing window id is not greater than the last processed window id that was loaded those tuples
+ * are ignored till the processing window id becomes greater than the last processed window id.<br>
+ *
+ * <br>
+ * @param <T> The tuple type
  * @author Pramod Immaneni <pramod@malhar-inc.com>
  */
 public abstract class HBaseOutputOperator<T> extends HBaseOperatorBase implements Operator {

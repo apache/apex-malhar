@@ -1,6 +1,6 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *  Copyright (c) 2012-2013 Malhar, Inc.
+ *  All Rights Reserved.
  */
 package com.malhartech.contrib.hbase;
 
@@ -11,7 +11,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 
 /**
-  * Operator for retrieving tuples from HBase rows.<p><br>
+ * Operator for retrieving tuples from HBase rows.<br>
  *
  * <br>
  * This class provides a HBase input operator that can be used to retrieve tuples from rows in a
@@ -19,6 +19,8 @@ import org.apache.hadoop.hbase.client.ResultScanner;
  * implement operationScan and getTuple methods. The operationScan method should provide a HBase Scan
  * operation object that specifies where to retrieve the tuple information from the table. The getTuple method
  * should map the contents of a Result from the Scan result to a tuple.<br>
+ *
+ * <br>
  * @author Pramod Immaneni <pramod@malhar-inc.com>
  */
 public abstract class HBaseScanOperator<T> extends HBaseInputOperator<T>
