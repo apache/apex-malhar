@@ -40,8 +40,11 @@ public class TimeSeriesAverageChartOperator extends TimeSeriesChartOperator<Numb
   @Override
   public void processTuple(Object tuple)
   {
-    sum += convertTupleToNumber(tuple).doubleValue();
-    numData++;
+    Number number = convertTupleToNumber(tuple);
+    if (number != null) {
+      sum += number.doubleValue();
+      numData++;
+    }
   }
 
 }

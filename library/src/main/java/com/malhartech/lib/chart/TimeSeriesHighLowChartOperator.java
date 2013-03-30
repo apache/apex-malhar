@@ -10,7 +10,7 @@ import com.malhartech.lib.util.KeyValPair;
  *
  * @author David Yan <davidyan@malhar-inc.com>
  */
-public class TimeSeriesHighLowChartOperator extends TimeSeriesChartOperator<KeyValPair<Number,Number>>
+public class TimeSeriesHighLowChartOperator extends TimeSeriesChartOperator<KeyValPair<Number, Number>>
 {
   protected double high = Double.MIN_VALUE;
   protected double low = Double.MAX_VALUE;
@@ -26,9 +26,9 @@ public class TimeSeriesHighLowChartOperator extends TimeSeriesChartOperator<KeyV
   }
 
   @Override
-  public KeyValPair<Number,Number> getY()
+  public KeyValPair<Number, Number> getY()
   {
-      return (numData > 0) ? new KeyValPair<Number,Number>(low, high) : null;
+    return (numData > 0) ? new KeyValPair<Number, Number>(low, high) : null;
   }
 
   public Number convertTupleToNumber(Object tuple)
@@ -44,14 +44,17 @@ public class TimeSeriesHighLowChartOperator extends TimeSeriesChartOperator<KeyV
   @Override
   public void processTuple(Object tuple)
   {
-    double value = convertTupleToNumber(tuple).doubleValue();
-    if (value > high) {
-      high = value;
+    Number number = convertTupleToNumber(tuple);
+    if (number != null) {
+      double value = number.doubleValue();
+      if (value > high) {
+        high = value;
+      }
+      if (value < low) {
+        low = value;
+      }
+      numData++;
     }
-    if (value < low) {
-      low = value;
-    }
-    numData++;
   }
 
 }
