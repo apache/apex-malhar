@@ -6,6 +6,7 @@ package com.malhartech.lib.codec;
 
 import com.malhartech.api.StreamCodec;
 import java.io.*;
+import malhar.netlet.Client.Fragment;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -22,7 +23,7 @@ public class JavaSerializationStreamCodec<T extends Serializable> implements Str
   @Override
   public Object fromByteArray(DataStatePair dspair)
   {
-    ByteArrayInputStream bis = new ByteArrayInputStream(dspair.data);
+    ByteArrayInputStream bis = new ByteArrayInputStream(dspair.data.buffer, dspair.data.offset, dspair.data.length);
     try {
       ObjectInputStream ois = new ObjectInputStream(bis);
       return ois.readObject();
@@ -41,7 +42,8 @@ public class JavaSerializationStreamCodec<T extends Serializable> implements Str
       oos.writeObject(o);
       oos.flush();
       DataStatePair dsp = new DataStatePair();
-      dsp.data = bos.toByteArray();
+      byte[] buffer = bos.toByteArray();
+      dsp.data = new Fragment(buffer, 0, buffer.length);
       return dsp;
     }
     catch (IOException ex) {
