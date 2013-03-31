@@ -6,6 +6,7 @@ package com.malhartech.lib.algo;
 import com.malhartech.engine.TestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -36,6 +37,7 @@ public class FirstTillMatchBenchmark
     testNodeProcessingSchema(new FirstTillMatch<String, Long>());
   }
 
+  @SuppressWarnings("unchecked")
   public void testNodeProcessingSchema(FirstTillMatch oper)
   {
     TestSink matchSink = new TestSink();
@@ -76,11 +78,12 @@ public class FirstTillMatchBenchmark
     Assert.assertEquals("number emitted tuples", 2, matchSink.collectedTuples.size());
     int atotal = 0;
     Number aval;
-    for (HashMap<String, Number> o: (ArrayList<HashMap<String, Number>>)matchSink.collectedTuples) {
-      aval = o.get("a");
+    for (Object o: matchSink.collectedTuples) {
+      aval = ((HashMap<String, Number>)o).get("a");
       atotal += aval.intValue();
     }
     Assert.assertEquals("Value of a was ", 6, atotal);
     log.debug(String.format("\nBenchmarked %d tuples", numTuples * 13));
   }
+
 }

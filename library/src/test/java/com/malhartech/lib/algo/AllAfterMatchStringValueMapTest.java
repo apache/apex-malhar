@@ -29,7 +29,7 @@ public class AllAfterMatchStringValueMapTest
   {
 
     AllAfterMatchStringValueMap<String> oper = new AllAfterMatchStringValueMap<String>();
-    TestSink<HashMap<String, String>> allSink = new TestSink<HashMap<String, String>>();
+    TestSink allSink = new TestSink();
     oper.allafter.setSink(allSink);
     oper.setKey("a");
     oper.setValue(3.0);

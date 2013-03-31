@@ -37,7 +37,7 @@ public class TopNUniqueTest
 
   public void testNodeProcessingSchema(TopNUnique oper)
   {
-    TestSink<HashMap<String, Number>> sortSink = new TestSink<HashMap<String, Number>>();
+    TestSink sortSink = new TestSink();
     oper.top.setSink(sortSink);
     oper.setN(3);
 

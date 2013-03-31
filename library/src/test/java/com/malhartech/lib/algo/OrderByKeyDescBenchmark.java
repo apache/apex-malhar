@@ -30,8 +30,8 @@ public class OrderByKeyDescBenchmark
   public void testNodeProcessing() throws Exception
   {
     OrderByKeyDesc<String, Integer> oper = new OrderByKeyDesc<String, Integer>();
-    CountTestSink<HashMap<Integer, Integer>> countSink = new CountTestSink<HashMap<Integer, Integer>>();
-    CountTestSink<HashMap<String, Integer>> listSink = new CountTestSink<HashMap<String, Integer>>();
+    CountTestSink countSink = new CountTestSink<HashMap<Integer, Integer>>();
+    CountTestSink listSink = new CountTestSink<HashMap<String, Integer>>();
     oper.ordered_count.setSink(countSink);
     oper.ordered_list.setSink(listSink);
     oper.setOrderby("a");

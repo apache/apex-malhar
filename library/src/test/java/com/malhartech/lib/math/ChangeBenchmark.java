@@ -39,8 +39,8 @@ public class ChangeBenchmark
    */
   public <V extends Number> void testNodeProcessingSchema(Change<V> oper)
   {
-    CountTestSink<V> changeSink = new CountTestSink<V>();
-    CountTestSink<Double> percentSink = new CountTestSink<Double>();
+    CountTestSink changeSink = new CountTestSink<V>();
+    CountTestSink percentSink = new CountTestSink<Double>();
 
     oper.change.setSink(changeSink);
     oper.percent.setSink(percentSink);

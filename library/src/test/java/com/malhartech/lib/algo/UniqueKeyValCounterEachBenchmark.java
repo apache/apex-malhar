@@ -30,7 +30,7 @@ public class UniqueKeyValCounterEachBenchmark
   public void testNodeProcessing() throws Exception
   {
     UniqueKeyValCounterEach<String,Integer> oper = new UniqueKeyValCounterEach<String,Integer>();
-    TestSink<HashMap<HashMap<String,Integer>,Integer>> sink = new TestSink<HashMap<HashMap<String,Integer>,Integer>>();
+    TestSink sink = new TestSink();
     oper.count.setSink(sink);
 
     HashMap<String,Integer> a1tuple = new HashMap<String,Integer>(1);
@@ -74,8 +74,8 @@ public class UniqueKeyValCounterEachBenchmark
     Assert.assertEquals("number emitted tuples", 7, sink.collectedTuples.size());
 
     HashMap<HashMap<String,Integer>,Integer> tuple = new HashMap<HashMap<String,Integer>,Integer>();
-    for (HashMap<HashMap<String,Integer>,Integer> o : sink.collectedTuples) {
-      for (Map.Entry<HashMap<String,Integer>, Integer> e: o.entrySet()) {
+    for (Object o : sink.collectedTuples) {
+      for (Map.Entry<HashMap<String,Integer>, Integer> e: ((HashMap<HashMap<String,Integer>,Integer>)o).entrySet()) {
         tuple.put(e.getKey(),e.getValue());
       }
     }

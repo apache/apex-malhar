@@ -29,7 +29,7 @@ public class UniqueCounterTest
   public void testNodeProcessing() throws Exception
   {
     UniqueCounter<String> oper = new UniqueCounter<String>();
-    CountAndLastTupleTestSink<HashMap<String, Integer>> sink = new CountAndLastTupleTestSink<HashMap<String, Integer>>();
+    CountAndLastTupleTestSink sink = new CountAndLastTupleTestSink<HashMap<String, Integer>>();
     oper.count.setSink(sink);
 
     String atuple = "a";

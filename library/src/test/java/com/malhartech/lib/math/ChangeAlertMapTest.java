@@ -34,7 +34,7 @@ public class ChangeAlertMapTest
 
   public <V extends Number> void testNodeProcessingSchema(ChangeAlertMap<String, V> oper)
   {
-    TestSink<HashMap<String, HashMap<V, Double>>> alertSink = new TestSink<HashMap<String, HashMap<V, Double>>>();
+    TestSink alertSink = new TestSink();
 
     oper.alert.setSink(alertSink);
     oper.setPercentThreshold(5);

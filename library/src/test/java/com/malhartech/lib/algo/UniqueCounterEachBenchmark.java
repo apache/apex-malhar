@@ -30,7 +30,7 @@ public class UniqueCounterEachBenchmark
   public void testNodeProcessing() throws Exception
   {
     UniqueCounter<String> oper = new UniqueCounter<String>();
-    TestSink<HashMap<String, Integer>> sink = new TestSink<HashMap<String, Integer>>();
+    TestSink sink = new TestSink();
     oper.count.setSink(sink);
 
     String atuple = "a";
@@ -57,10 +57,9 @@ public class UniqueCounterEachBenchmark
       }
     }
     oper.endWindow();
-    ArrayList<HashMap<String, Integer>> tuples = (ArrayList<HashMap<String, Integer>>) sink.collectedTuples;
     int count = 0;
-    for (HashMap<String,Integer> e : tuples) {
-      for (Map.Entry<String, Integer> val: e.entrySet()) {
+    for (Object e : sink.collectedTuples) {
+      for (Map.Entry<String, Integer> val: ((HashMap<String,Integer>)e).entrySet()) {
         count += val.getValue().intValue();
       }
     }

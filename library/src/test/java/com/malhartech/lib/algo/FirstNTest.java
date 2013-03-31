@@ -35,7 +35,7 @@ public class FirstNTest
 
   public void testNodeProcessingSchema(FirstN oper)
   {
-    TestSink<HashMap<String, Number>> sortSink = new TestSink<HashMap<String, Number>>();
+    TestSink sortSink = new TestSink();
     oper.first.setSink(sortSink);
     oper.setN(3);
 

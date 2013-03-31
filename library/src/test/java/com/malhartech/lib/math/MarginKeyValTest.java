@@ -31,7 +31,7 @@ public class MarginKeyValTest
 
   public void testNodeProcessingSchema(MarginKeyVal oper)
   {
-    TestSink<KeyValPair<String, Number>> marginSink = new TestSink<KeyValPair<String, Number>>();
+    TestSink marginSink = new TestSink();
 
     oper.margin.setSink(marginSink);
 
@@ -47,14 +47,14 @@ public class MarginKeyValTest
 
     Assert.assertEquals("number emitted tuples", 3, marginSink.collectedTuples.size());
     for (int i = 0; i < marginSink.collectedTuples.size(); i++) {
-      if ("a".equals(marginSink.collectedTuples.get(i).getKey())) {
-        Assert.assertEquals("emitted value for 'a' was ", new Double(0), marginSink.collectedTuples.get(i).getValue().doubleValue());
+      if ("a".equals(((KeyValPair<String, Number>)marginSink.collectedTuples.get(i)).getKey())) {
+        Assert.assertEquals("emitted value for 'a' was ", new Double(0), ((KeyValPair<String, Number>)marginSink.collectedTuples.get(i)).getValue().doubleValue());
       }
-      if ("b".equals(marginSink.collectedTuples.get(i).getKey())) {
-        Assert.assertEquals("emitted value for 'b' was ", new Double(0.5), marginSink.collectedTuples.get(i).getValue().doubleValue());
+      if ("b".equals(((KeyValPair<String, Number>)marginSink.collectedTuples.get(i)).getKey())) {
+        Assert.assertEquals("emitted value for 'b' was ", new Double(0.5), ((KeyValPair<String, Number>)marginSink.collectedTuples.get(i)).getValue().doubleValue());
       }
-      if ("c".equals(marginSink.collectedTuples.get(i).getKey())) {
-        Assert.assertEquals("emitted value for 'c' was ", new Double(-1), marginSink.collectedTuples.get(i).getValue().doubleValue());
+      if ("c".equals(((KeyValPair<String, Number>)marginSink.collectedTuples.get(i)).getKey())) {
+        Assert.assertEquals("emitted value for 'c' was ", new Double(-1), ((KeyValPair<String, Number>)marginSink.collectedTuples.get(i)).getValue().doubleValue());
       }
     }
   }

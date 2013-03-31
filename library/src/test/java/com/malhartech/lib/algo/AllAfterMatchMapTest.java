@@ -35,7 +35,7 @@ public class AllAfterMatchMapTest
 
   public void testNodeProcessingSchema(AllAfterMatchMap oper)
   {
-    TestSink<HashMap<String, Number>> allSink = new TestSink<HashMap<String, Number>>();
+    TestSink allSink = new TestSink();
     oper.allafter.setSink(allSink);
     oper.setKey("a");
     oper.setValue(3.0);

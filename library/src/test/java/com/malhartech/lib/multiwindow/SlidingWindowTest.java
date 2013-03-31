@@ -66,7 +66,7 @@ public class SlidingWindowTest
   {
     mySlidingWindow oper = new mySlidingWindow();
 
-    TestSink<ArrayList<String>> swinSink = new TestSink<ArrayList<String>>();
+    TestSink swinSink = new TestSink();
     oper.out.setSink(swinSink);
     oper.setN(3);
     oper.setup(null);

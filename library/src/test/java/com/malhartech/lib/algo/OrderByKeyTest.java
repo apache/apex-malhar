@@ -27,8 +27,8 @@ public class OrderByKeyTest
   public void testNodeProcessing() throws Exception
   {
     OrderByKey<String, Integer> oper = new OrderByKey<String, Integer>();
-    TestSink<HashMap<Integer, Integer>> countSink = new TestSink<HashMap<Integer, Integer>>();
-    TestSink<HashMap<String, Integer>> listSink = new TestSink<HashMap<String, Integer>>();
+    TestSink countSink = new TestSink();
+    TestSink listSink = new TestSink();
     oper.ordered_count.setSink(countSink);
     oper.ordered_list.setSink(listSink);
     oper.setOrderby("a");

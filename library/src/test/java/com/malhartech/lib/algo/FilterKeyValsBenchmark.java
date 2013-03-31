@@ -23,14 +23,14 @@ public class FilterKeyValsBenchmark
    * Test node logic emits correct results
    */
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
+  @SuppressWarnings( {"SleepWhileInLoop", "rawtypes", "unchecked"})
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     FilterKeyVals<String, Number> oper = new FilterKeyVals<String, Number>();
 
-    CountTestSink<HashMap<String, Number>> sortSink = new CountTestSink<HashMap<String, Number>>();
-    oper.filter.setSink(sortSink);
+    CountTestSink sortSink = new CountTestSink<HashMap<String, Number>>();
+    oper.filter.setSink((CountTestSink<Object>)sortSink);
     HashMap<String, Number> filter = new HashMap<String, Number>();
     filter.put("b", 2);
     oper.setKeyVals(filter);

@@ -34,8 +34,8 @@ public class ChangeMapTest
 
   public <V extends Number> void testNodeProcessingSchema(ChangeMap<String, V> oper)
   {
-    TestSink<HashMap<String, V>> changeSink = new TestSink<HashMap<String, V>>();
-    TestSink<HashMap<String, Double>> percentSink = new TestSink<HashMap<String, Double>>();
+    TestSink changeSink = new TestSink();
+    TestSink percentSink = new TestSink();
 
     oper.change.setSink(changeSink);
     oper.percent.setSink(percentSink);

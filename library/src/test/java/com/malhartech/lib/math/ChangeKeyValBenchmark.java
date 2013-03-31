@@ -37,8 +37,8 @@ public class ChangeKeyValBenchmark
 
   public <V extends Number> void testNodeProcessingSchema(ChangeKeyVal<String, V> oper)
   {
-    CountTestSink<KeyValPair<String, V>> changeSink = new CountTestSink<KeyValPair<String, V>>();
-    CountTestSink<KeyValPair<String, Double>> percentSink = new CountTestSink<KeyValPair<String, Double>>();
+    CountTestSink changeSink = new CountTestSink<KeyValPair<String, V>>();
+    CountTestSink percentSink = new CountTestSink<KeyValPair<String, Double>>();
 
     oper.change.setSink(changeSink);
     oper.percent.setSink(percentSink);

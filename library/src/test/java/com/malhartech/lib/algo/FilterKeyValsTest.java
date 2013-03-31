@@ -18,11 +18,12 @@ import org.junit.Test;
  */
 public class FilterKeyValsTest
 {
-  int getTotal(List<HashMap<String,Number>> list)
+  @SuppressWarnings("unchecked")
+  int getTotal(List<Object> list)
   {
     int ret = 0;
-    for (HashMap<String, Number> map: list) {
-      for (Map.Entry<String, Number> e: map.entrySet()) {
+    for (Object map: list) {
+      for (Map.Entry<String, Number> e: ((HashMap<String, Number>)map).entrySet()) {
         ret += e.getValue().intValue();
       }
     }
@@ -38,7 +39,7 @@ public class FilterKeyValsTest
   {
     FilterKeyVals<String,Number> oper = new FilterKeyVals<String,Number>();
 
-    TestSink<HashMap<String, Number>> sortSink = new TestSink<HashMap<String, Number>>();
+    TestSink sortSink = new TestSink();
     oper.filter.setSink(sortSink);
     HashMap<String,Number> filter = new HashMap<String,Number>();
     filter.put("b",2);

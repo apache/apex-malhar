@@ -35,7 +35,7 @@ public class FilterValuesTest
   {
     FilterValues<Integer> oper = new FilterValues<Integer>();
 
-    TestSink<Integer> sortSink = new TestSink<Integer>();
+    TestSink sortSink = new TestSink();
     oper.filter.setSink(sortSink);
     Integer [] values = new Integer[2];
     oper.setValue(5);

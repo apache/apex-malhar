@@ -35,7 +35,7 @@ public class FilterKeysMapTest
   {
     FilterKeysMap<String,Number> oper = new FilterKeysMap<String,Number>();
 
-    TestSink<HashMap<String, Number>> sortSink = new TestSink<HashMap<String, Number>>();
+    TestSink sortSink = new TestSink();
     oper.filter.setSink(sortSink);
     oper.setKey("b");
     oper.clearKeys();

@@ -29,8 +29,8 @@ public class OrderByValueDescBenchmark
   public void testNodeProcessing() throws Exception
   {
     OrderByValue<String, Integer> oper = new OrderByValue<String, Integer>();
-    TestSink<HashMap<String, Integer>> countSink = new TestSink<HashMap<String, Integer>>();
-    TestSink<HashMap<String, HashMap<Integer, Integer>>> listSink = new TestSink<HashMap<String, HashMap<Integer, Integer>>>();
+    TestSink countSink = new TestSink();
+    TestSink listSink = new TestSink();
     oper.ordered_list.setSink(countSink);
     oper.ordered_count.setSink(listSink);
     String[] keys = new String[2];

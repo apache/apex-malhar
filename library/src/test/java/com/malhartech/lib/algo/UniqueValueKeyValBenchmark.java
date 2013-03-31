@@ -29,7 +29,7 @@ public class UniqueValueKeyValBenchmark
   public void testNodeProcessing() throws Exception
   {
     UniqueValueKeyVal<String> oper = new UniqueValueKeyVal<String>();
-    TestSink<KeyValPair<String,Integer>> sink = new TestSink<KeyValPair<String,Integer>>();
+    TestSink sink = new TestSink();
     oper.count.setSink(sink);
 
     KeyValPair<String,Integer> atuple = new KeyValPair("a", 1);
@@ -62,7 +62,8 @@ public class UniqueValueKeyValBenchmark
     Assert.assertEquals("number emitted tuples", 5, sink.collectedTuples.size());
     log.debug(String.format("\nBenchmark sums for %d key/val pairs", numTuples * 6));
 
-    for (KeyValPair<String,Integer> e : sink.collectedTuples) {
+    for (Object o : sink.collectedTuples) {
+      KeyValPair<String,Integer> e = (KeyValPair<String,Integer>)o;
       int val = e.getValue().intValue();
       if (e.getKey().equals("a")) {
         Assert.assertEquals("emitted value for 'a' was ", numTuples, val);

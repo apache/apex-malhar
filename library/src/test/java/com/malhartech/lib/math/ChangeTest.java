@@ -37,8 +37,8 @@ public class ChangeTest
    */
   public <V extends Number> void testNodeProcessingSchema(Change<V> oper)
   {
-    TestSink<V> changeSink = new TestSink<V>();
-    TestSink<Double> percentSink = new TestSink<Double>();
+    TestSink changeSink = new TestSink();
+    TestSink percentSink = new TestSink();
 
     oper.change.setSink(changeSink);
     oper.percent.setSink(percentSink);

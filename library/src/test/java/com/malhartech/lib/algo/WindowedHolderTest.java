@@ -74,7 +74,7 @@ public class WindowedHolderTest
     topCounts.setTopCount(10);
     topCounts.setSlidingWindowWidth(6, 1);
 
-    TestSink<Map<String, Integer>> s = new TestSink<Map<String, Integer>>();
+    TestSink s = new TestSink();
     topCounts.output.setSink(s);
 
     int windowId = 1;
@@ -83,19 +83,19 @@ public class WindowedHolderTest
     topCounts.input.process(Collections.singletonMap("key1", 5));
     topCounts.endWindow();
 
-    Assert.assertEquals(""+s.collectedTuples, Integer.valueOf(5), s.collectedTuples.get(0).get("key1"));
+    Assert.assertEquals(""+s.collectedTuples, Integer.valueOf(5), ((Map<String, Integer>)s.collectedTuples.get(0)).get("key1"));
 
     while (windowId < 6) {
       s.clear();
       topCounts.beginWindow(++windowId);
       topCounts.endWindow();
-      Assert.assertEquals("window " + windowId + " " + s.collectedTuples, Integer.valueOf(5), s.collectedTuples.get(0).get("key1"));
+      Assert.assertEquals("window " + windowId + " " + s.collectedTuples, Integer.valueOf(5), ((Map<String, Integer>)s.collectedTuples.get(0)).get("key1"));
     }
 
     s.clear();
     topCounts.beginWindow(++windowId);
     topCounts.endWindow();
-    Assert.assertEquals(" " + s.collectedTuples, null, s.collectedTuples.get(0).get("key1"));
+    Assert.assertEquals(" " + s.collectedTuples, null, ((Map<String, Integer>)s.collectedTuples.get(0)).get("key1"));
   }
 
 }

@@ -25,7 +25,7 @@ public class FirstTillMatchStringBenchmark
    * Test node logic emits correct results
    */
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
+  @SuppressWarnings( {"SleepWhileInLoop", "unchecked"})
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
@@ -68,8 +68,8 @@ public class FirstTillMatchStringBenchmark
     Assert.assertEquals("number emitted tuples", 2, matchSink.collectedTuples.size());
     int atotal = 0;
     Integer aval;
-    for (HashMap<String, String> o: (ArrayList<HashMap<String, String>>)matchSink.collectedTuples) {
-      aval = Integer.parseInt(o.get("a"));
+    for (Object o: matchSink.collectedTuples) {
+      aval = Integer.parseInt(((HashMap<String, String>)o).get("a"));
       atotal += aval.intValue();
     }
     Assert.assertEquals("Value of a was ", 6, atotal);

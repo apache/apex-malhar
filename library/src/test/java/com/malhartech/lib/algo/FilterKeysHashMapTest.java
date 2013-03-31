@@ -39,7 +39,7 @@ public class FilterKeysHashMapTest
   {
     FilterKeysHashMap<String, Number> oper = new FilterKeysHashMap<String, Number>();
 
-    TestSink<HashMap<String, HashMap<String, Number>>> sortSink = new TestSink<HashMap<String, HashMap<String, Number>>>();
+    TestSink sortSink = new TestSink();
     oper.filter.setSink(sortSink);
     oper.setKey("b");
     oper.clearKeys();

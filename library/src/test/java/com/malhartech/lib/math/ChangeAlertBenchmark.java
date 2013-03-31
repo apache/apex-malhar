@@ -36,7 +36,7 @@ public class ChangeAlertBenchmark
 
   public <V extends Number> void testNodeProcessingSchema(ChangeAlert<V> oper)
   {
-    CountTestSink<KeyValPair<V, Double>> alertSink = new CountTestSink<KeyValPair<V, Double>>();
+    CountTestSink alertSink = new CountTestSink<KeyValPair<V, Double>>();
 
 
     oper.alert.setSink(alertSink);

@@ -28,7 +28,7 @@ public class UniqueCounterEachTest
   public void testNodeProcessing() throws Exception
   {
     UniqueCounterEach<String> oper = new UniqueCounterEach<String>();
-    TestSink<HashMap<String, Integer>> sink = new TestSink<HashMap<String, Integer>>();
+    TestSink sink = new TestSink();
     oper.count.setSink(sink);
 
     String atuple = "a";
@@ -55,13 +55,13 @@ public class UniqueCounterEachTest
       }
     }
     oper.endWindow();
-    ArrayList<HashMap<String, Integer>> tuples = (ArrayList<HashMap<String, Integer>>) sink.collectedTuples;
     int acount = 0;
     int bcount = 0;
     int ccount = 0;
     int dcount = 0;
     int ecount = 0;
-    for (HashMap<String, Integer> e: tuples) {
+    for (Object ee: sink.collectedTuples) {
+      HashMap<String, Integer> e = (HashMap<String, Integer>)ee;
       Integer val = e.get("a");
       if (val != null) {
         acount = val.intValue();

@@ -80,7 +80,7 @@ public class JavaSerializationStreamCodecTest
     DataStatePair dsp2 = coder.toByteArray(tc);
     assert (dsp1.state == null);
     assert (dsp2.state == null);
-    Assert.assertArrayEquals(dsp1.data, dsp2.data);
+    Assert.assertEquals(dsp1.data, dsp2.data);
 
     Object tcObject1 = decoder.fromByteArray(dsp1);
     assert (tc.equals(tcObject1));
@@ -91,12 +91,12 @@ public class JavaSerializationStreamCodecTest
     coder.resetState();
 
     dsp2 = coder.toByteArray(tc);
-    Assert.assertArrayEquals(dsp1.state, dsp2.state);
+    Assert.assertEquals(dsp1.state, dsp2.state);
 
     dsp1 = coder.toByteArray(tc);
     dsp2 = coder.toByteArray(tc);
-    Assert.assertArrayEquals(dsp1.data, dsp2.data);
-    Assert.assertArrayEquals(dsp1.state, dsp2.state);
+    Assert.assertEquals(dsp1.data, dsp2.data);
+    Assert.assertEquals(dsp1.state, dsp2.state);
   }
 
   public static class TestTuple implements Serializable

@@ -3,6 +3,7 @@
  */
 package com.malhartech.lib.algo;
 
+import com.malhartech.api.Sink;
 import com.malhartech.lib.testbench.CountTestSink;
 import com.malhartech.lib.testbench.HashTestSink;
 import junit.framework.Assert;
@@ -23,14 +24,15 @@ public class DistinctBenchmark
    * Test node logic emits correct results
    */
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
+  @SuppressWarnings({"SleepWhileInLoop", "rawtypes", "unchecked"})
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     Distinct<Integer> oper = new Distinct<Integer>();
 
     CountTestSink<Integer> sortSink = new CountTestSink<Integer>();
-    oper.distinct.setSink(sortSink);
+    Sink s = sortSink;
+    oper.distinct.setSink((Sink<Object>)s);
 
     oper.beginWindow(0);
     int numTuples = 10000000;

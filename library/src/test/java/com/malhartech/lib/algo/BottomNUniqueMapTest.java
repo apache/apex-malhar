@@ -37,7 +37,7 @@ public class BottomNUniqueMapTest
 
   public void testNodeProcessingSchema(BottomNUniqueMap oper)
   {
-    TestSink<HashMap<String, Number>> sortSink = new TestSink<HashMap<String, Number>>();
+    TestSink sortSink = new TestSink();
     oper.bottom.setSink(sortSink);
     oper.setN(3);
 

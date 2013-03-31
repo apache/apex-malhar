@@ -34,14 +34,14 @@ public class FilterValuesBenchmark
    * Test node logic emits correct results
    */
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
+  @SuppressWarnings( {"SleepWhileInLoop", "unchecked"})
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     FilterValues<Integer> oper = new FilterValues<Integer>();
 
-    CountTestSink<Integer> sortSink = new CountTestSink<Integer>();
-    oper.filter.setSink(sortSink);
+    CountTestSink sortSink = new CountTestSink<Integer>();
+    oper.filter.setSink((CountTestSink<Object>)sortSink);
     Integer [] values = new Integer[2];
     oper.setValue(5);
     oper.clearValues();

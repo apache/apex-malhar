@@ -30,7 +30,7 @@ public class SimpleMovingAverageBenchmark
   {
     SimpleMovingAverage<String, Double> oper = new SimpleMovingAverage<String, Double>();
 
-    CountTestSink<KeyValPair<String, Double>> sink = new CountTestSink<KeyValPair<String, Double>>();
+    CountTestSink sink = new CountTestSink<KeyValPair<String, Double>>();
     oper.doubleSMA.setSink(sink);
     oper.setWindowSize(3);
 

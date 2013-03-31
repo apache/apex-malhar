@@ -29,7 +29,7 @@ public class UniqueKeyValCounterTest
   public void testNodeProcessing() throws Exception
   {
     UniqueKeyValCounter<String,Integer> oper = new UniqueKeyValCounter<String,Integer>();
-    CountAndLastTupleTestSink<HashMap<HashMap<String,Integer>, Integer>> sink = new CountAndLastTupleTestSink<HashMap<HashMap<String,Integer>, Integer>>();
+    CountAndLastTupleTestSink sink = new CountAndLastTupleTestSink<HashMap<HashMap<String,Integer>, Integer>>();
     oper.count.setSink(sink);
 
     HashMap<String,Integer> a1tuple = new HashMap<String,Integer>(1);

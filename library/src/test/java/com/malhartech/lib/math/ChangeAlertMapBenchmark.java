@@ -35,7 +35,7 @@ public class ChangeAlertMapBenchmark
 
   public <V extends Number> void testNodeProcessingSchema(ChangeAlertMap<String, V> oper)
   {
-    CountTestSink<HashMap<String, HashMap<V, Double>>> alertSink = new CountTestSink<HashMap<String, HashMap<V, Double>>>();
+    CountTestSink alertSink = new CountTestSink<HashMap<String, HashMap<V, Double>>>();
 
     oper.alert.setSink(alertSink);
     oper.setPercentThreshold(5);

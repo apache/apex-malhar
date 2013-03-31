@@ -72,7 +72,7 @@ public class HttpInputOperatorTest
 
     final HttpInputOperator operator = new HttpInputOperator();
 
-    TestSink<Map<String, String>> sink = new TestSink<Map<String, String>>();
+    TestSink sink = new TestSink();
 
     operator.outputPort.setSink(sink);
     operator.setName("testHttpInputNode");
@@ -91,7 +91,7 @@ public class HttpInputOperatorTest
 
     Assert.assertTrue("tuple emmitted", sink.collectedTuples.size() > 0);
 
-    Map<String, String> tuple = sink.collectedTuples.get(0);
+    Map<String, String> tuple = (Map<String, String>)sink.collectedTuples.get(0);
     Assert.assertEquals("", tuple.get("responseId"), "response1");
 
     operator.deactivate();

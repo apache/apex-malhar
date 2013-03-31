@@ -25,7 +25,7 @@ public class DistinctMapTest
   {
     DistinctMap<String, Number> oper = new DistinctMap<String, Number>();
 
-    TestSink<HashMap<String, Number>> sortSink = new TestSink<HashMap<String, Number>>();
+    TestSink sortSink = new TestSink();
     oper.distinct.setSink(sortSink);
 
 

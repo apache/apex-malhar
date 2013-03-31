@@ -18,13 +18,13 @@ public class DistinctTest
    * Test node logic emits correct results
    */
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
+  @SuppressWarnings( {"SleepWhileInLoop", "rawtypes", "unchecked"})
   public void testNodeProcessing() throws Exception
   {
     Distinct<String> oper = new Distinct<String>();
 
-    HashTestSink<String> sortSink = new HashTestSink<String>();
-    oper.distinct.setSink(sortSink);
+    HashTestSink sortSink = new HashTestSink<String>();
+    oper.distinct.setSink((HashTestSink<Object>)sortSink);
 
     oper.beginWindow(0);
     oper.data.process("a");

@@ -24,7 +24,7 @@ public class FirstTillMatchStringTest
    * Test node logic emits correct results
    */
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
+  @SuppressWarnings( {"SleepWhileInLoop", "unchecked", "unchecked"})
   public void testNodeProcessing() throws Exception
   {
     FirstTillMatchString<String> oper = new FirstTillMatchString<String>();
@@ -62,8 +62,8 @@ public class FirstTillMatchStringTest
     Assert.assertEquals("number emitted tuples", 2, matchSink.collectedTuples.size());
     int atotal = 0;
     Integer aval;
-    for (HashMap<String, String> o: (ArrayList<HashMap<String, String>>)matchSink.collectedTuples) {
-      aval = Integer.parseInt(o.get("a"));
+    for (Object o: matchSink.collectedTuples) {
+      aval = Integer.parseInt(((HashMap<String, String>)o).get("a"));
       atotal += aval.intValue();
     }
     Assert.assertEquals("Value of a was ", 6, atotal);
@@ -82,8 +82,8 @@ public class FirstTillMatchStringTest
     // There should be no emit as all tuples do not match
     Assert.assertEquals("number emitted tuples", 2, matchSink.collectedTuples.size());
     atotal = 0;
-    for (HashMap<String, String> o: (ArrayList<HashMap<String, String>>)matchSink.collectedTuples) {
-      aval = Integer.parseInt(o.get("a"));
+    for (Object o: matchSink.collectedTuples) {
+      aval = Integer.parseInt(((HashMap<String, String>)o).get("a"));
       atotal += aval.intValue();
     }
     Assert.assertEquals("Value of a was ", 7, atotal);

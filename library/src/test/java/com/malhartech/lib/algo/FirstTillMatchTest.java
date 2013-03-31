@@ -34,6 +34,7 @@ public class FirstTillMatchTest
     testNodeProcessingSchema(new FirstTillMatch<String, Long>());
   }
 
+  @SuppressWarnings( {"unchecked", "unchecked"})
   public void testNodeProcessingSchema(FirstTillMatch oper)
   {
     TestSink matchSink = new TestSink();
@@ -69,8 +70,8 @@ public class FirstTillMatchTest
 
     Assert.assertEquals("number emitted tuples", 2, matchSink.collectedTuples.size());
     int atotal = 0;
-    for (HashMap<String,Number> o: (ArrayList<HashMap<String, Number>>)matchSink.collectedTuples) {
-      atotal += o.get("a").intValue();
+    for (Object o: matchSink.collectedTuples) {
+      atotal += ((HashMap<String,Number>)o).get("a").intValue();
     }
     Assert.assertEquals("Value of a was ", 6, atotal);
     matchSink.clear();
@@ -88,8 +89,8 @@ public class FirstTillMatchTest
     // There should be no emit as all tuples do not match
     Assert.assertEquals("number emitted tuples", 2, matchSink.collectedTuples.size());
     atotal = 0;
-    for (HashMap<String,Number> o: (ArrayList<HashMap<String, Number>>)matchSink.collectedTuples) {
-      atotal += o.get("a").intValue();
+    for (Object o: matchSink.collectedTuples) {
+      atotal += ((HashMap<String,Number>)o).get("a").intValue();
     }
     Assert.assertEquals("Value of a was ", 7, atotal);
   }

@@ -34,14 +34,14 @@ public class FilterKeysBenchmark
    * Test node logic emits correct results
    */
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
+  @SuppressWarnings( {"SleepWhileInLoop", "unchecked"})
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     FilterKeysMap<String, Number> oper = new FilterKeysMap<String, Number>();
 
-    CountTestSink<HashMap<String, Number>> sortSink = new CountTestSink<HashMap<String, Number>>();
-    oper.filter.setSink(sortSink);
+    CountTestSink sortSink = new CountTestSink<HashMap<String, Number>>();
+    oper.filter.setSink((CountTestSink<Object>)sortSink);
     String [] keys = new String[3];
     keys[0] = "e";
     keys[1] = "f";

@@ -28,7 +28,7 @@ public class AverageKeyValBenchmark
   public void testNodeSchemaProcessing() throws InterruptedException
   {
     AverageKeyVal<String> oper = new AverageKeyVal<String>();
-    TestSink<KeyValPair<String, Double>> averageSink = new TestSink<KeyValPair<String, Double>>();
+    TestSink averageSink = new TestSink();
     oper.doubleAverage.setSink(averageSink);
 
     int numTuples = 100000000;

@@ -37,7 +37,7 @@ public class BottomNBenchmark
 
   public void testNodeProcessingSchema(BottomNMap oper)
   {
-    TestSink<HashMap<String, Number>> sortSink = new TestSink<HashMap<String, Number>>();
+    TestSink sortSink = new TestSink();
     oper.bottom.setSink(sortSink);
     oper.setN(3);
 

@@ -5,8 +5,8 @@
 package com.malhartech.lib.io;
 
 import com.malhartech.daemon.Daemon;
-import com.malhartech.stream.SamplePubSubWebSocketPublisher;
-import com.malhartech.stream.SamplePubSubWebSocketSubscriber;
+import com.malhartech.util.SamplePubSubWebSocketPublisher;
+import com.malhartech.util.SamplePubSubWebSocketSubscriber;
 import com.malhartech.stream.StramTestSupport;
 import com.malhartech.stream.StramTestSupport.WaitCondition;
 import java.net.URI;

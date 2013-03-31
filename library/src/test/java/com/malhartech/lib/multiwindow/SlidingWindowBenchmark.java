@@ -67,7 +67,7 @@ public class SlidingWindowBenchmark
   {
     mySlidingWindow oper = new mySlidingWindow();
 
-    CountTestSink<String> swinSink = new CountTestSink<String>();
+    CountTestSink swinSink = new CountTestSink<String>();
     oper.out.setSink(swinSink);
     oper.setN(3);
     oper.setup(null);

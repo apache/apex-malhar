@@ -23,14 +23,14 @@ public class DistinctMapBenchmark
    * Test node logic emits correct results
    */
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
+  @SuppressWarnings({"SleepWhileInLoop", "rawtypes", "unchecked"})
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     DistinctMap<String, Number> oper = new DistinctMap<String, Number>();
 
-    CountTestSink<HashMap<String, Number>> sortSink = new CountTestSink<HashMap<String, Number>>();
-    oper.distinct.setSink(sortSink);
+    CountTestSink sortSink = new CountTestSink<HashMap<String, Number>>();
+    oper.distinct.setSink((CountTestSink<Object>)sortSink);
 
     HashMap<String, Number> input = new HashMap<String, Number>();
 

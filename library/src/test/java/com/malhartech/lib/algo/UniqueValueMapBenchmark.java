@@ -30,7 +30,7 @@ public class UniqueValueMapBenchmark
   public void testNodeProcessing() throws Exception
   {
     UniqueValueMap<String> oper = new UniqueValueMap<String>();
-    TestSink<HashMap<String,Integer>> sink = new TestSink<HashMap<String,Integer>>();
+    TestSink sink = new TestSink();
     oper.count.setSink(sink);
 
     HashMap<String, Integer> h1 = new HashMap<String, Integer>();

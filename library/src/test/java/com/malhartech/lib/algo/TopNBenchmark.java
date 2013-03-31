@@ -37,7 +37,7 @@ public class TopNBenchmark
 
   public void testNodeProcessingSchema(TopN oper)
   {
-    TestSink<HashMap<String, Number>> sortSink = new TestSink<HashMap<String, Number>>();
+    TestSink sortSink = new TestSink();
     oper.top.setSink(sortSink);
     oper.setN(3);
 

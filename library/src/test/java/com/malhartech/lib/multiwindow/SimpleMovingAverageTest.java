@@ -28,8 +28,8 @@ public class SimpleMovingAverageTest
   {
     SimpleMovingAverage<String, Double> oper = new SimpleMovingAverage<String, Double>();
 
-    TestSink<KeyValPair<String, Double>> sink = new TestSink<KeyValPair<String, Double>>();
-    TestSink<KeyValPair<String, Integer>> sink2 = new TestSink<KeyValPair<String, Integer>>();
+    TestSink sink = new TestSink();
+    TestSink sink2 = new TestSink();
     oper.doubleSMA.setSink(sink);
     oper.integerSMA.setSink(sink2);
     oper.setWindowSize(3);
@@ -65,11 +65,11 @@ public class SimpleMovingAverageTest
     oper.endWindow();
 
     Assert.assertEquals("number emitted tuples", 8, sink.collectedTuples.size());
-    Assert.assertEquals("1st sma", 52.5, sink.collectedTuples.get(0).getValue().doubleValue());
-    Assert.assertEquals("2nd sma", 53.5, sink.collectedTuples.get(2).getValue().doubleValue());
-    Assert.assertEquals("3rd sma", 54.5, sink.collectedTuples.get(4).getValue().doubleValue());
-    Assert.assertEquals("4th sma", 56.5, sink.collectedTuples.get(6).getValue().doubleValue());
-    Assert.assertEquals("1st sma", 52, sink2.collectedTuples.get(0).getValue().intValue());
+    Assert.assertEquals("1st sma", 52.5, ((KeyValPair<String, Double>)sink.collectedTuples.get(0)).getValue().doubleValue());
+    Assert.assertEquals("2nd sma", 53.5, ((KeyValPair<String, Double>)sink.collectedTuples.get(2)).getValue().doubleValue());
+    Assert.assertEquals("3rd sma", 54.5, ((KeyValPair<String, Double>)sink.collectedTuples.get(4)).getValue().doubleValue());
+    Assert.assertEquals("4th sma", 56.5, ((KeyValPair<String, Double>)sink.collectedTuples.get(6)).getValue().doubleValue());
+    Assert.assertEquals("1st sma", 52, ((KeyValPair<String, Integer>)sink2.collectedTuples.get(0)).getValue().intValue());
 
   }
 }

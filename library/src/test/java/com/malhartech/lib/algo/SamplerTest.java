@@ -26,7 +26,7 @@ public class SamplerTest
   public void testNodeProcessing() throws Exception
   {
     Sampler<String> oper = new Sampler<String>();
-    CountTestSink<String> sink = new CountTestSink<String>();
+    CountTestSink sink = new CountTestSink<String>();
     oper.sample.setSink(sink);
     oper.setPassrate(10);
     oper.setTotalrate(100);

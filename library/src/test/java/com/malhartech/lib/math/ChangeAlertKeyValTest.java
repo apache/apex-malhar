@@ -34,7 +34,7 @@ public class ChangeAlertKeyValTest
 
   public <V extends Number> void testNodeProcessingSchema(ChangeAlertKeyVal<String, V> oper)
   {
-    TestSink<KeyValPair<String, KeyValPair<V, Double>>> alertSink = new TestSink<KeyValPair<String, KeyValPair<V, Double>>>();
+    TestSink alertSink = new TestSink();
 
     oper.alert.setSink(alertSink);
     oper.setPercentThreshold(5);
