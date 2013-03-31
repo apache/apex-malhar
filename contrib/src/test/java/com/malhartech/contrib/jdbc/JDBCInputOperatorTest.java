@@ -117,7 +117,7 @@ public class JDBCInputOperatorTest
     oper.setDbUrl("jdbc:mysql://localhost/test?user=test&password=");
     oper.setDbDriver("com.mysql.jdbc.Driver");
 
-    TestSink<String> sink = new TestSink<String>();
+    TestSink sink = new TestSink();
     oper.outputPort.setSink(sink);
 
     setupDB(helper.hashMapping1);
