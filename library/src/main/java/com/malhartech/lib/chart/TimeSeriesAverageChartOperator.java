@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.chart;
 
+import com.malhartech.api.Context.OperatorContext;
+
 /**
  *
  * @author David Yan <davidyan@malhar-inc.com>
@@ -12,6 +14,12 @@ public class TimeSeriesAverageChartOperator extends TimeSeriesChartOperator<Numb
 {
   protected double sum = 0.0;
   protected long numData = 0;
+
+  @Override
+  public void setup(OperatorContext context)
+  {
+    super.setup(context);
+  }
 
   @Override
   public void beginWindow(long windowId)

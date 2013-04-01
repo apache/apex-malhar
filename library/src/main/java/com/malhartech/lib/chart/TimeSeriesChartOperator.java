@@ -19,6 +19,7 @@ public abstract class TimeSeriesChartOperator<T> extends ChartOperator<Number, T
   @Override
   public void setup(OperatorContext context)
   {
+    super.setup(context);
     windowWidth = context.getApplicationAttributes().attrValue(DAGContext.STRAM_WINDOW_SIZE_MILLIS, null);
   }
 
@@ -31,7 +32,7 @@ public abstract class TimeSeriesChartOperator<T> extends ChartOperator<Number, T
   @Override
   public Number getX()
   {
-    return new Long(currentWindowId >>> 32 + windowWidth * (currentWindowId & 0xffffffff));
+    return new Long((currentWindowId >>> 32) * 1000 + windowWidth * (currentWindowId & 0xffffffffL));
   }
 
 }

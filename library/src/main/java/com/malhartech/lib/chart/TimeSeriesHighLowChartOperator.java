@@ -4,17 +4,24 @@
  */
 package com.malhartech.lib.chart;
 
-import com.malhartech.lib.util.KeyValPair;
+import com.malhartech.api.Context.OperatorContext;
+import com.malhartech.lib.util.HighLow;
 
 /**
  *
  * @author David Yan <davidyan@malhar-inc.com>
  */
-public class TimeSeriesHighLowChartOperator extends TimeSeriesChartOperator<KeyValPair<Number, Number>>
+public class TimeSeriesHighLowChartOperator extends TimeSeriesChartOperator<HighLow>
 {
   protected double high = Double.MIN_VALUE;
   protected double low = Double.MAX_VALUE;
   protected long numData = 0;
+
+  @Override
+  public void setup(OperatorContext context)
+  {
+    super.setup(context);
+  }
 
   @Override
   public void beginWindow(long windowId)
@@ -26,9 +33,9 @@ public class TimeSeriesHighLowChartOperator extends TimeSeriesChartOperator<KeyV
   }
 
   @Override
-  public KeyValPair<Number, Number> getY()
+  public HighLow getY()
   {
-    return (numData > 0) ? new KeyValPair<Number, Number>(low, high) : null;
+    return (numData > 0) ? new HighLow(high, low) : null;
   }
 
   public Number convertTupleToNumber(Object tuple)

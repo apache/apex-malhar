@@ -17,6 +17,8 @@ import com.malhartech.util.AttributeMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -26,6 +28,7 @@ import java.util.List;
  */
 public abstract class ChartOperator<T1, T2> extends BaseOperator implements PartitionableOperator
 {
+  private static final Logger logger = LoggerFactory.getLogger(ChartOperator.class);
   @InputPortFieldAnnotation(name = "in1")
   public final transient DefaultInputPort<Object> in1 = new DefaultInputPort<Object>(this)
   {
