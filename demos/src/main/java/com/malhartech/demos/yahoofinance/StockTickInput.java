@@ -42,6 +42,7 @@ public class StockTickInput implements InputOperator
   private transient HttpClient client;
   private transient GetMethod method;
   private HashMap<String, Long> lastVolume = new HashMap<String, Long>();
+  private boolean outputEvenIfZeroVolume = false;
   /**
    * The output port to emit price.
    */
@@ -121,7 +122,7 @@ public class StockTickInput implements InputOperator
             vol -= lastVolume.get(symbol);
           }
 
-          if (vol > 0) {
+          if (vol > 0 || outputEvenIfZeroVolume) {
             price.emit(new KeyValPair<String, Double>(symbol, currentPrice));
             volume.emit(new KeyValPair<String, Long>(symbol, vol));
             time.emit(new KeyValPair<String, String>(symbol, timeStamp));
@@ -147,6 +148,11 @@ public class StockTickInput implements InputOperator
   @Override
   public void endWindow()
   {
+  }
+
+  public void setOutputEvenIfZeroVolume(boolean outputEvenIfZeroVolume)
+  {
+    this.outputEvenIfZeroVolume = outputEvenIfZeroVolume;
   }
 
 }
