@@ -76,8 +76,8 @@ public class InnerJoin2 <K,V> extends BaseKeyValueOperator<K,V>
       Entry<K,V> e1 = (Entry)it1.next();
       multimap.put(e1.getKey(), e1.getValue());
       result.emit(multimap);
-      System.out.println("emitting:"+multimap.toString()+" emited "+emitedTuples+" list:"+list.toString());
-      emitedTuples++;
+      //System.out.println("emitting:"+multimap.toString()+" emited "+emitedTuples+" list:"+list.toString());
+      //emitedTuples++;
     }
   }
 
@@ -95,7 +95,7 @@ public class InnerJoin2 <K,V> extends BaseKeyValueOperator<K,V>
 
   @Override
   public void beginWindow(long windowId) {
-    System.out.println("Join beginWindow "+windowId);
+    //System.out.println("Join beginWindow "+windowId);
   }
   /**
    * Clears cache/hash for both ports
@@ -105,8 +105,7 @@ public class InnerJoin2 <K,V> extends BaseKeyValueOperator<K,V>
   {
     map1.clear();
     map2.clear();
-    System.out.println("Join Endwindow");
+    //System.out.println("Join Endwindow");
   }
-  public int emitedTuples = 0;
-
+  //public int emitedTuples = 0;
 }
