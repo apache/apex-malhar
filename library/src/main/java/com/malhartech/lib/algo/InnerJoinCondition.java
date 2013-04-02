@@ -4,12 +4,12 @@ package com.malhartech.lib.algo;
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-import com.malhartech.lib.util.AbstractBaseMatchOperator;
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.lib.util.AbstractBaseMatchOperator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
