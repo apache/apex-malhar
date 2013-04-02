@@ -16,7 +16,8 @@ import java.util.Map.Entry;
 import org.apache.commons.collections.map.MultiValueMap;
 
 /**
- *
+ * <b>Not certified</b>
+ * <b>Do Not Use</b>
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
 public class InnerJoin2 <K,V> extends BaseKeyValueOperator<K,V>
