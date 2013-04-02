@@ -19,9 +19,10 @@ public class PubSubWebSocketInputOperatorTest
   public void testWebSocketInputModule() throws Exception
   {
     System.out.println("Starting Daemon...");
-    Daemon.setLocalMode(true);
-    Daemon.setup("localhost:19090");
-    Daemon.start();
+    Daemon daemon = new Daemon();
+    daemon.setLocalMode(true);
+    daemon.setup("localhost:19090");
+    daemon.start();
 
     URI uri = new URI("ws://localhost:19090/pubsub");
     final PubSubWebSocketInputOperator operator = new PubSubWebSocketInputOperator();
@@ -58,7 +59,7 @@ public class PubSubWebSocketInputOperatorTest
     operator.teardown();
     t.interrupt();
     t.join();
-    Daemon.stop();
+    daemon.stop();
   }
 
 }

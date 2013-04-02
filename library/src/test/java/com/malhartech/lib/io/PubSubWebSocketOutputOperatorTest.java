@@ -21,9 +21,10 @@ public class PubSubWebSocketOutputOperatorTest
   public void testWebSocketOutputModule() throws Exception
   {
     System.out.println("Starting Daemon...");
-    Daemon.setLocalMode(true);
-    Daemon.setup("localhost:19091");
-    Daemon.start();
+    Daemon daemon = new Daemon();
+    daemon.setLocalMode(true);
+    daemon.setup("localhost:19091");
+    daemon.start();
 
     URI uri = new URI("ws://localhost:19091/pubsub");
 
@@ -61,7 +62,7 @@ public class PubSubWebSocketOutputOperatorTest
     Assert.assertEquals("Data expected to be {\"hello\":\"world\"}", o.get("hello"), "world");
     t.interrupt();
     t.join();
-    Daemon.stop();
+    daemon.stop();
   }
 
 }
