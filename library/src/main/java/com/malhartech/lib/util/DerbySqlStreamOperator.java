@@ -27,6 +27,7 @@ public class DerbySqlStreamOperator extends AbstractSqlStreamOperator
   @Override
   public void setup(OperatorContext context)
   {
+    System.setProperty("derby.stream.error.file", "/dev/null");
     try {
       Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
     }
