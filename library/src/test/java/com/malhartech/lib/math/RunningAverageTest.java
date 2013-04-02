@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
+ * Functional tests for {@link com.malhartech.lib.math.RunningAverage}<p>
+ *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
 public class RunningAverageTest
