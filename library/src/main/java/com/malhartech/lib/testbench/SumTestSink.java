@@ -5,28 +5,22 @@
  */
 package com.malhartech.lib.testbench;
 
+import com.malhartech.api.Sink;
 import com.malhartech.engine.Tuple;
 
 /**
  * A sink implementation to collect expected test results.
  */
-public class CountTestSink<T> extends CollectorTestSink<T>
+public class SumTestSink<T> implements Sink<T>
 {
-  public  int count = 0;
+  public Double val = 0.0;
 
-  @Override
   public void clear()
   {
-    count = 0;
-    super.clear();
+    val = 0.0;
   }
 
-  public int getCount()
-  {
-    return count;
-  }
-
-  /**
+ /**
    *
    * @param payload
    */
@@ -35,8 +29,8 @@ public class CountTestSink<T> extends CollectorTestSink<T>
   {
     if (payload instanceof Tuple) {
     }
-    else {
-      count++;
+    else if (payload instanceof Number) {
+      val += ((Number) payload).doubleValue();
     }
   }
 }
