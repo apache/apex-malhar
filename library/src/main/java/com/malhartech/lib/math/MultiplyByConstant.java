@@ -35,7 +35,7 @@ import com.malhartech.api.DefaultOutputPort;
  * <p>
  * <b>Function Table (multiplier = 2.0)</b>:
  * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for MultiplyByConstant">
- * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th colspan=4>Out-bound (emit)</th></tr>
+ * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>input</i>::process)</th><th colspan=4>Out-bound (emit)</th></tr>
  * <tr><th><i>input</i></th><th><i>longProduct</i></th><th><i>integerProduct</i></th><th><i>doubleProduct</i></th><th><i>floatProduct</i></th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
  * <tr><td>Data (process())</td><td>2</td><td>2</td><td>2</td><td>2.0</td><td>2.0</td></tr>

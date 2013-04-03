@@ -6,9 +6,9 @@ package com.malhartech.lib.math;
 
 /**
  *
- * Multiplies input tuple (Number) by itself (squared).
- * Emits the result as Long on port \"longProduct\", as Integer on port \"integerProduct\",
- * as Double on port \"doubleProduct\", and as Float on port \"floatProduct\". This is a pass through operator<p>
+ * Emits the result of square of the input tuple (Number).<br>
+ * Emits the result as Long on port longResult, as Integer on port integerResult,
+ * as Double on port doubleResult, and as Float on port floatResult. This is a pass through operator<p>
  * <br>
  * <b>Ports</b>:<br>
  * <b>input</b>: expects Number<br>
@@ -31,7 +31,7 @@ package com.malhartech.lib.math;
  * <p>
  * <b>Function Table (multiplier = 2.0)</b>:
  * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for SquareCalculus">
- * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th colspan=4>Out-bound (emit)</th></tr>
+ * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>input</i>::process)</th><th colspan=4>Out-bound (emit)</th></tr>
  * <tr><th><i>input</i></th><th><i>longResult</i></th><th><i>integerResult</i></th><th><i>doubleResult</i></th><th><i>floatResult</i></th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
  * <tr><td>Data (process())</td><td>2</td><td>4</td><td>4</td><td>4.0</td><td>4.0</td></tr>
@@ -39,6 +39,7 @@ package com.malhartech.lib.math;
  * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
  * </table>
  * <br>
+ *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
 public class SquareCalculus extends SingleVariableAbstractCalculus

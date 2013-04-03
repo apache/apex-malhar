@@ -11,10 +11,47 @@ import com.malhartech.util.Pair;
 import javax.validation.constraints.NotNull;
 
 /**
- * Compare the tuple to a constant tuple and emit it on one or more of the output ports accordingly.
- *
+ * Compare the tuple to a constant tuple and emit it on one or more of the output ports accordingly.<p>
  * @see LogicalCompare
- * @param <T>
+ * If the result of comparing two values is 0 (zero), then the pair is emitted on equalTo, greaterThanEqualTo, and lessThanEqualTo ports.
+ * If the result is less than 0, then the pair is emitted on notEqualTo, lessThan and lessThanEqualTo ports.
+ * If the result is greater than 0, then the pair is emitted on notEqualTo, greaterThan and greaterThanEqualTo ports.
+ * This is a pass through operator<p>
+ * <br>
+ * <b>Ports</b>:<br>
+ * <b>input</b>: expects T<br>
+ * <b>equalTo</b>: emits T<br>
+ * <b>notEqualTo</b>: emits T<br>
+ * <b>greaterThanEqualTo</b>: emits T<br>
+ * <b>greaterThan</b>: emits T<br>
+ * <b>lessThanEqualTo</b>: emits T<br>
+ * <b>lessThan</b>: emits T<br>
+ * <br>
+ * <b>Properties</b>: None<br>
+ * <b>Specific compile time checks</b>: None<br>
+ * <b>Specific run time checks</b>: None<br>
+ * <p>
+ * @param <T> Type of each of the value in the pair<br>
+ * <p>
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for LogicalCompare">
+ * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
+ * <tr><td><b>40 million tuples/s</b></td><td>six tuples emitted per one incoming tuple</td><td>Performance is i/o bound and directly
+ * dependant on incoming tuple rate</td></tr>
+ * </table><br>
+ * <p>
+ * <b>Function Table (constant = 2, T is Integer)</b>:
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for LogicalCompare">
+ * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>input</i>::process)</th><th colspan=6>Out-bound (emit)</th></tr>
+ * <tr><th><i>input</i></th><th><i>equalTo</i></th><th><i>notEqualTo</i></th><th><i>greaterThan</i></th>
+ * <th><i>greaterThanOrEqualTo</i></th><th><i>lessThan</i></th><th><i>lessThanOrEqualTo</i></th></tr>
+ * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
+ * <tr><td>Data (process())</td><td>1<td><td></td><td>1</td><td>1</td><td>1</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>2</td><td>2</td><td></td><td></td><td>2</td><td></td><td>2</td></tr>
+ * <tr><td>Data (process())</td><td>3</td><td></td><td>3</td><td></td><td></td><td>3</td><td>3</td></tr>
+ * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
+ * </table>
+ * <br>
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
 public class LogicalCompareToConstant<T extends Comparable<? super T>> extends BaseOperator
@@ -26,40 +63,25 @@ public class LogicalCompareToConstant<T extends Comparable<? super T>> extends B
     {
       int i = constant.compareTo(tuple);
       if (i > 0) {
-        if (greaterThan.isConnected()) {
           greaterThan.emit(tuple);
-        }
-
-        if (greaterThanOrEqualTo.isConnected()) {
           greaterThanOrEqualTo.emit(tuple);
-        }
+          notEqualTo.emit(tuple);
       }
       else if (i < 0) {
-        if (lessThan.isConnected()) {
           lessThan.emit(tuple);
-        }
-
-        if (lessThanOrEqualTo.isConnected()) {
           lessThanOrEqualTo.emit(tuple);
-        }
+          notEqualTo.emit(tuple);
       }
       else {
-        if (equalTo.isConnected()) {
           equalTo.emit(tuple);
-        }
-
-        if (lessThanOrEqualTo.isConnected()) {
           lessThanOrEqualTo.emit(tuple);
-        }
-
-        if (greaterThanOrEqualTo.isConnected()) {
           greaterThanOrEqualTo.emit(tuple);
-        }
       }
     }
 
   };
   public final transient DefaultOutputPort<T> equalTo = new DefaultOutputPort<T>(this);
+  public final transient DefaultOutputPort<T> notEqualTo = new DefaultOutputPort<T>(this);
   public final transient DefaultOutputPort<T> lessThan = new DefaultOutputPort<T>(this);
   public final transient DefaultOutputPort<T> greaterThan = new DefaultOutputPort<T>(this);
   public final transient DefaultOutputPort<T> lessThanOrEqualTo = new DefaultOutputPort<T>(this);
@@ -72,6 +94,15 @@ public class LogicalCompareToConstant<T extends Comparable<? super T>> extends B
   {
     this.constant = constant;
   }
+
+  /**
+   * returns the value of constant
+   */
+  public T getConstant()
+  {
+    return constant;
+  }
+
 
   private T constant;
 }
