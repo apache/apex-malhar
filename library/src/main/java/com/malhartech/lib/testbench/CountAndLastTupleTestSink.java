@@ -15,8 +15,7 @@ public class CountAndLastTupleTestSink<T> extends CountTestSink<T>
 {
   public  Object tuple = null;
   /**
-   *
-   * @param payload
+   * clears data
    */
 
   @Override

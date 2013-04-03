@@ -12,9 +12,9 @@ import com.malhartech.util.Pair;
 /**
  * Given a pair<T,T> object which contains 2 values of the comparable property, compare the first value with the second
  * and emit the pair on appropriate port denoting the result of the comparison.
- * If the result of comparing two values is 0 (zero), then the pair is emitted on equalTo, greaterThanEqualTo, and lessThanEqualTo ports.
- * If the result is less than 0, then the pair is emitted on notEqualTo, lessThan and lessThanEqualTo ports.
- * If the result is greater than 0, then the pair is emitted on notEqualTo, greaterThan and greaterThanEqualTo ports.
+ * If the first value is equal to second value, then the pair is emitted on equalTo, greaterThanEqualTo, and lessThanEqualTo ports.
+ * If the first value is less than second value, then the pair is emitted on notEqualTo, lessThan and lessThanEqualTo ports.
+ * If the first value is greater than second value, then the pair is emitted on notEqualTo, greaterThan and greaterThanEqualTo ports.
  * This is a pass through operator<p>
  * <br>
  * <b>Ports</b>:<br>
@@ -45,7 +45,7 @@ import com.malhartech.util.Pair;
  * <tr><th><i>input</i></th><th><i>equalTo</i></th><th><i>notEqualTo</i></th><th><i>greaterThan</i></th>
  * <th><i>greaterThanOrEqualTo</i></th><th><i>lessThan</i></th><th><i>lessThanOrEqualTo</i></th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
- * <tr><td>Data (process())</td><td>{2,1}<td><td></td><td>{2,1}</td><td>{2,1}</td><td>{2,1}</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>{2,1}</td><td></td><td>{2,1}</td><td>{2,1}</td><td>{2,1}</td><td></td><td></td></tr>
  * <tr><td>Data (process())</td><td>{2,2}</td><td>{2,2}</td><td></td><td></td><td>{2,2}</td><td></td><td>{2,2}</td></tr>
  * <tr><td>Data (process())</td><td>{2,3}</td><td></td><td>{2,3}</td><td></td><td></td><td>{2,3}</td><td>{2,3}</td></tr>
  * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>

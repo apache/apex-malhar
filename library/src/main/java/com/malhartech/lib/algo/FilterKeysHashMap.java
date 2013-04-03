@@ -20,8 +20,7 @@ import javax.validation.constraints.NotNull;
  * property "inverse" is set to "true", then all keys except those specified by "keys" are emitted<p>
  * Operator assumes that the key, val pairs are immutable objects. If this operator has to be used for mutable objects,
  * override "cloneKey()" to make copy of K, and "cloneValue()" to make copy of V.<br>
- * This is a pass through node. This operator is same as {@link com.malhartech.lib.algo.FilterKeys} except
- * the port schema is different. <br>
+ * This is a pass through node.<br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: Expects Map&lt;K, HashMap&lt;K,V&gt;&gt. Filters are applied only on keys of second hash map.<br>

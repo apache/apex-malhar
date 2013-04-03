@@ -18,8 +18,7 @@ public class HashTestSink<T> implements Sink<T>
   public int count = 0;
 
   /**
-   *
-   * @param payload
+   * clears data
    */
   public void clear()
   {

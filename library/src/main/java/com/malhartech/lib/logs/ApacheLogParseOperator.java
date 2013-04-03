@@ -37,9 +37,9 @@ public class ApacheLogParseOperator extends BaseOperator {
     protected static String getAccessLogRegex() {
         String regex1 = "^([\\d\\.]+)";                         // Client IP
         String regex2 = " (\\S+)";                             // -
-        String regex3 = " (\\S+)";                             // - 
+        String regex3 = " (\\S+)";                             // -
         String regex4 = " \\[([\\w:/]+\\s[+\\-]\\d{4})\\]"; // Date
-        String regex5 = " \"[A-Z]+ (.+?) HTTP/\\S+\"";                       //  url 
+        String regex5 = " \"[A-Z]+ (.+?) HTTP/\\S+\"";                       //  url
         String regex6 = " (\\d{3})";                           // HTTP code
         String regex7 = " (\\d+)";                     // Number of bytes
         String regex8 = " \"([^\"]+)\"";                 // Referer
@@ -52,7 +52,7 @@ public class ApacheLogParseOperator extends BaseOperator {
      * Parses Apache combined access log, and prints out the following <br>1.
      * Requester IP <br>2. Date of Request <br>3. Requested Page Path
      *
-     * @param String line
+     * @param line : tuple to parsee
      * @throws ParseException
      * @throws IOException
      */
@@ -68,7 +68,7 @@ public class ApacheLogParseOperator extends BaseOperator {
         String ipAddr;
 
         //System.out.println("PROCESSING TUPLE "+line);
-        
+
         SimpleDateFormat accesslogDateFormat = new SimpleDateFormat(dateFormat);
 
         Pattern accessLogPattern = Pattern.compile(getAccessLogRegex(), Pattern.CASE_INSENSITIVE

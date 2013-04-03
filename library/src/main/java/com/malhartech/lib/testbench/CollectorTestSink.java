@@ -18,8 +18,7 @@ public class CollectorTestSink<T> implements Sink<T>
   final public List<T> collectedTuples = new ArrayList<T>();
 
   /**
-   *
-   * @param payload
+   * clears data
    */
   public void clear()
   {

@@ -11,11 +11,11 @@ import com.malhartech.util.Pair;
 import javax.validation.constraints.NotNull;
 
 /**
- * Compare the tuple to a constant tuple and emit it on one or more of the output ports accordingly.<p>
+ * Compare the constant to the incoming tuple emit it on one or more of the output ports accordingly.<p>
  * @see LogicalCompare
- * If the result of comparing two values is 0 (zero), then the pair is emitted on equalTo, greaterThanEqualTo, and lessThanEqualTo ports.
- * If the result is less than 0, then the pair is emitted on notEqualTo, lessThan and lessThanEqualTo ports.
- * If the result is greater than 0, then the pair is emitted on notEqualTo, greaterThan and greaterThanEqualTo ports.
+ * If the constant is equal to tuple, then the pair is emitted on equalTo, greaterThanEqualTo, and lessThanEqualTo ports.
+ * If the constant is less than tuple, then the pair is emitted on notEqualTo, lessThan and lessThanEqualTo ports.
+ * If the constant is greater than tuple, then the pair is emitted on notEqualTo, greaterThan and greaterThanEqualTo ports.
  * This is a pass through operator<p>
  * <br>
  * <b>Ports</b>:<br>
@@ -46,7 +46,7 @@ import javax.validation.constraints.NotNull;
  * <tr><th><i>input</i></th><th><i>equalTo</i></th><th><i>notEqualTo</i></th><th><i>greaterThan</i></th>
  * <th><i>greaterThanOrEqualTo</i></th><th><i>lessThan</i></th><th><i>lessThanOrEqualTo</i></th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
- * <tr><td>Data (process())</td><td>1<td><td></td><td>1</td><td>1</td><td>1</td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>1</td><td></td><td>1</td><td>1</td><td>1</td><td></td><td></td></tr>
  * <tr><td>Data (process())</td><td>2</td><td>2</td><td></td><td></td><td>2</td><td></td><td>2</td></tr>
  * <tr><td>Data (process())</td><td>3</td><td></td><td>3</td><td></td><td></td><td>3</td><td>3</td></tr>
  * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>

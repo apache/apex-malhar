@@ -20,8 +20,7 @@ public class ArrayListTestSink<T> implements Sink<T>
   public int count = 0;
 
   /**
-   *
-   * @param payload
+   * clear data
    */
   public void clear()
   {
