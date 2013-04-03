@@ -9,8 +9,8 @@ import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 
 /**
- *
- * Emits the input tuple (Number) as Long on port \"longProduct\", as Integer on port \"integerProduct\",
+ * Multiplies input tuple (Number) by the value of property \"multiplier\".
+ * Emits the result as Long on port \"longProduct\", as Integer on port \"integerProduct\",
  * as Double on port \"doubleProduct\", and as Float on port \"floatProduct\". This is a pass through operator<p>
  * <br>
  * <b>Ports</b>:<br>
