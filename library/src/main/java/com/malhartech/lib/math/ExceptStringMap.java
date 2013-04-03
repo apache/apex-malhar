@@ -42,7 +42,7 @@ import java.util.Map;
  * Immutable tuples were used in the benchmarking. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
  * </table><br>
  * <p>
- * <b>Function Table (K=String); emitError=true; key=a; value="3.0"; cmp=eq</b>:
+ * <b>Function Table (K=String); emitError=true; key=a; value="3.0"; cmp=eq)</b>:
  * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for ExceptStringMap&lt;K,String&gt; operator template">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th>Out-bound (emit)</th></tr>
  * <tr><th><i>data</i>(Map&lt;K,String&gt;)</th><th><i>except</i>(HashMap&lt;K,String&gt;)</th></tr>
