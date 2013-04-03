@@ -1,9 +1,6 @@
 package com.malhartech.lib.logs;
 
-/**
- *
- * @author davidyan
- */
+
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
@@ -12,6 +9,46 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+/**
+ *
+ * Parse Apache log lines one line at a time. Regex (getAccessLogRegex) is used as a parser. The fields extracted include i/p (outputIPAddress),
+ * url (outputUrl), status code (outputStatusCode), bytes (outputBytes), referer (outputReferer), and agent (outputAgent)<p>
+ * This is a pass through operator<br>
+ * <br>
+ * <b>Ports</b>:<br>
+ * <b>data</b>: expects String<br>
+ * <b>outputIPAddress</b>: emits String<br>
+ * <b>outputUrl</b>: emits String<br>
+ * <b>outputStatusCode</b>: emits String<br>
+ * <b>outputBytes</b>: emits String<br>
+ * <b>outputReferer</b>: emits String<br>
+ * <b>outputAgent</b>: emits String<br>
+ * <br>
+ * <b>Properties</b>: none<br>
+ * <b>Compile time checks</b>:<br>
+ * <b>Run time checks</b>:<br>
+ * <p>
+ * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for ApacheLogParseOperator operator template">
+ * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
+ * <tr><td><b>?? lines/sec</b></td><td>emits 6 output tuples per incoming tuple</td><td>In-bound rate and I/O are the bottlenecks</td></tr>
+ * </table><br>
+ * <p>
+ * <b>Function Table</b>:
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for ApacheLogParseOperator operator template">
+ * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th colspan=6>Out-bound (emit)</th></tr>
+ * <tr><th><i>data</i></th><th><i>outputIPAddress</i></th><th><i>outputUrl</i></th><th><i>outputStatusCode</i></th>
+ * <th><i>outputBytes</i></th><th><i>outputReferer</i></th><th><i>outputAgent</i></th></tr>
+ * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
+ * <tr><td>Data (process())</td><td>??</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>??</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+ * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
+ * </table>
+ * <br>
+ *
+ * @author davidyan
+ */
 
 public class ApacheLogParseOperator extends BaseOperator {
 
