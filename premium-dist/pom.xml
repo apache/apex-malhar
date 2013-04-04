@@ -27,6 +27,7 @@
 
       <build>
 	<plugins>
+
 	  <plugin>
 	    <groupId>org.codehaus.mojo</groupId>
 	    <artifactId>exec-maven-plugin</artifactId>
@@ -35,17 +36,17 @@
 	      <execution>
                 <!-- this execution happens just after compiling the java classes, and builds the native code. -->
                 <id>npm-build</id>
-                <phase>process-classes</phase>
+                <phase>prepare-package</phase>
                 <goals>
-                    <goal>exec</goal>
+                  <goal>exec</goal>
                 </goals>
                 <configuration>
-                    <executable>/usr/bin/npm</executable>
-		    <arguments>
-		      <argument>install</argument>
-		      <argument>.</argument>
-		    </arguments>
-                    <workingDirectory>${project.basedir}/../../dt-front</workingDirectory>
+                  <executable>/usr/bin/npm</executable>
+                  <arguments>
+                    <argument>install</argument>
+                    <argument>.</argument>
+                  </arguments>
+                  <workingDirectory>${project.basedir}/../../dt-front</workingDirectory>
                 </configuration>
 	      </execution>
 	      <execution>
@@ -53,18 +54,55 @@
                 <id>make-build</id>
                 <phase>prepare-package</phase>
                 <goals>
-                    <goal>exec</goal>
+                  <goal>exec</goal>
                 </goals>
                 <configuration>
-                    <executable>/usr/bin/make</executable>
-		    <arguments>
-		      <argument>build</argument>
-		    </arguments>
-                    <workingDirectory>${project.basedir}/../../dt-front</workingDirectory>
+                  <executable>/usr/bin/make</executable>
+                  <arguments>
+                    <argument>build</argument>
+                  </arguments>
+                  <workingDirectory>${project.basedir}/../../dt-front</workingDirectory>
+                </configuration>
+	      </execution>
+	      <execution>
+                <id>proguard</id>
+                <phase>package</phase>
+                <goals>
+		  <goal>exec</goal>
+                </goals>
+                <configuration>
+                  <environmentVariables>
+                    <MALHAR_BUILD_VERSION>${project.version}</MALHAR_BUILD_VERSION>
+                  </environmentVariables>
+		  <executable>${project.basedir}/src/assemble/run-proguard.sh</executable>
+		  <workingDirectory>${project.build.directory}</workingDirectory>
                 </configuration>
 	      </execution>
 	    </executions>  
 	  </plugin>
+
+	  <plugin>
+	    <groupId>org.apache.maven.plugins</groupId>
+	    <artifactId>maven-dependency-plugin</artifactId>
+	    <version>2.7</version>
+	    <executions>
+	      <execution>
+		<id>build-classpath</id>
+		<phase>prepare-package</phase>
+		<goals>
+		  <goal>build-classpath</goal>
+		</goals>
+		<configuration>
+		  <outputFile>${project.build.directory}/mvn-generated-classpath</outputFile>
+                  <excludeClassifiers>sources,tests,javadoc</excludeClassifiers>
+		  <overWriteReleases>false</overWriteReleases>
+		  <overWriteSnapshots>false</overWriteSnapshots>
+		  <overWriteIfNewer>true</overWriteIfNewer>
+		</configuration>
+	      </execution>
+	    </executions>
+	  </plugin>
+
 	  <plugin>
 	    <artifactId>maven-javadoc-plugin</artifactId>
 	    <version>2.9</version>
@@ -82,8 +120,6 @@
 		      <dependencySourceInclude>com.malhartech:*</dependencySourceInclude>
 		      </dependencySourceIncludes-->
 		  <sourcepath>
-		    ${project.basedir}/../bufferserver/src/main/java
-		    :${project.basedir}/../stram/src/main/java
 		    :${project.basedir}/../library/src/main/java
 		    :${project.basedir}/../demos/src/main/java
 		    :${project.basedir}/../contrib/src/main/java
@@ -95,7 +131,6 @@
 	      </execution>
 	    </executions>
 	  </plugin>
-
 
 	  <plugin>
 	    <artifactId>maven-assembly-plugin</artifactId>
@@ -115,6 +150,7 @@
 	      </execution>
 	    </executions>
 	  </plugin>
+
 	</plugins>
       </build>
 
@@ -122,6 +158,24 @@
   </profiles>
   
   <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>malhar-stram</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>malhar-daemon</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>malhar-contrib</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <!-- sort this project to end of line in multimodule build. -->
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -143,13 +197,6 @@
     -->
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>malhar-daemon</artifactId>
-      <version>${project.version}</version>
-      <classifier>premium-release</classifier>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>malhar-demos</artifactId>
       <version>${project.version}</version>
       <classifier>sources</classifier>
@@ -174,12 +221,6 @@
       <artifactId>malhar-library</artifactId>
       <version>${project.version}</version>
       <classifier>javadoc</classifier>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>malhar-contrib</artifactId>
-      <version>${project.version}</version>
     </dependency>
 
     <dependency>
