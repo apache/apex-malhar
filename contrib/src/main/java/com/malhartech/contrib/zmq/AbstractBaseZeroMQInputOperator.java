@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
+import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.api.ActivationListener;
 import com.malhartech.api.InputOperator;
 import com.malhartech.api.BaseOperator;
@@ -45,8 +46,10 @@ import com.malhartech.util.CircularBuffer;
  * <br>
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
+@ShipContainingJars(classes={org.zeromq.ZMQ.Socket.class})
 public abstract class AbstractBaseZeroMQInputOperator extends BaseOperator implements InputOperator, ActivationListener<OperatorContext>
 {
+  @SuppressWarnings("unused")
   private static final Logger logger = LoggerFactory.getLogger(AbstractBaseZeroMQInputOperator.class);
   transient protected ZMQ.Context context;
   transient protected ZMQ.Socket subscriber;
@@ -111,6 +114,7 @@ public abstract class AbstractBaseZeroMQInputOperator extends BaseOperator imple
  * and add into holdingBuffer
  * @param ctx
  */
+@Override
 public void activate(OperatorContext ctx)
   {
     new Thread()
@@ -135,6 +139,7 @@ public void activate(OperatorContext ctx)
     }.start();
   }
 
+  @Override
   public void deactivate()
   {
     running = false;

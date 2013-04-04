@@ -6,8 +6,6 @@ package com.malhartech.contrib.zmq;
 
 import com.malhartech.api.Context;
 import com.malhartech.lib.io.SimpleSinglePortInputOperator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
 /**
@@ -16,7 +14,6 @@ import org.zeromq.ZMQ;
  */
 public abstract class SimpleSinglePortZeroMQPullInputOperator<T> extends SimpleSinglePortInputOperator<T> implements Runnable
 {
-  private static final Logger logger = LoggerFactory.getLogger(AbstractBaseZeroMQInputOperator.class);
   private transient ZMQ.Context context;
   private transient ZMQ.Socket sock;
   private String zmqAddress = "tcp://127.0.0.1:5555";

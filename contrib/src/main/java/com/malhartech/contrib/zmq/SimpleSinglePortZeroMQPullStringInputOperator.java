@@ -5,8 +5,6 @@
 package com.malhartech.contrib.zmq;
 
 import com.malhartech.contrib.zmq.SimpleSinglePortZeroMQPullInputOperator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -14,8 +12,6 @@ import org.slf4j.LoggerFactory;
  */
 public class SimpleSinglePortZeroMQPullStringInputOperator extends SimpleSinglePortZeroMQPullInputOperator<String>
 {
-  private static final Logger logger = LoggerFactory.getLogger(SimpleSinglePortZeroMQPullStringInputOperator.class);
-
   private SimpleSinglePortZeroMQPullStringInputOperator()
   {
     super("INVALID");

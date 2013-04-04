@@ -4,7 +4,7 @@
  */
 package com.malhartech.contrib.zmq;
 
-import com.malhartech.annotation.InjectConfig;
+import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;
 import org.slf4j.Logger;
@@ -39,6 +39,7 @@ import org.zeromq.ZMQ;
  * <br>
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
+@ShipContainingJars(classes={org.zeromq.ZMQ.Socket.class})
 public abstract class AbstractBaseZeroMQOutputOperator extends BaseOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractBaseZeroMQInputOperator.class);
@@ -89,7 +90,7 @@ public abstract class AbstractBaseZeroMQOutputOperator extends BaseOperator
   public void startSyncJob()
   {
     for (int subscribers = 0; subscribers < SUBSCRIBERS_EXPECTED; subscribers++) {
-      byte[] value = syncservice.recv(0);
+      syncservice.recv(0);
       syncservice.send("".getBytes(), 0);
     }
     syncStarted = true;

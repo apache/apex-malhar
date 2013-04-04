@@ -4,6 +4,7 @@
  */
 package com.malhartech.contrib.kafka;
 
+import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.api.ActivationListener;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.InputOperator;
@@ -50,8 +51,10 @@ import org.slf4j.LoggerFactory;
  * @author Locknath Shil <locknath@malhar-inc.com>
  *
  */
+@ShipContainingJars(classes={kafka.javaapi.consumer.SimpleConsumer.class})
 public abstract class KafkaInputOperator implements InputOperator, ActivationListener<OperatorContext>
 {
+  @SuppressWarnings("unused")
   private static final Logger logger = LoggerFactory.getLogger(KafkaInputOperator.class);
   protected static final int TUPLES_BLAST_DEFAULT = 10 * 1024; // 10k
   protected static final int BUFFER_SIZE_DEFAULT = 1024 * 1024; // 1M
@@ -59,14 +62,13 @@ public abstract class KafkaInputOperator implements InputOperator, ActivationLis
   private int tuplesBlast = TUPLES_BLAST_DEFAULT;
   private int bufferSize = BUFFER_SIZE_DEFAULT;
   protected transient CircularBuffer<Message> holdingBuffer;
-  private int receiveCount = 0;
   private transient ConsumerConnector standardConsumer;
   private transient SimpleConsumer simpleConsumer;
   private transient Thread consumerThread;
   private boolean isAlive = true;
   private transient KafkaConsumer consumer;
   @NotNull
-  String consumerType = "standard"; // can be standard, simple, console
+  private String consumerType = "standard"; // can be standard, simple, console
   @NotNull
   private String topic = "topic1";
   private int numStream = 1;
@@ -244,11 +246,13 @@ public abstract class KafkaInputOperator implements InputOperator, ActivationLis
 
   public class StandardKafkaConsumer extends KafkaConsumer
   {
+    @Override
     public void create()
     {
       standardConsumer = kafka.consumer.Consumer.createJavaConsumerConnector(createKafkaConsumerConfig());
     }
 
+    @Override
     public void start()
     {
       Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
@@ -263,6 +267,7 @@ public abstract class KafkaInputOperator implements InputOperator, ActivationLis
       }
     }
 
+    @Override
     public void stop()
     {
       isAlive = false;
@@ -295,7 +300,6 @@ public abstract class KafkaInputOperator implements InputOperator, ActivationLis
           holdingBuffer.add(msg.message());
           // advance the offset after consuming each message
           offset = msg.offset();
-          receiveCount++;
         }
       }
     }

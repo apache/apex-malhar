@@ -4,6 +4,7 @@
  */
 package com.malhartech.contrib.kafka;
 
+import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.Operator;
 import javax.validation.constraints.NotNull;
@@ -35,8 +36,10 @@ import org.slf4j.LoggerFactory;
  * @author Locknath Shil <locknath@malhar-inc.com>
  *
  */
+@ShipContainingJars(classes={kafka.javaapi.producer.Producer.class})
 public abstract class KafkaOutputOperator<K, V> implements Operator
 {
+  @SuppressWarnings("unused")
   private static final Logger logger = LoggerFactory.getLogger(KafkaOutputOperator.class);
   private transient kafka.javaapi.producer.Producer<K, V> producer;  // K is key partitioner, V is value type
   @NotNull
