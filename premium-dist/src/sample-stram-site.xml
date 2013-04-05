@@ -16,7 +16,7 @@
   <property>
      <name>stram.containerMemoryMB</name>
      <!--value>32000</value-->
-     <value>8192</value>
+     <value>512</value>
   </property>
 
   <property>
@@ -24,11 +24,12 @@
      <value>300000</value>
   </property>
 
+<!--
   <property>
      <name>stram.containerJvmOpts</name>
-     <!--value>-Xmx22g -d64 -XX:MaxDirectMemorySize=10g -XX:+UseLargePages -server -Dlog4j.debug=true -Xloggc:/tmp/jvm.log -verbose:gc -XX:+PrintGCDateStamps</valuei-->
-      <value>-Xmx6g -server -Dlog4j.debug=true -Xloggc:/tmp/jvm-%(applicationId)-%(containerId).log -verbose:gc -XX:+PrintGCDateStamps</value>
+     <value>-Xmx6g -server -Dlog4j.debug=true -Xloggc:/tmp/jvm-%(applicationId)-%(containerId).log -verbose:gc -XX:+PrintGCDateStamps</value>
   </property>
+-->
 
   <!-- for all viewsToHdfs operators -->
   <property>
