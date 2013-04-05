@@ -49,6 +49,6 @@ public class ExceptStringMapBenchmark
     oper.endWindow();
 
     // One for each key
-    log.debug(String.format("\nBenchmark for %d tuples", numTuples*2));
+    log.debug(String.format("\nBenchmark for %d tuples", numTuples * 2));
   }
 }

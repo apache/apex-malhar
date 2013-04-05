@@ -19,7 +19,6 @@ public class RunningAverageBenchmark
 {
   private static Logger log = LoggerFactory.getLogger(RunningAverageBenchmark.class);
 
-
   /**
    * Test oper logic emits correct results
    */

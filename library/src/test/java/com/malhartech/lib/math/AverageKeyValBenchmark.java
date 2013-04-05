@@ -41,9 +41,9 @@ public class AverageKeyValBenchmark
     }
     oper.endWindow();
 
-    KeyValPair<String, Double> ave1 = (KeyValPair<String, Double>) averageSink.collectedTuples.get(0);
-    KeyValPair<String, Double> ave2 = (KeyValPair<String, Double>) averageSink.collectedTuples.get(1);
-    KeyValPair<String, Double> ave3 = (KeyValPair<String, Double>) averageSink.collectedTuples.get(2);
+    KeyValPair<String, Double> ave1 = (KeyValPair<String, Double>)averageSink.collectedTuples.get(0);
+    KeyValPair<String, Double> ave2 = (KeyValPair<String, Double>)averageSink.collectedTuples.get(1);
+    KeyValPair<String, Double> ave3 = (KeyValPair<String, Double>)averageSink.collectedTuples.get(2);
 
     log.debug(String.format("\nBenchmark sums for %d key/val pairs", numTuples * 3));
 

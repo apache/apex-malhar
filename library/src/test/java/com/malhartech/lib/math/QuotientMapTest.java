@@ -58,7 +58,7 @@ public class QuotientMapTest
 
     // One for each key
     Assert.assertEquals("number emitted tuples", 1, quotientSink.count);
-    HashMap<String, Number> output = (HashMap<String, Number>) quotientSink.tuple;
+    HashMap<String, Number> output = (HashMap<String, Number>)quotientSink.tuple;
     for (Map.Entry<String, Number> e: output.entrySet()) {
       if (e.getKey().equals("a")) {
         Assert.assertEquals("emitted value for 'a' was ", new Double(2), e.getValue());

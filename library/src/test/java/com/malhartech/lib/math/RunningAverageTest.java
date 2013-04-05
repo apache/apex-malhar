@@ -49,6 +49,5 @@ public class RunningAverageTest
     instance.input.process(Long.MAX_VALUE);
     assertEquals("second average", Long.MAX_VALUE, (long)instance.average);
   }
-
   private static final Logger logger = LoggerFactory.getLogger(RunningAverageTest.class);
 }

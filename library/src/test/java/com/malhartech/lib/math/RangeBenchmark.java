@@ -83,7 +83,7 @@ public class RangeBenchmark
 
     oper.endWindow(); //
 
-    HighLow hl = (HighLow) rangeSink.tuple;
+    HighLow hl = (HighLow)rangeSink.tuple;
     log.debug(String.format("\nBenchmark total %d tuples was expected (1000,1) got (%f,%f)", numTuples * 12,
                             hl.getHigh().doubleValue(),
                             hl.getLow().doubleValue()));

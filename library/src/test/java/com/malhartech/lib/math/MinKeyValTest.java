@@ -169,9 +169,9 @@ public class MinKeyValTest
       lc.run();
 
       Assert.assertEquals("received tuples ", 3, CollectorOperator.buffer.size());
-      log.debug(String.format("min of a value %s",CollectorOperator.buffer.get(0).toString()));
-      log.debug(String.format("min of a value %s",CollectorOperator.buffer.get(1).toString()));
-      log.debug(String.format("min of a value %s",CollectorOperator.buffer.get(2).toString()));
+      log.debug(String.format("min of a value %s", CollectorOperator.buffer.get(0).toString()));
+      log.debug(String.format("min of a value %s", CollectorOperator.buffer.get(1).toString()));
+      log.debug(String.format("min of a value %s", CollectorOperator.buffer.get(2).toString()));
     }
     catch (Exception ex) {
       log.debug("got exception", ex);

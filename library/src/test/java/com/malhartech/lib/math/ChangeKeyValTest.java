@@ -36,10 +36,10 @@ public class ChangeKeyValTest
    *
    * @param oper
    */
-  public <V extends Number>void testNodeProcessingSchema(ChangeKeyVal<String, V> oper)
+  public <V extends Number> void testNodeProcessingSchema(ChangeKeyVal<String, V> oper)
   {
-    TestSink changeSink = new TestSink();
-    TestSink percentSink = new TestSink();
+    TestSink<KeyValPair<String, V>> changeSink = new TestSink<KeyValPair<String, V>>();
+    TestSink<KeyValPair<String, Double>> percentSink = new TestSink<KeyValPair<String, Double>>();
 
     oper.change.setSink(changeSink);
     oper.percent.setSink(percentSink);

@@ -19,7 +19,6 @@ public class SquareCalculusBenchmark
 {
   private static Logger log = LoggerFactory.getLogger(SquareCalculusBenchmark.class);
 
-
   /**
    * Test oper logic emits correct results
    */
@@ -49,9 +48,9 @@ public class SquareCalculusBenchmark
       }
     }
     oper.endWindow();
-    Assert.assertEquals("number of tuples", jtot*itot, lmultSink.count);
-    Assert.assertEquals("number of tuples", jtot*itot, imultSink.count);
-    Assert.assertEquals("number of tuples", jtot*itot, dmultSink.count);
-    Assert.assertEquals("number of tuples", jtot*itot, fmultSink.count);
+    Assert.assertEquals("number of tuples", jtot * itot, lmultSink.count);
+    Assert.assertEquals("number of tuples", jtot * itot, imultSink.count);
+    Assert.assertEquals("number of tuples", jtot * itot, dmultSink.count);
+    Assert.assertEquals("number of tuples", jtot * itot, fmultSink.count);
   }
 }

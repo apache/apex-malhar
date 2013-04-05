@@ -63,7 +63,7 @@ public class MinBenchmark
       oper.data.process(a);
     }
     oper.endWindow(); //
-    log.debug(String.format("\nBenchmark for %d tuples; expected 1.0, got %f from %d tuples", numTuples*12,
+    log.debug(String.format("\nBenchmark for %d tuples; expected 1.0, got %f from %d tuples", numTuples * 12,
                             minSink.tuple, minSink.count));
   }
 }

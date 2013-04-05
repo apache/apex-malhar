@@ -56,7 +56,7 @@ public class CompareMapTest
 
     // One for each key
     Assert.assertEquals("number emitted tuples", 1, matchSink.count);
-    for (Map.Entry<String, Number> e: ((HashMap<String, Number>) matchSink.tuple).entrySet()) {
+    for (Map.Entry<String, Number> e: ((HashMap<String, Number>)matchSink.tuple).entrySet()) {
       if (e.getKey().equals("a")) {
         Assert.assertEquals("emitted value for 'a' was ", new Double(2), e.getValue().doubleValue());
       }

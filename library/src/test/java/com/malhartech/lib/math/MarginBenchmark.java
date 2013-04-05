@@ -50,6 +50,6 @@ public class MarginBenchmark
     oper.endWindow();
     log.debug(String.format("\nBenchmarked %d tuples", numTuples * 6));
     Assert.assertEquals("number emitted tuples", 1, marginSink.count);
-    Assert.assertEquals("margin was ", 50, ((Number) marginSink.tuple).intValue());
+    Assert.assertEquals("margin was ", 50, ((Number)marginSink.tuple).intValue());
   }
 }

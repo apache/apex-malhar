@@ -3,8 +3,6 @@ package com.malhartech.lib.math;
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-
-
 import com.malhartech.engine.TestSink;
 import com.malhartech.util.Pair;
 import junit.framework.Assert;
@@ -27,7 +25,9 @@ public class LogicalCompareToConstantTest
   @Test
   public void testNodeProcessing()
   {
-    LogicalCompareToConstant<Integer> oper = new LogicalCompareToConstant<Integer>() {};
+    LogicalCompareToConstant<Integer> oper = new LogicalCompareToConstant<Integer>()
+    {
+    };
     TestSink eSink = new TestSink();
     TestSink neSink = new TestSink();
     TestSink gtSink = new TestSink();
@@ -61,7 +61,7 @@ public class LogicalCompareToConstantTest
     Assert.assertEquals("tuples were", gtSink.collectedTuples.get(0).equals(1), true);
 
     Assert.assertEquals("number emitted tuples", 2, gteSink.collectedTuples.size());
-    Assert.assertEquals("tuples were",gteSink.collectedTuples.get(0).equals(1), true);
+    Assert.assertEquals("tuples were", gteSink.collectedTuples.get(0).equals(1), true);
     Assert.assertEquals("tuples were", gteSink.collectedTuples.get(1).equals(2), true);
 
     Assert.assertEquals("number emitted tuples", 1, ltSink.collectedTuples.size());

@@ -42,7 +42,7 @@ public class CountMapBenchmark
     }
     oper.endWindow();
 
-    HashMap<String, Integer> dhash = (HashMap<String, Integer>) countSink.collectedTuples.get(0);
+    HashMap<String, Integer> dhash = (HashMap<String, Integer>)countSink.collectedTuples.get(0);
     log.debug(String.format("\nBenchmark sums for %d key/val pairs", numTuples * 3));
 
     log.debug(String.format("\nFor sum expected(%d,%d,%d), got(%d,%d,%d);",

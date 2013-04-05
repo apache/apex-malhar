@@ -18,7 +18,7 @@ public class MaxTest
 {
   private static Logger LOG = LoggerFactory.getLogger(MaxTest.class);
 
-   /**
+  /**
    * Test operator logic emits correct results.
    */
   @Test

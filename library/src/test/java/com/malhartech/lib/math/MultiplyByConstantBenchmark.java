@@ -19,7 +19,6 @@ public class MultiplyByConstantBenchmark
 {
   private static Logger log = LoggerFactory.getLogger(MultiplyByConstantBenchmark.class);
 
-
   /**
    * Test oper logic emits correct results
    */
@@ -51,9 +50,9 @@ public class MultiplyByConstantBenchmark
       }
     }
     oper.endWindow();
-    Assert.assertEquals("number of tuples", jtot*itot, lmultSink.count);
-    Assert.assertEquals("number of tuples", jtot*itot, imultSink.count);
-    Assert.assertEquals("number of tuples", jtot*itot, dmultSink.count);
-    Assert.assertEquals("number of tuples", jtot*itot, fmultSink.count);
+    Assert.assertEquals("number of tuples", jtot * itot, lmultSink.count);
+    Assert.assertEquals("number of tuples", jtot * itot, imultSink.count);
+    Assert.assertEquals("number of tuples", jtot * itot, dmultSink.count);
+    Assert.assertEquals("number of tuples", jtot * itot, fmultSink.count);
   }
 }

@@ -35,34 +35,34 @@ public class MaxBenchmark
 
     int numTuples = 100000000;
     for (int i = 0; i < numTuples; i++) {
-    Double a = new Double(2.0);
-    Double b = new Double(20.0);
-    Double c = new Double(1000.0);
-    oper.data.process(a);
-    oper.data.process(b);
-    oper.data.process(c);
-    a = 1.0;
-    oper.data.process(a);
-    a = 10.0;
-    oper.data.process(a);
-    b = 5.0;
-    oper.data.process(b);
-    b = 12.0;
-    oper.data.process(b);
-    c = 22.0;
-    oper.data.process(c);
-    c = 14.0;
-    oper.data.process(c);
-    a = 46.0;
-    oper.data.process(a);
-    b = 2.0;
-    oper.data.process(b);
-    a = 23.0;
-    oper.data.process(a);
+      Double a = new Double(2.0);
+      Double b = new Double(20.0);
+      Double c = new Double(1000.0);
+      oper.data.process(a);
+      oper.data.process(b);
+      oper.data.process(c);
+      a = 1.0;
+      oper.data.process(a);
+      a = 10.0;
+      oper.data.process(a);
+      b = 5.0;
+      oper.data.process(b);
+      b = 12.0;
+      oper.data.process(b);
+      c = 22.0;
+      oper.data.process(c);
+      c = 14.0;
+      oper.data.process(c);
+      a = 46.0;
+      oper.data.process(a);
+      b = 2.0;
+      oper.data.process(b);
+      a = 23.0;
+      oper.data.process(a);
     }
 
     oper.endWindow(); //
-    log.debug(String.format("\nBenchmark for %d tuples; expected 1.0, got %f from %d tuples", numTuples*12,
+    log.debug(String.format("\nBenchmark for %d tuples; expected 1.0, got %f from %d tuples", numTuples * 12,
                             maxSink.tuple, maxSink.count));
   }
 }

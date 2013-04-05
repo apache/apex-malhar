@@ -18,7 +18,6 @@ public class SquareCalculusTest
 {
   private static Logger log = LoggerFactory.getLogger(SquareCalculusTest.class);
 
-
   /**
    * Test oper logic emits correct results
    */

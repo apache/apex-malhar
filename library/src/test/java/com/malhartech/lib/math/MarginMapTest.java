@@ -58,7 +58,7 @@ public class MarginMapTest
     // One for each key
     Assert.assertEquals("number emitted tuples", 1, marginSink.count);
 
-    HashMap<String, Number> output = (HashMap<String, Number>) marginSink.tuple;
+    HashMap<String, Number> output = (HashMap<String, Number>)marginSink.tuple;
     for (Map.Entry<String, Number> e: output.entrySet()) {
       LOG.debug(String.format("Key, value is %s,%f", e.getKey(), e.getValue().doubleValue()));
       if (e.getKey().equals("a")) {

@@ -55,5 +55,13 @@ public class ApacheLogParseOperatorTest
     Assert.assertEquals("number emitted tuples", 1, bytesSink.collectedTuples.size());
     Assert.assertEquals("number emitted tuples", 1, refSink.collectedTuples.size());
     Assert.assertEquals("number emitted tuples", 1, agentSink.collectedTuples.size());
+
+    log.debug(String.format("\nLine is \"%s\"", token.toString()));
+    log.debug(String.format("IP is %s\n", ipSink.collectedTuples.toString()));
+    log.debug(String.format("Url is %s\n", urlSink.collectedTuples.toString()));
+    log.debug(String.format("Status code is %s\n", scSink.collectedTuples.toString()));
+    log.debug(String.format("Bytes are %s\n", bytesSink.collectedTuples.toString()));
+    log.debug(String.format("Referer is %s\n", refSink.collectedTuples.toString()));
+    log.debug(String.format("Agent is %s\n", agentSink.collectedTuples.toString()));
   }
 }

@@ -40,9 +40,9 @@ public class CountKeyValBenchmark
     }
     oper.endWindow();
 
-    KeyValPair<String, Integer> c1 = (KeyValPair<String, Integer>) countSink.collectedTuples.get(0);
-    KeyValPair<String, Integer> c2 = (KeyValPair<String, Integer>) countSink.collectedTuples.get(1);
-    KeyValPair<String, Integer> c3 = (KeyValPair<String, Integer>) countSink.collectedTuples.get(2);
+    KeyValPair<String, Integer> c1 = (KeyValPair<String, Integer>)countSink.collectedTuples.get(0);
+    KeyValPair<String, Integer> c2 = (KeyValPair<String, Integer>)countSink.collectedTuples.get(1);
+    KeyValPair<String, Integer> c3 = (KeyValPair<String, Integer>)countSink.collectedTuples.get(2);
 
     log.debug(String.format("\nBenchmark sums for %d key/val pairs", numTuples * 3));
 

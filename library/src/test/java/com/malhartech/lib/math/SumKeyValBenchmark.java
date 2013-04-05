@@ -41,9 +41,9 @@ public class SumKeyValBenchmark
     }
     oper.endWindow();
 
-    KeyValPair<String, Double> sum1 = (KeyValPair<String, Double>) sumSink.collectedTuples.get(0);
-    KeyValPair<String, Double> sum2 = (KeyValPair<String, Double>) sumSink.collectedTuples.get(1);
-    KeyValPair<String, Double> sum3 = (KeyValPair<String, Double>) sumSink.collectedTuples.get(2);
+    KeyValPair<String, Double> sum1 = (KeyValPair<String, Double>)sumSink.collectedTuples.get(0);
+    KeyValPair<String, Double> sum2 = (KeyValPair<String, Double>)sumSink.collectedTuples.get(1);
+    KeyValPair<String, Double> sum3 = (KeyValPair<String, Double>)sumSink.collectedTuples.get(2);
 
     log.debug(String.format("\nBenchmark sums for %d key/val pairs", numTuples * 3));
 

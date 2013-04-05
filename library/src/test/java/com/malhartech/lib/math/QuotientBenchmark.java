@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 /**
  *
  * Performance tests for {@link com.malhartech.lib.math.Quotient}<p>
@@ -83,7 +84,7 @@ public class QuotientBenchmark
 
     // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
     Assert.assertEquals("number emitted tuples", 1, quotientSink.collectedTuples.size());
-    Double val = (Double) quotientSink.collectedTuples.get(0);
-    log.debug(String.format("\nBenchmark for %d tuples (expected 2.0, got %f)", numTuples*12, val));
+    Double val = (Double)quotientSink.collectedTuples.get(0);
+    log.debug(String.format("\nBenchmark for %d tuples (expected 2.0, got %f)", numTuples * 12, val));
   }
 }

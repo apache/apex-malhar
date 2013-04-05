@@ -63,7 +63,7 @@ public class AverageBenchmark
     }
     oper.endWindow(); //
 
-    Number average = (Number) averageSink.collectedTuples.get(0);
+    Number average = (Number)averageSink.collectedTuples.get(0);
     log.debug(String.format("\nBenchmark %d tuples of type %s: taverage was %f",
                             numTuples * 3, debug, average.doubleValue()));
   }

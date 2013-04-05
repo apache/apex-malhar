@@ -55,7 +55,7 @@ public class ExceptMapTest
 
     // One for each key
     Assert.assertEquals("number emitted tuples", 1, exceptSink.count);
-    for (Map.Entry<String, Number> e: ((HashMap<String, Number>) exceptSink.tuple).entrySet()) {
+    for (Map.Entry<String, Number> e: ((HashMap<String, Number>)exceptSink.tuple).entrySet()) {
       if (e.getKey().equals("a")) {
         Assert.assertEquals("emitted value for 'a' was ", new Double(2), e.getValue().doubleValue());
       }

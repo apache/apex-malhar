@@ -47,12 +47,12 @@ public class CompareStringMapTest
 
     // One for each key
     Assert.assertEquals("number emitted tuples", 1, exceptSink.count);
-    for (Map.Entry<String, String> e: ((HashMap<String, String>) exceptSink.tuple).entrySet()) {
+    for (Map.Entry<String, String> e: ((HashMap<String, String>)exceptSink.tuple).entrySet()) {
       if (e.getKey().equals("a")) {
         Assert.assertEquals("emitted value for 'a' was ", "2", e.getValue());
       }
       else if (e.getKey().equals("b")) {
-        Assert.assertEquals("emitted tuple for 'b' was ",  "20", e.getValue());
+        Assert.assertEquals("emitted tuple for 'b' was ", "20", e.getValue());
       }
       else if (e.getKey().equals("c")) {
         Assert.assertEquals("emitted tuple for 'c' was ", "1000", e.getValue());

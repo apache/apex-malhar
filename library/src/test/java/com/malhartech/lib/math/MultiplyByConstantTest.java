@@ -18,7 +18,6 @@ public class MultiplyByConstantTest
 {
   private static Logger log = LoggerFactory.getLogger(MultiplyByConstantTest.class);
 
-
   /**
    * Test oper logic emits correct results
    */

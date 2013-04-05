@@ -79,7 +79,7 @@ public class MinMapBenchmark
     }
     oper.endWindow();
 
-    HashMap<String, Number> shash = (HashMap<String, Number>) minSink.tuple;
+    HashMap<String, Number> shash = (HashMap<String, Number>)minSink.tuple;
     Number val = shash.get("a");
     log.debug(String.format("\nBenchmark total for %d tuples; expected 0.0, got %f", numtuples, val));
   }

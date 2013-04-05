@@ -18,7 +18,6 @@ public class MinTest
 {
   private static Logger log = LoggerFactory.getLogger(MinTest.class);
 
-
   /**
    * Test oper logic emits correct results
    */
@@ -59,11 +58,8 @@ public class MinTest
     oper.data.process(b);
     a = 23.0;
     oper.data.process(a);
-
     oper.endWindow(); //
 
-
-    // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
     Assert.assertEquals("number emitted tuples", 1, minSink.count);
     Assert.assertEquals("emitted high value was ", new Double(1.0), minSink.tuple);
   }

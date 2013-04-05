@@ -3,8 +3,6 @@ package com.malhartech.lib.math;
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-
-
 import com.malhartech.engine.TestSink;
 import com.malhartech.util.Pair;
 import junit.framework.Assert;
@@ -27,7 +25,9 @@ public class LogicalCompareTest
   @Test
   public void testNodeProcessing()
   {
-    LogicalCompare<Integer> oper = new LogicalCompare<Integer>() {};
+    LogicalCompare<Integer> oper = new LogicalCompare<Integer>()
+    {
+    };
     TestSink eSink = new TestSink();
     TestSink neSink = new TestSink();
     TestSink gtSink = new TestSink();
@@ -42,9 +42,9 @@ public class LogicalCompareTest
     oper.lessThan.setSink(ltSink);
     oper.lessThanOrEqualTo.setSink(lteSink);
 
-    Pair<Integer,Integer> gtuple = new Pair(2,1);
-    Pair<Integer,Integer> etuple = new Pair(2,2);
-    Pair<Integer,Integer> ltuple = new Pair(2,3);
+    Pair<Integer, Integer> gtuple = new Pair(2, 1);
+    Pair<Integer, Integer> etuple = new Pair(2, 2);
+    Pair<Integer, Integer> ltuple = new Pair(2, 3);
 
     oper.beginWindow(0); //
 
@@ -65,7 +65,7 @@ public class LogicalCompareTest
     Assert.assertEquals("tuples were", gtSink.collectedTuples.get(0).equals(gtuple), true);
 
     Assert.assertEquals("number emitted tuples", 2, gteSink.collectedTuples.size());
-    Assert.assertEquals("tuples were",gteSink.collectedTuples.get(0).equals(gtuple), true);
+    Assert.assertEquals("tuples were", gteSink.collectedTuples.get(0).equals(gtuple), true);
     Assert.assertEquals("tuples were", gteSink.collectedTuples.get(1).equals(etuple), true);
 
     Assert.assertEquals("number emitted tuples", 1, ltSink.collectedTuples.size());

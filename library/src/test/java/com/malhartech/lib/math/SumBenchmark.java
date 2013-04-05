@@ -62,7 +62,7 @@ public class SumBenchmark
     }
     oper.endWindow(); //
 
-    Number dval = (Number) sumSink.collectedTuples.get(0);
+    Number dval = (Number)sumSink.collectedTuples.get(0);
     log.debug(String.format("\nBenchmark %d tuples of type %s: total was %f",
                             numTuples * 3, debug, dval.doubleValue()));
   }

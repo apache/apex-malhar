@@ -62,6 +62,6 @@ public class CompareExceptMapBenchmark
       oper.data.process(input2);
     }
     oper.endWindow();
-    log.debug(String.format("\nBenchmark for %d tuples", numTuples*2));
+    log.debug(String.format("\nBenchmark for %d tuples", numTuples * 2));
   }
 }

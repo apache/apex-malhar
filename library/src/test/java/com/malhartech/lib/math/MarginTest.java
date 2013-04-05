@@ -51,7 +51,7 @@ public class MarginTest
     oper.endWindow();
 
     Assert.assertEquals("number emitted tuples", 1, marginSink.count);
-    Assert.assertEquals("margin was ", 50, ((Number) marginSink.tuple).intValue());
+    Assert.assertEquals("margin was ", 50, ((Number)marginSink.tuple).intValue());
 
     marginSink.clear();
     oper.beginWindow(0);
@@ -64,7 +64,7 @@ public class MarginTest
     oper.endWindow();
 
     Assert.assertEquals("number emitted tuples", 1, marginSink.count);
-    Assert.assertEquals("margin was ", -100, ((Number) marginSink.tuple).intValue());
+    Assert.assertEquals("margin was ", -100, ((Number)marginSink.tuple).intValue());
 
     marginSink.clear();
     oper.beginWindow(0);

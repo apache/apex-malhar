@@ -51,12 +51,12 @@ public class CompareExceptStringMapTest
     oper.endWindow();
 
     Assert.assertEquals("number emitted tuples", 1, exceptSink.count);
-    for (Map.Entry<String, String> e: ((HashMap<String, String>) exceptSink.tuple).entrySet()) {
+    for (Map.Entry<String, String> e: ((HashMap<String, String>)exceptSink.tuple).entrySet()) {
       if (e.getKey().equals("a")) {
         Assert.assertEquals("emitted value for 'a' was ", "2", e.getValue());
       }
       else if (e.getKey().equals("b")) {
-        Assert.assertEquals("emitted tuple for 'b' was ",  "20", e.getValue());
+        Assert.assertEquals("emitted tuple for 'b' was ", "20", e.getValue());
       }
       else if (e.getKey().equals("c")) {
         Assert.assertEquals("emitted tuple for 'c' was ", "1000", e.getValue());
@@ -64,12 +64,12 @@ public class CompareExceptStringMapTest
     }
 
     Assert.assertEquals("number emitted tuples", 1, compareSink.count);
-    for (Map.Entry<String, String> e: ((HashMap<String, String>) compareSink.tuple).entrySet()) {
+    for (Map.Entry<String, String> e: ((HashMap<String, String>)compareSink.tuple).entrySet()) {
       if (e.getKey().equals("a")) {
         Assert.assertEquals("emitted value for 'a' was ", "3", e.getValue());
       }
       else if (e.getKey().equals("b")) {
-        Assert.assertEquals("emitted tuple for 'b' was ",  "32", e.getValue());
+        Assert.assertEquals("emitted tuple for 'b' was ", "32", e.getValue());
       }
       else if (e.getKey().equals("c")) {
         Assert.assertEquals("emitted tuple for 'c' was ", "23", e.getValue());

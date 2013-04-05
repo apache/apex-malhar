@@ -47,7 +47,7 @@ public class CountKeyValTest
     // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
     Assert.assertEquals("number emitted tuples", 5, countSink.collectedTuples.size());
     for (Object o: countSink.collectedTuples) {
-      KeyValPair<String, Integer> e = (KeyValPair<String, Integer>) o;
+      KeyValPair<String, Integer> e = (KeyValPair<String, Integer>)o;
       Integer val = (Integer)e.getValue();
       if (e.getKey().equals("a")) {
         Assert.assertEquals("emitted value for 'a' was ", 4, val.intValue());
