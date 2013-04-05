@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class ChartOperator<T1, T2> extends BaseOperator implements PartitionableOperator
 {
-  private static final Logger logger = LoggerFactory.getLogger(ChartOperator.class);
   @InputPortFieldAnnotation(name = "in1")
   public final transient DefaultInputPort<Object> in1 = new DefaultInputPort<Object>(this)
   {
@@ -77,4 +76,5 @@ public abstract class ChartOperator<T1, T2> extends BaseOperator implements Part
     return newPartitions;
   }
 
+  private static final Logger logger = LoggerFactory.getLogger(ChartOperator.class);
 }
