@@ -10,6 +10,8 @@ import com.malhartech.api.DAG.StreamMeta;
 import com.malhartech.demos.yahoofinance.StockTickInput;
 import com.malhartech.lib.chart.TimeSeriesAverageChartOperator;
 import com.malhartech.lib.chart.TimeSeriesHighLowChartOperator;
+import com.malhartech.lib.stream.DevNull;
+import com.malhartech.lib.util.HighLow;
 import com.malhartech.lib.util.KeyValPair;
 import org.apache.hadoop.conf.Configuration;
 
@@ -83,12 +85,14 @@ public class YahooFinanceApplication extends com.malhartech.demos.yahoofinance.A
     for (String ticker: tickers) {
       TimeSeriesAverageChartOperator averageChartOperator = getAverageChartOperator("AverageChart_" + ticker, dag, ticker);
       TimeSeriesHighLowChartOperator highLowChartOperator = getHighLowChartOperator("HighLowChart_" + ticker, dag, ticker);
+      DevNull<KeyValPair<Number,Number>> devnull1 = dag.addOperator("devnull1_"+ticker, new DevNull<KeyValPair<Number,Number>>());
+      DevNull<KeyValPair<Number,HighLow>> devnull2 = dag.addOperator("devnull2_"+ticker, new DevNull<KeyValPair<Number,HighLow>>());
       dag.getOperatorMeta(averageChartOperator).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(5); // 5 seconds
       dag.getOperatorMeta(highLowChartOperator).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(5); // 5 seconds
       stream.addSink(averageChartOperator.in1);
       stream.addSink(highLowChartOperator.in1);
-      dag.addStream("averageDummyStream_" + ticker, averageChartOperator.chart);
-      dag.addStream("highLowDummyStream_" + ticker, highLowChartOperator.chart);
+      dag.addStream("averageDummyStream_" + ticker, averageChartOperator.chart, devnull1.data);
+      dag.addStream("highLowDummyStream_" + ticker, highLowChartOperator.chart, devnull2.data);
     }
     return dag;
   }
