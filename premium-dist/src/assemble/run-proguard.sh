@@ -19,16 +19,37 @@ cat > proguard.conf <<EOF
 -dontwarn com.malhartech.contrib.**
 -dontwarn org.apache.hadoop.**
 -keeppackagenames com.malhartech.**
--keep public class com.malhartech.contrib.**
--keep public class com.malhartech.demos.**
--keep public class com.malhartech.lib.**
+-keep public class com.malhartech.contrib.** { *; }
+-keep public class com.malhartech.demos.** { *; }
+-keep public class com.malhartech.lib.** { *; }
 -keep public class com.malhartech.daemon.Daemon { public *; }
--keep public class com.malhartech.api.**
--keep public interface com.malhartech.api.**
--keep public interface com.malhartech.annotation.**
--keep public class com.malhartech.stram.cli.StramAppLauncher { public static java.lang.String runApp(com.malhartech.stram.cli.StramAppLauncher$AppConfig); }
--keep public class com.malhartech.stram.cli.StramCli { public static void main(java.lang.String[]); }
+-keep public class com.malhartech.api.** { *; }
+-keep public class com.malhartech.bufferserver.Buffer { *; }
+-keep public class com.malhartech.bufferserver.Buffer$** { *; }
+-keep public class com.malhartech.util.VersionInfo { *; }
+-keep public interface com.malhartech.api.** { *; }
+-keep public interface com.malhartech.annotation.** { *; }
+-keep public class com.malhartech.stram.cli.StramAppLauncher { 
+    public static java.lang.String runApp(**); 
+}
 -keep public interface com.malhartech.stram.cli.StramAppLauncher$AppConfig
+-keepclasseswithmembers class ** { 
+    public static void main(java.lang.String[]); 
+}
+-keepclassmembers class * implements java.io.Serializable {
+    static final long serialVersionUID;
+    private static final java.io.ObjectStreamField[] serialPersistentFields;
+    !static !transient <fields>;
+    private void writeObject(java.io.ObjectOutputStream);
+    private void readObject(java.io.ObjectInputStream);
+    java.lang.Object writeReplace();
+    java.lang.Object readResolve();
+}
+-keepclassmembernames class ** { 
+    public static final long versionID; 
+}
+-keepclassmembers enum * { *; }
+-keepattributes *Annotation*
 -printmapping proguard_map.txt
 -printseeds proguard_seeds.txt
 -libraryjars $RTJAR
@@ -61,4 +82,6 @@ proguard @proguard.conf -verbose
 for module in contrib bufferserver daemon demos library stram
 do
     cp -p malhar-$module-$VERSION.jar $HOME/.m2/repository/com/malhartech/malhar-$module/$VERSION/
+    mkdir -p ../../$module/target
+    cp -p malhar-$module-$VERSION.jar ../../$module/target
 done
