@@ -42,8 +42,7 @@ import java.util.regex.Pattern;
  * <th><i>outputBytes</i></th><th><i>outputReferer</i></th><th><i>outputAgent</i></th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
  * <tr><td>Data (process())</td><td>127.0.0.1 - - [04/Apr/2013:17:17:21 -0700] "GET /favicon.ico HTTP/1.1" 404 498 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.43 Safari/537.31"</td>
- * <td>127.0.0.</td><td></td><td></td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>??</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+ * <td>127.0.0.1</td><td>/favicon.ico</td><td>404</td><td>498</td><td>-</td><td>Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.43 Safari/537.31</td></tr>
  * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
  * </table>
  * <br>

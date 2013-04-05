@@ -9,7 +9,41 @@ import java.util.Collection;
 
 /**
  *
- * @param <T> 
+ * Invokes two abstract functions aggregateLongs(Collection<T> collection), and aggregateDoubles(Collection<T> collection) on input
+ * tuple and emits the result on four ports, namely \"doubleResult\", \"floatResult\", \"integerResult\", \"longResult\". Input tuple
+ * object has to be an implementation of the interface Collection&lt;T&gt;. Tuples are emitted on the output ports only if they are
+ * connected. This is done to avoid the cost of calling the functions when some ports are not connected.<p>
+ * This is a pass through operator<br>
+ * <b>Ports</b>:<br>
+ * <b>data</b>: expects V extends Number<br>
+ * <b>doubleResult</b>: emits Double<br>
+ * <b>floatResult</b>: emits Float<br>
+ * <b>integerResult</b>: emits Integer<br>
+ * <b>longResult</b>: emits Long<br>
+ * <br>
+ * <b>Properties</b>: None<br>
+ * <b>Specific compile time checks</b>: None<br>
+ * <b>Specific run time checks</b>: None<br>
+ * <p>
+ * <b>Benchmarks</b>: Performance is completely dependant on the abstract functions. Hence no benchmarks were done<br>
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for SumValue&lt;V extends Number&gt; operator template">
+ * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
+ * <tr><td><b>N/A</b></td><td>emits one tuple per connected port per incoming tuple</td><td>In-bound rate and the implementations of abstract functions</td></tr>
+ * </table><br>
+ * <p>
+ * <b>Function Table (V=Integer)</b>:
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for Sum&lt;K,V extends Number&gt; operator template">
+ * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th colspan=4>Out-bound (emit)</th></tr>
+ * <tr><th><i>data</i>(V)</th><th><i>average</i>(V)</th></tr>
+ * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
+ * <tr><td>Data (process())</td><td>2</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>2</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>20</td><td></td></tr>
+ * <tr><td>End Window (endWindow())</td><td>N/A</td><td>10</td></tr>
+ * </table>
+ * <br>
+ *
+ * @param <T>
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
 public abstract class AggregateAbstractCalculus<T extends Number> extends AbstractFunction
