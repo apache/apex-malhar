@@ -32,6 +32,8 @@ cat > proguard.conf <<EOF
 -keep public class com.malhartech.stram.cli.StramAppLauncher { 
     public static java.lang.String runApp(**); 
 }
+-keep public class com.malhartech.stram.webapp.*Info { public protected *; }
+-keep public class com.malhartech.stram.webapp.*Info$** { public protected *; }
 -keep public interface com.malhartech.stram.cli.StramAppLauncher$AppConfig
 -keepclasseswithmembers class ** { 
     public static void main(java.lang.String[]); 
@@ -40,6 +42,8 @@ cat > proguard.conf <<EOF
     static final long serialVersionUID;
     private static final java.io.ObjectStreamField[] serialPersistentFields;
     !static !transient <fields>;
+    !private <fields>;
+    !private <methods>;
     private void writeObject(java.io.ObjectOutputStream);
     private void readObject(java.io.ObjectInputStream);
     java.lang.Object writeReplace();
@@ -49,7 +53,10 @@ cat > proguard.conf <<EOF
     public static final long versionID; 
 }
 -keepclassmembers enum * { *; }
--keepattributes *Annotation*
+-keepattributes *Annotation*,EnclosingMethod,Exceptions
+-keepdirectories **
+-adaptresourcefilenames **.properties,**.gif,**.jpg
+-adaptresourcefilecontents **.properties,META-INF/MANIFEST.MF
 -printmapping proguard_map.txt
 -printseeds proguard_seeds.txt
 -libraryjars $RTJAR
@@ -59,9 +66,12 @@ cat mvn-generated-classpath | tr : '\n' > mvn-generated-classpath.tmp
 
 for path in `cat mvn-generated-classpath.tmp`
 do
-   if [[ "$path" == *malhar* ]]
+   if [[ "$path" == *malhar-stram* ]]
    then
        echo "-injars $path"  >> proguard.conf
+   elif [[ "$path" == *malhar* ]]
+   then
+       echo "-injars $path(!META-INF/MANIFEST.MF)" >> proguard.conf
    else
        echo "-libraryjars $path"  >> proguard.conf
    fi
