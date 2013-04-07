@@ -53,6 +53,12 @@ import java.util.ArrayList;
  * <td>N/A</td></tr>
  * <tr><td>Data (process())</td><td>11</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
  * <tr><td>Data (process())</td><td></td><td>5</td><td>2</td><td>2</td><td>2.2</td><td>2.2</td><td>1</td><td>1</td><td>1.0</td><td>1.0</td><td></td></tr>
+ * <tr><td>Data (process())</td><td>12</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>15</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td>16</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+ * <tr><td>Data (process())</td><td></td><td>5</td><td>2</td><td>2</td><td>2.3</td><td>2.3</td><td>2</td><td>2</td><td>2.0</td><td>2.0</td><td></td></tr>
+ * <tr><td>Data (process())</td><td></td><td>6</td><td>2</td><td>2</td><td>2.5</td><td>2.5</td><td>3</td><td>3</td><td>3.0</td><td>3.0</td><td></td></tr>
+ * <tr><td>Data (process())</td><td></td><td>8</td><td>2</td><td>2</td><td>2.0</td><td>2.0</td><td>0</td><td>0</td><td>0.0</td><td>0.0</td><td></td></tr>
  * <tr><td>Data (process())</td><td></td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>"Error(0.0)"</td></tr>
  * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td>
  * <td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td>
