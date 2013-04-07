@@ -40,5 +40,6 @@ public class RoundRobinHashMapBenchmark
     }
     oper.endWindow();
     Assert.assertEquals("number emitted tuples", numtuples / 3, mapSink.getCount());
+    log.debug(String.format("\nprocessed %d tuples", numtuples));
   }
 }
