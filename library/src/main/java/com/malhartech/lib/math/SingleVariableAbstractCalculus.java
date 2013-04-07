@@ -8,9 +8,8 @@ import com.malhartech.api.DefaultInputPort;
 
 /**
  *
- * Abstract class that output of function(input_tuple)
- * Emits the result as Long on port longResult, as Integer on port integerResult,
- * as Double on port doubleResult, and as Float on port floatResult. This is a pass through operator<p>
+ * Abstract class that output of function(input_tuple). Emits the result as Long on port \"longResult\", as Integer on port \"integerResult\",
+ * as Double on port \"doubleResult\", and as Float on port \"floatResult\". This is a pass through operator<p>
  * <br>
  * <b>Ports</b>:<br>
  * <b>input</b>: expects Number<br>
@@ -29,14 +28,14 @@ import com.malhartech.api.DefaultInputPort;
  * <b>function(long)</b>: For output ports longResult, and integerResult<br>
  * <p>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode for function(x) = x*x<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for SquareCalculus">
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for SingleVariableAbstractCalculus">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
  * <tr><td><b>25 million tuples/s</b></td><td>four tuples per one incoming tuple</td><td>Performance is i/o bound and directly
  * dependant on incoming tuple rate</td></tr>
  * </table><br>
  * <p>
- * <b>Function Table (multiplier = 2.0)</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for SquareCalculus">
+ * <b>Function Table for abstract function of f(x) = x * x</b>:
+ * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for SingleVariableAbstractCalculus">
  * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>input</i>::process)</th><th colspan=4>Out-bound (emit)</th></tr>
  * <tr><th><i>input</i></th><th><i>longResult</i></th><th><i>integerResult</i></th><th><i>doubleResult</i></th><th><i>floatResult</i></th></tr>
  * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
