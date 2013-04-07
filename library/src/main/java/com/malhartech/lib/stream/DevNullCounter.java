@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for DevNullCounter&lt;K&gt; operator template">
  * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>&gt; 1000 Million tuples/s</td><td>No tuple is emitted</td><td>In-bound rate is the main determinant of performance</td></tr>
+ * <tr><td><b>&gt; 1250 Million tuples/s</td><td>No tuple is emitted</td><td>In-bound rate is the main determinant of performance</td></tr>
  * </table><br>
  * <p>
  * <b>Function Table (K=Integer)</b>:

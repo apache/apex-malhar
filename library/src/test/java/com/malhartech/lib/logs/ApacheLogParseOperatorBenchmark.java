@@ -29,6 +29,7 @@ public class ApacheLogParseOperatorBenchmark
    * Test oper logic emits correct results
    */
   @Test
+  @SuppressWarnings("SleepWhileInLoop")
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing()
   {
