@@ -29,7 +29,6 @@ public class ArrayListAggregatorBenchmark
     oper.output.setSink(cSink);
     int size = 10;
     oper.setSize(size);
-    oper.setFlushWindow(false);
     int numtuples = 100000000;
 
     oper.beginWindow(0);

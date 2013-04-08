@@ -25,7 +25,6 @@ public class ArrayListAggregatorTest
 
     oper.output.setSink(cSink);
     oper.setSize(10);
-    oper.setFlushWindow(false);
     int numtuples = 100;
 
     oper.beginWindow(0);
@@ -36,16 +35,15 @@ public class ArrayListAggregatorTest
     Assert.assertEquals("number emitted tuples", 10, cSink.collectedTuples.size());
 
     cSink.clear();
-    oper.setSize(11);
-    oper.setFlushWindow(true);
+    oper.setSize(0);
 
     oper.beginWindow(1);
     for (int i = 0; i < numtuples; i++) {
       oper.input.process(i);
     }
     oper.endWindow();
-    Assert.assertEquals("number emitted tuples", 10, cSink.collectedTuples.size());
-    ArrayList list = (ArrayList) cSink.collectedTuples.get(9);
-    Assert.assertEquals("size of last tuple", 1, list.size());
+    Assert.assertEquals("number emitted tuples", 1, cSink.collectedTuples.size());
+    ArrayList list = (ArrayList) cSink.collectedTuples.get(0);
+    Assert.assertEquals("number emitted tuples", numtuples, list.size());
   }
 }

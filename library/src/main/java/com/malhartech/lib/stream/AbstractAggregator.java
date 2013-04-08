@@ -29,7 +29,7 @@ public abstract class AbstractAggregator<T> implements Operator
 
       collection.add(tuple);
 
-      if (passThrough == true && (collection.size() == size)) {
+      if (collection.size() == size) {
         output.emit(collection);
         collection = null;
       }
@@ -53,40 +53,10 @@ public abstract class AbstractAggregator<T> implements Operator
     this.size = size;
   }
 
-  @Min(1)
+  @Min(0)
   public int getSize()
   {
     return size;
-  }
-
-  /**
-   * If set to true, the Collection is emitted at the endWindow call, thereby making this operator stateless. By default flush is false, i.e.
-   * the output tuple is guaranteed to be of size set by the user. By default this is a stateful operator.
-   * @param flag
-   */
-  public void setFlushWindow(boolean flag)
-  {
-    flushWindow = flag;
-  }
-
-  /**
-   * Sets pass through. Default is true, i.e. Collection is emitted as soon as number of elements is equal to size. If pass through is false,
-   * then size is not relevant, and the Collection is only emitted in endWindow as long as Collection has at least one element.
-   * @param flag
-   */
-  public void setPassThrough(boolean flag)
-  {
-    passThrough = flag;
-  }
-
-  public boolean getPassThrough(boolean flag)
-  {
-    return passThrough;
-  }
-
-  public boolean getFlushWindow()
-  {
-    return flushWindow;
   }
 
   public abstract Collection<T> getNewCollection(int size);
@@ -99,11 +69,9 @@ public abstract class AbstractAggregator<T> implements Operator
   @Override
   public void endWindow()
   {
-    if (size != 0 && collection != null) {
-      if (flushWindow == true || passThrough == false) {
-        output.emit(collection);
-        collection = null;
-      }
+    if (size == 0 && collection != null) {
+      output.emit(collection);
+      collection = null;
     }
   }
 
@@ -118,8 +86,6 @@ public abstract class AbstractAggregator<T> implements Operator
   }
 
   protected Collection<T> collection;
-  @Min(1)
-  private int size = 1;
-  private boolean flushWindow = false;
-  private boolean passThrough = true;
+  @Min(0)
+  private int size = 0;
 }
