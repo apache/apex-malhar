@@ -50,7 +50,7 @@
       <outputDirectory>/project-template</outputDirectory>
     </fileSet>
     <fileSet>
-      <directory>${basedir}/../../dt-front/dist</directory>
+      <directory>${env.MALHAR_FRONT_PATH}/dist</directory>
       <outputDirectory>/htdocs</outputDirectory>
     </fileSet>
   </fileSets>

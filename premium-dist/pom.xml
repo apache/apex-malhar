@@ -17,24 +17,37 @@
   <name>Premium Distribution</name>
 
   <profiles>
+
     <profile>
-      <id>premium-release</id>
       <activation>
-        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>!env.MALHAR_FRONT_PATH</name>
+        </property>
       </activation>
       <properties>
+        <env.MALHAR_FRONT_PATH>${project.basedir}/../../front</env.MALHAR_FRONT_PATH>
       </properties>
+    </profile>
 
+    <profile>
+      <id>front-end</id>
+      <activation>
+        <file>
+          <exists>${env.MALHAR_FRONT_PATH}</exists>
+          <!-- exists>../../front</exists -->
+        </file>
+        <property>
+          <name>!skipFront</name>
+        </property>
+      </activation>
       <build>
 	<plugins>
-
 	  <plugin>
 	    <groupId>org.codehaus.mojo</groupId>
 	    <artifactId>exec-maven-plugin</artifactId>
 	    <version>1.2.1</version>
 	    <executions>
 	      <execution>
-                <!-- this execution happens just after compiling the java classes, and builds the native code. -->
                 <id>npm-build</id>
                 <phase>prepare-package</phase>
                 <goals>
@@ -46,11 +59,10 @@
                     <argument>install</argument>
                     <argument>.</argument>
                   </arguments>
-                  <workingDirectory>${project.basedir}/../../dt-front</workingDirectory>
+                  <workingDirectory>${env.MALHAR_FRONT_PATH}</workingDirectory>
                 </configuration>
 	      </execution>
 	      <execution>
-                <!-- this execution happens just after compiling the java classes, and builds the native code. -->
                 <id>make-build</id>
                 <phase>prepare-package</phase>
                 <goals>
@@ -61,9 +73,29 @@
                   <arguments>
                     <argument>build</argument>
                   </arguments>
-                  <workingDirectory>${project.basedir}/../../dt-front</workingDirectory>
+                  <workingDirectory>${env.MALHAR_FRONT_PATH}</workingDirectory>
                 </configuration>
 	      </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>premium-release</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+
+      <build>
+	<plugins>
+
+	  <plugin>
+	    <groupId>org.codehaus.mojo</groupId>
+	    <artifactId>exec-maven-plugin</artifactId>
+	    <version>1.2.1</version>
+	    <executions>
 	      <execution>
                 <id>proguard</id>
                 <phase>package</phase>
@@ -154,90 +186,90 @@
 	</plugins>
       </build>
 
+      <dependencies>
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>malhar-stram</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>malhar-daemon</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>malhar-contrib</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+
+        <!-- sort this project to end of line in multimodule build. -->
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>malhar-demos</artifactId>
+          <version>${project.version}</version>
+
+          <!-- exclude everything that we don't ship (including defunct POMs etc.) -->
+          <exclusions>
+            <exclusion>
+              <groupId>org.apache.hadoop</groupId>
+              <artifactId>hadoop-minicluster</artifactId>
+            </exclusion>
+          </exclusions>
+        </dependency>
+
+        <!-- 
+             include sources and javadoc into assembly,
+             dependencies need to be added one by one 
+        -->
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>malhar-demos</artifactId>
+          <version>${project.version}</version>
+          <classifier>sources</classifier>
+        </dependency>
+
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>malhar-demos</artifactId>
+          <version>${project.version}</version>
+          <classifier>javadoc</classifier>
+        </dependency>
+
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>malhar-library</artifactId>
+          <version>${project.version}</version>
+          <classifier>sources</classifier>
+        </dependency>
+
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>malhar-library</artifactId>
+          <version>${project.version}</version>
+          <classifier>javadoc</classifier>
+        </dependency>
+
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>malhar-contrib</artifactId>
+          <version>${project.version}</version>
+          <classifier>sources</classifier>
+        </dependency>
+
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>malhar-contrib</artifactId>
+          <version>${project.version}</version>
+          <classifier>javadoc</classifier>
+        </dependency>
+
+      </dependencies>
+
     </profile>
-  </profiles>
-  
-  <dependencies>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>malhar-stram</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>malhar-daemon</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>malhar-contrib</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <!-- sort this project to end of line in multimodule build. -->
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>malhar-demos</artifactId>
-      <version>${project.version}</version>
-
-      <!-- exclude everything that we don't ship (including defunct POMs etc.) -->
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>hadoop-minicluster</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <!-- 
-	 include sources and javadoc into assembly,
-	 dependencies need to be added one by one 
-    -->
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>malhar-demos</artifactId>
-      <version>${project.version}</version>
-      <classifier>sources</classifier>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>malhar-demos</artifactId>
-      <version>${project.version}</version>
-      <classifier>javadoc</classifier>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>malhar-library</artifactId>
-      <version>${project.version}</version>
-      <classifier>sources</classifier>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>malhar-library</artifactId>
-      <version>${project.version}</version>
-      <classifier>javadoc</classifier>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>malhar-contrib</artifactId>
-      <version>${project.version}</version>
-      <classifier>sources</classifier>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>malhar-contrib</artifactId>
-      <version>${project.version}</version>
-      <classifier>javadoc</classifier>
-    </dependency>
-
-  </dependencies>
+  </profiles>  
 
 </project>
 
