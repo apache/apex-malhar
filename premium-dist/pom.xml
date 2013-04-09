@@ -54,7 +54,7 @@
                   <goal>exec</goal>
                 </goals>
                 <configuration>
-                  <executable>/usr/bin/npm</executable>
+                  <executable>npm</executable>
                   <arguments>
                     <argument>install</argument>
                     <argument>.</argument>
@@ -69,7 +69,7 @@
                   <goal>exec</goal>
                 </goals>
                 <configuration>
-                  <executable>/usr/bin/make</executable>
+                  <executable>make</executable>
                   <arguments>
                     <argument>build</argument>
                   </arguments>
