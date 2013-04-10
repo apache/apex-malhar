@@ -5,8 +5,8 @@
 package com.malhartech.demos.twitter;
 
 import com.malhartech.api.StreamCodec;
+import com.malhartech.netlet.Client.Fragment;
 import java.nio.ByteBuffer;
-import malhar.netlet.Client.Fragment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
