@@ -30,18 +30,14 @@
     </profile>
 
     <profile>
-      <id>front-end</id>
+      <id>premium-release</id>
       <activation>
-        <file>
-          <exists>${env.MALHAR_FRONT_PATH}</exists>
-          <!-- exists>../../front</exists -->
-        </file>
-        <property>
-          <name>!skipFront</name>
-        </property>
+        <activeByDefault>false</activeByDefault>
       </activation>
+
       <build>
 	<plugins>
+
 	  <plugin>
 	    <groupId>org.codehaus.mojo</groupId>
 	    <artifactId>exec-maven-plugin</artifactId>
@@ -76,26 +72,6 @@
                   <workingDirectory>${env.MALHAR_FRONT_PATH}</workingDirectory>
                 </configuration>
 	      </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <id>premium-release</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-
-      <build>
-	<plugins>
-
-	  <plugin>
-	    <groupId>org.codehaus.mojo</groupId>
-	    <artifactId>exec-maven-plugin</artifactId>
-	    <version>1.2.1</version>
-	    <executions>
 	      <execution>
                 <id>proguard</id>
                 <phase>package</phase>
