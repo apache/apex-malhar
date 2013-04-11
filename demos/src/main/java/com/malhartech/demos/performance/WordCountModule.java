@@ -24,8 +24,8 @@ public class WordCountModule<T> implements Operator
       count++;
     }
   };
-  transient ArrayList<Integer> counts;
-  transient int count;
+  private transient ArrayList<Integer> counts;
+  private transient int count;
 
   @Override
   public void endWindow()
