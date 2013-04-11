@@ -15,24 +15,20 @@ import com.malhartech.api.InputOperator;
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-public class RandomWordInputModule implements InputOperator
+public class FixedTuplesInputModule implements InputOperator
 {
   public final transient DefaultOutputPort<byte[]> output = new DefaultOutputPort<byte[]>(this);
-  private transient int count;
+  private int count;
   private boolean firstTime;
 
   @Override
   public void emitTuples()
   {
     if (firstTime) {
-      for (int i = count--; i-- > 0;) {
+      for (int i = count; i-- > 0;) {
         output.emit(new byte[64]);
       }
       firstTime = false;
-    }
-    else {
-      output.emit(new byte[64]);
-      count++;
     }
   }
 
@@ -57,5 +53,21 @@ public class RandomWordInputModule implements InputOperator
   {
   }
 
-  private static final Logger logger = LoggerFactory.getLogger(RandomWordInputModule.class);
+  private static final Logger logger = LoggerFactory.getLogger(FixedTuplesInputModule.class);
+
+  /**
+   * @return the count
+   */
+  public int getCount()
+  {
+    return count;
+  }
+
+  /**
+   * @param count the count to set
+   */
+  public void setCount(int count)
+  {
+    this.count = count;
+  }
 }
