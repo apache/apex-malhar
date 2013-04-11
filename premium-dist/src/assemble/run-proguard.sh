@@ -78,6 +78,7 @@ do
 done
 
 cat >> proguard.conf <<EOF
+-outjars malhar-netlet-$VERSION.jar(**/malhar-netlet/**,com/malhartech/netlet/**)
 -outjars malhar-contrib-$VERSION.jar(**/malhar-contrib/**,com/malhartech/contrib/**)
 -outjars malhar-bufferserver-$VERSION.jar(**/malhar-bufferserver/**,com/malhartech/bufferserver/**)
 -outjars malhar-daemon-$VERSION.jar(**/malhar-daemon/**,com/malhartech/daemon/**)
