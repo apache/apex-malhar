@@ -90,7 +90,7 @@ EOF
 rm mvn-generated-classpath.tmp
 proguard @proguard.conf -verbose
 
-for module in contrib bufferserver daemon demos library stram
+for module in netlet contrib bufferserver daemon demos library stram 
 do
     cp -p malhar-$module-$VERSION.jar $HOME/.m2/repository/com/malhartech/malhar-$module/$VERSION/
     mkdir -p ../../$module/target
