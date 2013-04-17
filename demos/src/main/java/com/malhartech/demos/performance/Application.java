@@ -5,6 +5,7 @@
 package com.malhartech.demos.performance;
 
 import com.malhartech.api.ApplicationFactory;
+import com.malhartech.api.Context.PortContext;
 import com.malhartech.api.DAG;
 import org.apache.hadoop.conf.Configuration;
 
@@ -26,8 +27,10 @@ public class Application implements ApplicationFactory
 
 //    dag.addStream("Generator2Processor", wordGenerator.output, noOpProcessor.input).setInline(inline);
 //    dag.addStream("Processor2Counter", noOpProcessor.output, counter.input).setInline(inline);
+    dag.getOperatorMeta(counter).getInputPortMeta(counter.input).getAttributes().attr(PortContext.BUFFER_SIZE).set(16 * 1024);
 
     dag.addStream("Generator2Counter", wordGenerator.output, counter.input).setInline(inline);
     return dag;
   }
+
 }
