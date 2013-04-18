@@ -9,10 +9,11 @@ import com.malhartech.api.DAG;
 import com.malhartech.api.DAG.StreamMeta;
 import com.malhartech.demos.yahoofinance.StockTickInput;
 import com.malhartech.lib.chart.TimeSeriesAverageChartOperator;
-import com.malhartech.lib.chart.TimeSeriesHighLowChartOperator;
+import com.malhartech.lib.chart.TimeSeriesCandleStickChartOperator;
 import com.malhartech.lib.stream.DevNull;
-import com.malhartech.lib.util.HighLow;
+import com.malhartech.lib.util.CandleStick;
 import com.malhartech.lib.util.KeyValPair;
+import java.util.Map;
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -23,58 +24,58 @@ public class YahooFinanceApplication extends com.malhartech.demos.yahoofinance.A
 {
   public static class YahooFinanceTimeSeriesAverageChartOperator extends TimeSeriesAverageChartOperator
   {
-    public String ticker;
 
     @Override
     public Number convertTupleToNumber(Object tuple)
     {
-      KeyValPair kvp = (KeyValPair<String, Double>)tuple;
-      if (kvp.getKey().equals(ticker)) {
-        return (Number)kvp.getValue();
-      }
-      else {
-        return null;
-      }
+      KeyValPair<String, Double> kvp = (KeyValPair<String, Double>)tuple;
+      return kvp.getValue();
+    }
+
+    @Override
+    public Object convertTupleToKey(Object tuple)
+    {
+      KeyValPair<String, Double> kvp = (KeyValPair<String, Double>)tuple;
+      return kvp.getKey();
     }
 
   }
 
-  public static class YahooFinanceTimeSeriesHighLowChartOperator extends TimeSeriesHighLowChartOperator
+  public static class YahooFinanceTimeSeriesCandleStickChartOperator extends TimeSeriesCandleStickChartOperator
   {
     public String ticker;
 
     @Override
     public Number convertTupleToNumber(Object tuple)
     {
-      KeyValPair kvp = (KeyValPair<String, Double>)tuple;
-      if (kvp.getKey().equals(ticker)) {
-        return (Number)kvp.getValue();
-      }
-      else {
-        return null;
-      }
+      KeyValPair<String, Double> kvp = (KeyValPair<String, Double>)tuple;
+      return kvp.getValue();
+    }
+
+    @Override
+    public Object convertTupleToKey(Object tuple)
+    {
+      KeyValPair<String, Double> kvp = (KeyValPair<String, Double>)tuple;
+      return kvp.getKey();
     }
 
   }
 
-  TimeSeriesAverageChartOperator getAverageChartOperator(String name, DAG dag, final String ticker)
+  TimeSeriesAverageChartOperator getAverageChartOperator(String name, DAG dag)
   {
     YahooFinanceTimeSeriesAverageChartOperator op = new YahooFinanceTimeSeriesAverageChartOperator();
-    op.ticker = ticker;
     return dag.addOperator(name, op);
   }
 
-  TimeSeriesHighLowChartOperator getHighLowChartOperator(String name, DAG dag, final String ticker)
+  TimeSeriesCandleStickChartOperator getCandleStickChartOperator(String name, DAG dag)
   {
-    YahooFinanceTimeSeriesHighLowChartOperator op = new YahooFinanceTimeSeriesHighLowChartOperator();
-    op.ticker = ticker;
+    YahooFinanceTimeSeriesCandleStickChartOperator op = new YahooFinanceTimeSeriesCandleStickChartOperator();
     return dag.addOperator(name, op);
   }
 
   @Override
   public DAG getApplication(Configuration conf)
   {
-    this.tickers = new String[] {"AAPL"};
     DAG dag = new DAG(conf);
 
     dag.getAttributes().attr(DAG.STRAM_WINDOW_SIZE_MILLIS).set(streamingWindowSizeMilliSeconds);
@@ -82,18 +83,17 @@ public class YahooFinanceApplication extends com.malhartech.demos.yahoofinance.A
     StockTickInput tick = getStockTickInputOperator("StockTickInput", dag);
     tick.setOutputEvenIfZeroVolume(true);
     StreamMeta stream = dag.addStream("price", tick.price);
-    for (String ticker: tickers) {
-      TimeSeriesAverageChartOperator averageChartOperator = getAverageChartOperator("AverageChart_" + ticker, dag, ticker);
-      TimeSeriesHighLowChartOperator highLowChartOperator = getHighLowChartOperator("HighLowChart_" + ticker, dag, ticker);
-      DevNull<KeyValPair<Number,Number>> devnull1 = dag.addOperator("devnull1_"+ticker, new DevNull<KeyValPair<Number,Number>>());
-      DevNull<KeyValPair<Number,HighLow>> devnull2 = dag.addOperator("devnull2_"+ticker, new DevNull<KeyValPair<Number,HighLow>>());
-      dag.getOperatorMeta(averageChartOperator).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(5); // 5 seconds
-      dag.getOperatorMeta(highLowChartOperator).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(5); // 5 seconds
-      stream.addSink(averageChartOperator.in1);
-      stream.addSink(highLowChartOperator.in1);
-      dag.addStream("averageDummyStream_" + ticker, averageChartOperator.chart, devnull1.data);
-      dag.addStream("highLowDummyStream_" + ticker, highLowChartOperator.chart, devnull2.data);
-    }
+    TimeSeriesAverageChartOperator averageChartOperator = getAverageChartOperator("AverageChart", dag);
+    TimeSeriesCandleStickChartOperator candleStickChartOperator = getCandleStickChartOperator("CandleStickChart", dag);
+    DevNull<Map<Object, KeyValPair<Number, Number>>> devnull1 = dag.addOperator("devnull1", new DevNull<Map<Object, KeyValPair<Number, Number>>>());
+    DevNull<Map<Object, KeyValPair<Number, CandleStick>>> devnull2 = dag.addOperator("devnull2", new DevNull<Map<Object, KeyValPair<Number, CandleStick>>>());
+    dag.getOperatorMeta(averageChartOperator).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(5); // 5 seconds
+    dag.getOperatorMeta(candleStickChartOperator).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(5); // 5 seconds
+    stream.addSink(averageChartOperator.in1);
+    stream.addSink(candleStickChartOperator.in1);
+    dag.addStream("averageDummyStream", averageChartOperator.chart, devnull1.data);
+    dag.addStream("candleStickDummyStream", candleStickChartOperator.chart, devnull2.data);
+
     return dag;
   }
 

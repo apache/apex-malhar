@@ -11,7 +11,7 @@ import com.malhartech.api.DAGContext;
  *
  * @author David Yan <davidyan@malhar-inc.com>
  */
-public abstract class TimeSeriesChartOperator<T> extends ChartOperator<Number, T>
+public abstract class TimeSeriesChartOperator<T> extends XYChartOperator<Number, T>
 {
   private long currentWindowId = 0;
   private long windowWidth;
@@ -26,11 +26,12 @@ public abstract class TimeSeriesChartOperator<T> extends ChartOperator<Number, T
   @Override
   public void beginWindow(long windowId)
   {
+    super.beginWindow(windowId);
     currentWindowId = windowId;
   }
 
   @Override
-  public Number getX()
+  public Number getX(Object key)
   {
     return new Long((currentWindowId >>> 32) * 1000 + windowWidth * (currentWindowId & 0xffffffffL));
   }
