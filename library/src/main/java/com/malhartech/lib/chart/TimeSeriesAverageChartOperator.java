@@ -5,6 +5,7 @@
 package com.malhartech.lib.chart;
 
 import com.malhartech.api.Context.OperatorContext;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,6 +50,12 @@ public class TimeSeriesAverageChartOperator extends TimeSeriesChartOperator<Numb
       return null;
     }
     return (sni.numItems == 0) ? null : new Double(sni.sum / sni.numItems);
+  }
+
+  @Override
+  public Collection<Object> getKeys()
+  {
+    return dataMap.keySet();
   }
 
   @Override

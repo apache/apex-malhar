@@ -6,6 +6,7 @@ package com.malhartech.lib.chart;
 
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.lib.util.CandleStick;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,6 +41,12 @@ public class TimeSeriesCandleStickChartOperator extends TimeSeriesChartOperator<
   public CandleStick getY(Object key)
   {
     return dataMap.get(key);
+  }
+
+  @Override
+  public Collection<Object> getKeys()
+  {
+    return dataMap.keySet();
   }
 
   @Override

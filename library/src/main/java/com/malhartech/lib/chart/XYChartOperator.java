@@ -23,7 +23,6 @@ public abstract class XYChartOperator<T1, T2> extends ChartOperator
 {
   private String xAxisLabel;
   private String yAxisLabel;
-  protected List<Object> keys = new ArrayList<Object>();
 
   public String getxAxisLabel()
   {
@@ -59,12 +58,6 @@ public abstract class XYChartOperator<T1, T2> extends ChartOperator
   public final transient DefaultOutputPort<Map<Object, KeyValPair<T1, T2>>> chart = new DefaultOutputPort<Map<Object, KeyValPair<T1, T2>>>(this);
 
   @Override
-  public void beginWindow(long windowId)
-  {
-    keys.clear();
-  }
-
-  @Override
   public void endWindow()
   {
     HashMap<Object, KeyValPair<T1, T2>> map = new HashMap<Object, KeyValPair<T1, T2>>();
@@ -84,10 +77,7 @@ public abstract class XYChartOperator<T1, T2> extends ChartOperator
 
   public abstract T2 getY(Object key);
 
-  public List<Object> getKeys()
-  {
-    return Collections.unmodifiableList(keys);
-  }
+  public abstract Collection<Object> getKeys();
 
   public abstract void processTuple(Object tuple);
 
