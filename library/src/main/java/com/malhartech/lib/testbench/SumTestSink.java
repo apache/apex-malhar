@@ -6,7 +6,7 @@
 package com.malhartech.lib.testbench;
 
 import com.malhartech.api.Sink;
-import com.malhartech.engine.Tuple;
+import com.malhartech.tuple.Tuple;
 
 /**
  * A sink implementation to collect expected test results.

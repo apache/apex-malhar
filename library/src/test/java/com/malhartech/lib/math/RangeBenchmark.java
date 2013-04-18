@@ -4,9 +4,8 @@
 package com.malhartech.lib.math;
 
 import com.malhartech.api.Sink;
-import com.malhartech.engine.Tuple;
+import com.malhartech.tuple.Tuple;
 import com.malhartech.lib.util.HighLow;
-import java.util.ArrayList;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;

@@ -4,8 +4,7 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.engine.Tuple;
-import com.malhartech.lib.testbench.CountTestSink;
+import com.malhartech.tuple.Tuple;
 import com.malhartech.lib.testbench.CountTestSink;
 
 /**

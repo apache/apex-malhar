@@ -4,9 +4,8 @@
 package com.malhartech.lib.math;
 
 import com.malhartech.api.Sink;
-import com.malhartech.engine.Tuple;
+import com.malhartech.tuple.Tuple;
 import com.malhartech.lib.util.HighLow;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;

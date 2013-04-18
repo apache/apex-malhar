@@ -4,7 +4,7 @@
 package com.malhartech.lib.math;
 
 import com.malhartech.api.Sink;
-import com.malhartech.engine.Tuple;
+import com.malhartech.tuple.Tuple;
 import java.util.ArrayList;
 import junit.framework.Assert;
 import org.junit.Test;

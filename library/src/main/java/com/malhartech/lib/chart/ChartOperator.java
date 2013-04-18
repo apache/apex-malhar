@@ -44,7 +44,7 @@ public abstract class ChartOperator extends BaseOperator implements Partitionabl
   {
     AttributeMap<PortContext> outputPortAttributes = context.getOutputPortAttributes("chart");
     if (outputPortAttributes != null) {
-      outputPortAttributes.attr(PortContext.AUTO_RECORD_AND_PUBLISH).set(true);
+      outputPortAttributes.attr(PortContext.AUTO_RECORD).set(true);
     }
   }
 }

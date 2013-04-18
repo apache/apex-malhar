@@ -4,7 +4,7 @@
 package com.malhartech.lib.testbench;
 
 import com.malhartech.api.Sink;
-import com.malhartech.engine.Tuple;
+import com.malhartech.tuple.Tuple;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -129,7 +129,7 @@ public class EventIncrementerTest
                             numtuples,
                             oper.tuple_count,
                             dataSink.count));
-    for (Map.Entry<String, String> e: ((HashMap<String, String>) dataSink.collectedTuples).entrySet()) {
+    for (Map.Entry<String, String> e: dataSink.collectedTuples.entrySet()) {
       LOG.debug(String.format("Got key (%s) and value (%s)", e.getKey(), e.getValue()));
     }
 
@@ -156,7 +156,7 @@ public class EventIncrementerTest
                             numtuples*2,
                             oper.tuple_count,
                             countSink.count));
-     for (Map.Entry<String, String> e: ((HashMap<String, String>) dataSink.collectedTuples).entrySet()) {
+     for (Map.Entry<String, String> e: dataSink.collectedTuples.entrySet()) {
       LOG.debug(String.format("Got key (%s) and value (%s)", e.getKey(), e.getValue()));
     }
   }
