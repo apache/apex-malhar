@@ -28,7 +28,7 @@ public class UnifierHashMapInteger<K> implements Unifier<HashMap<K, Integer>>
    * @param tuple incoming tuple from a partition
    */
   @Override
-  public void merge(HashMap<K, Integer> tuple)
+  public void process(HashMap<K, Integer> tuple)
   {
     for (Map.Entry<K, Integer> e: tuple.entrySet()) {
       Integer val = mergedTuple.get(e.getKey());

@@ -95,7 +95,7 @@ public class UniqueCounterValue<K> extends BaseOperator implements Unifier<Integ
   }
 
   @Override
-  public void merge(Integer tuple)
+  public void process(Integer tuple)
   {
     counts += tuple;
   }

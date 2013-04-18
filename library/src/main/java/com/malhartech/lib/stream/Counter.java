@@ -76,7 +76,7 @@ public class Counter implements Operator, Unifier<Integer>
   }
 
   @Override
-  public void merge(Integer tuple)
+  public void process(Integer tuple)
   {
     count += tuple;
   }

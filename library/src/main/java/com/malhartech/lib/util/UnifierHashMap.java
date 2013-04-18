@@ -29,7 +29,7 @@ public class UnifierHashMap<K, V> implements Unifier<HashMap<K, V>>
    * @param tuple incoming tuple from a partition
    */
   @Override
-  public void merge(HashMap<K, V> tuple)
+  public void process(HashMap<K, V> tuple)
   {
     mergedTuple.putAll(tuple);
   }

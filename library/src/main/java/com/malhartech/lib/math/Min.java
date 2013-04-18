@@ -63,12 +63,12 @@ public class Min<V extends Number> extends BaseNumberValueOperator<V> implements
     @Override
     public void process(V tuple)
     {
-      merge(tuple);
+      Min.this.process(tuple);
     }
   };
 
   @Override
-  public void merge(V tuple)
+  public void process(V tuple)
   {
     if (!flag) {
       low = tuple;

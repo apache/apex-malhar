@@ -74,13 +74,13 @@ public class Sum<V extends Number> extends BaseNumberValueOperator<V> implements
     @Override
     public void process(V tuple)
     {
-      merge(tuple);
+      Sum.this.process(tuple);
       tupleAvailable = true;
     }
   };
 
   @Override
-  public void merge(V tuple)
+  public void process(V tuple)
   {
     sums += tuple.doubleValue();
     tupleAvailable = true; // also need to set here for Unifier

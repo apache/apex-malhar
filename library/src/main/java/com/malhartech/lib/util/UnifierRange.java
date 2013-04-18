@@ -28,7 +28,7 @@ public class UnifierRange implements Unifier<HighLow>
    * @param tuple incoming tuple from a partition
    */
   @Override
-  public void merge(HighLow tuple)
+  public void process(HighLow tuple)
   {
     if (mergedTuple == null) {
       mergedTuple = new HighLow(tuple.getHigh(), tuple.getLow());

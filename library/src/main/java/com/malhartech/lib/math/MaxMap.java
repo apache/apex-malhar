@@ -67,13 +67,13 @@ public class MaxMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
     @Override
     public void process(HashMap<K, V> tuple)
     {
-      merge(tuple);
+      MaxMap.this.process(tuple);
     }
 
   };
 
   @Override
-  public void merge(HashMap<K, V> tuple)
+  public void process(HashMap<K, V> tuple)
   {
     for (Map.Entry<K, V> e: tuple.entrySet()) {
       K key = e.getKey();

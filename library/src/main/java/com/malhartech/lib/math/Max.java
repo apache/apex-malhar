@@ -62,12 +62,12 @@ public class Max<V extends Number> extends BaseNumberValueOperator<V> implements
     @Override
     public void process(V tuple)
     {
-      merge(tuple);
+      Max.this.process(tuple);
     }
   };
 
   @Override
-  public void merge(V tuple)
+  public void process(V tuple)
   {
     if (!flag) {
       high = tuple;

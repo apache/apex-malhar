@@ -29,7 +29,7 @@ public class UnifierBooleanAnd implements Unifier<Boolean>
    * @param tuple incoming tuple from a partition
    */
   @Override
-  public void merge(Boolean tuple)
+  public void process(Boolean tuple)
   {
     doemit = true;
     result = tuple && result;

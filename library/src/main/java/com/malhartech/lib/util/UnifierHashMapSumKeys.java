@@ -24,7 +24,7 @@ public class UnifierHashMapSumKeys<K, V extends Number> extends BaseNumberKeyVal
   public final transient DefaultOutputPort<HashMap<K, V>> mergedport = new DefaultOutputPort<HashMap<K, V>>(this);
 
   @Override
-  public void merge(HashMap<K, V> tuple)
+  public void process(HashMap<K, V> tuple)
   {
     for (Map.Entry<K, V> e: tuple.entrySet()) {
       Double val = mergedTuple.get(e.getKey());

@@ -29,7 +29,7 @@ public class UnifierHashMapRange<K> implements Unifier<HashMap<K, HighLow>>
    * @param tuple incoming tuple from a partition
    */
   @Override
-  public void merge(HashMap<K, HighLow> tuple)
+  public void process(HashMap<K, HighLow> tuple)
   {
     for (Map.Entry<K, HighLow> e: tuple.entrySet()) {
       HighLow val = mergedTuple.get(e.getKey());

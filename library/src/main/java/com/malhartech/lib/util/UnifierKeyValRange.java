@@ -28,7 +28,7 @@ public class UnifierKeyValRange<K> implements Unifier<KeyValPair<K, HighLow>>
    * @param tuple incoming tuple from a partition
    */
   @Override
-  public void merge(KeyValPair<K, HighLow> tuple)
+  public void process(KeyValPair<K, HighLow> tuple)
   {
     HighLow val = map.get(tuple.getKey());
     if (val == null) {

@@ -4,8 +4,8 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.tuple.Tuple;
 import com.malhartech.lib.testbench.CountTestSink;
+import com.malhartech.tuple.Tuple;
 
 /**
  * A sink implementation to collect expected test results.

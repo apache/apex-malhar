@@ -28,7 +28,7 @@ public class UnifierSumNumber<V extends Number> extends BaseNumberValueOperator<
    * @param tuple incoming tuple from a partition
    */
   @Override
-  public void merge(V tuple)
+  public void process(V tuple)
   {
     result += tuple.doubleValue();
     doEmit = true;

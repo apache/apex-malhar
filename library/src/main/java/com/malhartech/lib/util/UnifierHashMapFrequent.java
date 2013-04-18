@@ -31,7 +31,7 @@ public class UnifierHashMapFrequent<K> implements Unifier<HashMap<K, Integer>>
    * @param tuple incoming tuple from a partition
    */
   @Override
-  public void merge(HashMap<K, Integer> tuple)
+  public void process(HashMap<K, Integer> tuple)
   {
     // Tuple is HashMap<K,Integer>(1)
     if (mergedTuple.isEmpty()) {
