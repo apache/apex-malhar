@@ -53,7 +53,7 @@ cat > proguard.conf <<EOF
     public static final long versionID; 
 }
 -keepclassmembers enum * { *; }
--keepattributes *Annotation*,EnclosingMethod,Exceptions
+-keepattributes *Annotation*,EnclosingMethod,Exceptions,Signature
 -keepdirectories **
 -adaptresourcefilenames **.properties,**.gif,**.jpg
 -adaptresourcefilecontents **.properties,META-INF/MANIFEST.MF
