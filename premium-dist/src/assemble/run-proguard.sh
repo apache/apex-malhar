@@ -23,6 +23,7 @@ cat > proguard.conf <<EOF
 -keep public class com.malhartech.demos.** { *; }
 -keep public class com.malhartech.lib.** { *; }
 -keep public class com.malhartech.daemon.Daemon { public *; }
+-keep public class com.malhartech.stram.StramLocalCluster { public *; }
 -keep public class com.malhartech.api.** { *; }
 -keep public class com.malhartech.bufferserver.Buffer { *; }
 -keep public class com.malhartech.bufferserver.Buffer$** { *; }
