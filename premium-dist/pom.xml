@@ -113,13 +113,12 @@
 
 	  <plugin>
 	    <artifactId>maven-javadoc-plugin</artifactId>
-	    <version>2.9</version>
 	    <executions>
 	      <execution>
 		<id>javadoc-aggregate</id>
 		<phase>package</phase>
 		<goals>
-		  <goal>aggregate</goal>
+		  <goal>javadoc</goal>
 		</goals>
 		<configuration>
 		  <!-- switch on dependency-driven aggregation -->
@@ -139,6 +138,30 @@
 	      </execution>
 	    </executions>
 	  </plugin>
+
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>2.6</version>
+        <executions>
+          <execution>
+            <id>copy-resources</id>
+            <!-- here the phase you need -->
+            <phase>package</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${basedir}/target/site</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>../dist/src/site</directory>
+                  <filtering>false</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
 
 	  <plugin>
 	    <artifactId>maven-assembly-plugin</artifactId>
