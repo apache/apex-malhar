@@ -10,3 +10,5 @@ bin/stop-malhar-daemon
 
 Access the front end page here:
 http://[stram.daemon.address]/static/index.html
+
+The value of stram.daemon.address is at $HOME/.stram/stram-site.xml, which you can change.
