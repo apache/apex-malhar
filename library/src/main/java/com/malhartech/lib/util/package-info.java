@@ -4,26 +4,7 @@
  *
  */
 /**
- * <b>{@link com.malhartech.lib.util}</b> is a library of utility classes<p>
- * <br>
- * <br> The classes are.. <br>
- * <b>{@link com.malhartech.lib.util.AbstractBaseFrequentKey}</b>: Occurrences of each key is counted in the input stream, and at the end of window the winning frequent key is emitted on output port "count"<p>
- * <b>{@link com.malhartech.lib.util.AbstractBaseMatchOperator}</b>: An abstract class that sets up the basic operator functionality needed for match based operators<br>
- * <b>{@link com.malhartech.lib.util.AbstractBaseSortOperator}</b>: Takes a stream of key value pairs via input port "data"; The incoming tuple is merged into already existing sorted list. At the end of the window the entire sorted list is emitted on output port "sort"<br>
- * <b>{@link com.malhartech.lib.util.BaseKeyOperator}</b>: Base class for operators that allows cloneKey for mutable key objects<br>
- * <b>{@link com.malhartech.lib.util.BaseKeyValueOperator}</b>: extends {@link com.malhartech.lib.util.BaseKeyOperator} and enables cloneValue for mutable value objects<br>
- * <b>{@link com.malhartech.lib.util.BaseFilteredKeyValueOperator}</b>: extends {@link com.malhartech.lib.util.BaseKeyValueOperator} and enables filtering of keys<br>
- * <b>{@link com.malhartech.lib.util.BaseLineTokenizer}</b>: Base class for splitting lines into tokens and tokens into sub-tokens<br>
- * <b>{@link com.malhartech.lib.util.BaseMatchOperator}</b>:  * Base class that sets up the operator functionality needed for match based operators<br>
- * <b>{@link com.malhartech.lib.util.BaseNumberKeyValueOperator}</b>: Base class for operators that take in V extends Number. Provides basic methods for value conversion, and cloning of keys and values<br>
- * <b>{@link com.malhartech.lib.util.BaseNumberValueOperator}</b>: Base class for operators that take in K,V extends Number. Provides basic methods for value conversion and key cloning<br>
- * <b>{@link com.malhartech.lib.util.BaseUniqueKeyCounter}</b>: Count unique occurrences of keys within a window<<br>
- * <b>{@link com.malhartech.lib.util.BaseUniqueKeyValueCounter}</b>: Count unique occurrences of key,val pairs within a window<<br>
- * <b>{@link com.malhartech.lib.util.KeyValPair}</b>: A single KeyValPair for basic data passing. It is a write once, and read often model<br>
- * <b>{@link com.malhartech.lib.util.ReversibleComparator}</b>: A comparator for ascending and descending lists<br>
- * <b>{@link com.malhartech.lib.util.TopNSort}</b>: Gives top N objects in ascending or descending order<br>
- * <b>{@link com.malhartech.lib.util.TopNUniqueSort}</b>: Gives top N objects in ascending or descending order and counts only unique objects<br>
- * <br>
+ * <b>{@link com.malhartech.lib.util}</b> is a library of utility classes that can be extended for business logic<p>
  * <br>
  */
 package com.malhartech.lib.util;
