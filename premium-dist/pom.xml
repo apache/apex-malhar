@@ -127,6 +127,7 @@
 		      <dependencySourceInclude>com.malhartech:*</dependencySourceInclude>
 		      </dependencySourceIncludes-->
 		  <sourcepath>
+                    :${project.basedir}/../stram/src/main/java
 		    :${project.basedir}/../library/src/main/java
 		    :${project.basedir}/../demos/src/main/java
 		    :${project.basedir}/../contrib/src/main/java
