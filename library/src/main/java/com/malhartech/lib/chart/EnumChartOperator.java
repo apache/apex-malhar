@@ -10,10 +10,15 @@ import java.util.TreeMap;
 
 /**
  * This is the base class for all chart operators that plot charts with x-axis having enumerated values
+ * @param <K> The type of the key
+ * @param <X> The type of values on the X-axis
  * @author David Yan <davidyan@malhar-inc.com>
  */
 public abstract class EnumChartOperator<K, X> extends XYChartOperator<K, X, Number>
 {
+  /**
+   * The data map to store the data to be charted during a window
+   */
   protected Map<K, Map<X, Number>> dataMap = new TreeMap<K, Map<X, Number>>();
 
   @Override

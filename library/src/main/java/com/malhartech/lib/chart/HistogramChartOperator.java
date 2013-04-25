@@ -10,6 +10,7 @@ import java.util.TreeMap;
 
 /**
  * This is the base class for all chart operators that plot a histogram
+ * @param <K> The key type
  * @author David Yan <davidyan@malhar-inc.com>
  */
 public abstract class HistogramChartOperator<K> extends EnumChartOperator<K, HighLow>
@@ -69,6 +70,24 @@ public abstract class HistogramChartOperator<K> extends EnumChartOperator<K, Hig
   public int getNumDivisions()
   {
     return numDivisions;
+  }
+
+  /**
+   * Gets the number type of the values on the X-axis
+   * @return
+   */
+  public NumberType getxNumberType()
+  {
+    return xNumberType;
+  }
+
+  /**
+   * Sets the number type of the values on the X-axis
+   * @param xNumberType
+   */
+  public void setxNumberType(NumberType xNumberType)
+  {
+    this.xNumberType = xNumberType;
   }
 
   /**

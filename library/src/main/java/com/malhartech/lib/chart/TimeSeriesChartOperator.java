@@ -11,8 +11,8 @@ import java.util.TreeMap;
 
 /**
  * This is the base class for all chart operators that use X-axis as a time series
- * @param <K>
- * @param <Y>
+ * @param <K> The type of the key
+ * @param <Y> The type of values on the Y-axis
  * @author David Yan <davidyan@malhar-inc.com>
  */
 public abstract class TimeSeriesChartOperator<K, Y> extends XYChartOperator<K, Number, Y>

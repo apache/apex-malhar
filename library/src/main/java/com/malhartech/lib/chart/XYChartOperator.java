@@ -22,10 +22,25 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class XYChartOperator<K, X, Y> extends ChartOperator
 {
-  public enum NumberType { LONG, DOUBLE };
+  /**
+   * For distinguishing the number type of either the X-axis or the Y-axis values
+   */
+  public enum NumberType {
+    /**
+     * For integer type values
+     */
+    LONG,
+    /**
+     * For floating point type values
+     */
+    DOUBLE,
+  };
 
   private String xAxisLabel;
   private String yAxisLabel;
+  /**
+   * The value type of the Y-axis
+   */
   protected NumberType yNumberType = NumberType.LONG;
 
   /**

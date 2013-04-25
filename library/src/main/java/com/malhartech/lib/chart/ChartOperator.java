@@ -19,6 +19,9 @@ import java.util.List;
  */
 public abstract class ChartOperator extends BaseOperator implements PartitionableOperator
 {
+  /**
+   * The different types of chart
+   */
   public enum Type
   {
     /**
