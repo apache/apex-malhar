@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- *
+ * This is the base class for all chart operators that plot charts with x-axis having enumerated values
  * @author David Yan <davidyan@malhar-inc.com>
  */
 public abstract class EnumChartOperator<K, X> extends XYChartOperator<K, X, Number>
@@ -34,6 +34,11 @@ public abstract class EnumChartOperator<K, X> extends XYChartOperator<K, X, Numb
     return dataMap.keySet();
   }
 
+  /**
+   * Tells the chart operator how to get the X value to plot on the graph for this tuple
+   * @param tuple
+   * @return The X value to plot on the graph
+   */
   public abstract X convertTupleToX(Object tuple);
 
   @Override

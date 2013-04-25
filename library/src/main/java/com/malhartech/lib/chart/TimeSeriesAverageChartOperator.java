@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- *
+ * This is the chart operator that plots the average (mean) value of Y for each window.  X will be based on the timestamp derived from the window id
  * @author David Yan <davidyan@malhar-inc.com>
  */
 public class TimeSeriesAverageChartOperator<K> extends TimeSeriesChartOperator<K, Number>

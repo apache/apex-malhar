@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * This is the base class for all chart operators that draw charts that have two axes
  * @param <K> The type for the key
  * @param <X> The type for the data points on the x-axis
  * @param <Y> The type for the data points on the y-axis
@@ -28,26 +28,44 @@ public abstract class XYChartOperator<K, X, Y> extends ChartOperator
   private String yAxisLabel;
   protected NumberType yNumberType = NumberType.LONG;
 
+  /**
+   * Gets the label of the X-axis.
+   * @return The label of the X-axis
+   */
   public String getxAxisLabel()
   {
     return xAxisLabel;
   }
 
+  /**
+   * Sets the label of the X-axis.
+   * @param xAxisLabel
+   */
   public void setxAxisLabel(String xAxisLabel)
   {
     this.xAxisLabel = xAxisLabel;
   }
 
+  /**
+   * Gets the label of the Y-axis.
+   * @return The label of the Y-axis
+   */
   public String getyAxisLabel()
   {
     return yAxisLabel;
   }
 
+  /**
+   * @param yAxisLabel
+   */
   public void setyAxisLabel(String yAxisLabel)
   {
     this.yAxisLabel = yAxisLabel;
   }
 
+  /**
+   * The input port of the chart operator.
+   */
   @InputPortFieldAnnotation(name = "in1")
   public final transient DefaultInputPort<Object> in1 = new DefaultInputPort<Object>(this)
   {
@@ -58,6 +76,10 @@ public abstract class XYChartOperator<K, X, Y> extends ChartOperator
     }
 
   };
+
+  /**
+   * The output port of the chart operator.  The data of this will be shipped to the module that draws the chart.
+   */
   @OutputPortFieldAnnotation(name = "chart")
   public final transient DefaultOutputPort<Map<K, Map<X, Y>>> chart = new DefaultOutputPort<Map<K, Map<X, Y>>>(this);
 
@@ -77,22 +99,48 @@ public abstract class XYChartOperator<K, X, Y> extends ChartOperator
     }
   }
 
+  /**
+   * Gets all the points on the chart given the key within the window
+   * @param key
+   * @return Points on the chart
+   */
   public abstract Map<X, Y> getPoints(K key);
 
+  /**
+   * Gets all the keys on the chart within the window
+   * @return Keys
+   */
   public abstract Collection<K> getKeys();
 
+  /**
+   * Looks at the tuple and does what it needs to do in order to generate the chart at endWindow
+   * @param tuple
+   */
   public abstract void processTuple(Object tuple);
 
+  /**
+   * Sets the number type of Y-axis
+   * @param numberType The number type, either LONG or DOUBLE
+   */
   public void setyNumberType(NumberType numberType)
   {
-    this.yNumberType = yNumberType;
+    this.yNumberType = numberType;
   }
 
+  /**
+   * Gets the number type of Y-axis
+   * @return The number type
+   */
   public NumberType getyNumberType()
   {
     return yNumberType;
   }
 
+  /**
+   * Tells the chart operator how to convert the tuple to its Y value
+   * @param tuple
+   * @return The number that contributes to the value on the Y-axis
+   */
   public Number convertTupleToY(Object tuple)
   {
     if (tuple instanceof KeyValPair) {
@@ -112,6 +160,11 @@ public abstract class XYChartOperator<K, X, Y> extends ChartOperator
     }
   }
 
+  /**
+   * Tells the chart operator how to convert the tuple to its key
+   * @param tuple
+   * @return The key
+   */
   @SuppressWarnings("unchecked")
   public K convertTupleToKey(Object tuple)
   {

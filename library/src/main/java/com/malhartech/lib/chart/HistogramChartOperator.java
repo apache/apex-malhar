@@ -9,7 +9,7 @@ import com.malhartech.lib.util.HighLow;
 import java.util.TreeMap;
 
 /**
- *
+ * This is the base class for all chart operators that plot a histogram
  * @author David Yan <davidyan@malhar-inc.com>
  */
 public abstract class HistogramChartOperator<K> extends EnumChartOperator<K, HighLow>
@@ -26,31 +26,55 @@ public abstract class HistogramChartOperator<K> extends EnumChartOperator<K, Hig
     return Type.HISTOGRAM;
   }
 
+  /**
+   * Gets the upper bound on the x-axis for the histogram
+   * @return
+   */
   public Number getHigh()
   {
     return high;
   }
 
+  /**
+   * Sets the upper bound on the x-axis for the histogram
+   * @param high
+   */
   public void setHigh(Number high)
   {
     this.high = high;
   }
 
+  /**
+   * Gets the lower bound on the x-axis for the histogram
+   * @return
+   */
   public Number getLow()
   {
     return low;
   }
 
+  /**
+   * Sets the lower bound on the x-axis for the histogram
+   * @param low
+   */
   public void setLow(Number low)
   {
     this.low = low;
   }
 
+  /**
+   * Gets the number of divisions on the x-axis for the histogram
+   * @return
+   */
   public int getNumDivisions()
   {
     return numDivisions;
   }
 
+  /**
+   * Sets the number of divisions on the x-axis for the histogram
+   * @param numDivisions
+   */
   public void setNumDivisions(int numDivisions)
   {
     this.numDivisions = numDivisions;
@@ -90,6 +114,12 @@ public abstract class HistogramChartOperator<K> extends EnumChartOperator<K, Hig
     }
   }
 
+  /**
+   * Tells the histogram chart operator how to get the X value given the tuple.
+   * The value will be used to determine which bucket of the X-axis the tuple belongs to
+   * @param tuple
+   * @return The X value
+   */
   public abstract Number convertTupleToXSource(Object tuple);
 
   @Override
