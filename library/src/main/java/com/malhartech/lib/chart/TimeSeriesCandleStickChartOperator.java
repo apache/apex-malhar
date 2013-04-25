@@ -7,16 +7,16 @@ package com.malhartech.lib.chart;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.lib.util.CandleStick;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  *
  * @author David Yan <davidyan@malhar-inc.com>
  */
-public class TimeSeriesCandleStickChartOperator extends TimeSeriesChartOperator<CandleStick>
+public class TimeSeriesCandleStickChartOperator<K> extends TimeSeriesChartOperator<K, CandleStick>
 {
-  Map<Object, CandleStick> dataMap = new HashMap<Object, CandleStick>();
+  Map<K, CandleStick> dataMap = new TreeMap<K, CandleStick>();
 
   @Override
   public Type getChartType()
@@ -38,13 +38,13 @@ public class TimeSeriesCandleStickChartOperator extends TimeSeriesChartOperator<
   }
 
   @Override
-  public CandleStick getY(Object key)
+  public CandleStick getY(K key)
   {
     return dataMap.get(key);
   }
 
   @Override
-  public Collection<Object> getKeys()
+  public Collection<K> getKeys()
   {
     return dataMap.keySet();
   }
@@ -52,22 +52,42 @@ public class TimeSeriesCandleStickChartOperator extends TimeSeriesChartOperator<
   @Override
   public void processTuple(Object tuple)
   {
-    Object key = convertTupleToKey(tuple);
-    Number number = convertTupleToNumber(tuple);
+    K key = convertTupleToKey(tuple);
+    Number number = convertTupleToY(tuple);
     if (number != null) {
-      double value = number.doubleValue();
-      CandleStick candleStick = dataMap.get(key);
-      if (candleStick != null) {
-        if (value > candleStick.getHigh().doubleValue()) {
-          candleStick.setHigh(value);
+      if (yNumberType == NumberType.DOUBLE) {
+        double value = number.doubleValue();
+        CandleStick candleStick = dataMap.get(key);
+        if (candleStick != null) {
+          if (value > candleStick.getHigh().doubleValue()) {
+            candleStick.setHigh(value);
+          }
+          if (value < candleStick.getLow().doubleValue()) {
+            candleStick.setLow(value);
+          }
+          candleStick.setClose(value);
         }
-        if (value < candleStick.getLow().doubleValue()) {
-          candleStick.setLow(value);
+        else {
+          candleStick = new CandleStick(value, value, value, value);
+          dataMap.put(key, candleStick);
         }
-        candleStick.setClose(value);
-      } else {
-        candleStick = new CandleStick(value, value, value, value);
-        dataMap.put(key, candleStick);
+      }
+      else {
+        long value = number.longValue();
+        CandleStick candleStick = dataMap.get(key);
+        if (candleStick != null) {
+          if (value > candleStick.getHigh().longValue()) {
+            candleStick.setHigh(value);
+          }
+          if (value < candleStick.getLow().longValue()) {
+            candleStick.setLow(value);
+          }
+          candleStick.setClose(value);
+        }
+        else {
+          candleStick = new CandleStick(value, value, value, value);
+          dataMap.put(key, candleStick);
+        }
       }
     }
 

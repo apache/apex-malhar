@@ -15,14 +15,18 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * @param <T1> The type for the data points on the x-axis
- * @param <T2> The type for the data points on the y-axis
+ * @param <K> The type for the key
+ * @param <X> The type for the data points on the x-axis
+ * @param <Y> The type for the data points on the y-axis
  * @author David Yan <davidyan@malhar-inc.com>
  */
-public abstract class XYChartOperator<T1, T2> extends ChartOperator
+public abstract class XYChartOperator<K, X, Y> extends ChartOperator
 {
+  public enum NumberType { LONG, DOUBLE };
+
   private String xAxisLabel;
   private String yAxisLabel;
+  protected NumberType yNumberType = NumberType.LONG;
 
   public String getxAxisLabel()
   {
@@ -55,17 +59,17 @@ public abstract class XYChartOperator<T1, T2> extends ChartOperator
 
   };
   @OutputPortFieldAnnotation(name = "chart")
-  public final transient DefaultOutputPort<Map<Object, KeyValPair<T1, T2>>> chart = new DefaultOutputPort<Map<Object, KeyValPair<T1, T2>>>(this);
+  public final transient DefaultOutputPort<Map<K, Map<X, Y>>> chart = new DefaultOutputPort<Map<K, Map<X, Y>>>(this);
 
   @Override
   public void endWindow()
   {
-    HashMap<Object, KeyValPair<T1, T2>> map = new HashMap<Object, KeyValPair<T1, T2>>();
-    for (Object key: getKeys()) {
-      T1 x = getX(key);
-      T2 y = getY(key);
-      if (x != null && y != null) {
-        map.put(key, new KeyValPair<T1, T2>(x, y));
+    Map<K, Map<X, Y>> map = new TreeMap<K, Map<X, Y>>();
+    for (K k: getKeys()) {
+      K key = k;
+      Map<X, Y> points = getPoints(key);
+      if (!points.isEmpty()) {
+        map.put(key, points);
       }
     }
     if (!map.isEmpty()) {
@@ -73,15 +77,23 @@ public abstract class XYChartOperator<T1, T2> extends ChartOperator
     }
   }
 
-  public abstract T1 getX(Object key);
+  public abstract Map<X, Y> getPoints(K key);
 
-  public abstract T2 getY(Object key);
-
-  public abstract Collection<Object> getKeys();
+  public abstract Collection<K> getKeys();
 
   public abstract void processTuple(Object tuple);
 
-  public Number convertTupleToNumber(Object tuple)
+  public void setyNumberType(NumberType numberType)
+  {
+    this.yNumberType = yNumberType;
+  }
+
+  public NumberType getyNumberType()
+  {
+    return yNumberType;
+  }
+
+  public Number convertTupleToY(Object tuple)
   {
     if (tuple instanceof KeyValPair) {
       KeyValPair<?, ?> kvp = (KeyValPair<?, ?>)tuple;
@@ -100,13 +112,14 @@ public abstract class XYChartOperator<T1, T2> extends ChartOperator
     }
   }
 
-  public Object convertTupleToKey(Object tuple)
+  @SuppressWarnings("unchecked")
+  public K convertTupleToKey(Object tuple)
   {
     if (tuple instanceof KeyValPair) {
       KeyValPair<?, ?> kvp = (KeyValPair<?, ?>)tuple;
-      return kvp.getKey();
+      return (K)kvp.getKey();
     }
-    return ""; // default key is empty string
+    return null; // default key is null
   }
 
 

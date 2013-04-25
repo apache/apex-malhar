@@ -22,18 +22,18 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class YahooFinanceApplication extends com.malhartech.demos.yahoofinance.Application
 {
-  public static class YahooFinanceTimeSeriesAverageChartOperator extends TimeSeriesAverageChartOperator
+  public static class YahooFinanceTimeSeriesAverageChartOperator extends TimeSeriesAverageChartOperator<String>
   {
 
     @Override
-    public Number convertTupleToNumber(Object tuple)
+    public Number convertTupleToY(Object tuple)
     {
       KeyValPair<String, Double> kvp = (KeyValPair<String, Double>)tuple;
       return kvp.getValue();
     }
 
     @Override
-    public Object convertTupleToKey(Object tuple)
+    public String convertTupleToKey(Object tuple)
     {
       KeyValPair<String, Double> kvp = (KeyValPair<String, Double>)tuple;
       return kvp.getKey();
@@ -41,19 +41,17 @@ public class YahooFinanceApplication extends com.malhartech.demos.yahoofinance.A
 
   }
 
-  public static class YahooFinanceTimeSeriesCandleStickChartOperator extends TimeSeriesCandleStickChartOperator
+  public static class YahooFinanceTimeSeriesCandleStickChartOperator extends TimeSeriesCandleStickChartOperator<String>
   {
-    public String ticker;
-
     @Override
-    public Number convertTupleToNumber(Object tuple)
+    public Number convertTupleToY(Object tuple)
     {
       KeyValPair<String, Double> kvp = (KeyValPair<String, Double>)tuple;
       return kvp.getValue();
     }
 
     @Override
-    public Object convertTupleToKey(Object tuple)
+    public String convertTupleToKey(Object tuple)
     {
       KeyValPair<String, Double> kvp = (KeyValPair<String, Double>)tuple;
       return kvp.getKey();
@@ -61,13 +59,13 @@ public class YahooFinanceApplication extends com.malhartech.demos.yahoofinance.A
 
   }
 
-  TimeSeriesAverageChartOperator getAverageChartOperator(String name, DAG dag)
+  TimeSeriesAverageChartOperator<String> getAverageChartOperator(String name, DAG dag)
   {
     YahooFinanceTimeSeriesAverageChartOperator op = new YahooFinanceTimeSeriesAverageChartOperator();
     return dag.addOperator(name, op);
   }
 
-  TimeSeriesCandleStickChartOperator getCandleStickChartOperator(String name, DAG dag)
+  TimeSeriesCandleStickChartOperator<String> getCandleStickChartOperator(String name, DAG dag)
   {
     YahooFinanceTimeSeriesCandleStickChartOperator op = new YahooFinanceTimeSeriesCandleStickChartOperator();
     return dag.addOperator(name, op);
@@ -83,10 +81,10 @@ public class YahooFinanceApplication extends com.malhartech.demos.yahoofinance.A
     StockTickInput tick = getStockTickInputOperator("StockTickInput", dag);
     tick.setOutputEvenIfZeroVolume(true);
     StreamMeta stream = dag.addStream("price", tick.price);
-    TimeSeriesAverageChartOperator averageChartOperator = getAverageChartOperator("AverageChart", dag);
-    TimeSeriesCandleStickChartOperator candleStickChartOperator = getCandleStickChartOperator("CandleStickChart", dag);
-    DevNull<Map<Object, KeyValPair<Number, Number>>> devnull1 = dag.addOperator("devnull1", new DevNull<Map<Object, KeyValPair<Number, Number>>>());
-    DevNull<Map<Object, KeyValPair<Number, CandleStick>>> devnull2 = dag.addOperator("devnull2", new DevNull<Map<Object, KeyValPair<Number, CandleStick>>>());
+    TimeSeriesAverageChartOperator<String> averageChartOperator = getAverageChartOperator("AverageChart", dag);
+    TimeSeriesCandleStickChartOperator<String> candleStickChartOperator = getCandleStickChartOperator("CandleStickChart", dag);
+    DevNull<Map<String, Map<Number, Number>>> devnull1 = dag.addOperator("devnull1", new DevNull<Map<String, Map<Number, Number>>>());
+    DevNull<Map<String, Map<Number, CandleStick>>> devnull2 = dag.addOperator("devnull2", new DevNull<Map<String, Map<Number, CandleStick>>>());
     dag.getOperatorMeta(averageChartOperator).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(5); // 5 seconds
     dag.getOperatorMeta(candleStickChartOperator).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(5); // 5 seconds
     stream.addSink(averageChartOperator.in1);

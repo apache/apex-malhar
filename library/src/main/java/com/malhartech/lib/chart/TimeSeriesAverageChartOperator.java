@@ -6,14 +6,14 @@ package com.malhartech.lib.chart;
 
 import com.malhartech.api.Context.OperatorContext;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  *
  * @author David Yan <davidyan@malhar-inc.com>
  */
-public class TimeSeriesAverageChartOperator extends TimeSeriesChartOperator<Number>
+public class TimeSeriesAverageChartOperator<K> extends TimeSeriesChartOperator<K, Number>
 {
   protected static class SumNumItems
   {
@@ -21,7 +21,7 @@ public class TimeSeriesAverageChartOperator extends TimeSeriesChartOperator<Numb
     long numItems = 0;
   }
 
-  protected Map<Object, SumNumItems> dataMap = new HashMap<Object, SumNumItems>();
+  protected Map<K, SumNumItems> dataMap = new TreeMap<K, SumNumItems>();
 
   @Override
   public Type getChartType()
@@ -43,7 +43,7 @@ public class TimeSeriesAverageChartOperator extends TimeSeriesChartOperator<Numb
   }
 
   @Override
-  public Number getY(Object key)
+  public Number getY(K key)
   {
     SumNumItems sni = dataMap.get(key);
     if (sni == null) {
@@ -53,7 +53,7 @@ public class TimeSeriesAverageChartOperator extends TimeSeriesChartOperator<Numb
   }
 
   @Override
-  public Collection<Object> getKeys()
+  public Collection<K> getKeys()
   {
     return dataMap.keySet();
   }
@@ -61,8 +61,8 @@ public class TimeSeriesAverageChartOperator extends TimeSeriesChartOperator<Numb
   @Override
   public void processTuple(Object tuple)
   {
-    Object key = convertTupleToKey(tuple);
-    Number number = convertTupleToNumber(tuple);
+    K key = convertTupleToKey(tuple);
+    Number number = convertTupleToY(tuple);
     if (number != null) {
       SumNumItems sni = dataMap.get(key);
       if (sni != null) {
