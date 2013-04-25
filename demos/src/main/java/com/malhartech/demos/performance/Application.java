@@ -27,7 +27,9 @@ public class Application implements ApplicationFactory
 
 //    dag.addStream("Generator2Processor", wordGenerator.output, noOpProcessor.input).setInline(inline);
 //    dag.addStream("Processor2Counter", noOpProcessor.output, counter.input).setInline(inline);
-    dag.getOperatorMeta(counter).getInputPortMeta(counter.input).getAttributes().attr(PortContext.QUEUE_CAPACITY).set(16 * 1024);
+    dag.getOperatorMeta(wordGenerator).getOutputPortMeta(wordGenerator.output).getAttributes().attr(PortContext.QUEUE_CAPACITY).set(1024 * 1024);
+
+    dag.getOperatorMeta(counter).getInputPortMeta(counter.input).getAttributes().attr(PortContext.QUEUE_CAPACITY).set(1024 * 1024);
 
     dag.addStream("Generator2Counter", wordGenerator.output, counter.input).setInline(inline);
     return dag;
