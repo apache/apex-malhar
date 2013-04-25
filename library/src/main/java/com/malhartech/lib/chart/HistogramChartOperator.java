@@ -20,6 +20,12 @@ public abstract class HistogramChartOperator<K> extends EnumChartOperator<K, Hig
   protected NumberType xNumberType = NumberType.LONG;
   protected TreeMap<Number, HighLow> highLows = new TreeMap<Number, HighLow>();
 
+  @Override
+  public Type getChartType()
+  {
+    return Type.HISTOGRAM;
+  }
+
   public Number getHigh()
   {
     return high;
