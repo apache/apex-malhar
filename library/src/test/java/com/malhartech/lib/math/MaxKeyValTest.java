@@ -146,7 +146,7 @@ public class MaxKeyValTest
       oper.setType(Integer.class);
       CollectorOperator collector = dag.addOperator("collector", new CollectorOperator());
 
-      dag.getOperatorMeta(oper).getAttributes().attr(OperatorContext.INITIAL_PARTITION_COUNT).set(N);
+      dag.getMeta(oper).getAttributes().attr(OperatorContext.INITIAL_PARTITION_COUNT).set(N);
 
       dag.addStream("test_max", test.output, oper.data).setInline(false); // inline has to be false to make partition working, o/w you get assertion error in assert (nodi.isInline() == false) in StramChild.java
       dag.addStream("max_console", oper.max, collector.input).setInline(false);

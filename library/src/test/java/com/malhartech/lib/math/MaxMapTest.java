@@ -173,7 +173,7 @@ public class MaxMapTest
       MaxMap<String, Integer> oper = dag.addOperator("max", new MaxMap<String, Integer>());
       CollectorOperator collector = dag.addOperator("collector", new CollectorOperator());
 
-      dag.getOperatorMeta(oper).getAttributes().attr(OperatorContext.INITIAL_PARTITION_COUNT).set(N);
+      dag.getMeta(oper).getAttributes().attr(OperatorContext.INITIAL_PARTITION_COUNT).set(N);
 
       dag.addStream("test_max", test.output, oper.data).setInline(false);
       dag.addStream("max_console", oper.max, collector.input).setInline(false);

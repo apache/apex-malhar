@@ -204,7 +204,7 @@ public class Application implements ApplicationFactory
 
     //dag.getAttributes().attr(DAG.STRAM_MAX_CONTAINERS).setIfAbsent(9);
     EventGenerator viewGen = getPageViewGenOperator("viewGen", dag);
-    dag.getOperatorMeta(viewGen).getAttributes().attr(OperatorContext.INITIAL_PARTITION_COUNT).set(numGenerators);
+    dag.getMeta(viewGen).getAttributes().attr(OperatorContext.INITIAL_PARTITION_COUNT).set(numGenerators);
 
     EventClassifier adviews = getAdViewsStampOperator("adviews", dag);
     FilteredEventClassifier<Double> insertclicks = getInsertClicksOperator("insertclicks", dag);

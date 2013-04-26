@@ -85,8 +85,8 @@ public class YahooFinanceApplication extends com.malhartech.demos.yahoofinance.A
     TimeSeriesCandleStickChartOperator<String> candleStickChartOperator = getCandleStickChartOperator("CandleStickChart", dag);
     DevNull<Map<String, Map<Number, Number>>> devnull1 = dag.addOperator("devnull1", new DevNull<Map<String, Map<Number, Number>>>());
     DevNull<Map<String, Map<Number, CandleStick>>> devnull2 = dag.addOperator("devnull2", new DevNull<Map<String, Map<Number, CandleStick>>>());
-    dag.getOperatorMeta(averageChartOperator).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(5); // 5 seconds
-    dag.getOperatorMeta(candleStickChartOperator).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(5); // 5 seconds
+    dag.getMeta(averageChartOperator).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(5); // 5 seconds
+    dag.getMeta(candleStickChartOperator).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(5); // 5 seconds
     stream.addSink(averageChartOperator.in1);
     stream.addSink(candleStickChartOperator.in1);
     dag.addStream("averageDummyStream", averageChartOperator.chart, devnull1.data);

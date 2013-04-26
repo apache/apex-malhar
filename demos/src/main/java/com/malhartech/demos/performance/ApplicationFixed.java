@@ -23,11 +23,11 @@ public class ApplicationFixed implements ApplicationFactory
     DAG dag = new DAG(conf);
 
     FixedTuplesInputOperator wordGenerator = dag.addOperator("WordGenerator", FixedTuplesInputOperator.class);
-    dag.getOperatorMeta(wordGenerator).getOutputPortMeta(wordGenerator.output).getAttributes().attr(PortContext.QUEUE_CAPACITY).set(QUEUE_CAPACITY);
+    dag.getMeta(wordGenerator).getMeta(wordGenerator.output).getAttributes().attr(PortContext.QUEUE_CAPACITY).set(QUEUE_CAPACITY);
     wordGenerator.setCount(500000);
 
     WordCountOperator<byte[]> counter = dag.addOperator("Counter", new WordCountOperator<byte[]>());
-    dag.getOperatorMeta(counter).getInputPortMeta(counter.input).getAttributes().attr(PortContext.QUEUE_CAPACITY).set(QUEUE_CAPACITY);
+    dag.getMeta(counter).getMeta(counter.input).getAttributes().attr(PortContext.QUEUE_CAPACITY).set(QUEUE_CAPACITY);
 
     dag.addStream("Generator2Counter", wordGenerator.output, counter.input).setInline(inline);
     return dag;

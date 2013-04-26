@@ -22,10 +22,10 @@ public class Application implements ApplicationFactory
     DAG dag = new DAG(conf);
 
     RandomWordInputModule wordGenerator = dag.addOperator("wordGenerator", RandomWordInputModule.class);
-    dag.getOperatorMeta(wordGenerator).getOutputPortMeta(wordGenerator.output).getAttributes().attr(PortContext.QUEUE_CAPACITY).set(32 * 1024);
+    dag.getMeta(wordGenerator).getMeta(wordGenerator.output).getAttributes().attr(PortContext.QUEUE_CAPACITY).set(32 * 1024);
 
     WordCountOperator<byte[]> counter = dag.addOperator("counter", new WordCountOperator<byte[]>());
-    dag.getOperatorMeta(counter).getInputPortMeta(counter.input).getAttributes().attr(PortContext.QUEUE_CAPACITY).set(32 * 1024);
+    dag.getMeta(counter).getMeta(counter.input).getAttributes().attr(PortContext.QUEUE_CAPACITY).set(32 * 1024);
 
     dag.addStream("Generator2Counter", wordGenerator.output, counter.input).setInline(inline);
     return dag;

@@ -40,7 +40,7 @@ public class Application implements ApplicationFactory
     //ArrayListAggregator<Long> agg = dag.addOperator("agg", new ArrayListAggregator<Long>());
 
     //dag.getOperatorWrapper(agg).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(3);
-    dag.getOperatorMeta(numOfBytesSum).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(3);
+    dag.getMeta(numOfBytesSum).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(3);
 
     dag.addStream("input-parse", input.outputPort, parse.data).setInline(allInline);
     dag.addStream("parse-ipAddrCount", parse.outputIPAddress, ipAddrCount.data).setInline(allInline);
