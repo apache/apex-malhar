@@ -28,8 +28,8 @@ public class ApplicationFixedTest
     DAG dag = cloneDAG(app.getApplication(new Configuration(false)));
 
     FixedTuplesInputOperator wordGenerator = (FixedTuplesInputOperator)dag.getOperatorMeta("WordGenerator").getOperator();
-    Assert.assertEquals("Queue Capacity", ApplicationFixed.QUEUE_CAPACITY, dag.getOperatorMeta(wordGenerator).getOutputPortMeta(wordGenerator.output).getAttributes().attr(PortContext.QUEUE_CAPACITY));
-    
+    Assert.assertEquals("Queue Capacity", ApplicationFixed.QUEUE_CAPACITY, (int)dag.getOperatorMeta(wordGenerator).getOutputPortMeta(wordGenerator.output).getAttributes().attrValue(PortContext.QUEUE_CAPACITY, 0));
+
     final StramLocalCluster lc = new StramLocalCluster(dag);
     lc.run(60000);
   }
