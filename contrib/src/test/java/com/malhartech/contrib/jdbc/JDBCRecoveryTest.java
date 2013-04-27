@@ -113,7 +113,7 @@ public class JDBCRecoveryTest
     setupDB("Test_Tuple1", helper.hashMapping1, true, true);
 
     DAG dag = new DAG();
-    dag.getAttributes().attr(DAG.STRAM_CHECKPOINT_INTERVAL_MILLIS).set(500);
+    dag.getAttributes().attr(DAG.STRAM_CHECKPOINT_WINDOW_COUNT).set(2);
     dag.getAttributes().attr(DAG.STRAM_WINDOW_SIZE_MILLIS).set(300);
     dag.getAttributes().attr(DAG.STRAM_MAX_CONTAINERS).set(1);
 
@@ -294,7 +294,7 @@ public class JDBCRecoveryTest
     setupDB("Test_Tuple2", helper.hashMapping1, true, false);
 
     DAG dag = new DAG();
-    dag.getAttributes().attr(DAG.STRAM_CHECKPOINT_INTERVAL_MILLIS).set(500);
+    dag.getAttributes().attr(DAG.STRAM_CHECKPOINT_WINDOW_COUNT).set(2);
     dag.getAttributes().attr(DAG.STRAM_WINDOW_SIZE_MILLIS).set(300);
     dag.getAttributes().attr(DAG.STRAM_MAX_CONTAINERS).set(1);
 
