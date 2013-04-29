@@ -76,7 +76,7 @@ public class Calculator implements ApplicationFactory
     dag.addStream("sqr", squareOperator.integerResult, pairOperator.input).setInline(allInline);
     dag.addStream("x2andy2", pairOperator.output, sumOperator.input).setInline(allInline);
     dag.addStream("x2plusy2", sumOperator.integerResult, comparator.input, inSquare.input).setInline(allInline);
-    dag.addStream("inCirclePoints", comparator.greaterThan, inCircle.input).setInline(allInline);
+    dag.addStream("inCirclePoints", comparator.greaterThanOrEqualTo, inCircle.input).setInline(allInline);
     dag.addStream("numerator", inCircle.output, division.numerator).setInline(allInline);
     dag.addStream("denominator", inSquare.output, division.denominator).setInline(allInline);
     dag.addStream("ratio", division.doubleQuotient, multiplication.input).setInline(allInline);
