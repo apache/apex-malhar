@@ -93,7 +93,7 @@ public class SumCountMap<K, V extends Number> extends BaseNumberKeyValueOperator
           }
           sums.put(cloneKey(key), val);
         }
-        if (count.isConnected()) {
+        if (SumCountMap.this.count.isConnected()) {
           MutableInt count = counts.get(key);
           if (count == null) {
             count = new MutableInt(0);

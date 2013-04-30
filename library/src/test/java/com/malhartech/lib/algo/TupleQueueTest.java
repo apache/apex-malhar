@@ -25,7 +25,7 @@ public class TupleQueueTest
   {
     int count = 0;
     @Override
-    public void process(Object payload)
+    public void put(Object payload)
     {
       if (payload instanceof Tuple) {
       }
@@ -36,6 +36,12 @@ public class TupleQueueTest
         }
       }
     }
+
+    @Override
+    public int getCount(boolean reset)
+    {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
   }
 
   class ConsoleSink implements Sink
@@ -43,7 +49,7 @@ public class TupleQueueTest
     int count = 0;
     HashMap<String, ArrayList> map  = new HashMap<String, ArrayList>();
     @Override
-    public void process(Object payload)
+    public void put(Object payload)
     {
       if (payload instanceof Tuple) {
       }
@@ -68,6 +74,12 @@ public class TupleQueueTest
         line += "\n";
       }
       return line;
+    }
+
+    @Override
+    public int getCount(boolean reset)
+    {
+      throw new UnsupportedOperationException("Not supported yet.");
     }
   }
 
@@ -98,18 +110,18 @@ public class TupleQueueTest
       dinput.put("a", new Integer(i));
       dinput.put("b", new Integer(100+i));
       dinput.put("c", new Integer(200+i));
-      dataSink.process(dinput);
+      dataSink.put(dinput);
     }
 
     oper.endWindow();
 
     oper.beginWindow(0);
     String key = "a";
-    querySink.process(key);
+    querySink.put(key);
     key = "b";
-    querySink.process(key);
+    querySink.put(key);
     key = "c";
-    querySink.process(key);
+    querySink.put(key);
 
 
     oper.endWindow();

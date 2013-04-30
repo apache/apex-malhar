@@ -70,6 +70,7 @@ public class UniqueCounterValue<K> extends BaseOperator implements Unifier<Integ
     {
       counts++;
     }
+
   };
   @OutputPortFieldAnnotation(name = "count")
   public final transient DefaultOutputPort<Integer> count = new DefaultOutputPort<Integer>(this)
@@ -79,6 +80,7 @@ public class UniqueCounterValue<K> extends BaseOperator implements Unifier<Integ
     {
       return UniqueCounterValue.this;
     }
+
   };
   protected transient int counts = 0;
 
@@ -99,4 +101,5 @@ public class UniqueCounterValue<K> extends BaseOperator implements Unifier<Integ
   {
     counts += tuple;
   }
+
 }

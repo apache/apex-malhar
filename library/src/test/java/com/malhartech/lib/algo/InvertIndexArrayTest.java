@@ -43,14 +43,14 @@ public class InvertIndexArrayTest
     alist.add("str1");
     input.put("a", alist);
     input.put("b", alist);
-    inSink.process(input);
+    inSink.put(input);
 
     alist = new ArrayList<String>();
     input = new HashMap<String, ArrayList>();
     alist.add("blah");
     alist.add("str1");
     input.put("c", alist);
-    inSink.process(input);
+    inSink.put(input);
 
     oper.endWindow();
 

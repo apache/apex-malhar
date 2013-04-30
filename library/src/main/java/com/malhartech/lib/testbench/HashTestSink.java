@@ -43,7 +43,7 @@ public class HashTestSink<T> implements Sink<T>
   }
 
   @Override
-  public void process(T tuple)
+  public void put(T tuple)
   {
     if (tuple instanceof Tuple) {
     }
@@ -56,5 +56,11 @@ public class HashTestSink<T> implements Sink<T>
       }
       val.increment();
     }
+  }
+
+  @Override
+  public int getCount(boolean reset)
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 }

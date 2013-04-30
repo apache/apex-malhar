@@ -25,10 +25,9 @@ public class CountAndLastTupleTestSink<T> extends CountTestSink<T>
   }
 
   @Override
-  public void process(T tuple)
+  public void put(T tuple)
   {
     if (tuple instanceof Tuple) {
-
     }
     else {
       this.tuple = tuple;

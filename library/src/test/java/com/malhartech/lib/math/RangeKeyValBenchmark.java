@@ -27,7 +27,7 @@ public class RangeKeyValBenchmark
     double high = -1;
 
     @Override
-    public void process(Object payload)
+    public void put(Object payload)
     {
       if (payload instanceof Tuple) {
       }
@@ -37,6 +37,12 @@ public class RangeKeyValBenchmark
         high = hl.getHigh().doubleValue();
         low = hl.getLow().doubleValue();
       }
+    }
+
+    @Override
+    public int getCount(boolean reset)
+    {
+      throw new UnsupportedOperationException("Not supported yet.");
     }
   }
 

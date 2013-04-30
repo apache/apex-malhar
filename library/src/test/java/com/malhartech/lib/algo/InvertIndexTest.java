@@ -41,20 +41,20 @@ public class InvertIndexTest
 
     input.put("a", "str");
     input.put("b", "str");
-    inSink.process(input);
+    inSink.put(input);
 
     input.clear();
     input.put("a", "str1");
     input.put("b", "str1");
-    inSink.process(input);
+    inSink.put(input);
 
     input.clear();
     input.put("c", "blah");
-    inSink.process(input);
+    inSink.put(input);
 
     input.clear();
     input.put("c", "str1");
-    inSink.process(input);
+    inSink.put(input);
     oper.endWindow();
 
     Assert.assertEquals("number emitted tuples", 3, indexSink.collectedTuples.size());

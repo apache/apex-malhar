@@ -35,7 +35,7 @@ public class EventIncrementerTest
      * @param payload
      */
     @Override
-    public void process(Object payload)
+    public void put(Object payload)
     {
       if (payload instanceof Tuple) {
         // LOG.debug(payload.toString());
@@ -54,6 +54,12 @@ public class EventIncrementerTest
       count = 0;
       collectedTuples.clear();
     }
+
+    @Override
+    public int getCount(boolean reset)
+    {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
   }
 
   class CountSink implements Sink
@@ -65,7 +71,7 @@ public class EventIncrementerTest
      * @param payload
      */
     @Override
-    public void process(Object payload)
+    public void put(Object payload)
     {
       if (payload instanceof Tuple) {
         // LOG.debug(payload.toString());
@@ -78,6 +84,12 @@ public class EventIncrementerTest
           }
         }
       }
+    }
+
+    @Override
+    public int getCount(boolean reset)
+    {
+      throw new UnsupportedOperationException("Not supported yet.");
     }
   }
 
@@ -121,7 +133,7 @@ public class EventIncrementerTest
     val.add(new Integer(20));
     stuple.put(seed1, val);
     for (int i = 0; i < numtuples; i++) {
-      seedSink.process(stuple);
+      seedSink.put(stuple);
     }
     oper.endWindow();
 
@@ -146,8 +158,8 @@ public class EventIncrementerTest
     iytuple.put("a", iyval);
 
     for (int i = 0; i < numtuples; i++) {
-      incrSink.process(ixtuple);
-      incrSink.process(iytuple);
+      incrSink.put(ixtuple);
+      incrSink.put(iytuple);
     }
 
     oper.endWindow();

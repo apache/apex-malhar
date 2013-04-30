@@ -26,13 +26,19 @@ public class QuotientBenchmark
     ArrayList<Object> collectedTuples = new ArrayList<Object>();
 
     @Override
-    public void process(Object payload)
+    public void put(Object payload)
     {
       if (payload instanceof Tuple) {
       }
       else {
         collectedTuples.add(payload);
       }
+    }
+
+    @Override
+    public int getCount(boolean reset)
+    {
+      throw new UnsupportedOperationException("Not supported yet.");
     }
   }
 

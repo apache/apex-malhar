@@ -25,12 +25,18 @@ public class SumTestSink<T> implements Sink<T>
    * @param payload
    */
   @Override
-  public void process(T payload)
+  public void put(T payload)
   {
     if (payload instanceof Tuple) {
     }
     else if (payload instanceof Number) {
       val += ((Number) payload).doubleValue();
     }
+  }
+
+  @Override
+  public int getCount(boolean reset)
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 }

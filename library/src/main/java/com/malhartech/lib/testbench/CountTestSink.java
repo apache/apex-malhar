@@ -31,7 +31,7 @@ public class CountTestSink<T> extends CollectorTestSink<T>
    * @param payload
    */
   @Override
-  public void process(T payload)
+  public void put(T payload)
   {
     if (payload instanceof Tuple) {
     }

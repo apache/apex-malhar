@@ -39,7 +39,7 @@ public class FilteredEventClassifierTest
      * @param payload
      */
     @Override
-    public void process(Object payload)
+    public void put(Object payload)
     {
       if (payload instanceof Tuple) {
         // LOG.debug(payload.toString());
@@ -67,6 +67,12 @@ public class FilteredEventClassifierTest
     {
       collectedTuples.clear();
       collectedTupleValues.clear();
+    }
+
+    @Override
+    public int getCount(boolean reset)
+    {
+      throw new UnsupportedOperationException("Not supported yet.");
     }
   }
 

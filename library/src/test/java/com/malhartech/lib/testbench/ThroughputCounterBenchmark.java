@@ -39,7 +39,7 @@ public class ThroughputCounterBenchmark {
      * @param payload
      */
     @Override
-    public void process(Object payload)
+    public void put(Object payload)
     {
       if (payload instanceof Tuple) {
         // LOG.debug(payload.toString());
@@ -49,6 +49,12 @@ public class ThroughputCounterBenchmark {
         average = ((Long) tuples.get(ThroughputCounter.OPORT_COUNT_TUPLE_AVERAGE)).longValue();
         count += ((Long) tuples.get(ThroughputCounter.OPORT_COUNT_TUPLE_COUNT)).longValue();
       }
+    }
+
+    @Override
+    public int getCount(boolean reset)
+    {
+      throw new UnsupportedOperationException("Not supported yet.");
     }
   }
 

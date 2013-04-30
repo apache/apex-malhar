@@ -17,7 +17,7 @@ import org.apache.commons.lang.mutable.MutableInt;
 public class ArrayListTestSink<T> implements Sink<T>
 {
   public HashMap<Object, MutableInt> map = new HashMap<Object, MutableInt>();
-  public int count = 0;
+  public int count;
 
   /**
    * clear data
@@ -39,10 +39,11 @@ public class ArrayListTestSink<T> implements Sink<T>
   }
 
   @Override
-  public void process(T tuple)
+  public void put(T tuple)
   {
     this.count++;
-    ArrayList list = (ArrayList) tuple;
+    @SuppressWarnings("unchecked")
+    ArrayList<Object> list = (ArrayList<Object>) tuple;
     for (Object o: list) {
       MutableInt val = map.get(o);
       if (val == null) {
@@ -51,5 +52,11 @@ public class ArrayListTestSink<T> implements Sink<T>
       }
       val.increment();
     }
+  }
+
+  @Override
+  public int getCount(boolean reset)
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 }

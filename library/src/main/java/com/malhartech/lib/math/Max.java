@@ -103,4 +103,5 @@ public class Max<V extends Number> extends BaseNumberValueOperator<V> implements
     }
     flag = false;
   }
+
 }

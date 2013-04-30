@@ -28,7 +28,7 @@ public class RangeMapBenchmark
     double high = -1;
 
     @Override
-    public void process(Object payload)
+    public void put(Object payload)
     {
       if (payload instanceof Tuple) {
       }
@@ -40,6 +40,12 @@ public class RangeMapBenchmark
           low = hl.getLow().doubleValue();
         }
       }
+    }
+
+    @Override
+    public int getCount(boolean reset)
+    {
+      throw new UnsupportedOperationException("Not supported yet.");
     }
   }
 

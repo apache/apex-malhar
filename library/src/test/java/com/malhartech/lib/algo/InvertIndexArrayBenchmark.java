@@ -33,11 +33,10 @@ public class InvertIndexArrayBenchmark
   {
     InvertIndexArray<String,String> oper = new InvertIndexArray<String,String>();
     TestSink indexSink = new TestSink();
-
-    Sink inSink = oper.data.getSink();
+    Sink<HashMap<String, ArrayList<String>>> inSink = oper.data.getSink();
     oper.index.setSink(indexSink);
 
-    HashMap<String, ArrayList> input = new HashMap<String, ArrayList>();
+    HashMap<String, ArrayList<String>> input = new HashMap<String, ArrayList<String>>();
     ArrayList<String> alist = new ArrayList<String>();
     oper.beginWindow(0);
 
@@ -49,14 +48,14 @@ public class InvertIndexArrayBenchmark
       alist.add("str1");
       input.put("a", alist);
       input.put("b", alist);
-      inSink.process(input);
+      inSink.put(input);
       alist.clear();
       input.clear();
 
       alist.add("blah");
       alist.add("str1");
       input.put("c", alist);
-      inSink.process(input);
+      inSink.put(input);
     }
 
     oper.endWindow();

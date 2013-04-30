@@ -25,13 +25,19 @@ public class RangeBenchmark
     Object tuple;
 
     @Override
-    public void process(Object payload)
+    public void put(Object payload)
     {
       if (payload instanceof Tuple) {
       }
       else {
         tuple = payload;
       }
+    }
+
+    @Override
+    public int getCount(boolean reset)
+    {
+      throw new UnsupportedOperationException("Not supported yet.");
     }
   }
 

@@ -24,7 +24,7 @@ public class SeedEventClassifierTest
     int count = 0;
 
     @Override
-    public void process(Object tuple)
+    public void put(Object tuple)
     {
       if (tuple instanceof Tuple) {
         // LOG.debug(payload.toString());
@@ -34,6 +34,12 @@ public class SeedEventClassifierTest
         count++;
       }
     }
+
+    @Override
+    public int getCount(boolean reset)
+    {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
   }
 
   class HashSink implements Sink
@@ -42,7 +48,7 @@ public class SeedEventClassifierTest
     int count = 0;
 
     @Override
-    public void process(Object tuple)
+    public void put(Object tuple)
     {
       if (tuple instanceof Tuple) {
         // LOG.debug(payload.toString());
@@ -51,6 +57,12 @@ public class SeedEventClassifierTest
          collectedTuples.put((HashMap<String, HashMap<String, Integer>>) tuple, null);
          count++;
       }
+    }
+
+    @Override
+    public int getCount(boolean reset)
+    {
+      throw new UnsupportedOperationException("Not supported yet.");
     }
   }
 
@@ -96,8 +108,8 @@ public class SeedEventClassifierTest
       for (int j = 0; j < 5; j++) {
         for (int i = 0; i < numTuples; i++) {
           input = Integer.toString(i);
-          inSink1.process(input);
-          inSink2.process(input);
+          inSink1.put(input);
+          inSink2.put(input);
         }
       }
     }
@@ -106,8 +118,8 @@ public class SeedEventClassifierTest
       for (int j = 0; j < 5; j++) {
         for (int i = 0; i < numTuples; i++) {
           input = new Integer(i);
-          inSink1.process(input);
-          inSink2.process(input);
+          inSink1.put(input);
+          inSink2.put(input);
         }
       }
     }
