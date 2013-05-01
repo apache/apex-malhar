@@ -59,7 +59,7 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
             }
             key += dimension + ":" + tuple.get(dimension).toString();
           }
-          process(timeBucket, key, value);
+          DimensionTimeBucketOperator.this.process(timeBucket, key, value);
         }
       }
     }
