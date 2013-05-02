@@ -11,6 +11,8 @@ import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DAGContext;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.*;
 
 /**
@@ -49,17 +51,17 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
       }
 
 
-      for (String timeBucket : timeBucketList) {
-        for (List<String> dimensionCombination : dimensionCombinations) {
-          String key = new String();
-          Number value = (Number)tuple.get(valueKeyName);
-          for (String dimension : dimensionCombination) {
-            if (!key.isEmpty()) {
-              key += "|";
+      for (String timeBucket: timeBucketList) {
+        for (List<String> dimensionCombination: dimensionCombinations) {
+          for (String valueKeyName: valueKeyNames) {
+            String key = new String(valueKeyName);
+            Object value = tuple.get(valueKeyName);
+            Number numberValue = extractNumber(valueKeyName, value);
+            for (String dimension: dimensionCombination) {
+              key += "|" + dimension + ":" + tuple.get(dimension).toString();
             }
-            key += dimension + ":" + tuple.get(dimension).toString();
+            DimensionTimeBucketOperator.this.process(timeBucket, key, numberValue);
           }
-          DimensionTimeBucketOperator.this.process(timeBucket, key, value);
         }
       }
     }
@@ -68,7 +70,7 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
   @OutputPortFieldAnnotation(name = "out", optional = false)
   public final transient DefaultOutputPort<Map<String, Map<String, Number>>> out = new DefaultOutputPort<Map<String, Map<String, Number>>>(this);
   private List<String> dimensionKeyNames = new ArrayList<String>();
-  private String valueKeyName;
+  private List<String> valueKeyNames = new ArrayList<String>();
   private String timeKeyName;
   private long currentWindowId = 0;
   private long windowWidth;
@@ -76,6 +78,7 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
   private TimeZone timeZone = TimeZone.getTimeZone("GMT");
   private Calendar calendar = new GregorianCalendar(timeZone);
   private List<List<String>> dimensionCombinations = new ArrayList<List<String>>();
+  private NumberFormat numberFormat = NumberFormat.getInstance();
   public static final int TIMEBUCKET_MINUTE = 1;
   public static final int TIMEBUCKET_HOUR = 2;
   public static final int TIMEBUCKET_DAY = 4;
@@ -93,6 +96,23 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
       time = (Long)tuple.get(timeKeyName);
     }
     return time;
+  }
+
+  protected Number extractNumber(String valueKeyName, Object value)
+  {
+    Number numberValue;
+    if (value instanceof Number) {
+      numberValue = (Number)value;
+    }
+    else {
+      try {
+        numberValue = numberFormat.parse(value.toString());
+      }
+      catch (ParseException ex) {
+        return null;
+      }
+    }
+    return numberValue;
   }
 
   @Override
@@ -118,9 +138,9 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
     dimensionKeyNames.add(key);
   }
 
-  public void setValueKeyName(String key)
+  public void addValueKeyName(String key)
   {
-    valueKeyName = key;
+    valueKeyNames.add(key);
   }
 
   public void setTimeKeyName(String key)
