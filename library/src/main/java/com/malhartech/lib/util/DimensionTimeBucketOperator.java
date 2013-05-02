@@ -31,34 +31,40 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
       calendar.setTimeInMillis(time);
       List<String> timeBucketList = new ArrayList<String>();
 
-      if ((timeBucketFlags | TIMEBUCKET_YEAR) != 0) {
-        timeBucketList.add(String.format("YEAR|%04d", calendar.get(Calendar.YEAR)));
+      if ((timeBucketFlags & TIMEBUCKET_YEAR) != 0) {
+        timeBucketList.add(String.format("Y|%04d", calendar.get(Calendar.YEAR)));
       }
-      if ((timeBucketFlags | TIMEBUCKET_MONTH) != 0) {
-        timeBucketList.add(String.format("MONTH|%04d%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)));
+      if ((timeBucketFlags & TIMEBUCKET_MONTH) != 0) {
+        timeBucketList.add(String.format("M|%04d%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1));
       }
-      if ((timeBucketFlags | TIMEBUCKET_WEEK) != 0) {
-        timeBucketList.add(String.format("WEEK|%04d%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.WEEK_OF_YEAR)));
+      if ((timeBucketFlags & TIMEBUCKET_WEEK) != 0) {
+        timeBucketList.add(String.format("W|%04d%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.WEEK_OF_YEAR)));
       }
-      if ((timeBucketFlags | TIMEBUCKET_DAY) != 0) {
-        timeBucketList.add(String.format("DAY|%04d%02d%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)));
+      if ((timeBucketFlags & TIMEBUCKET_DAY) != 0) {
+        timeBucketList.add(String.format("D|%04d%02d%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH)));
       }
-      if ((timeBucketFlags | TIMEBUCKET_HOUR) != 0) {
-        timeBucketList.add(String.format("HOUR|%04d%02d%02d%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY)));
+      if ((timeBucketFlags & TIMEBUCKET_HOUR) != 0) {
+        timeBucketList.add(String.format("h|%04d%02d%02d%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY)));
       }
-      if ((timeBucketFlags | TIMEBUCKET_MINUTE) != 0) {
-        timeBucketList.add(String.format("MINUTE|%04d%02d%02d%02d%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE)));
+      if ((timeBucketFlags & TIMEBUCKET_MINUTE) != 0) {
+        timeBucketList.add(String.format("m|%04d%02d%02d%02d%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE)));
       }
 
 
       for (String timeBucket: timeBucketList) {
-        for (List<String> dimensionCombination: dimensionCombinations) {
-          for (String valueKeyName: valueKeyNames) {
-            String key = new String(valueKeyName);
+        for (int[] dimensionCombination: dimensionCombinations) {
+          String key = "0";
+          for (int d: dimensionCombination) {
+            key += "|" + d + ":" + tuple.get(dimensionKeyNames.get(d)).toString();
+          }
+          DimensionTimeBucketOperator.this.process(timeBucket, key, 1);
+          for (int i = 0; i < valueKeyNames.size(); i++) {
+            String valueKeyName = valueKeyNames.get(i);
+            key = String.valueOf(i+1);
             Object value = tuple.get(valueKeyName);
             Number numberValue = extractNumber(valueKeyName, value);
-            for (String dimension: dimensionCombination) {
-              key += "|" + dimension + ":" + tuple.get(dimension).toString();
+            for (int d: dimensionCombination) {
+              key += "|" + d + ":" + tuple.get(dimensionKeyNames.get(d)).toString();
             }
             DimensionTimeBucketOperator.this.process(timeBucket, key, numberValue);
           }
@@ -72,13 +78,13 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
   private List<String> dimensionKeyNames = new ArrayList<String>();
   private List<String> valueKeyNames = new ArrayList<String>();
   private String timeKeyName;
-  private long currentWindowId = 0;
+  private long currentWindowId;
   private long windowWidth;
   private int timeBucketFlags;
-  private TimeZone timeZone = TimeZone.getTimeZone("GMT");
-  private Calendar calendar = new GregorianCalendar(timeZone);
-  private List<List<String>> dimensionCombinations = new ArrayList<List<String>>();
-  private NumberFormat numberFormat = NumberFormat.getInstance();
+  private transient TimeZone timeZone = TimeZone.getTimeZone("GMT");
+  private transient Calendar calendar = new GregorianCalendar(timeZone);
+  private List<int[]> dimensionCombinations = new ArrayList<int[]>();
+  private transient NumberFormat numberFormat = NumberFormat.getInstance();
   public static final int TIMEBUCKET_MINUTE = 1;
   public static final int TIMEBUCKET_HOUR = 2;
   public static final int TIMEBUCKET_DAY = 4;
@@ -122,7 +128,7 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
     windowWidth = context.getApplicationAttributes().attrValue(DAGContext.STRAM_WINDOW_SIZE_MILLIS, null);
 
     for (int i = 1; i <= dimensionKeyNames.size(); i++) {
-      dimensionCombinations.addAll(Combinations.getCombinations(dimensionKeyNames, i));
+      dimensionCombinations.addAll(Combinations.getNumberCombinations(dimensionKeyNames.size(), i));
     }
   }
 
