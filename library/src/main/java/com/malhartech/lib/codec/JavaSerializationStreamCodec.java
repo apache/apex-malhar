@@ -5,6 +5,7 @@
 package com.malhartech.lib.codec;
 
 import com.malhartech.api.StreamCodec;
+import com.malhartech.util.Fragment;
 import java.io.*;
 import malhar.netlet.Client.Fragment;
 import org.slf4j.LoggerFactory;
