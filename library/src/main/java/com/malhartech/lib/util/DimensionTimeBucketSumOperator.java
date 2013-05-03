@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.util;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import org.apache.commons.lang.mutable.MutableDouble;
@@ -17,26 +18,32 @@ import org.slf4j.LoggerFactory;
 public class DimensionTimeBucketSumOperator extends DimensionTimeBucketOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(DimensionTimeBucketSumOperator.class);
-  private Map<String, Map<String, Number>> dataMap;
+  private Map<String, Map<String, Map<String, Number>>> dataMap;
 
   @Override
-  public void process(String timeBucket, String key, Number value)
+  public void process(String timeBucket, String key, String field, Number value)
   {
-    Map<String, Number> m = dataMap.get(timeBucket);
-    if (m == null) {
-      m = new TreeMap<String, Number>();
-      dataMap.put(timeBucket, m);
+    Map<String, Map<String, Number>> m1 = dataMap.get(timeBucket);
+    if (m1 == null) {
+      m1 = new TreeMap<String, Map<String, Number>>();
+      dataMap.put(timeBucket, m1);
     }
-    Number n = m.get(key);
+    Map<String, Number> m2 = m1.get(key);
     if (value == null) {
       return;
     }
-    if (n == null) {
-      n = new MutableDouble(value);
-      m.put(key, n);
+    if (m2 == null) {
+      m2 = new HashMap<String, Number>();
+      m2.put(field, new MutableDouble(value));
+      m1.put(key, m2);
     }
     else {
-      ((MutableDouble)n).add(value);
+      Number n = m2.get(field);
+      if (n == null) {
+        m2.put(field, new MutableDouble(value));
+      } else {
+        ((MutableDouble)n).add(value);
+      }
     }
   }
 
@@ -44,7 +51,7 @@ public class DimensionTimeBucketSumOperator extends DimensionTimeBucketOperator
   public void beginWindow(long windowId)
   {
     super.beginWindow(windowId);
-    dataMap = new TreeMap<String, Map<String, Number>>();
+    dataMap = new TreeMap<String, Map<String, Map<String, Number>>>();
   }
 
   @Override
@@ -53,7 +60,7 @@ public class DimensionTimeBucketSumOperator extends DimensionTimeBucketOperator
     if (!dataMap.isEmpty()) {
       out.emit(dataMap);
       LOG.info("Number of time buckets: {}", dataMap.size());
-      for (Map.Entry<String, Map<String, Number>> entry : dataMap.entrySet()) {
+      for (Map.Entry<String, Map<String, Map<String, Number>>> entry : dataMap.entrySet()) {
         LOG.info("Number of keyval pairs for {}: {}", entry.getKey(), entry.getValue().size());
       }
     }

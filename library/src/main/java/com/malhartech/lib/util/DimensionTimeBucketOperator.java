@@ -53,28 +53,41 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
 
       for (String timeBucket: timeBucketList) {
         for (int[] dimensionCombination: dimensionCombinations) {
-          String key = "0";
+          String field = "0";
+          String key = new String();
           for (int d: dimensionCombination) {
-            key += "|" + d + ":" + tuple.get(dimensionKeyNames.get(d)).toString();
+            if (!key.isEmpty()) {
+              key += "|";
+            }
+            key += String.valueOf(d) + ":" + tuple.get(dimensionKeyNames.get(d)).toString();
           }
-          DimensionTimeBucketOperator.this.process(timeBucket, key, 1);
+          DimensionTimeBucketOperator.this.process(timeBucket, key, field, 1);
           for (int i = 0; i < valueKeyNames.size(); i++) {
             String valueKeyName = valueKeyNames.get(i);
-            key = String.valueOf(i+1);
+            field = String.valueOf(i + 1);
             Object value = tuple.get(valueKeyName);
             Number numberValue = extractNumber(valueKeyName, value);
+            key = "";
             for (int d: dimensionCombination) {
-              key += "|" + d + ":" + tuple.get(dimensionKeyNames.get(d)).toString();
+              if (!key.isEmpty()) {
+                key += "|";
+              }
+              key += String.valueOf(d) + ":" + tuple.get(dimensionKeyNames.get(d)).toString();
             }
-            DimensionTimeBucketOperator.this.process(timeBucket, key, numberValue);
+            DimensionTimeBucketOperator.this.process(timeBucket, key, field, numberValue);
           }
         }
       }
     }
 
   };
+  /**
+   * First String key is the bucket
+   * Second String key is the key
+   * Third String key is the field
+   */
   @OutputPortFieldAnnotation(name = "out", optional = false)
-  public final transient DefaultOutputPort<Map<String, Map<String, Number>>> out = new DefaultOutputPort<Map<String, Map<String, Number>>>(this);
+  public final transient DefaultOutputPort<Map<String, Map<String, Map<String, Number>>>> out = new DefaultOutputPort<Map<String, Map<String, Map<String, Number>>>>(this);
   private List<String> dimensionKeyNames = new ArrayList<String>();
   private List<String> valueKeyNames = new ArrayList<String>();
   private String timeKeyName;
@@ -165,6 +178,6 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
     calendar.setTimeZone(timeZone);
   }
 
-  public abstract void process(String timeBucket, String key, Number value);
+  public abstract void process(String timeBucket, String key, String field, Number value);
 
 }
