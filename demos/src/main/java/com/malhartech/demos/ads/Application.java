@@ -5,9 +5,9 @@
 package com.malhartech.demos.ads;
 
 import com.malhartech.api.ApplicationFactory;
-import com.malhartech.api.DAG;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.Context.PortContext;
+import com.malhartech.api.DAG;
 import com.malhartech.api.Operator.InputPort;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.io.HdfsOutputOperator;
@@ -25,14 +25,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import org.apache.hadoop.conf.Configuration;
 
-
 /**
  * Example of application configuration for an ads demo<p>
  */
 public class Application implements ApplicationFactory
 {
   public static final int WINDOW_SIZE_MILLIS = 500;
-
   public static final String P_numGenerators = Application.class.getName() + ".numGenerators";
   public static final String P_generatorVTuplesBlast = Application.class.getName() + ".generatorVTuplesBlast";
   public static final String P_generatorMaxWindowsCount = Application.class.getName() + ".generatorMaxWindowsCount";
@@ -101,14 +99,15 @@ public class Application implements ApplicationFactory
     return oper.input;
   }
 
-  public SumCountMap<String,Double> getSumOperator(String name, DAG b)
+  public SumCountMap<String, Double> getSumOperator(String name, DAG b)
   {
-    return b.addOperator(name, new SumCountMap<String,Double>());
+    return b.addOperator(name, new SumCountMap<String, Double>());
   }
 
-  public Operator getStreamMerger(String name, DAG b)
+  public StreamMerger<HashMap<String, Integer>> getStreamMerger(String name, DAG b)
   {
-    return b.addOperator(name, StreamMerger.class);
+    StreamMerger<HashMap<String, Integer>> oper = b.addOperator(name, new StreamMerger<HashMap<String, Integer>>());
+    return oper;
   }
 
   public ThroughputCounter<String, Integer> getThroughputCounter(String name, DAG b)
@@ -118,16 +117,16 @@ public class Application implements ApplicationFactory
     return oper;
   }
 
-  public MarginMap<String,Double> getMarginOperator(String name, DAG b)
+  public MarginMap<String, Double> getMarginOperator(String name, DAG b)
   {
-    MarginMap<String,Double> oper = b.addOperator(name, new MarginMap<String,Double>());
+    MarginMap<String, Double> oper = b.addOperator(name, new MarginMap<String, Double>());
     oper.setPercent(true);
     return oper;
   }
 
-  public QuotientMap<String,Integer> getQuotientOperator(String name, DAG b)
+  public QuotientMap<String, Integer> getQuotientOperator(String name, DAG b)
   {
-    QuotientMap<String,Integer> oper = b.addOperator(name, new QuotientMap<String,Integer>());
+    QuotientMap<String, Integer> oper = b.addOperator(name, new QuotientMap<String, Integer>());
     oper.setMult_by(100);
     oper.setCountkey(true);
     return oper;
@@ -165,7 +164,7 @@ public class Application implements ApplicationFactory
     kmap.put("sprint", 1.0);
     kmap.put("etrade", 5.0);
     kmap.put("nike", 4.0);
-    oper. setKeyMap(kmap);
+    oper.setKeyMap(kmap);
 
     HashMap<String, ArrayList<Integer>> wmap = new HashMap<String, ArrayList<Integer>>();
     ArrayList<Integer> alist = new ArrayList<Integer>(3);
@@ -205,11 +204,18 @@ public class Application implements ApplicationFactory
     //dag.getAttributes().attr(DAG.STRAM_MAX_CONTAINERS).setIfAbsent(9);
     EventGenerator viewGen = getPageViewGenOperator("viewGen", dag);
     dag.getMeta(viewGen).getAttributes().attr(OperatorContext.INITIAL_PARTITION_COUNT).set(numGenerators);
+    dag.setOutputPortAttribute(viewGen.hash_data, PortContext.QUEUE_CAPACITY, 32 * 1024);
 
     EventClassifier adviews = getAdViewsStampOperator("adviews", dag);
+    dag.setOutputPortAttribute(adviews.data, PortContext.QUEUE_CAPACITY, 32 * 1024);
+    dag.setInputPortAttribute(adviews.event, PortContext.QUEUE_CAPACITY, 32 * 1024);
+
     FilteredEventClassifier<Double> insertclicks = getInsertClicksOperator("insertclicks", dag);
+    dag.setInputPortAttribute(insertclicks.data, PortContext.QUEUE_CAPACITY, 32 * 1024);
+
     SumCountMap<String, Double> viewAggregate = getSumOperator("viewAggr", dag);
     dag.setAttribute(viewAggregate, OperatorContext.APPLICATION_WINDOW_COUNT, applicationWindow);
+    dag.setInputPortAttribute(viewAggregate.data, PortContext.QUEUE_CAPACITY, 32 * 1024);
 
     SumCountMap<String, Double> clickAggregate = getSumOperator("clickAggr", dag);
     dag.setAttribute(clickAggregate, OperatorContext.APPLICATION_WINDOW_COUNT, applicationWindow);
@@ -259,4 +265,5 @@ public class Application implements ApplicationFactory
 
     return dag;
   }
+
 }
