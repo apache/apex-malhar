@@ -10,7 +10,6 @@ import com.malhartech.lib.io.AbstractKeyValueStoreOutputOperator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import redis.clients.jedis.Jedis;
 
 /**
@@ -70,13 +69,13 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
         }
       }
       else if (value instanceof Set) {
-        for (Object o: (Set<Object>)value) {
+        for (Object o: (Set)value) {
           jedis.sadd(entry.getKey().toString(), o.toString());
         }
       }
       else if (value instanceof List) {
         int i = 0;
-        for (Object o: (List<Object>)value) {
+        for (Object o: (List)value) {
           jedis.lset(entry.getKey().toString(), i++, o.toString());
         }
       }
