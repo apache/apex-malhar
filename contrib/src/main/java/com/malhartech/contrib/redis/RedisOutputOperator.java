@@ -18,7 +18,7 @@ import redis.clients.jedis.Jedis;
  */
 public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperator<K, V>
 {
-  protected Jedis jedis;
+  protected transient Jedis jedis;
   private String host = "localhost";
   private int port = 6379;
   private int timeout = 1000;
