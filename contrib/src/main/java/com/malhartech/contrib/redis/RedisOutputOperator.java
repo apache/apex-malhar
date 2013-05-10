@@ -4,6 +4,7 @@
  */
 package com.malhartech.contrib.redis;
 
+import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.lib.io.AbstractKeyValueStoreOutputOperator;
 import java.util.List;
@@ -16,6 +17,7 @@ import redis.clients.jedis.Jedis;
  *
  * @author David Yan <davidyan@malhar-inc.com>
  */
+@ShipContainingJars(classes = {Jedis.class})
 public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperator<K, V>
 {
   protected transient Jedis jedis;
