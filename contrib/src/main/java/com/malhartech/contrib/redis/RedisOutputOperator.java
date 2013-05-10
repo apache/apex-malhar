@@ -5,7 +5,7 @@
 package com.malhartech.contrib.redis;
 
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.lib.io.AbstractBucketKeyValueStoreOutputOperator;
+import com.malhartech.lib.io.AbstractKeyValueStoreOutputOperator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,7 +16,7 @@ import redis.clients.jedis.Jedis;
  *
  * @author David Yan <davidyan@malhar-inc.com>
  */
-public class RedisOutputOperator<B, K, V> extends AbstractBucketKeyValueStoreOutputOperator<B, K, V>
+public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperator<K, V>
 {
   protected Jedis jedis;
   private String host = "localhost";
@@ -41,35 +41,45 @@ public class RedisOutputOperator<B, K, V> extends AbstractBucketKeyValueStoreOut
   @Override
   public void setup(OperatorContext context)
   {
+    super.setup(context);
     jedis = new Jedis(host, port, timeout);
   }
 
   @Override
-  public void store(Map<B, Map<K, V>> t)
+  public String get(String key)
   {
-    for (Map.Entry<B, Map<K, V>> entry1: t.entrySet()) {
-      for (Map.Entry<K, V> entry2: entry1.getValue().entrySet()) {
-        String key = entry1.getKey().toString() + "|" + entry2.getKey().toString();
-        V value = entry2.getValue();
-        if (value instanceof Map) {
-          for (Map.Entry<Object, Object> entry: ((Map<Object, Object>)value).entrySet()) {
-            jedis.hset(key, entry.getKey().toString(), entry.getValue().toString());
-          }
+    return jedis.get(key);
+  }
+
+  @Override
+  public void put(String key, String value)
+  {
+    jedis.set(key, value);
+  }
+
+  @Override
+  public void store(Map<K, Object> t)
+  {
+    for (Map.Entry<K, Object> entry: t.entrySet()) {
+      Object value = entry.getValue();
+      if (value instanceof Map) {
+        for (Map.Entry<Object, Object> entry1: ((Map<Object, Object>)value).entrySet()) {
+          jedis.hset(entry.getKey().toString(), entry1.getKey().toString(), entry1.getValue().toString());
         }
-        else if (value instanceof Set) {
-          for (Object o: (Set<Object>)value) {
-            jedis.sadd(key, o.toString());
-          }
+      }
+      else if (value instanceof Set) {
+        for (Object o: (Set<Object>)value) {
+          jedis.sadd(entry.getKey().toString(), o.toString());
         }
-        else if (value instanceof List) {
-          int i = 0;
-          for (Object o: (List<Object>)value) {
-            jedis.lset(key, i++, o.toString());
-          }
+      }
+      else if (value instanceof List) {
+        int i = 0;
+        for (Object o: (List<Object>)value) {
+          jedis.lset(entry.getKey().toString(), i++, o.toString());
         }
-        else {
-          jedis.set(key, value.toString());
-        }
+      }
+      else {
+        jedis.set(entry.getKey().toString(), value.toString());
       }
     }
   }

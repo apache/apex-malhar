@@ -87,7 +87,7 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
    * Third String key is the field
    */
   @OutputPortFieldAnnotation(name = "out", optional = false)
-  public final transient DefaultOutputPort<Map<String, Map<String, Map<String, Number>>>> out = new DefaultOutputPort<Map<String, Map<String, Map<String, Number>>>>(this);
+  public final transient DefaultOutputPort<Map<String, Map<String, Number>>> out = new DefaultOutputPort<Map<String, Map<String, Number>>>(this);
   private List<String> dimensionKeyNames = new ArrayList<String>();
   private List<String> valueKeyNames = new ArrayList<String>();
   private String timeKeyName;

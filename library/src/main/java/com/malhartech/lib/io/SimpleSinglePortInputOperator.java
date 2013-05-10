@@ -5,13 +5,10 @@
 package com.malhartech.lib.io;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.ActivationListener;
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.InputOperator;
-import com.malhartech.api.Operator;
+import com.malhartech.api.*;
 import com.malhartech.api.Context.OperatorContext;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Base class for input operator with a single output port without recovery.
@@ -26,12 +23,19 @@ public class SimpleSinglePortInputOperator<T> extends BaseOperator implements In
   private transient Thread ioThread;
   private transient boolean isActive = false;
 
+  private transient int windowWidth;
   /**
    * The single output port of this input operator.
    * Collects asynchronously emitted tuples and flushes in container thread.
    */
   @OutputPortFieldAnnotation(name = "outputPort")
   final public transient BufferingOutputPort<T> outputPort = new BufferingOutputPort<T>(this);
+
+  @Override
+  public void setup(OperatorContext context)
+  {
+    windowWidth = context.getApplicationAttributes().attrValue(DAG.STRAM_WINDOW_SIZE_MILLIS, 500);
+  }
 
   @Override
   final public void activate(OperatorContext ctx)
@@ -61,7 +65,7 @@ public class SimpleSinglePortInputOperator<T> extends BaseOperator implements In
   @Override
   public void emitTuples()
   {
-    outputPort.flush();
+    outputPort.flush(Integer.MAX_VALUE);
   }
 
   public static class BufferingOutputPort<T> extends DefaultOutputPort<T>
@@ -82,12 +86,13 @@ public class SimpleSinglePortInputOperator<T> extends BaseOperator implements In
       tuples.add(tuple);
     }
 
-    public synchronized void flush()
+    public synchronized void flush(int count)
     {
-      for (T tuple: tuples) {
-        super.emit(tuple);
+      Iterator<T> iterator = tuples.iterator();
+      while (count-- > 0 && iterator.hasNext()) {
+        super.emit(iterator.next());
+        iterator.remove();
       }
-      tuples.clear();
     }
   };
 }
