@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 public class DimensionTimeBucketSumOperator extends DimensionTimeBucketOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(DimensionTimeBucketSumOperator.class);
-  private Map<String, Map<String, Number>> dataMap = new HashMap<String, Map<String, Number>>();
+  private transient Map<String, Map<String, Number>> dataMap;
 
   @Override
   public void process(String timeBucket, String key, String field, Number value)
@@ -41,6 +41,12 @@ public class DimensionTimeBucketSumOperator extends DimensionTimeBucketOperator
         ((MutableDouble)n).add(value);
       }
     }
+  }
+
+  @Override
+  public void beginWindow(long windowId)
+  {
+    dataMap = new HashMap<String, Map<String, Number>>();
   }
 
   @Override
