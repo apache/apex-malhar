@@ -17,7 +17,7 @@ import java.util.TreeMap;
  */
 public class TimeSeriesCandleStickChartOperator<K> extends TimeSeriesChartOperator<K, CandleStick>
 {
-  Map<K, CandleStick> dataMap = new TreeMap<K, CandleStick>();
+  protected transient Map<K, CandleStick> dataMap = new TreeMap<K, CandleStick>();
 
   @Override
   public Type getChartType()

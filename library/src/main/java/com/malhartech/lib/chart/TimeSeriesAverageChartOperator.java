@@ -25,7 +25,7 @@ public class TimeSeriesAverageChartOperator<K> extends TimeSeriesChartOperator<K
   /**
    *  The data map to store the data to be charted during a window
    */
-  protected Map<K, SumNumItems> dataMap = new TreeMap<K, SumNumItems>();
+  protected transient Map<K, SumNumItems> dataMap = new TreeMap<K, SumNumItems>();
 
   @Override
   public Type getChartType()
