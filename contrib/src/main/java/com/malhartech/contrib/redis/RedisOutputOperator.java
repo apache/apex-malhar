@@ -93,22 +93,22 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
       Object value = entry.getValue();
       if (value instanceof Map) {
         for (Map.Entry<Object, Object> entry1: ((Map<Object, Object>)value).entrySet()) {
-          jedis.hset(entry.getKey().toString(), entry1.getKey().toString(), entry1.getValue().toString());
+          currentTransaction.hset(entry.getKey().toString(), entry1.getKey().toString(), entry1.getValue().toString());
         }
       }
       else if (value instanceof Set) {
         for (Object o: (Set)value) {
-          jedis.sadd(entry.getKey().toString(), o.toString());
+          currentTransaction.sadd(entry.getKey().toString(), o.toString());
         }
       }
       else if (value instanceof List) {
         int i = 0;
         for (Object o: (List)value) {
-          jedis.lset(entry.getKey().toString(), i++, o.toString());
+          currentTransaction.lset(entry.getKey().toString(), i++, o.toString());
         }
       }
       else {
-        jedis.set(entry.getKey().toString(), value.toString());
+        currentTransaction.set(entry.getKey().toString(), value.toString());
       }
     }
   }
