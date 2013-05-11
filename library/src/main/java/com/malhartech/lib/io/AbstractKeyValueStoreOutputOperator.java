@@ -46,6 +46,10 @@ public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOper
 
   public abstract void store(Map<K, Object> map);
 
+  public abstract void startTransaction();
+
+  public abstract void commitTransaction();
+
   public void process(Map<K, V> t)
   {
     dataMap.putAll(t);
@@ -76,8 +80,10 @@ public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOper
   public void endWindow()
   {
     if (committedWindowId < currentWindowId) {
+      startTransaction();
       store(dataMap);
       put(getEndWindowKey(), String.valueOf(currentWindowId));
+      commitTransaction();
       committedWindowId = currentWindowId;
     }
   }

@@ -100,9 +100,9 @@ public class RedisNumberAggregateOutputOperator<K, V> extends RedisOutputOperato
       if (value instanceof Map) {
         for (Map.Entry<Object, Object> entry1: ((Map<Object, Object>)value).entrySet()) {
           String field = entry1.getKey().toString();
-          String oldVal = jedis.hget(key, field);
+          String oldVal = currentTransaction.hget(key, field).get();
           if (oldVal == null) {
-            jedis.hset(key, field, entry1.getValue().toString());
+            currentTransaction.hset(key, field, entry1.getValue().toString());
           }
           else {
             double increment;
@@ -112,7 +112,7 @@ public class RedisNumberAggregateOutputOperator<K, V> extends RedisOutputOperato
             else {
               increment = Double.parseDouble(entry1.getValue().toString());
             }
-            jedis.hset(key, field, String.valueOf(Double.valueOf(oldVal) + increment));
+            currentTransaction.hset(key, field, String.valueOf(Double.valueOf(oldVal) + increment));
           }
 
           // need to wait for jedis-2.2 to come out to enable the following code:
@@ -135,9 +135,9 @@ public class RedisNumberAggregateOutputOperator<K, V> extends RedisOutputOperato
         }
       }
       else {
-        String oldVal = jedis.get(key);
+        String oldVal = currentTransaction.get(key).get();
         if (oldVal == null) {
-          jedis.set(key, value.toString());
+          currentTransaction.set(key, value.toString());
         }
         else {
           double increment;
@@ -147,7 +147,7 @@ public class RedisNumberAggregateOutputOperator<K, V> extends RedisOutputOperato
           else {
             increment = Double.parseDouble(value.toString());
           }
-          jedis.set(key, String.valueOf(Double.valueOf(oldVal) + increment));
+          currentTransaction.set(key, String.valueOf(Double.valueOf(oldVal) + increment));
         }
         /* need to wait for jedis-2.2 to come out to enable the following code:
          if (value instanceof Number) {

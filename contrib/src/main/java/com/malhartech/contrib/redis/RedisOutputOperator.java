@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Transaction;
 
 /**
  *
@@ -20,6 +21,7 @@ import redis.clients.jedis.Jedis;
 public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperator<K, V>
 {
   protected transient Jedis jedis;
+  protected transient Transaction currentTransaction;
   private String host = "localhost";
   private int port = 6379;
   private int timeout = 1000;
@@ -49,13 +51,39 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
   @Override
   public String get(String key)
   {
-    return jedis.get(key);
+    if (currentTransaction == null) {
+      return jedis.get(key);
+    }
+    else {
+      return currentTransaction.get(key).get();
+    }
   }
 
   @Override
   public void put(String key, String value)
   {
-    jedis.set(key, value);
+    if (currentTransaction == null) {
+      jedis.set(key, value);
+    }
+    else {
+      currentTransaction.set(key, value);
+    }
+  }
+
+  @Override
+  public void startTransaction()
+  {
+    if (currentTransaction != null) {
+      currentTransaction.discard();
+    }
+    currentTransaction = jedis.multi();
+  }
+
+  @Override
+  public void commitTransaction()
+  {
+    currentTransaction.exec();
+    currentTransaction = null;
   }
 
   @Override
