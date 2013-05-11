@@ -100,7 +100,7 @@ public class RedisNumberAggregateOutputOperator<K, V> extends RedisOutputOperato
       if (value instanceof Map) {
         for (Map.Entry<Object, Object> entry1: ((Map<Object, Object>)value).entrySet()) {
           String field = entry1.getKey().toString();
-          String oldVal = currentTransaction.hget(key, field).get();
+          String oldVal = jedis.hget(key, field);
           if (oldVal == null) {
             currentTransaction.hset(key, field, entry1.getValue().toString());
           }
@@ -135,7 +135,7 @@ public class RedisNumberAggregateOutputOperator<K, V> extends RedisOutputOperato
         }
       }
       else {
-        String oldVal = currentTransaction.get(key).get();
+        String oldVal = jedis.get(key);
         if (oldVal == null) {
           currentTransaction.set(key, value.toString());
         }

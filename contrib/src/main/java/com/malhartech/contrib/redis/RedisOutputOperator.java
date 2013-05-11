@@ -51,12 +51,7 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
   @Override
   public String get(String key)
   {
-    if (currentTransaction == null) {
-      return jedis.get(key);
-    }
-    else {
-      return currentTransaction.get(key).get();
-    }
+    return jedis.get(key);
   }
 
   @Override
