@@ -12,6 +12,8 @@ import com.malhartech.api.DefaultInputPort;
 import com.malhartech.util.AttributeMap;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -19,6 +21,7 @@ import java.util.Map;
  */
 public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOperator
 {
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractKeyValueStoreOutputOperator.class);
   private transient long currentWindowId;
   private transient long committedWindowId = 0;
   private transient int operatorId;
@@ -62,6 +65,7 @@ public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOper
       String v = get(getEndWindowKey());
       if (v != null) {
         committedWindowId = Long.valueOf(v);
+        LOG.info("Committed/Current Window Ids : {} {}", committedWindowId, windowId);
       }
     }
     currentWindowId = windowId;
