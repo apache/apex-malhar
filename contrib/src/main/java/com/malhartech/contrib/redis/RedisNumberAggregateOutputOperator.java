@@ -100,62 +100,22 @@ public class RedisNumberAggregateOutputOperator<K, V> extends RedisOutputOperato
       if (value instanceof Map) {
         for (Map.Entry<Object, Object> entry1: ((Map<Object, Object>)value).entrySet()) {
           String field = entry1.getKey().toString();
-          String oldVal = jedis.hget(key, field);
-          if (oldVal == null) {
-            currentTransaction.hset(key, field, entry1.getValue().toString());
+          Object hvalue = entry1.getValue();
+          if (hvalue instanceof Number) {
+            redisConnection.hincrbyfloat(key, field, ((Number)hvalue).doubleValue());
           }
           else {
-            double increment;
-            if (entry.getValue() instanceof Number) {
-              increment = ((Number)entry1.getValue()).doubleValue();
-            }
-            else {
-              increment = Double.parseDouble(entry1.getValue().toString());
-            }
-            currentTransaction.hset(key, field, String.valueOf(Double.valueOf(oldVal) + increment));
+            redisConnection.hincrbyfloat(key, field, Double.parseDouble(hvalue.toString()));
           }
-
-          // need to wait for jedis-2.2 to come out to enable the following code:
-            /*
-           if (entry.getValue() instanceof Number) {
-           String field = entry.getKey().toString();
-           // need to wait for jedis-2.2 to come out
-           //jedis.hincrByFloat(key, field, ((Number)entry.getValue()).doubleValue());
-           String oldVal = jedis.hget(key, field);
-           if (oldVal == null) {
-           jedis.hset(key, field, entry.getValue().toString());
-           } else {
-           String newVal = String.valueOf(Double.valueOf(oldVal) + ((Number)entry.getValue()).doubleValue());
-           jedis.hset(key, field, newVal);
-           }
-           } else {
-           jedis.hincrByFloat(key, entry.getKey().toString(), Double.parseDouble(entry.getValue().toString()));
-           }
-           */
         }
       }
       else {
-        String oldVal = jedis.get(key);
-        if (oldVal == null) {
-          currentTransaction.set(key, value.toString());
+        if (value instanceof Number) {
+          redisConnection.incrbyfloat(key, ((Number)value).doubleValue());
         }
         else {
-          double increment;
-          if (value instanceof Number) {
-            increment = ((Number)value).doubleValue();
-          }
-          else {
-            increment = Double.parseDouble(value.toString());
-          }
-          currentTransaction.set(key, String.valueOf(Double.valueOf(oldVal) + increment));
+          redisConnection.incrbyfloat(key, Double.parseDouble(value.toString()));
         }
-        /* need to wait for jedis-2.2 to come out to enable the following code:
-         if (value instanceof Number) {
-         jedis.incrByFloat(key, ((Number)value).doubleValue());
-         } else {
-         jedis.incrByFloat(key, Double.parseDouble(value.toString()));
-         }
-         */
       }
     }
   }

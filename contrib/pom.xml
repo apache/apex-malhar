@@ -210,14 +210,14 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>redis.clients</groupId>
-      <artifactId>jedis</artifactId>
-      <version>2.1.0</version>
-    </dependency>
-    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-compress</artifactId>
       <version>1.5</version>
+    </dependency>
+    <dependency>
+      <groupId>com.lambdaworks</groupId>
+      <artifactId>lettuce</artifactId>
+      <version>2.3.2</version>
     </dependency>
   </dependencies>
 </project>

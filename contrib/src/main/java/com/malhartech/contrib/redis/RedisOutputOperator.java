@@ -4,27 +4,27 @@
  */
 package com.malhartech.contrib.redis;
 
+import com.lambdaworks.redis.RedisClient;
+import com.lambdaworks.redis.RedisConnection;
+import com.lambdaworks.redis.RedisException;
 import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.lib.io.AbstractKeyValueStoreOutputOperator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Transaction;
 
 /**
  *
  * @author David Yan <davidyan@malhar-inc.com>
  */
-@ShipContainingJars(classes = {Jedis.class})
+@ShipContainingJars(classes = {RedisClient.class})
 public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperator<K, V>
 {
-  protected transient Jedis jedis;
-  protected transient Transaction currentTransaction;
+  protected transient RedisClient redisClient;
+  protected transient RedisConnection<String, String> redisConnection;
   private String host = "localhost";
   private int port = 6379;
-  private int timeout = 1000;
 
   public void setHost(String host)
   {
@@ -36,49 +36,41 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
     this.port = port;
   }
 
-  public void setTimeout(int timeout)
-  {
-    this.timeout = timeout;
-  }
-
   @Override
   public void setup(OperatorContext context)
   {
     super.setup(context);
-    jedis = new Jedis(host, port, timeout);
+    redisClient = new RedisClient(host, port);
+    redisConnection = redisClient.connect();
   }
 
   @Override
   public String get(String key)
   {
-    return jedis.get(key);
+    return redisConnection.get(key);
   }
 
   @Override
   public void put(String key, String value)
   {
-    if (currentTransaction == null) {
-      jedis.set(key, value);
-    }
-    else {
-      currentTransaction.set(key, value);
-    }
+    redisConnection.set(key, value);
   }
 
   @Override
   public void startTransaction()
   {
-    if (currentTransaction != null) {
-      currentTransaction.discard();
+    try {
+      redisConnection.discard();
+    } catch (RedisException ex) {
+      // ignore
     }
-    currentTransaction = jedis.multi();
+    redisConnection.multi();
   }
 
   @Override
   public void commitTransaction()
   {
-    currentTransaction.exec();
-    currentTransaction = null;
+    redisConnection.exec();
   }
 
   @Override
@@ -88,22 +80,22 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
       Object value = entry.getValue();
       if (value instanceof Map) {
         for (Map.Entry<Object, Object> entry1: ((Map<Object, Object>)value).entrySet()) {
-          currentTransaction.hset(entry.getKey().toString(), entry1.getKey().toString(), entry1.getValue().toString());
+          redisConnection.hset(entry.getKey().toString(), entry1.getKey().toString(), entry1.getValue().toString());
         }
       }
       else if (value instanceof Set) {
         for (Object o: (Set)value) {
-          currentTransaction.sadd(entry.getKey().toString(), o.toString());
+          redisConnection.sadd(entry.getKey().toString(), o.toString());
         }
       }
       else if (value instanceof List) {
         int i = 0;
         for (Object o: (List)value) {
-          currentTransaction.lset(entry.getKey().toString(), i++, o.toString());
+          redisConnection.lset(entry.getKey().toString(), i++, o.toString());
         }
       }
       else {
-        currentTransaction.set(entry.getKey().toString(), value.toString());
+        redisConnection.set(entry.getKey().toString(), value.toString());
       }
     }
   }
