@@ -25,7 +25,7 @@
         </property>
       </activation>
       <properties>
-        <env.MALHAR_FRONT_PATH>${project.basedir}/../../front</env.MALHAR_FRONT_PATH>
+        <env.MALHAR_FRONT_PATH>${project.basedir}/../../Front</env.MALHAR_FRONT_PATH>
       </properties>
     </profile>
 
