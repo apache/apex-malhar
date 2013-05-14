@@ -19,7 +19,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ShipContainingJars(classes = {javax.mail.Session.class})
+@ShipContainingJars(classes = {javax.mail.Session.class, com.sun.mail.util.MailLogger.class})
 public class SmtpOutputOperator<T> extends BaseOperator
 {
   public enum RecipientType
