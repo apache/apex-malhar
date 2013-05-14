@@ -9,6 +9,8 @@ import java.util.Map;
 import org.apache.commons.lang.mutable.MutableDouble;
 import org.apache.commons.lang.mutable.MutableInt;
 import org.apache.commons.lang.mutable.MutableLong;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -16,6 +18,8 @@ import org.apache.commons.lang.mutable.MutableLong;
  */
 public class RedisNumberAggregateOutputOperator<K, V> extends RedisOutputOperator<K, V>
 {
+  private static final Logger LOG = LoggerFactory.getLogger(RedisNumberAggregateOutputOperator.class);
+
   protected Number convertToNumber(Object o)
   {
     if (o == null) {

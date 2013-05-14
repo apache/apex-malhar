@@ -22,8 +22,8 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractKeyValueStoreOutputOperator.class);
-  private transient long currentWindowId;
-  private transient long committedWindowId = 0;
+  protected transient long currentWindowId;
+  protected transient long committedWindowId = 0;
   private transient int operatorId;
   private transient String appId;
   protected transient Map<K, Object> dataMap = new HashMap<K, Object>();
@@ -85,6 +85,8 @@ public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOper
       put(getEndWindowKey(), String.valueOf(currentWindowId));
       commitTransaction();
       committedWindowId = currentWindowId;
+    } else {
+      LOG.info("Discarding data for window id {} because committed window is {}", currentWindowId, committedWindowId);
     }
   }
 
