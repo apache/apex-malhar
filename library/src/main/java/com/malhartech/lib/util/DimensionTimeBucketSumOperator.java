@@ -46,6 +46,7 @@ public class DimensionTimeBucketSumOperator extends DimensionTimeBucketOperator
   @Override
   public void beginWindow(long windowId)
   {
+    super.beginWindow(windowId);
     dataMap = new HashMap<String, Map<String, Number>>();
   }
 
