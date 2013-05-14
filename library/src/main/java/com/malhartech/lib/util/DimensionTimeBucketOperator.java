@@ -14,6 +14,8 @@ import com.malhartech.api.DefaultOutputPort;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -21,62 +23,68 @@ import java.util.*;
  */
 public abstract class DimensionTimeBucketOperator extends BaseOperator
 {
+  private static final Logger LOG = LoggerFactory.getLogger(DimensionTimeBucketOperator.class);
   @InputPortFieldAnnotation(name = "in", optional = false)
   public final transient DefaultInputPort<Map<String, Object>> in = new DefaultInputPort<Map<String, Object>>(this)
   {
     @Override
     public void process(Map<String, Object> tuple)
     {
-      long time = extractTimeFromTuple(tuple);
-      calendar.setTimeInMillis(time);
-      List<String> timeBucketList = new ArrayList<String>();
+      try {
+        long time = extractTimeFromTuple(tuple);
+        calendar.setTimeInMillis(time);
+        List<String> timeBucketList = new ArrayList<String>();
 
-      if ((timeBucketFlags & TIMEBUCKET_YEAR) != 0) {
-        timeBucketList.add(String.format("Y|%04d", calendar.get(Calendar.YEAR)));
-      }
-      if ((timeBucketFlags & TIMEBUCKET_MONTH) != 0) {
-        timeBucketList.add(String.format("M|%04d%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1));
-      }
-      if ((timeBucketFlags & TIMEBUCKET_WEEK) != 0) {
-        timeBucketList.add(String.format("W|%04d%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.WEEK_OF_YEAR)));
-      }
-      if ((timeBucketFlags & TIMEBUCKET_DAY) != 0) {
-        timeBucketList.add(String.format("D|%04d%02d%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH)));
-      }
-      if ((timeBucketFlags & TIMEBUCKET_HOUR) != 0) {
-        timeBucketList.add(String.format("h|%04d%02d%02d%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY)));
-      }
-      if ((timeBucketFlags & TIMEBUCKET_MINUTE) != 0) {
-        timeBucketList.add(String.format("m|%04d%02d%02d%02d%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE)));
-      }
+        if ((timeBucketFlags & TIMEBUCKET_YEAR) != 0) {
+          timeBucketList.add(String.format("Y|%04d", calendar.get(Calendar.YEAR)));
+        }
+        if ((timeBucketFlags & TIMEBUCKET_MONTH) != 0) {
+          timeBucketList.add(String.format("M|%04d%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1));
+        }
+        if ((timeBucketFlags & TIMEBUCKET_WEEK) != 0) {
+          timeBucketList.add(String.format("W|%04d%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.WEEK_OF_YEAR)));
+        }
+        if ((timeBucketFlags & TIMEBUCKET_DAY) != 0) {
+          timeBucketList.add(String.format("D|%04d%02d%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH)));
+        }
+        if ((timeBucketFlags & TIMEBUCKET_HOUR) != 0) {
+          timeBucketList.add(String.format("h|%04d%02d%02d%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY)));
+        }
+        if ((timeBucketFlags & TIMEBUCKET_MINUTE) != 0) {
+          timeBucketList.add(String.format("m|%04d%02d%02d%02d%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE)));
+        }
 
 
-      for (String timeBucket: timeBucketList) {
-        for (int[] dimensionCombination: dimensionCombinations) {
-          String field = "0";
-          String key = new String();
-          for (int d: dimensionCombination) {
-            if (!key.isEmpty()) {
-              key += "|";
-            }
-            key += String.valueOf(d) + ":" + tuple.get(dimensionKeyNames.get(d)).toString();
-          }
-          DimensionTimeBucketOperator.this.process(timeBucket, key, field, 1);
-          for (int i = 0; i < valueKeyNames.size(); i++) {
-            String valueKeyName = valueKeyNames.get(i);
-            field = String.valueOf(i + 1);
-            Object value = tuple.get(valueKeyName);
-            Number numberValue = extractNumber(valueKeyName, value);
-            key = "";
+        for (String timeBucket: timeBucketList) {
+          for (int[] dimensionCombination: dimensionCombinations) {
+            String field = "0";
+            String key = new String();
             for (int d: dimensionCombination) {
               if (!key.isEmpty()) {
                 key += "|";
               }
               key += String.valueOf(d) + ":" + tuple.get(dimensionKeyNames.get(d)).toString();
             }
-            DimensionTimeBucketOperator.this.process(timeBucket, key, field, numberValue);
+            DimensionTimeBucketOperator.this.process(timeBucket, key, field, 1);
+            for (int i = 0; i < valueKeyNames.size(); i++) {
+              String valueKeyName = valueKeyNames.get(i);
+              field = String.valueOf(i + 1);
+              Object value = tuple.get(valueKeyName);
+              Number numberValue = extractNumber(valueKeyName, value);
+              key = "";
+              for (int d: dimensionCombination) {
+                if (!key.isEmpty()) {
+                  key += "|";
+                }
+                key += String.valueOf(d) + ":" + tuple.get(dimensionKeyNames.get(d)).toString();
+              }
+              DimensionTimeBucketOperator.this.process(timeBucket, key, field, numberValue);
+            }
           }
         }
+      }
+      catch (Exception ex) {
+        LOG.warn("Got exception for tuple {}.  Ignoring this tuple.", tuple, ex);
       }
     }
 
@@ -96,7 +104,7 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
   private int timeBucketFlags;
   private transient TimeZone timeZone = TimeZone.getTimeZone("GMT");
   private transient Calendar calendar = new GregorianCalendar(timeZone);
-  private List<int[]> dimensionCombinations = new ArrayList<int[]>();
+  private transient List<int[]> dimensionCombinations = new ArrayList<int[]>();
   private transient NumberFormat numberFormat = NumberFormat.getInstance();
   public static final int TIMEBUCKET_MINUTE = 1;
   public static final int TIMEBUCKET_HOUR = 2;
