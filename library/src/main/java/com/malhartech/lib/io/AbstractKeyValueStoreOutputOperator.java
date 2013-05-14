@@ -22,11 +22,11 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractKeyValueStoreOutputOperator.class);
-  protected transient long currentWindowId;
+  protected long currentWindowId;
   protected transient long committedWindowId = 0;
   private transient int operatorId;
   private transient String appId;
-  protected transient Map<K, Object> dataMap = new HashMap<K, Object>();
+  protected Map<K, Object> dataMap = new HashMap<K, Object>();
   @InputPortFieldAnnotation(name = "in")
   public final transient DefaultInputPort<Map<K, V>> input = new DefaultInputPort<Map<K, V>>(this)
   {
@@ -60,18 +60,15 @@ public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOper
   {
     operatorId = ctxt.getId();
     appId = ctxt.getApplicationAttributes().attr(DAGContext.STRAM_APP_ID).get();
+    String v = get(getEndWindowKey());
+    if (v != null) {
+      committedWindowId = Long.valueOf(v);
+    }
   }
 
   @Override
   public void beginWindow(long windowId)
   {
-    if (committedWindowId == 0) {
-      String v = get(getEndWindowKey());
-      if (v != null) {
-        committedWindowId = Long.valueOf(v);
-        LOG.info("Committed/Current Window Ids : {} {}", committedWindowId, windowId);
-      }
-    }
     currentWindowId = windowId;
     dataMap.clear();
   }
@@ -85,7 +82,8 @@ public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOper
       put(getEndWindowKey(), String.valueOf(currentWindowId));
       commitTransaction();
       committedWindowId = currentWindowId;
-    } else {
+    }
+    else {
       LOG.info("Discarding data for window id {} because committed window is {}", currentWindowId, committedWindowId);
     }
   }

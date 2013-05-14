@@ -39,9 +39,9 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
   @Override
   public void setup(OperatorContext context)
   {
-    super.setup(context);
     redisClient = new RedisClient(host, port);
     redisConnection = redisClient.connect();
+    super.setup(context);
   }
 
   @Override
