@@ -2,12 +2,9 @@ This is an alpha release not for production use.
 
 The archive contains all artifacts needed to develop a streaming application on the Malhar platform.
 
-API documentation is under: 
+Documentation is under: 
 
-<UNZIP_DIR>/docs/apidocs
-
-A good place to start is index.html in the above dir
-
+<UNZIP_DIR>/docs/index.html
 
 Requirements for development/runtime environment:
 
@@ -15,17 +12,20 @@ Requirements for development/runtime environment:
 - Oracle Java 6 or Java 7 (or OpenJDK)
 - Maven 3 (http://maven.apache.org)
 - Hadoop 2.x cluster to run applications in distributed mode
+- Chrome to access the dashboard UI
 
-
-########################################
-# To run the demos
-
-run <UNZIP_DIR>/install.sh
+Install the package by running <UNZIP_DIR>/install.sh
 
 This will populate the local maven repository with required dependencies
 and generate the classpath needed by the application launcher.
 
-Then run <UNZIP_DIR>/bin/stramcli
+
+########################################
+# To run demos
+
+Start the command line interface (CLI):
+
+<UNZIP_DIR>/bin/stramcli
 
 To run demos in local mode:
 
@@ -38,6 +38,24 @@ with environment variable, default is STRAM_CLIENT_OPTS=-Xmx1024m
 To run demos on your Hadoop 2.x cluster (you must have HADOOP_PREFIX set):
 
 launch <UNZIP_DIR>/maven2/com/malhartech/malhar-demos/0.1-SNAPSHOT/malhar-demos-0.1-SNAPSHOT.jar
+
+
+########################################
+# To launch the frontend server (daemon)
+
+Before starting the daemon for the first time, verify the listening address.
+It is configured in ~/stram/stram-site.xml as stram.daemon.address
+
+To start the daemon:
+
+bin/start-malhar-daemon
+
+To stop the daemon:
+
+bin/stop-malhar-daemon
+
+Access the front end page here:
+http://[stram.daemon.address]/static/index.html
 
 
 ########################################
