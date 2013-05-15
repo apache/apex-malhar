@@ -4,15 +4,18 @@
  */
 package com.malhartech.demos.twitter;
 
+import java.net.URI;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.conf.Configuration;
+
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
 import com.malhartech.api.Operator.InputPort;
 import com.malhartech.lib.algo.UniqueCounter;
 import com.malhartech.lib.algo.WindowedTopCounter;
 import com.malhartech.lib.io.ConsoleOutputOperator;
-import com.malhartech.lib.io.HttpOutputOperator;
-import java.net.URI;
-import org.apache.hadoop.conf.Configuration;
+import com.malhartech.lib.io.PubSubWebSocketOutputOperator;
 
 /**
  * Takes Twitter feed and computes top URLs in sliding window.
@@ -47,12 +50,15 @@ public class TwitterTopCounterApplication implements ApplicationFactory
 
   private InputPort<Object> consoleOutput(DAG dag, String operatorName)
   {
-    // hack to output to HTTP based on actual environment
-    String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
-    if (serverAddr != null) {
-      HttpOutputOperator<Object> operator = dag.addOperator(operatorName, new HttpOutputOperator<Object>());
-      operator.setResourceURL(URI.create("http://" + serverAddr + "/channel/" + operatorName));
-      return operator.input;
+    String daemonAddress = dag.getAttributes().attrValue(DAG.STRAM_DAEMON_ADDRESS, null);
+    if (!StringUtils.isEmpty(daemonAddress)) {
+      URI uri = URI.create("ws://" + daemonAddress + "/pubsub");
+      String topic = "demos.twitter." + operatorName;
+      //LOG.info("WebSocket with daemon at: {}", daemonAddress);
+      PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator(operatorName, new PubSubWebSocketOutputOperator<Object>());
+      wsOut.setUri(uri);
+      wsOut.setTopic(topic);
+      return wsOut.input;
     }
     ConsoleOutputOperator operator = dag.addOperator(operatorName, new ConsoleOutputOperator());
     operator.setStringFormat(operatorName + ": %s");

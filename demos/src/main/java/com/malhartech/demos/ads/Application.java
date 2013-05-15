@@ -11,7 +11,7 @@ import com.malhartech.api.DAG;
 import com.malhartech.api.Operator.InputPort;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.io.HdfsOutputOperator;
-import com.malhartech.lib.io.HttpOutputOperator;
+import com.malhartech.lib.io.PubSubWebSocketOutputOperator;
 import com.malhartech.lib.math.MarginMap;
 import com.malhartech.lib.math.QuotientMap;
 import com.malhartech.lib.math.SumCountMap;
@@ -23,6 +23,8 @@ import com.malhartech.lib.testbench.ThroughputCounter;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -85,17 +87,19 @@ public class Application implements ApplicationFactory
   private InputPort<Object> getConsolePort(DAG b, String name, boolean silent)
   {
     // output to HTTP server when specified in environment setting
-    Operator ret;
-    String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
-    if (serverAddr == null) {
-      ConsoleOutputOperator oper = b.addOperator(name, new ConsoleOutputOperator());
-      oper.setStringFormat(name + "%s");
-      oper.silent = silent;
-      return oper.input;
+    String daemonAddress = b.getAttributes().attrValue(DAG.STRAM_DAEMON_ADDRESS, null);
+    if (!StringUtils.isEmpty(daemonAddress)) {
+      URI uri = URI.create("ws://" + daemonAddress + "/pubsub");
+      String topic = "demos.ads." + name;
+      //LOG.info("WebSocket with daemon at: {}", daemonAddress);
+      PubSubWebSocketOutputOperator<Object> wsOut = b.addOperator(name, new PubSubWebSocketOutputOperator<Object>());
+      wsOut.setUri(uri);
+      wsOut.setTopic(topic);
+      return wsOut.input;
     }
-    HttpOutputOperator<Object> oper = b.addOperator(name, new HttpOutputOperator<Object>());
-    URI u = URI.create("http://" + serverAddr + "/channel/" + name);
-    oper.setResourceURL(u);
+    ConsoleOutputOperator oper = b.addOperator(name, new ConsoleOutputOperator());
+    oper.setStringFormat(name + "%s");
+    oper.silent = silent;
     return oper.input;
   }
 
