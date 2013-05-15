@@ -10,6 +10,7 @@ import com.malhartech.api.DAG.StreamMeta;
 import com.malhartech.demos.yahoofinance.StockTickInput;
 import com.malhartech.lib.chart.TimeSeriesAverageChartOperator;
 import com.malhartech.lib.chart.TimeSeriesCandleStickChartOperator;
+import com.malhartech.lib.chart.XYChartOperator.NumberType;
 import com.malhartech.lib.stream.DevNull;
 import com.malhartech.lib.util.CandleStick;
 import com.malhartech.lib.util.KeyValPair;
@@ -62,12 +63,18 @@ public class YahooFinanceApplication extends com.malhartech.demos.yahoofinance.A
   TimeSeriesAverageChartOperator<String> getAverageChartOperator(String name, DAG dag)
   {
     YahooFinanceTimeSeriesAverageChartOperator op = new YahooFinanceTimeSeriesAverageChartOperator();
+    op.setxAxisLabel("TIME");
+    op.setyAxisLabel("PRICE");
+    op.setyNumberType(NumberType.FLOAT);
     return dag.addOperator(name, op);
   }
 
   TimeSeriesCandleStickChartOperator<String> getCandleStickChartOperator(String name, DAG dag)
   {
     YahooFinanceTimeSeriesCandleStickChartOperator op = new YahooFinanceTimeSeriesCandleStickChartOperator();
+    op.setxAxisLabel("TIME");
+    op.setyAxisLabel("PRICE");
+    op.setyNumberType(NumberType.FLOAT);
     return dag.addOperator(name, op);
   }
 

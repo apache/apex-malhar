@@ -57,7 +57,7 @@ public class TimeSeriesAverageChartOperator<K> extends TimeSeriesChartOperator<K
   }
 
   @Override
-  public Collection<K> getKeys()
+  public Collection<K> retrieveKeys()
   {
     return dataMap.keySet();
   }

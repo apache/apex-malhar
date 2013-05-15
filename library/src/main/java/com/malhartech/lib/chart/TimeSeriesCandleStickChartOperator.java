@@ -45,7 +45,7 @@ public class TimeSeriesCandleStickChartOperator<K> extends TimeSeriesChartOperat
   }
 
   @Override
-  public Collection<K> getKeys()
+  public Collection<K> retrieveKeys()
   {
     return dataMap.keySet();
   }
@@ -56,7 +56,7 @@ public class TimeSeriesCandleStickChartOperator<K> extends TimeSeriesChartOperat
     K key = convertTupleToKey(tuple);
     Number number = convertTupleToY(tuple);
     if (number != null) {
-      if (yNumberType == NumberType.DOUBLE) {
+      if (yNumberType == NumberType.FLOAT) {
         double value = number.doubleValue();
         CandleStick candleStick = dataMap.get(key);
         if (candleStick != null) {

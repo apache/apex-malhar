@@ -28,13 +28,13 @@ public abstract class EnumChartOperator<K, X> extends XYChartOperator<K, X, Numb
   }
 
   @Override
-  public Map<X, Number> getPoints(K key)
+  public Map<X, Number> retrievePoints(K key)
   {
     return dataMap.get(key);
   }
 
   @Override
-  public Collection<K> getKeys()
+  public Collection<K> retrieveKeys()
   {
     return dataMap.keySet();
   }
@@ -59,7 +59,7 @@ public abstract class EnumChartOperator<K, X> extends XYChartOperator<K, X, Numb
         dataMap.put(key, map);
       }
       Number oldValue = map.get(x);
-      if (yNumberType == NumberType.DOUBLE) {
+      if (yNumberType == NumberType.FLOAT) {
         double value = number.doubleValue();
         if (oldValue == null) {
           map.put(x, value);

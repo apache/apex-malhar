@@ -52,7 +52,7 @@ public abstract class TimeSeriesChartOperator<K, Y> extends XYChartOperator<K, N
   public abstract Y getY(K key);
 
   @Override
-  public Map<Number, Y> getPoints(K key) {
+  public Map<Number, Y> retrievePoints(K key) {
     Map<Number, Y> points = new TreeMap<Number, Y>();
     points.put(getX(key), getY(key));
     return points;

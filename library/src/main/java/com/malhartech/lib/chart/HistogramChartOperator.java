@@ -18,7 +18,7 @@ public abstract class HistogramChartOperator<K> extends EnumChartOperator<K, Hig
   protected Number high;
   protected Number low;
   protected int numDivisions;
-  protected NumberType xNumberType = NumberType.LONG;
+  protected NumberType xNumberType = NumberType.INTEGER;
   protected TreeMap<Number, HighLow> highLows = new TreeMap<Number, HighLow>();
 
   @Override
@@ -106,7 +106,7 @@ public abstract class HistogramChartOperator<K> extends EnumChartOperator<K, Hig
     if (numDivisions == 0) {
       throw new RuntimeException("setNumDivisions() must be called first");
     }
-    if (xNumberType == NumberType.DOUBLE) {
+    if (xNumberType == NumberType.FLOAT) {
       double increment = (high.doubleValue() - low.doubleValue()) / numDivisions;
       double current = low.doubleValue();
       if (increment <= 0) {
@@ -145,7 +145,7 @@ public abstract class HistogramChartOperator<K> extends EnumChartOperator<K, Hig
   public HighLow convertTupleToX(Object tuple)
   {
     Number number = convertTupleToXSource(tuple);
-    if (xNumberType == NumberType.DOUBLE) {
+    if (xNumberType == NumberType.FLOAT) {
       if (number.doubleValue() < low.doubleValue() || number.doubleValue() > high.doubleValue()) {
         // out of range
         return null;

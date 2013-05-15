@@ -29,11 +29,11 @@ public abstract class XYChartOperator<K, X, Y> extends ChartOperator
     /**
      * For integer type values
      */
-    LONG,
+    INTEGER,
     /**
      * For floating point type values
      */
-    DOUBLE,
+    FLOAT,
   };
 
   private String xAxisLabel;
@@ -41,7 +41,7 @@ public abstract class XYChartOperator<K, X, Y> extends ChartOperator
   /**
    * The value type of the Y-axis
    */
-  protected NumberType yNumberType = NumberType.LONG;
+  protected NumberType yNumberType = NumberType.INTEGER;
 
   /**
    * Gets the label of the X-axis.
@@ -102,9 +102,9 @@ public abstract class XYChartOperator<K, X, Y> extends ChartOperator
   public void endWindow()
   {
     Map<K, Map<X, Y>> map = new TreeMap<K, Map<X, Y>>();
-    for (K k: getKeys()) {
+    for (K k: retrieveKeys()) {
       K key = k;
-      Map<X, Y> points = getPoints(key);
+      Map<X, Y> points = retrievePoints(key);
       if (!points.isEmpty()) {
         map.put(key, points);
       }
@@ -119,13 +119,13 @@ public abstract class XYChartOperator<K, X, Y> extends ChartOperator
    * @param key
    * @return Points on the chart
    */
-  public abstract Map<X, Y> getPoints(K key);
+  public abstract Map<X, Y> retrievePoints(K key);
 
   /**
    * Gets all the keys on the chart within the window
    * @return Keys
    */
-  public abstract Collection<K> getKeys();
+  public abstract Collection<K> retrieveKeys();
 
   /**
    * Looks at the tuple and does what it needs to do in order to generate the chart at endWindow
@@ -135,7 +135,7 @@ public abstract class XYChartOperator<K, X, Y> extends ChartOperator
 
   /**
    * Sets the number type of Y-axis
-   * @param numberType The number type, either LONG or DOUBLE
+   * @param numberType The number type, either INTEGER or FLOAT
    */
   public void setyNumberType(NumberType numberType)
   {
