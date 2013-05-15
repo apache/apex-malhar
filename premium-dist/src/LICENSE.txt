@@ -1,6 +1,0 @@
-Copyright (c) 2012 Malhar, Inc.
-All Rights Reserved.
-
-This software is to be used for evaluation purpose only. Any reproduction or distribution of this code is strictly prohibited. 
-The usage of this software is bound by the terms of mutual non-disclosure agreement.
-

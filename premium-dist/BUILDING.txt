@@ -1,9 +1,0 @@
-Before building the premium package:
-
-Checkout the UI code to a parallel directory called "front"i from git@bitbucket.org:malhar/front.git
-
-Install npm (???)
-
-Install proguard (???)
-
-
