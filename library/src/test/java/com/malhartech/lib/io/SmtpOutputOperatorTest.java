@@ -28,7 +28,7 @@ public class SmtpOutputOperatorTest
     GreenMail greenMail = new GreenMail(ServerSetupTest.ALL);
     greenMail.start();
 
-    SmtpOutputOperator<Object> node = new SmtpOutputOperator<Object>();
+    SmtpOutputOperator node = new SmtpOutputOperator();
     node.setFrom(from);
     node.addRecipient(SmtpOutputOperator.RecipientType.TO, to);
     node.setContent(content);

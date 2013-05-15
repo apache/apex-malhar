@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ShipContainingJars(classes = {javax.mail.Session.class, com.sun.mail.util.MailLogger.class})
-public class SmtpOutputOperator<T> extends BaseOperator
+public class SmtpOutputOperator extends BaseOperator
 {
   public enum RecipientType
   {
@@ -43,10 +43,10 @@ public class SmtpOutputOperator<T> extends BaseOperator
   protected String contentType = "text/plain";
   protected boolean useSsl = false;
   protected boolean setupCalled = false;
-  public final transient DefaultInputPort<T> input = new DefaultInputPort<T>(this)
+  public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>(this)
   {
     @Override
-    public void process(T t)
+    public void process(Object t)
     {
       try {
         String mailContent = content.replace("{}", t.toString());

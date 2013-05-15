@@ -8,14 +8,18 @@ import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.Context.OperatorContext;
+import com.malhartech.api.Operator.OutputPort;
 import com.malhartech.api.DAG;
 import com.malhartech.lib.io.ConsoleOutputOperator;
-import com.malhartech.lib.io.HttpInputOperator;
-import com.malhartech.lib.io.HttpOutputOperator;
+import com.malhartech.lib.io.PubSubWebSocketInputOperator;
+import com.malhartech.lib.io.PubSubWebSocketOutputOperator;
 import com.malhartech.lib.io.SmtpOutputOperator;
 import com.malhartech.lib.testbench.RandomEventGenerator;
 import com.malhartech.lib.util.Alert;
 import java.net.URI;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,16 +89,21 @@ public class ApplicationAlert implements ApplicationFactory
 
     dag.addStream("phonedata", phones.integer_data, movementgen.data).setInline(true);
 
-    if (this.ajaxServerAddr != null) {
-      HttpOutputOperator<Object> httpOut = dag.addOperator("phoneLocationQueryResult", new HttpOutputOperator<Object>());
-      httpOut.setResourceURL(URI.create("http://" + this.ajaxServerAddr + "/channel/mobile/phoneLocationQueryResult"));
+    String daemonAddress = dag.getAttributes().attrValue(DAG.STRAM_DAEMON_ADDRESS, null);
+    if (!StringUtils.isEmpty(daemonAddress)) {
+      URI uri = URI.create("ws://" + daemonAddress + "/pubsub");
+      LOG.info("WebSocket with daemon at: {}", daemonAddress);
 
-      dag.addStream("httpdata", movementgen.locationQueryResult, httpOut.input, alertOper.in).setInline(true);
+      PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator("phoneLocationQueryResultWS", new PubSubWebSocketOutputOperator<Object>());
+      wsOut.setUri(uri);
+      wsOut.setTopic("demos.mobile.phoneLocationQueryResult");
 
-      HttpInputOperator phoneLocationQuery = dag.addOperator("phoneLocationQuery", HttpInputOperator.class);
-      URI u = URI.create("http://" + ajaxServerAddr + "/channel/mobile/phoneLocationQuery");
-      phoneLocationQuery.setUrl(u);
-      dag.addStream("query", phoneLocationQuery.outputPort, movementgen.locationQuery);
+      PubSubWebSocketInputOperator wsIn = dag.addOperator("phoneLocationQueryWS", new PubSubWebSocketInputOperator());
+      wsIn.setUri(uri);
+      wsIn.addTopic("demos.mobile.phoneLocationQuery");
+
+      dag.addStream("consoledata", movementgen.locationQueryResult, wsOut.input, alertOper.in).setInline(true);
+      dag.addStream("query", wsIn.outputPort, movementgen.locationQuery);
     }
     else { // If no ajax, need to do phone seeding
       movementgen.phone_register.put("q3", 9996101);

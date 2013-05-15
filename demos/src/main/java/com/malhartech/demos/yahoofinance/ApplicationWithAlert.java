@@ -9,7 +9,6 @@ import com.malhartech.api.DAG;
 import com.malhartech.lib.io.SmtpOutputOperator;
 import com.malhartech.lib.util.Alert;
 import com.malhartech.lib.util.DerbySqlStreamOperator;
-import java.util.HashMap;
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -27,9 +26,9 @@ public class ApplicationWithAlert implements ApplicationFactory
 
     YahooFinanceCSVInputOperator input1 = dag.addOperator("input1", new YahooFinanceCSVInputOperator());
     DerbySqlStreamOperator sqlOper = dag.addOperator("sqlOper", new DerbySqlStreamOperator());
-    Alert<HashMap<String, Object>> alertOper = dag.addOperator("alert", new Alert<HashMap<String, Object>>());
+    Alert alertOper = dag.addOperator("alert", new Alert());
     //ConsoleOutputOperator consoleOperator = dag.addOperator("console", new ConsoleOutputOperator());
-    SmtpOutputOperator<HashMap<String, Object>> mailOper = dag.addOperator("mail", new SmtpOutputOperator<HashMap<String, Object>>());
+    SmtpOutputOperator mailOper = dag.addOperator("mail", new SmtpOutputOperator());
 
     mailOper.setFrom("jenkins@malhar-inc.com");
     mailOper.addRecipient(SmtpOutputOperator.RecipientType.TO, "jenkins@malhar-inc.com");

@@ -9,12 +9,11 @@ import com.google.common.collect.Ranges;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DAG;
-import com.malhartech.api.Operator.InputPort;
-import com.malhartech.api.Operator.OutputPort;
 import com.malhartech.lib.io.*;
 import com.malhartech.lib.testbench.RandomEventGenerator;
 import java.net.URI;
-import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,41 +79,21 @@ public class Application implements ApplicationFactory
     // default partitioning: first connected stream to movementGen will be partitioned
     dag.addStream("phonedata", phones.integer_data, movementGen.data).setInline(true);
 
-    if (this.ajaxServerAddr != null) {
-      String daemonAddress = dag.getAttributes().attrValue(DAG.STRAM_DAEMON_ADDRESS, null);
-      boolean useWebSocket = (conf.getBoolean("demos.useWebSocket", false) && daemonAddress != null);
+    String daemonAddress = dag.getAttributes().attrValue(DAG.STRAM_DAEMON_ADDRESS, null);
+    if (!StringUtils.isEmpty(daemonAddress)) {
+      URI uri = URI.create("ws://" + daemonAddress + "/pubsub");
+      LOG.info("WebSocket with daemon at: {}", daemonAddress);
 
-      InputPort<Object> inputPort;
-      OutputPort<Map<String, String>> queryPort;
+      PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator("phoneLocationQueryResultWS", new PubSubWebSocketOutputOperator<Object>());
+      wsOut.setUri(uri);
+      wsOut.setTopic("demos.mobile.phoneLocationQueryResult");
 
-      if (useWebSocket) {
-        URI uri = URI.create("ws://" + daemonAddress + "/pubsub");
-        String topic = "demos.mobile.phoneLocationQueryResult";
+      PubSubWebSocketInputOperator wsIn = dag.addOperator("phoneLocationQueryWS", new PubSubWebSocketInputOperator());
+      wsIn.setUri(uri);
+      wsIn.addTopic("demos.mobile.phoneLocationQuery");
 
-        LOG.info("WebSocket with daemon at: {}", daemonAddress);
-
-        PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator("phoneLocationQueryResultWS", new PubSubWebSocketOutputOperator<Object>());
-        wsOut.setUri(uri);
-        wsOut.setTopic(topic);
-        inputPort = wsOut.input;
-
-        PubSubWebSocketInputOperator wsIn = dag.addOperator("phoneLocationQueryWS", new PubSubWebSocketInputOperator());
-        wsIn.setUri(uri);
-        wsIn.addTopic(topic);
-        queryPort = wsIn.outputPort;
-      }
-      else {
-        HttpOutputOperator<Object> httpOut = dag.addOperator("phoneLocationQueryResult", new HttpOutputOperator<Object>());
-        httpOut.setResourceURL(URI.create("http://" + this.ajaxServerAddr + "/channel/mobile/phoneLocationQueryResult"));
-        inputPort = httpOut.input;
-
-        HttpInputOperator phoneLocationQuery = dag.addOperator("phoneLocationQuery", HttpInputOperator.class);
-        phoneLocationQuery.setUrl(URI.create("http://" + ajaxServerAddr + "/channel/mobile/phoneLocationQuery"));
-        queryPort = phoneLocationQuery.outputPort;
-      }
-
-      dag.addStream("consoledata", movementGen.locationQueryResult, inputPort).setInline(true);
-      dag.addStream("query", queryPort, movementGen.locationQuery);
+      dag.addStream("consoledata", movementGen.locationQueryResult, wsOut.input).setInline(true);
+      dag.addStream("query", wsIn.outputPort, movementGen.locationQuery);
     }
     else {
       // for testing purposes without server

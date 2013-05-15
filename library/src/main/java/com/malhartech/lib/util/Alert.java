@@ -15,7 +15,7 @@ import com.malhartech.api.DefaultOutputPort;
  * @param <T>
  * @author David Yan <davidyan@malhar-inc.com>
  */
-public class Alert<T> extends BaseOperator
+public class Alert extends BaseOperator
 {
   protected long lastAlertTimeStamp = -1;
   protected long inAlertSince = -1;
@@ -27,10 +27,10 @@ public class Alert<T> extends BaseOperator
   protected long levelThreeAlertTime = 0;
   protected boolean activated = true;
   @InputPortFieldAnnotation(name = "in", optional = false)
-  public final transient DefaultInputPort<T> in = new DefaultInputPort<T>(this)
+  public final transient DefaultInputPort<Object> in = new DefaultInputPort<Object>(this)
   {
     @Override
-    public void process(T tuple)
+    public void process(Object tuple)
     {
       long now = System.currentTimeMillis();
       if (inAlertSince < 0) {
@@ -53,11 +53,11 @@ public class Alert<T> extends BaseOperator
 
   };
   @OutputPortFieldAnnotation(name = "alert1", optional = false)
-  public final transient DefaultOutputPort<T> alert1 = new DefaultOutputPort<T>(this);
+  public final transient DefaultOutputPort<Object> alert1 = new DefaultOutputPort<Object>(this);
   @OutputPortFieldAnnotation(name = "alert2", optional = true)
-  public final transient DefaultOutputPort<T> alert2 = new DefaultOutputPort<T>(this);
+  public final transient DefaultOutputPort<Object> alert2 = new DefaultOutputPort<Object>(this);
   @OutputPortFieldAnnotation(name = "alert3", optional = true)
-  public final transient DefaultOutputPort<T> alert3 = new DefaultOutputPort<T>(this);
+  public final transient DefaultOutputPort<Object> alert3 = new DefaultOutputPort<Object>(this);
 
   public long getTimeout()
   {
