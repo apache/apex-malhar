@@ -10,8 +10,8 @@ import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
 import com.malhartech.bufferserver.util.Codec;
-import com.malhartech.util.CircularBuffer;
 import java.util.HashMap;
+import java.util.concurrent.ArrayBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +25,7 @@ public class JDBCRecoverInputOperator implements InputOperator, CheckpointListen
   public final transient DefaultOutputPort<HashMap<String, Object>> output = new DefaultOutputPort<HashMap<String, Object>>(this);
   transient boolean first;
   transient long windowId;
-  transient CircularBuffer<HashMap<String, Object>> holdingBuffer;
+  transient ArrayBlockingQueue<HashMap<String, Object>> holdingBuffer;
   boolean failed;
   transient boolean transient_fail;
   int maximumTuples;
@@ -43,7 +43,7 @@ public class JDBCRecoverInputOperator implements InputOperator, CheckpointListen
 //      logger.debug("generating tuple {}", Codec.getStringWindowId(windowId));
 //      output.emit(windowId);
     if (first) {
-      output.emit(holdingBuffer.pollUnsafe());
+      output.emit(holdingBuffer.poll());
       first = false;
       if (--maximumTuples == 0) {
         throw new RuntimeException(new InterruptedException("Just want to stop!"));
@@ -71,7 +71,7 @@ public class JDBCRecoverInputOperator implements InputOperator, CheckpointListen
   @Override
   public void setup(OperatorContext context)
   {
-    holdingBuffer = new CircularBuffer<HashMap<String, Object>>(1024 * 1024);
+    holdingBuffer = new ArrayBlockingQueue<HashMap<String, Object>>(1024 * 1024);
     transient_fail = !failed;
     failed = true;
     logger.debug("RecoverableInputOperator setup context:" + context.getId());

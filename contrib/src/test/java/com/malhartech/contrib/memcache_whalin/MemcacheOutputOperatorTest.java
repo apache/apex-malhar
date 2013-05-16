@@ -4,17 +4,16 @@
  */
 package com.malhartech.contrib.memcache_whalin;
 
-import com.malhartech.contrib.memcache_whalin.AbstractSinglePortMemcacheOutputOperator;
 import com.malhartech.api.*;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.stram.StramLocalCluster;
-import com.malhartech.util.CircularBuffer;
 import com.whalin.MemCached.MemCachedClient;
 import com.whalin.MemCached.SockIOPool;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ArrayBlockingQueue;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
@@ -122,13 +121,13 @@ public class MemcacheOutputOperatorTest
   implements InputOperator, ActivationListener<OperatorContext>
   {
     public final transient DefaultOutputPort<HashMap<String, Integer>> outPort = new DefaultOutputPort<HashMap<String, Integer>>(this);
-    static transient CircularBuffer<HashMap<String, Integer>> holdingBuffer;
+    static transient ArrayBlockingQueue<HashMap<String, Integer>> holdingBuffer;
     int testNum;
 
     @Override
     public void setup(OperatorContext context)
     {
-      holdingBuffer = new CircularBuffer<HashMap<String, Integer>>(1024 * 1024);
+      holdingBuffer = new ArrayBlockingQueue<HashMap<String, Integer>>(1024 * 1024);
     }
 
     public void emitTuple(HashMap<String, Integer> message)
@@ -140,7 +139,7 @@ public class MemcacheOutputOperatorTest
     public void emitTuples()
     {
       for (int i = holdingBuffer.size(); i-- > 0;) {
-        emitTuple(holdingBuffer.pollUnsafe());
+        emitTuple(holdingBuffer.poll());
       }
     }
 

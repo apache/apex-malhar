@@ -10,11 +10,11 @@ import com.malhartech.api.DAG;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
 import com.malhartech.stram.StramLocalCluster;
-import com.malhartech.util.CircularBuffer;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Properties;
+import java.util.concurrent.ArrayBlockingQueue;
 import junit.framework.Assert;
 import kafka.producer.ProducerConfig;
 import kafka.server.KafkaConfig;
@@ -168,7 +168,7 @@ public class KafkaOutputOperatorTest
   public static class StringGeneratorInputOperator implements InputOperator, ActivationListener<OperatorContext>
   {
     public final transient DefaultOutputPort<String> outputPort = new DefaultOutputPort<String>(this);
-    private final transient CircularBuffer<String> stringBuffer = new CircularBuffer<String>(1024);
+    private final transient ArrayBlockingQueue<String> stringBuffer = new ArrayBlockingQueue<String>(1024);
     private volatile Thread dataGeneratorThread;
 
     @Override
@@ -225,7 +225,7 @@ public class KafkaOutputOperatorTest
     public void emitTuples()
     {
       for (int i = stringBuffer.size(); i-- > 0;) {
-        outputPort.emit(stringBuffer.pollUnsafe());
+        outputPort.emit(stringBuffer.poll());
       }
     }
   } // End of StringGeneratorInputOperator
@@ -284,7 +284,7 @@ public class KafkaOutputOperatorTest
     // Check values send vs received
     Assert.assertEquals("Number of emitted tuples", tupleCount, listener.holdingBuffer.size());
     logger.debug(String.format("Number of emitted tuples: %d", listener.holdingBuffer.size()));
-    Assert.assertEquals("First tuple", "testString 1", listener.getMessage(listener.holdingBuffer.peekUnsafe()));
+    Assert.assertEquals("First tuple", "testString 1", listener.getMessage(listener.holdingBuffer.peek()));
 
     listener.close();
   }

@@ -7,19 +7,11 @@ package com.malhartech.contrib.memcache;
 import com.malhartech.api.*;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.stram.StramLocalCluster;
-import com.malhartech.util.CircularBuffer;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.logging.Level;
-import kafka.javaapi.producer.Producer;
+import java.util.concurrent.*;
 import net.spy.memcached.*;
-import net.spy.memcached.internal.OperationFuture;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -114,12 +106,12 @@ public class MemcacheOutputOperaotorBenchmark
   implements InputOperator, ActivationListener<OperatorContext>
   {
     public final transient DefaultOutputPort<HashMap<String, String>> outPort = new DefaultOutputPort<HashMap<String, String>>(this);
-    static transient CircularBuffer<HashMap<String, String>> holdingBuffer;
+    static transient ArrayBlockingQueue<HashMap<String, String>> holdingBuffer;
 
     @Override
     public void setup(OperatorContext context)
     {
-      holdingBuffer = new CircularBuffer<HashMap<String, String>>(1024 * 1024);
+      holdingBuffer = new ArrayBlockingQueue<HashMap<String, String>>(1024 * 1024);
     }
 
     public void emitTuple(HashMap<String, String> message)
@@ -131,7 +123,7 @@ public class MemcacheOutputOperaotorBenchmark
     public void emitTuples()
     {
       for (int i = holdingBuffer.size(); i-- > 0;) {
-        emitTuple(holdingBuffer.pollUnsafe());
+        emitTuple(holdingBuffer.poll());
       }
     }
 

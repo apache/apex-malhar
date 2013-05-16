@@ -7,12 +7,12 @@ package com.malhartech.contrib.rabbitmq;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.*;
 import com.malhartech.stram.StramLocalCluster;
-import com.malhartech.util.CircularBuffer;
 import com.rabbitmq.client.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
@@ -130,13 +130,13 @@ public class RabbitMQOutputOperatorTest
           implements InputOperator, ActivationListener<OperatorContext>
   {
     public final transient DefaultOutputPort<String> outPort = new DefaultOutputPort<String>(this);
-    transient CircularBuffer<byte[]> holdingBuffer;
+    transient ArrayBlockingQueue<byte[]> holdingBuffer;
     int testNum;
 
     @Override
     public void setup(OperatorContext context)
     {
-      holdingBuffer = new CircularBuffer<byte[]>(1024 * 1024);
+      holdingBuffer = new ArrayBlockingQueue<byte[]>(1024 * 1024);
     }
 
     public void emitTuple(byte[] message)
@@ -148,7 +148,7 @@ public class RabbitMQOutputOperatorTest
     public void emitTuples()
     {
       for (int i = holdingBuffer.size(); i-- > 0;) {
-        emitTuple(holdingBuffer.pollUnsafe());
+        emitTuple(holdingBuffer.poll());
       }
     }
 

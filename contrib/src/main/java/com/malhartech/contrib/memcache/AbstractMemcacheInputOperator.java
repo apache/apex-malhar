@@ -7,11 +7,10 @@ package com.malhartech.contrib.memcache;
 import com.malhartech.api.ActivationListener;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.InputOperator;
-import com.malhartech.util.CircularBuffer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import net.spy.memcached.AddrUtil;
 import net.spy.memcached.ConnectionFactory;
@@ -57,7 +56,7 @@ public abstract class AbstractMemcacheInputOperator implements InputOperator, Ac
   private static final int DEFAULT_BUFFER_SIZE = 1024 * 1024;
   private int tuple_blast = DEFAULT_BLAST_SIZE;
   private int bufferSize = DEFAULT_BUFFER_SIZE;
-  protected transient CircularBuffer<Object> holdingBuffer;
+  protected transient ArrayBlockingQueue<Object> holdingBuffer;
   protected transient MemcachedClient client;
   private ArrayList<String> servers = new ArrayList<String>();
   private ArrayList<String> keys = new ArrayList<String>();
@@ -112,7 +111,7 @@ public abstract class AbstractMemcacheInputOperator implements InputOperator, Ac
       ntuples = holdingBuffer.size();
     }
     for (int i = ntuples; i-- > 0;) {
-      emitTuple(holdingBuffer.pollUnsafe());
+      emitTuple(holdingBuffer.poll());
     }
   }
 
@@ -129,7 +128,7 @@ public abstract class AbstractMemcacheInputOperator implements InputOperator, Ac
   @Override
   public void setup(OperatorContext context)
   {
-    holdingBuffer = new CircularBuffer<Object>(bufferSize);
+    holdingBuffer = new ArrayBlockingQueue<Object>(bufferSize);
     try {
     ConnectionFactory factory = new ConnectionFactoryBuilder().setOpTimeout(1000000).build();
       client = new MemcachedClient(factory, AddrUtil.getAddresses(servers));

@@ -14,7 +14,7 @@ import com.malhartech.api.ActivationListener;
 import com.malhartech.api.InputOperator;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.util.CircularBuffer;
+import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  * ZeroMQ input adapter operator, which consume data from ZeroMQ message bus.<p><br>
@@ -64,7 +64,7 @@ public abstract class AbstractBaseZeroMQInputOperator extends BaseOperator imple
   private int tuple_blast = DEFAULT_BLAST_SIZE;
   private int bufferSize = DEFAULT_BUFFER_SIZE;
   private volatile boolean running = false;
-  transient CircularBuffer<byte[]> holdingBuffer = new CircularBuffer<byte[]>(bufferSize);
+  transient ArrayBlockingQueue<byte[]> holdingBuffer = new ArrayBlockingQueue<byte[]>(bufferSize);
 
   public void setUrl(String url)
   {
@@ -155,7 +155,7 @@ public void activate(OperatorContext ctx)
       ntuples = holdingBuffer.size();
     }
     for (int i = ntuples; i-- > 0;) {
-      emitTuple(holdingBuffer.pollUnsafe());
+      emitTuple(holdingBuffer.poll());
     }
   }
 }

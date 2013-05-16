@@ -8,12 +8,12 @@ import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.api.ActivationListener;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.InputOperator;
-import com.malhartech.util.CircularBuffer;
 import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
 import javax.validation.constraints.NotNull;
 import kafka.api.FetchRequest;
 import kafka.consumer.ConsumerConfig;
@@ -61,7 +61,7 @@ public abstract class KafkaInputOperator implements InputOperator, ActivationLis
   // Config parameters that user can set.
   private int tuplesBlast = TUPLES_BLAST_DEFAULT;
   private int bufferSize = BUFFER_SIZE_DEFAULT;
-  protected transient CircularBuffer<Message> holdingBuffer;
+  protected transient ArrayBlockingQueue<Message> holdingBuffer;
   private transient ConsumerConnector standardConsumer;
   private transient SimpleConsumer simpleConsumer;
   private transient Thread consumerThread;
@@ -152,7 +152,7 @@ public abstract class KafkaInputOperator implements InputOperator, ActivationLis
   @Override
   public void setup(OperatorContext context)
   {
-    holdingBuffer = new CircularBuffer<Message>(bufferSize);
+    holdingBuffer = new ArrayBlockingQueue<Message>(bufferSize);
   }
 
   /**
@@ -231,7 +231,7 @@ public abstract class KafkaInputOperator implements InputOperator, ActivationLis
   {
     int bufferLength = holdingBuffer.size();
     for (int i = tuplesBlast < bufferLength ? tuplesBlast : bufferLength; i-- > 0;) {
-      emitTuple(holdingBuffer.pollUnsafe());
+      emitTuple(holdingBuffer.poll());
     }
   }
 

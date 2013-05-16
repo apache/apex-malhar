@@ -7,9 +7,9 @@ package com.malhartech.contrib.memcache_whalin;
 import com.malhartech.api.ActivationListener;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.InputOperator;
-import com.malhartech.util.CircularBuffer;
 import com.whalin.MemCached.MemCachedClient;
 import com.whalin.MemCached.SockIOPool;
+import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  * Memcache input adapter operator, which get data from Memcached using whalin library<p><br>
@@ -42,7 +42,7 @@ public abstract class AbstractMemcacheInputOperator implements InputOperator, Ac
   private static final int DEFAULT_BUFFER_SIZE = 1024 * 1024;
   private int tuple_blast = DEFAULT_BLAST_SIZE;
   private int bufferSize = DEFAULT_BUFFER_SIZE;
-  transient CircularBuffer<Object> holdingBuffer;
+  transient ArrayBlockingQueue<Object> holdingBuffer;
   private String[] servers;
   private String[] keys;
   protected transient MemCachedClient mcc;
@@ -74,7 +74,7 @@ public abstract class AbstractMemcacheInputOperator implements InputOperator, Ac
       ntuples = holdingBuffer.size();
     }
     for (int i = ntuples; i-- > 0;) {
-      emitTuple(holdingBuffer.pollUnsafe());
+      emitTuple(holdingBuffer.poll());
     }
 
   }
@@ -92,7 +92,7 @@ public abstract class AbstractMemcacheInputOperator implements InputOperator, Ac
   @Override
   public void setup(OperatorContext context)
   {
-    holdingBuffer = new CircularBuffer<Object>(bufferSize);
+    holdingBuffer = new ArrayBlockingQueue<Object>(bufferSize);
     pool = SockIOPool.getInstance();
     pool.setServers( servers );
     //		pool.setWeights( weights );

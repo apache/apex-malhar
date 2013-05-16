@@ -4,12 +4,12 @@
  */
 package com.malhartech.contrib.kafka;
 
-import com.malhartech.util.CircularBuffer;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ArrayBlockingQueue;
 import kafka.consumer.ConsumerConfig;
 import kafka.consumer.ConsumerIterator;
 import kafka.consumer.KafkaStream;
@@ -29,7 +29,7 @@ public class KafkaConsumer implements Runnable
   protected static final int BUFFER_SIZE_DEFAULT = 1024 * 1024; // 1M
   // Config parameters that user can set.
   private int bufferSize = BUFFER_SIZE_DEFAULT;
-  public transient CircularBuffer<Message> holdingBuffer = new CircularBuffer<Message>(bufferSize);;
+  public transient ArrayBlockingQueue<Message> holdingBuffer = new ArrayBlockingQueue<Message>(bufferSize);;
   private final String topic;
   private boolean isAlive = true;
   private int receiveCount = 0;

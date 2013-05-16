@@ -7,10 +7,9 @@ package com.malhartech.contrib.rabbitmq;
 import com.malhartech.annotation.InjectConfig;
 import com.malhartech.api.*;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.util.CircularBuffer;
 import com.rabbitmq.client.*;
 import java.io.IOException;
-import javax.validation.constraints.NotNull;
+import java.util.concurrent.ArrayBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +63,7 @@ ActivationListener<OperatorContext>
   transient TracingConsumer tracingConsumer = null;
   transient String cTag;
   transient String queueName="testQ";
-  transient CircularBuffer<byte[]> holdingBuffer;
+  transient ArrayBlockingQueue<byte[]> holdingBuffer;
 
 /**
  * define a consumer which can asynchronously receive data,
@@ -109,8 +108,12 @@ ActivationListener<OperatorContext>
   @Override
   public void emitTuples()
   {
-    for (int i = holdingBuffer.size(); i-- > 0;) {
-      emitTuple(holdingBuffer.pollUnsafe());
+    int ntuples = tuple_blast;
+    if (ntuples > holdingBuffer.size()) {
+      ntuples = holdingBuffer.size();
+    }
+    for (int i = ntuples; i-- > 0;) {
+      emitTuple(holdingBuffer.poll());
     }
   }
 
@@ -129,7 +132,7 @@ ActivationListener<OperatorContext>
   @Override
   public void setup(OperatorContext context)
   {
-    holdingBuffer = new CircularBuffer<byte[]>(bufferSize);
+    holdingBuffer = new ArrayBlockingQueue<byte[]>(bufferSize);
   }
 
   @Override

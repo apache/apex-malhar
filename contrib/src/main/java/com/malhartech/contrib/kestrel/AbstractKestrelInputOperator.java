@@ -7,7 +7,7 @@ package com.malhartech.contrib.kestrel;
 import com.malhartech.api.ActivationListener;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.InputOperator;
-import com.malhartech.util.CircularBuffer;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +49,7 @@ public abstract class AbstractKestrelInputOperator implements InputOperator, Act
   private static final int DEFAULT_BUFFER_SIZE = 1024 * 1024;
   private int tuple_blast = DEFAULT_BLAST_SIZE;
   private int bufferSize = DEFAULT_BUFFER_SIZE;
-  transient CircularBuffer<byte[]> holdingBuffer;
+  transient ArrayBlockingQueue<byte[]> holdingBuffer;
   private String queueName;
   private String[] servers;
   private transient MemcachedClient mcc;
@@ -88,7 +88,7 @@ public abstract class AbstractKestrelInputOperator implements InputOperator, Act
       ntuples = holdingBuffer.size();
     }
     for (int i = ntuples; i-- > 0;) {
-      emitTuple(holdingBuffer.pollUnsafe());
+      emitTuple(holdingBuffer.poll());
     }
 
   }
@@ -106,7 +106,7 @@ public abstract class AbstractKestrelInputOperator implements InputOperator, Act
   @Override
   public void setup(OperatorContext context)
   {
-    holdingBuffer = new CircularBuffer<byte[]>(bufferSize);
+    holdingBuffer = new ArrayBlockingQueue<byte[]>(bufferSize);
   }
 
   @Override
