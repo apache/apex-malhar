@@ -7,7 +7,7 @@ package com.malhartech.lib.math;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.util.Pair;
+import com.malhartech.common.Pair;
 import javax.validation.constraints.NotNull;
 
 /**

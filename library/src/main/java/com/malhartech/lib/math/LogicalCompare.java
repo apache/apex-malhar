@@ -7,7 +7,7 @@ package com.malhartech.lib.math;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.util.Pair;
+import com.malhartech.common.Pair;
 
 /**
  * Given a pair<T,T> object which contains 2 values of the comparable property, compare the first value with the second

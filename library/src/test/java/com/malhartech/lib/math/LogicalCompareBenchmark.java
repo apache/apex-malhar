@@ -4,7 +4,7 @@ package com.malhartech.lib.math;
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
 import com.malhartech.lib.testbench.CountTestSink;
-import com.malhartech.util.Pair;
+import com.malhartech.common.Pair;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
