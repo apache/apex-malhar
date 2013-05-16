@@ -7,7 +7,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.*;
 import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
-import com.malhartech.lib.util.KeyValPair;
+import com.malhartech.common.KeyValPair;
 import com.malhartech.stram.StramLocalCluster;
 import java.util.ArrayList;
 import junit.framework.Assert;

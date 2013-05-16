@@ -5,7 +5,7 @@
 package com.malhartech.lib.chart;
 
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.lib.util.CandleStick;
+import com.malhartech.common.CandleStick;
 import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;

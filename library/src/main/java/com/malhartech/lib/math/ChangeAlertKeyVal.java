@@ -10,7 +10,7 @@ import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
-import com.malhartech.lib.util.KeyValPair;
+import com.malhartech.common.KeyValPair;
 import java.util.HashMap;
 import javax.validation.constraints.Min;
 import org.apache.commons.lang.mutable.MutableDouble;

@@ -6,7 +6,7 @@ package com.malhartech.lib.testbench;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DAG;
 import com.malhartech.api.DefaultInputPort;
-import com.malhartech.lib.util.KeyValPair;
+import com.malhartech.common.KeyValPair;
 import com.malhartech.stram.StramLocalCluster;
 import java.util.ArrayList;
 import java.util.HashMap;

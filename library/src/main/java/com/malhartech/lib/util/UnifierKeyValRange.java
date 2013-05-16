@@ -4,6 +4,8 @@
  */
 package com.malhartech.lib.util;
 
+import com.malhartech.common.HighLow;
+import com.malhartech.common.KeyValPair;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.Operator.Unifier;

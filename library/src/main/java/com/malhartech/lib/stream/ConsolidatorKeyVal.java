@@ -6,7 +6,7 @@ import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.Operator;
-import com.malhartech.lib.util.KeyValPair;
+import com.malhartech.common.KeyValPair;
 import java.util.ArrayList;
 import java.util.HashMap;
 

@@ -8,7 +8,7 @@ import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.HighLow;
+import com.malhartech.common.HighLow;
 import java.util.ArrayList;
 
 /**

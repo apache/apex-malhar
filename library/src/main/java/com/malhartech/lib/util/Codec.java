@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.util;
 
+import com.malhartech.common.KeyValPair;
 import com.malhartech.engine.DefaultStreamCodec;
 
 /**

@@ -5,7 +5,7 @@
 package com.malhartech.lib.multiwindow;
 
 import com.malhartech.engine.TestSink;
-import com.malhartech.lib.util.KeyValPair;
+import com.malhartech.common.KeyValPair;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

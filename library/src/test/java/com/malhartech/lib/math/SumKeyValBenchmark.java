@@ -4,7 +4,7 @@
 package com.malhartech.lib.math;
 
 import com.malhartech.engine.TestSink;
-import com.malhartech.lib.util.KeyValPair;
+import com.malhartech.common.KeyValPair;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;

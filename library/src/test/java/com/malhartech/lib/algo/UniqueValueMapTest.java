@@ -4,7 +4,7 @@
 package com.malhartech.lib.algo;
 
 import com.malhartech.engine.TestSink;
-import com.malhartech.lib.util.KeyValPair;
+import com.malhartech.common.KeyValPair;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;

@@ -10,7 +10,7 @@ import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.Operator.Unifier;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
-import com.malhartech.lib.util.HighLow;
+import com.malhartech.common.HighLow;
 import com.malhartech.lib.util.UnifierHashMapRange;
 import java.util.HashMap;
 import java.util.Map;

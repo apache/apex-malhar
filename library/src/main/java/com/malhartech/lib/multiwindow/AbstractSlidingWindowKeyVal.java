@@ -7,7 +7,7 @@ package com.malhartech.lib.multiwindow;
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.lib.util.BaseNumberKeyValueOperator;
-import com.malhartech.lib.util.KeyValPair;
+import com.malhartech.common.KeyValPair;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;

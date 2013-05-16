@@ -12,8 +12,8 @@ import com.malhartech.lib.chart.TimeSeriesAverageChartOperator;
 import com.malhartech.lib.chart.TimeSeriesCandleStickChartOperator;
 import com.malhartech.lib.chart.XYChartOperator.NumberType;
 import com.malhartech.lib.stream.DevNull;
-import com.malhartech.lib.util.CandleStick;
-import com.malhartech.lib.util.KeyValPair;
+import com.malhartech.common.CandleStick;
+import com.malhartech.common.KeyValPair;
 import java.util.Map;
 import org.apache.hadoop.conf.Configuration;
 

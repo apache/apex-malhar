@@ -5,7 +5,7 @@
 package com.malhartech.lib.chart;
 
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.lib.util.HighLow;
+import com.malhartech.common.HighLow;
 import java.util.TreeMap;
 
 /**

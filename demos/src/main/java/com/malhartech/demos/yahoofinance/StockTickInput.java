@@ -10,7 +10,7 @@ import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
-import com.malhartech.lib.util.KeyValPair;
+import com.malhartech.common.KeyValPair;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;

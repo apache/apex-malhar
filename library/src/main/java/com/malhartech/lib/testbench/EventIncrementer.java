@@ -7,7 +7,7 @@ package com.malhartech.lib.testbench;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.KeyValPair;
+import com.malhartech.common.KeyValPair;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;

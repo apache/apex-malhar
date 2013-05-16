@@ -6,7 +6,7 @@ package com.malhartech.lib.multiwindow;
 
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.KeyValPair;
+import com.malhartech.common.KeyValPair;
 import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
