@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.util;
 
+import com.malhartech.common.Combinations;
 import com.malhartech.annotation.InputPortFieldAnnotation;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
@@ -59,11 +60,13 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
           for (int[] dimensionCombination: dimensionCombinations) {
             String field = "0";
             String key = new String();
-            for (int d: dimensionCombination) {
-              if (!key.isEmpty()) {
-                key += "|";
+            if (dimensionCombination != null) {
+              for (int d: dimensionCombination) {
+                if (!key.isEmpty()) {
+                  key += "|";
+                }
+                key += String.valueOf(d) + ":" + tuple.get(dimensionKeyNames.get(d)).toString();
               }
-              key += String.valueOf(d) + ":" + tuple.get(dimensionKeyNames.get(d)).toString();
             }
             DimensionTimeBucketOperator.this.process(timeBucket, key, field, 1);
             for (int i = 0; i < valueKeyNames.size(); i++) {
@@ -72,11 +75,13 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
               Object value = tuple.get(valueKeyName);
               Number numberValue = extractNumber(valueKeyName, value);
               key = "";
-              for (int d: dimensionCombination) {
-                if (!key.isEmpty()) {
-                  key += "|";
+              if (dimensionCombination != null) {
+                for (int d: dimensionCombination) {
+                  if (!key.isEmpty()) {
+                    key += "|";
+                  }
+                  key += String.valueOf(d) + ":" + tuple.get(dimensionKeyNames.get(d)).toString();
                 }
-                key += String.valueOf(d) + ":" + tuple.get(dimensionKeyNames.get(d)).toString();
               }
               DimensionTimeBucketOperator.this.process(timeBucket, key, field, numberValue);
             }
@@ -147,7 +152,7 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
   {
     super.setup(context);
     windowWidth = context.getApplicationAttributes().attrValue(DAGContext.STRAM_WINDOW_SIZE_MILLIS, null);
-
+    dimensionCombinations.add(null);
     for (int i = 1; i <= dimensionKeyNames.size(); i++) {
       dimensionCombinations.addAll(Combinations.getNumberCombinations(dimensionKeyNames.size(), i));
     }
