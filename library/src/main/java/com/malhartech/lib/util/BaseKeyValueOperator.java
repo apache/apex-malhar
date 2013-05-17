@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.util;
 
+import com.malhartech.codec.DefaultPartitionCodec;
 import com.malhartech.common.KeyValPair;
 import com.malhartech.api.StreamCodec;
 import java.util.HashMap;
@@ -76,7 +77,7 @@ public class BaseKeyValueOperator<K, V> extends BaseKeyOperator<K>
    */
   public Class<? extends StreamCodec<KeyValPair<K, V>>> getKeyValPairStreamCodec()
   {
-    Class c = Codec.class;
+    Class c = DefaultPartitionCodec.class;
     return (Class<? extends StreamCodec<KeyValPair<K, V>>>)c;
   }
 }

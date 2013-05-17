@@ -5,7 +5,7 @@
 package com.malhartech.lib.testbench;
 
 import com.malhartech.api.Sink;
-import com.malhartech.tuple.Tuple;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,14 +27,10 @@ public class CollectorTestSink<T> implements Sink<T>
   @Override
   public void put(T payload)
   {
-    if (payload instanceof Tuple) {
-    }
-    else {
       synchronized (collectedTuples) {
         collectedTuples.add(payload);
         collectedTuples.notifyAll();
       }
-    }
   }
 
   public void waitForResultCount(int count, long timeoutMillis) throws InterruptedException

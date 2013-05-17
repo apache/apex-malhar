@@ -6,7 +6,7 @@ package com.malhartech.contrib.romesyndication;
 
 import com.esotericsoftware.kryo.DefaultSerializer;
 import com.malhartech.util.KryoJdkContainer;
-import com.malhartech.util.KryoJdkSerializer;
+import com.malhartech.codec.KryoJdkSerializer;
 import com.sun.syndication.feed.synd.SyndEntry;
 import java.io.Serializable;
 

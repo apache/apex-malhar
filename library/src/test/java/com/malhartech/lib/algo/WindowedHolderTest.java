@@ -14,7 +14,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import com.malhartech.api.StreamCodec.DataStatePair;
-import com.malhartech.engine.DefaultStreamCodec;
+import com.malhartech.codec.DefaultStreamCodec;
 import com.malhartech.engine.TestSink;
 
 /**

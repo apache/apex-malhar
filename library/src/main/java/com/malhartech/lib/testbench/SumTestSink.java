@@ -6,7 +6,6 @@
 package com.malhartech.lib.testbench;
 
 import com.malhartech.api.Sink;
-import com.malhartech.tuple.Tuple;
 
 /**
  * A sink implementation to collect expected test results.
@@ -27,9 +26,7 @@ public class SumTestSink<T> implements Sink<T>
   @Override
   public void put(T payload)
   {
-    if (payload instanceof Tuple) {
-    }
-    else if (payload instanceof Number) {
+    if (payload instanceof Number) {
       val += ((Number) payload).doubleValue();
     }
   }

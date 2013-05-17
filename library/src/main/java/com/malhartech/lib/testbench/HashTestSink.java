@@ -5,7 +5,6 @@
 package com.malhartech.lib.testbench;
 
 import com.malhartech.api.Sink;
-import com.malhartech.tuple.Tuple;
 import java.util.HashMap;
 import org.apache.commons.lang.mutable.MutableInt;
 
@@ -45,9 +44,6 @@ public class HashTestSink<T> implements Sink<T>
   @Override
   public void put(T tuple)
   {
-    if (tuple instanceof Tuple) {
-    }
-    else {
       this.count++;
       MutableInt val = map.get(tuple);
       if (val == null) {
@@ -55,7 +51,6 @@ public class HashTestSink<T> implements Sink<T>
         map.put(tuple, val);
       }
       val.increment();
-    }
   }
 
   @Override

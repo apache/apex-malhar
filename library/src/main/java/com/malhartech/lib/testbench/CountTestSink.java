@@ -5,8 +5,6 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.tuple.Tuple;
-
 /**
  * A sink implementation to collect expected test results.
  */
@@ -33,10 +31,6 @@ public class CountTestSink<T> extends CollectorTestSink<T>
   @Override
   public void put(T payload)
   {
-    if (payload instanceof Tuple) {
-    }
-    else {
       count++;
-    }
   }
 }
