@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.malhartech.annotation.ShipContainingJars;
+import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.Context.OperatorContext;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -34,12 +35,14 @@ import com.sun.jersey.api.client.WebResource;
  * Reads via GET from given URL as input stream (entities on stream delimited by leading length)<p>
  * <br>
  * Incoming data is interpreted as JSONObject and converted to {@link java.util.Map}.<br>
+ * If second rawOutput is connected then content is streamed to this port as it is.
  * <br>
  *
  */
 @ShipContainingJars(classes = {com.sun.jersey.api.client.ClientHandler.class})
 public class HttpInputOperator extends SimpleSinglePortInputOperator<Map<String, String>> implements Runnable
 {
+  public final transient DefaultOutputPort<String> rawOutput = new DefaultOutputPort<String>(this);
   private static final Logger LOG = LoggerFactory.getLogger(HttpInputOperator.class);
   /**
    * Timeout interval for reading from server. 0 or negative indicates no timeout.
@@ -97,7 +100,7 @@ public class HttpInputOperator extends SimpleSinglePortInputOperator<Map<String,
           byte[] bytes = new byte[255];
           int bytesRead;
           while ((bytesRead = is.read(bytes)) != -1) {
-            //LOG.debug("read {} bytes", bytesRead);
+            LOG.debug("read {} bytes", bytesRead);
             bos.write(bytes, 0, bytesRead);
             if (is.available() == 0 && bos.size() > 0) {
               // give chance to process what we have before blocking on read
@@ -194,5 +197,6 @@ public class HttpInputOperator extends SimpleSinglePortInputOperator<Map<String,
         chunk.setLength(0);
       }
     }
+    if (rawOutput.isConnected()) rawOutput.emit(chunk.toString());
   }
 }
