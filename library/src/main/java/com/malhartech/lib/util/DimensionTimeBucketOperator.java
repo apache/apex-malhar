@@ -134,17 +134,19 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
   {
     Number numberValue;
     if (value instanceof Number) {
-      numberValue = (Number)value;
+      return (Number)value;
+    }
+    else if (value == null) {
+      return new Long(0);
     }
     else {
       try {
-        numberValue = numberFormat.parse(value.toString());
+        return numberFormat.parse(value.toString());
       }
       catch (ParseException ex) {
-        return null;
       }
     }
-    return numberValue;
+    return new Long(0);
   }
 
   @Override

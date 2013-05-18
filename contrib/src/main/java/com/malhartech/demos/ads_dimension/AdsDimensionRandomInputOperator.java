@@ -4,13 +4,11 @@
  */
 package com.malhartech.demos.ads_dimension;
 
+import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.lib.io.SimpleSinglePortInputOperator;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +21,10 @@ public class AdsDimensionRandomInputOperator extends SimpleSinglePortInputOperat
 {
   private transient AtomicInteger lineCount = new AtomicInteger();
   private static final Logger LOG = LoggerFactory.getLogger(AdsDimensionRandomInputOperator.class);
+  private int numAdvertisers = 200;
+  private int numPublishers = 60;
+  private double expectedClickThruRate = 0.02;
+  private Random random = new Random();
 
   @Override
   public void endWindow()
@@ -31,33 +33,53 @@ public class AdsDimensionRandomInputOperator extends SimpleSinglePortInputOperat
     lineCount.set(0);
   }
 
+  private int nextRandomId(int max)
+  {
+    int id;
+    do {
+      id = (int)Math.abs(Math.round(random.nextGaussian() * max / 2));
+    }
+    while (id >= max);
+    return id;
+  }
+
   @Override
   public void run()
   {
     try {
       int lineno = 0;
       while (true) {
-        ++lineno;
+        int advertiserId = nextRandomId(numAdvertisers);
+        int publisherId = nextRandomId(numPublishers);
+        int adUnit = random.nextInt(5);
+
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put("lineno", lineno);
+        map.put("lineno", ++lineno);
         map.put("timestamp", System.currentTimeMillis());
-        /*
         map.put("adv_id", advertiserId);
         map.put("pub_id", publisherId);
         map.put("adunit", adUnit);
-
-        if () {
-          map.put("click", 1);
-        } else {
-          map.put("view", 1);
-        }
-
-        map.put("cost", cost);
-        map.put("revenue", revenue);
-*/
+        map.put("view", 1);
+        map.put("cost", 0.5 + 0.25 * random.nextDouble());
+        map.put("revenue", 0.5 + 0.1 * random.nextDouble());
         this.outputPort.emit(map);
-        Thread.sleep(1);
         lineCount.incrementAndGet();
+
+        if (random.nextDouble() < expectedClickThruRate) {
+          Thread.sleep(random.nextInt(500));
+          // generate fake click
+          map.put("lineno", ++lineno);
+          map.put("timestamp", System.currentTimeMillis());
+          map.put("adv_id", advertiserId);
+          map.put("pub_id", publisherId);
+          map.put("adunit", adUnit);
+          map.put("click", 1);
+          map.put("cost", 0);
+          map.put("revenue", 0.5 + 0.5 * random.nextDouble());
+          this.outputPort.emit(map);
+          lineCount.incrementAndGet();
+        }
+        Thread.sleep(random.nextInt(1000));
       }
     }
     catch (Exception ex) {
