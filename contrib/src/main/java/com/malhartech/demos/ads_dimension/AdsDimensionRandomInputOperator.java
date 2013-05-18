@@ -50,7 +50,7 @@ public class AdsDimensionRandomInputOperator extends SimpleSinglePortInputOperat
       int lineno = 0;
       while (true) {
         int advertiserId = nextRandomId(numAdvertisers);
-        int publisherId = nextRandomId(numPublishers);
+        int publisherId = (advertiserId * 10 / numAdvertisers) * numPublishers / 10 + nextRandomId(numPublishers / 10);
         int adUnit = random.nextInt(5);
 
         Map<String, Object> map = new HashMap<String, Object>();
@@ -65,6 +65,7 @@ public class AdsDimensionRandomInputOperator extends SimpleSinglePortInputOperat
         this.outputPort.emit(map);
         lineCount.incrementAndGet();
 
+        map = new HashMap<String, Object>();
         if (random.nextDouble() < expectedClickThruRate) {
           Thread.sleep(random.nextInt(500));
           // generate fake click
