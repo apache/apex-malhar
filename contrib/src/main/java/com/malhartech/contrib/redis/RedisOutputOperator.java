@@ -25,6 +25,7 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
   protected transient RedisConnection<String, String> redisConnection;
   private String host = "localhost";
   private int port = 6379;
+  private int dbIndex = 0;
 
   public void setHost(String host)
   {
@@ -36,11 +37,17 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
     this.port = port;
   }
 
+  public void selectDatabase(int index)
+  {
+    this.dbIndex = index;
+  }
+
   @Override
   public void setup(OperatorContext context)
   {
     redisClient = new RedisClient(host, port);
     redisConnection = redisClient.connect();
+    redisConnection.select(dbIndex);
     super.setup(context);
   }
 
