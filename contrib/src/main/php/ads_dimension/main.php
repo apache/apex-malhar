@@ -17,10 +17,7 @@ if ($_GET['submit'] == 'Submit') {
   if ($_GET['adunit'] != '') {
     $arr[] = "2:".$_GET['adunit'];
   }
-  if (count($arr) == 0) {
-    // slow
-    $key_pattern .= '*';
-  } else {
+  if (count($arr) != 0) {
     $key_pattern .= join("|", $arr);
   }
 
