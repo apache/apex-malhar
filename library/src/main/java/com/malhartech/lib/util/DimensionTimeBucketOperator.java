@@ -132,7 +132,6 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
 
   protected Number extractNumber(String valueKeyName, Object value)
   {
-    Number numberValue;
     if (value instanceof Number) {
       return (Number)value;
     }

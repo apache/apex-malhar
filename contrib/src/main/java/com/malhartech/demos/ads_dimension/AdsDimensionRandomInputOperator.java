@@ -4,7 +4,6 @@
  */
 package com.malhartech.demos.ads_dimension;
 
-import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.lib.io.SimpleSinglePortInputOperator;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +24,16 @@ public class AdsDimensionRandomInputOperator extends SimpleSinglePortInputOperat
   private int numPublishers = 50;
   private double expectedClickThruRate = 0.02;
   private Random random = new Random();
+
+  public double getExpectedClickThruRate()
+  {
+    return expectedClickThruRate;
+  }
+
+  public void setExpectedClickThruRate(double expectedClickThruRate)
+  {
+    this.expectedClickThruRate = expectedClickThruRate;
+  }
 
   @Override
   public void endWindow()
