@@ -1,4 +1,4 @@
-package com.malhartech.demos.samples.math;
+package com.malhartech.lib.samples.math;
 
 import org.apache.hadoop.conf.Configuration;
 
@@ -13,18 +13,17 @@ import com.malhartech.lib.testbench.RandomEventGenerator;
  * This sample application code for showing sample usage of malhar operator(s). <br>
  * <b>Operator : </b> Average <br>
  * <bClass : </b> com.malhartech.lib.math.Average
- * 
+ *
  * @author Dinesh Prasad (dinesh@malhar-inc.com)
  */
 public class AverageSample implements ApplicationFactory
 {
 	@SuppressWarnings("unchecked")
 	@Override
-	public DAG getApplication(Configuration conf)
+	public void getApplication(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-		DAG dag = new DAG(conf);
-		dag.setAttribute(DAG.STRAM_APPNAME, "MobileDevApplication");
+		dag.setAttribute(DAG.STRAM_APPNAME, "AverageSample");
 		dag.setAttribute(DAG.STRAM_DEBUG, true);
 
 		// Add random integer generator operator
@@ -34,7 +33,7 @@ public class AverageSample implements ApplicationFactory
 		rand.setTuplesBlast(10);
 		rand.setTuplesBlastIntervalMillis(1000);
 
-		Average<Integer> average = (Average<Integer>) dag.addOperator("average",
+		Average<Integer> average = dag.addOperator("average",
 				Average.class);
 		dag.addStream("stream1", rand.integer_data, average.data);
 		dag.getMeta(average).getAttributes()
@@ -46,7 +45,6 @@ public class AverageSample implements ApplicationFactory
 		dag.addStream("stream2", average.average, console.input);
 
 		// done
-		return dag;
 	}
 
 }

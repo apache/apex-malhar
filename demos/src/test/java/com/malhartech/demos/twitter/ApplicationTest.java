@@ -4,6 +4,7 @@
  */
 package com.malhartech.demos.twitter;
 
+import com.malhartech.api.LocalMode;
 import com.malhartech.stram.DAGPropertiesBuilder;
 import com.malhartech.stram.StramLocalCluster;
 import java.io.IOException;
@@ -36,7 +37,9 @@ public class ApplicationTest
   @Test
   public void testApplication() throws Exception
   {
-    final StramLocalCluster lc = new StramLocalCluster(new TwitterTopCounterApplication().getApplication(new Configuration(false)));
+    LocalMode lma = LocalMode.newInstance();
+    new TwitterTopCounterApplication().getApplication(lma.getDAG(), new Configuration(false));
+    LocalMode.Controller lc = lma.getController();
     lc.run(10000);
   }
 }

@@ -5,15 +5,13 @@
 package com.malhartech.contrib.hbase;
 
 import com.malhartech.api.DAG;
-import com.malhartech.stram.StramLocalCluster;
+import com.malhartech.api.LocalMode;
 import java.util.List;
 import junit.framework.Assert;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -33,7 +31,9 @@ public class HBaseGetOperatorTest
     try {
       //HBaseTestHelper.startLocalCluster();
       HBaseTestHelper.populateHBase();
-      DAG dag = new DAG();
+      LocalMode lma = LocalMode.newInstance();
+      DAG dag = lma.getDAG();
+
       dag.setAttribute(DAG.STRAM_APPNAME, "HBaseGetOperatorTest");
       TestHBaseGetOperator thop = dag.addOperator("testhbaseget", TestHBaseGetOperator.class);
       HBaseTupleCollector tc = dag.addOperator("tuplecollector", HBaseTupleCollector.class);
@@ -43,9 +43,10 @@ public class HBaseGetOperatorTest
       thop.setZookeeperQuorum("127.0.0.1");
       thop.setZookeeperClientPort(2181);
 
-      StramLocalCluster lc = new StramLocalCluster(dag);
+      LocalMode.Controller lc = lma.getController();
       lc.setHeartbeatMonitoringEnabled(false);
       lc.run(30000);
+
       /*
       tuples = new ArrayList<HBaseTuple>();
       TestHBaseGetOperator thop = new TestHBaseGetOperator();

@@ -9,6 +9,8 @@ import com.malhartech.api.*;
 import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
 import com.malhartech.common.KeyValPair;
 import com.malhartech.stram.StramLocalCluster;
+import com.malhartech.stram.plan.logical.LogicalPlan;
+
 import java.util.ArrayList;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -136,7 +138,7 @@ public class MinKeyValTest
   public void partitionTest()
   {
     try {
-      DAG dag = new DAG();
+      LogicalPlan dag = new LogicalPlan();
       int N = 4; // number of partitions.
 
       TestInputOperator test = dag.addOperator("test", new TestInputOperator());

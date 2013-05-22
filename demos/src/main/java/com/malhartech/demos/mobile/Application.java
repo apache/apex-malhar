@@ -11,6 +11,7 @@ import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DAG;
 import com.malhartech.lib.io.*;
 import com.malhartech.lib.testbench.RandomEventGenerator;
+
 import java.net.URI;
 
 import org.apache.commons.lang.StringUtils;
@@ -25,21 +26,16 @@ public class Application implements ApplicationFactory
 {
   private static final Logger LOG = LoggerFactory.getLogger(Application.class);
   public static final String P_phoneRange = com.malhartech.demos.mobile.Application.class.getName() + ".phoneRange";
-  private String ajaxServerAddr = null;
   private Range<Integer> phoneRange = Ranges.closed(9900000, 9999999);
 
-  private void configure(Configuration conf)
+  private void configure(DAG dag, Configuration conf)
   {
-
-    this.ajaxServerAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
-    LOG.debug(String.format("\n******************* Server address was %s", this.ajaxServerAddr));
-
-    conf.set(DAG.STRAM_MAX_CONTAINERS.name(), "1");
+    dag.setAttribute(DAG.STRAM_MAX_CONTAINERS, 1);
     if (LAUNCHMODE_YARN.equals(conf.get(DAG.STRAM_LAUNCH_MODE))) {
       // settings only affect distributed mode
-      conf.setIfUnset(DAG.STRAM_CONTAINER_MEMORY_MB.name(), "2048");
-      conf.setIfUnset(DAG.STRAM_MASTER_MEMORY_MB.name(), "1024");
-      conf.setIfUnset(DAG.STRAM_MAX_CONTAINERS.name(), "1");
+      dag.getAttributes().attr(DAG.STRAM_CONTAINER_MEMORY_MB).setIfAbsent(2048);
+      dag.getAttributes().attr(DAG.STRAM_MASTER_MEMORY_MB).setIfAbsent(1024);
+      dag.getAttributes().attr(DAG.STRAM_MAX_CONTAINERS).setIfAbsent(1);
     }
     else if (LAUNCHMODE_LOCAL.equals(conf.get(DAG.STRAM_LAUNCH_MODE))) {
     }
@@ -56,10 +52,10 @@ public class Application implements ApplicationFactory
   }
 
   @Override
-  public DAG getApplication(Configuration conf)
+  public void getApplication(DAG dag, Configuration conf)
   {
-    configure(conf);
-    DAG dag = new DAG(conf);
+    configure(dag, conf);
+
     dag.setAttribute(DAG.STRAM_APPNAME, "MobileDevApplication");
     dag.setAttribute(DAG.STRAM_DEBUG, true);
 
@@ -103,7 +99,7 @@ public class Application implements ApplicationFactory
       out.setStringFormat("phoneLocationQueryResult" + ": %s");
       dag.addStream("consoledata", movementGen.locationQueryResult, out.input).setInline(true);
     }
-    return dag;
+
   }
 
 }

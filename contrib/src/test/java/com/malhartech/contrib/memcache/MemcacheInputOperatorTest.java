@@ -7,7 +7,7 @@ package com.malhartech.contrib.memcache;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DAG;
 import com.malhartech.api.DefaultInputPort;
-import com.malhartech.stram.StramLocalCluster;
+import com.malhartech.api.LocalMode;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
@@ -83,7 +83,8 @@ public class MemcacheInputOperatorTest
     gen.setup(null);
     gen.generateData();
 
-    DAG dag = new DAG();
+    LocalMode lma = LocalMode.newInstance();
+    DAG dag = lma.getDAG();
     final TestMemcacheInputOperator input = dag.addOperator("input", TestMemcacheInputOperator.class);
     CollectorModule<Object> collector = dag.addOperator("collector", new CollectorModule<Object>());
 
@@ -94,32 +95,22 @@ public class MemcacheInputOperatorTest
 
     dag.addStream("stream",input.outputPort, collector.inputPort);
 
-    final StramLocalCluster lc = new StramLocalCluster(dag);
-    lc.setHeartbeatMonitoringEnabled(false);
+    final LocalMode.Controller lc = lma.getController();
+    lc.runAsync();
 
-    new Thread("LocalClusterController")
-    {
-      @Override
-      public void run()
-      {
-        try {
-          while (true) {
-            if (resultCount != 1) {
-              Thread.sleep(10);
-            }
-            else {
-              break;
-            }
-          }
+    try {
+      while (true) {
+        if (resultCount != 1) {
+          Thread.sleep(10);
         }
-        catch (InterruptedException ex) {
+        else {
+          break;
         }
-        lc.shutdown();
       }
-    }.start();
-
-    lc.run();
-
+    }
+    catch (InterruptedException ex) {
+    }
+    lc.shutdown();
 
     Assert.assertEquals("Number of emitted tuples", 3, resultMap.size());
     Assert.assertEquals("value of a is ", 10, resultMap.get("a"));

@@ -5,10 +5,10 @@
 package com.malhartech.contrib.jdbc;
 
 import com.malhartech.api.CheckpointListener;
+import com.malhartech.api.LocalMode;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DAG;
 import com.malhartech.bufferserver.util.Codec;
-import com.malhartech.stram.StramLocalCluster;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,7 +26,6 @@ public class JDBCRecoveryTest
   private static int tupleCount = 0;
   private static final int maxTuple = 30;
   private static final int expectedTuples = 4;
-  private static int columnCount = 7;
   private static int dataset = 1;
   private static final String driver = "com.mysql.jdbc.Driver";
   private static final String url = "jdbc:mysql://localhost/test?user=test&password=";
@@ -42,9 +41,6 @@ public class JDBCRecoveryTest
 
   public static class MyHashMapOutputOperator extends JDBCTransactionHashMapOutputOperator<Object> implements CheckpointListener
   {
-    private int simulateFailure;
-    private transient boolean nexttime;
-
     @Override
     public void setup(OperatorContext context)
     {
@@ -82,10 +78,10 @@ public class JDBCRecoveryTest
     public void setSimulateFailure(boolean simulateFailure)
     {
       if (simulateFailure) {
-        this.simulateFailure = 1;
+        //this.simulateFailure = 1;
       }
       else {
-        this.simulateFailure = 0;
+        //this.simulateFailure = 0;
       }
     }
 
@@ -112,7 +108,9 @@ public class JDBCRecoveryTest
   {
     setupDB("Test_Tuple1", helper.hashMapping1, true, true);
 
-    DAG dag = new DAG();
+    LocalMode lma = LocalMode.newInstance();
+    DAG dag = lma.getDAG();
+
     dag.getAttributes().attr(DAG.STRAM_CHECKPOINT_WINDOW_COUNT).set(2);
     dag.getAttributes().attr(DAG.STRAM_WINDOW_SIZE_MILLIS).set(300);
     dag.getAttributes().attr(DAG.STRAM_MAX_CONTAINERS).set(1);
@@ -135,22 +133,8 @@ public class JDBCRecoveryTest
 
     dag.addStream("connection", rip.output, oper.inputPort);
 
-    final StramLocalCluster lc = new StramLocalCluster(dag);
+    LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(false);
-//    new Thread("LocalClusterController")
-//    {
-//      @Override
-//      public void run()
-//      {
-//        try {
-//          Thread.sleep(10000);
-//        }
-//        catch (InterruptedException ex) {
-//        }
-//        lc.shutdown();
-//      }
-//    }.start();
-
     lc.run();
 
     junit.framework.Assert.assertEquals("Number of emitted tuples", expectedTuples, tupleCount);
@@ -293,7 +277,8 @@ public class JDBCRecoveryTest
   {
     setupDB("Test_Tuple2", helper.hashMapping1, true, false);
 
-    DAG dag = new DAG();
+    LocalMode lma = LocalMode.newInstance();
+    DAG dag = lma.getDAG();
     dag.getAttributes().attr(DAG.STRAM_CHECKPOINT_WINDOW_COUNT).set(2);
     dag.getAttributes().attr(DAG.STRAM_WINDOW_SIZE_MILLIS).set(300);
     dag.getAttributes().attr(DAG.STRAM_MAX_CONTAINERS).set(1);
@@ -315,24 +300,9 @@ public class JDBCRecoveryTest
 
     dag.addStream("connection", rip.output, oper.inputPort);
 
-    final StramLocalCluster lc = new StramLocalCluster(dag);
+    LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(false);
-//    new Thread("LocalClusterController")
-//    {
-//      @Override
-//      public void run()
-//      {
-//        try {
-//          Thread.sleep(10000);
-//        }
-//        catch (InterruptedException ex) {
-//        }
-//        lc.shutdown();
-//      }
-//    }.start();
-
     lc.run();
-
 
     junit.framework.Assert.assertEquals("Number of emitted tuples", expectedTuples, tupleCount);
     logger.debug(String.format("Number of emitted tuples: %d", tupleCount));

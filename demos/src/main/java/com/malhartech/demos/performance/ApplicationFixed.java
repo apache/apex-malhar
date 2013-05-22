@@ -7,6 +7,7 @@ package com.malhartech.demos.performance;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.Context.PortContext;
 import com.malhartech.api.DAG;
+
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -18,10 +19,8 @@ public class ApplicationFixed implements ApplicationFactory
   public static final int QUEUE_CAPACITY = 16 * 1024;
 
   @Override
-  public DAG getApplication(Configuration conf)
+  public void getApplication(DAG dag, Configuration conf)
   {
-    DAG dag = new DAG(conf);
-
     FixedTuplesInputOperator wordGenerator = dag.addOperator("WordGenerator", FixedTuplesInputOperator.class);
     dag.getMeta(wordGenerator).getMeta(wordGenerator.output).getAttributes().attr(PortContext.QUEUE_CAPACITY).set(QUEUE_CAPACITY);
     wordGenerator.setCount(500000);
@@ -30,6 +29,5 @@ public class ApplicationFixed implements ApplicationFactory
     dag.getMeta(counter).getMeta(counter.input).getAttributes().attr(PortContext.QUEUE_CAPACITY).set(QUEUE_CAPACITY);
 
     dag.addStream("Generator2Counter", wordGenerator.output, counter.input).setInline(inline);
-    return dag;
   }
 }

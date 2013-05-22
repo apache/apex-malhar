@@ -4,10 +4,11 @@
  */
 package com.malhartech.demos.performance;
 
-import com.malhartech.api.DAG;
 import com.malhartech.api.ApplicationFactory;
+import com.malhartech.api.DAG;
 import com.malhartech.lib.stream.DevNullCounter;
 import com.malhartech.lib.testbench.EventGenerator;
+
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -44,13 +45,11 @@ public class ApplicationEventGenerator implements ApplicationFactory
   }
 
   @Override
-  public DAG getApplication(Configuration conf)
+  public void getApplication(DAG dag, Configuration conf)
   {
-    DAG dag = new DAG(conf);
     dag.getAttributes().attr(DAG.STRAM_CHECKPOINT_WINDOW_COUNT).set(0); // disable operator state saving
     EventGenerator lgen = getLoadGenerator("lgen", dag);
     DevNullCounter devnull = getDevNull("devnull", dag);
     dag.addStream("lgen2devnull", lgen.string_data, devnull.data).setInline(inline);
-    return dag;
   }
 }

@@ -6,7 +6,6 @@ package com.malhartech.contrib.zmq;
 
 import com.malhartech.api.*;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.stram.StramLocalCluster;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -138,6 +137,7 @@ public class ZeroMQOutputOperatorBenchmark
       this.testNum = testNum;
     }
 
+    @Override
     public void deactivate()
     {
     }
@@ -152,7 +152,8 @@ public class ZeroMQOutputOperatorBenchmark
   {
     final int testNum = 2000000;
 
-    DAG dag = new DAG();
+    LocalMode lma = LocalMode.newInstance();
+    DAG dag = lma.getDAG();
     SourceModule source = dag.addOperator("source", SourceModule.class);
     source.setTestNum(testNum);
     final TestStringZeroMQOutputOperator collector = dag.addOperator("generator", new TestStringZeroMQOutputOperator());
@@ -162,7 +163,7 @@ public class ZeroMQOutputOperatorBenchmark
 
     dag.addStream("Stream", source.outPort, collector.inputPort).setInline(true);
 
-    final StramLocalCluster lc = new StramLocalCluster(dag);
+    final LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(false);
 
     final ZeroMQMessageReceiver receiver = new ZeroMQMessageReceiver();

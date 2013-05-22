@@ -10,6 +10,7 @@ import com.malhartech.demos.twitter.TwitterSampleInput;
 import com.malhartech.lib.algo.UniqueCounter;
 import com.malhartech.lib.algo.WindowedTopCounter;
 import com.malhartech.lib.io.ConsoleOutputOperator;
+
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -21,10 +22,8 @@ public class Application implements ApplicationFactory
 {
   private static final boolean inline = true;
   @Override
-  public DAG getApplication(Configuration conf)
+  public void getApplication(DAG dag, Configuration conf)
   {
-    DAG dag = new DAG(conf);
-
     TwitterSampleInput twitterFeed = dag.addOperator("TweetSampler", TwitterSampleInput.class);
 
     TwitterStatusWordExtractor wordExtractor = dag.addOperator("WordExtractor", TwitterStatusWordExtractor.class);
@@ -44,7 +43,5 @@ public class Application implements ApplicationFactory
     consoleOperator.setStringFormat("topWords: %s");
 
     dag.addStream("TopWords", topCounts.output, consoleOperator.input).setInline(inline);
-
-    return dag;
   }
 }

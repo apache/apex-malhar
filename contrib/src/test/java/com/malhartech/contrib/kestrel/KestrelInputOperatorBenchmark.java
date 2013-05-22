@@ -5,11 +5,9 @@
 package com.malhartech.contrib.kestrel;
 
 import com.malhartech.api.*;
-import com.malhartech.stram.StramLocalCluster;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -140,7 +138,8 @@ public class KestrelInputOperatorBenchmark
   public void testBechmark() throws Exception
   {
     final int testNum = 20000;
-    DAG dag = new DAG();
+    LocalMode lma = LocalMode.newInstance();
+    DAG dag = lma.getDAG();
     TestStringKestrelInputOperator consumer = dag.addOperator("Generator", TestStringKestrelInputOperator.class);
     CollectorModule<String> collector = dag.addOperator("Collector", new CollectorModule<String>());
     String[] servers = {"localhost:22133"};
@@ -149,6 +148,7 @@ public class KestrelInputOperatorBenchmark
 
     new Thread()
     {
+      @Override
       public void run()
       {
         KestrelMessageGenerator producer = new KestrelMessageGenerator();
@@ -165,34 +165,25 @@ public class KestrelInputOperatorBenchmark
 
     dag.addStream("Stream", consumer.outputPort, collector.inputPort).setInline(true);
 
-    final StramLocalCluster lc = new StramLocalCluster(dag);
-    lc.setHeartbeatMonitoringEnabled(false);
+    final LocalMode.Controller lc = lma.getController();
+    lc.runAsync();
 
-    new Thread("LocalClusterController")
-    {
-      @Override
-      public void run()
-      {
-        try {
-          while (true) {
-            ArrayList<String> strList = (ArrayList<String>)collections.get("collector");
-            if (testNum * 3 > strList.size()) {
-              Thread.sleep(10);
-              if( strList.size() % 1000 == 0)
-                logger.debug("processed "+strList.size()+" tuples");
-            }
-            else {
-              break;
-            }
-          }
+    try {
+      while (true) {
+        ArrayList<String> strList = (ArrayList<String>)collections.get("collector");
+        if (testNum * 3 > strList.size()) {
+          Thread.sleep(10);
+          if( strList.size() % 1000 == 0)
+            logger.debug("processed "+strList.size()+" tuples");
         }
-        catch (InterruptedException ex) {
+        else {
+          break;
         }
-        lc.shutdown();
       }
-    }.start();
-
-    lc.run();
+    }
+    catch (InterruptedException ex) {
+    }
+    lc.shutdown();
 
     logger.debug("collection size:" + collections.size() + " " + collections.toString());
 

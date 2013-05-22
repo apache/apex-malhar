@@ -4,10 +4,11 @@
  */
 package com.malhartech.demos.performance;
 
-import com.malhartech.stram.StramLocalCluster;
 import java.io.IOException;
-import org.apache.hadoop.conf.Configuration;
+
 import org.junit.Test;
+
+import com.malhartech.api.LocalMode;
 
 /**
  * Test the DAG declaration in local mode.
@@ -17,9 +18,6 @@ public class ApplicationEventGeneratorTest
   @Test
   public void testApplication() throws IOException, Exception
   {
-    ApplicationEventGenerator app = new ApplicationEventGenerator();
-    final StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));
-    lc.setHeartbeatMonitoringEnabled(false);
-    lc.run();
+    LocalMode.runApp(new ApplicationEventGenerator(), 60000);
   }
 }

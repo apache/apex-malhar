@@ -7,8 +7,8 @@ package com.malhartech.contrib.rabbitmq;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DAG;
 import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.LocalMode;
 import com.malhartech.api.Operator;
-import com.malhartech.stram.StramLocalCluster;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -137,7 +136,8 @@ public class RabbitMQInputOperatorBenchmark
   public void testDag() throws Exception
   {
     final int testNum = 100000;
-    DAG dag = new DAG();
+    LocalMode lma = LocalMode.newInstance();
+    DAG dag = lma.getDAG();
     TestStringRabbitMQInputOperator subscriber = dag.addOperator("Generator", TestStringRabbitMQInputOperator.class);
     CollectorModule<String> collector = dag.addOperator("Collector", new CollectorModule<String>());
 
@@ -150,8 +150,7 @@ public class RabbitMQInputOperatorBenchmark
 
     dag.addStream("Stream", subscriber.outputPort, collector.inputPort).setInline(true);
 
-    final StramLocalCluster lc = new StramLocalCluster(dag);
-    lc.setHeartbeatMonitoringEnabled(false);
+    final LocalMode.Controller lc = lma.getController();
 
     new Thread("LocalClusterController")
     {

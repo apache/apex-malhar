@@ -7,7 +7,7 @@ package com.malhartech.contrib.romesyndication;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DAG;
 import com.malhartech.api.DefaultInputPort;
-import com.malhartech.stram.StramLocalCluster;
+import com.malhartech.api.LocalMode;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -110,7 +110,8 @@ public class RomeSyndicationOperatorTest
   @Test
   public void testRun()
   {
-    DAG dag = new DAG();
+    LocalMode lma = LocalMode.newInstance();
+    DAG dag = lma.getDAG();
     RomeSyndicationOperator rop = dag.addOperator("romesyndication", RomeSyndicationOperator.class);
     FeedCollector fc = dag.addOperator("feedcollector", FeedCollector.class);
     dag.addStream("ss", rop.outputPort, fc.input);
@@ -120,7 +121,7 @@ public class RomeSyndicationOperatorTest
     rop.setStreamProvider(new CNNSyndicationTestProvider());
 
     try {
-      StramLocalCluster lc = new StramLocalCluster(dag);
+      LocalMode.Controller lc = lma.getController();
       lc.setHeartbeatMonitoringEnabled(false);
       lc.run(10000);
       Assert.assertEquals("Entries size", entries.size(), 81);

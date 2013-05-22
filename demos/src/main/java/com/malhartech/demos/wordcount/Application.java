@@ -8,11 +8,12 @@ import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
 import com.malhartech.lib.algo.UniqueCounterEach;
 import com.malhartech.lib.io.ConsoleOutputOperator;
+
 import org.apache.hadoop.conf.Configuration;
 
 /**
  * To run the test, you need to generate a data file as sample file.
- * default location is 
+ * default location is
  * This program will count the number of words.
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
@@ -22,12 +23,10 @@ public class Application implements ApplicationFactory
   private boolean allInline =  false;
 
   @Override
-  public DAG getApplication(Configuration conf)
+  public void getApplication(DAG dag, Configuration conf)
   {
     allInline = true;
 
-    DAG dag = new DAG(conf);
-    
     WordCountInputOperator input = dag.addOperator("wordinput", new WordCountInputOperator());
     UniqueCounterEach<String> wordCount = dag.addOperator("count", new UniqueCounterEach<String>());
 
@@ -36,8 +35,6 @@ public class Application implements ApplicationFactory
     ConsoleOutputOperator consoleOperator = dag.addOperator("console", new ConsoleOutputOperator());
     dag.addStream("count-console",wordCount.count, consoleOperator.input);
 
-
-    return dag;
   }
 
 

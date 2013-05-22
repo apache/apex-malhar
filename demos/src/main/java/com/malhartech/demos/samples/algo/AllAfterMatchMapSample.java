@@ -5,25 +5,24 @@ import org.apache.hadoop.conf.Configuration;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.demos.samples.math.RandomKeyValMap;
 import com.malhartech.lib.io.ConsoleOutputOperator;
+import com.malhartech.lib.samples.math.RandomKeyValMap;
 import com.malhartech.lib.algo.AllAfterMatchMap;
 
 /**
  * This sample application code for showing sample usage of malhar operator(s). <br>
  * <b>Operator : </b> AverageMap <br>
- * <bClass : </b> com.malhartech.lib.math.AverageMap 
- * 
+ * <bClass : </b> com.malhartech.lib.math.AverageMap
+ *
  * @author Dinesh Prasad (dinesh@malhar-inc.com)
  */
 public class AllAfterMatchMapSample implements ApplicationFactory
 {
 	@SuppressWarnings("unchecked")
 	@Override
-	public DAG getApplication(Configuration conf) 
+	public void getApplication(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-		DAG dag = new DAG(conf);
 		dag.setAttribute(DAG.STRAM_APPNAME, "AllAfterMatchMapSample");
 		//dag.setAttribute(DAG.STRAM_DEBUG, true);
 
@@ -44,6 +43,5 @@ public class AllAfterMatchMapSample implements ApplicationFactory
 		dag.addStream("consolestream", allafter.allafter, console.input);
 
 		// done
-		return dag;
 	}
 }

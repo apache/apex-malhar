@@ -6,7 +6,6 @@ package com.malhartech.demos.chart;
 
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DAG;
-import com.malhartech.api.DAG.StreamMeta;
 import com.malhartech.demos.yahoofinance.StockTickInput;
 import com.malhartech.lib.chart.TimeSeriesAverageChartOperator;
 import com.malhartech.lib.chart.TimeSeriesCandleStickChartOperator;
@@ -79,15 +78,13 @@ public class YahooFinanceApplication extends com.malhartech.demos.yahoofinance.A
   }
 
   @Override
-  public DAG getApplication(Configuration conf)
+  public void getApplication(DAG dag, Configuration conf)
   {
-    DAG dag = new DAG(conf);
-
     dag.getAttributes().attr(DAG.STRAM_WINDOW_SIZE_MILLIS).set(streamingWindowSizeMilliSeconds);
 
     StockTickInput tick = getStockTickInputOperator("StockTickInput", dag);
     tick.setOutputEvenIfZeroVolume(true);
-    StreamMeta stream = dag.addStream("price", tick.price);
+    DAG.StreamMeta stream = dag.addStream("price", tick.price);
     TimeSeriesAverageChartOperator<String> averageChartOperator = getAverageChartOperator("AverageChart", dag);
     TimeSeriesCandleStickChartOperator<String> candleStickChartOperator = getCandleStickChartOperator("CandleStickChart", dag);
     DevNull<Map<String, Map<Number, Number>>> devnull1 = dag.addOperator("devnull1", new DevNull<Map<String, Map<Number, Number>>>());
@@ -99,7 +96,6 @@ public class YahooFinanceApplication extends com.malhartech.demos.yahoofinance.A
     dag.addStream("averageDummyStream", averageChartOperator.chart, devnull1.data);
     dag.addStream("candleStickDummyStream", candleStickChartOperator.chart, devnull2.data);
 
-    return dag;
   }
 
 }

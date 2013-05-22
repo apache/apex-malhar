@@ -4,8 +4,7 @@
  */
 package com.malhartech.demos.pi;
 
-import com.malhartech.stram.StramLocalCluster;
-import org.apache.hadoop.conf.Configuration;
+import com.malhartech.api.LocalMode;
 
 /**
  *
@@ -16,25 +15,6 @@ public class ApplicationWithScriptTest
   //@Test
   public void testSomeMethod() throws Exception
   {
-    ApplicationWithScript topology = new ApplicationWithScript();
-    final StramLocalCluster lc = new StramLocalCluster(topology.getApplication(new Configuration(false)));
-
-    new Thread("LocalClusterController")
-    {
-      @Override
-      public void run()
-      {
-        try {
-          Thread.sleep(10000);
-        }
-        catch (InterruptedException ex) {
-        }
-
-        lc.shutdown();
-      }
-
-    }/*.start()*/;
-
-    lc.run();
+    LocalMode.runApp(new ApplicationWithScript(), 10000);
   }
 }

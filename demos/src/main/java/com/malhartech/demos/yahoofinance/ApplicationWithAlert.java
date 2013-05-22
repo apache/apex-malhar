@@ -9,6 +9,7 @@ import com.malhartech.api.DAG;
 import com.malhartech.lib.io.SmtpOutputOperator;
 import com.malhartech.lib.util.Alert;
 import com.malhartech.lib.util.DerbySqlStreamOperator;
+
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -19,10 +20,9 @@ import org.apache.hadoop.conf.Configuration;
 public class ApplicationWithAlert implements ApplicationFactory
 {
   @Override
-  public DAG getApplication(Configuration conf)
+  public void getApplication(DAG dag, Configuration conf)
   {
     String[] symbols = {"YHOO", "GOOG", "AAPL", "FB", "AMZN", "NFLX", "IBM"};
-    DAG dag = new DAG(conf);
 
     YahooFinanceCSVInputOperator input1 = dag.addOperator("input1", new YahooFinanceCSVInputOperator());
     DerbySqlStreamOperator sqlOper = dag.addOperator("sqlOper", new DerbySqlStreamOperator());
@@ -62,7 +62,6 @@ public class ApplicationWithAlert implements ApplicationFactory
     //dag.addStream("alert_console", alertOper.alert1, consoleOperator.input);
     dag.addStream("alert_mail", alertOper.alert1, mailOper.input);
 
-    return dag;
   }
 
 }

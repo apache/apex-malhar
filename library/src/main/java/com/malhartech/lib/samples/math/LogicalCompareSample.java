@@ -1,4 +1,4 @@
-package com.malhartech.demos.samples.math;
+package com.malhartech.lib.samples.math;
 
 import org.apache.hadoop.conf.Configuration;
 
@@ -12,17 +12,16 @@ import com.malhartech.lib.testbench.RandomEventGenerator;
  * This sample application code for showing sample usage of malhar operator(s). <br>
  * <b>Operator : </b> LogicalCompareToConstant <br>
  * <bClass : </b> com.malhartech.lib.math.LogicalCompareToConstant
- * 
+ *
  * @author Dinesh Prasad (dinesh@malhar-inc.com)
  */
 public class LogicalCompareSample implements ApplicationFactory
 {
 	@SuppressWarnings("unchecked")
 	@Override
-	public DAG getApplication(Configuration conf)
+	public void getApplication(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-		DAG dag = new DAG(conf);
 		dag.setAttribute(DAG.STRAM_APPNAME, "TestApp");
 		dag.setAttribute(DAG.STRAM_DEBUG, true);
 
@@ -41,6 +40,5 @@ public class LogicalCompareSample implements ApplicationFactory
 		dag.addStream("consolestream", compare.lessThan, console.input);
 
 		// done
-		return dag;
 	}
 }

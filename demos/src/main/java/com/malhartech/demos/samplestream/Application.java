@@ -7,6 +7,7 @@ package com.malhartech.demos.samplestream;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
 import com.malhartech.lib.io.ConsoleOutputOperator;
+
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.LoggerFactory;
 
@@ -18,16 +19,12 @@ import org.slf4j.LoggerFactory;
 public class Application implements ApplicationFactory
 {
   private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Application.class);
-  private boolean allInline = false;
+  private final boolean allInline = false;
 
   @Override
-  public DAG getApplication(Configuration conf)
+  public void getApplication(DAG dag, Configuration conf)
   {
-    return getYahooFinanceCSVApplication(conf);
-  }
 
-  public DAG getYahooFinanceCSVApplication(Configuration conf) {
-    DAG dag = new DAG(conf);
     YahooFinanceCSVInputOperator input = dag.addOperator("input", new YahooFinanceCSVInputOperator());
     input.addSymbol("GOOG");
     input.addSymbol("FB");
@@ -45,6 +42,5 @@ public class Application implements ApplicationFactory
     ConsoleOutputOperator consoleOperator = dag.addOperator("console", new ConsoleOutputOperator());
     dag.addStream("input-console", input.outputPort, consoleOperator.input).setInline(allInline);
 
-    return dag;
   }
 }

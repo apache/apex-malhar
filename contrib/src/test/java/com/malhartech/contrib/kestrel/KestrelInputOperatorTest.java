@@ -5,7 +5,6 @@
 package com.malhartech.contrib.kestrel;
 
 import com.malhartech.api.*;
-import com.malhartech.stram.StramLocalCluster;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -133,7 +132,8 @@ public class KestrelInputOperatorTest
   public void testDag() throws Exception
   {
     final int testNum = 3;
-    DAG dag = new DAG();
+    LocalMode lma = LocalMode.newInstance();
+    DAG dag = lma.getDAG();
     TestStringKestrelInputOperator consumer = dag.addOperator("Generator", TestStringKestrelInputOperator.class);
     CollectorModule<String> collector = dag.addOperator("Collector", new CollectorModule<String>());
     String[] servers = {"localhost:22133"};
@@ -147,24 +147,15 @@ public class KestrelInputOperatorTest
 
     dag.addStream("Stream", consumer.outputPort, collector.inputPort).setInline(true);
 
-    final StramLocalCluster lc = new StramLocalCluster(dag);
-    lc.setHeartbeatMonitoringEnabled(false);
+    final LocalMode.Controller lc = lma.getController();
+    lc.runAsync();
 
-    new Thread("LocalClusterController")
-    {
-      @Override
-      public void run()
-      {
-        try {
-          Thread.sleep(1000);
-        }
-        catch (InterruptedException ex) {
-        }
-        lc.shutdown();
-      }
-    }.start();
-
-    lc.run();
+    try {
+      Thread.sleep(1000);
+    }
+    catch (InterruptedException ex) {
+    }
+    lc.shutdown();
 
     logger.debug("collection size:" + collections.size() + " " + collections.toString());
 

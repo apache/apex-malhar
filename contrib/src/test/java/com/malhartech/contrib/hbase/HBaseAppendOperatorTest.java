@@ -4,14 +4,15 @@
  */
 package com.malhartech.contrib.hbase;
 
-import com.malhartech.api.DAG;
-import com.malhartech.stram.StramLocalCluster;
 import junit.framework.Assert;
+
 import org.apache.hadoop.hbase.client.Append;
-import org.apache.hadoop.hbase.client.Put;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.malhartech.api.DAG;
+import com.malhartech.api.LocalMode;
 
 /**
  *
@@ -30,7 +31,9 @@ public class HBaseAppendOperatorTest
   {
     try {
       HBaseTestHelper.clearHBase();
-      DAG dag = new DAG();
+      LocalMode lma = LocalMode.newInstance();
+      DAG dag = lma.getDAG();
+
       dag.setAttribute(DAG.STRAM_APPNAME, "HBaseAppendOperatorTest");
       HBaseColTupleGenerator ctg = dag.addOperator("coltuplegenerator", HBaseColTupleGenerator.class);
       TestHBaseAppendOperator thop = dag.addOperator("testhbaseput", TestHBaseAppendOperator.class);
@@ -40,9 +43,10 @@ public class HBaseAppendOperatorTest
       thop.setZookeeperQuorum("127.0.0.1");
       thop.setZookeeperClientPort(2181);
 
-      StramLocalCluster lc = new StramLocalCluster(dag);
+      final LocalMode.Controller lc = lma.getController();
       lc.setHeartbeatMonitoringEnabled(false);
       lc.run(30000);
+
       /*
       tuples = new ArrayList<HBaseTuple>();
       TestHBaseScanOperator thop = new TestHBaseScanOperator();

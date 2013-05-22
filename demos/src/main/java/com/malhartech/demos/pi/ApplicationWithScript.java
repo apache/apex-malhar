@@ -10,6 +10,7 @@ import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.math.Script;
 import com.malhartech.lib.stream.RoundRobinHashMap;
 import com.malhartech.lib.testbench.RandomEventGenerator;
+
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -20,9 +21,8 @@ public class ApplicationWithScript implements ApplicationFactory
 {
 
   @Override
-  public DAG getApplication(Configuration conf)
+  public void getApplication(DAG dag, Configuration conf)
   {
-    DAG dag = new DAG(conf);
     int maxValue = 30000;
 
     RandomEventGenerator rand = dag.addOperator("rand", new RandomEventGenerator());
@@ -47,7 +47,6 @@ public class ApplicationWithScript implements ApplicationFactory
     ConsoleOutputOperator console = dag.addOperator("console", new ConsoleOutputOperator());
     dag.addStream("rand_console",calc.result, console.input);
 
-    return dag;
   }
 
 }

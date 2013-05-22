@@ -4,8 +4,7 @@
  */
 package com.malhartech.demos.ads_dimension;
 
-import com.malhartech.demos.ads_dimension.Application;
-import com.malhartech.stram.StramLocalCluster;
+import com.malhartech.api.LocalMode;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 
@@ -15,7 +14,9 @@ public class ApplicationRandomDataTest
   public void testApplication() throws Exception
   {
     ApplicationRandomData app = new ApplicationRandomData();
-    StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));
+    LocalMode lma = LocalMode.newInstance();
+    app.getApplication(lma.getDAG(), new Configuration(false));
+    LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(false);
     lc.run();
   }

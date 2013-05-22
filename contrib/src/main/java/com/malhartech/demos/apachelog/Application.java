@@ -24,11 +24,9 @@ public class Application implements ApplicationFactory
   private final String addr = "tcp://127.0.0.1:5555";
 
   @Override
-  public DAG getApplication(Configuration conf)
+  public void getApplication(DAG dag, Configuration conf)
   {
     allInline = true;
-
-    DAG dag = new DAG(conf);
 
     dag.getAttributes().attr(DAG.STRAM_WINDOW_SIZE_MILLIS).set(1000);
     SimpleSinglePortZeroMQPullStringInputOperator input = dag.addOperator("input", new SimpleSinglePortZeroMQPullStringInputOperator(addr));
@@ -60,7 +58,6 @@ public class Application implements ApplicationFactory
     //dag.addStream("agg-console", agg.output, consoleOperator4.input);
     dag.addStream("numOfBytesSum-console", numOfBytesSum.sumLong, consoleOperator4.input);
 
-    return dag;
   }
 
 }

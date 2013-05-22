@@ -5,10 +5,9 @@
 package com.malhartech.contrib.hbase;
 
 import com.malhartech.api.DAG;
-import com.malhartech.stram.StramLocalCluster;
+import com.malhartech.api.LocalMode;
 import java.util.List;
 import junit.framework.Assert;
-import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.filter.ColumnPrefixFilter;
 import org.apache.hadoop.hbase.filter.Filter;
@@ -34,7 +33,9 @@ public class HBaseScanOperatorTest
   {
     try {
       HBaseTestHelper.populateHBase();
-      DAG dag = new DAG();
+      LocalMode lma = LocalMode.newInstance();
+      DAG dag = lma.getDAG();
+
       dag.setAttribute(DAG.STRAM_APPNAME, "HBaseScanOperatorTest");
       TestHBaseScanOperator thop = dag.addOperator("testhbasescan", TestHBaseScanOperator.class);
       HBaseTupleCollector tc = dag.addOperator("tuplecollector", HBaseTupleCollector.class);
@@ -44,7 +45,7 @@ public class HBaseScanOperatorTest
       thop.setZookeeperQuorum("127.0.0.1");
       thop.setZookeeperClientPort(2181);
 
-      StramLocalCluster lc = new StramLocalCluster(dag);
+      LocalMode.Controller lc = lma.getController();
       lc.setHeartbeatMonitoringEnabled(false);
       lc.run(30000);
       /*
@@ -83,7 +84,6 @@ public class HBaseScanOperatorTest
 
   public static class TestHBaseScanOperator extends HBaseScanOperator<HBaseTuple>
   {
-    private int rowIndex = 0;
 
     @Override
     public Scan operationScan()

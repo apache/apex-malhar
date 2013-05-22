@@ -4,9 +4,9 @@
  */
 package com.malhartech.demos.mobile;
 
-import com.malhartech.stram.StramLocalCluster;
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
+
+import com.malhartech.api.LocalMode;
 
 
 public class ApplicationAlertTest
@@ -21,9 +21,6 @@ public class ApplicationAlertTest
   @Test
   public void testGetApplication() throws Exception
   {
-    ApplicationAlert app = new ApplicationAlert();
-    StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));
-    lc.setHeartbeatMonitoringEnabled(false);
-    lc.run();
+    LocalMode.runApp(new ApplicationAlert(), 60000);
   }
 }

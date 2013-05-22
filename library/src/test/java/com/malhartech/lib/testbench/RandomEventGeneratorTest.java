@@ -4,9 +4,10 @@
 package com.malhartech.lib.testbench;
 
 import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DAG;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.stram.StramLocalCluster;
+import com.malhartech.stram.plan.logical.LogicalPlan;
+
 import java.util.logging.Level;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -107,7 +108,7 @@ public class RandomEventGeneratorTest
     if (!dostring && !dointeger) {
       return; // at least one has to be used
     }
-    DAG dag = new DAG();
+    LogicalPlan dag = new LogicalPlan();
     RandomEventGenerator node = dag.addOperator("randomgen", new RandomEventGenerator());
     CollectorOperator collector = dag.addOperator("data collector", new CollectorOperator());
     clear();

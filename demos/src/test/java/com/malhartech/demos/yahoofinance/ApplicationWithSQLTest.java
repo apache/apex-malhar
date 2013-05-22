@@ -4,8 +4,8 @@
  */
 package com.malhartech.demos.yahoofinance;
 
+import com.malhartech.api.LocalMode;
 import com.malhartech.demos.yahoofinance.ApplicationWithSQL;
-import com.malhartech.stram.StramLocalCluster;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 
@@ -22,26 +22,10 @@ public class ApplicationWithSQLTest
   @Test
   public void testSomeMethod() throws Exception
   {
-    ApplicationWithSQL topology = new ApplicationWithSQL();
-    final StramLocalCluster lc = new StramLocalCluster(topology.getApplication(new Configuration(false)));
+    LocalMode lma = LocalMode.newInstance();
+    new ApplicationWithSQL().getApplication(lma.getDAG(), new Configuration(false));
+    LocalMode.Controller lc = lma.getController();
 
-//    new Thread("LocalClusterController")
-//    {
-//      @Override
-//      public void run()
-//      {
-//        try {
-//          while(true) {
-//          Thread.sleep(1000);
-//
-//          }
-//        }
-//        catch (InterruptedException ex) {
-//        }
-//
-//        lc.shutdown();
-//      }
-//    }.start();
     long start = System.currentTimeMillis();
     lc.run();
     long end = System.currentTimeMillis();

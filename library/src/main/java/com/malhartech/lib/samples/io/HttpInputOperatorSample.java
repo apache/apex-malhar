@@ -1,4 +1,4 @@
-package com.malhartech.demos.samples.io;
+package com.malhartech.lib.samples.io;
 
 import java.net.URI;
 
@@ -15,18 +15,17 @@ import com.malhartech.lib.io.HttpInputOperator;
  * operator(s). <br>
  * <b>Operator : </b> HttpInputOperator <br>
  * <bClass : </b> com.malhartech.lib.io.HttpInputOperator
- * 
+ *
  * this application connects to yahoo news and relays raw content to output console.
- * 
+ *
  * @author Dinesh Prasad(dinesh@malhar-inc.com)
  */
 public class HttpInputOperatorSample implements ApplicationFactory
 {
 	@Override
-	public DAG getApplication(Configuration conf)
+	public void getApplication(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-		DAG dag = new DAG(conf);
 		dag.setAttribute(DAGContext.STRAM_APPNAME, "MobileDevApplication");
 		dag.setAttribute(DAGContext.STRAM_DEBUG, true);
 
@@ -42,7 +41,6 @@ public class HttpInputOperatorSample implements ApplicationFactory
 		dag.addStream("consoleout", reader.rawOutput, console.input);
 
 		// done
-		return dag;
 	}
 
 }

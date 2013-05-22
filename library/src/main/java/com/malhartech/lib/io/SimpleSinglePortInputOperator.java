@@ -7,6 +7,7 @@ package com.malhartech.lib.io;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.*;
 import com.malhartech.api.Context.OperatorContext;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 

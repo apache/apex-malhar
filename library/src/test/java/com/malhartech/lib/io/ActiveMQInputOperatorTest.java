@@ -7,6 +7,7 @@ package com.malhartech.lib.io;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.*;
 import com.malhartech.stram.StramLocalCluster;
+import com.malhartech.stram.plan.logical.LogicalPlan;
 import com.malhartech.stram.support.StramTestSupport;
 import com.malhartech.stram.support.StramTestSupport.WaitCondition;
 import java.io.File;
@@ -175,7 +176,7 @@ public class ActiveMQInputOperatorTest
     generator.closeConnection();
 
     // Create DAG for testing.
-    DAG dag = new DAG();
+    LogicalPlan dag = new LogicalPlan();
     // Create ActiveMQStringSinglePortInputOperator
     ActiveMQStringSinglePortInputOperator node = dag.addOperator("AMQ message consumer", ActiveMQStringSinglePortInputOperator.class);
     // Set configuration parameters for ActiveMQ
@@ -239,7 +240,7 @@ public class ActiveMQInputOperatorTest
     generator.closeConnection();
 
     // Create DAG for testing.
-    DAG dag = new DAG();
+    LogicalPlan dag = new LogicalPlan();
     // Create ActiveMQStringSinglePortInputOperator
     ActiveMQStringSinglePortInputOperator node = dag.addOperator("AMQ message consumer", ActiveMQStringSinglePortInputOperator.class);
     // Set configuration parameters for ActiveMQ
@@ -337,7 +338,7 @@ public class ActiveMQInputOperatorTest
     generator.closeConnection();
 
     // Create DAG for testing.
-    DAG dag = new DAG();
+    LogicalPlan dag = new LogicalPlan();
     // Create ActiveMQStringSinglePortInputOperator
     ActiveMQMultiPortInputOperator node = dag.addOperator("AMQ message consumer", ActiveMQMultiPortInputOperator.class);
     // Set configuration parameters for ActiveMQ

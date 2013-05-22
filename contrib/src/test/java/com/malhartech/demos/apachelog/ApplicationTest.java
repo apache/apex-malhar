@@ -4,7 +4,7 @@
  */
 package com.malhartech.demos.apachelog;
 
-import com.malhartech.stram.StramLocalCluster;
+import com.malhartech.api.LocalMode;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 
@@ -21,26 +21,11 @@ public class ApplicationTest
   @Test
   public void testSomeMethod() throws Exception
   {
-    Application topology = new Application();
-    final StramLocalCluster lc = new StramLocalCluster(topology.getApplication(new Configuration(false)));
+    Application app = new Application();
+    LocalMode lma = LocalMode.newInstance();
+    app.getApplication(lma.getDAG(), new Configuration(false));
 
-//    new Thread("LocalClusterController")
-//    {
-//      @Override
-//      public void run()
-//      {
-//        try {
-//          while(true) {
-//          Thread.sleep(1000);
-//
-//          }
-//        }
-//        catch (InterruptedException ex) {
-//        }
-//
-//        lc.shutdown();
-//      }
-//    }.start();
+    final LocalMode.Controller lc = lma.getController();
     long start = System.currentTimeMillis();
     lc.run();
     long end = System.currentTimeMillis();

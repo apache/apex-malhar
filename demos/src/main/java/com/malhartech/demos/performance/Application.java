@@ -7,6 +7,7 @@ package com.malhartech.demos.performance;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.Context.PortContext;
 import com.malhartech.api.DAG;
+
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -17,10 +18,8 @@ public class Application implements ApplicationFactory
   private static final boolean inline = false;
 
   @Override
-  public DAG getApplication(Configuration conf)
+  public void getApplication(DAG dag, Configuration conf)
   {
-    DAG dag = new DAG(conf);
-
     RandomWordInputModule wordGenerator = dag.addOperator("wordGenerator", RandomWordInputModule.class);
     dag.getMeta(wordGenerator).getMeta(wordGenerator.output).getAttributes().attr(PortContext.QUEUE_CAPACITY).set(32 * 1024);
 
@@ -28,7 +27,6 @@ public class Application implements ApplicationFactory
     dag.getMeta(counter).getMeta(counter.input).getAttributes().attr(PortContext.QUEUE_CAPACITY).set(32 * 1024);
 
     dag.addStream("Generator2Counter", wordGenerator.output, counter.input).setInline(inline);
-    return dag;
   }
 
 }

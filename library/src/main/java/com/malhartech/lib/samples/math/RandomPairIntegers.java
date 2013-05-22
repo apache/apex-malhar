@@ -1,4 +1,4 @@
-package com.malhartech.demos.samples.math;
+package com.malhartech.lib.samples.math;
 
 import java.util.Random;
 

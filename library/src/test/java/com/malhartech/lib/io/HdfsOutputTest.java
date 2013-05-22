@@ -10,8 +10,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.malhartech.api.DAG;
 import com.malhartech.api.ApplicationFactory;
+import com.malhartech.api.DAG;
 import com.malhartech.stram.DAGPropertiesBuilder;
 
 public class HdfsOutputTest implements ApplicationFactory {
@@ -56,7 +56,7 @@ public class HdfsOutputTest implements ApplicationFactory {
    * Utilize CLI to run as client on hadoop cluster
    */
   @Override
-  public DAG getApplication(Configuration cfg) {
+  public void getApplication(DAG dag, Configuration cfg) {
 
     this.numTuples = cfg.getLong(this.getClass().getName() + ".numTuples", this.numTuples);
 

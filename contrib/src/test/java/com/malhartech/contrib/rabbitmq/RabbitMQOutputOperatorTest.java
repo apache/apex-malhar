@@ -6,7 +6,6 @@ package com.malhartech.contrib.rabbitmq;
 
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.*;
-import com.malhartech.stram.StramLocalCluster;
 import com.rabbitmq.client.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -43,7 +42,7 @@ public class RabbitMQOutputOperatorTest
   {
     public HashMap<String, Integer> dataMap = new HashMap<String, Integer>();
     public int count = 0;
-    private String host = "localhost";
+    private final String host = "localhost";
     ConnectionFactory connFactory = new ConnectionFactory();
 //  QueueingConsumer consumer = null;
     Connection connection = null;
@@ -175,6 +174,7 @@ public class RabbitMQOutputOperatorTest
       this.testNum = testNum;
     }
 
+    @Override
     public void deactivate()
     {
     }
@@ -191,7 +191,8 @@ public class RabbitMQOutputOperatorTest
     RabbitMQMessageReceiver receiver = new RabbitMQMessageReceiver();
     receiver.setup();
 
-    DAG dag = new DAG();
+    LocalMode lma = LocalMode.newInstance();
+    DAG dag = lma.getDAG();
     SourceModule source = dag.addOperator("source", SourceModule.class);
     source.setTestNum(testNum);
     TestRabbitMQOutputOperator collector = dag.addOperator("generator", new TestRabbitMQOutputOperator());
@@ -200,24 +201,15 @@ public class RabbitMQOutputOperatorTest
     dag.addStream("Stream", source.outPort, collector.inputPort).setInline(true);
 
 
-    final StramLocalCluster lc = new StramLocalCluster(dag);
-    lc.setHeartbeatMonitoringEnabled(false);
+    final LocalMode.Controller lc = lma.getController();
+    lc.runAsync();
 
-    new Thread("LocalClusterController")
-    {
-      @Override
-      public void run()
-      {
-        try {
-          Thread.sleep(1000);
-        }
-        catch (InterruptedException ex) {
-        }
-        lc.shutdown();
-      }
-    }.start();
-
-    lc.run();
+    try {
+      Thread.sleep(1000);
+    }
+    catch (InterruptedException ex) {
+    }
+    lc.shutdown();
 
     junit.framework.Assert.assertEquals("emitted value for testNum was ", testNum * 3, receiver.count);
     for (Map.Entry<String, Integer> e : receiver.dataMap.entrySet()) {

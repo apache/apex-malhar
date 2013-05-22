@@ -4,19 +4,20 @@
  */
 package com.malhartech.demos.ads_dimension;
 
+import java.util.Map;
+
+import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DAG;
 import com.malhartech.api.Operator.InputPort;
 import com.malhartech.contrib.redis.RedisNumberAggregateOutputOperator;
 import com.malhartech.lib.io.ConsoleOutputOperator;
-import com.malhartech.lib.stream.DevNull;
 import com.malhartech.lib.util.DimensionTimeBucketOperator;
 import com.malhartech.lib.util.DimensionTimeBucketSumOperator;
-import java.util.Map;
-import org.apache.hadoop.conf.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Yahoo! Finance application demo. <p>
@@ -71,7 +72,7 @@ public class Application implements ApplicationFactory
   }
 
   @Override
-  public DAG getApplication(Configuration conf)
+  public void getApplication(DAG dag, Configuration conf)
   {
     DAG dag = new DAG(conf);
     AdsDimensionLogInputOperator adsDimensionInputOperator = getAdsDimensionInputOperator("AdsDimensionInput", dag);
@@ -81,7 +82,6 @@ public class Application implements ApplicationFactory
     dag.addStream("input_dimension", adsDimensionInputOperator.outputPort, dimensionOperator.in);
     dag.addStream("dimension_out", dimensionOperator.out, /*getConsole("Console", dag, "Console"),*/ getRedisOutput("redis", dag));
 
-    return dag;
   }
 
 }

@@ -14,6 +14,7 @@ import com.malhartech.lib.stream.AbstractAggregator;
 import com.malhartech.lib.stream.ArrayListAggregator;
 import com.malhartech.lib.stream.Counter;
 import com.malhartech.lib.testbench.RandomEventGenerator;
+
 import java.net.URI;
 import org.apache.hadoop.conf.Configuration;
 
@@ -41,10 +42,8 @@ public class Calculator implements ApplicationFactory
   }
 
   @Override
-  public DAG getApplication(Configuration conf)
+  public void getApplication(DAG dag, Configuration conf)
   {
-    DAG dag = new DAG(conf);
-
     /* keep generating random values between 0 and 30000 */
     RandomEventGenerator xyGenerator = dag.addOperator("GenerateX", RandomEventGenerator.class);
     xyGenerator.setMinvalue(0);
@@ -83,7 +82,6 @@ public class Calculator implements ApplicationFactory
     dag.addStream("instantPi", multiplication.doubleProduct, average.input).setInline(allInline);
     dag.addStream("averagePi", average.doubleAverage, getConsolePort(dag, "Console")).setInline(allInline);
 
-    return dag;
   }
 
 }

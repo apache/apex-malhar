@@ -4,12 +4,14 @@
  */
 package com.malhartech.demos.twitter;
 
+import java.util.concurrent.ArrayBlockingQueue;
+
 import com.malhartech.annotation.ShipContainingJars;
 import com.malhartech.api.ActivationListener;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
-import com.malhartech.util.CircularBuffer;
+
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +49,7 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
    * For tapping into the tweets.
    */
   transient TwitterStream ts;
-  transient CircularBuffer<Status> statuses = new CircularBuffer<Status>(1024 * 1024, 10);
+  private transient ArrayBlockingQueue<Status> statuses = new ArrayBlockingQueue<Status>(1024 * 1024);
   transient int count;
   /**
    * The state which we would like to save for this operator.

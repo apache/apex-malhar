@@ -9,7 +9,7 @@ import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DAG;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
-import com.malhartech.stram.StramLocalCluster;
+import com.malhartech.api.LocalMode;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -249,7 +249,8 @@ public class KafkaOutputOperatorTest
 
     // Malhar module to send message
     // Create DAG for testing.
-    DAG dag = new DAG();
+    LocalMode lma = LocalMode.newInstance();
+    DAG dag = lma.getDAG();
 
     // Create ActiveMQStringSinglePortOutputOperator
     StringGeneratorInputOperator generator = dag.addOperator("TestStringGenerator", StringGeneratorInputOperator.class);
@@ -261,25 +262,11 @@ public class KafkaOutputOperatorTest
     dag.addStream("Kafka message", generator.outputPort, node.inputPort).setInline(true);
 
     // Create local cluster
-    final StramLocalCluster lc = new StramLocalCluster(dag);
-    lc.setHeartbeatMonitoringEnabled(false);
+    final LocalMode.Controller lc = lma.getController();
+    lc.runAsync();
 
-    // Run local cluster
-    new Thread("LocalClusterController")
-    {
-      @Override
-      public void run()
-      {
-        try {
-          Thread.sleep(2000);
-        }
-        catch (InterruptedException ex) {
-        }
-
-        lc.shutdown();
-      }
-    }.start();
-    lc.run();
+    Thread.sleep(2000);
+    lc.shutdown();
 
     // Check values send vs received
     Assert.assertEquals("Number of emitted tuples", tupleCount, listener.holdingBuffer.size());

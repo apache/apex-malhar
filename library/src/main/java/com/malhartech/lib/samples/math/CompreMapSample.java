@@ -1,4 +1,4 @@
-package com.malhartech.demos.samples.math;
+package com.malhartech.lib.samples.math;
 
 import org.apache.hadoop.conf.Configuration;
 
@@ -12,17 +12,16 @@ import com.malhartech.lib.math.CompareMap;
  * This sample application code for showing sample usage of malhar operator(s). <br>
  * <b>Operator : </b> CompareMap <br>
  * <bClass : </b> com.malhartech.lib.math.CompareMap
- * 
+ *
  * @author Dinesh Prasad (dinesh@malhar-inc.com)
  */
 public class CompreMapSample implements ApplicationFactory
 {
 	@SuppressWarnings("unchecked")
 	@Override
-	public DAG getApplication(Configuration conf)
+	public void getApplication(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-		DAG dag = new DAG(conf);
 		dag.setAttribute(DAG.STRAM_APPNAME, "MobileDevApplication");
 		dag.setAttribute(DAG.STRAM_DEBUG, true);
 
@@ -40,6 +39,5 @@ public class CompreMapSample implements ApplicationFactory
 		dag.addStream("consolestream", compare.compare, console.input);
 
 		// done
-		return dag;
 	}
 }

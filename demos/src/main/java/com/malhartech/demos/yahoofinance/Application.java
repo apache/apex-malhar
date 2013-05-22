@@ -157,9 +157,8 @@ public class Application implements ApplicationFactory
    * @return
    */
   @Override
-  public DAG getApplication(Configuration conf)
+  public void getApplication(DAG dag, Configuration conf)
   {
-    DAG dag = new DAG(conf);
 
     dag.getAttributes().attr(DAG.STRAM_WINDOW_SIZE_MILLIS).set(streamingWindowSizeMilliSeconds);
 
@@ -186,7 +185,6 @@ public class Application implements ApplicationFactory
 
     dag.addStream("sma_price", priceSMA.doubleSMA, getConsole("priceSMAConsole", dag, "Price SMA"));
 
-    return dag;
   }
 
 }

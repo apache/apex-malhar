@@ -6,7 +6,6 @@ package com.malhartech.contrib.memcache;
 
 import com.malhartech.api.*;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.stram.StramLocalCluster;
 import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
@@ -137,6 +136,7 @@ public class MemcacheOutputOperaotorBenchmark
       }
     }
 
+    @Override
     public void deactivate()
     {
     }
@@ -150,7 +150,8 @@ public class MemcacheOutputOperaotorBenchmark
   public void testDag() throws Exception {
     String server = "localhost:11211";
 
-    DAG dag = new DAG();
+    LocalMode lma = LocalMode.newInstance();
+    DAG dag = lma.getDAG();
     SourceModule source = dag.addOperator("source", SourceModule.class);
     final TestMemcacheOutputOperator producer = dag.addOperator("producer", new TestMemcacheOutputOperator());
     producer.addServer(server);
@@ -159,26 +160,18 @@ public class MemcacheOutputOperaotorBenchmark
     final MemcacheMessageReceiver consumer = new MemcacheMessageReceiver();
     consumer.addSever(server);
 
-    final StramLocalCluster lc = new StramLocalCluster(dag);
-    lc.setHeartbeatMonitoringEnabled(false);
-    long start = System.currentTimeMillis();
-    new Thread("LocalClusterController")
-    {
-      @Override
-      public void run()
-      {
-        try {
-          while( resultCount < numberOfOps ) {
-            Thread.sleep(100);
-          }
-        }
-        catch (InterruptedException ex) {
-        }
-        lc.shutdown();
-      }
-    }.start();
+    final LocalMode.Controller lc = lma.getController();
+    lc.runAsync();
 
-    lc.run();
+    long start = System.currentTimeMillis();
+    try {
+      while( resultCount < numberOfOps ) {
+        Thread.sleep(100);
+      }
+    }
+    catch (InterruptedException ex) {
+    }
+    lc.shutdown();
 
     long end = System.currentTimeMillis();
     long time = end - start;

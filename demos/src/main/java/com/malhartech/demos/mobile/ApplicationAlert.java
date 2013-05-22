@@ -8,7 +8,6 @@ import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.Operator.OutputPort;
 import com.malhartech.api.DAG;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.io.PubSubWebSocketInputOperator;
@@ -16,8 +15,8 @@ import com.malhartech.lib.io.PubSubWebSocketOutputOperator;
 import com.malhartech.lib.io.SmtpOutputOperator;
 import com.malhartech.lib.testbench.RandomEventGenerator;
 import com.malhartech.lib.util.Alert;
+
 import java.net.URI;
-import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -31,21 +30,16 @@ public class ApplicationAlert implements ApplicationFactory
 {
   private static final Logger LOG = LoggerFactory.getLogger(ApplicationAlert.class);
   public static final String P_phoneRange = com.malhartech.demos.mobile.Application.class.getName() + ".phoneRange";
-  private String ajaxServerAddr = null;
   private Range<Integer> phoneRange = Ranges.closed(9900000, 9999999);
 
-  private void configure(Configuration conf)
+  private void configure(DAG dag, Configuration conf)
   {
-
-    this.ajaxServerAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
-    LOG.debug(String.format("\n******************* Server address was %s", this.ajaxServerAddr));
-
-    conf.set(DAG.STRAM_MAX_CONTAINERS.name(), "1");
+    dag.setAttribute(DAG.STRAM_MAX_CONTAINERS, 1);
     if (LAUNCHMODE_YARN.equals(conf.get(DAG.STRAM_LAUNCH_MODE))) {
       // settings only affect distributed mode
-      conf.setIfUnset(DAG.STRAM_CONTAINER_MEMORY_MB.name(), "2048");
-      conf.setIfUnset(DAG.STRAM_MASTER_MEMORY_MB.name(), "1024");
-      conf.setIfUnset(DAG.STRAM_MAX_CONTAINERS.name(), "1");
+      dag.getAttributes().attr(DAG.STRAM_CONTAINER_MEMORY_MB).setIfAbsent(2048);
+      dag.getAttributes().attr(DAG.STRAM_MASTER_MEMORY_MB).setIfAbsent(1024);
+      dag.getAttributes().attr(DAG.STRAM_MAX_CONTAINERS).setIfAbsent(1);
     }
     else if (LAUNCHMODE_LOCAL.equals(conf.get(DAG.STRAM_LAUNCH_MODE))) {
     }
@@ -61,12 +55,10 @@ public class ApplicationAlert implements ApplicationFactory
     System.out.println("Phone range: " + this.phoneRange);
   }
 
-
   @Override
-  public DAG getApplication(Configuration conf)
+  public void getApplication(DAG dag, Configuration conf)
   {
-    configure(conf);
-    DAG dag = new DAG(conf);
+    configure(dag, conf);
     dag.setAttribute(DAG.STRAM_APPNAME, "MobileAlertApplication");
     dag.setAttribute(DAG.STRAM_DEBUG, true);
 
@@ -126,6 +118,5 @@ public class ApplicationAlert implements ApplicationFactory
     mailOper.setUseSsl(true);
 
     dag.addStream("alert_mail", alertOper.alert1, mailOper.input).setInline(true);
-    return dag;
   }
 }

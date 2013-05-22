@@ -9,6 +9,7 @@ import com.malhartech.api.DAG;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.util.AbstractSqlStreamOperator;
 import com.malhartech.lib.util.DerbySqlStreamOperator;
+
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -19,9 +20,8 @@ import org.apache.hadoop.conf.Configuration;
 public class ApplicationWithDerbySQL implements ApplicationFactory
 {
   @Override
-  public DAG getApplication(Configuration conf) {
+  public void getApplication(DAG dag, Configuration conf) {
     String[] symbols = {"YHOO","GOOG","AAPL","FB","AMZN","NFLX","IBM"};
-    DAG dag = new DAG(conf);
 
     YahooFinanceCSVInputOperator input1 = dag.addOperator("input1", new YahooFinanceCSVInputOperator());
     YahooFinanceCSVInputOperator input2 = dag.addOperator("input2", new YahooFinanceCSVInputOperator());
@@ -57,6 +57,5 @@ public class ApplicationWithDerbySQL implements ApplicationFactory
 
     dag.addStream("result_console", sqlOper.result, consoleOperator.input);
 
-    return dag;
   }
 }

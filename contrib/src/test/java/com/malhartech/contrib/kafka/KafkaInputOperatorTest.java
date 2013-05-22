@@ -7,8 +7,8 @@ package com.malhartech.contrib.kafka;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DAG;
 import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.LocalMode;
 import com.malhartech.api.Operator;
-import com.malhartech.stram.StramLocalCluster;
 import com.malhartech.stram.support.StramTestSupport;
 import com.malhartech.stram.support.StramTestSupport.WaitCondition;
 import java.io.File;
@@ -41,7 +41,7 @@ public class KafkaInputOperatorTest
   private NIOServerCnxn.Factory standaloneServerFactory;
   private final String zklogdir = "/tmp/zookeeper-server-data";
   private final String kafkalogdir = "/tmp/kafka-server-data";
-  private boolean useZookeeper = true;  // standard consumer use zookeeper, whereas simpleConsumer don't
+  private final boolean useZookeeper = true;  // standard consumer use zookeeper, whereas simpleConsumer don't
   static AtomicInteger tupleCount = new AtomicInteger();
 
   public void startZookeeper()
@@ -178,6 +178,7 @@ public class KafkaInputOperatorTest
    */
   public static class KafkaStringSinglePortInputOperator extends KafkaSinglePortInputOperator<String>
   {
+    @Override
     public ConsumerConfig createKafkaConsumerConfig()
     {
       Properties props = new Properties();
@@ -279,7 +280,8 @@ public class KafkaInputOperatorTest
     //p.close();
 
     // Create DAG for testing.
-    DAG dag = new DAG();
+    LocalMode lma = LocalMode.newInstance();
+    DAG dag = lma.getDAG();
     // Create KafkaStringSinglePortInputOperator
     KafkaStringSinglePortInputOperator node = dag.addOperator("Kafka message consumer", KafkaStringSinglePortInputOperator.class);
     if (consumerType.equals("standard")) {
@@ -296,7 +298,7 @@ public class KafkaInputOperatorTest
     dag.addStream("Kafka message", node.outputPort, collector.inputPort).setInline(true);
 
     // Create local cluster
-    final StramLocalCluster lc = new StramLocalCluster(dag);
+    final LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(false);
 
     lc.runAsync();

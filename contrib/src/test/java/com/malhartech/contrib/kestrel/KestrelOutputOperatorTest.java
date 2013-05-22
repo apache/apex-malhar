@@ -6,7 +6,6 @@ package com.malhartech.contrib.kestrel;
 
 import com.malhartech.api.*;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.stram.StramLocalCluster;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -143,6 +142,7 @@ public class KestrelOutputOperatorTest
       this.testNum = testNum;
     }
 
+    @Override
     public void deactivate()
     {
     }
@@ -157,7 +157,8 @@ public class KestrelOutputOperatorTest
   {
     final int testNum = 3;
 
-    DAG dag = new DAG();
+    LocalMode lma = LocalMode.newInstance();
+    DAG dag = lma.getDAG();
     SourceModule source = dag.addOperator("source", SourceModule.class);
     source.setTestNum(testNum);
     TestKestrelOutputOperator producer = dag.addOperator("producer", new TestKestrelOutputOperator());
@@ -169,24 +170,15 @@ public class KestrelOutputOperatorTest
     KestrelMessageReceiver consumer = new KestrelMessageReceiver();
     consumer.setup();
 
-    final StramLocalCluster lc = new StramLocalCluster(dag);
-    lc.setHeartbeatMonitoringEnabled(false);
+    final LocalMode.Controller lc = lma.getController();
+    lc.runAsync();
 
-    new Thread("LocalClusterController")
-    {
-      @Override
-      public void run()
-      {
-        try {
-          Thread.sleep(1000);
-        }
-        catch (InterruptedException ex) {
-        }
-        lc.shutdown();
-      }
-    }.start();
-
-    lc.run();
+    try {
+      Thread.sleep(1000);
+    }
+    catch (InterruptedException ex) {
+    }
+    lc.shutdown();
 
     junit.framework.Assert.assertEquals("emitted value for testNum was ", testNum * 3, consumer.count);
     for (Map.Entry<String, Integer> e: consumer.dataMap.entrySet()) {

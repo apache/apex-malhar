@@ -20,6 +20,7 @@ import com.malhartech.lib.testbench.EventClassifier;
 import com.malhartech.lib.testbench.EventGenerator;
 import com.malhartech.lib.testbench.FilteredEventClassifier;
 import com.malhartech.lib.testbench.ThroughputCounter;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,15 +64,15 @@ public class Application implements ApplicationFactory
     generatorMaxWindowsCount = 1000000;
   }
 
-  private void configure(Configuration conf)
+  private void configure(DAG dag, Configuration conf)
   {
 
     if (LAUNCHMODE_YARN.equals(conf.get(DAG.STRAM_LAUNCH_MODE))) {
       setLocalMode();
       // settings only affect distributed mode
-      conf.setIfUnset(DAG.STRAM_CONTAINER_MEMORY_MB.name(), "2048");
-      conf.setIfUnset(DAG.STRAM_MASTER_MEMORY_MB.name(), "1024");
-      conf.setIfUnset(DAG.STRAM_MAX_CONTAINERS.name(), "1");
+      dag.getAttributes().attr(DAG.STRAM_CONTAINER_MEMORY_MB).setIfAbsent(2048);
+      dag.getAttributes().attr(DAG.STRAM_MASTER_MEMORY_MB).setIfAbsent(1024);
+      dag.getAttributes().attr(DAG.STRAM_MAX_CONTAINERS).setIfAbsent(1);
     }
     else if (LAUNCHMODE_LOCAL.equals(conf.get(DAG.STRAM_LAUNCH_MODE))) {
       setLocalMode();
@@ -198,11 +199,10 @@ public class Application implements ApplicationFactory
   }
 
   @Override
-  public DAG getApplication(Configuration conf)
+  public void getApplication(DAG dag, Configuration conf)
   {
-    configure(conf);
-    DAG dag = new DAG(conf);
-    dag.setAttribute(DAG.STRAM_APPNAME, "AdsApplication");
+    configure(dag, conf);
+    dag.setAttribute(DAG.STRAM_APPNAME, "AdsDevApplication");
     dag.setAttribute(DAG.STRAM_WINDOW_SIZE_MILLIS, WINDOW_SIZE_MILLIS); // set the streaming window size to 1 millisec
 
     //dag.getAttributes().attr(DAG.STRAM_MAX_CONTAINERS).setIfAbsent(9);
@@ -267,7 +267,6 @@ public class Application implements ApplicationFactory
     dag.addStream("ctrdata", ctr.quotient, ctrconsole).setInline(allInline);
     dag.addStream("tuplecount", tuple_counter.count, viewcountconsole).setInline(allInline);
 
-    return dag;
   }
 
 }

@@ -7,6 +7,7 @@ package com.malhartech.contrib.zmq;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DAG;
 import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.LocalMode;
 import com.malhartech.api.Operator;
 import java.util.HashMap;
 
@@ -16,8 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
-import com.malhartech.dag.OperatorContext;
-import com.malhartech.dag.TestSink;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -130,7 +131,9 @@ public class ZeroMQInputOperatorTest
   @Test
   public void testDag() throws InterruptedException, Exception {
       final int testNum = 3;
-    DAG dag = new DAG();
+    LocalMode lma = LocalMode.newInstance();
+    DAG dag = lma.getDAG();
+
     final ZeroMQMessageGenerator publisher = new ZeroMQMessageGenerator();
     publisher.setup();
 
@@ -154,7 +157,7 @@ public class ZeroMQInputOperatorTest
       }
     }.start();
 
-    final StramLocalCluster lc = new StramLocalCluster(dag);
+    final LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(false);
 
     new Thread("LocalClusterController")

@@ -7,7 +7,7 @@ package com.malhartech.contrib.memcache;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DAG;
 import com.malhartech.api.DefaultInputPort;
-import com.malhartech.stram.StramLocalCluster;
+import com.malhartech.api.LocalMode;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -86,7 +86,8 @@ public class MemcacheInputOperatorBenchmark
     gen.generateData();
     gen.teardown();
 
-    DAG dag = new DAG();
+    LocalMode lma = LocalMode.newInstance();
+    DAG dag = lma.getDAG();
     final TestMemcacheInputOperator input = dag.addOperator("input", TestMemcacheInputOperator.class);
     CollectorModule<Object> collector = dag.addOperator("collector", new CollectorModule<Object>());
 
@@ -95,32 +96,25 @@ public class MemcacheInputOperatorBenchmark
 
     dag.addStream("stream",input.outputPort, collector.inputPort);
 
-    final StramLocalCluster lc = new StramLocalCluster(dag);
-    lc.setHeartbeatMonitoringEnabled(false);
-    long start = System.currentTimeMillis();
-    new Thread("LocalClusterController")
-    {
-      @Override
-      public void run()
-      {
-          while (true) {
-            if (resultCount < numberOfOps) {
-              try {
-                Thread.sleep(100);
-              }
-              catch (InterruptedException ex) {
-                logger.debug(ex.toString());
-              }
-            }
-            else {
-              break;
-            }
-          }
-        lc.shutdown();
-      }
-    }.start();
+    final LocalMode.Controller lc = lma.getController();
+    lc.runAsync();
 
-    lc.run();
+    long start = System.currentTimeMillis();
+    while (true) {
+      if (resultCount < numberOfOps) {
+        try {
+          Thread.sleep(100);
+        }
+        catch (InterruptedException ex) {
+          logger.debug(ex.toString());
+        }
+      }
+      else {
+        break;
+      }
+    }
+    lc.shutdown();
+
     long end = System.currentTimeMillis();
     long time = end - start;
     System.out.println("processed "+numberOfOps+" tuples in DAG used "+time+" ms or "+numberOfOps*1.0/time*1000.0+" ops");

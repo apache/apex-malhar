@@ -3,11 +3,17 @@
  */
 package com.malhartech.lib.math;
 
+import com.malhartech.api.DefaultOutputPort;
+import com.malhartech.api.BaseOperator;
+import com.malhartech.api.DefaultInputPort;
+import com.malhartech.api.InputOperator;
 import com.malhartech.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.*;
 import com.malhartech.engine.TestSink;
 import com.malhartech.stram.StramLocalCluster;
+import com.malhartech.stram.plan.logical.LogicalPlan;
+
 import java.util.ArrayList;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -138,7 +144,7 @@ public class SumTest
   public void partitionTest()
   {
     try {
-      DAG dag = new DAG();
+      LogicalPlan dag = new LogicalPlan();
       int N = 4; // number of partitions.
 
       TestInputOperator test = dag.addOperator("test", new TestInputOperator());

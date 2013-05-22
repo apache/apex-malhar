@@ -6,7 +6,6 @@ package com.malhartech.contrib.kestrel;
 
 import com.malhartech.api.*;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.stram.StramLocalCluster;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -143,6 +142,7 @@ public class KestrelOutputOperatorBenchmark
       this.testNum = testNum;
     }
 
+    @Override
     public void deactivate()
     {
     }
@@ -157,7 +157,8 @@ public class KestrelOutputOperatorBenchmark
   {
     final int testNum = 20000;
 
-    DAG dag = new DAG();
+    LocalMode lma = LocalMode.newInstance();
+    DAG dag = lma.getDAG();
     SourceModule source = dag.addOperator("source", SourceModule.class);
     source.setTestNum(testNum);
     TestKestrelOutputOperator producer = dag.addOperator("producer", new TestKestrelOutputOperator());
@@ -169,33 +170,24 @@ public class KestrelOutputOperatorBenchmark
     final KestrelMessageReceiver consumer = new KestrelMessageReceiver();
     consumer.setup();
 
-    final StramLocalCluster lc = new StramLocalCluster(dag);
-    lc.setHeartbeatMonitoringEnabled(false);
+    final LocalMode.Controller lc = lma.getController();
+    lc.runAsync();
 
-    new Thread("LocalClusterController")
-    {
-      @Override
-      public void run()
-      {
-        try {
-          while (true) {
-            if (consumer.count < testNum * 3) {
-              if( consumer.count % 1000 == 0 )
-                logger.debug("consumer.count:"+consumer.count);
-              Thread.sleep(10);
-            }
-            else {
-              break;
-            }
-          }
+    try {
+      while (true) {
+        if (consumer.count < testNum * 3) {
+          if( consumer.count % 1000 == 0 )
+            logger.debug("consumer.count:"+consumer.count);
+          Thread.sleep(10);
         }
-        catch (InterruptedException ex) {
+        else {
+          break;
         }
-        lc.shutdown();
       }
-    }.start();
-
-    lc.run();
+    }
+    catch (InterruptedException ex) {
+    }
+    lc.shutdown();
 
     junit.framework.Assert.assertEquals("emitted value for testNum was ", testNum * 3, consumer.count);
     for (Map.Entry<String, Integer> e : consumer.dataMap.entrySet()) {

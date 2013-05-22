@@ -1,4 +1,4 @@
-package com.malhartech.demos.samples.math;
+package com.malhartech.lib.samples.math;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,15 +9,15 @@ import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
 
 /**
- * Input operator to generate hash map on single value, required for sample Script operator application.
+ * Input port operator for generating random values on key, tuples are HashMap for key/values.<br>
+ * Key(s) : key1, key2, key3, key4, key5. <br>
  * 
  * @author Dinesh Prasad (dinesh@malhar-inc.com)
- *
  */
-public class SingleKeyValMap implements InputOperator
+public class RandomKeyValMap implements InputOperator
 {
 
-	public final transient DefaultOutputPort<Map<String, Object>> outport = new DefaultOutputPort<Map<String, Object>>(
+	public final transient DefaultOutputPort<Map<String, Integer>> outport = new DefaultOutputPort<Map<String, Integer>>(
 			this);
 	private Random random = new Random(11111);
 
@@ -52,14 +52,15 @@ public class SingleKeyValMap implements InputOperator
 	@Override
 	public void emitTuples()
 	{
-		HashMap<String, Object> map = new HashMap<String, Object>();
-		map.put("val", random.nextInt());
+		HashMap<String, Integer> map = new HashMap<String, Integer>();
+		Integer val = new Integer(Math.abs(random.nextInt()) % 100);
+		Integer val1 = new Integer(Math.abs(random.nextInt()) % 100);
+		map.put(val.toString(), val1);
 		outport.emit(map);
 		try
 		{
 			Thread.sleep(500);
-		} catch (Exception e)
-		{
+		} catch(Exception e) {
 		}
 	}
 

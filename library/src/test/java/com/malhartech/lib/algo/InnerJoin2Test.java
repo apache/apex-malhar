@@ -6,11 +6,11 @@ package com.malhartech.lib.algo;
 
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DAG;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.stram.StramLocalCluster;
+import com.malhartech.stram.plan.logical.LogicalPlan;
 import com.malhartech.stram.support.StramTestSupport;
 import com.malhartech.stram.support.StramTestSupport.WaitCondition;
 import java.util.ArrayList;
@@ -153,7 +153,7 @@ public class InnerJoin2Test
   @Test
   public void testDag() throws Exception
   {
-    DAG dag = new DAG();
+    LogicalPlan dag = new LogicalPlan();
     SourceModule1 input1 = dag.addOperator("input1", SourceModule1.class);
     SourceModule2 input2 = dag.addOperator("input2", SourceModule2.class);
 //    input1.setStart(0);

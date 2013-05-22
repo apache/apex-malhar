@@ -4,6 +4,7 @@
  */
 package com.malhartech.demos.ads;
 
+import com.malhartech.api.LocalMode;
 import com.malhartech.stram.DAGPropertiesBuilder;
 import com.malhartech.stram.StramLocalCluster;
 import java.io.IOException;
@@ -30,13 +31,16 @@ public class ApplicationTest {
 
   @Test
   public void testJavaConfig() throws IOException, Exception {
+    LocalMode lma = LocalMode.newInstance();
+
     Application app = new Application();
     app.setUnitTestMode(); // terminate quickly
     //app.setLocalMode(); // terminate with a long run
+    app.getApplication(lma.getDAG(), new Configuration(false));
     try {
-      StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));
+      LocalMode.Controller lc = lma.getController();
       lc.setHeartbeatMonitoringEnabled(false);
-      lc.run();
+      lc.run(20000);
     } catch (ConstraintViolationException e) {
       Assert.fail("constraint violations: " + e.getConstraintViolations());
     }

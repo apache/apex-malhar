@@ -87,6 +87,7 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>malhar-stram</artifactId>
       <version>${project.version}</version>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>com.malhartech</groupId>

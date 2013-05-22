@@ -4,10 +4,11 @@
 package com.malhartech.lib.testbench;
 
 import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DAG;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.Operator;
 import com.malhartech.stram.StramLocalCluster;
+import com.malhartech.stram.plan.logical.LogicalPlan;
+
 import java.util.logging.Level;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -69,7 +70,7 @@ public class EventGeneratorBenchmark
   @Category(com.malhartech.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
-    DAG dag = new DAG();
+    LogicalPlan dag = new LogicalPlan();
     EventGenerator node = dag.addOperator("eventgen", EventGenerator.class);
     CollectorOperator collector = dag.addOperator("data collector", CollectorOperator.class);
     dag.addStream("stest", node.string_data, collector.sdata).setInline(true);

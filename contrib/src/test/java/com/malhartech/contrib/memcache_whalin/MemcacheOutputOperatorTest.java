@@ -6,7 +6,6 @@ package com.malhartech.contrib.memcache_whalin;
 
 import com.malhartech.api.*;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.stram.StramLocalCluster;
 import com.whalin.MemCached.MemCachedClient;
 import com.whalin.MemCached.SockIOPool;
 import java.util.HashMap;
@@ -14,7 +13,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ArrayBlockingQueue;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
@@ -164,6 +162,7 @@ public class MemcacheOutputOperatorTest
       this.testNum = testNum;
     }
 
+    @Override
     public void deactivate()
     {
     }
@@ -178,7 +177,8 @@ public class MemcacheOutputOperatorTest
   {
     final int testNum = 3;
 
-    DAG dag = new DAG();
+    LocalMode lma = LocalMode.newInstance();
+    DAG dag = lma.getDAG();
     SourceModule source = dag.addOperator("source", SourceModule.class);
     source.setTestNum(testNum);
     TestMemcacheOutputOperator producer = dag.addOperator("producer", new TestMemcacheOutputOperator());
@@ -189,24 +189,15 @@ public class MemcacheOutputOperatorTest
     MemcacheMessageReceiver consumer = new MemcacheMessageReceiver();
     consumer.setup();
 
-    final StramLocalCluster lc = new StramLocalCluster(dag);
-    lc.setHeartbeatMonitoringEnabled(false);
+    final LocalMode.Controller lc = lma.getController();
+    lc.runAsync();
 
-    new Thread("LocalClusterController")
-    {
-      @Override
-      public void run()
-      {
-        try {
-          Thread.sleep(2000);
-        }
-        catch (InterruptedException ex) {
-        }
-        lc.shutdown();
-      }
-    }.start();
-
-    lc.run();
+    try {
+      Thread.sleep(2000);
+    }
+    catch (InterruptedException ex) {
+    }
+    lc.shutdown();
 
     System.out.println("consumer count:"+consumer.count);
     junit.framework.Assert.assertEquals("emitted value for testNum was ", testNum * 3, consumer.count);

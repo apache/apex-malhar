@@ -4,10 +4,11 @@
 package com.malhartech.lib.testbench;
 
 import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DAG;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.common.KeyValPair;
 import com.malhartech.stram.StramLocalCluster;
+import com.malhartech.stram.plan.logical.LogicalPlan;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -153,7 +154,7 @@ public class SeedEventGeneratorTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testSchemaNodeProcessing(boolean doseedkey) throws Exception
   {
-    DAG dag = new DAG();
+    LogicalPlan dag = new LogicalPlan();
 
     SeedEventGenerator node = dag.addOperator("seedeventgen", SeedEventGenerator.class);
     CollectorOperator collector = dag.addOperator("data collector", new CollectorOperator());

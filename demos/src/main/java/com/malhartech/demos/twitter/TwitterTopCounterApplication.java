@@ -66,9 +66,8 @@ public class TwitterTopCounterApplication implements ApplicationFactory
   }
 
   @Override
-  public DAG getApplication(Configuration conf)
+  public void getApplication(DAG dag, Configuration conf)
   {
-    DAG dag = new DAG(conf);
     dag.setAttribute(DAG.STRAM_APPNAME, "TwitterDevApplication");
 
     // Setup the operator to get the data from twitter sample stream injected into the system.
@@ -94,7 +93,6 @@ public class TwitterTopCounterApplication implements ApplicationFactory
     // Count top 10
     dag.addStream("TopURLs", topCounts.output, consoleOutput(dag, "topURLs")).setInline(inline);
 
-    return dag;
   }
 
 }

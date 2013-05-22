@@ -6,7 +6,6 @@ package com.malhartech.contrib.rabbitmq;
 
 import com.malhartech.api.*;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.stram.StramLocalCluster;
 import com.rabbitmq.client.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -44,7 +43,7 @@ public class RabbitMQOutputOperatorBenchmark
   {
     public HashMap<String, Integer> dataMap = new HashMap<String, Integer>();
     public int count = 0;
-    private String host = "localhost";
+    private final String host = "localhost";
     ConnectionFactory connFactory = new ConnectionFactory();
 //  QueueingConsumer consumer = null;
     Connection connection = null;
@@ -176,6 +175,7 @@ public class RabbitMQOutputOperatorBenchmark
       this.testNum = testNum;
     }
 
+    @Override
     public void deactivate()
     {
     }
@@ -190,7 +190,8 @@ public class RabbitMQOutputOperatorBenchmark
   {
     final int testNum = 100000;
 
-    DAG dag = new DAG();
+    LocalMode lma = LocalMode.newInstance();
+    DAG dag = lma.getDAG();
     final RabbitMQMessageReceiver receiver = new RabbitMQMessageReceiver();
     receiver.setup();
 
@@ -202,32 +203,23 @@ public class RabbitMQOutputOperatorBenchmark
     dag.addStream("Stream", source.outPort, collector.inputPort).setInline(true);
 
 
-    final StramLocalCluster lc = new StramLocalCluster(dag);
-    lc.setHeartbeatMonitoringEnabled(false);
+    final LocalMode.Controller lc = lma.getController();
+    lc.runAsync();
 
-    new Thread("LocalClusterController")
-    {
-      @Override
-      public void run()
-      {
-        try {
-          Thread.sleep(1000);
-          while (true) {
-            if (receiver.count < testNum * 3) {
-              Thread.sleep(10);
-            }
-            else {
-              break;
-            }
-          }
+    try {
+      Thread.sleep(1000);
+      while (true) {
+        if (receiver.count < testNum * 3) {
+          Thread.sleep(10);
         }
-        catch (InterruptedException ex) {
+        else {
+          break;
         }
-        lc.shutdown();
       }
-    }.start();
-
-    lc.run();
+    }
+    catch (InterruptedException ex) {
+    }
+    lc.shutdown();
 
     Assert.assertEquals("emitted value for testNum was ", testNum * 3, receiver.count);
     for (Map.Entry<String, Integer> e : receiver.dataMap.entrySet()) {

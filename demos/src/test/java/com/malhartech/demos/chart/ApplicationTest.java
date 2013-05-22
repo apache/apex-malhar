@@ -4,10 +4,9 @@
  */
 package com.malhartech.demos.chart;
 
-import com.malhartech.demos.chart.*;
-import com.malhartech.stram.StramLocalCluster;
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
+
+import com.malhartech.api.LocalMode;
 
 /**
  * Run Yahoo Finance application demo.
@@ -16,7 +15,6 @@ import org.junit.Test;
  */
 public class ApplicationTest
 {
-
   /**
    * This will run for ever.
    *
@@ -25,51 +23,7 @@ public class ApplicationTest
   @Test
   public void testApplication() throws Exception
   {
-    YahooFinanceApplication app = new YahooFinanceApplication();
-    StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));
-    lc.setHeartbeatMonitoringEnabled(false);
-    lc.run();
+    LocalMode.runApp(new YahooFinanceApplication(), 60000);
   }
-
-  /**
-   * This will run for specified sleep time.
-   *
-   * @throws Exception
-   */
- //@Test
-  public void testApplication2() throws Exception
-  {
-    YahooFinanceApplication app = new YahooFinanceApplication();
-    final StramLocalCluster lc = new StramLocalCluster(app.getApplication(new Configuration(false)));
-    new Thread()
-    {
-      @Override
-      public void run()
-      {
-        try {
-          Thread.sleep(20000);
-        }
-        catch (InterruptedException ex) {
-        }
-        lc.shutdown();
-      }
-    }.start();
-
-    lc.run();
-  }
-
-  //@Test
-/*
-  public void testTypeCompatibility() {
-
-    OutputPort<KeyValPair<String, Double>> oport = null;
-    InputPort<KeyValPair<String, Double>> iport1 = null;
-    InputPort<KeyValPair<String, ? extends Number>> iport2 = null;
-
-    DAG dag = new DAG();
-    dag.addStream("id", oport, iport1, iport2);
-
-  }
-*/
 
 }

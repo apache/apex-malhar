@@ -1,4 +1,4 @@
-package com.malhartech.demos.samples.io;
+package com.malhartech.lib.samples.io;
 
 import org.apache.hadoop.conf.Configuration;
 
@@ -12,16 +12,15 @@ import com.malhartech.lib.io.LocalFsInputOperator;
  * <b>Operator : </b> AverageKeyVal <br>
  * <bClass : </b> com.malhartech.lib.math.AverageKeyVal
  * This application reads local demo text file and relays text content to output console.
- * 
+ *
  * @author Dinesh Prasad(dinesh@malhar-inc.com)
  */
 public class LocalFsInputSample implements ApplicationFactory
 {
 	@Override
-	public DAG getApplication(Configuration conf)
+	public void getApplication(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-		DAG dag = new DAG(conf);
 		dag.setAttribute(DAG.STRAM_APPNAME, "MobileDevApplication");
 		dag.setAttribute(DAG.STRAM_DEBUG, true);
 
@@ -38,6 +37,5 @@ public class LocalFsInputSample implements ApplicationFactory
 		dag.addStream("outstream", reader.outport, console.input);
 
 		// done
-		return dag;
 	}
 }

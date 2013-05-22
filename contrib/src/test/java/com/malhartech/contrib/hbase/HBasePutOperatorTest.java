@@ -5,7 +5,7 @@
 package com.malhartech.contrib.hbase;
 
 import com.malhartech.api.DAG;
-import com.malhartech.stram.StramLocalCluster;
+import com.malhartech.api.LocalMode;
 import junit.framework.Assert;
 import org.apache.hadoop.hbase.client.Put;
 import org.junit.Test;
@@ -29,7 +29,9 @@ public class HBasePutOperatorTest
   {
     try {
       HBaseTestHelper.clearHBase();
-      DAG dag = new DAG();
+      LocalMode lma = LocalMode.newInstance();
+      DAG dag = lma.getDAG();
+
       dag.setAttribute(DAG.STRAM_APPNAME, "HBasePutOperatorTest");
       HBaseRowTupleGenerator rtg = dag.addOperator("tuplegenerator", HBaseRowTupleGenerator.class);
       TestHBasePutOperator thop = dag.addOperator("testhbaseput", TestHBasePutOperator.class);
@@ -39,7 +41,7 @@ public class HBasePutOperatorTest
       thop.setZookeeperQuorum("127.0.0.1");
       thop.setZookeeperClientPort(2181);
 
-      StramLocalCluster lc = new StramLocalCluster(dag);
+      LocalMode.Controller lc = lma.getController();
       lc.setHeartbeatMonitoringEnabled(false);
       lc.run(30000);
       /*

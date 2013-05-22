@@ -4,8 +4,7 @@
  */
 package com.malhartech.demos.pi;
 
-import com.malhartech.stram.StramLocalCluster;
-import org.apache.hadoop.conf.Configuration;
+import com.malhartech.api.LocalMode;
 import org.junit.Test;
 
 /**
@@ -17,8 +16,6 @@ public class CalculatorTest
   @Test
   public void testSomeMethod() throws Exception
   {
-    Calculator calculator = new Calculator();
-    final StramLocalCluster lc = new StramLocalCluster(calculator.getApplication(new Configuration(false)));
-    lc.run(10000);
+    LocalMode.runApp(new Calculator(), 10000);
   }
 }

@@ -4,7 +4,8 @@
  */
 package com.malhartech.demos.wordcount;
 
-import com.malhartech.stram.StramLocalCluster;
+import com.malhartech.api.LocalMode;
+import com.malhartech.demos.wordcount.Application;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 
@@ -21,26 +22,10 @@ public class ApplicationTest
   @Test
   public void testSomeMethod() throws Exception
   {
-    Application topology = new Application();
-    final StramLocalCluster lc = new StramLocalCluster(topology.getApplication(new Configuration(false)));
+    LocalMode lma = LocalMode.newInstance();
+    new Application().getApplication(lma.getDAG(), new Configuration(false));
+    LocalMode.Controller lc = lma.getController();
 
-//    new Thread("LocalClusterController")
-//    {
-//      @Override
-//      public void run()
-//      {
-//        try {
-//          while(true) {
-//          Thread.sleep(1000);
-//
-//          }
-//        }
-//        catch (InterruptedException ex) {
-//        }
-//
-//        lc.shutdown();
-//      }
-//    }.start();
     long start = System.currentTimeMillis();
     lc.run();
     long end = System.currentTimeMillis();
