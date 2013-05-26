@@ -111,7 +111,7 @@ public class MatchAllStringMap<K> extends BaseMatchOperator<K, String>
       return new UnifierBooleanAnd();
     }
   };
-  protected transient boolean result = true;
+  protected boolean result = true;
 
   /**
    * Emits the match flag

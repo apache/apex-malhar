@@ -98,15 +98,13 @@ public class DistinctMap<K, V> extends BaseKeyValueOperator<K, V>
   };
 
 
-  protected transient HashMap<K, HashMap<V, Object>> mapkeyval = new HashMap<K, HashMap<V, Object>>();
+  protected HashMap<K, HashMap<V, Object>> mapkeyval = new HashMap<K, HashMap<V, Object>>();
 
   /**
    * Clears the cache/hash
-   *
-   * @param windowId
    */
   @Override
-  public void beginWindow(long windowId)
+  public void endWindow()
   {
     mapkeyval.clear();
   }

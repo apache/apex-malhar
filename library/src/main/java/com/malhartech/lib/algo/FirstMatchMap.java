@@ -92,7 +92,7 @@ public class FirstMatchMap<K, V extends Number> extends BaseMatchOperator<K,V>
 
   @OutputPortFieldAnnotation(name="first")
   public final transient DefaultOutputPort<HashMap<K, V>> first = new DefaultOutputPort<HashMap<K, V>>(this);
-  transient boolean emitted = false;
+  boolean emitted = false;
 
   /**
    * Resets emitted flag to false

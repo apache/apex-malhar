@@ -114,8 +114,8 @@ public class InnerJoin<K,V> extends BaseKeyValueOperator<K,V>
   HashMap<K,Object> filter1 = new HashMap<K,Object>();
   HashMap<K,Object> filter2 = new HashMap<K,Object>();
 
-  protected transient HashMap<V, ArrayList<HashMap<K, V>>> map1 = new HashMap<V, ArrayList<HashMap<K, V>>>();
-  protected transient HashMap<V, ArrayList<HashMap<K, V>>> map2 = new HashMap<V, ArrayList<HashMap<K, V>>>();
+  protected HashMap<V, ArrayList<HashMap<K, V>>> map1 = new HashMap<V, ArrayList<HashMap<K, V>>>();
+  protected HashMap<V, ArrayList<HashMap<K, V>>> map2 = new HashMap<V, ArrayList<HashMap<K, V>>>();
 
 
   /**

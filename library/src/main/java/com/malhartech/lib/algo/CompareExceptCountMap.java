@@ -95,8 +95,8 @@ public class CompareExceptCountMap<K, V extends Number> extends MatchMap<K, V>
   };
 
 
-  protected transient int tcount = 0;
-  protected transient int icount = 0;
+  protected int tcount = 0;
+  protected int icount = 0;
 
   /**
    * Increments matched tuple count
@@ -119,17 +119,6 @@ public class CompareExceptCountMap<K, V extends Number> extends MatchMap<K, V>
   }
 
   /**
-   * Resets matched and non-matched values to 0
-   * @param windowId
-   */
-  @Override
-  public void beginWindow(long windowId)
-  {
-    tcount = 0;
-    icount = 0;
-  }
-
-  /**
    * Emits the counts
    */
   @Override
@@ -137,5 +126,7 @@ public class CompareExceptCountMap<K, V extends Number> extends MatchMap<K, V>
   {
     count.emit(new Integer(tcount));
     except.emit(new Integer(icount));
+    tcount = 0;
+    icount = 0;
   }
 }

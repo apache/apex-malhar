@@ -126,7 +126,7 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
   public final transient DefaultOutputPort<KeyValPair<K, Short>> sumShort = new DefaultOutputPort<KeyValPair<K, Short>>(this);
   @OutputPortFieldAnnotation(name = "sumFloat", optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, Float>> sumFloat = new DefaultOutputPort<KeyValPair<K, Float>>(this);
-  protected transient HashMap<K, SumEntry> sums = new HashMap<K, SumEntry>();
+  protected HashMap<K, SumEntry> sums = new HashMap<K, SumEntry>();
   protected boolean cumulative = false;
   protected boolean emitOnlyWhenChanged = false;
 

@@ -118,8 +118,8 @@ public class QuotientMap<K, V extends Number> extends BaseNumberKeyValueOperator
     map.put(cloneKey(key), val);
   }
 
-  protected transient HashMap<K, MutableDouble> numerators = new HashMap<K, MutableDouble>();
-  protected transient HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();
+  protected HashMap<K, MutableDouble> numerators = new HashMap<K, MutableDouble>();
+  protected HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();
   boolean countkey = false;
   int mult_by = 1;
 

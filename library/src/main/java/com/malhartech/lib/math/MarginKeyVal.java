@@ -132,8 +132,8 @@ public class MarginKeyVal<K, V extends Number> extends BaseNumberKeyValueOperato
   @OutputPortFieldAnnotation(name = "margin")
   public final transient DefaultOutputPort<KeyValPair<K, V>> margin = new DefaultOutputPort<KeyValPair<K, V>>(this);
 
-  protected transient HashMap<K, MutableDouble> numerators = new HashMap<K, MutableDouble>();
-  protected transient HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();
+  protected HashMap<K, MutableDouble> numerators = new HashMap<K, MutableDouble>();
+  protected HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();
   protected boolean percent = false;
 
   /**

@@ -95,17 +95,7 @@ public class LastMatchStringMap<K> extends BaseMatchOperator<K, String>
   };
   @OutputPortFieldAnnotation(name = "last")
   public final transient DefaultOutputPort<HashMap<K, String>> last = new DefaultOutputPort<HashMap<K, String>>(this);
-  protected transient HashMap<K, String> ltuple = null;
-
-  /**
-   * Clears cache/hash
-   * @param windowId
-   */
-  @Override
-  public void beginWindow(long windowId)
-  {
-    ltuple = null;
-  }
+  protected HashMap<K, String> ltuple = null;
 
   /**
    * Emits last matching tuple
@@ -116,5 +106,6 @@ public class LastMatchStringMap<K> extends BaseMatchOperator<K, String>
     if (ltuple != null) {
       last.emit(ltuple);
     }
+    ltuple = null;
   }
 }

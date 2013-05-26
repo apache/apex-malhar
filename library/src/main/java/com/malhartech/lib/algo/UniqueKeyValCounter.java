@@ -88,5 +88,6 @@ public class UniqueKeyValCounter<K,V> extends BaseUniqueKeyValueCounter<K,V>
     if (tuple != null) {
       count.emit(tuple);
     }
+    map.clear();
   }
 }

@@ -55,7 +55,7 @@ public class WindowedTopCounter<T> extends BaseOperator
    */
   @OutputPortFieldAnnotation(name = "output")
   public final transient DefaultOutputPort<Map<T, Integer>> output = new DefaultOutputPort<Map<T, Integer>>(this);
-  private transient PriorityQueue<WindowedHolder<T>> topCounter;
+  private PriorityQueue<WindowedHolder<T>> topCounter;
   private int windows;
   private int topCount = 10;
   private HashMap<T, WindowedHolder<T>> objects = new HashMap<T, WindowedHolder<T>>();
@@ -148,6 +148,7 @@ public class WindowedTopCounter<T> extends BaseOperator
     }
 
     output.emit(map);
+    topCounter.clear();
   }
 
   @Override

@@ -100,7 +100,7 @@ public class MaxKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
   @OutputPortFieldAnnotation(name = "max")
   public final transient DefaultOutputPort<KeyValPair<K, V>> max = new DefaultOutputPort<KeyValPair<K, V>>(this);
 
-  protected transient HashMap<K, V> highs = new HashMap<K, V>();
+  protected HashMap<K, V> highs = new HashMap<K, V>();
 
   /**
    * Emits all key,max value pairs.

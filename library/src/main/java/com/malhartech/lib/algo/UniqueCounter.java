@@ -93,6 +93,6 @@ public class UniqueCounter<K> extends BaseUniqueKeyCounter<K>
     if (tuple != null) {
       count.emit(tuple);
     }
+    map.clear();
   }
-
 }

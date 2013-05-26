@@ -107,8 +107,8 @@ public class AverageKeyVal<K> extends BaseNumberKeyValueOperator<K, Number>
   public final transient DefaultOutputPort<KeyValPair<K, Integer>> intAverage = new DefaultOutputPort<KeyValPair<K, Integer>>(this);
   @OutputPortFieldAnnotation(name = "longAverage")
   public final transient DefaultOutputPort<KeyValPair<K, Long>> longAverage = new DefaultOutputPort<KeyValPair<K, Long>>(this);
-  protected transient HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
-  protected transient HashMap<K, MutableLong> counts = new HashMap<K, MutableLong>();
+  protected HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
+  protected HashMap<K, MutableLong> counts = new HashMap<K, MutableLong>();
 
   /**
    * Emits average for each key in end window. Data is precomputed during process on input port

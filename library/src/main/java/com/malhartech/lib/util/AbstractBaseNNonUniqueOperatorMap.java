@@ -64,7 +64,7 @@ public abstract class AbstractBaseNNonUniqueOperatorMap<K, V> extends AbstractBa
     }
   }
 
-  protected transient HashMap<K, TopNSort<V>> kmap = new HashMap<K, TopNSort<V>>();
+  protected HashMap<K, TopNSort<V>> kmap = new HashMap<K, TopNSort<V>>();
 
   /**
    * Emits the result

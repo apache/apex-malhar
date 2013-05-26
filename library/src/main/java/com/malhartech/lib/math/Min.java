@@ -89,8 +89,8 @@ public class Min<V extends Number> extends BaseNumberValueOperator<V> implements
     }
   };
 
-  protected transient V low;
-  protected transient boolean flag = false;
+  protected V low;
+  protected boolean flag = false;
 
   /**
    * Emits the max. Override getValue if tuple type is mutable.
@@ -103,5 +103,6 @@ public class Min<V extends Number> extends BaseNumberValueOperator<V> implements
       min.emit(low);
     }
     flag = false;
+    low = null;
   }
 }

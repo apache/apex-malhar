@@ -81,8 +81,8 @@ public class Range<V extends Number> extends BaseNumberValueOperator<V>
     }
   };
 
-  protected transient V high = null;
-  protected transient V low = null;
+  protected V high = null;
+  protected V low = null;
 
 
   /**

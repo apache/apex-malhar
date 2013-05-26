@@ -162,7 +162,7 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
     }
   };
 
-  protected transient HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
+  protected HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
   protected boolean cumulative = false;
 
   public boolean isCumulative()

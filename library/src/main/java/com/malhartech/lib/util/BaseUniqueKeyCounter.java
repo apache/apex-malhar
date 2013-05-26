@@ -34,17 +34,5 @@ public class BaseUniqueKeyCounter<K> extends BaseKeyOperator<K>
    * Bucket counting mechanism.
    * Since we clear the bucket at the beginning of the window, we make this object transient.
    */
-  protected transient HashMap<K, MutableInt> map = new HashMap<K, MutableInt>();
-
-  /**
-   * Clears cache/hash
-   *
-   * @param windowId
-   */
-  @Override
-  public void beginWindow(long windowId)
-  {
-    map.clear();
-  }
-
+  protected HashMap<K, MutableInt> map = new HashMap<K, MutableInt>();
 }

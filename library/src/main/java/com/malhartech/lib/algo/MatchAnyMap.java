@@ -101,7 +101,7 @@ public class MatchAnyMap<K, V extends Number> extends BaseMatchOperator<K,V>
     }
   };
 
-  protected transient boolean result = false;
+  protected boolean result = false;
 
   /**
    * Resets match flag

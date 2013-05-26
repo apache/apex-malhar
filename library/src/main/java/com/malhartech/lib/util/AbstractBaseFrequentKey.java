@@ -31,7 +31,7 @@ public abstract class AbstractBaseFrequentKey<K> extends BaseKeyOperator<K>
     }
     count.increment();
   }
-  protected transient HashMap<K, MutableInt> keycount = new HashMap<K, MutableInt>();
+  protected HashMap<K, MutableInt> keycount = new HashMap<K, MutableInt>();
 
   /**
    * override emitTuple to decide the port to emit to
@@ -50,16 +50,6 @@ public abstract class AbstractBaseFrequentKey<K> extends BaseKeyOperator<K>
    * @return result of compareCount to be done by subclass
    */
   abstract public boolean compareCount(int val1, int val2);
-
-  /**
-   * Clears the cache/hash
-   * @param windowId
-   */
-  @Override
-  public void beginWindow(long windowId)
-  {
-    keycount.clear();
-  }
 
   /**
    * Emits the result.
@@ -99,5 +89,6 @@ public abstract class AbstractBaseFrequentKey<K> extends BaseKeyOperator<K>
       }
       emitList(elist);
     }
+    keycount.clear();
   }
 }

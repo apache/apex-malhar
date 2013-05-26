@@ -61,13 +61,13 @@ public class InvertIndexUniqueMap<K,V> extends BaseOperator
   HashMap<V, HashMap<K, Object>> map = new HashMap<V, HashMap<K, Object>>();
   HashMap<K, V> secondary_index = new HashMap<K, V>(5);
 
-  protected boolean hasIndex(String key)
+  protected boolean hasIndex(V key)
   {
     HashMap<K, Object> val = map.get(key);
     return (val != null) && !val.isEmpty();
   }
 
-  protected boolean hasSecondaryIndex(String key)
+  protected boolean hasSecondaryIndex(K key)
   {
     return (secondary_index.get(key) != null);
   }

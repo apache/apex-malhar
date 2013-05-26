@@ -152,8 +152,8 @@ public class Sum<V extends Number> extends BaseNumberValueOperator<V> implements
     }
   };
 
-  protected transient double sums = 0;
-  protected transient boolean tupleAvailable = false;
+  protected double sums = 0;
+  protected boolean tupleAvailable = false;
   protected boolean cumulative = false;
 
   public boolean isCumulative()

@@ -50,17 +50,6 @@ public abstract class AbstractBaseFrequentKeyValueMap<K, V> extends BaseKeyValue
   HashMap<K, HashMap<V, MutableInt>> keyvals = new HashMap<K, HashMap<V, MutableInt>>();
 
   /**
-   * Clears the cache/hash
-   *
-   * @param windowId
-   */
-  @Override
-  public void beginWindow(long windowId)
-  {
-    keyvals.clear();
-  }
-
-  /**
    * Override compareCount to decide most vs least
    *
    * @param val1
@@ -114,5 +103,6 @@ public abstract class AbstractBaseFrequentKeyValueMap<K, V> extends BaseKeyValue
         emitTuple(tuple);
       }
     }
+    keyvals.clear();
   }
 }

@@ -18,12 +18,12 @@ import org.apache.commons.collections.map.MultiValueMap;
 /**
  * <b>Not certified</b>
  * <b>Do Not Use</b>
- * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
 public class InnerJoin2 <K,V> extends BaseKeyValueOperator<K,V>
 {
-  public transient HashMap<K, ArrayList<HashMap<K,V>>> map1 = new HashMap<K, ArrayList<HashMap<K,V>>>();
-  public transient HashMap<K, ArrayList<HashMap<K,V>>> map2 = new HashMap<K, ArrayList<HashMap<K,V>>>();
+  public HashMap<K, ArrayList<HashMap<K,V>>> map1 = new HashMap<K, ArrayList<HashMap<K,V>>>();
+  public HashMap<K, ArrayList<HashMap<K,V>>> map2 = new HashMap<K, ArrayList<HashMap<K,V>>>();
+
   @OutputPortFieldAnnotation(name = "result")
   public final transient DefaultOutputPort<MultiValueMap> result = new DefaultOutputPort<MultiValueMap>(this);
 
@@ -77,8 +77,6 @@ public class InnerJoin2 <K,V> extends BaseKeyValueOperator<K,V>
       Entry<K,V> e1 = (Entry)it1.next();
       multimap.put(e1.getKey(), e1.getValue());
       result.emit(multimap);
-      //System.out.println("emitting:"+multimap.toString()+" emited "+emitedTuples+" list:"+list.toString());
-      //emitedTuples++;
     }
   }
 
@@ -88,16 +86,11 @@ public class InnerJoin2 <K,V> extends BaseKeyValueOperator<K,V>
       list = new ArrayList<HashMap<K,V>>();
       map.put(key, list);
     }
-    if( !list.contains(tuple) )
+    if( !list.contains(tuple) ) {
       list.add(tuple);
-//    map.put(key, list);
-//    System.out.println("3map size:"+map.size()+" list size:"+list.size()+" tuple:"+tuple.toString()+" list:"+list.toString()+" map:"+map.toString());
+    }
   }
 
-  @Override
-  public void beginWindow(long windowId) {
-    //System.out.println("Join beginWindow "+windowId);
-  }
   /**
    * Clears cache/hash for both ports
    */
@@ -106,7 +99,5 @@ public class InnerJoin2 <K,V> extends BaseKeyValueOperator<K,V>
   {
     map1.clear();
     map2.clear();
-    //System.out.println("Join Endwindow");
   }
-  //public int emitedTuples = 0;
 }

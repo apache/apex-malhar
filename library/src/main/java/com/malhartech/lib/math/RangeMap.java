@@ -98,8 +98,8 @@ public class RangeMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,
     }
   };
 
-  protected transient HashMap<K,V> high = new HashMap<K,V>();
-  protected transient HashMap<K,V> low = new HashMap<K,V>();
+  protected HashMap<K,V> high = new HashMap<K,V>();
+  protected HashMap<K,V> low = new HashMap<K,V>();
 
   /**
    * Emits range for each key. If no data is received, no emit is done

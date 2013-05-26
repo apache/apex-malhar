@@ -103,8 +103,8 @@ public class AverageMap<K, V extends Number> extends BaseNumberKeyValueOperator<
   {
   };
 
-  protected transient HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
-  protected transient HashMap<K, MutableLong> counts = new HashMap<K, MutableLong>();
+  protected HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
+  protected HashMap<K, MutableLong> counts = new HashMap<K, MutableLong>();
 
   /**
    * Emits average for each key in end window. Data is precomputed during process on input port

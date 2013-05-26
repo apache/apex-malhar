@@ -86,15 +86,13 @@ public class Distinct<K> extends BaseKeyOperator<K>
   };
   @OutputPortFieldAnnotation(name = "distinct")
   public final transient DefaultOutputPort<K> distinct = new DefaultOutputPort<K>(this);
-  protected transient HashMap<K, Object> map = new HashMap<K, Object>();
+  protected HashMap<K, Object> map = new HashMap<K, Object>();
 
   /**
    * Clears the cache/hash
-   *
-   * @param windowId
    */
   @Override
-  public void beginWindow(long windowId)
+  public void endWindow()
   {
     map.clear();
   }

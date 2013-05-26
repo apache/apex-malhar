@@ -91,8 +91,8 @@ public class CompareExceptCountStringMap<K> extends MatchStringMap<K, String>
     }
   };
 
-  protected transient int tcount = 0;
-  protected transient int icount = 0;
+  protected int tcount = 0;
+  protected int icount = 0;
 
   /**
    * Increments matched tuple count
@@ -116,17 +116,6 @@ public class CompareExceptCountStringMap<K> extends MatchStringMap<K, String>
     icount++;
   }
 
-  /**
-   * Resets matched and non-matched values to 0
-   *
-   * @param windowId
-   */
-  @Override
-  public void beginWindow(long windowId)
-  {
-    tcount = 0;
-    icount = 0;
-  }
 
   /**
    * Emits the counts
@@ -136,5 +125,7 @@ public class CompareExceptCountStringMap<K> extends MatchStringMap<K, String>
   {
     count.emit(tcount);
     except.emit(icount);
+    tcount = 0;
+    icount = 0;
   }
 }

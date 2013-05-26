@@ -120,8 +120,8 @@ public class MarginMap<K, V extends Number> extends BaseNumberKeyValueOperator<K
     }
   };
 
-  protected transient HashMap<K, MutableDouble> numerators = new HashMap<K, MutableDouble>();
-  protected transient HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();
+  protected HashMap<K, MutableDouble> numerators = new HashMap<K, MutableDouble>();
+  protected HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();
   boolean percent = false;
 
   /**

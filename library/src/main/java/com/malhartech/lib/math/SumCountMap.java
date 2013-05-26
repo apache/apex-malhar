@@ -182,8 +182,8 @@ public class SumCountMap<K, V extends Number> extends BaseNumberKeyValueOperator
       return new UnifierHashMapInteger<K>();
     }
   };
-  protected transient HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
-  protected transient HashMap<K, MutableInt> counts = new HashMap<K, MutableInt>();
+  protected HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
+  protected HashMap<K, MutableInt> counts = new HashMap<K, MutableInt>();
   protected boolean cumulative = false;
 
   public boolean isCumulative()

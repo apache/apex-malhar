@@ -72,7 +72,7 @@ public class InvertIndexArray<K, V> extends BaseKeyValueOperator<K,V>
 
   @OutputPortFieldAnnotation(name = "index")
   public final transient DefaultOutputPort<HashMap<V, ArrayList<K>>> index = new DefaultOutputPort<HashMap<V, ArrayList<K>>>(this);
-  protected transient HashMap<V, ArrayList<K>> map = new HashMap<V, ArrayList<K>>();
+  protected HashMap<V, ArrayList<K>> map = new HashMap<V, ArrayList<K>>();
 
   /**
    *
@@ -91,17 +91,6 @@ public class InvertIndexArray<K, V> extends BaseKeyValueOperator<K,V>
     list.add(key);
   }
 
-
-  /**
-   * Clears cache/hash
-   * @param windowId
-   */
-  @Override
-  public void beginWindow(long windowId)
-  {
-    map.clear();
-  }
-
   /**
    * Emit all the data and clear the hash
    */
@@ -113,5 +102,6 @@ public class InvertIndexArray<K, V> extends BaseKeyValueOperator<K,V>
       tuple.put(e.getKey(), e.getValue());
       index.emit(tuple);
     }
+    map.clear();
   }
 }

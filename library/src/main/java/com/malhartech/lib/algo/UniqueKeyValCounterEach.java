@@ -85,5 +85,6 @@ public class UniqueKeyValCounterEach<K,V> extends BaseUniqueKeyValueCounter<K,V>
       tuple.put(e.getKey(), e.getValue().toInteger());
       count.emit(tuple);
     }
+    map.clear();
   }
 }

@@ -98,7 +98,7 @@ public class MinKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
   };
   @OutputPortFieldAnnotation(name = "max")
   public final transient DefaultOutputPort<KeyValPair<K, V>> min = new DefaultOutputPort<KeyValPair<K, V>>(this);
-  protected transient HashMap<K, V> mins = new HashMap<K, V>();
+  protected HashMap<K, V> mins = new HashMap<K, V>();
 
   /**
    * Emits all key,min value pairs.

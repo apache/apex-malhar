@@ -63,7 +63,7 @@ public class FirstN<K,V> extends AbstractBaseNOperatorMap<K, V>
   @OutputPortFieldAnnotation(name="first")
   public final transient DefaultOutputPort<HashMap<K, V>> first = new DefaultOutputPort<HashMap<K, V>>(this);
 
-  transient HashMap<K, MutableInt> keycount = new HashMap<K, MutableInt>();
+  HashMap<K, MutableInt> keycount = new HashMap<K, MutableInt>();
 
   /**
    * Inserts tuples into the queue

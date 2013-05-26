@@ -74,8 +74,8 @@ public class Average<V extends Number> extends BaseNumberValueOperator<V>
   @OutputPortFieldAnnotation(name = "average")
   public final transient DefaultOutputPort<V> average = new DefaultOutputPort<V>(this);
 
-  protected transient double sums = 0;
-  protected transient long counts = 0;
+  protected double sums = 0;
+  protected long counts = 0;
 
   /**
    * Emit average.

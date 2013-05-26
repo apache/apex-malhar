@@ -96,7 +96,7 @@ public class CountKeyVal<K, V> extends BaseKeyValueOperator<K, V>
   @OutputPortFieldAnnotation(name = "count", optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, Integer>> count = new DefaultOutputPort<KeyValPair<K, Integer>>(this);
 
-  protected transient HashMap<K, MutableInt> counts = new HashMap<K, MutableInt>();
+  protected HashMap<K, MutableInt> counts = new HashMap<K, MutableInt>();
 
   /**
    * Emits on all ports that are connected. Data is precomputed during process on input port
@@ -109,11 +109,6 @@ public class CountKeyVal<K, V> extends BaseKeyValueOperator<K, V>
     for (Map.Entry<K, MutableInt> e: counts.entrySet()) {
       count.emit(new KeyValPair(e.getKey(), new Integer(e.getValue().intValue())));
     }
-    clearCache();
-  }
-
-  public void clearCache()
-  {
     counts.clear();
   }
 }

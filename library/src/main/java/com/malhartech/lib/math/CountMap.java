@@ -91,7 +91,7 @@ public class CountMap<K, V> extends BaseKeyValueOperator<K, V>
     }
   };
 
-  protected transient HashMap<K, MutableInt> counts = new HashMap<K, MutableInt>();
+  protected HashMap<K, MutableInt> counts = new HashMap<K, MutableInt>();
 
   /**
    * Emits on all ports that are connected. Data is precomputed during process on input port

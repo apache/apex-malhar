@@ -177,12 +177,13 @@ public class Division extends BaseOperator
   }
 
   @Override
-  public void beginWindow(long windowId)
+  public void endWindow()
   {
     numer.clear();
     denom.clear();
     index = 0;
   }
+
 
   private ArrayList<Number> numer = new ArrayList<Number>();
   private ArrayList<Number> denom = new ArrayList<Number>();

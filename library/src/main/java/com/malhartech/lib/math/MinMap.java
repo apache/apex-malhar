@@ -98,7 +98,7 @@ public class MinMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
     }
   };
 
-  protected transient HashMap<K, V> low = new HashMap<K, V>();
+  protected HashMap<K, V> low = new HashMap<K, V>();
 
   /**
    * Emits all key,min value pairs.

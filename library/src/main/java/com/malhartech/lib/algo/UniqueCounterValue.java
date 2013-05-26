@@ -82,7 +82,7 @@ public class UniqueCounterValue<K> extends BaseOperator implements Unifier<Integ
     }
 
   };
-  protected transient int counts = 0;
+  protected int counts = 0;
 
   /**
    * Emits total number of tuples.

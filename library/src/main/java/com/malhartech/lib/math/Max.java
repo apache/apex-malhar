@@ -88,8 +88,8 @@ public class Max<V extends Number> extends BaseNumberValueOperator<V> implements
     }
   };
 
-  protected transient V high;
-  protected transient boolean flag = false;
+  protected V high;
+  protected boolean flag = false;
 
   /**
    * Node only works in windowed mode. Emits the max. Override getValue if tuple type is mutable
@@ -102,6 +102,6 @@ public class Max<V extends Number> extends BaseNumberValueOperator<V> implements
       max.emit(high);
     }
     flag = false;
+    high = null;
   }
-
 }

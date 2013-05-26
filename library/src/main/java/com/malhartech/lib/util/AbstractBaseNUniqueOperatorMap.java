@@ -54,17 +54,6 @@ public abstract class AbstractBaseNUniqueOperatorMap<K, V> extends AbstractBaseN
   }
 
   /**
-   * Clears cache to start fresh
-   * @param windowId is the window id
-   */
-  @Override
-  public void beginWindow(long windowId)
-  {
-    kmap.clear();
-  }
-
-
-  /**
    * Emits the result
    */
   @Override
@@ -75,5 +64,6 @@ public abstract class AbstractBaseNUniqueOperatorMap<K, V> extends AbstractBaseN
       tuple.put(e.getKey(), e.getValue().getTopN(getN()));
       emit(tuple);
     }
+    kmap.clear();
   }
 }

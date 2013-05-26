@@ -103,7 +103,7 @@ public class MaxMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
     }
   };
 
-  protected transient HashMap<K,V> high = new HashMap<K,V>();
+  protected HashMap<K,V> high = new HashMap<K,V>();
 
   /**
    * Emits all key,max value pairs.

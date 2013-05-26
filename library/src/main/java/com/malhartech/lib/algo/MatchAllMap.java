@@ -103,7 +103,7 @@ public class MatchAllMap<K, V extends Number> extends BaseMatchOperator<K, V>
     }
   };
 
-  protected transient boolean result = true;
+  protected boolean result = true;
 
 
   /**
