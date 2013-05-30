@@ -4,17 +4,16 @@
  */
 package com.malhartech.lib.algo;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.Collections;
 import java.util.Map;
-
 import junit.framework.Assert;
 
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import com.malhartech.api.StreamCodec.DataStatePair;
 import com.malhartech.codec.DefaultStreamCodec;
+import com.malhartech.codec.JavaSerializationStreamCodec;
 import com.malhartech.engine.TestSink;
 
 /**
@@ -43,7 +42,7 @@ public class WindowedHolderTest
     assertEquals("count at new position", windowedHolder1.windowedCount[1], 2);
 
 
-    DefaultStreamCodec<WindowedHolder<String>> dsc = new DefaultStreamCodec<WindowedHolder<String>>();
+    JavaSerializationStreamCodec<WindowedHolder<String>> dsc = new JavaSerializationStreamCodec<WindowedHolder<String>>();
     DataStatePair dsp = dsc.toByteArray(windowedHolder1);
     @SuppressWarnings("unchecked")
     WindowedHolder<String> windowedHolder2 = (WindowedHolder<String>)dsc.fromByteArray(dsp);

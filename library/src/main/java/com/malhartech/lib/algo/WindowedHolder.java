@@ -4,15 +4,18 @@
  */
 package com.malhartech.lib.algo;
 
+import java.io.Serializable;
 import java.util.Comparator;
+
 
 /**
  * Developed for a demo<br>
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-class WindowedHolder<T>
+public class WindowedHolder<T> implements Serializable
 {
+  private static final long serialVersionUID = 201305291751L;
   T identifier;
   int totalCount;
   int position;
