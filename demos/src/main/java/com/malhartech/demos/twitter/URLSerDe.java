@@ -16,26 +16,24 @@ import org.slf4j.LoggerFactory;
  */
 public class URLSerDe implements StreamCodec<byte[]>
 {
-  private static final Logger logger = LoggerFactory.getLogger(URLSerDe.class);
-
   /**
    * Covert the bytes into object useful for downstream node.
    *
+   * @param fragment
    * @return WindowedURLHolder object which represents the bytes.
    */
   @Override
-  public byte[] fromByteArray(DataStatePair dspair)
+  public byte[] fromByteArray(Fragment fragment)
   {
-    Fragment f = dspair.data;
-    if (f == null || f.buffer == null) {
+    if (fragment == null || fragment.buffer == null) {
       return null;
     }
-    else if (f.offset == 0 && f.length == f.buffer.length) {
-      return f.buffer;
+    else if (fragment.offset == 0 && fragment.length == fragment.buffer.length) {
+      return fragment.buffer;
     }
     else {
-      byte[] buffer = new byte[f.buffer.length];
-      System.arraycopy(f.buffer, f.offset, buffer, 0, f.length);
+      byte[] buffer = new byte[fragment.buffer.length];
+      System.arraycopy(fragment.buffer, fragment.offset, buffer, 0, fragment.length);
       return buffer;
     }
   }
@@ -43,29 +41,21 @@ public class URLSerDe implements StreamCodec<byte[]>
   /**
    * Cast the input object to byte[].
    *
-   * @param o - byte array representing the bytes of the string
+   * @param object - byte array representing the bytes of the string
    * @return the same object as input
    */
   @Override
-  public DataStatePair toByteArray(byte[] o)
+  public Fragment toByteArray(byte[] object)
   {
-    DataStatePair dspair = new DataStatePair();
-    dspair.data = new Fragment(o, 0, o.length);
-    dspair.state = null;
-    return dspair;
+    return new Fragment(object, 0, object.length);
   }
 
   @Override
-  public int getPartition(byte[] o)
+  public int getPartition(byte[] object)
   {
-    ByteBuffer bb = ByteBuffer.wrap(o);
+    ByteBuffer bb = ByteBuffer.wrap(object);
     return bb.hashCode();
   }
 
-  @Override
-  public void resetState()
-  {
-    /* there is nothing to reset in this serde */
-  }
-
+  private static final Logger logger = LoggerFactory.getLogger(URLSerDe.class);
 }

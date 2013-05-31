@@ -11,9 +11,8 @@ import junit.framework.Assert;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
-import com.malhartech.api.StreamCodec.DataStatePair;
-import com.malhartech.codec.DefaultStreamCodec;
 import com.malhartech.codec.JavaSerializationStreamCodec;
+import com.malhartech.common.Fragment;
 import com.malhartech.engine.TestSink;
 
 /**
@@ -43,7 +42,7 @@ public class WindowedHolderTest
 
 
     JavaSerializationStreamCodec<WindowedHolder<String>> dsc = new JavaSerializationStreamCodec<WindowedHolder<String>>();
-    DataStatePair dsp = dsc.toByteArray(windowedHolder1);
+    Fragment dsp = dsc.toByteArray(windowedHolder1);
     @SuppressWarnings("unchecked")
     WindowedHolder<String> windowedHolder2 = (WindowedHolder<String>)dsc.fromByteArray(dsp);
 
@@ -68,6 +67,7 @@ public class WindowedHolderTest
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void testWindowedTopCounter() {
     WindowedTopCounter<String> topCounts = new WindowedTopCounter<String>();
     topCounts.setTopCount(10);
