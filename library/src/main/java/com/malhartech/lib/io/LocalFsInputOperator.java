@@ -5,18 +5,9 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
 
-import com.malhartech.api.ApplicationFactory;
-import com.malhartech.api.DAG;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.lib.io.*;
-import com.malhartech.lib.math.Average;
-import com.malhartech.lib.testbench.RandomEventGenerator;
-import org.apache.hadoop.conf.Configuration;
 
 /**  
  * <b> Usage Operator : </b> com.malhartech.lib.testbench.RandomEventGenerator <br>

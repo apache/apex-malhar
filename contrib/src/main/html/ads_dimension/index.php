@@ -55,9 +55,9 @@ function DrawAggrCharts()
 
 function DrawContCharts()  
 {    
-// get refresh url 
+  // get refresh url 
   lookback = contLookBack; 
-  var url = DataUrl();        
+  var url = DataUrl();    
 
   // fetch data, draw charts
   try
@@ -65,20 +65,29 @@ function DrawContCharts()
     var connect = new XMLHttpRequest();
     connect.onreadystatechange = function() {
       if(connect.readyState==4 && connect.status==200) {
-        contData = connect.response;
-        contDataPoints = JSON.parse(contData);
-        DrawCtrChart();
+        contData = connect.response;   
+        var newPts = JSON.parse(contData); 
+        for(var i=0; i <  newPts.length; i++) contDataPoints.push(newPts[i]);
+        sortByKey(contDataPoints, "timestamp");
+        var cuttime = new Date().getTime() - parseInt(params['lookback']) * 3600 * 1000;
+        var count = 0;
+        for(var i=0; i < contDataPoints.length; i++)
+        {
+          if(parseInt(contDataPoints[i].timestamp)  < cuttime) count++;
+          else break;
+        }
+        contDataPoints.splice(0, count);
+        DrawCtrChart() ;
         DrawMarginChart();
         delete contData;
-        for(var i=0; i < contDataPoints.length; i++) delete contDataPoints[i];
-        delete contDataPoints;
+        delete newPts;
       }
     }
     connect.open('GET',  url, true);
     connect.send(null);
   } catch(e) {
   }
-  contLookBack += contRefresh;
+  contLookBack = (new Date().getTime()/1000)-contRefresh;
 }
 
 window.onload = function() {

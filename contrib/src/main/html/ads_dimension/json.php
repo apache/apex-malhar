@@ -40,6 +40,7 @@ if ($advertiser != '') {
 if ($adunit != '') {
   $arr[] = "2:".$adunit;
 }
+$subpattern = "";
 if (count($arr) != 0) {
   $subpattern = join("|", $arr);
 }

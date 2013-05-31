@@ -88,6 +88,7 @@ function InitializeGlobal()
        
   // Initialize data points 
   dataPoints = new Array();
+  contDataPoints = new Array();
     
   // Initialize cost table 
   costTable = new google.visualization.DataTable(); 
@@ -304,7 +305,7 @@ function DrawCtrChart()
     var numRows = contDataPoints.length - ctrTable.getNumberOfRows();
     ctrTable.addRows(numRows);
   } else {
-    for(var i=ctrTable.getNumberOfRows(); i < contDataPoints.length; i++)
+    for(var i=(ctrTable.getNumberOfRows()-1); i > contDataPoints.length; i--)
     {
       ctrTable.removeRow(i);    
     }
@@ -334,7 +335,7 @@ function DrawMarginChart()
     var numRows = contDataPoints.length - marginTable.getNumberOfRows();
     marginTable.addRows(numRows);
   } else {
-    for(var i=marginTable.getNumberOfRows(); i < contDataPoints.length; i++)
+    for(var i=(marginTable.getNumberOfRows()-1); i > contDataPoints.length; i--)
     {
       marginTable.removeRow(i);    
     }
@@ -351,3 +352,14 @@ function DrawMarginChart()
   chartOptions.title = 'Margin Chart';
   marginChart.draw(marginView, chartOptions); 
 }
+
+/**
+ * Sort json array  
+ */
+function sortByKey(array, key) {
+    return array.sort(function(a, b) {
+        var x = a[key]; var y = b[key];
+        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+    });
+}
+
