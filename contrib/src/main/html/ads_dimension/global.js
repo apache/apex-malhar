@@ -93,7 +93,7 @@ function InitializeGlobal()
   costTable = new google.visualization.DataTable(); 
   costTable.addColumn('datetime', 'Time');
   costTable.addColumn('number', 'Cost');
-  chartOptions = { width: 800, height: 400, legend: 'none', pointSize: 0, lineWidth : 2, hAxis : {gridlines : {count : 10}}  };
+  chartOptions = { width: 600, height: 300, legend: 'none', pointSize: 0, lineWidth : 2, hAxis : {gridlines : {count : 10}}  };
   costChart = new google.visualization.ScatterChart(document.getElementById('chart_div'));
   costView = new google.visualization.DataView(costTable);
 
@@ -149,7 +149,7 @@ function InitializeGlobal()
  */
 function DataUrl() 
 {       
-    var url = "http://localhost/json.php?bucket=m";
+    var url = "/json.php?bucket=m";
     if (params['publisher']) 
     {	
       url += "&publisher=" + params['publisher'];

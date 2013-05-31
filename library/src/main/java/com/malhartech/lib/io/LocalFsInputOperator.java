@@ -74,4 +74,10 @@ public class LocalFsInputOperator extends AbstractLocalFSInputOperator
 	public void setSleepInterval(int sleepInterval) {
 		this.sleepInterval = sleepInterval;
 	}
+
+	@Override
+	public void emitTuples()
+	{
+		emitTuples(null);
+	}
 }

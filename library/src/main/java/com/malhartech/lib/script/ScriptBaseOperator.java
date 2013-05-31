@@ -48,6 +48,12 @@ public class ScriptBaseOperator extends BaseOperator implements ScriptOperator
 		tuples.add(tuple);
 	}
 	
+	@Override
+  public void beginWindow(long windowId)
+  {
+	  tuples = new ArrayList<Map<String, Object>>();
+  }    
+	     
 	public final transient DefaultOutputPort<Map<String, Object>> result = new DefaultOutputPort<Map<String, Object>>(this);
 	@Override
 	public void endWindow()

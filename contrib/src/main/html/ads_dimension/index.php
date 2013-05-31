@@ -7,7 +7,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Data Torrent : STREAMS COME TRUE! REAL-TIME HEDOOP </title>
+<title>Data Torrent : Ads Demo </title>
 
 <link rel="stylesheet" type="text/css" href="malhar.css">
 
@@ -82,7 +82,7 @@ function DrawContCharts()
 }
 
 window.onload = function() {
-     
+
   // Initialize global 
   InitializeGlobal();   
 
@@ -128,80 +128,99 @@ window.onload = function() {
 <body>
 
     <div id="header">
-        <table><tbody>
-			<td><div id="logo"><img src="main_banner.png"/></div></td>
-			<td><div id="slogan">
-				<h1>REAL TIME HADOOP, REALLY!</h1>
-			</div></td>
-    	</tbody></table>
+        <ul class="dashboard-modes">
+            <li>
+                <a href="#" class="active">Ads Dimensions Demo</a>
+            </li>
+        </ul>
+
+        <div id="logo"><img src="main_banner.png"/></div>
     </div>
-		
-	<div id="maincontent">
+	
+	<div id="main">
+    <div id="pagecontent">
+        <div class="dashboardMgr">
+            <div class="inner" style="">
+                <h2 class="title">View Real Time Data Charts</h2> 
+                <form method="GET" action="index.php">
+                    
+                    <label for="publisher">Publisher ID:</label>
+                    <select name="publisher" style="width:200px;">
+                  		<option value="">ALL</option>
+                		<?php
+                   			for ($i = 0; $i < 50; $i++) {
+                  				print "<option value=\"$i\">Publisher $i</option>\n";
+                			}
+                		?>
+             		</select>
+             		
+            		<label for="">Advertiser ID:</label>
+            		<select name="advertiser" style="width:200px;">
+              		    <option value="">ALL</option>
+                		<?php
+                			for ($i = 0; $i < 200; $i++) {
+                  				print "<option value=\"$i\">Advertiser $i</option>\n";
+                			}
+                		?>
+            		</select>
+        		
+        		    <label for="">Ad Unit:</label>
+            		<select name="adunit" style="width:200px;">
+              		    <option value="">ALL</option>
+        		        <?php
+                			for ($i = 0; $i < 5; $i++) {
+                  				print "<option value=\"$i\">Adunit $i</option>\n";
+                			}
+        	            ?>
+            		</select>
+            		
+            		<label for="">Refresh Interval:</label>
+            		<div class="input-append">
+                        <input type="text" name="refresh" id="refresh" class="input-small"/>
+                        <span class="add-on">Secs</span>
+                    </div>
+                    
 
-        <h2>View Real Time Data Charts</h2> 
-        <form method="GET" action="index.php">
-        <table><tbody><tr>
-           <td>
-                Publisher ID: <br> 
-                <select name="publisher">
-  		<option value="">ALL</option>
-		<?php
-   			for ($i = 0; $i < 50; $i++) {
-      				print "<option value=\"$i\">Publisher $i</option>\n";
-    			}
-		?>
- 		</select>
-           </td>
-           <td>
-		Advertiser ID: <br>
-		<select name="advertiser">
-  		<option value="">ALL</option>
-		<?php
-    			for ($i = 0; $i < 200; $i++) {
-      				print "<option value=\"$i\">Advertiser $i</option>\n";
-    			}
-		?>
-		</select>
-           </td>
-           <td>
-		Ad Unit: <br>
-    		<select name="adunit">
-      		<option value="">ALL</option>
-		<?php
-    			for ($i = 0; $i < 5; $i++) {
-      				print "<option value=\"$i\">Adunit $i</option>\n";
-    			}
-	        ?>
-    		</select>
-           </td>
-           <td>
-		Refresh Interval: <br>
-                <input type="textfield" size="4" name="refresh" id="refresh" />Secs
-           </td>
-           <td>
-           <td>
-		Look Back: <br>
-                <input type="textfield" size="4" name="lookback" id="lookback" />Hours
-           </td>
-        </tr>
-        <tr><td><input type="submit" value="SUBMIT" />
-        </tbody></table>
-        </form>
-
-	<table><tbody>
-        <tr>
-	      <td><div id="chart_div"></div></td>	
-	      <td><div id="chart1_div" ></div></td>	
-         </tr>
-         <tr>
-	     <td><div id="chart2_div" ></div></td>	
-	     <td><div id="chart3_div" ></div></td>	
-         </tr>
-         <tr>
-	   <td><div id="chart4_div" ></div></td>	
-	    <td><div id="chart5_div" ></div></td>	
-         </tr>
-	 </tr></tbody></table>
-	</div>		
+        		    <label for="">Look Back:</label>
+        		    <div class="input-append">
+                        <input type="text" name="lookback" id="lookback" class="input-small"/>
+                        <span class="add-on">Hours</span>
+                    </div>
+                    
+                    <input type="submit" value="submit" class="btn btn-primary" />
+                    
+                </form>
+            </div>
+            <div class="collapser-container">
+                <div class="collapser">
+                    <div class="collapse-dot"></div>
+                    <div class="collapse-dot"></div>
+                    <div class="collapse-dot"></div>
+                </div>
+            </div>
+        </div>
+        <div class="dashboardMain">
+            
+	<!-- <table><tbody>
+                <tr>
+        	      <td><div id="chart_div"></div></td>	
+        	      <td><div id="chart1_div" ></div></td>	
+                 </tr>
+                 <tr>
+        	     <td><div id="chart2_div" ></div></td>	
+        	     <td><div id="chart3_div" ></div></td>	
+                 </tr>
+                 <tr>
+        	   <td><div id="chart4_div" ></div></td>	
+        	    <td><div id="chart5_div" ></div></td>	
+                 </tr>
+        	 </tr></tbody></table> -->
+	<div class="chart-ctnr" id="chart_div"></div>
+        <div class="chart-ctnr" id="chart1_div" ></div>	
+        <div class="chart-ctnr" id="chart2_div" ></div>	
+        <div class="chart-ctnr" id="chart3_div" ></div>	
+        <div class="chart-ctnr" id="chart4_div" ></div>	
+        <div class="chart-ctnr" id="chart5_div" ></div>
+        </div>		
 </body>
 </html>
