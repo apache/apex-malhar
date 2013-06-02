@@ -1,0 +1,24 @@
+info it worked if it ends with ok
+verbose cli [ 'node', '/usr/bin/npm', 'install', '.' ]
+info using npm@1.1.4
+info using node@v0.6.12
+verbose config file /home/amol/.npmrc
+verbose config file /usr/etc/npmrc
+verbose config file /usr/share/npm/npmrc
+ERR! Couldn't read dependencies.
+ERR! Error: ENOENT, no such file or directory '/home/amol/work/Core/package.json'
+ERR! You may report this log at:
+ERR!     <http://bugs.debian.org/npm>
+ERR! or use
+ERR!     reportbug --attach /home/amol/work/Core/npm-debug.log npm
+ERR! 
+ERR! System Linux 3.2.0-32-generic
+ERR! command "node" "/usr/bin/npm" "install" "."
+ERR! cwd /home/amol/work/Core
+ERR! node -v v0.6.12
+ERR! npm -v 1.1.4
+ERR! path /home/amol/work/Core/package.json
+ERR! code ENOENT
+ERR! message ENOENT, no such file or directory '/home/amol/work/Core/package.json'
+ERR! errno {}
+verbose exit [ 1, true ]
