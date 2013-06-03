@@ -126,6 +126,11 @@ public abstract class AbstractSqlStreamOperator extends BaseOperator
     this.statement = statement;
   }
 
+  public String getStatement()
+  {
+    return this.statement;
+  }
+
   public void setInputSchema(int inputPortIndex, InputSchema inputSchema)
   {
     inputSchemas.add(inputPortIndex, inputSchema);
