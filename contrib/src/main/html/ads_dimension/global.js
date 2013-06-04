@@ -94,7 +94,7 @@ function InitializeGlobal()
   costTable = new google.visualization.DataTable(); 
   costTable.addColumn('datetime', 'Time');
   costTable.addColumn('number', 'Cost');
-  chartOptions = { width: 600, height: 300, legend: 'none', pointSize: 0, lineWidth : 2, hAxis : {gridlines : {count : 10}}  };
+  chartOptions = { width: 600, height: 300, legend: 'none', pointSize: 0, lineWidth : 1, hAxis : {gridlines : {count : 10}}  };
   costChart = new google.visualization.ScatterChart(document.getElementById('chart_div'));
   costView = new google.visualization.DataView(costTable);
 
@@ -151,17 +151,20 @@ function InitializeGlobal()
 function DataUrl() 
 {       
     var url = "/json.php?bucket=m";
+    url += "&publisher=";
     if (params['publisher']) 
     {	
-      url += "&publisher=" + params['publisher'];
+      url += params['publisher'];
     }
+    url += "&advertiser=";
     if (params['advertiser']) 
     {	
-      url += "&advertiser=" + params['advertiser'];
+      url += params['advertiser'];
     }
+    url += "&adunit=";
     if (params['adunit']) 
     {	
-      url += "&adunit=" + params['adunit'];
+      url += params['adunit'];
     }
      url += "&from=";
     url += Math.floor(lookback);
@@ -190,7 +193,7 @@ function DrawCostChart()
   // Populate data table with time/cost data points. 
   for(var i=0; i < aggrDataPoints.length; i++)
   {
-    if(parseFloat(aggrDataPoints[i].cost) < 500) continue;
+    //if(parseFloat(aggrDataPoints[i].cost) < 500) continue;
     costTable.setCell(i, 0, new Date(parseInt(aggrDataPoints[i].timestamp)));
     costTable.setCell(i, 1, parseFloat(aggrDataPoints[i].cost));
   }

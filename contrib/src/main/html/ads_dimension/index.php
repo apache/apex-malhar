@@ -50,7 +50,7 @@ function DrawAggrCharts()
     connect.send(null);
   } catch(e) {
   }
-  aggrLookBack += 30;
+  aggrLookBack += 60;
 }
 
 function DrawContCharts()  
@@ -58,6 +58,7 @@ function DrawContCharts()
   // get refresh url 
   lookback = contLookBack; 
   var url = DataUrl();    
+  //document.getElementById('chart_div').innerHTML = url;
 
   // fetch data, draw charts
   try
@@ -127,7 +128,7 @@ window.onload = function() {
   // draw charts 
   DrawAggrCharts();
   DrawContCharts();
-  setInterval(DrawAggrCharts, 30000);
+  setInterval(DrawAggrCharts, 60000);
   setInterval(DrawContCharts, contRefresh);
 };
 
