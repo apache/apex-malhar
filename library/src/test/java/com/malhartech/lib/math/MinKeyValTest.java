@@ -3,11 +3,11 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.annotation.OutputPortFieldAnnotation;
+import com.malhartech.api.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.*;
 import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
-import com.malhartech.common.KeyValPair;
+import com.malhartech.lib.util.KeyValPair;
 import com.malhartech.stram.StramLocalCluster;
 import com.malhartech.stram.plan.logical.LogicalPlan;
 

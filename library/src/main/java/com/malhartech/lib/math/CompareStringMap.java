@@ -4,7 +4,7 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.annotation.OutputPortFieldAnnotation;
+import com.malhartech.api.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.algo.MatchStringMap;
 import java.util.HashMap;

@@ -4,7 +4,7 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.annotation.ShipContainingJars;
+import com.malhartech.api.annotation.ShipContainingJars;
 import com.malhartech.api.Context.OperatorContext;
 import java.io.IOException;
 import java.net.URI;

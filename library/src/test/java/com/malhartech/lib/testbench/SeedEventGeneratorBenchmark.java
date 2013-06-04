@@ -5,7 +5,7 @@ package com.malhartech.lib.testbench;
 
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
-import com.malhartech.common.KeyValPair;
+import com.malhartech.lib.util.KeyValPair;
 import com.malhartech.stram.StramLocalCluster;
 import com.malhartech.stram.plan.logical.LogicalPlan;
 

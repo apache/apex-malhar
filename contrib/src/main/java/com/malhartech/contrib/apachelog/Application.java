@@ -2,7 +2,7 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.demos.apachelog;
+package com.malhartech.contrib.apachelog;
 
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.Context.OperatorContext;

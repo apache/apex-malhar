@@ -2,13 +2,7 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.demos.ads_dimension;
-
-import java.util.Map;
-
-import org.apache.hadoop.conf.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package com.malhartech.contrib.ads_dimension;
 
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.Context.OperatorContext;
@@ -18,36 +12,34 @@ import com.malhartech.contrib.redis.RedisNumberAggregateOutputOperator;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.util.DimensionTimeBucketOperator;
 import com.malhartech.lib.util.DimensionTimeBucketSumOperator;
+import java.util.Map;
+import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * Yahoo! Finance application demo. <p>
- *
- * Get Yahoo finance feed and calculate minute price range, minute volume, simple moving average of 5 minutes.
- */
-public class Application implements ApplicationFactory
+public class ApplicationRandomData implements ApplicationFactory
 {
-  private static final Logger LOG = LoggerFactory.getLogger(Application.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ApplicationRandomData.class);
 
   public static class AdsDimensionOperator extends DimensionTimeBucketSumOperator
   {
     @Override
     protected long extractTimeFromTuple(Map<String, Object> tuple)
     {
-      String ts = (String)tuple.get("e");
-      return Long.parseLong(ts) * 1000;
+      return (Long)tuple.get("timestamp");
     }
 
   }
 
   public AdsDimensionLogInputOperator getAdsDimensionInputOperator(String name, DAG dag)
   {
-    AdsDimensionLogInputOperator oper = dag.addOperator(name, AdsDimensionLogInputOperator.class);
+    AdsDimensionRandomInputOperator oper = dag.addOperator(name, AdsDimensionRandomInputOperator.class);
     return oper;
   }
 
-  public AdsDimensionOperator getDimensionTimeBucketSumOperator(String name, DAG dag)
+  public AdsDimensionDimensionOperator getDimensionTimeBucketSumOperator(String name, DAG dag)
   {
-    AdsDimensionOperator oper = dag.addOperator(name, AdsDimensionOperator.class);
+    AdsDimensionDimensionOperator oper = dag.addOperator(name, AdsDimensionDimensionOperator.class);
     oper.addDimensionKeyName("u:ptnr");
     oper.addDimensionKeyName("d:offer_source_id");
     oper.addDimensionKeyName("d:adunit_name");
@@ -76,12 +68,11 @@ public class Application implements ApplicationFactory
   {
     DAG dag = new DAG(conf);
     AdsDimensionLogInputOperator adsDimensionInputOperator = getAdsDimensionInputOperator("AdsDimensionInput", dag);
-    AdsDimensionOperator dimensionOperator = getDimensionTimeBucketSumOperator("Dimension", dag);
+    AdsDimensionDimensionOperator dimensionOperator = getDimensionTimeBucketSumOperator("Dimension", dag);
     dag.getMeta(dimensionOperator).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(10);
 
     dag.addStream("input_dimension", adsDimensionInputOperator.outputPort, dimensionOperator.in);
     dag.addStream("dimension_out", dimensionOperator.out, /*getConsole("Console", dag, "Console"),*/ getRedisOutput("redis", dag));
-
   }
 
 }

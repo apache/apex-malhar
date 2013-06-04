@@ -4,7 +4,7 @@
  */
 package com.malhartech.contrib.mongodb;
 
-import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.api.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.Operator;

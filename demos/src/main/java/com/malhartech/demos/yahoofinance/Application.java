@@ -13,7 +13,7 @@ import com.malhartech.lib.math.RangeKeyVal;
 import com.malhartech.lib.math.SumKeyVal;
 import com.malhartech.lib.multiwindow.SimpleMovingAverage;
 import com.malhartech.lib.stream.ConsolidatorKeyVal;
-import com.malhartech.common.HighLow;
+import com.malhartech.lib.util.HighLow;
 import org.apache.hadoop.conf.Configuration;
 
 /**

@@ -4,7 +4,7 @@
  */
 package com.malhartech.contrib.memcache_whalin;
 
-import com.malhartech.annotation.OutputPortFieldAnnotation;
+import com.malhartech.api.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
 
 /**

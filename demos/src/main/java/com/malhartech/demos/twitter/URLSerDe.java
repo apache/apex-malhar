@@ -5,7 +5,7 @@
 package com.malhartech.demos.twitter;
 
 import com.malhartech.api.StreamCodec;
-import com.malhartech.common.Fragment;
+import com.malhartech.common.util.Slice;
 import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +23,7 @@ public class URLSerDe implements StreamCodec<byte[]>
    * @return WindowedURLHolder object which represents the bytes.
    */
   @Override
-  public byte[] fromByteArray(Fragment fragment)
+  public byte[] fromByteArray(Slice fragment)
   {
     if (fragment == null || fragment.buffer == null) {
       return null;
@@ -45,9 +45,9 @@ public class URLSerDe implements StreamCodec<byte[]>
    * @return the same object as input
    */
   @Override
-  public Fragment toByteArray(byte[] object)
+  public Slice toByteArray(byte[] object)
   {
-    return new Fragment(object, 0, object.length);
+    return new Slice(object, 0, object.length);
   }
 
   @Override

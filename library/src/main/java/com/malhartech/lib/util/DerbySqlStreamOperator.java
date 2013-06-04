@@ -4,7 +4,7 @@
  */
 package com.malhartech.lib.util;
 
-import com.malhartech.annotation.ShipContainingJars;
+import com.malhartech.api.annotation.ShipContainingJars;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.lib.util.AbstractSqlStreamOperator.InputSchema.ColumnInfo;
 import java.sql.*;

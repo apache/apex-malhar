@@ -4,7 +4,7 @@
  */
 package com.malhartech.contrib.kafka;
 
-import com.malhartech.annotation.OutputPortFieldAnnotation;
+import com.malhartech.api.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
 import kafka.message.Message;
 

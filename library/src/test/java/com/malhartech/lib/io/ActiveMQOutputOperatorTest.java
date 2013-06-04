@@ -4,7 +4,7 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.api.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.*;
 import java.io.File;
 import javax.jms.JMSException;

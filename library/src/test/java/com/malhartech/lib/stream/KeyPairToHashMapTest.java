@@ -4,7 +4,7 @@
 package com.malhartech.lib.stream;
 
 import com.malhartech.lib.testbench.CountTestSink;
-import com.malhartech.common.KeyValPair;
+import com.malhartech.lib.util.KeyValPair;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;

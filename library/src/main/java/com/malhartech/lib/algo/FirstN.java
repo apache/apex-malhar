@@ -4,7 +4,7 @@
  */
 package com.malhartech.lib.algo;
 
-import com.malhartech.annotation.OutputPortFieldAnnotation;
+import com.malhartech.api.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.AbstractBaseNOperatorMap;
 import java.util.HashMap;

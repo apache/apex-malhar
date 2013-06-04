@@ -6,7 +6,7 @@ package com.malhartech.demos.twitter;
 
 import java.util.concurrent.ArrayBlockingQueue;
 
-import com.malhartech.annotation.ShipContainingJars;
+import com.malhartech.api.annotation.ShipContainingJars;
 import com.malhartech.api.ActivationListener;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultOutputPort;

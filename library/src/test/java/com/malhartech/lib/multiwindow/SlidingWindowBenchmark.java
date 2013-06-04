@@ -3,7 +3,7 @@
  */
 package com.malhartech.lib.multiwindow;
 
-import com.malhartech.annotation.OutputPortFieldAnnotation;
+import com.malhartech.api.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
 import com.malhartech.lib.testbench.CountTestSink;

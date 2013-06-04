@@ -4,11 +4,11 @@
  */
 package com.malhartech.lib.util;
 
-import com.malhartech.codec.DefaultPartitionCodec;
-import com.malhartech.common.KeyValPair;
-import com.malhartech.api.StreamCodec;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.malhartech.api.StreamCodec;
+import com.malhartech.lib.codec.JavaSerializationStreamCodec;
 
 /**
  * Base class for operators that allows cloneValue and cloneKey for enabling users to use mutable objects<p>
@@ -35,7 +35,7 @@ public class BaseKeyValueOperator<K, V> extends BaseKeyOperator<K>
    * @param kv
    * @return v as is
    */
-  public KeyValPair<K, V> cloneKeyValPair(KeyValPair<K,V> kv)
+  public KeyValPair<K, V> cloneKeyValPair(KeyValPair<K, V> kv)
   {
     return kv;
   }
@@ -52,7 +52,7 @@ public class BaseKeyValueOperator<K, V> extends BaseKeyOperator<K>
       return null;
     }
     HashMap<K, V> ret = new HashMap<K, V>(tuple.size());
-    for (Map.Entry<K, V> e: tuple.entrySet()) {
+    for (Map.Entry<K, V> e : tuple.entrySet()) {
       ret.put(cloneKey(e.getKey()), cloneValue(e.getValue()));
     }
     return ret;
@@ -80,4 +80,18 @@ public class BaseKeyValueOperator<K, V> extends BaseKeyOperator<K>
     Class c = DefaultPartitionCodec.class;
     return (Class<? extends StreamCodec<KeyValPair<K, V>>>)c;
   }
+
+  public static class DefaultPartitionCodec<K, V> extends JavaSerializationStreamCodec<KeyValPair<K, V>>
+  {
+    /**
+     * A codec to enable partitioning to be done by key
+     */
+    @Override
+    public int getPartition(KeyValPair<K, V> o)
+    {
+      return o.getKey().hashCode();
+    }
+
+  }
+
 }

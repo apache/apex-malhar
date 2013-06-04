@@ -4,11 +4,11 @@
  */
 package com.malhartech.lib.math;
 
-import com.malhartech.annotation.OutputPortFieldAnnotation;
+import com.malhartech.api.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.common.HighLow;
+import com.malhartech.lib.util.HighLow;
 import java.util.ArrayList;
 
 /**

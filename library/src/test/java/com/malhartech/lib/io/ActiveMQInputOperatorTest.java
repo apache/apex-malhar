@@ -4,7 +4,7 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.annotation.OutputPortFieldAnnotation;
+import com.malhartech.api.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.*;
 import com.malhartech.stram.StramLocalCluster;
 import com.malhartech.stram.plan.logical.LogicalPlan;

@@ -7,7 +7,7 @@ package com.malhartech.contrib.redis;
 import com.lambdaworks.redis.RedisClient;
 import com.lambdaworks.redis.RedisConnection;
 import com.lambdaworks.redis.RedisException;
-import com.malhartech.annotation.ShipContainingJars;
+import com.malhartech.api.annotation.ShipContainingJars;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.lib.io.AbstractKeyValueStoreOutputOperator;
 import java.util.List;

@@ -12,7 +12,7 @@
   <artifactId>malhar-library</artifactId>
   <packaging>jar</packaging>
 
-  <name>Streaming Platform Library</name>
+  <name>DataTorrent Library</name>
   <url>http://maven.apache.org</url>
 
   <properties>

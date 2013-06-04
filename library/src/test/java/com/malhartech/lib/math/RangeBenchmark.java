@@ -4,7 +4,7 @@
 package com.malhartech.lib.math;
 
 import com.malhartech.api.Sink;
-import com.malhartech.common.HighLow;
+import com.malhartech.lib.util.HighLow;
 import com.malhartech.tuple.Tuple;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;

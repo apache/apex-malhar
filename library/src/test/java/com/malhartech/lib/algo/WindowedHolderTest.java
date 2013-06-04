@@ -11,8 +11,8 @@ import junit.framework.Assert;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
-import com.malhartech.codec.JavaSerializationStreamCodec;
-import com.malhartech.common.Fragment;
+import com.malhartech.lib.codec.JavaSerializationStreamCodec;
+import com.malhartech.common.util.Slice;
 import com.malhartech.engine.TestSink;
 
 /**
@@ -42,7 +42,7 @@ public class WindowedHolderTest
 
 
     JavaSerializationStreamCodec<WindowedHolder<String>> dsc = new JavaSerializationStreamCodec<WindowedHolder<String>>();
-    Fragment dsp = dsc.toByteArray(windowedHolder1);
+    Slice dsp = dsc.toByteArray(windowedHolder1);
     @SuppressWarnings("unchecked")
     WindowedHolder<String> windowedHolder2 = (WindowedHolder<String>)dsc.fromByteArray(dsp);
 

@@ -4,7 +4,7 @@
  */
 package com.malhartech.lib.testbench;
 
-import com.malhartech.annotation.ShipContainingJars;
+import com.malhartech.api.annotation.ShipContainingJars;
 import com.malhartech.api.Sink;
 import java.util.ArrayList;
 import java.util.HashMap;

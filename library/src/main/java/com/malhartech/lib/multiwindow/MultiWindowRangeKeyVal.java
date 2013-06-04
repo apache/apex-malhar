@@ -5,8 +5,8 @@
 package com.malhartech.lib.multiwindow;
 
 import com.malhartech.lib.math.RangeKeyVal;
-import com.malhartech.common.HighLow;
-import com.malhartech.common.KeyValPair;
+import com.malhartech.lib.util.HighLow;
+import com.malhartech.lib.util.KeyValPair;
 import java.util.Map;
 import javax.validation.constraints.Min;
 import org.apache.commons.lang.mutable.MutableDouble;

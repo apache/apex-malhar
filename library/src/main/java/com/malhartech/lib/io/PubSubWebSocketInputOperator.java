@@ -4,7 +4,7 @@
  */
 package com.malhartech.lib.io;
 
-import com.malhartech.api.PubSubWebSocketClient;
+import com.malhartech.api.util.PubSubWebSocketClient;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;

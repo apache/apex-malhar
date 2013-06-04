@@ -4,7 +4,7 @@
  */
 package com.malhartech.lib.util;
 
-import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.api.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import java.util.HashMap;
 import java.util.Map;

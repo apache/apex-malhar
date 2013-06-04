@@ -2,7 +2,7 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.demos.ads_dimension;
+package com.malhartech.contrib.ads_dimension;
 
 import com.malhartech.lib.io.SimpleSinglePortInputOperator;
 import java.util.HashMap;

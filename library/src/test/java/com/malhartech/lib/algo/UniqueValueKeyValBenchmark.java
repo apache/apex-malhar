@@ -4,7 +4,7 @@
 package com.malhartech.lib.algo;
 
 import com.malhartech.engine.TestSink;
-import com.malhartech.common.KeyValPair;
+import com.malhartech.lib.util.KeyValPair;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;

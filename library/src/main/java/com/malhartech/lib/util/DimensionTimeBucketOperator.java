@@ -4,19 +4,20 @@
  */
 package com.malhartech.lib.util;
 
-import com.malhartech.common.Combinations;
-import com.malhartech.annotation.InputPortFieldAnnotation;
-import com.malhartech.annotation.OutputPortFieldAnnotation;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.malhartech.api.annotation.InputPortFieldAnnotation;
+import com.malhartech.api.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DAGContext;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -56,12 +57,12 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
         }
 
 
-        for (String timeBucket: timeBucketList) {
-          for (int[] dimensionCombination: dimensionCombinations) {
+        for (String timeBucket : timeBucketList) {
+          for (int[] dimensionCombination : dimensionCombinations) {
             String field = "0";
             String key = new String();
             if (dimensionCombination != null) {
-              for (int d: dimensionCombination) {
+              for (int d : dimensionCombination) {
                 if (!key.isEmpty()) {
                   key += "|";
                 }
@@ -76,7 +77,7 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
               Number numberValue = extractNumber(valueKeyName, value);
               key = "";
               if (dimensionCombination != null) {
-                for (int d: dimensionCombination) {
+                for (int d : dimensionCombination) {
                   if (!key.isEmpty()) {
                     key += "|";
                   }
@@ -194,4 +195,73 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
 
   public abstract void process(String timeBucket, String key, String field, Number value);
 
+  public static class Combinations
+  {
+    public static <K> List<List<K>> getCombinations(List<K> list, int r)
+    {
+      List<List<K>> result = new ArrayList<List<K>>();
+      List<int[]> combos = getNumberCombinations(list.size(), r);
+
+      for (int[] a : combos) {
+        List<K> keys = new ArrayList<K>(r);
+        for (int j = 0; j < r; j++) {
+          keys.add(j, list.get(a[j]));
+        }
+        result.add(keys);
+      }
+
+      return result;
+    }
+
+    public static List<int[]> getNumberCombinations(int n, int r)
+    {
+      List<int[]> list = new ArrayList<int[]>();
+      int[] res = new int[r];
+      for (int i = 0; i < res.length; i++) {
+        res[i] = i;
+      }
+      boolean done = false;
+      while (!done) {
+        int[] a = new int[res.length];
+        System.arraycopy(res, 0, a, 0, res.length);
+        list.add(a);
+        done = next(res, n, r);
+      }
+      return list;
+    }
+
+    private static boolean next(int[] num, int n, int r)
+    {
+      int target = r - 1;
+      num[target]++;
+      if (num[target] > ((n - (r - target)))) {
+        // Carry the One
+        while (num[target] > ((n - (r - target) - 1))) {
+          target--;
+          if (target < 0) {
+            break;
+          }
+        }
+        if (target < 0) {
+          return true;
+        }
+        num[target]++;
+        for (int i = target + 1; i < num.length; i++) {
+          num[i] = num[i - 1] + 1;
+        }
+      }
+      return false;
+    }
+
+    public static void main(String[] args)
+    {
+      String[] list = new String[] {"a", "b", "c", "d", "e"};
+      for (int i = 1; i <= list.length; i++) {
+        logger.info("Combinations: {}", getCombinations(Arrays.asList(list), i));
+      }
+    }
+
+  }
+
+  private static final Logger logger = LoggerFactory.getLogger(DimensionTimeBucketOperator.class);
 }

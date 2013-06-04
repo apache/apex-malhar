@@ -6,7 +6,7 @@ package com.malhartech.lib.io;
 
 import com.malhartech.daemon.Daemon;
 import com.malhartech.engine.TestSink;
-import com.malhartech.util.SamplePubSubWebSocketPublisher;
+import com.malhartech.stram.util.SamplePubSubWebSocketPublisher;
 import java.net.URI;
 import java.util.Map;
 import junit.framework.Assert;

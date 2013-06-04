@@ -6,12 +6,11 @@ package com.malhartech.lib.algo;
  */
 
 
-import com.malhartech.annotation.InputPortFieldAnnotation;
-import com.malhartech.annotation.OutputPortFieldAnnotation;
+import com.malhartech.api.annotation.InputPortFieldAnnotation;
+import com.malhartech.api.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.lib.util.AbstractBaseSortOperator;
-import com.malhartech.lib.util.ReversibleComparator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.PriorityQueue;

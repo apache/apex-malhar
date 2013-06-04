@@ -4,6 +4,7 @@
  */
 package com.malhartech.lib.util;
 
+import com.malhartech.lib.algo.ReversibleComparator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.PriorityQueue;

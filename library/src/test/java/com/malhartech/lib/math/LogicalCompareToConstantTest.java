@@ -4,7 +4,7 @@ package com.malhartech.lib.math;
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
 import com.malhartech.engine.TestSink;
-import com.malhartech.common.Pair;
+import com.malhartech.common.util.Pair;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

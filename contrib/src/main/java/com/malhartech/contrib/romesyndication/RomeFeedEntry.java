@@ -5,8 +5,8 @@
 package com.malhartech.contrib.romesyndication;
 
 import com.esotericsoftware.kryo.DefaultSerializer;
-import com.malhartech.codec.KryoJdkContainer;
-import com.malhartech.codec.KryoJdkSerializer;
+import com.malhartech.api.codec.KryoJdkContainer;
+import com.malhartech.api.codec.KryoJdkSerializer;
 import com.sun.syndication.feed.synd.SyndEntry;
 import java.io.Serializable;
 

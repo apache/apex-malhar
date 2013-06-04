@@ -5,12 +5,12 @@
 package com.malhartech.demos.yahoofinance;
 
 import au.com.bytecode.opencsv.CSVReader;
-import com.malhartech.annotation.OutputPortFieldAnnotation;
-import com.malhartech.annotation.ShipContainingJars;
+import com.malhartech.api.annotation.OutputPortFieldAnnotation;
+import com.malhartech.api.annotation.ShipContainingJars;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
-import com.malhartech.common.KeyValPair;
+import com.malhartech.lib.util.KeyValPair;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;

@@ -5,7 +5,7 @@ import java.util.Random;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
-import com.malhartech.common.Pair;
+import com.malhartech.common.util.Pair;
 
 /**
  * Input port operator for generating random values Pair for sample application.

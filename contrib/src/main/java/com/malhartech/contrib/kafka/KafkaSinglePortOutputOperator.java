@@ -4,7 +4,7 @@
  */
 package com.malhartech.contrib.kafka;
 
-import com.malhartech.annotation.InputPortFieldAnnotation;
+import com.malhartech.api.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import kafka.javaapi.producer.ProducerData;
 
