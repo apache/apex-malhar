@@ -22,7 +22,7 @@ public class AdsDimensionRandomInputOperator extends SimpleSinglePortInputOperat
   private static final Logger LOG = LoggerFactory.getLogger(AdsDimensionRandomInputOperator.class);
   private int numAdvertisers = 200;
   private int numPublishers = 50;
-  private double expectedClickThruRate = 0.02;
+  private double expectedClickThruRate = 0.005;
   private Random random = new Random();
 
   public double getExpectedClickThruRate()
