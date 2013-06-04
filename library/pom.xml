@@ -12,7 +12,7 @@
   <artifactId>malhar-library</artifactId>
   <packaging>jar</packaging>
 
-  <name>DataTorrent Library</name>
+  <name>Operator Library</name>
   <url>http://maven.apache.org</url>
 
   <properties>
