@@ -36,21 +36,29 @@ function DrawAggrCharts()
     connect.onreadystatechange = function() {
       if(connect.readyState==4 && connect.status==200) {
         aggrData = connect.response;
-        aggrDataPoints = JSON.parse(aggrData);
+        var pts = JSON.parse(aggrData);
+        for(var i=0; i <  pts.length; i++) aggrDataPoints.push(pts[i]);
+        sortByKey(aggrDataPoints, "timestamp");
+	var cuttime = new Date().getTime() - parseInt(params['lookback']) * 3600 * 1000;
+        var count = 0;
+        for(var i=0; i < aggrDataPoints.length; i++)
+        {
+          if(parseInt(aggrDataPoints[i].timestamp)  < cuttime) count++;
+          else break;
+        }
+        aggrDataPoints.splice(0, count);
         DrawCostChart();
         DrawRevenueChart();
         DrawClicksChart();
         DrawImpressionsChart();
         delete aggrData;
-        for(var i=0; i < aggrDataPoints.length; i++) delete aggrDataPoints[i];
-        delete aggrDataPoints;
       }
     }
     connect.open('GET',  url, true);
     connect.send(null);
   } catch(e) {
   }
-  aggrLookBack += 60;
+  aggrLookBack = (new Date().getTime()/1000)-30;
 }
 
 function DrawContCharts()  
@@ -128,7 +136,7 @@ window.onload = function() {
   // draw charts 
   DrawAggrCharts();
   DrawContCharts();
-  setInterval(DrawAggrCharts, 60000);
+  setInterval(DrawAggrCharts, 30000);
   setInterval(DrawContCharts, contRefresh);
 };
 

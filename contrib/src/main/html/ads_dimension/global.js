@@ -87,7 +87,7 @@ function InitializeGlobal()
   params = SplitQuery(QueryString()); 
        
   // Initialize data points 
-  dataPoints = new Array();
+  aggrDataPoints = new Array();
   contDataPoints = new Array();
     
   // Initialize cost table 
