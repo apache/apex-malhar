@@ -32,7 +32,7 @@ public class HdfsOutputTest implements ApplicationFactory {
     module.setFilePath(config.get(KEY_FILEPATH, "hdfsoutputtest.txt"));
     module.setAppend(config.getBoolean(KEY_APPEND, false));
 
-    module.setup(new com.malhartech.engine.OperatorContext(0, null, null, null, null, null));
+    module.setup(new com.malhartech.engine.OperatorContext(0, null, null, null));
 
     for (int i=0; i<=numTuples; i++) {
       module.input.process("testdata" + i);
@@ -49,7 +49,6 @@ public class HdfsOutputTest implements ApplicationFactory {
       sb.append("\nbytes per second: " + (module.getTotalBytesWritten() * 1000L / ellapsedMillis ));
     }
     LOG.info("test summary: {}", sb);
-
   }
 
   /**
