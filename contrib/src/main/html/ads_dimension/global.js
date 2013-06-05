@@ -94,14 +94,14 @@ function InitializeGlobal()
   costTable = new google.visualization.DataTable(); 
   costTable.addColumn('datetime', 'Time');
   costTable.addColumn('number', 'Cost');
-  chartOptions = { width: 600, height: 300, legend: 'none', pointSize: 0, lineWidth : 1, hAxis : {gridlines : {count : 10}}  };
+  chartOptions = { width: 600, height: 300, legend: 'none', pointSize: 0, lineWidth : 1 };
   costChart = new google.visualization.ScatterChart(document.getElementById('chart_div'));
   costView = new google.visualization.DataView(costTable);
 
   // Initialize revenue table 
   revenueTable = new google.visualization.DataTable(); 
   revenueTable.addColumn('datetime', 'Time');
-  revenueTable.addColumn('number', 'Cost');;
+  revenueTable.addColumn('number', 'Revenue');;
   revenueChart = new google.visualization.ScatterChart(document.getElementById('chart1_div'));
   revenueView = new google.visualization.DataView(revenueTable);
 
@@ -184,14 +184,23 @@ function DrawCostChart()
     var numRows = aggrDataPoints.length - costTable.getNumberOfRows();
     costTable.addRows(numRows);
   } else {
-    for(var i=costTable.getNumberOfRows(); i < aggrDataPoints.length; i++)
+    for(var i=(costTable.getNumberOfRows()-1); i >= aggrDataPoints.length; i--)
     {
       costTable.removeRow(i);    
     }
   }
+    
+  // remove last 10 points
+  if (aggrDataPoints.length > 20)
+  {
+    for (var i=0; i < 10; i++)
+    {
+      costTable.removeRow(aggrDataPoints.length-1-i);  
+    }    
+  }
 
   // Populate data table with time/cost data points. 
-  for(var i=0; i < aggrDataPoints.length; i++)
+  for(var i=0; i < costTable.getNumberOfRows(); i++)
   {
     //if(parseFloat(aggrDataPoints[i].cost) < 500) continue;
     costTable.setCell(i, 0, new Date(parseInt(aggrDataPoints[i].timestamp)));
@@ -216,14 +225,23 @@ function DrawRevenueChart()
     var numRows = aggrDataPoints.length - revenueTable.getNumberOfRows();
     revenueTable.addRows(numRows);
   } else {
-    for(var i=revenueTable.getNumberOfRows(); i < aggrDataPoints.length; i++)
+    for(var i=(revenueTable.getNumberOfRows()-1); i >= aggrDataPoints.length; i--)
     {
       revenueTable.removeRow(i);    
     }
   }
 
+  // remove last 10 points
+  if (aggrDataPoints.length > 20)
+  {
+    for (var i=0; i < 10; i++)
+    {
+      revenueTable.removeRow(aggrDataPoints.length-1-i);  
+    }    
+  }
+
   // Populate data table with time/revenue data points. 
-  for(var i=0; i < aggrDataPoints.length; i++)
+  for(var i=0; i < revenueTable.getNumberOfRows(); i++)
   {
     revenueTable.setCell(i, 0, new Date(parseInt(aggrDataPoints[i].timestamp)));
     revenueTable.setCell(i, 1, parseFloat(aggrDataPoints[i].revenue));
@@ -247,14 +265,23 @@ function DrawClicksChart()
     var numRows = aggrDataPoints.length - clicksTable.getNumberOfRows();
     clicksTable.addRows(numRows);
   } else {
-    for(var i=clicksTable.getNumberOfRows(); i < aggrDataPoints.length; i++)
+    for(var i=(clicksTable.getNumberOfRows()-1); i >= aggrDataPoints.length; i--)
     {
       clicksTable.removeRow(i);    
     }
   }
 
+  // remove last 10 points
+  if (aggrDataPoints.length > 20)
+  {
+    for (var i=0; i < 10; i++)
+    {
+      clicksTable.removeRow(aggrDataPoints.length-1-i);  
+    }    
+  }
+
   // Populate data table with time/clicks data points. 
-  for(var i=0; i < aggrDataPoints.length; i++)
+  for(var i=0; i < clicksTable.getNumberOfRows(); i++)
   {
     clicksTable.setCell(i, 0, new Date(parseInt(aggrDataPoints[i].timestamp)));
     clicksTable.setCell(i, 1, parseInt(aggrDataPoints[i].clicks));
@@ -278,14 +305,23 @@ function DrawImpressionsChart()
     var numRows = aggrDataPoints.length - impressionsTable.getNumberOfRows();
     impressionsTable.addRows(numRows);
   } else {
-    for(var i=impressionsTable.getNumberOfRows(); i < aggrDataPoints.length; i++)
+    for(var i=(impressionsTable.getNumberOfRows()-1); i >= aggrDataPoints.length; i--)
     {
       impressionsTable.removeRow(i);    
     }
   }
 
+  // remove last 10 points
+  if (aggrDataPoints.length > 20)
+  {
+    for (var i=0; i < 10; i++)
+    {
+      impressionsTable.removeRow(aggrDataPoints.length-1-i);  
+    }    
+  }
+
   // Populate data table with time/impressions data points. 
-  for(var i=0; i < aggrDataPoints.length; i++)
+  for(var i=0; i < impressionsTable.getNumberOfRows(); i++)
   {
     impressionsTable.setCell(i, 0, new Date(parseInt(aggrDataPoints[i].timestamp)));
     impressionsTable.setCell(i, 1, parseInt(aggrDataPoints[i].impressions));
@@ -314,8 +350,17 @@ function DrawCtrChart()
     }
   }
 
+  // remove last 10 points
+  if (contDataPoints.length > 20)
+  {
+    for (var i=0; i < 10; i++)
+    {
+      ctrTable.removeRow(aggrDataPoints.length-1-i);  
+    }    
+  }
+
   // Populate data table with time/cost data points. 
-  for(var i=0; i < contDataPoints.length; i++)
+  for(var i=0; i < ctrTable.getNumberOfRows(); i++)
   {
     ctrTable.setCell(i, 0, new Date(parseInt(contDataPoints[i].timestamp)));
     ctrTable.setCell(i, 1, (parseInt(contDataPoints[i].clicks)/parseInt(contDataPoints[i].impressions))*100);
@@ -344,8 +389,17 @@ function DrawMarginChart()
     }
   }
 
+  // remove last 10 points
+  if (contDataPoints.length > 20)
+  {
+    for (var i=0; i < 10; i++)
+    {
+      marginTable.removeRow(aggrDataPoints.length-1-i);  
+    }    
+  }
+
   // Populate data table with time/cost data points. 
-  for(var i=0; i < contDataPoints.length; i++)
+  for(var i=0; i < marginTable.getNumberOfRows(); i++)
   {
     marginTable.setCell(i, 0, new Date(parseInt(contDataPoints[i].timestamp)));
     marginTable.setCell(i, 1, (parseFloat(contDataPoints[i].cost)-parseFloat(contDataPoints[i].revenue))/parseFloat(contDataPoints[i].revenue));
