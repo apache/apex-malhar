@@ -67,7 +67,7 @@ function QueryString() {
 }
 function SplitQuery(query)
 {  
-	var params = new Array();
+	var params = {};
 	var vars = query.split("&");
 	for (var i=0;i<vars.length;i++)
 	{

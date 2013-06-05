@@ -105,33 +105,21 @@ window.onload = function() {
   InitializeGlobal();   
 
   // Inituialize form fields  
-  if (params['publisher'])
-  {    
-    document.getElementById('publisher').value = "";
-    if (params['publisher'].length > 0) document.getElementById('publisher').value = "Publisher " + params['publisher'];
-  }  
-  if (params['advertiser'])
-  {    
-    document.getElementById('advertiser').value = "";
-    if (params['advertiser'].length > 0) document.getElementById('advertiser').value = "Advertiser " + params['advertiser'];
-  }
-  if (params['adunit'])
-  {    
-    document.getElementById('adunit').value = "";
-    if (params['adunit'].length > 0) document.getElementById('adunit').value = "Adunit " + params['adunit'];
-  }
-  if (params['refresh'] && (params['refresh'].length > 0))
+  if (params['publisher']) document.getElementById('publisher').value = params['publisher'];
+  if (params['advertiser']) document.getElementById('advertiser').value = params['advertiser'];
+  if (params['adunit']) document.getElementById('adunit').value = params['adunit'];
+  if (params['refresh'])
   {
     document.getElementById('refresh').value = params['refresh'];   
   } else {
     document.getElementById('refresh').value = 5;
   }    
-  if (params['lookback'] && (params['lookback'].length > 0))
+  if (params['lookback'])
   {
     document.getElementById('lookback').value = params['lookback'];   
   } else {
     document.getElementById('lookback').value = 6;
-  } 
+  }
        
   // draw charts 
   DrawAggrCharts();
@@ -163,7 +151,7 @@ window.onload = function() {
                 <form method="GET" action="index.php">
                     
                     <label for="publisher">Publisher ID:</label>
-                    <select name="publisher" style="width:200px;">
+                    <select name="publisher" id="publisher" style="width:200px;">
                   		<option value="">ALL</option>
                 		<?php
                    			for ($i = 0; $i < 50; $i++) {
@@ -173,7 +161,7 @@ window.onload = function() {
              		</select>
              		
             		<label for="">Advertiser ID:</label>
-            		<select name="advertiser" style="width:200px;">
+            		<select name="advertiser" id="advertiser" style="width:200px;">
               		    <option value="">ALL</option>
                 		<?php
                 			for ($i = 0; $i < 200; $i++) {
@@ -183,7 +171,7 @@ window.onload = function() {
             		</select>
         		
         		    <label for="">Ad Unit:</label>
-            		<select name="adunit" style="width:200px;">
+            		<select name="adunit" id="adunit" style="width:200px;">
               		    <option value="">ALL</option>
         		        <?php
                 			for ($i = 0; $i < 5; $i++) {
