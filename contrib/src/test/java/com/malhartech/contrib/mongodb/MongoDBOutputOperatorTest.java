@@ -30,7 +30,7 @@ public class MongoDBOutputOperatorTest
   public String[] arrayMapping1 = new String[columnNum];
   public final static int maxTuple = 20;
   public final static int columnNum = 5;
-  public AttributeMap<DAGContext> attrmap = new DefaultAttributeMap<DAGContext>();
+  public AttributeMap attrmap = new DefaultAttributeMap(DAGContext.class);
 
   public void buildDataset()
   {

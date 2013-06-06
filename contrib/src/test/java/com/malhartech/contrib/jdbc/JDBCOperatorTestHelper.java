@@ -39,7 +39,7 @@ public class JDBCOperatorTestHelper
   protected transient ArrayList<String> tableNames = new ArrayList<String>();
   private transient HashMap<String, Integer> columnSQLTypes = new HashMap<String, Integer>();
   private final int columnCount = 7;
-  public AttributeMap<DAGContext> attrmap = new DefaultAttributeMap<DAGContext>();
+  public AttributeMap attrmap = new DefaultAttributeMap(DAGContext.class);
 
   public String[] hashMapping1 = new String[7];
   public String[] hashMapping2 = new String[7];
