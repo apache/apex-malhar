@@ -153,7 +153,7 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
   public void setup(OperatorContext context)
   {
     super.setup(context);
-    windowWidth = context.getApplicationAttributes().attrValue(DAGContext.STRAM_WINDOW_SIZE_MILLIS, null);
+    windowWidth = context.attrValue(DAGContext.STRAM_WINDOW_SIZE_MILLIS, 500);
     dimensionCombinations.add(null);
     for (int i = 1; i <= dimensionKeyNames.size(); i++) {
       dimensionCombinations.addAll(Combinations.getNumberCombinations(dimensionKeyNames.size(), i));

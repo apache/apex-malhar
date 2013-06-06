@@ -50,7 +50,7 @@ public class TwitterTopCounterApplication implements ApplicationFactory
 
   private InputPort<Object> consoleOutput(DAG dag, String operatorName)
   {
-    String daemonAddress = dag.getAttributes().attrValue(DAG.STRAM_DAEMON_ADDRESS, null);
+    String daemonAddress = dag.attrValue(DAG.STRAM_DAEMON_ADDRESS, null);
     if (!StringUtils.isEmpty(daemonAddress)) {
       URI uri = URI.create("ws://" + daemonAddress + "/pubsub");
       String topic = "demos.twitter." + operatorName;

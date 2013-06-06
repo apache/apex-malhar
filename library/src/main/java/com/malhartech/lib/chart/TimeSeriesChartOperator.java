@@ -24,7 +24,7 @@ public abstract class TimeSeriesChartOperator<K, Y> extends XYChartOperator<K, N
   public void setup(OperatorContext context)
   {
     super.setup(context);
-    windowWidth = context.getApplicationAttributes().attrValue(DAGContext.STRAM_WINDOW_SIZE_MILLIS, null);
+    windowWidth = context.attrValue(DAGContext.STRAM_WINDOW_SIZE_MILLIS, null);
   }
 
   @Override

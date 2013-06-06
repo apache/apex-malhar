@@ -50,9 +50,10 @@ public class MongoDBInputOperatorTest
     oper.setPassWord("123");
     oper.setTable("t1");
 
-    AttributeMap<DAGContext> attrmap = new DefaultAttributeMap<DAGContext>();
-    attrmap.attr(DAG.STRAM_APP_ID).set("myMongoDBInputOperatorAppId");
-    oper.setup(new OperatorContext(1, null, null, attrmap));
+//    AttributeMap<DAGContext> attrmap = new DefaultAttributeMap<DAGContext>();
+//    attrmap.attr(DAG.STRAM_APP_ID).set("myMongoDBInputOperatorAppId");
+//    oper.setup(new OperatorContext(1, null, null, attrmap));
+    oper.setup(new OperatorContext(1, null, null, null));
 
     oper.beginWindow(0);
 

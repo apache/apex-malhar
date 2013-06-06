@@ -35,7 +35,7 @@ public class SimpleSinglePortInputOperator<T> extends BaseOperator implements In
   @Override
   public void setup(OperatorContext context)
   {
-    windowWidth = context.getApplicationAttributes().attrValue(DAG.STRAM_WINDOW_SIZE_MILLIS, 500);
+    windowWidth = context.attrValue(DAG.STRAM_WINDOW_SIZE_MILLIS, 500);
   }
 
   @Override

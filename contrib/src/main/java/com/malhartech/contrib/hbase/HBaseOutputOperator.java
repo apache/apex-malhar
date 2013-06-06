@@ -99,8 +99,8 @@ public abstract class HBaseOutputOperator<T> extends HBaseOperatorBase implement
   public void setup(OperatorContext context)
   {
     try {
-      appName = context.getApplicationAttributes().attrValue(DAG.STRAM_APPNAME, "HBaseOutputOperator");
-      appId = context.getApplicationAttributes().attrValue(DAG.STRAM_APP_ID, "AppId");
+      appName = context.attrValue(DAG.STRAM_APPNAME, "HBaseOutputOperator");
+      appId = context.attrValue(DAG.STRAM_APP_ID, "AppId");
       operatorId = context.getId();
       constructKeys();
       setupConfiguration();

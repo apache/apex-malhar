@@ -75,7 +75,7 @@ public class Application implements ApplicationFactory
     // default partitioning: first connected stream to movementGen will be partitioned
     dag.addStream("phonedata", phones.integer_data, movementGen.data).setInline(true);
 
-    String daemonAddress = dag.getAttributes().attrValue(DAG.STRAM_DAEMON_ADDRESS, null);
+    String daemonAddress = dag.attrValue(DAG.STRAM_DAEMON_ADDRESS, null);
     if (!StringUtils.isEmpty(daemonAddress)) {
       URI uri = URI.create("ws://" + daemonAddress + "/pubsub");
       LOG.info("WebSocket with daemon at: {}", daemonAddress);

@@ -529,7 +529,7 @@ public abstract class JDBCOutputOperator<T> extends JDBCOperatorBase implements 
     setupJDBCConnection();
     prepareInsertStatement();
     setOperatorId(context.getId());
-    applicationId = context.getApplicationAttributes().attr(DAG.STRAM_APP_ID).get();
+    applicationId = context.getAttributes().attr(DAG.STRAM_APP_ID).get();
   }
 
   /**

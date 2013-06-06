@@ -26,7 +26,7 @@ public class ApplicationFixedTest
 
     DAG dag = lma.cloneDAG();
     FixedTuplesInputOperator wordGenerator = (FixedTuplesInputOperator)dag.getOperatorMeta("WordGenerator").getOperator();
-    Assert.assertEquals("Queue Capacity", ApplicationFixed.QUEUE_CAPACITY, (int)dag.getMeta(wordGenerator).getMeta(wordGenerator.output).getAttributes().attrValue(PortContext.QUEUE_CAPACITY, 0));
+    Assert.assertEquals("Queue Capacity", ApplicationFixed.QUEUE_CAPACITY, (int)dag.getMeta(wordGenerator).getMeta(wordGenerator.output).attrValue(PortContext.QUEUE_CAPACITY, 0));
 
     LocalMode.Controller lc = lma.getController();
     lc.run(60000);

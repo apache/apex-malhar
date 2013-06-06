@@ -88,7 +88,7 @@ public class Application implements ApplicationFactory
   private InputPort<Object> getConsolePort(DAG b, String name, boolean silent)
   {
     // output to HTTP server when specified in environment setting
-    String daemonAddress = b.getAttributes().attrValue(DAG.STRAM_DAEMON_ADDRESS, null);
+    String daemonAddress = b.attrValue(DAG.STRAM_DAEMON_ADDRESS, null);
     if (!StringUtils.isEmpty(daemonAddress)) {
       URI uri = URI.create("ws://" + daemonAddress + "/pubsub");
       String topic = "demos.ads." + name;
