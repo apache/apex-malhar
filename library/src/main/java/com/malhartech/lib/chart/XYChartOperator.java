@@ -96,7 +96,7 @@ public abstract class XYChartOperator<K, X, Y> extends ChartOperator
    * The output port of the chart operator.  The data of this will be shipped to the module that draws the chart.
    */
   @OutputPortFieldAnnotation(name = "chart")
-  public final transient DefaultOutputPort<Map<K, Map<X, Y>>> chart = new DefaultOutputPort<Map<K, Map<X, Y>>>(this);
+  public final transient ChartingOutputPort<Map<K, Map<X, Y>>> chart = new ChartingOutputPort<Map<K, Map<X, Y>>>(this);
 
   @Override
   public void endWindow()
