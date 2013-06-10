@@ -23,11 +23,8 @@ import com.malhartech.lib.algo.TopN;
 import com.malhartech.lib.algo.TopNUnique;
 import com.malhartech.lib.io.ConsoleOutputOperator;
 import com.malhartech.lib.io.ApacheGenRandomLogs;
-import com.malhartech.lib.io.PubSubWebSocketOutputOperator;
 import com.malhartech.lib.logs.ApacheVirtualLogParseOperator;
-import com.malhartech.lib.testbench.CompareFilterTuples;
 import com.malhartech.lib.testbench.CountOccurance;
-import com.malhartech.lib.testbench.RandomEventGenerator;
 import com.malhartech.lib.testbench.TopOccurance;
 import com.malhartech.lib.util.DimensionTimeBucketOperator;
 import com.malhartech.lib.util.DimensionTimeBucketSumOperator;
@@ -71,9 +68,9 @@ public class ApacheAccessLogAnalaysis implements ApplicationFactory
     return oper.input;
   }
   
-  @Override
-  public void getApplication(DAG dag, Configuration conf)
-  {
+	@Override
+	public void populateDAG(DAG dag, Configuration conf)
+	{
   	// Generate random apche logs
   	ApacheGenRandomLogs rand = dag.addOperator("rand", new ApacheGenRandomLogs());
   	

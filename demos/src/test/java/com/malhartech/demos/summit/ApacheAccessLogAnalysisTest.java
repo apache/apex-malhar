@@ -18,7 +18,7 @@ public class ApacheAccessLogAnalysisTest
   	//LocalMode.runApp(new ApacheAccessLogAnalaysis(), 10000);
   	ApacheAccessLogAnalaysis app = new ApacheAccessLogAnalaysis();
     LocalMode lma = LocalMode.newInstance();
-    app.getApplication(lma.getDAG(), new Configuration(false));
+    app.populateDAG(lma.getDAG(), new Configuration(false));
     LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(false);
     lc.run();
