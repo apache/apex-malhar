@@ -1,0 +1,36 @@
+<?php
+/*
+ *  Copyright (c) 2012-2013 Malhar, Inc.
+ *  All Rights Reserved.
+ */
+
+header("Content-type: application/json");
+$redis = new Redis();
+$redis->connect('127.0.0.1');
+$from = $_GET['from'];
+$publisher = $_GET['publisher'];
+$advertiser = $_GET['advertiser'];
+$adunit = $_GET['adunit'];
+
+$result = array();
+$current = time()*1000;
+
+$keys = $redis->keys("*");
+for($i = 0; $i < count($keys); $i++)
+{   
+  if ($from > $keys[$i]) continue;
+  //var_dump($keys[$i]);
+  $hash = $redis->hGetAll($keys[$i]);
+  //Svar_dump($hash);
+  if ($hash)
+  {
+    if (!empty($publisher) && (strlen($publisher) > 0) && ($publisher != $hash["pub_id"])) continue;
+    if (!empty($advertiser) && (strlen($advertiser) > 0) && ($advertiser != $hash["adv_id"])) continue;
+    if (!empty($adunit) && (strlen($adunit) > 0) && ($adunit != $hash["adunit"])) continue;
+    $result[] = array('timestamp'=> $hash["timestamp"], 'cost'=>$hash["cost"], 'revenue'=>$hash["revenue"], 'clicks'=>$hash["clicks"],'impressions'=> $hash["impressions"]);
+  }
+}
+
+print json_encode($result);
+
+?>
