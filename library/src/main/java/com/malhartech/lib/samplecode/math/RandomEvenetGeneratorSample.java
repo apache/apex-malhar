@@ -16,7 +16,7 @@ import org.apache.hadoop.conf.Configuration;
 public class RandomEvenetGeneratorSample implements ApplicationFactory
 {
 	@Override
-	public void getApplication(DAG dag, Configuration conf)
+	public void populateDAG(DAG dag, Configuration conf)
 	{
 		// Create application dag.
 	    dag.setAttribute(DAG.STRAM_APPNAME, "MobileDevApplication");

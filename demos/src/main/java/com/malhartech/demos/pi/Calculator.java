@@ -42,7 +42,7 @@ public class Calculator implements ApplicationFactory
   }
 
   @Override
-  public void getApplication(DAG dag, Configuration conf)
+  public void populateDAG(DAG dag, Configuration conf)
   {
     /* keep generating random values between 0 and 30000 */
     RandomEventGenerator xyGenerator = dag.addOperator("GenerateX", RandomEventGenerator.class);

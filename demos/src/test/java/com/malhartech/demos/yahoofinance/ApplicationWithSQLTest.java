@@ -23,7 +23,7 @@ public class ApplicationWithSQLTest
   public void testSomeMethod() throws Exception
   {
     LocalMode lma = LocalMode.newInstance();
-    new ApplicationWithSQL().getApplication(lma.getDAG(), new Configuration(false));
+    new ApplicationWithSQL().populateDAG(lma.getDAG(), new Configuration(false));
     LocalMode.Controller lc = lma.getController();
 
     long start = System.currentTimeMillis();

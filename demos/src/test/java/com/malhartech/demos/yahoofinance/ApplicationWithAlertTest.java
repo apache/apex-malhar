@@ -22,7 +22,7 @@ public class ApplicationWithAlertTest
   public void testSomeMethod() throws Exception
   {
     LocalMode lma = LocalMode.newInstance();
-    new ApplicationWithAlert().getApplication(lma.getDAG(), new Configuration(false));
+    new ApplicationWithAlert().populateDAG(lma.getDAG(), new Configuration(false));
     LocalMode.Controller lc = lma.getController();
 
     long start = System.currentTimeMillis();

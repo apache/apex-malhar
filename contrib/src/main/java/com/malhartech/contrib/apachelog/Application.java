@@ -24,7 +24,7 @@ public class Application implements ApplicationFactory
   private final String addr = "tcp://127.0.0.1:5555";
 
   @Override
-  public void getApplication(DAG dag, Configuration conf)
+  public void populateDAG(DAG dag, Configuration conf)
   {
     allInline = true;
 

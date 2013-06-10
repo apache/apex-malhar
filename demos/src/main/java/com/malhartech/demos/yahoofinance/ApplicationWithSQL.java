@@ -19,7 +19,7 @@ import org.apache.hadoop.conf.Configuration;
 public class ApplicationWithSQL implements ApplicationFactory
 {
   @Override
-  public void getApplication(DAG dag, Configuration conf) {
+  public void populateDAG(DAG dag, Configuration conf) {
     String[] symbols = {"YHOO","GOOG","AAPL","FB","AMZN","NFLX","IBM"};
 
     YahooFinanceCSVInputOperator input1 = dag.addOperator("input1", new YahooFinanceCSVInputOperator());

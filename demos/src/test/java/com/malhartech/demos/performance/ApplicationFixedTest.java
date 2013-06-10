@@ -22,7 +22,7 @@ public class ApplicationFixedTest
   public void testApplication() throws IOException, Exception
   {
     LocalMode lma = LocalMode.newInstance();
-    new ApplicationFixed().getApplication(lma.getDAG(), new Configuration(false));
+    new ApplicationFixed().populateDAG(lma.getDAG(), new Configuration(false));
 
     DAG dag = lma.cloneDAG();
     FixedTuplesInputOperator wordGenerator = (FixedTuplesInputOperator)dag.getOperatorMeta("WordGenerator").getOperator();

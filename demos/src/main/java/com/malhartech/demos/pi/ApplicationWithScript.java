@@ -21,7 +21,7 @@ public class ApplicationWithScript implements ApplicationFactory
 {
 
   @Override
-  public void getApplication(DAG dag, Configuration conf)
+  public void populateDAG(DAG dag, Configuration conf)
   {
     int maxValue = 30000;
 

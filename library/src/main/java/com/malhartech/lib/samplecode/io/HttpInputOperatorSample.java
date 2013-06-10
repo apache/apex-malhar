@@ -23,7 +23,7 @@ import com.malhartech.lib.io.HttpInputOperator;
 public class HttpInputOperatorSample implements ApplicationFactory
 {
 	@Override
-	public void getApplication(DAG dag, Configuration conf)
+	public void populateDAG(DAG dag, Configuration conf)
 	{
 		// Create application dag.
 		dag.setAttribute(DAGContext.STRAM_APPNAME, "MobileDevApplication");

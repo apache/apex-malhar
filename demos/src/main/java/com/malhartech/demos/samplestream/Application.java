@@ -22,7 +22,7 @@ public class Application implements ApplicationFactory
   private final boolean allInline = false;
 
   @Override
-  public void getApplication(DAG dag, Configuration conf)
+  public void populateDAG(DAG dag, Configuration conf)
   {
 
     YahooFinanceCSVInputOperator input = dag.addOperator("input", new YahooFinanceCSVInputOperator());

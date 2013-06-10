@@ -19,7 +19,7 @@ public class CompreMapSample implements ApplicationFactory
 {
 	@SuppressWarnings("unchecked")
 	@Override
-	public void getApplication(DAG dag, Configuration conf)
+	public void populateDAG(DAG dag, Configuration conf)
 	{
 		// Create application dag.
 		dag.setAttribute(DAG.STRAM_APPNAME, "MobileDevApplication");

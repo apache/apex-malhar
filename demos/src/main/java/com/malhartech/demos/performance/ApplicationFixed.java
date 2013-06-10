@@ -19,7 +19,7 @@ public class ApplicationFixed implements ApplicationFactory
   public static final int QUEUE_CAPACITY = 16 * 1024;
 
   @Override
-  public void getApplication(DAG dag, Configuration conf)
+  public void populateDAG(DAG dag, Configuration conf)
   {
     FixedTuplesInputOperator wordGenerator = dag.addOperator("WordGenerator", FixedTuplesInputOperator.class);
     dag.getMeta(wordGenerator).getMeta(wordGenerator.output).getAttributes().attr(PortContext.QUEUE_CAPACITY).set(QUEUE_CAPACITY);

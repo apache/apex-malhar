@@ -23,7 +23,7 @@ public class ApplicationTest
   public void testSomeMethod() throws Exception
   {
     LocalMode lma = LocalMode.newInstance();
-    new Application().getApplication(lma.getDAG(), new Configuration(false));
+    new Application().populateDAG(lma.getDAG(), new Configuration(false));
     LocalMode.Controller lc = lma.getController();
 
     long start = System.currentTimeMillis();

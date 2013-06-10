@@ -22,7 +22,7 @@ public class Application implements ApplicationFactory
 {
   private static final boolean inline = true;
   @Override
-  public void getApplication(DAG dag, Configuration conf)
+  public void populateDAG(DAG dag, Configuration conf)
   {
     TwitterSampleInput twitterFeed = dag.addOperator("TweetSampler", TwitterSampleInput.class);
 

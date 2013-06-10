@@ -20,7 +20,7 @@ import org.apache.hadoop.conf.Configuration;
 public class ApplicationWithAlert implements ApplicationFactory
 {
   @Override
-  public void getApplication(DAG dag, Configuration conf)
+  public void populateDAG(DAG dag, Configuration conf)
   {
     String[] symbols = {"YHOO", "GOOG", "AAPL", "FB", "AMZN", "NFLX", "IBM"};
 

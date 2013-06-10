@@ -66,7 +66,7 @@ public class TwitterTopCounterApplication implements ApplicationFactory
   }
 
   @Override
-  public void getApplication(DAG dag, Configuration conf)
+  public void populateDAG(DAG dag, Configuration conf)
   {
     dag.setAttribute(DAG.STRAM_APPNAME, "TwitterDevApplication");
 

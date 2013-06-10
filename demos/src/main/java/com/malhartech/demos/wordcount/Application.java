@@ -23,7 +23,7 @@ public class Application implements ApplicationFactory
   private boolean allInline =  false;
 
   @Override
-  public void getApplication(DAG dag, Configuration conf)
+  public void populateDAG(DAG dag, Configuration conf)
   {
     allInline = true;
 

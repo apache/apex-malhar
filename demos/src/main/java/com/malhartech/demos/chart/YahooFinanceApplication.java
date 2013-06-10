@@ -78,7 +78,7 @@ public class YahooFinanceApplication extends com.malhartech.demos.yahoofinance.A
   }
 
   @Override
-  public void getApplication(DAG dag, Configuration conf)
+  public void populateDAG(DAG dag, Configuration conf)
   {
     dag.getAttributes().attr(DAG.STRAM_WINDOW_SIZE_MILLIS).set(streamingWindowSizeMilliSeconds);
 

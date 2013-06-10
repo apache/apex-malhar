@@ -72,7 +72,7 @@ public class Application implements ApplicationFactory
   }
 
   @Override
-  public void getApplication(DAG dag, Configuration conf)
+  public void populateDAG(DAG dag, Configuration conf)
   {
     DAG dag = new DAG(conf);
     AdsDimensionLogInputOperator adsDimensionInputOperator = getAdsDimensionInputOperator("AdsDimensionInput", dag);

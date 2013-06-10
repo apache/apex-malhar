@@ -55,7 +55,7 @@ public class HdfsOutputTest implements ApplicationFactory {
    * Utilize CLI to run as client on hadoop cluster
    */
   @Override
-  public void getApplication(DAG dag, Configuration cfg) {
+  public void populateDAG(DAG dag, Configuration cfg) {
 
     this.numTuples = cfg.getLong(this.getClass().getName() + ".numTuples", this.numTuples);
 

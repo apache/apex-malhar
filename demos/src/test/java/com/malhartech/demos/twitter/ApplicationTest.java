@@ -38,7 +38,7 @@ public class ApplicationTest
   public void testApplication() throws Exception
   {
     LocalMode lma = LocalMode.newInstance();
-    new TwitterTopCounterApplication().getApplication(lma.getDAG(), new Configuration(false));
+    new TwitterTopCounterApplication().populateDAG(lma.getDAG(), new Configuration(false));
     LocalMode.Controller lc = lma.getController();
     lc.run(10000);
   }

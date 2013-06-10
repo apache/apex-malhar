@@ -36,7 +36,7 @@ public class ApplicationTest {
     Application app = new Application();
     app.setUnitTestMode(); // terminate quickly
     //app.setLocalMode(); // terminate with a long run
-    app.getApplication(lma.getDAG(), new Configuration(false));
+    app.populateDAG(lma.getDAG(), new Configuration(false));
     try {
       LocalMode.Controller lc = lma.getController();
       lc.setHeartbeatMonitoringEnabled(false);

@@ -16,7 +16,7 @@ public class ApplicationTest
   {
     Application app = new Application();
     LocalMode lma = LocalMode.newInstance();
-    app.getApplication(lma.getDAG(), new Configuration(false));
+    app.populateDAG(lma.getDAG(), new Configuration(false));
     LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(false);
     lc.run();

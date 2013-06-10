@@ -45,7 +45,7 @@ public class ApplicationEventGenerator implements ApplicationFactory
   }
 
   @Override
-  public void getApplication(DAG dag, Configuration conf)
+  public void populateDAG(DAG dag, Configuration conf)
   {
     dag.getAttributes().attr(DAG.STRAM_CHECKPOINT_WINDOW_COUNT).set(0); // disable operator state saving
     EventGenerator lgen = getLoadGenerator("lgen", dag);
