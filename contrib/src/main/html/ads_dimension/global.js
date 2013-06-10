@@ -141,7 +141,7 @@ function InitializeGlobal()
   // get continuos lookback 
   contLookBack = lookback;
   contRefresh = 5;
-  if (params['refresh'] && (params['refresh'].length > 0)) contRefresh = parseInt(params['refresh']);
+  //if (params['refresh'] && (params['refresh'].length > 0)) contRefresh = parseInt(params['refresh']);
 }
 
 

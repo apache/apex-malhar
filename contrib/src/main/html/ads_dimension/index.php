@@ -125,7 +125,7 @@ window.onload = function() {
   DrawAggrCharts();
   DrawContCharts();
   setInterval(DrawAggrCharts, 30000);
-  setInterval(DrawContCharts, contRefresh);
+  setInterval(DrawContCharts, contRefresh * 1000);
 };
 
 </script>
