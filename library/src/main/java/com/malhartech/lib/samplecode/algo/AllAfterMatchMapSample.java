@@ -23,8 +23,8 @@ public class AllAfterMatchMapSample implements ApplicationFactory
 	public void populateDAG(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-		dag.setAttribute(DAG.STRAM_APPNAME, "AllAfterMatchMapSample");
-		//dag.setAttribute(DAG.STRAM_DEBUG, true);
+		dag.setAttribute(DAG.APPLICATION_NAME, "AllAfterMatchMapSample");
+		//dag.setAttribute(DAG.DEBUG, true);
 
 		// Add random integer generator operator
 		RandomKeyValMap rand = dag.addOperator("rand", RandomKeyValMap.class);

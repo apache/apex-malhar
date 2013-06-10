@@ -30,14 +30,14 @@ public class Application implements ApplicationFactory
 
   private void configure(DAG dag, Configuration conf)
   {
-    dag.setAttribute(DAG.STRAM_MAX_CONTAINERS, 1);
-    if (LAUNCHMODE_YARN.equals(conf.get(DAG.STRAM_LAUNCH_MODE))) {
+    dag.setAttribute(DAG.CONTAINERS_MAX_COUNT, 1);
+    if (LAUNCHMODE_YARN.equals(conf.get(DAG.LAUNCH_MODE))) {
       // settings only affect distributed mode
-      dag.getAttributes().attr(DAG.STRAM_CONTAINER_MEMORY_MB).setIfAbsent(2048);
-      dag.getAttributes().attr(DAG.STRAM_MASTER_MEMORY_MB).setIfAbsent(1024);
-      dag.getAttributes().attr(DAG.STRAM_MAX_CONTAINERS).setIfAbsent(1);
+      dag.getAttributes().attr(DAG.CONTAINER_MEMORY_MB).setIfAbsent(2048);
+      dag.getAttributes().attr(DAG.MASTER_MEMORY_MB).setIfAbsent(1024);
+      dag.getAttributes().attr(DAG.CONTAINERS_MAX_COUNT).setIfAbsent(1);
     }
-    else if (LAUNCHMODE_LOCAL.equals(conf.get(DAG.STRAM_LAUNCH_MODE))) {
+    else if (LAUNCHMODE_LOCAL.equals(conf.get(DAG.LAUNCH_MODE))) {
     }
 
     String phoneRange = conf.get(P_phoneRange, null);
@@ -56,8 +56,8 @@ public class Application implements ApplicationFactory
   {
     configure(dag, conf);
 
-    dag.setAttribute(DAG.STRAM_APPNAME, "MobileDevApplication");
-    dag.setAttribute(DAG.STRAM_DEBUG, true);
+    dag.setAttribute(DAG.APPLICATION_NAME, "MobileDevApplication");
+    dag.setAttribute(DAG.DEBUG, true);
 
     RandomEventGenerator phones = dag.addOperator("phonegen", RandomEventGenerator.class);
     phones.setMinvalue(this.phoneRange.lowerEndpoint());
@@ -75,7 +75,7 @@ public class Application implements ApplicationFactory
     // default partitioning: first connected stream to movementGen will be partitioned
     dag.addStream("phonedata", phones.integer_data, movementGen.data).setInline(true);
 
-    String daemonAddress = dag.attrValue(DAG.STRAM_DAEMON_ADDRESS, null);
+    String daemonAddress = dag.attrValue(DAG.DAEMON_ADDRESS, null);
     if (!StringUtils.isEmpty(daemonAddress)) {
       URI uri = URI.create("ws://" + daemonAddress + "/pubsub");
       LOG.info("WebSocket with daemon at: {}", daemonAddress);

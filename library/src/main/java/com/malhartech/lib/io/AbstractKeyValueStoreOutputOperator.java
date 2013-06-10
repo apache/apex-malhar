@@ -59,7 +59,7 @@ public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOper
   public void setup(OperatorContext ctxt)
   {
     operatorId = ctxt.getId();
-    appId = ctxt.attrValue(DAGContext.STRAM_APP_ID, "Unnamed");
+    appId = ctxt.attrValue(DAGContext.APPLICATION_ID, "Unnamed");
     String v = get(getEndWindowKey());
     if (v != null) {
       committedWindowId = Long.valueOf(v);

@@ -111,9 +111,9 @@ public class JDBCRecoveryTest
     LocalMode lma = LocalMode.newInstance();
     DAG dag = lma.getDAG();
 
-    dag.getAttributes().attr(DAG.STRAM_CHECKPOINT_WINDOW_COUNT).set(2);
-    dag.getAttributes().attr(DAG.STRAM_WINDOW_SIZE_MILLIS).set(300);
-    dag.getAttributes().attr(DAG.STRAM_MAX_CONTAINERS).set(1);
+    dag.getAttributes().attr(DAG.CHECKPOINT_WINDOW_COUNT).set(2);
+    dag.getAttributes().attr(DAG.STREAMING_WINDOW_SIZE_MILLIS).set(300);
+    dag.getAttributes().attr(DAG.CONTAINERS_MAX_COUNT).set(1);
 
     JDBCRecoverInputOperator rip = dag.addOperator("Generator", JDBCRecoverInputOperator.class);
     rip.setMaximumTuples(maxTuple);
@@ -279,9 +279,9 @@ public class JDBCRecoveryTest
 
     LocalMode lma = LocalMode.newInstance();
     DAG dag = lma.getDAG();
-    dag.getAttributes().attr(DAG.STRAM_CHECKPOINT_WINDOW_COUNT).set(2);
-    dag.getAttributes().attr(DAG.STRAM_WINDOW_SIZE_MILLIS).set(300);
-    dag.getAttributes().attr(DAG.STRAM_MAX_CONTAINERS).set(1);
+    dag.getAttributes().attr(DAG.CHECKPOINT_WINDOW_COUNT).set(2);
+    dag.getAttributes().attr(DAG.STREAMING_WINDOW_SIZE_MILLIS).set(300);
+    dag.getAttributes().attr(DAG.CONTAINERS_MAX_COUNT).set(1);
 
     JDBCRecoverInputOperator rip = dag.addOperator("Generator", JDBCRecoverInputOperator.class);
     rip.setMaximumTuples(maxTuple);

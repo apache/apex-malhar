@@ -28,7 +28,7 @@ public class Application implements ApplicationFactory
   {
     allInline = true;
 
-    dag.getAttributes().attr(DAG.STRAM_WINDOW_SIZE_MILLIS).set(1000);
+    dag.getAttributes().attr(DAG.STREAMING_WINDOW_SIZE_MILLIS).set(1000);
     SimpleSinglePortZeroMQPullStringInputOperator input = dag.addOperator("input", new SimpleSinglePortZeroMQPullStringInputOperator(addr));
     ApacheLogParseOperator parse = dag.addOperator("parse", new ApacheLogParseOperator());
     UniqueCounter<String> ipAddrCount = dag.addOperator("ipAddrCount", new UniqueCounter<String>());

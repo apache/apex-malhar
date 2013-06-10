@@ -34,7 +34,7 @@ public class HBaseAppendOperatorTest
       LocalMode lma = LocalMode.newInstance();
       DAG dag = lma.getDAG();
 
-      dag.setAttribute(DAG.STRAM_APPNAME, "HBaseAppendOperatorTest");
+      dag.setAttribute(DAG.APPLICATION_NAME, "HBaseAppendOperatorTest");
       HBaseColTupleGenerator ctg = dag.addOperator("coltuplegenerator", HBaseColTupleGenerator.class);
       TestHBaseAppendOperator thop = dag.addOperator("testhbaseput", TestHBaseAppendOperator.class);
       dag.addStream("ss", ctg.outputPort, thop.inputPort);

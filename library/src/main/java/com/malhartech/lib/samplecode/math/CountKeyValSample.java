@@ -22,8 +22,8 @@ public class CountKeyValSample implements ApplicationFactory
 	public void populateDAG(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-		dag.setAttribute(DAG.STRAM_APPNAME, "TestApp");
-		dag.setAttribute(DAG.STRAM_DEBUG, true);
+		dag.setAttribute(DAG.APPLICATION_NAME, "TestApp");
+		dag.setAttribute(DAG.DEBUG, true);
 
 		// Add random integer generator operator
 		CountKeyValues rand = dag.addOperator("rand", CountKeyValues.class);

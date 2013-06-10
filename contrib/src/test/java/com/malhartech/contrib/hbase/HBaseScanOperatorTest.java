@@ -36,7 +36,7 @@ public class HBaseScanOperatorTest
       LocalMode lma = LocalMode.newInstance();
       DAG dag = lma.getDAG();
 
-      dag.setAttribute(DAG.STRAM_APPNAME, "HBaseScanOperatorTest");
+      dag.setAttribute(DAG.APPLICATION_NAME, "HBaseScanOperatorTest");
       TestHBaseScanOperator thop = dag.addOperator("testhbasescan", TestHBaseScanOperator.class);
       HBaseTupleCollector tc = dag.addOperator("tuplecollector", HBaseTupleCollector.class);
       dag.addStream("ss", thop.outputPort, tc.inputPort);

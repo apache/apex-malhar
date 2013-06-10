@@ -19,8 +19,8 @@ public class RandomEvenetGeneratorSample implements ApplicationFactory
 	public void populateDAG(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-	    dag.setAttribute(DAG.STRAM_APPNAME, "MobileDevApplication");
-	    dag.setAttribute(DAG.STRAM_DEBUG, true);
+	    dag.setAttribute(DAG.APPLICATION_NAME, "MobileDevApplication");
+	    dag.setAttribute(DAG.DEBUG, true);
 
 	    // Add random integer generator operator
 	    RandomEventGenerator rand = dag.addOperator("rand", RandomEventGenerator.class);

@@ -26,8 +26,8 @@ public class HttpInputOperatorSample implements ApplicationFactory
 	public void populateDAG(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-		dag.setAttribute(DAGContext.STRAM_APPNAME, "MobileDevApplication");
-		dag.setAttribute(DAGContext.STRAM_DEBUG, true);
+		dag.setAttribute(DAGContext.APPLICATION_NAME, "MobileDevApplication");
+		dag.setAttribute(DAGContext.DEBUG, true);
 
 		// Add random integer generator operator
 		HttpInputOperator reader = dag.addOperator("reader",

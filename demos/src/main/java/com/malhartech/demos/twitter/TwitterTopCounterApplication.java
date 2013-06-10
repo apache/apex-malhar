@@ -50,7 +50,7 @@ public class TwitterTopCounterApplication implements ApplicationFactory
 
   private InputPort<Object> consoleOutput(DAG dag, String operatorName)
   {
-    String daemonAddress = dag.attrValue(DAG.STRAM_DAEMON_ADDRESS, null);
+    String daemonAddress = dag.attrValue(DAG.DAEMON_ADDRESS, null);
     if (!StringUtils.isEmpty(daemonAddress)) {
       URI uri = URI.create("ws://" + daemonAddress + "/pubsub");
       String topic = "demos.twitter." + operatorName;
@@ -68,7 +68,7 @@ public class TwitterTopCounterApplication implements ApplicationFactory
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    dag.setAttribute(DAG.STRAM_APPNAME, "TwitterDevApplication");
+    dag.setAttribute(DAG.APPLICATION_NAME, "TwitterDevApplication");
 
     // Setup the operator to get the data from twitter sample stream injected into the system.
     TwitterSampleInput twitterFeed = dag.addOperator("TweetSampler", TwitterSampleInput.class);

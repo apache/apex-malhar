@@ -168,7 +168,7 @@ public class JDBCOperatorTestHelper
     columnSQLTypes.put("VARBINARY", new Integer(Types.VARBINARY));
     columnSQLTypes.put("VARCHAR", new Integer(Types.VARCHAR));
 
-    attrmap.attr(DAG.STRAM_APP_ID).set("myJDBCOutputOperatorAppId");
+    attrmap.attr(DAG.APPLICATION_ID).set("myJDBCOutputOperatorAppId");
 
   }
 

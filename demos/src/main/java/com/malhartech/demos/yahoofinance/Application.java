@@ -160,7 +160,7 @@ public class Application implements ApplicationFactory
   public void populateDAG(DAG dag, Configuration conf)
   {
 
-    dag.getAttributes().attr(DAG.STRAM_WINDOW_SIZE_MILLIS).set(streamingWindowSizeMilliSeconds);
+    dag.getAttributes().attr(DAG.STREAMING_WINDOW_SIZE_MILLIS).set(streamingWindowSizeMilliSeconds);
 
     StockTickInput tick = getStockTickInputOperator("StockTickInput", dag);
     SumKeyVal<String, Long> dailyVolume = getDailyVolumeOperator("DailyVolume", dag);

@@ -59,7 +59,8 @@ public class AdsDimensionRandomInputOperator extends SimpleSinglePortInputOperat
       int lineno = 0;
       while (true) {
         int advertiserId = nextRandomId(numAdvertisers);
-        int publisherId = (advertiserId * 10 / numAdvertisers) * numPublishers / 10 + nextRandomId(numPublishers / 10);
+        //int publisherId = (advertiserId * 10 / numAdvertisers) * numPublishers / 10 + nextRandomId(numPublishers / 10);
+        int publisherId = nextRandomId(numPublishers);
         int adUnit = random.nextInt(5);
 
         Map<String, Object> map = new HashMap<String, Object>();

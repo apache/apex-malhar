@@ -22,8 +22,8 @@ public class AverageKeyValSample implements ApplicationFactory
 	public void populateDAG(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-		dag.setAttribute(DAG.STRAM_APPNAME, "AverageKeyValSample");
-		dag.setAttribute(DAG.STRAM_DEBUG, true);
+		dag.setAttribute(DAG.APPLICATION_NAME, "AverageKeyValSample");
+		dag.setAttribute(DAG.DEBUG, true);
 
 		// Add random integer generator operator
 		RandomKeyValues rand = dag.addOperator("rand", RandomKeyValues.class);

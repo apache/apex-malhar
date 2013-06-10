@@ -67,14 +67,14 @@ public class Application implements ApplicationFactory
   private void configure(DAG dag, Configuration conf)
   {
 
-    if (LAUNCHMODE_YARN.equals(conf.get(DAG.STRAM_LAUNCH_MODE))) {
+    if (LAUNCHMODE_YARN.equals(conf.get(DAG.LAUNCH_MODE))) {
       setLocalMode();
       // settings only affect distributed mode
-      dag.getAttributes().attr(DAG.STRAM_CONTAINER_MEMORY_MB).setIfAbsent(2048);
-      dag.getAttributes().attr(DAG.STRAM_MASTER_MEMORY_MB).setIfAbsent(1024);
-      dag.getAttributes().attr(DAG.STRAM_MAX_CONTAINERS).setIfAbsent(1);
+      dag.getAttributes().attr(DAG.CONTAINER_MEMORY_MB).setIfAbsent(2048);
+      dag.getAttributes().attr(DAG.MASTER_MEMORY_MB).setIfAbsent(1024);
+      dag.getAttributes().attr(DAG.CONTAINERS_MAX_COUNT).setIfAbsent(1);
     }
-    else if (LAUNCHMODE_LOCAL.equals(conf.get(DAG.STRAM_LAUNCH_MODE))) {
+    else if (LAUNCHMODE_LOCAL.equals(conf.get(DAG.LAUNCH_MODE))) {
       setLocalMode();
     }
 
@@ -88,7 +88,7 @@ public class Application implements ApplicationFactory
   private InputPort<Object> getConsolePort(DAG b, String name, boolean silent)
   {
     // output to HTTP server when specified in environment setting
-    String daemonAddress = b.attrValue(DAG.STRAM_DAEMON_ADDRESS, null);
+    String daemonAddress = b.attrValue(DAG.DAEMON_ADDRESS, null);
     if (!StringUtils.isEmpty(daemonAddress)) {
       URI uri = URI.create("ws://" + daemonAddress + "/pubsub");
       String topic = "demos.ads." + name;
@@ -202,10 +202,10 @@ public class Application implements ApplicationFactory
   public void populateDAG(DAG dag, Configuration conf)
   {
     configure(dag, conf);
-    dag.setAttribute(DAG.STRAM_APPNAME, "AdsDevApplication");
-    dag.setAttribute(DAG.STRAM_WINDOW_SIZE_MILLIS, WINDOW_SIZE_MILLIS); // set the streaming window size to 1 millisec
+    dag.setAttribute(DAG.APPLICATION_NAME, "AdsDevApplication");
+    dag.setAttribute(DAG.STREAMING_WINDOW_SIZE_MILLIS, WINDOW_SIZE_MILLIS); // set the streaming window size to 1 millisec
 
-    //dag.getAttributes().attr(DAG.STRAM_MAX_CONTAINERS).setIfAbsent(9);
+    //dag.getAttributes().attr(DAG.CONTAINERS_MAX_COUNT).setIfAbsent(9);
     EventGenerator viewGen = getPageViewGenOperator("viewGen", dag);
     dag.getMeta(viewGen).getAttributes().attr(OperatorContext.INITIAL_PARTITION_COUNT).set(numGenerators);
     dag.setOutputPortAttribute(viewGen.hash_data, PortContext.QUEUE_CAPACITY, 32 * 1024);

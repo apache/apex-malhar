@@ -52,7 +52,7 @@ public class MongoDBOutputOperatorTest
     arrayMapping1[3] = "t2.col2:STRING";
     arrayMapping1[4] = "t2.col1:INT";
 
-    attrmap.attr(DAG.STRAM_APP_ID).set("myMongoDBOouputOperatorAppId");
+    attrmap.attr(DAG.APPLICATION_ID).set("myMongoDBOouputOperatorAppId");
 
   }
 

@@ -24,8 +24,8 @@ public class ChangeSample implements ApplicationFactory
 	public void populateDAG(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-		dag.setAttribute(DAG.STRAM_APPNAME, "ChangeSample");
-		dag.setAttribute(DAG.STRAM_DEBUG, true);
+		dag.setAttribute(DAG.APPLICATION_NAME, "ChangeSample");
+		dag.setAttribute(DAG.DEBUG, true);
 
 		// Add random integer generator operator
 		RandomEventGenerator rand = dag.addOperator("rand",

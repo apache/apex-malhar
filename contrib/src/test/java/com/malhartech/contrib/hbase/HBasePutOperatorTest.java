@@ -32,7 +32,7 @@ public class HBasePutOperatorTest
       LocalMode lma = LocalMode.newInstance();
       DAG dag = lma.getDAG();
 
-      dag.setAttribute(DAG.STRAM_APPNAME, "HBasePutOperatorTest");
+      dag.setAttribute(DAG.APPLICATION_NAME, "HBasePutOperatorTest");
       HBaseRowTupleGenerator rtg = dag.addOperator("tuplegenerator", HBaseRowTupleGenerator.class);
       TestHBasePutOperator thop = dag.addOperator("testhbaseput", TestHBasePutOperator.class);
       dag.addStream("ss", rtg.outputPort, thop.inputPort);
