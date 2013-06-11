@@ -34,12 +34,10 @@ window.onload = function() {
   // Initialize variables   
   InitializeGlobal();
    
-  // Draw top url charts 
+  // Draw top charts 
   DrawTopUrlTableChart();
-  setInterval(DrawTopUrlTableChart, 1000);
-    
-  // Draw top ip client chart 
   DrawTopIpClientTableChart();
+  setInterval(DrawTopUrlTableChart, 1000);
   setInterval(DrawTopIpClientTableChart, 1000);
 };
 

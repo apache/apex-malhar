@@ -17,20 +17,21 @@ function DrawTopUrlTableChart()
       if(connect.readyState==4 && connect.status==200) {
         var data = connect.response;
         var pts = JSON.parse(data);
-        if (pts.length > topUrlTable.getNumberOfRows())
-        {
-          var numRows = pts.length - topUrlTable.getNumberOfRows();
-          topUrlTable.addRows(numRows);      
-        } 
+        topUrlTable = new google.visualization.DataTable();
+        topUrlTable.addColumn('string', 'TopUrl');
         for(var i=0; i <  pts.length; i++) 
         {
-          topUrlTable.setCell(0, i, pts[i]);
+          var row = new Array();
+          row.push(pts[i]);
+          topUrlTable.addRow(row);
+          delete row;
           delete pts[i];
         }
-        delete pts;
-        delete data;
-        topUrlTableChart.draw(topUrlTable, {showRowNumber: true});
         //document.getElementById('top_url_div').innerHTML = data;
+        topUrlTableChart.draw(topUrlTable, {showRowNumber: true});
+        delete topUrlTable;
+        delete data;
+        delete pts;
       }
     }
     connect.open('GET',  "/TopUrlData.php", true);

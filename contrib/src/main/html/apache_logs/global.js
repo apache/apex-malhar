@@ -91,13 +91,8 @@ function InitializeGlobal()
   serverLoadChart = new google.visualization.LineChart(document.getElementById('server_load_div'));
   serverLoadView = new google.visualization.DataView(serverLoadTable);
   serverLoadInterval = 1;
-
-  topUrlTable = new google.visualization.DataTable();
-  topUrlTable.addColumn('string', 'TopUrl');
-  topUrlTableChart = new google.visualization.Table(document.getElementById('top_url_div'));
  
-  topIpClientTable = new google.visualization.DataTable();
-  topIpClientTable.addColumn('string', 'TopIpClient');
+  topUrlTableChart = new google.visualization.Table(document.getElementById('top_url_div'));
   topIpClientTableChart = new google.visualization.Table(document.getElementById('top_IpClient_div'));
 }
 

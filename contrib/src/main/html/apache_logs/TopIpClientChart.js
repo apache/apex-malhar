@@ -17,19 +17,20 @@ function DrawTopIpClientTableChart()
       if(connect.readyState==4 && connect.status==200) {
         var data = connect.response;
         var pts = JSON.parse(data);
-        if (pts.length > topIpClientTable.getNumberOfRows())
-        {
-          var numRows = pts.length - topIpClientTable.getNumberOfRows();
-          topIpClientTable.addRows(numRows);      
-        } 
+        topIpClientTable = new google.visualization.DataTable();
+        topIpClientTable.addColumn('string', 'TopIpClient');
         for(var i=0; i <  pts.length; i++) 
         {
-          topIpClientTable.setCell(0, i, pts[i]);
+          var row = new Array();
+          row.push(pts[i]);
+          topIpClientTable.addRow(row);
+          delete row
           delete pts[i];
         }
-        delete pts;
-        delete data;
         topIpClientTableChart.draw(topIpClientTable, {showRowNumber: true});
+        delete topIpClientTable;
+        delete data;
+        delete pts;
         //document.getElementById('top_IpClient_div').innerHTML = data;
       }
     }
