@@ -58,4 +58,9 @@ public class PiCalculateOperator extends BaseOperator
     base = num;
   }
 
+  public int getBase()
+  {
+    return base;
+  }
+
 }
