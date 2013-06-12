@@ -2,6 +2,7 @@
 header("Content-type: application/json");
 $redis = new Redis();
 $redis->connect('127.0.0.1');
+$redis->select(1);
 $format = 'YmdHi';
 $incr = 60;
 

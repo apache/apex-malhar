@@ -2,7 +2,7 @@
 header("Content-type: application/json");
 $redis = new Redis();
 $redis->connect('127.0.0.1');
-$redis->select(2);
+$redis->select(3);
 
 // result array
 $result = array();
