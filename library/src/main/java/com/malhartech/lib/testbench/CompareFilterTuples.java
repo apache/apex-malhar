@@ -51,6 +51,7 @@ public class CompareFilterTuples<k> extends BaseOperator
 	
 	//out port
 	public final transient DefaultOutputPort<Map<k, Integer>> outport = new DefaultOutputPort<Map<k, Integer>>(this);
+	public final transient DefaultOutputPort<Map<Integer, String>> redisport = new DefaultOutputPort<Map<Integer, String>>(this);
 	
 	@Override
 	public void beginWindow(long windowId)
@@ -62,5 +63,21 @@ public class CompareFilterTuples<k> extends BaseOperator
 	public void endWindow()
 	{
 		outport.emit(result);
+		
+		int numOuts = 1;
+		Integer total = 0;
+		for (Map.Entry<k, Integer>  entry : result.entrySet())
+		{
+			Map<Integer, String> tuple = new HashMap<Integer, String>();
+			tuple.put(numOuts++, entry.getKey().toString());
+			redisport.emit(tuple);
+			total += entry.getValue();
+		}
+		Map<Integer, String> tuple = new HashMap<Integer, String>();
+		tuple.put(numOuts++, total.toString());
+		redisport.emit(tuple);
+		tuple = new HashMap<Integer, String>();
+		tuple.put(0, new Integer(numOuts).toString());
+		redisport.emit(tuple);
 	}
 }

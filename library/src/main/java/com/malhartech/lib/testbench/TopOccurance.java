@@ -19,9 +19,11 @@ public class TopOccurance extends BaseOperator
 {
 	// n value  
 	private int n = 5;
+	private int threshHold = 5;
 	
   //out port
 	public final transient DefaultOutputPort<Map<Integer, String>> outport = new DefaultOutputPort<Map<Integer, String>>(this);
+	public final transient DefaultOutputPort<Map<Integer, String>> gtThreshHold = new DefaultOutputPort<Map<Integer, String>>(this);
   
 	// input port    
 	public final transient DefaultInputPort<Map<String, Integer>> inport = 
@@ -60,6 +62,21 @@ public class TopOccurance extends BaseOperator
 					if (numOuts >= n) break;
 				}
       }
+      
+      // output greater than threshhold
+      numOuts = 1;
+      for (Map.Entry<String, Integer> entry : tuple.entrySet())
+      {
+      	if (entry.getValue() > threshHold)
+      	{
+      		Map<Integer, String> out = new HashMap<Integer, String>();
+					out.put(numOuts++, entry.getKey());
+					gtThreshHold.emit(out);
+				}
+      }
+      Map<Integer, String> out = new HashMap<Integer, String>();
+			out.put(0,  new Integer(numOuts).toString());
+			gtThreshHold.emit(out);
 		}
 	};
 
@@ -72,4 +89,15 @@ public class TopOccurance extends BaseOperator
 	{
 		this.n = n;
 	}
+
+	public int getThreshHold()
+	{
+		return threshHold;
+	}
+
+	public void setThreshHold(int threshHold)
+	{
+		this.threshHold = threshHold;
+	}
+	
 }

@@ -7,6 +7,8 @@ import com.malhartech.api.DefaultOutputPort;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -71,6 +73,10 @@ public class ApacheVirtualLogParseOperator extends BaseOperator {
     public final transient DefaultOutputPort<String> outputReferer = new DefaultOutputPort<String>(this);
     public final transient DefaultOutputPort<String> outputAgent = new DefaultOutputPort<String>(this);
     public final transient DefaultOutputPort<String> outputServerName = new DefaultOutputPort<String>(this);
+    public final transient DefaultOutputPort<Map<String, String>> outUrlStatus = new DefaultOutputPort<Map<String, String>>(this);
+    public final transient DefaultOutputPort<Map<String, String>> outIpStatus = new DefaultOutputPort<Map<String, String>>(this);
+    public final transient DefaultOutputPort<Map<String, Integer>> clientDataUsage = new DefaultOutputPort<Map<String, Integer>>(this);
+
 
     protected static String getAccessLogRegex() {
     	  String regex0 = "^([^\"]+)";
@@ -117,7 +123,7 @@ public class ApacheVirtualLogParseOperator extends BaseOperator {
         accessLogEntryMatcher = accessLogPattern.matcher(line);
 
         if (accessLogEntryMatcher.matches()) {
-            //System.out.println("MATCHED!");
+            
         	  serverName = accessLogEntryMatcher.group(1);
             ipAddr = accessLogEntryMatcher.group(2);
             requestTimeEpoch = (accesslogDateFormat.parse(accessLogEntryMatcher.group(5))).getTime();
@@ -134,6 +140,16 @@ public class ApacheVirtualLogParseOperator extends BaseOperator {
             outputReferer.emit(referer);
             outputAgent.emit(agent);
             outputServerName.emit(serverName);
+            
+            HashMap<String, String> urlStatus = new HashMap<String, String>();
+            urlStatus.put(url, httpStatusCode);
+            outUrlStatus.emit(urlStatus);
+            HashMap<String, String> ipStatus = new HashMap<String, String>();
+            ipStatus.put(ipAddr, httpStatusCode);
+            outIpStatus.emit(ipStatus);
+            HashMap<String, Integer> clientData = new HashMap<String, Integer>();
+            clientData.put(ipAddr, (int) numOfBytes);
+            clientDataUsage.emit(clientData);
         }
     }
 }

@@ -106,21 +106,30 @@ public class ApacheGenRandomLogs extends BaseOperator implements InputOperator
 	}
 	
 	// generate log string  
-	private String genLogString(String browserId)
+	private String genLogString(String ipAddress, String browserId, String httpCode, String url)
 	{	
 		// server/ipaddress
 		int serverId = genServerId();
 		String serverName = genServerName(serverId);
-		String ipAddress = genIpAddress(serverId);
+		if (ipAddress == null)
+		{
+		  ipAddress = genIpAddress(serverId);
+		}
 		
 		// time  
 		String logTime = getTimeStamp();
 		        
 		// url  
-		String url = new StringBuilder("\"").append("GET").append(" ").append(genUrl()).append(" ").append("HTTP/1.1").append("\"").toString();
+	  if (url == null)
+	  {
+		  url = new StringBuilder("\"").append("GET").append(" ").append(genUrl()).append(" ").append("HTTP/1.1").append("\"").toString();
+	  }
 		
 		// http code   
-		String httpCode = genHttpCode();
+		if (httpCode == null) 
+		{
+		  httpCode = genHttpCode();
+		}
 		
 		// number of bytes  
 		int numBytes = rand.nextInt(4000);
@@ -154,7 +163,7 @@ public class ApacheGenRandomLogs extends BaseOperator implements InputOperator
 	public void setup(OperatorContext context)
 	{
 		genTuples = true;
-		attackInterval = rand.nextInt(20)+ 1;
+		attackInterval = rand.nextInt(10)+ 1;
 	}
 	@Override
 	public void teardown()
@@ -166,17 +175,24 @@ public class ApacheGenRandomLogs extends BaseOperator implements InputOperator
 	{
 		attackInterval--;
 		String browserId = null;
+		String ipAdddress = null;
 		if (attackInterval == 0)
 		{
 			browserId = genBrowserId();
-			attackInterval += rand.nextInt(20) + 1;
+			ipAdddress = genIpAddress(rand.nextInt(10));
+			attackInterval += rand.nextInt(10) + 1;
 		}
-		for (int i = 0; i < rand.nextInt(100000); i++) outport.emit(genLogString(browserId));
-		try
+		for (int i = 0; i < rand.nextInt(100000); i++) outport.emit(genLogString(ipAdddress, browserId, null, null));
+		browserId = genBrowserId();
+		ipAdddress = genIpAddress(rand.nextInt(10));
+		for (int i = 0; i < rand.nextInt(100000); i++) outport.emit(genLogString(ipAdddress, browserId, "404", null));
+		String url = new StringBuilder("\"").append("GET").append(" ").append(genUrl()).append(" ").append("HTTP/1.1").append("\"").toString();
+		for (int i = 0; i < rand.nextInt(100000); i++) outport.emit(genLogString(ipAdddress, browserId, "404", url));
+		/*try
 		{
 			Thread.sleep((rand.nextInt(5) + 1) * 50);
 		} catch (InterruptedException e)
 		{
-		}
+		}*/
 	}
 }

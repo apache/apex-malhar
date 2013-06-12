@@ -52,20 +52,26 @@ public class CountOccurance<k> extends BaseOperator
 	// out port
 	public final transient DefaultOutputPort<Map<k, Integer>> outport = new DefaultOutputPort<Map<k, Integer>>(this);
 	public final transient DefaultOutputPort<Map<String, Object>> dimensionOut = new DefaultOutputPort<Map<String, Object>>(this);
+	public final transient DefaultOutputPort<Map<String,Integer>> total = new DefaultOutputPort<Map<String,Integer>>(this);
 	
 	@Override
 	public void endWindow()
 	{
 		outport.emit(collect);
 		long timestamp = new Date().getTime();
-		for(Map.Entry entry : collect.entrySet())
+		int allcount = 0;
+		for(Map.Entry<k, Integer> entry : collect.entrySet())
 		{
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("timestamp", timestamp);
 			map.put("item", entry.getKey());
 			map.put("view", entry.getValue());
 			dimensionOut.emit(map);
+			allcount += entry.getValue();
 		}
+		Map<String, Integer> map = new HashMap<String, Integer>();
+		map.put("total", new Integer(allcount));
+		total.emit(map);
 		collect = null;
 		collect  = new HashMap<k, Integer>();
 	}
