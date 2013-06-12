@@ -25,6 +25,12 @@ google.load('visualization', '1', {'packages':['table']});
 <script type="text/javascript" src="TopUrlChart.js"></script>
 <script type="text/javascript" src="TopIpClientChart.js"></script>
 <script type="text/javascript" src="server.js"></script>
+<script type="text/javascript" src="RiskyClient.js"></script>
+<script type="text/javascript" src="TotalViews.js"></script>
+<script type="text/javascript" src="Url404.js"></script>
+<script type="text/javascript" src="ClientData.js"></script>
+<script type="text/javascript" src="IpClientFail.js"></script>
+
 
 <!-- window onload -->
 <script type="text/javascript">
@@ -36,9 +42,19 @@ window.onload = function() {
    
   // Draw top charts 
   DrawTopUrlTableChart();
-  DrawTopIpClientTableChart();
+  DrawTopIpClientTableChart(); 
+  DrawRiskyClientTableChart();
+  DrawTotalViewsChart();
+  DrawUrl404TableChart();
+  DrawIpClientFailTableChart();
+  DrawClientDataTableChart();
   setInterval(DrawTopUrlTableChart, 1000);
   setInterval(DrawTopIpClientTableChart, 1000);
+  setInterval(DrawRiskyClientTableChart, 1000);
+  setInterval(DrawTotalViewsChart, 1000);
+  setInterval(DrawUrl404TableChart, 1000);
+  setInterval(DrawIpClientFailTableChart, 1000);
+  setInterval(DrawClientDataTableChart, 1000);
 };
 
 </script>
@@ -104,6 +120,9 @@ window.onload = function() {
                         <input type="text" name="serverloadlookback" id="serverloadlookback" class="input-small"/>
                 </form><br>
                 <a href="javascript:void(0)" onclick="HandleServerLoadTimeSubmit();">View Server Load Chart</a><br><br>
+                
+                <h2 class="title">Data Served/Sec</h2> 
+                 <h2 id="totaldata"> <h2> 
             </div>
         </div>
         <div class="dashboardMain">
@@ -111,6 +130,15 @@ window.onload = function() {
                 <div class="chart-ctnr" id="top_url_div"></div><br>
                 <div class="chart-ctnr" id="server_load_div"></div>
                 <div class="chart-ctnr" id="top_IpClient_div"></div><br>
+                <table><tbody><tr>
+		        <td><div class="chart-ctnr" id="risky_client_div"></div><br></td>
+		        <td><div class="chart-ctnr" id="total_views_div"></div><br></td>
+                </tr></tbody></table>
+                <table><tbody><tr>
+		        <td><div class="chart-ctnr" id="url_404_div"></div><br></td>
+		        <td><div class="chart-ctnr" id="ipclient_404_div"></div><br></td>
+                </tr></tbody></table>
+                <div class="chart-ctnr" id="client_data_div"></div><br>
         </div>		
 </body>
 </html>

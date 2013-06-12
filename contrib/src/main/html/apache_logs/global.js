@@ -36,9 +36,13 @@ var serverLoadChart;
 var serverLoadView;
 var serverLoadInterval;
 
-// top ip 
 var topIpClientTable;
 var topIpClientTableChart;
+var riskyClientTableChart;
+var totalPageViewsChart;
+var url404TableChart;
+var IpClient404TableChart;
+var clientDataTableChart;
 
 // Get split query string
 function QueryString() {
@@ -94,6 +98,11 @@ function InitializeGlobal()
  
   topUrlTableChart = new google.visualization.Table(document.getElementById('top_url_div'));
   topIpClientTableChart = new google.visualization.Table(document.getElementById('top_IpClient_div'));
+  riskyClientTableChart = new google.visualization.Table(document.getElementById('risky_client_div'));
+  totalPageViewsChart = new google.visualization.Table(document.getElementById('total_views_div'));
+  url404TableChart = new google.visualization.Table(document.getElementById('url_404_div'));
+  IpClient404TableChart = new google.visualization.Table(document.getElementById('ipclient_404_div'));
+  clientDataTableChart = new google.visualization.Table(document.getElementById('client_data_div'));
 }
 
 /**

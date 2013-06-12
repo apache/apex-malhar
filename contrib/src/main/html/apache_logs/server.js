@@ -22,6 +22,15 @@ function RenderServerLoadTimeChart()
     }
   }
 
+  // remove last 10 points
+  if (serverLoadDataPoints.length > 20)
+  {
+    for (var i=0; i < 10; i++)
+    {
+      serverLoadTable.removeRow(serverLoadDataPoints.length-1-i);  
+    }    
+  }
+
   // Populate data table with time/cost data points. 
   for(var i=0; i < serverLoadTable.getNumberOfRows(); i++)
   {
