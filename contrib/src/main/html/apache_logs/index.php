@@ -69,7 +69,7 @@ window.onload = function() {
             </li>
         </ul>
 
-        <div id="logo"><img src="main_banner.png"/></div>
+        <div id="logo"><img src="main_banner.png" style="margin-left:10px;"/></div>
     </div>
 	
 	<div id="main">
