@@ -33,7 +33,7 @@ function DrawUrl404TableChart()
         delete pts;
       }
     }
-    connect.open('GET',  "/Url404.php", true);
+    connect.open('GET',  "Url404.php", true);
     connect.send(null);
   } catch(e) {
   }

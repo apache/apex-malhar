@@ -11,7 +11,7 @@
 
 function PageViewTimeDataUrl()
 {    
-    var url = "/PageViewTimeData.php?";
+    var url = "PageViewTimeData.php?";
     url += "from=";
     url += Math.floor(pageViewLookback);
     if (pageViewUrl) 

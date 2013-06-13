@@ -33,7 +33,7 @@ function DrawClientDataTableChart()
         //delete pts;
       }
     }
-    connect.open('GET',  "/ClientData.php", true);
+    connect.open('GET',  "ClientData.php", true);
     connect.send(null);
   } catch(e) {
   }

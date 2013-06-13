@@ -28,7 +28,7 @@ function DrawTotalViewsChart()
         delete row;
       }
     }
-    connect.open('GET',  "/TotalViews.php", true);
+    connect.open('GET',  "TotalViews.php", true);
     connect.send(null);
   } catch(e) {
   }

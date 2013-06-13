@@ -32,7 +32,7 @@ function DrawIpClientFailTableChart()
         delete pts;
       }
     }
-    connect.open('GET',  "/IpClient404.php", true);
+    connect.open('GET',  "IpClient404.php", true);
     connect.send(null);
   } catch(e) {
   }

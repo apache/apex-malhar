@@ -33,7 +33,7 @@ function DrawRiskyClientTableChart()
         delete pts;
       }
     }
-    connect.open('GET',  "/RiskyClient.php", true);
+    connect.open('GET',  "RiskyClient.php", true);
     connect.send(null);
   } catch(e) {
   }

@@ -47,14 +47,14 @@ window.onload = function() {
   DrawTotalViewsChart();
   DrawUrl404TableChart();
   DrawIpClientFailTableChart();
-  DrawClientDataTableChart();
+  DrawClientDataTableChart();/**/
   setInterval(DrawTopUrlTableChart, 1000);
   setInterval(DrawTopIpClientTableChart, 1000);
   setInterval(DrawRiskyClientTableChart, 1000);
   setInterval(DrawTotalViewsChart, 1000);
   setInterval(DrawUrl404TableChart, 1000);
   setInterval(DrawIpClientFailTableChart, 1000);
-  setInterval(DrawClientDataTableChart, 1000);
+  setInterval(DrawClientDataTableChart, 1000);/**/
 };
 
 </script>

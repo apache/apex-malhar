@@ -34,7 +34,7 @@ function DrawTopIpClientTableChart()
         //document.getElementById('top_IpClient_div').innerHTML = data;
       }
     }
-    connect.open('GET',  "/TopIpClientData.php", true);
+    connect.open('GET',  "TopIpClientData.php", true);
     connect.send(null);
   } catch(e) {
   }

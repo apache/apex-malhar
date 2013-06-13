@@ -150,7 +150,7 @@ function InitializeGlobal()
  */
 function DataUrl() 
 {       
-    var url = "/json.php?bucket=m";
+    var url = "json.php?bucket=m";
     url += "&publisher=";
     if (params['publisher']) 
     {	
