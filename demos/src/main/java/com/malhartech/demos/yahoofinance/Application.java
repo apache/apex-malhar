@@ -68,14 +68,8 @@ import org.apache.hadoop.conf.Configuration;
  * Running Java Test or Main app in IDE:
  * 
  * <pre>
- * LocalMode lma = LocalMode.newInstance();
- * new Application().populateDAG(lma.getDAG(), new Configuration(false));
- * LocalMode.Controller lc = lma.getController();
- * lc.run();
+ * LocalMode.runApp(new Application(), 600000); // 10 min run
  * </pre>
- * 
- * <br>
- * <br>
  * 
  * Run Success : <br>
  * For successful deployment and run, user should see following output on
@@ -99,7 +93,7 @@ import org.apache.hadoop.conf.Configuration;
  * <br>
  * 
  * Application DAG : <br>
- * <img src="../../../../resources/Application.gif" width=600px > <br>
+ * <img src="doc-files/Application.gif" width=600px > <br>
  * <br>
  * 
  * Streaming Window Size : 1000 ms(1 Sec) <br>
@@ -186,9 +180,9 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class Application implements ApplicationFactory
 {
-  protected int streamingWindowSizeMilliSeconds = 1000; // 1 second (default is 500ms)
-  protected int appWindowCountMinute = 3 * 1000 / streamingWindowSizeMilliSeconds;   // 1 minute
-  protected int appWindowCountSMA = 5 * 1000 / streamingWindowSizeMilliSeconds;  // 5 minute
+  protected int streamingWindowSizeMilliSeconds = 1000; // 1 second
+  protected int appWindowCountMinute = 60;   // 1 minute
+  protected int appWindowCountSMA = 300;  // 5 minute
   protected String[] tickers = {"IBM", "GOOG", "AAPL", "YHOO"};
 
   /**
@@ -323,7 +317,7 @@ public class Application implements ApplicationFactory
   /**
    * Populate Yahoo Finance Demo Application DAG.
    */
-  @Override
+	@Override
   public void populateDAG(DAG dag, Configuration conf)
   {
 
