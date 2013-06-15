@@ -1,8 +1,6 @@
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
     <groupId>com.malhartech</groupId>
     <artifactId>malhar-framework</artifactId>
@@ -11,29 +9,8 @@
 
   <artifactId>malhar-contrib</artifactId>
   <packaging>jar</packaging>
-
   <name>Contrib (with embedded dependencies)</name>
   <url>http://maven.apache.org</url>
-
-  <repositories>
-    <!--
-      Workaround for dependencies that are not available from a remote repository.
-      Only works for building the module, dependencies need to be scoped as provided
-      to allow for assembly plugin to work and allow for resolvable transitive closure
-      see http://jira.codehaus.org/browse/MNG-5181
-    -->
-    <repository>
-      <id>malhar-contrib-local</id>
-      <name>Embedded repository for dependencies not available online</name>
-      <url>file://${project.basedir}/maven2</url>
-      <snapshots>
-        <updatePolicy>never</updatePolicy>
-      </snapshots>
-      <releases>
-        <updatePolicy>never</updatePolicy>
-      </releases>
-    </repository>
-  </repositories>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -44,13 +21,13 @@
   <build>
     <plugins>
       <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.12</version>
-          <configuration>
-              <skipTests>${skip.contrib.module.tests}</skipTests>
-              <argLine>-Djava.library.path=${user.home}/.m2/repository/com/almworks/sqlite4java/libsqlite4java-linux-amd64/0.282</argLine>
-          </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.12</version>
+        <configuration>
+          <skipTests>${skip.contrib.module.tests}</skipTests>
+          <argLine>-Djava.library.path=${user.home}/.m2/repository/com/almworks/sqlite4java/libsqlite4java-linux-amd64/0.282</argLine>
+        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -93,35 +70,11 @@
       <groupId>com.malhartech</groupId>
       <artifactId>malhar-library</artifactId>
       <version>${project.version}</version>
-      <type>jar</type>
     </dependency>
-
-
     <dependency>
-     <!-- Since Kafka is not published on the standard mvn repository,
-        you will need to download it, compile it and install using
-        mvn install:install-file -Dfile=kafka-0.7.1.jar -DgroupId=kafka -DartifactId=kafka -Dversion=0.7.1 -Dpackaging=jar
-        Download:
-       https://www.apache.org/dyn/closer.cgi/incubator/kafka/kafka-0.7.1-incubating/kafka-0.7.1-incubating-src.tgz
-     -->
       <groupId>kafka</groupId>
       <artifactId>kafka</artifactId>
       <version>0.7.1</version>
-      <scope>provided</scope> <!-- local repository -->
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <!--
-        jzmq not available from public repository at this time
-        http://lists.zeromq.org/pipermail/zeromq-dev/2012-May/017111.html
-      -->
-      <!-- installed to embedded repository using:
-        mvn install:install-file -Dfile=zeromq-1.1.0-SNAPSHOT.jar -DgroupId=org.zeromq -DartifactId=jzmq -Dversion=1.1.0-SNAPSHOT -Dpackaging=jar -DlocalRepositoryPath=maven2
-      -->
-      <groupId>org.zeromq</groupId>
-      <artifactId>jzmq</artifactId>
-      <version>2.1.0</version>
-      <optional>true</optional> <!-- local repository -->
     </dependency>
     <dependency>
       <groupId>org.mongodb</groupId>
@@ -151,16 +104,10 @@
       <artifactId>zkclient</artifactId>
       <version>0.1</version>
     </dependency>
-    <!--dependency>
-      <groupId>org.apache.zookeeper</groupId>
-      <artifactId>zookeeper</artifactId>
-      <version>3.3.5</version>
-    </dependency-->
     <dependency>
       <groupId>com.almworks.sqlite4java</groupId>
       <artifactId>sqlite4java</artifactId>
       <version>0.282</version>
-      <type>jar</type>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -168,7 +115,6 @@
       <artifactId>opencsv</artifactId>
       <version>2.0</version>
       <scope>test</scope>
-      <type>jar</type>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -205,8 +151,8 @@
       <optional>true</optional>
       <exclusions>
         <exclusion>
-    	  <groupId>org.slf4j</groupId>
-      	  <artifactId>slf4j-log4j12</artifactId>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-log4j12</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -219,6 +165,11 @@
       <groupId>com.lambdaworks</groupId>
       <artifactId>lettuce</artifactId>
       <version>2.3.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.zeromq</groupId>
+      <artifactId>jzmq</artifactId>
+      <version>2.1.0</version>
     </dependency>
   </dependencies>
 </project>
