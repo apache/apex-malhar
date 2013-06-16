@@ -5,8 +5,9 @@
 package com.datatorrent.contrib.jdbc;
 
 import com.datatorrent.contrib.jdbc.JDBCInputOperator;
-import com.malhartech.engine.OperatorContext;
-import com.malhartech.engine.TestSink;
+import com.datatorrent.engine.OperatorContext;
+import com.datatorrent.engine.TestSink;
+
 import java.sql.*;
 import junit.framework.Assert;
 import org.junit.Test;

@@ -37,7 +37,7 @@ public class FilterKeysBenchmark
    */
   @Test
   @SuppressWarnings( {"SleepWhileInLoop", "unchecked"})
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     FilterKeysMap<String, Number> oper = new FilterKeysMap<String, Number>();

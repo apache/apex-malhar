@@ -16,10 +16,10 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.LoggerFactory;
 
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.StreamCodec;
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.StreamCodec;
+import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * Adapter for writing to HDFS<p>

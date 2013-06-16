@@ -6,8 +6,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Context.OperatorContext;
 
 /**  
  * <b> Usage Operator : </b> com.datatorrent.lib.testbench.RandomEventGenerator <br>

@@ -4,7 +4,7 @@
  */
 package com.datatorrent.lib.math;
 
-import com.malhartech.api.DefaultInputPort;
+import com.datatorrent.api.DefaultInputPort;
 
 /**
  *

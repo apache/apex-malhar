@@ -4,8 +4,8 @@
  */
 package com.datatorrent.contrib.memcache_whalin;
 
-import com.malhartech.api.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.api.DefaultOutputPort;
 
 /**
  * Memcache input adapter single port operator, which get Data from Memcached using whalin library.<p><br>

@@ -8,11 +8,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.Operator;
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Operator;
+import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * @author Dinesh Prasad (dinesh@malhar-inc.com)

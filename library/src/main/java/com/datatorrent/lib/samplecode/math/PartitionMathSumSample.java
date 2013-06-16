@@ -2,12 +2,12 @@ package com.datatorrent.lib.samplecode.math;
 
 import org.apache.hadoop.conf.Configuration;
 
+import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.math.Sum;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
-import com.malhartech.api.ApplicationFactory;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DAG;
 
 /**
  *  * This sample application code for showing sample usage of malhar operator(s). <br>

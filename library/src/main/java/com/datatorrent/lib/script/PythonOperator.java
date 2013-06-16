@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.DefaultOutputPort;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
 
 import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;

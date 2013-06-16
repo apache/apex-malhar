@@ -4,10 +4,10 @@
  */
 package com.datatorrent.lib.multiwindow;
 
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 import com.datatorrent.lib.util.KeyValPair;
-import com.malhartech.api.annotation.InputPortFieldAnnotation;
-import com.malhartech.api.DefaultInputPort;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;

@@ -3,8 +3,8 @@
  */
 package com.datatorrent.lib.stream;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.stream.ArrayListAggregator;
-import com.malhartech.engine.TestSink;
 import java.util.ArrayList;
 import junit.framework.Assert;
 import org.junit.Test;

@@ -4,7 +4,8 @@
  */
 package com.datatorrent.lib.io;
 
-import com.malhartech.api.Context.OperatorContext;
+import com.datatorrent.api.Context.OperatorContext;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import org.slf4j.Logger;

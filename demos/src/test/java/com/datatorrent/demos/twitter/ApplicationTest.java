@@ -4,11 +4,11 @@
  */
 package com.datatorrent.demos.twitter;
 
+import com.datatorrent.api.LocalMode;
 import com.datatorrent.demos.twitter.TwitterSampleInput;
 import com.datatorrent.demos.twitter.TwitterTopCounterApplication;
-import com.malhartech.api.LocalMode;
-import com.malhartech.stram.DAGPropertiesBuilder;
-import com.malhartech.stram.StramLocalCluster;
+import com.datatorrent.stram.DAGPropertiesBuilder;
+import com.datatorrent.stram.StramLocalCluster;
 import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Ignore;

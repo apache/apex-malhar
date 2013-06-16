@@ -4,8 +4,8 @@
  */
 package com.datatorrent.contrib.hbase;
 
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DefaultInputPort;
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DefaultInputPort;
 import java.util.ArrayList;
 import java.util.List;
 

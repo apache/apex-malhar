@@ -5,12 +5,12 @@
 package com.datatorrent.contrib.mongodb;
 
 import com.datatorrent.contrib.mongodb.MongoDBInputOperator;
-import com.malhartech.api.DAG;
-import com.malhartech.api.DAGContext;
-import com.malhartech.engine.OperatorContext;
-import com.malhartech.engine.TestSink;
-import com.malhartech.util.AttributeMap;
-import com.malhartech.util.AttributeMap.DefaultAttributeMap;
+import com.datatorrent.engine.OperatorContext;
+import com.datatorrent.engine.TestSink;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAGContext;
+import com.datatorrent.api.AttributeMap;
+import com.datatorrent.api.AttributeMap.DefaultAttributeMap;
 import com.mongodb.DBCursor;
 import org.junit.Test;
 import org.slf4j.Logger;

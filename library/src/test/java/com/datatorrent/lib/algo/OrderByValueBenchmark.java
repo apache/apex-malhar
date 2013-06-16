@@ -3,8 +3,8 @@
  */
 package com.datatorrent.lib.algo;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.OrderByValue;
-import com.malhartech.engine.TestSink;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
@@ -26,7 +26,7 @@ public class OrderByValueBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     OrderByValue<String, Integer> oper = new OrderByValue<String, Integer>();

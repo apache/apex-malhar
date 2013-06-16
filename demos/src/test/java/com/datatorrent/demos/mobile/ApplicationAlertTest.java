@@ -6,8 +6,8 @@ package com.datatorrent.demos.mobile;
 
 import org.junit.Test;
 
+import com.datatorrent.api.LocalMode;
 import com.datatorrent.demos.mobile.ApplicationAlert;
-import com.malhartech.api.LocalMode;
 
 
 public class ApplicationAlertTest

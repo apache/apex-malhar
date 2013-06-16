@@ -6,11 +6,11 @@ package com.datatorrent.contrib.jdbc;
 
 import com.datatorrent.contrib.jdbc.JDBCNonTransactionHashMapOutputOperator;
 import com.datatorrent.contrib.jdbc.JDBCTransactionHashMapOutputOperator;
-import com.malhartech.api.CheckpointListener;
-import com.malhartech.api.LocalMode;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DAG;
-import com.malhartech.bufferserver.util.Codec;
+import com.datatorrent.api.CheckpointListener;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG;
+import com.datatorrent.bufferserver.util.Codec;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;

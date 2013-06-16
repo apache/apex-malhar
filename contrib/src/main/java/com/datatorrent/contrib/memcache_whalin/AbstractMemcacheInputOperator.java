@@ -4,9 +4,9 @@
  */
 package com.datatorrent.contrib.memcache_whalin;
 
-import com.malhartech.api.ActivationListener;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.InputOperator;
+import com.datatorrent.api.ActivationListener;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.InputOperator;
 import com.whalin.MemCached.MemCachedClient;
 import com.whalin.MemCached.SockIOPool;
 import java.util.concurrent.ArrayBlockingQueue;

@@ -4,10 +4,16 @@
  */
 package com.datatorrent.contrib.kestrel;
 
+import com.datatorrent.api.*;
 import com.datatorrent.contrib.kestrel.AbstractSinglePortKestrelInputOperator;
 import com.datatorrent.contrib.kestrel.MemcachedClient;
 import com.datatorrent.contrib.kestrel.SockIOPool;
-import com.malhartech.api.*;
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.Operator;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -137,7 +143,7 @@ public class KestrelInputOperatorBenchmark
 
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testBechmark() throws Exception
   {
     final int testNum = 20000;

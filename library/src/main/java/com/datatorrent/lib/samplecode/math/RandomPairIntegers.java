@@ -2,10 +2,10 @@ package com.datatorrent.lib.samplecode.math;
 
 import java.util.Random;
 
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.InputOperator;
-import com.malhartech.common.util.Pair;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.common.util.Pair;
 
 /**
  * Input port operator for generating random values Pair for sample application.

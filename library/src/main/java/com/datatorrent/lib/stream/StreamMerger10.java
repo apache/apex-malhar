@@ -4,8 +4,8 @@
  */
 package com.datatorrent.lib.stream;
 
-import com.malhartech.api.annotation.InputPortFieldAnnotation;
-import com.malhartech.api.DefaultInputPort;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 
 /**
  * Merges up to ten streams with identical schema and emits tuples on to the output port in order.<p>

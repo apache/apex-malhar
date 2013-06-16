@@ -4,10 +4,10 @@
  */
 package com.datatorrent.demos.performance;
 
+import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.DAG;
 import com.datatorrent.lib.stream.DevNullCounter;
 import com.datatorrent.lib.testbench.EventGenerator;
-import com.malhartech.api.ApplicationFactory;
-import com.malhartech.api.DAG;
 
 import org.apache.hadoop.conf.Configuration;
 

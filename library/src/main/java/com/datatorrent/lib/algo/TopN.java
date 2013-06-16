@@ -4,9 +4,9 @@
  */
 package com.datatorrent.lib.algo;
 
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.AbstractBaseNNonUniqueOperatorMap;
-import com.malhartech.api.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.DefaultOutputPort;
 import java.util.ArrayList;
 import java.util.HashMap;
 

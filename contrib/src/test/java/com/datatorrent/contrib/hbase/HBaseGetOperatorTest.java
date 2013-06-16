@@ -5,8 +5,8 @@
 package com.datatorrent.contrib.hbase;
 
 import com.datatorrent.contrib.hbase.HBaseGetOperator;
-import com.malhartech.api.DAG;
-import com.malhartech.api.LocalMode;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.LocalMode;
 import java.util.List;
 import junit.framework.Assert;
 import org.apache.hadoop.hbase.KeyValue;

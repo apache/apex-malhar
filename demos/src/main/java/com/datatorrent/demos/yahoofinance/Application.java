@@ -4,17 +4,17 @@
  */
 package com.datatorrent.demos.yahoofinance;
 
+import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.math.RangeKeyVal;
 import com.datatorrent.lib.math.SumKeyVal;
 import com.datatorrent.lib.multiwindow.SimpleMovingAverage;
 import com.datatorrent.lib.stream.ConsolidatorKeyVal;
 import com.datatorrent.lib.util.HighLow;
-import com.malhartech.api.ApplicationFactory;
-import com.malhartech.api.LocalMode;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DAG;
-import com.malhartech.api.Operator.InputPort;
 import org.apache.hadoop.conf.Configuration;
 
 /**

@@ -9,9 +9,9 @@ import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.logs.ApacheLogParseOperator;
 import com.datatorrent.lib.math.Sum;
-import com.malhartech.api.ApplicationFactory;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DAG;
+import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG;
 import org.apache.hadoop.conf.Configuration;
 
 /**

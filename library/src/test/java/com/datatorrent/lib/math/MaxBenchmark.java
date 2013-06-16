@@ -24,7 +24,7 @@ public class MaxBenchmark
    * Test operator logic emits correct results.
    */
   @Test
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing()
   {
     Max<Double> oper = new Max<Double>();

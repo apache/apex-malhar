@@ -26,7 +26,7 @@ public class CompareExceptCountStringMapBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     CompareExceptCountStringMap<String> oper = new CompareExceptCountStringMap<String>();

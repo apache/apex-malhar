@@ -4,10 +4,10 @@
  */
 package com.datatorrent.demos.pi;
 
+import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.DAG;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
-import com.malhartech.api.ApplicationFactory;
-import com.malhartech.api.DAG;
 
 import org.apache.hadoop.conf.Configuration;
 

@@ -6,12 +6,12 @@ package com.datatorrent.demos.yahoofinance;
 
 import au.com.bytecode.opencsv.CSVReader;
 
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.lib.util.KeyValPair;
-import com.malhartech.api.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.annotation.ShipContainingJars;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.InputOperator;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;

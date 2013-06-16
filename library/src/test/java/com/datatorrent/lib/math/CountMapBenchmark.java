@@ -3,8 +3,8 @@
  */
 package com.datatorrent.lib.math;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.math.CountMap;
-import com.malhartech.engine.TestSink;
 import java.util.HashMap;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -24,7 +24,7 @@ public class CountMapBenchmark
    * Test operator logic emits correct results.
    */
   @Test
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeSchemaProcessing() throws InterruptedException
   {
     CountMap<String, Double> oper = new CountMap<String, Double>();

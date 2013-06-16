@@ -26,7 +26,7 @@ public class SigmaBenchmark
    * Test oper logic emits correct results
    */
   @Test
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeSchemaProcessing()
   {
     Sigma oper = new Sigma();

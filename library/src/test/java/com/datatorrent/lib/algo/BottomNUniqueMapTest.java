@@ -3,8 +3,8 @@
  */
 package com.datatorrent.lib.algo;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.BottomNUniqueMap;
-import com.malhartech.engine.TestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;

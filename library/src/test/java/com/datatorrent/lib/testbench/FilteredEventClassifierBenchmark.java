@@ -3,10 +3,10 @@
  */
 package com.datatorrent.lib.testbench;
 
+import com.datatorrent.api.Sink;
 import com.datatorrent.lib.testbench.FilteredEventClassifier;
+import com.datatorrent.tuple.Tuple;
 import com.esotericsoftware.minlog.Log;
-import com.malhartech.api.Sink;
-import com.malhartech.tuple.Tuple;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -81,7 +81,7 @@ public class FilteredEventClassifierBenchmark
    * Test node logic emits correct results
    */
   @Test
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     FilteredEventClassifier<Double> node = new FilteredEventClassifier<Double>();

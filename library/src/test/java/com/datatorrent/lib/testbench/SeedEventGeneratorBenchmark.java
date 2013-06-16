@@ -3,12 +3,12 @@
  */
 package com.datatorrent.lib.testbench;
 
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.lib.testbench.SeedEventGenerator;
 import com.datatorrent.lib.util.KeyValPair;
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.stram.StramLocalCluster;
-import com.malhartech.stram.plan.logical.LogicalPlan;
+import com.datatorrent.stram.StramLocalCluster;
+import com.datatorrent.stram.plan.logical.LogicalPlan;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -87,7 +87,7 @@ public class SeedEventGeneratorBenchmark
    * Test node logic emits correct results
    */
   @Test
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     testSchemaNodeProcessing(true);

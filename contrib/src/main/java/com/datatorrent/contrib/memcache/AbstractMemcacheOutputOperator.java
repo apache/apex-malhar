@@ -4,8 +4,8 @@
  */
 package com.datatorrent.contrib.memcache;
 
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.Context.OperatorContext;
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.Context.OperatorContext;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;

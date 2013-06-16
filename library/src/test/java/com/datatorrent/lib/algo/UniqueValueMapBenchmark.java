@@ -3,9 +3,9 @@
  */
 package com.datatorrent.lib.algo;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.UniqueValueMap;
 import com.datatorrent.lib.util.KeyValPair;
-import com.malhartech.engine.TestSink;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -27,7 +27,7 @@ public class UniqueValueMapBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     UniqueValueMap<String> oper = new UniqueValueMap<String>();

@@ -14,8 +14,8 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.contrib.hbase.HBaseAppendOperator;
 import com.datatorrent.contrib.hbase.HBaseRowStatePersistence;
 import com.datatorrent.contrib.hbase.HBaseStatePersistenceStrategy;
-import com.malhartech.api.DAG;
-import com.malhartech.api.LocalMode;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.LocalMode;
 
 /**
  *

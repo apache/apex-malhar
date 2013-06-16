@@ -3,12 +3,11 @@
  */
 package com.datatorrent.lib.math;
 
+import com.datatorrent.api.Sink;
 import com.datatorrent.lib.math.Range;
 import com.datatorrent.lib.math.SumCountMap;
 import com.datatorrent.lib.util.HighLow;
-import com.malhartech.api.Sink;
-import com.malhartech.tuple.Tuple;
-import com.malhartech.tuple.Tuple;
+import com.datatorrent.tuple.Tuple;
 import java.util.ArrayList;
 import java.util.List;
 import junit.framework.Assert;

@@ -26,7 +26,7 @@ public class CompareStringBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessingSchema()
   {
     CompareStringMap<String> oper = new CompareStringMap<String>();

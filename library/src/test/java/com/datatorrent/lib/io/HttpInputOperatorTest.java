@@ -4,8 +4,8 @@
  */
 package com.datatorrent.lib.io;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.io.HttpInputOperator;
-import com.malhartech.engine.TestSink;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;

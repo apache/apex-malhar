@@ -4,13 +4,13 @@
  */
 package com.datatorrent.lib.math;
 
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.StreamCodec;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 import com.datatorrent.lib.util.KeyValPair;
-import com.malhartech.api.annotation.InputPortFieldAnnotation;
-import com.malhartech.api.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.StreamCodec;
 import java.util.HashMap;
 import java.util.Map;
 

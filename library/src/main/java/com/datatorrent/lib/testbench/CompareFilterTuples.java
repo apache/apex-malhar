@@ -6,9 +6,9 @@ package com.datatorrent.lib.testbench;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.DefaultOutputPort;
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
 
 /**
  * @author Dinesh Prasad (dinesh@malhar-inc.com)

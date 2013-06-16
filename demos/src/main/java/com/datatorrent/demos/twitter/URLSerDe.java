@@ -4,8 +4,8 @@
  */
 package com.datatorrent.demos.twitter;
 
-import com.malhartech.api.StreamCodec;
-import com.malhartech.common.util.Slice;
+import com.datatorrent.api.StreamCodec;
+import com.datatorrent.common.util.Slice;
 import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

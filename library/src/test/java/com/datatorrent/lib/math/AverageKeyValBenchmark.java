@@ -3,9 +3,9 @@
  */
 package com.datatorrent.lib.math;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.math.AverageKeyVal;
 import com.datatorrent.lib.util.KeyValPair;
-import com.malhartech.engine.TestSink;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -25,7 +25,7 @@ public class AverageKeyValBenchmark
    * Test operator logic emits correct results.
    */
   @Test
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeSchemaProcessing() throws InterruptedException
   {
     AverageKeyVal<String> oper = new AverageKeyVal<String>();

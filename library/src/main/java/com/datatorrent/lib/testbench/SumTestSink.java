@@ -5,7 +5,7 @@
  */
 package com.datatorrent.lib.testbench;
 
-import com.malhartech.api.Sink;
+import com.datatorrent.api.Sink;
 
 /**
  * A sink implementation to collect expected test results.

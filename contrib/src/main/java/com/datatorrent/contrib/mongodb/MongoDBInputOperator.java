@@ -4,11 +4,11 @@
  */
 package com.datatorrent.contrib.mongodb;
 
-import com.malhartech.api.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.ActivationListener;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.InputOperator;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.api.ActivationListener;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;

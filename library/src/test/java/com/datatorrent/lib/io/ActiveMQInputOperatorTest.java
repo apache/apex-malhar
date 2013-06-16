@@ -4,14 +4,15 @@
  */
 package com.datatorrent.lib.io;
 
+import com.datatorrent.api.*;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.io.AbstractActiveMQInputOperator;
 import com.datatorrent.lib.io.AbstractActiveMQSinglePortInputOperator;
-import com.malhartech.api.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.*;
-import com.malhartech.stram.StramLocalCluster;
-import com.malhartech.stram.plan.logical.LogicalPlan;
-import com.malhartech.stram.support.StramTestSupport;
-import com.malhartech.stram.support.StramTestSupport.WaitCondition;
+import com.datatorrent.stram.StramLocalCluster;
+import com.datatorrent.stram.plan.logical.LogicalPlan;
+import com.datatorrent.stram.support.StramTestSupport;
+import com.datatorrent.stram.support.StramTestSupport.WaitCondition;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -10,8 +10,8 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.script.BashOperator;
-import com.malhartech.engine.TestSink;
 
 /**
  *

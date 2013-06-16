@@ -4,10 +4,10 @@
  */
 package com.datatorrent.contrib.mongodb;
 
-import com.malhartech.api.annotation.InputPortFieldAnnotation;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.Operator;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.Operator;
 import com.mongodb.*;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;

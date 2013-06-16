@@ -4,11 +4,11 @@ import java.net.URI;
 
 import org.apache.hadoop.conf.Configuration;
 
+import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAGContext;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.HttpInputOperator;
-import com.malhartech.api.ApplicationFactory;
-import com.malhartech.api.DAG;
-import com.malhartech.api.DAGContext;
 
 /**
  * * This sample application code for showing sample usage of malhar

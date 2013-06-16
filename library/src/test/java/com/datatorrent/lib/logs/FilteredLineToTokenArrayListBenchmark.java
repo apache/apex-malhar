@@ -3,9 +3,9 @@
  */
 package com.datatorrent.lib.logs;
 
+import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.lib.logs.FilteredLineToTokenArrayList;
 import com.datatorrent.lib.testbench.ArrayListTestSink;
-import com.malhartech.api.DefaultOutputPort;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +28,7 @@ public class FilteredLineToTokenArrayListBenchmark
    * Test oper logic emits correct results
    */
   @Test
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing()
   {
 

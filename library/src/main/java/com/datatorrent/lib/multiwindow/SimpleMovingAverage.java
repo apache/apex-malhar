@@ -4,9 +4,9 @@
  */
 package com.datatorrent.lib.multiwindow;
 
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.KeyValPair;
-import com.malhartech.api.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.DefaultOutputPort;
 import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -26,7 +26,7 @@ public class FilterKeyValsBenchmark
    */
   @Test
   @SuppressWarnings( {"SleepWhileInLoop", "rawtypes", "unchecked"})
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     FilterKeyVals<String, Number> oper = new FilterKeyVals<String, Number>();

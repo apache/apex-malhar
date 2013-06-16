@@ -4,16 +4,16 @@
  */
 package com.datatorrent.lib.algo;
 
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.algo.InnerJoin2;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.InputOperator;
-import com.malhartech.stram.StramLocalCluster;
-import com.malhartech.stram.plan.logical.LogicalPlan;
-import com.malhartech.stram.support.StramTestSupport;
-import com.malhartech.stram.support.StramTestSupport.WaitCondition;
+import com.datatorrent.stram.StramLocalCluster;
+import com.datatorrent.stram.plan.logical.LogicalPlan;
+import com.datatorrent.stram.support.StramTestSupport;
+import com.datatorrent.stram.support.StramTestSupport.WaitCondition;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.junit.Test;

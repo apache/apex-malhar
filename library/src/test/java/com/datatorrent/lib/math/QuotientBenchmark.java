@@ -3,9 +3,9 @@
  */
 package com.datatorrent.lib.math;
 
+import com.datatorrent.api.Sink;
 import com.datatorrent.lib.math.Quotient;
-import com.malhartech.api.Sink;
-import com.malhartech.tuple.Tuple;
+import com.datatorrent.tuple.Tuple;
 import java.util.ArrayList;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -47,7 +47,7 @@ public class QuotientBenchmark
    * Test oper logic emits correct results
    */
   @Test
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeSchemaProcessing()
   {
     Quotient<Double> oper = new Quotient<Double>();

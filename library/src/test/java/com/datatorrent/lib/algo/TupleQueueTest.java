@@ -3,9 +3,9 @@
  */
 package com.datatorrent.lib.algo;
 
+import com.datatorrent.api.Sink;
 import com.datatorrent.lib.algo.TupleQueue;
-import com.malhartech.api.Sink;
-import com.malhartech.tuple.Tuple;
+import com.datatorrent.tuple.Tuple;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;

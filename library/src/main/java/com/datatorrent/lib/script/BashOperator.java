@@ -7,7 +7,8 @@ import java.util.Map.Entry;
 
 import bsh.EvalError;
 import bsh.Interpreter;
-import com.malhartech.api.DefaultInputPort;
+
+import com.datatorrent.api.DefaultInputPort;
 
 /**
  * Operator to execute bash script on tuples 

@@ -1,9 +1,9 @@
 package com.datatorrent.lib.samplecode.math;
 
+import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.DAG;
 import com.datatorrent.lib.io.*;
 import com.datatorrent.lib.script.JavaScriptOperator;
-import com.malhartech.api.ApplicationFactory;
-import com.malhartech.api.DAG;
 import org.apache.hadoop.conf.Configuration;
 
 /**

@@ -26,7 +26,7 @@ public class MarginKeyValBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     MarginKeyVal<String, Integer> oper = new MarginKeyVal<String, Integer>();

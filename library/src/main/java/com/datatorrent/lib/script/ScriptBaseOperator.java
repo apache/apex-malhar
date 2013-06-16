@@ -5,8 +5,8 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Map;
 
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DefaultOutputPort;
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DefaultOutputPort;
 
 public class ScriptBaseOperator extends BaseOperator implements ScriptOperator
 {

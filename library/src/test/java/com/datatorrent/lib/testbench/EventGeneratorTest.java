@@ -3,11 +3,11 @@
  */
 package com.datatorrent.lib.testbench;
 
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.lib.testbench.EventGenerator;
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.stram.StramLocalCluster;
-import com.malhartech.stram.plan.logical.LogicalPlan;
+import com.datatorrent.stram.StramLocalCluster;
+import com.datatorrent.stram.plan.logical.LogicalPlan;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -5,12 +5,12 @@
 package com.datatorrent.contrib.kafka;
 
 import com.datatorrent.contrib.kafka.KafkaSinglePortOutputOperator;
-import com.malhartech.api.ActivationListener;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DAG;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.InputOperator;
-import com.malhartech.api.LocalMode;
+import com.datatorrent.api.ActivationListener;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.LocalMode;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;

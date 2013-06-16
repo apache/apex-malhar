@@ -3,9 +3,9 @@
  */
 package com.datatorrent.lib.stream;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.stream.RoundRobinHashMap;
 import com.datatorrent.lib.util.KeyValPair;
-import com.malhartech.engine.TestSink;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;

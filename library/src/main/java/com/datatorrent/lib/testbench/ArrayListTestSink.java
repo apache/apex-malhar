@@ -4,8 +4,9 @@
  */
 package com.datatorrent.lib.testbench;
 
-import com.malhartech.api.annotation.ShipContainingJars;
-import com.malhartech.api.Sink;
+import com.datatorrent.api.Sink;
+import com.datatorrent.api.annotation.ShipContainingJars;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.apache.commons.lang.mutable.MutableInt;

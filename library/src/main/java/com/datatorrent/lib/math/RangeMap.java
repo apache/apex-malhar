@@ -4,14 +4,14 @@
  */
 package com.datatorrent.lib.math;
 
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Operator.Unifier;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 import com.datatorrent.lib.util.HighLow;
 import com.datatorrent.lib.util.UnifierHashMapRange;
-import com.malhartech.api.annotation.InputPortFieldAnnotation;
-import com.malhartech.api.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.Operator.Unifier;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang.mutable.MutableDouble;

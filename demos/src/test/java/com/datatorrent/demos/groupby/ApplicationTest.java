@@ -4,8 +4,8 @@
  */
 package com.datatorrent.demos.groupby;
 
+import com.datatorrent.api.LocalMode;
 import com.datatorrent.demos.groupby.Application;
-import com.malhartech.api.LocalMode;
 
 import org.junit.Test;
 

@@ -3,9 +3,9 @@
  */
 package com.datatorrent.lib.math;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.math.ChangeAlertKeyVal;
 import com.datatorrent.lib.util.KeyValPair;
-import com.malhartech.engine.TestSink;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

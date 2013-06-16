@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.malhartech</groupId>
+    <groupId>com.datatorrent</groupId>
     <artifactId>malhar-framework</artifactId>
     <version>0.3.2-SNAPSHOT</version>
   </parent>
@@ -50,7 +50,7 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.malhartech</groupId>
+      <groupId>com.datatorrent</groupId>
       <artifactId>malhar-library</artifactId>
       <version>0.3.2-SNAPSHOT</version>
       <type>jar</type>

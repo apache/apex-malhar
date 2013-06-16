@@ -3,9 +3,10 @@ package com.datatorrent.demos.performance;
 /*
  * To change this template, choose Tools | Templates and open the template in the editor.
  */
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.Operator;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.Operator;
+import com.datatorrent.api.Context.OperatorContext;
+
 import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

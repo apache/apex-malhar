@@ -6,8 +6,8 @@ package com.datatorrent.demos.samplestream;
 
 import org.junit.Test;
 
+import com.datatorrent.api.LocalMode;
 import com.datatorrent.demos.samplestream.Application;
-import com.malhartech.api.LocalMode;
 
 /**
  *

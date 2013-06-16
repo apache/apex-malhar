@@ -4,9 +4,9 @@
  */
 package com.datatorrent.lib.io;
 
-import com.malhartech.api.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.*;
-import com.malhartech.api.Context.OperatorContext;
+import com.datatorrent.api.*;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 import java.util.ArrayList;
 import java.util.Iterator;

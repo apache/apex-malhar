@@ -4,9 +4,10 @@
  */
 package com.datatorrent.demos.groupby;
 
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.InputOperator;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Context.OperatorContext;
+
 import java.util.HashMap;
 import java.util.Random;
 

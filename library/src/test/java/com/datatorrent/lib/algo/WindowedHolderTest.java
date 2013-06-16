@@ -11,11 +11,11 @@ import junit.framework.Assert;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.WindowedHolder;
 import com.datatorrent.lib.algo.WindowedTopCounter;
 import com.datatorrent.lib.codec.JavaSerializationStreamCodec;
-import com.malhartech.common.util.Slice;
-import com.malhartech.engine.TestSink;
+import com.datatorrent.common.util.Slice;
 
 /**
  *

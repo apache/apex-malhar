@@ -4,10 +4,10 @@
  */
 package com.datatorrent.contrib.hbase;
 
-import com.malhartech.api.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.InputOperator;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
 import java.io.IOException;
 
 /**

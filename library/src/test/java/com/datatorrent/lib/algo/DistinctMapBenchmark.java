@@ -26,7 +26,7 @@ public class DistinctMapBenchmark
    */
   @Test
   @SuppressWarnings({"SleepWhileInLoop", "rawtypes", "unchecked"})
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     DistinctMap<String, Number> oper = new DistinctMap<String, Number>();

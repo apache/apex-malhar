@@ -3,9 +3,9 @@
  */
 package com.datatorrent.lib.algo;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.UniqueValueKeyVal;
 import com.datatorrent.lib.util.KeyValPair;
-import com.malhartech.engine.TestSink;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -26,7 +26,7 @@ public class UniqueValueKeyValBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     UniqueValueKeyVal<String> oper = new UniqueValueKeyVal<String>();

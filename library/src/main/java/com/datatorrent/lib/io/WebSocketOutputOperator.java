@@ -4,10 +4,11 @@
  */
 package com.datatorrent.lib.io;
 
-import com.malhartech.api.annotation.ShipContainingJars;
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DefaultInputPort;
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.ShipContainingJars;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.Map;

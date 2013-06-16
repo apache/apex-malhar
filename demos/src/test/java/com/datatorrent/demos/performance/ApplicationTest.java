@@ -8,8 +8,8 @@ import java.io.IOException;
 
 import org.junit.Test;
 
+import com.datatorrent.api.LocalMode;
 import com.datatorrent.demos.performance.Application;
-import com.malhartech.api.LocalMode;
 
 /**
  * Test the DAG declaration in local mode.

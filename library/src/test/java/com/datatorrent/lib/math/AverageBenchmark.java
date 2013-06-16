@@ -3,8 +3,8 @@
  */
 package com.datatorrent.lib.math;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.math.Average;
-import com.malhartech.engine.TestSink;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -24,7 +24,7 @@ public class AverageBenchmark
    * Test operator logic emits correct results.
    */
   @Test
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing()
   {
     Average<Double> doper = new Average<Double>();

@@ -4,9 +4,10 @@
  */
 package com.datatorrent.contrib.rabbitmq;
 
-import com.malhartech.annotation.InjectConfig;
-import com.malhartech.api.*;
-import com.malhartech.api.Context.OperatorContext;
+import com.datatorrent.api.*;
+import com.datatorrent.api.ActivationListener;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Context.OperatorContext;
 import com.rabbitmq.client.*;
 import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;

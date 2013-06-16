@@ -3,9 +3,9 @@
  */
 package com.datatorrent.lib.script;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.AllAfterMatchMapBenchmark;
 import com.datatorrent.lib.script.BashOperator;
-import com.malhartech.engine.TestSink;
 import java.util.HashMap;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -26,7 +26,7 @@ public class BashOperatorBanchmark
    * Test node logic emits correct results
    */
   @Test
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
 		// Create bash operator instance (calculate suqare).

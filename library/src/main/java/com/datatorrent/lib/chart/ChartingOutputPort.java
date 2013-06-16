@@ -4,9 +4,9 @@
  */
 package com.datatorrent.lib.chart;
 
-import com.malhartech.api.Context.PortContext;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.Operator;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Operator;
+import com.datatorrent.api.Context.PortContext;
 
 /**
  * Output ports which use this type automatically record the tuples output on them so

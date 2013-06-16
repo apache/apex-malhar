@@ -4,8 +4,8 @@
  */
 package com.datatorrent.contrib.kafka;
 
-import com.malhartech.api.annotation.InputPortFieldAnnotation;
-import com.malhartech.api.DefaultInputPort;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.DefaultInputPort;
 import kafka.javaapi.producer.ProducerData;
 
 /**

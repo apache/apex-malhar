@@ -5,10 +5,10 @@
 package com.datatorrent.contrib.jdbc;
 
 import com.datatorrent.contrib.jdbc.JDBCOutputOperator;
-import com.malhartech.api.DAG;
-import com.malhartech.api.DAGContext;
-import com.malhartech.util.AttributeMap;
-import com.malhartech.util.AttributeMap.DefaultAttributeMap;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAGContext;
+import com.datatorrent.api.AttributeMap;
+import com.datatorrent.api.AttributeMap.DefaultAttributeMap;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;

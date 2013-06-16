@@ -4,6 +4,9 @@
  */
 package com.datatorrent.demos.mobile;
 
+import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
@@ -12,9 +15,6 @@ import com.datatorrent.lib.testbench.RandomEventGenerator;
 import com.datatorrent.lib.util.Alert;
 import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
-import com.malhartech.api.ApplicationFactory;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DAG;
 
 import java.net.URI;
 

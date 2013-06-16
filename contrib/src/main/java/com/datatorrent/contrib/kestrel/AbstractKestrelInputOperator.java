@@ -4,9 +4,9 @@
  */
 package com.datatorrent.contrib.kestrel;
 
-import com.malhartech.api.ActivationListener;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.InputOperator;
+import com.datatorrent.api.ActivationListener;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.InputOperator;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.Level;
 import org.slf4j.Logger;

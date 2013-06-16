@@ -3,9 +3,9 @@
  */
 package com.datatorrent.lib.logs;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.logs.ApacheLogParseOperator;
 import com.datatorrent.lib.testbench.ArrayListTestSink;
-import com.malhartech.engine.TestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;

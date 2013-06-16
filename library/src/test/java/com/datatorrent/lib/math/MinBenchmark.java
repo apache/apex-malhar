@@ -24,7 +24,7 @@ public class MinBenchmark
    * Test oper logic emits correct results
    */
   @Test
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeSchemaProcessing()
   {
     Min<Double> oper = new Min<Double>();

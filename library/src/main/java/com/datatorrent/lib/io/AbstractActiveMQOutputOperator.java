@@ -4,8 +4,9 @@
  */
 package com.datatorrent.lib.io;
 
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.Operator;
+import com.datatorrent.api.Operator;
+import com.datatorrent.api.Context.OperatorContext;
+
 import javax.jms.JMSException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

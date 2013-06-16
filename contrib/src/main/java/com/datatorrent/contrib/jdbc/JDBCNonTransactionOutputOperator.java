@@ -4,7 +4,7 @@
  */
 package com.datatorrent.contrib.jdbc;
 
-import com.malhartech.api.Context.OperatorContext;
+import com.datatorrent.api.Context.OperatorContext;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;

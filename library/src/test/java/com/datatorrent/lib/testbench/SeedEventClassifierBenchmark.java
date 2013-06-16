@@ -3,9 +3,9 @@
  */
 package com.datatorrent.lib.testbench;
 
+import com.datatorrent.api.Sink;
 import com.datatorrent.lib.testbench.SeedEventClassifier;
-import com.malhartech.api.Sink;
-import com.malhartech.tuple.Tuple;
+import com.datatorrent.tuple.Tuple;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -66,7 +66,7 @@ public class SeedEventClassifierBenchmark
    * Test oper logic emits correct results
    */
   @Test
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     testSchemaNodeProcessing(true); // 13 million/sec

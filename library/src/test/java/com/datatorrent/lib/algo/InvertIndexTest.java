@@ -3,9 +3,9 @@
  */
 package com.datatorrent.lib.algo;
 
+import com.datatorrent.api.Sink;
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.InvertIndex;
-import com.malhartech.api.Sink;
-import com.malhartech.engine.TestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;

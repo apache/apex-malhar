@@ -3,10 +3,10 @@
  */
 package com.datatorrent.lib.math;
 
+import com.datatorrent.api.Sink;
 import com.datatorrent.lib.math.RangeMap;
 import com.datatorrent.lib.util.HighLow;
-import com.malhartech.api.Sink;
-import com.malhartech.tuple.Tuple;
+import com.datatorrent.tuple.Tuple;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
@@ -54,7 +54,7 @@ public class RangeMapBenchmark
    * Test functional logic
    */
   @Test
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing()
   {
     testSchemaNodeProcessing(new RangeMap<String, Integer>(), "integer"); // 8million/s

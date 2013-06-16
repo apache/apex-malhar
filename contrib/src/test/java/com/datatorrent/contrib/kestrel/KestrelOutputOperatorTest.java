@@ -4,11 +4,17 @@
  */
 package com.datatorrent.contrib.kestrel;
 
+import com.datatorrent.api.*;
 import com.datatorrent.contrib.kestrel.AbstractSinglePortKestrelOutputOperator;
 import com.datatorrent.contrib.kestrel.MemcachedClient;
 import com.datatorrent.contrib.kestrel.SockIOPool;
-import com.malhartech.api.*;
-import com.malhartech.api.Context.OperatorContext;
+import com.datatorrent.api.ActivationListener;
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.Context.OperatorContext;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;

@@ -4,12 +4,12 @@
  */
 package com.datatorrent.demos.rollingtopwords;
 
+import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.DAG;
 import com.datatorrent.demos.twitter.TwitterSampleInput;
 import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.algo.WindowedTopCounter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.malhartech.api.ApplicationFactory;
-import com.malhartech.api.DAG;
 
 import org.apache.hadoop.conf.Configuration;
 

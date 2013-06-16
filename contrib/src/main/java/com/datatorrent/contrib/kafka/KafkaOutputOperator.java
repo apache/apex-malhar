@@ -4,9 +4,9 @@
  */
 package com.datatorrent.contrib.kafka;
 
-import com.malhartech.api.annotation.ShipContainingJars;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.Operator;
+import com.datatorrent.api.annotation.ShipContainingJars;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Operator;
 import javax.validation.constraints.NotNull;
 import kafka.javaapi.producer.Producer;
 import kafka.producer.ProducerConfig;

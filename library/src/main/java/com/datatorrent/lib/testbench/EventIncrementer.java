@@ -4,10 +4,10 @@
  */
 package com.datatorrent.lib.testbench;
 
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.lib.util.KeyValPair;
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.DefaultOutputPort;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;

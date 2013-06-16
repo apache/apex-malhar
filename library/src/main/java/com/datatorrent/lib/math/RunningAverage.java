@@ -4,9 +4,9 @@
  */
 package com.datatorrent.lib.math;
 
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.DefaultOutputPort;
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
 
 /**
  * Calculate the running average of the input numbers and emit it at the end of the window.<p>

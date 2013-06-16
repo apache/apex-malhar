@@ -11,8 +11,8 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.script.PythonOperator;
-import com.malhartech.engine.TestSink;
 
 /**
  * Unit test for PythonOperator.

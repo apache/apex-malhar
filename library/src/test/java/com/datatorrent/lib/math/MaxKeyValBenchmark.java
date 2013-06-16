@@ -26,7 +26,7 @@ public class MaxKeyValBenchmark
    * Test functional logic
    */
   @Test
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing()
   {
     testSchemaNodeProcessing(new MaxKeyVal<String, Integer>(), "integer");

@@ -3,9 +3,9 @@
  */
 package com.datatorrent.lib.testbench;
 
+import com.datatorrent.api.Sink;
 import com.datatorrent.lib.testbench.SeedEventClassifier;
-import com.malhartech.api.Sink;
-import com.malhartech.tuple.Tuple;
+import com.datatorrent.tuple.Tuple;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;

@@ -10,10 +10,10 @@ import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.DAG;
 import com.datatorrent.lib.io.HdfsOutputOperator;
-import com.malhartech.api.ApplicationFactory;
-import com.malhartech.api.DAG;
-import com.malhartech.stram.DAGPropertiesBuilder;
+import com.datatorrent.stram.DAGPropertiesBuilder;
 
 public class HdfsOutputTest implements ApplicationFactory {
 
@@ -33,7 +33,7 @@ public class HdfsOutputTest implements ApplicationFactory {
     module.setFilePath(config.get(KEY_FILEPATH, "hdfsoutputtest.txt"));
     module.setAppend(config.getBoolean(KEY_APPEND, false));
 
-    module.setup(new com.malhartech.engine.OperatorContext(0, null, null, null));
+    module.setup(new com.datatorrent.engine.OperatorContext(0, null, null, null));
 
     for (int i=0; i<=numTuples; i++) {
       module.input.process("testdata" + i);

@@ -5,7 +5,7 @@
 package com.datatorrent.contrib.zmq;
 
 import com.datatorrent.lib.io.SimpleSinglePortInputOperator;
-import com.malhartech.api.Context;
+import com.datatorrent.api.Context;
 import org.zeromq.ZMQ;
 
 /**

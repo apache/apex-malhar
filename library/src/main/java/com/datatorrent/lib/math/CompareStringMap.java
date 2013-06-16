@@ -4,9 +4,9 @@
  */
 package com.datatorrent.lib.math;
 
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.algo.MatchStringMap;
-import com.malhartech.api.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.DefaultOutputPort;
 import java.util.HashMap;
 
 /**

@@ -4,8 +4,8 @@
  */
 package com.datatorrent.demos.yahoofinance;
 
+import com.datatorrent.api.LocalMode;
 import com.datatorrent.demos.yahoofinance.Application;
-import com.malhartech.api.LocalMode;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 

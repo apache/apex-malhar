@@ -4,10 +4,10 @@
 package com.datatorrent.lib.testbench;
 
 
+import com.datatorrent.api.Sink;
+import com.datatorrent.engine.OperatorContext;
 import com.datatorrent.lib.testbench.ThroughputCounter;
-import com.malhartech.api.Sink;
-import com.malhartech.engine.OperatorContext;
-import com.malhartech.tuple.Tuple;
+import com.datatorrent.tuple.Tuple;
 import java.util.HashMap;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -63,7 +63,7 @@ public class ThroughputCounterBenchmark {
    * Tests both string and non string schema
    */
   @Test
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testSingleSchemaNodeProcessing() throws Exception
   {
     ThroughputCounter<String, Integer> node = new ThroughputCounter<String, Integer>();

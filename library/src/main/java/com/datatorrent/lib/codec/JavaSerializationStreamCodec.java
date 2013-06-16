@@ -8,8 +8,8 @@ import java.io.*;
 
 import org.slf4j.LoggerFactory;
 
-import com.malhartech.api.StreamCodec;
-import com.malhartech.common.util.Slice;
+import com.datatorrent.api.StreamCodec;
+import com.datatorrent.common.util.Slice;
 
 /**
  * This codec is used for serializing the objects of class which implements java.io.Serializable.

@@ -4,8 +4,9 @@
  */
 package com.datatorrent.lib.chart;
 
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DAGContext;
+import com.datatorrent.api.DAGContext;
+import com.datatorrent.api.Context.OperatorContext;
+
 import java.util.Map;
 import java.util.TreeMap;
 

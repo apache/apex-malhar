@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.malhartech</groupId>
+    <groupId>com.datatorrent</groupId>
     <artifactId>malhar-framework</artifactId>
     <version>0.3.2-SNAPSHOT</version>
   </parent>
@@ -18,7 +18,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <netbeans.hint.license>malhar-inc</netbeans.hint.license>
-    <test.excludedGroups>com.malhartech.annotation.PerformanceTestCategory</test.excludedGroups>
+    <test.excludedGroups>com.datatorrent.annotation.PerformanceTestCategory</test.excludedGroups>
   </properties>
 
   <build>

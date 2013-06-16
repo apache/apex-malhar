@@ -4,11 +4,11 @@
  */
 package com.datatorrent.demos.yahoofinance;
 
+import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.DAG;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.util.AbstractSqlStreamOperator;
 import com.datatorrent.lib.util.DerbySqlStreamOperator;
-import com.malhartech.api.ApplicationFactory;
-import com.malhartech.api.DAG;
 
 import org.apache.hadoop.conf.Configuration;
 

@@ -4,11 +4,11 @@
  */
 package com.datatorrent.demos.performance;
 
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.demos.performance.ApplicationFixed;
 import com.datatorrent.demos.performance.FixedTuplesInputOperator;
-import com.malhartech.api.Context.PortContext;
-import com.malhartech.api.DAG;
-import com.malhartech.api.LocalMode;
 
 import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;

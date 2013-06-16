@@ -2,10 +2,10 @@ package com.datatorrent.lib.samplecode.math;
 
 import org.apache.hadoop.conf.Configuration;
 
+import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.DAG;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.math.CompareMap;
-import com.malhartech.api.ApplicationFactory;
-import com.malhartech.api.DAG;
 
 
 /**

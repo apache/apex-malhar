@@ -5,8 +5,8 @@ package com.datatorrent.lib.math;
 
 import junit.framework.Assert;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.testbench.CountOccurance;
-import com.malhartech.engine.TestSink;
 
 import org.junit.Test;
 

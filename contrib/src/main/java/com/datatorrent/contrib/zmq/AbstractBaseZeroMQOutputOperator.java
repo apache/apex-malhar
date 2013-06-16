@@ -4,9 +4,9 @@
  */
 package com.datatorrent.contrib.zmq;
 
-import com.malhartech.api.annotation.ShipContainingJars;
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.ShipContainingJars;
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.Context.OperatorContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;

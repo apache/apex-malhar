@@ -6,8 +6,8 @@ package com.datatorrent.lib.io;
 import junit.framework.Assert;
 import org.junit.Test;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.io.ApacheGenRandomLogs;
-import com.malhartech.engine.TestSink;
 
 /**
  * Unit test for emit tuples.

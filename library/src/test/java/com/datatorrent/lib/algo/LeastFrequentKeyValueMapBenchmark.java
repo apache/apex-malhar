@@ -3,8 +3,8 @@
  */
 package com.datatorrent.lib.algo;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.LeastFrequentKeyValueMap;
-import com.malhartech.engine.TestSink;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
@@ -27,7 +27,7 @@ public class LeastFrequentKeyValueMapBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     LeastFrequentKeyValueMap<String, Integer> oper = new LeastFrequentKeyValueMap<String, Integer>();

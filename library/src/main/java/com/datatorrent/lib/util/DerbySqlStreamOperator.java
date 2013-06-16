@@ -4,9 +4,9 @@
  */
 package com.datatorrent.lib.util;
 
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.lib.util.AbstractSqlStreamOperator.InputSchema.ColumnInfo;
-import com.malhartech.api.annotation.ShipContainingJars;
-import com.malhartech.api.Context.OperatorContext;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;

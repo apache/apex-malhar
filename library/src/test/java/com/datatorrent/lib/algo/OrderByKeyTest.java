@@ -3,8 +3,8 @@
  */
 package com.datatorrent.lib.algo;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.OrderByKey;
-import com.malhartech.engine.TestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import junit.framework.Assert;

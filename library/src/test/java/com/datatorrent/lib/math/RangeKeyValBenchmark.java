@@ -3,11 +3,11 @@
  */
 package com.datatorrent.lib.math;
 
+import com.datatorrent.api.Sink;
 import com.datatorrent.lib.math.RangeKeyVal;
 import com.datatorrent.lib.util.HighLow;
 import com.datatorrent.lib.util.KeyValPair;
-import com.malhartech.api.Sink;
-import com.malhartech.tuple.Tuple;
+import com.datatorrent.tuple.Tuple;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -51,7 +51,7 @@ public class RangeKeyValBenchmark
    * Test functional logic
    */
   @Test
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing()
   {
     testSchemaNodeProcessing(new RangeKeyVal<String, Integer>(), "integer"); // 8million/s

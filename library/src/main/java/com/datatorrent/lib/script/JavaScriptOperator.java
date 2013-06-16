@@ -4,12 +4,12 @@
  */
 package com.datatorrent.lib.script;
 
-import com.malhartech.api.annotation.InputPortFieldAnnotation;
-import com.malhartech.api.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.DefaultOutputPort;
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -3,8 +3,8 @@
  */
 package com.datatorrent.lib.algo;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.BottomNMap;
-import com.malhartech.engine.TestSink;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class BottomNBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     testNodeProcessingSchema(new BottomNMap<String, Integer>());

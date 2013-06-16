@@ -4,9 +4,9 @@
  */
 package com.datatorrent.lib.math;
 
-import com.malhartech.api.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DefaultOutputPort;
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
  * Calculus Operator for which operates on a single variable input and produces a result.

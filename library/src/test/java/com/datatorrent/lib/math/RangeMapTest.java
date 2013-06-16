@@ -3,10 +3,10 @@
  */
 package com.datatorrent.lib.math;
 
+import com.datatorrent.api.Sink;
 import com.datatorrent.lib.math.RangeMap;
 import com.datatorrent.lib.util.HighLow;
-import com.malhartech.api.Sink;
-import com.malhartech.tuple.Tuple;
+import com.datatorrent.tuple.Tuple;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;

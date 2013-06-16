@@ -4,7 +4,8 @@
  */
 package com.datatorrent.lib.testbench;
 
-import com.malhartech.api.Sink;
+import com.datatorrent.api.Sink;
+
 import java.util.HashMap;
 import org.apache.commons.lang.mutable.MutableInt;
 

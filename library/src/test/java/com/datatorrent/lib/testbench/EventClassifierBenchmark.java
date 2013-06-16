@@ -3,9 +3,9 @@
  */
 package com.datatorrent.lib.testbench;
 
+import com.datatorrent.api.Sink;
 import com.datatorrent.lib.testbench.EventClassifier;
-import com.malhartech.api.Sink;
-import com.malhartech.tuple.Tuple;
+import com.datatorrent.tuple.Tuple;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -87,7 +87,7 @@ public class EventClassifierBenchmark
    * Test node logic emits correct results
    */
   @Test
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     EventClassifier node = new EventClassifier();

@@ -4,9 +4,10 @@
  */
 package com.datatorrent.lib.io;
 
-import com.malhartech.api.annotation.InputPortFieldAnnotation;
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DefaultInputPort;
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+
 import java.util.ArrayList;
 
 /**

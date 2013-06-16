@@ -5,7 +5,7 @@
 package com.datatorrent.contrib.ads_dimension;
 
 import com.datatorrent.contrib.ads_dimension.ApplicationRandomData;
-import com.malhartech.api.LocalMode;
+import com.datatorrent.api.LocalMode;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 

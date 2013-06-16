@@ -4,9 +4,9 @@
  */
 package com.datatorrent.demos.performance;
 
-import com.malhartech.api.ApplicationFactory;
-import com.malhartech.api.Context.PortContext;
-import com.malhartech.api.DAG;
+import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.Context.PortContext;
 
 import org.apache.hadoop.conf.Configuration;
 

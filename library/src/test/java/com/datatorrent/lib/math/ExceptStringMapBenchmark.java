@@ -26,7 +26,7 @@ public class ExceptStringMapBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessingSchema()
   {
     ExceptStringMap<String> oper = new ExceptStringMap<String>();

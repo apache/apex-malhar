@@ -4,10 +4,11 @@
  */
 package com.datatorrent.lib.testbench;
 
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.InputOperator;
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Context.OperatorContext;
+
 import java.util.Random;
 import javax.validation.constraints.Min;
 

@@ -5,7 +5,7 @@ package com.datatorrent.lib.math;
  */
 import com.datatorrent.lib.math.LogicalCompare;
 import com.datatorrent.lib.testbench.CountTestSink;
-import com.malhartech.common.util.Pair;
+import com.datatorrent.common.util.Pair;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -25,7 +25,7 @@ public class LogicalCompareBenchmark
    * Test operator logic emits correct results.
    */
   @Test
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing()
   {
     LogicalCompare<Integer> oper = new LogicalCompare<Integer>()

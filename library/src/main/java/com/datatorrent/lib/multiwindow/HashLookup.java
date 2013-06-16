@@ -4,8 +4,8 @@
  */
 package com.datatorrent.lib.multiwindow;
 
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.util.BaseFilteredKeyValueOperator;
-import com.malhartech.api.Context.OperatorContext;
 import java.util.HashMap;
 import javax.validation.constraints.Min;
 

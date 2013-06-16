@@ -3,8 +3,8 @@
  */
 package com.datatorrent.lib.algo;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.FilterValues;
-import com.malhartech.engine.TestSink;
 import java.util.ArrayList;
 import java.util.List;
 import junit.framework.Assert;

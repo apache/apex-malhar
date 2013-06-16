@@ -4,9 +4,10 @@
  */
 package com.datatorrent.lib.util;
 
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.Operator.Unifier;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Operator.Unifier;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;

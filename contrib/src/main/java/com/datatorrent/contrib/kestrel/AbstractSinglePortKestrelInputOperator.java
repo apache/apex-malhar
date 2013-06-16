@@ -4,8 +4,8 @@
  */
 package com.datatorrent.contrib.kestrel;
 
-import com.malhartech.api.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.api.DefaultOutputPort;
 
 /**
  * Kestrel input adapter single port operator, which consume data from Kestrel message bus.<p><br>

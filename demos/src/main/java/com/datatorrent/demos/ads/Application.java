@@ -4,6 +4,11 @@
  */
 package com.datatorrent.demos.ads;
 
+import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Context.PortContext;
+import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.HdfsOutputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
@@ -15,11 +20,6 @@ import com.datatorrent.lib.testbench.EventClassifier;
 import com.datatorrent.lib.testbench.EventGenerator;
 import com.datatorrent.lib.testbench.FilteredEventClassifier;
 import com.datatorrent.lib.testbench.ThroughputCounter;
-import com.malhartech.api.ApplicationFactory;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.Context.PortContext;
-import com.malhartech.api.DAG;
-import com.malhartech.api.Operator.InputPort;
 
 import java.net.URI;
 import java.util.ArrayList;

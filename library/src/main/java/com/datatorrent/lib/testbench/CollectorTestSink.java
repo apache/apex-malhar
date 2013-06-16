@@ -4,7 +4,7 @@
  */
 package com.datatorrent.lib.testbench;
 
-import com.malhartech.api.Sink;
+import com.datatorrent.api.Sink;
 
 import java.util.ArrayList;
 import java.util.List;

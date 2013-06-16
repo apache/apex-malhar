@@ -4,7 +4,7 @@
  */
 package com.datatorrent.contrib.rabbitmq;
 
-import com.malhartech.api.DefaultInputPort;
+import com.datatorrent.api.DefaultInputPort;
 
 /**
  * RabbitMQ output adapter operator, which send data to RabbitMQ message bus.<p><br>

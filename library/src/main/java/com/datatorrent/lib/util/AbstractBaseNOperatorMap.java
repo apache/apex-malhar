@@ -4,8 +4,9 @@
  */
 package com.datatorrent.lib.util;
 
-import com.malhartech.api.annotation.InputPortFieldAnnotation;
-import com.malhartech.api.DefaultInputPort;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+
 import java.util.HashMap;
 import java.util.Map;
 import javax.validation.constraints.Min;

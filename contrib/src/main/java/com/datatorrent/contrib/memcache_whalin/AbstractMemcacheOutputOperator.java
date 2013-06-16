@@ -4,8 +4,8 @@
  */
 package com.datatorrent.contrib.memcache_whalin;
 
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.Context.OperatorContext;
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.Context.OperatorContext;
 import com.whalin.MemCached.SockIOPool;
 import com.whalin.MemCached.MemCachedClient;
 import org.slf4j.Logger;

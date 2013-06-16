@@ -4,12 +4,12 @@
  */
 package com.datatorrent.contrib.jdbc;
 
-import com.malhartech.api.ActivationListener;
-import com.malhartech.api.CheckpointListener;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.InputOperator;
-import com.malhartech.bufferserver.util.Codec;
+import com.datatorrent.api.ActivationListener;
+import com.datatorrent.api.CheckpointListener;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.bufferserver.util.Codec;
 import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import org.slf4j.Logger;

@@ -3,8 +3,8 @@
  */
 package com.datatorrent.lib.algo;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.MergeSort;
-import com.malhartech.engine.TestSink;
 import java.util.ArrayList;
 import junit.framework.Assert;
 import org.junit.Test;

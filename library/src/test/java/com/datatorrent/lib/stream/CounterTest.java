@@ -3,9 +3,9 @@
  */
 package com.datatorrent.lib.stream;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.stream.Counter;
 import com.datatorrent.lib.testbench.CountTestSink;
-import com.malhartech.engine.TestSink;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;

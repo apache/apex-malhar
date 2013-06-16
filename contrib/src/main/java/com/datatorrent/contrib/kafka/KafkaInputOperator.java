@@ -4,10 +4,10 @@
  */
 package com.datatorrent.contrib.kafka;
 
-import com.malhartech.api.annotation.ShipContainingJars;
-import com.malhartech.api.ActivationListener;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.InputOperator;
+import com.datatorrent.api.annotation.ShipContainingJars;
+import com.datatorrent.api.ActivationListener;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.InputOperator;
 import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.Iterator;

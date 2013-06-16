@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.PartitionableOperator;
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.PartitionableOperator;
 
 /**
  * This is the base class for all chart operators

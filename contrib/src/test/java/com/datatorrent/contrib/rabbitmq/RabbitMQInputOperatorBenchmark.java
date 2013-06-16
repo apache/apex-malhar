@@ -5,11 +5,11 @@
 package com.datatorrent.contrib.rabbitmq;
 
 import com.datatorrent.contrib.rabbitmq.AbstractSinglePortRabbitMQInputOperator;
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DAG;
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.LocalMode;
-import com.malhartech.api.Operator;
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.Operator;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;

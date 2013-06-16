@@ -3,9 +3,9 @@ package com.datatorrent.lib.math;
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.math.LogicalCompareToConstant;
-import com.malhartech.engine.TestSink;
-import com.malhartech.common.util.Pair;
+import com.datatorrent.common.util.Pair;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

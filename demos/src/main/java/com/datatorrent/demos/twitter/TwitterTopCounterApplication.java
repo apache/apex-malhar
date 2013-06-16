@@ -9,13 +9,13 @@ import java.net.URI;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 
+import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.algo.WindowedTopCounter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
-import com.malhartech.api.ApplicationFactory;
-import com.malhartech.api.DAG;
-import com.malhartech.api.Operator.InputPort;
 
 /**
  * Takes Twitter feed and computes top URLs in sliding window.

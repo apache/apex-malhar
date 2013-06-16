@@ -3,17 +3,13 @@
  */
 package com.datatorrent.lib.math;
 
+import com.datatorrent.api.*;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.math.Sum;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.InputOperator;
-import com.malhartech.api.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.*;
-import com.malhartech.engine.TestSink;
-import com.malhartech.stram.StramLocalCluster;
-import com.malhartech.stram.plan.logical.LogicalPlan;
+import com.datatorrent.stram.StramLocalCluster;
+import com.datatorrent.stram.plan.logical.LogicalPlan;
 
 import java.util.ArrayList;
 import junit.framework.Assert;

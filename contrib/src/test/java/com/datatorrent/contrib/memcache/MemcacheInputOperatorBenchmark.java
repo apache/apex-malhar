@@ -5,10 +5,10 @@
 package com.datatorrent.contrib.memcache;
 
 import com.datatorrent.contrib.memcache.AbstractSinglePortMemcacheInputOperator;
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DAG;
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.LocalMode;
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.LocalMode;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;

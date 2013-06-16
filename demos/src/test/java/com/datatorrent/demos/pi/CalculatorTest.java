@@ -4,8 +4,8 @@
  */
 package com.datatorrent.demos.pi;
 
+import com.datatorrent.api.LocalMode;
 import com.datatorrent.demos.pi.Calculator;
-import com.malhartech.api.LocalMode;
 import org.junit.Test;
 
 /**

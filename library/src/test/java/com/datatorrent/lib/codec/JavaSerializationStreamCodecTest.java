@@ -5,7 +5,7 @@
 package com.datatorrent.lib.codec;
 
 import com.datatorrent.lib.codec.JavaSerializationStreamCodec;
-import com.malhartech.common.util.Slice;
+import com.datatorrent.common.util.Slice;
 import java.io.IOException;
 import java.io.Serializable;
 import org.junit.Assert;

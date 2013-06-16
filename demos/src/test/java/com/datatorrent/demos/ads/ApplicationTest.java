@@ -4,10 +4,10 @@
  */
 package com.datatorrent.demos.ads;
 
+import com.datatorrent.api.LocalMode;
 import com.datatorrent.demos.ads.Application;
-import com.malhartech.api.LocalMode;
-import com.malhartech.stram.DAGPropertiesBuilder;
-import com.malhartech.stram.StramLocalCluster;
+import com.datatorrent.stram.DAGPropertiesBuilder;
+import com.datatorrent.stram.StramLocalCluster;
 import java.io.IOException;
 import javax.validation.ConstraintViolationException;
 import junit.framework.Assert;

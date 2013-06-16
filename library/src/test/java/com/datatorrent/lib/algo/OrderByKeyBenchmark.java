@@ -3,9 +3,9 @@
  */
 package com.datatorrent.lib.algo;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.OrderByKey;
 import com.datatorrent.lib.testbench.CountTestSink;
-import com.malhartech.engine.TestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import junit.framework.Assert;
@@ -27,7 +27,7 @@ public class OrderByKeyBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     OrderByKey<String, Integer> oper = new OrderByKey<String, Integer>();
@@ -36,7 +36,7 @@ public class OrderByKeyBenchmark
     oper.ordered_count.setSink(countSink);
     oper.ordered_list.setSink(listSink);
     oper.setOrderby("a");
-    oper.setup(new com.malhartech.engine.OperatorContext(0, null, null, null));
+    oper.setup(new com.datatorrent.engine.OperatorContext(0, null, null, null));
 
     HashMap<String, Integer> input = new HashMap<String, Integer>();
     oper.beginWindow(0);

@@ -4,9 +4,9 @@
  */
 package com.datatorrent.lib.multiwindow;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.multiwindow.SimpleMovingAverage;
 import com.datatorrent.lib.util.KeyValPair;
-import com.malhartech.engine.TestSink;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

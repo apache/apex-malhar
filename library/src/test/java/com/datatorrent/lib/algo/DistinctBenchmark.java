@@ -3,10 +3,10 @@
  */
 package com.datatorrent.lib.algo;
 
+import com.datatorrent.api.Sink;
 import com.datatorrent.lib.algo.Distinct;
 import com.datatorrent.lib.testbench.CountTestSink;
 import com.datatorrent.lib.testbench.HashTestSink;
-import com.malhartech.api.Sink;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -26,7 +26,7 @@ public class DistinctBenchmark
    */
   @Test
   @SuppressWarnings({"SleepWhileInLoop", "rawtypes", "unchecked"})
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     Distinct<Integer> oper = new Distinct<Integer>();

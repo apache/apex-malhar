@@ -3,9 +3,9 @@
  */
 package com.datatorrent.lib.script;
 
+import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.AllAfterMatchMapBenchmark;
 import com.datatorrent.lib.script.PythonOperator;
-import com.malhartech.engine.TestSink;
 import java.util.HashMap;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -26,7 +26,7 @@ public class PythonOperatorBanchmark
    * Test node logic emits correct results
    */
   @Test
-  @Category(com.malhartech.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
   	PythonOperator oper= new PythonOperator();

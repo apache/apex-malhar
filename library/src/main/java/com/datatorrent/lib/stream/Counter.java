@@ -4,11 +4,11 @@
  */
 package com.datatorrent.lib.stream;
 
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.Operator;
-import com.malhartech.api.Operator.Unifier;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Operator;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Operator.Unifier;
 
 /**
  * Counter counts the number of tuples delivered to it in each window and emits the count.<p>

@@ -4,8 +4,9 @@
  */
 package com.datatorrent.lib.io;
 
-import com.malhartech.api.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.DefaultOutputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+
 import javax.jms.Message;
 
 /**

@@ -4,8 +4,8 @@
  */
 package com.datatorrent.contrib.rabbitmq;
 
-import com.malhartech.api.annotation.OutputPortFieldAnnotation;
-import com.malhartech.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.api.DefaultOutputPort;
 
 /**
  * RabbitMQ input adapter single port operator, which consume data from RabbitMQ message bus.<p><br>

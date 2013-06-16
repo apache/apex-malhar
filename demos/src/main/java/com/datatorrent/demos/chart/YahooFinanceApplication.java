@@ -4,6 +4,8 @@
  */
 package com.datatorrent.demos.chart;
 
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.demos.yahoofinance.StockTickInput;
 import com.datatorrent.lib.chart.CandleStick;
 import com.datatorrent.lib.chart.TimeSeriesAverageChartOperator;
@@ -11,8 +13,6 @@ import com.datatorrent.lib.chart.TimeSeriesCandleStickChartOperator;
 import com.datatorrent.lib.chart.XYChartOperator.NumberType;
 import com.datatorrent.lib.stream.DevNull;
 import com.datatorrent.lib.util.KeyValPair;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DAG;
 import java.util.Map;
 import org.apache.hadoop.conf.Configuration;
 

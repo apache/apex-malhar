@@ -6,11 +6,11 @@ package com.datatorrent.demos.twitter;
 
 import java.util.concurrent.ArrayBlockingQueue;
 
-import com.malhartech.api.annotation.ShipContainingJars;
-import com.malhartech.api.ActivationListener;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.api.InputOperator;
+import com.datatorrent.api.ActivationListener;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.ShipContainingJars;
 
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;

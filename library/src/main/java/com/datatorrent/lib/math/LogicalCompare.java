@@ -4,10 +4,10 @@
  */
 package com.datatorrent.lib.math;
 
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.common.util.Pair;
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.common.util.Pair;
 
 /**
  * Given a pair<T,T> object which contains 2 values of the comparable property, compare the first value with the second

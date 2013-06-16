@@ -7,8 +7,8 @@ package com.datatorrent.lib.util;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.datatorrent.api.StreamCodec;
 import com.datatorrent.lib.codec.JavaSerializationStreamCodec;
-import com.malhartech.api.StreamCodec;
 
 /**
  * Base class for operators that allows cloneValue and cloneKey for enabling users to use mutable objects<p>

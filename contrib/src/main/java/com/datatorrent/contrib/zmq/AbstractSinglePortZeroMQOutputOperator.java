@@ -4,7 +4,7 @@
  */
 package com.datatorrent.contrib.zmq;
 
-import com.malhartech.api.DefaultInputPort;
+import com.datatorrent.api.DefaultInputPort;
 
 /**
  * ZeroMQ output adapter operator, which send data to ZeroMQ message bus.<p><br>

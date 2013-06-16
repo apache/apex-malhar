@@ -4,9 +4,10 @@
  */
 package com.datatorrent.lib.io;
 
-import com.malhartech.api.ActivationListener;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.InputOperator;
+import com.datatorrent.api.ActivationListener;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Context.OperatorContext;
+
 import java.util.concurrent.ArrayBlockingQueue;
 import javax.jms.JMSException;
 import javax.jms.Message;

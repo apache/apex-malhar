@@ -4,9 +4,9 @@
  */
 package com.datatorrent.contrib.memcache;
 
-import com.malhartech.api.ActivationListener;
-import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.api.InputOperator;
+import com.datatorrent.api.ActivationListener;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.InputOperator;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;

@@ -4,9 +4,10 @@
  */
 package com.datatorrent.demos.twitter;
 
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DefaultInputPort;
-import com.malhartech.api.DefaultOutputPort;
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+
 import twitter4j.Status;
 import twitter4j.URLEntity;
 

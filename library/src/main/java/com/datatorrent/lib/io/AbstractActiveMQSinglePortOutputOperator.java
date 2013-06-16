@@ -4,8 +4,9 @@
  */
 package com.datatorrent.lib.io;
 
-import com.malhartech.api.annotation.InputPortFieldAnnotation;
-import com.malhartech.api.DefaultInputPort;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+
 import javax.jms.JMSException;
 import javax.jms.Message;
 import org.slf4j.Logger;

@@ -4,9 +4,9 @@
  */
 package com.datatorrent.demos.chart;
 
+import com.datatorrent.api.DAG;
 import com.datatorrent.demos.yahoofinance.StockTickInput;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.malhartech.api.DAG;
 import org.apache.hadoop.conf.Configuration;
 
 /**

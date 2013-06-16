@@ -4,7 +4,7 @@
  */
 package com.datatorrent.contrib.memcache;
 
-import com.malhartech.api.DefaultInputPort;
+import com.datatorrent.api.DefaultInputPort;
 
 /**
  * Memcache output adapter operator, which send data to Memcached.<p><br>
