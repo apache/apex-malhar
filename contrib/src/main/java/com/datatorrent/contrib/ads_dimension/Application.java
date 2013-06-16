@@ -14,7 +14,7 @@ import com.datatorrent.contrib.redis.RedisNumberAggregateOutputOperator;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.util.DimensionTimeBucketOperator;
 import com.datatorrent.lib.util.DimensionTimeBucketSumOperator;
-import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator.InputPort;
@@ -24,7 +24,7 @@ import com.datatorrent.api.Operator.InputPort;
  *
  * Get Yahoo finance feed and calculate minute price range, minute volume, simple moving average of 5 minutes.
  */
-public class Application implements ApplicationFactory
+public class Application implements StreamingApplication
 {
   private static final Logger LOG = LoggerFactory.getLogger(Application.class);
 

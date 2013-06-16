@@ -2,7 +2,7 @@ package com.datatorrent.lib.samplecode.math;
 
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.math.Change;
@@ -17,7 +17,7 @@ import com.datatorrent.lib.testbench.RandomEventGenerator;
  *
  * @author Dinesh Prasad(dinesh@malhar-inc.com)
  */
-public class ChangeSample implements ApplicationFactory
+public class ChangeSample implements StreamingApplication
 {
 	@SuppressWarnings("unchecked")
 	@Override

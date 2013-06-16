@@ -4,7 +4,7 @@ import java.net.URI;
 
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAGContext;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
@@ -20,7 +20,7 @@ import com.datatorrent.lib.io.HttpInputOperator;
  *
  * @author Dinesh Prasad(dinesh@malhar-inc.com)
  */
-public class HttpInputOperatorSample implements ApplicationFactory
+public class HttpInputOperatorSample implements StreamingApplication
 {
 	@Override
 	public void populateDAG(DAG dag, Configuration conf)

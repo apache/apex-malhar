@@ -4,7 +4,7 @@
  */
 package com.datatorrent.demos.ads;
 
-import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Context.PortContext;
@@ -31,7 +31,7 @@ import org.apache.hadoop.conf.Configuration;
 /**
  * Example of application configuration for an ads demo<p>
  */
-public class Application implements ApplicationFactory
+public class Application implements StreamingApplication
 {
   public static final int WINDOW_SIZE_MILLIS = 500;
   public static final String P_numGenerators = Application.class.getName() + ".numGenerators";

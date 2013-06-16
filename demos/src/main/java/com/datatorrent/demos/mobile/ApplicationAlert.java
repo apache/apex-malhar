@@ -4,7 +4,7 @@
  */
 package com.datatorrent.demos.mobile;
 
-import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Mobile Demo Application.<p>
  */
-public class ApplicationAlert implements ApplicationFactory
+public class ApplicationAlert implements StreamingApplication
 {
   private static final Logger LOG = LoggerFactory.getLogger(ApplicationAlert.class);
   public static final String P_phoneRange = com.datatorrent.demos.mobile.Application.class.getName() + ".phoneRange";

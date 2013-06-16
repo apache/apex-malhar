@@ -2,7 +2,7 @@ package com.datatorrent.lib.samplecode.algo;
 
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.algo.BottomNMap;
@@ -16,7 +16,7 @@ import com.datatorrent.lib.samplecode.math.RandomKeyValMap;
  *
  * @author Dinesh Prasad (dinesh@malhar-inc.com)
  */
-public class BottomNMapSample implements ApplicationFactory
+public class BottomNMapSample implements StreamingApplication
 {
 	@SuppressWarnings("unchecked")
 	@Override

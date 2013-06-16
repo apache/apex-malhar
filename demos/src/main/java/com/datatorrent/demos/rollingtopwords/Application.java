@@ -4,7 +4,7 @@
  */
 package com.datatorrent.demos.rollingtopwords;
 
-import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.demos.twitter.TwitterSampleInput;
 import com.datatorrent.lib.algo.UniqueCounter;
@@ -18,7 +18,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @author Zhongjian Wang<zhongjian@malhar-inc.com>
  */
-public class Application implements ApplicationFactory
+public class Application implements StreamingApplication
 {
   private static final boolean inline = true;
   @Override

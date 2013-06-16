@@ -1,6 +1,6 @@
 package com.datatorrent.lib.samplecode.math;
 
-import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.lib.io.*;
 import com.datatorrent.lib.script.JavaScriptOperator;
@@ -14,7 +14,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @author Dinesh Prasad(dinesh@malhar-inc.com)
  */
-public class ScriptSample implements ApplicationFactory
+public class ScriptSample implements StreamingApplication
 {
 	@Override
 	public void populateDAG(DAG dag, Configuration conf)

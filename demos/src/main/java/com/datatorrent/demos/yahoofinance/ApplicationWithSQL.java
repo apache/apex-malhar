@@ -4,7 +4,7 @@
  */
 package com.datatorrent.demos.yahoofinance;
 
-import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.contrib.sqlite.SqliteStreamOperator;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
@@ -16,7 +16,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @author David Yan <davidyan@malhar-inc.com>
  */
-public class ApplicationWithSQL implements ApplicationFactory
+public class ApplicationWithSQL implements StreamingApplication
 {
   @Override
   public void populateDAG(DAG dag, Configuration conf) {

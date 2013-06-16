@@ -11,7 +11,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator.InputPort;
@@ -33,7 +33,7 @@ import com.datatorrent.lib.util.DimensionTimeBucketSumOperator;
 /**
  * @author Dinesh Prasad (dinesh@malhar-inc.com)
  */
-public class ApacheAccessLogAnalaysis implements ApplicationFactory
+public class ApacheAccessLogAnalaysis implements StreamingApplication
 {
 	private static final Logger LOG = LoggerFactory.getLogger(ApacheAccessLogAnalaysis.class);
 	

@@ -10,12 +10,12 @@ import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.lib.io.HdfsOutputOperator;
 import com.datatorrent.stram.DAGPropertiesBuilder;
 
-public class HdfsOutputTest implements ApplicationFactory {
+public class HdfsOutputTest implements StreamingApplication {
 
   private static Logger LOG = LoggerFactory.getLogger(HdfsOutputTest.class);
   public static final String KEY_FILEPATH = "filepath";

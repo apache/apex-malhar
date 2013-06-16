@@ -4,7 +4,7 @@
  */
 package com.datatorrent.demos.yahoofinance;
 
-import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Context.OperatorContext;
@@ -178,7 +178,7 @@ import org.apache.hadoop.conf.Configuration;
  * 
  * @author Amol Kekre
  */
-public class Application implements ApplicationFactory
+public class Application implements StreamingApplication
 {
   protected int streamingWindowSizeMilliSeconds = 1000; // 1 second
   protected int appWindowCountMinute = 60;   // 1 minute

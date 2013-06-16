@@ -4,7 +4,7 @@
  */
 package com.datatorrent.demos.pi;
 
-import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
@@ -22,7 +22,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */
-public class Calculator implements ApplicationFactory
+public class Calculator implements StreamingApplication
 {
   private final boolean allInline = false;
 

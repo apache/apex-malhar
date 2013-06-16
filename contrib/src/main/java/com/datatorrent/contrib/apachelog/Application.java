@@ -9,7 +9,7 @@ import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.logs.ApacheLogParseOperator;
 import com.datatorrent.lib.math.Sum;
-import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import org.apache.hadoop.conf.Configuration;
@@ -18,7 +18,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @author David Yan <davidyan@malhar-inc.com>
  */
-public class Application implements ApplicationFactory
+public class Application implements StreamingApplication
 {
   private boolean allInline = false;
   private final String addr = "tcp://127.0.0.1:5555";

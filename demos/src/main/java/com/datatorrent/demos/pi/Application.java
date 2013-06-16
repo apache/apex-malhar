@@ -4,7 +4,7 @@
  */
 package com.datatorrent.demos.pi;
 
-import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
@@ -15,7 +15,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
-public class Application implements ApplicationFactory
+public class Application implements StreamingApplication
 {
   private final boolean allInline = false;
 

@@ -9,7 +9,7 @@ import java.net.URI;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.lib.algo.UniqueCounter;
@@ -44,7 +44,7 @@ import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
  * }
  * </pre>
  */
-public class TwitterTopCounterApplication implements ApplicationFactory
+public class TwitterTopCounterApplication implements StreamingApplication
 {
   private static final boolean inline = false;
 

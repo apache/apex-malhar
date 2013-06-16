@@ -2,7 +2,7 @@ package com.datatorrent.lib.samplecode.math;
 
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
@@ -15,7 +15,7 @@ import com.datatorrent.lib.math.AverageKeyVal;
  *
  * @author Dinesh Prasad (dinesh@malhar-inc.com)
  */
-public class AverageKeyValSample implements ApplicationFactory
+public class AverageKeyValSample implements StreamingApplication
 {
 	@SuppressWarnings("unchecked")
 	@Override

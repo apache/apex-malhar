@@ -8,7 +8,7 @@ import com.datatorrent.contrib.redis.RedisNumberAggregateOutputOperator;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.util.DimensionTimeBucketOperator;
 import com.datatorrent.lib.util.DimensionTimeBucketSumOperator;
-import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator.InputPort;
@@ -17,7 +17,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ApplicationRandomData implements ApplicationFactory
+public class ApplicationRandomData implements StreamingApplication
 {
   private static final Logger LOG = LoggerFactory.getLogger(ApplicationRandomData.class);
 

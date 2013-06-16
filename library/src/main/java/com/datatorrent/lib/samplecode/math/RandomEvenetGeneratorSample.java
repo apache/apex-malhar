@@ -1,6 +1,6 @@
 package com.datatorrent.lib.samplecode.math;
 
-import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.lib.io.*;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
@@ -13,7 +13,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @author Dinesh Prasad(dinesh@malhar-inc.com)
  */
-public class RandomEvenetGeneratorSample implements ApplicationFactory
+public class RandomEvenetGeneratorSample implements StreamingApplication
 {
 	@Override
 	public void populateDAG(DAG dag, Configuration conf)

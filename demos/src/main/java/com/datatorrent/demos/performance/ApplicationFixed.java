@@ -4,7 +4,7 @@
  */
 package com.datatorrent.demos.performance;
 
-import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Context.PortContext;
 
@@ -13,7 +13,7 @@ import org.apache.hadoop.conf.Configuration;
 /**
  * Example of application configuration in Java.<p>
  */
-public class ApplicationFixed implements ApplicationFactory
+public class ApplicationFixed implements StreamingApplication
 {
   private static final boolean inline = false;
   public static final int QUEUE_CAPACITY = 16 * 1024;

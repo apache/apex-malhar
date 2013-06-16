@@ -2,7 +2,7 @@ package com.datatorrent.lib.samplecode.io;
 
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.LocalFsInputOperator;
@@ -15,7 +15,7 @@ import com.datatorrent.lib.io.LocalFsInputOperator;
  *
  * @author Dinesh Prasad(dinesh@malhar-inc.com)
  */
-public class LocalFsInputSample implements ApplicationFactory
+public class LocalFsInputSample implements StreamingApplication
 {
 	@Override
 	public void populateDAG(DAG dag, Configuration conf)

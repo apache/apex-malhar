@@ -4,7 +4,7 @@
  */
 package com.datatorrent.demos.performance;
 
-import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.lib.stream.DevNullCounter;
 import com.datatorrent.lib.testbench.EventGenerator;
@@ -14,7 +14,7 @@ import org.apache.hadoop.conf.Configuration;
 /**
  * Example of application configuration in Java.<p>
  */
-public class ApplicationEventGenerator implements ApplicationFactory
+public class ApplicationEventGenerator implements StreamingApplication
 {
   private static final boolean inline = true;
 

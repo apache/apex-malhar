@@ -4,7 +4,7 @@
  */
 package com.datatorrent.demos.samplestream;
 
-import com.datatorrent.api.ApplicationFactory;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 
@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
-public class Application implements ApplicationFactory
+public class Application implements StreamingApplication
 {
   private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Application.class);
   private final boolean allInline = false;
