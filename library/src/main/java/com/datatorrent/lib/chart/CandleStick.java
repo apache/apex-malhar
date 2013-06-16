@@ -2,9 +2,9 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.chart;
+package com.datatorrent.lib.chart;
 
-import com.malhartech.lib.util.HighLow;
+import com.datatorrent.lib.util.HighLow;
 
 /**
  *

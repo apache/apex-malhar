@@ -2,8 +2,9 @@
  * Copyright (c) 2012-2012 Malhar, Inc.
  * All rights reserved.
  */
-package com.malhartech.lib.io;
+package com.datatorrent.lib.io;
 
+import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 import com.malhartech.daemon.Daemon;
 import com.malhartech.stram.util.SamplePubSubWebSocketPublisher;
 import com.malhartech.stram.util.SamplePubSubWebSocketSubscriber;

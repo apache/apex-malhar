@@ -2,12 +2,12 @@
  * Copyright (c) 2012-2012 Malhar, Inc.
  * All rights reserved.
  */
-package com.malhartech.demos.performance;
+package com.datatorrent.demos.performance;
 
+import com.datatorrent.lib.stream.DevNullCounter;
+import com.datatorrent.lib.testbench.EventGenerator;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
-import com.malhartech.lib.stream.DevNullCounter;
-import com.malhartech.lib.testbench.EventGenerator;
 
 import org.apache.hadoop.conf.Configuration;
 

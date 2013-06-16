@@ -1,16 +1,16 @@
-package com.malhartech.lib.samplecode.io;
+package com.datatorrent.lib.samplecode.io;
 
 import org.apache.hadoop.conf.Configuration;
 
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.io.LocalFsInputOperator;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
-import com.malhartech.lib.io.ConsoleOutputOperator;
-import com.malhartech.lib.io.LocalFsInputOperator;
 
 /**
  * This sample application code for showing sample usage of malhar operator(s). <br>
  * <b>Operator : </b> AverageKeyVal <br>
- * <bClass : </b> com.malhartech.lib.math.AverageKeyVal
+ * <bClass : </b> com.datatorrent.lib.math.AverageKeyVal
  * This application reads local demo text file and relays text content to output console.
  *
  * @author Dinesh Prasad(dinesh@malhar-inc.com)

@@ -15,7 +15,7 @@
  *
  * @author greg whalin <greg@meetup.com>
  */
-package com.malhartech.contrib.kestrel;
+package com.datatorrent.contrib.kestrel;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

@@ -1,10 +1,12 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.math;
+package com.datatorrent.lib.math;
 
-import com.malhartech.lib.testbench.CountTestSink;
-import com.malhartech.lib.util.KeyValPair;
+import com.datatorrent.lib.math.ChangeKeyVal;
+import com.datatorrent.lib.testbench.CountTestSink;
+import com.datatorrent.lib.util.KeyValPair;
+
 import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -13,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.ChangeKeyVal}. <p>
+ * Functional tests for {@link com.datatorrent.lib.math.ChangeKeyVal}. <p>
  * Current benchmark 20 millions tuples per sec.
  *
  */

@@ -2,10 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.contrib.zmq;
+package com.datatorrent.contrib.zmq;
 
+import com.datatorrent.lib.io.SimpleSinglePortInputOperator;
 import com.malhartech.api.Context;
-import com.malhartech.lib.io.SimpleSinglePortInputOperator;
 import org.zeromq.ZMQ;
 
 /**

@@ -2,8 +2,11 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.contrib.mongodb;
+package com.datatorrent.contrib.mongodb;
 
+import com.datatorrent.contrib.mongodb.MongoDBArrayListOutputOperator;
+import com.datatorrent.contrib.mongodb.MongoDBHashMapOutputOperator;
+import com.datatorrent.contrib.mongodb.MongoDBOutputOperator;
 import com.malhartech.api.DAG;
 import com.malhartech.api.DAGContext;
 import com.malhartech.bufferserver.util.Codec;

@@ -1,8 +1,9 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.algo;
+package com.datatorrent.lib.algo;
 
+import com.datatorrent.lib.algo.TupleQueue;
 import com.malhartech.api.Sink;
 import com.malhartech.tuple.Tuple;
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.algo.TupleQueue} <p>
+ * Functional tests for {@link com.datatorrent.lib.algo.TupleQueue} <p>
  *
  */
 public class TupleQueueTest

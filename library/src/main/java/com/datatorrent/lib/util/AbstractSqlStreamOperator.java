@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.lib.util;
+package com.datatorrent.lib.util;
 
 import com.malhartech.api.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.annotation.OutputPortFieldAnnotation;

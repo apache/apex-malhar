@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.contrib.mongodb;
+package com.datatorrent.contrib.mongodb;
 
 import com.mongodb.*;
 import java.util.ArrayList;

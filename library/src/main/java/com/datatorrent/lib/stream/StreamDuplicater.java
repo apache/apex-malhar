@@ -2,14 +2,14 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.stream;
+package com.datatorrent.lib.stream;
 
+import com.datatorrent.lib.util.BaseKeyOperator;
 import com.malhartech.api.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.BaseKeyOperator;
 
 /**
  * Duplicates an input stream as is into two output streams; needed to allow separation of listeners into two streams with different properties (for example

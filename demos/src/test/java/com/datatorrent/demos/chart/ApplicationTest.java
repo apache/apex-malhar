@@ -2,10 +2,11 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.demos.chart;
+package com.datatorrent.demos.chart;
 
 import org.junit.Test;
 
+import com.datatorrent.demos.chart.YahooFinanceApplication;
 import com.malhartech.api.LocalMode;
 
 /**

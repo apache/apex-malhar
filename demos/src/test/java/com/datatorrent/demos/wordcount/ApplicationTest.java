@@ -2,10 +2,10 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.demos.wordcount;
+package com.datatorrent.demos.wordcount;
 
+import com.datatorrent.demos.wordcount.Application;
 import com.malhartech.api.LocalMode;
-import com.malhartech.demos.wordcount.Application;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 

@@ -2,7 +2,7 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.multiwindow;
+package com.datatorrent.lib.multiwindow;
 
 /**
  * Interface to store window specific information.

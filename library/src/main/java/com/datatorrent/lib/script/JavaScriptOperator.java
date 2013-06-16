@@ -2,7 +2,7 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.script;
+package com.datatorrent.lib.script;
 
 import com.malhartech.api.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.annotation.OutputPortFieldAnnotation;

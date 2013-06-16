@@ -1,8 +1,9 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.math;
+package com.datatorrent.lib.math;
 
+import com.datatorrent.lib.math.Sum;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
@@ -22,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.Sum}. <p>
+ * Functional tests for {@link com.datatorrent.lib.math.Sum}. <p>
  *
  */
 public class SumTest

@@ -2,13 +2,13 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.math;
+package com.datatorrent.lib.math;
 
+import com.datatorrent.lib.util.*;
 import com.malhartech.api.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.*;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang.mutable.MutableInt;

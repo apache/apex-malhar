@@ -1,15 +1,15 @@
-package com.malhartech.lib.algo;
+package com.datatorrent.lib.algo;
 
 /*
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
+import com.datatorrent.lib.util.AbstractBaseMatchOperator;
 import com.malhartech.api.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.AbstractBaseMatchOperator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;

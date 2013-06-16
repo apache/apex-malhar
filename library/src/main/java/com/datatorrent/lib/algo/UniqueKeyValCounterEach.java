@@ -2,13 +2,13 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.algo;
+package com.datatorrent.lib.algo;
 
+import com.datatorrent.lib.util.BaseUniqueKeyValueCounter;
 import com.malhartech.api.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.BaseUniqueKeyValueCounter;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang.mutable.MutableInt;
@@ -16,7 +16,7 @@ import org.apache.commons.lang.mutable.MutableInt;
 /**
  * Count unique occurrences of key,val pairs within a window, and emits one HashMap tuple per unique key,val pair. <p>
  * <br>
- * This operator is same as the combination of {@link com.malhartech.lib.algo.UniqueKeyValCounter} followed by {@link com.malhartech.lib.stream.HashMapToKeyValPair}<br>
+ * This operator is same as the combination of {@link com.datatorrent.lib.algo.UniqueKeyValCounter} followed by {@link com.datatorrent.lib.stream.HashMapToKeyValPair}<br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects HashMap&lt;K,V&gt;<br>

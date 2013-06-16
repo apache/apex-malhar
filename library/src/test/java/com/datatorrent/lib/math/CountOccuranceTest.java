@@ -1,12 +1,12 @@
 /*
  *  Copyright (c) 2012 Malhar, Inc. All Rights Reserved.
  */
-package com.malhartech.lib.math;
+package com.datatorrent.lib.math;
 
 import junit.framework.Assert;
 
+import com.datatorrent.lib.testbench.CountOccurance;
 import com.malhartech.engine.TestSink;
-import com.malhartech.lib.testbench.CountOccurance;
 
 import org.junit.Test;
 

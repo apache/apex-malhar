@@ -2,8 +2,9 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.contrib.zmq;
+package com.datatorrent.contrib.zmq;
 
+import com.datatorrent.contrib.zmq.AbstractSinglePortZeroMQOutputOperator;
 import com.malhartech.api.*;
 import com.malhartech.api.Context.OperatorContext;
 import java.util.HashMap;

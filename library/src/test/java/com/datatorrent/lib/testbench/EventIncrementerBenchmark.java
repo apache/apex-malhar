@@ -1,8 +1,9 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.testbench;
+package com.datatorrent.lib.testbench;
 
+import com.datatorrent.lib.testbench.EventIncrementer;
 import com.malhartech.api.Sink;
 import com.malhartech.tuple.Tuple;
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Functional test for {@link com.malhartech.lib.testbench.EventIncrementer}<p>
+ * Functional test for {@link com.datatorrent.lib.testbench.EventIncrementer}<p>
  * <br>
  * Benchmarks: The benchmark was done in local/inline mode<br>
  * Processing tuples on seed port are at 3.5 Million tuples/sec<br>

@@ -1,20 +1,20 @@
-package com.malhartech.lib.samplecode.io;
+package com.datatorrent.lib.samplecode.io;
 
 import java.net.URI;
 
 import org.apache.hadoop.conf.Configuration;
 
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.io.HttpInputOperator;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
 import com.malhartech.api.DAGContext;
-import com.malhartech.lib.io.ConsoleOutputOperator;
-import com.malhartech.lib.io.HttpInputOperator;
 
 /**
  * * This sample application code for showing sample usage of malhar
  * operator(s). <br>
  * <b>Operator : </b> HttpInputOperator <br>
- * <bClass : </b> com.malhartech.lib.io.HttpInputOperator
+ * <bClass : </b> com.datatorrent.lib.io.HttpInputOperator
  *
  * this application connects to yahoo news and relays raw content to output console.
  *

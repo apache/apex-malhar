@@ -2,15 +2,15 @@
  * Copyright (c) 2012-2012 Malhar, Inc.
  * All rights reserved.
  */
-package com.malhartech.demos.mobile;
+package com.datatorrent.demos.mobile;
 
+import com.datatorrent.lib.io.*;
+import com.datatorrent.lib.testbench.RandomEventGenerator;
 import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DAG;
-import com.malhartech.lib.io.*;
-import com.malhartech.lib.testbench.RandomEventGenerator;
 
 import java.net.URI;
 
@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 public class Application implements ApplicationFactory
 {
   private static final Logger LOG = LoggerFactory.getLogger(Application.class);
-  public static final String P_phoneRange = com.malhartech.demos.mobile.Application.class.getName() + ".phoneRange";
+  public static final String P_phoneRange = com.datatorrent.demos.mobile.Application.class.getName() + ".phoneRange";
   private Range<Integer> phoneRange = Ranges.closed(9900000, 9999999);
 
   private void configure(DAG dag, Configuration conf)

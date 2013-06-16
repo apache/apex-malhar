@@ -1,4 +1,4 @@
-package com.malhartech.lib.script;
+package com.datatorrent.lib.script;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

@@ -1,11 +1,13 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.math;
+package com.datatorrent.lib.math;
 
+import com.datatorrent.lib.math.Range;
+import com.datatorrent.lib.math.SumCountMap;
+import com.datatorrent.lib.util.HighLow;
 import com.malhartech.api.Sink;
 import com.malhartech.tuple.Tuple;
-import com.malhartech.lib.util.HighLow;
 import com.malhartech.tuple.Tuple;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.Range}<p>
+ * Functional tests for {@link com.datatorrent.lib.math.Range}<p>
  *
  */
 public class RangeTest

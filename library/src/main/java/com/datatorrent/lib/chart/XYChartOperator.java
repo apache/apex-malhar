@@ -2,13 +2,13 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.chart;
+package com.datatorrent.lib.chart;
 
+import com.datatorrent.lib.util.KeyValPair;
 import com.malhartech.api.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.KeyValPair;
 import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

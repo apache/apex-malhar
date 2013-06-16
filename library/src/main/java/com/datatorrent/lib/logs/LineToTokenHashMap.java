@@ -2,11 +2,11 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.logs;
+package com.datatorrent.lib.logs;
 
+import com.datatorrent.lib.util.BaseLineTokenizer;
 import com.malhartech.api.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.BaseLineTokenizer;
 import java.util.ArrayList;
 import java.util.HashMap;
 

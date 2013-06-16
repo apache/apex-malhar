@@ -2,13 +2,13 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.demos.yahoofinance;
+package com.datatorrent.demos.yahoofinance;
 
+import com.datatorrent.lib.io.SmtpOutputOperator;
+import com.datatorrent.lib.util.Alert;
+import com.datatorrent.lib.util.DerbySqlStreamOperator;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
-import com.malhartech.lib.io.SmtpOutputOperator;
-import com.malhartech.lib.util.Alert;
-import com.malhartech.lib.util.DerbySqlStreamOperator;
 
 import org.apache.hadoop.conf.Configuration;
 

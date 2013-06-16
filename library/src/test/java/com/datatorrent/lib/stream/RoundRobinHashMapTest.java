@@ -1,10 +1,11 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.stream;
+package com.datatorrent.lib.stream;
 
+import com.datatorrent.lib.stream.RoundRobinHashMap;
+import com.datatorrent.lib.util.KeyValPair;
 import com.malhartech.engine.TestSink;
-import com.malhartech.lib.util.KeyValPair;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -12,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Functional test for {@link com.malhartech.lib.testbench.RoundRobinHashMap}<p>
+ * Functional test for {@link com.datatorrent.lib.testbench.RoundRobinHashMap}<p>
  * <br>
  */
 public class RoundRobinHashMapTest {

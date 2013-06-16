@@ -1,16 +1,17 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.math;
+package com.datatorrent.lib.math;
 
+import com.datatorrent.lib.math.CountKeyVal;
+import com.datatorrent.lib.util.KeyValPair;
 import com.malhartech.engine.TestSink;
-import com.malhartech.lib.util.KeyValPair;
 import junit.framework.Assert;
 import org.junit.Test;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.CountKeyVal}. <p>
+ * Functional tests for {@link com.datatorrent.lib.math.CountKeyVal}. <p>
  *
  */
 public class CountKeyValTest

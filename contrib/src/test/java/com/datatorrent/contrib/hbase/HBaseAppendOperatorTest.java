@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.contrib.hbase;
+package com.datatorrent.contrib.hbase;
 
 import junit.framework.Assert;
 
@@ -11,6 +11,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.contrib.hbase.HBaseAppendOperator;
+import com.datatorrent.contrib.hbase.HBaseRowStatePersistence;
+import com.datatorrent.contrib.hbase.HBaseStatePersistenceStrategy;
 import com.malhartech.api.DAG;
 import com.malhartech.api.LocalMode;
 

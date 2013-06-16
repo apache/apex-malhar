@@ -2,7 +2,7 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.contrib.zmq;
+package com.datatorrent.contrib.zmq;
 
 
 import org.slf4j.Logger;

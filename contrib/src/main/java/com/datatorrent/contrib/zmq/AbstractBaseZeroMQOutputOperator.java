@@ -2,7 +2,7 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.contrib.zmq;
+package com.datatorrent.contrib.zmq;
 
 import com.malhartech.api.annotation.ShipContainingJars;
 import com.malhartech.api.BaseOperator;

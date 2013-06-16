@@ -1,8 +1,9 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.math;
+package com.datatorrent.lib.math;
 
+import com.datatorrent.lib.math.Quotient;
 import com.malhartech.api.Sink;
 import com.malhartech.tuple.Tuple;
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.math.Quotient}<p>
+ * Performance tests for {@link com.datatorrent.lib.math.Quotient}<p>
  *
  */
 public class QuotientBenchmark

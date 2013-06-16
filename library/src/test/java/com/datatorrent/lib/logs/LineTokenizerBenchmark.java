@@ -1,10 +1,12 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.logs;
+package com.datatorrent.lib.logs;
 
-import com.malhartech.lib.testbench.HashTestSink;
-import com.malhartech.lib.math.*;
+import com.datatorrent.lib.logs.LineTokenizer;
+import com.datatorrent.lib.math.*;
+import com.datatorrent.lib.testbench.HashTestSink;
+
 import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -13,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.logs.LineTokenizer}<p>
+ * Performance tests for {@link com.datatorrent.lib.logs.LineTokenizer}<p>
  *
  */
 public class LineTokenizerBenchmark

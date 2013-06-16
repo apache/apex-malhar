@@ -2,13 +2,13 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.algo;
+package com.datatorrent.lib.algo;
 
+import com.datatorrent.lib.util.BaseUniqueKeyCounter;
 import com.malhartech.api.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.BaseUniqueKeyCounter;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang.mutable.MutableInt;

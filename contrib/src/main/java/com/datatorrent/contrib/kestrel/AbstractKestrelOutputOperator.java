@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.contrib.kestrel;
+package com.datatorrent.contrib.kestrel;
 
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;

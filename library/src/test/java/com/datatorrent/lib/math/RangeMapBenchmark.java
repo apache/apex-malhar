@@ -1,11 +1,12 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.math;
+package com.datatorrent.lib.math;
 
+import com.datatorrent.lib.math.RangeMap;
+import com.datatorrent.lib.util.HighLow;
 import com.malhartech.api.Sink;
 import com.malhartech.tuple.Tuple;
-import com.malhartech.lib.util.HighLow;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
@@ -15,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.math.RangeMap}<p>
+ * Performance tests for {@link com.datatorrent.lib.math.RangeMap}<p>
  *
  */
 public class RangeMapBenchmark

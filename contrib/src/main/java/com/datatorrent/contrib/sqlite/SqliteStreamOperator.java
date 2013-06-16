@@ -2,15 +2,15 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.contrib.sqlite;
+package com.datatorrent.contrib.sqlite;
 
 import com.almworks.sqlite4java.SQLiteConnection;
 import com.almworks.sqlite4java.SQLiteException;
 import com.almworks.sqlite4java.SQLiteStatement;
+import com.datatorrent.lib.util.AbstractSqlStreamOperator;
+import com.datatorrent.lib.util.AbstractSqlStreamOperator.InputSchema.ColumnInfo;
 import com.malhartech.api.annotation.ShipContainingJars;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.lib.util.AbstractSqlStreamOperator;
-import com.malhartech.lib.util.AbstractSqlStreamOperator.InputSchema.ColumnInfo;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;

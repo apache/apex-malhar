@@ -1,7 +1,7 @@
 /*
  *  Copyright (c) 2012 Malhar, Inc. All Rights Reserved.
  */
-package com.malhartech.demos.summit;
+package com.datatorrent.demos.summit;
 
 import java.net.URI;
 import java.util.Map;
@@ -11,25 +11,25 @@ import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.contrib.ads_dimension.ApplicationRandomData;
+import com.datatorrent.contrib.ads_dimension.ApplicationRandomData.AdsDimensionOperator;
+import com.datatorrent.contrib.redis.RedisNumberAggregateOutputOperator;
+import com.datatorrent.contrib.redis.RedisOutputOperator;
+import com.datatorrent.lib.algo.TopN;
+import com.datatorrent.lib.algo.TopNUnique;
+import com.datatorrent.lib.io.ApacheGenRandomLogs;
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.logs.ApacheVirtualLogParseOperator;
+import com.datatorrent.lib.testbench.CompareFilterTuples;
+import com.datatorrent.lib.testbench.CountOccurance;
+import com.datatorrent.lib.testbench.HttpStatusFilter;
+import com.datatorrent.lib.testbench.TopOccurance;
+import com.datatorrent.lib.util.DimensionTimeBucketOperator;
+import com.datatorrent.lib.util.DimensionTimeBucketSumOperator;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.Operator.InputPort;
-import com.malhartech.contrib.ads_dimension.ApplicationRandomData;
-import com.malhartech.contrib.ads_dimension.ApplicationRandomData.AdsDimensionOperator;
-import com.malhartech.contrib.redis.RedisNumberAggregateOutputOperator;
-import com.malhartech.contrib.redis.RedisOutputOperator;
-import com.malhartech.lib.algo.TopN;
-import com.malhartech.lib.algo.TopNUnique;
-import com.malhartech.lib.io.ConsoleOutputOperator;
-import com.malhartech.lib.io.ApacheGenRandomLogs;
-import com.malhartech.lib.logs.ApacheVirtualLogParseOperator;
-import com.malhartech.lib.testbench.CompareFilterTuples;
-import com.malhartech.lib.testbench.CountOccurance;
-import com.malhartech.lib.testbench.HttpStatusFilter;
-import com.malhartech.lib.testbench.TopOccurance;
-import com.malhartech.lib.util.DimensionTimeBucketOperator;
-import com.malhartech.lib.util.DimensionTimeBucketSumOperator;
 /**
  * @author Dinesh Prasad (dinesh@malhar-inc.com)
  */

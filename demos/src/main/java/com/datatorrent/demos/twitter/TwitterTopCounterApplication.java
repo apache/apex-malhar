@@ -2,20 +2,20 @@
  * Copyright (c) 2012-2012 Malhar, Inc.
  * All rights reserved.
  */
-package com.malhartech.demos.twitter;
+package com.datatorrent.demos.twitter;
 
 import java.net.URI;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 
+import com.datatorrent.lib.algo.UniqueCounter;
+import com.datatorrent.lib.algo.WindowedTopCounter;
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
 import com.malhartech.api.Operator.InputPort;
-import com.malhartech.lib.algo.UniqueCounter;
-import com.malhartech.lib.algo.WindowedTopCounter;
-import com.malhartech.lib.io.ConsoleOutputOperator;
-import com.malhartech.lib.io.PubSubWebSocketOutputOperator;
 
 /**
  * Takes Twitter feed and computes top URLs in sliding window.

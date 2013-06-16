@@ -2,14 +2,14 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.algo;
+package com.datatorrent.lib.algo;
 
+import com.datatorrent.lib.util.BaseKeyOperator;
+import com.datatorrent.lib.util.KeyValPair;
 import com.malhartech.api.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.BaseKeyOperator;
-import com.malhartech.lib.util.KeyValPair;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;

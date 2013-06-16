@@ -1,11 +1,12 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.testbench;
+package com.datatorrent.lib.testbench;
 
+import com.datatorrent.lib.testbench.SeedEventGenerator;
+import com.datatorrent.lib.util.KeyValPair;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
-import com.malhartech.lib.util.KeyValPair;
 import com.malhartech.stram.StramLocalCluster;
 import com.malhartech.stram.plan.logical.LogicalPlan;
 
@@ -18,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional test for {@link com.malhartech.lib.testbench.SeedEventGenerator}<p>
+ * Functional test for {@link com.datatorrent.lib.testbench.SeedEventGenerator}<p>
  * <br>
  * Four keys are sent in at a high throughput rate and the classification is expected to be cover all combinations<br>
  * <br>

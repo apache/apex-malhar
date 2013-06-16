@@ -1,8 +1,9 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.algo;
+package com.datatorrent.lib.algo;
 
+import com.datatorrent.lib.algo.BottomNMap;
 import com.malhartech.engine.TestSink;
 import java.util.HashMap;
 import junit.framework.Assert;
@@ -13,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.algo.BottonN} <p>
+ * Performance tests for {@link com.datatorrent.lib.algo.BottonN} <p>
  *
  */
 public class BottomNBenchmark

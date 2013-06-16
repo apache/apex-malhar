@@ -1,4 +1,4 @@
-package com.malhartech.lib.algo;
+package com.datatorrent.lib.algo;
 
 /*
  *  Copyright (c) 2012 Malhar, Inc.

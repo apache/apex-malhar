@@ -2,9 +2,9 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.codec;
+package com.datatorrent.lib.codec;
 
-import com.malhartech.lib.codec.JavaSerializationStreamCodec;
+import com.datatorrent.lib.codec.JavaSerializationStreamCodec;
 import com.malhartech.common.util.Slice;
 import java.io.IOException;
 import java.io.Serializable;

@@ -1,17 +1,17 @@
-package com.malhartech.lib.samplecode.math;
+package com.datatorrent.lib.samplecode.math;
 
 import org.apache.hadoop.conf.Configuration;
 
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.math.CompareMap;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
-import com.malhartech.lib.io.ConsoleOutputOperator;
-import com.malhartech.lib.math.CompareMap;
 
 
 /**
  * This sample application code for showing sample usage of malhar operator(s). <br>
  * <b>Operator : </b> CompareMap <br>
- * <bClass : </b> com.malhartech.lib.math.CompareMap
+ * <bClass : </b> com.datatorrent.lib.math.CompareMap
  *
  * @author Dinesh Prasad (dinesh@malhar-inc.com)
  */

@@ -2,8 +2,14 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.contrib.jdbc;
+package com.datatorrent.contrib.jdbc;
 
+import com.datatorrent.contrib.jdbc.JDBCNonTransactionArrayListOutputOperator;
+import com.datatorrent.contrib.jdbc.JDBCNonTransactionHashMapOutputOperator;
+import com.datatorrent.contrib.jdbc.JDBCOutputOperator;
+import com.datatorrent.contrib.jdbc.JDBCTransactionArrayListOutputOperator;
+import com.datatorrent.contrib.jdbc.JDBCTransactionHashMapOutputOperator;
+import com.datatorrent.contrib.jdbc.JDBCTransactionOutputOperator;
 import com.malhartech.bufferserver.util.Codec;
 import com.malhartech.engine.OperatorContext;
 import junit.framework.Assert;

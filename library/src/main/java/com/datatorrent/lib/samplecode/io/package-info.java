@@ -5,8 +5,8 @@
  */
 
 /**
- * <b>{@link com.malhartech.lib.samplecode.io}</b> is a library samples of usages of operators from io library<p>
+ * <b>{@link com.datatorrent.lib.samplecode.io}</b> is a library samples of usages of operators from io library<p>
  * <br>
  */
 
-package com.malhartech.lib.samplecode.io;
+package com.datatorrent.lib.samplecode.io;

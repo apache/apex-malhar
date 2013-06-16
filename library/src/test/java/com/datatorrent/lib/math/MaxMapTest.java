@@ -1,12 +1,13 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.math;
+package com.datatorrent.lib.math;
 
+import com.datatorrent.lib.math.MaxMap;
+import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 import com.malhartech.api.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.*;
-import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
 import com.malhartech.engine.TestSink;
 import com.malhartech.stram.StramLocalCluster;
 import com.malhartech.stram.plan.logical.LogicalPlan;
@@ -20,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.MaxMap}. <p>
+ * Functional tests for {@link com.datatorrent.lib.math.MaxMap}. <p>
  *
  */
 public class MaxMapTest

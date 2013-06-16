@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.contrib.rabbitmq;
+package com.datatorrent.contrib.rabbitmq;
 
+import com.datatorrent.contrib.rabbitmq.AbstractSinglePortRabbitMQOutputOperator;
 import com.malhartech.api.*;
 import com.malhartech.api.Context.OperatorContext;
 import com.rabbitmq.client.*;

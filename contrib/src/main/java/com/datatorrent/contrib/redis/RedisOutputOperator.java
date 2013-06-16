@@ -2,14 +2,14 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.contrib.redis;
+package com.datatorrent.contrib.redis;
 
+import com.datatorrent.lib.io.AbstractKeyValueStoreOutputOperator;
 import com.lambdaworks.redis.RedisClient;
 import com.lambdaworks.redis.RedisConnection;
 import com.lambdaworks.redis.RedisException;
 import com.malhartech.api.annotation.ShipContainingJars;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.lib.io.AbstractKeyValueStoreOutputOperator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

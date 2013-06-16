@@ -2,9 +2,10 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.contrib.ads_dimension;
+package com.datatorrent.contrib.ads_dimension;
 
-import com.malhartech.lib.io.SimpleSinglePortInputOperator;
+import com.datatorrent.lib.io.SimpleSinglePortInputOperator;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;

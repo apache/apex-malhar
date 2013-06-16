@@ -1,8 +1,9 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.math;
+package com.datatorrent.lib.math;
 
+import com.datatorrent.lib.math.CountMap;
 import com.malhartech.engine.TestSink;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.CountMap}<p>
+ * Functional tests for {@link com.datatorrent.lib.math.CountMap}<p>
  *
  */
 public class CountMapTest

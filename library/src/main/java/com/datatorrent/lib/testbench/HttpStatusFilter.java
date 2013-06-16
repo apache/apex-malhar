@@ -1,7 +1,7 @@
 /*
  *  Copyright (c) 2012 Malhar, Inc. All Rights Reserved.
  */
-package com.malhartech.lib.testbench;
+package com.datatorrent.lib.testbench;
 
 import java.text.ParseException;
 import java.util.Date;

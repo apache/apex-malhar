@@ -2,10 +2,10 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.chart;
+package com.datatorrent.lib.chart;
 
+import com.datatorrent.lib.util.HighLow;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.lib.util.HighLow;
 import java.util.TreeMap;
 
 /**

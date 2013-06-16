@@ -2,8 +2,9 @@
  * Copyright (c) 2012-2012 Malhar, Inc.
  * All rights reserved.
  */
-package com.malhartech.lib.io;
+package com.datatorrent.lib.io;
 
+import com.datatorrent.lib.io.HttpInputOperator;
 import com.malhartech.engine.TestSink;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

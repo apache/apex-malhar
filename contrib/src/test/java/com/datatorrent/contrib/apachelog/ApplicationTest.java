@@ -2,9 +2,9 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.contrib.apachelog;
+package com.datatorrent.contrib.apachelog;
 
-import com.malhartech.contrib.apachelog.Application;
+import com.datatorrent.contrib.apachelog.Application;
 import com.malhartech.api.LocalMode;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;

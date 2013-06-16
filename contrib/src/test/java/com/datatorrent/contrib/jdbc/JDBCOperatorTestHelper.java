@@ -2,8 +2,9 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.contrib.jdbc;
+package com.datatorrent.contrib.jdbc;
 
+import com.datatorrent.contrib.jdbc.JDBCOutputOperator;
 import com.malhartech.api.DAG;
 import com.malhartech.api.DAGContext;
 import com.malhartech.util.AttributeMap;

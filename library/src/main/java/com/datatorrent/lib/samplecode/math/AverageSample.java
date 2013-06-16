@@ -1,18 +1,18 @@
-package com.malhartech.lib.samplecode.math;
+package com.datatorrent.lib.samplecode.math;
 
 import org.apache.hadoop.conf.Configuration;
 
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.math.Average;
+import com.datatorrent.lib.testbench.RandomEventGenerator;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DAG;
-import com.malhartech.lib.io.ConsoleOutputOperator;
-import com.malhartech.lib.math.Average;
-import com.malhartech.lib.testbench.RandomEventGenerator;
 
 /**
  * This sample application code for showing sample usage of malhar operator(s). <br>
  * <b>Operator : </b> Average <br>
- * <bClass : </b> com.malhartech.lib.math.Average
+ * <bClass : </b> com.datatorrent.lib.math.Average
  *
  * @author Dinesh Prasad (dinesh@malhar-inc.com)
  */

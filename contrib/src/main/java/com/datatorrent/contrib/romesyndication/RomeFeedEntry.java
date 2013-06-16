@@ -2,7 +2,7 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.contrib.romesyndication;
+package com.datatorrent.contrib.romesyndication;
 
 import com.esotericsoftware.kryo.DefaultSerializer;
 import com.malhartech.api.codec.KryoJdkContainer;

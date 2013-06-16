@@ -2,9 +2,10 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.demos.wordcount;
+package com.datatorrent.demos.wordcount;
 
-import com.malhartech.lib.io.SimpleSinglePortInputOperator;
+import com.datatorrent.lib.io.SimpleSinglePortInputOperator;
+
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;

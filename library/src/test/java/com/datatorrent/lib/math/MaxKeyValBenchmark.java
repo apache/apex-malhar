@@ -1,10 +1,12 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.math;
+package com.datatorrent.lib.math;
 
-import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
-import com.malhartech.lib.util.KeyValPair;
+import com.datatorrent.lib.math.MaxKeyVal;
+import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
+import com.datatorrent.lib.util.KeyValPair;
+
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -12,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.math.MaxKeyVal}. <p>
+ * Performance tests for {@link com.datatorrent.lib.math.MaxKeyVal}. <p>
  * Current benchmark is 35 million tuples/sec.
  *
  */

@@ -2,24 +2,24 @@
  * Copyright (c) 2012-2012 Malhar, Inc.
  * All rights reserved.
  */
-package com.malhartech.demos.ads;
+package com.datatorrent.demos.ads;
 
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.io.HdfsOutputOperator;
+import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
+import com.datatorrent.lib.math.MarginMap;
+import com.datatorrent.lib.math.QuotientMap;
+import com.datatorrent.lib.math.SumCountMap;
+import com.datatorrent.lib.stream.StreamMerger;
+import com.datatorrent.lib.testbench.EventClassifier;
+import com.datatorrent.lib.testbench.EventGenerator;
+import com.datatorrent.lib.testbench.FilteredEventClassifier;
+import com.datatorrent.lib.testbench.ThroughputCounter;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.Context.PortContext;
 import com.malhartech.api.DAG;
 import com.malhartech.api.Operator.InputPort;
-import com.malhartech.lib.io.ConsoleOutputOperator;
-import com.malhartech.lib.io.HdfsOutputOperator;
-import com.malhartech.lib.io.PubSubWebSocketOutputOperator;
-import com.malhartech.lib.math.MarginMap;
-import com.malhartech.lib.math.QuotientMap;
-import com.malhartech.lib.math.SumCountMap;
-import com.malhartech.lib.stream.StreamMerger;
-import com.malhartech.lib.testbench.EventClassifier;
-import com.malhartech.lib.testbench.EventGenerator;
-import com.malhartech.lib.testbench.FilteredEventClassifier;
-import com.malhartech.lib.testbench.ThroughputCounter;
 
 import java.net.URI;
 import java.util.ArrayList;

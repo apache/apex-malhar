@@ -20,7 +20,7 @@
  * 
  * @author Vin Chawla <vin@tivo.com> 
  */
-package com.malhartech.contrib.kestrel;
+package com.datatorrent.contrib.kestrel;
 
 import java.util.*;
 import java.util.zip.*;

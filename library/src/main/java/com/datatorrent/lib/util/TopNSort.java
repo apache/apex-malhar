@@ -2,9 +2,10 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.util;
+package com.datatorrent.lib.util;
 
-import com.malhartech.lib.algo.ReversibleComparator;
+import com.datatorrent.lib.algo.ReversibleComparator;
+
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 import javax.validation.constraints.Min;

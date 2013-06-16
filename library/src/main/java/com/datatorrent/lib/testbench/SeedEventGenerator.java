@@ -2,12 +2,12 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.testbench;
+package com.datatorrent.lib.testbench;
 
+import com.datatorrent.lib.util.KeyValPair;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
-import com.malhartech.lib.util.KeyValPair;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;

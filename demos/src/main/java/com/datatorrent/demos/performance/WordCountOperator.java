@@ -1,4 +1,4 @@
-package com.malhartech.demos.performance;
+package com.datatorrent.demos.performance;
 
 /*
  * To change this template, choose Tools | Templates and open the template in the editor.

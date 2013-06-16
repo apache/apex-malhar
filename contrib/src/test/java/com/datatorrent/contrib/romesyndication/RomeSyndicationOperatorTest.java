@@ -2,8 +2,11 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.contrib.romesyndication;
+package com.datatorrent.contrib.romesyndication;
 
+import com.datatorrent.contrib.romesyndication.RomeFeedEntry;
+import com.datatorrent.contrib.romesyndication.RomeStreamProvider;
+import com.datatorrent.contrib.romesyndication.RomeSyndicationOperator;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DAG;
 import com.malhartech.api.DefaultInputPort;

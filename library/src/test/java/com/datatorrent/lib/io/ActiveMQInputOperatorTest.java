@@ -2,8 +2,10 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.io;
+package com.datatorrent.lib.io;
 
+import com.datatorrent.lib.io.AbstractActiveMQInputOperator;
+import com.datatorrent.lib.io.AbstractActiveMQSinglePortInputOperator;
 import com.malhartech.api.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.*;
 import com.malhartech.stram.StramLocalCluster;

@@ -2,8 +2,10 @@
  * Copyright (c) 2012-2012 Malhar, Inc.
  * All rights reserved.
  */
-package com.malhartech.demos.twitter;
+package com.datatorrent.demos.twitter;
 
+import com.datatorrent.demos.twitter.TwitterSampleInput;
+import com.datatorrent.demos.twitter.TwitterTopCounterApplication;
 import com.malhartech.api.LocalMode;
 import com.malhartech.stram.DAGPropertiesBuilder;
 import com.malhartech.stram.StramLocalCluster;

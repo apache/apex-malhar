@@ -1,7 +1,7 @@
 /*
  *  Copyright (c) 2012 Malhar, Inc. All Rights Reserved.
  */
-package com.malhartech.lib.io;
+package com.datatorrent.lib.io;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

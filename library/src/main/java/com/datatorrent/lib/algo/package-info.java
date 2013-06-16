@@ -5,9 +5,9 @@
  */
 
 /**
- * <b>{@link com.malhartech.lib.algo}</b> is a library of algorithmic operators<p>
+ * <b>{@link com.datatorrent.lib.algo}</b> is a library of algorithmic operators<p>
  * <br>
  * <br>
  */
 
-package com.malhartech.lib.algo;
+package com.datatorrent.lib.algo;

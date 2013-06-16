@@ -1,8 +1,9 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.testbench;
+package com.datatorrent.lib.testbench;
 
+import com.datatorrent.lib.testbench.RandomEventGenerator;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.stram.StramLocalCluster;
@@ -15,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Performance test for {@link com.malhartech.lib.testbench.RandomEventGenerator}<p>
+ * Performance test for {@link com.datatorrent.lib.testbench.RandomEventGenerator}<p>
  * <br>
  * Tests both string and integer. Sets range to 0 to 999 and generates random numbers. With millions
  * of tuple all the values are covered<br>

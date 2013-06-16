@@ -2,17 +2,17 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.demos.chart;
+package com.datatorrent.demos.chart;
 
+import com.datatorrent.demos.yahoofinance.StockTickInput;
+import com.datatorrent.lib.chart.CandleStick;
+import com.datatorrent.lib.chart.TimeSeriesAverageChartOperator;
+import com.datatorrent.lib.chart.TimeSeriesCandleStickChartOperator;
+import com.datatorrent.lib.chart.XYChartOperator.NumberType;
+import com.datatorrent.lib.stream.DevNull;
+import com.datatorrent.lib.util.KeyValPair;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DAG;
-import com.malhartech.demos.yahoofinance.StockTickInput;
-import com.malhartech.lib.chart.TimeSeriesAverageChartOperator;
-import com.malhartech.lib.chart.TimeSeriesCandleStickChartOperator;
-import com.malhartech.lib.chart.XYChartOperator.NumberType;
-import com.malhartech.lib.stream.DevNull;
-import com.malhartech.lib.chart.CandleStick;
-import com.malhartech.lib.util.KeyValPair;
 import java.util.Map;
 import org.apache.hadoop.conf.Configuration;
 
@@ -20,7 +20,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @author David Yan <davidyan@malhar-inc.com>
  */
-public class YahooFinanceApplication extends com.malhartech.demos.yahoofinance.Application
+public class YahooFinanceApplication extends com.datatorrent.demos.yahoofinance.Application
 {
   public static class YahooFinanceTimeSeriesAverageChartOperator extends TimeSeriesAverageChartOperator<String>
   {

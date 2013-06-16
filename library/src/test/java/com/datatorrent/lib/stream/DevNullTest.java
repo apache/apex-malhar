@@ -1,16 +1,18 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.stream;
+package com.datatorrent.lib.stream;
 
-import com.malhartech.lib.testbench.EventGenerator;
+import com.datatorrent.lib.stream.DevNull;
+import com.datatorrent.lib.testbench.EventGenerator;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.testbench.DevNull}. <p>
+ * Functional tests for {@link com.datatorrent.lib.testbench.DevNull}. <p>
  *
  */
 public class DevNullTest {

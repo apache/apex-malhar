@@ -1,18 +1,18 @@
-package com.malhartech.lib.samplecode.algo;
+package com.datatorrent.lib.samplecode.algo;
 
 import org.apache.hadoop.conf.Configuration;
 
+import com.datatorrent.lib.algo.BottomNMap;
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.samplecode.math.RandomKeyValMap;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.lib.io.ConsoleOutputOperator;
-import com.malhartech.lib.samplecode.math.RandomKeyValMap;
-import com.malhartech.lib.algo.BottomNMap;
 
 /**
  * This sample application code for showing sample usage of malhar operator(s). <br>
  * <b>Operator : </b> AverageMap <br>
- * <bClass : </b> com.malhartech.lib.math.AverageMap
+ * <bClass : </b> com.datatorrent.lib.math.AverageMap
  *
  * @author Dinesh Prasad (dinesh@malhar-inc.com)
  */

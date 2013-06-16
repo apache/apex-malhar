@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.contrib.redis;
+package com.datatorrent.contrib.redis;
 
 import java.util.HashMap;
 import java.util.Map;

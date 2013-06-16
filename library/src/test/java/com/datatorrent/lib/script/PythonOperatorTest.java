@@ -2,7 +2,7 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.script;
+package com.datatorrent.lib.script;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +11,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import com.datatorrent.lib.script.PythonOperator;
 import com.malhartech.engine.TestSink;
 
 /**

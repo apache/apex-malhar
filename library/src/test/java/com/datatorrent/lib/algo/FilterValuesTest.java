@@ -1,8 +1,9 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.algo;
+package com.datatorrent.lib.algo;
 
+import com.datatorrent.lib.algo.FilterValues;
 import com.malhartech.engine.TestSink;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +12,7 @@ import org.junit.Test;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.algo.FilterValues}<p>
+ * Functional tests for {@link com.datatorrent.lib.algo.FilterValues}<p>
  *
  */
 public class FilterValuesTest

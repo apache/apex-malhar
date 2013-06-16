@@ -2,8 +2,9 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.contrib.kafka;
+package com.datatorrent.contrib.kafka;
 
+import com.datatorrent.contrib.kafka.KafkaSinglePortInputOperator;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DAG;
 import com.malhartech.api.DefaultInputPort;

@@ -2,16 +2,16 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.contrib.apachelog;
+package com.datatorrent.contrib.apachelog;
 
+import com.datatorrent.contrib.zmq.SimpleSinglePortZeroMQPullStringInputOperator;
+import com.datatorrent.lib.algo.UniqueCounter;
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.logs.ApacheLogParseOperator;
+import com.datatorrent.lib.math.Sum;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DAG;
-import com.malhartech.contrib.zmq.SimpleSinglePortZeroMQPullStringInputOperator;
-import com.malhartech.lib.algo.UniqueCounter;
-import com.malhartech.lib.io.ConsoleOutputOperator;
-import com.malhartech.lib.logs.ApacheLogParseOperator;
-import com.malhartech.lib.math.Sum;
 import org.apache.hadoop.conf.Configuration;
 
 /**

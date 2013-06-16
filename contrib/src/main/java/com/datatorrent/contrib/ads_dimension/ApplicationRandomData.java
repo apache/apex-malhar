@@ -2,16 +2,16 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.contrib.ads_dimension;
+package com.datatorrent.contrib.ads_dimension;
 
+import com.datatorrent.contrib.redis.RedisNumberAggregateOutputOperator;
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.util.DimensionTimeBucketOperator;
+import com.datatorrent.lib.util.DimensionTimeBucketSumOperator;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DAG;
 import com.malhartech.api.Operator.InputPort;
-import com.malhartech.contrib.redis.RedisNumberAggregateOutputOperator;
-import com.malhartech.lib.io.ConsoleOutputOperator;
-import com.malhartech.lib.util.DimensionTimeBucketOperator;
-import com.malhartech.lib.util.DimensionTimeBucketSumOperator;
 import java.util.Map;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;

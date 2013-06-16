@@ -2,11 +2,11 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.algo;
+package com.datatorrent.lib.algo;
 
+import com.datatorrent.lib.util.AbstractBaseNUniqueOperatorMap;
 import com.malhartech.api.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.AbstractBaseNUniqueOperatorMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 

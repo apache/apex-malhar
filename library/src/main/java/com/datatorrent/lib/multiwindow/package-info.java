@@ -5,8 +5,8 @@
  */
 
 /**
- * <b>{@link com.malhartech.lib.multiwindow}</b> is a library of multi-window operators including sliding window for reuse<p>
+ * <b>{@link com.datatorrent.lib.multiwindow}</b> is a library of multi-window operators including sliding window for reuse<p>
  * <br>
  */
 
-package com.malhartech.lib.multiwindow;
+package com.datatorrent.lib.multiwindow;

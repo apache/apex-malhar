@@ -2,8 +2,10 @@
  * Copyright (c) 2012-2012 Malhar, Inc.
  * All rights reserved.
  */
-package com.malhartech.demos.performance;
+package com.datatorrent.demos.performance;
 
+import com.datatorrent.demos.performance.ApplicationFixed;
+import com.datatorrent.demos.performance.FixedTuplesInputOperator;
 import com.malhartech.api.Context.PortContext;
 import com.malhartech.api.DAG;
 import com.malhartech.api.LocalMode;

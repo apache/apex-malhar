@@ -2,12 +2,13 @@
  * Copyright (c) 2012-2012 Malhar, Inc.
  * All rights reserved.
  */
-package com.malhartech.demos.performance;
+package com.datatorrent.demos.performance;
 
 import java.io.IOException;
 
 import org.junit.Test;
 
+import com.datatorrent.demos.performance.ApplicationEventGenerator;
 import com.malhartech.api.LocalMode;
 
 /**

@@ -1,8 +1,9 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.stream;
+package com.datatorrent.lib.stream;
 
+import com.datatorrent.lib.stream.ArrayListAggregator;
 import com.malhartech.engine.TestSink;
 import java.util.ArrayList;
 import junit.framework.Assert;
@@ -11,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Functional test for {@link com.malhartech.lib.testbench.ArrayListAggregator}<p>
+ * Functional test for {@link com.datatorrent.lib.testbench.ArrayListAggregator}<p>
  */
 public class ArrayListAggregatorTest
 {

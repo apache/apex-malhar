@@ -1,8 +1,9 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.math;
+package com.datatorrent.lib.math;
 
+import com.datatorrent.lib.math.ChangeAlertMap;
 import com.malhartech.engine.TestSink;
 import java.util.HashMap;
 import junit.framework.Assert;
@@ -12,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.ChangeAlertMap}. <p>
+ * Functional tests for {@link com.datatorrent.lib.math.ChangeAlertMap}. <p>
  *
  */
 public class ChangeAlertMapTest

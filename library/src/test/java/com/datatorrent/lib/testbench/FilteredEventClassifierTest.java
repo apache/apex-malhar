@@ -1,8 +1,9 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.testbench;
+package com.datatorrent.lib.testbench;
 
+import com.datatorrent.lib.testbench.FilteredEventClassifier;
 import com.esotericsoftware.minlog.Log;
 import com.malhartech.api.Sink;
 import com.malhartech.tuple.Tuple;
@@ -15,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Functional test for {@link com.malhartech.lib.testbench.FilteredEventClassifier} for three configuration><p>
+ * Functional test for {@link com.datatorrent.lib.testbench.FilteredEventClassifier} for three configuration><p>
  * <br>
  * Configuration 1: Provide values and weights<br>
  * Configuration 2: Provide values but no weights (even weights)<br>

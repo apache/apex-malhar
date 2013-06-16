@@ -1,9 +1,11 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.stream;
+package com.datatorrent.lib.stream;
 
-import com.malhartech.lib.testbench.CountTestSink;
+import com.datatorrent.lib.stream.HashMapToKeyValPair;
+import com.datatorrent.lib.testbench.CountTestSink;
+
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -11,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Functional test for {@link com.malhartech.lib.testbench.HashMapToKeyValPair}<p>
+ * Functional test for {@link com.datatorrent.lib.testbench.HashMapToKeyValPair}<p>
  * <br>
  */
 public class HashMapToKeyValPairTest {

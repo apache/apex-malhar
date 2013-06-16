@@ -1,9 +1,11 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.stream;
+package com.datatorrent.lib.stream;
 
-import com.malhartech.lib.testbench.CountTestSink;
+import com.datatorrent.lib.stream.Counter;
+import com.datatorrent.lib.testbench.CountTestSink;
+
 import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -11,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Performance test for {@link com.malhartech.lib.testbench.Counter}<p>
+ * Performance test for {@link com.datatorrent.lib.testbench.Counter}<p>
  */
 public class CounterBenchmark
 {

@@ -2,10 +2,12 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.multiwindow;
+package com.datatorrent.lib.multiwindow;
 
-import com.malhartech.lib.testbench.CountTestSink;
-import com.malhartech.lib.util.KeyValPair;
+import com.datatorrent.lib.multiwindow.SimpleMovingAverage;
+import com.datatorrent.lib.testbench.CountTestSink;
+import com.datatorrent.lib.util.KeyValPair;
+
 import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -13,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Performance test for {@link com.malhartech.lib.multiwindow.SimpleMovingAverage}. <p>
+ * Performance test for {@link com.datatorrent.lib.multiwindow.SimpleMovingAverage}. <p>
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */

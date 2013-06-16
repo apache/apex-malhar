@@ -5,9 +5,9 @@
  */
 
 /**
- * <b>{@link com.malhartech.lib.chart}</b> is a library of charting operators<p>
+ * <b>{@link com.datatorrent.lib.chart}</b> is a library of charting operators<p>
  * <br>
  * <br>
  */
 
-package com.malhartech.lib.chart;
+package com.datatorrent.lib.chart;

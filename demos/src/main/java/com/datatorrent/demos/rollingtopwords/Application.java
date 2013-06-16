@@ -2,14 +2,14 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.demos.rollingtopwords;
+package com.datatorrent.demos.rollingtopwords;
 
+import com.datatorrent.demos.twitter.TwitterSampleInput;
+import com.datatorrent.lib.algo.UniqueCounter;
+import com.datatorrent.lib.algo.WindowedTopCounter;
+import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
-import com.malhartech.demos.twitter.TwitterSampleInput;
-import com.malhartech.lib.algo.UniqueCounter;
-import com.malhartech.lib.algo.WindowedTopCounter;
-import com.malhartech.lib.io.ConsoleOutputOperator;
 
 import org.apache.hadoop.conf.Configuration;
 

@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.contrib.memcache;
+package com.datatorrent.contrib.memcache;
 
+import com.datatorrent.contrib.memcache.AbstractSinglePortMemcacheInputOperator;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DAG;
 import com.malhartech.api.DefaultInputPort;

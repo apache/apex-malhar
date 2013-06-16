@@ -2,10 +2,11 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.demos.samplestream;
+package com.datatorrent.demos.samplestream;
 
 import org.junit.Test;
 
+import com.datatorrent.demos.samplestream.Application;
 import com.malhartech.api.LocalMode;
 
 /**

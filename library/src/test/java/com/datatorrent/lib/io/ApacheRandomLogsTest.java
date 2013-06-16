@@ -1,12 +1,13 @@
 /*
  *  Copyright (c) 2012 Malhar, Inc. All Rights Reserved.
  */
-package com.malhartech.lib.io;
+package com.datatorrent.lib.io;
 
 import junit.framework.Assert;
 import org.junit.Test;
+
+import com.datatorrent.lib.io.ApacheGenRandomLogs;
 import com.malhartech.engine.TestSink;
-import com.malhartech.lib.io.ApacheGenRandomLogs;
 
 /**
  * Unit test for emit tuples.

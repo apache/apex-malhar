@@ -2,7 +2,7 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.demos.pi;
+package com.datatorrent.demos.pi;
 
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;

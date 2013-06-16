@@ -2,7 +2,7 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.contrib.rabbitmq;
+package com.datatorrent.contrib.rabbitmq;
 
 import com.malhartech.annotation.InjectConfig;
 import com.malhartech.api.*;

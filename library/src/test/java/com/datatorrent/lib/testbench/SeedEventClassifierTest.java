@@ -1,8 +1,9 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.testbench;
+package com.datatorrent.lib.testbench;
 
+import com.datatorrent.lib.testbench.SeedEventClassifier;
 import com.malhartech.api.Sink;
 import com.malhartech.tuple.Tuple;
 import java.util.HashMap;
@@ -12,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Functional test for {@link com.malhartech.lib.testbench.SeedEventClassifier}<br>
+ * Functional test for {@link com.datatorrent.lib.testbench.SeedEventClassifier}<br>
  */
 public class SeedEventClassifierTest
 {

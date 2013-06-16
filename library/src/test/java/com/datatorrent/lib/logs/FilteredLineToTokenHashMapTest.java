@@ -1,9 +1,11 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.logs;
+package com.datatorrent.lib.logs;
 
-import com.malhartech.lib.testbench.HashTestSink;
+import com.datatorrent.lib.logs.FilteredLineToTokenHashMap;
+import com.datatorrent.lib.testbench.HashTestSink;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.logs.FilteredLineToTokenHashMap}<p>
+ * Functional tests for {@link com.datatorrent.lib.logs.FilteredLineToTokenHashMap}<p>
  *
  */
 public class FilteredLineToTokenHashMapTest

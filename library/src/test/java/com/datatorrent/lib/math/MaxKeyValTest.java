@@ -1,8 +1,11 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.math;
+package com.datatorrent.lib.math;
 
+import com.datatorrent.lib.math.MaxKeyVal;
+import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
+import com.datatorrent.lib.util.KeyValPair;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;
@@ -10,8 +13,6 @@ import com.malhartech.api.InputOperator;
 import com.malhartech.api.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.*;
-import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
-import com.malhartech.lib.util.KeyValPair;
 import com.malhartech.stram.StramLocalCluster;
 import com.malhartech.stram.plan.logical.LogicalPlan;
 
@@ -23,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.MaxKeyVal}. <p>
+ * Functional tests for {@link com.datatorrent.lib.math.MaxKeyVal}. <p>
  *
  */
 public class MaxKeyValTest

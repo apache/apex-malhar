@@ -1,4 +1,4 @@
-package com.malhartech.lib.io;
+package com.datatorrent.lib.io;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -10,7 +10,7 @@ import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.Context.OperatorContext;
 
 /**  
- * <b> Usage Operator : </b> com.malhartech.lib.testbench.RandomEventGenerator <br>
+ * <b> Usage Operator : </b> com.datatorrent.lib.testbench.RandomEventGenerator <br>
  * This sample usage for predefined operator <b>RandomEventGenerator</b>. <br>
  * Random generator output is printed to output console(can be any downstream operator).
  * 

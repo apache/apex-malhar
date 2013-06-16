@@ -1,16 +1,18 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.stream;
+package com.datatorrent.lib.stream;
 
-import com.malhartech.lib.testbench.CountTestSink;
+import com.datatorrent.lib.stream.StreamDuplicater;
+import com.datatorrent.lib.testbench.CountTestSink;
+
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Performance test for {@link com.malhartech.lib.testbench.StreamDuplicater}<p>
+ * Performance test for {@link com.datatorrent.lib.testbench.StreamDuplicater}<p>
  * Benchmarks: Currently does about ?? Million tuples/sec in debugging environment. Need to test on larger nodes<br>
  * <br>
  */

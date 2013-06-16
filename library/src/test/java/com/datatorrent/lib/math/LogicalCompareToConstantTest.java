@@ -1,8 +1,9 @@
-package com.malhartech.lib.math;
+package com.datatorrent.lib.math;
 
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
+import com.datatorrent.lib.math.LogicalCompareToConstant;
 import com.malhartech.engine.TestSink;
 import com.malhartech.common.util.Pair;
 import junit.framework.Assert;
@@ -12,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.LogicalCompareToConstant}<p>
+ * Functional tests for {@link com.datatorrent.lib.math.LogicalCompareToConstant}<p>
  *
  */
 public class LogicalCompareToConstantTest

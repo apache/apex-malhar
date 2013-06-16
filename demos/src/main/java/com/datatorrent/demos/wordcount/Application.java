@@ -2,12 +2,12 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.demos.wordcount;
+package com.datatorrent.demos.wordcount;
 
+import com.datatorrent.lib.algo.UniqueCounterEach;
+import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
-import com.malhartech.lib.algo.UniqueCounterEach;
-import com.malhartech.lib.io.ConsoleOutputOperator;
 
 import org.apache.hadoop.conf.Configuration;
 
@@ -33,8 +33,8 @@ import org.apache.hadoop.conf.Configuration;
  * Output Adapter : <br>
  * Output values are written to console through ConsoleOutputOerator<br>
  * if you need to change write to HDFS,HTTP .. instead of console, <br>
- * Please refer to {@link com.malhartech.lib.io.HttpOutputOperator} or
- * {@link com.malhartech.lib.io.HdfsOutputOperator}. <br>
+ * Please refer to {@link com.datatorrent.lib.io.HttpOutputOperator} or
+ * {@link com.datatorrent.lib.io.HdfsOutputOperator}. <br>
  * <br>
  * 
  * Run Sample Application : <br>
@@ -56,7 +56,7 @@ import org.apache.hadoop.conf.Configuration;
  * </pre> <br> <br>
  * 
  * Scaling Options : <br>
- * This operator app can not be scaled, please look at implementation {@link com.malhartech.lib.algo.UniqueCounterEach}  <br> <br>
+ * This operator app can not be scaled, please look at implementation {@link com.datatorrent.lib.algo.UniqueCounterEach}  <br> <br>
  * 
  * Application DAG : <br>
  * <img src="doc-files/UniqueWordCounter.jpg" width=600px > <br>
@@ -67,13 +67,13 @@ import org.apache.hadoop.conf.Configuration;
  * 	<li>
  *     <p><b> The operator wordinput : </b> This operator opens local file, reads each line and sends each word to application. 
  *         This can replaced by any input stream by user. <br>
- *     Class : {@link com.malhartech.demos.wordcount.WordCountInputOperator}  <br>
+ *     Class : {@link com.datatorrent.demos.wordcount.WordCountInputOperator}  <br>
  *     Operator Application Window Count : 1 <br>
  *     Stateless : YES 
  *  </li>
  *  <li>
  *     <p><b> The operator count : </b>  This operator aggregates unique key count  over one window count(app). <br>
- *     Class : {@link com.malhartech.demos.wordcount.UniqueCounterEach}  <br>
+ *     Class : {@link com.datatorrent.demos.wordcount.UniqueCounterEach}  <br>
  *     Operator Application Window Count : 1 <br>
  *     Stateless : YES 
  *  </li>

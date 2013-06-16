@@ -2,7 +2,7 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.demos.twitter;
+package com.datatorrent.demos.twitter;
 
 import java.util.concurrent.ArrayBlockingQueue;
 

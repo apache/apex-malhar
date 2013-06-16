@@ -2,7 +2,7 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.contrib.romesyndication;
+package com.datatorrent.contrib.romesyndication;
 
 import java.io.IOException;
 import java.io.InputStream;

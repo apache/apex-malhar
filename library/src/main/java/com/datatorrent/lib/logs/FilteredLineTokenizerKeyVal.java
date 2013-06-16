@@ -2,7 +2,7 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.logs;
+package com.datatorrent.lib.logs;
 
 import java.util.ArrayList;
 import java.util.HashMap;

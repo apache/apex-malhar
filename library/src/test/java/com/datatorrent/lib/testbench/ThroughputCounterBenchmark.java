@@ -1,9 +1,10 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.testbench;
+package com.datatorrent.lib.testbench;
 
 
+import com.datatorrent.lib.testbench.ThroughputCounter;
 import com.malhartech.api.Sink;
 import com.malhartech.engine.OperatorContext;
 import com.malhartech.tuple.Tuple;
@@ -15,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.testbench.ThroughputCounter}. <p>
+ * Performance tests for {@link com.datatorrent.lib.testbench.ThroughputCounter}. <p>
  * <br>
  * Load is generated and the tuples are outputted to ensure that the numbers are roughly in line with the weights<br>
  * <br>

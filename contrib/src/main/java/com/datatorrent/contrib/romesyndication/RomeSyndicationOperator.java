@@ -2,9 +2,9 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.contrib.romesyndication;
+package com.datatorrent.contrib.romesyndication;
 
-import com.malhartech.lib.io.SimpleSinglePortInputOperator;
+import com.datatorrent.lib.io.SimpleSinglePortInputOperator;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndEntryImpl;
 import com.sun.syndication.feed.synd.SyndFeed;

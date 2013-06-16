@@ -1,9 +1,11 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.algo;
+package com.datatorrent.lib.algo;
 
-import com.malhartech.lib.testbench.CountTestSink;
+import com.datatorrent.lib.algo.TopNUnique;
+import com.datatorrent.lib.testbench.CountTestSink;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.algo.TopN}<p>
+ * Performance tests for {@link com.datatorrent.lib.algo.TopN}<p>
  *
  */
 public class TopNUniqueBenchmark

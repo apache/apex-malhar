@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.contrib.kafka;
+package com.datatorrent.contrib.kafka;
 
 import com.malhartech.api.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;

@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.contrib.kafka;
+package com.datatorrent.contrib.kafka;
 
+import com.datatorrent.contrib.kafka.KafkaSinglePortOutputOperator;
 import com.malhartech.api.ActivationListener;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DAG;

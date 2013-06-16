@@ -2,8 +2,9 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.algo;
+package com.datatorrent.lib.algo;
 
+import com.datatorrent.lib.algo.FilterKeysHashMap;
 import com.malhartech.engine.TestSink;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +13,7 @@ import org.junit.Test;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.algo.FilterKeysHashMap}<p>
+ * Functional tests for {@link com.datatorrent.lib.algo.FilterKeysHashMap}<p>
  *
  * @author Locknath Shil <locknath@malhar-inc.com>
  */

@@ -2,8 +2,11 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.contrib.kestrel;
+package com.datatorrent.contrib.kestrel;
 
+import com.datatorrent.contrib.kestrel.AbstractSinglePortKestrelInputOperator;
+import com.datatorrent.contrib.kestrel.MemcachedClient;
+import com.datatorrent.contrib.kestrel.SockIOPool;
 import com.malhartech.api.*;
 import java.util.ArrayList;
 import java.util.HashMap;

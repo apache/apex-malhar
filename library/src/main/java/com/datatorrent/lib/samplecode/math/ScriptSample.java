@@ -1,15 +1,15 @@
-package com.malhartech.lib.samplecode.math;
+package com.datatorrent.lib.samplecode.math;
 
+import com.datatorrent.lib.io.*;
+import com.datatorrent.lib.script.JavaScriptOperator;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
-import com.malhartech.lib.io.*;
-import com.malhartech.lib.script.JavaScriptOperator;
 import org.apache.hadoop.conf.Configuration;
 
 /**
  * This sample application code for showing sample usage of malhar operator(s). <br>
  * <b>Operator : </b> Script <br>
- * <bClass : </b> com.malhartech.lib.math.Script
+ * <bClass : </b> com.datatorrent.lib.math.Script
  * Java script returns square of variable 'val'.
  *
  * @author Dinesh Prasad(dinesh@malhar-inc.com)

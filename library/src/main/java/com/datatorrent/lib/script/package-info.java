@@ -5,9 +5,9 @@
  */
 
 /**
- * <b>{@link com.malhartech.lib.script}</b> is a library of operators for scripting languages<p>
+ * <b>{@link com.datatorrent.lib.script}</b> is a library of operators for scripting languages<p>
  * <br>
  * <br>
  */
 
-package com.malhartech.lib.script;
+package com.datatorrent.lib.script;

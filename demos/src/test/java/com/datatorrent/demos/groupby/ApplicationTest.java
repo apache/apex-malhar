@@ -2,8 +2,9 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.demos.groupby;
+package com.datatorrent.demos.groupby;
 
+import com.datatorrent.demos.groupby.Application;
 import com.malhartech.api.LocalMode;
 
 import org.junit.Test;

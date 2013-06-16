@@ -2,8 +2,9 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.contrib.rabbitmq;
+package com.datatorrent.contrib.rabbitmq;
 
+import com.datatorrent.contrib.rabbitmq.AbstractSinglePortRabbitMQOutputOperator;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.*;
 import com.rabbitmq.client.*;

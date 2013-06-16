@@ -2,19 +2,19 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.demos.yahoofinance;
+package com.datatorrent.demos.yahoofinance;
 
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.math.RangeKeyVal;
+import com.datatorrent.lib.math.SumKeyVal;
+import com.datatorrent.lib.multiwindow.SimpleMovingAverage;
+import com.datatorrent.lib.stream.ConsolidatorKeyVal;
+import com.datatorrent.lib.util.HighLow;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.LocalMode;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DAG;
 import com.malhartech.api.Operator.InputPort;
-import com.malhartech.lib.io.ConsoleOutputOperator;
-import com.malhartech.lib.math.RangeKeyVal;
-import com.malhartech.lib.math.SumKeyVal;
-import com.malhartech.lib.multiwindow.SimpleMovingAverage;
-import com.malhartech.lib.stream.ConsolidatorKeyVal;
-import com.malhartech.lib.util.HighLow;
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -56,8 +56,8 @@ import org.apache.hadoop.conf.Configuration;
  * Output Adapter : <br>
  * Output values are written to console through ConsoleOutputOerator<br>
  * if you need to change write to HDFS,HTTP .. instead of console, <br>
- * Please refer to {@link com.malhartech.lib.io.HttpOutputOperator} or
- * {@link com.malhartech.lib.io.HdfsOutputOperator}. <br>
+ * Please refer to {@link com.datatorrent.lib.io.HttpOutputOperator} or
+ * {@link com.datatorrent.lib.io.HdfsOutputOperator}. <br>
  * <br>
  * 
  * Run Sample Application : <br>
@@ -113,7 +113,7 @@ import org.apache.hadoop.conf.Configuration;
  * follow. This operator assumes that the application restarts before market
  * opens every day.
  * </p>
- * Class : {@link com.malhartech.lib.math.SumKeyVal} <br>
+ * Class : {@link com.datatorrent.lib.math.SumKeyVal} <br>
  * Operator Application Window Count : 1 <br>
  * StateFull : YES, volume gets aggregated every window count.</li>
  * 
@@ -125,7 +125,7 @@ import org.apache.hadoop.conf.Configuration;
  * DailyVolume, this operator is also SumKeyVal<String,Long>, but with
  * cumulative set to false. Application Window is set to 1 minute. We will
  * explain how to set this later. <br>
- * Class : {@link com.malhartech.lib.math.SumKeyVal} <br>
+ * Class : {@link com.datatorrent.lib.math.SumKeyVal} <br>
  * Operator App Window Count : 60 (1 Minute) <br>
  * StateFull : YES, aggregate over last 60 windows.</li>
  * 
@@ -136,7 +136,7 @@ import org.apache.hadoop.conf.Configuration;
  * StockTickInput). This operator just consolidates the three data and and emits
  * the consolidated data. It utilizes the class ConsolidatorKeyVal<K> from
  * stream package.<br>
- * Class : {@link com.malhartech.lib.stream.ConsolidatorKeyVal} <br>
+ * Class : {@link com.datatorrent.lib.stream.ConsolidatorKeyVal} <br>
  * Operator App Window Count : 1 <br>
  * State Less : YES</li>
  * 
@@ -145,7 +145,7 @@ import org.apache.hadoop.conf.Configuration;
  * <b>The operator Chart:</b> This operator is very similar to the operator
  * Quote, except that it takes inputs from High Low and Minute Vol and outputs
  * the consolidated tuples to the output port. <br>
- * Class : {@link com.malhartech.lib.stream.ConsolidatorKeyVal} <br>
+ * Class : {@link com.datatorrent.lib.stream.ConsolidatorKeyVal} <br>
  * StateLess : YES<br>
  * Operator App Window Count : 1</li>
  * 
@@ -159,7 +159,7 @@ import org.apache.hadoop.conf.Configuration;
  * package. SimpleMovingAverage keeps track of the data of the previous N
  * application windows in a sliding manner. For each end window event, it
  * provides the average of the data in those application windows. <br>
- * Class : {@link com.malhartech.lib.multiwindow.SimpleMovingAverage} <br>
+ * Class : {@link com.datatorrent.lib.multiwindow.SimpleMovingAverage} <br>
  * State full : YES, stores values across application window. <br>
  * Operator App Window : 1 <br>
  * Operator Sliding Window : 300 (5 mins).</li>
@@ -200,7 +200,7 @@ public class Application implements ApplicationFactory
   }
 
   /**
-   * Instantiate {@link com.malhartech.lib.math.SumKeyVal} operator 
+   * Instantiate {@link com.datatorrent.lib.math.SumKeyVal} operator 
    * to sends total daily volume by adding volumes from each ticks.
    * @param name  Operator name 
    * @param dag   Application DAG graph.
@@ -216,7 +216,7 @@ public class Application implements ApplicationFactory
   }
 
   /**
-   * Instantiate {@link com.malhartech.lib.math.SumKeyVal} operator 
+   * Instantiate {@link com.datatorrent.lib.math.SumKeyVal} operator 
    * Get aggregated volume of 1 minute and send at the end window of 1 minute.
    * @param name  Operator name 
    * @param dag   Application DAG graph.
@@ -233,7 +233,7 @@ public class Application implements ApplicationFactory
   }
 
   /**
-   * Instantiate {@link com.malhartech.lib.math.RangeKeyVal} operator to get high/low
+   * Instantiate {@link com.datatorrent.lib.math.RangeKeyVal} operator to get high/low
    * value for each key within given application window.
    * Get High-low range for 1 minute.
    * @param name  Operator name 
@@ -250,7 +250,7 @@ public class Application implements ApplicationFactory
   }
 
   /**
-   * Instantiate {@link com.malhartech.lib.stream.ConsolidatorKeyVal} to send
+   * Instantiate {@link com.datatorrent.lib.stream.ConsolidatorKeyVal} to send
    * Quote (Merge price, daily volume, time)
    * @param name  Operator name 
    * @param dag   Application DAG graph.
@@ -263,7 +263,7 @@ public class Application implements ApplicationFactory
   }
 
   /**
-   * Instantiate {@link com.malhartech.lib.stream.ConsolidatorKeyVal} to send
+   * Instantiate {@link com.datatorrent.lib.stream.ConsolidatorKeyVal} to send
    * Chart (Merge minute volume and minute high-low)
    * @param name  Operator name 
    * @param dag   Application DAG graph.
@@ -276,7 +276,7 @@ public class Application implements ApplicationFactory
   }
 
   /**
-   * Instantiate {@link com.malhartech.lib.multiwindow.SimpleMovingAverage} to calculate moving average for price
+   * Instantiate {@link com.datatorrent.lib.multiwindow.SimpleMovingAverage} to calculate moving average for price
    * over given window size. Sliding window size is 1.
    * @param name  Operator name 
    * @param dag   Application DAG graph.

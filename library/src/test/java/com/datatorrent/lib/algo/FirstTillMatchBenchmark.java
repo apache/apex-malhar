@@ -1,8 +1,9 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.algo;
+package com.datatorrent.lib.algo;
 
+import com.datatorrent.lib.algo.FirstTillMatch;
 import com.malhartech.engine.TestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.algo.FirstTillMatch}<p>
+ * Performance tests for {@link com.datatorrent.lib.algo.FirstTillMatch}<p>
  *
  */
 public class FirstTillMatchBenchmark

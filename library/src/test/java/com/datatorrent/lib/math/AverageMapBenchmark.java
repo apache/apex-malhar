@@ -1,8 +1,10 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.math;
+package com.datatorrent.lib.math;
 
+import com.datatorrent.lib.math.AverageMap;
+import com.datatorrent.lib.math.SumCountMap;
 import com.malhartech.engine.TestSink;
 import java.util.HashMap;
 import org.junit.Test;
@@ -12,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.math.AverageMap}. <p>
+ * Performance tests for {@link com.datatorrent.lib.math.AverageMap}. <p>
  * Current benchmark is 12 million tuples/sec.
  *
  */

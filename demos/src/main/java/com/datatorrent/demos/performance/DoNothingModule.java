@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.demos.performance;
+package com.datatorrent.demos.performance;
 
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.DefaultInputPort;

@@ -2,7 +2,7 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.contrib.kestrel;
+package com.datatorrent.contrib.kestrel;
 
 import com.malhartech.api.ActivationListener;
 import com.malhartech.api.Context.OperatorContext;

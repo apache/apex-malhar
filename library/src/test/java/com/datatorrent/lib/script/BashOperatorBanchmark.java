@@ -1,10 +1,11 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.script;
+package com.datatorrent.lib.script;
 
+import com.datatorrent.lib.algo.AllAfterMatchMapBenchmark;
+import com.datatorrent.lib.script.BashOperator;
 import com.malhartech.engine.TestSink;
-import com.malhartech.lib.algo.AllAfterMatchMapBenchmark;
 import java.util.HashMap;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -12,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Performance tests for {@link com.malhartech.lib.script.BashOperator}. <p>
+ * Performance tests for {@link com.datatorrent.lib.script.BashOperator}. <p>
  * Testing with 1M tuples.
  * @author Dinesh Prasad (dinesh@malhar-inc.com)
  *

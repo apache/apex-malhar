@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.contrib.kafka;
+package com.datatorrent.contrib.kafka;
 
 import java.util.Properties;
 import kafka.javaapi.producer.Producer;

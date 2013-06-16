@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.contrib.hbase;
+package com.datatorrent.contrib.hbase;
 
+import com.datatorrent.contrib.hbase.HBaseScanOperator;
 import com.malhartech.api.DAG;
 import com.malhartech.api.LocalMode;
 import java.util.List;

@@ -2,20 +2,20 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.algo;
+package com.datatorrent.lib.algo;
 
+import com.datatorrent.lib.util.BaseUniqueKeyCounter;
 import com.malhartech.api.annotation.InputPortFieldAnnotation;
 import com.malhartech.api.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultInputPort;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.BaseUniqueKeyCounter;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang.mutable.MutableInt;
 
 /**
  * Counts the number of times a key exists in a window; one tuple is emitted per unique key pair. <p>
- * This is an end of window operator. This operator is same as the combination of {@link com.malhartech.lib.algo.UniqueCounter} followed by {@link com.malhartech.lib.stream.HashMapToKeyValPair}<br>
+ * This is an end of window operator. This operator is same as the combination of {@link com.datatorrent.lib.algo.UniqueCounter} followed by {@link com.datatorrent.lib.stream.HashMapToKeyValPair}<br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects K<br>

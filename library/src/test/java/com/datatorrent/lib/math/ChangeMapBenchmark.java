@@ -1,9 +1,11 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.math;
+package com.datatorrent.lib.math;
 
-import com.malhartech.lib.testbench.CountTestSink;
+import com.datatorrent.lib.math.ChangeMap;
+import com.datatorrent.lib.testbench.CountTestSink;
+
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -13,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.math.ChangeMap}. <p>
+ * Performance tests for {@link com.datatorrent.lib.math.ChangeMap}. <p>
  *
  */
 public class ChangeMapBenchmark

@@ -1,17 +1,17 @@
-package com.malhartech.lib.samplecode.math;
+package com.datatorrent.lib.samplecode.math;
 
 import org.apache.hadoop.conf.Configuration;
 
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.math.Change;
+import com.datatorrent.lib.testbench.RandomEventGenerator;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
-import com.malhartech.lib.io.ConsoleOutputOperator;
-import com.malhartech.lib.math.Change;
-import com.malhartech.lib.testbench.RandomEventGenerator;
 
 /**
  *  This sample application code for showing sample usage of malhar operator(s). <br>
  * <b>Operator : </b> Change <br>
- * <bClass : </b> com.malhartech.lib.math.Change
+ * <bClass : </b> com.datatorrent.lib.math.Change
  *
  * @author Dinesh Prasad (dinesh@malhar-inc.com)
  *

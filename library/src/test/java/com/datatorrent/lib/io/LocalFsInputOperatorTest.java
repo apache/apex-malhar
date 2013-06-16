@@ -1,14 +1,15 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.io;
+package com.datatorrent.lib.io;
 
+import com.datatorrent.lib.io.LocalFsInputOperator;
 import com.malhartech.engine.TestSink;
 import junit.framework.Assert;
 import org.junit.Test;
 
 /**
- * Functional tests for {@link com.malhartech.lib.io.LocalFsInputOperator} <p>
+ * Functional tests for {@link com.datatorrent.lib.io.LocalFsInputOperator} <p>
  * @author Dinesh Prasad (dinesh@malhar-inc.com).
  */
 public class LocalFsInputOperatorTest

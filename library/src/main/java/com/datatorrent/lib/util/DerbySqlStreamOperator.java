@@ -2,11 +2,11 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.lib.util;
+package com.datatorrent.lib.util;
 
+import com.datatorrent.lib.util.AbstractSqlStreamOperator.InputSchema.ColumnInfo;
 import com.malhartech.api.annotation.ShipContainingJars;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.lib.util.AbstractSqlStreamOperator.InputSchema.ColumnInfo;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;

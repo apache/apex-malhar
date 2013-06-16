@@ -1,8 +1,9 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.algo;
+package com.datatorrent.lib.algo;
 
+import com.datatorrent.lib.algo.MergeSort;
 import com.malhartech.engine.TestSink;
 import java.util.ArrayList;
 import junit.framework.Assert;
@@ -12,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.algo.MergeSort}<p>
+ * Performance tests for {@link com.datatorrent.lib.algo.MergeSort}<p>
  */
 public class MergeSortBenchmark
 {

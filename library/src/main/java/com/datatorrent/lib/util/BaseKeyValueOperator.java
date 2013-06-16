@@ -2,13 +2,13 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.util;
+package com.datatorrent.lib.util;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import com.datatorrent.lib.codec.JavaSerializationStreamCodec;
 import com.malhartech.api.StreamCodec;
-import com.malhartech.lib.codec.JavaSerializationStreamCodec;
 
 /**
  * Base class for operators that allows cloneValue and cloneKey for enabling users to use mutable objects<p>

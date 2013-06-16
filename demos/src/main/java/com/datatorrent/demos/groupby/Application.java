@@ -2,12 +2,12 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.demos.groupby;
+package com.datatorrent.demos.groupby;
 
+import com.datatorrent.lib.algo.GroupBy;
+import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
-import com.malhartech.lib.algo.GroupBy;
-import com.malhartech.lib.io.ConsoleOutputOperator;
 
 import org.apache.hadoop.conf.Configuration;
 

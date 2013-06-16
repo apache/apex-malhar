@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.contrib.memcache_whalin;
+package com.datatorrent.contrib.memcache_whalin;
 
+import com.datatorrent.contrib.memcache_whalin.AbstractSinglePortMemcacheOutputOperator;
 import com.malhartech.api.*;
 import com.malhartech.api.Context.OperatorContext;
 import com.whalin.MemCached.MemCachedClient;

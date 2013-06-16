@@ -1,11 +1,11 @@
-package com.malhartech.lib.samplecode.math;
+package com.datatorrent.lib.samplecode.math;
 
 import java.util.Random;
 
+import com.datatorrent.lib.util.KeyValPair;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
-import com.malhartech.lib.util.KeyValPair;
 /**
  * Input port operator for generating random values on keys. <br>
  * Key(s) : key1, key2, key3, key4, key5. <br>

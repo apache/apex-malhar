@@ -2,11 +2,11 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.demos.chart;
+package com.datatorrent.demos.chart;
 
+import com.datatorrent.demos.yahoofinance.StockTickInput;
+import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.malhartech.api.DAG;
-import com.malhartech.demos.yahoofinance.StockTickInput;
-import com.malhartech.lib.io.ConsoleOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 
 /**

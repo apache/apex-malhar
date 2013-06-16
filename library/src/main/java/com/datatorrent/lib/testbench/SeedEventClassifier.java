@@ -2,7 +2,7 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.testbench;
+package com.datatorrent.lib.testbench;
 
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;

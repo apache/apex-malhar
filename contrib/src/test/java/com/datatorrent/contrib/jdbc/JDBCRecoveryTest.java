@@ -2,8 +2,10 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.contrib.jdbc;
+package com.datatorrent.contrib.jdbc;
 
+import com.datatorrent.contrib.jdbc.JDBCNonTransactionHashMapOutputOperator;
+import com.datatorrent.contrib.jdbc.JDBCTransactionHashMapOutputOperator;
 import com.malhartech.api.CheckpointListener;
 import com.malhartech.api.LocalMode;
 import com.malhartech.api.Context.OperatorContext;

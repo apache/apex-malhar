@@ -2,7 +2,7 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.algo;
+package com.datatorrent.lib.algo;
 
 import java.util.Collections;
 import java.util.Map;
@@ -11,7 +11,9 @@ import junit.framework.Assert;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
-import com.malhartech.lib.codec.JavaSerializationStreamCodec;
+import com.datatorrent.lib.algo.WindowedHolder;
+import com.datatorrent.lib.algo.WindowedTopCounter;
+import com.datatorrent.lib.codec.JavaSerializationStreamCodec;
 import com.malhartech.common.util.Slice;
 import com.malhartech.engine.TestSink;
 

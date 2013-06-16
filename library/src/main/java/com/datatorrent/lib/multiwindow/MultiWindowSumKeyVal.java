@@ -2,10 +2,11 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.multiwindow;
+package com.datatorrent.lib.multiwindow;
 
-import com.malhartech.lib.math.SumKeyVal;
-import com.malhartech.lib.util.KeyValPair;
+import com.datatorrent.lib.math.SumKeyVal;
+import com.datatorrent.lib.util.KeyValPair;
+
 import java.util.Map;
 import javax.validation.constraints.Min;
 import org.apache.commons.lang.mutable.MutableDouble;

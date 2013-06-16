@@ -1,13 +1,13 @@
-package com.malhartech.lib.samplecode.math;
+package com.datatorrent.lib.samplecode.math;
 
+import com.datatorrent.lib.io.*;
+import com.datatorrent.lib.testbench.RandomEventGenerator;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.DAG;
-import com.malhartech.lib.io.*;
-import com.malhartech.lib.testbench.RandomEventGenerator;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- * <b> Usage Operator : </b> com.malhartech.lib.testbench.RandomEventGenerator <br>
+ * <b> Usage Operator : </b> com.datatorrent.lib.testbench.RandomEventGenerator <br>
  * This sample usage for predefined operator <b>RandomEventGenerator</b>. <br>
  * Random generator output is printed to output console(can be any downstream operator).
  *

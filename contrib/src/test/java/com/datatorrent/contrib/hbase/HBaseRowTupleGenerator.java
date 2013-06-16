@@ -2,14 +2,14 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.contrib.hbase;
+package com.datatorrent.contrib.hbase;
 
+import com.datatorrent.lib.io.SimpleSinglePortInputOperator;
 import com.malhartech.api.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.BaseOperator;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
-import com.malhartech.lib.io.SimpleSinglePortInputOperator;
 
 /**
  *

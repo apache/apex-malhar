@@ -2,8 +2,9 @@
  * Copyright (c) 2012-2012 Malhar, Inc.
  * All rights reserved.
  */
-package com.malhartech.lib.io;
+package com.datatorrent.lib.io;
 
+import com.datatorrent.lib.io.SmtpOutputOperator;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetupTest;
 import com.icegreen.greenmail.util.ServerSetup;

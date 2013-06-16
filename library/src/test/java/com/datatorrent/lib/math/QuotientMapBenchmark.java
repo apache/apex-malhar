@@ -1,9 +1,11 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.math;
+package com.datatorrent.lib.math;
 
-import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
+import com.datatorrent.lib.math.QuotientMap;
+import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
+
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
@@ -13,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.math.QuotientMap}<p>
+ * Performance tests for {@link com.datatorrent.lib.math.QuotientMap}<p>
  *
  */
 public class QuotientMapBenchmark

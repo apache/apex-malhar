@@ -2,15 +2,16 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.demos.yahoofinance;
+package com.datatorrent.demos.yahoofinance;
 
 import au.com.bytecode.opencsv.CSVReader;
+
+import com.datatorrent.lib.util.KeyValPair;
 import com.malhartech.api.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.annotation.ShipContainingJars;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DefaultOutputPort;
 import com.malhartech.api.InputOperator;
-import com.malhartech.lib.util.KeyValPair;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;

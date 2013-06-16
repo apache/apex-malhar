@@ -2,7 +2,7 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.codec;
+package com.datatorrent.lib.codec;
 
 import java.io.*;
 

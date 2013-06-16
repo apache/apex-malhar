@@ -1,11 +1,12 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.math;
+package com.datatorrent.lib.math;
 
+import com.datatorrent.lib.math.RangeKeyVal;
+import com.datatorrent.lib.util.HighLow;
+import com.datatorrent.lib.util.KeyValPair;
 import com.malhartech.api.Sink;
-import com.malhartech.lib.util.HighLow;
-import com.malhartech.lib.util.KeyValPair;
 import com.malhartech.tuple.Tuple;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -14,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.RangeKeyVal}<p>
+ * Functional tests for {@link com.datatorrent.lib.math.RangeKeyVal}<p>
  *
  */
 public class RangeKeyValTest

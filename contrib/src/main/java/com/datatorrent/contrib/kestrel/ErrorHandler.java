@@ -19,7 +19,7 @@
  *
  * @author Dan Zivkovic <zivkovic@apple.com>
  */
-package com.malhartech.contrib.kestrel;
+package com.datatorrent.contrib.kestrel;
 
 public interface ErrorHandler {
 

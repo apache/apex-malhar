@@ -1,18 +1,18 @@
-package com.malhartech.lib.samplecode.math;
+package com.datatorrent.lib.samplecode.math;
 
 import org.apache.hadoop.conf.Configuration;
 
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.math.Sum;
+import com.datatorrent.lib.testbench.RandomEventGenerator;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DAG;
-import com.malhartech.lib.io.ConsoleOutputOperator;
-import com.malhartech.lib.math.Sum;
-import com.malhartech.lib.testbench.RandomEventGenerator;
 
 /**
  *  * This sample application code for showing sample usage of malhar operator(s). <br>
  * <b>Operator : </b> Sum <br>
- * <bClass : </b> com.malhartech.lib.math.Sum
+ * <bClass : </b> com.datatorrent.lib.math.Sum
  * Sum operator is partitioned into 4 operator, partitioning is allowed on this operator. <br>
  *
  * @author Dinesh Prasad(dinesh@malhar-inc.com)

@@ -2,7 +2,7 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.util;
+package com.datatorrent.lib.util;
 
 import java.util.HashMap;
 import org.apache.commons.lang.mutable.MutableInt;

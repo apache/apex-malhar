@@ -1,4 +1,4 @@
-package com.malhartech.lib.samplecode.math;
+package com.datatorrent.lib.samplecode.math;
 
 import java.util.HashMap;
 import java.util.Map;

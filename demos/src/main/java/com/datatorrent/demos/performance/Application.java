@@ -2,7 +2,7 @@
  * Copyright (c) 2012-2012 Malhar, Inc.
  * All rights reserved.
  */
-package com.malhartech.demos.performance;
+package com.datatorrent.demos.performance;
 
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.Context.PortContext;

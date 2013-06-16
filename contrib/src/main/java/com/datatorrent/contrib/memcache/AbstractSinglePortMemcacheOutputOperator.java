@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.contrib.memcache;
+package com.datatorrent.contrib.memcache;
 
 import com.malhartech.api.DefaultInputPort;
 

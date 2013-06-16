@@ -1,8 +1,9 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.math;
+package com.datatorrent.lib.math;
 
+import com.datatorrent.lib.math.Change;
 import com.malhartech.engine.TestSink;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -11,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.Change}. <p>
+ * Functional tests for {@link com.datatorrent.lib.math.Change}. <p>
  *
  */
 public class ChangeTest

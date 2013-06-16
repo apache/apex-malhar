@@ -2,16 +2,18 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.math;
+package com.datatorrent.lib.math;
 
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.lib.math.RunningAverage;
+
 /**
  *
- * Functional tests for {@link com.malhartech.lib.math.RunningAverage}<p>
+ * Functional tests for {@link com.datatorrent.lib.math.RunningAverage}<p>
  *
  * @author Chetan Narsude <chetan@malhar-inc.com>
  */

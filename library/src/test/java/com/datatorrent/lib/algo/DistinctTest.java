@@ -1,15 +1,17 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.algo;
+package com.datatorrent.lib.algo;
 
-import com.malhartech.lib.testbench.HashTestSink;
+import com.datatorrent.lib.algo.Distinct;
+import com.datatorrent.lib.testbench.HashTestSink;
+
 import junit.framework.Assert;
 import org.junit.Test;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.algo.Distinct<p>
+ * Functional tests for {@link com.datatorrent.lib.algo.Distinct<p>
  *
  */
 public class DistinctTest

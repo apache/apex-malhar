@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.script;
+package com.datatorrent.lib.script;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,11 +10,12 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import com.datatorrent.lib.script.BashOperator;
 import com.malhartech.engine.TestSink;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.script.BashOperator}. <p>
+ * Functional tests for {@link com.datatorrent.lib.script.BashOperator}. <p>
  * @author Dinesh Prasad (dinesh@malhar-inc.com)
  *
  */

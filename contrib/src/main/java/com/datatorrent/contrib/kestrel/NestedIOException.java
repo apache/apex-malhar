@@ -15,7 +15,7 @@
  *
  * @author Kevin A. Burton <burton@peerfear.org> 
  */
-package com.malhartech.contrib.kestrel;
+package com.datatorrent.contrib.kestrel;
 
 import java.io.*;
 

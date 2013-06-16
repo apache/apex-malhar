@@ -1,9 +1,11 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.algo;
+package com.datatorrent.lib.algo;
 
-import com.malhartech.lib.testbench.CountTestSink;
+import com.datatorrent.lib.algo.FilterValues;
+import com.datatorrent.lib.testbench.CountTestSink;
+
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
@@ -13,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.algo.FilterValues}<p>
+ * Performance tests for {@link com.datatorrent.lib.algo.FilterValues}<p>
  *
  */
 public class FilterValuesBenchmark

@@ -2,7 +2,7 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.chart;
+package com.datatorrent.lib.chart;
 
 import com.malhartech.api.Context.PortContext;
 import com.malhartech.api.DefaultOutputPort;

@@ -1,8 +1,9 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.algo;
+package com.datatorrent.lib.algo;
 
+import com.datatorrent.lib.algo.UniqueCounterValue;
 import com.malhartech.engine.TestSink;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -11,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.algo.UniqueCounterValue}<p>
+ * Functional tests for {@link com.datatorrent.lib.algo.UniqueCounterValue}<p>
  *
  */
 public class UniqueCounterValueTest

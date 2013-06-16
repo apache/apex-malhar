@@ -1,4 +1,4 @@
-package com.malhartech.lib.script;
+package com.datatorrent.lib.script;
 
 public interface ScriptOperator
 {

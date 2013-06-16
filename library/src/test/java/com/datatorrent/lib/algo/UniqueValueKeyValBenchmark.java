@@ -1,10 +1,11 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.algo;
+package com.datatorrent.lib.algo;
 
+import com.datatorrent.lib.algo.UniqueValueKeyVal;
+import com.datatorrent.lib.util.KeyValPair;
 import com.malhartech.engine.TestSink;
-import com.malhartech.lib.util.KeyValPair;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -13,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.algo.UniqueValueKeyVal}<p>
+ * Performance tests for {@link com.datatorrent.lib.algo.UniqueValueKeyVal}<p>
  *
  */
 public class UniqueValueKeyValBenchmark

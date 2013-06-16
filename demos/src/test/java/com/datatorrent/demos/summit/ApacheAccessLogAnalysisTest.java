@@ -1,11 +1,12 @@
 /*
  *  Copyright (c) 2012 Malhar, Inc. All Rights Reserved.
  */
-package com.malhartech.demos.summit;
+package com.datatorrent.demos.summit;
 
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 
+import com.datatorrent.demos.summit.ApacheAccessLogAnalaysis;
 import com.malhartech.api.LocalMode;
 /**
  * @author Dinesh Prasad (dinesh@malhar-inc.com)

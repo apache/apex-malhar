@@ -2,11 +2,11 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.lib.util;
+package com.datatorrent.lib.util;
 
+import com.datatorrent.lib.util.BaseKeyOperator;
+import com.datatorrent.lib.util.BaseKeyValueOperator;
 import com.malhartech.api.Context.OperatorContext;
-import com.malhartech.lib.util.BaseKeyOperator;
-import com.malhartech.lib.util.BaseKeyValueOperator;
 import java.util.HashMap;
 import java.util.Map;
 import javax.validation.constraints.NotNull;

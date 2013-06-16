@@ -1,9 +1,11 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.algo;
+package com.datatorrent.lib.algo;
 
-import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
+import com.datatorrent.lib.algo.UniqueCounter;
+import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.algo.UniqueCounter}<p>
+ * Functional tests for {@link com.datatorrent.lib.algo.UniqueCounter}<p>
  *
  */
 public class UniqueCounterTest

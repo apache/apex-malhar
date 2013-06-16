@@ -1,13 +1,14 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.multiwindow;
+package com.datatorrent.lib.multiwindow;
 
+import com.datatorrent.lib.math.MinMap;
+import com.datatorrent.lib.multiwindow.AbstractSlidingWindow;
+import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 import com.malhartech.api.annotation.OutputPortFieldAnnotation;
 import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.testbench.CountAndLastTupleTestSink;
 import com.malhartech.engine.TestSink;
-import com.malhartech.lib.math.MinMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import junit.framework.Assert;
@@ -17,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Functional tests for {@link com.malhartech.lib.multiwindow.AbstractSlidingWindow}<p>
+ * Functional tests for {@link com.datatorrent.lib.multiwindow.AbstractSlidingWindow}<p>
  *
  */
 public class SlidingWindowTest

@@ -1,8 +1,9 @@
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
-package com.malhartech.lib.algo;
+package com.datatorrent.lib.algo;
 
+import com.datatorrent.lib.algo.TopN;
 import com.malhartech.engine.TestSink;
 import java.util.HashMap;
 import junit.framework.Assert;
@@ -13,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Performance tests for {@link com.malhartech.lib.algo.TopN}<p>
+ * Performance tests for {@link com.datatorrent.lib.algo.TopN}<p>
  *
  */
 public class TopNBenchmark

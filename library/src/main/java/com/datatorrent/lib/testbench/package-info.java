@@ -5,8 +5,8 @@
  */
 
 /**
- * <b>{@link com.malhartech.lib.testbench}</b> is a library of test bench modules for reuse<p>
+ * <b>{@link com.datatorrent.lib.testbench}</b> is a library of test bench modules for reuse<p>
  * <br>
  */
 
-package com.malhartech.lib.testbench;
+package com.datatorrent.lib.testbench;

@@ -2,19 +2,19 @@
  * Copyright (c) 2012-2012 Malhar, Inc.
  * All rights reserved.
  */
-package com.malhartech.demos.mobile;
+package com.datatorrent.demos.mobile;
 
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
+import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
+import com.datatorrent.lib.io.SmtpOutputOperator;
+import com.datatorrent.lib.testbench.RandomEventGenerator;
+import com.datatorrent.lib.util.Alert;
 import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
 import com.malhartech.api.ApplicationFactory;
 import com.malhartech.api.Context.OperatorContext;
 import com.malhartech.api.DAG;
-import com.malhartech.lib.io.ConsoleOutputOperator;
-import com.malhartech.lib.io.PubSubWebSocketInputOperator;
-import com.malhartech.lib.io.PubSubWebSocketOutputOperator;
-import com.malhartech.lib.io.SmtpOutputOperator;
-import com.malhartech.lib.testbench.RandomEventGenerator;
-import com.malhartech.lib.util.Alert;
 
 import java.net.URI;
 
@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 public class ApplicationAlert implements ApplicationFactory
 {
   private static final Logger LOG = LoggerFactory.getLogger(ApplicationAlert.class);
-  public static final String P_phoneRange = com.malhartech.demos.mobile.Application.class.getName() + ".phoneRange";
+  public static final String P_phoneRange = com.datatorrent.demos.mobile.Application.class.getName() + ".phoneRange";
   private Range<Integer> phoneRange = Ranges.closed(9900000, 9999999);
 
   private void configure(DAG dag, Configuration conf)

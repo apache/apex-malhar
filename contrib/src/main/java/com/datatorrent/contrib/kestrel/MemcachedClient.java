@@ -15,7 +15,7 @@
  *
  * @author Greg Whalin <greg@meetup.com>
  */
-package com.malhartech.contrib.kestrel;
+package com.datatorrent.contrib.kestrel;
 
 import java.util.*;
 import java.util.zip.*;

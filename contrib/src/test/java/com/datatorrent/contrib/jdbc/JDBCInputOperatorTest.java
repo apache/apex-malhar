@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.malhartech.contrib.jdbc;
+package com.datatorrent.contrib.jdbc;
 
+import com.datatorrent.contrib.jdbc.JDBCInputOperator;
 import com.malhartech.engine.OperatorContext;
 import com.malhartech.engine.TestSink;
 import java.sql.*;

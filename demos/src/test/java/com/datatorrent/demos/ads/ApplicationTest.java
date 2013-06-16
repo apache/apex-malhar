@@ -2,8 +2,9 @@
  * Copyright (c) 2012-2012 Malhar, Inc.
  * All rights reserved.
  */
-package com.malhartech.demos.ads;
+package com.datatorrent.demos.ads;
 
+import com.datatorrent.demos.ads.Application;
 import com.malhartech.api.LocalMode;
 import com.malhartech.stram.DAGPropertiesBuilder;
 import com.malhartech.stram.StramLocalCluster;

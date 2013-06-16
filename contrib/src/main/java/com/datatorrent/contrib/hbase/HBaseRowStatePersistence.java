@@ -2,7 +2,7 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.malhartech.contrib.hbase;
+package com.datatorrent.contrib.hbase;
 
 import java.io.IOException;
 import org.apache.hadoop.hbase.HColumnDescriptor;

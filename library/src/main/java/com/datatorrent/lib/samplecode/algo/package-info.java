@@ -5,9 +5,9 @@
  */
 
 /**
- * <b>{@link com.malhartech.lib.samplecode.algo}</b> is a library of examples of usage of algorithmic operators<p>
+ * <b>{@link com.datatorrent.lib.samplecode.algo}</b> is a library of examples of usage of algorithmic operators<p>
  * <br>
  * <br>
  */
 
-package com.malhartech.lib.samplecode.algo;
+package com.datatorrent.lib.samplecode.algo;

@@ -5,8 +5,8 @@
  */
 
 /**
- * <b>{@link com.malhartech.lib.logs}</b> is a library operators for log line processing<p>
+ * <b>{@link com.datatorrent.lib.logs}</b> is a library operators for log line processing<p>
  * <br>
  */
 
-package com.malhartech.lib.logs;
+package com.datatorrent.lib.logs;
