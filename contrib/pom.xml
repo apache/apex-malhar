@@ -105,6 +105,13 @@
       <version>0.1</version>
     </dependency>
     <dependency>
+      <!-- TODO: ensure tests work with 3.4.2 and remove -->
+      <groupId>org.apache.zookeeper</groupId>
+      <artifactId>zookeeper</artifactId>
+      <version>3.3.3</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>com.almworks.sqlite4java</groupId>
       <artifactId>sqlite4java</artifactId>
       <version>0.282</version>
