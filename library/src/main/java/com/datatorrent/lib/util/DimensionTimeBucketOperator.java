@@ -75,15 +75,6 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
               field = String.valueOf(i + 1);
               Object value = tuple.get(valueKeyName);
               Number numberValue = extractNumber(valueKeyName, value);
-              key = "";
-              if (dimensionCombination != null) {
-                for (int d : dimensionCombination) {
-                  if (!key.isEmpty()) {
-                    key += "|";
-                  }
-                  key += String.valueOf(d) + ":" + tuple.get(dimensionKeyNames.get(d)).toString();
-                }
-              }
               DimensionTimeBucketOperator.this.process(timeBucket, key, field, numberValue);
             }
           }
@@ -95,6 +86,7 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
     }
 
   };
+
   /**
    * First String key is the bucket
    * Second String key is the key
