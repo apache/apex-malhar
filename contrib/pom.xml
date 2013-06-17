@@ -103,6 +103,7 @@
       <groupId>com.github.sgroschupf</groupId>
       <artifactId>zkclient</artifactId>
       <version>0.1</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <!-- TODO: ensure tests work with 3.4.2 and remove -->
