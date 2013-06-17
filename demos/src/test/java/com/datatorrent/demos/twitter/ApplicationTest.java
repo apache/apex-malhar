@@ -35,13 +35,12 @@ public class ApplicationTest
    *
    * @throws Exception
    */
-  @Ignore
   @Test
   public void testApplication() throws Exception
   {
     LocalMode lma = LocalMode.newInstance();
     new TwitterTopCounterApplication().populateDAG(lma.getDAG(), new Configuration(false));
     LocalMode.Controller lc = lma.getController();
-    lc.run(10000);
+    lc.run(120000);
   }
 }

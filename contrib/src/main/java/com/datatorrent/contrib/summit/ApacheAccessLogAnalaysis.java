@@ -1,7 +1,7 @@
 /*
  *  Copyright (c) 2012 Malhar, Inc. All Rights Reserved.
  */
-package com.datatorrent.demos.summit;
+package com.datatorrent.contrib.summit;
 
 import java.net.URI;
 import java.util.Map;
