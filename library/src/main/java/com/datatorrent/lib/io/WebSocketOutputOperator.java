@@ -63,6 +63,7 @@ public class WebSocketOutputOperator<T> extends BaseOperator
       }
       catch (IOException ex) {
         LOG.error("error sending message through web socket", ex);
+        throw new RuntimeException(ex);
       }
     }
 
