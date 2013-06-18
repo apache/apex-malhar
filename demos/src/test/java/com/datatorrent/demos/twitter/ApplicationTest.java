@@ -7,11 +7,7 @@ package com.datatorrent.demos.twitter;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.demos.twitter.TwitterSampleInput;
 import com.datatorrent.demos.twitter.TwitterTopCounterApplication;
-import com.datatorrent.stram.DAGPropertiesBuilder;
-import com.datatorrent.stram.StramLocalCluster;
-import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -19,16 +15,6 @@ import org.junit.Test;
  */
 public class ApplicationTest
 {
-  @Ignore
-  @Test
-  public void testPropertiesConfig() throws IOException, Exception
-  {
-    String tplgFile = "src/main/resources/ctrapp.tplg.properties";
-    StramLocalCluster lc = new StramLocalCluster(DAGPropertiesBuilder.create(new Configuration(false), tplgFile));
-    lc.setHeartbeatMonitoringEnabled(false);
-    lc.run();
-  }
-
   /**
    * This test requires twitter authentication setup and is skipped by default
    * (see {@link TwitterSampleInput}).

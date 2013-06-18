@@ -6,8 +6,6 @@ package com.datatorrent.demos.ads;
 
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.demos.ads.Application;
-import com.datatorrent.stram.DAGPropertiesBuilder;
-import com.datatorrent.stram.StramLocalCluster;
 import java.io.IOException;
 import javax.validation.ConstraintViolationException;
 import junit.framework.Assert;
@@ -20,15 +18,6 @@ import org.junit.Test;
  * Test the DAG declaration in local mode.
  */
 public class ApplicationTest {
-
-  @Ignore
-  @Test
-  public void testPropertiesConfig() throws IOException, Exception {
-    String tplgFile = "src/main/resources/ctr.app.properties";
-    StramLocalCluster lc = new StramLocalCluster(DAGPropertiesBuilder.create(new Configuration(false), tplgFile));
-    lc.setHeartbeatMonitoringEnabled(false);
-    lc.run();
-  }
 
   @Test
   public void testJavaConfig() throws IOException, Exception {
