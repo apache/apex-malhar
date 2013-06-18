@@ -4,15 +4,15 @@
  */
 package com.datatorrent.lib.io;
 
+import java.util.Iterator;
+import java.util.concurrent.ArrayBlockingQueue;
+
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
 /**
- * Base class for input operator with a single output port without recovery.
+ * A simple Base class for input operator with a single output port without recovery.
  * <p>
  * Handles hand over from asynchronous input to port processing thread (tuples
  * must be emitted by container thread). If derived class implements
@@ -23,19 +23,21 @@ public class SimpleSinglePortInputOperator<T> extends BaseOperator implements In
 {
   private transient Thread ioThread;
   private transient boolean isActive = false;
-
-  private transient int windowWidth;
   /**
    * The single output port of this input operator.
    * Collects asynchronously emitted tuples and flushes in container thread.
    */
   @OutputPortFieldAnnotation(name = "outputPort")
-  final public transient BufferingOutputPort<T> outputPort = new BufferingOutputPort<T>(this);
+  final public transient BufferingOutputPort<T> outputPort;
 
-  @Override
-  public void setup(OperatorContext context)
+  public SimpleSinglePortInputOperator(int portCapacity)
   {
-    windowWidth = context.attrValue(DAG.STREAMING_WINDOW_SIZE_MILLIS, 500);
+    outputPort = new BufferingOutputPort<T>(this, portCapacity);
+  }
+
+  public SimpleSinglePortInputOperator()
+  {
+    this(1024);
   }
 
   @Override
@@ -71,7 +73,7 @@ public class SimpleSinglePortInputOperator<T> extends BaseOperator implements In
 
   public static class BufferingOutputPort<T> extends DefaultOutputPort<T>
   {
-    public ArrayList<T> tuples = new ArrayList<T>();
+    public final ArrayBlockingQueue<T> tuples;
 
     /**
      * @param operator
@@ -79,12 +81,24 @@ public class SimpleSinglePortInputOperator<T> extends BaseOperator implements In
     public BufferingOutputPort(Operator operator)
     {
       super(operator);
+      tuples = new ArrayBlockingQueue<T>(1024);
+    }
+
+    public BufferingOutputPort(Operator operator, int capacity)
+    {
+      super(operator);
+      tuples = new ArrayBlockingQueue<T>(capacity);
     }
 
     @Override
     public synchronized void emit(T tuple)
     {
-      tuples.add(tuple);
+      try {
+        tuples.put(tuple);
+      }
+      catch (InterruptedException ex) {
+        throw new RuntimeException(ex);
+      }
     }
 
     public synchronized void flush(int count)
@@ -95,5 +109,7 @@ public class SimpleSinglePortInputOperator<T> extends BaseOperator implements In
         iterator.remove();
       }
     }
+
   };
+
 }
