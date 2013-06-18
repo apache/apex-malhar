@@ -9,7 +9,9 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 
 /**
- *
+ * This operator implements Monte Carlo estimation of pi. For points randomly distributed points on 
+ * square circle. pi ~= Number of poiints i  circle/Total number of points.
+ *  
  * @author Zhongjian Wang <zhongjian@malhar-inc.com>
  */
 public class PiCalculateOperator extends BaseOperator
