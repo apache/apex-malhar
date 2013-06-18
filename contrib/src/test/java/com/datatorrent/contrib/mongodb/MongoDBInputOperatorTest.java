@@ -4,17 +4,13 @@
  */
 package com.datatorrent.contrib.mongodb;
 
-import com.datatorrent.contrib.mongodb.MongoDBInputOperator;
-import com.datatorrent.engine.OperatorContext;
-import com.datatorrent.engine.TestSink;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAGContext;
-import com.datatorrent.api.AttributeMap;
-import com.datatorrent.api.AttributeMap.DefaultAttributeMap;
-import com.mongodb.DBCursor;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.engine.TestSink;
+import com.mongodb.DBCursor;
 
 /**
  *

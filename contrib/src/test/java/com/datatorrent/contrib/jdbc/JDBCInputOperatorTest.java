@@ -4,15 +4,15 @@
  */
 package com.datatorrent.contrib.jdbc;
 
-import com.datatorrent.contrib.jdbc.JDBCInputOperator;
-import com.datatorrent.engine.OperatorContext;
-import com.datatorrent.engine.TestSink;
-
 import java.sql.*;
 import junit.framework.Assert;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.engine.OperatorContext;
+import com.datatorrent.engine.TestSink;
 
 /**
  *

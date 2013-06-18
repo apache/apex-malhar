@@ -4,18 +4,14 @@
  */
 package com.datatorrent.contrib.jdbc;
 
-import com.datatorrent.contrib.jdbc.JDBCNonTransactionArrayListOutputOperator;
-import com.datatorrent.contrib.jdbc.JDBCNonTransactionHashMapOutputOperator;
-import com.datatorrent.contrib.jdbc.JDBCOutputOperator;
-import com.datatorrent.contrib.jdbc.JDBCTransactionArrayListOutputOperator;
-import com.datatorrent.contrib.jdbc.JDBCTransactionHashMapOutputOperator;
-import com.datatorrent.contrib.jdbc.JDBCTransactionOutputOperator;
-import com.datatorrent.engine.OperatorContext;
-import com.datatorrent.bufferserver.util.Codec;
 import junit.framework.Assert;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.bufferserver.util.Codec;
+import com.datatorrent.engine.OperatorContext;
 
 /**
  *
