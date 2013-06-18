@@ -16,8 +16,7 @@
   <url>http://maven.apache.org</url>
 
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <netbeans.hint.license>malhar-inc</netbeans.hint.license>
+    <maven.deploy.skip>false</maven.deploy.skip>
     <test.excludedGroups>com.datatorrent.annotation.PerformanceTestCategory</test.excludedGroups>
   </properties>
 
