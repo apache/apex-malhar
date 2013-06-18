@@ -96,11 +96,11 @@ public class RomeSyndicationOperatorTest
     {
       InputStream is;
       if (index == 0) {
-        is = getClass().getResourceAsStream("/com/malhartech/contrib/romesyndication/cnn_topstories.rss");
+        is = getClass().getResourceAsStream("/com/datatorrent/contrib/romesyndication/cnn_topstories.rss");
         ++index;
       }
       else {
-        is = getClass().getResourceAsStream("/com/malhartech/contrib/romesyndication/cnn_topstories_updated.rss");
+        is = getClass().getResourceAsStream("/com/datatorrent/contrib/romesyndication/cnn_topstories_updated.rss");
       }
       return is;
     }

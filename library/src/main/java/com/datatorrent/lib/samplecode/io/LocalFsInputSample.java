@@ -28,7 +28,7 @@ public class LocalFsInputSample implements StreamingApplication
 		LocalFsInputOperator reader = dag.addOperator("reader",
 				LocalFsInputOperator.class);
 		reader
-				.setFilePath("src/main/resources/com/malhartech/demos/wordcount/samplefile.txt");
+				.setFilePath("src/main/resources/com/datatorrent/demos/wordcount/samplefile.txt");
 		reader.setSleepInterval(1000);
 
 		// Connect to output console operator

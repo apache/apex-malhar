@@ -23,7 +23,7 @@ public class WordCountInputOperator extends SimpleSinglePortInputOperator<String
     private static final Logger logger = LoggerFactory.getLogger(WordCountInputOperator.class);
     protected long averageSleep = 300;
     protected long sleepPlusMinus = 100;
-    protected String fileName = "src/main/resources/com/malhartech/demos/wordcount/samplefile.txt";
+    protected String fileName = "src/main/resources/com/datatorrent/demos/wordcount/samplefile.txt";
     private transient BufferedReader br;
     private transient DataInputStream in;
 

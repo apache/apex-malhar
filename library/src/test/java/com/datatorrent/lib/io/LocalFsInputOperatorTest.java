@@ -15,7 +15,7 @@ import org.junit.Test;
 public class LocalFsInputOperatorTest
 {
 	// Sample text file path.
-	protected String fileName = "../demos/src/main/resources/com/malhartech/demos/wordcount/samplefile.txt";
+	protected String fileName = "../demos/src/main/resources/com/datatorrent/demos/wordcount/samplefile.txt";
 	
 	@Test
 	public void testFileRead()

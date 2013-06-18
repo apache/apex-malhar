@@ -40,8 +40,8 @@ import org.apache.hadoop.conf.Configuration;
  * Output(s): <br>
  * Output values are written to console through ConsoleOutputOerator<br>
  * if you need to change write to HDFS,HTTP .. instead of console, <br>
- * Please refer to {@link com.malhartech.lib.io.HttpOutputOperator} or
- * {@link com.malhartech.lib.io.HdfsOutputOperator}. <br>
+ * Please refer to {@link com.datatorrent.lib.io.HttpOutputOperator} or
+ * {@link com.datatorrent.lib.io.HdfsOutputOperator}. <br>
  * <br>
  * 
  * Run Sample Application : <br>
@@ -76,15 +76,15 @@ import org.apache.hadoop.conf.Configuration;
  * Operator Details : <br>
  * <ul>
  *    <li><p><b> The idAge Operator : </b> Generates map for id/age values after 100ms sleep interval.<br>
- *     Class : {@link com.malhartech.demos.groupby.IdAgeInputOperator} <br>
+ *     Class : {@link com.datatorrent.demos.groupby.IdAgeInputOperator} <br>
  *     State Less : Yes, window size 1.
  *    </li> 
  *    <li><p><b> The idName Operator : </b> Generates map for id/name values after 100ms sleep interval.<br>
- *     Class : {@link com.malhartech.demos.groupby.IdNameInputOperator} <br>
+ *     Class : {@link com.datatorrent.demos.groupby.IdNameInputOperator} <br>
  *     State Less : Yes, window size 1.
  *    </li> 
  *    <li><p><b> The groupBy Operator : </b> Generates map for id/age/name  grouped by key 'id'. <br>
- *     Class : {@link com.malhartech.lib.algo.GroupBy} <br>
+ *     Class : {@link com.datatorrent.lib.algo.GroupBy} <br>
  *     State Full : Yes, input streams are aggregated acroos window.
  *    </li> 
  *    <li><p><b> The consoleOperator Operator : </b> Prints output to console. </li>
