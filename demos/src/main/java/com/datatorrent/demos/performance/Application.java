@@ -16,15 +16,16 @@ import org.apache.hadoop.conf.Configuration;
 public class Application implements StreamingApplication
 {
   private static final boolean inline = false;
+  public static final int QUEUE_CAPACITY = 32 * 1024;
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
     RandomWordInputModule wordGenerator = dag.addOperator("wordGenerator", RandomWordInputModule.class);
-    dag.getMeta(wordGenerator).getMeta(wordGenerator.output).getAttributes().attr(PortContext.QUEUE_CAPACITY).set(32 * 1024);
+    dag.getMeta(wordGenerator).getMeta(wordGenerator.output).getAttributes().attr(PortContext.QUEUE_CAPACITY).set(QUEUE_CAPACITY);
 
     WordCountOperator<byte[]> counter = dag.addOperator("counter", new WordCountOperator<byte[]>());
-    dag.getMeta(counter).getMeta(counter.input).getAttributes().attr(PortContext.QUEUE_CAPACITY).set(32 * 1024);
+    dag.getMeta(counter).getMeta(counter.input).getAttributes().attr(PortContext.QUEUE_CAPACITY).set(QUEUE_CAPACITY);
 
     dag.addStream("Generator2Counter", wordGenerator.output, counter.input).setInline(inline);
   }
