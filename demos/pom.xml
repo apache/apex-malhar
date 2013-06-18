@@ -11,10 +11,6 @@
   <artifactId>malhar-demos</artifactId>
   <name>Demos</name>
   <packaging>jar</packaging>
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <netbeans.hint.license>malhar-inc</netbeans.hint.license>
-  </properties>
 
   <dependencies>
     <dependency>

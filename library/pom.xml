@@ -16,7 +16,6 @@
   <url>http://maven.apache.org</url>
 
   <properties>
-    <maven.deploy.skip>false</maven.deploy.skip>
     <test.excludedGroups>com.datatorrent.annotation.PerformanceTestCategory</test.excludedGroups>
   </properties>
 

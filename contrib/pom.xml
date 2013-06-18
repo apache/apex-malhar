@@ -12,8 +12,8 @@
   <name>Contrib (with embedded dependencies)</name>
 
   <properties>
-    <maven.deploy.skip>false</maven.deploy.skip>
-    <module.contrib.test.skip>true</module.contrib.test.skip>
+    <!-- skip tests by default as they depend on manual setup -->
+    <skip.contrib.module.tests>true</skip.contrib.module.tests>
   </properties>
 
   <build>
