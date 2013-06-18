@@ -4,10 +4,10 @@
  */
 package com.datatorrent.lib.io;
 
+import com.datatorrent.daemon.Daemon;
 import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
 import com.datatorrent.stram.util.SamplePubSubWebSocketPublisher;
-import com.malhartech.daemon.Daemon;
 import java.net.URI;
 import java.util.Map;
 import junit.framework.Assert;

@@ -4,12 +4,12 @@
  */
 package com.datatorrent.lib.io;
 
+import com.datatorrent.daemon.Daemon;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 import com.datatorrent.stram.support.StramTestSupport;
 import com.datatorrent.stram.support.StramTestSupport.WaitCondition;
 import com.datatorrent.stram.util.SamplePubSubWebSocketPublisher;
 import com.datatorrent.stram.util.SamplePubSubWebSocketSubscriber;
-import com.malhartech.daemon.Daemon;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
