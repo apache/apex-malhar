@@ -32,8 +32,8 @@ public class InputGenerator implements InputOperator
   private int blastCount = 10000;
   private Random random = new Random();
 
-  private static final int dimSelect[][] = { {0, 0, 1}, {0, 1, 0}, {1, 0, 0}, {0, 1, 1}, {1, 0, 1}, {1, 1, 0}, {1, 1, 1} };
-  private static final int dimSelLen = 7;
+  private static final int dimSelect[][] = { {0, 0, 0}, {0, 0, 1}, {0, 1, 0}, {1, 0, 0}, {0, 1, 1}, {1, 0, 1}, {1, 1, 0}, {1, 1, 1} };
+  private static final int dimSelLen = 8;
 
   @OutputPortFieldAnnotation(name = "outputPort")
   public final transient DefaultOutputPort<AdInfo> outputPort = new DefaultOutputPort<AdInfo>(this);
