@@ -4,8 +4,6 @@
  */
 package com.datatorrent.contrib.summit.ads;
 
-import com.datatorrent.contrib.summit.ads.AggrKey;
-import com.datatorrent.contrib.summit.ads.AdInfo;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAGContext;
@@ -13,8 +11,6 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.common.util.Pair;
-import com.datatorrent.lib.util.TimeBucketKey;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;

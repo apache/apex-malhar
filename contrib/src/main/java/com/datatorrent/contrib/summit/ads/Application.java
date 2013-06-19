@@ -4,7 +4,6 @@
  */
 package com.datatorrent.contrib.summit.ads;
 
-import com.datatorrent.contrib.summit.ads.AggrKey;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
