@@ -8,6 +8,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
@@ -30,12 +31,22 @@ public class TimeBucketKey
   public static final int TIMESPEC_HOUR_SPEC = TIMESPEC_DAY_SPEC | TIMESPEC_HOUR;
   public static final int TIMESPEC_MINUTE_SPEC = TIMESPEC_HOUR_SPEC | TIMESPEC_MINUTE;
 
-  private static final DateFormat yearDateFormat = new SimpleDateFormat("'Y|'yyyy");
-  private static final DateFormat monthDateFormat = new SimpleDateFormat("'M|'yyyyMM");
-  private static final DateFormat weekDateFormat = new SimpleDateFormat("'W|'yyyyww");
-  private static final DateFormat dayDateFormat = new SimpleDateFormat("'D|'yyyyMMdd");
-  private static final DateFormat hourDateFormat = new SimpleDateFormat("'h|'yyyyMMddHH");
-  private static final DateFormat minuteDateFormat = new SimpleDateFormat("'m|'yyyyMMddHHmm");
+  private static DateFormat yearDateFormat = new SimpleDateFormat("'Y|'yyyy");
+  private static DateFormat monthDateFormat = new SimpleDateFormat("'M|'yyyyMM");
+  private static DateFormat weekDateFormat = new SimpleDateFormat("'W|'yyyyww");
+  private static DateFormat dayDateFormat = new SimpleDateFormat("'D|'yyyyMMdd");
+  private static DateFormat hourDateFormat = new SimpleDateFormat("'h|'yyyyMMddHH");
+  private static DateFormat minuteDateFormat = new SimpleDateFormat("'m|'yyyyMMddHHmm");
+
+  static {
+    TimeZone tz = TimeZone.getTimeZone("GMT");
+    yearDateFormat.setTimeZone(tz);
+    monthDateFormat.setTimeZone(tz);
+    weekDateFormat.setTimeZone(tz);
+    dayDateFormat.setTimeZone(tz);
+    hourDateFormat.setTimeZone(tz);
+    minuteDateFormat.setTimeZone(tz);
+  }
 
   private Calendar time;
   private int timeSpec;
@@ -156,8 +167,5 @@ public class TimeBucketKey
     }
     return null;
   }
-
-
-
 
 }
