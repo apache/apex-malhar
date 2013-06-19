@@ -15,6 +15,7 @@ import com.datatorrent.lib.util.KeyValPair;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 import org.apache.commons.lang.mutable.MutableDouble;
 
 /**
@@ -28,6 +29,8 @@ public class BucketOperator extends BaseOperator
   private long currentWindowId;
 
   private HashMap<AggrKey, Map<String, MutableDouble>> aggrMap;
+  private transient TimeZone timezone = TimeZone.getTimeZone("GMT");
+  private transient Calendar calendar = Calendar.getInstance(timezone);
 
   @OutputPortFieldAnnotation(name = "outputPort", optional = false)
   public final transient DefaultOutputPort<KeyValPair<AggrKey, Map<String, MutableDouble>>> outputPort = new DefaultOutputPort<KeyValPair<AggrKey, Map<String, MutableDouble>>>(this);
@@ -75,7 +78,6 @@ public class BucketOperator extends BaseOperator
     @Override
     public void process(AdInfo tuple)
     {
-      Calendar calendar = Calendar.getInstance();
       calendar.setTimeInMillis(tuple.getTimestamp());
       int key = tuple.getKey();
       boolean isClick = ((key & AdInfo.CLICK) != 0);
