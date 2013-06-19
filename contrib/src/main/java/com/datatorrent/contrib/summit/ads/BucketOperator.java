@@ -11,6 +11,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.common.util.Pair;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +30,7 @@ public class BucketOperator extends BaseOperator
   private HashMap<AggrKey, Map<String, MutableDouble>> aggrMap;
 
   @OutputPortFieldAnnotation(name = "outputPort", optional = false)
-  public final transient DefaultOutputPort<Map<AggrKey, Map<String, MutableDouble>>> outputPort = new DefaultOutputPort<Map<AggrKey, Map<String, MutableDouble>>>(this);
+  public final transient DefaultOutputPort<Pair<AggrKey, Map<String, MutableDouble>>> outputPort = new DefaultOutputPort<Pair<AggrKey, Map<String, MutableDouble>>>(this);
 
   @Override
   public void setup(OperatorContext context)
@@ -51,9 +52,10 @@ public class BucketOperator extends BaseOperator
   {
     //outputPort.emit(aggrMap);
     for (Map.Entry<AggrKey, Map<String, MutableDouble>> entry : aggrMap.entrySet()) {
-      Map<AggrKey, Map<String, MutableDouble>> map = new HashMap<AggrKey, Map<String, MutableDouble>>();
-      map.put(entry.getKey(), entry.getValue());
-      outputPort.emit(map);
+      //Map<AggrKey, Map<String, MutableDouble>> map = new HashMap<AggrKey, Map<String, MutableDouble>>();
+      //map.put(entry.getKey(), entry.getValue());
+      //outputPort.emit(map);
+      outputPort.emit(new Pair(entry.getKey(), entry.getValue()));
     }
   }
 

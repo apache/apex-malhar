@@ -32,7 +32,7 @@ public class Application implements StreamingApplication
     dag.setInputPortAttribute(redis.input, PortContext.QUEUE_CAPACITY, 32 * 1024);
 
     dag.addStream("ingen", in.outputPort, bop.inputPort).setInline(true);
-    dag.addStream("store", bop.outputPort, redis.input);
+    dag.addStream("store", bop.outputPort, redis.inputInd);
 
   }
 

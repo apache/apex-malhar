@@ -6,6 +6,7 @@ package com.datatorrent.contrib.redis;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import org.apache.commons.lang.mutable.MutableDouble;
 import org.apache.commons.lang.mutable.MutableInt;
 import org.apache.commons.lang.mutable.MutableLong;
@@ -43,55 +44,7 @@ public class RedisNumberAggregateOutputOperator<K, V> extends RedisOutputOperato
   public void process(Map<K, V> t)
   {
     for (Map.Entry<K, V> entry: t.entrySet()) {
-      K key = entry.getKey();
-      V value = entry.getValue();
-      if (value instanceof Map) {
-        Object o = dataMap.get(key);
-        if (o == null) {
-          o = new HashMap<Object, Object>();
-          dataMap.put(key, o);
-        }
-
-        if (!(o instanceof Map)) {
-          throw new RuntimeException("Values of unexpected type in data map. Expecting Map");
-        }
-        Map<Object, Object> map = (Map<Object, Object>)o;
-        for (Map.Entry<Object, Object> entry1: ((Map<Object, Object>)value).entrySet()) {
-          Object field = entry1.getKey();
-          Number oldVal = (Number)map.get(field);
-          if (oldVal == null) {
-            map.put(field, convertToNumber(entry1.getValue()));
-          }
-          else if (oldVal instanceof MutableDouble) {
-            ((MutableDouble)oldVal).add(convertToNumber(entry1.getValue()));
-          }
-          else if (oldVal instanceof MutableLong) {
-            ((MutableLong)oldVal).add(convertToNumber(entry1.getValue()));
-          }
-          else {
-            throw new RuntimeException("Values of unexpected type in data map value field type. Expecting MutableLong or MutableDouble");
-          }
-        }
-      }
-      else {
-        Number oldVal = convertToNumber(dataMap.get(key));
-        if (oldVal == null) {
-          dataMap.put(entry.getKey(), convertToNumber(value));
-        }
-        else {
-          if (oldVal instanceof MutableDouble) {
-            ((MutableDouble)oldVal).add(convertToNumber(value));
-          }
-          else if (oldVal instanceof MutableLong) {
-            ((MutableLong)oldVal).add(convertToNumber(value));
-          }
-          else {
-            // should not get here
-            throw new RuntimeException("Values of unexpected type in data map value type. Expecting MutableLong or MutableDouble");
-          }
-        }
-
-      }
+      process(entry.getKey(), entry.getValue());
     }
   }
 
@@ -121,6 +74,57 @@ public class RedisNumberAggregateOutputOperator<K, V> extends RedisOutputOperato
           redisConnection.incrbyfloat(key, Double.parseDouble(value.toString()));
         }
       }
+    }
+  }
+
+  public void process(K key, V value) throws RuntimeException
+  {
+    if (value instanceof Map) {
+      Object o = dataMap.get(key);
+      if (o == null) {
+        o = new HashMap<Object, Object>();
+        dataMap.put(key, o);
+      }
+
+      if (!(o instanceof Map)) {
+        throw new RuntimeException("Values of unexpected type in data map. Expecting Map");
+      }
+      Map<Object, Object> map = (Map<Object, Object>)o;
+      for (Map.Entry<Object, Object> entry1: ((Map<Object, Object>)value).entrySet()) {
+        Object field = entry1.getKey();
+        Number oldVal = (Number)map.get(field);
+        if (oldVal == null) {
+          map.put(field, convertToNumber(entry1.getValue()));
+        }
+        else if (oldVal instanceof MutableDouble) {
+          ((MutableDouble)oldVal).add(convertToNumber(entry1.getValue()));
+        }
+        else if (oldVal instanceof MutableLong) {
+          ((MutableLong)oldVal).add(convertToNumber(entry1.getValue()));
+        }
+        else {
+          throw new RuntimeException("Values of unexpected type in data map value field type. Expecting MutableLong or MutableDouble");
+        }
+      }
+    }
+    else {
+      Number oldVal = convertToNumber(dataMap.get(key));
+      if (oldVal == null) {
+        dataMap.put(key, convertToNumber(value));
+      }
+      else {
+        if (oldVal instanceof MutableDouble) {
+          ((MutableDouble)oldVal).add(convertToNumber(value));
+        }
+        else if (oldVal instanceof MutableLong) {
+          ((MutableLong)oldVal).add(convertToNumber(value));
+        }
+        else {
+          // should not get here
+          throw new RuntimeException("Values of unexpected type in data map value type. Expecting MutableLong or MutableDouble");
+        }
+      }
+
     }
   }
 

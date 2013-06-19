@@ -9,6 +9,7 @@ import com.datatorrent.api.DAGContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.common.util.Pair;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +41,19 @@ public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOper
 
   };
 
+  @InputPortFieldAnnotation(name = "ind")
+  public final transient DefaultInputPort<Pair<K, V>> inputInd = new DefaultInputPort<Pair<K, V>>(this)
+  {
+    @Override
+    public void process(Pair<K, V> t)
+    {
+      if (committedWindowId < currentWindowId) {
+        AbstractKeyValueStoreOutputOperator.this.process(t.getFirst(), t.getSecond());
+      }
+    }
+
+  };
+
   public abstract String get(String key);
 
   public abstract void put(String key, String value);
@@ -53,6 +67,11 @@ public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOper
   public void process(Map<K, V> t)
   {
     dataMap.putAll(t);
+  }
+
+  public void process(K key, V value)
+  {
+    dataMap.put(key, value);
   }
 
   @Override
