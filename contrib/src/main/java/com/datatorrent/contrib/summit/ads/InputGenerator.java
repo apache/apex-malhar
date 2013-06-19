@@ -87,7 +87,6 @@ public class InputGenerator implements InputOperator
   public void emitTuples()
   {
     try {
-      int adkey;
       long timestamp;
       for (int i = 0; i <blastCount; ++i) {
         int advertiserId = nextRandomId(numAdvertisers);
