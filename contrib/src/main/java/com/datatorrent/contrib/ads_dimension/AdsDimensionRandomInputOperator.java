@@ -78,8 +78,7 @@ public class AdsDimensionRandomInputOperator extends SimpleSinglePortInputOperat
 
         map = new HashMap<String, Object>();
         if (random.nextDouble() < expectedClickThruRate) {
-          //Thread.sleep(random.nextInt(50));
-          Thread.sleep(1);
+          Thread.sleep(random.nextInt(50));
           // generate fake click
           map.put("lineno", ++lineno);
           map.put("timestamp", System.currentTimeMillis());
@@ -92,8 +91,7 @@ public class AdsDimensionRandomInputOperator extends SimpleSinglePortInputOperat
           this.outputPort.emit(map);
           lineCount.incrementAndGet();
         }
-        //Thread.sleep(random.nextInt(100));
-        Thread.sleep(2);
+        Thread.sleep(random.nextInt(100));
       }
     }
     catch (Exception ex) {
