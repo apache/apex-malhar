@@ -89,7 +89,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
   	TimeDimensionOperator dimensionOperator = getPageDimensionTimeBucketSumOperator("Dimension", dag);
     dag.getMeta(dimensionOperator).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(10);
     dag.addStream("input_dimension", urlCounter.dimensionOut, dimensionOperator.in);
-    dag.addStream("dimension_out", dimensionOperator.out,  getRedisOutput("redis", dag, 1)).setInline(true); 
+    dag.addStream("dimension_out", dimensionOperator.out,  getRedisOutput("redis1", dag, 1)).setInline(true); 
   	
   	// format output for redix operator  
   	TopOccurance topOccur = dag.addOperator("topOccur", new TopOccurance());
@@ -97,7 +97,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
   	dag.addStream("topOccurStream", urlCounter.outport, topOccur.inport);
   	 
   	// redix output 
-  	RedisOutputOperator<Integer, String> redis = dag.addOperator("topURLs", new RedisOutputOperator<Integer, String>());
+  	RedisOutputOperator<Integer, String> redis = dag.addOperator("redis2", new RedisOutputOperator<Integer, String>());
   	redis.selectDatabase(2);
   	
   	// output to console      
@@ -115,7 +115,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
   	dag.addStream("topIpOccurStream", ipCounter.outport, topIpOccur.inport).setInline(true);
   	
   	// output  ip counter    
-  	RedisOutputOperator<Integer, String> redisIpCounter = dag.addOperator("redisIpCounter", new RedisOutputOperator<Integer, String>());
+  	RedisOutputOperator<Integer, String> redisIpCounter = dag.addOperator("redis3", new RedisOutputOperator<Integer, String>());
   	redisIpCounter.selectDatabase(3);
   	dag.addStream("topIpRedixStream", topIpOccur.outport,  redisIpCounter.input).setInline(true);
   	
@@ -128,15 +128,15 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
    	TimeDimensionOperator serverDimensionOper = getPageDimensionTimeBucketSumOperator("serverDimensionOper", dag);
     dag.getMeta(serverDimensionOper).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(10);
     dag.addStream("server_dimension", serverCounter.dimensionOut, serverDimensionOper.in).setInline(true);
-    dag.addStream("server_dimension_out", serverDimensionOper.out,  getRedisOutput("serverRedis", dag, 4)).setInline(true); 
+    dag.addStream("server_dimension_out", serverDimensionOper.out,  getRedisOutput("redis4", dag, 4)).setInline(true); 
     
     // output client more than 5 urls in sec
-    RedisOutputOperator<Integer, String> redisgt5 = dag.addOperator("redisgt5", new RedisOutputOperator<Integer, String>());
+    RedisOutputOperator<Integer, String> redisgt5 = dag.addOperator("redis5", new RedisOutputOperator<Integer, String>());
     redisgt5.selectDatabase(5);
    	dag.addStream("redisgt5Stream", topIpOccur.gtThreshHold,  redisgt5.input).setInline(true);
    	
     // output client more than 5 urls in sec
-    RedisOutputOperator<String, Integer> redisgt6 = dag.addOperator("redisgt6", new RedisOutputOperator<String, Integer>());
+    RedisOutputOperator<String, Integer> redisgt6 = dag.addOperator("redis6", new RedisOutputOperator<String, Integer>());
     redisgt6.selectDatabase(6);
    	dag.addStream("redisgt6Stream", urlCounter.total,  redisgt6.input).setInline(true);
    	
@@ -144,7 +144,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
     HttpStatusFilter urlHttpFilter = dag.addOperator("urlStatusCheck", new HttpStatusFilter());
     urlHttpFilter.setFilterStatus("404");
    	dag.addStream("urlStatusCheckStream", parser.outUrlStatus, urlHttpFilter.inport).setInline(true);
-  	RedisOutputOperator<Integer, String> redisgt7 = dag.addOperator("redisgt7", new RedisOutputOperator<Integer, String>());
+  	RedisOutputOperator<Integer, String> redisgt7 = dag.addOperator("redis7", new RedisOutputOperator<Integer, String>());
     redisgt7.selectDatabase(7);
    	dag.addStream("redisgt7Stream", urlHttpFilter.outport,  redisgt7.input).setInline(true);
    	//dag.addStream("redisgt7Stream", urlHttpFilter.outport,  consoleOutput(dag, "console")).setInline(true);
@@ -153,7 +153,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
    	HttpStatusFilter ipHttpFilter = dag.addOperator("ipHttpFilter", new HttpStatusFilter());
    	ipHttpFilter.setFilterStatus("404");
    	dag.addStream("ipHttpFilterStream", parser.outIpStatus, ipHttpFilter.inport).setInline(true);
-  	RedisOutputOperator<Integer, String> redisgt8 = dag.addOperator("redisgt8", new RedisOutputOperator<Integer, String>());
+  	RedisOutputOperator<Integer, String> redisgt8 = dag.addOperator("redis8", new RedisOutputOperator<Integer, String>());
     redisgt8.selectDatabase(8);
    	dag.addStream("redisgt8Stream", ipHttpFilter.outport,  redisgt8.input).setInline(true);
    	//dag.addStream("redisgt8Stream", parser.outIpStatus,  consoleOutput(dag, "console")).setInline(true);
@@ -163,7 +163,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
    	clientDataFilter.setCompareType(1);
    	clientDataFilter.setValue(1000);
    	dag.addStream("clientDataFilterStream", parser.clientDataUsage, clientDataFilter.inport).setInline(true);
-   	RedisOutputOperator<Integer, String> redisgt9 = dag.addOperator("redisgt9", new RedisOutputOperator<Integer, String>());
+   	RedisOutputOperator<Integer, String> redisgt9 = dag.addOperator("redis9", new RedisOutputOperator<Integer, String>());
     redisgt9.selectDatabase(9);
    	dag.addStream("redisgt9Stream", clientDataFilter.redisport,  redisgt9.input).setInline(true);
    	//dag.addStream("redisgt9Stream", clientDataFilter.redisport,  consoleOutput(dag, "console")).setInline(true);
