@@ -1,13 +1,13 @@
 /*
  *  Copyright (c) 2012 Malhar, Inc. All Rights Reserved.
  */
-package com.datatorrent.contrib.summit;
+package com.datatorrent.contrib.summit.apache_logs;
 
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.contrib.summit.ApacheAccessLogAnalaysis;
+import com.datatorrent.contrib.summit.apache_logs.ApacheAccessLogAnalaysis;
 /**
  * @author Dinesh Prasad (dinesh@malhar-inc.com)
  */
