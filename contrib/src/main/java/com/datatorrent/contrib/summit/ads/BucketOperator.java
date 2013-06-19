@@ -85,11 +85,13 @@ public class BucketOperator extends BaseOperator
         aggrMap.put(aggrKey, map);
       }
       if (!isClick) {
+        updateVal(map, "0", 1);
         updateVal(map, "1", tuple.getValue());
         updateVal(map, "2", 0.0);
         updateVal(map, "3", 1);
         updateVal(map, "4", 0);
       } else {
+        updateVal(map, "0", 1);
         updateVal(map, "1", 0.0);
         updateVal(map, "2", tuple.getValue());
         updateVal(map, "3", 0);
