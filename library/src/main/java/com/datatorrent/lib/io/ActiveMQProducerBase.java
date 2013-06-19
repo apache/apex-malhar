@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
  * Benchmarks:<br>
  * NA<br>
  * <br>
- * @author Locknath Shil <locknath@malhar-inc.com>
  *
  */
 public class ActiveMQProducerBase extends ActiveMQBase

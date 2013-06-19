@@ -59,7 +59,6 @@ import java.util.Map;
  * </table>
  * <br>
  *
- * @author Locknath Shil <locknath@malhar-inc.com><br>
  * <br>
  */
 public class MinKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>

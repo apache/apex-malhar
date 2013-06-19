@@ -6,7 +6,6 @@ package com.datatorrent.lib.multiwindow;
 
 /**
  * Interface to store window specific information.
- * @author Locknath Shil <locknath@malhar-inc.com>
  */
 public interface SlidingWindowObject
 {

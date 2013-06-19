@@ -54,7 +54,6 @@ import org.slf4j.LoggerFactory;
  * </table>
  * <br>
  *
- * @author Locknath Shil<br>
  * <br>
  */
 public class MultiWindowRangeKeyVal<K, V extends Number> extends RangeKeyVal<K, V>

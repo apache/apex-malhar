@@ -54,7 +54,6 @@ import javax.validation.constraints.Min;
  * </table>
  * <br>
  *
- * @author Locknath Shil <locknath@malhar-inc.com><br>
  * <br>
  */
 public class ChangeAlert<V extends Number> extends BaseNumberValueOperator<V>

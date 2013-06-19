@@ -59,7 +59,6 @@ import javax.validation.constraints.NotNull;
  * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td></tr>
  * </table>
  * <br>
- * @author Locknath Shil <locknath@malhar-inc.com> <br>
  * <br>
  *
  */

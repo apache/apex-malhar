@@ -61,7 +61,6 @@ import org.slf4j.LoggerFactory;
  * </table>
  * <br>
  *
- * @author Locknath Shil <locknath@malhar-inc.com><br>
  * <br>
  */
 public class MultiWindowSumKeyVal<K, V extends Number> extends SumKeyVal<K, V>

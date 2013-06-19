@@ -62,7 +62,6 @@ import org.apache.commons.lang.mutable.MutableDouble;
  * </table>
  * <br>
  *
- * @author Locknath Shil <locknath@malhar-inc.com><br>
  * <br>
  */
 public class MarginKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>

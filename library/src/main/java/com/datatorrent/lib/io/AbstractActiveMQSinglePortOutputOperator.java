@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
  * Benchmarks:<br>
  * TBD<br>
  * <br>
- * @author Locknath Shil <locknath@malhar-inc.com>
  *
  */
 public abstract class AbstractActiveMQSinglePortOutputOperator<T> extends AbstractActiveMQOutputOperator

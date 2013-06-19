@@ -56,7 +56,6 @@ import org.apache.commons.lang3.mutable.MutableDouble;
  * </table>
  * <br>
  *
- * @author Locknath Shil<br>
  * <br>
  */
 public class RangeKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>

@@ -51,7 +51,6 @@ import org.slf4j.LoggerFactory;
  * <tr><td>6</td><td>o = "s6"</td><td>i=2 returns null<br>i=1 returns "s5"<br>i=0 returns "s4"</td><td>i=2 returns "s6"<br>i=1 returns "s5"<br>i=0 returns "s4"</td></tr>
  * </table>
  *
- * @author Locknath Shil <locknath@malhar-inc.com><br>
  * <br>
  */
 public class SimpleMovingAverage<K, V extends Number> extends AbstractSlidingWindowKeyVal<K, V, SimpleMovingAverageObject>

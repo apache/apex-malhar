@@ -54,7 +54,6 @@ import org.apache.commons.lang.mutable.MutableLong;
  * </table>
  * <br>
  *
- * @author Locknath Shil <locknath@malhar-inc.com><br>
  * <br>
  */
 public class AverageMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>

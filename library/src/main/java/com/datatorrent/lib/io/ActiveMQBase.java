@@ -48,7 +48,6 @@ import com.datatorrent.api.annotation.ShipContainingJars;
  * Benchmarks:<br>
  * NA<br>
  * <br>
- * @author Locknath Shil <locknath@malhar-inc.com>
  *
  */
 @ShipContainingJars(classes = {javax.jms.Message.class, org.apache.activemq.ActiveMQConnectionFactory.class, javax.management.j2ee.statistics.Stats.class})

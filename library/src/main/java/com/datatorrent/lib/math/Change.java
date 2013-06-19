@@ -49,7 +49,6 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  * </table>
  * <br>
  *
- * @author Locknath Shil <locknath@malhar-inc.com><br>
  * <br>
  */
 public class Change<V extends Number> extends BaseNumberValueOperator<V>

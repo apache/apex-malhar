@@ -61,7 +61,6 @@ import org.apache.commons.lang.mutable.MutableLong;
  * <br>
  *
  * @param <K>
- * @author Locknath Shil <locknath@malhar-inc.com><br>
  * <br>
  */
 public class AverageKeyVal<K> extends BaseNumberKeyValueOperator<K, Number>

@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
  * Benchmarks:<br>
  * NA<br>
  * <br>
- * @author Locknath Shil <locknath@malhar-inc.com>
  *
  */
 public abstract class ActiveMQConsumerBase extends ActiveMQBase implements MessageListener, ExceptionListener

@@ -55,7 +55,6 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * </table>
  * <br>
  *
- * @author Locknath Shil <locknath@malhar-inc.com><br>
  */
 public class UniqueCounterValue<K> extends BaseOperator implements Unifier<Integer>
 {

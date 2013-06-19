@@ -11,7 +11,6 @@ import org.apache.commons.lang.mutable.MutableInt;
 /**
  * Information needed to calculate simple moving average.
  *
- * @author Locknath Shil <locknath@malhar-inc.com>
  */
 public class SimpleMovingAverageObject implements SlidingWindowObject
 {
