@@ -116,8 +116,8 @@ public class InputGenerator implements InputOperator
     int adkey;
     for (int j = 0; j < dimSelLen; ++j) {
       adkey = type;
-      if (dimSelect[j][1] == 1) adkey |= (publisherId << 16);
-      if (dimSelect[j][0] == 1) adkey |= (advertiserId << 8);
+      if (dimSelect[j][0] == 1) adkey |= (publisherId << 16);
+      if (dimSelect[j][1] == 1) adkey |= (advertiserId << 8);
       if (dimSelect[j][2] == 1) adkey |= adUnit;
       this.outputPort.emit(new AdInfo(adkey, value, timestamp));
     }

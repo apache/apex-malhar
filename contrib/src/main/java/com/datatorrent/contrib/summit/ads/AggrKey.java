@@ -61,10 +61,9 @@ public class AggrKey extends TimeBucketKey
     int advertiserId = ((key & AdInfo.ADV_MASK) >> 8);
     int adUnit = key & AdInfo.ADU_MASK;
     StringBuilder sb = new StringBuilder(super.toString());
-    sb.append('|');
-    sb.append("0:").append(publisherId);
-    sb.append("|1:").append(advertiserId);
-    sb.append("|2:").append(adUnit);
+    if (publisherId != 0) sb.append("|0:").append(publisherId);
+    if (advertiserId != 0) sb.append("|1:").append(advertiserId);
+    if (adUnit != 0 ) sb.append("|2:").append(adUnit);
     return sb.toString();
   }
 

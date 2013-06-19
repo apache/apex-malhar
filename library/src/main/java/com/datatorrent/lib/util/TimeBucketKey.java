@@ -75,20 +75,20 @@ public class TimeBucketKey
     if ((timeSpec & TIMESPEC_YEAR) != 0) {
       // Reducing year space by discounting previous years
       int year = time.get(Calendar.YEAR);
-      hashcode += (year - 2000) * 2^22;
+      hashcode += ((year - 2000) << 22);
     }
     if ((timeSpec & TIMESPEC_MONTH) != 0) {
       // Sharing same space with week
-      hashcode += time.get(Calendar.MONTH) * 2^16;
+      hashcode += (time.get(Calendar.MONTH) << 16);
     }
     if ((timeSpec & TIMESPEC_WEEK) != 0) {
-      hashcode += time.get(Calendar.WEEK_OF_YEAR) * 2^16;
+      hashcode += (time.get(Calendar.WEEK_OF_YEAR)  << 16);
     }
     if ((timeSpec & TIMESPEC_DAY) != 0) {
-      hashcode += time.get(Calendar.DAY_OF_MONTH) * 2^11;
+      hashcode += (time.get(Calendar.DAY_OF_MONTH) << 11);
     }
     if ((timeSpec & TIMESPEC_HOUR) != 0) {
-      hashcode += time.get(Calendar.HOUR_OF_DAY) * 2^6;
+      hashcode += (time.get(Calendar.HOUR_OF_DAY) << 6);
     }
     if ((timeSpec & TIMESPEC_MINUTE) != 0) {
       hashcode += time.get(Calendar.MINUTE);
