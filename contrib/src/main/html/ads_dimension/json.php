@@ -42,14 +42,14 @@ if ($adunit != '') {
 }
 $subpattern = "";
 if (count($arr) != 0) {
-  $subpattern = join("|", $arr);
+  $subpattern = "|".join("|", $arr);
 }
 
 $result = array();
 
 while ($from < time()) {
   $date = gmdate($format, $from);
-  $key = $bucket . '|' . $date . '|' . $subpattern;
+  $key = $bucket . '|' . $date . $subpattern;
   $hash = $redis->hGetAll($key);
   if ($hash) {
     $cost = $hash['1'];

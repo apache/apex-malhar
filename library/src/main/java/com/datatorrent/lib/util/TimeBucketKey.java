@@ -39,6 +39,7 @@ public class TimeBucketKey
   private static DateFormat minuteDateFormat = new SimpleDateFormat("'m|'yyyyMMddHHmm");
 
   static {
+    // TODO - Fix this
     TimeZone tz = TimeZone.getTimeZone("GMT");
     yearDateFormat.setTimeZone(tz);
     monthDateFormat.setTimeZone(tz);
