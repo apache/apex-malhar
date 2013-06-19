@@ -13,30 +13,10 @@
   <packaging>jar</packaging>
 
   <name>Operator Library</name>
-  <url>http://maven.apache.org</url>
 
   <properties>
     <test.excludedGroups>com.datatorrent.annotation.PerformanceTestCategory</test.excludedGroups>
   </properties>
-
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.12</version>
-        <dependencies>
-          <dependency>
-            <groupId>org.apache.maven.surefire</groupId>
-            <artifactId>surefire-junit47</artifactId>
-            <version>2.12</version>
-          </dependency>
-        </dependencies>
-        <configuration>
-          <excludedGroups>${test.excludedGroups}</excludedGroups>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 
   <dependencies>
     <dependency>
