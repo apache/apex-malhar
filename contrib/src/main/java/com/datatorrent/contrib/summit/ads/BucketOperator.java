@@ -83,7 +83,7 @@ public class BucketOperator extends BaseOperator
         map = new HashMap<String, MutableDouble>();
         aggrMap.put(aggrKey, map);
       }
-      if (tuple.isClick()) {
+      if (!tuple.isClick()) {
         updateVal(map, "0", 1);
         updateVal(map, "1", tuple.getValue());
         updateVal(map, "2", 0.0);
