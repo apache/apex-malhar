@@ -27,7 +27,7 @@ public class InputGenerator implements InputOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(InputGenerator.class);
   private int numPublishers = 50;
-  private int numAdvertisers = 200;
+  private int numAdvertisers = 150;
   private int numAdUnits = 5;
   private double expectedClickThruRate = 0.005;
   private int blastCount = 10000;
