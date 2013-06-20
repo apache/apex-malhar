@@ -161,7 +161,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
    	// client data usage 
    	CompareFilterTuples<String> clientDataFilter =  dag.addOperator("clientDataFilter", new CompareFilterTuples<String>());
    	clientDataFilter.setCompareType(1);
-   	clientDataFilter.setValue(1000);
+   	clientDataFilter.setValue(10000);
    	dag.addStream("clientDataFilterStream", parser.clientDataUsage, clientDataFilter.inport).setInline(true);
    	RedisOutputOperator<Integer, String> redisgt9 = dag.addOperator("redis9", new RedisOutputOperator<Integer, String>());
     redisgt9.selectDatabase(9);

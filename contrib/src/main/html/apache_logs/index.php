@@ -46,14 +46,12 @@ window.onload = function() {
   DrawRiskyClientTableChart();
   DrawTotalViewsChart();
   DrawUrl404TableChart();
-  DrawIpClientFailTableChart();
   DrawClientDataTableChart();/**/
   setInterval(DrawTopUrlTableChart, 1000);
   setInterval(DrawTopIpClientTableChart, 1000);
   setInterval(DrawRiskyClientTableChart, 1000);
   setInterval(DrawTotalViewsChart, 1000);
   setInterval(DrawUrl404TableChart, 1000);
-  setInterval(DrawIpClientFailTableChart, 1000);
   setInterval(DrawClientDataTableChart, 1000);/**/
 };
 
@@ -136,7 +134,6 @@ window.onload = function() {
                 </tr></tbody></table>
                 <table><tbody><tr>
 		        <td><div class="chart-ctnr" id="url_404_div"></div><br></td>
-		        <td><div class="chart-ctnr" id="ipclient_404_div"></div><br></td>
                 </tr></tbody></table>
                 <div class="chart-ctnr" id="client_data_div"></div><br>
         </div>		
