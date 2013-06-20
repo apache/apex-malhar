@@ -85,9 +85,9 @@ public class AggrKey extends TimeBucketKey
       boolean checkEqual = super.equals(obj);
       if (checkEqual) {
         AggrKey aggrKey = (AggrKey)obj;
-        checkEqual = ((publisherId == aggrKey.getPublisherId()) && (advertiserId == aggrKey.getAdvertiserId())
-                                  && (adUnit == aggrKey.getAdUnit()));
-        equal = checkEqual;
+        equal = checkIntEqual(publisherId, aggrKey.getPublisherId())
+                        && checkIntEqual(advertiserId, aggrKey.getAdvertiserId())
+                        && checkIntEqual(adUnit, aggrKey.getAdUnit());
       }
     }
     return equal;
@@ -103,7 +103,10 @@ public class AggrKey extends TimeBucketKey
     return sb.toString();
   }
 
-
-
+  private boolean checkIntEqual( Integer a, Integer b ) {
+    if ((a == null) && (b == null)) return true;
+    if ((a != null) && a.equals(b)) return true;
+    return false;
+  }
 
 }
