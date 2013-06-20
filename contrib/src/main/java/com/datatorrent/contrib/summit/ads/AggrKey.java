@@ -103,7 +103,7 @@ public class AggrKey extends TimeBucketKey
     return sb.toString();
   }
 
-  private boolean checkIntEqual( Integer a, Integer b ) {
+  private boolean checkIntEqual(Integer a, Integer b) {
     if ((a == null) && (b == null)) return true;
     if ((a != null) && a.equals(b)) return true;
     return false;
