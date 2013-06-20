@@ -23,6 +23,8 @@ public class Application implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
+    dag.setAttribute(DAG.APPLICATION_NAME, "AdsDimension");
+
     InputGenerator input = dag.addOperator("input", InputGenerator.class);
     dag.setOutputPortAttribute(input.outputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);
     dag.setAttribute(input, OperatorContext.INITIAL_PARTITION_COUNT, 3);
@@ -39,7 +41,6 @@ public class Application implements StreamingApplication
 
     dag.addStream("ingen", input.outputPort, bucket.inputPort).setInline(true);
     dag.addStream("store", bucket.outputPort, redis.inputInd);
-
   }
 
 
