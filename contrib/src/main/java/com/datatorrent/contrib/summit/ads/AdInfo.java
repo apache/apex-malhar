@@ -10,35 +10,64 @@ package com.datatorrent.contrib.summit.ads;
  */
 public class AdInfo
 {
-
-  public static final int VIEW = 0;
-  public static final int CLICK = (1 << 24);
-
-  public static final int PUB_MASK = (0xff << 16);
-  public static final int ADV_MASK = (0xff << 8);
-  public static final int ADU_MASK = 0xff;
-
-  int key;
+  
+  Integer publisherId;
+  Integer advertiserId;
+  Integer adUnit;
+  boolean click;
   double value;
   long timestamp;
 
   public AdInfo() {
   }
 
-  public AdInfo(int key, double value, long timestamp) {
-    this.key = key;
+  public AdInfo(Integer publisherId, Integer advertiserId, Integer adUnit, boolean click, double value, long timestamp) {
+    this.publisherId = publisherId;
+    this.advertiserId = advertiserId;
+    this.adUnit = adUnit;
+    this.click = click;
     this.value = value;
     this.timestamp = timestamp;
   }
 
-  public int getKey()
+  public Integer getPublisherId()
   {
-    return key;
+    return publisherId;
   }
 
-  public void setKey(int key)
+  public void setPublisherId(Integer publisherId)
   {
-    this.key = key;
+    this.publisherId = publisherId;
+  }
+
+  public Integer getAdvertiserId()
+  {
+    return advertiserId;
+  }
+
+  public void setAdvertiserId(Integer advertiserId)
+  {
+    this.advertiserId = advertiserId;
+  }
+
+  public Integer getAdUnit()
+  {
+    return adUnit;
+  }
+
+  public void setAdUnit(Integer adUnit)
+  {
+    this.adUnit = adUnit;
+  }
+
+  public boolean isClick()
+  {
+    return click;
+  }
+
+  public void setClick(boolean click)
+  {
+    this.click = click;
   }
 
   public double getValue()

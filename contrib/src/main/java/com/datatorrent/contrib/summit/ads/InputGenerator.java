@@ -26,8 +26,9 @@ import org.slf4j.LoggerFactory;
 public class InputGenerator implements InputOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(InputGenerator.class);
-  private int numAdvertisers = 200;
   private int numPublishers = 50;
+  private int numAdvertisers = 200;
+  private int numAdUnits = 5;
   private double expectedClickThruRate = 0.005;
   private int blastCount = 10000;
   private Random random = new Random();
@@ -92,18 +93,18 @@ public class InputGenerator implements InputOperator
         int advertiserId = nextRandomId(numAdvertisers);
         //int publisherId = (advertiserId * 10 / numAdvertisers) * numPublishers / 10 + nextRandomId(numPublishers / 10);
         int publisherId = nextRandomId(numPublishers);
-        int adUnit = random.nextInt(5);
+        int adUnit = random.nextInt(numAdUnits);
 
         double cost = 0.5 + 0.25 * random.nextDouble();
         timestamp = System.currentTimeMillis();
 
-        emitDimensions(AdInfo.VIEW, publisherId, advertiserId, adUnit, cost, timestamp);
+        emitDimensions(false, publisherId, advertiserId, adUnit, cost, timestamp);
 
         if (random.nextDouble() < expectedClickThruRate) {
           double revenue = 0.5 + 0.5 * random.nextDouble();
           timestamp = System.currentTimeMillis();
           // generate fake click
-          emitDimensions(AdInfo.CLICK, publisherId, advertiserId, adUnit, revenue, timestamp);
+          emitDimensions(true, publisherId, advertiserId, adUnit, revenue, timestamp);
         }
       }
     }
@@ -112,14 +113,17 @@ public class InputGenerator implements InputOperator
     }
   }
 
-  private void emitDimensions(int type, int publisherId, int advertiserId, int adUnit, double value, long timestamp) {
+  private void emitDimensions(boolean click, int publisherId, int advertiserId, int adUnit, double value, long timestamp) {
     int adkey;
     for (int j = 0; j < dimSelLen; ++j) {
-      adkey = type;
-      if (dimSelect[j][0] == 1) adkey |= (publisherId << 16);
-      if (dimSelect[j][1] == 1) adkey |= (advertiserId << 8);
-      if (dimSelect[j][2] == 1) adkey |= adUnit;
-      this.outputPort.emit(new AdInfo(adkey, value, timestamp));
+      AdInfo adInfo = new AdInfo();
+      if (dimSelect[j][0] == 1) adInfo.setPublisherId(publisherId);
+      if (dimSelect[j][1] == 1) adInfo.setAdvertiserId(advertiserId);
+      if (dimSelect[j][2] == 1) adInfo.setAdUnit(adUnit);
+      adInfo.setClick(click);
+      adInfo.setValue(value);
+      adInfo.setTimestamp(timestamp);
+      this.outputPort.emit(adInfo);
     }
   }
 }

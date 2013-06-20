@@ -77,16 +77,13 @@ public class BucketOperator extends BaseOperator
     {
       Calendar calendar = Calendar.getInstance();
       calendar.setTimeInMillis(tuple.getTimestamp());
-      int key = tuple.getKey();
-      boolean isClick = ((key & AdInfo.CLICK) != 0);
-      key &= ~AdInfo.CLICK;
-      AggrKey aggrKey = new AggrKey(calendar,AggrKey.TIMESPEC_MINUTE_SPEC,key);
+      AggrKey aggrKey = new AggrKey(calendar,AggrKey.TIMESPEC_MINUTE_SPEC, tuple.getPublisherId(), tuple.getAdvertiserId(), tuple.getAdUnit());
       Map<String, MutableDouble> map = aggrMap.get(aggrKey);
       if (map == null) {
         map = new HashMap<String, MutableDouble>();
         aggrMap.put(aggrKey, map);
       }
-      if (!isClick) {
+      if (tuple.isClick()) {
         updateVal(map, "0", 1);
         updateVal(map, "1", tuple.getValue());
         updateVal(map, "2", 0.0);

@@ -13,29 +13,67 @@ import java.util.Calendar;
  */
 public class AggrKey extends TimeBucketKey
 {
-  int key;
+
+  Integer publisherId;
+  Integer advertiserId;
+  Integer adUnit;
 
   public AggrKey() {
   }
 
-  public AggrKey(Calendar timestamp, int timeSpec, int key) {
+  public AggrKey(Calendar timestamp, int timeSpec, Integer publisherId, Integer advertiserId, Integer adUnit) {
     super(timestamp, timeSpec);
-    this.key = key;
+    this.publisherId = publisherId;
+    this.advertiserId = advertiserId;
+    this.adUnit = adUnit;
   }
 
-  public int getKey()
+  public Integer getPublisherId()
   {
-    return key;
+    return publisherId;
   }
 
-  public void setKey(int key)
+  public void setPublisherId(Integer publisherId)
   {
-    this.key = key;
+    this.publisherId = publisherId;
+  }
+
+  public Integer getAdvertiserId()
+  {
+    return advertiserId;
+  }
+
+  public void setAdvertiserId(Integer advertiserId)
+  {
+    this.advertiserId = advertiserId;
+  }
+
+  public Integer getAdUnit()
+  {
+    return adUnit;
+  }
+
+  public void setAdUnit(Integer adUnit)
+  {
+    this.adUnit = adUnit;
   }
 
   @Override
   public int hashCode()
   {
+    int key = 0;
+    if (publisherId != null) {
+      key |= (1 << 23);
+      key |= (publisherId << 16);
+    }
+    if (advertiserId != null) {
+      key |= (1 << 15);
+      key |= (advertiserId << 8);
+    }
+    if (adUnit != null) {
+      key |= (1 << 7);
+      key |= adUnit;
+    }
     return super.hashCode() ^ key;
   }
 
@@ -47,7 +85,8 @@ public class AggrKey extends TimeBucketKey
       boolean checkEqual = super.equals(obj);
       if (checkEqual) {
         AggrKey aggrKey = (AggrKey)obj;
-        checkEqual = (key == aggrKey.getKey());
+        checkEqual = ((publisherId == aggrKey.getPublisherId()) && (advertiserId == aggrKey.getAdvertiserId())
+                                  && (adUnit == aggrKey.getAdUnit()));
         equal = checkEqual;
       }
     }
@@ -57,13 +96,10 @@ public class AggrKey extends TimeBucketKey
   @Override
   public String toString()
   {
-    int publisherId = ((key & AdInfo.PUB_MASK) >> 16);
-    int advertiserId = ((key & AdInfo.ADV_MASK) >> 8);
-    int adUnit = key & AdInfo.ADU_MASK;
     StringBuilder sb = new StringBuilder(super.toString());
-    if (publisherId != 0) sb.append("|0:").append(publisherId);
-    if (advertiserId != 0) sb.append("|1:").append(advertiserId);
-    if (adUnit != 0 ) sb.append("|2:").append(adUnit);
+    if (publisherId != null) sb.append("|0:").append(publisherId);
+    if (advertiserId != null) sb.append("|1:").append(advertiserId);
+    if (adUnit != null) sb.append("|2:").append(adUnit);
     return sb.toString();
   }
 

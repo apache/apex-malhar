@@ -4,6 +4,7 @@
  */
 package com.datatorrent.contrib.summit.ads;
 
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
@@ -22,17 +23,22 @@ public class Application implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    InputGenerator in = dag.addOperator("inputgen", InputGenerator.class);
-    dag.setOutputPortAttribute(in.outputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);
-    BucketOperator bop = dag.addOperator("bucket", BucketOperator.class);
-    dag.setInputPortAttribute(bop.inputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);
-    dag.setOutputPortAttribute(bop.outputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);
+    InputGenerator input = dag.addOperator("input", InputGenerator.class);
+    dag.setOutputPortAttribute(input.outputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);
+    dag.setAttribute(input, OperatorContext.INITIAL_PARTITION_COUNT, 3);
+    BucketOperator bucket = dag.addOperator("bucket", BucketOperator.class);
+    dag.setInputPortAttribute(bucket.inputPort, PortContext.PARTITION_PARALLEL, true);
+
+    dag.setInputPortAttribute(bucket.inputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);
+    dag.setOutputPortAttribute(bucket.outputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);
+    dag.setAttribute(bucket, OperatorContext.APPLICATION_WINDOW_COUNT, 10);
 
     RedisNumberAggregateOutputOperator<AggrKey, Map<String, MutableDouble>> redis = dag.addOperator("redis", RedisNumberAggregateOutputOperator.class);
     dag.setInputPortAttribute(redis.input, PortContext.QUEUE_CAPACITY, 32 * 1024);
+    //dag.setAttribute(redis, OperatorContext.INITIAL_PARTITION_COUNT, 2);
 
-    dag.addStream("ingen", in.outputPort, bop.inputPort).setInline(true);
-    dag.addStream("store", bop.outputPort, redis.inputInd);
+    dag.addStream("ingen", input.outputPort, bucket.inputPort).setInline(true);
+    dag.addStream("store", bucket.outputPort, redis.inputInd);
 
   }
 
