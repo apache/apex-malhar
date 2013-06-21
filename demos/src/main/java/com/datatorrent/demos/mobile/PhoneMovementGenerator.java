@@ -177,51 +177,6 @@ public class PhoneMovementGenerator extends BaseOperator
     }
   }
 
-  public String getSql() {
-    return "";
-  }
-
-  public void setSql(String query) {
-    query = query.replace('+', ' ');
-    SQLQuery sqlQuery = sqlParser.parseSQLQuery(query);
-    if (sqlQuery != null) {
-      if (sqlQuery instanceof SQLInsert) {
-        SQLInsert sqlInsert = ((SQLInsert)sqlQuery);
-        //int idx = 0;
-        if (sqlInsert.getEntityName().equals("phone")) {
-          List<String> names = sqlInsert.getNames();
-          if ((names != null) && names.size() > 0) {
-            String name = names.get(0);
-            if (name.equals("number")) {
-              List<List<String>> values = sqlInsert.getValues();
-              for ( List<String> value : values ) {
-                if (value.size() > 0) {
-                  String phone = value.get(0);
-                  //String qid = "" + System.currentTimeMillis() + "" + idx++;
-                  //registerPhone(qid, phone);
-                  registerPhone(phone, phone);
-                }
-              }
-            }
-          }
-        }
-      } else if (sqlQuery instanceof SQLDelete) {
-        SQLDelete sqlDelete = (SQLDelete)sqlQuery;
-        if (sqlDelete.getEntityName().equals("phone")) {
-          String name = sqlDelete.getName();
-          if (name != null) {
-            if (name.equals("number")) {
-              List<String> values = sqlDelete.getValues();
-              for (String phone : values) {
-                deregisterPhone(phone);
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
   @OutputPortFieldAnnotation(name = "locationQueryResult")
   public final transient DefaultOutputPort<Map<String, String>> locationQueryResult = new DefaultOutputPort<Map<String, String>>(this);
 
