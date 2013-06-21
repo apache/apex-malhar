@@ -7,6 +7,7 @@ package com.datatorrent.contrib.summit.ads;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
@@ -22,7 +23,7 @@ public class InputDimensionGenerator extends BaseOperator
   @OutputPortFieldAnnotation(name = "outputPort")
   public final transient DefaultOutputPort<AdInfo> outputPort = new DefaultOutputPort<AdInfo>(this);
 
-  @OutputPortFieldAnnotation(name = "inputPort")
+  @InputPortFieldAnnotation(name = "inputPort")
   public final transient DefaultInputPort<AdInfo> inputPort = new DefaultInputPort<AdInfo>(this) {
 
     @Override
