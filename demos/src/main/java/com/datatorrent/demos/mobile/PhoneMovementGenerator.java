@@ -12,6 +12,7 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.HighLow;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import javax.validation.constraints.Min;
@@ -29,6 +30,8 @@ import org.slf4j.LoggerFactory;
 public class PhoneMovementGenerator extends BaseOperator
 {
   private static Logger log = LoggerFactory.getLogger(PhoneMovementGenerator.class);
+
+  private transient SQLParser sqlParser = null;
 
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Integer> data = new DefaultInputPort<Integer>(this)
@@ -106,20 +109,16 @@ public class PhoneMovementGenerator extends BaseOperator
 
       if (qid != null) { // without qid, ignore
         if ((phone != null)) {
-          if (phone.isEmpty()) { // simply remove the channel
-            if (phone_register.get(qid) != null) {
-              phone_register.remove(qid);
-              log.debug(String.format("Removing query id \"%s\"", qid));
-            }
+          if (phone.isEmpty()) {
+            deregisterPhone(qid);
           }
-          else { // register the phone channel
-            phone_register.put(qid, new Integer(phone));
-            log.debug(String.format("Registered query id \"%s\", with phonenum \"%s\"", qid, phone));
-            emitQueryResult(qid, new Integer(phone));
+          else {
+            registerPhone(qid, phone);
           }
         }
       }
     }
+
   };
 
   public static final String KEY_PHONE = "phone";
@@ -159,12 +158,70 @@ public class PhoneMovementGenerator extends BaseOperator
     threshold = i;
   }
 
+  private void registerPhone(String qid, String phone) throws NumberFormatException
+  {
+    // register the phone channel
+    phone_register.put(qid, new Integer(phone));
+    log.debug(String.format("Registered query id \"%s\", with phonenum \"%s\"", qid, phone));
+    emitQueryResult(qid, new Integer(phone));
+  }
+
+  private void deregisterPhone(String qid)
+  {
+    // simply remove the channel
+    if (phone_register.get(qid) != null) {
+      phone_register.remove(qid);
+      log.debug(String.format("Removing query id \"%s\"", qid));
+    }
+  }
+
+  public void setSql(String query) {
+    SQLQuery sqlQuery = sqlParser.parseSQLQuery(query);
+    if (sqlQuery != null) {
+      if (sqlQuery instanceof SQLInsert) {
+        SQLInsert sqlInsert = ((SQLInsert)sqlQuery);
+        //int idx = 0;
+        if (sqlInsert.getEntityName().equals("phone")) {
+          List<String> names = sqlInsert.getNames();
+          if (names.size() > 0) {
+            String name = names.get(0);
+            if (name.equals("number")) {
+              List<List<String>> values = sqlInsert.getValues();
+              for ( List<String> value : values ) {
+                if (value.size() > 0) {
+                  String phone = value.get(0);
+                  //String qid = "" + System.currentTimeMillis() + "" + idx++;
+                  //registerPhone(qid, phone);
+                  registerPhone(phone, phone);
+                }
+              }
+            }
+          }
+        }
+      } else if (sqlQuery instanceof SQLDelete) {
+        SQLDelete sqlDelete = (SQLDelete)sqlQuery;
+        if (sqlDelete.getEntityName().equals("phone")) {
+          String name = sqlDelete.getName();
+          if (name != null) {
+            if (name.equals("number")) {
+              List<String> values = sqlDelete.getValues();
+              for (String phone : values) {
+                deregisterPhone(phone);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
   @OutputPortFieldAnnotation(name = "locationQueryResult")
   public final transient DefaultOutputPort<Map<String, String>> locationQueryResult = new DefaultOutputPort<Map<String, String>>(this);
 
   @Override
   public void setup(OperatorContext context)
   {
+    sqlParser = new SQLParser();
   }
 
   /**
