@@ -7,13 +7,8 @@ $redis->select(9);
 // result array
 $result = array();
 
-$limit = $redis->get(0);
-for($i = 1; $i < $limit; $i++)
-{
-  $value = $redis->get($i);
-  //var_dump($value);
-  $result[] = $value;
-}
+$value = $redis->get(1);
+$result[] = $value;
 
 print json_encode($result);
 

@@ -45,8 +45,8 @@ function RenderPageViewTimeChart()
   }
 
   // Draw line chart.
-  var options = { width: 600, height: 300, legend: 'none', pointSize: 0, lineWidth : 1 };
-  options.title = 'Page View vs Time Chart';
+  var options = { pointSize: 0, lineWidth : 1 };
+  options.title = 'Site Url Access(Per Sec) vs Time Chart';
   pageViewChart.draw(PageViewView, options); 
 }
 

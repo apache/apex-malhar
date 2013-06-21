@@ -39,8 +39,8 @@ function RenderServerLoadTimeChart()
   }
 
   // Draw line chart.
-  var options = { width: 600, height: 300, legend: 'none', pointSize: 0, lineWidth : 1 };
-  options.title = 'Server Load vs Time Chart';
+  var options = {pointSize: 0, lineWidth : 1 };
+  options.title = 'Site Server(s) Requests(Per Sec) vs Time Chart';
   serverLoadChart.draw(serverLoadView, options); 
 }
 

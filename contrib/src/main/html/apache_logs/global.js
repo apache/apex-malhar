@@ -36,13 +36,16 @@ var serverLoadChart;
 var serverLoadView;
 var serverLoadInterval;
 
+// Top server(s)
+var topServerTable;
+var topServerTableChart;
+
 var topIpClientTable;
 var topIpClientTableChart;
 var riskyClientTableChart;
-var totalPageViewsChart;
 var url404TableChart;
-var IpClient404TableChart;
-var clientDataTableChart;
+var server404TableChart;
+
 
 // Get split query string
 function QueryString() {
@@ -97,12 +100,13 @@ function InitializeGlobal()
   serverLoadInterval = 1;
  
   topUrlTableChart = new google.visualization.Table(document.getElementById('top_url_div'));
+  topServerTableChart = new google.visualization.Table(document.getElementById('top_server_div'));
+
   topIpClientTableChart = new google.visualization.Table(document.getElementById('top_IpClient_div'));
   riskyClientTableChart = new google.visualization.Table(document.getElementById('risky_client_div'));
-  totalPageViewsChart = new google.visualization.Table(document.getElementById('total_views_div'));
+
   url404TableChart = new google.visualization.Table(document.getElementById('url_404_div'));
-  IpClient404TableChart = new google.visualization.Table(document.getElementById('ipclient_404_div'));
-  clientDataTableChart = new google.visualization.Table(document.getElementById('client_data_div'));
+  server404TableChart = new google.visualization.Table(document.getElementById('server_404_div'));
 }
 
 /**

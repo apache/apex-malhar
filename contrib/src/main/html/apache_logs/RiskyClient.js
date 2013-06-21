@@ -18,12 +18,14 @@ function DrawRiskyClientTableChart()
         var data = connect.response;
         var pts = JSON.parse(data);
         var riskyCleintTable = new google.visualization.DataTable();
-        riskyCleintTable.addColumn('string', 'Client Access More 5 Urls/sec');
-        for(var i=0; i <  pts.length; i++) 
+        riskyCleintTable.addColumn('string', 'Client Ip');
+        riskyCleintTable.addColumn('number', 'NUM REQUESTS');
+        riskyCleintTable.addRows(10);
+        for(var i=0; (i <  pts.length)&&(i < 10); i++) 
         {
-          var row = new Array();
-          row.push(pts[i]);
-          riskyCleintTable.addRow(row);
+          var row = pts[i].split("##");
+          riskyCleintTable.setCell(i, 0, row[0]);
+          riskyCleintTable.setCell(i, 1, parseInt(row[1]));
         }
         //document.getElementById('risky_client_div').innerHTML = data;
         //document.getElementById('risky_client_div').innerHTML = riskyCleintTable.getNumberOfRows();

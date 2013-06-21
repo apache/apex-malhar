@@ -23,13 +23,14 @@ google.load('visualization', '1', {'packages':['table']});
 <script type="text/javascript" src="global.js"></script>
 <script type="text/javascript" src="DrawPageViewTimeChart.js"></script>
 <script type="text/javascript" src="TopUrlChart.js"></script>
+<script type="text/javascript" src="TopServer.js"></script>
 <script type="text/javascript" src="TopIpClientChart.js"></script>
 <script type="text/javascript" src="server.js"></script>
 <script type="text/javascript" src="RiskyClient.js"></script>
 <script type="text/javascript" src="TotalViews.js"></script>
 <script type="text/javascript" src="Url404.js"></script>
 <script type="text/javascript" src="ClientData.js"></script>
-<script type="text/javascript" src="IpClientFail.js"></script>
+<script type="text/javascript" src="serverfail.js"></script>
 
 
 <!-- window onload -->
@@ -41,18 +42,20 @@ window.onload = function() {
   InitializeGlobal();
    
   // Draw top charts 
+  DrawClientDataTableChart();
   DrawTopUrlTableChart();
-  DrawTopIpClientTableChart(); 
+  DrawTopServerTableChart();
   DrawRiskyClientTableChart();
-  DrawTotalViewsChart();
+  DrawTopIpClientTableChart(); 
   DrawUrl404TableChart();
-  DrawClientDataTableChart();/**/
+  DrawServer404TableChart();
+  setInterval(DrawClientDataTableChart, 1000)
   setInterval(DrawTopUrlTableChart, 1000);
-  setInterval(DrawTopIpClientTableChart, 1000);
+  setInterval(DrawTopServerTableChart, 1000);
   setInterval(DrawRiskyClientTableChart, 1000);
-  setInterval(DrawTotalViewsChart, 1000);
+  setInterval(DrawTopIpClientTableChart, 1000);
   setInterval(DrawUrl404TableChart, 1000);
-  setInterval(DrawClientDataTableChart, 1000);/**/
+  setInterval(DrawServer404TableChart, 1000);
 };
 
 </script>
@@ -120,22 +123,35 @@ window.onload = function() {
                 <a href="javascript:void(0)" onclick="HandleServerLoadTimeSubmit();">View Server Load Chart</a><br><br>
                 
                 <h2 class="title">Data Served/Sec</h2> 
-                 <h2 id="totaldata"> <h2> 
+                <h2 id="totaldata"> <h2> 
             </div>
         </div>
         <div class="dashboardMain">
-		<div class="chart-ctnr" id="pageview_chart_div"></div>
-                <div class="chart-ctnr" id="top_url_div"></div><br>
-                <div class="chart-ctnr" id="server_load_div"></div>
-                <div class="chart-ctnr" id="top_IpClient_div"></div><br>
+           <div class="dbib">     
+                <div id="pageview_chart_div"></div>
+		<div id="server_load_div"></div>
+           </div>
+           <div class="dbib">
                 <table><tbody><tr>
-		        <td><div class="chart-ctnr" id="risky_client_div"></div><br></td>
-		        <td><div class="chart-ctnr" id="total_views_div"></div><br></td>
-                </tr></tbody></table>
-                <table><tbody><tr>
-		        <td><div class="chart-ctnr" id="url_404_div"></div><br></td>
-                </tr></tbody></table>
-                <div class="chart-ctnr" id="client_data_div"></div><br>
+      
+		         <td>       <h1>Site Top 10 Url(s) Access Count(Refreshed Per Sec) </h1>
+		                    <div  id="top_url_div" ></div><br><br>
+                                    <h1>Spammer Cleint IP(>1000 requests/sec)(Refreshed Per Sec)</h1>
+                                    <div id="risky_client_div"></div> <br><br>
+                                    <h1>Top 10 Url Status 404 > 2(Refreshed Per Sec)</h1>
+                                    <div id="url_404_div"></div>
+		          </td>
+		          <td>
+                                   <h1>Server Number Of View Responses(Refreshed Per Sec) </h1>
+		                   <div id="top_server_div"></div> <br><br>
+                                   <h1>Site Top 10 Client IP Number of Requests(Refreshed Per Sec)</h1>
+                                   <div id="top_IpClient_div"></div> <br><br>
+                                   <h1>Server Status 404 > 2(Refreshed Per Sec)</h1>
+                                   <div id="server_404_div"></div-->
+		           </td>
+                          
+               </tr></tbody></table>
+           </div>
         </div>		
 </body>
 </html>

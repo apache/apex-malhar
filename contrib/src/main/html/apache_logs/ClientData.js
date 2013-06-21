@@ -17,20 +17,7 @@ function DrawClientDataTableChart()
       if(connect.readyState==4 && connect.status==200) {
         var data = connect.response;
         var pts = JSON.parse(data);
-        var clientDataTable = new google.visualization.DataTable();
-        clientDataTable.addColumn('string', 'Client Data > 10K');
-        for(var i=0; i <  (pts.length-1); i++) 
-        {
-          var row = new Array();
-          row.push(pts[i]);
-          clientDataTable.addRow(row);
-        }
-        document.getElementById('totaldata').innerHTML = pts[pts.length-1];
-        clientDataTableChart.draw(clientDataTable, {showRowNumber: true});
-        //document.getElementById('client_data_div').innerHTML = data;
-        //delete clientDataTable;
-        //delete data;
-        //delete pts;
+        document.getElementById('totaldata').innerHTML = pts[0];
       }
     }
     connect.open('GET',  "ClientData.php", true);

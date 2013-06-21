@@ -18,12 +18,14 @@ function DrawTopIpClientTableChart()
         var data = connect.response;
         var pts = JSON.parse(data);
         topIpClientTable = new google.visualization.DataTable();
-        topIpClientTable.addColumn('string', 'TopIpClient');
-        for(var i=0; i <  pts.length; i++) 
+        topIpClientTable.addColumn('string', 'Client IP');
+        topIpClientTable.addColumn('number', 'NUM REQUESTS');
+        topIpClientTable.addRows(10);
+        for(var i=0; (i <  pts.length)&&(i < 10); i++) 
         {
-          var row = new Array();
-          row.push(pts[i]);
-          topIpClientTable.addRow(row);
+          var row = pts[i].split("##");
+          topIpClientTable.setCell(i, 0, row[0]);
+          topIpClientTable.setCell(i, 1, parseInt(row[1]));
           delete row
           delete pts[i];
         }

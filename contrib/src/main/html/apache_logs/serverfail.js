@@ -8,7 +8,7 @@
  * @author Dinesh Prasad (dinesh@malhar-inc.com) 
  */
 
-function DrawUrl404TableChart()
+function DrawServer404TableChart()
 {
   try
   {
@@ -17,25 +17,25 @@ function DrawUrl404TableChart()
       if(connect.readyState==4 && connect.status==200) {
         var data = connect.response;
         var pts = JSON.parse(data);
-        var url404Table = new google.visualization.DataTable();
-        url404Table.addColumn('string', 'URL');
-        url404Table.addColumn('number', 'NUM 404');
-        url404Table.addRows(10);
+        var server404 = new google.visualization.DataTable();
+        server404.addColumn('string', 'SERVER');
+        server404.addColumn('number', 'NUM 404');
+        server404.addRows(10);
         for(var i=0; ((i <  pts.length)&&(i < 10)); i++) 
         {
           var row = pts[i].split("##");
-          url404Table.setCell(i, 0, row[0]);
-          url404Table.setCell(i, 1, parseInt(row[1]));
+          server404.setCell(i, 0, row[0]);
+          server404.setCell(i, 1, parseInt(row[1]));
         }
         //document.getElementById('risky_client_div').innerHTML = data;
-        //document.getElementById('risky_client_div').innerHTML = url404Table.getNumberOfRows();
-        url404TableChart.draw(url404Table, {showRowNumber: true});
-        delete url404Table;
+        //document.getElementById('risky_client_div').innerHTML = server404.getNumberOfRows();
+        server404TableChart.draw(server404, {showRowNumber: true});
+        delete server404;
         delete data;
         delete pts;
       }
     }
-    connect.open('GET',  "Url404.php", true);
+    connect.open('GET',  "Server404.php", true);
     connect.send(null);
   } catch(e) {
   }

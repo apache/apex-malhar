@@ -8,7 +8,7 @@
  * @author Dinesh Prasad (dinesh@malhar-inc.com) 
  */
 
-function DrawTopUrlTableChart()
+function DrawTopServerTableChart()
 {
   try
   {
@@ -17,24 +17,24 @@ function DrawTopUrlTableChart()
       if(connect.readyState==4 && connect.status==200) {
         var data = connect.response;
         var pts = JSON.parse(data);
-        topUrlTable = new google.visualization.DataTable();
-        topUrlTable.addColumn('string', 'URL');
-        topUrlTable.addColumn('number', 'NUM REQUESTS');
-        topUrlTable.addRows(10);
+        topServerTable = new google.visualization.DataTable();
+        topServerTable.addColumn('string', 'SERVER');
+        topServerTable.addColumn('number', 'NUM RESPONSE');
+        topServerTable.addRows(10);
         for(var i=0; (i <  pts.length)&&(i < 10); i++) 
         {
           var row = pts[i].split("##");
-          topUrlTable.setCell(i, 0, row[0]);
-          topUrlTable.setCell(i, 1, parseInt(row[1]));
+          topServerTable.setCell(i, 0, row[0]);
+          topServerTable.setCell(i, 1, parseInt(row[1]));
           delete pts[i];
         }
-        topUrlTableChart.draw(topUrlTable, {showRowNumber: true});
-        delete topUrlTable;
+        topServerTableChart.draw(topServerTable, {showRowNumber: true});
+        delete topServerTable;
         delete data;
         delete pts;
       }
     }
-    connect.open('GET',  "TopUrlData.php", true);
+    connect.open('GET',  "TopServer.php", true);
     connect.send(null);
   } catch(e) {
   }
