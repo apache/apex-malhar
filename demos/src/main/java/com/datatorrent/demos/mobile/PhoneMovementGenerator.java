@@ -31,7 +31,9 @@ public class PhoneMovementGenerator extends BaseOperator
 {
   private static Logger log = LoggerFactory.getLogger(PhoneMovementGenerator.class);
 
-  private transient SQLParser sqlParser = null;
+  //Need to check why setup is not being called
+  //private transient SQLParser sqlParser = null;
+  private SQLParser sqlParser = new SQLParser();
 
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Integer> data = new DefaultInputPort<Integer>(this)
@@ -226,7 +228,7 @@ public class PhoneMovementGenerator extends BaseOperator
   @Override
   public void setup(OperatorContext context)
   {
-    sqlParser = new SQLParser();
+    //sqlParser = new SQLParser();
   }
 
   /**
