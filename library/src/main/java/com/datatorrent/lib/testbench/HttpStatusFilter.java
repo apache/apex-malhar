@@ -56,23 +56,12 @@ public class HttpStatusFilter extends BaseOperator
 	}
 	
 	// out port
-	public final transient DefaultOutputPort<Map<Integer, String>> outport = new DefaultOutputPort<Map<Integer, String>>(this);
+	public final transient DefaultOutputPort<Map<String, Integer>> outport = new DefaultOutputPort<Map<String, Integer>>(this);
 	
 	@Override
 	public void endWindow()
 	{
-		int numOuts = 1;
-  	for(Map.Entry<String, Integer> entry : collect.entrySet())
-  	{
-  		if (entry.getValue() >= 2) continue;
-  		Map<Integer, String> out = new HashMap<Integer, String>();
-  		out.put(new Integer(numOuts++), entry.getKey());
-  		outport.emit(out);
-   	}
-  	Map<Integer, String> out = new HashMap<Integer, String>();
-		out.put(new Integer(0), new Integer(numOuts).toString());
-		outport.emit(out);
-		collect  = new HashMap<String, Integer>();
+		outport.emit(collect);
 	}
 
 	public String getFilterStatus()

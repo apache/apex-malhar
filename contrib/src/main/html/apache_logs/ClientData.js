@@ -18,7 +18,7 @@ function DrawClientDataTableChart()
         var data = connect.response;
         var pts = JSON.parse(data);
         var clientDataTable = new google.visualization.DataTable();
-        clientDataTable.addColumn('string', 'Client Data > 1K');
+        clientDataTable.addColumn('string', 'Client Data > 10K');
         for(var i=0; i <  (pts.length-1); i++) 
         {
           var row = new Array();

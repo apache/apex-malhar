@@ -74,9 +74,10 @@ public class ApacheVirtualLogParseOperator extends BaseOperator {
     public final transient DefaultOutputPort<String> outputReferer = new DefaultOutputPort<String>(this);
     public final transient DefaultOutputPort<String> outputAgent = new DefaultOutputPort<String>(this);
     public final transient DefaultOutputPort<String> outputServerName = new DefaultOutputPort<String>(this);
+    public final transient DefaultOutputPort<String> outputServerName1 = new DefaultOutputPort<String>(this);
     public final transient DefaultOutputPort<Map<String, String>> outUrlStatus = new DefaultOutputPort<Map<String, String>>(this);
-    public final transient DefaultOutputPort<Map<String, String>> outIpStatus = new DefaultOutputPort<Map<String, String>>(this);
-    public final transient DefaultOutputPort<Map<String, Integer>> clientDataUsage = new DefaultOutputPort<Map<String, Integer>>(this);
+    public final transient DefaultOutputPort<Map<String, String>> outServerStatus = new DefaultOutputPort<Map<String, String>>(this);
+    public final transient DefaultOutputPort<Integer> clientDataUsage = new DefaultOutputPort<Integer>(this);
 
 
     protected static String getAccessLogRegex() {
@@ -141,16 +142,17 @@ public class ApacheVirtualLogParseOperator extends BaseOperator {
             outputReferer.emit(referer);
             outputAgent.emit(agent);
             outputServerName.emit(serverName);
+            outputServerName1.emit(serverName);
             
             HashMap<String, String> urlStatus = new HashMap<String, String>();
             urlStatus.put(url, httpStatusCode);
             outUrlStatus.emit(urlStatus);
-            HashMap<String, String> ipStatus = new HashMap<String, String>();
-            ipStatus.put(ipAddr, httpStatusCode);
-            outIpStatus.emit(ipStatus);
-            HashMap<String, Integer> clientData = new HashMap<String, Integer>();
-            clientData.put(ipAddr, (int) numOfBytes);
-            clientDataUsage.emit(clientData);
+            
+            HashMap<String, String> serverStatus = new HashMap<String, String>();
+            serverStatus.put(serverName, httpStatusCode);
+            outServerStatus.emit(serverStatus);
+            
+            clientDataUsage.emit((int)numOfBytes);
         }
     }
 }

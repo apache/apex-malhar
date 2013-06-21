@@ -4,6 +4,9 @@
  */
 package com.datatorrent.lib.math;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator.Unifier;
@@ -152,6 +155,9 @@ public class Sum<V extends Number> extends BaseNumberValueOperator<V> implements
     }
   };
 
+  @OutputPortFieldAnnotation(name = "redisport", optional = true)
+  public final transient DefaultOutputPort<Map<Integer, Integer>> redisport = new DefaultOutputPort<Map<Integer, Integer>>(this);
+		  
   protected double sums = 0;
   protected boolean tupleAvailable = false;
   protected boolean cumulative = false;
@@ -180,6 +186,9 @@ public class Sum<V extends Number> extends BaseNumberValueOperator<V> implements
       sumShort.emit((short) sums);
       sumFloat.emit((float) sums);
       tupleAvailable = false;
+      Map<Integer, Integer> redis = new HashMap<Integer, Integer>();
+      redis.put(1, (int)sums);
+      redisport.emit(redis);
     }
     clearCache();
   }

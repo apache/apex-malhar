@@ -29,38 +29,49 @@ public class TopOccurance extends BaseOperator
 	public final transient DefaultInputPort<Map<String, Integer>> inport = 
 			 new DefaultInputPort<Map<String, Integer>>(this) {
     @Override
-    public void process(Map<String, Integer> tuple) {
-    	
-    	int numOuts = 0;
+    public void process(Map<String, Integer> tuple) 
+    {	
+      int numOuts = 0;
       if (tuple.size() < n)
       {   
+    	int i = 0;
       	for (Map.Entry<String, Integer> entry : tuple.entrySet())
       	{
       		Map<Integer, String> out = new HashMap<Integer, String>(); 
-      		out.put(numOuts++, entry.getKey());
+      		String value = new StringBuilder(entry.getKey()).append("##").append(entry.getValue()).toString();
+      		out.put(numOuts++, value);
+      		outport.emit(out);
+      		i++;
+      	}
+      	while(numOuts < n)
+      	{
+      		Map<Integer, String> out = new HashMap<Integer, String>(); 
+      		out.put(numOuts++, "");
       		outport.emit(out);
       	}
       } else {
-				ArrayList<Integer> values = new ArrayList<Integer>();
-				for (Map.Entry<String, Integer> entry : tuple.entrySet())
-				{
-					values.add(entry.getValue());
-				}
-				Collections.sort(values);
-				for (int i=values.size()-1; i >= 0; i--)
-				{
-					for (Map.Entry<String, Integer> entry : tuple.entrySet())
-	      	{
-						if (entry.getValue() == values.get(i))
-						{
-							Map<Integer, String> out = new HashMap<Integer, String>();
-							out.put(numOuts++, entry.getKey());
-							outport.emit(out);
-						}
-						if (numOuts >= n) break;
-	      	}
-					if (numOuts >= n) break;
-				}
+    	  
+		ArrayList<Integer> values = new ArrayList<Integer>();
+		for (Map.Entry<String, Integer> entry : tuple.entrySet())
+		{
+		  values.add(entry.getValue());
+		}
+		Collections.sort(values);
+		for (int i=values.size()-1; i >= 0; i--)
+		{
+		  for (Map.Entry<String, Integer> entry : tuple.entrySet())
+	      {
+			if (entry.getValue() == values.get(i))
+			{
+			  Map<Integer, String> out = new HashMap<Integer, String>();
+			  String value = new StringBuilder(entry.getKey()).append("##").append(entry.getValue()).toString();
+			  out.put(numOuts++, value);
+			  outport.emit(out);
+			}
+			if (numOuts >= n) break;
+	      }
+		  if (numOuts >= n) break;
+		}
       }
       
       // output greater than threshhold
@@ -70,14 +81,15 @@ public class TopOccurance extends BaseOperator
       	if (entry.getValue() > threshHold)
       	{
       		Map<Integer, String> out = new HashMap<Integer, String>();
-					out.put(numOuts++, entry.getKey());
-					gtThreshHold.emit(out);
-				}
+      	    String value = new StringBuilder(entry.getKey()).append("##").append(entry.getValue()).toString();
+		    out.put(numOuts++, value);
+		    gtThreshHold.emit(out);
+		}
       }
       Map<Integer, String> out = new HashMap<Integer, String>();
-			out.put(0,  new Integer(numOuts).toString());
-			gtThreshHold.emit(out);
-		}
+	  out.put(0,  new Integer(numOuts).toString());
+	  gtThreshHold.emit(out);
+     }
 	};
 
 	public int getN()
