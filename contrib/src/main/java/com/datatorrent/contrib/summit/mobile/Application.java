@@ -73,7 +73,8 @@ public class Application implements StreamingApplication
     dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MAX, 50000);
 
     // default partitioning: first connected stream to movementGen will be partitioned
-    dag.addStream("phonedata", phones.integer_data, movementGen.data).setInline(true);
+    //dag.addStream("phonedata", phones.integer_data, movementGen.data).setInline(true);
+    dag.addStream("phonedata", phones.integer_data, movementGen.data);
 
     String daemonAddress = dag.attrValue(DAG.DAEMON_ADDRESS, null);
     if (!StringUtils.isEmpty(daemonAddress)) {
@@ -88,7 +89,8 @@ public class Application implements StreamingApplication
       wsIn.setUri(uri);
       wsIn.addTopic("demos.mobile.phoneLocationQuery");
 
-      dag.addStream("consoledata", movementGen.locationQueryResult, wsOut.input).setInline(true);
+      //dag.addStream("consoledata", movementGen.locationQueryResult, wsOut.input).setInline(true);
+      dag.addStream("consoledata", movementGen.locationQueryResult, wsOut.input);
       dag.addStream("query", wsIn.outputPort, movementGen.locationQuery);
     }
     else {
