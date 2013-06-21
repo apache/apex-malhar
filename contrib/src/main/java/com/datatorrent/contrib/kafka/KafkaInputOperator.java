@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * @author Locknath Shil <locknath@malhar-inc.com>
  *
  */
-@ShipContainingJars(classes={kafka.javaapi.consumer.SimpleConsumer.class, org.I0Itec.zkclient.ZkClient.class, scala.ScalaObject.class})
+@ShipContainingJars(classes={kafka.javaapi.consumer.SimpleConsumer.class, /*org.I0Itec.zkclient.ZkClient.class,*/ scala.ScalaObject.class})
 public abstract class KafkaInputOperator implements InputOperator, ActivationListener<OperatorContext>
 {
   @SuppressWarnings("unused")
