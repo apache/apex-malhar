@@ -20,32 +20,31 @@ import javax.script.*;
  * This operator executes JavaScript on tuples in for Map<String, Object>. Key
  * is name of variable used in script code. Proper map values must be provided
  * by UP stream operators.
- * 
+ *
  * <b> Sample Usage Code : </b>
- * 
+ *
  * <pre>
  * // Add random integer generator operator
  * SingleKeyValMap rand = dag.addOperator(&quot;rand&quot;, SingleKeyValMap.class);
- * 
+ *
  * Script script = dag.addOperator(&quot;script&quot;, Script.class);
  * // script.setEval(&quot;val = val*val;&quot;);
  * script.addSetupScript(&quot;function square() { return val*val;}&quot;);
  * script.setInvoke(&quot;square&quot;);
  * dag.addStream(&quot;evalstream&quot;, rand.outport, script.inBindings);
- * 
+ *
  * // Connect to output console operator
  * ConsoleOutputOperator console = dag.addOperator(&quot;console&quot;,
  * 		new ConsoleOutputOperator());
  * dag.addStream(&quot;rand_console&quot;, script.result, console.input);
- * 
+ *
  * </pre>
- * 
+ *
  * <b> Sample Input Operator(emit)</b>
- * 
+ *
  * <pre>
  *  	.
  * 		.
- *  	@Override
  * 		public void emitTuples() {
  * 			HashMap<String, Object> map = new HashMap<String, Object>();
  * 			map.put("val", random.nextInt());
@@ -56,7 +55,7 @@ import javax.script.*;
  * 		.
  * 		.
  * </pre>
- * 
+ *
  * @author David Yan <davidyan@malhar-inc.com>
  */
 public class JavaScriptOperator extends BaseOperator implements ScriptOperator
@@ -184,14 +183,14 @@ public class JavaScriptOperator extends BaseOperator implements ScriptOperator
 	public void setScript(String script)
 	{
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setScriptPath(String path)
 	{
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

@@ -12,7 +12,6 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
  *
- * @param <T>
  * @author David Yan <davidyan@malhar-inc.com>
  */
 public class Alert extends BaseOperator

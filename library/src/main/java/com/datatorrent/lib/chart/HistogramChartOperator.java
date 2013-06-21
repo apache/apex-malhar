@@ -29,7 +29,7 @@ public abstract class HistogramChartOperator<K> extends EnumChartOperator<K, Hig
 
   /**
    * Gets the upper bound on the x-axis for the histogram
-   * @return
+   * @return the high number
    */
   public Number getHigh()
   {
@@ -47,7 +47,7 @@ public abstract class HistogramChartOperator<K> extends EnumChartOperator<K, Hig
 
   /**
    * Gets the lower bound on the x-axis for the histogram
-   * @return
+   * @return the low number
    */
   public Number getLow()
   {
@@ -65,7 +65,7 @@ public abstract class HistogramChartOperator<K> extends EnumChartOperator<K, Hig
 
   /**
    * Gets the number of divisions on the x-axis for the histogram
-   * @return
+   * @return the number of devisions
    */
   public int getNumDivisions()
   {
@@ -74,7 +74,7 @@ public abstract class HistogramChartOperator<K> extends EnumChartOperator<K, Hig
 
   /**
    * Gets the number type of the values on the X-axis
-   * @return
+   * @return the x number type
    */
   public NumberType getxNumberType()
   {
