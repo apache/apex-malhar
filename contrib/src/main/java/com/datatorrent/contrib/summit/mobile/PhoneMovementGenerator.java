@@ -2,7 +2,7 @@
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.datatorrent.demos.mobile;
+package com.datatorrent.contrib.summit.mobile;
 
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
@@ -30,6 +30,10 @@ import org.slf4j.LoggerFactory;
 public class PhoneMovementGenerator extends BaseOperator
 {
   private static Logger log = LoggerFactory.getLogger(PhoneMovementGenerator.class);
+
+  //Need to check why setup is not being called
+  //private transient SQLParser sqlParser = null;
+  private SQLParser sqlParser = new SQLParser();
 
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Integer> data = new DefaultInputPort<Integer>(this)
@@ -173,12 +177,58 @@ public class PhoneMovementGenerator extends BaseOperator
     }
   }
 
+  public String getSql() {
+    return "";
+  }
+
+  public void setSql(String query) {
+    query = query.replace('+', ' ');
+    SQLQuery sqlQuery = sqlParser.parseSQLQuery(query);
+    if (sqlQuery != null) {
+      if (sqlQuery instanceof SQLInsert) {
+        SQLInsert sqlInsert = ((SQLInsert)sqlQuery);
+        //int idx = 0;
+        if (sqlInsert.getEntityName().equals("phone")) {
+          List<String> names = sqlInsert.getNames();
+          if ((names != null) && names.size() > 0) {
+            String name = names.get(0);
+            if (name.equals("number")) {
+              List<List<String>> values = sqlInsert.getValues();
+              for ( List<String> value : values ) {
+                if (value.size() > 0) {
+                  String phone = value.get(0);
+                  //String qid = "" + System.currentTimeMillis() + "" + idx++;
+                  //registerPhone(qid, phone);
+                  registerPhone(phone, phone);
+                }
+              }
+            }
+          }
+        }
+      } else if (sqlQuery instanceof SQLDelete) {
+        SQLDelete sqlDelete = (SQLDelete)sqlQuery;
+        if (sqlDelete.getEntityName().equals("phone")) {
+          String name = sqlDelete.getName();
+          if (name != null) {
+            if (name.equals("number")) {
+              List<String> values = sqlDelete.getValues();
+              for (String phone : values) {
+                deregisterPhone(phone);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
   @OutputPortFieldAnnotation(name = "locationQueryResult")
   public final transient DefaultOutputPort<Map<String, String>> locationQueryResult = new DefaultOutputPort<Map<String, String>>(this);
 
   @Override
   public void setup(OperatorContext context)
   {
+    //sqlParser = new SQLParser();
   }
 
   /**

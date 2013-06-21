@@ -2,7 +2,7 @@
  *  Copyright (c) 2012-2013 Malhar, Inc.
  *  All Rights Reserved.
  */
-package com.datatorrent.demos.mobile;
+package com.datatorrent.contrib.summit.mobile;
 
 import java.util.List;
 
