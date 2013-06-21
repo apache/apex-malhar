@@ -180,7 +180,7 @@ public class PhoneMovementGenerator extends BaseOperator
   }
 
   public void setSql(String query) {
-    query = query.replace('^', ' ');
+    query = query.replace('+', ' ');
     SQLQuery sqlQuery = sqlParser.parseSQLQuery(query);
     if (sqlQuery != null) {
       if (sqlQuery instanceof SQLInsert) {
@@ -188,7 +188,7 @@ public class PhoneMovementGenerator extends BaseOperator
         //int idx = 0;
         if (sqlInsert.getEntityName().equals("phone")) {
           List<String> names = sqlInsert.getNames();
-          if (names.size() > 0) {
+          if ((names != null) && names.size() > 0) {
             String name = names.get(0);
             if (name.equals("number")) {
               List<List<String>> values = sqlInsert.getValues();
