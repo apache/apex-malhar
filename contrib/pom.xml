@@ -88,7 +88,7 @@
       <groupId>com.101tec</groupId>
       <artifactId>zkclient</artifactId>
       <version>0.2</version>
-      <scope>test</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <!-- TODO: ensure tests work with 3.4.2 and remove -->
