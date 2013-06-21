@@ -31,7 +31,7 @@ import kafka.javaapi.producer.ProducerData;
  * @author Locknath Shil <locknath@malhar-inc.com>
  *
  */
-public abstract class KafkaSinglePortOutputOperator<K, V> extends KafkaOutputOperator
+public abstract class KafkaSinglePortOutputOperator<K, V> extends KafkaOutputOperator<K, V>
 {
   /**
    * The single input port.

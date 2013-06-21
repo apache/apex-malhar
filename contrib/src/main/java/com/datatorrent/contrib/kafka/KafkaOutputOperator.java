@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * @author Locknath Shil <locknath@malhar-inc.com>
  *
  */
-@ShipContainingJars(classes={kafka.javaapi.producer.Producer.class})
+@ShipContainingJars(classes={kafka.javaapi.producer.Producer.class, org.I0Itec.zkclient.ZkClient.class, scala.ScalaObject.class})
 public abstract class KafkaOutputOperator<K, V> implements Operator
 {
   @SuppressWarnings("unused")
