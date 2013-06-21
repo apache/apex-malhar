@@ -175,7 +175,12 @@ public class PhoneMovementGenerator extends BaseOperator
     }
   }
 
+  public String getSql() {
+    return "";
+  }
+
   public void setSql(String query) {
+    query = query.replace('^', ' ');
     SQLQuery sqlQuery = sqlParser.parseSQLQuery(query);
     if (sqlQuery != null) {
       if (sqlQuery instanceof SQLInsert) {
