@@ -114,7 +114,7 @@ public class SQLParser
 
   private List<String> parseSQLList(String s) {
     List<String> tokens = null;
-    String[] stokens = s.split("[ \\(,]");
+    String[] stokens = s.split("[ \\(\\),]");
     for (int i = 0; i < stokens.length; ++i) {
       if (!stokens[i].trim().isEmpty()) {
         if (tokens == null) {
@@ -146,7 +146,7 @@ public class SQLParser
         if (s.charAt(i) == '(') {
           subToken = 1;
           lastIdx = i;
-        } else if (lastIdx == -1) {
+        } else if ((s.charAt(i) != ' ') && (lastIdx == -1)) {
           lastIdx = i;
         }
       }
