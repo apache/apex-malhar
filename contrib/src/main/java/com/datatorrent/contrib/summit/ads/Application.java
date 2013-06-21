@@ -37,7 +37,7 @@ public class Application implements StreamingApplication
 
     RedisNumberAggregateOutputOperator<AggrKey, Map<String, MutableDouble>> redis = dag.addOperator("redis", RedisNumberAggregateOutputOperator.class);
     dag.setInputPortAttribute(redis.input, PortContext.QUEUE_CAPACITY, 32 * 1024);
-    dag.setAttribute(redis, OperatorContext.INITIAL_PARTITION_COUNT, 3);
+    dag.setAttribute(redis, OperatorContext.INITIAL_PARTITION_COUNT, 2);
 
     dag.addStream("ingen", input.outputPort, bucket.inputPort).setInline(true);
     dag.addStream("store", bucket.outputPort, redis.inputInd);
