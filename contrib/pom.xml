@@ -85,9 +85,9 @@
       <version>2.8.0</version>
     </dependency>
     <dependency>
-      <groupId>com.github.sgroschupf</groupId>
+      <groupId>com.101tec</groupId>
       <artifactId>zkclient</artifactId>
-      <version>0.1</version>
+      <version>0.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
