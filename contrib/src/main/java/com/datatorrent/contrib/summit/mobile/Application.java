@@ -30,12 +30,12 @@ public class Application implements StreamingApplication
 
   private void configure(DAG dag, Configuration conf)
   {
-    dag.setAttribute(DAG.CONTAINERS_MAX_COUNT, 1);
+    //dag.setAttribute(DAG.CONTAINERS_MAX_COUNT, 1);
     if (LAUNCHMODE_YARN.equals(conf.get(DAG.LAUNCH_MODE))) {
       // settings only affect distributed mode
       dag.getAttributes().attr(DAG.CONTAINER_MEMORY_MB).setIfAbsent(2048);
       dag.getAttributes().attr(DAG.MASTER_MEMORY_MB).setIfAbsent(1024);
-      dag.getAttributes().attr(DAG.CONTAINERS_MAX_COUNT).setIfAbsent(1);
+      //dag.getAttributes().attr(DAG.CONTAINERS_MAX_COUNT).setIfAbsent(1);
     }
     else if (LAUNCHMODE_LOCAL.equals(conf.get(DAG.LAUNCH_MODE))) {
     }
@@ -70,10 +70,9 @@ public class Application implements StreamingApplication
     movementGen.setThreshold(80);
     dag.setAttribute(movementGen, OperatorContext.INITIAL_PARTITION_COUNT, 2);
     dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MIN, 10000);
-    dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MAX, 50000);
+    dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MAX, 30000);
 
     // default partitioning: first connected stream to movementGen will be partitioned
-    //dag.addStream("phonedata", phones.integer_data, movementGen.data).setInline(true);
     dag.addStream("phonedata", phones.integer_data, movementGen.data);
 
     String daemonAddress = dag.attrValue(DAG.DAEMON_ADDRESS, null);
@@ -89,7 +88,6 @@ public class Application implements StreamingApplication
       wsIn.setUri(uri);
       wsIn.addTopic("demos.mobile.phoneLocationQuery");
 
-      //dag.addStream("consoledata", movementGen.locationQueryResult, wsOut.input).setInline(true);
       dag.addStream("consoledata", movementGen.locationQueryResult, wsOut.input);
       dag.addStream("query", wsIn.outputPort, movementGen.locationQuery);
     }
