@@ -21,7 +21,7 @@ public class HttpStatusFilter extends BaseOperator
 {
 	private String filterStatus;
 	private Map<String, Integer> collect;
-	public final transient DefaultInputPort<Map<String, String>> inport = new DefaultInputPort<Map<String, String>>(this) {
+	public final transient DefaultInputPort<Map<String, String>> inport = new DefaultInputPort<Map<String, String>>() {
     @Override
     public void process(Map<String, String> s) {
     	for(Map.Entry<String, String> entry : s.entrySet())
@@ -56,7 +56,7 @@ public class HttpStatusFilter extends BaseOperator
 	}
 	
 	// out port
-	public final transient DefaultOutputPort<Map<String, Integer>> outport = new DefaultOutputPort<Map<String, Integer>>(this);
+	public final transient DefaultOutputPort<Map<String, Integer>> outport = new DefaultOutputPort<Map<String, Integer>>();
 	
 	@Override
 	public void endWindow()

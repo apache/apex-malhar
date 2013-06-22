@@ -44,7 +44,7 @@ public class SmtpOutputOperator extends BaseOperator
   protected String contentType = "text/plain";
   protected boolean useSsl = false;
   protected boolean setupCalled = false;
-  public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>(this)
+  public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>()
   {
     @Override
     public void process(Object t)

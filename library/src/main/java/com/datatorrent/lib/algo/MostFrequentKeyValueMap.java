@@ -52,7 +52,7 @@ import java.util.HashMap;
 public class MostFrequentKeyValueMap<K, V> extends AbstractBaseFrequentKeyValueMap<K, V>
 {
   @OutputPortFieldAnnotation(name = "most")
-  public final transient DefaultOutputPort<HashMap<K, HashMap<V, Integer>>> most = new DefaultOutputPort<HashMap<K, HashMap<V, Integer>>>(this);
+  public final transient DefaultOutputPort<HashMap<K, HashMap<V, Integer>>> most = new DefaultOutputPort<HashMap<K, HashMap<V, Integer>>>();
 
   /**
    * returns val1 < val2

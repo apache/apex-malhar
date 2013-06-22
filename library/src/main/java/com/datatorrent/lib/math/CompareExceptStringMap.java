@@ -66,7 +66,7 @@ public class CompareExceptStringMap<K> extends MatchStringMap<K,String>
   public final transient DefaultOutputPort<HashMap<K,String>> compare = match;
 
   @OutputPortFieldAnnotation(name = "except", optional=true)
-  public final transient DefaultOutputPort<HashMap<K,String>> except = new DefaultOutputPort<HashMap<K,String>>(this)
+  public final transient DefaultOutputPort<HashMap<K,String>> except = new DefaultOutputPort<HashMap<K,String>>()
   {
     @Override
     public Unifier<HashMap<K, String>> getUnifier()

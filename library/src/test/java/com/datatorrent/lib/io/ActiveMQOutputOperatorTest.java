@@ -231,7 +231,7 @@ public class ActiveMQOutputOperatorTest
      * Two input ports.
      */
     @InputPortFieldAnnotation(name = "ActiveMQInputPort1")
-    public final transient DefaultInputPort<String> inputPort1 = new DefaultInputPort<String>(this)
+    public final transient DefaultInputPort<String> inputPort1 = new DefaultInputPort<String>()
     {
       @Override
       public void process(String tuple)
@@ -247,7 +247,7 @@ public class ActiveMQOutputOperatorTest
       }
     };
     @InputPortFieldAnnotation(name = "ActiveMQInputPort2")
-    public final transient DefaultInputPort<Integer> inputPort2 = new DefaultInputPort<Integer>(this)
+    public final transient DefaultInputPort<Integer> inputPort2 = new DefaultInputPort<Integer>()
     {
       @Override
       public void process(Integer tuple)

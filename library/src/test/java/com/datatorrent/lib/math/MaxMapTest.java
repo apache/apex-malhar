@@ -113,7 +113,7 @@ public class MaxMapTest
   public static class TestInputOperator extends BaseOperator implements InputOperator
   {
     @OutputPortFieldAnnotation(name = "output")
-    public final transient DefaultOutputPort<HashMap<String, Integer>> output = new DefaultOutputPort<HashMap<String, Integer>>(this);
+    public final transient DefaultOutputPort<HashMap<String, Integer>> output = new DefaultOutputPort<HashMap<String, Integer>>();
     public transient boolean first = true;
 
     @Override
@@ -151,7 +151,7 @@ public class MaxMapTest
   public static class CollectorOperator extends BaseOperator
   {
     public static final ArrayList<HashMap<String, Integer>> buffer = new ArrayList<HashMap<String, Integer>>();
-    public final transient DefaultInputPort<HashMap<String, Integer>> input = new DefaultInputPort<HashMap<String, Integer>>(this)
+    public final transient DefaultInputPort<HashMap<String, Integer>> input = new DefaultInputPort<HashMap<String, Integer>>()
     {
       @Override
       public void process(HashMap<String, Integer> tuple)

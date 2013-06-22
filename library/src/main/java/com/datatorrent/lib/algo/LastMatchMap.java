@@ -66,7 +66,7 @@ import java.util.Map;
 public class LastMatchMap<K, V extends Number> extends BaseMatchOperator<K,V>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>(this)
+  public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
   {
     /**
      * Processes tuples and keeps a copy of last matched tuple
@@ -85,7 +85,7 @@ public class LastMatchMap<K, V extends Number> extends BaseMatchOperator<K,V>
   };
 
   @OutputPortFieldAnnotation(name = "last")
-  public final transient DefaultOutputPort<HashMap<K, V>> last = new DefaultOutputPort<HashMap<K, V>>(this);
+  public final transient DefaultOutputPort<HashMap<K, V>> last = new DefaultOutputPort<HashMap<K, V>>();
   protected HashMap<K, V> ltuple = null;
 
 

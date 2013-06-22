@@ -22,7 +22,7 @@ import java.util.HashMap;
 public class UnifierBooleanOr implements Unifier<Boolean>
 {
   boolean result = false;
-  public final transient DefaultOutputPort<Boolean> mergedport = new DefaultOutputPort<Boolean>(this);
+  public final transient DefaultOutputPort<Boolean> mergedport = new DefaultOutputPort<Boolean>();
 
   /**
    * emits result if any partition returns true. Then on the window emits no more tuples

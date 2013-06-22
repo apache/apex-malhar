@@ -63,7 +63,7 @@ import javax.validation.constraints.Min;
 public class Sampler<K> extends BaseKeyOperator<K>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<K> data = new DefaultInputPort<K>(this)
+  public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
     /**
      * Emits the tuple as per probability of passrate out of totalrate
@@ -79,7 +79,7 @@ public class Sampler<K> extends BaseKeyOperator<K>
     }
   };
   @OutputPortFieldAnnotation(name = "sample")
-  public final transient DefaultOutputPort<K> sample = new DefaultOutputPort<K>(this);
+  public final transient DefaultOutputPort<K> sample = new DefaultOutputPort<K>();
 
   @Min(1)
   int passrate = 1;

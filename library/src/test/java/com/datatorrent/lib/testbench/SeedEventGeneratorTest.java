@@ -47,7 +47,7 @@ public class SeedEventGeneratorTest
 
   public static class CollectorOperator extends BaseOperator
   {
-    public final transient DefaultInputPort<HashMap<String, String>> sdata = new DefaultInputPort<HashMap<String, String>>(this)
+    public final transient DefaultInputPort<HashMap<String, String>> sdata = new DefaultInputPort<HashMap<String, String>>()
     {
       @Override
       public void process(HashMap<String, String> tuple)
@@ -55,7 +55,7 @@ public class SeedEventGeneratorTest
         sdlist.add(tuple);
       }
     };
-    public final transient DefaultInputPort<HashMap<String, String>> vdata = new DefaultInputPort<HashMap<String, String>>(this)
+    public final transient DefaultInputPort<HashMap<String, String>> vdata = new DefaultInputPort<HashMap<String, String>>()
     {
       @Override
       public void process(HashMap<String, String> tuple)
@@ -63,7 +63,7 @@ public class SeedEventGeneratorTest
         vdlist.add(tuple);
       }
     };
-    public final transient DefaultInputPort<HashMap<String, ArrayList<Integer>>> vlist = new DefaultInputPort<HashMap<String, ArrayList<Integer>>>(this)
+    public final transient DefaultInputPort<HashMap<String, ArrayList<Integer>>> vlist = new DefaultInputPort<HashMap<String, ArrayList<Integer>>>()
     {
       @Override
       public void process(HashMap<String, ArrayList<Integer>> tuple)
@@ -72,7 +72,7 @@ public class SeedEventGeneratorTest
       }
     };
 
-    public final transient DefaultInputPort<HashMap<String, ArrayList<KeyValPair>>> kvpair = new DefaultInputPort<HashMap<String, ArrayList<KeyValPair>>>(this)
+    public final transient DefaultInputPort<HashMap<String, ArrayList<KeyValPair>>> kvpair = new DefaultInputPort<HashMap<String, ArrayList<KeyValPair>>>()
     {
       @Override
       public void process(HashMap<String, ArrayList<KeyValPair>> tuple)

@@ -39,7 +39,7 @@ public class Script extends BaseOperator
   protected Object evalResult;
 
   @InputPortFieldAnnotation(name = "inBindings", optional = true)
-  public final transient DefaultInputPort<Map<String, Object>> inBindings = new DefaultInputPort<Map<String, Object>>(this)
+  public final transient DefaultInputPort<Map<String, Object>> inBindings = new DefaultInputPort<Map<String, Object>>()
   {
     @Override
     public void process(Map<String, Object> tuple)
@@ -73,9 +73,9 @@ public class Script extends BaseOperator
 
   };
   @OutputPortFieldAnnotation(name = "outBindings", optional = true)
-  public final transient DefaultOutputPort<Map<String, Object>> outBindings = new DefaultOutputPort<Map<String, Object>>(this);
+  public final transient DefaultOutputPort<Map<String, Object>> outBindings = new DefaultOutputPort<Map<String, Object>>();
   @OutputPortFieldAnnotation(name = "result", optional = true)
-  public final transient DefaultOutputPort<Object> result = new DefaultOutputPort<Object>(this);
+  public final transient DefaultOutputPort<Object> result = new DefaultOutputPort<Object>();
 
   public void setEngineByName(String name)
   {

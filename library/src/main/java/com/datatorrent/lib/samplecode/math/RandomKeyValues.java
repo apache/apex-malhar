@@ -16,8 +16,7 @@ import com.datatorrent.lib.util.KeyValPair;
 public class RandomKeyValues implements InputOperator
 {
 
-	public final transient DefaultOutputPort<KeyValPair<String, Integer>> outport = new DefaultOutputPort<KeyValPair<String, Integer>>(
-			this);
+	public final transient DefaultOutputPort<KeyValPair<String, Integer>> outport = new DefaultOutputPort<KeyValPair<String, Integer>>();
 	private Random random = new Random(11111);
 
 	@Override

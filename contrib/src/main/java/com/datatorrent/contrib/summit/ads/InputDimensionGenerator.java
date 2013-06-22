@@ -21,10 +21,10 @@ public class InputDimensionGenerator extends BaseOperator
   private static final int dimSelLen = 8;
 
   @OutputPortFieldAnnotation(name = "outputPort")
-  public final transient DefaultOutputPort<AdInfo> outputPort = new DefaultOutputPort<AdInfo>(this);
+  public final transient DefaultOutputPort<AdInfo> outputPort = new DefaultOutputPort<AdInfo>();
 
   @InputPortFieldAnnotation(name = "inputPort")
-  public final transient DefaultInputPort<AdInfo> inputPort = new DefaultInputPort<AdInfo>(this) {
+  public final transient DefaultInputPort<AdInfo> inputPort = new DefaultInputPort<AdInfo>() {
 
     @Override
     public void process(AdInfo tuple)

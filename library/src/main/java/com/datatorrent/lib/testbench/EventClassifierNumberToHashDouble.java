@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  */
 public class EventClassifierNumberToHashDouble<K extends Number> extends BaseOperator
 {
-  public final transient DefaultInputPort<K> event = new DefaultInputPort<K>(this)
+  public final transient DefaultInputPort<K> event = new DefaultInputPort<K>()
   {
     @Override
     public void process(K tuple)
@@ -63,7 +63,7 @@ public class EventClassifierNumberToHashDouble<K extends Number> extends BaseOpe
       }
     }
   };
-  public final transient DefaultOutputPort<HashMap<String, Double>> data = new DefaultOutputPort<HashMap<String, Double>>(this);
+  public final transient DefaultOutputPort<HashMap<String, Double>> data = new DefaultOutputPort<HashMap<String, Double>>();
 
   @NotNull
   String key = "";

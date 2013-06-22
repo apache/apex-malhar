@@ -50,7 +50,7 @@ import java.util.Map;
 public class InvertIndexArray<K, V> extends BaseKeyValueOperator<K,V>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<HashMap<K, ArrayList<V>>> data = new DefaultInputPort<HashMap<K, ArrayList<V>>>(this)
+  public final transient DefaultInputPort<HashMap<K, ArrayList<V>>> data = new DefaultInputPort<HashMap<K, ArrayList<V>>>()
   {
     /**
      * Reverse indexes a HashMap<K, ArrayList<V>> tuple
@@ -71,7 +71,7 @@ public class InvertIndexArray<K, V> extends BaseKeyValueOperator<K,V>
   };
 
   @OutputPortFieldAnnotation(name = "index")
-  public final transient DefaultOutputPort<HashMap<V, ArrayList<K>>> index = new DefaultOutputPort<HashMap<V, ArrayList<K>>>(this);
+  public final transient DefaultOutputPort<HashMap<V, ArrayList<K>>> index = new DefaultOutputPort<HashMap<V, ArrayList<K>>>();
   protected HashMap<V, ArrayList<K>> map = new HashMap<V, ArrayList<K>>();
 
   /**

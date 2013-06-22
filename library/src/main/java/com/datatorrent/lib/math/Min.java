@@ -55,7 +55,7 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
 public class Min<V extends Number> extends BaseNumberValueOperator<V> implements Unifier<V>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<V> data = new DefaultInputPort<V>(this)
+  public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
   {
     /**
      * Each tuple is compared to the min and a new min (if so) is stored.
@@ -80,7 +80,7 @@ public class Min<V extends Number> extends BaseNumberValueOperator<V> implements
   }
 
   @OutputPortFieldAnnotation(name = "min")
-  public final transient DefaultOutputPort<V> min = new DefaultOutputPort<V>(this)
+  public final transient DefaultOutputPort<V> min = new DefaultOutputPort<V>()
   {
     @Override
     public Unifier<V> getUnifier()

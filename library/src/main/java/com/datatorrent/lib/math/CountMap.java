@@ -60,7 +60,7 @@ public class CountMap<K, V> extends BaseKeyValueOperator<K, V>
    * Input port to receive data.
    */
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>(this)
+  public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
   {
     /**
      * For each tuple (a HashMap of keys,val pairs)
@@ -82,7 +82,7 @@ public class CountMap<K, V> extends BaseKeyValueOperator<K, V>
   };
 
   @OutputPortFieldAnnotation(name = "count")
-  public final transient DefaultOutputPort<HashMap<K, Integer>> count = new DefaultOutputPort<HashMap<K, Integer>>(this)
+  public final transient DefaultOutputPort<HashMap<K, Integer>> count = new DefaultOutputPort<HashMap<K, Integer>>()
   {
     @Override
     public Unifier<HashMap<K, Integer>> getUnifier()

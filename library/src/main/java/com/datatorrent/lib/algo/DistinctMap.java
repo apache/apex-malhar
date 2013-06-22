@@ -63,7 +63,7 @@ import java.util.Map;
 public class DistinctMap<K, V> extends BaseKeyValueOperator<K, V>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>(this)
+  public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
   {
     /**
      * Process HashMap<K,V> tuple on input port data, and emits if match not found. Updates the cache
@@ -88,7 +88,7 @@ public class DistinctMap<K, V> extends BaseKeyValueOperator<K, V>
     }
   };
   @OutputPortFieldAnnotation(name = "distinct")
-  public final transient DefaultOutputPort<HashMap<K, V>> distinct = new DefaultOutputPort<HashMap<K, V>>(this)
+  public final transient DefaultOutputPort<HashMap<K, V>> distinct = new DefaultOutputPort<HashMap<K, V>>()
   {
     @Override
     public Unifier<HashMap<K, V>> getUnifier()

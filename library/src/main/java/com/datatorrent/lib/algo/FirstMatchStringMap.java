@@ -67,7 +67,7 @@ public class FirstMatchStringMap<K> extends BaseMatchOperator<K,String>
 {
 
   @InputPortFieldAnnotation(name="data")
-  public final transient DefaultInputPort<Map<K, String>> data = new DefaultInputPort<Map<K, String>>(this)
+  public final transient DefaultInputPort<Map<K, String>> data = new DefaultInputPort<Map<K, String>>()
   {
     /**
      * Checks if required key,val pair exists in the HashMap. If so tuple is emitted, and emitted flag is set
@@ -103,7 +103,7 @@ public class FirstMatchStringMap<K> extends BaseMatchOperator<K,String>
   };
 
   @OutputPortFieldAnnotation(name="first")
-  public final transient DefaultOutputPort<HashMap<K, String>> first = new DefaultOutputPort<HashMap<K, String>>(this);
+  public final transient DefaultOutputPort<HashMap<K, String>> first = new DefaultOutputPort<HashMap<K, String>>();
   boolean emitted = false;
 
   /**

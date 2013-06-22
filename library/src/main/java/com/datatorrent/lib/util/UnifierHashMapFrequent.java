@@ -23,7 +23,7 @@ import java.util.Map;
 public class UnifierHashMapFrequent<K> implements Unifier<HashMap<K, Integer>>
 {
   HashMap<K, Integer> mergedTuple = new HashMap<K, Integer>();
-  public final transient DefaultOutputPort<HashMap<K, Integer>> mergedport = new DefaultOutputPort<HashMap<K, Integer>>(this);
+  public final transient DefaultOutputPort<HashMap<K, Integer>> mergedport = new DefaultOutputPort<HashMap<K, Integer>>();
 
   Integer lval;
   boolean least = true;

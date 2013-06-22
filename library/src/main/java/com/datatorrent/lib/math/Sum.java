@@ -69,7 +69,7 @@ public class Sum<V extends Number> extends BaseNumberValueOperator<V> implements
    * Input port to receive data.
    */
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<V> data = new DefaultInputPort<V>(this)
+  public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
   {
     /**
      * Computes sum and count with each tuple
@@ -89,7 +89,7 @@ public class Sum<V extends Number> extends BaseNumberValueOperator<V> implements
     tupleAvailable = true; // also need to set here for Unifier
   }
   @OutputPortFieldAnnotation(name = "sum", optional = true)
-  public final transient DefaultOutputPort<V> sum = new DefaultOutputPort<V>(this)
+  public final transient DefaultOutputPort<V> sum = new DefaultOutputPort<V>()
   {
     @Override
     public Unifier<V> getUnifier()
@@ -100,7 +100,7 @@ public class Sum<V extends Number> extends BaseNumberValueOperator<V> implements
     }
   };
   @OutputPortFieldAnnotation(name = "sumDouble", optional = true)
-  public final transient DefaultOutputPort<Double> sumDouble = new DefaultOutputPort<Double>(this)
+  public final transient DefaultOutputPort<Double> sumDouble = new DefaultOutputPort<Double>()
   {
     @Override
     public Unifier<Double> getUnifier()
@@ -111,7 +111,7 @@ public class Sum<V extends Number> extends BaseNumberValueOperator<V> implements
     }
   };
   @OutputPortFieldAnnotation(name = "sumInteger", optional = true)
-  public final transient DefaultOutputPort<Integer> sumInteger = new DefaultOutputPort<Integer>(this)
+  public final transient DefaultOutputPort<Integer> sumInteger = new DefaultOutputPort<Integer>()
   {
     @Override
     public Unifier<Integer> getUnifier()
@@ -122,7 +122,7 @@ public class Sum<V extends Number> extends BaseNumberValueOperator<V> implements
     }
   };
   @OutputPortFieldAnnotation(name = "sumLong", optional = true)
-  public final transient DefaultOutputPort<Long> sumLong = new DefaultOutputPort<Long>(this)
+  public final transient DefaultOutputPort<Long> sumLong = new DefaultOutputPort<Long>()
   {
     @Override
     public Unifier<Long> getUnifier()
@@ -133,7 +133,7 @@ public class Sum<V extends Number> extends BaseNumberValueOperator<V> implements
     }
   };
   @OutputPortFieldAnnotation(name = "sumShort", optional = true)
-  public final transient DefaultOutputPort<Short> sumShort = new DefaultOutputPort<Short>(this)
+  public final transient DefaultOutputPort<Short> sumShort = new DefaultOutputPort<Short>()
   {
     @Override
     public Unifier<Short> getUnifier()
@@ -144,7 +144,7 @@ public class Sum<V extends Number> extends BaseNumberValueOperator<V> implements
     }
   };
   @OutputPortFieldAnnotation(name = "sumFloat", optional = true)
-  public final transient DefaultOutputPort<Float> sumFloat = new DefaultOutputPort<Float>(this)
+  public final transient DefaultOutputPort<Float> sumFloat = new DefaultOutputPort<Float>()
   {
     @Override
     public Unifier<Float> getUnifier()
@@ -156,7 +156,7 @@ public class Sum<V extends Number> extends BaseNumberValueOperator<V> implements
   };
 
   @OutputPortFieldAnnotation(name = "redisport", optional = true)
-  public final transient DefaultOutputPort<Map<Integer, Integer>> redisport = new DefaultOutputPort<Map<Integer, Integer>>(this);
+  public final transient DefaultOutputPort<Map<Integer, Integer>> redisport = new DefaultOutputPort<Map<Integer, Integer>>();
 		  
   protected double sums = 0;
   protected boolean tupleAvailable = false;

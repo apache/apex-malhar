@@ -50,7 +50,7 @@ import java.util.Map.Entry;
 public class KeyValPairToHashMap<K, V> extends BaseKeyValueOperator<K, V>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<KeyValPair<K, V>> keyval = new DefaultInputPort<KeyValPair<K, V>>(this)
+  public final transient DefaultInputPort<KeyValPair<K, V>> keyval = new DefaultInputPort<KeyValPair<K, V>>()
   {
     /**
      * Emits key, key/val pair, and val based on port connections
@@ -64,5 +64,5 @@ public class KeyValPairToHashMap<K, V> extends BaseKeyValueOperator<K, V>
     }
   };
   @OutputPortFieldAnnotation(name = "map")
-  public final transient DefaultOutputPort<HashMap<K, V>> map = new DefaultOutputPort<HashMap<K, V>>(this);
+  public final transient DefaultOutputPort<HashMap<K, V>> map = new DefaultOutputPort<HashMap<K, V>>();
 }

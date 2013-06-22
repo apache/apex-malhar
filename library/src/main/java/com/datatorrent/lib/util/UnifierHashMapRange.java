@@ -23,7 +23,7 @@ import java.util.Map;
 public class UnifierHashMapRange<K> implements Unifier<HashMap<K, HighLow>>
 {
   public HashMap<K, HighLow> mergedTuple = new HashMap<K, HighLow>();
-  public final transient DefaultOutputPort<HashMap<K, HighLow>> mergedport = new DefaultOutputPort<HashMap<K, HighLow>>(this);
+  public final transient DefaultOutputPort<HashMap<K, HighLow>> mergedport = new DefaultOutputPort<HashMap<K, HighLow>>();
 
   /**
    * combines the tuple into a single final tuple which is emitted in endWindow

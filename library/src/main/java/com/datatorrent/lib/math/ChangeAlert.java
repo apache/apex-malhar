@@ -59,7 +59,7 @@ import javax.validation.constraints.Min;
 public class ChangeAlert<V extends Number> extends BaseNumberValueOperator<V>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<V> data = new DefaultInputPort<V>(this)
+  public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
   {
     /**
      * Process each key, compute change or percent, and emit it.
@@ -87,7 +87,7 @@ public class ChangeAlert<V extends Number> extends BaseNumberValueOperator<V>
   };
   // Default "pass through" unifier works as tuple is emitted as pass through
   @OutputPortFieldAnnotation(name = "alert")
-  public final transient DefaultOutputPort<KeyValPair<V, Double>> alert = new DefaultOutputPort<KeyValPair<V, Double>>(this);
+  public final transient DefaultOutputPort<KeyValPair<V, Double>> alert = new DefaultOutputPort<KeyValPair<V, Double>>();
   /**
    * baseValue is a stateful field. It is retained across windows
    */

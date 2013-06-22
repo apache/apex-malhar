@@ -32,7 +32,7 @@ public class ConsolidatorKeyVal<K,V1,V2,V3,V4,V5> implements Operator
 
     ConsolidatorInputPort(Operator oper, int num)
     {
-      super(oper);
+      super();
       number = num;
     }
 
@@ -63,7 +63,7 @@ public class ConsolidatorKeyVal<K,V1,V2,V3,V4,V5> implements Operator
   @InputPortFieldAnnotation(name = "in5", optional = true)
   public final transient ConsolidatorInputPort<V5> in5 = new ConsolidatorInputPort<V5>(this, 4);
   @OutputPortFieldAnnotation(name = "out")
-  public final transient DefaultOutputPort<HashMap<K, ArrayList<Object>>> out = new DefaultOutputPort<HashMap<K, ArrayList<Object>>>(this);
+  public final transient DefaultOutputPort<HashMap<K, ArrayList<Object>>> out = new DefaultOutputPort<HashMap<K, ArrayList<Object>>>();
 
   public ArrayList<Object> getObject(K k)
   {

@@ -97,7 +97,7 @@ public class MaxKeyValTest
   public static class TestInputOperator extends BaseOperator implements InputOperator
   {
     @OutputPortFieldAnnotation(name = "output")
-    public final transient DefaultOutputPort<KeyValPair<String, Integer>> output = new DefaultOutputPort<KeyValPair<String, Integer>>(this);
+    public final transient DefaultOutputPort<KeyValPair<String, Integer>> output = new DefaultOutputPort<KeyValPair<String, Integer>>();
     private transient boolean first = true;
 
     @Override
@@ -121,7 +121,7 @@ public class MaxKeyValTest
   public static class CollectorOperator extends BaseOperator
   {
     public static final ArrayList<KeyValPair<String, Integer>> buffer = new ArrayList<KeyValPair<String, Integer>>();
-    public final transient DefaultInputPort<KeyValPair<String, Integer>> input = new DefaultInputPort<KeyValPair<String, Integer>>(this)
+    public final transient DefaultInputPort<KeyValPair<String, Integer>> input = new DefaultInputPort<KeyValPair<String, Integer>>()
     {
       @Override
       public void process(KeyValPair<String, Integer> tuple)

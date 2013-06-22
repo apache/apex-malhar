@@ -109,7 +109,7 @@ public abstract class AbstractSlidingWindowKeyVal<K, V extends Number, S extends
    * Input port for getting incoming data.
    */
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>(this)
+  public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
   {
     @Override
     public void process(KeyValPair<K, V> tuple)

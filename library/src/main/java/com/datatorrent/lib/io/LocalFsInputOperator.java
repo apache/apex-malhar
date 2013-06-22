@@ -18,7 +18,7 @@ import com.datatorrent.api.Context.OperatorContext;
  */
 public class LocalFsInputOperator extends AbstractLocalFSInputOperator
 {
-	public final transient DefaultOutputPort<String> outport = new DefaultOutputPort<String>(this);
+	public final transient DefaultOutputPort<String> outport = new DefaultOutputPort<String>();
 	private DataInputStream in;
 	private BufferedReader br;
 	private int sleepInterval = 0;

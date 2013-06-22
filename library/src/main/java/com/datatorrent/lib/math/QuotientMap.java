@@ -65,7 +65,7 @@ import org.apache.commons.lang.mutable.MutableDouble;
 public class QuotientMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
 {
   @InputPortFieldAnnotation(name = "numerator")
-  public final transient DefaultInputPort<Map<K, V>> numerator = new DefaultInputPort<Map<K, V>>(this)
+  public final transient DefaultInputPort<Map<K, V>> numerator = new DefaultInputPort<Map<K, V>>()
   {
     /**
      * Added tuple to the numerator hash
@@ -77,7 +77,7 @@ public class QuotientMap<K, V extends Number> extends BaseNumberKeyValueOperator
     }
   };
   @InputPortFieldAnnotation(name = "denominator")
-  public final transient DefaultInputPort<Map<K, V>> denominator = new DefaultInputPort<Map<K, V>>(this)
+  public final transient DefaultInputPort<Map<K, V>> denominator = new DefaultInputPort<Map<K, V>>()
   {
     /**
      * Added tuple to the denominator hash
@@ -89,7 +89,7 @@ public class QuotientMap<K, V extends Number> extends BaseNumberKeyValueOperator
     }
   };
   @OutputPortFieldAnnotation(name = "quotient")
-  public final transient DefaultOutputPort<HashMap<K, Double>> quotient = new DefaultOutputPort<HashMap<K, Double>>(this);
+  public final transient DefaultOutputPort<HashMap<K, Double>> quotient = new DefaultOutputPort<HashMap<K, Double>>();
 
   public void addTuple(Map<K, V> tuple, Map<K, MutableDouble> map)
   {

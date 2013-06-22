@@ -61,7 +61,7 @@ import org.apache.commons.lang.mutable.MutableInt;
 public class FirstN<K,V> extends AbstractBaseNOperatorMap<K, V>
 {
   @OutputPortFieldAnnotation(name="first")
-  public final transient DefaultOutputPort<HashMap<K, V>> first = new DefaultOutputPort<HashMap<K, V>>(this);
+  public final transient DefaultOutputPort<HashMap<K, V>> first = new DefaultOutputPort<HashMap<K, V>>();
 
   HashMap<K, MutableInt> keycount = new HashMap<K, MutableInt>();
 

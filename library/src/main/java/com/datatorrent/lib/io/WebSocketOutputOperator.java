@@ -53,7 +53,7 @@ public class WebSocketOutputOperator<T> extends BaseOperator
     this.uri = uri;
   }
 
-  public final transient DefaultInputPort<T> input = new DefaultInputPort<T>(this)
+  public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()
   {
     @Override
     public void process(T t)

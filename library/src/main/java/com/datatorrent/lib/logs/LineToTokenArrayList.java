@@ -55,9 +55,9 @@ import org.slf4j.LoggerFactory;
 public class LineToTokenArrayList extends BaseLineTokenizer
 {
   @OutputPortFieldAnnotation(name = "tokens", optional = true)
-  public final transient DefaultOutputPort<ArrayList<String>> tokens = new DefaultOutputPort<ArrayList<String>>(this);
+  public final transient DefaultOutputPort<ArrayList<String>> tokens = new DefaultOutputPort<ArrayList<String>>();
   @OutputPortFieldAnnotation(name = "splittokens", optional = true)
-  public final transient DefaultOutputPort<ArrayList<HashMap<String, ArrayList<String>>>> splittokens = new DefaultOutputPort<ArrayList<HashMap<String, ArrayList<String>>>>(this);
+  public final transient DefaultOutputPort<ArrayList<HashMap<String, ArrayList<String>>>> splittokens = new DefaultOutputPort<ArrayList<HashMap<String, ArrayList<String>>>>();
   protected transient ArrayList<String> tokentuple = null;
   protected transient ArrayList<HashMap<String, ArrayList<String>>> stokentuple = null;
   protected transient HashMap<String, ArrayList<String>> smap = null;

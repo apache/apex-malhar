@@ -421,7 +421,7 @@ public abstract class JDBCOutputOperator<T> extends JDBCOperatorBase implements 
    * The input port.
    */
   @InputPortFieldAnnotation(name = "inputPort")
-  public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>(this)
+  public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>()
   {
     /**
      * Write a batch of tuple into database. The batch size can be configured by the user in batchSize variable.

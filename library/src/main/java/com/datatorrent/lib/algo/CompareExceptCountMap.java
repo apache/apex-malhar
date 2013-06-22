@@ -74,7 +74,7 @@ import java.util.Map;
 public class CompareExceptCountMap<K, V extends Number> extends MatchMap<K, V>
 {
   @OutputPortFieldAnnotation(name = "count")
-  public final transient DefaultOutputPort<Integer> count = new DefaultOutputPort<Integer>(this)
+  public final transient DefaultOutputPort<Integer> count = new DefaultOutputPort<Integer>()
   {
     @Override
     public Unifier<Integer> getUnifier()
@@ -85,7 +85,7 @@ public class CompareExceptCountMap<K, V extends Number> extends MatchMap<K, V>
 
 
   @OutputPortFieldAnnotation(name = "except")
-  public final transient DefaultOutputPort<Integer> except = new DefaultOutputPort<Integer>(this)
+  public final transient DefaultOutputPort<Integer> except = new DefaultOutputPort<Integer>()
   {
     @Override
     public Unifier<Integer> getUnifier()

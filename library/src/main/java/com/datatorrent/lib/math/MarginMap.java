@@ -67,7 +67,7 @@ import org.apache.commons.lang.mutable.MutableDouble;
 public class MarginMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
 {
   @InputPortFieldAnnotation(name = "numerator")
-  public final transient DefaultInputPort<Map<K, V>> numerator = new DefaultInputPort<Map<K, V>>(this)
+  public final transient DefaultInputPort<Map<K, V>> numerator = new DefaultInputPort<Map<K, V>>()
   {
     /**
      * Adds tuple to the numerator hash
@@ -79,7 +79,7 @@ public class MarginMap<K, V extends Number> extends BaseNumberKeyValueOperator<K
     }
   };
   @InputPortFieldAnnotation(name = "denominator")
-  public final transient DefaultInputPort<Map<K, V>> denominator = new DefaultInputPort<Map<K, V>>(this)
+  public final transient DefaultInputPort<Map<K, V>> denominator = new DefaultInputPort<Map<K, V>>()
   {
     /**
      * Adds tuple to the denominator hash
@@ -111,7 +111,7 @@ public class MarginMap<K, V extends Number> extends BaseNumberKeyValueOperator<K
     }
   }
   @OutputPortFieldAnnotation(name = "margin")
-  public final transient DefaultOutputPort<HashMap<K, V>> margin = new DefaultOutputPort<HashMap<K, V>>(this)
+  public final transient DefaultOutputPort<HashMap<K, V>> margin = new DefaultOutputPort<HashMap<K, V>>()
   {
     @Override
     public Unifier<HashMap<K, V>> getUnifier()

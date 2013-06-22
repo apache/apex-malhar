@@ -22,12 +22,12 @@ public class TopOccurance extends BaseOperator
 	private int threshHold = 5;
 	
   //out port
-	public final transient DefaultOutputPort<Map<Integer, String>> outport = new DefaultOutputPort<Map<Integer, String>>(this);
-	public final transient DefaultOutputPort<Map<Integer, String>> gtThreshHold = new DefaultOutputPort<Map<Integer, String>>(this);
+	public final transient DefaultOutputPort<Map<Integer, String>> outport = new DefaultOutputPort<Map<Integer, String>>();
+	public final transient DefaultOutputPort<Map<Integer, String>> gtThreshHold = new DefaultOutputPort<Map<Integer, String>>();
   
 	// input port    
 	public final transient DefaultInputPort<Map<String, Integer>> inport = 
-			 new DefaultInputPort<Map<String, Integer>>(this) {
+			 new DefaultInputPort<Map<String, Integer>>() {
     @Override
     public void process(Map<String, Integer> tuple) 
     {	

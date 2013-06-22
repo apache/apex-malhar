@@ -20,15 +20,15 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 public abstract class AbstractFunction extends BaseOperator
 {
   @OutputPortFieldAnnotation(name = "doubleResult", optional = true)
-  public final transient DefaultOutputPort<Double> doubleResult = new DefaultOutputPort<Double>(this);
+  public final transient DefaultOutputPort<Double> doubleResult = new DefaultOutputPort<Double>();
 
 
   @OutputPortFieldAnnotation(name = "floatResult", optional = true)
-  public final transient DefaultOutputPort<Float> floatResult = new DefaultOutputPort<Float>(this);
+  public final transient DefaultOutputPort<Float> floatResult = new DefaultOutputPort<Float>();
 
   @OutputPortFieldAnnotation(name = "longResult", optional = true)
-  public final transient DefaultOutputPort<Long> longResult = new DefaultOutputPort<Long>(this);
+  public final transient DefaultOutputPort<Long> longResult = new DefaultOutputPort<Long>();
 
   @OutputPortFieldAnnotation(name = "integerResult", optional = true)
-  public final transient DefaultOutputPort<Integer> integerResult = new DefaultOutputPort<Integer>(this);
+  public final transient DefaultOutputPort<Integer> integerResult = new DefaultOutputPort<Integer>();
 }

@@ -55,7 +55,7 @@ public class ApacheLogParseOperator extends BaseOperator {
 
     // default date format
     protected static final String dateFormat = "dd/MMM/yyyy:HH:mm:ss Z";
-    public final transient DefaultInputPort<String> data = new DefaultInputPort<String>(this) {
+    public final transient DefaultInputPort<String> data = new DefaultInputPort<String>() {
         @Override
         public void process(String s) {
             try {
@@ -65,12 +65,12 @@ public class ApacheLogParseOperator extends BaseOperator {
             }
         }
     };
-    public final transient DefaultOutputPort<String> outputIPAddress = new DefaultOutputPort<String>(this);
-    public final transient DefaultOutputPort<String> outputUrl = new DefaultOutputPort<String>(this);
-    public final transient DefaultOutputPort<String> outputStatusCode = new DefaultOutputPort<String>(this);
-    public final transient DefaultOutputPort<Long> outputBytes = new DefaultOutputPort<Long>(this);
-    public final transient DefaultOutputPort<String> outputReferer = new DefaultOutputPort<String>(this);
-    public final transient DefaultOutputPort<String> outputAgent = new DefaultOutputPort<String>(this);
+    public final transient DefaultOutputPort<String> outputIPAddress = new DefaultOutputPort<String>();
+    public final transient DefaultOutputPort<String> outputUrl = new DefaultOutputPort<String>();
+    public final transient DefaultOutputPort<String> outputStatusCode = new DefaultOutputPort<String>();
+    public final transient DefaultOutputPort<Long> outputBytes = new DefaultOutputPort<Long>();
+    public final transient DefaultOutputPort<String> outputReferer = new DefaultOutputPort<String>();
+    public final transient DefaultOutputPort<String> outputAgent = new DefaultOutputPort<String>();
 
     protected static String getAccessLogRegex() {
         String regex1 = "^([\\d\\.]+)";                         // Client IP

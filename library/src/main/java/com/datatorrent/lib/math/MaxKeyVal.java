@@ -64,7 +64,7 @@ import java.util.Map;
 public class MaxKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>(this)
+  public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
   {
     /**
      * For each key, updates the hash if the new value is a new max.
@@ -97,7 +97,7 @@ public class MaxKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
     }
   };
   @OutputPortFieldAnnotation(name = "max")
-  public final transient DefaultOutputPort<KeyValPair<K, V>> max = new DefaultOutputPort<KeyValPair<K, V>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, V>> max = new DefaultOutputPort<KeyValPair<K, V>>();
 
   protected HashMap<K, V> highs = new HashMap<K, V>();
 

@@ -17,8 +17,7 @@ import com.datatorrent.api.Context.OperatorContext;
 public class RandomKeyValMap implements InputOperator
 {
 
-	public final transient DefaultOutputPort<Map<String, Integer>> outport = new DefaultOutputPort<Map<String, Integer>>(
-			this);
+	public final transient DefaultOutputPort<Map<String, Integer>> outport = new DefaultOutputPort<Map<String, Integer>>();
 	private Random random = new Random(11111);
 
 	@Override

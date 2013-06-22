@@ -61,7 +61,7 @@ import org.apache.commons.lang3.mutable.MutableDouble;
 public class RangeKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>(this)
+  public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
   {
     /**
      * Process each key and computes new high and low.
@@ -96,7 +96,7 @@ public class RangeKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator
    * Output port to send out the high low range.
    */
   @OutputPortFieldAnnotation(name = "range")
-  public final transient DefaultOutputPort<KeyValPair<K, HighLow>> range = new DefaultOutputPort<KeyValPair<K, HighLow>>(this)
+  public final transient DefaultOutputPort<KeyValPair<K, HighLow>> range = new DefaultOutputPort<KeyValPair<K, HighLow>>()
   {
     @Override
     public Unifier<KeyValPair<K, HighLow>> getUnifier()

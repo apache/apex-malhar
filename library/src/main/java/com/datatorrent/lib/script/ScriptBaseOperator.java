@@ -54,7 +54,7 @@ public class ScriptBaseOperator extends BaseOperator implements ScriptOperator
 	  tuples = new ArrayList<Map<String, Object>>();
   }    
 	     
-	public final transient DefaultOutputPort<Map<String, Object>> result = new DefaultOutputPort<Map<String, Object>>(this);
+	public final transient DefaultOutputPort<Map<String, Object>> result = new DefaultOutputPort<Map<String, Object>>();
 	@Override
 	public void endWindow()
 	{

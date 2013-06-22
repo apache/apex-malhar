@@ -59,7 +59,7 @@ import java.util.HashMap;
 public class TopN<K, V> extends AbstractBaseNNonUniqueOperatorMap<K,V>
 {
   @OutputPortFieldAnnotation(name="top")
-  public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> top = new DefaultOutputPort<HashMap<K, ArrayList<V>>>(this);
+  public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> top = new DefaultOutputPort<HashMap<K, ArrayList<V>>>();
 
   /**
    * returns true

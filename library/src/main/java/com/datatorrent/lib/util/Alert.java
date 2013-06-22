@@ -26,7 +26,7 @@ public class Alert extends BaseOperator
   protected long levelThreeAlertTime = 0;
   protected boolean activated = true;
   @InputPortFieldAnnotation(name = "in", optional = false)
-  public final transient DefaultInputPort<Object> in = new DefaultInputPort<Object>(this)
+  public final transient DefaultInputPort<Object> in = new DefaultInputPort<Object>()
   {
     @Override
     public void process(Object tuple)
@@ -52,11 +52,11 @@ public class Alert extends BaseOperator
 
   };
   @OutputPortFieldAnnotation(name = "alert1", optional = false)
-  public final transient DefaultOutputPort<Object> alert1 = new DefaultOutputPort<Object>(this);
+  public final transient DefaultOutputPort<Object> alert1 = new DefaultOutputPort<Object>();
   @OutputPortFieldAnnotation(name = "alert2", optional = true)
-  public final transient DefaultOutputPort<Object> alert2 = new DefaultOutputPort<Object>(this);
+  public final transient DefaultOutputPort<Object> alert2 = new DefaultOutputPort<Object>();
   @OutputPortFieldAnnotation(name = "alert3", optional = true)
-  public final transient DefaultOutputPort<Object> alert3 = new DefaultOutputPort<Object>(this);
+  public final transient DefaultOutputPort<Object> alert3 = new DefaultOutputPort<Object>();
 
   public long getTimeout()
   {

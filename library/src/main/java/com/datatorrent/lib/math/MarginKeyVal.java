@@ -67,7 +67,7 @@ import org.apache.commons.lang.mutable.MutableDouble;
 public class MarginKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
   @InputPortFieldAnnotation(name = "numerator")
-  public final transient DefaultInputPort<KeyValPair<K, V>> numerator = new DefaultInputPort<KeyValPair<K, V>>(this)
+  public final transient DefaultInputPort<KeyValPair<K, V>> numerator = new DefaultInputPort<KeyValPair<K, V>>()
   {
     /**
      * Adds tuple to the numerator hash.
@@ -88,7 +88,7 @@ public class MarginKeyVal<K, V extends Number> extends BaseNumberKeyValueOperato
     }
   };
   @InputPortFieldAnnotation(name = "denominator")
-  public final transient DefaultInputPort<KeyValPair<K, V>> denominator = new DefaultInputPort<KeyValPair<K, V>>(this)
+  public final transient DefaultInputPort<KeyValPair<K, V>> denominator = new DefaultInputPort<KeyValPair<K, V>>()
   {
     /**
      * Adds tuple to the denominator hash.
@@ -129,7 +129,7 @@ public class MarginKeyVal<K, V extends Number> extends BaseNumberKeyValueOperato
     val.add(tuple.getValue().doubleValue());
   }
   @OutputPortFieldAnnotation(name = "margin")
-  public final transient DefaultOutputPort<KeyValPair<K, V>> margin = new DefaultOutputPort<KeyValPair<K, V>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, V>> margin = new DefaultOutputPort<KeyValPair<K, V>>();
 
   protected HashMap<K, MutableDouble> numerators = new HashMap<K, MutableDouble>();
   protected HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();

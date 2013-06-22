@@ -59,7 +59,7 @@ import javax.validation.constraints.Min;
 public abstract class AbstractSlidingWindow<T> extends BaseOperator
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<T> data = new DefaultInputPort<T>(this)
+  public final transient DefaultInputPort<T> data = new DefaultInputPort<T>()
   {
     @Override
     public void process(T tuple)

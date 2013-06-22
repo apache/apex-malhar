@@ -54,7 +54,7 @@ import java.util.HashMap;
 public class MergeSort<K> extends AbstractBaseSortOperator<K>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<ArrayList<K>> data = new DefaultInputPort<ArrayList<K>>(this)
+  public final transient DefaultInputPort<ArrayList<K>> data = new DefaultInputPort<ArrayList<K>>()
   {
     @Override
     public void process(ArrayList<K> tuple)
@@ -63,9 +63,9 @@ public class MergeSort<K> extends AbstractBaseSortOperator<K>
     }
   };
   @OutputPortFieldAnnotation(name = "sort")
-  public final transient DefaultOutputPort<ArrayList<K>> sort = new DefaultOutputPort<ArrayList<K>>(this);
+  public final transient DefaultOutputPort<ArrayList<K>> sort = new DefaultOutputPort<ArrayList<K>>();
   @OutputPortFieldAnnotation(name = "sorthash", optional = true)
-  public final transient DefaultOutputPort<HashMap<K, Integer>> sorthash = new DefaultOutputPort<HashMap<K, Integer>>(this);
+  public final transient DefaultOutputPort<HashMap<K, Integer>> sorthash = new DefaultOutputPort<HashMap<K, Integer>>();
 
   /*
    * <b>Currently implemented with individual keys inserted. Needs to be reimplemented</b>

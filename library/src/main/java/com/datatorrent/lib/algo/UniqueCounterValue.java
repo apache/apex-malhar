@@ -59,7 +59,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 public class UniqueCounterValue<K> extends BaseOperator implements Unifier<Integer>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<K> data = new DefaultInputPort<K>(this)
+  public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
     /**
      * Counts tuples.
@@ -72,7 +72,7 @@ public class UniqueCounterValue<K> extends BaseOperator implements Unifier<Integ
 
   };
   @OutputPortFieldAnnotation(name = "count")
-  public final transient DefaultOutputPort<Integer> count = new DefaultOutputPort<Integer>(this)
+  public final transient DefaultOutputPort<Integer> count = new DefaultOutputPort<Integer>()
   {
     @Override
     public Unifier<Integer> getUnifier()

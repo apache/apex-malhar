@@ -27,7 +27,7 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(DimensionTimeBucketOperator.class);
   @InputPortFieldAnnotation(name = "in", optional = false)
-  public final transient DefaultInputPort<Map<String, Object>> in = new DefaultInputPort<Map<String, Object>>(this)
+  public final transient DefaultInputPort<Map<String, Object>> in = new DefaultInputPort<Map<String, Object>>()
   {
     @Override
     public void process(Map<String, Object> tuple)
@@ -93,7 +93,7 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
    * Third String key is the field
    */
   @OutputPortFieldAnnotation(name = "out", optional = false)
-  public final transient DefaultOutputPort<Map<String, Map<String, Number>>> out = new DefaultOutputPort<Map<String, Map<String, Number>>>(this);
+  public final transient DefaultOutputPort<Map<String, Map<String, Number>>> out = new DefaultOutputPort<Map<String, Map<String, Number>>>();
   private List<String> dimensionKeyNames = new ArrayList<String>();
   private List<String> valueKeyNames = new ArrayList<String>();
   private String timeKeyName;

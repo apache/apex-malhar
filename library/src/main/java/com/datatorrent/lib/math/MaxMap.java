@@ -59,7 +59,7 @@ import java.util.Map;
 public class MaxMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V> implements Unifier<HashMap<K,V>>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
+  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>()
   {
     /**
      * For each key, updates the hash if the new value is a new max.
@@ -94,7 +94,7 @@ public class MaxMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
 
 
   @OutputPortFieldAnnotation(name = "max")
-  public final transient DefaultOutputPort<HashMap<K, V>> max = new DefaultOutputPort<HashMap<K, V>>(this)
+  public final transient DefaultOutputPort<HashMap<K,V>> max = new DefaultOutputPort<HashMap<K,V>>()
   {
     @Override
     public Unifier<HashMap<K, V>> getUnifier()

@@ -28,7 +28,7 @@ import javax.validation.constraints.NotNull;
 public class BaseLineTokenizer extends BaseOperator
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<String> data = new DefaultInputPort<String>(this)
+  public final transient DefaultInputPort<String> data = new DefaultInputPort<String>()
   {
     /**
      * Processes tuples if validTuple returns true

@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
 public class DevNullCounter<K> extends BaseOperator
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<K> data = new DefaultInputPort<K>(this)
+  public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
     /**
      * Process each tuple. Expects upstream node to compute number of tuples in that window and send it as an int<br>

@@ -22,7 +22,7 @@ import java.util.Map;
  */
 public class UnifierKeyValRange<K> implements Unifier<KeyValPair<K, HighLow>>
 {
-  public final transient DefaultOutputPort<KeyValPair<K, HighLow>> mergedport = new DefaultOutputPort<KeyValPair<K, HighLow>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, HighLow>> mergedport = new DefaultOutputPort<KeyValPair<K, HighLow>>();
 
   /**
    * combines the tuple into a single final tuple which is emitted in endWindow

@@ -106,7 +106,7 @@ public class RabbitMQInputOperatorTest
 
     public CollectorInputPort(String id, Operator module)
     {
-      super(module);
+      super();
       this.id = id;
     }
 

@@ -22,7 +22,7 @@ import java.util.ArrayList;
 public class UnifierRange implements Unifier<HighLow>
 {
   public HighLow mergedTuple = null;
-  public final transient DefaultOutputPort<HighLow> mergedport = new DefaultOutputPort<HighLow>(this);
+  public final transient DefaultOutputPort<HighLow> mergedport = new DefaultOutputPort<HighLow>();
 
   /**
    * combines the tuple into a single final tuple which is emitted in endWindow

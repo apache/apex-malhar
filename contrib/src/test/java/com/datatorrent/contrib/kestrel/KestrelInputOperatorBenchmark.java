@@ -115,7 +115,7 @@ public class KestrelInputOperatorBenchmark
 
     public CollectorInputPort(String id, Operator module)
     {
-      super(module);
+      super();
       this.id = id;
       collections.put(id, list = new ArrayList<T>());
     }

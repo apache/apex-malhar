@@ -18,7 +18,7 @@ import org.python.util.PythonInterpreter;
 public class PythonOperator extends  ScriptBaseOperator
 {
 	public final transient DefaultInputPort<Map<String, Object>> inBindings = 
-			new DefaultInputPort<Map<String, Object>>(this)
+			new DefaultInputPort<Map<String, Object>>()
 			{
 				@Override
 				public void process(Map<String, Object> tuple)

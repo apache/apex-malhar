@@ -50,7 +50,7 @@ public abstract class AbstractActiveMQSinglePortOutputOperator<T> extends Abstra
    * The single input port.
    */
   @InputPortFieldAnnotation(name = "ActiveMQInputPort")
-  public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>(this)
+  public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>()
   {
     @Override
     public void process(T tuple)

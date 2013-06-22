@@ -49,7 +49,7 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 public class StreamMerger5<K> extends StreamMerger<K>
 {
   @InputPortFieldAnnotation(name = "data3", optional = true)
-  public final transient DefaultInputPort<K> data3 = new DefaultInputPort<K>(this)
+  public final transient DefaultInputPort<K> data3 = new DefaultInputPort<K>()
   {
     /**
      * Emits to port "out"
@@ -61,7 +61,7 @@ public class StreamMerger5<K> extends StreamMerger<K>
     }
   };
   @InputPortFieldAnnotation(name = "data4", optional = true)
-  public final transient DefaultInputPort<K> data4 = new DefaultInputPort<K>(this)
+  public final transient DefaultInputPort<K> data4 = new DefaultInputPort<K>()
   {
     /**
      * Emits to port "out"
@@ -73,7 +73,7 @@ public class StreamMerger5<K> extends StreamMerger<K>
     }
   };
   @InputPortFieldAnnotation(name = "data5", optional = true)
-  public final transient DefaultInputPort<K> data5 = new DefaultInputPort<K>(this)
+  public final transient DefaultInputPort<K> data5 = new DefaultInputPort<K>()
   {
     /**
      * Emits to port "out"

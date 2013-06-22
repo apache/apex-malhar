@@ -61,7 +61,7 @@ import java.util.HashMap;
 public class BottomNMap<K, V> extends AbstractBaseNNonUniqueOperatorMap<K,V>
 {
   @OutputPortFieldAnnotation(name="bottom")
-  public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> bottom = new DefaultOutputPort<HashMap<K, ArrayList<V>>>(this);
+  public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> bottom = new DefaultOutputPort<HashMap<K, ArrayList<V>>>();
 
   /**
    * Ascending is set to false as we are looking for Bottom N

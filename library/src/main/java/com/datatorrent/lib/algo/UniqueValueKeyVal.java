@@ -57,7 +57,7 @@ import java.util.Map;
 public class UniqueValueKeyVal<K> extends BaseKeyOperator<K>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<KeyValPair<K,? extends Object>> data = new DefaultInputPort<KeyValPair<K,? extends Object>>(this)
+  public final transient DefaultInputPort<KeyValPair<K,? extends Object>> data = new DefaultInputPort<KeyValPair<K,? extends Object>>()
   {
     /**
      * Reference counts tuples
@@ -74,7 +74,7 @@ public class UniqueValueKeyVal<K> extends BaseKeyOperator<K>
     }
   };
   @OutputPortFieldAnnotation(name = "count")
-  public final transient DefaultOutputPort<KeyValPair<K,Integer>> count = new DefaultOutputPort<KeyValPair<K,Integer>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K,Integer>> count = new DefaultOutputPort<KeyValPair<K,Integer>>();
 
   /**
    * Bucket counting mechanism.

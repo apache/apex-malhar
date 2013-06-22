@@ -64,7 +64,7 @@ import javax.validation.constraints.Min;
 public class StreamPartitioner16<K> extends BaseKeyOperator<K>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<K> data = new DefaultInputPort<K>(this)
+  public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
     /**
      * Emits tuple on both streams
@@ -130,37 +130,37 @@ public class StreamPartitioner16<K> extends BaseKeyOperator<K>
   };
 
   @OutputPortFieldAnnotation(name = "out1")
-  public final transient DefaultOutputPort<K> out1 = new DefaultOutputPort<K>(this);
+  public final transient DefaultOutputPort<K> out1 = new DefaultOutputPort<K>();
   @OutputPortFieldAnnotation(name = "out2")
-  public final transient DefaultOutputPort<K> out2 = new DefaultOutputPort<K>(this);
+  public final transient DefaultOutputPort<K> out2 = new DefaultOutputPort<K>();
   @OutputPortFieldAnnotation(name = "out3")
-  public final transient DefaultOutputPort<K> out3 = new DefaultOutputPort<K>(this);
+  public final transient DefaultOutputPort<K> out3 = new DefaultOutputPort<K>();
   @OutputPortFieldAnnotation(name = "out4")
-  public final transient DefaultOutputPort<K> out4 = new DefaultOutputPort<K>(this);
+  public final transient DefaultOutputPort<K> out4 = new DefaultOutputPort<K>();
   @OutputPortFieldAnnotation(name = "out5")
-  public final transient DefaultOutputPort<K> out5 = new DefaultOutputPort<K>(this);
+  public final transient DefaultOutputPort<K> out5 = new DefaultOutputPort<K>();
   @OutputPortFieldAnnotation(name = "out6")
-  public final transient DefaultOutputPort<K> out6 = new DefaultOutputPort<K>(this);
+  public final transient DefaultOutputPort<K> out6 = new DefaultOutputPort<K>();
   @OutputPortFieldAnnotation(name = "out7")
-  public final transient DefaultOutputPort<K> out7 = new DefaultOutputPort<K>(this);
+  public final transient DefaultOutputPort<K> out7 = new DefaultOutputPort<K>();
   @OutputPortFieldAnnotation(name = "out8")
-  public final transient DefaultOutputPort<K> out8 = new DefaultOutputPort<K>(this);
+  public final transient DefaultOutputPort<K> out8 = new DefaultOutputPort<K>();
   @OutputPortFieldAnnotation(name = "out9")
-  public final transient DefaultOutputPort<K> out9 = new DefaultOutputPort<K>(this);
+  public final transient DefaultOutputPort<K> out9 = new DefaultOutputPort<K>();
   @OutputPortFieldAnnotation(name = "out10")
-  public final transient DefaultOutputPort<K> out10 = new DefaultOutputPort<K>(this);
+  public final transient DefaultOutputPort<K> out10 = new DefaultOutputPort<K>();
   @OutputPortFieldAnnotation(name = "out11")
-  public final transient DefaultOutputPort<K> out11 = new DefaultOutputPort<K>(this);
+  public final transient DefaultOutputPort<K> out11 = new DefaultOutputPort<K>();
   @OutputPortFieldAnnotation(name = "out12")
-  public final transient DefaultOutputPort<K> out12 = new DefaultOutputPort<K>(this);
+  public final transient DefaultOutputPort<K> out12 = new DefaultOutputPort<K>();
   @OutputPortFieldAnnotation(name = "out13")
-  public final transient DefaultOutputPort<K> out13 = new DefaultOutputPort<K>(this);
+  public final transient DefaultOutputPort<K> out13 = new DefaultOutputPort<K>();
   @OutputPortFieldAnnotation(name = "out14")
-  public final transient DefaultOutputPort<K> out14 = new DefaultOutputPort<K>(this);
+  public final transient DefaultOutputPort<K> out14 = new DefaultOutputPort<K>();
   @OutputPortFieldAnnotation(name = "out15")
-  public final transient DefaultOutputPort<K> out15 = new DefaultOutputPort<K>(this);
+  public final transient DefaultOutputPort<K> out15 = new DefaultOutputPort<K>();
   @OutputPortFieldAnnotation(name = "out16")
-  public final transient DefaultOutputPort<K> out16 = new DefaultOutputPort<K>(this);
+  public final transient DefaultOutputPort<K> out16 = new DefaultOutputPort<K>();
 
 
   final transient static int num_oport = 16;

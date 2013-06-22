@@ -70,7 +70,7 @@ import java.util.ArrayList;
  */
 public class Division extends BaseOperator
 {
-  public final transient DefaultInputPort<Number> numerator = new DefaultInputPort<Number>(this)
+  public final transient DefaultInputPort<Number> numerator = new DefaultInputPort<Number>()
   {
     @Override
     public void process(Number tuple)
@@ -87,7 +87,7 @@ public class Division extends BaseOperator
     }
   };
 
-  public final transient DefaultInputPort<Number> denominator = new DefaultInputPort<Number>(this)
+  public final transient DefaultInputPort<Number> denominator = new DefaultInputPort<Number>()
   {
     @Override
     public void process(Number tuple)
@@ -109,31 +109,31 @@ public class Division extends BaseOperator
   };
 
   @OutputPortFieldAnnotation(name = "longQuotient", optional = true)
-  public final transient DefaultOutputPort<Long> longQuotient = new DefaultOutputPort<Long>(this);
+  public final transient DefaultOutputPort<Long> longQuotient = new DefaultOutputPort<Long>();
 
   @OutputPortFieldAnnotation(name = "integerQuotient", optional = true)
-  public final transient DefaultOutputPort<Integer> integerQuotient = new DefaultOutputPort<Integer>(this);
+  public final transient DefaultOutputPort<Integer> integerQuotient = new DefaultOutputPort<Integer>();
 
   @OutputPortFieldAnnotation(name = "doubleQuotient", optional = true)
-  public final transient DefaultOutputPort<Double> doubleQuotient = new DefaultOutputPort<Double>(this);
+  public final transient DefaultOutputPort<Double> doubleQuotient = new DefaultOutputPort<Double>();
 
   @OutputPortFieldAnnotation(name = "floatQuotient", optional = true)
-  public final transient DefaultOutputPort<Float> floatQuotient = new DefaultOutputPort<Float>(this);
+  public final transient DefaultOutputPort<Float> floatQuotient = new DefaultOutputPort<Float>();
 
   @OutputPortFieldAnnotation(name = "longRemainder", optional = true)
-  public final transient DefaultOutputPort<Long> longRemainder = new DefaultOutputPort<Long>(this);
+  public final transient DefaultOutputPort<Long> longRemainder = new DefaultOutputPort<Long>();
 
   @OutputPortFieldAnnotation(name = "integerRemainder", optional = true)
-  public final transient DefaultOutputPort<Integer> integerRemainder = new DefaultOutputPort<Integer>(this);
+  public final transient DefaultOutputPort<Integer> integerRemainder = new DefaultOutputPort<Integer>();
 
   @OutputPortFieldAnnotation(name = "doubleRemainder", optional = true)
-  public final transient DefaultOutputPort<Double> doubleRemainder = new DefaultOutputPort<Double>(this);
+  public final transient DefaultOutputPort<Double> doubleRemainder = new DefaultOutputPort<Double>();
 
   @OutputPortFieldAnnotation(name = "floatRemainder", optional = true)
-  public final transient DefaultOutputPort<Float> floatRemainder = new DefaultOutputPort<Float>(this);
+  public final transient DefaultOutputPort<Float> floatRemainder = new DefaultOutputPort<Float>();
 
   @OutputPortFieldAnnotation(name = "errorData", error = true)
-  public final transient DefaultOutputPort<String> errordata = new DefaultOutputPort<String>(this);
+  public final transient DefaultOutputPort<String> errordata = new DefaultOutputPort<String>();
 
 
   public void emit(Number numer, Number denom)

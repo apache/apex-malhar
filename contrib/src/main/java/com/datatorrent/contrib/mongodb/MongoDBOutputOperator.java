@@ -98,7 +98,7 @@ public abstract class MongoDBOutputOperator<T> extends MongoDBBaseOperator imple
    * The input port.
    */
   @InputPortFieldAnnotation(name = "inputPort")
-  public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>(this)
+  public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>()
   {
     @Override
     public void process(T tuple)

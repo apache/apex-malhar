@@ -69,7 +69,7 @@ public class AverageKeyVal<K> extends BaseNumberKeyValueOperator<K, Number>
    * Data input port.
    */
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<KeyValPair<K, ? extends Number>> data = new DefaultInputPort<KeyValPair<K, ? extends Number>>(this)
+  public final transient DefaultInputPort<KeyValPair<K, ? extends Number>> data = new DefaultInputPort<KeyValPair<K, ? extends Number>>()
   {
     /**
      * Adds the values for each key,
@@ -101,11 +101,11 @@ public class AverageKeyVal<K> extends BaseNumberKeyValueOperator<K, Number>
     }
   };
   @OutputPortFieldAnnotation(name = "doubleAverage")
-  public final transient DefaultOutputPort<KeyValPair<K, Double>> doubleAverage = new DefaultOutputPort<KeyValPair<K, Double>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, Double>> doubleAverage = new DefaultOutputPort<KeyValPair<K, Double>>();
   @OutputPortFieldAnnotation(name = "intAverage")
-  public final transient DefaultOutputPort<KeyValPair<K, Integer>> intAverage = new DefaultOutputPort<KeyValPair<K, Integer>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, Integer>> intAverage = new DefaultOutputPort<KeyValPair<K, Integer>>();
   @OutputPortFieldAnnotation(name = "longAverage")
-  public final transient DefaultOutputPort<KeyValPair<K, Long>> longAverage = new DefaultOutputPort<KeyValPair<K, Long>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, Long>> longAverage = new DefaultOutputPort<KeyValPair<K, Long>>();
   protected HashMap<K, MutableDouble> sums = new HashMap<K, MutableDouble>();
   protected HashMap<K, MutableLong> counts = new HashMap<K, MutableLong>();
 

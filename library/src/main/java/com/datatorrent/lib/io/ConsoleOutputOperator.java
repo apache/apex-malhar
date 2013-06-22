@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 public class ConsoleOutputOperator extends BaseOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(ConsoleOutputOperator.class);
-  public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>(this)
+  public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>()
   {
     @Override
     @SuppressWarnings("UseOfSystemOutOrSystemErr")

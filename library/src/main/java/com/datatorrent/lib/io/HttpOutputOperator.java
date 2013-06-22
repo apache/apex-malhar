@@ -30,7 +30,7 @@ public class HttpOutputOperator<T> extends BaseOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(HttpOutputOperator.class);
 
-  public final transient DefaultInputPort<T> input = new DefaultInputPort<T>(this)
+  public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()
   {
     @Override
     public void process(T t)

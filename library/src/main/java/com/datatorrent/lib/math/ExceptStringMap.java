@@ -62,7 +62,7 @@ import java.util.Map;
 public class ExceptStringMap<K> extends MatchStringMap<K, String>
 {
   @OutputPortFieldAnnotation(name = "except")
-  public final transient DefaultOutputPort<HashMap<K, String>> except = new DefaultOutputPort<HashMap<K, String>>(this)
+  public final transient DefaultOutputPort<HashMap<K, String>> except = new DefaultOutputPort<HashMap<K, String>>()
   {
     @Override
     public Unifier<HashMap<K, String>> getUnifier()

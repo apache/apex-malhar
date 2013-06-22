@@ -82,7 +82,7 @@ public abstract class XYChartOperator<K, X, Y> extends ChartOperator
    * The input port of the chart operator.
    */
   @InputPortFieldAnnotation(name = "in1")
-  public final transient DefaultInputPort<Object> in1 = new DefaultInputPort<Object>(this)
+  public final transient DefaultInputPort<Object> in1 = new DefaultInputPort<Object>()
   {
     @Override
     public void process(Object tuple)

@@ -20,7 +20,7 @@ public class TestTupleCollector<T> extends BaseOperator
 {
   public ArrayList<T> collectedTuples = new ArrayList<T>();
   @InputPortFieldAnnotation(name = "input")
-  public final transient DefaultInputPort<T> input = new DefaultInputPort<T>(this)
+  public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()
   {
     @Override
     public void process(T tuple)

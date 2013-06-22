@@ -62,7 +62,7 @@ public class AverageMap<K, V extends Number> extends BaseNumberKeyValueOperator<
    * Data input port.
    */
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>(this)
+  public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
   {
     /**
      * For each tuple (a HashMap of key,val pairs)
@@ -98,7 +98,7 @@ public class AverageMap<K, V extends Number> extends BaseNumberKeyValueOperator<
     }
   };
   @OutputPortFieldAnnotation(name = "average")
-  public final transient DefaultOutputPort<HashMap<K, V>> average = new DefaultOutputPort<HashMap<K, V>>(this)
+  public final transient DefaultOutputPort<HashMap<K, V>> average = new DefaultOutputPort<HashMap<K, V>>()
   {
   };
 

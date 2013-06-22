@@ -50,7 +50,7 @@ import com.datatorrent.api.Operator.Unifier;
  */
 public class Counter implements Operator, Unifier<Integer>
 {
-  public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>(this)
+  public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>()
   {
     @Override
     public void process(Object tuple)
@@ -59,7 +59,7 @@ public class Counter implements Operator, Unifier<Integer>
     }
 
   };
-  public final transient DefaultOutputPort<Integer> output = new DefaultOutputPort<Integer>(this)
+  public final transient DefaultOutputPort<Integer> output = new DefaultOutputPort<Integer>()
   {
     @Override
     public Unifier<Integer> getUnifier()

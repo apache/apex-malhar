@@ -37,7 +37,7 @@ public class InputGenerator implements InputOperator
   private static final int dimSelLen = 8;
 
   @OutputPortFieldAnnotation(name = "outputPort")
-  public final transient DefaultOutputPort<AdInfo> outputPort = new DefaultOutputPort<AdInfo>(this);
+  public final transient DefaultOutputPort<AdInfo> outputPort = new DefaultOutputPort<AdInfo>();
 
   public double getExpectedClickThruRate()
   {

@@ -67,7 +67,7 @@ import java.util.Map;
 public class FirstMatchMap<K, V extends Number> extends BaseMatchOperator<K,V>
 {
   @InputPortFieldAnnotation(name="data")
-  public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>(this)
+  public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
   {
     /**
      * Checks if required key,val pair exists in the HashMap. If so tuple is emitted, and emitted flag is set
@@ -91,7 +91,7 @@ public class FirstMatchMap<K, V extends Number> extends BaseMatchOperator<K,V>
   };
 
   @OutputPortFieldAnnotation(name="first")
-  public final transient DefaultOutputPort<HashMap<K, V>> first = new DefaultOutputPort<HashMap<K, V>>(this);
+  public final transient DefaultOutputPort<HashMap<K, V>> first = new DefaultOutputPort<HashMap<K, V>>();
   boolean emitted = false;
 
   /**

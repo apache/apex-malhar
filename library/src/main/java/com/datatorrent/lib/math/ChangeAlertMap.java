@@ -61,7 +61,7 @@ import org.apache.commons.lang.mutable.MutableDouble;
 public class ChangeAlertMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>(this)
+  public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
   {
     /**
      * Process each key, compute change or percent, and emit it
@@ -98,7 +98,7 @@ public class ChangeAlertMap<K, V extends Number> extends BaseNumberKeyValueOpera
 
   // Default "pass through" unifier works as tuple is emitted as pass through
   @OutputPortFieldAnnotation(name = "alert")
-  public final transient DefaultOutputPort<HashMap<K, HashMap<V,Double>>> alert = new DefaultOutputPort<HashMap<K, HashMap<V,Double>>>(this);
+  public final transient DefaultOutputPort<HashMap<K, HashMap<V,Double>>> alert = new DefaultOutputPort<HashMap<K, HashMap<V,Double>>>();
 
   /**
    * basemap is a stateful field. It is retained across windows

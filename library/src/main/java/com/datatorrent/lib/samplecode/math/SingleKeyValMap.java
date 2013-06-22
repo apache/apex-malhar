@@ -17,8 +17,7 @@ import com.datatorrent.api.Context.OperatorContext;
 public class SingleKeyValMap implements InputOperator
 {
 
-	public final transient DefaultOutputPort<Map<String, Object>> outport = new DefaultOutputPort<Map<String, Object>>(
-			this);
+	public final transient DefaultOutputPort<Map<String, Object>> outport = new DefaultOutputPort<Map<String, Object>>();
 	private Random random = new Random(11111);
 
 	@Override

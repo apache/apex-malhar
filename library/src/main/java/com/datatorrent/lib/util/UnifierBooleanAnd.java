@@ -23,7 +23,7 @@ public class UnifierBooleanAnd implements Unifier<Boolean>
 {
   boolean result = true;
   boolean doemit = false;
-  public final transient DefaultOutputPort<Boolean> mergedport = new DefaultOutputPort<Boolean>(this);
+  public final transient DefaultOutputPort<Boolean> mergedport = new DefaultOutputPort<Boolean>();
 
   /**
    * ANDs tuple with result so far

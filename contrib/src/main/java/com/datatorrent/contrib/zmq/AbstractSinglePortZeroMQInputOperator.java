@@ -36,7 +36,7 @@ import com.datatorrent.api.DefaultOutputPort;
 public abstract class AbstractSinglePortZeroMQInputOperator<T> extends AbstractBaseZeroMQInputOperator
 {
     @OutputPortFieldAnnotation(name = "outputPort")
-  final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>(this);
+  final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**
    * Any concrete class derived from AbstractSinglePortZeroMQInputOperator has to implement this method

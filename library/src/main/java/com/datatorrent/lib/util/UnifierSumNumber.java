@@ -20,7 +20,7 @@ public class UnifierSumNumber<V extends Number> extends BaseNumberValueOperator<
 {
   private Double result = 0.0;
   private boolean doEmit = false;
-  public final transient DefaultOutputPort<V> mergedport = new DefaultOutputPort<V>(this);
+  public final transient DefaultOutputPort<V> mergedport = new DefaultOutputPort<V>();
 
   /**
    * Adds tuple with result so far

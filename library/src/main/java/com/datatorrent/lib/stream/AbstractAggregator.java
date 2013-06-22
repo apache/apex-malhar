@@ -19,7 +19,7 @@ import javax.validation.constraints.Min;
  */
 public abstract class AbstractAggregator<T> implements Operator
 {
-  public final transient DefaultInputPort<T> input = new DefaultInputPort<T>(this)
+  public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()
   {
     @Override
     public void process(T tuple)
@@ -37,7 +37,7 @@ public abstract class AbstractAggregator<T> implements Operator
     }
 
   };
-  public final transient DefaultOutputPort<Collection<T>> output = new DefaultOutputPort<Collection<T>>(this);
+  public final transient DefaultOutputPort<Collection<T>> output = new DefaultOutputPort<Collection<T>>();
 
   /**
    * Set the size of the collection.

@@ -66,7 +66,7 @@ public class CompareExceptMap<K, V extends Number> extends MatchMap<K, V>
   public final transient DefaultOutputPort<HashMap<K, V>> compare = match;
 
   @OutputPortFieldAnnotation(name = "expect", optional=true)
-  public final transient DefaultOutputPort<HashMap<K, V>> except = new DefaultOutputPort<HashMap<K, V>>(this)
+  public final transient DefaultOutputPort<HashMap<K, V>> except = new DefaultOutputPort<HashMap<K, V>>()
   {
     @Override
     public Unifier<HashMap<K, V>> getUnifier()

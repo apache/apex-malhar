@@ -54,7 +54,7 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
 public class Quotient<V extends Number> extends BaseNumberValueOperator<V>
 {
   @InputPortFieldAnnotation(name = "numerator")
-  public final transient DefaultInputPort<V> numerator = new DefaultInputPort<V>(this)
+  public final transient DefaultInputPort<V> numerator = new DefaultInputPort<V>()
   {
     /**
      * Adds to the numerator value
@@ -66,7 +66,7 @@ public class Quotient<V extends Number> extends BaseNumberValueOperator<V>
     }
   };
   @InputPortFieldAnnotation(name = "denominator")
-  public final transient DefaultInputPort<V> denominator = new DefaultInputPort<V>(this)
+  public final transient DefaultInputPort<V> denominator = new DefaultInputPort<V>()
   {
     /**
      * Adds to the denominator value
@@ -78,7 +78,7 @@ public class Quotient<V extends Number> extends BaseNumberValueOperator<V>
     }
   };
   @InputPortFieldAnnotation(name = "quotient")
-  public final transient DefaultOutputPort<V> quotient = new DefaultOutputPort<V>(this);
+  public final transient DefaultOutputPort<V> quotient = new DefaultOutputPort<V>();
   protected double nval = 0.0;
   protected double dval = 0.0;
   int mult_by = 1;

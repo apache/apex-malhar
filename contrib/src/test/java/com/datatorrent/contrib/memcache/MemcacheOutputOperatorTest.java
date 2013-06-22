@@ -121,7 +121,7 @@ public class MemcacheOutputOperatorTest
   public static class SourceModule extends BaseOperator
   implements InputOperator, ActivationListener<OperatorContext>
   {
-    public final transient DefaultOutputPort<HashMap<String, Integer>> outPort = new DefaultOutputPort<HashMap<String, Integer>>(this);
+    public final transient DefaultOutputPort<HashMap<String, Integer>> outPort = new DefaultOutputPort<HashMap<String, Integer>>();
     static transient ArrayBlockingQueue<HashMap<String, Integer>> holdingBuffer;
     int testNum;
 

@@ -64,7 +64,7 @@ public class RomeSyndicationOperatorTest
       entries = new ArrayList<RomeFeedEntry>();
     }
 
-    public final transient DefaultInputPort<RomeFeedEntry> input = new DefaultInputPort<RomeFeedEntry>(this)
+    public final transient DefaultInputPort<RomeFeedEntry> input = new DefaultInputPort<RomeFeedEntry>()
     {
       @Override
       public void process(RomeFeedEntry tuple)

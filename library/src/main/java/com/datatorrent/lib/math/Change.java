@@ -54,7 +54,7 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
 public class Change<V extends Number> extends BaseNumberValueOperator<V>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<V> data = new DefaultInputPort<V>(this)
+  public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
   {
     /**
      * Process each key, compute change or percent, and emit it.
@@ -70,7 +70,7 @@ public class Change<V extends Number> extends BaseNumberValueOperator<V>
     }
   };
   @InputPortFieldAnnotation(name = "base")
-  public final transient DefaultInputPort<V> base = new DefaultInputPort<V>(this)
+  public final transient DefaultInputPort<V> base = new DefaultInputPort<V>()
   {
     /**
      * Process each key to store the value. If same key appears again update with latest value.
@@ -85,9 +85,9 @@ public class Change<V extends Number> extends BaseNumberValueOperator<V>
   };
   // Default partition "pass through" works for change and percent, as it is done per tuple
   @OutputPortFieldAnnotation(name = "change", optional = true)
-  public final transient DefaultOutputPort<V> change = new DefaultOutputPort<V>(this);
+  public final transient DefaultOutputPort<V> change = new DefaultOutputPort<V>();
   @OutputPortFieldAnnotation(name = "percent", optional = true)
-  public final transient DefaultOutputPort<Double> percent = new DefaultOutputPort<Double>(this);
+  public final transient DefaultOutputPort<Double> percent = new DefaultOutputPort<Double>();
   /**
    * baseValue is a stateful field. It is retained across windows.
    */

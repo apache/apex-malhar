@@ -45,7 +45,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 public class StreamMerger<K> extends BaseOperator
 {
   @InputPortFieldAnnotation(name = "data1")
- public final transient DefaultInputPort<K> data1 = new DefaultInputPort<K>(this)
+ public final transient DefaultInputPort<K> data1 = new DefaultInputPort<K>()
   {
     /**
      * Emits to port "out"
@@ -58,7 +58,7 @@ public class StreamMerger<K> extends BaseOperator
   };
 
   @InputPortFieldAnnotation(name = "data2")
-  public final transient DefaultInputPort<K> data2 = new DefaultInputPort<K>(this)
+  public final transient DefaultInputPort<K> data2 = new DefaultInputPort<K>()
   {
     /**
      * Emits to port "out"
@@ -71,7 +71,7 @@ public class StreamMerger<K> extends BaseOperator
   };
 
   @OutputPortFieldAnnotation(name = "out")
-  public final transient DefaultOutputPort<K> out = new DefaultOutputPort<K>(this);
+  public final transient DefaultOutputPort<K> out = new DefaultOutputPort<K>();
 
   /**
    * Allows usage of StreamMerger in a automated way

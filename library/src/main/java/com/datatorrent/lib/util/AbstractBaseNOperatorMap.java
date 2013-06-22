@@ -38,7 +38,7 @@ abstract public class AbstractBaseNOperatorMap<K,V> extends BaseKeyValueOperator
    * Expects a HashMap<K,V> tuple
    */
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<Map<K,V>> data = new DefaultInputPort<Map<K,V>>(this)
+  public final transient DefaultInputPort<Map<K,V>> data = new DefaultInputPort<Map<K,V>>()
   {
     @Override
     public void process(Map<K,V> tuple)

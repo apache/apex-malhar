@@ -58,7 +58,7 @@ public class RoundRobinHashMap<K, V> extends BaseKeyValueOperator<K, V>
   private HashMap<K,V> otuple;
 
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<V> data = new DefaultInputPort<V>(this)
+  public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
   {
     /**
      * Emits key, key/val pair, and val based on port connections
@@ -81,7 +81,7 @@ public class RoundRobinHashMap<K, V> extends BaseKeyValueOperator<K, V>
     }
   };
   @OutputPortFieldAnnotation(name = "map")
-  public final transient DefaultOutputPort<HashMap<K, V>> map = new DefaultOutputPort<HashMap<K, V>>(this);
+  public final transient DefaultOutputPort<HashMap<K, V>> map = new DefaultOutputPort<HashMap<K, V>>();
 
   public void setKeys(K[] keys) {
     this.keys = keys;

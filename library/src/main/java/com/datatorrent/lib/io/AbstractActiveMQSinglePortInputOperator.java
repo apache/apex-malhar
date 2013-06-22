@@ -39,7 +39,7 @@ public abstract class AbstractActiveMQSinglePortInputOperator<T> extends Abstrac
    * The single output port.
    */
   @OutputPortFieldAnnotation(name = "outputPort")
-  public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>(this);
+  public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**
    * Any concrete class derived from AbstractActiveMQSinglePortInputOperator has to implement this method

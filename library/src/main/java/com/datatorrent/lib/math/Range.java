@@ -53,7 +53,7 @@ import org.apache.commons.lang.mutable.MutableDouble;
 public class Range<V extends Number> extends BaseNumberValueOperator<V>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<V> data = new DefaultInputPort<V>(this)
+  public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
   {
     /**
      * Process each tuple to compute new high and low
@@ -72,7 +72,7 @@ public class Range<V extends Number> extends BaseNumberValueOperator<V>
   };
 
   @OutputPortFieldAnnotation(name = "range")
-  public final transient DefaultOutputPort<HighLow> range = new DefaultOutputPort<HighLow>(this)
+  public final transient DefaultOutputPort<HighLow> range = new DefaultOutputPort<HighLow>()
   {
     @Override
     public Unifier<HighLow> getUnifier()

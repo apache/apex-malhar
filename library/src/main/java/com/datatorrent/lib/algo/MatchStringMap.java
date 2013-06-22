@@ -68,7 +68,7 @@ import java.util.Map;
 public class MatchStringMap<K, String> extends BaseMatchOperator<K,String>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<Map<K, String>> data = new DefaultInputPort<Map<K, String>>(this)
+  public final transient DefaultInputPort<Map<K, String>> data = new DefaultInputPort<Map<K, String>>()
   {
     /**
      * Matchs tuple with the value and calls tupleMatched and tupleNotMatched based on if value matches
@@ -106,7 +106,7 @@ public class MatchStringMap<K, String> extends BaseMatchOperator<K,String>
   };
 
   @OutputPortFieldAnnotation(name = "match", optional=true)
-  public final transient DefaultOutputPort<HashMap<K, String>> match = new DefaultOutputPort<HashMap<K, String>>(this)
+  public final transient DefaultOutputPort<HashMap<K, String>> match = new DefaultOutputPort<HashMap<K, String>>()
   {
     @Override
     public Unifier<HashMap<K, String>> getUnifier()

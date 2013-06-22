@@ -47,7 +47,7 @@ public class ThroughputCounter<K, V extends Number> extends BaseOperator
 {
   private static Logger log = LoggerFactory.getLogger(ThroughputCounter.class);
 
-  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>(this)
+  public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>()
   {
     @Override
     public void process(HashMap<K, V> tuple)
@@ -58,7 +58,7 @@ public class ThroughputCounter<K, V extends Number> extends BaseOperator
     }
   };
 
-  public final transient DefaultOutputPort<HashMap<String,Number>> count = new DefaultOutputPort<HashMap<String, Number>>(this);
+  public final transient DefaultOutputPort<HashMap<String,Number>> count = new DefaultOutputPort<HashMap<String, Number>>();
 
   public static final String OPORT_COUNT_TUPLE_AVERAGE = "avg";
   public static final String OPORT_COUNT_TUPLE_COUNT = "count";

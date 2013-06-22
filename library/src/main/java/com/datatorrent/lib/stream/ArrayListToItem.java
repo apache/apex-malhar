@@ -48,7 +48,7 @@ import java.util.ArrayList;
 public class ArrayListToItem<K> extends BaseKeyOperator<K>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<ArrayList<K>> data = new DefaultInputPort<ArrayList<K>>(this)
+  public final transient DefaultInputPort<ArrayList<K>> data = new DefaultInputPort<ArrayList<K>>()
   {
     /**
      * Emitting one item at a time
@@ -62,5 +62,5 @@ public class ArrayListToItem<K> extends BaseKeyOperator<K>
     }
   };
   @OutputPortFieldAnnotation(name = "item")
-  public final transient DefaultOutputPort<K> item = new DefaultOutputPort<K>(this);
+  public final transient DefaultOutputPort<K> item = new DefaultOutputPort<K>();
 }

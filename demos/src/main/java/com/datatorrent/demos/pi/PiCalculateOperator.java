@@ -22,7 +22,7 @@ public class PiCalculateOperator extends BaseOperator
   private transient double pi;
   private long inArea = 0;
   private long totalArea = 0;
-  public final transient DefaultInputPort<Integer> input = new DefaultInputPort<Integer>(this)
+  public final transient DefaultInputPort<Integer> input = new DefaultInputPort<Integer>()
   {
     @Override
     public void process(Integer tuple)
@@ -41,7 +41,7 @@ public class PiCalculateOperator extends BaseOperator
     }
 
   };
-  public final transient DefaultOutputPort<Double> output = new DefaultOutputPort<Double>(this);
+  public final transient DefaultOutputPort<Double> output = new DefaultOutputPort<Double>();
 
   @Override
   public void beginWindow(long windowId)

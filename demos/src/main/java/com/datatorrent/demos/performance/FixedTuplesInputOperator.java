@@ -19,7 +19,7 @@ import java.util.ArrayList;
  */
 public class FixedTuplesInputOperator implements InputOperator
 {
-  public final transient DefaultOutputPort<byte[]> output = new DefaultOutputPort<byte[]>(this);
+  public final transient DefaultOutputPort<byte[]> output = new DefaultOutputPort<byte[]>();
   private int count;
   private boolean firstTime;
   private ArrayList<Integer> millis = new ArrayList<Integer>();

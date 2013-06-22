@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
 
 public class EventClassifier extends BaseOperator
 {
-  public final transient DefaultInputPort<HashMap<String, Double>> event = new DefaultInputPort<HashMap<String, Double>>(this)
+  public final transient DefaultInputPort<HashMap<String, Double>> event = new DefaultInputPort<HashMap<String, Double>>()
   {
     @Override
     public void process(HashMap<String, Double> tuple)
@@ -102,7 +102,7 @@ public class EventClassifier extends BaseOperator
     }
     }
   };
-  public final transient DefaultOutputPort<HashMap<String, Double>> data = new DefaultOutputPort<HashMap<String, Double>>(this);
+  public final transient DefaultOutputPort<HashMap<String, Double>> data = new DefaultOutputPort<HashMap<String, Double>>();
 ;
 
   private static Logger LOG = LoggerFactory.getLogger(EventClassifier.class);

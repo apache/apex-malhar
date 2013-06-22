@@ -65,7 +65,7 @@ import javax.validation.constraints.NotNull;
 public class FilterKeysHashMap<K, V> extends BaseKeyOperator<K>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<Map<K, HashMap<K, V>>> data = new DefaultInputPort<Map<K, HashMap<K, V>>>(this)
+  public final transient DefaultInputPort<Map<K, HashMap<K, V>>> data = new DefaultInputPort<Map<K, HashMap<K, V>>>()
   {
     /**
      * Processes incoming tuples one key,val at a time. Emits if at least one key makes the cut.
@@ -99,7 +99,7 @@ public class FilterKeysHashMap<K, V> extends BaseKeyOperator<K>
     }
   };
   @OutputPortFieldAnnotation(name = "filter")
-  public final transient DefaultOutputPort<HashMap<K, HashMap<K, V>>> filter = new DefaultOutputPort<HashMap<K, HashMap<K, V>>>(this);
+  public final transient DefaultOutputPort<HashMap<K, HashMap<K, V>>> filter = new DefaultOutputPort<HashMap<K, HashMap<K, V>>>();
   @NotNull()
   HashMap<K, V> keys = new HashMap<K, V>();
   boolean inverse = false;

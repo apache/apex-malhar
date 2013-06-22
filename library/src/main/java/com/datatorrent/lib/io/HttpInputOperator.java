@@ -42,7 +42,7 @@ import com.sun.jersey.api.client.WebResource;
 @ShipContainingJars(classes = {com.sun.jersey.api.client.ClientHandler.class})
 public class HttpInputOperator extends SimpleSinglePortInputOperator<Map<String, String>> implements Runnable
 {
-  public final transient DefaultOutputPort<String> rawOutput = new DefaultOutputPort<String>(this);
+  public final transient DefaultOutputPort<String> rawOutput = new DefaultOutputPort<String>();
   private static final Logger LOG = LoggerFactory.getLogger(HttpInputOperator.class);
   /**
    * Timeout interval for reading from server. 0 or negative indicates no timeout.

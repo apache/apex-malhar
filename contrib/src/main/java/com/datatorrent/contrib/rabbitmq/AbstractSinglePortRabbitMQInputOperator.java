@@ -36,7 +36,7 @@ import com.datatorrent.api.DefaultOutputPort;
 public abstract class AbstractSinglePortRabbitMQInputOperator<T> extends AbstractRabbitMQInputOperator
 {
     @OutputPortFieldAnnotation(name = "outputPort")
-  final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>(this);
+  final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**
    * Any concrete class derived from AbstractSinglePortRabbitMQInputOperator has to implement this method

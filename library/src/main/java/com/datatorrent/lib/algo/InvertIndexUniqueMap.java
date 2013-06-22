@@ -28,7 +28,7 @@ public class InvertIndexUniqueMap<K,V> extends BaseOperator
 {
   private static Logger log = LoggerFactory.getLogger(InvertIndexUniqueMap.class);
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>(this)
+  public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>()
   {
     @Override
     public void process(HashMap<K,V> tuple)
@@ -57,7 +57,7 @@ public class InvertIndexUniqueMap<K,V> extends BaseOperator
     }
   };
   @OutputPortFieldAnnotation(name = "index")
-  public final transient DefaultOutputPort<HashMap<V, ArrayList>> index = new DefaultOutputPort<HashMap<V, ArrayList>>(this);
+  public final transient DefaultOutputPort<HashMap<V, ArrayList>> index = new DefaultOutputPort<HashMap<V, ArrayList>>();
 
   HashMap<V, HashMap<K, Object>> map = new HashMap<V, HashMap<K, Object>>();
   HashMap<K, V> secondary_index = new HashMap<K, V>(5);

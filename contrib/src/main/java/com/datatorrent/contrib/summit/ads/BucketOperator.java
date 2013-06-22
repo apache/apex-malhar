@@ -30,7 +30,7 @@ public class BucketOperator extends BaseOperator
   private HashMap<AggrKey, Map<String, MutableDouble>> aggrMap;
 
   @OutputPortFieldAnnotation(name = "outputPort", optional = false)
-  public final transient DefaultOutputPort<KeyValPair<AggrKey, Map<String, MutableDouble>>> outputPort = new DefaultOutputPort<KeyValPair<AggrKey, Map<String, MutableDouble>>>(this);
+  public final transient DefaultOutputPort<KeyValPair<AggrKey, Map<String, MutableDouble>>> outputPort = new DefaultOutputPort<KeyValPair<AggrKey, Map<String, MutableDouble>>>();
 
   @Override
   public void setup(OperatorContext context)
@@ -70,7 +70,7 @@ public class BucketOperator extends BaseOperator
   }
 
   @InputPortFieldAnnotation(name = "inputPort", optional = false)
-  public transient DefaultInputPort<AdInfo>  inputPort = new DefaultInputPort<AdInfo>(this) {
+  public transient DefaultInputPort<AdInfo>  inputPort = new DefaultInputPort<AdInfo>() {
 
     @Override
     public void process(AdInfo tuple)

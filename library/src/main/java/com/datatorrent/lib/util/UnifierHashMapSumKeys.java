@@ -22,7 +22,7 @@ import java.util.Map;
 public class UnifierHashMapSumKeys<K, V extends Number> extends BaseNumberKeyValueOperator<K,V> implements Unifier<HashMap<K, V>>
 {
   public HashMap<K, Double> mergedTuple = new HashMap<K, Double>();
-  public final transient DefaultOutputPort<HashMap<K, V>> mergedport = new DefaultOutputPort<HashMap<K, V>>(this);
+  public final transient DefaultOutputPort<HashMap<K, V>> mergedport = new DefaultOutputPort<HashMap<K, V>>();
 
   @Override
   public void process(HashMap<K, V> tuple)

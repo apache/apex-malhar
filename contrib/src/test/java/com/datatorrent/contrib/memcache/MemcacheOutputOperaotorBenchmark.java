@@ -111,7 +111,7 @@ public class MemcacheOutputOperaotorBenchmark
   public static class SourceModule extends BaseOperator
   implements InputOperator, ActivationListener<OperatorContext>
   {
-    public final transient DefaultOutputPort<HashMap<String, String>> outPort = new DefaultOutputPort<HashMap<String, String>>(this);
+    public final transient DefaultOutputPort<HashMap<String, String>> outPort = new DefaultOutputPort<HashMap<String, String>>();
     static transient ArrayBlockingQueue<HashMap<String, String>> holdingBuffer;
 
     @Override

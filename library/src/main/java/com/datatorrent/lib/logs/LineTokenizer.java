@@ -47,7 +47,7 @@ import com.datatorrent.lib.util.BaseLineTokenizer;
 public class LineTokenizer extends BaseLineTokenizer
 {
   @OutputPortFieldAnnotation(name = "tokens")
-  public final transient DefaultOutputPort<String> tokens = new DefaultOutputPort<String>(this);
+  public final transient DefaultOutputPort<String> tokens = new DefaultOutputPort<String>();
 
   /**
    * emits tokens on port "tokens" if tok is not empty

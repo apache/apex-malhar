@@ -62,7 +62,7 @@ public class MemcacheInputOperatorTest
 
   public static class CollectorModule<T> extends BaseOperator
   {
-    public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>(this){
+    public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>(){
 
       @Override
       public void process(T t)

@@ -32,7 +32,7 @@ import java.util.Map.Entry;
 public abstract class AbstractSinglePortMemcacheInputOperator<T> extends AbstractMemcacheInputOperator
 {
   @OutputPortFieldAnnotation(name = "outputPort")
-  final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>(this);
+  final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**
    * Any concrete class derived from AbstractSinglePortMemcacheInputOperator has to implement this method

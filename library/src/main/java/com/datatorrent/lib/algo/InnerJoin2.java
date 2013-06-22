@@ -25,10 +25,10 @@ public class InnerJoin2 <K,V> extends BaseKeyValueOperator<K,V>
   public HashMap<K, ArrayList<HashMap<K,V>>> map2 = new HashMap<K, ArrayList<HashMap<K,V>>>();
 
   @OutputPortFieldAnnotation(name = "result")
-  public final transient DefaultOutputPort<MultiValueMap> result = new DefaultOutputPort<MultiValueMap>(this);
+  public final transient DefaultOutputPort<MultiValueMap> result = new DefaultOutputPort<MultiValueMap>();
 
   @InputPortFieldAnnotation(name = "data1")
-  public final transient DefaultInputPort<HashMap<K,V>> data1 = new DefaultInputPort<HashMap<K,V>>(this)
+  public final transient DefaultInputPort<HashMap<K,V>> data1 = new DefaultInputPort<HashMap<K,V>>()
   {
     /**
      * Checks if key exists. If so emits all current combinations with matching tuples received on port "data2"
@@ -45,7 +45,7 @@ public class InnerJoin2 <K,V> extends BaseKeyValueOperator<K,V>
     }
   };
   @InputPortFieldAnnotation(name = "data2")
-  public final transient DefaultInputPort<HashMap<K,V>> data2 = new DefaultInputPort<HashMap<K,V>>(this)
+  public final transient DefaultInputPort<HashMap<K,V>> data2 = new DefaultInputPort<HashMap<K,V>>()
   {
     /**
      * Checks if key exists. If so emits all current combinations with matching tuples received on port "data1"

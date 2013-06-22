@@ -34,7 +34,7 @@ public class CompareFilterTuples<k> extends BaseOperator
   private Map<k, Integer> result;
   
   // input port
-	public final transient DefaultInputPort<Map<k, Integer>> inport = new DefaultInputPort<Map<k, Integer>>(this) {
+	public final transient DefaultInputPort<Map<k, Integer>> inport = new DefaultInputPort<Map<k, Integer>>() {
     @Override
     public void process(Map<k, Integer> map) {
     	for(Map.Entry<k, Integer> entry : map.entrySet())
@@ -50,8 +50,8 @@ public class CompareFilterTuples<k> extends BaseOperator
 	};
 	
 	//out port
-	public final transient DefaultOutputPort<Map<k, Integer>> outport = new DefaultOutputPort<Map<k, Integer>>(this);
-	public final transient DefaultOutputPort<Map<Integer, String>> redisport = new DefaultOutputPort<Map<Integer, String>>(this);
+	public final transient DefaultOutputPort<Map<k, Integer>> outport = new DefaultOutputPort<Map<k, Integer>>();
+	public final transient DefaultOutputPort<Map<Integer, String>> redisport = new DefaultOutputPort<Map<Integer, String>>();
 	
 	@Override
 	public void beginWindow(long windowId)

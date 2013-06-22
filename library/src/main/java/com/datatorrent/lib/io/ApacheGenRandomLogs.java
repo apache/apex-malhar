@@ -41,7 +41,7 @@ import com.datatorrent.api.Context.OperatorContext;
 public class ApacheGenRandomLogs extends BaseOperator implements InputOperator
 {
 	// output port
-	public final transient DefaultOutputPort<String> outport = new DefaultOutputPort<String>(this);
+	public final transient DefaultOutputPort<String> outport = new DefaultOutputPort<String>();
 	
 	// server name/ip-address  random variable  
 	private Random rand = new Random();

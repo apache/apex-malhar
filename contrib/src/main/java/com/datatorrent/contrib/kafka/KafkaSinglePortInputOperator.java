@@ -38,7 +38,7 @@ public abstract class KafkaSinglePortInputOperator<T> extends KafkaInputOperator
    * The single output port.
    */
   @OutputPortFieldAnnotation(name = "outputPort")
-  public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>(this);
+  public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**
    * Any concrete class derived from KafkaSinglePortInputOperator has to implement this method

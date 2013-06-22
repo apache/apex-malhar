@@ -45,7 +45,7 @@ import com.datatorrent.api.DefaultOutputPort;
  */
 public class RunningAverage extends BaseOperator
 {
-  public final transient DefaultInputPort<Number> input = new DefaultInputPort<Number>(this)
+  public final transient DefaultInputPort<Number> input = new DefaultInputPort<Number>()
   {
     @Override
     public void process(Number tuple)
@@ -56,10 +56,10 @@ public class RunningAverage extends BaseOperator
     }
 
   };
-  public final transient DefaultOutputPort<Double> doubleAverage = new DefaultOutputPort<Double>(this);
-  public final transient DefaultOutputPort<Float> floatAverage = new DefaultOutputPort<Float>(this);
-  public final transient DefaultOutputPort<Long> longAverage = new DefaultOutputPort<Long>(this);
-  public final transient DefaultOutputPort<Integer> integerAverage = new DefaultOutputPort<Integer>(this);
+  public final transient DefaultOutputPort<Double> doubleAverage = new DefaultOutputPort<Double>();
+  public final transient DefaultOutputPort<Float> floatAverage = new DefaultOutputPort<Float>();
+  public final transient DefaultOutputPort<Long> longAverage = new DefaultOutputPort<Long>();
+  public final transient DefaultOutputPort<Integer> integerAverage = new DefaultOutputPort<Integer>();
 
   @Override
   public void endWindow()

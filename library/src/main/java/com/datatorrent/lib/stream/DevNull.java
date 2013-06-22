@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 public class DevNull<K> extends BaseOperator
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<K> data = new DefaultInputPort<K>(this)
+  public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
     /**
      * @param tuple

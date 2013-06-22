@@ -57,7 +57,7 @@ public class ApacheVirtualLogParseOperator extends BaseOperator {
 
     // default date format
     protected static final String dateFormat = "dd/MMM/yyyy:HH:mm:ss Z";
-    public final transient DefaultInputPort<String> data = new DefaultInputPort<String>(this) {
+    public final transient DefaultInputPort<String> data = new DefaultInputPort<String>() {
         @Override
         public void process(String s) {
             try {
@@ -67,17 +67,17 @@ public class ApacheVirtualLogParseOperator extends BaseOperator {
             }
         }
     };
-    public final transient DefaultOutputPort<String> outputIPAddress = new DefaultOutputPort<String>(this);
-    public final transient DefaultOutputPort<String> outputUrl = new DefaultOutputPort<String>(this);
-    public final transient DefaultOutputPort<String> outputStatusCode = new DefaultOutputPort<String>(this);
-    public final transient DefaultOutputPort<Long> outputBytes = new DefaultOutputPort<Long>(this);
-    public final transient DefaultOutputPort<String> outputReferer = new DefaultOutputPort<String>(this);
-    public final transient DefaultOutputPort<String> outputAgent = new DefaultOutputPort<String>(this);
-    public final transient DefaultOutputPort<String> outputServerName = new DefaultOutputPort<String>(this);
-    public final transient DefaultOutputPort<String> outputServerName1 = new DefaultOutputPort<String>(this);
-    public final transient DefaultOutputPort<Map<String, String>> outUrlStatus = new DefaultOutputPort<Map<String, String>>(this);
-    public final transient DefaultOutputPort<Map<String, String>> outServerStatus = new DefaultOutputPort<Map<String, String>>(this);
-    public final transient DefaultOutputPort<Integer> clientDataUsage = new DefaultOutputPort<Integer>(this);
+    public final transient DefaultOutputPort<String> outputIPAddress = new DefaultOutputPort<String>();
+    public final transient DefaultOutputPort<String> outputUrl = new DefaultOutputPort<String>();
+    public final transient DefaultOutputPort<String> outputStatusCode = new DefaultOutputPort<String>();
+    public final transient DefaultOutputPort<Long> outputBytes = new DefaultOutputPort<Long>();
+    public final transient DefaultOutputPort<String> outputReferer = new DefaultOutputPort<String>();
+    public final transient DefaultOutputPort<String> outputAgent = new DefaultOutputPort<String>();
+    public final transient DefaultOutputPort<String> outputServerName = new DefaultOutputPort<String>();
+    public final transient DefaultOutputPort<String> outputServerName1 = new DefaultOutputPort<String>();
+    public final transient DefaultOutputPort<Map<String, String>> outUrlStatus = new DefaultOutputPort<Map<String, String>>();
+    public final transient DefaultOutputPort<Map<String, String>> outServerStatus = new DefaultOutputPort<Map<String, String>>();
+    public final transient DefaultOutputPort<Integer> clientDataUsage = new DefaultOutputPort<Integer>();
 
 
     protected static String getAccessLogRegex() {

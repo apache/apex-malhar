@@ -56,7 +56,7 @@ import org.apache.commons.lang.mutable.MutableInt;
 public class UniqueKeyValCounter<K,V> extends BaseUniqueKeyValueCounter<K,V>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>(this)
+  public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>()
   {
     /**
      * Reference counts tuples
@@ -70,7 +70,7 @@ public class UniqueKeyValCounter<K,V> extends BaseUniqueKeyValueCounter<K,V>
     }
   };
   @OutputPortFieldAnnotation(name = "count")
-  public final transient DefaultOutputPort<HashMap<HashMap<K,V>, Integer>> count = new DefaultOutputPort<HashMap<HashMap<K,V>, Integer>>(this);
+  public final transient DefaultOutputPort<HashMap<HashMap<K,V>, Integer>> count = new DefaultOutputPort<HashMap<HashMap<K,V>, Integer>>();
 
   /**
    * Emits one HashMap as tuple

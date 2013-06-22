@@ -50,7 +50,7 @@ import java.util.HashMap;
 public class LineTokenizerKeyVal extends BaseLineTokenizer
 {
   @OutputPortFieldAnnotation(name = "tokens")
-  public final transient DefaultOutputPort<HashMap<String, String>> tokens = new DefaultOutputPort<HashMap<String, String>>(this);
+  public final transient DefaultOutputPort<HashMap<String, String>> tokens = new DefaultOutputPort<HashMap<String, String>>();
 
   private transient HashMap<String, String> map = null;
   private transient String skey = "";

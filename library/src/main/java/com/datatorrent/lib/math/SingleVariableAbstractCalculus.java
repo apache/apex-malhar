@@ -49,7 +49,7 @@ import com.datatorrent.api.DefaultInputPort;
  */
 public abstract class SingleVariableAbstractCalculus extends AbstractFunction
 {
-  public final transient DefaultInputPort<Number> input = new DefaultInputPort<Number>(this)
+  public final transient DefaultInputPort<Number> input = new DefaultInputPort<Number>()
   {
     @Override
     public void process(Number tuple)

@@ -71,7 +71,7 @@ import java.util.HashMap;
 public class LeastFrequentKey<K> extends AbstractBaseFrequentKey<K>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<K> data = new DefaultInputPort<K>(this)
+  public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
     /**
      * Calls super.processTuple(tuple)
@@ -84,7 +84,7 @@ public class LeastFrequentKey<K> extends AbstractBaseFrequentKey<K>
   };
 
   @OutputPortFieldAnnotation(name = "least", optional=true)
-  public final transient DefaultOutputPort<HashMap<K, Integer>> least = new DefaultOutputPort<HashMap<K, Integer>>(this)
+  public final transient DefaultOutputPort<HashMap<K, Integer>> least = new DefaultOutputPort<HashMap<K, Integer>>()
   {
     @Override
     public Unifier<HashMap<K, Integer>> getUnifier()
@@ -97,7 +97,7 @@ public class LeastFrequentKey<K> extends AbstractBaseFrequentKey<K>
 
 
   @OutputPortFieldAnnotation(name = "list", optional=true)
-  public final transient DefaultOutputPort<ArrayList<HashMap<K, Integer>>> list = new DefaultOutputPort<ArrayList<HashMap<K, Integer>>>(this);
+  public final transient DefaultOutputPort<ArrayList<HashMap<K, Integer>>> list = new DefaultOutputPort<ArrayList<HashMap<K, Integer>>>();
 
   /**
    * Emits tuple on port "least"

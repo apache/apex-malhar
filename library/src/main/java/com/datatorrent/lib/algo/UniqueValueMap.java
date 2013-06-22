@@ -60,7 +60,7 @@ import org.apache.commons.lang.mutable.MutableInt;
 public class UniqueValueMap<K> extends BaseKeyOperator<K>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<Map<K, ? extends Object>> data = new DefaultInputPort<Map<K, ? extends Object>>(this)
+  public final transient DefaultInputPort<Map<K, ? extends Object>> data = new DefaultInputPort<Map<K, ? extends Object>>()
   {
     /**
      * Reference counts tuples
@@ -79,7 +79,7 @@ public class UniqueValueMap<K> extends BaseKeyOperator<K>
     }
   };
   @OutputPortFieldAnnotation(name = "count")
-  public final transient DefaultOutputPort<HashMap<K, Integer>> count = new DefaultOutputPort<HashMap<K, Integer>>(this)
+  public final transient DefaultOutputPort<HashMap<K, Integer>> count = new DefaultOutputPort<HashMap<K, Integer>>()
   {
     @Override
     public Unifier<HashMap<K, Integer>> getUnifier()

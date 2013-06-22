@@ -41,7 +41,7 @@ public abstract class AbstractSinglePortKestrelOutputOperator<T> extends Abstrac
    */
   public abstract void processTuple(T tuple);
 
-  public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>(this)
+  public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>()
   {
     @Override
     public void process(T tuple)

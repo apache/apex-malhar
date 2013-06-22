@@ -39,7 +39,7 @@ public class RandomEventGeneratorTest
 
   public static class CollectorOperator extends BaseOperator
   {
-    public final transient DefaultInputPort<String> sdata = new DefaultInputPort<String>(this)
+    public final transient DefaultInputPort<String> sdata = new DefaultInputPort<String>()
     {
       @Override
       public void process(String tuple)
@@ -60,7 +60,7 @@ public class RandomEventGeneratorTest
         }
       }
     };
-    public final transient DefaultInputPort<Integer> idata = new DefaultInputPort<Integer>(this)
+    public final transient DefaultInputPort<Integer> idata = new DefaultInputPort<Integer>()
     {
       @Override
       public void process(Integer tuple)

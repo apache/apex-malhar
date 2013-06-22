@@ -22,7 +22,7 @@ import java.util.Map;
 public class UnifierHashMapInteger<K> implements Unifier<HashMap<K, Integer>>
 {
   public HashMap<K, Integer> mergedTuple = new HashMap<K, Integer>();
-  public final transient DefaultOutputPort<HashMap<K, Integer>> mergedport = new DefaultOutputPort<HashMap<K, Integer>>(this);
+  public final transient DefaultOutputPort<HashMap<K, Integer>> mergedport = new DefaultOutputPort<HashMap<K, Integer>>();
 
   /**
    * combines the tuple into a single final tuple which is emitted in endWindow

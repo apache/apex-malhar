@@ -60,7 +60,7 @@ public abstract class AbstractSqlStreamOperator extends BaseOperator
   protected ArrayList<InputSchema> inputSchemas = new ArrayList<InputSchema>(5);
   protected transient ArrayList<Object> bindings;
   @InputPortFieldAnnotation(name = "bindings", optional = true)
-  public final transient DefaultInputPort<ArrayList<Object>> bindingsPort = new DefaultInputPort<ArrayList<Object>>(this)
+  public final transient DefaultInputPort<ArrayList<Object>> bindingsPort = new DefaultInputPort<ArrayList<Object>>()
   {
     @Override
     public void process(ArrayList<Object> tuple)
@@ -70,7 +70,7 @@ public abstract class AbstractSqlStreamOperator extends BaseOperator
 
   };
   @InputPortFieldAnnotation(name = "in1")
-  public final transient DefaultInputPort<HashMap<String, Object>> in1 = new DefaultInputPort<HashMap<String, Object>>(this)
+  public final transient DefaultInputPort<HashMap<String, Object>> in1 = new DefaultInputPort<HashMap<String, Object>>()
   {
     @Override
     public void process(HashMap<String, Object> tuple)
@@ -80,7 +80,7 @@ public abstract class AbstractSqlStreamOperator extends BaseOperator
 
   };
   @InputPortFieldAnnotation(name = "in2", optional = true)
-  public final transient DefaultInputPort<HashMap<String, Object>> in2 = new DefaultInputPort<HashMap<String, Object>>(this)
+  public final transient DefaultInputPort<HashMap<String, Object>> in2 = new DefaultInputPort<HashMap<String, Object>>()
   {
     @Override
     public void process(HashMap<String, Object> tuple)
@@ -90,7 +90,7 @@ public abstract class AbstractSqlStreamOperator extends BaseOperator
 
   };
   @InputPortFieldAnnotation(name = "in3", optional = true)
-  public final transient DefaultInputPort<HashMap<String, Object>> in3 = new DefaultInputPort<HashMap<String, Object>>(this)
+  public final transient DefaultInputPort<HashMap<String, Object>> in3 = new DefaultInputPort<HashMap<String, Object>>()
   {
     @Override
     public void process(HashMap<String, Object> tuple)
@@ -100,7 +100,7 @@ public abstract class AbstractSqlStreamOperator extends BaseOperator
 
   };
   @InputPortFieldAnnotation(name = "in4", optional = true)
-  public final transient DefaultInputPort<HashMap<String, Object>> in4 = new DefaultInputPort<HashMap<String, Object>>(this)
+  public final transient DefaultInputPort<HashMap<String, Object>> in4 = new DefaultInputPort<HashMap<String, Object>>()
   {
     @Override
     public void process(HashMap<String, Object> tuple)
@@ -110,7 +110,7 @@ public abstract class AbstractSqlStreamOperator extends BaseOperator
 
   };
   @InputPortFieldAnnotation(name = "in5", optional = true)
-  public final transient DefaultInputPort<HashMap<String, Object>> in5 = new DefaultInputPort<HashMap<String, Object>>(this)
+  public final transient DefaultInputPort<HashMap<String, Object>> in5 = new DefaultInputPort<HashMap<String, Object>>()
   {
     @Override
     public void process(HashMap<String, Object> tuple)
@@ -120,7 +120,7 @@ public abstract class AbstractSqlStreamOperator extends BaseOperator
 
   };
   @OutputPortFieldAnnotation(name = "result", optional = true)
-  public final transient DefaultOutputPort<HashMap<String, Object>> result = new DefaultOutputPort<HashMap<String, Object>>(this);
+  public final transient DefaultOutputPort<HashMap<String, Object>> result = new DefaultOutputPort<HashMap<String, Object>>();
 
   public void setStatement(String statement)
   {

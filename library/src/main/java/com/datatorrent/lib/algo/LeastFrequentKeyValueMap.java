@@ -51,7 +51,7 @@ import java.util.HashMap;
 public class LeastFrequentKeyValueMap<K, V> extends AbstractBaseFrequentKeyValueMap<K, V>
 {
   @OutputPortFieldAnnotation(name = "least")
-  public final transient DefaultOutputPort<HashMap<K, HashMap<V, Integer>>> least = new DefaultOutputPort<HashMap<K, HashMap<V, Integer>>>(this);
+  public final transient DefaultOutputPort<HashMap<K, HashMap<V, Integer>>> least = new DefaultOutputPort<HashMap<K, HashMap<V, Integer>>>();
 
   /**
    * returns val1 < val2

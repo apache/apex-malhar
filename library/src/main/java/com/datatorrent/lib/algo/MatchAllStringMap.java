@@ -75,7 +75,7 @@ import java.util.Map;
 public class MatchAllStringMap<K> extends BaseMatchOperator<K, String>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<Map<K, String>> data = new DefaultInputPort<Map<K, String>>(this)
+  public final transient DefaultInputPort<Map<K, String>> data = new DefaultInputPort<Map<K, String>>()
   {
     /**
      * Sets match flag to false for on first non matching tuple
@@ -103,7 +103,7 @@ public class MatchAllStringMap<K> extends BaseMatchOperator<K, String>
     }
   };
   @OutputPortFieldAnnotation(name = "all")
-  public final transient DefaultOutputPort<Boolean> all = new DefaultOutputPort<Boolean>(this)
+  public final transient DefaultOutputPort<Boolean> all = new DefaultOutputPort<Boolean>()
   {
     @Override
     public Unifier<Boolean> getUnifier()

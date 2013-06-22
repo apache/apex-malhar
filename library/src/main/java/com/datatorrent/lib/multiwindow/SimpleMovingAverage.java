@@ -60,22 +60,22 @@ public class SimpleMovingAverage<K, V extends Number> extends AbstractSlidingWin
    * Output port to emit simple moving average (SMA) of last N window as Double.
    */
   @OutputPortFieldAnnotation(name = "doubleSMA", optional = true)
-  public final transient DefaultOutputPort<KeyValPair<K, Double>> doubleSMA = new DefaultOutputPort<KeyValPair<K, Double>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, Double>> doubleSMA = new DefaultOutputPort<KeyValPair<K, Double>>();
   /**
    * Output port to emit simple moving average (SMA) of last N window as Float.
    */
   @OutputPortFieldAnnotation(name = "floatSMA", optional = true)
-  public final transient DefaultOutputPort<KeyValPair<K, Float>> floatSMA = new DefaultOutputPort<KeyValPair<K, Float>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, Float>> floatSMA = new DefaultOutputPort<KeyValPair<K, Float>>();
   /**
    * Output port to emit simple moving average (SMA) of last N window as Long.
    */
   @OutputPortFieldAnnotation(name = "longSMA", optional = true)
-  public final transient DefaultOutputPort<KeyValPair<K, Long>> longSMA = new DefaultOutputPort<KeyValPair<K, Long>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, Long>> longSMA = new DefaultOutputPort<KeyValPair<K, Long>>();
   /**
    * Output port to emit simple moving average (SMA) of last N window as Integer.
    */
   @OutputPortFieldAnnotation(name = "integerSMA", optional = true)
-  public final transient DefaultOutputPort<KeyValPair<K, Integer>> integerSMA = new DefaultOutputPort<KeyValPair<K, Integer>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, Integer>> integerSMA = new DefaultOutputPort<KeyValPair<K, Integer>>();
 
   /**
    * Create the list if key doesn't exist.

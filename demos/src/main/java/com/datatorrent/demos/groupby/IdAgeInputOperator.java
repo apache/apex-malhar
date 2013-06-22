@@ -17,7 +17,7 @@ import java.util.Random;
  */
 public class IdAgeInputOperator implements InputOperator
 {
-  public transient DefaultOutputPort<HashMap<String, Integer>>output = new DefaultOutputPort<HashMap<String, Integer>>(this);
+  public transient DefaultOutputPort<HashMap<String, Integer>>output = new DefaultOutputPort<HashMap<String, Integer>>();
   private Random random;
   private transient int interval;
 

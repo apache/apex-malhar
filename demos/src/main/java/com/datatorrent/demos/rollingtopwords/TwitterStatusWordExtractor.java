@@ -21,8 +21,8 @@ public class TwitterStatusWordExtractor extends BaseOperator
 {
   public HashSet<String> filterList;
 
-  public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>(this);
-  public final transient DefaultInputPort<String> input = new DefaultInputPort<String>(this)
+  public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
+  public final transient DefaultInputPort<String> input = new DefaultInputPort<String>()
   {
     @Override
     public void process(String text)

@@ -54,7 +54,7 @@ import com.datatorrent.api.DefaultOutputPort;
  */
 public class LogicalCompareToConstant<T extends Comparable<? super T>> extends BaseOperator
 {
-  public final transient DefaultInputPort<T> input = new DefaultInputPort<T>(this)
+  public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()
   {
     @Override
     public void process(T tuple)
@@ -78,12 +78,12 @@ public class LogicalCompareToConstant<T extends Comparable<? super T>> extends B
     }
 
   };
-  public final transient DefaultOutputPort<T> equalTo = new DefaultOutputPort<T>(this);
-  public final transient DefaultOutputPort<T> notEqualTo = new DefaultOutputPort<T>(this);
-  public final transient DefaultOutputPort<T> lessThan = new DefaultOutputPort<T>(this);
-  public final transient DefaultOutputPort<T> greaterThan = new DefaultOutputPort<T>(this);
-  public final transient DefaultOutputPort<T> lessThanOrEqualTo = new DefaultOutputPort<T>(this);
-  public final transient DefaultOutputPort<T> greaterThanOrEqualTo = new DefaultOutputPort<T>(this);
+  public final transient DefaultOutputPort<T> equalTo = new DefaultOutputPort<T>();
+  public final transient DefaultOutputPort<T> notEqualTo = new DefaultOutputPort<T>();
+  public final transient DefaultOutputPort<T> lessThan = new DefaultOutputPort<T>();
+  public final transient DefaultOutputPort<T> greaterThan = new DefaultOutputPort<T>();
+  public final transient DefaultOutputPort<T> lessThanOrEqualTo = new DefaultOutputPort<T>();
+  public final transient DefaultOutputPort<T> greaterThanOrEqualTo = new DefaultOutputPort<T>();
 
   /**
    * @param constant the constant to set

@@ -104,7 +104,7 @@ public class ZeroMQInputOperatorTest
 
     public CollectorInputPort(String id, Operator module)
     {
-      super(module);
+      super();
       this.id = id;
     }
 

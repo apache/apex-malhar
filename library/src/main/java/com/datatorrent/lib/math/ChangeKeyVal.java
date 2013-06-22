@@ -57,7 +57,7 @@ import org.apache.commons.lang.mutable.MutableDouble;
 public class ChangeKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>(this)
+  public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
   {
     /**
      * Process each key, compute change or percent, and emit it.
@@ -78,7 +78,7 @@ public class ChangeKeyVal<K, V extends Number> extends BaseNumberKeyValueOperato
     }
   };
   @InputPortFieldAnnotation(name = "base")
-  public final transient DefaultInputPort<KeyValPair<K, V>> base = new DefaultInputPort<KeyValPair<K, V>>(this)
+  public final transient DefaultInputPort<KeyValPair<K, V>> base = new DefaultInputPort<KeyValPair<K, V>>()
   {
     /**
      * Process each key to store the value. If same key appears again update with latest value.
@@ -98,9 +98,9 @@ public class ChangeKeyVal<K, V extends Number> extends BaseNumberKeyValueOperato
   };
   // Default partition "pass through" works for change and percent, as it is done per tuple
   @OutputPortFieldAnnotation(name = "change", optional = true)
-  public final transient DefaultOutputPort<KeyValPair<K, V>> change = new DefaultOutputPort<KeyValPair<K, V>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, V>> change = new DefaultOutputPort<KeyValPair<K, V>>();
   @OutputPortFieldAnnotation(name = "percent", optional = true)
-  public final transient DefaultOutputPort<KeyValPair<K, Double>> percent = new DefaultOutputPort<KeyValPair<K, Double>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, Double>> percent = new DefaultOutputPort<KeyValPair<K, Double>>();
   /**
    * basemap is a stateful field. It is retained across windows
    */

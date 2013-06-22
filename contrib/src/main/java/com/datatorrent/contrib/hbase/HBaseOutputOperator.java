@@ -53,7 +53,7 @@ public abstract class HBaseOutputOperator<T> extends HBaseOperatorBase implement
   private transient HBaseStatePersistenceStrategy persistenceStrategy;
 
   @InputPortFieldAnnotation(name="inputPort")
-  public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>(this) {
+  public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>() {
 
     @Override
     public void process(T tuple)

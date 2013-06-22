@@ -67,7 +67,7 @@ public class CountKeyVal<K, V> extends BaseKeyValueOperator<K, V>
    * Input port to receive data.
    */
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>(this)
+  public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
   {
     /**
      * For each tuple (a key value pair):
@@ -94,7 +94,7 @@ public class CountKeyVal<K, V> extends BaseKeyValueOperator<K, V>
   };
 
   @OutputPortFieldAnnotation(name = "count", optional = true)
-  public final transient DefaultOutputPort<KeyValPair<K, Integer>> count = new DefaultOutputPort<KeyValPair<K, Integer>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, Integer>> count = new DefaultOutputPort<KeyValPair<K, Integer>>();
 
   protected HashMap<K, MutableInt> counts = new HashMap<K, MutableInt>();
 

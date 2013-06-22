@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 public class JDBCRecoverInputOperator implements InputOperator, CheckpointListener, ActivationListener<OperatorContext>
 {
   private static final Logger logger = LoggerFactory.getLogger(JDBCRecoverInputOperator.class);
-  public final transient DefaultOutputPort<HashMap<String, Object>> output = new DefaultOutputPort<HashMap<String, Object>>(this);
+  public final transient DefaultOutputPort<HashMap<String, Object>> output = new DefaultOutputPort<HashMap<String, Object>>();
   transient boolean first;
   transient long windowId;
   transient ArrayBlockingQueue<HashMap<String, Object>> holdingBuffer;

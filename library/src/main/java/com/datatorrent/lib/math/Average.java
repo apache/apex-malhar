@@ -54,7 +54,7 @@ public class Average<V extends Number> extends BaseNumberValueOperator<V>
    * Input port
    */
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<V> data = new DefaultInputPort<V>(this)
+  public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
   {
     /**
      * Computes sum and count with each tuple
@@ -71,7 +71,7 @@ public class Average<V extends Number> extends BaseNumberValueOperator<V>
    * Output port
    */
   @OutputPortFieldAnnotation(name = "average")
-  public final transient DefaultOutputPort<V> average = new DefaultOutputPort<V>(this);
+  public final transient DefaultOutputPort<V> average = new DefaultOutputPort<V>();
 
   protected double sums = 0;
   protected long counts = 0;

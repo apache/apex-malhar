@@ -80,7 +80,7 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
    * Input port to receive data.
    */
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>(this)
+  public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
   {
     /**
      * For each tuple (a key value pair) Adds the values for each key.
@@ -115,17 +115,17 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
 
   };
   @OutputPortFieldAnnotation(name = "sum", optional = true)
-  public final transient DefaultOutputPort<KeyValPair<K, V>> sum = new DefaultOutputPort<KeyValPair<K, V>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, V>> sum = new DefaultOutputPort<KeyValPair<K, V>>();
   @OutputPortFieldAnnotation(name = "sumDouble", optional = true)
-  public final transient DefaultOutputPort<KeyValPair<K, Double>> sumDouble = new DefaultOutputPort<KeyValPair<K, Double>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, Double>> sumDouble = new DefaultOutputPort<KeyValPair<K, Double>>();
   @OutputPortFieldAnnotation(name = "sumInteger", optional = true)
-  public final transient DefaultOutputPort<KeyValPair<K, Integer>> sumInteger = new DefaultOutputPort<KeyValPair<K, Integer>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, Integer>> sumInteger = new DefaultOutputPort<KeyValPair<K, Integer>>();
   @OutputPortFieldAnnotation(name = "sumLong", optional = true)
-  public final transient DefaultOutputPort<KeyValPair<K, Long>> sumLong = new DefaultOutputPort<KeyValPair<K, Long>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, Long>> sumLong = new DefaultOutputPort<KeyValPair<K, Long>>();
   @OutputPortFieldAnnotation(name = "sumShort", optional = true)
-  public final transient DefaultOutputPort<KeyValPair<K, Short>> sumShort = new DefaultOutputPort<KeyValPair<K, Short>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, Short>> sumShort = new DefaultOutputPort<KeyValPair<K, Short>>();
   @OutputPortFieldAnnotation(name = "sumFloat", optional = true)
-  public final transient DefaultOutputPort<KeyValPair<K, Float>> sumFloat = new DefaultOutputPort<KeyValPair<K, Float>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, Float>> sumFloat = new DefaultOutputPort<KeyValPair<K, Float>>();
   protected HashMap<K, SumEntry> sums = new HashMap<K, SumEntry>();
   protected boolean cumulative = false;
   protected boolean emitOnlyWhenChanged = false;

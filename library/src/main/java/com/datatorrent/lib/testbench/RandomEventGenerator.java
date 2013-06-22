@@ -47,8 +47,8 @@ import javax.validation.constraints.Min;
  */
 public class RandomEventGenerator extends BaseOperator implements InputOperator
 {
-  public final transient DefaultOutputPort<String> string_data = new DefaultOutputPort<String>(this);
-  public final transient DefaultOutputPort<Integer> integer_data = new DefaultOutputPort<Integer>(this);
+  public final transient DefaultOutputPort<String> string_data = new DefaultOutputPort<String>();
+  public final transient DefaultOutputPort<Integer> integer_data = new DefaultOutputPort<Integer>();
   private int maxCountOfWindows = Integer.MAX_VALUE;
   @Min(1)
   private int tuplesBlast = 1000;

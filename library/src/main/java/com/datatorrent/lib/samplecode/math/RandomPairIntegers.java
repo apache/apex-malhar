@@ -15,8 +15,7 @@ import com.datatorrent.common.util.Pair;
 public class RandomPairIntegers implements InputOperator
 {
 
-	public final transient DefaultOutputPort<Pair<Integer, Integer>> outport = new DefaultOutputPort<Pair<Integer, Integer>>(
-			this);
+	public final transient DefaultOutputPort<Pair<Integer, Integer>> outport = new DefaultOutputPort<Pair<Integer, Integer>>();
 	private Random random = new Random(11111);
 	private boolean equal = false;
 

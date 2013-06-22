@@ -17,8 +17,8 @@ import twitter4j.URLEntity;
  */
 public class TwitterStatusURLExtractor extends BaseOperator
 {
-  public final transient DefaultOutputPort<String> url = new DefaultOutputPort<String>(this);
-  public final transient DefaultInputPort<Status> input = new DefaultInputPort<Status>(this)
+  public final transient DefaultOutputPort<String> url = new DefaultOutputPort<String>();
+  public final transient DefaultInputPort<Status> input = new DefaultInputPort<Status>()
   {
     @Override
     public void process(Status status)

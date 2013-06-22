@@ -30,7 +30,7 @@ public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOper
   private transient String appId;
   protected Map<K, Object> dataMap = new HashMap<K, Object>();
   @InputPortFieldAnnotation(name = "in", optional=true)
-  public final transient DefaultInputPort<Map<K, V>> input = new DefaultInputPort<Map<K, V>>(this)
+  public final transient DefaultInputPort<Map<K, V>> input = new DefaultInputPort<Map<K, V>>()
   {
     @Override
     public void process(Map<K, V> t)
@@ -43,7 +43,7 @@ public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOper
   };
 
   @InputPortFieldAnnotation(name = "ind", optional=true)
-  public final transient DefaultInputPort<KeyValPair<K, V>> inputInd = new DefaultInputPort<KeyValPair<K, V>>(this)
+  public final transient DefaultInputPort<KeyValPair<K, V>> inputInd = new DefaultInputPort<KeyValPair<K, V>>()
   {
     @Override
     public void process(KeyValPair<K, V> t)

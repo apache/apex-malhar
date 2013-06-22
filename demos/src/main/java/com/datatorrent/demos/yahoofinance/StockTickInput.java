@@ -48,17 +48,17 @@ public class StockTickInput implements InputOperator
    * The output port to emit price.
    */
   @OutputPortFieldAnnotation(name = "price", optional = true)
-  public final transient DefaultOutputPort<KeyValPair<String, Double>> price = new DefaultOutputPort<KeyValPair<String, Double>>(this);
+  public final transient DefaultOutputPort<KeyValPair<String, Double>> price = new DefaultOutputPort<KeyValPair<String, Double>>();
   /**
    * The output port to emit incremental volume.
    */
   @OutputPortFieldAnnotation(name = "volume", optional = true)
-  public final transient DefaultOutputPort<KeyValPair<String, Long>> volume = new DefaultOutputPort<KeyValPair<String, Long>>(this);
+  public final transient DefaultOutputPort<KeyValPair<String, Long>> volume = new DefaultOutputPort<KeyValPair<String, Long>>();
   /**
    * The output port to emit last traded time.
    */
   @OutputPortFieldAnnotation(name = "time", optional = true)
-  public final transient DefaultOutputPort<KeyValPair<String, String>> time = new DefaultOutputPort<KeyValPair<String, String>>(this);
+  public final transient DefaultOutputPort<KeyValPair<String, String>> time = new DefaultOutputPort<KeyValPair<String, String>>();
 
   /**
    * Prepare URL from symbols and parameters. URL will be something like: http://download.finance.yahoo.com/d/quotes.csv?s=IBM,GOOG,AAPL,YHOO&f=sl1vt1

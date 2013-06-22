@@ -50,7 +50,7 @@ import java.util.HashMap;
 public class LineToTokenHashMap extends BaseLineTokenizer
 {
   @OutputPortFieldAnnotation(name = "tokens")
-  public final transient DefaultOutputPort<HashMap<String, ArrayList<String>>> tokens = new DefaultOutputPort<HashMap<String, ArrayList<String>>>(this);
+  public final transient DefaultOutputPort<HashMap<String, ArrayList<String>>> tokens = new DefaultOutputPort<HashMap<String, ArrayList<String>>>();
 
   protected transient HashMap<String, ArrayList<String>> otuple = null;
   protected transient ArrayList<String> vals = null;

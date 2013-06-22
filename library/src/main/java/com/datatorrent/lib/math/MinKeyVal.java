@@ -64,7 +64,7 @@ import java.util.Map;
 public class MinKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>(this)
+  public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
   {
     /**
      * For each key, updates the hash if the new value is a new min.
@@ -96,7 +96,7 @@ public class MinKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
     }
   };
   @OutputPortFieldAnnotation(name = "max")
-  public final transient DefaultOutputPort<KeyValPair<K, V>> min = new DefaultOutputPort<KeyValPair<K, V>>(this);
+  public final transient DefaultOutputPort<KeyValPair<K, V>> min = new DefaultOutputPort<KeyValPair<K, V>>();
   protected HashMap<K, V> mins = new HashMap<K, V>();
 
   /**

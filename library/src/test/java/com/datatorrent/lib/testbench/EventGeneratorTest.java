@@ -41,7 +41,7 @@ public class EventGeneratorTest
    */
   public static class CollectorOperator extends BaseOperator
   {
-    public final transient DefaultInputPort<String> sdata = new DefaultInputPort<String>(this)
+    public final transient DefaultInputPort<String> sdata = new DefaultInputPort<String>()
     {
       @Override
       public void process(String tuple)
@@ -49,7 +49,7 @@ public class EventGeneratorTest
         scount++;
       }
     };
-    public final transient DefaultInputPort<HashMap<String, Double>> hdata = new DefaultInputPort<HashMap<String, Double>>(this)
+    public final transient DefaultInputPort<HashMap<String, Double>> hdata = new DefaultInputPort<HashMap<String, Double>>()
     {
       @Override
       public void process(HashMap<String, Double> tuple)
@@ -57,7 +57,7 @@ public class EventGeneratorTest
         hcount++;
       }
     };
-    public final transient DefaultInputPort<HashMap<String, Number>> count = new DefaultInputPort<HashMap<String, Number>>(this)
+    public final transient DefaultInputPort<HashMap<String, Number>> count = new DefaultInputPort<HashMap<String, Number>>()
     {
       @Override
       public void process(HashMap<String, Number> tuple)

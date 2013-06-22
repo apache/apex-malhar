@@ -49,7 +49,7 @@ import com.datatorrent.api.DefaultOutputPort;
 
 public class MultiplyByConstant extends BaseOperator
 {
-  public final transient DefaultInputPort<Number> input = new DefaultInputPort<Number>(this)
+  public final transient DefaultInputPort<Number> input = new DefaultInputPort<Number>()
   {
     @Override
     public void process(Number tuple)
@@ -74,10 +74,10 @@ public class MultiplyByConstant extends BaseOperator
     }
 
   };
-  public final transient DefaultOutputPort<Long> longProduct = new DefaultOutputPort<Long>(this);
-  public final transient DefaultOutputPort<Integer> integerProduct = new DefaultOutputPort<Integer>(this);
-  public final transient DefaultOutputPort<Double> doubleProduct = new DefaultOutputPort<Double>(this);
-  public final transient DefaultOutputPort<Float> floatProduct = new DefaultOutputPort<Float>(this);
+  public final transient DefaultOutputPort<Long> longProduct = new DefaultOutputPort<Long>();
+  public final transient DefaultOutputPort<Integer> integerProduct = new DefaultOutputPort<Integer>();
+  public final transient DefaultOutputPort<Double> doubleProduct = new DefaultOutputPort<Double>();
+  public final transient DefaultOutputPort<Float> floatProduct = new DefaultOutputPort<Float>();
 
   /**
    * @param multiplier the multiplier to set

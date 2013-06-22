@@ -70,7 +70,7 @@ public class InsertSort<K> extends AbstractBaseSortOperator<K>
    * Input port that takes in one tuple at a time
    */
   @InputPortFieldAnnotation(name = "data", optional = true)
-  public final transient DefaultInputPort<K> data = new DefaultInputPort<K>(this)
+  public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
     /**
      * Adds tuple to sorted queue
@@ -85,7 +85,7 @@ public class InsertSort<K> extends AbstractBaseSortOperator<K>
    * Input port that takes in an array of Objects to insert
    */
   @InputPortFieldAnnotation(name = "datalist", optional = true)
-  public final transient DefaultInputPort<ArrayList<K>> datalist = new DefaultInputPort<ArrayList<K>>(this)
+  public final transient DefaultInputPort<ArrayList<K>> datalist = new DefaultInputPort<ArrayList<K>>()
   {
     /**
      * Adds tuples to sorted queue
@@ -98,9 +98,9 @@ public class InsertSort<K> extends AbstractBaseSortOperator<K>
   };
 
   @OutputPortFieldAnnotation(name = "sort", optional = true)
-  public final transient DefaultOutputPort<ArrayList<K>> sort = new DefaultOutputPort<ArrayList<K>>(this);
+  public final transient DefaultOutputPort<ArrayList<K>> sort = new DefaultOutputPort<ArrayList<K>>();
   @OutputPortFieldAnnotation(name = "sorthash", optional = true)
-  public final transient DefaultOutputPort<HashMap<K, Integer>> sorthash = new DefaultOutputPort<HashMap<K, Integer>>(this);
+  public final transient DefaultOutputPort<HashMap<K, Integer>> sorthash = new DefaultOutputPort<HashMap<K, Integer>>();
 
 
 

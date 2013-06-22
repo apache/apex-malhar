@@ -105,7 +105,7 @@ public class KestrelOutputOperatorBenchmark
   public static class SourceModule extends BaseOperator
           implements InputOperator, ActivationListener<OperatorContext>
   {
-    public final transient DefaultOutputPort<String> outPort = new DefaultOutputPort<String>(this);
+    public final transient DefaultOutputPort<String> outPort = new DefaultOutputPort<String>();
     transient ArrayBlockingQueue<byte[]> holdingBuffer;
     int testNum;
 

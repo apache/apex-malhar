@@ -60,7 +60,7 @@ import org.apache.commons.lang.mutable.MutableDouble;
 public class RangeMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>(this)
+  public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
   {
     /**
      * Process each key and computes new high and low
@@ -89,7 +89,7 @@ public class RangeMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,
 
 
   @OutputPortFieldAnnotation(name = "range")
-  public final transient DefaultOutputPort<HashMap<K, HighLow>> range = new DefaultOutputPort<HashMap<K, HighLow>>(this)
+  public final transient DefaultOutputPort<HashMap<K, HighLow>> range = new DefaultOutputPort<HashMap<K, HighLow>>()
   {
     @Override
     public Unifier<HashMap<K, HighLow>> getUnifier()

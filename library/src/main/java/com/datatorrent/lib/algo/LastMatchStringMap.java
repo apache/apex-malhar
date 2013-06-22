@@ -66,7 +66,7 @@ import java.util.Map;
 public class LastMatchStringMap<K> extends BaseMatchOperator<K, String>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<Map<K, String>> data = new DefaultInputPort<Map<K, String>>(this)
+  public final transient DefaultInputPort<Map<K, String>> data = new DefaultInputPort<Map<K, String>>()
   {
     /**
      * Processes tuples and keeps a copy of last matched tuple
@@ -94,7 +94,7 @@ public class LastMatchStringMap<K> extends BaseMatchOperator<K, String>
     }
   };
   @OutputPortFieldAnnotation(name = "last")
-  public final transient DefaultOutputPort<HashMap<K, String>> last = new DefaultOutputPort<HashMap<K, String>>(this);
+  public final transient DefaultOutputPort<HashMap<K, String>> last = new DefaultOutputPort<HashMap<K, String>>();
   protected HashMap<K, String> ltuple = null;
 
   /**

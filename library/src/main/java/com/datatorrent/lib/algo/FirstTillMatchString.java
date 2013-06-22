@@ -70,7 +70,7 @@ import java.util.HashMap;
 public class FirstTillMatchString<K> extends BaseMatchOperator<K,String>
 {
   @InputPortFieldAnnotation(name="data")
-  public final transient DefaultInputPort<HashMap<K, String>> data = new DefaultInputPort<HashMap<K, String>>(this)
+  public final transient DefaultInputPort<HashMap<K, String>> data = new DefaultInputPort<HashMap<K, String>>()
   {
     /**
      * Compares the key,val pair with the match condition. Till a match is found tuples are emitted.
@@ -106,7 +106,7 @@ public class FirstTillMatchString<K> extends BaseMatchOperator<K,String>
   };
 
   @OutputPortFieldAnnotation(name="first")
-  public final transient DefaultOutputPort<HashMap<K, String>> first = new DefaultOutputPort<HashMap<K, String>>(this);
+  public final transient DefaultOutputPort<HashMap<K, String>> first = new DefaultOutputPort<HashMap<K, String>>();
   boolean emitted = false;
 
   /**

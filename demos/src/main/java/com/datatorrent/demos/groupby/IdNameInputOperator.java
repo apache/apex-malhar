@@ -18,7 +18,7 @@ import java.util.Random;
  */
 public class IdNameInputOperator implements InputOperator
 {
-  public transient DefaultOutputPort<HashMap<String, Object>> output = new DefaultOutputPort<HashMap<String, Object>>(this);
+  public transient DefaultOutputPort<HashMap<String, Object>> output = new DefaultOutputPort<HashMap<String, Object>>();
   private Random random;
   private String[] name = {"mark", "steve", "allen","bob","john","mary","hellen","christina","beyonce","alex"};
   private transient int interval;

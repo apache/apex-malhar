@@ -68,7 +68,7 @@ import java.util.Map;
 public class MatchMap<K,V extends Number> extends BaseMatchOperator<K, V>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>(this)
+  public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
   {
     /**
      * If tuple matches, tupleMatched is called, if not tupleNotMatched is called
@@ -90,7 +90,7 @@ public class MatchMap<K,V extends Number> extends BaseMatchOperator<K, V>
     }
   };
   @OutputPortFieldAnnotation(name = "match", optional=true)
-  public final transient DefaultOutputPort<HashMap<K, V>> match = new DefaultOutputPort<HashMap<K, V>>(this)
+  public final transient DefaultOutputPort<HashMap<K, V>> match = new DefaultOutputPort<HashMap<K, V>>()
   {
     @Override
     public Unifier<HashMap<K, V>> getUnifier()

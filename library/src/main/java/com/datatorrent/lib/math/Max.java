@@ -54,7 +54,7 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
 public class Max<V extends Number> extends BaseNumberValueOperator<V> implements Unifier<V>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<V> data = new DefaultInputPort<V>(this)
+  public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
   {
     /**
      * Each tuple is compared to the max and a new max (if so) is stored.
@@ -79,7 +79,7 @@ public class Max<V extends Number> extends BaseNumberValueOperator<V> implements
   }
 
   @OutputPortFieldAnnotation(name = "max")
-  public final transient DefaultOutputPort<V> max = new DefaultOutputPort<V>(this)
+  public final transient DefaultOutputPort<V> max = new DefaultOutputPort<V>()
    {
     @Override
     public Unifier<V> getUnifier()

@@ -43,7 +43,7 @@ import java.util.Map;
  */
 public class EventIncrementer extends BaseOperator
 {
-  public final transient DefaultInputPort<HashMap<String, ArrayList<Integer>>> seed = new DefaultInputPort<HashMap<String, ArrayList<Integer>>>(this)
+  public final transient DefaultInputPort<HashMap<String, ArrayList<Integer>>> seed = new DefaultInputPort<HashMap<String, ArrayList<Integer>>>()
   {
     @Override
     public void process(HashMap<String, ArrayList<Integer>> tuple)
@@ -68,7 +68,7 @@ public class EventIncrementer extends BaseOperator
       }
     }
   };
-  public final transient DefaultInputPort<HashMap<String, HashMap<String, Integer>>> increment = new DefaultInputPort<HashMap<String, HashMap<String, Integer>>>(this)
+  public final transient DefaultInputPort<HashMap<String, HashMap<String, Integer>>> increment = new DefaultInputPort<HashMap<String, HashMap<String, Integer>>>()
   {
     @Override
     public void process(HashMap<String, HashMap<String, Integer>> tuple)
@@ -102,8 +102,8 @@ public class EventIncrementer extends BaseOperator
       }
     }
   };
-  public final transient DefaultOutputPort<HashMap<String, String>> data = new DefaultOutputPort<HashMap<String, String>>(this);
-  public final transient DefaultOutputPort<HashMap<String, Integer>> count = new DefaultOutputPort<HashMap<String, Integer>>(this);
+  public final transient DefaultOutputPort<HashMap<String, String>> data = new DefaultOutputPort<HashMap<String, String>>();
+  public final transient DefaultOutputPort<HashMap<String, Integer>> count = new DefaultOutputPort<HashMap<String, Integer>>();
   public static final String OPORT_COUNT_TUPLE_COUNT = "count";
   HashMap<String, ArrayList<KeyValPair<String, Double>>> vmap = new HashMap<String, ArrayList<KeyValPair<String, Double>>>();
   String[] keys = null;

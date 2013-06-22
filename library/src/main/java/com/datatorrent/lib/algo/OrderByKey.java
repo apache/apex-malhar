@@ -65,7 +65,7 @@ import org.apache.commons.lang.mutable.MutableInt;
 public class OrderByKey<K,V> extends BaseKeyValueOperator<K,V>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>(this)
+  public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>()
   {
     /**
      * process the tuple is orderby val exists.
@@ -104,9 +104,9 @@ public class OrderByKey<K,V> extends BaseKeyValueOperator<K,V>
   };
 
   @OutputPortFieldAnnotation(name = "ordered_list")
-  public final transient DefaultOutputPort<HashMap<K,V>> ordered_list = new DefaultOutputPort<HashMap<K,V>>(this);
+  public final transient DefaultOutputPort<HashMap<K,V>> ordered_list = new DefaultOutputPort<HashMap<K,V>>();
   @OutputPortFieldAnnotation(name = "ordered_count")
-  public final transient DefaultOutputPort<HashMap<V,Integer>> ordered_count = new DefaultOutputPort<HashMap<V,Integer>>(this);
+  public final transient DefaultOutputPort<HashMap<V,Integer>> ordered_count = new DefaultOutputPort<HashMap<V,Integer>>();
 
   @NotNull()
   K orderby = null;

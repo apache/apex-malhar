@@ -27,7 +27,7 @@ public class InputItemGenerator implements InputOperator
   private Random random = new Random();
 
   @OutputPortFieldAnnotation(name = "outputPort")
-  public final transient DefaultOutputPort<AdInfo> outputPort = new DefaultOutputPort<AdInfo>(this);
+  public final transient DefaultOutputPort<AdInfo> outputPort = new DefaultOutputPort<AdInfo>();
 
   public double getExpectedClickThruRate()
   {

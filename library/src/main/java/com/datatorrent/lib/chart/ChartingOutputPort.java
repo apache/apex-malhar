@@ -19,7 +19,7 @@ public class ChartingOutputPort<T> extends DefaultOutputPort<T>
 {
   public ChartingOutputPort(Operator operator)
   {
-    super(operator);
+    super();
   }
 
   @Override

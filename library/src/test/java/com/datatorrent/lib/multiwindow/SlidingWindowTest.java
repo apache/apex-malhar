@@ -28,7 +28,7 @@ public class SlidingWindowTest
   public class mySlidingWindow extends AbstractSlidingWindow<String>
   {
     @OutputPortFieldAnnotation(name = "out")
-    public final transient DefaultOutputPort<ArrayList<String>> out = new DefaultOutputPort<ArrayList<String>>(this);
+    public final transient DefaultOutputPort<ArrayList<String>> out = new DefaultOutputPort<ArrayList<String>>();
 
     ArrayList<String> tuples = new ArrayList<String>();
 

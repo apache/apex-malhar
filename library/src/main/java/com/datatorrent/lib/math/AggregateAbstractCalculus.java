@@ -47,7 +47,7 @@ import java.util.Collection;
  */
 public abstract class AggregateAbstractCalculus<T extends Number> extends AbstractFunction
 {
-  public final transient DefaultInputPort<Collection<T>> input = new DefaultInputPort<Collection<T>>(this)
+  public final transient DefaultInputPort<Collection<T>> input = new DefaultInputPort<Collection<T>>()
   {
     @Override
     public void process(Collection<T> collection)

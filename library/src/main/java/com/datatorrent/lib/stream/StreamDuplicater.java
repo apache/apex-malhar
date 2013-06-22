@@ -50,7 +50,7 @@ import com.datatorrent.lib.util.BaseKeyOperator;
 public class StreamDuplicater<K> extends BaseKeyOperator<K>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<K> data = new DefaultInputPort<K>(this)
+  public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
     /**
      * Emits tuple on both streams
@@ -64,9 +64,9 @@ public class StreamDuplicater<K> extends BaseKeyOperator<K>
   };
 
   @OutputPortFieldAnnotation(name = "out1")
-  public final transient DefaultOutputPort<K> out1 = new DefaultOutputPort<K>(this);
+  public final transient DefaultOutputPort<K> out1 = new DefaultOutputPort<K>();
   @OutputPortFieldAnnotation(name = "out2")
-  public final transient DefaultOutputPort<K> out2 = new DefaultOutputPort<K>(this);
+  public final transient DefaultOutputPort<K> out2 = new DefaultOutputPort<K>();
   final transient static int num_oport = 2;
 
   /**

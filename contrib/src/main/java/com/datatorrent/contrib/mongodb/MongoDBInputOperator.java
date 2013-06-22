@@ -46,7 +46,7 @@ public abstract class MongoDBInputOperator<T> extends MongoDBBaseOperator implem
   private DBObject query;
   private transient DBCursor resultCursor;
   @OutputPortFieldAnnotation(name = "outputPort")
-  final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>(this);
+  final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**
    * Any concrete class derived from this has to implement this method

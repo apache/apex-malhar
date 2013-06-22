@@ -30,7 +30,7 @@ public class SlidingWindowBenchmark
   public class mySlidingWindow extends AbstractSlidingWindow<String>
   {
     @OutputPortFieldAnnotation(name = "out")
-    public final transient DefaultOutputPort<String> out = new DefaultOutputPort<String>(this);
+    public final transient DefaultOutputPort<String> out = new DefaultOutputPort<String>();
     String tuplestate = "";
 
     @Override

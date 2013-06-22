@@ -102,7 +102,7 @@ public class SumTest
   public static class TestInputOperator extends BaseOperator implements InputOperator
   {
     @OutputPortFieldAnnotation(name = "output")
-    public final transient DefaultOutputPort<Integer> output = new DefaultOutputPort<Integer>(this);
+    public final transient DefaultOutputPort<Integer> output = new DefaultOutputPort<Integer>();
     public transient boolean first = true;
 
     @Override
@@ -123,7 +123,7 @@ public class SumTest
   public static class CollectorOperator extends BaseOperator
   {
     public static final ArrayList<Integer> buffer = new ArrayList<Integer>();
-    public final transient DefaultInputPort<Integer> input = new DefaultInputPort<Integer>(this)
+    public final transient DefaultInputPort<Integer> input = new DefaultInputPort<Integer>()
     {
       @Override
       public void process(Integer tuple)

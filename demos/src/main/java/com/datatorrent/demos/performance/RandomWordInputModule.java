@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RandomWordInputModule implements InputOperator
 {
-  public final transient DefaultOutputPort<byte[]> output = new DefaultOutputPort<byte[]>(this);
+  public final transient DefaultOutputPort<byte[]> output = new DefaultOutputPort<byte[]>();
   private transient int count;
   private boolean firstTime;
 

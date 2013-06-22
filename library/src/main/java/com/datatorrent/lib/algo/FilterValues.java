@@ -69,7 +69,7 @@ import javax.validation.constraints.NotNull;
 public class FilterValues<T> extends BaseOperator
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<T> data = new DefaultInputPort<T>(this)
+  public final transient DefaultInputPort<T> data = new DefaultInputPort<T>()
   {
     /**
      * Processes tuple to see if it matches the filter. Emits if at least one key makes the cut
@@ -85,7 +85,7 @@ public class FilterValues<T> extends BaseOperator
     }
   };
   @OutputPortFieldAnnotation(name = "filter")
-  public final transient DefaultOutputPort<T> filter = new DefaultOutputPort<T>(this);
+  public final transient DefaultOutputPort<T> filter = new DefaultOutputPort<T>();
 
   @NotNull()
   HashMap<T, Object> values = new HashMap<T, Object>();

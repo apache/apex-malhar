@@ -20,7 +20,7 @@ import com.datatorrent.api.Context.OperatorContext;
 public class CountOccurance<k> extends BaseOperator
 {
 	private Map<k, Integer> collect;
-	public final transient DefaultInputPort<k> inport = new DefaultInputPort<k>(this) {
+	public final transient DefaultInputPort<k> inport = new DefaultInputPort<k>() {
     @Override
     public void process(k s) {
     	if (collect.containsKey(s))
@@ -50,9 +50,9 @@ public class CountOccurance<k> extends BaseOperator
 	}
 	
 	// out port
-	public final transient DefaultOutputPort<Map<k, Integer>> outport = new DefaultOutputPort<Map<k, Integer>>(this);
-	public final transient DefaultOutputPort<Map<String, Object>> dimensionOut = new DefaultOutputPort<Map<String, Object>>(this);
-	public final transient DefaultOutputPort<Map<String,Integer>> total = new DefaultOutputPort<Map<String,Integer>>(this);
+	public final transient DefaultOutputPort<Map<k, Integer>> outport = new DefaultOutputPort<Map<k, Integer>>();
+	public final transient DefaultOutputPort<Map<String, Object>> dimensionOut = new DefaultOutputPort<Map<String, Object>>();
+	public final transient DefaultOutputPort<Map<String,Integer>> total = new DefaultOutputPort<Map<String,Integer>>();
 	
 	@Override
 	public void endWindow()

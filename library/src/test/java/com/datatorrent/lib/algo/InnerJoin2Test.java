@@ -29,7 +29,7 @@ public class InnerJoin2Test
   implements InputOperator
   {
 
-    public final transient DefaultOutputPort<HashMap<String, String>> outPort = new DefaultOutputPort<HashMap<String, String>>(this);
+    public final transient DefaultOutputPort<HashMap<String, String>> outPort = new DefaultOutputPort<HashMap<String, String>>();
     int testNum=6;
     int start;
 
@@ -95,7 +95,7 @@ public class InnerJoin2Test
   public static class SourceModule2 extends BaseOperator
   implements InputOperator
   {
-    public final transient DefaultOutputPort<HashMap<String, String>> outPort = new DefaultOutputPort<HashMap<String, String>>(this);
+    public final transient DefaultOutputPort<HashMap<String, String>> outPort = new DefaultOutputPort<HashMap<String, String>>();
     int testNum=5;
     int start;
 

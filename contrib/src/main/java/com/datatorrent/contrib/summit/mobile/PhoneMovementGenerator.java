@@ -36,7 +36,7 @@ public class PhoneMovementGenerator extends BaseOperator
   private SQLParser sqlParser = new SQLParser();
 
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<Integer> data = new DefaultInputPort<Integer>(this)
+  public final transient DefaultInputPort<Integer> data = new DefaultInputPort<Integer>()
   {
     @Override
     public void process(Integer tuple)
@@ -92,7 +92,7 @@ public class PhoneMovementGenerator extends BaseOperator
   };
 
   @InputPortFieldAnnotation(name = "query", optional=true)
-  public final transient DefaultInputPort<Map<String, String>> locationQuery = new DefaultInputPort<Map<String, String>>(this)
+  public final transient DefaultInputPort<Map<String, String>> locationQuery = new DefaultInputPort<Map<String, String>>()
   {
     @Override
     public void process(Map<String, String> tuple)
@@ -223,7 +223,7 @@ public class PhoneMovementGenerator extends BaseOperator
   }
 
   @OutputPortFieldAnnotation(name = "locationQueryResult")
-  public final transient DefaultOutputPort<Map<String, String>> locationQueryResult = new DefaultOutputPort<Map<String, String>>(this);
+  public final transient DefaultOutputPort<Map<String, String>> locationQueryResult = new DefaultOutputPort<Map<String, String>>();
 
   @Override
   public void setup(OperatorContext context)

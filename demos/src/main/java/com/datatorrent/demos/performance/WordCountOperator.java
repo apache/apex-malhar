@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  */
 public class WordCountOperator<T> implements Operator
 {
-  public final transient DefaultInputPort<T> input = new DefaultInputPort<T>(this)
+  public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()
   {
     @Override
     public void process(T tuple)

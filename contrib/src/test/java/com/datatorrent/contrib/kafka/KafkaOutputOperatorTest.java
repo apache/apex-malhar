@@ -168,7 +168,7 @@ public class KafkaOutputOperatorTest
    */
   public static class StringGeneratorInputOperator implements InputOperator, ActivationListener<OperatorContext>
   {
-    public final transient DefaultOutputPort<String> outputPort = new DefaultOutputPort<String>(this);
+    public final transient DefaultOutputPort<String> outputPort = new DefaultOutputPort<String>();
     private final transient ArrayBlockingQueue<String> stringBuffer = new ArrayBlockingQueue<String>(1024);
     private volatile Thread dataGeneratorThread;
 

@@ -54,7 +54,7 @@ import java.util.Random;
  */
 public class FilteredEventClassifier<T> extends BaseOperator
 {
-  public final transient DefaultInputPort<HashMap<String, T>> data = new DefaultInputPort<HashMap<String, T>>(this)
+  public final transient DefaultInputPort<HashMap<String, T>> data = new DefaultInputPort<HashMap<String, T>>()
   {
     @Override
     public void process(HashMap<String, T> tuple)
@@ -99,7 +99,7 @@ public class FilteredEventClassifier<T> extends BaseOperator
       }
     }
   };
-  public final transient DefaultOutputPort<HashMap<String, T>> filter = new DefaultOutputPort<HashMap<String, T>>(this);
+  public final transient DefaultOutputPort<HashMap<String, T>> filter = new DefaultOutputPort<HashMap<String, T>>();
   HashMap<String, T> keys = new HashMap<String, T>();
   HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();
   // One of inkeys (Key to weight hash) or noweight (even weight) would be not null

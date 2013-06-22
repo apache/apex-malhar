@@ -240,7 +240,7 @@ public class KafkaInputOperatorTest
 
     public CollectorInputPort(String id, Operator module)
     {
-      super(module);
+      super();
       this.id = id;
     }
 

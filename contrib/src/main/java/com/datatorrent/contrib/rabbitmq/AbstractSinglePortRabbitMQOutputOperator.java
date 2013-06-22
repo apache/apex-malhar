@@ -40,7 +40,7 @@ public abstract class AbstractSinglePortRabbitMQOutputOperator<T> extends Abstra
    */
   public abstract void processTuple(T tuple);
 
-  public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>(this)
+  public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>()
   {
     @Override
     public void process(T tuple)

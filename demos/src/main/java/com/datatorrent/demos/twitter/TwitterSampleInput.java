@@ -35,9 +35,9 @@ import twitter4j.conf.ConfigurationBuilder;
 public class TwitterSampleInput implements InputOperator, ActivationListener<OperatorContext>, StatusListener
 {
   private static final Logger logger = LoggerFactory.getLogger(TwitterSampleInput.class);
-  public final transient DefaultOutputPort<Status> status = new DefaultOutputPort<Status>(this);
-  public final transient DefaultOutputPort<String> text = new DefaultOutputPort<String>(this);
-  public final transient DefaultOutputPort<String> url = new DefaultOutputPort<String>(this);
+  public final transient DefaultOutputPort<Status> status = new DefaultOutputPort<Status>();
+  public final transient DefaultOutputPort<String> text = new DefaultOutputPort<String>();
+  public final transient DefaultOutputPort<String> url = new DefaultOutputPort<String>();
   public final transient DefaultOutputPort<?> userMention = null;
   public final transient DefaultOutputPort<?> hashtag = null;
   public final transient DefaultOutputPort<?> media = null;

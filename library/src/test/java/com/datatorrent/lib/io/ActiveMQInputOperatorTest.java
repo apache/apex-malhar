@@ -133,7 +133,7 @@ public class ActiveMQInputOperatorTest
 
     public CollectorInputPort(String id, Operator module)
     {
-      super(module);
+      super();
       this.id = id;
     }
 
@@ -294,9 +294,9 @@ public class ActiveMQInputOperatorTest
   public static class ActiveMQMultiPortInputOperator extends AbstractActiveMQInputOperator
   {
     @OutputPortFieldAnnotation(name = "outputPort1")
-    public final transient DefaultOutputPort<String> outputPort1 = new DefaultOutputPort<String>(this);
+    public final transient DefaultOutputPort<String> outputPort1 = new DefaultOutputPort<String>();
     @OutputPortFieldAnnotation(name = "outputPort2")
-    public final transient DefaultOutputPort<Integer> outputPort2 = new DefaultOutputPort<Integer>(this);
+    public final transient DefaultOutputPort<Integer> outputPort2 = new DefaultOutputPort<Integer>();
 
     /**
      * Implement abstract method.

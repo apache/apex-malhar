@@ -43,7 +43,7 @@ import java.util.Map;
 public class InnerJoinCondition<K, V extends Comparable> extends AbstractBaseMatchOperator<K, V>
 {
   @InputPortFieldAnnotation(name = "data1")
-  public final transient DefaultInputPort<HashMap<K, V>> data1 = new DefaultInputPort<HashMap<K, V>>(this)
+  public final transient DefaultInputPort<HashMap<K, V>> data1 = new DefaultInputPort<HashMap<K, V>>()
   {
     /**
      * Checks if key exists. If so emits all current combinations with matching tuples received on port "data2"
@@ -63,7 +63,7 @@ public class InnerJoinCondition<K, V extends Comparable> extends AbstractBaseMat
     }
   };
   @InputPortFieldAnnotation(name = "data2")
-  public final transient DefaultInputPort<HashMap<K, V>> data2 = new DefaultInputPort<HashMap<K, V>>(this)
+  public final transient DefaultInputPort<HashMap<K, V>> data2 = new DefaultInputPort<HashMap<K, V>>()
   {
     /**
      * Checks if key exists. If so emits all current combinations with matching tuples received on port "data1"
@@ -83,7 +83,7 @@ public class InnerJoinCondition<K, V extends Comparable> extends AbstractBaseMat
     }
   };
   @OutputPortFieldAnnotation(name = "result")
-  public final transient DefaultOutputPort<HashMap<K, V>> result = new DefaultOutputPort<HashMap<K, V>>(this);
+  public final transient DefaultOutputPort<HashMap<K, V>> result = new DefaultOutputPort<HashMap<K, V>>();
 
   /**
    * Adds tuples to the list associated with its port

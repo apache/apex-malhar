@@ -60,7 +60,7 @@ import java.util.HashMap;
 public class TopNUnique<K, V> extends AbstractBaseNUniqueOperatorMap<K, V>
 {
   @OutputPortFieldAnnotation(name = "top")
-  public final transient DefaultOutputPort<HashMap<K, ArrayList<HashMap<V,Integer>>>> top = new DefaultOutputPort<HashMap<K, ArrayList<HashMap<V,Integer>>>>(this);
+  public final transient DefaultOutputPort<HashMap<K, ArrayList<HashMap<V,Integer>>>> top = new DefaultOutputPort<HashMap<K, ArrayList<HashMap<V,Integer>>>>();
 
   /**
    * returns true

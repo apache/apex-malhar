@@ -80,13 +80,13 @@ public class SimpleSinglePortInputOperator<T> extends BaseOperator implements In
      */
     public BufferingOutputPort(Operator operator)
     {
-      super(operator);
+      super();
       tuples = new ArrayBlockingQueue<T>(1024);
     }
 
     public BufferingOutputPort(Operator operator, int capacity)
     {
-      super(operator);
+      super();
       tuples = new ArrayBlockingQueue<T>(capacity);
     }
 

@@ -41,7 +41,7 @@ import javax.validation.constraints.Min;
 public class TupleQueue<K,V> extends BaseOperator
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>(this)
+  public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>()
   {
     /**
      * Process tuple to create a queue (FIFO)
@@ -70,7 +70,7 @@ public class TupleQueue<K,V> extends BaseOperator
   };
 
   @InputPortFieldAnnotation(name = "query")
-  public final transient DefaultInputPort<K> query = new DefaultInputPort<K>(this)
+  public final transient DefaultInputPort<K> query = new DefaultInputPort<K>()
   {
     /**
      * Processes query, and emits Console tuple
@@ -84,10 +84,10 @@ public class TupleQueue<K,V> extends BaseOperator
   };
 
   @OutputPortFieldAnnotation(name = "queue")
-  public final transient DefaultOutputPort<HashMap<K,V>> queue = new DefaultOutputPort<HashMap<K,V>>(this);
+  public final transient DefaultOutputPort<HashMap<K,V>> queue = new DefaultOutputPort<HashMap<K,V>>();
 
   @OutputPortFieldAnnotation(name = "console")
-  public final transient DefaultOutputPort<HashMap<K,ArrayList<V>>> console = new DefaultOutputPort<HashMap<K,ArrayList<V>>>(this);
+  public final transient DefaultOutputPort<HashMap<K,ArrayList<V>>> console = new DefaultOutputPort<HashMap<K,ArrayList<V>>>();
   HashMap<K,ValueData> vmap = new HashMap<K,ValueData>();
   HashMap<K,Object> queryHash = new HashMap<K,Object>();
   final int depth_default = 10;

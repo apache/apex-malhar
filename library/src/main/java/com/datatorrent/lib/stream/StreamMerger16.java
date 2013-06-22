@@ -92,7 +92,7 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 public class StreamMerger16<K> extends StreamMerger5<K>
 {
   @InputPortFieldAnnotation(name = "data6", optional = true)
-  public final transient DefaultInputPort<K> data6 = new DefaultInputPort<K>(this)
+  public final transient DefaultInputPort<K> data6 = new DefaultInputPort<K>()
   {
     /**
      * Emits to port "out"
@@ -104,7 +104,7 @@ public class StreamMerger16<K> extends StreamMerger5<K>
     }
   };
   @InputPortFieldAnnotation(name = "data7", optional = true)
-  public final transient DefaultInputPort<K> data7 = new DefaultInputPort<K>(this)
+  public final transient DefaultInputPort<K> data7 = new DefaultInputPort<K>()
   {
     /**
      * Emits to port "out"
@@ -116,7 +116,7 @@ public class StreamMerger16<K> extends StreamMerger5<K>
     }
   };
   @InputPortFieldAnnotation(name = "data8", optional = true)
-  public final transient DefaultInputPort<K> data8 = new DefaultInputPort<K>(this)
+  public final transient DefaultInputPort<K> data8 = new DefaultInputPort<K>()
   {
     /**
      * Emits to port "out"
@@ -128,7 +128,7 @@ public class StreamMerger16<K> extends StreamMerger5<K>
     }
   };
   @InputPortFieldAnnotation(name = "data9", optional = true)
-  public final transient DefaultInputPort<K> data9 = new DefaultInputPort<K>(this)
+  public final transient DefaultInputPort<K> data9 = new DefaultInputPort<K>()
   {
     /**
      * Emits to port "out"
@@ -140,7 +140,7 @@ public class StreamMerger16<K> extends StreamMerger5<K>
     }
   };
   @InputPortFieldAnnotation(name = "data10", optional = true)
-  public final transient DefaultInputPort<K> data10 = new DefaultInputPort<K>(this)
+  public final transient DefaultInputPort<K> data10 = new DefaultInputPort<K>()
   {
     @Override
     public void process(K tuple)
@@ -149,7 +149,7 @@ public class StreamMerger16<K> extends StreamMerger5<K>
     }
   };
   @InputPortFieldAnnotation(name = "data11", optional = true)
-  public final transient DefaultInputPort<K> data11 = new DefaultInputPort<K>(this)
+  public final transient DefaultInputPort<K> data11 = new DefaultInputPort<K>()
   {
     @Override
     public void process(K tuple)
@@ -158,7 +158,7 @@ public class StreamMerger16<K> extends StreamMerger5<K>
     }
   };
   @InputPortFieldAnnotation(name = "data12", optional = true)
-  public final transient DefaultInputPort<K> data12 = new DefaultInputPort<K>(this)
+  public final transient DefaultInputPort<K> data12 = new DefaultInputPort<K>()
   {
     @Override
     public void process(K tuple)
@@ -167,7 +167,7 @@ public class StreamMerger16<K> extends StreamMerger5<K>
     }
   };
   @InputPortFieldAnnotation(name = "data13", optional = true)
-  public final transient DefaultInputPort<K> data13 = new DefaultInputPort<K>(this)
+  public final transient DefaultInputPort<K> data13 = new DefaultInputPort<K>()
   {
     @Override
     public void process(K tuple)
@@ -176,7 +176,7 @@ public class StreamMerger16<K> extends StreamMerger5<K>
     }
   };
   @InputPortFieldAnnotation(name = "data14", optional = true)
-  public final transient DefaultInputPort<K> data14 = new DefaultInputPort<K>(this)
+  public final transient DefaultInputPort<K> data14 = new DefaultInputPort<K>()
   {
     @Override
     public void process(K tuple)
@@ -185,7 +185,7 @@ public class StreamMerger16<K> extends StreamMerger5<K>
     }
   };
   @InputPortFieldAnnotation(name = "data15", optional = true)
-  public final transient DefaultInputPort<K> data15 = new DefaultInputPort<K>(this)
+  public final transient DefaultInputPort<K> data15 = new DefaultInputPort<K>()
   {
     @Override
     public void process(K tuple)
@@ -194,7 +194,7 @@ public class StreamMerger16<K> extends StreamMerger5<K>
     }
   };
   @InputPortFieldAnnotation(name = "data16", optional = true)
-  public final transient DefaultInputPort<K> data16 = new DefaultInputPort<K>(this)
+  public final transient DefaultInputPort<K> data16 = new DefaultInputPort<K>()
   {
     @Override
     public void process(K tuple)

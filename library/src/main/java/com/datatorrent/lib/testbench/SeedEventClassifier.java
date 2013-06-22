@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SeedEventClassifier<T> extends BaseOperator
 {
-  public final transient DefaultInputPort<T> data1 = new DefaultInputPort<T>(this)
+  public final transient DefaultInputPort<T> data1 = new DefaultInputPort<T>()
   {
     @Override
     public void process(T tuple)
@@ -63,7 +63,7 @@ public class SeedEventClassifier<T> extends BaseOperator
       emitTuple(key1, tuple);
     }
   };
-  public final transient DefaultInputPort<T> data2 = new DefaultInputPort<T>(this)
+  public final transient DefaultInputPort<T> data2 = new DefaultInputPort<T>()
   {
     @Override
     public void process(T tuple)
@@ -71,8 +71,8 @@ public class SeedEventClassifier<T> extends BaseOperator
       emitTuple(key2, tuple);
     }
   };
-  public final transient DefaultOutputPort<String> string_data = new DefaultOutputPort<String>(this);
-  public final transient DefaultOutputPort<HashMap<String, HashMap<String, T>>> hash_data = new DefaultOutputPort<HashMap<String, HashMap<String, T>>>(this);
+  public final transient DefaultOutputPort<String> string_data = new DefaultOutputPort<String>();
+  public final transient DefaultOutputPort<HashMap<String, HashMap<String, T>>> hash_data = new DefaultOutputPort<HashMap<String, HashMap<String, T>>>();
 
   public void emitTuple(String key, T tuple)
   {

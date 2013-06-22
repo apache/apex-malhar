@@ -68,7 +68,7 @@ import java.util.Map;
 public class AllAfterMatchStringValueMap<K> extends BaseMatchOperator<K, String>
 {
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<Map<K, String>> data = new DefaultInputPort<Map<K, String>>(this)
+  public final transient DefaultInputPort<Map<K, String>> data = new DefaultInputPort<Map<K, String>>()
   {
     /**
      * Process HashMap<K,String> and emit all tuples at and after match
@@ -101,7 +101,7 @@ public class AllAfterMatchStringValueMap<K> extends BaseMatchOperator<K, String>
     }
   };
   @OutputPortFieldAnnotation(name = "allafter")
-  public final transient DefaultOutputPort<HashMap<K, String>> allafter = new DefaultOutputPort<HashMap<K, String>>(this);
+  public final transient DefaultOutputPort<HashMap<K, String>> allafter = new DefaultOutputPort<HashMap<K, String>>();
   boolean doemit = false;
 
   /**
