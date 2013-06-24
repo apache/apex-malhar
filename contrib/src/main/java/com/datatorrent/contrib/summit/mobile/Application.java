@@ -18,6 +18,7 @@ package com.datatorrent.contrib.summit.mobile;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.lib.io.*;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
 import com.google.common.collect.Range;
@@ -75,6 +76,7 @@ public class Application implements StreamingApplication
     phones.setMaxvalue(this.phoneRange.upperEndpoint());
     phones.setTuplesBlast(1000);
     phones.setTuplesBlastIntervalMillis(5);
+    dag.setOutputPortAttribute(phones.integer_data, PortContext.QUEUE_CAPACITY, 32 * 1024);
 
     PhoneMovementGenerator movementGen = dag.addOperator("pmove", PhoneMovementGenerator.class);
     movementGen.setRange(20);
@@ -82,6 +84,7 @@ public class Application implements StreamingApplication
     dag.setAttribute(movementGen, OperatorContext.INITIAL_PARTITION_COUNT, 2);
     dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MIN, 10000);
     dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MAX, 30000);
+    dag.setInputPortAttribute(movementGen.data, PortContext.QUEUE_CAPACITY, 32 * 1024);
 
     // default partitioning: first connected stream to movementGen will be partitioned
     dag.addStream("phonedata", phones.integer_data, movementGen.data);
