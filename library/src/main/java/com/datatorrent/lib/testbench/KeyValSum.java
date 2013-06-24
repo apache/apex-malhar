@@ -20,7 +20,7 @@ import com.datatorrent.api.Context.OperatorContext;
 public class KeyValSum extends BaseOperator
 {
 	private Map<String, Integer> collect;
-	public final transient DefaultInputPort<Map<String, Integer>> inport = new DefaultInputPort<Map<String, Integer>>(this) {
+	public final transient DefaultInputPort<Map<String, Integer>> inport = new DefaultInputPort<Map<String, Integer>>() {
     @Override
     public void process(Map<String, Integer> s) {
     	for(Map.Entry<String, Integer> entry : s.entrySet())
@@ -53,7 +53,7 @@ public class KeyValSum extends BaseOperator
 	}
 	
 	// out port
-	public final transient DefaultOutputPort<Map<String, Integer>> outport = new DefaultOutputPort<Map<String, Integer>>(this);
+	public final transient DefaultOutputPort<Map<String, Integer>> outport = new DefaultOutputPort<Map<String, Integer>>();
 	
 	@Override
 	public void endWindow()

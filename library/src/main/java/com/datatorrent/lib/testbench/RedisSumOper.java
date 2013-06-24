@@ -21,7 +21,7 @@ import com.datatorrent.api.Context.OperatorContext;
 public class RedisSumOper extends BaseOperator
 {
 	private ArrayList<Integer> collect;
-	public final transient DefaultInputPort<Integer> inport = new DefaultInputPort<Integer>(this) {
+	public final transient DefaultInputPort<Integer> inport = new DefaultInputPort<Integer>() {
 	    @Override
 	    public void process(Integer s) {
 	      collect.add(s);
@@ -45,7 +45,7 @@ public class RedisSumOper extends BaseOperator
 	}
 	
 	// out port
-	public final transient DefaultOutputPort<Map<Integer, Integer>> outport = new DefaultOutputPort<Map<Integer, Integer>>(this);
+	public final transient DefaultOutputPort<Map<Integer, Integer>> outport = new DefaultOutputPort<Map<Integer, Integer>>();
 	
 	@Override
 	public void endWindow()
