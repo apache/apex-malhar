@@ -1,19 +1,17 @@
-/**
- * Copyright (c) 2008 Greg Whalin
- * All rights reserved.
+/*
+ * Copyright (c) 2013 Malhar Inc. ALL Rights Reserved.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the BSD license
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This library is distributed in the hope that it will be
- * useful, but WITHOUT ANY WARRANTY; without even the implied
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- * PURPOSE.
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the BSD License along with this
- * library.
- *
- * @author greg whalin <greg@meetup.com>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. See accompanying LICENSE file.
  */
 package com.datatorrent.contrib.kestrel;
 
@@ -37,7 +35,6 @@ import java.util.TreeMap;
 import java.util.zip.*;
 import java.net.*;
 import java.io.*;
-import java.nio.*;
 import java.nio.channels.*;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.log4j.Level;
@@ -122,7 +119,6 @@ import org.apache.log4j.Logger;
  *		sock.close();
  * </pre>
  *
- * @author greg whalin <greg@whalin.com>
  * @version 1.5
  */
 public class SockIOPool {
@@ -178,7 +174,6 @@ public class SockIOPool {
 	private boolean failback          = true;				// only used if failover is also set ... controls putting a dead server back into rotation
 	private boolean nagle             = false;				// enable/disable Nagle's algorithm
 	private int hashingAlg 		      = NATIVE_HASH;		// default to using the native hash as it is the fastest
-    private boolean debugEnabled = false;
 
 	// locks
 	private final ReentrantLock hostDeadLock = new ReentrantLock();
@@ -834,7 +829,7 @@ public class SockIOPool {
 
  	/**
 	 * @param key
-	 * @return
+	 * @return String
 	 */
 	public String getHost( String key ) {
 		return getHost( key, null );
@@ -845,7 +840,7 @@ public class SockIOPool {
 	 *
 	 * @param key
 	 * @param hashcode
-	 * @return
+	 * @return String
 	 */
 	public String getHost( String key, Integer hashcode ) {
 		SockIO socket = getSock( key, hashcode );
@@ -1449,14 +1444,8 @@ public class SockIOPool {
 	/**
 	 * Class which extends thread and handles maintenance of the pool.
 	 *
-	 * @author greg whalin <greg@meetup.com>
-	 * @version 1.5
 	 */
 	protected static class MaintThread extends Thread {
-
-		// logger
-		private static Logger log =
-			Logger.getLogger( MaintThread.class.getName() );
 
 		private SockIOPool pool;
 		private long interval      = 1000 * 3; // every 3 seconds
@@ -1514,8 +1503,6 @@ public class SockIOPool {
 	 *
 	 * This class is a wrapper around a Socket and its streams.
 	 *
-	 * @author greg whalin <greg@meetup.com>
-	 * @author Richard 'toast' Russo <russor@msoe.edu>
 	 * @version 1.5
 	 */
 	public static class SockIO implements LineInputStream {
@@ -1740,7 +1727,7 @@ public class SockIOPool {
 			try {
 				this.write( "version\r\n".getBytes() );
 				this.flush();
-				String response = this.readLine();
+				this.readLine();
 			}
 			catch ( IOException ex ) {
 				return false;
