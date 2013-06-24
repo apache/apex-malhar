@@ -1,6 +1,17 @@
 /*
- *  Copyright (c) 2012 Malhar, Inc.
- *  All Rights Reserved.
+ * Copyright (c) 2013 Malhar Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. See accompanying LICENSE file.
  */
 package com.datatorrent.lib.algo;
 
@@ -45,7 +56,6 @@ import java.util.HashMap;
  * <tr><td>End Window (endWindow())</td><td>N/A</td><td>{a={1=1,2=1},b={45=1},c={2000=1,22=1},d={2=1},h={20=1},z={5=2}</td></tr>
  * </table>
  * <br>
- * @author Amol Kekre (amol@malhar-inc.com)<br>
  * <br>
  */
 public class LeastFrequentKeyValueMap<K, V> extends AbstractBaseFrequentKeyValueMap<K, V>

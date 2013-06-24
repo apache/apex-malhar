@@ -1,5 +1,17 @@
 /*
- *  Copyright (c) 2012 Malhar, Inc. All Rights Reserved.
+ * Copyright (c) 2013 Malhar Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. See accompanying LICENSE file.
  */
 package com.datatorrent.lib.io;
 
@@ -36,7 +48,6 @@ import com.datatorrent.api.Context.OperatorContext;
  * 127.0.0.1 - [31/May/2013:09:05:49 -0700] "GET /favicon.ico HTTP/1.1" 304 210 "-"
  * "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.22 (KHTML, like Gecko) Ubuntu Chromium/25.0.1364.160 Chrome/25.0.1364.160 Safari/537.22"
  * 
- * @author Dinesh Prasad (dinesh@malhar-inc.com)
  */
 public class ApacheGenRandomLogs extends BaseOperator implements InputOperator
 {
