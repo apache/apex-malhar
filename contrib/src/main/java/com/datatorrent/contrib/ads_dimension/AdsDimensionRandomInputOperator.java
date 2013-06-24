@@ -31,7 +31,7 @@ public class AdsDimensionRandomInputOperator extends SimpleSinglePortInputOperat
 {
   private transient AtomicInteger lineCount = new AtomicInteger();
   private static final Logger LOG = LoggerFactory.getLogger(AdsDimensionRandomInputOperator.class);
-  private int numAdvertisers = 200;
+  private int numAdvertisers = 100;
   private int numPublishers = 50;
   private double expectedClickThruRate = 0.005;
   private Random random = new Random();

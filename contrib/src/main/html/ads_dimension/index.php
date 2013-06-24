@@ -164,7 +164,7 @@ window.onload = function() {
             		<select name="advertiser" id="advertiser" style="width:200px;">
               		    <option value="">ALL</option>
                 		<?php
-                			for ($i = 0; $i < 200; $i++) {
+                			for ($i = 0; $i < 100; $i++) {
                   				print "<option value=\"$i\">Advertiser $i</option>\n";
                 			}
                 		?>
