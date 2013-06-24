@@ -21,13 +21,18 @@ import com.datatorrent.contrib.redis.RedisNumberAggregateOutputOperator;
 import com.datatorrent.contrib.redis.RedisOutputOperator;
 import com.datatorrent.lib.algo.TopN;
 import com.datatorrent.lib.algo.TopNUnique;
+import com.datatorrent.lib.algo.UniqueValueMap;
 import com.datatorrent.lib.io.ApacheGenRandomLogs;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.logs.ApacheVirtualLogParseOperator;
 import com.datatorrent.lib.math.Sum;
+import com.datatorrent.lib.math.SumCountMap;
+import com.datatorrent.lib.math.SumMap;
 import com.datatorrent.lib.testbench.CompareFilterTuples;
 import com.datatorrent.lib.testbench.CountOccurance;
 import com.datatorrent.lib.testbench.HttpStatusFilter;
+import com.datatorrent.lib.testbench.KeyValSum;
+import com.datatorrent.lib.testbench.RedisSumOper;
 import com.datatorrent.lib.testbench.TopOccurance;
 import com.datatorrent.lib.util.DimensionTimeBucketOperator;
 import com.datatorrent.lib.util.DimensionTimeBucketSumOperator;
@@ -186,5 +191,26 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
   	RedisOutputOperator<Integer, String> redisgt8 = dag.addOperator("redislog8", new RedisOutputOperator<Integer, String>());
     redisgt8.selectDatabase(8);
     dag.addStream("redisgt8Stream", serverTop404.outport,  redisgt8.input).setInline(true);
+    
+    // data collect for each 
+    KeyValSum ipDataCollect = dag.addOperator("ipDataCollect", new KeyValSum());
+    dag.getMeta(ipDataCollect).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(2);
+    dag.addStream("ipDataCollectStream", parser.outputBytes, ipDataCollect.inport).setInline(true);
+    TopOccurance topIpData = dag.addOperator("topIpData", new TopOccurance());
+    topIpData.setN(10);
+    dag.addStream("topIpDataStream", ipDataCollect.outport,  topIpData.inport).setInline(true);
+    //dag.addStream("consoletest", topIpData.outport,  consoleOutput(dag, "console")).setInline(true); 
+    RedisOutputOperator<Integer, String> redisgt6 = dag.addOperator("redislog6", new RedisOutputOperator<Integer, String>());
+    redisgt6.selectDatabase(6);
+    dag.addStream("redisgt6Stream", topIpData.outport,  redisgt6.input).setInline(true);
+    
+    // total view count  
+    RedisSumOper totalViewcount =  dag.addOperator("totalViewcount", new RedisSumOper());
+   	dag.getMeta(totalViewcount).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(2);
+   	dag.addStream("totalViewcountStream", parser.viewCount, totalViewcount.inport).setInline(true);
+   	//dag.addStream("consoletest", totalViewcount.sumInteger,  consoleOutput(dag, "console")).setInline(true); 
+   	RedisOutputOperator<Integer, Integer> redisgt11 = dag.addOperator("redislog11", new RedisOutputOperator<Integer, Integer>());
+    redisgt11.selectDatabase(11);
+    dag.addStream("redisgtlog11Stream", totalViewcount.outport,  redisgt11.input).setInline(true);
   }
 }
