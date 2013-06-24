@@ -108,9 +108,13 @@ public class PhoneMovementGenerator extends BaseOperator
     public void process(Map<String, String> tuple)
     {
       log.info("new query: " + tuple);
+      String command = null;
       String qid = null;
       String phone = null;
       for (Map.Entry<String, String> e: tuple.entrySet()) {
+        if (e.getKey().equals(KEY_COMMAND)) {
+          command = e.getValue();
+        }
         if (e.getKey().equals(KEY_QUERYID)) {
           qid = e.getValue();
         }
@@ -128,14 +132,27 @@ public class PhoneMovementGenerator extends BaseOperator
             registerPhone(qid, phone);
           }
         }
+      } else if (command != null) {
+        if (command.equals(COMMAND_ADD)) {
+          registerPhone(phone, phone);
+        } else if (command.equals(COMMAND_DELETE)) {
+          deregisterPhone(phone);
+        } else if (command.equals(COMMAND_CLEAR)) {
+          clearPhones();
+        }
       }
     }
 
   };
 
+  public static final String KEY_COMMAND = "command";
   public static final String KEY_PHONE = "phone";
   public static final String KEY_QUERYID = "queryId";
   public static final String KEY_LOCATION = "location";
+
+  public static final String COMMAND_ADD = "add";
+  public static final String COMMAND_DELETE = "delete";
+  public static final String COMMAND_CLEAR = "clear";
 
   final HashMap<String, Integer> phone_register = new HashMap<String,Integer>();
 
@@ -185,6 +202,11 @@ public class PhoneMovementGenerator extends BaseOperator
       phone_register.remove(qid);
       log.debug(String.format("Removing query id \"%s\"", qid));
     }
+  }
+
+  private void clearPhones() {
+    phone_register.clear();
+    log.debug("Clearing phones");
   }
 
   public String getSql() {
