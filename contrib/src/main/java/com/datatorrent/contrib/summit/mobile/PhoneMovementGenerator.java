@@ -150,9 +150,9 @@ public class PhoneMovementGenerator extends BaseOperator
   public static final String KEY_QUERYID = "queryId";
   public static final String KEY_LOCATION = "location";
 
-  public static final String COMMAND_ADD = "add";
-  public static final String COMMAND_DELETE = "delete";
-  public static final String COMMAND_CLEAR = "clear";
+  public static final String COMMAND_ADD = "Add";
+  public static final String COMMAND_DELETE = "Delete";
+  public static final String COMMAND_CLEAR = "Clear";
 
   final HashMap<String, Integer> phone_register = new HashMap<String,Integer>();
 
