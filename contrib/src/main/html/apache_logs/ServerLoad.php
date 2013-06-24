@@ -21,7 +21,7 @@ $result = array();
 while ($from < time()) 
 {
   $date = gmdate($format, $from);
-  if (!$server || empty($server))
+  if (!$server || empty($server) || ($server == "all"))
   {
     $key =  'm|' . $date . '|*';
     $keys = $redis->getKeys($key);

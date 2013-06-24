@@ -21,6 +21,7 @@ var pageViewRefresh;
 var pageViewLookback;
 var pageViewUrl;
 var pageViewInterval;
+var pageNowPlaying;
 
 // top url(s)
 var topUrlTable;
@@ -45,6 +46,7 @@ var topIpClientTableChart;
 var riskyClientTableChart;
 var url404TableChart;
 var server404TableChart;
+var serverNowPlaying;
 
 
 // Get split query string
@@ -103,7 +105,7 @@ function InitializeGlobal()
   topServerTableChart = new google.visualization.Table(document.getElementById('top_server_div'));
 
   topIpClientTableChart = new google.visualization.Table(document.getElementById('top_IpClient_div'));
-  riskyClientTableChart = new google.visualization.Table(document.getElementById('risky_client_div'));
+  riskyClientTableChart = new google.visualization.Table(document.getElementById('top_ipdata_div'));
 
   url404TableChart = new google.visualization.Table(document.getElementById('url_404_div'));
   server404TableChart = new google.visualization.Table(document.getElementById('server_404_div'));

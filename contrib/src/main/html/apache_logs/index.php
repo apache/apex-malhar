@@ -26,12 +26,12 @@ google.load('visualization', '1', {'packages':['table']});
 <script type="text/javascript" src="TopServer.js"></script>
 <script type="text/javascript" src="TopIpClientChart.js"></script>
 <script type="text/javascript" src="server.js"></script>
-<script type="text/javascript" src="RiskyClient.js"></script>
+<script type="text/javascript" src="TopIpData.js"></script>
 <script type="text/javascript" src="TotalViews.js"></script>
 <script type="text/javascript" src="Url404.js"></script>
 <script type="text/javascript" src="ClientData.js"></script>
 <script type="text/javascript" src="serverfail.js"></script>
-
+<script type="text/javascript" src="TotalViews.js"></script>
 
 <!-- window onload -->
 <script type="text/javascript">
@@ -43,6 +43,7 @@ window.onload = function() {
    
   // Draw top charts 
   DrawClientDataTableChart();
+  DrawTotalViewsTableChart();
   DrawTopUrlTableChart();
   DrawTopServerTableChart();
   DrawRiskyClientTableChart();
@@ -50,6 +51,7 @@ window.onload = function() {
   DrawUrl404TableChart();
   DrawServer404TableChart();
   setInterval(DrawClientDataTableChart, 1000)
+  setInterval(DrawTotalViewsTableChart, 1000);
   setInterval(DrawTopUrlTableChart, 1000);
   setInterval(DrawTopServerTableChart, 1000);
   setInterval(DrawRiskyClientTableChart, 1000);
@@ -80,7 +82,8 @@ window.onload = function() {
                 <h2 class="title">Page views vs Time Chart</h2> 
                 <form onsubmit="return false;">
                         Select Page:
-                        <select name="page" id="page" style="width:200px;">
+                        <select name="page" id="page" style="width:200px;" onchange="handleUrlChange();">
+                           <option value="all">ALL</option>
                            <option value="home">home.php</option>
                            <option value="contact">cpontactus.php</option>
                            <option value="about">about.php</option>
@@ -90,7 +93,7 @@ window.onload = function() {
                            <option value="partners">partners.php</option>
             		</select><br>
                         Product/Services/Support/Partners Index : 
-                        <select name="index" id="index" style="width:200px;">
+                        <select name="index" id="index" style="width:200px;" disabled="true" >
                           <option value=\"$i\"></option>
                           <?php
                             for ($i = 0; $i < 100; $i++) {
@@ -109,6 +112,7 @@ window.onload = function() {
                 <form onsubmit="return false;">
                         Server Name : 
                         <select name="servername" id="servername" style="width:200px;">
+                          <option value="all">All</option>
                           <?php
                             for ($i = 0; $i < 10; $i++) {
                               print "<option value=\"server{$i}.mydomain.com:80\">Server$i.mydomain.com</option>\n";
@@ -122,8 +126,8 @@ window.onload = function() {
                 </form><br>
                 <a href="javascript:void(0)" onclick="HandleServerLoadTimeSubmit();">View Server Load Chart</a><br><br>
                 
-                <h2 class="title">Data Served/Sec</h2> 
-                <h2 id="totaldata"> <h2> 
+                <b>Data Served/Sec :</b> <b id="totaldata"> </b> <br 
+                <b>Total Views/Sec :</b> <b id="totalviews"> </b> 
             </div>
         </div>
         <div class="dashboardMain">
@@ -134,19 +138,19 @@ window.onload = function() {
            <div class="dbib">
                 <table><tbody><tr>
       
-		         <td>       <h1>Site Top 10 Url(s) Access Count(Refreshed Per Sec) </h1>
+		         <td>       <h1>Top 10 Queried Url/sec</h1>
 		                    <div  id="top_url_div" ></div><br><br>
-                                    <h1>Spammer Cleint IP(>1000 requests/sec)(Refreshed Per Sec)</h1>
-                                    <div id="risky_client_div"></div> <br><br>
-                                    <h1>Top 10 Url Status 404 > 2(Refreshed Per Sec)</h1>
+                                    <h1>Top 10 Client IP with high use</h1>
+                                    <div id="top_IpClient_div"></div> <br><br>
+                                    <h1>Top 10 Url Status 404 (per sec)</h1>
                                     <div id="url_404_div"></div>
 		          </td>
 		          <td>
-                                   <h1>Server Number Of View Responses(Refreshed Per Sec) </h1>
+                                   <h1>Server Load (views/sec)</h1>
 		                   <div id="top_server_div"></div> <br><br>
-                                   <h1>Site Top 10 Client IP Number of Requests(Refreshed Per Sec)</h1>
-                                   <div id="top_IpClient_div"></div> <br><br>
-                                   <h1>Server Status 404 > 2(Refreshed Per Sec)</h1>
+                                   <h1>Top 10 Client IP with high use (Bytes/sec)</h1>
+                                   <div id="top_ipdata_div"></div> <br><br>
+                                   <h1>Number of 404 per Server (per sec)</h1>
                                    <div id="server_404_div"></div-->
 		           </td>
                           

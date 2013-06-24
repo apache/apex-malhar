@@ -67,31 +67,29 @@ function DrawPageViewTimeChart()
         }
         delete pts;
         sortByKey(pageDataPoints, "timestamp");
-	var cuttime = new Date().getTime() - 3600000 * pageViewInterval;
-        var count = 0;
-        for(var i=0; i < pageDataPoints.length; i++)
-        {
-          if(parseInt(pageDataPoints[i].timestamp)  < cuttime) count++;
-          else break;
-        }
-        pageDataPoints.splice(0, count);
         RenderPageViewTimeChart();
         delete pageViewData;
+        delete pageDataPoints;
+        pageDataPoints = new Array();
       }
     }
     connect.open('GET',  url, true);
     connect.send(null);
   } catch(e) {
   }
-  pageViewLookback = (new Date().getTime()/1000)-pageViewRefresh;
+  pageViewLookback = (new Date().getTime()/1000) - (3600 * pageViewInterval)-pageViewRefresh;
 }
 
 
 function HandlePageViewTimeSubmit()
 {
+  // remove old time  
+  if(pageNowPlaying) clearInterval(pageNowPlaying); 
+
   // get submit values 
   var page = document.getElementById('page').value;
   var index = document.getElementById('index').value;
+  if (page == "all") pageViewUrl ="";
   if (page == "home") pageViewUrl = "mydomain.com/home.php";
   if (page == "contact") pageViewUrl = "mydomain.com/contactus.php";
   if (page == "about") pageViewUrl = "mydomain.com/about.php";
@@ -130,5 +128,18 @@ function HandlePageViewTimeSubmit()
     
   // draw chart
   DrawPageViewTimeChart();
-  setInterval(DrawPageViewTimeChart, pageViewRefresh * 1000);
+  pageNowPlaying = setInterval(DrawPageViewTimeChart, pageViewRefresh * 1000);
+}
+
+function handleUrlChange()
+{
+  var page = document.getElementById('page').value;
+  if ((page == "home")||(page == "contact")||(page == "about")||(page == "support") || (page =="all"))
+  {
+    document.getElementById('index').value = 0;
+    document.getElementById('index').disabled = "true";   
+  } else {
+    document.getElementById('index').value = 0;
+    document.getElementById('index').disabled = ""; 
+  }
 }

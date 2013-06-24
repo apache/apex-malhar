@@ -63,7 +63,7 @@ public class ApacheGenRandomLogs extends BaseOperator implements InputOperator
 	// http status codes  
 	private static String [] httpStatusCodes = {"100", "101", "200", "201", "202", "203", "204", "205", "206", "300", "301",
 																							"301", "302", "303", "304", "305", "306", "307", "400", "401", "402", "403",
-																							"404", "405", "406", "407", "408", "409", "410", "411", "412", "413", "414",
+																							"405", "406", "407", "408", "409", "410", "411", "412", "413", "414",
 																							"415", "416", "417", "500", "501", "502", "503", "504", "505"};
 	
 	// possible url string formats  
@@ -191,19 +191,11 @@ public class ApacheGenRandomLogs extends BaseOperator implements InputOperator
 		{
 			browserId = genBrowserId();
 			ipAdddress = genIpAddress(rand.nextInt(10));
-			attackInterval += rand.nextInt(10) + 1;
+			attackInterval += rand.nextInt(50) + 1;
+			for (int i = 0; i < rand.nextInt(10); i++) outport.emit(genLogString(ipAdddress, browserId, "404", null));
+			String url = new StringBuilder("\"").append("GET").append(" ").append(genUrl()).append(" ").append("HTTP/1.1").append("\"").toString();
+			for (int i = 0; i < rand.nextInt(10); i++) outport.emit(genLogString(ipAdddress, browserId, "404", url));
 		}
 		for (int i = 0; i < rand.nextInt(100000); i++) outport.emit(genLogString(ipAdddress, browserId, null, null));
-		browserId = genBrowserId();
-		ipAdddress = genIpAddress(rand.nextInt(10));
-		for (int i = 0; i < rand.nextInt(100000); i++) outport.emit(genLogString(ipAdddress, browserId, "404", null));
-		String url = new StringBuilder("\"").append("GET").append(" ").append(genUrl()).append(" ").append("HTTP/1.1").append("\"").toString();
-		for (int i = 0; i < rand.nextInt(100000); i++) outport.emit(genLogString(ipAdddress, browserId, "404", url));
-		/*try
-		{
-			Thread.sleep((rand.nextInt(5) + 1) * 50);
-		} catch (InterruptedException e)
-		{
-		}*/
 	}
 }

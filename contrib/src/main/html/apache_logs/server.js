@@ -68,30 +68,24 @@ function DrawServerLoadTime()
         }
         delete pts;
         sortByKey(serverLoadDataPoints, "timestamp");
-	var cuttime = new Date().getTime() - 3600000 * serverLoadInterval;
-        var count = 0;
-        for(var i=0; i < serverLoadDataPoints.length; i++)
-        {
-          if(parseInt(serverLoadDataPoints[i].timestamp)  < cuttime) count++;
-          else break;
-        }
-        serverLoadDataPoints.splice(0, count);
         RenderServerLoadTimeChart();
         delete serverLoadData;
+        delete serverLoadDataPoints;
+        serverLoadDataPoints = new Array();
       }
     }
     connect.open('GET',  url, true);
     connect.send(null);
   } catch(e) {
   }
-  //document.getElementById('server_load_div').innerHTML = url;
-
-  // update interval
-  serverLoadLookback = (new Date().getTime()/1000) -  serverLoadRefresh;
+  serverLoadLookback = (new Date().getTime()/1000) -  (3600*serverLoadInterval) - serverLoadRefresh;
 }
 
 function HandleServerLoadTimeSubmit()
 {
+  // reset intercval  
+  if(serverNowPlaying) clearInterval(serverNowPlaying);
+
   // get params 
   serverName = document.getElementById('servername').value;
   serverLoadRefresh = document.getElementById('serverloadrefresh').value;
@@ -113,5 +107,5 @@ function HandleServerLoadTimeSubmit()
        
   // darw server load/time chart  
   DrawServerLoadTime();
-  setInterval(DrawServerLoadTime, serverLoadRefresh * 1000); 
+  serverNowPlaying = setInterval(DrawServerLoadTime, serverLoadRefresh * 1000); 
 }
