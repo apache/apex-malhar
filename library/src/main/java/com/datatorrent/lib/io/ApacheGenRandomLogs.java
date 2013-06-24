@@ -191,10 +191,10 @@ public class ApacheGenRandomLogs extends BaseOperator implements InputOperator
 		{
 			browserId = genBrowserId();
 			ipAdddress = genIpAddress(rand.nextInt(10));
-			attackInterval += rand.nextInt(50) + 1;
-			for (int i = 0; i < rand.nextInt(10); i++) outport.emit(genLogString(ipAdddress, browserId, "404", null));
+			attackInterval += rand.nextInt(10) + 1;
+			for (int i = 0; i < rand.nextInt(3); i++) outport.emit(genLogString(ipAdddress, browserId, "404", null));
 			String url = new StringBuilder("\"").append("GET").append(" ").append(genUrl()).append(" ").append("HTTP/1.1").append("\"").toString();
-			for (int i = 0; i < rand.nextInt(10); i++) outport.emit(genLogString(ipAdddress, browserId, "404", url));
+			for (int i = 0; i < rand.nextInt(3); i++) outport.emit(genLogString(ipAdddress, browserId, "404", url));
 		}
 		for (int i = 0; i < rand.nextInt(100000); i++) outport.emit(genLogString(ipAdddress, browserId, null, null));
 	}
