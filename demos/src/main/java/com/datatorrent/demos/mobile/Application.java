@@ -15,23 +15,40 @@
  */
 package com.datatorrent.demos.mobile;
 
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.DAG;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.io.*;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
+import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
 import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
-
 import java.net.URI;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Mobile Demo Application.<p>
+ * Mobile Demo Application: It demonstrates ability to locate a cell phone in an area code.<p>
+ * The specs are as such<br>
+ * 100K cells phones are tracked. They jump a cell tower frequently. Sometimes within a second
+ * sometimes in 10 seconds. The aim is to demonstrate the following abilities<br>
+ * <ul>
+ * <li>Dynamic functional changes: The phone numbers are added to locate its gps in run time.</li>
+ * <li>Auto Scale up/Down with load: Operator pmove increases and decreases partitions as per load</li>
+ * <li></li>
+ * </ul>
+ *
+ * <p>
+ *
+ * Running Java Test or Main app in IDE:
+ *
+ * <pre>
+ * LocalMode.runApp(new Application(), 600000); // 10 min run
+ * </pre>
+ *
  */
 public class Application implements StreamingApplication
 {
