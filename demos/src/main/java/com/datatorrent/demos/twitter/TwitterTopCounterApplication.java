@@ -37,33 +37,39 @@ import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
  * <br>
  * 
  * Real Time Calculation : <br>
- * This application calculates top 10 url mentioned in tsweets in last one
+ * This application calculates top 10 url mentioned in tweets in last one
  * minute across random tweet sampling. <br>
  * <br>
- * 
- * Test Twitter Account : <br>
- * <b> name : dineshmalhar <br>
- * password : malhar <br>
- * Consumer Key : uPLCFoMJUGrnTevKcYNPQ <br>
- * Consumer Key Secret : 0LWZ4fL3eivCbkQcvReFL4Pbcg2yx6KN1f5jRrso <br>
- * Access Token : 1525255297-6HksiqL4B0J9lTQfzfWjTjr7VKTDKA6rQON6otd <br>
- * Access Token Secret : ya76sQEFjz5rcWThNOOoViNNfAT1vMlD6xkqpswQ <br>
- * </b> <br>
- * 
- * Costume Attributes : <br>
+ * Before running this application, you need to create a Twitter API account
+ * and configure the Twitter authentication.
+ * For the CLI, those go into ~/.stram/stram-site.xml:
+ * <pre>
+ * {@code
+ * <?xml version="1.0" encoding="UTF-8"?>
+ * <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+ * <configuration>
+ *
+ *   <property> <name>stram.operator.TweetSampler.consumerKey</name>
+ *   <value>TBD</value> </property>
+ *
+ *   <property> <name>stram.operator.TweetSampler.consumerSecret</name>
+ *   <value>TBD</value> </property>
+ *
+ *   <property> <name>stram.operator.TweetSampler.accessToken</name>
+ *   <value>TBD</value> </property>
+ *
+ *   <property> <name>stram.operator.TweetSampler.accessTokenSecret</name>
+ *   <value>TBD</value> </property>
+ * </configuration>
+ * }
+ * </pre>
+ * Custom Attributes: <br>
  * <b>topCounts operator : <b>
  * <ul>
  * <li>Top Count : 10, number of top unique url to be reported.</li>
- * <li>Sliding window count : 120 , report over last 1 min</li>
+ * <li>Sliding window count : 300 , report over last 5 min</li>
  * <li>window slide value : 1</li>
  * </ul>
- * <br>
- * <br>
- * 
- * Run Sample Application : <br>
- * Please consult Application Developer guide <a href=
- * "https://docs.google.com/document/d/1WX-HbsGQPV_DfM1tEkvLm1zD_FLYfdLZ1ivVHqzUKvE/edit#heading=h.lfl6f68sq80m"
- * > here </a>.
  * <p>
  * Running Java Test or Main app in IDE:
  * 
@@ -86,8 +92,6 @@ import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
  * 2013-06-17 14:38:55,201 [main] INFO  stram.StramLocalCluster run - Application finished.
  * 2013-06-17 14:38:55,201 [container-2] INFO  stram.StramChild processHeartbeatResponse - Received shutdown request
  * </pre>
- * 
- * <br>
  * 
  * Scaling Options : <br>
  * User can scale application by setting intial partition size > 1 on count
@@ -157,10 +161,6 @@ public class TwitterTopCounterApplication implements StreamingApplication
 
     // Setup the operator to get the data from twitter sample stream injected into the system.
     TwitterSampleInput twitterFeed = new TwitterSampleInput();
-    twitterFeed.setConsumerKey("uPLCFoMJUGrnTevKcYNPQ");
-    twitterFeed.setConsumerSecret("0LWZ4fL3eivCbkQcvReFL4Pbcg2yx6KN1f5jRrso");
-    twitterFeed.setAccessToken("1525255297-6HksiqL4B0J9lTQfzfWjTjr7VKTDKA6rQON6otd");
-    twitterFeed.setAccessTokenSecret("ya76sQEFjz5rcWThNOOoViNNfAT1vMlD6xkqpswQ");
     twitterFeed = dag.addOperator("TweetSampler", twitterFeed);
     
     //  Setup the operator to get the URLs extracted from the twitter statuses
@@ -172,7 +172,7 @@ public class TwitterTopCounterApplication implements StreamingApplication
     // Get the aggregated url counts and count them over last 5 mins.
     WindowedTopCounter<String> topCounts = dag.addOperator("TopCounter", new WindowedTopCounter<String>());
     topCounts.setTopCount(10);
-    topCounts.setSlidingWindowWidth(120, 1);
+    topCounts.setSlidingWindowWidth(600, 1);
 
     // Feed the statuses from feed into the input of the url extractor.
     dag.addStream("TweetStream", twitterFeed.status, urlExtractor.input).setInline(true);
