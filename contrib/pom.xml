@@ -25,7 +25,7 @@
       -->
       <id>datatorrent-3rd-party</id>
       <name>Embedded repository for dependencies not available online</name>
-      <url>http://www.datatorrent.com/maven/content/repositories/thirdparty</url>
+      <url>http://www.datatorrent.com:8081/nexus/content/repositories/thirdparty</url>
       <snapshots>
         <updatePolicy>never</updatePolicy>
       </snapshots>
@@ -45,7 +45,7 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>malhar-stram-all</artifactId>
+      <artifactId>malhar-engine</artifactId>
       <version>${project.version}</version>
       <scope>runtime</scope>
     </dependency>
