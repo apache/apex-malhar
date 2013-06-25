@@ -76,6 +76,9 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
 	@Override
 	public void populateDAG(DAG dag, Configuration conf)
 	{
+	// set app name 
+	dag.setAttribute(DAG.APPLICATION_NAME, "SiteApplicationDemo");
+		 
   	// Generate random apche logs
   	ApacheGenRandomLogs rand = dag.addOperator("rand", new ApacheGenRandomLogs());
 
