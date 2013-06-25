@@ -96,11 +96,11 @@ public class Application implements StreamingApplication
 
       PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator("phoneLocationQueryResultWS", new PubSubWebSocketOutputOperator<Object>());
       wsOut.setUri(uri);
-      wsOut.setTopic("demos.mobile.phoneLocationQueryResult");
+      wsOut.setTopic("contrib.summit.mobile.phoneLocationQueryResult");
 
       PubSubWebSocketInputOperator wsIn = dag.addOperator("phoneLocationQueryWS", new PubSubWebSocketInputOperator());
       wsIn.setUri(uri);
-      wsIn.addTopic("demos.mobile.phoneLocationQuery");
+      wsIn.addTopic("contrib.summit.mobile.phoneLocationQuery");
 
       dag.addStream("consoledata", movementGen.locationQueryResult, wsOut.input);
       dag.addStream("query", wsIn.outputPort, movementGen.locationQuery);
