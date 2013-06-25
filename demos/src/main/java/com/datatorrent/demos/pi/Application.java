@@ -15,33 +15,27 @@
  */
 package com.datatorrent.demos.pi;
 
-import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
-
 import org.apache.hadoop.conf.Configuration;
 
 /**
  * Monte Carlo PI extimation demo : <br>
  * This application computes value of PI using Monte Carlo pi estimation
  * formula.
- * 
- * Run Sample Application : <br>
- * Please consult Application Developer guide <a href=
- * "https://docs.google.com/document/d/1WX-HbsGQPV_DfM1tEkvLm1zD_FLYfdLZ1ivVHqzUKvE/edit#heading=h.lfl6f68sq80m"
- * > here </a>.
  * <p>
  * Running Java Test or Main app in IDE:
- * 
+ *
  * <pre>
  * LocalMode.runApp(new Application(), 600000); // 10 min run
  * </pre>
- * 
+ *
  * Run Success : <br>
  * For successful deployment and run, user should see following output on
  * console:
- * 
+ *
  * <pre>
  * 3.1430480549199085
  * 3.1423454157782515
@@ -49,29 +43,27 @@ import org.apache.hadoop.conf.Configuration;
  * 3.142078799249531
  * 2013-06-18 10:43:18,335 [main] INFO  stram.StramLocalCluster run - Application finished.
  * </pre>
- * 
+ *
  * Application DAG : <br>
  * <img src="doc-files/Application.gif" width=600px > <br>
  * <br>
- * 
+ *
  * Streaming Window Size : 1000 ms(1 Sec) <br>
  * Operator Details : <br>
  * <ul>
  * <li><b>The rand Operator : </b> This operator generates random integer
  * between 0-30k. <br>
  * Class : com.datatorrent.lib.testbench.RandomEventGenerator <br>
- * State Less : Yes</li>
+ * StateFull : No</li>
  * <li><b>The calc operator : </b> This operator computes value of pi using
  * monte carlo estimation. <br>
  * Class : com.datatorrent.demos.pi.PiCalculateOperator <br>
- * State Less : Yes</li>
+ * StateFull : No</li>
  * <li><b>The operator Console: </b> This operator just outputs the input tuples
  * to the console (or stdout). <br>
- * if you need to change write to HDFS,HTTP .. instead of console, <br>
- * Please refer to {@link com.datatorrent.lib.io.HttpOutputOperator} or
- * {@link com.datatorrent.lib.io.HdfsOutputOperator}.</li>
+ * </li>
  * </ul>
- * 
+ *
  */
 public class Application implements StreamingApplication
 {
