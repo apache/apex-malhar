@@ -15,7 +15,7 @@
  */
 
 /**
- * <b>{@link com.datatorrent.lib.samplecode.algo}</b> is a library of examples of usage of algorithmic operators<p>
+ * <b>com.datatorrent.lib.samplecode.algo</b> is a library of examples of usage of algorithmic operators<p>
  * <br>
  * <br>
  */

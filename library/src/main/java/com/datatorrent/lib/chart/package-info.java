@@ -15,7 +15,7 @@
  */
 
 /**
- * <b>{@link com.datatorrent.lib.chart}</b> is a library of charting operators<p>
+ * <b>com.datatorrent.lib.chart</b> is a library of charting operators<p>
  * <br>
  * <br>
  */

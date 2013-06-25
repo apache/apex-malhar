@@ -15,7 +15,7 @@
  */
 
 /**
- * <b>{@link com.datatorrent.lib.stream}</b> is a library operators for stream operations<p>
+ * <b>com.datatorrent.lib.stream</b> is a library operators for stream operations<p>
  * <br>
  */
 

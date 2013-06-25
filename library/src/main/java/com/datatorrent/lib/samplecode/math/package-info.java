@@ -15,7 +15,7 @@
  */
 
 /**
- * <b>{@link com.datatorrent.lib.samplecode.math}</b> is a library examples of usages of operators from math library<p>
+ * <b>com.datatorrent.lib.samplecode.math</b> is a library examples of usages of operators from math library<p>
  * <br>
  * <br>
  */

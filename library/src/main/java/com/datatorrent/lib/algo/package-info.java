@@ -15,7 +15,7 @@
  */
 
 /**
- * <b>{@link com.datatorrent.lib.algo}</b> is a library of algorithmic operators<p>
+ * <b>com.datatorrent.lib.algo</b> is a library of algorithmic operators<p>
  * <br>
  * <br>
  */

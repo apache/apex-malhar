@@ -15,7 +15,7 @@
  */
 
 /**
- * <b>{@link com.datatorrent.lib.samplecode.io}</b> is a library samples of usages of operators from io library<p>
+ * <b>com.datatorrent.lib.samplecode.io</b> is a library samples of usages of operators from io library<p>
  * <br>
  */
 

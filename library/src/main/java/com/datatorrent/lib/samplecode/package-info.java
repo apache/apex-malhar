@@ -15,7 +15,7 @@
  */
 
 /**
- * <b>{@link com.datatorrent.lib.samplecode}</b> is a collection of libraries that have examples of various operators<p>
+ * <b>com.datatorrent.lib.samplecode</b> is a collection of libraries that have examples of various operators<p>
  * <br>
  * <br>
  */

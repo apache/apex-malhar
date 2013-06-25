@@ -15,7 +15,7 @@
  */
 
 /**
- * <b>{@link com.datatorrent.lib.script}</b> is a library of operators for scripting languages<p>
+ * <b>com.datatorrent.lib.script</b> is a library of operators for scripting languages<p>
  * <br>
  * <br>
  */

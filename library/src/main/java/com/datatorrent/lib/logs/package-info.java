@@ -15,7 +15,7 @@
  */
 
 /**
- * <b>{@link com.datatorrent.lib.logs}</b> is a library operators for log line processing<p>
+ * <b>com.datatorrent.lib.logs</b> is a library operators for log line processing<p>
  * <br>
  */
 
