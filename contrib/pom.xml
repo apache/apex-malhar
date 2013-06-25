@@ -16,17 +16,16 @@
     <skip.contrib.module.tests>true</skip.contrib.module.tests>
   </properties>
   <repositories>
-    <!--
-      Workaround for dependencies that are not available from a remote repository.
-      Only works for building the module, dependencies need to be scoped as provided
-      to allow for assembly plugin to work and allow for resolvable transitive closure
-      see http://jira.codehaus.org/browse/MNG-5181
-      TEMPORARY - DO NOT ADD ANYTHING MORE TO THIS!!!
-    -->
     <repository>
-      <id>malhar-contrib-local</id>
+      <!--
+        This repository is being worked upon. If it does not work for you, change the
+        url to http://www.datatorrent.com:8081/nexus/content/repositories/thirdparty.
+        Note that the URL is only accessible from work on malhar wifi network. And if
+        you feel more daring, set up port forwarding and tweak the url appropriately.
+      -->
+      <id>datatorrent-3rd-party</id>
       <name>Embedded repository for dependencies not available online</name>
-      <url>file://${project.basedir}/maven2</url>
+      <url>http://www.datatorrent.com/maven/content/repositories/thirdparty</url>
       <snapshots>
         <updatePolicy>never</updatePolicy>
       </snapshots>
