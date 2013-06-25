@@ -30,6 +30,7 @@ import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocket.Connection;
 import org.eclipse.jetty.websocket.WebSocketClient;
 import org.eclipse.jetty.websocket.WebSocketClientFactory;
+import org.eclipse.jetty.util.thread.ExecutorThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +60,9 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
   protected transient final ObjectMapper mapper = new ObjectMapper(jsonFactory);
   protected transient Connection connection;
 
+  private transient boolean connectionClosed = false;
+  private transient boolean shutdown = false;
+
   public void setUri(URI uri)
   {
     this.uri = uri;
@@ -73,8 +77,13 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
       factory.setBufferSize(8192);
       factory.start();
 
-      client = factory.newWebSocketClient();
+      //client = factory.newWebSocketClient();
       LOG.info("URL: {}", uri);
+      // Handle asynchronous websocket client disconnects in future
+      // differently to not use a monitor thread. 
+      shutdown = false;
+      monThread = new MonitorThread();
+      monThread.start();
     }
     catch (Exception ex) {
       throw new RuntimeException(ex);
@@ -84,6 +93,15 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
   @Override
   public void teardown()
   {
+    shutdown = true;
+    try {
+      if (monThread != null) {
+        monThread.join();
+      }
+    } catch (Exception ex) {
+      LOG.error("Error joining monitor", ex );
+    }
+
     if (factory != null) {
       factory.destroy();
     }
@@ -94,11 +112,29 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
   {
     return mapper.readValue(message, HashMap.class);
   }
+  
+  private transient MonitorThread monThread;
+ 
+  private class MonitorThread extends Thread {
+	public void run() {
+	   while (!WebSocketInputOperator.this.shutdown) {
+		try {
+			sleep(1000);
+			if (connectionClosed && !WebSocketInputOperator.this.shutdown) {
+				WebSocketInputOperator.this.activate(null);
+			}
+		} catch (Exception ex) {
+		}
+	   }
+	}
+  }
 
   @Override
   public void run()
   {
     try {
+      connectionClosed = false;
+      client = factory.newWebSocketClient();
       connection = client.open(uri, new WebSocket.OnTextMessage()
       {
         @Override
@@ -123,13 +159,15 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
         @Override
         public void onClose(int i, String string)
         {
-          LOG.debug("Connection closed.");
+          LOG.debug("Connection connectionClosed.");
+	  connectionClosed = true;
         }
 
       }).get(5, TimeUnit.SECONDS);
     }
     catch (Exception ex) {
       LOG.error("Error reading from " + uri, ex);
+      connectionClosed = true;
     }
 
   }
