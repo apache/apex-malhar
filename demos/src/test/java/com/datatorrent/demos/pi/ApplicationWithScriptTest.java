@@ -15,6 +15,8 @@
  */
 package com.datatorrent.demos.pi;
 
+import org.junit.Test;
+
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.demos.pi.ApplicationWithScript;
 
@@ -23,7 +25,7 @@ import com.datatorrent.demos.pi.ApplicationWithScript;
  */
 public class ApplicationWithScriptTest
 {
-  //@Test
+  @Test
   public void testSomeMethod() throws Exception
   {
     LocalMode.runApp(new ApplicationWithScript(), 10000);

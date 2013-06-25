@@ -25,7 +25,51 @@ import com.datatorrent.lib.testbench.RandomEventGenerator;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- *
+ * Monte Carlo PI extimation demo : <br>
+ * This application computes value of PI using Monte Carlo pi estimation
+ * formula. This demo inputs formula using java script operator.
+ * 
+ * Running Java Test or Main app in IDE:
+ * 
+ * <pre>
+ * LocalMode.runApp(new Application(), 600000); // 10 min run
+ * </pre>
+ * 
+ * Run Success : <br>
+ * For successful deployment and run, user should see following output on
+ * console:
+ * <pre>
+ * 2013-06-25 11:44:25,842 [container-2] DEBUG stram.StramChildAgent updateOperatorStatus - container-2 pendingDeploy []
+ * 2013-06-25 11:44:25,929 [ServerHelper-1-1] DEBUG netlet.AbstractClient send - allocating new sendBuffer4Offers of size 16384 for Server.Subscriber{type=rrhm_calc/3.inBindings, mask=0, partitions=null}
+ * 3.16
+ * 3.15
+ * 3.1616
+ * 3.148
+ * 3.1393846153846154
+ * </pre>
+ * 
+ *  * Application DAG : <br>
+ * <img src="doc-files/ApplicationScript.gif" width=600px > <br>
+ * <br>
+ * 
+ * Streaming Window Size : 1000 ms(1 Sec) <br>
+ * Operator Details : <br>
+ * <ul>
+ * <li><b>The rand Operator : </b> This operator generates random integer
+ * between 0-30k. <br>
+ * Class : {@link com.datatorrent.lib.testbench.RandomEventGenerator} <br>
+ * StateFull : No</li>
+ *  <li><b>The rrhm Operator : </b> This operator takes input from random generator
+ *  creates tuples of (x,y) in round robin fashion. <br>
+ * Class : {@link com.datatorrent.lib.stream.RandomEventGenerator} <br>
+ * StateFull : Yes, tuple is emitted after (x, y) values have been aggregated.</li>
+ * <li><b>The calc operator : </b> This is java script operator implementing <br>
+ * Class : {@link com.datatorrent.lib.math.Script} <br>
+ * StateFull : No</li>
+ * <li><b>The operator Console: </b> This operator just outputs the input tuples
+ * to the console (or stdout). User can use any output adapter.  <br>
+ * .</li>
+ * </ul>
  */
 public class ApplicationWithScript implements StreamingApplication
 {
