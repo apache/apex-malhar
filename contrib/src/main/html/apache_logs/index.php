@@ -7,7 +7,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Data Torrent : Ads Demo </title>
+<title>Data Torrent : Site Operations Demo </title>
 
 <link rel="stylesheet" type="text/css" href="malhar.css">
 
@@ -68,7 +68,7 @@ window.onload = function() {
     <div id="header">
         <ul class="dashboard-modes">
             <li>
-                <a href="#" class="active">Ads Dimensions Demo</a>
+                <a href="#" class="active">Site Operations Demo</a>
             </li>
         </ul>
 

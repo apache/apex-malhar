@@ -24,8 +24,18 @@ function DrawUrl404TableChart()
         for(var i=0; ((i <  pts.length)&&(i < 10)); i++) 
         {
           var row = pts[i].split("##");
-          url404Table.setCell(i, 0, row[0]);
-          url404Table.setCell(i, 1, parseInt(row[1]));
+          if ((row[1] == null)||(row[1] == ""))
+          {
+            url404Table.setCell(i, 0,  "NONE");
+          } else {
+            url404Table.setCell(i, 0, row[0]);
+          }
+          if ((row[1] == null)||(row[1] == ""))
+          {
+            url404Table.setCell(i, 1, 0);   
+          } else {
+            url404Table.setCell(i, 1, parseInt(row[1]));
+          }
         }
         //document.getElementById('risky_client_div').innerHTML = data;
         //document.getElementById('risky_client_div').innerHTML = url404Table.getNumberOfRows();

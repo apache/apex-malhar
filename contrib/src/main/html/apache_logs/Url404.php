@@ -7,7 +7,7 @@ $redis->select(7);
 // result array
 $result = array();
 
-for($i = 1; $i < 10; $i++)
+for($i = 0; $i < 10; $i++)
 {
   $value = $redis->get($i);
   //var_dump($value);

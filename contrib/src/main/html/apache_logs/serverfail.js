@@ -24,8 +24,18 @@ function DrawServer404TableChart()
         for(var i=0; ((i <  pts.length)&&(i < 10)); i++) 
         {
           var row = pts[i].split("##");
-          server404.setCell(i, 0, row[0]);
-          server404.setCell(i, 1, parseInt(row[1]));
+          if ((row[0] == null)||(row[0] == ""))
+          {
+            server404.setCell(i, 0, "NONE");
+          } else {
+            server404.setCell(i, 0, row[0]);
+          }
+          if ((row[1] == null)||(row[1] == ""))
+          {
+            server404.setCell(i, 1, 0);
+          } else {
+            server404.setCell(i, 1, parseInt(row[1]));
+          }
         }
         //document.getElementById('risky_client_div').innerHTML = data;
         //document.getElementById('risky_client_div').innerHTML = server404.getNumberOfRows();
