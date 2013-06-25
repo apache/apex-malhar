@@ -206,7 +206,7 @@ public class PhoneMovementGenerator extends BaseOperator
 
   private void clearPhones() {
     phone_register.clear();
-    log.debug("Clearing phones");
+    log.info("Clearing phones");
   }
 
   public String getSql() {
