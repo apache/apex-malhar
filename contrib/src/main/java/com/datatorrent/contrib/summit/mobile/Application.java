@@ -74,7 +74,7 @@ public class Application implements StreamingApplication
     RandomEventGenerator phones = dag.addOperator("phonegen", RandomEventGenerator.class);
     phones.setMinvalue(this.phoneRange.lowerEndpoint());
     phones.setMaxvalue(this.phoneRange.upperEndpoint());
-    phones.setTuplesBlast(1000);
+    phones.setTuplesBlast(200);
     phones.setTuplesBlastIntervalMillis(5);
     dag.setOutputPortAttribute(phones.integer_data, PortContext.QUEUE_CAPACITY, 32 * 1024);
 
