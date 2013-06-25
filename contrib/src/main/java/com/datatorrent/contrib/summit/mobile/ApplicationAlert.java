@@ -118,13 +118,13 @@ public class ApplicationAlert implements StreamingApplication
     }
 
     SmtpOutputOperator mailOper = dag.addOperator("mail", new SmtpOutputOperator());
-    mailOper.setFrom("jenkins@malhar-inc.com");
-    mailOper.addRecipient(SmtpOutputOperator.RecipientType.TO, "jenkins@malhar-inc.com");
+    mailOper.setFrom("jenkins@datatorrent.com");
+    mailOper.addRecipient(SmtpOutputOperator.RecipientType.TO, "jenkins@datatorrent.com");
     mailOper.setContent("Phone Location: {}\nThis is an auto-generated message. Do not reply.");
     mailOper.setSubject("Update New Location");
     mailOper.setSmtpHost("secure.emailsrvr.com");
     mailOper.setSmtpPort(465);
-    mailOper.setSmtpUserName("jenkins@malhar-inc.com");
+    mailOper.setSmtpUserName("jenkins@datatorrent.com");
     mailOper.setSmtpPassword("Testing1");
     mailOper.setUseSsl(true);
 

@@ -16,7 +16,7 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.Context.OperatorContext;
 
 /**
- * @author Dinesh Prasad (dinesh@malhar-inc.com)
+ * @author Dinesh Prasad (dinesh@datatorrent.com)
  */
 public class RedisSumOper extends BaseOperator
 {

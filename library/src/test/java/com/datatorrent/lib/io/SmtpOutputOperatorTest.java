@@ -34,8 +34,8 @@ public class SmtpOutputOperatorTest
 
     String subject = "ALERT!";
     String content = "This is an SMTP operator test {}";
-    String from = "jenkins@malhar-inc.com";
-    String to = "davidyan@malhar-inc.com";
+    String from = "jenkins@datatorrent.com";
+    String to = "david@datatorrent.com";
 
     GreenMail greenMail = new GreenMail(ServerSetupTest.ALL);
     greenMail.start();

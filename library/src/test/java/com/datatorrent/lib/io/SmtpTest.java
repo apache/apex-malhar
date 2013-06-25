@@ -41,8 +41,8 @@ public class SmtpTest {
     Integer smtpPort = new Integer(587);
 
     // Recipient's email ID needs to be mentioned.
-    String to = "all@malhar-inc.com";
-    String from = "someone@malhar-inc.com";
+    String to = "all@datatorrent.com";
+    String from = "someone@datatorrent.com";
 
     // Get system properties
     Properties properties = System.getProperties();

@@ -40,13 +40,13 @@ public class ApplicationWithAlert implements StreamingApplication
     //ConsoleOutputOperator consoleOperator = dag.addOperator("console", new ConsoleOutputOperator());
     SmtpOutputOperator mailOper = dag.addOperator("mail", new SmtpOutputOperator());
 
-    mailOper.setFrom("jenkins@malhar-inc.com");
-    mailOper.addRecipient(SmtpOutputOperator.RecipientType.TO, "jenkins@malhar-inc.com");
+    mailOper.setFrom("jenkins@datatorrent.com");
+    mailOper.addRecipient(SmtpOutputOperator.RecipientType.TO, "jenkins@datatorrent.com");
     mailOper.setContent("AAPL: {}\nThis is an auto-generated message. Do not reply.");
     mailOper.setSubject("ALERT: AAPL is less than 450");
     mailOper.setSmtpHost("secure.emailsrvr.com");
     mailOper.setSmtpPort(465);
-    mailOper.setSmtpUserName("jenkins@malhar-inc.com");
+    mailOper.setSmtpUserName("jenkins@datatorrent.com");
     mailOper.setSmtpPassword("Testing1");
     mailOper.setUseSsl(true);
 
