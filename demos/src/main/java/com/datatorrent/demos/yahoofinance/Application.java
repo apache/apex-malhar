@@ -15,11 +15,10 @@
  */
 package com.datatorrent.demos.yahoofinance;
 
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator.InputPort;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.math.RangeKeyVal;
 import com.datatorrent.lib.math.SumKeyVal;
@@ -37,7 +36,7 @@ import org.apache.hadoop.conf.Configuration;
  * Application samples yahoo finance ticker every 200ms. All data points in one
  * second are streamed from input adapter. <br>
  * <br>
- * 
+ *
  * Application calculates following Real Time Value(s):<br>
  * <ul>
  * <li>Quotes for IBM, Google, Apple, Yahoo stocks price/volume/time displayed
@@ -48,7 +47,7 @@ import org.apache.hadoop.conf.Configuration;
  * </ul>
  * <br>
  * <br>
- * 
+ *
  * Custom Attribute : <br>
  * <ul>
  * <li>Application streaming window size(STREAMING_WINDOW_SIZE_MILLIS) = 1 sec,
@@ -58,41 +57,38 @@ import org.apache.hadoop.conf.Configuration;
  * <li>Sum operator window length : 300, sliding average over last 5 minutes.</li>
  * </ul>
  * <br>
- * 
+ *
  * Input Adapter : <br>
  * Stock Tick input operator get yahoo finance real time stock quotes data and
  * pushes application. <br>
  * <br>
- * 
+ *
  * Output Adapter : <br>
  * Output values are written to console through ConsoleOutputOerator<br>
  * if you need to change write to HDFS,HTTP .. instead of console, <br>
  * Please refer to {@link com.datatorrent.lib.io.HttpOutputOperator} or
  * {@link com.datatorrent.lib.io.HdfsOutputOperator}. <br>
  * <br>
- * 
+ *
  * Run Sample Application : <br>
- * Please consult Application Developer guide <a href=
- * "https://docs.google.com/document/d/1WX-HbsGQPV_DfM1tEkvLm1zD_FLYfdLZ1ivVHqzUKvE/edit#heading=h.lfl6f68sq80m"
- * > here </a>.
  * <p>
  * Running Java Test or Main app in IDE:
- * 
+ *
  * <pre>
  * LocalMode.runApp(new Application(), 600000); // 10 min run
  * </pre>
- * 
+ *
  * Run Success : <br>
  * For successful deployment and run, user should see following output on
  * console:
- * 
+ *
  * <pre>
  *  Price SMA: AAPL=435.965
  * Price SMA: GOOG=877.0
  * QUOTE: {YHOO=[26.37, 9760360, 4:00pm, null, null], IBM=[203.77, 2899698, 4:00pm, null, null], GOOG=[877.0, 2069614, 4:00pm, null, null], AAPL=[435.965, 10208099, 4:00pm, null, null]}
  * Price SMA: YHOO=26.37
  * </pre>
- * 
+ *
  * Scaling Options : <br>
  * <ul>
  * <li>Volume operator can be replicated using 'INITIAL_PARTITION_COUNT' options
@@ -102,11 +98,11 @@ import org.apache.hadoop.conf.Configuration;
  * <li>Slinging window operator can be replicated with proper unifier operator.</li>
  * </ul>
  * <br>
- * 
+ *
  * Application DAG : <br>
  * <img src="doc-files/Application.gif" width=600px > <br>
  * <br>
- * 
+ *
  * Streaming Window Size : 1000 ms(1 Sec) <br>
  * Operator Details : <br>
  * <ul>
@@ -118,7 +114,7 @@ import org.apache.hadoop.conf.Configuration;
  * library class SumKeyVal<K,V> provided in math package. In this case,
  * SumKeyVal<String,Long>, where K is the stock symbol, V is the aggregated
  * volume, with cumulative set to true. (Otherwise if cumulative was set to
- * false, SumKeyVal would provide the sum for the application window.) Malhar
+ * false, SumKeyVal would provide the sum for the application window.) The platform
  * provides a number of built-in operators for simple operations like this so
  * that application developers do not have to write them. More examples to
  * follow. This operator assumes that the application restarts before market
@@ -126,8 +122,8 @@ import org.apache.hadoop.conf.Configuration;
  * </p>
  * Class : {@link com.datatorrent.lib.math.SumKeyVal} <br>
  * Operator Application Window Count : 1 <br>
- * StateFull : YES, volume gets aggregated every window count.</li>
- * 
+ * StateFull : Yes, volume gets aggregated every window count.</li>
+ *
  * <li>
  * <p>
  * <b>The operator MinuteVolume:</b> This operator reads from the input port,
@@ -138,8 +134,8 @@ import org.apache.hadoop.conf.Configuration;
  * explain how to set this later. <br>
  * Class : {@link com.datatorrent.lib.math.SumKeyVal} <br>
  * Operator App Window Count : 60 (1 Minute) <br>
- * StateFull : YES, aggregate over last 60 windows.</li>
- * 
+ * StateFull : Yes, aggregate over last 60 windows.</li>
+ *
  * <li>
  * <p>
  * <b>The operator Quote:</b> This operator has three input ports, which are
@@ -149,18 +145,18 @@ import org.apache.hadoop.conf.Configuration;
  * stream package.<br>
  * Class : {@link com.datatorrent.lib.stream.ConsolidatorKeyVal} <br>
  * Operator App Window Count : 1 <br>
- * State Less : YES</li>
- * 
+ * StateFull : No</li>
+ *
  * <li>
  * <p>
  * <b>The operator Chart:</b> This operator is very similar to the operator
  * Quote, except that it takes inputs from High Low and Minute Vol and outputs
  * the consolidated tuples to the output port. <br>
  * Class : {@link com.datatorrent.lib.stream.ConsolidatorKeyVal} <br>
- * StateLess : YES<br>
+ * StateFull : No<br>
  * Operator App Window Count : 1</li>
- * 
- * 
+ *
+ *
  * <li>
  * <p>
  * <b>The operator PriceSMA:</b> SMA stands for - Simple Moving Average. It
@@ -171,10 +167,10 @@ import org.apache.hadoop.conf.Configuration;
  * application windows in a sliding manner. For each end window event, it
  * provides the average of the data in those application windows. <br>
  * Class : {@link com.datatorrent.lib.multiwindow.SimpleMovingAverage} <br>
- * State full : YES, stores values across application window. <br>
+ * StateFull : Yes, stores values across application window. <br>
  * Operator App Window : 1 <br>
  * Operator Sliding Window : 300 (5 mins).</li>
- * 
+ *
  * <li>
  * <p>
  * <b>The operator Console: </b> This operator just outputs the input tuples to
@@ -182,11 +178,11 @@ import org.apache.hadoop.conf.Configuration;
  * which connect to the output of Quote, Chart, PriceSMA and VolumeSMA. In
  * practice, they should be replaced by operators which would do something about
  * the data, like drawing charts. </li>
- * 
+ *
  * </ul>
  * <br>
- * 
- * 
+ *
+ *
  */
 public class Application implements StreamingApplication
 {
@@ -197,7 +193,7 @@ public class Application implements StreamingApplication
 
   /**
    * Instantiate stock input operator for actual Yahoo finance ticks of symbol, last price, total daily volume, and last traded price.
-   * @param name  Operator name 
+   * @param name  Operator name
    * @param dag   Application DAG graph.
    * @return StockTickInput instance.
    */
@@ -210,9 +206,9 @@ public class Application implements StreamingApplication
   }
 
   /**
-   * Instantiate {@link com.datatorrent.lib.math.SumKeyVal} operator 
+   * Instantiate {@link com.datatorrent.lib.math.SumKeyVal} operator
    * to sends total daily volume by adding volumes from each ticks.
-   * @param name  Operator name 
+   * @param name  Operator name
    * @param dag   Application DAG graph.
    * @return SumKeyVal instance.
    */
@@ -226,9 +222,9 @@ public class Application implements StreamingApplication
   }
 
   /**
-   * Instantiate {@link com.datatorrent.lib.math.SumKeyVal} operator 
+   * Instantiate {@link com.datatorrent.lib.math.SumKeyVal} operator
    * Get aggregated volume of 1 minute and send at the end window of 1 minute.
-   * @param name  Operator name 
+   * @param name  Operator name
    * @param dag   Application DAG graph.
    * @param appWindowCount Operator aggregate window size.
    * @return SumKeyVal instance.
@@ -246,7 +242,7 @@ public class Application implements StreamingApplication
    * Instantiate {@link com.datatorrent.lib.math.RangeKeyVal} operator to get high/low
    * value for each key within given application window.
    * Get High-low range for 1 minute.
-   * @param name  Operator name 
+   * @param name  Operator name
    * @param dag   Application DAG graph.
    * @param appWindowCount Operator aggregate window size.
    * @return RangeKeyVal instance.
@@ -262,7 +258,7 @@ public class Application implements StreamingApplication
   /**
    * Instantiate {@link com.datatorrent.lib.stream.ConsolidatorKeyVal} to send
    * Quote (Merge price, daily volume, time)
-   * @param name  Operator name 
+   * @param name  Operator name
    * @param dag   Application DAG graph.
    * @return ConsolidatorKeyVal instance.
    */
@@ -275,7 +271,7 @@ public class Application implements StreamingApplication
   /**
    * Instantiate {@link com.datatorrent.lib.stream.ConsolidatorKeyVal} to send
    * Chart (Merge minute volume and minute high-low)
-   * @param name  Operator name 
+   * @param name  Operator name
    * @param dag   Application DAG graph.
    * @return ConsolidatorKeyVal instance.
    */
@@ -288,7 +284,7 @@ public class Application implements StreamingApplication
   /**
    * Instantiate {@link com.datatorrent.lib.multiwindow.SimpleMovingAverage} to calculate moving average for price
    * over given window size. Sliding window size is 1.
-   * @param name  Operator name 
+   * @param name  Operator name
    * @param dag   Application DAG graph.
    * @param appWindowCount Operator aggregate window size.
    * @return SimpleMovingAverage instance.
@@ -303,7 +299,7 @@ public class Application implements StreamingApplication
 
   /**
    * Get console for output operator.
-   * @param name  Operator name 
+   * @param name  Operator name
    * @param dag   Application DAG graph.
    * @return input port for console output.
    */
