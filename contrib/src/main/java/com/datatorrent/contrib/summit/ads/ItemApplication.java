@@ -43,7 +43,6 @@ public class ItemApplication implements StreamingApplication
     dag.setInputPortAttribute(inputDimension.inputPort, PortContext.PARTITION_PARALLEL, true);
     dag.setInputPortAttribute(inputDimension.inputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);
     dag.setOutputPortAttribute(inputDimension.outputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);
-    //dag.setAttribute(inputDimension, OperatorContext.INITIAL_PARTITION_COUNT, 9);
 
     BucketOperator bucket = dag.addOperator("bucket", BucketOperator.class);
     dag.setInputPortAttribute(bucket.inputPort, PortContext.PARTITION_PARALLEL, true);
