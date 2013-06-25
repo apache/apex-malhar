@@ -53,14 +53,14 @@ import org.apache.hadoop.conf.Configuration;
  * <ul>
  * <li><b>The rand Operator : </b> This operator generates random integer
  * between 0-30k. <br>
- * Class : com.datatorrent.lib.testbench.RandomEventGenerator <br>
+ * Class : {@link com.datatorrent.lib.testbench.RandomEventGenerator}<br>
  * StateFull : No</li>
  * <li><b>The calc operator : </b> This operator computes value of pi using
  * monte carlo estimation. <br>
  * Class : com.datatorrent.demos.pi.PiCalculateOperator <br>
  * StateFull : No</li>
  * <li><b>The operator Console: </b> This operator just outputs the input tuples
- * to the console (or stdout). <br>
+ * to the console (or stdout). You can use other output adapters if needed.<br>
  * </li>
  * </ul>
  *
