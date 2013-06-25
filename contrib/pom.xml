@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>malhar-contrib</artifactId>
-  <name>Contrib (with embedded dependencies)</name>
+  <name>Contrib Library</name>
   <packaging>jar</packaging>
 
   <properties>

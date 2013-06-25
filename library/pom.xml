@@ -12,7 +12,7 @@
   <artifactId>malhar-library</artifactId>
   <packaging>jar</packaging>
 
-  <name>Operator Library</name>
+  <name>Operator and Codec Library</name>
 
   <properties>
     <test.excludedGroups>com.datatorrent.annotation.PerformanceTestCategory</test.excludedGroups>
