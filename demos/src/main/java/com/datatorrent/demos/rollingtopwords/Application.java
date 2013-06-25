@@ -15,29 +15,26 @@
  */
 package com.datatorrent.demos.rollingtopwords;
 
-import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.demos.twitter.TwitterSampleInput;
 import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.algo.WindowedTopCounter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-
 import org.apache.hadoop.conf.Configuration;
 
 /**
  * This application is same as other twitter demo
  * {@link com.datatorrent.demos.twitter.TwitterTopCounterApplication} <br>
  * Run Sample :
- * 
+ *
  * <pre>
  * 2013-06-17 16:50:34,911 [Twitter Stream consumer-1[Establishing connection]] INFO  twitter4j.TwitterStreamImpl info - Connection established.
  * 2013-06-17 16:50:34,912 [Twitter Stream consumer-1[Establishing connection]] INFO  twitter4j.TwitterStreamImpl info - Receiving status stream.
  * topWords: {}
- * topWords: {love=1, ate=1, catch=1, calma=1, Phillies=1, ela=1, from=1, running=1, <3=2, Zimmerman=1}
- * topWords: {،=4, الله=5, eu=3, da=2, e=2, من=5, pra=3, mas=2, não=4, <3=3}
- * topWords: {،=4, الله=5, eu=3, da=2, e=2, من=5, pra=3, mas=2, não=4, <3=3}
+ * topWords: {love=1, ate=1, catch=1, calma=1, Phillies=1, ela=1, from=1, running=1}
  * </pre>
- * 
+ *
  */
 public class Application implements StreamingApplication
 {
