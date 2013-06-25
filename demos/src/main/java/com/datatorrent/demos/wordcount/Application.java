@@ -43,15 +43,8 @@ import org.apache.hadoop.conf.Configuration;
  *
  * Output Adapter : <br>
  * Output values are written to console through ConsoleOutputOerator<br>
- * if you need to change write to HDFS,HTTP .. instead of console, <br>
- * Please refer to {@link com.datatorrent.lib.io.HttpOutputOperator} or
- * {@link com.datatorrent.lib.io.HdfsOutputOperator}. <br>
+ * If needed you can use other output adapters<br>
  * <br>
- *
- * Run Sample Application : <br>
- * Please consult Application Developer guide <a href=
- * "https://docs.google.com/document/d/1WX-HbsGQPV_DfM1tEkvLm1zD_FLYfdLZ1ivVHqzUKvE/edit#heading=h.lfl6f68sq80m"
- * > here </a>.
  * <p>
  * Running Java Test or Main app in IDE:
  *
@@ -80,13 +73,13 @@ import org.apache.hadoop.conf.Configuration;
  *         This can replaced by any input stream by user. <br>
  *     Class : {@link com.datatorrent.demos.wordcount.WordCountInputOperator}  <br>
  *     Operator Application Window Count : 1 <br>
- *     Stateless : YES
+ *     StateFull : No
  *  </li>
  *  <li>
  *     <p><b> The operator count : </b>  This operator aggregates unique key count  over one window count(app). <br>
  *     Class : {@link com.datatorrent.lib.algo.UniqueCounterEach}  <br>
  *     Operator Application Window Count : 1 <br>
- *     Stateless : YES
+ *     StateFull : No
  *  </li>
  *  <li>
  *      <p><b>The operator Console: </b> This operator just outputs the input tuples to  the console (or stdout).
