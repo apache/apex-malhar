@@ -36,7 +36,8 @@ import org.slf4j.LoggerFactory;
  * 100K cells phones are tracked. They jump a cell tower frequently. Sometimes within a second
  * sometimes in 10 seconds. The aim is to demonstrate the following abilities<br>
  * <ul>
- * <li>Dynamic functional changes: The phone numbers are added to locate its gps in run time.</li>
+ * <li>Entering query dynamically: The phone numbers are added to locate its gps in run time.</li>
+ * <li>Changing functionality dynamically: The load is changed by making functional changes on the load generator operator (phonegen)(</li>
  * <li>Auto Scale up/Down with load: Operator pmove increases and decreases partitions as per load</li>
  * <li></li>
  * </ul>
