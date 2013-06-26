@@ -17,20 +17,14 @@
   </properties>
   <repositories>
     <repository>
-      <!--
-        This repository is being worked upon. If it does not work for you, change the
-        url to http://www.datatorrent.com:8081/nexus/content/repositories/thirdparty.
-        Note that the URL is only accessible from work on malhar wifi network. And if
-        you feel more daring, set up port forwarding and tweak the url appropriately.
-      -->
       <id>datatorrent-3rd-party</id>
       <name>Embedded repository for dependencies not available online</name>
-      <url>http://www.datatorrent.com:8081/nexus/content/repositories/thirdparty</url>
+      <url>https://www.datatorrent.com/maven/content/repositories/thirdparty</url>
       <snapshots>
-        <updatePolicy>never</updatePolicy>
+        <updatePolicy>daily</updatePolicy>
       </snapshots>
       <releases>
-        <updatePolicy>never</updatePolicy>
+        <updatePolicy>daily</updatePolicy>
       </releases>
     </repository>
   </repositories>
