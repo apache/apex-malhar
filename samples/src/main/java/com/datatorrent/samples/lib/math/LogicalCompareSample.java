@@ -13,45 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.samplecode.math;
+package com.datatorrent.samples.lib.math;
 
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.math.AverageKeyVal;
+import com.datatorrent.lib.math.LogicalCompareToConstant;
+import com.datatorrent.lib.testbench.RandomEventGenerator;
 
 /**
  * This sample application code for showing sample usage of malhar operator(s). <br>
- * <b>Operator : </b> AverageKeyVal <br>
- * <bClass : </b> com.datatorrent.lib.math.AverageKeyVal
+ * <b>Operator : </b> LogicalCompareToConstant <br>
+ * <bClass : </b> com.datatorrent.lib.math.LogicalCompareToConstant
  *
  */
-public class AverageKeyValSample implements StreamingApplication
+public class LogicalCompareSample implements StreamingApplication
 {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void populateDAG(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-		dag.setAttribute(DAG.APPLICATION_NAME, "AverageKeyValSample");
+		dag.setAttribute(DAG.APPLICATION_NAME, "TestApp");
 		dag.setAttribute(DAG.DEBUG, true);
 
 		// Add random integer generator operator
-		RandomKeyValues rand = dag.addOperator("rand", RandomKeyValues.class);
+		RandomEventGenerator rand = dag.addOperator("rand",
+				RandomEventGenerator.class);
 
-		AverageKeyVal<String> average = dag.addOperator("average",
-				AverageKeyVal.class);
-		dag.addStream("stream1", rand.outport, average.data);
-		dag.getMeta(average).getAttributes()
-				.attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(20);
+		LogicalCompareToConstant<Integer> compare = dag.addOperator("compare",
+				LogicalCompareToConstant.class);
+		compare.setConstant(50);
+		dag.addStream("stream1", rand.integer_data, compare.input);
 
 		// Connect to output console operator
 		ConsoleOutputOperator console = dag.addOperator("console",
 				new ConsoleOutputOperator());
-		dag.addStream("consolestream", average.doubleAverage, console.input);
+		dag.addStream("consolestream", compare.lessThan, console.input);
 
 		// done
 	}

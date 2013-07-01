@@ -13,43 +13,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.samplecode.io;
+package com.datatorrent.samples.lib.io;
+
+import java.net.URI;
 
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAGContext;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.LocalFsInputOperator;
+import com.datatorrent.lib.io.HttpInputOperator;
 
 /**
- * This sample application code for showing sample usage of malhar operator(s). <br>
- * <b>Operator : </b> AverageKeyVal <br>
- * <bClass : </b> com.datatorrent.lib.math.AverageKeyVal
- * This application reads local demo text file and relays text content to output console.
+ * * This sample application code for showing sample usage of malhar
+ * operator(s). <br>
+ * <b>Operator : </b> HttpInputOperator <br>
+ * <bClass : </b> com.datatorrent.lib.io.HttpInputOperator
+ *
+ * this application connects to yahoo news and relays raw content to output console.
  *
  */
-public class LocalFsInputSample implements StreamingApplication
+public class HttpInputOperatorSample implements StreamingApplication
 {
 	@Override
 	public void populateDAG(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-		dag.setAttribute(DAG.APPLICATION_NAME, "MobileDevApplication");
-		dag.setAttribute(DAG.DEBUG, true);
+		dag.setAttribute(DAGContext.APPLICATION_NAME, "MobileDevApplication");
+		dag.setAttribute(DAGContext.DEBUG, true);
 
 		// Add random integer generator operator
-		LocalFsInputOperator reader = dag.addOperator("reader",
-				LocalFsInputOperator.class);
-		reader
-				.setFilePath("src/main/resources/com/datatorrent/demos/wordcount/samplefile.txt");
-		reader.setSleepInterval(1000);
+		HttpInputOperator reader = dag.addOperator("reader",
+				HttpInputOperator.class);
+		reader.setUrl(URI.create("http://news.yahoo.com"));
+		reader.readTimeoutMillis = 10000;
 
 		// Connect to output console operator
 		ConsoleOutputOperator console = dag.addOperator("console",
 				new ConsoleOutputOperator());
-		dag.addStream("outstream", reader.outport, console.input);
+		dag.addStream("consoleout", reader.rawOutput, console.input);
 
 		// done
 	}
+
 }

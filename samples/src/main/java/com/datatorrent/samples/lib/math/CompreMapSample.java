@@ -13,48 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.samplecode.io;
-
-import java.net.URI;
+package com.datatorrent.samples.lib.math;
 
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAGContext;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.HttpInputOperator;
+import com.datatorrent.lib.math.CompareMap;
+
 
 /**
- * * This sample application code for showing sample usage of malhar
- * operator(s). <br>
- * <b>Operator : </b> HttpInputOperator <br>
- * <bClass : </b> com.datatorrent.lib.io.HttpInputOperator
- *
- * this application connects to yahoo news and relays raw content to output console.
+ * This sample application code for showing sample usage of malhar operator(s). <br>
+ * <b>Operator : </b> CompareMap <br>
+ * <bClass : </b> com.datatorrent.lib.math.CompareMap
  *
  */
-public class HttpInputOperatorSample implements StreamingApplication
+public class CompreMapSample implements StreamingApplication
 {
+	@SuppressWarnings("unchecked")
 	@Override
 	public void populateDAG(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-		dag.setAttribute(DAGContext.APPLICATION_NAME, "MobileDevApplication");
-		dag.setAttribute(DAGContext.DEBUG, true);
+		dag.setAttribute(DAG.APPLICATION_NAME, "MobileDevApplication");
+		dag.setAttribute(DAG.DEBUG, true);
 
 		// Add random integer generator operator
-		HttpInputOperator reader = dag.addOperator("reader",
-				HttpInputOperator.class);
-		reader.setUrl(URI.create("http://news.yahoo.com"));
-		reader.readTimeoutMillis = 10000;
+		RandomKeyValues rand = dag.addOperator("rand", RandomKeyValues.class);
+
+		CompareMap<String, Integer> compare = dag.addOperator("compare",
+				CompareMap.class);
+		compare.setTypeLTE();
+		compare.setValue(50);
 
 		// Connect to output console operator
 		ConsoleOutputOperator console = dag.addOperator("console",
 				new ConsoleOutputOperator());
-		dag.addStream("consoleout", reader.rawOutput, console.input);
+		dag.addStream("consolestream", compare.compare, console.input);
 
 		// done
 	}
-
 }

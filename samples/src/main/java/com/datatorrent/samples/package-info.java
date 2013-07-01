@@ -15,9 +15,9 @@
  */
 
 /**
- * <b>com.datatorrent.lib.samplecode.math</b> is a library examples of usages of operators from math library<p>
+ * <b>com.datatorrent.lib.samplecode</b> is a collection of libraries that have examples of various operators<p>
  * <br>
  * <br>
  */
 
-package com.datatorrent.lib.samplecode.math;
+package com.datatorrent.samples;

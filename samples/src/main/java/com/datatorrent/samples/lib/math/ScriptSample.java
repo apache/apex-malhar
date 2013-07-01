@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.samplecode.math;
+package com.datatorrent.samples.lib.math;
 
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.lib.io.*;
-import com.datatorrent.lib.testbench.RandomEventGenerator;
+import com.datatorrent.lib.script.JavaScriptOperator;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- * <b> Usage Operator : </b> com.datatorrent.lib.testbench.RandomEventGenerator <br>
- * This sample usage for predefined operator <b>RandomEventGenerator</b>. <br>
- * Random generator output is printed to output console(can be any downstream operator).
+ * This sample application code for showing sample usage of malhar operator(s). <br>
+ * <b>Operator : </b> Script <br>
+ * <bClass : </b> com.datatorrent.lib.math.Script
+ * Java script returns square of variable 'val'.
  *
  */
-public class RandomEvenetGeneratorSample implements StreamingApplication
+public class ScriptSample implements StreamingApplication
 {
 	@Override
 	public void populateDAG(DAG dag, Configuration conf)
@@ -37,14 +38,17 @@ public class RandomEvenetGeneratorSample implements StreamingApplication
 	    dag.setAttribute(DAG.DEBUG, true);
 
 	    // Add random integer generator operator
-	    RandomEventGenerator rand = dag.addOperator("rand", RandomEventGenerator.class);
-	    rand.setMaxvalue(999999999);
-	    rand.setTuplesBlast(10);
-	    rand.setTuplesBlastIntervalMillis(1000);
+	    SingleKeyValMap rand = dag.addOperator("rand", SingleKeyValMap.class);
+
+	    JavaScriptOperator script = dag.addOperator("script", JavaScriptOperator.class);
+	    //script.setEval("val = val*val;");
+	    script.addSetupScript("function square() { return val*val;}");
+	    script.setInvoke("square");
+	    dag.addStream("evalstream", rand.outport, script.inBindings);
 
 	    // Connect to output console operator
 	    ConsoleOutputOperator console = dag.addOperator("console", new ConsoleOutputOperator());
-	    dag.addStream("rand_console",rand.integer_data , console.input);
+	    dag.addStream("rand_console",script.result , console.input);
 
 	    // done
 	}

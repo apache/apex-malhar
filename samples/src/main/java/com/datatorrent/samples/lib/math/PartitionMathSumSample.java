@@ -13,46 +13,54 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.samplecode.math;
+package com.datatorrent.samples.lib.math;
 
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.math.LogicalCompareToConstant;
+import com.datatorrent.lib.math.Sum;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
 
 /**
- * This sample application code for showing sample usage of malhar operator(s). <br>
- * <b>Operator : </b> LogicalCompareToConstant <br>
- * <bClass : </b> com.datatorrent.lib.math.LogicalCompareToConstant
+ *  * This sample application code for showing sample usage of malhar operator(s). <br>
+ * <b>Operator : </b> Sum <br>
+ * <bClass : </b> com.datatorrent.lib.math.Sum
+ * Sum operator is partitioned into 4 operator, partitioning is allowed on this operator. <br>
  *
  */
-public class LogicalCompareSample implements StreamingApplication
+public class PartitionMathSumSample implements StreamingApplication
 {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void populateDAG(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-		dag.setAttribute(DAG.APPLICATION_NAME, "TestApp");
+		dag.setAttribute(DAG.APPLICATION_NAME, "MobileDevApplication");
 		dag.setAttribute(DAG.DEBUG, true);
 
 		// Add random integer generator operator
 		RandomEventGenerator rand = dag.addOperator("rand",
 				RandomEventGenerator.class);
+		rand.setMaxvalue(1000);
+		rand.setTuplesBlast(10);
+		rand.setTuplesBlastIntervalMillis(500);
 
-		LogicalCompareToConstant<Integer> compare = dag.addOperator("compare",
-				LogicalCompareToConstant.class);
-		compare.setConstant(50);
-		dag.addStream("stream1", rand.integer_data, compare.input);
+		Sum<Integer> sum = dag.addOperator("sum", Sum.class);
+		dag.addStream("stream1", rand.integer_data, sum.data);
+		dag.getMeta(sum).getAttributes()
+				.attr(OperatorContext.INITIAL_PARTITION_COUNT).set(4);
+		dag.getMeta(sum).getAttributes()
+				.attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(20);
 
 		// Connect to output console operator
 		ConsoleOutputOperator console = dag.addOperator("console",
 				new ConsoleOutputOperator());
-		dag.addStream("consolestream", compare.lessThan, console.input);
+		dag.addStream("stream2", sum.sum, console.input);
 
 		// done
 	}
+
 }

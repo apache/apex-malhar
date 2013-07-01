@@ -15,9 +15,8 @@
  */
 
 /**
- * <b>com.datatorrent.lib.samplecode</b> is a collection of libraries that have examples of various operators<p>
- * <br>
+ * <b>com.datatorrent.lib.samplecode.io</b> is a library samples of usages of operators from io library<p>
  * <br>
  */
 
-package com.datatorrent.lib.samplecode;
+package com.datatorrent.samples.lib.io;

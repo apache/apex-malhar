@@ -13,54 +13,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.samplecode.math;
+package com.datatorrent.samples.lib.algo;
 
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.lib.algo.AllAfterMatchMap;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.math.Sum;
-import com.datatorrent.lib.testbench.RandomEventGenerator;
+import com.datatorrent.samples.lib.math.RandomKeyValMap;
 
 /**
- *  * This sample application code for showing sample usage of malhar operator(s). <br>
- * <b>Operator : </b> Sum <br>
- * <bClass : </b> com.datatorrent.lib.math.Sum
- * Sum operator is partitioned into 4 operator, partitioning is allowed on this operator. <br>
+ * This sample application code for showing sample usage of malhar operator(s). <br>
+ * <b>Operator : </b> AverageMap <br>
+ * <bClass : </b> com.datatorrent.lib.math.AverageMap
  *
  */
-public class PartitionMathSumSample implements StreamingApplication
+public class AllAfterMatchMapSample implements StreamingApplication
 {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void populateDAG(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-		dag.setAttribute(DAG.APPLICATION_NAME, "MobileDevApplication");
-		dag.setAttribute(DAG.DEBUG, true);
+		dag.setAttribute(DAG.APPLICATION_NAME, "AllAfterMatchMapSample");
+		//dag.setAttribute(DAG.DEBUG, true);
 
 		// Add random integer generator operator
-		RandomEventGenerator rand = dag.addOperator("rand",
-				RandomEventGenerator.class);
-		rand.setMaxvalue(1000);
-		rand.setTuplesBlast(10);
-		rand.setTuplesBlastIntervalMillis(500);
+		RandomKeyValMap rand = dag.addOperator("rand", RandomKeyValMap.class);
 
-		Sum<Integer> sum = dag.addOperator("sum", Sum.class);
-		dag.addStream("stream1", rand.integer_data, sum.data);
-		dag.getMeta(sum).getAttributes()
-				.attr(OperatorContext.INITIAL_PARTITION_COUNT).set(4);
-		dag.getMeta(sum).getAttributes()
+		AllAfterMatchMap<String, Integer> allafter = dag.addOperator("average",
+				AllAfterMatchMap.class);
+		allafter.setValue(50);
+		allafter.setTypeLTE();
+		dag.addStream("stream1", rand.outport, allafter.data);
+		dag.getMeta(allafter).getAttributes()
 				.attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(20);
 
 		// Connect to output console operator
 		ConsoleOutputOperator console = dag.addOperator("console",
 				new ConsoleOutputOperator());
-		dag.addStream("stream2", sum.sum, console.input);
+		dag.addStream("consolestream", allafter.allafter, console.input);
 
 		// done
 	}
-
 }

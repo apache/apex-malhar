@@ -13,55 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.samplecode.math;
+package com.datatorrent.samples.lib.algo;
 
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.lib.algo.BottomNMap;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.math.Change;
-import com.datatorrent.lib.testbench.RandomEventGenerator;
+import com.datatorrent.samples.lib.math.RandomKeyValMap;
 
 /**
- *  This sample application code for showing sample usage of malhar operator(s). <br>
- * <b>Operator : </b> Change <br>
- * <bClass : </b> com.datatorrent.lib.math.Change
- *
+ * This sample application code for showing sample usage of malhar operator(s). <br>
+ * <b>Operator : </b> AverageMap <br>
+ * <bClass : </b> com.datatorrent.lib.math.AverageMap
  *
  */
-public class ChangeSample implements StreamingApplication
+public class BottomNMapSample implements StreamingApplication
 {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void populateDAG(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-		dag.setAttribute(DAG.APPLICATION_NAME, "ChangeSample");
-		dag.setAttribute(DAG.DEBUG, true);
+		dag.setAttribute(DAG.APPLICATION_NAME, "BottomNMapSample");
+		//dag.setAttribute(DAG.DEBUG, true);
 
 		// Add random integer generator operator
-		RandomEventGenerator rand = dag.addOperator("rand",
-				RandomEventGenerator.class);
-		rand.setMaxvalue(999999999);
-		rand.setTuplesBlast(10);
-		rand.setTuplesBlastIntervalMillis(1000);
-		RandomEventGenerator rand1 = dag.addOperator("rand1",
-				RandomEventGenerator.class);
-		rand.setTuplesBlast(1);
-		rand.setTuplesBlastIntervalMillis(5000);
+		RandomKeyValMap rand = dag.addOperator("rand", RandomKeyValMap.class);
 
-		// append change operator
-		Change<Integer> change = dag.addOperator("change", Change.class);
-		dag.addStream("stream", rand1.integer_data, change.base);
-		dag.addStream("stream1", rand.integer_data, change.data);
+		BottomNMap<String, Integer> bottomn = dag.addOperator("average",	BottomNMap.class);
+		bottomn.setN(5);
+		dag.addStream("stream1", rand.outport, bottomn.data);
+		dag.getMeta(bottomn).getAttributes()
+				.attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(100);
 
 		// Connect to output console operator
 		ConsoleOutputOperator console = dag.addOperator("console",
 				new ConsoleOutputOperator());
-		dag.addStream("consoleout", change.percent, console.input);
+		dag.addStream("consolestream", bottomn.bottom, console.input);
 
 		// done
 	}
-
 }

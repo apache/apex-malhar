@@ -15,8 +15,9 @@
  */
 
 /**
- * <b>com.datatorrent.lib.samplecode.io</b> is a library samples of usages of operators from io library<p>
+ * <b>com.datatorrent.lib.samplecode.algo</b> is a library of examples of usage of algorithmic operators<p>
+ * <br>
  * <br>
  */
 
-package com.datatorrent.lib.samplecode.io;
+package com.datatorrent.samples.lib.algo;

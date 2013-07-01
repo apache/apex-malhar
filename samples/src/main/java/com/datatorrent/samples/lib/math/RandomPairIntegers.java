@@ -13,26 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.samplecode.math;
+package com.datatorrent.samples.lib.math;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.common.util.Pair;
 
 /**
- * Input port operator for generating random values on key, tuples are HashMap for key/values.<br>
- * Key(s) : key1, key2, key3, key4, key5. <br>
+ * Input port operator for generating random values Pair for sample application.
  * 
  */
-public class RandomKeyValMap implements InputOperator
+public class RandomPairIntegers implements InputOperator
 {
 
-	public final transient DefaultOutputPort<Map<String, Integer>> outport = new DefaultOutputPort<Map<String, Integer>>();
+	public final transient DefaultOutputPort<Pair<Integer, Integer>> outport = new DefaultOutputPort<Pair<Integer, Integer>>();
 	private Random random = new Random(11111);
+	private boolean equal = false;
 
 	@Override
 	public void beginWindow(long windowId)
@@ -65,16 +64,17 @@ public class RandomKeyValMap implements InputOperator
 	@Override
 	public void emitTuples()
 	{
-		HashMap<String, Integer> map = new HashMap<String, Integer>();
-		Integer val = new Integer(Math.abs(random.nextInt()) % 100);
-		Integer val1 = new Integer(Math.abs(random.nextInt()) % 100);
-		map.put(val.toString(), val1);
-		outport.emit(map);
-		try
+		if (equal)
 		{
-			Thread.sleep(500);
-		} catch(Exception e) {
+			int val = random.nextInt();
+			outport.emit(new Pair<Integer, Integer>(new Integer(val),
+					new Integer(val)));
+		} else
+		{
+			outport.emit(new Pair<Integer, Integer>(new Integer(random.nextInt()),
+					new Integer(random.nextInt())));
 		}
+		equal = !equal;
 	}
 
 }

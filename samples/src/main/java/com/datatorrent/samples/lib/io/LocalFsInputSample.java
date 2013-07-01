@@ -13,46 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.samplecode.algo;
+package com.datatorrent.samples.lib.io;
 
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.algo.BottomNMap;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.samplecode.math.RandomKeyValMap;
+import com.datatorrent.lib.io.LocalFsInputOperator;
 
 /**
  * This sample application code for showing sample usage of malhar operator(s). <br>
- * <b>Operator : </b> AverageMap <br>
- * <bClass : </b> com.datatorrent.lib.math.AverageMap
+ * <b>Operator : </b> AverageKeyVal <br>
+ * <bClass : </b> com.datatorrent.lib.math.AverageKeyVal
+ * This application reads local demo text file and relays text content to output console.
  *
  */
-public class BottomNMapSample implements StreamingApplication
+public class LocalFsInputSample implements StreamingApplication
 {
-	@SuppressWarnings("unchecked")
 	@Override
 	public void populateDAG(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-		dag.setAttribute(DAG.APPLICATION_NAME, "BottomNMapSample");
-		//dag.setAttribute(DAG.DEBUG, true);
+		dag.setAttribute(DAG.APPLICATION_NAME, "MobileDevApplication");
+		dag.setAttribute(DAG.DEBUG, true);
 
 		// Add random integer generator operator
-		RandomKeyValMap rand = dag.addOperator("rand", RandomKeyValMap.class);
-
-		BottomNMap<String, Integer> bottomn = dag.addOperator("average",	BottomNMap.class);
-		bottomn.setN(5);
-		dag.addStream("stream1", rand.outport, bottomn.data);
-		dag.getMeta(bottomn).getAttributes()
-				.attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(100);
+		LocalFsInputOperator reader = dag.addOperator("reader",
+				LocalFsInputOperator.class);
+		reader
+				.setFilePath("src/main/resources/com/datatorrent/demos/wordcount/samplefile.txt");
+		reader.setSleepInterval(1000);
 
 		// Connect to output console operator
 		ConsoleOutputOperator console = dag.addOperator("console",
 				new ConsoleOutputOperator());
-		dag.addStream("consolestream", bottomn.bottom, console.input);
+		dag.addStream("outstream", reader.outport, console.input);
 
 		// done
 	}

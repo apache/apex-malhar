@@ -13,23 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.samplecode.math;
+package com.datatorrent.samples.lib.math;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.util.KeyValPair;
+
 /**
- * Input port operator for generating random values on keys. <br>
- * Key(s) : key1, key2, key3, key4, key5. <br>
+ * Input operator to generate hash map on single value, required for sample Script operator application.
  * 
+ *
  */
-public class CountKeyValues implements InputOperator
+public class SingleKeyValMap implements InputOperator
 {
 
-	public final transient DefaultOutputPort<KeyValPair<String, Integer>> outport = new DefaultOutputPort<KeyValPair<String, Integer>>();
+	public final transient DefaultOutputPort<Map<String, Object>> outport = new DefaultOutputPort<Map<String, Object>>();
 	private Random random = new Random(11111);
 
 	@Override
@@ -63,11 +65,9 @@ public class CountKeyValues implements InputOperator
 	@Override
 	public void emitTuples()
 	{
-		outport.emit(new KeyValPair<String, Integer>("key1", getNextInt()));
-		outport.emit(new KeyValPair<String, Integer>("key2", getNextInt()));
-		outport.emit(new KeyValPair<String, Integer>("key3", getNextInt()));
-		outport.emit(new KeyValPair<String, Integer>("key4", getNextInt()));
-		outport.emit(new KeyValPair<String, Integer>("key5", getNextInt()));
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		map.put("val", random.nextInt());
+		outport.emit(map);
 		try
 		{
 			Thread.sleep(500);
@@ -76,9 +76,4 @@ public class CountKeyValues implements InputOperator
 		}
 	}
 
-	private int getNextInt()
-	{
-		int value = Math.abs(random.nextInt()) % 100;
-		return value;
-	}
 }
