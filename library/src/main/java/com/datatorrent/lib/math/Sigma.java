@@ -58,7 +58,7 @@ import java.util.Collection;
  *
  * @param <T>
  */
-public class Sigma<T extends Number> extends AggregateAbstractCalculus<T>
+public class Sigma<T extends Number> extends AbstractAggregateCalc<T>
 {
   @Override
   public long aggregateLongs(Collection<T> collection)
