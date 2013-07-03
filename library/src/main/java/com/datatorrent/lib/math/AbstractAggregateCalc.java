@@ -95,7 +95,7 @@ import java.util.Collection;
  * @param <T>
  */
 public abstract class AbstractAggregateCalc<T extends Number> extends
-		AbstractOutports
+		AbstractOutput
 {
 	/**
 	 * Input port, accepts collection of values of type 'T'.

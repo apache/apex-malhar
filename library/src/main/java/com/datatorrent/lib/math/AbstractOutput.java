@@ -23,7 +23,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  *  Abstract base operator defining optional double/float/long/integer output ports.  <br>
  *  Duplicate port declaration in operators. <br>
  */
-public abstract class AbstractOutports extends BaseOperator
+public abstract class AbstractOutput extends BaseOperator
 {
 	/**
 	 * Double type output.

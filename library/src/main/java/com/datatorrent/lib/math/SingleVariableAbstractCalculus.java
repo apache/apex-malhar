@@ -57,7 +57,7 @@ import com.datatorrent.api.DefaultInputPort;
  * <br>
  *
  */
-public abstract class SingleVariableAbstractCalculus extends AbstractOutports
+public abstract class SingleVariableAbstractCalculus extends AbstractOutput
 {
   public final transient DefaultInputPort<Number> input = new DefaultInputPort<Number>()
   {
