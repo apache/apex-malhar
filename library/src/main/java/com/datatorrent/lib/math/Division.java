@@ -15,18 +15,21 @@
  */
 package com.datatorrent.lib.math;
 
+import java.util.ArrayList;
+
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.util.HighLow;
-import java.util.ArrayList;
 
 /**
  *
  * A division operation is done on consecutive tuples on ports numerator and denominator. The operator is idempotent as the division is done
  * in order, i.e. the first number on denominator port would divide the first number on the numerator port.<p>
  * This is a pass through operator<br>
+ * <br>
+ * StateFull : No, quotient is calculated in current window.
+ * Partitions : Yes, since each denominator and numerator are treated indiviually.
  * <p>
  * <b>Ports</b>:<br>
  * <b>numerator</b>: expects Number<br>
@@ -41,45 +44,27 @@ import java.util.ArrayList;
  * <b>floatRemainder</b>: emits Float<br>
  * <b>errordata</b>: emits String<br>
  * <br>
- * <b>Properties</b>: None<br>
- * <b>Compile time checks</b>: None<br>
- * <b>Run time checks</b>: None<br>
- * <p>
- * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for Division operator template">
- * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>&gt; 8 Million pairs/s</b></td><td>1 tuple per incoming tuple per connected port</td><td>In-bound rate and network i/o</td></tr>
- * </table><br>
- * <p>
- * <b>Function Table</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for Division operator template">
- * <tr><th rowspan=2>Tuple Type (api)</th><th colspan=2>In-bound (process)</th><th colspan=9>Out-bound (emit)</th></tr>
- * <tr><th><i>numerator</i></th><th><i>denominator</i></th>
- * <th><i>longQuotient</i></th><th><i>integerQuotient</i></th><th><i>doubleQuotient</i></th><th><i>floatQuotient</i></th>
- * <th><i>longRemainder</i></th><th><i>integerRemainder</i></th><th><i>doubleRemainder</i></th><th><i>floatRemainder</i></th>
- * <th><i>errordata</i></th></tr>
- * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td>
- * <td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td>
- * <td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td>
- * <td>N/A</td></tr>
- * <tr><td>Data (process())</td><td>11</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td></td><td>5</td><td>2</td><td>2</td><td>2.2</td><td>2.2</td><td>1</td><td>1</td><td>1.0</td><td>1.0</td><td></td></tr>
- * <tr><td>Data (process())</td><td>12</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>15</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>16</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td></td><td>5</td><td>2</td><td>2</td><td>2.3</td><td>2.3</td><td>2</td><td>2</td><td>2.0</td><td>2.0</td><td></td></tr>
- * <tr><td>Data (process())</td><td></td><td>6</td><td>2</td><td>2</td><td>2.5</td><td>2.5</td><td>3</td><td>3</td><td>3.0</td><td>3.0</td><td></td></tr>
- * <tr><td>Data (process())</td><td></td><td>8</td><td>2</td><td>2</td><td>2.0</td><td>2.0</td><td>0</td><td>0</td><td>0.0</td><td>0.0</td><td></td></tr>
- * <tr><td>Data (process())</td><td></td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>"Error(0.0)"</td></tr>
- * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td>
- * <td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td>
- * <td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td>
- * <td>N/A</td></tr>
- * </table>
- * <br>
  */
 public class Division extends BaseOperator
 {
+	/**
+	 * Array to store numerator inputs during window.
+	 */
+  private ArrayList<Number> numer = new ArrayList<Number>();
+  
+  /**
+   * Array to store denominator input during window.
+   */
+  private ArrayList<Number> denom = new ArrayList<Number>();
+  
+  /**
+   * Number of pair processed in current window.
+   */
+  private int index = 0;
+  
+  /**
+   * Numerator input port.
+   */
   public final transient DefaultInputPort<Number> numerator = new DefaultInputPort<Number>()
   {
     @Override
@@ -97,6 +82,9 @@ public class Division extends BaseOperator
     }
   };
 
+  /**
+   * Denominator input port.
+   */
   public final transient DefaultInputPort<Number> denominator = new DefaultInputPort<Number>()
   {
     @Override
@@ -193,9 +181,4 @@ public class Division extends BaseOperator
     denom.clear();
     index = 0;
   }
-
-
-  private ArrayList<Number> numer = new ArrayList<Number>();
-  private ArrayList<Number> denom = new ArrayList<Number>();
-  private int index = 0;
 }
