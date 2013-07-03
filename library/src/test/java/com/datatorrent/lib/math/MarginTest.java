@@ -15,15 +15,12 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.lib.math.Margin;
+import junit.framework.Assert;
+
+import org.junit.Test;
+
 import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 
-import java.util.HashMap;
-import java.util.Map;
-import junit.framework.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -32,13 +29,10 @@ import org.slf4j.LoggerFactory;
  */
 public class MarginTest
 {
-  private static Logger LOG = LoggerFactory.getLogger(MarginTest.class);
-
   /**
    * Test node logic emits correct results
    */
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
     testNodeProcessingSchema(new Margin<Integer>());
@@ -48,7 +42,8 @@ public class MarginTest
     testNodeProcessingSchema(new Margin<Long>());
   }
 
-  public void testNodeProcessingSchema(Margin oper)
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+	public void testNodeProcessingSchema(Margin oper)
   {
     CountAndLastTupleTestSink marginSink = new CountAndLastTupleTestSink();
 

@@ -20,8 +20,6 @@ import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 
 import junit.framework.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -30,12 +28,11 @@ import org.slf4j.LoggerFactory;
  */
 public class MinTest
 {
-  private static Logger log = LoggerFactory.getLogger(MinTest.class);
-
   /**
    * Test oper logic emits correct results
    */
-  @Test
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test
   public void testNodeSchemaProcessing()
   {
     Min<Double> oper = new Min<Double>();

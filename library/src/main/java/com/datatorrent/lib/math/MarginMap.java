@@ -41,38 +41,6 @@ import org.apache.commons.lang.mutable.MutableDouble;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
- * <b>Specific compile time checks</b>: None<br>
- * <b>Specific run time checks</b>: None<br>
- * <p>
- * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for MarginMap&lt;K,V extends Number&gt; operator template">
- * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>40 Million K,V pairs/s</b></td><td>One tuple per key per window per port</td><td>In-bound rate is the main determinant of performance. Tuples are assumed to be
- * immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
- * </table><br>
- * <p>
- * <b>Function Table (K=String, V=Integer) and percent set to true</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for MarginMap&lt;K,V extends Number&gt; operator template">
- * <tr><th rowspan=2>Tuple Type (api)</th><th colspan=2>In-bound (process)</th><th>Out-bound (emit)</th></tr>
- * <tr><th><i>numerator</i>(Map&lt;K,V&gt;)</th><th><i>denominator</i>(Map&lt;K,V&gt;)</th><th><i>margin</i>(HashMap&lt;K,Double&gt;)</th></tr>
- * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
- * <tr><td>Data (process())</td><td></td><td>{a=2,a=8}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{a=2,b=20,c=4000}</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>{a=1}</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>{a=10,b=5}</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=55,b=12}</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td></td><td>{c=500,d=282}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=22}</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=14}</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td></td><td>{b=7,e=3}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=46,e=2}</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=4,a=23,g=5,h=44}</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td></td><td>{c=1500}</td><td></td></tr>
- * <tr><td>Data (process())</td><td></td><td>{a=40,b=30}</td><td></td></tr>
- * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td><td>{a=28,b=0,c=-100,d=50,e=33.3}</td></tr>
- * </table>
- * <br>
- * <br>
  */
 public class MarginMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
 {

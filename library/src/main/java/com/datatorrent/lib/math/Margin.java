@@ -18,119 +18,119 @@ package com.datatorrent.lib.math;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseNumberValueOperator;
 
 /**
- *
- *
- * Adds all values for each key in "numerator" and "denominator", and at the end of window emits the margin as
- * (1 - numerator/denominator).<p>
- * The values are added for each key within the window and for each stream.<br>
+ * <p>
+ * Operator sums numerator and denominator value arriving at input ports. <br>
+ * Margin Formula : (1 - numerator/denominator). <br>
+ * If percent flag is set than margin is emitted as percentage. <br>
+ * <br>
+ * StateFull : Yes, numerator and denominator are summed for application
+ * windows. <br>
+ * Partitions : No, will yield worng margin result, no unifier on output port. <br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>numerator</b>: expects V extends Number<br>
  * <b>denominator</b>: expects V extends Number<br>
  * <b>margin</b>: emits Double<br>
  * <br>
- * <b>Specific compile time checks</b>: None<br>
- * <b>Specific run time checks</b>: None<br>
- * <p>
- * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for Margin&lt;V extends Number&gt; operator template">
- * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>&gt; 500 Million tuples/s</b></td><td>One Double tuple per window</td><td>In-bound rate is the main determinant of performance. Tuples are assumed to be
- * immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
- * </table><br>
- * <p>
- * <b>Function Table (V=Integer)</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for Margin&lt;V extends Number&gt; operator template">
- * <tr><th rowspan=2>Tuple Type (api)</th><th colspan=2>In-bound (process)</th><th>Out-bound (emit)</th></tr>
- * <tr><th><i>numerator</i>(V)</th><th><i>denominator</i>(V)</th><th><i>margin</i>(V)</th></tr>
- * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
- * <tr><td>Data (process())</td><td></td><td>28</td><td></td></tr>
- * <tr><td>Data (process())</td><td>2</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>1000</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>14</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>10</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>52</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>22</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>14</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>2</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td></td><td>1122</td><td></td></tr>
- * <tr><td>Data (process())</td><td>4</td><td></td><td></td></tr>
- * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td><td>2.60869</td></tr>
- * </table>
+ * <b>Properties:<b>
  * <br>
- *
- * <br>
+ * <b>percent: </b>  output margin as percentage value. 
  */
 public class Margin<V extends Number> extends BaseNumberValueOperator<V>
 {
-  @InputPortFieldAnnotation(name = "numerator")
-  public final transient DefaultInputPort<V> numerator = new DefaultInputPort<V>()
-  {
-    /**
-     * Adds to the numerator value
-     */
-    @Override
-    public void process(V tuple)
-    {
-      nval += tuple.doubleValue();
-    }
-  };
-  @InputPortFieldAnnotation(name = "denominator")
-  public final transient DefaultInputPort<V> denominator = new DefaultInputPort<V>()
-  {
-    /**
-     * Adds to the denominator value
-     */
-    @Override
-    public void process(V tuple)
-    {
-      dval += tuple.doubleValue();
-    }
-  };
-  @InputPortFieldAnnotation(name = "margin")
-  public final transient DefaultOutputPort<V> margin = new DefaultOutputPort<V>();
-  protected double nval = 0.0;
-  protected double dval = 0.0;
+	/**
+	 * Sum of numerator values.
+	 */
+	protected double nval = 0.0;
 
-  boolean percent = false;
+	/**
+	 * sum of denominator values.
+	 */
+	protected double dval = 0.0;
 
-  /**
-   * getter function for percent
-   * @return percent
-   */
-  public boolean getPercent()
-  {
-    return percent;
-  }
+	/**
+	 * Flag to output margin as percentage.
+	 */
+	protected boolean percent = false;
 
-  /**
-   * setter function for percent
-   * @param val sets percent
-   */
-  public void setPercent(boolean val)
-  {
-    percent = val;
-  }
+	/**
+	 * Numerator input port.
+	 */
+	@InputPortFieldAnnotation(name = "numerator")
+	public final transient DefaultInputPort<V> numerator = new DefaultInputPort<V>()
+	{
+		/**
+		 * Adds to the numerator value
+		 */
+		@Override
+		public void process(V tuple)
+		{
+			nval += tuple.doubleValue();
+		}
+	};
 
-  /**
-   * Generates tuple emits it as long as denomitor is not 0
-   * Clears internal data
-   */
-  @Override
-  public void endWindow()
-  {
-    if (dval == 0) {
-      return;
-    }
-    double val = 1 - (nval / dval);
-    if (percent) {
-      val = val * 100;
-    }
-    margin.emit(getValue(val));
-    nval = 0.0;
-    dval = 0.0;
-  }
+	/**
+	 * Denominator input port.
+	 */
+	@InputPortFieldAnnotation(name = "denominator")
+	public final transient DefaultInputPort<V> denominator = new DefaultInputPort<V>()
+	{
+		/**
+		 * Adds to the denominator value
+		 */
+		@Override
+		public void process(V tuple)
+		{
+			dval += tuple.doubleValue();
+		}
+	};
+
+	/**
+	 * Output margin port.
+	 */
+	@OutputPortFieldAnnotation(name = "margin")
+	public final transient DefaultOutputPort<V> margin = new DefaultOutputPort<V>();
+
+	/**
+	 * getter function for percent
+	 * 
+	 * @return percent
+	 */
+	public boolean getPercent()
+	{
+		return percent;
+	}
+
+	/**
+	 * setter function for percent
+	 * 
+	 * @param val
+	 *          sets percent
+	 */
+	public void setPercent(boolean val)
+	{
+		percent = val;
+	}
+
+	/**
+	 * Generates tuple emits it as long as denomitor is not 0 Clears internal data
+	 */
+	@Override
+	public void endWindow()
+	{
+		if (dval == 0) {
+			return;
+		}
+		double val = 1 - (nval / dval);
+		if (percent) {
+			val = val * 100;
+		}
+		margin.emit(getValue(val));
+		nval = 0.0;
+		dval = 0.0;
+	}
 }

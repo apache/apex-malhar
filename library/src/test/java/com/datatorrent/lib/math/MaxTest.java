@@ -15,22 +15,17 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.engine.TestSink;
-import com.datatorrent.lib.math.Max;
 import junit.framework.Assert;
+
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.datatorrent.engine.TestSink;
 
 /**
- *
- * Functional tests for {@link com.datatorrent.lib.math.Max}. <p>
- *
+ * Functional tests for {@link com.datatorrent.lib.math.Max}. 
  */
 public class MaxTest
 {
-  private static Logger LOG = LoggerFactory.getLogger(MaxTest.class);
-
   /**
    * Test operator logic emits correct results.
    */
