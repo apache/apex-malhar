@@ -15,15 +15,14 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.lib.math.ExceptStringMap;
-import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
-
 import java.util.HashMap;
 import java.util.Map;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 
 /**
  *
@@ -32,17 +31,16 @@ import org.slf4j.LoggerFactory;
  */
 public class ExceptStringMapTest
 {
-  private static Logger LOG = LoggerFactory.getLogger(ExceptStringMapTest.class);
-
   /**
    * Test node logic emits correct results
    */
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
+  @SuppressWarnings({ "unchecked" })
   public void testNodeProcessingSchema()
   {
     ExceptStringMap<String> oper = new ExceptStringMap<String>();
-    CountAndLastTupleTestSink exceptSink = new CountAndLastTupleTestSink();
+    @SuppressWarnings("rawtypes")
+		CountAndLastTupleTestSink exceptSink = new CountAndLastTupleTestSink();
     oper.except.setSink(exceptSink);
     oper.setKey("a");
     oper.setValue(3.0);
