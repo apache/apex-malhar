@@ -36,6 +36,17 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  */
 public class Min<V extends Number> extends BaseNumberValueOperator<V> implements Unifier<V>
 {
+	/**
+	 * Computed low value.
+	 */
+  protected V low;
+  
+  // transient field
+  protected boolean flag = false;
+  
+	/**
+	 * Input port.
+	 */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
   {
@@ -49,6 +60,9 @@ public class Min<V extends Number> extends BaseNumberValueOperator<V> implements
     }
   };
 
+  /**
+   * Unifier process function.
+   */
   @Override
   public void process(V tuple)
   {
@@ -61,6 +75,9 @@ public class Min<V extends Number> extends BaseNumberValueOperator<V> implements
     }
   }
 
+  /**
+   * Min output port.
+   */
   @OutputPortFieldAnnotation(name = "min")
   public final transient DefaultOutputPort<V> min = new DefaultOutputPort<V>()
   {
@@ -70,9 +87,6 @@ public class Min<V extends Number> extends BaseNumberValueOperator<V> implements
       return Min.this;
     }
   };
-
-  protected V low;
-  protected boolean flag = false;
 
   /**
    * Emits the max. Override getValue if tuple type is mutable.
