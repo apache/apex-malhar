@@ -15,9 +15,9 @@
  */
 package com.datatorrent.lib.logs;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.logs.ApacheLogParseOperator;
 import com.datatorrent.lib.testbench.ArrayListTestSink;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,12 +43,12 @@ public class ApacheLogParseOperatorTest
   {
 
     ApacheLogParseOperator oper = new ApacheLogParseOperator();
-    TestSink ipSink = new TestSink();
-    TestSink urlSink = new TestSink();
-    TestSink scSink = new TestSink();
-    TestSink bytesSink = new TestSink();
-    TestSink refSink = new TestSink();
-    TestSink agentSink = new TestSink();
+    CollectorTestSink ipSink = new CollectorTestSink();
+    CollectorTestSink urlSink = new CollectorTestSink();
+    CollectorTestSink scSink = new CollectorTestSink();
+    CollectorTestSink bytesSink = new CollectorTestSink();
+    CollectorTestSink refSink = new CollectorTestSink();
+    CollectorTestSink agentSink = new CollectorTestSink();
 
     oper.outputIPAddress.setSink(ipSink);
     oper.outputUrl.setSink(urlSink);

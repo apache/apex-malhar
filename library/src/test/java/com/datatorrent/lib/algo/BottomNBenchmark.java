@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.BottomNMap;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class BottomNBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     testNodeProcessingSchema(new BottomNMap<String, Integer>());
@@ -50,7 +50,7 @@ public class BottomNBenchmark
 
   public void testNodeProcessingSchema(BottomNMap oper)
   {
-    TestSink sortSink = new TestSink();
+    CollectorTestSink sortSink = new CollectorTestSink();
     oper.bottom.setSink(sortSink);
     oper.setN(3);
 

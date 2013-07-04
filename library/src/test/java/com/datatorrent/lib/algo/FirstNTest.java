@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.FirstN;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
@@ -48,7 +48,7 @@ public class FirstNTest
 
   public void testNodeProcessingSchema(FirstN oper)
   {
-    TestSink sortSink = new TestSink();
+    CollectorTestSink sortSink = new CollectorTestSink();
     oper.first.setSink(sortSink);
     oper.setN(3);
 

@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.MostFrequentKeyValueMap;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
@@ -39,11 +39,11 @@ public class MostFrequentKeyValueMapBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     MostFrequentKeyValueMap<String, Integer> oper = new MostFrequentKeyValueMap<String, Integer>();
-    TestSink matchSink = new TestSink();
+    CollectorTestSink matchSink = new CollectorTestSink();
     oper.most.setSink(matchSink);
 
     oper.beginWindow(0);

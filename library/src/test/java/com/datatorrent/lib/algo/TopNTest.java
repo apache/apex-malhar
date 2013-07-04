@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.TopN;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,7 +51,7 @@ public class TopNTest
 
   public void testNodeProcessingSchema(TopN oper)
   {
-    TestSink sortSink = new TestSink();
+    CollectorTestSink sortSink = new CollectorTestSink();
     oper.top.setSink(sortSink);
     oper.setN(3);
 

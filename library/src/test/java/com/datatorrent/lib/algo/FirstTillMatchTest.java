@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.FirstTillMatch;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import junit.framework.Assert;
@@ -50,7 +50,7 @@ public class FirstTillMatchTest
   @SuppressWarnings( {"unchecked", "unchecked"})
   public void testNodeProcessingSchema(FirstTillMatch oper)
   {
-    TestSink matchSink = new TestSink();
+    CollectorTestSink matchSink = new CollectorTestSink();
     oper.first.setSink(matchSink);
     oper.setKey("a");
     oper.setValue(3);

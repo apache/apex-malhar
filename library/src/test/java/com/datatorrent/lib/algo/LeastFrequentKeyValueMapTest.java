@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.LeastFrequentKeyValueMap;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
@@ -41,7 +41,7 @@ public class LeastFrequentKeyValueMapTest
   public void testNodeProcessing() throws Exception
   {
     LeastFrequentKeyValueMap<String, Integer> oper = new LeastFrequentKeyValueMap<String, Integer>();
-    TestSink matchSink = new TestSink();
+    CollectorTestSink matchSink = new CollectorTestSink();
     oper.least.setSink(matchSink);
 
     oper.beginWindow(0);

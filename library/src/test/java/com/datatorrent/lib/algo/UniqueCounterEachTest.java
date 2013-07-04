@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.UniqueCounterEach;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import junit.framework.Assert;
@@ -41,7 +41,7 @@ public class UniqueCounterEachTest
   public void testNodeProcessing() throws Exception
   {
     UniqueCounterEach<String> oper = new UniqueCounterEach<String>();
-    TestSink sink = new TestSink();
+    CollectorTestSink sink = new CollectorTestSink();
     oper.count.setSink(sink);
 
     String atuple = "a";

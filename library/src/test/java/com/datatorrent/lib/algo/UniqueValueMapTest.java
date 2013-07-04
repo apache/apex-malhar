@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.UniqueValueMap;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
 import java.util.HashMap;
 import junit.framework.Assert;
@@ -41,7 +41,7 @@ public class UniqueValueMapTest
   public void testNodeProcessing() throws Exception
   {
     UniqueValueMap<String> oper = new UniqueValueMap<String>();
-    TestSink sink = new TestSink();
+    CollectorTestSink sink = new CollectorTestSink();
     oper.count.setSink(sink);
 
     HashMap<String, Integer> h1 = new HashMap<String, Integer>();

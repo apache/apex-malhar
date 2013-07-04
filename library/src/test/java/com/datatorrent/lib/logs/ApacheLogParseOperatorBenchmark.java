@@ -15,7 +15,6 @@
  */
 package com.datatorrent.lib.logs;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.logs.ApacheLogParseOperator;
 import com.datatorrent.lib.testbench.ArrayListTestSink;
 import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
@@ -43,7 +42,7 @@ public class ApacheLogParseOperatorBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing()
   {
     ApacheLogParseOperator oper = new ApacheLogParseOperator();

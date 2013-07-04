@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.FilterValues;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.ArrayList;
 import java.util.List;
 import junit.framework.Assert;
@@ -48,7 +48,7 @@ public class FilterValuesTest
   {
     FilterValues<Integer> oper = new FilterValues<Integer>();
 
-    TestSink sortSink = new TestSink();
+    CollectorTestSink sortSink = new CollectorTestSink();
     oper.filter.setSink(sortSink);
     Integer [] values = new Integer[2];
     oper.setValue(5);

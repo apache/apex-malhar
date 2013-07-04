@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.InsertSortDesc;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +49,7 @@ public class InsertSortDescBenchmark
   public void testNodeProcessingSchema(InsertSortDesc oper, String debug)
   {
     //FirstN<String,Float> aoper = new FirstN<String,Float>();
-    TestSink sortSink = new TestSink();
+    CollectorTestSink sortSink = new CollectorTestSink();
     oper.sort.setSink(sortSink);
     ArrayList input = new ArrayList();
 

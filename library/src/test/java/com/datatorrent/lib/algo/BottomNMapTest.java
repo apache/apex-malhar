@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.BottomNMap;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,7 +50,7 @@ public class BottomNMapTest
 
   public void testNodeProcessingSchema(BottomNMap oper)
   {
-    TestSink sortSink = new TestSink();
+    CollectorTestSink sortSink = new CollectorTestSink();
     oper.bottom.setSink(sortSink);
     oper.setN(3);
 

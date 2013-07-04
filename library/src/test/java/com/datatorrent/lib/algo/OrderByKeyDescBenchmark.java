@@ -15,7 +15,6 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.OrderByKeyDesc;
 import com.datatorrent.lib.testbench.CountTestSink;
 import java.util.ArrayList;
@@ -39,7 +38,7 @@ public class OrderByKeyDescBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     OrderByKeyDesc<String, Integer> oper = new OrderByKeyDesc<String, Integer>();

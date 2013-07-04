@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.MergeSort;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.ArrayList;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -47,7 +47,7 @@ public class MergeSortBenchmark
   public void testNodeProcessingSchema(MergeSort oper, String debug)
   {
     //FirstN<String,Float> aoper = new FirstN<String,Float>();
-    TestSink sortSink = new TestSink();
+    CollectorTestSink sortSink = new CollectorTestSink();
     oper.sort.setSink(sortSink);
     ArrayList input = new ArrayList();
 

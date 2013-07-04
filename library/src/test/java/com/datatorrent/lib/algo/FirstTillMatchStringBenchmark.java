@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.FirstTillMatchString;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import junit.framework.Assert;
@@ -39,11 +39,11 @@ public class FirstTillMatchStringBenchmark
    */
   @Test
   @SuppressWarnings( {"SleepWhileInLoop", "unchecked"})
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     FirstTillMatchString<String> oper = new FirstTillMatchString<String>();
-    TestSink matchSink = new TestSink();
+    CollectorTestSink matchSink = new CollectorTestSink();
     oper.first.setSink(matchSink);
     oper.setKey("a");
     oper.setValue(3);

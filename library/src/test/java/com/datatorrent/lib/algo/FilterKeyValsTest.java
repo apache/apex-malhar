@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.FilterKeyVals;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,7 +52,7 @@ public class FilterKeyValsTest
   {
     FilterKeyVals<String,Number> oper = new FilterKeyVals<String,Number>();
 
-    TestSink sortSink = new TestSink();
+    CollectorTestSink sortSink = new CollectorTestSink();
     oper.filter.setSink(sortSink);
     HashMap<String,Number> filter = new HashMap<String,Number>();
     filter.put("b",2);

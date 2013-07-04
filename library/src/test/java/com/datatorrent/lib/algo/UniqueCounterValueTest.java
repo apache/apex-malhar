@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.UniqueCounterValue;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -39,7 +39,7 @@ public class UniqueCounterValueTest
   public void testNodeProcessing() throws Exception
   {
     UniqueCounterValue<String> oper = new UniqueCounterValue<String>();
-    TestSink sink = new TestSink();
+    CollectorTestSink sink = new CollectorTestSink();
     oper.count.setSink(sink);
 
     int numTuples = 1000;

@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.UniqueCounter;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,11 +39,11 @@ public class UniqueCounterEachBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     UniqueCounter<String> oper = new UniqueCounter<String>();
-    TestSink sink = new TestSink();
+    CollectorTestSink sink = new CollectorTestSink();
     oper.count.setSink(sink);
 
     String atuple = "a";

@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.io;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.io.LocalFsInputOperator;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import junit.framework.Assert;
 import org.junit.Test;
 
@@ -27,14 +27,14 @@ public class LocalFsInputOperatorTest
 {
 	// Sample text file path.
 	protected String fileName = "../demos/src/main/resources/com/datatorrent/demos/wordcount/samplefile.txt";
-	
+
 	@Test
 	public void testFileRead()
 	{
 		LocalFsInputOperator oper = new LocalFsInputOperator();
 		oper.setFilePath(fileName);
 		oper.setup(null);
-		TestSink sink = new TestSink();
+		CollectorTestSink sink = new CollectorTestSink();
 		oper.outport.setSink(sink);
 		for(int i=0; i < 1000; i++) oper.emitTuples();
 		Assert.assertTrue("tuple emmitted", sink.collectedTuples.size() > 0);

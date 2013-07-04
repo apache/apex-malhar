@@ -18,8 +18,8 @@ package com.datatorrent.lib.io;
 import junit.framework.Assert;
 import org.junit.Test;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.io.ApacheGenRandomLogs;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  * Unit test for emit tuples.
@@ -30,10 +30,10 @@ public class ApacheRandomLogsTest
 	public void test()
 	{
 		ApacheGenRandomLogs oper = new ApacheGenRandomLogs();
-		TestSink sink = new TestSink();
+		CollectorTestSink sink = new CollectorTestSink();
 		oper.outport.setSink(sink);
 		oper.setup(null);
-		
+
 		Thread t = new EmitTuples(oper);
 		t.start();
 		try
@@ -46,7 +46,7 @@ public class ApacheRandomLogsTest
 		Assert.assertTrue("Tuples emitted", sink.collectedTuples.size() > 0);
 		System.out.println(sink.collectedTuples.size());
 	}
-	
+
 	private class EmitTuples extends Thread {
 		private ApacheGenRandomLogs oper;
 		public EmitTuples(ApacheGenRandomLogs oper)

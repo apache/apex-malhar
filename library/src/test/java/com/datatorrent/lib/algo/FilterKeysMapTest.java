@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.FilterKeysMap;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
@@ -48,7 +48,7 @@ public class FilterKeysMapTest
   {
     FilterKeysMap<String,Number> oper = new FilterKeysMap<String,Number>();
 
-    TestSink sortSink = new TestSink();
+    CollectorTestSink sortSink = new CollectorTestSink();
     oper.filter.setSink(sortSink);
     oper.setKey("b");
     oper.clearKeys();

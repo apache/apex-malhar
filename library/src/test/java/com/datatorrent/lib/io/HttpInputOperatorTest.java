@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.io;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.io.HttpInputOperator;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
@@ -84,7 +84,7 @@ public class HttpInputOperatorTest
 
     final HttpInputOperator operator = new HttpInputOperator();
 
-    TestSink sink = new TestSink();
+    CollectorTestSink sink = new CollectorTestSink();
 
     operator.outputPort.setSink(sink);
     operator.setName("testHttpInputNode");

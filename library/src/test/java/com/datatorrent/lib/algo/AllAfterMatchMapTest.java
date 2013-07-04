@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.AllAfterMatchMap;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
@@ -48,7 +48,7 @@ public class AllAfterMatchMapTest
 
   public void testNodeProcessingSchema(AllAfterMatchMap oper)
   {
-    TestSink allSink = new TestSink();
+    CollectorTestSink allSink = new CollectorTestSink();
     oper.allafter.setSink(allSink);
     oper.setKey("a");
     oper.setValue(3.0);

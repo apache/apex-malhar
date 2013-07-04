@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.UniqueKeyValCounterEach;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
@@ -39,11 +39,11 @@ public class UniqueKeyValCounterEachBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     UniqueKeyValCounterEach<String,Integer> oper = new UniqueKeyValCounterEach<String,Integer>();
-    TestSink sink = new TestSink();
+    CollectorTestSink sink = new CollectorTestSink();
     oper.count.setSink(sink);
 
     HashMap<String,Integer> a1tuple = new HashMap<String,Integer>(1);

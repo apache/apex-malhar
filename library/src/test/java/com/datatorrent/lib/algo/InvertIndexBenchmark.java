@@ -16,8 +16,8 @@
 package com.datatorrent.lib.algo;
 
 import com.datatorrent.api.Sink;
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.InvertIndex;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,11 +41,11 @@ public class InvertIndexBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     InvertIndex<String,String> oper = new InvertIndex<String,String>();
-    TestSink indexSink = new TestSink();
+    CollectorTestSink indexSink = new CollectorTestSink();
 
     Sink inSink = oper.data.getSink();
     oper.index.setSink(indexSink);

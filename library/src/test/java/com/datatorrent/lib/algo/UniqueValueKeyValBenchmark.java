@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.UniqueValueKeyVal;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -38,11 +38,11 @@ public class UniqueValueKeyValBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     UniqueValueKeyVal<String> oper = new UniqueValueKeyVal<String>();
-    TestSink sink = new TestSink();
+    CollectorTestSink sink = new CollectorTestSink();
     oper.count.setSink(sink);
 
     KeyValPair<String,Integer> atuple = new KeyValPair("a", 1);

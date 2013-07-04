@@ -16,8 +16,8 @@
 package com.datatorrent.lib.algo;
 
 import com.datatorrent.api.Sink;
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.InvertIndexArray;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +43,7 @@ public class InvertIndexArrayTest
   public void testNodeProcessing() throws Exception
   {
     InvertIndexArray<String,String> oper = new InvertIndexArray<String,String>();
-    TestSink indexSink = new TestSink();
+    CollectorTestSink indexSink = new CollectorTestSink();
 
     Sink inSink = oper.data.getSink();
     oper.index.setSink(indexSink);

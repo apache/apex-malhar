@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.OrderByKeyDesc;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import junit.framework.Assert;
@@ -40,8 +40,8 @@ public class OrderByKeyDescTest
   public void testNodeProcessing() throws Exception
   {
     OrderByKeyDesc<String, Integer> oper = new OrderByKeyDesc<String, Integer>();
-    TestSink countSink = new TestSink();
-    TestSink listSink = new TestSink();
+    CollectorTestSink countSink = new CollectorTestSink();
+    CollectorTestSink listSink = new CollectorTestSink();
     oper.ordered_count.setSink(countSink);
     oper.ordered_list.setSink(listSink);
     oper.setOrderby("a");

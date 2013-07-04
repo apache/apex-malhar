@@ -16,8 +16,8 @@
 package com.datatorrent.lib.io;
 
 import com.datatorrent.daemon.Daemon;
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.stram.util.SamplePubSubWebSocketPublisher;
 import java.net.URI;
 import java.util.Map;
@@ -38,7 +38,7 @@ public class PubSubWebSocketInputOperatorTest
 
     URI uri = new URI("ws://localhost:19090/pubsub");
     final PubSubWebSocketInputOperator operator = new PubSubWebSocketInputOperator();
-    TestSink sink = new TestSink();
+    CollectorTestSink sink = new CollectorTestSink();
 
     operator.outputPort.setSink(sink);
     operator.setName("testWebSocketInputNode");

@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.OrderByValue;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
@@ -38,12 +38,12 @@ public class OrderByValueBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     OrderByValue<String, Integer> oper = new OrderByValue<String, Integer>();
-    TestSink countSink = new TestSink();
-    TestSink listSink = new TestSink();
+    CollectorTestSink countSink = new CollectorTestSink();
+    CollectorTestSink listSink = new CollectorTestSink();
     oper.ordered_list.setSink(countSink);
     oper.ordered_count.setSink(listSink);
     String[] keys = new String[2];

@@ -22,11 +22,11 @@ import junit.framework.Assert;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.WindowedHolder;
 import com.datatorrent.lib.algo.WindowedTopCounter;
 import com.datatorrent.lib.codec.JavaSerializationStreamCodec;
 import com.datatorrent.common.util.Slice;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  *
@@ -85,7 +85,7 @@ public class WindowedHolderTest
     topCounts.setTopCount(10);
     topCounts.setSlidingWindowWidth(6, 1);
 
-    TestSink s = new TestSink();
+    CollectorTestSink s = new CollectorTestSink();
     topCounts.output.setSink(s);
 
     int windowId = 1;

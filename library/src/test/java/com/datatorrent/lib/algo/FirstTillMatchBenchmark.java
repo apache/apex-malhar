@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.algo.FirstTillMatch;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +40,7 @@ public class FirstTillMatchBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     testNodeProcessingSchema(new FirstTillMatch<String, Integer>());
@@ -53,7 +53,7 @@ public class FirstTillMatchBenchmark
   @SuppressWarnings("unchecked")
   public void testNodeProcessingSchema(FirstTillMatch oper)
   {
-    TestSink matchSink = new TestSink();
+    CollectorTestSink matchSink = new CollectorTestSink();
     oper.first.setSink(matchSink);
     oper.setKey("a");
     oper.setValue(3);
