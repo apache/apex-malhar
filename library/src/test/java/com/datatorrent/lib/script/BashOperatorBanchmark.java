@@ -16,11 +16,9 @@
 package com.datatorrent.lib.script;
 
 import com.datatorrent.engine.TestSink;
-import com.datatorrent.lib.algo.AllAfterMatchMapBenchmark;
 import com.datatorrent.lib.script.BashOperator;
 import java.util.HashMap;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,13 +29,12 @@ import org.slf4j.LoggerFactory;
  */
 public class BashOperatorBanchmark
 {
-	private static Logger log = LoggerFactory.getLogger(AllAfterMatchMapBenchmark.class);
+	private static Logger log = LoggerFactory.getLogger(BashOperatorBanchmark.class);
 
   /**
    * Test node logic emits correct results
    */
   @Test
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
 		// Create bash operator instance (calculate suqare).

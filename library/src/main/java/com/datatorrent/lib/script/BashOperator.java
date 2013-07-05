@@ -15,7 +15,6 @@
  */
 package com.datatorrent.lib.script;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -26,65 +25,72 @@ import bsh.Interpreter;
 import com.datatorrent.api.DefaultInputPort;
 
 /**
- * Operator to execute bash script on tuples 
- *
+ * Operator to execute bash script on tuples.
  */
 public class BashOperator extends ScriptBaseOperator
 {
+	/**
+	 * Input port, variable value map.
+	 */
+	public final transient DefaultInputPort<Map<String, Object>> inBindings = new DefaultInputPort<Map<String, Object>>()
+	{
+		/**
+		 * Execute bash script on incoming tuple.
+		 */
+		@Override
+		public void process(Map<String, Object> tuple)
+		{
+			tuple = executeCode(tuple);
+			BashOperator.this.setTuple(tuple);
+		}
 
-	public final transient DefaultInputPort<Map<String, Object>> inBindings = 
-			new DefaultInputPort<Map<String, Object>>()
-			{
-				@Override
-				public void process(Map<String, Object> tuple)
-				{
-					tuple = executeCode(tuple);
-					BashOperator.this.setTuple(tuple);
+		/**
+		 * Append variable initialize code to script and execute script in bash
+		 * interpretor.
+		 * 
+		 * @param tuple
+		 *          variable initial value map.
+		 * @return variable final value map
+		 */
+		private Map<String, Object> executeCode(Map<String, Object> tuple)
+		{
+			if ((scriptCode == null) || (scriptCode.length() == 0))
+				return tuple;
+			Interpreter interp = new Interpreter();
+			try {
+				// execute script in bash interpretor
+				StringBuilder builder = new StringBuilder();
+				for (Entry<String, Object> entry : tuple.entrySet()) {
+					String key = entry.getKey();
+					builder.append(key.replace('`', ' ')).append(" = ");
+					if (entry.getValue() instanceof String) {
+						builder.append("\"");
+						builder.append(entry.getValue());
+						builder.append("\"");
+					} else {
+						builder.append(entry.getValue().toString());
+					}
+					builder.append(";");
 				}
 
-				private Map<String, Object> executeCode(Map<String, Object> tuple)
-				{
-					if ((scriptCode == null)||(scriptCode.length() == 0)) return tuple;
-					Interpreter interp = new Interpreter(); 
-					try
-					{
-						// execute script in bash interpretor
-						StringBuilder builder = new StringBuilder();
-						for(Entry<String, Object> entry : tuple.entrySet())
-						{
-							String key = entry.getKey();
-							builder.append(key.replace('`', ' ')).append(" = ");
-							if (entry.getValue() instanceof String)
-							{
-								builder.append("\"");
-								builder.append(entry.getValue());
-								builder.append("\"");
-							} else {
-								builder.append(entry.getValue().toString());
-							}
-							builder.append(";");
-						}
+				builder.append(scriptCode);
+				interp.eval(builder.toString());
+			} catch (EvalError e) {
+				e.printStackTrace();
+			}
 
-						builder.append(scriptCode);
-						interp.eval(builder.toString());
-					} catch (EvalError e)	{
-						e.printStackTrace();
-					}
-					
-				  // return result 
-					HashMap<String, Object> result = new HashMap<String, Object>();
-					for(Entry<String, Object> entry : tuple.entrySet())
-					{
-						Object value;
-						try
-						{
-							value = interp.get(entry.getKey());
-							result.put(entry.getKey(), value);
-						} catch (EvalError e) {
-							e.printStackTrace();
-						}
-					}
-					return result;
+			// return result
+			HashMap<String, Object> result = new HashMap<String, Object>();
+			for (Entry<String, Object> entry : tuple.entrySet()) {
+				Object value;
+				try {
+					value = interp.get(entry.getKey());
+					result.put(entry.getKey(), value);
+				} catch (EvalError e) {
+					e.printStackTrace();
 				}
-			};
+			}
+			return result;
+		}
+	};
 }

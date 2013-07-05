@@ -23,10 +23,24 @@ import java.util.Map;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultOutputPort;
 
-public class ScriptBaseOperator extends BaseOperator implements ScriptOperator
+/**
+ * Abstract script operator, implementing common functions.
+ */
+public abstract class ScriptBaseOperator extends BaseOperator implements ScriptOperator
 {
+	/**
+	 * Pass thru flag, enables output.
+	 */
 	protected boolean isPassThru;
+	
+	/**
+	 * Script code for execution.
+	 */
 	protected String  scriptCode;
+	
+	/**
+	 * Variable value map.
+	 */
 	protected ArrayList<Map<String, Object>> tuples = new ArrayList<Map<String, Object>>();
 	
 	@Override

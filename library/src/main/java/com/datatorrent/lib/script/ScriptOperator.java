@@ -15,9 +15,23 @@
  */
 package com.datatorrent.lib.script;
 
+/**
+ * Interface for language script operator.
+ */
 public interface ScriptOperator
 {
+	/**
+	 * Operator must be set pass thru, for output results.
+	 */
 	public void setPassThru(boolean isPassThru);
+
+	/**
+	 * Set script code for execution.
+	 */
 	public void setScript(String script);
+
+	/**
+	 * Set script path for execution.
+	 */
 	public void setScriptPath(String path);
 }

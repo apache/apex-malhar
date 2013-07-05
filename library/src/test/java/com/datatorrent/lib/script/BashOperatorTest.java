@@ -23,12 +23,9 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import com.datatorrent.engine.TestSink;
-import com.datatorrent.lib.script.BashOperator;
 
 /**
- *
- * Functional tests for {@link com.datatorrent.lib.script.BashOperator}. <p>
- *
+ * Functional tests for {@link com.datatorrent.lib.script.BashOperator}.
  */
 public class BashOperatorTest
 {
@@ -43,7 +40,7 @@ public class BashOperatorTest
 		oper.setPassThru(true);
 		TestSink sink = new TestSink();
 		oper.result.setSink(sink);
-		
+
 		// Add input sample data.
 		HashMap<String, Object> tuple = new HashMap<String, Object>();
 		tuple.put("val", new Integer(2));
@@ -53,14 +50,13 @@ public class BashOperatorTest
 		oper.inBindings.process(tuple);
 		oper.endWindow();
 
-		// Validate value.   
-		Assert.assertEquals("number emitted tuples", 1, sink.collectedTuples.size());
-		for (Object o : sink.collectedTuples)
-		{ // count is 12
+		// Validate value.
+		Assert
+				.assertEquals("number emitted tuples", 1, sink.collectedTuples.size());
+		for (Object o : sink.collectedTuples) { // count is 12
 			@SuppressWarnings("unchecked")
 			Map<String, Object> val = (Map<String, Object>) o;
-			for (Map.Entry<String, Object> entry : val.entrySet())
-			{
+			for (Map.Entry<String, Object> entry : val.entrySet()) {
 				Assert.assertEquals("emitted average value was was ", new Integer(4),
 						(Integer) entry.getValue());
 			}
