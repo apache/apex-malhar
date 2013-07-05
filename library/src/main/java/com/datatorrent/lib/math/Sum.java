@@ -27,199 +27,229 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
 import com.datatorrent.lib.util.UnifierSumNumber;
 
 /**
- *
- * Emits the sum of values at the end of window. <p>
- * This is an end of window operator<br>
+ * <p>
+ * Emits the sum of values at the end of window. <br>
+ * This is an end of window operator. Application can turn this into accumulated
+ * sum operator by setting cumulative flag to true. <br>
+ * <b>StateFull : Yes</b>, sum is computed over application window >= 1. <br>
+ * <b>Partitions : Yes</b>, sum is unified at output port. <br>
+ * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects V extends Number<br>
  * <b>sum</b>: emits V extends Number<br>
  * <b>sumDouble</b>: emits Double<br>
  * <b>sumFloat</b>: emits Float<br>
  * <b>sumInteger</b>: emits Integer<br>
- * <b>sumLong</b>: emits  Long<br>
+ * <b>sumLong</b>: emits Long<br>
  * <b>sumShort</b>: emits Short<br>
  * <br>
- * <b>Properties</b>:<br>
- * <b>cumulative</b>: boolean flag, if set the sum is not cleared at the end of window, hence generating cumulative sum across streaming windows. Default is false.<br>
+ * <b>Properties: </b> <br>
+ * <b>cumulative </b> Sum has to be cumulative. <br>
  * <br>
- * <b>Specific compile time checks</b>: None<br>
- * <b>Specific run time checks</b>: None<br>
- * <p>
- * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for Sum&lt;V extends Number&gt; operator template">
- * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>&gt; 500 Million tuples/s</b></td><td>Six tuples per window per port</td><td>In-bound rate is the main determinant of performance. Tuples are assumed to be
- * immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
- * </table><br>
- * <p>
- * <b>Function Table (V=Integer)</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for Sum&lt;V extends Number&gt; operator template">
- * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th colspan=7>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(V)</th><th><i>sum</i>(V)</th><th><i>sumDouble</i></th><th><i>sumFloat</i></th><th><i>sumInteger</i></th>
- * <th><i>sumLong</i></th><th><i>sumShort</i></th></tr>
- * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
- * <tr><td>Data (process())</td><td>2</td><td></td><td></td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>1000</td><td></td><td></td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>10</td><td></td><td></td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>52</td><td></td><td></td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>22</td><td></td><td></td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>14</td><td></td><td></td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>2</td><td></td><td></td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>4</td><td></td><td></td><td></td><td></td><td></td></tr>
- * <tr><td>End Window (endWindow())</td><td>N/A</td><td>1106</td><td>1106.0</td><td>1106.0</td><td>1106</td><td>1106</td><td>1106</td></tr>
- * </table>
- * <br>
- *
+ * 
  * @param <V>
- * <br>
+ *          Generic number type parameter. <br>
  */
-public class Sum<V extends Number> extends BaseNumberValueOperator<V> implements Unifier<V>
+public class Sum<V extends Number> extends BaseNumberValueOperator<V> implements
+		Unifier<V>
 {
-  /**
-   * Input port to receive data.
-   */
-  @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
-  {
-    /**
-     * Computes sum and count with each tuple
-     */
-    @Override
-    public void process(V tuple)
-    {
-      Sum.this.process(tuple);
-      tupleAvailable = true;
-    }
-  };
+	/**
+	 * Sum value.
+	 */
+	protected double sums = 0;
 
-  @Override
-  public void process(V tuple)
-  {
-    sums += tuple.doubleValue();
-    tupleAvailable = true; // also need to set here for Unifier
-  }
-  @OutputPortFieldAnnotation(name = "sum", optional = true)
-  public final transient DefaultOutputPort<V> sum = new DefaultOutputPort<V>()
-  {
-    @Override
-    public Unifier<V> getUnifier()
-    {
-      UnifierSumNumber ret = new UnifierSumNumber<V>();
-      ret.setVType(getType());
-      return ret;
-    }
-  };
-  @OutputPortFieldAnnotation(name = "sumDouble", optional = true)
-  public final transient DefaultOutputPort<Double> sumDouble = new DefaultOutputPort<Double>()
-  {
-    @Override
-    public Unifier<Double> getUnifier()
-    {
-      UnifierSumNumber ret = new UnifierSumNumber<Double>();
-      ret.setType(Double.class);
-      return ret;
-    }
-  };
-  @OutputPortFieldAnnotation(name = "sumInteger", optional = true)
-  public final transient DefaultOutputPort<Integer> sumInteger = new DefaultOutputPort<Integer>()
-  {
-    @Override
-    public Unifier<Integer> getUnifier()
-    {
-      UnifierSumNumber ret = new UnifierSumNumber<Integer>();
-      ret.setType(Integer.class);
-      return ret;
-    }
-  };
-  @OutputPortFieldAnnotation(name = "sumLong", optional = true)
-  public final transient DefaultOutputPort<Long> sumLong = new DefaultOutputPort<Long>()
-  {
-    @Override
-    public Unifier<Long> getUnifier()
-    {
-      UnifierSumNumber ret = new UnifierSumNumber<Long>();
-      ret.setType(Long.class);
-      return ret;
-    }
-  };
-  @OutputPortFieldAnnotation(name = "sumShort", optional = true)
-  public final transient DefaultOutputPort<Short> sumShort = new DefaultOutputPort<Short>()
-  {
-    @Override
-    public Unifier<Short> getUnifier()
-    {
-      UnifierSumNumber ret = new UnifierSumNumber<Short>();
-      ret.setType(Short.class);
-      return ret;
-    }
-  };
-  @OutputPortFieldAnnotation(name = "sumFloat", optional = true)
-  public final transient DefaultOutputPort<Float> sumFloat = new DefaultOutputPort<Float>()
-  {
-    @Override
-    public Unifier<Float> getUnifier()
-    {
-      UnifierSumNumber ret = new UnifierSumNumber<Float>();
-      ret.setType(Float.class);
-      return ret;
-    }
-  };
+	/**
+	 * Input tuple processed flag.
+	 */
+	protected boolean tupleAvailable = false;
 
-  @OutputPortFieldAnnotation(name = "redisport", optional = true)
-  public final transient DefaultOutputPort<Map<Integer, Integer>> redisport = new DefaultOutputPort<Map<Integer, Integer>>();
-		  
-  protected double sums = 0;
-  protected boolean tupleAvailable = false;
-  protected boolean cumulative = false;
+	/**
+	 * Accumulate sum flag.
+	 */
+	protected boolean cumulative = false;
 
-  public boolean isCumulative()
-  {
-    return cumulative;
-  }
+	/**
+	 * Input port to receive data.
+	 */
+	@InputPortFieldAnnotation(name = "data")
+	public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
+	{
+		/**
+		 * Computes sum and count with each tuple
+		 */
+		@Override
+		public void process(V tuple)
+		{
+			Sum.this.process(tuple);
+			tupleAvailable = true;
+		}
+	};
 
-  public void setCumulative(boolean cumulative)
-  {
-    this.cumulative = cumulative;
-  }
+	/**
+	 * Unifier process override.
+	 */
+	@Override
+	public void process(V tuple)
+	{
+		sums += tuple.doubleValue();
+		tupleAvailable = true; // also need to set here for Unifier
+	}
 
-  /**
-   * Emits sum and count if ports are connected
-   */
-  @Override
-  public void endWindow()
-  {
-    if (doEmit()) {
-      sum.emit(getValue(sums));
-      sumDouble.emit(sums);
-      sumInteger.emit((int) sums);
-      sumLong.emit((long) sums);
-      sumShort.emit((short) sums);
-      sumFloat.emit((float) sums);
-      tupleAvailable = false;
-      Map<Integer, Integer> redis = new HashMap<Integer, Integer>();
-      redis.put(1, (int)sums);
-      redisport.emit(redis);
-    }
-    clearCache();
-  }
+	/**
+	 * Output sum port.
+	 */
+	@OutputPortFieldAnnotation(name = "sum", optional = true)
+	public final transient DefaultOutputPort<V> sum = new DefaultOutputPort<V>()
+	{
+		@Override
+		public Unifier<V> getUnifier()
+		{
+			UnifierSumNumber<V> ret = new UnifierSumNumber<V>();
+			ret.setVType(getType());
+			return ret;
+		}
+	};
 
-  /**
-   * Clears the cache making this operator stateless on window boundary
-   */
-  public void clearCache()
-  {
-    if (!cumulative) {
-      sums = 0;
-    }
-  }
+	/**
+	 * Output double sum port.
+	 */
+	@OutputPortFieldAnnotation(name = "sumDouble", optional = true)
+	public final transient DefaultOutputPort<Double> sumDouble = new DefaultOutputPort<Double>()
+	{
+		@Override
+		public Unifier<Double> getUnifier()
+		{
+			UnifierSumNumber<Double> ret = new UnifierSumNumber<Double>();
+			ret.setType(Double.class);
+			return ret;
+		}
+	};
 
-  /**
-   * Decides whether emit has to be done in this window on port "sum"
-   *
-   * @return true is sum port is connected
-   */
-  public boolean doEmit()
-  {
-    return tupleAvailable;
-  }
+	/**
+	 * Output integer sum port.
+	 */
+	@OutputPortFieldAnnotation(name = "sumInteger", optional = true)
+	public final transient DefaultOutputPort<Integer> sumInteger = new DefaultOutputPort<Integer>()
+	{
+		@Override
+		public Unifier<Integer> getUnifier()
+		{
+			UnifierSumNumber<Integer> ret = new UnifierSumNumber<Integer>();
+			ret.setType(Integer.class);
+			return ret;
+		}
+	};
+
+	/**
+	 * Output Long sum port.
+	 */
+	@OutputPortFieldAnnotation(name = "sumLong", optional = true)
+	public final transient DefaultOutputPort<Long> sumLong = new DefaultOutputPort<Long>()
+	{
+		@Override
+		public Unifier<Long> getUnifier()
+		{
+			UnifierSumNumber<Long> ret = new UnifierSumNumber<Long>();
+			ret.setType(Long.class);
+			return ret;
+		}
+	};
+
+	/**
+	 * Output short sum port.
+	 */
+	@OutputPortFieldAnnotation(name = "sumShort", optional = true)
+	public final transient DefaultOutputPort<Short> sumShort = new DefaultOutputPort<Short>()
+	{
+		@Override
+		public Unifier<Short> getUnifier()
+		{
+			UnifierSumNumber<Short> ret = new UnifierSumNumber<Short>();
+			ret.setType(Short.class);
+			return ret;
+		}
+	};
+
+	/**
+	 * Output float sum port.
+	 */
+	@OutputPortFieldAnnotation(name = "sumFloat", optional = true)
+	public final transient DefaultOutputPort<Float> sumFloat = new DefaultOutputPort<Float>()
+	{
+		@Override
+		public Unifier<Float> getUnifier()
+		{
+			UnifierSumNumber<Float> ret = new UnifierSumNumber<Float>();
+			ret.setType(Float.class);
+			return ret;
+		}
+	};
+
+	/**
+	 * Redis server output port.
+	 */
+	@OutputPortFieldAnnotation(name = "redisport", optional = true)
+	public final transient DefaultOutputPort<Map<Integer, Integer>> redisport = new DefaultOutputPort<Map<Integer, Integer>>();
+
+	/**
+	 * Check if sum has to be cumulative.
+	 * 
+	 * @return cumulative flag
+	 */
+	public boolean isCumulative()
+	{
+		return cumulative;
+	}
+
+	/**
+	 * Set cumulative flag.
+	 * 
+	 * @param cumulative
+	 *          flag
+	 */
+	public void setCumulative(boolean cumulative)
+	{
+		this.cumulative = cumulative;
+	}
+
+	/**
+	 * Emits sum and count if ports are connected
+	 */
+	@Override
+	public void endWindow()
+	{
+		if (doEmit()) {
+			sum.emit(getValue(sums));
+			sumDouble.emit(sums);
+			sumInteger.emit((int) sums);
+			sumLong.emit((long) sums);
+			sumShort.emit((short) sums);
+			sumFloat.emit((float) sums);
+			tupleAvailable = false;
+			Map<Integer, Integer> redis = new HashMap<Integer, Integer>();
+			redis.put(1, (int) sums);
+			redisport.emit(redis);
+		}
+		clearCache();
+	}
+
+	/**
+	 * Clears the cache making this operator stateless on window boundary
+	 */
+	private void clearCache()
+	{
+		if (!cumulative) {
+			sums = 0;
+		}
+	}
+
+	/**
+	 * Decides whether emit has to be done in this window on port "sum"
+	 * 
+	 * @return true is sum port is connected
+	 */
+	private boolean doEmit()
+	{
+		return tupleAvailable;
+	}
 }

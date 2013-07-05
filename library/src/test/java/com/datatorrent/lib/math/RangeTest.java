@@ -15,100 +15,99 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.api.Sink;
-import com.datatorrent.lib.math.Range;
-import com.datatorrent.lib.math.SumCountMap;
-import com.datatorrent.lib.util.HighLow;
-import com.datatorrent.tuple.Tuple;
 import java.util.ArrayList;
 import java.util.List;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.Sink;
+import com.datatorrent.lib.util.HighLow;
+import com.datatorrent.tuple.Tuple;
 
 /**
- *
- * Functional tests for {@link com.datatorrent.lib.math.Range}<p>
- *
+ * Functional tests for {@link com.datatorrent.lib.math.Range}
  */
 public class RangeTest
 {
-  private static Logger LOG = LoggerFactory.getLogger(SumCountMap.class);
+	@SuppressWarnings("rawtypes")
+	class TestSink implements Sink
+	{
+		List<Object> collectedTuples = new ArrayList<Object>();
 
-  class TestSink implements Sink
-  {
-    List<Object> collectedTuples = new ArrayList<Object>();
+		@Override
+		public void put(Object payload)
+		{
+			if (payload instanceof Tuple) {
+			} else {
+				collectedTuples.add(payload);
+			}
+		}
 
-    @Override
-    public void put(Object payload)
-    {
-      if (payload instanceof Tuple) {
-      }
-      else {
-        collectedTuples.add(payload);
-      }
-    }
+		@Override
+		public int getCount(boolean reset)
+		{
+			throw new UnsupportedOperationException("Not supported yet.");
+		}
+	}
 
-    @Override
-    public int getCount(boolean reset)
-    {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-  }
+	/**
+	 * Test oper logic emits correct results
+	 */
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testNodeSchemaProcessing()
+	{
+		Range<Double> oper = new Range<Double>();
+		TestSink rangeSink = new TestSink();
+		oper.range.setSink(rangeSink);
 
-  /**
-   * Test oper logic emits correct results
-   */
-  @Test
-  public void testNodeSchemaProcessing()
-  {
-    Range<Double> oper = new Range<Double>();
-    TestSink rangeSink = new TestSink();
-    oper.range.setSink(rangeSink);
+		oper.beginWindow(0); //
 
-    oper.beginWindow(0); //
+		int numTuples = 1000;
+		for (int i = 0; i < numTuples; i++) {
+			Double a = new Double(20.0);
+			Double b = new Double(2.0);
+			Double c = new Double(1000.0);
 
-    int numTuples = 1000;
-    for (int i = 0; i < numTuples; i++) {
-      Double a = new Double(20.0);
-      Double b = new Double(2.0);
-      Double c = new Double(1000.0);
+			oper.data.process(a);
+			oper.data.process(b);
+			oper.data.process(c);
 
-      oper.data.process(a);
-      oper.data.process(b);
-      oper.data.process(c);
+			a = 1.0;
+			oper.data.process(a);
+			a = 10.0;
+			oper.data.process(a);
+			b = 5.0;
+			oper.data.process(b);
 
-      a = 1.0;
-      oper.data.process(a);
-      a = 10.0;
-      oper.data.process(a);
-      b = 5.0;
-      oper.data.process(b);
+			b = 12.0;
+			oper.data.process(b);
+			c = 22.0;
+			oper.data.process(c);
+			c = 14.0;
+			oper.data.process(c);
 
-      b = 12.0;
-      oper.data.process(b);
-      c = 22.0;
-      oper.data.process(c);
-      c = 14.0;
-      oper.data.process(c);
+			a = 46.0;
+			oper.data.process(a);
+			b = 2.0;
+			oper.data.process(b);
+			a = 23.0;
+			oper.data.process(a);
+		}
 
-      a = 46.0;
-      oper.data.process(a);
-      b = 2.0;
-      oper.data.process(b);
-      a = 23.0;
-      oper.data.process(a);
-    }
+		oper.endWindow(); //
 
-    oper.endWindow(); //
-
-    // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
-    Assert.assertEquals("number emitted tuples", 1, rangeSink.collectedTuples.size());
-    for (Object o: rangeSink.collectedTuples) {
-      HighLow hl = (HighLow)o;
-      Assert.assertEquals("emitted high value was ", new Double(1000.0), hl.getHigh());
-      Assert.assertEquals("emitted low value was ", new Double(1.0), hl.getLow());
-    }
-  }
+		// payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
+		Assert.assertEquals("number emitted tuples", 1,
+				rangeSink.collectedTuples.size());
+		for (Object o : rangeSink.collectedTuples) {
+			HighLow hl = (HighLow) o;
+			Assert.assertEquals("emitted high value was ", new Double(1000.0),
+					hl.getHigh());
+			Assert.assertEquals("emitted low value was ", new Double(1.0),
+					hl.getLow());
+		}
+	}
 }

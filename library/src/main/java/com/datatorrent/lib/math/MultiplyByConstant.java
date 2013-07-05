@@ -24,6 +24,9 @@ import com.datatorrent.api.DefaultOutputPort;
  * Emits the result as Long on port \"longProduct\", as Integer on port \"integerProduct\",
  * as Double on port \"doubleProduct\", and as Float on port \"floatProduct\". This is a pass through operator<p>
  * <br>
+ * <b>StateFull : No </b>, output is computed in current window. <br>
+ * <b>Partitions : Yes </b>, No state dependency among input tuples. <br>
+ * <br>
  * <b>Ports</b>:<br>
  * <b>input</b>: expects Number<br>
  * <b>longProduct</b>: emits Long<br>
@@ -34,31 +37,13 @@ import com.datatorrent.api.DefaultOutputPort;
  * <b>Properties</b>:<br>
  * <b>multiplier</b>: Number to multiply input tuple with<br>
  * <br>
- * <b>Specific compile time checks</b>: None<br>
- * <b>Specific run time checks</b>: None<br>
- * <p>
- * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for MultiplyByConstant">
- * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>33 million tuples/s</b></td><td>four tuples per one incoming tuple</td><td>Performance is i/o bound and directly
- * dependant on incoming tuple rate</td></tr>
- * </table><br>
- * <p>
- * <b>Function Table (multiplier = 2.0)</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for MultiplyByConstant">
- * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (<i>input</i>::process)</th><th colspan=4>Out-bound (emit)</th></tr>
- * <tr><th><i>input</i></th><th><i>longProduct</i></th><th><i>integerProduct</i></th><th><i>doubleProduct</i></th><th><i>floatProduct</i></th></tr>
- * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
- * <tr><td>Data (process())</td><td>2</td><td>4</td><td>4</td><td>4.0</td><td>4.0</td></tr>
- * <tr><td>Data (process())</td><td>-12</td><td>-24</td><td>-24</td><td>-24.0</td><td>-24.0</td></tr>
- * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
- * </table>
- * <br>
- *
  */
 
 public class MultiplyByConstant extends BaseOperator
 {
+	/**
+	 * Input number port.
+	 */
   public final transient DefaultInputPort<Number> input = new DefaultInputPort<Number>()
   {
     @Override
@@ -84,9 +69,25 @@ public class MultiplyByConstant extends BaseOperator
     }
 
   };
+  
+  /**
+   * Long output port.
+   */
   public final transient DefaultOutputPort<Long> longProduct = new DefaultOutputPort<Long>();
+  
+  /**
+   * Integer output port.
+   */
   public final transient DefaultOutputPort<Integer> integerProduct = new DefaultOutputPort<Integer>();
+  
+  /**
+   * Double output port.
+   */
   public final transient DefaultOutputPort<Double> doubleProduct = new DefaultOutputPort<Double>();
+  
+  /**
+   * Float output port.
+   */
   public final transient DefaultOutputPort<Float> floatProduct = new DefaultOutputPort<Float>();
 
   /**

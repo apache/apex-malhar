@@ -15,6 +15,11 @@
  */
 package com.datatorrent.lib.math;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang.mutable.MutableDouble;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.StreamCodec;
@@ -22,9 +27,6 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 import com.datatorrent.lib.util.KeyValPair;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.commons.lang.mutable.MutableDouble;
 
 /**
  *
@@ -35,37 +37,6 @@ import org.apache.commons.lang.mutable.MutableDouble;
  * hence generating cumulative sum
  * across streaming windows. Default is false.<br>
  * <br>
- * <b>Specific compile time checks</b>: None<br>
- * <b>Specific run time checks</b>: None<br>
- * <p>
- * <b>Benchmarks</b>: Blast as many tuples as possible
- * in inline mode<br> <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for Sum&lt;K,V extends Number&gt; operator template">
- * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr> <tr><td><b>20 million tuples/s</b></td>
- * <td>One tuple per key per port</td><td>Mainly dependant on in-bound throughput</td></tr>
- * </table><br> <p> <b>Function Table (K=String, V=Integer)</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for Sum&lt;K,V extends Number&gt; operator template"> <tr><th
- * rowspan=2>Tuple Type (api)</th><th>In-bound (<i>data</i>::process)</th><th colspan=3>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(KeyValPair&lt;K,V&gt;)</th><th><i>sum</i>(KeyValPair&lt;K,V&gt;)</th></tr>
- * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
- * <tr><td>Data
- * (process())</td><td>{a=2}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{b=20}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{c=1000}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{a=1}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{a=10}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{b=5}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=55}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{b=12}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=22}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=14}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{e=2}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=46}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=4}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{a=23}</td><td></td></tr>
- * <tr><td>End Window (endWindow())</td><td>N/A</td>
- * <td>{a=36}<br>{b=37}<br>{c=1000}<br>{d=141}<br>{e=2}</td></tr>
- * </table> <br>
- *
  */
 public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
@@ -86,6 +57,16 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
 
   }
 
+  /**
+   * Sums key map.
+   */
+  protected HashMap<K, SumEntry> sums = new HashMap<K, SumEntry>();
+  
+  /**
+   * Cumulative sum flag.
+   */
+  protected boolean cumulative = false;
+  
   /**
    * Input port to receive data.
    */
@@ -111,7 +92,6 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
         val.changed = true;
       }
       sums.put(cloneKey(key), val);
-      processMetaData(tuple);
     }
 
     /**
@@ -124,62 +104,72 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
     }
 
   };
+  
+  /**
+   * Output sum port.
+   */
   @OutputPortFieldAnnotation(name = "sum", optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, V>> sum = new DefaultOutputPort<KeyValPair<K, V>>();
+  
+  /**
+   * Output double sum port.
+   */
   @OutputPortFieldAnnotation(name = "sumDouble", optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, Double>> sumDouble = new DefaultOutputPort<KeyValPair<K, Double>>();
+  
+  /** 
+   * Output integer sum port.
+   */
   @OutputPortFieldAnnotation(name = "sumInteger", optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, Integer>> sumInteger = new DefaultOutputPort<KeyValPair<K, Integer>>();
+  
+  /**
+   * Output long sum port.
+   */
   @OutputPortFieldAnnotation(name = "sumLong", optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, Long>> sumLong = new DefaultOutputPort<KeyValPair<K, Long>>();
+  
+  /**
+   * Output short sum port.
+   */
   @OutputPortFieldAnnotation(name = "sumShort", optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, Short>> sumShort = new DefaultOutputPort<KeyValPair<K, Short>>();
+  
+  /**
+   * Output float sum port.
+   */
   @OutputPortFieldAnnotation(name = "sumFloat", optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, Float>> sumFloat = new DefaultOutputPort<KeyValPair<K, Float>>();
-  protected HashMap<K, SumEntry> sums = new HashMap<K, SumEntry>();
-  protected boolean cumulative = false;
-  protected boolean emitOnlyWhenChanged = false;
 
+  /**
+   * Get cumulative flag.
+   * @return cumulative flag.
+   */
   public boolean isCumulative()
   {
     return cumulative;
   }
 
+  /**
+   * 
+   * @param cumulative
+   */
   public void setCumulative(boolean cumulative)
   {
     this.cumulative = cumulative;
   }
 
-  public boolean isEmitOnlyWhenChanged()
-  {
-    return emitOnlyWhenChanged;
-  }
-
-  public void setEmitOnlyWhenChanged(boolean emitOnlyWhenChanged)
-  {
-    this.emitOnlyWhenChanged = emitOnlyWhenChanged;
-  }
-
-  /**
-   * If you have extended from KeyValPair class and want to do some processing per tuple override this call back.
-   *
-   * @param tuple
-   */
-  public void processMetaData(KeyValPair<K, V> tuple)
-  {
-  }
 
   /**
    * Emits on all ports that are connected. Data is precomputed during process on input port and endWindow just emits it for each key. Clears the internal data.
    */
   @Override
-  @SuppressWarnings("unchecked")
   public void endWindow()
   {
     for (Map.Entry<K, SumEntry> e: sums.entrySet()) {
       K key = e.getKey();
       SumEntry val = e.getValue();
-      if (val.changed || !emitOnlyWhenChanged) {
+      if (val.changed) {
         sum.emit(new KeyValPair<K, V>(key, getValue(val.sum.doubleValue())));
         sumDouble.emit(new KeyValPair<K, Double>(key, val.sum.doubleValue()));
         sumInteger.emit(new KeyValPair<K, Integer>(key, val.sum.intValue()));

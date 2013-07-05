@@ -15,32 +15,34 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.api.Sink;
-import com.datatorrent.lib.math.RangeMap;
-import com.datatorrent.lib.util.HighLow;
-import com.datatorrent.tuple.Tuple;
 import java.util.HashMap;
 import java.util.Map;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.api.Sink;
+import com.datatorrent.lib.util.HighLow;
+import com.datatorrent.tuple.Tuple;
+
 /**
- *
- * Functional tests for {@link com.datatorrent.lib.math.RangeMap}<p>
- *
+ * Functional tests for {@link com.datatorrent.lib.math.RangeMap}
  */
 public class RangeMapTest
 {
   private static Logger log = LoggerFactory.getLogger(RangeMapTest.class);
 
-  class TestSink implements Sink
+  @SuppressWarnings("rawtypes")
+	class TestSink implements Sink
   {
     double low = -1;
     double high = -1;
 
-    @Override
+    @SuppressWarnings("unchecked")
+		@Override
     public void put(Object payload)
     {
       if (payload instanceof Tuple) {
@@ -78,12 +80,13 @@ public class RangeMapTest
   /**
    * Test node logic emits correct results for each schema
    */
-  public void testSchemaNodeProcessing(RangeMap node, String type)
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testSchemaNodeProcessing(RangeMap node, String type)
   {
     TestSink rangeSink = new TestSink();
     node.range.setSink(rangeSink);
 
-    HashMap<String, Number> input = new HashMap<String, Number>();
+    new HashMap<String, Number>();
     int numtuples = 1000;
     // For benchmark do -> numtuples = numtuples * 100;
     if (type.equals("integer")) {

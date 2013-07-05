@@ -22,16 +22,15 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 /**
- *
- * Functional tests for {@link com.datatorrent.lib.math.SumKeyVal}. <p>
- *
+ * Functional tests for {@link com.datatorrent.lib.math.SumKeyVal}. 
  */
 public class SumKeyValTest
 {
   /**
    * Test operator logic emits correct results.
    */
-  @Test
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+	@Test
   public void testNodeProcessing()
   {
     SumKeyVal<String, Double> oper = new SumKeyVal<String, Double>();
