@@ -15,14 +15,13 @@
  */
 package com.datatorrent.lib.stream;
 
-import com.datatorrent.lib.stream.ArrayListToItem;
-import com.datatorrent.lib.testbench.CountTestSink;
-
 import java.util.ArrayList;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.testbench.CountTestSink;
 
 /**
  * Performance test for {@link com.datatorrent.lib.testbench.StreamDuplicater}<p>
@@ -30,13 +29,12 @@ import org.slf4j.LoggerFactory;
  * <br>
  */
 public class ArrayListToItemTest {
-
-    private static Logger log = LoggerFactory.getLogger(ArrayListToItemTest.class);
-
+	
     /**
-     * Test oper pass through. The Object passed is not relevant
+     * Test operator pass through. The Object passed is not relevant
      */
-    @Test
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+		@Test
     public void testNodeProcessing() throws Exception
     {
       ArrayListToItem oper = new ArrayListToItem();

@@ -15,14 +15,14 @@
  */
 package com.datatorrent.demos.pi;
 
-import com.datatorrent.api.StreamingApplication;
+import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.math.Script;
+import com.datatorrent.lib.script.JavaScriptOperator;
 import com.datatorrent.lib.stream.RoundRobinHashMap;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
-
-import org.apache.hadoop.conf.Configuration;
 
 /**
  * Monte Carlo PI extimation demo : <br>
@@ -86,7 +86,7 @@ public class ApplicationWithScript implements StreamingApplication
     RoundRobinHashMap<String,Object> rrhm = dag.addOperator("rrhm", new RoundRobinHashMap<String, Object>());
     rrhm.setKeys(new String[] { "x", "y" });
 
-    Script calc = dag.addOperator("picalc", new Script());
+    JavaScriptOperator calc = dag.addOperator("picalc", new JavaScriptOperator());
     calc.setKeepContext(true);
     calc.setPassThru(false);
     calc.put("i",0);

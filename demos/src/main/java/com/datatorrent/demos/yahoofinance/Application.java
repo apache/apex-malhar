@@ -217,7 +217,6 @@ public class Application implements StreamingApplication
     SumKeyVal<String, Long> oper = dag.addOperator(name, new SumKeyVal<String, Long>());
     oper.setType(Long.class);
     oper.setCumulative(true);
-    oper.setEmitOnlyWhenChanged(true);
     return oper;
   }
 
@@ -233,7 +232,6 @@ public class Application implements StreamingApplication
   {
     SumKeyVal<String, Long> oper = dag.addOperator(name, new SumKeyVal<String, Long>());
     oper.setType(Long.class);
-    oper.setEmitOnlyWhenChanged(true);
     dag.getOperatorMeta(name).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(appWindowCount);
     return oper;
   }
@@ -323,6 +321,7 @@ public class Application implements StreamingApplication
   /**
    * Populate Yahoo Finance Demo Application DAG.
    */
+	@SuppressWarnings("unchecked")
 	@Override
   public void populateDAG(DAG dag, Configuration conf)
   {

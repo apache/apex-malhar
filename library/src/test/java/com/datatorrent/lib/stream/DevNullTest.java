@@ -23,9 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
- * Functional tests for {@link com.datatorrent.lib.testbench.DevNull}. <p>
- *
+ * Functional tests for {@link com.datatorrent.lib.testbench.DevNull}. 
  */
 public class DevNullTest {
 
@@ -35,7 +33,8 @@ public class DevNullTest {
   /**
    * Tests both string and non string schema
    */
-  @Test
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test
   public void testSingleSchemaNodeProcessing() throws Exception
   {
     DevNull oper = new DevNull();
