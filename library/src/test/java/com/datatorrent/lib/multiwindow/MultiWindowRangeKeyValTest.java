@@ -26,13 +26,14 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.engine.TestSink;
+import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Functional tests for {@link com.datatorrent.lib.multiwindow.AbstractSlidingWindow}.
  */
-public class SlidingWindowTest
+public class MultiWindowRangeKeyValTest
 {
-	private static Logger log = LoggerFactory.getLogger(SlidingWindowTest.class);
+	private static Logger log = LoggerFactory.getLogger(MultiWindowRangeKeyValTest.class);
 
 	public class mySlidingWindow extends AbstractSlidingWindow<String>
 	{
@@ -75,38 +76,28 @@ public class SlidingWindowTest
 	@Test
 	public void testNodeProcessing() throws InterruptedException
 	{
-		mySlidingWindow oper = new mySlidingWindow();
+		MultiWindowRangeKeyVal<String, Integer> oper = new MultiWindowRangeKeyVal<String, Integer>();
 
 		TestSink swinSink = new TestSink();
-		oper.out.setSink(swinSink);
-		oper.setN(3);
-		oper.setup(null);
+		oper.range.setSink(swinSink);
 
 		oper.beginWindow(0);
-		oper.data.process("a0");
-		oper.data.process("b0");
+		KeyValPair<String, Integer> low = new KeyValPair<String, Integer>("a", 3);
+		oper.data.process(low);
+		KeyValPair<String, Integer> high = new KeyValPair<String, Integer>("a", 11);
+		oper.data.process(high);
 		oper.endWindow();
 
 		oper.beginWindow(1);
-		oper.data.process("a1");
-		oper.data.process("b1");
+		low = new KeyValPair<String, Integer>("a", 1);
+		oper.data.process(low);
+		high = new KeyValPair<String, Integer>("a", 9);
+		oper.data.process(high);
 		oper.endWindow();
 
-		oper.beginWindow(2);
-		oper.data.process("a2");
-		oper.data.process("b2");
-		oper.endWindow();
-
-		oper.beginWindow(3);
-		oper.data.process("a3");
-		oper.data.process("b3");
-		oper.endWindow();
-
-		Assert.assertEquals("number emitted tuples", 4,
-				swinSink.collectedTuples.size());
+		Assert.assertEquals("number emitted tuples", 1, swinSink.collectedTuples.size());
 		for (Object o : swinSink.collectedTuples) {
 			log.debug(o.toString());
 		}
-		oper.dumpStates();
 	}
 }

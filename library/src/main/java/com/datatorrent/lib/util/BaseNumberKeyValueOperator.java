@@ -70,7 +70,8 @@ public class BaseNumberKeyValueOperator<K,V extends Number> extends BaseFiltered
    * @param num to clone from
    * @return value as a correct sub-class (V) object
    */
-  public V getValue(Number num)
+  @SuppressWarnings("unchecked")
+	public V getValue(Number num)
   {
     Number val;
     switch (type) {
