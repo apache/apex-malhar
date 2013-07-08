@@ -48,12 +48,6 @@ import org.slf4j.LoggerFactory;
  * Compile time checks:<br>
  * Class derived from this has to implement the abstract method emitTuple() <br>
  * <br>
- * Run time checks:<br>
- * None<br>
- * <br>
- * Benchmarks:<br>
- * TBD<br>
- * <br>
  *
  */
 public abstract class AbstractActiveMQInputOperator extends ActiveMQConsumerBase implements InputOperator, ActivationListener<OperatorContext>

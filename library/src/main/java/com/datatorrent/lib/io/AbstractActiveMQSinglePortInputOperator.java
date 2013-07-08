@@ -15,14 +15,16 @@
  */
 package com.datatorrent.lib.io;
 
+import javax.jms.Message;
+
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
-import javax.jms.Message;
-
 /**
- * ActiveMQ input adapter operator with single output port, which consume data from ActiveMQ message bus.<p><br>
- *
+ * <p>
+ * ActiveMQ input adapter operator with single output port, which consume data
+ * from ActiveMQ message bus. 
+ * <br>
  * <br>
  * Ports:<br>
  * <b>Input</b>: No input port<br>
@@ -40,39 +42,41 @@ import javax.jms.Message;
  * Benchmarks:<br>
  * TBD<br>
  * <br>
- *
+ * 
  * @param <T>
- *
+ * 
  */
-public abstract class AbstractActiveMQSinglePortInputOperator<T> extends AbstractActiveMQInputOperator
+public abstract class AbstractActiveMQSinglePortInputOperator<T> extends
+		AbstractActiveMQInputOperator
 {
-  /**
-   * The single output port.
-   */
-  @OutputPortFieldAnnotation(name = "outputPort")
-  public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
+	/**
+	 * The single output port.
+	 */
+	@OutputPortFieldAnnotation(name = "outputPort")
+	public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
-  /**
-   * Any concrete class derived from AbstractActiveMQSinglePortInputOperator has to implement this method
-   * so that it knows what type of message it is going to send to Malhar.
-   * It converts a JMS message into a Tuple. A Tuple can be of any type (derived from Java Object) that
-   * operator user intends to.
-   *
-   * @param msg
-   * @return newly constructed tuple from the message.
-   */
-  public abstract T getTuple(Message msg);
+	/**
+	 * Any concrete class derived from AbstractActiveMQSinglePortInputOperator has
+	 * to implement this method so that it knows what type of message it is going
+	 * to send to Malhar. It converts a JMS message into a Tuple. A Tuple can be
+	 * of any type (derived from Java Object) that operator user intends to.
+	 * 
+	 * @param msg
+	 * @return newly constructed tuple from the message.
+	 */
+	public abstract T getTuple(Message msg);
 
-  /**
-   * Implement abstract method.
-   * @param msg
-   */
-  @Override
-  public void emitTuple(Message msg)
-  {
-    T payload = getTuple(msg);
-    if (payload != null) {
-      outputPort.emit(payload);
-    }
-  }
+	/**
+	 * Implement abstract method.
+	 * 
+	 * @param msg
+	 */
+	@Override
+	public void emitTuple(Message msg)
+	{
+		T payload = getTuple(msg);
+		if (payload != null) {
+			outputPort.emit(payload);
+		}
+	}
 }
