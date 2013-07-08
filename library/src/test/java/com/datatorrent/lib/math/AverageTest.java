@@ -52,7 +52,7 @@ public class AverageTest
 		testNodeSchemaProcessing(soper);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testNodeSchemaProcessing(Average oper)
 	{
 		TestSink averageSink = new TestSink();

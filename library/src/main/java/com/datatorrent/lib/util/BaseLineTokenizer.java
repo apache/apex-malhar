@@ -30,10 +30,6 @@ import javax.validation.constraints.NotNull;
  * Ideal for applications like word count
  * Ports:<br>
  * <b>data</b>: expects String<br>
- *
- * <b>Benchmarks</b>: None done as this operator is for other operators to override and this operator does not emit any tuple<br>
- *
- *
  */
 public class BaseLineTokenizer extends BaseOperator
 {

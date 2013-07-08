@@ -15,22 +15,26 @@
  */
 package com.datatorrent.lib.logs;
 
-
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- *
- * Parse Apache log lines one line at a time. Regex (getAccessLogRegex) is used as a parser. The fields extracted include i/p (outputIPAddress),
- * url (outputUrl), status code (outputStatusCode), bytes (outputBytes), referer (outputReferer), and agent (outputAgent)<p>
+ * 
+ * Parse Apache log lines one line at a time. Regex (getAccessLogRegex) is used
+ * as a parser. The fields extracted include i/p (outputIPAddress), url
+ * (outputUrl), status code (outputStatusCode), bytes (outputBytes), referer
+ * (outputReferer), and agent (outputAgent)
+ * <p>
  * This is a pass through operator<br>
+ * <br>
+ * <b>StateFull : No </b><br>
+ * <b>Partitions : Yes</b>, No dependency among input values. <br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects String<br>
@@ -42,109 +46,118 @@ import java.util.regex.Pattern;
  * <b>outputAgent</b>: emits String<br>
  * <br>
  * <b>Properties</b>: none<br>
- * <b>Compile time checks</b>:<br>
- * <b>Run time checks</b>:<br>
- * <p>
- * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for ApacheLogParseOperator operator template">
- * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>40K lines/sec</b></td><td>emits 6 output tuples per incoming line</td><td>In-bound rate and I/O are the bottlenecks</td></tr>
- * </table><br>
- * <p>
- * <b>Function Table</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for ApacheLogParseOperator operator template">
- * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th colspan=6>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i></th><th><i>outputIPAddress</i></th><th><i>outputUrl</i></th><th><i>outputStatusCode</i></th>
- * <th><i>outputBytes</i></th><th><i>outputReferer</i></th><th><i>outputAgent</i></th></tr>
- * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
- * <tr><td>Data (process())</td><td>127.0.0.1 - - [04/Apr/2013:17:17:21 -0700] "GET /favicon.ico HTTP/1.1" 404 498 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.43 Safari/537.31"</td>
- * <td>127.0.0.1</td><td>/favicon.ico</td><td>404</td><td>498</td><td>-</td><td>Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.43 Safari/537.31</td></tr>
- * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
- * </table>
- * <br>
- *
  */
 
-public class ApacheLogParseOperator extends BaseOperator {
+public class ApacheLogParseOperator extends BaseOperator
+{
+	/**
+	 * Input log line port.
+	 */
+	public final transient DefaultInputPort<String> data = new DefaultInputPort<String>()
+	{
+		@Override
+		public void process(String s)
+		{
+			try {
+				processTuple(s);
+			} catch (ParseException ex) {
+				// ignore
+			}
+		}
+	};
+	
+	/**
+	 * Client IP address, output port.
+	 */
+	public final transient DefaultOutputPort<String> outputIPAddress = new DefaultOutputPort<String>();
+	
+	/**
+	 * Access url port, output port.
+	 */
+	public final transient DefaultOutputPort<String> outputUrl = new DefaultOutputPort<String>();
+	
+	/**
+	 * Apache status log, output port.
+	 */
+	public final transient DefaultOutputPort<String> outputStatusCode = new DefaultOutputPort<String>();
+	
+	/**
+	 * Number of bytes served, output port.
+	 */
+	public final transient DefaultOutputPort<Long> outputBytes = new DefaultOutputPort<Long>();
+	
+	/**
+	 * Referer name, output port. 
+	 */
+	public final transient DefaultOutputPort<String> outputReferer = new DefaultOutputPort<String>();
+	
+	/**
+	 * IP Agent, output port.
+	 */
+	public final transient DefaultOutputPort<String> outputAgent = new DefaultOutputPort<String>();
 
-    // default date format
-    protected static final String dateFormat = "dd/MMM/yyyy:HH:mm:ss Z";
-    public final transient DefaultInputPort<String> data = new DefaultInputPort<String>() {
-        @Override
-        public void process(String s) {
-            try {
-                processTuple(s);
-            } catch (ParseException ex) {
-                // ignore
-            }
-        }
-    };
-    public final transient DefaultOutputPort<String> outputIPAddress = new DefaultOutputPort<String>();
-    public final transient DefaultOutputPort<String> outputUrl = new DefaultOutputPort<String>();
-    public final transient DefaultOutputPort<String> outputStatusCode = new DefaultOutputPort<String>();
-    public final transient DefaultOutputPort<Long> outputBytes = new DefaultOutputPort<Long>();
-    public final transient DefaultOutputPort<String> outputReferer = new DefaultOutputPort<String>();
-    public final transient DefaultOutputPort<String> outputAgent = new DefaultOutputPort<String>();
+	/**
+	 * Get apache log pattern regex.
+	 * @return regex string.
+	 */
+	protected static String getAccessLogRegex()
+	{
+		String regex1 = "^([\\d\\.]+)"; // Client IP
+		String regex2 = " (\\S+)"; // -
+		String regex3 = " (\\S+)"; // -
+		String regex4 = " \\[([\\w:/]+\\s[+\\-]\\d{4})\\]"; // Date
+		String regex5 = " \"[A-Z]+ (.+?) HTTP/\\S+\""; // url
+		String regex6 = " (\\d{3})"; // HTTP code
+		String regex7 = " (\\d+)"; // Number of bytes
+		String regex8 = " \"([^\"]+)\""; // Referer
+		String regex9 = " \"([^\"]+)\""; // Agent
+		String regex10 = ".*"; // ignore the rest
+		return regex1 + regex2 + regex3 + regex4 + regex5 + regex6 + regex7
+				+ regex8 + regex9 + regex10;
+	}
 
-    protected static String getAccessLogRegex() {
-        String regex1 = "^([\\d\\.]+)";                         // Client IP
-        String regex2 = " (\\S+)";                             // -
-        String regex3 = " (\\S+)";                             // -
-        String regex4 = " \\[([\\w:/]+\\s[+\\-]\\d{4})\\]"; // Date
-        String regex5 = " \"[A-Z]+ (.+?) HTTP/\\S+\"";                       //  url
-        String regex6 = " (\\d{3})";                           // HTTP code
-        String regex7 = " (\\d+)";                     // Number of bytes
-        String regex8 = " \"([^\"]+)\"";                 // Referer
-        String regex9 = " \"([^\"]+)\"";                // Agent
-        String regex10 = ".*"; // ignore the rest
-        return regex1 + regex2 + regex3 + regex4 + regex5 + regex6 + regex7 + regex8 + regex9 + regex10;
-    }
+	/**
+	 * Parses Apache combined access log, and prints out the following <br>
+	 * 1. Requester IP <br>
+	 * 2. Date of Request <br>
+	 * 3. Requested Page Path
+	 * 
+	 * @param line
+	 *          : tuple to parsee
+	 * @throws ParseException
+	 * @throws IOException
+	 */
+	public void processTuple(String line) throws ParseException
+	{
+		// Apapche log attaributes on each line.
+		String url;
+		String httpStatusCode;
+		long numOfBytes;
+		String referer;
+		String agent;
+		String ipAddr;
 
-    /**
-     * Parses Apache combined access log, and prints out the following <br>1.
-     * Requester IP <br>2. Date of Request <br>3. Requested Page Path
-     *
-     * @param line : tuple to parsee
-     * @throws ParseException
-     * @throws IOException
-     */
-    public void processTuple(String line) throws ParseException {
+		// Parse each log line.
+		Pattern accessLogPattern = Pattern.compile(getAccessLogRegex(),
+				Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+		Matcher accessLogEntryMatcher;
+		accessLogEntryMatcher = accessLogPattern.matcher(line);
 
-        String requestTime;
-        String url;
-        String httpStatusCode;
-        long numOfBytes;
-        String referer;
-        String agent;
-        long requestTimeEpoch;
-        String ipAddr;
+		if (accessLogEntryMatcher.matches()) {
+			// System.out.println("MATCHED!");
+			ipAddr = accessLogEntryMatcher.group(1);
+			url = accessLogEntryMatcher.group(5);
+			httpStatusCode = accessLogEntryMatcher.group(6);
+			numOfBytes = Long.parseLong(accessLogEntryMatcher.group(7));
+			referer = accessLogEntryMatcher.group(8);
+			agent = accessLogEntryMatcher.group(9);
 
-        //System.out.println("PROCESSING TUPLE "+line);
-
-        SimpleDateFormat accesslogDateFormat = new SimpleDateFormat(dateFormat);
-
-        Pattern accessLogPattern = Pattern.compile(getAccessLogRegex(), Pattern.CASE_INSENSITIVE
-                | Pattern.DOTALL);
-        Matcher accessLogEntryMatcher;
-        accessLogEntryMatcher = accessLogPattern.matcher(line);
-
-        if (accessLogEntryMatcher.matches()) {
-            //System.out.println("MATCHED!");
-            ipAddr = accessLogEntryMatcher.group(1);
-            requestTimeEpoch = (accesslogDateFormat.parse(accessLogEntryMatcher.group(4))).getTime();
-            url = accessLogEntryMatcher.group(5);
-            httpStatusCode = accessLogEntryMatcher.group(6);
-            numOfBytes = Long.parseLong(accessLogEntryMatcher.group(7));
-            referer = accessLogEntryMatcher.group(8);
-            agent = accessLogEntryMatcher.group(9);
-
-            outputIPAddress.emit(ipAddr);
-            outputUrl.emit(url);
-            outputStatusCode.emit(httpStatusCode);
-            outputBytes.emit(numOfBytes);
-            outputReferer.emit(referer);
-            outputAgent.emit(agent);
-        }
-    }
+			outputIPAddress.emit(ipAddr);
+			outputUrl.emit(url);
+			outputStatusCode.emit(httpStatusCode);
+			outputBytes.emit(numOfBytes);
+			outputReferer.emit(referer);
+			outputAgent.emit(agent);
+		}
+	}
 }
-

@@ -20,8 +20,6 @@ import com.datatorrent.lib.testbench.HashTestSink;
 
 import junit.framework.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -30,8 +28,6 @@ import org.slf4j.LoggerFactory;
  */
 public class LineTokenizerTest
 {
-  private static Logger log = LoggerFactory.getLogger(LineTokenizerTest.class);
-
   /**
    * Test oper logic emits correct results
    */
@@ -40,7 +36,7 @@ public class LineTokenizerTest
   {
 
     LineTokenizer oper = new LineTokenizer();
-    HashTestSink tokenSink = new HashTestSink();
+    HashTestSink<Object> tokenSink = new HashTestSink<Object>();
 
     oper.setSplitBy(",");
     oper.tokens.setSink(tokenSink);
@@ -57,8 +53,5 @@ public class LineTokenizerTest
     }
     oper.endWindow(); //
     Assert.assertEquals("number emitted tuples", 3, tokenSink.map.size());
-    //Assert.assertEquals("number of \"a\"", numTuples * 2, tokenSink.getCount("a"));
-    //Assert.assertEquals("number of \"b\"", numTuples, tokenSink.getCount("b"));
-    //Assert.assertEquals("number of \"c\"", numTuples, tokenSink.getCount("c"));
   }
 }

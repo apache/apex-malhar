@@ -35,6 +35,7 @@ public class AverageMapTest
 	/**
 	 * Test operator logic emits correct results.
 	 */
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testNodeProcessing()
 	{

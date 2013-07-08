@@ -15,13 +15,12 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.engine.TestSink;
-import com.datatorrent.lib.math.AverageKeyVal;
-import com.datatorrent.lib.util.KeyValPair;
 import junit.framework.Assert;
+
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.datatorrent.engine.TestSink;
+import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * 
@@ -31,8 +30,6 @@ import org.slf4j.LoggerFactory;
  */
 public class AverageKeyValTest
 {
-	private static Logger LOG = LoggerFactory.getLogger(AverageKeyVal.class);
-
 	/**
 	 * Test operator logic emits correct results.
 	 */

@@ -15,56 +15,20 @@
  */
 package com.datatorrent.lib.logs;
 
-
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- *
- * Parse Apache log lines one line at a time. Regex (getAccessLogRegex) is used as a parser. The fields extracted include i/p (outputIPAddress),
- * url (outputUrl), status code (outputStatusCode), bytes (outputBytes), referer (outputReferer), and agent (outputAgent)<p>
- * This is a pass through operator<br>
- * <br>
- * <b>Ports</b>:<br>
- * <b>data</b>: expects String<br>
- * <b>outputIPAddress</b>: emits String<br>
- * <b>outputUrl</b>: emits String<br>
- * <b>outputStatusCode</b>: emits String<br>
- * <b>outputBytes</b>: emits String<br>
- * <b>outputReferer</b>: emits String<br>
- * <b>outputAgent</b>: emits String<br>
- * <br>
- * <b>Properties</b>: none<br>
- * <b>Compile time checks</b>:<br>
- * <b>Run time checks</b>:<br>
- * <p>
- * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for ApacheLogParseOperator operator template">
- * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>40K lines/sec</b></td><td>emits 6 output tuples per incoming line</td><td>In-bound rate and I/O are the bottlenecks</td></tr>
- * </table><br>
- * <p>
- * <b>Function Table</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for ApacheLogParseOperator operator template">
- * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th colspan=6>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i></th><th><i>outputIPAddress</i></th><th><i>outputUrl</i></th><th><i>outputStatusCode</i></th>
- * <th><i>outputBytes</i></th><th><i>outputReferer</i></th><th><i>outputAgent</i></th></tr>
- * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
- * <tr><td>Data (process())</td><td>127.0.0.1 - - [04/Apr/2013:17:17:21 -0700] "GET /favicon.ico HTTP/1.1" 404 498 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.43 Safari/537.31"</td>
- * <td>127.0.0.1</td><td>/favicon.ico</td><td>404</td><td>498</td><td>-</td><td>Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.43 Safari/537.31</td></tr>
- * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
- * </table>
- * <br>
- *
+ * Please refer to docs for {@link com.datatorrent.lib.logs.ApacheLogParseOperator} documentation.
+ * More output ports in this operator. 
  */
 
 public class ApacheVirtualLogParseOperator extends BaseOperator {
@@ -119,20 +83,16 @@ public class ApacheVirtualLogParseOperator extends BaseOperator {
      */
     public void processTuple(String line) throws ParseException {
 
-        String requestTime;
+    	  // Apache log properties.
         String url;
         String httpStatusCode;
         long numOfBytes;
         String referer;
         String agent;
-        long requestTimeEpoch;
         String ipAddr;
         String serverName;
 
-        //System.out.println("PROCESSING TUPLE "+line);
-
-        SimpleDateFormat accesslogDateFormat = new SimpleDateFormat(dateFormat);
-
+        // Parser log.
         Pattern accessLogPattern = Pattern.compile(getAccessLogRegex(), Pattern.CASE_INSENSITIVE
                 | Pattern.DOTALL);
         Matcher accessLogEntryMatcher;
@@ -142,7 +102,6 @@ public class ApacheVirtualLogParseOperator extends BaseOperator {
             
         	  serverName = accessLogEntryMatcher.group(1);
             ipAddr = accessLogEntryMatcher.group(2);
-            requestTimeEpoch = (accesslogDateFormat.parse(accessLogEntryMatcher.group(5))).getTime();
             url = accessLogEntryMatcher.group(6);
             httpStatusCode = accessLogEntryMatcher.group(7);
             numOfBytes = Long.parseLong(accessLogEntryMatcher.group(8));

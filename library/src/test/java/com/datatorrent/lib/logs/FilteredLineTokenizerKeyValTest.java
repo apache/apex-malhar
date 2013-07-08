@@ -18,13 +18,10 @@ package com.datatorrent.lib.logs;
 import com.datatorrent.lib.logs.FilteredLineTokenizerKeyVal;
 import com.datatorrent.lib.testbench.HashTestSink;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -33,12 +30,11 @@ import org.slf4j.LoggerFactory;
  */
 public class FilteredLineTokenizerKeyValTest
 {
-  private static Logger log = LoggerFactory.getLogger(FilteredLineTokenizerKeyValTest.class);
-
   /**
    * Test oper logic emits correct results
    */
-  @Test
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test
   public void testNodeProcessing()
   {
 
