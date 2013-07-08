@@ -20,8 +20,6 @@ import com.datatorrent.lib.multiwindow.SimpleMovingAverage;
 import com.datatorrent.lib.util.KeyValPair;
 import junit.framework.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Functional test for {@link com.datatorrent.lib.multiwindow.SimpleMovingAverage}. <p>
@@ -29,12 +27,11 @@ import org.slf4j.LoggerFactory;
  */
 public class SimpleMovingAverageTest
 {
-  private static final Logger logger = LoggerFactory.getLogger(SimpleMovingAverageTest.class);
-
   /**
    * Test functional logic
    */
-  @Test
+  @SuppressWarnings("unchecked")
+	@Test
   public void testNodeProcessing() throws InterruptedException
   {
     SimpleMovingAverage<String, Double> oper = new SimpleMovingAverage<String, Double>();
@@ -53,6 +50,11 @@ public class SimpleMovingAverageTest
     oper.data.process(new KeyValPair<String, Double>("b", ++val2));
     oper.data.process(new KeyValPair<String, Double>("b", ++val2));
     oper.endWindow();
+    Assert.assertEquals("number emitted tuples", 2, sink.collectedTuples.size());
+    KeyValPair<String, Double> pair = (KeyValPair<String, Double>)sink.collectedTuples.get(0);
+    Assert.assertEquals("1st b sma", 52.5, pair.getValue().doubleValue());
+    pair = (KeyValPair<String, Double>)sink.collectedTuples.get(1);
+    Assert.assertEquals("1st a sma", 31.5, pair.getValue().doubleValue());
 
     oper.beginWindow(1);
     oper.data.process(new KeyValPair<String, Double>("a", ++val));
@@ -60,6 +62,11 @@ public class SimpleMovingAverageTest
     oper.data.process(new KeyValPair<String, Double>("b", ++val2));
     oper.data.process(new KeyValPair<String, Double>("b", ++val2));
     oper.endWindow();
+    Assert.assertEquals("number emitted tuples", 4, sink.collectedTuples.size());
+    pair = (KeyValPair<String, Double>)sink.collectedTuples.get(2);
+    Assert.assertEquals("2nd b sma", 53.5, pair.getValue().doubleValue());
+    pair = (KeyValPair<String, Double>)sink.collectedTuples.get(3);
+    Assert.assertEquals("2nd a sma", 32.5, pair.getValue().doubleValue());
 
     oper.beginWindow(2);
     oper.data.process(new KeyValPair<String, Double>("a", ++val));
@@ -67,6 +74,11 @@ public class SimpleMovingAverageTest
     oper.data.process(new KeyValPair<String, Double>("b", ++val2));
     oper.data.process(new KeyValPair<String, Double>("b", ++val2));
     oper.endWindow();
+    Assert.assertEquals("number emitted tuples", 6, sink.collectedTuples.size());
+    pair = (KeyValPair<String, Double>)sink.collectedTuples.get(4);
+    Assert.assertEquals("2nd b sma", 54.5, pair.getValue().doubleValue());
+    pair = (KeyValPair<String, Double>)sink.collectedTuples.get(5);
+    Assert.assertEquals("2nd a sma", 33.5, pair.getValue().doubleValue());
 
     oper.beginWindow(3);
     oper.data.process(new KeyValPair<String, Double>("a", ++val));
@@ -74,13 +86,10 @@ public class SimpleMovingAverageTest
     oper.data.process(new KeyValPair<String, Double>("b", ++val2));
     oper.data.process(new KeyValPair<String, Double>("b", ++val2));
     oper.endWindow();
-
     Assert.assertEquals("number emitted tuples", 8, sink.collectedTuples.size());
-    Assert.assertEquals("1st sma", 52.5, ((KeyValPair<String, Double>)sink.collectedTuples.get(0)).getValue().doubleValue());
-    Assert.assertEquals("2nd sma", 53.5, ((KeyValPair<String, Double>)sink.collectedTuples.get(2)).getValue().doubleValue());
-    Assert.assertEquals("3rd sma", 54.5, ((KeyValPair<String, Double>)sink.collectedTuples.get(4)).getValue().doubleValue());
-    Assert.assertEquals("4th sma", 56.5, ((KeyValPair<String, Double>)sink.collectedTuples.get(6)).getValue().doubleValue());
-    Assert.assertEquals("1st sma", 52, ((KeyValPair<String, Integer>)sink2.collectedTuples.get(0)).getValue().intValue());
-
+    pair = (KeyValPair<String, Double>)sink.collectedTuples.get(4);
+    Assert.assertEquals("2nd b sma", 54.5, pair.getValue().doubleValue());
+    pair = (KeyValPair<String, Double>)sink.collectedTuples.get(5);
+    Assert.assertEquals("2nd a sma", 33.5, pair.getValue().doubleValue());
   }
 }

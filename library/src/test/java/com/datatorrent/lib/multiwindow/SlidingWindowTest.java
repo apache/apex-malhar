@@ -28,7 +28,8 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.engine.TestSink;
 
 /**
- * Functional tests for {@link com.datatorrent.lib.multiwindow.AbstractSlidingWindow}.
+ * Functional tests for
+ * {@link com.datatorrent.lib.multiwindow.AbstractSlidingWindow}.
  */
 public class SlidingWindowTest
 {

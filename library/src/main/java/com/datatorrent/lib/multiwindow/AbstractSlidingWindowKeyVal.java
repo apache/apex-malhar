@@ -127,7 +127,6 @@ public abstract class AbstractSlidingWindowKeyVal<K, V extends Number, S extends
 			for (Map.Entry<K, ArrayList<S>> e : buffer.entrySet()) {
 				ArrayList<S> states = e.getValue();
 				for (int i=1; i < windowSize; i++) states.set(i-1, states.get(i));
-				e.getValue().get(currentstate).clear();
 			}
 			currentstate = windowSize-1;
 		}

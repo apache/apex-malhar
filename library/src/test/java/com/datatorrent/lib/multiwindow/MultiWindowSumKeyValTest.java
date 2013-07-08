@@ -27,20 +27,19 @@ import com.datatorrent.lib.util.KeyValPair;
 /**
  * Functional tests for {@link com.datatorrent.lib.multiwindow.AbstractSlidingWindow}.
  */
-public class MultiWindowRangeKeyValTest
+public class MultiWindowSumKeyValTest
 {
-	private static Logger log = LoggerFactory.getLogger(MultiWindowRangeKeyValTest.class);
-
+	private static Logger log = LoggerFactory.getLogger(MultiWindowSumKeyValTest.class);
 	/**
 	 * Test functional logic
 	 */
 	@Test
 	public void testNodeProcessing() throws InterruptedException
 	{
-		MultiWindowRangeKeyVal<String, Integer> oper = new MultiWindowRangeKeyVal<String, Integer>();
+		MultiWindowSumKeyVal<String, Integer> oper = new MultiWindowSumKeyVal<String, Integer>();
 
 		TestSink swinSink = new TestSink();
-		oper.range.setSink(swinSink);
+		oper.sum.setSink(swinSink);
 
 		oper.beginWindow(0);
 		KeyValPair<String, Integer> low = new KeyValPair<String, Integer>("a", 3);
