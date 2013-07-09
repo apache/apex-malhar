@@ -93,7 +93,7 @@ public class FilteredEventClassifierBenchmark
    * Test node logic emits correct results
    */
   @Test
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     FilteredEventClassifier<Double> node = new FilteredEventClassifier<Double>();
