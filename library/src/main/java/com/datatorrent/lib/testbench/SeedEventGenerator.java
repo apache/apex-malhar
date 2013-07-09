@@ -116,7 +116,7 @@ public class SeedEventGenerator extends BaseOperator implements InputOperator
     }
     // done generating data
     LOG.info("Finished generating data.");
-    throw new RuntimeException(new InterruptedException("Finished generating data."));
+    //throw new RuntimeException(new InterruptedException("Finished generating data."));
   }
 
   /**
