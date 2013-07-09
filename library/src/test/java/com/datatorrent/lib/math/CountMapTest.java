@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.math.CountMap;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
@@ -40,7 +40,7 @@ public class CountMapTest
   public void testNodeProcessing()
   {
     CountMap<String, Double> oper = new CountMap<String, Double>();
-    TestSink countSink = new TestSink();
+    CollectorTestSink countSink = new CollectorTestSink();
     oper.count.setSink(countSink);
 
     oper.beginWindow(0); //

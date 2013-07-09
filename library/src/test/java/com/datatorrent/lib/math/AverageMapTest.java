@@ -22,13 +22,13 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.datatorrent.engine.TestSink;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
- * 
+ *
  * Functional tests for {@link com.datatorrent.lib.math.AverageMap}.
  * <p>
- * 
+ *
  */
 public class AverageMapTest
 {
@@ -42,7 +42,7 @@ public class AverageMapTest
 		AverageMap<String, Double> oper = new AverageMap<String, Double>();
 		oper.setType(Double.class);
 
-		TestSink averageSink = new TestSink();
+		CollectorTestSink averageSink = new CollectorTestSink();
 		oper.average.setSink(averageSink);
 
 		oper.beginWindow(0); //

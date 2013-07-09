@@ -22,7 +22,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.datatorrent.engine.TestSink;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  * Functional tests for {@link com.datatorrent.lib.math.SumMap}.
@@ -38,7 +38,7 @@ public class SumMapTest
 	{
 		SumMap<String, Double> oper = new SumMap<String, Double>();
 		oper.setType(Double.class);
-		TestSink sumSink = new TestSink();
+		CollectorTestSink sumSink = new CollectorTestSink();
 		oper.sum.setSink(sumSink);
 
 		oper.beginWindow(0); //

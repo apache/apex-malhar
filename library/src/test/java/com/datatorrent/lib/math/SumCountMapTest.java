@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.math.SumCountMap;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
@@ -44,8 +44,8 @@ public class SumCountMapTest
 	{
 		SumCountMap<String, Double> oper = new SumCountMap<String, Double>();
 		oper.setType(Double.class);
-		TestSink sumSink = new TestSink();
-		TestSink countSink = new TestSink();
+		CollectorTestSink sumSink = new CollectorTestSink();
+		CollectorTestSink countSink = new CollectorTestSink();
 		if (sum) {
 			oper.sum.setSink(sumSink);
 		}

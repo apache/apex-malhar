@@ -21,7 +21,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.engine.TestSink;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
@@ -39,7 +41,7 @@ public class MultiWindowRangeKeyValTest
 	{
 		MultiWindowRangeKeyVal<String, Integer> oper = new MultiWindowRangeKeyVal<String, Integer>();
 
-		TestSink swinSink = new TestSink();
+		CollectorTestSink swinSink = new CollectorTestSink();
 		oper.range.setSink(swinSink);
 
 		oper.beginWindow(0);

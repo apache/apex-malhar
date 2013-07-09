@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.math.SumCountMap;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.HashMap;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -36,13 +36,13 @@ public class SumCountMapBenchmark
    * Test operator logic emits correct results.
    */
   @Test
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testNodeSchemaProcessing() throws InterruptedException
   {
     SumCountMap<String, Double> oper = new SumCountMap<String, Double>();
     oper.setType(Double.class);
-    TestSink sumSink = new TestSink();
-    TestSink countSink = new TestSink();
+    CollectorTestSink sumSink = new CollectorTestSink();
+    CollectorTestSink countSink = new CollectorTestSink();
     oper.sum.setSink(sumSink);
     oper.count.setSink(countSink);
 

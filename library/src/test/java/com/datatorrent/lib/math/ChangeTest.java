@@ -15,18 +15,18 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.math.Change;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  * Functional tests for {@link com.datatorrent.lib.math.Change}.
  * <p>
- * 
+ *
  */
 public class ChangeTest
 {
@@ -46,13 +46,13 @@ public class ChangeTest
 	}
 
 	/**
-	 * 
+	 *
 	 * @param oper  Data value for comparison.
 	 */
 	public <V extends Number> void testNodeProcessingSchema(Change<V> oper)
 	{
-		TestSink changeSink = new TestSink();
-		TestSink percentSink = new TestSink();
+		CollectorTestSink changeSink = new CollectorTestSink();
+		CollectorTestSink percentSink = new CollectorTestSink();
 
 		oper.change.setSink(changeSink);
 		oper.percent.setSink(percentSink);

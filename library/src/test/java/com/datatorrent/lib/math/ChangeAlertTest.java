@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.engine.TestSink;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
@@ -48,7 +48,7 @@ public class ChangeAlertTest
 
   public <V extends Number> void testNodeProcessingSchema(ChangeAlert<V> oper)
   {
-    TestSink alertSink = new TestSink();
+    CollectorTestSink alertSink = new CollectorTestSink();
 
     oper.alert.setSink(alertSink);
     oper.setPercentThreshold(5);

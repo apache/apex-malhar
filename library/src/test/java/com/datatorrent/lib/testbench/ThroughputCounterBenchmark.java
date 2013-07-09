@@ -75,7 +75,7 @@ public class ThroughputCounterBenchmark {
    * Tests both string and non string schema
    */
   @Test
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testSingleSchemaNodeProcessing() throws Exception
   {
     ThroughputCounter<String, Integer> node = new ThroughputCounter<String, Integer>();

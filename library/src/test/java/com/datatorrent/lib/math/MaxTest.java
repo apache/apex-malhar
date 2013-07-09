@@ -19,10 +19,10 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.datatorrent.engine.TestSink;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
- * Functional tests for {@link com.datatorrent.lib.math.Max}. 
+ * Functional tests for {@link com.datatorrent.lib.math.Max}.
  */
 public class MaxTest
 {
@@ -33,7 +33,7 @@ public class MaxTest
   public void testNodeProcessing()
   {
     Max<Double> oper = new Max<Double>();
-    TestSink rangeSink = new TestSink();
+    CollectorTestSink rangeSink = new CollectorTestSink();
     oper.max.setSink(rangeSink);
 
     oper.beginWindow(0); //

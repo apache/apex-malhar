@@ -22,7 +22,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.datatorrent.engine.TestSink;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  * Functional tests for {@link com.datatorrent.lib.script.BashOperator}.
@@ -38,7 +38,7 @@ public class BashOperatorTest
 		builder.append("val = val * val;");
 		oper.setScript(builder.toString());
 		oper.setPassThru(true);
-		TestSink sink = new TestSink();
+		CollectorTestSink sink = new CollectorTestSink();
 		oper.result.setSink(sink);
 
 		// Add input sample data.

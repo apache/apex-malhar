@@ -21,14 +21,14 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.engine.TestSink;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
- * 
+ *
  * Functional tests for {@link com.datatorrent.lib.math.ChangeKeyVal}.
  * <p>
- * 
+ *
  */
 public class ChangeKeyValTest
 {
@@ -48,15 +48,15 @@ public class ChangeKeyValTest
 	}
 
 	/**
-	 * 
+	 *
 	 * @param oper
 	 *          key/value pair for comparison.
 	 */
 	public <V extends Number> void testNodeProcessingSchema(
 			ChangeKeyVal<String, V> oper)
 	{
-		TestSink changeSink = new TestSink();
-		TestSink percentSink = new TestSink();
+		CollectorTestSink changeSink = new CollectorTestSink();
+		CollectorTestSink percentSink = new CollectorTestSink();
 
 		oper.change.setSink(changeSink);
 		oper.percent.setSink(percentSink);

@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.engine.TestSink;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  * Functional tests for
@@ -78,7 +78,7 @@ public class SlidingWindowTest
 	{
 		mySlidingWindow oper = new mySlidingWindow();
 
-		TestSink swinSink = new TestSink();
+		CollectorTestSink swinSink = new CollectorTestSink();
 		oper.out.setSink(swinSink);
 		oper.setN(3);
 		oper.setup(null);

@@ -15,15 +15,15 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.math.Average;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import junit.framework.Assert;
 import org.junit.Test;
 
 /**
- * 
- * Functional tests for {@link com.datatorrent.lib.math.Average}. 
- * <p> Sample values are processed after operator begin window.  
+ *
+ * Functional tests for {@link com.datatorrent.lib.math.Average}.
+ * <p> Sample values are processed after operator begin window.
  * Result is collected on output sink and compared.
  */
 public class AverageTest
@@ -55,7 +55,7 @@ public class AverageTest
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testNodeSchemaProcessing(Average oper)
 	{
-		TestSink averageSink = new TestSink();
+		CollectorTestSink averageSink = new CollectorTestSink();
 		oper.average.setSink(averageSink);
 
 		oper.beginWindow(0); //

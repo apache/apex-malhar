@@ -37,7 +37,7 @@ public class SimpleMovingAverageBenchmark
    * Test functional logic.
    */
   @Test
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws InterruptedException
   {
     SimpleMovingAverage<String, Double> oper = new SimpleMovingAverage<String, Double>();

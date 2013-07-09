@@ -38,7 +38,7 @@ public class LogicalCompareToConstantBenchmark
    * Test operator logic emits correct results.
    */
   @Test
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing()
   {
     LogicalCompareToConstant<Integer> oper = new LogicalCompareToConstant<Integer>()

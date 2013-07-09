@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.math.CountMap;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.HashMap;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -36,11 +36,11 @@ public class CountMapBenchmark
    * Test operator logic emits correct results.
    */
   @Test
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testNodeSchemaProcessing() throws InterruptedException
   {
     CountMap<String, Double> oper = new CountMap<String, Double>();
-    TestSink countSink = new TestSink();
+    CollectorTestSink countSink = new CollectorTestSink();
     oper.count.setSink(countSink);
 
     int numTuples = 100000000;

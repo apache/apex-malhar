@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.math.MarginKeyVal;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -42,7 +42,7 @@ public class MarginKeyValTest
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testNodeProcessingSchema(MarginKeyVal oper)
 	{
-		TestSink marginSink = new TestSink();
+		CollectorTestSink marginSink = new CollectorTestSink();
 
 		oper.margin.setSink(marginSink);
 

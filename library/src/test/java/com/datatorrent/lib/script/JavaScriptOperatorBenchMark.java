@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.engine.TestSink;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  * Functional tests for {@link com.datatorrent.lib.script.BashOperator}.
@@ -29,7 +29,7 @@ import com.datatorrent.engine.TestSink;
 public class JavaScriptOperatorBenchMark
 {
 	private static Logger log = LoggerFactory.getLogger(JavaScriptOperatorBenchMark.class);
-	
+
 	@Test
 	public void testJavaOperator()
 	{
@@ -41,21 +41,21 @@ public class JavaScriptOperatorBenchMark
 		oper.setup(null);
 		oper.setInvoke("square");
 		oper.setPassThru(true);
-		TestSink sink = new TestSink();
+		CollectorTestSink sink = new CollectorTestSink();
 		oper.result.setSink(sink);
 
-	  // generate process tuples  
+	  // generate process tuples
 		long startTime = System.nanoTime();
 		oper.beginWindow(0);
 		int numTuples = 10000000;
-		for (int i = 0; i < numTuples; i++) 
+		for (int i = 0; i < numTuples; i++)
 		{
 			HashMap<String, Object> tuple = new HashMap<String, Object>();
 			tuple.put("val", new Integer(i));
 		}
 		oper.endWindow();
 		long endTime = System.nanoTime();
-		long total = (startTime - endTime)/1000; 
+		long total = (startTime - endTime)/1000;
 		log.debug(String.format("\nBenchmarked %d tuples in %d ms", numTuples, total));
 	};
 }

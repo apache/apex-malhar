@@ -23,13 +23,13 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.engine.TestSink;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
- * 
+ *
  * Functional tests for {@link com.datatorrent.lib.math.ChangeMap}.
  * <p>
- * 
+ *
  */
 public class ChangeMapTest
 {
@@ -51,8 +51,8 @@ public class ChangeMapTest
 	public <V extends Number> void testNodeProcessingSchema(
 			ChangeMap<String, V> oper)
 	{
-		TestSink changeSink = new TestSink();
-		TestSink percentSink = new TestSink();
+		CollectorTestSink changeSink = new CollectorTestSink();
+		CollectorTestSink percentSink = new CollectorTestSink();
 
 		oper.change.setSink(changeSink);
 		oper.percent.setSink(percentSink);

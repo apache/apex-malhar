@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.math.SumKeyVal;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -36,12 +36,12 @@ public class SumKeyValBenchmark
    * Test operator logic emits correct results.
    */
   @Test
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testNodeSchemaProcessing() throws InterruptedException
   {
     SumKeyVal<String, Double> oper = new SumKeyVal<String, Double>();
     oper.setType(Double.class);
-    TestSink sumSink = new TestSink();
+    CollectorTestSink sumSink = new CollectorTestSink();
     oper.sum.setSink(sumSink);
 
     int numTuples = 100000000;

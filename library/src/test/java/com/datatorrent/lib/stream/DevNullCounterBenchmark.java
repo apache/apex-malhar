@@ -45,7 +45,7 @@ public class DevNullCounterBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testSingleSchemaNodeProcessing() throws Exception
   {
     DevNullCounter oper = new DevNullCounter();

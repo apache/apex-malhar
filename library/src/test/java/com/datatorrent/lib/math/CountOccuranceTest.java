@@ -17,7 +17,7 @@ package com.datatorrent.lib.math;
 
 import junit.framework.Assert;
 
-import com.datatorrent.engine.TestSink;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.testbench.CountOccurance;
 
 import org.junit.Test;
@@ -31,14 +31,14 @@ public class CountOccuranceTest
 	{
 		CountOccurance oper = new CountOccurance();
 		oper.setup(null);
-		TestSink sink = new TestSink();
+		CollectorTestSink sink = new CollectorTestSink();
     oper.outport.setSink(sink);
-    
+
     oper.beginWindow(1);
     oper.inport.process("a");
     oper.inport.process("b");
     oper.endWindow();
-    
+
     Assert.assertEquals("number emitted tuples", 1, sink.collectedTuples.size());
 	}
 }

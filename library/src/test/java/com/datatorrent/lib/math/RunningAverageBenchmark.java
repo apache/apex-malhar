@@ -37,7 +37,7 @@ public class RunningAverageBenchmark
    * Test oper logic emits correct results
    */
   @Test
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testNodeSchemaProcessing()
   {
     RunningAverage oper = new RunningAverage();

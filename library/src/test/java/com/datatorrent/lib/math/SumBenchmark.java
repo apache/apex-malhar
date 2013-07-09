@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.math.Sum;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -35,7 +35,7 @@ public class SumBenchmark
    * Test operator logic emits correct results.
    */
   @Test
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing()
   {
     Sum<Double> doper = new Sum<Double>();
@@ -58,7 +58,7 @@ public class SumBenchmark
 
   public void testNodeSchemaProcessing(Sum oper, String debug)
   {
-    TestSink sumSink = new TestSink();
+    CollectorTestSink sumSink = new CollectorTestSink();
     oper.sum.setSink(sumSink);
 
     oper.beginWindow(0); //

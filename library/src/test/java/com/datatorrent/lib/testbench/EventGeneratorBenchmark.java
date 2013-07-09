@@ -80,7 +80,7 @@ public class EventGeneratorBenchmark
    * The sink would simply ignore the payload as we are testing throughput
    */
   @Test
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws Exception
   {
     LogicalPlan dag = new LogicalPlan();

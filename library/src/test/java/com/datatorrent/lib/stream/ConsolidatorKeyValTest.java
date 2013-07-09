@@ -22,7 +22,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.datatorrent.engine.TestSink;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
@@ -34,9 +34,9 @@ public class ConsolidatorKeyValTest
 	@Test
 	public void testNodeProcessing() throws Exception
 	{
-		ConsolidatorKeyVal<String, Integer, Double, Integer, Integer, Integer> oper = 
+		ConsolidatorKeyVal<String, Integer, Double, Integer, Integer, Integer> oper =
 				new ConsolidatorKeyVal<String, Integer, Double, Integer, Integer, Integer>();
-		TestSink cSink = new TestSink();
+		CollectorTestSink cSink = new CollectorTestSink();
 		oper.out.setSink(cSink);
 
 		oper.beginWindow(0);
@@ -46,8 +46,8 @@ public class ConsolidatorKeyValTest
 		oper.in2.process(m2);
 		oper.endWindow();
 		Assert.assertEquals("number emitted tuples", 1, cSink.collectedTuples.size());
-		
-		
+
+
 		HashMap<String, ArrayList<Object>> map = (HashMap<String, ArrayList<Object>>) cSink.collectedTuples.get(0);
 		Assert.assertEquals("size of sink map", 1, map.size());
 	}

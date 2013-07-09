@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.script;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.script.BashOperator;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.HashMap;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -43,21 +43,21 @@ public class BashOperatorBanchmark
 		builder.append("val = val * val;");
 		oper.setScript(builder.toString());
 		oper.setPassThru(true);
-		TestSink sink = new TestSink();
+		CollectorTestSink sink = new CollectorTestSink();
 		oper.result.setSink(sink);
- 		
-	  // generate process tuples  
+
+	  // generate process tuples
 		long startTime = System.nanoTime();
 		oper.beginWindow(0);
 		int numTuples = 10000000;
-		for (int i = 0; i < numTuples; i++) 
+		for (int i = 0; i < numTuples; i++)
 		{
 			HashMap<String, Object> tuple = new HashMap<String, Object>();
 			tuple.put("val", new Integer(i));
 		}
 		oper.endWindow();
 		long endTime = System.nanoTime();
-		long total = (startTime - endTime)/1000; 
+		long total = (startTime - endTime)/1000;
 		log.debug(String.format("\nBenchmarked %d tuples in %d ms", numTuples, total));
   }
 }

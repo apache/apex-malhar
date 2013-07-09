@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.stream;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.stream.ArrayListAggregator;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.ArrayList;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -30,7 +30,7 @@ public class ArrayListAggregatorTest
 	public void testNodeProcessing() throws Exception
 	{
 		ArrayListAggregator<Integer> oper = new ArrayListAggregator<Integer>();
-		TestSink cSink = new TestSink();
+		CollectorTestSink cSink = new CollectorTestSink();
 
 		oper.output.setSink(cSink);
 		oper.setSize(10);

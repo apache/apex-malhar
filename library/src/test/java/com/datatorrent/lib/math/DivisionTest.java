@@ -15,17 +15,17 @@
  */
 package com.datatorrent.lib.math;
 
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.datatorrent.engine.TestSink;
 
 /**
- * 
+ *
  * Functional tests for {@link com.datatorrent.lib.math.Division}
  * <p>
- * 
+ *
  */
 public class DivisionTest
 {
@@ -36,15 +36,15 @@ public class DivisionTest
 	public void testNodeProcessing()
 	{
 		Division oper = new Division();
-		TestSink lqSink = new TestSink();
-		TestSink iqSink = new TestSink();
-		TestSink dqSink = new TestSink();
-		TestSink fqSink = new TestSink();
-		TestSink lrSink = new TestSink();
-		TestSink irSink = new TestSink();
-		TestSink drSink = new TestSink();
-		TestSink frSink = new TestSink();
-		TestSink eSink = new TestSink();
+		CollectorTestSink lqSink = new CollectorTestSink();
+		CollectorTestSink iqSink = new CollectorTestSink();
+		CollectorTestSink dqSink = new CollectorTestSink();
+		CollectorTestSink fqSink = new CollectorTestSink();
+		CollectorTestSink lrSink = new CollectorTestSink();
+		CollectorTestSink irSink = new CollectorTestSink();
+		CollectorTestSink drSink = new CollectorTestSink();
+		CollectorTestSink frSink = new CollectorTestSink();
+		CollectorTestSink eSink = new CollectorTestSink();
 
 		oper.longQuotient.setSink(lqSink);
 		oper.integerQuotient.setSink(iqSink);

@@ -17,7 +17,6 @@ package com.datatorrent.lib.multiwindow;
 
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.math.MinMap;
 import com.datatorrent.lib.multiwindow.AbstractSlidingWindow;
 import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
@@ -75,7 +74,7 @@ public class SlidingWindowBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws InterruptedException
   {
     mySlidingWindow oper = new mySlidingWindow();

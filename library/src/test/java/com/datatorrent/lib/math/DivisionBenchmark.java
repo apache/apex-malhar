@@ -15,7 +15,6 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.math.Division;
 import com.datatorrent.lib.testbench.CountTestSink;
 import junit.framework.Assert;
@@ -37,7 +36,7 @@ public class DivisionBenchmark
    * Test operator logic emits correct results.
    */
   @Test
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing()
   {
     Division oper = new Division();

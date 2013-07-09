@@ -37,7 +37,7 @@ public class MinMapBenchmark
    * Test functional logic
    */
   @Test
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testNodeProcessing() throws InterruptedException
   {
     testSchemaNodeProcessing(new MinMap<String, Integer>(), "integer"); // 8million/s

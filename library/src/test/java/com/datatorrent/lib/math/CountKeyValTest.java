@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.math.CountKeyVal;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -35,7 +35,7 @@ public class CountKeyValTest
   public void testNodeProcessing()
   {
     CountKeyVal<String, Double> oper = new CountKeyVal<String, Double>();
-    TestSink countSink = new TestSink();
+    CollectorTestSink countSink = new CollectorTestSink();
     oper.count.setSink(countSink);
 
     oper.beginWindow(0); //

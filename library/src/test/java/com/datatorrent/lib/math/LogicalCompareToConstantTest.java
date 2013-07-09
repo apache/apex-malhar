@@ -18,17 +18,17 @@ package com.datatorrent.lib.math;
 /**
  * Copyright (c) 2012-2012 Malhar, Inc. All rights reserved.
  */
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.datatorrent.engine.TestSink;
 
 /**
- * 
+ *
  * Functional tests for
  * {@link com.datatorrent.lib.math.LogicalCompareToConstant}
- * 
+ *
  */
 public class LogicalCompareToConstantTest
 {
@@ -41,12 +41,12 @@ public class LogicalCompareToConstantTest
 		LogicalCompareToConstant<Integer> oper = new LogicalCompareToConstant<Integer>()
 		{
 		};
-		TestSink eSink = new TestSink();
-		TestSink neSink = new TestSink();
-		TestSink gtSink = new TestSink();
-		TestSink gteSink = new TestSink();
-		TestSink ltSink = new TestSink();
-		TestSink lteSink = new TestSink();
+		CollectorTestSink eSink = new CollectorTestSink();
+		CollectorTestSink neSink = new CollectorTestSink();
+		CollectorTestSink gtSink = new CollectorTestSink();
+		CollectorTestSink gteSink = new CollectorTestSink();
+		CollectorTestSink ltSink = new CollectorTestSink();
+		CollectorTestSink lteSink = new CollectorTestSink();
 
 		oper.equalTo.setSink(eSink);
 		oper.notEqualTo.setSink(neSink);

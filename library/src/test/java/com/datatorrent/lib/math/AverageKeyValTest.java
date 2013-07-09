@@ -15,6 +15,9 @@
  */
 package com.datatorrent.lib.math;
 
+import com.datatorrent.lib.math.AverageKeyVal;
+import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.KeyValPair;
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -23,10 +26,10 @@ import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
- * 
+ *
  * Functional tests for {@link com.datatorrent.lib.math.AverageKeyVal}.
  * <p>
- * 
+ *
  */
 public class AverageKeyValTest
 {
@@ -38,7 +41,7 @@ public class AverageKeyValTest
 	public void testNodeProcessing()
 	{
 		AverageKeyVal<String> oper = new AverageKeyVal<String>();
-		TestSink averageSink = new TestSink();
+		CollectorTestSink averageSink = new CollectorTestSink();
 
 		oper.doubleAverage.setSink(averageSink);
 

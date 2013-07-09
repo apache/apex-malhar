@@ -21,14 +21,14 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.engine.TestSink;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
- * 
+ *
  * Functional tests for {@link com.datatorrent.lib.math.ChangeAlertKeyVal}.
  * <p>
- * 
+ *
  */
 public class ChangeAlertKeyValTest
 {
@@ -51,7 +51,7 @@ public class ChangeAlertKeyValTest
 	public <V extends Number> void testNodeProcessingSchema(
 			ChangeAlertKeyVal<String, V> oper)
 	{
-		TestSink alertSink = new TestSink();
+		CollectorTestSink alertSink = new CollectorTestSink();
 
 		oper.alert.setSink(alertSink);
 		oper.setPercentThreshold(5);

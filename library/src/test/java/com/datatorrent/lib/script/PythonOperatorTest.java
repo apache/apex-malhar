@@ -22,8 +22,8 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.script.PythonOperator;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  * Unit test for PythonOperator.
@@ -39,16 +39,16 @@ public class PythonOperatorTest
 		builder.append("import operator\n").append("val = operator.mul(val, val)");
 		oper.setScript(builder.toString());
 		oper.setPassThru(true);
-		
-		TestSink sink = new TestSink();
+
+		CollectorTestSink sink = new CollectorTestSink();
 		oper.result.setSink(sink);
     HashMap<String, Object> tuple = new HashMap<String, Object>();
     tuple.put("val", new Integer(2));
-    
-		oper.beginWindow(0); 
+
+		oper.beginWindow(0);
 		oper.inBindings.process(tuple);
 		oper.endWindow();
-             
+
 		Assert.assertEquals("number emitted tuples", 1, sink.collectedTuples.size());
 	  for (Object o: sink.collectedTuples) { // count is 12
 			@SuppressWarnings("unchecked")

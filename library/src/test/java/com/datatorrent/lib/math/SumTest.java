@@ -29,7 +29,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.engine.TestSink;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.stram.StramLocalCluster;
 import com.datatorrent.stram.plan.logical.LogicalPlan;
 
@@ -67,7 +67,7 @@ public class SumTest
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testNodeSchemaProcessing(Sum oper)
 	{
-		TestSink sumSink = new TestSink();
+		CollectorTestSink sumSink = new CollectorTestSink();
 		oper.sum.setSink(sumSink);
 
 		oper.beginWindow(0); //
@@ -153,7 +153,7 @@ public class SumTest
 
 	/**
 	 * Test partitioning.
-	 * 
+	 *
 	 */
 	@Test
 	public void partitionTest()

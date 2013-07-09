@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.multiwindow;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.multiwindow.SimpleMovingAverage;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -36,8 +36,8 @@ public class SimpleMovingAverageTest
   {
     SimpleMovingAverage<String, Double> oper = new SimpleMovingAverage<String, Double>();
 
-    TestSink sink = new TestSink();
-    TestSink sink2 = new TestSink();
+    CollectorTestSink sink = new CollectorTestSink();
+    CollectorTestSink sink2 = new CollectorTestSink();
     oper.doubleSMA.setSink(sink);
     oper.integerSMA.setSink(sink2);
     oper.setWindowSize(3);

@@ -15,14 +15,14 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.math.SumKeyVal;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
 import junit.framework.Assert;
 import org.junit.Test;
 
 /**
- * Functional tests for {@link com.datatorrent.lib.math.SumKeyVal}. 
+ * Functional tests for {@link com.datatorrent.lib.math.SumKeyVal}.
  */
 public class SumKeyValTest
 {
@@ -35,7 +35,7 @@ public class SumKeyValTest
   {
     SumKeyVal<String, Double> oper = new SumKeyVal<String, Double>();
     oper.setType(Double.class);
-    TestSink sumSink = new TestSink();
+    CollectorTestSink sumSink = new CollectorTestSink();
     oper.sum.setSink(sumSink);
 
     oper.beginWindow(0); //

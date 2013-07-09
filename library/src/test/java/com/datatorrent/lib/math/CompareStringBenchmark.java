@@ -38,7 +38,7 @@ public class CompareStringBenchmark
    */
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testNodeProcessingSchema()
   {
     CompareStringMap<String> oper = new CompareStringMap<String>();

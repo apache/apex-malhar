@@ -59,7 +59,7 @@ public class QuotientBenchmark
    * Test oper logic emits correct results
    */
   @Test
-  @Category(com.datatorrent.annotation.PerformanceTestCategory.class)
+  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testNodeSchemaProcessing()
   {
     Quotient<Double> oper = new Quotient<Double>();

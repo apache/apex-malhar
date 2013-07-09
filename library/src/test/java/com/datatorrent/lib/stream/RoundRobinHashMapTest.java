@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.stream;
 
-import com.datatorrent.engine.TestSink;
 import com.datatorrent.lib.stream.RoundRobinHashMap;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class RoundRobinHashMapTest
 	public void testNodeProcessing() throws Exception
 	{
 		RoundRobinHashMap oper = new RoundRobinHashMap();
-		TestSink mapSink = new TestSink();
+		CollectorTestSink mapSink = new CollectorTestSink();
 
 		String[] keys = new String[3];
 		keys[0] = "a";
