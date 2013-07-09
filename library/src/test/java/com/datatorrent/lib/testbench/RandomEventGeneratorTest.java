@@ -15,16 +15,9 @@
  */
 package com.datatorrent.lib.testbench;
 
-import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.lib.testbench.RandomEventGenerator;
-import com.datatorrent.stram.StramLocalCluster;
-import com.datatorrent.stram.plan.logical.LogicalPlan;
-
-import java.util.logging.Level;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Functional test for {@link com.datatorrent.lib.testbench.RandomEventGenerator}<p>
@@ -41,59 +34,12 @@ import org.slf4j.LoggerFactory;
  */
 public class RandomEventGeneratorTest
 {
-  private static Logger log = LoggerFactory.getLogger(RandomEventGeneratorTest.class);
   static int icount = 0;
   static int imax = -1;
   static int imin = -1;
   static int scount = 0;
   static int smax = -1;
   static int smin = -1;
-
-  public static class CollectorOperator extends BaseOperator
-  {
-    public final transient DefaultInputPort<String> sdata = new DefaultInputPort<String>()
-    {
-      @Override
-      public void process(String tuple)
-      {
-        scount++;
-        int tval = Integer.parseInt(tuple);
-        if (smin == -1) {
-          smin = tval;
-        }
-        else if (smin > tval) {
-          smin = tval;
-        }
-        if (smax == -1) {
-          smax = tval;
-        }
-        else if (smax < tval) {
-          smax = tval;
-        }
-      }
-    };
-    public final transient DefaultInputPort<Integer> idata = new DefaultInputPort<Integer>()
-    {
-      @Override
-      public void process(Integer tuple)
-      {
-        icount++;
-        int tval = tuple.intValue();
-        if (imin == -1) {
-          imin = tval;
-        }
-        else if (imin > tval) {
-          imin = tval;
-        }
-        if (imax == -1) {
-          imax = tval;
-        }
-        else if (imax < tval) {
-          imax = tval;
-        }
-      }
-    };
-  }
 
   protected void clear()
   {
@@ -111,52 +57,29 @@ public class RandomEventGeneratorTest
   @Test
   public void testNodeProcessing() throws Exception
   {
-    testSchemaNodeProcessing(true, true);
-    testSchemaNodeProcessing(true, false);
-    testSchemaNodeProcessing(false, true);
+    testSchemaNodeProcessing();
+    testSchemaNodeProcessing();
+    testSchemaNodeProcessing();
   }
 
-  public void testSchemaNodeProcessing(boolean dostring, boolean dointeger) throws Exception
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+	public void testSchemaNodeProcessing() throws Exception
   {
-    if (!dostring && !dointeger) {
-      return; // at least one has to be used
-    }
-    LogicalPlan dag = new LogicalPlan();
-    RandomEventGenerator node = dag.addOperator("randomgen", new RandomEventGenerator());
-    CollectorOperator collector = dag.addOperator("data collector", new CollectorOperator());
-    clear();
-
-    if (dostring) {
-      dag.addStream("tests", node.string_data, collector.sdata).setInline(true);
-    }
-
-    if (dointeger) {
-      dag.addStream("testi", node.integer_data, collector.idata).setInline(true);
-    }
-
+    RandomEventGenerator node = new RandomEventGenerator();
     node.setMinvalue(0);
     node.setMaxvalue(999);
     node.setTuplesBlast(5000);
-
-    final StramLocalCluster lc = new StramLocalCluster(dag);
-    lc.setHeartbeatMonitoringEnabled(false);
-
-    new Thread()
-    {
-      @Override
-      public void run()
-      {
-        try {
-          Thread.sleep(1000);
-          lc.shutdown();
-        }
-        catch (InterruptedException ex) {
-          log.debug("Interrupted", ex);
-        }
-      }
-    }.start();
-
-    lc.run();
-    log.debug(String.format("\nProcessed %d string tuples at range(%d,%d) and %d integer tuples at range(%d,%d)", scount, smax, smin, icount, imax, imin));
+    CollectorTestSink integer_data = new CollectorTestSink();
+    node.integer_data.setSink(integer_data);
+    CollectorTestSink string_data = new CollectorTestSink();
+    node.string_data.setSink(string_data);
+    
+    node.setup(null);
+    node.beginWindow(1);
+    node.emitTuples();
+    node.endWindow();
+    node.teardown();
+    assertTrue("tuple blast" , integer_data.collectedTuples.size() == 5000);
+    assertTrue("tuple blast" , string_data.collectedTuples.size() == 5000);
   }
 }
