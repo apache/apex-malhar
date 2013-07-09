@@ -22,9 +22,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.datatorrent.engine.TestSink;
-import com.datatorrent.lib.util.KeyValPair;
-
 /**
  *
  * Functional tests for {@link com.datatorrent.lib.math.AverageKeyVal}.
