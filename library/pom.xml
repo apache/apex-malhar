@@ -63,12 +63,12 @@
       <artifactId>jetty-websocket</artifactId>
       <version>8.1.10.v20130312</version>
     </dependency>
-    <!--dependency>
+    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>malhar-daemon</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
-    </dependency-->
+    </dependency>
     <dependency>
       <groupId>com.sun.mail</groupId>
       <artifactId>javax.mail</artifactId>
@@ -89,13 +89,13 @@
       <artifactId>jersey-client</artifactId>
       <version>1.17.1</version>
     </dependency>
-    <!--dependency>
+    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>malhar-stram</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
       <type>test-jar</type>
-    </dependency-->
+    </dependency>
     <dependency>
       <groupId>javax.jms</groupId>
       <artifactId>jms-api</artifactId>
