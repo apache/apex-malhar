@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import com.datatorrent.lib.algo.WindowedHolder;
 import com.datatorrent.lib.algo.WindowedTopCounter;
-import com.datatorrent.lib.codec.JavaSerializationStreamCodec;
+import com.datatorrent.lib.util.JavaSerializationStreamCodec;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
