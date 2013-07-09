@@ -1,5 +1,6 @@
 package com.datatorrent.lib.io;
 
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
@@ -13,26 +14,24 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.datatorrent.engine.TestSink;
-
 public class ActiveMQStringInputOperatorTest implements Runnable
 {
-	private ActiveMQStringInputOperator consumer; 
+	private ActiveMQStringInputOperator consumer;
 	private boolean terminate = false;
 	private Session session;
 	private Connection connection;
 	private MessageProducer producer;
-	private TestSink sink = new TestSink();
+	private CollectorTestSink sink = new CollectorTestSink();
 	private Thread generator;
-  
+
   @Before
   public void beforeTest() throws Exception
   {
-  	
+
   	// Active MQ consumer operator
   	consumer = new ActiveMQStringInputOperator();
     consumer.outport.setSink(sink);
-    
+
     // Create a ConnectionFactory
     ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost");
 
@@ -49,17 +48,17 @@ public class ActiveMQStringInputOperatorTest implements Runnable
     // Create a MessageProducer from the Session to the Topic or Queue
     producer = session.createProducer(destination);
     producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-    
+
     // start producer thread
     generator = new Thread(this);
     generator.start();
   }
-  
+
   @After
   public void afterTest() throws Exception
   {
   }
-  
+
   @Test
   public void testActiveMQInputOperator() throws Exception
   {
@@ -81,7 +80,7 @@ public class ActiveMQStringInputOperatorTest implements Runnable
         String myMsg = "My TestMessage " + i;
         TextMessage message;
 				try {
-					
+
 					message = session.createTextMessage(myMsg);
 	        producer.send(message);
 	        //System.out.println(message.toString());
@@ -89,7 +88,7 @@ public class ActiveMQStringInputOperatorTest implements Runnable
 					e.printStackTrace();
 				}
     	}
-    	
+
     	try {
   			Thread.sleep(100);
   		} catch (InterruptedException e) {
