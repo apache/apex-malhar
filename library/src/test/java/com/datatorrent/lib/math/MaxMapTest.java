@@ -21,7 +21,6 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.math.MaxMap;
 import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 import com.datatorrent.stram.StramLocalCluster;
-import com.datatorrent.stram.plan.logical.LogicalPlan;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -169,55 +168,5 @@ public class MaxMapTest
 				buffer.add(tuple);
 			}
 		};
-	}
-
-	/**
-	 * Test partitioning.
-	 * 
-	 */
-	@Test
-	public void partitionTest()
-	{
-		try {
-			LogicalPlan dag = new LogicalPlan();
-			int N = 4; // number of partitions.
-
-			TestInputOperator test = dag.addOperator("test", new TestInputOperator());
-			MaxMap<String, Integer> oper = dag.addOperator("max",
-					new MaxMap<String, Integer>());
-			CollectorOperator collector = dag.addOperator("collector",
-					new CollectorOperator());
-
-			dag.getMeta(oper).getAttributes()
-					.attr(OperatorContext.INITIAL_PARTITION_COUNT).set(N);
-
-			dag.addStream("test_max", test.output, oper.data).setInline(false);
-			dag.addStream("max_console", oper.max, collector.input).setInline(false);
-
-			final StramLocalCluster lc = new StramLocalCluster(dag);
-			lc.setHeartbeatMonitoringEnabled(false);
-			new Thread()
-			{
-				@Override
-				public void run()
-				{
-					try {
-						Thread.sleep(10000);
-					} catch (InterruptedException ex) {
-					}
-
-					lc.shutdown();
-				}
-			}.start();
-
-			lc.run();
-
-			Assert.assertEquals("received tuples ", 1,
-					CollectorOperator.buffer.size());
-			log.debug(String.format("max of a value %s", CollectorOperator.buffer
-					.get(0).toString()));
-		} catch (Exception ex) {
-			log.debug("got exception", ex);
-		}
 	}
 }
