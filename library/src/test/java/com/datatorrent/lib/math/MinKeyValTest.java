@@ -32,7 +32,6 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.stram.StramLocalCluster;
-import com.datatorrent.stram.plan.logical.LogicalPlan;
 
 /**
  * Functional tests for {@link com.datatorrent.lib.math.MinKeyVal}.
@@ -142,81 +141,5 @@ public class MinKeyValTest
 				buffer.add(new KeyValPair(tuple.getKey(), tuple.getValue()));
 			}
 		};
-	}
-
-	/**
-	 * Test partitioning.
-	 * 
-	 * 
-	 */
-	@Test
-	public void partitionTest()
-	{
-		try {
-			LogicalPlan dag = new LogicalPlan();
-			int N = 4; // number of partitions.
-
-			TestInputOperator test = dag.addOperator("test", new TestInputOperator());
-			MinKeyVal<String, Integer> oper = dag.addOperator("min",
-					new MinKeyVal<String, Integer>());
-			oper.setType(Integer.class);
-			CollectorOperator collector = dag.addOperator("collector",
-					new CollectorOperator());
-
-			dag.getMeta(oper).getAttributes()
-					.attr(OperatorContext.INITIAL_PARTITION_COUNT).set(N);
-
-			dag.addStream("test_min", test.output, oper.data).setInline(false); // inline
-																																					// has
-																																					// to
-																																					// be
-																																					// false
-																																					// to
-																																					// make
-																																					// partition
-																																					// working,
-																																					// o/w
-																																					// you
-																																					// get
-																																					// assertion
-																																					// error
-																																					// in
-																																					// assert
-																																					// (nodi.isInline()
-																																					// ==
-																																					// false)
-																																					// in
-																																					// StramChild.java
-			dag.addStream("min_console", oper.min, collector.input).setInline(false);
-
-			final StramLocalCluster lc = new StramLocalCluster(dag);
-			lc.setHeartbeatMonitoringEnabled(false);
-
-			new Thread()
-			{
-				@Override
-				public void run()
-				{
-					try {
-						Thread.sleep(10000);
-					} catch (InterruptedException ex) {
-					}
-					lc.shutdown();
-				}
-			}.start();
-
-			lc.run();
-
-			Assert.assertEquals("received tuples ", 3,
-					CollectorOperator.buffer.size());
-			log.debug(String.format("min of a value %s", CollectorOperator.buffer
-					.get(0).toString()));
-			log.debug(String.format("min of a value %s", CollectorOperator.buffer
-					.get(1).toString()));
-			log.debug(String.format("min of a value %s", CollectorOperator.buffer
-					.get(2).toString()));
-		} catch (Exception ex) {
-			log.debug("got exception", ex);
-		}
 	}
 }
