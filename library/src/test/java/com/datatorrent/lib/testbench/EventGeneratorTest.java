@@ -18,15 +18,13 @@ package com.datatorrent.lib.testbench;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.lib.testbench.EventGenerator;
-import com.datatorrent.stram.StramLocalCluster;
-import com.datatorrent.stram.plan.logical.LogicalPlan;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -92,47 +90,27 @@ public class EventGeneratorTest
     testSingleSchemaNodeProcessing(false); // 7.5 million/s
   }
 
-  public void testSingleSchemaNodeProcessing(boolean stringschema) throws Exception
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+	public void testSingleSchemaNodeProcessing(boolean stringschema) throws Exception
   {
-    LogicalPlan dag = new LogicalPlan();
-    EventGenerator node = dag.addOperator("eventgen", EventGenerator.class);
-    CollectorOperator collector = dag.addOperator("data collector", new CollectorOperator());
-
+  	EventGenerator node = new EventGenerator();
     node.setKeys("a,b,c,d");
     node.setValues("");
     node.setWeights("10,40,20,30");
-    node.setTuplesBlast(1000);
-    node.setRollingWindowCount(5);
-
-    if (stringschema) {
-      dag.addStream("stest", node.string_data, collector.sdata).setInline(true);
-    }
-    else {
-      dag.addStream("htest", node.hash_data, collector.hdata).setInline(true);
-    }
-    dag.addStream("hcest", node.count, collector.count).setInline(true);
-
-    final StramLocalCluster lc = new StramLocalCluster(dag);
-    lc.setHeartbeatMonitoringEnabled(false);
-
-    new Thread()
-    {
-      @Override
-      public void run()
-      {
-        try {
-          Thread.sleep(1000);
-          lc.shutdown();
-        }
-        catch (InterruptedException ex) {
-          log.debug("Interrupted", ex);
-        }
-      }
-    }.start();
-
-    lc.run();
-    log.debug(String.format("\nProcessed %d string tuples", scount));
-    log.debug(String.format("\nProcessed %d hash tuples", hcount));
-    log.debug(String.format("\nGot %d count tuples", ccount));
+  	CollectorTestSink count = new CollectorTestSink(); 
+  	node.count.setSink(count);
+  	CollectorTestSink data = new CollectorTestSink(); 
+  	node.string_data.setSink(data);
+  	CollectorTestSink hashData = new CollectorTestSink(); 
+  	node.hash_data.setSink(hashData);
+    
+  	node.setup(null);
+  	node.beginWindow(1);
+  	node.emitTuples();
+  	node.endWindow();
+  	node.teardown();
+  	
+  	assertTrue("Default number of tuples generated", 10000 == data.collectedTuples.size());
+  	
   }
 }
