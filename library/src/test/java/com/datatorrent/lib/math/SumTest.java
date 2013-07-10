@@ -20,26 +20,20 @@ import java.util.ArrayList;
 import junit.framework.Assert;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.stram.StramLocalCluster;
-import com.datatorrent.stram.plan.logical.LogicalPlan;
+
 
 /**
  * Functional tests for {@link com.datatorrent.lib.math.Sum}.
  */
 public class SumTest
 {
-	private static Logger log = LoggerFactory.getLogger(SumTest.class);
-
 	/**
 	 * Test operator logic emits correct results.
 	 */
@@ -110,97 +104,6 @@ public class SumTest
 			Double val = ((Number) o).doubleValue();
 			Assert
 					.assertEquals("emitted sum value was was ", new Double(1157.0), val);
-		}
-	}
-
-	/**
-	 * Tuple generator to test partitioning.
-	 */
-	public static class TestInputOperator extends BaseOperator implements
-			InputOperator
-	{
-		@OutputPortFieldAnnotation(name = "output")
-		public final transient DefaultOutputPort<Integer> output = new DefaultOutputPort<Integer>();
-		public transient boolean first = true;
-
-		@Override
-		public void emitTuples()
-		{
-			if (first) {
-				for (int i = 0; i < 60; i++) {
-					output.emit(new Integer(i)); // send just only one tuple
-				}
-				first = false;
-			}
-		}
-	}
-
-	/**
-	 * Tuple collector to test partitioning.
-	 */
-	public static class CollectorOperator extends BaseOperator
-	{
-		public static final ArrayList<Integer> buffer = new ArrayList<Integer>();
-		public final transient DefaultInputPort<Integer> input = new DefaultInputPort<Integer>()
-		{
-			@Override
-			public void process(Integer tuple)
-			{
-				buffer.add(tuple);
-			}
-		};
-	}
-
-	/**
-	 * Test partitioning.
-	 *
-	 */
-	@Test
-	public void partitionTest()
-	{
-		try {
-			LogicalPlan dag = new LogicalPlan();
-			int N = 4; // number of partitions.
-
-			TestInputOperator test = dag.addOperator("test", new TestInputOperator());
-			Sum<Integer> oper = dag.addOperator("sum", new Sum<Integer>());
-			oper.setType(Integer.class);
-			CollectorOperator collector = dag.addOperator("collector",
-					new CollectorOperator());
-
-			dag.getMeta(oper).getAttributes()
-					.attr(OperatorContext.INITIAL_PARTITION_COUNT).set(N);
-
-			dag.addStream("test_sum", test.output, oper.data).setInline(false);
-			dag.addStream("sum_console", oper.sum, collector.input).setInline(false);
-
-			final StramLocalCluster lc = new StramLocalCluster(dag);
-			lc.setHeartbeatMonitoringEnabled(false);
-			new Thread()
-			{
-				@Override
-				public void run()
-				{
-					try {
-						Thread.sleep(10000);
-					} catch (InterruptedException ex) {
-					}
-
-					lc.shutdown();
-				}
-			}.start();
-
-			lc.run();
-
-			Assert.assertEquals("received tuples ", 1,
-					CollectorOperator.buffer.size());
-			log.debug(String.format("sum of a value %s", CollectorOperator.buffer
-					.get(0).toString()));
-			log.debug(String.format("sum of a value %s",
-					CollectorOperator.buffer.toString()));
-			CollectorOperator.buffer.clear();
-		} catch (Exception ex) {
-			log.debug("got exception", ex);
 		}
 	}
 }
