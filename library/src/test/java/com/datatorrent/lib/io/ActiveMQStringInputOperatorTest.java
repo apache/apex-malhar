@@ -1,31 +1,45 @@
 package com.datatorrent.lib.io;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
-import javax.jms.Connection;
-import javax.jms.DeliveryMode;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
+import javax.jms.connection;
+import javax.jms.deliverymode;
+import javax.jms.destination;
+import javax.jms.jmsexception;
+import javax.jms.messageproducer;
+import javax.jms.session;
+import javax.jms.textmessage;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.activemq.activemqconnectionfactory;
+import org.junit.after;
+import org.junit.before;
+import org.junit.test;
 
-public class ActiveMQStringInputOperatorTest implements Runnable
+public class activemqstringinputoperatortest implements runnable
 {
-	private ActiveMQStringInputOperator consumer;
+	private activemqstringinputoperator consumer;
 	private boolean terminate = false;
-	private Session session;
-	private Connection connection;
-	private MessageProducer producer;
-	private CollectorTestSink sink = new CollectorTestSink();
-	private Thread generator;
+	private session session;
+	private connection connection;
+	private messageproducer producer;
+	private collectortestsink sink = new collectortestsink();
+	private thread generator;
+	private boolean timerexpired = false;
 
-  @Before
-  public void beforeTest() throws Exception
+	private class timer implements runnable
+	{
+		@override
+		public void run()
+		{
+			try {
+				thread.sleep(2000);
+			} catch (interruptedexception e) {
+			}
+			timerexpired = true;
+		}
+	}
+  
+  @before
+  public void beforetest() throws exception
   {
 
   	// Active MQ consumer operator
@@ -62,39 +76,36 @@ public class ActiveMQStringInputOperatorTest implements Runnable
   @Test
   public void testActiveMQInputOperator() throws Exception
   {
+  	if (terminate) {
+  		assertTrue("Test failed in execution", false);
+  	}
+  	Thread timer = new Thread(new Timer());
+  	timer.start();
   	consumer.setup(null);
-  	Thread.sleep(2000);
-  	consumer.emitTuples();
+  	while(!timerExpired || (sink.collectedTuples.size() < 100)) {
+  	  consumer.emitTuples();
+  	  Thread.sleep(10);
+  	}
   	consumer.teardown();
-  	terminate = true;
   	generator.join();
   	System.out.println("Total Messages collected in sink : " + sink.collectedTuples.size());
+  	
   }
 
 	@Override
 	public void run()
 	{
-		while(!terminate)
-		{
-    	for (int i = 0; i < 10; i++) {
+    	for (int i = 0; i < 100; i++) {
         String myMsg = "My TestMessage " + i;
         TextMessage message;
 				try {
 
 					message = session.createTextMessage(myMsg);
 	        producer.send(message);
-	        //System.out.println(message.toString());
+	        System.out.println(message.toString());
 				} catch (JMSException e) {
 					e.printStackTrace();
 				}
     	}
-
-    	try {
-  			Thread.sleep(100);
-  		} catch (InterruptedException e) {
-  			// TODO Auto-generated catch block
-  			e.printStackTrace();
-  		}
-   }
 	}
 }
