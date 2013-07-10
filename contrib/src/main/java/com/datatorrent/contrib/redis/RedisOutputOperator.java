@@ -24,6 +24,8 @@ import com.datatorrent.api.Context.OperatorContext;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -31,6 +33,7 @@ import java.util.Set;
 @ShipContainingJars(classes = {RedisClient.class})
 public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperator<K, V>
 {
+  private static final Logger LOG = LoggerFactory.getLogger(RedisOutputOperator.class);
   protected transient RedisClient redisClient;
   protected transient RedisConnection<String, String> redisConnection;
   private String host = "localhost";
@@ -79,7 +82,7 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
     try {
       redisConnection.discard();
     } catch (RedisException ex) {
-      // ignore
+      LOG.warn("Discard transaction failed", ex);
     }
     redisConnection.multi();
   }
@@ -87,7 +90,11 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
   @Override
   public void commitTransaction()
   {
-    redisConnection.exec();
+    try {
+      redisConnection.exec();
+    } catch (RedisException ex) {
+      LOG.error("Error committing transaction", ex);
+    }
   }
 
   @Override
