@@ -17,7 +17,6 @@ package com.datatorrent.lib.testbench;
 
 import com.datatorrent.api.Sink;
 import com.datatorrent.lib.testbench.EventIncrementer;
-import com.datatorrent.tuple.Tuple;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,16 +50,11 @@ public class EventIncrementerBenchmark
     @Override
     public void put(Object payload)
     {
-      if (payload instanceof Tuple) {
-        // LOG.debug(payload.toString());
-      }
-      else {
         HashMap<String, String> tuple = (HashMap<String, String>)payload;
         for (Map.Entry<String, String> e: ((HashMap<String, String>)payload).entrySet()) {
           collectedTuples.put(e.getKey(), e.getValue());
           count++;
         }
-      }
     }
 
     public void clear()
@@ -87,15 +81,10 @@ public class EventIncrementerBenchmark
     @Override
     public void put(Object payload)
     {
-      if (payload instanceof Tuple) {
-        // LOG.debug(payload.toString());
-      }
-      else {
-        HashMap<String, Integer> tuple = (HashMap<String, Integer>)payload;
-        for (Map.Entry<String, Integer> e: ((HashMap<String, Integer>)payload).entrySet()) {
-          if (e.getKey().equals(EventIncrementer.OPORT_COUNT_TUPLE_COUNT)) {
-            count = e.getValue().intValue();
-          }
+      HashMap<String, Integer> tuple = (HashMap<String, Integer>)payload;
+      for (Map.Entry<String, Integer> e : ((HashMap<String, Integer>)payload).entrySet()) {
+        if (e.getKey().equals(EventIncrementer.OPORT_COUNT_TUPLE_COUNT)) {
+          count = e.getValue().intValue();
         }
       }
     }

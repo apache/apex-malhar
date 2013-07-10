@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.engine.TestSink;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
@@ -38,7 +38,7 @@ public class MultiWindowSumKeyValTest
 	{
 		MultiWindowSumKeyVal<String, Integer> oper = new MultiWindowSumKeyVal<String, Integer>();
 
-		TestSink swinSink = new TestSink();
+		CollectorTestSink swinSink = new CollectorTestSink();
 		oper.sum.setSink(swinSink);
 
 		oper.beginWindow(0);

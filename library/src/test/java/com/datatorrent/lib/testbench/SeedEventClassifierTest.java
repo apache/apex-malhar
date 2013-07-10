@@ -17,7 +17,6 @@ package com.datatorrent.lib.testbench;
 
 import com.datatorrent.api.Sink;
 import com.datatorrent.lib.testbench.SeedEventClassifier;
-import com.datatorrent.tuple.Tuple;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -39,13 +38,8 @@ public class SeedEventClassifierTest
     @Override
     public void put(Object tuple)
     {
-      if (tuple instanceof Tuple) {
-        // LOG.debug(payload.toString());
-      }
-      else {
-        collectedTuples.put((String) tuple, null);
-        count++;
-      }
+      collectedTuples.put((String)tuple, null);
+      count++;
     }
 
     @Override
@@ -63,13 +57,8 @@ public class SeedEventClassifierTest
     @Override
     public void put(Object tuple)
     {
-      if (tuple instanceof Tuple) {
-        // LOG.debug(payload.toString());
-      }
-      else {
-         collectedTuples.put((HashMap<String, HashMap<String, Integer>>) tuple, null);
-         count++;
-      }
+      collectedTuples.put((HashMap<String, HashMap<String, Integer>>)tuple, null);
+      count++;
     }
 
     @Override

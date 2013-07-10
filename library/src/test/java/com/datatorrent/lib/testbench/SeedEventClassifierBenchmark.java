@@ -17,7 +17,6 @@ package com.datatorrent.lib.testbench;
 
 import com.datatorrent.api.Sink;
 import com.datatorrent.lib.testbench.SeedEventClassifier;
-import com.datatorrent.tuple.Tuple;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -37,12 +36,7 @@ public class SeedEventClassifierBenchmark
     @Override
     public void put(Object tuple)
     {
-      if (tuple instanceof Tuple) {
-        // LOG.debug(payload.toString());
-      }
-      else {
-        count++;
-      }
+      count++;
     }
 
     @Override
@@ -59,12 +53,7 @@ public class SeedEventClassifierBenchmark
     @Override
     public void put(Object tuple)
     {
-      if (tuple instanceof Tuple) {
-        // LOG.debug(payload.toString());
-      }
-      else {
-         count++;
-      }
+      count++;
     }
 
     @Override

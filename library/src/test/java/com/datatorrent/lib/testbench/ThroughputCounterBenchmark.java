@@ -19,7 +19,6 @@ package com.datatorrent.lib.testbench;
 import com.datatorrent.api.Sink;
 import com.datatorrent.engine.OperatorContext;
 import com.datatorrent.lib.testbench.ThroughputCounter;
-import com.datatorrent.tuple.Tuple;
 import java.util.HashMap;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -54,14 +53,9 @@ public class ThroughputCounterBenchmark {
     @Override
     public void put(Object payload)
     {
-      if (payload instanceof Tuple) {
-        // LOG.debug(payload.toString());
-      }
-      else {
-        HashMap<String, Number> tuples = (HashMap<String, Number>)payload;
-        average = ((Long) tuples.get(ThroughputCounter.OPORT_COUNT_TUPLE_AVERAGE)).longValue();
-        count += ((Long) tuples.get(ThroughputCounter.OPORT_COUNT_TUPLE_COUNT)).longValue();
-      }
+      HashMap<String, Number> tuples = (HashMap<String, Number>)payload;
+      average = ((Long)tuples.get(ThroughputCounter.OPORT_COUNT_TUPLE_AVERAGE)).longValue();
+      count += ((Long)tuples.get(ThroughputCounter.OPORT_COUNT_TUPLE_COUNT)).longValue();
     }
 
     @Override

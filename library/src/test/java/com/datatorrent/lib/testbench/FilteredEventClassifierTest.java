@@ -17,7 +17,6 @@ package com.datatorrent.lib.testbench;
 
 import com.datatorrent.api.Sink;
 import com.datatorrent.lib.testbench.FilteredEventClassifier;
-import com.datatorrent.tuple.Tuple;
 import com.esotericsoftware.minlog.Log;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,22 +53,17 @@ public class FilteredEventClassifierTest
     @Override
     public void put(Object payload)
     {
-      if (payload instanceof Tuple) {
-        // LOG.debug(payload.toString());
-      }
-      else {
-        HashMap<String, Double> tuple = (HashMap<String, Double>)payload;
-        for (Map.Entry<String, Double> e: tuple.entrySet()) {
-          Integer ival = collectedTuples.get(e.getKey());
-          if (ival == null) {
-            ival = new Integer(1);
-          }
-          else {
-            ival = ival + 1;
-          }
-          collectedTuples.put(e.getKey(), ival);
-          collectedTupleValues.put(e.getKey(), e.getValue());
+      HashMap<String, Double> tuple = (HashMap<String, Double>)payload;
+      for (Map.Entry<String, Double> e : tuple.entrySet()) {
+        Integer ival = collectedTuples.get(e.getKey());
+        if (ival == null) {
+          ival = new Integer(1);
         }
+        else {
+          ival = ival + 1;
+        }
+        collectedTuples.put(e.getKey(), ival);
+        collectedTupleValues.put(e.getKey(), e.getValue());
       }
     }
 
