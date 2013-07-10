@@ -17,7 +17,6 @@ package com.datatorrent.lib.algo;
 
 import com.datatorrent.api.Sink;
 import com.datatorrent.lib.algo.TupleQueue;
-import com.datatorrent.tuple.Tuple;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,13 +39,9 @@ public class TupleQueueTest
     @Override
     public void put(Object payload)
     {
-      if (payload instanceof Tuple) {
-      }
-      else {
-        HashMap<String, Object> tuple = (HashMap<String, Object>)payload;
-        for (Map.Entry<String, Object> e: tuple.entrySet()) {
-          count++;
-        }
+      HashMap<String, Object> tuple = (HashMap<String, Object>)payload;
+      for (Map.Entry<String, Object> e : tuple.entrySet()) {
+        count++;
       }
     }
 
@@ -64,14 +59,10 @@ public class TupleQueueTest
     @Override
     public void put(Object payload)
     {
-      if (payload instanceof Tuple) {
-      }
-      else {
-        HashMap<String, ArrayList> tuple = (HashMap<String, ArrayList>)payload;
-        for (Map.Entry<String, ArrayList> e: tuple.entrySet()) {
-          map.put(e.getKey(), e.getValue());
-          count++;
-        }
+      HashMap<String, ArrayList> tuple = (HashMap<String, ArrayList>)payload;
+      for (Map.Entry<String, ArrayList> e : tuple.entrySet()) {
+        map.put(e.getKey(), e.getValue());
+        count++;
       }
     }
 
