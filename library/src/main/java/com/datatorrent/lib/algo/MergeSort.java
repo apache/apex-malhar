@@ -15,100 +15,162 @@
  */
 package com.datatorrent.lib.algo;
 
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Operator.Unifier;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.util.AbstractBaseSortOperator;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
- * <b>performance can be further improved</b>
- * Incoming sorted list is merged into already existing sorted list. The input list is expected to be sorted. At the end of the window the resultant sorted
- * list is emitted on the output ports<b>
+ * <p>
+ * Incoming sorted list is merged into already existing sorted list. The input list is expected to be sorted. <b>
+ * At the end of the window, merged sorted list is emitted on sort output port. <br>
+ * <br>
+ * <b>Notes : </b> <br>
+ * Get unifier instance must return instance of sub class itself, since merge operator 
+ * id unifier on output port. <br>
+ * <br>
+ *  <b>StateFull : Yes</b>, Sorted listed are merged over application window can be > 1. <br> 
+ *  <b>Partitions : Yes</b>, Operator itself is used as unfier on output port.
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects ArrayList&lt;K&gt;<br>
  * <b>sort</b>: emits ArrayList&lt;K&gt;<br>
- * <b>sorthash</b>: emits HashMap&lt;K,Integer&gt;<br>
  * <br>
- * <b>Properties</b>: None<br>
- * <b>Specific compile time checks</b>:<br>
- * <b>Specific run time checks</b>:<br>
- * <br>
- * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for MergeSort&lt;K&gt; operator template">
- * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>&gt; 2.5 Million tuples/s on average</b></td><td>All tuples inserted one at a time</td>
- * <td>In-bound throughput (i.e. total number of tuples in the window) is the main determinant of performance. Tuples are assumed to be
- * immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
- * </table><br>
- * <p>
- * <b>Function Table (K=Integer)</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for MergeSort&lt;K&gt; operator template">
- * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th colspan=2>Out-bound (emit)</th></tr>
- * <tr><th><i>datalsit</i>(ArrayList&lt;K&gt;)</th><th><i>sort</i>(ArrayList&lt;K&gt;)</th><th><i>sorthash</i>(HashMap&lt;K,Integer&gt;)</th></tr>
- * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
- * <tr><td>Data (process())</td><td></td><td>[-4,2,20]</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td></td><td>[-10,-5,-4]</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td></td><td>[1,2,3,3,10,15,100]</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td></td><td>[1,1,2]</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td></td><td>[15,20]</td><td></td><td></td></tr>
- * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td><td>[-10,-10,-5,-4,-4,1,1,1,2,2,2,3,3,15,15,20,20,100]</td>
- * <td>{-10=2,-5=1,-4=2,1=3,2=3,3=2,15=2,20=2,100=1}</td></tr>
- * </table>
- * <br>
- * <br>
+ * <b>Abstract Methods: </b><br>
+ * 1. compare : K type value compare criteria for sort.
+ * 2. getUnifierInstance : Get unifier operator instance for output port, (must return self instance).
+ * 
  */
-public class MergeSort<K> extends AbstractBaseSortOperator<K>
+public abstract class MergeSort<K>  implements Operator, Unifier<ArrayList<K>>
 {
+	/**
+	 * Sorted merged list.
+	 */
+	private ArrayList<K> mergedList = null;
+	
+	/**
+	 * Input port.
+	 */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<ArrayList<K>> data = new DefaultInputPort<ArrayList<K>>()
   {
+  	/**
+  	 * Merge incoming tuple.
+  	 */
     @Override
     public void process(ArrayList<K> tuple)
     {
-      processTuple(tuple);
+    	mergedList = processMergeList(mergedList, tuple);
     }
   };
-  @OutputPortFieldAnnotation(name = "sort")
-  public final transient DefaultOutputPort<ArrayList<K>> sort = new DefaultOutputPort<ArrayList<K>>();
-  @OutputPortFieldAnnotation(name = "sorthash", optional = true)
-  public final transient DefaultOutputPort<HashMap<K, Integer>> sorthash = new DefaultOutputPort<HashMap<K, Integer>>();
-
-  /*
-   * <b>Currently implemented with individual keys inserted. Needs to be reimplemented</b>
-   *
+  
+  /**
+   * Sorted list output port.
    */
-  @Override
-  public void processTuple(ArrayList<K> tuple)
-  {
-    super.processTuple(tuple);
-  }
+  @OutputPortFieldAnnotation(name = "sort")
+  public final transient DefaultOutputPort<ArrayList<K>> sort = new DefaultOutputPort<ArrayList<K>>() {
+  		@Override
+  		public Unifier<ArrayList<K>> getUnifier()
+  		{
+  			return getUnifierInstance();
+  		}
+  };
+  
+	@Override
+	public void setup(OperatorContext context)
+	{
+		// TODO Auto-generated method stub
+		
+	}
 
+	@Override
+	public void teardown()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void beginWindow(long windowId)
+	{
+		mergedList = null;
+	}
+	@Override
+	public void endWindow()
+	{
+		sort.emit(mergedList);
+		mergedList = null;
+	}
+	
+	/**
+	 *  Sorted parameter list are merged into sorted merged output list.
+	 *  
+	 * @param list1 sorted list aggregated by operator
+	 * @param list2 Input port sorted list to be merged.
+	 * @return sorted merged output list.
+	 */
+	protected ArrayList<K> processMergeList(ArrayList<K> list1,
+			ArrayList<K> list2)
+	{
+		// null lists
+		if (list1 == null) return list2;
+		if (list2 == null) return list1;
+		
+		// Create output list   
+		ArrayList<K> result = new ArrayList<K>();
+		int index1 = 0;  
+		int index2 = 0;
+		boolean loop = true;
+	  while (loop) {
+	  	
+	  	// list1 is exhausted
+	  	if (index1 == list1.size()) {
+	  		while(index2 < list2.size()) {
+	  			result.add(list2.get(index2++));
+	  		}
+	  		break;
+	  	}
+	  	
+	  	// list2 is exhausted  
+	  	if (index2 == list2.size()) {
+	  		while(index1 < list1.size()) {
+	  			result.add(list1.get(index1++));
+	  		}
+	  		break;
+	  	}
+	  	
+	  	// compare values   
+	  	K val1 = list1.get(index1++);
+	  	K val2 = list2.get(index2++);
+	  	K[] vals = compare(val1, val2);
+	  	result.add(vals[0]);
+	  	if (vals[1] != null) result.add(vals[1]);
+	  }
+		
+	  // done
+    return result;
+	}
 
-  @Override
-  public boolean doEmitList()
-  {
-    return sort.isConnected();
-  }
-
-  @Override
-  public boolean doEmitHash()
-  {
-    return sorthash.isConnected();
-  }
-
-  @Override
-  public void emitToList(ArrayList<K> list)
-  {
-    sort.emit(list);
-  }
-
-  @Override
-  public void emitToHash(HashMap<K,Integer> map)
-  {
-    sorthash.emit(map);
-  }
+	/**
+	 * Unifier process function implementation.
+	 */
+	@Override
+	public void process(ArrayList<K> tuple)
+	{
+		mergedList = processMergeList(mergedList, tuple);
+	}
+	
+	/**
+	 * abstract sort function to be implemented by sub class.
+	 */
+	abstract public  K[] compare(K val1, K val2);
+	
+	/**
+	 *  Get output port unifier instance, sub class should return new instance of itself.
+	 */
+	abstract public Unifier<ArrayList<K>> getUnifierInstance();
 }
