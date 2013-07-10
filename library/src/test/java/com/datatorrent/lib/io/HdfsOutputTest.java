@@ -15,6 +15,10 @@
  */
 package com.datatorrent.lib.io;
 
+import com.datatorrent.api.AttributeMap;
+import com.datatorrent.api.AttributeMap.AttributeKey;
+import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
 import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
@@ -24,7 +28,10 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.lib.io.HdfsOutputOperator;
-import com.datatorrent.stram.DAGPropertiesBuilder;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.Properties;
+//import com.datatorrent.stram.DAGPropertiesBuilder;
 
 public class HdfsOutputTest implements StreamingApplication {
 
@@ -35,6 +42,32 @@ public class HdfsOutputTest implements StreamingApplication {
   private long numTuples = 1000000;
   private final Configuration config = new Configuration(false);
 
+  public class TestContext implements Context {
+
+    @Override
+    public AttributeMap getAttributes()
+    {
+      return null;
+    }
+
+    @Override
+    public <T> T attrValue(AttributeKey<T> key, T defaultValue)
+    {
+      return defaultValue;
+    }
+
+  }
+
+  public class TestOperatorContext extends TestContext implements OperatorContext {
+
+    @Override
+    public int getId()
+    {
+      return 0;
+    }
+
+  }
+
   public void testThroughPut()
   {
 
@@ -44,7 +77,7 @@ public class HdfsOutputTest implements StreamingApplication {
     module.setFilePath(config.get(KEY_FILEPATH, "hdfsoutputtest.txt"));
     module.setAppend(config.getBoolean(KEY_APPEND, false));
 
-    module.setup(new com.datatorrent.engine.OperatorContext(0, null, null, null));
+    module.setup(new TestOperatorContext());
 
     for (int i=0; i<=numTuples; i++) {
       module.input.process("testdata" + i);
@@ -76,11 +109,21 @@ public class HdfsOutputTest implements StreamingApplication {
     for (Map.Entry<String, String> e : values.entrySet()) {
       this.config.set(e.getKey().replace(keyPrefix, ""), e.getValue());
     }
-    LOG.info("properties: " + DAGPropertiesBuilder.toProperties(config, ""));
+    LOG.info("properties: " + getConfProperties());
 
     testThroughPut();
 
     throw new UnsupportedOperationException("Not an application.");
+  }
+
+  private Properties getConfProperties() {
+    Properties props = new Properties();
+    Iterator<Entry<String,String>> entries = config.iterator();
+    while (entries.hasNext()) {
+      Entry<String,String> entry = entries.next();
+      props.put(entry.getKey(), entry.getValue());
+    }
+    return props;
   }
 
 }
