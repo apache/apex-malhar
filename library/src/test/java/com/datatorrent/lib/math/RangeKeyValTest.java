@@ -19,7 +19,6 @@ import com.datatorrent.api.Sink;
 import com.datatorrent.lib.math.RangeKeyVal;
 import com.datatorrent.lib.util.HighLow;
 import com.datatorrent.lib.util.KeyValPair;
-import com.datatorrent.tuple.Tuple;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -42,14 +41,10 @@ public class RangeKeyValTest
     @Override
     public void put(Object payload)
     {
-      if (payload instanceof Tuple) {
-      }
-      else {
-        KeyValPair<String, Object> tuple = (KeyValPair<String, Object>)payload;
-        HighLow hl = (HighLow)tuple.getValue();
-        high = hl.getHigh().doubleValue();
-        low = hl.getLow().doubleValue();
-      }
+      KeyValPair<String, Object> tuple = (KeyValPair<String, Object>)payload;
+      HighLow hl = (HighLow)tuple.getValue();
+      high = hl.getHigh().doubleValue();
+      low = hl.getLow().doubleValue();
     }
 
     @Override

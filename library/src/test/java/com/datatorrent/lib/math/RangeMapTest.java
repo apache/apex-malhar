@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.Sink;
 import com.datatorrent.lib.util.HighLow;
-import com.datatorrent.tuple.Tuple;
 
 /**
  * Functional tests for {@link com.datatorrent.lib.math.RangeMap}
@@ -45,15 +44,11 @@ public class RangeMapTest
 		@Override
     public void put(Object payload)
     {
-      if (payload instanceof Tuple) {
-      }
-      else {
-        HashMap<String, Object> tuple = (HashMap<String, Object>)payload;
-        for (Map.Entry<String, Object> e: tuple.entrySet()) {
-          HighLow hl = (HighLow)e.getValue();
-          high = hl.getHigh().doubleValue();
-          low = hl.getLow().doubleValue();
-        }
+      HashMap<String, Object> tuple = (HashMap<String, Object>)payload;
+      for (Map.Entry<String, Object> e : tuple.entrySet()) {
+        HighLow hl = (HighLow)e.getValue();
+        high = hl.getHigh().doubleValue();
+        low = hl.getLow().doubleValue();
       }
     }
 

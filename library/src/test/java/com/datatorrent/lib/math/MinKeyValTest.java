@@ -24,14 +24,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 import com.datatorrent.lib.util.KeyValPair;
-import com.datatorrent.stram.StramLocalCluster;
 
 /**
  * Functional tests for {@link com.datatorrent.lib.math.MinKeyVal}.
@@ -55,7 +53,7 @@ public class MinKeyValTest
 
 	/**
 	 * Test operator logic emits correct results for each schema.
-	 * 
+	 *
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testSchemaNodeProcessing(MinKeyVal oper, String type)

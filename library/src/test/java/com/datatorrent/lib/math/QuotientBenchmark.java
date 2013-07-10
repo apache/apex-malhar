@@ -17,7 +17,6 @@ package com.datatorrent.lib.math;
 
 import com.datatorrent.api.Sink;
 import com.datatorrent.lib.math.Quotient;
-import com.datatorrent.tuple.Tuple;
 import java.util.ArrayList;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -41,11 +40,7 @@ public class QuotientBenchmark
     @Override
     public void put(Object payload)
     {
-      if (payload instanceof Tuple) {
-      }
-      else {
-        collectedTuples.add(payload);
-      }
+      collectedTuples.add(payload);
     }
 
     @Override

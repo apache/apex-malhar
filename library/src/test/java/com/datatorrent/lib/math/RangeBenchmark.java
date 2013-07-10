@@ -18,7 +18,6 @@ package com.datatorrent.lib.math;
 import com.datatorrent.api.Sink;
 import com.datatorrent.lib.math.Range;
 import com.datatorrent.lib.util.HighLow;
-import com.datatorrent.tuple.Tuple;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -40,11 +39,7 @@ public class RangeBenchmark
     @Override
     public void put(Object payload)
     {
-      if (payload instanceof Tuple) {
-      }
-      else {
-        tuple = payload;
-      }
+      tuple = payload;
     }
 
     @Override

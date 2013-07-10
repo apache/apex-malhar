@@ -24,7 +24,6 @@ import org.junit.Test;
 
 import com.datatorrent.api.Sink;
 import com.datatorrent.lib.util.HighLow;
-import com.datatorrent.tuple.Tuple;
 
 /**
  * Functional tests for {@link com.datatorrent.lib.math.Range}
@@ -39,10 +38,7 @@ public class RangeTest
 		@Override
 		public void put(Object payload)
 		{
-			if (payload instanceof Tuple) {
-			} else {
-				collectedTuples.add(payload);
-			}
+          collectedTuples.add(payload);
 		}
 
 		@Override

@@ -16,11 +16,9 @@
 package com.datatorrent.lib.math;
 
 import com.datatorrent.api.*;
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.math.MaxMap;
 import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
-import com.datatorrent.stram.StramLocalCluster;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,9 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  * Functional tests for {@link com.datatorrent.lib.math.MaxMap}.
- * 
+ *
  */
 public class MaxMapTest
 {

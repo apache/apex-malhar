@@ -17,7 +17,6 @@ package com.datatorrent.lib.math;
 
 import com.datatorrent.api.Sink;
 import com.datatorrent.lib.math.Quotient;
-import com.datatorrent.tuple.Tuple;
 import java.util.ArrayList;
 import java.util.List;
 import junit.framework.Assert;
@@ -35,10 +34,7 @@ public class QuotientTest
 		@Override
 		public void put(Object payload)
 		{
-			if (payload instanceof Tuple) {
-			} else {
-				collectedTuples.add(payload);
-			}
+          collectedTuples.add(payload);
 		}
 
 		@Override

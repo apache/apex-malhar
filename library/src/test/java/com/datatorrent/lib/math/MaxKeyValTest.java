@@ -16,12 +16,10 @@
 package com.datatorrent.lib.math;
 
 import com.datatorrent.api.*;
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.math.MaxKeyVal;
 import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 import com.datatorrent.lib.util.KeyValPair;
-import com.datatorrent.stram.StramLocalCluster;
 
 import java.util.ArrayList;
 import junit.framework.Assert;
