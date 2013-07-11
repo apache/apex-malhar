@@ -100,12 +100,6 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <!--dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>malhar-daemon</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency-->
     <dependency>
       <groupId>com.sun.mail</groupId>
       <artifactId>javax.mail</artifactId>
