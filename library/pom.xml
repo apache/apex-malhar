@@ -17,7 +17,8 @@
   <name>Operator and Codec Library</name>
 
   <properties>
-    <test.excludedGroups>com.datatorrent.annotation.PerformanceTestCategory</test.excludedGroups>
+    <maven.deploy.skip>false</maven.deploy.skip>
+    <test.excludedGroups>com.datatorrent.lib.annotation.PerformanceTestCategory</test.excludedGroups>
   </properties>
 
   <!-- repository to provide the DataTorrent artifacts -->
@@ -28,6 +29,24 @@
       <url>https://www.datatorrent.com/maven/content/repositories/releases/</url>
     </repository>
   </repositories-->
+
+  <build>
+    <plugins>
+      <!-- Publish tests jar -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+            <phase>package</phase>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
   <dependencies>
     <dependency>
