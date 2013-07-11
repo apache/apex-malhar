@@ -30,13 +30,13 @@
   </repositories>
 
   <dependencies>
-    <dependency>
+    <!--dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>malhar-stram</artifactId>
       <version>${project.version}</version>
       <classifier>tests</classifier>
       <scope>test</scope>
-    </dependency>
+    </dependency-->
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>malhar-engine</artifactId>
@@ -47,6 +47,13 @@
       <groupId>com.datatorrent</groupId>
       <artifactId>malhar-library</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>malhar-library</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+      <type>test-jar</type>
     </dependency>
     <dependency>
       <groupId>kafka</groupId>
@@ -158,11 +165,11 @@
       <version>2.1.0</version>
       <optional>true</optional>
     </dependency>
-    <dependency>
+    <!--dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>malhar-stram</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
-    </dependency>
+    </dependency-->
   </dependencies>
 </project>
