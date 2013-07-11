@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * @author David Yan <david@datatorrent.com>
  */
 public class SamplePubSubWebSocketPublisher implements Runnable
 {
