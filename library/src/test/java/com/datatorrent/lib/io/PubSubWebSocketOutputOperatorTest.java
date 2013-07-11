@@ -17,9 +17,8 @@ package com.datatorrent.lib.io;
 
 import com.datatorrent.lib.helper.SamplePubSubWebSocketServlet;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
-import com.datatorrent.stram.support.StramTestSupport;
-import com.datatorrent.stram.support.StramTestSupport.WaitCondition;
 import com.datatorrent.lib.helper.SamplePubSubWebSocketSubscriber;
+import static java.lang.Thread.sleep;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.HashMap;
@@ -63,18 +62,20 @@ public class PubSubWebSocketOutputOperatorTest
     operator.input.process(data);
     operator.endWindow();
 
-    WaitCondition c = new WaitCondition() {
-
-      @Override
-      public boolean isComplete()
-      {
-        return ss.getMessagesReceived() > 0;
+    boolean received = false;
+    long timeoutMillis = 2000;
+    long startMillis = System.currentTimeMillis();
+    while (System.currentTimeMillis() < (startMillis + timeoutMillis)) {
+      if(ss.getMessagesReceived() > 0) {
+        received = true;
+        break;
       }
-    };
+      sleep(50);
+    }
 
     operator.teardown();
 
-    Assert.assertTrue("Tuples received.", StramTestSupport.awaitCompletion(c, 2000));
+    Assert.assertTrue("Tuples received.", received);
     Map<String,String> o = (Map<String,String>)ss.getBuffer().get();
     Assert.assertEquals("Data expected to be {\"hello\":\"world\"}", o.get("hello"), "world");
     t.interrupt();
