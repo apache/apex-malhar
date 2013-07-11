@@ -30,13 +30,6 @@
   </repositories>
 
   <dependencies>
-    <!--dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>malhar-stram</artifactId>
-      <version>${project.version}</version>
-      <classifier>tests</classifier>
-      <scope>test</scope>
-    </dependency-->
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>malhar-engine</artifactId>
@@ -165,11 +158,5 @@
       <version>2.1.0</version>
       <optional>true</optional>
     </dependency>
-    <!--dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>malhar-stram</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency-->
   </dependencies>
 </project>
