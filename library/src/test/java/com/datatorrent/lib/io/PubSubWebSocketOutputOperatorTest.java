@@ -15,16 +15,19 @@
  */
 package com.datatorrent.lib.io;
 
-import com.datatorrent.daemon.Daemon;
+import com.datatorrent.lib.helper.SamplePubSubWebSocketServlet;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 import com.datatorrent.stram.support.StramTestSupport;
 import com.datatorrent.stram.support.StramTestSupport.WaitCondition;
-import com.datatorrent.stram.util.SamplePubSubWebSocketPublisher;
-import com.datatorrent.stram.util.SamplePubSubWebSocketSubscriber;
+import com.datatorrent.lib.helper.SamplePubSubWebSocketSubscriber;
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.Test;
 
 public class PubSubWebSocketOutputOperatorTest
@@ -32,11 +35,13 @@ public class PubSubWebSocketOutputOperatorTest
   @Test
   public void testWebSocketOutputModule() throws Exception
   {
-    System.out.println("Starting Daemon...");
-    Daemon daemon = new Daemon();
-    daemon.setLocalMode(true);
-    daemon.setup("localhost:19091");
-    daemon.start();
+    Server server = new Server(new InetSocketAddress("localhost", 19091));
+    SamplePubSubWebSocketServlet servlet = new SamplePubSubWebSocketServlet();
+    ServletHolder sh = new ServletHolder(servlet);
+    ServletContextHandler contextHandler = new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
+    contextHandler.addServlet(sh, "/pubsub");
+    contextHandler.addServlet(sh, "/*");
+    server.start();
 
     URI uri = new URI("ws://localhost:19091/pubsub");
 
@@ -74,7 +79,7 @@ public class PubSubWebSocketOutputOperatorTest
     Assert.assertEquals("Data expected to be {\"hello\":\"world\"}", o.get("hello"), "world");
     t.interrupt();
     t.join();
-    daemon.stop();
+    server.stop();
   }
 
 }
