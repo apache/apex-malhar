@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.engine.OperatorContext;
-import com.datatorrent.engine.TestSink;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  *
@@ -129,7 +129,7 @@ public class JDBCInputOperatorTest
     oper.setDbUrl("jdbc:mysql://localhost/test?user=test&password=");
     oper.setDbDriver("com.mysql.jdbc.Driver");
 
-    TestSink sink = new TestSink();
+    CollectorTestSink sink = new CollectorTestSink();
     oper.outputPort.setSink(sink);
 
     setupDB(helper.hashMapping1);

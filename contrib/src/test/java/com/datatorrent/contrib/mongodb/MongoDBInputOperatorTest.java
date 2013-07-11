@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.engine.OperatorContext;
-import com.datatorrent.engine.TestSink;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.mongodb.DBCursor;
 
 /**
@@ -65,7 +65,7 @@ public class MongoDBInputOperatorTest
 
     oper.beginWindow(0);
 
-    TestSink sink = new TestSink();
+    CollectorTestSink sink = new CollectorTestSink();
     oper.outputPort.setSink(sink);
 
     oper.emitTuples();
