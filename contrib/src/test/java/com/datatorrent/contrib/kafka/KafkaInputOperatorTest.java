@@ -16,8 +16,6 @@
 package com.datatorrent.contrib.kafka;
 
 import com.datatorrent.contrib.kafka.KafkaSinglePortInputOperator;
-import com.datatorrent.stram.support.StramTestSupport;
-import com.datatorrent.stram.support.StramTestSupport.WaitCondition;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
@@ -25,6 +23,7 @@ import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Operator;
 import java.io.File;
 import java.io.IOException;
+import static java.lang.Thread.sleep;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -314,13 +313,15 @@ public class KafkaInputOperatorTest
     lc.setHeartbeatMonitoringEnabled(false);
 
     lc.runAsync();
-    WaitCondition c = new WaitCondition() {
-      @Override
-      public boolean isComplete() {
-        return tupleCount.get() > totalCount;
+    // 10k tuples takes 13 sec => 770 tuple/sec
+    long timeoutMillis = 26000;
+    long startMillis = System.currentTimeMillis();
+    while (System.currentTimeMillis() < (startMillis + timeoutMillis)) {
+      if(tupleCount.get() > totalCount) {
+        break;
       }
-    };
-    StramTestSupport.awaitCompletion(c, 26000);  // 10k tuples takes 13 sec => 770 tuple/sec
+      sleep(50);
+    }
 
     lc.shutdown();
 
