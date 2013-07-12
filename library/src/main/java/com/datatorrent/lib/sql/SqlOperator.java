@@ -47,8 +47,8 @@ public abstract class SqlOperator implements Operator
 	/**
 	 * Output port.
 	 */
-	public final transient DefaultOutputPort<ArrayList<HashMap<String, Object>>> outport = 
-			new DefaultOutputPort<ArrayList<HashMap<String, Object>>>();
+	public final transient DefaultOutputPort<HashMap<String, Object>> outport = 
+			new DefaultOutputPort<HashMap<String, Object>>();
 	
 	@Override
 	public void setup(OperatorContext context)
@@ -75,6 +75,8 @@ public abstract class SqlOperator implements Operator
 	public void endWindow()
 	{
 		rows = processRows(rows);
-		outport.emit(rows);
+		for (int i=0; i < rows.size(); i++) {
+		    outport.emit(rows.get(i));
+		}
 	}
 }
