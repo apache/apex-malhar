@@ -21,7 +21,6 @@ import com.datatorrent.api.CheckpointListener;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
-import com.datatorrent.bufferserver.util.Codec;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -70,7 +69,7 @@ public class JDBCRecoveryTest
     public void beginWindow(long windowId)
     {
       super.beginWindow(windowId);
-      logger.debug(windowId + " MyHashMapOutputOperator beginwindow {}", Codec.getStringWindowId(windowId));
+      logger.debug(windowId + " MyHashMapOutputOperator beginwindow {}", windowId);
     }
 
     @Override
@@ -81,7 +80,7 @@ public class JDBCRecoveryTest
       }
       super.endWindow();
       readTable(getTableName(), getConnection());
-      logger.debug("MyHashMapOutputOperator endWindow {}", Codec.getStringWindowId(windowId));
+      logger.debug("MyHashMapOutputOperator endWindow {}", windowId);
     }
 
     /**
@@ -239,7 +238,7 @@ public class JDBCRecoveryTest
     public void beginWindow(long windowId)
     {
       super.beginWindow(windowId);
-      logger.debug(windowId + " MyNonTransactionHashMapOutputOperator beginwindow {}", Codec.getStringWindowId(windowId));
+      logger.debug(windowId + " MyNonTransactionHashMapOutputOperator beginwindow {}", windowId);
     }
 
     @Override
@@ -250,7 +249,7 @@ public class JDBCRecoveryTest
       }
       super.endWindow();
       readTable(getTableName(), getConnection());
-      logger.debug("MyNonTransactionHashMapOutputOperator endWindow {}", Codec.getStringWindowId(windowId));
+      logger.debug("MyNonTransactionHashMapOutputOperator endWindow {}", windowId);
     }
 
     /**

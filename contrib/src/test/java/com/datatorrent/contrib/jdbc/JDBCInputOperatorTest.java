@@ -15,6 +15,7 @@
  */
 package com.datatorrent.contrib.jdbc;
 
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import java.sql.*;
 import junit.framework.Assert;
 
@@ -22,7 +23,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.engine.OperatorContext;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
@@ -134,8 +134,7 @@ public class JDBCInputOperatorTest
 
     setupDB(helper.hashMapping1);
 
-    //oper.setup(new OperatorContext(111, null, null, helper.attrmap));
-    oper.setup(new OperatorContext(111, null, null, null));
+    oper.setup(new OperatorContextTestHelper.TestIdOperatorContext(111));
     oper.beginWindow(1);
     insertData(helper.hashMapping1, helper);
     oper.emitTuples();

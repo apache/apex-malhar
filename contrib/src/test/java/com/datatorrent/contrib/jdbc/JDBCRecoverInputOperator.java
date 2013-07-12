@@ -20,7 +20,6 @@ import com.datatorrent.api.CheckpointListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
-import com.datatorrent.bufferserver.util.Codec;
 import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import org.slf4j.Logger;
@@ -68,7 +67,7 @@ public class JDBCRecoverInputOperator implements InputOperator, CheckpointListen
   @Override
   public void beginWindow(long windowId)
   {
-    logger.debug(" beginWindow: {}", Codec.getStringWindowId(windowId));
+    logger.debug(" beginWindow: {}", windowId);
     this.windowId = windowId;
     first = true;
   }

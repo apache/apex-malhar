@@ -28,8 +28,7 @@ import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.AttributeMap.DefaultAttributeMap;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAGContext;
-import com.datatorrent.bufferserver.util.Codec;
-import com.datatorrent.engine.OperatorContext;
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.mongodb.DBCursor;
 
 /**
@@ -143,8 +142,7 @@ public class MongoDBOutputOperatorTest
     oper.setQueryFunction(1);
     oper.setColumnMapping(hashMapping1);
 
-    //oper.setup(new OperatorContext(1, null, null, attrmap));
-    oper.setup(new OperatorContext(1, null, null, null));
+    oper.setup(new OperatorContextTestHelper.TestIdOperatorContext(1));
 
     for (Object o : oper.getTableList()) {
       String table = (String)o;
@@ -152,7 +150,7 @@ public class MongoDBOutputOperatorTest
     }
 
     oper.beginWindow(oper.getLastWindowId() + 1);
-    logger.debug("beginwindow {}", Codec.getStringWindowId(oper.getLastWindowId() + 1));
+    logger.debug("beginwindow {}", oper.getLastWindowId() + 1);
 
     for (int i = 0; i < maxTuple; ++i) {
       HashMap<String, Object> hm = generateHashMapData(i, oper);
@@ -182,15 +180,14 @@ public class MongoDBOutputOperatorTest
     oper.setQueryFunction(1);
     oper.setColumnMapping(arrayMapping1);
 
-    //oper.setup(new OperatorContext(2, null, null, attrmap));
-    oper.setup(new OperatorContext(2, null, null, null));
+    oper.setup(new OperatorContextTestHelper.TestIdOperatorContext(2));
     for (Object o : oper.getTableList()) {
       String table = (String)o;
       oper.db.getCollection(table).drop();
     }
 
     oper.beginWindow(oper.getLastWindowId() + 1);
-    logger.debug("beginwindow {}", Codec.getStringWindowId(oper.getLastWindowId() + 1));
+    logger.debug("beginwindow {}", oper.getLastWindowId() + 1);
 
     for (int i = 0; i < maxTuple; ++i) {
       ArrayList<Object> al = generateArrayListData(i, oper);

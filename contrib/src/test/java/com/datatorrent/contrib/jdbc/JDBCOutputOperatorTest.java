@@ -21,8 +21,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.bufferserver.util.Codec;
-import com.datatorrent.engine.OperatorContext;
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
 
 /**
  *
@@ -70,11 +69,10 @@ public class JDBCOutputOperatorTest
       oper.setColumnMapping(mapping);
 
       helper.setupDB(oper, mapping, isHashMap, transaction);
-      //oper.setup(new OperatorContext(opId, null, null, helper.attrmap));
-      oper.setup(new OperatorContext(opId, null, null, null));
+      oper.setup(new OperatorContextTestHelper.TestIdOperatorContext(opId));
 
       oper.beginWindow(oper.lastWindowId + 1);
-      logger.debug("beginwindow {}", Codec.getStringWindowId(oper.lastWindowId + 1));
+      logger.debug("beginwindow {}", oper.lastWindowId + 1);
 
       for (int i = 0; i < maxTuple; ++i) {
         oper.inputPort.process(isHashMap ? helper.hashMapData(mapping, i) : helper.arrayListData(mapping, i));

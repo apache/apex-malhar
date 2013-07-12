@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.io.HdfsOutputOperator;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -42,32 +43,6 @@ public class HdfsOutputTest implements StreamingApplication {
   private long numTuples = 1000000;
   private final Configuration config = new Configuration(false);
 
-  public class TestContext implements Context {
-
-    @Override
-    public AttributeMap getAttributes()
-    {
-      return null;
-    }
-
-    @Override
-    public <T> T attrValue(AttributeKey<T> key, T defaultValue)
-    {
-      return defaultValue;
-    }
-
-  }
-
-  public class TestOperatorContext extends TestContext implements OperatorContext {
-
-    @Override
-    public int getId()
-    {
-      return 0;
-    }
-
-  }
-
   public void testThroughPut()
   {
 
@@ -77,7 +52,7 @@ public class HdfsOutputTest implements StreamingApplication {
     module.setFilePath(config.get(KEY_FILEPATH, "hdfsoutputtest.txt"));
     module.setAppend(config.getBoolean(KEY_APPEND, false));
 
-    module.setup(new TestOperatorContext());
+    module.setup(new OperatorContextTestHelper.TestIdOperatorContext(0));
 
     for (int i=0; i<=numTuples; i++) {
       module.input.process("testdata" + i);
