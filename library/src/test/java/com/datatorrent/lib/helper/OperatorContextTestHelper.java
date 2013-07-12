@@ -20,7 +20,8 @@ public class OperatorContextTestHelper
 
     int id;
 
-    public TestIdOperatorContext(int id) {
+    public TestIdOperatorContext(int id)
+    {
       this.id = id;
     }
 
