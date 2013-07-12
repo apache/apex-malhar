@@ -32,7 +32,7 @@ public class OperatorContextTestHelper
 
   }
 
-   private class TestContext implements Context {
+   private static class TestContext implements Context {
 
     @Override
     public AttributeMap getAttributes()
