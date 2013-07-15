@@ -21,6 +21,9 @@ import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
+/**
+ * Functional test for {@link com.datatorrent.lib.sql.SelectOperatorTest}.
+ */
 public class SelectOperatorTest
 {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
