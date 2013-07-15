@@ -18,10 +18,21 @@ package com.datatorrent.lib.sql;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+
+/**
+ *  This operator provides sql delete query semantic on live data stream. <br>
+ *  Stream rows passing condition are removed from stream. <br>
+ *  
+ *  This operators read data rows from input port. <br>
+ *  If row meets given select condition, it is not emitted on outport, <br>
+ *  else it is emitted on output.  <br>
+ *  
+ *  
+ */
 public class DeleteOperator extends SqlOperator
 {
 	/**
-	 * Where condition for update. 
+	 * Where condition for deleting row.
 	 */
 	private SelectCondition condition;
 	

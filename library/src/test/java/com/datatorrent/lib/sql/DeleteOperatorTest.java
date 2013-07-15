@@ -21,6 +21,9 @@ import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
+/**
+ * Functional test for {@link com.datatorrent.lib.sql.DeleteOperator}.
+ */
 public class DeleteOperatorTest
 {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -28,7 +31,7 @@ public class DeleteOperatorTest
   public void testSqlSelect()
   {
   	// create operator   
-		DeleteOperator oper = new DeleteOperator();
+	DeleteOperator oper = new DeleteOperator();
   	
   	SelectEqualCondition  condition = new SelectEqualCondition();
   	condition.addEqualValue("a", 1);
