@@ -34,6 +34,8 @@ import java.util.Map;
  * <br>
  * <b> Properties : <b> <br>
  * <b> condition : </b> Select condition for deleting rows. <br>
+ * <b> groupNames : </b> Group by names list. <br>
+ * <b> indexes : </b> Select column indexes. <br>
  * <br>
  */
 public class GroupByOperator extends SqlOperator
