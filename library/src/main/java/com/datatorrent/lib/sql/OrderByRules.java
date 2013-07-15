@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeMap;
 
+@SuppressWarnings("rawtypes")
 public class OrderByRules<T extends Comparable> {
 	/**
 	 * column name.
