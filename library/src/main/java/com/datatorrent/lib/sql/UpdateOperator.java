@@ -19,6 +19,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ *  This operator provides sql update query semantic on live data stream. <br>
+ *  Stream rows passing condition are updated by new column values. <br>
+ *  All rows are emitted on output port. <br>
+ *  <br>
+ *  <b>StateFull : NO,</b> all row data is processed in current time window. <br>
+ *  <b>Partitions : Yes, </b> No Input dependency among input rows. <br>
+ *  <br>
+ * <b>Ports</b>:<br>
+ * <b> inport : </b> Input hash map(row) port, expects HashMap&lt;String,Object&gt;<<br>
+ * <b> outport : </b> Output hash map(row) port, emits  HashMap&lt;String,Object&gt;<br>
+ * <br>
+ * <b> Properties : <b> <br>
+ * <b> condition : </b> Select condition for selecting rows. <br>
+ * <b> columns : </b> Column names/aggregate functions for select. <br>
+ * <br>
+ */
 public class UpdateOperator extends SqlOperator
 {
   /**

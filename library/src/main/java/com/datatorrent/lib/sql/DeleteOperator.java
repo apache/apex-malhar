@@ -24,7 +24,7 @@ import java.util.HashMap;
  *  Stream rows passing condition are removed from stream. <br>
  *  <br>
  *  <b>StateFull : NO,</b> all row data is processed in current time window. <br>
- *  <b>Partitions : Yes, </b> Input dependency among input rows. <br>
+ *  <b>Partitions : Yes, </b> No Input dependency among input rows. <br>
  *  <br>
  * <b>Ports</b>:<br>
  * <b> inport : </b> Input hash map(row) port, expects HashMap&lt;String,Object&gt;<<br>
