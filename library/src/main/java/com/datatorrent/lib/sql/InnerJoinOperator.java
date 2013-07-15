@@ -28,6 +28,20 @@ import com.datatorrent.api.Operator;
  * This operator reads table row data from 2 table data input ports. <br>
  * Operator joins row on given condition and selected names, emits 
  * joined result at output port.
+ *  <br>
+ *  <b>StateFull : NO,</b> all row data is processed in current time window. <br>
+ *  <b>Partitions : No, </b> will yield wrong result(s). <br>
+ *  <br>
+ *  <b>Ports : </b> <br>
+ *  <b> inport1 : </b> Input port for table 1, expects HashMap&lt;String, Object&gt; <br>
+ *  <b> inport1 : </b> Input port for table 2, expects HashMap&lt;String, Object&gt; <br>
+ *  <b> outport : </b> Output joined row port, emits HashMap&lt;String, ArrayList&lt;Object&gt;&gt; <br>
+ *  <br>
+ *  <b> Properties : </b>
+ *  <b> joinCondition : </b> Join condition for table rows. <br>
+ *  <b> table1Columns : </b> Columns to be selected from table1. <br>
+ *  <b> table2Columns : </b> Columns to be selected from table2. <br>
+ *  <br>
  */
 public class InnerJoinOperator  implements Operator
 {
