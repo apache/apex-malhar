@@ -17,26 +17,172 @@ package com.datatorrent.lib.sql;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
-public class GroupByOperator extends SqlOperator {
-	/**
-	 * Group By name list
-	 */
-	ArrayList<String> groupByNames = new ArrayList<String>();
 
-	/**
-	 * Process rows operator.
-	 */
-	@Override
-	public ArrayList<HashMap<String, Object>> processRows(
-			ArrayList<HashMap<String, Object>> rows) {
-		return null;
-	}
+public class GroupByOperator extends SqlOperator
+{
+  /**
+   * select indexes. 
+   */
+	private ArrayList<SelectAggregateIndex> indexes = new  ArrayList<SelectAggregateIndex> ();
 	
 	/**
-	 * Add group by column name.
+	 *  Group by names 
 	 */
-	public void addGroupByName(String name) {
-		groupByNames.add(name);
+	private HashMap<String, String> groupNames = new HashMap<String, String>();
+	
+	/**
+	 * where condition.
+	 */
+	private SelectCondition condition;
+	
+	@Override
+  public ArrayList<HashMap<String, Object>> processRows(
+      ArrayList<HashMap<String, Object>> rows)
+  {
+		// filter rows by select condition
+		if (condition != null) {
+			rows = condition.filetrValidRows(rows);
+		}
+		
+		// aggregate rows
+		rows = aggregateRows(rows);
+	  return rows;
+  }
+
+	/**
+	 * add select index 
+	 * @throws Exception 
+	 */
+	public void addSelectIndex(SelectAggregateIndex index) {
+		if (index == null) return;
+		indexes.add(index);
 	}
+
+	/**
+   * @param set condition
+   */
+  public void setCondition(SelectCondition condition)
+  {
+	  this.condition = condition;
+  }
+  
+  /**
+   * Add group name. 
+   */
+  public void addGroupByName(String name, String alias) {
+  	groupNames.put(name, alias);
+  }
+  
+  /**
+   * multi key compare class.
+   */
+  @SuppressWarnings("rawtypes")
+  private class MultiKeyCompare implements Comparable 
+  {
+    /**
+     * compare keys.
+     */
+  	ArrayList<Object> compareKeys = new ArrayList<Object>();
+  	
+  	@Override
+  	public boolean equals(Object other) {
+  		if (other instanceof MultiKeyCompare)
+  		if (compareKeys.size() != ((MultiKeyCompare)other).compareKeys.size()) {
+  			return false;
+  		}
+  		for (int i=0; i < compareKeys.size(); i++) {
+  			if (!(compareKeys.get(i).equals(((MultiKeyCompare)other).compareKeys.get(i)))) {
+  				return false;
+  			}
+  		}
+  		return true;
+  	}
+  	
+  	@Override 
+  	public int hashCode() {
+  	   int hashCode = 0;
+  	   for (int i=0; i < compareKeys.size(); i++) {
+  	  	 hashCode += compareKeys.get(i).hashCode();
+  	   }
+  	   return hashCode;
+  	}
+
+		@Override
+    public int compareTo(Object other)
+    {
+      if (this.equals(other)) return 0;
+      return -1;
+    }
+  	
+		/**
+		 * Add compare key.
+		 */
+		public void addCompareKey(Object value){
+			compareKeys.add(value);
+		}
+		
+		/**
+		 * Get ith key value
+		 */
+		public Object getValue(int i) {
+			return compareKeys.get(i);
+		}
+  }
+  
+  /**
+   * Aggregate function.
+   */
+	private ArrayList<HashMap<String, Object>> aggregateRows(
+      ArrayList<HashMap<String, Object>> rows)
+  {
+		// no group by names  
+		if (groupNames.size() == 0) return new ArrayList<HashMap<String, Object>>();
+		
+		// aggregate rows by group 
+		HashMap<MultiKeyCompare, ArrayList<HashMap<String, Object>>> aggregate = 
+				new HashMap<MultiKeyCompare, ArrayList<HashMap<String, Object>>>();
+		for (int i=0; i < rows.size(); i++) {
+			HashMap<String, Object> row = rows.get(i);
+			MultiKeyCompare key = new MultiKeyCompare();
+			for (Map.Entry<String, String> entry : groupNames.entrySet()) {
+				key.addCompareKey(row.get(entry.getKey()));
+			}
+			ArrayList<HashMap<String, Object>> list;
+			if (aggregate.containsKey(key)) {
+				list = aggregate.get(key);
+			} else {
+				list = new ArrayList<HashMap<String, Object>>();
+				aggregate.put(key,  list);
+			}
+			list.add(row);
+		}
+		
+		// create result groups
+		ArrayList<HashMap<String, Object>> result = new ArrayList<HashMap<String, Object>>();
+		for (Map.Entry<MultiKeyCompare, ArrayList<HashMap<String, Object>>> entry : aggregate.entrySet()) {
+			
+			// put group names first
+			MultiKeyCompare key = entry.getKey();
+			HashMap<String, Object> outrow = new HashMap<String, Object>();
+			int index = 0;
+			for (Map.Entry<String, String> entry1 : groupNames.entrySet()) {
+				String name = entry1.getValue();
+				if (name == null) name = entry1.getKey();
+				outrow.put(name, key.getValue(index++));
+			}
+			
+			// put aggregate functions now  
+			ArrayList<HashMap<String, Object>> group = entry.getValue();
+			for (int i=0; i < indexes.size(); i++) {
+				ArrayList<HashMap<String, Object>> out = indexes.get(i).process(group);
+				for (Map.Entry<String, Object> entry1 : out.get(0).entrySet()) {
+					outrow.put(entry1.getKey(), entry1.getValue());
+				}
+			}
+			result.add(outrow);
+ 		}
+		return result;
+  }
 }

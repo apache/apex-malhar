@@ -21,23 +21,19 @@ import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
-public class SelectOperatorTest
+public class UpdateOperatorTest
 {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
   public void testSqlSelect()
   {
   	// create operator   
-  	SelectOperator oper = new SelectOperator();
-  	
-  	SelectColsIndex index = new SelectColsIndex();
-  	index.addColumn("b", null);
-  	index.addColumn("c", null);
-  	oper.setColumns(index);
+		UpdateOperator oper = new UpdateOperator();
   	
   	SelectEqualCondition  condition = new SelectEqualCondition();
   	condition.addEqualValue("a", 1);
   	oper.setCondition(condition);
+  	oper.addColumnValue("a", 2);
   	
   	CollectorTestSink sink = new CollectorTestSink();
   	oper.outport.setSink(sink);

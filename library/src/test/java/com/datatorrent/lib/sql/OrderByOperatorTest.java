@@ -21,34 +21,42 @@ import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
-public class SelectOperatorTest
+/**
+ *  Functional test 
+ */
+public class OrderByOperatorTest
 {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
   public void testSqlSelect()
   {
-  	// create operator   
-  	SelectOperator oper = new SelectOperator();
-  	
-  	SelectColsIndex index = new SelectColsIndex();
-  	index.addColumn("b", null);
-  	index.addColumn("c", null);
-  	oper.setColumns(index);
-  	
-  	SelectEqualCondition  condition = new SelectEqualCondition();
-  	condition.addEqualValue("a", 1);
-  	oper.setCondition(condition);
+  	// craete operator   
+    OrderByOperator oper = new OrderByOperator();
   	
   	CollectorTestSink sink = new CollectorTestSink();
   	oper.outport.setSink(sink);
+  	oper.addOrderByRule(new OrderByRule<Integer>("b"));
+  	oper.setDescending(true);
   	
   	oper.setup(null);
   	oper.beginWindow(1);
   	
   	HashMap<String, Object> tuple = new HashMap<String, Object>();
+  	tuple.put("c", 2);
   	tuple.put("a", 0);
   	tuple.put("b", 1);
-  	tuple.put("c", 2);
+  	oper.inport.process(tuple);
+  	
+  	tuple = new HashMap<String, Object>();
+  	tuple.put("a", 2);
+  	tuple.put("b", 5);
+  	tuple.put("c", 6);
+  	oper.inport.process(tuple);
+  	
+  	tuple = new HashMap<String, Object>();
+  	tuple.put("a", 2);
+  	tuple.put("b", 6);
+  	tuple.put("c", 6);
   	oper.inport.process(tuple);
   	
   	tuple = new HashMap<String, Object>();
@@ -59,8 +67,14 @@ public class SelectOperatorTest
   	
   	tuple = new HashMap<String, Object>();
   	tuple.put("a", 1);
-  	tuple.put("b", 5);
-  	tuple.put("c", 6);
+  	tuple.put("b", 4);
+  	tuple.put("c", 4);
+  	oper.inport.process(tuple);
+  	
+  	tuple = new HashMap<String, Object>();
+  	tuple.put("a", 1);
+  	tuple.put("b", 8);
+  	tuple.put("c", 4);
   	oper.inport.process(tuple);
   	
   	oper.endWindow();

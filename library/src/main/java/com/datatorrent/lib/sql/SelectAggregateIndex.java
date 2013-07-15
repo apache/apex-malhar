@@ -23,12 +23,12 @@ public abstract class SelectAggregateIndex implements SelectIndex
   /**
    * Column name. 
    */
-	private String columnName;
+	protected String columnName;
 	
 	/**
 	 * Column alias name.
 	 */
-	private String columnAlias;
+	protected String columnAlias;
 	
 	/**
 	 * Abstract aggregate function, body must be implemented by sub class.
@@ -77,4 +77,8 @@ public abstract class SelectAggregateIndex implements SelectIndex
 		this.columnAlias = columnAlias;
 	}
 
+	public void addNameAlias(String columnName, String columnAlias) {
+		this.columnName = columnName;
+		this.columnAlias = columnAlias;
+	}
 }

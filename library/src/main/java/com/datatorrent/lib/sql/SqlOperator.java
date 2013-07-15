@@ -17,6 +17,7 @@ package com.datatorrent.lib.sql;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
@@ -36,19 +37,25 @@ public abstract class SqlOperator implements Operator
   /**
    * Input port.
    */
-	public final transient DefaultInputPort<HashMap<String, Object>> inport = new DefaultInputPort<HashMap<String, Object>>() {
+	public final transient DefaultInputPort<Map<String, Object>> inport = new DefaultInputPort<Map<String, Object>>() {
 		@Override
-		public void process(HashMap<String, Object> tuple)
+		public void process(Map<String, Object> tuple)
 		{
-			rows.add(tuple);
+			HashMap<String, Object> hashTuple = new HashMap<String, Object>(tuple);
+			rows.add(hashTuple);
 		}
 	};
 	
 	/**
 	 * Output port.
 	 */
-	public final transient DefaultOutputPort<HashMap<String, Object>> outport = 
-			new DefaultOutputPort<HashMap<String, Object>>();
+	public final transient DefaultOutputPort<HashMap<String, Object>> outport =  new DefaultOutputPort<HashMap<String, Object>>(){
+    @Override
+    public Unifier<HashMap<String, Object>> getUnifier()
+    {
+      return getUnifier();
+    }
+	};
 	
 	@Override
 	public void setup(OperatorContext context)
@@ -59,6 +66,14 @@ public abstract class SqlOperator implements Operator
 	 * Process rows function to be implemented by sub class. 
 	 */
 	abstract public ArrayList<HashMap<String, Object>> processRows(ArrayList<HashMap<String, Object>> rows);
+	
+	/**
+	 *  Get unifier for output port.
+	 */
+	public Unifier<HashMap<String, Object>> getUnifier() {
+		return new SqlUnifier();
+	}
+	
 	
 	@Override
 	public void teardown()

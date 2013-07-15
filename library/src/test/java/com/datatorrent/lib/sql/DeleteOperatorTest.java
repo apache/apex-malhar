@@ -21,19 +21,14 @@ import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
-public class SelectOperatorTest
+public class DeleteOperatorTest
 {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
   public void testSqlSelect()
   {
   	// create operator   
-  	SelectOperator oper = new SelectOperator();
-  	
-  	SelectColsIndex index = new SelectColsIndex();
-  	index.addColumn("b", null);
-  	index.addColumn("c", null);
-  	oper.setColumns(index);
+		DeleteOperator oper = new DeleteOperator();
   	
   	SelectEqualCondition  condition = new SelectEqualCondition();
   	condition.addEqualValue("a", 1);
