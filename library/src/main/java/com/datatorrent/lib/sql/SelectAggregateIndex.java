@@ -18,6 +18,11 @@ package com.datatorrent.lib.sql;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * 
+ * Abstract to class implements {@link SelectIndex} interface.  <br>
+ * Abstract function 'aggregate' must be implemented by sub class. <br>.
+ */
 public abstract class SelectAggregateIndex implements SelectIndex
 {
   /**

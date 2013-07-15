@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Interface to define sql select statement indexes.
+ * Interface to define sql select statement column names/aggregate functions. 
  */
 public interface SelectIndex
 {

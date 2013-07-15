@@ -20,6 +20,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ *  Class for implementing order by key name rule. <br>
+ */
 @SuppressWarnings("rawtypes")
 public class OrderByRule<T extends Comparable> {
 	/**

@@ -6,6 +6,10 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator.Unifier;
 
+/**
+ * This class provides default unifier implementation for sql operator classes.
+ * Process function outputs tuples as it is.
+ */
 public class SqlUnifier implements Unifier<HashMap<String, Object>>
 {
 
