@@ -18,8 +18,8 @@ package com.datatorrent.demos.yahoofinance;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.util.AbstractSqlStreamOperator;
-import com.datatorrent.lib.util.DerbySqlStreamOperator;
+import com.datatorrent.lib.sql.AbstractSqlStreamOperator;
+import com.datatorrent.lib.sql.DerbySqlStreamOperator;
 
 import org.apache.hadoop.conf.Configuration;
 
