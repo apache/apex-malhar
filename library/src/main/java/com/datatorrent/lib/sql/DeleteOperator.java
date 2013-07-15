@@ -27,7 +27,13 @@ import java.util.HashMap;
  *  If row meets given select condition, it is not emitted on outport, <br>
  *  else it is emitted on output.  <br>
  *  
- *  
+ * <b>Ports</b>:<br>
+ * <b> inport : </b> Input hash map(row) port. <br>
+ * <b> outport : </b> Output hash map(row) port. <br>
+ * <br>
+ * <b> Properties : <b> <br>
+ * <b> condition : </b> Select condition for deleting rows. <br>
+ * <br>
  */
 public class DeleteOperator extends SqlOperator
 {
