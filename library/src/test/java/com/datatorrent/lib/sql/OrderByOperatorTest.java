@@ -22,7 +22,7 @@ import org.junit.Test;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
- *  Functional test 
+ *  Functional test for {@link com.datatorrent.lib.sql.OrderByOperatorTest}.
  */
 public class OrderByOperatorTest
 {

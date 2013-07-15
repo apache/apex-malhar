@@ -20,6 +20,21 @@ import java.util.HashMap;
 
 import com.datatorrent.api.Operator.Unifier;
 
+/**
+ * <p>
+ * This operator provides sql oredr by operator semantic over luve stream data. <br>
+ * Input data rows are ordered by order rules, ordered result is emitted on output port. <br>
+ * <br>
+ *  *  <br>
+ *  <b>StateFull : NO,</b> all row data is processed in current time window. <br>
+ *  <b>Partitions : Yes, </b> This operator is also unifier on output port. <br>
+ *  <br>
+ * <b>Ports</b>:<br>
+ * <b> inport : </b> Input hash map(row) port, expects HashMap&lt;String,Object&gt;<<br>
+ * <b> outport : </b> Output hash map(row) port, emits  HashMap&lt;String,Object&gt;<br>
+ * <br>
+ * <b> Properties : <b> <br>
+ */
 public class OrderByOperator extends SqlOperator implements Unifier<HashMap<String, Object>>
 {
 	/**
