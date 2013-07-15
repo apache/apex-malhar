@@ -22,14 +22,13 @@ import java.util.HashMap;
 /**
  *  This operator provides sql delete query semantic on live data stream. <br>
  *  Stream rows passing condition are removed from stream. <br>
- *  
- *  This operators read data rows from input port. <br>
- *  If row meets given select condition, it is not emitted on outport, <br>
- *  else it is emitted on output.  <br>
- *  
+ *  <br>
+ *  <b>StateFull : NO,</b> all row data is processed in current time window. <br>
+ *  <b>Partitions : Yes, </b> Input dependency among input rows. <br>
+ *  <br>
  * <b>Ports</b>:<br>
- * <b> inport : </b> Input hash map(row) port. <br>
- * <b> outport : </b> Output hash map(row) port. <br>
+ * <b> inport : </b> Input hash map(row) port, expects HashMap&lt;String,Object&gt;<<br>
+ * <b> outport : </b> Output hash map(row) port, emits  HashMap&lt;String,Object&gt;<br>
  * <br>
  * <b> Properties : <b> <br>
  * <b> condition : </b> Select condition for deleting rows. <br>

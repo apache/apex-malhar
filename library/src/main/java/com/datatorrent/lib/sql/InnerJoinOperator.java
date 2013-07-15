@@ -24,6 +24,11 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
 
+/**
+ * This operator reads table row data from 2 table data input ports. <br>
+ * Operator joins row on given condition and selected names, emits 
+ * joined result at output port.
+ */
 public class InnerJoinOperator  implements Operator
 {
 	/**

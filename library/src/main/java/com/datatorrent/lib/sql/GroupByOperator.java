@@ -19,7 +19,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-
+/**
+ *  This operator provides sql group by query semantic on live data stream. <br>
+ *  Stream rows satisfying given select condition are processed by group by column names 
+ *  and aggregate  column function. <br> 
+ *  HashMap of column name(s) and aggregate alias is emitted on output port. <br>
+ *  <br>
+ *  <b>StateFull : NO,</b> all row data is processed in current time window. <br>
+ *  <b>Partitions : No, </b> will yield wrong result(s). <br>
+ *  <br>
+ * <b>Ports</b>:<br>
+ * <b> inport : </b> Input hash map(row) port, expects HashMap&lt;String,Object&gt;<<br>
+ * <b> outport : </b> Output hash map(row) port, emits  HashMap&lt;String,Object&gt;<br>
+ * <br>
+ * <b> Properties : <b> <br>
+ * <b> condition : </b> Select condition for deleting rows. <br>
+ * <br>
+ */
 public class GroupByOperator extends SqlOperator
 {
   /**
