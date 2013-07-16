@@ -31,6 +31,16 @@ import com.datatorrent.api.DefaultInputPort;
 public class PythonOperator extends ScriptBaseOperator
 {
 	/**
+	 * Python script interpretor.
+	 */
+	private PythonInterpreter interp = new PythonInterpreter();
+	
+	// Constructor 
+	public PythonOperator() {
+		interp.exec("import sys");
+	}
+	
+	/**
 	 * Input port, variable/value map.
 	 */
 	public final transient DefaultInputPort<Map<String, Object>> inBindings = new DefaultInputPort<Map<String, Object>>()
@@ -57,8 +67,6 @@ public class PythonOperator extends ScriptBaseOperator
 			}
 
 			// execute python script
-			PythonInterpreter interp = new PythonInterpreter();
-			interp.exec("import sys");
 			for (Entry<String, Object> entry : tuple.entrySet()) {
 				interp.set(entry.getKey(), entry.getValue());
 			}

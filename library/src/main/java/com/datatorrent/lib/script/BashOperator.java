@@ -30,6 +30,11 @@ import com.datatorrent.api.DefaultInputPort;
 public class BashOperator extends ScriptBaseOperator
 {
 	/**
+	 * Bash script interpreter.
+	 */
+	private Interpreter interp = new Interpreter();
+	
+	/**
 	 * Input port, variable value map.
 	 */
 	public final transient DefaultInputPort<Map<String, Object>> inBindings = new DefaultInputPort<Map<String, Object>>()
@@ -56,9 +61,8 @@ public class BashOperator extends ScriptBaseOperator
 		{
 			if ((scriptCode == null) || (scriptCode.length() == 0))
 				return tuple;
-			Interpreter interp = new Interpreter();
 			try {
-				// execute script in bash interpretor
+				// execute script in bash interpreter
 				StringBuilder builder = new StringBuilder();
 				for (Entry<String, Object> entry : tuple.entrySet()) {
 					String key = entry.getKey();
