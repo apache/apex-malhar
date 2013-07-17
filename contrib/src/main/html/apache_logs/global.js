@@ -76,9 +76,9 @@ function InitializeGlobal()
   // Initialize params  
   params = SplitQuery(QueryString()); 
 
-  // intialize page view variables 
+  // intialize page view variables
   pageDataPoints = new Array();
-  pageViewTable = new google.visualization.DataTable(); 
+  pageViewTable = new google.visualization.DataTable();
   pageViewTable.addColumn('datetime', 'Time');
   pageViewTable.addColumn('number', 'Page View');
   pageViewChart = new google.visualization.LineChart(document.getElementById('pageview_chart_div'));
@@ -94,13 +94,13 @@ function InitializeGlobal()
   document.getElementById('serverloadrefresh').value = "5";
   document.getElementById('serverloadlookback').value = "1";
   serverLoadDataPoints = new Array();
-  serverLoadTable = new google.visualization.DataTable(); 
+  serverLoadTable = new google.visualization.DataTable();
   serverLoadTable.addColumn('datetime', 'Time');
   serverLoadTable.addColumn('number', 'Server Load');
   serverLoadChart = new google.visualization.LineChart(document.getElementById('server_load_div'));
   serverLoadView = new google.visualization.DataView(serverLoadTable);
   serverLoadInterval = 1;
- 
+
   topUrlTableChart = new google.visualization.Table(document.getElementById('top_url_div'));
   topServerTableChart = new google.visualization.Table(document.getElementById('top_server_div'));
 

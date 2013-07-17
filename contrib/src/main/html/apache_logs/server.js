@@ -22,15 +22,6 @@ function RenderServerLoadTimeChart()
     }
   }
 
-  // remove last 10 points
-  if (serverLoadDataPoints.length > 20)
-  {
-    for (var i=0; i < 10; i++)
-    {
-      serverLoadTable.removeRow(serverLoadDataPoints.length-1-i);  
-    }    
-  }
-
   // Populate data table with time/cost data points. 
   for(var i=0; i < serverLoadTable.getNumberOfRows(); i++)
   {
@@ -38,9 +29,14 @@ function RenderServerLoadTimeChart()
     serverLoadTable.setCell(i, 1, parseFloat(serverLoadDataPoints[i].view));
   }
 
-  // Draw line chart.
+  // get chart options
+  var serverName = document.getElementById('servername').value;  
+  var title = "All Servers (PVS/S)";
+  if (serverName != "all") title = serverName + " (PVS/S)";
   var options = {pointSize: 0, lineWidth : 1 };
-  options.title = 'Site Server(s) Requests(Per Sec) vs Time Chart';
+  options.title = title;
+
+  // Draw line chart.
   serverLoadChart.draw(serverLoadView, options); 
 }
 

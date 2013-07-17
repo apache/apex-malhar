@@ -1,7 +1,8 @@
 <?php
 header("Content-type: application/json");
 $redis = new Redis();
-$redis->connect('127.0.0.1');
+//$redis->connect('127.0.0.1');
+$redis->connect('node5.morado.com');
 $redis->select(4);
 $format = 'YmdHi';
 $incr = 60;
@@ -23,17 +24,49 @@ while ($from < time())
   $date = gmdate($format, $from);
   if (!$server || empty($server) || ($server == "all"))
   {
-    $key =  'm|' . $date . '|*';
-    $keys = $redis->getKeys($key);
-    foreach($keys as &$val) 
-    {
-      $arr = $redis->hGetAll($val);
-      $result[] = array("timestamp" => $from * 1000, "server" => $val, "view" => $arr[1]);
-    }
+    // total server load  
+    $total = 0;
+          
+    // server loads 
+    $key =  'm|' . $date . '|0:server0.mydomain.com:80';
+    $arr = $redis->hGetAll($key);
+    $total += $arr[1];
+    $key =  'm|' . $date . '|0:server1.mydomain.com:80';
+    $arr = $redis->hGetAll($key);
+    $total += $arr[1];
+    $key =  'm|' . $date . '|0:server2.mydomain.com:80';
+    $arr = $redis->hGetAll($key);
+    $total += $arr[1];
+    $key =  'm|' . $date . '|0:server3.mydomain.com:80';
+    $arr = $redis->hGetAll($key);
+    $total += $arr[1];
+    $key =  'm|' . $date . '|0:server4.mydomain.com:80';
+    $arr = $redis->hGetAll($key);
+    $total += $arr[1];
+    $key =  'm|' . $date . '|0:server5.mydomain.com:80';
+    $arr = $redis->hGetAll($key);
+    $total += $arr[1];
+    $key =  'm|' . $date . '|0:server6.mydomain.com:80';
+    $arr = $redis->hGetAll($key);
+    $total += $arr[1];
+    $key =  'm|' . $date . '|0:server7.mydomain.com:80';
+    $arr = $redis->hGetAll($key);
+    $total += $arr[1];
+    $key =  'm|' . $date . '|0:server8.mydomain.com:80';
+    $arr = $redis->hGetAll($key);
+    $total += $arr[1];
+    $key =  'm|' . $date . '|0:server9.mydomain.com:80';
+    $arr = $redis->hGetAll($key);
+    $total += $arr[1];
+
+    // add to result 
+
+    // add to result 
+    $result[] = array("timestamp" => $from * 1000, "server" => "all", "view" => $total);
+
   } else {
     
     $key =  'm|' . $date . '|0:' . $server;
-    //var_dump($key);
     $arr = $redis->hGetAll($key);
     if ($arr)
     {
@@ -43,6 +76,7 @@ while ($from < time())
   $from += $incr;
 }
 
+array_pop($result);
 print json_encode($result);
 
 

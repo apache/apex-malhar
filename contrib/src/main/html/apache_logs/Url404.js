@@ -19,14 +19,14 @@ function DrawUrl404TableChart()
         var pts = JSON.parse(data);
         var url404Table = new google.visualization.DataTable();
         url404Table.addColumn('string', 'URL');
-        url404Table.addColumn('number', 'NUM 404');
+        url404Table.addColumn('number', '404 per sec');
         url404Table.addRows(10);
         for(var i=0; ((i <  pts.length)&&(i < 10)); i++) 
         {
           var row = pts[i].split("##");
           if ((row[1] == null)||(row[1] == ""))
           {
-            url404Table.setCell(i, 0,  "NONE");
+            url404Table.setCell(i, 0,  "-");
           } else {
             url404Table.setCell(i, 0, row[0]);
           }

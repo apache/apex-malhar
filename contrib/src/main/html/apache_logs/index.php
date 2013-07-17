@@ -138,19 +138,19 @@ window.onload = function() {
            <div class="dbib">
                 <table><tbody><tr>
       
-		         <td>       <h1>Top 10 Queried Url/sec</h1>
+		         <td>       <h1>Top 10 Urls</h1>
 		                    <div  id="top_url_div" ></div><br><br>
-                                    <h1>Top 10 Client IP with high use</h1>
+                                    <h1>Top 10 Client IPs</h1>
                                     <div id="top_IpClient_div"></div> <br><br>
-                                    <h1>Top 10 Url Status 404 (per sec)</h1>
+                                    <h1>Top 10 Urls with 404 response</h1>
                                     <div id="url_404_div"></div>
 		          </td>
 		          <td>
-                                   <h1>Server Load (views/sec)</h1>
+                                   <h1>Server Load</h1>
 		                   <div id="top_server_div"></div> <br><br>
-                                   <h1>Top 10 Client IP with high use (Bytes/sec)</h1>
+                                   <h1>Top 10 client IPs download</h1>
                                    <div id="top_ipdata_div"></div> <br><br>
-                                   <h1>Number of 404 per Server (per sec)</h1>
+                                   <h1>404 per Server</h1>
                                    <div id="server_404_div"></div-->
 		           </td>
                           

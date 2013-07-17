@@ -19,14 +19,14 @@ function DrawServer404TableChart()
         var pts = JSON.parse(data);
         var server404 = new google.visualization.DataTable();
         server404.addColumn('string', 'SERVER');
-        server404.addColumn('number', 'NUM 404');
+        server404.addColumn('number', '404 per sec');
         server404.addRows(10);
         for(var i=0; ((i <  pts.length)&&(i < 10)); i++) 
         {
           var row = pts[i].split("##");
           if ((row[0] == null)||(row[0] == ""))
           {
-            server404.setCell(i, 0, "NONE");
+            server404.setCell(i, 0, "-");
           } else {
             server404.setCell(i, 0, row[0]);
           }

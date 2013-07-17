@@ -43,10 +43,29 @@ function RenderPageViewTimeChart()
     pageViewTable.setCell(i, 0, new Date(parseInt(pageDataPoints[i].timestamp)));
     pageViewTable.setCell(i, 1, parseFloat(pageDataPoints[i].view));
   }
+    
+  // get options
+  var page = document.getElementById('page').value;
+  var index = document.getElementById('index').value;
+  var title = "ALL Urls (PVS/S)";
+  if (page == "home") title = "home.php (PVS/S)";
+  if (page == "contact") title = "contactus.php (PVS/S)";
+  if (page == "about") title = "about.php (PVS/S)";
+  if (page == "support") title = "support.php (PVS/S)";
+  if (page == "product") {
+    title = "product.php-" + index + " (PVS/S)";
+  }
+  if (page == "services") {
+    title = "services.php-" + index + " (PVS/S)";
+  }
+  if (page == "products") {
+    title = "products.php-" + index + " (PVS/S)";
+  }
+
+  var options = { pointSize: 0, lineWidth : 1 };
+  options.title = title;
 
   // Draw line chart.
-  var options = { pointSize: 0, lineWidth : 1 };
-  options.title = 'Site Url Access(Per Sec) vs Time Chart';
   pageViewChart.draw(PageViewView, options); 
 }
 

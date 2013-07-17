@@ -19,7 +19,7 @@ function DrawTopServerTableChart()
         var pts = JSON.parse(data);
         topServerTable = new google.visualization.DataTable();
         topServerTable.addColumn('string', 'SERVER');
-        topServerTable.addColumn('number', 'NUM RESPONSE');
+        topServerTable.addColumn('number', 'requests per sec');
         topServerTable.addRows(10);
         for(var i=0; (i <  pts.length)&&(i < 10); i++) 
         {

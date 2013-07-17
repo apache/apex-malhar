@@ -19,7 +19,7 @@ function DrawTopIpClientTableChart()
         var pts = JSON.parse(data);
         topIpClientTable = new google.visualization.DataTable();
         topIpClientTable.addColumn('string', 'Client IP');
-        topIpClientTable.addColumn('number', 'NUM REQUESTS');
+        topIpClientTable.addColumn('number', 'requests per sec');
         topIpClientTable.addRows(10);
         for(var i=0; (i <  pts.length)&&(i < 10); i++) 
         {
