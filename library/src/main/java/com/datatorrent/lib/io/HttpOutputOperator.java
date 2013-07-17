@@ -20,6 +20,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.ShipContainingJars;
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import java.net.URI;
 import java.util.Map;
@@ -48,7 +49,7 @@ public class HttpOutputOperator<T> extends BaseOperator
     {
       try {
         if (t instanceof Map) {
-          resource.type(MediaType.APPLICATION_JSON).post(new JSONObject((Map<?, ?>)t));
+          resource.type(MediaType.APPLICATION_JSON).post("" + new JSONObject((Map<?, ?>)t));
         }
         else {
           resource.post("" + t);

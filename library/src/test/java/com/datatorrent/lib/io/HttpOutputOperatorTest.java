@@ -28,16 +28,20 @@ import javax.servlet.http.HttpServletResponse;
 import junit.framework.Assert;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jettison.json.JSONObject;
-import org.mortbay.jetty.Handler;
-import org.mortbay.jetty.Request;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.handler.AbstractHandler;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.junit.Test;
 
 import com.datatorrent.lib.io.HttpOutputOperator;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.core.MediaType;
 
 
 public class HttpOutputOperatorTest {
+
+  boolean receivedMessage = false;
 
   @Test
   public void testHttpOutputNode() throws Exception {
@@ -46,7 +50,8 @@ public class HttpOutputOperatorTest {
     Handler handler=new AbstractHandler()
     {
       @Override
-      public void handle(String string, HttpServletRequest request, HttpServletResponse response, int i) throws IOException, ServletException
+      @Consumes({MediaType.APPLICATION_JSON})
+      public void handle(String string, Request rq, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException
       {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         IOUtils.copy(request.getInputStream(), bos);
@@ -55,6 +60,7 @@ public class HttpOutputOperatorTest {
         response.setStatus(HttpServletResponse.SC_OK);
         response.getWriter().println("<h1>Thanks</h1>");
         ((Request)request).setHandled(true);
+        receivedMessage = true;
       }
     };
 
@@ -74,6 +80,13 @@ public class HttpOutputOperatorTest {
     Map<String, String> data = new HashMap<String, String>();
     data.put("somekey", "somevalue");
     node.input.process(data);
+
+    // Wait till the message is received or a maximum timeout elapses
+    int timeoutMillis = 10000;
+    while (!receivedMessage && timeoutMillis > 0) {
+      timeoutMillis -= 20;
+      Thread.sleep(20);
+    }
 
     Assert.assertEquals("number requests", 1, receivedMessages.size());
     JSONObject json = new JSONObject(data);
