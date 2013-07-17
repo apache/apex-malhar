@@ -15,15 +15,17 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.lib.algo.BottomNUniqueMap;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  *
@@ -38,7 +40,6 @@ public class BottomNUniqueMapTest
    * Test node logic emits correct results
    */
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
     testNodeProcessingSchema(new BottomNUniqueMap<String, Integer>());
@@ -48,6 +49,7 @@ public class BottomNUniqueMapTest
     testNodeProcessingSchema(new BottomNUniqueMap<String, Long>());
   }
 
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public void testNodeProcessingSchema(BottomNUniqueMap oper)
   {
     CollectorTestSink sortSink = new CollectorTestSink();
