@@ -15,6 +15,7 @@
  */
 package com.datatorrent.contrib.hbase;
 
+import com.datatorrent.api.annotation.ShipContainingJars;
 import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -29,6 +30,7 @@ import org.apache.hadoop.hbase.client.HTable;
  *
  * <br>
  */
+@ShipContainingJars(classes = {org.apache.hadoop.hbase.client.HTable.class})
 public class HBaseOperatorBase
 {
   private String zookeeperQuorum;
