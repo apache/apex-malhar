@@ -15,29 +15,29 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.lib.algo.AllAfterMatchStringValueMap;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.HashMap;
 import java.util.Map;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
- *
- * Functional tests for {@link com.datatorrent.lib.algo.AllAfterMatchStringValueMap}. <p>
- *
+ * 
+ * Functional tests for
+ * {@link com.datatorrent.lib.algo.AllAfterMatchStringValueMap}.
+ * <p>
+ * 
  */
 public class AllAfterMatchStringValueMapTest
 {
-  private static Logger log = LoggerFactory.getLogger(AllAfterMatchStringValueMapTest.class);
-
   /**
    * Test node logic emits correct results
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
 
@@ -68,16 +68,16 @@ public class AllAfterMatchStringValueMapTest
 
     oper.endWindow();
 
-    Assert.assertEquals("number emitted tuples", 3, allSink.collectedTuples.size());
-    for (Object o: allSink.collectedTuples) {
-      for (Map.Entry<String, String> e: ((HashMap<String, String>)o).entrySet()) {
+    Assert.assertEquals("number emitted tuples", 3,
+        allSink.collectedTuples.size());
+    for (Object o : allSink.collectedTuples) {
+      for (Map.Entry<String, String> e : ((HashMap<String, String>) o)
+          .entrySet()) {
         if (e.getKey().equals("a")) {
           Assert.assertEquals("emitted value for 'a' was ", "3", e.getValue());
-        }
-        else if (e.getKey().equals("b")) {
+        } else if (e.getKey().equals("b")) {
           Assert.assertEquals("emitted tuple for 'b' was ", "6", e.getValue());
-        }
-        else if (e.getKey().equals("c")) {
+        } else if (e.getKey().equals("c")) {
           Assert.assertEquals("emitted tuple for 'c' was ", "9", e.getValue());
         }
       }

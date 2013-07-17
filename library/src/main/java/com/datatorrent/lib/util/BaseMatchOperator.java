@@ -15,48 +15,50 @@
  */
 package com.datatorrent.lib.util;
 
-import java.util.Map;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 /**
- *
- * Base class that sets up the operator functionality needed for match based operators<p>
+ * 
+ * Base class that sets up the operator functionality needed for match based
+ * operators
+ * <p>
  * <br>
  * Ports:<br>
- * none
- * <br>
+ * none <br>
  * Properties:<br>
  * <b>key</b>: The key on which compare is done<br>
  * <b>value</b>: The value to compare with<br>
- * <b>comp<b>: The compare function. Supported values are "lte", "lt", "eq", "neq", "gt", "gte". Default is "eq"<br>
+ * <b>comp<b>: The compare function. Supported values are "lte", "lt", "eq",
+ * "neq", "gt", "gte". Default is "eq"<br>
  * <br>
  * Compile time checks<br>
  * Key must be non empty<br>
  * Value must be able to convert to a "double"<br>
- * Compare string, if specified, must be one of "lte", "lt", "eq", "neq", "gt", "gte"<br>
+ * Compare string, if specified, must be one of "lte", "lt", "eq", "neq", "gt",
+ * "gte"<br>
  * <br>
  * Run time checks<br>
  * none<br>
- *
+ * 
  */
-public class BaseMatchOperator<K,V> extends BaseKeyValueOperator<K,V>
+public class BaseMatchOperator<K, V> extends BaseKeyValueOperator<K, V>
 {
   @NotNull
   private K key;
 
   @Pattern(regexp = "lte|lt|eq|ne|gt|gte", message = "Value has to be one of lte, lt, eq, ne, gt, gte")
-  private String cmp;
   private double value = 0.0;
 
-  public enum supported_type
-  {
+  public enum supported_type {
     LTE, LT, EQ, NEQ, GT, GTE
   };
+
   supported_type type = supported_type.EQ;
 
   /**
    * setter function for key
+   * 
    * @param key
    */
   public void setKey(K key)
@@ -66,6 +68,7 @@ public class BaseMatchOperator<K,V> extends BaseKeyValueOperator<K,V>
 
   /**
    * getter function for key
+   * 
    * @return key
    */
   @NotNull()
@@ -76,6 +79,7 @@ public class BaseMatchOperator<K,V> extends BaseKeyValueOperator<K,V>
 
   /**
    * setter function for value
+   * 
    * @param value
    */
   public void setValue(double value)
@@ -85,6 +89,7 @@ public class BaseMatchOperator<K,V> extends BaseKeyValueOperator<K,V>
 
   /**
    * getter function for value
+   * 
    * @return value
    */
   public double getValue()
@@ -127,30 +132,27 @@ public class BaseMatchOperator<K,V> extends BaseKeyValueOperator<K,V>
   }
 
   /**
-   * Setter function for compare type. Allowed values are lte, lt, eq, ne, gt, gte<p> *
+   * Setter function for compare type. Allowed values are lte, lt, eq, ne, gt,
+   * gte
+   * <p>
+   * *
    */
   @Pattern(regexp = "lte|lt|eq|ne|gt|gte", message = "Value has to be one of lte, lt, eq, ne, gt, gte")
   public void setCmp(String cmp)
   {
     if (cmp.equals("lt")) {
       setTypeLT();
-    }
-    else if (cmp.equals("lte")) {
+    } else if (cmp.equals("lte")) {
       setTypeLTE();
-    }
-    else if (cmp.equals("eq")) {
+    } else if (cmp.equals("eq")) {
       setTypeEQ();
-    }
-    else if (cmp.equals("ne")) {
+    } else if (cmp.equals("ne")) {
       setTypeEQ();
-    }
-    else if (cmp.equals("gt")) {
+    } else if (cmp.equals("gt")) {
       setTypeGT();
-    }
-    else if (cmp.equals("gte")) {
+    } else if (cmp.equals("gte")) {
       setTypeGTE();
-    }
-    else {
+    } else {
       setTypeEQ();
     }
   }

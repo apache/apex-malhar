@@ -15,28 +15,26 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.lib.algo.AllAfterMatchMap;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.HashMap;
 import java.util.Map;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
- *
- * Functional tests for {@link com.datatorrent.lib.algo.AllAfter} <p>
+ * 
+ * Functional tests for {@link com.datatorrent.lib.algo.AllAfter}
+ * <p>
  */
 public class AllAfterMatchMapTest
 {
-  private static Logger log = LoggerFactory.getLogger(AllAfterMatchMapTest.class);
-
   /**
    * Test node logic emits correct results
    */
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
     testNodeProcessingSchema(new AllAfterMatchMap<String, Integer>());
@@ -46,6 +44,7 @@ public class AllAfterMatchMapTest
     testNodeProcessingSchema(new AllAfterMatchMap<String, Long>());
   }
 
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public void testNodeProcessingSchema(AllAfterMatchMap oper)
   {
     CollectorTestSink allSink = new CollectorTestSink();
@@ -64,7 +63,6 @@ public class AllAfterMatchMapTest
     input.put("a", 3);
     oper.data.process(input);
 
-
     input.clear();
     input.put("b", 6);
     oper.data.process(input);
@@ -75,17 +73,20 @@ public class AllAfterMatchMapTest
 
     oper.endWindow();
 
-    Assert.assertEquals("number emitted tuples", 3, allSink.collectedTuples.size());
-    for (Object o: allSink.collectedTuples) {
-      for (Map.Entry<String, Number> e: ((HashMap<String, Number>)o).entrySet()) {
+    Assert.assertEquals("number emitted tuples", 3,
+        allSink.collectedTuples.size());
+    for (Object o : allSink.collectedTuples) {
+      for (Map.Entry<String, Number> e : ((HashMap<String, Number>) o)
+          .entrySet()) {
         if (e.getKey().equals("a")) {
-          Assert.assertEquals("emitted value for 'a' was ", new Double(3), e.getValue().doubleValue());
-        }
-        else if (e.getKey().equals("b")) {
-          Assert.assertEquals("emitted tuple for 'b' was ", new Double(6), e.getValue().doubleValue());
-        }
-        else if (e.getKey().equals("c")) {
-          Assert.assertEquals("emitted tuple for 'c' was ", new Double(9), e.getValue().doubleValue());
+          Assert.assertEquals("emitted value for 'a' was ", new Double(3), e
+              .getValue().doubleValue());
+        } else if (e.getKey().equals("b")) {
+          Assert.assertEquals("emitted tuple for 'b' was ", new Double(6), e
+              .getValue().doubleValue());
+        } else if (e.getKey().equals("c")) {
+          Assert.assertEquals("emitted tuple for 'c' was ", new Double(9), e
+              .getValue().doubleValue());
         }
       }
     }

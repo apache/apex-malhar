@@ -66,6 +66,7 @@ public abstract class AbstractBaseNUniqueOperatorMap<K, V> extends AbstractBaseN
   /**
    * Emits the result
    */
+  @SuppressWarnings("unchecked")
   @Override
   public void endWindow()
   {
