@@ -30,10 +30,10 @@ import junit.framework.Assert;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
-import org.mortbay.jetty.Handler;
-import org.mortbay.jetty.Request;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.handler.AbstractHandler;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.junit.Test;
 
 public class HttpInputOperatorTest
@@ -49,7 +49,7 @@ public class HttpInputOperatorTest
       int responseCount = 0;
 
       @Override
-      public void handle(String string, HttpServletRequest request, HttpServletResponse response, int i) throws IOException, ServletException
+      public void handle(String string, Request rq, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException
       {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         IOUtils.copy(request.getInputStream(), bos);
