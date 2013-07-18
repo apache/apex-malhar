@@ -32,7 +32,7 @@ public class DistinctTest
    * Test node logic emits correct results
    */
   @Test
-  @SuppressWarnings( {"SleepWhileInLoop", "rawtypes", "unchecked"})
+  @SuppressWarnings( {"rawtypes", "unchecked"})
   public void testNodeProcessing() throws Exception
   {
     Distinct<String> oper = new Distinct<String>();

@@ -31,44 +31,13 @@ import java.util.Map;
  * <br>
  * This module is same as a "FirstOf" operation on any key,val pair. At end of window all data is flushed.<br>
  * <br>
+ * <b>StateFull : Yes, </b> tuple are compare across application window(s). <br>
+ * <b>Partitions : Yes, </b> distinct output is unified by unifier hash map operator. <br>
+ * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: Input data port expects Map&lt;K,V&gt;<br>
  * <b>distinct</b>: Output data port, emits HashMap&lt;K,V&gt;(1)<br>
  * <br>
- * <b>Properties</b>: None<br>
- * <br>
- * <b>Specific compile time checks</b>: None<br>
- * <b>Specific run time checks</b>: None <br>
- * <br>
- * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for DistinctMap&lt;K,V&gt; operator template">
- * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>&gt; 6 Million K,V pairs/s (at 4 million out-bound emits/s)</b></td><td>Emits first instance of a unique k,v pair</td><td>In-bound throughput and number of unique k,v pairs are the main determinant of performance.
- * Tuples are assumed to be immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
- * </table><br>
- * <p>
- * <b>Function Table (K=String,V=Integer)</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for DistinctMap&lt;K,V&gt; operator template">
- * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(Map&lt;K,V&gt;)</th><th><i>distinct</i>(HashMap&lt;K,V&gt;)</th></tr>
- * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
- * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td>{a=2}<br>{b=20}<br>{c=1000} </td></tr>
- * <tr><td>Data (process())</td><td>{a=-1}</td><td>{a=-1}</td></tr>
- * <tr><td>Data (process())</td><td>{a=2,b=5}</td><td>{b=5}</td></tr>
- * <tr><td>Data (process())</td><td>{a=5,b=-5}</td><td>{a=5}<br>{b=-5}</td></tr>
- * <tr><td>Data (process())</td><td>{a=3,h=20,c=1000,b=-5}</td><td>{a=3}<br>{h=20}</td></tr>
- * <tr><td>Data (process())</td><td>{d=55,b=5}</td><td>{d=55}</td></tr>
- * <tr><td>Data (process())</td><td>{d=14}</td><td>{d=14}</td></tr>
- * <tr><td>Data (process())</td><td>{d=55,e=2}</td><td>{e=2}</td></tr>
- * <tr><td>Data (process())</td><td>{d=1,a=5,f=55}</td><td>{d=1}<br>{f=55}</td></tr>
- * <tr><td>Data (process())</td><td>{d=1,a=3,e=2}</td><td></td></tr>
- * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td></tr>
- * </table>
- * <br>
- *
- * <br>
- *
- *
  */
 public class DistinctMap<K, V> extends BaseKeyValueOperator<K, V>
 {

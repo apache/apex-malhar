@@ -21,8 +21,6 @@ import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -31,13 +29,11 @@ import org.slf4j.LoggerFactory;
  */
 public class FirstMatchStringMapTest
 {
-  private static Logger log = LoggerFactory.getLogger(FirstMatchStringMapTest.class);
-
   /**
    * Test node logic emits correct results
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
     FirstMatchStringMap<String> oper = new FirstMatchStringMap<String>();

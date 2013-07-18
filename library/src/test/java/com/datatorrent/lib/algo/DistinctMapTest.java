@@ -15,12 +15,14 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.lib.algo.DistinctMap;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.HashMap;
 import java.util.Map;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
+
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  *
@@ -32,8 +34,8 @@ public class DistinctMapTest
   /**
    * Test node logic emits correct results
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
     DistinctMap<String, Number> oper = new DistinctMap<String, Number>();

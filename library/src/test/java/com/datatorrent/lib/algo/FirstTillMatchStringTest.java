@@ -15,14 +15,13 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.lib.algo.FirstTillMatchString;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import java.util.ArrayList;
 import java.util.HashMap;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  *
@@ -31,13 +30,11 @@ import org.slf4j.LoggerFactory;
  */
 public class FirstTillMatchStringTest
 {
-  private static Logger log = LoggerFactory.getLogger(FirstTillMatchStringTest.class);
-
   /**
    * Test node logic emits correct results
    */
   @Test
-  @SuppressWarnings( {"SleepWhileInLoop", "unchecked", "unchecked"})
+  @SuppressWarnings( {"unchecked", "rawtypes"})
   public void testNodeProcessing() throws Exception
   {
     FirstTillMatchString<String> oper = new FirstTillMatchString<String>();

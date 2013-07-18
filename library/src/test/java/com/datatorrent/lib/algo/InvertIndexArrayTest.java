@@ -38,8 +38,8 @@ public class InvertIndexArrayTest
   /**
    * Test oper logic emits correct results
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
     InvertIndexArray<String,String> oper = new InvertIndexArray<String,String>();

@@ -17,7 +17,6 @@ package com.datatorrent.lib.algo;
 
 import com.datatorrent.lib.algo.FilterKeyVals;
 import com.datatorrent.lib.testbench.CollectorTestSink;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,8 +45,8 @@ public class FilterKeyValsTest
   /**
    * Test node logic emits correct results
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
     FilterKeyVals<String,Number> oper = new FilterKeyVals<String,Number>();

@@ -21,14 +21,16 @@ package com.datatorrent.lib.algo;
  */
 
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.validation.constraints.NotNull;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseKeyOperator;
-import java.util.HashMap;
-import java.util.Map;
-import javax.validation.constraints.NotNull;
 
 /**
  *
@@ -38,6 +40,9 @@ import javax.validation.constraints.NotNull;
  * override "cloneKey()" to make copy of K, and "cloneValue()" to make copy of V.<br>
  * This is a pass through node<br>
  * <br>
+ * <b>StateFull : No, </b> tuple are processed in current window. <br>
+ * <b>Partitions : Yes, </b> no dependency among input tuples. <br>
+ * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects HashMap&lt;K,V&gt;<br>
  * <b>filter</b>: emits HashMap&lt;K,V&gt;(1)<br>
@@ -45,38 +50,6 @@ import javax.validation.constraints.NotNull;
  * <b>Properties</b>:<br>
  * <b>keyvals</b>: The keyvals is key,val pairs to pass through, rest are filtered/dropped.<br>
  * <br>
- * <b>Specific compile time checks are</b>:<br>
- * keyvals cannot be empty<br>
- * <b>Specific run time checks</b>: None<br>
- * <br>
- * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for FilterKeyVals&lt;K,V&gt; operator template">
- * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>&gt; 8 Million K,V pairs/s (4 million out-bound emits/s)</b></td><td>Emits all K,V pairs in a tuple such that K,V is in the filter list
- * (or not in the list if inverse is set to true)</td><td>In-bound throughput and number of matching K,V pairs are the main determinant of performance.
- * Tuples are assumed to be immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
- * </table><br>
- * <p>
- * <b>Function Table (K=String,V=Integer); inverse=false; keyvals={a=2,d=5,e=2}</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for FilterKeyVals&lt;K,V&gt; operator template">
- * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(HashMap&lt;K,V&gt;)</th><th><i>filter</i>(HashMap&lt;K,V&gt;)</th></tr>
- * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
- * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td>{a=2}</td></tr>
- * <tr><td>Data (process())</td><td>{a=-1}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{a=2,b=5}</td><td>{a=2}</td></tr>
- * <tr><td>Data (process())</td><td>{a=5,b=-5}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{a=3,h=20,c=1000,b=-5}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=55,b=5}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=14}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=55,e=2}</td><td>{e=2}</td></tr>
- * <tr><td>Data (process())</td><td>{f=1,d=5,e=55,a=2}</td><td>{d=5}<br>{a=2}</td></tr>
- * <tr><td>Data (process())</td><td>{d=1,a=3,e=2}</td><td>{e=2}</td></tr>
- * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td></tr>
- * </table>
- * <br>
- * <br>
- *
  */
 
 public class FilterKeyVals<K,V> extends BaseKeyOperator<K>
@@ -141,6 +114,7 @@ public class FilterKeyVals<K,V> extends BaseKeyOperator<K>
    * Adds a key to the filter list
    * @param map with key,val pairs to set as filters
    */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public void setKeyVals(HashMap<K,V> map)
   {
     for (Map.Entry<K, V> e: map.entrySet()) {

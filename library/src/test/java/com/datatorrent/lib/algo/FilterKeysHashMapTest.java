@@ -15,12 +15,14 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.lib.algo.FilterKeysHashMap;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.HashMap;
 import java.util.Map;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
+
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  *
@@ -29,6 +31,7 @@ import org.junit.Test;
  */
 public class FilterKeysHashMapTest
 {
+  @SuppressWarnings("unchecked")
   int getTotal(Object o)
   {
     HashMap<String, HashMap<String, Number>> map = (HashMap<String, HashMap<String, Number>>)o;
@@ -44,8 +47,8 @@ public class FilterKeysHashMapTest
   /**
    * Test node logic emits correct results
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
     FilterKeysHashMap<String, Number> oper = new FilterKeysHashMap<String, Number>();

@@ -24,8 +24,6 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <b>Demo only module. do not use</b>
@@ -36,7 +34,9 @@ import org.slf4j.LoggerFactory;
  */
 public class InvertIndexUniqueMap<K,V> extends BaseOperator
 {
-  private static Logger log = LoggerFactory.getLogger(InvertIndexUniqueMap.class);
+  /**
+   * Input port.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>()
   {
@@ -66,6 +66,7 @@ public class InvertIndexUniqueMap<K,V> extends BaseOperator
       }
     }
   };
+  @SuppressWarnings("rawtypes")
   @OutputPortFieldAnnotation(name = "index")
   public final transient DefaultOutputPort<HashMap<V, ArrayList>> index = new DefaultOutputPort<HashMap<V, ArrayList>>();
 
@@ -86,6 +87,7 @@ public class InvertIndexUniqueMap<K,V> extends BaseOperator
   /**
    * Emit all the data and clear the hash
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Override
   public void endWindow()
   {

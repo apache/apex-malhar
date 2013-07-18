@@ -33,6 +33,9 @@ import javax.validation.constraints.NotNull;
  * override "cloneKey()" to make copy of K, and "cloneValue()" to make copy of V.<br>
  * This is a pass through node.<br>
  * <br>
+ * <b>StateFull : No, </b> tuple are processed in current window. <br>
+ * <b>Partitions : Yes, </b> no dependency among input tuples. <br>
+ * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: Expects Map&lt;K, HashMap&lt;K,V&gt;&gt. Filters are applied only on keys of second hash map.<br>
  * <b>filter</b>: Emits HashMap&lt;K, HashMap&lt;K,V&gt;&gt.<br>
@@ -40,41 +43,23 @@ import javax.validation.constraints.NotNull;
  * <b>Properties</b>:<br>
  * <b>keys</b>: The keys to pass through, rest are filtered/dropped. A comma separated list of keys.<br>
  * <br>
- * <b>Specific compile time checks are</b>:<br>
- * keys cannot be empty<br>
- * <b>Specific run time checks</b>: None <br>
- * <br>
- * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for FilterKeys&lt;K,V&gt; operator template">
- * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>&gt; 15 Million K,V pairs/s (4 million out-bound emits/s)</b></td><td>Emits all K,V pairs in a tuple such that K is in the filter list
- * (or not in the list if inverse is set to true)</td><td>In-bound throughput and number of matching K are the main determinant of performance.
- * Tuples are assumed to be immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
- * </table><br>
- * <p>
- * <b>Function Table (K=String,V=Integer); inverse=false; keys="a,b,h"</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for FilterKeys&lt;K,V&gt; operator template">
- * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(HashMap&lt;K,V&gt;)</th><th><i>filter</i>(HashMap&lt;K,V&gt;)</th></tr>
- * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
- * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td>{a=2}<br>{b=20}</td></tr>
- * <tr><td>Data (process())</td><td>{a=-1}</td><td>{a=-1}</td></tr>
- * <tr><td>Data (process())</td><td>{a=2,b=5}</td><td>{b=5}</td></tr>
- * <tr><td>Data (process())</td><td>{a=5,b=-5}</td><td>{a=5}<br>{b=-5}</td></tr>
- * <tr><td>Data (process())</td><td>{a=3,h=20,c=1000,b=-5}</td><td>{a=3}<br>{h=20}</td></tr>
- * <tr><td>Data (process())</td><td>{d=55,b=5}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=14}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=55,e=2}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=1,d=5,d=55}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=1,a=3,e=2}</td><td>{a=3}</td></tr>
- * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td></tr>
- * </table>
- * <br>
- * <br>
- *
  */
 public class FilterKeysHashMap<K, V> extends BaseKeyOperator<K>
 {
+  /**
+   * Filter keys map.
+   */
+  @NotNull()
+  HashMap<K, V> keys = new HashMap<K, V>();
+  
+  /**
+   * Emits key not in filter map.
+   */
+  boolean inverse = false;
+  
+  /**
+   * Input port.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, HashMap<K, V>>> data = new DefaultInputPort<Map<K, HashMap<K, V>>>()
   {
@@ -109,11 +94,12 @@ public class FilterKeysHashMap<K, V> extends BaseKeyOperator<K>
       }
     }
   };
+  
+  /**
+   * Output port.
+   */
   @OutputPortFieldAnnotation(name = "filter")
   public final transient DefaultOutputPort<HashMap<K, HashMap<K, V>>> filter = new DefaultOutputPort<HashMap<K, HashMap<K, V>>>();
-  @NotNull()
-  HashMap<K, V> keys = new HashMap<K, V>();
-  boolean inverse = false;
 
   /**
    * getter function for parameter inverse

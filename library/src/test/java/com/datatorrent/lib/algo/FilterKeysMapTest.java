@@ -29,6 +29,7 @@ import org.junit.Test;
  */
 public class FilterKeysMapTest
 {
+  @SuppressWarnings("unchecked")
   int getTotal(Object o)
   {
     HashMap<String, Number> map = (HashMap<String, Number>)o;
@@ -42,8 +43,8 @@ public class FilterKeysMapTest
   /**
    * Test node logic emits correct results
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
     FilterKeysMap<String,Number> oper = new FilterKeysMap<String,Number>();

@@ -15,15 +15,13 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.lib.algo.InsertSort;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  *
@@ -31,13 +29,10 @@ import org.slf4j.LoggerFactory;
  */
 public class InsertSortTest
 {
-  private static Logger log = LoggerFactory.getLogger(InsertSortTest.class);
-
   /**
    * Test node logic emits correct results
    */
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
     testNodeProcessingSchema(new InsertSort<Integer>(), "Integer");
@@ -46,13 +41,11 @@ public class InsertSortTest
     testNodeProcessingSchema(new InsertSort<String>(), "String");
   }
 
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public void testNodeProcessingSchema(InsertSort oper, String debug)
   {
-    //FirstN<String,Float> aoper = new FirstN<String,Float>();
     CollectorTestSink sortSink = new CollectorTestSink();
-    CollectorTestSink hashSink = new CollectorTestSink();
     oper.sort.setSink(sortSink);
-    oper.sorthash.setSink(hashSink);
 
     ArrayList input = new ArrayList();
 
@@ -82,12 +75,6 @@ public class InsertSortTest
     oper.endWindow();
 
     Assert.assertEquals("number emitted tuples", 1, sortSink.collectedTuples.size());
-    Assert.assertEquals("number emitted tuples", 1, hashSink.collectedTuples.size());
-    HashMap map = (HashMap) hashSink.collectedTuples.get(0);
     input = (ArrayList) sortSink.collectedTuples.get(0);
-    for (Object o: input) {
-     log.debug(String.format("%s : %s", o.toString(), map.get(o).toString()));
-    }
-    log.debug(String.format("Tested %s type with %d tuples and %d uniques\n", debug, input.size(), map.size()));
   }
 }

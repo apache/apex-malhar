@@ -36,7 +36,6 @@ public class InsertSortDescTest
    * Test node logic emits correct results
    */
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
     testNodeProcessingSchema(new InsertSortDesc<Integer>(), "Integer");
@@ -45,6 +44,7 @@ public class InsertSortDescTest
     testNodeProcessingSchema(new InsertSortDesc<String>(), "String");
   }
 
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public void testNodeProcessingSchema(InsertSortDesc oper, String debug)
   {
     //FirstN<String,Float> aoper = new FirstN<String,Float>();

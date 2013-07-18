@@ -15,14 +15,16 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.lib.algo.FirstN;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.HashMap;
 import java.util.Map;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  *
@@ -36,7 +38,6 @@ public class FirstNTest
    * Test node logic emits correct results
    */
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
     testNodeProcessingSchema(new FirstN<String, Integer>());
@@ -46,6 +47,7 @@ public class FirstNTest
     testNodeProcessingSchema(new FirstN<String, Long>());
   }
 
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public void testNodeProcessingSchema(FirstN oper)
   {
     CollectorTestSink sortSink = new CollectorTestSink();

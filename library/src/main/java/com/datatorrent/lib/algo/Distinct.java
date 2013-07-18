@@ -19,12 +19,14 @@ package com.datatorrent.lib.algo;
  *  Copyright (c) 2012 Malhar, Inc.
  *  All Rights Reserved.
  */
+import java.util.HashMap;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Operator.Unifier;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseKeyOperator;
-import java.util.HashMap;
 
 /**
  *
@@ -34,54 +36,26 @@ import java.util.HashMap;
  * Even though this module produces continuous tuples, at end of window all data is flushed. Thus the data set is windowed
  * and no history is kept of previous windows<br>
  * <br>
+ * <b>StateFull : Yes, </b> tuple are compare across application window(s). <br>
+ * <b>Partitions : Yes, </b> distinct output is unified by same operator. <br>
+ * <br>
  * <b>Ports</b><br>
  * <b>data</b>: Input data port expects K<br>
  * <b>distinct</b>: Output data port, emits K<br>
  * <br>
  * <b>Properties</b>: None<br>
  * <br>
- * <b>Specific compile time checks</b>: None<br>
- * <b>Specific run time checks</b>: None <br>
- * <br>
- * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for Distinct&lt;K&gt; operator template">
- * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>&gt; 20 Million K,V pairs/s (at 10 million out-bound emits/s)</b></td><td>Emits first instance of an unique k</td><td>In-bound throughput
- * and number of unique k are the main determinant of performance. Tuples are assumed to be immutable. If you use mutable tuples and have lots of keys,
- * the benchmarks may be lower</td></tr>
- * </table><br>
- * <p>
- * <b>Function Table (K=String)</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for Distinct&lt;K&gt; operator template">
- * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(K)</th><th><i>distinct</i>(K)</th></tr>
- * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
- * <tr><td>Data (process())</td><td>a</td><td>a</td></tr>
- * <tr><td>Data (process())</td><td>b</td><td>b</td></tr>
- * <tr><td>Data (process())</td><td>c</td><td>c</td></tr>
- * <tr><td>Data (process())</td><td>4</td><td>4</td></tr>
- * <tr><td>Data (process())</td><td>5ah</td><td>5ah</td></tr>
- * <tr><td>Data (process())</td><td>h</td><td>h</td></tr>
- * <tr><td>Data (process())</td><td>a</td><td></td></tr>
- * <tr><td>Data (process())</td><td>a</td><td></td></tr>
- * <tr><td>Data (process())</td><td>d</td><td>d</td></tr>
- * <tr><td>Data (process())</td><td>55</td><td>55</td></tr>
- * <tr><td>Data (process())</td><td>a</td><td></td></tr>
- * <tr><td>Data (process())</td><td>5ah</td><td></td></tr>
- * <tr><td>Data (process())</td><td>a</td><td></td></tr>
- * <tr><td>Data (process())</td><td>e</td><td>e</td></tr>
- * <tr><td>Data (process())</td><td>1</td><td>1</td></tr>
- * <tr><td>Data (process())</td><td>55</td><td></td></tr>
- * <tr><td>Data (process())</td><td>c</td><td></td></tr>
- * <tr><td>Data (process())</td><td>b</td><td></td></tr>
- * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td></tr>
- * </table>
- * <br>
- *
- * <br>
  */
-public class Distinct<K> extends BaseKeyOperator<K>
+public class Distinct<K> extends BaseKeyOperator<K> implements Unifier<K>
 {
+  /**
+   * Distinct key map.
+   */
+  protected HashMap<K, Object> map = new HashMap<K, Object>();
+  
+  /**
+   * Input port.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
@@ -98,9 +72,19 @@ public class Distinct<K> extends BaseKeyOperator<K>
       }
     }
   };
+  
+  /**
+   *  Output for distinct values. </b>
+   */
   @OutputPortFieldAnnotation(name = "distinct")
-  public final transient DefaultOutputPort<K> distinct = new DefaultOutputPort<K>();
-  protected HashMap<K, Object> map = new HashMap<K, Object>();
+  public final transient DefaultOutputPort<K> distinct = new DefaultOutputPort<K>()
+  {
+    @Override
+    public Unifier<K> getUnifier()
+    {
+      return new Distinct<K>();
+    }
+  };
 
   /**
    * Clears the cache/hash
@@ -109,5 +93,14 @@ public class Distinct<K> extends BaseKeyOperator<K>
   public void endWindow()
   {
     map.clear();
+  }
+
+  @Override
+  public void process(K tuple)
+  {
+    if (!map.containsKey(tuple)) {
+      distinct.emit(cloneKey(tuple));
+      map.put(cloneKey(tuple), null);
+    }
   }
 }

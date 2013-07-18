@@ -118,6 +118,7 @@ public abstract class AbstractBaseSortOperator<K> extends BaseKeyOperator<K>
    * Emit sorted tuple at end of window
    * Clears internal cache
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Override
   public void endWindow()
   {

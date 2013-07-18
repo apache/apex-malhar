@@ -15,14 +15,13 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.lib.algo.FirstTillMatch;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import java.util.ArrayList;
 import java.util.HashMap;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  *
@@ -31,13 +30,10 @@ import org.slf4j.LoggerFactory;
  */
 public class FirstTillMatchTest
 {
-  private static Logger log = LoggerFactory.getLogger(FirstTillMatchTest.class);
-
   /**
    * Test node logic emits correct results
    */
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
     testNodeProcessingSchema(new FirstTillMatch<String, Integer>());
@@ -47,7 +43,7 @@ public class FirstTillMatchTest
     testNodeProcessingSchema(new FirstTillMatch<String, Long>());
   }
 
-  @SuppressWarnings( {"unchecked", "unchecked"})
+  @SuppressWarnings( {"unchecked", "rawtypes"})
   public void testNodeProcessingSchema(FirstTillMatch oper)
   {
     CollectorTestSink matchSink = new CollectorTestSink();

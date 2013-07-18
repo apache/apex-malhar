@@ -15,12 +15,14 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.lib.algo.FilterValues;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.ArrayList;
 import java.util.List;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
+
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  *
@@ -29,6 +31,7 @@ import org.junit.Test;
  */
 public class FilterValuesTest
 {
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   int getTotal(List list)
   {
     ArrayList<Integer> ilist = (ArrayList<Integer>) list;
@@ -42,8 +45,8 @@ public class FilterValuesTest
   /**
    * Test node logic emits correct results
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
     FilterValues<Integer> oper = new FilterValues<Integer>();

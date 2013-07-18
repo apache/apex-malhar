@@ -15,50 +15,39 @@
  */
 package com.datatorrent.lib.algo;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseKeyValueOperator;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  *
  * Inverts the index and sends out the tuple on output port "index" at the end of the window<p>
  * This is an end of window operator<br>
  * <br>
+ * <b>StateFull : Yes, </b> tuple are compare across application window(s). <br>
+ * <b>Partitions : Yes, </b> inverted indexes are unified by instance of same operator. <br>
+ * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects HashMap&lt;K,ArrayList&lt;V&gt;&gt;<br>
  * <b>index</b>: emits HashMap&lt;V,ArrayList&lt;K&gt;&gt;(1), one HashMap per V<br>
  * <br>
- * <b>Properties</b>: None<br>
- * <br>
- * <b>Specific compile time checks are</b>: None<br>
- * <b>Specific run time checks are</b>: None<br>
- * <br>
- * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for InvertIndexArray&lt;K,Arraylist&lt;V&gt&gt;; operator template">
- * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>&gt; 4 Million K,V pairs/s</b></td><td>All tuples are added to invert index per window, and the index is emitted at the end of window</td>
- * <td>In-bound throughput and value distribution are the main determinant of performance. Tuples are assumed to be immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
- * </table><br>
- * <p>
- * <b>Function Table (K=String,V=String)</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for InvertIndexArray&lt;K,ArrayList&lt;V&gt;&gt; operator template">
- * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(HashMap&lt;K,ArrayList&lt;V&gt;&gt;)</th><th><i>index</i>(HashMap&lt;V,ArrayList&lt;K&gt;&gt;(1))</th></tr>
- * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
- * <tr><td>Data (process())</td><td>{a=[str,str1],b=[str,str1]}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{c=[str2,str1]}</td><td></td></tr>
- * <tr><td>End Window (endWindow())</td><td>N/A</td><td>{str1=[b, a, c]}<br>{str=[b, a]}<br>{str2=[c]}</td></tr>
- * </table>
- * <br>
- * <br>
  */
 public class InvertIndexArray<K, V> extends BaseKeyValueOperator<K,V>
 {
+  /**
+   * Inverted key/value map.
+   */
+  protected HashMap<V, ArrayList<K>> map = new HashMap<V, ArrayList<K>>();
+  
+  /**
+   * Input port.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, ArrayList<V>>> data = new DefaultInputPort<HashMap<K, ArrayList<V>>>()
   {
@@ -80,9 +69,18 @@ public class InvertIndexArray<K, V> extends BaseKeyValueOperator<K,V>
     }
   };
 
+  /**
+   * Output port.
+   */
   @OutputPortFieldAnnotation(name = "index")
-  public final transient DefaultOutputPort<HashMap<V, ArrayList<K>>> index = new DefaultOutputPort<HashMap<V, ArrayList<K>>>();
-  protected HashMap<V, ArrayList<K>> map = new HashMap<V, ArrayList<K>>();
+  public final transient DefaultOutputPort<HashMap<V, ArrayList<K>>> index = new DefaultOutputPort<HashMap<V, ArrayList<K>>>()
+  {
+    @Override
+    public Unifier<HashMap<V, ArrayList<K>>> getUnifier()
+    {
+      return new InvertIndex<K, V>();
+    }
+  };
 
   /**
    *

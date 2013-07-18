@@ -33,47 +33,14 @@ import java.util.PriorityQueue;
 /**
  * Incoming tuple is inserted into already existing sorted list in a descending order. At the end of the window the resultant sorted list is emitted on the output ports<p>
  * <br>
+ * <b>StateFull : Yes, </b> tuple are compare across application window(s). <br>
+ * <b>Partitions : No, </b> will yield wrong results. <br>
+ * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects K<br>
  * <b>datalist</b>: expects ArrayList&lt;K&gt;<br>
  * <b>sortlist</b>: emits ArrayList&lt;K&gt;<br>
  * <b>sorthash</b>: emits HashMap&lt;K,Integer&gt;<br>
- * <br>
- * <b>Properties</b>:<br>
- * <br>
- * <b>Specific compile time checks</b>: None<br>
- * <b>Specific run time checks are</b>: None<br>
- * <br>
- * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for InsertSortDesc&lt;K&gt; operator template">
- * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>&gt; 2.5 Million tuples/s on average</b></td><td>All tuples inserted one at a time</td>
- * <td>In-bound throughput (i.e. total number of tuples in the window) is the main determinant of performance. Tuples are assumed to be
- * immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
- * </table><br>
- * <p>
- * <b>Function Table (K=Integer)</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for InsertSortDesc&lt;K&gt; operator template">
- * <tr><th rowspan=2>Tuple Type (api)</th><th colspan=2>In-bound (process)</th><th colspan=2>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(K)</th><th><i>datalsit</i>(ArrayList&lt;K&gt;)</th><th><i>sortlist</i>(ArrayList&lt;K&gt;)</th><th><i>sorthash</i>(HashMap&lt;K,Integer&gt;)</th></tr>
- * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
- * <tr><td>Data (process())</td><td>2</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>-4</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>20</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td></td><td>[-5,-4,-10]</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>2</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>3</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>15</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>100</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>-10</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>1</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>3</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td></td><td>[1,1,2]</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>15</td><td></td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>20</td><td></td><td></td><td></td></tr>
- * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td><td>[100,20,20,15,15,3,3,2,2,2,1,1,1,-4,-4,-5,-10,-10]</td>
- * <td>{100=1,20=2,15=2,3=2,2=3,1=3,-4=2,-5=1,-10=2}</td></tr>
- * </table>
  * <br>
  * <br>
  */

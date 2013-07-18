@@ -21,7 +21,6 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import javax.validation.constraints.NotNull;
 
@@ -32,6 +31,9 @@ import javax.validation.constraints.NotNull;
  * This operator should not be used with mutable objects. If this operator has immutable Objects, override "cloneCopy" to ensure a new copy is sent out.
  * This is a pass through node<br>
  * <br>
+ * <b>StateFull : No, </b> tuple are processed in current window. <br>
+ * <b>Partitions : Yes, </b> no dependency among input tuples. <br>
+ * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expect T (a POJO)<br>
  * <b>filter</b>: emits T (a POJO)<br>
@@ -39,42 +41,6 @@ import javax.validation.constraints.NotNull;
  * <b>Properties</b>:<br>
  * <b>keys</b>: The keys to pass through. Those not in the list are dropped. A comma separated list of keys<br>
  * <br>
- * <b>Specific compile time checks are</b>:<br>
- * <b>keys</b> cannot be empty<br>
- * <br>
- * <b>Specific run time checks</b>: None <br>
- * <br>
- * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for FilterValues&lt;T&gt; operator template">
- * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>&gt; 170 million unique T (immutable) tuples/sec (emitted 100 million tuples/sec)</b></td><td>
- * The in-bound throughput and the number of tuples emitted are the main
- * determinant of performance. If the Object is mutable, then the cost of cloning has to factored in, and it may lower the benchmarks</td><tr>
- * </table><br>
- * <p>
- * <b>Function Table (T=String); inverse=false; keys=a,b</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for FilterValues&lt;T&gt; operator template">
- * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(T)</th><th><i>filter</i>(T)</th></tr>
- * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
- * <tr><td>Data (process())</td><td>a</td><td>a</td></tr>
- * <tr><td>Data (process())</td><td>b</td><td>b</td></tr>
- * <tr><td>Data (process())</td><td>c</td><td></td></tr>
- * <tr><td>Data (process())</td><td>4</td><td></td></tr>
- * <tr><td>Data (process())</td><td>5ah</td><td></td></tr>
- * <tr><td>Data (process())</td><td>h</td><td></td></tr>
- * <tr><td>Data (process())</td><td>a</td><td>a</td></tr>
- * <tr><td>Data (process())</td><td>a</td><td>a</td></tr>
- * <tr><td>Data (process())</td><td>d</td><td></td></tr>
- * <tr><td>Data (process())</td><td>55</td><td></td></tr>
- * <tr><td>Data (process())</td><td>a</td><td>a</td></tr>
- * <tr><td>Data (process())</td><td>5ah</td><td></td></tr>
- * <tr><td>Data (process())</td><td>b</td><td>b</td></tr>
- * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td></tr>
- * </table>
- * <br>
- * <br>
- *
  */
 public class FilterValues<T> extends BaseOperator
 {
