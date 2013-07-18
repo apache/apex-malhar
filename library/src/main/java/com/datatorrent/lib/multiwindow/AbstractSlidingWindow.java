@@ -23,7 +23,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 
 /**
- * 
+ *
  * A sliding window class that lets users access past N-1 window states
  * <p>
  * N is a property. The default behavior is just a passthrough, i.e. the
@@ -59,7 +59,7 @@ public abstract class AbstractSlidingWindow<T> extends BaseOperator
 
 	/**
 	 * getter function for n (number of previous window states
-	 * 
+	 *
 	 * @return n
 	 */
 	@Min(2)
@@ -70,7 +70,7 @@ public abstract class AbstractSlidingWindow<T> extends BaseOperator
 
 	/**
 	 * setter function for n
-	 * 
+	 *
 	 * @param i
 	 */
 	void setN(int i)
@@ -85,7 +85,7 @@ public abstract class AbstractSlidingWindow<T> extends BaseOperator
 	 * window would simply overwrite the previous call. This can be called during
 	 * processDataTuple, or endWindow. Usually it is better to call it in
 	 * endWindow.
-	 * 
+	 *
 	 * @param o
 	 */
 	public void saveWindowState(Object o)
@@ -96,7 +96,7 @@ public abstract class AbstractSlidingWindow<T> extends BaseOperator
 	/**
 	 * Can access any previous window state upto n-1 (0 is current, n-1 is the
 	 * N-1th previous)
-	 * 
+	 *
 	 * @param i
 	 *          the previous window whose state is accessed
 	 * @return Object
@@ -121,7 +121,7 @@ public abstract class AbstractSlidingWindow<T> extends BaseOperator
 	 * Moves states by 1 and sets current state to null. If you override
 	 * beginWindow, you must call super.beginWindow(windowId) to ensure proper
 	 * operator behavior.
-	 * 
+	 *
 	 * @param windowId
 	 */
 	@Override
@@ -129,7 +129,7 @@ public abstract class AbstractSlidingWindow<T> extends BaseOperator
 	{
 		currentstate++;
 		if (currentstate >= getN()) {
-			for (int i=0; i < getN(); i++) {
+			for (int i=1; i < getN(); i++) {
 				states[i-1] = states[i];
 			}
 			currentstate = getN()-1;
@@ -139,7 +139,7 @@ public abstract class AbstractSlidingWindow<T> extends BaseOperator
 
 	/**
 	 * Sets up internal state structure
-	 * 
+	 *
 	 * @param context
 	 */
 	@Override
