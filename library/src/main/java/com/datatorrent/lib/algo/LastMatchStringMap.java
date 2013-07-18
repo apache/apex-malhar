@@ -30,6 +30,10 @@ import java.util.Map;
  * value from the Number<p>
  * This module is an end of window module<br>
  * <br>
+ * <b>StateFull : Yes, </b> tuple are compare across application window(s). <br>
+ * <b>Partitions : No, </b> will yield wrong result. <br>
+ * <br>
+ * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects Map&lt;K,String&gt;<br>
  * <b>last</b>: emits HashMap&lt;K,String&gt; in end of window for the last tuple on which the compare function is true<br>
@@ -47,6 +51,14 @@ import java.util.Map;
  */
 public class LastMatchStringMap<K> extends BaseMatchOperator<K, String>
 {
+  /**
+   * Last tuple map.
+   */
+  protected HashMap<K, String> ltuple = null;
+  
+  /**
+   * Input port.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, String>> data = new DefaultInputPort<Map<K, String>>()
   {
@@ -75,9 +87,12 @@ public class LastMatchStringMap<K> extends BaseMatchOperator<K, String>
       }
     }
   };
+  
+  /**
+   * Output port.
+   */
   @OutputPortFieldAnnotation(name = "last")
   public final transient DefaultOutputPort<HashMap<K, String>> last = new DefaultOutputPort<HashMap<K, String>>();
-  protected HashMap<K, String> ltuple = null;
 
   /**
    * Emits last matching tuple

@@ -17,15 +17,19 @@ package com.datatorrent.lib.algo;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Operator.Unifier;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.AbstractBaseSortOperator;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Takes a stream of key value pairs via input port "data". The incoming tuple is merged into already existing sorted list.
- * At the end of the window the entire sorted list is emitted on output port "sort"<p>
+ * Takes a stream of key value pairs via input port "data". The incoming tuple
+ * is merged into already existing sorted list. At the end of the window the
+ * entire sorted list is emitted on output port "sort"
+ * <p>
  * <br>
  * <b>StateFull : Yes, </b> tuple are compare across application window(s). <br>
  * <b>Partitions : No, </b> will yield wrong results. <br>
@@ -33,14 +37,14 @@ import java.util.HashMap;
  * <b>Ports</b>:<br>
  * <b>data</b>: expects K<br>
  * <b>datalist</b>: expects ArrayList&lt;K&gt;<br>
- * <b>sortlist</b>: emits ArrayList&lt;K&gt;<br>
- * <b>sorthash</b>: emits HashMap&lt;K,Integer&gt;<br>
+ * <b>sortlist</b>: emits ArrayList&lt;K&gt;, must be connected<br>
  * <br>
  */
 //
 // TODO: Override PriorityQueue and rewrite addAll to insert with location
 //
-public class InsertSort<K> extends AbstractBaseSortOperator<K>
+public class InsertSort<K> extends AbstractBaseSortOperator<K> implements
+    Unifier<ArrayList<K>>
 {
   /**
    * Input port that takes in one tuple at a time
@@ -73,12 +77,19 @@ public class InsertSort<K> extends AbstractBaseSortOperator<K>
     }
   };
 
-  @OutputPortFieldAnnotation(name = "sort", optional = true)
-  public final transient DefaultOutputPort<ArrayList<K>> sort = new DefaultOutputPort<ArrayList<K>>();
-  @OutputPortFieldAnnotation(name = "sorthash", optional = true)
-  public final transient DefaultOutputPort<HashMap<K, Integer>> sorthash = new DefaultOutputPort<HashMap<K, Integer>>();
-
-
+  /**
+   * Output port.
+   */
+  @OutputPortFieldAnnotation(name = "sort")
+  public final transient DefaultOutputPort<ArrayList<K>> sort = new DefaultOutputPort<ArrayList<K>>()
+  {
+    @Override
+    public Unifier<ArrayList<K>> getUnifier()
+    {
+      InsertSort<K> ret = new InsertSort<K>();
+      return ret;
+    }
+  };
 
   @Override
   public void emitToList(ArrayList<K> list)
@@ -87,20 +98,25 @@ public class InsertSort<K> extends AbstractBaseSortOperator<K>
   }
 
   @Override
-  public void emitToHash(HashMap<K,Integer> map)
+  public void emitToHash(HashMap<K, Integer> map)
   {
-    sorthash.emit(map);
   }
 
   @Override
   public boolean doEmitList()
   {
-    return sort.isConnected();
+    return true;
   }
 
   @Override
   public boolean doEmitHash()
   {
-    return sorthash.isConnected();
+    return false;
+  }
+
+  @Override
+  public void process(ArrayList<K> tuple)
+  {
+    processTuple(tuple);
   }
 }

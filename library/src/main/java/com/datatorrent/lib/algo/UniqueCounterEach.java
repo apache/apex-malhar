@@ -26,7 +26,8 @@ import org.apache.commons.lang.mutable.MutableInt;
 
 /**
  * Counts the number of times a key exists in a window; one tuple is emitted per unique key pair. <p>
- * This is an end of window operator. This operator is same as the combination of {@link com.datatorrent.lib.algo.UniqueCounter} followed by {@link com.datatorrent.lib.stream.HashMapToKeyValPair}<br>
+ * This is an end of window operator. This operator is same as the combination of {@link com.datatorrent.lib.algo.UniqueCounter} 
+ * followed by {@link com.datatorrent.lib.stream.HashMapToKeyValPair}<br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects K<br>

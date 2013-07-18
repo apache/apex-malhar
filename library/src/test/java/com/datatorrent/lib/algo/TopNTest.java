@@ -39,7 +39,6 @@ public class TopNTest
    * Test node logic emits correct results
    */
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
     testNodeProcessingSchema(new TopN<String, Integer>());
@@ -49,6 +48,7 @@ public class TopNTest
     testNodeProcessingSchema(new TopN<String, Long>());
   }
 
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public void testNodeProcessingSchema(TopN oper)
   {
     CollectorTestSink sortSink = new CollectorTestSink();

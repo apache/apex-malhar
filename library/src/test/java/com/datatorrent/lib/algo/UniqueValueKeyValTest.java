@@ -15,13 +15,12 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.lib.algo.UniqueValueKeyVal;
+import junit.framework.Assert;
+
+import org.junit.Test;
+
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
-import junit.framework.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -30,13 +29,11 @@ import org.slf4j.LoggerFactory;
  */
 public class UniqueValueKeyValTest
 {
-  private static Logger log = LoggerFactory.getLogger(UniqueValueKeyValTest.class);
-
   /**
    * Test node logic emits correct results
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
     UniqueValueKeyVal<String> oper = new UniqueValueKeyVal<String>();

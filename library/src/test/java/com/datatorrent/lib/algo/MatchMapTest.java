@@ -22,8 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -32,13 +30,10 @@ import org.slf4j.LoggerFactory;
  */
 public class MatchMapTest
 {
-  private static Logger LOG = LoggerFactory.getLogger(MatchMapTest.class);
-
   /**
    * Test node logic emits correct results
    */
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
     testNodeProcessingSchema(new MatchMap<String, Integer>());
@@ -48,6 +43,7 @@ public class MatchMapTest
     testNodeProcessingSchema(new MatchMap<String, Long>());
   }
 
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public void testNodeProcessingSchema(MatchMap oper)
   {
     CountAndLastTupleTestSink matchSink = new CountAndLastTupleTestSink();

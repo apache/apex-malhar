@@ -20,6 +20,7 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.AbstractBaseFrequentKey;
+import com.datatorrent.lib.util.UnifierArrayHashMapFrequent;
 import com.datatorrent.lib.util.UnifierHashMapFrequent;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,6 +32,9 @@ import java.util.HashMap;
  * This module is an end of window module<br>
  * In case of a tie any of the least key would be emitted. The list port would however have all the tied keys
  * <br>
+ *  <b>StateFull : Yes</b>, Values are compared all over  application window can be > 1. <br> 
+ *  <b>Partitions : Yes</b>, Result is unified on output port. <br>
+ * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects K<br>
  * <b>most</b>: emits HashMap&lt;K,Integer&gt;(1), Where K is the least occurring key in the window. In case of tie any of the least key would be emitted<br>
@@ -40,41 +44,6 @@ import java.util.HashMap;
  * <br>
  * <b>Compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
- * <br>
- * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for LeastFrequentKey&lt;K&gt; operator template">
- * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>&gt; 60 Million tuple/s</b></td><td>Emits only 1 tuple per window per port</td><td>In-bound throughput is the main determinant of performance.
- * The benchmark was done with immutable K. If K is mutable the benchmark may be lower</td></tr>
- * </table><br>
- * <p>
- * <b>Function Table (K=String);</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for LeastFrequentKey&lt;K&gt; operator template">
- * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th colspan=2>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(K)</th><th><i>least</i>(HashMap&lt;K,Integer&gt;)</th><th><i>list</i>(ArrayList&kt;HashMap&lt;K,Integer&gt;&gt;)</th></tr>
- * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
- * <tr><td>Data (process())</td><td>a</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>a</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>d</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>a</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>c</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>a</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>h</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>b</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>a</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>a</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>f</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>a</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>c</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>a</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>b</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>a</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>b</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>a</td><td></td><td></td></tr>
- * <tr><td>Data (process())</td><td>z</td><td></td><td></td></tr>
- * <tr><td>End Window (endWindow())</td><td>N/A</td><td>{a=9}</td><td>[{a=9}]</td></tr>
- * </table>
- * <br>
  * <br>
  */
 public class MostFrequentKey<K> extends AbstractBaseFrequentKey<K>
@@ -94,6 +63,7 @@ public class MostFrequentKey<K> extends AbstractBaseFrequentKey<K>
   @OutputPortFieldAnnotation(name = "most")
   public final transient DefaultOutputPort<HashMap<K, Integer>> most = new DefaultOutputPort<HashMap<K, Integer>>()
   {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public Unifier<HashMap<K, Integer>> getUnifier()
     {
@@ -105,7 +75,17 @@ public class MostFrequentKey<K> extends AbstractBaseFrequentKey<K>
 
 
   @OutputPortFieldAnnotation(name = "list")
-  public final transient DefaultOutputPort<ArrayList<HashMap<K, Integer>>> list = new DefaultOutputPort<ArrayList<HashMap<K, Integer>>>();
+  public final transient DefaultOutputPort<ArrayList<HashMap<K, Integer>>> list = new DefaultOutputPort<ArrayList<HashMap<K, Integer>>>()
+  {
+    @SuppressWarnings("rawtypes")
+    @Override
+    public Unifier<ArrayList<HashMap<K, Integer>>> getUnifier()
+    {
+      Unifier<ArrayList<HashMap<K, Integer>>> ret = new UnifierArrayHashMapFrequent<K>();
+      ((UnifierHashMapFrequent) ret).setLeast(false);
+      return ret;
+    }
+  };
 
   /**
    * Emits tuple on port "most"

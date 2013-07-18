@@ -58,6 +58,7 @@ public abstract class AbstractBaseNNonUniqueOperatorMap<K, V> extends AbstractBa
    * Inserts tuples into the queue
    * @param tuple to insert in the queue
    */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   @Override
   public void processTuple(Map<K, V> tuple)
   {
@@ -80,6 +81,7 @@ public abstract class AbstractBaseNNonUniqueOperatorMap<K, V> extends AbstractBa
    * Emits the result
    * Clears the internal data
    */
+  @SuppressWarnings("unchecked")
   @Override
   public void endWindow()
   {

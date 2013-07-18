@@ -15,14 +15,14 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.lib.algo.UniqueKeyValCounterEach;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.HashMap;
 import java.util.Map;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  *
@@ -31,13 +31,11 @@ import org.slf4j.LoggerFactory;
  */
 public class UniqueKeyValCounterEachTest
 {
-  private static Logger log = LoggerFactory.getLogger(UniqueKeyValCounterEachTest.class);
-
   /**
    * Test node logic emits correct results
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
     UniqueKeyValCounterEach<String,Integer> oper = new UniqueKeyValCounterEach<String,Integer>();

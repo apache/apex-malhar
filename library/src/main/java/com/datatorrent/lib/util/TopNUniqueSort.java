@@ -15,7 +15,6 @@
  */
 package com.datatorrent.lib.util;
 
-import com.datatorrent.lib.algo.ReversibleComparator;
 
 import java.util.ArrayList;
 import java.util.HashMap;

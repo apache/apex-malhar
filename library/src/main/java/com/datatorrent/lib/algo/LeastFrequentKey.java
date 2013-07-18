@@ -23,17 +23,21 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.AbstractBaseFrequentKey;
-import com.datatorrent.lib.util.UnifierHashMapFrequent;
 
 /**
- * Occurrences of each tuple is counted and at the end of window any of the least frequent tuple is emitted on output port least 
- * and all least frequent tuples on output port list<p>
+ * <p>
+ * Occurrences of each tuple is counted and at the end of window any of the least frequent tuple is emitted on output port 'least' 
+ * All keys with same least frequency value least are emitted on output port 'list'.<br>
  * This module is an end of window module<br>
  * In case of a tie any of the least key would be emitted. The list port would however have all the tied keys
  * <br>
+ * <b>StateFull : Yes, </b> tuple are compared across application window(s). <br>
+ * <b>Partitions : Yes, </b> least keys are unified on output port. <br>
+ * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects K<br>
- * <b>least</b>: emits HashMap&lt;K,Integer&gt;(1), Where K is the least occurring key in the window. In case of tie any of the least key would be emitted<br>
+ * <b>least</b>: emits HashMap&lt;K,Integer&gt;(1), Where K is the least occurring key in the window. 
+ *               In case of tie any of the least key would be emitted<br>
  * <b>list</b>: emits ArrayList&lt;HashMap&lt;K,Integer&gt;(1)&gt, Where the list includes all the keys that are least frequent<br>
  * <br>
  */
@@ -62,8 +66,7 @@ public class LeastFrequentKey<K> extends AbstractBaseFrequentKey<K>
     @Override
     public Unifier<HashMap<K, Integer>> getUnifier()
     {
-      UnifierHashMapFrequent ret = new UnifierHashMapFrequent<K>();
-      ret.setLeast(true);
+      LeastFrequentKeyUnifier ret = new LeastFrequentKeyUnifier<K>();
       return ret;
     }
   };
@@ -72,7 +75,16 @@ public class LeastFrequentKey<K> extends AbstractBaseFrequentKey<K>
    * Output port.
    */
   @OutputPortFieldAnnotation(name = "list", optional=true)
-  public final transient DefaultOutputPort<ArrayList<HashMap<K, Integer>>> list = new DefaultOutputPort<ArrayList<HashMap<K, Integer>>>();
+  public final transient DefaultOutputPort<ArrayList<HashMap<K, Integer>>> list = new DefaultOutputPort<ArrayList<HashMap<K, Integer>>>()
+  {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Override
+    public Unifier<ArrayList<HashMap<K, Integer>>> getUnifier()
+    {
+      LeastFrequentKeyArrayUnifier ret = new LeastFrequentKeyArrayUnifier<K>();
+      return ret;
+    }
+  };
 
   /**
    * Emits tuple on port "least"

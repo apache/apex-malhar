@@ -15,14 +15,13 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.lib.algo.UniqueValueMap;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.KeyValPair;
 import java.util.HashMap;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  *
@@ -31,13 +30,11 @@ import org.slf4j.LoggerFactory;
  */
 public class UniqueValueMapTest
 {
-  private static Logger log = LoggerFactory.getLogger(UniqueValueMapTest.class);
-
   /**
    * Test node logic emits correct results
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
     UniqueValueMap<String> oper = new UniqueValueMap<String>();

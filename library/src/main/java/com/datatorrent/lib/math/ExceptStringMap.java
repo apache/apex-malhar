@@ -56,7 +56,7 @@ import com.datatorrent.lib.util.UnifierHashMap;
  * Is the value of the key a number<br>
  * <br>
  */
-public class ExceptStringMap<K> extends MatchStringMap<K, String>
+public class ExceptStringMap<K> extends MatchStringMap<K>
 {
 	@OutputPortFieldAnnotation(name = "except")
 	public final transient DefaultOutputPort<HashMap<K, String>> except = new DefaultOutputPort<HashMap<K, String>>()

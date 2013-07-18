@@ -48,7 +48,7 @@ import com.datatorrent.lib.util.UnifierSumNumber;
  * Compare string, if specified, must be one of "lte", "lt", "eq", "neq", "gt", "gte"<br>
  * <br>
  */
-public class CompareExceptCountStringMap<K> extends MatchStringMap<K, String>
+public class CompareExceptCountStringMap<K> extends MatchStringMap<K>
 {
   @OutputPortFieldAnnotation(name = "count")
   public final transient DefaultOutputPort<Integer> count = new DefaultOutputPort<Integer>()

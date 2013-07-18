@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.algo;
+package com.datatorrent.lib.util;
 
 import java.util.Comparator;
 
@@ -50,6 +50,7 @@ public class ReversibleComparator<E> implements Comparator<E>
    * @param e2
    * @return e1.compareTo(e2) if acscending, else 0 - e1.compareTo(e2)
    */
+  @SuppressWarnings("unchecked")
   @Override
   public int compare(E e1, E e2)
   {

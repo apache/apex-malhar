@@ -15,15 +15,14 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.lib.algo.MostFrequentKey;
-import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
-
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 
 /**
  *
@@ -32,13 +31,11 @@ import org.slf4j.LoggerFactory;
  */
 public class MostFrequentKeyTest
 {
-  private static Logger log = LoggerFactory.getLogger(MostFrequentKeyTest.class);
-
   /**
    * Test node logic emits correct results
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
     MostFrequentKey<String> oper = new MostFrequentKey<String>();

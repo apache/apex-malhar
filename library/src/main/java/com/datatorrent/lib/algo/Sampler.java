@@ -25,10 +25,13 @@ import javax.validation.constraints.Min;
 
 /**
  *
- * Emits sample percentage tuples<p>
+ * Emits sample percentage tuples. <br>
+ * Emits the tuple as per probability of pass rate out of total rate. <br>
  * <br>
  * An efficient filter to allow sample analysis of a stream. Very useful is the incoming stream has high throughput<p>
  * <br>
+ * <b> StateFull : No, </b> tuple is processed in current window. <br>
+ * <b> Partitions : Yes. </b> No state dependency among input tuples. <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects K<br>
  * <b>sample</b>: emits K<br>
@@ -43,31 +46,6 @@ import javax.validation.constraints.Min;
  * passrate and totalrate are not compared (i.e. passrate &lt; totalrate) check is not done to allow users to make this operator a passthrough (all) during testing<br>
  * <br>
  * <b>Specific run time checks are</b>: None<br>
- * <br>
- * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for Sampler&lt;K&gt; operator template">
- * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td><b>&gt; 65 Million tuples/s</b></td><td>Randomly selected passrate/totalrate percent tuples per window</td>
- * <td>In-bound throughput and passrate percentage are the main determinant of performance.
- * Tuples are assumed to be immutable. If you use mutable tuples and have lots of keys, the benchmarks may be lower</td></tr>
- * </table><br>
- * <p>
- * <b>Function Table (K=HashMap&lt;String,Integer&gt;); passrate=1, totalrate=4</b>: The selection of which tuple was emitted is at a random probability of 25%
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for Sampler&lt;K&gt; operator template">
- * <tr><th rowspan=2>Tuple Type (api)</th><th>In-bound (process)</th><th>Out-bound (emit)</th></tr>
- * <tr><th><i>data</i>(K)</th><th><i>sample</i>(K)</th></tr>
- * <tr><td>Begin Window (beginWindow())</td><td>N/A</td><td>N/A</td></tr>
- * <tr><td>Data (process())</td><td>{a=2,b=20,c=1000}</td><td>{a=2,b=20,c=1000}</td></tr>
- * <tr><td>Data (process())</td><td>{a=-1}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{a=10,b=5}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{a=5,b=-5}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{a=2,d=14,h=20,c=2,b=-5}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=55,b=12}</td><td></td></tr>
- * <tr><td>Data (process())</td><td>{d=22,b=5}</td><td>{d=22,b=5}</td></tr>
- * <tr><td>Data (process())</td><td>{d=14}</td><td></td></tr>
- * <tr><td>End Window (endWindow())</td><td>N/A</td><td>N/A</td></tr>
- * </table>
- * <br>
  * <br>
  */
 public class Sampler<K> extends BaseKeyOperator<K>

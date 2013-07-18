@@ -17,6 +17,27 @@ package com.datatorrent.lib.algo;
 
 import java.util.ArrayList;
 
+/**
+ * <p>
+ * Incoming sorted list is merged into already existing sorted list. The input list is expected to be sorted. <b>
+ * At the end of the window, merged sorted list is emitted on sort output port. <br>
+ * <br>
+ * <b>Notes : </b> <br>
+ * Get unifier instance must return instance of sub class itself, since merge operator 
+ * id unifier on output port. <br>
+ * <br>
+ *  <b>StateFull : Yes</b>, Sorted listed are merged over application window can be > 1. <br> 
+ *  <b>Partitions : Yes</b>, Operator itself is used as unfier on output port.
+ * <br>
+ * <b>Ports</b>:<br>
+ * <b>data</b>: expects ArrayList&lt;K&gt;<br>
+ * <b>sort</b>: emits ArrayList&lt;K&gt;<br>
+ * <br>
+ * <b>Abstract Methods: </b><br>
+ * 1. compare : K type value compare criteria for sort.
+ * 2. getUnifierInstance : Get unifier operator instance for output port, (must return self instance).
+ * 
+ */
 public class MergeSortNumber<V extends Number> extends MergeSort<V>
 {
 	/**

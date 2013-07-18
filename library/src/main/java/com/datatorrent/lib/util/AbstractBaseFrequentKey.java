@@ -18,13 +18,14 @@ package com.datatorrent.lib.util;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.commons.lang.mutable.MutableInt;
 
 /**
- *
- * Occurrences of each key is counted in the input stream, and at the end of window the winning frequent key is emitted on output port "count"<p>
- * This module is an end of window module<br>
- *
+ * <p>
+ * Occurrences of each key is counted in the input stream, 
+ * and at the end of window the winning frequent key is emitted on output port "count". <br>
+ * This module is an end of window module.
  */
 public abstract class AbstractBaseFrequentKey<K> extends BaseKeyOperator<K>
 {
@@ -67,6 +68,7 @@ public abstract class AbstractBaseFrequentKey<K> extends BaseKeyOperator<K>
   @Override
   public void endWindow()
   {
+    // Compute least frequent 
     K key = null;
     int kval = -1;
     HashMap<K, Object> map = new HashMap<K, Object>();
@@ -86,8 +88,11 @@ public abstract class AbstractBaseFrequentKey<K> extends BaseKeyOperator<K>
         map.put(e.getKey(), null);
       }
     }
+    
+    // Emit least frequent key, emit all least frequent keys list 
+    // on other ports.
     HashMap<K, Integer> tuple;
-    if ((key != null) && (kval > 0)) { // key is null if no
+    if ((key != null) && (kval > 0)) { 
       tuple = new HashMap<K, Integer>(1);
       tuple.put(key, new Integer(kval));
       emitTuple(tuple);

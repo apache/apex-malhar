@@ -26,6 +26,8 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.AbstractBaseSortOperator;
+import com.datatorrent.lib.util.ReversibleComparator;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.PriorityQueue;

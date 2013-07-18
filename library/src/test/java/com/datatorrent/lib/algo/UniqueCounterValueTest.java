@@ -15,12 +15,11 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.lib.algo.UniqueCounterValue;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 import junit.framework.Assert;
+
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  *
@@ -29,13 +28,11 @@ import org.slf4j.LoggerFactory;
  */
 public class UniqueCounterValueTest
 {
-  private static Logger log = LoggerFactory.getLogger(UniqueCounterValueTest.class);
-
   /**
    * Test node logic emits correct results.
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
     UniqueCounterValue<String> oper = new UniqueCounterValue<String>();

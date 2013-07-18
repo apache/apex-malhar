@@ -15,14 +15,13 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.lib.algo.MatchAnyMap;
-import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
-
 import java.util.HashMap;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 
 /**
  *
@@ -31,13 +30,10 @@ import org.slf4j.LoggerFactory;
  */
 public class MatchAnyMapTest
 {
-  private static Logger log = LoggerFactory.getLogger(MatchAnyMapTest.class);
-
   /**
    * Test node logic emits correct results
    */
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
   public void testNodeProcessing() throws Exception
   {
     testNodeProcessingSchema(new MatchAnyMap<String, Integer>());
@@ -47,6 +43,7 @@ public class MatchAnyMapTest
     testNodeProcessingSchema(new MatchAnyMap<String, Long>());
   }
 
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public void testNodeProcessingSchema(MatchAnyMap oper)
   {
     CountAndLastTupleTestSink matchSink = new CountAndLastTupleTestSink();
