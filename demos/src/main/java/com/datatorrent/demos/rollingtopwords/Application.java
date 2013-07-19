@@ -19,7 +19,6 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.demos.twitter.TwitterSampleInput;
 import com.datatorrent.lib.algo.UniqueCounter;
-import com.datatorrent.lib.algo.WindowedTopCounter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 

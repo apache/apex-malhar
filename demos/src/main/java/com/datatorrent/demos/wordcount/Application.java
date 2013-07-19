@@ -17,7 +17,7 @@ package com.datatorrent.demos.wordcount;
 
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.algo.UniqueCounterEach;
+import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 
 import org.apache.hadoop.conf.Configuration;
@@ -100,7 +100,7 @@ public class Application implements StreamingApplication
 
     WordCountInputOperator input = dag.addOperator("wordinput", new WordCountInputOperator());
     input.setFileName(fileName);
-    UniqueCounterEach<String> wordCount = dag.addOperator("count", new UniqueCounterEach<String>());
+    UniqueCounter<String> wordCount = dag.addOperator("count", new UniqueCounter<String>());
 
     dag.addStream("wordinput-count", input.outputPort, wordCount.data).setInline(allInline);
 

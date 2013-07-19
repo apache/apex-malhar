@@ -153,7 +153,6 @@ public class KestrelInputOperatorBenchmark
 
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  @Category(com.datatorrent.lib.annotation.PerformanceTestCategory.class)
   public void testBechmark() throws Exception
   {
     final int testNum = 20000;
