@@ -39,6 +39,7 @@ public class ThroughputCounterTest {
 
     private static Logger log = LoggerFactory.getLogger(ThroughputCounterTest.class);
 
+  @SuppressWarnings("rawtypes")
   class TestCountSink implements Sink
   {
     long count = 0;
@@ -47,6 +48,7 @@ public class ThroughputCounterTest {
     /**
      * @param payload
      */
+    @SuppressWarnings("unchecked")
     @Override
     public void put(Object payload)
     {
@@ -65,6 +67,7 @@ public class ThroughputCounterTest {
   /**
    * Tests both string and non string schema
    */
+  @SuppressWarnings("unchecked")
   @Test
   public void testSingleSchemaNodeProcessing() throws Exception
   {

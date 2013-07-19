@@ -20,8 +20,6 @@ import com.datatorrent.lib.testbench.CountTestSink;
 
 import junit.framework.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Performance test for {@link com.datatorrent.lib.testbench.StreamDuplicater}<p>
@@ -30,11 +28,10 @@ import org.slf4j.LoggerFactory;
  */
 public class StreamDuplicaterTest {
 
-    private static Logger log = LoggerFactory.getLogger(StreamDuplicaterTest.class);
-
     /**
      * Test oper pass through. The Object passed is not relevant
      */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test
     public void testNodeProcessing() throws Exception
     {

@@ -48,7 +48,8 @@ public class ChangeAlertMapTest
 		testNodeProcessingSchema(new ChangeAlertMap<String, Long>());
 	}
 
-	public <V extends Number> void testNodeProcessingSchema(
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+  public <V extends Number> void testNodeProcessingSchema(
 			ChangeAlertMap<String, V> oper)
 	{
 		CollectorTestSink alertSink = new CollectorTestSink();
@@ -90,7 +91,6 @@ public class ChangeAlertMapTest
 		double bval = 0;
 		log.debug("\nLogging tuples");
 		for (Object o : alertSink.collectedTuples) {
-			@SuppressWarnings("unchecked")
 			HashMap<String, HashMap<Number, Double>> map = (HashMap<String, HashMap<Number, Double>>) o;
 			Assert.assertEquals("map size", 1, map.size());
 			log.debug(o.toString());

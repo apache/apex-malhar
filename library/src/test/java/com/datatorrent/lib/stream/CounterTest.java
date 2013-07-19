@@ -17,11 +17,8 @@ package com.datatorrent.lib.stream;
 
 import com.datatorrent.lib.stream.Counter;
 import com.datatorrent.lib.testbench.CountTestSink;
-import java.util.HashMap;
 import junit.framework.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Functional test for {@link com.datatorrent.lib.testbench.Counter}<p>
@@ -29,12 +26,10 @@ import org.slf4j.LoggerFactory;
  */
 public class CounterTest {
 
-    private static Logger log = LoggerFactory.getLogger(CounterTest.class);
-
-
     /**
      * Test oper pass through. The Object passed is not relevant
      */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test
     public void testNodeProcessing() throws Exception
     {

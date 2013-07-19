@@ -33,7 +33,8 @@ public class MultiWindowSumKeyValTest
 	/**
 	 * Test functional logic
 	 */
-	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+  @Test
 	public void testNodeProcessing() throws InterruptedException
 	{
 		MultiWindowSumKeyVal<String, Integer> oper = new MultiWindowSumKeyVal<String, Integer>();

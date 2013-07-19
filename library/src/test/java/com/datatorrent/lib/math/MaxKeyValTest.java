@@ -24,8 +24,6 @@ import com.datatorrent.lib.util.KeyValPair;
 import java.util.ArrayList;
 import junit.framework.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -34,8 +32,6 @@ import org.slf4j.LoggerFactory;
  */
 public class MaxKeyValTest
 {
-  private static Logger log = LoggerFactory.getLogger(MaxKeyValTest.class);
-
   /**
    * Test functional logic
    */
@@ -53,6 +49,7 @@ public class MaxKeyValTest
    * Test operator logic emits correct results for each schema.
    *
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public void testSchemaNodeProcessing(MaxKeyVal oper, String type)
   {
     CountAndLastTupleTestSink maxSink = new CountAndLastTupleTestSink();
@@ -109,6 +106,7 @@ public class MaxKeyValTest
     public final transient DefaultOutputPort<KeyValPair<String, Integer>> output = new DefaultOutputPort<KeyValPair<String, Integer>>();
     private transient boolean first = true;
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void emitTuples()
     {
@@ -132,6 +130,7 @@ public class MaxKeyValTest
     public static final ArrayList<KeyValPair<String, Integer>> buffer = new ArrayList<KeyValPair<String, Integer>>();
     public final transient DefaultInputPort<KeyValPair<String, Integer>> input = new DefaultInputPort<KeyValPair<String, Integer>>()
     {
+      @SuppressWarnings({ "unchecked", "rawtypes" })
       @Override
       public void process(KeyValPair<String, Integer> tuple)
       {

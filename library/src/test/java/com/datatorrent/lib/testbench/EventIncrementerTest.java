@@ -37,6 +37,7 @@ public class EventIncrementerTest
 {
   private static Logger LOG = LoggerFactory.getLogger(EventIncrementerTest.class);
 
+  @SuppressWarnings("rawtypes")
   class DataSink implements Sink
   {
     HashMap<String, String> collectedTuples = new HashMap<String, String>();
@@ -46,6 +47,7 @@ public class EventIncrementerTest
      *
      * @param payload
      */
+    @SuppressWarnings({ "unchecked", "unused" })
     @Override
     public void put(Object payload)
     {
@@ -69,6 +71,7 @@ public class EventIncrementerTest
     }
   }
 
+  @SuppressWarnings("rawtypes")
   class CountSink implements Sink
   {
     int count = 0;
@@ -77,6 +80,7 @@ public class EventIncrementerTest
      *
      * @param payload
      */
+    @SuppressWarnings({ "unchecked", "unused" })
     @Override
     public void put(Object payload)
     {
@@ -98,6 +102,7 @@ public class EventIncrementerTest
   /**
    * Test oper logic emits correct results
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
   public void testNodeProcessing() throws Exception
   {

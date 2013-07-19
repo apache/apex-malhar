@@ -39,7 +39,7 @@ public class SumCountMapTest
 		testNodeSchemaProcessing(false, false);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testNodeSchemaProcessing(boolean sum, boolean count)
 	{
 		SumCountMap<String, Double> oper = new SumCountMap<String, Double>();

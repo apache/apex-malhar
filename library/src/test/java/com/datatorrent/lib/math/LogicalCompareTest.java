@@ -33,7 +33,8 @@ public class LogicalCompareTest
 	/**
 	 * Test operator logic emits correct results.
 	 */
-	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+  @Test
 	public void testNodeProcessing()
 	{
 		LogicalCompare<Integer> oper = new LogicalCompare<Integer>()

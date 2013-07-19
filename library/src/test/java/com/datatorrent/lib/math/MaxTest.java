@@ -29,6 +29,7 @@ public class MaxTest
   /**
    * Test operator logic emits correct results.
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
   public void testNodeProcessing()
   {

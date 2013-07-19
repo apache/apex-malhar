@@ -73,7 +73,8 @@ public class SlidingWindowTest
 	/**
 	 * Test functional logic
 	 */
-	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+  @Test
 	public void testNodeProcessing() throws InterruptedException
 	{
 		mySlidingWindow oper = new mySlidingWindow();

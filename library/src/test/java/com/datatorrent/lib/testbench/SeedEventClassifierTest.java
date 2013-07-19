@@ -30,6 +30,7 @@ public class SeedEventClassifierTest
 {
   private static Logger LOG = LoggerFactory.getLogger(SeedEventClassifierTest.class);
 
+  @SuppressWarnings("rawtypes")
   class StringSink implements Sink
   {
     HashMap<String, String> collectedTuples = new HashMap<String, String>();
@@ -49,11 +50,13 @@ public class SeedEventClassifierTest
     }
   }
 
+  @SuppressWarnings("rawtypes")
   class HashSink implements Sink
   {
     HashMap<HashMap<String, HashMap<String, Integer>>, String> collectedTuples = new HashMap<HashMap<String, HashMap<String, Integer>>, String>();
     int count = 0;
 
+    @SuppressWarnings("unchecked")
     @Override
     public void put(Object tuple)
     {
@@ -81,6 +84,7 @@ public class SeedEventClassifierTest
   /**
    * Test oper logic emits correct results
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public void testSchemaNodeProcessing(boolean isstring) throws Exception
   {
     final SeedEventClassifier oper = new SeedEventClassifier();

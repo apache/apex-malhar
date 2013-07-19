@@ -28,7 +28,8 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
  */
 public class JavaScriptOperatorTest
 {
-	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+  @Test
 	public void testJavaOperator()
 	{
 		// Create bash operator instance (calculate suqare).

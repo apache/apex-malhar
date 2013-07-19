@@ -22,8 +22,6 @@ import com.datatorrent.api.Context.OperatorContext;
 
 import java.util.HashMap;
 import javax.validation.constraints.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Generates seeds and merges data as it comes in from input ports (data1, and data2). The new tuple is emitted

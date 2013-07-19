@@ -19,8 +19,6 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator.Unifier;
 
-import java.util.ArrayList;
-
 
   /**
  *

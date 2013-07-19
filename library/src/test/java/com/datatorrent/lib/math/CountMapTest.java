@@ -21,8 +21,6 @@ import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -31,11 +29,10 @@ import org.slf4j.LoggerFactory;
  */
 public class CountMapTest
 {
-  private static Logger LOG = LoggerFactory.getLogger(CountMapTest.class);
-
   /**
    * Test operator logic emits correct results.
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
   public void testNodeProcessing()
   {

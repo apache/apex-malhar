@@ -81,6 +81,7 @@ public class BaseNumberValueOperator<V extends Number> extends BaseKeyOperator<V
    * @param num to clone from
    * @return value as a correct sub-class (V) object
    */
+  @SuppressWarnings("unchecked")
   public V getValue(Number num)
   {
     Number val;

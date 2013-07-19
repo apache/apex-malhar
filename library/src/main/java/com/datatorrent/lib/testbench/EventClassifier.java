@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Takes a in stream event and adds to incoming keys to create a new tuple that is emitted on output port data. The aim is to create a load with pair of keys<p>
@@ -114,8 +112,6 @@ public class EventClassifier extends BaseOperator
   };
   public final transient DefaultOutputPort<HashMap<String, Double>> data = new DefaultOutputPort<HashMap<String, Double>>();
 ;
-
-  private static Logger LOG = LoggerFactory.getLogger(EventClassifier.class);
 
   HashMap<String, Double> keys = new HashMap<String, Double>();
   HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();

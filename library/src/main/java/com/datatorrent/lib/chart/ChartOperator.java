@@ -59,7 +59,6 @@ public abstract class ChartOperator extends BaseOperator implements Partitionabl
   public abstract Type getChartType();
 
   @Override
-  @SuppressWarnings("unchecked")
   public Collection<Partition<?>> definePartitions(Collection<? extends Partition<?>> partitions, int incrementalCapacity)
   {
     // prevent partitioning

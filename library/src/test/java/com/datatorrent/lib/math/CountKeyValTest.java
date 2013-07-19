@@ -31,6 +31,7 @@ public class CountKeyValTest
   /**
    * Test operator logic emits correct results.
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
   public void testNodeProcessing()
   {

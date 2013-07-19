@@ -33,11 +33,13 @@ public class RangeKeyValTest
 {
   private static Logger log = LoggerFactory.getLogger(RangeKeyValTest.class);
 
+  @SuppressWarnings("rawtypes")
   class TestSink implements Sink
   {
     double low = -1;
     double high = -1;
 
+    @SuppressWarnings("unchecked")
     @Override
     public void put(Object payload)
     {
@@ -70,6 +72,7 @@ public class RangeKeyValTest
   /**
    * Test node logic emits correct results for each schema
    */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public void testSchemaNodeProcessing(RangeKeyVal node, String type)
   {
     TestSink rangeSink = new TestSink();

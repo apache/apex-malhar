@@ -73,6 +73,7 @@ import com.malhartech.lib.util.OneKeyValPair;
  */
 public class SeedEventGenerator extends BaseOperator implements InputOperator
 {
+  @SuppressWarnings("rawtypes")
   public final transient DefaultOutputPort<HashMap<String, ArrayList<KeyValPair>>> keyvalpair_list = new DefaultOutputPort<HashMap<String, ArrayList<KeyValPair>>>();
   public final transient DefaultOutputPort<HashMap<String, ArrayList<Integer>>> val_list = new DefaultOutputPort<HashMap<String, ArrayList<Integer>>>();
   public final transient DefaultOutputPort<HashMap<String, String>> string_data = new DefaultOutputPort<HashMap<String, String>>();
@@ -125,6 +126,7 @@ public class SeedEventGenerator extends BaseOperator implements InputOperator
    *
    * @param i
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public void emitTuple(int i)
   {
     HashMap<String, String> stuple;

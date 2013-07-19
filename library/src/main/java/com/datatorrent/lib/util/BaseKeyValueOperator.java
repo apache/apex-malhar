@@ -85,6 +85,7 @@ public class BaseKeyValueOperator<K, V> extends BaseKeyOperator<K>
   /**
    * A codec to enable partitioning to be done by key
    */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public Class<? extends StreamCodec<KeyValPair<K, V>>> getKeyValPairStreamCodec()
   {
     Class c = DefaultPartitionCodec.class;

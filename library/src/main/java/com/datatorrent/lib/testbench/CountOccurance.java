@@ -15,7 +15,6 @@
  */
 package com.datatorrent.lib.testbench;
 
-import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +22,6 @@ import java.util.Map;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Operator;
 import com.datatorrent.api.Context.OperatorContext;
 
 /**

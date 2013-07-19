@@ -19,8 +19,6 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator.Unifier;
 
-import java.util.HashMap;
-
 /**
  *
  * Combiner for an output port that emits object with Map<K,V> interface and has the processing done

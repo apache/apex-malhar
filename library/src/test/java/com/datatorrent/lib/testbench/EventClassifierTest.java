@@ -41,6 +41,7 @@ public class EventClassifierTest {
 
     private static Logger LOG = LoggerFactory.getLogger(EventClassifier.class);
 
+    @SuppressWarnings("rawtypes")
     class TestSink implements Sink {
 
         HashMap<String, Integer> collectedTuples = new HashMap<String, Integer>();
@@ -53,6 +54,7 @@ public class EventClassifierTest {
          *
          * @param payload
          */
+        @SuppressWarnings("unchecked")
         @Override
         public void put(Object payload) {
           count++;
@@ -90,6 +92,7 @@ public class EventClassifierTest {
     /**
      * Test node logic emits correct results
      */
+    @SuppressWarnings("unchecked")
     @Test
     public void testNodeProcessing() throws Exception
     {

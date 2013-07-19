@@ -31,7 +31,8 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
  */
 public class PythonOperatorTest
 {
-	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+  @Test
 	public void testJavaOperator()
 	{
 		PythonOperator oper= new PythonOperator();
@@ -51,7 +52,6 @@ public class PythonOperatorTest
 
 		Assert.assertEquals("number emitted tuples", 1, sink.collectedTuples.size());
 	  for (Object o: sink.collectedTuples) { // count is 12
-			@SuppressWarnings("unchecked")
 			Map<String, Object> val = (Map<String, Object>) o;
 			for (Map.Entry<String, Object> entry : val.entrySet())
 			{

@@ -17,7 +17,6 @@ package com.datatorrent.lib.util;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 import org.apache.commons.lang.mutable.MutableDouble;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

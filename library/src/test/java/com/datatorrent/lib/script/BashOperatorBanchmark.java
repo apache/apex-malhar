@@ -34,6 +34,7 @@ public class BashOperatorBanchmark
   /**
    * Test node logic emits correct results
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
   public void testNodeProcessing() throws Exception
   {

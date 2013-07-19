@@ -30,7 +30,8 @@ public class JavaScriptOperatorBenchMark
 {
 	private static Logger log = LoggerFactory.getLogger(JavaScriptOperatorBenchMark.class);
 
-	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+  @Test
 	public void testJavaOperator()
 	{
 		// Create bash operator instance (calculate suqare).

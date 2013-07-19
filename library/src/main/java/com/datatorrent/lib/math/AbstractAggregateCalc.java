@@ -38,61 +38,6 @@ import java.util.Collection;
  * <b>integerResult</b>: emits Integer<br>
  * <b>longResult</b>: emits Long<br>
  * <br>
- * <b>Properties</b>: None<br>
- * <b>Specific compile time checks</b>: None<br>
- * <b>Specific run time checks</b>: None<br>
- * <p>
- * <b>Performance is completely dependant on the abstract functions</b>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for AggregateAbstractCalculus&ltT extends Number&gt; operator template">
- * <tr>
- * <th>In-Bound</th>
- * <th>Out-bound</th>
- * <th>Comments</th>
- * </tr>
- * <tr>
- * <td><b>N/A</b></td>
- * <td>emits one tuple per connected port per incoming tuple</td>
- * <td>In-bound rate and the implementations of abstract functions</td>
- * </tr>
- * </table>
- * <br>
- * <p>
- * <b>Function Table: Depends on the implementation of abstractfunction</b>:
- * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for AggregateAbstractCalculus&lt;T extends Number&gt; operator template">
- * <tr>
- * <th rowspan=2>Tuple Type (api)</th>
- * <th>In-bound (<i>data</i>::process)</th>
- * <th colspan=4>Out-bound (emit)</th>
- * </tr>
- * <tr>
- * <th><i>data</i></th>
- * <th><i>doubleResult</i></th>
- * <th><i>floatResult</i></th>
- * <th><i>integerResult</i></th>
- * <th><i>longgResult</i></th>
- * </tr>
- * <tr>
- * <td>Begin Window (beginWindow())</td>
- * <td>N/A</td>
- * <td>N/A</td>
- * </tr>
- * <tr>
- * <td>Data (process())</td>
- * <td>t1</td>
- * <td>aggregateDoubles(t1)</td>
- * <td>aggregateDoubles(t1)</td>
- * <td>aggregateLongs(t1)</td>
- * <td>aggregateLongs(t1)</td>
- * </tr>
- * <tr>
- * <td>End Window (endWindow())</td>
- * <td>N/A</td>
- * <td>10</td>
- * </tr>
- * </table>
- * <br>
- * 
- * @param <T>
  */
 public abstract class AbstractAggregateCalc<T extends Number> extends
 		AbstractOutput

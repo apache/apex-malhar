@@ -30,7 +30,7 @@ public class SimpleMovingAverageTest
   /**
    * Test functional logic
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
   public void testNodeProcessing() throws InterruptedException
   {

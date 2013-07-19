@@ -49,7 +49,8 @@ public class ChangeTest
 	 *
 	 * @param oper  Data value for comparison.
 	 */
-	public <V extends Number> void testNodeProcessingSchema(Change<V> oper)
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+  public <V extends Number> void testNodeProcessingSchema(Change<V> oper)
 	{
 		CollectorTestSink changeSink = new CollectorTestSink();
 		CollectorTestSink percentSink = new CollectorTestSink();

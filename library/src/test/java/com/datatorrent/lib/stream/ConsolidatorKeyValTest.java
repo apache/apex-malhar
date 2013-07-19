@@ -30,7 +30,7 @@ import com.datatorrent.lib.util.KeyValPair;
  */
 public class ConsolidatorKeyValTest
 {
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void testNodeProcessing() throws Exception
 	{

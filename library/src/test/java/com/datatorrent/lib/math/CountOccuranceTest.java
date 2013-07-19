@@ -26,7 +26,8 @@ import org.junit.Test;
  */
 public class CountOccuranceTest
 {
-	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+  @Test
 	public void testProcess()
 	{
 		CountOccurance oper = new CountOccurance();

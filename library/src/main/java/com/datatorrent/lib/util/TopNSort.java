@@ -118,6 +118,7 @@ public class TopNSort<E>
    * @param n
    * @return ArrayList of top N object
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public ArrayList getTopN(int n)
   {
     ArrayList list = new ArrayList();
@@ -151,6 +152,7 @@ public class TopNSort<E>
    * @param e object to be added
    * @return true is offer() succeeds
    */
+  @SuppressWarnings("unchecked")
   public boolean offer(E e)
   {
     if (q.size() <= qbound) {

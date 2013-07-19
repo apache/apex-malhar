@@ -29,7 +29,8 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
  */
 public class BashOperatorTest
 {
-	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+  @Test
 	public void testJavaOperator()
 	{
 		// Create bash operator instance (calculate suqare).
@@ -54,7 +55,6 @@ public class BashOperatorTest
 		Assert
 				.assertEquals("number emitted tuples", 1, sink.collectedTuples.size());
 		for (Object o : sink.collectedTuples) { // count is 12
-			@SuppressWarnings("unchecked")
 			Map<String, Object> val = (Map<String, Object>) o;
 			for (Map.Entry<String, Object> entry : val.entrySet()) {
 				Assert.assertEquals("emitted average value was was ", new Integer(4),

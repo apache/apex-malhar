@@ -46,6 +46,7 @@ public class ChangeAlertTest
     testNodeProcessingSchema(new ChangeAlert<Long>());
   }
 
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public <V extends Number> void testNodeProcessingSchema(ChangeAlert<V> oper)
   {
     CollectorTestSink alertSink = new CollectorTestSink();
@@ -70,7 +71,6 @@ public class ChangeAlertTest
     double aval = 0;
     log.debug("\nLogging tuples");
     for (Object o: alertSink.collectedTuples) {
-      @SuppressWarnings("unchecked")
       KeyValPair<Number, Double> map = (KeyValPair<Number, Double>)o;
       log.debug(o.toString());
       aval += map.getValue().doubleValue();

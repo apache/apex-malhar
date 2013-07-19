@@ -45,14 +45,12 @@ public class TopOccurance extends BaseOperator
       int numOuts = 0;
       if (tuple.size() < n)
       {   
-    	int i = 0;
-      	for (Map.Entry<String, Integer> entry : tuple.entrySet())
+    	for (Map.Entry<String, Integer> entry : tuple.entrySet())
       	{
       		Map<Integer, String> out = new HashMap<Integer, String>(); 
       		String value = new StringBuilder(entry.getKey()).append("##").append(entry.getValue()).toString();
       		out.put(numOuts++, value);
       		outport.emit(out);
-      		i++;
       	}
       	while(numOuts < n)
       	{

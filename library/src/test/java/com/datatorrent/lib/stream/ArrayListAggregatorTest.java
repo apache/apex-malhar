@@ -26,7 +26,8 @@ import org.junit.Test;
  */
 public class ArrayListAggregatorTest
 {
-	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+  @Test
 	public void testNodeProcessing() throws Exception
 	{
 		ArrayListAggregator<Integer> oper = new ArrayListAggregator<Integer>();

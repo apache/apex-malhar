@@ -123,6 +123,7 @@ public class TopNUniqueSort<E>
    * @param n
    * @return Top N in an ArrayList
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public ArrayList getTopN(int n)
   {
     ArrayList list = new ArrayList();
@@ -159,6 +160,7 @@ public class TopNUniqueSort<E>
    * @param e object to be added
    * @return true if offer() succeeds
    */
+  @SuppressWarnings("unchecked")
   public boolean offer(E e)
   {
     MutableInt ival = hmap.get(e);

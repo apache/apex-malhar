@@ -16,10 +16,7 @@
 package com.datatorrent.lib.util;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.util.BaseKeyOperator;
 import com.datatorrent.lib.util.BaseKeyValueOperator;
-import java.util.HashMap;
-import java.util.Map;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
@@ -44,10 +41,12 @@ import javax.validation.constraints.Pattern;
  * none<br>
  *
  */
+@SuppressWarnings("rawtypes")
 public abstract class AbstractBaseMatchOperator<K,V extends Comparable> extends BaseKeyValueOperator<K,V>
 {
   @NotNull
   private K key;
+  @SuppressWarnings("unused")
   private String cmp;
   private V value;
 
@@ -111,6 +110,7 @@ public abstract class AbstractBaseMatchOperator<K,V extends Comparable> extends 
    * @param value
    * @return is value.compareTo(getValue())
    */
+  @SuppressWarnings("unchecked")
   public int compareValue(V value)
   {
     return getValue().compareTo(value);

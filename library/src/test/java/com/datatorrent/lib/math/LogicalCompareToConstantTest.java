@@ -35,7 +35,8 @@ public class LogicalCompareToConstantTest
 	/**
 	 * Test operator logic emits correct results.
 	 */
-	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+  @Test
 	public void testNodeProcessing()
 	{
 		LogicalCompareToConstant<Integer> oper = new LogicalCompareToConstant<Integer>()

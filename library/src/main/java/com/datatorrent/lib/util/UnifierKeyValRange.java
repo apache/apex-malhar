@@ -19,7 +19,6 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator.Unifier;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -69,6 +68,7 @@ public class UnifierKeyValRange<K> implements Unifier<KeyValPair<K, HighLow>>
   /**
    * emits mergedTuple on mergedport if it is not empty
    */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   @Override
   public void endWindow()
   {

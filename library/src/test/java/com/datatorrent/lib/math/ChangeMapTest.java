@@ -48,7 +48,8 @@ public class ChangeMapTest
 		testNodeProcessingSchema(new ChangeMap<String, Long>());
 	}
 
-	public <V extends Number> void testNodeProcessingSchema(
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+  public <V extends Number> void testNodeProcessingSchema(
 			ChangeMap<String, V> oper)
 	{
 		CollectorTestSink changeSink = new CollectorTestSink();
@@ -89,7 +90,6 @@ public class ChangeMapTest
 		double cval = 0;
 		log.debug("\nLogging tuples");
 		for (Object o : changeSink.collectedTuples) {
-			@SuppressWarnings("unchecked")
 			HashMap<String, Number> map = (HashMap<String, Number>) o;
 			Assert.assertEquals("map size", 1, map.size());
 			Number anum = map.get("a");
@@ -114,7 +114,6 @@ public class ChangeMapTest
 		cval = 0.0;
 
 		for (Object o : percentSink.collectedTuples) {
-			@SuppressWarnings("unchecked")
 			HashMap<String, Number> map = (HashMap<String, Number>) o;
 			Assert.assertEquals("map size", 1, map.size());
 			Number anum = map.get("a");

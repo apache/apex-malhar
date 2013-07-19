@@ -39,12 +39,15 @@ public class ActiveMQMessageListener implements MessageListener, Runnable
   private String url = "tcp://localhost:61617";
   private int ackMode = Session.CLIENT_ACKNOWLEDGE;
   private String subject = "TEST.FOO";
+  @SuppressWarnings("unused")
   private int batch = 10;
+  @SuppressWarnings("unused")
   private int messageSize = 255;
   private long maximumReceiveMessages = 20; // 0 means unlimitted, this has to run in seperate thread for unlimitted
   private boolean durable = false;
   private boolean topic = false;
   private boolean transacted = false;
+  @SuppressWarnings("unused")
   private boolean verbose = false;
   private String consumerName = "Consumer1";
 

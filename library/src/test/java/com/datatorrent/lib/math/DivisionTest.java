@@ -32,7 +32,8 @@ public class DivisionTest
 	/**
 	 * Test operator logic emits correct results.
 	 */
-	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+  @Test
 	public void testNodeProcessing()
 	{
 		Division oper = new Division();

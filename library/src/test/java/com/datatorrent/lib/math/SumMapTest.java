@@ -32,7 +32,7 @@ public class SumMapTest
 	/**
 	 * Test operator logic emits correct results.
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void testNodeProcessing()
 	{

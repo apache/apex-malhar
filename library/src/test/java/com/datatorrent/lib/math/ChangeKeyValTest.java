@@ -52,7 +52,8 @@ public class ChangeKeyValTest
 	 * @param oper
 	 *          key/value pair for comparison.
 	 */
-	public <V extends Number> void testNodeProcessingSchema(
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+  public <V extends Number> void testNodeProcessingSchema(
 			ChangeKeyVal<String, V> oper)
 	{
 		CollectorTestSink changeSink = new CollectorTestSink();
@@ -80,7 +81,6 @@ public class ChangeKeyValTest
 
 		log.debug("\nLogging tuples");
 		for (Object o : changeSink.collectedTuples) {
-			@SuppressWarnings("unchecked")
 			KeyValPair<String, Number> kv = (KeyValPair<String, Number>) o;
 			if (kv.getKey().equals("a")) {
 				Assert.assertEquals("change in a ", 1.0, kv.getValue());
@@ -94,7 +94,6 @@ public class ChangeKeyValTest
 		}
 
 		for (Object o : percentSink.collectedTuples) {
-			@SuppressWarnings("unchecked")
 			KeyValPair<String, Number> kv = (KeyValPair<String, Number>) o;
 			if (kv.getKey().equals("a")) {
 				Assert.assertEquals("change in a ", 50.0, kv.getValue());
