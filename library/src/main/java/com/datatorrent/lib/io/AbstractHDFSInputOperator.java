@@ -15,15 +15,14 @@
  */
 package com.datatorrent.lib.io;
 
-import com.datatorrent.api.Context.OperatorContext;
-
 import java.io.IOException;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * Input Adapter for reading from HDFS File
@@ -87,5 +86,4 @@ public abstract class AbstractHDFSInputOperator extends AbstractFileInputOperato
   }
 
   private transient FileSystem fs;
-  private static final Logger logger = LoggerFactory.getLogger(AbstractHDFSInputOperator.class);
 }

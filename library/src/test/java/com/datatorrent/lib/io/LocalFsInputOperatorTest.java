@@ -28,7 +28,8 @@ public class LocalFsInputOperatorTest
 	// Sample text file path.
 	protected String fileName = "../demos/src/main/resources/com/datatorrent/demos/wordcount/samplefile.txt";
 
-	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+  @Test
 	public void testFileRead()
 	{
 		LocalFsInputOperator oper = new LocalFsInputOperator();

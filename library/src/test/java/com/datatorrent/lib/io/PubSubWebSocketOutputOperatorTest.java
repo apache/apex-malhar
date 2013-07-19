@@ -31,6 +31,7 @@ import org.junit.Test;
 
 public class PubSubWebSocketOutputOperatorTest
 {
+  @SuppressWarnings("unchecked")
   @Test
   public void testWebSocketOutputModule() throws Exception
   {

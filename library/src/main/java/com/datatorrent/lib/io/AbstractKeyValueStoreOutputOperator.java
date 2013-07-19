@@ -15,21 +15,21 @@
  */
 package com.datatorrent.lib.io;
 
-import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.DAGContext;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.common.util.Pair;
-import com.datatorrent.lib.util.KeyValPair;
-
 import java.util.HashMap;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAGContext;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.lib.util.KeyValPair;
+
 /**
- *
+ * Input adapter for storing in coming data tuples in in data hash map.
  */
 public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOperator
 {

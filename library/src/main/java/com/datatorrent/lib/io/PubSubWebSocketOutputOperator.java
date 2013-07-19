@@ -18,8 +18,6 @@ package com.datatorrent.lib.io;
 import com.datatorrent.api.util.PubSubWebSocketClient;
 
 import java.io.IOException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -27,7 +25,6 @@ import org.slf4j.LoggerFactory;
  */
 public class PubSubWebSocketOutputOperator<T> extends WebSocketOutputOperator<T>
 {
-  private static final Logger LOG = LoggerFactory.getLogger(PubSubWebSocketOutputOperator.class);
   private String topic = null;
 
   public void setTopic(String topic)

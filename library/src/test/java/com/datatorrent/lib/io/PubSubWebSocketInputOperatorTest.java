@@ -31,7 +31,7 @@ import org.junit.Test;
 public class PubSubWebSocketInputOperatorTest
 {
   @Test
-  @SuppressWarnings("SleepWhileInLoop")
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public void testWebSocketInputModule() throws Exception
   {
     Server server = new Server(new InetSocketAddress("localhost", 19090));

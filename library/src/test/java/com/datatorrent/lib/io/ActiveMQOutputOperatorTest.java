@@ -19,6 +19,7 @@ import com.datatorrent.api.*;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.lib.io.AbstractActiveMQOutputOperator;
 import com.datatorrent.lib.io.AbstractActiveMQSinglePortOutputOperator;
+import com.datatorrent.lib.util.ActiveMQMessageListener;
 
 import java.io.File;
 import javax.jms.JMSException;
@@ -108,7 +109,6 @@ public class ActiveMQOutputOperatorTest
    * @throws Exception
    */
   @Test
-  @SuppressWarnings({"SleepWhileInLoop", "empty-statement"})
   public void testActiveMQOutputOperator1() throws Exception
   {
     // Setup a message listener to receive the message
@@ -173,7 +173,6 @@ public class ActiveMQOutputOperatorTest
    * @throws Exception
    */
   @Test
-  @SuppressWarnings({"SleepWhileInLoop", "empty-statement"})
   public void testActiveMQOutputOperator2() throws Exception
   {
     // Setup a message listener to receive the message
@@ -275,7 +274,6 @@ public class ActiveMQOutputOperatorTest
   } // End of ActiveMQMultiPortOutputOperator
 
   @Test
-  @SuppressWarnings({"SleepWhileInLoop", "empty-statement"})
   public void testActiveMQMultiPortOutputOperator() throws Exception
   {
     // Setup a message listener to receive the message

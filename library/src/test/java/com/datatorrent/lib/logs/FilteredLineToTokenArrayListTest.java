@@ -15,7 +15,6 @@
  */
 package com.datatorrent.lib.logs;
 
-import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.lib.logs.FilteredLineToTokenArrayList;
 import com.datatorrent.lib.testbench.ArrayListTestSink;
 import java.util.ArrayList;
@@ -23,8 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -33,11 +30,10 @@ import org.slf4j.LoggerFactory;
  */
 public class FilteredLineToTokenArrayListTest
 {
-  private static Logger log = LoggerFactory.getLogger(FilteredLineToTokenArrayListTest.class);
-
   /**
    * Test oper logic emits correct results
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
   public void testNodeProcessing()
   {

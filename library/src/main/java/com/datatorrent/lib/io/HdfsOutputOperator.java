@@ -28,9 +28,8 @@ import org.apache.hadoop.fs.Path;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.StreamCodec;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultInputPort;
 
 /**
  * Adapter for writing to HDFS<p>

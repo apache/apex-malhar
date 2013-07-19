@@ -18,6 +18,8 @@ package com.datatorrent.lib.logs;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseLineTokenizer;
+import com.datatorrent.lib.util.UnifierHashMap;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -29,7 +31,7 @@ import java.util.HashMap;
  * This module is a pass through<br>
  * <br>
  * <b>StateFull : No, </b> tokens are processed in current window. <br>
- * <b>Partitions : Yes, </b> No state dependency in output tokens. <br>
+ * <b>Partitions : Yes, </b> output port unifier operator. <br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: Input port, expects String<br>
@@ -43,7 +45,14 @@ import java.util.HashMap;
 public class LineToTokenHashMap extends BaseLineTokenizer
 {
   @OutputPortFieldAnnotation(name = "tokens")
-  public final transient DefaultOutputPort<HashMap<String, ArrayList<String>>> tokens = new DefaultOutputPort<HashMap<String, ArrayList<String>>>();
+  public final transient DefaultOutputPort<HashMap<String, ArrayList<String>>> tokens = new DefaultOutputPort<HashMap<String, ArrayList<String>>>()
+  {
+    @Override
+    public Unifier<HashMap<String, ArrayList<String>>> getUnifier()
+    {
+      return new UnifierHashMap<String, ArrayList<String>>();
+    }
+  };
 
   protected transient HashMap<String, ArrayList<String>> otuple = null;
   protected transient ArrayList<String> vals = null;

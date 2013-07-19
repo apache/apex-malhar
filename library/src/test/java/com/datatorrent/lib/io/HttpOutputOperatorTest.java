@@ -38,7 +38,9 @@ import com.datatorrent.lib.io.HttpOutputOperator;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
-
+/**
+ * Functional test for {@link com.datatorrent.lib.io.HttpOutputOperator}.
+ */
 public class HttpOutputOperatorTest {
 
   boolean receivedMessage = false;
@@ -89,6 +91,7 @@ public class HttpOutputOperatorTest {
     }
 
     Assert.assertEquals("number requests", 1, receivedMessages.size());
+    System.out.println( receivedMessages.get(0));
     JSONObject json = new JSONObject(data);
     Assert.assertTrue("request body " + receivedMessages.get(0), receivedMessages.get(0).contains(json.toString()));
 
@@ -101,7 +104,6 @@ public class HttpOutputOperatorTest {
 
     node.teardown();
     server.stop();
-
   }
 
 }

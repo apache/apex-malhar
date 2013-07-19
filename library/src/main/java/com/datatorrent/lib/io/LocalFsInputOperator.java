@@ -25,10 +25,7 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
 
 /**  
- * <b> Usage Operator : </b> com.datatorrent.lib.testbench.RandomEventGenerator <br>
- * This sample usage for predefined operator <b>RandomEventGenerator</b>. <br>
- * Random generator output is printed to output console(can be any downstream operator).
- * 
+ * Operator to read input tuples from file from local file system.
  */
 public class LocalFsInputOperator extends AbstractLocalFSInputOperator
 {

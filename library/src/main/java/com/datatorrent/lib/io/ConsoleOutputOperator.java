@@ -35,7 +35,6 @@ public class ConsoleOutputOperator extends BaseOperator
   public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>()
   {
     @Override
-    @SuppressWarnings("UseOfSystemOutOrSystemErr")
     public void process(Object t)
     {
       String s;

@@ -15,16 +15,11 @@
  */
 package com.datatorrent.lib.io;
 
-import com.datatorrent.api.Context.OperatorContext;
-
 import java.io.FileInputStream;
 import java.io.IOException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-/**
- *
- */
+import com.datatorrent.api.Context.OperatorContext;
+
 /**
  * Input Adapter for reading from HDFS<p>
  * <br>
@@ -81,6 +76,4 @@ public abstract class AbstractLocalFSInputOperator extends AbstractFileInputOper
       throw new RuntimeException(ex);
     }
   }
-
-  private static final Logger logger = LoggerFactory.getLogger(AbstractLocalFSInputOperator.class);
 }

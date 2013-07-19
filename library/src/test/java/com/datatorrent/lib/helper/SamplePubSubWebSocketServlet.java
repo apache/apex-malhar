@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
+@SuppressWarnings("serial")
 public class SamplePubSubWebSocketServlet extends WebSocketServlet
 {
 
@@ -35,6 +36,7 @@ public class SamplePubSubWebSocketServlet extends WebSocketServlet
   private ObjectMapper mapper = (new JacksonObjectMapperProvider()).getContext(null);
 
   private PubSubWebSocket subscriber;
+  @SuppressWarnings("unused")
   private String topic;
 
   @Override
@@ -48,6 +50,7 @@ public class SamplePubSubWebSocketServlet extends WebSocketServlet
 
     private Connection connection;
 
+    @SuppressWarnings("unchecked")
     @Override
     public void onMessage(String arg0)
     {

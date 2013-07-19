@@ -15,13 +15,14 @@
  */
 package com.datatorrent.lib.helper;
 
+import static java.lang.Thread.sleep;
+
+import java.net.URI;
+
+import org.eclipse.jetty.websocket.WebSocket;
+
 import com.datatorrent.api.util.ObjectMapperString;
 import com.datatorrent.api.util.PubSubWebSocketClient;
-import static java.lang.Thread.sleep;
-import java.net.URI;
-import org.eclipse.jetty.websocket.WebSocket;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -49,7 +50,6 @@ public class SamplePubSubWebSocketPublisher implements Runnable
   }
 
   @Override
-  @SuppressWarnings("SleepWhileInLoop")
   public void run()
   {
     try {
@@ -93,6 +93,4 @@ public class SamplePubSubWebSocketPublisher implements Runnable
     SamplePubSubWebSocketPublisher sp = new SamplePubSubWebSocketPublisher();
     sp.run();
   }
-
-  private static final Logger logger = LoggerFactory.getLogger(SamplePubSubWebSocketPublisher.class);
 }

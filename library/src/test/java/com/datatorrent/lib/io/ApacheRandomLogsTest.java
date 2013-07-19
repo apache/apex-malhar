@@ -26,7 +26,8 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
  */
 public class ApacheRandomLogsTest
 {
-	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked", "deprecation" })
+  @Test
 	public void test()
 	{
 		ApacheGenRandomLogs oper = new ApacheGenRandomLogs();
@@ -44,7 +45,6 @@ public class ApacheRandomLogsTest
 		}
 		t.stop();
 		Assert.assertTrue("Tuples emitted", sink.collectedTuples.size() > 0);
-		System.out.println(sink.collectedTuples.size());
 	}
 
 	private class EmitTuples extends Thread {

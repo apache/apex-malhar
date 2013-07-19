@@ -18,6 +18,8 @@ package com.datatorrent.lib.logs;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseLineTokenizer;
+import com.datatorrent.lib.util.UnifierArrayList;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.slf4j.Logger;
@@ -29,6 +31,9 @@ import org.slf4j.LoggerFactory;
  * An ArrayList of all tkns are emitted on output port "tokens". 
  * An ArrayList of all subtokens are emitted on port splittokens<p>
  * This module is a pass through. Ideal for applications like log processing<br>
+ * <br>
+ * <b>StateFull : No, </b> tokens are processed in current window. <br>
+ * <b>Partitions : Yes, </b> output port unifier operator. <br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects String<br>
@@ -52,13 +57,27 @@ public class LineToTokenArrayList extends BaseLineTokenizer
 	 * Output token port.
 	 */
   @OutputPortFieldAnnotation(name = "tokens", optional = true)
-  public final transient DefaultOutputPort<ArrayList<String>> tokens = new DefaultOutputPort<ArrayList<String>>();
+  public final transient DefaultOutputPort<ArrayList<String>> tokens = new DefaultOutputPort<ArrayList<String>>()
+  {
+    @Override
+    public Unifier<ArrayList<String>> getUnifier() 
+    {
+      return new UnifierArrayList<String>();
+    }
+  };
   
   /**
    * Output sub tokens port.
    */
   @OutputPortFieldAnnotation(name = "splittokens", optional = true)
-  public final transient DefaultOutputPort<ArrayList<HashMap<String, ArrayList<String>>>> splittokens = new DefaultOutputPort<ArrayList<HashMap<String, ArrayList<String>>>>();
+  public final transient DefaultOutputPort<ArrayList<HashMap<String, ArrayList<String>>>> splittokens = new DefaultOutputPort<ArrayList<HashMap<String, ArrayList<String>>>>()
+  {
+    @Override
+    public Unifier<ArrayList<HashMap<String, ArrayList<String>>>> getUnifier() 
+    {
+      return new UnifierArrayList<HashMap<String, ArrayList<String>>>();
+    }
+  };
 
   /**
    * sets up output tuples

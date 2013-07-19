@@ -22,7 +22,6 @@ import com.datatorrent.api.annotation.ShipContainingJars;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.NotNull;
 import org.codehaus.jackson.JsonFactory;

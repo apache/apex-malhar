@@ -30,7 +30,6 @@ import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocket.Connection;
 import org.eclipse.jetty.websocket.WebSocketClient;
 import org.eclipse.jetty.websocket.WebSocketClientFactory;
-import org.eclipse.jetty.util.thread.ExecutorThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,6 +107,7 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
     super.teardown();
   }
 
+  @SuppressWarnings("unchecked")
   public Map<String,String> convertMessageToMap(String message) throws IOException
   {
     return mapper.readValue(message, HashMap.class);

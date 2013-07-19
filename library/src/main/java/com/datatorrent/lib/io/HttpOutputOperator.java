@@ -22,12 +22,17 @@ import com.datatorrent.api.annotation.ShipContainingJars;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+
+import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URI;
 import java.util.Map;
-import javax.ws.rs.core.MediaType;
-import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonGenerator;
+import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  *
@@ -44,19 +49,20 @@ public class HttpOutputOperator<T> extends BaseOperator
 
   public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()
   {
+    @SuppressWarnings({ "rawtypes" })
     @Override
     public void process(T t)
     {
       try {
         if (t instanceof Map) {
-          resource.type(MediaType.APPLICATION_JSON).post("" + new JSONObject((Map<?, ?>)t));
-        }
-        else {
-          resource.post("" + t);
+          resource.post(JsonStringGenerator.createJsonString((Map)t));
+        } else {
+         resource.post("" + t);
         }
       }
       catch (Exception e) {
         LOG.error("Failed to send tuple to {} {}", resource.getURI(), e.getMessage());
+        System.out.println("Failed to send tuple to " + resource.getURI() + " " + e.getMessage());
       }
     }
   };
@@ -81,8 +87,9 @@ public class HttpOutputOperator<T> extends BaseOperator
   {
     wsClient = Client.create();
     wsClient.setFollowRedirects(true);
-    resource = wsClient.resource(resourceUrl.toString()); // side step "not absolute URL" after serialization
+    resource = wsClient.resource(resourceUrl); // side step "not absolute URL" after serialization
     LOG.info("URL: {}", resourceUrl);
+    System.out.println("URL: {} " + resourceUrl );
   }
 
   @Override
@@ -93,4 +100,25 @@ public class HttpOutputOperator<T> extends BaseOperator
     }
     super.teardown();
   }
+  
+  private static class JsonStringGenerator {
+    /**
+     * Method to convert map into json format
+     * @param map with data to be converted into json
+     * @return json string
+     */
+    @SuppressWarnings("rawtypes")
+    public static String createJsonString(Map jsonMap) throws IOException {
+
+     StringWriter writer = new StringWriter();
+     JsonGenerator jsonGenerator = new JsonFactory().
+           createJsonGenerator(writer);
+     ObjectMapper mapper = new ObjectMapper();
+     mapper.writeValue(jsonGenerator, jsonMap);
+     jsonGenerator.close();
+     System.out.println(writer.toString());
+     return writer.toString();
+    }
+    
+   }
 }

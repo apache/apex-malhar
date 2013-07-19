@@ -15,27 +15,15 @@
  */
 package com.datatorrent.lib.io;
 
-import com.datatorrent.api.AttributeMap;
-import com.datatorrent.api.AttributeMap.AttributeKey;
-import com.datatorrent.api.Context;
-import com.datatorrent.api.Context.OperatorContext;
-import java.util.Map;
-
 import org.apache.hadoop.conf.Configuration;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.DAG;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.io.HdfsOutputOperator;
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.Properties;
-//import com.datatorrent.stram.DAGPropertiesBuilder;
 
-public class HdfsOutputTest implements StreamingApplication {
-
+public class HdfsOutputTest 
+{
   private static Logger LOG = LoggerFactory.getLogger(HdfsOutputTest.class);
   public static final String KEY_FILEPATH = "filepath";
   public static final String KEY_APPEND = "append";
@@ -43,6 +31,7 @@ public class HdfsOutputTest implements StreamingApplication {
   private long numTuples = 1000000;
   private final Configuration config = new Configuration(false);
 
+  @Test
   public void testThroughPut()
   {
 
@@ -70,35 +59,4 @@ public class HdfsOutputTest implements StreamingApplication {
     }
     LOG.info("test summary: {}", sb);
   }
-
-  /**
-   * Utilize CLI to run as client on hadoop cluster
-   */
-  @Override
-  public void populateDAG(DAG dag, Configuration cfg) {
-
-    this.numTuples = cfg.getLong(this.getClass().getName() + ".numTuples", this.numTuples);
-
-    String keyPrefix = this.getClass().getName() + ".operator.";
-    Map<String, String> values = cfg.getValByRegex(keyPrefix + "*");
-    for (Map.Entry<String, String> e : values.entrySet()) {
-      this.config.set(e.getKey().replace(keyPrefix, ""), e.getValue());
-    }
-    LOG.info("properties: " + getConfProperties());
-
-    testThroughPut();
-
-    throw new UnsupportedOperationException("Not an application.");
-  }
-
-  private Properties getConfProperties() {
-    Properties props = new Properties();
-    Iterator<Entry<String,String>> entries = config.iterator();
-    while (entries.hasNext()) {
-      Entry<String,String> entry = entries.next();
-      props.put(entry.getKey(), entry.getValue());
-    }
-    return props;
-  }
-
 }
