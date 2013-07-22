@@ -20,19 +20,22 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.ShipContainingJars;
 import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
 import java.util.Map;
+
+import javax.ws.rs.core.MediaType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jettison.json.JSONObject;
 
 /**
  *
@@ -49,7 +52,6 @@ public class HttpOutputOperator<T> extends BaseOperator
 
   public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()
   {
-    @SuppressWarnings({ "rawtypes" })
     @Override
     public void process(T t)
     {
@@ -101,13 +103,14 @@ public class HttpOutputOperator<T> extends BaseOperator
     super.teardown();
   }
   
-  private static class JsonStringGenerator {
+  @SuppressWarnings("unused")
+private static class JsonStringGenerator {
     /**
      * Method to convert map into json format
      * @param map with data to be converted into json
      * @return json string
      */
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "rawtypes" })
     public static String createJsonString(Map jsonMap) throws IOException {
 
      StringWriter writer = new StringWriter();
