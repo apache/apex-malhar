@@ -17,7 +17,7 @@ package com.datatorrent.demos.groupby;
 
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.sql.GroupBy;
+import com.datatorrent.lib.streamquery.GroupBy;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 
 import org.apache.hadoop.conf.Configuration;
