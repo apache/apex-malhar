@@ -27,11 +27,6 @@ import com.datatorrent.api.Context.PortContext;
  */
 public class ChartingOutputPort<T> extends DefaultOutputPort<T>
 {
-  public ChartingOutputPort(Operator operator)
-  {
-    super();
-  }
-
   @Override
   public void setup(PortContext context)
   {
