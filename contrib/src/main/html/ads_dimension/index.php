@@ -37,16 +37,8 @@ function DrawAggrCharts()
       if(connect.readyState==4 && connect.status==200) {
         aggrData = connect.response;
         var pts = JSON.parse(aggrData);
+        aggrDataPoints = new Array();
         for(var i=0; i <  pts.length; i++) aggrDataPoints.push(pts[i]);
-        sortByKey(aggrDataPoints, "timestamp");
-	var cuttime = new Date().getTime() - parseInt(params['lookback']) * 3600 * 1000;
-        var count = 0;
-        for(var i=0; i < aggrDataPoints.length; i++)
-        {
-          if(parseInt(aggrDataPoints[i].timestamp)  < cuttime) count++;
-          else break;
-        }
-        aggrDataPoints.splice(0, count);
         DrawCostChart();
         DrawRevenueChart();
         DrawClicksChart();
@@ -58,7 +50,7 @@ function DrawAggrCharts()
     connect.send(null);
   } catch(e) {
   }
-  aggrLookBack = (new Date().getTime()/1000)-30;
+  aggrLookBack += 30;
 }
 
 function DrawContCharts()  
@@ -76,16 +68,8 @@ function DrawContCharts()
       if(connect.readyState==4 && connect.status==200) {
         contData = connect.response;   
         var newPts = JSON.parse(contData); 
+        contDataPoints = new Array();
         for(var i=0; i <  newPts.length; i++) contDataPoints.push(newPts[i]);
-        sortByKey(contDataPoints, "timestamp");
-        var cuttime = new Date().getTime() - parseInt(params['lookback']) * 3600 * 1000;
-        var count = 0;
-        for(var i=0; i < contDataPoints.length; i++)
-        {
-          if(parseInt(contDataPoints[i].timestamp)  < cuttime) count++;
-          else break;
-        }
-        contDataPoints.splice(0, count);
         DrawCtrChart() ;
         DrawMarginChart();
         delete contData;
@@ -96,7 +80,7 @@ function DrawContCharts()
     connect.send(null);
   } catch(e) {
   }
-  contLookBack = (new Date().getTime()/1000)-contRefresh;
+  contLookBack += contRefresh;
 }
 
 window.onload = function() {
