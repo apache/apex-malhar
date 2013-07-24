@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InputItemGenerator implements InputOperator
 {
-  private static final Logger LOG = LoggerFactory.getLogger(InputGenerator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(InputItemGenerator.class);
   private int numPublishers = 50;
   private int numAdvertisers = 100;
   private int numAdUnits = 5;
