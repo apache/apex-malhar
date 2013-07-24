@@ -27,13 +27,13 @@ import org.apache.hadoop.conf.Configuration;
 /**
  *
  */
-public class ItemApplication implements StreamingApplication
+public class Application implements StreamingApplication
 {
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    dag.setAttribute(DAG.APPLICATION_NAME, "AdsItemDimension");
+    dag.setAttribute(DAG.APPLICATION_NAME, "AdsDimensionDemoApplication");
 
     InputItemGenerator input = dag.addOperator("input", InputItemGenerator.class);
     dag.setOutputPortAttribute(input.outputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);
