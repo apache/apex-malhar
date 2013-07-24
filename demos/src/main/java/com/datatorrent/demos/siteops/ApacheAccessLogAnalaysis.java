@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.summit.apache_logs;
+package com.datatorrent.demos.siteops;
 
 import java.util.Map;
 
@@ -76,9 +76,9 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
 	@Override
 	public void populateDAG(DAG dag, Configuration conf)
 	{
-	// set app name 
+	// set app name
 	dag.setAttribute(DAG.APPLICATION_NAME, "SiteOperationsDemo");
-		 
+
   	// Generate random apche logs
   	ApacheGenRandomLogs rand = dag.addOperator("rand", new ApacheGenRandomLogs());
 

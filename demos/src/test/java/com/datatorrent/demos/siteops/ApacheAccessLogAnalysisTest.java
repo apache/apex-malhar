@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.summit.apache_logs;
+package com.datatorrent.demos.siteops;
 
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.contrib.summit.apache_logs.ApacheAccessLogAnalaysis;
+import com.datatorrent.demos.siteops.ApacheAccessLogAnalaysis;
 /**
  */
 public class ApacheAccessLogAnalysisTest
