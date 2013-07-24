@@ -19,13 +19,6 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Context.OperatorContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-
-/**
- *
- */
 public class RandomWordInputModule implements InputOperator
 {
   public final transient DefaultOutputPort<byte[]> output = new DefaultOutputPort<byte[]>();
@@ -67,6 +60,4 @@ public class RandomWordInputModule implements InputOperator
   public void teardown()
   {
   }
-
-  private static final Logger logger = LoggerFactory.getLogger(RandomWordInputModule.class);
 }

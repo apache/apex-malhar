@@ -22,7 +22,6 @@ import com.datatorrent.api.Context.OperatorContext;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import twitter4j.Status;
 
 /**
  *

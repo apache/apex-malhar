@@ -79,7 +79,5 @@ public class WordCountOperator<T> implements Operator
     counts = new ArrayList<Integer>();
     millis = new ArrayList<Integer>();
   }
-
-  private static final long serialVersionUID = 201208061820L;
   private static final Logger logger = LoggerFactory.getLogger(WordCountOperator.class);
 }

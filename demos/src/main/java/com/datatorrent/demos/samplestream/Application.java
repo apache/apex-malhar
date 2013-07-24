@@ -20,8 +20,6 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 
 import org.apache.hadoop.conf.Configuration;
-import org.slf4j.LoggerFactory;
-
 /**
  * Yahoo Finanace Input Demo : <br>
  * This demo will output the stock market data from yahoo finance
@@ -73,7 +71,6 @@ import org.slf4j.LoggerFactory;
  */
 public class Application implements StreamingApplication
 {
-  private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Application.class);
   private final boolean allInline = false;
 
   @Override

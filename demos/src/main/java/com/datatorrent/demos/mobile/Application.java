@@ -31,25 +31,52 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Mobile Demo Application: It demonstrates ability to locate a cell phone in an area code.<p>
+ * Mobile Demo Application: It demonstrates ability to locate a cell phone in an
+ * area code.
+ * <p>
  * The specs are as such<br>
- * 100K cells phones are tracked. They jump a cell tower frequently. Sometimes within a second
- * sometimes in 10 seconds. The aim is to demonstrate the following abilities<br>
+ * 100K cells phones are tracked. They jump a cell tower frequently. Sometimes
+ * within a second sometimes in 10 seconds. The aim is to demonstrate the
+ * following abilities<br>
  * <ul>
- * <li>Entering query dynamically: The phone numbers are added to locate its gps in run time.</li>
- * <li>Changing functionality dynamically: The load is changed by making functional changes on the load generator operator (phonegen)(</li>
- * <li>Auto Scale up/Down with load: Operator pmove increases and decreases partitions as per load</li>
+ * <li>Entering query dynamically: The phone numbers are added to locate its gps
+ * in run time.</li>
+ * <li>Changing functionality dynamically: The load is changed by making
+ * functional changes on the load generator operator (phonegen)(</li>
+ * <li>Auto Scale up/Down with load: Operator pmove increases and decreases
+ * partitions as per load</li>
  * <li></li>
  * </ul>
- *
+ * 
  * <p>
- *
+ * 
  * Running Java Test or Main app in IDE:
- *
+ * 
  * <pre>
  * LocalMode.runApp(new Application(), 600000); // 10 min run
  * </pre>
- *
+ * 
+ * Run Success : <br>
+ * For successful deployment and run, user should see following output on
+ * console: <br>
+ * 
+ * <pre>
+ * phoneLocationQueryResult: {phone=9996101, location=(5,9), queryId=q3}
+ * phoneLocationQueryResult: {phone=9994995, location=(10,4), queryId=q1}
+ * phoneLocationQueryResult: {phone=9996101, location=(5,9), queryId=q3}
+ * phoneLocationQueryResult: {phone=9994995, location=(10,4), queryId=q1}
+ * phoneLocationQueryResult: {phone=9994995, location=(10,5), queryId=q1}
+ * phoneLocationQueryResult: {phone=9996101, location=(5,9), queryId=q3}
+ * phoneLocationQueryResult: {phone=9994995, location=(9,5), queryId=q1}
+ * phoneLocationQueryResult: {phone=9996101, location=(5,9), queryId=q3}
+ * phoneLocationQueryResult: {phone=9996101, location=(5,9), queryId=q3}
+ * phoneLocationQueryResult: {phone=9994995, location=(9,5), queryId=q1}
+ * phoneLocationQueryResult: {phone=9994995, location=(9,5), queryId=q1}
+ * phoneLocationQueryResult: {phone=9996101, location=(5,9), queryId=q3}
+ * </pre>
+ * 
+ *  * <b>Application DAG : </b><br>
+ * <img src="doc-files/mobile.png" width=600px > <br>
  */
 public class Application implements StreamingApplication
 {

@@ -126,7 +126,8 @@ public class YahooFinanceCSVInputOperator extends SimpleSinglePortInputOperator<
     DefaultHttpParams.getDefaultParams().setParameter("http.protocol.cookie-policy", CookiePolicy.BROWSER_COMPATIBILITY);
   }
 
-  @Override
+  
+@Override
   public void run()
   {
     while (true) {
@@ -144,7 +145,7 @@ public class YahooFinanceCSVInputOperator extends SimpleSinglePortInputOperator<
           List<String[]> myEntries;
           myEntries = reader.readAll();
           for (String[] stringArr: myEntries) {
-            ArrayList<String> al = new ArrayList(Arrays.asList(stringArr));
+            ArrayList<String> al = new ArrayList<String>(Arrays.asList(stringArr));
             outputPort.emit(al); // send out one symbol at a time
           }
         }
