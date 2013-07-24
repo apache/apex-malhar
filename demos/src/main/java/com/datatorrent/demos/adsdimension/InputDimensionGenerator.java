@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.summit.ads;
+package com.datatorrent.demos.adsdimension;
 
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
@@ -26,9 +26,6 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  */
 public class InputDimensionGenerator extends BaseOperator
 {
-
-  private static final int dimSelect[][] = { {0, 0, 0}, {0, 0, 1}, {0, 1, 0}, {1, 0, 0}, {0, 1, 1}, {1, 0, 1}, {1, 1, 0}, {1, 1, 1} };
-  private static final int dimSelLen = 8;
 
   @OutputPortFieldAnnotation(name = "outputPort")
   public final transient DefaultOutputPort<AdInfo> outputPort = new DefaultOutputPort<AdInfo>();
@@ -45,15 +42,15 @@ public class InputDimensionGenerator extends BaseOperator
   };
 
    private void emitDimensions(AdInfo adInfo) {
-    for (int j = 0; j < dimSelLen; ++j) {
-      AdInfo oadInfo = new AdInfo();
-      if (dimSelect[j][0] == 1) oadInfo.setPublisherId(adInfo.getPublisherId());
-      if (dimSelect[j][1] == 1) oadInfo.setAdvertiserId(adInfo.getAdvertiserId());
-      if (dimSelect[j][2] == 1) oadInfo.setAdUnit(adInfo.getAdUnit());
-      oadInfo.setClick(adInfo.isClick());
-      oadInfo.setValue(adInfo.getValue());
-      oadInfo.setTimestamp(adInfo.getTimestamp());
-      this.outputPort.emit(oadInfo);
+    for (int i =0; i < 8; ++i) {
+      AdInfo eadInfo = new AdInfo();
+      if ((i & 1) != 0) eadInfo.setPublisherId(adInfo.getPublisherId());
+      if ((i & 2) != 0) eadInfo.setAdvertiserId(adInfo.getAdvertiserId());
+      if ((i & 4) != 0) eadInfo.setAdUnit(adInfo.getAdUnit());
+      eadInfo.setClick(adInfo.isClick());
+      eadInfo.setValue(adInfo.getValue());
+      eadInfo.setTimestamp(adInfo.getTimestamp());
+      this.outputPort.emit(eadInfo);
     }
   }
 

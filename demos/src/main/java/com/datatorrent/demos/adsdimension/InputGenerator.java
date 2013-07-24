@@ -13,20 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.summit.ads;
+package com.datatorrent.demos.adsdimension;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.common.util.Pair;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+
 
 /**
  *
  */
-public class InputItemGenerator implements InputOperator
+public class InputGenerator implements InputOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(InputGenerator.class);
   private int numPublishers = 50;
@@ -98,13 +104,13 @@ public class InputItemGenerator implements InputOperator
         double cost = 0.5 + 0.25 * random.nextDouble();
         timestamp = System.currentTimeMillis();
 
-        emitTuple(false, publisherId, advertiserId, adUnit, cost, timestamp);
+        emitDimensions(false, publisherId, advertiserId, adUnit, cost, timestamp);
 
         if (random.nextDouble() < expectedClickThruRate) {
           double revenue = 0.5 + 0.5 * random.nextDouble();
           timestamp = System.currentTimeMillis();
           // generate fake click
-          emitTuple(true, publisherId, advertiserId, adUnit, revenue, timestamp);
+          emitDimensions(true, publisherId, advertiserId, adUnit, revenue, timestamp);
         }
       }
     }
@@ -113,14 +119,16 @@ public class InputItemGenerator implements InputOperator
     }
   }
 
-  private void emitTuple(boolean click, int publisherId, int advertiserId, int adUnit, double value, long timestamp) {
+  private void emitDimensions(boolean click, int publisherId, int advertiserId, int adUnit, double value, long timestamp) {
+    for (int i =0; i < 8; ++i) {
       AdInfo adInfo = new AdInfo();
-      adInfo.setPublisherId(publisherId);
-      adInfo.setAdvertiserId(advertiserId);
-      adInfo.setAdUnit(adUnit);
+      if ((i & 1) != 0) adInfo.setPublisherId(publisherId);
+      if ((i & 2) != 0) adInfo.setAdvertiserId(advertiserId);
+      if ((i & 4) != 0) adInfo.setAdUnit(adUnit);
       adInfo.setClick(click);
       adInfo.setValue(value);
       adInfo.setTimestamp(timestamp);
       this.outputPort.emit(adInfo);
+    }
   }
 }
