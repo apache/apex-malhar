@@ -13,19 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.ads_dimension;
+package com.datatorrent.demos.adsdimension;
 
-import com.datatorrent.contrib.ads_dimension.ApplicationRandomData;
+import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
+import static org.junit.Assert.*;
 
-public class ApplicationRandomDataTest
+public class ApplicationTest
 {
+
   @Test
-  public void testApplication() throws Exception
+  public void testApplication()
   {
-    ApplicationRandomData app = new ApplicationRandomData();
+    Application app = new Application();
     LocalMode lma = LocalMode.newInstance();
     app.populateDAG(lma.getDAG(), new Configuration(false));
     LocalMode.Controller lc = lma.getController();
