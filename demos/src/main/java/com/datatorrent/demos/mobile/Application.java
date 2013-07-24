@@ -16,6 +16,7 @@
 package com.datatorrent.demos.mobile;
 
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
@@ -86,12 +87,12 @@ public class Application implements StreamingApplication
 
   private void configure(DAG dag, Configuration conf)
   {
-    dag.setAttribute(DAG.CONTAINERS_MAX_COUNT, 1);
+    //dag.setAttribute(DAG.CONTAINERS_MAX_COUNT, 1);
     if (LAUNCHMODE_YARN.equals(conf.get(DAG.LAUNCH_MODE))) {
       // settings only affect distributed mode
       dag.getAttributes().attr(DAG.CONTAINER_MEMORY_MB).setIfAbsent(2048);
       dag.getAttributes().attr(DAG.MASTER_MEMORY_MB).setIfAbsent(1024);
-      dag.getAttributes().attr(DAG.CONTAINERS_MAX_COUNT).setIfAbsent(1);
+      //dag.getAttributes().attr(DAG.CONTAINERS_MAX_COUNT).setIfAbsent(1);
     }
     else if (LAUNCHMODE_LOCAL.equals(conf.get(DAG.LAUNCH_MODE))) {
     }
@@ -118,18 +119,20 @@ public class Application implements StreamingApplication
     RandomEventGenerator phones = dag.addOperator("phonegen", RandomEventGenerator.class);
     phones.setMinvalue(this.phoneRange.lowerEndpoint());
     phones.setMaxvalue(this.phoneRange.upperEndpoint());
-    phones.setTuplesBlast(1000);
+    phones.setTuplesBlast(200);
     phones.setTuplesBlastIntervalMillis(5);
+    dag.setOutputPortAttribute(phones.integer_data, PortContext.QUEUE_CAPACITY, 32 * 1024);
 
     PhoneMovementGenerator movementGen = dag.addOperator("pmove", PhoneMovementGenerator.class);
     movementGen.setRange(20);
     movementGen.setThreshold(80);
     dag.setAttribute(movementGen, OperatorContext.INITIAL_PARTITION_COUNT, 2);
     dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MIN, 10000);
-    dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MAX, 50000);
+    dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MAX, 30000);
+    dag.setInputPortAttribute(movementGen.data, PortContext.QUEUE_CAPACITY, 32 * 1024);
 
     // default partitioning: first connected stream to movementGen will be partitioned
-    dag.addStream("phonedata", phones.integer_data, movementGen.data).setInline(true);
+    dag.addStream("phonedata", phones.integer_data, movementGen.data);
 
     String daemonAddress = dag.attrValue(DAG.DAEMON_ADDRESS, null);
     if (!StringUtils.isEmpty(daemonAddress)) {
@@ -144,7 +147,7 @@ public class Application implements StreamingApplication
       wsIn.setUri(uri);
       wsIn.addTopic("demos.mobile.phoneLocationQuery");
 
-      dag.addStream("consoledata", movementGen.locationQueryResult, wsOut.input).setInline(true);
+      dag.addStream("consoledata", movementGen.locationQueryResult, wsOut.input);
       dag.addStream("query", wsIn.outputPort, movementGen.locationQuery);
     }
     else {
