@@ -83,13 +83,12 @@
       <artifactId>zkclient</artifactId>
       <version>0.2</version>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <!-- TODO: ensure tests work with 3.4.2 and remove -->
-      <groupId>org.apache.zookeeper</groupId>
-      <artifactId>zookeeper</artifactId>
-      <version>3.3.3</version>
-      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.zookeeper</groupId>
+          <artifactId>zookeeper</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.almworks.sqlite4java</groupId>
@@ -140,6 +139,10 @@
         <exclusion>
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-log4j12</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.zookeeper</groupId>
+          <artifactId>zookeeper</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
