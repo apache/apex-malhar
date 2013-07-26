@@ -39,7 +39,7 @@ import java.util.Map;
  * <b>distinct</b>: Output data port, emits HashMap&lt;K,V&gt;(1)<br>
  * <br>
  *
- * @since 0.3.2 
+ * @since 0.3.2
  */
 public class DistinctMap<K, V> extends BaseKeyValueOperator<K, V>
 {

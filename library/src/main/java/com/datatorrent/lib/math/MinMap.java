@@ -29,7 +29,7 @@ import java.util.Map;
  * Emits at end of window minimum of all values sub-classed from Number for each key. <br>
  * <br>
  * <b>StateFull :</b> Yes, min value is computed over application window. <br>
- * <b>Partitions :</b> Yes, min operator is min unifier for output port.  
+ * <b>Partitions :</b> Yes, min operator is min unifier for output port.
  * <b>Ports</b>:<br>
  * <b>data</b>: expects HashMap&lt;K,V extends Number&gt;<br>
  * <b>min</b>: emits HashMap&lt;K,V extends Number&gt;, one entry per key<br>
@@ -39,7 +39,7 @@ import java.util.Map;
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
  *
- * @since 0.3.2 
+ * @since 0.3.2
  */
 public class MinMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V> implements Unifier<HashMap<K,V>>
 {

@@ -19,6 +19,8 @@ import java.util.Map;
 
 /**
  * Interface to for valid join condition.
+ *
+ * @since 0.3.3
  */
 public interface JoinCondition
 {

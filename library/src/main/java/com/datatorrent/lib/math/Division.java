@@ -45,7 +45,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * <b>errordata</b>: emits String<br>
  * <br>
  *
- * @since 0.3.2 
+ * @since 0.3.2
  */
 public class Division extends BaseOperator
 {

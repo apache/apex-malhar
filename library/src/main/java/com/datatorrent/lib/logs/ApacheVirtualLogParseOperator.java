@@ -28,9 +28,9 @@ import java.util.regex.Pattern;
 
 /**
  * Please refer to docs for {@link com.datatorrent.lib.logs.ApacheLogParseOperator} documentation.
- * More output ports in this operator. 
+ * More output ports in this operator.
  *
- * @since 0.3.2 
+ * @since 0.3.2
  */
 public class ApacheVirtualLogParseOperator extends BaseOperator {
 

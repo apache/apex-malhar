@@ -39,7 +39,7 @@ import java.util.HashMap;
  * <b>Specific run time checks are</b>: None<br>
  * <br>
  *
- * @since 0.3.2 
+ * @since 0.3.2
  */
 public class TopNUnique<K, V> extends AbstractBaseNUniqueOperatorMap<K, V>
 {

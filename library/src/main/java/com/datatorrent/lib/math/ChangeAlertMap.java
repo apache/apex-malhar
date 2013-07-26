@@ -33,10 +33,10 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
  * Operator stores key/value pair in hash map across the windows for comparison.<br>
  * Operator emits hashmap of key/percent change in value for each key, if percent change
  * exceeds preset thresh hold. <br> <br>
- * 
+ *
  * StateFull : Yes, key/value pair in current window are stored for comparison in next window. <br>
  * Partition : No, will yield wrong result, base value won't be consistent across instances. <br>
- * 
+ *
  * <b>Ports</b>:<br>
  * <b>data</b>: expects Map&lt;K,V extends Number&gt;<br>
  * <b>alert</b>: emits HashMap&lt;K,HashMap&lt;V,Double&gt;&gt;(1)<br>
@@ -46,7 +46,7 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  *
- * @since 0.3.2 
+ * @since 0.3.2
  */
 public class ChangeAlertMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {

@@ -40,7 +40,7 @@ import com.datatorrent.lib.util.UnifierHashMapSumKeys;
  * <b>Properties</b>: None<br>
  * <br>
  *
- * @since 0.3.2 
+ * @since 0.3.2
  */
 public class UniqueCounter<K> extends BaseUniqueKeyCounter<K>
 {

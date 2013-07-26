@@ -20,6 +20,8 @@ import java.util.Map;
 
 /**
  * Class to implement column equal operator.
+ *
+ * @since 0.3.3
  */
 public class SelectEqualCondition extends SelectCondition
 {

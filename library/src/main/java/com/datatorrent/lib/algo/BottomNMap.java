@@ -42,7 +42,8 @@ import com.datatorrent.lib.util.AbstractBaseNNonUniqueOperatorMap;
  * <b>Specific compile time checks are</b>:<br>
  * N: Has to be >= 1<br>
  * <br>
- * 
+ *
+ * @since 0.3.3
  */
 public class BottomNMap<K, V> extends AbstractBaseNNonUniqueOperatorMap<K, V>
 {

@@ -27,7 +27,7 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  * <br>
  * <b>StateFull :</b>Yes, min value is computed over application windows. <br>
  * <b>Partitions :</b>Yes, operator is kin unifier operator. <br>
- * <br>  
+ * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects V extends Number<br>
  * <b>min</b>: emits V extends Number<br>

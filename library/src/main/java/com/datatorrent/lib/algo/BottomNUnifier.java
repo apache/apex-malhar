@@ -26,6 +26,11 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator.Unifier;
 import com.datatorrent.lib.util.TopNSort;
 
+/**
+ * <p>BottomNUnifier class.</p>
+ *
+ * @since 0.3.3
+ */
 public class BottomNUnifier<K, V> implements Unifier<HashMap<K, ArrayList<V>>>
 {
   /**

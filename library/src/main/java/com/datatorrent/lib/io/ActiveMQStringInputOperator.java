@@ -20,6 +20,11 @@ import javax.jms.Message;
 import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 
+/**
+ * <p>ActiveMQStringInputOperator class.</p>
+ *
+ * @since 0.3.3
+ */
 public class ActiveMQStringInputOperator extends ActiveMQInputOperator<String>
 {
 	@Override

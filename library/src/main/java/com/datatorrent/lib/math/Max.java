@@ -28,13 +28,13 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  * <br>
  * <b>StateFull :</b> Yes, max value is determined during application window, can be more than 1. <br>
  * <b>Partitions : </b>Yes, operator itself is used as unifier at output port. <br>
- * <br> 
+ * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects V extends Number<br>
  * <b>max</b>: emits V extends Number<br>
  * <br>
  *
- * @since 0.3.2 
+ * @since 0.3.2
  */
 public class Max<V extends Number> extends BaseNumberValueOperator<V> implements Unifier<V>
 {

@@ -38,7 +38,7 @@ import com.datatorrent.lib.util.BaseKeyValueOperator;
  * <b>index</b>: emits HashMap&lt;V,ArrayList&lt;K&gt;&gt;(1), one HashMap per V<br>
  * <br>
  *
- * @since 0.3.2 
+ * @since 0.3.2
  */
 public class InvertIndexArray<K, V> extends BaseKeyValueOperator<K,V>
 {

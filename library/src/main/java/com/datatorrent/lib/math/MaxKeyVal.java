@@ -39,7 +39,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
  *
- * @since 0.3.2 
+ * @since 0.3.2
  */
 public class MaxKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {

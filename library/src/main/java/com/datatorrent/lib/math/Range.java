@@ -35,6 +35,8 @@ import com.datatorrent.lib.util.UnifierRange;
  * <b>range</b>: emits HighLow&lt;V&gt;<br>
  * <br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public class Range<V extends Number> extends BaseNumberValueOperator<V>
 {

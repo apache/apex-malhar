@@ -31,7 +31,7 @@ import javax.validation.constraints.NotNull;
  * Ports:<br>
  * <b>data</b>: expects String<br>
  *
- * @since 0.3.2 
+ * @since 0.3.2
  */
 public class BaseLineTokenizer extends BaseOperator
 {

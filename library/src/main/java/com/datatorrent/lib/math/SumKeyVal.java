@@ -37,7 +37,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * hence generating cumulative sum
  * across streaming windows. Default is false.<br>
  * <br>
- * 
+ *
  * @since 0.3.2
  */
 public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>

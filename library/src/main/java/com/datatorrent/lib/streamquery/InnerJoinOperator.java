@@ -26,7 +26,7 @@ import com.datatorrent.api.Operator;
 
 /**
  * This operator reads table row data from 2 table data input ports. <br>
- * Operator joins row on given condition and selected names, emits 
+ * Operator joins row on given condition and selected names, emits
  * joined result at output port.
  *  <br>
  *  <b>StateFull : NO,</b> all row data is processed in current time window. <br>
@@ -42,6 +42,8 @@ import com.datatorrent.api.Operator;
  *  <b> table1Columns : </b> Columns to be selected from table1. <br>
  *  <b> table2Columns : </b> Columns to be selected from table2. <br>
  *  <br>
+ *
+ * @since 0.3.3
  */
 public class InnerJoinOperator  implements Operator
 {

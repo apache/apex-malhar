@@ -19,9 +19,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * 
+ *
  * Abstract to class implements {@link SelectIndex} interface.  <br>
  * Abstract function 'aggregate' must be implemented by sub class. <br>.
+ *
+ * @since 0.3.3
  */
 public abstract class SelectAggregateIndex implements SelectIndex
 {

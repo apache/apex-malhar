@@ -47,7 +47,7 @@ import java.util.HashMap;
  * Compare string, if specified, must be one of "lte", "lt", "eq", "neq", "gt", "gte"<br>
  * <br>
  *
- * @since 0.3.2 
+ * @since 0.3.2
  */
 public class FirstTillMatch<K, V extends Number> extends BaseMatchOperator<K, V>
 {

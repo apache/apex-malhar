@@ -34,6 +34,8 @@ import com.datatorrent.api.Operator.Unifier;
  * <b> outport : </b> Output hash map(row) port, emits  HashMap&lt;String,Object&gt;<br>
  * <br>
  * <b> Properties : <b> <br>
+ *
+ * @since 0.3.3
  */
 public class OrderByOperator extends SqlOperator implements Unifier<HashMap<String, Object>>
 {

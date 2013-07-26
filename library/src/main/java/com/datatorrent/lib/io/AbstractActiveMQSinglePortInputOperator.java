@@ -23,7 +23,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 /**
  * <p>
  * ActiveMQ input adapter operator with single output port, which consume data
- * from ActiveMQ message bus. 
+ * from ActiveMQ message bus.
  * <br>
  * <br>
  * Ports:<br>
@@ -42,9 +42,9 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * Benchmarks:<br>
  * TBD<br>
  * <br>
- * 
+ *
  * @param <T>
- * @since 0.3.2 
+ * @since 0.3.2
  */
 public abstract class AbstractActiveMQSinglePortInputOperator<T> extends
 		AbstractActiveMQInputOperator

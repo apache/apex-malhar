@@ -28,12 +28,12 @@ import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * <p>
- * Operator takes input from two ports data port and base value. Operator stores kay/value pair arriving at input 
+ * Operator takes input from two ports data port and base value. Operator stores kay/value pair arriving at input
  * port in  base map across the windows. For key/value pair arriving at data port are compared with stored value if
- * key exists in base map. Change value/percent are emitted on separate ports. 
+ * key exists in base map. Change value/percent are emitted on separate ports.
  * <p>
  * StateFull : Yes, base map values are stored across windows. <br>
- * Partitions : No, Base value won;t be consistent across windows. 
+ * Partitions : No, Base value won;t be consistent across windows.
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects KeyValPair&lt;K,V extends Number&gt;<br>
@@ -45,6 +45,8 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>Properties</b>:<br>
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
+ *
+ * @since 0.3.3
  */
 public class ChangeKeyVal<K, V extends Number> extends
 		BaseNumberKeyValueOperator<K, V>

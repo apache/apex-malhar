@@ -31,7 +31,7 @@ import com.datatorrent.lib.util.KeyValPair;
 /**
  * Input adapter for storing in coming data tuples in in data hash map.
  *
- * @since 0.3.2 
+ * @since 0.3.2
  */
 public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOperator
 {

@@ -20,7 +20,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseLineTokenizer;
 
 /**
- * 
+ *
  * <p>
  * Splits lines into tokens and emits token Strings on outpu port.
  * This module is a pass through. Ideal for applications like word count, or log
@@ -37,6 +37,8 @@ import com.datatorrent.lib.util.BaseLineTokenizer;
  * <b>splitby</b>: The characters used to split the line. Default is ";\t "<br>
  * <br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public class LineTokenizer extends BaseLineTokenizer
 {

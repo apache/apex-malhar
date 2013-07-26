@@ -27,7 +27,7 @@ import org.apache.commons.lang.mutable.MutableDouble;
 
 /**
  * <p>
- * Emits the sum of values for each key at the end of window. 
+ * Emits the sum of values for each key at the end of window.
  * This is an end of window operator<br>
  * <br>
  * <b>StateFull : Yes</b>, sum is computed over application window. <br>
@@ -44,7 +44,7 @@ import org.apache.commons.lang.mutable.MutableDouble;
  * hence generating cumulative sum across streaming windows. Default is false.<br>
  * <br>
  *
- * @since 0.3.2 
+ * @since 0.3.2
  */
 public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {

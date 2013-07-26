@@ -57,7 +57,7 @@ import java.util.Map;
  * <b>Specific run time checks</b>: None<br>
  * <br>
  *
- * @since 0.3.2 
+ * @since 0.3.2
  */
 public class AllAfterMatchMap<K, V extends Number> extends
     BaseMatchOperator<K, V>

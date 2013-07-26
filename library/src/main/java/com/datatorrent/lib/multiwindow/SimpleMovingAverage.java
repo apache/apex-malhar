@@ -25,7 +25,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * Calculate simple moving average (SMA) of last N window. <br>
  * <br>
  * <b>StateFull : Yes</b>, operator store values  for n-1 th windows. <br>
- * <b>Partitions : No</b>, sum is not unified on output ports. <br> 
+ * <b>Partitions : No</b>, sum is not unified on output ports. <br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: Expects KeyValPair where K is Object and V is Number.<br>
@@ -37,6 +37,8 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>Properties</b>:<br>
  * <b>windowSize</b>: Number of windows to keep state on<br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public class SimpleMovingAverage<K, V extends Number> extends
 		AbstractSlidingWindowKeyVal<K, V, SimpleMovingAverageObject>

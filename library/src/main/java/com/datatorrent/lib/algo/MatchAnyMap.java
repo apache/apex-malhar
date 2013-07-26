@@ -50,7 +50,7 @@ import com.datatorrent.lib.util.UnifierBooleanOr;
  * <b>Specific run time checks</b>: None<br>
  * <br>
  *
- * @since 0.3.2 
+ * @since 0.3.2
  */
 public class MatchAnyMap<K, V extends Number> extends BaseMatchOperator<K,V>
 {

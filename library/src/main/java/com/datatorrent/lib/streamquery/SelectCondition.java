@@ -20,6 +20,8 @@ import java.util.HashMap;
 
 /**
  * Abstract select condition for selecting/filtering rows.
+ *
+ * @since 0.3.3
  */
 abstract public class SelectCondition
 {

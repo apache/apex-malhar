@@ -44,6 +44,8 @@ import com.datatorrent.common.util.Pair;
  * <b>lessThanEqualTo</b>: emits Pair&lt;T,T&gt;<br>
  * <b>lessThan</b>: emits Pair&lt;T,T&gt;<br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public abstract class LogicalCompare<T extends Comparable<? super T>> extends
 		BaseOperator

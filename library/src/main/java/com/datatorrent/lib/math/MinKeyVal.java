@@ -30,7 +30,7 @@ import com.datatorrent.lib.util.KeyValPair;
  *
  * Emits at end of window minimum of all values sub-classed from Number for each key in KeyValPair. <p>
  * <br>
- * 
+ *
  * <b>Ports</b>:<br>
  * <b>data</b>: expects KeyValPair&lt;K,V extends Number&gt;<br>
  * <b>min</b>: emits KeyValPair&lt;K,V extends Number&gt;, one entry per key<br>
@@ -40,7 +40,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
  *
- * @since 0.3.2 
+ * @since 0.3.2
  */
 public class MinKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {

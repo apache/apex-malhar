@@ -50,6 +50,8 @@ import org.apache.commons.lang.mutable.MutableInt;
  * window, <br>
  * hence generating cumulative sum across streaming windows. Default is false.<br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public class SumCountMap<K, V extends Number> extends
 		BaseNumberKeyValueOperator<K, V>

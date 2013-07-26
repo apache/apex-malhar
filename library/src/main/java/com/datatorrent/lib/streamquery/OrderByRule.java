@@ -22,6 +22,8 @@ import java.util.TreeMap;
 
 /**
  *  Class for implementing order by key name rule. <br>
+ *
+ * @since 0.3.3
  */
 @SuppressWarnings("rawtypes")
 public class OrderByRule<T extends Comparable> {

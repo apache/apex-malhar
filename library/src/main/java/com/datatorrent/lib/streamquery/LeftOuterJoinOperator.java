@@ -18,6 +18,8 @@ package com.datatorrent.lib.streamquery;
 /**
  * This operator provides sql left outer join operation semantic on live stream. <br>
  * Please refer to {@link com.datatorrent.lib.streamquery.InnerJoinOperator} for details.
+ *
+ * @since 0.3.3
  */
 public class LeftOuterJoinOperator extends InnerJoinOperator
 {

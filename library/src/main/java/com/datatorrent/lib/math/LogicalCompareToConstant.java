@@ -23,7 +23,7 @@ import com.datatorrent.api.DefaultOutputPort;
  * Compare the constant to the incoming tuple emit it on one or more of the
  * output ports accordingly.
  * <p>
- * 
+ *
  * @see LogicalCompare If the constant is equal to tuple, then the pair is
  *      emitted on equalTo, greaterThanEqualTo, and lessThanEqualTo ports. If
  *      the constant is less than tuple, then the pair is emitted on notEqualTo,
@@ -44,6 +44,8 @@ import com.datatorrent.api.DefaultOutputPort;
  *      <b>lessThanEqualTo</b>: emits T<br>
  *      <b>lessThan</b>: emits T<br>
  *      <br>
+ * 
+ * @since 0.3.3
  */
 public class LogicalCompareToConstant<T extends Comparable<? super T>> extends
 		BaseOperator

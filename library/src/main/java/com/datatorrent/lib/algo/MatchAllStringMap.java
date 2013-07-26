@@ -50,7 +50,7 @@ import com.datatorrent.lib.util.UnifierBooleanAnd;
  * <b>Specific run time checks</b>: None<br>
  * <br>
  *
- * @since 0.3.2 
+ * @since 0.3.2
  */
 public class MatchAllStringMap<K> extends BaseMatchOperator<K, String>
 {

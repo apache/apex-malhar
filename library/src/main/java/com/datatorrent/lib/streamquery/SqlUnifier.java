@@ -9,6 +9,8 @@ import com.datatorrent.api.Operator.Unifier;
 /**
  * This class provides default unifier implementation for sql operator classes.
  * Process function outputs tuples as it is.
+ *
+ * @since 0.3.3
  */
 public class SqlUnifier implements Unifier<HashMap<String, Object>>
 {

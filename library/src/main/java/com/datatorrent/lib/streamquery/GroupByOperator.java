@@ -21,8 +21,8 @@ import java.util.Map;
 
 /**
  *  This operator provides sql group by query semantic on live data stream. <br>
- *  Stream rows satisfying given select condition are processed by group by column names 
- *  and aggregate  column function. <br> 
+ *  Stream rows satisfying given select condition are processed by group by column names
+ *  and aggregate  column function. <br>
  *  HashMap of column name(s) and aggregate alias is emitted on output port. <br>
  *  <br>
  *  <b>StateFull : NO,</b> all row data is processed in current time window. <br>
@@ -37,6 +37,8 @@ import java.util.Map;
  * <b> groupNames : </b> Group by names list. <br>
  * <b> indexes : </b> Select column indexes. <br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public class GroupByOperator extends SqlOperator
 {

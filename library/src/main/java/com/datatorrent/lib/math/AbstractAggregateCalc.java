@@ -20,7 +20,7 @@ import com.datatorrent.api.DefaultInputPort;
 import java.util.Collection;
 
 /**
- * 
+ *
  * Invokes two abstract functions aggregateLongs(Collection<T> collection), and
  * aggregateDoubles(Collection<T> collection) on input tuple and emits the
  * result on four ports, namely \"doubleResult\", \"floatResult\",
@@ -38,6 +38,8 @@ import java.util.Collection;
  * <b>integerResult</b>: emits Integer<br>
  * <b>longResult</b>: emits Long<br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public abstract class AbstractAggregateCalc<T extends Number> extends
 		AbstractOutput

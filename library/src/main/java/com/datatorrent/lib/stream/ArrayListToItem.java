@@ -30,6 +30,8 @@ import java.util.ArrayList;
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects ArrayList&lt;K&gt;br> <b>item</b>: emits K<br>
+ *
+ * @since 0.3.3
  */
 public class ArrayListToItem<K> extends BaseKeyOperator<K>
 {

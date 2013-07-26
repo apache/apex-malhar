@@ -21,12 +21,14 @@ import java.util.Map;
 
 /**
  * <p>
- * Equal join condition class. 
+ * Equal join condition class.
  * This compares values of given keys in both row data.
  * <br>
  * <b> Properties : </b> <br>
  * <b. equalkeys : </b> Keys for which value must be compared. <br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public class JoinEqualCondition  implements  JoinCondition
 {

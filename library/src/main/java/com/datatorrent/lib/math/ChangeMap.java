@@ -32,13 +32,13 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
  * for comparison across the windows. kay/value map arriving are compared with
  * base map, on per key base. For all existing keys map of key/change and
  * key/percent change values are emitted on separate ports. <br>
- * 
+ *
  * <br>
  * StateFull : Yes, base values are stored across windows for comparison. <br>
  * Partitions : No, will yield wrong results, base value won't be consistent
  * across replication map. <br>
  * <br>
- * 
+ *
  * <b>Ports</b>:<br>
  * <b>data</b>: expects Map&lt;K,V extends Number&gt;<br>
  * <b>base</b>: expects Map&lt;K,V extends Number&gt;<br>
@@ -50,6 +50,8 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public class ChangeMap<K, V extends Number> extends
 		BaseNumberKeyValueOperator<K, V>

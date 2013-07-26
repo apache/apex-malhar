@@ -39,6 +39,8 @@ import java.util.HashMap;
  * <b>datalist</b>: expects ArrayList&lt;K&gt;<br>
  * <b>sortlist</b>: emits ArrayList&lt;K&gt;, must be connected<br>
  * <br>
+ *
+ * @since 0.3.3
  */
 //
 // TODO: Override PriorityQueue and rewrite addAll to insert with location

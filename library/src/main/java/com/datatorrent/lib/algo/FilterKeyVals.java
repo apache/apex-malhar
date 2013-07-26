@@ -51,7 +51,7 @@ import com.datatorrent.lib.util.BaseKeyOperator;
  * <b>keyvals</b>: The keyvals is key,val pairs to pass through, rest are filtered/dropped.<br>
  * <br>
  *
- * @since 0.3.2 
+ * @since 0.3.2
  */
 public class FilterKeyVals<K,V> extends BaseKeyOperator<K>
 {

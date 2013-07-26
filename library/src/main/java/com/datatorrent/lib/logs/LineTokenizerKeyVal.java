@@ -41,7 +41,7 @@ import java.util.HashMap;
  * <b>splittokenby</b>: The characters used to split a token into key,val pair. Default is "", i.e. tokens are not split, and key is set to token, and val is null<br>
  * <br>
  *
- * @since 0.3.2 
+ * @since 0.3.2
  */
 public class LineTokenizerKeyVal extends BaseLineTokenizer
 {

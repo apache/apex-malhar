@@ -33,6 +33,8 @@ import java.util.HashMap;
  * <b> Properties : <b> <br>
  * <b> condition : </b> Select condition for deleting rows. <br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public class DeleteOperator extends SqlOperator
 {

@@ -32,9 +32,11 @@ import com.datatorrent.api.Operator;
  * <br>
  * <b>StateFull : Yes </b>, values are collected over application window. <br>
  * <b>Partitions : No</b>, will yield wrong results.
- * 
+ *
  * @param <T>
  *          Aggregate tuple type.
+ * 
+ * @since 0.3.3
  */
 public abstract class AbstractAggregator<T> implements Operator
 {

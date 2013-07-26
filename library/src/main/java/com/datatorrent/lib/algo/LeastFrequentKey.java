@@ -26,7 +26,7 @@ import com.datatorrent.lib.util.AbstractBaseFrequentKey;
 
 /**
  * <p>
- * Occurrences of each tuple is counted and at the end of window any of the least frequent tuple is emitted on output port 'least' 
+ * Occurrences of each tuple is counted and at the end of window any of the least frequent tuple is emitted on output port 'least'
  * All keys with same least frequency value least are emitted on output port 'list'.<br>
  * This module is an end of window module<br>
  * In case of a tie any of the least key would be emitted. The list port would however have all the tied keys
@@ -36,10 +36,12 @@ import com.datatorrent.lib.util.AbstractBaseFrequentKey;
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects K<br>
- * <b>least</b>: emits HashMap&lt;K,Integer&gt;(1), Where K is the least occurring key in the window. 
+ * <b>least</b>: emits HashMap&lt;K,Integer&gt;(1), Where K is the least occurring key in the window.
  *               In case of tie any of the least key would be emitted<br>
  * <b>list</b>: emits ArrayList&lt;HashMap&lt;K,Integer&gt;(1)&gt, Where the list includes all the keys that are least frequent<br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public class LeastFrequentKey<K> extends AbstractBaseFrequentKey<K>
 {

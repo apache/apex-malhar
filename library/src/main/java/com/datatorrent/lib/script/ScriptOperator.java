@@ -18,7 +18,7 @@ package com.datatorrent.lib.script;
 /**
  * Interface for language script operator.
  *
- * @since 0.3.2 
+ * @since 0.3.2
  */
 public interface ScriptOperator
 {

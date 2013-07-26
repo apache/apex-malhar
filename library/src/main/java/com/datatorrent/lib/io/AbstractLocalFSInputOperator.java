@@ -27,7 +27,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * Users need to implement getRecord to get HDFS input adapter to work as per their choice<br>
  * <br>
  *
- * @since 0.3.2 
+ * @since 0.3.2
  */
 public abstract class AbstractLocalFSInputOperator extends AbstractFileInputOperator<FileInputStream>
 {

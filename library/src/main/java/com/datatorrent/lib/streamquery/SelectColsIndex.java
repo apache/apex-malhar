@@ -19,6 +19,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * <p>SelectColsIndex class.</p>
+ *
+ * @since 0.3.3
+ */
 public class SelectColsIndex implements SelectIndex
 {
 	/**

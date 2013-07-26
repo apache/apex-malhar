@@ -32,7 +32,7 @@ import java.util.Map;
  * keys on output port list<p>
  * This module is an end of window module. In case of a tie any of the least key would be emitted. The list port would however have all the tied keys<br>
  * <br>
- *  <b>StateFull : Yes</b>, Values are compared all over  application window can be > 1. <br> 
+ *  <b>StateFull : Yes</b>, Values are compared all over  application window can be > 1. <br>
  *  <b>Partitions : Yes</b>, Result is unified on output port. <br>
  *  <br>
  * <b>Ports</b>:<br>
@@ -40,7 +40,7 @@ import java.util.Map;
  * <b>most</b>: emits HashMap&lt;K,Integer&gt;(1); where String is the least frequent key, and Integer is the number of its occurrences in the window<br>
  * <b>list</b>: emits ArrayList&lt;HashMap&lt;K,Integer&gt;(1)&gt;; Where the list includes all the keys are least frequent<br>
  * <br>
- * 
+ *
  * @since 0.3.2
  */
 public class MostFrequentKeyMap<K,V> extends AbstractBaseFrequentKey<K>

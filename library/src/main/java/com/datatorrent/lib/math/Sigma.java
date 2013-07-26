@@ -18,7 +18,7 @@ package com.datatorrent.lib.math;
 import java.util.Collection;
 
 /**
- * 
+ *
  * Adds incoming tuple to the state. This is a stateful operator that never
  * flushes its state; i.e. the addition would go on forever. The result of each
  * addition is emitted on the four ports, namely \"doubleResult\",
@@ -37,8 +37,9 @@ import java.util.Collection;
  * <b>integerResult</b>: emits Integer<br>
  * <b>longResult</b>: emits Long<br>
  * <br>
- * 
+ *
  * @param <T>
+ * @since 0.3.3
  */
 public class Sigma<T extends Number> extends AbstractAggregateCalc<T>
 {

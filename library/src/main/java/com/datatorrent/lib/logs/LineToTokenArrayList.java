@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Splits String objects into tokens, and emits as ArrayList. 
- * An ArrayList of all tkns are emitted on output port "tokens". 
+ * Splits String objects into tokens, and emits as ArrayList.
+ * An ArrayList of all tkns are emitted on output port "tokens".
  * An ArrayList of all subtokens are emitted on port splittokens<p>
  * This module is a pass through. Ideal for applications like log processing<br>
  * <br>

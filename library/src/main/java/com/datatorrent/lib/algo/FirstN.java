@@ -46,7 +46,6 @@ import com.datatorrent.lib.util.AbstractBaseNOperatorMap;
  *
  * @since 0.3.2
  */
-
 public class FirstN<K,V> extends AbstractBaseNOperatorMap<K, V>  
 {
   /**

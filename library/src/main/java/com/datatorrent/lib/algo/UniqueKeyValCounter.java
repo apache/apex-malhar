@@ -30,7 +30,7 @@ import com.datatorrent.lib.util.UnifierHashMapSumKeys;
 /**
  * Count unique occurrences of key,val pairs within a window, and emits one HashMap tuple. <p>
  * This is an end of window operator<br>
-  * <br>
+ * <br>
  * <b>StateFull : yes, </b> Tuples are aggregated over application window(s). <br>
  * <b>Partitions : Yes, </b> Unique count is unified at output port. <br>
  * <br>
@@ -40,7 +40,7 @@ import com.datatorrent.lib.util.UnifierHashMapSumKeys;
  * <b>count</b>: emits HashMap&lt;HashMap&lt;K,V&gt;(1),Integer&gt;(1)<br>
  * <br>
  *
- * @since 0.3.2 
+ * @since 0.3.2
  */
 public class UniqueKeyValCounter<K,V> extends BaseUniqueKeyValueCounter<K,V>
 {

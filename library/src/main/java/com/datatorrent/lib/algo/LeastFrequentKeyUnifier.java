@@ -7,6 +7,11 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator.Unifier;
 
+/**
+ * <p>LeastFrequentKeyUnifier class.</p>
+ *
+ * @since 0.3.3
+ */
 public class LeastFrequentKeyUnifier<K> implements Unifier<HashMap<K, Integer>>
 {
   /**

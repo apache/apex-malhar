@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
+ *
  * Takes a HashMap and emits its keys, keyvals, vals; used for breaking up a
  * HashMap tuple into objects (keys, vals, or key/val pairs)
  * <p>
@@ -40,8 +40,9 @@ import java.util.Map;
  * <b>keyval</b>: emits Entry&lt;K,V&gt;<br>
  * <b>val</b>: emits V<br>
  * <br>
+ *
+ * @since 0.3.3
  */
-
 public class HashMapToKeyValPair<K, V> extends BaseKeyValueOperator<K, V>
 {
 	/**

@@ -26,6 +26,8 @@ import com.datatorrent.api.Operator;
 
 /**
  *  Sql Base Operator, select/update/delete are derived from this operator.
+ *
+ * @since 0.3.3
  */
 public abstract class SqlOperator implements Operator
 {
