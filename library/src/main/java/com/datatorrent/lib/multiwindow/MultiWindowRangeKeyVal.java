@@ -42,6 +42,8 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>Specific run time checks</b>: None<br>
  * <b>windowSize i.e. N</b>: Number of streaming windows that define application window.<br>
  * <br>
+ *
+ * @since 0.3.2
  */
 public class MultiWindowRangeKeyVal<K, V extends Number> extends RangeKeyVal<K, V>
 {

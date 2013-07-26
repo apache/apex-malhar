@@ -49,6 +49,8 @@ import org.slf4j.LoggerFactory;
  * Benchmarks:<br>
  * TBD<br>
  * <br>
+ *
+ * @since 0.3.2
  */
 public abstract class JDBCInputOperator<T> extends JDBCOperatorBase implements InputOperator
 {

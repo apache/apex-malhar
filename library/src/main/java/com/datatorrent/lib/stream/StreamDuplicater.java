@@ -31,8 +31,9 @@ import com.datatorrent.lib.util.BaseKeyOperator;
  * <b>out1</b>: emits &lt;K&gt;<br>
  * <b>out2</b>: emits &lt;K&gt;<br>
  * <br>
+ *
+ * @since 0.3.2 
  */
-
 public class StreamDuplicater<K> extends BaseKeyOperator<K>
 {
 	/**

@@ -44,8 +44,8 @@ import javax.validation.constraints.NotNull;
  * <b>keys</b>: The keys to pass through, rest are filtered/dropped. A comma separated list of keys<br>
  * <br>
  *
+ * @since 0.3.2
  */
-
 public class FilterKeysMap<K,V> extends BaseKeyOperator<K>
 {
   /**

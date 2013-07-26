@@ -22,6 +22,11 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * <p>ByteBufArrayInputStream class.</p>
+ *
+ * @since 0.3.2
+ */
 public final class ByteBufArrayInputStream extends InputStream implements LineInputStream {
 	private ByteBuffer[] bufs;
 	private int currentBuf = 0;

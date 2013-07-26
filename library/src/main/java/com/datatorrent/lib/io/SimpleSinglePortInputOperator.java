@@ -29,6 +29,8 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * must be emitted by container thread). If derived class implements
  * {@link Runnable} to perform synchronous IO, this class will manage the thread
  * according to the operator lifecycle.
+ *
+ * @since 0.3.2
  */
 public class SimpleSinglePortInputOperator<T> extends BaseOperator implements InputOperator, ActivationListener<OperatorContext>
 {

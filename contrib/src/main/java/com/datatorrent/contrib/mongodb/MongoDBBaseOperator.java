@@ -45,6 +45,7 @@ import javax.validation.constraints.NotNull;
  * <b>Benchmarks</b>:
  * <br>
  *
+ * @since 0.3.2
  */
 public class MongoDBBaseOperator
 {

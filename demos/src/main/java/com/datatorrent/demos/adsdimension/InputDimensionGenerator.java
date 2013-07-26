@@ -22,7 +22,9 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
+ * <p>InputDimensionGenerator class.</p>
  *
+ * @since 0.3.2
  */
 public class InputDimensionGenerator extends BaseOperator
 {

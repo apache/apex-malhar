@@ -22,9 +22,8 @@ import java.util.Comparator;
  * A comparator for ascending and descending lists<p>
  * <br>
  *
- *
+ * @since 0.3.2
  */
-
 public class ReversibleComparator<E> implements Comparator<E>
 {
   /**

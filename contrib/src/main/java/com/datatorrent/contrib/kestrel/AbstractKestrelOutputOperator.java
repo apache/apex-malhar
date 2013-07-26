@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
  * </table><br>
  * <br>
  *
+ * @since 0.3.2
  */
 public class AbstractKestrelOutputOperator extends BaseOperator
 {

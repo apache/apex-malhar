@@ -23,6 +23,8 @@ import org.apache.hadoop.conf.Configuration;
 
 /**
  * Example of application configuration in Java.<p>
+ *
+ * @since 0.3.2
  */
 public class ApplicationFixed implements StreamingApplication
 {

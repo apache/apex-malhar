@@ -20,8 +20,10 @@ import com.datatorrent.api.util.PubSubWebSocketClient;
 import java.io.IOException;
 
 /**
+ * <p>PubSubWebSocketOutputOperator class.</p>
  *
  * @param <T>
+ * @since 0.3.2
  */
 public class PubSubWebSocketOutputOperator<T> extends WebSocketOutputOperator<T>
 {

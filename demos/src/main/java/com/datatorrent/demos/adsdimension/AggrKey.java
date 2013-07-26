@@ -19,7 +19,9 @@ import com.datatorrent.lib.util.TimeBucketKey;
 import java.util.Calendar;
 
 /**
+ * <p>AggrKey class.</p>
  *
+ * @since 0.3.2
  */
 public class AggrKey extends TimeBucketKey
 {

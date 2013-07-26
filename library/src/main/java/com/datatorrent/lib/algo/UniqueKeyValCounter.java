@@ -39,6 +39,8 @@ import com.datatorrent.lib.util.UnifierHashMapSumKeys;
  * <b>data</b>: expects HashMap&lt;K,V&gt;<br>
  * <b>count</b>: emits HashMap&lt;HashMap&lt;K,V&gt;(1),Integer&gt;(1)<br>
  * <br>
+ *
+ * @since 0.3.2 
  */
 public class UniqueKeyValCounter<K,V> extends BaseUniqueKeyValueCounter<K,V>
 {

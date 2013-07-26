@@ -17,6 +17,11 @@ package com.datatorrent.contrib.kestrel;
 
 import java.io.IOException;
 
+/**
+ * <p>LineInputStream interface.</p>
+ *
+ * @since 0.3.2
+ */
 public interface LineInputStream {
     
 	/**

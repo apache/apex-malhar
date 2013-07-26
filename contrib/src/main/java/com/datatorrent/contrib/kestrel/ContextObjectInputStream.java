@@ -19,6 +19,11 @@ import java.util.*;
 import java.util.zip.*;
 import java.io.*;
 
+/**
+ * <p>ContextObjectInputStream class.</p>
+ *
+ * @since 0.3.2
+ */
 public class ContextObjectInputStream extends ObjectInputStream { 
 
 	ClassLoader mLoader;

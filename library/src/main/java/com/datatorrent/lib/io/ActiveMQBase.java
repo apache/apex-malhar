@@ -60,6 +60,7 @@ import com.datatorrent.api.annotation.ShipContainingJars;
  * NA<br>
  * <br>
  *
+ * @since 0.3.2
  */
 @ShipContainingJars(classes = {javax.jms.Message.class, org.apache.activemq.ActiveMQConnectionFactory.class, javax.management.j2ee.statistics.Stats.class})
 public class ActiveMQBase

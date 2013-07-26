@@ -45,6 +45,8 @@ import java.util.HashMap;
  * <b>Compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
  * <br>
+ *
+ * @since 0.3.2 
  */
 public class MostFrequentKey<K> extends AbstractBaseFrequentKey<K>
 {

@@ -41,6 +41,7 @@ import javax.validation.constraints.Pattern;
  * Run time checks<br>
  * none<br>
  * 
+ * @since 0.3.2 
  */
 public class BaseMatchOperator<K, V> extends BaseKeyValueOperator<K, V>
 {

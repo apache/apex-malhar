@@ -30,6 +30,7 @@ import java.io.Serializable;
  * Also implementing a simpler equals method to make checks for the object in collections faster.<br>
  * <br>
  *
+ * @since 0.3.2
  */
 @DefaultSerializer(KryoJdkSerializer.class)
 public class RomeFeedEntry extends KryoJdkContainer<SyndEntry> implements Serializable

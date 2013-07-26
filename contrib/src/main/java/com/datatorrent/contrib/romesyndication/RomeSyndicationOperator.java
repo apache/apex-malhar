@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
  *
  * <br>
  *
+ * @since 0.3.2
  */
 public class RomeSyndicationOperator extends SimpleSinglePortInputOperator<RomeFeedEntry> implements Runnable
 {

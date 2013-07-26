@@ -29,6 +29,7 @@ import com.datatorrent.api.DefaultInputPort;
  * <b>doubleResult</b>: emits Double<br>
  * <b>floatResult</b>: emits Float<br>
  *
+ * @since 0.3.2
  */
 public abstract class SingleVariableAbstractCalculus extends AbstractOutput
 {

@@ -28,6 +28,7 @@ import com.datatorrent.lib.io.LocalFsInputOperator;
  * <bClass : </b> com.datatorrent.lib.math.AverageKeyVal
  * This application reads local demo text file and relays text content to output console.
  *
+ * @since 0.3.2
  */
 public class LocalFsInputSample implements StreamingApplication
 {

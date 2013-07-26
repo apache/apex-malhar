@@ -29,8 +29,7 @@ import org.apache.commons.lang.mutable.MutableInt;
  * that would not make it to top N. There is no API to look at top of the list at any given time as per design. The aim is for users to only take the topN
  * once all the inserts are done<br>
  *
- *
- *
+ * @since 0.3.2
  */
 public class TopNUniqueSort<E>
 {

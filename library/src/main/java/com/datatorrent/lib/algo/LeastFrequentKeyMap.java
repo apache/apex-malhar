@@ -40,6 +40,8 @@ import java.util.Map;
  * <b>least</b>: emits HashMap&lt;K,Integer&gt;(1); where String is the least frequent key, and Integer is the number of its occurrences in the window<br>
  * <b>list</b>: emits ArrayList&lt;HashMap&lt;K,Integer&gt;(1)&gt;; Where the list includes all the keys are least frequent<br>
  * <br>
+ *
+ * @since 0.3.2 
  */
 public class LeastFrequentKeyMap<K, V> extends AbstractBaseFrequentKey<K>
 {

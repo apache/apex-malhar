@@ -38,6 +38,8 @@ import java.util.HashMap;
  * <br>
  * <b>Specific run time checks are</b>: None<br>
  * <br>
+ *
+ * @since 0.3.2 
  */
 public class TopNUnique<K, V> extends AbstractBaseNUniqueOperatorMap<K, V>
 {

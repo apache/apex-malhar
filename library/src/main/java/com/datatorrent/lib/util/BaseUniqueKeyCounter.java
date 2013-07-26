@@ -22,6 +22,7 @@ import org.apache.commons.lang.mutable.MutableInt;
  * Count unique occurrences of keys within a window
  *
  * @param <K>
+ * @since 0.3.2
  */
 public class BaseUniqueKeyCounter<K> extends BaseKeyOperator<K>
 {

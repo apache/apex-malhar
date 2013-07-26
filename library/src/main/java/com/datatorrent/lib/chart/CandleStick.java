@@ -18,7 +18,9 @@ package com.datatorrent.lib.chart;
 import com.datatorrent.lib.util.HighLow;
 
 /**
+ * <p>CandleStick class.</p>
  *
+ * @since 0.3.2
  */
 public class CandleStick extends HighLow
 {

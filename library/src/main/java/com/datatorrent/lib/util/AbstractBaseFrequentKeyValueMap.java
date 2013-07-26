@@ -31,6 +31,7 @@ import org.apache.commons.lang.mutable.MutableInt;
  * Ports:<br>
  * <b>data</b>: expects Map<K, V><br>
  *
+ * @since 0.3.2
  */
 public abstract class AbstractBaseFrequentKeyValueMap<K, V> extends BaseKeyValueOperator<K, V>
 {

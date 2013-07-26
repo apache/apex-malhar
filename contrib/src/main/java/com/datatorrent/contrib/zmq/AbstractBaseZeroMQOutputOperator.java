@@ -48,6 +48,8 @@ import org.zeromq.ZMQ;
  * immutable. If you use mutable tuples and have lots of keys, the benchmarks may differ</td></tr>
  * </table><br>
  * <br>
+ *
+ * @since 0.3.2
  */
 @ShipContainingJars(classes={org.zeromq.ZMQ.Socket.class})
 public abstract class AbstractBaseZeroMQOutputOperator extends BaseOperator

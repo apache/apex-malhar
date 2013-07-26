@@ -28,6 +28,7 @@ import com.datatorrent.lib.math.CompareMap;
  * <b>Operator : </b> CompareMap <br>
  * <bClass : </b> com.datatorrent.lib.math.CompareMap
  *
+ * @since 0.3.2
  */
 public class CompreMapSample implements StreamingApplication
 {

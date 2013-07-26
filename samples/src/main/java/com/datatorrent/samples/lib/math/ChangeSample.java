@@ -28,7 +28,7 @@ import com.datatorrent.lib.testbench.RandomEventGenerator;
  * <b>Operator : </b> Change <br>
  * <bClass : </b> com.datatorrent.lib.math.Change
  *
- *
+ * @since 0.3.2
  */
 public class ChangeSample implements StreamingApplication
 {

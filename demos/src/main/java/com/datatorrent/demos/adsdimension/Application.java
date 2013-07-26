@@ -25,7 +25,9 @@ import org.apache.commons.lang.mutable.MutableDouble;
 import org.apache.hadoop.conf.Configuration;
 
 /**
+ * <p>ItemApplication class.</p>
  *
+ * @since 0.3.2
  */
 public class Application implements StreamingApplication
 {

@@ -29,7 +29,9 @@ import java.util.Map;
 import org.apache.commons.lang.mutable.MutableDouble;
 
 /**
+ * <p>BucketOperator class.</p>
  *
+ * @since 0.3.2
  */
 public class BucketOperator extends BaseOperator
 {

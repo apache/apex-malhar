@@ -20,6 +20,8 @@ import java.util.HashMap;
 
 /**
  * Interface to define sql select statement column names/aggregate functions. 
+ *
+ * @since 0.3.2 
  */
 public interface SelectIndex
 {

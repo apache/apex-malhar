@@ -25,7 +25,9 @@ import java.util.HashSet;
 import twitter4j.Status;
 
 /**
+ * <p>TwitterStatusWordExtractor class.</p>
  *
+ * @since 0.3.2
  */
 public class TwitterStatusWordExtractor extends BaseOperator
 {

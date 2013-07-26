@@ -42,6 +42,8 @@ import org.slf4j.LoggerFactory;
  * Benchmarks:<br>
  * TBD<br>
  * <br>
+ *
+ * @since 0.3.2
  */
 public class JDBCTransactionHashMapOutputOperator<V> extends JDBCTransactionOutputOperator<HashMap<String, V>>
 {

@@ -40,6 +40,7 @@ import twitter4j.conf.ConfigurationBuilder;
  *   Your twitter access token, and
  *   Your twitter access token secret.
  *
+ * @since 0.3.2
  */
 @ShipContainingJars(classes = {StatusListener.class, Status.class})
 public class TwitterSampleInput implements InputOperator, ActivationListener<OperatorContext>, StatusListener

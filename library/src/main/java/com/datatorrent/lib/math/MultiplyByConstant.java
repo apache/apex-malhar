@@ -37,8 +37,9 @@ import com.datatorrent.api.DefaultOutputPort;
  * <b>Properties</b>:<br>
  * <b>multiplier</b>: Number to multiply input tuple with<br>
  * <br>
+ *
+ * @since 0.3.2 
  */
-
 public class MultiplyByConstant extends BaseOperator
 {
 	/**

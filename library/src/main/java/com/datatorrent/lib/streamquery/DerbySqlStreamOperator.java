@@ -26,6 +26,8 @@ import java.util.Map;
 
 /**
  * Embedded derby sql input operator.   
+ *
+ * @since 0.3.2 
  */
 @ShipContainingJars(classes = {org.apache.derby.jdbc.EmbeddedDriver.class})
 public class DerbySqlStreamOperator extends AbstractSqlStreamOperator

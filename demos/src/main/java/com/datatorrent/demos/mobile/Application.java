@@ -51,6 +51,7 @@ import org.slf4j.LoggerFactory;
  * LocalMode.runApp(new Application(), 600000); // 10 min run
  * </pre>
  *
+ * @since 0.3.2
  */
 public class Application implements StreamingApplication
 {

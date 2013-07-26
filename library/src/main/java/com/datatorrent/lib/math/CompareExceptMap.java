@@ -69,6 +69,8 @@ import java.util.Map;
  * </table>
  * <br>
  * <br>
+ *
+ * @since 0.3.2
  */
 public class CompareExceptMap<K, V extends Number> extends MatchMap<K, V>
 {

@@ -24,7 +24,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>RandomWordInputModule class.</p>
  *
+ * @since 0.3.2
  */
 public class RandomWordInputModule implements InputOperator
 {

@@ -20,8 +20,9 @@ import java.io.*;
 /**
  * Bridge class to provide nested Exceptions with IOException which has
  * constructors that don't take Throwables.
- * 
+ *
  * @version 1.2
+ * @since 0.3.2
  */
 public class NestedIOException extends IOException {
 

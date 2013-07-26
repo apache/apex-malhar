@@ -28,6 +28,7 @@ import com.datatorrent.lib.testbench.RandomEventGenerator;
  * <b>Operator : </b> LogicalCompareToConstant <br>
  * <bClass : </b> com.datatorrent.lib.math.LogicalCompareToConstant
  *
+ * @since 0.3.2
  */
 public class LogicalCompareSample implements StreamingApplication
 {

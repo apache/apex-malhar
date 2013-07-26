@@ -15,6 +15,11 @@
  */
 package com.datatorrent.contrib.kestrel;
 
+/**
+ * <p>ErrorHandler interface.</p>
+ *
+ * @since 0.3.2
+ */
 public interface ErrorHandler {
 
     /**

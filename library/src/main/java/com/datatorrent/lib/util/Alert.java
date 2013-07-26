@@ -22,7 +22,9 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
+ * <p>Alert class.</p>
  *
+ * @since 0.3.2
  */
 public class Alert extends BaseOperator
 {

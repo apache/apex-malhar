@@ -37,6 +37,7 @@ import com.datatorrent.api.DefaultInputPort;
  * <b>Benchmarks</b>:TBD
  * <br>
  *
+ * @since 0.3.2
  */
 public abstract class AbstractSinglePortMemcacheOutputOperator<T> extends AbstractMemcacheOutputOperator
 {

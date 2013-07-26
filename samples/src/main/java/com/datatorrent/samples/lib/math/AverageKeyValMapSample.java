@@ -28,6 +28,7 @@ import com.datatorrent.lib.math.AverageMap;
  * <b>Operator : </b> AverageMap <br>
  * <bClass : </b> com.datatorrent.lib.math.AverageMap
  *
+ * @since 0.3.2
  */
 public class AverageKeyValMapSample  implements StreamingApplication
 {

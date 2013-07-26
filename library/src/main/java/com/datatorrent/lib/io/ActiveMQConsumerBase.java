@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
  * NA<br>
  * <br>
  *
+ * @since 0.3.2
  */
 public abstract class ActiveMQConsumerBase extends ActiveMQBase implements MessageListener, ExceptionListener
 {

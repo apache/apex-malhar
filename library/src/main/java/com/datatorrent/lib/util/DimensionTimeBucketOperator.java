@@ -31,7 +31,9 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
+ * <p>Abstract DimensionTimeBucketOperator class.</p>
  *
+ * @since 0.3.2
  */
 public abstract class DimensionTimeBucketOperator extends BaseOperator
 {

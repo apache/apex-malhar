@@ -16,7 +16,9 @@
 package com.datatorrent.demos.adsdimension;
 
 /**
+ * <p>AdInfo class.</p>
  *
+ * @since 0.3.2
  */
 public class AdInfo
 {

@@ -23,6 +23,9 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 
 /**
+ * <p>CompareFilterTuples class.</p>
+ *
+ * @since 0.3.2
  */
 public class CompareFilterTuples<k> extends BaseOperator
 {

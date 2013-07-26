@@ -28,13 +28,13 @@ import com.datatorrent.lib.testbench.RandomEventGenerator;
  * Monte Carlo PI extimation demo : <br>
  * This application computes value of PI using Monte Carlo pi estimation
  * formula. This demo inputs formula using java script operator.
- * 
+ *
  * Running Java Test or Main app in IDE:
- * 
+ *
  * <pre>
  * LocalMode.runApp(new Application(), 600000); // 10 min run
  * </pre>
- * 
+ *
  * Run Success : <br>
  * For successful deployment and run, user should see following output on
  * console:
@@ -47,11 +47,11 @@ import com.datatorrent.lib.testbench.RandomEventGenerator;
  * 3.148
  * 3.1393846153846154
  * </pre>
- * 
+ *
  *  * Application DAG : <br>
  * <img src="doc-files/ApplicationScript.gif" width=600px > <br>
  * <br>
- * 
+ *
  * Streaming Window Size : 1000 ms(1 Sec) <br>
  * Operator Details : <br>
  * <ul>
@@ -70,6 +70,8 @@ import com.datatorrent.lib.testbench.RandomEventGenerator;
  * to the console (or stdout). User can use any output adapter.  <br>
  * .</li>
  * </ul>
+ *
+ * @since 0.3.2
  */
 public class ApplicationWithScript implements StreamingApplication
 {

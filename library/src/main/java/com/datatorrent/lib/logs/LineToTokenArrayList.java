@@ -45,6 +45,8 @@ import org.slf4j.LoggerFactory;
  * <b>splittokenby</b>: The characters used to split a token into key,val1,val2,.... If not specified the value is set to null. Default is "", i.e. tokens are not split<br>
  *
  * <br>
+ *
+ * @since 0.3.2
  */
 public class LineToTokenArrayList extends BaseLineTokenizer
 {

@@ -24,6 +24,9 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
 
 /**
+ * <p>KeyValSum class.</p>
+ *
+ * @since 0.3.2
  */
 public class KeyValSum extends BaseOperator
 {

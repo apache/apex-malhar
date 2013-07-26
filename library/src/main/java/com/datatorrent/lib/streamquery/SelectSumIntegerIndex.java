@@ -18,6 +18,10 @@ package com.datatorrent.lib.streamquery;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * 
+ * @since 0.3.2 
+ */
 public class SelectSumIntegerIndex extends  SelectAggregateIndex
 {
 	/**

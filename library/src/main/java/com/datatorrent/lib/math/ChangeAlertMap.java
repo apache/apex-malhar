@@ -45,6 +45,8 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
  * <b>threshold</b>: The threshold of change between consecutive tuples of the same key that triggers an alert tuple<br>
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
+ *
+ * @since 0.3.2 
  */
 public class ChangeAlertMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {

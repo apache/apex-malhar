@@ -28,7 +28,9 @@ import org.apache.hadoop.hbase.client.Append;
  * store for the tuple in the table.<br>
  *
  * <br>
+ *
  * @param <T> The tuple type
+ * @since 0.3.2
  */
 public abstract class HBaseAppendOperator<T> extends HBaseOutputOperator<T>
 {

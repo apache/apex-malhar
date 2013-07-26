@@ -82,6 +82,7 @@ import org.slf4j.LoggerFactory;
  *
  * http://java.sun.com/docs/books/tutorial/native1.1/integrating/types.html
  *
+ * @since 0.3.2
  */
 public class NativeHandler {
   private static final Logger logger = LoggerFactory.getLogger(NativeHandler.class);

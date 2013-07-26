@@ -143,6 +143,7 @@ import org.slf4j.LoggerFactory;
  * </pre>
  *
  * @version 1.5
+ * @since 0.3.2
  */
 public class MemcachedClient {
   private static final Logger logger = LoggerFactory.getLogger(MemcachedClient.class);

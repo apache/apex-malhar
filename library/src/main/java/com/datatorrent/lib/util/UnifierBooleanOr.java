@@ -25,7 +25,7 @@ import com.datatorrent.api.Operator.Unifier;
  * with sticky key partition, i.e. each one key belongs only to one partition. The final output of the
  * combiner is a simple merge into a single object that implements Map
  *
- *
+ * @since 0.3.2
  */
 public class UnifierBooleanOr implements Unifier<Boolean>
 {

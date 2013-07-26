@@ -40,7 +40,9 @@ import org.slf4j.LoggerFactory;
  * are ignored till the processing window id becomes greater than the last processed window id.<br>
  *
  * <br>
+ *
  * @param <T> The tuple type
+ * @since 0.3.2
  */
 public abstract class HBaseOutputOperator<T> extends HBaseOperatorBase implements Operator {
 

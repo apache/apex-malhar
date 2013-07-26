@@ -37,6 +37,9 @@ import com.datatorrent.lib.testbench.TopOccurance;
 import com.datatorrent.lib.util.DimensionTimeBucketOperator;
 import com.datatorrent.lib.util.DimensionTimeBucketSumOperator;
 /**
+ * <p>ApacheAccessLogAnalaysis class.</p>
+ *
+ * @since 0.3.2
  */
 public class ApacheAccessLogAnalaysis implements StreamingApplication
 {

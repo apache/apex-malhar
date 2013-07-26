@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
  * TBD<br>
  * <br>
  *
+ * @since 0.3.2
  */
 @ShipContainingJars(classes={kafka.javaapi.producer.Producer.class, org.I0Itec.zkclient.ZkClient.class, scala.ScalaObject.class})
 public abstract class KafkaOutputOperator<K, V> implements Operator

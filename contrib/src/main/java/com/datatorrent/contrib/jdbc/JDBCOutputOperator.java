@@ -80,6 +80,8 @@ import org.slf4j.LoggerFactory;
  * Benchmarks:<br>
  * TBD<br>
  * <br>
+ *
+ * @since 0.3.2
  */
 public abstract class JDBCOutputOperator<T> extends JDBCOperatorBase implements Operator
 {

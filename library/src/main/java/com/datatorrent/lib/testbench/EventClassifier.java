@@ -54,8 +54,8 @@ import java.util.Random;
  * <br>
  * <b>Benchmarks</b>: This node has been benchmarked at over 5 million tuples/second in local/inline mode<br>
  *
+ * @since 0.3.2
  */
-
 public class EventClassifier extends BaseOperator
 {
   public final transient DefaultInputPort<HashMap<String, Double>> event = new DefaultInputPort<HashMap<String, Double>>()

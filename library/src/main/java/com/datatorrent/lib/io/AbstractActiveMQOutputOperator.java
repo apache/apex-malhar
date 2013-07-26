@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
  * TBD<br>
  * <br>
  *
+ * @since 0.3.2
  */
 public abstract class AbstractActiveMQOutputOperator extends ActiveMQProducerBase implements Operator
 {

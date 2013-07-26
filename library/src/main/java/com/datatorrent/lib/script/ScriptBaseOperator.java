@@ -25,6 +25,8 @@ import com.datatorrent.api.DefaultOutputPort;
 
 /**
  * Abstract script operator, implementing common functions.
+ *
+ * @since 0.3.2 
  */
 public abstract class ScriptBaseOperator extends BaseOperator implements ScriptOperator
 {

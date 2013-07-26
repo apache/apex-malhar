@@ -47,6 +47,8 @@ import java.util.Map;
  * Value must be able to convert to a "double"<br>
  * Compare string, if specified, must be one of "lte", "lt", "eq", "neq", "gt", "gte"<br>
  * <br>
+ * 
+ * @since 0.3.2
  */
 public class LastMatchMap<K, V extends Number> extends BaseMatchOperator<K,V>
 {

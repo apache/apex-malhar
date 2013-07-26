@@ -38,6 +38,8 @@ import java.util.Map;
  * <b>data</b>: expects &lt;K,V&gt;<br>
  * <b>index</b>: emits &lt;V,ArrayList&lt;K&gt;&gt;(1); one HashMap per V<br>
  * <br>
+ * 
+ * @since 0.3.2
  */
 public class InvertIndex<K, V> extends BaseKeyValueOperator<K, V> implements Unifier<HashMap<V, ArrayList<K>>>
 {

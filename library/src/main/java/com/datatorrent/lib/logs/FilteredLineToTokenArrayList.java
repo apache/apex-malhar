@@ -36,6 +36,8 @@ import java.util.HashMap;
  * <br>
  * <br>
  * <br>
+ *
+ * @since 0.3.2
  */
 public class FilteredLineToTokenArrayList extends LineToTokenArrayList
 {

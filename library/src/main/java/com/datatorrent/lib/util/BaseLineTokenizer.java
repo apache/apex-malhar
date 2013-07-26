@@ -30,6 +30,8 @@ import javax.validation.constraints.NotNull;
  * Ideal for applications like word count
  * Ports:<br>
  * <b>data</b>: expects String<br>
+ *
+ * @since 0.3.2 
  */
 public class BaseLineTokenizer extends BaseOperator
 {

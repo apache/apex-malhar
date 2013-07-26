@@ -38,6 +38,8 @@ import java.util.Map;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
+ *
+ * @since 0.3.2 
  */
 public class MinMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V> implements Unifier<HashMap<K,V>>
 {

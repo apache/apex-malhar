@@ -70,6 +70,8 @@ import com.malhartech.lib.util.OneKeyValPair;
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * With key: Benchmarked at over 1 million tuples/second in local/in-line mode<br>
  * Without key: Benchmarked at over 4 million tuples/second in local/in-line mode<br>
+ *
+ * @since 0.3.2
  */
 public class SeedEventGenerator extends BaseOperator implements InputOperator
 {

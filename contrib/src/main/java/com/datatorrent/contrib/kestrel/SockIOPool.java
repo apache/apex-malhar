@@ -119,7 +119,7 @@ import org.slf4j.LoggerFactory;
  *		sock.close();
  * </pre>
  *
- * @version 1.5
+ * @since 0.3.2
  */
 public class SockIOPool {
 

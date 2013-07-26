@@ -38,6 +38,8 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>data</b>: expects KeyValPair&lt;K,V&gt;<br>
  * <b>count</b>: emits KeyValPair&lt;K,Integer&gt;<br>
  * <br>
+ *
+ * @since 0.3.2 
  */
 public class UniqueValueKeyVal<K> extends BaseKeyOperator<K> implements  Unifier<KeyValPair<K, Integer>>
 {

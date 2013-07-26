@@ -37,7 +37,7 @@ import java.util.Map;
  * Run time checks are:<br>
  * <br>
  *
- *
+ * @since 0.3.2
  */
 public abstract class AbstractBaseNNonUniqueOperatorMap<K, V> extends AbstractBaseNOperatorMap<K, V>
 {

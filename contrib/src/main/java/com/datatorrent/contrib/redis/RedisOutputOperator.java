@@ -28,7 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>RedisOutputOperator class.</p>
  *
+ * @since 0.3.2
  */
 @ShipContainingJars(classes = {RedisClient.class})
 public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperator<K, V>
