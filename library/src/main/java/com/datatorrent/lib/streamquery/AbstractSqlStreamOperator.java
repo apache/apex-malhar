@@ -49,6 +49,9 @@ public abstract class AbstractSqlStreamOperator extends BaseOperator
      */
     public HashMap<String, ColumnInfo> columnInfoMap = new HashMap<String, ColumnInfo>();
 
+    public InputSchema() {
+    }
+
     public InputSchema(String name)
     {
       this.name = name;
