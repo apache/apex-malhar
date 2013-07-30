@@ -67,7 +67,6 @@ public abstract class AbstractBaseZeroMQInputOperator extends BaseOperator imple
   transient protected ZMQ.Socket subscriber;
   transient protected ZMQ.Socket syncclient;
   private String url;
-  @InjectConfig(key = "syncUrl")
   private String syncUrl;
   private String filter="";
 

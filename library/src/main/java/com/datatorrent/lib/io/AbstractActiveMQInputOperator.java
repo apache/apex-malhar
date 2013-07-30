@@ -104,7 +104,7 @@ public abstract class AbstractActiveMQInputOperator extends ActiveMQConsumerBase
    * @param context
    */
   @Override
-  public void setup(OperatorConfiguration config)
+  public void setup(OperatorContext context)
   {
     holdingBuffer = new ArrayBlockingQueue<Message>(bufferSize);
   }

@@ -56,7 +56,6 @@ public class MaxMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
     {
       MaxMap.this.process(tuple);
     }
-
   };
 
   @Override

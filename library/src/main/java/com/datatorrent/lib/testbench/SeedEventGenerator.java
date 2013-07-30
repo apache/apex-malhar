@@ -22,14 +22,8 @@ import com.datatorrent.lib.util.KeyValPair;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.malhartech.api.AsyncInputOperator;
-import com.malhartech.api.BaseOperator;
-import com.malhartech.api.DefaultOutputPort;
-import com.malhartech.lib.util.OneKeyValPair;
 
 /**
  * Generates one time seed load based on range provided for the keys, and adds new classification to incoming keys. The new tuple is emitted

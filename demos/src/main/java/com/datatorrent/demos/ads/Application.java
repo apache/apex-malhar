@@ -150,7 +150,7 @@ public class Application implements StreamingApplication
     return oper;
   }
 
-  public Operator getPageViewGenOperator(String name, DAG b)
+  public EventGenerator getPageViewGenOperator(String name, DAG b)
   {
     EventGenerator oper = b.addOperator(name, EventGenerator.class);
     oper.setKeys("home,finance,sports,mail");
@@ -163,7 +163,7 @@ public class Application implements StreamingApplication
     return oper;
   }
 
-  public Operator getAdViewsStampOperator(String name, DAG b)
+  public EventClassifier getAdViewsStampOperator(String name, DAG b)
   {
     EventClassifier oper = b.addOperator(name, EventClassifier.class);
     HashMap<String, Double> kmap = new HashMap<String, Double>();
@@ -174,7 +174,7 @@ public class Application implements StreamingApplication
     return oper;
   }
 
-  public Operator getInsertClicksOperator(String name, DAG b)
+  public FilteredEventClassifier<Double> getInsertClicksOperator(String name, DAG b)
   {
     FilteredEventClassifier<Double> oper = b.addOperator(name, new FilteredEventClassifier<Double>());
     HashMap<String, Double> kmap = new HashMap<String, Double>();

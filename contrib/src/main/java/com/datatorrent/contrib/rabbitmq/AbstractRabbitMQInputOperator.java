@@ -59,9 +59,7 @@ public abstract class AbstractRabbitMQInputOperator<T>
 ActivationListener<OperatorContext>
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractRabbitMQInputOperator.class);
-  @InjectConfig(key = "host")
   private String host = "localhost";
-  @InjectConfig(key = "exchange")
   private String exchange;
   transient ConnectionFactory connFactory;
 //  QueueingConsumer consumer = null;
@@ -176,11 +174,6 @@ ActivationListener<OperatorContext>
     }
   }
 
-//  public void addBuffer() {
-//      holdingBuffer.add("aaa".getBytes());
-//      holdingBuffer.add("bbb".getBytes());
-//      holdingBuffer.add("ccc".getBytes());
-//  }
   @Override
   public void deactivate()
   {

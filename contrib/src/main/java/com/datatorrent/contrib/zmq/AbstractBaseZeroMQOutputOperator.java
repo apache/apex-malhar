@@ -60,7 +60,6 @@ public abstract class AbstractBaseZeroMQOutputOperator extends BaseOperator
   transient protected ZMQ.Socket syncservice;
   protected int SUBSCRIBERS_EXPECTED = 1;
   private String url;
-  @InjectConfig(key = "syncUrl")
   private String syncUrl;
   protected boolean syncStarted = false;
 

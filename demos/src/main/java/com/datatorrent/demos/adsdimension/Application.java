@@ -52,7 +52,7 @@ public class Application implements StreamingApplication
     dag.setOutputPortAttribute(bucket.outputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);
     dag.setAttribute(bucket, OperatorContext.APPLICATION_WINDOW_COUNT, 10);
 
-    RedisNumberAggregateOutputOperator<AggrKey, Map<String, MutableDouble>> redis = dag.addOperator("redis", RedisNumberAggregateOutputOperator.class);
+    RedisNumberAggregateOutputOperator<AggrKey, Map<String, MutableDouble>> redis = dag.addOperator("redis", new RedisNumberAggregateOutputOperator<AggrKey, Map<String, MutableDouble>>());
     dag.setInputPortAttribute(redis.input, PortContext.QUEUE_CAPACITY, 32 * 1024);
     dag.setAttribute(redis, OperatorContext.INITIAL_PARTITION_COUNT, 2);
 

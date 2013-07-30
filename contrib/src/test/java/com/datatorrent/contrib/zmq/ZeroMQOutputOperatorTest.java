@@ -38,7 +38,7 @@ public class ZeroMQOutputOperatorTest
 {
   private static org.slf4j.Logger logger = LoggerFactory.getLogger(ZeroMQOutputOperatorTest.class);
 
-  private static final class TestStringZeroMQOutputOperator extends AbstractZeroMQOutputOperator<String>
+  private static final class TestStringZeroMQOutputOperator extends AbstractSinglePortZeroMQOutputOperator<String>
   {
     @Override
     public void processTuple(String tuple)

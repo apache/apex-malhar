@@ -58,9 +58,10 @@ public class HttpOutputOperator<T> extends BaseOperator
     {
       try {
         if (t instanceof Map) {
-          resource.post(JsonStringGenerator.createJsonString((Map)t));
-        } else {
-         resource.post("" + t);
+          resource.type(MediaType.APPLICATION_JSON).post("" + new JSONObject((Map<?, ?>)t));
+        }
+        else {
+          resource.post("" + t);
         }
       }
       catch (Exception e) {
@@ -103,7 +104,7 @@ public class HttpOutputOperator<T> extends BaseOperator
     }
     super.teardown();
   }
-  
+
   @SuppressWarnings("unused")
 private static class JsonStringGenerator {
     /**
@@ -123,6 +124,6 @@ private static class JsonStringGenerator {
      System.out.println(writer.toString());
      return writer.toString();
     }
-    
+
    }
 }

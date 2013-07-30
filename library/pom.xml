@@ -16,7 +16,6 @@
 
   <properties>
     <maven.deploy.skip>false</maven.deploy.skip>
-    <test.excludedGroups>com.datatorrent.lib.annotation.PerformanceTestCategory</test.excludedGroups>
   </properties>
 
   <!-- repository to provide the DataTorrent artifacts -->
