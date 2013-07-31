@@ -19,11 +19,10 @@ If you would like to make contributons you can fork the repository and make pull
 Compiling the code
 ----------------------
 
-Maven is needed to compile the code. In addition the code has a dependency to the DataTorrent API. The API is available in the DataTorrent maven repository. The location of the repository is 
-
-https://www.datatorrent.com/maven/content/repositories/releases/ 
-
-This location can be specified in maven settings file $HOME/.m2/settings.xml. Below is a sample specification
+Maven is needed to compile the code. In addition the code has a dependency to 
+the DataTorrent API. The API is available in the DataTorrent maven repository.  
+This repository can be specified in maven settings file $HOME/.m2/settings.xml
+as follows.
 
 ```xml
 <settings> 
