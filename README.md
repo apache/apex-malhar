@@ -25,6 +25,7 @@ https://www.datatorrent.com/maven/content/repositories/releases/
 
 This location can be specified in maven settings file $HOME/.m2/settings.xml. Below is a sample specification
 
+```xml
 <settings> 
  <profiles> 
   <profile> 
@@ -42,6 +43,7 @@ This location can be specified in maven settings file $HOME/.m2/settings.xml. Be
   </profile> 
  </profiles> 
 </settings>  
+```
 
 Running the code
 -------------------
