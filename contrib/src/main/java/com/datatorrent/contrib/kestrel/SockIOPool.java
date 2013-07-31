@@ -1,17 +1,19 @@
-/*
- * Copyright (c) 2013 Malhar Inc. ALL Rights Reserved.
+/**
+ * Copyright (c) 2008 Greg Whalin
+ * All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the BSD license
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * This library is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the BSD License along with this
+ * library.
+ *
+ * @author greg whalin <greg@meetup.com>
  */
 package com.datatorrent.contrib.kestrel;
 
@@ -119,6 +121,8 @@ import org.slf4j.LoggerFactory;
  *		sock.close();
  * </pre>
  *
+ * @author greg whalin <greg@whalin.com>
+ * @version 1.5
  * @since 0.3.2
  */
 public class SockIOPool {
@@ -1439,6 +1443,8 @@ public class SockIOPool {
 	/**
 	 * Class which extends thread and handles maintenance of the pool.
 	 *
+   * @author greg whalin <greg@meetup.com>
+   * @version 1.5
 	 */
 	protected static class MaintThread extends Thread {
 
@@ -1498,7 +1504,9 @@ public class SockIOPool {
 	 *
 	 * This class is a wrapper around a Socket and its streams.
 	 *
-	 * @version 1.5
+   * @author greg whalin <greg@meetup.com>
+   * @author Richard 'toast' Russo <russor@msoe.edu>
+   * @version 1.5
 	 */
 	public static class SockIO implements LineInputStream {
 

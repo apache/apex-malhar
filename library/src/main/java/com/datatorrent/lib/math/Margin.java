@@ -41,6 +41,7 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  * <b>percent: </b>  output margin as percentage value.
  *
  * @since 0.3.3
+ * @author Amol Kekre <amol@datatorrent.com>
  */
 public class Margin<V extends Number> extends BaseNumberValueOperator<V>
 {

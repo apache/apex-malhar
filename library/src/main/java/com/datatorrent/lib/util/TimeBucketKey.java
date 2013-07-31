@@ -25,6 +25,7 @@ import java.util.TimeZone;
  * <p>TimeBucketKey class.</p>
  *
  * @since 0.3.2
+ * @author Pramod Immaneni <pramod@datatorrent.com>
  */
 public class TimeBucketKey
 {

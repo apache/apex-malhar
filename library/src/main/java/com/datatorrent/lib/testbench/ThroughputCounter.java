@@ -53,6 +53,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  *
  * @since 0.3.2
+ * @author Amol Kekre <amol@datatorrent.com>
  */
 public class ThroughputCounter<K, V extends Number> extends BaseOperator
 {

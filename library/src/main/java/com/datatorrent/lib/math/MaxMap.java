@@ -42,6 +42,7 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
  * <br>
  *
  * @since 0.3.2
+ * @author Amol Kekre <amol@datatorrent.com>
  */
 public class MaxMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V> implements Unifier<HashMap<K,V>>
 {

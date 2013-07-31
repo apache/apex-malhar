@@ -46,6 +46,7 @@ import com.datatorrent.common.util.Pair;
  * <br>
  *
  * @since 0.3.3
+ * @author Chetan Narsude <chetan@datatorrent.com>
  */
 public abstract class LogicalCompare<T extends Comparable<? super T>> extends
 		BaseOperator

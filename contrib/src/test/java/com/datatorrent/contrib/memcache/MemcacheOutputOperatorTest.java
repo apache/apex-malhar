@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
+ * @author Zhongjian Wang <zhongjian@datatorrent.com>
  */
 public class MemcacheOutputOperatorTest
 {

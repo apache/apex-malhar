@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  *
  * @since 0.3.3
+ * @author Amol Kekre <amol@datatorrent.com>
  */
 public class DevNullCounter<K> extends BaseOperator
 {

@@ -41,6 +41,7 @@ import com.datatorrent.lib.util.UnifierHashMapSumKeys;
  * <br>
  *
  * @since 0.3.2
+ * @author Amol Kekre <amol@datatorrent.com>
  */
 public class UniqueKeyValCounter<K,V> extends BaseUniqueKeyValueCounter<K,V>
 {

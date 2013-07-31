@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
  * <p>PubSubWebSocketInputOperator class.</p>
  *
  * @since 0.3.2
+ * @author David Yan <david@datatorrent.com>
  */
 public class PubSubWebSocketInputOperator extends WebSocketInputOperator
 {

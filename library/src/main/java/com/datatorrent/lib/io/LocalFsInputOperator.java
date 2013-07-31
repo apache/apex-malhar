@@ -28,6 +28,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * Operator to read input tuples from file from local file system.
  *
  * @since 0.3.2
+ * @author Dinesh Prasad<dinesh@datatorrent.com>
  */
 public class LocalFsInputOperator extends AbstractLocalFSInputOperator
 {

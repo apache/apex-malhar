@@ -25,6 +25,7 @@ import org.apache.hadoop.conf.Configuration;
  * Example of application configuration in Java.<p>
  *
  * @since 0.3.2
+ * @author Chetan Narsude <chetan@datatorrent.com>
  */
 public class Application implements StreamingApplication
 {

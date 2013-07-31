@@ -47,6 +47,7 @@ import com.datatorrent.lib.util.BaseKeyOperator;
  * <br>
  *
  * @since 0.3.3
+ * @author Amol Kekre <amol@datatorrent.com>
  */
 public class Distinct<K> extends BaseKeyOperator<K> implements Unifier<K>
 {

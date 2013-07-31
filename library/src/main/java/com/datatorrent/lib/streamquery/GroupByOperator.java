@@ -38,25 +38,26 @@ import java.util.Map;
  * <b> indexes : </b> Select column indexes. <br>
  * <br>
  *
+ * @author Amol Kekre <amol@datatorrent.com>
  * @since 0.3.3
  */
 public class GroupByOperator extends SqlOperator
 {
   /**
-   * select indexes. 
+   * select indexes.
    */
 	private ArrayList<SelectAggregateIndex> indexes = new  ArrayList<SelectAggregateIndex> ();
-	
+
 	/**
-	 *  Group by names 
+	 *  Group by names
 	 */
 	private HashMap<String, String> groupNames = new HashMap<String, String>();
-	
+
 	/**
 	 * where condition.
 	 */
 	private SelectCondition condition;
-	
+
 	@Override
   public ArrayList<HashMap<String, Object>> processRows(
       ArrayList<HashMap<String, Object>> rows)
@@ -65,15 +66,15 @@ public class GroupByOperator extends SqlOperator
 		if (condition != null) {
 			rows = condition.filetrValidRows(rows);
 		}
-		
+
 		// aggregate rows
 		rows = aggregateRows(rows);
 	  return rows;
   }
 
 	/**
-	 * add select index 
-	 * @throws Exception 
+	 * add select index
+	 * @throws Exception
 	 */
 	public void addSelectIndex(SelectAggregateIndex index) {
 		if (index == null) return;
@@ -87,25 +88,25 @@ public class GroupByOperator extends SqlOperator
   {
 	  this.condition = condition;
   }
-  
+
   /**
-   * Add group name. 
+   * Add group name.
    */
   public void addGroupByName(String name, String alias) {
   	groupNames.put(name, alias);
   }
-  
+
   /**
    * multi key compare class.
    */
   @SuppressWarnings("rawtypes")
-  private class MultiKeyCompare implements Comparable 
+  private class MultiKeyCompare implements Comparable
   {
     /**
      * compare keys.
      */
   	ArrayList<Object> compareKeys = new ArrayList<Object>();
-  	
+
   	@Override
   	public boolean equals(Object other) {
   		if (other instanceof MultiKeyCompare)
@@ -119,8 +120,8 @@ public class GroupByOperator extends SqlOperator
   		}
   		return true;
   	}
-  	
-  	@Override 
+
+  	@Override
   	public int hashCode() {
   	   int hashCode = 0;
   	   for (int i=0; i < compareKeys.size(); i++) {
@@ -135,14 +136,14 @@ public class GroupByOperator extends SqlOperator
       if (this.equals(other)) return 0;
       return -1;
     }
-  	
+
 		/**
 		 * Add compare key.
 		 */
 		public void addCompareKey(Object value){
 			compareKeys.add(value);
 		}
-		
+
 		/**
 		 * Get ith key value
 		 */
@@ -150,18 +151,18 @@ public class GroupByOperator extends SqlOperator
 			return compareKeys.get(i);
 		}
   }
-  
+
   /**
    * Aggregate function.
    */
 	private ArrayList<HashMap<String, Object>> aggregateRows(
       ArrayList<HashMap<String, Object>> rows)
   {
-		// no group by names  
+		// no group by names
 		if (groupNames.size() == 0) return new ArrayList<HashMap<String, Object>>();
-		
-		// aggregate rows by group 
-		HashMap<MultiKeyCompare, ArrayList<HashMap<String, Object>>> aggregate = 
+
+		// aggregate rows by group
+		HashMap<MultiKeyCompare, ArrayList<HashMap<String, Object>>> aggregate =
 				new HashMap<MultiKeyCompare, ArrayList<HashMap<String, Object>>>();
 		for (int i=0; i < rows.size(); i++) {
 			HashMap<String, Object> row = rows.get(i);
@@ -178,11 +179,11 @@ public class GroupByOperator extends SqlOperator
 			}
 			list.add(row);
 		}
-		
+
 		// create result groups
 		ArrayList<HashMap<String, Object>> result = new ArrayList<HashMap<String, Object>>();
 		for (Map.Entry<MultiKeyCompare, ArrayList<HashMap<String, Object>>> entry : aggregate.entrySet()) {
-			
+
 			// put group names first
 			MultiKeyCompare key = entry.getKey();
 			HashMap<String, Object> outrow = new HashMap<String, Object>();
@@ -192,8 +193,8 @@ public class GroupByOperator extends SqlOperator
 				if (name == null) name = entry1.getKey();
 				outrow.put(name, key.getValue(index++));
 			}
-			
-			// put aggregate functions now  
+
+			// put aggregate functions now
 			ArrayList<HashMap<String, Object>> group = entry.getValue();
 			for (int i=0; i < indexes.size(); i++) {
 				ArrayList<HashMap<String, Object>> out = indexes.get(i).process(group);

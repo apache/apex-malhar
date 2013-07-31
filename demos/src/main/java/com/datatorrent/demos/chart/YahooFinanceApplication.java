@@ -31,6 +31,7 @@ import org.apache.hadoop.conf.Configuration;
  * <p>YahooFinanceApplication class.</p>
  *
  * @since 0.3.2
+ * @author David Yan <davidyan@datatorrent.com>
  */
 public class YahooFinanceApplication extends com.datatorrent.demos.yahoofinance.Application
 {

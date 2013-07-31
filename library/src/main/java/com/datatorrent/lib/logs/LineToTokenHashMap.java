@@ -43,6 +43,7 @@ import java.util.HashMap;
  * <br>
  *
  * @since 0.3.2
+ * @author Amol Kekre <amol@datatorrent.com>
  */
 public class LineToTokenHashMap extends BaseLineTokenizer
 {

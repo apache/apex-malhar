@@ -33,6 +33,7 @@ import org.apache.hadoop.conf.Configuration;
  * <p>Calculator class.</p>
  *
  * @since 0.3.2
+ * @author Chetan Narsude <chetan@datatorrent.com>
  */
 public class Calculator implements StreamingApplication
 {

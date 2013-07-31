@@ -29,6 +29,7 @@ import java.util.Map;
  * combiner is a simple merge into a single object that implements Map
  *
  * @since 0.3.2
+ * @author Amol Kekre <amol@datatorrent.com>
  */
 public class UnifierHashMapFrequent<K> implements Unifier<HashMap<K, Integer>>
 {

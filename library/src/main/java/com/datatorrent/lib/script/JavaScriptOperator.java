@@ -68,6 +68,7 @@ import javax.script.*;
  * </pre>
  *
  * @since 0.3.2
+ * @author David Yan <david@datatorrent.com>
  */
 public class JavaScriptOperator extends BaseOperator implements ScriptOperator
 {

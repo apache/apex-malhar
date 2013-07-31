@@ -52,6 +52,7 @@ import org.apache.commons.lang.mutable.MutableInt;
  * <br>
  *
  * @since 0.3.3
+ * @author Amol Kekre <amol@datatorrent.com>
  */
 public class SumCountMap<K, V extends Number> extends
 		BaseNumberKeyValueOperator<K, V>

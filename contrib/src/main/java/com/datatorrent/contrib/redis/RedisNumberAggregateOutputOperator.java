@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
  * <p>RedisNumberAggregateOutputOperator class.</p>
  *
  * @since 0.3.2
+ * @author David Yan <davidyan@datatorrent.com>
  */
 public class RedisNumberAggregateOutputOperator<K, V> extends RedisOutputOperator<K, V>
 {

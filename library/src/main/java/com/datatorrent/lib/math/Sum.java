@@ -50,6 +50,7 @@ import com.datatorrent.lib.util.UnifierSumNumber;
  * @param <V>
  *          Generic number type parameter. <br>
  * @since 0.3.3
+ * @author Amol Kekre <amol@datatorrent.com>
  */
 public class Sum<V extends Number> extends BaseNumberValueOperator<V> implements
 		Unifier<V>

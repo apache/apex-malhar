@@ -53,6 +53,7 @@ import javax.validation.constraints.NotNull;
  * <b>Benchmarks</b>: This node has been benchmarked at over 5 million tuples/second in local/inline mode<br>
  *
  * @since 0.3.2
+ * @author Amol Kekre <amol@datatorrent.com>
  */
 public class EventClassifierNumberToHashDouble<K extends Number> extends BaseOperator
 {

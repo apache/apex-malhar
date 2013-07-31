@@ -43,6 +43,7 @@ import org.apache.commons.lang.mutable.MutableDouble;
  * <br>
  *
  * @since 0.3.2
+ * @author Amol Kekre <amol@datatorrent.com>
  */
 public class MarginMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
 {

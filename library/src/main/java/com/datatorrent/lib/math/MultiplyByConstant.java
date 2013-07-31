@@ -39,6 +39,7 @@ import com.datatorrent.api.DefaultOutputPort;
  * <br>
  *
  * @since 0.3.2
+ * @author Chetan Narsude <chetan@datatorrent.com>
  */
 public class MultiplyByConstant extends BaseOperator
 {

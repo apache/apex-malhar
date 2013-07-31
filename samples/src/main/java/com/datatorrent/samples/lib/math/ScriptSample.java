@@ -28,6 +28,7 @@ import org.apache.hadoop.conf.Configuration;
  * Java script returns square of variable 'val'.
  *
  * @since 0.3.2
+ * @author Dinesh Prasad<dinesh@datatorrent.com>
  */
 public class ScriptSample implements StreamingApplication
 {

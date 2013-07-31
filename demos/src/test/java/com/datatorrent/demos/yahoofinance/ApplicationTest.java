@@ -23,6 +23,7 @@ import org.junit.Test;
 /**
  * Run Yahoo Finance application demo.
  *
+ * @author Locknath Shil <locknath@datatorrent.com>
  */
 public class ApplicationTest
 {

@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
  * More output ports in this operator.
  *
  * @since 0.3.2
+ * @author Dinesh Prasad <dinesh@datatorrent.com>
  */
 public class ApacheVirtualLogParseOperator extends BaseOperator {
 

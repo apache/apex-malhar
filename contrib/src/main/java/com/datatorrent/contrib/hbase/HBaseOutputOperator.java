@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
  *
  * @param <T> The tuple type
  * @since 0.3.2
+ * @author Pramod Immaneni <pramod@datatorrent.com>
  */
 public abstract class HBaseOutputOperator<T> extends HBaseOperatorBase implements Operator {
 

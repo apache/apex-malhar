@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  *
  * @since 0.3.2
+ * @author Locknath Shil <locknath@datatorrent.com>
  */
 public class JDBCTransactionArrayListOutputOperator extends JDBCTransactionOutputOperator<ArrayList<Object>>
 {

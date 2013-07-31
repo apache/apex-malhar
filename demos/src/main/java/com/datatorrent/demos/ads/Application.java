@@ -43,6 +43,7 @@ import org.apache.hadoop.conf.Configuration;
  * Example of application configuration for an ads demo<p>
  *
  * @since 0.3.2
+ * @author Amol Kekre <amol@datatorrent.com>
  */
 public class Application implements StreamingApplication
 {

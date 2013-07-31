@@ -35,6 +35,7 @@ import com.datatorrent.api.DefaultOutputPort;
  * <br>
  *
  * @since 0.3.3
+ * @author Chetan Narsude <chetan@datatorrent.com>
  */
 public class RunningAverage extends BaseOperator
 {

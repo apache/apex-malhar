@@ -44,6 +44,7 @@ import org.bson.types.ObjectId;
  * <br>
  *
  * @since 0.3.2
+ * @author Zhongjian Wang <zhongjian@datatorrent.com>
  */
 public class MongoDBHashMapOutputOperator<T> extends MongoDBOutputOperator<HashMap<String, T>>
 {

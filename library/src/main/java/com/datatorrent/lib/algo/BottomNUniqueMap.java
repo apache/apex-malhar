@@ -38,6 +38,7 @@ import com.datatorrent.lib.util.AbstractBaseNUniqueOperatorMap;
  * N: Has to be >= 1<br>
  *
  * @since 0.3.3
+ * @author Amol Kekre <amol@datatorrent.com>
  */
 public class BottomNUniqueMap<K, V> extends AbstractBaseNUniqueOperatorMap<K, V>
 {

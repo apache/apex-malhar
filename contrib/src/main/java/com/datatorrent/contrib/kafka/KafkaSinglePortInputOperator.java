@@ -42,6 +42,7 @@ import kafka.message.Message;
  * <br>
  *
  * @since 0.3.2
+ * @author Locknath Shil <locknath@datatorrent.com>
  */
 public abstract class KafkaSinglePortInputOperator<T> extends KafkaInputOperator
 {

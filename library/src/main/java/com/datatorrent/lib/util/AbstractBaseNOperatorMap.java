@@ -40,6 +40,7 @@ import javax.validation.constraints.Min;
  * <b>Benchmark</b>: Not done as this is an abstract operator<br>
  *
  * @since 0.3.2
+ * @author Amol Kekre <amol@datatorrent.com>
  */
 abstract public class AbstractBaseNOperatorMap<K,V> extends BaseKeyValueOperator<K,V>
 {

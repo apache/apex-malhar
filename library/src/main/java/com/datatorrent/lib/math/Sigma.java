@@ -40,6 +40,7 @@ import java.util.Collection;
  *
  * @param <T>
  * @since 0.3.3
+ * @author Chetan Narsude <chetan@datatorrent.com>
  */
 public class Sigma<T extends Number> extends AbstractAggregateCalc<T>
 {

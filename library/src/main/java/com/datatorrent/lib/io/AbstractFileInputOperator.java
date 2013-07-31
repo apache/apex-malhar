@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
  *
  * @param <STREAM>
  * @since 0.3.2
+ * @author Chetan Narsude <chetan@datatorrent.com>
  */
 public abstract class AbstractFileInputOperator<STREAM extends InputStream> implements InputOperator, ActivationListener<OperatorContext>
 {

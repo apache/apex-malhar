@@ -25,6 +25,7 @@ import com.datatorrent.api.Context.PortContext;
  *
  * @param <T> type of the tuple emitted on this port
  * @since 0.3.2
+ * @author Chetan Narsude <chetan@datatorrent.com>
  */
 public class ChartingOutputPort<T> extends DefaultOutputPort<T>
 {

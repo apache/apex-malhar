@@ -40,6 +40,7 @@ import java.util.Map.Entry;
  * <br>
  *
  * @since 0.3.2
+ * @author Zhongjian Wang <zhongjian@datatorrent.com>
  */
 public abstract class AbstractSinglePortMemcacheInputOperator<T> extends AbstractMemcacheInputOperator
 {

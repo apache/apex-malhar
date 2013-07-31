@@ -43,6 +43,7 @@ import com.datatorrent.api.DefaultInputPort;
  * <br>
  *
  * @since 0.3.2
+ * @author Zhongjian Wang <zhongjian@datatorrent.com>
  */
 public abstract class AbstractSinglePortKestrelOutputOperator<T> extends AbstractKestrelOutputOperator
 {

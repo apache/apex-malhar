@@ -28,6 +28,7 @@ import java.util.Map;
  * with round robin partition for a Sum operation, i.e. key,vals pairs need to be combined back together
  *
  * @since 0.3.2
+ * @author Amol Kekre <amol@datatorrent.com>
  */
 public class UnifierHashMapSumKeys<K, V extends Number> extends BaseNumberKeyValueOperator<K,V> implements Unifier<HashMap<K, V>>
 {

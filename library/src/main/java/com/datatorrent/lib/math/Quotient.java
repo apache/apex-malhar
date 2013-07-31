@@ -41,6 +41,7 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  * <br>
  *
  * @since 0.3.3
+ * @author Amol Kekre <amol@datatorrent.com>
  */
 public class Quotient<V extends Number> extends BaseNumberValueOperator<V>
 {

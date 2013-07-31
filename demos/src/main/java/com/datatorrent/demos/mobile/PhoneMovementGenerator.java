@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
  * and outputs the data in the cache through console port on receiving the tuple and on each subsequent end_of_window tuple<p>
  *
  * @since 0.3.2
+ * @author Amol Kekre <amol@datatorrent.com>
  */
 public class PhoneMovementGenerator extends BaseOperator
 {

@@ -66,6 +66,7 @@ import org.slf4j.LoggerFactory;
  * Without key: Benchmarked at over 4 million tuples/second in local/in-line mode<br>
  *
  * @since 0.3.2
+ * @author Amol Kekre <amol@datatorrent.com>
  */
 public class SeedEventGenerator extends BaseOperator implements InputOperator
 {

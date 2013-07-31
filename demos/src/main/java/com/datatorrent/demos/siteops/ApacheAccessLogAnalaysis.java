@@ -40,6 +40,7 @@ import com.datatorrent.lib.util.DimensionTimeBucketSumOperator;
  * <p>ApacheAccessLogAnalaysis class.</p>
  *
  * @since 0.3.2
+ * @author Dinesh Prasad <dinesh@datatorrent.com>
  */
 public class ApacheAccessLogAnalaysis implements StreamingApplication
 {

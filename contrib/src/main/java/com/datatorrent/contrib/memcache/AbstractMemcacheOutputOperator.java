@@ -53,6 +53,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  *
  * @since 0.3.2
+ * @author Zhongjian Wang <zhongjian@datatorrent.com>
  */
 public class AbstractMemcacheOutputOperator extends BaseOperator
 {

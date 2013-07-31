@@ -24,6 +24,7 @@ import java.io.InputStream;
  * <br>
  *
  * @since 0.3.2
+ * @author Pramod Immaneni <pramod@datatorrent.com>
  */
 public interface RomeStreamProvider
 {

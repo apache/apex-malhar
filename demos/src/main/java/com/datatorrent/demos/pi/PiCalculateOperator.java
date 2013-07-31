@@ -24,6 +24,7 @@ import com.datatorrent.api.DefaultOutputPort;
  * square circle. pi ~= Number of poiints i  circle/Total number of points.
  *
  * @since 0.3.2
+ * @author Zhongjian Wang <zhongjian@datatorrent.com>
  */
 public class PiCalculateOperator extends BaseOperator
 {

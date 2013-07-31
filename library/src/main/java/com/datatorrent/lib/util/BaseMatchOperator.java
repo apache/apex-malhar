@@ -42,6 +42,7 @@ import javax.validation.constraints.Pattern;
  * none<br>
  *
  * @since 0.3.2
+ * @author Amol Kekre <amol@datatorrent.com>
  */
 public class BaseMatchOperator<K, V> extends BaseKeyValueOperator<K, V>
 {

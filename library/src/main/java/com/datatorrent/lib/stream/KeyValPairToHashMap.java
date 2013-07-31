@@ -35,6 +35,7 @@ import java.util.HashMap;
  * <br>
  *
  * @since 0.3.3
+ * @author Amol Kekre <amol@datatorrent.com>
  */
 public class KeyValPairToHashMap<K, V> extends BaseKeyValueOperator<K, V>
 {

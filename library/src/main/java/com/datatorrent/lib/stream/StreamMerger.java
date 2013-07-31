@@ -31,6 +31,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * <br>
  *
  * @since 0.3.3
+ * @author Amol Kekre <amol@datatorrent.com>
  */
 public class StreamMerger<K> extends BaseOperator
 {

@@ -30,6 +30,7 @@ package com.datatorrent.lib.math;
  * <br>
  *
  * @since 0.3.3
+ * @author Chetan Narsude <chetan@datatorrent.com>
  */
 public class SquareCalculus extends SingleVariableAbstractCalculus
 {

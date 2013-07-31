@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  *
  * @since 0.3.2
+ * @author Pramod Immaneni <pramod@datatorrent.com>
  */
 public class RomeSyndicationOperator extends SimpleSinglePortInputOperator<RomeFeedEntry> implements Runnable
 {

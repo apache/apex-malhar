@@ -27,6 +27,7 @@ import org.apache.hadoop.conf.Configuration;
  * Random generator output is printed to output console(can be any downstream operator).
  *
  * @since 0.3.2
+ * @author Dinesh Prasad<dinesh@datatorrent.com>
  */
 public class RandomEvenetGeneratorSample implements StreamingApplication
 {

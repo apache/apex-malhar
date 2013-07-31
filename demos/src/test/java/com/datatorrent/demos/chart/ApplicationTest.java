@@ -23,6 +23,7 @@ import com.datatorrent.demos.chart.YahooFinanceApplication;
 /**
  * Run Yahoo Finance application demo.
  *
+ * @author Locknath Shil <locknath@datatorrent.com>
  */
 public class ApplicationTest
 {

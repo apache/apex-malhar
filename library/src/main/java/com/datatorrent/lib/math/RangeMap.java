@@ -44,6 +44,7 @@ import com.datatorrent.lib.util.UnifierHashMapRange;
  * <br>
  *
  * @since 0.3.2
+ * @author Amol Kekre <amol@datatorrent.com>
  */
 public class RangeMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
 {

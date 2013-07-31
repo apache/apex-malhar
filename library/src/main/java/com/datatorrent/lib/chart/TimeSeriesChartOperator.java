@@ -27,6 +27,7 @@ import java.util.TreeMap;
  * @param <K> The type of the key
  * @param <Y> The type of values on the Y-axis
  * @since 0.3.2
+ * @author David Yan <david@datatorrent.com>
  */
 public abstract class TimeSeriesChartOperator<K, Y> extends XYChartOperator<K, Number, Y>
 {

@@ -37,10 +37,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
+ * @author Zhongjian Wang <zhongjian@datatorrent.com>
  */
-public class MemcacheOutputOperaotorBenchmark
+public class MemcacheOutputOperatorBenchmark
 {
-  private static final Logger logger = LoggerFactory.getLogger(MemcacheOutputOperaotorBenchmark.class);
+  private static final Logger logger = LoggerFactory.getLogger(MemcacheOutputOperatorBenchmark.class);
   private static ArrayList<Object> resultList = new ArrayList<Object>();
   private static int numberOfOps=500000;
   private static int resultCount=0;

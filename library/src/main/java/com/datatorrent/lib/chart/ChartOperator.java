@@ -26,6 +26,7 @@ import com.datatorrent.api.PartitionableOperator;
  * This is the base class for all chart operators
  *
  * @since 0.3.2
+ * @author David Yan <david@datatorrent.com>
  */
 public abstract class ChartOperator extends BaseOperator implements PartitionableOperator
 {

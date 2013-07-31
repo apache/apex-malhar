@@ -1,17 +1,19 @@
-/*
- * Copyright (c) 2013 Malhar Inc. ALL Rights Reserved.
+/**
+ * Copyright (c) 2008 Greg Whalin
+ * All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the BSD license
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * This library is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the BSD License along with this
+ * library.
+ *
+ * @author Greg Whalin <greg@meetup.com>
  */
 package com.datatorrent.contrib.kestrel;
 
@@ -82,6 +84,8 @@ import org.slf4j.LoggerFactory;
  *
  * http://java.sun.com/docs/books/tutorial/native1.1/integrating/types.html
  *
+ * @author <a href="mailto:burton@peerfear.org">Kevin A. Burton</a>
+ * @author Greg Whalin <greg@meetup.com>
  * @since 0.3.2
  */
 public class NativeHandler {

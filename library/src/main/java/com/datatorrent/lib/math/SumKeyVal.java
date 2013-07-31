@@ -39,6 +39,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * <br>
  *
  * @since 0.3.2
+ * @author Amol Kekre <amol@datatorrent.com)<br> 
  */
 public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {

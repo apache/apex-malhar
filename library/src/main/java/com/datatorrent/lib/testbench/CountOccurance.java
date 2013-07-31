@@ -28,6 +28,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * <p>CountOccurance class.</p>
  *
  * @since 0.3.2
+ * @author Dinesh Prasad <dinesh@datatorrent.com>
  */
 public class CountOccurance<k> extends BaseOperator
 {
