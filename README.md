@@ -14,14 +14,13 @@ Getting the source code
 
 The Malhar repository is on github.com. If you already have a github account you can git pull the DataTorrent/Malhar repository. If you do not have a github account please create one and pull the repository.
 
-If you would like to make contributons you can fork the repository and make pull requests.
+If you would like to contribute you can fork the repository and make pull requests.
 
 Compiling the code
 ----------------------
 
 Maven is needed to compile the code. In addition the code has a dependency to 
-the DataTorrent API. The API is available in the DataTorrent maven repository.  
-This repository can be specified in maven settings file $HOME/.m2/settings.xml
+the DataTorrent API. The API is available in the DataTorrent maven repository.  This repository can be specified in maven settings file $HOME/.m2/settings.xml
 as follows.
 
 ```xml
@@ -47,22 +46,18 @@ as follows.
 Running the code
 -------------------
 
-To run the code the DataTorrent platform is needed. The developer version or an evaluation version both of which are free can be downloaded from 
+To run the code DataTorrent platform is needed. The developer version or an evaluation version, both of which are free, can be downloaded from 
 
 https://www.datatorrent.com/download.php
 
-Please follow the instructions in the software README on how to run the applications.
+Please follow the instructions in the software README on how to run the application.
 
 Discussion group
 --------------------
 
-A discussion google group malhar-users@googlegroups.com is available for the 
-users of this repository. The subscription to the group is open and postings 
-are welcome. You can post anything about the operators, discuss new operator
-ideas or report issues and get answers from experts.
+A google group malhar-users@googlegroups.com is available for discussions. Subscription to the group is open and postings are welcome. You can post anything about the operators, discuss new operator ideas or report issues and get answers from experts.
 
 Issue tracking
 --------------------
 
-The Github issues tracking for the repository is used for tracking issues. You
-can monitor the existing issues and their progress there. 
+Github issues tracking is used for tracking issues for this repository. You can monitor the state of existing issues and their track their progress there. 
