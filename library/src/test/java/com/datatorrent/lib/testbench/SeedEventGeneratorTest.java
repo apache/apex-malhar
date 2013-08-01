@@ -57,13 +57,19 @@ public class SeedEventGeneratorTest
     }
     CollectorTestSink keyvalpair_data = new CollectorTestSink();
     node.keyvalpair_list.setSink(keyvalpair_data);
-    
+
     node.setup(null);
     node.beginWindow(1);
-    node.emitTuples();
+    try {
+      node.emitTuples();
+    } catch (RuntimeException re) {
+      if ( !(re.getCause() instanceof InterruptedException)) {
+        throw re;
+      }
+    }
     node.endWindow();
     node.teardown();
-    
+
     assertTrue("Collected tuples", keyvalpair_data.collectedTuples.size() == 99);
   }
 }
