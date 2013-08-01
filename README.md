@@ -11,7 +11,7 @@ Getting the source code
 
 The Malhar repository is on github.com. If you already have a github account you can git pull the DataTorrent/Malhar repository. If you do not have a github account please create one and pull the repository.
 
-Please fork the repository if you would like to contribute and create pull requests.
+Please fork the repository and create pull requests to contribute to the project.
 
 Compiling the code
 ----------------------
