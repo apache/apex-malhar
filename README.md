@@ -16,7 +16,7 @@ Please fork the repository if you would like to contribute and create pull reque
 Compiling the code
 ----------------------
 
-Maven is used to build the code. The code has a dependency to the DataTorrent API. The API releases are available in the DataTorrent maven repository and is configure in the Malhar pom.xml.
+The project uses maven to build the code. To build the code run mvn install at the top level. The code also has a dependency to the DataTorrent API. The API releases are available in the DataTorrent maven repository and the Malhar pom.xml is configured with it. Individual modules such as library can be built independently by changing directory to the module and running maven there.
 
 Running the code
 -------------------
