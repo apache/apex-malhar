@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.demos.adsdimension;
+package com.datatorrent.contrib.adsdimension;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Context.PortContext;
@@ -25,7 +25,7 @@ import org.apache.commons.lang.mutable.MutableDouble;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- * <p>ItemApplication class.</p>
+ * <p>Application class.</p>
  *
  * @since 0.3.2
  * @author Pramod Immaneni <pramod@datatorrent.com>
