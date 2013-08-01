@@ -110,7 +110,7 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>malhar-api</artifactId>
-      <version>${project.version}</version>
+      <version>${malhar.framework.version}</version>
     </dependency>
     <dependency>
       <groupId>com.sun.jersey</groupId>
