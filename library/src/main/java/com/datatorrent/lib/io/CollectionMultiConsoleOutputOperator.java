@@ -40,6 +40,7 @@ public class CollectionConsoleOutputOperator<E> extends BaseOperator {
 		public void process(Collection<E> t) {
 						
 			Iterator<E> itr = t.iterator();
+			System.out.println("{");
 
 			while (itr.hasNext()) {
 				E obj = itr.next();
@@ -50,6 +51,7 @@ public class CollectionConsoleOutputOperator<E> extends BaseOperator {
 					logger.info(obj.toString());
 
 			}
+			System.out.println("}");
 		}
 
 	};

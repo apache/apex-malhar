@@ -42,6 +42,7 @@ public class MapConsoleOutputOperator<K, V> extends BaseOperator {
 			Set<Map.Entry<K, V>>  set = t.entrySet();			
 			Iterator<Map.Entry<K, V>> itr = set.iterator();
 
+			System.out.println("{");
 			while (itr.hasNext()) {
 				Map.Entry<K,V> entry = (Map.Entry<K,V>) itr.next();
 				if (!silent) {
@@ -53,6 +54,7 @@ public class MapConsoleOutputOperator<K, V> extends BaseOperator {
 							+ entry.getValue().toString());
 
 			}
+			System.out.println("}");
 		}
 	};
 
