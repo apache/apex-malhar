@@ -22,7 +22,7 @@ import com.datatorrent.api.DefaultInputPort;
  * 
  * @since 0.3.4
  */
-public class MapConsoleOutputOperator<K, V> extends BaseOperator {
+public class MapMultiConsoleOutputOperator<K, V> extends BaseOperator {
 	private boolean debug = false;
 
 	public boolean isDebug() {
@@ -34,7 +34,7 @@ public class MapConsoleOutputOperator<K, V> extends BaseOperator {
 	}
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(MapConsoleOutputOperator.class);
+			.getLogger(MapMultiConsoleOutputOperator.class);
 	public final transient DefaultInputPort<Map<K,V>> input = new DefaultInputPort<Map<K,V>>() {
 		@Override
 		public void process(Map<K,V> t) {
