@@ -56,11 +56,6 @@ public class LocalFsInputOperator extends AbstractLocalFSInputOperator
 	@Override
 	public void teardown()
 	{
-		try {
-			input.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	@Override
