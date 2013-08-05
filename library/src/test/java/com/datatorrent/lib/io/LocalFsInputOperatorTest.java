@@ -35,10 +35,13 @@ public class LocalFsInputOperatorTest
 		LocalFsInputOperator oper = new LocalFsInputOperator();
 		oper.setFilePath(fileName);
 		oper.setup(null);
+		oper.activate(null);
 		CollectorTestSink sink = new CollectorTestSink();
 		oper.outport.setSink(sink);
 		for(int i=0; i < 1000; i++) oper.emitTuples();
 		Assert.assertTrue("tuple emmitted", sink.collectedTuples.size() > 0);
 		Assert.assertEquals(sink.collectedTuples.size(), 92);
+		oper.deactivate();
+		oper.teardown();
 	}
 }
