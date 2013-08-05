@@ -25,7 +25,18 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
 
 /**  
- * Operator to read input tuples from file from local file system.
+ * <p>
+ * This operator opens given file from local file system. Each line is emitted on
+ * output port, Thread waits for sleep interval after emitting line. 
+ * 
+ * <br>
+ * <b>Ports</b>:<br>
+ * <b>outport</b>: emits &lt;String&gt;<br>
+ * <br>
+ * <b>Properties</b>:<br>
+ * <b>filePath</b> : Path for file to be read. <br>
+ * <b>sleepInterval</b>: Thread sleep interval after emiiting line.<br>
+ * <br>
  */
 public class LocalFsInputOperator extends AbstractLocalFSInputOperator
 {
