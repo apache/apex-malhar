@@ -32,7 +32,6 @@ import org.apache.hadoop.hbase.util.Bytes;
  * <br>
  *
  * @since 0.3.2
- * @author Pramod Immaneni <pramod@datatorrent.com>
  */
 public class HBaseRowStatePersistence extends HBaseBaseStatePersistence
 {

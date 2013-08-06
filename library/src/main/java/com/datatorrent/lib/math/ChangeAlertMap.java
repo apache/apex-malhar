@@ -47,7 +47,6 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
  * <b>filterBy</b>: List of keys to filter on<br>
  *
  * @since 0.3.2
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public class ChangeAlertMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {

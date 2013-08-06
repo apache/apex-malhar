@@ -5,7 +5,6 @@
 
 /**
  * Functions for drawing page view vs time chart.
- * @author Dinesh Prasad (dinesh@malhar-inc.com) 
  */
 
 

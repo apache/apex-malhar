@@ -57,7 +57,6 @@ import com.datatorrent.lib.util.UnifierHashMap;
  * <br>
  *
  * @since 0.3.3
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public class ExceptMap<K, V extends Number> extends MatchMap<K, V>
 {

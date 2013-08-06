@@ -5,7 +5,6 @@
 
 /**
  * Functions for drawing server load vs time chart.
- * @author Dinesh Prasad (dinesh@malhar-inc.com) 
  */
 
 function RenderServerLoadTimeChart()

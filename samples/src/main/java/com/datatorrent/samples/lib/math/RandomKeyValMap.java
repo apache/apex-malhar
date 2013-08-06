@@ -28,7 +28,6 @@ import com.datatorrent.api.Context.OperatorContext;
  * Key(s) : key1, key2, key3, key4, key5. <br>
  *
  * @since 0.3.2
- * @author Dinesh Prasad <dinesh@datatorrent.com>
  */
 public class RandomKeyValMap implements InputOperator
 {

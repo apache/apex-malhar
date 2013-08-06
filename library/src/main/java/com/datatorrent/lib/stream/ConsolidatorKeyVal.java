@@ -40,7 +40,6 @@ import com.datatorrent.lib.util.KeyValPair;
  * <br>
  *
  * @since 0.3.3
- * @author David Yan <david@datatorrent.com>
  */
 public class ConsolidatorKeyVal<K, V1, V2, V3, V4, V5> implements Operator
 {

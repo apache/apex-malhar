@@ -42,7 +42,6 @@ import java.util.Map;
  * <br>
  *
  * @since 0.3.2
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public class LeastFrequentKeyMap<K, V> extends AbstractBaseFrequentKey<K>
 {

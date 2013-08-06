@@ -52,7 +52,6 @@ import com.datatorrent.lib.util.BaseKeyOperator;
  * <br>
  *
  * @since 0.3.2
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public class FilterKeyVals<K,V> extends BaseKeyOperator<K>
 {

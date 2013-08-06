@@ -34,7 +34,6 @@ import org.apache.hadoop.hbase.client.HTable;
  * <br>
  *
  * @since 0.3.2
- * @author Pramod Immaneni <pramod@datatorrent.com>
  */
 public interface HBaseStatePersistenceStrategy
 {

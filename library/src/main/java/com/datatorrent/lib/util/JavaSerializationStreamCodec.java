@@ -35,7 +35,6 @@ import com.datatorrent.common.util.Slice;
  *          Type of the object which gets serialized/deserialized using this
  *          codec.
  * @since 0.3.3
- * @author Chetan Narsude <chetan@datatorrent.com>
  */
 public class JavaSerializationStreamCodec<T extends Serializable> implements
 		StreamCodec<T>

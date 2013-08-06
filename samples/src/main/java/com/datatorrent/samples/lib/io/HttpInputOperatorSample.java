@@ -34,7 +34,6 @@ import com.datatorrent.lib.io.HttpInputOperator;
  * this application connects to yahoo news and relays raw content to output console.
  *
  * @since 0.3.2
- * @author Dinesh Prasad<dinesh@datatorrent.com>
  */
 public class HttpInputOperatorSample implements StreamingApplication
 {

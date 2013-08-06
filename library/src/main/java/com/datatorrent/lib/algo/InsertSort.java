@@ -41,7 +41,6 @@ import java.util.HashMap;
  * <br>
  *
  * @since 0.3.3
- * @author Amol Kekre <amol@datatorrent.com>
  */
 //
 // TODO: Override PriorityQueue and rewrite addAll to insert with location

@@ -40,7 +40,6 @@ import java.util.Map;
  * <br>
  *
  * @since 0.3.2
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public class InvertIndex<K, V> extends BaseKeyValueOperator<K, V> implements Unifier<HashMap<V, ArrayList<K>>>
 {

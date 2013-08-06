@@ -32,7 +32,6 @@ import org.apache.commons.lang.mutable.MutableInt;
  * <b>data</b>: expects Map<K, V><br>
  *
  * @since 0.3.2
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public abstract class AbstractBaseFrequentKeyValueMap<K, V> extends BaseKeyValueOperator<K, V>
 {

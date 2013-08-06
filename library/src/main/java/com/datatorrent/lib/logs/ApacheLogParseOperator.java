@@ -48,7 +48,6 @@ import java.util.regex.Pattern;
  * <b>Properties</b>: none<br>
  *
  * @since 0.3.3
- * @author David Yan <david@datatorrent.com>
  */
 public class ApacheLogParseOperator extends BaseOperator
 {

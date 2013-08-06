@@ -45,7 +45,6 @@ import com.datatorrent.api.DefaultOutputPort;
  *      <b>lessThan</b>: emits T<br>
  *      <br>
  * @since 0.3.3
- * @author Chetan Narsude <chetan@datatorrent.com>
  */
 public class LogicalCompareToConstant<T extends Comparable<? super T>> extends
 		BaseOperator

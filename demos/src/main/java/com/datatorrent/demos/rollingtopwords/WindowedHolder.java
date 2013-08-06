@@ -23,7 +23,6 @@ import java.util.Comparator;
  * Developed for a demo<br>
  *
  * @since 0.3.2
- * @author Chetan Narsude <chetan@datatorrent.com>
  */
 public class WindowedHolder<T> implements Serializable
 {

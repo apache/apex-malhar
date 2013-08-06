@@ -51,7 +51,6 @@ import com.datatorrent.lib.util.BaseMatchOperator;
  * <br>
  *
  * @since 0.3.2
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public class FirstMatchMap<K, V extends Number> extends BaseMatchOperator<K,V> 
 {

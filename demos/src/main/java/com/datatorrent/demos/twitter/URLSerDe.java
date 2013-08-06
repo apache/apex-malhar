@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
  * <p>URLSerDe class.</p>
  *
  * @since 0.3.2
- * @author Chetan Narsude <chetan@datatorrent.com>
  */
 public class URLSerDe implements StreamCodec<byte[]>
 {

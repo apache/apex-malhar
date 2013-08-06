@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
  * <p>DimensionTimeBucketSumOperator class.</p>
  *
  * @since 0.3.2
- * @author David Yan <david@datatorrent.com>
  */
 public class DimensionTimeBucketSumOperator extends DimensionTimeBucketOperator
 {

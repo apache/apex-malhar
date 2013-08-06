@@ -38,7 +38,6 @@ import java.util.Map;
  * <b> indexes : </b> Select column indexes. <br>
  * <br>
  *
- * @author Amol Kekre <amol@datatorrent.com>
  * @since 0.3.3
  */
 public class GroupByOperator extends SqlOperator

@@ -61,7 +61,6 @@ import org.slf4j.LoggerFactory;
  * <br>
  *
  * @since 0.3.2
- * @author Locknath Shil <locknath@datatorrent.com>
  */
 @ShipContainingJars(classes={kafka.javaapi.consumer.SimpleConsumer.class, org.I0Itec.zkclient.ZkClient.class, scala.ScalaObject.class})
 public abstract class KafkaInputOperator implements InputOperator, ActivationListener<OperatorContext>

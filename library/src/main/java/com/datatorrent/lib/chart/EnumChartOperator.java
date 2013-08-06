@@ -25,7 +25,6 @@ import java.util.TreeMap;
  * @param <K> The type of the key
  * @param <X> The type of values on the X-axis
  * @since 0.3.2
- * @author David Yan <david@datatorrent.com>
  */
 public abstract class EnumChartOperator<K, X> extends XYChartOperator<K, X, Number>
 {
