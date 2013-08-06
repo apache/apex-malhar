@@ -26,7 +26,6 @@ import java.util.TreeMap;
  *
  * @param <K> The type of the key
  * @since 0.3.2
- * @author David Yan <david@datatorrent.com>
  */
 public class TimeSeriesCandleStickChartOperator<K> extends TimeSeriesChartOperator<K, CandleStick>
 {

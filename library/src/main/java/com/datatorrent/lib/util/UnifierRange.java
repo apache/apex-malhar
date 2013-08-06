@@ -26,7 +26,6 @@ import com.datatorrent.api.Operator.Unifier;
  * with round robin partition. The first element in the ArrayList is high, the next is low
  *
  * @since 0.3.2
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public class UnifierRange implements Unifier<HighLow>
 {

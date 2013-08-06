@@ -52,7 +52,6 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
  * <br>
  *
  * @since 0.3.3
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public class ChangeMap<K, V extends Number> extends
 		BaseNumberKeyValueOperator<K, V>

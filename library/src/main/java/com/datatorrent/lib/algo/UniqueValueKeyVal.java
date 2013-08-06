@@ -40,7 +40,6 @@ import com.datatorrent.lib.util.KeyValPair;
  * <br>
  *
  * @since 0.3.2
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public class UniqueValueKeyVal<K> extends BaseKeyOperator<K> implements  Unifier<KeyValPair<K, Integer>>
 {

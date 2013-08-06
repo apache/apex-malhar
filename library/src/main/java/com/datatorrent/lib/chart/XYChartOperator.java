@@ -31,7 +31,6 @@ import com.datatorrent.lib.util.KeyValPair;
  * @param <X> The type for the data points on the x-axis
  * @param <Y> The type for the data points on the y-axis
  * @since 0.3.2
- * @author David Yan <david@datatorrent.com>
  */
 public abstract class XYChartOperator<K, X, Y> extends ChartOperator
 {

@@ -28,7 +28,6 @@ import com.datatorrent.api.DefaultOutputPort;
  * <p>TopOccurance class.</p>
  *
  * @since 0.3.2
- * @author Dinesh Prasad <dinesh@datatorrent.com>
  */
 public class TopOccurance extends BaseOperator
 {

@@ -31,7 +31,6 @@ import java.io.Serializable;
  * <br>
  *
  * @since 0.3.2
- * @author Pramod Immaneni <pramod@datatorrent.com>
  */
 @DefaultSerializer(KryoJdkSerializer.class)
 public class RomeFeedEntry extends KryoJdkContainer<SyndEntry> implements Serializable

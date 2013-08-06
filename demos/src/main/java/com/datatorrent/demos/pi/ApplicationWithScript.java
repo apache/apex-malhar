@@ -72,7 +72,6 @@ import com.datatorrent.lib.testbench.RandomEventGenerator;
  * </ul>
  *
  * @since 0.3.2
- * @author David Yan <davidyan@datatorrent.com>
  */
 public class ApplicationWithScript implements StreamingApplication
 {

@@ -28,7 +28,6 @@ import org.apache.hadoop.conf.Configuration;
  * <p>Application class.</p>
  *
  * @since 0.3.2
- * @author Pramod Immaneni <pramod@datatorrent.com>
  */
 public class Application implements StreamingApplication
 {

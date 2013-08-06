@@ -26,7 +26,6 @@ import java.util.AbstractMap;
  * @param <K>
  * @param <V>
  * @since 0.3.2
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public class KeyValPair<K, V> extends AbstractMap.SimpleEntry<K, V>
 {

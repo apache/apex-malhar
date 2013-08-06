@@ -29,7 +29,6 @@ import com.datatorrent.lib.io.LocalFsInputOperator;
  * This application reads local demo text file and relays text content to output console.
  *
  * @since 0.3.2
- * @author Dinesh Prasad<dinesh@datatorrent.com>
  */
 public class LocalFsInputSample implements StreamingApplication
 {

@@ -28,7 +28,6 @@ import java.util.Map;
  * with round robin partitions. The combiner needs to add values of a key from every partition
  *
  * @since 0.3.2
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public class UnifierHashMapInteger<K> implements Unifier<HashMap<K, Integer>>
 {

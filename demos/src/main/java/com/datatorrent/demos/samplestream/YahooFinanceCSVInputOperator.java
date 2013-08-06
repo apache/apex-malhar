@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
  * Get stock information from Yahoo finance site. <p>
  *
  * @since 0.3.2
- * @author Zhongjian Wang <zhongjian@datatorrent.com>
  */
 public class YahooFinanceCSVInputOperator extends SimpleSinglePortInputOperator<ArrayList<String>> implements Runnable
 {

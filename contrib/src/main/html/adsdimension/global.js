@@ -5,7 +5,6 @@
 
 /**
  * Declaration and initialization for global variables.
- * @author Dinesh Prasad (dinesh@malhar-inc.com) 
  */
 
 // url parameters   
@@ -174,7 +173,6 @@ function DataUrl()
 /**
  * Creates data table with time stamp and cost values.
  * Draw line chart for time vs cost.
- * @author Dinesh Prasad (dinesh@malhar-inc.com).
  */
 function DrawCostChart()
 {
@@ -215,7 +213,6 @@ function DrawCostChart()
 /**
  * Creates data table with time stamp and revenu values.
  * Draw line chart for time vs revenue.
- * @author Dinesh Prasad (dinesh@malhar-inc.com).
  */
 function DrawRevenueChart()
 {
@@ -255,7 +252,6 @@ function DrawRevenueChart()
 /**
  * Creates data table with time stamp and clicks values.
  * Draw line chart for time vs clicks.
- * @author Dinesh Prasad (dinesh@malhar-inc.com).
  */
 function DrawClicksChart()
 {
@@ -295,7 +291,6 @@ function DrawClicksChart()
 /**
  * Creates data table with time stamp and impressions values.
  * Draw line chart for time vs impressions.
- * @author Dinesh Prasad (dinesh@malhar-inc.com).
  */
 function DrawImpressionsChart()
 {
@@ -334,7 +329,6 @@ function DrawImpressionsChart()
 
 /**
  * Draw line chart for time vs ctr.
- * @author Dinesh Prasad (dinesh@malhar-inc.com).
  */
 function DrawCtrChart()
 {
@@ -373,7 +367,6 @@ function DrawCtrChart()
 
 /**
  * Draw line chart for time vs margin.
- * @author Dinesh Prasad (dinesh@malhar-inc.com).
  */
 function DrawMarginChart()
 {

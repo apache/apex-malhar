@@ -71,7 +71,6 @@ import java.util.Map;
  * <br>
  *
  * @since 0.3.2
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public class CompareExceptMap<K, V extends Number> extends MatchMap<K, V>
 {

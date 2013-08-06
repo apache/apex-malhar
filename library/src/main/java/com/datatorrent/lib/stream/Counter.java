@@ -35,7 +35,6 @@ import com.datatorrent.api.Operator.Unifier;
  * <br>
  *
  * @since 0.3.3
- * @author Chetan Narsude <chetan@datatorrent.com>
  */
 public class Counter implements Operator, Unifier<Integer>
 {

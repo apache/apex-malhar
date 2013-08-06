@@ -22,7 +22,6 @@ import org.junit.Test;
 
 /**
  *
- * @author Zhongjian Wang <zhongjian@datatorrent.com>
  */
 public class ApplicationTest
 {

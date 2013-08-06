@@ -32,7 +32,6 @@ import org.apache.commons.lang.mutable.MutableDouble;
  * <p>BucketOperator class.</p>
  *
  * @since 0.3.2
- * @author Pramod Immaneni <pramod@datatorrent.com>
  */
 public class BucketOperator extends BaseOperator
 {

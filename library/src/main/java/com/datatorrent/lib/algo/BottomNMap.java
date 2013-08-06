@@ -44,7 +44,6 @@ import com.datatorrent.lib.util.AbstractBaseNNonUniqueOperatorMap;
  * <br>
  *
  * @since 0.3.3
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public class BottomNMap<K, V> extends AbstractBaseNNonUniqueOperatorMap<K, V>
 {

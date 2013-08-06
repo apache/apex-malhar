@@ -41,7 +41,6 @@ import org.slf4j.LoggerFactory;
  *
  * @param <T> Type of the key in the map object which is accepted on input port as payload. Note that this key must be HashMap friendly.
  * @since 0.3.2
- * @author Chetan Narsude <chetan@datatorrent.com>
  */
 public class WindowedTopCounter<T> extends BaseOperator
 {

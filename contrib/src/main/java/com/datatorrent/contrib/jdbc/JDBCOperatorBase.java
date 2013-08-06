@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
  * This handles JDBC connection and column mapping for output operators.
  *
  * @since 0.3.2
- * @author Locknath Shil <locknath@datatorrent.com>
  */
 public abstract class JDBCOperatorBase
 {

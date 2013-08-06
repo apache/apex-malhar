@@ -65,7 +65,6 @@ import org.apache.hadoop.conf.Configuration;
  * </ul>
  *
  * @since 0.3.2
- * @author Zhongjian Wang <zhongjian@datatorrent.com>
  */
 public class Application implements StreamingApplication
 {

@@ -29,7 +29,6 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
  * <br>
  *
  * @since 0.3.3
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public class DevNull<K> extends BaseOperator
 {

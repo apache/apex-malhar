@@ -48,7 +48,6 @@ import com.datatorrent.api.Context.OperatorContext;
  * "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.22 (KHTML, like Gecko) Ubuntu Chromium/25.0.1364.160 Chrome/25.0.1364.160 Safari/537.22"
  *
  * @since 0.3.2
- * @author Dinesh Prasad <dinesh@datatorrent.com>
  */
 public class ApacheGenRandomLogs extends BaseOperator implements InputOperator
 {

@@ -22,7 +22,6 @@ import java.util.Calendar;
  * <p>AggrKey class.</p>
  *
  * @since 0.3.2
- * @author Pramod Immaneni <pramod@datatorrent.com>
  */
 public class AggrKey extends TimeBucketKey
 {

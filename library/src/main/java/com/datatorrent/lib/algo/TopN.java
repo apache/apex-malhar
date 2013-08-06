@@ -43,7 +43,6 @@ import com.datatorrent.lib.util.AbstractBaseNNonUniqueOperatorMap;
  * <br>
  *
  * @since 0.3.3
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public class TopN<K, V> extends AbstractBaseNNonUniqueOperatorMap<K,V> implements Unifier<HashMap<K, ArrayList<V>>>   
 {

@@ -41,7 +41,6 @@ import javax.validation.constraints.Pattern;
  * none<br>
  *
  * @since 0.3.2
- * @author Amol Kekre <amol@datatorrent.com>
  */
 @SuppressWarnings("rawtypes")
 public abstract class AbstractBaseMatchOperator<K,V extends Comparable> extends BaseKeyValueOperator<K,V>

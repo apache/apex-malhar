@@ -35,7 +35,6 @@ import java.util.Collection;
  *
  * @param <T> Type of elements in the collection.<br>
  * @since 0.3.3
- * @author Chetan Narsude <chetan@datatorrent.com>
  */
 public class ArrayListAggregator<T> extends AbstractAggregator<T>
 {

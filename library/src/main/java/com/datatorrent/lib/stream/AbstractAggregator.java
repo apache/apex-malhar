@@ -36,7 +36,6 @@ import com.datatorrent.api.Operator;
  * @param <T>
  *          Aggregate tuple type.
  * @since 0.3.3
- * @author Chetan Narsude <chetan@datatorrent.com>
  */
 public abstract class AbstractAggregator<T> implements Operator
 {

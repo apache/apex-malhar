@@ -26,7 +26,6 @@ import twitter4j.URLEntity;
  * <p>TwitterStatusURLExtractor class.</p>
  *
  * @since 0.3.2
- * @author Chetan Narsude <chetan@datatorrent.com>
  */
 public class TwitterStatusURLExtractor extends BaseOperator
 {

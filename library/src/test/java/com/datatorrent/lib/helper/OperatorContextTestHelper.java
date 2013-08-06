@@ -11,7 +11,6 @@ import com.datatorrent.api.Context.OperatorContext;
 
 /**
  *
- * @author Pramod Immaneni <pramod@malhar-inc.com>
  */
 public class OperatorContextTestHelper
 {

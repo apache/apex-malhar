@@ -23,7 +23,6 @@ import org.apache.commons.lang.mutable.MutableInt;
  *
  * @param <K>
  * @since 0.3.2
- * @author Chetan Narsude <chetan@datatorrent.com>
  */
 public class BaseUniqueKeyCounter<K> extends BaseKeyOperator<K>
 {

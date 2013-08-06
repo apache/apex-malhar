@@ -29,7 +29,6 @@ import com.datatorrent.lib.math.AverageMap;
  * <bClass : </b> com.datatorrent.lib.math.AverageMap
  *
  * @since 0.3.2
- * @author Dinesh Prasad <dinesh@datatorrent.com>
  */
 public class AverageKeyValMapSample  implements StreamingApplication
 {
