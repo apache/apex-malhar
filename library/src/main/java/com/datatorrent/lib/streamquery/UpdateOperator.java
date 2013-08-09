@@ -15,14 +15,17 @@
  */
 package com.datatorrent.lib.streamquery;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.lib.streamquery.condition.Condition;
+
 /**
- *  This operator provides sql update query semantic on live data stream. <br>
- *  Stream rows passing condition are updated by new column values. <br>
- *  All rows are emitted on output port. <br>
+ *  This operator provides sql select query semantic on live data stream. <br>
+ *  Stream rows passing condition are emitted on output port stream. <br>
  *  <br>
  *  <b>StateFull : NO,</b> all row data is processed in current time window. <br>
  *  <b>Partitions : Yes, </b> No Input dependency among input rows. <br>
@@ -36,67 +39,60 @@ import java.util.Map;
  * <b> columns : </b> Column names/aggregate functions for select. <br>
  * <br>
  */
-public class UpdateOperator extends SqlOperator
-{
+public class UpdateOperator extends BaseOperator
+{ 
   /**
-   * Update column/value map.
+   * Update value map.
    */
-	private HashMap<String, Object> updates = new HashMap<String, Object>();
+  Map<String, Object> updates = new HashMap<String, Object>();
+  
+	/**
+	 *  condition.
+	 */
+	private Condition condition = null;
 	
 	/**
-	 * Where condition for update. 
+	 * set condition.
 	 */
-	private SelectCondition condition;
-	
-	/**
-	 * Process rows function.
-	 */
-	@Override
-  public ArrayList<HashMap<String, Object>> processRows(
-      ArrayList<HashMap<String, Object>> rows)
-  {
-    // update all rows  
-		for (int i=0; i < rows.size(); i++) {
-			HashMap<String, Object> row = rows.get(i);
-			boolean isValid = (condition == null) ? true : condition.isValidRow(row);
-			if (isValid) {
-				updateRow(row);
-			}
-		}
-	  return rows;
-  }
-
-	private void updateRow(HashMap<String, Object> row)
-  {
-	  for (Map.Entry<String, Object> entry : updates.entrySet()) {
-	  	if (row.containsKey(entry.getKey())) {
-	  		row.remove(entry.getKey());
-	  		row.put(entry.getKey(), entry.getValue());
-	  	}
-	  }
-  }
-
-	/**
-	 * Add  update column/value.
-	 */
-	public void addColumnValue(String name, Object value)
+	public void setCondition(Condition condition)
 	{
-		updates.put(name, value);
+		this.condition = condition;
 	}
-
-	/**
-   * @return the condition
+	
+  /**
+   * Input port.
    */
-  public SelectCondition getCondition()
-  {
-	  return condition;
-  }
-
-	/**
-   * @param set condition
+  public final transient DefaultInputPort<Map<String, Object>> inport = new DefaultInputPort<Map<String, Object>>() {
+    @Override
+    public void process(Map<String, Object> tuple)
+    {
+      if ((condition != null)&&(!condition.isValidRow(tuple)))return;
+      if (updates.size() == 0) {
+        outport.emit(tuple);
+        return;
+      }
+      Map<String, Object> result = new HashMap<String, Object>();
+      for(Map.Entry<String, Object> entry : tuple.entrySet()) {
+        if (updates.containsKey(entry.getKey())) {
+          result.put(entry.getKey(), updates.get(entry.getKey()));
+        } else {
+          result.put(entry.getKey(), entry.getValue());
+        }
+      }
+      outport.emit(result);
+    }
+  };
+  
+  /**
+   * Output port.
    */
-  public void setCondition(SelectCondition condition)
+  public final transient DefaultOutputPort<Map<String, Object>> outport =  new DefaultOutputPort<Map<String, Object>>();
+  
+  /**
+   * Add update value.
+   */
+  public void addUpdate(String name, Object value) 
   {
-	  this.condition = condition;
+    updates.put(name, value);
   }
 }

@@ -19,8 +19,9 @@ import java.util.HashMap;
 
 import org.junit.Test;
 
-import com.datatorrent.lib.streamquery.JoinEqualCondition;
-import com.datatorrent.lib.streamquery.RightOuterJoinOperator;
+import com.datatorrent.lib.streamquery.condition.Condition;
+import com.datatorrent.lib.streamquery.condition.JoinColumnEqualCondition;
+import com.datatorrent.lib.streamquery.index.ColumnIndex;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 public class RightOuterJoinOperatorTest
@@ -30,18 +31,18 @@ public class RightOuterJoinOperatorTest
   public void testSqlSelect()
   {
   	// create operator   
-		RightOuterJoinOperator oper = new RightOuterJoinOperator();	
+		OuterJoinOperator oper = new OuterJoinOperator();	
+		oper.setRighttJoin();
   	CollectorTestSink sink = new CollectorTestSink();
   	oper.outport.setSink(sink);
   	
-  	// set column join condition  
-  	JoinEqualCondition cond = new JoinEqualCondition();
-  	cond.addEqualKey("a");
-  	oper.setJoinCondition(cond);
-  	
-  	// add columns  
-  	oper.selectTable1Column("b", null);
-  	oper.selectTable2Column("c", null);
+    // set column join condition  
+    Condition cond = new JoinColumnEqualCondition("a", "a");
+    oper.setJoinCondition(cond);
+    
+    // add columns  
+    oper.selectTable1Column(new ColumnIndex("b", null));
+    oper.selectTable2Column(new ColumnIndex("c", null));
   	
   	oper.setup(null);
   	oper.beginWindow(1);
@@ -72,17 +73,11 @@ public class RightOuterJoinOperatorTest
   	oper.inport2.process(tuple);
   	
   	tuple = new HashMap<String, Object>();
-  	tuple.put("a", 2);
-  	tuple.put("b", 11);
-  	tuple.put("c", 12);
-  	oper.inport2.process(tuple);
-  	
-  	tuple = new HashMap<String, Object>();
-  	tuple.put("a", 2);
-  	tuple.put("b", 15);
-  	tuple.put("c", 17);
-  	oper.inport2.process(tuple);
-  	
+    tuple.put("a", 2);
+    tuple.put("b", 11);
+    tuple.put("c", 12);
+    oper.inport2.process(tuple);
+    
   	oper.endWindow();
   	oper.teardown();
   	

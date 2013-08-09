@@ -19,8 +19,6 @@ import java.util.HashMap;
 
 import org.junit.Test;
 
-import com.datatorrent.lib.streamquery.OrderByOperator;
-import com.datatorrent.lib.streamquery.OrderByRule;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**

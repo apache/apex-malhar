@@ -19,25 +19,34 @@ import java.util.HashMap;
 
 import org.junit.Test;
 
-import com.datatorrent.lib.streamquery.GroupByOperator;
-import com.datatorrent.lib.streamquery.SelectSumIntegerIndex;
+import com.datatorrent.lib.streamquery.condition.EqualValueCondition;
+import com.datatorrent.lib.streamquery.function.SumFunction;
+import com.datatorrent.lib.streamquery.index.ColumnIndex;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
- *  Functional test for {@link com.datatorrent.lib.streamquery.GroupByOperator }
+ * Functional test for {@link com.datatorrent.lib.streamquery.GroupByOperatorTest}.
  */
 public class GroupByOperatorTest
 {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
-  public void testSqlSelect()
+  public void testSqlGroupBy()
   {
-  	// craete operator   
-    GroupByOperator oper = new GroupByOperator();
-    oper.addGroupByName("a", null);
-    SelectSumIntegerIndex index = new SelectSumIntegerIndex();
-    index.addNameAlias("b", "SUM b");
-    oper.addSelectIndex(index);
+  	// create operator   
+	  GroupByHavingOperator oper = new GroupByHavingOperator();
+  	oper.addColumnGroupByIndex(new ColumnIndex("b", null));
+  	try {
+      oper.addAggregateIndex(new SumFunction("c", null));
+    } catch (Exception e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      return;
+    }
+  	
+  	EqualValueCondition  condition = new EqualValueCondition();
+  	condition.addEqualValue("a", 1);
+  	oper.setCondition(condition);
   	
   	CollectorTestSink sink = new CollectorTestSink();
   	oper.outport.setSink(sink);
@@ -46,41 +55,29 @@ public class GroupByOperatorTest
   	oper.beginWindow(1);
   	
   	HashMap<String, Object> tuple = new HashMap<String, Object>();
-  	tuple.put("c", 2);
-  	tuple.put("a", 0);
+  	tuple.put("a", 1);
   	tuple.put("b", 1);
+  	tuple.put("c", 2);
   	oper.inport.process(tuple);
   	
   	tuple = new HashMap<String, Object>();
-  	tuple.put("a", 2);
-  	tuple.put("b", 5);
+  	tuple.put("a", 1);
+  	tuple.put("b", 1);
+  	tuple.put("c", 4);
+  	oper.inport.process(tuple);
+  	
+  	tuple = new HashMap<String, Object>();
+  	tuple.put("a", 1);
+  	tuple.put("b", 2);
   	tuple.put("c", 6);
   	oper.inport.process(tuple);
   	
-  	tuple = new HashMap<String, Object>();
-  	tuple.put("a", 2);
-  	tuple.put("b", 6);
-  	tuple.put("c", 6);
-  	oper.inport.process(tuple);
-  	
-  	tuple = new HashMap<String, Object>();
-  	tuple.put("a", 1);
-  	tuple.put("b", 3);
-  	tuple.put("c", 4);
-  	oper.inport.process(tuple);
-  	
-  	tuple = new HashMap<String, Object>();
-  	tuple.put("a", 1);
-  	tuple.put("b", 4);
-  	tuple.put("c", 4);
-  	oper.inport.process(tuple);
-  	
-  	tuple = new HashMap<String, Object>();
-  	tuple.put("a", 1);
-  	tuple.put("b", 8);
-  	tuple.put("c", 4);
-  	oper.inport.process(tuple);
-  	
+    tuple = new HashMap<String, Object>();
+    tuple.put("a", 1);
+    tuple.put("b", 2);
+    tuple.put("c", 7);
+    oper.inport.process(tuple);
+    
   	oper.endWindow();
   	oper.teardown();
   	

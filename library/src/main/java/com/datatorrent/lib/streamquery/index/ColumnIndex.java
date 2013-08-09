@@ -17,25 +17,26 @@ package com.datatorrent.lib.streamquery.index;
 
 import java.util.Map;
 
+import javax.validation.constraints.NotNull;
+
 
 public class ColumnIndex implements Index
 {
   /**
    * Column/alias name.
    */
-  private String column = null;
+  protected String column = null;
   protected String alias = null;
   
-  public ColumnIndex(String column, String alias) 
+  public ColumnIndex(@NotNull String column, String alias) 
   {
     this.setColumn(column);
     this.alias = alias;
   }
   
   @Override
-  public void filter(Map<String, Object> row, Map<String, Object> collect)
+  public void filter(@NotNull  Map<String, Object> row, @NotNull  Map<String, Object> collect)
   {
-    if (getColumn() == null) return;
     String name = getColumn();
     if (alias != null) name = alias;
     collect.put(name, row.get(name));

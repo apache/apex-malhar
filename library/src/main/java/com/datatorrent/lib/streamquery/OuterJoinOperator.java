@@ -16,29 +16,38 @@
 package com.datatorrent.lib.streamquery;
 
 /**
- * This operator provides sql right outer join operation semantic on live stream. <br>
- * Please refer to {@link com.datatorrent.lib.streamquery.InnerJoinOperator} for details.
+ * This operator provides sql left/right/full outer join operation semantic on
+ * live stream. <br>
+ * Please refer to {@link com.datatorrent.lib.streamquery.InnerJoinOperator} for
+ * details.
+ * 
+ * <b> Properties : </b> <br>
+ * <b> isLeftJoin : </b> Left join flag. <br>
+ * <b> isFullJoin : </b> Full join flag. <br>
  */
 public class OuterJoinOperator extends InnerJoinOperator
 {
+
   private boolean isLeftJoin = true;
-  
-	@Override
+  private boolean isFullJoin = false;
+
+  @Override
   public void endWindow()
   {
-		if (isLeftJoin) {
-	    for (int i=0; i < table1.size(); i++) {
-	      boolean merged = false;
-	      for (int j=0; j < table2.size(); j++) {
-	        if ((joinCondition == null) || (joinCondition.isValidJoin(table1.get(i), table2.get(j)))) {
-	          merged = true;
-	        } 
-	      }
-	      if (!merged) {
-	        joinRows(table1.get(i), null);
-	      }
-	    }
-		} else {
+    // full outer join
+    if (isFullJoin) {
+      for (int i = 0; i < table1.size(); i++) {
+        boolean merged = false;
+        for (int j = 0; j < table2.size(); j++) {
+          if ((joinCondition == null)
+              || (joinCondition.isValidJoin(table1.get(i), table2.get(j)))) {
+            merged = true;
+          }
+        }
+        if (!merged) {
+          joinRows(table1.get(i), null);
+        }
+      }
       for (int i = 0; i < table2.size(); i++) {
         boolean merged = false;
         for (int j = 0; j < table1.size(); j++) {
@@ -51,13 +60,55 @@ public class OuterJoinOperator extends InnerJoinOperator
           joinRows(null, table2.get(i));
         }
       }
-		}
+      return;
+    }
+
+    // left or right join
+    if (isLeftJoin) {
+      for (int i = 0; i < table1.size(); i++) {
+        boolean merged = false;
+        for (int j = 0; j < table2.size(); j++) {
+          if ((joinCondition == null)
+              || (joinCondition.isValidJoin(table1.get(i), table2.get(j)))) {
+            merged = true;
+          }
+        }
+        if (!merged) {
+          joinRows(table1.get(i), null);
+        }
+      }
+    } else {
+      for (int i = 0; i < table2.size(); i++) {
+        boolean merged = false;
+        for (int j = 0; j < table1.size(); j++) {
+          if ((joinCondition == null)
+              || (joinCondition.isValidJoin(table1.get(j), table2.get(i)))) {
+            merged = true;
+          }
+        }
+        if (!merged) { // only output non merged rows
+          joinRows(null, table2.get(i));
+        }
+      }
+    }
   }
-	
-	public void setLeftJoin() {
-	  isLeftJoin = true;
-	} 
-  public void setRighttJoin() {
+
+  public void setLeftJoin()
+  {
+    isLeftJoin = true;
+  }
+  public void setRighttJoin()
+  {
     isLeftJoin = false;
-  } 
+  }
+
+  public boolean isFullJoin()
+  {
+    return isFullJoin;
+  }
+
+  public void setFullJoin(boolean isFullJoin)
+  {
+    this.isFullJoin = isFullJoin;
+  }
 }

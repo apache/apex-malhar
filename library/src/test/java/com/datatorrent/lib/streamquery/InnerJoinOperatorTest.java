@@ -20,7 +20,9 @@ import java.util.HashMap;
 import org.junit.Test;
 
 import com.datatorrent.lib.streamquery.InnerJoinOperator;
-import com.datatorrent.lib.streamquery.JoinEqualCondition;
+import com.datatorrent.lib.streamquery.condition.Condition;
+import com.datatorrent.lib.streamquery.condition.JoinColumnEqualCondition;
+import com.datatorrent.lib.streamquery.index.ColumnIndex;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
@@ -40,13 +42,12 @@ public class InnerJoinOperatorTest
   	oper.outport.setSink(sink);
   	
   	// set column join condition  
-  	JoinEqualCondition cond = new JoinEqualCondition();
-  	cond.addEqualKey("a");
+  	Condition cond = new JoinColumnEqualCondition("a", "a");
   	oper.setJoinCondition(cond);
   	
   	// add columns  
-  	oper.selectTable1Column("b", null);
-  	oper.selectTable2Column("c", null);
+  	oper.selectTable1Column(new ColumnIndex("b", null));
+  	oper.selectTable2Column(new ColumnIndex("c", null));
   	
   	oper.setup(null);
   	oper.beginWindow(1);

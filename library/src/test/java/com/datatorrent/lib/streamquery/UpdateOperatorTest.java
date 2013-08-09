@@ -19,8 +19,8 @@ import java.util.HashMap;
 
 import org.junit.Test;
 
-import com.datatorrent.lib.streamquery.SelectEqualCondition;
 import com.datatorrent.lib.streamquery.UpdateOperator;
+import com.datatorrent.lib.streamquery.condition.EqualValueCondition;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 public class UpdateOperatorTest
@@ -32,10 +32,10 @@ public class UpdateOperatorTest
   	// create operator   
 		UpdateOperator oper = new UpdateOperator();
   	
-  	SelectEqualCondition  condition = new SelectEqualCondition();
+  	EqualValueCondition  condition = new EqualValueCondition();
   	condition.addEqualValue("a", 1);
   	oper.setCondition(condition);
-  	oper.addColumnValue("a", 2);
+  	oper.addUpdate("c", 100);
   	
   	CollectorTestSink sink = new CollectorTestSink();
   	oper.outport.setSink(sink);

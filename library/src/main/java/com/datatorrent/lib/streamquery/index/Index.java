@@ -17,13 +17,15 @@ package com.datatorrent.lib.streamquery.index;
 
 import java.util.Map;
 
+import javax.validation.constraints.NotNull;
+
 /**
- * Interface to define sql select statement column names/aggregate functions. 
+ * Interface to define sql select statement indexes for column names/aggregate. 
  */
 public interface Index
 {
   /**
    * Function can key/value hash map, does operation implemented by sub class.
    */
-	public void filter(Map<String,Object> row, Map<String, Object> collect);  
+	public void filter(@NotNull Map<String,Object> row, @NotNull Map<String, Object> collect);  
 }

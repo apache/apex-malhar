@@ -1,18 +1,58 @@
+/*
+ * Copyright (c) 2013 Malhar Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.datatorrent.lib.streamquery.condition;
 
 import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
+/**
+ * This class validates row. Given column name value must be between given left/right range. <br>
+ * <br>
+ * <b>Properties : </b> <br>
+ * <b> column : </b> Name of column. <br>
+ * <b> leftValue : </b> left range of column value. <br>
+ * <b> rightValue : </b> right range od column value. <br>
+ * <br>
+ */
 public class BetweenCondition  extends Condition
 {
+  /**
+   * Column name to be checked.
+   */
   @NotNull  
   private String column;
+  
+  /**
+   * Left range value.
+   */
   @NotNull
   private Object leftValue;
+  
+  /**
+   * Right range value.
+   */
   @NotNull
   private Object rightValue;
   
+  /**
+   * @param  column  Name of column, must be non null. <br>
+   * @param  leftValue  Left range for value, mut be non null. <br>
+   * @param  rightValue  right range for value, mut be non null. <br>
+   */
   public BetweenCondition(@NotNull String column, @NotNull  Object leftValue, @NotNull Object rightValue) 
   {
     this.column = column;
@@ -20,6 +60,9 @@ public class BetweenCondition  extends Condition
     this.rightValue = rightValue;
   }
   
+  /**
+   * Validate given row.
+   */
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
   public boolean isValidRow(@NotNull Map<String, Object> row)
@@ -32,10 +75,13 @@ public class BetweenCondition  extends Condition
     return true;
   }
 
+  /**
+   * Must not be called. 
+   */
   @Override
   public boolean isValidJoin(@NotNull Map<String, Object> row1, Map<String, Object> row2)
   {
-    // TODO Auto-generated method stub
+    assert(false);
     return false;
   }
 

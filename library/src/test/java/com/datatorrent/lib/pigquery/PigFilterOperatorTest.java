@@ -23,7 +23,7 @@ import com.datatorrent.lib.streamquery.condition.EqualValueCondition;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
- * Functional test for {@link com.datatorrent.lib.streamquery.SelectOperatorTest}.
+ * Functional test for {@link com.datatorrent.lib.streamquery.PigFilterOperator}.
  */
 public class PigFilterOperatorTest
 {

@@ -16,64 +16,75 @@
 package com.datatorrent.lib.streamquery;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
 /**
- *  Class for implementing order by key name rule. <br>
+ * Class for implementing order by key name rule. <br>
+ * 
+ * <b>Properties : </b> <br>
+ * <b> columnName : </b> Name of column for ordering tuples. <br>
  */
 @SuppressWarnings("rawtypes")
-public class OrderByRule<T extends Comparable> {
-	/**
-	 * column name.
-	 */
-	private String columnName;
+public class OrderByRule<T extends Comparable>
+{
 
-	public OrderByRule(String name) {
-		columnName = name;	
-	}
-	
-	/**
-	 * sort rows.
-	 */
-	@SuppressWarnings("unchecked")
-	public ArrayList<HashMap<String, Object>> sort(
-			ArrayList<HashMap<String, Object>> rows) {
-		TreeMap<T, ArrayList<HashMap<String, Object>>> sorted = new TreeMap<T, ArrayList<HashMap<String, Object>>>();
-        for (int i=0; i < rows.size(); i++) {
-        	HashMap<String, Object> row = rows.get(i);
-        	if (row.containsKey(columnName)) {
-        		T value = (T) row.get(columnName);
-        		ArrayList<HashMap<String, Object>> list;
-        		if (sorted.containsKey(value)) {
-        			list = sorted.get(value);
-        		} else {
-        			list = new ArrayList<HashMap<String, Object>>();
-        			sorted.put(value, list);
-        		}
-        		list.add(row);
-        	} 
+  /**
+   * column name for ordering tuples.
+   */
+  private String columnName;
+
+  public OrderByRule(String name)
+  {
+
+    columnName = name;
+  }
+
+  /**
+   * sort rows by each rule and emit result on output port.
+   */
+  @SuppressWarnings("unchecked")
+  public ArrayList<Map<String, Object>> sort(ArrayList<Map<String, Object>> rows)
+  {
+
+    TreeMap<T, ArrayList<Map<String, Object>>> sorted = new TreeMap<T, ArrayList<Map<String, Object>>>();
+    for (int i = 0; i < rows.size(); i++) {
+      Map<String, Object> row = rows.get(i);
+      if (row.containsKey(columnName)) {
+        T value = (T) row.get(columnName);
+        ArrayList<Map<String, Object>> list;
+        if (sorted.containsKey(value)) {
+          list = sorted.get(value);
+        } else {
+          list = new ArrayList<Map<String, Object>>();
+          sorted.put(value, list);
         }
-        ArrayList<HashMap<String, Object>> result = new ArrayList<HashMap<String, Object>>();
-        for (Map.Entry<T, ArrayList<HashMap<String, Object>>> entry : sorted.entrySet()) {
-        	result.addAll(entry.getValue());
-        }
-		return result;
-	}
+        list.add(row);
+      }
+    }
+    ArrayList<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
+    for (Map.Entry<T, ArrayList<Map<String, Object>>> entry : sorted.entrySet()) {
+      result.addAll(entry.getValue());
+    }
+    return result;
+  }
 
-	/**
-	 * @return the columnName
-	 */
-	public String getColumnName() {
-		return columnName;
-	}
+  /**
+   * @return the columnName
+   */
+  public String getColumnName()
+  {
 
-	/**
-	 * @param columnName
-	 *            the columnName to set
-	 */
-	public void setColumnName(String columnName) {
-		this.columnName = columnName;
-	}
+    return columnName;
+  }
+
+  /**
+   * @param columnName
+   *          the columnName to set
+   */
+  public void setColumnName(String columnName)
+  {
+
+    this.columnName = columnName;
+  }
 }

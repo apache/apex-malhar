@@ -52,7 +52,7 @@ public class Application implements StreamingApplication
 				.setAccessTokenSecret("ya76sQEFjz5rcWThNOOoViNNfAT1vMlD6xkqpswQ");
 		twitterFeed = dag.addOperator("TweetSampler", twitterFeed);
 
-    TwitterStatusWordExtractor wordExtractor = dag.addOperator("WordExtractor", TwitterStatusWordExtractor.class);
+   /* TwitterStatusWordExtractor wordExtractor = dag.addOperator("WordExtractor", TwitterStatusWordExtractor.class);
 
     UniqueCounter<String> uniqueCounter = dag.addOperator("UniqueWordCounter", new UniqueCounter<String>());
 
@@ -63,11 +63,9 @@ public class Application implements StreamingApplication
     dag.addStream("TweetStream", twitterFeed.text, wordExtractor.input).setInline(inline);
     dag.addStream("TwittedWords", wordExtractor.output, uniqueCounter.data).setInline(inline);
 
-    dag.addStream("UniqueWordCounts", uniqueCounter.count, topCounts.input).setInline(inline);
+    dag.addStream("UniqueWordCounts", uniqueCounter.count, topCounts.input).setInline(inline);*/
 
     ConsoleOutputOperator consoleOperator = dag.addOperator("topWords", new ConsoleOutputOperator());
-    consoleOperator.setStringFormat("topWords: %s");
-
-    dag.addStream("TopWords", topCounts.output, consoleOperator.input).setInline(inline);
+    dag.addStream("TopWords", twitterFeed.text, consoleOperator.input).setInline(inline);
   }
 }

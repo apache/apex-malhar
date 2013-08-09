@@ -1,22 +1,71 @@
+/*
+ * Copyright (c) 2013 Malhar Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.datatorrent.lib.streamquery.condition;
 
 import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
+/**
+ * Class for logical AND/OR select expression. <br>
+ * Class provides logical OR or AND function specified in parameters. User can implement
+ * complex and/or expression by chaining operator itself.
+ * <br>  
+ * <b> Properties : </b> <br>
+ * <b> leftCondition : </b> Left validate row condition . <br>
+ * <b> rightCondition : </b> Right validate row condition. <br>
+ * <b> logicalOr : </b> OR/AND logical operation flag. <br>
+ * <br>
+ */
 public class CompoundCondition extends Condition
 {
+  /**
+   * Left validate row condition .
+   */
   @NotNull
   private Condition leftCondition;
+  
+  /**
+   * Right validate row condition .
+   */
   @NotNull
   private Condition rightCondition;
+  
+  /**
+   * AND/OR operation flag.
+   */
   private boolean logicalOr = true;
   
+  /**
+   * Constructor for logical or operation.
+   * @param leftCondition  Left validate row condition, must be non null. <br>
+   * @param rightCondition  Right validate row condition, must be non null. <br>
+   */
   public CompoundCondition(Condition leftCondition, Condition rightCondition) {
     this.leftCondition = leftCondition;
     this.rightCondition = rightCondition;
   }
   
+  /**
+   * Constructor for logical and operation if logical and parameter is true. 
+   * <br>
+   * @param leftCondition  Left validate row condition, must be non null. <br>
+   * @param rightCondition  Right validate row condition, must be non null. <br>
+   * @param isLogicalAnd  Logical AND if true.
+   */
   public CompoundCondition(Condition leftCondition, Condition rightCondition, boolean isLogicalAnd) {
     this.leftCondition = leftCondition;
     this.rightCondition = rightCondition;

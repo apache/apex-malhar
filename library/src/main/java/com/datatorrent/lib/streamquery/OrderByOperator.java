@@ -16,8 +16,12 @@
 package com.datatorrent.lib.streamquery;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Operator;
 import com.datatorrent.api.Operator.Unifier;
 
 /**
@@ -26,16 +30,17 @@ import com.datatorrent.api.Operator.Unifier;
  * Input data rows are ordered by order rules, ordered result is emitted on output port. <br>
  * <br>
  *  *  <br>
- *  <b>StateFull : NO,</b> all row data is processed in current time window. <br>
+ *  <b>StateFull : Yes,</b> Operator aggregates input over application window. <br>
  *  <b>Partitions : Yes, </b> This operator is also unifier on output port. <br>
  *  <br>
  * <b>Ports</b>:<br>
  * <b> inport : </b> Input hash map(row) port, expects HashMap&lt;String,Object&gt;<<br>
  * <b> outport : </b> Output hash map(row) port, emits  HashMap&lt;String,Object&gt;<br>
  * <br>
- * <b> Properties : <b> <br>
+ * <b> Properties : </b> <br>
+ * <b> oredrByRules : </b>List of order by rules for tuples.
  */
-public class OrderByOperator extends SqlOperator implements Unifier<HashMap<String, Object>>
+public class OrderByOperator implements Operator, Unifier<Map<String, Object>>
 {
 	/**
 	 * Order by rules.
@@ -47,26 +52,10 @@ public class OrderByOperator extends SqlOperator implements Unifier<HashMap<Stri
 	 */
 	private boolean isDescending;
 	
-	
 	/**
-	 * Process rows operator.
+	 * collected rows.
 	 */
-	@Override
-	public ArrayList<HashMap<String, Object>> processRows(
-	    ArrayList<HashMap<String, Object>> rows)
-	{
-		for (int i=(oredrByRules.size()-1); i >= 0; i--) {
-			rows = oredrByRules.get(i).sort(rows);
-		}
-		if (isDescending) {
-			ArrayList<HashMap<String, Object>> tmp = new ArrayList<HashMap<String, Object>>();
-			for (int i=rows.size()-1; i >= 0; i--) {
-				tmp.add(rows.get(i));
-			}
-			rows = tmp;
-		}
-		return rows;
-	}
+	private ArrayList<Map<String, Object>> rows;
 
 	/**
 	 * Add order by rule.
@@ -93,21 +82,68 @@ public class OrderByOperator extends SqlOperator implements Unifier<HashMap<Stri
   }
 
 	@Override
-  public void process(HashMap<String, Object> tuple)
+  public void process(Map<String, Object> tuple)
   {
 	  rows.add(tuple);
   }
-	
-	/**
-	 *  Get unifier for output port.
-	 */
-	@Override
-	public Unifier<HashMap<String, Object>> getUnifier() {
-		OrderByOperator unifier = new OrderByOperator();
-		for (int i=0; i < oredrByRules.size(); i++) {
-			unifier.addOrderByRule(oredrByRules.get(i));
-		}
-		unifier.setDescending(isDescending);
-		return unifier;
-	}
+
+  @Override
+  public void beginWindow(long arg0)
+  {
+    rows = new ArrayList<Map<String, Object>>();
+  }
+
+  @Override
+  public void endWindow()
+  {
+    for (int i=0; i < oredrByRules.size(); i++) {
+      rows = oredrByRules.get(i).sort(rows);
+    }
+    if (isDescending) {
+      for (int i=0; i < rows.size(); i++)  outport.emit(rows.get(i));
+    } else {
+      for (int i=rows.size()-1; i >= 0;  i--)  outport.emit(rows.get(i));
+    }
+  }
+
+  @Override
+  public void setup(OperatorContext arg0)
+  {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void teardown()
+  {
+    // TODO Auto-generated method stub
+    
+  }
+  
+  /**
+   * Input port.
+   */
+  public final transient DefaultInputPort<Map<String, Object>> inport = new DefaultInputPort<Map<String, Object>>() {
+    @Override
+    public void process(Map<String, Object> tuple)
+    {
+      rows.add(tuple);
+    }
+  };
+  
+  /**
+   * Output port.
+   */
+  public final transient DefaultOutputPort<Map<String, Object>> outport =  new DefaultOutputPort<Map<String, Object>>()
+      {
+         @Override
+         public Unifier<Map<String, Object>> getUnifier() {
+           OrderByOperator unifier = new OrderByOperator();
+           for (int i=0; i < oredrByRules.size(); i++) {
+             unifier.addOrderByRule(oredrByRules.get(i));
+           }
+           unifier.setDescending(isDescending);
+           return unifier;
+         }
+      };
 }

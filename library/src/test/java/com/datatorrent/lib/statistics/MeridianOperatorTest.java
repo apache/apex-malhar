@@ -27,7 +27,7 @@ public class MeridianOperatorTest
   @Test
   public void testWeightedMean()
   {
-    MedianOperator<Double> oper = new MedianOperator<Double>();
+    MedianOperator oper = new MedianOperator();
     CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
     oper.median.setSink(sink);
     
@@ -40,6 +40,6 @@ public class MeridianOperatorTest
     oper.endWindow();
     
     Assert.assertEquals("Must be one tuple in sink", sink.collectedTuples.size(), 1);
-    System.out.println(sink.collectedTuples.get(0));
+    Assert.assertEquals("Median value", sink.collectedTuples.get(0), 5.0);
   }
 }

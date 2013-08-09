@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2013 Malhar Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.datatorrent.lib.streamquery.condition;
 
 import java.util.Map;
@@ -7,19 +22,40 @@ import java.util.regex.Pattern;
 import javax.validation.constraints.NotNull;
 
 
-
+/**
+ * Condition class to filter rows for which given column name value matches given regular expression. <br>
+ * 
+ *<b> Properties : </b> <br>
+ *<b> column : < /b> Column to be matched with regular expression. <br>
+ *<b> pattern : </b> Regular expression pattern.<br>
+ */
 public class LikeCondition extends Condition
 {
+  /**
+   * Column to be matched with regular expression.
+   */
   @NotNull
   private String column;
+  
+  /**
+   * Regular expression pattern.
+   */
   @NotNull
   private Pattern pattern;
   
-  public LikeCondition(String column, String pattern) {
+  /**
+   * @param column Column to be matched with regular expression, must be non-null.
+   * @param pattern Regular expression pattern, must be non-null.
+   */
+  public LikeCondition(@NotNull String column,@NotNull String pattern) {
     setColumn(column);
     setPattern(pattern);
   }
   
+  /**
+   * For valid row column value string must match regular expression.  
+   * @return row valid status.
+   */
   @Override
   public boolean isValidRow(Map<String, Object> row)
   {
@@ -29,10 +65,13 @@ public class LikeCondition extends Condition
     return true;
   }
 
+  /**
+   * Must not be called. 
+   */
   @Override
   public boolean isValidJoin(Map<String, Object> row1, Map<String, Object> row2)
   {
-    // TODO Auto-generated method stub
+    assert(false);
     return false;
   }
 

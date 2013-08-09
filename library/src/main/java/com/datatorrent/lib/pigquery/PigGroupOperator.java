@@ -25,12 +25,13 @@ import javax.validation.constraints.NotNull;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.lib.pigquery.condition.GroupByCondition;
 import com.datatorrent.lib.util.UnifierMap;
 
 
 /**
  * Class implements Apache Pig operator sematic. <br>
- * 
+ * This operator doe not support Group All semantic. <br>
  * <pre>
  * B = GROUP A BY age;
  * 
@@ -51,8 +52,16 @@ import com.datatorrent.lib.util.UnifierMap;
  * (19,{(Mary,19,3.8F)})
  * (20,{(Bill,20,3.9F)})
  * </pre>
+ * <b>Ports : </b> <br>
+ * <b> inport : </b> expects tuple Map<String, Object> <br>
+ * <b>outport : </b> emits Map<Object, List<Map<String, Object>>> <br>
  * 
+ * <b>StateFull : </b> Yes, tuples are aggregated over application window. <br>
+ * <b>Partitions : </b> Yes, map unifier on output port. <br>
  * 
+ * <b>Properties : </b> <br>
+ * <b>groupByCondition : </b> Group condition. <br>
+ * <br>
  */
 public class PigGroupOperator  extends BaseOperator
 {

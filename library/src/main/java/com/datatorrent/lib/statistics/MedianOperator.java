@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.statistics;
 
-import java.util.Iterator;
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
@@ -37,23 +37,23 @@ import com.datatorrent.api.DefaultOutputPort;
  * <b>Partitions : No</b>, no will yield wrong results. <br>
  * <br>+
 */
-public class MedianOperator<V extends Number> extends BaseOperator
+public class MedianOperator extends BaseOperator
 {
-  private TreeSet<V> values;
+  private ArrayList<Double> values;
   
   /**
    * Input data port.
    */
   @InputPortFieldAnnotation(name = "data")
-  public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
+  public final transient DefaultInputPort<Number> data = new DefaultInputPort<Number>()
   {
     /**
      * Computes sum and count with each tuple
      */
     @Override
-    public void process(V tuple)
+    public void process(Number tuple)
     {
-      values.add(tuple);
+      values.add(tuple.doubleValue());
     }
   };
   
@@ -61,32 +61,32 @@ public class MedianOperator<V extends Number> extends BaseOperator
    * Output port
    */
   @OutputPortFieldAnnotation(name = "median")
-  public final transient DefaultOutputPort<V> median = new DefaultOutputPort<V>();
+  public final transient DefaultOutputPort<Number> median = new DefaultOutputPort<Number>();
   
   @Override
   public void beginWindow(long arg0)
   {
-    values = new TreeSet<V> ();
+    values = new ArrayList<Double>();
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public void endWindow()
   {
     if (values.size() == 0) return;
-    Iterator<V> iter = values.iterator();
     if (values.size() == 1) {
-      median.emit(iter.next());
+      median.emit(values.get(0));
+      return;
     }
     
     // median value 
-    V[] arr = (V[]) values.toArray();
-    if (arr.length %2 == 0) {
-      Number value = (Double) arr[arr.length/2];
-      value =(Number) ((value.doubleValue() + arr[arr.length/2-1].doubleValue())/2);
-      median.emit(((V)value));
+    Collections.sort(values);
+    int medianIndex = values.size() / 2;
+    if (values.size() %2 == 0) {
+      Double value = values.get(medianIndex-1);
+      value = (value + values.get(medianIndex))/2;
+      median.emit(value);
     } else {
-      median.emit(arr[arr.length/2]);
+      median.emit(values.get(medianIndex));
     }
   }
 

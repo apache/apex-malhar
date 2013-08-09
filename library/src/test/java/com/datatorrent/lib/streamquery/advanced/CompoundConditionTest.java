@@ -19,9 +19,9 @@ import java.util.HashMap;
 
 import org.junit.Test;
 
-import com.datatorrent.lib.streamquery.EqualValueCondition;
 import com.datatorrent.lib.streamquery.SelectOperator;
 import com.datatorrent.lib.streamquery.condition.CompoundCondition;
+import com.datatorrent.lib.streamquery.condition.EqualValueCondition;
 import com.datatorrent.lib.streamquery.index.ColumnIndex;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 

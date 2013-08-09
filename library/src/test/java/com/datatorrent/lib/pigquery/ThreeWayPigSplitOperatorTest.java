@@ -20,11 +20,10 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.datatorrent.lib.streamquery.ThreeWayPigSplit;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
- * Functional test for {@link com.datatorrent.lib.pigquery.ThreeWayPigSplitOperatorTest}.
+ * Functional test for {@link com.datatorrent.lib.pigquery.ThreeWayPigSplitOperator}.
  */
 public class ThreeWayPigSplitOperatorTest
 {

@@ -15,60 +15,64 @@
  */
 package com.datatorrent.lib.streamquery;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.lib.streamquery.condition.Condition;
 
 /**
- *  This operator provides sql delete query semantic on live data stream. <br>
- *  Stream rows passing condition are removed from stream. <br>
- *  <br>
- *  <b>StateFull : NO,</b> all row data is processed in current time window. <br>
- *  <b>Partitions : Yes, </b> No Input dependency among input rows. <br>
- *  <br>
+ * This operator provides sql select query semantic on live data stream. <br>
+ * Stream rows passing condition are emitted on output port stream. <br>
+ * <br>
+ * <b>StateFull : NO,</b> all row data is processed in current time window. <br>
+ * <b>Partitions : Yes, </b> No Input dependency among input rows. <br>
+ * <br>
  * <b>Ports</b>:<br>
- * <b> inport : </b> Input hash map(row) port, expects HashMap&lt;String,Object&gt;<<br>
- * <b> outport : </b> Output hash map(row) port, emits  HashMap&lt;String,Object&gt;<br>
+ * <b> inport : </b> Input hash map(row) port, expects
+ * HashMap&lt;String,Object&gt;<<br>
+ * <b> outport : </b> Output hash map(row) port, emits
+ * HashMap&lt;String,Object&gt;<br>
  * <br>
  * <b> Properties : <b> <br>
- * <b> condition : </b> Select condition for deleting rows. <br>
+ * <b> condition : </b> Select condition for selecting rows. <br>
+ * <b> columns : </b> Column names/aggregate functions for select. <br>
  * <br>
  */
-public class DeleteOperator extends SqlOperator
+public class DeleteOperator extends BaseOperator
 {
-	/**
-	 * Where condition for deleting row.
-	 */
-	private SelectCondition condition;
-	
-	/**
-	 * Process rows function.
-	 */
-	@Override
-  public ArrayList<HashMap<String, Object>> processRows(
-      ArrayList<HashMap<String, Object>> rows)
+
+  /**
+   * condition.
+   */
+  private Condition condition = null;
+
+  /**
+   * set condition.
+   */
+  public void setCondition(Condition condition)
   {
-		for (int i=0; i < rows.size(); i++) {
-			HashMap<String, Object> row = rows.get(i);
-			boolean isValid = (condition == null) ? true : condition.isValidRow(row);
-			if (!isValid) outport.emit(row);
-		}
-	  return null;
+    this.condition = condition;
   }
 
-	/**
-   * @return the condition
+  /**
+   * Input port.
    */
-  public SelectCondition getCondition()
+  public final transient DefaultInputPort<Map<String, Object>> inport = new DefaultInputPort<Map<String, Object>>()
   {
-	  return condition;
-  }
 
-	/**
-   * @param set condition
+    @Override
+    public void process(Map<String, Object> tuple)
+    {
+      if ((condition != null) && (!condition.isValidRow(tuple))) {
+        outport.emit(tuple);
+      }
+    }
+  };
+
+  /**
+   * Output port.
    */
-  public void setCondition(SelectCondition condition)
-  {
-	  this.condition = condition;
-  }
+  public final transient DefaultOutputPort<Map<String, Object>> outport = new DefaultOutputPort<Map<String, Object>>();
 }

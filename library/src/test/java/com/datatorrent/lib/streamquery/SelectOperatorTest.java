@@ -19,9 +19,9 @@ import java.util.HashMap;
 
 import org.junit.Test;
 
-import com.datatorrent.lib.streamquery.SelectColsIndex;
-import com.datatorrent.lib.streamquery.SelectEqualCondition;
 import com.datatorrent.lib.streamquery.SelectOperator;
+import com.datatorrent.lib.streamquery.condition.EqualValueCondition;
+import com.datatorrent.lib.streamquery.index.ColumnIndex;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
@@ -35,13 +35,10 @@ public class SelectOperatorTest
   {
   	// create operator   
   	SelectOperator oper = new SelectOperator();
+  	oper.addIndex(new ColumnIndex("b", null));
+  	oper.addIndex(new ColumnIndex("c", null));
   	
-  	SelectColsIndex index = new SelectColsIndex();
-  	index.addColumn("b", null);
-  	index.addColumn("c", null);
-  	oper.setColumns(index);
-  	
-  	SelectEqualCondition  condition = new SelectEqualCondition();
+  	EqualValueCondition  condition = new EqualValueCondition();
   	condition.addEqualValue("a", 1);
   	oper.setCondition(condition);
   	

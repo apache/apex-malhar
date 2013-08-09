@@ -20,7 +20,7 @@ import java.util.HashMap;
 import org.junit.Test;
 
 import com.datatorrent.lib.streamquery.DeleteOperator;
-import com.datatorrent.lib.streamquery.SelectEqualCondition;
+import com.datatorrent.lib.streamquery.condition.EqualValueCondition;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
@@ -35,7 +35,7 @@ public class DeleteOperatorTest
   	// create operator   
 	DeleteOperator oper = new DeleteOperator();
   	
-  	SelectEqualCondition  condition = new SelectEqualCondition();
+  	EqualValueCondition  condition = new EqualValueCondition();
   	condition.addEqualValue("a", 1);
   	oper.setCondition(condition);
   	

@@ -23,13 +23,15 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
+import com.datatorrent.lib.streamquery.condition.Condition;
+import com.datatorrent.lib.streamquery.index.Index;
 
 /**
  * This operator reads table row data from 2 table data input ports. <br>
  * Operator joins row on given condition and selected names, emits 
  * joined result at output port.
  *  <br>
- *  <b>StateFull : NO,</b> all row data is processed in current time window. <br>
+ *  <b>StateFull : Yes,</b> Operator aggregates input over application window. <br>
  *  <b>Partitions : No, </b> will yield wrong result(s). <br>
  *  <br>
  *  <b>Ports : </b> <br>
@@ -48,17 +50,17 @@ public class InnerJoinOperator  implements Operator
 	/**
 	 * Join Condition; 
 	 */
-	protected JoinCondition joinCondition;
+	protected Condition joinCondition;
 	
 	/**
 	 * Table1 select columns.
 	 */
-	protected HashMap<String, String> table1Columns = new HashMap<String, String>();
+	private ArrayList<Index> table1Columns = new ArrayList<Index>();
 	
 	/**
 	 * Table2 select columns.
 	 */
-	protected HashMap<String, String> table2Columns = new HashMap<String, String>();
+	private ArrayList<Index> table2Columns = new ArrayList<Index>();
 	
   /**
    * Collect data rows from input port 1.
@@ -79,6 +81,12 @@ public class InnerJoinOperator  implements Operator
 		public void process(Map<String, Object> tuple)
 		{
       table1.add(tuple);
+      for (int j = 0; j < table2.size(); j++) {
+        if ((joinCondition == null)
+            || (joinCondition.isValidJoin(tuple, table2.get(j)))) {
+          joinRows(tuple, table2.get(j));
+        }
+      }
 		}
 	};
 	
@@ -90,14 +98,20 @@ public class InnerJoinOperator  implements Operator
 		public void process(Map<String, Object> tuple)
 		{
 	    table2.add(tuple);
+      for (int j = 0; j < table1.size(); j++) {
+        if ((joinCondition == null)
+            || (joinCondition.isValidJoin(table1.get(j), tuple))) {
+          joinRows(table1.get(j), tuple);
+        }
+      }
 		}
 	};
 	
 	/**
 	 * Output port.
 	 */
-	public final transient DefaultOutputPort<HashMap<String, ArrayList<Object>>> outport =  
-			new DefaultOutputPort<HashMap<String,  ArrayList<Object>>>();
+	public final transient DefaultOutputPort<Map<String, Object>> outport =  
+			new DefaultOutputPort<Map<String, Object>>();
 	
 	@Override
   public void setup(OperatorContext arg0)
@@ -119,20 +133,12 @@ public class InnerJoinOperator  implements Operator
 	@Override
   public void endWindow()
   {
-		// Check join of each row
-		for (int i=0; i < table1.size(); i++) {
-			for (int j=0; j < table2.size(); j++) {
-				if ((joinCondition == null) || (joinCondition.isValidJoin(table1.get(i), table2.get(j)))) {
-					joinRows(table1.get(i), table2.get(j));
-				}
-			}
-		}
   }
 
 	/**
    * @return the joinCondition
    */
-  public JoinCondition getJoinCondition()
+  public Condition getJoinCondition()
   {
 	  return joinCondition;
   }
@@ -140,7 +146,7 @@ public class InnerJoinOperator  implements Operator
 	/**
    * @param set joinCondition
    */
-  public void setJoinCondition(JoinCondition joinCondition)
+  public void setJoinCondition(Condition joinCondition)
   {
 	  this.joinCondition = joinCondition;
   }
@@ -148,89 +154,40 @@ public class InnerJoinOperator  implements Operator
   /**
    *  Select table1 column name.
    */
-  public void selectTable1Column(String name, String alias) {
-  	table1Columns.put(name, alias);
+  public void selectTable1Column(Index column) {
+  	table1Columns.add(column);
   }
   
   /**
    * Select table2 column name.
    */
-  public void selectTable2Column(String name, String alias) {
-  	table2Columns.put(name, alias);
+  public void selectTable2Column(Index column) {
+    table2Columns.add(column);
   }
   
-	/**
-	 * Join row from table1 and table2.
-	 */
-	protected void joinRows(Map<String, Object> row1, Map<String, Object> row2)
+  /**
+   * Join row from table1 and table2.
+   */
+  protected void joinRows(Map<String, Object> row1, Map<String, Object> row2)
   {
-		// joined row 
-		HashMap<String, ArrayList<Object>> join = new HashMap<String, ArrayList<Object>>();
-		
-		// select columns from row1   
-		if (row1 == null) {
-			for (Map.Entry<String, String> entry : table1Columns.entrySet()) {
-				String key = entry.getValue();
-				if (key == null) key = entry.getKey();
-				join.put(key, null);
-			}
-		} else {
-			if (table1Columns.size() == 0) {
-				for (Map.Entry<String, Object> entry : row1.entrySet()) {
-					ArrayList<Object> list = new ArrayList<Object>();
-					list.add(entry.getValue());
-					join.put(entry.getKey(), list);
-				}
-			} else {
-				for (Map.Entry<String, String> entry : table1Columns.entrySet()) {
-					String key = entry.getKey();
-					ArrayList<Object> list = new ArrayList<Object>();
-					list.add(row1.get(key));
-					if (entry.getValue() != null) join.put(entry.getValue(), list);
-					else join.put(key, list);
-				}
-			}
-		}
-		
-		// check if row2 is null
-		if (row2 == null) {
-			for (Map.Entry<String, String> entry : table2Columns.entrySet()) {
-				String key = entry.getValue();
-				if (key == null) key = entry.getKey();
-				join.put(key, null);
-			}
-			outport.emit(join);
-			return;
-		}
-		
-		// select rows from table2  
-		if (table2Columns.size() == 0) {
-			for (Map.Entry<String, Object> entry : row2.entrySet()) {
-				ArrayList<Object> list;
-				if (join.containsKey(entry.getKey())) {
-					list = join.remove(entry.getKey());
-				} else {
-				  list = new ArrayList<Object>();
-				}
-				list.add(entry.getValue());
-				join.put(entry.getKey(), list);
-			}
-		} else {
-			for (Map.Entry<String, String> entry : table2Columns.entrySet()) {
-				String key = entry.getValue();
-				if (key == null) key = entry.getKey();
-				ArrayList<Object> list;
-				if (join.containsKey(key)) {
-					list = join.remove(key);
-				} else {
-				  list = new ArrayList<Object>();
-				}
-				list.add(row2.get(entry.getKey()));
-				join.put(key, list);
-			}
-		}
-		
-		// emit row  
-		outport.emit(join);
+    // joined row 
+    Map<String, Object> join = new HashMap<String, Object>();
+    
+    // filter table1 columns  
+    if (row1 != null) {
+      for (Index index : table1Columns) {
+        index.filter(row1, join);
+      }
+    }
+    
+    // filter table1 columns  
+    if (row2 != null) {
+      for (Index index : table2Columns) {
+        index.filter(row2, join);
+      }
+    }
+    
+    // emit row  
+    outport.emit(join);
   }
 }

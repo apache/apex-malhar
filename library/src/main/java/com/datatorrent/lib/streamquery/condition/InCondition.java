@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2013 Malhar Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.datatorrent.lib.streamquery.condition;
 
 import java.util.HashSet;
@@ -6,12 +21,29 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
+/**
+ * Condition calsss to check a column value is in given set of values.
+ * <br>
+ * <b>Properties : </b> <br>
+ * <b> column : </b> Column name for which value is checked in values set. <br>
+ * <b> inValues : </b> Set of values in which column value is checked. <br>
+ */
 public class InCondition extends Condition
 {
+  /**
+   * Column name for which value is checked in values set. 
+   */
   @NotNull
   private String column;
+  
+  /**
+   * Set of values in which column value is checked.
+   */
   private Set<Object> inValues = new HashSet<Object>();
   
+  /**
+   * @param  column Column name for which value is checked in values set.
+   */
   public InCondition(@NotNull String column) {
     this.column = column;
   }

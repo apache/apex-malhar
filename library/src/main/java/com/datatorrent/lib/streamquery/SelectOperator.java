@@ -17,89 +17,86 @@ package com.datatorrent.lib.streamquery;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.lib.streamquery.condition.Condition;
+import com.datatorrent.lib.streamquery.index.Index;
 
 /**
- *  This operator provides sql select query semantic on live data stream. <br>
- *  Stream rows passing condition are emitted on output port stream. <br>
- *  <br>
- *  <b>StateFull : NO,</b> all row data is processed in current time window. <br>
- *  <b>Partitions : Yes, </b> No Input dependency among input rows. <br>
- *  <br>
+ * This operator provides sql select query semantic on live data stream. <br>
+ * Stream rows passing condition are emitted on output port stream. <br>
+ * <br>
+ * <b>StateFull : NO,</b> all row data is processed in current time window. <br>
+ * <b>Partitions : Yes, </b> No Input dependency among input rows. <br>
+ * <br>
  * <b>Ports</b>:<br>
- * <b> inport : </b> Input hash map(row) port, expects HashMap&lt;String,Object&gt;<<br>
- * <b> outport : </b> Output hash map(row) port, emits  HashMap&lt;String,Object&gt;<br>
+ * <b> inport : </b> Input hash map(row) port, expects
+ * HashMap&lt;String,Object&gt;<<br>
+ * <b> outport : </b> Output hash map(row) port, emits
+ * HashMap&lt;String,Object&gt;<br>
  * <br>
  * <b> Properties : <b> <br>
  * <b> condition : </b> Select condition for selecting rows. <br>
  * <b> columns : </b> Column names/aggregate functions for select. <br>
  * <br>
  */
-public class SelectOperator extends SqlOperator
+public class SelectOperator extends BaseOperator
 {
-	/**
-	 * Select columns.
-	 */
-	private SelectIndex columns;
-	
-	/**
-	 * Select condition.
-	 */
-	private SelectCondition condition;
-	
+
   /**
-   * Process rows operator.
+   * select columns/expression;
    */
-	@Override
-	public ArrayList<HashMap<String, Object>> processRows(
-			ArrayList<HashMap<String, Object>> rows)
-	{
-		// apply condition first  
-		if (condition != null) {
-			rows = condition.filetrValidRows(rows);
-		}
-		
-		// apply index filter
-		if (columns != null) {
-			rows = columns.process(rows);
-		}
-		
-		// done    
-    return rows;
-	}
+  private ArrayList<Index> indexes = new ArrayList<Index>();
 
+  /**
+   * condition.
+   */
+  private Condition condition = null;
 
-	/**
-	 * @return the condition
-	 */
-	public SelectCondition getCondition()
-	{
-		return condition;
-	}
+  /**
+   * add index.
+   */
+  public void addIndex(Index index)
+  {
+    indexes.add(index);
+  }
 
-	/**
-	 * @param condition the condition to set
-	 */
-	public void setCondition(SelectCondition condition)
-	{
-		this.condition = condition;
-	}
+  /**
+   * set condition.
+   */
+  public void setCondition(Condition condition)
+  {
+    this.condition = condition;
+  }
 
+  /**
+   * Input port.
+   */
+  public final transient DefaultInputPort<Map<String, Object>> inport = new DefaultInputPort<Map<String, Object>>()
+  {
 
-	/**
-	 * @return the columns
-	 */
-	public SelectIndex getColumns()
-	{
-		return columns;
-	}
+    @Override
+    public void process(Map<String, Object> tuple)
+    {
+      if ((condition != null) && (!condition.isValidRow(tuple)))
+        return;
+      if (indexes.size() == 0) {
+        outport.emit(tuple);
+        return;
+      }
+      Map<String, Object> result = new HashMap<String, Object>();
+      for (int i = 0; i < indexes.size(); i++) {
+        indexes.get(i).filter(tuple, result);
+      }
+      outport.emit(result);
+    }
+  };
 
-
-	/**
-	 * @param columns the columns to set
-	 */
-	public void setColumns(SelectIndex columns)
-	{
-		this.columns = columns;
-	}
-
+  /**
+   * Output port.
+   */
+  public final transient DefaultOutputPort<Map<String, Object>> outport = new DefaultOutputPort<Map<String, Object>>();
 }
