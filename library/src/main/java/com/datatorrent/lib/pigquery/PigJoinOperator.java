@@ -23,7 +23,7 @@ import java.util.Map;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.lib.streamquery.condition.JoinColumnEqualCondition;
+import com.datatorrent.lib.streamquery.condition.Condition;
 
 /**
  * This class implements Pig Join(Inner) semantic on live stream.
@@ -83,7 +83,7 @@ public class PigJoinOperator extends BaseOperator
     /**
      * Tuple join condition.
      */
-    private JoinColumnEqualCondition joinCondition = null;
+    private Condition joinCondition = null;
     
     /**
      * Aggregated tuples on inport 1.
@@ -163,7 +163,7 @@ public class PigJoinOperator extends BaseOperator
      * Get value for joinCondition.
      * @return Condition
      */
-    public JoinColumnEqualCondition getJoinCondition()
+    public Condition getJoinCondition()
     {
       return joinCondition;
     }
@@ -172,7 +172,7 @@ public class PigJoinOperator extends BaseOperator
      * Set value for joinCondition.
      * @param joinCondition set value for joinCondition.
      */
-    public void setJoinCondition(JoinColumnEqualCondition joinCondition)
+    public void setJoinCondition(Condition joinCondition)
     {
       this.joinCondition = joinCondition;
     }

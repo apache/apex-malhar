@@ -16,7 +16,6 @@
 package com.datatorrent.lib.pigquery;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 
 import javax.validation.constraints.NotNull;
@@ -26,7 +25,6 @@ import com.datatorrent.api.Operator.Unifier;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
-import com.datatorrent.lib.util.UnifierMap;
 
 
 /**

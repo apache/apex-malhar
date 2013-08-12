@@ -25,13 +25,13 @@ import javax.validation.constraints.NotNull;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.lib.pigquery.condition.GroupByCondition;
+import com.datatorrent.lib.pigquery.condition.PigGroupCondition;
 import com.datatorrent.lib.util.UnifierMap;
 
 
 /**
- * Class implements Apache Pig operator sematic. <br>
- * This operator doe not support Group All semantic. <br>
+ * Class implements Apache Pig Group operator sematic. <br>
+ * This operator does not support Group All semantic. <br>
  * <pre>
  * B = GROUP A BY age;
  * 
@@ -74,9 +74,9 @@ public class PigGroupOperator  extends BaseOperator
    * Group by condition.
    */
   @NotNull
-  private GroupByCondition groupByCondition;
+  private PigGroupCondition groupByCondition;
   
-  public PigGroupOperator(@NotNull GroupByCondition groupByCondition) {
+  public PigGroupOperator(@NotNull PigGroupCondition groupByCondition) {
     this.groupByCondition = groupByCondition;
   }
   
@@ -109,7 +109,7 @@ public class PigGroupOperator  extends BaseOperator
    * Get value for groupByCondition.
    * @return GroupByCondition
    */
-  public GroupByCondition getGroupByCondition()
+  public PigGroupCondition getGroupByCondition()
   {
     return groupByCondition;
   }
@@ -118,7 +118,7 @@ public class PigGroupOperator  extends BaseOperator
    * Set value for groupByCondition.
    * @param groupByCondition set value for groupByCondition.
    */
-  public void setGroupByCondition(@NotNull GroupByCondition groupByCondition)
+  public void setGroupByCondition(@NotNull PigGroupCondition groupByCondition)
   {
     this.groupByCondition = groupByCondition;
   }

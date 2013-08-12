@@ -18,6 +18,8 @@ package com.datatorrent.lib.streamquery.condition;
 
 import java.util.Map;
 
+import javax.validation.constraints.NotNull;
+
 
 /**
  * <p>
@@ -34,23 +36,32 @@ public class JoinColumnEqualCondition  extends Condition
   /**
    * column names to be compared. 
    */
+  @NotNull
   private String column1;
+  @NotNull
   private String column2;
-  public JoinColumnEqualCondition(String column1, String column2) {
+  
+  public JoinColumnEqualCondition(@NotNull String column1,@NotNull String column2) {
     this.column1 = column1;
     this.column2 = column2;
   }
   
+  /**
+   * Must never be called.
+   */
   @Override
   public boolean isValidRow(Map<String, Object> row)
   {
+    assert(false);
     return false;
   }
 
+  /**
+   * 
+   */
   @Override
   public boolean isValidJoin(Map<String, Object> row1, Map<String, Object> row2)
   {
-    if ((column1 == null)||(column2 == null)) return false;
     if (!row1.containsKey(column1) || !row2.containsKey(column2)) return false;
     Object value1 = row1.get(column1);
     Object value2 = row2.get(column2);

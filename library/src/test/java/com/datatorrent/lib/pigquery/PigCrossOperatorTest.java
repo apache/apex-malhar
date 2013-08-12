@@ -19,7 +19,6 @@ import java.util.HashMap;
 
 import org.junit.Test;
 
-import com.datatorrent.lib.pigquery.condition.GroupByName;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
@@ -32,7 +31,7 @@ public class PigCrossOperatorTest
   public void testSqlSelect()
   {
   	// create operator   
-	  PigGroupOperator oper = new PigGroupOperator(new GroupByName("a"));
+	  PigCrossOperator oper = new PigCrossOperator();
   	
   	CollectorTestSink sink = new CollectorTestSink();
   	oper.outport.setSink(sink);
@@ -44,25 +43,25 @@ public class PigCrossOperatorTest
   	tuple.put("a", 0);
   	tuple.put("b", 1);
   	tuple.put("c", 2);
-  	oper.inport.process(tuple);
+  	oper.inport1.process(tuple);
   	
   	tuple = new HashMap<String, Object>();
   	tuple.put("a", 0);
   	tuple.put("b", 3);
   	tuple.put("c", 4);
-  	oper.inport.process(tuple);
+  	oper.inport1.process(tuple);
   	
   	tuple = new HashMap<String, Object>();
-  	tuple.put("a", 1);
-  	tuple.put("b", 5);
-  	tuple.put("c", 6);
-  	oper.inport.process(tuple);
+  	tuple.put("e", 1);
+  	tuple.put("f", 5);
+  	tuple.put("g", 6);
+  	oper.inport2.process(tuple);
   	
   	tuple = new HashMap<String, Object>();
-    tuple.put("a", 1);
-    tuple.put("b", 7);
-    tuple.put("c", 8);
-    oper.inport.process(tuple);
+    tuple.put("e", 1);
+    tuple.put("f", 7);
+    tuple.put("g", 8);
+    oper.inport2.process(tuple);
     
   	oper.endWindow();
   	oper.teardown();
