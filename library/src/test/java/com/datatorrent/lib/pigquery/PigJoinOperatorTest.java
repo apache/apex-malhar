@@ -34,14 +34,9 @@ public class PigJoinOperatorTest
   public void testSqlSelect()
   {
   	// create operator   
-		PigJoinOperator oper = new PigJoinOperator();	
+		PigJoinOperator oper = new PigJoinOperator(new JoinColumnEqualCondition("a", "e"));	
   	CollectorTestSink sink = new CollectorTestSink();
   	oper.outport.setSink(sink);
-  	
-  	// set column join condition  
-  	JoinColumnEqualCondition cond = new JoinColumnEqualCondition("a", "e");
-  	oper.setJoinCondition(cond);
-
   	
   	oper.setup(null);
   	oper.beginWindow(1);

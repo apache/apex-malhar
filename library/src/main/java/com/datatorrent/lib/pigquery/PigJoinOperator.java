@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.validation.constraints.NotNull;
+
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
@@ -83,6 +85,7 @@ public class PigJoinOperator extends BaseOperator
     /**
      * Tuple join condition.
      */
+    @NotNull
     private Condition joinCondition = null;
     
     /**
@@ -94,6 +97,13 @@ public class PigJoinOperator extends BaseOperator
      * Aggregated tuples on inport 2.
      */
     private ArrayList<Map<String, Object>>  tuples2;
+    
+    /**
+     * @param joinCondition   Join condition, must be non-null. 
+     */
+    public PigJoinOperator(@NotNull Condition joinCondition) {
+      this.joinCondition = joinCondition;
+    }
     
     /**
      * Input1 port.
@@ -172,7 +182,7 @@ public class PigJoinOperator extends BaseOperator
      * Set value for joinCondition.
      * @param joinCondition set value for joinCondition.
      */
-    public void setJoinCondition(Condition joinCondition)
+    public void setJoinCondition(@NotNull Condition joinCondition)
     {
       this.joinCondition = joinCondition;
     }
