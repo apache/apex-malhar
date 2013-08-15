@@ -22,11 +22,11 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
- * <p>Alert class.</p>
+ * <p>AlertThrottleEscalationOperator class.</p>
  *
  * @since 0.3.2
  */
-public class Alert extends BaseOperator
+public class AlertThrottleEscalationOperator extends BaseOperator
 {
   protected long lastAlertTimeStamp = -1;
   protected long inAlertSince = -1;

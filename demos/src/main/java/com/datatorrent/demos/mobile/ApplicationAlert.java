@@ -23,7 +23,7 @@ import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 import com.datatorrent.lib.io.SmtpOutputOperator;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
-import com.datatorrent.lib.util.Alert;
+import com.datatorrent.lib.util.AlertThrottleEscalationOperator;
 import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
 
@@ -88,7 +88,7 @@ public class ApplicationAlert implements StreamingApplication
     dag.setAttribute(movementgen, OperatorContext.PARTITION_TPS_MIN, 10000);
     dag.setAttribute(movementgen, OperatorContext.PARTITION_TPS_MAX, 50000);
 
-    Alert alertOper = dag.addOperator("palert", Alert.class);
+    AlertThrottleEscalationOperator alertOper = dag.addOperator("palert", AlertThrottleEscalationOperator.class);
     alertOper.setAlertFrequency(10000);
     alertOper.setActivated(false);
 
