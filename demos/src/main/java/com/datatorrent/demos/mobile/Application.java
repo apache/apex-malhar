@@ -87,7 +87,7 @@ public class Application implements StreamingApplication
   {
     configure(dag, conf);
 
-    dag.setAttribute(DAG.APPLICATION_NAME, "MobileDevApplication");
+    dag.setAttribute(DAG.APPLICATION_NAME, "MobileDemoApplication");
     dag.setAttribute(DAG.DEBUG, true);
 
     RandomEventGenerator phones = dag.addOperator("phonegen", RandomEventGenerator.class);
