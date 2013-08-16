@@ -37,7 +37,6 @@ import com.datatorrent.lib.util.UnifierRange;
  * <br>
  *
  * @since 0.3.3
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public class Range<V extends Number> extends BaseNumberValueOperator<V>
 {

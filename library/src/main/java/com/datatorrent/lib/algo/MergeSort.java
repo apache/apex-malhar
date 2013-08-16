@@ -46,7 +46,6 @@ import java.util.ArrayList;
  * 2. getUnifierInstance : Get unifier operator instance for output port, (must return self instance).
  *
  * @since 0.3.3
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public abstract class MergeSort<K>  implements Operator, Unifier<ArrayList<K>>
 {

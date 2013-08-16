@@ -29,7 +29,6 @@ import com.datatorrent.lib.math.CountKeyVal;
  * <bClass : </b> com.datatorrent.lib.math.CountKeyVal
  *
  * @since 0.3.2
- * @author Dinesh Prasad <dinesh@datatorrent.com>
  */
 public class CountKeyValSample implements StreamingApplication
 {

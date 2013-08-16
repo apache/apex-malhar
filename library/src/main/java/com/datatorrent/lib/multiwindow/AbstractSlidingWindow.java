@@ -40,7 +40,6 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
  * <br>
  *
  * @since 0.3.3
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public abstract class AbstractSlidingWindow<T> extends BaseOperator
 {

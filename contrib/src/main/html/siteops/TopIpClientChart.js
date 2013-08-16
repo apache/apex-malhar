@@ -5,7 +5,6 @@
 
 /**
  * Functions fro charting top IpClient table.
- * @author Dinesh Prasad (dinesh@malhar-inc.com) 
  */
 
 function DrawTopIpClientTableChart()

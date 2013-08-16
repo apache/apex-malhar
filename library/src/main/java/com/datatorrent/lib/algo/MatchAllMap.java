@@ -50,7 +50,6 @@ import com.datatorrent.lib.util.UnifierBooleanAnd;
  * <br>
  *
  * @since 0.3.2
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public class MatchAllMap<K, V extends Number> extends BaseMatchOperator<K, V>
 {

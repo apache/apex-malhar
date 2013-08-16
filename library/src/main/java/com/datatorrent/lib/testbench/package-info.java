@@ -15,8 +15,7 @@
  */
 
 /**
- * <b>com.datatorrent.lib.testbench</b> is a library of test bench modules for reuse<p>
- * <br>
+ * Library of test bench modules.
  */
 
 package com.datatorrent.lib.testbench;

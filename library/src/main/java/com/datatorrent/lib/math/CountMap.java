@@ -44,7 +44,6 @@ import com.datatorrent.lib.util.UnifierHashMapInteger;
  * <br>
  *
  * @since 0.3.3
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public class CountMap<K, V> extends BaseKeyValueOperator<K, V>
 {

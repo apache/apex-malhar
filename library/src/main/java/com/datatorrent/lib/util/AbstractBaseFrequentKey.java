@@ -28,7 +28,6 @@ import org.apache.commons.lang.mutable.MutableInt;
  * This module is an end of window module.
  *
  * @since 0.3.2
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public abstract class AbstractBaseFrequentKey<K> extends BaseKeyOperator<K>
 {

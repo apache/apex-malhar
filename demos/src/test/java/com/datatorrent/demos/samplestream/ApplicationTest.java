@@ -22,7 +22,6 @@ import com.datatorrent.demos.samplestream.Application;
 
 /**
  *
- * @author Zhongjian Wang <zhongjian@datatorrent.com>
  */
 public class ApplicationTest
 {

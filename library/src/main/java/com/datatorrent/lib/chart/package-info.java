@@ -15,9 +15,7 @@
  */
 
 /**
- * <b>com.datatorrent.lib.chart</b> is a library of charting operators<p>
- * <br>
- * <br>
+ * Library of charting operators
  */
 
 package com.datatorrent.lib.chart;

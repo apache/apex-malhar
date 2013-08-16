@@ -32,7 +32,6 @@ import java.util.ArrayList;
  * <b>data</b>: expects ArrayList&lt;K&gt;br> <b>item</b>: emits K<br>
  *
  * @since 0.3.3
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public class ArrayListToItem<K> extends BaseKeyOperator<K>
 {

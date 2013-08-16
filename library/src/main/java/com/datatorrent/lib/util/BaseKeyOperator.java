@@ -21,7 +21,6 @@ import com.datatorrent.api.BaseOperator;
  * Base class for operators that allows cloneKey for enabling users to use mutable objects<p>
  *
  * @since 0.3.2
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public class BaseKeyOperator<K> extends BaseOperator
 {

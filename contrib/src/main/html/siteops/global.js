@@ -5,7 +5,6 @@
 
 /**
  * Declaration and initialization for global variables.
- * @author Dinesh Prasad (dinesh@malhar-inc.com) 
  */
 
 // url parameters   

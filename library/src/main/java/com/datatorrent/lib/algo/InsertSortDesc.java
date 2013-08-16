@@ -47,7 +47,6 @@ import java.util.PriorityQueue;
  * <br>
  *
  * @since 0.3.2
- * @author Amol Kekre <amol@datatorrent.com>
  */
 //
 // TODO: Override PriorityQueue and rewrite addAll to insert with location

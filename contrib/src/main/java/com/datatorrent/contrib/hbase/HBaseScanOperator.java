@@ -34,7 +34,6 @@ import org.apache.hadoop.hbase.client.ResultScanner;
  * <br>
  *
  * @since 0.3.2
- * @author Pramod Immaneni <pramod@datatorrent.com>
  */
 public abstract class HBaseScanOperator<T> extends HBaseInputOperator<T>
 {

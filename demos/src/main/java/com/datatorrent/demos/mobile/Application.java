@@ -52,7 +52,6 @@ import org.slf4j.LoggerFactory;
  * </pre>
  *
  * @since 0.3.2
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public class Application implements StreamingApplication
 {
@@ -88,7 +87,7 @@ public class Application implements StreamingApplication
   {
     configure(dag, conf);
 
-    dag.setAttribute(DAG.APPLICATION_NAME, "MobileDevApplication");
+    dag.setAttribute(DAG.APPLICATION_NAME, "MobileDemoApplication");
     dag.setAttribute(DAG.DEBUG, true);
 
     RandomEventGenerator phones = dag.addOperator("phonegen", RandomEventGenerator.class);

@@ -28,7 +28,6 @@ import java.util.ArrayList;
  * <p>FixedTuplesInputOperator class.</p>
  *
  * @since 0.3.2
- * @author Chetan Narsude <chetan@datatorrent.com>
  */
 public class FixedTuplesInputOperator implements InputOperator
 {

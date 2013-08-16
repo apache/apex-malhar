@@ -62,7 +62,6 @@ import org.slf4j.LoggerFactory;
  * HashMap schema does about 10 Million tuples/sec in throughput<br>
  *
  * @since 0.3.2
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public class EventGenerator implements InputOperator
 {

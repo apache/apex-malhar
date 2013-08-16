@@ -62,7 +62,6 @@ import java.util.Random;
  * <br>
  *
  * @since 0.3.2
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public class FilteredEventClassifier<T> extends BaseOperator
 {

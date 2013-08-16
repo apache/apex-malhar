@@ -34,7 +34,6 @@ import org.apache.hadoop.hbase.client.Result;
  *
  * @param <T> The tuple type
  * @since 0.3.2
- * @author Pramod Immaneni <pramod@datatorrent.com>
  */
 public abstract class HBaseGetOperator<T> extends HBaseInputOperator<T>
 {

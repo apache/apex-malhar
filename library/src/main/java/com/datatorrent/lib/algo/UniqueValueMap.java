@@ -39,7 +39,6 @@ import com.datatorrent.lib.util.UnifierHashMap;
  * <br>
  *
  * @since 0.3.2
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public class UniqueValueMap<K> extends BaseKeyOperator<K>
 {
