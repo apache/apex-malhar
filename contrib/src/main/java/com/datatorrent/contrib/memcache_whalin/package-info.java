@@ -15,7 +15,6 @@
  */
 
 /**
- * Library of operators for stream operations
+ * Memcache operators and utilities using whalin library.
  */
-
-package com.datatorrent.lib.stream;
+package com.datatorrent.contrib.memcache_whalin;

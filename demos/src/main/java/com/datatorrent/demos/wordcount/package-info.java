@@ -15,7 +15,6 @@
  */
 
 /**
- * Library of operators for stream operations
+ * Streaming word count demonstration application.
  */
-
-package com.datatorrent.lib.stream;
+package com.datatorrent.demos.wordcount;

@@ -15,7 +15,7 @@
  */
 
 /**
- * Library of operators for stream operations
+ * Library of operators for streaming query language.
  */
 
-package com.datatorrent.lib.stream;
+package com.datatorrent.lib.streamquery;

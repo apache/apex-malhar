@@ -15,7 +15,6 @@
  */
 
 /**
- * Library of operators for stream operations
+ * Pi calculation demonstration application.
  */
-
-package com.datatorrent.lib.stream;
+package com.datatorrent.demos.pi;

@@ -15,8 +15,7 @@
  */
 
 /**
- * <b>com.datatorrent.lib.logs</b> is a library operators for log line processing<p>
- * <br>
+ * Library of log line processing operators.
  */
 
 package com.datatorrent.lib.logs;

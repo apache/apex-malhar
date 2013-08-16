@@ -15,7 +15,6 @@
  */
 
 /**
- * Library of operators for stream operations
+ * Yahoo Finance demonstration applications.
  */
-
-package com.datatorrent.lib.stream;
+package com.datatorrent.demos.chart;

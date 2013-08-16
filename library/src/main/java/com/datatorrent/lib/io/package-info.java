@@ -15,9 +15,8 @@
  */
 
 /**
- * <b>com.datatorrent.lib.io</b> is a library input operators for write into streams and output operators for reading from streams. The I/O
- * operators interact with entities outside of DAG, and at times outside of Hadoop<p>
- * <br>
+ * Library of input operators for writing into streams and output operators for reading from streams.
+ * The I/O operators interact with entities outside of DAG, and at times outside of Hadoop
  */
 
 package com.datatorrent.lib.io;

@@ -15,7 +15,6 @@
  */
 
 /**
- * Library of operators for stream operations
+ * Twitter top URL's demonstration application.
  */
-
-package com.datatorrent.lib.stream;
+package com.datatorrent.demos.twitter;

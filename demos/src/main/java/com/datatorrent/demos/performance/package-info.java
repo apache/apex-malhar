@@ -15,7 +15,6 @@
  */
 
 /**
- * Library of operators for stream operations
+ * DataTorrent performance demonstration application.
  */
-
-package com.datatorrent.lib.stream;
+package com.datatorrent.demos.performance;

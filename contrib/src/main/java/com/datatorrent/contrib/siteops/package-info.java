@@ -15,7 +15,6 @@
  */
 
 /**
- * Library of operators for stream operations
+ * Site operations sample application.
  */
-
-package com.datatorrent.lib.stream;
+package com.datatorrent.contrib.siteops;

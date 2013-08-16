@@ -15,7 +15,6 @@
  */
 
 /**
- * Library of operators for stream operations
+ * Ads dimension demo application, operators, and utilities.
  */
-
-package com.datatorrent.lib.stream;
+package com.datatorrent.contrib.adsdimension;
