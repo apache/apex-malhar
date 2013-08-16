@@ -24,6 +24,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +32,7 @@ import org.slf4j.LoggerFactory;
  * <p>RedisOutputOperator class.</p>
  *
  * @since 0.3.2
+ * @author David Yan <davidyan@datatorrent.com>
  */
 @ShipContainingJars(classes = {RedisClient.class})
 public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperator<K, V>
@@ -41,6 +43,7 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
   private String host = "localhost";
   private int port = 6379;
   private int dbIndex = 0;
+  private int timeout= 10000;
 
   public void setHost(String host)
   {
@@ -57,12 +60,18 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
     this.dbIndex = index;
   }
 
+  public void setTimeout(int timeout)
+  {
+    this.timeout = timeout;
+  }
+
   @Override
   public void setup(OperatorContext context)
   {
     redisClient = new RedisClient(host, port);
     redisConnection = redisClient.connect();
     redisConnection.select(dbIndex);
+    redisConnection.setTimeout(timeout, TimeUnit.MILLISECONDS);
     super.setup(context);
   }
 
@@ -81,22 +90,19 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
   @Override
   public void startTransaction()
   {
-    try {
-      redisConnection.discard();
-    } catch (RedisException ex) {
-      LOG.warn("Discard transaction failed", ex);
-    }
     redisConnection.multi();
   }
 
   @Override
   public void commitTransaction()
   {
-    try {
-      redisConnection.exec();
-    } catch (RedisException ex) {
-      LOG.error("Error committing transaction", ex);
-    }
+    redisConnection.exec();
+  }
+
+  @Override
+  public void rollbackTransaction()
+  {
+    redisConnection.discard();
   }
 
   @Override

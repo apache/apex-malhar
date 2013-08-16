@@ -32,6 +32,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * Input adapter for storing in coming data tuples in in data hash map.
  *
  * @since 0.3.2
+ * @author David Yan <david@datatorrent.com>
  */
 public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOperator
 {
@@ -41,6 +42,13 @@ public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOper
   private transient int operatorId;
   private transient String appId;
   protected Map<K, Object> dataMap = new HashMap<K, Object>();
+  protected int continueOnError = 0;
+
+  public void setContinueOnError(int continueOnError)
+  {
+    this.continueOnError = continueOnError;
+  }
+
   @InputPortFieldAnnotation(name = "in", optional=true)
   public final transient DefaultInputPort<Map<K, V>> input = new DefaultInputPort<Map<K, V>>()
   {
@@ -77,6 +85,8 @@ public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOper
 
   public abstract void commitTransaction();
 
+  public abstract void rollbackTransaction();
+
   public void process(Map<K, V> t)
   {
     dataMap.putAll(t);
@@ -108,21 +118,41 @@ public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOper
   @Override
   public void endWindow()
   {
-    if (committedWindowId < currentWindowId) {
-      startTransaction();
-      store(dataMap);
-      put(getEndWindowKey(), String.valueOf(currentWindowId));
-      commitTransaction();
-      committedWindowId = currentWindowId;
-    }
-    else {
-      LOG.info("Discarding data for window id {} because committed window is {}", currentWindowId, committedWindowId);
+    try {
+      if (committedWindowId < currentWindowId) {
+        startTransaction();
+        store(dataMap);
+        put(getEndWindowKey(), String.valueOf(currentWindowId));
+        commitTransaction();
+        committedWindowId = currentWindowId;
+      }
+      else {
+        LOG.info("Discarding data for window id {} because committed window is {}", currentWindowId, committedWindowId);
+      }
+    } catch (RuntimeException se) {
+      logException("Error saving data", se);
+      try {
+        rollbackTransaction();
+      } catch (RuntimeException re) {
+        logException("Error rolling back", re);
+      }
+      if (continueOnError == 0) {
+        throw se;
+      }
     }
   }
 
   private String getEndWindowKey()
   {
     return "_ew:" + appId + ":" + operatorId;
+  }
+
+  private void logException(String message, Exception exception) {
+    if (continueOnError != 0) {
+      LOG.warn(message, exception);
+    } else {
+      LOG.error(message, exception);
+    }
   }
 
 }
