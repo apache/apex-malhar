@@ -130,6 +130,6 @@ public class ApplicationAlert implements StreamingApplication
     mailOper.setSmtpPassword("Testing1");
     mailOper.setUseSsl(true);
 
-    dag.addStream("alert_mail", alertOper.alert1, mailOper.input).setInline(true);
+    dag.addStream("alert_mail", alertOper.alert, mailOper.input).setInline(true);
   }
 }

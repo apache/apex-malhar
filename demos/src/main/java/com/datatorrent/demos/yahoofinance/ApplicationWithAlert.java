@@ -71,7 +71,7 @@ public class ApplicationWithAlert implements StreamingApplication
     dag.addStream("input1_sql", input1.outputPort, sqlOper.in1);
     dag.addStream("sql_alert", sqlOper.result, alertOper.in);
     //dag.addStream("alert_console", alertOper.alert1, consoleOperator.input);
-    dag.addStream("alert_mail", alertOper.alert1, mailOper.input);
+    dag.addStream("alert_mail", alertOper.alert, mailOper.input);
 
   }
 
