@@ -4,6 +4,7 @@
  */
 package com.datatorrent.lib.util;
 
+import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
@@ -13,7 +14,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  *
  * @author David Yan <david@datatorrent.com>
  */
-public class SimpleFilterOperator
+public abstract class FilterOperator extends BaseOperator
 {
   @InputPortFieldAnnotation(name = "in", optional = false)
   public final transient DefaultInputPort<Object> in = new DefaultInputPort<Object>()
@@ -30,8 +31,5 @@ public class SimpleFilterOperator
   @OutputPortFieldAnnotation(name = "out", optional = false)
   public final transient DefaultOutputPort<Object> out = new DefaultOutputPort<Object>();
 
-  public boolean satisfiesFilter(Object tuple)
-  {
-    return false;
-  }
+  public abstract boolean satisfiesFilter(Object tuple);
 }

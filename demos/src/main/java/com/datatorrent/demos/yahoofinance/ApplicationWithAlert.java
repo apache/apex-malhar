@@ -19,7 +19,7 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.lib.io.SmtpOutputOperator;
 import com.datatorrent.lib.streamquery.DerbySqlStreamOperator;
-import com.datatorrent.lib.util.AlertThrottleEscalationOperator;
+import com.datatorrent.lib.util.AlertEscalationOperator;
 
 import org.apache.hadoop.conf.Configuration;
 
@@ -37,7 +37,7 @@ public class ApplicationWithAlert implements StreamingApplication
 
     YahooFinanceCSVInputOperator input1 = dag.addOperator("input1", new YahooFinanceCSVInputOperator());
     DerbySqlStreamOperator sqlOper = dag.addOperator("sqlOper", new DerbySqlStreamOperator());
-    AlertThrottleEscalationOperator alertOper = dag.addOperator("alert", new AlertThrottleEscalationOperator());
+    AlertEscalationOperator alertOper = dag.addOperator("alert", new AlertEscalationOperator());
     //ConsoleOutputOperator consoleOperator = dag.addOperator("console", new ConsoleOutputOperator());
     SmtpOutputOperator mailOper = dag.addOperator("mail", new SmtpOutputOperator());
 
@@ -71,7 +71,7 @@ public class ApplicationWithAlert implements StreamingApplication
     dag.addStream("input1_sql", input1.outputPort, sqlOper.in1);
     dag.addStream("sql_alert", sqlOper.result, alertOper.in);
     //dag.addStream("alert_console", alertOper.alert1, consoleOperator.input);
-    dag.addStream("alert_mail", alertOper.alert1, mailOper.input);
+    dag.addStream("alert_mail", alertOper.alert, mailOper.input);
 
   }
 

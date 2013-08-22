@@ -22,20 +22,17 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
- * <p>AlertThrottleEscalationOperator class.</p>
+ * <p>AlertEscalationOperator class.</p>
  *
  * @since 0.3.2
  */
-public class AlertThrottleEscalationOperator extends BaseOperator
+public class AlertEscalationOperator extends BaseOperator
 {
   protected long lastAlertTimeStamp = -1;
   protected long inAlertSince = -1;
   protected long lastTupleTimeStamp = -1;
   protected long timeout = 5000; // 5 seconds
   protected long alertFrequency = 0;
-  protected long levelOneAlertTime = 0;
-  protected long levelTwoAlertTime = 0;
-  protected long levelThreeAlertTime = 0;
   protected boolean activated = true;
   @InputPortFieldAnnotation(name = "in", optional = false)
   public final transient DefaultInputPort<Object> in = new DefaultInputPort<Object>()
@@ -49,26 +46,19 @@ public class AlertThrottleEscalationOperator extends BaseOperator
       }
       lastTupleTimeStamp = now;
       if (activated && lastAlertTimeStamp + alertFrequency < now) {
-        if (inAlertSince >= levelOneAlertTime) {
-          alert1.emit(tuple);
-        }
-        if (inAlertSince >= levelTwoAlertTime) {
-          alert2.emit(tuple);
-        }
-        if (inAlertSince >= levelThreeAlertTime) {
-          alert3.emit(tuple);
-        }
+        processTuple(tuple);
         lastAlertTimeStamp = now;
       }
     }
 
   };
-  @OutputPortFieldAnnotation(name = "alert1", optional = false)
-  public final transient DefaultOutputPort<Object> alert1 = new DefaultOutputPort<Object>();
-  @OutputPortFieldAnnotation(name = "alert2", optional = true)
-  public final transient DefaultOutputPort<Object> alert2 = new DefaultOutputPort<Object>();
-  @OutputPortFieldAnnotation(name = "alert3", optional = true)
-  public final transient DefaultOutputPort<Object> alert3 = new DefaultOutputPort<Object>();
+  @OutputPortFieldAnnotation(name = "alert", optional = false)
+  public final transient DefaultOutputPort<Object> alert = new DefaultOutputPort<Object>();
+
+  public void processTuple(Object tuple)
+  {
+    alert.emit(tuple);
+  }
 
   public long getTimeout()
   {
@@ -88,36 +78,6 @@ public class AlertThrottleEscalationOperator extends BaseOperator
   public void setAlertFrequency(long alertFrequency)
   {
     this.alertFrequency = alertFrequency;
-  }
-
-  public long getLevelOneAlertTime()
-  {
-    return levelOneAlertTime;
-  }
-
-  public void setLevelOneAlertTime(long levelOneAlertTime)
-  {
-    this.levelOneAlertTime = levelOneAlertTime;
-  }
-
-  public long getLevelTwoAlertTime()
-  {
-    return levelTwoAlertTime;
-  }
-
-  public void setLevelTwoAlertTime(long levelTwoAlertTime)
-  {
-    this.levelTwoAlertTime = levelTwoAlertTime;
-  }
-
-  public long getLevelThreeAlertTime()
-  {
-    return levelThreeAlertTime;
-  }
-
-  public void setLevelThreeAlertTime(long levelThreeAlertTime)
-  {
-    this.levelThreeAlertTime = levelThreeAlertTime;
   }
 
   public boolean isActivated()
