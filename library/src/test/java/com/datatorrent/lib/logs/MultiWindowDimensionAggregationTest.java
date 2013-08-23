@@ -1,6 +1,7 @@
 package com.datatorrent.lib.logs;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import junit.framework.Assert;
 
@@ -27,32 +28,77 @@ public class MultiWindowDimensionAggregationTest {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void testNodeProcessingSchema(MultiWindowDimensionAggregation oper) {
+		
 		oper.setup(null);
-		oper.setWindowSize(3);
-		oper.setDimension("url");
+		oper.setWindowSize(2);
+		int[] dimensionArray = {0,1};
+		oper.setDimensionArray(dimensionArray);
+		oper.setTimeBucket("m");
+		oper.setDimensionKeyVal("0");
+		
 		CollectorTestSink sortSink = new CollectorTestSink();
 		oper.output.setSink(sortSink);
 		
 		oper.beginWindow(0);
-		HashMap<String, String> input = new HashMap<String, String>();
-
-		input.put("url","abc=10:def=20:ghi=10");
-		oper.data.process(input);
+		Map<String, Map<String,Number>> data = new HashMap<String, Map<String,Number>>();
+		Map<String, Number> input = new HashMap<String, Number>();
+		
+		input.put("0",9);
+		input.put("1",9);
+		input.put("2",9);
+		data.put("m|20130823131512|0:abc|1:ff",input);
+		oper.data.process(data);
+		input.clear();
+		data.clear();
+		
+		input.put("0",19);
+		input.put("1",19);
+		input.put("2",19);
+		data.put("m|20130823131512|0:abc|1:ie",input);
+		oper.data.process(data);
 		oper.endWindow();
 
-		input.clear();
+		
 		oper.beginWindow(1);
-		input.put("url", "abc=34:pqr=30");
-		oper.data.process(input);
-		oper.endWindow();
+		input.clear();
+		data.clear();
+		input.put("0",9);
+		input.put("1",9);
+		input.put("2",9);
+		data.put("m|20130823131513|0:def|1:ff",input);
+		oper.data.process(data);
 		
 		input.clear();
-		oper.beginWindow(2);
-		input.put("url", "pqr=30");
-		oper.data.process(input);
+		data.clear();
+		
+		input.put("0",19);
+		input.put("1",19);
+		input.put("2",19);
+		data.put("m|20130823131513|0:abc|1:ie",input);
+		oper.data.process(data);
 		oper.endWindow();
 		
-		Assert.assertEquals("number emitted tuples", 11,	sortSink.collectedTuples.size());
+		
+		oper.beginWindow(2);
+		input.clear();
+		data.clear();
+		input.put("0",99);
+		input.put("1",99);
+		input.put("2",99);
+		data.put("m|20130823131514|0:def|1:ff",input);
+		oper.data.process(data);
+		
+		input.clear();
+		data.clear();
+		
+		input.put("0",19);
+		input.put("1",19);
+		input.put("2",19);
+		data.put("m|20130823131514|0:abc|1:ie",input);
+		oper.data.process(data);
+		oper.endWindow();
+		
+		Assert.assertEquals("number emitted tuples", 7,	sortSink.collectedTuples.size());
 		for (Object o : sortSink.collectedTuples) {
 			log.debug(o.toString());
 		}

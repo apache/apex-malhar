@@ -2,10 +2,10 @@ package com.datatorrent.lib.logs;
 
 public class DimensionObject<T> implements Comparable<DimensionObject<T>> {
 
-	private int count;
+	private long count;
 	private T val;
 	
-	public DimensionObject(int count,T s){
+	public DimensionObject(long count,T s){
 		this.count = count;
 		val=s;
 	}
@@ -24,11 +24,11 @@ public class DimensionObject<T> implements Comparable<DimensionObject<T>> {
 		return 0;
 	}
 
-	public int getCount() {
+	public long getCount() {
 		return count;
 	}
 
-	public void setCount(int count) {
+	public void setCount(long count) {
 		this.count = count;
 	}
 
@@ -42,7 +42,7 @@ public class DimensionObject<T> implements Comparable<DimensionObject<T>> {
 	
 	@Override
 	public int hashCode(){
-		return (val.toString() + Integer.toString(count)).hashCode();
+		return (val.toString() + Long.toString(count)).hashCode();
 	}
 	
 	@Override
