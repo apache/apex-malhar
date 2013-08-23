@@ -28,6 +28,7 @@ public class MultiWindowDimensionAggregationTest {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void testNodeProcessingSchema(MultiWindowDimensionAggregation oper) {
 		oper.setup(null);
+		oper.setWindowSize(3);
 		oper.setDimension("url");
 		CollectorTestSink sortSink = new CollectorTestSink();
 		oper.output.setSink(sortSink);
@@ -51,7 +52,7 @@ public class MultiWindowDimensionAggregationTest {
 		oper.data.process(input);
 		oper.endWindow();
 		
-		Assert.assertEquals("number emitted tuples", 9,	sortSink.collectedTuples.size());
+		Assert.assertEquals("number emitted tuples", 11,	sortSink.collectedTuples.size());
 		for (Object o : sortSink.collectedTuples) {
 			log.debug(o.toString());
 		}

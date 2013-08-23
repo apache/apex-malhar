@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang.mutable.MutableInt;
+
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
@@ -19,8 +21,8 @@ public class MultiWindowDimensionAggregation implements Operator {
 	private String stringDelimiter = ":";
 	private String tokenDelimiter="=";
 
-	private Map<Integer, Map<String, Integer>> cacheOject;
-	private Map<String,Integer> countMap;
+	private Map<Integer, Map<String, Number>> cacheOject;
+	private Map<String,Number> countMap;
 
 	public final transient DefaultOutputPort<Map<String,DimensionObject<String>>> output = new DefaultOutputPort<Map<String,DimensionObject<String>>>();
 	
@@ -28,9 +30,9 @@ public class MultiWindowDimensionAggregation implements Operator {
 		@Override
 		public void process(Map<String,String> tuple) {
 			if(tuple.get(dimension) != null){
-				Map<String,Integer> cacheMap = cacheOject.get(currentWindow);
+				Map<String,Number> cacheMap = cacheOject.get(currentWindow);
 				if(cacheMap == null){
-					cacheMap = new HashMap<String, Integer>();
+					cacheMap = new HashMap<String, Number>();
 					cacheOject.put(currentWindow, cacheMap);
 				}
 				String value = tuple.get(dimension);
@@ -40,11 +42,11 @@ public class MultiWindowDimensionAggregation implements Operator {
 					StringTokenizer tokenTokenizer = new StringTokenizer(token,tokenDelimiter);
 					String dimensionVal = tokenTokenizer.nextToken();
 					int dimensionCount = Integer.parseInt(tokenTokenizer.nextToken());
-					if(cacheMap.get(dimensionVal) == null){
-						cacheMap.put(dimensionVal, dimensionCount);
+					Number n = cacheMap.get(dimensionVal);
+					if(n == null){
+						cacheMap.put(dimensionVal, new MutableInt(dimensionCount));
 					}else{
-						dimensionCount = dimensionCount + cacheMap.get(dimensionVal);
-						cacheMap.put(dimensionVal,dimensionCount);
+						((MutableInt)n).add(dimensionCount);
 					}
 				}				
 			}
@@ -77,8 +79,8 @@ public class MultiWindowDimensionAggregation implements Operator {
 
 	@Override
 	public void setup(OperatorContext arg0) {
-		cacheOject = new HashMap<Integer, Map<String, Integer>>(windowSize);
-		countMap = new HashMap<String, Integer>();
+		cacheOject = new HashMap<Integer, Map<String, Number>>(windowSize);
+		countMap = new HashMap<String, Number>();
 	}
 
 	@Override
@@ -88,9 +90,9 @@ public class MultiWindowDimensionAggregation implements Operator {
 
 	@Override
 	public void beginWindow(long arg0) {
-		Map<String,Integer> cacheMap = cacheOject.get(currentWindow);
+		Map<String,Number> cacheMap = cacheOject.get(currentWindow);
 		if(cacheMap == null)
-			cacheMap = new HashMap<String, Integer>();
+			cacheMap = new HashMap<String, Number>();
 		cacheMap.clear();
 		countMap.clear();
 
@@ -98,23 +100,23 @@ public class MultiWindowDimensionAggregation implements Operator {
 
 	@Override
 	public void endWindow() {
-		Collection<Map<String,Integer>> coll = cacheOject.values();
-		Iterator< Map<String,Integer>> itr = coll.iterator();
+		Collection<Map<String,Number>> coll = cacheOject.values();
+		Iterator< Map<String,Number>> itr = coll.iterator();
 		while(itr.hasNext()){
-			Map<String,Integer> map = itr.next();
-			for(Map.Entry<String, Integer> e :map.entrySet()){
-				if(countMap.get(e.getKey()) == null){
-					countMap.put(e.getKey(), e.getValue());
+			Map<String,Number> map = itr.next();
+			for(Map.Entry<String, Number> e :map.entrySet()){
+				Number n = countMap.get(e.getKey());
+				if(n == null){
+					countMap.put(e.getKey(), new MutableInt(e.getValue()));
 				}else{
-					int count = countMap.get(e.getKey());
-					countMap.put(e.getKey(), e.getValue()+count);
+					((MutableInt) n).add(e.getValue());
 				}
 			}
 		}
 		
-		for(Map.Entry<String, Integer> e :countMap.entrySet()){
+		for(Map.Entry<String, Number> e :countMap.entrySet()){
 			HashMap<String, DimensionObject<String>> outputData = new HashMap<String, DimensionObject<String>>();
-			outputData.put(dimension, new DimensionObject<String>(e.getValue(), e.getKey()));
+			outputData.put(dimension, new DimensionObject<String>(e.getValue().intValue(), e.getKey()));
 			output.emit(outputData);
 		}
 		
