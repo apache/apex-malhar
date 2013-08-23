@@ -89,7 +89,7 @@ public class ApplicationAlert implements StreamingApplication
     dag.setAttribute(movementgen, OperatorContext.PARTITION_TPS_MAX, 50000);
 
     AlertEscalationOperator alertOper = dag.addOperator("palert", AlertEscalationOperator.class);
-    alertOper.setAlertFrequency(10000);
+    alertOper.setAlertInterval(10000);
     alertOper.setActivated(false);
 
     dag.addStream("phonedata", phones.integer_data, movementgen.data).setInline(true);

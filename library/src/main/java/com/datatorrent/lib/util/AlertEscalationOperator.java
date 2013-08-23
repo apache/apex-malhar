@@ -32,7 +32,7 @@ public class AlertEscalationOperator extends BaseOperator
   protected long inAlertSince = -1;
   protected long lastTupleTimeStamp = -1;
   protected long timeout = 5000; // 5 seconds
-  protected long alertFrequency = 0;
+  protected long alertInterval = 0;
   protected boolean activated = true;
   @InputPortFieldAnnotation(name = "in", optional = false)
   public final transient DefaultInputPort<Object> in = new DefaultInputPort<Object>()
@@ -45,7 +45,7 @@ public class AlertEscalationOperator extends BaseOperator
         inAlertSince = now;
       }
       lastTupleTimeStamp = now;
-      if (activated && lastAlertTimeStamp + alertFrequency < now) {
+      if (activated && lastAlertTimeStamp + alertInterval < now) {
         processTuple(tuple);
         lastAlertTimeStamp = now;
       }
@@ -70,14 +70,14 @@ public class AlertEscalationOperator extends BaseOperator
     this.timeout = timeout;
   }
 
-  public long getAlertFrequency()
+  public long getAlertInterval()
   {
-    return alertFrequency;
+    return alertInterval;
   }
 
-  public void setAlertFrequency(long alertFrequency)
+  public void setAlertInterval(long alertInterval)
   {
-    this.alertFrequency = alertFrequency;
+    this.alertInterval = alertInterval;
   }
 
   public boolean isActivated()
