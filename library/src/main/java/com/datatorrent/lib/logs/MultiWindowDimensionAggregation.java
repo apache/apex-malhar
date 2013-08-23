@@ -14,6 +14,12 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
 
+/**
+ * <p>MultiWindowDimensionAggregation class.</p>
+ * This class aggregates the value of given dimension across windows
+ *
+ */
+
 public class MultiWindowDimensionAggregation implements Operator {
 
 	private int windowSize = 2;

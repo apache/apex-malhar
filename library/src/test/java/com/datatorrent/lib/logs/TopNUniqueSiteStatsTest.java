@@ -15,6 +15,11 @@ import com.datatorrent.lib.algo.TopNUniqueTest;
 import com.datatorrent.lib.logs.DimensionObject;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
+/**
+ * <p>TopNUniqueSiteStatsTest class.</p>
+ * This tests the integration between MultiWindowDimensionAggregationOperator and TopNUnique Operator
+ *
+ */
 public class TopNUniqueSiteStatsTest {
 	private static Logger log = LoggerFactory.getLogger(TopNUniqueTest.class);
 

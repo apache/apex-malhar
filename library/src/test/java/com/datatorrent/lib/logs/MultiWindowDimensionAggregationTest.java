@@ -13,6 +13,10 @@ import com.datatorrent.lib.algo.TopNUniqueTest;
 import com.datatorrent.lib.logs.MultiWindowDimensionAggregation;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
+/**
+ * <p>MultiWindowDimensionAggregationTest class.</p>
+ *
+ */
 public class MultiWindowDimensionAggregationTest {
 
 	private static Logger log = LoggerFactory.getLogger(TopNUniqueTest.class);
