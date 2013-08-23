@@ -17,7 +17,10 @@ package com.datatorrent.lib.util;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.PriorityQueue;
+
 import javax.validation.constraints.Min;
 
 /**
@@ -28,6 +31,7 @@ import javax.validation.constraints.Min;
  * once all the inserts are done<br>
  *
  * @since 0.3.2
+ * @author Amol Kekre <amol@datatorrent.com>
  */
 public class TopNSort<E>
 {
@@ -118,32 +122,22 @@ public class TopNSort<E>
    * @return ArrayList of top N object
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public ArrayList getTopN(int n)
+  public List<E> getTopN(int n)
   {
-    ArrayList list = new ArrayList();
+    List<E> list = new ArrayList<E>();
     E v;
     int j = 0;
-    while ((v = q.poll()) != null) {
+    while (((v = q.poll()) != null) && (j < n)) {
       list.add(v);
       j++;
-      if (j > n) {
-        break;
-      }
     }
     if (list.isEmpty()) {
       return list;
     }
-
-    ArrayList ret = new ArrayList(list.size());
-    int size = list.size();
-    int depth = size;
-    if (depth > n) {
-      depth = n;
-    }
-    for (int i = 0; i < depth; i++) {
-      ret.add(list.get(size - i - 1));
-    }
-    return ret;
+  
+    Collections.reverse(list);
+    return list;
+    //return ret;
   }
 
   /**
@@ -154,11 +148,11 @@ public class TopNSort<E>
   @SuppressWarnings("unchecked")
   public boolean offer(E e)
   {
-    if (q.size() <= qbound) {
+    if (q.size() < qbound) {
       return q.offer(e);
     }
 
-    boolean ret = true;
+    boolean ret = false;
     boolean insert;
     Comparable<? super E> head = (Comparable<? super E>)q.peek();
 
