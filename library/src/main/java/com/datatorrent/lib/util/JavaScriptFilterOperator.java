@@ -72,6 +72,7 @@ public class JavaScriptFilterOperator extends FilterOperator
     if (tuple instanceof Map) {
       Map<String, Object> map = (Map<String, Object>)tuple;
       for (Map.Entry<String, Object> entry : map.entrySet()) {
+        LOG.debug("Putting {} = {}", entry.getKey(), entry.getValue());
         engine.put(entry.getKey(), entry.getValue());
       }
     }
@@ -90,7 +91,7 @@ public class JavaScriptFilterOperator extends FilterOperator
         return Boolean.getBoolean((String)result);
       }
       else {
-        LOG.warn("The script result cannot be converted to boolean. Returning false.");
+        LOG.warn("The script result (type: {}) cannot be converted to boolean. Returning false.", result == null ? "null" : result.getClass().getName());
         return false;
       }
     }
