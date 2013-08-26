@@ -56,13 +56,13 @@ public class BottomNUnifier<K, V> implements Unifier<HashMap<K, ArrayList<V>>>
 
   }
 
-  @SuppressWarnings("unchecked")
+  
   @Override
   public void endWindow()
   {
     for (Map.Entry<K, TopNSort<V>> e : kmap.entrySet()) {
       HashMap<K, ArrayList<V>> tuple = new HashMap<K, ArrayList<V>>(1);
-      tuple.put(e.getKey(), e.getValue().getTopN(getN()));
+      tuple.put(e.getKey(), (ArrayList<V>)e.getValue().getTopN(getN()));
       mergedport.emit(tuple);
     }
     kmap.clear();

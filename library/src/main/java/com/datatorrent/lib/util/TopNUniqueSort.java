@@ -30,6 +30,7 @@ import org.apache.commons.lang.mutable.MutableInt;
  * once all the inserts are done<br>
  *
  * @since 0.3.2
+ * @author Amol Kekre <amol@datatorrent.com>
  */
 public class TopNUniqueSort<E>
 {
@@ -128,12 +129,9 @@ public class TopNUniqueSort<E>
     ArrayList list = new ArrayList();
     E v;
     int j = 0;
-    while ((v = q.poll()) != null) {
+    while (((v = q.poll()) != null) && j < n) {
       list.add(v);
       j++;
-      if (j > n) {
-        break;
-      }
     }
     ArrayList<HashMap<E,Integer>> ret = new ArrayList<HashMap<E,Integer>>(list.size());
     int size = list.size();
@@ -167,14 +165,14 @@ public class TopNUniqueSort<E>
       ival.increment();
       return true;
     }
-    if (q.size() <= qbound) {
+    if (q.size() < qbound) {
       if (ival == null) {
         hmap.put(e, new MutableInt(1));
       }
       return q.offer(e);
     }
 
-    boolean ret = true;
+    boolean ret = false;
     boolean insert;
     Comparable<? super E> head = (Comparable<? super E>) q.peek();
 
