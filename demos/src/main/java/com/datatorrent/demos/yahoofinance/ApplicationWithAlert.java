@@ -51,7 +51,7 @@ public class ApplicationWithAlert implements StreamingApplication
     mailOper.setSmtpPassword("Testing1");
     mailOper.setUseSsl(true);
 
-    alertOper.setAlertFrequency(60000); // 60 seconds
+    alertOper.setAlertInterval(60000); // 60 seconds
 
     for (String symbol: symbols) {
       input1.addSymbol(symbol);

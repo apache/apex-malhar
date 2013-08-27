@@ -1,0 +1,79 @@
+/*
+ * Copyright (c) 2013 Malhar Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.datatorrent.lib.logs;
+
+/**
+ * <p>DimensionObject class.</p>
+ * This is the object that is passed to TopNOperator
+ *
+ */
+public class DimensionObject<T> implements Comparable<DimensionObject<T>> {
+
+  private long count;
+  private T val;
+
+  public DimensionObject(long count,T s){
+    this.count = count;
+    val=s;
+  }
+
+  @Override
+    public String toString(){
+      return count+","+val.toString();
+    }
+
+  @Override
+    public int compareTo(DimensionObject<T> arg0) {
+      if(count> arg0.count)
+        return 1;
+      if(count < arg0.count)
+        return -1;
+      return 0;
+    }
+
+  public long getCount() {
+    return count;
+  }
+
+  public void setCount(long count) {
+    this.count = count;
+  }
+
+  public T getVal() {
+    return val;
+  }
+
+  public void setVal(T val) {
+    this.val = val;
+  }
+
+  @Override
+    public int hashCode(){
+      return (val.toString() + Long.toString(count)).hashCode();
+    }
+
+  @Override
+    public boolean equals(Object obj){
+      if(obj == null) return false;
+      if (!this.getClass().equals(obj.getClass())) return false;
+      DimensionObject<T> obj2 = (DimensionObject<T>) obj;
+      if(this.val.equals(obj2.val))
+        return true;
+      return false;
+
+    }
+
+}
