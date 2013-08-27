@@ -12,7 +12,7 @@ import org.junit.Test;
 
 /**
  *
- * @author David Yan <david@datatorrent.com>
+ * functional test for {@link com.datatorrent.lib.util.JavaScriptFilterOperator}.
  */
 public class JavaScriptFilterOperatorTest
 {

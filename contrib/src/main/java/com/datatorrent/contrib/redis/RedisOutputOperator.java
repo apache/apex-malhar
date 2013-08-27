@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
  * <p>RedisOutputOperator class.</p>
  *
  * @since 0.3.2
- * @author David Yan <davidyan@datatorrent.com>
  */
 @ShipContainingJars(classes = {RedisClient.class})
 public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperator<K, V>
