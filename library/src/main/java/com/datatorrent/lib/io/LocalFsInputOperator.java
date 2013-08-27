@@ -24,11 +24,11 @@ import java.io.InputStreamReader;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
 
-/**  
+/**
  * <p>
  * This operator opens given file from local file system. Each line is emitted on
- * output port, Thread waits for sleep interval after emitting line. 
- * 
+ * output port, Thread waits for sleep interval after emitting line.
+ *
  * <br>
  * <b>Ports</b>:<br>
  * <b>outport</b>: emits &lt;String&gt;<br>
@@ -46,29 +46,25 @@ public class LocalFsInputOperator extends AbstractLocalFSInputOperator
 	private DataInputStream in;
 	private BufferedReader br;
 	private int sleepInterval = 0;
-	
-	@Override
-	public void setup(OperatorContext context)
-	{
-		input = openFile(getFilePath());
-		in = new DataInputStream(input);
-		br = new BufferedReader(new InputStreamReader(in)); 
-	}
-	
-	@Override
-	public void teardown()
-	{
-		try {
-			input.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
+
+    @Override
+    public void activate(OperatorContext context)
+    {
+      super.activate(context);
+      in = new DataInputStream(input);
+      br = new BufferedReader(new InputStreamReader(in));
+    }
+
+    @Override
+    public void deactivate()
+    {
+      super.deactivate();
+    }
+
 	@Override
 	public void emitTuples(FileInputStream stream) {
-		try{    
-			String strLine = br.readLine();  
+		try{
+			String strLine = br.readLine();
 			if(strLine != null) outport.emit(strLine);
 		}catch (Exception e){
 			e.printStackTrace();
