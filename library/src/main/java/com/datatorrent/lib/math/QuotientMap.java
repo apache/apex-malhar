@@ -54,6 +54,8 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
  * denominator. <br>
  * <b>mult_by :</b> Set multiply by constant value. <br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public class QuotientMap<K, V extends Number> extends
 		BaseNumberKeyValueOperator<K, V>

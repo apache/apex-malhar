@@ -34,7 +34,7 @@ import org.apache.hadoop.conf.Configuration;
  * topWords: {love=1, ate=1, catch=1, calma=1, Phillies=1, ela=1, from=1, running=1}
  * </pre>
  *
- * 
+ * @since 0.3.2
  */
 public class Application implements StreamingApplication
 {

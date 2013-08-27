@@ -41,6 +41,8 @@ import javax.validation.constraints.Min;
  * <b>windowSize i.e. N</b>: Number of streaming windows that define application
  * window.<br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public class MultiWindowSumKeyVal<K, V extends Number> extends SumKeyVal<K, V>
 {

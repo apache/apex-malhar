@@ -25,7 +25,9 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 
 /**
+ * <p>FixedTuplesInputOperator class.</p>
  *
+ * @since 0.3.2
  */
 public class FixedTuplesInputOperator implements InputOperator
 {

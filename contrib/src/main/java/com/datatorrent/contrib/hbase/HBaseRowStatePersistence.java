@@ -30,6 +30,8 @@ import org.apache.hadoop.hbase.util.Bytes;
  * parameter name is used as the column name and the parameter value is used as the column value.<br>
  *
  * <br>
+ *
+ * @since 0.3.2
  */
 public class HBaseRowStatePersistence extends HBaseBaseStatePersistence
 {

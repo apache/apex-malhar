@@ -24,7 +24,7 @@ import com.datatorrent.lib.algo.MatchStringMap;
 import com.datatorrent.lib.util.UnifierHashMap;
 
 /**
- * 
+ *
  * A compare operation is done on tuple sub-classed from Number based on the
  * property "key", "value", and "cmp", and not matched tuples are emitted. The
  * comparison is done by parsing double value from the String. Both output ports
@@ -55,6 +55,8 @@ import com.datatorrent.lib.util.UnifierHashMap;
  * Does the incoming HashMap have the key<br>
  * Is the value of the key a number<br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public class ExceptStringMap<K> extends MatchStringMap<K>
 {

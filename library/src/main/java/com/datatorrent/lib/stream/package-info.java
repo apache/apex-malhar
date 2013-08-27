@@ -15,8 +15,7 @@
  */
 
 /**
- * <b>com.datatorrent.lib.stream</b> is a library operators for stream operations<p>
- * <br>
+ * Library of operators for stream operations
  */
 
 package com.datatorrent.lib.stream;

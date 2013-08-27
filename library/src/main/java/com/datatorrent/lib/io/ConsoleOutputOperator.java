@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
  * Mainly to be used for debugging. Users should be careful to not have this node listen to a high throughput stream<br>
  * <br>
  *
+ * @since 0.3.2
  */
 public class ConsoleOutputOperator extends BaseOperator
 {

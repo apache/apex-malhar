@@ -29,6 +29,8 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * <b>data2</b>: expects K<br>
  * <b>out</b>: emits K<br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public class StreamMerger<K> extends BaseOperator
 {

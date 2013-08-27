@@ -42,6 +42,8 @@ import com.datatorrent.lib.streamquery.index.Index;
  * <b> condition : </b> Select condition for selecting rows. <br>
  * <b> columns : </b> Column names/aggregate functions for select. <br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public class SelectOperator extends BaseOperator
 {

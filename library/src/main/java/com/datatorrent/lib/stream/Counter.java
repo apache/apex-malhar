@@ -33,6 +33,8 @@ import com.datatorrent.api.Operator.Unifier;
  * <b>input</b>: expects Object<br>
  * <b>output</b>: emits Integer<br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public class Counter implements Operator, Unifier<Integer>
 {

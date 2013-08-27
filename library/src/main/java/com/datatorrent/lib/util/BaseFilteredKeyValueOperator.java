@@ -34,6 +34,7 @@ import java.util.HashMap;
  * <br>
  * <br>
  *
+ * @since 0.3.2
  */
 public class BaseFilteredKeyValueOperator<K, V> extends BaseKeyValueOperator<K, V>
 {

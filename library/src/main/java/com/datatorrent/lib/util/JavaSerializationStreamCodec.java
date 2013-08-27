@@ -30,10 +30,11 @@ import com.datatorrent.common.util.Slice;
  * java.io.Serializable. It's not optimized for speed and should be used as the
  * last resort if you know that the slowness of it is not going to prevent you
  * from operating your application in realtime.
- * 
+ *
  * @param <T>
  *          Type of the object which gets serialized/deserialized using this
  *          codec.
+ * @since 0.3.3
  */
 public class JavaSerializationStreamCodec<T extends Serializable> implements
 		StreamCodec<T>

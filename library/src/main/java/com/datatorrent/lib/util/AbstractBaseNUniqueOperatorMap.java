@@ -24,6 +24,7 @@ import java.util.Map;
  * At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
  * <br>
  *
+ * @since 0.3.2
  */
 public abstract class AbstractBaseNUniqueOperatorMap<K, V> extends AbstractBaseNOperatorMap<K, V>
 {

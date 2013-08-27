@@ -38,6 +38,8 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>Ports : </b><br>
  * <b>Input(s) : </b> 5 max input ports, 3 are optional. <br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public class ConsolidatorKeyVal<K, V1, V2, V3, V4, V5> implements Operator
 {

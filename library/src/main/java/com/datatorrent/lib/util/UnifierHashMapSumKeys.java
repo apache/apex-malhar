@@ -27,7 +27,7 @@ import java.util.Map;
  * Combiner for an output port that emits object with Map<K,V> interface and has the processing done
  * with round robin partition for a Sum operation, i.e. key,vals pairs need to be combined back together
  *
- *
+ * @since 0.3.2
  */
 public class UnifierHashMapSumKeys<K, V extends Number> extends BaseNumberKeyValueOperator<K,V> implements Unifier<HashMap<K, V>>
 {

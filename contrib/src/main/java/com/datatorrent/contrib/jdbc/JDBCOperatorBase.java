@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
  * Base class for all JDBC input output operators.
  * This handles JDBC connection and column mapping for output operators.
  *
+ * @since 0.3.2
  */
 public abstract class JDBCOperatorBase
 {

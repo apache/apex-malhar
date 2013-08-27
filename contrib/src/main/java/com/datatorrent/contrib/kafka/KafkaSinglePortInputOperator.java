@@ -41,6 +41,7 @@ import kafka.message.Message;
  * TBD<br>
  * <br>
  *
+ * @since 0.3.2
  */
 public abstract class KafkaSinglePortInputOperator<T> extends KafkaInputOperator
 {

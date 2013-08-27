@@ -21,8 +21,10 @@ import java.util.TreeMap;
 
 /**
  * This is the base class for all chart operators that plot charts with x-axis having enumerated values
+ *
  * @param <K> The type of the key
  * @param <X> The type of values on the X-axis
+ * @since 0.3.2
  */
 public abstract class EnumChartOperator<K, X> extends XYChartOperator<K, X, Number>
 {

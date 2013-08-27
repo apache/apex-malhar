@@ -46,9 +46,10 @@ import com.datatorrent.lib.util.UnifierSumNumber;
  * <b>Properties: </b> <br>
  * <b>cumulative </b> Sum has to be cumulative. <br>
  * <br>
- * 
+ *
  * @param <V>
  *          Generic number type parameter. <br>
+ * @since 0.3.3
  */
 public class Sum<V extends Number> extends BaseNumberValueOperator<V> implements
 		Unifier<V>

@@ -22,6 +22,7 @@ import org.apache.commons.lang.mutable.MutableInt;
 /**
  * Information needed to calculate simple moving average.
  *
+ * @since 0.3.2
  */
 public class SimpleMovingAverageObject implements SlidingWindowObject
 {

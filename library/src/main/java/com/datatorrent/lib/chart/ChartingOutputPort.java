@@ -24,6 +24,7 @@ import com.datatorrent.api.Context.PortContext;
  * that they can later be used for charting (or for debugging) purpose.
  *
  * @param <T> type of the tuple emitted on this port
+ * @since 0.3.2
  */
 public class ChartingOutputPort<T> extends DefaultOutputPort<T>
 {

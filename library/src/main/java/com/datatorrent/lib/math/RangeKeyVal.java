@@ -34,7 +34,7 @@ import com.datatorrent.lib.util.UnifierKeyValRange;
  * <br>
  * <b>StateFull : Yes</b>, values are computed over application window. <br>
  * <b>Partitions : Yes, </b> high/low values are each key is unified at output port. <br>
- * <br> 
+ * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects KeyValPair&lt;K,V extends Number&gt;<br>
  * <b>range</b>: emits KeyValPair&lt;K,HighLow&lt;V&gt;&gt;<br>
@@ -43,6 +43,8 @@ import com.datatorrent.lib.util.UnifierKeyValRange;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public class RangeKeyVal<K, V extends Number> extends
 		BaseNumberKeyValueOperator<K, V>

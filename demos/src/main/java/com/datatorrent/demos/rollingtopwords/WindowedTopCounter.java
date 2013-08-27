@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * with a pre determined size. The emitted object contains the most frequently occurring keys.
  *
  * @param <T> Type of the key in the map object which is accepted on input port as payload. Note that this key must be HashMap friendly.
- *
+ * @since 0.3.2
  */
 public class WindowedTopCounter<T> extends BaseOperator
 {

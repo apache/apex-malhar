@@ -49,6 +49,8 @@ import com.datatorrent.lib.util.UnifierBooleanOr;
  * Compare string, if specified, must be one of "lte", "lt", "eq", "neq", "gt", "gte"<br>
  * <b>Specific run time checks</b>: None<br>
  * <br>
+ *
+ * @since 0.3.2
  */
 public class MatchAnyMap<K, V extends Number> extends BaseMatchOperator<K,V>
 {

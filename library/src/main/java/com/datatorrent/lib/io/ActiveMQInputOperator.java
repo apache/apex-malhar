@@ -33,6 +33,11 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
 
+/**
+ * <p>Abstract ActiveMQInputOperator class.</p>
+ *
+ * @since 0.3.3
+ */
 public abstract class ActiveMQInputOperator<T> implements  ExceptionListener, InputOperator, Runnable
 {
   /**

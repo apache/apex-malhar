@@ -51,6 +51,8 @@ import java.util.HashMap;
  * Compare string, if specified, must be one of "lte", "lt", "eq", "neq", "gt", "gte"<br>
  * <br>
  * <br>
+ *
+ * @since 0.3.2
  */
 public class FirstTillMatchString<K> extends BaseMatchOperator<K,String>
 {

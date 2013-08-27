@@ -21,7 +21,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 
 /**
-  * Operator for storing tuples in HBase rows.<br>
+ * Operator for storing tuples in HBase rows.<br>
  *
  *<br>
  * This class provides a HBase output operator that can be used to store tuples in rows in a
@@ -30,7 +30,9 @@ import org.apache.hadoop.hbase.client.Result;
  * the tuple in the table.<br>
  *
  * <br>
+ *
  * @param <T> The tuple type
+ * @since 0.3.2
  */
 public abstract class HBasePutOperator<T> extends HBaseOutputOperator<T>
 {

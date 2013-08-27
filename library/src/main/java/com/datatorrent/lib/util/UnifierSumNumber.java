@@ -24,7 +24,7 @@ import com.datatorrent.api.Operator.Unifier;
  * Combiner for an output port that emits object with <V> interface and has the processing done
  * with round robin partitioning. The final tuple is sum of all partition values
  *
- *
+ * @since 0.3.2
  */
 public class UnifierSumNumber<V extends Number> extends BaseNumberValueOperator<V> implements Unifier<V>
 {

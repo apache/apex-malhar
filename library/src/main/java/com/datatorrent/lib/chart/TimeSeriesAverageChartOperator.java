@@ -23,7 +23,9 @@ import java.util.TreeMap;
 
 /**
  * This is the chart operator that plots the average (mean) value of Y for each window.  X will be based on the timestamp derived from the window id
+ *
  * @param <K> The type of the key
+ * @since 0.3.2
  */
 public class TimeSeriesAverageChartOperator<K> extends TimeSeriesChartOperator<K, Number>
 {

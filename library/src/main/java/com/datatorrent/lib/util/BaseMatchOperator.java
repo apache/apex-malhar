@@ -19,7 +19,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 /**
- * 
+ *
  * Base class that sets up the operator functionality needed for match based
  * operators
  * <p>
@@ -40,7 +40,8 @@ import javax.validation.constraints.Pattern;
  * <br>
  * Run time checks<br>
  * none<br>
- * 
+ *
+ * @since 0.3.2
  */
 public class BaseMatchOperator<K, V> extends BaseKeyValueOperator<K, V>
 {

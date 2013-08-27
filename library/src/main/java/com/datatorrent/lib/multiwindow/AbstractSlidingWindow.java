@@ -38,6 +38,8 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
  * <b>Properties</b>:<br>
  * <b>N</b>: Number of windows to keep state on<br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public abstract class AbstractSlidingWindow<T> extends BaseOperator
 {

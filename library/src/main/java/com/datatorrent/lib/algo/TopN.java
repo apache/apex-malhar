@@ -41,6 +41,8 @@ import com.datatorrent.lib.util.AbstractBaseNNonUniqueOperatorMap;
  * <b>Specific compile time checks are</b>:<br>
  * N: Has to be >= 1<br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public class TopN<K, V> extends AbstractBaseNNonUniqueOperatorMap<K,V> implements Unifier<HashMap<K, ArrayList<V>>>   
 {

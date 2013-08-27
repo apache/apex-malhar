@@ -50,6 +50,8 @@ import java.util.Map;
  * Processing tuples on seed port are at 3.5 Million tuples/sec<br>
  * Processing tuples on increment port are at 10 Million tuples/sec<br>
  * <br>
+ *
+ * @since 0.3.2
  */
 public class EventIncrementer extends BaseOperator
 {

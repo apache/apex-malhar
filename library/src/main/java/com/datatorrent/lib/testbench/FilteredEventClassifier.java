@@ -61,6 +61,7 @@ import java.util.Random;
  * This node has been benchmarked at over 20 million tuples/second in local/inline mode<br>
  * <br>
  *
+ * @since 0.3.2
  */
 public class FilteredEventClassifier<T> extends BaseOperator
 {

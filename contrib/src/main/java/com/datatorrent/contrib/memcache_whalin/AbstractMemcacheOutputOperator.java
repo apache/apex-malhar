@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
  * <b>Benchmarks</b>:TBD
  * <br>
  *
+ * @since 0.3.2
  */
 public class AbstractMemcacheOutputOperator extends BaseOperator
 {

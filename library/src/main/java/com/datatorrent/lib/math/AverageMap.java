@@ -27,7 +27,7 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 
 /**
- * 
+ *
  * Emits the average value for each key at the end of window.
  * <p>
  * This is an end window operator. This can not be partitioned. Partitioning
@@ -46,6 +46,8 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
  * <b>Specific run time checks</b>: None<br>
  * <p>
  * <br>
+ *
+ * @since 0.3.3
  */
 public class AverageMap<K, V extends Number> extends
 		BaseNumberKeyValueOperator<K, V>

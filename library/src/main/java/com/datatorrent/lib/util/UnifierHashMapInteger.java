@@ -27,7 +27,7 @@ import java.util.Map;
  * Combiner for an output port that emits object with Map<K,Integer> interface and has the processing done
  * with round robin partitions. The combiner needs to add values of a key from every partition
  *
- *
+ * @since 0.3.2
  */
 public class UnifierHashMapInteger<K> implements Unifier<HashMap<K, Integer>>
 {

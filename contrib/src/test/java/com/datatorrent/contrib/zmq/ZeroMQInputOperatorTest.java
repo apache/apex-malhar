@@ -39,8 +39,8 @@ public class ZeroMQInputOperatorTest
 {
   String pubAddr = "tcp://*:5556";
   String syncAddr = "tcp://*:5557";
-  private static Logger logger = LoggerFactory.getLogger(ZeroMQInputOperatorTest.class);
   static HashMap<String, List<?>> collections = new HashMap<String, List<?>>();
+  private static Logger logger = LoggerFactory.getLogger(ZeroMQInputOperatorTest.class);
 
   public static final class TestStringZeroMQInputOperator extends AbstractSinglePortZeroMQInputOperator<String>
   {

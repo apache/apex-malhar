@@ -37,6 +37,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This operator sends price, volume and time into separate ports and calculates incremental volume.
+ *
+ * @since 0.3.2
  */
 @ShipContainingJars(classes = {au.com.bytecode.opencsv.CSVReader.class})
 public class StockTickInput implements InputOperator

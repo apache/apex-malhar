@@ -22,7 +22,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseNumberValueOperator;
 
 /**
- * 
+ *
  * Emits the average of values at the end of window.
  * <p>
  * This is an end window operator. This can not be partitioned. Partitioning
@@ -36,6 +36,8 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
  * <p>
+ *
+ * @since 0.3.3
  */
 public class Average<V extends Number> extends BaseNumberValueOperator<V>
 {

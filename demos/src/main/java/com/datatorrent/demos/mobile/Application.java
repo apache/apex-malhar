@@ -78,6 +78,8 @@ import org.slf4j.LoggerFactory;
  * 
  *  * <b>Application DAG : </b><br>
  * <img src="doc-files/mobile.png" width=600px > <br>
+ *
+ * @since 0.3.2
  */
 public class Application implements StreamingApplication
 {

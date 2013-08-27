@@ -22,7 +22,9 @@ import java.util.Date;
 import java.util.TimeZone;
 
 /**
+ * <p>TimeBucketKey class.</p>
  *
+ * @since 0.3.2
  */
 public class TimeBucketKey
 {

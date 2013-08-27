@@ -28,6 +28,7 @@ import com.datatorrent.lib.math.AverageKeyVal;
  * <b>Operator : </b> AverageKeyVal <br>
  * <bClass : </b> com.datatorrent.lib.math.AverageKeyVal
  *
+ * @since 0.3.2
  */
 public class AverageKeyValSample implements StreamingApplication
 {

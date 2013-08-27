@@ -37,6 +37,8 @@ import com.datatorrent.api.Context.OperatorContext;
  * <b>filePath</b> : Path for file to be read. <br>
  * <b>sleepInterval</b>: Thread sleep interval after emiiting line.<br>
  * <br>
+ *
+ * @since 0.3.2
  */
 public class LocalFsInputOperator extends AbstractLocalFSInputOperator
 {
@@ -56,6 +58,11 @@ public class LocalFsInputOperator extends AbstractLocalFSInputOperator
 	@Override
 	public void teardown()
 	{
+		try {
+			input.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Override

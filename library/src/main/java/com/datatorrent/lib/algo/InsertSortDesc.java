@@ -45,6 +45,8 @@ import java.util.PriorityQueue;
  * <b>sorthash</b>: emits HashMap&lt;K,Integer&gt;<br>
  * <br>
  * <br>
+ *
+ * @since 0.3.2
  */
 //
 // TODO: Override PriorityQueue and rewrite addAll to insert with location

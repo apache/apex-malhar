@@ -66,6 +66,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * </table>
  * <br>
  *
+ * @since 0.3.2
  */
 public class UniqueCounterValue<K> extends BaseOperator implements Unifier<Integer>
 {

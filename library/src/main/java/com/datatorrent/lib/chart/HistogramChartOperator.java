@@ -21,7 +21,9 @@ import java.util.TreeMap;
 
 /**
  * This is the base class for all chart operators that plot a histogram
+ *
  * @param <K> The key type
+ * @since 0.3.2
  */
 public abstract class HistogramChartOperator<K> extends EnumChartOperator<K, HighLow>
 {

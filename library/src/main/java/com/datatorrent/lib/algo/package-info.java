@@ -15,9 +15,7 @@
  */
 
 /**
- * <b>com.datatorrent.lib.algo</b> is a library of algorithmic operators<p>
- * <br>
- * <br>
+ * Library of algorithmic operators
  */
 
 package com.datatorrent.lib.algo;

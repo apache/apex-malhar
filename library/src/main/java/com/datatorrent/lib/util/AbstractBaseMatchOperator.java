@@ -40,6 +40,7 @@ import javax.validation.constraints.Pattern;
  * Run time checks<br>
  * none<br>
  *
+ * @since 0.3.2
  */
 @SuppressWarnings("rawtypes")
 public abstract class AbstractBaseMatchOperator<K,V extends Comparable> extends BaseKeyValueOperator<K,V>

@@ -47,6 +47,8 @@ import java.util.Map;
  * Does the incoming HashMap have the key<br>
  * Is the value of the key a number<br>
  * <br>
+ *
+ * @since 0.3.2
  */
 public class CompareExceptStringMap<K> extends MatchStringMap<K>
 {

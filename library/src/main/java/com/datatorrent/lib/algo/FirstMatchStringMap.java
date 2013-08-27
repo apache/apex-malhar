@@ -42,6 +42,8 @@ import com.datatorrent.lib.util.BaseMatchOperator;
  * <b>value</b>: The value to compare with<br>
  * <b>cmp</b>: The compare function. Supported values are "lte", "lt", "eq", "neq", "gt", "gte". Default is "eq"<br>
  * <br>
+ *
+ * @since 0.3.2
  */
 public class FirstMatchStringMap<K> extends BaseMatchOperator<K,String>  
 {

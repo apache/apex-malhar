@@ -30,6 +30,7 @@ import com.datatorrent.lib.testbench.RandomEventGenerator;
  * <bClass : </b> com.datatorrent.lib.math.Sum
  * Sum operator is partitioned into 4 operator, partitioning is allowed on this operator. <br>
  *
+ * @since 0.3.2
  */
 public class PartitionMathSumSample implements StreamingApplication
 {

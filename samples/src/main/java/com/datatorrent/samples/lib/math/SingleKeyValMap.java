@@ -25,8 +25,8 @@ import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * Input operator to generate hash map on single value, required for sample Script operator application.
- * 
  *
+ * @since 0.3.2
  */
 public class SingleKeyValMap implements InputOperator
 {

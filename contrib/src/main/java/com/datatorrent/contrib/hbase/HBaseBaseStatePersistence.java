@@ -35,6 +35,8 @@ import org.apache.hadoop.hbase.util.Bytes;
  * the table and Put operation specifies where to store the state in the table.<br>
  *
  * <br>
+ *
+ * @since 0.3.2
  */
 public abstract class HBaseBaseStatePersistence implements HBaseStatePersistenceStrategy
 {

@@ -25,7 +25,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 
+ *
  * Parse Apache log lines one line at a time. Regex (getAccessLogRegex) is used
  * as a parser. The fields extracted include i/p (outputIPAddress), url
  * (outputUrl), status code (outputStatusCode), bytes (outputBytes), referer
@@ -46,8 +46,9 @@ import java.util.regex.Pattern;
  * <b>outputAgent</b>: emits String<br>
  * <br>
  * <b>Properties</b>: none<br>
+ *
+ * @since 0.3.3
  */
-
 public class ApacheLogParseOperator extends BaseOperator
 {
 	/**

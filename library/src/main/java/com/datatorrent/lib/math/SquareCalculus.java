@@ -29,6 +29,7 @@ package com.datatorrent.lib.math;
  * <b>floatResult</b>: emits Float<br>
  * <br>
  *
+ * @since 0.3.3
  */
 public class SquareCalculus extends SingleVariableAbstractCalculus
 {

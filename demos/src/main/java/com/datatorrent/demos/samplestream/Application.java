@@ -23,23 +23,23 @@ import org.apache.hadoop.conf.Configuration;
 /**
  * Yahoo Finanace Input Demo : <br>
  * This demo will output the stock market data from yahoo finance
- * 
+ *
  * Functional Description : <br>
  * This demo application simply reads yahoo ticker symbols from yahoo finance
  * every 500 ms and prints on output console. <br>
  * <br>
- * 
+ *
  * Run Sample Application : <br>
  * Please consult Application Developer guide <a href=
  * "https://docs.google.com/document/d/1WX-HbsGQPV_DfM1tEkvLm1zD_FLYfdLZ1ivVHqzUKvE/edit#heading=h.lfl6f68sq80m"
  * > here </a>.
  * <p>
  * Running Java Test or Main app in IDE:
- * 
+ *
  * <pre>
  * LocalMode.runApp(new Application(), 600000); // 10 min run
  * </pre>
- * 
+ *
  * Run Success : <br>
  * For successful deployment and run, user should see following output on
  * console: <br>
@@ -50,24 +50,25 @@ import org.apache.hadoop.conf.Configuration;
  * [FB, 24.022, 6/17/2013, 4:00pm, +0.392, 23.92, 24.25, 23.75, 33646600]
  * [YHOO, 26.54, 6/17/2013, 4:00pm, +0.26, 26.32, 26.85, 26.235, 10289754]
  * </pre>
- * 
+ *
  * Scaling Options : None <br>
- * 
+ *
  *  Application DAG : <br>
  *   Yahoo Csv Input -> Console Output <br>
- * 
- * Streaming Window Size : 500ms 
+ *
+ * Streaming Window Size : 500ms
  * Operator Details : <br>
  * <ul>
  *    <li> <b> The input operator : </b> makes http call to yahoo finance and emits result to appilcation. <br>
  *        Class : {@link com.datatorrent.demos.samplestream.YahooFinanceCSVInputOperator }  <br>
  *        State Less : YES, window count 1 <br>
  *    </li>
-  *   <li><b>The operator Console: </b> This operator just outputs the input tuples to the console (or stdout). <br>
+ *   <li><b>The operator Console: </b> This operator just outputs the input tuples to the console (or stdout). <br>
  *           if you need to change write to HDFS,HTTP .. instead of console, <br>
  *           Please refer to {@link com.datatorrent.lib.io.HttpOutputOperator} or  {@link com.datatorrent.lib.io.HdfsOutputOperator}.</li>
  * </ul>
- * 
+ *
+ * @since 0.3.2
  */
 public class Application implements StreamingApplication
 {

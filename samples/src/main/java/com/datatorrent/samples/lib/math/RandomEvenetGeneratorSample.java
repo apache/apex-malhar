@@ -26,6 +26,7 @@ import org.apache.hadoop.conf.Configuration;
  * This sample usage for predefined operator <b>RandomEventGenerator</b>. <br>
  * Random generator output is printed to output console(can be any downstream operator).
  *
+ * @since 0.3.2
  */
 public class RandomEvenetGeneratorSample implements StreamingApplication
 {

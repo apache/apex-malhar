@@ -26,6 +26,8 @@ import java.util.HashMap;
 
 /**
  * Abstract sql db input operator.
+ *
+ * @since 0.3.2
  */
 public abstract class AbstractSqlStreamOperator extends BaseOperator
 {
@@ -46,6 +48,9 @@ public abstract class AbstractSqlStreamOperator extends BaseOperator
      * key is the name of the column, and value is the SQL type
      */
     public HashMap<String, ColumnInfo> columnInfoMap = new HashMap<String, ColumnInfo>();
+
+    public InputSchema() {
+    }
 
     public InputSchema(String name)
     {

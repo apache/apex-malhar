@@ -33,6 +33,8 @@ import com.datatorrent.api.DefaultOutputPort;
  * <b>doubleAverage</b>: emits Double<br>
  * <b>floatAverage</b>: emits Float<br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public class RunningAverage extends BaseOperator
 {

@@ -19,6 +19,11 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Context.OperatorContext;
 
+/**
+ * <p>RandomWordInputModule class.</p>
+ *
+ * @since 0.3.2
+ */
 public class RandomWordInputModule implements InputOperator
 {
   public final transient DefaultOutputPort<byte[]> output = new DefaultOutputPort<byte[]>();
@@ -60,4 +65,5 @@ public class RandomWordInputModule implements InputOperator
   public void teardown()
   {
   }
+
 }

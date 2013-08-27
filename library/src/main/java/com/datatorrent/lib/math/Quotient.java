@@ -39,6 +39,8 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  * <b>Properties : </b> <br>
  * <b>mult_by : </b>Multiply by value(default = 1). <br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public class Quotient<V extends Number> extends BaseNumberValueOperator<V>
 {

@@ -31,7 +31,9 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
+ * <p>Abstract DimensionTimeBucketOperator class.</p>
  *
+ * @since 0.3.2
  */
 public abstract class DimensionTimeBucketOperator extends BaseOperator
 {
@@ -96,7 +98,6 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
     }
 
   };
-
   /**
    * First String key is the bucket
    * Second String key is the key
@@ -151,14 +152,47 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
     return new Long(0);
   }
 
+  /*
+   * When calling this, the operator no longer expands all combinations of all keys but instead only use the combinations the caller supplies
+   * 
+   * @param keys The key combination to add
+   */
+  public void addCombination(Set<String> keys) throws NoSuchFieldException
+  {
+    if (keys == null) {
+      dimensionCombinations.add(null);
+    }
+    else {
+      // slow but this function doesn't get executed many times and dimensionKeyNames is small.
+      int indexKeys[] = new int[keys.size()];
+      int i = 0;
+      for (String key : keys) {
+        indexKeys[i] = -1;
+        for (int j = 0; j < dimensionKeyNames.size(); j++) {
+          if (dimensionKeyNames.get(j).equals(key)) {
+            indexKeys[i] = j;
+            break;
+          }
+        }
+        if (indexKeys[i] < 0) {
+          throw new NoSuchFieldException("Key not found: " + key);
+        }
+        i++;
+      }
+      dimensionCombinations.add(indexKeys);
+    }
+  }
+
   @Override
   public void setup(OperatorContext context)
   {
     super.setup(context);
     windowWidth = context.attrValue(DAGContext.STREAMING_WINDOW_SIZE_MILLIS, 500);
-    dimensionCombinations.add(null);
-    for (int i = 1; i <= dimensionKeyNames.size(); i++) {
-      dimensionCombinations.addAll(Combinations.getNumberCombinations(dimensionKeyNames.size(), i));
+    if (dimensionCombinations.isEmpty()) {
+      dimensionCombinations.add(null);
+      for (int i = 1; i <= dimensionKeyNames.size(); i++) {
+        dimensionCombinations.addAll(Combinations.getNumberCombinations(dimensionKeyNames.size(), i));
+      }
     }
   }
 

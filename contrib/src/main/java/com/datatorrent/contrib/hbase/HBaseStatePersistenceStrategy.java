@@ -32,6 +32,8 @@ import org.apache.hadoop.hbase.client.HTable;
  * method to retrieve and save state that needs to be implemented by the implementor.<br>
  *
  * <br>
+ *
+ * @since 0.3.2
  */
 public interface HBaseStatePersistenceStrategy
 {

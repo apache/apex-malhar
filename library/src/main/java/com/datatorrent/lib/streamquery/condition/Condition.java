@@ -21,6 +21,8 @@ import javax.validation.constraints.NotNull;
 
 /**
  * Abstract select condition for selecting/filtering rows.
+ *
+ * @since 0.3.3
  */
 abstract public class Condition
 {

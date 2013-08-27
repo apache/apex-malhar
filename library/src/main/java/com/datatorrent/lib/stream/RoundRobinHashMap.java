@@ -40,8 +40,9 @@ import java.util.HashMap;
  * <br>
  * <b>Properties</b>:<br>
  * <b>keys[]</b>: Set of keys to insert in the output tuple</b>
+ *
+ * @since 0.3.3
  */
-
 public class RoundRobinHashMap<K, V> extends BaseKeyValueOperator<K, V>
 {
 	/**

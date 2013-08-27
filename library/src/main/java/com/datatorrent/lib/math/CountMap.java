@@ -42,6 +42,8 @@ import com.datatorrent.lib.util.UnifierHashMapInteger;
  * <b>Properties</b>: <br>
  *  counts : Key occurrence aggregate map.
  * <br>
+ *
+ * @since 0.3.3
  */
 public class CountMap<K, V> extends BaseKeyValueOperator<K, V>
 {

@@ -15,8 +15,7 @@
  */
 
 /**
- * <b>com.datatorrent.lib.multiwindow</b> is a library of multi-window operators including sliding window for reuse<p>
- * <br>
+ * Library of multi-window operators including sliding window.
  */
 
 package com.datatorrent.lib.multiwindow;

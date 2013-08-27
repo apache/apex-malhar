@@ -52,6 +52,8 @@ import org.slf4j.LoggerFactory;
  * <br>
  * <b>Benchmarks</b>:
  * <br>
+ *
+ * @since 0.3.2
  */
 public abstract class JDBCTransactionOutputOperator<T> extends JDBCOutputOperator<T>
 {

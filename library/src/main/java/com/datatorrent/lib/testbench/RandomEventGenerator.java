@@ -54,6 +54,7 @@ import javax.validation.constraints.Min;
  * Compile time error checking includes<br>
  * <br>
  *
+ * @since 0.3.2
  */
 public class RandomEventGenerator extends BaseOperator implements InputOperator
 {

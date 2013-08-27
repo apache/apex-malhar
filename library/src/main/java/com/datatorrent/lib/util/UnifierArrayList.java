@@ -21,7 +21,9 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator.Unifier;
 
 /**
- * Unifier for array list output port. 
+ * Unifier for array list output port.
+ *
+ * @since 0.3.3
  */
 public class UnifierArrayList<K> implements Unifier<ArrayList<K>>
 {

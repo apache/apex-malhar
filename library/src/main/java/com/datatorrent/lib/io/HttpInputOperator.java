@@ -49,6 +49,7 @@ import com.sun.jersey.api.client.WebResource;
  * If second rawOutput is connected then content is streamed to this port as it is.
  * <br>
  *
+ * @since 0.3.2
  */
 @ShipContainingJars(classes = {com.sun.jersey.api.client.ClientHandler.class})
 public class HttpInputOperator extends SimpleSinglePortInputOperator<Map<String, String>> implements Runnable

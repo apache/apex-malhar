@@ -139,6 +139,8 @@ import org.apache.hadoop.conf.Configuration;
  *      StateFull : No <br>
  *  </li>
  *  </ul>
+ *
+ * @since 0.3.2
  */
 public class Application implements StreamingApplication
 {

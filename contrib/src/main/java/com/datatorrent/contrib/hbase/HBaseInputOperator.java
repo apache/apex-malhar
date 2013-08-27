@@ -25,7 +25,9 @@ import java.io.IOException;
  * The base class for HBase input operators.<br>
  *
  * <br>
+ *
  * @param <T> The tuple type
+ * @since 0.3.2
  */
 public abstract class HBaseInputOperator<T> extends HBaseOperatorBase implements InputOperator
 {

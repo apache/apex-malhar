@@ -44,6 +44,7 @@ import org.codehaus.jettison.json.JSONObject;
  * Data of type {@link java.util.Map} is converted to JSON. All other types are sent in their {@link Object#toString()} representation.<br>
  * <br>
  *
+ * @since 0.3.2
  */
 @ShipContainingJars(classes = {com.sun.jersey.api.client.ClientHandler.class})
 public class HttpOutputOperator<T> extends BaseOperator
@@ -103,7 +104,7 @@ public class HttpOutputOperator<T> extends BaseOperator
     }
     super.teardown();
   }
-  
+
   @SuppressWarnings("unused")
 private static class JsonStringGenerator {
     /**
@@ -123,6 +124,6 @@ private static class JsonStringGenerator {
      System.out.println(writer.toString());
      return writer.toString();
     }
-    
+
    }
 }

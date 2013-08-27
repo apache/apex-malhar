@@ -41,6 +41,8 @@ import org.apache.commons.lang.mutable.MutableDouble;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
+ *
+ * @since 0.3.2
  */
 public class MarginMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
 {

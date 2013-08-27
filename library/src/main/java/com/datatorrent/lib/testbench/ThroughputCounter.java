@@ -51,8 +51,9 @@ import org.slf4j.LoggerFactory;
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * Benchmarked at over 17 million tuples/second in local/in-line mode<br>
  * <br>
+ *
+ * @since 0.3.2
  */
-
 public class ThroughputCounter<K, V extends Number> extends BaseOperator
 {
   private static Logger log = LoggerFactory.getLogger(ThroughputCounter.class);

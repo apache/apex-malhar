@@ -47,6 +47,8 @@ import javax.validation.constraints.Min;
  * <br>
  * <b>Specific run time checks are</b>: None<br>
  * <br>
+ *
+ * @since 0.3.2
  */
 public class Sampler<K> extends BaseKeyOperator<K>
 {

@@ -23,9 +23,11 @@ import org.apache.commons.lang.mutable.MutableInt;
 
 /**
  * <p>
- * Occurrences of each key is counted in the input stream, 
+ * Occurrences of each key is counted in the input stream,
  * and at the end of window the winning frequent key is emitted on output port "count". <br>
  * This module is an end of window module.
+ *
+ * @since 0.3.2
  */
 public abstract class AbstractBaseFrequentKey<K> extends BaseKeyOperator<K>
 {

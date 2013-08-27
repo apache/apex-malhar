@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  * <b>Output</b>: no output port<br>
  * <br>
  * Properties:<br>
-  * <b>maxWindowTable</b>:the table to save the most recent inserted windowId, operatorId information for recovery use<br>
+ * <b>maxWindowTable</b>:the table to save the most recent inserted windowId, operatorId information for recovery use<br>
  * <b>maxWindowCollection</b>:mongoDB collection of the maxWindowTable<br>
  * <b>windowId</b>:Id of current window<br>
  * <b>operatorId</b>:Id of the operator<br>
@@ -74,6 +74,7 @@ import org.slf4j.LoggerFactory;
  * <b>Benchmarks</b>:
  * <br>
  *
+ * @since 0.3.2
  */
 public abstract class MongoDBOutputOperator<T> extends MongoDBBaseOperator implements Operator
 {

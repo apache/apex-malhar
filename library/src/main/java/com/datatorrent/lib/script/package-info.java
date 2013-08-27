@@ -15,9 +15,7 @@
  */
 
 /**
- * <b>com.datatorrent.lib.script</b> is a library of operators for scripting languages<p>
- * <br>
- * <br>
+ * Library of operators for scripting languages, including Bash, JavaScript, and Python.
  */
 
 package com.datatorrent.lib.script;

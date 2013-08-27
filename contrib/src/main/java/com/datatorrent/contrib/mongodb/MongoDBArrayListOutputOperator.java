@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
  * <b>Benchmarks</b>:
  * <br>
  *
+ * @since 0.3.2
  */
 public class MongoDBArrayListOutputOperator extends MongoDBOutputOperator<ArrayList<Object>>
 {

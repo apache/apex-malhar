@@ -67,6 +67,7 @@ import javax.script.*;
  * 		.
  * </pre>
  *
+ * @since 0.3.2
  */
 public class JavaScriptOperator extends BaseOperator implements ScriptOperator
 {

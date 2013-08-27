@@ -39,6 +39,8 @@ import com.datatorrent.api.DefaultInputPort;
  * size based file rolling, using place holders in the file path.<br>
  * Future enhancements may include options to write into a time slot/windows based files<br>
  * <br>
+ *
+ * @since 0.3.2
  */
 public class HdfsOutputOperator extends BaseOperator
 {

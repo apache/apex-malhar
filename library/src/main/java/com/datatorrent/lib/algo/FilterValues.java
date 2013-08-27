@@ -41,6 +41,8 @@ import javax.validation.constraints.NotNull;
  * <b>Properties</b>:<br>
  * <b>keys</b>: The keys to pass through. Those not in the list are dropped. A comma separated list of keys<br>
  * <br>
+ *
+ * @since 0.3.2
  */
 public class FilterValues<T> extends BaseOperator
 {

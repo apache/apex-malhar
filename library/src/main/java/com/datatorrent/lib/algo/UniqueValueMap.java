@@ -37,6 +37,8 @@ import com.datatorrent.lib.util.UnifierHashMap;
  * <b>data</b>: expects Map&lt;K,V&gt;<br>
  * <b>count</b>: emits HashMap&lt;K,Integer&gt;<br>
  * <br>
+ *
+ * @since 0.3.2
  */
 public class UniqueValueMap<K> extends BaseKeyOperator<K>
 {

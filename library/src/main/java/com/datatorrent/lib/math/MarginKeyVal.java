@@ -27,7 +27,7 @@ import java.util.Map;
 import org.apache.commons.lang.mutable.MutableDouble;
 
 /**
- * 
+ *
  * Adds all values for each key in "numerator" and "denominator", and at the end
  * of window emits the margin for each key (1 - numerator/denominator).
  * <p>
@@ -43,6 +43,8 @@ import org.apache.commons.lang.mutable.MutableDouble;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public class MarginKeyVal<K, V extends Number> extends
 		BaseNumberKeyValueOperator<K, V>

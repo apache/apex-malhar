@@ -64,6 +64,8 @@ import org.slf4j.LoggerFactory;
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * With key: Benchmarked at over 1 million tuples/second in local/in-line mode<br>
  * Without key: Benchmarked at over 4 million tuples/second in local/in-line mode<br>
+ *
+ * @since 0.3.2
  */
 public class SeedEventGenerator extends BaseOperator implements InputOperator
 {
@@ -111,7 +113,7 @@ public class SeedEventGenerator extends BaseOperator implements InputOperator
     }
     // done generating data
     LOG.info("Finished generating data.");
-    //throw new RuntimeException(new InterruptedException("Finished generating data."));
+    throw new RuntimeException(new InterruptedException("Finished generating data."));
   }
 
   /**

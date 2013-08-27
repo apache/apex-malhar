@@ -27,7 +27,7 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
- * 
+ *
  * A sliding window class that lets users access past N-1 window states
  * <p>
  * N is a property. The default behavior is just a pass through, i.e. the
@@ -44,6 +44,8 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>Properties</b>:<br>
  * <b>windowSize i.e. N</b>: Number of windows to keep state on<br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public abstract class AbstractSlidingWindowKeyVal<K, V extends Number, S extends SlidingWindowObject>
 		extends BaseNumberKeyValueOperator<K, V>

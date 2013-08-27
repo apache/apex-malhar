@@ -24,7 +24,7 @@ import com.datatorrent.lib.util.JavaSerializationStreamCodec;
 /**
  * Base class for operators that allows cloneValue and cloneKey for enabling users to use mutable objects<p>
  *
- *
+ * @since 0.3.2
  */
 public class BaseKeyValueOperator<K, V> extends BaseKeyOperator<K>
 {

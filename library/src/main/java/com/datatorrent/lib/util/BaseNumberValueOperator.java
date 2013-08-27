@@ -25,6 +25,8 @@ import javax.validation.constraints.NotNull;
  * <br>
  * <br>
  * <br>
+ *
+ * @since 0.3.2
  */
 public class BaseNumberValueOperator<V extends Number> extends BaseKeyOperator<V>
 

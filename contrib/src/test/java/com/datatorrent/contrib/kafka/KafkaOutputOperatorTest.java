@@ -33,6 +33,7 @@ import kafka.server.KafkaConfig;
 import kafka.server.KafkaServer;
 import kafka.utils.Utils;
 import org.apache.zookeeper.server.NIOServerCnxn;
+import org.apache.zookeeper.server.NIOServerCnxnFactory;
 import org.apache.zookeeper.server.ZooKeeperServer;
 import org.junit.After;
 import org.junit.Before;
@@ -49,7 +50,7 @@ public class KafkaOutputOperatorTest
   private static int tupleCount = 0;
   private static final int maxTuple = 20;
   private KafkaServer kserver;
-  private NIOServerCnxn.Factory standaloneServerFactory;
+  private NIOServerCnxnFactory standaloneServerFactory;
   private final String zklogdir = "/tmp/zookeeper-server-data";
   private final String kafkalogdir = "/tmp/kafka-server-data";
   private static boolean useZookeeper = true;  // standard consumer use zookeeper, whereas simpleConsumer don't
@@ -99,7 +100,8 @@ public class KafkaOutputOperatorTest
       File dir = new File(zklogdir);
 
       ZooKeeperServer zserver = new ZooKeeperServer(dir, dir, tickTime);
-      standaloneServerFactory = new NIOServerCnxn.Factory(new InetSocketAddress(clientPort), numConnections);
+      standaloneServerFactory = new NIOServerCnxnFactory();
+      standaloneServerFactory.configure(new InetSocketAddress(clientPort), numConnections);
       standaloneServerFactory.startup(zserver); // start the zookeeper server.
     }
     catch (InterruptedException ex) {

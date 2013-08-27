@@ -30,7 +30,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>SqliteStreamOperator class.</p>
  *
+ * @since 0.3.2
  */
 @ShipContainingJars(classes = {com.almworks.sqlite4java.SQLiteConnection.class})
 public class SqliteStreamOperator extends AbstractSqlStreamOperator
@@ -53,7 +55,6 @@ public class SqliteStreamOperator extends AbstractSqlStreamOperator
     try {
       db.open(true);
       // create the temporary tables here
-
       for (int i = 0; i < inputSchemas.size(); i++) {
         InputSchema inputSchema = inputSchemas.get(i);
         ArrayList<String> indexes = new ArrayList<String>();

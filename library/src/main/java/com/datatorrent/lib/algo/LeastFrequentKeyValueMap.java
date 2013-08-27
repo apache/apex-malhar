@@ -57,6 +57,8 @@ import java.util.HashMap;
  * </table>
  * <br>
  * <br>
+ *
+ * @since 0.3.2
  */
 public class LeastFrequentKeyValueMap<K, V> extends AbstractBaseFrequentKeyValueMap<K, V>
 {

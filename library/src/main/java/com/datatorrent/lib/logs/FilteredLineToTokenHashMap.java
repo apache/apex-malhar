@@ -40,6 +40,8 @@ import java.util.HashMap;
  * null<br>
  * <b>filterby</b>: Only emit the keys (comma separated) that are in filterby<br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public class FilteredLineToTokenHashMap extends LineToTokenHashMap
 {

@@ -26,6 +26,8 @@ import com.datatorrent.api.DefaultInputPort;
 
 /**
  * Operator to execute bash script on tuples.
+ *
+ * @since 0.3.3
  */
 public class BashOperator extends ScriptBaseOperator
 {

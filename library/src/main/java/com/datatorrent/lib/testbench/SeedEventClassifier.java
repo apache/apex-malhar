@@ -60,6 +60,8 @@ import javax.validation.constraints.NotNull;
  * String: Benchmarked at over 13 million tuples/second in local/in-line mode<br>
  * Integer: Benchmarked at over 7 million tuples/second in local/in-line mode<br>
  * <br>
+ *
+ * @since 0.3.2
  */
 public class SeedEventClassifier<T> extends BaseOperator
 {

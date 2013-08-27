@@ -24,6 +24,8 @@ import java.util.Map;
 
 /**
  * This unifier aggregates occurrence of key on output port and emits key/total occurrence value pair.
+ *
+ * @since 0.3.3
  */
 public class UnifierCountOccurKey<K> implements Unifier<KeyValPair<K, Integer>>
 {

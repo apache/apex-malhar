@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Grabs Yahoo Finance quotes data and emits HashMap, with key equals the format name (e.g. "s0") <p>
  *
+ * @since 0.3.2
  */
 @ShipContainingJars(classes = {au.com.bytecode.opencsv.CSVReader.class})
 public class YahooFinanceCSVInputOperator extends SimpleSinglePortInputOperator<HashMap<String, Object>> implements Runnable

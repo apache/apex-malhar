@@ -29,11 +29,12 @@ import java.util.Collection;
  * <b>output</b>: emits ArrayList&lt;T&gt;<br>
  * <br>
  * <b>Properties</b>:<br>
- * <b>size</b>: The size of ArrayList. If specified the ArrayList is emitted the moment it reaches this size. 
+ * <b>size</b>: The size of ArrayList. If specified the ArrayList is emitted the moment it reaches this size.
  *               If 0, the ArrayList is emitted in endWindow call. Default value is 0, </br>
  * <br>
- * @param <T> Type of elements in the collection.<br>
  *
+ * @param <T> Type of elements in the collection.<br>
+ * @since 0.3.3
  */
 public class ArrayListAggregator<T> extends AbstractAggregator<T>
 {

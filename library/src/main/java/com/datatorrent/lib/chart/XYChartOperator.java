@@ -26,9 +26,11 @@ import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * This is the base class for all chart operators that draw charts that have two axes
+ *
  * @param <K> The type for the key
  * @param <X> The type for the data points on the x-axis
  * @param <Y> The type for the data points on the y-axis
+ * @since 0.3.2
  */
 public abstract class XYChartOperator<K, X, Y> extends ChartOperator
 {

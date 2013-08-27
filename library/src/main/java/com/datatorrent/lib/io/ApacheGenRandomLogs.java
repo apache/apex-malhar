@@ -27,26 +27,27 @@ import com.datatorrent.api.Context.OperatorContext;
 /**
  * Generates apache server log entries. The apache access log has the following
  * format
- * 
+ *
  * %s %h %l %u %t "%r" %s %b "%{Referer}" "%{User-agent}"
- * 
+ *
  * %s - server name - server0.mydomain.com:80 .......................  server9.mydomain.com:80
- * %h - The ip address of the client 
+ * %h - The ip address of the client
  * %l - The identity of the client typically "-"
  * %u - The username of the user if HTTP authentication was used otherwise "-"
  * %t - The time the request was received e.g., [31/May/2013:08:03:46 -0700]
  * %r - The HTTP request string e.g., "GET /favicon.ico HTTP/1.1"
- * %s - The status code of the response e.g., 404 
- * %b - The number of bytes in the response 
- * %{Referer} - The referer web site reported by the client, "-" if there is none 
- * %{User-agent} - Unique string identifying the client browser e.g., 
+ * %s - The status code of the response e.g., 404
+ * %b - The number of bytes in the response
+ * %{Referer} - The referer web site reported by the client, "-" if there is none
+ * %{User-agent} - Unique string identifying the client browser e.g.,
  * 							"Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1468.0 Safari/537.36"
- * 
+ *
  * Putting it all together a sample log string looks like :
  * --------------------------------------------------------
  * 127.0.0.1 - [31/May/2013:09:05:49 -0700] "GET /favicon.ico HTTP/1.1" 304 210 "-"
  * "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.22 (KHTML, like Gecko) Ubuntu Chromium/25.0.1364.160 Chrome/25.0.1364.160 Safari/537.22"
- * 
+ *
+ * @since 0.3.2
  */
 public class ApacheGenRandomLogs extends BaseOperator implements InputOperator
 {

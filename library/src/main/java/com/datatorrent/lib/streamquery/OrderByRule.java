@@ -16,6 +16,7 @@
 package com.datatorrent.lib.streamquery;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -24,6 +25,8 @@ import java.util.TreeMap;
  * 
  * <b>Properties : </b> <br>
  * <b> columnName : </b> Name of column for ordering tuples. <br>
+ *
+ * @since 0.3.3
  */
 @SuppressWarnings("rawtypes")
 public class OrderByRule<T extends Comparable>

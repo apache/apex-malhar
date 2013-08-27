@@ -23,7 +23,7 @@ import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 import com.datatorrent.lib.io.SmtpOutputOperator;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
-import com.datatorrent.lib.util.Alert;
+import com.datatorrent.lib.util.AlertEscalationOperator;
 import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
 
@@ -36,6 +36,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Mobile Demo Application.<p>
+ *
+ * @since 0.3.2
  */
 public class ApplicationAlert implements StreamingApplication
 {
@@ -86,7 +88,7 @@ public class ApplicationAlert implements StreamingApplication
     dag.setAttribute(movementgen, OperatorContext.PARTITION_TPS_MIN, 10000);
     dag.setAttribute(movementgen, OperatorContext.PARTITION_TPS_MAX, 50000);
 
-    Alert alertOper = dag.addOperator("palert", Alert.class);
+    AlertEscalationOperator alertOper = dag.addOperator("palert", AlertEscalationOperator.class);
     alertOper.setAlertFrequency(10000);
     alertOper.setActivated(false);
 
@@ -128,6 +130,6 @@ public class ApplicationAlert implements StreamingApplication
     mailOper.setSmtpPassword("Testing1");
     mailOper.setUseSsl(true);
 
-    dag.addStream("alert_mail", alertOper.alert1, mailOper.input).setInline(true);
+    dag.addStream("alert_mail", alertOper.alert, mailOper.input).setInline(true);
   }
 }

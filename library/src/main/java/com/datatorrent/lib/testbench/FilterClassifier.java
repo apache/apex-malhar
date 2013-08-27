@@ -49,6 +49,7 @@ import java.util.Random;
  * Compile time checks are:<br>
  * <br>
  *
+ * @since 0.3.2
  */
 public class FilterClassifier<T> extends BaseOperator
 {

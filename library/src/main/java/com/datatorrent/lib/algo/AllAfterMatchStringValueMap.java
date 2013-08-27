@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
+ *
  * A compare operation is done on input tuple based on the property "key",
  * "value", and "cmp". All tuples are emitted (inclusive) once a match is made.
  * The comparison is done by getting double value from the Number.
@@ -50,6 +50,8 @@ import java.util.Map;
  * <b>Specific run time checks</b>:<br>
  * The key exists in the HashMap<br>
  * Value converts to Double successfully<br>
+ *
+ * @since 0.3.2
  */
 public class AllAfterMatchStringValueMap<K> extends
     BaseMatchOperator<K, String>

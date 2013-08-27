@@ -28,7 +28,7 @@ import com.datatorrent.lib.streamquery.index.Index;
 
 /**
  * This operator reads table row data from 2 table data input ports. <br>
- * Operator joins row on given condition and selected names, emits 
+ * Operator joins row on given condition and selected names, emits
  * joined result at output port.
  *  <br>
  *  <b>StateFull : Yes,</b> Operator aggregates input over application window. <br>
@@ -44,6 +44,8 @@ import com.datatorrent.lib.streamquery.index.Index;
  *  <b> table1Columns : </b> Columns to be selected from table1. <br>
  *  <b> table2Columns : </b> Columns to be selected from table2. <br>
  *  <br>
+ *
+ * @since 0.3.3
  */
 public class InnerJoinOperator  implements Operator
 {

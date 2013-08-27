@@ -55,6 +55,8 @@ import com.datatorrent.lib.util.UnifierHashMap;
  * <b>Run time checks</b>:<br>
  * Does the incoming HashMap have the key, Is the value of the key a number<br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public class ExceptMap<K, V extends Number> extends MatchMap<K, V>
 {

@@ -34,7 +34,7 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  * <b>Input Ports</b>:<br>
  * <b>data</b>: expects V extends Number, Data values<br>
  * <b>base</b>: expects V extends Number, Base Value stored for comparison<br>
- * 
+ *
  * <b>Output Ports</b>:<br>
  * <b>change</b>: emits V extends Number,  Diff from base value<br>
  * <b>percent</b>: emits Doubl, percent change in value compared to base value.<br>
@@ -47,8 +47,10 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
  * <br>
- * 
+ *
  * <br>
+ *
+ * @since 0.3.3
  */
 public class Change<V extends Number> extends BaseNumberValueOperator<V>
 {

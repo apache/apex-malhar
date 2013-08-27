@@ -26,7 +26,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>WordCountInputOperator class.</p>
  *
+ * @since 0.3.2
  */
 public class WordCountInputOperator extends SimpleSinglePortInputOperator<String> implements Runnable {
 

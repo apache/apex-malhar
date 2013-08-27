@@ -26,6 +26,7 @@ import org.apache.hadoop.conf.Configuration;
 /**
  * This demo will output the stock market data from yahoo finance
  *
+ * @since 0.3.2
  */
 public class ApplicationWithDerbySQL implements StreamingApplication
 {

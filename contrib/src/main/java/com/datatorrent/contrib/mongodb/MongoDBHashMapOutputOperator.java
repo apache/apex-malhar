@@ -43,6 +43,7 @@ import org.bson.types.ObjectId;
  * <b>Benchmarks</b>:
  * <br>
  *
+ * @since 0.3.2
  */
 public class MongoDBHashMapOutputOperator<T> extends MongoDBOutputOperator<HashMap<String, T>>
 {

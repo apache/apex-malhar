@@ -22,6 +22,8 @@ import org.apache.commons.lang.mutable.MutableInt;
 
 /**
  * A sink implementation to collect expected test results in a HashMap
+ *
+ * @since 0.3.2
  */
 public class HashTestSink<T> implements Sink<T>
 {

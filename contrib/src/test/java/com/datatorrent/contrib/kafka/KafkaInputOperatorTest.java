@@ -38,6 +38,7 @@ import kafka.server.KafkaConfig;
 import kafka.server.KafkaServer;
 import kafka.utils.Utils;
 import org.apache.zookeeper.server.NIOServerCnxn;
+import org.apache.zookeeper.server.NIOServerCnxnFactory;
 import org.apache.zookeeper.server.ZooKeeperServer;
 import org.junit.After;
 import org.junit.Before;
@@ -49,7 +50,7 @@ public class KafkaInputOperatorTest
   private static final org.slf4j.Logger logger = LoggerFactory.getLogger(KafkaInputOperatorTest.class);
   private static HashMap<String, List<?>> collections = new HashMap<String, List<?>>();
   private KafkaServer kserver;
-  private NIOServerCnxn.Factory standaloneServerFactory;
+  private NIOServerCnxnFactory standaloneServerFactory;
   private final String zklogdir = "/tmp/zookeeper-server-data";
   private final String kafkalogdir = "/tmp/kafka-server-data";
   private final boolean useZookeeper = true;  // standard consumer use zookeeper, whereas simpleConsumer don't
@@ -68,7 +69,8 @@ public class KafkaInputOperatorTest
       File dir = new File(zklogdir);
 
       ZooKeeperServer zserver = new ZooKeeperServer(dir, dir, tickTime);
-      standaloneServerFactory = new NIOServerCnxn.Factory(new InetSocketAddress(clientPort), numConnections);
+      standaloneServerFactory = new NIOServerCnxnFactory();
+      standaloneServerFactory.configure(new InetSocketAddress(clientPort), numConnections);
       standaloneServerFactory.startup(zserver); // start the zookeeper server.
     }
     catch (InterruptedException ex) {

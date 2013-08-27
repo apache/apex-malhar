@@ -27,7 +27,7 @@ import java.util.Map;
  * Combiner for an output port that emits object with Map<K,ArrayList<V>(2)> interface and has the processing done
  * with round robin partition. The first element in the ArrayList is high, the next is low
  *
- *
+ * @since 0.3.2
  */
 public class UnifierKeyValRange<K> implements Unifier<KeyValPair<K, HighLow>>
 {

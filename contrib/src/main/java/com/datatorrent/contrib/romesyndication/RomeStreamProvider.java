@@ -23,6 +23,7 @@ import java.io.InputStream;
  *
  * <br>
  *
+ * @since 0.3.2
  */
 public interface RomeStreamProvider
 {

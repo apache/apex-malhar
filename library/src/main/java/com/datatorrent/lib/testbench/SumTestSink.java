@@ -19,6 +19,8 @@ import com.datatorrent.api.Sink;
 
 /**
  * A sink implementation to collect expected test results.
+ *
+ * @since 0.3.2
  */
 public class SumTestSink<T> implements Sink<T>
 {

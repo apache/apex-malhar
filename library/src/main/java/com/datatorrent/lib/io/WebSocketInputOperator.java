@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
  * Incoming data is interpreted as JSONObject and converted to {@link java.util.Map}.<br>
  * <br>
  *
+ * @since 0.3.2
  */
 @ShipContainingJars(classes = {org.codehaus.jackson.JsonFactory.class,org.eclipse.jetty.websocket.WebSocket.class})
 public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<String, String>> implements Runnable

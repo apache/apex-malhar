@@ -37,7 +37,6 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.junit.Test;
 
-
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**

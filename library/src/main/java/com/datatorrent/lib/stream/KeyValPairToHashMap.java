@@ -33,8 +33,9 @@ import java.util.HashMap;
  * <b>keyval</b>: expects KeyValPair&lt;K,V&gt;<br>
  * <b>map</b>: emits HashMap&lt;K,V&gt;<br>
  * <br>
+ *
+ * @since 0.3.3
  */
-
 public class KeyValPairToHashMap<K, V> extends BaseKeyValueOperator<K, V>
 {
 	/**

@@ -29,6 +29,7 @@ import com.datatorrent.lib.testbench.RandomEventGenerator;
  * <b>Operator : </b> Average <br>
  * <bClass : </b> com.datatorrent.lib.math.Average
  *
+ * @since 0.3.2
  */
 public class AverageSample implements StreamingApplication
 {

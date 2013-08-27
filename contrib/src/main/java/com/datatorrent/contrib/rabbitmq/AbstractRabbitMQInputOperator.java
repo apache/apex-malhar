@@ -51,8 +51,10 @@ import org.slf4j.LoggerFactory;
  * immutable. If you use mutable tuples and have lots of keys, the benchmarks may differ</td></tr>
  * </table><br>
  * <br>
+ *
+ * @since 0.3.2
  */
-public abstract class AbstractRabbitMQInputOperator
+public abstract class AbstractRabbitMQInputOperator<T>
     implements InputOperator,
 ActivationListener<OperatorContext>
 {
@@ -149,10 +151,6 @@ ActivationListener<OperatorContext>
   {
   }
 
-  /**
-   *
-   * @param ctx
-   */
   @Override
   public void activate(OperatorContext ctx)
   {
@@ -176,9 +174,6 @@ ActivationListener<OperatorContext>
     }
   }
 
-  /**
-   *
-   */
   @Override
   public void deactivate()
   {

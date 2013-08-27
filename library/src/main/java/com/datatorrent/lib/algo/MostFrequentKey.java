@@ -32,7 +32,7 @@ import java.util.HashMap;
  * This module is an end of window module<br>
  * In case of a tie any of the least key would be emitted. The list port would however have all the tied keys
  * <br>
- *  <b>StateFull : Yes</b>, Values are compared all over  application window can be > 1. <br> 
+ *  <b>StateFull : Yes</b>, Values are compared all over  application window can be > 1. <br>
  *  <b>Partitions : Yes</b>, Result is unified on output port. <br>
  * <br>
  * <b>Ports</b>:<br>
@@ -45,6 +45,8 @@ import java.util.HashMap;
  * <b>Compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
  * <br>
+ *
+ * @since 0.3.2
  */
 public class MostFrequentKey<K> extends AbstractBaseFrequentKey<K>
 {

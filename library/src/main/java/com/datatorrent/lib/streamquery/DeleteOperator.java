@@ -39,6 +39,8 @@ import com.datatorrent.lib.streamquery.condition.Condition;
  * <b> condition : </b> Select condition for selecting rows. <br>
  * <b> columns : </b> Column names/aggregate functions for select. <br>
  * <br>
+ *
+ * @since 0.3.3
  */
 public class DeleteOperator extends BaseOperator
 {

@@ -22,11 +22,13 @@ import com.datatorrent.lib.util.UnifierArrayList;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
- * Splits String objects into tokens, and emits as ArrayList. 
- * An ArrayList of all tkns are emitted on output port "tokens". 
+ * Splits String objects into tokens, and emits as ArrayList.
+ * An ArrayList of all tkns are emitted on output port "tokens".
  * An ArrayList of all subtokens are emitted on port splittokens<p>
  * This module is a pass through. Ideal for applications like log processing<br>
  * <br>
@@ -43,6 +45,8 @@ import java.util.HashMap;
  * <b>splittokenby</b>: The characters used to split a token into key,val1,val2,.... If not specified the value is set to null. Default is "", i.e. tokens are not split<br>
  *
  * <br>
+ *
+ * @since 0.3.2
  */
 public class LineToTokenArrayList extends BaseLineTokenizer
 {

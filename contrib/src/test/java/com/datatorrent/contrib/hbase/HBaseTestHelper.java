@@ -31,6 +31,7 @@ import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.server.NIOServerCnxn;
+import org.apache.zookeeper.server.NIOServerCnxnFactory;
 //import org.apache.zookeeper.server.NIOServerCnxnFactory;
 import org.apache.zookeeper.server.ZooKeeperServer;
 
@@ -57,10 +58,8 @@ public class HBaseTestHelper
     File zooFile = new File(zooLocation, "zookeeper-malhartest");
     ZooKeeperServer zooKeeper = new ZooKeeperServer(zooFile, zooFile, 2000);
 
-    NIOServerCnxn.Factory serverFactory
-              = new NIOServerCnxn.Factory(new InetSocketAddress(2182),10);
-    //NIOServerCnxnFactory serverFactory = new NIOServerCnxnFactory();
-    //serverFactory.configure(new InetSocketAddress(2182),10);
+    NIOServerCnxnFactory serverFactory = new NIOServerCnxnFactory();
+    serverFactory.configure(new InetSocketAddress(2182),10);
     serverFactory.startup(zooKeeper);
   }
 

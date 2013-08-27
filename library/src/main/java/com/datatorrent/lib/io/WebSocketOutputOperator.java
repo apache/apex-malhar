@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  *
  * @param <T> tuple type
+ * @since 0.3.2
  */
 @ShipContainingJars(classes = {org.codehaus.jackson.JsonFactory.class, org.eclipse.jetty.websocket.WebSocket.class})
 public class WebSocketOutputOperator<T> extends BaseOperator
