@@ -30,7 +30,6 @@ import org.apache.commons.lang.mutable.MutableInt;
  * once all the inserts are done<br>
  *
  * @since 0.3.2
- * @author Amol Kekre <amol@datatorrent.com>
  */
 public class TopNUniqueSort<E>
 {
