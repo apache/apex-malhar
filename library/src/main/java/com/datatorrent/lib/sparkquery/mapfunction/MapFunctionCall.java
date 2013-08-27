@@ -20,7 +20,7 @@ import java.util.Map;
 /**
  * Interface to define flat map function call.  
  *
- * @since 0.3.3
+ * @since 0.3.4
  */
 public interface MapFunctionCall<T, R>
 {
