@@ -18,7 +18,7 @@ package com.datatorrent.lib.pigquery.generate;
 import javax.validation.constraints.NotNull;
 
 /**
- * 
+ *
  */
 abstract public class BinaryGenerate implements Generate
 {
@@ -33,24 +33,24 @@ abstract public class BinaryGenerate implements Generate
    */
   @NotNull
   protected String rightField;
-  
+
   /**
-   * Alias name. 
+   * Alias name.
    */
   protected String aliasName;
-  
+
   /**
    * Operation name.
    */
-  private  String opName;
-  
+  protected  String opName;
+
   public BinaryGenerate(@NotNull String leftField, @NotNull String rightField, String aliasName, String opName) {
     this.leftField = leftField;
     this.rightField = rightField;
     this.aliasName = aliasName;
     this.opName = opName;
   }
-  
+
   /**
    * Get value for leftField.
    * @return String
@@ -104,7 +104,7 @@ abstract public class BinaryGenerate implements Generate
   {
     this.aliasName = aliasName;
   }
-  
+
   /**
    * @see com.datatorrent.lib.pigquery.generate.Generate#getOutputAliasName()
    */
