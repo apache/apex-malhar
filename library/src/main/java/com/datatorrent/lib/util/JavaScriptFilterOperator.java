@@ -46,6 +46,11 @@ public class JavaScriptFilterOperator extends FilterOperator
     this.functionName = script;
   }
 
+  public String getSetupScript()
+  {
+    return setupScript;
+  }
+  
   public void setSetupScript(String script)
   {
     setupScript = script;
