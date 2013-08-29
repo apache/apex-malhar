@@ -31,7 +31,7 @@ public class JavaScriptFilterOperator extends FilterOperator
   protected transient ScriptEngineManager sem = new ScriptEngineManager();
   protected transient ScriptEngine engine = sem.getEngineByName("JavaScript");
   protected transient SimpleScriptContext scriptContext = new SimpleScriptContext();
-  protected SimpleBindings scriptBindings = new SimpleBindings();
+  protected transient SimpleBindings scriptBindings = new SimpleBindings();
   protected String functionName;
   protected String setupScript;
   private static final Logger LOG = LoggerFactory.getLogger(JavaScriptFilterOperator.class);
@@ -50,7 +50,7 @@ public class JavaScriptFilterOperator extends FilterOperator
   {
     return setupScript;
   }
-  
+
   public void setSetupScript(String script)
   {
     setupScript = script;

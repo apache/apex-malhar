@@ -83,7 +83,7 @@ public class JavaScriptOperator extends BaseOperator implements ScriptOperator
   protected boolean keepContext = true;
   protected boolean isPassThru = true;
   protected transient SimpleScriptContext scriptContext = new SimpleScriptContext();
-  protected SimpleBindings scriptBindings = new SimpleBindings();
+  protected transient SimpleBindings scriptBindings = new SimpleBindings();
   protected ArrayList<String> setupScripts = new ArrayList<String>();
   protected Object evalResult;
   @InputPortFieldAnnotation(name = "inBindings", optional = true)
