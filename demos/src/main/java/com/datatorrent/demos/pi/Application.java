@@ -16,7 +16,6 @@
 package com.datatorrent.demos.pi;
 
 import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
@@ -82,7 +81,7 @@ public class Application implements StreamingApplication
 
     PiCalculateOperator calc = dag.addOperator("picalc", new PiCalculateOperator());
     calc.setBase(maxValue*maxValue);
-    dag.addStream("rand_calc", rand.integer_data, calc.input).setInline(allInline).setLocality(Locality.NODE_LOCAL);
+    dag.addStream("rand_calc", rand.integer_data, calc.input).setInline(allInline);
 
     ConsoleOutputOperator console = dag.addOperator("console", new ConsoleOutputOperator());
     dag.addStream("rand_console",calc.output, console.input).setInline(allInline);
