@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright (c) 2012-2013 Malhar, Inc.
+ *  Copyright (c) 2012-2013 DataTorrent, Inc.
  *  All Rights Reserved.
  */
 

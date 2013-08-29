@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Malhar Inc. ALL Rights Reserved.
+ * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 package com.datatorrent.demos.rollingtopwords;
 
 /*
- *  Copyright (c) 2012 Malhar, Inc.
+ *  Copyright (c) 2012-2013 DataTorrent, Inc.
  *  All Rights Reserved.
  */
 import com.datatorrent.api.*;
