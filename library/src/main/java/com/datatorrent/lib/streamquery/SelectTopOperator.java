@@ -25,6 +25,8 @@ import com.datatorrent.api.Operator;
  * <b> topValue : </b> top values count. <br>
  * <b> isPercentage : </b> top values count is percentage flag.
  * <br>
+ *
+ * @since 0.3.4
  */
 public class SelectTopOperator implements Operator
 {

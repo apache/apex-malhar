@@ -22,9 +22,11 @@ import java.util.Map;
 /**
  * Class to implement column equal condition.
  * A valid row must have all key/value map in column name/value map.
- * 
+ *
  * <b> Properties : </b> <br>
  *  <b> equalMap : </b> Column equal value map store.
+ *
+ * @since 0.3.4
  */
 public class EqualValueCondition extends Condition
 {

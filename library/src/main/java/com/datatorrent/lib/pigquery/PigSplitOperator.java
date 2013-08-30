@@ -25,9 +25,11 @@ import com.datatorrent.api.DefaultOutputPort;
 /**
  * Abstract class to implement Pig Split operator semantic.  <br>
  * Number of output ports are configured in class instance.
- * 
+ *
  * <b>Properties : </b> <br>
  * <b>numOutPorts : </b> Number of output ports. <br>
+ *
+ * @since 0.3.4
  */
 public abstract class PigSplitOperator<T>  extends BaseOperator
 {

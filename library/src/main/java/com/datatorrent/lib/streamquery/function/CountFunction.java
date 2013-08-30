@@ -29,6 +29,8 @@ import org.apache.commons.lang.StringUtils;
  *   <b> Properties : </b> <br>
  *   <b> column : </b> column name for values count.   <br>
  *   <b> alias  : </b> Alias name for aggregate output. <br>
+ *
+ * @since 0.3.4
  */
 public class CountFunction extends FunctionIndex
 {

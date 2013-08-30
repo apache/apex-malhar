@@ -30,6 +30,8 @@ import org.apache.commons.lang.StringUtils;
  *   <b> column : </b> column name for values max/min computation.   <br>
  *   <b> alias  : </b> Alias name for  output value. <br>
  *   <b> isMax : </b> Flag to indicate max/min compute value. <br>
+ *
+ * @since 0.3.4
  */
 public class MaxMinFunction extends FunctionIndex
 {

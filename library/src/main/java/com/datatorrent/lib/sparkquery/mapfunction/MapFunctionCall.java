@@ -18,7 +18,7 @@ package com.datatorrent.lib.sparkquery.mapfunction;
 import java.util.Map;
 
 /**
- * Interface to define flat map function call.  
+ * Interface to define flat map function call.
  *
  * @since 0.3.4
  */

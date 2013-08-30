@@ -22,6 +22,8 @@ import javax.validation.constraints.NotNull;
 
 /**
  * Group condition sub class to group tuples by column value.
+ *
+ * @since 0.3.4
  */
 public class PigNameGroupCondition implements PigGroupCondition
 {

@@ -27,6 +27,8 @@ import javax.validation.constraints.NotNull;
  * <b> leftValue : </b> left range of column value. <br>
  * <b> rightValue : </b> right range od column value. <br>
  * <br>
+ *
+ * @since 0.3.4
  */
 public class BetweenCondition  extends Condition
 {

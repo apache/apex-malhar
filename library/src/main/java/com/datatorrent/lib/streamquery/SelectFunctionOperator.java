@@ -37,6 +37,8 @@ import com.datatorrent.lib.streamquery.function.FunctionIndex;
  * <br>
  * <b> Properties : </b> <br>
  * <b> functions : </b> Sql function for rows. <br>
+ *
+ * @since 0.3.4
  */
 public class SelectFunctionOperator implements Operator
 {

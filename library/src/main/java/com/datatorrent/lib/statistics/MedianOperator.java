@@ -25,7 +25,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 
 /**
-  * This operator computes median of incoming data. <br>
+ * This operator computes median of incoming data. <br>
  * <br>
  * <b>Input Port(s) : </b><br>
  * <b>data : </b> Data values input port. <br>
@@ -36,7 +36,9 @@ import com.datatorrent.api.DefaultOutputPort;
  * <b>StateFull : Yes</b>, value are aggregated over application window. <br>
  * <b>Partitions : No</b>, no will yield wrong results. <br>
  * <br>+
-*/
+ *
+ * @since 0.3.4
+ */
 public class MedianOperator extends BaseOperator
 {
   private ArrayList<Double> values;

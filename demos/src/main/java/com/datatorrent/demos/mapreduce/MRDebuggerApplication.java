@@ -32,7 +32,6 @@ import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
  *
  * @since 0.3.4
  */
-
 public class MRDebuggerApplication implements StreamingApplication {
 
 	private static final Logger LOG = LoggerFactory

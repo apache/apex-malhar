@@ -52,6 +52,8 @@ import com.datatorrent.lib.streamquery.index.ColumnIndex;
  * <b> indexes : </b> Select column indexes. <br>
  * <b> havingConditions : </b> Having filter conditions for aggregate(s). <br>
  * <br>
+ *
+ * @since 0.3.4
  */
 public class GroupByHavingOperator extends BaseOperator
 {

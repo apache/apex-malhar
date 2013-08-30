@@ -20,6 +20,8 @@ import java.util.Map;
 
 /**
  * Interface to declare Foreach Generate indexes.
+ *
+ * @since 0.3.4
  */
 public interface Generate
 {

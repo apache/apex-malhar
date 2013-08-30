@@ -24,10 +24,12 @@ import javax.validation.constraints.NotNull;
 
 /**
  * Condition class to filter rows for which given column name value matches given regular expression. <br>
- * 
+ *
  *<b> Properties : </b> <br>
  *<b> column : < /b> Column to be matched with regular expression. <br>
  *<b> pattern : </b> Regular expression pattern.<br>
+ *
+ * @since 0.3.4
  */
 public class LikeCondition extends Condition
 {

@@ -20,7 +20,6 @@ package com.datatorrent.demos.mapreduce;
  *
  * @since 0.3.4
  */
-
 public interface Constants {
 
 	public final static int MAX_MAP_SIZE=25;

@@ -21,6 +21,8 @@ import javax.validation.constraints.NotNull;
 /**
  * Abstract class to filter row by expression index.
  * Sub class will implement filter/getExpressionName functions.
+ *
+ * @since 0.3.4
  */
 abstract public class UnaryExpression  implements Index
 {

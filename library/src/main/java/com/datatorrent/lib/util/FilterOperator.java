@@ -23,7 +23,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
  * Filter operator intended for use with alerts
- * 
+ *
  * @since 0.3.4
  */
 public abstract class FilterOperator extends BaseOperator

@@ -19,7 +19,9 @@ import java.util.Map;
 
 
 /**
- * 
+ * <p>GenerateName class.</p>
+ *
+ * @since 0.3.4
  */
 public class GenerateName extends UnaryGenerate
 {

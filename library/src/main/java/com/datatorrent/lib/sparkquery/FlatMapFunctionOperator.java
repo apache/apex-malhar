@@ -29,7 +29,8 @@ import com.datatorrent.lib.sparkquery.mapfunction.MapFunctionCall;
  * Class to implement Spark RDD(Resilient Distributed Dataset) faltMap member function semantic in library.  <br>
  * In DataTorrent framework, tuples accumulated over application window represent RRD in spark stream platform. <br>
  * <br>
- * 
+ *
+ * @since 0.3.4
  */
 public class FlatMapFunctionOperator<T, R> implements Operator
 {

@@ -26,7 +26,6 @@ import org.codehaus.jettison.json.JSONObject;
  *
  * @since 0.3.4
  */
-
 public class MRStatusObject {
 	private String uri;
 	private String jobId;

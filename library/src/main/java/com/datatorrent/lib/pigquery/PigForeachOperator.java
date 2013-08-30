@@ -27,7 +27,9 @@ import com.datatorrent.lib.util.UnifierMap;
 
 
 /**
- * 
+ * <p>PigForeachOperator class.</p>
+ *
+ * @since 0.3.4
  */
 public class PigForeachOperator extends BaseOperator
 {

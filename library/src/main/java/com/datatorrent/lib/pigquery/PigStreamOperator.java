@@ -22,6 +22,8 @@ package com.datatorrent.lib.pigquery;
  * {@link com.datatorrent.lib.script.BashOperator}. <br>
  * {@link com.datatorrent.lib.script.JavaScriptOperator}. <br>
  * {@link com.datatorrent.lib.script.PythonOperator}.  <br>
+ *
+ * @since 0.3.4
  */
 public class PigStreamOperator
 {

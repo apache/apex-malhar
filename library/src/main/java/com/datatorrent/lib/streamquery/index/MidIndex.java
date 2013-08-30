@@ -4,6 +4,11 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
+/**
+ * <p>MidIndex class.</p>
+ *
+ * @since 0.3.4
+ */
 public class MidIndex extends ColumnIndex
 {
   private int start;

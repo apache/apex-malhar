@@ -28,7 +28,7 @@ import java.util.Map;
  * with sticky key partition, i.e. each one key belongs only to one partition. The final output of the
  * combiner is a simple merge into a single object that implements Map
  *
- *
+ * @since 0.3.4
  */
 public class UnifierMap<K, V> implements Unifier<Map<K, V>>
 {

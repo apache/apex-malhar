@@ -22,6 +22,8 @@ import javax.validation.constraints.NotNull;
 
 /**
  * Select index class for implementing sum column index.
+ *
+ * @since 0.3.4
  */
 public class SumExpression extends BinaryExpression
 {

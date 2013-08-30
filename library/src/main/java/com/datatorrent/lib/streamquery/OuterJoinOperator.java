@@ -20,10 +20,12 @@ package com.datatorrent.lib.streamquery;
  * live stream. <br>
  * Please refer to {@link com.datatorrent.lib.streamquery.InnerJoinOperator} for
  * details.
- * 
+ *
  * <b> Properties : </b> <br>
  * <b> isLeftJoin : </b> Left join flag. <br>
  * <b> isFullJoin : </b> Full join flag. <br>
+ *
+ * @since 0.3.4
  */
 public class OuterJoinOperator extends InnerJoinOperator
 {

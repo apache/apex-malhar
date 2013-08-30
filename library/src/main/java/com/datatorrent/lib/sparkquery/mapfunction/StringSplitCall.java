@@ -19,9 +19,9 @@ import java.util.Arrays;
 
 
 /**
- * Class to implement string split map function call.  
+ * Class to implement string split map function call.
  *
- * @since 0.3.4 
+ * @since 0.3.4
  */
 public class StringSplitCall  implements MapFunctionCall<String, String>
 {
