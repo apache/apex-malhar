@@ -27,27 +27,27 @@ import com.datatorrent.api.Operator;
 
 /**
  * This class implements Apache Pig Cross operator semantic.
- * 
+ *
  * <pre>
  * Example
  * Suppose we have relations A and B.
- * 
+ *
  * A = LOAD 'data1' AS (a1:int,a2:int,a3:int);
- * 
+ *
  * DUMP A;
  * (1,2,3)
  * (4,2,1)
- * 
+ *
  * B = LOAD 'data2' AS (b1:int,b2:int);
- * 
+ *
  * DUMP B;
  * (2,4)
  * (8,9)
  * (1,3)
  * In this example the cross product of relation A and B is computed.
- * 
+ *
  * X = CROSS A, B;
- * 
+ *
  * DUMP X;
  * (1,2,3,2,4)
  * (1,2,3,8,9)
@@ -66,6 +66,8 @@ import com.datatorrent.api.Operator;
  * <b> inport1 : </b> expects tuple of form Map&lt;String, Object&gt; <br>
  * <b> inport2 : </b> expects tuple of form Map&lt;String, Object&gt; <br>
  * <b> outport : </b> emits tuple of form Map&lt;String, Object&gt; <br>
+ *
+ * @since 0.3.4
  */
 public class PigCrossOperator implements Operator
 {

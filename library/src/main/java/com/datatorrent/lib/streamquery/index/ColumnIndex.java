@@ -20,6 +20,11 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 
+/**
+ * <p>ColumnIndex class.</p>
+ *
+ * @since 0.3.4
+ */
 public class ColumnIndex implements Index
 {
   /**

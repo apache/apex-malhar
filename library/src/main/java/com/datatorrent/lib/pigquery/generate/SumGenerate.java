@@ -20,6 +20,8 @@ import java.util.Map;
 
 /**
  * Class to implement generate sum index expression.
+ *
+ * @since 0.3.4
  */
 public class SumGenerate  extends BinaryGenerate
 {

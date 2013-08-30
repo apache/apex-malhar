@@ -24,6 +24,8 @@ import javax.validation.constraints.NotNull;
  * This class implements Pig arithmetic operator generate semantic.   <br>
  * Valid opName : '+', '-', '*', '/', '%'. <br>
  * see {@link com.datatorrent.lib.pigquery.generate.BinaryGenerate}.
+ *
+ * @since 0.3.4
  */
 public class ArithmeticGenerate  extends BinaryGenerate
 {

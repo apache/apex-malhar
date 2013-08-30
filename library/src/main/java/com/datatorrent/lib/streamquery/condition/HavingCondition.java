@@ -24,6 +24,8 @@ import com.datatorrent.lib.streamquery.function.FunctionIndex;
 
 /**
  * Abstract base class for Group/Having operator aggregate index constraint.
+ *
+ * @since 0.3.4
  */
 public abstract class HavingCondition
 {

@@ -22,6 +22,8 @@ import javax.validation.constraints.NotNull;
 
 /**
  * Abstract condition interface for group by operator.
+ *
+ * @since 0.3.4
  */
 public interface PigGroupCondition
 {

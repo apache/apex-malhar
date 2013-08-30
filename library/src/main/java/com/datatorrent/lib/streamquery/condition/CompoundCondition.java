@@ -23,12 +23,14 @@ import javax.validation.constraints.NotNull;
  * Class for logical AND/OR select expression. <br>
  * Class provides logical OR or AND function specified in parameters. User can implement
  * complex and/or expression by chaining operator itself.
- * <br>  
+ * <br>
  * <b> Properties : </b> <br>
  * <b> leftCondition : </b> Left validate row condition . <br>
  * <b> rightCondition : </b> Right validate row condition. <br>
  * <b> logicalOr : </b> OR/AND logical operation flag. <br>
  * <br>
+ *
+ * @since 0.3.4
  */
 public class CompoundCondition extends Condition
 {

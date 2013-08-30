@@ -34,7 +34,9 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  * <br>
  * <b>StateFull : Yes</b>, value are aggregated over application window. <br>
  * <b>Partitions : No</b>, no will yeild wrong results. <br>
- * <br> 
+ * <br>
+ *
+ * @since 0.3.4
  */
 public class WeightedMeanOperator<V extends Number>  extends BaseNumberValueOperator<V>
 {

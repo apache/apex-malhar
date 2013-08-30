@@ -31,7 +31,7 @@ import com.datatorrent.lib.streamquery.condition.Condition;
 
 /**
  * This class implements Pig Join(Outer) semantic on live stream.
- * 
+ *
  * <br>
  * <b>Ports : </b> <br>
  * <b>inport1 : </b> expects tuple Map<String, Object>. <br>
@@ -44,6 +44,8 @@ import com.datatorrent.lib.streamquery.condition.Condition;
  * <br>
  * <b>Properties : </b> <br>
  * <b> joinCondition : </b> Tuple join condition.
+ *
+ * @since 0.3.4
  */
 public class PigJoinOuterOperator extends BaseOperator
 {

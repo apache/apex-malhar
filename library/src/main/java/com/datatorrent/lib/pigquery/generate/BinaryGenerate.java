@@ -18,7 +18,9 @@ package com.datatorrent.lib.pigquery.generate;
 import javax.validation.constraints.NotNull;
 
 /**
+ * <p>Abstract BinaryGenerate class.</p>
  *
+ * @since 0.3.4
  */
 abstract public class BinaryGenerate implements Generate
 {

@@ -29,13 +29,13 @@ import com.datatorrent.lib.streamquery.condition.Condition;
 
 /**
  * This class implements Pig Join(Inner) semantic on live stream.
- * 
+ *
  * <pre>
  * Example
  * Suppose we have relations A and B.
- * 
+ *
  * A = LOAD 'data1' AS (a1:int,a2:int,a3:int);
- * 
+ *
  * DUMP A;
  * (1,2,3)
  * (4,2,1)
@@ -43,9 +43,9 @@ import com.datatorrent.lib.streamquery.condition.Condition;
  * (4,3,3)
  * (7,2,5)
  * (8,4,3)
- * 
+ *
  * B = LOAD 'data2' AS (b1:int,b2:int);
- * 
+ *
  * DUMP B;
  * (2,4)
  * (8,9)
@@ -55,9 +55,9 @@ import com.datatorrent.lib.streamquery.condition.Condition;
  * (4,6)
  * (4,9)
  * In this example relations A and B are joined by their first fields.
- * 
+ *
  * X = JOIN A BY a1, B BY b1;
- * 
+ *
  * DUMP X;
  * (1,2,3,1,3)
  * (4,2,1,4,6)
@@ -79,6 +79,8 @@ import com.datatorrent.lib.streamquery.condition.Condition;
  * <br>
  * <b>Properties : </b> <br>
  * <b> joinCondition : </b> Tuple join condition.
+ *
+ * @since 0.3.4
  */
 public class PigJoinOperator extends BaseOperator
 {

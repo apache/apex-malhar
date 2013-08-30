@@ -19,6 +19,7 @@ package com.datatorrent.lib.logs;
  * <p>DimensionObject class.</p>
  * This is the object that is passed to TopNOperator
  *
+ * @since 0.3.4
  */
 public class DimensionObject<T> implements Comparable<DimensionObject<T>> {
 

@@ -4,6 +4,11 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
+/**
+ * <p>StringCaseIndex class.</p>
+ *
+ * @since 0.3.4
+ */
 public class StringCaseIndex extends  ColumnIndex
 {
   private boolean toUpperCase = true; 

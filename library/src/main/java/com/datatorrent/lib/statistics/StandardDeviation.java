@@ -35,7 +35,9 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * <br>
  * <b>StateFull : Yes</b>, value are aggregated over application window. <br>
  * <b>Partitions : No</b>, no will yield wrong results. <br>
- * <br> 
+ * <br>
+ *
+ * @since 0.3.4
  */
 public class StandardDeviation extends BaseOperator
 {

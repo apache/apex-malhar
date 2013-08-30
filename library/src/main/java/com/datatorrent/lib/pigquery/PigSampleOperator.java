@@ -20,6 +20,8 @@ package com.datatorrent.lib.pigquery;
  * This operator semantic is same as   select top operator in stream query library. <br>
  * Operator must be used with percentage flag on. <br>
  * Please use operator : {@link com.datatorrent.lib.streamquery.SelectTopOperator}.
+ *
+ * @since 0.3.4
  */
 public class PigSampleOperator
 {

@@ -22,16 +22,18 @@ import java.util.Map;
  * Class to implement Pig split operator semantic. A split into node creates
  * multiple streams from a single stream. <br>
  * This operator implements following semantic.  <br>
- * <pre> 
+ * <pre>
  * instream is f1:int, f2:int, f3:int
- * 
+ *
  * The expression for split into is "X IF f1<7, Y IF f2==5, Z IF (f3<6)"
- * 
+ *
  * For instream tuples (1,2,3) would produce (1,2,3) on X, (1,2,3) on Z (4,5,6)
  * would produce (4,5,6) on X, (4,5,6) on Y (7,8,9) would produce (7,8,9) on Z
- * 
+ *
  * This would match to split into operation for Pig
  * </pre>
+ *
+ * @since 0.3.4
  */
 public class ThreeWayPigSplit  extends PigSplitOperator<Map<String, Integer>>
 {

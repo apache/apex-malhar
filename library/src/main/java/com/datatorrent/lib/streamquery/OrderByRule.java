@@ -22,7 +22,7 @@ import java.util.TreeMap;
 
 /**
  * Class for implementing order by key name rule. <br>
- * 
+ *
  * <b>Properties : </b> <br>
  * <b> columnName : </b> Name of column for ordering tuples. <br>
  *

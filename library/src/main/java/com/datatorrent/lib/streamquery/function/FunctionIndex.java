@@ -24,8 +24,10 @@ import javax.validation.constraints.NotNull;
  * Abstract class for select aggregate function implementation.
  * <br>
  * <b>Properties : </b> <br>
- * <b>column : </b> Column name for aggregation. 
+ * <b>column : </b> Column name for aggregation.
  * <b>alias : </b> Output value alias name.
+ *
+ * @since 0.3.4
  */
 abstract public class FunctionIndex 
 {

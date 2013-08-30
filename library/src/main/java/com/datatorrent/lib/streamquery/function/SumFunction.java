@@ -7,6 +7,11 @@ import javax.validation.constraints.NotNull;
 
 
 
+/**
+ * <p>SumFunction class.</p>
+ *
+ * @since 0.3.4
+ */
 public class SumFunction extends FunctionIndex
 {
   public SumFunction(String column, String alias) throws Exception

@@ -22,7 +22,9 @@ import javax.validation.constraints.NotNull;
  * Abstract class to implement single field  foreach generate index.
  * <b>Properties : </b> <br>
  * <b>fieldName : </b> Field name or value argument. <br>
- * <b>aliasName : </b> Alias name for output value. <br> 
+ * <b>aliasName : </b> Alias name for output value. <br>
+ *
+ * @since 0.3.4
  */
 abstract public class UnaryGenerate  implements Generate 
 {

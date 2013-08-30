@@ -4,6 +4,11 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
+/**
+ * <p>StringLenIndex class.</p>
+ *
+ * @since 0.3.4
+ */
 public class StringLenIndex  extends ColumnIndex
 {
   public StringLenIndex(@NotNull String column, String alias)

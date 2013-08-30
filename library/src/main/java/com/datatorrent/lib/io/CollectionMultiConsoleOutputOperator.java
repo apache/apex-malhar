@@ -36,7 +36,6 @@ import com.datatorrent.api.DefaultInputPort;
  *
  * @since 0.3.4
  */
-
 public class CollectionMultiConsoleOutputOperator<E> extends BaseOperator {
 	private boolean debug = false;
 

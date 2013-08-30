@@ -38,6 +38,8 @@ import com.datatorrent.lib.streamquery.condition.Condition;
  * <br>
  * <b> Properties : <b> <br>
  * <b> condition : </b> Select condition for selecting rows. <br>
+ *
+ * @since 0.3.4
  */
 public class PigFilterOperator  extends BaseOperator
 {

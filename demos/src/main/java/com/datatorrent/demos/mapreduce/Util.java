@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.4
  */
-
 public class Util {
 
 	private static final Logger logger = LoggerFactory.getLogger(Util.class);

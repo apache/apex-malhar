@@ -33,8 +33,8 @@ import com.datatorrent.api.Operator;
  * <p>MultiWindowDimensionAggregation class.</p>
  * This class aggregates the value of given dimension across windows
  *
+ * @since 0.3.4
  */
-
 public class MultiWindowDimensionAggregation implements Operator {
 
   private int windowSize = 2;

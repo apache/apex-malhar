@@ -4,6 +4,11 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
+/**
+ * <p>RoundDoubleIndex class.</p>
+ *
+ * @since 0.3.4
+ */
 public class RoundDoubleIndex  extends ColumnIndex
 {
   private int rounder;

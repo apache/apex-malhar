@@ -29,32 +29,32 @@ import com.datatorrent.api.Operator;
 
 /**
  * Implements pig distinct operator semantic.
- * 
+ *
  * <pre>
  * Example
- * 
+ *
  * Suppose we have relation A.
- * 
+ *
  * A = LOAD 'data' AS (a1:int,a2:int,a3:int);
- * 
+ *
  * DUMP A;
  * (8,3,4)
- * (1,2,3)        
- * (4,3,3)        
- * (4,3,3)        
- * (1,2,3) 
- * 
+ * (1,2,3)
+ * (4,3,3)
+ * (4,3,3)
+ * (1,2,3)
+ *
  * In this example all duplicate tuples are removed.
- * 
+ *
  * X = DISTINCT A;
- * 
+ *
  * DUMP X;
  * (1,2,3)
  * (4,3,3)
  * (8,3,4)
- * 
+ *
  * </pre>
- * 
+ *
  * <b>StateFull : </b> Yes, tuples are collected over application window. <br>
  * <b>Partitions : </b> Yes, operator is also unifier for output port. <br>
  * <br>
@@ -63,6 +63,8 @@ import com.datatorrent.api.Operator;
  * <b>Ports : </b> <br>
  * <b> inport : </b> expects tuple of form Map&lt;String, Object&gt; <br>
  * <b> outport : </b> emits tuple of form Map&lt;String, Object&gt; <br>
+ *
+ * @since 0.3.4
  */
 public class PigDistinctOperator implements Operator, Unifier<Map<String, Object>>
 {

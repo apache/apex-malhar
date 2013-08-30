@@ -27,6 +27,8 @@ import javax.validation.constraints.NotNull;
  * <b>Properties : </b> <br>
  * <b> column : </b> Column name for which value is checked in values set. <br>
  * <b> inValues : </b> Set of values in which column value is checked. <br>
+ *
+ * @since 0.3.4
  */
 public class InCondition extends Condition
 {

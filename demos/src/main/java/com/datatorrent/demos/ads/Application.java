@@ -59,15 +59,15 @@ import org.apache.hadoop.conf.Configuration;
  * <br>
  * <p>
  * Running Java Test or Main app in IDE:
- * 
+ *
  * <pre>
  * LocalMode.runApp(new Application(), 600000); // 10 min run
  * </pre>
- * 
+ *
  * Run Success : <br>
  * For successful deployment and run, user should see following output on
  * console: <br>
- * 
+ *
  * <pre>
  * costConsole{}
  * revConsole{}
@@ -95,14 +95,14 @@ import org.apache.hadoop.conf.Configuration;
  * <b>Operator Details: </b> <br>
  *  <ul>
  * 	<li>
- *     <b>  viewGen : </b> This is random event generator for  ads view data. 
+ *     <b>  viewGen : </b> This is random event generator for  ads view data.
  *         This can replaced by any input stream. by user. <br>
  *     Class : {@link com.datatorrent.lib.testbench.EventGenerator}  <br>
  *     Operator Application Window Count : 1 <br>
  *     StateFull : No
  *  </li>
  *  <li>
- *  <b> adviews : </b> This is operator stamps random data with advertiser name, 
+ *  <b> adviews : </b> This is operator stamps random data with advertiser name,
  *         This can replaced by any input stream. by user. <br>
  *     Class : {@link com.datatorrent.lib.testbench.EventClassifier}  <br>
  *     Operator Application Window Count : 1 <br>

@@ -48,19 +48,19 @@ import org.slf4j.LoggerFactory;
  * partitions as per load</li>
  * <li></li>
  * </ul>
- * 
+ *
  * <p>
- * 
+ *
  * Running Java Test or Main app in IDE:
- * 
+ *
  * <pre>
  * LocalMode.runApp(new Application(), 600000); // 10 min run
  * </pre>
- * 
+ *
  * Run Success : <br>
  * For successful deployment and run, user should see following output on
  * console: <br>
- * 
+ *
  * <pre>
  * phoneLocationQueryResult: {phone=9996101, location=(5,9), queryId=q3}
  * phoneLocationQueryResult: {phone=9994995, location=(10,4), queryId=q1}
@@ -75,7 +75,7 @@ import org.slf4j.LoggerFactory;
  * phoneLocationQueryResult: {phone=9994995, location=(9,5), queryId=q1}
  * phoneLocationQueryResult: {phone=9996101, location=(5,9), queryId=q3}
  * </pre>
- * 
+ *
  *  * <b>Application DAG : </b><br>
  * <img src="doc-files/mobile.png" width=600px > <br>
  *
