@@ -220,9 +220,8 @@ public class HdfsOutputOperator extends BaseOperator
     try {
       if (bufferedOutput != null) {
         bufferedOutput.flush();
-      } else {
-        fsOutput.flush();
       }
+      fsOutput.hflush();
     } catch (IOException ex) {
       throw new RuntimeException("Failed to flush", ex);
     }
