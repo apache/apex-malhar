@@ -27,7 +27,8 @@ function DrawAggrCharts()
 {
   // get refresh url 
   lookback = aggrLookBack; 
-  var url = DataUrl();        
+  var url = DataUrl();  
+  //document.getElementById('chart_div').innerHTML = url;
 
   // fetch data, draw charts
   try
@@ -37,7 +38,7 @@ function DrawAggrCharts()
       if(connect.readyState==4 && connect.status==200) {
         aggrData = connect.response;
         var pts = JSON.parse(aggrData);
-        aggrDataPoints = new Array();
+        aggrDataPoints  = new Array();
         for(var i=0; i <  pts.length; i++) aggrDataPoints.push(pts[i]);
         DrawCostChart();
         DrawRevenueChart();
@@ -58,7 +59,6 @@ function DrawContCharts()
   // get refresh url 
   lookback = contLookBack; 
   var url = DataUrl();    
-  //document.getElementById('chart_div').innerHTML = url;
 
   // fetch data, draw charts
   try
@@ -67,8 +67,8 @@ function DrawContCharts()
     connect.onreadystatechange = function() {
       if(connect.readyState==4 && connect.status==200) {
         contData = connect.response;   
-        var newPts = JSON.parse(contData); 
-        contDataPoints = new Array();
+        var newPts = JSON.parse(contData);  
+        contDataPoints  = new Array();
         for(var i=0; i <  newPts.length; i++) contDataPoints.push(newPts[i]);
         DrawCtrChart() ;
         DrawMarginChart();
@@ -105,6 +105,7 @@ window.onload = function() {
     document.getElementById('lookback').value = 6;
   }
        
+
   // draw charts 
   DrawAggrCharts();
   DrawContCharts();

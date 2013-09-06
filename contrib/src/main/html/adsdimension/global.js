@@ -57,6 +57,7 @@ var lookback;
 var aggrLookBack;
 var contLookBack;
 var contRefresh;
+var paramLookBack;
 
 // Get split query string
 function QueryString() {
@@ -140,6 +141,10 @@ function InitializeGlobal()
   // get continuos lookback 
   contLookBack = lookback;
   contRefresh = 5;
+      
+  // get param lookback  
+  paramLookBack = 6;
+  if (params['lookback'] && (params['lookback'].length > 0)) paramLookBack = parseInt(params['lookback']);
   //if (params['refresh'] && (params['refresh'].length > 0)) contRefresh = parseInt(params['refresh']);
 }
 
@@ -188,15 +193,6 @@ function DrawCostChart()
     }
   }
     
-  // remove last 10 points
-  if (aggrDataPoints.length > 20)
-  {
-    for (var i=0; i < 10; i++)
-    {
-      costTable.removeRow(aggrDataPoints.length-1-i);  
-    }    
-  }
-
   // Populate data table with time/cost data points. 
   for(var i=0; i < costTable.getNumberOfRows(); i++)
   {
@@ -226,15 +222,6 @@ function DrawRevenueChart()
     {
       revenueTable.removeRow(i);    
     }
-  }
-
-  // remove last 10 points
-  if (aggrDataPoints.length > 20)
-  {
-    for (var i=0; i < 10; i++)
-    {
-      revenueTable.removeRow(aggrDataPoints.length-1-i);  
-    }    
   }
 
   // Populate data table with time/revenue data points. 
@@ -267,15 +254,6 @@ function DrawClicksChart()
     }
   }
 
-  // remove last 10 points
-  if (aggrDataPoints.length > 20)
-  {
-    for (var i=0; i < 10; i++)
-    {
-      clicksTable.removeRow(aggrDataPoints.length-1-i);  
-    }    
-  }
-
   // Populate data table with time/clicks data points. 
   for(var i=0; i < clicksTable.getNumberOfRows(); i++)
   {
@@ -304,15 +282,6 @@ function DrawImpressionsChart()
     {
       impressionsTable.removeRow(i);    
     }
-  }
-
-  // remove last 10 points
-  if (aggrDataPoints.length > 20)
-  {
-    for (var i=0; i < 10; i++)
-    {
-      impressionsTable.removeRow(aggrDataPoints.length-1-i);  
-    }    
   }
 
   // Populate data table with time/impressions data points. 
@@ -344,15 +313,6 @@ function DrawCtrChart()
     }
   }
 
-  // remove last 10 points
-  if (contDataPoints.length > 20)
-  {
-    for (var i=0; i < 10; i++)
-    {
-      ctrTable.removeRow(aggrDataPoints.length-1-i);  
-    }    
-  }
-
   // Populate data table with time/cost data points. 
   for(var i=0; i < ctrTable.getNumberOfRows(); i++)
   {
@@ -380,15 +340,6 @@ function DrawMarginChart()
     {
       marginTable.removeRow(i);    
     }
-  }
-
-  // remove last 10 points
-  if (contDataPoints.length > 20)
-  {
-    for (var i=0; i < 10; i++)
-    {
-      marginTable.removeRow(aggrDataPoints.length-1-i);  
-    }    
   }
 
   // Populate data table with time/cost data points. 
