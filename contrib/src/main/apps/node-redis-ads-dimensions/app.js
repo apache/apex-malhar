@@ -45,7 +45,7 @@ function getMinutes(query, resCallback) {
             var date = dateFormat(time, 'UTC:yyyymmddHHMM');
             var key = keyTemplate
                 .replace('$date', date);
-            console.log('key ' + key);
+            //console.log('key ' + key);
             client.hgetall(key, function(err, hash) {
                 //console.log(hash)
                 if (hash) {
