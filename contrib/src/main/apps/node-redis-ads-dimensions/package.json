@@ -5,6 +5,7 @@
   "dependencies": {
     "async": "0.2.9",
     "express": "3.3.5",
-    "redis": "0.8.4"
+    "redis": "0.8.4",
+    "dateformat": "1.0.6-1.2.3"
   }
 }
