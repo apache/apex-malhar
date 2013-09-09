@@ -33,8 +33,6 @@ function getMinutes(query, resCallback) {
     if (advertiser) keyTemplate += '|1:' + advertiser;
     if (adunit) keyTemplate += '|2:' + adunit;
 
-    //console.log('getData ' + keyTemplate);
-
     var minute = (60 * 1000);
     var result = [];
     var time = endTime - lookbackMinutes * minute;
@@ -45,9 +43,8 @@ function getMinutes(query, resCallback) {
             var date = dateFormat(time, 'UTC:yyyymmddHHMM');
             var key = keyTemplate
                 .replace('$date', date);
-            //console.log('key ' + key);
+
             client.hgetall(key, function(err, hash) {
-                //console.log(hash)
                 if (hash) {
                     var minuteItem = {
                         timestamp: time,
@@ -70,5 +67,5 @@ function getMinutes(query, resCallback) {
     );
 }
 
-app.listen(3000);
-console.log('Express started on port 3000');
+app.listen(config.web.port);
+console.log('Express started on port ' + config.web.port);
