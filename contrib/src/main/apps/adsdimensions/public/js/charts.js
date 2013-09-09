@@ -11,10 +11,8 @@ window.pageParams = {
 
 jQuery(window).load(function() {
     var queryParams = splitQuery();
-    console.log(queryParams);
     pageParams = jQuery.extend({}, pageParams, queryParams);
     initFields(pageParams);
-    console.log(pageParams);
     loadCharts();
 });
 
