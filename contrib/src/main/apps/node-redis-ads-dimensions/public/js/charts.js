@@ -1,5 +1,66 @@
 var chartOptions = { width: 600, height: 300, legend: 'none', pointSize: 0, lineWidth : 1 };
 
+// default params
+window.pageParams = {
+    publisher: null,
+    advertiser: null,
+    adunit: null,
+    refresh: 5,
+    lookback: 15
+}
+
+jQuery(window).load(function() {
+    var queryParams = splitQuery();
+    console.log(queryParams);
+    pageParams = jQuery.extend({}, pageParams, queryParams);
+    initFields(pageParams);
+    console.log(pageParams);
+    loadCharts();
+});
+
+var endTime = 1378451460000 - 60*1000*30;
+
+function loadCharts() {
+    //var url = DataUrl();
+    //console.log(params);
+    var parameters = {
+        publisher: pageParams.publisher,
+        advertiser: pageParams.advertiser,
+        adunit: pageParams.adunit,
+        lookbackMinutes: pageParams.lookback
+        //endTime: endTime
+    }
+
+    jQuery.ajax({
+        url: '/data',
+        data: parameters,
+        success: function(data) {
+            drawCostChart(data);
+            drawRevenueChart(data);
+            drawClicksChart(data);
+            drawImpressionsChart(data);
+            drawCtrChart(data);
+            drawMarginChart(data);
+
+            //endTime += 60 * 1000;
+            setTimeout(loadCharts, pageParams.refresh * 1000);
+        }
+    });
+}
+
+function initFields(params) {
+    populateSelect('#publisher', 'Publisher', 50);
+    populateSelect('#advertiser', 'Advertiser', 100);
+    populateSelect('#adunit', 'Ad Unit', 5);
+
+    if (params['publisher']) document.getElementById('publisher').value = params['publisher'];
+    if (params['advertiser']) document.getElementById('advertiser').value = params['advertiser'];
+    if (params['adunit']) document.getElementById('adunit').value = params['adunit'];
+
+    document.getElementById('refresh').value = params['refresh'];
+    document.getElementById('lookback').value = params['lookback'];
+}
+
 function drawCostChart(data) {
     drawChart(data, {
         title: 'Cost Chart',
@@ -87,4 +148,28 @@ function drawChart(data, options) {
     // Draw line chart
     var chartOpt = { title: options.title };
     costChart.draw(costView, jQuery.extend(chartOpt, chartOptions));
+}
+
+function populateSelect(id, value, times) {
+    var select = jQuery(id);
+    var html = '';
+    for (var i = 0; i < times; i++) {
+        html += '<option value="$i">$value $i</option>'
+            .replace(/\$i/g, i)
+            .replace('$value', value);
+    }
+    select.append(html);
+}
+
+function splitQuery(query) {
+    var query = window.location.search.substring(1);
+    var params = {};
+    var vars = query.split('&');
+    for (var i=0; i < vars.length; i++) {
+        var pair = vars[i].split('=');
+        if(pair.length == 2) {
+            params[pair[0]] = pair[1];
+        }
+    }
+    return params;
 }
