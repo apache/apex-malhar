@@ -19,9 +19,9 @@ Ads Dimensions Demo with Node.js and Redis.
 
  Running Node.js in the background
 
-    nohup node app &
+    $ nohup node app &
 
  Killing an app
 
-    ps -ef | grep "node app"
-    kill -9 <PID>
+    $ ps -ef | grep "node app"
+    $ kill -9 <PID>
