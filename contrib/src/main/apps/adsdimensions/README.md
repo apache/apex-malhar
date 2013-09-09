@@ -25,3 +25,7 @@ Ads Dimensions Demo with Node.js and Redis.
 
     $ ps -ef | grep "node app"
     $ kill -9 <PID>
+
+ Running Node.js on different port
+
+    $ PORT=3001 node app
