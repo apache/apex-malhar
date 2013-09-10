@@ -17,7 +17,12 @@ Ads Dimensions Demo with Node.js and Redis.
 
 ## Tips
 
- Running Node.js in the background
+ Running Node.js as a daemon with [forever](https://github.com/nodejitsu/forever)
+
+    $ npm install forever -g
+    $ forever start app.js
+
+ Running Node.js in the background with nohup
 
     $ nohup node app &
 
@@ -29,3 +34,11 @@ Ads Dimensions Demo with Node.js and Redis.
  Running Node.js on different port
 
     $ PORT=3001 node app
+
+## Links
+
+[Express](https://github.com/visionmedia/express) Node.js web framework
+
+[node_redis](https://github.com/mranney/node_redis) Node.js Redis client
+
+[forever](https://github.com/nodejitsu/forever) Node.js daemon/continuous running/fault tolerance
