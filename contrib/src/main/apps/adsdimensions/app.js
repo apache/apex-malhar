@@ -67,5 +67,6 @@ function getMinutes(query, resCallback) {
     );
 }
 
-app.listen(config.web.port);
-console.log('Express started on port ' + config.web.port);
+app.listen(config.web.port, function() {
+    console.log('Express started on port ' + config.web.port);
+});
