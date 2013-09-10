@@ -68,5 +68,5 @@ function getMinutes(query, resCallback) {
 }
 
 app.listen(config.web.port, function() {
-    console.log('Express started on port ' + config.web.port);
+    console.log('Ads Dimensions Demo Node.js server started on port ' + config.web.port);
 });
