@@ -6,17 +6,21 @@ window.pageParams = {
     advertiser: null,
     adunit: null,
     refresh: 5,
-    lookback: 15
+    lookback: 15,
+    play: null // number of minutes to play
 }
 
 jQuery(window).load(function() {
     var queryParams = splitQuery();
     pageParams = jQuery.extend({}, pageParams, queryParams);
+
+    if (pageParams.play) {
+        window.endTime = Date.now() - pageParams.play * (60 * 1000);
+    }
+
     initFields(pageParams);
     loadCharts();
 });
-
-var endTime = 1378451460000 - 60*1000*30;
 
 function loadCharts() {
     //var url = DataUrl();
@@ -25,8 +29,8 @@ function loadCharts() {
         publisher: pageParams.publisher,
         advertiser: pageParams.advertiser,
         adunit: pageParams.adunit,
-        lookbackMinutes: pageParams.lookback
-        //endTime: endTime
+        lookbackMinutes: pageParams.lookback,
+        endTime: window.endTime
     }
 
     jQuery.ajax({
@@ -40,7 +44,9 @@ function loadCharts() {
             drawCtrChart(data);
             drawMarginChart(data);
 
-            //endTime += 60 * 1000;
+            if (window.endTime) {
+                endTime += 60 * 1000; // increment by 1 minute
+            }
             setTimeout(loadCharts, pageParams.refresh * 1000);
         }
     });
