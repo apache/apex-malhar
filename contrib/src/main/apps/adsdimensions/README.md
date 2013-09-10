@@ -21,6 +21,8 @@ Ads Dimensions Demo with Node.js and Redis.
 
     $ npm install forever -g
     $ forever start app.js
+    $ forever list
+    $ forever stop <uid>
 
  Running Node.js in the background with nohup
 
