@@ -132,16 +132,20 @@ public class TimeBucketKey
     if (obj instanceof TimeBucketKey) {
       TimeBucketKey ckey = (TimeBucketKey)obj;
       if (timeSpec == TIMESPEC_MINUTE_SPEC) {
-	equal = ((time.getTimeInMillis()/MILLIS_IN_MIN) == (ckey.getTime().getTimeInMillis()/MILLIS_IN_MIN));
-      } else if (timeSpec == TIMESPEC_HOUR_SPEC) {
-	equal = ((time.getTimeInMillis()/MILLIS_IN_HOUR) == (ckey.getTime().getTimeInMillis()/MILLIS_IN_HOUR));
-      } else if (timeSpec == TIMESPEC_DAY_SPEC) {
-	equal = ((time.getTimeInMillis()/MILLIS_IN_DAY) == (ckey.getTime().getTimeInMillis()/MILLIS_IN_DAY));
-      } else if (timeSpec == TIMESPEC_WEEK_SPEC) {
-	equal = ((time.getTimeInMillis()/MILLIS_IN_WEEK) == (ckey.getTime().getTimeInMillis()/MILLIS_IN_WEEK));
-      } else {
-      	boolean chkEqual = true;
-      	if ((timeSpec & TIMESPEC_YEAR) != 0) {
+        equal = ((time.getTimeInMillis() / MILLIS_IN_MIN) == (ckey.getTime().getTimeInMillis() / MILLIS_IN_MIN));
+      }
+      else if (timeSpec == TIMESPEC_HOUR_SPEC) {
+        equal = ((time.getTimeInMillis() / MILLIS_IN_HOUR) == (ckey.getTime().getTimeInMillis() / MILLIS_IN_HOUR));
+      }
+      else if (timeSpec == TIMESPEC_DAY_SPEC) {
+        equal = ((time.getTimeInMillis() / MILLIS_IN_DAY) == (ckey.getTime().getTimeInMillis() / MILLIS_IN_DAY));
+      }
+      else if (timeSpec == TIMESPEC_WEEK_SPEC) {
+        equal = ((time.getTimeInMillis() / MILLIS_IN_WEEK) == (ckey.getTime().getTimeInMillis() / MILLIS_IN_WEEK));
+      }
+      else {
+        boolean chkEqual = true;
+        if ((timeSpec & TIMESPEC_YEAR) != 0) {
           if (time.get(Calendar.YEAR) != ckey.getTime().get(Calendar.YEAR)) {
             chkEqual = false;
           }
@@ -150,7 +154,7 @@ public class TimeBucketKey
           if (time.get(Calendar.MONTH) != ckey.getTime().get(Calendar.MONTH)) {
             chkEqual = false;
           }
-      	}
+        }
         equal = chkEqual;
       }
     }
