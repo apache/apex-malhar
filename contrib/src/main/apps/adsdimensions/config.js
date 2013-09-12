@@ -6,7 +6,7 @@ config.web = {};
 
 config.commonResources = path.join(__dirname, '../common');
 config.commonHeaderHtml = path.join(config.commonResources, '/demo-header.html');
-config.web.port = process.env.PORT || 3000;
+config.web.port = process.env.PORT || 3001;
 config.redis.host = 'localhost';
 config.redis.port = 6379;
 
