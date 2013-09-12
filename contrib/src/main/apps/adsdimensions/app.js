@@ -2,12 +2,24 @@ var async = require('async');
 var express = require('express');
 var redis = require("redis");
 var dateFormat = require('dateformat');
+var fs = require('fs');
 var config = require('./config');
 
 var app = express();
 var client = redis.createClient(config.redis.port, config.redis.host);
 
+app.set('views', __dirname + '/views');
+app.set('view engine', 'ejs');
 app.use(express.static(__dirname + '/public'));
+app.use('/common', express.static(config.commonResources));
+
+var headerHtml = fs.readFileSync(config.commonHeaderHtml);
+
+app.get('/', function(req, res) {
+    res.render('index', {
+        headerHtml: headerHtml
+    });
+});
 
 app.get('/data', getData);
 
