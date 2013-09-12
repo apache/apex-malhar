@@ -19,6 +19,7 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Context.PortContext;
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.HdfsOutputOperator;
@@ -155,7 +156,7 @@ public class Application implements StreamingApplication
   private int generatorVTuplesBlast = 1000;
   private int generatorMaxWindowsCount = 100;
   private int generatorWindowCount = 1;
-  private boolean allInline = false;
+  private Locality locality = null;
   private int numGenerators = 1;
 
   public void setUnitTestMode()
@@ -191,7 +192,7 @@ public class Application implements StreamingApplication
 
     this.generatorVTuplesBlast = conf.getInt(P_generatorVTuplesBlast, this.generatorVTuplesBlast);
     this.generatorMaxWindowsCount = conf.getInt(P_generatorMaxWindowsCount, this.generatorMaxWindowsCount);
-    this.allInline = conf.getBoolean(P_allInline, this.allInline);
+    this.locality = conf.getBoolean(P_allInline, false) ? Locality.CONTAINER_LOCAL : null;
     this.numGenerators = conf.getInt(P_numGenerators, this.numGenerators);
 
   }
@@ -336,10 +337,10 @@ public class Application implements StreamingApplication
     dag.setAttribute(clickAggregate, OperatorContext.APPLICATION_WINDOW_COUNT, applicationWindow);
 
     dag.setInputPortAttribute(adviews.event, PortContext.PARTITION_PARALLEL, true);
-    dag.addStream("views", viewGen.hash_data, adviews.event).setInline(true);
+    dag.addStream("views", viewGen.hash_data, adviews.event).setLocality(Locality.CONTAINER_LOCAL);
     dag.setInputPortAttribute(insertclicks.data, PortContext.PARTITION_PARALLEL, true);
     dag.setInputPortAttribute(viewAggregate.data, PortContext.PARTITION_PARALLEL, true);
-    DAG.StreamMeta viewsAggStream = dag.addStream("viewsaggregate", adviews.data, insertclicks.data, viewAggregate.data).setInline(true);
+    DAG.StreamMeta viewsAggStream = dag.addStream("viewsaggregate", adviews.data, insertclicks.data, viewAggregate.data).setLocality(Locality.CONTAINER_LOCAL);
 
     if (conf.getBoolean(P_enableHdfs, false)) {
       HdfsOutputOperator viewsToHdfs = dag.addOperator("viewsToHdfs", new HdfsOutputOperator());
@@ -350,7 +351,7 @@ public class Application implements StreamingApplication
     }
 
     dag.setInputPortAttribute(clickAggregate.data, PortContext.PARTITION_PARALLEL, true);
-    dag.addStream("clicksaggregate", insertclicks.filter, clickAggregate.data).setInline(true);
+    dag.addStream("clicksaggregate", insertclicks.filter, clickAggregate.data).setLocality(Locality.CONTAINER_LOCAL);
 
 
     QuotientMap<String, Integer> ctr = getQuotientOperator("ctr", dag);
@@ -362,9 +363,9 @@ public class Application implements StreamingApplication
 
     dag.addStream("adviewsdata", viewAggregate.sum, cost.data);
     dag.addStream("clicksdata", clickAggregate.sum, revenue.data);
-    dag.addStream("viewtuplecount", viewAggregate.count, ctr.denominator, merge.data1).setInline(allInline);
-    dag.addStream("clicktuplecount", clickAggregate.count, ctr.numerator, merge.data2).setInline(allInline);
-    dag.addStream("total count", merge.out, tuple_counter.data).setInline(allInline);
+    dag.addStream("viewtuplecount", viewAggregate.count, ctr.denominator, merge.data1).setLocality(locality);
+    dag.addStream("clicktuplecount", clickAggregate.count, ctr.numerator, merge.data2).setLocality(locality);
+    dag.addStream("total count", merge.out, tuple_counter.data).setLocality(locality);
 
     InputPort<Object> revconsole = getConsolePort(dag, "revConsole", false);
     InputPort<Object> costconsole = getConsolePort(dag, "costConsole", false);
@@ -372,11 +373,11 @@ public class Application implements StreamingApplication
     InputPort<Object> ctrconsole = getConsolePort(dag, "ctrConsole", false);
     InputPort<Object> viewcountconsole = getConsolePort(dag, "viewCountConsole", false);
 
-    dag.addStream("revenuedata", revenue.sum, margin.denominator, revconsole).setInline(allInline);
-    dag.addStream("costdata", cost.sum, margin.numerator, costconsole).setInline(allInline);
-    dag.addStream("margindata", margin.margin, marginconsole).setInline(allInline);
-    dag.addStream("ctrdata", ctr.quotient, ctrconsole).setInline(allInline);
-    dag.addStream("tuplecount", tuple_counter.count, viewcountconsole).setInline(allInline);
+    dag.addStream("revenuedata", revenue.sum, margin.denominator, revconsole).setLocality(locality);
+    dag.addStream("costdata", cost.sum, margin.numerator, costconsole).setLocality(locality);
+    dag.addStream("margindata", margin.margin, marginconsole).setLocality(locality);
+    dag.addStream("ctrdata", ctr.quotient, ctrconsole).setLocality(locality);
+    dag.addStream("tuplecount", tuple_counter.count, viewcountconsole).setLocality(locality);
 
   }
 

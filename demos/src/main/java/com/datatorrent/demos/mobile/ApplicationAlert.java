@@ -15,6 +15,7 @@
  */
 package com.datatorrent.demos.mobile;
 
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Context.OperatorContext;
@@ -92,7 +93,7 @@ public class ApplicationAlert implements StreamingApplication
     alertOper.setAlertInterval(10000);
     alertOper.setActivated(false);
 
-    dag.addStream("phonedata", phones.integer_data, movementgen.data).setInline(true);
+    dag.addStream("phonedata", phones.integer_data, movementgen.data).setLocality(Locality.CONTAINER_LOCAL);
 
     String daemonAddress = dag.attrValue(DAG.DAEMON_ADDRESS, null);
     if (!StringUtils.isEmpty(daemonAddress)) {
@@ -107,7 +108,7 @@ public class ApplicationAlert implements StreamingApplication
       wsIn.setUri(uri);
       wsIn.addTopic("demos.mobile.phoneLocationQuery");
 
-      dag.addStream("consoledata", movementgen.locationQueryResult, wsOut.input, alertOper.in).setInline(true);
+      dag.addStream("consoledata", movementgen.locationQueryResult, wsOut.input, alertOper.in).setLocality(Locality.CONTAINER_LOCAL);
       dag.addStream("query", wsIn.outputPort, movementgen.locationQuery);
     }
     else { // If no ajax, need to do phone seeding
@@ -130,6 +131,6 @@ public class ApplicationAlert implements StreamingApplication
     mailOper.setSmtpPassword("Testing1");
     mailOper.setUseSsl(true);
 
-    dag.addStream("alert_mail", alertOper.alert, mailOper.input).setInline(true);
+    dag.addStream("alert_mail", alertOper.alert, mailOper.input).setLocality(Locality.CONTAINER_LOCAL);
   }
 }

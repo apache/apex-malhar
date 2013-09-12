@@ -18,6 +18,7 @@ package com.datatorrent.contrib.rabbitmq;
 import com.datatorrent.api.*;
 import com.datatorrent.contrib.rabbitmq.AbstractSinglePortRabbitMQOutputOperator;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DAG;
@@ -215,7 +216,7 @@ public class RabbitMQOutputOperatorTest
     TestRabbitMQOutputOperator collector = dag.addOperator("generator", new TestRabbitMQOutputOperator());
 //    collector.setQueueName("testQ");
     collector.setExchange("testEx");
-    dag.addStream("Stream", source.outPort, collector.inputPort).setInline(true);
+    dag.addStream("Stream", source.outPort, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);
 
 
     final LocalMode.Controller lc = lma.getController();
