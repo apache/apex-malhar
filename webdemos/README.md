@@ -1,7 +1,7 @@
 webdemos
 ===============
 
-Ads Dimensions Demo with Node.js and Redis.
+DataTorrent Demos.
 
 ## Demos configuration
  Settings are stored in config.js.
