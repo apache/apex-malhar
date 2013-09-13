@@ -1,5 +1,4 @@
 var express = require('express');
-var fs = require('fs');
 var config = require('./config');
 
 var main = require('./routes/index');
