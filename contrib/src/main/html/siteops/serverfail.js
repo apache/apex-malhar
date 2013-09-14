@@ -18,7 +18,7 @@ function DrawServer404TableChart()
         var pts = JSON.parse(data);
         var server404 = new google.visualization.DataTable();
         server404.addColumn('string', 'SERVER');
-        server404.addColumn('number', '404 per sec');
+        server404.addColumn('number', '404/sec');
         server404.addRows(10);
         for(var i=0; ((i <  pts.length)&&(i < 10)); i++) 
         {
