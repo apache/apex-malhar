@@ -9,9 +9,8 @@ addition to the library there are contrib, demos and samples available. Demos co
 Getting the source code
 ------------------------
 
-The Malhar repository is on github.com. If you already have a github account you can git pull the DataTorrent/Malhar repository. If you do not have a github account please create one and pull the repository.
+The Malhar repository is on github.com. You can download or clone it using the GitHub links.  If you already have a GitHub account you can fork the DataTorrent/Malhar repository and contribute with pull requests.  See Contributing section below.
 
-Please fork the repository and create pull requests to contribute to the project.
 
 Compiling the code
 ----------------------
@@ -25,7 +24,16 @@ To run the code DataTorrent platform is needed. The developer version or an eval
 
 https://www.datatorrent.com/download.php
 
-Please follow the instructions in the software README on how to run the application.
+Please follow the instructions in the software README on how to run the application.  
+
+For an easer setup, sandbox virtual machine provides pre-configured DataTorrent platform with all necessary dependencies, and can be found in the download section.
+
+
+Demos
+-------------------
+
+Multiple demos are provided with the DataTorrent platform to showcase the platform and provide application development examples.  Demos can be executed after downloading and installing DataTorrent platform or the sandbox with pre-configured DataTorrent platform environment.  See [demos source code](https://github.com/DataTorrent/Malhar/tree/master/demos/src/main/java/com/datatorrent/demos) for application development examples.
+
 
 Discussion group
 --------------------
