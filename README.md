@@ -36,3 +36,25 @@ Issue tracking
 --------------------
 
 Github issues tracking is used for tracking issues for this repository. You can monitor the state of existing issues and their track their progress there. 
+
+Contributing
+--------------------
+
+If you would like to help make Malhar better by adding new features, enhancing existing features, or fixing bugs, here is how to do it.
+
+  * Fork Malhar into your own GitHub repository
+  * Create a topic branch with an appropriate name
+  * Write code, comments, tests in your repository
+  * Create a GitHub pull request from your repository, providing as many details about your changes as possible
+  * After we review and accept your request we’ll commit your code to the DataTorrent/Malhar repository
+
+Thanks for contributing!
+
+License
+--------------------
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
