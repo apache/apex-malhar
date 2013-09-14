@@ -18,7 +18,7 @@ function DrawUrl404TableChart()
         var pts = JSON.parse(data);
         var url404Table = new google.visualization.DataTable();
         url404Table.addColumn('string', 'URL');
-        url404Table.addColumn('number', '404 per sec');
+        url404Table.addColumn('number', '404/sec');
         url404Table.addRows(10);
         for(var i=0; ((i <  pts.length)&&(i < 10)); i++) 
         {

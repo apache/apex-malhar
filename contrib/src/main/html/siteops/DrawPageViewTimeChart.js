@@ -46,22 +46,22 @@ function RenderPageViewTimeChart()
   // get options
   var page = document.getElementById('page').value;
   var index = document.getElementById('index').value;
-  var title = "ALL Urls (PVS/S)";
-  if (page == "home") title = "home.php (PVS/S)";
-  if (page == "contact") title = "contactus.php (PVS/S)";
-  if (page == "about") title = "about.php (PVS/S)";
-  if (page == "support") title = "support.php (PVS/S)";
+  var title = "ALL Urls (PVS/Min)";
+  if (page == "home") title = "home.php (PVS/Min)";
+  if (page == "contact") title = "contactus.php (PVS/Min)";
+  if (page == "about") title = "about.php (PVS/Min)";
+  if (page == "support") title = "support.php (PVS/Min)";
   if (page == "product") {
-    title = "product.php-" + index + " (PVS/S)";
+    title = "product.php-" + index + " (PVS/Min)";
   }
   if (page == "services") {
-    title = "services.php-" + index + " (PVS/S)";
+    title = "services.php-" + index + " (PVS/Min)";
   }
   if (page == "products") {
-    title = "products.php-" + index + " (PVS/S)";
+    title = "products.php-" + index + " (PVS/Min)";
   }
 
-  var options = { pointSize: 0, lineWidth : 1 };
+  var options = { pointSize: 0, lineWidth : 1, legend : {position : 'top'} };
   options.title = title;
 
   // Draw line chart.
@@ -95,7 +95,7 @@ function DrawPageViewTimeChart()
     connect.send(null);
   } catch(e) {
   }
-  pageViewLookback = (new Date().getTime()/1000) - (3600 * pageViewInterval)-pageViewRefresh;
+  pageViewLookback = (new Date().getTime()/1000) - (3600 * pageViewInterval)-60;
 }
 
 
@@ -127,8 +127,6 @@ function HandlePageViewTimeSubmit()
     pageViewUrl = "mydomain.com/partners.php";   
     if (index && (index.length > 0)) pageViewUrl += "?partnerid=" + index;
   }
-  pageViewRefresh = document.getElementById('pageviewrefresh').value;
-  if ( !pageViewRefresh || (pageViewRefresh == "")) pageViewRefresh = 5;
   pageViewLookback = document.getElementById('pageviewlookback').value;
   if ( !pageViewLookback || (pageViewLookback == "")) {
     pageViewLookback = (new Date().getTime()/1000) - 3600;
@@ -139,14 +137,13 @@ function HandlePageViewTimeSubmit()
   // set from values  
   document.getElementById('page').value = page;
   document.getElementById('index').value = index;
-  document.getElementById('pageviewrefresh').value = pageViewRefresh;
   var lookback = document.getElementById('pageviewlookback').value;
   document.getElementById('pageviewlookback').value = lookback;
   pageViewInterval = lookback;
     
   // draw chart
   DrawPageViewTimeChart();
-  pageNowPlaying = setInterval(DrawPageViewTimeChart, pageViewRefresh * 1000);
+  pageNowPlaying = setInterval(DrawPageViewTimeChart, 60 * 1000);
 }
 
 function handleUrlChange()
