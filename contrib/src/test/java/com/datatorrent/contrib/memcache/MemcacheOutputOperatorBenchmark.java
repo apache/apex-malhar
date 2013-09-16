@@ -15,11 +15,11 @@
  */
 package com.datatorrent.contrib.memcache;
 
-import com.datatorrent.api.*;
 import com.datatorrent.contrib.memcache.AbstractSinglePortMemcacheOutputOperator;
 import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.LocalMode;
@@ -172,7 +172,7 @@ public class MemcacheOutputOperatorBenchmark
     SourceModule source = dag.addOperator("source", SourceModule.class);
     final TestMemcacheOutputOperator producer = dag.addOperator("producer", new TestMemcacheOutputOperator());
     producer.addServer(server);
-    dag.addStream("Stream", source.outPort, producer.inputPort).setInline(true);
+    dag.addStream("Stream", source.outPort, producer.inputPort).setLocality(Locality.CONTAINER_LOCAL);
 
     final MemcacheMessageReceiver consumer = new MemcacheMessageReceiver();
     consumer.addSever(server);
