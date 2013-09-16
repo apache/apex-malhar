@@ -21,6 +21,7 @@ var main = require('./routes/index');
 var twitter = require('./routes/twitter');
 var mobile = require('./routes/mobile');
 var ads = require('./routes/ads');
+var siteops = require('./routes/siteops');
 
 var app = express();
 
@@ -34,6 +35,7 @@ app.get('/twitter', twitter.index);
 app.get('/mobile', mobile.index);
 app.get('/ads', ads.index);
 app.get('/ads/data', ads.data);
+app.get('/siteops', siteops.index);
 
 app.listen(config.web.port, function() {
     console.log('Node.js server started on port ' + config.web.port);
