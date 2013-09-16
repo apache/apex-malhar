@@ -18,6 +18,7 @@ package com.datatorrent.contrib.adsdimension;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.contrib.redis.RedisNumberAggregateOutputOperator;
 import java.util.Map;
@@ -56,8 +57,8 @@ public class Application implements StreamingApplication
     dag.setInputPortAttribute(redis.input, PortContext.QUEUE_CAPACITY, 32 * 1024);
     dag.setAttribute(redis, OperatorContext.INITIAL_PARTITION_COUNT, 2);
 
-    dag.addStream("ingen", input.outputPort, inputDimension.inputPort).setInline(true);
-    dag.addStream("indimgen", inputDimension.outputPort, bucket.inputPort).setInline(true);
+    dag.addStream("ingen", input.outputPort, inputDimension.inputPort).setLocality(Locality.CONTAINER_LOCAL);
+    dag.addStream("indimgen", inputDimension.outputPort, bucket.inputPort).setLocality(Locality.CONTAINER_LOCAL);
     dag.addStream("store", bucket.outputPort, redis.inputInd);
   }
 }

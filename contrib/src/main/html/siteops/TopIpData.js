@@ -18,7 +18,7 @@ function DrawRiskyClientTableChart()
         var pts = JSON.parse(data);
         var riskyCleintTable = new google.visualization.DataTable();
         riskyCleintTable.addColumn('string', 'Client Ip');
-        riskyCleintTable.addColumn('number', 'bytes per sec');
+        riskyCleintTable.addColumn('number', 'bytes/sec');
         riskyCleintTable.addRows(10);
         for(var i=0; (i <  pts.length)&&(i < 10); i++) 
         {

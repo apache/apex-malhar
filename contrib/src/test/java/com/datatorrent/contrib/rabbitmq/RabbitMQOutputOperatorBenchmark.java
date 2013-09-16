@@ -24,6 +24,7 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG.Locality;
 import com.rabbitmq.client.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -217,7 +218,7 @@ public class RabbitMQOutputOperatorBenchmark
     TestRabbitMQOutputOperator collector = dag.addOperator("generator", new TestRabbitMQOutputOperator());
 //    collector.setQueueName("testQ");
     collector.setExchange("testEx");
-    dag.addStream("Stream", source.outPort, collector.inputPort).setInline(true);
+    dag.addStream("Stream", source.outPort, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);
 
 
     final LocalMode.Controller lc = lma.getController();

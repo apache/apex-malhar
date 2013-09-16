@@ -21,6 +21,7 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Operator;
+import com.datatorrent.api.DAG.Locality;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -159,7 +160,7 @@ public class RabbitMQInputOperatorBenchmark
     publisher.setup();
 //    publisher.generateMessages(testNum);
 
-    dag.addStream("Stream", subscriber.outputPort, collector.inputPort).setInline(true);
+    dag.addStream("Stream", subscriber.outputPort, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);
 
     final LocalMode.Controller lc = lma.getController();
 

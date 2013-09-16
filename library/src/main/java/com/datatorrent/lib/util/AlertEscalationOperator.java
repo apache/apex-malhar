@@ -45,7 +45,7 @@ public class AlertEscalationOperator extends BaseOperator
         inAlertSince = now;
       }
       lastTupleTimeStamp = now;
-      if (activated && lastAlertTimeStamp + alertInterval < now) {
+      if (activated && (lastAlertTimeStamp < 0 || lastAlertTimeStamp + alertInterval < now)) {
         processTuple(tuple);
         lastAlertTimeStamp = now;
       }

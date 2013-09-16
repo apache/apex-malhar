@@ -18,7 +18,7 @@ function DrawTopUrlTableChart()
         var pts = JSON.parse(data);
         topUrlTable = new google.visualization.DataTable();
         topUrlTable.addColumn('string', 'URL');
-        topUrlTable.addColumn('number', 'requests per sec');
+        topUrlTable.addColumn('number', 'requests/sec');
         topUrlTable.addRows(10);
         for(var i=0; (i <  pts.length)&&(i < 10); i++) 
         {

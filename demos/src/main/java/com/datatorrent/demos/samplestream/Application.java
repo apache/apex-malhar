@@ -17,6 +17,7 @@ package com.datatorrent.demos.samplestream;
 
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 
 import org.apache.hadoop.conf.Configuration;
@@ -72,8 +73,6 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class Application implements StreamingApplication
 {
-  private final boolean allInline = false;
-
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
@@ -93,7 +92,7 @@ public class Application implements StreamingApplication
     input.addFormat(YahooFinanceCSVInputOperator.Volume);
 
     ConsoleOutputOperator consoleOperator = dag.addOperator("console", new ConsoleOutputOperator());
-    dag.addStream("input-console", input.outputPort, consoleOperator.input).setInline(allInline);
+    dag.addStream("input-console", input.outputPort, consoleOperator.input).setLocality(Locality.CONTAINER_LOCAL);
 
   }
 }

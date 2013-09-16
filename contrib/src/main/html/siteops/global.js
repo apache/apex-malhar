@@ -82,15 +82,13 @@ function InitializeGlobal()
   pageViewTable.addColumn('number', 'Page View');
   pageViewChart = new google.visualization.LineChart(document.getElementById('pageview_chart_div'));
   PageViewView = new google.visualization.DataView(pageViewTable);
-  pageViewRefresh = 5;
+  pageViewRefresh = 60;
   pageViewLookback = (new Date().getTime()/1000) - 3600;
-  document.getElementById('pageviewrefresh').value = "5";
   document.getElementById('pageviewlookback').value = "1";
   pageViewInterval = 1;
 
-  serverLoadRefresh = 5;
+  serverLoadRefresh = 60;
   serverLoadLookback = (new Date().getTime()/1000) - 3600;
-  document.getElementById('serverloadrefresh').value = "5";
   document.getElementById('serverloadlookback').value = "1";
   serverLoadDataPoints = new Array();
   serverLoadTable = new google.visualization.DataTable();
