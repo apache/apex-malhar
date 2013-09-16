@@ -17,6 +17,7 @@ package com.datatorrent.demos.pi;
 
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.HttpOutputOperator;
@@ -36,7 +37,7 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class Calculator implements StreamingApplication
 {
-  private final boolean allInline = false;
+  private final Locality locality = null;
 
   private InputPort<Object> getConsolePort(DAG b, String name)
   {
@@ -83,16 +84,16 @@ public class Calculator implements StreamingApplication
 
     RunningAverage average = dag.addOperator("AveragePI", new RunningAverage());
 
-    dag.addStream("x", xyGenerator.integer_data, squareOperator.input).setInline(allInline);
-    dag.addStream("sqr", squareOperator.integerResult, pairOperator.input).setInline(allInline);
-    dag.addStream("x2andy2", pairOperator.output, sumOperator.input).setInline(allInline);
-    dag.addStream("x2plusy2", sumOperator.integerResult, comparator.input, inSquare.input).setInline(allInline);
-    dag.addStream("inCirclePoints", comparator.greaterThanOrEqualTo, inCircle.input).setInline(allInline);
-    dag.addStream("numerator", inCircle.output, division.numerator).setInline(allInline);
-    dag.addStream("denominator", inSquare.output, division.denominator).setInline(allInline);
-    dag.addStream("ratio", division.doubleQuotient, multiplication.input).setInline(allInline);
-    dag.addStream("instantPi", multiplication.doubleProduct, average.input).setInline(allInline);
-    dag.addStream("averagePi", average.doubleAverage, getConsolePort(dag, "Console")).setInline(allInline);
+    dag.addStream("x", xyGenerator.integer_data, squareOperator.input).setLocality(locality);
+    dag.addStream("sqr", squareOperator.integerResult, pairOperator.input).setLocality(locality);
+    dag.addStream("x2andy2", pairOperator.output, sumOperator.input).setLocality(locality);
+    dag.addStream("x2plusy2", sumOperator.integerResult, comparator.input, inSquare.input).setLocality(locality);
+    dag.addStream("inCirclePoints", comparator.greaterThanOrEqualTo, inCircle.input).setLocality(locality);
+    dag.addStream("numerator", inCircle.output, division.numerator).setLocality(locality);
+    dag.addStream("denominator", inSquare.output, division.denominator).setLocality(locality);
+    dag.addStream("ratio", division.doubleQuotient, multiplication.input).setLocality(locality);
+    dag.addStream("instantPi", multiplication.doubleProduct, average.input).setLocality(locality);
+    dag.addStream("averagePi", average.doubleAverage, getConsolePort(dag, "Console")).setLocality(locality);
 
   }
 
