@@ -17,8 +17,8 @@ package com.datatorrent.demos.rollingtopwords;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.demos.twitter.TwitterSampleInput;
-import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 
@@ -38,7 +38,7 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class Application implements StreamingApplication
 {
-  private static final boolean inline = true;
+  private final Locality locality = null;
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
@@ -66,6 +66,6 @@ public class Application implements StreamingApplication
     dag.addStream("UniqueWordCounts", uniqueCounter.count, topCounts.input).setInline(inline);*/
 
     ConsoleOutputOperator consoleOperator = dag.addOperator("topWords", new ConsoleOutputOperator());
-    dag.addStream("TopWords", twitterFeed.text, consoleOperator.input).setInline(inline);
+    dag.addStream("TopWords", twitterFeed.text, consoleOperator.input).setLocality(locality);
   }
 }
