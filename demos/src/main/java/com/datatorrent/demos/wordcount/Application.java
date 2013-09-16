@@ -15,6 +15,7 @@
  */
 package com.datatorrent.demos.wordcount;
 
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.lib.algo.UniqueCounter;
@@ -92,18 +93,18 @@ import org.apache.hadoop.conf.Configuration;
 public class Application implements StreamingApplication
 {
   protected String fileName = "src/main/resources/com/datatorrent/demos/wordcount/samplefile.txt";
-  private boolean allInline =  false;
+  private Locality locality = null;
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    allInline = true;
+    locality = Locality.CONTAINER_LOCAL;
 
     WordCountInputOperator input = dag.addOperator("wordinput", new WordCountInputOperator());
     input.setFileName(fileName);
     UniqueCounter<String> wordCount = dag.addOperator("count", new UniqueCounter<String>());
 
-    dag.addStream("wordinput-count", input.outputPort, wordCount.data).setInline(allInline);
+    dag.addStream("wordinput-count", input.outputPort, wordCount.data).setLocality(locality);
 
     ConsoleOutputOperator consoleOperator = dag.addOperator("console", new ConsoleOutputOperator());
     dag.addStream("count-console",wordCount.count, consoleOperator.input);

@@ -24,6 +24,8 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG.Locality;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -178,7 +180,7 @@ public class ZeroMQOutputOperatorBenchmark
     collector.setSyncUrl("tcp://*:5557");
     collector.setSUBSCRIBERS_EXPECTED(1);
 
-    dag.addStream("Stream", source.outPort, collector.inputPort).setInline(true);
+    dag.addStream("Stream", source.outPort, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);
 
     final LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(false);

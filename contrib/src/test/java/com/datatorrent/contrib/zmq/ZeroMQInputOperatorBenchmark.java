@@ -21,6 +21,8 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Operator;
+import com.datatorrent.api.DAG.Locality;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -153,7 +155,7 @@ public class ZeroMQInputOperatorBenchmark
     generator.setUrl("tcp://localhost:5556");
     generator.setSyncUrl("tcp://localhost:5557");
 
-    dag.addStream("Stream", generator.outputPort, collector.inputPort).setInline(true);
+    dag.addStream("Stream", generator.outputPort, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);
     new Thread() {
       @Override
       public void run() {
