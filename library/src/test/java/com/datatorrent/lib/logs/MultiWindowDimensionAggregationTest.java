@@ -33,10 +33,13 @@ import com.datatorrent.lib.logs.MultiWindowDimensionAggregation.AggregateOperati
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
- * <p>MultiWindowDimensionAggregationTest class.</p>
- *
+ * <p>
+ * MultiWindowDimensionAggregationTest class.
+ * </p>
+ * 
  */
-public class MultiWindowDimensionAggregationTest {
+public class MultiWindowDimensionAggregationTest
+{
 
   private static Logger log = LoggerFactory.getLogger(TopNUniqueTest.class);
 
@@ -44,116 +47,117 @@ public class MultiWindowDimensionAggregationTest {
    * Test node logic emits correct results
    */
   @Test
-    public void testNodeProcessing() throws Exception {
-      testNodeProcessingSchema(new MultiWindowDimensionAggregation());
+  public void testNodeProcessing() throws Exception
+  {
+    testNodeProcessingSchema(new MultiWindowDimensionAggregation());
 
-    }
+  }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void testNodeProcessingSchema(MultiWindowDimensionAggregation oper) {
+  public void testNodeProcessingSchema(MultiWindowDimensionAggregation oper)
+  {
 
-      
-      oper.setWindowSize(2);
-      List<int []> dimensionArrayList = new ArrayList<int[]>();
-      int[] dimensionArray = {0,1};
-      int[] dimensionArray_2 = {0};
-      dimensionArrayList.add(dimensionArray);
-      dimensionArrayList.add(dimensionArray_2);
-      oper.setDimensionArray(dimensionArrayList);
-      
-      oper.setTimeBucket("m");
-      oper.setDimensionKeyVal("0");
+    oper.setWindowSize(3);
+    List<int[]> dimensionArrayList = new ArrayList<int[]>();
+    int[] dimensionArray = { 0, 1 };
+    int[] dimensionArray_2 = { 0 };
+    dimensionArrayList.add(dimensionArray);
+    dimensionArrayList.add(dimensionArray_2);
+    oper.setDimensionArray(dimensionArrayList);
 
-      oper.setOperationType(AggregateOperation.AVERAGE);
-      oper.setup(null);
-      CollectorTestSink sortSink = new CollectorTestSink();
-      oper.output.setSink(sortSink);
+    oper.setTimeBucket("m");
+    oper.setDimensionKeyVal("0");
 
-      oper.beginWindow(0);
-      Map<String, Map<String,MutableDouble>> data = new HashMap<String, Map<String,MutableDouble>>();
-      Map<String, MutableDouble> input = new HashMap<String, MutableDouble>();
+    oper.setOperationType(AggregateOperation.AVERAGE);
+    oper.setup(null);
+    CollectorTestSink sortSink = new CollectorTestSink();
+    oper.output.setSink(sortSink);
 
-      input.put("0",new MutableDouble(9));
-      input.put("1",new MutableDouble(9));
-      input.put("2",new MutableDouble(9));
-      data.put("m|20130823131512|0:abc|1:ff",input);
-      data.put("m|20130823131512|0:abc",input);
-      oper.data.process(data);
-      input.clear();
-      data.clear();
+    oper.beginWindow(0);
+    Map<String, Map<String, MutableDouble>> data = new HashMap<String, Map<String, MutableDouble>>();
+    Map<String, MutableDouble> input = new HashMap<String, MutableDouble>();
 
-      input.put("0",new MutableDouble(19));
-      input.put("1",new MutableDouble(19));
-      input.put("2",new MutableDouble(19));
-      data.put("m|20130823131512|0:abc|1:ie",input);
-      Map<String, MutableDouble> input_new = new HashMap<String, MutableDouble>();
-      input_new.put("0",new MutableDouble(19));
-      input_new.put("1",new MutableDouble(19));
-      input_new.put("2",new MutableDouble(19));
-      data.put("m|20130823131512|0:def|1:ie",input_new);
-      oper.data.process(data);
-      oper.endWindow();
+    input.put("0", new MutableDouble(9));
+    input.put("1", new MutableDouble(9));
+    input.put("2", new MutableDouble(9));
+    data.put("m|20130823131512|0:abc|1:ff", input);
+    data.put("m|20130823131512|0:abc", input);
+    oper.data.process(data);
+    input.clear();
+    data.clear();
 
-      Assert.assertEquals("number emitted tuples", 4, sortSink.collectedTuples.size());
-      for (Object o : sortSink.collectedTuples) {
-        log.debug(o.toString());
-        //System.out.println(o.toString());
-      }
-      sortSink.clear();
-      //System.out.println("end of window");
-      
-      oper.beginWindow(1);
-      input.clear();
-      data.clear();
-      input.put("0",new MutableDouble(9));
-      input.put("1",new MutableDouble(9));
-      input.put("2",new MutableDouble(9));
-      data.put("m|20130823131513|0:def|1:ff",input);
-      oper.data.process(data);
+    input.put("0", new MutableDouble(19));
+    input.put("1", new MutableDouble(19));
+    input.put("2", new MutableDouble(19));
+    data.put("m|20130823131512|0:abc|1:ie", input);
+    Map<String, MutableDouble> input_new = new HashMap<String, MutableDouble>();
+    input_new.put("0", new MutableDouble(19));
+    input_new.put("1", new MutableDouble(19));
+    input_new.put("2", new MutableDouble(19));
+    data.put("m|20130823131512|0:def|1:ie", input_new);
+    oper.data.process(data);
+    oper.endWindow();
 
-      input.clear();
-      data.clear();
+    Assert.assertEquals("number emitted tuples", 4, sortSink.collectedTuples.size());
+    for (Object o : sortSink.collectedTuples) {
+      log.debug(o.toString());
+      // System.out.println(o.toString());
+    }
+    sortSink.clear();
+    log.debug("end of window");
+    // System.out.println("end of window");
 
-      input.put("0",new MutableDouble(9));
-      input.put("1",new MutableDouble(9));
-      input.put("2",new MutableDouble(9));
-      data.put("m|20130823131513|0:abc|1:ie",input);
-      oper.data.process(data);
-      oper.endWindow();
+    oper.beginWindow(1);
+    input.clear();
+    data.clear();
+    input.put("0", new MutableDouble(9));
+    input.put("1", new MutableDouble(9));
+    input.put("2", new MutableDouble(9));
+    data.put("m|20130823131513|0:def|1:ff", input);
+    oper.data.process(data);
+
+    input.clear();
+    data.clear();
+
+    input.put("0", new MutableDouble(9));
+    input.put("1", new MutableDouble(9));
+    input.put("2", new MutableDouble(9));
+    data.put("m|20130823131513|0:abc|1:ie", input);
+    oper.data.process(data);
+    oper.endWindow();
 
     Assert.assertEquals("number emitted tuples", 5, sortSink.collectedTuples.size());
-      for (Object o : sortSink.collectedTuples) {
-        log.debug(o.toString());
-        //System.out.println(o.toString());
-      }
-      sortSink.clear();
-//      System.out.println("end of window");
-      
-      oper.beginWindow(2);
-      input.clear();
-      data.clear();
-      input.put("0",new MutableDouble(19));
-      input.put("1",new MutableDouble(19));
-      input.put("2",new MutableDouble(19));
-      data.put("m|20130823131514|0:def|1:ff",input);
-      oper.data.process(data);
-
-      input.clear();
-      data.clear();
-
-      input.put("0",new MutableDouble(19));
-      input.put("1",new MutableDouble(19));
-      input.put("2",new MutableDouble(19));
-      data.put("m|20130823131514|0:abc|1:ie",input);
-      oper.data.process(data);
-      oper.endWindow();
-
-      
-      Assert.assertEquals("number emitted tuples", 2,	sortSink.collectedTuples.size());
-      for (Object o : sortSink.collectedTuples) {
-        log.debug(o.toString());
-        //System.out.println(o.toString());
-      }
-      log.debug("Done testing round\n");
+    for (Object o : sortSink.collectedTuples) {
+      log.debug(o.toString());
+      // System.out.println(o.toString());
     }
+    sortSink.clear();
+    log.debug("end of window");
+
+    oper.beginWindow(2);
+    input.clear();
+    data.clear();
+    input.put("0", new MutableDouble(19));
+    input.put("1", new MutableDouble(19));
+    input.put("2", new MutableDouble(19));
+    data.put("m|20130823131514|0:def|1:ff", input);
+    oper.data.process(data);
+
+    input.clear();
+    data.clear();
+
+    input.put("0", new MutableDouble(19));
+    input.put("1", new MutableDouble(19));
+    input.put("2", new MutableDouble(19));
+    data.put("m|20130823131514|0:abc|1:ie", input);
+    oper.data.process(data);
+    oper.endWindow();
+
+    Assert.assertEquals("number emitted tuples", 5, sortSink.collectedTuples.size());
+    for (Object o : sortSink.collectedTuples) {
+      log.debug(o.toString());
+      // System.out.println(o.toString());
+    }
+    log.debug("Done testing round\n");
+  }
 }

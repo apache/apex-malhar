@@ -18,7 +18,6 @@ package com.datatorrent.lib.logs;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,6 +55,7 @@ public class MultiWindowDimensionAggregation implements Operator
   private String dimensionKeyVal = "0";
   private List<String> dimensionArrayString;
   private AggregateOperation operationType = AggregateOperation.SUM;
+  private int applicationWindowSize = 500;
 
   // map(currentWindow, map(dimensionArryString.getIndex(), map(dimension value
   // , (sum of values, number of values))))
@@ -73,11 +73,9 @@ public class MultiWindowDimensionAggregation implements Operator
         cacheOject.put(currentWindow, currentWindowMap);
       }
 
-      Collection<String> tupleKeySet = tuple.keySet();
-      Iterator<String> tupleKeySetItr = tupleKeySet.iterator();
-      while (tupleKeySetItr.hasNext()) {
-        String tupleKey = tupleKeySetItr.next().trim();
-        Map<String, MutableDouble> tupleValue = tuple.get(tupleKey);
+      for(Map.Entry<String, Map<String, MutableDouble>> tupleEntry: tuple.entrySet()) {
+        String tupleKey = tupleEntry.getKey();
+        Map<String, MutableDouble> tupleValue = tupleEntry.getValue();
         int currentPattern = 0;
         for (Pattern pattern : patternList) {
           Matcher matcher = pattern.matcher(tupleKey);
@@ -164,6 +162,8 @@ public class MultiWindowDimensionAggregation implements Operator
   @Override
   public void setup(OperatorContext arg0)
   {
+    if(arg0 != null)
+      applicationWindowSize = arg0.attrValue(OperatorContext.APPLICATION_WINDOW_COUNT, 500);
     cacheOject = new HashMap<Integer, Map<String, Map<String, KeyValPair<MutableDouble, Integer>>>>(windowSize);
     setUpPatternList();
   }
@@ -208,6 +208,7 @@ public class MultiWindowDimensionAggregation implements Operator
 
     // System.out.println(cacheOject);
     Collection<Map<String, Map<String, KeyValPair<MutableDouble, Integer>>>> coll = cacheOject.values();
+    int totalWindowsOccupied = coll.size();
     for (Map<String, Map<String, KeyValPair<MutableDouble, Integer>>> e : coll) {
       for (String dimension : dimensionArrayString) {
         if (e.get(dimension) != null) {
@@ -241,7 +242,8 @@ public class MultiWindowDimensionAggregation implements Operator
         if (operationType == AggregateOperation.SUM) {
           outputData.put(e.getKey(), new DimensionObject<String>(keyVal.getKey(), dimensionValObj.getKey()));
         } else if (operationType == AggregateOperation.AVERAGE) {
-          outputData.put(e.getKey(), new DimensionObject<String>(new MutableDouble(keyVal.getKey().doubleValue() / keyVal.getValue()), dimensionValObj.getKey()));
+          double totalCount = ((double)(totalWindowsOccupied * keyVal.getValue() * applicationWindowSize))/1000; 
+          outputData.put(e.getKey(), new DimensionObject<String>(new MutableDouble(keyVal.getKey().doubleValue() / totalCount), dimensionValObj.getKey()));
         }
         output.emit(outputData);
       }
