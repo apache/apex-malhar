@@ -36,6 +36,7 @@ app.get('/mobile', mobile.index);
 app.get('/ads', ads.index);
 app.get('/ads/data', ads.data);
 app.get('/siteops', siteops.index);
+app.get('/siteops/data', siteops.data);
 
 app.listen(config.web.port, function() {
     console.log('Node.js server started on port ' + config.web.port);

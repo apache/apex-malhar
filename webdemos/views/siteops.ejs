@@ -22,7 +22,15 @@
     <script>
         jQuery(function() {
             console.log('dom loaded');
+
+            jQuery.ajax({
+                url: '/siteops/data',
+                success: function(data) {
+                    console.log('ajax: ' + data);
+                }
+            });
         });
+        console.log('abc');
     </script>
 </head>
 <body>
