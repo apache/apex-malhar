@@ -37,9 +37,10 @@ exports.index = function(req, res) {
 };
 
 exports.data = function(req, res) {
-    getMinutes(req.query, function(err, result) {
-        res.json(result);
-    });
+    res.send('date is ' + new Date());
+    //getMinutes(req.query, function(err, result) {
+    //    res.json(result);
+    //});
 };
 
 function getMinutes(query, resCallback) {
