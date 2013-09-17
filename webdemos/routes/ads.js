@@ -1,21 +1,46 @@
-var async = require('async');
-var express = require('express');
-var redis = require("redis");
+/*
+ * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var redis = require('redis');
 var dateFormat = require('dateformat');
-var config = require('./config');
+var async = require('async');
+var config = require('../config');
 
-var app = express();
-var client = redis.createClient(config.redis.port, config.redis.host);
+var client;
+var demoEnabled = (config.redis.port && config.redis.host);
 
-app.use(express.static(__dirname + '/public'));
+if (demoEnabled) {
+    client = redis.createClient(config.redis.port, config.redis.host);
+}
 
-app.get('/data', getData);
+exports.index = function(req, res) {
+    if (demoEnabled) {
+        res.render('ads');
+    } else {
+        res.render('error', {
+            message: 'Ads Dimensions Demo is not enabled. Please configure Redis.'
+        });
+    }
+};
 
-function getData(req, res, next) {
+exports.data = function(req, res) {
     getMinutes(req.query, function(err, result) {
         res.json(result);
     });
-}
+};
 
 function getMinutes(query, resCallback) {
     var lookbackMinutes = query.lookbackMinutes;
@@ -67,6 +92,3 @@ function getMinutes(query, resCallback) {
     );
 }
 
-app.listen(config.web.port, function() {
-    console.log('Ads Dimensions Demo Node.js server started on port ' + config.web.port);
-});
