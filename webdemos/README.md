@@ -1,10 +1,21 @@
-adsdimensions
+webdemos
 ===============
 
-Ads Dimensions Demo with Node.js and Redis.
+DataTorrent Demos.
 
-## Usage
+## Demos configuration
+ Settings are stored in config.js.
 
+ Twitter Demo and Mobile Demo
+
+    config.web.webSocketUrl = 'ws://localhost:9090/pubsub';
+
+ Ads Dimensions Demo
+
+    config.redis.host = 'localhost';
+    config.redis.port = 6379;
+
+## Running Demos
  Install dependencies:
 
     $ npm install
