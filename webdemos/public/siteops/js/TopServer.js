@@ -33,7 +33,7 @@ function DrawTopServerTableChart()
         delete pts;
       }
     }
-    connect.open('GET',  "TopServer.php", true);
+    connect.open('GET',  "topServer", true);
     connect.send(null);
   } catch(e) {
   }

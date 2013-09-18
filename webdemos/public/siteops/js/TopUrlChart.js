@@ -33,7 +33,7 @@ function DrawTopUrlTableChart()
         delete pts;
       }
     }
-    connect.open('GET',  "TopUrlData.php", true);
+    connect.open('GET',  "topUrlData", true);
     connect.send(null);
   } catch(e) {
   }

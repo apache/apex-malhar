@@ -15,11 +15,10 @@ function DrawClientDataTableChart()
     connect.onreadystatechange = function() {
       if(connect.readyState==4 && connect.status==200) {
         var data = connect.response;
-        var pts = JSON.parse(data);
-        document.getElementById('totaldata').innerHTML = pts[0];
+        document.getElementById('totaldata').innerHTML = data;
       }
     }
-    connect.open('GET',  "ClientData.php", true);
+    connect.open('GET',  "clientData", true);
     connect.send(null);
   } catch(e) {
   }
