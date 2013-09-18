@@ -16,6 +16,7 @@
 package com.datatorrent.demos.sitealerts;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,9 @@ import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.lib.algo.TopNUnique;
 import com.datatorrent.lib.io.ApacheGenRandomLogs;
+import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.MapMultiConsoleOutputOperator;
 import com.datatorrent.lib.logs.ApacheLogParseMapOutputOperator;
 import com.datatorrent.lib.logs.DimensionObject;
@@ -44,12 +47,12 @@ import com.datatorrent.lib.util.DimensionTimeBucketSumOperator;
  */
 public class ApacheAccessLogAnalaysis implements StreamingApplication
 {
-  private InputPort<Map<String, DimensionObject<String>>> consoleOutput(DAG dag, String operatorName)
-  {
-    MapMultiConsoleOutputOperator<String, DimensionObject<String>> operator = dag.addOperator(operatorName, new MapMultiConsoleOutputOperator<String, DimensionObject<String>>());
-    // operator.setSilent(true);
-    return operator.input;
-  }
+//  private InputPort<HashMap<String, ArrayList<HashMap<String,Integer>>>> consoleOutput(DAG dag, String operatorName)
+//  {
+//    MapMultiConsoleOutputOperator<String, List<Map<String,Integer>>> operator = dag.addOperator(operatorName, new MapMultiConsoleOutputOperator<String, List<Map<String,Integer>>>());
+//    // operator.setSilent(true);
+//    return operator.input;
+//  }
 
   public DimensionTimeBucketSumOperator getPageDimensionTimeBucketSumOperator(String name, DAG dag)
   {
@@ -109,22 +112,26 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
 
     // Generate random apche logs
     ApacheGenRandomLogs rand = dag.addOperator("rand", new ApacheGenRandomLogs());
-    // dag.addStream("dimension_out", rand.outport, consoleOutput(dag,
-    // "rand_console"));
-
+    
     // parse log operator
     ApacheLogParseMapOutputOperator parser = dag.addOperator("parser", new ApacheLogParseMapOutputOperator());
     dag.addStream("parserInput", rand.outport, parser.data);
-    // dag.addStream("dimension_out", parser.output, consoleOutput(dag,
-    // "rand_console"));
-    //
+    
+    // exploding the parsed log
     DimensionTimeBucketSumOperator dimensionOperator = getPageDimensionTimeBucketSumOperator("Dimension", dag);
-    // dag.getMeta(dimensionOperator).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(5);
     dag.addStream("dimension_in", parser.output, dimensionOperator.in);
+    
+    // aggregating over sliding window
     MultiWindowDimensionAggregation multiWindowAggOpr = getAggregationOper("sliding_window", dag);
-
     dag.addStream("dimension_out", dimensionOperator.out, multiWindowAggOpr.data);
-    dag.addStream("aggregation_output", multiWindowAggOpr.output, consoleOutput(dag, "console"));
+    
+    // adding top N operator
+    TopNUnique<String, DimensionObject<String>> topNOpr = dag.addOperator("topN", new TopNUnique<String, DimensionObject<String>>());
+    topNOpr.setN(5);
+    dag.addStream("aggregation_topn", multiWindowAggOpr.output, topNOpr.data);
+    
+    ConsoleOutputOperator console = dag.addOperator("console", ConsoleOutputOperator.class);
+    dag.addStream("topn_output", topNOpr.top, console.input);
 
   }
 }

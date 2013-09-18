@@ -52,62 +52,48 @@ public class MultiWindowDimensionAggregation implements Operator
   };
 
   private int windowSize = 2;
-  private int currentWindow = 0;
-  private List<int[]> dimensionArray;
+  private int currentWindow = 0;  
   private String timeBucket = "m";
-  private List<Pattern> patternList;
-  private String dimensionKeyVal = "0";
+  private String dimensionKeyVal = "0";  
   private List<String> dimensionArrayString;
-  private AggregateOperation operationType = AggregateOperation.SUM;
-  private int applicationWindowSize = 500;
-
-  // map(currentWindow, map(dimensionArryString.getIndex(), map(dimension value
-  // , (sum of values, number of values))))
-  private Map<Integer, Map<String, Map<String, KeyValPair<MutableDouble, Integer>>>> cacheOject;
-
+  private List<int[]> dimensionArray;
+  private AggregateOperation operationType = AggregateOperation.SUM;  
+  private Map<String, Map<String, KeyValPair<MutableDouble, Integer>>> outputMap;
+  private Map<Integer, Map<String, Map<String, Number>>> cacheOject;
+  
+  private transient List<Pattern> patternList;
+  private transient int applicationWindowSize = 500;
   public final transient DefaultOutputPort<Map<String, DimensionObject<String>>> output = new DefaultOutputPort<Map<String, DimensionObject<String>>>();
-
   public final transient DefaultInputPort<Map<String, Map<String, Number>>> data = new DefaultInputPort<Map<String, Map<String, Number>>>() {
     @Override
     public void process(Map<String, Map<String, Number>> tuple)
     {
-
-      Map<String, Map<String, KeyValPair<MutableDouble, Integer>>> currentWindowMap = cacheOject.get(currentWindow);
-      if (currentWindowMap == null) {
-        currentWindowMap = new HashMap<String, Map<String, KeyValPair<MutableDouble, Integer>>>();
-        cacheOject.put(currentWindow, currentWindowMap);
-      }
-
+      cacheOject.put(currentWindow, tuple);
       for (Map.Entry<String, Map<String, Number>> tupleEntry : tuple.entrySet()) {
-        // System.out.println(tupleEntry);
         String tupleKey = tupleEntry.getKey();
         Map<String, Number> tupleValue = tupleEntry.getValue();
         int currentPattern = 0;
         for (Pattern pattern : patternList) {
           Matcher matcher = pattern.matcher(tupleKey);
-         // logger.info(" key getting matched {}", tupleKey);
-        //  logger.info("pattern matched against {}", pattern.pattern());
           if (matcher.matches()) {
-           // logger.info("pattern matched against {}", pattern.pattern());
-            Map<String, KeyValPair<MutableDouble, Integer>> currentDimensionArrayMap = currentWindowMap.get(dimensionArrayString.get(currentPattern));
-            if (currentDimensionArrayMap == null) {
-              currentDimensionArrayMap = new HashMap<String, KeyValPair<MutableDouble, Integer>>();
-              currentWindowMap.put(dimensionArrayString.get(currentPattern), currentDimensionArrayMap);
+            String currentPatternString = dimensionArrayString.get(currentPattern);
+            Map<String, KeyValPair<MutableDouble, Integer>> currentPatternMap = outputMap.get(currentPatternString);
+            if (currentPatternMap == null) {
+              currentPatternMap = new HashMap<String, KeyValPair<MutableDouble, Integer>>();
+              outputMap.put(currentPatternString, currentPatternMap);
             }
             StringBuilder builder = new StringBuilder(matcher.group(2));
             for (int i = 1; i < dimensionArray.get(currentPattern).length; i++) {
               builder.append("," + matcher.group(i + 2));
             }
-            KeyValPair<MutableDouble, Integer> keyValPair = currentDimensionArrayMap.get(builder.toString());
-            if (keyValPair == null) {
-              keyValPair = new KeyValPair<MutableDouble, Integer>(((MutableDouble) tupleValue.get(dimensionKeyVal)), new Integer(1));
-              currentDimensionArrayMap.put(builder.toString(), keyValPair);
+
+            KeyValPair<MutableDouble, Integer> currentDimensionKeyValPair = currentPatternMap.get(builder.toString());
+            if (currentDimensionKeyValPair == null) {
+              currentDimensionKeyValPair = new KeyValPair<MutableDouble, Integer>(new MutableDouble(tupleValue.get(dimensionKeyVal)), 1);
+              currentPatternMap.put(builder.toString(), currentDimensionKeyValPair);
             } else {
-              MutableDouble key = keyValPair.getKey();
-              key.add(tupleValue.get(dimensionKeyVal));
-              int count = keyValPair.getValue() + 1;
-              keyValPair = new KeyValPair<MutableDouble, Integer>(key, new Integer(count));
-              currentDimensionArrayMap.put(builder.toString(), keyValPair);
+              currentDimensionKeyValPair.getKey().add(tupleValue.get(dimensionKeyVal));
+              currentDimensionKeyValPair.setValue(currentDimensionKeyValPair.getValue() + 1);
             }
             break;
           }
@@ -173,7 +159,10 @@ public class MultiWindowDimensionAggregation implements Operator
   {
     if (arg0 != null)
       applicationWindowSize = arg0.attrValue(OperatorContext.APPLICATION_WINDOW_COUNT, 500);
-    cacheOject = new HashMap<Integer, Map<String, Map<String, KeyValPair<MutableDouble, Integer>>>>(windowSize);
+    if(cacheOject == null)
+      cacheOject = new HashMap<Integer, Map<String, Map<String, Number>>>(windowSize);
+    if(outputMap == null)
+      outputMap = new HashMap<String, Map<String, KeyValPair<MutableDouble, Integer>>>();
     setUpPatternList();
     // System.out.println("size of various lists " + dimensionArrayString.size()
     // + " " +patternList.size());
@@ -186,10 +175,10 @@ public class MultiWindowDimensionAggregation implements Operator
       Pattern pattern;
       StringBuilder builder = new StringBuilder(timeBucket + "\\|(\\d+)");
       for (int i = 0; i < e.length; i++) {
-        //builder.append("\\|" + e[i] + ":(\\S+)");
+        // builder.append("\\|" + e[i] + ":(\\S+)");
         builder.append("\\|" + e[i] + ":([^\\|]+)");
       }
-       
+
       // System.out.println(builder.toString());
       pattern = Pattern.compile(builder.toString());
       patternList.add(pattern);
@@ -205,9 +194,36 @@ public class MultiWindowDimensionAggregation implements Operator
   @Override
   public void beginWindow(long arg0)
   {
-    Map<String, Map<String, KeyValPair<MutableDouble, Integer>>> currentWindowMap = cacheOject.get(currentWindow);
+    Map<String, Map<String, Number>> currentWindowMap = cacheOject.get(currentWindow);
     if (currentWindowMap == null) {
-      currentWindowMap = new HashMap<String, Map<String, KeyValPair<MutableDouble, Integer>>>();
+      currentWindowMap = new HashMap<String, Map<String, Number>>();
+    } else {
+      for (Map.Entry<String, Map<String, Number>> tupleEntry : currentWindowMap.entrySet()) {
+        String tupleKey = tupleEntry.getKey();
+        Map<String, Number> tupleValue = tupleEntry.getValue();
+        int currentPattern = 0;
+        for (Pattern pattern : patternList) {
+          Matcher matcher = pattern.matcher(tupleKey);
+          if (matcher.matches()) {
+            String currentPatternString = dimensionArrayString.get(currentPattern);
+            Map<String, KeyValPair<MutableDouble, Integer>> currentPatternMap = outputMap.get(currentPatternString);
+            if (currentPatternMap != null) {
+              StringBuilder builder = new StringBuilder(matcher.group(2));
+              for (int i = 1; i < dimensionArray.get(currentPattern).length; i++) {
+                builder.append("," + matcher.group(i + 2));
+              }
+              KeyValPair<MutableDouble, Integer> currentDimensionKeyValPair = currentPatternMap.get(builder.toString());
+              if (currentDimensionKeyValPair != null) {
+                currentDimensionKeyValPair.getKey().add(0-tupleValue.get(dimensionKeyVal).doubleValue());
+                currentDimensionKeyValPair.setValue(currentDimensionKeyValPair.getValue() - 1);
+              }
+            }
+            break;
+          }
+          currentPattern++;
+        }
+
+      }
     }
     currentWindowMap.clear();
     if (patternList == null || patternList.isEmpty())
@@ -218,60 +234,20 @@ public class MultiWindowDimensionAggregation implements Operator
   @Override
   public void endWindow()
   {
-
-    Map<String, Map<String, KeyValPair<MutableDouble, Integer>>> outputMap = new HashMap<String, Map<String, KeyValPair<MutableDouble, Integer>>>();
-
-    System.out.println(cacheOject);
-    Collection<Map<String, Map<String, KeyValPair<MutableDouble, Integer>>>> coll = cacheOject.values();
-    int totalWindowsOccupied = coll.size();
-    for (Map<String, Map<String, KeyValPair<MutableDouble, Integer>>> e : coll) {
-      for (String dimension : dimensionArrayString) {
-        if (e.get(dimension) != null) {
-          Map<String, KeyValPair<MutableDouble, Integer>> dimensionMap = outputMap.get(dimension);
-          if (dimensionMap == null) {
-            Map<String, KeyValPair<MutableDouble, Integer>> eClone = new HashMap<String, KeyValPair<MutableDouble,Integer>>();
-            Map<String, KeyValPair<MutableDouble, Integer>> cloneCopy = e.get(dimension);
-            for(Map.Entry<String, KeyValPair<MutableDouble, Integer>> cloneCopyTuple : cloneCopy.entrySet()){
-              KeyValPair<MutableDouble, Integer> toCopyKeyValPair = cloneCopyTuple.getValue();
-              eClone.put(cloneCopyTuple.getKey(),new KeyValPair<MutableDouble, Integer>(new MutableDouble(toCopyKeyValPair.getKey()), toCopyKeyValPair.getValue().intValue()));
-            }
-            outputMap.put(dimension,eClone);
-          } else {
-            Map<String, KeyValPair<MutableDouble, Integer>> currentCacheObject = e.get(dimension);
-            Set<String> keys = currentCacheObject.keySet();
-            for (String key : keys) {
-              if (dimensionMap.get(key) == null) {
-                KeyValPair<MutableDouble,Integer> toCloneKeyValPair = currentCacheObject.get(key);
-                dimensionMap.put(key, new KeyValPair<MutableDouble, Integer>(new MutableDouble(toCloneKeyValPair.getKey()), toCloneKeyValPair.getValue()));
-              } else {
-                KeyValPair<MutableDouble, Integer> dimensionKeyVal = dimensionMap.get(key);
-                KeyValPair<MutableDouble, Integer> currentCacheObjectKeyVal = currentCacheObject.get(key);
-                MutableDouble count = dimensionKeyVal.getKey();
-                count.add(currentCacheObjectKeyVal.getKey());
-                dimensionKeyVal.setValue(dimensionKeyVal.getValue() + currentCacheObjectKeyVal.getValue());
-              }
-            }
-          }
-        }
-      }
-    }
-    // System.out.println("inside end window of multiwindow" + outputMap);
-   
+    int totalWindowsOccupied = cacheOject.size();
     for (Map.Entry<String, Map<String, KeyValPair<MutableDouble, Integer>>> e : outputMap.entrySet()) {
       for (Map.Entry<String, KeyValPair<MutableDouble, Integer>> dimensionValObj : e.getValue().entrySet()) {
         Map<String, DimensionObject<String>> outputData = new HashMap<String, DimensionObject<String>>();
         KeyValPair<MutableDouble, Integer> keyVal = dimensionValObj.getValue();
-
         if (operationType == AggregateOperation.SUM) {
           outputData.put(e.getKey(), new DimensionObject<String>(keyVal.getKey(), dimensionValObj.getKey()));
         } else if (operationType == AggregateOperation.AVERAGE) {
           double totalCount = ((double) (totalWindowsOccupied * keyVal.getValue() * applicationWindowSize)) / 1000;
           outputData.put(e.getKey(), new DimensionObject<String>(new MutableDouble(keyVal.getKey().doubleValue() / totalCount), dimensionValObj.getKey()));
         }
-        output.emit(outputData);    
+        output.emit(outputData);
       }
     }
-    
     currentWindow = (currentWindow + 1) % windowSize;
 
   }
