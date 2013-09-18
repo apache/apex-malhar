@@ -30,6 +30,10 @@ public class DimensionObject<T> implements Comparable<DimensionObject<T>>
 
   private MutableDouble count;
   private T val;
+  
+  private DimensionObject(){
+    
+  }
 
   public DimensionObject(MutableDouble count, T s)
   {

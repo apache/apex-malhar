@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.lang.Number;
 
 import junit.framework.Assert;
 
@@ -27,7 +28,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.algo.TopNUniqueTest;
 import com.datatorrent.lib.logs.MultiWindowDimensionAggregation;
 import com.datatorrent.lib.logs.MultiWindowDimensionAggregation.AggregateOperation;
 import com.datatorrent.lib.testbench.CollectorTestSink;
@@ -41,7 +41,7 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 public class MultiWindowDimensionAggregationTest
 {
 
-  private static Logger log = LoggerFactory.getLogger(TopNUniqueTest.class);
+  private static Logger log = LoggerFactory.getLogger(MultiWindowDimensionAggregationTest.class);
 
   /**
    * Test node logic emits correct results
@@ -74,8 +74,8 @@ public class MultiWindowDimensionAggregationTest
     oper.output.setSink(sortSink);
 
     oper.beginWindow(0);
-    Map<String, Map<String, MutableDouble>> data = new HashMap<String, Map<String, MutableDouble>>();
-    Map<String, MutableDouble> input = new HashMap<String, MutableDouble>();
+    Map<String, Map<String, Number>> data = new HashMap<String, Map<String, Number>>();
+    Map<String, Number> input = new HashMap<String, Number>();
 
     input.put("0", new MutableDouble(9));
     input.put("1", new MutableDouble(9));
@@ -90,7 +90,7 @@ public class MultiWindowDimensionAggregationTest
     input.put("1", new MutableDouble(19));
     input.put("2", new MutableDouble(19));
     data.put("m|20130823131512|0:abc|1:ie", input);
-    Map<String, MutableDouble> input_new = new HashMap<String, MutableDouble>();
+    Map<String, Number> input_new = new HashMap<String, Number>();
     input_new.put("0", new MutableDouble(19));
     input_new.put("1", new MutableDouble(19));
     input_new.put("2", new MutableDouble(19));
