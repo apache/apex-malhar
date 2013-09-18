@@ -18,7 +18,7 @@ function DrawTotalViewsTableChart()
         document.getElementById('totalviews').innerHTML = data;
       }
     }
-    connect.open('GET',  "TotalViews.php", true);
+    connect.open('GET',  "totalViews", true);
     connect.send(null);
   } catch(e) {
   }

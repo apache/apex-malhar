@@ -44,7 +44,7 @@ function DrawUrl404TableChart()
         delete pts;
       }
     }
-    connect.open('GET',  "Url404.php", true);
+    connect.open('GET',  "url404", true);
     connect.send(null);
   } catch(e) {
   }

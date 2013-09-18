@@ -34,7 +34,7 @@ function DrawRiskyClientTableChart()
         delete pts;
       }
     }
-    connect.open('GET',  "TopIpData.php", true);
+    connect.open('GET',  "topIpData", true);
     connect.send(null);
   } catch(e) {
   }
