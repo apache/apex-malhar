@@ -34,6 +34,7 @@ public class PubSubWebSocketOperatorTest
 {
 
   @Test
+  @SuppressWarnings("SleepWhileInLoop")
   public void testPubSubWebSocket() throws Exception {
     Server server = new Server(new InetSocketAddress("localhost", 19090));
     SamplePubSubWebSocketServlet servlet = new SamplePubSubWebSocketServlet();
@@ -55,7 +56,7 @@ public class PubSubWebSocketOperatorTest
     inputOperator.setUri(uri);
     inputOperator.addTopic("testTopic");
 
-    CollectorTestSink sink = new CollectorTestSink();
+    CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
     inputOperator.outputPort.setSink(sink);
 
     inputOperator.setup(null);
@@ -82,6 +83,7 @@ public class PubSubWebSocketOperatorTest
 
     Assert.assertTrue("tuple emitted", sink.collectedTuples.size() > 0);
 
+    @SuppressWarnings("unchecked")
     Map<String, String> tuple = (Map<String, String>)sink.collectedTuples.get(0);
     Assert.assertEquals("Expects {\"hello\":\"world\"} as data", tuple.get("hello"), "world");
 
