@@ -100,21 +100,14 @@ function fetchTop10(req, res, dbIndex) {
 }
 
 function fetchPageViews(query, resCallback) {
-    var lookbackMinutes = query.lookbackMinutes;
-
-    //var from = query.from;
-    //console.log('from ' + from);
-
     var endTime = Date.now();
-    var keyTemplate = 'm|$date';
+    var lookbackHours = query.lookbackHours;
+    var pageKeyTemplate = 'm|$date|0:mydomain.com/$page';
 
     var minute = (60 * 1000);
     var result = [];
 
-    lookbackMinutes = 60;
-    var pageKeyTemplate = 'm|$date|0:mydomain.com/$page';
-
-    var time = endTime - lookbackMinutes * minute;
+    var time = endTime - lookbackHours * (60 * minute);
 
     async.whilst(
         function() { return time < endTime; },

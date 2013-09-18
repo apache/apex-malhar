@@ -11,8 +11,9 @@
 function PageViewTimeDataUrl()
 {    
     var url = "pageViewTimeData?";
-    url += "from=";
-    url += Math.floor(pageViewLookback);
+    url += "lookbackHours=" + pageViewInterval;
+    //url += "from=";
+    //url += Math.floor(pageViewLookback);
     if (pageViewUrl) 
     {
        url += "&url=" + pageViewUrl;   
