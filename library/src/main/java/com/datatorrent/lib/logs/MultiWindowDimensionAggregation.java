@@ -52,15 +52,15 @@ public class MultiWindowDimensionAggregation implements Operator
   };
 
   private int windowSize = 2;
-  private int currentWindow = 0;  
+  private int currentWindow = 0;
   private String timeBucket = "m";
-  private String dimensionKeyVal = "0";  
+  private String dimensionKeyVal = "0";
   private List<String> dimensionArrayString;
   private List<int[]> dimensionArray;
-  private AggregateOperation operationType = AggregateOperation.SUM;  
+  private AggregateOperation operationType = AggregateOperation.SUM;
   private Map<String, Map<String, KeyValPair<MutableDouble, Integer>>> outputMap;
   private Map<Integer, Map<String, Map<String, Number>>> cacheOject;
-  
+
   private transient List<Pattern> patternList;
   private transient int applicationWindowSize = 500;
   public final transient DefaultOutputPort<Map<String, DimensionObject<String>>> output = new DefaultOutputPort<Map<String, DimensionObject<String>>>();
@@ -159,13 +159,12 @@ public class MultiWindowDimensionAggregation implements Operator
   {
     if (arg0 != null)
       applicationWindowSize = arg0.attrValue(OperatorContext.APPLICATION_WINDOW_COUNT, 500);
-    if(cacheOject == null)
+    if (cacheOject == null)
       cacheOject = new HashMap<Integer, Map<String, Map<String, Number>>>(windowSize);
-    if(outputMap == null)
+    if (outputMap == null)
       outputMap = new HashMap<String, Map<String, KeyValPair<MutableDouble, Integer>>>();
     setUpPatternList();
-    // System.out.println("size of various lists " + dimensionArrayString.size()
-    // + " " +patternList.size());
+
   }
 
   private void setUpPatternList()
@@ -175,11 +174,9 @@ public class MultiWindowDimensionAggregation implements Operator
       Pattern pattern;
       StringBuilder builder = new StringBuilder(timeBucket + "\\|(\\d+)");
       for (int i = 0; i < e.length; i++) {
-        // builder.append("\\|" + e[i] + ":(\\S+)");
         builder.append("\\|" + e[i] + ":([^\\|]+)");
       }
 
-      // System.out.println(builder.toString());
       pattern = Pattern.compile(builder.toString());
       patternList.add(pattern);
     }
@@ -214,7 +211,7 @@ public class MultiWindowDimensionAggregation implements Operator
               }
               KeyValPair<MutableDouble, Integer> currentDimensionKeyValPair = currentPatternMap.get(builder.toString());
               if (currentDimensionKeyValPair != null) {
-                currentDimensionKeyValPair.getKey().add(0-tupleValue.get(dimensionKeyVal).doubleValue());
+                currentDimensionKeyValPair.getKey().add(0 - tupleValue.get(dimensionKeyVal).doubleValue());
                 currentDimensionKeyValPair.setValue(currentDimensionKeyValPair.getValue() - 1);
               }
             }
@@ -242,10 +239,13 @@ public class MultiWindowDimensionAggregation implements Operator
         if (operationType == AggregateOperation.SUM) {
           outputData.put(e.getKey(), new DimensionObject<String>(keyVal.getKey(), dimensionValObj.getKey()));
         } else if (operationType == AggregateOperation.AVERAGE) {
-          double totalCount = ((double) (totalWindowsOccupied * keyVal.getValue() * applicationWindowSize)) / 1000;
-          outputData.put(e.getKey(), new DimensionObject<String>(new MutableDouble(keyVal.getKey().doubleValue() / totalCount), dimensionValObj.getKey()));
+          if (keyVal.getValue() != 0) {
+            double totalCount = ((double) (totalWindowsOccupied * applicationWindowSize)) / 1000;
+            outputData.put(e.getKey(), new DimensionObject<String>(new MutableDouble(keyVal.getKey().doubleValue() / totalCount), dimensionValObj.getKey()));
+          }
         }
-        output.emit(outputData);
+        if(!outputData.isEmpty())
+          output.emit(outputData);
       }
     }
     currentWindow = (currentWindow + 1) % windowSize;
