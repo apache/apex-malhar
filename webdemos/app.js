@@ -40,14 +40,19 @@ app.get('/ads/data', ads.data);
 // Site Operations Demo
 app.get('/siteops', redirectToMain);
 app.get('/siteops/main', siteops.index);
+// Totals
 app.get('/siteops/clientData', siteops.clientData);
 app.get('/siteops/totalViews', siteops.totalViews);
+// Top 10
 app.get('/siteops/topUrlData', siteops.topUrlData);
 app.get('/siteops/topServer', siteops.topServer);
 app.get('/siteops/topIpData', siteops.topIpData);
 app.get('/siteops/topIpClientData', siteops.topIpClientData);
 app.get('/siteops/url404', siteops.url404);
 app.get('/siteops/server404', siteops.server404);
+// Charts
+app.get('/siteops/pageViewTimeData', siteops.pageViewTimeData);
+
 
 function redirectToMain(req, res) {
     var url = req.url;
