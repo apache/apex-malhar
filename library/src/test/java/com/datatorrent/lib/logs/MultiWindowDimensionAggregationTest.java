@@ -91,15 +91,6 @@ public class MultiWindowDimensionAggregationTest
     oper.data.process(data_0);
     oper.endWindow();
 
-//    Assert.assertEquals("number emitted tuples", 4, sortSink.collectedTuples.size());
-//    for (Object o : sortSink.collectedTuples) {
-//      log.debug(o.toString());
-//      
-//    }
-//    sortSink.clear();
-//    log.debug("end of window");
-    
-
     Map<String, Map<String, Number>> data_1 = new HashMap<String, Map<String, Number>>();
     Map<String, Number> input_1 = new HashMap<String, Number>();
     oper.beginWindow(1);
@@ -111,13 +102,6 @@ public class MultiWindowDimensionAggregationTest
     data_1.put("m|20130823131513|0:abc|1:ie", input_1);
     oper.data.process(data_1);
     oper.endWindow();
-
-//    Assert.assertEquals("number emitted tuples", 5, sortSink.collectedTuples.size());
-//    for (Object o : sortSink.collectedTuples) {
-//      log.debug(o.toString());
-//    }
-//    sortSink.clear();
-//    log.debug("end of window");
 
     Map<String, Map<String, Number>> data_2 = new HashMap<String, Map<String, Number>>();
     Map<String, Number> input_2 = new HashMap<String, Number>();
@@ -142,10 +126,9 @@ public class MultiWindowDimensionAggregationTest
     oper.data.process(data_3);
     oper.endWindow();
     
-    //Assert.assertEquals("number emitted tuples", 14, sortSink.collectedTuples.size());
+    Assert.assertEquals("number emitted tuples", 16, sortSink.collectedTuples.size());
     for (Object o : sortSink.collectedTuples) {
       log.debug(o.toString());
-      // System.out.println(o.toString());
     }
     log.debug("Done testing round\n");
   }
