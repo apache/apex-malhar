@@ -10,7 +10,7 @@
 
 function PageViewTimeDataUrl()
 {    
-    var url = "PageViewTimeData.php?";
+    var url = "pageViewTimeData?";
     url += "from=";
     url += Math.floor(pageViewLookback);
     if (pageViewUrl) 

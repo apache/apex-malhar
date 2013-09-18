@@ -68,6 +68,12 @@ exports.url404 = function(req, res) {
     fetchTop10(req, res, 7);
 };
 
+exports.pageViewTimeData = function(req, res) {
+    fetchPageViews(req.query, function(err, result) {
+        res.json(result);
+    });
+};
+
 function fetchValue(req, res, dbIndex) {
     var multi = client.multi();
     multi.select(dbIndex);
@@ -86,8 +92,68 @@ function fetchTop10(req, res, dbIndex) {
     }
 
     multi.exec(function (err, replies) {
+        // reply 0 - select command
+        // reply 1..n - get commands
         var top10 = replies.slice(1);
         res.json(top10);
     });
+}
+
+function fetchPageViews(query, resCallback) {
+    var lookbackMinutes = query.lookbackMinutes;
+
+    //var from = query.from;
+    //console.log('from ' + from);
+
+    var endTime = Date.now();
+    var keyTemplate = 'm|$date';
+
+    var minute = (60 * 1000);
+    var result = [];
+
+    lookbackMinutes = 60;
+    var pageKeyTemplate = 'm|$date|0:mydomain.com/$page';
+
+    var time = endTime - lookbackMinutes * minute;
+
+    async.whilst(
+        function() { return time < endTime; },
+        function(callback) {
+            var date = dateFormat(time, 'UTC:yyyymmddHHMM');
+            var dateKey = pageKeyTemplate
+                .replace('$date', date);
+
+            var pages = ['home.php', 'contactus.php', 'about.php', 'support.php', 'products.php', 'services.php', 'partners.php'];
+
+            var multi = client.multi();
+            multi.select(1);
+            pages.forEach(function(page) {
+                var key = dateKey.replace('$page', page);
+                multi.hgetall(key);
+            });
+
+            multi.exec(function (err, replies) {
+                // reply 0 - select command
+                // reply 1..n - hgetall commands
+                var total = 0;
+                for (var i = 1; i < replies.length; i++) {
+                    total += parseInt(replies[i][1]);
+                }
+
+                var item = {
+                    timestamp: time,
+                    url: 'all',
+                    view: total
+                }
+                result.push(item);
+                callback();
+            });
+
+            time += minute;
+        },
+        function (err) {
+            resCallback(err, result);
+        }
+    );
 }
 
