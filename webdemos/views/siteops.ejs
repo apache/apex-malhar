@@ -96,7 +96,10 @@
                     </select><br>
                     Product/Services/Partners Index :
                     <select name="index" id="index" style="width:200px;" disabled="true" >
-                        <option value=\"$i\"></option>
+                        <option value=""></option>
+                        <% for (var i = 0; i < 100; i++) { %>
+                        <%- '<option value="$i">$i</option>'.replace(/\$i/g, i) %>
+                        <% } %>
                     </select><br>
                     Look Back(Hours):
                     <input type="text" name="lookback" id="pageviewlookback" class="input-small"/>
@@ -108,6 +111,9 @@
                     Server Name :
                     <select name="servername" id="servername" style="width:200px;">
                         <option value="all">All</option>
+                        <% for (var i = 0; i < 10; i++) { %>
+                        <%- '<option value="server$i.mydomain.com:80\">Server$i.mydomain.com</option>'.replace(/\$i/g, i) %>
+                        <% } %>
                     </select><br>
                     Server Load Look Back(Hours):
                     <input type="text" name="serverloadlookback" id="serverloadlookback" class="input-small"/>
