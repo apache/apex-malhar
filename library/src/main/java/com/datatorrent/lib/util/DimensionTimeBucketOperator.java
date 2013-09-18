@@ -31,16 +31,17 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
- * <p>Abstract DimensionTimeBucketOperator class.</p>
- *
+ * <p>
+ * Abstract DimensionTimeBucketOperator class.
+ * </p>
+ * 
  * @since 0.3.2
  */
 public abstract class DimensionTimeBucketOperator extends BaseOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(DimensionTimeBucketOperator.class);
   @InputPortFieldAnnotation(name = "in", optional = false)
-  public final transient DefaultInputPort<Map<String, Object>> in = new DefaultInputPort<Map<String, Object>>()
-  {
+  public final transient DefaultInputPort<Map<String, Object>> in = new DefaultInputPort<Map<String, Object>>() {
     @Override
     public void process(Map<String, Object> tuple)
     {
@@ -68,7 +69,7 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
           timeBucketList.add(String.format("m|%04d%02d%02d%02d%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE)));
         }
 
-
+        // System.out.println(dimensionCombinations.size()+ " testing");
         for (String timeBucket : timeBucketList) {
           for (int[] dimensionCombination : dimensionCombinations) {
             String field = "0";
@@ -91,17 +92,15 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
             }
           }
         }
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
         LOG.warn("Got exception for tuple {}.  Ignoring this tuple.", tuple, ex);
       }
     }
 
   };
   /**
-   * First String key is the bucket
-   * Second String key is the key
-   * Third String key is the field
+   * First String key is the bucket Second String key is the key Third String
+   * key is the field
    */
   @OutputPortFieldAnnotation(name = "out", optional = false)
   public final transient DefaultOutputPort<Map<String, Map<String, Number>>> out = new DefaultOutputPort<Map<String, Map<String, Number>>>();
@@ -114,6 +113,7 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
   private transient TimeZone timeZone = TimeZone.getTimeZone("GMT");
   private transient Calendar calendar = new GregorianCalendar(timeZone);
   private transient List<int[]> dimensionCombinations = new ArrayList<int[]>();
+  private List<Set<String>> dimensionCombinationsSet;
   private transient NumberFormat numberFormat = NumberFormat.getInstance();
   public static final int TIMEBUCKET_MINUTE = 1;
   public static final int TIMEBUCKET_HOUR = 2;
@@ -127,9 +127,8 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
     long time;
     if (timeKeyName == null) {
       time = (currentWindowId >>> 32) * 1000 + windowWidth * (currentWindowId & 0xffffffffL);
-    }
-    else {
-      time = (Long)tuple.get(timeKeyName);
+    } else {
+      time = (Long) tuple.get(timeKeyName);
     }
     return time;
   }
@@ -137,50 +136,53 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
   protected Number extractNumber(String valueKeyName, Object value)
   {
     if (value instanceof Number) {
-      return (Number)value;
-    }
-    else if (value == null) {
+      return (Number) value;
+    } else if (value == null) {
       return new Long(0);
-    }
-    else {
+    } else {
       try {
         return numberFormat.parse(value.toString());
-      }
-      catch (ParseException ex) {
+      } catch (ParseException ex) {
       }
     }
     return new Long(0);
   }
 
   /*
-   * When calling this, the operator no longer expands all combinations of all keys but instead only use the combinations the caller supplies
+   * When calling this, the operator no longer expands all combinations of all
+   * keys but instead only use the combinations the caller supplies
    * 
    * @param keys The key combination to add
    */
   public void addCombination(Set<String> keys) throws NoSuchFieldException
   {
-    if (keys == null) {
-      dimensionCombinations.add(null);
+    if (dimensionCombinationsSet == null) {
+      dimensionCombinationsSet = new ArrayList<Set<String>>();
     }
-    else {
-      // slow but this function doesn't get executed many times and dimensionKeyNames is small.
-      int indexKeys[] = new int[keys.size()];
-      int i = 0;
-      for (String key : keys) {
-        indexKeys[i] = -1;
-        for (int j = 0; j < dimensionKeyNames.size(); j++) {
-          if (dimensionKeyNames.get(j).equals(key)) {
-            indexKeys[i] = j;
-            break;
-          }
-        }
-        if (indexKeys[i] < 0) {
-          throw new NoSuchFieldException("Key not found: " + key);
-        }
-        i++;
-      }
-      dimensionCombinations.add(indexKeys);
-    }
+    dimensionCombinationsSet.add(keys);
+    // if (keys == null) {
+    // dimensionCombinations.add(null);
+    // }
+    // else {
+    // // slow but this function doesn't get executed many times and
+    // dimensionKeyNames is small.
+    // int indexKeys[] = new int[keys.size()];
+    // int i = 0;
+    // for (String key : keys) {
+    // indexKeys[i] = -1;
+    // for (int j = 0; j < dimensionKeyNames.size(); j++) {
+    // if (dimensionKeyNames.get(j).equals(key)) {
+    // indexKeys[i] = j;
+    // break;
+    // }
+    // }
+    // if (indexKeys[i] < 0) {
+    // throw new NoSuchFieldException("Key not found: " + key);
+    // }
+    // i++;
+    // }
+    // dimensionCombinations.add(indexKeys);
+    // }
   }
 
   @Override
@@ -188,12 +190,32 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
   {
     super.setup(context);
     windowWidth = context.attrValue(DAGContext.STREAMING_WINDOW_SIZE_MILLIS, 500);
-    if (dimensionCombinations.isEmpty()) {
+    if (dimensionCombinations.isEmpty() && dimensionCombinationsSet == null) {
       dimensionCombinations.add(null);
       for (int i = 1; i <= dimensionKeyNames.size(); i++) {
         dimensionCombinations.addAll(Combinations.getNumberCombinations(dimensionKeyNames.size(), i));
       }
+    } else if (dimensionCombinationsSet != null) {
+      for (Set<String> keySet : dimensionCombinationsSet) {
+        int indexKeys[] = new int[keySet.size()];
+        int i = 0;
+        for (String key : keySet) {
+          indexKeys[i] = -1;
+          for (int j = 0; j < dimensionKeyNames.size(); j++) {
+            if (dimensionKeyNames.get(j).equals(key)) {
+              indexKeys[i] = j;
+              break;
+            }
+          }
+          if (indexKeys[i] < 0) {
+
+          }
+          i++;
+        }
+        dimensionCombinations.add(indexKeys);
+      }
     }
+    logger.info("number of combinations {}",dimensionCombinations.size());
   }
 
   @Override
@@ -291,7 +313,7 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
 
     public static void main(String[] args)
     {
-      String[] list = new String[] {"a", "b", "c", "d", "e"};
+      String[] list = new String[] { "a", "b", "c", "d", "e" };
       for (int i = 1; i <= list.length; i++) {
         logger.info("Combinations: {}", getCombinations(Arrays.asList(list), i));
       }
