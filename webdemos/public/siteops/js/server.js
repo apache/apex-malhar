@@ -42,7 +42,8 @@ function RenderServerLoadTimeChart()
 function DrawServerLoadTime()
 {
   // get url 
-  var url = "ServerLoad.php?from=" + Math.floor(serverLoadLookback);
+  //var url = "serverLoad?from=" + Math.floor(serverLoadLookback);
+  var url = "serverLoad?lookbackHours=" + serverLoadInterval;
   if ( serverName && (serverName.length > 0))
   {   
     url += "&server=" + serverName;    

@@ -52,6 +52,7 @@ app.get('/siteops/url404', siteops.url404);
 app.get('/siteops/server404', siteops.server404);
 // Charts
 app.get('/siteops/pageViewTimeData', siteops.pageViewTimeData);
+app.get('/siteops/serverLoad', siteops.serverLoad);
 
 
 function redirectToMain(req, res) {
