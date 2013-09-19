@@ -45,7 +45,7 @@ exports.testPageViewTimeData = function(test) {
     });
 };
 
-exports.testPageViewTimeDataURL = function(test) {
+exports.testPageViewTimeDataParam = function(test) {
     test.expect(1);
     var req = {
         query: {
@@ -55,6 +55,39 @@ exports.testPageViewTimeDataURL = function(test) {
     }
     siteops.pageViewTimeData(req, {
         json: function(data) {
+            test.equal(data.length, req.query.lookbackHours * 60); // 60 minutes in 1 hour
+            test.done();
+        }
+    });
+};
+
+exports.testServerLoad = function(test) {
+    test.expect(1);
+    var req = {
+        query: {
+            lookbackHours: 1
+        }
+    }
+    siteops.serverLoad(req, {
+        json: function(data) {
+            //console.log(data);
+            test.equal(data.length, req.query.lookbackHours * 60); // 60 minutes in 1 hour
+            test.done();
+        }
+    });
+};
+
+exports.testServerLoadParam = function(test) {
+    test.expect(1);
+    var req = {
+        query: {
+            lookbackHours: 1,
+            server: 'server0.mydomain.com:80'
+        }
+    }
+    siteops.serverLoad(req, {
+        json: function(data) {
+            //console.log(data);
             test.equal(data.length, req.query.lookbackHours * 60); // 60 minutes in 1 hour
             test.done();
         }
