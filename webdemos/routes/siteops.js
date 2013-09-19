@@ -74,6 +74,12 @@ exports.pageViewTimeData = function(req, res) {
     });
 };
 
+exports.serverLoad = function(req, res) {
+    fetchServerLoad(req.query, function(err, result) {
+        res.json(result);
+    });
+};
+
 function fetchValue(req, res, dbIndex) {
     var multi = client.multi();
     multi.select(dbIndex);
@@ -111,24 +117,28 @@ function fetchPageViews(query, resCallback) {
     var result = [];
 
     var keyTemplate;
-    var fetchMinuteFn;
+    var minuteKeysFn;
     if (url) {
-        fetchMinuteFn = fetchMinutePageViews;
-        keyTemplate = urlKeyTemplate.replace('$url', url);
+        minuteKeysFn = function(key) { return [key] }; // 1 key
+        keyTemplate = 'm|$date|0:$url'.replace('$url', url);
     } else {
-        fetchMinuteFn = fetchAggregateMinutePageViews;
-        keyTemplate = pageKeyTemplate;
+        minuteKeysFn = getPageViewsMinuteKeys;
+        keyTemplate = 'm|$date|0:mydomain.com/$page';
     }
+
+    var service = new RedisService(client, 1);
 
     var time = endTime - lookbackHours * (60 * minute);
 
+    // fetch all minutes serially within lookback period
     async.whilst(
         function() { return time < endTime; },
         function(callback) {
             var date = dateFormat(time, 'UTC:yyyymmddHHMM');
-            var key = keyTemplate.replace('$date', date);
-            console.log(key);
-            fetchMinuteFn(key, time, function(item) {
+            var minuteKeyTemplate = keyTemplate.replace('$date', date);
+            var keys = minuteKeysFn(minuteKeyTemplate);
+
+            service.fetchMinuteTotals(keys, time, function(item) {
                 result.push(item);
                 callback();
             });
@@ -141,29 +151,81 @@ function fetchPageViews(query, resCallback) {
     );
 }
 
-function fetchMinutePageViews(key, time, callback) {
-    var multi = client.multi();
-    multi.select(1);
-    multi.hgetall(key);
-    multi.exec(function (err, replies) {
-        // reply 0 - select command
-        // reply 1 - hgetall command
-        var total = parseInt(replies[1][1]);
-        var item = {
-            timestamp: time,
-            view: total
+function fetchServerLoad(query, resCallback) {
+    var lookbackHours = query.lookbackHours;
+    var server = query.server;
+
+    var endTime = Date.now();
+    var minute = (60 * 1000);
+    var result = [];
+
+    var keyTemplate;
+    var minuteKeysFn;
+    if (server) {
+        minuteKeysFn = function(key) { return [key] }; // 1 key
+        keyTemplate = 'm|$date|0:$server'.replace('$server', server);
+    } else {
+        minuteKeysFn = getServerLoadMinuteKeys;
+        keyTemplate = 'm|$date|0:server$i.mydomain.com:80';
+    }
+
+    var service = new RedisService(client, 4);
+
+    var time = endTime - lookbackHours * (60 * minute);
+
+    // fetch all minutes serially within lookback period
+    async.whilst(
+        function() { return time < endTime; },
+        function(callback) {
+            var date = dateFormat(time, 'UTC:yyyymmddHHMM');
+            var minuteKeyTemplate = keyTemplate.replace('$date', date);
+            var keys = minuteKeysFn(minuteKeyTemplate);
+
+            service.fetchMinuteTotals(keys, time, function(item) {
+                result.push(item);
+                callback();
+            });
+
+            time += minute;
+        },
+        function (err) {
+            resCallback(err, result);
         }
-        callback(item);
-    });
+    );
 }
 
-function fetchAggregateMinutePageViews(dateKey, time, callback) {
+function getPageViewsMinuteKeys(keyTemplate) {
+    var keys = [];
     var pages = ['home.php', 'contactus.php', 'about.php', 'support.php', 'products.php', 'services.php', 'partners.php'];
 
-    var multi = client.multi();
-    multi.select(1);
     pages.forEach(function(page) {
-        var key = dateKey.replace('$page', page);
+        var key = keyTemplate.replace('$page', page);
+        keys.push(key);
+    });
+
+    return keys;
+}
+
+function getServerLoadMinuteKeys(keyTemplate) {
+    var keys = [];
+
+    for (var i = 0; i < 10; i++) {
+        var key = keyTemplate.replace('$i', i);
+        keys.push(key);
+    }
+
+    return keys;
+}
+
+function RedisService(client, dbIndex) {
+    this.client = client;
+    this.dbIndex = dbIndex;
+}
+
+RedisService.prototype.fetchMinuteTotals = function(keys, time, callback) {
+    var multi = this.client.multi();
+    multi.select(this.dbIndex);
+    keys.forEach(function(key) {
         multi.hgetall(key);
     });
 
