@@ -100,12 +100,25 @@ function fetchTop10(req, res, dbIndex) {
 }
 
 function fetchPageViews(query, resCallback) {
-    var endTime = Date.now();
     var lookbackHours = query.lookbackHours;
+    var url = query.url;
+
+    var endTime = Date.now();
     var pageKeyTemplate = 'm|$date|0:mydomain.com/$page';
+    var urlKeyTemplate = 'm|$date|0:$url';
 
     var minute = (60 * 1000);
     var result = [];
+
+    var keyTemplate;
+    var fetchMinuteFn;
+    if (url) {
+        fetchMinuteFn = fetchMinutePageViews;
+        keyTemplate = urlKeyTemplate.replace('$url', url);
+    } else {
+        fetchMinuteFn = fetchAggregateMinutePageViews;
+        keyTemplate = pageKeyTemplate;
+    }
 
     var time = endTime - lookbackHours * (60 * minute);
 
@@ -113,31 +126,9 @@ function fetchPageViews(query, resCallback) {
         function() { return time < endTime; },
         function(callback) {
             var date = dateFormat(time, 'UTC:yyyymmddHHMM');
-            var dateKey = pageKeyTemplate
-                .replace('$date', date);
-
-            var pages = ['home.php', 'contactus.php', 'about.php', 'support.php', 'products.php', 'services.php', 'partners.php'];
-
-            var multi = client.multi();
-            multi.select(1);
-            pages.forEach(function(page) {
-                var key = dateKey.replace('$page', page);
-                multi.hgetall(key);
-            });
-
-            multi.exec(function (err, replies) {
-                // reply 0 - select command
-                // reply 1..n - hgetall commands
-                var total = 0;
-                for (var i = 1; i < replies.length; i++) {
-                    total += parseInt(replies[i][1]);
-                }
-
-                var item = {
-                    timestamp: time,
-                    url: 'all',
-                    view: total
-                }
+            var key = keyTemplate.replace('$date', date);
+            console.log(key);
+            fetchMinuteFn(key, time, function(item) {
                 result.push(item);
                 callback();
             });
@@ -148,5 +139,47 @@ function fetchPageViews(query, resCallback) {
             resCallback(err, result);
         }
     );
+}
+
+function fetchMinutePageViews(key, time, callback) {
+    var multi = client.multi();
+    multi.select(1);
+    multi.hgetall(key);
+    multi.exec(function (err, replies) {
+        // reply 0 - select command
+        // reply 1 - hgetall command
+        var total = parseInt(replies[1][1]);
+        var item = {
+            timestamp: time,
+            view: total
+        }
+        callback(item);
+    });
+}
+
+function fetchAggregateMinutePageViews(dateKey, time, callback) {
+    var pages = ['home.php', 'contactus.php', 'about.php', 'support.php', 'products.php', 'services.php', 'partners.php'];
+
+    var multi = client.multi();
+    multi.select(1);
+    pages.forEach(function(page) {
+        var key = dateKey.replace('$page', page);
+        multi.hgetall(key);
+    });
+
+    multi.exec(function (err, replies) {
+        // reply 0 - select command
+        // reply 1..n - hgetall commands
+        var total = 0;
+        for (var i = 1; i < replies.length; i++) {
+            total += parseInt(replies[i][1]);
+        }
+
+        var item = {
+            timestamp: time,
+            view: total
+        }
+        callback(item);
+    });
 }
 
