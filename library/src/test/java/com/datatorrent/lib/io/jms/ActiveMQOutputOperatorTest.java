@@ -13,21 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.io;
+package com.datatorrent.lib.io.jms;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.lib.io.AbstractActiveMQOutputOperator;
-import com.datatorrent.lib.io.AbstractActiveMQSinglePortOutputOperator;
 import com.datatorrent.lib.util.ActiveMQMessageListener;
-
-import java.io.File;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import junit.framework.Assert;
-import org.apache.activemq.broker.BrokerService;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,10 +29,9 @@ import org.slf4j.LoggerFactory;
  * Test to verify ActiveMQ output operator adapter.
  *
  */
-public class ActiveMQOutputOperatorTest
+public class ActiveMQOutputOperatorTest extends ActiveMQOperatorTestBase
 {
   private static final Logger logger = LoggerFactory.getLogger(ActiveMQOutputOperatorTest.class);
-  private static BrokerService broker;
   public static int tupleCount = 0;
   public static final transient int maxTuple = 20;
 
@@ -68,36 +60,6 @@ public class ActiveMQOutputOperatorTest
       return msg;
     }
   } // End of ActiveMQStringSinglePortOutputOperator
-
-  /**
-   * Start ActiveMQ broker from the Testcase.
-   *
-   * @throws Exception
-   */
-  private void startActiveMQService() throws Exception
-  {
-    broker = new BrokerService();
-    String brokerName = "ActiveMQOutputOperator-broker";
-    broker.setBrokerName(brokerName);
-    broker.getPersistenceAdapter().setDirectory(new File("target/test-data/activemq-data/" + broker.getBrokerName() + "/KahaDB"));
-    broker.addConnector("tcp://localhost:61617?broker.persistent=false");
-    broker.getSystemUsage().getStoreUsage().setLimit(1024 * 1024 * 1024);  // 1GB
-    broker.getSystemUsage().getTempUsage().setLimit(100 * 1024 * 1024);    // 100MB
-    broker.setDeleteAllMessagesOnStartup(true);
-    broker.start();
-  }
-
-  @Before
-  public void beforTest() throws Exception
-  {
-    startActiveMQService();
-  }
-
-  @After
-  public void afterTest() throws Exception
-  {
-    broker.stop();
-  }
 
   /**
    * Test AbstractActiveMQOutputOperator (i.e. an output adapter for ActiveMQ, aka producer).

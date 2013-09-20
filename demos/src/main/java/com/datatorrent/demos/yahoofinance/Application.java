@@ -67,7 +67,7 @@ import org.apache.hadoop.conf.Configuration;
  * Output values are written to console through ConsoleOutputOerator<br>
  * if you need to change write to HDFS,HTTP .. instead of console, <br>
  * Please refer to {@link com.datatorrent.lib.io.HttpOutputOperator} or
- * {@link com.datatorrent.lib.io.HdfsOutputOperator}. <br>
+ * {@link com.datatorrent.lib.io.fs.HdfsOutputOperator}. <br>
  * <br>
  *
  * Run Sample Application : <br>
