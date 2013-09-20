@@ -47,7 +47,7 @@ Web interface for the following demos is available:
 - Ads Dimensions
 - Site Operations
 
-Web demos are run on Node.js. Please see [webdemos](https://github.com/DataTorrent/Malhar/tree/master/webdemos) for more information.
+Web demos run on Node.js. Please see [webdemos](https://github.com/DataTorrent/Malhar/tree/master/webdemos) for more information.
 
 Issue tracking
 --------------------
