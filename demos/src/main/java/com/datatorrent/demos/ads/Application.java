@@ -22,7 +22,7 @@ import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.HdfsOutputOperator;
+import com.datatorrent.lib.io.fs.HdfsOutputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 import com.datatorrent.lib.math.MarginMap;
 import com.datatorrent.lib.math.QuotientMap;

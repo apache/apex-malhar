@@ -66,7 +66,7 @@ import org.apache.hadoop.conf.Configuration;
  *    </li>
  *   <li><b>The operator Console: </b> This operator just outputs the input tuples to the console (or stdout). <br>
  *           if you need to change write to HDFS,HTTP .. instead of console, <br>
- *           Please refer to {@link com.datatorrent.lib.io.HttpOutputOperator} or  {@link com.datatorrent.lib.io.HdfsOutputOperator}.</li>
+ *           Please refer to {@link com.datatorrent.lib.io.HttpOutputOperator} or  {@link com.datatorrent.lib.io.fs.HdfsOutputOperator}.</li>
  * </ul>
  *
  * @since 0.3.2

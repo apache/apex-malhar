@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.io;
+package com.datatorrent.lib.io.jms;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -25,10 +25,10 @@ import javax.jms.TextMessage;
  *
  * @since 0.3.3
  */
-public class ActiveMQStringInputOperator extends ActiveMQInputOperator<String>
+public class ActiveMQSinglePortStringInputOperator extends AbstractActiveMQSinglePortInputOperator<String>
 {
 	@Override
-	public String convertActiveMessage(Message message)
+	public String getTuple(Message message)
 	{
 		String msg = null;
     try {
@@ -48,4 +48,5 @@ public class ActiveMQStringInputOperator extends ActiveMQInputOperator<String>
     }
     return msg;
 	}
+
 }

@@ -15,12 +15,11 @@
  */
 package com.datatorrent.lib.io;
 
-import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.helper.SamplePubSubWebSocketPublisher;
 import com.datatorrent.lib.helper.SamplePubSubWebSocketServlet;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
 import org.eclipse.jetty.server.Server;
@@ -28,12 +27,15 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.Test;
 
-public class PubSubWebSocketInputOperatorTest
+/**
+ * Tests for {@link com.datatorrent.lib.io.PubSubWebSocketInputOperatorTest} {@link com.datatorrent.lib.io.PubSubWebSocketOutputOperatorTest}
+ */
+public class PubSubWebSocketOperatorTest
 {
+
   @Test
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  public void testWebSocketInputModule() throws Exception
-  {
+  @SuppressWarnings("SleepWhileInLoop")
+  public void testPubSubWebSocket() throws Exception {
     Server server = new Server(new InetSocketAddress("localhost", 19090));
     SamplePubSubWebSocketServlet servlet = new SamplePubSubWebSocketServlet();
     ServletHolder sh = new ServletHolder(servlet);
@@ -43,41 +45,54 @@ public class PubSubWebSocketInputOperatorTest
     server.start();
 
     URI uri = new URI("ws://localhost:19090/pubsub");
-    final PubSubWebSocketInputOperator operator = new PubSubWebSocketInputOperator();
-    CollectorTestSink sink = new CollectorTestSink();
 
-    operator.outputPort.setSink(sink);
-    operator.setName("testWebSocketInputNode");
-    operator.setUri(uri);
-    operator.addTopic("testTopic");
+    PubSubWebSocketOutputOperator<Map<String, String>> outputOperator = new PubSubWebSocketOutputOperator<Map<String, String>>();
+    outputOperator.setName("testOutputOperator");
+    outputOperator.setUri(uri);
+    outputOperator.setTopic("testTopic");
 
-    operator.setup(null);
-    operator.activate(null);
+    PubSubWebSocketInputOperator inputOperator = new PubSubWebSocketInputOperator();
+    inputOperator.setName("testInputOperator");
+    inputOperator.setUri(uri);
+    inputOperator.addTopic("testTopic");
 
-    // start publisher after subscriber listens to ensure we don't miss the message
-    SamplePubSubWebSocketPublisher sp = new SamplePubSubWebSocketPublisher();
-    sp.setUri(uri);
-    Thread t = new Thread(sp);
-    t.start();
+    CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
+    inputOperator.outputPort.setSink(sink);
 
+    inputOperator.setup(null);
+    outputOperator.setup(null);
+
+    inputOperator.activate(null);
+
+    inputOperator.beginWindow(1000);
+    outputOperator.beginWindow(1000);
+
+    Map<String, String> data = new HashMap<String, String>();
+    data.put("hello", "world");
+    outputOperator.input.process(data);
 
     int timeoutMillis = 2000;
     while (sink.collectedTuples.isEmpty() && timeoutMillis > 0) {
-      operator.emitTuples();
+      inputOperator.emitTuples();
       timeoutMillis -= 20;
       Thread.sleep(20);
     }
 
+    outputOperator.endWindow();
+    inputOperator.endWindow();
+
     Assert.assertTrue("tuple emitted", sink.collectedTuples.size() > 0);
 
+    @SuppressWarnings("unchecked")
     Map<String, String> tuple = (Map<String, String>)sink.collectedTuples.get(0);
     Assert.assertEquals("Expects {\"hello\":\"world\"} as data", tuple.get("hello"), "world");
 
-    operator.deactivate();
-    operator.teardown();
-    t.interrupt();
-    t.join();
-    server.stop();
-  }
+    inputOperator.deactivate();
 
+    outputOperator.teardown();
+    inputOperator.teardown();
+
+    server.stop();
+
+  }
 }
