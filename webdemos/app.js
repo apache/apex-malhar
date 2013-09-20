@@ -20,7 +20,7 @@ var config = require('./config');
 var main = require('./routes/index');
 var twitter = require('./routes/twitter');
 var mobile = require('./routes/mobile');
-var ads = require('./routes/ads');
+var dimensions = require('./routes/dimensions');
 var siteops = require('./routes/siteops');
 
 var app = express();
@@ -32,10 +32,19 @@ app.use(app.router);
 app.use(express.static(__dirname + '/public'));
 
 app.get('/', main.index);
-app.get('/twitter', twitter.index);
-app.get('/mobile', mobile.index);
-app.get('/ads', ads.index);
-app.get('/ads/data', ads.data);
+
+// Twitter Demo
+app.get('/twitter', redirectToMain);
+app.get('/twitter/main', twitter.index);
+
+// Mobile Demo
+app.get('/mobile', redirectToMain);
+app.get('/mobile/main', mobile.index);
+
+// Ads Dimensions Demo
+app.get('/dimensions', redirectToMain);
+app.get('/dimensions/main', dimensions.index);
+app.get('/dimensions/data', dimensions.data);
 
 // Site Operations Demo
 app.get('/siteops', redirectToMain);

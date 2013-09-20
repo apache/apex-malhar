@@ -28,7 +28,7 @@ if (demoEnabled) {
 
 exports.index = function(req, res) {
     if (demoEnabled) {
-        res.render('ads');
+        res.render('dimensions');
     } else {
         res.render('error', {
             message: 'Ads Dimensions Demo is not enabled. Please configure Redis.'
