@@ -104,24 +104,27 @@
                     Look Back(Hours):
                     <input type="text" name="lookback" id="pageviewlookback" class="input-small"/>
                 </form><br>
-                <a href="javascript:void(0)" onclick="HandlePageViewTimeSubmit();">View Chart</a><br><br>
+                <input type="submit" value="View Chart" class="btn btn-primary" onclick="HandlePageViewTimeSubmit();return false;" /><br/>
 
                 <h2 class="title">Server Load vs Time Chart</h2>
                 <form onsubmit="return false;">
                     Server Name :
                     <select name="servername" id="servername" style="width:200px;">
-                        <option value="all">All</option>
+                        <option value="">All</option>
                         <% for (var i = 0; i < 10; i++) { %>
                         <%- '<option value="server$i.mydomain.com:80\">Server$i.mydomain.com</option>'.replace(/\$i/g, i) %>
                         <% } %>
                     </select><br>
                     Server Load Look Back(Hours):
-                    <input type="text" name="serverloadlookback" id="serverloadlookback" class="input-small"/>
+                    <input type="text" name="serverloadlookback" id="serverloadlookback" class="input-small"/><br/>
                 </form><br>
-                <a href="javascript:void(0)" onclick="HandleServerLoadTimeSubmit();">View Server Load Chart</a><br><br>
+                <input type="submit" value="View Server Load Chart" class="btn btn-primary" onclick="HandleServerLoadTimeSubmit();return false;" /><br/>
 
-                <b>Total Bytes/Sec :</b> <b id="totaldata"> </b> <br
-                <b>Total Views/Sec :</b> <b id="totalviews"> </b>
+                <div style="padding-top: 20px;">
+                    <p>Total Bytes/Sec : <span id="totaldata"></span></p>
+                    <p style="padding-top: 10px;">Total Views/Sec : <span id="totalviews"></span></p>
+                </div>
+
             </div>
         </div>
         <div class="dashboardMain">
