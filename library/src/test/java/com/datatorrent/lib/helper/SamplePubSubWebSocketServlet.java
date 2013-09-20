@@ -54,6 +54,8 @@ public class SamplePubSubWebSocketServlet extends WebSocketServlet
     @Override
     public void onMessage(String arg0)
     {
+      // This parsing code will be handled by API in future in a manner that is transparent to the
+      // user and should not be relied upon
       try {
         HashMap<String, Object> map = mapper.readValue(arg0, HashMap.class);
         String type = (String)map.get("type");
@@ -98,6 +100,8 @@ public class SamplePubSubWebSocketServlet extends WebSocketServlet
 
   private synchronized void sendData(PubSubWebSocket webSocket, String topic, Object data)
   {
+    // This composing code will be handled by API in future in a manner that is transparent to the
+    // user and should not be relied upon
     HashMap<String, Object> map = new HashMap<String, Object>();
     map.put("type", "data");
     map.put("topic", topic);
