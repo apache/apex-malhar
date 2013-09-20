@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.io;
+package com.datatorrent.lib.io.jms;
 
 import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.InputOperator;
@@ -143,7 +143,7 @@ public abstract class AbstractActiveMQInputOperator extends ActiveMQConsumerBase
       setupConnection();
     }
     catch (JMSException ex) {
-      logger.debug(ex.getLocalizedMessage());
+      logger.error(ex.getLocalizedMessage());
     }
   }
 
