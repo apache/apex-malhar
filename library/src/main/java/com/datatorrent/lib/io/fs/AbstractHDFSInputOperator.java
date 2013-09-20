@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.io;
+package com.datatorrent.lib.io.fs;
 
 import java.io.IOException;
 
@@ -35,7 +35,8 @@ public abstract class AbstractHDFSInputOperator extends AbstractFileInputOperato
   public FSDataInputStream openFile(String filePath)
   {
     try {
-      fs = FileSystem.get(new Configuration());
+      Path _filePath = new Path(filePath);
+      fs = FileSystem.get(_filePath.toUri(), new Configuration());
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
