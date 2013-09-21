@@ -37,35 +37,59 @@ exports.index = function(req, res) {
 };
 
 exports.clientData = function(req, res) {
-    fetchValue(req, res, 9);
+    var service = new RedisService(client, 9);
+    service.fetchValue(function(result) {
+        res.json(result);
+    });
 };
 
 exports.totalViews = function(req, res) {
-    fetchValue(req, res, 11);
+    var service = new RedisService(client, 11);
+    service.fetchValue(function(result) {
+        res.json(result);
+    });
 };
 
 exports.topUrlData = function(req, res) {
-    fetchTop10(req, res, 2);
+    var service = new RedisService(client, 2);
+    service.fetchTop10(function(result) {
+        res.json(result);
+    });
 };
 
 exports.topServer = function(req, res) {
-    fetchTop10(req, res, 10);
+    var service = new RedisService(client, 10);
+    service.fetchTop10(function(result) {
+        res.json(result);
+    });
 };
 
 exports.topIpData = function(req, res) {
-    fetchTop10(req, res, 6);
+    var service = new RedisService(client, 6);
+    service.fetchTop10(function(result) {
+        res.json(result);
+    });
 };
 
 exports.server404 = function(req, res) {
-    fetchTop10(req, res, 8);
+    var service = new RedisService(client, 8);
+    service.fetchTop10(function(result) {
+        res.json(result);
+    });
 };
 
 exports.topIpClientData = function(req, res) {
-    fetchTop10(req, res, 3);
+    var service = new RedisService(client, 3);
+    service.fetchTop10(function(result) {
+        res.json(result);
+    });
 };
 
 exports.url404 = function(req, res) {
-    fetchTop10(req, res, 7);
+    var service = new RedisService(client, 7);
+    service.fetchTop10(function(result) {
+        res.json(result);
+    });
 };
 
 exports.pageViewTimeData = function(req, res) {
@@ -79,31 +103,6 @@ exports.serverLoad = function(req, res) {
         res.json(result);
     });
 };
-
-function fetchValue(req, res, dbIndex) {
-    var multi = client.multi();
-    multi.select(dbIndex);
-    multi.get(1);
-    multi.exec(function (err, replies) {
-        var value = parseInt(replies[1]);
-        res.json(value);
-    });
-}
-
-function fetchTop10(req, res, dbIndex) {
-    var multi = client.multi();
-    multi.select(dbIndex);
-    for (var i = 0; i < 10; i++) {
-        multi.get(i);
-    }
-
-    multi.exec(function (err, replies) {
-        // reply 0 - select command
-        // reply 1..n - get commands
-        var top10 = replies.slice(1);
-        res.json(top10);
-    });
-}
 
 function fetchPageViews(query, resCallback) {
     var lookbackHours = query.lookbackHours;
@@ -242,6 +241,32 @@ RedisService.prototype.fetchMinuteTotals = function(keys, time, callback) {
             view: total
         }
         callback(item);
+    });
+}
+
+
+RedisService.prototype.fetchValue = function (callback) {
+    var multi = this.client.multi();
+    multi.select(this.dbIndex);
+    multi.get(1);
+    multi.exec(function (err, replies) {
+        var value = parseInt(replies[1]);
+        callback(value);
+    });
+}
+
+RedisService.prototype.fetchTop10 = function(callback) {
+    var multi = this.client.multi();
+    multi.select(this.dbIndex);
+    for (var i = 0; i < 10; i++) {
+        multi.get(i);
+    }
+
+    multi.exec(function (err, replies) {
+        // reply 0 - select command
+        // reply 1..n - get commands
+        var top10 = replies.slice(1);
+        callback(top10);
     });
 }
 
