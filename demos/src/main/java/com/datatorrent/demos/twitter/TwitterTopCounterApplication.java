@@ -16,6 +16,7 @@
 package com.datatorrent.demos.twitter;
 
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.demos.rollingtopwords.WindowedTopCounter;
@@ -132,7 +133,7 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class TwitterTopCounterApplication implements StreamingApplication
 {
-  private static final boolean inline = false;
+  private final Locality locality = null;
 
   private InputPort<Object> consoleOutput(DAG dag, String operatorName)
   {
@@ -172,13 +173,13 @@ public class TwitterTopCounterApplication implements StreamingApplication
     topCounts.setSlidingWindowWidth(600, 1);
 
     // Feed the statuses from feed into the input of the url extractor.
-    dag.addStream("TweetStream", twitterFeed.status, urlExtractor.input).setInline(true);
+    dag.addStream("TweetStream", twitterFeed.status, urlExtractor.input).setLocality(Locality.CONTAINER_LOCAL);
     //  Start counting the urls coming out of URL extractor
-    dag.addStream("TwittedURLs", urlExtractor.url, uniqueCounter.data).setInline(inline);
+    dag.addStream("TwittedURLs", urlExtractor.url, uniqueCounter.data).setLocality(locality);
     // Count unique urls
-    dag.addStream("UniqueURLCounts", uniqueCounter.count, topCounts.input).setInline(inline);
+    dag.addStream("UniqueURLCounts", uniqueCounter.count, topCounts.input).setLocality(locality);
     // Count top 10
-    dag.addStream("TopURLs", topCounts.output, consoleOutput(dag, "topURLs")).setInline(inline);
+    dag.addStream("TopURLs", topCounts.output, consoleOutput(dag, "topURLs")).setLocality(locality);
 
   }
 
