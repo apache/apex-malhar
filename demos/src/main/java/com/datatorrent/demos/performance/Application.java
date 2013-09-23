@@ -15,11 +15,11 @@
  */
 package com.datatorrent.demos.performance;
 
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.Context.PortContext;
-
 import org.apache.hadoop.conf.Configuration;
+
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.StreamingApplication;
 
 /**
  * Example of application configuration in Java.<p>
@@ -28,7 +28,7 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class Application implements StreamingApplication
 {
-  private static final boolean inline = false;
+  private final Locality locality = null;
   public static final int QUEUE_CAPACITY = 32 * 1024;
 
   @Override
@@ -40,7 +40,7 @@ public class Application implements StreamingApplication
     WordCountOperator<byte[]> counter = dag.addOperator("counter", new WordCountOperator<byte[]>());
     //dag.getMeta(counter).getMeta(counter.input).getAttributes().attr(PortContext.QUEUE_CAPACITY).set(QUEUE_CAPACITY);
 
-    dag.addStream("Generator2Counter", wordGenerator.output, counter.input).setInline(inline);
+    dag.addStream("Generator2Counter", wordGenerator.output, counter.input).setLocality(locality);
   }
 
 }

@@ -20,7 +20,7 @@ import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.LocalFsInputOperator;
+import com.datatorrent.lib.io.fs.LocalFsInputOperator;
 
 /**
  * This sample application code for showing sample usage of malhar operator(s). <br>

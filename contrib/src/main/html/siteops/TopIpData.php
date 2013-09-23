@@ -1,8 +1,7 @@
 <?php
 header("Content-type: application/json");
 $redis = new Redis();
-//$redis->connect('127.0.0.1');
-$redis->connect('node5.morado.com');
+$redis->connect('127.0.0.1');
 $redis->select(6);
 
 // result array

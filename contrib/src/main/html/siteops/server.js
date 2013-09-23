@@ -30,9 +30,9 @@ function RenderServerLoadTimeChart()
 
   // get chart options
   var serverName = document.getElementById('servername').value;  
-  var title = "All Servers (PVS/S)";
-  if (serverName != "all") title = serverName + " (PVS/S)";
-  var options = {pointSize: 0, lineWidth : 1 };
+  var title = "All Servers (PVS/Min)";
+  if (serverName != "all") title = serverName + " (PVS/Min)";
+  var options = {pointSize: 0, lineWidth : 1, legend : { position : 'top'} };
   options.title = title;
 
   // Draw line chart.
@@ -73,7 +73,7 @@ function DrawServerLoadTime()
     connect.send(null);
   } catch(e) {
   }
-  serverLoadLookback = (new Date().getTime()/1000) -  (3600*serverLoadInterval) - serverLoadRefresh;
+  serverLoadLookback = (new Date().getTime()/1000) -  (3600*serverLoadInterval) - 60;
 }
 
 function HandleServerLoadTimeSubmit()
@@ -83,10 +83,7 @@ function HandleServerLoadTimeSubmit()
 
   // get params 
   serverName = document.getElementById('servername').value;
-  serverLoadRefresh = document.getElementById('serverloadrefresh').value;
   serverLoadLookback = document.getElementById('serverloadlookback').value;
-  if ( !serverLoadRefresh || (serverLoadRefresh == "")) serverLoadRefresh = 5;
-  pageViewLookback = document.getElementById('pageviewlookback').value;
   if ( !serverLoadLookback || (serverLoadLookback == "")) {
     serverLoadLookback = (new Date().getTime()/1000) - 3600;
   }  else {
@@ -95,12 +92,11 @@ function HandleServerLoadTimeSubmit()
 
   // set from values  
   document.getElementById('servername').value = serverName;
-  document.getElementById('serverloadrefresh').value = serverLoadRefresh;
   var lookback = document.getElementById('serverloadlookback').value;
   document.getElementById('serverloadlookback').value = lookback;
   serverLoadInterval = lookback;
        
   // darw server load/time chart  
   DrawServerLoadTime();
-  serverNowPlaying = setInterval(DrawServerLoadTime, serverLoadRefresh * 1000); 
+  serverNowPlaying = setInterval(DrawServerLoadTime, 60 * 1000); 
 }
