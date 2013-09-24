@@ -19,9 +19,11 @@ import com.datatorrent.api.*;
 import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.ShipContainingJars;
 import com.rabbitmq.client.*;
 import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
+import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +39,10 @@ import org.slf4j.LoggerFactory;
  * <b>tuple_blast</b>: Number of tuples emitted in each burst<br>
  * <b>bufferSize</b>: Size of holding buffer<br>
  * <b>host</b>:the address for the consumer to connect to rabbitMQ producer<br>
- * <br>
+ * <b>exchange</b>:the exchange for the consumer to connect to rabbitMQ producer<br>
+ * <b>exchangeType</b>:the exchangeType for the consumer to connect to rabbitMQ producer<br>
+ * <b>routingKey</b>:the routingKey for the consumer to connect to rabbitMQ producer<br>
+ * <b>queueName</b>:the queueName for the consumer to connect to rabbitMQ producer<br>* <br>
  * Compile time checks:<br>
  * Class derived from this has to implement the abstract method emitTuple() <br>
  * <br>
@@ -54,13 +59,20 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.2
  */
-public abstract class AbstractRabbitMQInputOperator<T>
+@ShipContainingJars(classes={com.rabbitmq.client.ConnectionFactory.class})
+public abstract class AbstractRabbitMQInputOperator<lT>
     implements InputOperator,
 ActivationListener<OperatorContext>
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractRabbitMQInputOperator.class);
-  private String host = "localhost";
+  @NotNull
+  private String host;
+  @NotNull
   private String exchange;
+  @NotNull
+  private String exchangeType;
+  private String routingKey = "";
+  private String queueName; // Has to be supplied by client when exchangeType is not "fanout"
   transient ConnectionFactory connFactory;
 //  QueueingConsumer consumer = null;
 
@@ -73,7 +85,6 @@ ActivationListener<OperatorContext>
   transient Channel channel = null;
   transient TracingConsumer tracingConsumer = null;
   transient String cTag;
-  transient String queueName="testQ";
   transient ArrayBlockingQueue<byte[]> holdingBuffer;
 
 /**
@@ -160,9 +171,18 @@ ActivationListener<OperatorContext>
       connection = connFactory.newConnection();
       channel = connection.createChannel();
 
-      channel.exchangeDeclare(exchange, "fanout");
-      queueName = channel.queueDeclare().getQueue();
-      channel.queueBind(queueName, exchange, "");
+      channel.exchangeDeclare(exchange, exchangeType);
+      if (queueName == null){
+        // unique queuename is generated
+        // used in case of fanout exchange
+        queueName = channel.queueDeclare().getQueue();
+      } else {
+        // user supplied name
+        // used in case of direct exchange
+        channel.queueDeclare(queueName, true, false, false, null);
+      }
+
+      channel.queueBind(queueName, exchange, routingKey);
 
 //      consumer = new QueueingConsumer(channel);
 //      channel.basicConsume(queueName, true, consumer);
@@ -190,10 +210,21 @@ ActivationListener<OperatorContext>
     this.tuple_blast = i;
   }
 
+  public String getHost()
+  {
+    return host;
+  }
+
   public void setHost(String host)
   {
     this.host = host;
   }
+
+  public String getExchange()
+  {
+    return exchange;
+  }
+
   public void setExchange(String exchange)
   {
     this.exchange = exchange;
@@ -202,6 +233,31 @@ ActivationListener<OperatorContext>
   public String getQueueName()
   {
     return queueName;
+  }
+
+  public void setQueueName(String queueName)
+  {
+    this.queueName = queueName;
+  }
+
+  public String getExchangeType()
+  {
+    return exchangeType;
+  }
+
+  public void setExchangeType(String exchangeType)
+  {
+    this.exchangeType = exchangeType;
+  }
+
+  public String getRoutingKey()
+  {
+    return routingKey;
+  }
+
+  public void setRoutingKey(String routingKey)
+  {
+    this.routingKey = routingKey;
   }
 
 }
