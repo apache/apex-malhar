@@ -45,7 +45,7 @@ import com.datatorrent.lib.util.DimensionTimeBucketSumOperator;
  * 
  * @since 0.3.2
  */
-public class ApacheAccessLogAnalaysis implements StreamingApplication
+public class ApacheAccessLogAnalysis implements StreamingApplication
 {
 //  private InputPort<HashMap<String, ArrayList<HashMap<String,Integer>>>> consoleOutput(DAG dag, String operatorName)
 //  {

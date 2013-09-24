@@ -41,7 +41,7 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 public class MultiWindowDimensionAggregationTest
 {
 
-  private static Logger log = LoggerFactory.getLogger(MultiWindowDimensionAggregationTest.class);
+  private static Logger logger = LoggerFactory.getLogger(MultiWindowDimensionAggregationTest.class);
 
   /**
    * Test node logic emits correct results
@@ -128,8 +128,8 @@ public class MultiWindowDimensionAggregationTest
     
     Assert.assertEquals("number emitted tuples", 16, sortSink.collectedTuples.size());
     for (Object o : sortSink.collectedTuples) {
-      log.debug(o.toString());
+      logger.debug(o.toString());
     }
-    log.debug("Done testing round\n");
+    logger.debug("Done testing round\n");
   }
 }

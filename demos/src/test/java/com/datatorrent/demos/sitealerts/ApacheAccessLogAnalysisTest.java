@@ -5,11 +5,11 @@ import org.junit.Test;
 import com.datatorrent.api.LocalMode;
 
 
-public class ApacheAccessLogAnalaysisTest
+public class ApacheAccessLogAnalysisTest
 {
 
   @Test
   public void testSomeMethod() throws Exception {
-    LocalMode.runApp(new ApacheAccessLogAnalaysis(), 10000);
+    LocalMode.runApp(new ApacheAccessLogAnalysis(), 10000);
   }
 }
