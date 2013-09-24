@@ -63,10 +63,10 @@ import org.slf4j.LoggerFactory;
  * @since 0.3.2
  */
 @ShipContainingJars(classes={kafka.javaapi.consumer.SimpleConsumer.class, org.I0Itec.zkclient.ZkClient.class, scala.ScalaObject.class})
-public abstract class KafkaInputOperator implements InputOperator, ActivationListener<OperatorContext>
+public abstract class AbstractKafkaInputOperator implements InputOperator, ActivationListener<OperatorContext>
 {
   @SuppressWarnings("unused")
-  private static final Logger logger = LoggerFactory.getLogger(KafkaInputOperator.class);
+  private static final Logger logger = LoggerFactory.getLogger(AbstractKafkaInputOperator.class);
   protected static final int TUPLES_BLAST_DEFAULT = 10 * 1024; // 10k
   protected static final int BUFFER_SIZE_DEFAULT = 1024 * 1024; // 1M
   // Config parameters that user can set.

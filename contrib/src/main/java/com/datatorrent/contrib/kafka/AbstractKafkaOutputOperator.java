@@ -48,10 +48,10 @@ import org.slf4j.LoggerFactory;
  * @since 0.3.2
  */
 @ShipContainingJars(classes={kafka.javaapi.producer.Producer.class, org.I0Itec.zkclient.ZkClient.class, scala.ScalaObject.class})
-public abstract class KafkaOutputOperator<K, V> implements Operator
+public abstract class AbstractKafkaOutputOperator<K, V> implements Operator
 {
   @SuppressWarnings("unused")
-  private static final Logger logger = LoggerFactory.getLogger(KafkaOutputOperator.class);
+  private static final Logger logger = LoggerFactory.getLogger(AbstractKafkaOutputOperator.class);
   private transient kafka.javaapi.producer.Producer<K, V> producer;  // K is key partitioner, V is value type
   @NotNull
   private String topic = "topic1";

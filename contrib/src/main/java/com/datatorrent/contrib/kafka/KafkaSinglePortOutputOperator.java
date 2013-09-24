@@ -15,9 +15,11 @@
  */
 package com.datatorrent.contrib.kafka;
 
+import java.util.Properties;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.DefaultInputPort;
 import kafka.javaapi.producer.ProducerData;
+import kafka.producer.ProducerConfig;
 
 /**
  * Kafka output adapter operator with only one input port, which produce data into Kafka message bus.<p><br>
@@ -42,8 +44,11 @@ import kafka.javaapi.producer.ProducerData;
  *
  * @since 0.3.2
  */
-public abstract class KafkaSinglePortOutputOperator<K, V> extends KafkaOutputOperator<K, V>
+public class KafkaSinglePortOutputOperator<K, V> extends AbstractKafkaOutputOperator<K, V>
 {
+  private Properties configProperties = null;
+  
+  
   /**
    * The single input port.
    */
@@ -63,4 +68,20 @@ public abstract class KafkaSinglePortOutputOperator<K, V> extends KafkaOutputOpe
       //logger.debug("process message {}", tuple.toString());
     }
   };
+
+  public Properties getConfigProperties()
+  {
+    return configProperties;
+  }
+
+  public void setConfigProperties(Properties configProperties)
+  {
+    this.configProperties = configProperties;
+  }
+
+  @Override
+  public ProducerConfig createKafkaProducerConfig()
+  {
+    return new ProducerConfig(configProperties);
+  }
 }
