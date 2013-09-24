@@ -42,7 +42,8 @@ import org.slf4j.LoggerFactory;
  * <b>exchange</b>:the exchange for the consumer to connect to rabbitMQ producer<br>
  * <b>exchangeType</b>:the exchangeType for the consumer to connect to rabbitMQ producer<br>
  * <b>routingKey</b>:the routingKey for the consumer to connect to rabbitMQ producer<br>
- * <b>queueName</b>:the queueName for the consumer to connect to rabbitMQ producer<br>* <br>
+ * <b>queueName</b>:the queueName for the consumer to connect to rabbitMQ producer<br>
+ * <br>
  * Compile time checks:<br>
  * Class derived from this has to implement the abstract method emitTuple() <br>
  * <br>
@@ -60,7 +61,7 @@ import org.slf4j.LoggerFactory;
  * @since 0.3.2
  */
 @ShipContainingJars(classes={com.rabbitmq.client.ConnectionFactory.class})
-public abstract class AbstractRabbitMQInputOperator<lT>
+public abstract class AbstractRabbitMQInputOperator<T>
     implements InputOperator,
 ActivationListener<OperatorContext>
 {
