@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.validation.constraints.NotNull;
+
 import org.apache.commons.lang.mutable.MutableDouble;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -54,6 +56,7 @@ public class MultiWindowDimensionAggregation implements Operator
   private String timeBucket = "m";
   private String dimensionKeyVal = "0";
   private List<String> dimensionArrayString;
+  @NotNull
   private List<int[]> dimensionArray;
   private AggregateOperation operationType = AggregateOperation.SUM;
   private Map<String, Map<String, KeyValPair<MutableDouble, Integer>>> outputMap;
@@ -211,6 +214,9 @@ public class MultiWindowDimensionAggregation implements Operator
               if (currentDimensionKeyValPair != null) {
                 currentDimensionKeyValPair.getKey().add(0 - tupleValue.get(dimensionKeyVal).doubleValue());
                 currentDimensionKeyValPair.setValue(currentDimensionKeyValPair.getValue() - 1);
+                if (currentDimensionKeyValPair.getKey().doubleValue() == 0.0) {
+                  currentPatternMap.remove(builder.toString());
+                }
               }
             }
             break;
@@ -242,7 +248,7 @@ public class MultiWindowDimensionAggregation implements Operator
             outputData.put(e.getKey(), new DimensionObject<String>(new MutableDouble(keyVal.getKey().doubleValue() / totalCount), dimensionValObj.getKey()));
           }
         }
-        if(!outputData.isEmpty())
+        if (!outputData.isEmpty())
           output.emit(outputData);
       }
     }
