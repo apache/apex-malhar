@@ -33,3 +33,19 @@ exports.testFetchData = function(test) {
         }
     });
 }
+
+exports.testFetchDataParam = function(test) {
+    test.expect(1);
+    var req = {
+        query: {
+            lookbackHours: 1,
+            product: 4
+        }
+    }
+    machine.data(req, {
+        json: function(data) {
+            test.equal(data.length, req.query.lookbackHours * 60); // 60 minutes in 1 hour
+            test.done();
+        }
+    });
+}
