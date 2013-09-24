@@ -15,9 +15,7 @@
  */
 package com.datatorrent.lib.io;
 
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +24,7 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 
 /**
- *
+ * 
  * Writes tuples to standard out of the container
  * <p>
  * This is for specific use case for map where I want to print each key value
@@ -34,55 +32,50 @@ import com.datatorrent.api.DefaultInputPort;
  * Mainly to be used for debugging. Users should be careful to not have this
  * node listen to a high throughput stream<br>
  * <br>
- *
+ * 
  * @since 0.3.4
  */
-public class MapMultiConsoleOutputOperator<K, V> extends BaseOperator {
-	private boolean debug = false;
+public class MapMultiConsoleOutputOperator<K, V> extends BaseOperator
+{
+  private boolean debug = false;
 
-	public boolean isDebug() {
-		return debug;
-	}
+  public boolean isDebug()
+  {
+    return debug;
+  }
 
-	public void setDebug(boolean debug) {
-		this.debug = debug;
-	}
+  public void setDebug(boolean debug)
+  {
+    this.debug = debug;
+  }
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(MapMultiConsoleOutputOperator.class);
-	public final transient DefaultInputPort<Map<K,V>> input = new DefaultInputPort<Map<K,V>>() {
-		@Override
-		public void process(Map<K,V> t) {
+  private static final Logger logger = LoggerFactory.getLogger(MapMultiConsoleOutputOperator.class);
+  public final transient DefaultInputPort<Map<K, V>> input = new DefaultInputPort<Map<K, V>>() {
+    @Override
+    public void process(Map<K, V> t)
+    {
+      System.out.println("{");
+      for (Map.Entry<K, V> entry : t.entrySet()) {
+        if (!silent) {
+          System.out.println(entry.getKey().toString() + "=" + entry.getValue().toString());
+        }
+        if (debug)
+          logger.info(entry.getKey().toString() + "=" + entry.getValue().toString());
+      }
+      System.out.println("}");
+    }
+  };
 
-			Set<Map.Entry<K, V>>  set = t.entrySet();
-			Iterator<Map.Entry<K, V>> itr = set.iterator();
+  boolean silent = false;
 
-			System.out.println("{");
-			while (itr.hasNext()) {
-				Map.Entry<K,V> entry = (Map.Entry<K,V>) itr.next();
-				if (!silent) {
-					System.out.println(entry.getKey().toString() + "="
-							+ entry.getValue().toString());
-				}
-				if (debug)
-					logger.info(entry.getKey().toString() + "="
-							+ entry.getValue().toString());
+  public boolean isSilent()
+  {
+    return silent;
+  }
 
-			}
-			System.out.println("}");
-		}
-	};
-
-	boolean silent = false;
-
-	private String stringFormat;
-
-	public String getStringFormat() {
-		return stringFormat;
-	}
-
-	public void setStringFormat(String stringFormat) {
-		this.stringFormat = stringFormat;
-	}
+  public void setSilent(boolean silent)
+  {
+    this.silent = silent;
+  }
 
 }
