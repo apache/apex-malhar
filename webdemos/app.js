@@ -22,6 +22,7 @@ var twitter = require('./routes/twitter');
 var mobile = require('./routes/mobile');
 var dimensions = require('./routes/dimensions');
 var siteops = require('./routes/siteops');
+var machine = require('./routes/machine');
 
 var app = express();
 
@@ -63,6 +64,10 @@ app.get('/siteops/server404', siteops.server404);
 app.get('/siteops/pageViewTimeData', siteops.pageViewTimeData);
 app.get('/siteops/serverLoad', siteops.serverLoad);
 
+// Machine Generated Data Demo Demo
+app.get('/machine', redirectToMain);
+app.get('/machine/main', machine.index);
+app.get('/machine/data', machine.data);
 
 function redirectToMain(req, res) {
     var url = req.url;
