@@ -26,16 +26,17 @@ public class AlertEscalationOperatorTest
     oper.alert.setSink(matchSink);
     oper.setup(null);
     oper.beginWindow(0);
+    Thread.sleep(1000);
     String s = "hello";
-    oper.in.process(s);
-    Thread.sleep(1000);
+    oper.in.process(s); // should get an alert here
     s = "world";
-    oper.in.process(s); // should get an alert here now
+    oper.in.process(s); // should not get an alert because of alert interval
     s = "hello";
-    oper.in.process(s);
-    Thread.sleep(1000);
+    oper.in.process(s); // should not get an alert because of alert interval
+    Thread.sleep(1500);
     s = "world";
-    oper.in.process(s); // shold get another alert here.
+    oper.in.process(s); // should get another alert here.
+    Thread.sleep(1000);
     oper.endWindow();
 
     Assert.assertEquals("number emitted tuples", 2, matchSink.count);

@@ -17,6 +17,7 @@ package com.datatorrent.demos.samplestream;
 
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 
 import org.apache.hadoop.conf.Configuration;
@@ -65,15 +66,13 @@ import org.apache.hadoop.conf.Configuration;
  *    </li>
  *   <li><b>The operator Console: </b> This operator just outputs the input tuples to the console (or stdout). <br>
  *           if you need to change write to HDFS,HTTP .. instead of console, <br>
- *           Please refer to {@link com.datatorrent.lib.io.HttpOutputOperator} or  {@link com.datatorrent.lib.io.HdfsOutputOperator}.</li>
+ *           Please refer to {@link com.datatorrent.lib.io.HttpOutputOperator} or  {@link com.datatorrent.lib.io.fs.HdfsOutputOperator}.</li>
  * </ul>
  *
  * @since 0.3.2
  */
 public class Application implements StreamingApplication
 {
-  private final boolean allInline = false;
-
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
@@ -93,7 +92,7 @@ public class Application implements StreamingApplication
     input.addFormat(YahooFinanceCSVInputOperator.Volume);
 
     ConsoleOutputOperator consoleOperator = dag.addOperator("console", new ConsoleOutputOperator());
-    dag.addStream("input-console", input.outputPort, consoleOperator.input).setInline(allInline);
+    dag.addStream("input-console", input.outputPort, consoleOperator.input).setLocality(Locality.CONTAINER_LOCAL);
 
   }
 }

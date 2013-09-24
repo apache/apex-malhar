@@ -22,6 +22,7 @@ import com.datatorrent.lib.logs.ApacheLogParseOperator;
 import com.datatorrent.lib.math.Sum;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.DAG;
 import org.apache.hadoop.conf.Configuration;
 
@@ -32,13 +33,13 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class Application implements StreamingApplication
 {
-  private boolean allInline = false;
+  private Locality locality = null;
   private final String addr = "tcp://127.0.0.1:5555";
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    allInline = true;
+    locality = Locality.CONTAINER_LOCAL;
 
     dag.getAttributes().attr(DAG.STREAMING_WINDOW_SIZE_MILLIS).set(1000);
     SimpleSinglePortZeroMQPullStringInputOperator input = dag.addOperator("input", new SimpleSinglePortZeroMQPullStringInputOperator(addr));
@@ -52,11 +53,11 @@ public class Application implements StreamingApplication
     //dag.getOperatorWrapper(agg).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(3);
     dag.getMeta(numOfBytesSum).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(3);
 
-    dag.addStream("input-parse", input.outputPort, parse.data).setInline(allInline);
-    dag.addStream("parse-ipAddrCount", parse.outputIPAddress, ipAddrCount.data).setInline(allInline);
-    dag.addStream("parse-urlCount", parse.outputUrl, urlCount.data).setInline(allInline);
-    dag.addStream("parse-httpStatusCount", parse.outputStatusCode, httpStatusCount.data).setInline(allInline);
-    dag.addStream("parse-numOfBytesSum", parse.outputBytes, numOfBytesSum.data).setInline(allInline);
+    dag.addStream("input-parse", input.outputPort, parse.data).setLocality(locality);
+    dag.addStream("parse-ipAddrCount", parse.outputIPAddress, ipAddrCount.data).setLocality(locality);
+    dag.addStream("parse-urlCount", parse.outputUrl, urlCount.data).setLocality(locality);
+    dag.addStream("parse-httpStatusCount", parse.outputStatusCode, httpStatusCount.data).setLocality(locality);
+    dag.addStream("parse-numOfBytesSum", parse.outputBytes, numOfBytesSum.data).setLocality(locality);
     //dag.addStream("numOfBytesSum-agg", numOfBytesSum.sumLong, agg.input);
 
     ConsoleOutputOperator consoleOperator1 = dag.addOperator("console1", new ConsoleOutputOperator());

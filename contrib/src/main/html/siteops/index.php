@@ -19,7 +19,7 @@ google.load('visualization', '1', {'packages':['table']});
 
 </script>
 
-<!-- Malhar charting utils -->
+<!-- DataTorrent charting utils -->
 <script type="text/javascript" src="global.js"></script>
 <script type="text/javascript" src="DrawPageViewTimeChart.js"></script>
 <script type="text/javascript" src="TopUrlChart.js"></script>
@@ -85,14 +85,14 @@ window.onload = function() {
                         <select name="page" id="page" style="width:200px;" onchange="handleUrlChange();">
                            <option value="all">ALL</option>
                            <option value="home">home.php</option>
-                           <option value="contact">cpontactus.php</option>
+                           <option value="contact">contactus.php</option>
                            <option value="about">about.php</option>
                            <option value="support">support.php</option>
                            <option value="product">products.php</option>
                            <option value="services">services.php</option>
                            <option value="partners">partners.php</option>
             		</select><br>
-                        Product/Services/Support/Partners Index : 
+                        Product/Services/Partners Index : 
                         <select name="index" id="index" style="width:200px;" disabled="true" >
                           <option value=\"$i\"></option>
                           <?php
@@ -101,8 +101,6 @@ window.onload = function() {
                             }
         	           ?>
                         </select><br>
-                        Refresh Interval(Secs):
-                        <input type="text" name="refresh" id="pageviewrefresh" class="input-small"/><br>
 		        Look Back(Hours):
                         <input type="text" name="lookback" id="pageviewlookback" class="input-small"/>
                 </form><br>
@@ -119,14 +117,12 @@ window.onload = function() {
                             }
         	           ?>
                         </select><br>
-                        Server Load Refresh Interval(Secs):
-                        <input type="text" name="serverloadrefresh" id="serverloadrefresh" class="input-small"/><br>
 		        Server Load Look Back(Hours):
                         <input type="text" name="serverloadlookback" id="serverloadlookback" class="input-small"/>
                 </form><br>
                 <a href="javascript:void(0)" onclick="HandleServerLoadTimeSubmit();">View Server Load Chart</a><br><br>
                 
-                <b>Data Served/Sec :</b> <b id="totaldata"> </b> <br 
+                <b>Total Bytes/Sec :</b> <b id="totaldata"> </b> <br 
                 <b>Total Views/Sec :</b> <b id="totalviews"> </b> 
             </div>
         </div>
