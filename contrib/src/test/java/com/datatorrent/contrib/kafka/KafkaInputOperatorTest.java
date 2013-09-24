@@ -18,6 +18,7 @@ package com.datatorrent.contrib.kafka;
 import com.datatorrent.contrib.kafka.KafkaSinglePortInputOperator;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Operator;
@@ -37,7 +38,6 @@ import kafka.message.Message;
 import kafka.server.KafkaConfig;
 import kafka.server.KafkaServer;
 import kafka.utils.Utils;
-import org.apache.zookeeper.server.NIOServerCnxn;
 import org.apache.zookeeper.server.NIOServerCnxnFactory;
 import org.apache.zookeeper.server.ZooKeeperServer;
 import org.junit.After;
@@ -308,7 +308,7 @@ public class KafkaInputOperatorTest
     CollectorModule<String> collector = dag.addOperator("TestMessageCollector", new CollectorModule<String>());
 
     // Connect ports
-    dag.addStream("Kafka message", node.outputPort, collector.inputPort).setInline(true);
+    dag.addStream("Kafka message", node.outputPort, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);
 
     // Create local cluster
     final LocalMode.Controller lc = lma.getController();

@@ -17,6 +17,7 @@ package com.datatorrent.demos.pi;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
 import org.apache.hadoop.conf.Configuration;
@@ -68,7 +69,7 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class Application implements StreamingApplication
 {
-  private final boolean allInline = false;
+  private final Locality locality = null;
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
@@ -81,10 +82,10 @@ public class Application implements StreamingApplication
 
     PiCalculateOperator calc = dag.addOperator("picalc", new PiCalculateOperator());
     calc.setBase(maxValue*maxValue);
-    dag.addStream("rand_calc", rand.integer_data, calc.input).setInline(allInline);
+    dag.addStream("rand_calc", rand.integer_data, calc.input).setLocality(locality);
 
     ConsoleOutputOperator console = dag.addOperator("console", new ConsoleOutputOperator());
-    dag.addStream("rand_console",calc.output, console.input).setInline(allInline);
+    dag.addStream("rand_console",calc.output, console.input).setLocality(locality);
 
   }
 
