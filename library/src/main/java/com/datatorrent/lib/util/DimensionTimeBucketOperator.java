@@ -108,7 +108,7 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
   private List<String> valueKeyNames = new ArrayList<String>();
   private String timeKeyName;
   private long currentWindowId;
-  private long windowWidth;
+  private long windowWidth =500;
   private int timeBucketFlags;
   private transient TimeZone timeZone = TimeZone.getTimeZone("GMT");
   private transient Calendar calendar = new GregorianCalendar(timeZone);
@@ -189,7 +189,8 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
   public void setup(OperatorContext context)
   {
     super.setup(context);
-    windowWidth = context.attrValue(DAGContext.STREAMING_WINDOW_SIZE_MILLIS, 500);
+    if(context != null)
+      windowWidth = context.attrValue(DAGContext.STREAMING_WINDOW_SIZE_MILLIS, 500);
     if (dimensionCombinations.isEmpty() && dimensionCombinationsSet == null) {
       dimensionCombinations.add(null);
       for (int i = 1; i <= dimensionKeyNames.size(); i++) {
