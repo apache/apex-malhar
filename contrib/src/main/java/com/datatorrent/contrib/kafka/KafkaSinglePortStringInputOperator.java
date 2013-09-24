@@ -22,7 +22,7 @@ import kafka.consumer.ConsumerConfig;
 import kafka.message.Message;
 
 /**
- * An template concrete class of AbstractKafkaSinglePortInputOperator for getting string input from Kafka message.
+ * Concrete class of {@link AbstractKafkaSinglePortInputOperator} for getting string input from Kafka message.
  */
 public class KafkaSinglePortStringInputOperator extends AbstractKafkaSinglePortInputOperator<String>
 {
