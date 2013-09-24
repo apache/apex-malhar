@@ -233,7 +233,10 @@ RedisService.prototype.fetchMinuteTotals = function(keys, time, callback) {
         // reply 1..n - hgetall commands
         var total = 0;
         for (var i = 1; i < replies.length; i++) {
-            total += parseInt(replies[i][1]);
+            var hash = replies[i];
+            if (hash) {
+                total += parseInt(hash[1]);
+            }
         }
 
         var item = {
