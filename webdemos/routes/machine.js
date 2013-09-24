@@ -24,7 +24,7 @@ var demoEnabled = (config.machine.redis.port && config.machine.redis.host);
 
 if (demoEnabled) {
     client = redis.createClient(config.machine.redis.port, config.machine.redis.host);
-    client.select(15);
+    client.select(config.machine.redis.dbIndex);
 }
 
 exports.index = function(req, res) {
