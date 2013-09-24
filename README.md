@@ -46,6 +46,7 @@ Web interface for the following demos is available:
 - Mobile
 - Ads Dimensions
 - Site Operations
+- Machine Generated Data
 
 Web demos run on Node.js. Please see [webdemos](https://github.com/DataTorrent/Malhar/tree/master/webdemos) for more information.
 

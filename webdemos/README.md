@@ -26,6 +26,12 @@ Demos run on [Node.js](http://nodejs.org/).
     config.siteops.redis.host = 'localhost';
     config.siteops.redis.port = 6379;
 
+ Machine Generated Data Demo
+
+    config.machine.redis.host = 'localhost';
+    config.machine.redis.port = 6379;
+    config.machine.redis.dbIndex = 0;
+
 ## Running Demos
  Install dependencies:
 
