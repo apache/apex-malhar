@@ -47,7 +47,6 @@
                 connect.onreadystatechange = function() {
                     if(connect.readyState==4 && connect.status==200) {
 
-                        console.log(url);
                         aggrData = connect.response;
                         var pts = JSON.parse(aggrData);
                         aggrDataPoints = new Array();
@@ -114,12 +113,10 @@
             } else {
                 document.getElementById('refresh').value = 5;
             }
-            if (params['lookback'])
-            {
-                document.getElementById('lookback').value = params['lookback'];
-            } else {
-                document.getElementById('lookback').value = 6;
+            if (params['lookback']) {
+                lookbackHours = params['lookback'];
             }
+            document.getElementById('lookback').value = lookbackHours;
 
             // draw charts
             DrawAggrCharts();
@@ -141,66 +138,54 @@
         <div class="dashboardMgr">
             <div class="inner" style="">
                 <h2 class="title">View Real Time Data Charts</h2>
-                <form method="GET" action="index.php">
+                <form method="GET">
 
                     <label for="customer">Customer ID:</label>
                     <select name="customer" id="customer" style="width:200px;">
                         <option value="">ALL</option>
-                        <?php
-                   			for ($i = 1; $i <= 5; $i++) {
-                  				print "<option value=\"$i\">Customer $i</option>\n";
-                        }
-                        ?>
+                        <% for (var i = 1; i <= 5; i++) { %>
+                        <%- '<option value="$i">Customer $i</option>'.replace(/\$i/g, i) %>
+                        <% } %>
                     </select>
 
                     <label for="">Product ID:</label>
                     <select name="product" id="product" style="width:200px;">
                         <option value="">ALL</option>
-                        <?php
-                			for ($i = 4; $i <= 6; $i++) {
-                  				print "<option value=\"$i\">Product $i</option>\n";
-                        }
-                        ?>
+                        <% for (var i = 4; i <= 6; i++) { %>
+                        <%- '<option value="$i">Product $i</option>'.replace(/\$i/g, i) %>
+                        <% } %>
                     </select>
 
                     <label for="">Product OS:</label>
                     <select name="os" id="os" style="width:200px;">
                         <option value="">ALL</option>
-                        <?php
-                			for ($i = 10; $i <= 12; $i++) {
-                  				print "<option value=\"$i\">OS $i</option>\n";
-                        }
-                        ?>
+                        <% for (var i = 10; i <= 12; i++) { %>
+                        <%- '<option value="$i">OS $i</option>'.replace(/\$i/g, i) %>
+                        <% } %>
                     </select>
 
                     <label for="software1">Software1 Ver:</label>
                     <select name="software1" id="software1" style="width:200px;">
                         <option value="">ALL</option>
-                        <?php
-                   			for ($i = 10; $i <= 12; $i++) {
-                  				print "<option value=\"$i\">Software1 Version $i</option>\n";
-                        }
-                        ?>
+                        <% for (var i = 10; i <= 12; i++) { %>
+                        <%- '<option value="$i">Software1 Version $i</option>'.replace(/\$i/g, i) %>
+                        <% } %>
                     </select>
 
                     <label for="software2">Software2 Ver:</label>
                     <select name="software2" id="software2" style="width:200px;">
                         <option value="">ALL</option>
-                        <?php
-                   			for ($i = 12; $i <= 14; $i++) {
-                  				print "<option value=\"$i\">Software2 Version $i</option>\n";
-                        }
-                        ?>
+                        <% for (var i = 12; i <= 14; i++) { %>
+                        <%- '<option value="$i">Software2 Version $i</option>'.replace(/\$i/g, i) %>
+                        <% } %>
                     </select>
 
                     <label for="software3">Software3 Ver:</label>
                     <select name="software3" id="software3" style="width:200px;">
                         <option value="">ALL</option>
-                        <?php
-                   			for ($i = 4; $i <= 6; $i++) {
-                  				print "<option value=\"$i\">Software3 Version $i</option>\n";
-                        }
-                        ?>
+                        <% for (var i = 4; i <= 6; i++) { %>
+                        <%- '<option value="$i">Software3 Version $i</option>'.replace(/\$i/g, i) %>
+                        <% } %>
                     </select>
 
                     <label for="">Refresh Interval:</label>
@@ -229,27 +214,9 @@
             </div>
         </div>
         <div class="dashboardMain">
-
-            <!-- <table><tbody>
-                        <tr>
-                          <td><div id="chart_div"></div></td>
-                          <td><div id="chart1_div" ></div></td>
-                         </tr>
-                         <tr>
-                         <td><div id="chart2_div" ></div></td>
-                         <td><div id="chart3_div" ></div></td>
-                         </tr>
-                         <tr>
-                       <td><div id="chart4_div" ></div></td>
-                        <td><div id="chart5_div" ></div></td>
-                         </tr>
-                     </tr></tbody></table> -->
             <div class="chart-ctnr" id="chart_div"></div>
             <div class="chart-ctnr" id="chart1_div" ></div>
             <div class="chart-ctnr" id="chart2_div" ></div>
-            <!--        <div class="chart-ctnr" id="chart3_div" ></div>
-                    <div class="chart-ctnr" id="chart4_div" ></div>
-                    <div class="chart-ctnr" id="chart5_div" ></div> -->
         </div>
 </div>
 </body>

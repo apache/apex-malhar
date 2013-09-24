@@ -34,7 +34,7 @@ exports.testPageViewTimeData = function(test) {
     test.expect(1);
     var req = {
         query: {
-            lookbackHours: 1,
+            lookbackHours: 1
         }
     }
     siteops.pageViewTimeData(req, {

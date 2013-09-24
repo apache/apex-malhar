@@ -24,6 +24,7 @@ var demoEnabled = (config.machine.redis.port && config.machine.redis.host);
 
 if (demoEnabled) {
     client = redis.createClient(config.machine.redis.port, config.machine.redis.host);
+    client.select(15);
 }
 
 exports.index = function(req, res) {
@@ -37,47 +38,47 @@ exports.index = function(req, res) {
 };
 
 exports.data = function(req, res) {
+    console.log('data');
     getMinutes(req.query, function(err, result) {
+        console.log('__result');
+        console.log(result);
         res.json(result);
     });
 };
 
 function getMinutes(query, resCallback) {
-    var lookbackMinutes = query.lookbackMinutes;
-    var endTime = query.endTime;
-    var publisher = query.publisher;
-    var advertiser = query.advertiser;
-    var adunit = query.adunit;
-
-    if (!endTime) {
-        endTime = Date.now();
-    }
+    var lookbackHours = query.lookbackHours;
+    var customer = query.customer;
+    var product = query.product;
+    var os = query.os;
+    var software1 = query.software1;
+    var software2 = query.software2;
+    var software3 = query.software3;
 
     var keyTemplate = 'm|$date';
-    if (publisher) keyTemplate += '|0:' + publisher;
-    if (advertiser) keyTemplate += '|1:' + advertiser;
-    if (adunit) keyTemplate += '|2:' + adunit;
 
     var minute = (60 * 1000);
     var result = [];
-    var time = endTime - lookbackMinutes * minute;
+    var endTime = Date.now();
+    var time = endTime - lookbackHours * (60 * minute);
 
+    // fetch all minutes serially within lookback period
     async.whilst(
-        function () { return time <= endTime; },
-        function (callback) {
+        function() { return time < endTime; },
+        function(callback) {
             var date = dateFormat(time, 'UTC:yyyymmddHHMM');
-            var key = keyTemplate
-                .replace('$date', date);
+            var key = keyTemplate.replace('$date', date);
+
 
             client.hgetall(key, function(err, hash) {
+                console.log(key);
+                console.log(hash);
                 if (hash) {
                     var minuteItem = {
                         timestamp: time,
-                        keyPattern: keyTemplate,
-                        cost: parseFloat(hash[1]),
-                        revenue: parseFloat(hash[2]),
-                        impressions: parseFloat(hash[3]),
-                        clicks: parseFloat(hash[4])
+                        cpu: hash['cpu'],
+                        ram: hash['ram'],
+                        hdd: hash['hdd']
                     }
                     result.push(minuteItem);
                 }
