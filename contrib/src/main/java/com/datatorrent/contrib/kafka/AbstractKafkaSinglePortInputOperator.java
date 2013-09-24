@@ -43,7 +43,7 @@ import kafka.message.Message;
  *
  * @since 0.3.2
  */
-public abstract class KafkaSinglePortInputOperator<T> extends KafkaInputOperator
+public abstract class AbstractKafkaSinglePortInputOperator<T> extends AbstractKafkaInputOperator
 {
   /**
    * The single output port.
@@ -52,7 +52,7 @@ public abstract class KafkaSinglePortInputOperator<T> extends KafkaInputOperator
   public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**
-   * Any concrete class derived from KafkaSinglePortInputOperator has to implement this method
+   * Any concrete class derived from AbstractKafkaSinglePortInputOperator has to implement this method
    * so that it knows what type of message it is going to send to Malhar.
    * It converts a ByteBuffer message into a Tuple. A Tuple can be of any type (derived from Java Object) that
    * operator user intends to.

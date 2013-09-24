@@ -21,11 +21,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CountDownLatch;
+
 import kafka.consumer.ConsumerConfig;
 import kafka.consumer.ConsumerIterator;
 import kafka.consumer.KafkaStream;
 import kafka.javaapi.consumer.ConsumerConnector;
 import kafka.message.Message;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +46,8 @@ public class KafkaConsumer implements Runnable
   private final String topic;
   private boolean isAlive = true;
   private int receiveCount = 0;
+  // A latch object to notify the waiting thread that it's done consuming the message
+  private CountDownLatch latch;
 
   public int getReceiveCount()
   {
@@ -96,6 +101,9 @@ public class KafkaConsumer implements Runnable
       receiveCount++;
       logger.debug("Consuming {}, receiveCount= {}", getMessage(msg), receiveCount);
     }
+    if (latch != null) {
+      latch.countDown();
+    }
     logger.debug("DONE consuming");
   }
 
@@ -103,5 +111,10 @@ public class KafkaConsumer implements Runnable
   {
     holdingBuffer.clear();
     consumer.shutdown();
+  }
+
+  public void setLatch(CountDownLatch latch)
+  {
+    this.latch = latch;
   }
 } // End of KafkaConsumer
