@@ -151,6 +151,7 @@ public class RabbitMQInputOperatorTest
 
     generator.setHost("localhost");
     generator.setExchange("testEx");
+    generator.setExchangeType("fanout");
 
     final RabbitMQMessageGenerator publisher = new RabbitMQMessageGenerator();
     publisher.setup();
