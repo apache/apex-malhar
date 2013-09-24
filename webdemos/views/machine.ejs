@@ -107,12 +107,12 @@
             if (params['software1']) document.getElementById('software1').value = params['software1'];
             if (params['software2']) document.getElementById('software2').value = params['software2'];
             if (params['software3']) document.getElementById('software3').value = params['software3'];
-            if (params['refresh'])
-            {
-                document.getElementById('refresh').value = params['refresh'];
-            } else {
-                document.getElementById('refresh').value = 5;
-            }
+            //if (params['refresh'])
+            //{
+            //    document.getElementById('refresh').value = params['refresh'];
+            //} else {
+            //    document.getElementById('refresh').value = 5;
+            //}
             if (params['lookback']) {
                 lookbackHours = params['lookback'];
             }
@@ -188,11 +188,13 @@
                         <% } %>
                     </select>
 
+                    <!--
                     <label for="">Refresh Interval:</label>
                     <div class="input-append">
                         <input type="text" name="refresh" id="refresh" class="input-small"/>
                         <span class="add-on">Secs</span>
                     </div>
+                    -->
 
 
                     <label for="">Look Back:</label>
