@@ -15,18 +15,16 @@
  */
 package com.datatorrent.lib.logs;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import junit.framework.Assert;
 
+import org.apache.commons.lang.mutable.MutableDouble;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.lib.algo.TopNUnique;
-import com.datatorrent.lib.algo.TopNUniqueTest;
 import com.datatorrent.lib.logs.DimensionObject;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
@@ -36,7 +34,7 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
  *
  */
 public class TopNUniqueSiteStatsTest {
-  private static Logger log = LoggerFactory.getLogger(TopNUniqueTest.class);
+  private static Logger log = LoggerFactory.getLogger(TopNUniqueSiteStatsTest.class);
 
   /**
    * Test node logic emits correct results
@@ -56,39 +54,32 @@ public class TopNUniqueSiteStatsTest {
       oper.beginWindow(0);
       HashMap<String, DimensionObject<String>> input = new HashMap<String, DimensionObject<String>>();
 
-      input.put("url", new DimensionObject<String>(10, "abc"));
+      input.put("url", new DimensionObject<String>(new MutableDouble(10), "abc"));
       oper.data.process(input);
 
       input.clear();
-      input.put("url", new DimensionObject<String>(1, "def"));
+      input.put("url", new DimensionObject<String>(new MutableDouble(1), "def"));
+      input.put("url1", new DimensionObject<String>(new MutableDouble(1), "def"));
       oper.data.process(input);
 
       input.clear();
-      input.put("url", new DimensionObject<String>(101, "ghi"));
+      input.put("url", new DimensionObject<String>(new MutableDouble(101), "ghi"));
+      input.put("url1", new DimensionObject<String>(new MutableDouble(101), "ghi"));
       oper.data.process(input);
 
       input.clear();
-      input.put("url", new DimensionObject<String>(50, "jkl"));
+      input.put("url", new DimensionObject<String>(new MutableDouble(50), "jkl"));
       oper.data.process(input);
 
       input.clear();
-      input.put("url", new DimensionObject<String>(50, "jkl"));
+      input.put("url", new DimensionObject<String>(new MutableDouble(50), "jkl"));
+      input.put("url3", new DimensionObject<String>(new MutableDouble(50), "jkl"));
       oper.data.process(input);
       oper.endWindow();
 
-      Assert.assertEquals("number emitted tuples", 1,	sortSink.collectedTuples.size());
+      Assert.assertEquals("number emitted tuples", 3,	sortSink.collectedTuples.size());
       for (Object o : sortSink.collectedTuples) {
         log.debug(o.toString());
-        for (Map.Entry<String, ArrayList<HashMap<DimensionObject<String>, Integer>>> e : ((HashMap<String, ArrayList<HashMap<DimensionObject<String>, Integer>>>) o).entrySet()) {
-          if (e.getKey().equals("url")) {
-            Assert.assertEquals("emitted value for 'a' was ", 3, e.getValue()
-                                .size());
-          }
-          log.debug(String.format("Sorted list for %s:", e.getKey()));
-          for (HashMap<DimensionObject<String>,Integer> i: e.getValue()) {
-            log.debug(String.format("%s", i.keySet().toString()));
-          }
-        }
       }
       log.debug("Done testing round\n");
     }
