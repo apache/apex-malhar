@@ -21,8 +21,8 @@ window.pageParams = {
     publisher: null,
     advertiser: null,
     adunit: null,
-    refresh: 5,
-    lookback: 15,
+    refresh: 30,
+    lookback: 1,
     play: null // number of minutes to play
 }
 
@@ -45,7 +45,7 @@ function loadCharts() {
         publisher: pageParams.publisher,
         advertiser: pageParams.advertiser,
         adunit: pageParams.adunit,
-        lookbackMinutes: pageParams.lookback,
+        lookbackHours: pageParams.lookback,
         endTime: window.endTime
     }
 
