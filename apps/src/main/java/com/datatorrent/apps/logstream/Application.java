@@ -17,25 +17,16 @@ package com.datatorrent.apps.logstream;
 
 import com.datatorrent.api.Context.OperatorContext;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-
 import org.apache.hadoop.conf.Configuration;
-
 import com.datatorrent.api.DAG;
-import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.lib.algo.TopNUnique;
-import com.datatorrent.lib.io.ApacheGenRandomLogs;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.MapMultiConsoleOutputOperator;
-import com.datatorrent.lib.logs.ApacheLogParseMapOutputOperator;
 import com.datatorrent.lib.logs.DimensionObject;
 import com.datatorrent.lib.logs.MultiWindowDimensionAggregation;
-import com.datatorrent.lib.logs.MultiWindowDimensionAggregation.AggregateOperation;
 import com.datatorrent.lib.util.DimensionTimeBucketOperator;
 import com.datatorrent.lib.util.DimensionTimeBucketSumOperator;
 
