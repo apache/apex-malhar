@@ -22,7 +22,7 @@ window.pageParams = {
     advertiser: null,
     adunit: null,
     refresh: 30,
-    lookback: 1,
+    lookback: 2,
     play: null // number of minutes to play
 }
 
