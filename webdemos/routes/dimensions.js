@@ -56,6 +56,7 @@ function getMinutes(query, resCallback) {
 
     var minute = (60 * 1000);
     var result = [];
+
     if (!endTime) {
         endTime = Date.now();
     }
