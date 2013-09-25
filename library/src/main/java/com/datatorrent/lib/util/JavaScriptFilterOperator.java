@@ -67,6 +67,7 @@ public class JavaScriptFilterOperator extends FilterOperator
       }
     }
     catch (ScriptException ex) {
+      LOG.error("script \"{}\" has error", setupScript);
       throw new RuntimeException(ex);
     }
   }
