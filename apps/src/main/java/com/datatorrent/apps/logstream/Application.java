@@ -136,8 +136,8 @@ public class Application implements StreamingApplication
 
     // dynamically partition based on number of incoming tuples from the queue
     dag.setAttribute(apacheLogInput, OperatorContext.INITIAL_PARTITION_COUNT, 2);
-    dag.setAttribute(apacheLogInput, OperatorContext.PARTITION_TPS_MIN, 10000);
-    dag.setAttribute(apacheLogInput, OperatorContext.PARTITION_TPS_MAX, 30000);
+    dag.setAttribute(apacheLogInput, OperatorContext.PARTITION_TPS_MIN, 1000);
+    dag.setAttribute(apacheLogInput, OperatorContext.PARTITION_TPS_MAX, 3000);
 
     /*
      * Convert incoming JSON structures to flattened map objects
