@@ -5,7 +5,6 @@ Malhar repository contains open source operator and codec library that can be us
 
 [![Build Status](https://travis-ci.org/DataTorrent/Malhar.png?branch=master)](https://travis-ci.org/DataTorrent/Malhar)
 
-
 Discussion group
 --------------------
 
