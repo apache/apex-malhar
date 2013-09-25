@@ -15,10 +15,29 @@
  */
 package com.datatorrent.apps.logstream;
 
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.api.Context.OperatorContext;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.hadoop.conf.Configuration;
+
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.Operator.InputPort;
+import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.lib.algo.TopNUnique;
+import com.datatorrent.lib.io.ApacheGenRandomLogs;
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.io.MapMultiConsoleOutputOperator;
+import com.datatorrent.lib.logs.ApacheLogParseMapOutputOperator;
+import com.datatorrent.lib.logs.DimensionObject;
+import com.datatorrent.lib.logs.MultiWindowDimensionAggregation;
+import com.datatorrent.lib.logs.MultiWindowDimensionAggregation.AggregateOperation;
+import com.datatorrent.lib.util.DimensionTimeBucketOperator;
+import com.datatorrent.lib.util.DimensionTimeBucketSumOperator;
 
 /**
  * Log stream processing application based on DataTorrent platform.<br>
@@ -56,35 +75,92 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class Application implements StreamingApplication
 {
+  public DimensionTimeBucketSumOperator getPageDimensionTimeBucketSumOperator(String name, DAG dag)
+  {
+
+    DimensionTimeBucketSumOperator oper = dag.addOperator(name, DimensionTimeBucketSumOperator.class);
+    oper.addDimensionKeyName("host");
+    oper.addDimensionKeyName("clientip");
+    oper.addDimensionKeyName("request");
+    oper.addDimensionKeyName("agent");
+    oper.addDimensionKeyName("response");
+
+    oper.addValueKeyName("bytes");
+    Set<String> dimensionKey = new HashSet<String>();
+
+    dimensionKey.add("response");
+    dimensionKey.add("clientip");
+    try {
+      oper.addCombination(dimensionKey);
+    } catch (NoSuchFieldException e) {
+    }
+
+    oper.setTimeBucketFlags(DimensionTimeBucketOperator.TIMEBUCKET_MINUTE);
+    return oper;
+  }
+
+  private MultiWindowDimensionAggregation getAggregationOper(String name, DAG dag)
+  {
+    MultiWindowDimensionAggregation oper = dag.addOperator("sliding_window", MultiWindowDimensionAggregation.class);
+    oper.setWindowSize(3);
+    List<int[]> dimensionArrayList = new ArrayList<int[]>();
+    int[] dimensionArray = { 4, 1 };
+    int[] dimensionArray_2 = { 0 };
+//    dimensionArrayList.add(dimensionArray_2);
+    dimensionArrayList.add(dimensionArray);
+    //dimensionArrayList.add(dimensionArray_2);
+    oper.setDimensionArray(dimensionArrayList);
+
+    oper.setTimeBucket("m");
+    oper.setDimensionKeyVal("1");
+
+   // oper.setOperationType(AggregateOperation.AVERAGE);
+
+    return oper;
+  }
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
+    // set app name
+    dag.setAttribute(DAG.APPLICATION_NAME, "SiteOperationsApplication");
 
     /*
      * Read log file messages from a messaging system (Redis, RabbitMQ, etc)
-     * Typically one message equates to a single line in a log file, but in 
+     * Typically one message equates to a single line in a log file, but in
      * some cases may be multiple lines such as java stack trace, etc.
      */
-    
+
+    // Get logs from RabbitMQ
+    RabbitMQLogsInputOperator apacheLogInput = dag.addOperator("ApacheLogInput", RabbitMQLogsInputOperator.class);
+
+    // dynamically partition based on number of incoming tuples from the queue
+    dag.setAttribute(apacheLogInput, OperatorContext.INITIAL_PARTITION_COUNT, 2);
+    dag.setAttribute(apacheLogInput, OperatorContext.PARTITION_TPS_MIN, 10000);
+    dag.setAttribute(apacheLogInput, OperatorContext.PARTITION_TPS_MAX, 30000);
+
+    /*
+     * Convert incoming JSON structures to flattened map objects
+     */
     // TODO
 
-    
-    /*
-     * Convert incoming JSON structures to flattened map objects 
-     */
-    // TODO 
-    
     /*
      * Explode dimensions based on log types ( apache, mysql, syslog, etc)
      */
-    // TODO
-    
+    DimensionTimeBucketSumOperator dimensionOperator = getPageDimensionTimeBucketSumOperator("Dimension", dag);
+    dag.addStream("dimension_in", apacheLogInput.outputPort, dimensionOperator.in);
+
     /*
      * Calculate average, min, max, etc from dimensions ( based on log types )
      */
-    //TODO
+    // aggregating over sliding window
+    MultiWindowDimensionAggregation multiWindowAggOpr = getAggregationOper("sliding_window", dag);
+    dag.addStream("dimension_out", dimensionOperator.out, multiWindowAggOpr.data);
 
+    // adding top N operator
+    TopNUnique<String, DimensionObject<String>> topNOpr = dag.addOperator("topN", new TopNUnique<String, DimensionObject<String>>());
+    topNOpr.setN(5);
+    dag.addStream("aggregation_topn", multiWindowAggOpr.output, topNOpr.data);
     /*
      * Websocket output to UI from calculated aggregations
      */
@@ -99,12 +175,12 @@ public class Application implements StreamingApplication
      * Alerts
      */
     //TODO
-    
+
     /*
      * Console output for debugging purposes
      */
-    //TODO
-    //ConsoleOutputOperator console = dag.addOperator("console", new ConsoleOutputOperator());
+    ConsoleOutputOperator console = dag.addOperator("console", ConsoleOutputOperator.class);
+    dag.addStream("topn_output", topNOpr.top, console.input);
 
   }
 
