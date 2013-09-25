@@ -61,6 +61,7 @@ function getMinutes(query, resCallback) {
     var minute = (60 * 1000);
     var result = [];
     var endTime = Date.now();
+    endTime -= (endTime % minute); // round to minute
     var time = endTime - lookbackHours * (60 * minute);
 
     // fetch all minutes serially within lookback period
