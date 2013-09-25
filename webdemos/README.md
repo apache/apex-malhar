@@ -9,6 +9,10 @@ Web interface for DataTorrent Demos:
 
 Demos run on [Node.js](http://nodejs.org/).
 
+## Architecture
+
+![Demos Architecture](doc/demos_architecture.png "Demos Architecture")
+
 ## Demos configuration
  Settings are stored in config.js.
 
