@@ -20,15 +20,15 @@ var async = require('async');
 var config = require('../config');
 
 var client;
-var demoEnabled = (config.redis.port && config.redis.host);
+var demoEnabled = (config.adsdimensions.redis.port && config.adsdimensions.redis.host);
 
 if (demoEnabled) {
-    client = redis.createClient(config.redis.port, config.redis.host);
+    client = redis.createClient(config.adsdimensions.redis.port, config.adsdimensions.redis.host);
 }
 
 exports.index = function(req, res) {
     if (demoEnabled) {
-        res.render('ads');
+        res.render('dimensions');
     } else {
         res.render('error', {
             message: 'Ads Dimensions Demo is not enabled. Please configure Redis.'

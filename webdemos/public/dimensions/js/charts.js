@@ -50,7 +50,7 @@ function loadCharts() {
     }
 
     jQuery.ajax({
-        url: '/ads/data',
+        url: 'data',
         data: parameters,
         success: function(data) {
             drawCostChart(data);
