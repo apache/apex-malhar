@@ -154,7 +154,6 @@ function fetchServerLoad(query, resCallback) {
     var lookbackHours = query.lookbackHours;
     var server = query.server;
 
-    var endTime = Date.now();
     var minute = (60 * 1000);
     var result = [];
 
@@ -168,9 +167,11 @@ function fetchServerLoad(query, resCallback) {
         keyTemplate = 'm|$date|0:server$i.mydomain.com:80';
     }
 
-    var service = new RedisService(client, 4);
-
+    var endTime = Date.now();
+    endTime -= (endTime % minute); // round to minute
     var time = endTime - lookbackHours * (60 * minute);
+
+    var service = new RedisService(client, 4);
 
     // fetch all minutes serially within lookback period
     async.whilst(

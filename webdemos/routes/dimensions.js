@@ -60,7 +60,6 @@ function getMinutes(query, resCallback) {
         endTime = Date.now();
     }
     endTime -= (endTime % minute); // round to minute
-
     var time = endTime - lookbackHours * (minute * 60);
 
     async.whilst(
