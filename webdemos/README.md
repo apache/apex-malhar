@@ -11,9 +11,6 @@ Demos run on [Node.js](http://nodejs.org/).
 
 ## Architecture
 
-WebSocket is used for real-time data (e.g. Twitter TOP Urls).
-Historical data is stored in Redis (used for charting).
-
 ![Demos Architecture](doc/demos_architecture.png "Demos Architecture")
 
 ## Demos configuration
