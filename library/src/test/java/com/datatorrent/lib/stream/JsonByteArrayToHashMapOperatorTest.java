@@ -21,10 +21,10 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 /**
- * Tests JsonByteArrayToHashMap operator
+ * Tests JsonByteArrayToHashMapOperator operator
  *
  */
-public class JsonByteArrayToHashMapTest
+public class JsonByteArrayToHashMapOperatorTest
 {
    /**
      * Test json byte array to HashMap operator pass through. The Object passed is not relevant
@@ -33,7 +33,7 @@ public class JsonByteArrayToHashMapTest
 		@Test
     public void testOperator() throws Exception
     {
-      JsonByteArrayToHashMap oper = new JsonByteArrayToHashMap();
+      JsonByteArrayToHashMapOperator oper = new JsonByteArrayToHashMapOperator();
 
       CollectorTestSink itemSink = new CollectorTestSink();
       oper.outputMap.setSink(itemSink);

@@ -35,14 +35,14 @@ import org.slf4j.LoggerFactory;
  * <br>
  * <b>Ports</b>:<br>
  * <b>input</b>: expects json byte array &lt;K,V&gt;<br>
- * <b>outputMap</b>: emits HashMap&lt;K,V&gt;<br>
+ * <b>outputMap</b>: emits HashMap&lt;String,String&gt;<br>
  * <br>
  *
  * @since 0.3.5
  */
-public class JsonByteArrayToHashMap<K, V> extends BaseOperator
+public class JsonByteArrayToHashMapOperator extends BaseOperator
 {
-  private static final Logger logger = LoggerFactory.getLogger(JsonByteArrayToHashMap.class);
+  private static final Logger logger = LoggerFactory.getLogger(JsonByteArrayToHashMapOperator.class);
 	/**
 	 * Input byte array port.
 	 */
@@ -56,13 +56,13 @@ public class JsonByteArrayToHashMap<K, V> extends BaseOperator
       try {
         JSONObject jSONObject = new JSONObject(inputString);
         Iterator<String> iterator = jSONObject.keys();
-        HashMap<String,Object> map = new HashMap<String, Object>();
+        HashMap<String,String> map = new HashMap<String, String>();
         while(iterator.hasNext()){
           String key = iterator.next();
           map.put(key, jSONObject.getString(key));
         }
 
-        outputMap.emit((HashMap<K, V>)map);
+        outputMap.emit(map);
       }
       catch (JSONException ex) {
         logger.error(ex.getMessage());
@@ -74,5 +74,5 @@ public class JsonByteArrayToHashMap<K, V> extends BaseOperator
 	 * Output hash map port.
 	 */
 	@OutputPortFieldAnnotation(name = "map")
-	public final transient DefaultOutputPort<HashMap<K, V>> outputMap = new DefaultOutputPort<HashMap<K, V>>();
+	public final transient DefaultOutputPort<HashMap<String, String>> outputMap = new DefaultOutputPort<HashMap<String, String>>();
 }
