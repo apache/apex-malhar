@@ -16,18 +16,16 @@
 package com.datatorrent.contrib.kafka;
 
 import java.util.Properties;
+
 import kafka.javaapi.producer.Producer;
 import kafka.javaapi.producer.ProducerData;
 import kafka.producer.ProducerConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  *
  */
 public class KafkaProducer implements Runnable
 {
-  private static final Logger logger = LoggerFactory.getLogger(KafkaProducer.class);
+//  private static final Logger logger = LoggerFactory.getLogger(KafkaProducer.class);
   private final kafka.javaapi.producer.Producer<Integer, String> producer;
   private final String topic;
   private int sendCount = 20;
@@ -79,6 +77,8 @@ public class KafkaProducer implements Runnable
       messageNo++;
      // logger.debug(String.format("Producing %s", messageStr));
     }
+    // produce the end tuple to let the test input operator know it's done produce messages
+    producer.send(new ProducerData<Integer, String>(topic, KafkaOperatorTestBase.END_TUPLE));
   }
 
   public void close()
