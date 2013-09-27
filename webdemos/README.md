@@ -1,7 +1,17 @@
 webdemos
 ===============
 
-DataTorrent Demos.
+Web interface for DataTorrent Demos:
+- Twitter
+- Mobile
+- Ads Dimensions
+- Site Operations
+
+Demos run on [Node.js](http://nodejs.org/).
+
+## Architecture
+
+![Demos Architecture](doc/demos_architecture.png "Demos Architecture")
 
 ## Demos configuration
  Settings are stored in config.js.
@@ -12,8 +22,19 @@ DataTorrent Demos.
 
  Ads Dimensions Demo
 
-    config.redis.host = 'localhost';
-    config.redis.port = 6379;
+    config.adsdimensions.redis.host = 'localhost';
+    config.adsdimensions.redis.port = 6379;
+
+ Site Operations Demo
+
+    config.siteops.redis.host = 'localhost';
+    config.siteops.redis.port = 6379;
+
+ Machine Generated Data Demo
+
+    config.machine.redis.host = 'localhost';
+    config.machine.redis.port = 6379;
+    config.machine.redis.dbIndex = 0;
 
 ## Running Demos
  Install dependencies:

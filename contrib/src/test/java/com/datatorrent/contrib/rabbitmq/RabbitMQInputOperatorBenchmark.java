@@ -155,6 +155,7 @@ public class RabbitMQInputOperatorBenchmark
 
     subscriber.setHost("localhost");
     subscriber.setExchange("testEx");
+    subscriber.setExchangeType("fanout");
 
     final RabbitMQMessageGenerator publisher = new RabbitMQMessageGenerator();
     publisher.setup();
