@@ -4,12 +4,12 @@
   <parent>
     <groupId>com.datatorrent</groupId>
     <artifactId>malhar-framework</artifactId>
-    <version>0.3.4</version>
+    <version>0.3.5-RC1</version>
   </parent>
 
   <artifactId>malhar-all</artifactId>
   <packaging>pom</packaging>
-  <version>0.3.5-SNAPSHOT</version>
+  <version>0.3.5-RC1</version>
   <name>Malhar Open Source</name>
 
   <!-- repository to provide the DataTorrent artifacts -->
