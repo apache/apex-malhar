@@ -23,6 +23,8 @@ import kafka.message.Message;
 
 /**
  * Concrete class of {@link AbstractKafkaSinglePortInputOperator} for getting string input from Kafka message.
+ *
+ * @since 0.3.5
  */
 public class KafkaSinglePortStringInputOperator extends AbstractKafkaSinglePortInputOperator<String>
 {
