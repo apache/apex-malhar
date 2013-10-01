@@ -19,11 +19,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Properties;
-
 import kafka.server.KafkaConfig;
-import kafka.server.KafkaServer;
+import kafka.server.KafkaServerStartable;
 import kafka.utils.Utils;
-
 import org.apache.zookeeper.server.NIOServerCnxnFactory;
 import org.apache.zookeeper.server.ZooKeeperServer;
 import org.junit.After;
@@ -38,29 +36,26 @@ public class KafkaOperatorTestBase
   
   public static String END_TUPLE = "END_TUPLE";
   static final org.slf4j.Logger logger = LoggerFactory.getLogger(KafkaOperatorTestBase.class);
-  private KafkaServer kserver;
+  // since Kafka 0.8 use KafkaServerStatble instead of KafkaServer
+  private KafkaServerStartable kserver;
   private NIOServerCnxnFactory standaloneServerFactory;
   private final String zklogdir = "/tmp/zookeeper-server-data";
   private final String kafkalogdir = "/tmp/kafka-server-data";
-  private boolean useZookeeper = true; // standard consumer use zookeeper, whereas simpleConsumer don't// standard consumer use zookeeper, whereas simpleConsumer don't
-
 
   public void startZookeeper()
   {
-    if (!useZookeeper) { // Do not use zookeeper for simpleconsumer
-      return;
-    }
   
     try {
       int clientPort = 2182;
-      int numConnections = 5000;
+      int numConnections = 10;
       int tickTime = 2000;
       File dir = new File(zklogdir);
   
-      ZooKeeperServer zserver = new ZooKeeperServer(dir, dir, tickTime);
+      ZooKeeperServer kserver = new ZooKeeperServer(dir, dir, tickTime);
       standaloneServerFactory = new NIOServerCnxnFactory();
       standaloneServerFactory.configure(new InetSocketAddress(clientPort), numConnections);
-      standaloneServerFactory.startup(zserver); // start the zookeeper server.
+      standaloneServerFactory.startup(kserver); // start the zookeeper server.
+      kserver.startup();
     }
     catch (InterruptedException ex) {
       logger.debug(ex.getLocalizedMessage());
@@ -72,10 +67,6 @@ public class KafkaOperatorTestBase
 
   public void stopZookeeper()
   {
-    if (!useZookeeper) {
-      return;
-    }
-  
     standaloneServerFactory.shutdown();
     Utils.rm(zklogdir);
   }
@@ -83,22 +74,15 @@ public class KafkaOperatorTestBase
   public void startKafkaServer()
   {
     Properties props = new Properties();
-    if (useZookeeper) {
-      props.setProperty("enable.zookeeper", "true");
-      props.setProperty("zk.connect", "localhost:2182");
-      props.setProperty("topic", "topic1");
-      props.setProperty("log.flush.interval", "10"); // Controls the number of messages accumulated in each topic (partition) before the data is flushed to disk and made available to consumers.
-      //   props.setProperty("log.default.flush.scheduler.interval.ms", "100");  // optional if we have the flush.interval
-    }
-    else {
-      props.setProperty("enable.zookeeper", "false");
-      props.setProperty("hostname", "localhost");
-      props.setProperty("port", "2182");
-    }
-    props.setProperty("brokerid", "1");
-    props.setProperty("log.dir", kafkalogdir);
-  
-    kserver = new KafkaServer(new KafkaConfig(props));
+    props.setProperty("broker.id", "0");
+    props.setProperty("log.dirs", kafkalogdir);
+    props.setProperty("zookeeper.connect", "localhost:2182");
+    props.setProperty("port", "9092");
+    props.setProperty("num.partitions", "1");
+    props.setProperty("auto.create.topics.enable", "true");
+    // set this to 50000 to boost the performance so most test data are in memory before flush to disk
+    props.setProperty("log.flush.interval.messages", "50000");
+    kserver = new KafkaServerStartable(new KafkaConfig(props));
     kserver.startup();
   }
 
@@ -132,15 +116,4 @@ public class KafkaOperatorTestBase
       logger.debug("LSHIL {}", ex.getLocalizedMessage());
     }
   }
-  
-  public boolean isUseZookeeper()
-  {
-    return useZookeeper;
-  }
-  
-  public void setUseZookeeper(boolean useZookeeper)
-  {
-    this.useZookeeper = useZookeeper;
-  }
-
 }
