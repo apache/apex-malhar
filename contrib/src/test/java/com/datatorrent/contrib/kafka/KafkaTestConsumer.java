@@ -22,20 +22,18 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
-
 import kafka.consumer.ConsumerConfig;
 import kafka.consumer.ConsumerIterator;
 import kafka.consumer.KafkaStream;
 import kafka.javaapi.consumer.ConsumerConnector;
 import kafka.message.Message;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * A kafka consumer for testing
  */
-public class KafkaConsumer implements Runnable
+public class KafkaTestConsumer implements Runnable
 {
   private static final Logger logger = LoggerFactory.getLogger(KafkaConsumer.class);
   private final transient ConsumerConnector consumer;
@@ -64,7 +62,7 @@ public class KafkaConsumer implements Runnable
     this.isAlive = isAlive;
   }
 
-  public KafkaConsumer(String topic)
+  public KafkaTestConsumer(String topic)
   {
     consumer = kafka.consumer.Consumer.createJavaConsumerConnector(createConsumerConfig());
     this.topic = topic;
@@ -73,8 +71,9 @@ public class KafkaConsumer implements Runnable
   private ConsumerConfig createConsumerConfig()
   {
     Properties props = new Properties();
-    props.setProperty("zk.connect", "localhost:2182");
-    props.setProperty("groupid", "group1");
+    props.setProperty("zookeeper.connect", "localhost:2182");
+    props.setProperty("group.id", "group1");
+    props.put("auto.offset.reset", "smallest");
     return new ConsumerConfig(props);
   }
 
@@ -91,18 +90,19 @@ public class KafkaConsumer implements Runnable
   {
     Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
     topicCountMap.put(topic, new Integer(1));
-    Map<String, List<KafkaStream<Message>>> consumerMap = consumer.createMessageStreams(topicCountMap);
-    KafkaStream<Message> stream = consumerMap.get(topic).get(0);
-    ConsumerIterator<Message> it = stream.iterator();
+    Map<String, List<KafkaStream<byte[], byte[]>>> consumerMap = consumer.createMessageStreams(topicCountMap);
+    KafkaStream<byte[], byte[]> stream = consumerMap.get(topic).get(0);
+    ConsumerIterator<byte[], byte[]> it = stream.iterator();
     logger.debug("Inside consumer::run receiveCount= {}", receiveCount);
     while (it.hasNext() & isAlive) {
-      Message msg = it.next().message();
+      Message msg = new Message(it.next().message());
+      if(getMessage(msg).equals(KafkaOperatorTestBase.END_TUPLE) && latch != null){
+        latch.countDown();
+        return;
+      }
       holdingBuffer.add(msg);
       receiveCount++;
       logger.debug("Consuming {}, receiveCount= {}", getMessage(msg), receiveCount);
-    }
-    if (latch != null) {
-      latch.countDown();
     }
     logger.debug("DONE consuming");
   }
@@ -117,4 +117,4 @@ public class KafkaConsumer implements Runnable
   {
     this.latch = latch;
   }
-} // End of KafkaConsumer
+} // End of KafkaTestConsumer
