@@ -16,9 +16,6 @@
 package com.datatorrent.contrib.kafka;
 
 import java.nio.ByteBuffer;
-import java.util.Properties;
-
-import kafka.consumer.ConsumerConfig;
 import kafka.message.Message;
 
 /**
@@ -28,14 +25,6 @@ import kafka.message.Message;
  */
 public class KafkaSinglePortStringInputOperator extends AbstractKafkaSinglePortInputOperator<String>
 {
-  
-  private Properties configProperties = null;
-
-  @Override
-  public ConsumerConfig createKafkaConsumerConfig()
-  {
-    return new ConsumerConfig(configProperties);
-  }
 
   /**
    * Implement abstract method of AbstractActiveMQSinglePortInputOperator
@@ -57,13 +46,4 @@ public class KafkaSinglePortStringInputOperator extends AbstractKafkaSinglePortI
     return data;
   }
 
-  public Properties getConfigProperties()
-  {
-    return configProperties;
-  }
-
-  public void setConfigProperties(Properties configProperties)
-  {
-    this.configProperties = configProperties;
-  }
 }

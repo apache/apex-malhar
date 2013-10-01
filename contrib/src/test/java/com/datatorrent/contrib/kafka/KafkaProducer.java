@@ -18,15 +18,15 @@ package com.datatorrent.contrib.kafka;
 import java.util.Properties;
 
 import kafka.javaapi.producer.Producer;
-import kafka.javaapi.producer.ProducerData;
+import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
 /**
- *
+ * A kafka producer for testing
  */
 public class KafkaProducer implements Runnable
 {
 //  private static final Logger logger = LoggerFactory.getLogger(KafkaProducer.class);
-  private final kafka.javaapi.producer.Producer<Integer, String> producer;
+  private final kafka.javaapi.producer.Producer<String, String> producer;
   private final String topic;
   private int sendCount = 20;
 
@@ -40,29 +40,23 @@ public class KafkaProducer implements Runnable
     this.sendCount = sendCount;
   }
 
-  private ProducerConfig createProducerConfig(boolean isSimple)
+  private ProducerConfig createProducerConfig()
   {
     Properties props = new Properties();
     props.setProperty("serializer.class", "kafka.serializer.StringEncoder");
-    if (isSimple) {
-      props.setProperty("broker.list", "1:localhost:2182");
-      props.setProperty("producer.type", "async");
-      props.setProperty("queue.time", "2000");
-      props.setProperty("queue.size", "100");
-      props.setProperty("batch.size", "10");
-    }
-    else {
-      props.setProperty("zk.connect", "localhost:2182");
-    }
-
+    props.put("metadata.broker.list", "localhost:9092");
+    props.setProperty("producer.type", "async");
+    props.setProperty("serializer.class", "kafka.serializer.StringEncoder");
+    props.put("request.required.acks", "1");
+    
     return new ProducerConfig(props);
   }
 
-  public KafkaProducer(String topic, boolean isSimple)
+  public KafkaProducer(String topic)
   {
     // Use random partitioner. Don't need the key type. Just set it to Integer.
     // The message is of type String.
-    producer = new Producer<Integer, String>(createProducerConfig(isSimple));
+    producer = new Producer<String, String>(createProducerConfig());
     this.topic = topic;
   }
 
@@ -73,12 +67,12 @@ public class KafkaProducer implements Runnable
     int messageNo = 1;
     while (messageNo <= sendCount) {
       String messageStr = "Message_" + messageNo;
-      producer.send(new ProducerData<Integer, String>(topic, messageStr));
+      producer.send(new KeyedMessage<String, String>(topic, messageStr));
       messageNo++;
      // logger.debug(String.format("Producing %s", messageStr));
     }
     // produce the end tuple to let the test input operator know it's done produce messages
-    producer.send(new ProducerData<Integer, String>(topic, KafkaOperatorTestBase.END_TUPLE));
+    producer.send(new KeyedMessage<String, String>(topic, KafkaOperatorTestBase.END_TUPLE));
   }
 
   public void close()
