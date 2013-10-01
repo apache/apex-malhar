@@ -37,7 +37,7 @@ public class HdfsOutputTest
     long startMillis = System.currentTimeMillis();
 
     HdfsOutputOperator module = new HdfsOutputOperator();
-    module.setFilePath(config.get(KEY_FILEPATH, "hdfsoutputtest.txt"));
+    module.setFilePath(config.get(KEY_FILEPATH, "target/hdfsoutputtest.txt"));
     module.setAppend(config.getBoolean(KEY_APPEND, false));
 
     module.setup(new OperatorContextTestHelper.TestIdOperatorContext(0));
