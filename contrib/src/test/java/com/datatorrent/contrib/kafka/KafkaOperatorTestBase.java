@@ -34,19 +34,28 @@ import org.slf4j.LoggerFactory;
 public class KafkaOperatorTestBase
 {
   
-  public static String END_TUPLE = "END_TUPLE";
+  public static final String END_TUPLE = "END_TUPLE";
+  public static final int TEST_ZOOKEEPER_PORT =  2182;
+  public static final int TEST_KAFKA_BROKER1_PORT =  9092;
+  public static final int TEST_KAFKA_BROKER2_PORT =  9093;
+  
   static final org.slf4j.Logger logger = LoggerFactory.getLogger(KafkaOperatorTestBase.class);
   // since Kafka 0.8 use KafkaServerStatble instead of KafkaServer
   private KafkaServerStartable kserver;
+  // it wont be initialized unless hasMultiPartition is set to true
+  private KafkaServerStartable kserver2;
   private NIOServerCnxnFactory standaloneServerFactory;
   private final String zklogdir = "/tmp/zookeeper-server-data";
   private final String kafkalogdir = "/tmp/kafka-server-data";
-
+  private final String kafkalogdir2 = "/tmp/kafka-server-data2";
+  protected boolean hasMultiPartition = false; 
+  
+  
   public void startZookeeper()
   {
   
     try {
-      int clientPort = 2182;
+      int clientPort = TEST_ZOOKEEPER_PORT;
       int numConnections = 10;
       int tickTime = 2000;
       File dir = new File(zklogdir);
@@ -76,18 +85,36 @@ public class KafkaOperatorTestBase
     Properties props = new Properties();
     props.setProperty("broker.id", "0");
     props.setProperty("log.dirs", kafkalogdir);
-    props.setProperty("zookeeper.connect", "localhost:2182");
-    props.setProperty("port", "9092");
-    props.setProperty("num.partitions", "1");
+    props.setProperty("zookeeper.connect", "localhost:"+TEST_ZOOKEEPER_PORT);
+    props.setProperty("port", ""+TEST_KAFKA_BROKER1_PORT);
+    if(hasMultiPartition){
+      props.setProperty("num.partitions", "2");
+    } else {
+      props.setProperty("num.partitions", "1");
+    }
     props.setProperty("auto.create.topics.enable", "true");
     // set this to 50000 to boost the performance so most test data are in memory before flush to disk
     props.setProperty("log.flush.interval.messages", "50000");
     kserver = new KafkaServerStartable(new KafkaConfig(props));
     kserver.startup();
+    if(hasMultiPartition){
+      props.setProperty("broker.id", "1");
+      props.setProperty("log.dirs", kafkalogdir2);
+      props.setProperty("port", "" + TEST_KAFKA_BROKER2_PORT);
+      props.setProperty("num.partitions", "2");
+      kserver2 = new KafkaServerStartable(new KafkaConfig(props));
+      kserver2.startup();
+    }
+    
   }
 
   public void stopKafkaServer()
   {
+    if(hasMultiPartition){
+      kserver2.shutdown();
+      kserver2.awaitShutdown();
+      Utils.rm(kafkalogdir2);
+    }
     kserver.shutdown();
     kserver.awaitShutdown();
     Utils.rm(kafkalogdir);
@@ -117,3 +144,4 @@ public class KafkaOperatorTestBase
     }
   }
 }
+
