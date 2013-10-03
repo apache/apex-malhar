@@ -11,6 +11,11 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 
+/**
+ * <p>ApacheLogParseMapOutputOperator class.</p>
+ *
+ * @since 0.3.5
+ */
 public class ApacheLogParseMapOutputOperator extends BaseOperator
 {
   /**

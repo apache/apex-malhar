@@ -83,8 +83,8 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
             while (dataGeneratorThread != null && i < maxTuple) {
               stringBuffer.put("testString " + (++i));
               tupleCount++;
-              Thread.sleep(20);
             }
+            stringBuffer.put(KafkaOperatorTestBase.END_TUPLE);
           }
           catch (InterruptedException ie) {
           }
@@ -124,7 +124,7 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
     //initialize the latch to synchronize the threads
     latch = new CountDownLatch(1);
     // Setup a message listener to receive the message
-    KafkaConsumer listener = new KafkaConsumer("topic1");
+    KafkaTestConsumer listener = new KafkaTestConsumer("topic1");
     listener.setLatch(latch);
     new Thread(listener).start();
 
@@ -139,17 +139,11 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
     
     Properties props = new Properties();
     props.setProperty("serializer.class", "kafka.serializer.StringEncoder");
-    if (isUseZookeeper())
-    {
-      props.setProperty("zk.connect", "localhost:2182");
-    }
-    else {
-      props.setProperty("broker.list", "1:localhost:2182");
-      props.setProperty("producer.type", "async");
-      props.setProperty("queue.time", "2000");
-      props.setProperty("queue.size", "100");
-      props.setProperty("batch.size", "10");
-    }
+    props.put("metadata.broker.list", "localhost:9092");
+    props.setProperty("producer.type", "async");
+    props.setProperty("queue.buffering.max.ms", "200");
+    props.setProperty("queue.buffering.max.messages", "10");
+    props.setProperty("batch.num.messages", "5");
     
     node.setConfigProperties(props);
     // Set configuration parameters for Kafka
@@ -163,7 +157,7 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
     lc.runAsync();
 
     // Immediately return unless latch timeout in 5 seconds
-    latch.await(5, TimeUnit.SECONDS);
+    latch.await(15, TimeUnit.SECONDS);
     lc.shutdown();
 
     // Check values send vs received

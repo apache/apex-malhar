@@ -16,9 +16,10 @@
 package com.datatorrent.contrib.kafka;
 
 import java.util.Properties;
+
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.DefaultInputPort;
-import kafka.javaapi.producer.ProducerData;
+import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
 
 /**
@@ -59,7 +60,7 @@ public class KafkaSinglePortOutputOperator<K, V> extends AbstractKafkaOutputOper
     public void process(V tuple)
     {
       // Send out single data
-      getProducer().send(new ProducerData<K, V>(getTopic(), tuple));
+      getProducer().send(new KeyedMessage<K, V>(getTopic(), tuple));
       sendCount++;
 
       // TBD: Kafka also has an api to send out bunch of data in a list.

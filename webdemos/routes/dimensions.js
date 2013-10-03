@@ -43,15 +43,11 @@ exports.data = function(req, res) {
 };
 
 function getMinutes(query, resCallback) {
-    var lookbackMinutes = query.lookbackMinutes;
+    var lookbackHours = query.lookbackHours;
     var endTime = query.endTime;
     var publisher = query.publisher;
     var advertiser = query.advertiser;
     var adunit = query.adunit;
-
-    if (!endTime) {
-        endTime = Date.now();
-    }
 
     var keyTemplate = 'm|$date';
     if (publisher) keyTemplate += '|0:' + publisher;
@@ -60,10 +56,15 @@ function getMinutes(query, resCallback) {
 
     var minute = (60 * 1000);
     var result = [];
-    var time = endTime - lookbackMinutes * minute;
+
+    if (!endTime) {
+        endTime = Date.now();
+    }
+    endTime -= (endTime % minute); // round to minute
+    var time = endTime - lookbackHours * (minute * 60);
 
     async.whilst(
-        function () { return time <= endTime; },
+        function () { return time < endTime; },
         function (callback) {
             var date = dateFormat(time, 'UTC:yyyymmddHHMM');
             var key = keyTemplate

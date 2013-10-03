@@ -19,25 +19,14 @@ import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.InputOperator;
-import java.security.InvalidParameterException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
+
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import kafka.api.FetchRequest;
-import kafka.consumer.ConsumerConfig;
-import kafka.consumer.ConsumerIterator;
-import kafka.consumer.KafkaStream;
-import kafka.javaapi.consumer.ConsumerConnector;
-import kafka.javaapi.consumer.SimpleConsumer;
-import kafka.javaapi.message.ByteBufferMessageSet;
+
 import kafka.message.Message;
-import kafka.message.MessageAndOffset;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 /**
  * Kafka input adapter operator, which consume data from Kafka message bus.<p><br>
  *
@@ -59,7 +48,8 @@ import org.slf4j.LoggerFactory;
  * Benchmarks:<br>
  * TBD<br>
  * <br>
- *
+ * 
+ *                       
  * @since 0.3.2
  */
 @ShipContainingJars(classes={kafka.javaapi.consumer.SimpleConsumer.class, org.I0Itec.zkclient.ZkClient.class, scala.ScalaObject.class})
@@ -67,22 +57,13 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Activ
 {
   @SuppressWarnings("unused")
   private static final Logger logger = LoggerFactory.getLogger(AbstractKafkaInputOperator.class);
-  protected static final int TUPLES_BLAST_DEFAULT = 10 * 1024; // 10k
-  protected static final int BUFFER_SIZE_DEFAULT = 1024 * 1024; // 1M
-  // Config parameters that user can set.
-  private int tuplesBlast = TUPLES_BLAST_DEFAULT;
-  private int bufferSize = BUFFER_SIZE_DEFAULT;
-  protected transient ArrayBlockingQueue<Message> holdingBuffer;
-  private transient ConsumerConnector standardConsumer;
-  private transient SimpleConsumer simpleConsumer;
-  private transient Thread consumerThread;
-  private boolean isAlive = true;
-  private transient KafkaConsumer consumer;
+  
+  private int tuplesBlast = 10 * 1024;
+  
   @NotNull
-  private String consumerType = "standard"; // can be standard, simple, console
-  @NotNull
-  private String topic = "topic1";
-  private int numStream = 1;
+  @Valid
+  private KafkaConsumer consumer =  new HighlevelKafkaConsumer();
+
 
   /**
    * Any concrete class derived from KafkaInputOperator has to implement this method
@@ -91,8 +72,6 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Activ
    * @param message
    */
   protected abstract void emitTuple(Message message);
-
-  public abstract ConsumerConfig createKafkaConsumerConfig();
 
   public int getTuplesBlast()
   {
@@ -104,57 +83,6 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Activ
     this.tuplesBlast = tuplesBlast;
   }
 
-  public int getBufferSize()
-  {
-    return bufferSize;
-  }
-
-  public void setBufferSize(int bufferSize)
-  {
-    this.bufferSize = bufferSize;
-  }
-
-  public String getConsumerType()
-  {
-    return consumerType;
-  }
-
- // @Pattern(regexp = "standard|simple|console", message = "Consumer type has to be standard, or simple, or console")
-  public void setConsumerType(String consumerType)
-  {
-    this.consumerType = consumerType;
-  }
-
-  public String getTopic()
-  {
-    return topic;
-  }
-
-  public void setTopic(String topic)
-  {
-    this.topic = topic;
-  }
-
-  public boolean isIsAlive()
-  {
-    return isAlive;
-  }
-
-  public void setIsAlive(boolean isAlive)
-  {
-    this.isAlive = isAlive;
-  }
-
-  public int getNumStream()
-  {
-    return numStream;
-  }
-
-  public void setNumStream(int numStream)
-  {
-    this.numStream = numStream;
-  }
-
   /**
    * Implement Component Interface.
    *
@@ -163,7 +91,7 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Activ
   @Override
   public void setup(OperatorContext context)
   {
-    holdingBuffer = new ArrayBlockingQueue<Message>(bufferSize);
+    consumer.create();
   }
 
   /**
@@ -172,7 +100,7 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Activ
   @Override
   public void teardown()
   {
-    holdingBuffer.clear();
+    consumer.teardown();
   }
 
   /**
@@ -197,32 +125,8 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Activ
   @Override
   public void activate(OperatorContext ctx)
   {
-    if ("standard".equals(consumerType)) {
-      consumer = new StandardKafkaConsumer();
-    }
-    else if ("simple".equals(consumerType)) {
-      consumer = new SimpleKafkaConsumer();
-    }
-    else if ("console".equals(consumerType)) {
-      consumer = null;
-      throw new InvalidParameterException("console type is not supported yet.");
-    }
-    else {
-      consumer = null;
-      throw new InvalidParameterException("Consumer type should be standard, or simple, or console");
-    }
-
-    consumer.create();
-    consumerThread = new Thread("KafkaConsumerThread")
-    {
-      @Override
-      public void run()
-      {
-        consumer.start();
-      }
-    };
-
-    consumerThread.start();
+    // Don't start thread here because how many threads we use for consumer depends how many streams(aka Kafka partitions) use set to consume the data
+    consumer.start();
   }
 
   /**
@@ -240,86 +144,20 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Activ
   @Override
   public void emitTuples()
   {
-    int bufferLength = holdingBuffer.size();
+    int bufferLength = consumer.messageSize();
     for (int i = tuplesBlast < bufferLength ? tuplesBlast : bufferLength; i-- > 0;) {
-      emitTuple(holdingBuffer.poll());
+      emitTuple(consumer.pollMessage());
     }
   }
-
-  public abstract class KafkaConsumer
+  
+  public void setConsumer(KafkaConsumer consumer)
   {
-    public abstract void create();
-
-    public abstract void start();
-
-    public abstract void stop();
+    this.consumer = consumer;
+  }
+  
+  public KafkaConsumer getConsumer()
+  {
+    return consumer;
   }
 
-  public class StandardKafkaConsumer extends KafkaConsumer
-  {
-    @Override
-    public void create()
-    {
-      standardConsumer = kafka.consumer.Consumer.createJavaConsumerConnector(createKafkaConsumerConfig());
-    }
-
-    @Override
-    public void start()
-    {
-      Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
-      topicCountMap.put(topic, new Integer(numStream)); // take care int, how to handle multiple topics
-      Map<String, List<KafkaStream<Message>>> consumerMap = standardConsumer.createMessageStreams(topicCountMap); // there is another api createMessageStreamsByFilter
-      for (int i = 0; i < numStream; ++i) {
-        KafkaStream<Message> stream = consumerMap.get(topic).get(i);
-        ConsumerIterator<Message> itr = stream.iterator();
-        while (itr.hasNext() && isAlive) {
-          holdingBuffer.add(itr.next().message());
-        }
-      }
-    }
-
-    @Override
-    public void stop()
-    {
-      isAlive = false;
-      standardConsumer.shutdown();
-    }
-  } // End of StandardKafkaConsumer
-
-  public class SimpleKafkaConsumer extends KafkaConsumer
-  {
-    @Override
-    public void create()
-    {
-      simpleConsumer = new SimpleConsumer("localhost", 2182, 10000, 1024000);
-    }
-
-    @Override
-    public void start()
-    {
-      long offset = 0;
-      while (isAlive) {
-        // create a fetch request for topic, partition 0, current offset, and fetch size of 1MB
-        FetchRequest fetchRequest = new FetchRequest(topic, 0, offset, 1000000);
-
-        // get the message set from the broker
-        ByteBufferMessageSet messages = simpleConsumer.fetch(fetchRequest);
-        Iterator<MessageAndOffset> itr = messages.iterator();
-
-        while (itr.hasNext() && isAlive) {
-          MessageAndOffset msg = itr.next();
-          holdingBuffer.add(msg.message());
-          // advance the offset after consuming each message
-          offset = msg.offset();
-        }
-      }
-    }
-
-    @Override
-    public void stop()
-    {
-      isAlive = false;
-      simpleConsumer.close();
-    }
-  }  // End of SimpleKafkaConsumer
 }
