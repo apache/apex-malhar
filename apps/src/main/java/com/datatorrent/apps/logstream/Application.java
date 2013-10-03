@@ -16,13 +16,17 @@
 package com.datatorrent.apps.logstream;
 
 import com.datatorrent.api.Context.OperatorContext;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.contrib.redis.RedisBLPOPStringInputOperator;
 import com.datatorrent.lib.algo.TopNUnique;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.logs.DimensionObject;
@@ -125,6 +129,12 @@ public class Application implements StreamingApplication
     // Get logs from RabbitMQ
     RabbitMQLogsInputOperator apacheLogInput = dag.addOperator("ApacheLogInput", RabbitMQLogsInputOperator.class);
 
+    // Get logs from Redis
+    //RedisBLPOPStringInputOperator redisInput = dag.addOperator("redisInput", new RedisBLPOPStringInputOperator());
+    //redisInput.setHost("localhost");
+    //redisInput.setPort(6379);
+    //redisInput.setRedisKeys("logstash");
+    
     // dynamically partition based on number of incoming tuples from the queue
     dag.setAttribute(apacheLogInput, OperatorContext.INITIAL_PARTITION_COUNT, 2);
     dag.setAttribute(apacheLogInput, OperatorContext.PARTITION_TPS_MIN, 1000);
