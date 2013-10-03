@@ -21,10 +21,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-
 import kafka.api.FetchRequest;
 import kafka.api.FetchRequestBuilder;
 import kafka.common.ErrorMapping;
@@ -46,14 +44,14 @@ public class SimpleKafkaConsumer extends KafkaConsumer
   {
   }
   
-  public SimpleKafkaConsumer(String host, int port, int timeout, int bufferSize, String clientId)
+  public SimpleKafkaConsumer(String topic, String host, int port, int timeout, int bufferSize, String clientId)
   {
-    this(host, port, timeout, bufferSize, clientId, -1);
+    this(topic, host, port, timeout, bufferSize, clientId, -1);
   }
   
-  public SimpleKafkaConsumer(String host, int port, int timeout, int bufferSize, String clientId, int partitionId)
+  public SimpleKafkaConsumer(String topic, String host, int port, int timeout, int bufferSize, String clientId, int partitionId)
   {
-    super();
+    super(topic);
     this.host = host;
     this.port = port;
     this.timeout = timeout;
@@ -97,20 +95,16 @@ public class SimpleKafkaConsumer extends KafkaConsumer
   public void start()
   {
     super.start();
-    List<Integer> partition = new ArrayList<Integer>();
+    List<Integer> partition = null;
     if (partitionId == -1) {
       // if partition id is set to -1 , find all the partitions for the specific topic
-      List<String> topics = new ArrayList<String>();
-      topics.add(topic);
-      kafka.javaapi.TopicMetadataRequest req = new kafka.javaapi.TopicMetadataRequest(topics);
-      TopicMetadataResponse resp = simpleConsumer.send(req);
-      List<TopicMetadata> metaData = (List<TopicMetadata>) resp.topicsMetadata();
-      for (TopicMetadata item : metaData) {
-        for (PartitionMetadata part : item.partitionsMetadata()) {
-          partition.add(part.partitionId());
-        }
+      List<PartitionMetadata> partitionMetaList = getPartitionMDs();
+      partition = new ArrayList<Integer>(partitionMetaList.size());
+      for (PartitionMetadata part : partitionMetaList) {
+        partition.add(part.partitionId());
       }
     } else {
+      partition = new ArrayList<Integer>(1);
       partition.add(partitionId);
     }
     ExecutorService executor = Executors.newFixedThreadPool(partition.size());
@@ -145,9 +139,23 @@ public class SimpleKafkaConsumer extends KafkaConsumer
       });
       
     }
-
-    
   }
+  
+  public List<PartitionMetadata> getPartitionMDs()
+  {
+    List<String> topics = new ArrayList<String>(1);
+    topics.add(topic);
+    kafka.javaapi.TopicMetadataRequest req = new kafka.javaapi.TopicMetadataRequest(topics);
+    TopicMetadataResponse resp = simpleConsumer.send(req);
+    List<TopicMetadata> metaData = (List<TopicMetadata>) resp.topicsMetadata();
+    for (TopicMetadata item : metaData) {
+      // There is maximun of 1 topic
+      return item.partitionsMetadata();
+    }
+    return null;
+  }
+  
+
 
   @Override
   public void stop()
@@ -180,4 +188,30 @@ public class SimpleKafkaConsumer extends KafkaConsumer
   {
     this.timeout = timeout;
   }
+  
+  public String getHost()
+  {
+    return host;
+  }
+  
+  public int getBufferSize()
+  {
+    return bufferSize;
+  }
+  
+  public String getClientId()
+  {
+    return clientId;
+  }
+  
+  public int getTimeout()
+  {
+    return timeout;
+  }
+  
+  public int getPort()
+  {
+    return port;
+  }
+  
 }  // End of SimpleKafkaConsumer

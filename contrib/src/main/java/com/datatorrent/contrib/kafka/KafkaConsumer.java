@@ -27,6 +27,17 @@ import kafka.message.Message;
  */
 public abstract class KafkaConsumer
 {
+  
+  public KafkaConsumer()
+  {
+  }
+  
+  public KafkaConsumer(String topic)
+  {
+    super();
+    this.topic = topic;
+  }
+
   private int consumerBuffer = 1024*1024;
   
   protected transient boolean isAlive = false;

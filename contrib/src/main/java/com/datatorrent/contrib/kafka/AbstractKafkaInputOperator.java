@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
  * @since 0.3.2
  */
 @ShipContainingJars(classes={kafka.javaapi.consumer.SimpleConsumer.class, org.I0Itec.zkclient.ZkClient.class, scala.ScalaObject.class})
-public abstract class AbstractKafkaInputOperator implements InputOperator, ActivationListener<OperatorContext>
+public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implements InputOperator, ActivationListener<OperatorContext>
 {
   @SuppressWarnings("unused")
   private static final Logger logger = LoggerFactory.getLogger(AbstractKafkaInputOperator.class);
@@ -62,7 +62,7 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Activ
   
   @NotNull
   @Valid
-  private KafkaConsumer consumer =  new HighlevelKafkaConsumer();
+  private K consumer = null;
 
 
   /**
@@ -150,12 +150,12 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Activ
     }
   }
   
-  public void setConsumer(KafkaConsumer consumer)
+  public void setConsumer(K consumer)
   {
     this.consumer = consumer;
   }
   
-  public KafkaConsumer getConsumer()
+  public K getConsumer()
   {
     return consumer;
   }

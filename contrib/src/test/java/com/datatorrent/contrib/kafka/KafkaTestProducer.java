@@ -16,19 +16,22 @@
 package com.datatorrent.contrib.kafka;
 
 import java.util.Properties;
-
+import java.util.Random;
 import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
 /**
  * A kafka producer for testing
  */
-public class KafkaProducer implements Runnable
+public class KafkaTestProducer implements Runnable
 {
-//  private static final Logger logger = LoggerFactory.getLogger(KafkaProducer.class);
+//  private static final Logger logger = LoggerFactory.getLogger(KafkaTestProducer.class);
   private final kafka.javaapi.producer.Producer<String, String> producer;
   private final String topic;
   private int sendCount = 20;
+  // to generate a random int as a key for partition
+  private Random rand = new Random();
+  private boolean hasPartition = false;
 
   public int getSendCount()
   {
@@ -44,20 +47,35 @@ public class KafkaProducer implements Runnable
   {
     Properties props = new Properties();
     props.setProperty("serializer.class", "kafka.serializer.StringEncoder");
-    props.put("metadata.broker.list", "localhost:9092");
-    props.setProperty("producer.type", "async");
-    props.setProperty("serializer.class", "kafka.serializer.StringEncoder");
-    props.put("request.required.acks", "1");
+    props.setProperty("key.serializer.class", "kafka.serializer.StringEncoder");
+//    props.put("metadata.broker.list", "localhost:"+KafkaOperatorTestBase.TEST_KAFKA_BROKER1_PORT );
+    if(hasPartition){
+      props.put("metadata.broker.list", "localhost:"+KafkaOperatorTestBase.TEST_KAFKA_BROKER1_PORT + ",localhost:" + KafkaOperatorTestBase.TEST_KAFKA_BROKER2_PORT);
+    } else {
+      props.put("metadata.broker.list", "localhost:"+KafkaOperatorTestBase.TEST_KAFKA_BROKER1_PORT );
+    }
+    // use this partition class always, if the partition is 1 it wont affect anything anyway
+    props.setProperty("partitioner.class", KafkaTestPartitioner.class.getCanonicalName());
+    props.setProperty("producer.type", "sync");
+//    props.put("request.required.acks", "1");
     
     return new ProducerConfig(props);
   }
 
-  public KafkaProducer(String topic)
+  public KafkaTestProducer(String topic)
+  {
+    this(topic, false);
+  }
+  
+  
+
+  public KafkaTestProducer(String topic, boolean hasPartition)
   {
     // Use random partitioner. Don't need the key type. Just set it to Integer.
     // The message is of type String.
-    producer = new Producer<String, String>(createProducerConfig());
     this.topic = topic;
+    this.hasPartition = hasPartition;
+    producer = new Producer<String, String>(createProducerConfig());
   }
 
   @Override
@@ -67,16 +85,21 @@ public class KafkaProducer implements Runnable
     int messageNo = 1;
     while (messageNo <= sendCount) {
       String messageStr = "Message_" + messageNo;
-      producer.send(new KeyedMessage<String, String>(topic, messageStr));
+      int k = rand.nextInt(100);
+      producer.send(new KeyedMessage<String, String>(topic, "" + k, messageStr));
       messageNo++;
      // logger.debug(String.format("Producing %s", messageStr));
     }
     // produce the end tuple to let the test input operator know it's done produce messages
-    producer.send(new KeyedMessage<String, String>(topic, KafkaOperatorTestBase.END_TUPLE));
+    producer.send(new KeyedMessage<String, String>(topic, "" + 0, KafkaOperatorTestBase.END_TUPLE));
+    if(hasPartition){
+      // if there is partition send end_tuple to partition 1
+      producer.send(new KeyedMessage<String, String>(topic, "" + 1, KafkaOperatorTestBase.END_TUPLE));
+    }
   }
 
   public void close()
   {
     producer.close();
   }
-} // End of KafkaProducer
+} // End of KafkaTestProducer
