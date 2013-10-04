@@ -15,6 +15,9 @@
  */
 package com.datatorrent.contrib.machinedata;
 
+import com.datatorrent.contrib.machinedata.data.MachineInfo;
+import com.datatorrent.contrib.machinedata.data.MachineKey;
+
 /**
  * <p>CpuInfo class.</p>
  *

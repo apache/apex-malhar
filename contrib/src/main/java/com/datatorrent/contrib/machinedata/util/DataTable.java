@@ -29,7 +29,7 @@ import com.google.common.collect.Maps;
  */
 public class DataTable<R,C,E>   {
 
-	//machineKey, [cpu,ram,hdd] -> list of values
+	//machineKey, [cpu,ram,hdd] -> value
 	private final Map<R,Map<C,E>> table= Maps.newHashMap();
 
 	public boolean containsRow(R rowKey){

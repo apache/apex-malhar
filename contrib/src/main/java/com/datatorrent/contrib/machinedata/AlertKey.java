@@ -15,6 +15,8 @@
  */
 package com.datatorrent.contrib.machinedata;
 
+import com.datatorrent.contrib.machinedata.data.MachineKey;
+
 import java.util.Calendar;
 
 /**

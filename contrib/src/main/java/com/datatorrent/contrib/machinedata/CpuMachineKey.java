@@ -15,6 +15,8 @@
  */
 package com.datatorrent.contrib.machinedata;
 
+import com.datatorrent.contrib.machinedata.data.MachineKey;
+
 /**
  * <p>CpuMachineKey class.</p>
  *

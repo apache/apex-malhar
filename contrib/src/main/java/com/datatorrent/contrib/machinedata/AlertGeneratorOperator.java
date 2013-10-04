@@ -18,9 +18,11 @@ package com.datatorrent.contrib.machinedata;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
+import com.datatorrent.contrib.machinedata.data.MachineInfo;
+import com.datatorrent.contrib.machinedata.data.MachineKey;
 import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.lib.util.TimeBucketKey;
-import com.datatorrent.contrib.machinedata.operator.averaging.AverageData;
+import com.datatorrent.contrib.machinedata.data.AverageData;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +37,11 @@ public class AlertGeneratorOperator extends BaseOperator implements InputOperato
   public transient DefaultOutputPort<KeyValPair<TimeBucketKey, Map<String, AverageData>>> alertPort
            = new DefaultOutputPort<KeyValPair<TimeBucketKey, Map<String, AverageData>>>();
 
+    public transient DefaultOutputPort<MachineInfo> alertMachineInfoPort
+            = new DefaultOutputPort<MachineInfo>();
+
   private KeyValPair<TimeBucketKey, Map<String, AverageData>> alertPair = null;
+  private MachineInfo machineInfoAlert=null;
 
   @Override
   public void emitTuples()
@@ -49,6 +55,10 @@ public class AlertGeneratorOperator extends BaseOperator implements InputOperato
       alertPair.getKey().setTime(Calendar.getInstance());
       alertPort.emit(alertPair);
     }
+    if(machineInfoAlert!=null){
+        machineInfoAlert.getMachineKey().setTime(Calendar.getInstance());
+        alertMachineInfoPort.emit(machineInfoAlert);
+    }
   }
 
   public void setAlert(String alertKey) {
@@ -59,11 +69,13 @@ public class AlertGeneratorOperator extends BaseOperator implements InputOperato
       Integer idim = Integer.parseInt(dim);
       MachineKey machineKey = new MachineKey(Calendar.getInstance(), TimeBucketKey.TIMESPEC_MINUTE_SPEC);
       parseMachineKey(key, machineKey);
+
       int cpu = 50, ram = 50, hdd = 50;
       int cpucount = 1, ramcount = 1, hddcount = 1;
       if (idim == 1) { cpu = 90; cpucount = 100000000; }
       if (idim == 2) { ram = 90; ramcount = 100000000; }
       if (idim == 3) { hdd = 90; hddcount = 100000000; }
+
       Map<String,  AverageData> averageMap = new HashMap<String, AverageData>();
       AverageData cpuAverageData = new AverageData(((long)cpu*cpucount), cpucount);
       averageMap.put("cpu", cpuAverageData);
@@ -73,6 +85,9 @@ public class AlertGeneratorOperator extends BaseOperator implements InputOperato
       averageMap.put("hdd", hddAverageData);
       alertPair = new KeyValPair<TimeBucketKey, Map<String, AverageData>>(machineKey, averageMap);
       alertPort.emit(alertPair);
+
+      machineInfoAlert=new MachineInfo(machineKey,cpu,ram,hdd);
+      alertMachineInfoPort.emit(machineInfoAlert);
     }
   }
 

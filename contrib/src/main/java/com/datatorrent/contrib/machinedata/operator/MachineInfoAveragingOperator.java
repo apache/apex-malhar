@@ -13,14 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.machinedata;
+package com.datatorrent.contrib.machinedata.operator;
 
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.contrib.machinedata.operator.averaging.AverageData;
+import com.datatorrent.contrib.machinedata.data.MachineKey;
+import com.datatorrent.contrib.machinedata.data.AverageData;
+import com.datatorrent.contrib.machinedata.data.ResourceType;
 import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.lib.util.TimeBucketKey;
+import com.google.common.collect.Maps;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
@@ -39,8 +42,8 @@ public class MachineInfoAveragingOperator extends BaseOperator {
     private Map<TimeBucketKey, List<Map<String, AverageData>>> dataMap =
             new HashMap<TimeBucketKey, List<Map<String, AverageData>>>();
 
-    public final transient DefaultOutputPort<KeyValPair<TimeBucketKey, Map<String, Double>>> outputPort =
-            new DefaultOutputPort<KeyValPair<TimeBucketKey, Map<String, Double>>>();
+    public final transient DefaultOutputPort<KeyValPair<TimeBucketKey, Map<ResourceType, Double>>> outputPort =
+            new DefaultOutputPort<KeyValPair<TimeBucketKey, Map<ResourceType, Double>>>();
 
     public transient DefaultOutputPort<String> smtpAlert = new DefaultOutputPort<String>();
 
@@ -95,39 +98,41 @@ public class MachineInfoAveragingOperator extends BaseOperator {
         for (Map.Entry<TimeBucketKey, List<Map<String, AverageData>>> entry: dataMap.entrySet()) {
             TimeBucketKey key = entry.getKey();
             List<Map<String, AverageData>> list = entry.getValue();
-            Map<String, AverageData> averageResultMap = new HashMap<String, AverageData>();
+
+            Map<ResourceType, AverageData> averageResultMap = Maps.newHashMap();
+
             for (Map<String, AverageData> map: list) {
                 prepareAverageResult(map, "cpu", averageResultMap);
                 prepareAverageResult(map, "ram", averageResultMap);
                 prepareAverageResult(map, "hdd", averageResultMap);
             }
-            Map<String, Double> averageResult = new HashMap<String, Double>();
-            for (Map.Entry<String, AverageData> dataEntry: averageResultMap.entrySet()) {
-                String valueKey = dataEntry.getKey();
+            Map<ResourceType, Double> averageResult = Maps.newHashMap();
+
+            for (Map.Entry<ResourceType, AverageData> dataEntry: averageResultMap.entrySet()) {
+                ResourceType resourceType = dataEntry.getKey();
                 double average = dataEntry.getValue().getSum() / dataEntry.getValue().getCount();
-                averageResult.put(valueKey, average);
+                averageResult.put(resourceType, average);
+
                 if (average > threshold) {
                   BigDecimal bd = new BigDecimal(average);
                   bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
                   String stime = dateFormat.format(key.getTime().getTime());
                   String skey = getKeyInfo(key);
-                  //smtpAlert.emit(valueKey + " alert for " + key + " " + valueKey + " usage breached current usage: " + bd.doubleValue() + "% threshold: " + threshold + "%" );
-                  //smtpAlert.emit(valueKey.toUpperCase() + " alert at " + stime + " for " + skey + " " + valueKey + " usage breached current usage: " + bd.doubleValue() + "% threshold: " + threshold + "%" );
-                  smtpAlert.emit(valueKey.toUpperCase() + " alert at " + stime + " " + valueKey + " usage breached current usage: " + bd.doubleValue() + "% threshold: " + threshold + "%\n\n" + skey );
+
+                  smtpAlert.emit(resourceType.toString().toUpperCase() + " alert at " + stime + " " + resourceType + " usage breached current usage: " + bd.doubleValue() + "% threshold: " + threshold + "%\n\n" + skey );
                 }
             }
-            outputPort.emit(new KeyValPair<TimeBucketKey, Map<String, Double>>(key, averageResult));
+            outputPort.emit(new KeyValPair<TimeBucketKey, Map<ResourceType, Double>>(key, averageResult));
         }
         dataMap.clear();
         procdAlert = false;
     }
 
-    private void prepareAverageResult(Map<String, AverageData> map, String valueKey, Map<String, AverageData> averageResultMap) {
+    private void prepareAverageResult(Map<String, AverageData> map, String valueKey, Map<ResourceType, AverageData> averageResultMap) {
         AverageData average = averageResultMap.get(valueKey);
         if (average == null) {
-            average = new AverageData(map.get(valueKey).getSum(),
-                    map.get(valueKey).getCount());
-            averageResultMap.put(valueKey,average);
+            average = new AverageData(map.get(valueKey).getSum(),map.get(valueKey).getCount());
+            averageResultMap.put(ResourceType.getResourceTypeOf(valueKey), average);
         } else {
             average.setSum(average.getSum() + map.get(valueKey).getSum());
             average.setCount(average.getCount() + map.get(valueKey).getCount());
