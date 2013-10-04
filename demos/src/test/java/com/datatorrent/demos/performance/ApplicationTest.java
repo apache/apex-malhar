@@ -18,9 +18,11 @@ package com.datatorrent.demos.performance;
 import java.io.IOException;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.demos.performance.Application;
 
 /**
  * Test the DAG declaration in local mode.
@@ -30,6 +32,19 @@ public class ApplicationTest
   @Test
   public void testApplication() throws IOException, Exception
   {
-    LocalMode.runApp(new Application(), 60000);
+    for (final Locality l : Locality.values()) {
+      logger.debug("Running the with {} locality", l);
+      LocalMode.runApp(new AbstractApplication()
+      {
+        @Override
+        public Locality getLocality()
+        {
+          return l;
+        }
+
+      }, 60000);
+    }
   }
+
+  private static final Logger logger = LoggerFactory.getLogger(ApplicationTest.class);
 }
