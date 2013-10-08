@@ -50,10 +50,6 @@ public class MachineInfoAveragingOperator extends BaseOperator {
     private int threshold = 70;
     private transient DateFormat dateFormat = new SimpleDateFormat();
 
-    private KeyValPair<TimeBucketKey, Map<String, AverageData>> alertTuple = null;
-    private boolean procdAlert = false;
-
-
     /**
      * Buffer all the tuples as is till end window gets called
      */
@@ -62,25 +58,8 @@ public class MachineInfoAveragingOperator extends BaseOperator {
 
         @Override
         public void process(KeyValPair<TimeBucketKey, Map<String, AverageData>> tuple) {
-          Calendar time = tuple.getKey().getTime();
           addTuple(tuple);
-          if ((alertTuple != null) && !procdAlert) {
-            alertTuple.getKey().setTime(time);
-            addTuple(alertTuple);
-            alertTuple = null;
-            procdAlert = true;
-          }
         }
-    };
-
-    public final transient DefaultInputPort<KeyValPair<TimeBucketKey, Map<String, AverageData>>> alertPort =
-        new DefaultInputPort<KeyValPair<TimeBucketKey, Map<String, AverageData>>>() {
-
-            @Override
-            public void process(KeyValPair<TimeBucketKey, Map<String, AverageData>> tuple) {
-              //addTuple(tuple);
-              alertTuple = tuple;
-            }
     };
 
 	private void addTuple(KeyValPair<TimeBucketKey, Map<String, AverageData>> tuple) {
@@ -125,7 +104,6 @@ public class MachineInfoAveragingOperator extends BaseOperator {
             outputPort.emit(new KeyValPair<TimeBucketKey, Map<ResourceType, Double>>(key, averageResult));
         }
         dataMap.clear();
-        procdAlert = false;
     }
 
     private void prepareAverageResult(Map<String, AverageData> map, String valueKey, Map<ResourceType, AverageData> averageResultMap) {

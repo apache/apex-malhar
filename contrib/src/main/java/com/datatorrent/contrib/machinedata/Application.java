@@ -52,8 +52,7 @@ public class Application implements StreamingApplication {
     }
 
     public MachineInfoBucketOperator getMachineInfoBucketOperator(String name, DAG dag) {
-        MachineInfoBucketOperator oper = dag.addOperator(name, MachineInfoBucketOperator.class);
-        return oper;
+        return dag.addOperator(name, MachineInfoBucketOperator.class);
     }
 
 
@@ -141,7 +140,7 @@ public class Application implements StreamingApplication {
         dag.setOutputPortAttribute(outputPort, PortContext.QUEUE_CAPACITY, 32*1024);
     }
 
-    private MachineInfoAveragingPrerequisitesOperator addAverageCalculation(DAG dag, Configuration conf,AlertGeneratorOperator alertGeneratorOperator){
+    private MachineInfoAveragingPrerequisitesOperator addAverageCalculation(DAG dag, Configuration conf){
         MachineInfoAveragingPrerequisitesOperator prereqAverageOper = getMachineInfoAveragingPrerequisitesOperator("PrereqAverage", dag);
     	dag.setInputPortAttribute(prereqAverageOper.inputPort, PortContext.PARTITION_PARALLEL, true);
 
@@ -155,10 +154,9 @@ public class Application implements StreamingApplication {
         RedisOutputOperator redisAvgOperator = getRedisOutputOperator("RedisAverageOutput", dag, conf, conf.getInt("machinedata.redis.db", 15));
         setDefaultInputPortQueueCapacity(dag,redisAvgOperator.inputInd);
 
-        SmtpOutputOperator smtpOutputOperator = getSmtpOutputOperator("SmtpOperator", dag, conf);
+        SmtpOutputOperator smtpOutputOperator = getSmtpOutputOperator("SmtpAvgOperator", dag, conf);
 
         dag.addStream("inter_avg", prereqAverageOper.outputPort, averageOperator.inputPort);
-        dag.addStream("avg_alert_gen",alertGeneratorOperator.alertPort, averageOperator.alertPort);
         dag.addStream("avg_output", averageOperator.outputPort, redisAvgOperator.inputInd);
         dag.addStream("avg_alert_mail", averageOperator.smtpAlert, smtpOutputOperator.input);
 
@@ -191,6 +189,9 @@ public class Application implements StreamingApplication {
         setDefaultInputPortQueueCapacity(dag,redisMaxOutput.inputInd);
         dag.addStream("max_output", oper.maxOutputPort,redisMaxOutput.inputInd);
 
+        SmtpOutputOperator smtpOutputOperator = getSmtpOutputOperator("SmtpCalcOperator", dag, conf);
+        dag.addStream("calc_alert_mail", oper.smtpAlert,smtpOutputOperator.input);
+
         return oper;
     }
 
@@ -219,16 +220,13 @@ public class Application implements StreamingApplication {
 
         dag.setAttribute(randomGen, OperatorContext.INITIAL_PARTITION_COUNT, 16);
 
-        AlertGeneratorOperator alertGeneratorOperator = getAlertGeneratorOperator("AlertGen", dag);
-
         if(conf.getBoolean("machinedata.calculate.average",true)){
-            MachineInfoAveragingPrerequisitesOperator prereqAverageOper=addAverageCalculation(dag, conf,alertGeneratorOperator);
+            MachineInfoAveragingPrerequisitesOperator prereqAverageOper=addAverageCalculation(dag, conf);
             dag.addStream("random_to_avg", randomGen.outputInline, prereqAverageOper.inputPort).setLocality(DAG.Locality.CONTAINER_LOCAL);
         }
 
         CalculatorOperator calculatorOperator =addCalculator(dag,conf);
         dag.addStream("random_to_calculator", randomGen.output,calculatorOperator.dataPort);
-        dag.addStream("alertgen_to_calculator",alertGeneratorOperator.alertMachineInfoPort,calculatorOperator.alertPort);
 
         if(conf.getBoolean("machinedata.calculate.percentile",false)){
              calculatorOperator.setComputePercentile(true);
