@@ -18,6 +18,7 @@ package com.datatorrent.contrib.machinedata;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.*;
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.contrib.redis.RedisOutputOperator;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
@@ -177,7 +178,7 @@ public class Application implements StreamingApplication {
 
 //        dag.addStream("random_minfo_gen", randomGen.machine, machineInfoAverageOperator.machineInputPort).setInline(true);
 //        dag.addStream("redis_output", machineInfoAverageOperator.outputPort, redisOperator.inputInd);
-        dag.addStream("random_minfo_gen", randomGen.outputInline, machineInfoAveragePrereqOperator.inputPort).setInline(true);
+        dag.addStream("random_minfo_gen", randomGen.outputInline, machineInfoAveragePrereqOperator.inputPort).setLocality(Locality.CONTAINER_LOCAL);
         dag.addStream("minfo_prereq_avg", machineInfoAveragePrereqOperator.outputPort, machineInfoAveragingOperator.inputPort);
         dag.addStream("alert_gen",alertGeneratorOperator.alertPort, machineInfoAveragingOperator.alertPort);
         dag.addStream("redis_output", machineInfoAveragingOperator.outputPort, redisOperator.inputInd);
