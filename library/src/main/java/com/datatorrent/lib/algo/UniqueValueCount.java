@@ -31,6 +31,7 @@ public class UniqueValueCount<K,V> extends BaseOperator {
             Set<V> values= interimUniqueValues.get(pair.getKey());
             if(values==null){
                 values=Sets.newHashSet();
+                interimUniqueValues.put(pair.getKey(),values);
             }
             values.add(pair.getValue());
         }
@@ -110,6 +111,7 @@ public class UniqueValueCount<K,V> extends BaseOperator {
                 Set<V> values= finalUniqueValues.get(pairList.getKey());
                 if(values==null){
                     values=Sets.newHashSet();
+                    finalUniqueValues.put(pairList.getKey(),values);
                 }
                 values.addAll(pairList.interimUniqueValues);
             }
