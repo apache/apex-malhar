@@ -1,18 +1,17 @@
-package com.datatorrent.lib.util;
+package com.datatorrent.lib.algo;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.KeyValPair;
 import com.google.common.collect.ImmutableMap;
-import com.sun.research.ws.wadl.ResourceType;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Map;
 
 /**
- * Test for {@link UniqueValueCount} operator
+ * Test for {@link com.datatorrent.lib.algo.UniqueValueCount} operator
  *
  * @since 0.3.5
  */
