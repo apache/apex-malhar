@@ -1,8 +1,9 @@
-package com.datatorrent.lib.util;
+package com.datatorrent.lib.algo;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.lib.util.KeyValPair;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -27,10 +28,11 @@ public class UniqueValueCount<K,V> extends BaseOperator {
     public transient DefaultInputPort<KeyValPair<K,V>> inputPort = new DefaultInputPort<KeyValPair<K, V>>() {
         @Override
         public void process(KeyValPair<K, V> pair) {
-            if(!interimUniqueValues.containsKey(pair.getKey())){
-                interimUniqueValues.put(pair.getKey(), Sets.<V>newHashSet());
+            Set<V> values= interimUniqueValues.get(pair.getKey());
+            if(values==null){
+                values=Sets.newHashSet();
             }
-            interimUniqueValues.get(pair.getKey()).add(pair.getValue());
+            values.add(pair.getValue());
         }
     } ;
 
@@ -105,11 +107,11 @@ public class UniqueValueCount<K,V> extends BaseOperator {
         public void process(KeyValPair<K,Integer> uniquePairFromPartitions) {
             if(uniquePairFromPartitions instanceof UniqueValueCountOutput) {
                 UniqueValueCountOutput<K,V> pairList= (UniqueValueCountOutput<K,V>)uniquePairFromPartitions;
-
-                if(!finalUniqueValues.containsKey(pairList.getKey())){
-                    finalUniqueValues.put(pairList.getKey(), Sets.<V>newHashSet());
+                Set<V> values= finalUniqueValues.get(pairList.getKey());
+                if(values==null){
+                    values=Sets.newHashSet();
                 }
-                finalUniqueValues.get(uniquePairFromPartitions.getKey()).addAll(pairList.interimUniqueValues) ;
+                values.addAll(pairList.interimUniqueValues);
             }
         }
 
