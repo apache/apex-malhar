@@ -40,9 +40,6 @@ public class CalculatorOperator extends BaseOperator {
     private int sdThreshold=70;
     private int maxThreshold=99;
 
-    private MachineInfo alertTuple=null;
-    private boolean processingAlert=false;
-
     private transient DateFormat dateFormat = new SimpleDateFormat();
 
     @InputPortFieldAnnotation(name="dataPort")
@@ -50,11 +47,6 @@ public class CalculatorOperator extends BaseOperator {
         @Override
         public void process(MachineInfo tuple) {
             addDataToCache(tuple);
-            if(alertTuple!=null && !processingAlert){
-                addDataToCache(alertTuple);
-                alertTuple = null;
-                processingAlert = true;
-            }
         }
         /**
          * Stream codec used for partitioning.
@@ -76,23 +68,6 @@ public class CalculatorOperator extends BaseOperator {
     @OutputPortFieldAnnotation(name = "maxOutputPort")
     public final transient DefaultOutputPort<KeyValPair<TimeBucketKey, Map<ResourceType, Integer>>> maxOutputPort =
             new DefaultOutputPort<KeyValPair<TimeBucketKey, Map<ResourceType, Integer>>>();
-
-    @InputPortFieldAnnotation(name="alertPort")
-    public final transient DefaultInputPort<MachineInfo> alertPort = new DefaultInputPort<MachineInfo>() {
-
-        @Override
-        public void process(MachineInfo tuple) {
-            alertTuple=tuple;
-        }
-
-        /**
-         * Stream codec used for partitioning.
-         */
-        @Override
-        public Class<? extends StreamCodec<MachineInfo>> getStreamCodec(){
-            return MachineInfoStreamCodec.class;
-        }
-    };
 
     @OutputPortFieldAnnotation(name="smtpOutputPort")
     public transient DefaultOutputPort<String> smtpAlert = new DefaultOutputPort<String>();
@@ -125,7 +100,7 @@ public class CalculatorOperator extends BaseOperator {
                 percentileOutputPort.emit(new KeyValPair<TimeBucketKey, Map<ResourceType, Double>>(machineKey, percentileData));
 
                 for (ResourceType resourceType: percentileData.keySet()){
-                    double percentileValue= percentileData.get(resourceType).doubleValue();
+                    double percentileValue= percentileData.get(resourceType);
                     if(percentileValue> percentileThreshold) {
                         emitAlert(resourceType,machineKey,percentileValue,"Percentile");
                     }
@@ -143,7 +118,7 @@ public class CalculatorOperator extends BaseOperator {
                 sdOutputPort.emit(new KeyValPair<TimeBucketKey, Map<ResourceType, Double>>(machineKey, sdData));
 
                 for (ResourceType resourceType : sdData.keySet()) {
-                    double sdValue = sdData.get(resourceType).doubleValue();
+                    double sdValue = sdData.get(resourceType);
                     if (sdValue > sdThreshold) {
                         emitAlert(resourceType, machineKey, sdValue, "SD");
                     }
@@ -162,14 +137,13 @@ public class CalculatorOperator extends BaseOperator {
 
                 for (ResourceType resourceType : maxData.keySet()) {
                     double sdValue = maxData.get(resourceType).doubleValue();
-                    if (sdValue > sdThreshold) {
+                    if (sdValue > maxThreshold) {
                         emitAlert(resourceType, machineKey, sdValue, "Max");
                     }
                 }
             }
         }
         data.clear();
-        processingAlert = false;
     }
 
 

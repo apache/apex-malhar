@@ -41,7 +41,6 @@ public class AlertGeneratorOperator extends BaseOperator implements InputOperato
             = new DefaultOutputPort<MachineInfo>();
 
   private KeyValPair<TimeBucketKey, Map<String, AverageData>> alertPair = null;
-  private MachineInfo machineInfoAlert=null;
 
   @Override
   public void emitTuples()
@@ -54,10 +53,6 @@ public class AlertGeneratorOperator extends BaseOperator implements InputOperato
     if (alertPair != null) {
       alertPair.getKey().setTime(Calendar.getInstance());
       alertPort.emit(alertPair);
-    }
-    if(machineInfoAlert!=null){
-        machineInfoAlert.getMachineKey().setTime(Calendar.getInstance());
-        alertMachineInfoPort.emit(machineInfoAlert);
     }
   }
 
@@ -85,9 +80,6 @@ public class AlertGeneratorOperator extends BaseOperator implements InputOperato
       averageMap.put("hdd", hddAverageData);
       alertPair = new KeyValPair<TimeBucketKey, Map<String, AverageData>>(machineKey, averageMap);
       alertPort.emit(alertPair);
-
-      machineInfoAlert=new MachineInfo(machineKey,cpu,ram,hdd);
-      alertMachineInfoPort.emit(machineInfoAlert);
     }
   }
 
