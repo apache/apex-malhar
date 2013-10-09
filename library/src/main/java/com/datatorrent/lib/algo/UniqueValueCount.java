@@ -27,16 +27,24 @@ import java.util.Set;
 
 /**
  *
- * Counts no. of unique values of a key.</br>
- * Partitions: yes, uses {@link UniqueCountUnifier} to merge partitioned output.
- * Stateful: no
+ * Counts no. of unique values of a key within a window.<br>
+ * Emits {@link InternalCountOutput} which contains the key, count of its unique values
+ * and also the set of values.<br>
+ * When the operator is partitioned, the unifier uses the internal set of values to
+ * compute the count of unique values again.<br>
+ * <br>
+ * Partitions: yes, uses {@link UniqueCountUnifier} to merge partitioned output.<br>
+ * Stateful: no<br>
+ * <br></br>
+ *
+ * @param <K>Type of Key objects</K>
+ * @param <V>Type of Value objects</V>
  *
  * @since 0.3.5
  */
 public class UniqueValueCount<K,V> extends BaseOperator {
 
-    private Map<K,Set<V>>  interimUniqueValues= Maps.newHashMap();
-    private transient boolean isPartitioned=false;
+    private final Map<K,Set<V>>  interimUniqueValues;
 
 
     @InputPortFieldAnnotation(name="inputPort")
@@ -55,55 +63,46 @@ public class UniqueValueCount<K,V> extends BaseOperator {
     @OutputPortFieldAnnotation(name="outputPort")
     public transient DefaultOutputPort<KeyValPair<K,Integer>> outputPort= new DefaultOutputPort<KeyValPair<K, Integer>>(){
 
+        @Override
         public Unifier<KeyValPair<K,Integer>> getUnifier() {
             return new UniqueCountUnifier<K,V>();
         }
     };
 
+    public UniqueValueCount (){
+        this.interimUniqueValues=Maps.newHashMap();
+    }
+
 
     @Override
     public void endWindow() {
-        if(isPartitioned) {
-            for(K key: interimUniqueValues.keySet()){
-                outputPort.emit(new UniqueValueCountOutput<K,V>(key, interimUniqueValues.get(key)));
-            }
-        } else {
-            for(K key: interimUniqueValues.keySet()){
-                outputPort.emit(new KeyValPair<K, Integer>(key,interimUniqueValues.get(key).size()));
-            }
+        for (K key : interimUniqueValues.keySet()) {
+            Set<V> values= interimUniqueValues.get(key);
+            outputPort.emit(new InternalCountOutput<K, V>(key, values.size(),values));
         }
         interimUniqueValues.clear();
     }
 
-    @Override
-    public void setup(Context.OperatorContext operatorContext) {
-        AttributeMap.Attribute<Integer> attr= operatorContext.getAttributes().attr(Context.OperatorContext.INITIAL_PARTITION_COUNT);
-        isPartitioned= (attr!=null && attr.get()!=null && attr.get().intValue()>1 );
-    }
+    /**
+     * State which contains a key, a set of values of that key, and a count of unique values of that key.<br></br>
+     *
+     * @param <K>Type of key objects</K>
+     * @param <V>Type of value objects</V>
+     */
+    public static class InternalCountOutput<K,V> extends KeyValPair<K,Integer> {
 
-    public static class UniqueValueCountOutput<K,V> extends KeyValPair<K,Integer> {
+        private final Set<V> interimUniqueValues;
 
-        private Set<V> interimUniqueValues=null;
-
-        private UniqueValueCountOutput(){
-            super(null,null);
-        }
-        /**
-         * Constructor
-         *
-         * @param k sets key
-         * @param v sets value
-         */
-        private UniqueValueCountOutput(K k, Integer v) {
-            super(k, v);
+        private InternalCountOutput(){
+            this(null,null,null);
         }
 
-        private UniqueValueCountOutput(K k, Set<V> interimUniqueValues){
-            super(k,null);
+        private InternalCountOutput(K k, Integer count, Set<V> interimUniqueValues){
+            super(k,count);
             this.interimUniqueValues=interimUniqueValues;
         }
 
-        public Set<V> getInterimSet(){
+        public Set<V> getInternalSet(){
             return interimUniqueValues;
         }
 
@@ -113,16 +112,27 @@ public class UniqueValueCount<K,V> extends BaseOperator {
         }
     }
 
+    /**
+     * Unifier for {@link UniqueValueCount} operator.<br>
+     * It uses the internal set of values emitted by the operator and
+     * emits {@link KeyValPair} of the key and its unique count.<br></br>
+     * @param <K>Type of Key objects</K>
+     * @param <V>Type of Value objects</V>
+     */
     public static class UniqueCountUnifier<K,V> implements Unifier<KeyValPair<K,Integer>> {
 
         public final transient DefaultOutputPort<KeyValPair<K,Integer>> outputPort = new DefaultOutputPort<KeyValPair<K, Integer>>();
 
-        private Map<K,Set<V>> finalUniqueValues= Maps.newHashMap();
+        private final Map<K,Set<V>> finalUniqueValues;
+
+        public UniqueCountUnifier(){
+            this.finalUniqueValues=Maps.newHashMap();
+        }
 
         @Override
         public void process(KeyValPair<K,Integer> uniquePairFromPartitions) {
-            if(uniquePairFromPartitions instanceof UniqueValueCountOutput) {
-                UniqueValueCountOutput<K,V> pairList= (UniqueValueCountOutput<K,V>)uniquePairFromPartitions;
+            if(uniquePairFromPartitions instanceof InternalCountOutput) {
+                InternalCountOutput<K,V> pairList= (InternalCountOutput<K,V>)uniquePairFromPartitions;
                 Set<V> values= finalUniqueValues.get(pairList.getKey());
                 if(values==null){
                     values=Sets.newHashSet();
