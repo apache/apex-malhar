@@ -41,19 +41,17 @@ import java.util.Set;
  *
  * @since 0.3.5
  */
-@SuppressWarnings("rawtypes")
 public class UniqueValueCount<K> extends BaseOperator {
 
-    private final Map<K,Set>  interimUniqueValues;
+    private final Map<K,Set<Object>>  interimUniqueValues;
 
 
     @InputPortFieldAnnotation(name="inputPort")
     public transient DefaultInputPort<KeyValPair<K,Object>> inputPort = new DefaultInputPort<KeyValPair<K,Object>>() {
 
         @Override
-        @SuppressWarnings("unchecked")
         public void process(KeyValPair<K, Object> pair) {
-            Set values= interimUniqueValues.get(pair.getKey());
+            Set<Object> values= interimUniqueValues.get(pair.getKey());
             if(values==null){
                 values=Sets.newHashSet();
                 interimUniqueValues.put(pair.getKey(),values);
@@ -63,11 +61,13 @@ public class UniqueValueCount<K> extends BaseOperator {
     } ;
 
     @OutputPortFieldAnnotation(name="outputPort")
-    public transient DefaultOutputPort<KeyValPair<K,Integer>> outputPort= new DefaultOutputPort<KeyValPair<K, Integer>>(){
+    public transient DefaultOutputPort<KeyValPair<K,Integer>> outputPort= new DefaultOutputPort<KeyValPair<K,Integer>>(){
 
         @Override
-        public Unifier<KeyValPair<K,Integer>> getUnifier() {
-            return new UniqueCountUnifier<K>();
+        @SuppressWarnings({"rawtypes","unchecked"})
+        public Unifier<KeyValPair<K, Integer>> getUnifier() {
+            Unifier unifier= new UniqueCountUnifier<K>();
+            return unifier;
         }
     };
 
@@ -79,7 +79,7 @@ public class UniqueValueCount<K> extends BaseOperator {
     @Override
     public void endWindow() {
         for (K key : interimUniqueValues.keySet()) {
-            Set values= interimUniqueValues.get(key);
+            Set<Object> values= interimUniqueValues.get(key);
             outputPort.emit(new InternalCountOutput<K>(key, values.size(),values));
         }
         interimUniqueValues.clear();
@@ -92,24 +92,19 @@ public class UniqueValueCount<K> extends BaseOperator {
      */
     public static class InternalCountOutput<K> extends KeyValPair<K,Integer> {
 
-        private final Set interimUniqueValues;
+        private final Set<Object> interimUniqueValues;
 
         private InternalCountOutput(){
             this(null,null,null);
         }
 
-        private InternalCountOutput(K k, Integer count, Set interimUniqueValues){
+        private InternalCountOutput(K k, Integer count, Set<Object> interimUniqueValues){
             super(k,count);
             this.interimUniqueValues=interimUniqueValues;
         }
 
-        public Set getInternalSet(){
+        public Set<Object> getInternalSet(){
             return interimUniqueValues;
-        }
-
-        @Override
-        public String toString(){
-            return super.toString();
         }
     }
 
@@ -121,28 +116,24 @@ public class UniqueValueCount<K> extends BaseOperator {
      * @param <K>Type of Key objects</K>
      *
      */
-    public static class UniqueCountUnifier<K> implements Unifier<KeyValPair<K,Integer>> {
+     static class UniqueCountUnifier<K> implements Unifier<InternalCountOutput<K>> {
 
-        public final transient DefaultOutputPort<KeyValPair<K,Integer>> outputPort = new DefaultOutputPort<KeyValPair<K, Integer>>();
+        public final transient DefaultOutputPort<InternalCountOutput<K>> outputPort = new DefaultOutputPort<InternalCountOutput<K>>();
 
-        private final Map<K,Set> finalUniqueValues;
+        private final Map<K,Set<Object>> finalUniqueValues;
 
         public UniqueCountUnifier(){
             this.finalUniqueValues=Maps.newHashMap();
         }
 
         @Override
-        @SuppressWarnings("unchecked")
-        public void process(KeyValPair<K,Integer> uniquePairFromPartitions) {
-            if(uniquePairFromPartitions instanceof InternalCountOutput) {
-                InternalCountOutput<K> pairList= (InternalCountOutput<K>)uniquePairFromPartitions;
-                Set values= finalUniqueValues.get(pairList.getKey());
-                if(values==null){
-                    values=Sets.newHashSet();
-                    finalUniqueValues.put(pairList.getKey(),values);
-                }
-                values.addAll(pairList.interimUniqueValues);
+        public void process(InternalCountOutput<K> tuple) {
+            Set<Object> values = finalUniqueValues.get(tuple.getKey());
+            if (values == null) {
+                values = Sets.newHashSet();
+                finalUniqueValues.put(tuple.getKey(), values);
             }
+            values.addAll(tuple.interimUniqueValues);
         }
 
         @Override
@@ -152,7 +143,7 @@ public class UniqueValueCount<K> extends BaseOperator {
         @Override
         public void endWindow() {
             for(K key: finalUniqueValues.keySet()){
-                outputPort.emit(new KeyValPair<K, Integer>(key,finalUniqueValues.get(key).size()));
+                outputPort.emit(new InternalCountOutput<K>(key,finalUniqueValues.get(key).size(),finalUniqueValues.get(key)));
             }
             finalUniqueValues.clear();
         }
