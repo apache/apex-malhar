@@ -66,8 +66,7 @@ public class UniqueValueCount<K> extends BaseOperator {
         @Override
         @SuppressWarnings({"rawtypes","unchecked"})
         public Unifier<KeyValPair<K, Integer>> getUnifier() {
-            Unifier unifier= new UniqueCountUnifier<K>();
-            return unifier;
+            return (Unifier)new UniqueCountUnifier<K>();
         }
     };
 
