@@ -18,13 +18,14 @@ package com.datatorrent.lib.stream;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.Map;
 import junit.framework.Assert;
+import org.codehaus.jettison.json.JSONObject;
 import org.junit.Test;
 
 /**
- * Tests JsonByteArrayToHashMapOperator operator
+ * Tests JsonByteArrayOperator operator
  *
  */
-public class JsonByteArrayToHashMapOperatorTest
+public class JsonByteArrayOperatorTest
 {
    /**
      * Test json byte array to HashMap operator pass through. The Object passed is not relevant
@@ -33,10 +34,13 @@ public class JsonByteArrayToHashMapOperatorTest
 		@Test
     public void testOperator() throws Exception
     {
-      JsonByteArrayToHashMapOperator oper = new JsonByteArrayToHashMapOperator();
+      JsonByteArrayOperator oper = new JsonByteArrayOperator();
 
-      CollectorTestSink itemSink = new CollectorTestSink();
-      oper.outputMap.setSink(itemSink);
+      CollectorTestSink mapSink = new CollectorTestSink();
+      CollectorTestSink jsonObjectSink = new CollectorTestSink();
+
+      oper.outputMap.setSink(mapSink);
+      oper.outputJsonObject.setSink(jsonObjectSink);
 
       oper.beginWindow(0);
 
@@ -63,12 +67,18 @@ public class JsonByteArrayToHashMapOperatorTest
       oper.endWindow();
 
       // assert that value for one of the keys in any one of the objects is as expected
-      Object o = itemSink.collectedTuples.get(510);
+      Object map = mapSink.collectedTuples.get(510);
       String expectedClientip = "192.168.150.120";
-      Assert.assertEquals("emited tuple", expectedClientip, ((Map)o).get("clientip"));
+      Assert.assertEquals("emited tuple", expectedClientip, ((Map)map).get("clientip"));
+
+      // assert that value for one of the keys in any one of the objects is as expected
+      Object jsonObject = jsonObjectSink.collectedTuples.get(433);
+      String expectedResponse = "200";
+      Assert.assertEquals("emited tuple", expectedResponse, ((JSONObject)jsonObject).get("response"));
 
       // assert that the number of the operator generates is 1000
-      Assert.assertEquals("number emitted tuples", numtuples, itemSink.collectedTuples.size());
+      Assert.assertEquals("number emitted tuples", numtuples, mapSink.collectedTuples.size());
+      Assert.assertEquals("number emitted tuples", numtuples, jsonObjectSink.collectedTuples.size());
     }
 
 }

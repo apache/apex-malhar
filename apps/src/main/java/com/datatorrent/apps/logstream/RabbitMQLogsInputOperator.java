@@ -29,29 +29,14 @@ import org.codehaus.jettison.json.JSONObject;
  *
  * Input operator to consume logs messages from RabbitMQ
  */
-public class RabbitMQLogsInputOperator extends AbstractSinglePortRabbitMQInputOperator<Map<String, Object>>
+public class RabbitMQLogsInputOperator extends AbstractSinglePortRabbitMQInputOperator<byte[]>
 {
   private static final Logger logger = LoggerFactory.getLogger(RabbitMQLogsInputOperator.class);
 
   @Override
-  public Map<String,Object> getTuple(byte[] message)
+  public byte[] getTuple(byte[] message)
   {
-    String inputString = new String(message);
-    try {
-      JSONObject jSONObject = new JSONObject(inputString);
-      Iterator<String> iterator = jSONObject.keys();
-      Map<String,Object> map = new HashMap<String, Object>();
-      while(iterator.hasNext()){
-        String key = iterator.next();
-        map.put(key, jSONObject.getString(key));
-      }
-
-      return map;
-    }
-    catch (JSONException ex) {
-      logger.error(ex.getMessage());
-    }
-    return null;
+    return message;
   }
 
   @Override

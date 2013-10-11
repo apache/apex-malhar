@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.datatorrent.lib.stream;
+ */
+package com.datatorrent.lib.stream;
 
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
@@ -35,44 +36,52 @@ import org.slf4j.LoggerFactory;
  * <br>
  * <b>Ports</b>:<br>
  * <b>input</b>: expects json byte array &lt;K,V&gt;<br>
- * <b>outputMap</b>: emits HashMap&lt;String,String&gt;<br>
+ * <b>outputMap</b>: emits HashMap&lt;String,Object&gt;<br>
  * <br>
  *
  * @since 0.3.5
  */
-public class JsonByteArrayToHashMapOperator extends BaseOperator
+public class JsonByteArrayOperator extends BaseOperator
 {
-  private static final Logger logger = LoggerFactory.getLogger(JsonByteArrayToHashMapOperator.class);
-	/**
-	 * Input byte array port.
-	 */
-	@InputPortFieldAnnotation(name = "input")
-	public final transient DefaultInputPort<byte[]> input = new DefaultInputPort<byte[]>()
-	{
+  private static final Logger logger = LoggerFactory.getLogger(JsonByteArrayOperator.class);
+  /**
+   * Input byte array port.
+   */
+  @InputPortFieldAnnotation(name = "input")
+  public final transient DefaultInputPort<byte[]> input = new DefaultInputPort<byte[]>()
+  {
     @Override
     public void process(byte[] message)
     {
       String inputString = new String(message);
       try {
         JSONObject jSONObject = new JSONObject(inputString);
-        Iterator<String> iterator = jSONObject.keys();
-        HashMap<String,String> map = new HashMap<String, String>();
-        while(iterator.hasNext()){
-          String key = iterator.next();
-          map.put(key, jSONObject.getString(key));
+        outputJsonObject.emit(jSONObject);
+        if(outputMap.isConnected()) {
+          Iterator<String> iterator = jSONObject.keys();
+          HashMap<String,Object> map = new HashMap<String, Object>();
+          while(iterator.hasNext()){
+            String key = iterator.next();
+            map.put(key, jSONObject.getString(key));
+          }
+          outputMap.emit(map);
         }
-
-        outputMap.emit(map);
       }
       catch (JSONException ex) {
         logger.error(ex.getMessage());
       }
     }
-	};
+  };
 
-	/**
-	 * Output hash map port.
-	 */
-	@OutputPortFieldAnnotation(name = "map")
-	public final transient DefaultOutputPort<HashMap<String, String>> outputMap = new DefaultOutputPort<HashMap<String, String>>();
+  /**
+   * Output hash map port.
+   */
+  @OutputPortFieldAnnotation(name = "map")
+  public final transient DefaultOutputPort<HashMap<String, Object>> outputMap = new DefaultOutputPort<HashMap<String, Object>>();
+
+  /**
+   * Output JSONObject port.
+   */
+  @OutputPortFieldAnnotation(name = "jsonobject")
+  public final transient DefaultOutputPort<JSONObject> outputJsonObject = new DefaultOutputPort<JSONObject>();
 }

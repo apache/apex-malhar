@@ -1,0 +1,345 @@
+<!doctype html>
+<html>
+<head>
+<title>Malhar Logstream Demo</title>
+
+<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
+
+<link type="text/css" href="css/smoothness/jquery-ui-1.8.16.custom.css" rel="stylesheet" />
+<link rel="stylesheet" href="css/slick.grid.css" type="text/css" media="screen" />
+
+
+<script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui-1.8.13.custom.min.js"></script>
+<script type="text/javascript" src="js/jquery.event.drag-2.0.min.js"></script>
+<script type="text/javascript" src="js/slick.core.js"></script>
+<script type="text/javascript" src="js/slick.grid.js"></script>
+<script type="text/javascript" src="js/LongPoll.js"></script> 
+
+<style>
+	body { font-size: 0.66em; }
+
+	body, html {
+	height: 100%;
+	border: 0;
+	margin: 0;
+	padding: 0;
+	}
+
+	label, input { display:block; }
+	input.text { margin-bottom:12px; width:95%; padding: .4em; }
+	fieldset { padding:0; border:0; margin-top:25px; }
+	h1 { font-size: 1.2em; margin: .6em 0; }
+	.ui-dialog .ui-state-error { padding: .3em; }
+	.validateTips { border: 1px solid transparent; padding: 0.3em; color: red }
+
+	.ui-dialog-no-close .ui-dialog-titlebar-close {display: none }
+</style>
+
+</head>
+
+
+<body>
+
+
+<script>
+  function LogstreamDemoGridController() 
+  {
+
+    this.grid = $("#myGrid").data("grid");
+
+    this.grid2 = $("#myGrid2").data("grid2");
+
+    this.grid3 = $("#myGrid3").data("grid3");
+
+	var self = this;
+
+	var UrlFormatter = function(row, cell, value, columnDef, dataContext) {
+        if (value == null || value === "")
+        return "";
+        return "<a xtarget='recording' href='" + value + "'>" + value + "</a>";
+	};
+	
+	
+	this.gridColumns = [
+			{id:"type", name:"Log type", field:"type", width:300, sortable:false, formatter:null},
+			{id:"dimension", name:"Dimension", field:"dimension", width:100, sortable:true, formatter:null},
+			{id:"key", name:"Dimension key", field:"key", width:300, sortable:false, formatter:null},
+			{id:"sum", name:"Count", field:"sum", width:1000, sortable:true, formatter:null}
+		];
+
+	this.gridColumns3 = [
+			{id:"type", name:"Log type", field:"type", width:300, sortable:false, formatter:null},
+			{id:"id", name:"Id", field:"id", width:300, sortable:false, formatter:null},
+			{id:"value", name:"Value", field:"value", width:1000, sortable:false, formatter:null},
+		];
+
+	this.gridData = [];
+	this.gridData2 = [];
+	this.gridData3 = [];
+	
+	var channel = window.location.hash || '#topURLs';
+
+	self.updateList();
+/*	
+    LongPoll("/channel/" + channel.substr(1), function(data) {
+        //console.log("ready to process => " + JSON.stringify(data));
+		self.processTuple.call(self, data);
+    });
+*/  
+    var host = window.location.host;
+    var ws = new WebSocket('ws://'+host+'/pubsub');
+
+    ws.onopen = function () {
+      var topic = "apps.logstream.appid.apacheTopAggrs";	
+      var apacheMsg = JSON.stringify({ "type":"subscribe", "topic": topic});
+      console.log("subscribing to " + topic);
+      ws.send(apacheMsg);
+
+      var topic = "apps.logstream.appid.mysqlTopAggrs";	
+      var mysqlMsg = JSON.stringify({ "type":"subscribe", "topic": topic});
+      console.log("subscribing to " + topic);
+      ws.send(mysqlMsg);
+
+      var topic = "apps.logstream.appid.systemData";	
+      var systemMsg = JSON.stringify({ "type":"subscribe", "topic": topic});
+      console.log("subscribing to " + topic);
+      ws.send(systemMsg);
+
+  	};
+
+
+  	ws.onerror = function (error) {
+  	  console.log('WebSocket Error ' + error);
+  	};
+
+  	ws.onmessage = function (e) {
+  	  //console.log('Server: ' + e.data);
+  	  var msg = JSON.parse(e.data);
+  	  if (msg.topic == "apps.logstream.appid.apacheTopAggrs"){
+  	  	//console.log('received apache msg');
+  	  	self.processApache.call(self, JSON.parse(e.data));	
+  	  } else if (msg.topic == "apps.logstream.appid.mysqlTopAggrs"){
+  	  	//console.log('received mysql msg');
+  	  	self.processMysql.call(self, JSON.parse(e.data));	
+  	  } else if (msg.topic == "apps.logstream.appid.systemData"){
+  	  	//console.log('received system msg');
+  	  	self.processSystem.call(self, JSON.parse(e.data));	
+  	  }
+      //self.processTuple.call(self, JSON.parse(e.data));
+  	};  	
+    
+    $("#channelIdDiv").text('Polling data for: ' + channel);
+    
+  }
+
+  LogstreamDemoGridController.prototype = {
+
+	generateTestData : function () {
+	  var dataIndex = (!this.dataIndex ? 0 : this.dataIndex); 
+	  
+	  var testData = { 
+			  "http://192.168.1.2:9080" : 3,
+			  "http://192.168.1.4:9080" : 96,
+			  "http://192.168.1.3:9080" : 4
+	  }		  
+	  var keys = [];
+	  for (var key in testData) {
+		  if (testData.hasOwnProperty(key)) {
+		    keys.push(key);
+		  }
+	  }		  
+
+	  var key = keys[dataIndex % keys.length];
+	  var val = testData[key];
+
+	  this.dataIndex = dataIndex+1; 
+	  var tuple = {};
+	  tuple[key] = val + Math.random();
+	  console.log("generated sample: " + dataIndex + ", tuple: " + JSON.stringify(tuple));
+	  this.processTuple(testData);
+	},	  
+
+	processTuple : function(wsMsg) {
+	  this.gridData = [];
+	  var tuple = wsMsg.data;
+	  var topic = wsMsg.topic;
+	  for (var key in tuple) {
+		if (tuple.hasOwnProperty(key)) {
+			var arr = tuple[key];
+			//console.log(typeof tuple[key] + JSON.stringify(tuple));
+
+			for(var dim in arr){
+				this.gridData.push({"type": topic,"dimension" : key, "key": arr[dim].val,"sum" : arr[dim].count});
+			}
+		}
+	  }		    	    
+	},
+	
+	processApache : function(wsMsg) {
+	  //this.gridData = [];
+	  console.log("called processApache..");
+	  var tuple = wsMsg.data;
+	  var topic = wsMsg.topic;
+	  for (var key in tuple) {
+		if (tuple.hasOwnProperty(key)) {
+			var arr = tuple[key];
+			this.gridData = this.gridData.filter(function(val){
+				return val.dimension != key;
+			});
+			//console.log(typeof tuple[key] + JSON.stringify(tuple));
+
+			for(var dim in arr){
+				//console.log("type = " + topic + "  dimension = " + key + " key = " + arr[dim].val + " sum = " + arr[dim].count);				
+				this.gridData.push({"type": topic,"dimension" : key, "key": arr[dim].val,"sum" : arr[dim].count});
+			}
+		}
+	  }		    	    
+	},
+
+	processMysql : function(wsMsg) {
+	  this.gridData2 = [];
+	  var tuple = wsMsg.data;
+	  var topic = wsMsg.topic;
+	  for (var key in tuple) {
+		if (tuple.hasOwnProperty(key)) {
+			var arr = tuple[key];
+			this.gridData2 = this.gridData2.filter(function(val){
+				return val.dimension != key;
+			});
+			//console.log(typeof tuple[key] + JSON.stringify(tuple));
+
+			for(var dim in arr){
+				this.gridData2.push({"type": topic,"dimension" : key, "key": arr[dim].val,"sum" : arr[dim].count});
+			}
+		}
+	  }		    	    
+	},
+
+	processSystem : function(wsMsg) {
+	  this.gridData3 = [];
+	  var tuple = wsMsg.data;
+	  var topic = wsMsg.topic;
+	  for (var key in tuple) {
+		if (tuple.hasOwnProperty(key)) {
+			//console.log("tuple key = " + key + "  tuple value " + tuple[key]);
+			if (key != "message"){
+				this.gridData3.push({"type": topic,"id" : key, "value": tuple[key]});
+			}
+				
+			//}
+		}
+	  }		    	    
+	},
+
+	updateList : function() {
+
+	  if (document.URL.indexOf("file:") === 0) {	  
+  	    this.generateTestData();
+ 	  }
+   
+	  var grid = this.grid;
+	  var grid2 = this.grid2;
+	  var grid3 = this.grid3;
+	  grid.setColumns(this.gridColumns);
+	  grid2.setColumns(this.gridColumns);
+	  grid3.setColumns(this.gridColumns3);
+
+	  this.gridData.sort(function(a,b){
+	  	console.log("a.dimension = " + a.dimension + " b.dimension = " + b.dimension);
+	  	if (a.dimension == b.dimension){
+	  		return b.sum - a.sum;
+	  	} else if (a.dimension > b.dimension) {
+	  		return 1;
+	  	} else {
+	  		return -1;
+	  	}
+	  });	  
+	  this.gridData2.sort(function(a,b){return b.count - a.count})	  ;
+	  //this.gridData3.sort(function(a,b){return b.count - a.count})	  
+	  
+	  grid.setData(this.gridData);
+   	  grid.updateRowCount();
+  	  grid.render();
+		
+	  grid2.setData(this.gridData2);
+   	  grid2.updateRowCount();
+  	  grid2.render();
+
+	  grid3.setData(this.gridData3);
+   	  grid3.updateRowCount();
+  	  grid3.render();
+
+		if (this.refreshTimeout != null) {
+			clearTimeout(this.refreshTimeout);
+		}
+	
+		var self = this;
+		this.refreshTimeout = setTimeout( function() {
+			self.updateList.apply(self);
+		}, 1000 );	
+		
+    }
+
+  };
+</script>
+
+
+<div style="height:100%">
+
+		<div id="channelIdDiv">Demo Data</div>
+
+		<div id="myGrid" style="float:left;width:50%;height:100%;min-height:500px;"></div>
+		<div id="myGrid2" style="float:right;width:50%;height:50%;min-height:200px;"></div>
+		<div id="myGrid3" style="float:right;width:50%;height:50%;min-height:200px;"></div>
+
+		<script>
+		
+		$(function() {
+	        var DateCellFormatter = function(row, cell, value, columnDef, dataContext) {
+	            if (value == null || value === "")
+	                return "-";
+            	return angular.filter.date(value, "yyyy-MM-dd HH:mm:ss");
+	        };
+
+	        var HtmlEncodingFormatter = function(row, cell, value, columnDef, dataContext) {
+	        	if (value != null && typeof value === 'string') {
+	        	  return value.
+	        	    replace(/&/g, '&amp;').
+	        	    //replace(NON_ALPHANUMERIC_REGEXP, function(value){
+	        	    //  return '&#' + value.charCodeAt(0) + ';';
+	        	    //}).
+	        	    replace(/</g, '&lt;').
+	        	    replace(/>/g, '&gt;');
+	        	}
+	        	return value;
+	        };
+
+			var options = {
+				enableCellNavigation: true,
+	            enableColumnReorder: false,
+                fullWidthRows: true
+			};
+
+			var columns = [];
+            var data = [];
+			var grid = new Slick.Grid($("#myGrid"), data, columns, options);
+			var grid2 = new Slick.Grid($("#myGrid2"), data, columns, options);
+			var grid3 = new Slick.Grid($("#myGrid3"), data, columns, options);
+			$("#myGrid").data("grid", grid);
+			setTimeout(function() {grid.resizeCanvas();}, 300);
+			$("#myGrid2").data("grid2", grid2);
+			setTimeout(function() {grid2.resizeCanvas();}, 300);
+			$("#myGrid3").data("grid3", grid3);
+			setTimeout(function() {grid3.resizeCanvas();}, 300);
+
+			var controller = new LogstreamDemoGridController();
+			
+		})
+		</script>
+
+</div>
+
+
+</body>
+</html>
