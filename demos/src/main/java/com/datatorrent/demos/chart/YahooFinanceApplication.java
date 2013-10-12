@@ -15,8 +15,13 @@
  */
 package com.datatorrent.demos.chart;
 
-import com.datatorrent.api.DAG;
+import java.util.Map;
+
+import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG;
+
 import com.datatorrent.demos.yahoofinance.StockTickInput;
 import com.datatorrent.lib.chart.CandleStick;
 import com.datatorrent.lib.chart.TimeSeriesAverageChartOperator;
@@ -24,8 +29,6 @@ import com.datatorrent.lib.chart.TimeSeriesCandleStickChartOperator;
 import com.datatorrent.lib.chart.XYChartOperator.NumberType;
 import com.datatorrent.lib.stream.DevNull;
 import com.datatorrent.lib.util.KeyValPair;
-import java.util.Map;
-import org.apache.hadoop.conf.Configuration;
 
 /**
  * <p>YahooFinanceApplication class.</p>
@@ -92,7 +95,7 @@ public class YahooFinanceApplication extends com.datatorrent.demos.yahoofinance.
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    dag.getAttributes().attr(DAG.STREAMING_WINDOW_SIZE_MILLIS).set(streamingWindowSizeMilliSeconds);
+    dag.getAttributes().put(DAG.STREAMING_WINDOW_SIZE_MILLIS, streamingWindowSizeMilliSeconds);
 
     StockTickInput tick = getStockTickInputOperator("StockTickInput", dag);
     tick.setOutputEvenIfZeroVolume(true);
@@ -101,8 +104,8 @@ public class YahooFinanceApplication extends com.datatorrent.demos.yahoofinance.
     TimeSeriesCandleStickChartOperator<String> candleStickChartOperator = getCandleStickChartOperator("CandleStickChart", dag);
     DevNull<Map<String, Map<Number, Number>>> devnull1 = dag.addOperator("devnull1", new DevNull<Map<String, Map<Number, Number>>>());
     DevNull<Map<String, Map<Number, CandleStick>>> devnull2 = dag.addOperator("devnull2", new DevNull<Map<String, Map<Number, CandleStick>>>());
-    dag.getMeta(averageChartOperator).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(5); // 5 seconds
-    dag.getMeta(candleStickChartOperator).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(5); // 5 seconds
+    dag.getMeta(averageChartOperator).getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, 5); // 5 seconds
+    dag.getMeta(candleStickChartOperator).getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, 5); // 5 seconds
     stream.addSink(averageChartOperator.in1);
     stream.addSink(candleStickChartOperator.in1);
     dag.addStream("averageDummyStream", averageChartOperator.chart, devnull1.data);

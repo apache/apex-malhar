@@ -15,21 +15,21 @@
  */
 package com.datatorrent.contrib.machinedata;
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.Context.PortContext;
-import com.datatorrent.api.*;
-import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.Operator.InputPort;
-import com.datatorrent.contrib.redis.RedisOutputOperator;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.SmtpOutputOperator;
-import com.datatorrent.lib.math.AverageKeyVal;
-import com.datatorrent.lib.util.KeyValPair;
-import org.apache.hadoop.conf.Configuration;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
+import org.apache.hadoop.conf.Configuration;
+
+import com.datatorrent.api.*;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Context.PortContext;
+import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.Operator.InputPort;
+
+import com.datatorrent.contrib.redis.RedisOutputOperator;
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.io.SmtpOutputOperator;
 
 /**
  * <p>Resource monitor application.</p>
@@ -48,7 +48,7 @@ public class Application implements StreamingApplication {
 
     public RandomInformationTupleGenerator getRandomInformationTupleGenerator(String name, DAG dag) {
         RandomInformationTupleGenerator oper = dag.addOperator(name, RandomInformationTupleGenerator.class);
-        dag.getOperatorMeta(name).getAttributes().attr(Context.OperatorContext.APPLICATION_WINDOW_COUNT).set(appWindowCountMinute);
+        dag.getOperatorMeta(name).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCountMinute);
         return oper;
     }
 
@@ -60,19 +60,19 @@ public class Application implements StreamingApplication {
 
     public MachineInfoAveragingPrerequisitesOperator getMachineInfoAveragingPrerequisitesOperator(String name, DAG dag) {
         MachineInfoAveragingPrerequisitesOperator oper = dag.addOperator(name, MachineInfoAveragingPrerequisitesOperator.class);
-        dag.getOperatorMeta(name).getAttributes().attr(Context.OperatorContext.APPLICATION_WINDOW_COUNT).set(appWindowCountMinute);
+        dag.getOperatorMeta(name).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCountMinute);
         return oper;
     }
 
     public MachineInfoAveragingOperator getMachineInfoAveragingOperator(String name, DAG dag) {
         MachineInfoAveragingOperator oper = dag.addOperator(name, MachineInfoAveragingOperator.class);
-        dag.getOperatorMeta(name).getAttributes().attr(Context.OperatorContext.APPLICATION_WINDOW_COUNT).set(appWindowCountMinute);
+        dag.getOperatorMeta(name).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCountMinute);
         return oper;
     }
 
     public AlertGeneratorOperator getAlertGeneratorOperator(String name, DAG dag) {
         AlertGeneratorOperator oper = dag.addOperator(name, AlertGeneratorOperator.class);
-        dag.getOperatorMeta(name).getAttributes().attr(Context.OperatorContext.APPLICATION_WINDOW_COUNT).set(appWindowCountMinute);
+        dag.getOperatorMeta(name).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCountMinute);
         return oper;
     }
 
@@ -84,7 +84,7 @@ public class Application implements StreamingApplication {
         oper.setHost(host);
         oper.setPort(port);
         oper.selectDatabase(database);
-        dag.getOperatorMeta(name).getAttributes().attr(Context.OperatorContext.APPLICATION_WINDOW_COUNT).set(appWindowCountMinute);
+        dag.getOperatorMeta(name).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCountMinute);
         return oper;
     }
 
@@ -144,15 +144,19 @@ public class Application implements StreamingApplication {
 
         if (LAUNCHMODE_YARN.equals(conf.get(DAG.LAUNCH_MODE))) {
             // settings only affect distributed mode
-            dag.getAttributes().attr(DAG.CONTAINER_MEMORY_MB).setIfAbsent(2048);
-            dag.getAttributes().attr(DAG.MASTER_MEMORY_MB).setIfAbsent(1024);
-            //dag.getAttributes().attr(DAG.CONTAINERS_MAX_COUNT).setIfAbsent(1);
+          if (dag.getAttributes().get(DAGContext.CONTAINER_MEMORY_MB) == null) {
+              dag.getAttributes().put(DAG.CONTAINER_MEMORY_MB, 2048);
+          }
+          if (dag.getAttributes().get(DAGContext.MASTER_MEMORY_MB) == null) {
+            dag.getAttributes().put(DAG.MASTER_MEMORY_MB, 1024);
+          }
+            //dag.getAttributes().put(DAG.CONTAINERS_MAX_COUNT).setIfAbsent(1);
         } else if (LAUNCHMODE_LOCAL.equals(conf.get(DAG.LAUNCH_MODE))) {
         }
 
         dag.setAttribute(DAG.APPLICATION_NAME, "MachineData-DemoApplication");
         dag.setAttribute(DAG.DEBUG, false);
-        dag.getAttributes().attr(DAG.STREAMING_WINDOW_SIZE_MILLIS).set(streamingWindowSizeMilliSeconds);
+        dag.getAttributes().put(DAG.STREAMING_WINDOW_SIZE_MILLIS, streamingWindowSizeMilliSeconds);
 
         RandomInformationTupleGenerator randomGen = getRandomInformationTupleGenerator("RandomInfoGenerator", dag);
     	dag.setOutputPortAttribute(randomGen.outputInline, PortContext.QUEUE_CAPACITY, 32 * 1024);
