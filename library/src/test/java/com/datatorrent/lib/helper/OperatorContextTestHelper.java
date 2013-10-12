@@ -5,7 +5,7 @@
 package com.datatorrent.lib.helper;
 
 import com.datatorrent.api.AttributeMap;
-import com.datatorrent.api.AttributeMap.AttributeKey;
+import com.datatorrent.api.AttributeMap.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 
@@ -41,7 +41,7 @@ public class OperatorContextTestHelper
     }
 
     @Override
-    public <T> T attrValue(AttributeKey<T> key, T defaultValue)
+    public <T> T attrValue(Attribute<T> key, T defaultValue)
     {
       return defaultValue;
     }
