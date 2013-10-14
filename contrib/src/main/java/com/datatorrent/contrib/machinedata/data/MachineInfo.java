@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.machinedata;
-
+package com.datatorrent.contrib.machinedata.data;
 
 /**
  * <p>MachineInfo class.</p>
@@ -22,22 +21,6 @@ package com.datatorrent.contrib.machinedata;
  * @since 0.3.5
  */
 public class MachineInfo {
-
-    public static enum RESOURCE_TYPE {
-    	CPU("cpu"), RAM("ram"), HDD("hdd");
-    	private String desc;
-
-    	private RESOURCE_TYPE(String desc) {
-			this.desc=desc;
-		}
-
-    	@Override
-    	public String toString(){
-    		return desc;
-    	}
-
-    };
-
     private MachineKey machineKey;
     private int cpu;
     private int ram;
