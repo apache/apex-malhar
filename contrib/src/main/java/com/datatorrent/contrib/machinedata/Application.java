@@ -218,7 +218,7 @@ public class Application implements StreamingApplication {
         setDefaultOutputPortQueueCapacity(dag,randomGen.outputInline);
         setDefaultOutputPortQueueCapacity(dag,randomGen.output);
 
-        dag.setAttribute(randomGen, OperatorContext.INITIAL_PARTITION_COUNT, 16);
+        //dag.setAttribute(randomGen, OperatorContext.INITIAL_PARTITION_COUNT, 16);
 
         if(conf.getBoolean("machinedata.calculate.average",true)){
             MachineInfoAveragingPrerequisitesOperator prereqAverageOper=addAverageCalculation(dag, conf);
