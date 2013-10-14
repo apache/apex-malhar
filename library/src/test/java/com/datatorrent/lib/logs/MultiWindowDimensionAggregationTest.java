@@ -94,7 +94,7 @@ public class MultiWindowDimensionAggregationTest
     Map<String, Map<String, Number>> data_1 = new HashMap<String, Map<String, Number>>();
     Map<String, Number> input_1 = new HashMap<String, Number>();
     oper.beginWindow(1);
-    
+
     input_1.put("0", new MutableDouble(9));
     input_1.put("1", new MutableDouble(9));
     input_1.put("2", new MutableDouble(9));
@@ -106,7 +106,7 @@ public class MultiWindowDimensionAggregationTest
     Map<String, Map<String, Number>> data_2 = new HashMap<String, Map<String, Number>>();
     Map<String, Number> input_2 = new HashMap<String, Number>();
     oper.beginWindow(2);
-    
+
     input_2.put("0", new MutableDouble(19));
     input_2.put("1", new MutableDouble(19));
     input_2.put("2", new MutableDouble(19));
@@ -125,7 +125,7 @@ public class MultiWindowDimensionAggregationTest
     data_3.put("m|20130823131514|0:abc|1:ie", input_3);
     oper.data.process(data_3);
     oper.endWindow();
-    
+
     Assert.assertEquals("number emitted tuples", 16, sortSink.collectedTuples.size());
     for (Object o : sortSink.collectedTuples) {
       logger.debug(o.toString());
