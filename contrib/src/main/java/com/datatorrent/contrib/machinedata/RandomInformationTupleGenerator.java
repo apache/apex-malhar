@@ -19,6 +19,8 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
+import com.datatorrent.contrib.machinedata.data.MachineInfo;
+import com.datatorrent.contrib.machinedata.data.MachineKey;
 import com.datatorrent.lib.util.KeyValPair;
 
 import java.util.*;
