@@ -18,6 +18,7 @@ package com.datatorrent.demos.mapreduce;
 import org.junit.Test;
 
 import com.datatorrent.api.LocalMode;
+import com.datatorrent.demos.mrmonitor.MRMonitoringApplication;
 
 /**
  * <p>MapReduceDebuggerApplicationTest class.</p>
@@ -29,7 +30,7 @@ public class MapReduceDebuggerApplicationTest {
 
 	@Test
 	public void testSomeMethod() throws Exception {
-		LocalMode.runApp(new MRDebuggerApplication(), 100000);
+		LocalMode.runApp(new MRMonitoringApplication(), 100000);
 	}
 
 
