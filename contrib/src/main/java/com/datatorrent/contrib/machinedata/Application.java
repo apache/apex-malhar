@@ -167,7 +167,7 @@ public class Application implements StreamingApplication {
     private CalculatorOperator addCalculator(DAG dag, Configuration conf){
         CalculatorOperator oper = dag.addOperator("Calculator",CalculatorOperator.class);
         dag.getOperatorMeta("Calculator").getAttributes().attr(Context.OperatorContext.APPLICATION_WINDOW_COUNT).set(appWindowCountMinute);
-        dag.setAttribute(oper, OperatorContext.INITIAL_PARTITION_COUNT,5);
+        //dag.setAttribute(oper, OperatorContext.INITIAL_PARTITION_COUNT,5);
 
         setDefaultInputPortQueueCapacity(dag,oper.dataPort);
 
