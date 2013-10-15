@@ -17,7 +17,10 @@ package com.datatorrent.contrib.kafka;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -33,7 +36,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG.Locality;
 
 /**
- * A test to verify the input operator will be automated partitoned according to the kafka partition
+ * A test to verify the input operator will be automated partitoned per kafka partition
  */
 public class KafkaPartitionableInputOperatorTest extends KafkaOperatorTestBase
 {
@@ -106,15 +109,34 @@ public class KafkaPartitionableInputOperatorTest extends KafkaOperatorTestBase
    * @throws Exception
    */
   @Test
-  public void testKafkaInputOperator() throws Exception
+  public void testPartitionableSimpleConsumerInputOperator() throws Exception
   {
-    // initial the latch for this test, there are 2 partitions with 2 collectors so wait till both partitions receive end_tuple
+    // Create template simple consumer
+    SimpleKafkaConsumer consumer = new SimpleKafkaConsumer();
+    testPartitionableInputOperator(consumer);
+  }
+  
+  @Test
+  public void testPartitionableHighlevelConsumerInputOperator() throws Exception
+  {
+    // Create template high-level consumer
+    Properties props = new Properties();
+    props.put("zookeeper.connect", "localhost:2182");
+    props.put("group.id", "main_group");
+    props.put("auto.offset.reset", "smallest");
+    HighlevelKafkaConsumer consumer = new HighlevelKafkaConsumer(props);
+    testPartitionableInputOperator(consumer);
+  }
+  
+  public void testPartitionableInputOperator(KafkaConsumer consumer) throws Exception{
+    
+    // Set to 2 because we want to make sure END_TUPLE from both 2 partitions are received
     latch = new CountDownLatch(2);
     
     int totalCount = 10000;
     
- // Start producer
-    KafkaTestProducer p = new KafkaTestProducer("topic1", true);
+    // Start producer
+    KafkaTestProducer p = new KafkaTestProducer(TEST_TOPIC, true);
     p.setSendCount(totalCount);
     new Thread(p).start();
 
@@ -124,10 +146,18 @@ public class KafkaPartitionableInputOperatorTest extends KafkaOperatorTestBase
 
     // Create KafkaSinglePortStringInputOperator
     PartitionableKafkaSinglePortStringInputOperator node = dag.addOperator("Kafka message consumer", PartitionableKafkaSinglePortStringInputOperator.class);
-    node.setConsumer(new SimpleKafkaConsumer());
-    node.getConsumer().setTopic("topic1");
     
-    // Set the 
+    //set topic
+    consumer.setTopic(TEST_TOPIC);
+    //set the brokerlist used to initialize the partition
+    Set<String> brokerSet =  new HashSet<String>();
+    brokerSet.add("localhost:9092");
+    brokerSet.add("localhost:9093");
+    consumer.setBrokerSet(brokerSet);
+
+    node.setConsumer(consumer);
+    
+    // Set the partition
     dag.setAttribute(node, OperatorContext.INITIAL_PARTITION_COUNT, 1);
 
     // Create Test tuple collector

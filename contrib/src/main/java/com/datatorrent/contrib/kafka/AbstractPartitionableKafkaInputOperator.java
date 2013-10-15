@@ -19,41 +19,54 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-
-import kafka.cluster.Broker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import kafka.javaapi.PartitionMetadata;
-
 import com.datatorrent.api.PartitionableOperator;
 
 /**
- * This kafka input operator which is automatically partitioned as the upstream
- * kafka partition This operator only use simple kafka consumer because there is
- * no partition metadata support for high level kafka consumer To use high level
- * kafka consumer you have to manually create multiple
- * AbstractKafkaInputOperator in DAG and set correct groupid which read specific
- * kafka partition
+ * 
+ * This kafka input operator will be automatically partitioned per upstream kafka partition.<br> <br>
+ * This is not real dynamic partition, The partition number is decided by number of partition set for the topic in kafka.<br> <br>
+ * 
+ * <b>Algorithm:</b> <br>
+ * <p>1.Pull the metadata(how many partitions) of the topic from brokerList of {@link KafkaConsumer}</p>
+ * <p>2.Create new partition according to how many partitions are there for the topic</p>
+ * <p>3.cloneConsumer method is used to initialize the new {@link KafkaConsumer} instance for the new partition operator</p>
+ * <p>4.cloneOperator method is used to initialize the new {@link AbstractPartitionableKafkaInputOperator} instance for the new partition operator</p>
+ * <br>
+ * <br>
+ * <b>Load balance:</b> refer to {@link SimpleKafkaConsumer} and {@link HighlevelKafkaConsumer} <br>
+ * <b>Kafka partition failover:</b> refer to {@link SimpleKafkaConsumer} and {@link HighlevelKafkaConsumer} 
  */
-public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKafkaInputOperator<SimpleKafkaConsumer> implements PartitionableOperator
+public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKafkaInputOperator<KafkaConsumer> implements PartitionableOperator
 {
-
-  private static final String CLIENT_NAME_SUFFIX = "_Partition";
+  
+  private static final Logger logger = LoggerFactory.getLogger(AbstractPartitionableKafkaInputOperator.class);
 
   @Override
   @SuppressWarnings("unchecked")
   public Collection<Partition<?>> definePartitions(Collection<? extends Partition<?>> partitions, int incrementalCapacity)
   {
-    getConsumer().create();
-    List<PartitionMetadata> kafkaPartitionList = getConsumer().getPartitionMDs();
+    // get partitions metadata fro topics. 
+    // Whatever operator is using high-level or simple kafka consumer, the operator always create a temporary simple kafka consumer to get the metadata of the topic
+    // The initial value of brokerList of the KafkaConsumer is used to retrieve the topic metadata
+    List<PartitionMetadata> kafkaPartitionList = KafkaMetadataUtil.getPartitionsForTopic(getConsumer().getBrokerSet(), getConsumer().getTopic());
+    // There are *AT MOST* #partition exclusive consumers for each topic of kafka message
+    // If you want to create more partition for operator, you can create more partitions for kafka data feed
     List<Partition<?>> newPartitions = new ArrayList<Partition<?>>(kafkaPartitionList.size());
+    
+    // Get template partition
     Iterator<Partition<AbstractPartitionableKafkaInputOperator>> iterator = (Iterator<Partition<AbstractPartitionableKafkaInputOperator>>) partitions.iterator();
     Partition<AbstractPartitionableKafkaInputOperator> templatePartition = iterator.next();
+    
+    // Create new partition from template partition but use pass-in partition ID
     for (int i = 0; i < kafkaPartitionList.size(); i++) {
+      logger.debug("Create partition " + kafkaPartitionList.get(i).partitionId());
       Partition<AbstractPartitionableKafkaInputOperator> p = templatePartition.getInstance(cloneOperator());
-      SimpleKafkaConsumer sfc = this.getConsumer();
       PartitionMetadata pm = kafkaPartitionList.get(i);
-      Broker b = pm.leader();
-      SimpleKafkaConsumer copy_Of_SFC = new SimpleKafkaConsumer(sfc.topic, b.host(), b.port(), sfc.getTimeout(), sfc.getBufferSize(), sfc.getClientId() + CLIENT_NAME_SUFFIX + pm.partitionId(), pm.partitionId());
-      p.getOperator().setConsumer(copy_Of_SFC);
+      KafkaConsumer newConsumerForPartition = getConsumer().cloneConsumer(pm.partitionId());
+      p.getOperator().setConsumer(newConsumerForPartition);
       newPartitions.add(p);
     }
     return newPartitions;

@@ -51,13 +51,13 @@ public class KafkaTestProducer implements Runnable
 //    props.put("metadata.broker.list", "localhost:"+KafkaOperatorTestBase.TEST_KAFKA_BROKER1_PORT );
     if(hasPartition){
       props.put("metadata.broker.list", "localhost:"+KafkaOperatorTestBase.TEST_KAFKA_BROKER1_PORT + ",localhost:" + KafkaOperatorTestBase.TEST_KAFKA_BROKER2_PORT);
+      props.setProperty("partitioner.class", KafkaTestPartitioner.class.getCanonicalName());
     } else {
       props.put("metadata.broker.list", "localhost:"+KafkaOperatorTestBase.TEST_KAFKA_BROKER1_PORT );
     }
-    // use this partition class always, if the partition is 1 it wont affect anything anyway
-    props.setProperty("partitioner.class", KafkaTestPartitioner.class.getCanonicalName());
-    props.setProperty("producer.type", "sync");
-//    props.put("request.required.acks", "1");
+    props.setProperty("topic.metadata.refresh.interval.ms", "20000");
+
+    props.setProperty("producer.type", "async");
     
     return new ProducerConfig(props);
   }
@@ -93,7 +93,7 @@ public class KafkaTestProducer implements Runnable
     // produce the end tuple to let the test input operator know it's done produce messages
     producer.send(new KeyedMessage<String, String>(topic, "" + 0, KafkaOperatorTestBase.END_TUPLE));
     if(hasPartition){
-      // if there is partition send end_tuple to partition 1
+      // Send end_tuple to other partition if it exist
       producer.send(new KeyedMessage<String, String>(topic, "" + 1, KafkaOperatorTestBase.END_TUPLE));
     }
   }

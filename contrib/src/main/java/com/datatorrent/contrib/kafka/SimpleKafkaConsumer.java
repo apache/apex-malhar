@@ -16,202 +16,333 @@
 package com.datatorrent.contrib.kafka;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kafka.api.FetchRequest;
 import kafka.api.FetchRequestBuilder;
+import kafka.cluster.Broker;
 import kafka.common.ErrorMapping;
 import kafka.javaapi.FetchResponse;
 import kafka.javaapi.PartitionMetadata;
-import kafka.javaapi.TopicMetadata;
-import kafka.javaapi.TopicMetadataResponse;
 import kafka.javaapi.consumer.SimpleConsumer;
 import kafka.javaapi.message.ByteBufferMessageSet;
 import kafka.message.Message;
 import kafka.message.MessageAndOffset;
 
 /**
- * Simple kafka consumer used by kafka input operator
+ * Simple kafka consumer adaptor used by kafka input operator
+ * Properties:<br>
+ * <b>timeout</b>: Timeout for connection and ping <br>
+ * <b>bufferSize</b>: buffer size of the consumer <br>
+ * <b>clientId</b>: client id of the consumer <br>
+ * <b>partitionId</b>: partition id that the consumer want to consume <br>
+ * <li> (-1): create #partition threads and consumers to read the topic from different partitions in parallel</li>
+ * <br>
+ * <b>metadataRefreshInterval</b>: The interval that the monitor thread use to monitor the broker leadership change <br>
+ * <b>metadataRetrievalRetry</b>: Maximum retry times for metadata retrieval failures<br>
+ * default value is 3 <br>
+ * -1: always retry <br>
+ * <br>
+ * 
+ * Load balance: <br>
+ * <li>Every consumer only sticks to leader broker for particular partition once it's created</li>
+ * <li>Once leadership change detected(leader broker failure, or server-side reassignment), it switches to the new leader broker</li>
+ * <li>For server-side leadership change, see kafka-preferred-replica-election.sh and kafka-reassign-partitions.sh</li>
+ * <li>For every physical consumer, it has a separate thread to monitor the leadership for the topic for every #metadataRefreshInterval milliseconds</li>
+ * <br>
+ * <br>
+ * Kafka broker failover: <br>
+ * <li>Once broker fail detected, it waits #metadataRefreshInterval to connect to the new leader broker </li>
+ * <li>If there are consecutive #metadataRetrievalRetry failures to retrieve the metadata for the topic. It will stop consuming the partition</li>
+ * <br>
  */
 public class SimpleKafkaConsumer extends KafkaConsumer
 {
+  
   public SimpleKafkaConsumer()
   {
+    super();
   }
-  
-  public SimpleKafkaConsumer(String topic, String host, int port, int timeout, int bufferSize, String clientId)
+
+  public SimpleKafkaConsumer(String topic, int timeout, int bufferSize, String clientId)
   {
-    this(topic, host, port, timeout, bufferSize, clientId, -1);
+    this(topic, timeout, bufferSize, clientId, -1);
   }
-  
-  public SimpleKafkaConsumer(String topic, String host, int port, int timeout, int bufferSize, String clientId, int partitionId)
+
+  public SimpleKafkaConsumer(String topic, int timeout, int bufferSize, String clientId, int partitionId)
   {
     super(topic);
-    this.host = host;
-    this.port = port;
     this.timeout = timeout;
     this.bufferSize = bufferSize;
     this.clientId = clientId;
     this.partitionId = partitionId;
   }
 
-  private transient SimpleConsumer simpleConsumer;
-  @NotNull
-  private String host = "localhost";
+  public SimpleKafkaConsumer(Set<String> brokerList, String topic, int timeout, int bufferSize, String clientId, int partitionId)
+  {
+    super(brokerList, topic);
+    this.timeout = timeout;
+    this.bufferSize = bufferSize;
+    this.clientId = clientId;
+    this.partitionId = partitionId;
+  }
   
-  private int port = 9092;
+  private static final Logger logger = LoggerFactory.getLogger(SimpleKafkaConsumer.class);
+
+  /**
+   * Track thread for each partition, clean the resource if necessary
+   */
+  private final transient HashMap<Integer, SimpleConsumer> simpleConsumerThreads = new HashMap<Integer, SimpleConsumer>();
+
   
-  private int timeout=10000;
-  
-  //defailt buffer size is 1M
+  private int timeout = 10000;
+
+  /**
+   * Default buffer size is 1M
+   */
   private int bufferSize = 1024 * 1024;
-  
-  // default consumer id is "Kafka_Input_Operator_Default_Simple_Client"
+
+  /**
+   * Default client id prefix is "Kafka_Simple_Client"
+   */
   @NotNull
-  private String clientId = "Kafka_Input_Operator_Default_Simple_Client";
+  private String clientId = "Kafka_Simple_Client";
+  
+  /**
+   * interval in between reconnect if one kafka broker goes down in milliseconds 
+   */
+  private int metadataRefreshInterval = 10000;
+  
+  
+  /**
+   * Maximum retry times
+   */
+  private int metadataRetrievalRetry = 3;
   
   /**
    * You can setup your particular partitionID you want to consume with *simple
-   * kafka consumer*. Use this to maximize the distributed performance 
-   * By default it's set to -1 which means #partitionSize anonymous threads will be
+   * kafka consumer*. Use this to maximize the distributed performance. 
+   * By default it's -1 which means #partitionSize anonymous threads will be
    * created to consume tuples from different partition
    */
   @Min(value = -1)
   private int partitionId = -1;
   
+  
+  /**
+   * Track offset for each partition, so operator could start from the last serialized state
+   */
+  private Map<Integer, Long> offsetTrack = new HashMap<Integer, Long>();
+
   @Override
   public void create()
   {
     super.create();
-    simpleConsumer = new SimpleConsumer(host, port, timeout, bufferSize, clientId);
+    if (partitionId == -1) {
+      
+      // if partition id is set to -1 , find all the partitions for the specific topic
+      List<PartitionMetadata> partitionMetaList = KafkaMetadataUtil.getPartitionsForTopic(brokerSet, topic);
+      for (PartitionMetadata part : partitionMetaList) {
+        logger.info("Create simple consumer and connect to " + part.leader().host() + ":" + part.leader().port() +
+            " [timeout:" + timeout + ", buffersize:" + bufferSize + ", cliendid:" + clientId + "]");
+        simpleConsumerThreads.put(part.partitionId(), new SimpleConsumer(part.leader().host(), part.leader().port(), timeout, bufferSize, clientId));
+      }
+    } else {
+      PartitionMetadata pm = KafkaMetadataUtil.getPartitionForTopic(brokerSet, topic, partitionId);
+      logger.info("Create simple consumer and connect to " + pm.leader().host() + ":" + pm.leader().port() +
+          " [timeout:" + timeout + ", buffersize:" + bufferSize + ", cliendid:" + clientId + "]");
+      simpleConsumerThreads.put(partitionId, new SimpleConsumer(pm.leader().host(), pm.leader().port(), timeout, bufferSize, clientId));
+    }
   }
 
   @Override
   public void start()
   {
     super.start();
-    List<Integer> partition = null;
-    if (partitionId == -1) {
-      // if partition id is set to -1 , find all the partitions for the specific topic
-      List<PartitionMetadata> partitionMetaList = getPartitionMDs();
-      partition = new ArrayList<Integer>(partitionMetaList.size());
-      for (PartitionMetadata part : partitionMetaList) {
-        partition.add(part.partitionId());
-      }
-    } else {
-      partition = new ArrayList<Integer>(1);
-      partition.add(partitionId);
-    }
-    ExecutorService executor = Executors.newFixedThreadPool(partition.size());
-    for (final Integer par : partition) {
+    final ExecutorService executor = Executors.newFixedThreadPool(simpleConsumerThreads.size() * 2);
+    for (final Integer pid : simpleConsumerThreads.keySet()) {
       executor.submit(new Runnable() {
+        
+        SimpleConsumer csInThread = simpleConsumerThreads.get(pid);
+        
+        int retryCounter = 0;
+        
         @Override
         public void run()
         {
-          long offset = 0;
-          while (isAlive) {
-
-            FetchRequest req = new FetchRequestBuilder().clientId(clientId).addFetch(topic, par, offset, bufferSize).build();
-            FetchResponse fetchResponse = simpleConsumer.fetch(req);
-
-            if (fetchResponse.hasError() && fetchResponse.errorCode(topic, par)==ErrorMapping.OffsetOutOfRangeCode()) {
-              return;
+          // start a monitor thread to monitor the metadata change and trigger some action on the change  
+          executor.execute(new Runnable(){
+            
+            @Override
+            public void run()
+            {
+              
+              while(isAlive && (metadataRetrievalRetry==-1 || retryCounter < metadataRetrievalRetry)){
+                try {
+                  Thread.sleep(metadataRefreshInterval);
+                } catch (InterruptedException e) {
+                  e.printStackTrace();
+                }
+                logger.debug(Thread.currentThread().getName() + ": Update metadata for topic " + topic);
+                List<PartitionMetadata> pms =  KafkaMetadataUtil.getPartitionsForTopic(brokerSet, topic);
+                brokerSet.clear();
+                PartitionMetadata leaderForPartition = null;
+                for (PartitionMetadata pm : pms) {
+                  for (Broker b : pm.replicas()) {
+                    brokerSet.add(b.host() + ":" + b.port());
+                  }
+                  if(pm.partitionId()==pid){
+                    leaderForPartition = pm;
+                  }
+                }
+                if(leaderForPartition == null){
+                  retryCounter++;
+                  continue;
+                }
+                retryCounter = 0;
+                if(csInThread.host().equals(leaderForPartition.leader().host()) && csInThread.port() == leaderForPartition.leader().port()){
+                  continue;
+                }
+                logger.info("Find leader broker change, try to reconnect to leader broker " + leaderForPartition.leader().host());
+                // clean the consumer to reestablish the new connection
+                cleanPartition(pid);
+                // find a leader broker change
+                csInThread = new SimpleConsumer(leaderForPartition.leader().host(), leaderForPartition.leader().port(), timeout, bufferSize, clientId);
+                simpleConsumerThreads.put(pid, csInThread);
+              }
             }
+          });
+          long offset = offsetTrack.get(pid) == null ? 0L : offsetTrack.get(pid);
+          while (isAlive && (metadataRetrievalRetry==-1 || retryCounter < metadataRetrievalRetry)) {
 
-            ByteBufferMessageSet messages = fetchResponse.messageSet(topic, par);
-            Iterator<MessageAndOffset> itr = messages.iterator();
+            try {
+              FetchRequest req = new FetchRequestBuilder().clientId(clientId).addFetch(topic, pid, offset, bufferSize).build();
+              FetchResponse fetchResponse = csInThread.fetch(req);
 
-            if (itr.hasNext() && isAlive) {
-              MessageAndOffset msg = itr.next();
-              offset = msg.nextOffset();
-              ByteBuffer payload = msg.message().payload();
-              byte[] bytes = new byte[payload.limit()];
-              payload.get(bytes);
-              holdingBuffer.add(new Message(bytes));
+              if (fetchResponse.hasError() && fetchResponse.errorCode(topic, pid) == ErrorMapping.OffsetOutOfRangeCode()) {
+                // If OffsetOutOfRangeCode happen, it means all msgs have been consumed, clean the consumer and return
+                cleanPartition(pid);
+                return;
+              } else if (fetchResponse.hasError()) {
+                // If error happen, assume
+                throw new  Exception("Fetch message error, try to reconnect to new broker");
+              }
+
+              ByteBufferMessageSet messages = fetchResponse.messageSet(topic, pid);
+              Iterator<MessageAndOffset> itr = messages.iterator();
+
+              if (itr.hasNext() && isAlive) {
+                MessageAndOffset msg = itr.next();
+                offset = msg.nextOffset();
+                offsetTrack.put(pid, offset);
+                ByteBuffer payload = msg.message().payload();
+                byte[] bytes = new byte[payload.limit()];
+                payload.get(bytes);
+                holdingBuffer.add(new Message(bytes));
+              }
+            } catch (Exception e) {
+              logger.warn("Error read from leader broker, highly likely the leader broker is failing. " + e);
+              try {
+                // wait for the next metadata update to reconnect
+                Thread.sleep(metadataRefreshInterval + 1000);
+              } catch (InterruptedException e1) {
+                e1.printStackTrace();
+              }
             }
           }
         }
-      });
-      
-    }
-  }
-  
-  public List<PartitionMetadata> getPartitionMDs()
-  {
-    List<String> topics = new ArrayList<String>(1);
-    topics.add(topic);
-    kafka.javaapi.TopicMetadataRequest req = new kafka.javaapi.TopicMetadataRequest(topics);
-    TopicMetadataResponse resp = simpleConsumer.send(req);
-    List<TopicMetadata> metaData = (List<TopicMetadata>) resp.topicsMetadata();
-    for (TopicMetadata item : metaData) {
-      // There is maximun of 1 topic
-      return item.partitionsMetadata();
-    }
-    return null;
-  }
-  
 
+      });
+    }
+  }
+
+  private void cleanPartition(Integer pid)
+  {
+    SimpleConsumer sc = simpleConsumerThreads.get(pid);
+    if (sc != null) {
+      sc.close();
+    }
+    simpleConsumerThreads.remove(pid);
+  }
 
   @Override
   public void stop()
   {
     isAlive = false;
-    simpleConsumer.close();
+    for(int pid : simpleConsumerThreads.keySet()){
+      simpleConsumerThreads.get(pid).close();
+    }
+    simpleConsumerThreads.clear();
   }
-  
+
   public void setBufferSize(int bufferSize)
   {
     this.bufferSize = bufferSize;
   }
-  
+
   public void setClientId(String clientId)
   {
     this.clientId = clientId;
   }
-  
-  public void setHost(String host)
-  {
-    this.host = host;
-  }
-  
-  public void setPort(int port)
-  {
-    this.port = port;
-  }
-  
+
   public void setTimeout(int timeout)
   {
     this.timeout = timeout;
   }
-  
-  public String getHost()
-  {
-    return host;
-  }
-  
+
   public int getBufferSize()
   {
     return bufferSize;
   }
-  
+
   public String getClientId()
   {
     return clientId;
   }
-  
+
   public int getTimeout()
   {
     return timeout;
   }
   
-  public int getPort()
+  public int getReconnectInterval()
   {
-    return port;
+    return metadataRefreshInterval;
   }
-  
-}  // End of SimpleKafkaConsumer
+
+  public void setReconnectInterval(int reconnectInterval)
+  {
+    this.metadataRefreshInterval = reconnectInterval;
+  }
+
+  public int getMetadataRetrievalRetry()
+  {
+    return metadataRetrievalRetry;
+  }
+
+  public void setMetadataRetrievalRetry(int metadataRetrievalRetry)
+  {
+    this.metadataRetrievalRetry = metadataRetrievalRetry;
+  }
+
+  @Override
+  protected KafkaConsumer cloneConsumer(int partitionId)
+  {
+    // create different client for same partition
+    return new SimpleKafkaConsumer(brokerSet, topic, timeout, bufferSize, clientId + SIMPLE_CONSUMER_ID_SUFFIX + partitionId, partitionId);
+  }
+
+
+} // End of SimpleKafkaConsumer
