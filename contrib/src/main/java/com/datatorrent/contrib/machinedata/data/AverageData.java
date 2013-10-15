@@ -13,27 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.machinedata;
-
-import com.datatorrent.contrib.machinedata.operator.averaging.AveragingInfo;
-import com.datatorrent.lib.util.TimeBucketKey;
-
-import java.util.Map;
+package com.datatorrent.contrib.machinedata.data;
 
 /**
- * <p>MachineAveragingInfo class.</p>
+ * <p>AverageData class.</p>
  *
  * @since 0.3.5
  */
-public class MachineAveragingInfo<ValueKey, NumType extends Number> implements AveragingInfo<ValueKey, NumType> {
+public class AverageData {
 
-    @Override
-    public TimeBucketKey getAveragingKey() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    private double sum;
+    private long count;
+
+    public AverageData() {
     }
 
-    @Override
-    public Map getDataMap() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public AverageData(double sum, long count) {
+        this.sum = sum;
+        this.count = count;
+    }
+
+    public double getSum() {
+        return sum;
+    }
+
+    public void setSum(double sum) {
+        this.sum = sum;
+    }
+
+    public long getCount() {
+        return count;
+    }
+
+    public void setCount(long count) {
+        this.count = count;
     }
 }
