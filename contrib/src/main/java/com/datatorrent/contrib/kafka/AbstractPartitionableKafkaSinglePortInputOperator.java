@@ -15,36 +15,11 @@
  */
 package com.datatorrent.contrib.kafka;
 
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.DefaultOutputPort;
-
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import kafka.message.Message;
 
-
-/**
- * Kafka input adapter operator with single output port, which consume data from Kafka message bus.<p><br>
- *
- * <br>
- * Ports:<br>
- * <b>Input</b>: No input port<br>
- * <b>Output</b>: Have only one output port<br>
- * <br>
- * Properties:<br>
- * None<br>
- * <br>
- * Compile time checks:<br>
- * Class derived from this has to implement the abstract method getTuple() <br>
- * <br>
- * Run time checks:<br>
- * None<br>
- * <br>
- * Benchmarks:<br>
- * TBD<br>
- * <br>
- *
- * @since 0.3.2
- */
-public abstract class AbstractKafkaSinglePortInputOperator<T> extends AbstractKafkaInputOperator<KafkaConsumer>
+public abstract class AbstractPartitionableKafkaSinglePortInputOperator<T> extends AbstractPartitionableKafkaInputOperator
 {
   /**
    * The single output port.
@@ -53,7 +28,7 @@ public abstract class AbstractKafkaSinglePortInputOperator<T> extends AbstractKa
   public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**
-   * Any concrete class derived from AbstractKafkaSinglePortInputOperator has to implement this method
+   * Any concrete class derived from AbstractPartitionableKafkaSinglePortInputOperator has to implement this method
    * so that it knows what type of message it is going to send to Malhar.
    * It converts a ByteBuffer message into a Tuple. A Tuple can be of any type (derived from Java Object) that
    * operator user intends to.
