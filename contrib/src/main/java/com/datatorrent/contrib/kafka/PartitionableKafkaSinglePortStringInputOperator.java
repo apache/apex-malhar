@@ -26,7 +26,7 @@ public class PartitionableKafkaSinglePortStringInputOperator extends AbstractPar
 {
   /**
    * Implement abstract method of AbstractPartitionableKafkaSinglePortInputOperator
-   * Just parse the kafka Message as a string
+   * Just parse the kafka message as a string
    */
   @Override
   public String getTuple(Message message)
