@@ -79,7 +79,7 @@ public class RandomInformationTupleGenerator extends BaseOperator implements Inp
     private int randMax = 63;
 
 //    private int tupleBlastSize = 50;
-    private int tupleBlastSize = 10000;
+    private int tupleBlastSize = 1000;
 
     private boolean genAlert;
     private int cpuThreshold = 70;

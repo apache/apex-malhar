@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.datatorrent</groupId>
     <artifactId>malhar-framework</artifactId>
-    <version>0.3.4</version>
+    <version>0.3.5</version>
   </parent>
 
   <artifactId>malhar-all</artifactId>
@@ -22,7 +22,7 @@
   </repositories>
 
   <properties>
-	<malhar.framework.version>0.3.4</malhar.framework.version>
+	<malhar.framework.version>0.3.5</malhar.framework.version>
   </properties>
 
   <modules>
