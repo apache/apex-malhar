@@ -15,11 +15,13 @@
  */
 package com.datatorrent.samples.lib.algo;
 
+
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.DAG;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.StreamingApplication;
+
 import com.datatorrent.lib.algo.AllAfterMatchMap;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.samples.lib.math.RandomKeyValMap;
@@ -50,7 +52,7 @@ public class AllAfterMatchMapSample implements StreamingApplication
 		allafter.setTypeLTE();
 		dag.addStream("stream1", rand.outport, allafter.data);
 		dag.getMeta(allafter).getAttributes()
-				.attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(20);
+				.put(OperatorContext.APPLICATION_WINDOW_COUNT, 20);
 
 		// Connect to output console operator
 		ConsoleOutputOperator console = dag.addOperator("console",
