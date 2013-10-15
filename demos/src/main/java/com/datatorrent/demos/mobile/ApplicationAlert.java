@@ -15,25 +15,30 @@
  */
 package com.datatorrent.demos.mobile;
 
-import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.DAG;
+import java.net.URI;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Range;
+import com.google.common.collect.Ranges;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.conf.Configuration;
+
+import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.DAGContext;
+import com.datatorrent.api.StreamingApplication;
+
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 import com.datatorrent.lib.io.SmtpOutputOperator;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
 import com.datatorrent.lib.util.AlertEscalationOperator;
-import com.google.common.collect.Range;
-import com.google.common.collect.Ranges;
-
-import java.net.URI;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Mobile Demo Application.<p>
@@ -51,9 +56,17 @@ public class ApplicationAlert implements StreamingApplication
     dag.setAttribute(DAG.CONTAINERS_MAX_COUNT, 1);
     if (LAUNCHMODE_YARN.equals(conf.get(DAG.LAUNCH_MODE))) {
       // settings only affect distributed mode
-      dag.getAttributes().attr(DAG.CONTAINER_MEMORY_MB).setIfAbsent(2048);
-      dag.getAttributes().attr(DAG.MASTER_MEMORY_MB).setIfAbsent(1024);
-      dag.getAttributes().attr(DAG.CONTAINERS_MAX_COUNT).setIfAbsent(1);
+      // settings only affect distributed mode
+      AttributeMap attributes = dag.getAttributes();
+      if (attributes.get(DAGContext.CONTAINER_MEMORY_MB) == null) {
+        attributes.put(DAGContext.CONTAINER_MEMORY_MB, 2048);
+      }
+      if (attributes.get(DAGContext.MASTER_MEMORY_MB) == null) {
+        attributes.put(DAGContext.MASTER_MEMORY_MB, 1024);
+      }
+      if (attributes.get(DAGContext.CONTAINERS_MAX_COUNT) == null) {
+        attributes.put(DAGContext.CONTAINERS_MAX_COUNT, 1);
+      }
     }
     else if (LAUNCHMODE_LOCAL.equals(conf.get(DAG.LAUNCH_MODE))) {
     }

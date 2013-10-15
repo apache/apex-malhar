@@ -15,17 +15,20 @@
  */
 package com.datatorrent.demos.yahoofinance;
 
+
+import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.api.StreamingApplication;
+
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.math.RangeKeyVal;
 import com.datatorrent.lib.math.SumKeyVal;
 import com.datatorrent.lib.multiwindow.SimpleMovingAverage;
 import com.datatorrent.lib.stream.ConsolidatorKeyVal;
 import com.datatorrent.lib.util.HighLow;
-import org.apache.hadoop.conf.Configuration;
 
 /**
  * Yahoo! Finance Application Demo :<br>
@@ -232,7 +235,7 @@ public class Application implements StreamingApplication
   {
     SumKeyVal<String, Long> oper = dag.addOperator(name, new SumKeyVal<String, Long>());
     oper.setType(Long.class);
-    dag.getOperatorMeta(name).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(appWindowCount);
+    dag.getOperatorMeta(name).getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCount);
     return oper;
   }
 
@@ -248,7 +251,7 @@ public class Application implements StreamingApplication
   public RangeKeyVal<String, Double> getHighLowOperator(String name, DAG dag, int appWindowCount)
   {
     RangeKeyVal<String, Double> oper = dag.addOperator(name, new RangeKeyVal<String, Double>());
-    dag.getOperatorMeta(name).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(appWindowCount);
+    dag.getOperatorMeta(name).getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCount);
     oper.setType(Double.class);
     return oper;
   }
@@ -326,7 +329,7 @@ public class Application implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
 
-    dag.getAttributes().attr(DAG.STREAMING_WINDOW_SIZE_MILLIS).set(streamingWindowSizeMilliSeconds);
+    dag.getAttributes().put(DAG.STREAMING_WINDOW_SIZE_MILLIS, streamingWindowSizeMilliSeconds);
 
     StockTickInput tick = getStockTickInputOperator("StockTickInput", dag);
     SumKeyVal<String, Long> dailyVolume = getDailyVolumeOperator("DailyVolume", dag);
