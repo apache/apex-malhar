@@ -15,18 +15,19 @@
  */
 package com.datatorrent.contrib.jdbc;
 
-import com.datatorrent.contrib.jdbc.JDBCOutputOperator;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAGContext;
-import com.datatorrent.api.AttributeMap;
-import com.datatorrent.api.AttributeMap.DefaultAttributeMap;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.AttributeMap;
+import com.datatorrent.api.AttributeMap.DefaultAttributeMap;
+import com.datatorrent.api.DAG;
+
 
 /**
  *
@@ -50,7 +51,7 @@ public class JDBCOperatorTestHelper
   protected transient ArrayList<String> tableNames = new ArrayList<String>();
   private transient HashMap<String, Integer> columnSQLTypes = new HashMap<String, Integer>();
   private final int columnCount = 7;
-  public AttributeMap attrmap = new DefaultAttributeMap(DAGContext.class);
+  public AttributeMap attrmap = new DefaultAttributeMap();
 
   public String[] hashMapping1 = new String[7];
   public String[] hashMapping2 = new String[7];
@@ -179,7 +180,7 @@ public class JDBCOperatorTestHelper
     columnSQLTypes.put("VARBINARY", new Integer(Types.VARBINARY));
     columnSQLTypes.put("VARCHAR", new Integer(Types.VARCHAR));
 
-    attrmap.attr(DAG.APPLICATION_ID).set("myJDBCOutputOperatorAppId");
+    attrmap.put(DAG.APPLICATION_ID, "myJDBCOutputOperatorAppId");
 
   }
 
