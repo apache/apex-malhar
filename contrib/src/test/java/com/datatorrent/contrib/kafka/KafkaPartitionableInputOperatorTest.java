@@ -36,7 +36,8 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG.Locality;
 
 /**
- * A test to verify the input operator will be automated partitoned per kafka partition
+ * A test to verify the input operator will be automatically partitioned per kafka partition
+ * This test is launching its own Kafka cluster.
  */
 public class KafkaPartitionableInputOperatorTest extends KafkaOperatorTestBase
 {
