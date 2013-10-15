@@ -23,8 +23,10 @@ import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Operator;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -103,7 +105,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     
     
  // Start producer
-    KafkaTestProducer p = new KafkaTestProducer("topic1");
+    KafkaTestProducer p = new KafkaTestProducer(TEST_TOPIC);
     p.setSendCount(totalCount);
     new Thread(p).start();
 
@@ -115,9 +117,12 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
 
     // Create KafkaSinglePortStringInputOperator
     KafkaSinglePortStringInputOperator node = dag.addOperator("Kafka message consumer", KafkaSinglePortStringInputOperator.class);
+    consumer.setTopic(TEST_TOPIC);
+    Set<String> brokerSet = new HashSet<String>();
+    brokerSet.add("localhost:9092");
+    consumer.setBrokerSet(brokerSet);
     node.setConsumer(consumer);
-    node.getConsumer().setTopic("topic1");
-
+    
     // Create Test tuple collector
     CollectorModule<String> collector = dag.addOperator("TestMessageCollector", new CollectorModule<String>());
 
@@ -147,8 +152,9 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
   {
     int totalCount = 10000;
     Properties props = new Properties();
-    props.put("zookeeper.connect", "localhost:2182");
+    props.put("zookeeper.connect", "localhost:" + KafkaOperatorTestBase.TEST_ZOOKEEPER_PORT);
     props.put("group.id", "group1");
+    props.put("consumer.id", "default_consumer");
     // This damn property waste me 2 days! It's a 0.8 new property. "smallest" means
     // reset the consumer to the beginning of the message that is not consumed yet
     // otherwise it wont get any of those the produced before!
@@ -168,7 +174,6 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
   {
     int totalCount = 10000;
     SimpleKafkaConsumer consumer = new SimpleKafkaConsumer();
-    consumer.setHost(null);
     try{
       testKafkaInputOperator(false, 1000, totalCount,consumer);
     }catch(Exception e){

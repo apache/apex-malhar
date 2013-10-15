@@ -18,6 +18,10 @@ package com.datatorrent.contrib.kafka;
 import java.nio.ByteBuffer;
 import kafka.message.Message;
 
+/**
+ * A simple partitionable kafka single port string input operator. 
+ * It consumes the kafka message as string and emit to 1 output port
+ */
 public class PartitionableKafkaSinglePortStringInputOperator extends AbstractPartitionableKafkaSinglePortInputOperator<String>
 {
   /**
@@ -33,7 +37,8 @@ public class PartitionableKafkaSinglePortStringInputOperator extends AbstractPar
       byte[] bytes = new byte[buffer.remaining()];
       buffer.get(bytes);
       data = new String(bytes);
-      //logger.debug("Consuming {}", data);
+//      System.out.println(data);
+//      logger.debug("Consuming {}", data);
     }
     catch (Exception ex) {
       return data;
