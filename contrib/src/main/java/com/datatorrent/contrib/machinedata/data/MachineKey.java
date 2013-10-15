@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.machinedata;
+package com.datatorrent.contrib.machinedata.data;
 
 import com.datatorrent.lib.util.TimeBucketKey;
 
 import java.util.Calendar;
-import java.util.List;
 
 /**
  * <p>MachineKey class.</p>

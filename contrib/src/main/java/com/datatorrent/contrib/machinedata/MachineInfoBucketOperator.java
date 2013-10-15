@@ -16,6 +16,7 @@
 package com.datatorrent.contrib.machinedata;
 
 import com.datatorrent.api.*;
+import com.datatorrent.contrib.machinedata.data.MachineKey;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**

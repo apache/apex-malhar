@@ -13,33 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.machinedata;
+package com.datatorrent.contrib.machinedata.data;
 
-import com.datatorrent.contrib.machinedata.data.MachineInfo;
-import com.datatorrent.contrib.machinedata.data.MachineKey;
+import com.google.common.collect.Maps;
+
+import java.util.Map;
 
 /**
- * <p>RamInfo class.</p>
  *
  * @since 0.3.5
  */
-public class RamInfo extends MachineInfo {
+public enum ResourceType {
 
-    private int ram;
+    CPU("cpu"), RAM("ram"), HDD("hdd");
 
-    public RamInfo() {
+    private static Map<String, ResourceType> descToResource = Maps.newHashMap();
+
+    static {
+        for (ResourceType type : ResourceType.values()) {
+            descToResource.put(type.desc, type);
+        }
     }
 
-    public RamInfo(MachineKey machineKey, int ram) {
-        super(machineKey);
-        this.ram = ram;
+    private String desc;
+
+    private ResourceType(String desc) {
+        this.desc = desc;
     }
 
-    public int getRam() {
-        return ram;
+    @Override
+    public String toString() {
+        return desc;
     }
 
-    public void setRam(int ram) {
-        this.ram = ram;
+    public static ResourceType getResourceTypeOf(String desc) {
+        return descToResource.get(desc);
     }
 }
