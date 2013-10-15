@@ -15,6 +15,7 @@
  */
 package com.datatorrent.lib.io;
 
+import com.datatorrent.api.util.PubSubMessageCodec;
 import com.datatorrent.api.util.PubSubWebSocketClient;
 
 import java.io.IOException;
@@ -33,6 +34,7 @@ public class PubSubWebSocketInputOperator extends WebSocketInputOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(PubSubWebSocketInputOperator.class);
   private HashSet<String> topics = new HashSet<String>();
+  private transient PubSubMessageCodec<Object> codec = new PubSubMessageCodec<Object>(mapper);
 
   public void addTopic(String topic)
   {
@@ -53,7 +55,7 @@ public class PubSubWebSocketInputOperator extends WebSocketInputOperator
     super.run();
     try {
       for (String topic: topics) {
-        connection.sendMessage(PubSubWebSocketClient.constructSubscribeMessage(topic, mapper));
+        connection.sendTextMessage(PubSubWebSocketClient.constructSubscribeMessage(topic, codec));
       }
     }
     catch (IOException ex) {

@@ -19,6 +19,10 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.ShipContainingJars;
+import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.websocket.WebSocket;
+import com.ning.http.client.websocket.WebSocketTextListener;
+import com.ning.http.client.websocket.WebSocketUpgradeHandler;
 
 import java.io.IOException;
 import java.net.URI;
@@ -26,10 +30,6 @@ import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.NotNull;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.eclipse.jetty.websocket.WebSocket;
-import org.eclipse.jetty.websocket.WebSocket.Connection;
-import org.eclipse.jetty.websocket.WebSocketClient;
-import org.eclipse.jetty.websocket.WebSocketClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * @param <T> tuple type
  * @since 0.3.2
  */
-@ShipContainingJars(classes = {org.codehaus.jackson.JsonFactory.class, org.eclipse.jetty.websocket.WebSocket.class})
+@ShipContainingJars(classes = {com.ning.http.client.websocket.WebSocket.class})
 public class WebSocketOutputOperator<T> extends BaseOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(WebSocketOutputOperator.class);
@@ -53,11 +53,10 @@ public class WebSocketOutputOperator<T> extends BaseOperator
   public int readTimeoutMillis = 0;
   @NotNull
   private URI uri;
-  private transient final WebSocketClientFactory factory = new WebSocketClientFactory();
-  private transient WebSocketClient client;
+  private transient AsyncHttpClient client = new AsyncHttpClient();
   private transient final JsonFactory jsonFactory = new JsonFactory();
   protected transient final ObjectMapper mapper = new ObjectMapper(jsonFactory);
-  protected transient Connection connection;
+  protected transient WebSocket connection;
 
   public void setUri(URI uri)
   {
@@ -70,7 +69,7 @@ public class WebSocketOutputOperator<T> extends BaseOperator
     public void process(T t)
     {
       try {
-        connection.sendMessage(convertMapToMessage(t));
+        connection.sendTextMessage(convertMapToMessage(t));
       }
       catch (IOException ex) {
         LOG.error("error sending message through web socket", ex);
@@ -85,13 +84,8 @@ public class WebSocketOutputOperator<T> extends BaseOperator
   {
     try {
       uri = URI.create(uri.toString()); // force reparse after deserialization
-
-      factory.setBufferSize(8192);
-      factory.start();
-
-      client = factory.newWebSocketClient();
       LOG.info("URL: {}", uri);
-      connection = client.open(uri, new WebSocket.OnTextMessage()
+      connection = client.prepareGet(uri.toString()).execute(new WebSocketUpgradeHandler.Builder().addWebSocketListener(new WebSocketTextListener()
       {
         @Override
         public void onMessage(String string)
@@ -99,31 +93,33 @@ public class WebSocketOutputOperator<T> extends BaseOperator
         }
 
         @Override
-        public void onOpen(Connection cnctn)
+        public void onFragment(String string, boolean bln)
+        {
+        }
+
+        @Override
+        public void onOpen(WebSocket ws)
         {
           LOG.debug("Connection opened");
         }
 
         @Override
-        public void onClose(int i, String string)
+        public void onClose(WebSocket ws)
         {
           LOG.debug("Connection closed.");
         }
 
-      }).get(5, TimeUnit.SECONDS);
+        @Override
+        public void onError(Throwable t)
+        {
+          LOG.error("Caught exception", t);
+        }
+
+      }).build()).get(5, TimeUnit.SECONDS);
     }
     catch (Exception ex) {
       throw new RuntimeException(ex);
     }
-  }
-
-  @Override
-  public void teardown()
-  {
-    if (factory != null) {
-      factory.destroy();
-    }
-    super.teardown();
   }
 
   public String convertMapToMessage(T t) throws IOException
