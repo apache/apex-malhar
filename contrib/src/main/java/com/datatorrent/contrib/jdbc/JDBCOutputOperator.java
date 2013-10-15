@@ -15,11 +15,6 @@
  */
 package com.datatorrent.contrib.jdbc;
 
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.Operator;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -27,10 +22,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.Operator;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 
 /**
  * JDBC output adapter operator, which writes data into persistence database through JAVA DataBase Connectivity (JDBC) API
@@ -541,7 +544,7 @@ public abstract class JDBCOutputOperator<T> extends JDBCOperatorBase implements 
     setupJDBCConnection();
     prepareInsertStatement();
     setOperatorId(context.getId());
-    applicationId = context.getAttributes().attr(DAG.APPLICATION_ID).get();
+    applicationId = context.getAttributes().get(DAG.APPLICATION_ID);
   }
 
   /**
