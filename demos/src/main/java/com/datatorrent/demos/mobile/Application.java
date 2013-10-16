@@ -148,10 +148,10 @@ public class Application implements StreamingApplication
     // default partitioning: first connected stream to movementGen will be partitioned
     dag.addStream("phonedata", phones.integer_data, movementGen.data);
 
-    String daemonAddress = dag.attrValue(DAG.DAEMON_ADDRESS, null);
-    if (!StringUtils.isEmpty(daemonAddress)) {
-      URI uri = URI.create("ws://" + daemonAddress + "/pubsub");
-      LOG.info("WebSocket with daemon at: {}", daemonAddress);
+    String gatewayAddress = dag.attrValue(DAG.GATEWAY_ADDRESS, null);
+    if (!StringUtils.isEmpty(gatewayAddress)) {
+      URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
+      LOG.info("WebSocket with gateway at: {}", gatewayAddress);
 
       PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator("phoneLocationQueryResultWS", new PubSubWebSocketOutputOperator<Object>());
       wsOut.setUri(uri);
