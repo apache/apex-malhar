@@ -210,11 +210,11 @@ public class Application implements StreamingApplication
   private InputPort<Object> getConsolePort(DAG b, String name, boolean silent)
   {
     // output to HTTP server when specified in environment setting
-    String daemonAddress = b.attrValue(DAG.DAEMON_ADDRESS, null);
-    if (!StringUtils.isEmpty(daemonAddress)) {
-      URI uri = URI.create("ws://" + daemonAddress + "/pubsub");
+    String gatewayAddress = b.attrValue(DAG.GATEWAY_ADDRESS, null);
+    if (!StringUtils.isEmpty(gatewayAddress)) {
+      URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
       String topic = "demos.ads." + name;
-      //LOG.info("WebSocket with daemon at: {}", daemonAddress);
+      //LOG.info("WebSocket with gateway at: {}", gatewayAddress);
       PubSubWebSocketOutputOperator<Object> wsOut = b.addOperator(name, new PubSubWebSocketOutputOperator<Object>());
       wsOut.setUri(uri);
       wsOut.setTopic(topic);

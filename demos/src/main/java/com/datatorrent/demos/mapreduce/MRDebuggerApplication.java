@@ -39,16 +39,16 @@ public class MRDebuggerApplication implements StreamingApplication {
 
 	@Override
 	public void populateDAG(DAG dag, Configuration arg1) {
-		String daemonAddress = dag.attrValue(DAG.DAEMON_ADDRESS, null);
-		if (daemonAddress== null || StringUtils.isEmpty(daemonAddress)) {
-			daemonAddress = "10.0.2.15:9790";
+		String gatewayAddress = dag.attrValue(DAG.GATEWAY_ADDRESS, null);
+		if (gatewayAddress== null || StringUtils.isEmpty(gatewayAddress)) {
+			gatewayAddress = "10.0.2.15:9790";
 		}
 		MRJobStatusOperator mrJobOperator = dag.addOperator(
 				"mrJobStatusOperator", new MRJobStatusOperator());
 
 
-		URI uri = URI.create("ws://" + daemonAddress + "/pubsub");
-		LOG.info("WebSocket with daemon at: {}", daemonAddress);
+		URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
+		LOG.info("WebSocket with gateway at: {}", gatewayAddress);
 
 		PubSubWebSocketInputOperator wsIn = dag.addOperator("mrDebuggerQueryWS", new PubSubWebSocketInputOperator());
 		wsIn.setUri(uri);
