@@ -16,11 +16,17 @@
 package com.datatorrent.contrib.kafka;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import kafka.api.PartitionOffsetRequestInfo;
+import kafka.common.TopicAndPartition;
+import kafka.javaapi.OffsetRequest;
+import kafka.javaapi.OffsetResponse;
 import kafka.javaapi.PartitionMetadata;
 import kafka.javaapi.TopicMetadata;
 import kafka.javaapi.TopicMetadataResponse;
@@ -125,6 +131,34 @@ public class KafkaMetadataUtil
         mdConsumer.close();
       }
     }
+  }
+  
+  
+  /**
+   * @param consumer
+   * @param topic
+   * @param partition
+   * @param whichTime
+   * @param clientName
+   * @return 0 if consumer is null at this time
+   */
+  public static long getLastOffset(SimpleConsumer consumer, String topic, int partition, long whichTime, String clientName)
+  {
+    if (consumer == null) {
+      return 0;
+    }
+    TopicAndPartition topicAndPartition = new TopicAndPartition(topic, partition);
+    Map<TopicAndPartition, PartitionOffsetRequestInfo> requestInfo = new HashMap<TopicAndPartition, PartitionOffsetRequestInfo>();
+    requestInfo.put(topicAndPartition, new PartitionOffsetRequestInfo(whichTime, 1));
+    OffsetRequest request = new OffsetRequest(requestInfo, kafka.api.OffsetRequest.CurrentVersion(), clientName);
+    OffsetResponse response = consumer.getOffsetsBefore(request);
+
+    if (response.hasError()) {
+      logger.error("Error fetching data Offset Data the Broker. Reason: " + response.errorCode(topic, partition));
+      return 0;
+    }
+    long[] offsets = response.offsets(topic, partition);
+    return offsets[0];
   }
 
   

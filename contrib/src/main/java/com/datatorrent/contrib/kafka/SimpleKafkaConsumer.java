@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import kafka.api.FetchRequest;
 import kafka.api.FetchRequestBuilder;
+import kafka.api.OffsetRequest;
 import kafka.cluster.Broker;
 import kafka.common.ErrorMapping;
 import kafka.javaapi.FetchResponse;
@@ -224,7 +225,11 @@ public class SimpleKafkaConsumer extends KafkaConsumer
               }
             }
           });
+          //offset cannot always be 0
           long offset = offsetTrack.get(pid) == null ? 0L : offsetTrack.get(pid);
+          // read either from beginning of the broker or last offset committed by the operator
+          offset = Math.max(KafkaMetadataUtil.getLastOffset(csInThread, topic, pid, OffsetRequest.EarliestTime(), clientId), offset);
+          
           while (isAlive && (metadataRetrievalRetry==-1 || retryCounter < metadataRetrievalRetry)) {
 
             try {
@@ -342,6 +347,14 @@ public class SimpleKafkaConsumer extends KafkaConsumer
   {
     // create different client for same partition
     return new SimpleKafkaConsumer(brokerSet, topic, timeout, bufferSize, clientId + SIMPLE_CONSUMER_ID_SUFFIX + partitionId, partitionId);
+  }
+
+  @Override
+  protected void commitOffset()
+  {
+    // the simple consumer offset is kept in the offsetTrack
+    // It's better to do server registry for client in the future. Wait for kafka community come up with more sophisticated offset management
+    //TODO https://cwiki.apache.org/confluence/display/KAFKA/Inbuilt+Consumer+Offset+Management#
   }
 
 
