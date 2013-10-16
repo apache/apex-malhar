@@ -108,10 +108,10 @@ public class ApplicationAlert implements StreamingApplication
 
     dag.addStream("phonedata", phones.integer_data, movementgen.data).setLocality(Locality.CONTAINER_LOCAL);
 
-    String daemonAddress = dag.attrValue(DAG.DAEMON_ADDRESS, null);
-    if (!StringUtils.isEmpty(daemonAddress)) {
-      URI uri = URI.create("ws://" + daemonAddress + "/pubsub");
-      LOG.info("WebSocket with daemon at: {}", daemonAddress);
+    String gatewayAddress = dag.attrValue(DAG.GATEWAY_ADDRESS, null);
+    if (!StringUtils.isEmpty(gatewayAddress)) {
+      URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
+      LOG.info("WebSocket with gateway at: {}", gatewayAddress);
 
       PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator("phoneLocationQueryResultWS", new PubSubWebSocketOutputOperator<Object>());
       wsOut.setUri(uri);
