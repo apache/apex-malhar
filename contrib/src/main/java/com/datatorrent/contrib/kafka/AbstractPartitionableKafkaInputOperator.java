@@ -49,7 +49,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
   @SuppressWarnings("unchecked")
   public Collection<Partition<?>> definePartitions(Collection<? extends Partition<?>> partitions, int incrementalCapacity)
   {
-    // get partitions metadata fro topics. 
+    // get partition metadata for topics. 
     // Whatever operator is using high-level or simple kafka consumer, the operator always create a temporary simple kafka consumer to get the metadata of the topic
     // The initial value of brokerList of the KafkaConsumer is used to retrieve the topic metadata
     List<PartitionMetadata> kafkaPartitionList = KafkaMetadataUtil.getPartitionsForTopic(getConsumer().getBrokerSet(), getConsumer().getTopic());
