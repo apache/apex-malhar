@@ -28,7 +28,7 @@ import com.datatorrent.lib.util.HighLow;
 /**
  * Functional tests for {@link com.datatorrent.lib.math.Range}
  */
-public class RangeTest
+public class RangeTest<V extends Number>
 {
 	@SuppressWarnings("rawtypes")
 	class TestSink implements Sink
@@ -99,7 +99,7 @@ public class RangeTest
 		Assert.assertEquals("number emitted tuples", 1,
 				rangeSink.collectedTuples.size());
 		for (Object o : rangeSink.collectedTuples) {
-			HighLow hl = (HighLow) o;
+			HighLow<V> hl = (HighLow<V>) o;
 			Assert.assertEquals("emitted high value was ", new Double(1000.0),
 					hl.getHigh());
 			Assert.assertEquals("emitted low value was ", new Double(1.0),

@@ -30,7 +30,7 @@ import com.datatorrent.lib.util.HighLow;
 /**
  * Functional tests for {@link com.datatorrent.lib.math.RangeMap}
  */
-public class RangeMapTest
+public class RangeMapTest<V extends Number>
 {
   private static Logger log = LoggerFactory.getLogger(RangeMapTest.class);
 
@@ -46,7 +46,7 @@ public class RangeMapTest
     {
       HashMap<String, Object> tuple = (HashMap<String, Object>)payload;
       for (Map.Entry<String, Object> e : tuple.entrySet()) {
-        HighLow hl = (HighLow)e.getValue();
+        HighLow<V> hl = (HighLow<V>)e.getValue();
         high = hl.getHigh().doubleValue();
         low = hl.getLow().doubleValue();
       }

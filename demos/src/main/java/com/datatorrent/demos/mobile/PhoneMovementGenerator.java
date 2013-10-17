@@ -46,7 +46,7 @@ public class PhoneMovementGenerator extends BaseOperator
     @Override
     public void process(Integer tuple)
     {
-      HighLow loc = gps.get(tuple);
+      HighLow<Integer> loc = gps.get(tuple);
       if (loc == null) {
         loc = new HighLow(random.nextInt(range), random.nextInt(range));
         gps.put(tuple, loc);
@@ -84,7 +84,7 @@ public class PhoneMovementGenerator extends BaseOperator
       yloc = yloc % range;
 
       // Set new location
-      HighLow nloc = newgps.get(tuple);
+      HighLow<Integer> nloc = newgps.get(tuple);
       if (nloc == null) {
         newgps.put(tuple, new HighLow(xloc, yloc));
       }
@@ -152,13 +152,13 @@ public class PhoneMovementGenerator extends BaseOperator
   final HashMap<String, Integer> phone_register = new HashMap<String,Integer>();
 
 
-  private final transient HashMap<Integer, HighLow> gps = new HashMap<Integer, HighLow>();
+  private final transient HashMap<Integer, HighLow<Integer>> gps = new HashMap<Integer, HighLow<Integer>>();
   private final Random random = new Random();
   private int range = 50;
   private int threshold = 80;
   private int rotate = 0;
 
-  private final transient HashMap<Integer, HighLow> newgps = new HashMap<Integer, HighLow>();
+  private final transient HashMap<Integer, HighLow<Integer>> newgps = new HashMap<Integer, HighLow<Integer>>();
 
   @Min(0)
   public int getRange()
@@ -218,8 +218,8 @@ public class PhoneMovementGenerator extends BaseOperator
   @Override
   public void endWindow()
   {
-    for (Map.Entry<Integer, HighLow> e: newgps.entrySet()) {
-      HighLow loc = gps.get(e.getKey());
+    for (Map.Entry<Integer, HighLow<Integer>> e: newgps.entrySet()) {
+      HighLow<Integer> loc = gps.get(e.getKey());
       if (loc == null) {
         gps.put(e.getKey(), e.getValue());
       }
@@ -241,7 +241,7 @@ public class PhoneMovementGenerator extends BaseOperator
   }
 
   private void emitQueryResult(String queryId, Integer phone) {
-    HighLow loc = gps.get(phone);
+    HighLow<Integer> loc = gps.get(phone);
     if (loc != null) {
       Map<String, String> queryResult = new HashMap<String, String>();
       queryResult.put(KEY_QUERYID, queryId);
