@@ -111,11 +111,11 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
     int randomMultiplier=multiplier;
 
     if(multiplierVariance>0){
-      int min = multiplier-multiplierVariance;
+      int min = multiplier - multiplierVariance;
       if(min<0) min=0;
 
-      int max = multiplier+multiplierVariance;
-      randomMultiplier=min + (int)(Math.random() * ((max-min)+1));
+      int max = multiplier + multiplierVariance;
+      randomMultiplier= min + (int)(Math.random() * ((max-min)+1));
     }
     try {
       for (int i = randomMultiplier; i-- > 0;) {
@@ -188,7 +188,7 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   }
 
   public void setFeedMultiplierVariance(int multiplierVariance){
-    this.multiplierVariance=multiplierVariance;
+    this.multiplierVariance = multiplierVariance;
   }
 
   @Override
