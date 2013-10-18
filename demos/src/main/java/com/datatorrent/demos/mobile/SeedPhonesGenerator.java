@@ -60,7 +60,8 @@ public class SeedPhonesGenerator extends BaseOperator implements InputOperator
     Random random = new Random();
     int maxPhone = (maxSeedPhoneNumber <= rangeUpperEndpoint && maxSeedPhoneNumber >= rangeLowerEndpoint) ? maxSeedPhoneNumber : rangeUpperEndpoint;
     maxPhone -= 5550000;
-    for (int i = initialDisplayCount; i-- > 0; ) {
+    int phonesToDisplay = initialDisplayCount > maxPhone ? maxPhone : initialDisplayCount;
+    for (int i = phonesToDisplay; i-- > 0; ) {
       int phoneNo = 5550000 + random.nextInt(maxPhone + 1);
       LOG.info("seed no: "+phoneNo);
       Map<String, String> query = Maps.newHashMap();
