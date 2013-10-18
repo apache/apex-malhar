@@ -21,6 +21,10 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.esotericsoftware.kryo.DefaultSerializer;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.serializers.FieldSerializer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,6 +71,9 @@ import javax.script.*;
  * 		.
  * </pre>
  *
+ * This operator does not checkpoint interpreted functions in the variable bindings because they are not serializable
+ * Use setupScript() to define functions, and do NOT define or assign functions to variables at run time
+ *
  * @since 0.3.2
  */
 public class JavaScriptOperator extends BaseOperator implements ScriptOperator
@@ -76,6 +83,38 @@ public class JavaScriptOperator extends BaseOperator implements ScriptOperator
     EVAL, INVOKE
   };
 
+  public static class BindingsSerializer<T> extends FieldSerializer<T>
+  {
+    @SuppressWarnings("rawtypes")
+    public BindingsSerializer(Kryo kryo, Class<T> clazz)
+    {
+      super(kryo, clazz);
+      try {
+        Class<?> interpretedFunctionClass = Class.forName("sun.org.mozilla.javascript.internal.InterpretedFunction");
+
+        kryo.register(interpretedFunctionClass,
+                      new FieldSerializer(kryo, interpretedFunctionClass)
+        {
+          @Override
+          protected Object create(Kryo kryo, Input input, Class type)
+          {
+            return new HashMap<String, Object>(); // hack to bypass unserializable interpreted function object
+          }
+
+        });
+      }
+      catch (ClassNotFoundException ex) {
+        // ignore
+      }
+    }
+
+  }
+
+  @DefaultSerializer(value = BindingsSerializer.class)
+  protected static class MyBindings extends SimpleBindings
+  {
+  }
+
   protected transient ScriptEngineManager sem = new ScriptEngineManager();
   protected transient ScriptEngine engine = sem.getEngineByName("JavaScript");
   protected String scriptOrFunction;
@@ -83,7 +122,7 @@ public class JavaScriptOperator extends BaseOperator implements ScriptOperator
   protected boolean keepContext = true;
   protected boolean isPassThru = true;
   protected transient SimpleScriptContext scriptContext = new SimpleScriptContext();
-  protected transient SimpleBindings scriptBindings = new SimpleBindings();
+  protected MyBindings scriptBindings = new MyBindings();
   protected ArrayList<String> setupScripts = new ArrayList<String>();
   protected Object evalResult;
   @InputPortFieldAnnotation(name = "inBindings", optional = true)
@@ -92,7 +131,7 @@ public class JavaScriptOperator extends BaseOperator implements ScriptOperator
     @Override
     public void process(Map<String, Object> tuple)
     {
-      for (Map.Entry<String, Object> entry: tuple.entrySet()) {
+      for (Map.Entry<String, Object> entry : tuple.entrySet()) {
         engine.put(entry.getKey(), entry.getValue());
       }
       try {
@@ -176,7 +215,7 @@ public class JavaScriptOperator extends BaseOperator implements ScriptOperator
     this.scriptContext.setBindings(scriptBindings, ScriptContext.ENGINE_SCOPE);
     engine.setContext(this.scriptContext);
     try {
-      for (String s: setupScripts) {
+      for (String s : setupScripts) {
         engine.eval(s, this.scriptContext);
       }
     }
@@ -190,18 +229,16 @@ public class JavaScriptOperator extends BaseOperator implements ScriptOperator
     scriptBindings.put(key, val);
   }
 
-	@Override
-	public void setScript(String script)
-	{
-		// TODO Auto-generated method stub
+  @Override
+  public void setScript(String script)
+  {
+    // TODO Auto-generated method stub
+  }
 
-	}
-
-	@Override
-	public void setScriptPath(String path)
-	{
-		// TODO Auto-generated method stub
-
-	}
+  @Override
+  public void setScriptPath(String path)
+  {
+    // TODO Auto-generated method stub
+  }
 
 }
