@@ -153,8 +153,9 @@ public class Application implements StreamingApplication
       dag.addStream("consoledata", movementGen.locationQueryResult, wsOut.input);
       dag.addStream("query", wsIn.outputPort, movementGen.locationQuery);
 
-      SeedPhonesGenerator phonesGenerator= dag.addOperator("seedPhonesGenerator", SeedPhonesGenerator.class);
-      dag.addStream("seedPhones",phonesGenerator.seedPhones,movementGen.seedPhoneQuery);
+      SeedPhonesGenerator phonesGenerator = dag.addOperator("seedPhonesGenerator", SeedPhonesGenerator.class);
+      phonesGenerator.setPhoneRange(phoneRange);
+      dag.addStream("seedPhones", phonesGenerator.seedPhones, movementGen.seedPhoneQuery);
     }
     else {
       // for testing purposes without server
