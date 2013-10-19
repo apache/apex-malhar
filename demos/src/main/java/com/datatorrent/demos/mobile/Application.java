@@ -63,18 +63,18 @@ import org.slf4j.LoggerFactory;
  * console: <br>
  *
  * <pre>
- * phoneLocationQueryResult: {phone=9996101, location=(5,9), queryId=q3}
- * phoneLocationQueryResult: {phone=9994995, location=(10,4), queryId=q1}
- * phoneLocationQueryResult: {phone=9996101, location=(5,9), queryId=q3}
- * phoneLocationQueryResult: {phone=9994995, location=(10,4), queryId=q1}
- * phoneLocationQueryResult: {phone=9994995, location=(10,5), queryId=q1}
- * phoneLocationQueryResult: {phone=9996101, location=(5,9), queryId=q3}
- * phoneLocationQueryResult: {phone=9994995, location=(9,5), queryId=q1}
- * phoneLocationQueryResult: {phone=9996101, location=(5,9), queryId=q3}
- * phoneLocationQueryResult: {phone=9996101, location=(5,9), queryId=q3}
- * phoneLocationQueryResult: {phone=9994995, location=(9,5), queryId=q1}
- * phoneLocationQueryResult: {phone=9994995, location=(9,5), queryId=q1}
- * phoneLocationQueryResult: {phone=9996101, location=(5,9), queryId=q3}
+ * phoneLocationQueryResult: {phone=5556101, location=(5,9), queryId=q3}
+ * phoneLocationQueryResult: {phone=5554995, location=(10,4), queryId=q1}
+ * phoneLocationQueryResult: {phone=5556101, location=(5,9), queryId=q3}
+ * phoneLocationQueryResult: {phone=5554995, location=(10,4), queryId=q1}
+ * phoneLocationQueryResult: {phone=5554995, location=(10,5), queryId=q1}
+ * phoneLocationQueryResult: {phone=5556101, location=(5,9), queryId=q3}
+ * phoneLocationQueryResult: {phone=5554995, location=(9,5), queryId=q1}
+ * phoneLocationQueryResult: {phone=5556101, location=(5,9), queryId=q3}
+ * phoneLocationQueryResult: {phone=5556101, location=(5,9), queryId=q3}
+ * phoneLocationQueryResult: {phone=5554995, location=(9,5), queryId=q1}
+ * phoneLocationQueryResult: {phone=5554995, location=(9,5), queryId=q1}
+ * phoneLocationQueryResult: {phone=5556101, location=(5,9), queryId=q3}
  * </pre>
  *
  *  * <b>Application DAG : </b><br>
@@ -86,7 +86,7 @@ public class Application implements StreamingApplication
 {
   private static final Logger LOG = LoggerFactory.getLogger(Application.class);
   public static final String P_phoneRange = com.datatorrent.demos.mobile.Application.class.getName() + ".phoneRange";
-  private Range<Integer> phoneRange = Ranges.closed(9900000, 9999999);
+  private Range<Integer> phoneRange = Ranges.closed(5550000, 5559999);
 
   private void configure(DAG dag, Configuration conf)
   {
@@ -152,11 +152,15 @@ public class Application implements StreamingApplication
 
       dag.addStream("consoledata", movementGen.locationQueryResult, wsOut.input);
       dag.addStream("query", wsIn.outputPort, movementGen.locationQuery);
+
+      SeedPhonesGenerator phonesGenerator = dag.addOperator("seedPhonesGenerator", SeedPhonesGenerator.class);
+      phonesGenerator.setPhoneRange(phoneRange);
+      dag.addStream("seedPhones", phonesGenerator.seedPhones, movementGen.seedPhoneQuery);
     }
     else {
       // for testing purposes without server
-      movementGen.phone_register.put("q1", 9994995);
-      movementGen.phone_register.put("q3", 9996101);
+      movementGen.phone_register.put("q1", 5554995);
+      movementGen.phone_register.put("q3", 5556101);
       ConsoleOutputOperator out = dag.addOperator("phoneLocationQueryResult", new ConsoleOutputOperator());
       out.setStringFormat("phoneLocationQueryResult" + ": %s");
       dag.addStream("consoledata", movementGen.locationQueryResult, out.input).setLocality(Locality.CONTAINER_LOCAL);
