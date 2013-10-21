@@ -149,13 +149,7 @@ public class PhoneMovementGenerator extends BaseOperator
       }
     } else if (command != null) {
       if (command.equals(COMMAND_ADD)) {
-        if (!Strings.isNullOrEmpty(phone)) {
-          try {
-            registerPhone(phone, phone);
-          } catch (NumberFormatException nfe) {
-            log.warn("Invalid phone: " + nfe.getMessage());
-          }
-        }
+        registerPhone(phone, phone);
       } else if (command.equals(COMMAND_DELETE)) {
         deregisterPhone(phone);
       } else if (command.equals(COMMAND_CLEAR)) {
@@ -206,12 +200,20 @@ public class PhoneMovementGenerator extends BaseOperator
     threshold = i;
   }
 
-  private void registerPhone(String qid, String phone) throws NumberFormatException
+  private void registerPhone(String qid, String phone)
   {
     // register the phone channel
-    phone_register.put(qid, new Integer(phone));
-    log.debug(String.format("Registered query id \"%s\", with phonenum \"%s\"", qid, phone));
-    emitQueryResult(qid, new Integer(phone));
+    if (Strings.isNullOrEmpty(phone)) {
+      log.warn("invalid phone: " + phone);
+      return;
+    }
+    try {
+      phone_register.put(qid, new Integer(phone));
+      log.debug(String.format("Registered query id \"%s\", with phonenum \"%s\"", qid, phone));
+      emitQueryResult(qid, new Integer(phone));
+    } catch (NumberFormatException nfe) {
+      log.warn("invalid phone: " + phone, nfe.getMessage());
+    }
   }
 
   private void deregisterPhone(String qid)
