@@ -41,9 +41,9 @@ public class OperatorContextTestHelper
     }
 
     @Override
-    public <T> T attrValue(Attribute<T> key, T defaultValue)
+    public <T> T getValue(Attribute<T> key)
     {
-      return defaultValue;
+      return key.defaultValue;
     }
 
   }

@@ -48,7 +48,7 @@ public class BucketOperator extends BaseOperator
   public void setup(OperatorContext context)
   {
     super.setup(context);
-    windowWidth = context.attrValue(DAGContext.STREAMING_WINDOW_SIZE_MILLIS, 500);
+    windowWidth = context.getValue(DAGContext.STREAMING_WINDOW_SIZE_MILLIS);
   }
 
   @Override

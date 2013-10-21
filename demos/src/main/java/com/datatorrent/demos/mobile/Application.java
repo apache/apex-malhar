@@ -148,7 +148,7 @@ public class Application implements StreamingApplication
     // default partitioning: first connected stream to movementGen will be partitioned
     dag.addStream("phonedata", phones.integer_data, movementGen.data);
 
-    String gatewayAddress = dag.attrValue(DAG.GATEWAY_ADDRESS, null);
+    String gatewayAddress = dag.getValue(DAG.GATEWAY_ADDRESS);
     if (!StringUtils.isEmpty(gatewayAddress)) {
       URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
       LOG.info("WebSocket with gateway at: {}", gatewayAddress);
