@@ -21,6 +21,7 @@ import java.util.Random;
 
 import javax.validation.constraints.Min;
 
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -199,12 +200,20 @@ public class PhoneMovementGenerator extends BaseOperator
     threshold = i;
   }
 
-  private void registerPhone(String qid, String phone) throws NumberFormatException
+  private void registerPhone(String qid, String phone)
   {
     // register the phone channel
-    phone_register.put(qid, new Integer(phone));
-    log.debug(String.format("Registered query id \"%s\", with phonenum \"%s\"", qid, phone));
-    emitQueryResult(qid, new Integer(phone));
+    if (Strings.isNullOrEmpty(phone)) {
+      log.warn("invalid phone: " + phone);
+      return;
+    }
+    try {
+      phone_register.put(qid, new Integer(phone));
+      log.debug(String.format("Registered query id \"%s\", with phonenum \"%s\"", qid, phone));
+      emitQueryResult(qid, new Integer(phone));
+    } catch (NumberFormatException nfe) {
+      log.warn("invalid phone: " + phone, nfe.getMessage());
+    }
   }
 
   private void deregisterPhone(String qid)
