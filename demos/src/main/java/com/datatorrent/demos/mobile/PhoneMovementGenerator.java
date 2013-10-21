@@ -21,6 +21,7 @@ import java.util.Random;
 
 import javax.validation.constraints.Min;
 
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,7 +149,13 @@ public class PhoneMovementGenerator extends BaseOperator
       }
     } else if (command != null) {
       if (command.equals(COMMAND_ADD)) {
-        registerPhone(phone, phone);
+        if (!Strings.isNullOrEmpty(phone)) {
+          try {
+            registerPhone(phone, phone);
+          } catch (NumberFormatException nfe) {
+            log.warn("Invalid phone: " + nfe.getMessage());
+          }
+        }
       } else if (command.equals(COMMAND_DELETE)) {
         deregisterPhone(phone);
       } else if (command.equals(COMMAND_CLEAR)) {
