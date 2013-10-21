@@ -108,7 +108,7 @@ public class ApplicationAlert implements StreamingApplication
 
     dag.addStream("phonedata", phones.integer_data, movementgen.data).setLocality(Locality.CONTAINER_LOCAL);
 
-    String gatewayAddress = dag.attrValue(DAG.GATEWAY_ADDRESS, null);
+    String gatewayAddress = dag.getValue(DAG.GATEWAY_ADDRESS);
     if (!StringUtils.isEmpty(gatewayAddress)) {
       URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
       LOG.info("WebSocket with gateway at: {}", gatewayAddress);

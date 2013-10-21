@@ -39,7 +39,7 @@ public class MRDebuggerApplication implements StreamingApplication {
 
 	@Override
 	public void populateDAG(DAG dag, Configuration arg1) {
-		String gatewayAddress = dag.attrValue(DAG.GATEWAY_ADDRESS, null);
+		String gatewayAddress = dag.getValue(DAG.GATEWAY_ADDRESS);
 		if (gatewayAddress== null || StringUtils.isEmpty(gatewayAddress)) {
 			gatewayAddress = "10.0.2.15:9790";
 		}
