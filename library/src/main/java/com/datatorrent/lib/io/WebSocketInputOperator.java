@@ -42,7 +42,9 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.2
  */
-@ShipContainingJars(classes = {org.codehaus.jackson.JsonFactory.class,org.eclipse.jetty.websocket.WebSocket.class})
+@ShipContainingJars(classes = {org.codehaus.jackson.JsonFactory.class,org.eclipse.jetty.websocket.WebSocket.class,
+    org.eclipse.jetty.util.component.AggregateLifeCycle.class,
+    org.eclipse.jetty.io.ByteArrayBuffer.class,org.eclipse.jetty.http.HttpParser.class})
 public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<String, String>> implements Runnable
 {
   private static final Logger LOG = LoggerFactory.getLogger(WebSocketInputOperator.class);
