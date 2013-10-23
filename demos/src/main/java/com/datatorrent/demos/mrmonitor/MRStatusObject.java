@@ -24,7 +24,7 @@ import org.codehaus.jettison.json.JSONObject;
  * <p>
  * MRStatusObject class.
  * </p>
- * 
+ *
  * @since 0.3.4
  */
 public class MRStatusObject

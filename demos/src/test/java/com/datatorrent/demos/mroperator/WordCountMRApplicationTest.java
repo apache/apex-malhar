@@ -13,36 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.util;
+package com.datatorrent.demos.mroperator;
 
-import java.util.Map;
+import org.junit.Test;
 
-public class KeyHashValPair<K, V> extends KeyValPair<K, V> {
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.demos.mroperator.NewWordCountApplication;
 
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 7005592007894368002L;
 
-	public KeyHashValPair(K k, V v) {
-		super(k, v);
-	}
-
-	private KeyHashValPair() {
-		super(null, null);
-	}
-
-	@Override
-	public int hashCode() {
-		return (getKey() == null ? 0 : getKey().hashCode());
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (!(o instanceof Map.Entry))
-			return false;
-		Map.Entry e = (Map.Entry) o;
-		return (this.getKey() == null ? e.getKey() == null : this.getKey().equals(e.getKey()));
+public class WordCountMRApplicationTest {
+	@Test
+	public void testSomeMethod() throws Exception {
+		LocalMode.runApp(new NewWordCountApplication(), 20000000);
 	}
 
 }

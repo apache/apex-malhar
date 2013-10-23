@@ -33,7 +33,7 @@ import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
  * <p>
  * MRDebuggerApplication class.
  * </p>
- * 
+ *
  * @since 0.3.4
  */
 public class MRMonitoringApplication implements StreamingApplication

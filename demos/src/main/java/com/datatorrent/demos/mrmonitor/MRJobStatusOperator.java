@@ -35,7 +35,7 @@ import com.datatorrent.api.Operator;
  * <p>
  * MRJobStatusOperator class.
  * </p>
- * 
+ *
  * @since 0.3.4
  */
 
@@ -279,7 +279,7 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
       Thread.sleep(sleepTime);//
     }
     catch(InterruptedException ie){
-    //If this thread was intrrupted by nother thread 
+    //If this thread was intrrupted by nother thread
     }
     if (!iterator.hasNext()) {
       iterator = jobMap.values().iterator();
