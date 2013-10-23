@@ -150,17 +150,17 @@ public class Application implements StreamingApplication
       wsIn.setUri(uri);
       wsIn.addTopic("demos.mobile.phoneLocationQuery");
 
-      dag.addStream("consoledata", movementGen.locationQueryResult, wsOut.input);
-      dag.addStream("query", wsIn.outputPort, movementGen.locationQuery);
-
-      SeedPhonesGenerator phonesGenerator = dag.addOperator("seedPhonesGenerator", SeedPhonesGenerator.class);
+      PhoneEntryOperator phonesGenerator = dag.addOperator("seedPhonesGenerator", PhoneEntryOperator.class);
       phonesGenerator.setPhoneRange(phoneRange);
-      dag.addStream("seedPhones", phonesGenerator.seedPhones, movementGen.seedPhoneQuery);
+
+      dag.addStream("consoledata", movementGen.locationQueryResult, wsOut.input);
+      dag.addStream("query", wsIn.outputPort, phonesGenerator.locationQuery).setLocality(Locality.THREAD_LOCAL);
+      dag.addStream("phoneEntry", phonesGenerator.seedPhones, movementGen.seedPhoneQuery);
     }
     else {
       // for testing purposes without server
-      movementGen.phone_register.put("q1", 5554995);
-      movementGen.phone_register.put("q3", 5556101);
+      movementGen.phone_register.add(5554995);
+      movementGen.phone_register.add(5556101);
       ConsoleOutputOperator out = dag.addOperator("phoneLocationQueryResult", new ConsoleOutputOperator());
       out.setStringFormat("phoneLocationQueryResult" + ": %s");
       dag.addStream("consoledata", movementGen.locationQueryResult, out.input).setLocality(Locality.CONTAINER_LOCAL);
