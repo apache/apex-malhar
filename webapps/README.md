@@ -18,6 +18,10 @@ Demos run on [Node.js](http://nodejs.org/).
 
     $ npm install
 
+ Install Bower dependencies:
+
+    $ bower install
+
  Start Node.js server:
 
     $ node app
