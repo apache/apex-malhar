@@ -54,7 +54,7 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
     this.port = port;
   }
 
-  public void selectDatabase(int index)
+  public void setDatabase(int index)
   {
     this.dbIndex = index;
   }

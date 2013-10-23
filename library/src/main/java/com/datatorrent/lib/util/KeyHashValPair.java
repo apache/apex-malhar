@@ -13,24 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.demos.mapreduce;
+package com.datatorrent.lib.util;
 
-import org.junit.Test;
+import java.util.Map;
 
-import com.datatorrent.api.LocalMode;
+public class KeyHashValPair<K, V> extends KeyValPair<K, V> {
 
-/**
- * <p>MapReduceDebuggerApplicationTest class.</p>
- *
- * @since 0.3.4
- */
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 7005592007894368002L;
 
-public class MapReduceDebuggerApplicationTest {
-
-	@Test
-	public void testSomeMethod() throws Exception {
-		LocalMode.runApp(new MRDebuggerApplication(), 100000);
+	public KeyHashValPair(K k, V v) {
+		super(k, v);
 	}
 
+	private KeyHashValPair() {
+		super(null, null);
+	}
+
+	@Override
+	public int hashCode() {
+		return (getKey() == null ? 0 : getKey().hashCode());
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof Map.Entry))
+			return false;
+		Map.Entry e = (Map.Entry) o;
+		return (this.getKey() == null ? e.getKey() == null : this.getKey().equals(e.getKey()));
+	}
 
 }
