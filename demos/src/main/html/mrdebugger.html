@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-<title>DataTorrent Mobile Demo</title>
+<title>DataTorrent MR Monitoring</title>
 
 <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
@@ -36,7 +36,7 @@ var markers = {};
 $(function() {
 
     $("#query1AddButton").click(function() {
-    
+
 	    var app_id = $("input#app_id").val();
 	    var hostname = $("input#hostname").val();
 	    var job_id = $("input#job_id").val();
@@ -44,7 +44,7 @@ $(function() {
 	    var api_version = $("input#api_version").val();
 	    var rm_port = $("input#rm_port").val();
 	    var hs_port = $("input#hs_port").val();
-	    
+
 	    var jsonData = {
 		command : 'add',
 		hostname:hostname,
@@ -55,18 +55,18 @@ $(function() {
 		rm_port:rm_port,
 		hs_port:hs_port
 	    };
-    
+
 	    sendQuery(jsonData, function() {
 	        $('#query1SubmitConfirm').html("<div id='message'></div>");
 	        $('#message').html("<h2>Add   submitted to application!</h2>")
 	        .append("<p>Result will appear on page shortly.</p>");
             });
-	    
+
 	    return false;
     });
 
     $("#query1DeleteButton").click(function() {
-    
+
 	    var app_id = $("input#app_id").val();
 	    var hostname = $("input#hostname").val();
 	    var job_id = $("input#job_id").val();
@@ -74,7 +74,7 @@ $(function() {
 	    var api_version = $("input#api_version").val();
 	    var rm_port = $("input#rm_port").val();
 	    var hs_port = $("input#hs_port").val();
-	    
+
 	    var jsonData = {
 		command : 'delete',
 		hostname:hostname,
@@ -85,13 +85,13 @@ $(function() {
 		rm_port:rm_port,
 		hs_port:hs_port
 	    };
-    
+
 	    sendQuery(jsonData, function() {
 	        $('#query1SubmitConfirm').html("<div id='message'></div>");
 	        $('#message').html("<h2>Add " + phone + " submitted to application!</h2>")
 	        .append("<p>Result will appear on page shortly.</p>");
             });
-	    
+
 	    return false;
     });
 
@@ -99,7 +99,7 @@ $(function() {
         var ws = new WebSocket('ws://'+window.location.host+'/pubsub');
 
         ws.onopen = function () {
-          var topic = "contrib.summit.mrDebugger.mrDebuggerQuery";  
+          var topic = "contrib.summit.mrDebugger.mrDebuggerQuery";
           var msg = JSON.stringify({ "type" : "publish", "topic" : topic, "data" : jsonData });
           ws.send(msg);
           console.log("published to: " + topic + " data: " + msg);
@@ -121,7 +121,7 @@ $(function() {
     }
 
     var ws = new WebSocket('ws://'+window.location.host+'/pubsub');
-    var topic = "contrib.summit.mrDebugger.jobResult";  
+    var topic = "contrib.summit.mrDebugger.jobResult";
 
     ws.onopen = function () {
       var msg = JSON.stringify({ "type":"subscribe", "topic": topic});
@@ -133,14 +133,14 @@ $(function() {
       console.log('WebSocket Error ' + error);
     };
 
-    ws.onmessage = function (e){ 
+    ws.onmessage = function (e){
 
-	$('#jobQueryResult').append(e.data+"\n");	
-    };      
-    
+	$('#jobQueryResult').append(e.data+"\n");
+    };
+
 
     var mapws = new WebSocket('ws://'+window.location.host+'/pubsub');
-    var maptopic = "contrib.summit.mrDebugger.mapResult";  
+    var maptopic = "contrib.summit.mrDebugger.mapResult";
 
     mapws.onopen = function () {
       var msg = JSON.stringify({ "type":"subscribe", "topic": maptopic});
@@ -152,14 +152,14 @@ $(function() {
       console.log('WebSocket Error ' + error);
     };
 
-    mapws.onmessage = function (e){ 
+    mapws.onmessage = function (e){
 
-	$('#jobMapQueryResult').append(e.data+"\n");	
-    };      
+	$('#jobMapQueryResult').append(e.data+"\n");
+    };
 
 
     var reducews = new WebSocket('ws://'+window.location.host+'/pubsub');
-    var reducetopic = "contrib.summit.mrDebugger.reduceResult";  
+    var reducetopic = "contrib.summit.mrDebugger.reduceResult";
 
     reducews.onopen = function () {
       var msg = JSON.stringify({ "type":"subscribe", "topic": reducetopic});
@@ -171,11 +171,11 @@ $(function() {
       console.log('WebSocket Error ' + error);
     };
 
-    reducews.onmessage = function (e){ 
+    reducews.onmessage = function (e){
 
-	$('#jobReduceQueryResult').append(e.data+"\n");	
-    };      
-    
+	$('#jobReduceQueryResult').append(e.data+"\n");
+    };
+
   });
 
 

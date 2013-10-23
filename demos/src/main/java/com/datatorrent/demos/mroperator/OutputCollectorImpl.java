@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.datatorrent.demos.mroperator;
 
 import java.io.IOException;
@@ -19,22 +34,22 @@ import com.datatorrent.lib.util.KeyHashValPair;
 @SuppressWarnings("unchecked")
 public class OutputCollectorImpl<K extends Object, V extends Object> implements OutputCollector<K, V> {
 	private static final Logger logger = LoggerFactory.getLogger(OutputCollectorImpl.class);
-	
+
 	private List<KeyHashValPair<K, V>> list = new ArrayList<KeyHashValPair<K, V>>();
-	
+
 	public List<KeyHashValPair<K, V>> getList() {
 		return list;
 	}
-	
+
 	private transient SerializationFactory serializationFactory;
 	private transient Configuration conf = null;
-	
+
 	public OutputCollectorImpl() {
 		conf = new Configuration();
 		serializationFactory = new SerializationFactory(conf);
-		
+
 	}
-	
+
 	private <T> T cloneObj(T t) throws IOException {
 		Serializer<T> keySerializer;
 		Class<T> keyClass;
@@ -52,9 +67,9 @@ public class OutputCollectorImpl<K extends Object, V extends Object> implements 
 		keySerializer.close();
 		keyDesiralizer.close();
 		return clonedArg0;
-		
+
 	}
-	
+
 	@Override
 	public void collect(K arg0, V arg1) throws IOException {
 		if (conf == null) {

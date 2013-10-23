@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Util class.
  * </p>
- * 
+ *
  * @since 0.3.4
  */
 public class Util
