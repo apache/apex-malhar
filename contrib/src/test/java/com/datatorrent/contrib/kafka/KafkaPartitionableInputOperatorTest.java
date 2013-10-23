@@ -15,12 +15,6 @@
  */
 package com.datatorrent.contrib.kafka;
 
-import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.api.Operator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,14 +24,31 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import junit.framework.Assert;
-import org.junit.After;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
+import junit.framework.Assert;
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.Operator;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG.Locality;
 
-public class KafkaInputOperatorTest extends KafkaOperatorTestBase
+/**
+ * A test to verify the input operator will be automatically partitioned per kafka partition
+ * This test is launching its own Kafka cluster.
+ */
+public class KafkaPartitionableInputOperatorTest extends KafkaOperatorTestBase
 {
-  static final org.slf4j.Logger logger = LoggerFactory.getLogger(KafkaInputOperatorTest.class);
+  
+  public KafkaPartitionableInputOperatorTest()
+  {
+    // This class want to initialize several kafka brokers for multiple partitions
+    hasMultiPartition = true;
+  }
+  
+  static final org.slf4j.Logger logger = LoggerFactory.getLogger(KafkaPartitionableInputOperatorTest.class);
   static HashMap<String, List<?>> collections = new HashMap<String, List<?>>();
   static AtomicInteger tupleCount = new AtomicInteger();
   static CountDownLatch latch;
@@ -84,7 +95,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
       }
     }
   }
-
+  
   /**
    * Test AbstractKafkaSinglePortInputOperator (i.e. an input adapter for
    * Kafka, aka consumer). This module receives data from an outside test
@@ -98,14 +109,35 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
    * 
    * @throws Exception
    */
-  public void testKafkaInputOperator(boolean isSimple, int sleepTime, final int totalCount, KafkaConsumer consumer) throws Exception
+  @Test
+  public void testPartitionableSimpleConsumerInputOperator() throws Exception
   {
-    // initial the latch for this test
-    latch = new CountDownLatch(1);
+    // Create template simple consumer
+    SimpleKafkaConsumer consumer = new SimpleKafkaConsumer();
+    testPartitionableInputOperator(consumer);
+  }
+  
+  @Test
+  public void testPartitionableHighlevelConsumerInputOperator() throws Exception
+  {
+    // Create template high-level consumer
+    Properties props = new Properties();
+    props.put("zookeeper.connect", "localhost:2182");
+    props.put("group.id", "main_group");
+    props.put("auto.offset.reset", "smallest");
+    HighlevelKafkaConsumer consumer = new HighlevelKafkaConsumer(props);
+    testPartitionableInputOperator(consumer);
+  }
+  
+  public void testPartitionableInputOperator(KafkaConsumer consumer) throws Exception{
     
+    // Set to 2 because we want to make sure END_TUPLE from both 2 partitions are received
+    latch = new CountDownLatch(2);
     
- // Start producer
-    KafkaTestProducer p = new KafkaTestProducer(TEST_TOPIC);
+    int totalCount = 10000;
+    
+    // Start producer
+    KafkaTestProducer p = new KafkaTestProducer(TEST_TOPIC, true);
     p.setSendCount(totalCount);
     new Thread(p).start();
 
@@ -113,16 +145,22 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     LocalMode lma = LocalMode.newInstance();
     DAG dag = lma.getDAG();
 
-
-
     // Create KafkaSinglePortStringInputOperator
-    KafkaSinglePortStringInputOperator node = dag.addOperator("Kafka message consumer", KafkaSinglePortStringInputOperator.class);
+    PartitionableKafkaSinglePortStringInputOperator node = dag.addOperator("Kafka message consumer", PartitionableKafkaSinglePortStringInputOperator.class);
+    
+    //set topic
     consumer.setTopic(TEST_TOPIC);
-    Set<String> brokerSet = new HashSet<String>();
+    //set the brokerlist used to initialize the partition
+    Set<String> brokerSet =  new HashSet<String>();
     brokerSet.add("localhost:9092");
+    brokerSet.add("localhost:9093");
     consumer.setBrokerSet(brokerSet);
+
     node.setConsumer(consumer);
     
+    // Set the partition
+    dag.setAttribute(node, OperatorContext.INITIAL_PARTITION_COUNT, 1);
+
     // Create Test tuple collector
     CollectorModule<String> collector = dag.addOperator("TestMessageCollector", new CollectorModule<String>());
 
@@ -146,47 +184,5 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     p.close();
     lc.shutdown();
   }
-
-  @Test
-  public void testKafkaInputOperator_Highleverl() throws Exception
-  {
-    int totalCount = 10000;
-    Properties props = new Properties();
-    props.put("zookeeper.connect", "localhost:" + KafkaOperatorTestBase.TEST_ZOOKEEPER_PORT);
-    props.put("group.id", "group1");
-    props.put("consumer.id", "default_consumer");
-    // This damn property waste me 2 days! It's a 0.8 new property. "smallest" means
-    // reset the consumer to the beginning of the message that is not consumed yet
-    // otherwise it wont get any of those the produced before!
-    props.put("auto.offset.reset", "smallest");
-    testKafkaInputOperator(false, 1000, totalCount, new HighlevelKafkaConsumer(props));
-  }
   
-  @Test
-  public void testKafkaInputOperator_Simple() throws Exception
-  {
-    int totalCount = 10000;
-    testKafkaInputOperator(false, 1000, totalCount,new SimpleKafkaConsumer());
-  }
-  
-  @Test
-  public void testKafkaInputOperator_Invalid() throws Exception
-  {
-    int totalCount = 10000;
-    SimpleKafkaConsumer consumer = new SimpleKafkaConsumer();
-    try{
-      testKafkaInputOperator(false, 1000, totalCount,consumer);
-    }catch(Exception e){
-      // invalid host setup expect to fail here
-      Assert.assertEquals("Error creating local cluster", e.getMessage());
-    }
-  }
-
-  @Override
-  @After
-  public void afterTest()
-  {
-    collections.clear();
-    super.afterTest();
-  }
 }
