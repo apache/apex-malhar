@@ -46,18 +46,7 @@ if ('production' == app.get('env')) {
 
 
 // Machine Generated Data Demo Demo
-//app.get('/machine', redirectToMain);
-//app.get('/machine/main', machine.index);
 app.get('/machine', machine.data);
-
-// app.get('/fraud/alerts', fraud.getAlerts);
-
-app.get('/ws/*', function(req, res) {
-    proxy.proxyRequest(req, res, {
-        host: config.daemon.host,
-        port: config.daemon.port
-    });
-});
 
 app.get('/stram/*', function(req, res) {
     proxy.proxyRequest(req, res, {
@@ -73,17 +62,14 @@ function broadcast() {
     var random = Math.floor(Math.random() * 1000);
 
     var topic;
-    var type;
     if (random % 2 === 0) {
-        topic = 'contrib.summit.mrDebugger.reduceResult';
-        type = 'REDUCE';
+        topic = 'topic1';
     } else {
-        topic = 'contrib.summit.mrDebugger.mapResult';
-        type = 'MAP';
+        topic = 'topic2';
     }
     var message = {
         topic: topic,
-        data: { id: random % 10, progress: random % 100, type: type }
+        data: { id: random % 10, progress: random % 100 }
     }
 
     for (var key in clients) {
