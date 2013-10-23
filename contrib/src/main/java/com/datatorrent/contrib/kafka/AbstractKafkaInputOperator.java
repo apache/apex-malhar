@@ -19,22 +19,15 @@ import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.InputOperator;
-
+import com.yammer.metrics.Metrics;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-
 import kafka.message.Message;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 /**
- * Kafka input adapter operator, which consume data from Kafka message bus.<p><br>
+ * Kafka input adapter consumer, which consume data from Kafka message bus.<p><br>
  *
- * <br>
- * Ports:<br>
- * <b>Input</b>: No input port<br>
- * <b>Output</b>: Can have any number of output ports<br>
- * <br>
  * Properties:<br>
  * <b>tuplesBlast</b>: Number of tuples emitted in each burst<br>
  * <b>bufferSize</b>: Size of holding buffer<br>
@@ -48,12 +41,21 @@ import org.slf4j.LoggerFactory;
  * Benchmarks:<br>
  * TBD<br>
  * <br>
- * 
- *                       
+ *
+ * Shipped jars with this operator:<br>
+ *  <b>kafka.javaapi.consumer.SimpleConsumer.class</b> Official kafka consumer client <br>
+ *  <b>org.I0Itec.zkclient.ZkClient.class</b>  Kafka client depends on this <br>
+ *  <b>scala.ScalaObject.class</b>  Kafka client depends on this <br>
+ *  <b>com.yammer.matrics.Metrics.class</b>   Kafka client depends on this <br> <br>
+ *  
+ * Each operator can only consume 1 topic<br>
+ * If you want partitionable operator refer to {@link AbstractPartitionableKafkaInputOperator}
+ *  <br>
  * @since 0.3.2
  */
-@ShipContainingJars(classes={kafka.javaapi.consumer.SimpleConsumer.class, org.I0Itec.zkclient.ZkClient.class, scala.ScalaObject.class})
-public abstract class AbstractKafkaInputOperator implements InputOperator, ActivationListener<OperatorContext>
+//SimpleConsumer is kafka consumer client used by this operator, zkclient is used by high-level kafka consumer
+@ShipContainingJars(classes={kafka.javaapi.consumer.SimpleConsumer.class, org.I0Itec.zkclient.ZkClient.class, scala.ScalaObject.class, Metrics.class})
+public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implements InputOperator, ActivationListener<OperatorContext>
 {
   @SuppressWarnings("unused")
   private static final Logger logger = LoggerFactory.getLogger(AbstractKafkaInputOperator.class);
@@ -62,7 +64,7 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Activ
   
   @NotNull
   @Valid
-  private KafkaConsumer consumer =  new HighlevelKafkaConsumer();
+  private K consumer = null;
 
 
   /**
@@ -125,7 +127,8 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Activ
   @Override
   public void activate(OperatorContext ctx)
   {
-    // Don't start thread here because how many threads we use for consumer depends how many streams(aka Kafka partitions) use set to consume the data
+    // Don't start thread here! 
+    // Because how many threads we want to start for kafka consumer depends on the type of kafka client and the message metadata(topic/partition/replica)
     consumer.start();
   }
 
@@ -150,12 +153,12 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Activ
     }
   }
   
-  public void setConsumer(KafkaConsumer consumer)
+  public void setConsumer(K consumer)
   {
     this.consumer = consumer;
   }
   
-  public KafkaConsumer getConsumer()
+  public K getConsumer()
   {
     return consumer;
   }
