@@ -82,7 +82,7 @@ public class Application implements StreamingApplication {
         int port = conf.getInt("machinedata.redis.port", 6379);
         oper.setHost(host);
         oper.setPort(port);
-        oper.selectDatabase(database);
+        oper.setDatabase(database);
         dag.getOperatorMeta(name).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCountMinute);
         return oper;
     }
