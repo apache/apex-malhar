@@ -66,8 +66,9 @@ angular.module('machine')
         $scope.ram = 0;
         $scope.hdd = 0;
 
-        $scope.range = function (start, stop) {
-            return _.range(start, stop + 1);
+        $scope.range = function (name) {
+            var r = settings.machine.range[name];
+            return _.range(r.start, r.stop + 1);
         };
 
         $scope.$watch('machineData', function (data) {

@@ -26,7 +26,7 @@
                         <label for="customer">Customer ID:</label>
                         <select ng-model="customer" id="customer">
                             <option value="">ALL</option>
-                            <option ng-repeat="value in range(1,5)" value="{{value}}">Customer {{value}}</option>
+                            <option ng-repeat="value in range('customer')" value="{{value}}">Customer {{value}}</option>
                         </select>
                         </li>
 
@@ -34,7 +34,7 @@
                         <label for="product">Product ID:</label>
                         <select ng-model="product" id="product">
                             <option value="">ALL</option>
-                            <option ng-repeat="value in range(4,6)" value="{{value}}">Product {{value}}</option>
+                            <option ng-repeat="value in range('product')" value="{{value}}">Product {{value}}</option>
                         </select>
                         </li>
 
@@ -42,7 +42,7 @@
                         <label for="os">Product OS:</label>
                         <select ng-model="os" id="os">
                             <option value="">ALL</option>
-                            <option ng-repeat="value in range(10,12)" value="{{value}}">OS {{value}}</option>
+                            <option ng-repeat="value in range('os')" value="{{value}}">OS {{value}}</option>
                         </select>
                         </li>
 
@@ -50,7 +50,7 @@
                         <label for="software1">Software1 Ver:</label>
                         <select ng-model="software1" id="software1">
                             <option value="">ALL</option>
-                            <option ng-repeat="value in range(10,12)" value="{{value}}">Software1 Version {{value}}</option>
+                            <option ng-repeat="value in range('software1')" value="{{value}}">Software1 Version {{value}}</option>
                         </select>
                         </li>
 
@@ -58,7 +58,7 @@
                         <label for="software2">Software2 Ver:</label>
                         <select ng-model="software2" id="software2">
                             <option value="">ALL</option>
-                            <option ng-repeat="value in range(12,14)" value="{{value}}">Software2 Version {{value}}</option>
+                            <option ng-repeat="value in range('software2')" value="{{value}}">Software2 Version {{value}}</option>
                         </select>
                         </li>
 
@@ -66,7 +66,7 @@
                         <label for="deviceId">Device ID:</label>
                         <select ng-model="deviceId" id="deviceId">
                             <option value="">ALL</option>
-                            <option ng-repeat="value in range(1,5)" value="{{value}}">Device {{value}}</option>
+                            <option ng-repeat="value in range('deviceId')" value="{{value}}">Device {{value}}</option>
                         </select>
                         </li>
 
