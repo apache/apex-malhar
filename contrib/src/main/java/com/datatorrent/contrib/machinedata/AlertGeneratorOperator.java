@@ -1,18 +1,18 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 package com.datatorrent.contrib.machinedata;
 
 import com.datatorrent.api.BaseOperator;
@@ -28,10 +28,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <p>AlertGeneratorOperator class.</p>
- *
- * @since 0.3.5
- */
+* <p>AlertGeneratorOperator class.</p>
+*
+* @since 0.3.5
+*/
 public class AlertGeneratorOperator extends BaseOperator implements InputOperator
 {
   public transient DefaultOutputPort<KeyValPair<TimeBucketKey, Map<String, AverageData>>> alertPort
@@ -71,7 +71,7 @@ public class AlertGeneratorOperator extends BaseOperator implements InputOperato
       if (idim == 2) { ram = 90; ramcount = 100000000; }
       if (idim == 3) { hdd = 90; hddcount = 100000000; }
 
-      Map<String,  AverageData> averageMap = new HashMap<String, AverageData>();
+      Map<String, AverageData> averageMap = new HashMap<String, AverageData>();
       AverageData cpuAverageData = new AverageData(((long)cpu*cpucount), cpucount);
       averageMap.put("cpu", cpuAverageData);
       AverageData ramAverageData = new AverageData(((long)ram*ramcount), ramcount);

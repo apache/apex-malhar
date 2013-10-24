@@ -33,8 +33,8 @@ public class AlertKey extends MachineKey {
         super(time, timeSpec);
     }
 
-    public AlertKey(Calendar time, Integer timeSpec,  Integer customer, Integer product, Integer os, Integer software1, Integer software2, Integer software3) {
-        super(time, timeSpec,  customer, product, os, software1, software2, software3);
+    public AlertKey(Calendar time, Integer timeSpec,  Integer customer, Integer product, Integer os, Integer software1, Integer software2, Integer software3,Integer deviceId) {
+        super(time, timeSpec,  customer, product, os, software1, software2, software3,deviceId);
     }
 
     public String toString() {

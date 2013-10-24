@@ -45,7 +45,7 @@ public class CalculatorOperatorTest {
         oper.setKthPercentile(50);
 
         Integer vs= new Integer(1);
-        MachineKey mk= new MachineKey(Calendar.getInstance(), TimeBucketKey.TIMESPEC_HOUR_SPEC, vs, vs,vs,vs, vs,vs) ;
+        MachineKey mk= new MachineKey(Calendar.getInstance(), TimeBucketKey.TIMESPEC_HOUR_SPEC, vs, vs,vs,vs, vs,vs,vs) ;
 
 
         oper.beginWindow(0);
@@ -79,7 +79,7 @@ public class CalculatorOperatorTest {
         oper.sdOutputPort.setSink(sortSink);
 
         Integer vs= new Integer(1);
-        MachineKey mk= new MachineKey(Calendar.getInstance(), TimeBucketKey.TIMESPEC_HOUR_SPEC, vs, vs,vs,vs, vs,vs) ;
+        MachineKey mk= new MachineKey(Calendar.getInstance(), TimeBucketKey.TIMESPEC_HOUR_SPEC, vs, vs,vs,vs, vs,vs,vs) ;
 
 
         oper.beginWindow(0);
@@ -124,7 +124,7 @@ public class CalculatorOperatorTest {
         oper.maxOutputPort.setSink(sortSink);
 
         Integer vs= new Integer(1);
-        MachineKey mk= new MachineKey(Calendar.getInstance(), TimeBucketKey.TIMESPEC_HOUR_SPEC, vs, vs,vs,vs, vs,vs) ;
+        MachineKey mk= new MachineKey(Calendar.getInstance(), TimeBucketKey.TIMESPEC_HOUR_SPEC, vs, vs,vs,vs, vs,vs,vs) ;
 
 
         oper.beginWindow(0);
