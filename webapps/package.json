@@ -2,7 +2,7 @@
   "name": "webapps",
   "version": "0.0.1",
   "dependencies": {
-    "express": "~3.4.0",
+    "express": "3.3.5",
     "http-proxy": "~0.10.3",
     "sockjs": "~0.3.8",
     "redis": "~0.8.6",
