@@ -53,7 +53,7 @@ public class Application implements StreamingApplication
 
   private static final Logger LOG = LoggerFactory.getLogger(Application.class);
   protected int streamingWindowSizeMilliSeconds = 1000; // 1 second
-  protected int appWindowCountMinute = 10; // 10 seconds
+  protected int appWindowCountMinute = 5; // 10 seconds
   protected int compareAlertWindow = 15; // 1/4 minute
   private boolean isWebsocket = false;
   private int QUEUE_CAPACITY = 32 * 1024;
