@@ -66,7 +66,7 @@ function getMinutes(query, resCallback) {
 
     // fetch all minutes serially within lookback period
     async.whilst(
-        function() { return time < endTime; },
+        function() { return time <= endTime; },
         function(callback) {
             var date = dateFormat(time, 'UTC:yyyymmddHHMM');
             var key = minuteKeyTemplate.replace('$date', date);
