@@ -15,11 +15,13 @@
  */
 package com.datatorrent.lib.stream;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.Map;
 import junit.framework.Assert;
+
 import org.codehaus.jettison.json.JSONObject;
 import org.junit.Test;
+
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  * Tests JsonByteArrayOperator operator
@@ -38,23 +40,31 @@ public class JsonByteArrayOperatorTest
 
       CollectorTestSink mapSink = new CollectorTestSink();
       CollectorTestSink jsonObjectSink = new CollectorTestSink();
+      CollectorTestSink flatMapSink = new CollectorTestSink();
 
       oper.outputMap.setSink(mapSink);
       oper.outputJsonObject.setSink(jsonObjectSink);
+      oper.outputFlatMap.setSink(flatMapSink);
 
       oper.beginWindow(0);
 
       // input test json string
-      String inputJson  = "{\"@timestamp\":\"2013-09-25T19:37:23.569Z\""
-                        + ",\"@version\":\"1\""
-                        + ",\"type\":\"apache-logs\""
-                        + ",\"host\":\"node1001\""
-                        + ",\"clientip\":\"192.168.150.120\""
-                        + ",\"verb\":\"GET\""
-                        + ",\"request\":\"/reset.css\""
-                        + ",\"httpversion\":\"1.1\""
-                        + ",\"response\":\"200\""
-                        + ",\"bytes\":\"909\"}";
+      String inputJson  = " {   \"@timestamp\":\"2013-09-25T19:37:23.569Z\""
+                        + "      ,\"@version\":\"1\""
+                        + "          ,\"type\":\"apache-logs\""
+                        + "          ,\"host\":\"node1001\""
+                        + "      ,\"clientip\":\"192.168.150.120\""
+                        + "          ,\"verb\":\"GET\""
+                        + "       ,\"request\":\"/reset.css\""
+                        + "   ,\"httpversion\":\"1.1\""
+                        + "      ,\"response\":\"200\""
+                        + "     ,\"agentinfo\": {\"browser\":\"Firefox\""
+                        + "                          ,\"os\": {    \"name\":\"Ubuntu\""
+                        + "                                    ,\"version\":\"10.04\""
+                        + "                                   }"
+                        + "                     }"
+                        + "         ,\"bytes\":\"909\""
+                        + " }";
 
       byte[] inputByteArray = inputJson.getBytes();
 
@@ -66,19 +76,27 @@ public class JsonByteArrayOperatorTest
 
       oper.endWindow();
 
-      // assert that value for one of the keys in any one of the objects is as expected
+      // assert that the number of the operator generates is 1000
+      Assert.assertEquals("number emitted tuples", numtuples, mapSink.collectedTuples.size());
+      Assert.assertEquals("number emitted tuples", numtuples, jsonObjectSink.collectedTuples.size());
+      Assert.assertEquals("number emitted tuples", numtuples, flatMapSink.collectedTuples.size());
+
+      // assert that value for one of the keys in any one of the objects from mapSink is as expected
       Object map = mapSink.collectedTuples.get(510);
       String expectedClientip = "192.168.150.120";
       Assert.assertEquals("emited tuple", expectedClientip, ((Map)map).get("clientip"));
 
-      // assert that value for one of the keys in any one of the objects is as expected
+      // assert that value for one of the keys in any one of the objects from jsonObjectSink is as expected
       Object jsonObject = jsonObjectSink.collectedTuples.get(433);
       String expectedResponse = "200";
       Assert.assertEquals("emited tuple", expectedResponse, ((JSONObject)jsonObject).get("response"));
 
-      // assert that the number of the operator generates is 1000
-      Assert.assertEquals("number emitted tuples", numtuples, mapSink.collectedTuples.size());
-      Assert.assertEquals("number emitted tuples", numtuples, jsonObjectSink.collectedTuples.size());
+      // assert that value for one of the keys in any one of the objects from flatMapSink is as expected
+      Object flatMap = flatMapSink.collectedTuples.get(511);
+      String expectedBrowser = "Firefox";
+      String expectedOsName = "Ubuntu";
+      Assert.assertEquals("emited tuple", expectedBrowser, ((Map)flatMap).get("agentinfo.browser"));
+      Assert.assertEquals("emited tuple", expectedOsName, ((Map)flatMap).get("agentinfo.os.name"));
     }
 
 }

@@ -15,19 +15,20 @@
  */
 package com.datatorrent.lib.stream;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Takes a json byte stream and emits a HashMap of key values
@@ -37,6 +38,10 @@ import org.slf4j.LoggerFactory;
  * <b>Ports</b>:<br>
  * <b>input</b>: expects json byte array &lt;K,V&gt;<br>
  * <b>outputMap</b>: emits HashMap&lt;String,Object&gt;<br>
+ * <b>outputJsonObject</b>: emits JSONObject<br>
+ * <b>outputFlatMap</b>: emits HashMap&lt;String,Object&gt;<br>
+ * &nbsp&nbsp The key will be dot concatenated nested key names <br>
+ * &nbsp&nbsp eg: key: "agentinfo.os.name", value: "Ubuntu" <br>
  * <br>
  *
  * @since 0.3.5
@@ -50,24 +55,56 @@ public class JsonByteArrayOperator extends BaseOperator
   @InputPortFieldAnnotation(name = "input")
   public final transient DefaultInputPort<byte[]> input = new DefaultInputPort<byte[]>()
   {
+    private void getFlatMap(JSONObject jSONObject, Map<String, Object> map, String keyPrefix) throws Exception
+    {
+      Iterator<String> iterator = jSONObject.keys();
+      while (iterator.hasNext()) {
+        String key = iterator.next();
+        String insertKey = (keyPrefix == null) ? key : keyPrefix + "." + key;
+
+        JSONObject value = jSONObject.optJSONObject(key);
+        if (value == null) {
+          map.put(insertKey, jSONObject.getString(key));
+        }
+        else {
+          getFlatMap(value, map, insertKey);
+        }
+      }
+    }
+
     @Override
     public void process(byte[] message)
     {
       String inputString = new String(message);
       try {
         JSONObject jSONObject = new JSONObject(inputString);
+
+        // output JSONObject
         outputJsonObject.emit(jSONObject);
-        if(outputMap.isConnected()) {
+
+        // output map retaining the tree structure from json
+        if (outputMap.isConnected()) {
           Iterator<String> iterator = jSONObject.keys();
-          HashMap<String,Object> map = new HashMap<String, Object>();
-          while(iterator.hasNext()){
+          HashMap<String, Object> map = new HashMap<String, Object>();
+          while (iterator.hasNext()) {
             String key = iterator.next();
             map.put(key, jSONObject.getString(key));
           }
           outputMap.emit(map);
         }
+
+        // output map as flat key value pairs
+        if (outputFlatMap.isConnected()) {
+          HashMap<String, Object> flatMap = new HashMap<String, Object>();
+          getFlatMap(jSONObject, flatMap, null);
+          outputFlatMap.emit(flatMap);
+        }
+
       }
       catch (JSONException ex) {
+        logger.error(ex.getMessage());
+      }
+      catch (Exception ex) {
         logger.error(ex.getMessage());
       }
     }
@@ -84,4 +121,11 @@ public class JsonByteArrayOperator extends BaseOperator
    */
   @OutputPortFieldAnnotation(name = "jsonobject")
   public final transient DefaultOutputPort<JSONObject> outputJsonObject = new DefaultOutputPort<JSONObject>();
+
+  /**
+   * Output hash map port.
+   */
+  @OutputPortFieldAnnotation(name = "flatmap")
+  public final transient DefaultOutputPort<HashMap<String, Object>> outputFlatMap = new DefaultOutputPort<HashMap<String, Object>>();
+
 }
