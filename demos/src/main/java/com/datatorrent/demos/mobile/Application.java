@@ -26,11 +26,13 @@ import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
 import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
-import java.net.URI;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.URI;
+import java.util.Random;
 
 /**
  * Mobile Demo Application: It demonstrates ability to locate a cell phone in an
@@ -86,6 +88,8 @@ public class Application implements StreamingApplication
 {
   private static final Logger LOG = LoggerFactory.getLogger(Application.class);
   public static final String P_phoneRange = com.datatorrent.demos.mobile.Application.class.getName() + ".phoneRange";
+  public static final String TOTAL_SEED_NOS = com.datatorrent.demos.mobile.Application.class.getName() + ".totalSeedNumbers";
+
   private Range<Integer> phoneRange = Ranges.closed(5550000, 5559999);
 
   private void configure(DAG dag, Configuration conf)
@@ -137,6 +141,20 @@ public class Application implements StreamingApplication
     // default partitioning: first connected stream to movementGen will be partitioned
     dag.addStream("phonedata", phones.integer_data, movementGen.data);
 
+    // generate seed numbers
+    Random random = new Random();
+    int maxPhone = phoneRange.upperEndpoint() - 5550000;
+    int phonesToDisplay = conf.getInt(TOTAL_SEED_NOS,10);
+
+    for (int i = phonesToDisplay; i-- > 0; ) {
+      int phoneNo = 5550000 + random.nextInt(maxPhone + 1);
+      LOG.info("seed no: " + phoneNo);
+      movementGen.phone_register.add(phoneNo);
+    }
+
+    // done generating data
+    LOG.info("Finished generating seed data.");
+
     String daemonAddress = dag.attrValue(DAG.DAEMON_ADDRESS, null);
     if (!StringUtils.isEmpty(daemonAddress)) {
       URI uri = URI.create("ws://" + daemonAddress + "/pubsub");
@@ -150,14 +168,9 @@ public class Application implements StreamingApplication
       wsIn.setUri(uri);
       wsIn.addTopic("demos.mobile.phoneLocationQuery");
 
-      PhoneEntryOperator phonesGenerator = dag.addOperator("seedPhonesGenerator", PhoneEntryOperator.class);
-      phonesGenerator.setPhoneRange(phoneRange);
-
       dag.addStream("consoledata", movementGen.locationQueryResult, wsOut.input);
-      dag.addStream("query", wsIn.outputPort, phonesGenerator.locationQuery).setLocality(Locality.THREAD_LOCAL);
-      dag.addStream("phoneEntry", phonesGenerator.seedPhones, movementGen.seedPhoneQuery);
-    }
-    else {
+      dag.addStream("query", wsIn.outputPort, movementGen.phoneQuery);
+    } else {
       // for testing purposes without server
       movementGen.phone_register.add(5554995);
       movementGen.phone_register.add(5556101);
@@ -165,7 +178,6 @@ public class Application implements StreamingApplication
       out.setStringFormat("phoneLocationQueryResult" + ": %s");
       dag.addStream("consoledata", movementGen.locationQueryResult, out.input).setLocality(Locality.CONTAINER_LOCAL);
     }
-
   }
 
 }
