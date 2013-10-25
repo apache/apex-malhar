@@ -25,6 +25,7 @@ import javax.validation.constraints.NotNull;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.lib.streamquery.condition.Condition;
 
 /**
@@ -82,6 +83,7 @@ import com.datatorrent.lib.streamquery.condition.Condition;
  *
  * @since 0.3.4
  */
+@OperatorAnnotation(partitionable = false)
 public class PigJoinOperator extends BaseOperator
 {
     /**

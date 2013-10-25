@@ -19,6 +19,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator.Unifier;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.AbstractBaseSortOperator;
 
@@ -45,6 +46,7 @@ import java.util.HashMap;
 //
 // TODO: Override PriorityQueue and rewrite addAll to insert with location
 //
+@OperatorAnnotation(partitionable = false)
 public class InsertSort<K> extends AbstractBaseSortOperator<K> implements
     Unifier<ArrayList<K>>
 {

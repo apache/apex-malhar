@@ -23,6 +23,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.lib.streamquery.function.FunctionIndex;
 
 /**
@@ -40,6 +41,7 @@ import com.datatorrent.lib.streamquery.function.FunctionIndex;
  *
  * @since 0.3.4
  */
+@OperatorAnnotation(partitionable = false)
 public class SelectFunctionOperator implements Operator
 {
   /**

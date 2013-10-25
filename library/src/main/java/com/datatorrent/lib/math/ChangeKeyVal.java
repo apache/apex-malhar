@@ -17,6 +17,7 @@ package com.datatorrent.lib.math;
 
 import java.util.HashMap;
 
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import org.apache.commons.lang.mutable.MutableDouble;
 
 import com.datatorrent.api.DefaultInputPort;
@@ -48,6 +49,7 @@ import com.datatorrent.lib.util.KeyValPair;
  *
  * @since 0.3.3
  */
+@OperatorAnnotation(partitionable = false)
 public class ChangeKeyVal<K, V extends Number> extends
 		BaseNumberKeyValueOperator<K, V>
 {
