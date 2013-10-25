@@ -15,72 +15,85 @@
  */
 package com.datatorrent.lib.script;
 
+import com.datatorrent.api.Context.OperatorContext;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
 import com.datatorrent.api.DefaultInputPort;
+import java.util.Iterator;
+import javax.script.ScriptContext;
+import org.python.core.*;
 
 /**
  * Operator to execute python script on tuples
  *
  * @since 0.3.3
  */
-public class PythonOperator extends ScriptBaseOperator
+public class PythonOperator extends ScriptOperator
 {
-	/**
-	 * Python script interpretor.
-	 */
-	private PythonInterpreter interp = new PythonInterpreter();
-	
-	// Constructor 
-	public PythonOperator() {
-		interp.exec("import sys");
-	}
-	
-	/**
-	 * Input port, variable/value map.
-	 */
-	public final transient DefaultInputPort<Map<String, Object>> inBindings = new DefaultInputPort<Map<String, Object>>()
-	{
-		/**
-		 * Execute python code with variable value map.
-		 */
-		@Override
-		public void process(Map<String, Object> tuple)
-		{
-			tuple = executescriptCode(tuple);
-			PythonOperator.this.setTuple(tuple);
-		}
+  /**
+   * Python script interpretor.
+   */
+  private PythonInterpreter interp = new PythonInterpreter();
+  private PyObject evalResult;
+  private PyCode code;
 
-		/**
-		 * Execute python code with variable value map.
-		 */
-		private Map<String, Object> executescriptCode(Map<String, Object> tuple)
-		{
-			// no code to execute
-			if ((PythonOperator.this.scriptCode == null)
-					|| (PythonOperator.this.scriptCode.length() == 0)) {
-				return tuple;
-			}
+  // Constructor
+  public PythonOperator()
+  {
+    interp.exec("import sys");
+  }
 
-			// execute python script
-			for (Entry<String, Object> entry : tuple.entrySet()) {
-				interp.set(entry.getKey(), entry.getValue());
-			}
-			interp.exec(PythonOperator.this.scriptCode);
+  @Override
+  public void setup(OperatorContext context)
+  {
+    for (String s : setupScripts) {
+      interp.exec(s);
+    }
+    code = interp.compile(script);
+  }
 
-			// return result
-			HashMap<String, Object> result = new HashMap<String, Object>();
-			for (Entry<String, Object> entry : tuple.entrySet()) {
-				PyObject value = interp.get(entry.getKey());
-				result.put(entry.getKey(),
-						value.__tojava__(entry.getValue().getClass()));
-			}
-			return result;
-		}
-	};
+  @Override
+  public void process(Map<String, Object> tuple)
+  {
+    for (Map.Entry<String, Object> entry : tuple.entrySet()) {
+      interp.set(entry.getKey(), entry.getValue());
+    }
+    evalResult = interp.eval(code);
+    if (isPassThru) {
+      if (result.isConnected()) {
+        result.emit(evalResult);
+      }
+      if (outBindings.isConnected()) {
+        outBindings.emit(new HashMap<String, Object>(getBindings()));
+      }
+    }
+  }
+
+  @Override
+  public void endWindow()
+  {
+    if (!isPassThru) {
+      result.emit(evalResult);
+      outBindings.emit(new HashMap<String, Object>(getBindings()));
+    }
+  }
+
+  @Override
+  public Map<String, Object> getBindings()
+  {
+    Map<String, Object> bindings = new HashMap<String, Object>();
+    PyStringMap keyValueMap = (PyStringMap)interp.getLocals();
+    PyIterator keyValueSet = (PyIterator)keyValueMap.iteritems();
+    for (Object temp : keyValueSet) {
+      PyTuple tempEntry = (PyTuple)temp;
+      Iterator<PyObject> iter = tempEntry.iterator();
+      bindings.put((String)iter.next().__tojava__(String.class), iter.next());
+    }
+    return bindings;
+  }
+
 }
