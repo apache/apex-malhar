@@ -15,25 +15,67 @@
  */
 package com.datatorrent.lib.script;
 
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import javax.validation.constraints.NotNull;
+
 /**
  * Interface for language script operator.
  *
  * @since 0.3.2
  */
-public interface ScriptOperator
+public abstract class ScriptOperator extends BaseOperator
 {
-	/**
-	 * Operator must be set pass thru, for output results.
-	 */
-	public void setPassThru(boolean isPassThru);
+  @InputPortFieldAnnotation(name = "inBindings", optional = true)
+  public final transient DefaultInputPort<Map<String, Object>> inBindings = new DefaultInputPort<Map<String, Object>>()
+  {
+    @Override
+    public void process(Map<String, Object> tuple)
+    {
+      ScriptOperator.this.process(tuple);
+    }
 
-	/**
-	 * Set script code for execution.
-	 */
-	public void setScript(String script);
+  };
+  @OutputPortFieldAnnotation(name = "outBindings", optional = true)
+  public final transient DefaultOutputPort<Map<String, Object>> outBindings = new DefaultOutputPort<Map<String, Object>>();
+  @OutputPortFieldAnnotation(name = "result", optional = true)
+  public final transient DefaultOutputPort<Object> result = new DefaultOutputPort<Object>();
+  protected boolean isPassThru = true;
+  @NotNull
+  protected String script;
+  protected List<String> setupScripts = new ArrayList<String>();
 
-	/**
-	 * Set script path for execution.
-	 */
-	public void setScriptPath(String path);
+  /**
+   * Operator must be set pass thru, for output results.
+   *
+   * @param isPassThru
+   */
+  public void setPassThru(boolean isPassThru)
+  {
+    this.isPassThru = isPassThru;
+  }
+
+  /**
+   * Set script code for execution.
+   *
+   * @param script
+   */
+  public void setScript(String script)
+  {
+    this.script = script;
+  }
+
+  public void addSetupScript(String script)
+  {
+    setupScripts.add(script);
+  }
+
+  public abstract void process(Map<String, Object> tuple);
+  public abstract Map<String, Object> getBindings();
 }
