@@ -15,20 +15,22 @@
  */
 package com.datatorrent.contrib.machinedata;
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.Context.PortContext;
-import com.datatorrent.api.*;
-import com.datatorrent.api.Operator.InputPort;
-import com.datatorrent.contrib.redis.RedisOutputOperator;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.SmtpOutputOperator;
-import com.datatorrent.lib.math.AverageKeyVal;
-import com.datatorrent.lib.util.KeyValPair;
-import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
+import org.apache.hadoop.conf.Configuration;
+
+import com.datatorrent.api.*;
+import com.datatorrent.api.Context.PortContext;
+import com.datatorrent.api.Operator.InputPort;
+import com.datatorrent.contrib.machinedata.data.MachineKey;
+import com.datatorrent.contrib.machinedata.operator.CalculatorOperator;
+import com.datatorrent.contrib.machinedata.operator.MachineInfoAveragingOperator;
+import com.datatorrent.contrib.machinedata.operator.MachineInfoAveragingPrerequisitesOperator;
+
+import com.datatorrent.contrib.redis.RedisOutputOperator;
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.io.SmtpOutputOperator;
 
 /**
  * <p>Resource monitor application.</p>
@@ -47,43 +49,41 @@ public class Application implements StreamingApplication {
 
     public RandomInformationTupleGenerator getRandomInformationTupleGenerator(String name, DAG dag) {
         RandomInformationTupleGenerator oper = dag.addOperator(name, RandomInformationTupleGenerator.class);
-        dag.getOperatorMeta(name).getAttributes().attr(Context.OperatorContext.APPLICATION_WINDOW_COUNT).set(appWindowCountMinute);
+        dag.getOperatorMeta(name).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCountMinute);
         return oper;
     }
 
     public MachineInfoBucketOperator getMachineInfoBucketOperator(String name, DAG dag) {
-        MachineInfoBucketOperator oper = dag.addOperator(name, MachineInfoBucketOperator.class);
-        return oper;
+        return dag.addOperator(name, MachineInfoBucketOperator.class);
     }
 
 
     public MachineInfoAveragingPrerequisitesOperator getMachineInfoAveragingPrerequisitesOperator(String name, DAG dag) {
         MachineInfoAveragingPrerequisitesOperator oper = dag.addOperator(name, MachineInfoAveragingPrerequisitesOperator.class);
-        dag.getOperatorMeta(name).getAttributes().attr(Context.OperatorContext.APPLICATION_WINDOW_COUNT).set(appWindowCountMinute);
+        dag.getOperatorMeta(name).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCountMinute);
         return oper;
     }
 
     public MachineInfoAveragingOperator getMachineInfoAveragingOperator(String name, DAG dag) {
         MachineInfoAveragingOperator oper = dag.addOperator(name, MachineInfoAveragingOperator.class);
-        dag.getOperatorMeta(name).getAttributes().attr(Context.OperatorContext.APPLICATION_WINDOW_COUNT).set(appWindowCountMinute);
+        dag.getOperatorMeta(name).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCountMinute);
         return oper;
     }
 
     public AlertGeneratorOperator getAlertGeneratorOperator(String name, DAG dag) {
         AlertGeneratorOperator oper = dag.addOperator(name, AlertGeneratorOperator.class);
-        dag.getOperatorMeta(name).getAttributes().attr(Context.OperatorContext.APPLICATION_WINDOW_COUNT).set(appWindowCountMinute);
+        dag.getOperatorMeta(name).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCountMinute);
         return oper;
     }
 
-    public RedisOutputOperator<MachineKey, Double> getRedisOutputOperator(String name, DAG dag, Configuration conf) {
+    public RedisOutputOperator<MachineKey, Double> getRedisOutputOperator(String name, DAG dag, Configuration conf, int database) {
         RedisOutputOperator<MachineKey, Double> oper = dag.addOperator(name, new RedisOutputOperator<MachineKey, Double>());
         String host = conf.get("machinedata.redis.host", "localhost");
         int port = conf.getInt("machinedata.redis.port", 6379);
-        int database = conf.getInt("machinedata.redis.db", 15);
         oper.setHost(host);
         oper.setPort(port);
-        oper.selectDatabase(database);
-        dag.getOperatorMeta(name).getAttributes().attr(Context.OperatorContext.APPLICATION_WINDOW_COUNT).set(appWindowCountMinute);
+        oper.setDatabase(database);
+        dag.getOperatorMeta(name).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCountMinute);
         return oper;
     }
 
@@ -134,6 +134,70 @@ public class Application implements StreamingApplication {
 
     }
 
+    private void setDefaultInputPortQueueCapacity(DAG dag, InputPort inputPort) {
+        dag.setInputPortAttribute(inputPort,PortContext.QUEUE_CAPACITY, 32*1024);
+    }
+
+    private void setDefaultOutputPortQueueCapacity(DAG dag, Operator.OutputPort outputPort){
+        dag.setOutputPortAttribute(outputPort, PortContext.QUEUE_CAPACITY, 32*1024);
+    }
+
+    private MachineInfoAveragingPrerequisitesOperator addAverageCalculation(DAG dag, Configuration conf){
+        MachineInfoAveragingPrerequisitesOperator prereqAverageOper = getMachineInfoAveragingPrerequisitesOperator("PrereqAverage", dag);
+    	dag.setInputPortAttribute(prereqAverageOper.inputPort, PortContext.PARTITION_PARALLEL, true);
+
+        setDefaultInputPortQueueCapacity(dag,prereqAverageOper.inputPort);
+        setDefaultOutputPortQueueCapacity(dag,prereqAverageOper.outputPort);
+
+        MachineInfoAveragingOperator averageOperator = getMachineInfoAveragingOperator("Average", dag);
+        setDefaultInputPortQueueCapacity(dag,averageOperator.inputPort);
+        setDefaultOutputPortQueueCapacity(dag,averageOperator.outputPort);
+
+        RedisOutputOperator redisAvgOperator = getRedisOutputOperator("RedisAverageOutput", dag, conf, conf.getInt("machinedata.redis.db", 15));
+        setDefaultInputPortQueueCapacity(dag,redisAvgOperator.inputInd);
+
+        SmtpOutputOperator smtpOutputOperator = getSmtpOutputOperator("SmtpAvgOperator", dag, conf);
+
+        dag.addStream("inter_avg", prereqAverageOper.outputPort, averageOperator.inputPort);
+        dag.addStream("avg_output", averageOperator.outputPort, redisAvgOperator.inputInd);
+        dag.addStream("avg_alert_mail", averageOperator.smtpAlert, smtpOutputOperator.input);
+
+        return prereqAverageOper;
+
+    }
+
+    private CalculatorOperator addCalculator(DAG dag, Configuration conf){
+        CalculatorOperator oper = dag.addOperator("Calculator",CalculatorOperator.class);
+        dag.getOperatorMeta("Calculator").getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCountMinute);
+        //dag.setAttribute(oper, OperatorContext.INITIAL_PARTITION_COUNT,5);
+
+        setDefaultInputPortQueueCapacity(dag,oper.dataPort);
+
+        //Percentile
+        setDefaultOutputPortQueueCapacity(dag,oper.percentileOutputPort);
+        // the author of this code please fix these warnings
+        RedisOutputOperator redisPercentileOutput= getRedisOutputOperator("RedisPercentileOutput", dag,conf,conf.getInt("machinedata.percentile.redis.db",14));
+        setDefaultInputPortQueueCapacity(dag,redisPercentileOutput.inputInd);
+        dag.addStream("percentile_output", oper.percentileOutputPort,redisPercentileOutput.inputInd);
+
+        //SD
+        setDefaultOutputPortQueueCapacity(dag, oper.sdOutputPort);
+        RedisOutputOperator redisSDOperator= getRedisOutputOperator("RedisSDOutput", dag,conf,conf.getInt("machinedata.sd.redis.db",13));
+        setDefaultInputPortQueueCapacity(dag,redisSDOperator.inputInd);
+        dag.addStream("sd_output", oper.sdOutputPort,redisSDOperator.inputInd);
+
+        //Max
+        setDefaultOutputPortQueueCapacity(dag, oper.maxOutputPort);
+        RedisOutputOperator redisMaxOutput= getRedisOutputOperator("RedisMaxOutput", dag,conf,conf.getInt("machinedata.max.redis.db",12));
+        setDefaultInputPortQueueCapacity(dag,redisMaxOutput.inputInd);
+        dag.addStream("max_output", oper.maxOutputPort,redisMaxOutput.inputInd);
+
+        SmtpOutputOperator smtpOutputOperator = getSmtpOutputOperator("SmtpCalcOperator", dag, conf);
+        dag.addStream("calc_alert_mail", oper.smtpAlert,smtpOutputOperator.input);
+
+        return oper;
+    }
+
     /**
      * Create the DAG
      */
@@ -143,46 +207,44 @@ public class Application implements StreamingApplication {
 
         if (LAUNCHMODE_YARN.equals(conf.get(DAG.LAUNCH_MODE))) {
             // settings only affect distributed mode
-            dag.getAttributes().attr(DAG.CONTAINER_MEMORY_MB).setIfAbsent(2048);
-            dag.getAttributes().attr(DAG.MASTER_MEMORY_MB).setIfAbsent(1024);
-            //dag.getAttributes().attr(DAG.CONTAINERS_MAX_COUNT).setIfAbsent(1);
+          if (dag.getAttributes().get(DAGContext.CONTAINER_MEMORY_MB) == null) {
+              dag.getAttributes().put(DAG.CONTAINER_MEMORY_MB, 2048);
+          }
+          if (dag.getAttributes().get(DAGContext.MASTER_MEMORY_MB) == null) {
+            dag.getAttributes().put(DAG.MASTER_MEMORY_MB, 1024);
+          }
+            //dag.getAttributes().put(DAG.CONTAINERS_MAX_COUNT).setIfAbsent(1);
         } else if (LAUNCHMODE_LOCAL.equals(conf.get(DAG.LAUNCH_MODE))) {
         }
 
         dag.setAttribute(DAG.APPLICATION_NAME, "MachineData-DemoApplication");
         dag.setAttribute(DAG.DEBUG, false);
-        dag.getAttributes().attr(DAG.STREAMING_WINDOW_SIZE_MILLIS).set(streamingWindowSizeMilliSeconds);
+        dag.getAttributes().put(DAG.STREAMING_WINDOW_SIZE_MILLIS, streamingWindowSizeMilliSeconds);
 
         RandomInformationTupleGenerator randomGen = getRandomInformationTupleGenerator("RandomInfoGenerator", dag);
-    	dag.setOutputPortAttribute(randomGen.outputInline, PortContext.QUEUE_CAPACITY, 32 * 1024);
-    	dag.setAttribute(randomGen, OperatorContext.INITIAL_PARTITION_COUNT, 16);
+        setDefaultOutputPortQueueCapacity(dag,randomGen.outputInline);
+        setDefaultOutputPortQueueCapacity(dag,randomGen.output);
 
-//        MachineInfoAverageOperator machineInfoAverageOperator = getMachineInfoAverageOperator("MachineInfoAveOperator", dag);
-        MachineInfoAveragingPrerequisitesOperator machineInfoAveragePrereqOperator = getMachineInfoAveragingPrerequisitesOperator("MachineInfoAvePrereqOperator", dag);
-    	dag.setInputPortAttribute(machineInfoAveragePrereqOperator.inputPort, PortContext.PARTITION_PARALLEL, true);
-    	dag.setInputPortAttribute(machineInfoAveragePrereqOperator.inputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);
-    	dag.setOutputPortAttribute(machineInfoAveragePrereqOperator.outputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);
+        //dag.setAttribute(randomGen, OperatorContext.INITIAL_PARTITION_COUNT, 16);
 
-        MachineInfoAveragingOperator machineInfoAveragingOperator = getMachineInfoAveragingOperator("MachineInfoAveOperator", dag);
-       	dag.setInputPortAttribute(machineInfoAveragingOperator.inputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);
-        dag.setOutputPortAttribute(machineInfoAveragingOperator.outputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);
+        if(conf.getBoolean("machinedata.calculate.average",true)){
+            MachineInfoAveragingPrerequisitesOperator prereqAverageOper=addAverageCalculation(dag, conf);
+            dag.addStream("random_to_avg", randomGen.outputInline, prereqAverageOper.inputPort).setLocality(DAG.Locality.CONTAINER_LOCAL);
+        }
 
-        AlertGeneratorOperator alertGeneratorOperator = getAlertGeneratorOperator("AlertGen", dag);
+        CalculatorOperator calculatorOperator =addCalculator(dag,conf);
+        dag.addStream("random_to_calculator", randomGen.output,calculatorOperator.dataPort);
 
-        RedisOutputOperator redisOperator = getRedisOutputOperator("RedisOutput", dag, conf);
-        dag.setInputPortAttribute(redisOperator.inputInd, PortContext.QUEUE_CAPACITY, 32 * 1024);
+        if(conf.getBoolean("machinedata.calculate.percentile",false)){
+             calculatorOperator.setComputePercentile(true);
+        }
 
-        //RedisOutputOperator redisAlertOperator = getRedisOutputOperator("RedisAlertOutput", dag, conf);
-        SmtpOutputOperator smtpOutputOperator = getSmtpOutputOperator("SmtpOperator", dag, conf);
+        if(conf.getBoolean("machinedata.calculate.sd",false)){
+            calculatorOperator.setComputeSD(true);
+        }
 
-//        dag.addStream("random_minfo_gen", randomGen.machine, machineInfoAverageOperator.machineInputPort).setInline(true);
-//        dag.addStream("redis_output", machineInfoAverageOperator.outputPort, redisOperator.inputInd);
-        dag.addStream("random_minfo_gen", randomGen.outputInline, machineInfoAveragePrereqOperator.inputPort).setInline(true);
-        dag.addStream("minfo_prereq_avg", machineInfoAveragePrereqOperator.outputPort, machineInfoAveragingOperator.inputPort);
-        dag.addStream("alert_gen",alertGeneratorOperator.alertPort, machineInfoAveragingOperator.alertPort);
-        dag.addStream("redis_output", machineInfoAveragingOperator.outputPort, redisOperator.inputInd);
-        //dag.addStream("redis_alert", randomGen.alert, redisAlertOperator.inputInd);
-        //dag.addStream("alert_mail", randomGen.smtpAlert, smtpOutputOperator.input);
-        dag.addStream("alert_mail", machineInfoAveragingOperator.smtpAlert, smtpOutputOperator.input);
+        if(conf.getBoolean("machinedata.calculate.max",false)){
+            calculatorOperator.setComputeMax(true);
+        }
     }
 }

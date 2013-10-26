@@ -15,16 +15,19 @@
  */
 package com.datatorrent.contrib.apachelog;
 
+
+import org.apache.hadoop.conf.Configuration;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.StreamingApplication;
+
 import com.datatorrent.contrib.zmq.SimpleSinglePortZeroMQPullStringInputOperator;
 import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.logs.ApacheLogParseOperator;
 import com.datatorrent.lib.math.Sum;
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.DAG;
-import org.apache.hadoop.conf.Configuration;
 
 /**
  * <p>Application class.</p>
@@ -41,7 +44,7 @@ public class Application implements StreamingApplication
   {
     locality = Locality.CONTAINER_LOCAL;
 
-    dag.getAttributes().attr(DAG.STREAMING_WINDOW_SIZE_MILLIS).set(1000);
+    dag.getAttributes().put(DAG.STREAMING_WINDOW_SIZE_MILLIS, 1000);
     SimpleSinglePortZeroMQPullStringInputOperator input = dag.addOperator("input", new SimpleSinglePortZeroMQPullStringInputOperator(addr));
     ApacheLogParseOperator parse = dag.addOperator("parse", new ApacheLogParseOperator());
     UniqueCounter<String> ipAddrCount = dag.addOperator("ipAddrCount", new UniqueCounter<String>());
@@ -50,8 +53,8 @@ public class Application implements StreamingApplication
     Sum<Long> numOfBytesSum = dag.addOperator("numOfBytesSum", new Sum<Long>());
     //ArrayListAggregator<Long> agg = dag.addOperator("agg", new ArrayListAggregator<Long>());
 
-    //dag.getOperatorWrapper(agg).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(3);
-    dag.getMeta(numOfBytesSum).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(3);
+    //dag.getOperatorWrapper(agg).getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, 3);
+    dag.getMeta(numOfBytesSum).getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, 3);
 
     dag.addStream("input-parse", input.outputPort, parse.data).setLocality(locality);
     dag.addStream("parse-ipAddrCount", parse.outputIPAddress, ipAddrCount.data).setLocality(locality);

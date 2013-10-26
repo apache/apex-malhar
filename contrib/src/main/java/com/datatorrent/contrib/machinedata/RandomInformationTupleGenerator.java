@@ -19,6 +19,8 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
+import com.datatorrent.contrib.machinedata.data.MachineInfo;
+import com.datatorrent.contrib.machinedata.data.MachineKey;
 import com.datatorrent.lib.util.KeyValPair;
 
 import java.util.*;
@@ -77,7 +79,7 @@ public class RandomInformationTupleGenerator extends BaseOperator implements Inp
     private int randMax = 63;
 
 //    private int tupleBlastSize = 50;
-    private int tupleBlastSize = 10000;
+    private int tupleBlastSize = 1000;
 
     private boolean genAlert;
     private int cpuThreshold = 70;

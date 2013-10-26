@@ -15,10 +15,13 @@
  */
 package com.datatorrent.demos.chart;
 
+
+import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.DAG;
+
 import com.datatorrent.demos.yahoofinance.StockTickInput;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import org.apache.hadoop.conf.Configuration;
 
 /**
  * <p>YahooFinanceApplicationNoChart class.</p>
@@ -30,7 +33,7 @@ public class YahooFinanceApplicationNoChart extends YahooFinanceApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    dag.getAttributes().attr(DAG.STREAMING_WINDOW_SIZE_MILLIS).set(streamingWindowSizeMilliSeconds);
+    dag.getAttributes().put(DAG.STREAMING_WINDOW_SIZE_MILLIS, streamingWindowSizeMilliSeconds);
 
     StockTickInput tick = getStockTickInputOperator("StockTickInput", dag);
     tick.setOutputEvenIfZeroVolume(true);

@@ -17,6 +17,11 @@ package com.datatorrent.lib.io;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.ShipContainingJars;
+import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.AsyncHttpClientConfigBean;
+import com.ning.http.client.websocket.WebSocket;
+import com.ning.http.client.websocket.WebSocketTextListener;
+import com.ning.http.client.websocket.WebSocketUpgradeHandler;
 
 import java.io.IOException;
 import java.net.URI;
@@ -26,10 +31,6 @@ import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.NotNull;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.eclipse.jetty.websocket.WebSocket;
-import org.eclipse.jetty.websocket.WebSocket.Connection;
-import org.eclipse.jetty.websocket.WebSocketClient;
-import org.eclipse.jetty.websocket.WebSocketClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +43,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.2
  */
-@ShipContainingJars(classes = {org.codehaus.jackson.JsonFactory.class,org.eclipse.jetty.websocket.WebSocket.class})
+@ShipContainingJars(classes = {com.ning.http.client.websocket.WebSocket.class})
 public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<String, String>> implements Runnable
 {
   private static final Logger LOG = LoggerFactory.getLogger(WebSocketInputOperator.class);
@@ -50,22 +51,24 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
    * Timeout interval for reading from server. 0 or negative indicates no timeout.
    */
   public int readTimeoutMillis = 0;
-
   @NotNull
   private URI uri;
-
-  private transient final WebSocketClientFactory factory = new WebSocketClientFactory();
-  private transient WebSocketClient client;
+  private transient AsyncHttpClient client;
   private transient final JsonFactory jsonFactory = new JsonFactory();
   protected transient final ObjectMapper mapper = new ObjectMapper(jsonFactory);
-  protected transient Connection connection;
-
+  protected transient WebSocket connection;
   private transient boolean connectionClosed = false;
   private transient boolean shutdown = false;
+  private int ioThreadMultiplier = 1;
 
   public void setUri(URI uri)
   {
     this.uri = uri;
+  }
+
+  public void setIoThreadMultiplier(int ioThreadMultiplier)
+  {
+    this.ioThreadMultiplier = ioThreadMultiplier;
   }
 
   @Override
@@ -74,13 +77,10 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
     try {
       uri = URI.create(uri.toString()); // force reparse after deserialization
 
-      factory.setBufferSize(8192);
-      factory.start();
-
       //client = factory.newWebSocketClient();
       LOG.info("URL: {}", uri);
       // Handle asynchronous websocket client disconnects in future
-      // differently to not use a monitor thread. 
+      // differently to not use a monitor thread.
       shutdown = false;
       monThread = new MonitorThread();
       monThread.start();
@@ -98,36 +98,37 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
       if (monThread != null) {
         monThread.join();
       }
-    } catch (Exception ex) {
-      LOG.error("Error joining monitor", ex );
     }
-
-    if (factory != null) {
-      factory.destroy();
+    catch (Exception ex) {
+      LOG.error("Error joining monitor", ex);
     }
     super.teardown();
   }
 
   @SuppressWarnings("unchecked")
-  public Map<String,String> convertMessageToMap(String message) throws IOException
+  public Map<String, String> convertMessageToMap(String message) throws IOException
   {
     return mapper.readValue(message, HashMap.class);
   }
-  
+
   private transient MonitorThread monThread;
- 
-  private class MonitorThread extends Thread {
-	public void run() {
-	   while (!WebSocketInputOperator.this.shutdown) {
-		try {
-			sleep(1000);
-			if (connectionClosed && !WebSocketInputOperator.this.shutdown) {
-				WebSocketInputOperator.this.activate(null);
-			}
-		} catch (Exception ex) {
-		}
-	   }
-	}
+
+  private class MonitorThread extends Thread
+  {
+    public void run()
+    {
+      while (!WebSocketInputOperator.this.shutdown) {
+        try {
+          sleep(1000);
+          if (connectionClosed && !WebSocketInputOperator.this.shutdown) {
+            WebSocketInputOperator.this.activate(null);
+          }
+        }
+        catch (Exception ex) {
+        }
+      }
+    }
+
   }
 
   @Override
@@ -135,8 +136,10 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
   {
     try {
       connectionClosed = false;
-      client = factory.newWebSocketClient();
-      connection = client.open(uri, new WebSocket.OnTextMessage()
+      AsyncHttpClientConfigBean config = new AsyncHttpClientConfigBean();
+      config.setIoThreadMultiplier(ioThreadMultiplier);
+      client = new AsyncHttpClient(config);
+      connection = client.prepareGet(uri.toString()).execute(new WebSocketUpgradeHandler.Builder().addWebSocketListener(new WebSocketTextListener()
       {
         @Override
         public void onMessage(String string)
@@ -152,19 +155,32 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
         }
 
         @Override
-        public void onOpen(Connection cnctn)
+        public void onFragment(String string, boolean bln)
+        {
+          LOG.debug("onFragment");
+        }
+
+        @Override
+        public void onOpen(WebSocket ws)
         {
           LOG.debug("Connection opened");
         }
 
         @Override
-        public void onClose(int i, String string)
+        public void onClose(WebSocket ws)
         {
           LOG.debug("Connection connectionClosed.");
-	  connectionClosed = true;
+          connectionClosed = true;
         }
 
-      }).get(5, TimeUnit.SECONDS);
+        @Override
+        public void onError(Throwable t)
+        {
+          LOG.error("Caught exception", t);
+        }
+
+
+      }).build()).get(5, TimeUnit.SECONDS);
     }
     catch (Exception ex) {
       LOG.error("Error reading from " + uri, ex);
