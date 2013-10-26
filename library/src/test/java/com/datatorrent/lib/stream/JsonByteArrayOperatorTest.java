@@ -84,19 +84,19 @@ public class JsonByteArrayOperatorTest
       // assert that value for one of the keys in any one of the objects from mapSink is as expected
       Object map = mapSink.collectedTuples.get(510);
       String expectedClientip = "192.168.150.120";
-      Assert.assertEquals("emited tuple", expectedClientip, ((Map)map).get("clientip"));
+      Assert.assertEquals("emitted tuple", expectedClientip, ((Map)map).get("clientip"));
 
       // assert that value for one of the keys in any one of the objects from jsonObjectSink is as expected
       Object jsonObject = jsonObjectSink.collectedTuples.get(433);
       String expectedResponse = "200";
-      Assert.assertEquals("emited tuple", expectedResponse, ((JSONObject)jsonObject).get("response"));
+      Assert.assertEquals("emitted tuple", expectedResponse, ((JSONObject)jsonObject).get("response"));
 
       // assert that value for one of the keys in any one of the objects from flatMapSink is as expected
       Object flatMap = flatMapSink.collectedTuples.get(511);
       String expectedBrowser = "Firefox";
       String expectedOsName = "Ubuntu";
-      Assert.assertEquals("emited tuple", expectedBrowser, ((Map)flatMap).get("agentinfo.browser"));
-      Assert.assertEquals("emited tuple", expectedOsName, ((Map)flatMap).get("agentinfo.os.name"));
+      Assert.assertEquals("emitted tuple", expectedBrowser, ((Map)flatMap).get("agentinfo.browser"));
+      Assert.assertEquals("emitted tuple", expectedOsName, ((Map)flatMap).get("agentinfo.os.name"));
     }
 
 }
