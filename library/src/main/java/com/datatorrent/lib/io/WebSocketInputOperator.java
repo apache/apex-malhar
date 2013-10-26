@@ -18,6 +18,7 @@ package com.datatorrent.lib.io;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.ShipContainingJars;
 import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.AsyncHttpClientConfigBean;
 import com.ning.http.client.websocket.WebSocket;
 import com.ning.http.client.websocket.WebSocketTextListener;
 import com.ning.http.client.websocket.WebSocketUpgradeHandler;
@@ -58,10 +59,16 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
   protected transient WebSocket connection;
   private transient boolean connectionClosed = false;
   private transient boolean shutdown = false;
+  private int ioThreadMultiplier = 1;
 
   public void setUri(URI uri)
   {
     this.uri = uri;
+  }
+
+  public void setIoThreadMultiplier(int ioThreadMultiplier)
+  {
+    this.ioThreadMultiplier = ioThreadMultiplier;
   }
 
   @Override
@@ -129,7 +136,9 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
   {
     try {
       connectionClosed = false;
-      client = new AsyncHttpClient();
+      AsyncHttpClientConfigBean config = new AsyncHttpClientConfigBean();
+      config.setIoThreadMultiplier(ioThreadMultiplier);
+      client = new AsyncHttpClient(config);
       connection = client.prepareGet(uri.toString()).execute(new WebSocketUpgradeHandler.Builder().addWebSocketListener(new WebSocketTextListener()
       {
         @Override

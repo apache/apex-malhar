@@ -20,6 +20,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.ShipContainingJars;
 import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.AsyncHttpClientConfigBean;
 import com.ning.http.client.websocket.WebSocket;
 import com.ning.http.client.websocket.WebSocketTextListener;
 import com.ning.http.client.websocket.WebSocketUpgradeHandler;
@@ -53,14 +54,20 @@ public class WebSocketOutputOperator<T> extends BaseOperator
   public int readTimeoutMillis = 0;
   @NotNull
   private URI uri;
-  private transient AsyncHttpClient client = new AsyncHttpClient();
+  private transient AsyncHttpClient client;
   private transient final JsonFactory jsonFactory = new JsonFactory();
   protected transient final ObjectMapper mapper = new ObjectMapper(jsonFactory);
   protected transient WebSocket connection;
+  private int ioThreadMultiplier = 1;
 
   public void setUri(URI uri)
   {
     this.uri = uri;
+  }
+
+  public void setIoThreadMultiplier(int ioThreadMultiplier)
+  {
+    this.ioThreadMultiplier = ioThreadMultiplier;
   }
 
   public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()
@@ -82,6 +89,9 @@ public class WebSocketOutputOperator<T> extends BaseOperator
   @Override
   public void setup(OperatorContext context)
   {
+    AsyncHttpClientConfigBean config = new AsyncHttpClientConfigBean();
+    config.setIoThreadMultiplier(ioThreadMultiplier);
+    client = new AsyncHttpClient(config);
     try {
       uri = URI.create(uri.toString()); // force reparse after deserialization
       LOG.info("URL: {}", uri);

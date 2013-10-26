@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import com.datatorrent.lib.script.PythonOperator;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import org.python.core.PyInteger;
 
 /**
  * Unit test for PythonOperator.
@@ -31,33 +32,33 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
  */
 public class PythonOperatorTest
 {
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
-	public void testJavaOperator()
-	{
-		PythonOperator oper= new PythonOperator();
-		StringBuilder builder = new StringBuilder();
-		builder.append("import operator\n").append("val = operator.mul(val, val)");
-		oper.setScript(builder.toString());
-		oper.setPassThru(true);
+  public void testJavaOperator()
+  {
+    PythonOperator oper = new PythonOperator();
+    String setupScript = "import operator\n";
+    setupScript += "def square():\n";
+    setupScript += "  return val*val\n\n";
+    oper.addSetupScript(setupScript);
+    oper.setScript("square()");
+    oper.setPassThru(true);
 
-		CollectorTestSink sink = new CollectorTestSink();
-		oper.result.setSink(sink);
+    CollectorTestSink sink = new CollectorTestSink();
+    oper.result.setSink(sink);
     HashMap<String, Object> tuple = new HashMap<String, Object>();
     tuple.put("val", new Integer(2));
+    oper.setup(null);
+    oper.beginWindow(0);
+    oper.inBindings.process(tuple);
+    oper.endWindow();
 
-		oper.beginWindow(0);
-		oper.inBindings.process(tuple);
-		oper.endWindow();
+    Assert.assertEquals("number emitted tuples", 1, sink.collectedTuples.size());
+    for (Object o : sink.collectedTuples) {
+      PyInteger val = (PyInteger)o;
+      Assert.assertEquals("emitted should be 4", new Integer(4),
+                          (Integer)val.__tojava__(Integer.class));
+    }
+  }
 
-		Assert.assertEquals("number emitted tuples", 1, sink.collectedTuples.size());
-	  for (Object o: sink.collectedTuples) { // count is 12
-			Map<String, Object> val = (Map<String, Object>) o;
-			for (Map.Entry<String, Object> entry : val.entrySet())
-			{
-				Assert.assertEquals("emitted average value was was ", new Integer(4),
-						(Integer) entry.getValue());
-			}
-	   }
-	};
 }
