@@ -46,11 +46,11 @@ function drawChart(data, options) {
 
 angular.module('machine')
     .controller('MachineController', ['$scope', '$timeout', 'rest', function ($scope, $timeout, rest) {
-        $scope.appId = rest.getAppId(settings.machine.appName);
+        $scope.app = rest.getApp(settings.machine.appName);
 
-        $scope.$watch('appId', function (appId) {
-            if (appId) {
-                $scope.appURL = settings.appsURL + appId;
+        $scope.$watch('app', function (app) {
+            if (app) {
+                $scope.appURL = settings.appsURL + app.id;
             }
         });
 

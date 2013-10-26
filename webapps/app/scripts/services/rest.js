@@ -21,7 +21,7 @@
 angular.module('rest', ['ng', 'restangular'])
     .factory('rest', ['$q', 'Restangular', function($q, Restangular) {
         return {
-            getAppId: function (appName) {
+            getApp: function (appName) {
                 var deferred = $q.defer();
                 Restangular.oneUrl('applications', 'stram/v1/applications').get().then(function (response) {
                     var errorMessage = null;
@@ -30,7 +30,7 @@ angular.module('rest', ['ng', 'restangular'])
                         if (apps.length > 0) {
                             apps = _.sortBy(apps, function (app) { return parseInt(app.elapsedTime, 10); });
                             var app = apps[0];
-                            deferred.resolve(app.id);
+                            deferred.resolve(app);
                         } else {
                             errorMessage = appName + ' is not found. Please make sure application is running.';
                         }
