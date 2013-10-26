@@ -22,4 +22,4 @@ settings.machine.range.os = { start: 10, stop: 12 };
 settings.machine.range.software1 = { start: 10, stop: 12 };
 settings.machine.range.software2 = { start: 12, stop: 14 };
 settings.machine.range.deviceId = { start: 1, stop: 50 };
-settings.fraud.appName = 'Fraud-Detection-Demo-Application';
+settings.fraud.appName = 'FraudDetectionCustomerApplication';
