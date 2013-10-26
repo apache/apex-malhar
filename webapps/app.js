@@ -22,7 +22,7 @@ var config = require('./config');
 
 var machine = require('./routes/machine');
 
-// var fraud = require('./routes/fraud');
+var fraud = require('./routes/fraud');
 
 var app = express();
 
@@ -47,7 +47,8 @@ if ('production' == app.get('env')) {
 
 // Machine Generated Data Demo Demo
 app.get('/machine', machine.data);
-
+app.get('/fraud/alertCount', fraud.getAlertCount);
+app.get('/fraud/randomStats', fraud.getRecentStats);
 app.get('/stram/*', function(req, res) {
     proxy.proxyRequest(req, res, {
         host: config.daemon.host,

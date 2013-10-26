@@ -33,11 +33,11 @@ function translateLatLong(item) {
 
 angular.module('mobile')
     .controller('MobileController', ['$scope', 'rest', 'socket', function ($scope, rest, socket) {
-        $scope.appId = rest.getAppId(settings.mobile.appName);
+        $scope.app = rest.getApp(settings.mobile.appName);
 
-        $scope.$watch('appId', function (appId) {
-            if (appId) {
-                $scope.appURL = settings.appsURL + appId;
+        $scope.$watch('app', function (app) {
+            if (app) {
+                $scope.appURL = settings.appsURL + app.id;
             }
         });
 
