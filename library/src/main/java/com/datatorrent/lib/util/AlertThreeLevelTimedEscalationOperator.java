@@ -15,7 +15,6 @@
  */
 package com.datatorrent.lib.util;
 
-import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
@@ -29,9 +28,9 @@ public class AlertThreeLevelTimedEscalationOperator extends AlertEscalationOpera
   protected long levelTwoAlertTime = 0;
   protected long levelThreeAlertTime = 0;
   @OutputPortFieldAnnotation(name = "alert2", optional = true)
-  public final transient DefaultOutputPort<Object> alert2 = new DefaultOutputPort<Object>();
+  public final transient AlertOutputPort<Object> alert2 = new AlertOutputPort<Object>();
   @OutputPortFieldAnnotation(name = "alert3", optional = true)
-  public final transient DefaultOutputPort<Object> alert3 = new DefaultOutputPort<Object>();
+  public final transient AlertOutputPort<Object> alert3 = new AlertOutputPort<Object>();
 
   @Override
   public void processTuple(Object tuple)
