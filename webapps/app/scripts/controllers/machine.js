@@ -96,7 +96,7 @@ angular.module('machine')
         setupSelect('software1', 'Software1 Version');
         setupSelect('software2', 'Software2 Version');
         setupSelect('deviceId', 'Device ID');
-        $scope.lookback = queryParams.lookback ? parseInt(queryParams.lookback) : 30;
+        $scope.lookback = queryParams.lookback ? parseInt(queryParams.lookback) : settings.machine.lookback;
 
         function getParams() {
             return {
