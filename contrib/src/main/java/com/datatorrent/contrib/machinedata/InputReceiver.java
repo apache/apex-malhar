@@ -41,9 +41,6 @@ public class InputReceiver extends BaseOperator implements InputOperator
   private static final Logger logger = LoggerFactory.getLogger(InputReceiver.class);
 
   public transient DefaultOutputPort<MachineInfo> outputInline = new DefaultOutputPort<MachineInfo>();
-  public transient DefaultOutputPort<MachineInfo> output = new DefaultOutputPort<MachineInfo>();
-
-  // TODO: why are there so many different random variables? why can't we use one instance
   private final Random randomGen = new Random();
 
   private int customerMin = 1;
@@ -60,11 +57,10 @@ public class InputReceiver extends BaseOperator implements InputOperator
   private int software3Max = 6;
 
   private int deviceIdMin = 1;
-  private int deviceIdMax = 5;
+  private int deviceIdMax = 50;
 
   // private int tupleBlastSize = 50;
   private int tupleBlastSize = 1001;
-
   private int cpuThreshold = 70;
   private int ramThreshold = 70;
   private int hddThreshold = 90;
@@ -102,9 +98,9 @@ public class InputReceiver extends BaseOperator implements InputOperator
       int software3Val = genSoftware3Ver();
       int deviceIdVal = genDeviceId();
 
-      int cpuVal = genCpu();
-      int ramVal = genRam();
-      int hddVal = genHdd();
+      int cpuVal = genCpu(calendar);
+      int ramVal = genRam(calendar);
+      int hddVal = genHdd(calendar);
 
       MachineKey machineKey = new MachineKey(calendar, MachineKey.TIMESPEC_MINUTE_SPEC);
 
@@ -169,44 +165,53 @@ public class InputReceiver extends BaseOperator implements InputOperator
     return software2Min + randomGen.nextInt(range);
   }
 
-  public int genCpu()
+  public int genCpu(Calendar cal)
   {
-    Calendar cal = Calendar.getInstance();
-    int minute = cal.get(Calendar.MINUTE);    
-    int second = cal.get(Calendar.SECOND);
-    int range = minute/2 + 19;
-    if (minute == 0) {
-      return (30 + randomGen.nextInt(range) +(minute % 7) -(second % 11));
-    } else {
-      return (randomGen.nextInt(range) + (minute % 19) + (second % 11));
+    int minute = cal.get(Calendar.MINUTE);
+    int second;
+    int range = minute / 2 + 19;
+    if (minute / 17 == 0) {
+      second = cal.get(Calendar.SECOND);
+      return (30 + randomGen.nextInt(range) + (minute % 7) - (second % 11));
+    }else if(minute / 47 ==0 ){
+      second = cal.get(Calendar.SECOND);
+      return (randomGen.nextInt(range) + (minute % 7) - (second % 17));
+    }
+    else {
+      second = cal.get(Calendar.SECOND);
+      return (randomGen.nextInt(range) + (minute % 19) + (second % 7));
     }
   }
 
-  public int genRam()
+  public int genRam(Calendar cal)
   {
-    Calendar cal = Calendar.getInstance();
-
     int minute = cal.get(Calendar.MINUTE);
-    int second = cal.get(Calendar.SECOND);
-    int range = minute+1;
+    int second;
+    int range = minute + 1;
     if (minute / 23 == 0) {
-      return (20 + randomGen.nextInt(range) + (minute % 5) - (second%11));
-    } else {
-      return (randomGen.nextInt(range) + (minute % 17) + (second%11));
+      second = cal.get(Calendar.SECOND);
+      return (20 + randomGen.nextInt(range) + (minute % 5) - (second % 11));
+    } else if (minute / 37 == 0){
+      second = cal.get(Calendar.SECOND);
+      return (randomGen.nextInt(60) - (minute % 5) - (second % 11));
+    }
+    else {
+      second = cal.get(Calendar.SECOND);
+      return (randomGen.nextInt(range) + (minute % 17) + (second % 11));
     }
   }
 
-  public int genHdd()
+  public int genHdd(Calendar cal)
   {
-    Calendar cal = Calendar.getInstance();
-
     int minute = cal.get(Calendar.MINUTE);
-    int second = cal.get(Calendar.SECOND);
-    int range = minute/2+1;
+    int second;
+    int range = minute / 2 + 1;
     if (minute / 37 == 0) {
-      return (25+randomGen.nextInt(range) - minute % 7 - second%11);
+      second = cal.get(Calendar.SECOND);
+      return (25 + randomGen.nextInt(range) - minute % 7 - second % 11);
     } else {
-      return (randomGen.nextInt(range) + minute % 23 + second%11);
+      second = cal.get(Calendar.SECOND);
+      return (randomGen.nextInt(range) + minute % 23 + second % 11);
     }
   }
 
@@ -238,5 +243,145 @@ public class InputReceiver extends BaseOperator implements InputOperator
   public void setHddThreshold(int hddThreshold)
   {
     this.hddThreshold = hddThreshold;
+  }
+
+  public int getCustomerMin()
+  {
+    return customerMin;
+  }
+
+  public void setCustomerMin(int customerMin)
+  {
+    this.customerMin = customerMin;
+  }
+
+  public int getCustomerMax()
+  {
+    return customerMax;
+  }
+
+  public void setCustomerMax(int customerMax)
+  {
+    this.customerMax = customerMax;
+  }
+
+  public int getProductMin()
+  {
+    return productMin;
+  }
+
+  public void setProductMin(int productMin)
+  {
+    this.productMin = productMin;
+  }
+
+  public int getProductMax()
+  {
+    return productMax;
+  }
+
+  public void setProductMax(int productMax)
+  {
+    this.productMax = productMax;
+  }
+
+  public int getOsMin()
+  {
+    return osMin;
+  }
+
+  public void setOsMin(int osMin)
+  {
+    this.osMin = osMin;
+  }
+
+  public int getOsMax()
+  {
+    return osMax;
+  }
+
+  public void setOsMax(int osMax)
+  {
+    this.osMax = osMax;
+  }
+
+  public int getSoftware1Min()
+  {
+    return software1Min;
+  }
+
+  public void setSoftware1Min(int software1Min)
+  {
+    this.software1Min = software1Min;
+  }
+
+  public int getSoftware1Max()
+  {
+    return software1Max;
+  }
+
+  public void setSoftware1Max(int software1Max)
+  {
+    this.software1Max = software1Max;
+  }
+
+  public int getSoftware2Min()
+  {
+    return software2Min;
+  }
+
+  public void setSoftware2Min(int software2Min)
+  {
+    this.software2Min = software2Min;
+  }
+
+  public int getSoftware2Max()
+  {
+    return software2Max;
+  }
+
+  public void setSoftware2Max(int software2Max)
+  {
+    this.software2Max = software2Max;
+  }
+
+  public int getSoftware3Min()
+  {
+    return software3Min;
+  }
+
+  public void setSoftware3Min(int software3Min)
+  {
+    this.software3Min = software3Min;
+  }
+
+  public int getSoftware3Max()
+  {
+    return software3Max;
+  }
+
+  public void setSoftware3Max(int software3Max)
+  {
+    this.software3Max = software3Max;
+  }
+
+  public int getDeviceIdMin()
+  {
+    return deviceIdMin;
+  }
+
+  public void setDeviceIdMin(int deviceIdMin)
+  {
+    this.deviceIdMin = deviceIdMin;
+  }
+
+  public int getDeviceIdMax()
+  {
+    return deviceIdMax;
+  }
+
+  public void setDeviceIdMax(int deviceIdMax)
+  {
+    this.deviceIdMax = deviceIdMax;
   }
 }

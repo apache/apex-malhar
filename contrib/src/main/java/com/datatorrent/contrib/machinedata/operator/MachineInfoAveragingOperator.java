@@ -49,7 +49,8 @@ public class MachineInfoAveragingOperator extends BaseOperator
 
   public transient DefaultOutputPort<String> smtpAlert = new DefaultOutputPort<String>();
 
-  private int threshold = 70;
+  private int threshold = 95;
+
   private boolean genAlert;
   private transient DateFormat dateFormat = new SimpleDateFormat();
 
@@ -64,6 +65,16 @@ public class MachineInfoAveragingOperator extends BaseOperator
       addTuple(tuple);
     }
   };
+
+  public int getThreshold()
+  {
+    return threshold;
+  }
+
+  public void setThreshold(int threshold)
+  {
+    this.threshold = threshold;
+  }
 
   private void addTuple(KeyHashValPair<MachineKey, Map<String, AverageData>> tuple)
   {
@@ -122,8 +133,9 @@ public class MachineInfoAveragingOperator extends BaseOperator
       average.setCount(average.getCount() + map.get(valueKey.toString()).getCount());
     }
   }
-  
-  public void setGenAlert(boolean genAlert) {
+
+  public void setGenAlert(boolean genAlert)
+  {
     Calendar calendar = Calendar.getInstance();
     long timestamp = System.currentTimeMillis();
     calendar.setTimeInMillis(timestamp);
@@ -145,7 +157,7 @@ public class MachineInfoAveragingOperator extends BaseOperator
     smtpAlert.emit("CPU Alert: CPU Usage threshold (" + threshold + ") breached: current % usage: " + getKeyInfo(alertKey));
     smtpAlert.emit("RAM Alert: RAM Usage threshold (" + threshold + ") breached: current % usage: " + getKeyInfo(alertKey));
     smtpAlert.emit("HDD Alert: HDD Usage threshold (" + threshold + ") breached: current % usage: " + getKeyInfo(alertKey));
-}
+  }
 
   private String getKeyInfo(MachineKey key)
   {
