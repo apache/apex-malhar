@@ -78,7 +78,7 @@ angular.module('fraud')
                             'terminalId': getRandom('terminals'),
                             'bankIdNum': bin,
                             'ccNum': card,
-                            'amount': 44000.00
+                            'amount': 600.00
                         });
                     }, 5000)
                     
@@ -128,7 +128,7 @@ angular.module('fraud')
                             'terminalId': terminalId,
                             'bankIdNum': bin,
                             'ccNum': getRandomCard(),
-                            'amount': roundToPrice(10 + Math.random() * 1000)
+                            'amount': roundToPrice(100 + Math.random() * 10)
                         }, true);
                     }, 200);
                     
@@ -190,7 +190,7 @@ angular.module('fraud')
                         var merchantId = res.merchantId;
                         var terminalId = res.terminalId;
                         var zipCode = res.zipCode;
-                        var amount = roundToPrice(res.sma + 45000);
+                        var amount = roundToPrice(res.sma + 1500);
                         
                         setTimeout(function() {
                             submitTransaction({

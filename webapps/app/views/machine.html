@@ -24,49 +24,37 @@
                     <form method="GET">
                         <li>
                         <label for="customer">Customer ID:</label>
-                        <select ng-model="customer" id="customer">
-                            <option value="">ALL</option>
-                            <option ng-repeat="value in range('customer')" value="{{value}}">Customer {{value}}</option>
+                        <select ng-model="customer" id="customer" ng-options="item.label for item in select.customer">
                         </select>
                         </li>
 
                         <li>
                         <label for="product">Product ID:</label>
-                        <select ng-model="product" id="product">
-                            <option value="">ALL</option>
-                            <option ng-repeat="value in range('product')" value="{{value}}">Product {{value}}</option>
+                        <select ng-model="product" id="product" ng-options="item.label for item in select.product">
                         </select>
                         </li>
 
                         <li>
                         <label for="os">Product OS:</label>
-                        <select ng-model="os" id="os">
-                            <option value="">ALL</option>
-                            <option ng-repeat="value in range('os')" value="{{value}}">OS {{value}}</option>
+                        <select ng-model="os" id="os" ng-options="item.label for item in select.os">
                         </select>
                         </li>
 
                         <li>
                         <label for="software1">Software1 Ver:</label>
-                        <select ng-model="software1" id="software1">
-                            <option value="">ALL</option>
-                            <option ng-repeat="value in range('software1')" value="{{value}}">Software1 Version {{value}}</option>
+                        <select ng-model="software1" id="software1" ng-options="item.label for item in select.software1">
                         </select>
                         </li>
 
                         <li>
                         <label for="software2">Software2 Ver:</label>
-                        <select ng-model="software2" id="software2">
-                            <option value="">ALL</option>
-                            <option ng-repeat="value in range('software2')" value="{{value}}">Software2 Version {{value}}</option>
+                        <select ng-model="software2" id="software2" ng-options="item.label for item in select.software2">
                         </select>
                         </li>
 
                         <li>
                         <label for="deviceId">Device ID:</label>
-                        <select ng-model="deviceId" id="deviceId">
-                            <option value="">ALL</option>
-                            <option ng-repeat="value in range('deviceId')" value="{{value}}">Device {{value}}</option>
+                        <select ng-model="deviceId" id="deviceId" ng-options="item.label for item in select.deviceId">
                         </select>
                         </li>
 
@@ -77,11 +65,9 @@
                             <span class="add-on">Minutes</span>
                         </div>
                         </li>
-                        <!--
                         <li>
-                        <input ng-click="reload();" type="submit" value="submit" class="btn btn-primary" />
+                            <input ng-click="reload();" type="submit" value="reload" class="btn btn-primary" />
                         </li>
-                        -->
 
                     </form>
                 </ul>

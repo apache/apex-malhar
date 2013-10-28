@@ -45,22 +45,15 @@ function drawChart(data, options) {
 }
 
 angular.module('machine')
-    .controller('MachineController', ['$scope', '$timeout', 'rest', function ($scope, $timeout, rest) {
-        $scope.app = rest.getApp(settings.machine.appName);
+    .controller('MachineController', ['$scope', '$timeout', '$location', '$routeParams', 'rest', function ($scope, $timeout, $location, $routeParams, rest) {
+        var queryParams = new URI(window.location.href).query(true);
 
+        $scope.app = rest.getApp(settings.machine.appName);
         $scope.$watch('app', function (app) {
             if (app) {
                 $scope.appURL = settings.appsURL + app.id;
             }
         });
-
-        $scope.customer = "";
-        $scope.product = "";
-        $scope.os = "";
-        $scope.software1 = "";
-        $scope.software2 = "";
-        $scope.deviceId = "";
-        $scope.lookback = 30;
 
         $scope.cpu = 0;
         $scope.ram = 0;
@@ -70,6 +63,62 @@ angular.module('machine')
             var r = settings.machine.range[name];
             return _.range(r.start, r.stop + 1);
         };
+
+        function setupSelect(name, label) {
+            var rangeValues = $scope.range(name);
+            var list = _.map(rangeValues, function (value) {
+                return {
+                    value: String(value),
+                    label: label + ' ' + value
+                }
+            });
+            list.splice(0, 0, { value: "", label: 'ALL '});
+
+            $scope.select[name] = list;
+
+            var selected = null;
+
+            if (queryParams[name]) {
+                selected = _.findWhere(list, { value: queryParams[name] });
+            }
+
+            if (selected) {
+                $scope[name] = selected;
+            } else {
+                $scope[name] = list[0];
+            }
+        }
+
+        $scope.select = {};
+        setupSelect('customer', 'Customer');
+        setupSelect('product', 'Product');
+        setupSelect('os', 'OS');
+        setupSelect('software1', 'Software1 Version');
+        setupSelect('software2', 'Software2 Version');
+        setupSelect('deviceId', 'Device ID');
+        $scope.lookback = queryParams.lookback ? parseInt(queryParams.lookback) : 30;
+
+        function getParams() {
+            return {
+                customer: $scope.customer.value,
+                product: $scope.product.value,
+                os: $scope.os.value,
+                software1: $scope.software1.value,
+                software2: $scope.software2.value,
+                deviceId: $scope.deviceId.value,
+                lookback: $scope.lookback
+            }
+        }
+
+        $scope.reload = function () {
+            //$location.path('/home/2/customer/5');
+            //console.log(window.location);
+            //TODO
+            window.location.href = window.location.pathname + '?' + jQuery.param(getParams());
+
+            //window.location.href = window.location.pathname + '#/?customer=' + $scope.customer.value
+            //    + '&product=' + $scope.product.value;
+        }
 
         $scope.$watch('machineData', function (data) {
             if (data && (data.length > 0)) {
@@ -94,20 +143,11 @@ angular.module('machine')
         });
 
         function fetchMachineData () {
-            var query = {
-                customer: $scope.customer,
-                product: $scope.product,
-                os: $scope.os,
-                software1: $scope.software1,
-                software2: $scope.software2,
-                deviceId: $scope.deviceId,
-                lookback: $scope.lookback
-            };
-
-            $scope.machineData = rest.getMachineData(query);
-            $timeout(fetchMachineData, 1000);
+            rest.getMachineData(getParams()).then(function (response) {
+                $scope.machineData = response;
+                $timeout(fetchMachineData, 1000);
+            });
         }
-
         fetchMachineData();
     }]);
 

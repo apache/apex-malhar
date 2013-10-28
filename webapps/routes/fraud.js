@@ -65,7 +65,7 @@ function getRecentStats(req, res) {
     var colName = 'txStats';
 
     // Get random recent stats
-    db.collection(colName).find().sort({"time":-1}).limit(5).toArray(function(err, items) {
+    db.collection(colName).find().sort({"time":-1}).skip(2000).limit(5).toArray(function(err, items) {
         var randIndex = Math.floor(Math.random() * 5);
         res.send(items[randIndex]);
     });
