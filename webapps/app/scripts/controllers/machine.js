@@ -16,129 +16,129 @@
 
 /*global settings, angular, google, jQuery, _, URI*/
 (function () {
-  'use strict';
+'use strict';
 
-  var chartOptions = {
-    legend: 'none',
-    vAxis: { format: settings.machine.metricformat },
-    chartArea: { top: 20, height: 240 }
-  };
+var chartOptions = {
+  legend: 'none',
+  vAxis: { format: settings.machine.metricformat },
+  chartArea: { top: 20, height: 240 }
+};
 
-  function chartData(data, property) {
-    return _.map(data, function (obj) {
-      return {
-        timestamp: obj.timestamp,
-        value: obj[property]
-      };
+function chartData(data, property) {
+  return _.map(data, function (obj) {
+    return {
+      timestamp: obj.timestamp,
+      value: obj[property]
+    };
+  });
+}
+
+angular.module('machine')
+  .controller('MachineController', ['$scope', '$timeout', '$location', '$routeParams', 'rest', function ($scope, $timeout, $location, $routeParams, rest) {
+    var queryParams = new URI(window.location.href).query(true);
+
+    $scope.app = rest.getApp(settings.machine.appName);
+    $scope.$watch('app', function (app) {
+      if (app) {
+        $scope.appURL = settings.appsURL + app.id;
+      }
     });
-  }
 
-  angular.module('machine')
-    .controller('MachineController', ['$scope', '$timeout', '$location', '$routeParams', 'rest', function ($scope, $timeout, $location, $routeParams, rest) {
-      var queryParams = new URI(window.location.href).query(true);
+    $scope.cpu = 0;
+    $scope.ram = 0;
+    $scope.hdd = 0;
 
-      $scope.app = rest.getApp(settings.machine.appName);
-      $scope.$watch('app', function (app) {
-        if (app) {
-          $scope.appURL = settings.appsURL + app.id;
-        }
+    $scope.range = function (name) {
+      var r = settings.machine.range[name];
+      return _.range(r.start, r.stop + 1);
+    };
+
+    function setupSelect(name, label) {
+      var rangeValues = $scope.range(name);
+      var list = _.map(rangeValues, function (value) {
+        return {
+          value: String(value),
+          label: label + ' ' + value
+        };
       });
+      list.splice(0, 0, { value: "", label: 'ALL '});
 
-      $scope.cpu = 0;
-      $scope.ram = 0;
-      $scope.hdd = 0;
+      $scope.select[name] = list;
 
-      $scope.range = function (name) {
-        var r = settings.machine.range[name];
-        return _.range(r.start, r.stop + 1);
-      };
+      var selected = null;
 
-      function setupSelect(name, label) {
-        var rangeValues = $scope.range(name);
-        var list = _.map(rangeValues, function (value) {
-          return {
-            value: String(value),
-            label: label + ' ' + value
-          };
-        });
-        list.splice(0, 0, { value: "", label: 'ALL '});
-
-        $scope.select[name] = list;
-
-        var selected = null;
-
-        if (queryParams[name]) {
-          selected = _.findWhere(list, { value: queryParams[name] });
-        }
-
-        if (selected) {
-          $scope[name] = selected;
-        } else {
-          $scope[name] = list[0];
-        }
+      if (queryParams[name]) {
+        selected = _.findWhere(list, { value: queryParams[name] });
       }
 
-      $scope.select = {};
-      setupSelect('customer', 'Customer');
-      setupSelect('product', 'Product');
-      setupSelect('os', 'OS');
-      setupSelect('software1', 'Software1 Version');
-      setupSelect('software2', 'Software2 Version');
-      setupSelect('deviceId', 'Device ID');
-      $scope.lookback = queryParams.lookback ? parseInt(queryParams.lookback, 10) : settings.machine.lookback;
+      if (selected) {
+        $scope[name] = selected;
+      } else {
+        $scope[name] = list[0];
+      }
+    }
 
-      function getParams() {
-        return {
-          customer: $scope.customer.value,
-          product: $scope.product.value,
-          os: $scope.os.value,
-          software1: $scope.software1.value,
-          software2: $scope.software2.value,
-          deviceId: $scope.deviceId.value,
-          lookback: $scope.lookback
+    $scope.select = {};
+    setupSelect('customer', 'Customer');
+    setupSelect('product', 'Product');
+    setupSelect('os', 'OS');
+    setupSelect('software1', 'Software1 Version');
+    setupSelect('software2', 'Software2 Version');
+    setupSelect('deviceId', 'Device ID');
+    $scope.lookback = queryParams.lookback ? parseInt(queryParams.lookback, 10) : settings.machine.lookback;
+
+    function getParams() {
+      return {
+        customer: $scope.customer.value,
+        product: $scope.product.value,
+        os: $scope.os.value,
+        software1: $scope.software1.value,
+        software2: $scope.software2.value,
+        deviceId: $scope.deviceId.value,
+        lookback: $scope.lookback
+      };
+    }
+
+    $scope.reload = function () {
+      //$location.path('/home/2/customer/5');
+      //console.log(window.location);
+      //TODO
+      window.location.href = window.location.pathname + '?' + jQuery.param(getParams());
+
+      //window.location.href = window.location.pathname + '#/?customer=' + $scope.customer.value
+      //    + '&product=' + $scope.product.value;
+    };
+
+    $scope.$watch('machineData', function (data) {
+      if (data && (data.length > 0)) {
+        var current = _.last(data);
+        $scope.cpu = parseFloat(current.cpu);
+        $scope.ram = parseFloat(current.ram);
+        $scope.hdd = parseFloat(current.hdd);
+
+        $scope.cpuChart = {
+          data: chartData(data, 'cpu'),
+          options: chartOptions
+        };
+        $scope.ramChart = {
+          data: chartData(data, 'ram'),
+          options: chartOptions
+        };
+        $scope.hddChart = {
+          data: chartData(data, 'hdd'),
+          options: chartOptions
         };
       }
+    });
 
-      $scope.reload = function () {
-        //$location.path('/home/2/customer/5');
-        //console.log(window.location);
-        //TODO
-        window.location.href = window.location.pathname + '?' + jQuery.param(getParams());
-
-        //window.location.href = window.location.pathname + '#/?customer=' + $scope.customer.value
-        //    + '&product=' + $scope.product.value;
-      };
-
-      $scope.$watch('machineData', function (data) {
-        if (data && (data.length > 0)) {
-          var current = _.last(data);
-          $scope.cpu = parseFloat(current.cpu);
-          $scope.ram = parseFloat(current.ram);
-          $scope.hdd = parseFloat(current.hdd);
-
-          $scope.cpuChart = {
-            data: chartData(data, 'cpu'),
-            options: chartOptions
-          };
-          $scope.ramChart = {
-            data: chartData(data, 'ram'),
-            options: chartOptions
-          };
-          $scope.hddChart = {
-            data: chartData(data, 'hdd'),
-            options: chartOptions
-          };
-        }
+    function fetchMachineData() {
+      rest.getMachineData(getParams()).then(function (response) {
+        $scope.machineData = response;
+        $timeout(fetchMachineData, 1000);
       });
+    }
 
-      function fetchMachineData() {
-        rest.getMachineData(getParams()).then(function (response) {
-          $scope.machineData = response;
-          $timeout(fetchMachineData, 1000);
-        });
-      }
-
-      fetchMachineData();
-    }]);
+    fetchMachineData();
+  }]);
 
 })();

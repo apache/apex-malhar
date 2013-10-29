@@ -16,47 +16,47 @@
 
 /*global angular, google*/
 (function () {
-  'use strict';
+'use strict';
 
-  angular.module('widgets')
-    .directive('lineChart', function () {
-      return {
-        template: '<div></div>',
-        scope: {
-          chart: '='
-        },
-        restrict: 'E',
-        replace: true,
-        link: function postLink(scope, element, attrs) {
-          var lineChart = new google.visualization.LineChart(element[0]);
+angular.module('widgets')
+  .directive('lineChart', function () {
+    return {
+      template: '<div></div>',
+      scope: {
+        chart: '='
+      },
+      restrict: 'E',
+      replace: true,
+      link: function postLink(scope, element, attrs) {
+        var lineChart = new google.visualization.LineChart(element[0]);
 
-          function draw(chart) {
-            var data = chart.data;
+        function draw(chart) {
+          var data = chart.data;
 
-            var table = new google.visualization.DataTable();
-            table.addColumn('datetime');
-            table.addColumn('number');
-            table.addRows(data.length);
+          var table = new google.visualization.DataTable();
+          table.addColumn('datetime');
+          table.addColumn('number');
+          table.addRows(data.length);
 
-            var view = new google.visualization.DataView(table);
+          var view = new google.visualization.DataView(table);
 
-            for (var i = 0; i < data.length; i++) {
-              var item = data[i];
-              table.setCell(i, 0, new Date(item.timestamp));
-              var value = parseFloat(item.value);
-              table.setCell(i, 1, value);
-            }
-
-            lineChart.draw(view, chart.options);
+          for (var i = 0; i < data.length; i++) {
+            var item = data[i];
+            table.setCell(i, 0, new Date(item.timestamp));
+            var value = parseFloat(item.value);
+            table.setCell(i, 1, value);
           }
 
-          scope.$watch('chart', function (chart) {
-            if (chart && chart.data && (chart.data.length > 0)) {
-              draw(chart);
-            }
-          });
+          lineChart.draw(view, chart.options);
         }
-      };
-    });
+
+        scope.$watch('chart', function (chart) {
+          if (chart && chart.data && (chart.data.length > 0)) {
+            draw(chart);
+          }
+        });
+      }
+    };
+  });
 
 })();
