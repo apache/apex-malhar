@@ -168,6 +168,10 @@
       <version>2.1.0</version>
       <optional>true</optional>
     </dependency>
-
+    <dependency>
+      <groupId>org.ektorp</groupId>
+      <artifactId>org.ektorp</artifactId>
+      <version>1.2.2</version>
+    </dependency>
   </dependencies>
 </project>
