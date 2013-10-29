@@ -14,141 +14,131 @@
  * limitations under the License.
  */
 
-/*global settings, angular, google, jQuery, _*/
+/*global settings, angular, google, jQuery, _, URI*/
 (function () {
-'use strict';
+  'use strict';
 
-//TODO implement AngularJS directive for google charts
-function drawChart(data, options) {
-    var table = new google.visualization.DataTable();
-    table.addColumn('datetime', 'Time');
-    table.addColumn('number');
-    table.addRows(data.length);
+  var chartOptions = {
+    legend: 'none',
+    vAxis: { format: settings.machine.metricformat },
+    chartArea: { top: 20, height: 240 }
+  };
 
-    var chart = new google.visualization.ScatterChart(document.getElementById(options.container));
-    var view = new google.visualization.DataView(table);
+  function chartData(data, property) {
+    return _.map(data, function (obj) {
+      return {
+        timestamp: obj.timestamp,
+        value: obj[property]
+      };
+    });
+  }
 
-    var property = options.property;
-    for(var i=0; i < data.length; i++)
-    {
-        var item = data[i];
-        table.setCell(i, 0, new Date(item.timestamp));
-        var value = parseFloat(item[property]);
-        table.setCell(i, 1, value);
-    }
-
-    var chartOptions = { lineWidth: 1, pointSize: 0, legend: 'none', height: 300,
-        vAxis: { format: settings.machine.metricformat },
-        chartArea: { top: 20, height: 240 } };
-
-    chart.draw(view, chartOptions);
-}
-
-angular.module('machine')
+  angular.module('machine')
     .controller('MachineController', ['$scope', '$timeout', '$location', '$routeParams', 'rest', function ($scope, $timeout, $location, $routeParams, rest) {
-        var queryParams = new URI(window.location.href).query(true);
+      var queryParams = new URI(window.location.href).query(true);
 
-        $scope.app = rest.getApp(settings.machine.appName);
-        $scope.$watch('app', function (app) {
-            if (app) {
-                $scope.appURL = settings.appsURL + app.id;
-            }
+      $scope.app = rest.getApp(settings.machine.appName);
+      $scope.$watch('app', function (app) {
+        if (app) {
+          $scope.appURL = settings.appsURL + app.id;
+        }
+      });
+
+      $scope.cpu = 0;
+      $scope.ram = 0;
+      $scope.hdd = 0;
+
+      $scope.range = function (name) {
+        var r = settings.machine.range[name];
+        return _.range(r.start, r.stop + 1);
+      };
+
+      function setupSelect(name, label) {
+        var rangeValues = $scope.range(name);
+        var list = _.map(rangeValues, function (value) {
+          return {
+            value: String(value),
+            label: label + ' ' + value
+          };
         });
+        list.splice(0, 0, { value: "", label: 'ALL '});
 
-        $scope.cpu = 0;
-        $scope.ram = 0;
-        $scope.hdd = 0;
+        $scope.select[name] = list;
 
-        $scope.range = function (name) {
-            var r = settings.machine.range[name];
-            return _.range(r.start, r.stop + 1);
+        var selected = null;
+
+        if (queryParams[name]) {
+          selected = _.findWhere(list, { value: queryParams[name] });
+        }
+
+        if (selected) {
+          $scope[name] = selected;
+        } else {
+          $scope[name] = list[0];
+        }
+      }
+
+      $scope.select = {};
+      setupSelect('customer', 'Customer');
+      setupSelect('product', 'Product');
+      setupSelect('os', 'OS');
+      setupSelect('software1', 'Software1 Version');
+      setupSelect('software2', 'Software2 Version');
+      setupSelect('deviceId', 'Device ID');
+      $scope.lookback = queryParams.lookback ? parseInt(queryParams.lookback, 10) : settings.machine.lookback;
+
+      function getParams() {
+        return {
+          customer: $scope.customer.value,
+          product: $scope.product.value,
+          os: $scope.os.value,
+          software1: $scope.software1.value,
+          software2: $scope.software2.value,
+          deviceId: $scope.deviceId.value,
+          lookback: $scope.lookback
         };
+      }
 
-        function setupSelect(name, label) {
-            var rangeValues = $scope.range(name);
-            var list = _.map(rangeValues, function (value) {
-                return {
-                    value: String(value),
-                    label: label + ' ' + value
-                }
-            });
-            list.splice(0, 0, { value: "", label: 'ALL '});
+      $scope.reload = function () {
+        //$location.path('/home/2/customer/5');
+        //console.log(window.location);
+        //TODO
+        window.location.href = window.location.pathname + '?' + jQuery.param(getParams());
 
-            $scope.select[name] = list;
+        //window.location.href = window.location.pathname + '#/?customer=' + $scope.customer.value
+        //    + '&product=' + $scope.product.value;
+      };
 
-            var selected = null;
+      $scope.$watch('machineData', function (data) {
+        if (data && (data.length > 0)) {
+          var current = _.last(data);
+          $scope.cpu = parseFloat(current.cpu);
+          $scope.ram = parseFloat(current.ram);
+          $scope.hdd = parseFloat(current.hdd);
 
-            if (queryParams[name]) {
-                selected = _.findWhere(list, { value: queryParams[name] });
-            }
-
-            if (selected) {
-                $scope[name] = selected;
-            } else {
-                $scope[name] = list[0];
-            }
+          $scope.cpuChart = {
+            data: chartData(data, 'cpu'),
+            options: chartOptions
+          };
+          $scope.ramChart = {
+            data: chartData(data, 'ram'),
+            options: chartOptions
+          };
+          $scope.hddChart = {
+            data: chartData(data, 'hdd'),
+            options: chartOptions
+          };
         }
+      });
 
-        $scope.select = {};
-        setupSelect('customer', 'Customer');
-        setupSelect('product', 'Product');
-        setupSelect('os', 'OS');
-        setupSelect('software1', 'Software1 Version');
-        setupSelect('software2', 'Software2 Version');
-        setupSelect('deviceId', 'Device ID');
-        $scope.lookback = queryParams.lookback ? parseInt(queryParams.lookback) : settings.machine.lookback;
-
-        function getParams() {
-            return {
-                customer: $scope.customer.value,
-                product: $scope.product.value,
-                os: $scope.os.value,
-                software1: $scope.software1.value,
-                software2: $scope.software2.value,
-                deviceId: $scope.deviceId.value,
-                lookback: $scope.lookback
-            }
-        }
-
-        $scope.reload = function () {
-            //$location.path('/home/2/customer/5');
-            //console.log(window.location);
-            //TODO
-            window.location.href = window.location.pathname + '?' + jQuery.param(getParams());
-
-            //window.location.href = window.location.pathname + '#/?customer=' + $scope.customer.value
-            //    + '&product=' + $scope.product.value;
-        }
-
-        $scope.$watch('machineData', function (data) {
-            if (data && (data.length > 0)) {
-                drawChart(data, {
-                    container: 'cpuChart',
-                    property: 'cpu'
-                });
-                drawChart(data, {
-                    container: 'ramChart',
-                    property: 'ram'
-                });
-                drawChart(data, {
-                    container: 'hddChart',
-                    property: 'hdd'
-                });
-
-                var current = _.last(data);
-                $scope.cpu = parseFloat(current.cpu);
-                $scope.ram = parseFloat(current.ram);
-                $scope.hdd = parseFloat(current.hdd);
-            }
+      function fetchMachineData() {
+        rest.getMachineData(getParams()).then(function (response) {
+          $scope.machineData = response;
+          $timeout(fetchMachineData, 1000);
         });
+      }
 
-        function fetchMachineData () {
-            rest.getMachineData(getParams()).then(function (response) {
-                $scope.machineData = response;
-                $timeout(fetchMachineData, 1000);
-            });
-        }
-        fetchMachineData();
+      fetchMachineData();
     }]);
 
 })();
