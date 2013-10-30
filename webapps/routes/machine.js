@@ -89,15 +89,17 @@ function getMinutes(query, resCallback) {
   });
 
   var minutes = [];
+  var execStartTime = Date.now();
   multi.exec(function (err, replies) {
     replies.forEach(function (reply, index) {
+      console.log('Redis exec time ' + (Date.now() - execStartTime) + 'ms');
       if (reply) {
         var minute = {
           timestamp: minuteKeys[index].timestamp,
           cpu: reply.cpu,
           ram: reply.ram,
           hdd: reply.hdd
-        }
+        };
         minutes.push(minute);
       }
     });
