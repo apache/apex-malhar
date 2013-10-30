@@ -91,8 +91,9 @@ function getMinutes(query, resCallback) {
   var minutes = [];
   var execStartTime = Date.now();
   multi.exec(function (err, replies) {
+    console.log('Redis exec time ' + (Date.now() - execStartTime) + 'ms. Replies: ' + replies.length);
+
     replies.forEach(function (reply, index) {
-      console.log('Redis exec time ' + (Date.now() - execStartTime) + 'ms');
       if (reply) {
         var minute = {
           timestamp: minuteKeys[index].timestamp,
