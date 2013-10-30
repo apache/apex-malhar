@@ -44,7 +44,6 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
   private int dbIndex = 0;
   private int timeout= 10000;
   protected long keyExpiryTime = -1;
-  
 
   public long getKeyExpiryTime()
   {
