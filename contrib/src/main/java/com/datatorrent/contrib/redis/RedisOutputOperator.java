@@ -43,6 +43,18 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
   private int port = 6379;
   private int dbIndex = 0;
   private int timeout= 10000;
+  protected long keyExpiryTime = -1;
+  
+
+  public long getKeyExpiryTime()
+  {
+    return keyExpiryTime;
+  }
+
+  public void setKeyExpiryTime(long keyExpiryTime)
+  {
+    this.keyExpiryTime = keyExpiryTime;
+  }
 
   public void setHost(String host)
   {
@@ -84,6 +96,9 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
   public void put(String key, String value)
   {
     redisConnection.set(key, value);
+    if(keyExpiryTime != -1){
+      redisConnection.expire(key, keyExpiryTime);
+    }
   }
 
   @Override
@@ -127,6 +142,9 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
       }
       else {
         redisConnection.set(entry.getKey().toString(), value.toString());
+      }
+      if(keyExpiryTime != -1){
+        redisConnection.expire(entry.getKey().toString(), keyExpiryTime);
       }
     }
   }
