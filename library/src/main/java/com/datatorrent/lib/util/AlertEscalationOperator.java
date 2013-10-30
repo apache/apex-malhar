@@ -16,7 +16,9 @@
 package com.datatorrent.lib.util;
 
 import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.PartitionableOperator;
 import com.datatorrent.api.PartitionableOperator.Partition;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
@@ -57,7 +59,7 @@ public class AlertEscalationOperator extends BaseOperator implements Partitionab
 
   };
   @OutputPortFieldAnnotation(name = "alert", optional = false)
-  public final transient AlertOutputPort<Object> alert = new AlertOutputPort<Object>();
+  public final transient DefaultOutputPort<Object> alert = new DefaultOutputPort<Object>();
 
   public void processTuple(Object tuple)
   {
@@ -115,6 +117,12 @@ public class AlertEscalationOperator extends BaseOperator implements Partitionab
     List<Partition<?>> newPartitions = new ArrayList<Partition<?>>(1);
     newPartitions.add(partitions.iterator().next());
     return newPartitions;
+  }
+
+  @Override
+  public void setup(OperatorContext context)
+  {
+    context.getAttributes().put(OperatorContext.AUTO_RECORD, true);
   }
 
 }
