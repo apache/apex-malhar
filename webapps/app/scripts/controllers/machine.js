@@ -131,9 +131,28 @@ angular.module('machine')
       }
     });
 
+    var dataCache;
+
     function fetchMachineData() {
-      rest.getMachineData(getParams()).then(function (response) {
-        $scope.machineData = response;
+      var params = getParams();
+
+      if (dataCache && dataCache.length) {
+        params.lastTimestamp = _.last(dataCache).timestamp;
+      }
+
+      var max = $scope.lookback;
+
+      rest.getMachineData(params).then(function (response) {
+        if (!dataCache) {
+          dataCache = response;
+        } else {
+          var newlength = dataCache.length + response.length;
+          if (newlength > max) {
+            dataCache.splice(0, newlength - max);
+            dataCache.push.apply(dataCache, response); // add all elements
+          }
+        }
+        $scope.machineData = dataCache;
         $timeout(fetchMachineData, 1000);
       });
     }
