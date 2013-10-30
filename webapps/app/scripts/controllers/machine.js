@@ -109,7 +109,7 @@ angular.module('machine')
       //    + '&product=' + $scope.product.value;
     };
 
-    $scope.$watch('machineData', function (data) {
+    function updateCharts(data) {
       if (data && (data.length > 0)) {
         var current = _.last(data);
         $scope.cpu = parseFloat(current.cpu);
@@ -129,7 +129,7 @@ angular.module('machine')
           options: chartOptions
         };
       }
-    });
+    }
 
     var dataCache;
 
@@ -145,14 +145,21 @@ angular.module('machine')
       rest.getMachineData(params).then(function (response) {
         if (!dataCache) {
           dataCache = response;
-        } else {
+        } else if (response.length > 0) {
+          //console.log(dataCache.length + ' ' + response.length);
+
+          dataCache.pop(); // remove last element since response should have new values for the last minute
+
           var newlength = dataCache.length + response.length;
+
           if (newlength > max) {
             dataCache.splice(0, newlength - max);
-            dataCache.push.apply(dataCache, response); // add all elements
           }
+          dataCache.push.apply(dataCache, response); // add all elements
         }
-        $scope.machineData = dataCache;
+
+        updateCharts(dataCache);
+
         $timeout(fetchMachineData, 1000);
       });
     }
