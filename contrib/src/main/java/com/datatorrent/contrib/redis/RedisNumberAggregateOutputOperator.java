@@ -86,6 +86,9 @@ public class RedisNumberAggregateOutputOperator<K, V> extends RedisOutputOperato
           redisConnection.incrbyfloat(key, Double.parseDouble(value.toString()));
         }
       }
+      if(keyExpiryTime != -1){
+        redisConnection.expire(key, keyExpiryTime);
+      }
     }
   }
 
