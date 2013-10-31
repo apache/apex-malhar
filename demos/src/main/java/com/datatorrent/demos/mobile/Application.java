@@ -15,10 +15,12 @@
  */
 package com.datatorrent.demos.mobile;
 
+import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.DAGContext;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketInputOperator;

@@ -188,8 +188,11 @@ public class Application implements StreamingApplication
       else if (LAUNCHMODE_LOCAL.equals(conf.get(DAG.LAUNCH_MODE))) {
       }
 
-      String daemonAddress = dag.attrValue(DAGContext.DAEMON_ADDRESS, "localhost:9090");
-      URI duri = URI.create("ws://" + daemonAddress + "/pubsub");
+      String gatewayAddress = dag.getValue(DAGContext.GATEWAY_ADDRESS);
+      if (gatewayAddress == null) {
+        gatewayAddress = "localhost:9090";
+      }
+      URI duri = URI.create("ws://" + gatewayAddress + "/pubsub");
 
       dag.setAttribute(DAG.APPLICATION_NAME, "FraudDetectionDemoApplication");
       dag.setAttribute(DAG.DEBUG, false);

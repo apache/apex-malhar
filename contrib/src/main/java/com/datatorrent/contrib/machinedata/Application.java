@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Resource monitor application.
  * </p>
- * 
+ *
  * @since 0.3.5
  */
 
@@ -61,7 +61,7 @@ public class Application implements StreamingApplication
   public InputReceiver getRandomInformationTupleGenerator(String name, DAG dag)
   {
     InputReceiver oper = dag.addOperator(name, InputReceiver.class);
-    dag.getOperatorMeta(name).getAttributes().attr(Context.OperatorContext.APPLICATION_WINDOW_COUNT).set(appWindowCountMinute);
+    dag.setAttribute(oper, Context.OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCountMinute);
     return oper;
   }
 
@@ -73,21 +73,21 @@ public class Application implements StreamingApplication
   public MachineInfoAveragingPrerequisitesOperator getMachineInfoAveragingPrerequisitesOperator(String name, DAG dag)
   {
     MachineInfoAveragingPrerequisitesOperator oper = dag.addOperator(name, MachineInfoAveragingPrerequisitesOperator.class);
-    dag.getOperatorMeta(name).getAttributes().attr(Context.OperatorContext.APPLICATION_WINDOW_COUNT).set(appWindowCountMinute);
+    dag.setAttribute(oper, Context.OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCountMinute);
     return oper;
   }
 
   public MachineInfoAveragingOperator getMachineInfoAveragingOperator(String name, DAG dag)
   {
     MachineInfoAveragingOperator oper = dag.addOperator(name, MachineInfoAveragingOperator.class);
-    dag.getOperatorMeta(name).getAttributes().attr(Context.OperatorContext.APPLICATION_WINDOW_COUNT).set(appWindowCountMinute);
+    dag.setAttribute(oper, Context.OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCountMinute);
     return oper;
   }
 
   public AlertGeneratorOperator getAlertGeneratorOperator(String name, DAG dag)
   {
     AlertGeneratorOperator oper = dag.addOperator(name, AlertGeneratorOperator.class);
-    dag.getOperatorMeta(name).getAttributes().attr(Context.OperatorContext.APPLICATION_WINDOW_COUNT).set(appWindowCountMinute);
+    dag.setAttribute(oper, Context.OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCountMinute);
     return oper;
   }
 
@@ -99,7 +99,7 @@ public class Application implements StreamingApplication
     oper.setHost(host);
     oper.setPort(port);
     oper.setDatabase(database);
-    dag.getOperatorMeta(name).getAttributes().attr(Context.OperatorContext.APPLICATION_WINDOW_COUNT).set(appWindowCountMinute);
+    dag.setAttribute(oper, Context.OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCountMinute);
     return oper;
   }
 
@@ -166,7 +166,7 @@ public class Application implements StreamingApplication
   {
     MachineInfoAveragingPrerequisitesOperator prereqAverageOper = getMachineInfoAveragingPrerequisitesOperator("PrereqAverage", dag);
     dag.setInputPortAttribute(prereqAverageOper.inputPort, PortContext.PARTITION_PARALLEL, true);
-    dag.getOperatorMeta("PrereqAverage").getAttributes().attr(Context.OperatorContext.APPLICATION_WINDOW_COUNT).set(appWindowCountMinute);
+    dag.setAttribute(prereqAverageOper, Context.OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCountMinute);
 
     setDefaultInputPortQueueCapacity(dag, prereqAverageOper.inputPort);
     setDefaultOutputPortQueueCapacity(dag, prereqAverageOper.outputPort);
@@ -180,7 +180,7 @@ public class Application implements StreamingApplication
     RedisOutputOperator<MachineKey, Map<ResourceType, Double>> redisAvgOperator = getRedisOutputOperator("RedisAverageOutput", dag, conf, conf.getInt("machinedata.redis.db", 5));
     setDefaultInputPortQueueCapacity(dag, redisAvgOperator.inputInd);
     dag.setInputPortAttribute(redisAvgOperator.inputInd, PortContext.PARTITION_PARALLEL, true);
-    dag.addStream("avg_output", averageOperator.outputPort, redisAvgOperator.inputInd);    
+    dag.addStream("avg_output", averageOperator.outputPort, redisAvgOperator.inputInd);
 
     SmtpOutputOperator smtpOutputOperator = getSmtpOutputOperator("SmtpAvgOperator", dag, conf);
 
@@ -194,7 +194,7 @@ public class Application implements StreamingApplication
   private CalculatorOperator addCalculator(DAG dag, Configuration conf)
   {
     CalculatorOperator oper = dag.addOperator("Calculator", CalculatorOperator.class);
-    dag.getOperatorMeta("Calculator").getAttributes().attr(Context.OperatorContext.APPLICATION_WINDOW_COUNT).set(appWindowCountMinute);
+    dag.setAttribute(oper, Context.OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCountMinute);
     int partitions = conf.getInt(Application.class.getName() + ".calculatorPartitions", 5);
     dag.setAttribute(oper, OperatorContext.INITIAL_PARTITION_COUNT, partitions);
 
@@ -202,7 +202,7 @@ public class Application implements StreamingApplication
 
     // Percentile
     setDefaultOutputPortQueueCapacity(dag, oper.percentileOutputPort);
-    
+
     ConsoleOutputOperator console = dag.addOperator("console_percentile", ConsoleOutputOperator.class);
     setDefaultInputPortQueueCapacity(dag, console.input);
     console.silent = true;
@@ -218,7 +218,7 @@ public class Application implements StreamingApplication
     setDefaultInputPortQueueCapacity(dag, console1.input);
     console.silent = true;
     dag.addStream("sd_output", oper.sdOutputPort, console1.input);
-    
+
     // TODO: Change back to redis
 //    RedisOutputOperator redisSDOperator = getRedisOutputOperator("RedisSDOutput", dag, conf, conf.getInt("machinedata.sd.redis.db", 33));
 //    setDefaultInputPortQueueCapacity(dag, redisSDOperator.inputInd);
@@ -226,12 +226,12 @@ public class Application implements StreamingApplication
 
     // Max
     setDefaultOutputPortQueueCapacity(dag, oper.maxOutputPort);
-    
+
     ConsoleOutputOperator console2 = dag.addOperator("console_max", ConsoleOutputOperator.class);
     setDefaultInputPortQueueCapacity(dag, console2.input);
     console.silent = true;
     dag.addStream("max_output", oper.maxOutputPort, console2.input);
-    
+
     /*TODO: change back to Redis
     RedisOutputOperator redisMaxOutput = getRedisOutputOperator("RedisMaxOutput", dag, conf, conf.getInt("machinedata.max.redis.db", 32));
     setDefaultInputPortQueueCapacity(dag, redisMaxOutput.inputInd);
@@ -256,27 +256,27 @@ public class Application implements StreamingApplication
 
     dag.setAttribute(DAG.APPLICATION_NAME, "MachineData-DemoApplication");
     dag.setAttribute(DAG.DEBUG, false);
-    dag.getAttributes().attr(DAG.STREAMING_WINDOW_SIZE_MILLIS).set(streamingWindowSizeMilliSeconds);
+    dag.setAttribute(DAG.STREAMING_WINDOW_SIZE_MILLIS, streamingWindowSizeMilliSeconds);
 
     InputReceiver randomGen = getRandomInformationTupleGenerator("InputReceiver", dag);
     setDefaultOutputPortQueueCapacity(dag, randomGen.outputInline);
     dag.setAttribute(randomGen, OperatorContext.INITIAL_PARTITION_COUNT, partitions);
-    
+
     DimensionGenerator dimensionGenerator = dag.addOperator("GenerateDimensions", DimensionGenerator.class);
-    dag.getOperatorMeta("GenerateDimensions").getAttributes().attr(Context.OperatorContext.APPLICATION_WINDOW_COUNT).set(appWindowCountMinute);
+    dag.setAttribute(dimensionGenerator, Context.OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCountMinute);    
     setDefaultOutputPortQueueCapacity(dag, dimensionGenerator.outputInline);
     setDefaultOutputPortQueueCapacity(dag, dimensionGenerator.output);
     setDefaultInputPortQueueCapacity(dag, dimensionGenerator.inputPort);
     dag.addStream("generate_dimensions",randomGen.outputInline,dimensionGenerator.inputPort).setLocality(Locality.CONTAINER_LOCAL);
     dag.setInputPortAttribute(dimensionGenerator.inputPort, PortContext.PARTITION_PARALLEL, true);
-    
-    
+
+
     if (conf.getBoolean("machinedata.calculate.average", true)) {
       MachineInfoAveragingPrerequisitesOperator prereqAverageOper = addAverageCalculation(dag, conf);
       dag.addStream("prereq_calculation", dimensionGenerator.outputInline, prereqAverageOper.inputPort).setLocality(Locality.THREAD_LOCAL);
       dag.setOutputPortAttribute(prereqAverageOper.outputPort, PortContext.UNIFIER_LIMIT,unifier_count);
     }
-    
+
 
     /*
     CalculatorOperator calculatorOperator = addCalculator(dag, conf);
@@ -292,9 +292,9 @@ public class Application implements StreamingApplication
 
 
     if (conf.getBoolean("machinedata.calculate.max", false)) {
-      calculatorOperator.setComputeMax(true);   
+      calculatorOperator.setComputeMax(true);
     }
     */
-    
+
   }
 }
