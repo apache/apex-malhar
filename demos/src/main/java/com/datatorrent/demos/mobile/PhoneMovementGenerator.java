@@ -101,8 +101,8 @@ public class PhoneMovementGenerator extends BaseOperator
     }
   };
 
-  @InputPortFieldAnnotation(name="seedPhoneQuery", optional=true)
-  public final transient DefaultInputPort<Map<String,String>> seedPhoneQuery = new DefaultInputPort<Map<String,String>>()
+  @InputPortFieldAnnotation(name="phoneQuery", optional=true)
+  public final transient DefaultInputPort<Map<String,String>> phoneQuery = new DefaultInputPort<Map<String,String>>()
   {
     @Override
     public void process(Map<String,String> tuple)

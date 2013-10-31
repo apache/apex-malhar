@@ -121,12 +121,8 @@ public class ApplicationAlert implements StreamingApplication
       wsIn.setUri(uri);
       wsIn.addTopic("demos.mobile.phoneLocationQuery");
 
-      PhoneEntryOperator phonesGenerator = dag.addOperator("seedPhonesGenerator", PhoneEntryOperator.class);
-      phonesGenerator.setPhoneRange(phoneRange);
-
       dag.addStream("consoledata", movementgen.locationQueryResult, wsOut.input, alertOper.in).setLocality(Locality.CONTAINER_LOCAL);
-      dag.addStream("query", wsIn.outputPort, phonesGenerator.locationQuery);
-      dag.addStream("seedPhones", phonesGenerator.seedPhones, movementgen.seedPhoneQuery).setLocality(Locality.CONTAINER_LOCAL);
+      dag.addStream("query", wsIn.outputPort, movementgen.phoneQuery);
     }
     else { // If no ajax, need to do phone seeding
       movementgen.phone_register.add(9996101);
