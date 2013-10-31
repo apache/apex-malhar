@@ -8,6 +8,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.google.common.base.Preconditions;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ObjectNode;
 import org.ektorp.ViewQuery;
 import org.ektorp.ViewResult;
 
@@ -42,7 +43,7 @@ public abstract class AbstractCouchDBInputOperator<T> extends BaseOperator imple
     ViewResult result = dbLink.getConnector().queryView(viewQuery);
     for (ViewResult.Row row : result.getRows()) {
       JsonNode node = row.getValueAsNode();
-      T tuple = getTuple(row.getId(), node);
+      T tuple = getTuple(node);
       outputPort.emit(tuple);
     }
   }
@@ -80,6 +81,6 @@ public abstract class AbstractCouchDBInputOperator<T> extends BaseOperator imple
 
   public abstract ViewQuery getViewQuery();
 
-  public abstract T getTuple(String id, JsonNode value);
+  public abstract T getTuple(JsonNode value);
 
 }
