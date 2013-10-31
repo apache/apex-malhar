@@ -59,7 +59,7 @@ angular.module('rest', ['ng', 'restangular'])
                 promise.then(null, function (response) {
                   jQuery.pnotify({
                     title: 'Error',
-                    text: 'Error getting Machine Data. Status Code: ' + response.status,
+                    text: 'Error getting data from server. Status Code: ' + response.status,
                     type: 'error',
                     icon: false,
                     hide: false
