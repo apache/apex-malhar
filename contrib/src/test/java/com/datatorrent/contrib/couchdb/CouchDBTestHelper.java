@@ -99,4 +99,8 @@ public class CouchDBTestHelper
     return dbLink.getConnector().get(JsonNode.class, docId);
   }
 
+  public int getTotalDocuments() {
+    return dbLink.getConnector().queryView(createAndFetchViewQuery()).getTotalRows();
+  }
+
 }

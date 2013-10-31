@@ -22,17 +22,14 @@ public abstract class AbstractMapBasedInputOperator extends AbstractCouchDBInput
 
   @Override
   @SuppressWarnings("unchecked")
-  public Map<Object, Object> getTuple(String id, JsonNode value)
+  public Map<Object, Object> getTuple(JsonNode value)
   {
-    Map<Object, Object> mapTuple = Maps.newHashMap();
-    mapTuple.put("_id", id);
     Map<Object, Object> valueMap = Maps.newHashMap();
     try {
       valueMap = mapper.readValue(value, valueMap.getClass());
     } catch (IOException e) {
       e.printStackTrace();
     }
-    mapTuple.putAll(valueMap);
-    return mapTuple;
+    return valueMap;
   }
 }
