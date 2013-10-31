@@ -54,7 +54,19 @@ angular.module('rest', ['ng', 'restangular'])
             },
 
             getMachineData: function (query) {
-                return Restangular.all('machine').getList(query);
+                var promise = Restangular.all('machine').getList(query);
+
+                promise.then(null, function (response) {
+                  jQuery.pnotify({
+                    title: 'Error',
+                    text: 'Error getting Machine Data. Status Code: ' + response.status,
+                    type: 'error',
+                    icon: false,
+                    hide: false
+                  });
+                });
+
+                return promise;
             }
         };
     }])
