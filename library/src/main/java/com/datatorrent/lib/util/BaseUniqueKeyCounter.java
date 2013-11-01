@@ -19,7 +19,7 @@ import java.util.HashMap;
 import org.apache.commons.lang.mutable.MutableInt;
 
 /**
- * Count unique occurrences of keys within a window
+ * Count unique occurrences of keys within an application window
  *
  * @param <K>
  * @since 0.3.2
@@ -43,7 +43,6 @@ public class BaseUniqueKeyCounter<K> extends BaseKeyOperator<K>
 
   /**
    * Bucket counting mechanism.
-   * Since we clear the bucket at the beginning of the window, we make this object transient.
    */
   protected HashMap<K, MutableInt> map = new HashMap<K, MutableInt>();
 }
