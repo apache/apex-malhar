@@ -175,7 +175,7 @@ public class Application implements StreamingApplication
       wsIn.addTopic("demos.mobile.phoneLocationQuery");
 
       dag.addStream("consoledata", movementGen.locationQueryResult, wsOut.input);
-      dag.addStream("query", wsIn.outputPort, movementGen.phoneQuery).setLocality(Locality.THREAD_LOCAL);
+      dag.addStream("query", wsIn.outputPort, movementGen.phoneQuery);
     }
     else {
       // for testing purposes without server
