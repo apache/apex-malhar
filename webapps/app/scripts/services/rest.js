@@ -23,10 +23,10 @@ angular.module('rest', ['ng', 'restangular'])
         return {
             getApp: function (appName) {
                 var deferred = $q.defer();
-                Restangular.oneUrl('applications', 'stram/v1/applications').get().then(function (response) {
+                Restangular.oneUrl('applications', 'ws/v1/applications').get().then(function (response) {
                     var errorMessage = null;
-                    if (response && response.apps && response.apps.app && response.apps.app.length > 0) {
-                        var apps = _.where(response.apps.app, { name: appName, state: 'RUNNING' });
+                    if (response && response.apps && response.apps.length > 0) {
+                        var apps = _.where(response.apps, { name: appName, state: 'RUNNING' });
                         if (apps.length > 0) {
                             apps = _.sortBy(apps, function (app) { return parseInt(app.elapsedTime, 10); });
                             var app = apps[0];

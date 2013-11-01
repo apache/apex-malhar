@@ -43,25 +43,16 @@ angular.module('widgets')
 
                 $scope.$watch('app', function (app) {
                     if (app) {
-                        initialElapsedTime = app.elapsedTime;
+                        initialElapsedTime = parseInt(app.elapsedTime);
                         startTime = Date.now();
                         updatedElapsedTime();
 
-                        var topic = 'apps.' + app.id + '.operators.list';
+                        var topic = 'applications.' + app.id;
 
                         socket.subscribe(topic, function (message) {
-                            var operators = message.data.operators;
-
-                            var emitted = BigInteger.ZERO;
-                            var processed = BigInteger.ZERO;
-                            //var emitted = new BigInteger('9007199254740992');
-                            _.each(operators, function (op) {
-                                emitted = emitted.add(new BigInteger(op.tuplesEmittedPSMA10));
-                                processed = processed.add(new BigInteger(op.totalTuplesProcessed));
-                            });
-
-                            $scope.totalEmitted = emitted.toString();
-                            $scope.totalProcessed = processed.toString();
+                            var appData = message.data;
+                            $scope.totalEmitted = appData.tuplesEmittedPSMA;
+                            $scope.totalProcessed = appData.totalTuplesProcessed;
                             $scope.$apply();
                         });
                     }
