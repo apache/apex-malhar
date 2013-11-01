@@ -6,15 +6,15 @@ settings.machine = {};
 settings.machine.range = {};
 settings.fraud = {};
 
-settings.webSocketUrl = 'ws://localhost:3490/pubsub';
-settings.appsURL = 'http://localhost:3490/static/#ops/apps/';
+settings.webSocketUrl = 'ws://localhost:9090/pubsub';
+settings.appsURL = 'http://localhost:9090/static/#ops/apps/';
 
 settings.twitter.appName = 'TwitterCustomerApplication';
 settings.twitter.topic = 'demos.twitter.topURLs';
 settings.mobile.topic.out = 'demos.mobile.phoneLocationQueryResult';
 settings.mobile.topic.in = 'demos.mobile.phoneLocationQuery';
 settings.mobile.appName = 'MobileLocatorCustomerApplication';
-settings.machine.appName = 'MachineDataDev';
+settings.machine.appName = 'MachineDataCustomerApplication';
 settings.machine.lookback = 180; // default lookback (minutes)
 settings.machine.metricformat = '#.0';
 settings.machine.pollInterval = 1000;

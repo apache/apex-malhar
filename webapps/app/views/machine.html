@@ -65,9 +65,11 @@
                             <span class="add-on">Minutes</span>
                         </div>
                         </li>
+                        <!--
                         <li>
                             <input ng-click="reload();" type="submit" value="reload" class="btn btn-primary" />
                         </li>
+                        -->
 
                     </form>
                 </ul>
@@ -77,11 +79,11 @@
             <div class="row-fluid">
                 <div class="span12 machine-response">
                     <span ng-show="lastResponse">
-                        <span class="machine-response-label">Last Response:</span>
+                        <span class="machine-response-label">Network Last Response:</span>
                         <span class="machine-response-stat">{{lastResponse|date:'HH:mm:ss'}}</span>
                     </span>
                     <span ng-show="responseTime">
-                        <span class="machine-response-label" >Response Time:</span>
+                        <span class="machine-response-label" >Network Response Time:</span>
                         <span class="machine-response-stat">{{responseTime|number}} ms</span>
                     </span>
                     <span class="machine-response-label machine-response-loading" ng-show="requestProgress > 1">
@@ -124,14 +126,14 @@
                 <div class="span8">
                     <h4 class="machine-chart-title">Server Polling Statistics</h4>
                     <div>
-                        <span class="machine-response-label">Last Response:</span>
+                        <span class="machine-response-label">Network Last Response:</span>
                         <span class="machine-response-stat">{{lastResponse|date:'HH:mm:ss'}}</span>
                         <span class="machine-response-label machine-response-loading" ng-show="requestProgress > 1">
                             Loading: {{requestProgress|number}} sec
                         </span>
                     </div>
                     <div>
-                        <span class="machine-response-label" >Response Time:</span>
+                        <span class="machine-response-label">Network Response Time:</span>
                         <span>{{responseTime|number}} ms</span>
                     </div>
                     <div>

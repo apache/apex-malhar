@@ -49,7 +49,7 @@ if ('production' == app.get('env')) {
 app.get('/machine', machine.data);
 app.get('/fraud/alertCount', fraud.getAlertCount);
 app.get('/fraud/randomStats', fraud.getRecentStats);
-app.get('/stram/*', function(req, res) {
+app.get('/ws/*', function(req, res) {
     proxy.proxyRequest(req, res, {
         host: config.daemon.host,
         port: config.daemon.port
