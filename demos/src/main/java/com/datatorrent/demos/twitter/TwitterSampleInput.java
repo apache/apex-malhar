@@ -17,17 +17,20 @@ package com.datatorrent.demos.twitter;
 
 import java.util.concurrent.ArrayBlockingQueue;
 
-import com.datatorrent.api.ActivationListener;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.ShipContainingJars;
-
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import twitter4j.*;
 import twitter4j.conf.ConfigurationBuilder;
+
+import com.datatorrent.api.ActivationListener;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.annotation.ShipContainingJars;
 
 /**
  * Read input from Twitter. <p> <br>
@@ -66,6 +69,8 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
    * The state which we would like to save for this operator.
    */
   private int multiplier = 1;
+  @Min(0)
+  private int multiplierVariance=0;
 
   /* Following twitter access credentials should be set before using this operator. */
   @NotNull
@@ -103,8 +108,17 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   @Override
   public void onStatus(Status status)
   {
+    int randomMultiplier=multiplier;
+
+    if(multiplierVariance>0){
+      int min = multiplier - multiplierVariance;
+      if(min<0) min=0;
+
+      int max = multiplier + multiplierVariance;
+      randomMultiplier= min + (int)(Math.random() * ((max-min)+1));
+    }
     try {
-      for (int i = multiplier; i-- > 0;) {
+      for (int i = randomMultiplier; i-- > 0;) {
         statuses.put(status);
         count++;
       }
@@ -171,6 +185,10 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   public void setFeedMultiplier(int multiplier)
   {
     this.multiplier = multiplier;
+  }
+
+  public void setFeedMultiplierVariance(int multiplierVariance){
+    this.multiplierVariance = multiplierVariance;
   }
 
   @Override

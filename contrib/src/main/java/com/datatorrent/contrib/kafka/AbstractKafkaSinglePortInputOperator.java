@@ -17,6 +17,7 @@ package com.datatorrent.contrib.kafka;
 
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.DefaultOutputPort;
+
 import kafka.message.Message;
 
 
@@ -43,7 +44,7 @@ import kafka.message.Message;
  *
  * @since 0.3.2
  */
-public abstract class AbstractKafkaSinglePortInputOperator<T> extends AbstractKafkaInputOperator
+public abstract class AbstractKafkaSinglePortInputOperator<T> extends AbstractKafkaInputOperator<KafkaConsumer>
 {
   /**
    * The single output port.
