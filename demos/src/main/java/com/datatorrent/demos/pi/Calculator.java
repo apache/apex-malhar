@@ -15,10 +15,10 @@
  */
 package com.datatorrent.demos.pi;
 
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.Operator.InputPort;
+import java.net.URI;
+
+import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.HttpOutputOperator;
 import com.datatorrent.lib.math.*;
@@ -26,8 +26,11 @@ import com.datatorrent.lib.stream.AbstractAggregator;
 import com.datatorrent.lib.stream.ArrayListAggregator;
 import com.datatorrent.lib.stream.Counter;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
-import java.net.URI;
-import org.apache.hadoop.conf.Configuration;
+
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.Operator.InputPort;
+import com.datatorrent.api.StreamingApplication;
 
 /**
  * <p>Calculator class.</p>
