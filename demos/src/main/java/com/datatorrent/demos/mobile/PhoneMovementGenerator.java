@@ -15,19 +15,23 @@
  */
 package com.datatorrent.demos.mobile;
 
-import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.util.HighLow;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+
 import javax.validation.constraints.Min;
+
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.lib.util.HighLow;
 
 /**
  *
@@ -102,43 +106,57 @@ public class PhoneMovementGenerator extends BaseOperator
     @Override
     public void process(Map<String, String> tuple)
     {
-      log.info("new query: " + tuple);
-      String command = null;
-      String qid = null;
-      String phone = null;
-      for (Map.Entry<String, String> e: tuple.entrySet()) {
-        if (e.getKey().equals(KEY_COMMAND)) {
-          command = e.getValue();
-        }
-        if (e.getKey().equals(KEY_QUERYID)) {
-          qid = e.getValue();
-        }
-        else if (e.getKey().equals(KEY_PHONE)) {
-          phone = e.getValue();
-        }
-      }
+      processQuery(tuple);
+    }
+  };
 
-      if (qid != null) { // without qid, ignore
-        if ((phone != null)) {
-          if (phone.isEmpty()) {
-            deregisterPhone(qid);
-          }
-          else {
-            registerPhone(qid, phone);
-          }
-        }
-      } else if (command != null) {
-        if (command.equals(COMMAND_ADD)) {
-          registerPhone(phone, phone);
-        } else if (command.equals(COMMAND_DELETE)) {
-          deregisterPhone(phone);
-        } else if (command.equals(COMMAND_CLEAR)) {
-          clearPhones();
-        }
+  @InputPortFieldAnnotation(name="seedPhoneQuery", optional=true)
+  public final transient DefaultInputPort<Map<String,String>> seedPhoneQuery = new DefaultInputPort<Map<String, String>>()
+  {
+    @Override
+    public void process(Map<String, String> tuple)
+    {
+      processQuery(tuple);
+    }
+  };
+
+  private void processQuery(Map<String,String> tuple)
+  {
+    log.info("new query: " + tuple);
+    String command = null;
+    String qid = null;
+    String phone = null;
+    for (Map.Entry<String, String> e: tuple.entrySet()) {
+      if (e.getKey().equals(KEY_COMMAND)) {
+        command = e.getValue();
+      }
+      if (e.getKey().equals(KEY_QUERYID)) {
+        qid = e.getValue();
+      }
+      else if (e.getKey().equals(KEY_PHONE)) {
+        phone = e.getValue();
       }
     }
 
-  };
+    if (qid != null) { // without qid, ignore
+      if ((phone != null)) {
+        if (phone.isEmpty()) {
+          deregisterPhone(qid);
+        }
+        else {
+          registerPhone(qid, phone);
+        }
+      }
+    } else if (command != null) {
+      if (command.equals(COMMAND_ADD)) {
+        registerPhone(phone, phone);
+      } else if (command.equals(COMMAND_DELETE)) {
+        deregisterPhone(phone);
+      } else if (command.equals(COMMAND_CLEAR)) {
+        clearPhones();
+      }
+    }
+  }
 
   public static final String KEY_COMMAND = "command";
   public static final String KEY_PHONE = "phone";
@@ -182,12 +200,20 @@ public class PhoneMovementGenerator extends BaseOperator
     threshold = i;
   }
 
-  private void registerPhone(String qid, String phone) throws NumberFormatException
+  private void registerPhone(String qid, String phone)
   {
     // register the phone channel
-    phone_register.put(qid, new Integer(phone));
-    log.debug(String.format("Registered query id \"%s\", with phonenum \"%s\"", qid, phone));
-    emitQueryResult(qid, new Integer(phone));
+    if (Strings.isNullOrEmpty(phone)) {
+      log.warn("invalid phone: " + phone);
+      return;
+    }
+    try {
+      phone_register.put(qid, new Integer(phone));
+      log.debug(String.format("Registered query id \"%s\", with phonenum \"%s\"", qid, phone));
+      emitQueryResult(qid, new Integer(phone));
+    } catch (NumberFormatException nfe) {
+      log.warn("invalid phone: " + phone, nfe.getMessage());
+    }
   }
 
   private void deregisterPhone(String qid)
