@@ -71,6 +71,27 @@ h4.ui-pnotify-title {
     height: 300px;
 }
 
+.machine-response {
+    height: 30px;
+}
+
+.machine-response-label {
+    display: inline-block;
+    font-weight: bold;
+    vertical-align: middle;
+}
+
+.machine-response-stat {
+    display: inline-block;
+    width: 100px;
+    overflow: hidden;
+    vertical-align: middle;
+}
+
+.machine-response-loading {
+    background-color: yellow;
+}
+
 .bar-chart rect.bar-chart-p {
     fill: #05EEFA;
 }
