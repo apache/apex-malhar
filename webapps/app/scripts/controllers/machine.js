@@ -135,6 +135,9 @@ PollRequest.prototype = {
       nextTimeout = Math.max(0, nextTimeout);
 
       that.timeout = setTimeout(that.fetchMachineData.bind(that), nextTimeout);
+    },
+    function (errorResponse) {
+      that.cancel();
     });
   }
 };
