@@ -66,7 +66,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
   {
     @SuppressWarnings("unchecked")
 		RedisNumberAggregateOutputOperator<String, Map<String, Number>> oper = dag.addOperator(name, RedisNumberAggregateOutputOperator.class);
-    oper.selectDatabase(dbIndex);
+    oper.setDatabase(dbIndex);
     return oper.input;
   }
 
@@ -101,7 +101,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
 
   	// redix output
   	RedisOutputOperator<Integer, String> redis = dag.addOperator("redisapachelog2", new RedisOutputOperator<Integer, String>());
-  	redis.selectDatabase(2);
+  	redis.setDatabase(2);
 
   	// output to console
     dag.addStream("rand_console", topOccur.outport, redis.input).setLocality(Locality.CONTAINER_LOCAL);
@@ -131,7 +131,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
 
     // redix output
     RedisOutputOperator<Integer, String> redis10 = dag.addOperator("redisapachelog10", new RedisOutputOperator<Integer, String>());
-   	redis10.selectDatabase(10);
+   	redis10.setDatabase(10);
    	dag.addStream("rand_console10", serverTop.outport, redis10.input).setLocality(Locality.CONTAINER_LOCAL);
 
     // count ip occurance operator
@@ -147,12 +147,12 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
 
   	// output  ip counter
   	RedisOutputOperator<Integer, String> redisIpCounter = dag.addOperator("redisapachelog3", new RedisOutputOperator<Integer, String>());
-  	redisIpCounter.selectDatabase(3);
+  	redisIpCounter.setDatabase(3);
   	dag.addStream("topIpRedixStream", topIpOccur.outport,  redisIpCounter.input).setLocality(Locality.CONTAINER_LOCAL);
 
     // output client more than 5 urls in sec
     RedisOutputOperator<Integer, String> redisgt5 = dag.addOperator("redisapachelog5", new RedisOutputOperator<Integer, String>());
-    redisgt5.selectDatabase(5);
+    redisgt5.setDatabase(5);
    	dag.addStream("redisgt5Stream", topIpOccur.gtThreshHold,  redisgt5.input).setLocality(Locality.CONTAINER_LOCAL);
 
    	// get filter status operator
@@ -165,7 +165,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
    	dag.addStream("topUrlStatusStream", urlHttpFilter.outport,  topUrlStatus.inport).setLocality(Locality.CONTAINER_LOCAL);
    // dag.addStream("testconsole", topUrlStatus.outport,  consoleOutput(dag, "console")).setInline(true);
   	RedisOutputOperator<Integer, String> redisgt7 = dag.addOperator("redisapachelog7", new RedisOutputOperator<Integer, String>());
-    redisgt7.selectDatabase(7);
+    redisgt7.setDatabase(7);
     dag.addStream("redisgt7Stream", topUrlStatus.outport,  redisgt7.input).setLocality(Locality.CONTAINER_LOCAL);
 
    	// client data usage
@@ -173,7 +173,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
    	dag.getMeta(totalOper).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(2);
    	dag.addStream("clientDataFilterStream", parser.clientDataUsage, totalOper.data).setLocality(Locality.CONTAINER_LOCAL);
    	RedisOutputOperator<Integer, Integer> redisgt9 = dag.addOperator("redisapachelog9", new RedisOutputOperator<Integer, Integer>());
-    redisgt9.selectDatabase(9);
+    redisgt9.setDatabase(9);
    	dag.addStream("redisgt9Stream", totalOper.redisport,  redisgt9.input).setLocality(Locality.CONTAINER_LOCAL);
    	//dag.addStream("redisgt9Stream", clientDataFilter.redisport,  consoleOutput(dag, "console")).setInline(true);  */
 
@@ -186,7 +186,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
    	serverTop404.setN(10);
    	dag.addStream("serverTop404Stream", serverHttpFilter.outport,  serverTop404.inport).setLocality(Locality.CONTAINER_LOCAL);
   	RedisOutputOperator<Integer, String> redisgt8 = dag.addOperator("redisapachelog8", new RedisOutputOperator<Integer, String>());
-    redisgt8.selectDatabase(8);
+    redisgt8.setDatabase(8);
     dag.addStream("redisgt8Stream", serverTop404.outport,  redisgt8.input).setLocality(Locality.CONTAINER_LOCAL);
 
     // data collect for each
@@ -198,7 +198,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
     dag.addStream("topIpDataStream", ipDataCollect.outport,  topIpData.inport).setLocality(Locality.CONTAINER_LOCAL);
     //dag.addStream("consoletest", topIpData.outport,  consoleOutput(dag, "console")).setInline(true);
     RedisOutputOperator<Integer, String> redisgt6 = dag.addOperator("redisapachelog6", new RedisOutputOperator<Integer, String>());
-    redisgt6.selectDatabase(6);
+    redisgt6.setDatabase(6);
     dag.addStream("redisgt6Stream", topIpData.outport,  redisgt6.input).setLocality(Locality.CONTAINER_LOCAL);
 
     // total view count
@@ -207,7 +207,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
    	dag.addStream("totalViewcountStream", parser.viewCount, totalViewcount.inport).setLocality(Locality.CONTAINER_LOCAL);
    	//dag.addStream("consoletest", totalViewcount.sumInteger,  consoleOutput(dag, "console")).setInline(true);
    	RedisOutputOperator<Integer, Integer> redisgt11 = dag.addOperator("redisapachelog11", new RedisOutputOperator<Integer, Integer>());
-    redisgt11.selectDatabase(11);
+    redisgt11.setDatabase(11);
     dag.addStream("redisgtlog11Stream", totalViewcount.outport,  redisgt11.input).setLocality(Locality.CONTAINER_LOCAL);
   }
 }
