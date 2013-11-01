@@ -18,6 +18,7 @@ var redis = require('redis');
 var dateFormat = require('dateformat');
 var async = require('async');
 var config = require('../config');
+var _ = require('underscore');
 
 var client;
 var demoEnabled = (config.machine.redis.port && config.machine.redis.host);
@@ -39,7 +40,14 @@ exports.index = function (req, res) {
 
 exports.data = function (req, res) {
   getMinutes(req.query, function (err, result) {
-    res.json(result);
+    var forcedDelay = config.machine.forcedDelay;
+    if (!forcedDelay) {
+      res.json(result);
+    } else {
+      setTimeout(function () {  // for testing purpose only
+        res.json(result);
+      }, forcedDelay);
+    }
   });
 };
 
@@ -88,13 +96,15 @@ function getMinutes(query, resCallback) {
     multi.hgetall(key.key);
   });
 
-  var minutes = [];
   var execStartTime = Date.now();
   multi.exec(function (err, replies) {
-    console.log('Redis exec time ' + (Date.now() - execStartTime) + 'ms. Replies: ' + replies.length);
+    var execTime = (Date.now() - execStartTime);
 
+    var lastIndex = -1;
+    var minutes = [];
     replies.forEach(function (reply, index) {
       if (reply) {
+        lastIndex = index;
         var minute = {
           timestamp: minuteKeys[index].timestamp,
           cpu: reply.cpu,
@@ -105,7 +115,22 @@ function getMinutes(query, resCallback) {
       }
     });
 
-    resCallback(err, minutes);
+    var lastKey = (lastIndex >= 0) ? minuteKeys[lastIndex].key : 'none';
+    var lastKeyQueried = _.last(minuteKeys).key;
+
+    var result = {
+      minutes: minutes,
+      keysQueried: minuteKeys.length,
+      lastKeyQueried: lastKeyQueried,
+      lastKey: lastKey,
+      queryTime: execTime
+    };
+
+    console.log('Redis exec time ' + execTime +
+      'ms. Replies: ' + replies.length +
+      '. Last key with data: ' + lastKey);
+
+    resCallback(err, result);
   });
 }
 

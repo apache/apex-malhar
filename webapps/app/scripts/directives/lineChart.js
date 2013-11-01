@@ -33,6 +33,10 @@ angular.module('widgets')
         function draw(chart) {
           var data = chart.data;
 
+          if (!data) {
+            data = [];
+          }
+
           var table = new google.visualization.DataTable();
           table.addColumn('datetime');
           table.addColumn('number');
@@ -47,11 +51,18 @@ angular.module('widgets')
             table.setCell(i, 1, value);
           }
 
-          lineChart.draw(view, chart.options);
+          var options;
+          if (data.length === 0 && chart.emptyChartOptions) {
+            options = chart.emptyChartOptions();
+          } else {
+            options = chart.options;
+          }
+
+          lineChart.draw(view, options);
         }
 
         scope.$watch('chart', function (chart) {
-          if (chart && chart.data && (chart.data.length > 0)) {
+          if (chart) {
             draw(chart);
           }
         });

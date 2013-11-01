@@ -175,7 +175,7 @@ public class InputReceiver extends BaseOperator implements InputOperator
       return (30 + randomGen.nextInt(range) + (minute % 7) - (second % 11));
     }else if(minute / 47 ==0 ){
       second = cal.get(Calendar.SECOND);
-      return (randomGen.nextInt(range) + (minute % 7) - (second % 17));
+      return (7+ randomGen.nextInt(range) + (minute % 7) - (second % 7));
     }
     else {
       second = cal.get(Calendar.SECOND);
@@ -193,7 +193,7 @@ public class InputReceiver extends BaseOperator implements InputOperator
       return (20 + randomGen.nextInt(range) + (minute % 5) - (second % 11));
     } else if (minute / 37 == 0){
       second = cal.get(Calendar.SECOND);
-      return (randomGen.nextInt(60) - (minute % 5) - (second % 11));
+      return (11+ randomGen.nextInt(60) - (minute % 5) - (second % 11));
     }
     else {
       second = cal.get(Calendar.SECOND);
