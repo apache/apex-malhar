@@ -18,23 +18,34 @@ package com.datatorrent.contrib.redis;
 import com.datatorrent.lib.io.AbstractKeyValueStoreOutputOperator;
 import com.lambdaworks.redis.RedisClient;
 import com.lambdaworks.redis.RedisConnection;
-import com.lambdaworks.redis.RedisException;
 import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.PartitionableOperator.Partition;
+import com.datatorrent.api.PartitionableOperator.PartitionKeys;
+import com.datatorrent.api.PartitionableOperator;
+import com.google.common.collect.Sets;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <p>RedisOutputOperator class.</p>
- *
+ * <p>
+ * RedisOutputOperator class.
+ * </p>
+ * 
  * @since 0.3.2
  */
-@ShipContainingJars(classes = {RedisClient.class})
-public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperator<K, V>
+@ShipContainingJars(classes = { RedisClient.class })
+@SuppressWarnings({ "rawtypes", "unchecked", "unused" })
+public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperator<K, V> implements PartitionableOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(RedisOutputOperator.class);
   protected transient RedisClient redisClient;
@@ -42,8 +53,9 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
   private String host = "localhost";
   private int port = 6379;
   private int dbIndex = 0;
-  private int timeout= 10000;
+  private int timeout = 10000;
   protected long keyExpiryTime = -1;
+  private String connectionList;
 
   public long getKeyExpiryTime()
   {
@@ -78,11 +90,42 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
   @Override
   public void setup(OperatorContext context)
   {
+    if (connectionList != null) {
+      setRedis();
+    }
     redisClient = new RedisClient(host, port);
     redisConnection = redisClient.connect();
     redisConnection.select(dbIndex);
     redisConnection.setTimeout(timeout, TimeUnit.MILLISECONDS);
     super.setup(context);
+  }
+
+  private void setRedis()
+  {
+    String[] connectionArr = connectionList.split(",");
+    if(connectionArr.length < 1){
+      LOG.warn("since no value is set, setting everything to default");
+      return;
+    }
+    host = connectionArr[0].trim();
+    try {
+      port = Integer.valueOf(connectionArr[1].trim());
+    } catch (NumberFormatException ex) {
+      LOG.error("defaulting the value to default port 6379 as there is error {} ", ex.getMessage());
+      port = 6379;
+    } catch(ArrayIndexOutOfBoundsException ex){
+      LOG.error("defaulting the value to default port 6379 as there is error {} ", ex.getMessage());
+      port = 6379;
+    }
+    try{
+      dbIndex = Integer.valueOf(connectionArr[2].trim());
+    }catch (NumberFormatException ex) {
+      LOG.error("defaulting the value to default DB 0 as there is error {} ", ex.getMessage());
+      dbIndex = 0;
+    }catch (ArrayIndexOutOfBoundsException ex) {
+      LOG.error("defaulting the value to default DB 0 as there is error {} ", ex.getMessage());
+      dbIndex = 0;
+    }
   }
 
   @Override
@@ -95,7 +138,7 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
   public void put(String key, String value)
   {
     redisConnection.set(key, value);
-    if(keyExpiryTime != -1){
+    if (keyExpiryTime != -1) {
       redisConnection.expire(key, keyExpiryTime);
     }
   }
@@ -121,31 +164,90 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
   @Override
   public void store(Map<K, Object> t)
   {
-    for (Map.Entry<K, Object> entry: t.entrySet()) {
+    for (Map.Entry<K, Object> entry : t.entrySet()) {
       Object value = entry.getValue();
       if (value instanceof Map) {
-        for (Map.Entry<Object, Object> entry1: ((Map<Object, Object>)value).entrySet()) {
+        for (Map.Entry<Object, Object> entry1 : ((Map<Object, Object>) value).entrySet()) {
           redisConnection.hset(entry.getKey().toString(), entry1.getKey().toString(), entry1.getValue().toString());
         }
-      }
-      else if (value instanceof Set) {
-        for (Object o: (Set)value) {
+      } else if (value instanceof Set) {
+        for (Object o : (Set) value) {
           redisConnection.sadd(entry.getKey().toString(), o.toString());
         }
-      }
-      else if (value instanceof List) {
+      } else if (value instanceof List) {
         int i = 0;
-        for (Object o: (List)value) {
+        for (Object o : (List) value) {
           redisConnection.lset(entry.getKey().toString(), i++, o.toString());
         }
-      }
-      else {
+      } else {
         redisConnection.set(entry.getKey().toString(), value.toString());
       }
-      if(keyExpiryTime != -1){
+      if (keyExpiryTime != -1) {
         redisConnection.expire(entry.getKey().toString(), keyExpiryTime);
       }
     }
+  }
+
+  public String getConnectionList()
+  {
+    return connectionList;
+  }
+
+  public void setConnectionList(String connectionList)
+  {
+    this.connectionList = connectionList;
+  }
+
+  @Override
+  public Collection<Partition<?>> definePartitions(Collection<? extends Partition<?>> partitions, int incrementalCapacity)
+  {
+    Collection c = partitions;
+    Collection<Partition<RedisOutputOperator<K, V>>> operatorPartitions = c;
+    Partition<RedisOutputOperator<K, V>> template = null;
+    Iterator<Partition<RedisOutputOperator<K, V>>> itr = operatorPartitions.iterator();
+    template = itr.next();
+    String[] connectionArr = connectionList.trim().split("\\|");
+    int size = connectionArr.length;
+    if (size > (incrementalCapacity + operatorPartitions.size()))
+      size = incrementalCapacity + operatorPartitions.size();
+
+    int partitionBits = (Integer.numberOfLeadingZeros(0) - Integer.numberOfLeadingZeros(size - 1));
+    int partitionMask = 0;
+    if (partitionBits > 0) {
+      partitionMask = -1 >>> (Integer.numberOfLeadingZeros(-1)) - partitionBits;
+    }
+    LOG.debug("partition mask {}", partitionMask);
+    Collection<Partition<?>> operList = new ArrayList<PartitionableOperator.Partition<?>>(size);
+
+    while (size > 0) {
+      size--;
+      RedisOutputOperator<K, V> opr = new RedisOutputOperator<K, V>();
+      opr.setConnectionList(connectionArr[size].trim());
+      opr.setKeyExpiryTime(keyExpiryTime);
+      opr.setTimeout(timeout);
+      opr.setContinueOnError(continueOnError);
+      opr.setName(getName());
+      Partition<RedisOutputOperator<K, V>> p = template.getInstance(opr);
+      operList.add(p);
+    }
+
+    for (int i = 0; i <= partitionMask; i++) {
+      Partition<?> p = ((List<Partition<?>>) operList).get(i % operList.size());
+      PartitionKeys pks = p.getPartitionKeys().get(input);
+      if (pks == null) {
+        p.getPartitionKeys().put(input, new PartitionKeys(partitionMask, Sets.newHashSet(i)));
+      } else {
+        pks.partitions.add(i);
+      }
+      pks = p.getPartitionKeys().get(inputInd);
+      if (pks == null) {
+        p.getPartitionKeys().put(inputInd, new PartitionKeys(partitionMask, Sets.newHashSet(i)));
+      } else {
+        pks.partitions.add(i);
+      }
+    }
+
+    return operList;
   }
 
 }
