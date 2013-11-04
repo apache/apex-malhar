@@ -23,6 +23,8 @@ import com.datatorrent.contrib.machinedata.data.MachineInfo;
 import com.datatorrent.contrib.machinedata.data.MachineKey;
 import com.datatorrent.lib.util.KeyValPair;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.slf4j.Logger;
@@ -66,7 +68,8 @@ public class InputReceiver extends BaseOperator implements InputOperator
   private int hddThreshold = 90;
   private int operatorId;
   private long windowId = 1;
-
+  private static DateFormat minuteDateFormat = new SimpleDateFormat("HHmm");
+  
   @Override
   public void setup(Context.OperatorContext context)
   {
@@ -85,10 +88,14 @@ public class InputReceiver extends BaseOperator implements InputOperator
   public void emitTuples()
   {
     int count = 0;
+    Calendar calendar = Calendar.getInstance();
+    Date date = calendar.getTime();
+    String timeKey = minuteDateFormat.format(date);
+    int day = calendar.get(Calendar.DAY_OF_MONTH);
 
     while (count < tupleBlastSize) {
       randomGen.setSeed(System.currentTimeMillis());
-      Calendar calendar = Calendar.getInstance();
+      
 
       int customerVal = genCustomerId();
       int productVal = genProductVer();
@@ -102,7 +109,7 @@ public class InputReceiver extends BaseOperator implements InputOperator
       int ramVal = genRam(calendar);
       int hddVal = genHdd(calendar);
 
-      MachineKey machineKey = new MachineKey(calendar, MachineKey.TIMESPEC_MINUTE_SPEC);
+      MachineKey machineKey = new MachineKey(timeKey,day);
 
       machineKey.setCustomer(customerVal);
       machineKey.setProduct(productVal);

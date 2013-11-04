@@ -84,16 +84,9 @@ public class Application implements StreamingApplication
     return oper;
   }
 
-  public AlertGeneratorOperator getAlertGeneratorOperator(String name, DAG dag)
+  public RedisOutputOperator<MachineKey, Map<ResourceType, String>> getRedisOutputOperator(String name, DAG dag, Configuration conf, int database)
   {
-    AlertGeneratorOperator oper = dag.addOperator(name, AlertGeneratorOperator.class);
-    dag.setAttribute(oper, Context.OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCountMinute);
-    return oper;
-  }
-
-  public RedisOutputOperator<MachineKey, Map<ResourceType, Double>> getRedisOutputOperator(String name, DAG dag, Configuration conf, int database)
-  {
-    RedisOutputOperator<MachineKey, Map<ResourceType, Double>> oper = dag.addOperator(name, new RedisOutputOperator<MachineKey, Map<ResourceType, Double>>());
+    RedisOutputOperator<MachineKey, Map<ResourceType, String>> oper = dag.addOperator(name, new RedisOutputOperator<MachineKey, Map<ResourceType, String>>());
     String host = conf.get("machinedata.redis.host", "localhost");
     int port = conf.getInt("machinedata.redis.port", 6379);
     oper.setHost(host);
@@ -177,7 +170,7 @@ public class Application implements StreamingApplication
     setDefaultInputPortQueueCapacity(dag, averageOperator.inputPort);
     setDefaultOutputPortQueueCapacity(dag, averageOperator.outputPort);
 
-    RedisOutputOperator<MachineKey, Map<ResourceType, Double>> redisAvgOperator = getRedisOutputOperator("RedisAverageOutput", dag, conf, conf.getInt("machinedata.redis.db", 5));
+    RedisOutputOperator<MachineKey, Map<ResourceType, String>> redisAvgOperator = getRedisOutputOperator("RedisAverageOutput", dag, conf, conf.getInt("machinedata.redis.db", 5));
     setDefaultInputPortQueueCapacity(dag, redisAvgOperator.inputInd);
     dag.setInputPortAttribute(redisAvgOperator.inputInd, PortContext.PARTITION_PARALLEL, true);
     dag.addStream("avg_output", averageOperator.outputPort, redisAvgOperator.inputInd);

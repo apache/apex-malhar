@@ -32,6 +32,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,7 @@ public class MachineInfoAveragingOperator extends BaseOperator
 
   private Map<MachineKey, List<Map<String, AverageData>>> dataMap = new HashMap<MachineKey, List<Map<String, AverageData>>>();
 
-  public final transient DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, Double>>> outputPort = new DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, Double>>>();
+  public final transient DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, String>>> outputPort = new DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, String>>>();
 
   public transient DefaultOutputPort<String> smtpAlert = new DefaultOutputPort<String>();
 
@@ -103,23 +104,23 @@ public class MachineInfoAveragingOperator extends BaseOperator
         prepareAverageResult(map, ResourceType.RAM, averageResultMap);
         prepareAverageResult(map, ResourceType.HDD, averageResultMap);
       }
-      Map<ResourceType, Double> averageResult = Maps.newHashMap();
+      Map<ResourceType, String> averageResult = Maps.newHashMap();
 
       for (Map.Entry<ResourceType, AverageData> dataEntry : averageResultMap.entrySet()) {
         ResourceType resourceType = dataEntry.getKey();
         double average = dataEntry.getValue().getSum() / dataEntry.getValue().getCount();
-        averageResult.put(resourceType, average);
+        averageResult.put(resourceType, average+","+key.getDay());
 
         if (average > threshold) {
           BigDecimal bd = new BigDecimal(average);
           bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
-          String stime = dateFormat.format(key.getTime().getTime());
+          String stime = key.getDay()+key.getTimeKey();
           String skey = getKeyInfo(key);
 
           smtpAlert.emit(resourceType.toString().toUpperCase() + " alert at " + stime + " " + resourceType + " usage breached current usage: " + bd.doubleValue() + "% threshold: " + threshold + "%\n\n" + skey);
         }
       }
-      outputPort.emit(new KeyValPair<MachineKey, Map<ResourceType, Double>>(key, averageResult));
+      outputPort.emit(new KeyValPair<MachineKey, Map<ResourceType, String>>(key, averageResult));
     }
     dataMap.clear();
   }
@@ -141,8 +142,12 @@ public class MachineInfoAveragingOperator extends BaseOperator
     Calendar calendar = Calendar.getInstance();
     long timestamp = System.currentTimeMillis();
     calendar.setTimeInMillis(timestamp);
+    DateFormat minuteDateFormat = new SimpleDateFormat("HHmm");
+    Date date = calendar.getTime();
+    String minute = minuteDateFormat.format(date);
+    int day = calendar.get(Calendar.DAY_OF_MONTH);
 
-    MachineKey alertKey = new MachineKey(calendar, MachineKey.TIMESPEC_MINUTE_SPEC);
+    MachineKey alertKey = new MachineKey(minute,day);
     alertKey.setCustomer(1);
     alertKey.setProduct(5);
     alertKey.setOs(10);

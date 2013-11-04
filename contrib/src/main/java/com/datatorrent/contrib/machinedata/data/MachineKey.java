@@ -15,9 +15,6 @@
  */
 package com.datatorrent.contrib.machinedata.data;
 
-import com.datatorrent.lib.util.TimeBucketKey;
-
-import java.util.Calendar;
 
 /**
  * <p>
@@ -26,7 +23,7 @@ import java.util.Calendar;
  *
  * @since 0.3.5
  */
-public class MachineKey extends TimeBucketKey
+public class MachineKey 
 {
 
   private Integer customer;
@@ -36,19 +33,23 @@ public class MachineKey extends TimeBucketKey
   private Integer software2;
   private Integer software3;
   private Integer deviceId;
+  private String timeKey;
+  private Integer day; 
+
+  public MachineKey(String timeKey, Integer day)
+  {
+    this.timeKey = timeKey;
+    this.day = day;
+  }
 
   public MachineKey()
-  {
+  { 
   }
 
-  public MachineKey(Calendar time, int timeSpec)
+  public MachineKey(String timeKey, Integer day,Integer customer, Integer product, Integer os, Integer software1, Integer software2, Integer software3, Integer deviceId)
   {
-    super(time, timeSpec);
-  }
-
-  public MachineKey(Calendar time, Integer timeSpec, Integer customer, Integer product, Integer os, Integer software1, Integer software2, Integer software3, Integer deviceId)
-  {
-    super(time, timeSpec);
+    this.timeKey = timeKey;
+    this.day = day;
     this.customer = customer;
     this.product = product;
     this.os = os;
@@ -61,6 +62,26 @@ public class MachineKey extends TimeBucketKey
   public Integer getCustomer()
   {
     return customer;
+  }
+
+  public String getTimeKey()
+  {
+    return timeKey;
+  }
+
+  public void setTimeKey(String timeKey)
+  {
+    this.timeKey = timeKey;
+  }
+
+  public Integer getDay()
+  {
+    return day;
+  }
+
+  public void setDay(Integer day)
+  {
+    this.day = day;
   }
 
   public void setCustomer(Integer customer)
@@ -150,7 +171,16 @@ public class MachineKey extends TimeBucketKey
       key |= (1 << 25);
       key ^= deviceId;
     }
-    return super.hashCode() ^ key;
+    if (timeKey != null) {
+      key |= (1 << 24);
+      key ^= timeKey.hashCode();
+    }
+    if (day != null) {
+      key |= (1 << 23);
+      key ^= day;
+    }
+    
+    return key;
   }
 
   @Override
@@ -160,10 +190,18 @@ public class MachineKey extends TimeBucketKey
       return false;
     }
     MachineKey mkey = (MachineKey) obj;
-    return super.equals(obj) && checkIntEqual(this.customer, mkey.customer) && checkIntEqual(this.product, mkey.product) && checkIntEqual(this.os, mkey.os) && checkIntEqual(this.software1, mkey.software1) && checkIntEqual(this.software2, mkey.software2) && checkIntEqual(this.software3, mkey.software3) && checkIntEqual(this.deviceId, mkey.deviceId);
+    return checkStringEqual(this.timeKey, mkey.timeKey) && checkIntEqual(this.day, mkey.day) && checkIntEqual(this.customer, mkey.customer) && checkIntEqual(this.product, mkey.product) && checkIntEqual(this.os, mkey.os) && checkIntEqual(this.software1, mkey.software1) && checkIntEqual(this.software2, mkey.software2) && checkIntEqual(this.software3, mkey.software3) && checkIntEqual(this.deviceId, mkey.deviceId);
   }
 
   private boolean checkIntEqual(Integer a, Integer b)
+  {
+    if ((a == null) && (b == null))
+      return true;
+    if ((a != null) && a.equals(b))
+      return true;
+    return false;
+  }
+  private boolean checkStringEqual(String a, String b)
   {
     if ((a == null) && (b == null))
       return true;
@@ -175,7 +213,7 @@ public class MachineKey extends TimeBucketKey
   @Override
   public String toString()
   {
-    StringBuilder sb = new StringBuilder(super.toString());
+    StringBuilder sb = new StringBuilder(timeKey);
     if (customer != null)
       sb.append("|0:").append(customer);
     if (product != null)

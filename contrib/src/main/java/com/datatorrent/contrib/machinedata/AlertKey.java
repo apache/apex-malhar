@@ -29,12 +29,12 @@ public class AlertKey extends MachineKey {
     public AlertKey() {
     }
 
-    public AlertKey(Calendar time, int timeSpec) {
-        super(time, timeSpec);
+    public AlertKey(String timeKey, int day) {
+        super(timeKey,day);
     }
 
-    public AlertKey(Calendar time, Integer timeSpec,  Integer customer, Integer product, Integer os, Integer software1, Integer software2, Integer software3,Integer deviceId) {
-        super(time, timeSpec,  customer, product, os, software1, software2, software3,deviceId);
+    public AlertKey(String timeKey, int day,  Integer customer, Integer product, Integer os, Integer software1, Integer software2, Integer software3,Integer deviceId) {
+        super(timeKey,day,  customer, product, os, software1, software2, software3,deviceId);
     }
 
     public String toString() {

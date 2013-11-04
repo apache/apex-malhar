@@ -21,8 +21,11 @@ import com.datatorrent.api.InputOperator;
 import com.datatorrent.contrib.machinedata.data.MachineInfo;
 import com.datatorrent.contrib.machinedata.data.MachineKey;
 import com.datatorrent.lib.util.KeyValPair;
-import com.datatorrent.lib.util.TimeBucketKey;
 import com.datatorrent.contrib.machinedata.data.AverageData;
+
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,13 +37,15 @@ import java.util.Map;
 */
 public class AlertGeneratorOperator extends BaseOperator implements InputOperator
 {
-  public transient DefaultOutputPort<KeyValPair<TimeBucketKey, Map<String, AverageData>>> alertPort
-           = new DefaultOutputPort<KeyValPair<TimeBucketKey, Map<String, AverageData>>>();
+  public transient DefaultOutputPort<KeyValPair<MachineKey, Map<String, AverageData>>> alertPort
+           = new DefaultOutputPort<KeyValPair<MachineKey, Map<String, AverageData>>>();
 
     public transient DefaultOutputPort<MachineInfo> alertMachineInfoPort
             = new DefaultOutputPort<MachineInfo>();
 
-  private KeyValPair<TimeBucketKey, Map<String, AverageData>> alertPair = null;
+  private KeyValPair<MachineKey, Map<String, AverageData>> alertPair = null;
+  private static DateFormat minuteDateFormat = new SimpleDateFormat("HHmm");
+  private static Calendar calendar = Calendar.getInstance();
 
   @Override
   public void emitTuples()
@@ -51,7 +56,12 @@ public class AlertGeneratorOperator extends BaseOperator implements InputOperato
   public void endWindow()
   {
     if (alertPair != null) {
-      alertPair.getKey().setTime(Calendar.getInstance());
+       
+      Date date = calendar.getTime();
+      String minute = minuteDateFormat.format(date);
+      int day = calendar.get(Calendar.DAY_OF_MONTH);
+      alertPair.getKey().setTimeKey(minute);
+      alertPair.getKey().setDay(day);
       alertPort.emit(alertPair);
     }
   }
@@ -59,10 +69,13 @@ public class AlertGeneratorOperator extends BaseOperator implements InputOperato
   public void setAlert(String alertKey) {
     String[] tokens = alertKey.split(",");
     if (tokens.length == 2) {
+      Date date = calendar.getTime();
+      String minute = minuteDateFormat.format(date);
+      int day = calendar.get(Calendar.DAY_OF_MONTH);
       String key = tokens[0];
       String dim = tokens[1];
       Integer idim = Integer.parseInt(dim);
-      MachineKey machineKey = new MachineKey(Calendar.getInstance(), TimeBucketKey.TIMESPEC_MINUTE_SPEC);
+      MachineKey machineKey = new MachineKey(minute,day);
       parseMachineKey(key, machineKey);
 
       int cpu = 50, ram = 50, hdd = 50;
@@ -78,7 +91,7 @@ public class AlertGeneratorOperator extends BaseOperator implements InputOperato
       averageMap.put("ram", ramAverageData);
       AverageData hddAverageData = new AverageData(((long)hdd*hddcount), hddcount);
       averageMap.put("hdd", hddAverageData);
-      alertPair = new KeyValPair<TimeBucketKey, Map<String, AverageData>>(machineKey, averageMap);
+      alertPair = new KeyValPair<MachineKey, Map<String, AverageData>>(machineKey, averageMap);
       alertPort.emit(alertPair);
     }
   }

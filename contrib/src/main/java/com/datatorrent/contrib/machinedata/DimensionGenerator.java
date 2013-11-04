@@ -96,7 +96,7 @@ public class DimensionGenerator extends BaseOperator
     int random = 0; // this is added to make the data more random for different dimension combinations
 
     for (int i = 0; i < 64; i++) {
-      MachineKey machineKey = new MachineKey(calendar, MachineKey.TIMESPEC_MINUTE_SPEC);
+      MachineKey machineKey = new MachineKey(tupleKey.getTimeKey(),tupleKey.getDay());    
       if ((i & 1) != 0) {
         machineKey.setCustomer(tupleKey.getCustomer());
         random += machineKey.getCustomer();

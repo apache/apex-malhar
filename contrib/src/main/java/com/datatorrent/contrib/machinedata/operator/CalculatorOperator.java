@@ -22,7 +22,6 @@ import com.datatorrent.contrib.machinedata.data.*;
 import com.datatorrent.contrib.machinedata.util.DataTable;
 import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.lib.util.KryoSerializableStreamCodec;
-import com.datatorrent.lib.util.TimeBucketKey;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -43,7 +42,7 @@ import java.util.Map;
  */
 public class CalculatorOperator extends BaseOperator {
 
-    private final DataTable<TimeBucketKey,ResourceType,List<Integer>> data= new DataTable<TimeBucketKey,ResourceType,List<Integer>>();
+    private final DataTable<MachineKey,ResourceType,List<Integer>> data= new DataTable<MachineKey,ResourceType,List<Integer>>();
 
     @Min(1)
     @Max(99)
@@ -74,16 +73,16 @@ public class CalculatorOperator extends BaseOperator {
     } ;
 
     @OutputPortFieldAnnotation(name="percentileOutputPort")
-    public final transient DefaultOutputPort<KeyValPair<TimeBucketKey, Map<ResourceType, Double>>> percentileOutputPort =
-            new DefaultOutputPort<KeyValPair<TimeBucketKey, Map<ResourceType, Double>>>();
+    public final transient DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, Double>>> percentileOutputPort =
+            new DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, Double>>>();
 
     @OutputPortFieldAnnotation(name="sdOutputPort")
-    public final transient DefaultOutputPort<KeyValPair<TimeBucketKey, Map<ResourceType, Double>>> sdOutputPort =
-            new DefaultOutputPort<KeyValPair<TimeBucketKey, Map<ResourceType, Double>>>();
+    public final transient DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, Double>>> sdOutputPort =
+            new DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, Double>>>();
 
     @OutputPortFieldAnnotation(name = "maxOutputPort")
-    public final transient DefaultOutputPort<KeyValPair<TimeBucketKey, Map<ResourceType, Integer>>> maxOutputPort =
-            new DefaultOutputPort<KeyValPair<TimeBucketKey, Map<ResourceType, Integer>>>();
+    public final transient DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, Integer>>> maxOutputPort =
+            new DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, Integer>>>();
 
     @OutputPortFieldAnnotation(name="smtpOutputPort")
     public transient DefaultOutputPort<String> smtpAlert = new DefaultOutputPort<String>();
@@ -104,7 +103,7 @@ public class CalculatorOperator extends BaseOperator {
     public void endWindow() {
 
         if(computePercentile){
-            for (TimeBucketKey machineKey: data.rowKeySet()){
+            for (MachineKey machineKey: data.rowKeySet()){
                 Collections.sort(data.get(machineKey, ResourceType.CPU));
                 Collections.sort(data.get(machineKey, ResourceType.RAM));
                 Collections.sort(data.get(machineKey, ResourceType.HDD));
@@ -113,7 +112,7 @@ public class CalculatorOperator extends BaseOperator {
                 percentileData.put(ResourceType.CPU, getKthPercentile(data.get(machineKey, ResourceType.CPU)));
                 percentileData.put(ResourceType.RAM, getKthPercentile(data.get(machineKey, ResourceType.RAM)));
                 percentileData.put(ResourceType.HDD, getKthPercentile(data.get(machineKey, ResourceType.HDD)));
-                percentileOutputPort.emit(new KeyValPair<TimeBucketKey, Map<ResourceType, Double>>(machineKey, percentileData));
+                percentileOutputPort.emit(new KeyValPair<MachineKey, Map<ResourceType, Double>>(machineKey, percentileData));
 
                 for (ResourceType resourceType: percentileData.keySet()){
                     double percentileValue= percentileData.get(resourceType);
@@ -124,14 +123,14 @@ public class CalculatorOperator extends BaseOperator {
             }
         }
         if (computeSD) {
-            for (TimeBucketKey machineKey : data.rowKeySet()) {
+            for (MachineKey machineKey : data.rowKeySet()) {
 
                 Map<ResourceType, Double> sdData = Maps.newHashMap();
 
                 for (ResourceType resourceType : ResourceType.values()) {
                     sdData.put(resourceType, getSD(data.get(machineKey, resourceType)));
                 }
-                sdOutputPort.emit(new KeyValPair<TimeBucketKey, Map<ResourceType, Double>>(machineKey, sdData));
+                sdOutputPort.emit(new KeyValPair<MachineKey, Map<ResourceType, Double>>(machineKey, sdData));
 
                 for (ResourceType resourceType : sdData.keySet()) {
                     double sdValue = sdData.get(resourceType);
@@ -142,14 +141,14 @@ public class CalculatorOperator extends BaseOperator {
             }
         }
         if(computeMax){
-            for (TimeBucketKey machineKey: data.rowKeySet()){
+            for (MachineKey machineKey: data.rowKeySet()){
 
                 Map<ResourceType, Integer> maxData= Maps.newHashMap();
                 maxData.put(ResourceType.CPU, Collections.max(data.get(machineKey, ResourceType.CPU)));
                 maxData.put(ResourceType.RAM, Collections.max(data.get(machineKey, ResourceType.RAM)));
                 maxData.put(ResourceType.HDD, Collections.max(data.get(machineKey, ResourceType.HDD)));
 
-                maxOutputPort.emit(new KeyValPair<TimeBucketKey, Map<ResourceType,Integer>>(machineKey, maxData));
+                maxOutputPort.emit(new KeyValPair<MachineKey, Map<ResourceType,Integer>>(machineKey, maxData));
 
                 for (ResourceType resourceType : maxData.keySet()) {
                     double sdValue = maxData.get(resourceType).doubleValue();
@@ -163,10 +162,10 @@ public class CalculatorOperator extends BaseOperator {
     }
 
 
-    private void emitAlert(ResourceType type, TimeBucketKey machineKey,double alertVal, String prefix){
+    private void emitAlert(ResourceType type, MachineKey machineKey,double alertVal, String prefix){
         BigDecimal decimalVal=new BigDecimal(alertVal);
         decimalVal.setScale(2,BigDecimal.ROUND_HALF_UP);
-        String alertTime= dateFormat.format(machineKey.getTime().getTime());
+        String alertTime= machineKey.getDay() + machineKey.getTimeKey();
         smtpAlert.emit(prefix +"-"+ type.toString().toUpperCase()+ " alert at " + alertTime+ " " + type+
                 " usage breached current usage: " + decimalVal.doubleValue()
                 + "% threshold: " + percentileThreshold +"%\n\n" +machineKey);
