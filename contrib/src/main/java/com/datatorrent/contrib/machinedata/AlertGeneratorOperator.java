@@ -58,9 +58,9 @@ public class AlertGeneratorOperator extends BaseOperator implements InputOperato
     if (alertPair != null) {
        
       Date date = calendar.getTime();
-      String minute = minuteDateFormat.format(date);
+      String timeKey = minuteDateFormat.format(date);
       int day = calendar.get(Calendar.DAY_OF_MONTH);
-      alertPair.getKey().setTimeKey(minute);
+      alertPair.getKey().setTimeKey(timeKey);
       alertPair.getKey().setDay(day);
       alertPort.emit(alertPair);
     }
@@ -70,12 +70,12 @@ public class AlertGeneratorOperator extends BaseOperator implements InputOperato
     String[] tokens = alertKey.split(",");
     if (tokens.length == 2) {
       Date date = calendar.getTime();
-      String minute = minuteDateFormat.format(date);
+      String timeKey = minuteDateFormat.format(date);
       int day = calendar.get(Calendar.DAY_OF_MONTH);
       String key = tokens[0];
       String dim = tokens[1];
       Integer idim = Integer.parseInt(dim);
-      MachineKey machineKey = new MachineKey(minute,day);
+      MachineKey machineKey = new MachineKey(timeKey,day);
       parseMachineKey(key, machineKey);
 
       int cpu = 50, ram = 50, hdd = 50;

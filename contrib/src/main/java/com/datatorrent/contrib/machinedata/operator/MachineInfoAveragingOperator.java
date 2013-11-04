@@ -144,10 +144,10 @@ public class MachineInfoAveragingOperator extends BaseOperator
     calendar.setTimeInMillis(timestamp);
     DateFormat minuteDateFormat = new SimpleDateFormat("HHmm");
     Date date = calendar.getTime();
-    String minute = minuteDateFormat.format(date);
+    String timeKey = minuteDateFormat.format(date);
     int day = calendar.get(Calendar.DAY_OF_MONTH);
 
-    MachineKey alertKey = new MachineKey(minute,day);
+    MachineKey alertKey = new MachineKey(timeKey,day);
     alertKey.setCustomer(1);
     alertKey.setProduct(5);
     alertKey.setOs(10);
