@@ -59,36 +59,36 @@ h4.ui-pnotify-title {
     cursor: pointer;
 }
 
-.machine-nav select {
+.params-nav select {
     width: 100%;
 }
 
-.machine-chart-title {
+.chart-title {
     text-align: center;
 }
 
-.machine-line-chart {
+.line-chart {
     height: 300px;
 }
 
-.machine-response {
+.network-response {
     height: 30px;
 }
 
-.machine-response-label {
+.network-response-label {
     display: inline-block;
     font-weight: bold;
     vertical-align: middle;
 }
 
-.machine-response-stat {
+.network-response-stat {
     display: inline-block;
     width: 100px;
     overflow: hidden;
     vertical-align: middle;
 }
 
-.machine-response-loading {
+.network-response-loading {
     background-color: yellow;
 }
 
