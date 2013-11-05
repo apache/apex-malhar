@@ -78,6 +78,10 @@ public class HighlevelKafkaConsumer extends KafkaConsumer
   public void create()
   {
     super.create();
+    // This is important to let kafka know how to distribute the reads among different consumers in same consumer group
+    // Don't reuse any id for recovery to avoid rebalancing error because there is some delay for zookeeper to 
+    // find out the old consumer is dead and delete the entry even new consumer is back online
+    consumerConfig.put("consumer.id", "consumer" + System.currentTimeMillis());
     standardConsumer = kafka.consumer.Consumer.createJavaConsumerConnector(new ConsumerConfig(consumerConfig));
   }
 
@@ -128,12 +132,17 @@ public class HighlevelKafkaConsumer extends KafkaConsumer
     Properties newProp = new Properties();
     // Copy most properties from the template consumer. For example the "group.id" should be set to same value 
     newProp.putAll(consumerConfig);
-    // This is important to let kafka know how to distribute the reads among different consumers in same consumer group 
-    newProp.put("consumer.id", newProp.get("group.id") + HIGHLEVEL_CONSUMER_ID_SUFFIX + partitionId);
     HighlevelKafkaConsumer newConsumer = new HighlevelKafkaConsumer(newProp);
     newConsumer.setBrokerSet(this.brokerSet);
     newConsumer.setTopic(this.topic);
     return newConsumer;
+  }
+
+  @Override
+  protected void commitOffset()
+  {
+    // commit the offsets at checkpoint so that high-level consumer don't have to receive too many duplicate messages
+    standardConsumer.commitOffsets();
   }
   
 }
