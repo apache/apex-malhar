@@ -67,7 +67,23 @@ angular.module('rest', ['ng', 'restangular'])
                 });
 
                 return promise;
-            }
+            },
+
+          getDimensionsData: function (query) {
+            var promise = Restangular.all('dimensions').getList(query);
+
+            promise.then(null, function (response) {
+              jQuery.pnotify({
+                title: 'Error',
+                text: 'Error getting data from server. Status Code: ' + response.status,
+                type: 'error',
+                icon: false,
+                hide: false
+              });
+            });
+
+            return promise;
+          }
         };
     }])
     .run(function(Restangular) {

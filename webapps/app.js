@@ -21,7 +21,7 @@ var httpProxy = require('http-proxy');
 var config = require('./config');
 
 var machine = require('./routes/machine');
-
+var adsdimensions = require('./routes/adsdimensions');
 var fraud = require('./routes/fraud');
 
 var app = express();
@@ -45,8 +45,8 @@ if ('production' == app.get('env')) {
 }
 
 
-// Machine Generated Data Demo Demo
 app.get('/machine', machine.data);
+app.get('/dimensions', adsdimensions.data);
 app.get('/fraud/alertCount', fraud.getAlertCount);
 app.get('/fraud/randomStats', fraud.getRecentStats);
 app.get('/ws/*', function(req, res) {

@@ -22,7 +22,7 @@
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild -->
 </head>
-<body ng-app="mobile">
+<body ng-app="dimensions">
 <!--[if lt IE 7]>
 <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
 <![endif]-->
@@ -44,9 +44,9 @@
             <div class="nav-collapse collapse">
                 <ul class="nav">
                     <li><a href="/twitter.html">Twitter</a></li>
-                    <li class="active"><a href="#">Mobile</a></li>
+                    <li><a href="/mobile.html">Mobile</a></li>
                     <li><a href="/machine.html">Machine</a></li>
-                    <li><a href="/dimensions.html">Ads</a></li>
+                    <li class="active"><a href="#">Ads</a></li>
                     <li><a href="/fraud.html">Fraud</a></li>
                 </ul>
             </div><!--/.nav-collapse -->
@@ -83,7 +83,9 @@
 <script src="bower_components/ng-grid/ng-grid-2.0.7.debug.js"></script>
 <script src="bower_components/d3/d3.js"></script>
 <script src="bower_components/underscore/underscore.js"></script>
+<script src="bower_components/uri.js/src/URI.js"></script>
 <script src="scripts/vendor/jsbn.js"></script>
+<script src="scripts/vendor/gauge.js"></script>
 <script src="scripts/vendor/jquery.pnotify.js"></script>
 <!-- endbuild -->
 
@@ -92,15 +94,16 @@
 <script src="scripts/app.js"></script>
 <script src="scripts/services/rest.js"></script>
 <script src="scripts/services/socket.js"></script>
-<script src="scripts/directives/barChart.js"></script>
 <script src="scripts/directives/stat.js"></script>
+<script src="scripts/directives/lineChart.js"></script>
 <script src="scripts/filters/elapsed.js"></script>
-<script src="scripts/controllers/mobile.js"></script>
+<script src="scripts/controllers/dimensions.js"></script>
 <!-- endbuild -->
 
-<script src="http://maps.googleapis.com/maps/api/js?sensor=false&language=en"></script>
-<script src="scripts/vendor/angular-google-maps.js"></script>
-<script src="scripts/vendor/markerwithlabel.js"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+    google.load('visualization', '1', {'packages':['corechart']});
+</script>
 
 </body>
 </html>
