@@ -43,11 +43,9 @@ public class DimensionGenerator extends BaseOperator
 
   public transient DefaultOutputPort<MachineInfo> outputInline = new DefaultOutputPort<MachineInfo>();
   public transient DefaultOutputPort<MachineInfo> output = new DefaultOutputPort<MachineInfo>();
-  public transient DefaultOutputPort<String> smtpAlert = new DefaultOutputPort<String>();
   private static final Random randomGen = new Random();
   private int threshold=90;
-  public transient DefaultOutputPort<KeyValPair<AlertKey, Map<String, Integer>>> alert = new DefaultOutputPort<KeyValPair<AlertKey, Map<String, Integer>>>();
-
+  
   public final transient DefaultInputPort<MachineInfo> inputPort = new DefaultInputPort<MachineInfo>() {
 
     @Override
@@ -81,8 +79,6 @@ public class DimensionGenerator extends BaseOperator
   {
     this.threshold = threshold;
   }
-
-
 
   /**
    * This function takes in the tuple from upstream operator and generates tuples with different dimension combinations

@@ -15,15 +15,15 @@
  */
 package com.datatorrent.contrib.machinedata.data;
 
-
 /**
+ * This class stores the information about various softwares, deviceIds, OS of the device
  * <p>
  * MachineKey class.
  * </p>
- *
+ * 
  * @since 0.3.5
  */
-public class MachineKey 
+public class MachineKey
 {
 
   private Integer customer;
@@ -34,19 +34,43 @@ public class MachineKey
   private Integer software3;
   private Integer deviceId;
   private String timeKey;
-  private Integer day; 
+  private Integer day;
 
+  /**
+   * This constructor takes the format in which time has to be captured and the day when this instance is created
+   * 
+   * @param timeKey the format in which time has to be captured
+   * @param day the day when this instance is created
+   */
   public MachineKey(String timeKey, Integer day)
   {
     this.timeKey = timeKey;
     this.day = day;
   }
 
+  /**
+   * This is default constructor
+   */
   public MachineKey()
-  { 
+  {
   }
 
-  public MachineKey(String timeKey, Integer day,Integer customer, Integer product, Integer os, Integer software1, Integer software2, Integer software3, Integer deviceId)
+  /**
+   * This constructor takes format in which time has to be captured, the day when this instance is created, the customer
+   * id, product Id on the device, OS version on the device, software1 version on the device, software2 version on the device,
+   * software3 version on the device, deviceId on the device,  
+   * 
+   * @param timeKey the format in which time has to be captured
+   * @param day the day when this instance is created
+   * @param customer the customer Id
+   * @param product product Id
+   * @param os OS version
+   * @param software1 software1 version
+   * @param software2 software2 version
+   * @param software3 software3 version
+   * @param deviceId deviceId
+   */
+  public MachineKey(String timeKey, Integer day, Integer customer, Integer product, Integer os, Integer software1, Integer software2, Integer software3, Integer deviceId)
   {
     this.timeKey = timeKey;
     this.day = day;
@@ -59,81 +83,171 @@ public class MachineKey
     this.deviceId = deviceId;
   }
 
-  public Integer getCustomer()
-  {
-    return customer;
-  }
-
+  /**
+   * This method returns the format in which the time is captured. The time is the time when this instance of MachineKey
+   * was generated. For e.g. HHmm to capture Hour and minute
+   * 
+   * @return
+   */
   public String getTimeKey()
   {
     return timeKey;
   }
 
+  /**
+   * This method sets the format in which the time is captured. The time is the time when this instance of MachineKey
+   * was generated. For e.g. HHmm to capture Hour and minute
+   * 
+   * @param timeKey
+   *          the value of format
+   */
   public void setTimeKey(String timeKey)
   {
     this.timeKey = timeKey;
   }
 
+  /**
+   * This method returns the day of the month when this instance of MachineKey was generated
+   * 
+   * @return
+   */
   public Integer getDay()
   {
     return day;
   }
 
+  /**
+   * This method sets the day of the month when this instance of MachineKey was generated
+   * 
+   * @param day
+   *          the day of the month
+   */
   public void setDay(Integer day)
   {
     this.day = day;
   }
 
+  /**
+   * This method returns the customer Id
+   * 
+   * @return
+   */
+  public Integer getCustomer()
+  {
+    return customer;
+  }
+
+  /**
+   * This method sets the customer Id
+   * 
+   * @param customer
+   *          the customer Id
+   */
   public void setCustomer(Integer customer)
   {
     this.customer = customer;
   }
 
+  /**
+   * This method returns product on the device
+   * 
+   * @return
+   */
   public Integer getProduct()
   {
     return product;
   }
 
+  /**
+   * This method sets the product on the device
+   * 
+   * @param product
+   *          the value of product
+   */
   public void setProduct(Integer product)
   {
     this.product = product;
   }
 
+  /**
+   * This method returns the OS version on the device
+   * 
+   * @return
+   */
   public Integer getOs()
   {
     return os;
   }
 
+  /**
+   * This method sets the OS version on the device
+   * 
+   * @param os
+   *          OS version
+   */
   public void setOs(Integer os)
   {
     this.os = os;
   }
 
+  /**
+   * This method returns the version of the software1 on the device
+   * 
+   * @return
+   */
   public Integer getSoftware1()
   {
     return software1;
   }
 
+  /**
+   * This method sets the version of the software1 on the device
+   * 
+   * @param software3
+   *          the version of the software1
+   */
   public void setSoftware1(Integer software1)
   {
     this.software1 = software1;
   }
 
+  /**
+   * This method returns the version of the software2 on the device
+   * 
+   * @return
+   */
   public Integer getSoftware2()
   {
     return software2;
   }
 
+  /**
+   * This method sets the version of the software2 on the device
+   * 
+   * @param software2
+   *          the version of the software2
+   */
   public void setSoftware2(Integer software2)
   {
     this.software2 = software2;
   }
 
+  /**
+   * This method returns the version of the software3 on the device
+   * 
+   * @return
+   */
   public Integer getSoftware3()
   {
     return software3;
   }
 
+  /**
+   * This method sets the version of the software3 on the device
+   * 
+   * @param software3
+   *          the version of the software3
+   */
   public void setSoftware3(Integer software3)
   {
     this.software3 = software3;
@@ -145,7 +259,7 @@ public class MachineKey
     int key = 0;
     if (customer != null) {
       key |= (1 << 31);
-      key ^= customer ;
+      key ^= customer;
     }
     if (product != null) {
       key |= (1 << 30);
@@ -179,7 +293,7 @@ public class MachineKey
       key |= (1 << 23);
       key ^= day;
     }
-    
+
     return key;
   }
 
@@ -201,6 +315,7 @@ public class MachineKey
       return true;
     return false;
   }
+
   private boolean checkStringEqual(String a, String b)
   {
     if ((a == null) && (b == null))
@@ -231,11 +346,19 @@ public class MachineKey
     return sb.toString();
   }
 
+  /**
+   * This method returns the deviceId of the device
+   */
   public Integer getDeviceId()
   {
     return deviceId;
   }
 
+  /**
+   * This method sets the deviceId of the device
+   * 
+   * @param deviceId
+   */
   public void setDeviceId(Integer deviceId)
   {
     this.deviceId = deviceId;

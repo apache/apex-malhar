@@ -18,7 +18,6 @@ package com.datatorrent.contrib.machinedata.operator;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.contrib.machinedata.AlertKey;
 import com.datatorrent.contrib.machinedata.data.MachineInfo;
 import com.datatorrent.contrib.machinedata.data.MachineKey;
 import com.datatorrent.contrib.machinedata.data.AverageData;
@@ -38,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * This class calculates the average for various resources across different devices for a given key
  * <p>MachineInfoAveragingOperator class.</p>
  *
  * @since 0.9.0
@@ -69,16 +69,28 @@ public class MachineInfoAveragingOperator extends BaseOperator
     }
   };
 
+  /**
+   * This method returns the threshold value
+   * @return
+   */
   public int getThreshold()
   {
     return threshold;
   }
 
+  /**
+   * This method sets the threshold value. If the average usage for any Resource is above this for a given key, then the alert is sent 
+   * @param threshold the threshold value
+   */
   public void setThreshold(int threshold)
   {
     this.threshold = threshold;
   }
 
+  /**
+   * This adds the given tuple to the dataMap
+   * @param tuple input tuple
+   */
   private void addTuple(KeyHashValPair<MachineKey, Map<String, AverageData>> tuple)
   {
     MachineKey key = tuple.getKey();
@@ -137,6 +149,10 @@ public class MachineInfoAveragingOperator extends BaseOperator
     }
   }
 
+  /**
+   * This method is used to artificially generate alerts
+   * @param genAlert
+   */
   public void setGenAlert(boolean genAlert)
   {
     Calendar calendar = Calendar.getInstance();
@@ -166,6 +182,11 @@ public class MachineInfoAveragingOperator extends BaseOperator
     smtpAlert.emit("HDD Alert: HDD Usage threshold (" + threshold + ") breached: current % usage: " + getKeyInfo(alertKey));
   }
 
+  /**
+   * This method returns the String for a given MachineKey instance
+   * @param key MachineKey instance that needs to be converted to string
+   * @return
+   */
   private String getKeyInfo(MachineKey key)
   {
     StringBuilder sb = new StringBuilder();
