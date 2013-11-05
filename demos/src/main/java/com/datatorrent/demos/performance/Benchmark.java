@@ -23,32 +23,35 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 
 /**
- * Example of application configuration in Java.<p>
+ * Benchmark for operator locality.<p>
  *
- * @since 0.3.2
+ * @since 0.9.0
  */
-public abstract class AbstractApplication implements StreamingApplication
+public abstract class Benchmark
 {
-  public static final int QUEUE_CAPACITY = 32 * 1024;
-
-  @Override
-  public void populateDAG(DAG dag, Configuration conf)
+  static abstract class AbstractApplication implements StreamingApplication
   {
-    RandomWordInputModule wordGenerator = dag.addOperator("wordGenerator", RandomWordInputModule.class);
-    dag.getMeta(wordGenerator).getMeta(wordGenerator.output).getAttributes().put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
+    public static final int QUEUE_CAPACITY = 32 * 1024;
 
-    WordCountOperator<byte[]> counter = dag.addOperator("counter", new WordCountOperator<byte[]>());
-    dag.getMeta(counter).getMeta(counter.input).getAttributes().put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
+    @Override
+    public void populateDAG(DAG dag, Configuration conf)
+    {
+      RandomWordInputModule wordGenerator = dag.addOperator("wordGenerator", RandomWordInputModule.class);
+      dag.getMeta(wordGenerator).getMeta(wordGenerator.output).getAttributes().put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
 
-    dag.addStream("Generator2Counter", wordGenerator.output, counter.input).setLocality(getLocality());
+      WordCountOperator<byte[]> counter = dag.addOperator("counter", new WordCountOperator<byte[]>());
+      dag.getMeta(counter).getMeta(counter.input).getAttributes().put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
+
+      dag.addStream("Generator2Counter", wordGenerator.output, counter.input).setLocality(getLocality());
+    }
+
+    public abstract Locality getLocality();
   }
-
-  public abstract Locality getLocality();
-
+  
   /**
    * Let the engine decide how to best place the 2 operators.
    */
-  public static class NoLocalityApplication extends AbstractApplication
+  public static class NoLocality extends AbstractApplication
   {
     @Override
     public Locality getLocality()
@@ -61,7 +64,7 @@ public abstract class AbstractApplication implements StreamingApplication
   /**
    * Place the 2 operators so that they are in the same Rack.
    */
-  public static class RackLocalApplication extends AbstractApplication
+  public static class RackLocal extends AbstractApplication
   {
     @Override
     public Locality getLocality()
@@ -74,7 +77,7 @@ public abstract class AbstractApplication implements StreamingApplication
   /**
    * Place the 2 operators so that they are in the same node.
    */
-  public static class NodeLocalApplication extends AbstractApplication
+  public static class NodeLocal extends AbstractApplication
   {
     @Override
     public Locality getLocality()
@@ -87,7 +90,7 @@ public abstract class AbstractApplication implements StreamingApplication
   /**
    * Place the 2 operators so that they are in the same container.
    */
-  public static class ContainerLocalApplication extends AbstractApplication
+  public static class ContainerLocal extends AbstractApplication
   {
     @Override
     public Locality getLocality()
@@ -100,7 +103,7 @@ public abstract class AbstractApplication implements StreamingApplication
   /**
    * Place the 2 operators so that they are in the same thread.
    */
-  public static class ThreadLocalApplication extends AbstractApplication
+  public static class ThreadLocal extends AbstractApplication
   {
     @Override
     public Locality getLocality()

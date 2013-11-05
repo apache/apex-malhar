@@ -27,14 +27,14 @@ import com.datatorrent.api.LocalMode;
 /**
  * Test the DAG declaration in local mode.
  */
-public class ApplicationTest
+public class BenchmarkTest
 {
   @Test
   public void testApplication() throws IOException, Exception
   {
     for (final Locality l : Locality.values()) {
       logger.debug("Running the with {} locality", l);
-      LocalMode.runApp(new AbstractApplication()
+      LocalMode.runApp(new Benchmark.AbstractApplication ()
       {
         @Override
         public Locality getLocality()
@@ -46,5 +46,5 @@ public class ApplicationTest
     }
   }
 
-  private static final Logger logger = LoggerFactory.getLogger(ApplicationTest.class);
+  private static final Logger logger = LoggerFactory.getLogger(BenchmarkTest.class);
 }
