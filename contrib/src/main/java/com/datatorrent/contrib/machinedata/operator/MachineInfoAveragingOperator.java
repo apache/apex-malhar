@@ -37,8 +37,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
-*
-*/
+ * <p>MachineInfoAveragingOperator class.</p>
+ *
+ * @since 0.9.0
+ */
 @SuppressWarnings("unused")
 public class MachineInfoAveragingOperator extends BaseOperator
 {

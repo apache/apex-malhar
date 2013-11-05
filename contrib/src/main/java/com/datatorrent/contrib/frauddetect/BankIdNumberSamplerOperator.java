@@ -37,6 +37,7 @@ import org.codehaus.jackson.map.ObjectMapper;
  * being used for more than defined number of transactions. Output the data as needed
  * by Mongo output operator
  *
+ * @since 0.9.0
  */
 public class BankIdNumberSamplerOperator extends BaseOperator
 {

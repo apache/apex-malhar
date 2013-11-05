@@ -33,6 +33,11 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 
+/**
+ * <p>LineIndexer class.</p>
+ *
+ * @since 0.9.0
+ */
 public class LineIndexer {
 
   public static class LineIndexMapper extends MapReduceBase

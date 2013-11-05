@@ -20,6 +20,7 @@ import java.io.Serializable;
 /**
  * POJO for BIN Alert related data.
  *
+ * @since 0.9.0
  */
 public class MerchantTransaction implements Serializable
 {

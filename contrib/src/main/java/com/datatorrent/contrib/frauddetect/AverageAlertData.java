@@ -18,6 +18,7 @@ package com.datatorrent.contrib.frauddetect;
 /**
  * POJO to capture average alert data.
  *
+ * @since 0.9.0
  */
 public class AverageAlertData
 {

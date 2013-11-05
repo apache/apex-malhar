@@ -56,6 +56,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 
+/**
+ * <p>MapOperator class.</p>
+ *
+ * @since 0.9.0
+ */
 @ShipContainingJars(classes = { org.apache.hadoop.mapred.Reporter.class })
 @SuppressWarnings({ "unchecked", "deprecation" })
 public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator implements PartitionableOperator

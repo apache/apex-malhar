@@ -11,6 +11,11 @@ import com.datatorrent.contrib.machinedata.data.MachineKey;
 import com.datatorrent.lib.util.KeyHashValPair;
 
 
+/**
+ * <p>MachineInfoAveragingUnifier class.</p>
+ *
+ * @since 0.9.0
+ */
 public class MachineInfoAveragingUnifier implements Unifier<KeyHashValPair<MachineKey, Map<String, AverageData>>>
 {
 

@@ -34,6 +34,7 @@ import java.util.List;
 /**
  * Operator to write data into MongoDB
  *
+ * @since 0.9.0
  */
 @ShipContainingJars(classes = {com.mongodb.MongoClient.class})
 public class MongoDBOutputOperator extends BaseOperator {

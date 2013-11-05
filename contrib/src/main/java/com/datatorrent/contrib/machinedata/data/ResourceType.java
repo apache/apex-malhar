@@ -20,6 +20,7 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 
 /**
+ * <p>ResourceType class.</p>
  *
  * @since 0.3.5
  */

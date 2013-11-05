@@ -18,6 +18,7 @@ package com.datatorrent.contrib.frauddetect;
 /**
  * POJO to capture data related to alerts for credit card number.
  *
+ * @since 0.9.0
  */
 public class CreditCardAlertData
 {

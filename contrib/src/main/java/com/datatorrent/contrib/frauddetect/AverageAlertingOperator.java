@@ -37,6 +37,7 @@ import java.util.Map;
  * Generate an alert if the current transaction amount received on tx input port for the given key is greater by n %
  * than the SMA of the last application window as received on the SMA input port.
  *
+ * @since 0.9.0
  */
 public class AverageAlertingOperator extends BaseOperator
 {

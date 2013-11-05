@@ -33,6 +33,11 @@ import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.fs.HdfsOutputOperator;
 
+/**
+ * <p>Abstract MapReduceApplication class.</p>
+ *
+ * @since 0.9.0
+ */
 @SuppressWarnings({ "deprecation" })
 public abstract class MapReduceApplication<K1, V1, K2, V2> implements StreamingApplication
 {

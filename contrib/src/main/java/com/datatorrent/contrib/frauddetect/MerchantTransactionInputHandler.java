@@ -27,6 +27,7 @@ import java.util.Map;
  * Common utility class that can be used by all other operators to handle user input
  * captured from the Web socket input port.
  *
+ * @since 0.9.0
  */
 public class MerchantTransactionInputHandler extends BaseOperator
 {

@@ -23,6 +23,7 @@ import java.util.Calendar;
 /**
  * A time-based key for merchant data.
  *
+ * @since 0.9.0
  */
 public class MerchantKey implements Serializable
 {

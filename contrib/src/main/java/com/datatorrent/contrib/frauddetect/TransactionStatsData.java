@@ -18,6 +18,7 @@ package com.datatorrent.contrib.frauddetect;
 /**
  * POJO to capture transaction data related to min, max, sma, std-dev, variance.
  *
+ * @since 0.9.0
  */
 public class TransactionStatsData
 {

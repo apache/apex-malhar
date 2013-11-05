@@ -18,6 +18,7 @@ package com.datatorrent.contrib.frauddetect;
 /**
  * POJO to capture data related to alerts for repetitive bank id number data usage.
  *
+ * @since 0.9.0
  */
 public class BankIdNumberAlertData
 {

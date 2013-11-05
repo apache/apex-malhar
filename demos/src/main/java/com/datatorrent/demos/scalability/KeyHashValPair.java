@@ -4,6 +4,11 @@ import java.util.Map;
 
 import com.datatorrent.lib.util.KeyValPair;
 
+/**
+ * <p>KeyHashValPair class.</p>
+ *
+ * @since 0.9.0
+ */
 public class KeyHashValPair<V> extends KeyValPair<AggrKey, V>
 {
 

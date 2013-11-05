@@ -17,7 +17,8 @@ package com.datatorrent.contrib.frauddetect;
 
 /**
  * Credit Card Data
- * 
+ *
+ * @since 0.9.0
  */
 public class CreditCardData
 {

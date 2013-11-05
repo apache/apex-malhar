@@ -23,7 +23,7 @@ import java.util.Calendar;
  * <p>
  * MachineKey class.
  * </p>
- * 
+ *
  * @since 0.3.5
  */
 public class MachineKey extends TimeBucketKey

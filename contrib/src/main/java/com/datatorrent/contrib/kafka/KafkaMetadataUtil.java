@@ -28,8 +28,10 @@ import kafka.javaapi.consumer.SimpleConsumer;
 
 /**
  * A util class used to retrieve all the metadatas for partitions/topics
- * Every method in the class creates a temporary simple kafka consumer and 
+ * Every method in the class creates a temporary simple kafka consumer and
  * release the resource immediately after retrieving the metadata
+ *
+ * @since 0.9.0
  */
 public class KafkaMetadataUtil
 {

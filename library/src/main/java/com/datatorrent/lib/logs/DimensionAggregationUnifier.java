@@ -25,6 +25,11 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
 
+/**
+ * <p>DimensionAggregationUnifier class.</p>
+ *
+ * @since 0.9.0
+ */
 public class DimensionAggregationUnifier implements Operator
 {
 

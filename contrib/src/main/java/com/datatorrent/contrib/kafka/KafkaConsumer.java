@@ -24,6 +24,8 @@ import kafka.message.Message;
 
 /**
  * Base Kafka Consumer class used by kafka input operator
+ *
+ * @since 0.9.0
  */
 public abstract class KafkaConsumer
 {

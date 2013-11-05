@@ -26,6 +26,7 @@ import java.util.*;
 /**
  * Information tuple generator with randomness.
  *
+ * @since 0.9.0
  */
 public class MerchantTransactionGenerator extends BaseOperator implements InputOperator
 {

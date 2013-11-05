@@ -34,6 +34,7 @@ import org.apache.commons.lang.mutable.MutableLong;
  * A bucket-like operator to accept merchant transaction object and dissipate the
  * transaction amount to the further downstream operator for calculating min, max and std-deviation.
  *
+ * @since 0.9.0
  */
 public class MerchantTransactionBucketOperator extends BaseOperator
 {

@@ -23,6 +23,7 @@ import java.util.Calendar;
 /**
  * Bank Id Number Key
  *
+ * @since 0.9.0
  */
 public class BankIdNumberKey extends TimeBucketKey implements Serializable
 {

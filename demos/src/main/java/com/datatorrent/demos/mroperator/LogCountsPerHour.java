@@ -39,6 +39,11 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Iterator;
 
+/**
+ * <p>LogCountsPerHour class.</p>
+ *
+ * @since 0.9.0
+ */
 public class LogCountsPerHour extends Configured implements Tool {
 
     public static class LogMapClass extends MapReduceBase

@@ -38,7 +38,7 @@ import kafka.message.Message;
  * <li> (-1): create #partition thread and consume the topic in parallel threads</li>
  * <br>
  * <br>
- * 
+ *
  * Load balance: <br>
  * Build-in kafka loadbalancing strategy, Consumers with different consumer.id and same group.id will distribute the reads from different partition<br>
  * There are at most #partition per topic could consuming in parallel
@@ -47,6 +47,8 @@ import kafka.message.Message;
  * Kafka broker failover: <br>
  * Build-in failover strategy, the consumer will pickup the next available syncronized broker to consume data <br>
  * For more information see {@link http://kafka.apache.org/documentation.html#distributionimpl} <br>
+ *
+ * @since 0.9.0
  */
 public class HighlevelKafkaConsumer extends KafkaConsumer
 {

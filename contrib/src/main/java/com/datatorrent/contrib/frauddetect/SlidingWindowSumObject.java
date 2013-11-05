@@ -21,6 +21,7 @@ import org.apache.commons.lang.mutable.MutableDouble;
 /**
  * State object for sliding window sum
  *
+ * @since 0.9.0
  */
 public class SlidingWindowSumObject implements SlidingWindowObject
 {

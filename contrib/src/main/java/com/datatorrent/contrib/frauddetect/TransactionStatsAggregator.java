@@ -31,6 +31,7 @@ import java.util.Map;
 /**
  * Operator to aggregate the min, max, sma, std-dev and variance for the given key.
  *
+ * @since 0.9.0
  */
 public class TransactionStatsAggregator extends BaseOperator
 {

@@ -12,6 +12,11 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator.Unifier;
 
+/**
+ * <p>AdsAggregationOperator class.</p>
+ *
+ * @since 0.9.0
+ */
 public class AdsAggregationOperator implements Unifier<KeyHashValPair<Map<String, MutableDouble>>>
 {
   private static final Logger logger = LoggerFactory.getLogger(AdsAggregationOperator.class);

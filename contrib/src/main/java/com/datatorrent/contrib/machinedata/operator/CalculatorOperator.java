@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * <p>CalculatorOperator class.</p>
  *
  * @since 0.3.5
  */

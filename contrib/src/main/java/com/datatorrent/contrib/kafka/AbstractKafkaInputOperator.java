@@ -47,10 +47,11 @@ import org.slf4j.LoggerFactory;
  *  <b>org.I0Itec.zkclient.ZkClient.class</b>  Kafka client depends on this <br>
  *  <b>scala.ScalaObject.class</b>  Kafka client depends on this <br>
  *  <b>com.yammer.matrics.Metrics.class</b>   Kafka client depends on this <br> <br>
- *  
+ *
  * Each operator can only consume 1 topic<br>
  * If you want partitionable operator refer to {@link AbstractPartitionableKafkaInputOperator}
  *  <br>
+ *
  * @since 0.3.2
  */
 //SimpleConsumer is kafka consumer client used by this operator, zkclient is used by high-level kafka consumer

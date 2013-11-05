@@ -30,9 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <p>
- * MachineInfoAveragingPrerequisitesOperator class.
- * </p>
+ * <p> MachineInfoAveragingPrerequisitesOperator class. </p>
  * 
  * @since 0.3.5
  */

@@ -25,10 +25,10 @@ import kafka.javaapi.PartitionMetadata;
 import com.datatorrent.api.PartitionableOperator;
 
 /**
- * 
+ *
  * This kafka input operator will be automatically partitioned per upstream kafka partition.<br> <br>
  * This is not real dynamic partition, The partition number is decided by number of partition set for the topic in kafka.<br> <br>
- * 
+ *
  * <b>Algorithm:</b> <br>
  * <p>1.Pull the metadata(how many partitions) of the topic from brokerList of {@link KafkaConsumer}</p>
  * <p>2.Create new partition according to how many partitions are there for the topic</p>
@@ -37,7 +37,9 @@ import com.datatorrent.api.PartitionableOperator;
  * <br>
  * <br>
  * <b>Load balance:</b> refer to {@link SimpleKafkaConsumer} and {@link HighlevelKafkaConsumer} <br>
- * <b>Kafka partition failover:</b> refer to {@link SimpleKafkaConsumer} and {@link HighlevelKafkaConsumer} 
+ * <b>Kafka partition failover:</b> refer to {@link SimpleKafkaConsumer} and {@link HighlevelKafkaConsumer}
+ *
+ * @since 0.9.0
  */
 public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKafkaInputOperator<KafkaConsumer> implements PartitionableOperator
 {

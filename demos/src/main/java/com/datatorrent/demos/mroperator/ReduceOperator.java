@@ -38,6 +38,11 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.demos.mroperator.ReporterImpl.ReporterType;
 import com.datatorrent.lib.util.KeyHashValPair;
 
+/**
+ * <p>ReduceOperator class.</p>
+ *
+ * @since 0.9.0
+ */
 @SuppressWarnings({ "deprecation", "unused" })
 public class ReduceOperator<K1, V1, K2, V2> implements Operator {
 	private static final Logger logger = LoggerFactory.getLogger(ReduceOperator.class);

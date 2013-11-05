@@ -35,6 +35,7 @@ import java.util.*;
  * It accepts merchant transaction object and for each CC listed in the transaction(s), checks for the transaction amounts. An alert is raised if the transaction
  * lowAmount is significantly > the lowest amt in this window.
  *
+ * @since 0.9.0
  */
 public class CreditCardAmountSamplerOperator extends BaseOperator
 {

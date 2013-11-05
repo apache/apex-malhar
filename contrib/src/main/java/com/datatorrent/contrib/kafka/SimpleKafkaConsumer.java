@@ -55,7 +55,7 @@ import kafka.message.MessageAndOffset;
  * default value is 3 <br>
  * -1: always retry <br>
  * <br>
- * 
+ *
  * Load balance: <br>
  * <li>Every consumer only sticks to leader broker for particular partition once it's created</li>
  * <li>Once leadership change detected(leader broker failure, or server-side reassignment), it switches to the new leader broker</li>
@@ -67,6 +67,8 @@ import kafka.message.MessageAndOffset;
  * <li>Once broker fail detected, it waits #metadataRefreshInterval to connect to the new leader broker </li>
  * <li>If there are consecutive #metadataRetrievalRetry failures to retrieve the metadata for the topic. It will stop consuming the partition</li>
  * <br>
+ *
+ * @since 0.9.0
  */
 public class SimpleKafkaConsumer extends KafkaConsumer
 {

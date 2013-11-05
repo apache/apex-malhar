@@ -26,7 +26,8 @@ import org.apache.commons.lang.mutable.MutableDouble;
 
 /**
  * Sliding window sum operator
- * 
+ *
+ * @since 0.9.0
  */
 public class SlidingWindowSumKeyVal<K, V extends Number> extends AbstractSlidingWindowKeyVal<K, V, SlidingWindowSumObject>
 {

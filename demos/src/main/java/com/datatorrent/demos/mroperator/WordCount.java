@@ -24,6 +24,11 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.*;
 
+/**
+ * <p>WordCount class.</p>
+ *
+ * @since 0.9.0
+ */
 @SuppressWarnings("deprecation")
 public class WordCount
 {
