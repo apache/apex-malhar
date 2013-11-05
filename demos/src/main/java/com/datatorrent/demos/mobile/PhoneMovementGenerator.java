@@ -180,7 +180,7 @@ public class PhoneMovementGenerator extends BaseOperator
       return;
     try {
       Integer phone = new Integer(phoneStr);
-      registerPhoneHelper(phone);
+      registerSinglePhone(phone);
     } catch (NumberFormatException nfe) {
       log.warn("Invalid no: " + phoneStr);
     }
@@ -197,14 +197,14 @@ public class PhoneMovementGenerator extends BaseOperator
       Integer endPhone = new Integer(endPhoneStr);
       Preconditions.checkArgument(endPhone >= startPhone, "Invalid phone range %s, %s", startPhone, endPhone);
       for (int i = startPhone; i <= endPhone; i++) {
-        registerPhoneHelper(i);
+        registerSinglePhone(i);
       }
     } catch (NumberFormatException nfe) {
       log.warn("Invalid phone range <" + startPhoneStr + "," + endPhoneStr + ">");
     }
   }
 
-  private void registerPhoneHelper(int phone)
+  private void registerSinglePhone(int phone)
   {
     phone_register.add(phone);
     log.debug(String.format("Registered query id with phonenum \"%s\"", phone));
