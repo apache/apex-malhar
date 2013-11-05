@@ -143,4 +143,7 @@ public abstract class KafkaConsumer
 
   protected abstract KafkaConsumer cloneConsumer(int partitionId);
 
+  protected abstract void commitOffset();
+  
+
 }

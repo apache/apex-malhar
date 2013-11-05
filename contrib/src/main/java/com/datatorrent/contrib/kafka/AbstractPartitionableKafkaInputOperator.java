@@ -22,6 +22,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import kafka.javaapi.PartitionMetadata;
+import com.datatorrent.api.CheckpointListener;
 import com.datatorrent.api.PartitionableOperator;
 
 /**
@@ -41,7 +42,7 @@ import com.datatorrent.api.PartitionableOperator;
  *
  * @since 0.9.0
  */
-public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKafkaInputOperator<KafkaConsumer> implements PartitionableOperator
+public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKafkaInputOperator<KafkaConsumer> implements PartitionableOperator, CheckpointListener
 {
   
   private static final Logger logger = LoggerFactory.getLogger(AbstractPartitionableKafkaInputOperator.class);
@@ -80,5 +81,17 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
    * @return
    */
   protected abstract AbstractPartitionableKafkaInputOperator cloneOperator();
+  
+  @Override
+  public void checkpointed(long windowId)
+  {
+    // commit the kafka consummer offset
+    getConsumer().commitOffset();
+  }
+  
+  @Override
+  public void committed(long windowId)
+  {    
+  }
 
 }
