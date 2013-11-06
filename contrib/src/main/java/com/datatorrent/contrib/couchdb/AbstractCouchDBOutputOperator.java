@@ -27,6 +27,12 @@ public abstract class AbstractCouchDBOutputOperator<T> extends AbstractDBOutputO
 
   @Nonnull
   private String dbName;
+
+  /**
+   * when this flag is set the operator will ignore if the document that needs to be
+   * saved in the database is missing revision field. In that case it retrieves the
+   * last revision of that document.
+   */
   private boolean updateRevisionWhenNull = false;
 
   @Override
@@ -53,6 +59,11 @@ public abstract class AbstractCouchDBOutputOperator<T> extends AbstractDBOutputO
     this.password = password;
   }
 
+  /**
+   * Sets the flag which controls whether or not to accept documents which have revision null.
+   *
+   * @param updateRevisionWhenNull when set true, the operator will allow documents which don't have the revision field.
+   */
   public void setUpdateRevisionWhenNull(boolean updateRevisionWhenNull)
   {
     this.updateRevisionWhenNull = updateRevisionWhenNull;
