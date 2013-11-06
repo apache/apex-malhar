@@ -122,7 +122,8 @@ public class AlertEscalationOperator extends BaseOperator implements Partitionab
   @Override
   public void setup(OperatorContext context)
   {
-    context.getAttributes().put(OperatorContext.AUTO_RECORD, true);
+    if(context != null)
+      context.getAttributes().put(OperatorContext.AUTO_RECORD, true);
   }
 
 }

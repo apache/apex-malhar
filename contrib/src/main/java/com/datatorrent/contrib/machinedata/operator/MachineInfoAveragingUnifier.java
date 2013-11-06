@@ -12,6 +12,7 @@ import com.datatorrent.lib.util.KeyHashValPair;
 
 
 /**
+ * This class calculates the partial sum and count for a given key 
  * <p>MachineInfoAveragingUnifier class.</p>
  *
  * @since 0.9.0
@@ -62,23 +63,29 @@ public class MachineInfoAveragingUnifier implements Unifier<KeyHashValPair<Machi
     if (sumsMap == null) {
       sums.put(tupleKey, tupleValue);
     } else {
-      updateDate("cpu", sumsMap, tupleValue);
-      updateDate("ram", sumsMap, tupleValue);
-      updateDate("hdd", sumsMap, tupleValue);
+      updateSum("cpu", sumsMap, tupleValue);
+      updateSum("ram", sumsMap, tupleValue);
+      updateSum("hdd", sumsMap, tupleValue);
     }
 
   }
 
-  private void updateDate(String key, Map<String, AverageData> sumsMap, Map<String, AverageData> tupleMap)
+  /**
+   * This method updates the sum and count for a given Resource key
+   * @param resourceKey the resource key whose sum and count needs to be updated
+   * @param sumsMap the map that stores the sum and count values
+   * @param tupleMap the new tuple map that is added
+   */
+  private void updateSum(String resourceKey, Map<String, AverageData> sumsMap, Map<String, AverageData> tupleMap)
   {
-    AverageData sumsAverageData = sumsMap.get(key);
-    AverageData tupleAverageData = tupleMap.get(key);
+    AverageData sumsAverageData = sumsMap.get(resourceKey);
+    AverageData tupleAverageData = tupleMap.get(resourceKey);
     if (tupleAverageData != null) {
       if (sumsAverageData != null) {
         sumsAverageData.setCount(sumsAverageData.getCount() + tupleAverageData.getCount());
         sumsAverageData.setSum(sumsAverageData.getSum() + tupleAverageData.getSum());
       } else {
-        sumsMap.put(key, tupleAverageData);
+        sumsMap.put(resourceKey, tupleAverageData);
       }
     }
 

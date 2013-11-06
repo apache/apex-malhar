@@ -23,6 +23,8 @@ import com.datatorrent.contrib.machinedata.data.MachineInfo;
 import com.datatorrent.contrib.machinedata.data.MachineKey;
 import com.datatorrent.lib.util.KeyValPair;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.slf4j.Logger;
@@ -61,11 +63,9 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   // private int tupleBlastSize = 50;
   private int tupleBlastSize = 1001;
-  private int cpuThreshold = 70;
-  private int ramThreshold = 70;
-  private int hddThreshold = 90;
   private int operatorId;
   private long windowId = 1;
+  private static DateFormat minuteDateFormat = new SimpleDateFormat("HHmm");
 
   @Override
   public void setup(Context.OperatorContext context)
@@ -85,10 +85,13 @@ public class InputReceiver extends BaseOperator implements InputOperator
   public void emitTuples()
   {
     int count = 0;
+    Calendar calendar = Calendar.getInstance();
+    Date date = calendar.getTime();
+    String timeKey = minuteDateFormat.format(date);
+    int day = calendar.get(Calendar.DAY_OF_MONTH);
 
     while (count < tupleBlastSize) {
       randomGen.setSeed(System.currentTimeMillis());
-      Calendar calendar = Calendar.getInstance();
 
       int customerVal = genCustomerId();
       int productVal = genProductVer();
@@ -102,7 +105,7 @@ public class InputReceiver extends BaseOperator implements InputOperator
       int ramVal = genRam(calendar);
       int hddVal = genHdd(calendar);
 
-      MachineKey machineKey = new MachineKey(calendar, MachineKey.TIMESPEC_MINUTE_SPEC);
+      MachineKey machineKey = new MachineKey(timeKey, day);
 
       machineKey.setCustomer(customerVal);
       machineKey.setProduct(productVal);
@@ -123,49 +126,49 @@ public class InputReceiver extends BaseOperator implements InputOperator
     }
   }
 
-  public int genCustomerId()
+  private int genCustomerId()
   {
     int range = customerMax - customerMin + 1;
     return customerMin + randomGen.nextInt(range);
   }
 
-  public int genProductVer()
+  private int genProductVer()
   {
     int range = productMax - productMin + 1;
     return productMin + randomGen.nextInt(range);
   }
 
-  public int genOsVer()
+  private int genOsVer()
   {
     int range = osMax - osMin + 1;
     return osMin + randomGen.nextInt(range);
   }
 
-  public int genSoftware3Ver()
+  private int genSoftware3Ver()
   {
     int range = software3Max - software3Min + 1;
     return software3Min + randomGen.nextInt(range);
   }
 
-  public int genDeviceId()
+  private int genDeviceId()
   {
     int range = deviceIdMax - deviceIdMin + 1;
     return deviceIdMin + randomGen.nextInt(range);
   }
 
-  public int genSoftware1Ver()
+  private int genSoftware1Ver()
   {
     int range = software1Max - software1Min + 1;
     return software1Min + randomGen.nextInt(range);
   }
 
-  public int genSoftware2Ver()
+  private int genSoftware2Ver()
   {
     int range = software2Max - software2Min + 1;
     return software2Min + randomGen.nextInt(range);
   }
 
-  public int genCpu(Calendar cal)
+  private int genCpu(Calendar cal)
   {
     int minute = cal.get(Calendar.MINUTE);
     int second;
@@ -173,17 +176,16 @@ public class InputReceiver extends BaseOperator implements InputOperator
     if (minute / 17 == 0) {
       second = cal.get(Calendar.SECOND);
       return (30 + randomGen.nextInt(range) + (minute % 7) - (second % 11));
-    }else if(minute / 47 ==0 ){
+    } else if (minute / 47 == 0) {
       second = cal.get(Calendar.SECOND);
-      return (7+ randomGen.nextInt(range) + (minute % 7) - (second % 7));
-    }
-    else {
+      return (7 + randomGen.nextInt(range) + (minute % 7) - (second % 7));
+    } else {
       second = cal.get(Calendar.SECOND);
       return (randomGen.nextInt(range) + (minute % 19) + (second % 7));
     }
   }
 
-  public int genRam(Calendar cal)
+  private int genRam(Calendar cal)
   {
     int minute = cal.get(Calendar.MINUTE);
     int second;
@@ -191,17 +193,16 @@ public class InputReceiver extends BaseOperator implements InputOperator
     if (minute / 23 == 0) {
       second = cal.get(Calendar.SECOND);
       return (20 + randomGen.nextInt(range) + (minute % 5) - (second % 11));
-    } else if (minute / 37 == 0){
+    } else if (minute / 37 == 0) {
       second = cal.get(Calendar.SECOND);
-      return (11+ randomGen.nextInt(60) - (minute % 5) - (second % 11));
-    }
-    else {
+      return (11 + randomGen.nextInt(60) - (minute % 5) - (second % 11));
+    } else {
       second = cal.get(Calendar.SECOND);
       return (randomGen.nextInt(range) + (minute % 17) + (second % 11));
     }
   }
 
-  public int genHdd(Calendar cal)
+  private int genHdd(Calendar cal)
   {
     int minute = cal.get(Calendar.MINUTE);
     int second;
@@ -215,171 +216,295 @@ public class InputReceiver extends BaseOperator implements InputOperator
     }
   }
 
-  public int getCpuThreshold()
-  {
-    return cpuThreshold;
-  }
-
-  public void setCpuThreshold(int cpuThreshold)
-  {
-    this.cpuThreshold = cpuThreshold;
-  }
-
-  public int getRamThreshold()
-  {
-    return ramThreshold;
-  }
-
-  public void setRamThreshold(int ramThreshold)
-  {
-    this.ramThreshold = ramThreshold;
-  }
-
-  public int getHddThreshold()
-  {
-    return hddThreshold;
-  }
-
-  public void setHddThreshold(int hddThreshold)
-  {
-    this.hddThreshold = hddThreshold;
-  }
-
+  /**
+   * This method returns the minimum value for customer
+   * 
+   * @return
+   */
   public int getCustomerMin()
   {
     return customerMin;
   }
 
+  /**
+   * This method is used to set the minimum value for customer
+   * 
+   * @param customerMin
+   *          the minimum customer value
+   */
   public void setCustomerMin(int customerMin)
   {
     this.customerMin = customerMin;
   }
 
+  /**
+   * This method returns the max value for customer
+   * 
+   * @return
+   */
   public int getCustomerMax()
   {
     return customerMax;
   }
 
+  /**
+   * This method is used to set the max value for customer
+   * 
+   * @param customerMax
+   *          the max customer value
+   */
   public void setCustomerMax(int customerMax)
   {
     this.customerMax = customerMax;
   }
 
+  /**
+   * This method returns the minimum value for product
+   * 
+   * @return
+   */
   public int getProductMin()
   {
     return productMin;
   }
 
+  /**
+   * This method is used to set the minimum value for product
+   * 
+   * @param productMin
+   *          the minimum product value
+   */
   public void setProductMin(int productMin)
   {
     this.productMin = productMin;
   }
 
+  /**
+   * This method returns the max value for product
+   * 
+   * @return
+   */
   public int getProductMax()
   {
     return productMax;
   }
 
+  /**
+   * This method is used to set the max value for product
+   * 
+   * @param productMax
+   *          the max product value
+   */
   public void setProductMax(int productMax)
   {
     this.productMax = productMax;
   }
 
+  /**
+   * This method returns the minimum value for OS
+   * 
+   * @return
+   */
   public int getOsMin()
   {
     return osMin;
   }
 
+  /**
+   * This method is used to set the minimum value for OS
+   * 
+   * @param osMin
+   *          the min OS value
+   */
   public void setOsMin(int osMin)
   {
     this.osMin = osMin;
   }
 
+  /**
+   * This method returns the max value for OS
+   * 
+   * @return
+   */
   public int getOsMax()
   {
     return osMax;
   }
 
+  /**
+   * This method is used to set the max value for OS
+   * 
+   * @param osMax
+   *          the max OS value
+   */
   public void setOsMax(int osMax)
   {
     this.osMax = osMax;
   }
 
+  /**
+   * This method returns the minimum value for software1
+   * 
+   * @return
+   */
   public int getSoftware1Min()
   {
     return software1Min;
   }
 
+  /**
+   * This method is used to set the minimum value for software1
+   * 
+   * @param software1Min
+   *          the minimum software1 value
+   */
   public void setSoftware1Min(int software1Min)
   {
     this.software1Min = software1Min;
   }
 
+  /**
+   * This method returns the max value for software1
+   * 
+   * @return
+   */
   public int getSoftware1Max()
   {
     return software1Max;
   }
 
+  /**
+   * This method is used to set the max value for software1
+   * 
+   * @param software1Max
+   *          the max software1 value
+   */
   public void setSoftware1Max(int software1Max)
   {
     this.software1Max = software1Max;
   }
 
+  /**
+   * This method returns the minimum value for software2
+   * 
+   * @return
+   */
   public int getSoftware2Min()
   {
     return software2Min;
   }
 
+  /**
+   * This method is used to set the minimum value for software2
+   * 
+   * @param software2Min
+   *          the minimum software2 value
+   */
   public void setSoftware2Min(int software2Min)
   {
     this.software2Min = software2Min;
   }
 
+  /**
+   * This method returns the max value for software2
+   * 
+   * @return
+   */
   public int getSoftware2Max()
   {
     return software2Max;
   }
 
+  /**
+   * This method is used to set the max value for software2
+   * 
+   * @param software2Max
+   *          the max software2 value
+   */
   public void setSoftware2Max(int software2Max)
   {
     this.software2Max = software2Max;
   }
 
+  /**
+   * This method returns the minimum value for software3
+   * 
+   * @return
+   */
   public int getSoftware3Min()
   {
     return software3Min;
   }
 
+  /**
+   * This method is used to set the minimum value for software3
+   * 
+   * @param software3Min
+   *          the minimum software3 value
+   */
   public void setSoftware3Min(int software3Min)
   {
     this.software3Min = software3Min;
   }
 
+  /**
+   * This method returns the max value for software3
+   * 
+   * @return
+   */
   public int getSoftware3Max()
   {
     return software3Max;
   }
 
+  /**
+   * This method is used to set the max value for software3
+   * 
+   * @param software3Max
+   *          the max software3 value
+   */
   public void setSoftware3Max(int software3Max)
   {
     this.software3Max = software3Max;
   }
 
+  /**
+   * This method returns the minimum value for deviceId
+   * 
+   * @return
+   */
   public int getDeviceIdMin()
   {
     return deviceIdMin;
   }
 
+  /**
+   * This method is used to set the minimum value for deviceId
+   * 
+   * @param deviceIdMin
+   *          the minimum deviceId value
+   */
   public void setDeviceIdMin(int deviceIdMin)
   {
     this.deviceIdMin = deviceIdMin;
   }
 
+  /**
+   * This method returns the max value for deviceId
+   * 
+   * @return
+   */
   public int getDeviceIdMax()
   {
     return deviceIdMax;
   }
 
+  /**
+   * This method is used to set the max value for deviceId
+   * 
+   * @param deviceIdMax
+   *          the max deviceId value
+   */
   public void setDeviceIdMax(int deviceIdMax)
   {
     this.deviceIdMax = deviceIdMax;

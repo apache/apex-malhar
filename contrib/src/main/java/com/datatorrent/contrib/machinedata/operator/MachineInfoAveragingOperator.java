@@ -18,7 +18,6 @@ package com.datatorrent.contrib.machinedata.operator;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.contrib.machinedata.AlertKey;
 import com.datatorrent.contrib.machinedata.data.MachineInfo;
 import com.datatorrent.contrib.machinedata.data.MachineKey;
 import com.datatorrent.contrib.machinedata.data.AverageData;
@@ -32,11 +31,13 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
+ * This class calculates the average for various resources across different devices for a given key
  * <p>MachineInfoAveragingOperator class.</p>
  *
  * @since 0.9.0
@@ -47,7 +48,7 @@ public class MachineInfoAveragingOperator extends BaseOperator
 
   private Map<MachineKey, List<Map<String, AverageData>>> dataMap = new HashMap<MachineKey, List<Map<String, AverageData>>>();
 
-  public final transient DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, Double>>> outputPort = new DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, Double>>>();
+  public final transient DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, String>>> outputPort = new DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, String>>>();
 
   public transient DefaultOutputPort<String> smtpAlert = new DefaultOutputPort<String>();
 
@@ -68,16 +69,28 @@ public class MachineInfoAveragingOperator extends BaseOperator
     }
   };
 
+  /**
+   * This method returns the threshold value
+   * @return
+   */
   public int getThreshold()
   {
     return threshold;
   }
 
+  /**
+   * This method sets the threshold value. If the average usage for any Resource is above this for a given key, then the alert is sent 
+   * @param threshold the threshold value
+   */
   public void setThreshold(int threshold)
   {
     this.threshold = threshold;
   }
 
+  /**
+   * This adds the given tuple to the dataMap
+   * @param tuple input tuple
+   */
   private void addTuple(KeyHashValPair<MachineKey, Map<String, AverageData>> tuple)
   {
     MachineKey key = tuple.getKey();
@@ -103,23 +116,23 @@ public class MachineInfoAveragingOperator extends BaseOperator
         prepareAverageResult(map, ResourceType.RAM, averageResultMap);
         prepareAverageResult(map, ResourceType.HDD, averageResultMap);
       }
-      Map<ResourceType, Double> averageResult = Maps.newHashMap();
+      Map<ResourceType, String> averageResult = Maps.newHashMap();
 
       for (Map.Entry<ResourceType, AverageData> dataEntry : averageResultMap.entrySet()) {
         ResourceType resourceType = dataEntry.getKey();
         double average = dataEntry.getValue().getSum() / dataEntry.getValue().getCount();
-        averageResult.put(resourceType, average);
+        averageResult.put(resourceType, average+","+key.getDay());
 
         if (average > threshold) {
           BigDecimal bd = new BigDecimal(average);
           bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
-          String stime = dateFormat.format(key.getTime().getTime());
+          String stime = key.getDay()+key.getTimeKey();
           String skey = getKeyInfo(key);
 
           smtpAlert.emit(resourceType.toString().toUpperCase() + " alert at " + stime + " " + resourceType + " usage breached current usage: " + bd.doubleValue() + "% threshold: " + threshold + "%\n\n" + skey);
         }
       }
-      outputPort.emit(new KeyValPair<MachineKey, Map<ResourceType, Double>>(key, averageResult));
+      outputPort.emit(new KeyValPair<MachineKey, Map<ResourceType, String>>(key, averageResult));
     }
     dataMap.clear();
   }
@@ -136,13 +149,21 @@ public class MachineInfoAveragingOperator extends BaseOperator
     }
   }
 
+  /**
+   * This method is used to artificially generate alerts
+   * @param genAlert
+   */
   public void setGenAlert(boolean genAlert)
   {
     Calendar calendar = Calendar.getInstance();
     long timestamp = System.currentTimeMillis();
     calendar.setTimeInMillis(timestamp);
+    DateFormat minuteDateFormat = new SimpleDateFormat("HHmm");
+    Date date = calendar.getTime();
+    String timeKey = minuteDateFormat.format(date);
+    int day = calendar.get(Calendar.DAY_OF_MONTH);
 
-    MachineKey alertKey = new MachineKey(calendar, MachineKey.TIMESPEC_MINUTE_SPEC);
+    MachineKey alertKey = new MachineKey(timeKey,day);
     alertKey.setCustomer(1);
     alertKey.setProduct(5);
     alertKey.setOs(10);
@@ -161,6 +182,11 @@ public class MachineInfoAveragingOperator extends BaseOperator
     smtpAlert.emit("HDD Alert: HDD Usage threshold (" + threshold + ") breached: current % usage: " + getKeyInfo(alertKey));
   }
 
+  /**
+   * This method returns the String for a given MachineKey instance
+   * @param key MachineKey instance that needs to be converted to string
+   * @return
+   */
   private String getKeyInfo(MachineKey key)
   {
     StringBuilder sb = new StringBuilder();
