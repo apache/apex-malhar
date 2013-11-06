@@ -79,8 +79,18 @@ public abstract class AbstractCouchDBInputOperator<T> extends BaseOperator imple
     this.mapper = new ObjectMapper();
   }
 
+  /**
+   *
+   * @return  view-query that specifies the couch-db view whose results will be fetched.
+   */
   public abstract ViewQuery getViewQuery();
 
+  /**
+   * Sub-classes should provie the implementaion to convert the jsonNode object to emitted tuple type.
+   *
+   * @param value jsonNode that will converted to a tuple.
+   * @return emmitted tuple.
+   */
   public abstract T getTuple(JsonNode value);
 
 }
