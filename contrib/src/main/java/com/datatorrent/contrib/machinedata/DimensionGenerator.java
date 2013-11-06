@@ -63,7 +63,7 @@ public class DimensionGenerator extends BaseOperator
   }
   
   /**
-   * this returns the threshold value set
+   * This returns the threshold value set
    * @return
    */
   public int getThreshold()
