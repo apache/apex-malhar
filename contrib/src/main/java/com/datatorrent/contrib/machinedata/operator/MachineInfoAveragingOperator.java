@@ -48,7 +48,7 @@ public class MachineInfoAveragingOperator extends BaseOperator
 
   private Map<MachineKey, List<Map<String, AverageData>>> dataMap = new HashMap<MachineKey, List<Map<String, AverageData>>>();
 
-  public final transient DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, String>>> outputPort = new DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, String>>>();
+  public final transient DefaultOutputPort<KeyValPair<MachineKey, Map<String, String>>> outputPort = new DefaultOutputPort<KeyValPair<MachineKey, Map<String, String>>>();
 
   public transient DefaultOutputPort<String> smtpAlert = new DefaultOutputPort<String>();
 
@@ -116,12 +116,12 @@ public class MachineInfoAveragingOperator extends BaseOperator
         prepareAverageResult(map, ResourceType.RAM, averageResultMap);
         prepareAverageResult(map, ResourceType.HDD, averageResultMap);
       }
-      Map<ResourceType, String> averageResult = Maps.newHashMap();
+      Map<String, String> averageResult = Maps.newHashMap();
 
       for (Map.Entry<ResourceType, AverageData> dataEntry : averageResultMap.entrySet()) {
         ResourceType resourceType = dataEntry.getKey();
         double average = dataEntry.getValue().getSum() / dataEntry.getValue().getCount();
-        averageResult.put(resourceType, average+","+key.getDay());
+        averageResult.put(resourceType.toString(), average+"");
 
         if (average > threshold) {
           BigDecimal bd = new BigDecimal(average);
@@ -132,7 +132,8 @@ public class MachineInfoAveragingOperator extends BaseOperator
           smtpAlert.emit(resourceType.toString().toUpperCase() + " alert at " + stime + " " + resourceType + " usage breached current usage: " + bd.doubleValue() + "% threshold: " + threshold + "%\n\n" + skey);
         }
       }
-      outputPort.emit(new KeyValPair<MachineKey, Map<ResourceType, String>>(key, averageResult));
+      averageResult.put("day", key.getDay().toString());
+      outputPort.emit(new KeyValPair<MachineKey, Map<String, String>>(key, averageResult));
     }
     dataMap.clear();
   }
