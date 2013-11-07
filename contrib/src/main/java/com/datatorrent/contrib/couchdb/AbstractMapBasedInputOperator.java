@@ -8,7 +8,10 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * <br>Couch-db input adaptor that emits a map</br>
+ * <br>Couch-db input adaptor that emits a map.</br>
+ * <br>This adaptor emits the result of a database view in form of a map.</br>
+ * <br>It uses the emitTuples implementation of {@link AbstractCouchDBInputOperator} which emits the complete result
+ * of the ViewQuery every window cycle. </br>
  * @since 0.3.5
  */
 public abstract class AbstractMapBasedInputOperator extends AbstractCouchDBInputOperator<Map<Object, Object>>

@@ -16,7 +16,12 @@ import javax.annotation.Nonnull;
 
 /**
  * <br>Base class for CouchDb intput adaptor.</br>
- * <br>It emits the result of ViewQuery which is implemented by the base adaptors.</br>
+ * <br>CouchDb filters documents in the database using stored views. Views are refered as design documents.
+ * This operator queries the view and emits the view result.</br>
+ *
+ * <br>Subclasses  of this operator provide the ViewQuery which corresponds to a database view.</br>
+ * <br>In this base implementaion, if the ViewQuery doesn't change, then the same view results are emitted
+ * at the end of every streaming window.</br>
  *
  * @param <T>Type of tuples which are generated</T>
  * @since 0.3.5
@@ -86,7 +91,8 @@ public abstract class AbstractCouchDBInputOperator<T> extends BaseOperator imple
   public abstract ViewQuery getViewQuery();
 
   /**
-   * Sub-classes should provie the implementaion to convert the jsonNode object to emitted tuple type.
+   * This operator fetches view result in form of {@link JsonNode}. Sub-classes should provie the
+   * implementaion to convert the jsonNode object to emitted tuple type.
    *
    * @param value jsonNode that will converted to a tuple.
    * @return emmitted tuple.

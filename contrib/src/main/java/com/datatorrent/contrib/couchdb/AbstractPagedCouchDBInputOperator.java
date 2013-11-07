@@ -28,6 +28,10 @@ public abstract class AbstractPagedCouchDBInputOperator<T> extends AbstractCouch
     pageSize = 0;
   }
 
+  /**
+   * Sets the no. of rows in a page.
+   * @param pageSize  size of a page
+   */
   public void setPageSize(int pageSize)
   {
     this.pageSize = pageSize;
