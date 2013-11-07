@@ -109,12 +109,6 @@ public abstract class AbstractCouchDBOutputOperator<T> extends AbstractDBOutputO
     ((ObjectNode) rootNode).put(LAST_WINDOW_FIELD, windowId);
   }
 
-  @Override
-  public String getDefaultApplicationName()
-  {
-    return "CouchDbOutput";
-  }
-
   private String getWindowDocumentId()
   {
     return applicationName + "_" + applicationId + "_" + operatorId;
