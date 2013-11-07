@@ -77,8 +77,8 @@ public abstract class AbstractDBOutputOperator<T> implements Operator
   @Override
   public void setup(Context.OperatorContext context)
   {
-    applicationName = context.attrValue(DAG.APPLICATION_NAME, getDefaultApplicationName());
-    applicationId = context.attrValue(DAG.APPLICATION_ID, "AppId");
+    applicationName =  context.getValue(DAG.APPLICATION_NAME);
+    applicationId = context.getValue(DAG.APPLICATION_ID);
     operatorId = context.getId();
     Long lastPersistedWindow = getLastPersistedWindow();
 
@@ -97,6 +97,4 @@ public abstract class AbstractDBOutputOperator<T> implements Operator
   public abstract void storeData(T tuple);
 
   public abstract void storeWindow(long windowId);
-
-  public abstract String getDefaultApplicationName();
 }
