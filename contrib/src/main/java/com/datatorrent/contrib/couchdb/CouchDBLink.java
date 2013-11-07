@@ -63,6 +63,10 @@ public class CouchDBLink
     couchDb = new StdCouchDbInstance(httpClient).createConnector(dbName, true);
   }
 
+  /**
+   *
+   * @return {@link CouchDbConnector} that is used to interact with CouchDb.
+   */
   public CouchDbConnector getConnector()
   {
     return this.couchDb;

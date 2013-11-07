@@ -22,7 +22,19 @@ public interface CouchDbTuple
   @Nonnull
   public Object getPayLoad();
 
+  /**
+   * Each document in couch db has a revision. This sets the revision of the corresponding
+   * document object in memory.
+   *
+   * @param revision revision
+   */
   public void setRevision(String revision);
 
+  /**
+   * Each document in couch db has an id. This sets the id of the corresponding document
+   * object in memory.
+   *
+   * @param id
+   */
   public void setId(String id);
 }

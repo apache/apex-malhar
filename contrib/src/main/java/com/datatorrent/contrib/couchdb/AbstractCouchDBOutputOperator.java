@@ -9,7 +9,8 @@ import javax.annotation.Nonnull;
 
 /**
  * Base Couch-Db output operator that saves tuples in the couchdb.<br></br>
- * The tuples need to be converted to {@link CouchDbTuple}. This conversion is done by subclasses. <br></br>
+ * The tuples need to be converted to {@link CouchDbTuple}.
+ * This conversion is done by subclasses. <br></br>
  *
  * @param <T> type of tuple </T>
  * @since 0.3.5
@@ -131,5 +132,9 @@ public abstract class AbstractCouchDBOutputOperator<T> extends AbstractDBOutputO
     }
   }
 
+  /**
+   * Concrete implementation of this operator should provide the implementation of converting
+   * tuple of type T to {@link CouchDbTuple}
+   */
   public abstract CouchDbTuple getCouchDbTuple(T tuple);
 }

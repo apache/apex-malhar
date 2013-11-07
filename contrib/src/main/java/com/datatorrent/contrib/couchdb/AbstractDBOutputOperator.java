@@ -13,7 +13,14 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 /**
- * Base output adapter which processes tuples that were generated after the last persisted WindowID<br></br>
+ *<br>Base output adapter which processes tuples that were generated after the last persisted WindowID.</br>
+ *<br>The operator collects the tuples that arrive in a window and stores them in the database in the endWindow.
+ * The tuples are stored in an application specific manner. The concrete implementation that extends this operator
+ * provides a method that specifies where to store the tuples.</br>
+ * <br></br>
+ * <br>It also stores the last processed window id in the database and loads it during setup time.
+ * If the processing window id is not greater than the last processed window id that was loaded then the tuples
+ * are ignored till the processing window id becomes greater than the last processed window id. </br>
  *
  * @param <T> Type of objects that DB operator accepts</T>
  * @since 0.3.5

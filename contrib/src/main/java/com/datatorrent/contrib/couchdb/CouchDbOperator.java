@@ -1,7 +1,7 @@
 package com.datatorrent.contrib.couchdb;
 
 /**
- * Interface that is implemented by CounchDb Input and Output adaptors.<br></br>
+ * Interface that is implemented by CounchDb Input and Output adaptors.</br>
  *
  * @since 0.3.5
  */
