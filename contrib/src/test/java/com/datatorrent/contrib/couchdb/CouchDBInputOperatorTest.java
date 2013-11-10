@@ -1,10 +1,7 @@
 package com.datatorrent.contrib.couchdb;
 
-import com.datatorrent.contrib.machinedata.data.ResourceType;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.KeyValPair;
-import com.datatorrent.lib.util.TimeBucketKey;
 import com.google.common.collect.Maps;
 import junit.framework.Assert;
 import org.ektorp.ViewQuery;
@@ -35,12 +32,11 @@ public class CouchDBInputOperatorTest
   public void testCouchDBInputOperator()
   {
     String testDocumentId = "TestDocument1";
-    Map<Object, Object> tuple = Maps.newHashMap();
-    tuple.put("_id", testDocumentId);
-    tuple.put("name", "TD1");
-    tuple.put("type", "test");
-    MapBasedCouchDbOutputOperator.MapBasedCouchTuple  dbTuple = new  MapBasedCouchDbOutputOperator.MapBasedCouchTuple(tuple);
-    CouchDBTestHelper.get().insertDocument(dbTuple);
+    Map<String, String> mapTuple = Maps.newHashMap();
+    mapTuple.put("_id", testDocumentId);
+    mapTuple.put("name", "TD1");
+    mapTuple.put("type", "test");
+    CouchDBTestHelper.get().insertDocument(mapTuple);
 
     TestMapBasedCouchInputOperatorTest operatorTest = new TestMapBasedCouchInputOperatorTest();
     CollectorTestSink sink = new CollectorTestSink();

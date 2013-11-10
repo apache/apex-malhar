@@ -15,22 +15,17 @@ public class MapBasedCouchDbOutputOperator extends AbstractCouchDBOutputOperator
 {
 
   @Override
-  public CouchDbTuple getCouchDbTuple(Map<Object, Object> tuple)
+  public CouchDbUpdateCommand getCommandToUpdateDb(Map<Object, Object> tuple)
   {
-    return new MapBasedCouchTuple(tuple);
+    return new UpdateCommandForMap(tuple);
   }
 
-  public static class MapBasedCouchTuple implements CouchDbTuple
+  private class UpdateCommandForMap implements CouchDbUpdateCommand
   {
 
     private final Map<Object, Object> payload;
 
-    private MapBasedCouchTuple()
-    {
-      this.payload = null;
-    }
-
-    public MapBasedCouchTuple(Map<Object, Object> payload)
+    public UpdateCommandForMap(Map<Object, Object> payload)
     {
       this.payload = Preconditions.checkNotNull(payload, "payload");
     }

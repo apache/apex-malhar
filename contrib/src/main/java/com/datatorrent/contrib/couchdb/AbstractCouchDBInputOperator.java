@@ -5,10 +5,9 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.api.annotation.ShipContainingJars;
 import com.google.common.base.Preconditions;
-import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ObjectNode;
 import org.ektorp.ViewQuery;
 import org.ektorp.ViewResult;
 
@@ -18,7 +17,7 @@ import javax.annotation.Nonnull;
  * <br>Base class for CouchDb intput adaptor.</br>
  * <br>CouchDb filters documents in the database using stored views. Views are refered as design documents.
  * This operator queries the view and emits the view result.</br>
- *
+ * <p/>
  * <br>Subclasses  of this operator provide the ViewQuery which corresponds to a database view.</br>
  * <br>In this base implementaion, if the ViewQuery doesn't change, then the same view results are emitted
  * at the end of every streaming window.</br>
@@ -26,6 +25,7 @@ import javax.annotation.Nonnull;
  * @param <T>Type of tuples which are generated</T>
  * @since 0.3.5
  */
+@ShipContainingJars(classes = {ObjectMapper.class, ViewQuery.class, ViewResult.class})
 public abstract class AbstractCouchDBInputOperator<T> extends BaseOperator implements CouchDbOperator, InputOperator
 {
 
@@ -47,8 +47,7 @@ public abstract class AbstractCouchDBInputOperator<T> extends BaseOperator imple
     ViewQuery viewQuery = getViewQuery();
     ViewResult result = dbLink.getConnector().queryView(viewQuery);
     for (ViewResult.Row row : result.getRows()) {
-      JsonNode node = row.getValueAsNode();
-      T tuple = getTuple(node);
+      T tuple = getTuple(row);
       outputPort.emit(tuple);
     }
   }
@@ -85,18 +84,16 @@ public abstract class AbstractCouchDBInputOperator<T> extends BaseOperator imple
   }
 
   /**
-   *
-   * @return  view-query that specifies the couch-db view whose results will be fetched.
+   * @return view-query that specifies the couch-db view whose results will be fetched.
    */
   public abstract ViewQuery getViewQuery();
 
   /**
-   * This operator fetches view result in form of {@link JsonNode}. Sub-classes should provie the
-   * implementaion to convert the jsonNode object to emitted tuple type.
+   * This operator fetches result of a view in {@link ViewResult}. Sub-classes should provie the
+   * implementaion to convert a row of ViewResult to emitted tuple type.
    *
-   * @param value jsonNode that will converted to a tuple.
+   * @param value a row of ViewResult that should be converted to a tuple.
    * @return emmitted tuple.
    */
-  public abstract T getTuple(JsonNode value);
-
+  public abstract T getTuple(ViewResult.Row value);
 }

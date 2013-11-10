@@ -1,10 +1,10 @@
 package com.datatorrent.contrib.couchdb;
 
-import org.codehaus.jackson.JsonNode;
-import org.ektorp.Page;
-import org.ektorp.PageRequest;
+import org.ektorp.ViewQuery;
+import org.ektorp.ViewResult;
 
 import javax.validation.constraints.Min;
+import java.util.List;
 
 /**
  * <br>This operator emits paged results. The page size is configured using operator property.</br>
@@ -19,7 +19,7 @@ public abstract class AbstractPagedCouchDBInputOperator<T> extends AbstractCouch
   @Min(0)
   private int pageSize;
 
-  private String nextPageLink = null;
+  private String nextPageKey = null;
   private boolean started = false;
 
   public AbstractPagedCouchDBInputOperator()
@@ -30,7 +30,8 @@ public abstract class AbstractPagedCouchDBInputOperator<T> extends AbstractCouch
 
   /**
    * Sets the no. of rows in a page.
-   * @param pageSize  size of a page
+   *
+   * @param pageSize size of a page
    */
   public void setPageSize(int pageSize)
   {
@@ -43,25 +44,28 @@ public abstract class AbstractPagedCouchDBInputOperator<T> extends AbstractCouch
     if (pageSize == 0)     //No pagination
       super.emitTuples();
     else {
-      PageRequest pageRequest = null;
-      if (!started) {
+      if (!started || nextPageKey != null) {
         started = true;
-        pageRequest = PageRequest.firstPage(pageSize);
-      }
-      else if (nextPageLink != null) {
-        pageRequest = PageRequest.fromLink(nextPageLink);
-      }
-      if (pageRequest != null) {
-        Page<JsonNode> result = dbLink.getConnector().queryForPage(getViewQuery(), pageRequest, JsonNode.class);
+        ViewQuery query = getViewQuery().limit(pageSize + 1);
 
-        for (JsonNode node : result) {
-          T tuple = getTuple(node);
+        if (nextPageKey != null)
+          query.startKey(nextPageKey);
+        ViewResult result = dbLink.getConnector().queryView(query);
+        List<ViewResult.Row> rows = result.getRows();
+        List<ViewResult.Row> rowsToEmit = rows;
+        if (rows.size() > pageSize) {
+          //More pages to fetch. We don't emit the last row as it is a link to next page.
+          nextPageKey = rows.get(rows.size() - 1).getKey();
+          rowsToEmit = rows.subList(0, rows.size() - 1);
+        }
+        else {
+          //No next page so emit all the rows.
+          nextPageKey = null;
+        }
+        for (ViewResult.Row row : rowsToEmit) {
+          T tuple = getTuple(row);
           outputPort.emit(tuple);
         }
-        if (result.isHasNext())
-          nextPageLink = result.getNextLink();
-        else
-          nextPageLink = null;
       }
     }
   }

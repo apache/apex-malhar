@@ -6,6 +6,7 @@ import org.codehaus.jackson.node.ObjectNode;
 import org.ektorp.ViewQuery;
 
 import javax.annotation.Nullable;
+import java.util.Map;
 
 /**
  * <br>A helper class that setups the couch db for testing</br>
@@ -83,15 +84,15 @@ public class CouchDBTestHelper
     return new ViewQuery().designDocId(DESIGN_DOC_ID).viewName(TEST_VIEW);
   }
 
-  public void insertDocument(CouchDbTuple dbTuple)
+  public void insertDocument(Map<String,String> dbTuple)
   {
-    String docId = dbTuple.getId();
+    String docId = dbTuple.get("_id");
     if (docId != null && dbLink.getConnector().contains(docId)) {
       JsonNode docNode = dbLink.getConnector().get(JsonNode.class, docId);
-      if (docNode != null && dbTuple.getRevision() == null)
-        dbTuple.setRevision(docNode.get("_rev").getTextValue());
+      if (docNode != null && dbTuple.get("_rev") == null)
+        dbTuple.put("_rev",docNode.get("_rev").getTextValue());
     }
-    dbLink.getConnector().update(dbTuple.getPayLoad());
+    dbLink.getConnector().update(dbTuple);
   }
 
   public JsonNode fetchDocument(String docId)
