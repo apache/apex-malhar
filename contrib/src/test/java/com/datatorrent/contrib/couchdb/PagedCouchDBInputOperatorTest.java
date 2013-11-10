@@ -5,7 +5,9 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.google.common.collect.Maps;
 import junit.framework.Assert;
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.node.ObjectNode;
 import org.ektorp.ViewQuery;
+import org.ektorp.ViewResult;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -28,11 +30,11 @@ public class PagedCouchDBInputOperatorTest
 
     @SuppressWarnings("unchecked")
     @Override
-    public Map<Object, Object> getTuple(JsonNode value)
+    public Map<Object, Object> getTuple(ViewResult.Row row)
     {
       Map<Object, Object> valueMap = Maps.newHashMap();
       try {
-        valueMap = mapper.readValue(value, valueMap.getClass());
+        valueMap = mapper.readValue(row.getValueAsNode(), valueMap.getClass());
       } catch (IOException e) {
         e.printStackTrace();
       }
@@ -47,12 +49,11 @@ public class PagedCouchDBInputOperatorTest
     String testDocumentIdPrefix = "PagedTestDoc";
 
     for (int i = 1; i <= 10; i++) {
-      Map<Object, Object> tuple = Maps.newHashMap();
-      tuple.put("_id", testDocumentIdPrefix + i);
-      tuple.put("name", "PTD" + i);
-      tuple.put("type", "test");
-      MapBasedCouchDbOutputOperator.MapBasedCouchTuple dbTuple = new MapBasedCouchDbOutputOperator.MapBasedCouchTuple(tuple);
-      CouchDBTestHelper.get().insertDocument(dbTuple);
+      Map<String, String> mapTuple = Maps.newHashMap();
+      mapTuple.put("_id", testDocumentIdPrefix + i);
+      mapTuple.put("name", "PTD" + i);
+      mapTuple.put("type", "test");
+      CouchDBTestHelper.get().insertDocument(mapTuple);
     }
 
     TestPagedDBInputOperator operatorTest = new TestPagedDBInputOperator();

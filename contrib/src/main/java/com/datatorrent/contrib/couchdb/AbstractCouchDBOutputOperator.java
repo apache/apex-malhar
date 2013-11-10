@@ -1,7 +1,9 @@
 package com.datatorrent.contrib.couchdb;
 
 import com.datatorrent.api.Context;
+import com.datatorrent.api.annotation.ShipContainingJars;
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
 
@@ -9,12 +11,13 @@ import javax.annotation.Nonnull;
 
 /**
  * Base Couch-Db output operator that saves tuples in the couchdb.<br></br>
- * The tuples need to be converted to {@link CouchDbTuple}.
+ * The tuples need to be converted to {@link CouchDbUpdateCommand}.
  * This conversion is done by subclasses. <br></br>
  *
  * @param <T> type of tuple </T>
  * @since 0.3.5
  */
+@ShipContainingJars(classes = {JsonNode.class, ObjectMapper.class, ObjectNode.class, JsonProperty.class})
 public abstract class AbstractCouchDBOutputOperator<T> extends AbstractDBOutputOperator<T> implements CouchDbOperator
 {
   private final static String LAST_WINDOW_FIELD = "lastWindow";
@@ -92,14 +95,18 @@ public abstract class AbstractCouchDBOutputOperator<T> extends AbstractDBOutputO
   @Override
   public void storeData(T tuple)
   {
-    CouchDbTuple couchDbTuple = getCouchDbTuple(tuple);
-    String docId = couchDbTuple.getId();
+    CouchDbUpdateCommand couchDbUpdateCommand = getCommandToUpdateDb(tuple);
+    String docId = couchDbUpdateCommand.getId();
     if (docId != null && dbLink.getConnector().contains(docId)) {
-      JsonNode docNode = dbLink.getConnector().get(JsonNode.class, docId);
-      if (docNode != null && couchDbTuple.getRevision() == null && updateRevisionWhenNull)
-        couchDbTuple.setRevision(docNode.get("_rev").getTextValue());
+      JsonNode docInDatabase = dbLink.getConnector().get(JsonNode.class, docId);
+
+      if (docInDatabase != null && couchDbUpdateCommand.getRevision() == null && updateRevisionWhenNull)
+        couchDbUpdateCommand.setRevision(docInDatabase.get("_rev").getTextValue());
+      dbLink.getConnector().update(couchDbUpdateCommand.getPayLoad());
     }
-    dbLink.getConnector().update(couchDbTuple.getPayLoad());
+    else {  //create a document & if docId is null then couch db will generate a random id.
+      dbLink.getConnector().create(couchDbUpdateCommand.getPayLoad());
+    }
   }
 
   @Override
@@ -119,7 +126,8 @@ public abstract class AbstractCouchDBOutputOperator<T> extends AbstractDBOutputO
     String windowDoc = getWindowDocumentId();
     if (dbLink.getConnector().contains(windowDoc)) {
       return dbLink.getConnector().get(JsonNode.class, windowDoc);
-    } else {
+    }
+    else {
       JsonNode rootNode = mapper.createObjectNode();
       dbLink.getConnector().create(windowDoc, rootNode);
       return rootNode;
@@ -127,8 +135,7 @@ public abstract class AbstractCouchDBOutputOperator<T> extends AbstractDBOutputO
   }
 
   /**
-   * Concrete implementation of this operator should provide the implementation of converting
-   * tuple of type T to {@link CouchDbTuple}
+   * Concrete implementation of this operator should provide the command to insert the tuple of type T in CouchDB.
    */
-  public abstract CouchDbTuple getCouchDbTuple(T tuple);
+  public abstract CouchDbUpdateCommand getCommandToUpdateDb(T tuple);
 }
