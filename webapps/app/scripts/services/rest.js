@@ -54,7 +54,7 @@ angular.module('rest', ['ng', 'restangular'])
             },
 
             getMachineData: function (query) {
-                var promise = Restangular.all('machine').getList(query);
+                var promise = Restangular.one('machine').get(query);
 
                 promise.then(null, function (response) {
                   jQuery.pnotify({
@@ -70,7 +70,7 @@ angular.module('rest', ['ng', 'restangular'])
             },
 
           getDimensionsData: function (query) {
-            var promise = Restangular.all('dimensions').getList(query);
+            var promise = Restangular.one('dimensions').get(query);
 
             promise.then(null, function (response) {
               jQuery.pnotify({

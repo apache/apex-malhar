@@ -38,14 +38,14 @@ import org.slf4j.LoggerFactory;
  */
 @SuppressWarnings("unused")
 public class DimensionGenerator extends BaseOperator
-{  
+{
   private static final Logger logger = LoggerFactory.getLogger(DimensionGenerator.class);
 
   public transient DefaultOutputPort<MachineInfo> outputInline = new DefaultOutputPort<MachineInfo>();
   public transient DefaultOutputPort<MachineInfo> output = new DefaultOutputPort<MachineInfo>();
-  public transient DefaultOutputPort<String> smtpAlert = new DefaultOutputPort<String>();
-  public transient DefaultOutputPort<KeyValPair<AlertKey, Map<String, Integer>>> alert = new DefaultOutputPort<KeyValPair<AlertKey, Map<String, Integer>>>();
-
+  private static final Random randomGen = new Random();
+  private int threshold=90;
+  
   public final transient DefaultInputPort<MachineInfo> inputPort = new DefaultInputPort<MachineInfo>() {
 
     @Override
@@ -55,41 +55,83 @@ public class DimensionGenerator extends BaseOperator
     }
 
   };
+
   @Override
   public void setup(Context.OperatorContext context)
   {
     super.setup(context);
   }
-
-  private void emitDimensions(MachineInfo tuple)
-  {    
-      Calendar calendar = Calendar.getInstance();
-      MachineKey tupleKey = tuple.getMachineKey();
-
-      for (int i = 0; i < 64; i++) {
-        MachineKey machineKey = new MachineKey(calendar, MachineKey.TIMESPEC_MINUTE_SPEC);    
-        if ((i & 1) != 0)
-          machineKey.setCustomer(tupleKey.getCustomer());
-        if ((i & 2) != 0)
-          machineKey.setProduct(tupleKey.getProduct());
-        if ((i & 4) != 0)
-          machineKey.setOs(tupleKey.getOs());
-        if ((i & 8) != 0)
-          machineKey.setDeviceId(tupleKey.getDeviceId());
-        if ((i & 16) != 0)
-          machineKey.setSoftware1(tupleKey.getSoftware1());
-        if ((i & 32) != 0)
-          machineKey.setSoftware2(tupleKey.getSoftware2());
-        MachineInfo machineInfo = new MachineInfo();
-        machineInfo.setMachineKey(machineKey);
-        machineInfo.setCpu(tuple.getCpu());
-        machineInfo.setRam(tuple.getRam());
-        machineInfo.setHdd(tuple.getHdd());
-        outputInline.emit(machineInfo);
-        output.emit(machineInfo);
-      }
+  
+  /**
+   * This returns the threshold value set
+   * @return
+   */
+  public int getThreshold()
+  {
+    return threshold;
   }
 
-  
+  /**
+   * This function sets the threshold value. This value is used to check the maximum value for cpu/ram/hdd
+   * @param threshold
+   */
+  public void setThreshold(int threshold)
+  {
+    this.threshold = threshold;
+  }
+
+  /**
+   * This function takes in the tuple from upstream operator and generates tuples with different dimension combinations
+   * 
+   * @param tuple
+   */
+  private void emitDimensions(MachineInfo tuple)
+  {
+    Calendar calendar = Calendar.getInstance();
+    MachineKey tupleKey = tuple.getMachineKey();
+    int random = 0; // this is added to make the data more random for different dimension combinations
+
+    for (int i = 0; i < 64; i++) {
+      MachineKey machineKey = new MachineKey(tupleKey.getTimeKey(),tupleKey.getDay());    
+      if ((i & 1) != 0) {
+        machineKey.setCustomer(tupleKey.getCustomer());
+        random += machineKey.getCustomer();
+      }
+      if ((i & 2) != 0) {
+        machineKey.setProduct(tupleKey.getProduct());
+        random += machineKey.getProduct();
+      }
+      if ((i & 4) != 0) {
+        machineKey.setOs(tupleKey.getOs());
+        random += machineKey.getOs();
+      }
+      if ((i & 8) != 0) {
+        machineKey.setDeviceId(tupleKey.getDeviceId());
+        random += machineKey.getDeviceId();
+      }
+      if ((i & 16) != 0) {
+        machineKey.setSoftware1(tupleKey.getSoftware1());
+        random += machineKey.getSoftware1();
+      }
+      if ((i & 32) != 0) {
+        machineKey.setSoftware2(tupleKey.getSoftware2());
+        random += machineKey.getSoftware2();
+      }
+      if (random > 0) {
+        randomGen.setSeed(System.currentTimeMillis());
+        random = randomGen.nextInt(random);
+      }
+      int cpu = tuple.getCpu() + random;
+      int ram = tuple.getRam() + random;
+      int hdd = tuple.getHdd() + random;
+      MachineInfo machineInfo = new MachineInfo();
+      machineInfo.setMachineKey(machineKey);
+      machineInfo.setCpu((cpu < threshold)?cpu:threshold);
+      machineInfo.setRam((ram < threshold)?ram:threshold);
+      machineInfo.setHdd((hdd < threshold)?hdd:threshold);
+      outputInline.emit(machineInfo);
+      output.emit(machineInfo);
+    }
+  }
 
 }
