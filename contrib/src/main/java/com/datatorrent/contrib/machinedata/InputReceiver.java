@@ -66,10 +66,12 @@ public class InputReceiver extends BaseOperator implements InputOperator
   private int operatorId;
   private long windowId = 1;
   private static DateFormat minuteDateFormat = new SimpleDateFormat("HHmm");
+  private static DateFormat dayDateFormat = new SimpleDateFormat("dd");
 
   static {
     TimeZone tz = TimeZone.getTimeZone("GMT");
     minuteDateFormat.setTimeZone(tz);
+    dayDateFormat.setTimeZone(tz);
   
   }
   @Override
@@ -93,7 +95,7 @@ public class InputReceiver extends BaseOperator implements InputOperator
     Calendar calendar = Calendar.getInstance();
     Date date = calendar.getTime();
     String timeKey = minuteDateFormat.format(date);
-    int day = calendar.get(Calendar.DAY_OF_MONTH);
+    String day = dayDateFormat.format(date);
 
     while (count < tupleBlastSize) {
       randomGen.setSeed(System.currentTimeMillis());
