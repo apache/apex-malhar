@@ -25,14 +25,14 @@ exports.testFetchData = function(test) {
     query: {
       lookback: 10
     }
-  }
+  };
   machine.data(req, {
-    json: function(data) {
-      test.equal(data.length, req.query.lookback);
+    json: function(response) {
+      test.equal(response.minutes.length, req.query.lookback);
       test.done();
     }
   });
-}
+};
 
 exports.testLastTimestamp = function(test) {
   test.expect(1);
@@ -42,11 +42,11 @@ exports.testLastTimestamp = function(test) {
       lookback: 10,
       lastTimestamp: Date.now() - minuteCount * 60 * 1000
     }
-  }
+  };
   machine.data(req, {
-    json: function(data) {
-      test.equal(data.length, minuteCount + 1);
+    json: function(response) {
+      test.equal(response.minutes.length, minuteCount + 1);
       test.done();
     }
   });
-}
+};
