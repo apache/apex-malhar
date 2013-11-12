@@ -51,13 +51,50 @@ exports.data = function (req, res) {
   });
 };
 
+function extractMinutes(minuteKeys, replies) {
+  var minutes = [];
+  var latestKeyWithData = null;
+
+  for (var i = 0; i < replies.length; i++) {
+    var reply = replies[i];
+    var minuteKey = minuteKeys[i];
+    if (reply) {
+      if (reply.day === minuteKey.day) {
+        var minute = {
+          timestamp: minuteKeys[i].timestamp,
+          cpu: reply.cpu,
+          ram: reply.ram,
+          hdd: reply.hdd
+        };
+        minutes.push(minute);
+
+        if (!latestKeyWithData) {
+          latestKeyWithData = minuteKey.key;
+        }
+      } else if (!_.isEmpty(minutes)) {
+        break;
+      }
+    } else if (!_.isEmpty(minutes)) {
+      break;
+    }
+  }
+
+  var data = {
+    minutes: minutes,
+    latestKeyWithData: latestKeyWithData
+  };
+
+  return data;
+}
+exports.extractMinutes = extractMinutes;
+
 function getMinutes(query, resCallback) {
   var lookback = query.lookback;
   var lastTimestamp = query.lastTimestamp;
   var keyParams = [query.customer, query.product, query.os, query.software1, query.software2, query.software3, query.deviceId];
 
   var paramKeyTemplate = '|$index:$param';
-  var minuteKeyTemplate = 'm|$date';
+  var minuteKeyTemplate = '$date';
   keyParams.forEach(function (param, index) {
     if (param) {
       var paramKey = paramKeyTemplate
@@ -81,12 +118,14 @@ function getMinutes(query, resCallback) {
   }
 
   var minuteKeys = [];
-  for (var i = lookback - 1; i >= 0; i--) {
+  for (var i = 0; i < lookback; i++) {
     var time = endTime - (i * minute);
-    var date = dateFormat(time, 'UTC:yyyymmddHHMM');
+    var date = dateFormat(time, 'UTC:HHMM');
+    var day = dateFormat(time, 'UTC:d');
     var key = minuteKeyTemplate.replace('$date', date);
     minuteKeys.push({
       timestamp: time,
+      day: day,
       key: key
     });
   }
@@ -100,23 +139,11 @@ function getMinutes(query, resCallback) {
   multi.exec(function (err, replies) {
     var execTime = (Date.now() - execStartTime);
 
-    var lastIndex = -1;
-    var minutes = [];
-    replies.forEach(function (reply, index) {
-      if (reply) {
-        lastIndex = index;
-        var minute = {
-          timestamp: minuteKeys[index].timestamp,
-          cpu: reply.cpu,
-          ram: reply.ram,
-          hdd: reply.hdd
-        };
-        minutes.push(minute);
-      }
-    });
-
-    var lastKey = (lastIndex >= 0) ? minuteKeys[lastIndex].key : 'none';
-    var lastKeyQueried = _.last(minuteKeys).key;
+    var minuteData = extractMinutes(minuteKeys, replies);
+    var minutes = minuteData.minutes;
+    minutes.reverse();
+    var lastKey = minuteData.latestKeyWithData;
+    var lastKeyQueried = _.first(minuteKeys).key;
 
     var result = {
       minutes: minutes,
