@@ -52,7 +52,7 @@ public class CalculatorOperatorTest {
         Calendar calendar = Calendar.getInstance(); 
         Date date = calendar.getTime();
         String timeKey = minuteDateFormat.format(date);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        String day = calendar.get(Calendar.DAY_OF_MONTH)+"";
 
         Integer vs= new Integer(1);
         MachineKey mk= new MachineKey(timeKey,day, vs, vs,vs,vs, vs,vs,vs) ;
@@ -90,7 +90,7 @@ public class CalculatorOperatorTest {
         Calendar calendar = Calendar.getInstance();      
         Date date = calendar.getTime();
         String timeKey = minuteDateFormat.format(date);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        String day = calendar.get(Calendar.DAY_OF_MONTH)+"";
 
         Integer vs= new Integer(1);
         MachineKey mk= new MachineKey(timeKey,day, vs, vs,vs,vs, vs,vs,vs) ;
@@ -139,7 +139,7 @@ public class CalculatorOperatorTest {
         Calendar calendar = Calendar.getInstance();      
         Date date = calendar.getTime();
         String timeKey = minuteDateFormat.format(date);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        String day = calendar.get(Calendar.DAY_OF_MONTH)+"";
 
         Integer vs= new Integer(1);
         MachineKey mk= new MachineKey(timeKey,day, vs, vs,vs,vs, vs,vs,vs) ;

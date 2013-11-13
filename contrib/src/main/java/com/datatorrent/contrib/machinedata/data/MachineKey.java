@@ -34,7 +34,7 @@ public class MachineKey
   private Integer software3;
   private Integer deviceId;
   private String timeKey;
-  private Integer day;
+  private String day;
 
   /**
    * This constructor takes the format in which time has to be captured and the day when this instance is created
@@ -42,7 +42,7 @@ public class MachineKey
    * @param timeKey the format in which time has to be captured
    * @param day the day when this instance is created
    */
-  public MachineKey(String timeKey, Integer day)
+  public MachineKey(String timeKey, String day)
   {
     this.timeKey = timeKey;
     this.day = day;
@@ -70,7 +70,7 @@ public class MachineKey
    * @param software3 software3 version
    * @param deviceId deviceId
    */
-  public MachineKey(String timeKey, Integer day, Integer customer, Integer product, Integer os, Integer software1, Integer software2, Integer software3, Integer deviceId)
+  public MachineKey(String timeKey, String day, Integer customer, Integer product, Integer os, Integer software1, Integer software2, Integer software3, Integer deviceId)
   {
     this.timeKey = timeKey;
     this.day = day;
@@ -111,7 +111,7 @@ public class MachineKey
    * 
    * @return
    */
-  public Integer getDay()
+  public String getDay()
   {
     return day;
   }
@@ -122,7 +122,7 @@ public class MachineKey
    * @param day
    *          the day of the month
    */
-  public void setDay(Integer day)
+  public void setDay(String day)
   {
     this.day = day;
   }
@@ -291,7 +291,7 @@ public class MachineKey
     }
     if (day != null) {
       key |= (1 << 23);
-      key ^= day;
+      key ^= day.hashCode();
     }
 
     return key;
@@ -304,7 +304,7 @@ public class MachineKey
       return false;
     }
     MachineKey mkey = (MachineKey) obj;
-    return checkStringEqual(this.timeKey, mkey.timeKey) && checkIntEqual(this.day, mkey.day) && checkIntEqual(this.customer, mkey.customer) && checkIntEqual(this.product, mkey.product) && checkIntEqual(this.os, mkey.os) && checkIntEqual(this.software1, mkey.software1) && checkIntEqual(this.software2, mkey.software2) && checkIntEqual(this.software3, mkey.software3) && checkIntEqual(this.deviceId, mkey.deviceId);
+    return checkStringEqual(this.timeKey, mkey.timeKey) && checkStringEqual(this.day, mkey.day) && checkIntEqual(this.customer, mkey.customer) && checkIntEqual(this.product, mkey.product) && checkIntEqual(this.os, mkey.os) && checkIntEqual(this.software1, mkey.software1) && checkIntEqual(this.software2, mkey.software2) && checkIntEqual(this.software3, mkey.software3) && checkIntEqual(this.deviceId, mkey.deviceId);
   }
 
   private boolean checkIntEqual(Integer a, Integer b)
