@@ -108,7 +108,7 @@ public class HighlevelKafkaConsumer extends KafkaConsumer
           ConsumerIterator<byte[], byte[]> itr = stream.iterator();
           logger.debug("Thread " + Thread.currentThread().getName() + " start consuming message...");
           while (itr.hasNext() && isAlive) {
-            holdingBuffer.add(new Message(itr.next().message()));
+            putMessage(new Message(itr.next().message()));
           }
         }
       });

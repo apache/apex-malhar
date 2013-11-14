@@ -18,7 +18,11 @@ package com.datatorrent.contrib.kafka;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.NotNull;
+import com.yammer.metrics.Metrics;
+import com.yammer.metrics.core.Meter;
+import com.yammer.metrics.core.MetricName;
 import kafka.message.Message;
 
 
@@ -32,6 +36,11 @@ public abstract class KafkaConsumer
   protected final static String HIGHLEVEL_CONSUMER_ID_SUFFIX = "_stream_";
   
   protected final static String SIMPLE_CONSUMER_ID_SUFFIX = "_partition_";
+  
+  // use yammer metrics to tick consumers' msg rate
+  private Meter msgPerSec;
+  
+  private Meter bytesPerSec;
   
   public KafkaConsumer()
   {
@@ -55,7 +64,7 @@ public abstract class KafkaConsumer
   
   protected transient boolean isAlive = false;
   
-  protected transient ArrayBlockingQueue<Message> holdingBuffer;
+  private transient ArrayBlockingQueue<Message> holdingBuffer;
   
   /**
    * The topic that this consumer consumes
@@ -83,12 +92,16 @@ public abstract class KafkaConsumer
    */
   public void start(){
     isAlive = true;
+    msgPerSec = Metrics.defaultRegistry().newMeter(new MetricName(getClass().getPackage().getName(), "KafkaConsumer", "MsgsPerSec"),"messages", TimeUnit.SECONDS);
+    bytesPerSec = Metrics.defaultRegistry().newMeter(new MetricName(getClass().getPackage().getName(), "KafkaConsumer", "BytesPerSec"),"bytes", TimeUnit.SECONDS);
   };
 
   /**
    * The method is called in the deactivate method of the operator
    */
   public void stop(){
+    Metrics.defaultRegistry().removeMetric(new MetricName(getClass().getPackage().getName(), "KafkaConsumer", "MsgsPerSec"));
+    Metrics.defaultRegistry().removeMetric(new MetricName(getClass().getPackage().getName(), "KafkaConsumer", "BytesPerSec"));
     isAlive = false;
     holdingBuffer.clear();
   };
@@ -140,10 +153,18 @@ public abstract class KafkaConsumer
   {
     return brokerSet;
   }
+  
+  
+  final protected void putMessage(Message msg){
+    holdingBuffer.add(msg);
+    msgPerSec.mark();
+    bytesPerSec.mark(msg.payloadSize());
+  };
+  
 
   protected abstract KafkaConsumer cloneConsumer(int partitionId);
 
   protected abstract void commitOffset();
-  
+
 
 }
