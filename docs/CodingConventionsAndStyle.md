@@ -9,7 +9,7 @@ Malhar administrators look at pull requests regularly and merge them into the re
 * The code should not have any warnings. All warnings should be resolved prior to submission. If there is a scenario where legitimate code has warnings SuppressWarnings annotation should be used appropriately.
 * All classes, methods and constants should be well java documented. The code will not be accepted without documentation and the reviewer will comment on the pull request accordingly.
 * All code should have unit tests and the tests should pass successfully.
-* New files should not have any license. A license will be added by the reviewer. License should not be modified for existing files.
+* New files should have apache 2.0 license. License should not be modified for existing files.
 * There should be no author, date or organization references in the comments or java documentation
 
 It is highly recommended that the code follow a certain coding style so that it is consistent with the existing code that is already in the repository. It helps when someone new who has not worked on that part of the code is looking at it. Below is a visual example that expresses the coding style. The salient points are noted after the code listing.
