@@ -107,9 +107,10 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
       LOG.warn("since no value is set, setting everything to default");
       return;
     }
-    host = connectionArr[0].trim();
+    String[] redisInstance = connectionArr[0].split(":");
+    host = redisInstance[0];
     try {
-      port = Integer.valueOf(connectionArr[1].trim());
+      port = Integer.valueOf(redisInstance[1].trim());
     } catch (NumberFormatException ex) {
       LOG.error("defaulting the value to default port 6379 as there is error {} ", ex.getMessage());
       port = 6379;
@@ -118,7 +119,7 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
       port = 6379;
     }
     try{
-      dbIndex = Integer.valueOf(connectionArr[2].trim());
+      dbIndex = Integer.valueOf(connectionArr[1].trim());
     }catch (NumberFormatException ex) {
       LOG.error("defaulting the value to default DB 0 as there is error {} ", ex.getMessage());
       dbIndex = 0;
