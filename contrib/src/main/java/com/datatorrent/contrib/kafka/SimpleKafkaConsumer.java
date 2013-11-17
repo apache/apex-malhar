@@ -15,30 +15,27 @@
  */
 package com.datatorrent.contrib.kafka;
 
-import java.nio.ByteBuffer;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import kafka.api.FetchRequest;
 import kafka.api.FetchRequestBuilder;
+import kafka.api.OffsetRequest;
 import kafka.cluster.Broker;
 import kafka.common.ErrorMapping;
 import kafka.javaapi.FetchResponse;
 import kafka.javaapi.PartitionMetadata;
 import kafka.javaapi.consumer.SimpleConsumer;
-import kafka.javaapi.message.ByteBufferMessageSet;
-import kafka.message.Message;
 import kafka.message.MessageAndOffset;
 
 /**
@@ -55,7 +52,7 @@ import kafka.message.MessageAndOffset;
  * default value is 3 <br>
  * -1: always retry <br>
  * <br>
- * 
+ *
  * Load balance: <br>
  * <li>Every consumer only sticks to leader broker for particular partition once it's created</li>
  * <li>Once leadership change detected(leader broker failure, or server-side reassignment), it switches to the new leader broker</li>
@@ -67,6 +64,8 @@ import kafka.message.MessageAndOffset;
  * <li>Once broker fail detected, it waits #metadataRefreshInterval to connect to the new leader broker </li>
  * <li>If there are consecutive #metadataRetrievalRetry failures to retrieve the metadata for the topic. It will stop consuming the partition</li>
  * <br>
+ *
+ * @since 0.9.0
  */
 public class SimpleKafkaConsumer extends KafkaConsumer
 {
@@ -171,7 +170,11 @@ public class SimpleKafkaConsumer extends KafkaConsumer
   public void start()
   {
     super.start();
-    final ExecutorService executor = Executors.newFixedThreadPool(simpleConsumerThreads.size() * 2);
+    // thread to consume the kafka data
+    final ExecutorService executor = Executors.newFixedThreadPool(simpleConsumerThreads.size(), new ThreadFactoryBuilder().setNameFormat("kafka-consumer-" + topic + "-%d").build());
+    // underground thread to check the kafka metadata change
+    final ScheduledExecutorService timerExecutor = Executors.newScheduledThreadPool(simpleConsumerThreads.size(), new ThreadFactoryBuilder()
+    .setNameFormat("kafka-consumer-monitor-" + topic + "%d").setDaemon(true).build());
     for (final Integer pid : simpleConsumerThreads.keySet()) {
       executor.submit(new Runnable() {
         
@@ -183,18 +186,11 @@ public class SimpleKafkaConsumer extends KafkaConsumer
         public void run()
         {
           // start a monitor thread to monitor the metadata change and trigger some action on the change  
-          executor.execute(new Runnable(){
-            
+          timerExecutor.scheduleAtFixedRate(new Runnable(){
             @Override
             public void run()
             {
-              
-              while(isAlive && (metadataRetrievalRetry==-1 || retryCounter < metadataRetrievalRetry)){
-                try {
-                  Thread.sleep(metadataRefreshInterval);
-                } catch (InterruptedException e) {
-                  e.printStackTrace();
-                }
+              if(isAlive && (metadataRetrievalRetry==-1 || retryCounter < metadataRetrievalRetry)){
                 logger.debug(Thread.currentThread().getName() + ": Update metadata for topic " + topic);
                 List<PartitionMetadata> pms =  KafkaMetadataUtil.getPartitionsForTopic(brokerSet, topic);
                 brokerSet.clear();
@@ -209,11 +205,11 @@ public class SimpleKafkaConsumer extends KafkaConsumer
                 }
                 if(leaderForPartition == null){
                   retryCounter++;
-                  continue;
+                  return;
                 }
                 retryCounter = 0;
                 if(csInThread.host().equals(leaderForPartition.leader().host()) && csInThread.port() == leaderForPartition.leader().port()){
-                  continue;
+                  return;
                 }
                 logger.info("Find leader broker change, try to reconnect to leader broker " + leaderForPartition.leader().host());
                 // clean the consumer to reestablish the new connection
@@ -223,8 +219,14 @@ public class SimpleKafkaConsumer extends KafkaConsumer
                 simpleConsumerThreads.put(pid, csInThread);
               }
             }
-          });
+          }, 0, metadataRefreshInterval, TimeUnit.MILLISECONDS);
+          
+          
+          //offset cannot always be 0
           long offset = offsetTrack.get(pid) == null ? 0L : offsetTrack.get(pid);
+          // read either from beginning of the broker or last offset committed by the operator
+          offset = Math.max(KafkaMetadataUtil.getLastOffset(csInThread, topic, pid, OffsetRequest.EarliestTime(), clientId), offset);
+          
           while (isAlive && (metadataRetrievalRetry==-1 || retryCounter < metadataRetrievalRetry)) {
 
             try {
@@ -239,19 +241,13 @@ public class SimpleKafkaConsumer extends KafkaConsumer
                 // If error happen, assume
                 throw new  Exception("Fetch message error, try to reconnect to new broker");
               }
-
-              ByteBufferMessageSet messages = fetchResponse.messageSet(topic, pid);
-              Iterator<MessageAndOffset> itr = messages.iterator();
-
-              if (itr.hasNext() && isAlive) {
-                MessageAndOffset msg = itr.next();
+              
+              for(MessageAndOffset msg :  fetchResponse.messageSet(topic, pid)){
                 offset = msg.nextOffset();
-                offsetTrack.put(pid, offset);
-                ByteBuffer payload = msg.message().payload();
-                byte[] bytes = new byte[payload.limit()];
-                payload.get(bytes);
-                holdingBuffer.add(new Message(bytes));
+                putMessage(msg.message());
               }
+              offsetTrack.put(pid, offset);
+              
             } catch (Exception e) {
               logger.warn("Error read from leader broker, highly likely the leader broker is failing. " + e);
               try {
@@ -342,6 +338,14 @@ public class SimpleKafkaConsumer extends KafkaConsumer
   {
     // create different client for same partition
     return new SimpleKafkaConsumer(brokerSet, topic, timeout, bufferSize, clientId + SIMPLE_CONSUMER_ID_SUFFIX + partitionId, partitionId);
+  }
+
+  @Override
+  protected void commitOffset()
+  {
+    // the simple consumer offset is kept in the offsetTrack
+    // It's better to do server registry for client in the future. Wait for kafka community come up with more sophisticated offset management
+    //TODO https://cwiki.apache.org/confluence/display/KAFKA/Inbuilt+Consumer+Offset+Management#
   }
 
 

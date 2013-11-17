@@ -15,8 +15,10 @@ import java.lang.reflect.ParameterizedType;
  * This codec is used for serializing the objects of class which are Kryo serializable.
  * It is needed when custom static partitioning is required.
  *
- * @param <T> Type of the object which gets serialized/deserialized using this
- *            codec.
+ * @param <T>
+ *          Type of the object which gets serialized/deserialized using this  codec.
+ *
+ * @since 0.9.0
  */
 public class KryoSerializableStreamCodec<T> implements StreamCodec<T>
 {

@@ -20,10 +20,11 @@ import java.util.Map;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.api.StreamingApplication;
+
 import com.datatorrent.contrib.redis.RedisNumberAggregateOutputOperator;
 import com.datatorrent.contrib.redis.RedisOutputOperator;
 import com.datatorrent.lib.io.ApacheGenRandomLogs;
@@ -86,11 +87,11 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
   	// count occurance operator
   	CountOccurance<String> urlCounter = dag.addOperator("urlCounter", new CountOccurance<String>());
   	dag.addStream("urlStream", parser.outputUrl, urlCounter.inport);
-  	dag.getMeta(urlCounter).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(2);
+  	dag.getMeta(urlCounter).getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, 2);
 
     // url time dimension
   	TimeDimensionOperator dimensionOperator = getPageDimensionTimeBucketSumOperator("Dimension", dag);
-    dag.getMeta(dimensionOperator).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(10);
+    dag.getMeta(dimensionOperator).getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, 10);
     dag.addStream("input_dimension", urlCounter.dimensionOut, dimensionOperator.in);
     dag.addStream("dimension_out", dimensionOperator.out,  getRedisOutput("redisapachelog1", dag, 1)).setLocality(Locality.CONTAINER_LOCAL);
 
@@ -109,11 +110,11 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
     // count server name occurance operator
    	CountOccurance<String> serverCounter = dag.addOperator("serverCounter", new CountOccurance<String>());
    	dag.addStream("serverStream", parser.outputServerName, serverCounter.inport).setLocality(Locality.CONTAINER_LOCAL);
-   	dag.getMeta(serverCounter).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(2);
+   	dag.getMeta(serverCounter).getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, 2);
 
    	// url time dimension
    	TimeDimensionOperator serverDimensionOper = getPageDimensionTimeBucketSumOperator("serverDimensionOper", dag);
-    dag.getMeta(serverDimensionOper).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(10);
+    dag.getMeta(serverDimensionOper).getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, 10);
     dag.addStream("server_dimension", serverCounter.dimensionOut, serverDimensionOper.in).setLocality(Locality.CONTAINER_LOCAL);
     dag.addStream("server_dimension_out", serverDimensionOper.out,  getRedisOutput("redisapachelog4", dag, 4)).setLocality(Locality.CONTAINER_LOCAL);
 
@@ -121,7 +122,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
    // count server name occurance operator
     CountOccurance<String> serverCounter1 = dag.addOperator("serverCounter1", new CountOccurance<String>());
    	dag.addStream("serverStream1", parser.outputServerName1, serverCounter1.inport).setLocality(Locality.CONTAINER_LOCAL);
-   	dag.getMeta(serverCounter1).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(2);
+   	dag.getMeta(serverCounter1).getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, 2);
 
     // format output for redix operator
     TopOccurance serverTop = dag.addOperator("serverTop", new TopOccurance());
@@ -137,7 +138,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
     // count ip occurance operator
     CountOccurance<String> ipCounter = dag.addOperator("ipCounter", new CountOccurance<String>());
    	dag.addStream("ipStream", parser.outputIPAddress, ipCounter.inport).setLocality(Locality.CONTAINER_LOCAL);
-   	dag.getMeta(ipCounter).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(2);
+   	dag.getMeta(ipCounter).getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, 2);
 
     // Top ip client counter
     TopOccurance topIpOccur = dag.addOperator("topIpOccur", new TopOccurance());
@@ -158,7 +159,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
    	// get filter status operator
     HttpStatusFilter urlHttpFilter = dag.addOperator("urlStatusCheck", new HttpStatusFilter());
     urlHttpFilter.setFilterStatus("404");
-    dag.getMeta(urlHttpFilter).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(2);
+    dag.getMeta(urlHttpFilter).getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, 2);
    	dag.addStream("urlStatusCheckStream", parser.outUrlStatus, urlHttpFilter.inport).setLocality(Locality.CONTAINER_LOCAL);
    	TopOccurance topUrlStatus = dag.addOperator("topUrlStatus", new TopOccurance());
    	topUrlStatus.setN(10);
@@ -170,7 +171,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
 
    	// client data usage
    	Sum<Integer> totalOper =  dag.addOperator("totaloper", new Sum<Integer>());
-   	dag.getMeta(totalOper).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(2);
+   	dag.getMeta(totalOper).getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, 2);
    	dag.addStream("clientDataFilterStream", parser.clientDataUsage, totalOper.data).setLocality(Locality.CONTAINER_LOCAL);
    	RedisOutputOperator<Integer, Integer> redisgt9 = dag.addOperator("redisapachelog9", new RedisOutputOperator<Integer, Integer>());
     redisgt9.setDatabase(9);
@@ -180,7 +181,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
     // get filter status operator
     HttpStatusFilter serverHttpFilter = dag.addOperator("serverHttpFilter", new HttpStatusFilter());
     serverHttpFilter.setFilterStatus("404");
-    dag.getMeta(serverHttpFilter).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(2);
+    dag.getMeta(serverHttpFilter).getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, 2);
    	dag.addStream("serverHttpFilterStream", parser.outServerStatus, serverHttpFilter.inport).setLocality(Locality.CONTAINER_LOCAL);
    	TopOccurance serverTop404 = dag.addOperator("serverTop404", new TopOccurance());
    	serverTop404.setN(10);
@@ -191,7 +192,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
 
     // data collect for each
     KeyValSum ipDataCollect = dag.addOperator("ipDataCollect", new KeyValSum());
-    dag.getMeta(ipDataCollect).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(2);
+    dag.getMeta(ipDataCollect).getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, 2);
     dag.addStream("ipDataCollectStream", parser.outputBytes, ipDataCollect.inport).setLocality(Locality.CONTAINER_LOCAL);
     TopOccurance topIpData = dag.addOperator("topIpData", new TopOccurance());
     topIpData.setN(10);
@@ -203,7 +204,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
 
     // total view count
     RedisSumOper totalViewcount =  dag.addOperator("totalViewcount", new RedisSumOper());
-   	dag.getMeta(totalViewcount).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(2);
+   	dag.getMeta(totalViewcount).getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, 2);
    	dag.addStream("totalViewcountStream", parser.viewCount, totalViewcount.inport).setLocality(Locality.CONTAINER_LOCAL);
    	//dag.addStream("consoletest", totalViewcount.sumInteger,  consoleOutput(dag, "console")).setInline(true);
    	RedisOutputOperator<Integer, Integer> redisgt11 = dag.addOperator("redisapachelog11", new RedisOutputOperator<Integer, Integer>());

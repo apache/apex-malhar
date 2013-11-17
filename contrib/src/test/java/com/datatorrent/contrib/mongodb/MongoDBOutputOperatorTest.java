@@ -24,12 +24,13 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mongodb.DBCursor;
+
 import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.AttributeMap.DefaultAttributeMap;
 import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAGContext;
+
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.mongodb.DBCursor;
 
 /**
  *
@@ -41,7 +42,7 @@ public class MongoDBOutputOperatorTest
   public String[] arrayMapping1 = new String[columnNum];
   public final static int maxTuple = 20;
   public final static int columnNum = 5;
-  public AttributeMap attrmap = new DefaultAttributeMap(DAGContext.class);
+  public AttributeMap attrmap = new DefaultAttributeMap();
 
   public void buildDataset()
   {
@@ -63,7 +64,7 @@ public class MongoDBOutputOperatorTest
     arrayMapping1[3] = "t2.col2:STRING";
     arrayMapping1[4] = "t2.col1:INT";
 
-    attrmap.attr(DAG.APPLICATION_ID).set("myMongoDBOouputOperatorAppId");
+    attrmap.put(DAG.APPLICATION_ID, "myMongoDBOouputOperatorAppId");
 
   }
 

@@ -21,16 +21,16 @@
 angular.module('rest', ['ng', 'restangular'])
     .factory('rest', ['$q', 'Restangular', function($q, Restangular) {
         return {
-            getAppId: function (appName) {
+            getApp: function (appName) {
                 var deferred = $q.defer();
-                Restangular.oneUrl('applications', 'stram/v1/applications').get().then(function (response) {
+                Restangular.oneUrl('applications', 'ws/v1/applications').get().then(function (response) {
                     var errorMessage = null;
-                    if (response && response.apps && response.apps.app && response.apps.app.length > 0) {
-                        var apps = _.where(response.apps.app, { name: appName, state: 'RUNNING' });
+                    if (response && response.apps && response.apps.length > 0) {
+                        var apps = _.where(response.apps, { name: appName, state: 'RUNNING' });
                         if (apps.length > 0) {
                             apps = _.sortBy(apps, function (app) { return parseInt(app.elapsedTime, 10); });
                             var app = apps[0];
-                            deferred.resolve(app.id);
+                            deferred.resolve(app);
                         } else {
                             errorMessage = appName + ' is not found. Please make sure application is running.';
                         }
@@ -54,8 +54,36 @@ angular.module('rest', ['ng', 'restangular'])
             },
 
             getMachineData: function (query) {
-                return Restangular.all('machine').getList(query);
-            }
+                var promise = Restangular.one('machine').get(query);
+
+                promise.then(null, function (response) {
+                  jQuery.pnotify({
+                    title: 'Error',
+                    text: 'Error getting data from server. Status Code: ' + response.status,
+                    type: 'error',
+                    icon: false,
+                    hide: false
+                  });
+                });
+
+                return promise;
+            },
+
+          getDimensionsData: function (query) {
+            var promise = Restangular.one('dimensions').get(query);
+
+            promise.then(null, function (response) {
+              jQuery.pnotify({
+                title: 'Error',
+                text: 'Error getting data from server. Status Code: ' + response.status,
+                type: 'error',
+                icon: false,
+                hide: false
+              });
+            });
+
+            return promise;
+          }
         };
     }])
     .run(function(Restangular) {

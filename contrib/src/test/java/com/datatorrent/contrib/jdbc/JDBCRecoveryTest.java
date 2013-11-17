@@ -15,18 +15,19 @@
  */
 package com.datatorrent.contrib.jdbc;
 
-import com.datatorrent.contrib.jdbc.JDBCNonTransactionHashMapOutputOperator;
-import com.datatorrent.contrib.jdbc.JDBCTransactionHashMapOutputOperator;
-import com.datatorrent.api.CheckpointListener;
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DAG;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.CheckpointListener;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.LocalMode;
+
 
 /**
  *
@@ -122,9 +123,9 @@ public class JDBCRecoveryTest
     LocalMode lma = LocalMode.newInstance();
     DAG dag = lma.getDAG();
 
-    dag.getAttributes().attr(DAG.CHECKPOINT_WINDOW_COUNT).set(2);
-    dag.getAttributes().attr(DAG.STREAMING_WINDOW_SIZE_MILLIS).set(300);
-    dag.getAttributes().attr(DAG.CONTAINERS_MAX_COUNT).set(1);
+    dag.getAttributes().put(DAG.CHECKPOINT_WINDOW_COUNT, 2);
+    dag.getAttributes().put(DAG.STREAMING_WINDOW_SIZE_MILLIS, 300);
+    dag.getAttributes().put(DAG.CONTAINERS_MAX_COUNT, 1);
 
     JDBCRecoverInputOperator rip = dag.addOperator("Generator", JDBCRecoverInputOperator.class);
     rip.setMaximumTuples(maxTuple);
@@ -290,9 +291,9 @@ public class JDBCRecoveryTest
 
     LocalMode lma = LocalMode.newInstance();
     DAG dag = lma.getDAG();
-    dag.getAttributes().attr(DAG.CHECKPOINT_WINDOW_COUNT).set(2);
-    dag.getAttributes().attr(DAG.STREAMING_WINDOW_SIZE_MILLIS).set(300);
-    dag.getAttributes().attr(DAG.CONTAINERS_MAX_COUNT).set(1);
+    dag.getAttributes().put(DAG.CHECKPOINT_WINDOW_COUNT, 2);
+    dag.getAttributes().put(DAG.STREAMING_WINDOW_SIZE_MILLIS, 300);
+    dag.getAttributes().put(DAG.CONTAINERS_MAX_COUNT, 1);
 
     JDBCRecoverInputOperator rip = dag.addOperator("Generator", JDBCRecoverInputOperator.class);
     rip.setMaximumTuples(maxTuple);

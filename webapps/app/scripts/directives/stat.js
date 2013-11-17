@@ -19,36 +19,40 @@
 'use strict';
 
 angular.module('widgets')
-    .directive('widgetsStat', ['socket', function (socket) {
+    .directive('widgetsStat', ['$timeout', 'socket', function ($timeout, socket) {
         return {
             restrict: 'A',
             templateUrl: 'views/stat.html',
             scope: {
-                data: "=",
+                app: "=",
                 label: "@",
                 onClick: "&"
             },
             link: function($scope, iElement, iAttrs) {
                 $scope.totalEmitted = 0;
                 $scope.totalProcessed = 0;
+                $scope.elapsed = 0;
 
-                $scope.$watch('data', function (appId) {
-                    if (appId) {
-                        var topic = 'apps.' + appId + '.operators.list';
+                var initialElapsedTime;
+                var startTime;
+
+                function updatedElapsedTime() {
+                    $scope.elapsed = initialElapsedTime + (Date.now() - startTime);
+                    $timeout(updatedElapsedTime, 1000);
+                }
+
+                $scope.$watch('app', function (app) {
+                    if (app) {
+                        initialElapsedTime = parseInt(app.elapsedTime);
+                        startTime = Date.now();
+                        updatedElapsedTime();
+
+                        var topic = 'applications.' + app.id;
 
                         socket.subscribe(topic, function (message) {
-                            var operators = message.data.operators;
-
-                            var emitted = BigInteger.ZERO;
-                            var processed = BigInteger.ZERO;
-                            //var emitted = new BigInteger('9007199254740992');
-                            _.each(operators, function (op) {
-                                emitted = emitted.add(new BigInteger(op.tuplesEmittedPSMA10));
-                                processed = processed.add(new BigInteger(op.totalTuplesProcessed));
-                            });
-
-                            $scope.totalEmitted = emitted.toString();
-                            $scope.totalProcessed = processed.toString();
+                            var appData = message.data;
+                            $scope.totalEmitted = appData.tuplesEmittedPSMA;
+                            $scope.totalProcessed = appData.totalTuplesProcessed;
                             $scope.$apply();
                         });
                     }

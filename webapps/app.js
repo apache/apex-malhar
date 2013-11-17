@@ -21,8 +21,8 @@ var httpProxy = require('http-proxy');
 var config = require('./config');
 
 var machine = require('./routes/machine');
-
-// var fraud = require('./routes/fraud');
+var adsdimensions = require('./routes/adsdimensions');
+var fraud = require('./routes/fraud');
 
 var app = express();
 
@@ -45,21 +45,11 @@ if ('production' == app.get('env')) {
 }
 
 
-// Machine Generated Data Demo Demo
-//app.get('/machine', redirectToMain);
-//app.get('/machine/main', machine.index);
 app.get('/machine', machine.data);
-
-// app.get('/fraud/alerts', fraud.getAlerts);
-
+app.get('/dimensions', adsdimensions.data);
+app.get('/fraud/alertCount', fraud.getAlertCount);
+app.get('/fraud/randomStats', fraud.getRecentStats);
 app.get('/ws/*', function(req, res) {
-    proxy.proxyRequest(req, res, {
-        host: config.daemon.host,
-        port: config.daemon.port
-    });
-});
-
-app.get('/stram/*', function(req, res) {
     proxy.proxyRequest(req, res, {
         host: config.daemon.host,
         port: config.daemon.port
@@ -73,17 +63,14 @@ function broadcast() {
     var random = Math.floor(Math.random() * 1000);
 
     var topic;
-    var type;
     if (random % 2 === 0) {
-        topic = 'contrib.summit.mrDebugger.reduceResult';
-        type = 'REDUCE';
+        topic = 'topic1';
     } else {
-        topic = 'contrib.summit.mrDebugger.mapResult';
-        type = 'MAP';
+        topic = 'topic2';
     }
     var message = {
         topic: topic,
-        data: { id: random % 10, progress: random % 100, type: type }
+        data: { id: random % 10, progress: random % 100 }
     }
 
     for (var key in clients) {

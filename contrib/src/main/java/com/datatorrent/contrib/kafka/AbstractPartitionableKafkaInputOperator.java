@@ -22,13 +22,14 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import kafka.javaapi.PartitionMetadata;
+import com.datatorrent.api.CheckpointListener;
 import com.datatorrent.api.PartitionableOperator;
 
 /**
- * 
+ *
  * This kafka input operator will be automatically partitioned per upstream kafka partition.<br> <br>
  * This is not real dynamic partition, The partition number is decided by number of partition set for the topic in kafka.<br> <br>
- * 
+ *
  * <b>Algorithm:</b> <br>
  * <p>1.Pull the metadata(how many partitions) of the topic from brokerList of {@link KafkaConsumer}</p>
  * <p>2.Create new partition according to how many partitions are there for the topic</p>
@@ -37,9 +38,11 @@ import com.datatorrent.api.PartitionableOperator;
  * <br>
  * <br>
  * <b>Load balance:</b> refer to {@link SimpleKafkaConsumer} and {@link HighlevelKafkaConsumer} <br>
- * <b>Kafka partition failover:</b> refer to {@link SimpleKafkaConsumer} and {@link HighlevelKafkaConsumer} 
+ * <b>Kafka partition failover:</b> refer to {@link SimpleKafkaConsumer} and {@link HighlevelKafkaConsumer}
+ *
+ * @since 0.9.0
  */
-public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKafkaInputOperator<KafkaConsumer> implements PartitionableOperator
+public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKafkaInputOperator<KafkaConsumer> implements PartitionableOperator, CheckpointListener
 {
   
   private static final Logger logger = LoggerFactory.getLogger(AbstractPartitionableKafkaInputOperator.class);
@@ -78,5 +81,17 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
    * @return
    */
   protected abstract AbstractPartitionableKafkaInputOperator cloneOperator();
+  
+  @Override
+  public void checkpointed(long windowId)
+  {
+    // commit the kafka consummer offset
+    getConsumer().commitOffset();
+  }
+  
+  @Override
+  public void committed(long windowId)
+  {    
+  }
 
 }

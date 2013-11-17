@@ -61,6 +61,20 @@ angular.module('machine')
             });
     });
 
+angular.module('dimensions', ['ng', 'rest', 'widgets']);
+
+angular.module('dimensions')
+    .config(function ($routeProvider) {
+      $routeProvider
+        .when('/', {
+          templateUrl: 'views/dimensions.html',
+          controller: 'DimensionsController'
+        })
+        .otherwise({
+          redirectTo: '/'
+        });
+    });
+
 angular.module('fraud', ['rest', 'widgets', 'socket']);
 
 angular.module('fraud')

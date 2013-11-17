@@ -91,7 +91,6 @@ public class ApplicationWithScript implements StreamingApplication
     rrhm.setKeys(new String[] { "x", "y" });
 
     JavaScriptOperator calc = dag.addOperator("picalc", new JavaScriptOperator());
-    calc.setKeepContext(true);
     calc.setPassThru(false);
     calc.put("i",0);
     calc.put("count",0);

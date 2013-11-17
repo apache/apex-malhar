@@ -34,7 +34,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * <p>
  * Abstract DimensionTimeBucketOperator class.
  * </p>
- * 
+ *
  * @since 0.3.2
  */
 public abstract class DimensionTimeBucketOperator extends BaseOperator
@@ -190,7 +190,7 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
   {
     super.setup(context);
     if(context != null)
-      windowWidth = context.attrValue(DAGContext.STREAMING_WINDOW_SIZE_MILLIS, 500);
+      windowWidth = context.getValue(DAGContext.STREAMING_WINDOW_SIZE_MILLIS);
     if (dimensionCombinations.isEmpty() && dimensionCombinationsSet == null) {
       dimensionCombinations.add(null);
       for (int i = 1; i <= dimensionKeyNames.size(); i++) {

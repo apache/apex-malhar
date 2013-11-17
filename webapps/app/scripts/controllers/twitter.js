@@ -20,11 +20,11 @@
 
 angular.module('twitter')
     .controller('TwitterController', ['$scope', 'rest', function ($scope, rest) {
-        $scope.appId = rest.getAppId(settings.twitter.appName);
+        $scope.app = rest.getApp(settings.twitter.appName);
 
-        $scope.$watch('appId', function (appId) {
-            if (appId) {
-                $scope.appURL = settings.appsURL + appId;
+        $scope.$watch('app', function (app) {
+            if (app) {
+                $scope.appURL = settings.appsURL + app.id;
             }
         });
     }])

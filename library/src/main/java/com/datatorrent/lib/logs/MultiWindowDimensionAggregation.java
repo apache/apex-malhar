@@ -39,7 +39,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * MultiWindowDimensionAggregation class.
  * </p>
  * This class aggregates the value of given dimension across windows
- * 
+ *
  * @since 0.3.4
  */
 public class MultiWindowDimensionAggregation implements Operator
@@ -159,7 +159,7 @@ public class MultiWindowDimensionAggregation implements Operator
   public void setup(OperatorContext arg0)
   {
     if (arg0 != null)
-      applicationWindowSize = arg0.attrValue(OperatorContext.APPLICATION_WINDOW_COUNT, 500);
+      applicationWindowSize = arg0.getValue(OperatorContext.APPLICATION_WINDOW_COUNT);
     if (cacheOject == null)
       cacheOject = new HashMap<Integer, Map<String, Map<String, Number>>>(windowSize);
     if (outputMap == null)
