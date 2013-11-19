@@ -23,34 +23,35 @@ import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
 import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.PartitionableOperator;
+import com.datatorrent.api.Partitionable;
 import com.yammer.metrics.Metrics;
 
 /**
  * This operator keep sending constant messages(1kb each) in {@link #threadNum} threads
  * Messages are distributed evenly to partitions
- * 
+ *
  * It will also be split to {@link #partitionNum} partitions
  * Please set the {@link #partitionNum} in property file to get optimized performance
- * 
+ *
  */
 @ShipContainingJars(classes={kafka.javaapi.consumer.SimpleConsumer.class, org.I0Itec.zkclient.ZkClient.class, scala.ScalaObject.class, Metrics.class})
-public class BenchmarkPartitionableKafkaOutputOperator implements PartitionableOperator, InputOperator, ActivationListener<OperatorContext>
+public class BenchmarkPartitionableKafkaOutputOperator implements Partitionable<BenchmarkPartitionableKafkaOutputOperator>, InputOperator, ActivationListener<OperatorContext>
 {
-  
+
   private String topic = "benchmark";
-  
+
   private int partitionNum = 5;
-  
+
   private String brokerList = "localhost:9092";
-  
+
   private int threadNum = 1;
 
   //define 1kb message
   static final byte[] constantMsg= new byte[1024];
-  
+
   static {
     for (int i = 0; i < constantMsg.length; i++) {
       constantMsg[i] = (byte) ('a' + i%26);
@@ -92,11 +93,11 @@ public class BenchmarkPartitionableKafkaOutputOperator implements PartitionableO
   }
 
   @Override
-  public Collection<Partition<?>> definePartitions(Collection<? extends Partition<?>> partitions, int pNum)
+  public Collection<Partition<BenchmarkPartitionableKafkaOutputOperator>> definePartitions(Collection<Partition<BenchmarkPartitionableKafkaOutputOperator>> partitions, int pNum)
   {
-    
-    Collection<Partition<?>> newPartitions = new ArrayList<PartitionableOperator.Partition<?>>(partitionNum);
-    
+
+    ArrayList<Partition<BenchmarkPartitionableKafkaOutputOperator>> newPartitions = new ArrayList<Partitionable.Partition<BenchmarkPartitionableKafkaOutputOperator>>(partitionNum);
+
     //get first one as tempalte
     @SuppressWarnings("unchecked")
     Partition<BenchmarkPartitionableKafkaOutputOperator> template = (Partition<BenchmarkPartitionableKafkaOutputOperator>) partitions.iterator().next();
@@ -105,7 +106,7 @@ public class BenchmarkPartitionableKafkaOutputOperator implements PartitionableO
       bpkoo.setPartitionNum(partitionNum);
       bpkoo.setTopic(topic);
       bpkoo.setBrokerList(brokerList);
-      Partition<BenchmarkPartitionableKafkaOutputOperator> p = template.getInstance(bpkoo);
+      Partition<BenchmarkPartitionableKafkaOutputOperator> p = new DefaultPartition<BenchmarkPartitionableKafkaOutputOperator>(bpkoo);
       newPartitions.add(p);
     }
     return newPartitions;
@@ -114,7 +115,7 @@ public class BenchmarkPartitionableKafkaOutputOperator implements PartitionableO
   @Override
   public void activate(OperatorContext arg0)
   {
-    
+
     for (int i = 0; i < threadNum; i++) {
       new Thread(new Runnable() {
         @Override
@@ -129,7 +130,7 @@ public class BenchmarkPartitionableKafkaOutputOperator implements PartitionableO
           props.setProperty("producer.type", "async");
 //          props.setProperty("send.buffer.bytes", "1048576");
           props.setProperty("topic.metadata.refresh.interval.ms", "100000");
-          
+
           Producer<String, String>producer = new Producer<String, String>(new ProducerConfig(props));
           long k = 0;
           while (true) {
@@ -140,16 +141,16 @@ public class BenchmarkPartitionableKafkaOutputOperator implements PartitionableO
         }
       }).start();
     }
-    
-    
 
-    
+
+
+
   }
 
   @Override
   public void deactivate()
   {
-    
+
   }
 
   public String getTopic()
