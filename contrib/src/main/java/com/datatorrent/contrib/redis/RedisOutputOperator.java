@@ -169,12 +169,14 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
     for (Map.Entry<K, Object> entry : t.entrySet()) {
       Object value = entry.getValue();
       if (value instanceof Map) {
-        redisConnection.hmset(entry.getKey().toString(), (Map) value);
         /*
+        redisConnection.hmset(entry.getKey().toString(), (Map) value);
+        */
+        
         for (Map.Entry<Object, Object> entry1 : ((Map<Object, Object>) value).entrySet()) {
           redisConnection.hset(entry.getKey().toString(), entry1.getKey().toString(), entry1.getValue().toString());
         }
-        */
+        
       } else if (value instanceof Set) {
         for (Object o : (Set) value) {
           redisConnection.sadd(entry.getKey().toString(), o.toString());
