@@ -23,6 +23,11 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.WritableComparable;
 
+/**
+ * <p>DateWritable class.</p>
+ *
+ * @since 0.9.0
+ */
 public class DateWritable implements WritableComparable<DateWritable>
 {
 	private final static SimpleDateFormat formatter = new SimpleDateFormat( "yyyy-MM-dd' T 'HH:mm:ss.SSS" );

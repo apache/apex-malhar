@@ -22,6 +22,7 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.HighLow;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -101,21 +102,27 @@ public class PhoneMovementGenerator extends BaseOperator
     }
   };
 
-  @InputPortFieldAnnotation(name="seedPhoneQuery", optional=true)
-  public final transient DefaultInputPort<Map<String,String>> seedPhoneQuery = new DefaultInputPort<Map<String,String>>()
+  @InputPortFieldAnnotation(name="phoneQuery", optional=true)
+  public final transient DefaultInputPort<Map<String,String>> phoneQuery = new DefaultInputPort<Map<String,String>>()
   {
     @Override
     public void process(Map<String,String> tuple)
     {
       log.info("new query: " + tuple);
       String command = tuple.get(KEY_COMMAND);
-      String phoneStr= tuple.get(KEY_PHONE);
       if (command != null) {
         if (command.equals(COMMAND_ADD)) {
+          String phoneStr= tuple.get(KEY_PHONE);
           registerPhone(phoneStr);
-        } else if (command.equals(COMMAND_DELETE)) {
+        }
+        else if (command.equals(COMMAND_ADD_RANGE)) {
+          registerPhoneRange(tuple.get(KEY_START_PHONE), tuple.get(KEY_END_PHONE));
+        }
+        else if (command.equals(COMMAND_DELETE)) {
+          String phoneStr= tuple.get(KEY_PHONE);
           deregisterPhone(phoneStr);
-        } else if (command.equals(COMMAND_CLEAR)) {
+        }
+        else if (command.equals(COMMAND_CLEAR)) {
           clearPhones();
         }
       }
@@ -125,9 +132,12 @@ public class PhoneMovementGenerator extends BaseOperator
   public static final String KEY_COMMAND = "command";
   public static final String KEY_PHONE = "phone";
   public static final String KEY_LOCATION = "location";
-  public static final String KEY_REMOVED= "removed";
+  public static final String KEY_REMOVED = "removed";
+  public static final String KEY_START_PHONE = "startPhone";
+  public static final String KEY_END_PHONE = "endPhone";
 
   public static final String COMMAND_ADD = "add";
+  public static final String COMMAND_ADD_RANGE = "addRange";
   public static final String COMMAND_DELETE = "del";
   public static final String COMMAND_CLEAR = "clear";
 
@@ -170,12 +180,35 @@ public class PhoneMovementGenerator extends BaseOperator
       return;
     try {
       Integer phone = new Integer(phoneStr);
-      phone_register.add(phone);
-      log.debug(String.format("Registered query id with phonenum \"%s\"", phone));
-      emitQueryResult(phone);
+      registerSinglePhone(phone);
     } catch (NumberFormatException nfe) {
       log.warn("Invalid no: " + phoneStr);
     }
+  }
+
+  private void registerPhoneRange(String startPhoneStr, String endPhoneStr)
+  {
+    if (Strings.isNullOrEmpty(startPhoneStr) || Strings.isNullOrEmpty(endPhoneStr)) {
+      log.warn("Invalid phone range %s, %s", startPhoneStr,endPhoneStr);
+      return;
+    }
+    try {
+      Integer startPhone = new Integer(startPhoneStr);
+      Integer endPhone = new Integer(endPhoneStr);
+      Preconditions.checkArgument(endPhone >= startPhone, "Invalid phone range %s, %s", startPhone, endPhone);
+      for (int i = startPhone; i <= endPhone; i++) {
+        registerSinglePhone(i);
+      }
+    } catch (NumberFormatException nfe) {
+      log.warn("Invalid phone range <" + startPhoneStr + "," + endPhoneStr + ">");
+    }
+  }
+
+  private void registerSinglePhone(int phone)
+  {
+    phone_register.add(phone);
+    log.debug(String.format("Registered query id with phonenum \"%s\"", phone));
+    emitQueryResult(phone);
   }
 
   private void deregisterPhone(String phoneStr)

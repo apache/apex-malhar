@@ -67,6 +67,8 @@ If you would like to help make Malhar better by adding new features, enhancing e
   * Create a GitHub pull request from your repository, providing as many details about your changes as possible
   * After we review and accept your request we’ll commit your code to the DataTorrent/Malhar repository
 
+The submitted code must follow certain prescribed conventions and it is also recommended that it follow the prescribed style. The conventions and style are described in the [Coding Conventions and Style](docs/CodingConventionsAndStyle.md) document.
+
 Thanks for contributing!
 
 License

@@ -15,6 +15,8 @@
  */
 package com.datatorrent.contrib.kafka;
 
+import java.util.HashSet;
+import java.util.Set;
 import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.Context.OperatorContext;
@@ -47,10 +49,11 @@ import org.slf4j.LoggerFactory;
  *  <b>org.I0Itec.zkclient.ZkClient.class</b>  Kafka client depends on this <br>
  *  <b>scala.ScalaObject.class</b>  Kafka client depends on this <br>
  *  <b>com.yammer.matrics.Metrics.class</b>   Kafka client depends on this <br> <br>
- *  
+ *
  * Each operator can only consume 1 topic<br>
  * If you want partitionable operator refer to {@link AbstractPartitionableKafkaInputOperator}
  *  <br>
+ *
  * @since 0.3.2
  */
 //SimpleConsumer is kafka consumer client used by this operator, zkclient is used by high-level kafka consumer
@@ -162,5 +165,21 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   {
     return consumer;
   }
+  
+  //add topic as operator property 
+  public void setTopic(String topic)
+  {
+    this.consumer.setTopic(topic);
+  }
 
+  //add brokerlist as operator property
+  public void setBrokerSet(String brokerString)
+  {
+    Set<String> brokerSet = new HashSet<String>();
+    for (String broker : brokerString.split(",")) {
+      brokerSet.add(broker);
+    }
+    this.consumer.setBrokerSet(brokerSet);
+  }
+  
 }

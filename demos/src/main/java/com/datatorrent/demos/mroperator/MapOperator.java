@@ -16,8 +16,9 @@
 package com.datatorrent.demos.mroperator;
 
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.PartitionableOperator;
+import com.datatorrent.api.Partitionable;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.demos.mroperator.ReporterImpl.ReporterType;
 import com.datatorrent.lib.io.fs.AbstractHDFSInputOperator;
@@ -56,9 +57,14 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 
+/**
+ * <p>MapOperator class.</p>
+ *
+ * @since 0.9.0
+ */
 @ShipContainingJars(classes = { org.apache.hadoop.mapred.Reporter.class })
 @SuppressWarnings({ "unchecked", "deprecation" })
-public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator implements PartitionableOperator
+public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator implements Partitionable<MapOperator<K1, V1, K2, V2>>
 {
 
   private static final Logger logger = LoggerFactory.getLogger(MapOperator.class);
@@ -288,7 +294,7 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
   }
 
   @Override
-  public Collection<Partition<?>> definePartitions(Collection<? extends Partition<?>> partitions, int incrementalCapacity)
+  public Collection<Partition<MapOperator<K1, V1, K2, V2>>> definePartitions(Collection<Partition<MapOperator<K1, V1, K2, V2>>> partitions, int incrementalCapacity)
   {
 
     @SuppressWarnings("rawtypes")
@@ -305,14 +311,14 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
       InputSplit[] splits;
       // logger.info("creating splits");
       try {
-        splits = getSplits(new JobConf(conf), incrementalCapacity + 1, template.getOperator().getDirName());
+        splits = getSplits(new JobConf(conf), incrementalCapacity + 1, template.getPartitionedInstance().getDirName());
       } catch (IOException e1) {
         logger.info(" can't get splits {}", e1.getMessage());
         return null;
       }
       // logger.info("created splits");
 
-      Collection<Partition<?>> operList = new ArrayList<PartitionableOperator.Partition<?>>();
+      Collection<Partition<MapOperator<K1, V1, K2, V2>>> operList = new ArrayList<Partitionable.Partition<MapOperator<K1, V1, K2, V2>>>();
 
       itr = operatorPartitions.iterator();
       int size = splits.length;
@@ -321,7 +327,7 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
       // logger.info(" size of splits {}", size);
       while (size > 0 && itr.hasNext()) {
         Partition<MapOperator<K1, V1, K2, V2>> p = itr.next();
-        MapOperator<K1, V1, K2, V2> opr = p.getOperator();
+        MapOperator<K1, V1, K2, V2> opr = p.getPartitionedInstance();
         opr.setInputFormatClass(inputFormatClass);
         opr.setMapClass(mapClass);
         opr.setCombineClass(combineClass);
@@ -353,7 +359,7 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
         }
 
         size--;
-        operList.add(template.getInstance(opr));
+        operList.add(new DefaultPartition<MapOperator<K1, V1, K2, V2>>(opr));
       }
       try {
         keySerializer.close();

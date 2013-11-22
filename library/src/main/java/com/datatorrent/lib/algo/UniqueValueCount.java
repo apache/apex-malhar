@@ -38,7 +38,6 @@ import java.util.Set;
  * <br></br>
  *
  * @param <K>Type of Key objects</K>
- *
  * @since 0.3.5
  */
 public class UniqueValueCount<K> extends BaseOperator {

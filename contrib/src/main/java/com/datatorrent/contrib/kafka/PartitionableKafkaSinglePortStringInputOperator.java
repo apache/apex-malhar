@@ -19,8 +19,10 @@ import java.nio.ByteBuffer;
 import kafka.message.Message;
 
 /**
- * A simple partitionable kafka single port string input operator. 
+ * A simple partitionable kafka single port string input operator.
  * It consumes the kafka message as string and emit to 1 output port
+ *
+ * @since 0.9.0
  */
 public class PartitionableKafkaSinglePortStringInputOperator extends AbstractPartitionableKafkaSinglePortInputOperator<String>
 {

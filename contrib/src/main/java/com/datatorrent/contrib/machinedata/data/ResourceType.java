@@ -20,6 +20,8 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 
 /**
+ * This class captures the resources whose usage is collected for each device
+ * <p>ResourceType class.</p>
  *
  * @since 0.3.5
  */
@@ -46,6 +48,11 @@ public enum ResourceType {
         return desc;
     }
 
+    /**
+     * This method returns ResourceType for the given description
+     * @param desc the description
+     * @return
+     */
     public static ResourceType getResourceTypeOf(String desc) {
         return descToResource.get(desc);
     }

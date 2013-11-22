@@ -132,6 +132,15 @@ public class WebSocketOutputOperator<T> extends BaseOperator
     }
   }
 
+  @Override
+  public void teardown()
+  {
+    super.teardown();
+    if (client != null) {
+      client.close();
+    }
+  }
+
   public String convertMapToMessage(T t) throws IOException
   {
     return mapper.writeValueAsString(t);
