@@ -115,6 +115,7 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
 
   private class MonitorThread extends Thread
   {
+    @Override
     public void run()
     {
       while (!WebSocketInputOperator.this.shutdown) {
@@ -184,6 +185,9 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
     }
     catch (Exception ex) {
       LOG.error("Error reading from " + uri, ex);
+      if (client != null) {
+        client.close();
+      }
       connectionClosed = true;
     }
 

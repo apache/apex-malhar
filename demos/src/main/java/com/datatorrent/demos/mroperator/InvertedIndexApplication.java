@@ -20,6 +20,11 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.TextInputFormat;
 
+/**
+ * <p>InvertedIndexApplication class.</p>
+ *
+ * @since 0.9.0
+ */
 public class InvertedIndexApplication extends MapReduceApplication<LongWritable, Text, Text, Text>
 {
 

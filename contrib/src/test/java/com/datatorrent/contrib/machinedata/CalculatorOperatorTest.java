@@ -8,12 +8,17 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.lib.util.TimeBucketKey;
 import com.google.common.collect.ImmutableList;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +27,7 @@ import java.util.Map;
  * @since 0.3.5
  */
 public class CalculatorOperatorTest {
+  private static DateFormat minuteDateFormat = new SimpleDateFormat("HHmm");
     private static Logger LOG = LoggerFactory.getLogger(CalculatorOperatorTest.class);
     /**
      * Test node logic emits correct results
@@ -43,9 +49,13 @@ public class CalculatorOperatorTest {
         CollectorTestSink sortSink = new CollectorTestSink();
         oper.percentileOutputPort.setSink(sortSink);
         oper.setKthPercentile(50);
+        Calendar calendar = Calendar.getInstance(); 
+        Date date = calendar.getTime();
+        String timeKey = minuteDateFormat.format(date);
+        String day = calendar.get(Calendar.DAY_OF_MONTH)+"";
 
         Integer vs= new Integer(1);
-        MachineKey mk= new MachineKey(Calendar.getInstance(), TimeBucketKey.TIMESPEC_HOUR_SPEC, vs, vs,vs,vs, vs,vs) ;
+        MachineKey mk= new MachineKey(timeKey,day, vs, vs,vs,vs, vs,vs,vs) ;
 
 
         oper.beginWindow(0);
@@ -77,9 +87,13 @@ public class CalculatorOperatorTest {
     public void testStandarDeviation(CalculatorOperator oper){
         CollectorTestSink sortSink = new CollectorTestSink();
         oper.sdOutputPort.setSink(sortSink);
+        Calendar calendar = Calendar.getInstance();      
+        Date date = calendar.getTime();
+        String timeKey = minuteDateFormat.format(date);
+        String day = calendar.get(Calendar.DAY_OF_MONTH)+"";
 
         Integer vs= new Integer(1);
-        MachineKey mk= new MachineKey(Calendar.getInstance(), TimeBucketKey.TIMESPEC_HOUR_SPEC, vs, vs,vs,vs, vs,vs) ;
+        MachineKey mk= new MachineKey(timeKey,day, vs, vs,vs,vs, vs,vs,vs) ;
 
 
         oper.beginWindow(0);
@@ -122,9 +136,13 @@ public class CalculatorOperatorTest {
     public void testMax(CalculatorOperator oper){
         CollectorTestSink sortSink = new CollectorTestSink();
         oper.maxOutputPort.setSink(sortSink);
+        Calendar calendar = Calendar.getInstance();      
+        Date date = calendar.getTime();
+        String timeKey = minuteDateFormat.format(date);
+        String day = calendar.get(Calendar.DAY_OF_MONTH)+"";
 
         Integer vs= new Integer(1);
-        MachineKey mk= new MachineKey(Calendar.getInstance(), TimeBucketKey.TIMESPEC_HOUR_SPEC, vs, vs,vs,vs, vs,vs) ;
+        MachineKey mk= new MachineKey(timeKey,day, vs, vs,vs,vs, vs,vs,vs) ;
 
 
         oper.beginWindow(0);

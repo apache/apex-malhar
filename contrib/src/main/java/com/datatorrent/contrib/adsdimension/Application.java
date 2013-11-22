@@ -38,27 +38,27 @@ public class Application implements StreamingApplication
   {
     dag.setAttribute(DAG.APPLICATION_NAME, "AdsDimensionDemoApplication");
 
-    InputItemGenerator input = dag.addOperator("input", InputItemGenerator.class);
+    InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
     dag.setOutputPortAttribute(input.outputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);
     dag.setAttribute(input, OperatorContext.INITIAL_PARTITION_COUNT, 8);
 
-    InputDimensionGenerator inputDimension = dag.addOperator("inputDimension", InputDimensionGenerator.class);
+    InputDimensionGenerator inputDimension = dag.addOperator("DimensionalDataGenerator", InputDimensionGenerator.class);
     dag.setInputPortAttribute(inputDimension.inputPort, PortContext.PARTITION_PARALLEL, true);
     dag.setInputPortAttribute(inputDimension.inputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);
     dag.setOutputPortAttribute(inputDimension.outputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);
 
-    BucketOperator bucket = dag.addOperator("bucket", BucketOperator.class);
+    BucketOperator bucket = dag.addOperator("MinuteBucketAggregator", BucketOperator.class);
     dag.setInputPortAttribute(bucket.inputPort, PortContext.PARTITION_PARALLEL, true);
     dag.setInputPortAttribute(bucket.inputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);
     dag.setOutputPortAttribute(bucket.outputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);
     dag.setAttribute(bucket, OperatorContext.APPLICATION_WINDOW_COUNT, 10);
 
-    RedisNumberAggregateOutputOperator<AggrKey, Map<String, MutableDouble>> redis = dag.addOperator("redis", new RedisNumberAggregateOutputOperator<AggrKey, Map<String, MutableDouble>>());
+    RedisNumberAggregateOutputOperator<AggrKey, Map<String, MutableDouble>> redis = dag.addOperator("RedisAdapter", new RedisNumberAggregateOutputOperator<AggrKey, Map<String, MutableDouble>>());
     dag.setInputPortAttribute(redis.input, PortContext.QUEUE_CAPACITY, 32 * 1024);
     dag.setAttribute(redis, OperatorContext.INITIAL_PARTITION_COUNT, 2);
 
-    dag.addStream("ingen", input.outputPort, inputDimension.inputPort).setLocality(Locality.CONTAINER_LOCAL);
-    dag.addStream("indimgen", inputDimension.outputPort, bucket.inputPort).setLocality(Locality.CONTAINER_LOCAL);
-    dag.addStream("store", bucket.outputPort, redis.inputInd);
+    dag.addStream("InputStream", input.outputPort, inputDimension.inputPort).setLocality(Locality.CONTAINER_LOCAL);
+    dag.addStream("DimensionalData", inputDimension.outputPort, bucket.inputPort).setLocality(Locality.CONTAINER_LOCAL);
+    dag.addStream("AggregateData", bucket.outputPort, redis.inputInd);
   }
 }

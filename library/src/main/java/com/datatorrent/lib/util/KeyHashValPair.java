@@ -17,6 +17,11 @@ package com.datatorrent.lib.util;
 
 import java.util.Map;
 
+/**
+ * <p>KeyHashValPair class.</p>
+ *
+ * @since 0.9.0
+ */
 public class KeyHashValPair<K, V> extends KeyValPair<K, V> {
 
 	/**

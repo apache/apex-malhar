@@ -20,6 +20,11 @@ import org.apache.hadoop.mapred.Counters;
 import org.apache.hadoop.mapred.InputSplit;
 import org.apache.hadoop.mapred.Reporter;
 
+/**
+ * <p>ReporterImpl class.</p>
+ *
+ * @since 0.9.0
+ */
 public class ReporterImpl implements Reporter {
 
 	private Counters counters;

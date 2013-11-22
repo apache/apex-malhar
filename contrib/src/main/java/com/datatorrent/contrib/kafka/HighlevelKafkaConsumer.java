@@ -38,7 +38,7 @@ import kafka.message.Message;
  * <li> (-1): create #partition thread and consume the topic in parallel threads</li>
  * <br>
  * <br>
- * 
+ *
  * Load balance: <br>
  * Build-in kafka loadbalancing strategy, Consumers with different consumer.id and same group.id will distribute the reads from different partition<br>
  * There are at most #partition per topic could consuming in parallel
@@ -47,6 +47,8 @@ import kafka.message.Message;
  * Kafka broker failover: <br>
  * Build-in failover strategy, the consumer will pickup the next available syncronized broker to consume data <br>
  * For more information see {@link http://kafka.apache.org/documentation.html#distributionimpl} <br>
+ *
+ * @since 0.9.0
  */
 public class HighlevelKafkaConsumer extends KafkaConsumer
 {
@@ -78,6 +80,10 @@ public class HighlevelKafkaConsumer extends KafkaConsumer
   public void create()
   {
     super.create();
+    // This is important to let kafka know how to distribute the reads among different consumers in same consumer group
+    // Don't reuse any id for recovery to avoid rebalancing error because there is some delay for zookeeper to 
+    // find out the old consumer is dead and delete the entry even new consumer is back online
+    consumerConfig.put("consumer.id", "consumer" + System.currentTimeMillis());
     standardConsumer = kafka.consumer.Consumer.createJavaConsumerConnector(new ConsumerConfig(consumerConfig));
   }
 
@@ -102,7 +108,7 @@ public class HighlevelKafkaConsumer extends KafkaConsumer
           ConsumerIterator<byte[], byte[]> itr = stream.iterator();
           logger.debug("Thread " + Thread.currentThread().getName() + " start consuming message...");
           while (itr.hasNext() && isAlive) {
-            holdingBuffer.add(new Message(itr.next().message()));
+            putMessage(new Message(itr.next().message()));
           }
         }
       });
@@ -128,12 +134,17 @@ public class HighlevelKafkaConsumer extends KafkaConsumer
     Properties newProp = new Properties();
     // Copy most properties from the template consumer. For example the "group.id" should be set to same value 
     newProp.putAll(consumerConfig);
-    // This is important to let kafka know how to distribute the reads among different consumers in same consumer group 
-    newProp.put("consumer.id", newProp.get("group.id") + HIGHLEVEL_CONSUMER_ID_SUFFIX + partitionId);
     HighlevelKafkaConsumer newConsumer = new HighlevelKafkaConsumer(newProp);
     newConsumer.setBrokerSet(this.brokerSet);
     newConsumer.setTopic(this.topic);
     return newConsumer;
+  }
+
+  @Override
+  protected void commitOffset()
+  {
+    // commit the offsets at checkpoint so that high-level consumer don't have to receive too many duplicate messages
+    standardConsumer.commitOffsets();
   }
   
 }

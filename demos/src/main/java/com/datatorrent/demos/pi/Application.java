@@ -15,15 +15,18 @@
  */
 package com.datatorrent.demos.pi;
 
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.testbench.RandomEventGenerator;
+
 import org.apache.hadoop.conf.Configuration;
 
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.testbench.RandomEventGenerator;
+
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.StreamingApplication;
+
 /**
- * Monte Carlo PI extimation demo : <br>
+ * Monte Carlo PI estimation demo : <br>
  * This application computes value of PI using Monte Carlo pi estimation
  * formula.
  * <p>

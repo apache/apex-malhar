@@ -22,6 +22,7 @@ import java.util.Random;
  *   <li>maxSeedPhoneNumber: The largest seed phone number.</li>
  * </ul>
  * </b>
+ *
  * @since 0.3.5
  */
 public class PhoneEntryOperator extends BaseOperator

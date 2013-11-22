@@ -24,7 +24,7 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 
 /**
- * 
+ *
  * Writes tuples to standard out of the container
  * <p>
  * This is for specific use case for map where I want to print each key value
@@ -32,7 +32,7 @@ import com.datatorrent.api.DefaultInputPort;
  * Mainly to be used for debugging. Users should be careful to not have this
  * node listen to a high throughput stream<br>
  * <br>
- * 
+ *
  * @since 0.3.4
  */
 public class MapMultiConsoleOutputOperator<K, V> extends BaseOperator

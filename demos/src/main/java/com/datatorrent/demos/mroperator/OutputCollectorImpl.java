@@ -31,6 +31,11 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.lib.util.KeyHashValPair;
 
+/**
+ * <p>OutputCollectorImpl class.</p>
+ *
+ * @since 0.9.0
+ */
 @SuppressWarnings("unchecked")
 public class OutputCollectorImpl<K extends Object, V extends Object> implements OutputCollector<K, V> {
 	private static final Logger logger = LoggerFactory.getLogger(OutputCollectorImpl.class);

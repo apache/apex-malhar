@@ -20,6 +20,11 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.TextInputFormat;
 
+/**
+ * <p>LogsCountApplication class.</p>
+ *
+ * @since 0.9.0
+ */
 public class LogsCountApplication extends MapReduceApplication<LongWritable, Text, DateWritable, IntWritable>
 {
 
