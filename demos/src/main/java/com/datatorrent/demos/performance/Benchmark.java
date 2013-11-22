@@ -47,7 +47,7 @@ public abstract class Benchmark
 
     public abstract Locality getLocality();
   }
-
+  
   /**
    * Let the engine decide how to best place the 2 operators.
    */

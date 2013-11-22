@@ -21,7 +21,7 @@
     </repository>
   </repositories>
 
-  <properties>
+  <properties> 
     <dt.framework.version>0.9.1-SNAPSHOT</dt.framework.version>
   </properties>
 

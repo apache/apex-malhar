@@ -31,7 +31,6 @@ import com.datatorrent.contrib.machinedata.data.ResourceType;
 import com.datatorrent.contrib.machinedata.operator.CalculatorOperator;
 import com.datatorrent.contrib.machinedata.operator.MachineInfoAveragingOperator;
 import com.datatorrent.contrib.machinedata.operator.MachineInfoAveragingPrerequisitesOperator;
-
 import com.datatorrent.contrib.redis.RedisOutputOperator;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.SmtpOutputOperator;
