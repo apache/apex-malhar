@@ -9,10 +9,11 @@ import org.slf4j.LoggerFactory;
 
 public class DiskStorageTest
 {
+  public static final String STORAGE_DIRECTORY = "target/testdata/local";
   @Test
   public void testStorage() throws IOException
   {
-    Storage storage = DiskStorage.getInstance("src/test/resources/", true);
+    Storage storage = DiskStorage.getInstance(STORAGE_DIRECTORY, true);
     if (storage == null) {
       return;
     }
@@ -25,7 +26,7 @@ public class DiskStorageTest
   @Test
   public void testCleanup() throws IOException
   {
-    Storage storage = DiskStorage.getInstance("src/test/resources1/", false);
+    Storage storage = DiskStorage.getInstance(STORAGE_DIRECTORY, false);
     if (storage == null) {
       return;
     }

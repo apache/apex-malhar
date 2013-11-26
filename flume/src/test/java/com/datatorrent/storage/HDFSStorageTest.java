@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 public class HDFSStorageTest
 {
-  public static final String STORAGE_DIRECTORY = "target/testdata";
+  public static final String STORAGE_DIRECTORY = "target/testdata/hdfs";
   @Test
   public void testStorage() throws IOException
   {
