@@ -50,6 +50,12 @@
       <artifactId>dt-netlet</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.datatorrent</groupId>
+      <artifactId>dt-api</artifactId>
+      <version>0.9.1-SNAPSHOT</version>
+      <type>jar</type>
+    </dependency>
   </dependencies>
 
 </project>

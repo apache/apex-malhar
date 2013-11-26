@@ -4,16 +4,14 @@
  */
 package com.datatorrent.flume.sink;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 import com.datatorrent.netlet.DefaultEventLoop;
+import java.io.IOException;
 
 /**
  *
@@ -21,36 +19,12 @@ import com.datatorrent.netlet.DefaultEventLoop;
  */
 public class DTFlumeSinkTest
 {
-  DefaultEventLoop eventloop;
-
-  @Before
-  public void setup()
-  {
-    eventloop.start();
-  }
-
-  @After
-  public void teardown()
-  {
-    eventloop.stop();
-  }
-
-  public DTFlumeSinkTest()
-  {
-    try {
-      this.eventloop = new DefaultEventLoop("test-eventloop");
-    }
-    catch (IOException ex) {
-      logger.error("eventloop exception", ex);
-    }
-  }
-
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  public void testServer() throws InterruptedException
+  public void testServer() throws InterruptedException, IOException
   {
     DTFlumeSink sink = new DTFlumeSink();
-    sink.setEventloop(eventloop);
+    sink.setName("TeskSink");
     sink.start();
     AbstractLengthPrependerClient client = new AbstractLengthPrependerClient()
     {
@@ -67,14 +41,39 @@ public class DTFlumeSinkTest
       public void connected()
       {
         super.connected();
-        write(DTFlumeSink.MESSAGES.COMMIT.toString().getBytes());
+        byte[] array = new byte[12];
+        array[0] = 0;
+        array[1] = 1;
+        array[2] = 2;
+        array[3] = 3;
+        array[4] = 4;
+        array[5] = 5;
+        array[6] = 6;
+        array[7] = 7;
+        array[8] = 8;
+        array[9] = 9;
+        array[10] = 10;
+        array[11] = 11;
+        write(array);
       }
 
     };
 
-    eventloop.connect(new InetSocketAddress("localhost", 5033), client);
-    synchronized (this) {
-      this.wait();
+    DefaultEventLoop eventloop = new DefaultEventLoop("Eventloop-TestClient");
+    eventloop.start();
+    try {
+      eventloop.connect(new InetSocketAddress("localhost", 5033), client);
+      try {
+        synchronized (this) {
+          this.wait();
+        }
+      }
+      finally {
+        eventloop.disconnect(client);
+      }
+    }
+    finally {
+      eventloop.stop();
     }
 
     sink.stop();

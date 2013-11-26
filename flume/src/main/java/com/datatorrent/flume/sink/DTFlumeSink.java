@@ -4,12 +4,15 @@
  */
 package com.datatorrent.flume.sink;
 
-import com.datatorrent.netlet.DefaultEventLoop;
-import com.datatorrent.netlet.Listener.ServerListener;
+import java.io.IOException;
+
 import org.apache.flume.Channel;
 import org.apache.flume.EventDeliveryException;
 import org.apache.flume.Sink;
 import org.apache.flume.lifecycle.LifecycleState;
+
+import com.datatorrent.netlet.DefaultEventLoop;
+import com.datatorrent.netlet.Listener.ServerListener;
 
 /**
  *
@@ -17,30 +20,6 @@ import org.apache.flume.lifecycle.LifecycleState;
  */
 public class DTFlumeSink implements Sink
 {
-
-  /**
-   * @return the eventloop
-   */
-  public DefaultEventLoop getEventloop()
-  {
-    return eventloop;
-  }
-
-  /**
-   * @param eventloop the eventloop to set
-   */
-  public void setEventloop(DefaultEventLoop eventloop)
-  {
-    this.eventloop = eventloop;
-  }
-  public enum MESSAGES
-  {
-    OK,
-    BEGIN,
-    COMMIT,
-    ROLLBACK
-  }
-
   private Channel channel;
   private String name;
   private LifecycleState state;
@@ -58,6 +37,7 @@ public class DTFlumeSink implements Sink
     }
   }
 
+  /* Begin implementing Flume Sink interface */
   @Override
   public void setChannel(Channel chnl)
   {
@@ -80,7 +60,14 @@ public class DTFlumeSink implements Sink
   @Override
   public void start()
   {
-    getEventloop().start("localhost", 5033, server);
+    try {
+      eventloop = new DefaultEventLoop("EventLoop-" + getName());
+    }
+    catch (IOException ex) {
+      throw new RuntimeException(ex);
+    }
+    eventloop.start();
+    eventloop.start("localhost", 5033, server);
     state = LifecycleState.START;
   }
 
@@ -91,7 +78,8 @@ public class DTFlumeSink implements Sink
       state = LifecycleState.STOP;
     }
     finally {
-      getEventloop().stop(server);
+      eventloop.stop(server);
+      eventloop.stop();
     }
   }
 
@@ -113,4 +101,5 @@ public class DTFlumeSink implements Sink
     return name;
   }
 
+  /* End implementing Flume Sink interface */
 }
