@@ -1,6 +1,6 @@
 <div class="app-dag logical-dag">
     <div class="form-inline">
-        <label class="metric-select-label">Metric 1: </label>
+        <label class="metric-select-label">Top:</label>
         <select class="form-control metric-select">
             <% _.each(metrics, function (metric, index) { %>
                 <option value="<%= metric.value %>"><%= metric.label %></option>
@@ -9,7 +9,7 @@
         <a href="#" class="btn metric-prev"><i class="icon-chevron-left"></i></a>
         <a href="#" class="btn metric-next"><i class="icon-chevron-right"></i></a>
 
-        <label class="metric2-select-label">Metric 2: </label>
+        <label class="metric2-select-label">Bottom:</label>
         <select class="form-control metric2-select">
             <% _.each(metrics, function (metric, index) { %>
             <option value="<%= metric.value %>"><%= metric.label %></option>
