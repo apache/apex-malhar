@@ -15,15 +15,14 @@
  */
 package com.datatorrent.lib.database;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-
-import java.sql.SQLException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * <br>This creates a {@link LoadingCache} that stores db result for certain time.</br>
@@ -31,49 +30,44 @@ import java.util.concurrent.TimeUnit;
  * The Cache has a maximum size and it may evict an entry before this limit is exceeded.
  * The entries in the cache expire after the specified expiry-duration.
  * </br>
- *
- * @param <K> type of keys in the cache </K>
  */
-public class CacheHandler<K>
+public class CacheManager
 {
-  private transient final CacheUser<K> cacheUser;
+  private transient final CacheUser cacheUser;
 
-  private transient LoadingCache<K, Object> cache;
+  private transient LoadingCache<Object, Object> cache;
 
   private transient ScheduledExecutorService cleanupScheduler;
 
   /**
-   * @param user                         implementation of {@link CacheUser} which has the onus of loading the value of the key
-   *                                     from database.
-   * @param maxCacheSize                 maximum cache capacity.
-   * @param expiryType                   entries expiry strategy.
-   * @param expiryDurationInMillis       each entry will be expired when this duration has elapsed after the entry'creation,
-   *                                     most recent replacement, or its last access based on the expiry type.
-   * @param cacheCleanupIntervalInMillis duration in millis at which the cache is regulary cleaned - expired entries are
-   *                                     removed.
+   * @param user       implementation of {@link CacheUser} which has the onus of loading the value of the key
+   *                   from database.
+   * @param properties {@link CacheProperties} which define the cache.
    */
-  public CacheHandler(CacheUser<K> user, long maxCacheSize, ExpiryType expiryType, int expiryDurationInMillis,
-                      int cacheCleanupIntervalInMillis)
+  public CacheManager(CacheUser user, CacheProperties properties)
   {
     this.cacheUser = Preconditions.checkNotNull(user, "cache user");
 
-    Preconditions.checkNotNull(expiryType, "expiryType");
+    Preconditions.checkNotNull(properties.entryExpiryStrategy, "expiryType");
 
     CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
-    if (expiryType == ExpiryType.EXPIRE_AFTER_ACCESS)
-      cacheBuilder.expireAfterAccess(expiryDurationInMillis, TimeUnit.MILLISECONDS);
-    else if (expiryType == ExpiryType.EXPIRE_AFTER_WRITE)
-      cacheBuilder.expireAfterWrite(expiryDurationInMillis, TimeUnit.MILLISECONDS);
+    if (properties.entryExpiryStrategy == ExpiryType.EXPIRE_AFTER_ACCESS) {
+      cacheBuilder.expireAfterAccess(properties.entryExpiryDurationInMillis, TimeUnit.MILLISECONDS);
+    }
+    else if (properties.entryExpiryStrategy == ExpiryType.EXPIRE_AFTER_WRITE) {
+      cacheBuilder.expireAfterWrite(properties.entryExpiryDurationInMillis, TimeUnit.MILLISECONDS);
+    }
 
-    this.cache = cacheBuilder.maximumSize(maxCacheSize)
-      .build(new CacheLoader<K, Object>()
+    this.cache = cacheBuilder.maximumSize(properties.maxCacheSize)
+      .build(new CacheLoader<Object, Object>()
       {
         @Override
-        public Object load(K k) throws Exception
+        public Object load(Object k) throws Exception
         {
-          Object val = cacheUser.fetchKeyFromDatabase(k);
-          if (val == null)
+          Object val = cacheUser.fetchValueFromDatabase(k);
+          if (val == null) {
             cache.put(k, val);
+          }
           return val;
         }
       });
@@ -85,7 +79,7 @@ public class CacheHandler<K>
       {
         cache.cleanUp();
       }
-    }, cacheCleanupIntervalInMillis, cacheCleanupIntervalInMillis, TimeUnit.MILLISECONDS);
+    }, properties.cacheCleanupIntervalInMillis, properties.cacheCleanupIntervalInMillis, TimeUnit.MILLISECONDS);
   }
 
   /**
@@ -99,22 +93,20 @@ public class CacheHandler<K>
   /**
    * @return the underlying cache
    */
-  public LoadingCache<K, Object> getCache()
+  public LoadingCache<Object, Object> getCache()
   {
     return cache;
   }
 
   /**
    * <br>
-   * The user of CacheHandler should implement this interface to customise the
+   * The user of CacheManager should implement this interface to customise the
    * retrieval of a particular key from the database when it is not found in the cache.
    * </br>
-   *
-   * @param <K> type of keys int the cache </K>
    */
-  public static interface CacheUser<K>
+  public static interface CacheUser
   {
-    Object fetchKeyFromDatabase(K key) throws SQLException;
+    Object fetchValueFromDatabase(Object key);
   }
 
   /**

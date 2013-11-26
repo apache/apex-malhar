@@ -16,10 +16,9 @@
 package com.datatorrent.contrib.mongodb;
 
 import com.mongodb.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import javax.validation.constraints.Min;
+
+import java.net.UnknownHostException;
+
 import javax.validation.constraints.NotNull;
 
 /**
@@ -47,7 +46,7 @@ import javax.validation.constraints.NotNull;
  *
  * @since 0.3.2
  */
-public class MongoDBBaseOperator
+public class MongoDBOperatorBase implements com.datatorrent.lib.database.DBConnector
 {
   @NotNull
   protected String hostName;
@@ -100,4 +99,24 @@ public class MongoDBBaseOperator
     this.hostName = dbUrl;
   }
 
+  @Override
+  public void setupDbConnection()
+  {
+    try {
+      mongoClient = new MongoClient(hostName);
+      db = mongoClient.getDB(dataBase);
+      if (userName != null && passWord != null) {
+        db.authenticate(userName, passWord.toCharArray());
+      }
+    }
+    catch (UnknownHostException ex) {
+      throw new RuntimeException("creating mongodb client", ex);
+    }
+  }
+
+  @Override
+  public void teardownDbConnection()
+  {
+    mongoClient.close();
+  }
 }
