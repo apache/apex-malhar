@@ -13,13 +13,15 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
+var _ = require('underscore');
+var kt = require('knights-templar');
+var BaseView = DT.widgets.InfoWidget;
+
 /**
  * Info widget for a container
  * 
 */
-var _ = require('underscore');
-var kt = require('knights-templar');
-var BaseView = DT.widgets.InfoWidget;
 var CtnrInfoWidget = BaseView.extend({
     
     initialize: function(options){

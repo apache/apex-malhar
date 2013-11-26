@@ -13,26 +13,29 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-/**
- * Ops page
- * 
- * Home page for operations view.
-*/
+
 var BasePageView = DT.lib.BasePageView;
 var ApplicationCollection = DT.lib.ApplicationCollection;
 
 // widgets
-var AppListWidget = require("../widgets/AppListWidget");
+var AppListWidget = require('../widgets/AppListWidget');
+var ClusterOverviewWidget = require('../widgets/ClusterOverviewWidget');
 
+
+/**
+ * Home page for operations view.
+ * 
+ */
 var OpsHomePageView = BasePageView.extend({
     
-    pageName: "OpsHomePageView",
+    pageName: 'OpsHomePageView',
     
     defaultDashes: [
         {
-            dash_id: "default",
+            dash_id: 'default',
             widgets: [
-                { widget: "AppList", id: "Application List" }
+                { widget: 'ClusterOverview', id: 'Cluster Overview' },
+                { widget: 'AppList', id: 'Application List' }
             ]
         }
     ],
@@ -51,20 +54,26 @@ var OpsHomePageView = BasePageView.extend({
         this.applications.fetch();
         this.applications.subscribe();
         
-        this.defineWidgets([ 
+        this.defineWidgets([
             {
-                name: "AppList", 
+                name: 'AppList',
                 defaultId: 'Application List',
-                view: AppListWidget, 
-                limit: 1, 
-                inject: { 
-                    dataSource: this.dataSource, 
-                    nav: this.app.nav, 
+                view: AppListWidget,
+                limit: 1,
+                inject: {
+                    dataSource: this.dataSource,
+                    nav: this.app.nav,
                     apps: this.applications
                 }
+            },
+            {
+                name: 'ClusterOverview',
+                defaultId: 'Cluster Overview',
+                view: ClusterOverviewWidget,
+                limit: 1
             }
         ]);
-        this.loadDashboards("default");
+        this.loadDashboards('default');
     },
     
     cleanUp: function() {

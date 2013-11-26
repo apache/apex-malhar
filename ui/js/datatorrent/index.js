@@ -34,6 +34,7 @@ var datatorrent = {
         Breadcrumbs                  : require('./Breadcrumbs'),
         ContainerCollection          : require('./ContainerCollection'),
         ContainerModel               : require('./ContainerModel'),
+        ClusterMetricsModel          : require('./ClusterMetricsModel'),
         DagOperatorView              : require('./DagOperatorView'),
         DagView                      : require('./DagView'),
         DashCollection               : require('./DashCollection'),

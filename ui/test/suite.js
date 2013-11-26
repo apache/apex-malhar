@@ -9,6 +9,7 @@ require('../js/datatorrent/BaseModel.spec');
 require('../js/datatorrent/BaseCollection.spec');
 require('../js/datatorrent/BasePageView.spec');
 require('../js/datatorrent/ContainerModel.spec');
+require('../js/datatorrent/ClusterMetricsModel.spec');
 require('../js/datatorrent/DataSource/DataSource.spec');
 require('../js/datatorrent/LogicalOperatorCollection.spec');
 require('../js/datatorrent/livechart/test/model.test');

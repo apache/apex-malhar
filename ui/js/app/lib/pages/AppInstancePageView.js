@@ -271,7 +271,7 @@ var AppInstancePageView = BasePageView.extend({
                 //     }
                 // }
             ];
-            defaultDashId = 'operators-containers';
+            defaultDashId = 'logical';
             excludeDashIds = ['ended-recordings'];
         } else {
             dashExt = ':STOPPED',

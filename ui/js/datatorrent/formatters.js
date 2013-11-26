@@ -15,6 +15,7 @@
 */
 var WindowId = require('./WindowId');
 var templates = require('./templates');
+var bormat = require('bormat');
 
 exports.containerFormatter = function(value, row) {
     if (!value) return '-';
@@ -51,5 +52,9 @@ exports.percentageFormatter = function(value, isNumerator) {
     var multiplyBy = isNumerator ? 1 : 100;
     value = parseFloat(value).toFixed(3) * multiplyBy;
     value = value.toFixed(2);
+    value = bormat.commaGroups(value);
     return value + '%';
 };
+
+exports.commaGroups = bormat.commaGroups;
+exports.timeSince = bormat.timeSince;

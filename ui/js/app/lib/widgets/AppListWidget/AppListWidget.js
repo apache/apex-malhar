@@ -13,13 +13,16 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-/**
- * The app list widget
- * 
-*/
+
 var ListWidget = DT.widgets.ListWidget;
 var Tabled = DT.lib.Tabled; 
 var Palette = require("./AppListPalette");
+
+/**
+ * This widget shows a list of running applications
+ * in the cluster.
+ * 
+*/
 var ApplistWidget = ListWidget.extend({
     
     initialize: function(options) {
