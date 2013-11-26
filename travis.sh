@@ -1,5 +1,5 @@
 #!/bin/bash
 mvn test -B
-cd ui
+cd front
 npm install .
 npm test
