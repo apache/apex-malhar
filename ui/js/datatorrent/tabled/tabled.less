@@ -1,0 +1,146 @@
+.tabled-ctnr {
+    overflow: auto;
+    padding-bottom:20px;
+    .tabled-inner {
+        overflow: hidden;
+    }
+}
+.tabled {
+    font-size:12px;
+    box-shadow: inset 0 1px 0 0 black;
+    outline:none;
+    position: relative;
+    display:inline-block;
+    .tr {
+        width:100%;
+        height:2em;
+        box-shadow: inset -1px -1px 0 0 black, inset 1px 0 0 black;
+        
+        &.filter-row {
+            .cell-inner {
+                width:96%;
+                padding: 0 2%;
+            }
+        }
+        &:nth-child(even){
+            background:#EFEFEF;
+        }
+        .th, .td {
+            display:inline-block;
+            overflow:hidden;
+            position:relative;
+            height:2em;
+            box-shadow: inset -1px 0 0 0 black;
+        }
+        .cell-inner {
+            line-height:2em;
+            padding:0 5px;
+            position:absolute;
+            top:0;
+            left:0;
+            white-space: nowrap;
+            &.filter {
+                white-space:normal
+            }
+        }
+        .colsort-helper {
+            width:0px;
+            height:100%;
+            display:inline-block;
+            box-shadow:0 0 2px 1px red;
+        }
+    }
+    .thead {
+        position: relative;
+        z-index: 1;
+        &.overhang{
+            box-shadow:0 2px 2px -1px rgba(0,0,0,.1);
+        }
+    }
+    .tbody-outer {
+        position:relative;
+        .scroller {
+            z-index: 1;
+            position:absolute;
+            top:0;
+            height:100%;
+            right:0;
+            width:10px;
+            .inner {
+                width:80%;
+                border-radius:10px;
+                background-color:rgba(0,0,0,0.5);
+                position:absolute;
+                min-height:10px
+            }
+        }
+    }
+    input.filter {
+        width: 97%;
+        max-width: 200px;
+        margin: 0;
+        padding: 0;
+        vertical-align: top;
+        position: relative;
+        display: block;
+        height: 1.4em;
+        top: 1px;
+        text-indent: 0.3em;
+    }
+    .th {
+        position:relative;
+        cursor:-webkit-grab; 
+        cursor: -moz-grab;
+        /*		padding-left:11px;*/
+        .resize {
+            display:block;
+            border-width: 0 0 0 1px;
+            background:white;
+            border-color:rgba(0,0,0,0.3);
+            border-style: solid;
+            width:3px;
+            height:90%;
+            position:absolute;
+            right:1px;
+            top:5%;
+            cursor:col-resize;
+        }
+        &.asc,&.desc {
+            font-style:italic;
+        }
+        .asc-icon, .desc-icon {
+            background-image: url(data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAQCAYAAAAWGF8bAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAiRJREFUeNp8lE2IUlEUx+97ozOLCZRE6WOTosNAICFhuBJbNauhIqKgXUwUBG1q36JlbYKEVsEspKIgdBEyjAt1F5gfgWCYimPCe4TPT0yft3OGe+XOxd6FH3g+7p//Oe+i4vF4iHTCwCngUMp/Bq4T6/NOkQTXgG9M8CLwV6idB6qstupowLYqJZ8ClwA/8FyqHQHPLNw9Af6IDlGkIDhAd1eA79IEWSAiiX0FdvCH6PC1NM468IaJ8GMCj6RVDIHHPOCCd4FrK8ZAJ3tSDh2/EuIXwE8e4Min2bLd/9kNOthmOxTd/2C1y8z58bEBLy3ECFsDruOGkMORHzBBU2xWKKUnbqfT6dt2u90Ri8Xeinld1387nc4zVo9Q07QGQUFOIpFYb7VaWqfTMZLJ5KZYy+VykfF4bE6nU7qK0Wg0g56tE4KFQuFTv9+nSLlcPhBrg8GAVCqVD5PJhK6iWCzGsWd5IZPJXDUMYz4cDikCootsNnuL1yEm4Hqj2+3q4JSKtNvtIxRDlu8wEAjsw+7WVFUliM1mUyAXT6VSG7wnGo1Oa7Xaw/l8TheLBUFms5kJuXs8PhYslUpxl8t1TlEUIuJwOFxer3dfXHwwGPzYbDYPuUC9Xv8SCoWWfyRqPp/f8vv997kzGZ/PdxN6IqZpEgRFGo3GLqyl3+v19Gq1eoeLIwp80V9ut/uC1XOAi11YwVkxBx9wD8Y1wuHwezH/T4ABAJNmYwBTPPKPAAAAAElFTkSuQmCC);
+            width:10px;
+            height:8px;
+            display:inline-block;
+        }
+        .asc-icon {
+            background-position:0px 0px;
+            &.white {
+                background-position:0px -8px;
+            }
+        }
+        .desc-icon {
+            background-position:-10px 0px;
+            &.white {
+                background-position:-10px -8px;
+            }
+        }
+        .th-header {
+            cursor: pointer;
+            -webkit-user-select: none; /* Chrome/Safari */        
+            -moz-user-select: none; /* Firefox */
+            user-select: none;
+        }
+    }
+    .resize-table {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        border-color: transparent rgba(0, 0, 0, 0.3) rgba(0, 0, 0, 0.3) transparent;
+        border-width: 13px;
+        border-style: solid;
+        cursor: se-resize;
+        z-index: 2;
+    }
+}

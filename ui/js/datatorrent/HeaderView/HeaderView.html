@@ -1,0 +1,23 @@
+<div id="header">
+    <a href="#" class="brand">DataTorrent</a> <!-- platform logo -->
+    <div class="ui-version" title="User Interface Version">
+        <% if (version) { %>
+            v<%= version %>
+        <% } %>
+    </div>
+    <a id="feedback-header-link" class="btn btn-mini btn-success" href="mailto:support@datatorrent.com">Send Feedback</a>
+    <!-- sign in area -->
+    <div class="sign-in-container" style="display:none;">
+        <a href="#sign-in"></a>
+    </div>
+    <ul class="dashboard-modes">
+        <% _.each(modes, function(mode) { %>
+            <li>
+                <a href="<%= mode.href %>" class="<%= mode.class %>"><%= mode.name %></a>
+            </li
+        ><% }) %>
+    </ul>
+    <div class="client-brand">
+        <!-- <img src="img/<%= client_logo %>"> -->
+    </div>
+</div>

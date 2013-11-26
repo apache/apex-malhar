@@ -1,0 +1,66 @@
+@import "variables.less";
+body {
+    font-family: "Helvetica Neue", helvetica, arial, sans-serif;
+    background: #ececec;
+    min-width:747px;
+    font-size: 12px;
+}
+a {
+    text-decoration: none;
+    color: @a_color;
+}
+a:hover {
+    color: @a_color_hover;
+}
+.loading-assets {
+    background: url('../img/loading.gif') no-repeat 0 0;
+    overflow:hidden;
+    text-indent:-1000px;
+    margin:200px auto 0;
+    height: 95px;
+    width: 483px;
+}
+#wrapper {
+    min-width:1024px;
+}
+#main {
+    background-color:@active_pane;
+    border:thin solid #ccc;
+    overflow:auto;
+    width:auto;
+}
+#header {
+    .brand {
+        background: url("../img/main_banner.png") no-repeat scroll 0 0;
+    }
+}
+#wrapper {
+    [class^="status-"], [class*=" status-"] {
+        font-weight: bold;
+        text-shadow:0 
+    }
+    .status-accepted {
+        color: @status_accepted;
+    }
+    .status-pending-deploy {
+        color: @status_pending_deploy;
+    }
+    .status-running {
+        color: @status_running;
+    }
+    .status-active {
+        color: @status_active;
+    }
+    .status-failed {
+        color: @status_failed;
+    }
+    .status-killed {
+        color: @status_killed;
+    }
+    .status-finished {
+        color: @status_finished;
+    }
+    .status-inactive {
+        color: @status_inactive;
+    }
+}

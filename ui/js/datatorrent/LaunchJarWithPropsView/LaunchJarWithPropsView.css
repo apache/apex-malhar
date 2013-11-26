@@ -1,0 +1,14 @@
+.launch-jar-app.modal .properties {
+  width: 100%;
+}
+.launch-jar-app.modal .properties th,
+.launch-jar-app.modal .properties td {
+  text-align: left;
+  padding: 10px;
+}
+.launch-jar-app.modal .properties .propertyField {
+  margin-bottom: 0;
+}
+.launch-jar-app.modal .no-properties {
+  font-style: italic;
+}

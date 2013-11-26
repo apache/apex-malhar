@@ -1,0 +1,57 @@
+<% if (!template) { %>
+    
+    first choose a template
+    
+<% } else if (!template.parameters.length) { %>
+    
+    template loading...
+    
+<% } else { %>
+    
+    <% _.each( template.parameters, function(param) { %>
+        
+        <div class="control-group">
+            <label class="control-label" for="param_<%= param.name %>">
+                <%= param.name %>
+                <span class="help-block"><%= param.description %></span>
+            </label>
+            
+            <div class="controls">
+            <% switch(param.type) {
+            
+                case 'string':
+                    %>
+                    <textarea name="param_<%= param.name %>" placeholder="string"></textarea>
+                    <%
+                    break;
+            
+                case 'int':
+                    %>
+                    <input type="text" name="param_<%= param.name %>" placeholder="integer">
+                    <%
+                    break;
+                
+                case 'float':
+                    %>
+                    <input type="text" name="param_<%= param.name %>" placeholder="float">
+                    <%
+                    break;
+                
+                case 'enum':
+                    %>
+                    <select name="param_<%= param.name %>">
+                        <option value="">choose one</option>
+                        <% _.each( param.options, function(option) { %>
+                            <option value="<%= option %>"><%= option %></option>
+                        <% }) %>
+                    </select>
+                    <%
+                    break;
+            
+            } %>
+            </div>
+        </div>
+        
+    <% }) %>
+    
+<% } %>

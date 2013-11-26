@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>DataTorrent: Not Signed In</title>
+        <link rel="stylesheet" href="css/401.css" type="text/css" media="screen">
+        <link href="favicon.ico" rel="icon" type="image/x-icon" />
+    </head>
+    <body>
+        <div id="wrapper">
+            <div id="header">
+                <a href="#" class="brand">DataTorrent</a> <!-- platform logo -->
+            </div>
+            <div class="container-error">
+                <div class="inner">
+                    <h1><span>401</span> You are not logged in.</h1>
+                    <p class="main-desc">
+                        Your browser did not send a Kerberos token. This is required to use the DataTorrent User Interface on a secure Hadoop cluster. The following sequence of instructions illustrates how you set up a browser to do this.
+                    </p>
+                    
+                    <h3><span>Step 1</span> Obtain a Kerberos Ticket Granting Ticket (TGT)</h3>
+                    
+                    <div class="step-instructions">
+                        <p>
+                            If you do not already have a Kerberos TGT from running your `kinit` command, do this now.
+                        </p>
+                    </div>
+                    
+                    <h3><span>Step 2</span> Change your browser settings</h3>
+                    
+                    <div class="step-instructions">
+                        <p>
+                            The method for allowing Kerberos authentication for a browser depends on which browser it is. Here are the instructions for the currently supported browsers:
+                        </p>
+                        
+                        <h4>Chrome</h4>
+                        <p>Google Chrome requires that you start the application from a shell using additional flags. In the example command below, replace domain.com with your appropriate domain.</p>
+                        <pre>$ open -n -a 'Google Chrome.app' --args \
+    --auth-server-whitelist="*.domain.com" \
+    --auth-negotiate-delegate-whitelist="*.domain.com"</pre>
+                        
+                        <h4>Safari</h4>
+                        <p>
+                            If your mac is configured to be able to obtain a Kerberos ticket, Safari should be able to work with no additional configuration changes.
+                        </p>
+                        <h4>Firefox</h4>
+                        <ol>
+                            <li>Type 'about:config' into the address bar and press enter. <br>If you get a warning, click the "I'll be careful, I promise" button to continue.</li>
+                            <li>In the filter field, enter 'negotiate'. This will narrow the list to a handful of items</li>
+                            <li>Double-click the <strong>network.negotiate-auth.trusted-uris</strong> parameter and enter in your domain with a preceding dot, eg. <em>.example.com</em>. Press <strong>OK</strong>.</li>
+                            <li>Repeat the previous step for the <strong>network.negotiate-auth.delegation-uris</strong> property in about:config.</li>
+                        </ol>
+                        
+                    </div>
+                    
+                    <h3><span>Step 3</span> Refresh or re-open the UI</h3>
+                    
+                    <div class="step-instructions">
+                        <p>
+                            The UI should be able to load without issue if the previous two steps are followed.
+                        </p>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

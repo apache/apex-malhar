@@ -1,0 +1,9 @@
+.palette-target {
+  padding: 5px;
+}
+.select-status {
+  float: right;
+  font-size: 12px;
+  line-height: 32px;
+  color: #999;
+}

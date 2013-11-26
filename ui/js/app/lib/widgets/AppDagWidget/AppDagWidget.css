@@ -1,0 +1,27 @@
+.app-dag > svg {
+  width: 100%;
+}
+.app-dag text {
+  font-weight: 300;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
+  font-size: 14px;
+}
+.app-dag rect {
+  fill: #fff;
+}
+.app-dag .node rect {
+  stroke-width: 2px;
+  stroke: #333;
+  fill: none;
+}
+.app-dag .edge rect {
+  fill: #fff;
+}
+.app-dag .edge path {
+  fill: none;
+  stroke: #333;
+  stroke-width: 1.5px;
+}
+.app-dag .edge-label rect {
+  fill: #fafafa;
+}

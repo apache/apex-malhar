@@ -1,0 +1,59 @@
+<div class="overview-item">
+    <div class="key">Processed/s</div>
+    <div class="value"><%=tuplesProcessedPSMA_f%></div>
+</div>
+
+<div class="overview-item">
+    <div class="key">Processed total</div>
+    <div class="value"><%=totalTuplesProcessed_f%></div>
+</div>
+
+<div class="overview-item">
+    <div class="key">Emitted/s</div>
+    <div class="value"><%=tuplesEmittedPSMA_f%></div>
+</div>
+
+<div class="overview-item">
+    <div class="key">Emitted total</div>
+    <div class="value"><%=totalTuplesEmitted_f%></div>
+</div>
+
+<div class="overview-item">
+    <div class="key">Status</div>
+    <div class="value <%= DT.formatters.statusClassFormatter(status) %>"><%=status%></div>
+</div>
+
+<div class="overview-item">
+    <div class="key">Container ID</div>
+    <div class="value"><%=containerLink%></div>
+</div>
+
+<div class="overview-item">
+    <div class="key">Host</div>
+    <div class="value"><%=host%></div>
+</div>
+
+<div class="overview-item">
+    <div class="key">Current Window</div>
+    <div class="value"><%=currentWindowId_f%></div>
+</div>
+
+<div class="overview-item">
+    <div class="key">Recovery Window</div>
+    <div class="value"><%=recoveryWindowId_f%></div>
+</div>
+
+<div class="overview-item">
+    <div class="key">Latency (ms)</div>
+    <div class="value"><%= latencyMA %></div>
+</div>
+
+<div class="overview-item">
+	<div class="key">CPU %</div>
+	<div class="value"><%= cpuPercentageMA %></div>
+</div>
+
+<!-- <div class="overview-item">
+    <div class="key">Failure Count</div>
+    <div class="value"><%=failureCount%></div>
+</div> -->

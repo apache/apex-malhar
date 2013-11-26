@@ -1,0 +1,43 @@
+<% _.each( properties, function(property) { %>
+    <div class="control-group">
+        <label for="property_<%= property.name %>"><%= property.name %> <span class="property-type-span">(property type: <%= property.class %>)</span></label>
+        <% switch(property.class) {
+            case "java.lang.String":
+                %>
+                <textarea placeholder="<%= property.description %>" data-property="<%= property.name %>" data-javatype="<%= property.class %>"></textarea>
+                <%
+            break;
+        
+            case "boolean":
+                %>
+                <input type="checkbox" data-property="<%= property.name %>" title="<%= property.description %>" data-javatype="<%= property.class %>" />
+                <%
+            break;
+        
+            case "long":
+                %>
+                <input type="text" data-property="<%= property.name %>" value="" placeholder="<%= property.description %>" data-javatype="<%= property.class %>" />
+                <%
+            break;
+            
+            case "double":
+                %>
+                <input type="text" data-property="<%= property.name %>" value="" placeholder="<%= property.description %>" data-javatype="<%= property.class %>" />
+                <%
+            break;
+            
+            case "int":
+                %>
+                <input type="text" data-property="<%= property.name %>" value="" placeholder="<%= property.description %>" data-javatype="<%= property.class %>" />
+                <%
+            break;
+            
+            default:
+                %>
+                <textarea placeholder="<%= property.description %>" data-property="<%= property.name %>" data-javatype="<%= property.class %>"></textarea>
+                <%
+            break;
+            
+        }; %>
+    </div>
+<% }) %>

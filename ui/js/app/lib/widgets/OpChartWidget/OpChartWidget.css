@@ -1,0 +1,74 @@
+.w-operatorChart .opchart-select-form {
+  padding: 5px;
+}
+.w-operatorChart .opchart-select-form select {
+  width: 100%;
+  max-width: 500px;
+}
+.w-operatorChart .opchart-overview {
+  position: relative;
+}
+.w-operatorChart .opchart-overview canvas {
+  box-shadow: inset 1px -1px 0 0px #aaaaaa, inset -1px 0px 0 0px #aaaaaa;
+  cursor: pointer;
+}
+.w-operatorChart .opchart-overview .interaction {
+  position: absolute;
+  /*		overflow:hidden;*/
+
+  top: 0;
+  left: 0;
+  z-index: 2;
+}
+.w-operatorChart .opchart-overview .viewport {
+  position: absolute;
+  /*		min-width:4px;*/
+
+  box-shadow: inset 0 0 1px 1px rgba(0, 0, 0, 0.4), inset 0 0 0px 3px #efefef, inset 0 0 0 4px rgba(0, 0, 0, 0.1), 0 0 0 1px #aaaaaa;
+  z-index: 1;
+  text-align: center;
+  top: 0;
+}
+.w-operatorChart .opchart-overview .viewport .vp-handle {
+  position: absolute;
+  width: 9px;
+  height: 30px;
+  background-color: #EEE;
+  box-shadow: inset 0 0 0 1px #aaaaaa, inset 0 0 5px rgba(0, 0, 0, 0.4);
+  top: 20px;
+}
+.w-operatorChart .opchart-overview .viewport .vp-handle.left-handle {
+  border-radius: 2px 0 0 2px;
+  right: 100%;
+}
+.w-operatorChart .opchart-overview .viewport .vp-handle.right-handle {
+  border-radius: 0 2px 2px 0;
+  left: 100%;
+}
+.w-operatorChart .opchart-overview .viewport .vp-handle .handle-grip {
+  height: 24px;
+  width: 1px;
+  margin: 3px auto;
+  border-color: #AAA;
+  border-width: 0 1px;
+  border-style: solid;
+}
+.w-operatorChart .opchart-overview .viewport .ticker {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-width: 0 6px 7px;
+  border-color: transparent transparent #C00;
+  border-style: solid;
+  position: absolute;
+  bottom: -1px;
+  left: -6px;
+}
+.w-operatorChart .chart-trg-ctnr {
+  margin-right: 300px;
+}
+.w-operatorChart .ctrl-target {
+  width: 290px;
+  margin-right: 10px;
+  float: right;
+}

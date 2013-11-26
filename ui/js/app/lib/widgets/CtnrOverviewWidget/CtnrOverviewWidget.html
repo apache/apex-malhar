@@ -1,0 +1,26 @@
+<div class="page-overview">
+    
+    <div class="overview-item">
+        <div class="key">State</div>
+        <div class="value status-<% print(state.toLowerCase())%>"><%= state %></div>
+    </div>
+    
+    <div class="overview-item">
+        <div class="key">Allocated Memory (mb)</div>
+        <div class="value"><%= memoryMBAllocated %></div>
+    </div>
+    
+    <div class="overview-item">
+        <div class="key">Free Memory (mb)</div>
+        <div class="value"><%= memoryMBFree %></div>
+    </div>
+    
+    <div class="overview-item">
+        <div class="key">Operators</div>
+        <div class="value"><%= numOperators %></div>
+    </div>
+    
+    
+    
+    <div class="widget-resize"></div>
+</div>

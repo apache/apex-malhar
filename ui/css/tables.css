@@ -1,0 +1,102 @@
+#wrapper .tabled-ctnr {
+  padding-bottom: 20px;
+}
+#wrapper .tabled {
+  font-size: 12px;
+  overflow: visible;
+}
+#wrapper .tabled .thead.overhang {
+  box-shadow: 0 1px 3px 0px rgba(0, 0, 0, 0.3);
+}
+#wrapper .tabled .thead .th-row {
+  box-shadow: inset 0 1px 0 0 rgba(0, 0, 0, 0.3), inset 0 -1px 0 0 rgba(0, 0, 0, 0.3), inset 1px 0 0 0 rgba(0, 0, 0, 0.3);
+}
+#wrapper .tabled .thead .filter-row input.active {
+  background-color: #3D82C2;
+  color: white;
+  border-color: #747474;
+}
+#wrapper .tabled .th {
+  font-weight: normal;
+  letter-spacing: 1px;
+  box-shadow: inset -1px 0 0 0 rgba(0, 0, 0, 0.3);
+}
+#wrapper .tabled .th .resize {
+  width: 4px;
+}
+#wrapper .tabled .th .sortlabel {
+  color: #EFEFEF;
+}
+#wrapper .tabled .th .sortlabel:hover {
+  color: #FFF;
+  cursor: pointer;
+}
+#wrapper .tabled .td {
+  box-shadow: inset -1px 0 0 0 rgba(0, 0, 0, 0.3);
+}
+#wrapper .tabled .td a {
+  text-decoration: underline;
+}
+#wrapper .tabled .td a.btn {
+  text-decoration: none;
+}
+#wrapper .tabled .td .cell-inner .selectbox {
+  position: relative;
+  left: 3px;
+  margin: 0;
+}
+#wrapper .tabled .td .cell-inner button,
+#wrapper .tabled .td .cell-inner .btn {
+  margin-top: -3px;
+  line-height: 15px;
+}
+#wrapper .tabled .tr {
+  background: #FFF;
+  box-shadow: inset -1px -1px 0 0 rgba(0, 0, 0, 0.3), inset 1px 0 0 rgba(0, 0, 0, 0.3);
+}
+#wrapper .tabled .tr:nth-child(even) {
+  background: #EFEFEF;
+}
+#wrapper .tabled .tr:last-child td {
+  border-bottom: none;
+}
+#wrapper .tabled .resize-table {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  cursor: se-resize;
+  z-index: 2;
+  height: 17px;
+  width: 17px;
+  background-color: #EEE;
+  border-radius: 5px 0 0 0;
+  box-shadow: inset 0 -1px 12px -5px, 0 0 0 1px #aaaaaa;
+  border: none;
+}
+#wrapper .tabled .resize-table .resize-grip {
+  height: 1px;
+  width: 70%;
+  height: 0px;
+  margin: 2px auto;
+  border-color: #AAA;
+  border-width: 1px 0 0;
+  border-style: solid;
+  position: relative;
+  -webkit-transform: rotate(-45deg);
+  -moz-transform: rotate(-45deg);
+}
+#wrapper .tabled .resize-table .resize-grip:nth-child(1) {
+  left: -2px;
+  top: 4px;
+  width: 60%;
+}
+#wrapper .tabled .resize-table .resize-grip:nth-child(2) {
+  top: 4px;
+  width: 80%;
+  left: 0px;
+}
+#wrapper .tabled .resize-table .resize-grip:nth-child(3) {
+  top: 3px;
+  left: 3px;
+  width: 61%;
+}

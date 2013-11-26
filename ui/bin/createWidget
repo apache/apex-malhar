@@ -1,0 +1,105 @@
+#!/usr/bin/env node
+// Creates a widget module
+var path = require('path'),
+    fs = require('fs'),
+    argv = require('optimist').argv,
+    name,
+    dirname,
+    indexname,
+    mainname,
+    lessname,
+    cssname,
+    desc;
+
+// Expect name of widget
+name = argv._[0].concat('Widget');
+dirname = __dirname + '/../js/app/lib/widgets/' + name;
+indexname = dirname + '/index.js';
+mainname = dirname + '/' + name + '.js';
+templatename = dirname + '/' + name + '.html';
+lessname = dirname + '/' + name + '.less';
+cssname = dirname + '/' + name + '.css';
+desc = argv.d || 'Description of widget.';
+
+// Check to make sure it isn't already there
+fs.stat(dirname, handleDirStat);
+
+
+function handleDirStat(err, stats) {
+    if (!err) {
+        console.log('Widget exists');
+        process.exit();
+    }
+    createDir();
+}
+
+function createDir() {
+    // Create the folder in the widgets dir
+    fs.mkdir(dirname, createIndex);
+}
+
+function createIndex(err) {
+    checkErr(err);
+    fs.writeFile(indexname, 'exports = module.exports = require(\'./' + name + '\');', createMain);
+}
+
+function createMain(err) {
+    checkErr(err);
+    
+    // Get file contents of template
+    var js = fs.readFileSync(__dirname + '/widgetTemplate.js', { encoding: 'utf8' });
+    
+ desc = argv.d || 'Description of widget.';
+
+    // Replace name and description
+    js = replaceNames(js);
+    
+    // Write to main file
+    fs.writeFile(mainname, js, createCSS);
+}
+
+function createCSS(err) {
+    checkErr(err);
+    if (!argv.c) {
+        createTemplate(false);
+        return;
+    }
+
+    // Get contents of less template
+    var less = fs.readFileSync(__dirname + '/widgetLess.less', { encoding: 'utf8' });
+    
+    // Replace name
+    less = replaceNames(less);
+    
+    // Write to less file
+    fs.writeFileSync(lessname, less);
+    
+    // Write to css file
+    fs.writeFileSync(cssname, '');
+    
+    // Add to index.built.less
+    fs.appendFileSync(__dirname + '/../css/index.built.less', '\n@import url("../js/app/lib/widgets/' + name + '/' + name + '.less");');
+    
+    // Add to index.css
+    fs.appendFile(__dirname + '/../css/index.css', '\n@import url("../js/app/lib/widgets/' + name + '/' + name + '.css");', createTemplate);
+}
+
+function createTemplate(err) {
+    checkErr(err);
+    fs.writeFile(templatename, '', function(err2) {
+        checkErr(err2);
+        console.log(name + ' created.');
+    });
+}
+
+
+
+function checkErr(err) {
+    if (err) {
+        console.log('failed creating file');
+        process.exit();
+    }
+}
+function replaceNames(str) {
+    return str.replace(/<WIDGETNAME>/g, name).replace(/<WIDGETDESCRIPTION>/g, desc);
+}

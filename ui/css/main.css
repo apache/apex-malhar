@@ -1,0 +1,62 @@
+body {
+  font-family: "Helvetica Neue", helvetica, arial, sans-serif;
+  background: #ececec;
+  min-width: 747px;
+  font-size: 12px;
+}
+a {
+  text-decoration: none;
+  color: #11506d;
+}
+a:hover {
+  color: #0f5e83;
+}
+.loading-assets {
+  background: url('../img/loading.gif') no-repeat 0 0;
+  overflow: hidden;
+  text-indent: -1000px;
+  margin: 200px auto 0;
+  height: 95px;
+  width: 483px;
+}
+#wrapper {
+  min-width: 1024px;
+}
+#main {
+  background-color: #fafafa;
+  border: thin solid #ccc;
+  overflow: auto;
+  width: auto;
+}
+#header .brand {
+  background: url("../img/main_banner.png") no-repeat scroll 0 0;
+}
+#wrapper [class^="status-"],
+#wrapper [class*=" status-"] {
+  font-weight: bold;
+  text-shadow: 0;
+}
+#wrapper .status-accepted {
+  color: #0084d7;
+}
+#wrapper .status-pending-deploy {
+  color: #0084d7;
+}
+#wrapper .status-running {
+  color: #009900;
+}
+#wrapper .status-active {
+  color: #009900;
+}
+#wrapper .status-failed {
+  color: #bb0000;
+}
+#wrapper .status-killed {
+  color: #773333;
+}
+#wrapper .status-finished {
+  color: #555555;
+}
+#wrapper .status-inactive {
+  color: #555555;
+}

@@ -1,0 +1,12 @@
+<a title="<%= appId %>" href="#ops/apps/<%= appId %>">
+	<% 
+		if (typeof displayText !== 'undefined') { 
+			print(displayText); 
+		} else { 
+			var parts = appId.split('_'); 
+			if (parts.length) { 
+				print(parts[parts.length - 1]) 
+			} 
+		} 
+	%>
+</a>
