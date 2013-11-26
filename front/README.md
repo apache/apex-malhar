@@ -1,4 +1,4 @@
-DataTorrent UI
+DataTorrent Front
 ==============
 
 Open-source, web-based user interface for use with [DataTorrent](http://datatorrent.com), a stream-processing platform for developing real-time, big data applications in Hadoop. 
@@ -8,7 +8,7 @@ Installation/Building
 
 After cloning the [Malhar](https://github.com/DataTorrent/Malhar) repository from Github:
 
-	cd ui
+    cd front
     npm install .
     make build
     
@@ -17,7 +17,7 @@ This creates a `dist` folder whose contents should be copied into the static fil
 Tests
 -------
 
-Tests are written using the [Mocha Framework](http://visionmedia.github.io/mocha/), the [Chai Assertion Library](http://chaijs.com/), and the [Sinon Library](http://sinonjs.org/). The `suite.js` file which is located in `ui/test/` includes all the tests to be run. The individual test files are located in the same directory of the file they each are respectively testing, and by convention end in `.spec.js`.
+Tests are written using the [Mocha Framework](http://visionmedia.github.io/mocha/), the [Chai Assertion Library](http://chaijs.com/), and the [Sinon Library](http://sinonjs.org/). The `suite.js` file which is located in `front/test/` includes all the tests to be run. The individual test files are located in the same directory of the file they each are respectively testing, and by convention end in `.spec.js`.
 
 ### Browser
 
@@ -35,11 +35,11 @@ The code in this project is organized in a way that is compatible with [browseri
 
 ### Getting Started
 
-One project goal that has not been achieved yet is to set up a complete mock implementation of the DT Gateway API to develop against, so the best way to get started developing/extending the UI is to have a Hadoop cluster with DataTorrent and the DT Gateway installed and running. The steps to set up a development environment are as follows:
+One project goal that has not been achieved yet is to set up a complete mock implementation of the DT Gateway API to develop against, so the best way to get started developing/extending the Front is to have a Hadoop cluster with DataTorrent and the DT Gateway installed and running. The steps to set up a development environment are as follows:
 
 1. Clone the [Malhar](https://github.com/DataTorrent/Malhar) repository to the machine that the DT Gateway is running on.
-2. Create a symbolic link called dev in the static file server root folder that points to the ui/ folder in Malhar.
-3. On your local machine, ensure that Malhar is also cloned, then run `make bundle` and `node server` in the ui/ folder (in two different shells or as two different background processes).
+2. Create a symbolic link called dev in the static file server root folder that points to the front/ folder in Malhar.
+3. On your local machine, ensure that Malhar is also cloned, then run `make bundle` and `node server` in the front/ folder (in two different shells or as two different background processes).
 4. Navigate to the dev folder of the DT Gateway static file server URL that your local machine has access to (this may require ssh tunneling or other steps depending on your environment). This might look like: `http://node0.yourcluster.com:PORT/static/dev`.
 5. the `make bundle` command starts the [beefy](https://github.com/chrisdickinson/beefy) server so that every time this URL is hit, your local code gets rebundled.
 
@@ -53,19 +53,19 @@ Because of the size of the project, and specifically one [browserify transform](
 The DT Global Variable
 ----------------------
 
-At runtime, the variable DT is available on the global namespace and contains all the base components that the UI relies on, such as classes that model aspects of your datatorrent applications and views that are common throughout the project. To view what is on this module, take a look at the file located at `ui/js/datatorent/index.js`.
+At runtime, the variable DT is available on the global namespace and contains all the base components that the Front relies on, such as classes that model aspects of your datatorrent applications and views that are common throughout the project. To view what is on this module, take a look at the file located at `front/js/datatorent/index.js`.
 
 
 Pages
 -----
 
-The file located at `ui/js/app/pages.js` acts as an index for all registered pages, and contains more information therein about how to set up a page. The actual page definitions are located in `ui/js/app/lib/pages/` and specify a page name, the widgets that can be instantiated, the default widget configurations (called dashboards), and the page-wide models that will be instantiated. The best way to get familiar with these is to review the code.
+The file located at `front/js/app/pages.js` acts as an index for all registered pages, and contains more information therein about how to set up a page. The actual page definitions are located in `front/js/app/lib/pages/` and specify a page name, the widgets that can be instantiated, the default widget configurations (called dashboards), and the page-wide models that will be instantiated. The best way to get familiar with these is to review the code.
 
 
 Widgets
 -------
 
-Widgets are simply enhanced backbone views. It is recommended (but not necessarily required) to have all widgets extend from DT.widgets.Widget, which maps to the base backbone view located at `ui/js/datatorrent/WidgetView.js`.
+Widgets are simply enhanced backbone views. It is recommended (but not necessarily required) to have all widgets extend from DT.widgets.Widget, which maps to the base backbone view located at `front/js/datatorrent/WidgetView.js`.
 
 ### Location
 Widgets live in `/js/App/lib/widgets`. 
@@ -76,7 +76,7 @@ To create a boilerplate for a widget, run
 
     ./bin/createWidget [-c] _WIDGET_NAME_
 
-This will append "Widget" to the end of your widget name, so it is not necessary to include it here. The new folder that is created will be located at `ui/js/app/lib/widgets/_WIDGET_NAME_Widget`.
+This will append "Widget" to the end of your widget name, so it is not necessary to include it here. The new folder that is created will be located at `front/js/app/lib/widgets/_WIDGET_NAME_Widget`.
 
 
 Contributing
