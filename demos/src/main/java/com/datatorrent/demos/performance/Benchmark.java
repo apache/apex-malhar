@@ -25,21 +25,25 @@ import com.datatorrent.api.StreamingApplication;
 /**
  * Performance Demo Application:
  * <p> 
- *This demo is mainly aimed at demonstrating the performance of Datatorrent platform. 
- *Performance is determined by the number of events processed per second and differs depending on whether the network is involved or not. 
- *The demo can be used to check how the performance varies with stream locality. 
+ * This demo demonstrates the performance of Datatorrent platform. 
+ * Performance is measured by the number of events processed per second and latency. 
+ * Performance varies depending on container memory, CPU and network I/O. 
+ * The demo can be used to check how the performance varies with stream locality.
  *
- *Stream locality decides how the operators are deployed:
- *ThreadLocal - the operators are deployed within the same thread.
- *ContainerLocal -the operators are deployed as separate threads within the process.
- *NodeLocal- the operators are deployed as separate processes on a machine.
- *RackLocal - the operators are deployed on different machines.
- *NoLcality - lets the engine decide how to best deploy the operator.
+ * Stream locality decides how the operators are deployed:
+ * ThreadLocal - the operators are deployed within the same thread.
+ * ContainerLocal -the operators are deployed as separate threads within the process.
+ * NodeLocal- the operators are deployed as separate processes on a machine.
+ * RackLocal - the operators are deployed on different nodes of the same rack.
+ * NoLocality - lets the engine decide how to best deploy the operator.
  *
- *Note: NodeLocal and RackLocal are just requests to the Hadoop Resource Manager. It is not guaranteed that the operators will be deployed as requested. 
- *Resource manger makes the call depending on resource availability. 
+ * Note:  NodeLocal and RackLocal are preferences that can be specified to Hadoop ResourceManager. 
+ * It is not guaranteed that the operators will be deployed as requested. 
+ * ResourceManager makes the call depending on resource availability. 
  * 
- * This demo could be used to benchmark performance for stream locality.</p>
+ * Refer to demos/docs/PerformanceDemo.md for more details.
+ * 
+ * </p>
  *
  * @since 0.9.0
  */

@@ -88,7 +88,9 @@ public abstract class ActiveMQConsumerBase extends ActiveMQBase implements Messa
 
 
   /**
-   * @param messagesReceived- the received messages count to set
+   * Sets the number of received messages.
+   * 
+   * @param messagesReceived the number of received messages
    */
   public void setMessagesReceived(long messagesReceived)
   {
@@ -104,7 +106,9 @@ public abstract class ActiveMQConsumerBase extends ActiveMQBase implements Messa
   }
 
   /**
-   * @param consumerName- the consumer name to set
+   * Sets the name for the consumer.
+   * 
+   * @param consumerName- the name for the consumer
    */
   public void setConsumerName(String consumerName)
   {
@@ -120,7 +124,9 @@ public abstract class ActiveMQConsumerBase extends ActiveMQBase implements Messa
   }
 
   /**
-   * @param maximumReceiveMessages- the maximum number of received messages to set
+   * Sets the maximum number of messages that can be received.
+   * 
+   * @param maximumReceiveMessages the maximum number of received messages
    */
   public void setMaximumReceiveMessages(long maximumReceiveMessages)
   {

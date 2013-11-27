@@ -70,7 +70,9 @@ public class ActiveMQProducerBase extends ActiveMQBase
   }
 
   /**
-   * @param maximumSendMessages- to set the maximum messages to send
+   * Sets the maximum number of messages that can be sent.
+   * 
+   * @param maximumSendMessages the max limit on messages sent
    */
   public void setMaximumSendMessages(long maximumSendMessages)
   {

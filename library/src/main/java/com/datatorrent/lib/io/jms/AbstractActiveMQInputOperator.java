@@ -78,7 +78,9 @@ public abstract class AbstractActiveMQInputOperator extends ActiveMQConsumerBase
   }
 
   /**
-   * @param tuplesBlast- the tuplesBlast to set
+   * Sets the number of tuples emitted in each burst.
+   * 
+   * @param tuplesBlast the number of tuples to emit in each burst.
    */
   public void setTuplesBlast(int tuplesBlast)
   {
@@ -94,7 +96,9 @@ public abstract class AbstractActiveMQInputOperator extends ActiveMQConsumerBase
   }
   
   /**
-   * @param bufferSize- the buffer size to set
+   * Sets the size of holding buffer.
+   * 
+   * @param bufferSize- the size of the holding buffer
    */
   public void setBufferSize(int bufferSize)
   {

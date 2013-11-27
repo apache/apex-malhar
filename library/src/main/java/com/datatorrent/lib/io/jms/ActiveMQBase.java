@@ -119,7 +119,9 @@ public class ActiveMQBase
   }
 
   /**
-   * @param user- the username to set for connecting to active MQ message bus
+   * Sets the username for connecting to active MQ message bus
+   * 
+   * @param user the string to set the user name to.
    */
   public void setUser(String user)
   {
@@ -135,7 +137,9 @@ public class ActiveMQBase
   }
 
   /**
-   * @param password- the password to set for connecting to active MQ message bus
+   * Sets the password to set for connecting to active MQ message bus.
+   * 
+   * @param password the string to set the password to 
    */
   public void setPassword(String password)
   {
@@ -151,7 +155,9 @@ public class ActiveMQBase
   }
 
   /**
-   * @param url- the url to set 
+   * Sets the url.
+   * 
+   * @param url the url to set 
    */
   public void setUrl(String url)
   {
@@ -167,7 +173,9 @@ public class ActiveMQBase
   }
 
   /**
-   * @param ackMode- the message acknowledgment mode to set
+   * Sets the message acknowledgment mode.
+   * 
+   * @param ackMode the message acknowledgment mode to set
    */
   public void setAckMode(String ackMode)
   {
@@ -183,7 +191,9 @@ public class ActiveMQBase
   }
 
   /**
-   * @param clientId- the clientId to set
+   * Sets the client id.
+   * 
+   * @param clientId the id to set for the client
    */
   public void setClientId(String clientId)
   {
@@ -199,7 +209,9 @@ public class ActiveMQBase
   }
   
   /**
-   * @param subject- the name of the destination to set
+   * Sets the name of the destination.
+   * 
+   * @param subject the name of the destination to set
    */
   public void setSubject(String subject)
   {
@@ -215,7 +227,10 @@ public class ActiveMQBase
   }
 
   /**
-   * @param batch- the batch to set
+   * Sets the batch for the ActiveMQ operator. ActiveMQ can acknowledge receipt 
+   * of messages back to the broker in batches (to improve performance).
+   * 
+   * @param batch the size of the batch
    */
   public void setBatch(int batch)
   {
@@ -231,7 +246,9 @@ public class ActiveMQBase
   }
 
   /**
-   * @param messageSize- the size of the message to set
+   * Sets the size of the message.
+   * 
+   * @param messageSize the size of the message 
    */
   public void setMessageSize(int messageSize)
   {
@@ -247,7 +264,10 @@ public class ActiveMQBase
   }
 
   /**
-   * @param durable- the durable flag to set to indicate durable consumer
+   * Sets the durability feature. Durable queues keep messages around persistently
+   * for any suitable consumer to consume them.
+   * 
+   * @param durable the flag to set to the durability feature
    */
   public void setDurable(boolean durable)
   {
@@ -263,7 +283,9 @@ public class ActiveMQBase
   }
 
   /**
-   * @param topic- the topic to set to indicate if the destination is a topic or queue
+   * Sets of the destination is a topic or a queue.
+   * 
+   * @param topic the flag to set the destination to topic or queue.
    */
   public void setTopic(boolean topic)
   {
@@ -279,7 +301,9 @@ public class ActiveMQBase
   }
 
   /**
-   * @param transacted- the flag to set whether the messages should be transacted or not
+   * Sets if the messages should be transacted or not.
+   * 
+   * @param transacted the flag to set whether the messages should be transacted or not
    */
   public void setTransacted(boolean transacted)
   {
@@ -292,7 +316,9 @@ public class ActiveMQBase
   }
 
   /**
-   * @param verbose- the flag to set to enable verbose option 
+   * Sets the verbose option.
+   * 
+   * @param verbose the flag to set to enable verbose option 
    */
   public void setVerbose(boolean verbose)
   {

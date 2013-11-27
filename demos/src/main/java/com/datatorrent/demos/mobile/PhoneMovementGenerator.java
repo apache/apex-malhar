@@ -37,9 +37,10 @@ import java.util.Set;
 
 /** 
  * <p>
- * This is a partionable operator that generates the GPS locations for the phone numbers specified. 
+ * This operator generates the GPS locations for the phone numbers specified. 
  * The range of phone numbers or a specific phone number can be set for which the GPS locations will be generated. 
- * It supports querying the locations of a given phone number.
+ * It supports querying the locations of a given phone number. 
+ * This is a partionable operator that can partition as the tuplesBlast increases.
  * </p>
  *
  * @since 0.3.2
@@ -163,7 +164,9 @@ public class PhoneMovementGenerator extends BaseOperator
   }
 
   /**
-   * @param i- the range of phone numbers to set
+   * Sets the range of phone numbers for which the GPS locations need to be generated.
+   * 
+   * @param i the range of phone numbers to set
    */
   public void setRange(int i)
   {
@@ -180,7 +183,9 @@ public class PhoneMovementGenerator extends BaseOperator
   }
 
   /**
-   * @param i- threshold to set that decides how frequently the GPS locations change.
+   * Sets the threshold that decides how frequently the GPS locations are updated.
+   * 
+   * @param i the value that decides how frequently the GPS locations change.
    */
   public void setThreshold(int i)
   {
