@@ -1,13 +1,13 @@
 {
-  "name": "datatorrent-ui",
+  "name": "datatorrent-front",
   "version": "0.9.1",
-  "description": "Web-based UI for use with DataTorrent, a stream-processing platform for developing real-time, big data applications in Hadoop.",
+  "description": "Web-based UI for use with DataTorrent, a stream-processing platform for developing real-time, big data applications on Hadoop",
   "main": "js/start.js",
   "scripts": {
     "test": "make clitest"
   },
-  "repository": "https://github.com/DataTorrent/Front",
-  "author": "andy perlitch",
+  "repository": "https://github.com/DataTorrent/Malhar",
+  "author": "DataTorrent, Inc",
   "license": "restricted",
   "devDependencies": {
     "mocha": "~1.13.0",
