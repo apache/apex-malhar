@@ -40,10 +40,10 @@ public class RandomWordInputModule implements InputOperator
   private int tupleSize = 64;
 
   /**
-   * Sets the size of the tuple to the specified size.
+   * Sets the size of the tuple to the specified size. 
    * The change to tuple size takes effect in next window.
    * 
-   * @param size - the tupleSize to set
+   * @param size the tupleSize to set
    */
   public void setTupleSize(int size)
   {
@@ -63,10 +63,9 @@ public class RandomWordInputModule implements InputOperator
 
   /**
    * Sets the property that decides if the operator emits same tuple or 
-   * creates new tuple for every emit. 
-   * The change takes effect in next window.
+   * creates new tuple for every emit. The change takes effect in next window.
    * 
-   * @param isSameTuple - the boolean value to set for 'emitSameTuple' property
+   * @param isSameTuple the boolean value to set for 'emitSameTuple' property
    */
   public void setEmitSameTuple(boolean isSameTuple)
   {
@@ -87,21 +86,21 @@ public class RandomWordInputModule implements InputOperator
   @Override
   public void emitTuples()
   {
-    byte[] tupleArray = null;
-
-    if (emitSameTuple) {
-      tupleArray = sameTupleArray;
-    } else {
-      tupleArray = new byte[tupleSize];
-    }
-
     if (firstTime) {
       for (int i = count--; i-- > 0;) {
-        output.emit(tupleArray);
+        if (emitSameTuple) {
+          output.emit(sameTupleArray);
+        } else {
+          output.emit(new byte[tupleSize]);
+        }
       }
       firstTime = false;
     } else {
-      output.emit(tupleArray);
+      if (emitSameTuple) {
+        output.emit(sameTupleArray);
+      } else {
+        output.emit(new byte[tupleSize]);
+      }
       count++;
     }
   }
