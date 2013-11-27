@@ -195,16 +195,9 @@ public class HDFSStorage implements Storage
     return obj;
   }
 
+  //TODO
   public boolean clean(long identifier)
   {
-    Path deletionFile = new Path(baseDir + "/" + String.valueOf(identifier));
-    try {
-      if (fs.exists(deletionFile) && fs.isFile(deletionFile)) {
-        return fs.delete(deletionFile, false);
-      }
-    } catch (IOException e) {
-      logger.warn("error while deleting the identifier {}", e.getMessage());
-    }
     return false;
   }
 
