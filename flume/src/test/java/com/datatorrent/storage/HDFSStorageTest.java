@@ -19,8 +19,13 @@ public class HDFSStorageTest
     }
     RandomAccessFile r = new RandomAccessFile("src/test/resources/TestInput.txt", "r");
     r.seek(0);
-    storage.store(r.readLine().getBytes());
-    logger.debug(new String(storage.retrieveNext()));
+    byte[] b = r.readLine().getBytes();
+    
+    long val = storage.store(b);
+    storage.retrieve(val);
+   // logger.debug("{}",storage.retrieveNext());
+   // storage.flush();
+    r.close();
   }
 
   @Test
@@ -32,6 +37,30 @@ public class HDFSStorageTest
     }
     storage.clean(1);
   }
+  
+  public static void main(String[] args)
+  {
+    Storage storage = HDFSStorage.getInstance(".", true);
+    if (storage == null) {
+      return;
+    }
+    RandomAccessFile r;
+    try {
+      r = new RandomAccessFile("/home/gaurav/malhar/Core/flume/src/test/resources/TestInput.txt", "r");
+      r.seek(0);
+      byte[] b = r.readLine().getBytes();
+      long val = storage.store(b);
+      for(int i = 0; i< 10000000; i++)
+        storage.store(b);
+      storage.store(r.readLine().getBytes());
+      System.out.println(storage.retrieve(val));
+      System.out.println(storage.retrieveNext());
+      r.close();
+    } catch (Exception e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
 
+  }
   private static final Logger logger = LoggerFactory.getLogger(HDFSStorageTest.class);
 }

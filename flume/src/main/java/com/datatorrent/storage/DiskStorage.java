@@ -70,8 +70,9 @@ public class DiskStorage implements Storage
 
   }
 
-  public byte[] retrieve(long identifier)
+  public RetrievalObject retrieve(long identifier)
   {
+    /*
     if (identifier >= uniqueIdentifier) {
       return null;
     }
@@ -89,9 +90,11 @@ public class DiskStorage implements Storage
     } else {
       return null;
     }
+    */
+    return null;
   }
 
-  public byte[] retrieveNext()
+  public RetrievalObject retrieveNext()
   {
     return retrieve(retrieveIdentifier);
   }
@@ -106,5 +109,12 @@ public class DiskStorage implements Storage
   }
 
   private static final Logger logger = LoggerFactory.getLogger(DiskStorage.class);
+
+  @Override
+  public boolean flush()
+  {
+    // TODO Auto-generated method stub
+    return false;
+  }
 
 }
