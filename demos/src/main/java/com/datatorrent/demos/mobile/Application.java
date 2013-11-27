@@ -37,11 +37,22 @@ import java.net.URI;
 import java.util.Random;
 
 /**
- * Mobile Demo Application: It demonstrates ability to locate a cell phone in an
- * area code.
- * <p>
+ * Mobile Demo Application:
+ * <p> 
+ * This demo is mainly aimed at demonstrating the scalability feature of Datatorrent platform. 
+ * It demonstrates the ability of the platform to scale up and down with load, by making use of partionable operators. 
+ * If the tuples processed per second increases beyond 30,000, the operator replicates. 
+ * If the tuples processed per second drops below 10,000, the operator count drops down to the original. 
+ * The load can be varied using the tuplesBlast property.
+ * The tuplesBlast property can be set using dtcli command: 'set-operator-property operatorName tuplesBlast value'. 
+ *  
+ * This demo simulates large number of cell phones in the range of 40K to 200K
+ * and tracks a given cell number across cell towers.
+ * 
  * The specs are as such<br>
- * 100K cells phones are tracked. They jump a cell tower frequently. Sometimes
+ * If the tuplesBlast is set to 200, 40K cell phones are tracked. 
+ * If the tuplesBlast is set to 1000, 200K cell phones are tracked.
+ * They jump a cell tower frequently. Sometimes
  * within a second sometimes in 10 seconds. The aim is to demonstrate the
  * following abilities<br>
  * <ul>
@@ -53,7 +64,9 @@ import java.util.Random;
  * partitions as per load</li>
  * <li></li>
  * </ul>
- *
+ * 
+ * Refer demos/docs for more information.
+ * 
  * <p>
  *
  * Running Java Test or Main app in IDE:

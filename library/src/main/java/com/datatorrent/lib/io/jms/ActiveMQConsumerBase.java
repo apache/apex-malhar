@@ -62,41 +62,66 @@ public abstract class ActiveMQConsumerBase extends ActiveMQBase implements Messa
    */
   protected abstract void emitMessage(Message message) throws JMSException;
 
+  /**
+   * @return the message producer 
+   */
   public MessageProducer getReplyProducer()
   {
     return replyProducer;
   }
 
+  /**
+   * @return the message consumer 
+   */
   public MessageConsumer getConsumer()
   {
     return consumer;
   }
 
+  /**
+   * @return the count of messages received
+   */
   public long getMessagesReceived()
   {
     return messageReceivedCount;
   }
 
+
+  /**
+   * @param messagesReceived- the received messages count to set
+   */
   public void setMessagesReceived(long messagesReceived)
   {
     this.messageReceivedCount = messagesReceived;
   }
 
+  /**
+   * @return the consumer name 
+   */
   public String getConsumerName()
   {
     return consumerName;
   }
 
+  /**
+   * @param consumerName- the consumer name to set
+   */
   public void setConsumerName(String consumerName)
   {
     this.consumerName = consumerName;
   }
 
+  /**
+   * @return the maximum of received messages 
+   */
   public long getMaximumReceiveMessages()
   {
     return maximumReceiveMessages;
   }
 
+  /**
+   * @param maximumReceiveMessages- the maximum number of received messages to set
+   */
   public void setMaximumReceiveMessages(long maximumReceiveMessages)
   {
     this.maximumReceiveMessages = maximumReceiveMessages;

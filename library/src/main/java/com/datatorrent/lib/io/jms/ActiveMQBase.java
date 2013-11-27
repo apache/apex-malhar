@@ -86,126 +86,201 @@ public class ActiveMQBase
   private boolean transacted = false;
   private boolean verbose = false;
 
+  /**
+   * @return the connection 
+   */
   public Connection getConnection()
   {
     return connection;
   }
 
+  /**
+   * @return the session 
+   */
   public Session getSession()
   {
     return session;
   }
 
+  /**
+   * @return the destination 
+   */
   public Destination getDestination()
   {
     return destination;
   }
 
+  /**
+   * @return the username 
+   */
   public String getUser()
   {
     return user;
   }
 
+  /**
+   * @param user- the username to set for connecting to active MQ message bus
+   */
   public void setUser(String user)
   {
     this.user = user;
   }
 
+  /**
+   * @return the password 
+   */
   public String getPassword()
   {
     return password;
   }
 
+  /**
+   * @param password- the password to set for connecting to active MQ message bus
+   */
   public void setPassword(String password)
   {
     this.password = password;
   }
 
+  /**
+   * @return the url 
+   */
   public String getUrl()
   {
     return url;
   }
 
+  /**
+   * @param url- the url to set 
+   */
   public void setUrl(String url)
   {
     this.url = url;
   }
 
+  /**
+   * @return the message acknowledgment mode 
+   */
   public String getAckMode()
   {
     return ackMode;
   }
 
+  /**
+   * @param ackMode- the message acknowledgment mode to set
+   */
   public void setAckMode(String ackMode)
   {
     this.ackMode = ackMode;
   }
 
+  /**
+   * @return the clientId
+   */
   public String getClientId()
   {
     return clientId;
   }
 
+  /**
+   * @param clientId- the clientId to set
+   */
   public void setClientId(String clientId)
   {
     this.clientId = clientId;
   }
 
+  /**
+   * @return the name of the destination
+   */
   public String getSubject()
   {
     return subject;
   }
-
+  
+  /**
+   * @param subject- the name of the destination to set
+   */
   public void setSubject(String subject)
   {
     this.subject = subject;
   }
 
+  /**
+   * @return the batch
+   */
   public int getBatch()
   {
     return batch;
   }
 
+  /**
+   * @param batch- the batch to set
+   */
   public void setBatch(int batch)
   {
     this.batch = batch;
   }
 
+  /**
+   * @return the message size
+   */
   public int getMessageSize()
   {
     return messageSize;
   }
 
+  /**
+   * @param messageSize- the size of the message to set
+   */
   public void setMessageSize(int messageSize)
   {
     this.messageSize = messageSize;
   }
 
+  /**
+   * @return the durability of the consumer
+   */
   public boolean isDurable()
   {
     return durable;
   }
 
+  /**
+   * @param durable- the durable flag to set to indicate durable consumer
+   */
   public void setDurable(boolean durable)
   {
     this.durable = durable;
   }
 
+  /**
+   * @return the topic 
+   */
   public boolean isTopic()
   {
     return topic;
   }
 
+  /**
+   * @param topic- the topic to set to indicate if the destination is a topic or queue
+   */
   public void setTopic(boolean topic)
   {
     this.topic = topic;
   }
 
+  /**
+   * @return the transacted 
+   */
   public boolean isTransacted()
   {
     return transacted;
   }
 
+  /**
+   * @param transacted- the flag to set whether the messages should be transacted or not
+   */
   public void setTransacted(boolean transacted)
   {
     this.transacted = transacted;
@@ -216,6 +291,9 @@ public class ActiveMQBase
     return verbose;
   }
 
+  /**
+   * @param verbose- the flag to set to enable verbose option 
+   */
   public void setVerbose(boolean verbose)
   {
     this.verbose = verbose;

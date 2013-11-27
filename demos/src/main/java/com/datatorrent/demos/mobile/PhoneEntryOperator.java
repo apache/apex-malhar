@@ -38,17 +38,26 @@ public class PhoneEntryOperator extends BaseOperator
   private int rangeLowerEndpoint;
   private int rangeUpperEndpoint;
 
+  /**
+   * @param i- initialDisplayCount to set 
+   */
   public void setInitialDisplayCount(int i)
   {
     initialDisplayCount = i;
   }
 
+  /**
+   * @param i- phoneRange to set 
+   */
   public void setPhoneRange(Range<Integer> phoneRange)
   {
     this.rangeLowerEndpoint = phoneRange.lowerEndpoint();
     this.rangeUpperEndpoint = phoneRange.upperEndpoint();
   }
 
+  /**
+   * @param i- maxSeedPhoneNumber to set 
+   */
   public void setMaxSeedPhoneNumber(int number)
   {
     this.maxSeedPhoneNumber = number;

@@ -23,7 +23,23 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 
 /**
- * Benchmark for operator locality.<p>
+ * Performance Demo Application:
+ * <p> 
+ *This demo is mainly aimed at demonstrating the performance of Datatorrent platform. 
+ *Performance is determined by the number of events processed per second and differs depending on whether the network is involved or not. 
+ *The demo can be used to check how the performance varies with stream locality. 
+ *
+ *Stream locality decides how the operators are deployed:
+ *ThreadLocal - the operators are deployed within the same thread.
+ *ContainerLocal -the operators are deployed as separate threads within the process.
+ *NodeLocal- the operators are deployed as separate processes on a machine.
+ *RackLocal - the operators are deployed on different machines.
+ *NoLcality - lets the engine decide how to best deploy the operator.
+ *
+ *Note: NodeLocal and RackLocal are just requests to the Hadoop Resource Manager. It is not guaranteed that the operators will be deployed as requested. 
+ *Resource manger makes the call depending on resource availability. 
+ * 
+ * This demo could be used to benchmark performance for stream locality.</p>
  *
  * @since 0.9.0
  */
@@ -63,6 +79,7 @@ public abstract class Benchmark
 
   /**
    * Place the 2 operators so that they are in the same Rack.
+   * The operators are requested to be deployed on different machines.
    */
   public static class RackLocal extends AbstractApplication
   {
@@ -76,6 +93,7 @@ public abstract class Benchmark
 
   /**
    * Place the 2 operators so that they are in the same node.
+   * The operators are requested to be deployed as different processes within the same machine.
    */
   public static class NodeLocal extends AbstractApplication
   {
@@ -89,6 +107,7 @@ public abstract class Benchmark
 
   /**
    * Place the 2 operators so that they are in the same container.
+   * The operators are deployed as different threads in the same process.
    */
   public static class ContainerLocal extends AbstractApplication
   {

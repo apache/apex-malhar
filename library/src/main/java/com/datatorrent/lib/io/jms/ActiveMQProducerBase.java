@@ -53,16 +53,25 @@ public class ActiveMQProducerBase extends ActiveMQBase
   // Config parameters that user can set.
   private long maximumSendMessages = 0; // 0 means unlimitted
 
+  /**
+   * @return the message producer 
+   */
   public MessageProducer getProducer()
   {
     return producer;
   }
 
+  /**
+   * @return the maximum sent messages 
+   */
   public long getMaximumSendMessages()
   {
     return maximumSendMessages;
   }
 
+  /**
+   * @param maximumSendMessages- to set the maximum messages to send
+   */
   public void setMaximumSendMessages(long maximumSendMessages)
   {
     this.maximumSendMessages = maximumSendMessages;
