@@ -10,6 +10,7 @@ import com.datatorrent.lib.database.DBConnector;
  * from MongoDB</br>
  *
  * @param <T> type of input tuples </T>
+ * @since 0.9.1
  */
 public abstract class MongoDBLookupCacheBackedOperator<T> extends AbstractDBLookupCacheBackedOperator<T>
 {

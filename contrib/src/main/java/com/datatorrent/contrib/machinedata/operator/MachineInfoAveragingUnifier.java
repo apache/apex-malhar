@@ -12,7 +12,7 @@ import com.datatorrent.lib.util.KeyHashValPair;
 
 
 /**
- * This class calculates the partial sum and count for a given key 
+ * This class calculates the partial sum and count for a given key
  * <p>MachineInfoAveragingUnifier class.</p>
  *
  * @since 0.9.0

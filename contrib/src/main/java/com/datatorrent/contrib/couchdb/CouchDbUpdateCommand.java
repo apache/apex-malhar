@@ -33,6 +33,8 @@ import javax.annotation.Nullable;
  *   in the database. So we allow tuples to have revision as null and in that case, the prior revision is fetched from
  *   the database and is set on the object using setRevision.
  * </br>
+ *
+ * @since 0.9.1
  */
 public interface CouchDbUpdateCommand
 {

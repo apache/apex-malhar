@@ -30,6 +30,7 @@ import com.datatorrent.lib.database.DBConnector;
  * when the key is not present in cache. </br>
  *
  * @param <T> type of input tuples </T>
+ * @since 0.9.1
  */
 public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupCacheBackedOperator<T>
 {
