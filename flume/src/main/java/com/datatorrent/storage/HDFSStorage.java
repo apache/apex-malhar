@@ -29,7 +29,8 @@ public class HDFSStorage implements Storage
   private byte[] fileData;
   private long retrievalOffset;
   private long retrievalFile;
-  
+  private long cleanedFileCounter;
+
   private HDFSStorage(String baseDir, boolean restore) throws IOException
   {
     if (baseDir != null && baseDir.length() > 0) {
@@ -46,6 +47,7 @@ public class HDFSStorage implements Storage
       }
       this.baseDir = baseDir;
       fileCounter = 0;
+      cleanedFileCounter = -1;
       fileCounterFile = new Path(baseDir + identityFileName);
       if (restore) {
         if (fs.exists(fileCounterFile) && fs.isFile(fileCounterFile)) {
@@ -195,10 +197,26 @@ public class HDFSStorage implements Storage
     return obj;
   }
 
-  //TODO
   public boolean clean(long identifier)
   {
-    return false;
+    byte[] b = new byte[8];
+    longToByteArray(identifier, b, 0, 8);
+    long cleanFileIndex = byteArrayToLong(b, 7, 4);
+    if (cleanedFileCounter >= cleanFileIndex)
+      return true;
+    try {
+      do {
+        Path path = new Path(baseDir + "/" + cleanedFileCounter);
+        if (fs.exists(path) && fs.isFile(path)) {
+          fs.delete(path, false);
+        }
+        ++cleanedFileCounter;
+      } while (cleanedFileCounter < cleanFileIndex);
+    } catch (IOException e) {
+      logger.warn("not able to close the streams {}", e.getMessage());
+      return false;
+    }
+    return true;
   }
 
   private static final Logger logger = LoggerFactory.getLogger(HDFSStorage.class);
@@ -209,14 +227,15 @@ public class HDFSStorage implements Storage
     if (dataStream != null) {
       try {
         dataStream.close();
+        filled = 0;
+        ++fileCounter;
         return true;
       } catch (IOException ex) {
         logger.warn("not able to close the streams {}", ex.getMessage());
+        return false;
       }
     }
     return true;
   }
-
-  
 
 }
