@@ -84,11 +84,6 @@ public class HDFSStorage implements Storage
     return null;
   }
 
-  private byte[] intToByteArray(int value)
-  {
-    return Ints.toByteArray(value);
-  }
-
   private void longToByteArray(long value, byte[] b, int start, int size)
   {
     for (int i = 0; i < size; i++) {
@@ -118,11 +113,11 @@ public class HDFSStorage implements Storage
         longToByteArray(filled, fileOffset, 0, 4);
         if (filled == 0) {
           longToByteArray(fileCounter, fileOffset, 4, 4);
-          dataStream = writeData(new Path(baseDir + "/" + String.valueOf(fileCounter)), intToByteArray(bytes.length));
+          dataStream = writeData(new Path(baseDir + "/" + String.valueOf(fileCounter)), Ints.toByteArray(bytes.length));
           dataStream.write(bytes);
           writeData(fileCounterFile, String.valueOf(fileCounter + 1).getBytes()).close();
         } else {
-          dataStream.write(intToByteArray(bytes.length));
+          dataStream.write(Ints.toByteArray(bytes.length));
           dataStream.write(bytes);
         }
         dataStream.hflush();
