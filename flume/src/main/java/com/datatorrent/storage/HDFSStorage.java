@@ -1,7 +1,9 @@
 package com.datatorrent.storage;
 
 import java.io.DataInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -10,15 +12,24 @@ import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.primitives.Ints;
+
 public class HDFSStorage implements Storage
 {
-  private String baseDir;
-  private long uniqueIdentifier;
-  private long retrieveIdentifier;
-  private Path identityFile;
-  private Path retrivalFile;
-  private FileSystem fs;
+  private static final String identityFileName = "/counter";
 
+  private String baseDir;
+  private long fileCounter;
+  private Path fileCounterFile;
+  private FileSystem fs;
+  private FSDataOutputStream dataStream;
+  private long blockSize;
+  private long filled;
+  private byte[] fileOffset = new byte[8];
+  private byte[] fileData;
+  private long retrievalOffset;
+  private long retrievalFile;
+  
   private HDFSStorage(String baseDir, boolean restore) throws IOException
   {
     if (baseDir != null && baseDir.length() > 0) {
@@ -28,21 +39,19 @@ public class HDFSStorage implements Storage
       if (!fs.exists(path) || !fs.isDirectory(path)) {
         throw new IOException("baseDir passed is not directory");
       }
+      /* keeping the block size 2MB less than the default block size */
+      blockSize = fs.getDefaultBlockSize(path) - 2 * 1024 * 1024;
+      if (blockSize <= 0) {
+        throw new IOException("block size is not configured properly");
+      }
       this.baseDir = baseDir;
-      retrieveIdentifier = 1;
-      uniqueIdentifier = 1;
-      identityFile = new Path(baseDir + "/identityFile");
-      retrivalFile = new Path(baseDir + "/retrivalFile");
+      fileCounter = 0;
+      fileCounterFile = new Path(baseDir + identityFileName);
       if (restore) {
-        if (fs.exists(identityFile) && fs.isFile(identityFile)) {
-          uniqueIdentifier = Long.valueOf(new String(readData(identityFile)));
-        }
-        if (fs.exists(retrivalFile) && fs.isFile(retrivalFile)) {
-          retrieveIdentifier = Long.valueOf(new String(readData(retrivalFile)));
+        if (fs.exists(fileCounterFile) && fs.isFile(fileCounterFile)) {
+          fileCounter = Long.valueOf(new String(readData(fileCounterFile)));
         }
       }
-      writeData(identityFile, String.valueOf(uniqueIdentifier).getBytes());
-      writeData(retrivalFile, String.valueOf(retrieveIdentifier).getBytes());
     } else {
       throw new IOException("filepath can't be null");
     }
@@ -57,11 +66,11 @@ public class HDFSStorage implements Storage
     return bytes;
   }
 
-  private void writeData(Path path, byte[] data) throws IOException
+  private FSDataOutputStream writeData(Path path, byte[] data) throws IOException
   {
-    FSDataOutputStream os = fs.create(path);
-    os.write(data);
-    os.close();
+    FSDataOutputStream stream = fs.create(path);
+    stream.write(data);
+    return stream;
   }
 
   public static Storage getInstance(String baseDir, boolean restore)
@@ -75,44 +84,120 @@ public class HDFSStorage implements Storage
     return null;
   }
 
+  private byte[] intToByteArray(int value)
+  {
+    return Ints.toByteArray(value);
+  }
+
+  private void longToByteArray(long value, byte[] b, int start, int size)
+  {
+    for (int i = 0; i < size; i++) {
+      int shift = 8 * (i);
+      if (shift == 0)
+        b[i + start] = (byte) value;
+      else
+        b[i + start] = (byte) (value >>> shift);
+    }
+  }
+
+  private long byteArrayToLong(byte[] b, int size, int startIndex)
+  {
+    long l = 0;
+    for (int i = size; i >= startIndex; i--) {
+      l <<= 8;
+      l ^= (long) b[i] & 0xFF;
+    }
+    return l;
+  }
+
   public long store(byte[] bytes)
   {
-    try {
-      writeData(new Path(baseDir + "/" + String.valueOf(uniqueIdentifier)), bytes);
-      long identifier = uniqueIdentifier;
-      writeData(identityFile, String.valueOf(++uniqueIdentifier).getBytes());
-      return identifier;
-    } catch (IOException ex) {
-      logger.warn("Error while storing the bytes {}", ex.getMessage());
-      return -1;
+    // 4 for the number of bytes used to store the length of the data
+    if (filled + bytes.length + 4 < blockSize) {
+      try {
+        longToByteArray(filled, fileOffset, 0, 4);
+        if (filled == 0) {
+          longToByteArray(fileCounter, fileOffset, 4, 4);
+          dataStream = writeData(new Path(baseDir + "/" + String.valueOf(fileCounter)), intToByteArray(bytes.length));
+          dataStream.write(bytes);
+          writeData(fileCounterFile, String.valueOf(fileCounter + 1).getBytes()).close();
+        } else {
+          dataStream.write(intToByteArray(bytes.length));
+          dataStream.write(bytes);
+        }
+        dataStream.hflush();
+        filled += (bytes.length + 4);
+        return byteArrayToLong(fileOffset, 7, 0);
+      } catch (IOException ex) {
+        logger.warn("Error while storing the bytes {}", ex.getMessage());
+        return -1;
+      }
     }
-
+    try {
+      dataStream.close();
+    } catch (IOException ex) {
+      logger.warn("Error while closing the streams {}", ex.getMessage());
+    }
+    filled = 0;
+    ++fileCounter;
+    return store(bytes);
   }
 
-  public byte[] retrieve(long identifier)
+  public RetrievalObject retrieve(long identifier)
   {
-    if (identifier >= uniqueIdentifier) {
+    byte[] b = new byte[8];
+    longToByteArray(identifier, b, 0, 8);
+    retrievalOffset = byteArrayToLong(b, 3, 0);
+    retrievalFile = byteArrayToLong(b, 7, 4);
+    try {
+      fileData = readData(new Path(baseDir + "/" + retrievalFile));
+      byte[] lengthArr = new byte[4];
+      System.arraycopy(fileData, (int) retrievalOffset, lengthArr, 0, 4);
+      int length = Ints.fromByteArray(lengthArr);
+      RetrievalObject obj = new RetrievalObject();
+      obj.setToken(identifier);
+      obj.setData(new byte[length]);
+      System.arraycopy(fileData, (int) (retrievalOffset + 4), obj.getData(), 0, length);
+      retrievalOffset += 4 + length;
+      return obj;
+    } catch (IllegalArgumentException e) {
+      logger.warn(" error while retrieving {}", e.getMessage());
+      return null;
+    } catch (IOException e) {
+      logger.warn(" error while retrieving {}", e.getMessage());
       return null;
     }
-    Path identityFile = new Path(baseDir + "/" + String.valueOf(identifier));
-    try {
-      if (fs.exists(identityFile) && fs.isFile(identityFile)) {
-        byte[] stored = readData(identityFile);
-        retrieveIdentifier = ++identifier;
-        writeData(retrivalFile, String.valueOf(retrieveIdentifier).getBytes());
-        return stored;
-      } else {
+  }
+
+  public RetrievalObject retrieveNext()
+  {
+    if (fileData == null)
+      return null;
+    if (retrievalOffset == fileData.length) {
+      retrievalOffset = 0;
+      retrievalFile++;
+      try {
+        fileData = readData(new Path(baseDir + "/" + retrievalFile));
+      } catch (IllegalArgumentException e) {
+        logger.warn(" error while retrieving {}", e.getMessage());
+        return null;
+      } catch (IOException e) {
+        logger.warn(" error while retrieving {}", e.getMessage());
         return null;
       }
-    } catch (IOException ex) {
-      logger.warn("Error while retrieving the bytes {}", ex.getMessage());
-      return null;
     }
-  }
-
-  public byte[] retrieveNext()
-  {
-    return retrieve(retrieveIdentifier);
+    byte[] nextIdentifier = new byte[8];
+    longToByteArray(retrievalOffset, nextIdentifier, 0, 4);
+    longToByteArray(retrievalFile, nextIdentifier, 4, 4);
+    byte[] lengthArr = new byte[4];
+    System.arraycopy(fileData, (int) retrievalOffset, lengthArr, 0, 4);
+    int length = Ints.fromByteArray(lengthArr);
+    RetrievalObject obj = new RetrievalObject();
+    obj.setToken(byteArrayToLong(nextIdentifier, 7, 0));
+    obj.setData(new byte[length]);
+    System.arraycopy(fileData, (int) (retrievalOffset + 4), obj.getData(), 0, length);
+    retrievalOffset += 4 + length;
+    return obj;
   }
 
   public boolean clean(long identifier)
@@ -129,5 +214,21 @@ public class HDFSStorage implements Storage
   }
 
   private static final Logger logger = LoggerFactory.getLogger(HDFSStorage.class);
+
+  @Override
+  public boolean flush()
+  {
+    if (dataStream != null) {
+      try {
+        dataStream.close();
+        return true;
+      } catch (IOException ex) {
+        logger.warn("not able to close the streams {}", ex.getMessage());
+      }
+    }
+    return true;
+  }
+
+  
 
 }

@@ -20,7 +20,7 @@ public class DiskStorageTest
     RandomAccessFile r = new RandomAccessFile("src/test/resources/TestInput.txt", "r");
     r.seek(0);
     storage.store(r.readLine().getBytes());
-    logger.debug(new String(storage.retrieveNext()));
+    //logger.debug(new String(storage.retrieveNext()));
   }
 
   @Test
