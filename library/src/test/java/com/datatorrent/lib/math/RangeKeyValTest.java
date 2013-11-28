@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * Functional tests for {@link com.datatorrent.lib.math.RangeKeyVal}<p>
  *
  */
-public class RangeKeyValTest
+public class RangeKeyValTest<V extends Number>
 {
   private static Logger log = LoggerFactory.getLogger(RangeKeyValTest.class);
 
@@ -44,7 +44,7 @@ public class RangeKeyValTest
     public void put(Object payload)
     {
       KeyValPair<String, Object> tuple = (KeyValPair<String, Object>)payload;
-      HighLow hl = (HighLow)tuple.getValue();
+      HighLow<V> hl = (HighLow<V>)tuple.getValue();
       high = hl.getHigh().doubleValue();
       low = hl.getLow().doubleValue();
     }

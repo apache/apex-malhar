@@ -52,9 +52,9 @@ public class PhoneMovementGenerator extends BaseOperator
     @Override
     public void process(Integer tuple)
     {
-      HighLow loc = gps.get(tuple);
+      HighLow<Integer> loc = gps.get(tuple);
       if (loc == null) {
-        loc = new HighLow(random.nextInt(range), random.nextInt(range));
+        loc = new HighLow<Integer>(random.nextInt(range), random.nextInt(range));
         gps.put(tuple, loc);
       }
       int xloc = loc.getHigh().intValue();
@@ -86,13 +86,13 @@ public class PhoneMovementGenerator extends BaseOperator
           yloc += range;
         }
       }
-      xloc = xloc % range;
-      yloc = yloc % range;
+      xloc %= range;
+      yloc %= range;
 
       // Set new location
-      HighLow nloc = newgps.get(tuple);
+      HighLow<Integer> nloc = newgps.get(tuple);
       if (nloc == null) {
-        newgps.put(tuple, new HighLow(xloc, yloc));
+        newgps.put(tuple, new HighLow<Integer>(xloc, yloc));
       }
       else {
         nloc.setHigh(xloc);
@@ -143,13 +143,13 @@ public class PhoneMovementGenerator extends BaseOperator
 
   final Set<Integer> phone_register = Sets.newHashSet();
 
-  private final transient HashMap<Integer, HighLow> gps = new HashMap<Integer, HighLow>();
+  private final transient HashMap<Integer, HighLow<Integer>> gps = new HashMap<Integer, HighLow<Integer>>();
   private final Random random = new Random();
   private int range = 50;
   private int threshold = 80;
   private int rotate = 0;
 
-  private final transient HashMap<Integer, HighLow> newgps = new HashMap<Integer, HighLow>();
+  private final transient HashMap<Integer, HighLow<Integer>> newgps = new HashMap<Integer, HighLow<Integer>>();
 
   @Min(0)
   public int getRange()
@@ -176,8 +176,9 @@ public class PhoneMovementGenerator extends BaseOperator
   private void registerPhone(String phoneStr)
   {
     // register the phone channel
-    if (Strings.isNullOrEmpty(phoneStr))
+    if (Strings.isNullOrEmpty(phoneStr)) {
       return;
+    }
     try {
       Integer phone = new Integer(phoneStr);
       registerSinglePhone(phone);
@@ -213,8 +214,9 @@ public class PhoneMovementGenerator extends BaseOperator
 
   private void deregisterPhone(String phoneStr)
   {
-    if (Strings.isNullOrEmpty(phoneStr))
+    if (Strings.isNullOrEmpty(phoneStr)) {
       return;
+    }
     try {
       Integer phone = new Integer(phoneStr);
       // simply remove the channel
@@ -247,8 +249,8 @@ public class PhoneMovementGenerator extends BaseOperator
   @Override
   public void endWindow()
   {
-    for (Map.Entry<Integer, HighLow> e: newgps.entrySet()) {
-      HighLow loc = gps.get(e.getKey());
+    for (Map.Entry<Integer, HighLow<Integer>> e: newgps.entrySet()) {
+      HighLow<Integer> loc = gps.get(e.getKey());
       if (loc == null) {
         gps.put(e.getKey(), e.getValue());
       }
@@ -269,9 +271,8 @@ public class PhoneMovementGenerator extends BaseOperator
     newgps.clear();
   }
 
-  private void emitQueryResult(Integer phone)
-  {
-    HighLow loc = gps.get(phone);
+  private void emitQueryResult(Integer phone) {
+    HighLow<Integer> loc = gps.get(phone);
     if (loc != null) {
       Map<String, String> queryResult = new HashMap<String, String>();
       queryResult.put(KEY_PHONE, String.valueOf(phone));

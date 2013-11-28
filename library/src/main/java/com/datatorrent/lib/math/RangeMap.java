@@ -92,12 +92,12 @@ public class RangeMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,
    * Output range port.
    */
   @OutputPortFieldAnnotation(name = "range")
-  public final transient DefaultOutputPort<HashMap<K, HighLow>> range = new DefaultOutputPort<HashMap<K, HighLow>>()
+  public final transient DefaultOutputPort<HashMap<K, HighLow<V>>> range = new DefaultOutputPort<HashMap<K, HighLow<V>>>()
   {
     @Override
-    public Unifier<HashMap<K, HighLow>> getUnifier()
+    public Unifier<HashMap<K, HighLow<V>>> getUnifier()
     {
-      return new UnifierHashMapRange<K>();
+      return new UnifierHashMapRange<K,V>();
     }
   };
 
@@ -108,7 +108,7 @@ public class RangeMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,
   @Override
   public void endWindow()
   {
-    HashMap<K, HighLow> tuples = new HashMap<K, HighLow>(1);
+    HashMap<K, HighLow<V>> tuples = new HashMap<K, HighLow<V>>(1);
     for (Map.Entry<K,V> e: high.entrySet()) {
       tuples.put(e.getKey(), new HighLow(e.getValue(), low.get(e.getKey())));
     }
