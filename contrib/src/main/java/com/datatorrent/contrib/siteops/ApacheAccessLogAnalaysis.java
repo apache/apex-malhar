@@ -39,9 +39,10 @@ import com.datatorrent.lib.util.DimensionTimeBucketOperator;
 import com.datatorrent.lib.util.DimensionTimeBucketSumOperator;
 /**
  * <p>ApacheAccessLogAnalaysis class.</p>
- *
+ * This siteops code is deprecated, please use logstream instead
  * @since 0.3.2
  */
+@Deprecated
 public class ApacheAccessLogAnalaysis implements StreamingApplication
 {
   public static class TimeDimensionOperator extends DimensionTimeBucketSumOperator
