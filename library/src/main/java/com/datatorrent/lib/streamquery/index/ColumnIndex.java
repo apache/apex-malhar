@@ -32,13 +32,17 @@ public class ColumnIndex implements Index
    */
   protected String column = null;
   protected String alias = null;
+
+  public ColumnIndex()
+  {
+  }
   
-  public ColumnIndex(@NotNull String column, String alias) 
+  public ColumnIndex(@NotNull String column, String alias)
   {
     this.setColumn(column);
     this.alias = alias;
   }
-  
+
   @Override
   public void filter(@NotNull  Map<String, Object> row, @NotNull  Map<String, Object> collect)
   {
