@@ -1,0 +1,15 @@
+.logical-dag .node rect {
+  fill: #fafafa;
+}
+.logical-dag .node-metric-label {
+  fill: blue;
+}
+.logical-dag .node-metric2-label {
+  fill: #2f96b4;
+}
+.logical-dag .metric-select-label {
+  color: blue;
+}
+.logical-dag .metric2-select-label {
+  color: #2f96b4;
+}

@@ -15,151 +15,80 @@
  */
 package com.datatorrent.contrib.jdbc;
 
-import com.datatorrent.api.Context;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Operator;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.database.CacheHandler;
-import com.datatorrent.lib.util.KeyValPair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
-import javax.validation.constraints.Min;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.concurrent.ExecutionException;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import com.datatorrent.lib.database.AbstractDBLookupCacheBackedOperator;
+import com.datatorrent.lib.database.DBConnector;
 
 /**
- * <br>Base opertor that maintains a loading cache that has a maximum size and its entries expire after specified time.</br>
- * <br>When an extry is expired, it is loaded from the database by executing an SQL query.</br>
+ * <br>This is {@link AbstractDBLookupCacheBackedOperator} which uses JDBC to fetch the value of a key from the database
+ * when the key is not present in cache. </br>
  *
  * @param <T> type of input tuples </T>
- * @param <K> type of keys that are parsed from the tuples </K>
+ * @since 0.9.1
  */
-public abstract class JDBCLookupCacheBackedOperator<T, K> extends JDBCOperatorBase implements Operator, CacheHandler.CacheUser<K>
+public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupCacheBackedOperator<T>
 {
-  private static final Logger logger = LoggerFactory.getLogger(JDBCLookupCacheBackedOperator.class);
+  private final JDBCOperatorBase jdbcConnector;
 
-  private transient CacheHandler<K> cacheHandler;
-
-  @Min(0)
-  private long maxCacheSize = 2000;
-
-  @Min(0)
-  private int entryExpiryDurationInMillis = 60000; //1 minute
-
-  @Min(0)
-  private int cacheCleanupIntervalInMillis = 60500; //.5 seconds after entries are expired
-
-  private CacheHandler.ExpiryType entryExpiryStrategy = CacheHandler.ExpiryType.EXPIRE_AFTER_ACCESS;
-
-  @InputPortFieldAnnotation(name = "input port")
-  public transient DefaultInputPort<T> inputData = new DefaultInputPort<T>()
+  public JDBCLookupCacheBackedOperator()
   {
-    @Override
-    public void process(T tuple)
-    {
-      K key = getKeyFromTuple(tuple);
-      Object value = null;
-      try {
-        value = cacheHandler.getCache().get(key);
-      } catch (ExecutionException e) {
-        logger.warn("Error retrieving value from cache ", e.fillInStackTrace());
-      }
-      if (value != null)
-        outputPort.emit(new KeyValPair<K, Object>(key, value));
-    }
-  };
-
-  @OutputPortFieldAnnotation(name = "output port")
-  public transient DefaultOutputPort<KeyValPair<K, Object>> outputPort = new DefaultOutputPort<KeyValPair<K, Object>>();
-
-  /**
-   * @param maxCacheSize the max size of cache in memory.
-   */
-  public void setMaxCacheSize(long maxCacheSize)
-  {
-    this.maxCacheSize = maxCacheSize;
-  }
-
-  /**
-   * @param expiryType the cache entry expiry strategy.
-   */
-  public void setEntryExpiryStrategy(CacheHandler.ExpiryType expiryType)
-  {
-    this.entryExpiryStrategy = expiryType;
-  }
-
-  /**
-   * @param durationInMillis the duration after which a cache entry is expired.
-   */
-  public void setEntryExpiryDurationInMillis(int durationInMillis)
-  {
-    this.entryExpiryDurationInMillis = durationInMillis;
-  }
-
-  /**
-   * @param durationInMillis the duration after which cache is cleaned up regularly.
-   */
-  public void setCacheCleanupInMillis(int durationInMillis)
-  {
-    this.cacheCleanupIntervalInMillis = durationInMillis;
-  }
-
-  @Override
-  public void setup(Context.OperatorContext context)
-  {
-    setupJDBCConnection();
-    cacheHandler = new CacheHandler<K>(this, maxCacheSize, entryExpiryStrategy, entryExpiryDurationInMillis, cacheCleanupIntervalInMillis);
-  }
-
-  /**
-   * close JDBC connection.
-   */
-  @Override
-  public void teardown()
-  {
-    closeJDBCConnection();
-  }
-
-  @Override
-  public void beginWindow(long l)
-  {
-    //Do nothing
-  }
-
-  @Override
-  public void endWindow()
-  {
-    //Do nothing
+    super();
+    jdbcConnector = new JDBCOperatorBase();
   }
 
   @Override
   @Nullable
-  public Object fetchKeyFromDatabase(K key)
+  public Object fetchValueFromDatabase(Object key)
   {
     String query = getQueryToFetchTheKeyFromDb(key);
-    Statement stmt = null;
+    Statement stmt;
     try {
-      stmt = connection.createStatement();
+      stmt = jdbcConnector.connection.createStatement();
       ResultSet resultSet = stmt.executeQuery(query);
       Object value = getValueFromResultSet(resultSet);
       stmt.close();
       resultSet.close();
       return value;
-    } catch (SQLException e) {
-      logger.warn("Error while fetching key:", e.fillInStackTrace());
     }
-    return null;
+    catch (SQLException e) {
+      throw new RuntimeException("while fetching key", e);
+    }
   }
 
-  public abstract K getKeyFromTuple(T tuple);
+  @Nonnull
+  @Override
+  public DBConnector getDbConnector()
+  {
+    return jdbcConnector;
+  }
 
-  public abstract String getQueryToFetchTheKeyFromDb(K key);
+  /**
+   * Sets the database url.
+   *
+   * @param dbUrl url of the database.
+   */
+  public void setDbUrl(String dbUrl)
+  {
+    jdbcConnector.setDbUrl(dbUrl);
+  }
+
+  /**
+   * Sets the database driver.
+   *
+   * @param dbDriver database driver.
+   */
+  public void setDbDriver(String dbDriver)
+  {
+    jdbcConnector.setDbDriver(dbDriver);
+  }
+
+  protected abstract String getQueryToFetchTheKeyFromDb(Object key);
 
   @Nullable
   public abstract Object getValueFromResultSet(ResultSet resultSet);

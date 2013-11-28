@@ -38,11 +38,11 @@ public class TransactionStatsAggregator extends BaseOperator
   public Map<MerchantKey, TransactionStatsData> aggrgateMap =
           new HashMap<MerchantKey, TransactionStatsData>();
   public final transient DefaultOutputPort<String> txDataOutputPort = new DefaultOutputPort<String>();
-  public final transient DefaultInputPort<KeyValPair<MerchantKey, HighLow>> rangeInputPort =
-          new DefaultInputPort<KeyValPair<MerchantKey, HighLow>>()
+  public final transient DefaultInputPort<KeyValPair<MerchantKey, HighLow<Long>>> rangeInputPort =
+          new DefaultInputPort<KeyValPair<MerchantKey, HighLow<Long>>>()
   {
     @Override
-    public void process(KeyValPair<MerchantKey, HighLow> tuple)
+    public void process(KeyValPair<MerchantKey, HighLow<Long>> tuple)
     {
       TransactionStatsData data = getDataObjectFromMap(tuple.getKey());
       // HighLow is not currently typed, casting till it is fixed

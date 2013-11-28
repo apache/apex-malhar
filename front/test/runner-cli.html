@@ -1,0 +1,64 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Unit Test Runner (For use with PhantomJS)</title>
+    <link rel="stylesheet" type="text/css" href="../node_modules/mocha/mocha.css">
+</head>
+<body>
+    <div id="mocha"></div>
+    <!-- Defines the LOG method -->
+    <script>
+    window.LOG = function() { };
+    </script>
+    
+    <!-- Puts $ in the global namespace (required for the DataTorrent Console) -->
+    <script src="../js/vendor/jquery/dist/jquery.js"></script>
+    
+    <!-- Mocha, the testing framework -->
+    <script src="../node_modules/mocha/mocha.js" type="text/javascript" charset="utf-8"></script>
+
+    <!-- Chai, the assertion module used for testing. -->
+    <script src="../node_modules/chai/chai.js" type="text/javascript" charset="utf-8"></script>
+
+    <!-- Sinon, another helper library for creating mocks, stubs, and spies. -->
+    <script src="../node_modules/sinon/pkg/sinon.js" type="text/javascript" charset="utf-8"></script>
+
+    <!-- A plugin for chai that allows for easier use of chai with sinon -->
+    <script src="../node_modules/sinon-chai/lib/sinon-chai.js" type="text/javascript" charset="utf-8"></script>
+
+    <!-- Testing setup code -->
+    <script>
+    
+    (function(){
+        
+        // Options for running mocha
+        var options = { 
+            ui: 'bdd',
+            globals: [ 'jquery*', 'jQuery*', 'WebSocket' ]
+        };
+        
+        // Call setup code for mocha
+        mocha.setup(options);
+    
+        // Define expect as chai's expect function.
+        expect = chai.expect;
+    
+    }());
+    
+    </script>
+    
+    <!-- Actual test code to be run -->
+    <script src="suite.bundle.js"></script>
+
+    <script>
+    
+    if (window.mochaPhantomJS) {
+        mochaPhantomJS.run();
+    } else {
+        mocha.run();
+    }
+    
+    </script>
+
+</body>
+</html>

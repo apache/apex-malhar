@@ -39,7 +39,7 @@ import java.util.Map;
  * <p>
  * CalculatorOperator class.
  * </p>
- * 
+ *
  * @since 0.3.5
  */
 public class CalculatorOperator extends BaseOperator

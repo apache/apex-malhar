@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Information tuple generator with randomness.
  * </p>
- * 
+ *
  * @since 0.3.5
  */
 @SuppressWarnings("unused")

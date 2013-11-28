@@ -1,0 +1,67 @@
+<div class="widget-inner widget-procedure">
+    
+    <div class="title">
+        <span class="inner">Add an Alert</span>
+    </div>
+    <p class="description">Use this page to add an alert to <strong><%= app.name %></strong> <br>( id: <%= app.name %> ).</p>
+    
+    
+    <div class="procedure-column-container">
+        <div class="procedure-column">
+            
+            <form id="alert-form" class="form-horizontal">
+                
+                <div class="procedure-section">
+
+                    <h2>Name &amp; Target Stream</h2>
+                    <div class="control-group">
+                        <label class="control-label" for="alertName">
+                            Alert Name
+                            <span class="help-block">Alert names may only contain letters, numbers, and underscores.</span>
+                        </label>
+                        <div class="controls">
+                            <input type="text" name="alertName" placeholder="letters, number, and underscores" id="alertName">
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="operatorName">
+                            Target Operator
+                            <span class="help-block">The alert will listen to a stream (or unconnected port) on this operator</span>
+                        </label>
+                        <div class="controls">
+                            <select id="operatorName">
+                                <option value="">choose target operator</option>
+                                <% _.each( app.logicalPlan.get('operators'), function(operator,operatorName) { %>
+                                    <option value="<%= operatorName %>" <% if (operatorName === alert.operatorName) { print('selected="selected"') } %>><%= operatorName %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="control-group streamName">
+
+                    </div>
+                    
+                    <div class="control-group templateName">
+                        
+                    </div>
+                    
+                </div>
+                
+                <div class="procedure-section">
+                    
+                    <h2>Parameters</h2>
+                    
+                    <div class="templateParams"></div>
+                    
+                </div>
+
+                <input type="submit" value="add alert" id="alert_submit_btn" class="btn btn-primary">
+                
+            </form>
+            
+        </div>
+        
+    </div>
+    
+</div>

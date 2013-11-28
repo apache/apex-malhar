@@ -1,0 +1,30 @@
+<label class="control-label" for="streamName">
+    Target Stream
+    <span class="help-block">The alert will listen to this stream</span>
+</label>
+<div class="controls">
+    <% if (streamOptions) {%>
+        <select id="streamName">
+            <option value="">choose a stream</option>
+            <% if (streamOptions.streams.length) {%>
+                <optgroup label="connected streams">
+                <% _.each( streamOptions.streams, function(stream) { %>
+                    <option value="<%= stream %>"><%= stream %></option>
+                <% }) %>
+                </optgroup>
+            <%} %>
+
+            <% if (streamOptions.ports.length) {%>
+                <optgroup label="disconnected ports">
+                <% _.each( streamOptions.ports, function(port) { %>
+                    <option value="<%= port %>"><%= port %></option>
+                <% }) %>
+                </optgroup>
+            <%} %>
+        </select>
+    <%} else {%>
+        <select id="streamName" disabled="disabled">
+            <option value="">no stream options</option>
+        </select>
+    <%}%>
+</div> 

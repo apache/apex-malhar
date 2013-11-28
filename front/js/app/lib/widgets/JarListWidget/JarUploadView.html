@@ -1,0 +1,18 @@
+<form enctype="multipart/form-data" class="jar_upload_form">
+    <input type="file" class="jar_upload" name="jar_upload" accept=".jar" />
+    <div class="well jar_upload_target">
+        <% if (name.length) { %>
+            <div class="drop-message"> <span class="jar_upload_filename"><%= name %></span> <span class="jar_upload_filesize">(<%= Math.floor(size/1024) %> KB)</span></div>
+            <div class="upload-buttons">
+                <button class="upload_jar_btn btn btn-success">upload</button>
+                <button class="cancel_jar_btn btn btn-danger">cancel</button>
+            </div>
+            <div class="progress progress-striped active">
+                <div class="jar_upload_progress bar" style="width: 0%;"></div>
+            </div>
+        <% } else { %>
+            <div class="drop-message">drag and drop jar file here</div>
+            <span class="click-message">(click to choose file)</span>
+        <% } %>
+    </div>
+</form>

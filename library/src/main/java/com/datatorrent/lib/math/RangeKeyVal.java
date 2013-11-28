@@ -99,12 +99,12 @@ public class RangeKeyVal<K, V extends Number> extends
 	 * Output port to send out the high low range.
 	 */
 	@OutputPortFieldAnnotation(name = "range")
-	public final transient DefaultOutputPort<KeyValPair<K, HighLow>> range = new DefaultOutputPort<KeyValPair<K, HighLow>>()
+	public final transient DefaultOutputPort<KeyValPair<K, HighLow<V>>> range = new DefaultOutputPort<KeyValPair<K, HighLow<V>>>()
 	{
 		@Override
-		public Unifier<KeyValPair<K, HighLow>> getUnifier()
+		public Unifier<KeyValPair<K, HighLow<V>>> getUnifier()
 		{
-			return new UnifierKeyValRange<K>();
+			return new UnifierKeyValRange<K,V>();
 		}
 	};
 
@@ -116,7 +116,7 @@ public class RangeKeyVal<K, V extends Number> extends
 	public void endWindow()
 	{
 		for (Map.Entry<K, V> e : high.entrySet()) {
-			range.emit(new KeyValPair<K, HighLow>(e.getKey(), new HighLow(e
+			range.emit(new KeyValPair<K, HighLow<V>>(e.getKey(), new HighLow(e
 					.getValue(), low.get(e.getKey()))));
 		}
 		clearCache();

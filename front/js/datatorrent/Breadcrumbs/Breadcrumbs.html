@@ -1,0 +1,7 @@
+<% _.each(crumbs, function(crumb) {%>
+    <% if (crumb.href) {%>
+        <a class="breadcrumb" href="<%= crumb.href %>"><%= crumb.name %></a> 
+    <% } else { %>
+        <span class="breadcrumb"><%= crumb.name %></span>    
+    <% }%>
+<% }) %>

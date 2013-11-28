@@ -8,6 +8,7 @@ import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.AttributeMap.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Stats.OperatorStats.CustomStats;
 
 /**
  *
@@ -28,6 +29,11 @@ public class OperatorContextTestHelper
     public int getId()
     {
       return id;
+    }
+
+    @Override
+    public void setCustomStats(CustomStats stats)
+    {
     }
 
   }

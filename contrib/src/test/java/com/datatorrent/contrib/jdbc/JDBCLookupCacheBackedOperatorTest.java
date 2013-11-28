@@ -15,16 +15,20 @@
  */
 package com.datatorrent.contrib.jdbc;
 
-import com.datatorrent.lib.database.CacheHandler;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.google.common.collect.Maps;
+import java.sql.*;
+import java.util.Map;
+
+import javax.annotation.Nullable;
+
 import junit.framework.Assert;
 import org.junit.Test;
 
-import javax.annotation.Nullable;
-import java.sql.*;
-import java.util.Map;
+import com.google.common.collect.Maps;
+
+import com.datatorrent.api.Context;
+
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  * Test for {@link JDBCLookupCacheBackedOperator}
@@ -47,7 +51,7 @@ public class JDBCLookupCacheBackedOperatorTest
     mapping.put(5, "five");
   }
 
-  public class TestJDBCLookupCacheBackedOperator extends JDBCLookupCacheBackedOperator<String, Integer>
+  public class TestJDBCLookupCacheBackedOperator extends JDBCLookupCacheBackedOperator<String>
   {
 
     @Override
@@ -57,7 +61,7 @@ public class JDBCLookupCacheBackedOperatorTest
     }
 
     @Override
-    public String getQueryToFetchTheKeyFromDb(Integer key)
+    public String getQueryToFetchTheKeyFromDb(Object key)
     {
       return "select col2 from " + DB_NAME + "." + TABLE_NAME + " where col1 = " + key;
     }
@@ -88,14 +92,16 @@ public class JDBCLookupCacheBackedOperatorTest
     oper.setDbDriver("com.mysql.jdbc.Driver");
 
     CollectorTestSink sink = new CollectorTestSink();
-    oper.outputPort.setSink(sink);
+    oper.output.setSink(sink);
 
     setupDB();
 
-    oper.setup(new OperatorContextTestHelper.TestIdOperatorContext(7));
+    Context.OperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(7);
+    oper.setup(context);
+    oper.activate(context);
     oper.beginWindow(0);
-    oper.inputData.process("1");
-    oper.inputData.process("2");
+    oper.input.process("1");
+    oper.input.process("2");
     oper.endWindow();
     oper.teardown();
 

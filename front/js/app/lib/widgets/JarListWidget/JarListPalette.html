@@ -1,0 +1,13 @@
+<span class="select-status"><strong><%=selected.length%></strong> <%= DT.lang('row(s) selected') %></span>
+<div class="palette-actions">
+	<button class="btn btn-info refreshList"><i class="icon-white icon-refresh icon-white"></i> <%= DT.lang('refresh list') %> </button>
+	<% if (selected.length === 0) { %>
+		<button class="btn" disabled><%= DT.lang('select an item') %></button>
+	<% } else if (selected.length === 1) {%>
+		<button class="inspectItem btn btn-primary"><i class="icon-eye-open icon-white"></i> <%= DT.lang('inspect') %></button>
+		<button class="removeJar btn btn-danger"><i class="icon-trash icon-white"></i> <%= DT.lang('remove file') %></button>
+	<% } else { %>
+		<button class="removeJars btn btn-danger"><i class="icon-trash icon-white"></i> <%= DT.lang('remove selected files') %></button>
+	<% } %>
+    
+</div>

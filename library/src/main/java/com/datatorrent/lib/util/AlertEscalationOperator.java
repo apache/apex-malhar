@@ -15,12 +15,9 @@
  */
 package com.datatorrent.lib.util;
 
-import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.PartitionableOperator;
-import com.datatorrent.api.PartitionableOperator.Partition;
+import com.datatorrent.api.Partitionable.Partition;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import java.util.ArrayList;
@@ -32,7 +29,7 @@ import java.util.List;
  *
  * @since 0.3.2
  */
-public class AlertEscalationOperator extends BaseOperator implements PartitionableOperator
+public class AlertEscalationOperator extends BaseOperator implements Partitionable<AlertEscalationOperator>
 {
   protected long lastAlertTimeStamp = -1;
   protected long inAlertSince = -1;
@@ -111,10 +108,10 @@ public class AlertEscalationOperator extends BaseOperator implements Partitionab
   }
 
   @Override
-  public Collection<Partition<?>> definePartitions(Collection<? extends Partition<?>> partitions, int incrementalCapacity)
+  public Collection<Partition<AlertEscalationOperator>> definePartitions(Collection<Partition<AlertEscalationOperator>> partitions, int incrementalCapacity)
   {
     // prevent partitioning
-    List<Partition<?>> newPartitions = new ArrayList<Partition<?>>(1);
+    List<Partition<AlertEscalationOperator>> newPartitions = new ArrayList<Partition<AlertEscalationOperator>>(1);
     newPartitions.add(partitions.iterator().next());
     return newPartitions;
   }

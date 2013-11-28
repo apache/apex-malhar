@@ -22,13 +22,14 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.lib.database.DBConnector;
+
 /**
- * Base class for all JDBC input output operators.
- * This handles JDBC connection and column mapping for output operators.
+ * Handles JDBC connection parameters and driver.
  *
  * @since 0.3.2
  */
-public abstract class JDBCOperatorBase
+public class JDBCOperatorBase implements DBConnector
 {
   private static final Logger logger = LoggerFactory.getLogger(JDBCOperatorBase.class);
 
@@ -68,7 +69,8 @@ public abstract class JDBCOperatorBase
   /**
    * Create connection with database using JDBC.
    */
-  public void setupJDBCConnection()
+  @Override
+  public void setupDbConnection()
   {
     try {
       // This will load the JDBC driver, each DB has its own driver
@@ -88,7 +90,8 @@ public abstract class JDBCOperatorBase
   /**
    * Close JDBC connection.
    */
-  public void closeJDBCConnection()
+  @Override
+  public void teardownDbConnection()
   {
     try {
       connection.close();

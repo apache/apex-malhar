@@ -23,16 +23,14 @@ import com.mongodb.*;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
+
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +74,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.2
  */
-public abstract class MongoDBOutputOperator<T> extends MongoDBBaseOperator implements Operator
+public abstract class MongoDBOutputOperator<T> extends MongoDBOperatorBase implements Operator
 {
   private static final Logger logger = LoggerFactory.getLogger(MongoDBOutputOperator.class);
   protected static final int DEFAULT_BATCH_SIZE = 1000;

@@ -20,14 +20,14 @@ import java.util.Collection;
 import java.util.List;
 
 import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.PartitionableOperator;
+import com.datatorrent.api.Partitionable;
 
 /**
  * This is the base class for all chart operators
  *
  * @since 0.3.2
  */
-public abstract class ChartOperator extends BaseOperator implements PartitionableOperator
+public abstract class ChartOperator extends BaseOperator implements Partitionable<ChartOperator>
 {
   /**
    * The different types of chart
@@ -60,10 +60,10 @@ public abstract class ChartOperator extends BaseOperator implements Partitionabl
   public abstract Type getChartType();
 
   @Override
-  public Collection<Partition<?>> definePartitions(Collection<? extends Partition<?>> partitions, int incrementalCapacity)
+  public Collection<Partition<ChartOperator>> definePartitions(Collection<Partition<ChartOperator>> partitions, int incrementalCapacity)
   {
     // prevent partitioning
-    List<Partition<?>> newPartitions = new ArrayList<Partition<?>>(1);
+    List<Partition<ChartOperator>> newPartitions = new ArrayList<Partition<ChartOperator>>(1);
     newPartitions.add(partitions.iterator().next());
     return newPartitions;
   }

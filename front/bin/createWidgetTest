@@ -1,0 +1,31 @@
+#!/usr/bin/env node
+
+var _             = require('underscore'),
+    path          = require('path'),
+    fs            = require('fs'),
+    argv          = require('optimist').argv,
+    name          = argv._[0].concat('Widget'),
+    dirname       = path.join(__dirname, '/../js/app/lib/widgets/', name),
+    specpath      = path.join(dirname, name + '.spec.js');
+    
+
+// Get the template file for a widget test
+var templateString = fs.readFileSync(__dirname + '/widgetTestTemplate.js', { encoding: 'utf8' } );
+
+// Create template with underscore
+var template = _.template(templateString);
+
+// Render with name
+var jsText = template({ name: name });
+
+// Write this to the file
+fs.writeFile(specpath, jsText, function(err) {
+    if (err) {
+        console.log('An error occurred creating the widget test file for ' + name);
+        return;
+    }
+    console.log('Test file for ' + name + ' created.');
+});
+
+// Append to the suite.js file
+fs.appendFileSync(__dirname + '/../test/suite.js', '\nrequire(\'../js/app/lib/widgets/' + name + '/' + name + '.spec\');');
