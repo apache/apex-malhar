@@ -3,7 +3,7 @@ package com.datatorrent.lib.database;
 import javax.validation.constraints.Min;
 
 /**
- * <br>Properties and their default values which is used by {@link CacheManager} to create the cache.</br>
+ * <br>Properties and their default values which is used by {@link CacheStore} to create the cache.</br>
  *
  * @since 0.9.1
  */
@@ -19,7 +19,7 @@ public class CacheProperties
   @Min(0)
   int cacheCleanupIntervalInMillis = 60500; //.5 seconds after entries are expired
 
-  CacheManager.ExpiryType entryExpiryStrategy = CacheManager.ExpiryType.EXPIRE_AFTER_ACCESS;
+  CacheStore.ExpiryType entryExpiryStrategy = CacheStore.ExpiryType.EXPIRE_AFTER_ACCESS;
 
   /**
    * Sets the max size of cache.
@@ -34,7 +34,7 @@ public class CacheProperties
    * Sets the cache entry expiry strategy.
    * @param expiryType the cache entry expiry strategy.
    */
-  public void setEntryExpiryStrategy(CacheManager.ExpiryType expiryType)
+  public void setEntryExpiryStrategy(CacheStore.ExpiryType expiryType)
   {
     this.entryExpiryStrategy = expiryType;
   }

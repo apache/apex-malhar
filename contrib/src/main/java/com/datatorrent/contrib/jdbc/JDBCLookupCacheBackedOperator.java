@@ -18,6 +18,7 @@ package com.datatorrent.contrib.jdbc;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -46,7 +47,7 @@ public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupC
   @Nullable
   public Object fetchValueFromDatabase(Object key)
   {
-    String query = getQueryToFetchTheKeyFromDb(key);
+    String query = getQueryToFetchValue(key);
     Statement stmt;
     try {
       stmt = jdbcConnector.connection.createStatement();
@@ -88,7 +89,7 @@ public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupC
     jdbcConnector.setDbDriver(dbDriver);
   }
 
-  protected abstract String getQueryToFetchTheKeyFromDb(Object key);
+  protected abstract String getQueryToFetchValue(Object key);
 
   @Nullable
   public abstract Object getValueFromResultSet(ResultSet resultSet);

@@ -61,7 +61,13 @@ public class JDBCLookupCacheBackedOperatorTest
     }
 
     @Override
-    public String getQueryToFetchTheKeyFromDb(Object key)
+    public Map<Object, Object> fetchStartupDataFromDatabase()
+    {
+      return null;
+    }
+
+    @Override
+    protected String getQueryToFetchValue(Object key)
     {
       return "select col2 from " + DB_NAME + "." + TABLE_NAME + " where col1 = " + key;
     }
@@ -73,7 +79,8 @@ public class JDBCLookupCacheBackedOperatorTest
       try {
         resultSet.next();
         return resultSet.getString(1);
-      } catch (SQLException e) {
+      }
+      catch (SQLException e) {
         e.printStackTrace();
       }
       return null;
@@ -134,13 +141,17 @@ public class JDBCLookupCacheBackedOperatorTest
         stmt.executeUpdate(insert);
       }
 
-    } catch (InstantiationException ex) {
+    }
+    catch (InstantiationException ex) {
       throw new RuntimeException("Exception during setupDB", ex);
-    } catch (IllegalAccessException ex) {
+    }
+    catch (IllegalAccessException ex) {
       throw new RuntimeException("Exception during setupDB", ex);
-    } catch (ClassNotFoundException ex) {
+    }
+    catch (ClassNotFoundException ex) {
       throw new RuntimeException("Exception during setupDB", ex);
-    } catch (SQLException ex) {
+    }
+    catch (SQLException ex) {
       throw new RuntimeException(String.format("Exception during setupDB"), ex);
     }
   }

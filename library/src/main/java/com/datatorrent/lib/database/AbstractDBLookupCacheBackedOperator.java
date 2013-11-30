@@ -1,6 +1,6 @@
 package com.datatorrent.lib.database;
 
-import java.util.concurrent.ExecutionException;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 
@@ -20,10 +20,9 @@ import com.datatorrent.lib.util.KeyValPair;
  * @param <T> type of tuples </T>
  * @since 0.9.1
  */
-public abstract class AbstractDBLookupCacheBackedOperator<T> implements Operator, CacheManager.CacheUser,
-  ActivationListener<Context.OperatorContext>
+public abstract class AbstractDBLookupCacheBackedOperator<T> implements Operator, ActivationListener<Context.OperatorContext>
 {
-  private transient CacheManager cacheManager;
+  private transient StoreManager storeManager;
 
   protected final CacheProperties cacheProperties;
 
@@ -38,13 +37,8 @@ public abstract class AbstractDBLookupCacheBackedOperator<T> implements Operator
     public void process(T tuple)
     {
       Object key = getKeyFromTuple(tuple);
-      Object value = null;
-      try {
-        value = cacheManager.getCache().get(key);
-      }
-      catch (ExecutionException e) {
-        new RuntimeException("retrieving value", e);
-      }
+      Object value = storeManager.get(key);
+
       if (value != null) {
         output.emit(new KeyValPair<Object, Object>(key, value));
       }
@@ -68,13 +62,14 @@ public abstract class AbstractDBLookupCacheBackedOperator<T> implements Operator
   @Override
   public void setup(Context.OperatorContext context)
   {
-    cacheManager = new CacheManager(this, cacheProperties);
+    storeManager = new StoreManager(new CacheStore(cacheProperties), new DatabaseStore());
+    storeManager.initialize();
   }
 
   @Override
   public void teardown()
   {
-    cacheManager.shutdownCleanupScheduler();
+    storeManager.shutdown();
   }
 
   @Override
@@ -100,7 +95,7 @@ public abstract class AbstractDBLookupCacheBackedOperator<T> implements Operator
   /**
    * @param expiryType the cache entry expiry strategy.
    */
-  public void setEntryExpiryStrategy(CacheManager.ExpiryType expiryType)
+  public void setEntryExpiryStrategy(CacheStore.ExpiryType expiryType)
   {
     cacheProperties.setEntryExpiryStrategy(expiryType);
   }
@@ -123,6 +118,31 @@ public abstract class AbstractDBLookupCacheBackedOperator<T> implements Operator
 
   public abstract Object getKeyFromTuple(T tuple);
 
+  public abstract Object fetchValueFromDatabase(Object key);
+
+  public abstract Map<Object, Object> fetchStartupDataFromDatabase();
+
   @Nonnull
   public abstract DBConnector getDbConnector();
+
+  public class DatabaseStore extends Store.Backup
+  {
+
+    @Override
+    Map<Object, Object> fetchStartupData()
+    {
+      return fetchStartupDataFromDatabase();
+    }
+
+    @Override
+    protected Object getValueFor(Object key)
+    {
+      return fetchValueFromDatabase(key);
+    }
+
+    @Override
+    protected void shutdownStore()
+    {
+    }
+  }
 }
