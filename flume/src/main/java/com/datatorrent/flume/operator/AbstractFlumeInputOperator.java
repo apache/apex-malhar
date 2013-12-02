@@ -7,6 +7,7 @@ package com.datatorrent.flume.operator;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.validation.constraints.NotNull;
 
@@ -16,11 +17,10 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.IdleTimeHandler;
 import com.datatorrent.api.InputOperator;
-import com.datatorrent.flume.sink.Server;
 
+import com.datatorrent.flume.sink.Server;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 import com.datatorrent.netlet.DefaultEventLoop;
-import java.util.Iterator;
 
 /**
  *

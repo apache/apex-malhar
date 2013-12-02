@@ -23,13 +23,18 @@ import com.datatorrent.storage.Storage;
  */
 public class DTFlumeSink implements Sink
 {
+  public static final double THROUGHPUT_ADJUSTMENT_FACTOR = 0.05;
   private Channel channel;
   private String name;
   private LifecycleState state;
   private DefaultEventLoop eventloop;
-  Server server;
-  Storage storage = new Storage() {
-
+  private Server server;
+  private int outstandingEventsCount;
+  private int lastConsumedEventsCount;
+  private int idleCount;
+  private boolean playback;
+  Storage storage = new Storage()
+  {
     @Override
     public long store(byte[] bytes)
     {
@@ -59,8 +64,8 @@ public class DTFlumeSink implements Sink
     {
       return true;
     }
+
   };
-  private boolean playback;
 
   public DTFlumeSink()
   {
@@ -108,11 +113,14 @@ public class DTFlumeSink implements Sink
             break;
 
           case Server.CONNECTED:
-            state = LifecycleState.IDLE;
+            state = LifecycleState.ERROR;
             break;
 
           case Server.WINDOWED:
-            logger.debug("eventCount = {}, idleCount = {}", r.address & 0xffffffff, r.address >> 32);
+            lastConsumedEventsCount = (int)(r.address & 0xffffffff);
+            idleCount = (int)(r.address >> 32);
+            outstandingEventsCount -= lastConsumedEventsCount;
+            logger.debug("eventCount = {}, idleCount = {}", lastConsumedEventsCount, idleCount);
             break;
 
           default:
@@ -138,28 +146,57 @@ public class DTFlumeSink implements Sink
       playback = false;
     }
     else {
-      logger.debug("transaction sequence initiated");
-      Transaction t = channel.getTransaction();
-      try {
-        t.begin();
-
-        Event e;
-        while ((e = channel.take()) != null) {
-          logger.debug("found event {}", e);
-          long l = storage.store(e.getBody());
-          server.client.write(l, e.getBody());
+      int maxTuples;
+      // the following logic needs to be fixed... this is a quick put together.
+      if (outstandingEventsCount < 0) {
+        if (idleCount > 1) {
+          maxTuples = (int)((1 + THROUGHPUT_ADJUSTMENT_FACTOR * idleCount) * lastConsumedEventsCount);
         }
+        else {
+          maxTuples = (int)((1 + THROUGHPUT_ADJUSTMENT_FACTOR) * lastConsumedEventsCount);
+        }
+      }
+      else if (outstandingEventsCount > lastConsumedEventsCount) {
+        maxTuples = (int)((1 - THROUGHPUT_ADJUSTMENT_FACTOR) * lastConsumedEventsCount);
+      }
+      else {
+        if (idleCount > 0) {
+          maxTuples = (int)((1 + THROUGHPUT_ADJUSTMENT_FACTOR * idleCount) * lastConsumedEventsCount);
+        }
+        else {
+          maxTuples = lastConsumedEventsCount;
+        }
+      }
 
-        storage.flush();
-        t.commit();
-      }
-      catch (Exception ex) {
-        logger.error("Exception during flume transaction", ex);
-        t.rollback();
-        return Status.BACKOFF;
-      }
-      finally {
-        t.close();
+      if (maxTuples > 0) {
+        logger.debug("transaction sequence initiated maxTuples = {}", maxTuples);
+        Transaction t = channel.getTransaction();
+        try {
+          t.begin();
+
+          int i = maxTuples;
+
+          Event e;
+          while (i-- > 0 && (e = channel.take()) != null) {
+            logger.debug("found event {}", e);
+            long l = storage.store(e.getBody());
+            server.client.write(l, e.getBody());
+          }
+
+          outstandingEventsCount += maxTuples - i + 1;
+          logger.debug("outstanding events count = {}", outstandingEventsCount);
+
+          storage.flush();
+          t.commit();
+        }
+        catch (Exception ex) {
+          logger.error("Exception during flume transaction", ex);
+          t.rollback();
+          return Status.BACKOFF;
+        }
+        finally {
+          t.close();
+        }
       }
     }
 
