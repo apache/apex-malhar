@@ -7,8 +7,11 @@
 .livechart-container .live-chart-svg path {
   fill: none;
 }
-.livechart-container .live-chart-svg .series-overlay .overlay-background {
+.livechart-container .live-chart-svg .series-overlay .overlay-text {
   fill: white;
+}
+.livechart-container .live-chart-svg .series-overlay .overlay-background {
+  fill: black;
 }
 .livechart-container .live-chart-svg .overlay-trg rect {
   fill: transparent;
