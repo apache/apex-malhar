@@ -1,7 +1,7 @@
 <button class="btn refreshCluster"><i class="icon-refresh"></i></button>
 <div class="overview-item">
     <span class="key">avg app age</span>
-    <span class="value"><%= DT.formatters.timeSince({ timeChunk: averageAge }) %></span>
+    <span class="value"><%= DT.formatters.timeSince({ timeChunk: averageAge }) || '-' %></span>
 </div>
 <div class="overview-item">
     <span class="key">CPU</span>
