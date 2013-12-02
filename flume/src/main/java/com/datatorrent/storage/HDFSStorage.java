@@ -124,7 +124,7 @@ public class HDFSStorage implements Storage
           dataStream.write(Ints.toByteArray(bytes.length));
           dataStream.write(bytes);
         }
-        dataStream.hflush();
+        //dataStream.hflush();
         filled += (bytes.length + 4);
         return byteArrayToLong(fileOffset, 7, 0);
       } catch (IOException ex) {
