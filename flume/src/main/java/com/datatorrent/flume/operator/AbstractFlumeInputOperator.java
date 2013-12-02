@@ -11,29 +11,35 @@ import java.util.ArrayList;
 import javax.validation.constraints.NotNull;
 
 import com.datatorrent.api.ActivationListener;
+import com.datatorrent.api.CheckpointListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.IdleTimeHandler;
 import com.datatorrent.api.InputOperator;
+import com.datatorrent.flume.sink.Server;
 
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 import com.datatorrent.netlet.DefaultEventLoop;
+import java.util.Iterator;
 
 /**
  *
  * @param <T> Type of the output payload.
  * @author Chetan Narsude <chetan@datatorrent.com>
  */
-public abstract class AbstractFlumeInputOperator<T> extends AbstractLengthPrependerClient
-        implements InputOperator, ActivationListener<OperatorContext>, IdleTimeHandler
+public abstract class AbstractFlumeInputOperator<T>
+        extends AbstractLengthPrependerClient
+        implements InputOperator, ActivationListener<OperatorContext>, IdleTimeHandler, CheckpointListener
 {
   public transient DefaultOutputPort<T> output = new DefaultOutputPort<T>();
   private transient ArrayList<Payload> handoverBuffer = new ArrayList<Payload>(1024);
   private transient int idleCounter;
+  private transient int eventCounter;
   private transient DefaultEventLoop eventloop;
   @NotNull
   private InetSocketAddress connectAddress;
-  private long recoveryOffset;
+  ArrayList<RecoveryAddress> recoveryAddresses = new ArrayList<RecoveryAddress>();
+  private transient RecoveryAddress recoveryAddress;
 
   @Override
   public void setup(OperatorContext context)
@@ -56,26 +62,10 @@ public abstract class AbstractFlumeInputOperator<T> extends AbstractLengthPrepen
   @Override
   public void beginWindow(long windowId)
   {
-    int arraySize = 8 /* for the location to commit */
-                    + 4 /* for idleTimeout */;
-    byte[] array = new byte[arraySize];
-
-    array[0] = (byte)recoveryOffset;
-    array[1] = (byte)(recoveryOffset >> 8);
-    array[2] = (byte)(recoveryOffset >> 16);
-    array[3] = (byte)(recoveryOffset >> 24);
-    array[4] = (byte)(recoveryOffset >> 32);
-    array[5] = (byte)(recoveryOffset >> 40);
-    array[6] = (byte)(recoveryOffset >> 48);
-    array[7] = (byte)(recoveryOffset >> 56);
-
-    array[8] = (byte)(idleCounter);
-    array[9] = (byte)(idleCounter >> 8);
-    array[10] = (byte)(idleCounter >> 16);
-    array[11] = (byte)(idleCounter >> 24);
-
-    write(array);
+    recoveryAddress = new RecoveryAddress();
+    recoveryAddress.windowId = windowId;
     idleCounter = 0;
+    eventCounter = 0;
   }
 
   @Override
@@ -83,14 +73,23 @@ public abstract class AbstractFlumeInputOperator<T> extends AbstractLengthPrepen
   {
     for (Payload payload : handoverBuffer) {
       output.emit(payload.payload);
-      recoveryOffset = payload.location;
+      recoveryAddress.address = payload.location;
+      eventCounter++;
     }
   }
 
   @Override
   public void endWindow()
   {
-    /* dont do anything here */
+    byte[] array = new byte[9];
+
+    array[0] = Server.WINDOWED;
+    Server.writeInt(buffer, 1, eventCounter);
+    Server.writeInt(buffer, 6, idleCounter);
+
+    write(array);
+
+    recoveryAddresses.add(recoveryAddress);
   }
 
   @Override
@@ -110,15 +109,7 @@ public abstract class AbstractFlumeInputOperator<T> extends AbstractLengthPrepen
   public void onMessage(byte[] buffer, int offset, int size)
   {
     /* this are all the payload messages */
-    Payload payload = new Payload(convert(buffer, offset + 8, size - 8),
-                                  buffer[offset++]
-                                  | buffer[offset++] << 8
-                                  | buffer[offset++] << 16
-                                  | buffer[offset++] << 24
-                                  | buffer[offset++] << 32
-                                  | buffer[offset++] << 40
-                                  | buffer[offset++] << 48
-                                  | buffer[offset++] << 56);
+    Payload payload = new Payload(convert(buffer, offset + 8, size - 8), Server.readLong(buffer, 0));
     synchronized (this) {
       handoverBuffer.add(payload);
     }
@@ -159,6 +150,75 @@ public abstract class AbstractFlumeInputOperator<T> extends AbstractLengthPrepen
       this.location = location;
     }
 
+  }
+
+  private static class RecoveryAddress
+  {
+    long windowId;
+    long address;
+  }
+
+  @Override
+  public void checkpointed(long windowId)
+  {
+    /* dont do anything */
+  }
+
+  @Override
+  public void committed(long windowId)
+  {
+    Iterator<RecoveryAddress> iterator = recoveryAddresses.iterator();
+    while (iterator.hasNext()) {
+      RecoveryAddress ra = iterator.next();
+      if (ra.windowId < windowId) {
+        iterator.remove();
+      }
+      else if (ra.windowId == windowId) {
+        iterator.remove();
+        int arraySize = 1/* for the type of the message */
+                        + 8 /* for the location to commit */;
+        byte[] array = new byte[arraySize];
+
+        array[0] = Server.COMMITED;
+
+        final long recoveryOffset = ra.address;
+        array[1] = (byte)recoveryOffset;
+        array[2] = (byte)(recoveryOffset >> 8);
+        array[3] = (byte)(recoveryOffset >> 16);
+        array[4] = (byte)(recoveryOffset >> 24);
+        array[5] = (byte)(recoveryOffset >> 32);
+        array[6] = (byte)(recoveryOffset >> 40);
+        array[7] = (byte)(recoveryOffset >> 48);
+        array[8] = (byte)(recoveryOffset >> 56);
+
+        write(array);
+      }
+      else {
+        break;
+      }
+    }
+  }
+
+  @Override
+  public void connected()
+  {
+    super.connected();
+
+    long address;
+    if (recoveryAddresses.size() > 0) {
+      address = recoveryAddresses.get(recoveryAddresses.size() - 1).address;
+    }
+    else {
+      address = 0;
+    }
+
+    int len = 1 /* for the message type SEEK */
+              + 8 /* for the address */;
+
+    byte[] array = new byte[len];
+    array[0] = Server.SEEK;
+    Server.writeLong(array, 1, address);
+    write(array);
   }
 
 }

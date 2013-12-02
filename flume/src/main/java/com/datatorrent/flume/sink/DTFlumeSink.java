@@ -6,13 +6,16 @@ package com.datatorrent.flume.sink;
 
 import java.io.IOException;
 
-import org.apache.flume.Channel;
-import org.apache.flume.EventDeliveryException;
-import org.apache.flume.Sink;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.flume.*;
 import org.apache.flume.lifecycle.LifecycleState;
 
+import com.datatorrent.flume.sink.Server.Request;
 import com.datatorrent.netlet.DefaultEventLoop;
-import com.datatorrent.netlet.Listener.ServerListener;
+import com.datatorrent.storage.RetrievalObject;
+import com.datatorrent.storage.Storage;
 
 /**
  *
@@ -24,11 +27,44 @@ public class DTFlumeSink implements Sink
   private String name;
   private LifecycleState state;
   private DefaultEventLoop eventloop;
-  ServerListener server;
+  Server server;
+  Storage storage = new Storage() {
+
+    @Override
+    public long store(byte[] bytes)
+    {
+      return 0;
+    }
+
+    @Override
+    public RetrievalObject retrieve(long identifier)
+    {
+      return null;
+    }
+
+    @Override
+    public RetrievalObject retrieveNext()
+    {
+      return null;
+    }
+
+    @Override
+    public boolean clean(long identifier)
+    {
+      return true;
+    }
+
+    @Override
+    public boolean flush()
+    {
+      return true;
+    }
+  };
+  private boolean playback;
 
   public DTFlumeSink()
   {
-    this.state = LifecycleState.ERROR;
+    state = LifecycleState.ERROR;
     try {
       server = new Server();
     }
@@ -53,13 +89,87 @@ public class DTFlumeSink implements Sink
   @Override
   public Status process() throws EventDeliveryException
   {
-    state = LifecycleState.IDLE;
+    logger.debug("checking for outstanding requests");
+    synchronized (server.requests) {
+      for (Request r : server.requests) {
+        logger.debug("found {}", r);
+        switch (r.type) {
+          case Server.SEEK:
+            playback = storage.retrieve(r.address) != null;
+            state = LifecycleState.IDLE;
+            break;
+
+          case Server.COMMITED:
+            storage.clean(r.address);
+            break;
+
+          case Server.DISCONNECTED:
+            state = LifecycleState.ERROR;
+            break;
+
+          case Server.CONNECTED:
+            state = LifecycleState.IDLE;
+            break;
+
+          case Server.WINDOWED:
+            logger.debug("eventCount = {}, idleCount = {}", r.address & 0xffffffff, r.address >> 32);
+            break;
+
+          default:
+            logger.debug("Cannot understand the request {}", r);
+            break;
+        }
+      }
+
+      server.requests.clear();
+    }
+
+    if (state != LifecycleState.IDLE) {
+      logger.debug("returning backoff since state = {}", state);
+      return Status.BACKOFF;
+    }
+
+    if (playback) {
+      logger.debug("playback mode still active");
+      RetrievalObject next;
+      while ((next = storage.retrieveNext()) != null) {
+        server.client.write(next.getToken(), next.getData());
+      }
+      playback = false;
+    }
+    else {
+      logger.debug("transaction sequence initiated");
+      Transaction t = channel.getTransaction();
+      try {
+        t.begin();
+
+        Event e;
+        while ((e = channel.take()) != null) {
+          logger.debug("found event {}", e);
+          long l = storage.store(e.getBody());
+          server.client.write(l, e.getBody());
+        }
+
+        storage.flush();
+        t.commit();
+      }
+      catch (Exception ex) {
+        logger.error("Exception during flume transaction", ex);
+        t.rollback();
+        return Status.BACKOFF;
+      }
+      finally {
+        t.close();
+      }
+    }
+
     return Status.READY;
   }
 
   @Override
   public void start()
   {
+    logger.debug("starting server...");
     try {
       eventloop = new DefaultEventLoop("EventLoop-" + getName());
     }
@@ -69,11 +179,13 @@ public class DTFlumeSink implements Sink
     eventloop.start();
     eventloop.start("localhost", 5033, server);
     state = LifecycleState.START;
+    logger.debug("started server!");
   }
 
   @Override
   public void stop()
   {
+    logger.debug("stopping server...");
     try {
       state = LifecycleState.STOP;
     }
@@ -81,6 +193,7 @@ public class DTFlumeSink implements Sink
       eventloop.stop(server);
       eventloop.stop();
     }
+    logger.debug("stopped server!");
   }
 
   @Override
@@ -102,4 +215,5 @@ public class DTFlumeSink implements Sink
   }
 
   /* End implementing Flume Sink interface */
+  private static final Logger logger = LoggerFactory.getLogger(DTFlumeSink.class);
 }
