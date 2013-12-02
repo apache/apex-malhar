@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
-import com.datatorrent.storage.Storage;
 
 /**
  *
@@ -20,13 +19,57 @@ import com.datatorrent.storage.Storage;
  */
 public class Server extends com.datatorrent.netlet.Server
 {
-  public static final byte ECHO = 0;
-  public static final byte COMMITED = 1;
-  public static final byte CHECKPOINTED = 2;
-  public static final byte SEEK = 3;
-  public static final byte CONNECTED = 4;
-  public static final byte DISCONNECTED = 5;
-  public static final byte WINDOWED = 6;
+  public enum Command
+  {
+    ECHO((byte)0),
+    COMMITTED((byte)1),
+    CHECKPOINTED((byte)2),
+    SEEK((byte)3),
+    CONNECTED((byte)4),
+    DISCONNECTED((byte)5),
+    WINDOWED((byte)6);
+    private byte ord;
+
+    Command(byte b)
+    {
+      this.ord = b;
+    }
+
+    public byte getOrdinal()
+    {
+      return ord;
+    }
+
+    public static Command getCommand(byte b)
+    {
+      switch (b) {
+        case 0:
+          return ECHO;
+
+        case 1:
+          return COMMITTED;
+
+        case 2:
+          return CHECKPOINTED;
+
+        case 3:
+          return SEEK;
+
+        case 4:
+          return CONNECTED;
+
+        case 5:
+          return DISCONNECTED;
+
+        case 6:
+          return WINDOWED;
+
+        default:
+          return null;
+      }
+    }
+  }
+
   Client client;
   public final ArrayList<Request> requests = new ArrayList<Request>(4);
 
@@ -48,9 +91,9 @@ public class Server extends com.datatorrent.netlet.Server
       assert (size > 0);
 
       Request r;
-      switch (buffer[offset]) {
-        case COMMITED:
-          r = new Request(COMMITED, readLong(buffer, offset + 1));
+      switch (Command.getCommand(buffer[offset])) {
+        case COMMITTED:
+          r = new Request(Command.COMMITTED, readLong(buffer, offset + 1));
           break;
 
         case CHECKPOINTED:
@@ -58,11 +101,11 @@ public class Server extends com.datatorrent.netlet.Server
           break;
 
         case SEEK:
-          r = new Request(SEEK, readLong(buffer, offset + 1));
+          r = new Request(Command.SEEK, readLong(buffer, offset + 1));
           break;
 
         case WINDOWED:
-          r = new Request(WINDOWED, readLong(buffer, offset + 1));
+          r = new Request(Command.WINDOWED, readLong(buffer, offset + 1));
           break;
 
         case ECHO:
@@ -86,7 +129,7 @@ public class Server extends com.datatorrent.netlet.Server
 
       logger.debug("some client connected!");
       synchronized (requests) {
-        requests.add(new Request(CONNECTED, 0));
+        requests.add(new Request(Command.CONNECTED, 0));
       }
     }
 
@@ -94,7 +137,7 @@ public class Server extends com.datatorrent.netlet.Server
     public void disconnected()
     {
       synchronized (requests) {
-        requests.add(new Request(DISCONNECTED, 0));
+        requests.add(new Request(Command.DISCONNECTED, 0));
       }
       Server.this.client = null;
       super.disconnected();
@@ -112,10 +155,10 @@ public class Server extends com.datatorrent.netlet.Server
 
   public class Request
   {
-    public final byte type;
+    public final Command type;
     public final long address;
 
-    Request(byte type, long address)
+    Request(Command type, long address)
     {
       this.type = type;
       this.address = address;
