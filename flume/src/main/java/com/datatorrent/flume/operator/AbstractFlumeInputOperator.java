@@ -36,10 +36,10 @@ public abstract class AbstractFlumeInputOperator<T>
   private transient int idleCounter;
   private transient int eventCounter;
   private transient DefaultEventLoop eventloop;
+  private transient RecoveryAddress recoveryAddress;
   @NotNull
   private InetSocketAddress connectAddress;
-  ArrayList<RecoveryAddress> recoveryAddresses = new ArrayList<RecoveryAddress>();
-  private transient RecoveryAddress recoveryAddress;
+  private ArrayList<RecoveryAddress> recoveryAddresses = new ArrayList<RecoveryAddress>();
 
   @Override
   public void setup(OperatorContext context)
@@ -48,7 +48,7 @@ public abstract class AbstractFlumeInputOperator<T>
       eventloop = new DefaultEventLoop("EventLoop-" + context.getId());
     }
     catch (IOException ex) {
-      throw new RuntimeException();
+      throw new RuntimeException(ex);
     }
   }
 

@@ -26,10 +26,8 @@ public class Server extends com.datatorrent.netlet.Server
   public static final byte CONNECTED = 4;
   public static final byte DISCONNECTED = 5;
   public static final byte WINDOWED = 6;
-
   Client client;
   public final ArrayList<Request> requests = new ArrayList<Request>(4);
-  private Storage storage;
 
   @Override
   public ClientListener getClientConnection(SocketChannel sc, ServerSocketChannel ssc)
