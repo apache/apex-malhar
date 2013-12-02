@@ -18,6 +18,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * </ul>
  *
  * @param <T> type of tuples </T>
+ * @since 0.9.1
  */
 public abstract class AbstractDBLookupCacheBackedOperator<T> implements Operator, CacheManager.CacheUser,
   ActivationListener<Context.OperatorContext>

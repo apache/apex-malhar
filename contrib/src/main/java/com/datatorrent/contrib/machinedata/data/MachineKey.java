@@ -20,7 +20,7 @@ package com.datatorrent.contrib.machinedata.data;
  * <p>
  * MachineKey class.
  * </p>
- * 
+ *
  * @since 0.3.5
  */
 public class MachineKey

@@ -5,6 +5,7 @@ import javax.validation.constraints.Min;
 /**
  * <br>Properties and their default values which is used by {@link CacheManager} to create the cache.</br>
  *
+ * @since 0.9.1
  */
 public class CacheProperties
 {

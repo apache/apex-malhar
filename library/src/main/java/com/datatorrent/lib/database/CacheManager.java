@@ -30,6 +30,8 @@ import com.google.common.cache.LoadingCache;
  * The Cache has a maximum size and it may evict an entry before this limit is exceeded.
  * The entries in the cache expire after the specified expiry-duration.
  * </br>
+ *
+ * @since 0.9.1
  */
 public class CacheManager
 {

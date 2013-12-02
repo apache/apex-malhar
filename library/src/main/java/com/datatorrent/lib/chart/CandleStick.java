@@ -22,10 +22,10 @@ import com.datatorrent.lib.util.HighLow;
  *
  * @since 0.3.2
  */
-public class CandleStick extends HighLow
+public class CandleStick<V extends Number> extends HighLow<V>
 {
-  private Number open;
-  private Number close;
+  private V open;
+  private V close;
 
   /**
    * Added default constructor for deserializer.
@@ -44,34 +44,34 @@ public class CandleStick extends HighLow
    * @param h
    * @param l
    */
-  public CandleStick(Number o, Number c, Number h, Number l)
+  public CandleStick(V o, V c, V h, V l)
   {
     super(h,l);
     open = o;
     close = c;
   }
 
-  public void reset(Number n)
+  public void reset(V n)
   {
     open = close = high = low = n;
   }
 
-  public Number getOpen()
+  public V getOpen()
   {
     return open;
   }
 
-  public Number getClose()
+  public V getClose()
   {
     return close;
   }
 
-  public void setOpen(Number o)
+  public void setOpen(V o)
   {
     open = o;
   }
 
-  public void setClose(Number c)
+  public void setClose(V c)
   {
     close = c;
   }

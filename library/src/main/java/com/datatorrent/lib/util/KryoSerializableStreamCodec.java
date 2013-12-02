@@ -17,7 +17,6 @@ import java.lang.reflect.ParameterizedType;
  *
  * @param <T>
  *          Type of the object which gets serialized/deserialized using this  codec.
- *
  * @since 0.9.0
  */
 public class KryoSerializableStreamCodec<T> implements StreamCodec<T>
