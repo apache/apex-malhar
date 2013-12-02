@@ -16,6 +16,7 @@ import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
 
 import com.datatorrent.flume.sink.Server;
+import com.datatorrent.flume.sink.Server.Command;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 import com.datatorrent.netlet.DefaultEventLoop;
 
@@ -72,7 +73,7 @@ public abstract class AbstractFlumeInputOperator<T>
                 + 8 /* for the address */;
 
       byte[] array = new byte[len];
-      array[0] = Server.SEEK;
+      array[0] = Command.SEEK.getOrdinal();
       Server.writeLong(array, 1, address);
       write(array);
 
@@ -140,7 +141,7 @@ public abstract class AbstractFlumeInputOperator<T>
     if (connected) {
       byte[] array = new byte[9];
 
-      array[0] = Server.WINDOWED;
+      array[0] = Command.WINDOWED.getOrdinal();
       Server.writeInt(array, 1, eventCounter);
       Server.writeInt(array, 5, idleCounter);
 
@@ -206,7 +207,7 @@ public abstract class AbstractFlumeInputOperator<T>
     if (!connected) {
       return;
     }
-    
+
     Iterator<RecoveryAddress> iterator = recoveryAddresses.iterator();
     while (iterator.hasNext()) {
       RecoveryAddress ra = iterator.next();
@@ -219,7 +220,7 @@ public abstract class AbstractFlumeInputOperator<T>
                         + 8 /* for the location to commit */;
         byte[] array = new byte[arraySize];
 
-        array[0] = Server.COMMITED;
+        array[0] = Command.COMMITTED.getOrdinal();
 
         final long recoveryOffset = ra.address;
         array[1] = (byte)recoveryOffset;

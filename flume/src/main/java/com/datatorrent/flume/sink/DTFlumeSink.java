@@ -99,24 +99,24 @@ public class DTFlumeSink implements Sink
       for (Request r : server.requests) {
         logger.debug("found {}", r);
         switch (r.type) {
-          case Server.SEEK:
+          case SEEK:
             playback = storage.retrieve(r.address) != null;
             state = LifecycleState.IDLE;
             break;
 
-          case Server.COMMITED:
+          case COMMITTED:
             storage.clean(r.address);
             break;
 
-          case Server.DISCONNECTED:
+          case DISCONNECTED:
             state = LifecycleState.ERROR;
             break;
 
-          case Server.CONNECTED:
+          case CONNECTED:
             state = LifecycleState.ERROR;
             break;
 
-          case Server.WINDOWED:
+          case WINDOWED:
             lastConsumedEventsCount = (int)(r.address & 0xffffffff);
             idleCount = (int)(r.address >> 32);
             outstandingEventsCount -= lastConsumedEventsCount;
@@ -178,10 +178,10 @@ public class DTFlumeSink implements Sink
 
           Event e;
           while (i-- > 0 && (e = channel.take()) != null) {
-            logger.debug("found event {}", e);
             long l = storage.store(e.getBody());
             server.client.write(l, e.getBody());
           }
+          logger.debug("wrote {} events", maxTuples - i + 1);
 
           outstandingEventsCount += maxTuples - i + 1;
           logger.debug("outstanding events count = {}", outstandingEventsCount);
