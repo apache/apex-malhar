@@ -5,18 +5,15 @@
 package com.datatorrent.flume.operator;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.validation.constraints.NotNull;
 
-import com.datatorrent.api.ActivationListener;
-import com.datatorrent.api.CheckpointListener;
+import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.IdleTimeHandler;
-import com.datatorrent.api.InputOperator;
 
 import com.datatorrent.flume.sink.Server;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
@@ -28,17 +25,75 @@ import com.datatorrent.netlet.DefaultEventLoop;
  * @author Chetan Narsude <chetan@datatorrent.com>
  */
 public abstract class AbstractFlumeInputOperator<T>
-        extends AbstractLengthPrependerClient
         implements InputOperator, ActivationListener<OperatorContext>, IdleTimeHandler, CheckpointListener
 {
   public transient DefaultOutputPort<T> output = new DefaultOutputPort<T>();
+
+  private class Payload
+  {
+    final T payload;
+    final long location;
+
+    Payload(T payload, long location)
+    {
+      this.payload = payload;
+      this.location = location;
+    }
+
+  }
+
+  private transient volatile boolean connected;
+  private transient AbstractLengthPrependerClient client = new AbstractLengthPrependerClient()
+  {
+    @Override
+    public void onMessage(byte[] buffer, int offset, int size)
+    {
+      /* this are all the payload messages */
+      Payload payload = new Payload(convert(buffer, offset + 8, size - 8), Server.readLong(buffer, 0));
+      synchronized (AbstractFlumeInputOperator.this) {
+        handoverBuffer.add(payload);
+      }
+    }
+
+    @Override
+    public void connected()
+    {
+      super.connected();
+
+      long address;
+      if (recoveryAddresses.size() > 0) {
+        address = recoveryAddresses.get(recoveryAddresses.size() - 1).address;
+      }
+      else {
+        address = 0;
+      }
+
+      int len = 1 /* for the message type SEEK */
+                + 8 /* for the address */;
+
+      byte[] array = new byte[len];
+      array[0] = Server.SEEK;
+      Server.writeLong(array, 1, address);
+      write(array);
+
+      connected = true;
+    }
+
+    @Override
+    public void disconnected()
+    {
+      connected = false;
+      super.disconnected();
+    }
+
+  };
   private transient ArrayList<Payload> handoverBuffer = new ArrayList<Payload>(1024);
   private transient int idleCounter;
   private transient int eventCounter;
   private transient DefaultEventLoop eventloop;
   private transient RecoveryAddress recoveryAddress;
   @NotNull
-  private InetSocketAddress connectAddress;
+  private String connectAddress;
   private ArrayList<RecoveryAddress> recoveryAddresses = new ArrayList<RecoveryAddress>();
 
   @Override
@@ -56,7 +111,8 @@ public abstract class AbstractFlumeInputOperator<T>
   public void activate(OperatorContext ctx)
   {
     eventloop.start();
-    eventloop.connect(connectAddress, this);
+    String[] parts = connectAddress.split(":");
+    eventloop.connect(new InetSocketAddress(parts[0], Integer.parseInt(parts[1])), client);
   }
 
   @Override
@@ -81,13 +137,15 @@ public abstract class AbstractFlumeInputOperator<T>
   @Override
   public void endWindow()
   {
-    byte[] array = new byte[9];
+    if (connected) {
+      byte[] array = new byte[9];
 
-    array[0] = Server.WINDOWED;
-    Server.writeInt(buffer, 1, eventCounter);
-    Server.writeInt(buffer, 6, idleCounter);
+      array[0] = Server.WINDOWED;
+      Server.writeInt(array, 1, eventCounter);
+      Server.writeInt(array, 5, idleCounter);
 
-    write(array);
+      client.write(array);
+    }
 
     recoveryAddresses.add(recoveryAddress);
   }
@@ -95,7 +153,7 @@ public abstract class AbstractFlumeInputOperator<T>
   @Override
   public void deactivate()
   {
-    eventloop.disconnect(this);
+    eventloop.disconnect(client);
     eventloop.stop();
   }
 
@@ -103,16 +161,6 @@ public abstract class AbstractFlumeInputOperator<T>
   public void teardown()
   {
     eventloop = null;
-  }
-
-  @Override
-  public void onMessage(byte[] buffer, int offset, int size)
-  {
-    /* this are all the payload messages */
-    Payload payload = new Payload(convert(buffer, offset + 8, size - 8), Server.readLong(buffer, 0));
-    synchronized (this) {
-      handoverBuffer.add(payload);
-    }
   }
 
   @Override
@@ -126,7 +174,7 @@ public abstract class AbstractFlumeInputOperator<T>
   /**
    * @return the connectAddress
    */
-  public InetSocketAddress getConnectAddress()
+  public String getConnectAddress()
   {
     return connectAddress;
   }
@@ -134,28 +182,16 @@ public abstract class AbstractFlumeInputOperator<T>
   /**
    * @param connectAddress the connectAddress to set
    */
-  public void setConnectAddress(InetSocketAddress connectAddress)
+  public void setConnectAddress(String connectAddress)
   {
     this.connectAddress = connectAddress;
   }
 
-  private class Payload
-  {
-    final T payload;
-    final long location;
-
-    Payload(T payload, long location)
-    {
-      this.payload = payload;
-      this.location = location;
-    }
-
-  }
-
-  private static class RecoveryAddress
+  private static class RecoveryAddress implements Serializable
   {
     long windowId;
     long address;
+    private static final long serialVersionUID = 201312021432L;
   }
 
   @Override
@@ -167,6 +203,10 @@ public abstract class AbstractFlumeInputOperator<T>
   @Override
   public void committed(long windowId)
   {
+    if (!connected) {
+      return;
+    }
+    
     Iterator<RecoveryAddress> iterator = recoveryAddresses.iterator();
     while (iterator.hasNext()) {
       RecoveryAddress ra = iterator.next();
@@ -191,34 +231,12 @@ public abstract class AbstractFlumeInputOperator<T>
         array[7] = (byte)(recoveryOffset >> 48);
         array[8] = (byte)(recoveryOffset >> 56);
 
-        write(array);
+        client.write(array);
       }
       else {
         break;
       }
     }
-  }
-
-  @Override
-  public void connected()
-  {
-    super.connected();
-
-    long address;
-    if (recoveryAddresses.size() > 0) {
-      address = recoveryAddresses.get(recoveryAddresses.size() - 1).address;
-    }
-    else {
-      address = 0;
-    }
-
-    int len = 1 /* for the message type SEEK */
-              + 8 /* for the address */;
-
-    byte[] array = new byte[len];
-    array[0] = Server.SEEK;
-    Server.writeLong(array, 1, address);
-    write(array);
   }
 
 }
