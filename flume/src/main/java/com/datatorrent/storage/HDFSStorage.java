@@ -1,18 +1,17 @@
 package com.datatorrent.storage;
 
 import java.io.DataInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
+
+import com.google.common.primitives.Ints;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.primitives.Ints;
 
 public class HDFSStorage implements Storage
 {
@@ -90,10 +89,12 @@ public class HDFSStorage implements Storage
   {
     for (int i = 0; i < size; i++) {
       int shift = 8 * (i);
-      if (shift == 0)
+      if (shift == 0) {
         b[i + start] = (byte) value;
-      else
+      }
+      else {
         b[i + start] = (byte) (value >>> shift);
+      }
     }
   }
 
@@ -107,6 +108,7 @@ public class HDFSStorage implements Storage
     return l;
   }
 
+  @Override
   public long store(byte[] bytes)
   {
     // 4 for the number of bytes used to store the length of the data
@@ -140,6 +142,7 @@ public class HDFSStorage implements Storage
     return store(bytes);
   }
 
+  @Override
   public RetrievalObject retrieve(long identifier)
   {
     byte[] b = new byte[8];
@@ -166,10 +169,12 @@ public class HDFSStorage implements Storage
     }
   }
 
+  @Override
   public RetrievalObject retrieveNext()
   {
-    if (fileData == null)
+    if (fileData == null) {
       return null;
+    }
     if (retrievalOffset == fileData.length) {
       retrievalOffset = 0;
       retrievalFile++;
@@ -197,13 +202,15 @@ public class HDFSStorage implements Storage
     return obj;
   }
 
+  @Override
   public boolean clean(long identifier)
   {
     byte[] b = new byte[8];
     longToByteArray(identifier, b, 0, 8);
     long cleanFileIndex = byteArrayToLong(b, 7, 4);
-    if (cleanedFileCounter >= cleanFileIndex)
+    if (cleanedFileCounter >= cleanFileIndex) {
       return true;
+    }
     try {
       do {
         Path path = new Path(baseDir + "/" + cleanedFileCounter);
