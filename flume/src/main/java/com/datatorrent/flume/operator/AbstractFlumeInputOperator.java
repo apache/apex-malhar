@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import javax.validation.constraints.NotNull;
 
@@ -51,8 +52,11 @@ public abstract class AbstractFlumeInputOperator<T>
     {
       /* this are all the payload messages */
       Payload payload = new Payload(convert(buffer, offset + 8, size - 8), Server.readLong(buffer, 0));
-      synchronized (AbstractFlumeInputOperator.this) {
-        handoverBuffer.add(payload);
+      try {
+        handoverBuffer.put(payload);
+      }
+      catch (InterruptedException ex) {
+        handleException(ex, eventloop);
       }
     }
 
@@ -88,7 +92,7 @@ public abstract class AbstractFlumeInputOperator<T>
     }
 
   };
-  private transient ArrayList<Payload> handoverBuffer = new ArrayList<Payload>(1024);
+  private transient ArrayBlockingQueue<Payload> handoverBuffer = new ArrayBlockingQueue<Payload>(1024 * 5);
   private transient int idleCounter;
   private transient int eventCounter;
   private transient DefaultEventLoop eventloop;
@@ -128,7 +132,8 @@ public abstract class AbstractFlumeInputOperator<T>
   @Override
   public synchronized void emitTuples()
   {
-    for (Payload payload : handoverBuffer) {
+    for (int i = handoverBuffer.size(); i-- > 0;) {
+      Payload payload = handoverBuffer.poll();
       output.emit(payload.payload);
       recoveryAddress.address = payload.location;
       eventCounter++;
