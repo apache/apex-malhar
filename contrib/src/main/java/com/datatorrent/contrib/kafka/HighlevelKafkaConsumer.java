@@ -19,16 +19,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 import javax.validation.constraints.Min;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import kafka.consumer.ConsumerConfig;
 import kafka.consumer.ConsumerIterator;
 import kafka.consumer.KafkaStream;
 import kafka.javaapi.consumer.ConsumerConnector;
 import kafka.message.Message;
+import kafka.message.MessageAndMetadata;
 
 /**
  * High level kafka consumer adapter used for kafka input operator
@@ -58,6 +63,8 @@ public class HighlevelKafkaConsumer extends KafkaConsumer
 
   private transient ConsumerConnector standardConsumer = null;
   
+  private transient ExecutorService consumerThreadExecutor = null;
+  
   /**
    * -1   Dynamically create number of stream according to the partitions
    * < #kafkapartition each stream could receive any message from any partition, order is not guaranteed among the partitions
@@ -84,6 +91,11 @@ public class HighlevelKafkaConsumer extends KafkaConsumer
     // Don't reuse any id for recovery to avoid rebalancing error because there is some delay for zookeeper to 
     // find out the old consumer is dead and delete the entry even new consumer is back online
     consumerConfig.put("consumer.id", "consumer" + System.currentTimeMillis());
+    if(startOffset.equalsIgnoreCase("earliest")){
+      consumerConfig.put("auto.offset.reset", "smallest");
+    } else {
+      consumerConfig.put("auto.offset.reset", "biggest");
+    }
     standardConsumer = kafka.consumer.Consumer.createJavaConsumerConnector(new ConsumerConfig(consumerConfig));
   }
 
@@ -100,26 +112,31 @@ public class HighlevelKafkaConsumer extends KafkaConsumer
     Map<String, List<KafkaStream<byte[], byte[]>>> consumerMap = standardConsumer.createMessageStreams(topicCountMap);
 
     // start $numStream anonymous threads to consume the data
-    ExecutorService executor = Executors.newFixedThreadPool(realNumStream);
+    consumerThreadExecutor = Executors.newFixedThreadPool(realNumStream);
     for (final KafkaStream<byte[], byte[]> stream : consumerMap.get(topic)) {
-      executor.submit(new Runnable() {
+      consumerThreadExecutor.submit(new Runnable() {
         public void run()
         {
           ConsumerIterator<byte[], byte[]> itr = stream.iterator();
           logger.debug("Thread " + Thread.currentThread().getName() + " start consuming message...");
           while (itr.hasNext() && isAlive) {
-            putMessage(new Message(itr.next().message()));
+            MessageAndMetadata<byte[], byte[]> mam = itr.next();
+            putMessage(mam.partition(), new Message(mam.message()));
           }
+          logger.debug("Thread " + Thread.currentThread().getName() + " stop consuming message...");
         }
       });
     }
   }
 
   @Override
-  public void stop()
+  protected void _stop()
   {
-    isAlive = false;
-    standardConsumer.shutdown();
+    if(standardConsumer!=null)
+      standardConsumer.shutdown();
+    if(consumerThreadExecutor!=null){
+      consumerThreadExecutor.shutdown();
+    }
   }
 
   
@@ -129,7 +146,7 @@ public class HighlevelKafkaConsumer extends KafkaConsumer
   }
 
   @Override
-  protected KafkaConsumer cloneConsumer(int partitionId)
+  protected KafkaConsumer cloneConsumer(Set<Integer> partitionIds)
   {
     Properties newProp = new Properties();
     // Copy most properties from the template consumer. For example the "group.id" should be set to same value 
@@ -137,6 +154,7 @@ public class HighlevelKafkaConsumer extends KafkaConsumer
     HighlevelKafkaConsumer newConsumer = new HighlevelKafkaConsumer(newProp);
     newConsumer.setBrokerSet(this.brokerSet);
     newConsumer.setTopic(this.topic);
+    newConsumer.numStream = partitionIds.size();
     return newConsumer;
   }
 

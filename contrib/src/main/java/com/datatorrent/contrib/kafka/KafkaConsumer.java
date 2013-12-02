@@ -15,11 +15,18 @@
  */
 package com.datatorrent.contrib.kafka;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Pattern.Flag;
+import org.apache.commons.lang3.tuple.Pair;
+import com.datatorrent.api.Stats.OperatorStats.CustomStats;
 import com.yammer.metrics.Metrics;
 import com.yammer.metrics.core.Meter;
 import com.yammer.metrics.core.MetricName;
@@ -37,14 +44,19 @@ public abstract class KafkaConsumer
   
   protected final static String SIMPLE_CONSUMER_ID_SUFFIX = "_partition_";
   
-  // use yammer metrics to tick consumers' msg rate
-  private Meter msgPerSec;
+  //use yammer metrics to tick consumers' msg rate
+  // msg/s and bytes/s for each partition
+  protected transient final Map<Integer, Pair<Meter, Meter>> ingestRate = new HashMap<Integer, Pair<Meter,Meter>>(); 
   
-  private Meter bytesPerSec;
+  // total msg/s for this kafkaconsumer wrapper
+  private transient Meter msgPerSec;
+  
+  // total bytes/s for this kafkaconsumer wrapper
+  private transient Meter bytesPerSec;
   
   public KafkaConsumer()
   {
-    Set<String> brokerSet = new HashSet<String>();
+    brokerSet = new HashSet<String>();
     brokerSet.add("localhost:9092");
   }
   
@@ -79,6 +91,17 @@ public abstract class KafkaConsumer
    */
   @NotNull
   protected Set<String> brokerSet;
+  
+  
+  /**
+   * The startoffset could be either earliest or latest
+   * Earliest means the beginning the queue
+   * Latest means the current sync point to consume the queue
+   * This setting is case_insensitive
+   * By default it always consume from the beginning of the queue
+   */
+  @Pattern(flags={Flag.CASE_INSENSITIVE}, regexp = "earliest|latest")
+  protected String startOffset = "latest";
 
   /**
    * This method is called in setup method of the operator
@@ -100,12 +123,24 @@ public abstract class KafkaConsumer
    * The method is called in the deactivate method of the operator
    */
   public void stop(){
+    msgPerSec.stop();
+    bytesPerSec.stop();
+    for (Entry<Integer, Pair<Meter, Meter>> e : ingestRate.entrySet()) {
+      e.getValue().getLeft().stop();
+      e.getValue().getRight().stop();
+      Metrics.defaultRegistry().removeMetric(new MetricName(getClass().getPackage().getName(), "KafkaConsumerPartition" + e.getKey(), "MsgsPerSec"));
+      Metrics.defaultRegistry().removeMetric(new MetricName(getClass().getPackage().getName(), "KafkaConsumerPartition" + e.getKey(), "BytesPerSec"));
+    }
     Metrics.defaultRegistry().removeMetric(new MetricName(getClass().getPackage().getName(), "KafkaConsumer", "MsgsPerSec"));
     Metrics.defaultRegistry().removeMetric(new MetricName(getClass().getPackage().getName(), "KafkaConsumer", "BytesPerSec"));
+    
     isAlive = false;
     holdingBuffer.clear();
+    _stop();
   };
   
+  abstract protected void _stop();
+
   /**
    * This method is called in teardown method of the operator
    */
@@ -154,17 +189,89 @@ public abstract class KafkaConsumer
     return brokerSet;
   }
   
+  public void setStartOffset(String startOffset)
+  {
+    this.startOffset = startOffset;
+  }
   
-  final protected void putMessage(Message msg){
+  public String getStartOffset()
+  {
+    return startOffset;
+  }
+  
+  
+  final protected void putMessage(int partition, Message msg){
     holdingBuffer.add(msg);
+    // add stats in the per partition rate and total rate 
+    Pair<Meter, Meter> par = ingestRate.get(partition);
+    if(par==null){
+      Meter partitionMsgsParSec = Metrics.defaultRegistry().newMeter(new MetricName(getClass().getPackage().getName(), "KafkaConsumerPartition" + partition, "MsgsPerSec"),"messages", TimeUnit.SECONDS);
+      Meter partitionBytesPerSec = Metrics.defaultRegistry().newMeter(new MetricName(getClass().getPackage().getName(), "KafkaConsumerPartition" + partition, "BytesPerSec"),"messages", TimeUnit.SECONDS);
+      par = Pair.of(partitionMsgsParSec, partitionBytesPerSec);
+      ingestRate.put(partition, par);
+    }
     msgPerSec.mark();
     bytesPerSec.mark(msg.payloadSize());
+    par.getLeft().mark();
+    par.getRight().mark(msg.payloadSize());
   };
   
 
-  protected abstract KafkaConsumer cloneConsumer(int partitionId);
+  protected abstract KafkaConsumer cloneConsumer(Set<Integer> partitionIds);
 
   protected abstract void commitOffset();
 
+  
+  public final KafkaMeterStats getConsumerStats()
+  {
+    Map<Integer, Pair<Double, Double>> rates = new HashMap<Integer, Pair<Double, Double>>();
+    for (int parid : ingestRate.keySet()) {
+      rates.put(parid, Pair.of(ingestRate.get(parid).getLeft().oneMinuteRate(), ingestRate.get(parid).getRight().oneMinuteRate()));
+    }
+    return new KafkaMeterStats(rates, Pair.of(msgPerSec.oneMinuteRate(), bytesPerSec.oneMinuteRate()));
+  }
+  
+  static class KafkaMeterStats implements CustomStats
+  {
+
+    private static final long serialVersionUID = -2867402654990209006L;
+
+    private Map<Integer, Pair<Double, Double>> _1minMovingAvgPerPartition = new HashMap<Integer, Pair<Double, Double>>();
+
+    private Pair<Double, Double> _1minMovingAvg = Pair.of(0.0, 0.0);
+    
+    public KafkaMeterStats()
+    {
+      
+    }
+
+    public KafkaMeterStats(Map<Integer, Pair<Double, Double>> _1minMovingAvgPerPartition, Pair<Double, Double> _15minMovingRate)
+    {
+      super();
+      this._1minMovingAvgPerPartition = _1minMovingAvgPerPartition;
+      this._1minMovingAvg = _15minMovingRate;
+    }
+
+    public Map<Integer, Pair<Double, Double>> get_1minMovingAvgPerPartition()
+    {
+      return _1minMovingAvgPerPartition;
+    }
+
+    public void set_1minMovingAvgPerPartition(Map<Integer, Pair<Double, Double>> _1minMovingAvgPerPartition)
+    {
+      this._1minMovingAvgPerPartition = _1minMovingAvgPerPartition;
+    }
+
+    public Pair<Double, Double> get_1minMovingAvg()
+    {
+      return _1minMovingAvg;
+    }
+
+    public void set_1minMovingAvg(Pair<Double, Double> _1minMovingAvg)
+    {
+      this._1minMovingAvg = _1minMovingAvg;
+    }
+
+  }
 
 }

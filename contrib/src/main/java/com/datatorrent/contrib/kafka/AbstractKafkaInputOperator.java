@@ -67,7 +67,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   
   @NotNull
   @Valid
-  private K consumer = null;
+  protected K consumer = null;
 
 
   /**
