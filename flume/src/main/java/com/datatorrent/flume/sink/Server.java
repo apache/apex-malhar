@@ -20,6 +20,7 @@ import com.datatorrent.storage.Storage;
  */
 public class Server extends com.datatorrent.netlet.Server
 {
+  public static final byte ECHO = 0;
   public static final byte COMMITED = 1;
   public static final byte CHECKPOINTED = 2;
   public static final byte SEEK = 3;
@@ -63,6 +64,10 @@ public class Server extends com.datatorrent.netlet.Server
         case WINDOWED:
           r = new Request(WINDOWED, readLong(buffer, offset + 1));
           break;
+
+        case ECHO:
+          write(buffer, offset, size);
+          return;
 
         default:
           r = null;

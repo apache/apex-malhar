@@ -4,6 +4,7 @@
  */
 package com.datatorrent.flume.sink;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import org.junit.Test;
@@ -11,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 import com.datatorrent.netlet.DefaultEventLoop;
-import java.io.IOException;
 
 /**
  *
