@@ -25,6 +25,29 @@
           <argLine>-Xmx5000M</argLine>
         </configuration>
       </plugin>
+      <plugin>
+      	<groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.6</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <id>obfuscate</id>
+            <configuration>
+              <target unless="${obfuscation.skip}">
+                <echo message="running allatori"/>
+                <property name="obf.jar" value="target/dt-flume-${project.version}.jar"/>
+                <property name="runtime_classpath" refid="maven.runtime.classpath"/>
+                <taskdef name="allatori" classname="com.allatori.ant.ObfuscatorTask" classpath="${env.ALLATORI_LIB}/allatori.jar:${runtime_classpath}"/>
+                <allatori config="${basedir}/allatori-config.xml"/>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
   <dependencies>
