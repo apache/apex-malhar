@@ -28,7 +28,6 @@ public class Server extends com.datatorrent.netlet.Server
     CONNECTED((byte)4),
     DISCONNECTED((byte)5),
     WINDOWED((byte)6);
-    private byte ord;
 
     Command(byte b)
     {
@@ -69,6 +68,7 @@ public class Server extends com.datatorrent.netlet.Server
       }
     }
 
+    private byte ord;
   }
 
   Client client;
@@ -89,34 +89,12 @@ public class Server extends com.datatorrent.netlet.Server
     @Override
     public void onMessage(byte[] buffer, int offset, int size)
     {
-      assert (size > 0);
-
-      Request r;
-      switch (Command.getCommand(buffer[offset])) {
-        case COMMITTED:
-          r = new Request(Command.COMMITTED, readLong(buffer, offset + 1));
-          break;
-
-        case CHECKPOINTED:
-          r = null;
-          break;
-
-        case SEEK:
-          r = new Request(Command.SEEK, readLong(buffer, offset + 1));
-          break;
-
-        case WINDOWED:
-          r = new Request(Command.WINDOWED, readLong(buffer, offset + 1));
-          break;
-
-        case ECHO:
-          write(buffer, offset, size);
-          return;
-
-        default:
-          r = null;
+      if (Command.getCommand(buffer[offset]) == Command.ECHO) {
+        write(buffer, offset, size);
+        return;
       }
 
+      Request r = Request.getRequest(buffer, offset);
       synchronized (requests) {
         requests.add(r);
       }
@@ -128,9 +106,8 @@ public class Server extends com.datatorrent.netlet.Server
       super.connected();
       Server.this.client = this;
 
-      logger.debug("some client connected!");
       synchronized (requests) {
-        requests.add(new Request(Command.CONNECTED, 0));
+        requests.add(Request.getRequest(new byte[] {Command.CONNECTED.getOrdinal(), 0, 0, 0, 0, 0, 0, 0, 0}, 0));
       }
     }
 
@@ -138,7 +115,7 @@ public class Server extends com.datatorrent.netlet.Server
     public void disconnected()
     {
       synchronized (requests) {
-        requests.add(new Request(Command.DISCONNECTED, 0));
+        requests.add(Request.getRequest(new byte[] {Command.DISCONNECTED.getOrdinal(), 0, 0, 0, 0, 0, 0, 0, 0}, 0));
       }
       Server.this.client = null;
       super.disconnected();
@@ -154,21 +131,105 @@ public class Server extends com.datatorrent.netlet.Server
 
   }
 
-  public class Request
+  public static abstract class Request
   {
     public final Command type;
-    public final long address;
 
-    Request(Command type, long address)
+    public Request(Command type)
     {
       this.type = type;
-      this.address = address;
     }
+
+    public abstract long getAddress();
+
+    public abstract int getEventCount();
+
+    public abstract int getIdleCount();
 
     @Override
     public String toString()
     {
-      return "Request{" + "type=" + type + ", address=" + address + '}';
+      return "Request{" + "type=" + type + '}';
+    }
+
+    public static Request getRequest(final byte[] buffer, final int offset)
+    {
+      Command command = Command.getCommand(buffer[offset]);
+      switch (command) {
+        case WINDOWED:
+          return new Request(Command.WINDOWED)
+          {
+            final int eventCount;
+            final int idleCount;
+
+            {
+              eventCount = Server.readInt(buffer, offset + 1);
+              idleCount = Server.readInt(buffer, offset + 5);
+            }
+
+            @Override
+            public long getAddress()
+            {
+              throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public int getEventCount()
+            {
+              return eventCount;
+            }
+
+            @Override
+            public int getIdleCount()
+            {
+              return idleCount;
+            }
+
+            @Override
+            public String toString()
+            {
+              return "Request{" + "type=" + type + ", eventCount=" + eventCount + ", idleCount=" + idleCount + '}';
+            }
+
+          };
+
+        default:
+          return new Request(command)
+          {
+            final long address;
+
+            {
+              address = Server.readLong(buffer, offset + 1);
+            }
+
+            @Override
+            public long getAddress()
+            {
+              return address;
+            }
+
+            @Override
+            public int getEventCount()
+            {
+              throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public int getIdleCount()
+            {
+              throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public String toString()
+            {
+              return "Request{" + "type=" + type + ", address=" + address + '}';
+            }
+
+          };
+
+      }
+
     }
 
   }

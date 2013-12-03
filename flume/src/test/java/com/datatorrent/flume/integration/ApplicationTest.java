@@ -14,6 +14,7 @@ import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG.Locality;
 
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.flume.operator.AbstractFlumeInputOperator;
@@ -81,7 +82,7 @@ public class ApplicationTest implements StreamingApplication
     flume.setConnectAddress("127.0.0.1:5033");
     Counter counter = dag.addOperator("Counter", new Counter());
 
-    dag.addStream("Slices", flume.output, counter.input);
+    dag.addStream("Slices", flume.output, counter.input).setLocality(Locality.CONTAINER_LOCAL);
   }
 
   @Test
