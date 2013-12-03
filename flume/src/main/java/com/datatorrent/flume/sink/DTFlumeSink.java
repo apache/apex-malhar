@@ -24,6 +24,8 @@ import com.datatorrent.storage.Storage;
 public class DTFlumeSink implements Sink
 {
   public static final double THROUGHPUT_ADJUSTMENT_FACTOR = 0.05;
+  public static final int MIN_TUPLES_COUNT = 100;
+  public static final int MAX_TUPLES_COUNT = 10000;
   private Channel channel;
   private String name;
   private LifecycleState state;
@@ -94,18 +96,17 @@ public class DTFlumeSink implements Sink
   @Override
   public Status process() throws EventDeliveryException
   {
-    logger.debug("checking for outstanding requests");
     synchronized (server.requests) {
       for (Request r : server.requests) {
         logger.debug("found {}", r);
         switch (r.type) {
           case SEEK:
-            playback = storage.retrieve(r.address) != null;
+            playback = storage.retrieve(r.getAddress()) != null;
             state = LifecycleState.IDLE;
             break;
 
           case COMMITTED:
-            storage.clean(r.address);
+            storage.clean(r.getAddress());
             break;
 
           case DISCONNECTED:
@@ -117,10 +118,9 @@ public class DTFlumeSink implements Sink
             break;
 
           case WINDOWED:
-            lastConsumedEventsCount = (int)(r.address & 0xffffffff);
-            idleCount = (int)(r.address >> 32);
+            lastConsumedEventsCount = r.getEventCount();
+            idleCount = r.getIdleCount();
             outstandingEventsCount -= lastConsumedEventsCount;
-            logger.debug("eventCount = {}, idleCount = {}", lastConsumedEventsCount, idleCount);
             break;
 
           default:
@@ -162,29 +162,34 @@ public class DTFlumeSink implements Sink
       else {
         if (idleCount > 0) {
           maxTuples = (int)((1 + THROUGHPUT_ADJUSTMENT_FACTOR * idleCount) * lastConsumedEventsCount);
+          if (maxTuples <= 0) {
+            maxTuples = MIN_TUPLES_COUNT;
+          }
         }
         else {
           maxTuples = lastConsumedEventsCount;
         }
       }
 
+      if (maxTuples >= MAX_TUPLES_COUNT) {
+        maxTuples = MAX_TUPLES_COUNT;
+      }
+
       if (maxTuples > 0) {
-        logger.debug("transaction sequence initiated maxTuples = {}", maxTuples);
         Transaction t = channel.getTransaction();
         try {
           t.begin();
 
-          int i = maxTuples;
-
           Event e;
-          while (i-- > 0 && (e = channel.take()) != null) {
+          int i = 0;
+          while (i < maxTuples && (e = channel.take()) != null) {
             long l = storage.store(e.getBody());
             server.client.write(l, e.getBody());
+            i++;
           }
-          logger.debug("wrote {} events", maxTuples - i + 1);
 
-          outstandingEventsCount += maxTuples - i + 1;
-          logger.debug("outstanding events count = {}", outstandingEventsCount);
+          outstandingEventsCount += i;
+          logger.debug("Transaction details maxTuples = {}, i = {}, outstanding = {}", maxTuples, i, outstandingEventsCount);
 
           storage.flush();
           t.commit();

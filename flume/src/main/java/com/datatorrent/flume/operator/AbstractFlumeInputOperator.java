@@ -111,6 +111,7 @@ public abstract class AbstractFlumeInputOperator<T>
   {
     try {
       eventloop = new DefaultEventLoop("EventLoop-" + context.getId());
+      eventloop.start();
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
@@ -120,7 +121,6 @@ public abstract class AbstractFlumeInputOperator<T>
   @Override
   public void activate(OperatorContext ctx)
   {
-    eventloop.start();
     String[] parts = connectAddress.split(":");
     eventloop.connect(new InetSocketAddress(parts[0], Integer.parseInt(parts[1])), client);
   }
@@ -166,12 +166,12 @@ public abstract class AbstractFlumeInputOperator<T>
   public void deactivate()
   {
     eventloop.disconnect(client);
-    eventloop.stop();
   }
 
   @Override
   public void teardown()
   {
+    eventloop.stop();
     eventloop = null;
   }
 
