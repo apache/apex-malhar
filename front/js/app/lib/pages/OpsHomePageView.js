@@ -70,7 +70,10 @@ var OpsHomePageView = BasePageView.extend({
                 name: 'ClusterOverview',
                 defaultId: 'Cluster Overview',
                 view: ClusterOverviewWidget,
-                limit: 1
+                limit: 1,
+                inject: {
+                    dataSource: this.dataSource
+                }
             }
         ]);
         this.loadDashboards('default');

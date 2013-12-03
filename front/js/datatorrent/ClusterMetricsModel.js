@@ -19,8 +19,6 @@ var BaseModel = require('./BaseModel');
 
 /**
  * This model holds metrics for a DataTorrent cluster.
- * There is no WebSocket topic for the cluster, only
- * a REST call.
  * 
  */
 var ClusterMetricsModel = BaseModel.extend({
@@ -30,6 +28,8 @@ var ClusterMetricsModel = BaseModel.extend({
 	initialize: function(attrs, options) {
 
 		BaseModel.prototype.initialize.apply(this, arguments);
+
+		this.dataSource = options.dataSource;
 		
 		this.on('sync', function() {
 			this.set('as_of', +new Date())
@@ -74,11 +74,16 @@ var ClusterMetricsModel = BaseModel.extend({
 	},
 
 	subscribe: function() {
-    	this._intval = setInterval(this.fetch.bind(this), 5000);
+    	var topic = this.resourceTopic('ClusterMetrics');
+    	this.checkForDataSource();
+    	this.listenTo(this.dataSource, topic, function(res) {
+    		this.set(res);
+    	});
+    	this.dataSource.subscribe(topic);
     },
 
     unsubscribe: function() {
-    	clearInterval(this._intval);
+    	this.stopListening(this.dataSource);
     }
 });
 

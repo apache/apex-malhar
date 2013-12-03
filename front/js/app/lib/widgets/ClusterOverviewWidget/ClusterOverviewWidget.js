@@ -29,7 +29,7 @@ var ClusterOverviewWidget = BaseView.extend({
     initialize: function(options) {
         
         // Set up cluster model
-        this.model = new ClusterMetricsModel({});
+        this.model = new ClusterMetricsModel({}, { dataSource: options.dataSource });
         this.model.fetch();
         this.model.subscribe();
 
