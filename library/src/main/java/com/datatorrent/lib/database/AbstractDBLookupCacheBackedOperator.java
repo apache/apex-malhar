@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.datatorrent.lib.database;
 
 import java.util.Map;
@@ -138,14 +153,46 @@ public abstract class AbstractDBLookupCacheBackedOperator<T> implements Operator
     cacheRefreshTime = time;
   }
 
-  public abstract Object getKeyFromTuple(T tuple);
+  /**
+   * <br>This operator receives tuples which encapsulates the keys. Concrete classes should
+   * provide the implementation to extract a key from a tuple.</br>
+   *
+   * @param tuple input tuple to the operator.
+   * @return key corresponding to the operator.
+   */
+  protected abstract Object getKeyFromTuple(T tuple);
 
-  public abstract Object fetchValueFromDatabase(Object key);
+  /**
+   * <br>The operator uses a database as its {@link Store.Backup}.</br>
+   * <br>Sub-classes of this operator work with a specific database so they should provide a way to fetch
+   * the value of a key from the database when it is missing in the {@link Store.Primary}. </br>
+   *
+   * @param key the key.
+   * @return value of the key in the database.
+   */
+  protected abstract Object fetchValueFromDatabase(Object key);
 
-  public abstract Map<Object, Object> fetchValuesFromDatabase(Set<Object> keys);
+  /**
+   * <br>Fetch values of multiple keys from the database.</br>
+   *
+   * @param keys set of keys.
+   * @return map of keys to their values in the database.
+   */
+  protected abstract Map<Object, Object> fetchValuesFromDatabase(Set<Object> keys);
 
-  public abstract Map<Object, Object> fetchStartupDataFromDatabase();
+  /**
+   * <br>{@link StoreManager} can initialize the {@link Store.Primary} with key-value pairs.</br>
+   * <br>This provides the initial data to {@link StoreManager}.</br>
+   *
+   * @return map of keys to their values in the database.
+   */
+  protected abstract Map<Object, Object> fetchStartupDataFromDatabase();
 
+  /**
+   * <br>The sub-classes of this operator interact with specific databases. This method is used to
+   * access the specific {@link DBConnector} that the sub-classes use.</br>
+   * @return
+   */
   @Nonnull
   public abstract DBConnector getDbConnector();
 
