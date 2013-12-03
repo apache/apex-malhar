@@ -1,6 +1,7 @@
 package com.datatorrent.lib.database;
 
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -25,6 +26,8 @@ public abstract class AbstractDBLookupCacheBackedOperator<T> implements Operator
   private transient StoreManager storeManager;
 
   protected final CacheProperties cacheProperties;
+
+  protected String cacheRefreshTime;
 
   public AbstractDBLookupCacheBackedOperator()
   {
@@ -63,7 +66,7 @@ public abstract class AbstractDBLookupCacheBackedOperator<T> implements Operator
   public void setup(Context.OperatorContext context)
   {
     storeManager = new StoreManager(new CacheStore(cacheProperties), new DatabaseStore());
-    storeManager.initialize();
+    storeManager.initialize(cacheRefreshTime);
   }
 
   @Override
@@ -85,6 +88,8 @@ public abstract class AbstractDBLookupCacheBackedOperator<T> implements Operator
   }
 
   /**
+   * Sets the maximum cache size.
+   *
    * @param maxCacheSize the max size of cache in memory.
    */
   public void setMaxCacheSize(long maxCacheSize)
@@ -93,6 +98,8 @@ public abstract class AbstractDBLookupCacheBackedOperator<T> implements Operator
   }
 
   /**
+   * Sets {@link CacheStore.ExpiryType} strategy.
+   *
    * @param expiryType the cache entry expiry strategy.
    */
   public void setEntryExpiryStrategy(CacheStore.ExpiryType expiryType)
@@ -101,6 +108,8 @@ public abstract class AbstractDBLookupCacheBackedOperator<T> implements Operator
   }
 
   /**
+   * Sets the entry expiry duration.
+   *
    * @param durationInMillis the duration after which a cache entry is expired.
    */
   public void setEntryExpiryDurationInMillis(int durationInMillis)
@@ -109,6 +118,8 @@ public abstract class AbstractDBLookupCacheBackedOperator<T> implements Operator
   }
 
   /**
+   * Sets the duration at which cache is cleaned up regularly of expired entries.
+   *
    * @param durationInMillis the duration after which cache is cleaned up regularly.
    */
   public void setCacheCleanupInMillis(int durationInMillis)
@@ -116,32 +127,51 @@ public abstract class AbstractDBLookupCacheBackedOperator<T> implements Operator
     cacheProperties.setCacheCleanupInMillis(durationInMillis);
   }
 
+  /**
+   * The cache store can be refreshed every day at a specific time. This sets
+   * the time. If the time is not set, cache is not refreshed.
+   *
+   * @param time time at which cache is refreshed everyday. Format is HH:mm:ss Z.
+   */
+  public void setCacheRefreshTime(String time)
+  {
+    cacheRefreshTime = time;
+  }
+
   public abstract Object getKeyFromTuple(T tuple);
 
   public abstract Object fetchValueFromDatabase(Object key);
+
+  public abstract Map<Object, Object> fetchValuesFromDatabase(Set<Object> keys);
 
   public abstract Map<Object, Object> fetchStartupDataFromDatabase();
 
   @Nonnull
   public abstract DBConnector getDbConnector();
 
-  public class DatabaseStore extends Store.Backup
+  public class DatabaseStore implements Store.Backup
   {
 
     @Override
-    Map<Object, Object> fetchStartupData()
+    public Map<Object, Object> fetchStartupData()
     {
       return fetchStartupDataFromDatabase();
     }
 
     @Override
-    protected Object getValueFor(Object key)
+    public Object getValueFor(Object key)
     {
       return fetchValueFromDatabase(key);
     }
 
     @Override
-    protected void shutdownStore()
+    public Map<Object, Object> bulkGet(Set<Object> keys)
+    {
+      return fetchValuesFromDatabase(keys);
+    }
+
+    @Override
+    public void shutdownStore()
     {
     }
   }

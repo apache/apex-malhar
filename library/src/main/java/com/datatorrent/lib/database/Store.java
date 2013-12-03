@@ -1,33 +1,38 @@
 package com.datatorrent.lib.database;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
- * <br>A store</br>
+ * <br>A store which could be a memory store or a database store.</br>
  */
-public abstract class Store
+public interface Store
 {
-  protected abstract Object getValueFor(Object key);
+  Object getValueFor(Object key);
 
-  protected abstract void shutdownStore();
+  Map<Object, Object> bulkGet(Set<Object> keys);
+
+  void shutdownStore();
 
   /**
    * <br>A primary store should also provide setting the value for a key.</br>
    */
-  public static abstract class Primary extends Store
+  public static interface Primary extends Store
   {
-    abstract void setValueFor(Object key, Object value);
+    void setValueFor(Object key, Object value);
 
-    abstract void bulkSet(Map<Object, Object> data);
+    Set<Object> getKeys();
+
+    void bulkSet(Map<Object, Object> data);
   }
 
   /**
    * <br>Backup store is queried when {@link Primary} doesn't contain a key.</br>
    * <br>It also provides data needed at startup.</br>
    */
-  public static abstract class Backup extends Store
+  public static interface Backup extends Store
   {
-    abstract Map<Object, Object> fetchStartupData();
+    Map<Object, Object> fetchStartupData();
   }
 
 }

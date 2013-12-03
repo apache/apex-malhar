@@ -1,6 +1,7 @@
 package com.datatorrent.lib.database;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -21,7 +22,7 @@ import com.google.common.cache.CacheBuilder;
  * </ul>
  * <br>These properties of the cache are encapsulated in {@link CacheProperties}</br>
  */
-public class CacheStore extends Store.Primary
+public class CacheStore implements Store.Primary
 {
   private transient ScheduledExecutorService cleanupScheduler;
   private transient Cache<Object, Object> cache;
@@ -50,25 +51,37 @@ public class CacheStore extends Store.Primary
   }
 
   @Override
-  protected void setValueFor(Object key, Object value)
+  public void setValueFor(Object key, Object value)
   {
     cache.put(key, value);
   }
 
   @Override
-  void bulkSet(Map<Object, Object> data)
+  public Set<Object> getKeys()
+  {
+    return cache.asMap().keySet();
+  }
+
+  @Override
+  public void bulkSet(Map<Object, Object> data)
   {
     cache.asMap().putAll(data);
   }
 
   @Override
-  protected Object getValueFor(Object key)
+  public Object getValueFor(Object key)
   {
     return cache.getIfPresent(key);
   }
 
   @Override
-  protected void shutdownStore()
+  public Map<Object, Object> bulkGet(Set<Object> keys)
+  {
+    return cache.getAllPresent(keys);
+  }
+
+  @Override
+  public void shutdownStore()
   {
     cleanupScheduler.shutdown();
   }
