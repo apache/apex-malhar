@@ -213,6 +213,9 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
     Partition<RedisOutputOperator<K, V>> template = null;
     Iterator<Partition<RedisOutputOperator<K, V>>> itr = operatorPartitions.iterator();
     template = itr.next();
+    if(connectionList == null){
+      connectionList = host+":"+port+","+dbIndex;
+    }
     String[] connectionArr = connectionList.trim().split("\\|");
     int size = connectionArr.length;
     if (size > (incrementalCapacity + operatorPartitions.size()))
