@@ -50,6 +50,7 @@ exports = module.exports = {
     
     topics: {
         
+        ClusterMetrics           :'cluster.metrics',
         Applications             :'applications',
         Application              :'applications.:appId',
         Operators                :'applications.:appId.operators',
