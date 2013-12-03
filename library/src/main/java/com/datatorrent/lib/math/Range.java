@@ -76,12 +76,12 @@ public class Range<V extends Number> extends BaseNumberValueOperator<V>
 	 * Output range port, with high low unifier operator.
 	 */
 	@OutputPortFieldAnnotation(name = "range")
-	public final transient DefaultOutputPort<HighLow> range = new DefaultOutputPort<HighLow>()
+	public final transient DefaultOutputPort<HighLow<V>> range = new DefaultOutputPort<HighLow<V>>()
 	{
 		@Override
-		public Unifier<HighLow> getUnifier()
+		public Unifier<HighLow<V>> getUnifier()
 		{
-			return new UnifierRange();
+			return new UnifierRange<V>();
 		}
 	};
 

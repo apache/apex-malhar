@@ -23,10 +23,10 @@ package com.datatorrent.lib.util;
  *
  * @since 0.3.2
  */
-public class HighLow
+public class HighLow<V extends Number>
 {
-  protected Number high;
-  protected Number low;
+  protected V high;
+  protected V low;
 
   /**
    * Added default constructor for deserializer.
@@ -43,7 +43,7 @@ public class HighLow
    * @param h
    * @param l
    */
-  public HighLow(Number h, Number l)
+  public HighLow(V h, V l)
   {
     high = h;
     low = l;
@@ -52,7 +52,7 @@ public class HighLow
   /**
    * @return high value
    */
-  public Number getHigh()
+  public V getHigh()
   {
     return high;
   }
@@ -61,7 +61,7 @@ public class HighLow
    *
    * @return low value
    */
-  public Number getLow()
+  public V getLow()
   {
     return low;
   }
@@ -69,7 +69,7 @@ public class HighLow
   /**
    * @param h sets high value
    */
-  public void setHigh(Number h)
+  public void setHigh(V h)
   {
     high = h;
   }
@@ -78,7 +78,7 @@ public class HighLow
    *
    * @param l sets low value
    */
-  public void setLow(Number l)
+  public void setLow(V l)
   {
     low = l;
   }

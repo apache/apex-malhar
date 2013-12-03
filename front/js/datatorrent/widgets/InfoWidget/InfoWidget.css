@@ -1,0 +1,17 @@
+.page-info {
+  padding: 5px;
+  font-size: 130%;
+}
+.page-info .info-item {
+  line-height: 1.9;
+  display: inline-block;
+  margin-right: 10px;
+  font-weight: normal;
+}
+.page-info .info-item .key {
+  color: #9F9F9F;
+}
+.page-info .info-item.right-top {
+  float: right;
+  font-size: 90%;
+}

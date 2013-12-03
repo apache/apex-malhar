@@ -15,6 +15,8 @@
  */
 package com.datatorrent.contrib.kafka;
 
+import java.util.HashSet;
+import java.util.Set;
 import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.Context.OperatorContext;
@@ -163,5 +165,21 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   {
     return consumer;
   }
+  
+  //add topic as operator property 
+  public void setTopic(String topic)
+  {
+    this.consumer.setTopic(topic);
+  }
 
+  //add brokerlist as operator property
+  public void setBrokerSet(String brokerString)
+  {
+    Set<String> brokerSet = new HashSet<String>();
+    for (String broker : brokerString.split(",")) {
+      brokerSet.add(broker);
+    }
+    this.consumer.setBrokerSet(brokerSet);
+  }
+  
 }

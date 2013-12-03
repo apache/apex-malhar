@@ -1,0 +1,110 @@
+#header {
+  /*    .gradient_v(#03809e, #026982); // teal*/
+
+  /*	.gradient_v(#489904, #3b7e03); // green*/
+
+  /*	.gradient_v(#c481fc,#b766fb); // violet*/
+
+  /*	.gradient_v(#9d3b00,#813100); // brick red*/
+
+  /*	.gradient_v(#cfa61f,#a78619); // gold*/
+
+  background: #11506d;
+  /* Old browsers */
+
+  background: -moz-linear-gradient(left, #11506d 0%, #0f5e83 100%);
+  /* FF3.6+ */
+
+  background: -webkit-gradient(linear, left top, right top, color-stop(1%, #11506d), color-stop(100%, #0f5e83));
+  /* Chrome,Safari4+ */
+
+  background: -webkit-linear-gradient(left, #11506d 0%, #0f5e83 100%);
+  /* Chrome10+,Safari5.1+ */
+
+  background: -o-linear-gradient(left, #11506d 0%, #0f5e83 100%);
+  /* Opera 11.10+ */
+
+  background: -ms-linear-gradient(left, #11506d 0%, #0f5e83 100%);
+  /* IE10+ */
+
+  background: linear-gradient(to right, #11506d 0%, #0f5e83 100%);
+  /* W3C */
+
+  box-shadow: 0 0 2px 0px black;
+  height: 48px;
+  position: relative;
+  z-index: 1;
+}
+#header .brand {
+  display: block;
+  text-indent: -1000px;
+  overflow: hidden;
+  width: 241px;
+  height: 48px;
+  margin: 0 20px 0 10px;
+  padding: 0;
+  float: left;
+}
+#header .ui-version {
+  color: #DEDEDE;
+  display: inline-block;
+  line-height: 48px;
+}
+#header #feedback-header-link {
+  text-shadow: none;
+  color: #EFEFEF;
+  padding: 1px 4px;
+  font-size: inherit;
+  font-weight: 200;
+  position: relative;
+  top: -2px;
+  margin-left: 3px;
+}
+#header .client-brand {
+  /*		padding:4px 0;*/
+
+  padding: 0;
+}
+#header .client-brand img {
+  border: 1px solid #DEDEDE;
+  box-shadow: 0 1px 3px -1px rgba(0, 0, 0, 0.5);
+  display: block;
+  margin: 0 auto;
+  max-height: 40px;
+}
+#header .dashboard-modes {
+  list-style-type: none;
+  float: right;
+}
+#header .dashboard-modes li {
+  display: inline-block;
+  vertical-align: middle;
+}
+#header a {
+  text-shadow: 0 1px 1px black,0 1px 1px black,0 1px 1px black;
+  display: inline-block;
+  vertical-align: middle;
+  height: 18px;
+  padding: 15px 20px;
+  font-size: 18px;
+  font-weight: 100;
+  letter-spacing: 0.15em;
+  color: #EFEFEF;
+}
+#header a:hover {
+  color: #FFF;
+}
+#header a.active {
+  box-shadow: inset 0 9px 36px -5px rgba(0, 0, 0, 0.7);
+}
+#header .sign-in-container {
+  float: right;
+  margin-left: 20px;
+}
+#header .sign-in-container a,
+#header .sign-in-container span {
+  min-width: 50px;
+  font-size: 14px;
+  padding: 15px 20px;
+  box-shadow: -1px 0 0 #10658c, 1px 0 0 #10658c, -2px 0 0 rgba(0, 0, 0, 0.1), 2px 0 0 rgba(0, 0, 0, 0.1);
+}

@@ -1,0 +1,17 @@
+<span class="select-status"><strong><%=length%></strong> row(s) selected</span>
+<div class="palette-actions">
+
+    <% if (none) { %>
+    <button disabled class="btn">no operator(s) selected</button>
+    <% } else if (one) {%>
+        <button class="inspectOperator btn btn-primary">inspect</button>
+        <% if (isRecording) { %>
+            <button class="stopOpRecording btn"><i class="icon-rec-on"></i> stop recording</button>
+        <% } else { %>
+            <button class="startOpRecording btn"><i class="icon-rec-off"></i> start recording</button>
+        <% } %>
+    <% } else {%>
+        <button class="btn" disabled>no actions available</button>
+    <% } %>
+    
+</div>

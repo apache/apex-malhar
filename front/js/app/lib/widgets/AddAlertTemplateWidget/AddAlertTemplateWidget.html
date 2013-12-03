@@ -1,0 +1,83 @@
+<div class="widget-inner widget-procedure">
+    
+    <div class="title">
+        <span class="inner">Add an Alert</span>
+    </div>
+    <p class="description">Use this page to add an alert to <%= app.id %>.</p>
+    
+    
+    <div>
+        <div class="procedure-column">
+            
+            <form id="alert-form">
+                <div class="procedure-section">
+
+                    <h2>Name &amp; Target</h2>
+                    <div class="control-group">
+                        <label for="alertName">Alert Name</label>
+                        <input type="text" name="alertName" placeholder="letters, number, and underscores" id="alertName">
+                        <span class="help-block">Alert names may only contain letters, numbers, and underscores.</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="saveAs">Save template as...</label>
+                        <input type="text" name="saveAs" placeholder="letters, number, and underscores" id="saveAs">
+                        <span class="help-block">Fill this in if you would like to save this alert as a template for future use. (optional)</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="operatorName">Target Operator</label>
+                        <select id="operatorName">
+                            <option value="">choose target operator</option>
+                            <% _.each( app.logicalPlan.operators, function(operator,operatorName) { %>
+                                <option value="<%= operatorName %>" <% if (operatorName === alert.operatorName) { print('selected="selected"') } %>><%= operatorName %></option>
+                            <% }) %>
+                        </select>
+                        <span class="help-block">The alert will listen to a stream (or unconnected port) on this operator</span>
+                    </div>
+
+                    <div class="control-group streamName">
+
+                    </div>
+                </div>
+
+                <div class="procedure-section">
+                    <h2>Condition</h2>
+                    <p>Set the condition in which an alert should be triggered.</p>
+                    <div id="filter-section"></div>
+                </div>
+
+                <div class="procedure-section">
+                    <h2>Escalation</h2>
+                    <p>Specify the escalation rules here.</p>
+                    <div id="escalation-section"></div>
+                </div>
+
+                <div class="procedure-section">
+                    <h2>Action(s)</h2>
+                    <p>Specify up to <%= settings.maxAlertActions %> actions.</p>
+                    <div id="action-section">
+                        <% for (var i = 1, max = settings.maxAlertActions; i <= max; i++) { %>
+                        <div class="alertAction<%= i %>">
+                            <h3>action <%= i %></h3>
+                        </div>
+                        <% } %>
+                    </div>
+                </div>
+                
+                <input type="submit" value="add alert" id="alert_submit_btn" class="btn btn-primary">
+                
+            </form>
+            
+        </div
+
+        ><div class="visual-column">
+            <div class="procedure-section">
+                <h2>Visualization</h2>
+                <div class="dag-container">
+                
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    
+</div>

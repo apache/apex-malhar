@@ -1,0 +1,41 @@
+.topn-content .renderMode-form {
+  float: right;
+}
+.topn-content .topn-ctrl {
+  float: right;
+}
+.topn-content .topn-visual {
+  clear: right;
+  text-align: center;
+}
+.topn-content .topn-legend,
+.topn-content .pie-chart {
+  display: inline-block;
+  vertical-align: middle;
+}
+.topn-content .topn-legend ol {
+  padding-left: 3em;
+  list-style: decimal;
+}
+.topn-content .color-box {
+  display: inline-block;
+  height: 1em;
+  width: 1em;
+}
+.topn-content .hbar-inner {
+  position: relative;
+}
+.topn-content .hbar-inner .bar {
+  position: absolute;
+  text-align: left;
+}
+.topn-content .hbar-inner .bar .bar-label {
+  color: #000;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.3);
+  padding: 0 3px;
+  border-radius: 2px;
+  white-space: nowrap;
+  position: relative;
+  left: 5px;
+}

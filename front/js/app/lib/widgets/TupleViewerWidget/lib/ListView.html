@@ -1,0 +1,9 @@
+<div class="inner">
+    <% if (!appId || !operatorId || !startTime) { %>
+    <div class="tuple loading" style="padding:<%= tuplePaddingTB %>px 0; margin-bottom:<%= tupleMarginBtm %>px"><span class="type"></span> <span>no recording found</span></div>
+    <% } else if (totalTuples == '0') { %>
+    <div class="tuple loading" style="padding:<%= tuplePaddingTB %>px 0; margin-bottom:<%= tupleMarginBtm %>px"><span class="type"></span> <span>no tuples in this recording</span></div>
+    <% } else if (currentTotal == '0') { %>
+    <div class="tuple loading" style="padding:<%= tuplePaddingTB %>px 0; margin-bottom:<%= tupleMarginBtm %>px"><span class="type"></span> <span>no tuples for selected ports</span></div>
+    <% }%>
+</div>

@@ -1,0 +1,99 @@
+@import '../../../../css/variables.less';
+#header {
+/*    .gradient_v(#03809e, #026982); // teal*/
+/*	.gradient_v(#489904, #3b7e03); // green*/
+/*	.gradient_v(#c481fc,#b766fb); // violet*/
+/*	.gradient_v(#9d3b00,#813100); // brick red*/
+/*	.gradient_v(#cfa61f,#a78619); // gold*/
+	.gradient_h(#11506d,#0f5e83);
+    box-shadow: 0 0 2px 0px black;
+    height: @logo_height;
+	position:relative;
+	z-index: 1;
+
+	.brand {
+	    display:block;
+	    text-indent:-1000px;
+	    overflow:hidden;
+	    width:@logo_width;
+	    height:@logo_height;
+	    margin:0 20px 0 10px;
+	    padding:0;
+	    float:left;
+	}
+	
+	.ui-version {
+		color: #DEDEDE;
+		display:inline-block;
+		line-height:@logo_height;
+	}
+	
+	#feedback-header-link {
+		text-shadow: none;
+		color: #EFEFEF;
+		padding: 1px 4px;
+		font-size: inherit;
+		font-weight: 200;
+		position: relative;
+		top: -2px;
+		margin-left: 3px;
+	}
+	
+	.client-brand {
+/*		padding:4px 0;*/
+		padding:0;
+		img {
+			border:1px solid #DEDEDE;
+			box-shadow:0 1px 3px -1px rgba(0,0,0,0.5);
+			display:block;
+			margin:0 auto;
+			max-height:@logo_height - 8px;
+		}
+	}
+	
+	.dashboard-modes {
+	    list-style-type: none;
+	    float: right;
+
+	    li {
+	        .display_ib();
+	    }
+	}
+	
+	a {
+        @tb_padding: (@logo_height - @top_nav_font_height)/2;
+        text-shadow:0 1px 1px black,0 1px 1px black,0 1px 1px black;
+        .display_ib();
+        height: @top_nav_font_height;
+        padding: @tb_padding 20px;
+        font-size: @top_nav_font_height;
+        font-weight:100;
+        letter-spacing: 0.15em;
+		color:#EFEFEF;
+		&:hover {
+			color:#FFF;
+		}
+        &.active{
+            box-shadow: inset 0 (@top_nav_font_height/2) @top_nav_font_height*2 -5px rgba(0,0,0,0.7); 
+        } 
+    }
+	
+	.sign-in-container {
+		float:right;
+		margin-left:20px;
+		a, span {
+			min-width:50px;
+			@tb_padding: ((@logo_height - @top_nav_font_height)/2);
+			@border_color: lighten(@light_primary,2%);
+			font-size:@top_nav_font_height - 4px;
+			padding:@tb_padding 20px;
+			box-shadow:
+				-1px 0 0 @border_color,
+				1px 0 0 @border_color,
+				-2px 0 0 rgba(0,0,0,0.1),
+				2px 0 0 rgba(0,0,0,0.1)
+			;
+		}
+	}
+}
+

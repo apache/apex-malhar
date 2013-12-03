@@ -1,0 +1,40 @@
+<button class="btn refreshCluster"><i class="icon-refresh"></i></button>
+<div class="overview-item">
+    <span class="key">avg app age</span>
+    <span class="value"><%= DT.formatters.timeSince({ timeChunk: averageAge }) || '-' %></span>
+</div>
+<div class="overview-item">
+    <span class="key">CPU</span>
+    <span class="value"><%= DT.formatters.percentageFormatter(cpuPercentage, true) %></span>
+</div>
+<div class="overview-item">
+    <span class="key">current/max allocated mem (MB)</span>
+    <span class="value"><%= DT.formatters.commaGroups(currentMemoryAllocatedMB) %> / <%= DT.formatters.commaGroups(maxMemoryAllocatedMB) %></span>
+</div>
+<div class="overview-item">
+    <span class="key">running / pending / failed / finished / killed / submitted</span>
+    <span class="value">
+        <span class="status-running"><%= DT.formatters.commaGroups(numAppsRunning)%></span> / 
+        <span class="status-pending-deploy"><%= DT.formatters.commaGroups(numAppsPending)%></span> / 
+        <span class="status-failed"><%= DT.formatters.commaGroups(numAppsFailed)%></span> / 
+        <span class="status-finished"><%= DT.formatters.commaGroups(numAppsFinished)%></span> / 
+        <span class="status-killed"><%= DT.formatters.commaGroups(numAppsKilled)%></span> / 
+        <span class="status-submitted"><%= DT.formatters.commaGroups(numAppsSubmitted)%></span>
+    </span>
+</div>
+<div class="overview-item">
+    <span class="key">no. containers</span>
+    <span class="value"><%= DT.formatters.commaGroups(numContainers)%></span>
+</div>
+<div class="overview-item">
+    <span class="key">no. operators</span>
+    <span class="value"><%= DT.formatters.commaGroups(numOperators)%></span>
+</div>
+<div class="overview-item">
+    <span class="key">processed/s</span>
+    <span class="value"><%= DT.formatters.commaGroups(tuplesProcessedPSMA)%></span>
+</div>
+<div class="overview-item">
+    <span class="key">emitted/s</span>
+    <span class="value"><%= DT.formatters.commaGroups(tuplesEmittedPSMA)%></span>
+</div>

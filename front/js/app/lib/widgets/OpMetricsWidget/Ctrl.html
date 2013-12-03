@@ -1,0 +1,15 @@
+<form class="form-horizontal well">
+    <h4>Controls</h4>
+    <label for="toggle_multi_y" class="checkbox">
+        <input type="checkbox" class="toggle_multi_y" name="toggle_multi_y" <% if (multi_y) { print('checked ')} %>/> Multiple Y-Axes
+    </label>
+    
+    <% _.each( plots, function(plot) { %>
+        <label class="checkbox">
+            <input type="checkbox" data-key="<%= plot.key %>" />
+            <span class="plot-colorblock" style="background-color:<%= plot.color %>"></span>
+            <%= plot.label %>
+        </label>
+    <% }) %>
+    
+</form>

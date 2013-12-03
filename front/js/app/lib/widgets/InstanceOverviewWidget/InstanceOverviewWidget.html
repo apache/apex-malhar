@@ -1,0 +1,78 @@
+<!-- state -->
+<div class="overview-item">
+    <div class="key">state</div>
+    <div class="value <%= DT.formatters.statusClassFormatter(state) %>"><%=state%></div>
+</div>
+
+<% if (state === 'RUNNING') { %>
+    
+    <div class="right-top overview-item">
+        <% if (state === "RUNNING") { %>
+        <span class="key">As of:</span>
+        <span class="value"><%=as_of%></span>
+        <%} else {%>
+        <span class="key">Ended at</span>
+        <span class="value"><%=as_of%></span>
+        <%}%>
+    </div>
+    
+    <!-- lowest window id -->
+    <div class="overview-item currentWindowId">
+        <div class="key">last window id</div>
+        <div class="value"><%=currentWindowId_f%></div>
+    </div>
+    
+    <!-- recovery window id -->
+    <div class="overview-item currentWindowId">
+        <div class="key">recovery window id</div>
+        <div class="value"><%=recoveryWindowId_f%></div>
+    </div>
+
+    <!-- processed/sec -->
+    <div class="overview-item">
+        <div class="key">processed/sec</div>
+        <div class="value"><%=stats.tuplesProcessedPSMA_f%></div>
+    </div>
+    
+    <!-- emitted/sec -->
+    <div class="overview-item">
+        <div class="key">emitted/sec</div>
+        <div class="value"><%=stats.tuplesEmittedPSMA_f%></div>
+    </div>
+
+    <!-- total processed -->
+    <div class="overview-item">
+        <div class="key">total processed</div>
+        <div class="value"><%=stats.totalTuplesProcessed_f%></div>
+    </div>
+    
+    <!-- total emitted -->
+    <div class="overview-item">
+        <div class="key">total emitted</div>
+        <div class="value"><%=stats.totalTuplesEmitted_f%></div>
+    </div>
+
+    <!-- no. of operators -->
+    <div class="overview-item">
+        <div class="key">operators</div>
+        <div class="value"><%=stats.numOperators%></div>
+    </div>
+
+    <!-- no. of containers -->
+    <div class="overview-item">
+        <div class="key">planned/alloc. containers</div>
+        <div class="value"><%=stats.plannedContainers%> / <%=stats.allocatedContainers%> (<%= totalAllocatedMemory %> GB)</div>
+    </div>
+    
+    <!-- app-wide latency -->
+    <div class="overview-item">
+        <div class="key">latency (ms)</div>
+        <div class="value"><%=stats.latency%></div>
+    </div>
+<% } %>
+
+<!-- up since -->
+<div class="overview-item">
+    <div class="key">up for</div>
+    <div class="value"><%=up_for%></div>
+</div>

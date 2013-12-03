@@ -20,9 +20,10 @@ import com.lambdaworks.redis.RedisClient;
 import com.lambdaworks.redis.RedisConnection;
 import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.PartitionableOperator.Partition;
-import com.datatorrent.api.PartitionableOperator.PartitionKeys;
-import com.datatorrent.api.PartitionableOperator;
+import com.datatorrent.api.DefaultPartition;
+import com.datatorrent.api.Partitionable.Partition;
+import com.datatorrent.api.Partitionable.PartitionKeys;
+import com.datatorrent.api.Partitionable;
 import com.google.common.collect.Sets;
 
 import java.util.ArrayList;
@@ -40,12 +41,12 @@ import org.slf4j.LoggerFactory;
  * <p>
  * RedisOutputOperator class.
  * </p>
- * 
+ *
  * @since 0.3.2
  */
 @ShipContainingJars(classes = { RedisClient.class })
 @SuppressWarnings({ "rawtypes", "unchecked", "unused" })
-public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperator<K, V> implements PartitionableOperator
+public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperator<K, V> implements Partitionable<RedisOutputOperator<K,V>>
 {
   private static final Logger LOG = LoggerFactory.getLogger(RedisOutputOperator.class);
   protected transient RedisClient redisClient;
@@ -107,9 +108,10 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
       LOG.warn("since no value is set, setting everything to default");
       return;
     }
-    host = connectionArr[0].trim();
+    String[] redisInstance = connectionArr[0].split(":");
+    host = redisInstance[0];
     try {
-      port = Integer.valueOf(connectionArr[1].trim());
+      port = Integer.valueOf(redisInstance[1].trim());
     } catch (NumberFormatException ex) {
       LOG.error("defaulting the value to default port 6379 as there is error {} ", ex.getMessage());
       port = 6379;
@@ -118,7 +120,7 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
       port = 6379;
     }
     try{
-      dbIndex = Integer.valueOf(connectionArr[2].trim());
+      dbIndex = Integer.valueOf(connectionArr[1].trim());
     }catch (NumberFormatException ex) {
       LOG.error("defaulting the value to default DB 0 as there is error {} ", ex.getMessage());
       dbIndex = 0;
@@ -167,9 +169,14 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
     for (Map.Entry<K, Object> entry : t.entrySet()) {
       Object value = entry.getValue();
       if (value instanceof Map) {
+        /*
+        redisConnection.hmset(entry.getKey().toString(), (Map) value);
+        */
+        
         for (Map.Entry<Object, Object> entry1 : ((Map<Object, Object>) value).entrySet()) {
           redisConnection.hset(entry.getKey().toString(), entry1.getKey().toString(), entry1.getValue().toString());
         }
+        
       } else if (value instanceof Set) {
         for (Object o : (Set) value) {
           redisConnection.sadd(entry.getKey().toString(), o.toString());
@@ -199,7 +206,7 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
   }
 
   @Override
-  public Collection<Partition<?>> definePartitions(Collection<? extends Partition<?>> partitions, int incrementalCapacity)
+  public Collection<Partition<RedisOutputOperator<K,V>>> definePartitions(Collection<Partition<RedisOutputOperator<K,V>>> partitions, int incrementalCapacity)
   {
     Collection c = partitions;
     Collection<Partition<RedisOutputOperator<K, V>>> operatorPartitions = c;
@@ -217,7 +224,7 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
       partitionMask = -1 >>> (Integer.numberOfLeadingZeros(-1)) - partitionBits;
     }
     LOG.debug("partition mask {}", partitionMask);
-    Collection<Partition<?>> operList = new ArrayList<PartitionableOperator.Partition<?>>(size);
+    ArrayList<Partition<RedisOutputOperator<K,V>>> operList = new ArrayList<Partitionable.Partition<RedisOutputOperator<K,V>>>(size);
 
     while (size > 0) {
       size--;
@@ -227,12 +234,12 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
       opr.setTimeout(timeout);
       opr.setContinueOnError(continueOnError);
       opr.setName(getName());
-      Partition<RedisOutputOperator<K, V>> p = template.getInstance(opr);
+      Partition<RedisOutputOperator<K, V>> p = new DefaultPartition(opr);
       operList.add(p);
     }
 
     for (int i = 0; i <= partitionMask; i++) {
-      Partition<?> p = ((List<Partition<?>>) operList).get(i % operList.size());
+      Partition<RedisOutputOperator<K, V>> p = operList.get(i % operList.size());
       PartitionKeys pks = p.getPartitionKeys().get(input);
       if (pks == null) {
         p.getPartitionKeys().put(input, new PartitionKeys(partitionMask, Sets.newHashSet(i)));
