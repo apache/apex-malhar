@@ -200,8 +200,9 @@ public abstract class KafkaConsumer
   }
   
   
-  final protected void putMessage(int partition, Message msg){
-    holdingBuffer.add(msg);
+  final protected void putMessage(int partition, Message msg) throws InterruptedException{
+    // block from receiving more message
+    holdingBuffer.put(msg);
     // add stats in the per partition rate and total rate 
     Pair<Meter, Meter> par = ingestRate.get(partition);
     if(par==null){

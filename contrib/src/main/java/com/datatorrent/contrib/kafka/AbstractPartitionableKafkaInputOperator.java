@@ -27,21 +27,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import kafka.javaapi.PartitionMetadata;
-
 import com.datatorrent.api.CheckpointListener;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitionable;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Stats.OperatorStats;
 import com.datatorrent.api.StatsListener;
-import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStats;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
@@ -69,12 +65,11 @@ import com.google.common.collect.Sets;
  *
  * @since 0.9.0
  */
-@OperatorAnnotation(partitionable=true)
 public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKafkaInputOperator<KafkaConsumer> implements Partitionable<AbstractPartitionableKafkaInputOperator>, CheckpointListener, StatsListener
 {
   
   // By default the partition policy is 1:1  
-  public transient PartitionStrategy strategy = PartitionStrategy._1NH;
+  public  PartitionStrategy strategy = PartitionStrategy._11;
   
   private transient OperatorContext context = null;
   
@@ -140,6 +135,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
         PartitionInfo pif = new PartitionInfo();
         pif.kpids = Sets.newHashSet(pm.partitionId());
         currentPartitionInfo.add(pif);
+        newPartitions.add(p);
       }
       break;
     // For the 1 to N static mapping The initial partition number is defined by stream application
@@ -278,8 +274,17 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
   {
     
     Response resp = new Response();
-    
-    resp.repartitionRequired = needPartition(stats);
+    switch (strategy) {
+    case _11:
+      // You can not add/remove kafka partition at runtime. So for now, repartition is not required for 1:1 mapping
+      resp.repartitionRequired = false;
+      break;
+    case _1NH:
+      resp.repartitionRequired = needPartition(stats);
+      break;
+    default:
+      throw new IllegalArgumentException("[_1NS]: Not implemented yet");
+    }
 
     return resp;
   }

@@ -121,7 +121,11 @@ public class HighlevelKafkaConsumer extends KafkaConsumer
           logger.debug("Thread " + Thread.currentThread().getName() + " start consuming message...");
           while (itr.hasNext() && isAlive) {
             MessageAndMetadata<byte[], byte[]> mam = itr.next();
-            putMessage(mam.partition(), new Message(mam.message()));
+            try {
+              putMessage(mam.partition(), new Message(mam.message()));
+            } catch (InterruptedException e) {
+              logger.error("Message Enqueue has been interrupted", e);
+            }
           }
           logger.debug("Thread " + Thread.currentThread().getName() + " stop consuming message...");
         }

@@ -52,7 +52,7 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitionable<
   //define constant message
   private byte[] constantMsg = null;
   
-  private int msgSize = 200;
+  private int msgSize = 1024;
 
   @Override
   public void beginWindow(long arg0)

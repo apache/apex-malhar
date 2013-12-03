@@ -63,7 +63,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   @SuppressWarnings("unused")
   private static final Logger logger = LoggerFactory.getLogger(AbstractKafkaInputOperator.class);
   
-  private int tuplesBlast = 10 * 1024;
+  private int tuplesBlast = 1024 * 1024;
   
   @NotNull
   @Valid

@@ -257,7 +257,7 @@ public class SimpleKafkaConsumer extends KafkaConsumer
               offsetTrack.put(pid, offset);
               
             } catch (Exception e) {
-              logger.warn("Error read from leader broker, highly likely the leader broker is failing. " + e);
+              logger.warn("Error read from leader broker, highly likely the leader broker is failing. ", e);
               try {
                 // wait for the next metadata update to reconnect
                 Thread.sleep(metadataRefreshInterval + 1000);
