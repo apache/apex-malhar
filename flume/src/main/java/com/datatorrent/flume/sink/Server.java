@@ -68,6 +68,7 @@ public class Server extends com.datatorrent.netlet.Server
           return null;
       }
     }
+
   }
 
   Client client;
@@ -174,42 +175,42 @@ public class Server extends com.datatorrent.netlet.Server
 
   public static int readInt(byte[] buffer, int offset)
   {
-    return buffer[offset]
-           | buffer[offset++] << 8
-           | buffer[offset++] << 16
-           | buffer[offset++] << 24;
+    return buffer[offset++] & 0xff
+           | (buffer[offset++] & 0xff) << 8
+           | (buffer[offset++] & 0xff) << 16
+           | (buffer[offset++] & 0xff) << 24;
   }
 
   public static void writeInt(byte[] buffer, int offset, int i)
   {
     buffer[offset++] = (byte)i;
-    buffer[offset++] = (byte)(i >> 8);
-    buffer[offset++] = (byte)(i >> 16);
-    buffer[offset++] = (byte)(i >> 24);
+    buffer[offset++] = (byte)(i >>> 8);
+    buffer[offset++] = (byte)(i >>> 16);
+    buffer[offset++] = (byte)(i >>> 24);
   }
 
   public static long readLong(byte[] buffer, int offset)
   {
-    return buffer[offset]
-           | buffer[offset++] << 8
-           | buffer[offset++] << 16
-           | buffer[offset++] << 24
-           | buffer[offset++] << 32
-           | buffer[offset++] << 40
-           | buffer[offset++] << 48
-           | buffer[offset++] << 56;
+    return (long)buffer[offset++] & 0xff
+           | (long)(buffer[offset++] & 0xff) << 8
+           | (long)(buffer[offset++] & 0xff) << 16
+           | (long)(buffer[offset++] & 0xff) << 24
+           | (long)(buffer[offset++] & 0xff) << 32
+           | (long)(buffer[offset++] & 0xff) << 40
+           | (long)(buffer[offset++] & 0xff) << 48
+           | (long)(buffer[offset++] & 0xff) << 56;
   }
 
   public static void writeLong(byte[] buffer, int offset, long l)
   {
     buffer[offset++] = (byte)l;
-    buffer[offset++] = (byte)(l >> 8);
-    buffer[offset++] = (byte)(l >> 16);
-    buffer[offset++] = (byte)(l >> 24);
-    buffer[offset++] = (byte)(l >> 32);
-    buffer[offset++] = (byte)(l >> 40);
-    buffer[offset++] = (byte)(l >> 48);
-    buffer[offset++] = (byte)(l >> 56);
+    buffer[offset++] = (byte)(l >>> 8);
+    buffer[offset++] = (byte)(l >>> 16);
+    buffer[offset++] = (byte)(l >>> 24);
+    buffer[offset++] = (byte)(l >>> 32);
+    buffer[offset++] = (byte)(l >>> 40);
+    buffer[offset++] = (byte)(l >>> 48);
+    buffer[offset++] = (byte)(l >>> 56);
   }
 
   private static final Logger logger = LoggerFactory.getLogger(Server.class);

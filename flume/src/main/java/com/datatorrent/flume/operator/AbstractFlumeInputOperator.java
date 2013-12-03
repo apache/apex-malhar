@@ -10,8 +10,12 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.ArrayBlockingQueue;
+import static java.lang.Thread.sleep;
 
 import javax.validation.constraints.NotNull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
@@ -30,6 +34,14 @@ public abstract class AbstractFlumeInputOperator<T>
         implements InputOperator, ActivationListener<OperatorContext>, IdleTimeHandler, CheckpointListener
 {
   public transient DefaultOutputPort<T> output = new DefaultOutputPort<T>();
+  private transient ArrayBlockingQueue<Payload> handoverBuffer = new ArrayBlockingQueue<Payload>(1024 * 5);
+  private transient int idleCounter;
+  private transient int eventCounter;
+  private transient DefaultEventLoop eventloop;
+  private transient RecoveryAddress recoveryAddress;
+  @NotNull
+  private String connectAddress;
+  private ArrayList<RecoveryAddress> recoveryAddresses = new ArrayList<RecoveryAddress>();
 
   private class Payload
   {
@@ -82,6 +94,7 @@ public abstract class AbstractFlumeInputOperator<T>
       write(array);
 
       connected = true;
+      logger.debug("connected hence sending {} for {}", Command.SEEK, address);
     }
 
     @Override
@@ -92,14 +105,6 @@ public abstract class AbstractFlumeInputOperator<T>
     }
 
   };
-  private transient ArrayBlockingQueue<Payload> handoverBuffer = new ArrayBlockingQueue<Payload>(1024 * 5);
-  private transient int idleCounter;
-  private transient int eventCounter;
-  private transient DefaultEventLoop eventloop;
-  private transient RecoveryAddress recoveryAddress;
-  @NotNull
-  private String connectAddress;
-  private ArrayList<RecoveryAddress> recoveryAddresses = new ArrayList<RecoveryAddress>();
 
   @Override
   public void setup(OperatorContext context)
@@ -130,7 +135,7 @@ public abstract class AbstractFlumeInputOperator<T>
   }
 
   @Override
-  public synchronized void emitTuples()
+  public void emitTuples()
   {
     for (int i = handoverBuffer.size(); i-- > 0;) {
       Payload payload = handoverBuffer.poll();
@@ -150,6 +155,7 @@ public abstract class AbstractFlumeInputOperator<T>
       Server.writeInt(array, 1, eventCounter);
       Server.writeInt(array, 5, idleCounter);
 
+      logger.debug("wrote {} with eventCounter = {} and idleCounter = {}", Command.WINDOWED, eventCounter, idleCounter);
       client.write(array);
     }
 
@@ -173,6 +179,12 @@ public abstract class AbstractFlumeInputOperator<T>
   public void handleIdleTime()
   {
     idleCounter++;
+    try {
+      sleep(5);
+    }
+    catch (InterruptedException ex) {
+      throw new RuntimeException(ex);
+    }
   }
 
   public abstract T convert(byte[] buffer, int offset, int size);
@@ -237,6 +249,7 @@ public abstract class AbstractFlumeInputOperator<T>
         array[7] = (byte)(recoveryOffset >> 48);
         array[8] = (byte)(recoveryOffset >> 56);
 
+        logger.debug("wrote {} with recoveryOffset = {}", Command.COMMITTED, recoveryOffset);
         client.write(array);
       }
       else {
@@ -245,4 +258,5 @@ public abstract class AbstractFlumeInputOperator<T>
     }
   }
 
+  private static final Logger logger = LoggerFactory.getLogger(AbstractFlumeInputOperator.class);
 }

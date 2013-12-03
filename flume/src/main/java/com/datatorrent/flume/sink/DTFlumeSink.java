@@ -198,6 +198,9 @@ public class DTFlumeSink implements Sink
           t.close();
         }
       }
+      else {
+        return Status.BACKOFF;
+      }
     }
 
     return Status.READY;
