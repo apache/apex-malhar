@@ -23,7 +23,12 @@ var stateOrder = ['RUNNING','FAILED','FINISHED','KILLED'];
 function stateFormatter(value,row) {
     if (value == null || value === "")
         return "-";
-    return '<span class="status-' + value.replace(' ','-').toLowerCase() + '">' + value + '</span> <span class="final-status" title="Final Status">(' + row.get('finalStatus') + ')</span>';
+    var finalStatus = row.get('finalStatus');
+    var html = '<span class="status-' + value.replace(' ','-').toLowerCase() + '">' + value + '</span> ';
+    if (finalStatus.toLowerCase() !== 'undefined') {
+        html += '<span class="final-status" title="Final Status">(' + finalStatus + ')</span>';
+    }
+    return html;
 }
 
 function stateSorter(row1,row2) {

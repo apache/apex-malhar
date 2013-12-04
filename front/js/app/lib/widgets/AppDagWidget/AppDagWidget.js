@@ -75,7 +75,8 @@ var AppDagWidget = BaseView.extend({
             var containerShortId = parseInt(containerId.substring(containerId.lastIndexOf('_') + 1));
 
             //var label = value.name + ' (' + value.id + ')';
-            var label = value.name + ' (' + containerShortId + ')';
+            //var label = value.name + ' (' + containerShortId + ')';
+            var label = value.name;
             var node = { id: value.id, value: { label: label }, containerIndex: containerIndex, data: value };
             nodes.push(node);
             nodeMap[node.id] = node;

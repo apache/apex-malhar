@@ -415,6 +415,7 @@ var LiveChartView = Backbone.View.extend({
     
     },
     
+    // Transitions axis views based on axis models.
     _updateAxes: function() {
         yAxisGroup.transition().ease(options.easing).duration(duration).call(y.axis);
     },
@@ -510,6 +511,9 @@ var LiveChartView = Backbone.View.extend({
                 
                 // Create the rect that will listen to the mouse
                 overlay_target.append('rect')
+                    // Give it a class
+                    .attr('class','mouseover-rect')
+
                     // Set the listeners
                     .on('mouseover', function() {
                         overlay_target.select('g.overlays')
@@ -563,6 +567,17 @@ var LiveChartView = Backbone.View.extend({
                                     if (!d) return '';
                                     return self.overlay_formatter(d.value);
                                 });
+
+                        overlays
+                            .select('rect')
+                            .each(function(d) {
+                                var bb = this.parentElement.querySelector('text').getBBox();
+                                var x_translate = -1 * bb.width / 2 - 2;
+                                var y_translate = -1 * (bb.height + 5);
+                                this.setAttribute('width', bb.width + 4);
+                                this.setAttribute('height', bb.height);
+                                this.setAttribute('transform','translate(' + x_translate + ', ' + y_translate + ')');
+                            });
                     })
                     .on('mouseout', function() {
                         overlay_points = {};
@@ -574,7 +589,7 @@ var LiveChartView = Backbone.View.extend({
             }
             
             // Update the height and width of the rect
-            overlay_target.select('rect')
+            overlay_target.select('rect.mouseover-rect')
                 .attr('width', options.width)
                 .attr('height', options.height);
                 
@@ -593,16 +608,31 @@ var LiveChartView = Backbone.View.extend({
                 .attr('class', function(d) {
                     return 'series-overlay series-key-' + d.key;
                 });
+
+            // add circle element
             new_overlays
                 .append('circle')
                 .attr('r', 4.5)
                 .style('fill', function(d) {
                     return d.plot.color;
                 });
+            
+            // add rectangle before text
+            new_overlays
+                .append('rect')
+                .attr('class', 'overlay-background')
+                .attr('transform', "translate(0,-8)")
+                .attr('rx', 2)
+                .attr('ry', 2);
+
+            // add text last to be on top
             new_overlays
                 .append('text')
+                .attr('class', 'overlay-text')
                 .attr('text-anchor','middle')
                 .attr('transform', "translate(0,-8)");
+
+            
             
             // Remove old ones   
             overlays.exit().remove();
