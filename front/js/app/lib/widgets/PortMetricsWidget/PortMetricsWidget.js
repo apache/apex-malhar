@@ -53,7 +53,7 @@ var PortMetricsWidget = BaseView.extend({
         var series = [{
             key: "tuplesPSMA",
             color: "#64c539",
-            label: DT.lang('tuples_per_sec')
+            label: DT.text('tuples_per_sec')
         }, {
             key: 'bufferServerBytesPSMA',
             color: '#f2be20',

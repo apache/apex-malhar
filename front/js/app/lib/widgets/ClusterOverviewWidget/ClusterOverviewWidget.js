@@ -45,14 +45,14 @@ var ClusterOverviewWidget = BaseView.extend({
         this.model.fetch({
             success: function() {
                 Notifier.success({
-                    title: DT.lang('Cluster Info Refreshed'),
-                    text: DT.lang('The cluster info has been successfully updated.')
+                    title: DT.text('Cluster Info Refreshed'),
+                    text: DT.text('The cluster info has been successfully updated.')
                 });
             },
             error: function(xhr, textStatus, errorThrown) {
 				Notifier.success({
-					title: DT.lang('Error Refreshing Cluster'),
-					text: DT.lang('An error occurred refreshing the cluster. Error: ') + errorThrown
+					title: DT.text('Error Refreshing Cluster'),
+					text: DT.text('An error occurred refreshing the cluster. Error: ') + errorThrown
 				});
             }
         });

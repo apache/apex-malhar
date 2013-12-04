@@ -29,7 +29,7 @@
  * @param breadcrumbs  {Array}            Array of objects representing an item of the breadcrumbs. Each object requires a 'name' field and optionally a 'href' field.
 */
 
-var lang = DT.lang;
+var text = DT.text;
 
 exports = module.exports = [
 
@@ -47,7 +47,7 @@ exports = module.exports = [
         'mode': 'ops',
         'breadcrumbs': [
             {
-                name: lang('ops_main_breadcrumb')
+                name: text('ops_main_breadcrumb')
             }
         ]
     },
@@ -62,7 +62,7 @@ exports = module.exports = [
         'breadcrumbs': [
             // HCURL
             { 
-                name: lang('ops_main_breadcrumb'), 
+                name: text('ops_main_breadcrumb'), 
                 href: '#ops' 
             },
             {
@@ -82,7 +82,7 @@ exports = module.exports = [
         'mode': 'ops',
         'breadcrumbs': [
             // HCURL
-            { name: lang('ops_main_breadcrumb'), href: '#ops' },
+            { name: text('ops_main_breadcrumb'), href: '#ops' },
             { name: function(page, appId, operatorId) {
                 return appId;
             },href: function(page, appId, operatorId) {
@@ -104,7 +104,7 @@ exports = module.exports = [
         'mode': 'ops',
         'breadcrumbs': [
             // HCURL
-            { name: lang('ops_main_breadcrumb'), href: '#ops' },
+            { name: text('ops_main_breadcrumb'), href: '#ops' },
             { name: function(page, appId, operatorId) {
                 return appId;
             },href: function(page, appId, operatorId) {
@@ -132,7 +132,7 @@ exports = module.exports = [
         'mode': 'ops',
         'breadcrumbs': [
             {
-                name: lang('ops_main_breadcrumb'),
+                name: text('ops_main_breadcrumb'),
                 // HCURL
                 href: '#ops'
             },
@@ -164,7 +164,7 @@ exports = module.exports = [
         'mode': 'ops',
         'breadcrumbs': [
             {
-                name: lang('ops_main_breadcrumb'),
+                name: text('ops_main_breadcrumb'),
                 // HCURL
                 href: '#ops'
             },
@@ -196,7 +196,7 @@ exports = module.exports = [
         'mode': 'ops',
         'breadcrumbs': [
             // HCURL
-            { name: lang('ops_main_breadcrumb'), href: '#ops' },
+            { name: text('ops_main_breadcrumb'), href: '#ops' },
             { name: function(page, appId, operatorId) {
                 return appId;
             },href: function(page, appId, operatorId) {
@@ -225,7 +225,7 @@ exports = module.exports = [
         'breadcrumbs': [
             // HCURL
             {
-                name: lang('ops_main_breadcrumb'),
+                name: text('ops_main_breadcrumb'),
                 href: '#ops'
             },
             {
@@ -250,7 +250,7 @@ exports = module.exports = [
         'breadcrumbs': [
             // HCURL
             {
-                name: lang('ops_main_breadcrumb'),
+                name: text('ops_main_breadcrumb'),
                 href: '#ops'
             },
             {

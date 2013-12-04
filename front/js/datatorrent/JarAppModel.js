@@ -93,8 +93,8 @@ var JarAppModel = BaseModel.extend({
         
         // Pending message
         Notifier.info({
-            title: DT.lang('Launching Application...'),
-            text: DT.lang('This may take a few seconds')
+            title: DT.text('Launching Application...'),
+            text: DT.text('This may take a few seconds')
         });
         
         var options = {
@@ -102,16 +102,16 @@ var JarAppModel = BaseModel.extend({
             type: 'POST',
             success: function(res) {
                 Notifier.success({
-                    'title': DT.lang('Application Launched'),
-                    'text' : DT.lang('View the application instance: ') + templates.app_instance_link({
+                    'title': DT.text('Application Launched'),
+                    'text' : DT.text('View the application instance: ') + templates.app_instance_link({
                         appId: res.appId
                     })
                 });
             },
             error: function() {
                 Notifier.error({
-                    'title': DT.lang('Error Launching Application'),
-                    'text' : DT.lang('Ensure that the ' + this.fileName + ' file is still on the Gateway. If it is, check the logs on the DataTorrent Gateway.')
+                    'title': DT.text('Error Launching Application'),
+                    'text' : DT.text('Ensure that the ' + this.fileName + ' file is still on the Gateway. If it is, check the logs on the DataTorrent Gateway.')
                 });
             }
         };

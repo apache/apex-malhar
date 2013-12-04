@@ -53,11 +53,11 @@ var CtnrMetricsWidget = BaseView.extend({
             {
                 key: 'tuplesProcessedPSMA',
                 color: '#1da8db',
-                label: DT.lang('processed_per_sec')
+                label: DT.text('processed_per_sec')
             },{
                 key: "tuplesEmittedPSMA",
                 color: "#64c539",
-                label: DT.lang('emitted_per_sec')
+                label: DT.text('emitted_per_sec')
             },{
                 key: 'memoryMBFree',
                 color: '#AE08CE',

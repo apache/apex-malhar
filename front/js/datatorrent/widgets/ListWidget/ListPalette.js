@@ -22,7 +22,6 @@
 var kt = require('knights-templar');
 var _ = require('underscore');
 var BaseView = require('bassview');
-var lang = require('../../lang');
 var ListPalette = BaseView.extend({
     
     initialize: function(options) {

@@ -53,11 +53,11 @@ var AppMetricsWidget = BaseView.extend({
         var series = [{
             key: "tuplesEmittedPSMA",
             color: "#64c539",
-            label: DT.lang('emitted_per_sec')
+            label: DT.text('emitted_per_sec')
         }, {
             key: 'tuplesProcessedPSMA',
             color: '#1da8db',
-            label: DT.lang('processed_per_sec')
+            label: DT.text('processed_per_sec')
         }, {
             key: 'totalBufferServerReadBytesPSMA',
             color: '#AE08CE',

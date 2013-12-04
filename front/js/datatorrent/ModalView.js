@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 var _ = require('underscore');
-var lang = require('./lang');
+var text = require('./text');
 var kt = require('knights-templar');
 var BaseView = require('bassview');
 var ModalView = BaseView.extend({
 
 	title: 'No title',
 
-	confirmText: lang('save'),
+	confirmText: text('save'),
 
-	cancelText: lang('cancel'),
+	cancelText: text('cancel'),
 
 	className: 'modal',
 

@@ -13,7 +13,15 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-var langHash = {
+
+/**
+ * Text package.
+ *
+ * May be used for i18n in the future. For now, it is a
+ * simple look-up of text items
+ */
+
+var textHash = {
     'ops_main_breadcrumb'        :  'applications',
     'delete_item'                :  'delete',
     'delete_jar_prompt'          :  'Are you sure you want to delete this jar file? This cannot be undone.',
@@ -30,8 +38,8 @@ var langHash = {
     'tuples_total'               :  'total tuples'
 };
 
-function getLangItem(key) {
-    return langHash[key] || key;
+function getTextItem(key) {
+    return textHash[key] || key;
 }
 
-exports = module.exports = getLangItem;
+exports = module.exports = getTextItem;

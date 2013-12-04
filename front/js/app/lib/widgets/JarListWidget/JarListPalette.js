@@ -40,7 +40,7 @@ var JarListPalette = BaseView.extend({
     removeJar: function() {
         var model = this.getSelected()[0]
         
-        if (confirm( DT.lang('delete_jar_prompt') )) {
+        if (confirm( DT.text('delete_jar_prompt') )) {
             model.destroy();
             this.collection.remove(model);
             this.collection.trigger('tabled:update');
@@ -52,7 +52,7 @@ var JarListPalette = BaseView.extend({
     removeJars: function() {
         var models = this.getSelected();
         
-        if (confirm( DT.lang('delete_jars_prompt'))) {
+        if (confirm( DT.text('delete_jars_prompt'))) {
             _.each(models, function(model) {
                 model.destroy();
                 this.collection.remove(model);

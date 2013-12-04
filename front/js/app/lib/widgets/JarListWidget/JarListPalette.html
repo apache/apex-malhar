@@ -1,13 +1,13 @@
-<span class="select-status"><strong><%=selected.length%></strong> <%= DT.lang('row(s) selected') %></span>
+<span class="select-status"><strong><%=selected.length%></strong> <%= DT.text('row(s) selected') %></span>
 <div class="palette-actions">
-	<button class="btn btn-info refreshList"><i class="icon-white icon-refresh icon-white"></i> <%= DT.lang('refresh list') %> </button>
+	<button class="btn btn-info refreshList"><i class="icon-white icon-refresh icon-white"></i> <%= DT.text('refresh list') %> </button>
 	<% if (selected.length === 0) { %>
-		<button class="btn" disabled><%= DT.lang('select an item') %></button>
+		<button class="btn" disabled><%= DT.text('select an item') %></button>
 	<% } else if (selected.length === 1) {%>
-		<button class="inspectItem btn btn-primary"><i class="icon-eye-open icon-white"></i> <%= DT.lang('inspect') %></button>
-		<button class="removeJar btn btn-danger"><i class="icon-trash icon-white"></i> <%= DT.lang('remove file') %></button>
+		<button class="inspectItem btn btn-primary"><i class="icon-eye-open icon-white"></i> <%= DT.text('inspect') %></button>
+		<button class="removeJar btn btn-danger"><i class="icon-trash icon-white"></i> <%= DT.text('remove file') %></button>
 	<% } else { %>
-		<button class="removeJars btn btn-danger"><i class="icon-trash icon-white"></i> <%= DT.lang('remove selected files') %></button>
+		<button class="removeJars btn btn-danger"><i class="icon-trash icon-white"></i> <%= DT.text('remove selected files') %></button>
 	<% } %>
     
 </div>

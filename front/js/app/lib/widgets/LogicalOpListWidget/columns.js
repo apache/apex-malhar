@@ -49,10 +49,10 @@ exports = module.exports = [
     { id: 'lastHeartbeat', key: 'lastHeartbeat', label: 'last heartbeat', sort: 'date', filter: 'date', format: heartbeatFormatter },
     { id: 'latencyMA', key: 'latencyMA', label: 'latency (ms)', sort: 'number', filter: 'number' },
     { id: 'status', key: 'status', label: 'status', sort: 'string', filter: 'like', format: statusFormatter },
-    { id: 'tuplesProcessedPSMA', key: 'tuplesProcessedPSMA', label: DT.lang('processed_per_sec'), sort: 'number', filter: 'number', format: 'commaInt' },
-    { id: 'tuplesEmittedPSMA', key: 'tuplesEmittedPSMA', label: DT.lang('emitted_per_sec'), sort: 'number', filter: 'number', format: 'commaInt' },
-    { id: 'totalTuplesProcessed', key: 'totalTuplesProcessed', label: DT.lang('processed_total'), sort: 'number', filter: 'number', format: 'commaInt' },
-    { id: 'totalTuplesEmitted', key: 'totalTuplesEmitted', label: DT.lang('emitted_total'), sort: 'number', filter: 'number', format: 'commaInt' }
+    { id: 'tuplesProcessedPSMA', key: 'tuplesProcessedPSMA', label: DT.text('processed_per_sec'), sort: 'number', filter: 'number', format: 'commaInt' },
+    { id: 'tuplesEmittedPSMA', key: 'tuplesEmittedPSMA', label: DT.text('emitted_per_sec'), sort: 'number', filter: 'number', format: 'commaInt' },
+    { id: 'totalTuplesProcessed', key: 'totalTuplesProcessed', label: DT.text('processed_total'), sort: 'number', filter: 'number', format: 'commaInt' },
+    { id: 'totalTuplesEmitted', key: 'totalTuplesEmitted', label: DT.text('emitted_total'), sort: 'number', filter: 'number', format: 'commaInt' }
     // { id: 'hosts', key: 'hosts', label: 'hosts', sort: 'string', filter: 'like' },
     // { id: 'ids', key: 'ids', label: 'ids', sort: 'string', filter: 'like' },
     // { id: 'ports', key: 'ports', label: 'ports', sort: 'string', filter: 'like' },
