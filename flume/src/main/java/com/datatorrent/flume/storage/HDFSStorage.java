@@ -1,4 +1,4 @@
-package com.datatorrent.storage;
+package com.datatorrent.flume.storage;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -7,16 +7,19 @@ import com.google.common.primitives.Ints;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.apache.flume.Context;
+import org.apache.flume.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
-public class HDFSStorage implements Storage
+public class HDFSStorage implements Storage, Configurable
 {
   private static final String identityFileName = "/counter";
-  
+  public static final String BASE_DIR_KEY = "baseDir";
+  public static final String RESTORE_KEY = "restore";
+
   private String baseDir;
   private long fileCounter;
   private Path fileCounterFile;
@@ -30,36 +33,44 @@ public class HDFSStorage implements Storage
   private long retrievalFile;
   private long cleanedFileCounter;
 
-  private HDFSStorage(String baseDir, boolean restore) throws IOException
+  @Override
+  public void configure(Context ctx)
   {
     Configuration conf = new Configuration();
-    if(baseDir == null || baseDir.length() < 1){
-      baseDir = conf.get("hadoop.tmp.dir");
-    }
-    if (baseDir != null && baseDir.length() > 0) {
-      
-      fs = FileSystem.get(conf);
-      Path path = new Path(baseDir);
-      if (!fs.exists(path) || !fs.isDirectory(path)) {
-        throw new IOException("baseDir passed is not directory");
-      }
-      /* keeping the block size 2MB less than the default block size */
-      blockSize = fs.getDefaultBlockSize(path) - 2 * 1024 * 1024;
-      if (blockSize <= 0) {
-        throw new IOException("block size is not configured properly");
-      }
-      this.baseDir = baseDir;
-      fileCounter = 0;
-      cleanedFileCounter = -1;
-      fileCounterFile = new Path(baseDir + identityFileName);
-      if (restore) {
-        if (fs.exists(fileCounterFile) && fs.isFile(fileCounterFile)) {
-          fileCounter = Long.valueOf(new String(readData(fileCounterFile)));
+    baseDir = ctx.getString(BASE_DIR_KEY, conf.get("hadoop.tmp.dir"));
+    boolean restore = ctx.getBoolean(RESTORE_KEY, false);
+    if (baseDir.length() > 0) {
+      try {
+        fs = FileSystem.get(conf);
+        Path path = new Path(baseDir);
+        if (!fs.exists(path)) {
+          throw new RuntimeException("baseDir passed is doesn't exist");
         }
+        if (!fs.isDirectory(path)) {
+          throw new RuntimeException("baseDir passed is not directory");
+        }
+        /* keeping the block size 2MB less than the default block size */
+        blockSize = fs.getDefaultBlockSize(path) - 2 * 1024 * 1024;
+        fileCounter = 0;
+        cleanedFileCounter = -1;
+        fileCounterFile = new Path(baseDir + identityFileName);
+        if (restore) {
+          if (fs.exists(fileCounterFile) && fs.isFile(fileCounterFile)) {
+            fileCounter = Long.valueOf(new String(readData(fileCounterFile)));
+          }
+        }
+
+      } catch (IOException io) {
+        throw new RuntimeException(io);
       }
+
     } else {
-      throw new IOException("filepath can't be null");
+      throw new RuntimeException("baseDir can't be empty");
     }
+  }
+
+  public HDFSStorage()
+  {
   }
 
   private byte[] readData(Path path) throws IOException
@@ -78,36 +89,13 @@ public class HDFSStorage implements Storage
     return stream;
   }
 
-  public static Storage getInstance(String baseDir, boolean restore)
-  {
-    try {
-      Storage storage = new HDFSStorage(baseDir, restore);
-      return storage;
-    } catch (IOException ex) {
-      logger.error("Not able to instantiate the stroage object {}", ex.getMessage());
-    }
-    return null;
-  }
-  
-  public static Storage getInstance()
-  {
-    try {
-      Storage storage = new HDFSStorage(null, false);
-      return storage;
-    } catch (IOException ex) {
-      logger.error("Not able to instantiate the stroage object {}", ex.getMessage());
-    }
-    return null;
-  }
-
   private void longToByteArray(long value, byte[] b, int start, int size)
   {
     for (int i = 0; i < size; i++) {
       int shift = 8 * (i);
       if (shift == 0) {
         b[i + start] = (byte) value;
-      }
-      else {
+      } else {
         b[i + start] = (byte) (value >>> shift);
       }
     }
@@ -139,7 +127,7 @@ public class HDFSStorage implements Storage
           dataStream.write(Ints.toByteArray(bytes.length));
           dataStream.write(bytes);
         }
-        //dataStream.hflush();
+        // dataStream.hflush();
         filled += (bytes.length + 4);
         return byteArrayToLong(fileOffset, 7, 0);
       } catch (IOException ex) {
@@ -241,23 +229,40 @@ public class HDFSStorage implements Storage
     return true;
   }
 
-  private static final Logger logger = LoggerFactory.getLogger(HDFSStorage.class);
-
   @Override
   public boolean flush()
   {
     if (dataStream != null) {
       try {
-        dataStream.close();
-        filled = 0;
-        ++fileCounter;
+        dataStream.hflush();
         return true;
       } catch (IOException ex) {
-        logger.warn("not able to close the streams {}", ex.getMessage());
+        logger.warn("not able to close the stream {}", ex.getMessage());
         return false;
       }
     }
     return true;
   }
 
+  @Override
+  public boolean close()
+  {
+    if (dataStream != null) {
+      try {
+        dataStream.hflush();
+        dataStream.close();
+        filled = 0;
+        ++fileCounter;
+        return true;
+      } catch (IOException ex) {
+        logger.warn("not able to close the stream {}", ex.getMessage());
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private static final Logger logger = LoggerFactory.getLogger(HDFSStorage.class);
+
+  
 }

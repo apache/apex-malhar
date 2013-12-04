@@ -1,4 +1,4 @@
-package com.datatorrent.storage;
+package com.datatorrent.flume.storage;
 
 public class RetrievalObject
 {
