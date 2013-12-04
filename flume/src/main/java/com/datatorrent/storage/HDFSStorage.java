@@ -16,7 +16,7 @@ import org.apache.hadoop.fs.Path;
 public class HDFSStorage implements Storage
 {
   private static final String identityFileName = "/counter";
-
+  
   private String baseDir;
   private long fileCounter;
   private Path fileCounterFile;
@@ -32,8 +32,12 @@ public class HDFSStorage implements Storage
 
   private HDFSStorage(String baseDir, boolean restore) throws IOException
   {
+    Configuration conf = new Configuration();
+    if(baseDir == null || baseDir.length() < 1){
+      baseDir = conf.get("hadoop.tmp.dir");
+    }
     if (baseDir != null && baseDir.length() > 0) {
-      Configuration conf = new Configuration();
+      
       fs = FileSystem.get(conf);
       Path path = new Path(baseDir);
       if (!fs.exists(path) || !fs.isDirectory(path)) {
@@ -78,6 +82,17 @@ public class HDFSStorage implements Storage
   {
     try {
       Storage storage = new HDFSStorage(baseDir, restore);
+      return storage;
+    } catch (IOException ex) {
+      logger.error("Not able to instantiate the stroage object {}", ex.getMessage());
+    }
+    return null;
+  }
+  
+  public static Storage getInstance()
+  {
+    try {
+      Storage storage = new HDFSStorage(null, false);
       return storage;
     } catch (IOException ex) {
       logger.error("Not able to instantiate the stroage object {}", ex.getMessage());
