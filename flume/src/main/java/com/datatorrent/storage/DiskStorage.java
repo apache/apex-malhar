@@ -24,6 +24,8 @@ public class DiskStorage implements Storage, Configurable
   {
     baseDir = context.getString("baseDir", "/tmp");
     boolean restore = context.getBoolean("restore", false);
+    logger.debug("baseDir = {}\nrestore = {}", baseDir, restore);
+    
     File dir = new File(baseDir);
     if (!dir.isDirectory()) {
       throw new Error(baseDir + "passed as baseDir is not a directory");
