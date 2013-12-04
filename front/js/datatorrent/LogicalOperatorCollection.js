@@ -27,7 +27,7 @@ var OperatorCollection = require('./OperatorCollection');
 var LogicalOperatorModel = require('./LogicalOperatorModel');
 var LogicalOperatorCollection = OperatorCollection.extend({
 	
-	debugName: 'Aggregate Operators',
+	debugName: 'Logical Operators',
 
 	model: LogicalOperatorModel,
 

@@ -104,17 +104,19 @@ describe('BasePageView.js', function() {
             expect(fn).to.throw();
         });
         
-        it('should set app, dataSource, __lsPrefix, __wDashes, and __wClasses', function() {
-            _.each(['app', 'dataSource', '__lsPrefix','__wDashes', '__wClasses'], function(key) {
+        _.each(['app', 'dataSource', '__lsPrefix','__wDashes', '__wClasses'], function(key) {
+            it('should set ' + key + ' on itself', function() {
                 expect(pageInstance).to.have.property(key);
             });
         });
             
-        it('_wDashes and _wClasses should be backbone collection', function() {
-            _.each(['__wClasses', '__wDashes'], function(key) {
-                expect(pageInstance[key]).to.be.instanceof(Backbone.Collection)
-            });
+        _.each(['__wClasses', '__wDashes'], function(key) {
+            it(key + ' should be backbone collection', function() {
+               expect(pageInstance[key]).to.be.instanceof(Backbone.Collection) 
+            });    
         });
+
+        
         
         it('should set a subview for dashMgr if it has been specified', function() {
             expect(pageInstance.subview('dashMgr')).to.equal(undefined);

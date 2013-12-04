@@ -28,8 +28,6 @@ var ClusterMetricsModel = BaseModel.extend({
 	initialize: function(attrs, options) {
 
 		BaseModel.prototype.initialize.apply(this, arguments);
-
-		this.dataSource = options.dataSource;
 		
 		this.on('sync', function() {
 			this.set('as_of', +new Date())

@@ -13,11 +13,8 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-/**
- * App Instance View
- * 
- * Main view for an app instance
-*/
+
+var _ = require('underscore');
 var Notify = DT.lib.Notifier;
 var BasePageView = DT.lib.BasePageView;
 var ApplicationModel = DT.lib.ApplicationModel;
@@ -39,7 +36,12 @@ var AppDagWidget = require('../widgets/AppDagWidget');
 var LogicalDagWidget = require('../widgets/LogicalDagWidget');
 // var TopNWidget = DT.widgets.TopNWidget;
 
-// page definition
+
+/**
+ * App Instance View
+ * 
+ * Main view for an app instance
+*/
 var AppInstancePageView = BasePageView.extend({
     
     pageName: 'AppInstancePageView',
@@ -386,15 +388,38 @@ var AppInstancePageView = BasePageView.extend({
     },
 
     getLogicalOperators: function() {
-        if (this.logicalOperators) {
-            return this.logicalOperators;
+
+        if (!this.logicalOperators) {
+            this.logicalOperators = new LogicalOperatorCollection([], {
+                appId: this.options.pageParams.appId,
+                dataSource: this.dataSource
+            });
         }
-        this.logicalOperators = new LogicalOperatorCollection([], {
-            appId: this.options.pageParams.appId,
-            dataSource: this.dataSource
-        });
-        this.logicalOperators.fetch();
-        this.logicalOperators.subscribe();
+        
+        var fetchAndSubscribe = _.bind(function() {
+            this.logicalOperators.fetch();
+            this.logicalOperators.subscribe();
+        }, this);
+
+        var currentState = this.model.get('state').toLowerCase();
+        var finalStatus = this.model.get('finalStatus').toLowerCase();
+
+        if ( currentState !== 'running' ) {
+            
+            if ( finalStatus === 'undefined' ) {
+
+                this.listenTo(this.model, 'change:state', function(model, state) {
+                    if (state.toLowerCase() === 'running') {
+                        fetchAndSubscribe();
+                    }
+                });
+            }
+        
+        } else {
+
+            fetchAndSubscribe();
+        }
+
         return this.logicalOperators;
     }
     
