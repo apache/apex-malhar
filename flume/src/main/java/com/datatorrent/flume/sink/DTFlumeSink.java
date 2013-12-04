@@ -10,7 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.flume.*;
-import org.apache.flume.lifecycle.LifecycleState;
+import org.apache.flume.conf.Configurable;
+import org.apache.flume.sink.AbstractSink;
 
 import com.datatorrent.flume.sink.Server.Request;
 import com.datatorrent.netlet.DefaultEventLoop;
@@ -18,60 +19,44 @@ import com.datatorrent.storage.RetrievalObject;
 import com.datatorrent.storage.Storage;
 
 /**
+ * DTFlumeSink is a flume sink developed to ingest the data into DataTorrent DAG
+ * from flume. It's essentially a flume sink which acts as a server capable of
+ * talking to one client at a time. The client for this server is AbstractFlumeInputOperator.
+ * <p />
+ * &lt;experimental&gt;DTFlumeSink auto adjusts the rate at which it consumes the data from channel to
+ * match the throughput of the DAG.&lt;/experimental&gt;
+ * <p />
+ * The properties you can set on the DTFlumeSink are: <br />
+ * hostname - string value indicating the fqdn or ip address of the interface on which the server should listen <br />
+ * port - integer value indicating the numeric port to which the server should bind <br />
+ * eventloopName - string value indicating the name of the network io thread <br />
+ * sleepMillis - integer value indicating the number of milliseconds the process should sleep when there are no events before checking for next event again <br />
+ * throughputAdjustmentPercent - integer value indicating by what percentage the flume transaction size should be adjusted upward or downward at a time <br />
+ * minimumEventsPerTransaction - integer value indicating the minimum number of events per transaction <br />
+ * maximumEventsPerTransaction - integer value indicating the maximum number of events per transaction <br />
  *
  * @author Chetan Narsude <chetan@datatorrent.com>
  */
-public class DTFlumeSink implements Sink
+public class DTFlumeSink extends AbstractSink implements Configurable
 {
-  public static final double THROUGHPUT_ADJUSTMENT_FACTOR = 0.05;
-  public static final int MIN_TUPLES_COUNT = 100;
-  public static final int MAX_TUPLES_COUNT = 10000;
-  private Channel channel;
-  private String name;
-  private LifecycleState state;
   private DefaultEventLoop eventloop;
   private Server server;
   private int outstandingEventsCount;
   private int lastConsumedEventsCount;
   private int idleCount;
   private boolean playback;
-  Storage storage = new Storage()
-  {
-    @Override
-    public long store(byte[] bytes)
-    {
-      return 0;
-    }
-
-    @Override
-    public RetrievalObject retrieve(long identifier)
-    {
-      return null;
-    }
-
-    @Override
-    public RetrievalObject retrieveNext()
-    {
-      return null;
-    }
-
-    @Override
-    public boolean clean(long identifier)
-    {
-      return true;
-    }
-
-    @Override
-    public boolean flush()
-    {
-      return true;
-    }
-
-  };
+  private boolean process;
+  private Storage storage;
+  private String hostname;
+  private int port;
+  private String eventloopName;
+  private long sleepMillis;
+  private double throughputAdjustmentFactor;
+  private int minimumEventsPerTransaction;
+  private int maximumEventsPerTransaction;
 
   public DTFlumeSink()
   {
-    state = LifecycleState.ERROR;
     try {
       server = new Server();
     }
@@ -82,18 +67,6 @@ public class DTFlumeSink implements Sink
 
   /* Begin implementing Flume Sink interface */
   @Override
-  public void setChannel(Channel chnl)
-  {
-    channel = chnl;
-  }
-
-  @Override
-  public Channel getChannel()
-  {
-    return channel;
-  }
-
-  @Override
   public Status process() throws EventDeliveryException
   {
     synchronized (server.requests) {
@@ -102,19 +75,16 @@ public class DTFlumeSink implements Sink
         switch (r.type) {
           case SEEK:
             playback = storage.retrieve(r.getAddress()) != null;
-            state = LifecycleState.IDLE;
+            process = true;
             break;
 
           case COMMITTED:
             storage.clean(r.getAddress());
             break;
 
-          case DISCONNECTED:
-            state = LifecycleState.ERROR;
-            break;
-
           case CONNECTED:
-            state = LifecycleState.ERROR;
+          case DISCONNECTED:
+            process = false;
             break;
 
           case WINDOWED:
@@ -132,83 +102,110 @@ public class DTFlumeSink implements Sink
       server.requests.clear();
     }
 
-    if (state != LifecycleState.IDLE) {
-      logger.debug("returning backoff since state = {}", state);
+    if (!process) {
+      logger.debug("No client expressed interest yet to consume the events");
       return Status.BACKOFF;
     }
 
-    if (playback) {
-      logger.debug("playback mode still active");
-      RetrievalObject next;
-      while ((next = storage.retrieveNext()) != null) {
-        server.client.write(next.getToken(), next.getData());
-      }
-      playback = false;
-    }
-    else {
-      int maxTuples;
-      // the following logic needs to be fixed... this is a quick put together.
-      if (outstandingEventsCount < 0) {
-        if (idleCount > 1) {
-          maxTuples = (int)((1 + THROUGHPUT_ADJUSTMENT_FACTOR * idleCount) * lastConsumedEventsCount);
-        }
-        else {
-          maxTuples = (int)((1 + THROUGHPUT_ADJUSTMENT_FACTOR) * lastConsumedEventsCount);
-        }
-      }
-      else if (outstandingEventsCount > lastConsumedEventsCount) {
-        maxTuples = (int)((1 - THROUGHPUT_ADJUSTMENT_FACTOR) * lastConsumedEventsCount);
+    int maxTuples;
+    // the following logic needs to be fixed... this is a quick put together.
+    if (outstandingEventsCount < 0) {
+      if (idleCount > 1) {
+        maxTuples = (int)((1 + throughputAdjustmentFactor * idleCount) * lastConsumedEventsCount);
       }
       else {
-        if (idleCount > 0) {
-          maxTuples = (int)((1 + THROUGHPUT_ADJUSTMENT_FACTOR * idleCount) * lastConsumedEventsCount);
-          if (maxTuples <= 0) {
-            maxTuples = MIN_TUPLES_COUNT;
-          }
+        maxTuples = (int)((1 + throughputAdjustmentFactor) * lastConsumedEventsCount);
+      }
+    }
+    else if (outstandingEventsCount > lastConsumedEventsCount) {
+      maxTuples = (int)((1 - throughputAdjustmentFactor) * lastConsumedEventsCount);
+    }
+    else {
+      if (idleCount > 0) {
+        maxTuples = (int)((1 + throughputAdjustmentFactor * idleCount) * lastConsumedEventsCount);
+        if (maxTuples <= 0) {
+          maxTuples = minimumEventsPerTransaction;
+        }
+      }
+      else {
+        maxTuples = lastConsumedEventsCount;
+      }
+    }
+
+    if (maxTuples >= maximumEventsPerTransaction) {
+      maxTuples = maximumEventsPerTransaction;
+    }
+
+
+    if (maxTuples > 0) {
+      if (playback) {
+        logger.debug("playback mode still active");
+
+        RetrievalObject next;
+        int i = 0;
+        while (i < maxTuples && (next = storage.retrieveNext()) != null) {
+          server.client.write(next.getToken(), next.getData());
+          i++;
+        }
+
+        if (i == 0) {
+          playback = false;
         }
         else {
-          maxTuples = lastConsumedEventsCount;
+          outstandingEventsCount += i;
         }
       }
-
-      if (maxTuples >= MAX_TUPLES_COUNT) {
-        maxTuples = MAX_TUPLES_COUNT;
-      }
-
-      if (maxTuples > 0) {
-        Transaction t = channel.getTransaction();
+      else {
+        Transaction t = getChannel().getTransaction();
         try {
           t.begin();
 
           Event e;
           int i = 0;
-          while (i < maxTuples && (e = channel.take()) != null) {
+          while (i < maxTuples && (e = getChannel().take()) != null) {
             long l = storage.store(e.getBody());
             server.client.write(l, e.getBody());
             i++;
           }
 
-          outstandingEventsCount += i;
-          logger.debug("Transaction details maxTuples = {}, i = {}, outstanding = {}", maxTuples, i, outstandingEventsCount);
+          if (i == 0) {
+            sleep();
+          }
+          else {
+            outstandingEventsCount += i;
+            storage.flush();
+            logger.debug("Transaction details maxTuples = {}, i = {}, outstanding = {}", maxTuples, i, outstandingEventsCount);
+          }
 
-          storage.flush();
           t.commit();
         }
-        catch (Exception ex) {
+        catch (Throwable ex) {
           logger.error("Exception during flume transaction", ex);
           t.rollback();
+
+          if (ex instanceof Error) {
+            throw (Error)ex;
+          }
+
           return Status.BACKOFF;
         }
         finally {
           t.close();
         }
       }
-      else {
-        return Status.BACKOFF;
-      }
     }
 
     return Status.READY;
+  }
+
+  private void sleep()
+  {
+    try {
+      Thread.sleep(sleepMillis);
+    }
+    catch (InterruptedException ex) {
+      throw new RuntimeException(ex);
+    }
   }
 
   @Override
@@ -216,15 +213,15 @@ public class DTFlumeSink implements Sink
   {
     logger.debug("starting server...");
     try {
-      eventloop = new DefaultEventLoop("EventLoop-" + getName());
+      eventloop = new DefaultEventLoop(eventloopName == null ? "EventLoop-" + getName() : eventloopName);
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
     }
     eventloop.start();
-    eventloop.start("localhost", 5033, server);
-    state = LifecycleState.START;
+    eventloop.start(hostname, port, server);
     logger.debug("started server!");
+    super.start();
   }
 
   @Override
@@ -232,7 +229,7 @@ public class DTFlumeSink implements Sink
   {
     logger.debug("stopping server...");
     try {
-      state = LifecycleState.STOP;
+      super.stop();
     }
     finally {
       eventloop.stop(server);
@@ -241,24 +238,73 @@ public class DTFlumeSink implements Sink
     logger.debug("stopped server!");
   }
 
-  @Override
-  public LifecycleState getLifecycleState()
-  {
-    return state;
-  }
-
-  @Override
-  public void setName(String string)
-  {
-    name = string;
-  }
-
-  @Override
-  public String getName()
-  {
-    return name;
-  }
-
   /* End implementing Flume Sink interface */
+
+  /* Begin Configurable Interface */
+  @Override
+  public void configure(Context context)
+  {
+    hostname = context.getString("hostname", "localhost");
+    port = context.getInteger("port", 5033);
+    eventloopName = context.getString("eventloopName");
+    sleepMillis = context.getLong("sleepMillis", 5L);
+    throughputAdjustmentFactor = context.getInteger("throughputAdjustmentPercent", 5) / 100.0;
+    maximumEventsPerTransaction = context.getInteger("maximumEventsPerTransaction", 10000);
+    minimumEventsPerTransaction = context.getInteger("minimumEventsPerTransaction", 100);
+
+    String lStorage = context.getString("storage");
+    if (lStorage == null) {
+      logger.warn("storage key missing... DTFlumeSink may lose data!");
+      storage = new Storage()
+      {
+        @Override
+        public long store(byte[] bytes)
+        {
+          return 0;
+        }
+
+        @Override
+        public RetrievalObject retrieve(long identifier)
+        {
+          return null;
+        }
+
+        @Override
+        public RetrievalObject retrieveNext()
+        {
+          return null;
+        }
+
+        @Override
+        public boolean clean(long identifier)
+        {
+          return true;
+        }
+
+        @Override
+        public boolean flush()
+        {
+          return true;
+        }
+
+      };
+    }
+    else {
+      try {
+        Class<?> loadClass = Thread.currentThread().getContextClassLoader().loadClass(lStorage);
+        if (Storage.class.isAssignableFrom(loadClass)) {
+          storage = (Storage)loadClass.newInstance();
+          if (storage instanceof Configurable) {
+            ((Configurable)storage).configure(new Context(context.getSubProperties("storage")));
+          }
+        }
+      }
+      catch (Throwable t) {
+        logger.error("Problem while instantiating DTFlumeSink storage", t);
+      }
+    }
+  }
+  /* End Configurable Interface */
+
   private static final Logger logger = LoggerFactory.getLogger(DTFlumeSink.class);
 }
