@@ -298,9 +298,19 @@ public class DTFlumeSink extends AbstractSink implements Configurable
             ((Configurable)storage).configure(new Context(context.getSubProperties("storage")));
           }
         }
+        else {
+          logger.error("storage class {} does not implement {} interface", lStorage, Storage.class.getCanonicalName());
+          throw new Error("Invalid storage " + lStorage);
+        }
       }
       catch (Throwable t) {
         logger.error("Problem while instantiating DTFlumeSink storage", t);
+        if (t instanceof RuntimeException) {
+          throw (RuntimeException)t;
+        }
+        else {
+          throw new RuntimeException(t);
+        }
       }
     }
   }

@@ -3,32 +3,36 @@ package com.datatorrent.storage;
 import java.io.File;
 import java.io.IOException;
 
+import com.google.common.io.Files;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.io.Files;
+import org.apache.flume.Context;
+import org.apache.flume.conf.Configurable;
 
-public class DiskStorage implements Storage
+public class DiskStorage implements Storage, Configurable
 {
-
   private String baseDir;
   private long uniqueIdentifier;
   private long retrieveIdentifier;
   private File identityFile;
   private File retrivalFile;
 
-  private DiskStorage(String baseDir, boolean restore) throws IOException
+  @Override
+  public void configure(Context context)
   {
-    if (baseDir != null && baseDir.length() > 0) {
-      File dir = new File(baseDir);
-      if (!dir.isDirectory()) {
-        throw new IOException("baseDir passed is not directory");
-      }
-      this.baseDir = baseDir;
-      retrieveIdentifier = 1;
-      uniqueIdentifier = 1;
-      identityFile = new File(baseDir + "identityFile");
-      retrivalFile = new File(baseDir + "retrivalFile");
+    baseDir = context.getString("baseDir", "/tmp");
+    boolean restore = context.getBoolean("restore", false);
+    File dir = new File(baseDir);
+    if (!dir.isDirectory()) {
+      throw new Error(baseDir + "passed as baseDir is not a directory");
+    }
+    retrieveIdentifier = 1;
+    uniqueIdentifier = 1;
+    identityFile = new File(baseDir + "identityFile");
+    retrivalFile = new File(baseDir + "retrivalFile");
+    try {
       if (restore) {
         if (identityFile.exists() && identityFile.isFile()) {
           uniqueIdentifier = Long.valueOf(new String(Files.toByteArray(identityFile)));
@@ -39,23 +43,13 @@ public class DiskStorage implements Storage
       }
       Files.write(String.valueOf(uniqueIdentifier).getBytes(), identityFile);
       Files.write(String.valueOf(retrieveIdentifier).getBytes(), retrivalFile);
-
-    } else {
-      throw new IOException("filepath can't be null");
+    }
+    catch (IOException io) {
+      throw new RuntimeException(io);
     }
   }
 
-  public static Storage getInstance(String baseDir, boolean restore)
-  {
-    try {
-      Storage storage = new DiskStorage(baseDir, restore);
-      return storage;
-    } catch (IOException ex) {
-      logger.error("Not able to instantiate the stroage object {}", ex.getMessage());
-    }
-    return null;
-  }
-
+  @Override
   public long store(byte[] bytes)
   {
     try {
@@ -63,42 +57,46 @@ public class DiskStorage implements Storage
       long identifier = uniqueIdentifier;
       Files.write(String.valueOf(++uniqueIdentifier).getBytes(), identityFile);
       return identifier;
-    } catch (IOException ex) {
+    }
+    catch (IOException ex) {
       logger.warn("Error while storing the bytes {}", ex.getMessage());
       return -1;
     }
 
   }
 
+  @Override
   public RetrievalObject retrieve(long identifier)
   {
     /*
-    if (identifier >= uniqueIdentifier) {
-      return null;
-    }
-    File identityFile = new File(baseDir, String.valueOf(identifier));
-    if (identityFile.exists() && identityFile.isFile()) {
-      try {
-        byte[] stored = Files.toByteArray(identityFile);
-        retrieveIdentifier = ++identifier;
-        Files.write(String.valueOf(retrieveIdentifier).getBytes(), retrivalFile);
-        return stored;
-      } catch (IOException ex) {
-        logger.warn("Error while retrieving the bytes {}", ex.getMessage());
-        return null;
-      }
-    } else {
-      return null;
-    }
-    */
+     if (identifier >= uniqueIdentifier) {
+     return null;
+     }
+     File identityFile = new File(baseDir, String.valueOf(identifier));
+     if (identityFile.exists() && identityFile.isFile()) {
+     try {
+     byte[] stored = Files.toByteArray(identityFile);
+     retrieveIdentifier = ++identifier;
+     Files.write(String.valueOf(retrieveIdentifier).getBytes(), retrivalFile);
+     return stored;
+     } catch (IOException ex) {
+     logger.warn("Error while retrieving the bytes {}", ex.getMessage());
+     return null;
+     }
+     } else {
+     return null;
+     }
+     */
     return null;
   }
 
+  @Override
   public RetrievalObject retrieveNext()
   {
     return retrieve(retrieveIdentifier);
   }
 
+  @Override
   public boolean clean(long identifier)
   {
     File deletionFile = new File(baseDir, String.valueOf(identifier));
