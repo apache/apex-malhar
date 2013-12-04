@@ -41,7 +41,7 @@ import com.datatorrent.lib.testbench.RandomEventGenerator;
 import com.datatorrent.lib.util.AlertEscalationOperator;
 
 /**
- * Mobile Demo Application.<p>
+ * Mobile Demo Application with Alert.<p>
  *
  * @since 0.3.2
  */

@@ -86,126 +86,225 @@ public class ActiveMQBase
   private boolean transacted = false;
   private boolean verbose = false;
 
+  /**
+   * @return the connection 
+   */
   public Connection getConnection()
   {
     return connection;
   }
 
+  /**
+   * @return the session 
+   */
   public Session getSession()
   {
     return session;
   }
 
+  /**
+   * @return the destination 
+   */
   public Destination getDestination()
   {
     return destination;
   }
 
+  /**
+   * @return the username 
+   */
   public String getUser()
   {
     return user;
   }
 
+  /**
+   * Sets the username for connecting to active MQ message bus
+   * 
+   * @param user the string to set the user name to.
+   */
   public void setUser(String user)
   {
     this.user = user;
   }
 
+  /**
+   * @return the password 
+   */
   public String getPassword()
   {
     return password;
   }
 
+  /**
+   * Sets the password to set for connecting to active MQ message bus.
+   * 
+   * @param password the string to set the password to 
+   */
   public void setPassword(String password)
   {
     this.password = password;
   }
 
+  /**
+   * @return the url 
+   */
   public String getUrl()
   {
     return url;
   }
 
+  /**
+   * Sets the url.
+   * 
+   * @param url the url to set 
+   */
   public void setUrl(String url)
   {
     this.url = url;
   }
 
+  /**
+   * @return the message acknowledgment mode 
+   */
   public String getAckMode()
   {
     return ackMode;
   }
 
+  /**
+   * Sets the message acknowledgment mode.
+   * 
+   * @param ackMode the message acknowledgment mode to set
+   */
   public void setAckMode(String ackMode)
   {
     this.ackMode = ackMode;
   }
 
+  /**
+   * @return the clientId
+   */
   public String getClientId()
   {
     return clientId;
   }
 
+  /**
+   * Sets the client id.
+   * 
+   * @param clientId the id to set for the client
+   */
   public void setClientId(String clientId)
   {
     this.clientId = clientId;
   }
 
+  /**
+   * @return the name of the destination
+   */
   public String getSubject()
   {
     return subject;
   }
-
+  
+  /**
+   * Sets the name of the destination.
+   * 
+   * @param subject the name of the destination to set
+   */
   public void setSubject(String subject)
   {
     this.subject = subject;
   }
 
+  /**
+   * @return the batch
+   */
   public int getBatch()
   {
     return batch;
   }
 
+  /**
+   * Sets the batch for the ActiveMQ operator. ActiveMQ can acknowledge receipt 
+   * of messages back to the broker in batches (to improve performance).
+   * 
+   * @param batch the size of the batch
+   */
   public void setBatch(int batch)
   {
     this.batch = batch;
   }
 
+  /**
+   * @return the message size
+   */
   public int getMessageSize()
   {
     return messageSize;
   }
 
+  /**
+   * Sets the size of the message.
+   * 
+   * @param messageSize the size of the message 
+   */
   public void setMessageSize(int messageSize)
   {
     this.messageSize = messageSize;
   }
 
+  /**
+   * @return the durability of the consumer
+   */
   public boolean isDurable()
   {
     return durable;
   }
 
+  /**
+   * Sets the durability feature. Durable queues keep messages around persistently
+   * for any suitable consumer to consume them.
+   * 
+   * @param durable the flag to set to the durability feature
+   */
   public void setDurable(boolean durable)
   {
     this.durable = durable;
   }
 
+  /**
+   * @return the topic 
+   */
   public boolean isTopic()
   {
     return topic;
   }
 
+  /**
+   * Sets of the destination is a topic or a queue.
+   * 
+   * @param topic the flag to set the destination to topic or queue.
+   */
   public void setTopic(boolean topic)
   {
     this.topic = topic;
   }
 
+  /**
+   * @return the transacted 
+   */
   public boolean isTransacted()
   {
     return transacted;
   }
 
+  /**
+   * Sets if the messages should be transacted or not.
+   * 
+   * @param transacted the flag to set whether the messages should be transacted or not
+   */
   public void setTransacted(boolean transacted)
   {
     this.transacted = transacted;
@@ -216,6 +315,11 @@ public class ActiveMQBase
     return verbose;
   }
 
+  /**
+   * Sets the verbose option.
+   * 
+   * @param verbose the flag to set to enable verbose option 
+   */
   public void setVerbose(boolean verbose)
   {
     this.verbose = verbose;
