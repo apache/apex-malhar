@@ -247,7 +247,6 @@ DataSource.prototype = {
                 });
             }
         }
-        console.log('typeof options.data', typeof options.data, options.data);
         this.post(options);
     },
     getRecordingTuples: function(options){
