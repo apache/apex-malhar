@@ -8,15 +8,14 @@ import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.apache.flume.*;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.sink.AbstractSink;
 
 import com.datatorrent.flume.sink.Server.Request;
+import com.datatorrent.flume.storage.RetrievalObject;
+import com.datatorrent.flume.storage.Storage;
 import com.datatorrent.netlet.DefaultEventLoop;
-import com.datatorrent.storage.RetrievalObject;
-import com.datatorrent.storage.Storage;
 
 /**
  * DTFlumeSink is a flume sink developed to ingest the data into DataTorrent DAG
@@ -283,6 +282,12 @@ public class DTFlumeSink extends AbstractSink implements Configurable
 
         @Override
         public boolean flush()
+        {
+          return true;
+        }
+        
+        @Override
+        public boolean close()
         {
           return true;
         }

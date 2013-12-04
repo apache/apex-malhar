@@ -1,4 +1,4 @@
-package com.datatorrent.storage;
+package com.datatorrent.flume.storage;
 
 public interface Storage
 {
@@ -34,9 +34,15 @@ public interface Storage
   public boolean clean(long identifier);
 
   /**
-   *
+   * This flushes the data from stream
    * @return
    */
   public boolean flush();
+  
+  /**
+   * This flushes the data and closes stream
+   * @return
+   */
+  public boolean close();
 
 }
