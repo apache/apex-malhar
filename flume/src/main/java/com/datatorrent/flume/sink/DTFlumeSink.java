@@ -33,7 +33,7 @@ import com.datatorrent.storage.Storage;
  * sleepMillis - integer value indicating the number of milliseconds the process should sleep when there are no events before checking for next event again <br />
  * throughputAdjustmentPercent - integer value indicating by what percentage the flume transaction size should be adjusted upward or downward at a time <br />
  * minimumEventsPerTransaction - integer value indicating the minimum number of events per transaction <br />
- * maximumEventsPerTransaction - integer value indicating the maximum number of events per transaction <br />
+ * maximumEventsPerTransaction - integer value indicating the maximum number of events per transaction. This value can not be more than channel's transaction capacity.<br />
  *
  * @author Chetan Narsude <chetan@datatorrent.com>
  */
@@ -252,6 +252,8 @@ public class DTFlumeSink extends AbstractSink implements Configurable
     maximumEventsPerTransaction = context.getInteger("maximumEventsPerTransaction", 10000);
     minimumEventsPerTransaction = context.getInteger("minimumEventsPerTransaction", 100);
 
+    logger.debug("hostname = {}\nport = {}\neventloopName = {}\nsleepMillis = {}\nthroughputAdjustmentFactor = {}\nmaximumEventsPerTransaction = {}\nminimumEventsPerTransaction = {}", hostname, port, eventloopName, sleepMillis, throughputAdjustmentFactor, maximumEventsPerTransaction, minimumEventsPerTransaction);
+
     String lStorage = context.getString("storage");
     if (lStorage == null) {
       logger.warn("storage key missing... DTFlumeSink may lose data!");
@@ -295,7 +297,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
         if (Storage.class.isAssignableFrom(loadClass)) {
           storage = (Storage)loadClass.newInstance();
           if (storage instanceof Configurable) {
-            ((Configurable)storage).configure(new Context(context.getSubProperties("storage")));
+            ((Configurable)storage).configure(new Context(context.getSubProperties("storage.")));
           }
         }
         else {
@@ -304,7 +306,6 @@ public class DTFlumeSink extends AbstractSink implements Configurable
         }
       }
       catch (Throwable t) {
-        logger.error("Problem while instantiating DTFlumeSink storage", t);
         if (t instanceof RuntimeException) {
           throw (RuntimeException)t;
         }
