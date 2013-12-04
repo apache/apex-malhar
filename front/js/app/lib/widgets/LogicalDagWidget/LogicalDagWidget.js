@@ -26,6 +26,8 @@ var dagreD3 = require('dagre-d3');
 var MetricModel = require('./MetricModel');
 var MetricModelFactory = require('./MetricModelFactory');
 var LogicalOperatorCollection = DT.lib.LogicalOperatorCollection;
+var Streams = DT.lib.StreamCollection;
+var settings = DT.settings;
 
 var LogicalDagWidget = BaseView.extend({
 
@@ -96,6 +98,8 @@ var LogicalDagWidget = BaseView.extend({
 
         this.model.loadLogicalPlan({
             success: _.bind(function(data) {
+                this.streams = new Streams(this.model.getStreams());
+
                 this.displayGraph(data.toJSON());
 
                 //this.metricModel = new MetricModel(null, { operators: this.operators });
@@ -317,6 +321,29 @@ var LogicalDagWidget = BaseView.extend({
             that.addMetricLabel(nodeSvg, height);
             that.addMetricLabelDown(nodeSvg, height);
         });
+
+        this.updateStreams(graph, root);
+    },
+
+    updateStreams: function (graph, root) {
+        var streamLocality = {};
+        this.streams.each(function (stream) {
+            if (stream.has('locality')) {
+                streamLocality[stream.get('name')] = stream.get('locality');
+            }
+        });
+
+        root.selectAll("g .edge > path").each(function (d) {
+            var value = graph.edge(d);
+            var streamName = value.label;
+
+            var locality = streamLocality.hasOwnProperty(streamName) ? streamLocality[streamName] : 'NONE';
+            var dasharray = settings.dag.edges.hasOwnProperty(locality) ? settings.dag.edges[locality] : settings.dag.edges.NONE;
+
+            if (dasharray) {
+                d3.select(this).attr('stroke-dasharray', dasharray);
+            }
+        });
     },
 
     addMetricLabel: function (nodeSvg, height) {
@@ -363,6 +390,12 @@ var LogicalDagWidget = BaseView.extend({
             oldPostRender.call(renderer, graph, root);
             this.postRender(graph, root);
         }.bind(this);
+
+        renderer._calculateEdgeDimensions = function (group, value) {
+            var bbox = group.getBBox();
+            value.width = bbox.width + 10;
+            value.height = bbox.height;
+        };
 
         var layout = dagreD3.layout().rankDir('LR');
         renderer.layout(layout).run(dagreD3.json.decode(nodes, links), svg.append("g"));

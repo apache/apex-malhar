@@ -57,7 +57,17 @@ exports = module.exports = {
         Containers               :'applications.:appId.containers'
         
     },
-    
+
+    dag: {
+        edges: {
+            NONE: '5,1',
+            THREAD_LOCAL: null,
+            CONTAINER_LOCAL: '1,1',
+            NODE_LOCAL: '1,3',
+            RACK_LOCAL: '1,5'
+        }
+    },
+
     interpolateParams: function(string, params) {
         return string.replace(/:(\w+)/g, function(match, paramName) {
             return params[paramName];
