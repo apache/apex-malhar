@@ -41,19 +41,19 @@ function cpuFormatter(value) {
 }
 
 exports = module.exports = [
-    { id: "selector", key: "selected", label: "", select: true, width: 40, lock_width: true },
-    { id: "id", label: "Operator ID", key: "id", sort: "number", filter: "number", width:55, sort_value: "a", format: idFormatter },
-    { id: "name", label: "Name", key: "name", sort: "string", filter: "like", width:150, format: nameFormatter },
-    { id: "tuplesProcessedPSMA", label: "Processed/sec", key: "tuplesProcessedPSMA", format: "commaInt", sort: "number", filter: "number" },
-    { id: "totalTuplesProcessed", label: "Processed total", key: "totalTuplesProcessed", format: "commaInt", sort: "number", filter: "number" },
-    { id: "tuplesEmittedPSMA", label: "Emitted/s", key: "tuplesEmittedPSMA", format: "commaInt", sort: "number", filter: "number" },
-    { id: "totalTuplesEmitted", label: "Emitted total", key: "totalTuplesEmitted", format: "commaInt", sort: "number", filter: "number" },
-    { id: "status", label: "Status", key: "status", format: statusFormatter, sort: "string", filter:"like" },
-    { id: "container", label: "Container", key: "container", format: containerFormatter, sort: "string", filter:"like" },
-    { id: "host", label: "Node", key: "host", sort: "string", filter:"like" },
-    { id: "latency", label: "Latency", key: "latencyMA", sort: "number", filter: "number" },
-    // { id: "failureCount", label: "Failure Count", key: "failureCount", sort: "number", filter: "number" },
-    { id: "currentWindowId", label: "Current Window ID", key: "currentWindowId", sort: "number", filter: "number", format: windowFormatter },
-    { id: "recoveryWindowId", label: "Recovery Window ID", key: "recoveryWindowId", sort: "number", filter: "number", format: windowFormatter },
-    { id: "cpuPercentageMA", label: "CPU %", key: "cpuPercentageMA", sort: "number", filter: "number", format: cpuFormatter }
+    { id: 'selector', key: 'selected', label: '', select: true, width: 40, lock_width: true },
+    { id: 'id', label: 'Operator ID', key: 'id', sort: 'number', filter: 'number', width:55, sort_value: 'a', format: idFormatter },
+    { id: 'name', label: 'Name', key: 'name', sort: 'string', filter: 'like', width:150, format: nameFormatter },
+    { id: 'tuplesProcessedPSMA', label: DT.text('processed_per_sec'), key: 'tuplesProcessedPSMA', format: 'commaInt', sort: 'number', filter: 'number' },
+    { id: 'totalTuplesProcessed', label: DT.text('processed_total'), key: 'totalTuplesProcessed', format: 'commaInt', sort: 'number', filter: 'number' },
+    { id: 'tuplesEmittedPSMA', label: DT.text('emitted_per_sec'), key: 'tuplesEmittedPSMA', format: 'commaInt', sort: 'number', filter: 'number' },
+    { id: 'totalTuplesEmitted', label: DT.text('emitted_total'), key: 'totalTuplesEmitted', format: 'commaInt', sort: 'number', filter: 'number' },
+    { id: 'status', label: 'Status', key: 'status', format: statusFormatter, sort: 'string', filter:'like' },
+    { id: 'container', label: 'Container', key: 'container', format: containerFormatter, sort: 'string', filter:'like' },
+    { id: 'host', label: 'Node', key: 'host', sort: 'string', filter:'like' },
+    { id: 'latency', label: 'Latency', key: 'latencyMA', sort: 'number', filter: 'number' },
+    // { id: 'failureCount', label: 'Failure Count', key: 'failureCount', sort: 'number', filter: 'number' },
+    { id: 'currentWindowId', label: 'Current Window ID', key: 'currentWindowId', sort: 'number', filter: 'number', format: windowFormatter },
+    { id: 'recoveryWindowId', label: 'Recovery Window ID', key: 'recoveryWindowId', sort: 'number', filter: 'number', format: windowFormatter },
+    { id: 'cpuPercentageMA', label: 'CPU %', key: 'cpuPercentageMA', sort: 'number', filter: 'number', format: cpuFormatter }
 ]

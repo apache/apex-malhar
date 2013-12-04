@@ -50,11 +50,11 @@ var LogicalDagWidget = BaseView.extend({
             },
             {
                 value: 'tuplesProcessedPSMA',
-                label: 'Processed (events/sec)'
+                label: DT.text('processed_per_sec')
             },
             {
                 value: 'tuplesEmittedPSMA',
-                label: 'Emitted (events/sec)'
+                label: DT.text('emitted_per_sec')
             },
             {
                 value: 'latencyMA',
@@ -82,11 +82,11 @@ var LogicalDagWidget = BaseView.extend({
             },
             {
                 value: 'totalTuplesProcessed',
-                label: 'Total Processed (events)'
+                label: DT.text('processed_total')
             },
             {
                 value: 'totalTuplesEmitted',
-                label: 'Total Emitted (events)'
+                label: DT.text('emitted_total')
             }
         ];
 

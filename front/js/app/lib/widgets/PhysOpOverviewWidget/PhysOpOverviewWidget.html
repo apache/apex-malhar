@@ -1,20 +1,20 @@
 <div class="overview-item">
-    <div class="key">Processed/s</div>
+    <div class="key"><%= DT.text('processed_per_sec') %></div>
     <div class="value"><%=tuplesProcessedPSMA_f%></div>
 </div>
 
 <div class="overview-item">
-    <div class="key">Processed total</div>
+    <div class="key"><%= DT.text('processed_total') %></div>
     <div class="value"><%=totalTuplesProcessed_f%></div>
 </div>
 
 <div class="overview-item">
-    <div class="key">Emitted/s</div>
+    <div class="key"><%= DT.text('emitted_per_sec') %></div>
     <div class="value"><%=tuplesEmittedPSMA_f%></div>
 </div>
 
 <div class="overview-item">
-    <div class="key">Emitted total</div>
+    <div class="key"><%= DT.text('emitted_total') %></div>
     <div class="value"><%=totalTuplesEmitted_f%></div>
 </div>
 

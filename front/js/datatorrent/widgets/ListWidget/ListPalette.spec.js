@@ -13,7 +13,6 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-var lang = DT.lang;
 var _ = require('underscore');
 var Backbone = require('backbone');
 var View = require('./ListPalette');

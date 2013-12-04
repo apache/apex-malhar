@@ -35,7 +35,7 @@ var Palette = ListPalette.extend({
     },
     
     killApps: function() {
-        var c = confirm(DT.lang('Are you sure you want to kill the selected apps?'));
+        var c = confirm(DT.text('Are you sure you want to kill the selected apps?'));
         if (c) {
             _.each(this.getSelected(), function(app) {
                 if (app.get('state') === "RUNNING") {
@@ -47,7 +47,7 @@ var Palette = ListPalette.extend({
     },
     
     shutdownApps: function() {
-        var c = confirm(DT.lang('Are you sure you want to shutdown the selected apps?'));
+        var c = confirm(DT.text('Are you sure you want to shutdown the selected apps?'));
         if (c) {
             _.each(this.getSelected(), function(app) {
                 if (app.get('state') === "RUNNING") {
