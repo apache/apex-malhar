@@ -22,6 +22,12 @@ var langHash = {
     'select an item'             :  'select an item',
     'inspect'                    :  'inspect',
     'no action available'        :  'no action available',
+    'processed_per_sec'          :  'processed/s',
+    'processed_total'            :  'total processed',
+    'emitted_per_sec'            :  'emitted/s',
+    'emitted_total'              :  'total emitted',
+    'tuples_per_sec'             :  'tuples/s',
+    'tuples_total'               :  'total tuples'
 };
 
 function getLangItem(key) {

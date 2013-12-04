@@ -30,25 +30,25 @@
 
     <!-- processed/sec -->
     <div class="overview-item">
-        <div class="key">processed/sec</div>
+        <div class="key"><%= DT.lang('processed_per_sec') %></div>
         <div class="value"><%=stats.tuplesProcessedPSMA_f%></div>
     </div>
     
     <!-- emitted/sec -->
     <div class="overview-item">
-        <div class="key">emitted/sec</div>
+        <div class="key"><%= DT.lang('emitted_per_sec') %></div>
         <div class="value"><%=stats.tuplesEmittedPSMA_f%></div>
     </div>
 
     <!-- total processed -->
     <div class="overview-item">
-        <div class="key">total processed</div>
+        <div class="key"><%= DT.lang('processed_total') %></div>
         <div class="value"><%=stats.totalTuplesProcessed_f%></div>
     </div>
     
     <!-- total emitted -->
     <div class="overview-item">
-        <div class="key">total emitted</div>
+        <div class="key"><%= DT.lang('emitted_total') %></div>
         <div class="value"><%=stats.totalTuplesEmitted_f%></div>
     </div>
 
