@@ -39,6 +39,6 @@
     "d3": "~3.3.3",
     "mrcolor": "~0.0.1",
     "knights-templar": "~0.1.0",
-    "dagre-d3": "0.0.8"
+    "dagre-d3": "git://github.com/nickholub/dagre-d3.git"
   }
 }
