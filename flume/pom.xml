@@ -13,7 +13,7 @@
   <name>Flume Integration</name>
 
   <properties>
-    <maven.deploy.skip>true</maven.deploy.skip>
+    <maven.deploy.skip>false</maven.deploy.skip>
   </properties>
 
   <profiles>
