@@ -32,7 +32,7 @@ import com.datatorrent.lib.util.AbstractBaseSortOperator;
  * entire sorted list is emitted on output port "sort"
  * <p/>
  * <br>
- * <b>StateFull : Yes, </b> tuple are compare across application window(s). <br>
+ * <b>StateFull : No, </b> {@link AbstractBaseSortOperator} clears state in the endwindow call. <br>
  * <b>Partitions : Yes, </b> the operator itself serves as the unifier.
  * <br>
  * <b>Ports</b>:<br>
