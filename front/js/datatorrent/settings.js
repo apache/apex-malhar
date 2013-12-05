@@ -60,11 +60,22 @@ exports = module.exports = {
 
     dag: {
         edges: {
-            NONE: '5,1',
-            THREAD_LOCAL: null,
-            CONTAINER_LOCAL: '1,1',
-            NODE_LOCAL: '1,3',
-            RACK_LOCAL: '1,5'
+            NONE: {
+                displayName: 'NOT ASSIGNED',
+                dasharray: '5,2'
+            },
+            THREAD_LOCAL: {
+                dasharray: null
+            },
+            CONTAINER_LOCAL: {
+                dasharray: '1,1'
+            },
+            NODE_LOCAL: {
+                dasharray: '1,3'
+            },
+            RACK_LOCAL: {
+                dasharray: '1,5'
+            }
         }
     },
 
