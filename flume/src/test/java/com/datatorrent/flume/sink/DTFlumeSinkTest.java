@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 import com.datatorrent.netlet.DefaultEventLoop;
+import org.apache.flume.channel.MemoryChannel;
 
 /**
  *
@@ -25,6 +26,7 @@ public class DTFlumeSinkTest
   {
     DTFlumeSink sink = new DTFlumeSink();
     sink.setName("TeskSink");
+    sink.setChannel(new MemoryChannel());
     sink.start();
     AbstractLengthPrependerClient client = new AbstractLengthPrependerClient()
     {
@@ -42,7 +44,7 @@ public class DTFlumeSinkTest
       {
         super.connected();
         byte[] array = new byte[12];
-        array[0] = 0;
+        array[0] = Server.Command.ECHO.getOrdinal();
         array[1] = 1;
         array[2] = 2;
         array[3] = 3;

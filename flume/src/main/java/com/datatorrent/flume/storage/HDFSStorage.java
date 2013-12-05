@@ -19,7 +19,6 @@ public class HDFSStorage implements Storage, Configurable
   private static final String identityFileName = "/counter";
   public static final String BASE_DIR_KEY = "baseDir";
   public static final String RESTORE_KEY = "restore";
-
   private String baseDir;
   private long fileCounter;
   private Path fileCounterFile;
@@ -38,7 +37,7 @@ public class HDFSStorage implements Storage, Configurable
   {
     Configuration conf = new Configuration();
     baseDir = ctx.getString(BASE_DIR_KEY, conf.get("hadoop.tmp.dir"));
-    boolean restore = ctx.getBoolean(RESTORE_KEY, false);
+    boolean restore = ctx.getBoolean(RESTORE_KEY, true);
     if (baseDir.length() > 0) {
       try {
         fs = FileSystem.get(conf);
@@ -60,11 +59,13 @@ public class HDFSStorage implements Storage, Configurable
           }
         }
 
-      } catch (IOException io) {
+      }
+      catch (IOException io) {
         throw new RuntimeException(io);
       }
 
-    } else {
+    }
+    else {
       throw new RuntimeException("baseDir can't be empty");
     }
   }
@@ -94,9 +95,10 @@ public class HDFSStorage implements Storage, Configurable
     for (int i = 0; i < size; i++) {
       int shift = 8 * (i);
       if (shift == 0) {
-        b[i + start] = (byte) value;
-      } else {
-        b[i + start] = (byte) (value >>> shift);
+        b[i + start] = (byte)value;
+      }
+      else {
+        b[i + start] = (byte)(value >>> shift);
       }
     }
   }
@@ -106,7 +108,7 @@ public class HDFSStorage implements Storage, Configurable
     long l = 0;
     for (int i = size; i >= startIndex; i--) {
       l <<= 8;
-      l ^= (long) b[i] & 0xFF;
+      l ^= (long)b[i] & 0xFF;
     }
     return l;
   }
@@ -123,21 +125,24 @@ public class HDFSStorage implements Storage, Configurable
           dataStream = writeData(new Path(baseDir + "/" + String.valueOf(fileCounter)), Ints.toByteArray(bytes.length));
           dataStream.write(bytes);
           writeData(fileCounterFile, String.valueOf(fileCounter + 1).getBytes()).close();
-        } else {
+        }
+        else {
           dataStream.write(Ints.toByteArray(bytes.length));
           dataStream.write(bytes);
         }
         // dataStream.hflush();
         filled += (bytes.length + 4);
         return byteArrayToLong(fileOffset, 7, 0);
-      } catch (IOException ex) {
+      }
+      catch (IOException ex) {
         logger.warn("Error while storing the bytes {}", ex.getMessage());
         return -1;
       }
     }
     try {
       dataStream.close();
-    } catch (IOException ex) {
+    }
+    catch (IOException ex) {
       logger.warn("Error while closing the streams {}", ex.getMessage());
     }
     filled = 0;
@@ -155,18 +160,20 @@ public class HDFSStorage implements Storage, Configurable
     try {
       fileData = readData(new Path(baseDir + "/" + retrievalFile));
       byte[] lengthArr = new byte[4];
-      System.arraycopy(fileData, (int) retrievalOffset, lengthArr, 0, 4);
+      System.arraycopy(fileData, (int)retrievalOffset, lengthArr, 0, 4);
       int length = Ints.fromByteArray(lengthArr);
       RetrievalObject obj = new RetrievalObject();
       obj.setToken(identifier);
       obj.setData(new byte[length]);
-      System.arraycopy(fileData, (int) (retrievalOffset + 4), obj.getData(), 0, length);
+      System.arraycopy(fileData, (int)(retrievalOffset + 4), obj.getData(), 0, length);
       retrievalOffset += 4 + length;
       return obj;
-    } catch (IllegalArgumentException e) {
+    }
+    catch (IllegalArgumentException e) {
       logger.warn(" error while retrieving {}", e.getMessage());
       return null;
-    } catch (IOException e) {
+    }
+    catch (IOException e) {
       logger.warn(" error while retrieving {}", e.getMessage());
       return null;
     }
@@ -183,10 +190,12 @@ public class HDFSStorage implements Storage, Configurable
       retrievalFile++;
       try {
         fileData = readData(new Path(baseDir + "/" + retrievalFile));
-      } catch (IllegalArgumentException e) {
+      }
+      catch (IllegalArgumentException e) {
         logger.warn(" error while retrieving {}", e.getMessage());
         return null;
-      } catch (IOException e) {
+      }
+      catch (IOException e) {
         logger.warn(" error while retrieving {}", e.getMessage());
         return null;
       }
@@ -195,12 +204,12 @@ public class HDFSStorage implements Storage, Configurable
     longToByteArray(retrievalOffset, nextIdentifier, 0, 4);
     longToByteArray(retrievalFile, nextIdentifier, 4, 4);
     byte[] lengthArr = new byte[4];
-    System.arraycopy(fileData, (int) retrievalOffset, lengthArr, 0, 4);
+    System.arraycopy(fileData, (int)retrievalOffset, lengthArr, 0, 4);
     int length = Ints.fromByteArray(lengthArr);
     RetrievalObject obj = new RetrievalObject();
     obj.setToken(byteArrayToLong(nextIdentifier, 7, 0));
     obj.setData(new byte[length]);
-    System.arraycopy(fileData, (int) (retrievalOffset + 4), obj.getData(), 0, length);
+    System.arraycopy(fileData, (int)(retrievalOffset + 4), obj.getData(), 0, length);
     retrievalOffset += 4 + length;
     return obj;
   }
@@ -221,8 +230,10 @@ public class HDFSStorage implements Storage, Configurable
           fs.delete(path, false);
         }
         ++cleanedFileCounter;
-      } while (cleanedFileCounter < cleanFileIndex);
-    } catch (IOException e) {
+      }
+      while (cleanedFileCounter < cleanFileIndex);
+    }
+    catch (IOException e) {
       logger.warn("not able to close the streams {}", e.getMessage());
       return false;
     }
@@ -236,7 +247,8 @@ public class HDFSStorage implements Storage, Configurable
       try {
         dataStream.hflush();
         return true;
-      } catch (IOException ex) {
+      }
+      catch (IOException ex) {
         logger.warn("not able to close the stream {}", ex.getMessage());
         return false;
       }
@@ -254,7 +266,8 @@ public class HDFSStorage implements Storage, Configurable
         filled = 0;
         ++fileCounter;
         return true;
-      } catch (IOException ex) {
+      }
+      catch (IOException ex) {
         logger.warn("not able to close the stream {}", ex.getMessage());
         return false;
       }
@@ -263,6 +276,4 @@ public class HDFSStorage implements Storage, Configurable
   }
 
   private static final Logger logger = LoggerFactory.getLogger(HDFSStorage.class);
-
-  
 }

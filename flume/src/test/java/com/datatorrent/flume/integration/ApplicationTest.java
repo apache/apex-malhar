@@ -4,6 +4,7 @@
  */
 package com.datatorrent.flume.integration;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import com.datatorrent.flume.operator.AbstractFlumeInputOperator;
  *
  * @author Chetan Narsude <chetan@datatorrent.com>
  */
+@Ignore
 public class ApplicationTest implements StreamingApplication
 {
   public static class FlumeInputOperator extends AbstractFlumeInputOperator<Slice>
