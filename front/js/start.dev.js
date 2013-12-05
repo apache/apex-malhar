@@ -13,13 +13,14 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-// Set the datatorrent library to DT, global object.
-window.DT = require('./datatorrent');
 
 // Register pre-compiled templates
 var kt = require('knights-templar');
 var precompiled = require('./precompiled-templates');
 kt.registerPrecompiled(precompiled);
+
+// Set the datatorrent library to DT, global object.
+window.DT = require('./datatorrent');
 
 // Set up the options for the dashboard
 var appOptions = {
