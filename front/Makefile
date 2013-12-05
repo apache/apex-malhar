@@ -61,28 +61,28 @@ build_debug:
 #     development, you may use the bundle_no_ktbr command below.
 #     NOTE: the --debug flag creates source maps for easier debugging.
 bundle:
-	./node_modules/.bin/beefy js/start.js:bundle.js 9222 -- -t ktbr --debug
+	./node_modules/.bin/beefy js/start.dev.js:bundle.js 9222 -- -t ktbr --debug
 
 # Same as above, only static vendor libraries are excluded from the bundling process.
 # Incidentally, this does not reduce the bundle time from the above command. These static
 # files are expected to be found in js/static, which is created using the staticfiles 
 # make target below.
 bundle2:
-	./node_modules/.bin/beefy js/start.js:bundle.js 9222 -- -t ktbr -x ./node_modules/backbone -x ./node_modules/underscore -x ./node_modules/jsbn -x ./node_modules/big-rational -x ./node_modules/bassview
+	./node_modules/.bin/beefy js/start.dev.js:bundle.js 9222 -- -t ktbr -x ./node_modules/backbone -x ./node_modules/underscore -x ./node_modules/jsbn -x ./node_modules/big-rational -x ./node_modules/bassview
 
 # Another bundle variation. This one does not use the ktbr transformation, and also excludes
 # the static files as in the previous make target.	
 bundle3:
-	./node_modules/.bin/beefy js/start.js:bundle.js 9222 -- -x ./node_modules/backbone -x ./node_modules/underscore -x ./node_modules/jsbn -x ./node_modules/big-rational -x ./node_modules/bassview --ig
+	./node_modules/.bin/beefy js/start.dev.js:bundle.js 9222 -- -x ./node_modules/backbone -x ./node_modules/underscore -x ./node_modules/jsbn -x ./node_modules/big-rational -x ./node_modules/bassview --ig
 
 # Same as above but does not exclude static libraries.
 bundle_no_ktbr:
-	./node_modules/.bin/beefy js/start.js:bundle.js 9222 -- --ig --debug
+	./node_modules/.bin/beefy js/start.dev.js:bundle.js 9222 -- --ig --debug
 
 # This bundle will trigger the page to refresh when a change to any files have been made.
 # It can be convenient, but can also start hogging the CPU.
 livebundle:
-	./node_modules/.bin/beefy js/start.js:bundle.js 9222 --live 9223 -- -t ktbr --debug
+	./node_modules/.bin/beefy js/start.dev.js:bundle.js 9222 --live 9223 -- -t ktbr --debug
 
 # Generates js/static.js by concatenating jquery, underscore, backbone, jsbn, and big-rational, among others.
 staticfiles:
