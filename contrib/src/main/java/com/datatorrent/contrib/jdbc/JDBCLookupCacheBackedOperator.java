@@ -15,12 +15,7 @@
  */
 package com.datatorrent.contrib.jdbc;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import com.datatorrent.lib.database.AbstractDBLookupCacheBackedOperator;
 import com.datatorrent.lib.database.DBConnector;
@@ -34,31 +29,12 @@ import com.datatorrent.lib.database.DBConnector;
  */
 public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupCacheBackedOperator<T>
 {
-  private final JDBCOperatorBase jdbcConnector;
+  protected final JDBCOperatorBase jdbcConnector;
 
   public JDBCLookupCacheBackedOperator()
   {
     super();
     jdbcConnector = new JDBCOperatorBase();
-  }
-
-  @Override
-  @Nullable
-  public Object fetchValueFromDatabase(Object key)
-  {
-    String query = getQueryToFetchTheKeyFromDb(key);
-    Statement stmt;
-    try {
-      stmt = jdbcConnector.connection.createStatement();
-      ResultSet resultSet = stmt.executeQuery(query);
-      Object value = getValueFromResultSet(resultSet);
-      stmt.close();
-      resultSet.close();
-      return value;
-    }
-    catch (SQLException e) {
-      throw new RuntimeException("while fetching key", e);
-    }
   }
 
   @Nonnull
@@ -87,9 +63,4 @@ public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupC
   {
     jdbcConnector.setDbDriver(dbDriver);
   }
-
-  protected abstract String getQueryToFetchTheKeyFromDb(Object key);
-
-  @Nullable
-  public abstract Object getValueFromResultSet(ResultSet resultSet);
 }

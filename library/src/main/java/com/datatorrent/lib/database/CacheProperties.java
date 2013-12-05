@@ -1,9 +1,24 @@
+/*
+ * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.datatorrent.lib.database;
 
 import javax.validation.constraints.Min;
 
 /**
- * <br>Properties and their default values which is used by {@link CacheManager} to create the cache.</br>
+ * <br>Properties and their default values which is used by {@link CacheStore} to create the cache.</br>
  *
  * @since 0.9.1
  */
@@ -19,7 +34,7 @@ public class CacheProperties
   @Min(0)
   int cacheCleanupIntervalInMillis = 60500; //.5 seconds after entries are expired
 
-  CacheManager.ExpiryType entryExpiryStrategy = CacheManager.ExpiryType.EXPIRE_AFTER_ACCESS;
+  CacheStore.ExpiryType entryExpiryStrategy = CacheStore.ExpiryType.EXPIRE_AFTER_ACCESS;
 
   /**
    * Sets the max size of cache.
@@ -34,7 +49,7 @@ public class CacheProperties
    * Sets the cache entry expiry strategy.
    * @param expiryType the cache entry expiry strategy.
    */
-  public void setEntryExpiryStrategy(CacheManager.ExpiryType expiryType)
+  public void setEntryExpiryStrategy(CacheStore.ExpiryType expiryType)
   {
     this.entryExpiryStrategy = expiryType;
   }

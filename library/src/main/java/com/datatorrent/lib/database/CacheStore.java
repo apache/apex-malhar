@@ -15,41 +15,35 @@
  */
 package com.datatorrent.lib.database;
 
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.base.Preconditions;
+import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 
 /**
- * <br>This creates a {@link LoadingCache} that stores db result for certain time.</br>
- * <br>
- * The Cache has a maximum size and it may evict an entry before this limit is exceeded.
- * The entries in the cache expire after the specified expiry-duration.
- * </br>
- *
- * @since 0.9.1
+ * <br>A {@link Store.Primary} that keeps key/value pairs in memory.</br>
+ * <br></br>
+ * <br>The cache storage is defined by:</br>
+ * <ul>
+ * <li>Transient: It is not checkpointed.</li>
+ * <li>Max Cache Size: it starts evicting entries before this limit is exceeded.</li>
+ * <li>Entry expirty time: the entries epire after the specified duration.</li>
+ * <li>Cache cleanup interval: the interval at which the cache is cleaned up of expired entries periodically.</li>
+ * </ul>
+ * <br>These properties of the cache are encapsulated in {@link CacheProperties}</br>
  */
-public class CacheManager
+public class CacheStore implements Store.Primary
 {
-  private transient final CacheUser cacheUser;
-
-  private transient LoadingCache<Object, Object> cache;
-
   private transient ScheduledExecutorService cleanupScheduler;
+  private transient Cache<Object, Object> cache;
 
-  /**
-   * @param user       implementation of {@link CacheUser} which has the onus of loading the value of the key
-   *                   from database.
-   * @param properties {@link CacheProperties} which define the cache.
-   */
-  public CacheManager(CacheUser user, CacheProperties properties)
+  public CacheStore(CacheProperties properties)
   {
-    this.cacheUser = Preconditions.checkNotNull(user, "cache user");
-
     Preconditions.checkNotNull(properties.entryExpiryStrategy, "expiryType");
 
     CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
@@ -59,20 +53,7 @@ public class CacheManager
     else if (properties.entryExpiryStrategy == ExpiryType.EXPIRE_AFTER_WRITE) {
       cacheBuilder.expireAfterWrite(properties.entryExpiryDurationInMillis, TimeUnit.MILLISECONDS);
     }
-
-    this.cache = cacheBuilder.maximumSize(properties.maxCacheSize)
-      .build(new CacheLoader<Object, Object>()
-      {
-        @Override
-        public Object load(Object k) throws Exception
-        {
-          Object val = cacheUser.fetchValueFromDatabase(k);
-          if (val == null) {
-            cache.put(k, val);
-          }
-          return val;
-        }
-      });
+    cache = cacheBuilder.build();
     this.cleanupScheduler = Executors.newScheduledThreadPool(1);
     cleanupScheduler.scheduleAtFixedRate(new Runnable()
     {
@@ -84,31 +65,40 @@ public class CacheManager
     }, properties.cacheCleanupIntervalInMillis, properties.cacheCleanupIntervalInMillis, TimeUnit.MILLISECONDS);
   }
 
-  /**
-   * shutsdown the cache cleanup scheduler
-   */
-  public void shutdownCleanupScheduler()
+  @Override
+  public void setValueFor(Object key, Object value)
+  {
+    cache.put(key, value);
+  }
+
+  @Override
+  public Set<Object> getKeys()
+  {
+    return cache.asMap().keySet();
+  }
+
+  @Override
+  public void bulkSet(Map<Object, Object> data)
+  {
+    cache.asMap().putAll(data);
+  }
+
+  @Override
+  public Object getValueFor(Object key)
+  {
+    return cache.getIfPresent(key);
+  }
+
+  @Override
+  public Map<Object, Object> bulkGet(Set<Object> keys)
+  {
+    return cache.getAllPresent(keys);
+  }
+
+  @Override
+  public void shutdownStore()
   {
     cleanupScheduler.shutdown();
-  }
-
-  /**
-   * @return the underlying cache
-   */
-  public LoadingCache<Object, Object> getCache()
-  {
-    return cache;
-  }
-
-  /**
-   * <br>
-   * The user of CacheManager should implement this interface to customise the
-   * retrieval of a particular key from the database when it is not found in the cache.
-   * </br>
-   */
-  public static interface CacheUser
-  {
-    Object fetchValueFromDatabase(Object key);
   }
 
   /**

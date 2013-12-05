@@ -16,9 +16,13 @@
 package com.datatorrent.contrib.jdbc;
 
 import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Map;
-
-import javax.annotation.Nullable;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.concurrent.Exchanger;
+import java.util.concurrent.TimeUnit;
 
 import junit.framework.Assert;
 import org.junit.Test;
@@ -51,6 +55,8 @@ public class JDBCLookupCacheBackedOperatorTest
     mapping.put(5, "five");
   }
 
+  private final static Exchanger<Map<Object, Object>> bulkValuesExchanger = new Exchanger<Map<Object, Object>>();
+
   public class TestJDBCLookupCacheBackedOperator extends JDBCLookupCacheBackedOperator<String>
   {
 
@@ -61,23 +67,61 @@ public class JDBCLookupCacheBackedOperatorTest
     }
 
     @Override
-    public String getQueryToFetchTheKeyFromDb(Object key)
+    public Object fetchValueFromDatabase(Object key)
     {
-      return "select col2 from " + DB_NAME + "." + TABLE_NAME + " where col1 = " + key;
+      String query = "select col2 from " + DB_NAME + "." + TABLE_NAME + " where col1 = " + key;
+      Statement stmt;
+      try {
+        stmt = jdbcConnector.connection.createStatement();
+        ResultSet resultSet = stmt.executeQuery(query);
+        resultSet.next();
+        Object value = resultSet.getString(1);
+        stmt.close();
+        resultSet.close();
+        return value;
+      }
+      catch (SQLException e) {
+        throw new RuntimeException("while fetching key", e);
+      }
     }
 
-    @Nullable
     @Override
-    public Object getValueFromResultSet(ResultSet resultSet)
+    public Map<Object, Object> fetchValuesFromDatabase(Set<Object> keys)
     {
-      try {
-        resultSet.next();
-        return resultSet.getString(1);
-      } catch (SQLException e) {
-        e.printStackTrace();
+      StringBuilder builder = new StringBuilder("(");
+      for (Object k : keys) {
+        builder.append(k);
+        builder.append(",");
       }
+      builder.deleteCharAt(builder.length() - 1);
+      builder.append(")");
+      String query = "select col1, col2 from " + DB_NAME + "." + TABLE_NAME + " where col1 in " + builder.toString();
+
+      try {
+        Statement statement = jdbcConnector.connection.createStatement();
+        ResultSet resultSet = statement.executeQuery(query);
+
+        Map<Object, Object> values = Maps.newHashMap();
+        while (resultSet.next()) {
+          values.put(resultSet.getInt(1), resultSet.getString(2));
+        }
+        bulkValuesExchanger.exchange(values);
+        return values;
+      }
+      catch (SQLException e) {
+        throw new RuntimeException("while fetching multiple keys", e);
+      }
+      catch (InterruptedException e) {
+        throw new RuntimeException("interrupted while multiple keys", e);
+      }
+    }
+
+    @Override
+    public Map<Object, Object> fetchStartupDataFromDatabase()
+    {
       return null;
     }
+
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
@@ -91,6 +135,12 @@ public class JDBCLookupCacheBackedOperatorTest
     oper.setDbUrl("jdbc:mysql://localhost/test?user=test&password=");
     oper.setDbDriver("com.mysql.jdbc.Driver");
 
+    Calendar now = Calendar.getInstance(TimeZone.getTimeZone("PST"));
+    now.add(Calendar.SECOND, 15);
+
+    SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss z");
+    oper.setCacheRefreshTime(format.format(now.getTime()));
+
     CollectorTestSink sink = new CollectorTestSink();
     oper.output.setSink(sink);
 
@@ -103,45 +153,39 @@ public class JDBCLookupCacheBackedOperatorTest
     oper.input.process("1");
     oper.input.process("2");
     oper.endWindow();
-    oper.teardown();
 
     // Check values send vs received
     Assert.assertEquals("Number of emitted tuples", 2, sink.collectedTuples.size());
+
+    Map<Object, Object> bulk = bulkValuesExchanger.exchange(null, 30, TimeUnit.SECONDS);
+    Assert.assertEquals("bulk values retrieval", 2, bulk.size());
   }
 
-  private void setupDB()
+  private void setupDB() throws Exception
   {
-    try {
-      // This will load the JDBC driver, each DB has its own driver
-      Class.forName(DB_DRIVER).newInstance();
+    // This will load the JDBC driver, each DB has its own driver
+    Class.forName(DB_DRIVER).newInstance();
 
-      Connection con = DriverManager.getConnection(URL);
-      Statement stmt = con.createStatement();
+    Connection con = DriverManager.getConnection(URL);
+    Statement stmt = con.createStatement();
 
-      String createDB = "CREATE DATABASE IF NOT EXISTS " + DB_NAME;
-      String useDB = "USE " + DB_NAME;
+    String createDB = "CREATE DATABASE IF NOT EXISTS " + DB_NAME;
+    String useDB = "USE " + DB_NAME;
 
-      stmt.executeUpdate(createDB);
-      stmt.executeQuery(useDB);
+    stmt.executeUpdate(createDB);
+    stmt.executeQuery(useDB);
 
-      String createTable = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (col1 INTEGER, col2 VARCHAR(20))";
+    String createTable = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (col1 INTEGER, col2 VARCHAR(20))";
 
-      stmt.executeUpdate(createTable);
+    stmt.executeUpdate(createTable);
+    stmt.executeUpdate("Delete from " + DB_NAME + "." + TABLE_NAME);
 
-      //populate the database
-      for (Map.Entry<Integer, String> entry : mapping.entrySet()) {
-        String insert = "INSERT INTO " + TABLE_NAME + " (col1, col2) VALUES (" + entry.getKey() + ", '" + entry.getValue() + "')";
-        stmt.executeUpdate(insert);
-      }
-
-    } catch (InstantiationException ex) {
-      throw new RuntimeException("Exception during setupDB", ex);
-    } catch (IllegalAccessException ex) {
-      throw new RuntimeException("Exception during setupDB", ex);
-    } catch (ClassNotFoundException ex) {
-      throw new RuntimeException("Exception during setupDB", ex);
-    } catch (SQLException ex) {
-      throw new RuntimeException(String.format("Exception during setupDB"), ex);
+    //populate the database
+    for (Map.Entry<Integer, String> entry : mapping.entrySet()) {
+      String insert = "INSERT INTO " + TABLE_NAME + " (col1, col2) VALUES (" + entry.getKey() + ", '" + entry.getValue() + "')";
+      stmt.executeUpdate(insert);
     }
+
   }
+
 }
