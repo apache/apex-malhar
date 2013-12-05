@@ -95,6 +95,7 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>dt-netlet</artifactId>
       <version>${project.version}</version>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.datatorrent</groupId>
