@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import kafka.javaapi.PartitionMetadata;
@@ -176,7 +175,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
         // Use first-fit decreasing algorithm to minimize the container number and somewhat balance the partition
         // try to balance the load and minimize the number of containers with each container's load under the threshold
         // the partition based on the latest 15 minutes moving average
-        final Map<Integer, Pair<Double, Double>> kPIntakeRate = new HashMap<Integer, Pair<Double, Double>>();
+        final Map<Integer, double[]> kPIntakeRate = new HashMap<Integer, double[]>();
         for (Partition<AbstractPartitionableKafkaInputOperator> partition : partitions) {
           List<OperatorStats> opss = partition.getStats().getLastWindowedStats();
           if(opss==null || opss.size()==0){
@@ -217,20 +216,20 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     return newPartitions;
   }
 
-  private List<PartitionInfo> firstFitDecreasingAlgo(final Map<Integer, Pair<Double, Double>> kPIntakeRate)
+  private List<PartitionInfo> firstFitDecreasingAlgo(final Map<Integer, double[]> kPIntakeRate)
   {
     // (Decreasing) Sort the map by msg/s and bytes/s in descending order
-    List<Entry<Integer, Pair<Double,Double>>> sortedMapEntry = new LinkedList<Entry<Integer, Pair<Double,Double>>>(kPIntakeRate.entrySet());
-    Collections.sort(sortedMapEntry,new Comparator<Entry<Integer, Pair<Double,Double>>>() {
+    List<Entry<Integer, double[]>> sortedMapEntry = new LinkedList<Entry<Integer, double[]>>(kPIntakeRate.entrySet());
+    Collections.sort(sortedMapEntry,new Comparator<Entry<Integer, double[]>>() {
       @Override
-      public int compare(Entry<Integer, Pair<Double, Double>> firstEntry, Entry<Integer, Pair<Double, Double>> secondEntry)
+      public int compare(Entry<Integer, double[]> firstEntry, Entry<Integer, double[]> secondEntry)
       {
-        Pair<Double, Double> firstPair = firstEntry.getValue();
-        Pair<Double, Double> secondPair = secondEntry.getValue();
-        if (msgRateUpperBound == Long.MAX_VALUE || firstPair.getLeft().longValue() == secondPair.getLeft().longValue())
-          return (int) (secondPair.getRight().longValue() - firstPair.getRight().longValue());
+        double[] firstPair = firstEntry.getValue();
+        double[] secondPair = secondEntry.getValue();
+        if (msgRateUpperBound == Long.MAX_VALUE || firstPair[0] == secondPair[0])
+          return (int) (secondPair[1] - firstPair[1]);
         else
-          return (int)(secondPair.getLeft().longValue() - firstPair.getLeft().longValue());
+          return (int)(secondPair[0] - firstPair[0]);
       }
     });
     
@@ -242,26 +241,26 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     // Each record has a set of kafka partition ids and the resource left for that operator after assigned the consumers for those partitions
     List<PartitionInfo> pif = new LinkedList<PartitionInfo>();
     outer:
-    for (Entry<Integer, Pair<Double,Double>> entry : sortedMapEntry) {
-      Pair<Double, Double> resourceRequired = entry.getValue();
+    for (Entry<Integer, double[]> entry : sortedMapEntry) {
+      double[] resourceRequired = entry.getValue();
 //      System.out.println("After sorted kafka partition " + entry.getKey() + "********" + resourceRequired);
       for (PartitionInfo r : pif) {
-        if (r.msgRateLeft > resourceRequired.getLeft().longValue() && r.byteRateLeft > resourceRequired.getRight().longValue()) {
+        if (r.msgRateLeft > (long)resourceRequired[0] && r.byteRateLeft > (long)resourceRequired[1]) {
 //          System.out.println("  Found existing record " + r.msgRateLeft + ", " + r.byteRateLeft + " for resource " + resourceRequired.getLeft().longValue()  + ", " + resourceRequired.getRight().longValue());
           // found first fit operator partition that has enough resource for this consumer
           // add consumer to the operator partition
           r.kpids.add(entry.getKey());
           // update the resource left in this partition
-          r.msgRateLeft -= r.msgRateLeft == Long.MAX_VALUE ? 0 : resourceRequired.getLeft();
-          r.byteRateLeft -= r.byteRateLeft == Long.MAX_VALUE ? 0 : resourceRequired.getRight();
+          r.msgRateLeft -= r.msgRateLeft == Long.MAX_VALUE ? 0 : resourceRequired[0];
+          r.byteRateLeft -= r.byteRateLeft == Long.MAX_VALUE ? 0 : resourceRequired[1];
           continue outer;
         }
       }
       // didn't find the existing "operator" to assign this consumer
       PartitionInfo nr = new PartitionInfo();
       nr.kpids = Sets.newHashSet(entry.getKey());
-      nr.msgRateLeft = msgRateUpperBound == Long.MAX_VALUE ? msgRateUpperBound : msgRateUpperBound - resourceRequired.getLeft().longValue();
-      nr.byteRateLeft = byteRateUpperBound == Long.MAX_VALUE ? byteRateUpperBound : byteRateUpperBound - resourceRequired.getLeft().longValue();
+      nr.msgRateLeft = msgRateUpperBound == Long.MAX_VALUE ? msgRateUpperBound : msgRateUpperBound - (long)resourceRequired[0];
+      nr.byteRateLeft = byteRateUpperBound == Long.MAX_VALUE ? byteRateUpperBound : byteRateUpperBound - (long)resourceRequired[1];
       pif.add(nr);
     }
     
@@ -343,7 +342,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     }
     int length = kafkaStatsHolder.get(kafkaStatsHolder.keySet().iterator().next()).size();
     for (int j = 0; j < length; j++) {
-      Map<Integer, Pair<Double, Double>> kPIntakeRate = new HashMap<Integer, Pair<Double, Double>>();
+      Map<Integer, double[]> kPIntakeRate = new HashMap<Integer, double[]>();
       for (Integer pid : kafkaStatsHolder.keySet()) {
         kPIntakeRate.putAll(kafkaStatsHolder.get(pid).get(j).get_1minMovingAvgPerPartition());
       }
@@ -372,7 +371,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
       @Override
       public boolean apply(KafkaMeterStats kms)
       {
-        return kms.get_1minMovingAvg().getLeft() > msgRateUpperBound;
+        return kms.get_1minMovingAvg()[0] > msgRateUpperBound;
       }
     });
     
@@ -381,7 +380,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
       @Override
       public boolean apply(KafkaMeterStats kms)
       {
-        return kms.get_1minMovingAvg().getRight() > byteRateUpperBound;
+        return kms.get_1minMovingAvg()[1] > byteRateUpperBound;
       }
     });
     

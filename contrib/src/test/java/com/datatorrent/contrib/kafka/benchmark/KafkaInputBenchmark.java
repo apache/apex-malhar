@@ -56,7 +56,7 @@ public class KafkaInputBenchmark implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
     
-    dag.setAttribute(DAG.APPLICATION_NAME, "KafkaConsumerBenchmark");
+    dag.setAttribute(DAG.APPLICATION_NAME, "KafkaInputOperatorPartitionDemo");
     BenchmarkPartitionableKafkaInputOperator bpkio = new BenchmarkPartitionableKafkaInputOperator();
     
     

@@ -21,15 +21,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Pattern.Flag;
-import org.apache.commons.lang3.tuple.Pair;
+
 import com.datatorrent.api.Stats.OperatorStats.CustomStats;
-import com.yammer.metrics.Metrics;
-import com.yammer.metrics.core.Meter;
-import com.yammer.metrics.core.MetricName;
+
 import kafka.message.Message;
 
 
@@ -43,16 +44,7 @@ public abstract class KafkaConsumer
   protected final static String HIGHLEVEL_CONSUMER_ID_SUFFIX = "_stream_";
   
   protected final static String SIMPLE_CONSUMER_ID_SUFFIX = "_partition_";
-  
-  //use yammer metrics to tick consumers' msg rate
-  // msg/s and bytes/s for each partition
-  protected transient final Map<Integer, Pair<Meter, Meter>> ingestRate = new HashMap<Integer, Pair<Meter,Meter>>(); 
-  
-  // total msg/s for this kafkaconsumer wrapper
-  private transient Meter msgPerSec;
-  
-  // total bytes/s for this kafkaconsumer wrapper
-  private transient Meter bytesPerSec;
+
   
   public KafkaConsumer()
   {
@@ -103,6 +95,9 @@ public abstract class KafkaConsumer
   @Pattern(flags={Flag.CASE_INSENSITIVE}, regexp = "earliest|latest")
   protected String startOffset = "latest";
 
+
+  private transient SnapShot statsSnapShot = new SnapShot();
+  
   /**
    * This method is called in setup method of the operator
    */
@@ -115,26 +110,15 @@ public abstract class KafkaConsumer
    */
   public void start(){
     isAlive = true;
-    msgPerSec = Metrics.defaultRegistry().newMeter(new MetricName(getClass().getPackage().getName(), "KafkaConsumer", "MsgsPerSec"),"messages", TimeUnit.SECONDS);
-    bytesPerSec = Metrics.defaultRegistry().newMeter(new MetricName(getClass().getPackage().getName(), "KafkaConsumer", "BytesPerSec"),"bytes", TimeUnit.SECONDS);
+    statsSnapShot.start();
   };
 
   /**
    * The method is called in the deactivate method of the operator
    */
   public void stop(){
-    msgPerSec.stop();
-    bytesPerSec.stop();
-    for (Entry<Integer, Pair<Meter, Meter>> e : ingestRate.entrySet()) {
-      e.getValue().getLeft().stop();
-      e.getValue().getRight().stop();
-      Metrics.defaultRegistry().removeMetric(new MetricName(getClass().getPackage().getName(), "KafkaConsumerPartition" + e.getKey(), "MsgsPerSec"));
-      Metrics.defaultRegistry().removeMetric(new MetricName(getClass().getPackage().getName(), "KafkaConsumerPartition" + e.getKey(), "BytesPerSec"));
-    }
-    Metrics.defaultRegistry().removeMetric(new MetricName(getClass().getPackage().getName(), "KafkaConsumer", "MsgsPerSec"));
-    Metrics.defaultRegistry().removeMetric(new MetricName(getClass().getPackage().getName(), "KafkaConsumer", "BytesPerSec"));
-    
     isAlive = false;
+    statsSnapShot.stop();
     holdingBuffer.clear();
     _stop();
   };
@@ -203,18 +187,7 @@ public abstract class KafkaConsumer
   final protected void putMessage(int partition, Message msg) throws InterruptedException{
     // block from receiving more message
     holdingBuffer.put(msg);
-    // add stats in the per partition rate and total rate 
-    Pair<Meter, Meter> par = ingestRate.get(partition);
-    if(par==null){
-      Meter partitionMsgsParSec = Metrics.defaultRegistry().newMeter(new MetricName(getClass().getPackage().getName(), "KafkaConsumerPartition" + partition, "MsgsPerSec"),"messages", TimeUnit.SECONDS);
-      Meter partitionBytesPerSec = Metrics.defaultRegistry().newMeter(new MetricName(getClass().getPackage().getName(), "KafkaConsumerPartition" + partition, "BytesPerSec"),"messages", TimeUnit.SECONDS);
-      par = Pair.of(partitionMsgsParSec, partitionBytesPerSec);
-      ingestRate.put(partition, par);
-    }
-    msgPerSec.mark();
-    bytesPerSec.mark(msg.payloadSize());
-    par.getLeft().mark();
-    par.getRight().mark(msg.payloadSize());
+    statsSnapShot.mark(partition, msg.payloadSize());
   };
   
 
@@ -225,11 +198,7 @@ public abstract class KafkaConsumer
   
   public final KafkaMeterStats getConsumerStats()
   {
-    Map<Integer, Pair<Double, Double>> rates = new HashMap<Integer, Pair<Double, Double>>();
-    for (int parid : ingestRate.keySet()) {
-      rates.put(parid, Pair.of(ingestRate.get(parid).getLeft().oneMinuteRate(), ingestRate.get(parid).getRight().oneMinuteRate()));
-    }
-    return new KafkaMeterStats(rates, Pair.of(msgPerSec.oneMinuteRate(), bytesPerSec.oneMinuteRate()));
+    return statsSnapShot.getStats();
   }
   
   static class KafkaMeterStats implements CustomStats
@@ -237,42 +206,135 @@ public abstract class KafkaConsumer
 
     private static final long serialVersionUID = -2867402654990209006L;
 
-    private Map<Integer, Pair<Double, Double>> _1minMovingAvgPerPartition = new HashMap<Integer, Pair<Double, Double>>();
+    private Map<Integer, double[]> _1minMovingAvgPerPartition = new HashMap<Integer, double[]>();
 
-    private Pair<Double, Double> _1minMovingAvg = Pair.of(0.0, 0.0);
+    private double[] _1minMovingAvg = new double[]{0,0};
     
     public KafkaMeterStats()
     {
       
     }
 
-    public KafkaMeterStats(Map<Integer, Pair<Double, Double>> _1minMovingAvgPerPartition, Pair<Double, Double> _15minMovingRate)
+    public KafkaMeterStats(Map<Integer, double[]> _1minMovingAvgPerPartition, double[] _1minMovingRate)
     {
       super();
-      this._1minMovingAvgPerPartition = _1minMovingAvgPerPartition;
-      this._1minMovingAvg = _15minMovingRate;
+      this.set_1minMovingAvgPerPartition(_1minMovingAvgPerPartition);
+      this.set_1minMovingAvg(_1minMovingRate);
     }
 
-    public Map<Integer, Pair<Double, Double>> get_1minMovingAvgPerPartition()
+    public Map<Integer, double[]> get_1minMovingAvgPerPartition()
     {
       return _1minMovingAvgPerPartition;
     }
 
-    public void set_1minMovingAvgPerPartition(Map<Integer, Pair<Double, Double>> _1minMovingAvgPerPartition)
+    public void set_1minMovingAvgPerPartition(Map<Integer, double[]> _1minMovingAvgPerPartition)
     {
       this._1minMovingAvgPerPartition = _1minMovingAvgPerPartition;
     }
 
-    public Pair<Double, Double> get_1minMovingAvg()
+    public double[] get_1minMovingAvg()
     {
       return _1minMovingAvg;
     }
 
-    public void set_1minMovingAvg(Pair<Double, Double> _1minMovingAvg)
+    public void set_1minMovingAvg(double[] _1minMovingAvg)
     {
       this._1minMovingAvg = _1minMovingAvg;
     }
 
+}
+
+  
+  
+  static class SnapShot {
+    
+    //use yammer metrics to tick consumers' msg rate
+    // msg/s and bytes/s for each partition
+    
+    private final Map<Integer, long[]> _1_min_msg_sum_par = new HashMap<Integer, long[]>();
+    
+    private final Map<Integer, long[]> _1_min_byte_sum_par = new HashMap<Integer, long[]>();
+    
+    private static int cursor = 0;
+    
+    private long[] msgSec = new long[61];
+    
+    private long[] bytesSec = new long[61];
+    
+    private short last = 0;
+    
+    private ScheduledExecutorService service;
+
+    public synchronized void moveNext()
+    {
+      cursor = (cursor + 1) % 60;
+      msgSec[60] -= msgSec[cursor];
+      bytesSec[60] -= msgSec[cursor];
+      msgSec[cursor] = 0;
+      bytesSec[cursor] = 0;
+      for (Entry<Integer, long[]> item : _1_min_msg_sum_par.entrySet()) {
+        long[] msgv = item.getValue();
+        long[] bytesv = _1_min_byte_sum_par.get(item.getKey());
+        msgv[60] -= msgv[cursor];
+        bytesv[60] -= bytesv[cursor];
+        msgv[cursor] = 0;
+        bytesv[cursor] = 0;
+      }
+      
+    }
+    
+    
+    public void start(){
+      if(service==null){
+        service = Executors.newScheduledThreadPool(1);
+      }
+      service.scheduleAtFixedRate(new Runnable() {
+        @Override
+        public void run()
+        {
+          moveNext();
+          if(last<60)last++;
+        }
+      }, 1, 1, TimeUnit.SECONDS);
+      
+    }
+    
+    public void stop(){
+      if(service!=null){
+        service.shutdown();
+      }
+    }
+    
+    public synchronized void mark(int partition, long bytes){
+      msgSec[cursor]++;
+      msgSec[60]++;
+      bytesSec[cursor] += bytes;
+      bytesSec[60] += bytes;
+      long[] msgv = _1_min_msg_sum_par.get(partition);
+      long[] bytev = _1_min_byte_sum_par.get(partition);
+      if(msgv == null){
+        msgv = new long[61];
+        bytev = new long[61];
+        _1_min_msg_sum_par.put(partition, msgv);
+        _1_min_byte_sum_par.put(partition, bytev); 
+      }
+      msgv[cursor]++;
+      msgv[60]++;
+      bytev[cursor] += bytes;
+      bytev[60] += bytes;
+    };
+    
+    public synchronized KafkaMeterStats getStats(){
+      double[] _1minAvg = {(double)msgSec[60]/(double)last, (double)bytesSec[60]/(double)last};
+      Map<Integer, double[]> _1minAvgPartition = new HashMap<Integer, double[]>();
+      for (Entry<Integer, long[]> item : _1_min_msg_sum_par.entrySet()) {
+        long[] msgv =item.getValue();
+        long[] bytev = _1_min_byte_sum_par.get(item.getKey());
+        double[] _1minAvgPar = {(double)msgv[60]/(double)last, (double)bytev[60]/(double)last};
+        _1minAvgPartition.put(item.getKey(), _1minAvgPar);
+      }
+      return new KafkaMeterStats(_1minAvgPartition, _1minAvg);
+    }
   }
 
 }
