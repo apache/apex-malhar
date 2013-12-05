@@ -23,6 +23,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 
 
 /**
@@ -69,6 +70,7 @@ import com.datatorrent.api.Operator;
  *
  * @since 0.3.4
  */
+@OperatorAnnotation(partitionable = false)
 public class PigCrossOperator implements Operator
 {
   /**

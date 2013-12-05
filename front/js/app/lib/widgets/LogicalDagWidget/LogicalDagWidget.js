@@ -26,6 +26,8 @@ var dagreD3 = require('dagre-d3');
 var MetricModel = require('./MetricModel');
 var MetricModelFactory = require('./MetricModelFactory');
 var LogicalOperatorCollection = DT.lib.LogicalOperatorCollection;
+var Streams = DT.lib.StreamCollection;
+var settings = DT.settings;
 
 var LogicalDagWidget = BaseView.extend({
 
@@ -35,7 +37,8 @@ var LogicalDagWidget = BaseView.extend({
         'click .metric-next': 'nextMetric',
         'change .metric2-select': 'changeMetric2',
         'click .metric-prev2': 'prevMetric2',
-        'click .metric-next2': 'nextMetric2'
+        'click .metric-next2': 'nextMetric2',
+        'click .toggle-legend': 'toggleLegend'
     },
 
     initialize: function(options) {
@@ -96,6 +99,8 @@ var LogicalDagWidget = BaseView.extend({
 
         this.model.loadLogicalPlan({
             success: _.bind(function(data) {
+                this.streams = new Streams(this.model.getStreams());
+
                 this.displayGraph(data.toJSON());
 
                 //this.metricModel = new MetricModel(null, { operators: this.operators });
@@ -133,8 +138,9 @@ var LogicalDagWidget = BaseView.extend({
     },
 
     displayGraph: function(data, physicalPlan) {
+        this.renderLegend();
         var graph = this.buildGraph(data);
-        this.renderGraph(graph, this.$el.find('.app-dag > svg')[0]);
+        this.renderGraph(graph, this.$el.find('.app-dag > .svg-main')[0]);
     },
 
     buildGraph: function(data) {
@@ -158,6 +164,21 @@ var LogicalDagWidget = BaseView.extend({
 
         var graph = { nodes: nodes, links: links };
         return graph;
+    },
+
+    toggleLegend: function () {
+        event.preventDefault();
+
+        var toggleLink = this.$el.find('.toggle-legend');
+        var legend = this.$el.find('.logical-dag-legend');
+
+        if (legend.is(':visible')) {
+            toggleLink.text('Show Legend');
+            legend.hide();
+        } else {
+            toggleLink.text('Hide Legend');
+            legend.show();
+        }
     },
 
     changeMetric: function () {
@@ -317,6 +338,29 @@ var LogicalDagWidget = BaseView.extend({
             that.addMetricLabel(nodeSvg, height);
             that.addMetricLabelDown(nodeSvg, height);
         });
+
+        this.updateStreams(graph, root);
+    },
+
+    updateStreams: function (graph, root) {
+        var streamLocality = {};
+        this.streams.each(function (stream) {
+            if (stream.has('locality')) {
+                streamLocality[stream.get('name')] = stream.get('locality');
+            }
+        });
+
+        root.selectAll("g .edge > path").each(function (d) {
+            var value = graph.edge(d);
+            var streamName = value.label;
+
+            var locality = streamLocality.hasOwnProperty(streamName) ? streamLocality[streamName] : 'NONE';
+            var localityDisplayProperty = settings.dag.edges.hasOwnProperty(locality) ? settings.dag.edges[locality] : settings.dag.edges.NONE;
+
+            if (localityDisplayProperty.dasharray) {
+                d3.select(this).attr('stroke-dasharray', localityDisplayProperty.dasharray);
+            }
+        });
     },
 
     addMetricLabel: function (nodeSvg, height) {
@@ -364,6 +408,12 @@ var LogicalDagWidget = BaseView.extend({
             this.postRender(graph, root);
         }.bind(this);
 
+        renderer._calculateEdgeDimensions = function (group, value) {
+            var bbox = group.getBBox();
+            value.width = bbox.width + 10;
+            value.height = bbox.height;
+        };
+
         var layout = dagreD3.layout().rankDir('LR');
         renderer.layout(layout).run(dagreD3.json.decode(nodes, links), svg.append("g"));
 
@@ -382,6 +432,65 @@ var LogicalDagWidget = BaseView.extend({
             svg.select("g")
                 .attr("transform", "translate(" + ev.translate + ") scale(" + ev.scale + ")");
         }));
+    },
+
+    renderLegend: function () {
+        var svgParent = this.$el.find('.svg-legend');
+        var elem = svgParent.children('g').get(0);
+        var svg = d3.select(elem);
+
+        //var data = ['NOT ASSIGNED', 'THREAD_LOCAL', 'CONTAINER_LOCAL', 'NODE_LOCAL', 'RACK_LOCAL'];
+        var data = _.map(_.keys(settings.dag.edges), function (locality) {
+            var displayProperties = settings.dag.edges[locality];
+            var label = displayProperties.displayName ? displayProperties.displayName : locality;
+            return {
+                label: label,
+                dasharray: displayProperties.dasharray
+            };
+        });
+
+        var baseY = 20;
+        var spaceY = 20;
+        var lineBaseY = 15;
+        var lineBaseX = 160;
+        var lineLength = 200;
+
+        svg.selectAll('text')
+            .data(data)
+            .enter()
+            .append('text')
+            .attr('y', function (d, i) {
+                return baseY + i * spaceY;
+            })
+            .text(function (d) {
+                return d.label;
+            });
+
+        var points = [
+            {x: lineBaseX},
+            {x: lineBaseX + lineLength}
+        ];
+
+        svg.selectAll('g .edge')
+            .data(data)
+            .enter()
+            .append('g')
+            .classed('edge', true)
+            .append('path')
+            .attr('marker-end', 'url(#arrowhead)')
+            .attr('stroke-dasharray', function (d) {
+                return d.dasharray;
+            })
+            .attr('d', function(d, lineIndex) {
+                return d3.svg.line()
+                    .x(function(d, i) {
+                        return d.x;
+                    })
+                    .y(function(d, i) {
+                        return lineBaseY + lineIndex * spaceY;
+                    })
+                    (points);
+            });;
     }
 
 });

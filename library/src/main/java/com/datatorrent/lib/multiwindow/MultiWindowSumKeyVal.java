@@ -15,6 +15,7 @@
  */
 package com.datatorrent.lib.multiwindow;
 
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.lib.math.SumKeyVal;
 import com.datatorrent.lib.util.KeyValPair;
 
@@ -44,6 +45,7 @@ import javax.validation.constraints.Min;
  *
  * @since 0.3.3
  */
+@OperatorAnnotation(partitionable = false)
 public class MultiWindowSumKeyVal<K, V extends Number> extends SumKeyVal<K, V>
 {
 	/**

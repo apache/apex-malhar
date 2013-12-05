@@ -17,6 +17,7 @@ package com.datatorrent.lib.statistics;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
@@ -38,6 +39,7 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  *
  * @since 0.3.4
  */
+@OperatorAnnotation(partitionable = false)
 public class WeightedMeanOperator<V extends Number>  extends BaseNumberValueOperator<V>
 {
   // aggregate weighted sum
