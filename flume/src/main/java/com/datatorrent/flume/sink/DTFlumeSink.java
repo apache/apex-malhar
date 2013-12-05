@@ -210,7 +210,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   @Override
   public void start()
   {
-    logger.debug("starting server...");
+    logger.debug("Starting server binding at {}:{}", hostname, port);
     try {
       eventloop = new DefaultEventLoop(eventloopName == null ? "EventLoop-" + getName() : eventloopName);
     }
@@ -219,14 +219,14 @@ public class DTFlumeSink extends AbstractSink implements Configurable
     }
     eventloop.start();
     eventloop.start(hostname, port, server);
-    logger.debug("started server!");
+    logger.info("Server listening at {}:{}.", hostname, port);
     super.start();
   }
 
   @Override
   public void stop()
   {
-    logger.debug("stopping server...");
+    logger.debug("Stopping server at {}:{}", hostname, port);
     try {
       super.stop();
     }
@@ -234,7 +234,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
       eventloop.stop(server);
       eventloop.stop();
     }
-    logger.debug("stopped server!");
+    logger.info("Stopped server at {}:{}", hostname, port);
   }
 
   /* End implementing Flume Sink interface */
@@ -287,7 +287,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
         {
           return true;
         }
-        
+
         @Override
         public boolean close()
         {
@@ -321,6 +321,38 @@ public class DTFlumeSink extends AbstractSink implements Configurable
     }
   }
   /* End Configurable Interface */
+
+  /**
+   * @return the hostname
+   */
+  String getHostname()
+  {
+    return hostname;
+  }
+
+  /**
+   * @param hostname the hostname to set
+   */
+  void setHostname(String hostname)
+  {
+    this.hostname = hostname;
+  }
+
+  /**
+   * @return the port
+   */
+  int getPort()
+  {
+    return port;
+  }
+
+  /**
+   * @param port the port to set
+   */
+  void setPort(int port)
+  {
+    this.port = port;
+  }
 
   private static final Logger logger = LoggerFactory.getLogger(DTFlumeSink.class);
 }

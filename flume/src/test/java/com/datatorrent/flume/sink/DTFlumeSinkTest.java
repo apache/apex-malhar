@@ -20,12 +20,17 @@ import org.apache.flume.channel.MemoryChannel;
  */
 public class DTFlumeSinkTest
 {
+  static final String hostname = "localhost";
+  static final int port = 5033;
+
   @Test
   @SuppressWarnings("SleepWhileInLoop")
   public void testServer() throws InterruptedException, IOException
   {
     DTFlumeSink sink = new DTFlumeSink();
     sink.setName("TeskSink");
+    sink.setHostname(hostname);
+    sink.setPort(port);
     sink.setChannel(new MemoryChannel());
     sink.start();
     AbstractLengthPrependerClient client = new AbstractLengthPrependerClient()
@@ -64,7 +69,7 @@ public class DTFlumeSinkTest
     DefaultEventLoop eventloop = new DefaultEventLoop("Eventloop-TestClient");
     eventloop.start();
     try {
-      eventloop.connect(new InetSocketAddress("localhost", 5033), client);
+      eventloop.connect(new InetSocketAddress(hostname, port), client);
       try {
         synchronized (this) {
           this.wait();
