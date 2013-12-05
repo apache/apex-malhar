@@ -23,6 +23,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.KeyValPair;
 
@@ -41,6 +42,7 @@ import com.datatorrent.lib.util.KeyValPair;
  *
  * @since 0.3.3
  */
+@OperatorAnnotation(partitionable = false)
 public class ConsolidatorKeyVal<K, V1, V2, V3, V4, V5> implements Operator
 {
 	/**

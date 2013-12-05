@@ -23,6 +23,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 
 /**
  * <p>
@@ -37,6 +38,7 @@ import com.datatorrent.api.Operator;
  *          Aggregate tuple type.
  * @since 0.3.3
  */
+@OperatorAnnotation(partitionable = false)
 public abstract class AbstractAggregator<T> implements Operator
 {
 	/**

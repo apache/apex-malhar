@@ -18,6 +18,7 @@ package com.datatorrent.lib.algo;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseMatchOperator;
 import java.util.HashMap;
@@ -54,6 +55,7 @@ import java.util.HashMap;
  *
  * @since 0.3.2
  */
+@OperatorAnnotation(partitionable = false)
 public class FirstTillMatchString<K> extends BaseMatchOperator<K,String>
 {
   /**

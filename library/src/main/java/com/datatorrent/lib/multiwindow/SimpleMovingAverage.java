@@ -18,6 +18,7 @@ package com.datatorrent.lib.multiwindow;
 import java.util.ArrayList;
 
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.KeyValPair;
 
@@ -40,6 +41,7 @@ import com.datatorrent.lib.util.KeyValPair;
  *
  * @since 0.3.3
  */
+@OperatorAnnotation(partitionable = false)
 public class SimpleMovingAverage<K, V extends Number> extends
 		AbstractSlidingWindowKeyVal<K, V, SimpleMovingAverageObject>
 {

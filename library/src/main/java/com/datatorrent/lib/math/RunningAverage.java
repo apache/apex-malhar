@@ -18,6 +18,7 @@ package com.datatorrent.lib.math;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 
 /**
  * Calculate the running average of the input numbers and emit it at the end of
@@ -36,6 +37,7 @@ import com.datatorrent.api.DefaultOutputPort;
  *
  * @since 0.3.3
  */
+@OperatorAnnotation(partitionable = false)
 public class RunningAverage extends BaseOperator
 {
 	/**
