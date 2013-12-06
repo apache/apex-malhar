@@ -28,7 +28,7 @@
     "http-proxy": "~0.10.3"
   },
   "dependencies": {
-    "browserify": "~2.18.1",
+    "browserify": "~2.36.1",
     "ktbr": "~0.1.0",
     "uglify-js": "2.2.5",
     "less": "1.3.3",
