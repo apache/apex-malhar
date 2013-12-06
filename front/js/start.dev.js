@@ -24,7 +24,7 @@ window.DT = require('./datatorrent');
 
 // Set up the options for the dashboard
 var appOptions = {
-    host: window.location.host,
+    host: window.WEBSOCKET_HOST || window.location.host,
     pages: require('./app/pages')
 };
 
