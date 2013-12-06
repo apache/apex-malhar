@@ -13,6 +13,13 @@
 .logical-dag .metric2-select-label {
   color: #2f96b4;
 }
-.logical-dag-legend {
-    display: none;
+.logical-dag .logical-dag-legend {
+  padding-right: 50px;
+  display: none;
+}
+.logical-dag .logical-dag-legend > svg {
+  float: right;
+}
+.logical-dag .options-controls {
+  float: right;
 }
