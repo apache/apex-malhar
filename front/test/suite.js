@@ -1,3 +1,5 @@
+require('backbone').$ = $;
+
 window.DT = require('../js/datatorrent');
 require('../js/datatorrent/AlertModel.spec');
 require('../js/datatorrent/AlertCollection.spec');
