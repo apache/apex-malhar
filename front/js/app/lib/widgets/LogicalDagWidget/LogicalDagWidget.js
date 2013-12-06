@@ -169,7 +169,7 @@ var LogicalDagWidget = BaseView.extend({
         return graph;
     },
 
-    toggleLocality: function () {
+    toggleLocality: function (event) {
         event.preventDefault();
 
         var toggleLocalityLink = this.$el.find('.toggle-locality');
