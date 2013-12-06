@@ -17,6 +17,9 @@ var proxy = new httpProxy.HttpProxy({
     }
 });
 
+// Set logger
+app.use(express.logger());
+
 // Configure the app
 app.configure(function(){
 
