@@ -43,10 +43,10 @@ public class HDFSStorage implements Storage, Configurable
         fs = FileSystem.get(conf);
         Path path = new Path(baseDir);
         if (!fs.exists(path)) {
-          throw new RuntimeException("baseDir passed is doesn't exist");
+          throw new RuntimeException(String.format("baseDir passed (%s) doesn't exist.", baseDir));
         }
         if (!fs.isDirectory(path)) {
-          throw new RuntimeException("baseDir passed is not directory");
+          throw new RuntimeException(String.format("baseDir passed (%s) is not a directory.", baseDir));
         }
         /* keeping the block size 2MB less than the default block size */
         blockSize = fs.getDefaultBlockSize(path) - 2 * 1024 * 1024;
@@ -66,12 +66,8 @@ public class HDFSStorage implements Storage, Configurable
 
     }
     else {
-      throw new RuntimeException("baseDir can't be empty");
+      throw new RuntimeException(String.format("baseDir (%s) can't be empty", baseDir));
     }
-  }
-
-  public HDFSStorage()
-  {
   }
 
   private byte[] readData(Path path) throws IOException
