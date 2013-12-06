@@ -19,6 +19,10 @@ var kt = require('knights-templar');
 var precompiled = require('./precompiled-templates');
 kt.registerPrecompiled(precompiled);
 
+// Manually set jquery to Backbone
+var Backbone = require('backbone');
+Backbone.$ = $;
+
 // Set the datatorrent library to DT, global object.
 window.DT = require('./datatorrent');
 
