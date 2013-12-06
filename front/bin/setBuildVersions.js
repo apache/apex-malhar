@@ -1,10 +1,26 @@
+/*
+ * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 var fs = require('fs');
+var path = require('path');
 
 // Read the index.build.html file into memory
-var index_markup = fs.readFileSync('./dist/index.html', 'utf8');
+var index_markup = fs.readFileSync(path.normalize(__dirname + '/../dist/index.html'), 'utf8');
 
 // Read package.json
-var pkg_string = fs.readFileSync('./dist/package.json');
+var pkg_string = fs.readFileSync(path.normalize(__dirname + '/../dist/package.json'), 'utf8');
 var pkg = JSON.parse(pkg_string);
 var version = pkg.version;
 
@@ -27,8 +43,8 @@ if ( ! (cssRE.test(index_markup)) || ! (jsRE.test(index_markup)) ) {
 index_markup = index_markup.replace(cssRE, css_replacement).replace(jsRE, js_replacement);
 
 // Rename the index.css and bundle.js files
-fs.renameSync('./dist/css/index.css', './dist/css/' + css_filename);
-fs.renameSync('./dist/js/bundle.js', './dist/js/' + js_filename);
+fs.renameSync(path.normalize(__dirname + '/../dist/css/index.css'), path.normalize(__dirname + '/../dist/css/' + css_filename));
+fs.renameSync(path.normalize(__dirname + '/../dist/js/bundle.js'), path.normalize(__dirname + '/../dist/js/' + js_filename));
 
 // Replace the content of dist/index.html
-fs.writeFileSync('./dist/index.html', index_markup);
+fs.writeFileSync(path.normalize(__dirname + '/../dist/index.html'), index_markup);

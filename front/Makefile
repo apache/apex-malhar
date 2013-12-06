@@ -17,7 +17,7 @@ clitest:
 # in stram-site.xml.
 build:
 	mkdir dist_tmp
-	cp index.build.html dist_tmp/index.html
+	cp index.html dist_tmp/index.html
 	cp package.json dist_tmp/package.json
 	cp favicon.ico dist_tmp/favicon.ico
 	mkdir dist_tmp/css
@@ -32,14 +32,14 @@ build:
 	cp img/* dist_tmp/img/
 	rm -rf dist
 	mv dist_tmp dist
-	node setBuildVersions.js
+	node bin/setBuildVersions.js
 
 # Same as above command, only it does not minify anything and keeps the console
 # logger enabled. Good for debugging issues that occur when the project is
 # deployed but not during development.
 build_debug:
 	mkdir dist_tmp
-	cp index.build.html dist_tmp/index.html
+	cp index.html dist_tmp/index.html
 	cp package.json dist_tmp/package.json
 	cp favicon.ico dist_tmp/favicon.ico
 	mkdir dist_tmp/css
@@ -52,7 +52,7 @@ build_debug:
 	cp img/* dist_tmp/img/
 	rm -rf dist
 	mv dist_tmp dist
-	node setBuildVersions.js
+	node bin/setBuildVersions.js
 
 # Spins up a beefy server that will browserify the UI javascript on-demand.
 # Used only during development. 
