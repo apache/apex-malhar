@@ -9,6 +9,16 @@ var Hash = require('hashish');
 var mgr = require('./util');
 var Stream = require('stream');
 
+var config = require('./config.js');
+var httpProxy = require('http-proxy');
+
+var proxy = new httpProxy.HttpProxy({
+    target: {
+        host: config.daemon.host,
+        port: config.daemon.port
+    }
+});
+
 // Pipe random app list out
 var sendApps = function(req, res){
     var num = Math.round(Math.random() * 10);
@@ -28,11 +38,15 @@ var sendOps = function(req, res){
 app.get('/resourcemanager/v1/cluster/apps', sendApps );
 app.get('/stram/v1/applications/:appId/operators', sendOps);
 
+app.get('/ws/*', function(req, res) {
+    proxy.proxyRequest(req, res);
+});
+
 // Serving static files
 app.use(express.static(__dirname, { maxAge: 86400000 }));
 
 // Spin up server
-server.listen(3333); console.log("Server listening on port 3333");
+server.listen(config.web.port); console.log("Server listening on port " + config.web.port);
 
 // Set up ws server
 wsServer = new WebSocketServer({server: server});
