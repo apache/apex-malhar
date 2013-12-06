@@ -454,8 +454,8 @@ var LogicalDagWidget = BaseView.extend({
         // Adjusting height to content
         var main = svgParent.find('g > g');
         var h = main.get(0).getBoundingClientRect().height;
-        var newHeight = h + 40;
-        newHeight = newHeight < 80 ? 80 : newHeight;
+        var newHeight = h + 50;
+        newHeight = newHeight < 110 ? 110 : newHeight;
         newHeight = newHeight > 500 ? 500 : newHeight;
         svgParent.height(newHeight);
 
