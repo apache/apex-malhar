@@ -23,7 +23,9 @@
     "optimist": "~0.6.0",
     "mocha-phantomjs": "~3.1.3",
     "phantomjs": "~1.9.2",
-    "sinon-chai": "~2.4.0"
+    "sinon-chai": "~2.4.0",
+    "ejs": "~0.8.5",
+    "http-proxy": "~0.10.3"
   },
   "dependencies": {
     "browserify": "~2.18.1",
@@ -39,7 +41,6 @@
     "d3": "~3.3.3",
     "mrcolor": "~0.0.1",
     "knights-templar": "~0.2.2",
-    "dagre-d3": "git://github.com/nickholub/dagre-d3.git",
-    "http-proxy": "~0.10.3"
+    "dagre-d3": "git://github.com/nickholub/dagre-d3.git"
   }
 }
