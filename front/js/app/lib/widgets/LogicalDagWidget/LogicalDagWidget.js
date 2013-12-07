@@ -182,6 +182,49 @@ var LogicalDagWidget = BaseView.extend({
         return graph;
     },
 
+    renderGraph: function(graph, selector) {
+        var svgParent = jQuery(selector);
+        var nodes = graph.nodes;
+        var links = graph.links;
+
+        var graphElem = svgParent.children('g').get(0);
+        var svg = d3.select(graphElem);
+        svg.selectAll("*").remove();
+
+        var renderer = new dagreD3.Renderer();
+
+        var oldPostRender = renderer._postRender;
+        renderer._postRender = function (graph, root) {
+            oldPostRender.call(renderer, graph, root);
+            this.postRender(graph, root);
+        }.bind(this);
+
+        renderer._calculateEdgeDimensions = function (group, value) {
+            var bbox = group.getBBox();
+            value.width = bbox.width + 10;
+            value.height = bbox.height;
+        };
+
+        var layout = dagreD3.layout().rankDir('LR');
+        renderer.layout(layout).run(dagreD3.json.decode(nodes, links), svg.append("g"));
+
+        // TODO
+        // Adjusting height to content
+        var main = svgParent.find('g > g');
+        var h = main.get(0).getBoundingClientRect().height;
+        var newHeight = h + 50;
+        newHeight = newHeight < 110 ? 110 : newHeight;
+        newHeight = newHeight > 500 ? 500 : newHeight;
+        svgParent.height(newHeight);
+
+        // Zoom
+        d3.select(svgParent.get(0)).call(d3.behavior.zoom().on("zoom", function() {
+            var ev = d3.event;
+            svg.select("g")
+                .attr("transform", "translate(" + ev.translate + ") scale(" + ev.scale + ")");
+        }));
+    },
+
     toggleLocality: function (event) {
         event.preventDefault();
 
@@ -435,49 +478,6 @@ var LogicalDagWidget = BaseView.extend({
 
         labelSvg.attr("transform",
             "translate(" + (-bbox.width / 2) + "," + (-bbox.height + height + 4) + ")");
-    },
-
-    renderGraph: function(graph, selector) {
-        var svgParent = jQuery(selector);
-        var nodes = graph.nodes;
-        var links = graph.links;
-
-        var graphElem = svgParent.children('g').get(0);
-        var svg = d3.select(graphElem);
-        svg.selectAll("*").remove();
-
-        var renderer = new dagreD3.Renderer();
-
-        var oldPostRender = renderer._postRender;
-        renderer._postRender = function (graph, root) {
-            oldPostRender.call(renderer, graph, root);
-            this.postRender(graph, root);
-        }.bind(this);
-
-        renderer._calculateEdgeDimensions = function (group, value) {
-            var bbox = group.getBBox();
-            value.width = bbox.width + 10;
-            value.height = bbox.height;
-        };
-
-        var layout = dagreD3.layout().rankDir('LR');
-        renderer.layout(layout).run(dagreD3.json.decode(nodes, links), svg.append("g"));
-
-        // TODO
-        // Adjusting height to content
-        var main = svgParent.find('g > g');
-        var h = main.get(0).getBoundingClientRect().height;
-        var newHeight = h + 50;
-        newHeight = newHeight < 110 ? 110 : newHeight;
-        newHeight = newHeight > 500 ? 500 : newHeight;
-        svgParent.height(newHeight);
-
-        // Zoom
-        d3.select(svgParent.get(0)).call(d3.behavior.zoom().on("zoom", function() {
-            var ev = d3.event;
-            svg.select("g")
-                .attr("transform", "translate(" + ev.translate + ") scale(" + ev.scale + ")");
-        }));
     },
 
     renderLegend: function () {
