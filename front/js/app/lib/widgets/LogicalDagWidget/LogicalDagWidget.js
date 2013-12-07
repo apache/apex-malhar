@@ -154,6 +154,75 @@ var LogicalDagWidget = BaseView.extend({
     },
 
     /**
+     * Creates legend for stream type display styles
+     * 
+     * @return {void}
+     */
+    renderLegend: function () {
+        var svgParent = this.$('.svg-legend');
+        var elem = svgParent.children('g').get(0);
+        var legend = d3.select(elem);
+
+        // Create a data array from all dag edge types (in settings)
+        // ['NOT ASSIGNED', 'THREAD_LOCAL', 'CONTAINER_LOCAL', 'NODE_LOCAL', 'RACK_LOCAL'];
+        var data = _.map( settings.dag.edges, function (displayProperties, locality) {
+            // Looks for a 'displayName' key in the properties first,
+            // otherwise just makes the key the label.
+            var label = displayProperties.displayName ? displayProperties.displayName : locality;
+            return {
+                label: label,
+                dasharray: displayProperties.dasharray
+            };
+        });
+
+        // Dimensions for location of label and lines
+        var baseY = 20;
+        var spaceY = 20;
+        var lineBaseY = 15;
+        var lineBaseX = 160;
+        var lineLength = 200;
+
+        // Add the labels to the legend
+        legend.selectAll('text')
+            .data(data)
+            .enter()
+            .append('text')
+            .attr('y', function (d, i) {
+                return baseY + i * spaceY;
+            })
+            .text(function (d) {
+                return d.label;
+            });
+
+        // Add the line samples
+        var points = [
+            {x: lineBaseX},
+            {x: lineBaseX + lineLength}
+        ];
+
+        legend.selectAll('g .edge')
+            .data(data)
+            .enter()
+            .append('g')
+            .classed('edge', true)
+            .append('path')
+            .attr('marker-end', 'url(#arrowhead)')
+            .attr('stroke-dasharray', function (d) {
+                return d.dasharray;
+            })
+            .attr('d', function(d, lineIndex) {
+                return d3.svg.line()
+                    .x(function(d, i) {
+                        return d.x;
+                    })
+                    .y(function(d, i) {
+                        return lineBaseY + lineIndex * spaceY;
+                    })
+                    (points);
+            });;
+    },
+
+    /**
      * Creates a graph object that is compatible for dagre-d3 usage.
      * 
      * @param  {Object} data JSON-serialized POJO of logical plan
@@ -432,7 +501,6 @@ var LogicalDagWidget = BaseView.extend({
         });
     },
 
-
     updateMetricLabel: function (graph, metric, d, nodeSvg) {
         var value = metric.getTextValue(d);
         var showMetric = metric.showMetric(d);
@@ -495,65 +563,6 @@ var LogicalDagWidget = BaseView.extend({
                 d3.select(this).attr('stroke-dasharray', localityDisplayProperty.dasharray);
             }
         });
-    },
-
-    renderLegend: function () {
-        var svgParent = this.$el.find('.svg-legend');
-        var elem = svgParent.children('g').get(0);
-        var svg = d3.select(elem);
-
-        //var data = ['NOT ASSIGNED', 'THREAD_LOCAL', 'CONTAINER_LOCAL', 'NODE_LOCAL', 'RACK_LOCAL'];
-        var data = _.map(_.keys(settings.dag.edges), function (locality) {
-            var displayProperties = settings.dag.edges[locality];
-            var label = displayProperties.displayName ? displayProperties.displayName : locality;
-            return {
-                label: label,
-                dasharray: displayProperties.dasharray
-            };
-        });
-
-        var baseY = 20;
-        var spaceY = 20;
-        var lineBaseY = 15;
-        var lineBaseX = 160;
-        var lineLength = 200;
-
-        svg.selectAll('text')
-            .data(data)
-            .enter()
-            .append('text')
-            .attr('y', function (d, i) {
-                return baseY + i * spaceY;
-            })
-            .text(function (d) {
-                return d.label;
-            });
-
-        var points = [
-            {x: lineBaseX},
-            {x: lineBaseX + lineLength}
-        ];
-
-        svg.selectAll('g .edge')
-            .data(data)
-            .enter()
-            .append('g')
-            .classed('edge', true)
-            .append('path')
-            .attr('marker-end', 'url(#arrowhead)')
-            .attr('stroke-dasharray', function (d) {
-                return d.dasharray;
-            })
-            .attr('d', function(d, lineIndex) {
-                return d3.svg.line()
-                    .x(function(d, i) {
-                        return d.x;
-                    })
-                    .y(function(d, i) {
-                        return lineBaseY + lineIndex * spaceY;
-                    })
-                    (points);
-            });;
     }
 
 });
