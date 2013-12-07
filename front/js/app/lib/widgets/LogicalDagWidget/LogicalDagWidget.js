@@ -141,14 +141,24 @@ var LogicalDagWidget = BaseView.extend({
         return this.template({ metrics: this.metrics });
     },
 
-    displayGraph: function(data, physicalPlan) {
+    /**
+     * Renders legend, renders graph to .svg-main element
+     * 
+     * @param  {Object} data       JSON-serialized POJO of logical plan
+     * @return {void}
+     */
+    displayGraph: function(data) {
         this.renderLegend();
         var graph = this.buildGraph(data);
         this.renderGraph(graph, this.$('.app-dag > .svg-main')[0]);
     },
 
-    // Creates a graph object that is compatible for
-    // dagre-d3 usage. `{nodes: [], links: []}`.
+    /**
+     * Creates a graph object that is compatible for dagre-d3 usage.
+     * 
+     * @param  {Object} data JSON-serialized POJO of logical plan
+     * @return {Object}      Transformed object, compatible with dagre-d3.
+     */
     buildGraph: function(data) {
         var nodes = [];
 
@@ -191,7 +201,7 @@ var LogicalDagWidget = BaseView.extend({
         }
     },
 
-    toggleLegend: function () {
+    toggleLegend: function (event) {
         event.preventDefault();
 
         var toggleLink = this.$el.find('.toggle-legend');
