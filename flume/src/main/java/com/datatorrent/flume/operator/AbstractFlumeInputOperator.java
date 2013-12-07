@@ -40,7 +40,7 @@ public abstract class AbstractFlumeInputOperator<T>
   private transient DefaultEventLoop eventloop;
   private transient RecoveryAddress recoveryAddress;
   @NotNull
-  private String connectAddress;
+  private String[] connectAddresses;
   private ArrayList<RecoveryAddress> recoveryAddresses = new ArrayList<RecoveryAddress>();
 
   private class Payload
@@ -57,7 +57,8 @@ public abstract class AbstractFlumeInputOperator<T>
   }
 
   private transient volatile boolean connected;
-  private transient AbstractLengthPrependerClient client = new AbstractLengthPrependerClient()
+
+  class Client extends AbstractLengthPrependerClient
   {
     @Override
     public void onMessage(byte[] buffer, int offset, int size)
@@ -104,7 +105,9 @@ public abstract class AbstractFlumeInputOperator<T>
       super.disconnected();
     }
 
-  };
+  }
+
+  private transient Client client;
 
   @Override
   public void setup(OperatorContext context)
@@ -119,10 +122,16 @@ public abstract class AbstractFlumeInputOperator<T>
   }
 
   @Override
+  @SuppressWarnings({"unchecked"})
   public void activate(OperatorContext ctx)
   {
-    String[] parts = connectAddress.split(":");
-    eventloop.connect(new InetSocketAddress(parts[0], Integer.parseInt(parts[1])), client);
+    if (connectAddresses.length != 1) {
+      throw new RuntimeException(String.format("A physical {} operator cannot connect to more than 1 addresses!", this.getClass().getSimpleName()));
+    }
+    for (int i = 0; i < connectAddresses.length; i++) {
+      String[] parts = connectAddresses[i].split(":");
+      eventloop.connect(new InetSocketAddress(parts[0], Integer.parseInt(parts[1])), client = new Client());
+    }
   }
 
   @Override
@@ -192,17 +201,17 @@ public abstract class AbstractFlumeInputOperator<T>
   /**
    * @return the connectAddress
    */
-  public String getConnectAddress()
+  public String[] getConnectAddresses()
   {
-    return connectAddress;
+    return connectAddresses.clone();
   }
 
   /**
-   * @param connectAddress the connectAddress to set
+   * @param connectAddresses the connectAddress to set
    */
-  public void setConnectAddress(String connectAddress)
+  public void setConnectAddresses(String[] connectAddresses)
   {
-    this.connectAddress = connectAddress;
+    this.connectAddresses = connectAddresses.clone();
   }
 
   private static class RecoveryAddress implements Serializable
