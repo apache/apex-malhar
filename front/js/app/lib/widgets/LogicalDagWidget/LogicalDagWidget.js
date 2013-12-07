@@ -13,9 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-/**
- * Info widget for port instances.
- */
+
 var _ = require('underscore');
 var Backbone = require('backbone');
 var kt = require('knights-templar');
@@ -29,6 +27,9 @@ var LogicalOperatorCollection = DT.lib.LogicalOperatorCollection;
 var Streams = DT.lib.StreamCollection;
 var settings = DT.settings;
 
+/**
+ * Visualizer widget for the logical DAG of an application.
+ */
 var LogicalDagWidget = BaseView.extend({
 
     events: {
