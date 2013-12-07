@@ -189,23 +189,34 @@ var LogicalDagWidget = BaseView.extend({
 
         var graphElem = svgParent.children('g').get(0);
         var svg = d3.select(graphElem);
+
+        // Remove all inner elements
         svg.selectAll("*").remove();
 
+        // Create renderer
         var renderer = new dagreD3.Renderer();
 
+        // Extend original post render function
         var oldPostRender = renderer._postRender;
         renderer._postRender = function (graph, root) {
             oldPostRender.call(renderer, graph, root);
             this.postRender(graph, root);
         }.bind(this);
 
+        // Define the function that calculates the dimensions for
+        // an edge in the graph (adds 10 pixels to either side)
         renderer._calculateEdgeDimensions = function (group, value) {
             var bbox = group.getBBox();
             value.width = bbox.width + 10;
             value.height = bbox.height;
         };
 
-        var layout = dagreD3.layout().rankDir('LR');
+        // Create the layout object
+        var layout = dagreD3.layout()
+            // DAG should go from left to right (LR)
+            .rankDir('LR');
+
+        // Run the renderer
         renderer.layout(layout).run(dagreD3.json.decode(nodes, links), svg.append("g"));
 
         // TODO
@@ -223,6 +234,64 @@ var LogicalDagWidget = BaseView.extend({
             svg.select("g")
                 .attr("transform", "translate(" + ev.translate + ") scale(" + ev.scale + ")");
         }));
+    },
+
+    /**
+     * Adds the labels for metrics above and below each logical operator.
+     * @param  {dagre.Digraph} graph The graph object for the DAG.
+     * @param  {SVGElement}    d3 selection
+     * @return {void}
+     */
+    postRender: function (graph, root) {
+        // add metric label, structure is the following
+        // g.node
+        // g.node-metric-label
+        //   text
+        //     tspan
+
+        this.graph = graph;
+        this.svgRoot = root;
+        this.svgNodes = root.selectAll("g .node");
+
+        var that = this;
+
+        this.svgNodes.each(function (d, i) {
+            var nodeSvg = d3.select(this);
+            var height = graph.node(d).height;
+
+            that.addMetricLabel(nodeSvg, height);
+            that.addMetricLabelDown(nodeSvg, height);
+        });
+
+        //this.updateStreams(graph, root);
+    }, 
+
+    addMetricLabel: function (nodeSvg, height) {
+        var labelSvg = nodeSvg.append("g").attr('class', 'node-metric-label');
+        labelSvg
+            .append("text")
+            .attr("text-anchor", "left")
+            .append("tspan")
+            .attr("dy", "1em");
+
+        var bbox = labelSvg.node().getBBox();
+
+        labelSvg.attr("transform",
+            "translate(" + (-bbox.width / 2) + "," + (-bbox.height - height / 2 - 4) + ")");
+    },
+
+    addMetricLabelDown: function (nodeSvg, height) {
+        var labelSvg = nodeSvg.append("g").attr('class', 'node-metric2-label');
+        labelSvg
+            .append("text")
+            .attr("text-anchor", "left")
+            .append("tspan")
+            .attr("dy", "1em");
+
+        var bbox = labelSvg.node().getBBox();
+
+        labelSvg.attr("transform",
+            "translate(" + (-bbox.width / 2) + "," + (-bbox.height + height + 4) + ")");
     },
 
     toggleLocality: function (event) {
@@ -397,30 +466,6 @@ var LogicalDagWidget = BaseView.extend({
             "translate(" + (-bbox.width / 2) + "," + (-bbox.height + height + 4) + ")");
     },
 
-    postRender: function (graph, root) {
-        // add metric label, structure is the following
-        // g.node
-        // g.node-metric-label
-        //   text
-        //     tspan
-
-        this.graph = graph;
-        this.svgRoot = root;
-        this.svgNodes = root.selectAll("g .node");
-
-        var that = this;
-
-        this.svgNodes.each(function (d, i) {
-            var nodeSvg = d3.select(this);
-            var height = graph.node(d).height;
-
-            that.addMetricLabel(nodeSvg, height);
-            that.addMetricLabelDown(nodeSvg, height);
-        });
-
-        //this.updateStreams(graph, root);
-    },
-
     createStreamLocalityMap: function () {
         var streamLocality = {};
         this.streams.each(function (stream) {
@@ -450,34 +495,6 @@ var LogicalDagWidget = BaseView.extend({
                 d3.select(this).attr('stroke-dasharray', localityDisplayProperty.dasharray);
             }
         });
-    },
-
-    addMetricLabel: function (nodeSvg, height) {
-        var labelSvg = nodeSvg.append("g").attr('class', 'node-metric-label');
-        labelSvg
-            .append("text")
-            .attr("text-anchor", "left")
-            .append("tspan")
-            .attr("dy", "1em");
-
-        var bbox = labelSvg.node().getBBox();
-
-        labelSvg.attr("transform",
-            "translate(" + (-bbox.width / 2) + "," + (-bbox.height - height / 2 - 4) + ")");
-    },
-
-    addMetricLabelDown: function (nodeSvg, height) {
-        var labelSvg = nodeSvg.append("g").attr('class', 'node-metric2-label');
-        labelSvg
-            .append("text")
-            .attr("text-anchor", "left")
-            .append("tspan")
-            .attr("dy", "1em");
-
-        var bbox = labelSvg.node().getBBox();
-
-        labelSvg.attr("transform",
-            "translate(" + (-bbox.width / 2) + "," + (-bbox.height + height + 4) + ")");
     },
 
     renderLegend: function () {
