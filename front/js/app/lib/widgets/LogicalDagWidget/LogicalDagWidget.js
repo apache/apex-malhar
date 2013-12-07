@@ -143,9 +143,11 @@ var LogicalDagWidget = BaseView.extend({
     displayGraph: function(data, physicalPlan) {
         this.renderLegend();
         var graph = this.buildGraph(data);
-        this.renderGraph(graph, this.$el.find('.app-dag > .svg-main')[0]);
+        this.renderGraph(graph, this.$('.app-dag > .svg-main')[0]);
     },
 
+    // Creates a graph object that is compatible for
+    // dagre-d3 usage. `{nodes: [], links: []}`.
     buildGraph: function(data) {
         var nodes = [];
 
