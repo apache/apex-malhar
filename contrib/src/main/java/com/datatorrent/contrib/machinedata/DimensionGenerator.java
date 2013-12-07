@@ -117,10 +117,12 @@ public class DimensionGenerator extends BaseOperator
         machineKey.setSoftware2(tupleKey.getSoftware2());
         random += machineKey.getSoftware2();
       }
+      /*
       if (random > 0) {
         randomGen.setSeed(System.currentTimeMillis());
         random = randomGen.nextInt(random);
       }
+      */
       int cpu = tuple.getCpu() + random;
       int ram = tuple.getRam() + random;
       int hdd = tuple.getHdd() + random;
