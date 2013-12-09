@@ -283,7 +283,6 @@ var LogicalDagWidget = BaseView.extend({
         // Run the renderer
         renderer.layout(layout).run(dagreD3.json.decode(nodes, links), svg.append("g"));
 
-        // TODO
         // Adjusting height to content
         var main = svgParent.find('g > g');
         var h = main.get(0).getBoundingClientRect().height;
