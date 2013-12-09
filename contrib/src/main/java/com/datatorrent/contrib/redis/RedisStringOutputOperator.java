@@ -20,7 +20,7 @@ import java.util.Map;
 /**
  * <p>
  * RedisStringOutputOperator class.
- * This class is used to optimized for writing Map<String,String> to Redis in a single set call instead of different set call for each of the keys in map 
+ * This class is optimized for writing Map to the Redis database in a single redis request instead of separate calls for each of the key value pairs in map
  * </p>
  *
  * @since 0.3.2
