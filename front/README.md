@@ -12,42 +12,48 @@ After cloning the [Malhar](https://github.com/DataTorrent/Malhar) repository fro
     npm install .
     make build
     
-This creates a `dist` folder whose contents should be copied into the static file server root on the DataTorrent Daemon.
+This creates a `dist` folder whose contents should be copied into the static file server root on the DataTorrent Gateway.
 
 Tests
 -------
 
-Tests are written using the [Mocha Framework](http://visionmedia.github.io/mocha/), the [Chai Assertion Library](http://chaijs.com/), and the [Sinon Library](http://sinonjs.org/). The `suite.js` file which is located in `front/test/` includes all the tests to be run. The individual test files are located in the same directory of the file they each are respectively testing, and by convention end in `.spec.js`.
+Tests are written using the [Mocha Framework](http://visionmedia.github.io/mocha/), the [Chai Assertion Library](http://chaijs.com/), and the [Sinon Library](http://sinonjs.org/). The `suite.js` file which is located in `front/test/` includes all the tests to be run. The individual test files are located in the same directory of the file under test, and by convention end in `.spec.js`.
+
+### CLI
+
+To run tests via command line, run `make clitest` (or `npm test`, which proxies to the make target).
 
 ### Browser
 
 To run the tests in the browser, run `make test`, then go to `http://localhost:3334/test/runner.html` to view the test results.
 
-### CLI
-
-To run tests via command line, run `make clitest`.
-
 
 Development
 -----------
 
-The code in this project is organized in a way that is compatible with [browserify](http://browserify.org/), a tool that allows you to write projects in Common.js (node.js) conventions (e.g. `require`, `module`, `exports`). Browserify achieves this by adding a bundling step between coding and viewing in the browser, similar to a compile step for CoffeeScript. The best way to streamline this bundling step during development is with [beefy](https://github.com/chrisdickinson/beefy), which spins up a server that automatically bundles the code on request.
+To start development on the DataTorrent UI, you will need to set up a ssh tunnel to the node in a DataTorrent cluster that has the DT Gateway successfully configured and running.
 
-### Getting Started
+### Configure
 
-One project goal that has not been achieved yet is to set up a complete mock implementation of the DT Gateway API to develop against, so the best way to get started developing/extending the Front is to have a Hadoop cluster with DataTorrent and the DT Gateway installed and running. The steps to set up a development environment are as follows:
+By default, this project assumes that you have a tunnel listening on port 3390 of your local machine that is connected to the Gateway node. If you are using another port, change the assignment of `config.gateway.port` in `config.js` to the appropriate port.
 
-1. Clone the [Malhar](https://github.com/DataTorrent/Malhar) repository to the machine that the DT Gateway is running on.
-2. Create a symbolic link called dev in the static file server root folder that points to the front/ folder in Malhar.
-3. On your local machine, ensure that Malhar is also cloned, then run `make bundle` and `node server` in the front/ folder (in two different shells or as two different background processes).
-4. Navigate to the dev folder of the DT Gateway static file server URL that your local machine has access to (this may require ssh tunneling or other steps depending on your environment). This might look like: `http://node0.yourcluster.com:PORT/static/dev`.
-5. the `make bundle` command starts the [beefy](https://github.com/chrisdickinson/beefy) server so that every time this URL is hit, your local code gets rebundled.
+### Starting Bundle Server
 
-### Improving Bundling Time
+This project uses [Browserify](http://browserify.org/) to bundle all the javascript files. This is basically like adding a "compile" step between writing code and viewing it in the browser. To streamline this process, you need to have a [beefy](https://github.com/chrisdickinson/beefy) server running on port 9222 of your local machine. This will make it so that when you make a code change, you can refresh the page and your changes will be reflected in the next load. 
 
-Because of the size of the project, and specifically one [browserify transform](https://github.com/substack/node-browserify#list-of-source-transforms) called ktbr that precompiles templates, the bundle process can take upwards of 8 seconds. To improve this, you can run the `make bundle_no_ktbr` command, which will significantly reduce bundle time, but also relies on synchronous ajax requests to fetch template files on demand. The problem here is that fetching these files located on your local machine violates the [Same-Origin Policy](http://en.wikipedia.org/wiki/Same-origin_policy) for web browsers. To circumvent, you may run Chrome or Chromium with web security disabled:
+Start the bundle server by running:
 
-	/path/to/chromium-or-chrome/executale/Chromium --disable-web-security
+	make bundle
+
+
+### Starting the Dev Server
+
+Lastly, run:
+
+	node server
+
+Then, open `http://localhost:3333/dev` in chrome and you should see the dashboard.
+
 
 
 The DT Global Variable

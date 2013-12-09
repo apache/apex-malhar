@@ -22,6 +22,7 @@
 
 var _ = require('underscore');
 var fs = require('fs');
+var path = require('path');
 
 // The starting content for precompiled-templates.js
 var result = 'var _ = require(\'underscore\'); exports = module.exports = {';
@@ -78,6 +79,6 @@ walk('./js', function(err, res) {
   result = result.replace(/,$/, '');
   result += '};';
 
-  fs.writeFileSync('./js/precompiled-templates.js', result);
+  fs.writeFileSync(path.normalize(__dirname + '/../js/precompiled-templates.js'), result);
 
 });

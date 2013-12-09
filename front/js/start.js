@@ -16,6 +16,10 @@
 // Set the datatorrent library to DT, global object.
 window.DT = require('./datatorrent');
 
+// Manually set jquery to Backbone
+var Backbone = require('backbone');
+Backbone.$ = $;
+
 // Set up the options for the dashboard
 var appOptions = {
     host: window.location.host,

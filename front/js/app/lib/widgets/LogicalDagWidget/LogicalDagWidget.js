@@ -38,8 +38,11 @@ var LogicalDagWidget = BaseView.extend({
         'change .metric2-select': 'changeMetric2',
         'click .metric-prev2': 'prevMetric2',
         'click .metric-next2': 'nextMetric2',
+        'click .toggle-locality': 'toggleLocality',
         'click .toggle-legend': 'toggleLegend'
     },
+
+    showLocality: false,
 
     initialize: function(options) {
         BaseView.prototype.initialize.call(this, options);
@@ -164,6 +167,25 @@ var LogicalDagWidget = BaseView.extend({
 
         var graph = { nodes: nodes, links: links };
         return graph;
+    },
+
+    toggleLocality: function (event) {
+        event.preventDefault();
+
+        var toggleLocalityLink = this.$el.find('.toggle-locality');
+        var legend = this.$el.find('.logical-dag-legend');
+
+        this.showLocality = !this.showLocality;
+
+        if (this.showLocality) {
+            toggleLocalityLink.text('Hide Stream Locality');
+            this.updateStreams(this.graph, this.svgRoot);
+            legend.show();
+        } else {
+            toggleLocalityLink.text('Show Stream Locality');
+            this.clearStreamLocality(this.svgRoot);
+            legend.hide();
+        }
     },
 
     toggleLegend: function () {
@@ -327,6 +349,7 @@ var LogicalDagWidget = BaseView.extend({
         //     tspan
 
         this.graph = graph;
+        this.svgRoot = root;
         this.svgNodes = root.selectAll("g .node");
 
         var that = this;
@@ -339,16 +362,26 @@ var LogicalDagWidget = BaseView.extend({
             that.addMetricLabelDown(nodeSvg, height);
         });
 
-        this.updateStreams(graph, root);
+        //this.updateStreams(graph, root);
     },
 
-    updateStreams: function (graph, root) {
+    createStreamLocalityMap: function () {
         var streamLocality = {};
         this.streams.each(function (stream) {
             if (stream.has('locality')) {
                 streamLocality[stream.get('name')] = stream.get('locality');
             }
         });
+
+        return streamLocality;
+    },
+
+    clearStreamLocality: function (root) {
+        root.selectAll("g .edge > path").attr('stroke-dasharray', null);
+    },
+
+    updateStreams: function (graph, root) {
+        var streamLocality = this.createStreamLocalityMap();
 
         root.selectAll("g .edge > path").each(function (d) {
             var value = graph.edge(d);
@@ -421,8 +454,8 @@ var LogicalDagWidget = BaseView.extend({
         // Adjusting height to content
         var main = svgParent.find('g > g');
         var h = main.get(0).getBoundingClientRect().height;
-        var newHeight = h + 40;
-        newHeight = newHeight < 80 ? 80 : newHeight;
+        var newHeight = h + 50;
+        newHeight = newHeight < 110 ? 110 : newHeight;
         newHeight = newHeight > 500 ? 500 : newHeight;
         svgParent.height(newHeight);
 
