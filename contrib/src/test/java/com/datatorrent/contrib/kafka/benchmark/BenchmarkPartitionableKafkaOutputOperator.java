@@ -49,14 +49,11 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitionable<
 
   private int threadNum = 1;
 
-  //define 1kb message
-  static final byte[] constantMsg= new byte[1024];
+  //define constant message
+  private byte[] constantMsg = null;
+  
+  private int msgSize = 1024;
 
-  static {
-    for (int i = 0; i < constantMsg.length; i++) {
-      constantMsg[i] = (byte) ('a' + i%26);
-    }
-  }
   @Override
   public void beginWindow(long arg0)
   {
@@ -98,9 +95,6 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitionable<
 
     ArrayList<Partition<BenchmarkPartitionableKafkaOutputOperator>> newPartitions = new ArrayList<Partitionable.Partition<BenchmarkPartitionableKafkaOutputOperator>>(partitionNum);
 
-    //get first one as tempalte
-    @SuppressWarnings("unchecked")
-    Partition<BenchmarkPartitionableKafkaOutputOperator> template = (Partition<BenchmarkPartitionableKafkaOutputOperator>) partitions.iterator().next();
     for (int i = 0; i < partitionNum; i++) {
       BenchmarkPartitionableKafkaOutputOperator bpkoo = new BenchmarkPartitionableKafkaOutputOperator();
       bpkoo.setPartitionNum(partitionNum);
@@ -116,6 +110,11 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitionable<
   public void activate(OperatorContext arg0)
   {
 
+    constantMsg = new byte[msgSize];
+    for (int i = 0; i < constantMsg.length; i++) {
+      constantMsg[i] = (byte) ('a' + i%26);
+    }
+    
     for (int i = 0; i < threadNum; i++) {
       new Thread(new Runnable() {
         @Override
@@ -191,6 +190,16 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitionable<
   public void setThreadNum(int threadNum)
   {
     this.threadNum = threadNum;
+  }
+  
+  public void setMsgSize(int msgSize)
+  {
+    this.msgSize = msgSize;
+  }
+  
+  public int getMsgSize()
+  {
+    return msgSize;
   }
 
 

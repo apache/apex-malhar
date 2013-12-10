@@ -16,7 +16,9 @@
 package com.datatorrent.contrib.kafka.benchmark;
 
 import kafka.message.Message;
+
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.contrib.kafka.AbstractPartitionableKafkaInputOperator;
 
 /**

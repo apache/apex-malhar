@@ -98,7 +98,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
    * 
    * @throws Exception
    */
-  public void testKafkaInputOperator(boolean isSimple, int sleepTime, final int totalCount, KafkaConsumer consumer) throws Exception
+  public void testKafkaInputOperator(int sleepTime, final int totalCount, KafkaConsumer consumer, boolean isValid) throws Exception
   {
     // initial the latch for this test
     latch = new CountDownLatch(1);
@@ -118,9 +118,11 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     // Create KafkaSinglePortStringInputOperator
     KafkaSinglePortStringInputOperator node = dag.addOperator("Kafka message consumer", KafkaSinglePortStringInputOperator.class);
     consumer.setTopic(TEST_TOPIC);
-    Set<String> brokerSet = new HashSet<String>();
-    brokerSet.add("localhost:9092");
-    consumer.setBrokerSet(brokerSet);
+    if (isValid) {
+      Set<String> brokerSet = new HashSet<String>();
+      brokerSet.add("localhost:9092");
+      consumer.setBrokerSet(brokerSet);
+    }
     node.setConsumer(consumer);
     
     // Create Test tuple collector
@@ -158,15 +160,18 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     // This damn property waste me 2 days! It's a 0.8 new property. "smallest" means
     // reset the consumer to the beginning of the message that is not consumed yet
     // otherwise it wont get any of those the produced before!
-    props.put("auto.offset.reset", "smallest");
-    testKafkaInputOperator(false, 1000, totalCount, new HighlevelKafkaConsumer(props));
+    KafkaConsumer k = new HighlevelKafkaConsumer(props);
+    k.setInitialOffset("earliest");
+    testKafkaInputOperator(1000, totalCount, k, true);
   }
   
   @Test
   public void testKafkaInputOperator_Simple() throws Exception
   {
     int totalCount = 10000;
-    testKafkaInputOperator(false, 1000, totalCount,new SimpleKafkaConsumer());
+    KafkaConsumer k = new SimpleKafkaConsumer();
+    k.setInitialOffset("earliest");
+    testKafkaInputOperator(1000, totalCount, k, true);
   }
   
   @Test
@@ -175,7 +180,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     int totalCount = 10000;
     SimpleKafkaConsumer consumer = new SimpleKafkaConsumer();
     try{
-      testKafkaInputOperator(false, 1000, totalCount,consumer);
+      testKafkaInputOperator(1000, totalCount,consumer, false);
     }catch(Exception e){
       // invalid host setup expect to fail here
       Assert.assertEquals("Error creating local cluster", e.getMessage());

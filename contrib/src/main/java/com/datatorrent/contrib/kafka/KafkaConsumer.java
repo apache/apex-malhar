@@ -15,14 +15,18 @@
  */
 package com.datatorrent.contrib.kafka;
 
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.NotNull;
-import com.yammer.metrics.Metrics;
-import com.yammer.metrics.core.Meter;
-import com.yammer.metrics.core.MetricName;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Pattern.Flag;
+import com.datatorrent.api.Stats.OperatorStats.CustomStats;
 import kafka.message.Message;
 
 
@@ -36,16 +40,10 @@ public abstract class KafkaConsumer
   protected final static String HIGHLEVEL_CONSUMER_ID_SUFFIX = "_stream_";
   
   protected final static String SIMPLE_CONSUMER_ID_SUFFIX = "_partition_";
-  
-  // use yammer metrics to tick consumers' msg rate
-  private Meter msgPerSec;
-  
-  private Meter bytesPerSec;
+
   
   public KafkaConsumer()
   {
-    Set<String> brokerSet = new HashSet<String>();
-    brokerSet.add("localhost:9092");
   }
   
   public KafkaConsumer(String topic)
@@ -79,7 +77,21 @@ public abstract class KafkaConsumer
    */
   @NotNull
   protected Set<String> brokerSet;
+  
+  
+  /**
+   * The initialOffset could be either earliest or latest
+   * Earliest means the beginning the queue
+   * Latest means the current sync point to consume the queue
+   * This setting is case_insensitive
+   * By default it always consume from the beginning of the queue
+   */
+  @Pattern(flags={Flag.CASE_INSENSITIVE}, regexp = "earliest|latest")
+  protected String initialOffset = "latest";
 
+
+  protected transient SnapShot statsSnapShot = new SnapShot();
+  
   /**
    * This method is called in setup method of the operator
    */
@@ -92,20 +104,21 @@ public abstract class KafkaConsumer
    */
   public void start(){
     isAlive = true;
-    msgPerSec = Metrics.defaultRegistry().newMeter(new MetricName(getClass().getPackage().getName(), "KafkaConsumer", "MsgsPerSec"),"messages", TimeUnit.SECONDS);
-    bytesPerSec = Metrics.defaultRegistry().newMeter(new MetricName(getClass().getPackage().getName(), "KafkaConsumer", "BytesPerSec"),"bytes", TimeUnit.SECONDS);
+    statsSnapShot.start();
   };
 
   /**
    * The method is called in the deactivate method of the operator
    */
   public void stop(){
-    Metrics.defaultRegistry().removeMetric(new MetricName(getClass().getPackage().getName(), "KafkaConsumer", "MsgsPerSec"));
-    Metrics.defaultRegistry().removeMetric(new MetricName(getClass().getPackage().getName(), "KafkaConsumer", "BytesPerSec"));
     isAlive = false;
+    statsSnapShot.stop();
     holdingBuffer.clear();
+    _stop();
   };
   
+  abstract protected void _stop();
+
   /**
    * This method is called in teardown method of the operator
    */
@@ -154,17 +167,185 @@ public abstract class KafkaConsumer
     return brokerSet;
   }
   
+  public void setInitialOffset(String initialOffset)
+  {
+    this.initialOffset = initialOffset;
+  }
   
-  final protected void putMessage(Message msg){
-    holdingBuffer.add(msg);
-    msgPerSec.mark();
-    bytesPerSec.mark(msg.payloadSize());
+  public String getInitialOffset()
+  {
+    return initialOffset;
+  }
+  
+  
+  final protected void putMessage(int partition, Message msg) throws InterruptedException{
+    // block from receiving more message
+    holdingBuffer.put(msg);
+    statsSnapShot.mark(partition, msg.payloadSize());
   };
   
 
-  protected abstract KafkaConsumer cloneConsumer(int partitionId);
+  protected abstract KafkaConsumer cloneConsumer(Set<Integer> partitionIds);
+  
+  protected abstract KafkaConsumer cloneConsumer(Set<Integer> partitionIds, Map<Integer, Long> startOffset);
 
   protected abstract void commitOffset();
 
+  protected abstract Map<Integer, Long> getCurrentOffsets();
+  
+  public final KafkaMeterStats getConsumerStats()
+  {
+    return statsSnapShot.getStats();
+  }
+  
+  static class KafkaMeterStats implements CustomStats
+  {
+
+    private static final long serialVersionUID = -2867402654990209006L;
+
+    private Map<Integer, double[]> _1minMovingAvgPerPartition = new HashMap<Integer, double[]>();
+
+    private double[] _1minMovingAvg = new double[]{0,0};
+    
+    public KafkaMeterStats()
+    {
+      
+    }
+
+    public KafkaMeterStats(Map<Integer, double[]> _1minMovingAvgPerPartition, double[] _1minMovingRate)
+    {
+      super();
+      this.set_1minMovingAvgPerPartition(_1minMovingAvgPerPartition);
+      this.set_1minMovingAvg(_1minMovingRate);
+    }
+
+    public Map<Integer, double[]> get_1minMovingAvgPerPartition()
+    {
+      return _1minMovingAvgPerPartition;
+    }
+
+    public void set_1minMovingAvgPerPartition(Map<Integer, double[]> _1minMovingAvgPerPartition)
+    {
+      this._1minMovingAvgPerPartition = _1minMovingAvgPerPartition;
+    }
+
+    public double[] get_1minMovingAvg()
+    {
+      return _1minMovingAvg;
+    }
+
+    public void set_1minMovingAvg(double[] _1minMovingAvg)
+    {
+      this._1minMovingAvg = _1minMovingAvg;
+    }
+
+}
+
+  
+  
+  /**
+   * A snapshot of consuming rate within 1 min
+   */
+  static class SnapShot {
+    
+    // msgs/s and bytes/s for each partition
+    
+    /**
+     * 1 min total msg number for each partition 
+     */
+    private final Map<Integer, long[]> _1_min_msg_sum_par = new HashMap<Integer, long[]>();
+    
+    /**
+     * 1 min total byte number for each partition
+     */
+    private final Map<Integer, long[]> _1_min_byte_sum_par = new HashMap<Integer, long[]>();
+    
+    private static int cursor = 0;
+    
+    /**
+     * total msg for each sec, msgSec[60] is total msg for a min
+     */
+    private long[] msgSec = new long[61];
+    
+    /**
+     * total bytes for each sec, bytesSec[60] is total bytes for a min
+     */
+    private long[] bytesSec = new long[61];
+    
+    private short last = 0;
+    
+    private ScheduledExecutorService service;
+
+    public synchronized void moveNext()
+    {
+      cursor = (cursor + 1) % 60;
+      msgSec[60] -= msgSec[cursor];
+      bytesSec[60] -= msgSec[cursor];
+      msgSec[cursor] = 0;
+      bytesSec[cursor] = 0;
+      for (Entry<Integer, long[]> item : _1_min_msg_sum_par.entrySet()) {
+        long[] msgv = item.getValue();
+        long[] bytesv = _1_min_byte_sum_par.get(item.getKey());
+        msgv[60] -= msgv[cursor];
+        bytesv[60] -= bytesv[cursor];
+        msgv[cursor] = 0;
+        bytesv[cursor] = 0;
+      }
+      
+    }
+    
+    
+    public void start(){
+      if(service==null){
+        service = Executors.newScheduledThreadPool(1);
+      }
+      service.scheduleAtFixedRate(new Runnable() {
+        @Override
+        public void run()
+        {
+          moveNext();
+          if(last<60)last++;
+        }
+      }, 1, 1, TimeUnit.SECONDS);
+      
+    }
+    
+    public void stop(){
+      if(service!=null){
+        service.shutdown();
+      }
+    }
+    
+    public synchronized void mark(int partition, long bytes){
+      msgSec[cursor]++;
+      msgSec[60]++;
+      bytesSec[cursor] += bytes;
+      bytesSec[60] += bytes;
+      long[] msgv = _1_min_msg_sum_par.get(partition);
+      long[] bytev = _1_min_byte_sum_par.get(partition);
+      if(msgv == null){
+        msgv = new long[61];
+        bytev = new long[61];
+        _1_min_msg_sum_par.put(partition, msgv);
+        _1_min_byte_sum_par.put(partition, bytev); 
+      }
+      msgv[cursor]++;
+      msgv[60]++;
+      bytev[cursor] += bytes;
+      bytev[60] += bytes;
+    };
+    
+    public synchronized KafkaMeterStats getStats(){
+      double[] _1minAvg = {(double)msgSec[60]/(double)last, (double)bytesSec[60]/(double)last};
+      Map<Integer, double[]> _1minAvgPartition = new HashMap<Integer, double[]>();
+      for (Entry<Integer, long[]> item : _1_min_msg_sum_par.entrySet()) {
+        long[] msgv =item.getValue();
+        long[] bytev = _1_min_byte_sum_par.get(item.getKey());
+        double[] _1minAvgPar = {(double)msgv[60]/(double)last, (double)bytev[60]/(double)last};
+        _1minAvgPartition.put(item.getKey(), _1minAvgPar);
+      }
+      return new KafkaMeterStats(_1minAvgPartition, _1minAvg);
+    }
+  }
 
 }
