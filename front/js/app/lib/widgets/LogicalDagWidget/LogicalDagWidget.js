@@ -26,6 +26,7 @@ var MetricModelFactory = require('./MetricModelFactory');
 var LogicalOperatorCollection = DT.lib.LogicalOperatorCollection;
 var Streams = DT.lib.StreamCollection;
 var settings = DT.settings;
+require('../../../../vendor/mutation-observer.polyfill');
 
 /**
  * Visualizer widget for the logical DAG of an application.
@@ -281,21 +282,26 @@ var LogicalDagWidget = BaseView.extend({
             .rankDir('LR');
 
         // Run the renderer
-        renderer.layout(layout).run(dagreD3.json.decode(nodes, links), svg.append("g"));
+        var d3_graph = renderer.layout(layout).run(dagreD3.json.decode(nodes, links), svg.append("g"));
 
         // Adjusting height to content
         var main = svgParent.find('g > g');
-        var h = main.get(0).getBoundingClientRect().height;
+        var main_dimensions = main.get(0).getBoundingClientRect();
+        var h = main_dimensions.height;
         var newHeight = h + 50;
-        newHeight = newHeight < 110 ? 110 : newHeight;
+        newHeight = newHeight < 200 ? 200 : newHeight;
         newHeight = newHeight > 500 ? 500 : newHeight;
         svgParent.height(newHeight);
+
+        // Render the minimap/flyover/birds eye view
+        this.renderMinimap(d3_graph, main_dimensions, svgParent);
 
         // Zoom
         d3.select(svgParent.get(0)).call(d3.behavior.zoom().on("zoom", function() {
             var ev = d3.event;
             svg.select("g")
                 .attr("transform", "translate(" + ev.translate + ") scale(" + ev.scale + ")");
+
         }));
     },
 
@@ -327,7 +333,130 @@ var LogicalDagWidget = BaseView.extend({
         });
 
         //this.updateStreams(graph, root);
-    }, 
+    },
+
+    /**
+     * Creates minimap of the dag view.
+     * @param  {d3.Digraph}   graph
+     * @param  {Object}       graph_dimensions    Contains width and height attributes of dag boundaries
+     * @param  {jQuery}       root                Root svg element as a jquery element
+     * @return {void}
+     */
+    renderMinimap: function(graph, graph_dimensions, root) {
+
+        // Padding for the map
+        var mapPadding = 10;
+        var halfMapPadding = mapPadding/2;
+
+        // Width and Height of root svg element in widget
+        var rootWidth = root.width();
+        var rootHeight = root.height();
+
+        // The map's width
+        var mapWidth = rootWidth * 0.2;
+        // The ratio between the map and the graph
+        var mapMultiplier = mapWidth / graph_dimensions.width;
+        // Map height
+        var mapHeight = graph_dimensions.height * mapMultiplier + mapPadding;
+        // adjust mapwidth with padding
+        mapWidth += mapPadding;
+
+        // Create the minimap group
+        var minimap = this.minimap = d3.select(root[0])
+            .append('g')
+            .attr({
+                'class': 'dag-minimap',
+                // minus 1 to include bottom and right borders for minimap
+                'transform': 'translate(' + (rootWidth - mapWidth - 1) + ',' + (rootHeight - mapHeight -1) + ')'
+            });
+
+        // backdrop
+        minimap.append('rect').attr({
+            'class': 'minimap-backdrop',
+            'height': mapHeight,
+            'width': mapWidth
+        });
+
+        // Create clip-path for viewbox
+        minimap.append('defs').append('clipPath')
+            .attr('id', 'minimap-clip-path')
+            .append('rect')
+            .attr({
+                'height': mapHeight,
+                'width': mapWidth
+            });
+
+
+        // nodes and edges
+        graph.eachNode(function(nodeName, info) {
+            var width, height;
+            minimap.append('rect')
+                .attr({
+                    'class': 'minimap-operator',
+                    'width': width = info.width * mapMultiplier,
+                    'height': height = info.height * mapMultiplier,
+                    'x': info.x * mapMultiplier - width/2 + halfMapPadding,
+                    'y': info.y * mapMultiplier - height/2 + halfMapPadding
+                });
+        });
+        graph.eachEdge(function(stream_id, source_name, sink_name, info) {
+            minimap.append('path')
+                .attr('class', 'minimap-stream')
+                .attr('d', function() {
+                    var point_strings = _.map(info.points, function(point) { 
+                        return (point.x * mapMultiplier + halfMapPadding) + 
+                        ',' + 
+                        (point.y * mapMultiplier + halfMapPadding)
+                    });
+                    return 'M' + point_strings.join('L');
+                });
+        });
+
+        // Create minimap viewbox
+        var viewbox = minimap.append('rect')
+            .attr('class', 'minimap-viewbox')
+            .attr({
+                'width': rootWidth * mapMultiplier,
+                'height': rootHeight * mapMultiplier,
+                'x': 0,
+                'y': 0,
+                'clip-path': 'url(#minimap-clip-path)'
+            });
+        
+        // Listen for changes to the transform attribute on the main dag group
+        var transformRE = /translate\(([-\.0-9]+),([-\.0-9]+)\)\s+scale\(([\.0-9]+)\)/;
+        var observer = new MutationObserver(function (mutations) {
+          mutations.forEach(function attrModified(mutation) {
+                var name = mutation.attributeName;
+                if (name === 'transform') {
+                    newValue = mutation.target.getAttribute(name);
+                    var matches = transformRE.exec(newValue);
+                    var x = matches[1];
+                    var y = matches[2];
+                    var scale = matches[3];
+                    updateMinimap(x,y,scale);
+                }
+            });
+        });
+        observer.observe(root.find('g>g')[0], { attributes: true, subtree: false });
+
+        function updateMinimap(x,y,scale) {
+            viewbox.attr({
+                'width': rootWidth * mapMultiplier / scale,
+                'height': rootHeight * mapMultiplier / scale,
+                'x': -x * mapMultiplier / scale,
+                'y': -y * mapMultiplier / scale
+            });
+        }
+
+        // Create interaction rectangle (and clip path)
+        minimap.append('rect')
+            .attr({
+                'class': 'minimap-interaction',
+                'height': mapHeight,
+                'width': mapWidth
+            });
+    },
 
     addMetricLabel: function (nodeSvg, height) {
         var labelSvg = nodeSvg.append("g").attr('class', 'node-metric-label');
