@@ -70,6 +70,12 @@ public class HDFSStorage implements Storage, Configurable
     }
   }
 
+  /**
+   * This function reads the file at a location and return the bytes stored in the file
+   * @param path the location of the file
+   * @return
+   * @throws IOException
+   */
   private byte[] readData(Path path) throws IOException
   {
     DataInputStream is = new DataInputStream(fs.open(path));
@@ -79,6 +85,13 @@ public class HDFSStorage implements Storage, Configurable
     return bytes;
   }
 
+  /**
+   * This function writes the bytes to a file specified by the path
+   * @param path the file location
+   * @param data the data to be written to the file
+   * @return
+   * @throws IOException
+   */
   private FSDataOutputStream writeData(Path path, byte[] data) throws IOException
   {
     FSDataOutputStream stream = fs.create(path);
@@ -86,6 +99,13 @@ public class HDFSStorage implements Storage, Configurable
     return stream;
   }
 
+  /**
+   * 
+   * @param value
+   * @param b
+   * @param start
+   * @param size
+   */
   private void longToByteArray(long value, byte[] b, int start, int size)
   {
     for (int i = 0; i < size; i++) {
@@ -99,6 +119,13 @@ public class HDFSStorage implements Storage, Configurable
     }
   }
 
+  /**
+   * 
+   * @param b
+   * @param size
+   * @param startIndex
+   * @return
+   */
   private long byteArrayToLong(byte[] b, int size, int startIndex)
   {
     long l = 0;

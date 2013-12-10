@@ -11,7 +11,7 @@ public interface Storage
   public long store(byte[] bytes);
 
   /**
-   * This returns the bytes identified by the identifier
+   * This returns the bytes and the identifier identified by the identifier. This identifier is used to retrieve next bytes in retriveNext function call
    *
    * @param identifier
    * @return
@@ -19,7 +19,7 @@ public interface Storage
   public RetrievalObject retrieve(long identifier);
 
   /**
-   * This returns the the bytes
+   * This returns the next identifier and bytes identified by this identifier  
    *
    * @return
    */
