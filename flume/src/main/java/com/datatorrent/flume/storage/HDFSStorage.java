@@ -42,6 +42,7 @@ public class HDFSStorage implements Storage, Configurable
       try {
         fs = FileSystem.get(conf);
         Path path = new Path(baseDir);
+        logger.debug("Base path {}",path);
         if (!fs.exists(path)) {
           throw new RuntimeException(String.format("baseDir passed (%s) doesn't exist.", baseDir));
         }
