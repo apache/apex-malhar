@@ -95,35 +95,37 @@ public class DimensionGenerator extends BaseOperator
       MachineKey machineKey = new MachineKey(tupleKey.getTimeKey(),tupleKey.getDay());    
       if ((i & 1) != 0) {
         machineKey.setCustomer(tupleKey.getCustomer());
-        random += machineKey.getCustomer();
+        //random += machineKey.getCustomer();
       }
       if ((i & 2) != 0) {
         machineKey.setProduct(tupleKey.getProduct());
-        random += machineKey.getProduct();
+        //random += machineKey.getProduct();
       }
       if ((i & 4) != 0) {
         machineKey.setOs(tupleKey.getOs());
-        random += machineKey.getOs();
+        //random += machineKey.getOs();
       }
       if ((i & 8) != 0) {
         machineKey.setDeviceId(tupleKey.getDeviceId());
-        random += machineKey.getDeviceId();
+        //random += machineKey.getDeviceId();
       }
       if ((i & 16) != 0) {
         machineKey.setSoftware1(tupleKey.getSoftware1());
-        random += machineKey.getSoftware1();
+        //random += machineKey.getSoftware1();
       }
       if ((i & 32) != 0) {
         machineKey.setSoftware2(tupleKey.getSoftware2());
-        random += machineKey.getSoftware2();
+        //random += machineKey.getSoftware2();
       }
+      /*
       if (random > 0) {
         randomGen.setSeed(System.currentTimeMillis());
         random = randomGen.nextInt(random);
       }
-      int cpu = tuple.getCpu() + random;
-      int ram = tuple.getRam() + random;
-      int hdd = tuple.getHdd() + random;
+      */
+      int cpu = tuple.getCpu();
+      int ram = tuple.getRam();
+      int hdd = tuple.getHdd();
       MachineInfo machineInfo = new MachineInfo();
       machineInfo.setMachineKey(machineKey);
       machineInfo.setCpu((cpu < threshold)?cpu:threshold);
