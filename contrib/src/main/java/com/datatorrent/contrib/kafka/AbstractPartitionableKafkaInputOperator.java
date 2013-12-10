@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -47,20 +46,32 @@ import com.google.common.collect.Sets;
  * This kafka input operator will be automatically partitioned per upstream kafka partition.<br> <br>
  * This is not real dynamic partition, The partition number is decided by number of partition set for the topic in kafka.<br> <br>
  *
- * <b>Patition Strategy:</b> <br>
- * <p><b>1. _11 partition</b> Each operator partition will consume from only one kafka partition </p>
- * <p><b>2. _1NH partition</b> Each operator partition consumer from multiple kafka partition with some hard ingestion rate limit</p>
- * <p><b>3. _1NS partition</b> Each operator partition consumer from multiple kafka partition and partition number depends on real time bottle neck(soft limit)</p>
+ * <b>Partition Strategy:</b>
+ * <p><b>1. ONE_TO_ONE partition</b> Each operator partition will consume from only one kafka partition </p>
+ * <p><b>2. ONE_TO_MANY partition</b> Each operator partition consumer from multiple kafka partition with some hard ingestion rate limit</p>
+ * <p><b>3. ONE_TO_MANY_HEURISTIC partition</b>(Not implemented yet) Each operator partition consumer from multiple kafka partition and partition number depends on heuristic function(real time bottle neck)</p>
+ * <p><b>Note:</b> ONE_TO_MANY partition only support simple kafka consumer because 
+ * <p>  1) high-level consumer can only balance the number of brokers it consumes from rather than the actual load from each broker</p>
+ * <p>  2) high-level consumer can not reset offset once it's committed so the tuples are not replayable </p>
+ * <p></p>
+ * <br> 
  * <br>
- * <b>Basic Algorithm:</b> <br>
+ * <b>Basic Algorithm:</b> 
  * <p>1.Pull the metadata(how many partitions) of the topic from brokerList of {@link KafkaConsumer}</p>
  * <p>2.cloneConsumer method is used to initialize the new {@link KafkaConsumer} instance for the new partition operator</p>
  * <p>3.cloneOperator method is used to initialize the new {@link AbstractPartitionableKafkaInputOperator} instance for the new partition operator</p>
- * <p>4.1 to N partition use first-fit decreasing algorithm(http://en.wikipedia.org/wiki/Bin_packing_problem) to minimize the partition operator
+ * <p>4.ONE_TO_MANY partition use first-fit decreasing algorithm(http://en.wikipedia.org/wiki/Bin_packing_problem) to minimize the partition operator
  * <br>
  * <br>
  * <b>Load balance:</b> refer to {@link SimpleKafkaConsumer} and {@link HighlevelKafkaConsumer} <br>
  * <b>Kafka partition failover:</b> refer to {@link SimpleKafkaConsumer} and {@link HighlevelKafkaConsumer}
+ * <br>
+ * <br>
+ * <b>Self adjust to Kafka partition change:</b>
+ * <p><b>EACH</b> operator partition periodically check the leader broker(s) change which it consumes from and adjust connection without repartition</p>
+ * <p><b>ONLY APPMASTER</b> operator periodically check overall kafka partition layout and add operator partition due to kafka partition add(no delete supported by kafka for now)</p>
+ * <br>
+ * <br>
  *
  * @since 0.9.0
  */
@@ -68,11 +79,11 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
 {
   
   // By default the partition policy is 1:1  
-  public  PartitionStrategy strategy = PartitionStrategy._11;
+  public  PartitionStrategy strategy = PartitionStrategy.ONE_TO_ONE;
   
   private transient OperatorContext context = null;
   
-  // default resource is unlimited in terms of msg per second
+  // default resource is unlimited in terms of msgs per second
   private long msgRateUpperBound = Long.MAX_VALUE;
   
   // default resource is unlimited in terms of bytes per second
@@ -96,6 +107,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
   
   private transient long lastRepartitionTime = 0L;
   
+  private transient List<Integer> newWaitingPartition = new LinkedList<Integer>();
 
   @Override
   public Collection<Partition<AbstractPartitionableKafkaInputOperator>> definePartitions(Collection<Partition<AbstractPartitionableKafkaInputOperator>> partitions, int incrementalCapacity)
@@ -118,32 +130,56 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     
     // For the 1 to 1 mapping The framework will create number of operator partitions based on kafka topic partitions
     // Each operator partition will consume from only one kafka partition 
-    case _11:
+    case ONE_TO_ONE:
       
-      logger.info("[_11]: Initializing partition(s)");
-      
-      // initialize the number of operator partitions according to number of kafka partitions
+      if (isInitialParitition) {
+        lastRepartitionTime = System.currentTimeMillis();
+        logger.info("[ONE_TO_ONE]: Initializing partition(s)");
 
-      newPartitions = new ArrayList<Partition<AbstractPartitionableKafkaInputOperator>>(kafkaPartitionList.size());
-      for (int i = 0; i < kafkaPartitionList.size(); i++) {
-        logger.info("Create operator partition for kafka partition: " + kafkaPartitionList.get(i).partitionId() + ", topic: " + this.getConsumer().topic);
-        Partition<AbstractPartitionableKafkaInputOperator> p = new DefaultPartition<AbstractPartitionableKafkaInputOperator>(cloneOperator());
-        PartitionMetadata pm = kafkaPartitionList.get(i);
-        KafkaConsumer newConsumerForPartition = getConsumer().cloneConsumer(Sets.newHashSet(pm.partitionId()));
-        p.getPartitionedInstance().setConsumer(newConsumerForPartition);
-        PartitionInfo pif = new PartitionInfo();
-        pif.kpids = Sets.newHashSet(pm.partitionId());
-        currentPartitionInfo.add(pif);
-        newPartitions.add(p);
+        // initialize the number of operator partitions according to number of kafka partitions
+
+        newPartitions = new ArrayList<Partition<AbstractPartitionableKafkaInputOperator>>(kafkaPartitionList.size());
+        for (int i = 0; i < kafkaPartitionList.size(); i++) {
+          logger.info("[ONE_TO_ONE]: Create operator partition for kafka partition: " + kafkaPartitionList.get(i).partitionId() + ", topic: " + this.getConsumer().topic);
+          Partition<AbstractPartitionableKafkaInputOperator> p = new DefaultPartition<AbstractPartitionableKafkaInputOperator>(cloneOperator());
+          PartitionMetadata pm = kafkaPartitionList.get(i);
+          KafkaConsumer newConsumerForPartition = getConsumer().cloneConsumer(Sets.newHashSet(pm.partitionId()));
+          p.getPartitionedInstance().setConsumer(newConsumerForPartition);
+          PartitionInfo pif = new PartitionInfo();
+          pif.kpids = Sets.newHashSet(pm.partitionId());
+          currentPartitionInfo.add(pif);
+          newPartitions.add(p);
+        }
+      } else if (newWaitingPartition.size() != 0) {
+        // add partition for new kafka partition
+        for (int pid : newWaitingPartition) {
+          logger.info("[ONE_TO_ONE]: Add operator partition for kafka partition " + pid);
+          Partition<AbstractPartitionableKafkaInputOperator> p = new DefaultPartition<AbstractPartitionableKafkaInputOperator>(cloneOperator());
+          KafkaConsumer newConsumerForPartition = getConsumer().cloneConsumer(Sets.newHashSet(pid));
+          p.getPartitionedInstance().setConsumer(newConsumerForPartition);
+          PartitionInfo pif = new PartitionInfo();
+          pif.kpids = Sets.newHashSet(pid);
+          currentPartitionInfo.add(pif);
+          partitions.add(p);
+        }
+        newWaitingPartition.clear();
+        return partitions;
+
       }
       break;
-    // For the 1 to N static mapping The initial partition number is defined by stream application
+    // For the 1 to N mapping The initial partition number is defined by stream application
     // Afterwards, the framework will dynamically adjust the partition and allocate consumers to as less operator partitions as it can
-    //  and guarantee the overall intake rate for each operator partition is under some threshold  
-    case _1NH:
+    //  and guarantee the total intake rate for each operator partition is below some threshold  
+    case ONE_TO_MANY:
+      
+      
+      if(getConsumer() instanceof HighlevelKafkaConsumer){
+        throw new UnsupportedOperationException("[ONE_TO_MANY]: The high-level consumer is not supported for ONE_TO_MANY partition strategy.");
+      }
       
       if(isInitialParitition){
-        logger.info("[_1NH]: Initializing partition(s)");
+        lastRepartitionTime = System.currentTimeMillis();
+        logger.info("[ONE_TO_MANY]: Initializing partition(s)");
         // Initial partition 
         int size = incrementalCapacity + 1;
         @SuppressWarnings("unchecked")
@@ -155,7 +191,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
           pIds[i%size].add(pm.partitionId());
         }
         for (int i = 0; i < pIds.length; i++) {
-          logger.info("[_1NH]: Create operator partition for kafka partition(s): " + StringUtils.join(pIds[i], ", ") + ", topic: " + this.getConsumer().topic);
+          logger.info("[ONE_TO_MANY]: Create operator partition for kafka partition(s): " + StringUtils.join(pIds[i], ", ") + ", topic: " + this.getConsumer().topic);
           Partition<AbstractPartitionableKafkaInputOperator> p = new DefaultPartition<AbstractPartitionableKafkaInputOperator>(_cloneOperator());
           KafkaConsumer newConsumerForPartition = getConsumer().cloneConsumer(pIds[i]);
           p.getPartitionedInstance().setConsumer(newConsumerForPartition);
@@ -165,10 +201,21 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
           currentPartitionInfo.add(pif);
         }
         
+      } else if (newWaitingPartition.size() != 0) {
         
+        logger.info("[ONE_TO_MANY]: Add operator partition for kafka partition(s): " + StringUtils.join(newWaitingPartition, ", ") + ", topic: " + this.getConsumer().topic);
+        Partition<AbstractPartitionableKafkaInputOperator> p = new DefaultPartition<AbstractPartitionableKafkaInputOperator>(_cloneOperator());
+        KafkaConsumer newConsumerForPartition = getConsumer().cloneConsumer(Sets.newHashSet(newWaitingPartition));
+        p.getPartitionedInstance().setConsumer(newConsumerForPartition);
+        partitions.add(p);
+        PartitionInfo pif = new PartitionInfo();
+        pif.kpids = Sets.newHashSet(newWaitingPartition);
+        currentPartitionInfo.add(pif);
+        newWaitingPartition.clear();
+        return partitions;
       } else {
-        
-        logger.info("[_1NH]: Repartition the operator(s) under " + msgRateUpperBound + " msg/s and " + byteRateUpperBound + " bytes/s hard limit");
+
+        logger.info("[ONE_TO_MANY]: Repartition the operator(s) under " + msgRateUpperBound + " msgs/s and " + byteRateUpperBound + " bytes/s hard limit");
         // size of the list depends on the load and capacity of each operator
         newPartitions = new LinkedList<Partition<AbstractPartitionableKafkaInputOperator>>();
         
@@ -176,11 +223,14 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
         // try to balance the load and minimize the number of containers with each container's load under the threshold
         // the partition based on the latest 15 minutes moving average
         final Map<Integer, double[]> kPIntakeRate = new HashMap<Integer, double[]>();
+        // get the offset for all partitions of each consumer
+        Map<Integer, Long> offsetTrack = new HashMap<Integer, Long>();
         for (Partition<AbstractPartitionableKafkaInputOperator> partition : partitions) {
           List<OperatorStats> opss = partition.getStats().getLastWindowedStats();
           if(opss==null || opss.size()==0){
             continue;
           }
+          offsetTrack.putAll(partition.getPartitionedInstance().consumer.getCurrentOffsets());
           // Get the latest stats
           OperatorStats stat = partition.getStats().getLastWindowedStats().get(partition.getStats().getLastWindowedStats().size() - 1);
           if (stat.customStats instanceof KafkaMeterStats) {
@@ -195,9 +245,9 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
         List<PartitionInfo> partitionInfos = firstFitDecreasingAlgo(kPIntakeRate);
         
         for (PartitionInfo r  : partitionInfos) {
-          logger.info("[_1NH]: Create operator partition for kafka partition(s): " + StringUtils.join(r.kpids, ", ") + ", topic: " + this.getConsumer().topic);
+          logger.info("[ONE_TO_MANY]: Create operator partition for kafka partition(s): " + StringUtils.join(r.kpids, ", ") + ", topic: " + this.getConsumer().topic);
           Partition<AbstractPartitionableKafkaInputOperator> p = new DefaultPartition<AbstractPartitionableKafkaInputOperator>(_cloneOperator());
-          KafkaConsumer newConsumerForPartition = getConsumer().cloneConsumer(r.kpids);
+          KafkaConsumer newConsumerForPartition = getConsumer().cloneConsumer(r.kpids, offsetTrack);
           p.getPartitionedInstance().setConsumer(newConsumerForPartition);
           newPartitions.add(p);
         }
@@ -207,8 +257,8 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     
       break;
 
-    case _1NS:
-      throw new IllegalArgumentException("[_1NS]: Not implemented yet");
+    case ONE_TO_MANY_HEURISTIC:
+      throw new UnsupportedOperationException("[ONE_TO_MANY_HEURISTIC]: Not implemented yet");
     default:
       break;
     }
@@ -218,7 +268,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
 
   private List<PartitionInfo> firstFitDecreasingAlgo(final Map<Integer, double[]> kPIntakeRate)
   {
-    // (Decreasing) Sort the map by msg/s and bytes/s in descending order
+    // (Decreasing) Sort the map by msgs/s and bytes/s in descending order
     List<Entry<Integer, double[]>> sortedMapEntry = new LinkedList<Entry<Integer, double[]>>(kPIntakeRate.entrySet());
     Collections.sort(sortedMapEntry,new Comparator<Entry<Integer, double[]>>() {
       @Override
@@ -234,10 +284,8 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     });
     
     
-    // (First-fit) Look for first fit operator  to assign the consumer
+    // (First-fit) Look for first fit operator to assign the consumer
     // Go over all the kafka partitions and look for the right operator to assign to
-    
-    
     // Each record has a set of kafka partition ids and the resource left for that operator after assigned the consumers for those partitions
     List<PartitionInfo> pif = new LinkedList<PartitionInfo>();
     outer:
@@ -273,33 +321,22 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
   {
     
     Response resp = new Response();
-    switch (strategy) {
-    case _11:
-      // You can not add/remove kafka partition at runtime. So for now, repartition is not required for 1:1 mapping
-      resp.repartitionRequired = false;
-      break;
-    case _1NH:
-      resp.repartitionRequired = needPartition(stats);
-      break;
-    default:
-      throw new IllegalArgumentException("[_1NS]: Not implemented yet");
-    }
-
+    resp.repartitionRequired = needPartition(stats);
     return resp;
   }
   
   
   /**
-   * This method must be synchronized because making decision of whether the operator needs to be repartitioned
-   * depends on the overall kafka stats cache and don't let the other stats reporting threads stale the cache
-   * But this method should return very quickly most time because the expensive algorithm used to decide the repartition
+   * This method must be synchronized because whether the operator needs to be repartitioned depends on the kafka stats cache 
+   * So it must keep it from changing by other stats reporting threads
+   * But this method should return very quickly at most time because the expensive algorithm used to check the repartition condition
    * only get called every 5s  
    * @param stats
    * @return
    */
   private synchronized boolean needPartition(BatchedOperatorStats stats){
     
-    long t = new Date().getTime();
+    long t = System.currentTimeMillis();
     
     if(t - lastRepartitionTime < repartitionInterval){
       // ignore the stats report and return immediately if it's within repartioinInterval since last repartition
@@ -315,17 +352,43 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     }
     kafkaStatsHolder.put(stats.getOperatorId(), kmss);
 
-    if(t - lastCheckTime < repartitionCheckInterval || kafkaStatsHolder.size() != currentPartitionInfo.size()){
+    if(t - lastCheckTime < repartitionCheckInterval || kafkaStatsHolder.size() != currentPartitionInfo.size() || currentPartitionInfo.size()==0 ){
       // skip checking if there exist more optimal partition 
       // if it's still within repartitionCheckInterval seconds since last check
       // or if the operator hasn't collected all the stats from all the current partitions
       return false;
-    } 
+    }
+    
+    lastCheckTime = t;
+    
+    // monitor if new kafka partition change
+    {
+      Set<Integer> existingIds = new HashSet<Integer>();
+      for (PartitionInfo pio : currentPartitionInfo) {
+        existingIds.addAll(pio.kpids);
+      }
+      
+      for (PartitionMetadata metadata : KafkaMetadataUtil.getPartitionsForTopic(consumer.brokerSet, consumer.getTopic())) {
+        if (!existingIds.contains(metadata.partitionId())) {
+          newWaitingPartition.add(metadata.partitionId());
+        }
+      }
+      if (newWaitingPartition.size() != 0) {
+        // found new kafka partition
+        lastRepartitionTime = t;
+        return true;
+      }
+    }
+    
+    if(strategy == PartitionStrategy.ONE_TO_ONE){
+      return false;
+    }
+    
     // This is expensive part and only every repartitionCheckInterval it will check existing the overall partitions and see if there is more optimal solution
     // The decision is made by 2 constraint
-    // Hard constraint which is upperbound overall msg/s or bytes/s
+    // Hard constraint which is upper bound overall msgs/s or bytes/s
     // Soft constraint which is more optimal solution
-    lastCheckTime = t;
+
     boolean b = breakHardConstraint(kmss) || breakSoftConstraint();
     if (b) {
       currentPartitionInfo.clear();
@@ -335,6 +398,10 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     return b;
   }
 
+  /**
+   * Check to see if there is other more optimal(less partition) partition assignment based on current statistcs 
+   * @return
+   */
   private boolean breakSoftConstraint()
   {
     if(kafkaStatsHolder.size() != currentPartitionInfo.size()){
@@ -358,6 +425,12 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     return true;
   }
 
+  
+  /**
+   * Check if all the statistics within the windows break the upper bound hard limit in msgs/s or bytes/s 
+   * @param kmss
+   * @return
+   */
   private boolean breakHardConstraint(List<KafkaMeterStats> kmss)
   {
     // Only care about the KafkaMeterStats
@@ -366,7 +439,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     if(kmss==null || kmss.size()==0){
       return false;
     }
-    // if all the stats within the window have msg/s above the upper bound threshold (hard limit) 
+    // if all the stats within the window have msgs/s above the upper bound threshold (hard limit) 
     boolean needRP = Iterators.all(kmss.iterator(), new Predicate<KafkaMeterStats>(){
       @Override
       public boolean apply(KafkaMeterStats kms)
@@ -399,7 +472,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
   
   /**
    * Implement this method to initialize new operator instance for new partition.
-   * Please carefully include all the properties you want to clone to new instance
+   * Please carefully include all the properties you want to keep in new instance
    * @return
    */
   protected abstract AbstractPartitionableKafkaInputOperator cloneOperator();
@@ -407,7 +480,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
   @Override
   public void checkpointed(long windowId)
   {
-    // commit the kafka consummer offset
+    // commit the kafka consumer offset
     getConsumer().commitOffset();
   }
 
@@ -429,28 +502,29 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     
     super.endWindow();
     
-    if (strategy == PartitionStrategy._1NH) {
+    if (strategy == PartitionStrategy.ONE_TO_MANY) {
       //send the stats to AppMaster and let the AppMaster decide if it wants to repartition
       context.setCustomStats(getConsumer().getConsumerStats());
     }
   }
   
+  
   public static enum PartitionStrategy{
     /**
-     * 1 to 1 partition
+     * Each operator partition connect to only one kafka partition
      */
-    _11,
+    ONE_TO_ONE,
     /**
-     * 1 to N partition based on the overall hard throughput limits of each operator partition
+     * Each operator consumes from several kafka partitions with overall input rate under some certain hard limit in msgs/s or bytes/s
      * For now it <b>only</b> support <b>simple kafka consumer</b>
      */
-    _1NH,
+    ONE_TO_MANY,
     /**
-     * 1 to N partition based on the dynamic factors (soft limits)
+     * 1 to N partition based on the heuristic function
      * <b>NOT</b> implemented yet
      * TODO implement this later
      */
-    _1NS
+    ONE_TO_MANY_HEURISTIC
   }
   
   public long getMsgRateUpperBound()
@@ -473,11 +547,11 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     this.byteRateUpperBound = byteRateUpperBound;
   }
   
-  public void setStartOffset(String startOffset){
-    this.consumer.startOffset = startOffset;
+  public void setInitialOffset(String initialOffset){
+    this.consumer.initialOffset = initialOffset;
   }
   
-  //@Pattern(regexp="_11|_1nh|_1ns", flags={Flag.CASE_INSENSITIVE})
+  //@Pattern(regexp="ONE_TO_ONE|ONE_TO_MANY|ONE_TO_MANY_HEURISTIC", flags={Flag.CASE_INSENSITIVE})
   public void setStrategy(String policy){
     this.strategy = PartitionStrategy.valueOf(policy.toUpperCase());
   }

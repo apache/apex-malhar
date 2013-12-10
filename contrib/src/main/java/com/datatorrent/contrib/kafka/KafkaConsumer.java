@@ -16,7 +16,6 @@
 package com.datatorrent.contrib.kafka;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -24,13 +23,10 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Pattern.Flag;
-
 import com.datatorrent.api.Stats.OperatorStats.CustomStats;
-
 import kafka.message.Message;
 
 
@@ -48,8 +44,6 @@ public abstract class KafkaConsumer
   
   public KafkaConsumer()
   {
-    brokerSet = new HashSet<String>();
-    brokerSet.add("localhost:9092");
   }
   
   public KafkaConsumer(String topic)
@@ -86,17 +80,17 @@ public abstract class KafkaConsumer
   
   
   /**
-   * The startoffset could be either earliest or latest
+   * The initialOffset could be either earliest or latest
    * Earliest means the beginning the queue
    * Latest means the current sync point to consume the queue
    * This setting is case_insensitive
    * By default it always consume from the beginning of the queue
    */
   @Pattern(flags={Flag.CASE_INSENSITIVE}, regexp = "earliest|latest")
-  protected String startOffset = "latest";
+  protected String initialOffset = "latest";
 
 
-  private transient SnapShot statsSnapShot = new SnapShot();
+  protected transient SnapShot statsSnapShot = new SnapShot();
   
   /**
    * This method is called in setup method of the operator
@@ -173,14 +167,14 @@ public abstract class KafkaConsumer
     return brokerSet;
   }
   
-  public void setStartOffset(String startOffset)
+  public void setInitialOffset(String initialOffset)
   {
-    this.startOffset = startOffset;
+    this.initialOffset = initialOffset;
   }
   
-  public String getStartOffset()
+  public String getInitialOffset()
   {
-    return startOffset;
+    return initialOffset;
   }
   
   
@@ -192,9 +186,12 @@ public abstract class KafkaConsumer
   
 
   protected abstract KafkaConsumer cloneConsumer(Set<Integer> partitionIds);
+  
+  protected abstract KafkaConsumer cloneConsumer(Set<Integer> partitionIds, Map<Integer, Long> startOffset);
 
   protected abstract void commitOffset();
 
+  protected abstract Map<Integer, Long> getCurrentOffsets();
   
   public final KafkaMeterStats getConsumerStats()
   {
@@ -246,19 +243,33 @@ public abstract class KafkaConsumer
 
   
   
+  /**
+   * A snapshot of consuming rate within 1 min
+   */
   static class SnapShot {
     
-    //use yammer metrics to tick consumers' msg rate
-    // msg/s and bytes/s for each partition
+    // msgs/s and bytes/s for each partition
     
+    /**
+     * 1 min total msg number for each partition 
+     */
     private final Map<Integer, long[]> _1_min_msg_sum_par = new HashMap<Integer, long[]>();
     
+    /**
+     * 1 min total byte number for each partition
+     */
     private final Map<Integer, long[]> _1_min_byte_sum_par = new HashMap<Integer, long[]>();
     
     private static int cursor = 0;
     
+    /**
+     * total msg for each sec, msgSec[60] is total msg for a min
+     */
     private long[] msgSec = new long[61];
     
+    /**
+     * total bytes for each sec, bytesSec[60] is total bytes for a min
+     */
     private long[] bytesSec = new long[61];
     
     private short last = 0;

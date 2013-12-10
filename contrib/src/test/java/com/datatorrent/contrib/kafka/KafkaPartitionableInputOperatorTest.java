@@ -124,7 +124,6 @@ public class KafkaPartitionableInputOperatorTest extends KafkaOperatorTestBase
     Properties props = new Properties();
     props.put("zookeeper.connect", "localhost:2182");
     props.put("group.id", "main_group");
-    props.put("auto.offset.reset", "smallest");
     HighlevelKafkaConsumer consumer = new HighlevelKafkaConsumer(props);
     testPartitionableInputOperator(consumer);
   }
@@ -155,6 +154,7 @@ public class KafkaPartitionableInputOperatorTest extends KafkaOperatorTestBase
     brokerSet.add("localhost:9092");
     brokerSet.add("localhost:9093");
     consumer.setBrokerSet(brokerSet);
+    consumer.setInitialOffset("earliest");
 
     node.setConsumer(consumer);
     

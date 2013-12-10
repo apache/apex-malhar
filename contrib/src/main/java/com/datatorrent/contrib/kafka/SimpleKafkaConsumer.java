@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -169,6 +170,7 @@ public class SimpleKafkaConsumer extends KafkaConsumer
   public void start()
   {
     super.start();
+    
     // thread to consume the kafka data
     kafkaConsumerExecutor = Executors.newFixedThreadPool(simpleConsumerThreads.size(), new ThreadFactoryBuilder().setNameFormat("kafka-consumer-" + topic + "-%d").build());
     
@@ -176,6 +178,8 @@ public class SimpleKafkaConsumer extends KafkaConsumer
     final ScheduledExecutorService timerExecutor = Executors.newScheduledThreadPool(simpleConsumerThreads.size(), new ThreadFactoryBuilder()
     .setNameFormat("kafka-consumer-monitor-" + topic + "-%d").setDaemon(true).build());
     for (final Integer pid : simpleConsumerThreads.keySet()) {
+      //  initialize the stats snapshot for this partition
+      statsSnapShot.mark(pid, 0);
       final String clientName = getClientName(pid);
       kafkaConsumerExecutor.submit(new Runnable() {
         
@@ -230,7 +234,7 @@ public class SimpleKafkaConsumer extends KafkaConsumer
             //start from recovery
             offset = offsetTrack.get(pid);
           } else {
-            long startOffsetReq = startOffset.equalsIgnoreCase("earliest")? OffsetRequest.EarliestTime() : OffsetRequest.LatestTime();
+            long startOffsetReq = initialOffset.equalsIgnoreCase("earliest")? OffsetRequest.EarliestTime() : OffsetRequest.LatestTime();
             offset = KafkaMetadataUtil.getLastOffset(csInThread, topic, pid, startOffsetReq, clientName);
           }
           
@@ -342,10 +346,18 @@ public class SimpleKafkaConsumer extends KafkaConsumer
   }
 
   @Override
-  protected KafkaConsumer cloneConsumer(Set<Integer> partitionIds)
+  protected KafkaConsumer cloneConsumer(Set<Integer> partitionIds, Map<Integer, Long> startOffset)
   {
     // create different client for same partition
-    return new SimpleKafkaConsumer(brokerSet, topic, timeout, bufferSize, clientId, partitionIds);
+    SimpleKafkaConsumer  skc = new SimpleKafkaConsumer(brokerSet, topic, timeout, bufferSize, clientId, partitionIds);
+    skc.initialOffset = this.initialOffset;
+    skc.resetOffset(startOffset);
+    return skc;
+  }
+  
+  @Override
+  protected KafkaConsumer cloneConsumer(Set<Integer> partitionIds){
+    return cloneConsumer(partitionIds, null);
   }
 
   @Override
@@ -359,6 +371,21 @@ public class SimpleKafkaConsumer extends KafkaConsumer
   
   private String getClientName(int pid){
     return clientId + SIMPLE_CONSUMER_ID_SUFFIX + pid;
+  }
+
+  @Override
+  protected Map<Integer, Long> getCurrentOffsets()
+  {
+    return offsetTrack;
+  }
+  
+  private void resetOffset(Map<Integer, Long> overrideOffset){
+    if(overrideOffset == null){
+      return;
+    }
+    for (Entry<Integer, Long> offset : offsetTrack.entrySet()) {
+      offset.setValue(overrideOffset.get(offset.getKey()));
+    }
   }
 
 
