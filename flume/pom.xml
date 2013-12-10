@@ -9,7 +9,6 @@
 
   <artifactId>dt-flume</artifactId>
   <packaging>jar</packaging>
-
   <name>Flume Integration</name>
 
   <properties>
@@ -51,6 +50,7 @@
       </build>
     </profile>
   </profiles>
+
   <build>
     <plugins>
       <plugin>
@@ -58,6 +58,29 @@
         <version>2.16</version>
         <configuration>
           <argLine>-Xmx5000M</argLine>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.2</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <minimizeJar>false</minimizeJar>
+          <shadedArtifactAttached>false</shadedArtifactAttached>
+          <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
+          <artifactSet>
+            <includes>
+              <include>${project.groupId}:dt-jarpath</include>
+            </includes>
+          </artifactSet>
         </configuration>
       </plugin>
     </plugins>
@@ -93,21 +116,23 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>dt-jarpath</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>dt-netlet</artifactId>
       <version>${project.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.datatorrent</groupId>
       <artifactId>dt-api</artifactId>
       <version>${project.version}</version>
-      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>com.datatorrent</groupId>
       <artifactId>dt-stram</artifactId>
       <version>${project.version}</version>
-      <type>jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
