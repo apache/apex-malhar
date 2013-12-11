@@ -297,11 +297,10 @@ var LogicalDagWidget = BaseView.extend({
         this.renderMinimap(d3_graph, main_dimensions, svgParent);
 
         // Zoom
-        d3.select(svgParent.get(0)).call(d3.behavior.zoom().on("zoom", function() {
+        d3.select(svgParent.get(0)).call(d3.behavior.zoom().scaleExtent([0.1,4]).on("zoom", function() {
             var ev = d3.event;
             svg.select("g")
                 .attr("transform", "translate(" + ev.translate + ") scale(" + ev.scale + ")");
-
         }));
     },
 
@@ -361,6 +360,11 @@ var LogicalDagWidget = BaseView.extend({
         // adjust mapwidth with padding
         mapWidth += mapPadding;
 
+        // Will hold info about viewbox
+        var viewboxDims = {
+            scale: 1
+        };
+
         // Create the minimap group
         var minimap = this.minimap = d3.select(root[0])
             .append('g')
@@ -416,8 +420,8 @@ var LogicalDagWidget = BaseView.extend({
         var viewbox = minimap.append('rect')
             .attr('class', 'minimap-viewbox')
             .attr({
-                'width': rootWidth * mapMultiplier,
-                'height': rootHeight * mapMultiplier,
+                'width': viewboxDims.width = rootWidth * mapMultiplier,
+                'height': viewboxDims.height = rootHeight * mapMultiplier,
                 'x': 0,
                 'y': 0,
                 'clip-path': 'url(#minimap-clip-path)'
@@ -426,10 +430,13 @@ var LogicalDagWidget = BaseView.extend({
         // Listen for changes to the transform attribute on the main dag group
         var transformRE = /translate\(([-\.0-9]+),([-\.0-9]+)\)\s+scale\(([\.0-9]+)\)/;
         var observer = new MutationObserver(function (mutations) {
-          mutations.forEach(function attrModified(mutation) {
+            mutations.forEach(function attrModified(mutation) {
                 var name = mutation.attributeName;
                 if (name === 'transform') {
                     newValue = mutation.target.getAttribute(name);
+                    if (!newValue) {
+                        return;
+                    }
                     var matches = transformRE.exec(newValue);
                     var x = matches[1];
                     var y = matches[2];
@@ -438,24 +445,42 @@ var LogicalDagWidget = BaseView.extend({
                 }
             });
         });
-        observer.observe(root.find('g>g')[0], { attributes: true, subtree: false });
-
+        var graphGroup = root.find('g>g')[0];
+        observer.observe(graphGroup, { attributes: true, subtree: false });
+        
         function updateMinimap(x,y,scale) {
+            viewboxDims.scale = scale;
             viewbox.attr({
-                'width': rootWidth * mapMultiplier / scale,
-                'height': rootHeight * mapMultiplier / scale,
+                'width': viewboxDims.width = rootWidth * mapMultiplier / scale,
+                'height': viewboxDims.height = rootHeight * mapMultiplier / scale,
                 'x': -x * mapMultiplier / scale,
                 'y': -y * mapMultiplier / scale
             });
         }
 
         // Create interaction rectangle (and clip path)
-        minimap.append('rect')
-            .attr({
-                'class': 'minimap-interaction',
-                'height': mapHeight,
-                'width': mapWidth
-            });
+        // function updateGraphPosition() {
+        //     d3.event.sourceEvent.preventDefault();
+        //     d3.event.sourceEvent.stopPropagation(); // silence other listeners
+        //     var x = (d3.event.x - viewboxDims.width / 2) / mapMultiplier;
+        //     var y = (d3.event.y - viewboxDims.height / 2) / mapMultiplier;
+        //     graphGroup.setAttribute('transform', 'translate(' + -x + ',' + -y + ') scale(' + viewboxDims.scale + ')');
+        // }
+        // var drag = d3.behavior.drag()
+        //     .on('drag', updateGraphPosition)
+        //     .on("dragstart", function() {
+        //         d3.event.sourceEvent.preventDefault();
+        //         d3.event.sourceEvent.stopPropagation(); // silence other listeners
+        //         updateGraphPosition();
+        //     });
+
+        // var interaction = minimap.append('rect')
+        //     .attr({
+        //         'class': 'minimap-interaction',
+        //         'height': mapHeight,
+        //         'width': mapWidth
+        //     })
+        //     .call(drag);
     },
 
     addMetricLabel: function (nodeSvg, height) {
