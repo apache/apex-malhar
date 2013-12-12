@@ -167,6 +167,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
             i++;
           }
 
+          // dont sleep here!
           if (i == 0) {
             sleep();
           }
@@ -178,7 +179,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
 
           t.commit();
         }
-        catch (Throwable ex) {
+        catch (Throwable ex) { // OOM so catch Exception
           logger.error("Exception during flume transaction", ex);
           t.rollback();
 
@@ -189,7 +190,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
           return Status.BACKOFF;
         }
         finally {
-          t.close();
+          t.close(); // catch exception here!
         }
       }
     }
