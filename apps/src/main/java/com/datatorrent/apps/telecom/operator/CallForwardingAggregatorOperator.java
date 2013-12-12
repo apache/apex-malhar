@@ -101,6 +101,8 @@ public class CallForwardingAggregatorOperator implements Operator
                   }
                 }
               }
+              // removing it as it is no longer needed
+              currentWindowMap.remove(matchFieldId);
             }
           }
         }
