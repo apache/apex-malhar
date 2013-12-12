@@ -30,16 +30,49 @@ import org.codehaus.jettison.json.JSONObject;
 public class MRStatusObject
 {
   private String command;
+  /**
+   * This stores the Resource Manager/ Task Manager's host information
+   */
   private String uri;
+  /**
+   * This field stores the job id
+   */
   private String jobId;
+  /**
+   * This field stores the api version of the rest apis
+   */
   private String apiVersion;
+  /**
+   * This field stores the hadoop version 1 for 1.x and 2 for 2.x
+   */
   private int hadoopVersion;
+  /**
+   * This field stores the app id for the hadoop 2.x
+   */
   private String appId;
+  /**
+   * This field stores the RM port information for hadoop 2.x / Task Manager server port for hadoop 1.X  from where we can get the job information
+   */
   private int rmPort;
+  /**
+   * This field stores the history server information for hadoop 2.x from where we can get the job information
+   */
   private int historyServerPort;
+  /**
+   * This field stores the job information as json object
+   */
   private JSONObject jsonObject;
+  /**
+   * This field tells if the object has been modified 
+   */
   private boolean modified;
+  /**
+   * This stores the mapping of map task ids to the TaskObject
+   */
   private Map<String, TaskObject> mapJsonObject;
+  /**
+   * This stores the mapping of reduce task ids to the TaskObject
+   */
   private Map<String, TaskObject> reduceJsonObject;
 
   public MRStatusObject()
@@ -189,7 +222,13 @@ public class MRStatusObject
   }
   
   public static class TaskObject{
+    /**
+     * This field stores the task information as json 
+     */
     private JSONObject json;
+    /**
+     * This field tells if the object was modified
+     */
     private boolean modified;
     
     public TaskObject(JSONObject json){
@@ -212,11 +251,19 @@ public class MRStatusObject
       return modified;
     }
 
+    /**
+     *  
+     * @param modified
+     */
     public void setModified(boolean modified)
     {
       this.modified = modified;
     }
     
+    /**
+     * This returns the string format of the json object 
+     * @return
+     */
     public String getJsonString(){
       return json.toString();
     }
