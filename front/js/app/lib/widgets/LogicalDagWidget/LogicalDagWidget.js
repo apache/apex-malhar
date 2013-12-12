@@ -297,11 +297,32 @@ var LogicalDagWidget = BaseView.extend({
         this.renderMinimap(d3_graph, main_dimensions, svgParent);
 
         // Zoom
-        d3.select(svgParent.get(0)).call(d3.behavior.zoom().scaleExtent([0.1,4]).on("zoom", function() {
-            var ev = d3.event;
-            svg.select("g")
-                .attr("transform", "translate(" + ev.translate + ") scale(" + ev.scale + ")");
-        }));
+        var zoomBehavior = this.zoomBehavior = d3.behavior
+            .zoom()
+            .scaleExtent([0.1,4])
+            .on("zoom", function() {
+                var ev = d3.event;
+                // if (!ev.sourceEvent.altKey) {
+                //   // ev.sourceEvent.preventDefault();
+                //   // ev.sourceEvent.stopPropagation();
+                //   if (ev.stopPropagation) ev.stopPropagation();
+                //   if (ev.preventDefault) ev.preventDefault();
+                //   return false;
+                // }
+                svg.select("g")
+                    .attr("transform", "translate(" + ev.translate + ") scale(" + ev.scale + ")");
+            })
+            // .on("zoomstart", function() {
+            //     var ev = d3.event;
+            //     if (!ev.sourceEvent.altKey) {
+            //       // ev.sourceEvent.preventDefault();
+            //       // ev.sourceEvent.stopPropagation();
+            //       if (ev.stopPropagation) ev.stopPropagation();
+            //       if (ev.preventDefault) ev.preventDefault();
+            //       return false;
+            //     }
+            // });
+        d3.select(svgParent.get(0)).call(zoomBehavior);
     },
 
     /**
@@ -438,6 +459,11 @@ var LogicalDagWidget = BaseView.extend({
                         return;
                     }
                     var matches = transformRE.exec(newValue);
+
+                    if (!matches) {
+                        return;
+                    }
+
                     var x = matches[1];
                     var y = matches[2];
                     var scale = matches[3];
@@ -459,28 +485,46 @@ var LogicalDagWidget = BaseView.extend({
         }
 
         // Create interaction rectangle (and clip path)
-        // function updateGraphPosition() {
-        //     d3.event.sourceEvent.preventDefault();
-        //     d3.event.sourceEvent.stopPropagation(); // silence other listeners
-        //     var x = (d3.event.x - viewboxDims.width / 2) / mapMultiplier;
-        //     var y = (d3.event.y - viewboxDims.height / 2) / mapMultiplier;
-        //     graphGroup.setAttribute('transform', 'translate(' + -x + ',' + -y + ') scale(' + viewboxDims.scale + ')');
-        // }
-        // var drag = d3.behavior.drag()
-        //     .on('drag', updateGraphPosition)
-        //     .on("dragstart", function() {
-        //         d3.event.sourceEvent.preventDefault();
-        //         d3.event.sourceEvent.stopPropagation(); // silence other listeners
-        //         updateGraphPosition();
-        //     });
+        var updateGraphPosition = _.bind(function() {
+            // d3.event.preventDefault();
+            // d3.event.stopPropagation(); // silence other listeners
+            var x = ((d3.event.x - viewboxDims.width / 2) / mapMultiplier) * viewboxDims.scale;
+            var y = ((d3.event.y - viewboxDims.height / 2) / mapMultiplier) * viewboxDims.scale;
+            // console.log('translate: ', 'transform', 'translate(' + -x + ',' + -y + ') scale(' + viewboxDims.scale + ')');
+            graphGroup.setAttribute('transform', 'translate(' + -x + ',' + -y + ') scale(' + viewboxDims.scale + ')');
+            // console.log('scale: ', this.zoomBehavior.scale());
+            this.zoomBehavior.translate([-x,-y]);
+        }, this);
+        var drag = d3.behavior.drag()
+            // .on('drag', updateGraphPosition)
+            // .on("dragstart", updateGraphPosition);
+            .on('drag', function() {
+                updateGraphPosition();
+            })
+            .on('dragstart', function() {
+                console.log('drag starting');
+                // updateGraphPosition();
+            });
 
-        // var interaction = minimap.append('rect')
-        //     .attr({
-        //         'class': 'minimap-interaction',
-        //         'height': mapHeight,
-        //         'width': mapWidth
-        //     })
-        //     .call(drag);
+        var interaction = minimap.append('rect')
+            .attr({
+                'class': 'minimap-interaction',
+                'height': mapHeight,
+                'width': mapWidth
+            })
+            .on('mousedown', function() {
+                console.log('mousedown on ixn');
+                d3.event.preventDefault();
+                d3.event.stopPropagation();
+            })
+            .on('mouseup', function() {
+                console.log('mouseup on ixn');
+            })
+            .on('click', function() {
+                console.log('click on ixn');
+            })
+            
+            .call(drag);
     },
 
     addMetricLabel: function (nodeSvg, height) {
