@@ -48,6 +48,8 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
   private static final Logger LOG = LoggerFactory.getLogger(MRJobStatusOperator.class);
 
   private int sleepTime = 100;
+  private int maxRetrials = 10;
+  
   public int getSleepTime()
   {
     return sleepTime;
@@ -402,20 +404,26 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
         }
         
         if (!modified) {
-          delList.add(obj.getJobId());
+          if(obj.getRetrials() >= maxRetrials){
+            delList.add(obj.getJobId());
+          }else{
+            obj.setRetrials(obj.getRetrials() + 1);
+          }
+        }else{
+          obj.setRetrials(0);
         }
       }
     } catch (Exception ex) {
       LOG.warn("error creating json {}", ex.getMessage());
     }
-    /*
+    
     if (!delList.isEmpty()) {
       Iterator<String> itr = delList.iterator();
       while (itr.hasNext()) {
         removeJob(itr.next());
       }
     }
-    */
+    
   }
 
   /**
@@ -449,6 +457,16 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
   public void setMaxMapSize(int maxMapSize)
   {
     this.maxMapSize = maxMapSize;
+  }
+
+  public int getMaxRetrials()
+  {
+    return maxRetrials;
+  }
+
+  public void setMaxRetrials(int maxRetrials)
+  {
+    this.maxRetrials = maxRetrials;
   }
 
 }

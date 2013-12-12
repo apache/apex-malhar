@@ -74,9 +74,12 @@ public class MRStatusObject
    * This stores the mapping of reduce task ids to the TaskObject
    */
   private Map<String, TaskObject> reduceJsonObject;
+  
+  private int retrials;
 
   public MRStatusObject()
   {
+    retrials = 0;
     modified = true;
     mapJsonObject = new ConcurrentHashMap<String, TaskObject>();
     reduceJsonObject = new ConcurrentHashMap<String, TaskObject>();
@@ -267,7 +270,16 @@ public class MRStatusObject
     public String getJsonString(){
       return json.toString();
     }
-    
-    
   }
+  
+  public int getRetrials()
+  {
+    return retrials;
+  }
+
+  public void setRetrials(int retrials)
+  {
+    this.retrials = retrials;
+  }
+
 }
