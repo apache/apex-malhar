@@ -66,10 +66,11 @@ public class DTFlumeSink extends AbstractSink implements Configurable
 
   /* Begin implementing Flume Sink interface */
   @Override
+  @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch"})
   public Status process() throws EventDeliveryException
   {
     synchronized (server.requests) {
-      for (Request r : server.requests) {
+      for (Request r: server.requests) {
         logger.debug("found {}", r);
         switch (r.type) {
           case SEEK:
@@ -135,7 +136,6 @@ public class DTFlumeSink extends AbstractSink implements Configurable
       maxTuples = maximumEventsPerTransaction;
     }
 
-
     if (maxTuples > 0) {
       if (playback) {
         logger.debug("playback mode still active");
@@ -155,23 +155,20 @@ public class DTFlumeSink extends AbstractSink implements Configurable
         }
       }
       else {
+        int i = 0;
+
         Transaction t = getChannel().getTransaction();
         try {
           t.begin();
 
           Event e;
-          int i = 0;
           while (i < maxTuples && (e = getChannel().take()) != null) {
             long l = storage.store(e.getBody());
             server.client.write(l, e.getBody());
             i++;
           }
 
-          // dont sleep here!
-          if (i == 0) {
-            sleep();
-          }
-          else {
+          if (i > 0) {
             outstandingEventsCount += i;
             storage.flush();
             logger.debug("Transaction details maxTuples = {}, i = {}, outstanding = {}", maxTuples, i, outstandingEventsCount);
@@ -179,18 +176,22 @@ public class DTFlumeSink extends AbstractSink implements Configurable
 
           t.commit();
         }
-        catch (Throwable ex) { // OOM so catch Exception
-          logger.error("Exception during flume transaction", ex);
+        catch (Throwable th) {
+          logger.error("Exception during flume transaction", th);
           t.rollback();
 
-          if (ex instanceof Error) {
-            throw (Error)ex;
+          if (th instanceof Error) {
+            throw (Error)th;
           }
 
           return Status.BACKOFF;
         }
         finally {
-          t.close(); // catch exception here!
+          t.close();
+        }
+
+        if (i == 0) {
+          sleep();
         }
       }
     }
@@ -242,6 +243,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
 
   /* Begin Configurable Interface */
   @Override
+  @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch"})
   public void configure(Context context)
   {
     hostname = context.getString("hostname", "localhost");
