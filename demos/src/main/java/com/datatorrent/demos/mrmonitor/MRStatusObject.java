@@ -38,31 +38,33 @@ public class MRStatusObject
   private int rmPort;
   private int historyServerPort;
   private JSONObject jsonObject;
-  private Map<String, JSONObject> mapJsonObject;
-  private Map<String, JSONObject> reduceJsonObject;
+  private boolean modified;
+  private Map<String, TaskObject> mapJsonObject;
+  private Map<String, TaskObject> reduceJsonObject;
 
   public MRStatusObject()
   {
-    mapJsonObject = new ConcurrentHashMap<String, JSONObject>();
-    reduceJsonObject = new ConcurrentHashMap<String, JSONObject>();
+    modified = true;
+    mapJsonObject = new ConcurrentHashMap<String, TaskObject>();
+    reduceJsonObject = new ConcurrentHashMap<String, TaskObject>();
   }
 
-  public Map<String, JSONObject> getMapJsonObject()
+  public Map<String, TaskObject> getMapJsonObject()
   {
     return mapJsonObject;
   }
 
-  public void setMapJsonObject(Map<String, JSONObject> mapJsonObject)
+  public void setMapJsonObject(Map<String, TaskObject> mapJsonObject)
   {
     this.mapJsonObject = mapJsonObject;
   }
 
-  public Map<String, JSONObject> getReduceJsonObject()
+  public Map<String, TaskObject> getReduceJsonObject()
   {
     return reduceJsonObject;
   }
 
-  public void setReduceJsonObject(Map<String, JSONObject> reduceJsonObject)
+  public void setReduceJsonObject(Map<String, TaskObject> reduceJsonObject)
   {
     this.reduceJsonObject = reduceJsonObject;
   }
@@ -174,5 +176,51 @@ public class MRStatusObject
   public void setCommand(String command)
   {
     this.command = command;
+  }
+
+  public boolean isModified()
+  {
+    return modified;
+  }
+
+  public void setModified(boolean modified)
+  {
+    this.modified = modified;
+  }
+  
+  public static class TaskObject{
+    private JSONObject json;
+    private boolean modified;
+    
+    public TaskObject(JSONObject json){
+      modified = true;
+      this.json = json;
+    }
+
+    public JSONObject getJson()
+    {
+      return json;
+    }
+
+    public void setJson(JSONObject json)
+    {
+      this.json = json;
+    }
+
+    public boolean isModified()
+    {
+      return modified;
+    }
+
+    public void setModified(boolean modified)
+    {
+      this.modified = modified;
+    }
+    
+    public String getJsonString(){
+      return json.toString();
+    }
+    
+    
   }
 }

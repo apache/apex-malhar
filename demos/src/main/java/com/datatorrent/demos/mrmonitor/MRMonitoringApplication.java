@@ -55,7 +55,9 @@ public class MRMonitoringApplication implements StreamingApplication
 
     MRJobStatusOperator mrJobOperator = dag.addOperator("Monitoring-Operator", new MRJobStatusOperator());
     mrJobOperator.setMaxMapSize(maxNumberOfJobs);
+    mrJobOperator.setSleepTime(200);
     dag.setAttribute(mrJobOperator, OperatorContext.INITIAL_PARTITION_COUNT, numberOfPartitions);
+    dag.setAttribute(mrJobOperator, OperatorContext.APPLICATION_WINDOW_COUNT,4);
 
     URI uri = URI.create("ws://" + daemonAddress + "/pubsub");
     logger.info("WebSocket with daemon at {}", daemonAddress);
