@@ -28,13 +28,11 @@ public class HDFSStorageTest
     ctx.put(HDFSStorage.RESTORE_KEY,Boolean.toString(false));    
     Storage storage = new HDFSStorage();
     ((Configurable)storage).configure(ctx);
-    RandomAccessFile r = new RandomAccessFile("src/test/resources/TestInput.txt", "r");
-    r.seek(0);
-    byte[] b = r.readLine().getBytes();
+    byte[] b = new byte[1028];
     long val = storage.store(b);
     storage.close();
     Assert.assertEquals("matched the stored value with retrieved value", new String(b), new String(storage.retrieve(val).getData()));
-    r.close();
+    
   }
   
   @Test
@@ -46,16 +44,13 @@ public class HDFSStorageTest
     ctx.put(HDFSStorage.RESTORE_KEY,Boolean.toString(true));    
     Storage storage = new HDFSStorage();
     ((Configurable)storage).configure(ctx);
-    RandomAccessFile r = new RandomAccessFile("src/test/resources/TestInput.txt", "r");
-    r.seek(0);
-    byte[] b = r.readLine().getBytes();
+    byte[] b = new byte[1028];
     storage.store(b);
     storage.close();
     Configuration conf = new Configuration();
     FileSystem fs = FileSystem.get(conf);
     boolean exists =fs.exists(new Path(STORAGE_DIRECTORY+"/"+"1")); 
     Assert.assertEquals("file shoule not exist", true, exists);
-    r.close();
   }
 
   @Test
