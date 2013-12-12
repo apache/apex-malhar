@@ -96,6 +96,8 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
       } else if (mrStatusObj.getHadoopVersion() == 1) {
         getJsonForLegacyJob(mrStatusObj);
       }
+      
+      iterator = jobMap.values().iterator();
     }
   };
 
@@ -141,7 +143,7 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
       statusObj.setJsonObject(jsonObj);
       getJsonsForTasks(statusObj);
       jobMap.put(statusObj.getJobId(), statusObj);
-      iterator = jobMap.values().iterator();
+      
 
     }
   }
@@ -244,7 +246,6 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
     getJsonsForLegacyTasks(statusObj, "map");
     getJsonsForLegacyTasks(statusObj, "reduce");
     jobMap.put(statusObj.getJobId(), statusObj);
-    iterator = jobMap.values().iterator();
 
   }
 
@@ -407,12 +408,14 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
     } catch (Exception ex) {
       LOG.warn("error creating json {}", ex.getMessage());
     }
+    /*
     if (!delList.isEmpty()) {
       Iterator<String> itr = delList.iterator();
       while (itr.hasNext()) {
         removeJob(itr.next());
       }
     }
+    */
   }
 
   /**
