@@ -26,7 +26,7 @@ public class HDFSStorage implements Storage, Configurable
   private FSDataOutputStream dataStream;
   private long blockSize;
   private long filled;
-  private byte[] fileOffset = new byte[8];
+  private final byte[] fileOffset = new byte[8];
   private byte[] fileData;
   private long retrievalOffset;
   private long retrievalFile;
@@ -101,7 +101,7 @@ public class HDFSStorage implements Storage, Configurable
   }
 
   /**
-   * 
+   *
    * @param value
    * @param b
    * @param start
@@ -121,7 +121,7 @@ public class HDFSStorage implements Storage, Configurable
   }
 
   /**
-   * 
+   *
    * @param b
    * @param size
    * @param startIndex
