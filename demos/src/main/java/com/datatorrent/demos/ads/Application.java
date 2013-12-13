@@ -324,7 +324,7 @@ public class Application implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
     configure(dag, conf);
-    dag.setAttribute(DAG.APPLICATION_NAME, "AdsDevApplication");
+    dag.setAttribute(DAG.APPLICATION_NAME, "AdsApplication");
     dag.setAttribute(DAG.STREAMING_WINDOW_SIZE_MILLIS, WINDOW_SIZE_MILLIS); // set the streaming window size to 1 millisec
 
     //dag.getAttributes().attr(DAG.CONTAINERS_MAX_COUNT).setIfAbsent(9);

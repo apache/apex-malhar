@@ -39,7 +39,7 @@ public class AverageKeyValSample implements StreamingApplication
 	public void populateDAG(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-		dag.setAttribute(DAG.APPLICATION_NAME, "AverageKeyValSample");
+		dag.setAttribute(DAG.APPLICATION_NAME, "AverageKeyValApplication");
 		dag.setAttribute(DAG.DEBUG, true);
 
 		// Add random integer generator operator
