@@ -25,7 +25,8 @@
     "phantomjs": "~1.9.2",
     "sinon-chai": "~2.4.0",
     "ejs": "~0.8.5",
-    "http-proxy": "~0.10.3"
+    "http-proxy": "~0.10.3",
+    "graceful-fs": "~2.0.1"
   },
   "dependencies": {
     "browserify": "~2.36.1",
