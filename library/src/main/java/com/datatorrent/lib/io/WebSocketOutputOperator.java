@@ -27,7 +27,9 @@ import com.ning.http.client.websocket.WebSocketUpgradeHandler;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import javax.validation.constraints.NotNull;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -59,6 +61,8 @@ public class WebSocketOutputOperator<T> extends BaseOperator
   protected transient final ObjectMapper mapper = new ObjectMapper(jsonFactory);
   protected transient WebSocket connection;
   private int ioThreadMultiplier = 1;
+  private int numRetries = 2;
+  private final transient AsyncHttpClientConfigBean config = new AsyncHttpClientConfigBean();
 
   public void setUri(URI uri)
   {
@@ -70,65 +74,89 @@ public class WebSocketOutputOperator<T> extends BaseOperator
     this.ioThreadMultiplier = ioThreadMultiplier;
   }
 
+  public void setNumRetries(int numRetries)
+  {
+    this.numRetries = numRetries;
+  }
+
   public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()
   {
     @Override
     public void process(T t)
     {
-      try {
-        connection.sendTextMessage(convertMapToMessage(t));
-      }
-      catch (IOException ex) {
-        LOG.error("error sending message through web socket", ex);
-        throw new RuntimeException(ex);
+      int countTries = 0;
+      while (true) {
+        try {
+          if (!connection.isOpen()) {
+            LOG.warn("Connection is closed. Reconnecting...");
+            client.close();
+            openConnection();
+          }
+          connection.sendTextMessage(convertMapToMessage(t));
+          break;
+        }
+        catch (Exception ex) {
+          if (++countTries < numRetries) {
+            LOG.debug("Caught exception", ex);
+            LOG.warn("Send message failed ({}). Retrying ({}).", ex.getMessage(), countTries);
+            connection.close();
+          }
+          else {
+            throw new RuntimeException(ex);
+          }
+        }
       }
     }
 
   };
 
+  private void openConnection() throws IOException, ExecutionException, InterruptedException, TimeoutException
+  {
+    client = new AsyncHttpClient(config);
+    uri = URI.create(uri.toString()); // force reparse after deserialization
+    LOG.info("Opening URL: {}", uri);
+    connection = client.prepareGet(uri.toString()).execute(new WebSocketUpgradeHandler.Builder().addWebSocketListener(new WebSocketTextListener()
+    {
+      @Override
+      public void onMessage(String string)
+      {
+      }
+
+      @Override
+      public void onFragment(String string, boolean bln)
+      {
+      }
+
+      @Override
+      public void onOpen(WebSocket ws)
+      {
+        LOG.debug("Connection opened");
+      }
+
+      @Override
+      public void onClose(WebSocket ws)
+      {
+        LOG.debug("Connection closed.");
+      }
+
+      @Override
+      public void onError(Throwable t)
+      {
+        LOG.error("Caught exception", t);
+      }
+
+    }).build()).get(5, TimeUnit.SECONDS);
+  }
+
   @Override
   public void setup(OperatorContext context)
   {
-    AsyncHttpClientConfigBean config = new AsyncHttpClientConfigBean();
     config.setIoThreadMultiplier(ioThreadMultiplier);
-    client = new AsyncHttpClient(config);
     try {
-      uri = URI.create(uri.toString()); // force reparse after deserialization
-      LOG.info("URL: {}", uri);
-      connection = client.prepareGet(uri.toString()).execute(new WebSocketUpgradeHandler.Builder().addWebSocketListener(new WebSocketTextListener()
-      {
-        @Override
-        public void onMessage(String string)
-        {
-        }
-
-        @Override
-        public void onFragment(String string, boolean bln)
-        {
-        }
-
-        @Override
-        public void onOpen(WebSocket ws)
-        {
-          LOG.debug("Connection opened");
-        }
-
-        @Override
-        public void onClose(WebSocket ws)
-        {
-          LOG.debug("Connection closed.");
-        }
-
-        @Override
-        public void onError(Throwable t)
-        {
-          LOG.error("Caught exception", t);
-        }
-
-      }).build()).get(5, TimeUnit.SECONDS);
+      openConnection();
     }
-    catch (Exception ex) {
-      throw new RuntimeException(ex);
+    catch (Exception ex1) {
+      throw new RuntimeException(ex1);
     }
   }
 
