@@ -47,6 +47,8 @@ public class CsvParserOperatorTest
     oper.mapOutput.setSink(mapSink);
     oper.setHeaderMapping(new TestHeaderMapping());
     
+    oper.setup(null);
+    
     oper.beginWindow(0);
     
     String testCsvString = "\"Doctor Who\",\"true\",\"1983-11-06\"\n \"Doctor WhoII\",\"FALSE\",\"1966-10-20\"";

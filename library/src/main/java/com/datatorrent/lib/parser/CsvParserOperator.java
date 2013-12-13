@@ -24,6 +24,7 @@ import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvMapReader;
 import org.supercsv.io.ICsvMapReader;
 import org.supercsv.prefs.CsvPreference;
@@ -65,6 +66,10 @@ public class CsvParserOperator extends BaseOperator
   @NotNull
   private transient CSVHeaderMapping headerMapping = null;
   
+  private String[] headers = null;
+  
+  private CellProcessor[] columnProcessors = null;
+  
   public transient DefaultInputPort<String> stringInput = new DefaultInputPort<String>(){
 
     @Override
@@ -96,12 +101,12 @@ public class CsvParserOperator extends BaseOperator
     StringReader reader = new StringReader(tuple);
     ICsvMapReader mapReader = new CsvMapReader(reader, new CsvPreference.Builder(quote, separator, CsvPreference.STANDARD_PREFERENCE.getEndOfLineSymbols()).build());
     try {
-      String[] header = headerMapping.getHeaders();
-      if (header == null) {
-        header = mapReader.getHeader(true);
+      
+      if (headers == null) {
+        headers = mapReader.getHeader(true);
       }
       Map<String, Object> customerMap;
-      while ((customerMap = mapReader.read(header, headerMapping.getProcessors())) != null) {
+      while ((customerMap = mapReader.read(headers, columnProcessors)) != null) {
         mapOutput.emit(customerMap);
       }
     } catch (Exception e) {
@@ -128,6 +133,8 @@ public class CsvParserOperator extends BaseOperator
   @Override
   public void setup(OperatorContext context)
   {
+    headers = headerMapping.getHeaders();
+    columnProcessors = headerMapping.getProcessors();
   }
 
   @Override
