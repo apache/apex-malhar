@@ -302,7 +302,7 @@ var LogicalDagWidget = BaseView.extend({
             .zoom()
             .scaleExtent([0.1,4]);
 
-        var lastRegistered = {
+        var lastZoomLevel = this.lastZoomLevel = {
             translate: zoomBehavior.translate(),
             scale: zoomBehavior.scale()
         };
@@ -313,11 +313,11 @@ var LogicalDagWidget = BaseView.extend({
                 if (self.onlyScrollOnAlt && !ev.sourceEvent.altKey && ev.sourceEvent.type === "wheel") {
                     var sev = ev.sourceEvent;
                     window.scrollBy(0, sev.deltaY);
-                    zoomBehavior.translate(lastRegistered.translate);
-                    zoomBehavior.scale(lastRegistered.scale);
+                    zoomBehavior.translate(lastZoomLevel.translate);
+                    zoomBehavior.scale(lastZoomLevel.scale);
                 } else {
-                    lastRegistered.translate = ev.translate;
-                    lastRegistered.scale = ev.scale;
+                    lastZoomLevel.translate = ev.translate;
+                    lastZoomLevel.scale = ev.scale;
                     svg.select("g")
                         .attr("transform", "translate(" + ev.translate + ") scale(" + ev.scale + ")");
                     self.updateMinimap(svgParent, ev.translate, ev.scale);
@@ -545,6 +545,7 @@ var LogicalDagWidget = BaseView.extend({
     },
 
     events: {
+        'click .reset-position': 'resetPosition',
         'change .metric-select': 'changeMetric',
         'click .metric-prev': 'prevMetric',
         'click .metric-next': 'nextMetric',
@@ -553,6 +554,14 @@ var LogicalDagWidget = BaseView.extend({
         'click .metric-next2': 'nextMetric2',
         'click .toggle-locality': 'toggleLocality',
         'click .toggle-legend': 'toggleLegend'
+    },
+
+    resetPosition: function(e) {
+        e.preventDefault();
+        this.zoomBehavior.scale(1).translate([0,0]);
+        this.lastZoomLevel.scale = 1;
+        this.lastZoomLevel.translate = [0,0];
+        this.$('svg.svg-main > g > g').attr("transform", null);
     },
 
     changeMetric: function () {
