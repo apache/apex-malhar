@@ -1,10 +1,11 @@
 var express = require("express");
 var app = express();
 var ejs = require('ejs');
-var fs = require('fs');
+var fs = require('graceful-fs');
 var path = require('path');
 var Hash = require('hashish');
 var httpProxy = require('http-proxy');
+var browserify = require('browserify');
 
 // Dev configuration
 var config = require('./config.js');
@@ -35,8 +36,34 @@ app.get('/ws/*', function(req, res) {
 });
 
 // Main entry page
-app.get('/dev', function(req, res) {
-    res.render('dev', config);
+app.get('/', function(req, res) {
+    res.render('index', config);
+});
+
+// Browserify bundle
+var b = browserify();
+b.add('./js/start.dev.js');
+app.get('/bundle.js', function(req, res) {
+
+	res.setHeader("Content-Type", "text/javascript");
+
+	var bundle = b.bundle({
+		insertGlobals: true,
+		debug: true
+	});
+	bundle.on('error', function(e) {
+		res.end('$(function() { $("body").prepend("<p style=\'font-size:15px; padding: 10px;\'>' + e.toString() + '</p>"); });');
+	});
+
+	var data = '';
+	bundle.on('data', function(chunk) {
+		data += chunk;
+	});
+	
+	bundle.on('end', function() {
+		res.end(data, 'utf8');
+	});
+	
 });
 
 // Serve static files
