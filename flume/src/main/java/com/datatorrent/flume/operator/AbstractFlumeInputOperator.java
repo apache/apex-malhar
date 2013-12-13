@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.ArrayBlockingQueue;
 import static java.lang.Thread.sleep;
@@ -31,17 +33,23 @@ import com.datatorrent.netlet.DefaultEventLoop;
  * @author Chetan Narsude <chetan@datatorrent.com>
  */
 public abstract class AbstractFlumeInputOperator<T>
-        implements InputOperator, ActivationListener<OperatorContext>, IdleTimeHandler, CheckpointListener
+        implements InputOperator, ActivationListener<OperatorContext>, IdleTimeHandler, CheckpointListener, Partitionable<AbstractFlumeInputOperator<T>>
 {
   public transient DefaultOutputPort<T> output = new DefaultOutputPort<T>();
-  private transient ArrayBlockingQueue<Payload> handoverBuffer = new ArrayBlockingQueue<Payload>(1024 * 5);
   private transient int idleCounter;
   private transient int eventCounter;
   private transient DefaultEventLoop eventloop;
   private transient RecoveryAddress recoveryAddress;
+  private final transient ArrayBlockingQueue<Payload> handoverBuffer;
   @NotNull
   private String[] connectAddresses;
-  private ArrayList<RecoveryAddress> recoveryAddresses = new ArrayList<RecoveryAddress>();
+  private final ArrayList<RecoveryAddress> recoveryAddresses;
+
+  public AbstractFlumeInputOperator()
+  {
+    this.handoverBuffer = new ArrayBlockingQueue<Payload>(1024 * 5);
+    this.recoveryAddresses = new ArrayList<RecoveryAddress>();
+  }
 
   private class Payload
   {
@@ -128,8 +136,8 @@ public abstract class AbstractFlumeInputOperator<T>
     if (connectAddresses.length != 1) {
       throw new RuntimeException(String.format("A physical {} operator cannot connect to more than 1 addresses!", this.getClass().getSimpleName()));
     }
-    for (int i = 0; i < connectAddresses.length; i++) {
-      String[] parts = connectAddresses[i].split(":");
+    for (String connectAddresse: connectAddresses) {
+      String[] parts = connectAddresse.split(":");
       eventloop.connect(new InetSocketAddress(parts[0], Integer.parseInt(parts[1])), client = new Client());
     }
   }
@@ -249,14 +257,7 @@ public abstract class AbstractFlumeInputOperator<T>
         array[0] = Command.COMMITTED.getOrdinal();
 
         final long recoveryOffset = ra.address;
-        array[1] = (byte)recoveryOffset;
-        array[2] = (byte)(recoveryOffset >> 8);
-        array[3] = (byte)(recoveryOffset >> 16);
-        array[4] = (byte)(recoveryOffset >> 24);
-        array[5] = (byte)(recoveryOffset >> 32);
-        array[6] = (byte)(recoveryOffset >> 40);
-        array[7] = (byte)(recoveryOffset >> 48);
-        array[8] = (byte)(recoveryOffset >> 56);
+        Server.writeLong(array, 1, recoveryOffset);
 
         logger.debug("wrote {} with recoveryOffset = {}", Command.COMMITTED, recoveryOffset);
         client.write(array);
@@ -265,6 +266,45 @@ public abstract class AbstractFlumeInputOperator<T>
         break;
       }
     }
+  }
+
+  @Override
+  public Collection<Partition<AbstractFlumeInputOperator<T>>> definePartitions(Collection<Partition<AbstractFlumeInputOperator<T>>> partitions, int incrementalCapacity)
+  {
+    if (incrementalCapacity == 0) {
+      return partitions;
+    }
+
+    ArrayList<String> allConnectAddresses = new ArrayList<String>(partitions.size() + incrementalCapacity);
+    ArrayList<ArrayList<RecoveryAddress>> allRecoveryAddresses = new ArrayList<ArrayList<RecoveryAddress>>(partitions.size() + incrementalCapacity);
+    for (Partition<AbstractFlumeInputOperator<T>> partition: partitions) {
+      String[] addresses = partition.getPartitionedInstance().connectAddresses;
+      allConnectAddresses.addAll(Arrays.asList(addresses));
+      for (int i = addresses.length; i-- > 0;) {
+        allRecoveryAddresses.add(partition.getPartitionedInstance().recoveryAddresses);
+      }
+    }
+
+    partitions.clear();
+
+    try {
+      for (int i = allConnectAddresses.size(); i-- > 0;) {
+        @SuppressWarnings("unchecked")
+        AbstractFlumeInputOperator<T> operator = getClass().newInstance();
+        operator.connectAddresses = new String[] {allConnectAddresses.get(i)};
+        operator.recoveryAddresses.addAll(allRecoveryAddresses.get(i));
+        partitions.add(new DefaultPartition<AbstractFlumeInputOperator<T>>(operator));
+      }
+    }
+    catch (Exception ex) {
+      if (ex instanceof RuntimeException) {
+        throw (RuntimeException)ex;
+      }
+
+      throw new RuntimeException(ex);
+    }
+
+    return partitions;
   }
 
   private static final Logger logger = LoggerFactory.getLogger(AbstractFlumeInputOperator.class);

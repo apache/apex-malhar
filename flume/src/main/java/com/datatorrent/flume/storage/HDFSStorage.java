@@ -164,6 +164,7 @@ public class HDFSStorage implements Storage, Configurable
       }
     }
     try {
+      dataStream.hflush();
       dataStream.close();
     }
     catch (IOException ex) {
@@ -181,6 +182,9 @@ public class HDFSStorage implements Storage, Configurable
     longToByteArray(identifier, b, 0, 8);
     retrievalOffset = byteArrayToLong(b, 3, 0);
     retrievalFile = byteArrayToLong(b, 7, 4);
+    if(retrievalFile > fileCounter){
+      return null;
+    }
     try {
       fileData = readData(new Path(baseDir + "/" + retrievalFile));
       byte[] lengthArr = new byte[4];
@@ -212,6 +216,9 @@ public class HDFSStorage implements Storage, Configurable
     if (retrievalOffset == fileData.length) {
       retrievalOffset = 0;
       retrievalFile++;
+      if(retrievalFile > fileCounter){
+        return null;
+      }
       try {
         fileData = readData(new Path(baseDir + "/" + retrievalFile));
       }
