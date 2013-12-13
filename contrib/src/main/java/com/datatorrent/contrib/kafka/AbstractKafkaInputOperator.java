@@ -57,17 +57,17 @@ import org.slf4j.LoggerFactory;
  * @since 0.3.2
  */
 //SimpleConsumer is kafka consumer client used by this operator, zkclient is used by high-level kafka consumer
-@ShipContainingJars(classes={kafka.javaapi.consumer.SimpleConsumer.class, org.I0Itec.zkclient.ZkClient.class, scala.ScalaObject.class, Metrics.class})
+@ShipContainingJars(classes={kafka.javaapi.consumer.SimpleConsumer.class, org.I0Itec.zkclient.ZkClient.class, scala.Function.class, Metrics.class})
 public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implements InputOperator, ActivationListener<OperatorContext>
 {
   @SuppressWarnings("unused")
   private static final Logger logger = LoggerFactory.getLogger(AbstractKafkaInputOperator.class);
   
-  private int tuplesBlast = 10 * 1024;
+  private int tuplesBlast = 1024 * 1024;
   
   @NotNull
   @Valid
-  private K consumer = null;
+  protected K consumer = null;
 
 
   /**

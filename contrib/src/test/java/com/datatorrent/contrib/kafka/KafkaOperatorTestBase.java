@@ -19,12 +19,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Properties;
-
 import kafka.admin.CreateTopicCommand;
 import kafka.server.KafkaConfig;
 import kafka.server.KafkaServerStartable;
 import kafka.utils.Utils;
-
 import org.apache.zookeeper.server.NIOServerCnxnFactory;
 import org.apache.zookeeper.server.ZooKeeperServer;
 import org.junit.After;
@@ -64,12 +62,13 @@ public class KafkaOperatorTestBase
       int numConnections = 10;
       int tickTime = 2000;
       File dir = new File(zklogdir);
+        
   
       ZooKeeperServer kserver = new ZooKeeperServer(dir, dir, tickTime);
       standaloneServerFactory = new NIOServerCnxnFactory();
       standaloneServerFactory.configure(new InetSocketAddress(clientPort), numConnections);
       standaloneServerFactory.startup(kserver); // start the zookeeper server.
-      kserver.startup();
+      //kserver.startup();
     }
     catch (InterruptedException ex) {
       logger.debug(ex.getLocalizedMessage());

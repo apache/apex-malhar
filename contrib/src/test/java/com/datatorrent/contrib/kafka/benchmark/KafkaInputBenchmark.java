@@ -16,7 +16,9 @@
 
 package com.datatorrent.contrib.kafka.benchmark;
 
+import java.util.HashSet;
 import java.util.Properties;
+
 import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DAG;
@@ -54,7 +56,7 @@ public class KafkaInputBenchmark implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
     
-    dag.setAttribute(DAG.APPLICATION_NAME, "KafkaConsumerBenchmark");
+    dag.setAttribute(DAG.APPLICATION_NAME, "KafkaInputOperatorPartitionDemo");
     BenchmarkPartitionableKafkaInputOperator bpkio = new BenchmarkPartitionableKafkaInputOperator();
     
     
@@ -73,7 +75,7 @@ public class KafkaInputBenchmark implements StreamingApplication
       consumer = new HighlevelKafkaConsumer(props);
     } else {
       // topic is set via property file
-      consumer = new SimpleKafkaConsumer(null, 10000, 100000, "test_kafka_autop_client", -1);
+      consumer = new SimpleKafkaConsumer(null, 10000, 100000, "test_kafka_autop_client", new HashSet<Integer>());
     }
     
     
@@ -85,6 +87,7 @@ public class KafkaInputBenchmark implements StreamingApplication
     dag.addStream("end", bpkio.oport, cm.inputPort).setLocality(Locality.CONTAINER_LOCAL);
     dag.setInputPortAttribute(cm.inputPort, PortContext.PARTITION_PARALLEL, true);
     dag.setAttribute(bpkio, OperatorContext.INITIAL_PARTITION_COUNT, 1);
+//    dag.setAttribute(bpkio, OperatorContext.STATS_LISTENER, KafkaMeterStatsListener.class);
  
 
   }
