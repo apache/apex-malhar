@@ -35,6 +35,8 @@ var LogicalDagWidget = BaseView.extend({
 
     showLocality: false,
 
+    onlyScrollOnAlt: true,
+
     initialize: function(options) {
         BaseView.prototype.initialize.call(this, options);
 
@@ -293,36 +295,40 @@ var LogicalDagWidget = BaseView.extend({
         newHeight = newHeight > 500 ? 500 : newHeight;
         svgParent.height(newHeight);
 
-        // Render the minimap/flyover/birds eye view
-        this.renderMinimap(d3_graph, main_dimensions, svgParent);
+        var self = this;
 
         // Zoom
         var zoomBehavior = this.zoomBehavior = d3.behavior
             .zoom()
-            .scaleExtent([0.1,4])
-            .on("zoom", function() {
+            .scaleExtent([0.1,4]);
+
+        var lastRegistered = {
+            translate: zoomBehavior.translate(),
+            scale: zoomBehavior.scale()
+        };
+
+        zoomBehavior.on("zoom", function() {
                 var ev = d3.event;
-                // if (!ev.sourceEvent.altKey) {
-                //   // ev.sourceEvent.preventDefault();
-                //   // ev.sourceEvent.stopPropagation();
-                //   if (ev.stopPropagation) ev.stopPropagation();
-                //   if (ev.preventDefault) ev.preventDefault();
-                //   return false;
-                // }
-                svg.select("g")
-                    .attr("transform", "translate(" + ev.translate + ") scale(" + ev.scale + ")");
-            })
-            // .on("zoomstart", function() {
-            //     var ev = d3.event;
-            //     if (!ev.sourceEvent.altKey) {
-            //       // ev.sourceEvent.preventDefault();
-            //       // ev.sourceEvent.stopPropagation();
-            //       if (ev.stopPropagation) ev.stopPropagation();
-            //       if (ev.preventDefault) ev.preventDefault();
-            //       return false;
-            //     }
-            // });
-        d3.select(svgParent.get(0)).call(zoomBehavior);
+
+                if (self.onlyScrollOnAlt && !ev.sourceEvent.altKey && ev.sourceEvent.type === "wheel") {
+                    var sev = ev.sourceEvent;
+                    window.scrollBy(0, sev.deltaY);
+                    zoomBehavior.translate(lastRegistered.translate);
+                    zoomBehavior.scale(lastRegistered.scale);
+                } else {
+                    lastRegistered.translate = ev.translate;
+                    lastRegistered.scale = ev.scale;
+                    svg.select("g")
+                        .attr("transform", "translate(" + ev.translate + ") scale(" + ev.scale + ")");
+                    self.updateMinimap(svgParent, ev.translate, ev.scale);
+                }
+                
+            });
+        
+        // Render the minimap/flyover/birds eye view
+        this.renderMinimap(d3_graph, main_dimensions, svgParent);
+
+        zoomBehavior(d3.select(svgParent.get(0)));
     },
 
     /**
@@ -362,44 +368,42 @@ var LogicalDagWidget = BaseView.extend({
      * @param  {jQuery}       root                Root svg element as a jquery element
      * @return {void}
      */
-    renderMinimap: function(graph, graph_dimensions, root) {
+    renderMinimap: function(graph, graph_dimensions, $root) {
+
+        // Reference to the group that gets transform attribute updated.
+        var graphGroup = $root.find('g>g')[0];
 
         // Padding for the map
         var mapPadding = 10;
         var halfMapPadding = mapPadding/2;
 
         // Width and Height of root svg element in widget
-        var rootWidth = root.width();
-        var rootHeight = root.height();
+        var rootWidth = $root.width();
+        var rootHeight = $root.height();
 
         // The map's width
-        var mapWidth = rootWidth * 0.2;
+        var minimapWidth = rootWidth * 0.2;
         // The ratio between the map and the graph
-        var mapMultiplier = mapWidth / graph_dimensions.width;
+        var mapMultiplier = this.minimapMultiplier = minimapWidth / graph_dimensions.width;
         // Map height
-        var mapHeight = graph_dimensions.height * mapMultiplier + mapPadding;
-        // adjust mapwidth with padding
-        mapWidth += mapPadding;
-
-        // Will hold info about viewbox
-        var viewboxDims = {
-            scale: 1
-        };
+        var minimapHeight = graph_dimensions.height * mapMultiplier + mapPadding;
+        // adjust minimapWidth with padding
+        minimapWidth += mapPadding;
 
         // Create the minimap group
-        var minimap = this.minimap = d3.select(root[0])
+        var minimap = this.minimap = d3.select($root[0])
             .append('g')
             .attr({
                 'class': 'dag-minimap',
                 // minus 1 to include bottom and right borders for minimap
-                'transform': 'translate(' + (rootWidth - mapWidth - 1) + ',' + (rootHeight - mapHeight -1) + ')'
+                'transform': 'translate(' + (rootWidth - minimapWidth - 1) + ',' + (rootHeight - minimapHeight -1) + ')'
             });
 
         // backdrop
         minimap.append('rect').attr({
             'class': 'minimap-backdrop',
-            'height': mapHeight,
-            'width': mapWidth
+            'height': minimapHeight,
+            'width': minimapWidth
         });
 
         // Create clip-path for viewbox
@@ -407,12 +411,12 @@ var LogicalDagWidget = BaseView.extend({
             .attr('id', 'minimap-clip-path')
             .append('rect')
             .attr({
-                'height': mapHeight,
-                'width': mapWidth
+                'height': minimapHeight,
+                'width': minimapWidth
             });
 
 
-        // nodes and edges
+        // nodes
         graph.eachNode(function(nodeName, info) {
             var width, height;
             minimap.append('rect')
@@ -424,6 +428,8 @@ var LogicalDagWidget = BaseView.extend({
                     'y': info.y * mapMultiplier - height/2 + halfMapPadding
                 });
         });
+
+        // edges
         graph.eachEdge(function(stream_id, source_name, sink_name, info) {
             minimap.append('path')
                 .attr('class', 'minimap-stream')
@@ -441,60 +447,33 @@ var LogicalDagWidget = BaseView.extend({
         var viewbox = minimap.append('rect')
             .attr('class', 'minimap-viewbox')
             .attr({
-                'width': viewboxDims.width = rootWidth * mapMultiplier,
-                'height': viewboxDims.height = rootHeight * mapMultiplier,
+                'width': rootWidth * mapMultiplier,
+                'height': rootHeight * mapMultiplier,
                 'x': 0,
                 'y': 0,
                 'clip-path': 'url(#minimap-clip-path)'
             });
-        
-        // Listen for changes to the transform attribute on the main dag group
-        var transformRE = /translate\(([-\.0-9]+),([-\.0-9]+)\)\s+scale\(([\.0-9]+)\)/;
-        var observer = new MutationObserver(function (mutations) {
-            mutations.forEach(function attrModified(mutation) {
-                var name = mutation.attributeName;
-                if (name === 'transform') {
-                    newValue = mutation.target.getAttribute(name);
-                    if (!newValue) {
-                        return;
-                    }
-                    var matches = transformRE.exec(newValue);
 
-                    if (!matches) {
-                        return;
-                    }
-
-                    var x = matches[1];
-                    var y = matches[2];
-                    var scale = matches[3];
-                    updateMinimap(x,y,scale);
-                }
+        // Create the interaction element
+        var interaction = minimap.append('rect')
+            .attr({
+                'class': 'minimap-interaction',
+                'height': minimapHeight,
+                'width': minimapWidth
             });
-        });
-        var graphGroup = root.find('g>g')[0];
-        observer.observe(graphGroup, { attributes: true, subtree: false });
-        
-        function updateMinimap(x,y,scale) {
-            viewboxDims.scale = scale;
-            viewbox.attr({
-                'width': viewboxDims.width = rootWidth * mapMultiplier / scale,
-                'height': viewboxDims.height = rootHeight * mapMultiplier / scale,
-                'x': -x * mapMultiplier / scale,
-                'y': -y * mapMultiplier / scale
-            });
-        }
 
-        // Create interaction rectangle (and clip path)
         var updateGraphPosition = _.bind(function() {
             // d3.event.preventDefault();
             // d3.event.stopPropagation(); // silence other listeners
-            var x = ((d3.event.x - viewboxDims.width / 2) / mapMultiplier) * viewboxDims.scale;
-            var y = ((d3.event.y - viewboxDims.height / 2) / mapMultiplier) * viewboxDims.scale;
-            // console.log('translate: ', 'transform', 'translate(' + -x + ',' + -y + ') scale(' + viewboxDims.scale + ')');
-            graphGroup.setAttribute('transform', 'translate(' + -x + ',' + -y + ') scale(' + viewboxDims.scale + ')');
+            var scale = this.zoomBehavior.scale();
+            var x = ((d3.event.x - viewbox.attr('width') / 2) / mapMultiplier) * scale;
+            var y = ((d3.event.y - viewbox.attr('height') / 2) / mapMultiplier) * scale;
+            graphGroup.setAttribute('transform', 'translate(' + -x + ',' + -y + ') scale(' + scale + ')');
             // console.log('scale: ', this.zoomBehavior.scale());
             this.zoomBehavior.translate([-x,-y]);
+            this.updateMinimap($root,[-x,-y], scale);
         }, this);
+
         var drag = d3.behavior.drag()
             // .on('drag', updateGraphPosition)
             // .on("dragstart", updateGraphPosition);
@@ -502,29 +481,39 @@ var LogicalDagWidget = BaseView.extend({
                 updateGraphPosition();
             })
             .on('dragstart', function() {
-                console.log('drag starting');
+                // console.log('drag starting');
                 // updateGraphPosition();
             });
 
-        var interaction = minimap.append('rect')
-            .attr({
-                'class': 'minimap-interaction',
-                'height': mapHeight,
-                'width': mapWidth
-            })
-            .on('mousedown', function() {
-                console.log('mousedown on ixn');
-                d3.event.preventDefault();
-                d3.event.stopPropagation();
-            })
-            .on('mouseup', function() {
-                console.log('mouseup on ixn');
-            })
-            .on('click', function() {
-                console.log('click on ixn');
-            })
-            
-            .call(drag);
+        interaction
+        .on('mousedown', function() {
+            d3.event.preventDefault();
+            d3.event.stopPropagation();
+        })
+        .call(drag);
+
+    },
+
+    /**
+     * Updates the minimap, given the jQuery-wrapped svg element, the new translation and scale
+     * @param  {jQuery} $svg      jQuery-wrapped svg element
+     * @param  {Array} translate  array of x and y value
+     * @param  {Number} scale     scale of the zoom
+     * @return {void}
+     */
+    updateMinimap: function($svg, translate, scale) {
+        var viewbox = this.minimap.select('.minimap-viewbox');
+        var viewboxWidth = $svg.width() * this.minimapMultiplier / scale;
+        var viewboxHeight = $svg.height() * this.minimapMultiplier / scale;
+        var x = translate[0];
+        var y = translate[1];
+        // console.log('');
+        viewbox.attr({
+            'width': viewboxWidth,
+            'height': viewboxHeight,
+            'x': -x * this.minimapMultiplier / scale,
+            'y': -y * this.minimapMultiplier / scale
+        });
     },
 
     addMetricLabel: function (nodeSvg, height) {
