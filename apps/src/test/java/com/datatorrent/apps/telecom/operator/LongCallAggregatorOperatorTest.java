@@ -74,8 +74,8 @@ public class LongCallAggregatorOperatorTest
     
     Assert.assertEquals("number emitted tuples", 2, sortSink.collectedTuples.size());
     for (Object o : sortSink.collectedTuples) {
-      System.out.println(o.toString());
-      logger.debug(o.toString());
+      //System.out.println(o.toString());
+      logger.info(o.toString());
     }
   }
 }

@@ -16,21 +16,19 @@ public class LongCallAggregatorOperator implements Operator
 {
 
   /**
-   * This map represents the fields and their values that will be used to identity the main object which will add fields
-   * from objects marked as mergee
+   * This map represents the fields and their values that will be used to identity the main object 
    */
   @NotNull
   Map<String, String> acquirerIdentifier;
 
   /**
-   * This map represents the fields and their values that will be used to identity the Mergee object whose fields will
-   * be added to objects identified as main
+   * This map represents the fields and their values that will be used to identity the secondary object
    */
   @NotNull
   Map<String, String> mergeeIdentifier;
 
   /**
-   * This list contains the fields that will be used to match the Main Acquirer object with Mergee object
+   * This list contains the fields that will be used to match the Main Acquirer object with secondary object
    */
   @NotNull
   List<String> matchFieldList;
