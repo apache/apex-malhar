@@ -31,7 +31,7 @@ if (!window.LOG) {
 }
 
 // Polyfills
-require('../vendor/sendAsBinary.polyfill.js');
+require('../vendor/sendAsBinary.polyfill');
 
 // Required Jquery plugins
 require('../vendor/bootstrap/bootstrap-transition');
