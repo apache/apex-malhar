@@ -28,15 +28,17 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Operator;
 
 /**
- * <p>LongCallAggregatorOperator class.</p>
- *
+ * <p>
+ * LongCallAggregatorOperator class.
+ * </p>
+ * 
  * @since 0.9.2
  */
 public class LongCallAggregatorOperator implements Operator
 {
 
   /**
-   * This map represents the fields and their values that will be used to identity the main object 
+   * This map represents the fields and their values that will be used to identity the main object
    */
   @NotNull
   Map<String, String> acquirerIdentifier;
@@ -67,6 +69,7 @@ public class LongCallAggregatorOperator implements Operator
    * This stores the list of all the Mergee objects that come in a particular window
    */
   private Map<Integer, Map<String, Map<String, String>>> windowCacheObject;
+  private Map<String, Integer> tupleCacheObject;
 
   public final transient DefaultOutputPort<Map<String, String>> output = new DefaultOutputPort<Map<String, String>>();
 
@@ -76,12 +79,18 @@ public class LongCallAggregatorOperator implements Operator
     {
       // Identifying if it is Mergee Object
       if (isMergeeObject(t)) {
-        Map<String, Map<String, String>> currentWindowMap = windowCacheObject.get(currentWindow);
         String matchFieldId = getMatchFieldString(t);
         if (matchFieldId == null) {
           return;
         }
+        Map<String, Map<String, String>> currentWindowMap = windowCacheObject.get(currentWindow);
         currentWindowMap.put(matchFieldId, t);
+
+        if (tupleCacheObject.get(matchFieldId) != null) {
+          int previousWindow = tupleCacheObject.get(matchFieldId);
+          windowCacheObject.get(previousWindow).remove(matchFieldId);
+        }
+        tupleCacheObject.put(matchFieldId, currentWindow);
         return;
       }
 
@@ -90,15 +99,14 @@ public class LongCallAggregatorOperator implements Operator
         // iterating over the window size to find the mergee objects
         String matchFieldId = getMatchFieldString(t);
         if (matchFieldId != null) {
-          for (int i = 0; i < windowSize; i++) {
-            Map<String, Map<String, String>> currentWindowMap = windowCacheObject.get(i);
-            currentWindowMap.remove(matchFieldId);
+          if (tupleCacheObject.get(matchFieldId) != null) {
+            int previousWindow = tupleCacheObject.get(matchFieldId);
+            windowCacheObject.get(previousWindow).remove(matchFieldId);
+            tupleCacheObject.remove(matchFieldId);
           }
         }
       }
-
       output.emit(t);
-
     }
 
     private boolean isAcquirer(Map<String, String> t)
@@ -143,6 +151,9 @@ public class LongCallAggregatorOperator implements Operator
     if (windowCacheObject == null) {
       windowCacheObject = new HashMap<Integer, Map<String, Map<String, String>>>(windowSize);
     }
+    if (tupleCacheObject == null) {
+      tupleCacheObject = new HashMap<String, Integer>();
+    }
 
   }
 
@@ -172,9 +183,9 @@ public class LongCallAggregatorOperator implements Operator
       Map<String, Map<String, String>> currentWindowMap = windowCacheObject.get(currentWindow);
       for (Map.Entry<String, Map<String, String>> entry : currentWindowMap.entrySet()) {
         output.emit(entry.getValue());
+        tupleCacheObject.remove(entry.getKey());
       }
     }
-    
 
   }
 

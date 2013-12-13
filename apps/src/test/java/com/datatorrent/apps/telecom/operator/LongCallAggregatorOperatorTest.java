@@ -68,7 +68,7 @@ public class LongCallAggregatorOperatorTest
     input.put("mergeprop1", "a");
     input.put("mergeeProp1", "v1");
     input.put("mergeeProp2", "v2");
-    input.put("match1", "match1");
+    input.put("match1", "match2");
     input.put("match2", "match2");
     opr.input.process(input);
     opr.endWindow();
