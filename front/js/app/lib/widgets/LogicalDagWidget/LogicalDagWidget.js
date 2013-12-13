@@ -562,6 +562,7 @@ var LogicalDagWidget = BaseView.extend({
         this.lastZoomLevel.scale = 1;
         this.lastZoomLevel.translate = [0,0];
         this.$('svg.svg-main > g > g').attr("transform", null);
+        this.updateMinimap($('svg.svg-main'), [0,0],1);
     },
 
     changeMetric: function () {
