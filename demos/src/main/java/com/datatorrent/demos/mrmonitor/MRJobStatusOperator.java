@@ -88,9 +88,7 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
       }
 
       if (jobMap.get(mrStatusObj.getJobId()) != null) {
-        mrStatusObj = jobMap.get(mrStatusObj.getJobId());
-        output.emit(mrStatusObj.getJsonObject().toString());
-        return;
+        removeJob(mrStatusObj.getJobId());
       }
 
       if (mrStatusObj.getHadoopVersion() == 2) {
