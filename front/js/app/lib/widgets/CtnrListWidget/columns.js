@@ -76,7 +76,7 @@ exports = module.exports = [
     { id: 'node', label: 'Node Name', key: 'jvmName', sort: nodeSorter, filter: 'like', format: nodeFormatter },
     { id: 'lastHeartbeat', label: 'Last Heartbeat', key: 'lastHeartbeat', sort: 'number', filter: 'date', format: heartbeatFormatter },
     { id: 'memoryMBAllocated', label: 'Allocated Memory (MB)', key: 'memoryMBAllocated', format: 'commaInt', filter: 'number', sort: 'number' },
-    { id: 'memoryMBFree', label: 'Free Memory (MB)', key: 'memoryMBFree', format: 'commaInt', filter: 'number', sort: 'number' },
+    // { id: 'memoryMBFree', label: 'Free Memory (MB)', key: 'memoryMBFree', format: 'commaInt', filter: 'number', sort: 'number' },
     { id: 'numOperators', label: 'No. of Operators', key: 'numOperators', format: 'commaInt', filter: 'number', sort: 'number' },
     { id: 'state', label: 'State', key: 'state', sort: 'string', filter:'like', format: statusFormatter }
 ];
