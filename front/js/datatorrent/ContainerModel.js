@@ -57,6 +57,9 @@ var ContainerModel = BaseModel.extend({
         if (!noFormat) {
             json.as_of = new Date(json.lastHeartbeat*1).toLocaleString();
         }
+        if (!json.containerLogsUrl) {
+            json.containerLogsUrl = false;
+        }
         
         return json;
     },
