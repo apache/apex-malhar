@@ -19,12 +19,18 @@ var WidgetDefModel = Backbone.Model.extend({
     defaults: {
         'widget':'',
         'id':'',
-        'width':100
+        'width':100,
+        'height': 'auto'
     },
     
     validate: function(attrs) {
         if (attrs.width < 20 || attrs.width > 100) {
             return 'Widget width must be between 20 and 100 percent';
+        }
+        if (attrs.height !== 'auto' && typeof attrs.height !== 'number') {
+            return 'Widget height must be a number or "auto"';
+        } else if (attrs.height < 0) {
+            return 'Widget height must be a positive number';
         }
     }
     

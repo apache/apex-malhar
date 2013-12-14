@@ -31,4 +31,20 @@ describe('WidgetDefModel.js', function() {
 
 	});
 
+	it('should make height "auto" by default', function() {
+	    expect(widget.get('height')).to.equal('auto');
+	});
+
+	it('should prevent setting height to anything besides a positive number or the string "auto"', function() {
+	    var negative = widget.set({'height': -100}, {validate:true});
+	    var string = widget.set({'height': 'not auto'}, {validate:true});
+	    var number = widget.set({'height': 100}, {validate:true});
+	    var auto = widget.set({'height': 'auto'}, {validate:true});
+
+	    expect(negative).to.equal(false);
+	    expect(string).to.equal(false);
+	    expect(number).not.to.equal(false);
+	    expect(auto).not.to.equal(false);
+	});
+
 });

@@ -68,7 +68,7 @@
 #pagecontent .widget .widget-content {
   padding: 5px;
 }
-#pagecontent .widget .widget-resize {
+#pagecontent .widget .widget-width-resize {
   position: absolute;
   right: 0;
   top: 0;
@@ -76,8 +76,18 @@
   height: 100%;
   cursor: ew-resize;
 }
-#pagecontent .widget .widget-resize:hover,
-#pagecontent .widget .widget-resize.widget-resizing {
+#pagecontent .widget .widget-height-resize {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  cursor: ns-resize;
+}
+#pagecontent .widget .widget-width-resize:hover,
+#pagecontent .widget .widget-height-resize:hover,
+#pagecontent .widget .widget-width-resize.widget-resizing,
+#pagecontent .widget .widget-height-resize.widget-resizing {
   background-color: rgba(0, 0, 0, 0.5);
 }
 #pagecontent .dashboardMain {

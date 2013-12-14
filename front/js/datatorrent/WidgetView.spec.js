@@ -19,28 +19,32 @@ var Backbone = require('backbone');
 
 describe('Widget View', function() {
     
-	var spy_sizeTo100, spy_grabWidgetResizer, mockWidgetDef, mockDashDef, $elem, elem, view;
+	var spy_sizeTo100, spy_grabWidthResizer, spy_grabHeightResizer, mockWidgetDef, mockDashDef, $elem, elem, view, sandbox;
     
     // fake jquery plugins
     $.fn.tooltip = function() {};
     $.fn.sortable = function() {};
     $.fn.draggable = function() {};
 
-    before(function() {
+    beforeEach(function() {
 
-    	spy_sizeTo100 = sinon.spy(WidgetView.prototype, 'sizeTo100');
-    	spy_grabWidgetResizer = sinon.spy(WidgetView.prototype, '_grabWidgetResizer');
+        sandbox = sinon.sandbox.create();
+    	spy_sizeTo100 = sandbox.spy(WidgetView.prototype, 'sizeTo100');
+    	spy_grabWidthResizer = sandbox.spy(WidgetView.prototype, '_grabWidthResizer');
+        spy_grabHeightResizer = sandbox.spy(WidgetView.prototype, '_grabHeightResizer');
 
     	mockWidgetDef = new Backbone.Model({
 	    	width: 75,
-	    	id: 'mockWidgetDef'
+            height: 'auto',
+	    	id: 'mockWidgetDef',
+            widget: 'SomeFakeWidget'
 	    });
 
 	    mockDashDef = new Backbone.Model({
 	    	dash_id: 'mockDashDef'
 	    });
 
-	    $elem = $('<div id="sandbox"><div class="widget-resize"></div></div>').appendTo('body');
+	    $elem = $('<div id="sandbox"></div>').appendTo('body');
 
 	    elem = $elem[0];
 
@@ -49,7 +53,15 @@ describe('Widget View', function() {
 	        widget: mockWidgetDef,
 	        dashboard: mockDashDef
 	    });
-    })
+
+        view.render();
+    });
+
+    afterEach(function() {
+        sandbox.restore();
+        $elem.remove();
+        view.remove();
+    });
     
     it('should store the widget and dash definition objects as attributes', function() {
     	expect(view.widgetDef).to.equal(mockWidgetDef);
@@ -93,19 +105,19 @@ describe('Widget View', function() {
     		// sinon.spy(view, 'sizeTo100');
     		var expectedCallCount = spy_sizeTo100.callCount + 1;
     		var dblclick = $.Event('dblclick');
-    		view.$('.widget-resize').trigger(dblclick);
+    		view.$('.widget-width-resize').trigger(dblclick);
     		expect(spy_sizeTo100.callCount).to.equal(expectedCallCount);
     	});
 
     });
 
-    describe('the grabWidgetResizer method', function() {
+    describe('the grabWidthResizer method', function() {
 
     	var expectedCallCount, total, ten_percent, mousedown, mousemove, originalWidth, expectedWidth;
 
     	beforeEach(function() {
 
-    		expectedCallCount = spy_grabWidgetResizer.callCount + 1;
+    		expectedCallCount = spy_grabWidthResizer.callCount + 1;
 
     		// reduce width by 10%
     		total = view.$el.parent().width();
@@ -122,14 +134,14 @@ describe('Widget View', function() {
     		originalWidth = mockWidgetDef.get('width');
     		expectedWidth = originalWidth - 10;
 
-    		view.$('.widget-resize')
+    		view.$('.widget-width-resize')
     			.trigger(mousedown)
     			.trigger(mousemove)
     			.trigger('mouseup');
     	})
 
     	it('should be triggered when there is a mousedown event on the resizer', function() {
-    		expect(spy_grabWidgetResizer.callCount).to.equal(expectedCallCount);
+    		expect(spy_grabWidthResizer.callCount).to.equal(expectedCallCount);
     	});
 
     	it('should change the width of the widgetDef according to change in clientX', function() {
@@ -140,11 +152,48 @@ describe('Widget View', function() {
     		expectedCallCount = total = ten_percent = mousedown = mousemove = originalWidth = expectedWidth = undefined;
     	});
 
-    })
+    });
 
-    after(function() {
-    	$elem.remove();
-    	view.remove();
+    describe('the grabHeightResizer method', function() {
+
+        var expectedCallCount, total, ten_percent, mousedown, mousemove, originalHeight, expectedHeight;
+
+        beforeEach(function() {
+
+            expectedCallCount = spy_grabWidthResizer.callCount + 1;
+
+            // reduce height by 10%
+            total = view.$el.height();
+            mousedown = $.Event('mousedown', {
+                clientY: 1000,
+                originalEvent: {
+                    preventDefault: function() {}
+                }
+            });
+            mousemove = $.Event('mousemove', {
+                clientY: 990
+            });
+            originalHeight = view.$el.height();
+            expectedHeight = originalHeight - 10;
+
+            view.$('.widget-height-resize')
+                .trigger(mousedown)
+                .trigger(mousemove)
+                .trigger('mouseup');
+        });
+
+        afterEach(function() {
+            expectedCallCount = total = ten_percent = mousedown = mousemove = originalHeight = expectedHeight = undefined;
+        });
+
+        it('should be triggered when there is a mousedown event on the resizer', function() {
+            expect(spy_grabHeightResizer.callCount).to.equal(expectedCallCount);
+        });
+
+        it('should change the height of the widgetDef according to change in clientY', function() {
+            expect(mockWidgetDef.get('height')).to.equal(expectedHeight);
+        });
+        
     });
         
 });
