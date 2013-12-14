@@ -40,7 +40,7 @@ public class AllAfterMatchMapSample implements StreamingApplication
 	public void populateDAG(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-		dag.setAttribute(DAG.APPLICATION_NAME, "AllAfterMatchMapSample");
+		dag.setAttribute(DAG.APPLICATION_NAME, "AllAfterMatchMapApplication");
 		//dag.setAttribute(DAG.DEBUG, true);
 
 		// Add random integer generator operator

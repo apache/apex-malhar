@@ -39,7 +39,7 @@ public class CountKeyValSample implements StreamingApplication
 	public void populateDAG(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-		dag.setAttribute(DAG.APPLICATION_NAME, "TestApp");
+		dag.setAttribute(DAG.APPLICATION_NAME, "CountKeyValApplication");
 		dag.setAttribute(DAG.DEBUG, true);
 
 		// Add random integer generator operator
