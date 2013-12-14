@@ -74,7 +74,14 @@ public class MRStatusObject
    * This stores the mapping of reduce task ids to the TaskObject
    */
   private Map<String, TaskObject> reduceJsonObject;
+  /**
+   * This holds the information about the various metrics like MAP_OUTPUT_RECORDS etc for this job 
+   */
+  private TaskObject counterObject;
   
+  /**
+   * This holds the number of windows occurred when the new data was retrieved for this job
+   */
   private int retrials;
 
   public MRStatusObject()
@@ -280,6 +287,16 @@ public class MRStatusObject
   public void setRetrials(int retrials)
   {
     this.retrials = retrials;
+  }
+
+  public TaskObject getCounterObject()
+  {
+    return counterObject;
+  }
+
+  public void setCounterObject(TaskObject counterObject)
+  {
+    this.counterObject = counterObject;
   }
 
 }
