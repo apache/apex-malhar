@@ -195,7 +195,7 @@ public class Application implements StreamingApplication
       }
       URI duri = URI.create("ws://" + gatewayAddress + "/pubsub");
 
-      dag.setAttribute(DAG.APPLICATION_NAME, "FraudDetectionDemoApplication");
+      dag.setAttribute(DAG.APPLICATION_NAME, "FraudDetectionApplication");
       dag.setAttribute(DAG.DEBUG, false);
       dag.setAttribute(DAG.STREAMING_WINDOW_SIZE_MILLIS, 1000);
 

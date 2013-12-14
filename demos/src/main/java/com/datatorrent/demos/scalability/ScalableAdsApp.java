@@ -42,7 +42,7 @@ public class ScalableAdsApp implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    dag.setAttribute(DAG.APPLICATION_NAME, "AdsDimensionDemoApplication");
+    dag.setAttribute(DAG.APPLICATION_NAME, "ScalableAdsApplication");
     dag.setAttribute(DAG.STREAMING_WINDOW_SIZE_MILLIS, WINDOW_SIZE_MILLIS);
     
     int heartbeat_interval = conf.getInt(ScalableAdsApp.class.getName() + ".heartbeat_interval", 1000);
