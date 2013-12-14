@@ -24,7 +24,7 @@ var timeSince = Bormats.timeSince;
 exports.timeSince = function(value) {
     if (/^\d+$/.test(value)) {
         var newVal = timeSince(value) || "a moment";
-        return newVal + " ago";
+        return '<span title="' + new Date(value * 1).toLocaleString() + '">' + newVal + ' ago</span>';
     }
     return value;
 }
