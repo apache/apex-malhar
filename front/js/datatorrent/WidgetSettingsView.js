@@ -32,6 +32,10 @@ var SettingsView = BaseView.extend({
             attr: 'id',
             model: this.model
         }));
+        this.subview('widgetHeight', new Bbind.text({
+            attr: 'height',
+            model: this.model
+        }));
     },
     
     render: function() {
@@ -44,6 +48,7 @@ var SettingsView = BaseView.extend({
         // Assign subview
         this.assign({
             '.widgetWidth': 'widgetWidth',
+            '.widgetHeight': 'widgetHeight',
             '.widgetId': 'widgetId'
         });
         this.$el.on('hidden', function(){

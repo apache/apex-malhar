@@ -46,6 +46,9 @@ var WidgetView = BaseView.extend({
         
         // Listen for changes to the width attribute
         this.listenTo(this.widgetDef, 'change:width', this.updateWidth);
+
+        // Listen for changes to the height attribute
+        this.listenTo(this.widgetDef, 'change:height', this.updateHeight);
         
         // Listen for removals
         this.listenTo(this.widgetDef, 'remove', this.remove);
@@ -55,6 +58,7 @@ var WidgetView = BaseView.extend({
         
         // Set initial width
         this.updateWidth();
+        this.updateHeight();
         
         // Listen for changes in width
         this.listenTo(this.widgetDef, 'resize change:width', _.debounce(this.onResize, 300));
@@ -82,6 +86,18 @@ var WidgetView = BaseView.extend({
         this.$el.css(changes);
         return this;
     },
+
+    updateHeight: function() {
+        var newHeight = this.widgetDef.get('height');
+        
+        if (newHeight !== 'auto') {
+            newHeight += 'px';
+        }
+
+        this.$el.css('height', newHeight);
+
+        return this;
+    },
     
     // Generates a composite id with the
     // dashboard id and widget definition id.
@@ -96,13 +112,19 @@ var WidgetView = BaseView.extend({
     
     // Delegated events
     events: {
-        'mousedown .widget-resize': '_grabWidgetResizer',
-        'dblclick .widget-resize': 'sizeTo100'
+        'mousedown .widget-width-resize': '_grabWidthResizer',
+        'dblclick .widget-width-resize': 'sizeTo100',
+        'mousedown .widget-height-resize': '_grabHeightResizer',
+        'dblclick .widget-height-resize': 'sizeToAutoHeight'
     },
     
     // Resizes the widget to 100% of the screen width
     sizeTo100: function(e) {
         this.widgetDef.set('width', 100);
+    },
+
+    sizeToAutoHeight: function(e) {
+        this.widgetDef.set('height', 'auto');
     },
     
     render: function() {
@@ -117,7 +139,7 @@ var WidgetView = BaseView.extend({
         html = this.BASE_TEMPLATE(json);
         
         this.$el.html(html);
-        
+
         this._doAssignments();
         
         return this;
@@ -161,12 +183,12 @@ var WidgetView = BaseView.extend({
         this.assign(assignments);
     },
     
-    _grabWidgetResizer: function(e) {
+    _grabWidthResizer: function(e) {
         e.stopPropagation();
         e.originalEvent.preventDefault();
         
         // Cache actual resize el
-        var $resizer = this.$('.widget-resize');
+        var $resizer = this.$('.widget-width-resize');
         
         // Get the starting horizontal position
         var initX = e.clientX;
@@ -195,6 +217,48 @@ var WidgetView = BaseView.extend({
             .on('mousemove', mousemove)
             .one('mouseup', mouseup);
         
+    },
+
+    _grabHeightResizer: function(e) {
+        e.stopPropagation();
+        e.originalEvent.preventDefault();
+
+        // Cache actual resize el
+        var $resizer = this.$('.widget-height-resize');
+        
+        // Get the starting horizontal position
+        var initY = e.clientY;
+        
+        // Get the current width of the widget and dashboard
+        var initWidgetHeight = this.widgetDef.get('height');
+        if (initWidgetHeight === 'auto') {
+            initWidgetHeight = this.$el.height();
+
+        }
+        
+        // Calculate change and apply new height on mousemove
+        var mousemove = (function(e) {
+            var curY = e.clientY;
+            var change = curY - initY;
+            var newHeight = Math.round(initWidgetHeight*1 + change);
+            this.widgetDef.set({
+                height: newHeight
+            },{
+                validate: true
+            });
+        }).bind(this);
+        
+        var mouseup = (function(e) {
+            $(window).off('mousemove', mousemove);
+            $resizer.removeClass('widget-resizing');
+        }).bind(this);
+        
+        $resizer.addClass('widget-resizing');
+        
+        $(window)
+            .on('mousemove', mousemove)
+            .one('mouseup', mouseup);
+
     },
     
     _toggleHighlight: function(highlighted) {
