@@ -22,3 +22,13 @@
     <span class="key">As Of:</span>
     <span class="value"><%=as_of%></span>
 </div>
+
+<div class="overview-item">
+	<span class="key"><%= DT.text('processed_per_sec') %></span>
+	<div class="value"><%= tuplesProcessedPSMA_f %></div>
+</div>
+
+<div class="overview-item">
+	<span class="key"><%= DT.text('emitted_per_sec') %></span>
+	<div class="value"><%= tuplesEmittedPSMA_f %></div>
+</div>

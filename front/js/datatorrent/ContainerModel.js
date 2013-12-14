@@ -13,6 +13,13 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
+var _ = require('underscore');
+var BaseModel = require('./BaseModel');
+var BigInteger = require('jsbn');
+var OperatorCollection = require('./OperatorCollection');
+var bormat = require('bormat');
+
 /**
  * Model for containers
 */
@@ -24,11 +31,6 @@
 // memoryMBFree: "1691"
 // numOperators: "2"
 // state: "ACTIVE"
-var _ = require('underscore');
-var BaseModel = require('./BaseModel');
-var BigInteger = require('jsbn');
-var OperatorCollection = require('./OperatorCollection');
-
 var ContainerModel = BaseModel.extend({
     
     debugName: 'container',
@@ -56,6 +58,10 @@ var ContainerModel = BaseModel.extend({
         
         if (!noFormat) {
             json.as_of = new Date(json.lastHeartbeat*1).toLocaleString();
+            json.totalTuplesEmitted_f = bormat.commaGroups(json.totalTuplesEmitted.toString());
+            json.totalTuplesProcessed_f = bormat.commaGroups(json.totalTuplesProcessed.toString());
+            json.tuplesEmittedPSMA_f = bormat.commaGroups(json.tuplesEmittedPSMA.toString());
+            json.tuplesProcessedPSMA_f = bormat.commaGroups(json.tuplesProcessedPSMA.toString());
         }
         if (!json.containerLogsUrl) {
             json.containerLogsUrl = false;
