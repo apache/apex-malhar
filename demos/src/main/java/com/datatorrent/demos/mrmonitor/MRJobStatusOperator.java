@@ -168,6 +168,7 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
 
   /**
    * This method is used to collect the metric information about the job
+   * 
    * @param statusObj
    */
   private void getCounterInfoForJob(MRStatusObject statusObj)
@@ -176,17 +177,17 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
     String responseBody = Util.getJsonForURL(url);
     JSONObject jsonObj = Util.getJsonObject(responseBody);
     if (jsonObj == null) {
-      url = "http://" + statusObj.getUri() + ":" + statusObj.getHistoryServerPort() + "/ws/v1/history/mapreduce/jobs/job_" + statusObj.getJobId()+ "/counters";
+      url = "http://" + statusObj.getUri() + ":" + statusObj.getHistoryServerPort() + "/ws/v1/history/mapreduce/jobs/job_" + statusObj.getJobId() + "/counters";
       responseBody = Util.getJsonForURL(url);
       jsonObj = Util.getJsonObject(responseBody);
     }
-    
+
     if (jsonObj != null) {
-      if(statusObj.getCounterObject() == null){
-        statusObj.setCounterObject(new TaskObject(jsonObj));
-      }else if (!statusObj.getCounterObject().getJsonString().equalsIgnoreCase(jsonObj.toString())) {
-        statusObj.getCounterObject().setJson(jsonObj);
-        statusObj.getCounterObject().setModified(true);
+      if (statusObj.getMetricObject() == null) {
+        statusObj.setMetricObject(new TaskObject(jsonObj));
+      } else if (!statusObj.getMetricObject().getJsonString().equalsIgnoreCase(jsonObj.toString())) {
+        statusObj.getMetricObject().setJson(jsonObj);
+        statusObj.getMetricObject().setModified(true);
       }
     }
   }
@@ -440,12 +441,12 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
           reduceOutput.emit(outputJsonObject.toString());
         }
 
-        if(obj.getCounterObject().isModified()){
+        if (obj.getMetricObject() != null && obj.getMetricObject().isModified()) {
           modified = true;
-          obj.getCounterObject().setModified(false);
-          counterOutput.emit(obj.getCounterObject().getJsonString());
+          obj.getMetricObject().setModified(false);
+          counterOutput.emit(obj.getMetricObject().getJsonString());
         }
-        
+
         if (!modified) {
           if (obj.getRetrials() >= maxRetrials) {
             delList.add(obj.getJobId());
@@ -493,21 +494,41 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
     }
   }
 
+  /**
+   * This returns the maximum number of jobs the single instance of this operator is going to server at any time
+   * 
+   * @return
+   */
   public int getMaxMapSize()
   {
     return maxMapSize;
   }
 
+  /**
+   * This sets the maximum number of jobs the single instance of this operator is going to server at any time
+   * 
+   * @param maxMapSize
+   */
   public void setMaxMapSize(int maxMapSize)
   {
     this.maxMapSize = maxMapSize;
   }
 
+  /**
+   * This sets the number of consecutive windows of no change before the job is removed from map
+   * 
+   * @return
+   */
   public int getMaxRetrials()
   {
     return maxRetrials;
   }
 
+  /**
+   * This returns the number of consecutive windows of no change before the job is removed from map
+   * 
+   * @param maxRetrials
+   */
   public void setMaxRetrials(int maxRetrials)
   {
     this.maxRetrials = maxRetrials;

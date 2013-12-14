@@ -77,7 +77,7 @@ public class MRStatusObject
   /**
    * This holds the information about the various metrics like MAP_OUTPUT_RECORDS etc for this job 
    */
-  private TaskObject counterObject;
+  private TaskObject metricObject;
   
   /**
    * This holds the number of windows occurred when the new data was retrieved for this job
@@ -246,22 +246,38 @@ public class MRStatusObject
       this.json = json;
     }
 
+    /**
+     * This returns the task information as json
+     * 
+     * @return
+     */
     public JSONObject getJson()
     {
       return json;
     }
 
+    /**
+     * This stores the task information as json
+     * 
+     * @param json
+     */
     public void setJson(JSONObject json)
     {
       this.json = json;
     }
 
+    /**
+     * This returns if the json object has been modified
+     * 
+     * @return
+     */
     public boolean isModified()
     {
       return modified;
     }
 
     /**
+     *  This sets if the json object is modified
      *  
      * @param modified
      */
@@ -289,14 +305,16 @@ public class MRStatusObject
     this.retrials = retrials;
   }
 
-  public TaskObject getCounterObject()
+  public TaskObject getMetricObject()
   {
-    return counterObject;
+    return metricObject;
   }
 
-  public void setCounterObject(TaskObject counterObject)
+  public void setMetricObject(TaskObject metricObject)
   {
-    this.counterObject = counterObject;
+    this.metricObject = metricObject;
   }
+
+  
 
 }
