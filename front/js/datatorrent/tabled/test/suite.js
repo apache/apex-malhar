@@ -569,9 +569,9 @@ describe("the Tabled module", function() {
             var now = +new Date();
             var one_second_ago = now - 1000;
             var one_day_ago = now - 86400000;
-            assert.equal(timeSince(now),"a moment ago");
-            assert.equal(timeSince(one_second_ago),"1 second ago");
-            assert.equal(timeSince(one_day_ago),"1 day ago");
+            expect(timeSince(now)).to.match(/<span title="[\w\d\s:]{10,}">a moment ago<\/span>/);
+            expect(timeSince(one_second_ago)).to.match(/<span title="[\w\d\s:]{10,}">1 second ago<\/span>/);
+            expect(timeSince(one_day_ago)).to.match(/<span title="[\w\d\s:]{10,}">1 day ago<\/span>/);
         });
         afterEach(function() {
             delete this.Formats;
