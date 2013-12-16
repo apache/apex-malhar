@@ -1,0 +1,18 @@
+<h2>Application List</h2>
+
+<table class="table" style="width:600px;">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>State</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr ng-repeat="item in items">
+        <td><a href="#/jobs/{{item.id}}">{{item.id}}</a></td>
+        <td>{{item.name}}</td>
+        <td>{{item.state}}</td>
+    </tr>
+    </tbody>
+</table>

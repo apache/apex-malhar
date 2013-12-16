@@ -1,0 +1,117 @@
+body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #333;
+    padding-top: 60px;
+    padding-bottom: 40px;
+}
+
+.navbar .nav > li {
+    line-height:28px;
+}
+
+.navbar .brand {
+    background: url("../images/main_banner.png") no-repeat scroll 0 0;
+    padding: 0;
+    width: 241px;
+    height: 48px;
+    margin-left:-15px;
+}
+
+.navbar-inverse .nav .active > a, .navbar-inverse .nav .active > a:hover, .navbar-inverse .nav .active > a:focus {
+    background: #11506d;
+}
+
+.navbar .navbar-inner {
+    background: #11506d;
+}
+
+@media (max-width: 980px) {
+    /* Enable use of floated navbar text */
+    .navbar-text.pull-right {
+        float: none;
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+}
+
+/* Bootstrap images */
+[class^="icon-"],
+[class*=" icon-"] {
+    background-image: url("../images/glyphicons-halflings.png");
+}
+
+.line-chart {
+    height: 400px;
+}
+
+.monitored-jobs-grid {
+    border: 1px solid rgb(212,212,212);
+    width: 900px;
+    height: 150px;
+}
+
+.monitored-jobs-grid .remove {
+    text-align: center;
+    cursor: pointer;
+}
+
+.job-progress-grid-content {
+    padding-top: 20px;
+}
+
+.job-progress-grid {
+    border: 1px solid rgb(212,212,212);
+    width: 500px;
+    height: 200px;
+}
+
+.job-progress-header h2 {
+    display: inline-block;
+}
+.job-progress-header .job-label {
+    padding-left: 20px;
+}
+
+.grid-container {
+    min-width: 500px;
+}
+
+.task-progress-grid {
+    border: 1px solid rgb(212,212,212);
+    width: 500px;
+    height: 200px;
+}
+
+.progress {
+    width: 300px;
+    height: 30px;
+    line-height: 30px;
+    vertical-align: middle;
+}
+
+.progress .bar {
+    padding-left: 20px;
+    color: black;
+    white-space: nowrap;
+    text-align: left;
+}
+
+.job-label {
+    font-weight: bold;
+}
+
+.row-active {
+    background-color: orange;
+}
+
+/* TODO */
+
+/*
+.ngRow.selected {
+    background-color: orange;
+}
+
+.ngCell {
+    background-color: red;
+}
+*/
