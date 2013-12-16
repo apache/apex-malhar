@@ -16,17 +16,16 @@
 package com.datatorrent.apps.telecom.operator;
 
 import java.util.Map;
-import java.util.Properties;
 
 /**
  *
  * @since 0.9.2
  */
-public class DefaultEnricher implements EnricherInterface
+public class DefaultEnricher implements EnricherInterface<String,String>
 {
 
   @Override
-  public void configure(Properties prop)
+  public void configure(Map<String, String> prop)
   {
     
   }

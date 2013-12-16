@@ -78,11 +78,11 @@ public class CallForwardingAggregatorOperator implements Operator
    */
   private Map<Integer, Map<String, List<Map<String, String>>>> windowCacheObject;
 
-  public final transient DefaultOutputPort<Map<String, String>> output = new DefaultOutputPort<Map<String, String>>();
+  public final transient DefaultOutputPort<HashMap<String, String>> output = new DefaultOutputPort<HashMap<String, String>>();
 
-  public final transient DefaultInputPort<Map<String, String>> input = new DefaultInputPort<Map<String, String>>() {
+  public final transient DefaultInputPort<HashMap<String, String>> input = new DefaultInputPort<HashMap<String, String>>() {
     @Override
-    public void process(Map<String, String> t)
+    public void process(HashMap<String, String> t)
     {
       // Identifying if it is Mergee Object
       if (isMergeeObject(t)) {
@@ -133,7 +133,7 @@ public class CallForwardingAggregatorOperator implements Operator
 
     }
 
-    private boolean isAcquirer(Map<String, String> t)
+    private boolean isAcquirer(HashMap<String, String> t)
     {
       for (Map.Entry<String, String> entry : acquirerIdentifier.entrySet()) {
         if (t.get(entry.getKey()) == null || !(t.get(entry.getKey()).equalsIgnoreCase(entry.getValue()))) {
@@ -143,7 +143,7 @@ public class CallForwardingAggregatorOperator implements Operator
       return true;
     }
 
-    private String getMatchFieldString(Map<String, String> t)
+    private String getMatchFieldString(HashMap<String, String> t)
     {
       StringBuilder output = new StringBuilder();
       Iterator<String> itr = matchFieldList.iterator();
@@ -158,7 +158,7 @@ public class CallForwardingAggregatorOperator implements Operator
       return output.toString();
     }
 
-    private boolean isMergeeObject(Map<String, String> t)
+    private boolean isMergeeObject(HashMap<String, String> t)
     {
       for (Map.Entry<String, String> entry : mergeeIdentifier.entrySet()) {
         if (t.get(entry.getKey()) == null || !(t.get(entry.getKey()).equalsIgnoreCase(entry.getValue()))) {

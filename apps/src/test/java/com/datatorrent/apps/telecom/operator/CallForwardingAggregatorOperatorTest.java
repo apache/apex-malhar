@@ -69,7 +69,7 @@ public class CallForwardingAggregatorOperatorTest
     opr.output.setSink(sortSink);
     
     opr.beginWindow(0);
-    Map<String,String> input = new HashMap<String, String>();
+    HashMap<String,String> input = new HashMap<String, String>();
     input.put("mergeprop1", "mergeprop1");
     input.put("mergeeProp1", "v1");
     input.put("mergeeProp2", "v2");
@@ -79,7 +79,7 @@ public class CallForwardingAggregatorOperatorTest
     opr.endWindow();
     
     opr.beginWindow(1);
-    Map<String,String> input1 = new HashMap<String, String>();
+    HashMap<String,String> input1 = new HashMap<String, String>();
     input1.put("mergeprop2", "mergeprop2");
     input1.put("mergeeProp1", "v1");
     input1.put("mergeeProp2", "v2");
@@ -89,7 +89,7 @@ public class CallForwardingAggregatorOperatorTest
     opr.endWindow();
     
     opr.beginWindow(2);
-    Map<String,String> input2 = new HashMap<String, String>();    
+    HashMap<String,String> input2 = new HashMap<String, String>();    
     input2.put("acquireProp1", "v1");
     input2.put("acquireProp2", "v2");
     input2.put("match1", "match1");
@@ -99,6 +99,7 @@ public class CallForwardingAggregatorOperatorTest
     
     Assert.assertEquals("number emitted tuples", 1, sortSink.collectedTuples.size());
     for (Object o : sortSink.collectedTuples) {
+      logger.debug(o.toString());
       Assert.assertEquals("{match2=match2, mergeprop2=mergeprop2, match1=match1, acquireProp1=v1, acquireProp2=v2}", o.toString());
     }
   }
