@@ -90,7 +90,7 @@ public class Calculator implements StreamingApplication
     dag.addStream("sqr", squareOperator.integerResult, pairOperator.input).setLocality(locality);
     dag.addStream("x2andy2", pairOperator.output, sumOperator.input).setLocality(locality);
     dag.addStream("x2plusy2", sumOperator.integerResult, comparator.input, inSquare.input).setLocality(locality);
-    dag.addStream("inCirclePoints", comparator.greaterThanOrEqualTo, inCircle.input).setLocality(locality);
+    dag.addStream("inCirclePoints", comparator.greaterThan, inCircle.input).setLocality(locality);
     dag.addStream("numerator", inCircle.output, division.numerator).setLocality(locality);
     dag.addStream("denominator", inSquare.output, division.denominator).setLocality(locality);
     dag.addStream("ratio", division.doubleQuotient, multiplication.input).setLocality(locality);
