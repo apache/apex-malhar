@@ -154,7 +154,10 @@ var AppInstancePageView = BasePageView.extend({
                         pageParams: pageParams,
                         nav: this.app.nav,
                         dataSource: this.dataSource,
-                        collection: this.getLogicalOperators.bind(this)
+                        collection: this.getLogicalOperators.bind(this),
+                        onRemove: _.bind(function() {
+                            return this.decrementLogicalOperators.bind(this)
+                        }, this)
                     }
                 },
                 {
@@ -244,7 +247,10 @@ var AppInstancePageView = BasePageView.extend({
                             return this.model
                         },
                         collection: this.getLogicalOperators.bind(this),
-                        appId: pageParams.appId
+                        appId: pageParams.appId,
+                        onRemove: _.bind(function() {
+                            return this.decrementLogicalOperators.bind(this)
+                        }, this)
                     }
                 },
                 {
@@ -384,10 +390,18 @@ var AppInstancePageView = BasePageView.extend({
     
     cleanUp: function() {
         this.model.cleanUp();
+        if (this.logicalOperators) {
+            this.logicalOperators.stopListening();
+            this.logicalOperators = null;
+        }
         BasePageView.prototype.cleanUp.call(this);
     },
 
+    logicalOperatorDependencyCount: 0,
+
     getLogicalOperators: function() {
+
+        ++this.logicalOperatorDependencyCount;
 
         if (!this.logicalOperators) {
             this.logicalOperators = new LogicalOperatorCollection([], {
@@ -421,6 +435,13 @@ var AppInstancePageView = BasePageView.extend({
         }
 
         return this.logicalOperators;
+    },
+
+    decrementLogicalOperators: function() {
+        --this.logicalOperatorDependencyCount;
+        if (this.logicalOperatorDependencyCount <= 0) {
+            this.logicalOperators.stopListening();
+        }
     }
     
 });

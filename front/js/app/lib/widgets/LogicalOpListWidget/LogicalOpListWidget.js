@@ -56,6 +56,10 @@ var LogicalOpListWidget = BaseView.extend({
             save_state: true,
             row_sorts: ['logicalName']
         }));
+    },
+
+    remove: function() {
+        BaseView.prototype.remove.apply(this, arguments);
     }
     
 });
