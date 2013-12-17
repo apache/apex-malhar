@@ -25,6 +25,47 @@ angular.module('app.controller')
       $scope.$emit('activeJobId', null);
     }
   })
+  .controller('CounterController', function ($scope, webSocket, util) {
+    var counterGroups = null;
+    var counterGroupNames = null;
+
+    function updateCounterGroup() {
+      var group = _.findWhere(counterGroups, { counterGroupName: $scope.counterGroupName });
+      $scope.counterGroup = group;
+    }
+
+    function updateCounters(counterObject) {
+      if (!counterGroupNames) {
+        counterGroups = counterObject.jobCounters.counterGroup;
+        counterGroupNames = _.pluck(counterGroups, 'counterGroupName');
+        $scope.counterGroupNames = counterGroupNames;
+        $scope.counterGroupName = counterGroupNames[0];
+      } else {
+        counterGroups = counterObject.jobCounters.counterGroup;
+        updateCounterGroup();
+      }
+    }
+
+    $scope.$watch('counterGroupName', function (counterGroupName) {
+      if (counterGroupName) {
+        updateCounterGroup();
+      }
+    });
+
+    webSocket.subscribe(settings.topic.stats, function (data) {
+      var counterObject = JSON.parse(data);
+
+      var jobId = util.extractJobId(counterObject.jobCounters.id);
+
+      if ($scope.activeJobId !== jobId) {
+        return;
+      }
+
+      updateCounters(counterObject);
+
+      $scope.$apply();
+    }, $scope);
+  })
   .controller('MapLineChartController', function ($scope) {
     var items = [];
 
@@ -222,8 +263,6 @@ angular.module('app.controller')
 
     webSocket.subscribe(settings.topic.reduce, function (data) {
       var taskObject = JSON.parse(data);
-
-      //console.log(taskObject.id + ' ' + ($scope.activeJobId === taskObject.id));
 
       if ($scope.activeJobId !== taskObject.id) {
         return;

@@ -104,6 +104,24 @@ body {
     background-color: orange;
 }
 
+.counters select {
+    width: auto;
+    min-width: 220px;
+}
+
+.counters .table-container {
+    width: 100%;
+    overflow: auto;
+}
+
+.counters .counter-col {
+    width: 70px;
+}
+
+.applist .table {
+    width: auto;
+}
+
 /* TODO */
 
 /*

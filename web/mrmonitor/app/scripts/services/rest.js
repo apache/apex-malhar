@@ -29,6 +29,9 @@ angular.module('app.service')
             var apps = _.where(response.apps.app, { applicationType: 'MAPREDUCE' });
 
             if (apps.length > 0) {
+              apps = _.sortBy(apps, function (app) {
+                return (-app.startedTime);
+              });
               deferred.resolve(apps);
             } else {
               errorMessage = 'No MAPREDUCE applications found.';
