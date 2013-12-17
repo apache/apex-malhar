@@ -1,3 +1,7 @@
+/*
+ *  Copyright (c) 2012-2013 Malhar, Inc.
+ *  All Rights Reserved.
+ */
 package com.datatorrent.flume.storage;
 
 import java.io.IOException;
@@ -16,6 +20,10 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.flume.storage.HDFSStorage;
 import com.datatorrent.flume.storage.Storage;
 
+/**
+ * 
+ * @author Gaurav Gupta  <gaurav@datatorrent.com>
+ */
 public class HDFSStorageTest
 {
   public static final String STORAGE_DIRECTORY = "target";
