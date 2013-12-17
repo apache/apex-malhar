@@ -33,9 +33,13 @@ describe('WindowId.js', function() {
     it('should be a function', function() {
         expect(WindowId).to.be.a('function');
     });
+
+    it('timestamp should be a Date', function() {
+        expect(windowId.timestamp).to.be.instanceof(Date);
+    });
     
     it('should have timestamp, offset, and value', function() {
-        expect(windowId.timestamp).to.equal(windowTimestamp);
+        expect( windowId.timestamp.valueOf() ).to.equal(windowTimestamp);
         expect(windowId.offset).to.equal(windowOffset);
         expect(windowId.value).to.equal(windowValue);
     });
@@ -57,7 +61,7 @@ describe('WindowId.js', function() {
     it('should have a set method that allows you to change the value', function() {
         expect(windowId.set).to.be.a('function');
         windowId.set('5896637953039405387');
-        expect(windowId.timestamp).to.equal(1372918010000);
+        expect(windowId.timestamp.valueOf()).to.equal(1372918010000);
         expect(windowId.offset).to.equal(4427);
         expect(windowId.value).to.equal('5896637953039405387');
     });
