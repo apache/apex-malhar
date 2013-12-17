@@ -8,7 +8,7 @@ public interface Storage
    * @param bytes
    * @return
    */
-  long store(byte[] bytes);
+  byte[] store(byte[] bytes);
 
   /**
    * This returns the bytes and the identifier identified by the identifier. This identifier is used to retrieve next bytes in retriveNext function call
@@ -16,14 +16,14 @@ public interface Storage
    * @param identifier
    * @return
    */
-  RetrievalObject retrieve(long identifier);
+  byte[] retrieve(byte[] identifier);
 
   /**
    * This returns the next identifier and bytes identified by this identifier
    *
    * @return
    */
-  RetrievalObject retrieveNext();
+  byte[] retrieveNext();
 
   /**
    * This is used to clean up of the bytes identified by identifier
@@ -31,20 +31,20 @@ public interface Storage
    * @param identifier
    * @return
    */
-  boolean clean(long identifier);
+  void clean(byte[] identifier);
 
   /**
    * This flushes the data from stream
    *
    * @return
    */
-  boolean flush();
+  void flush();
 
   /**
    * This flushes the data and closes stream
    *
    * @return
    */
-  boolean close();
+  void close();
 
 }
