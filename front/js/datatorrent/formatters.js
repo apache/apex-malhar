@@ -33,7 +33,7 @@ exports.windowFormatter = function(windowIdObj) {
     if (typeof windowIdObj !== 'object') {
         windowIdObj = new WindowId(windowIdObj);
     }
-    return '<span title="'+windowIdObj.value+'">'+windowIdObj.offset+'</span>';
+    return windowIdObj.toString();
 };
 
 exports.windowOffsetFormatter = function(windowIdObj) {
