@@ -119,7 +119,7 @@ public class HDFSStorage implements Storage, Configurable
 
   private byte[] longToByteArray(long fileOffset, long fileCounter)
   {
-    long l = (fileCounter << 32) | (fileOffset & 0x00000000ffffffffl);
+    long l = (fileCounter << 32) | (fileOffset & 0xffffffffl);
     return Longs.toByteArray(l);
   }
 
