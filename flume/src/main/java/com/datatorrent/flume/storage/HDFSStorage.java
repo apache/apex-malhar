@@ -201,6 +201,10 @@ public class HDFSStorage implements Storage, Configurable
       throw new RuntimeException("Invalid identifier");
     }
     retrievalOffset += length + 4;
+    if(readStream.available() < 1){
+      retrievalOffset = 0;
+      retrievalFile++;
+    }
     byte[] fileOffset = longToByteArray(retrievalOffset, retrievalFile);
     System.arraycopy(fileOffset, 0, data, 0, 8);
     return data;
@@ -214,8 +218,6 @@ public class HDFSStorage implements Storage, Configurable
     }
     try {
       if (readStream.available() < 1) {
-        retrievalOffset = 0;
-        retrievalFile++;
         if (retrievalFile > fileCounter) {
           throw new RuntimeException("no records available");
         }
