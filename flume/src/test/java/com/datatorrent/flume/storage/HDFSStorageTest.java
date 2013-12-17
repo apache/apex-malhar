@@ -1,3 +1,7 @@
+/*
+ *  Copyright (c) 2012-2013 Malhar, Inc.
+ *  All Rights Reserved.
+ */
 package com.datatorrent.flume.storage;
 
 import java.io.IOException;
@@ -16,6 +20,10 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.flume.storage.HDFSStorage;
 import com.datatorrent.flume.storage.Storage;
 
+/**
+ * 
+ * @author Gaurav Gupta  <gaurav@datatorrent.com>
+ */
 public class HDFSStorageTest
 {
   public static final String STORAGE_DIRECTORY = "target";
@@ -137,5 +145,42 @@ public class HDFSStorageTest
     r.close();
   }
 
+  @Test
+  public void testRetrieval() throws IOException
+  {
+    Context ctx = new Context();
+    ctx.put(HDFSStorage.BASE_DIR_KEY,STORAGE_DIRECTORY);
+    ctx.put(HDFSStorage.RESTORE_KEY,Boolean.toString(false));    
+    Storage storage = new HDFSStorage();
+    ((Configurable)storage).configure(ctx);
+    RandomAccessFile r = new RandomAccessFile("src/test/resources/TestInput.txt", "r");
+    r.seek(0);
+    byte[] b = r.readLine().getBytes();
+    byte[] val = storage.store(b);
+    byte[] b1 = r.readLine().getBytes();
+    storage.store(b1);
+    storage.store(b);
+    storage.close();
+    byte[] data = storage.retrieve(val);
+    byte[] tempData = new byte[data.length - 8];
+    byte[] identifier = new byte[8];
+    System.arraycopy(data, 8, tempData, 0, tempData.length);
+    System.arraycopy(data, 0, identifier, 0, 8);
+    Assert.assertEquals("matched the stored value with retrieved value", new String(b), new String(tempData));
+    
+    data = storage.retrieve(identifier);
+    tempData = new byte[data.length - 8];
+    System.arraycopy(data, 8, tempData, 0, tempData.length);
+    System.arraycopy(data, 0, identifier, 0, 8);
+    Assert.assertEquals("matched the stored value with retrieved value", new String(b1), new String(tempData));
+    
+    data = storage.retrieve(identifier);
+    tempData = new byte[data.length - 8];
+    System.arraycopy(data, 8, tempData, 0, tempData.length);
+    System.arraycopy(data, 0, identifier, 0, 8);
+    Assert.assertEquals("matched the stored value with retrieved value", new String(b), new String(tempData));
+    r.close();    
+  }
+  
   private static final Logger logger = LoggerFactory.getLogger(HDFSStorageTest.class);
 }

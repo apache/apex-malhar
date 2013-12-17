@@ -1,3 +1,7 @@
+/*
+ *  Copyright (c) 2012-2013 Malhar, Inc.
+ *  All Rights Reserved.
+ */
 package com.datatorrent.flume.storage;
 
 import org.apache.flume.Context;
@@ -6,6 +10,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 
+ * @author Gaurav Gupta  <gaurav@datatorrent.com>
+ */
 public class HDFSStoragePerformance
 {
 

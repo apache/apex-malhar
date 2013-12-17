@@ -1,3 +1,7 @@
+/*
+ *  Copyright (c) 2012-2013 Malhar, Inc.
+ *  All Rights Reserved.
+ */
 package com.datatorrent.flume.storage;
 
 import java.io.DataInputStream;
@@ -16,6 +20,16 @@ import org.slf4j.LoggerFactory;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
 
+/**
+ * HDFSStorage is developed to store and retrieve the data from HDFS
+ * <p />
+ * The properties that can be set on HDFSStorage  are: <br />
+ * baseDir - The base directory where the data is going to be stored <br />
+ * restore - This is used to restore the application from previous failure <br />
+ * blockSize - The maximum size of the each file to created. <br />
+ * 
+ * @author Gaurav Gupta  <gaurav@datatorrent.com>
+ */
 public class HDFSStorage implements Storage, Configurable
 {
   private static final String identityFileName = "/counter";
@@ -200,6 +214,10 @@ public class HDFSStorage implements Storage, Configurable
       throw new RuntimeException("Invalid identifier");
     }
     retrievalOffset += length + 4;
+    if(readStream.available() < 1){
+      retrievalOffset = 0;
+      retrievalFile++;
+    }
     byte[] fileOffset = longToByteArray(retrievalOffset, retrievalFile);
     System.arraycopy(fileOffset, 0, data, 0, 8);
     return data;
@@ -213,8 +231,6 @@ public class HDFSStorage implements Storage, Configurable
     }
     try {
       if (readStream.available() < 1) {
-        retrievalOffset = 0;
-        retrievalFile++;
         if (retrievalFile > fileCounter) {
           throw new RuntimeException("no records available");
         }
