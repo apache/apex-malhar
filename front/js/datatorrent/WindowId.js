@@ -37,9 +37,9 @@ WindowId.prototype = {
 	
         var full64 = new BigInteger(this.value);
     
-        this.timestamp = full64.shiftRight(32).toString() + '000';
+        this.timestamp = (full64.shiftRight(32).toString() + '000') * 1;
     
-        this.offset = full64.and(new BigInteger('0x00000000ffffffff',16)).toString();
+        this.offset = full64.and(new BigInteger('0x00000000ffffffff',16)).toString() * 1;
     }
     
 };
