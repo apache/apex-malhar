@@ -13,16 +13,22 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+var _ = require('underscore');
 var Backbone = require('backbone');
 var DataSource = require('./DataSource');
+var BaseModel = require('./BaseModel');
 var ApplicationModel = require('./ApplicationModel');
+var OperatorCollection = require('./OperatorCollection');
+var ContainerCollection = require('./ContainerCollection');
+var WindowId = require('./WindowId');
 
 describe('ApplicationModel.js', function() {
     
-    var sandbox, mockDataSource, appmodel;
+    var sandbox, mockDataSource, appmodel, fetchResponse;
     
     before(function() {
         mockDataSource = new DataSource('host', new Backbone.Model({}));
+        sandbox = sinon.sandbox.create();
     });
     
     after(function() {
@@ -30,9 +36,31 @@ describe('ApplicationModel.js', function() {
     });
     
     beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+
         appmodel = new ApplicationModel({},{ dataSource: mockDataSource});
-        
+
+        fetchResponse = function(options) {
+            var updates = {
+                'state': 'RUNNING',
+                'startedTime': (+new Date()) + "",
+                'elapsedTime': '72000'
+            };
+            appmodel.set(updates)
+            options.success(appmodel, updates);
+        }
+
+        sandbox.stub(BaseModel.prototype, 'fetch', function() {
+            return fetchResponse.apply(appmodel, arguments);
+        });
+
+        sandbox.stub(ContainerCollection.prototype, 'fetch', function() {
+
+        });
+
+        sandbox.stub(OperatorCollection.prototype, 'fetch', function() {
+
+        });
+
     });
     
     afterEach(function() {
@@ -45,20 +73,71 @@ describe('ApplicationModel.js', function() {
     });
     
     it('should set some defaults', function() {
-        var tmp_model = new ApplicationModel({},{});
-        var json = tmp_model.serialize();
-        expect(json).to.have.property('state');
+        var json = appmodel.toJSON();
+        _.each(['state', 'name', 'user'], function(attr) {
+            expect(json).to.have.property(attr);
+        });
     });
-    
-    // describe('the fetch method', function() {
-    //     
-    // });
 
-    describe('the serialize method', function() {
+    _.each(['currentWindowId', 'recoveryWindowId'], function(windowIdKey) {
+
+        it('should set the ' + windowIdKey + ' to an instance of WindowId by default', function() {
+            expect(appmodel.get(windowIdKey)).to.be.instanceof(WindowId);
+        });
+
+        it('should not use the same ' + windowIdKey + ' object as other instantiated models', function() {
+            var a2 = new ApplicationModel({},{ dataSource: mockDataSource});
+            expect(appmodel.get(windowIdKey)).not.to.equal(a2.get(windowIdKey));
+        });
+
+    });
+
+    describe('fetch method', function() {
+        
+        it('should call the BaseModel fetch method', function() {
+            appmodel.fetch();
+            expect(BaseModel.prototype.fetch).to.have.been.calledOnce;
+        });
+
+        it('should call fetch for containers and operators if they are present', function() {
+            appmodel.setContainers([]);
+            appmodel.setOperators([]);
+            appmodel.fetch();
+            expect(OperatorCollection.prototype.fetch).to.have.been.calledOnce;
+            expect(ContainerCollection.prototype.fetch).to.have.been.calledOnce;
+        });
+
+        it('should NOT call fetch for containers and operators if they are NOT present', function() {
+            appmodel.fetch();
+            expect(OperatorCollection.prototype.fetch).not.to.have.been.called;
+            expect(ContainerCollection.prototype.fetch).not.to.have.been.called;
+        });        
+
+        it('should call a success function supplied in the options', function() {
+
+            var spy = sandbox.spy();
+            
+            appmodel.fetch({
+                success: spy
+            });
+            
+            expect(spy).to.have.been.calledOnce;
+        });
+
+    });
+
+    describe('serialize method', function() {
         
         it('should return an object', function() {
             expect(appmodel.serialize()).to.be.an('object');
         });
+
+        it('should add a lastHeartbeat attribute', function() {
+            expect(appmodel.serialize().lastHeartbeat).to.be.a('number');
+        });
+        
     });
+
+
     
 });
