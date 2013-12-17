@@ -17,7 +17,6 @@ package com.datatorrent.apps.telecom.operator;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import junit.framework.Assert;
 
@@ -33,18 +32,18 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 */
 public class EnricherOperatorTest
 {
-  public static class TestEnricher implements EnricherInterface{
+  public static class TestEnricher implements EnricherInterface<String,String>{
 
-    @Override
-    public void configure(Properties prop)
-    {
-      
-    }
-
-    @Override
+        @Override
     public void enrichRecord(Map<String, String> m)
     {
       m.put("prop2", "b");
+    }
+
+    @Override
+    public void configure(Map<String, String> prop)
+    {
+      
     }
     
   }
@@ -53,14 +52,14 @@ public class EnricherOperatorTest
   @Test
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public void testOperator(){
-    EnrichmentOperator oper = new EnrichmentOperator();
-    oper.setProp(new Properties());
+    EnrichmentOperator<String,String> oper = new EnrichmentOperator<String,String>();
+    oper.setProp(new HashMap<String,String>());
     oper.setEnricher(TestEnricher.class);
     oper.setup(null);
     CollectorTestSink sortSink = new CollectorTestSink();
     oper.output.setSink(sortSink);
     
-    Map<String,String> input = new HashMap<String, String>();
+    HashMap<String,String> input = new HashMap<String, String>();
     input.put("prop1", "a");
     
     

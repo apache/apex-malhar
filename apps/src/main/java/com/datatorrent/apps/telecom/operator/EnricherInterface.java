@@ -16,20 +16,20 @@
 package com.datatorrent.apps.telecom.operator;
 
 import java.util.Map;
-import java.util.Properties;
+
 
 /**
  *
  * @since 0.9.2
  */
-public interface EnricherInterface
+public interface EnricherInterface<K,V>
 {
 
   /**
    * This is used to configure the enricher
    * @param prop
    */
-  public void configure(Properties prop);
+  public void configure(Map<K, V> prop);
   
   /**
    * This is used to update the map object with new values

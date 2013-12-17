@@ -15,9 +15,8 @@
  */
 package com.datatorrent.apps.telecom.operator;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
-
 import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
@@ -32,26 +31,29 @@ import com.datatorrent.api.Operator;
 *
 * @since 0.9.2
 */
-public class EnrichmentOperator implements Operator
+public class EnrichmentOperator<K,V> implements Operator
 {
 
   /**
    * The concrete class that will enrich the incoming tuple
    */
   @NotNull
-  private Class<? extends EnricherInterface> enricher;
+  private Class<? extends EnricherInterface<K,V>> enricher;
   /**
    * The properties that need to be configure enricher
    */
   @NotNull
-  private Properties prop;
+  private Map<K,V> prop;
   
-  private transient EnricherInterface enricherObj;
+  /**
+   * This is used to store the reference to enricher obj
+   */
+  private transient EnricherInterface<K,V> enricherObj;
   
-  public final transient DefaultOutputPort<Map<String, String>> output = new DefaultOutputPort<Map<String, String>>();
-  public final transient DefaultInputPort<Map<String, String>> input = new DefaultInputPort<Map<String, String>>() {
+  public final transient DefaultOutputPort<HashMap<String, String>> output = new DefaultOutputPort<HashMap<String, String>>();
+  public final transient DefaultInputPort<HashMap<String, String>> input = new DefaultInputPort<HashMap<String, String>>() {
     @Override
-    public void process(Map<String, String> t)
+    public void process(HashMap<String, String> t)
     {
       enricherObj.enrichRecord(t);
       output.emit(t);      
@@ -88,22 +90,22 @@ public class EnrichmentOperator implements Operator
     
   }
 
-  public Class<? extends EnricherInterface> getEnricher()
+  public Class<? extends EnricherInterface<K,V>> getEnricher()
   {
     return enricher;
   }
 
-  public void setEnricher(Class<? extends EnricherInterface> enricher)
+  public void setEnricher(Class<? extends EnricherInterface<K,V>> enricher)
   {
     this.enricher = enricher;
   }
 
-  public Properties getProp()
+  public Map<K,V> getProp()
   {
     return prop;
   }
 
-  public void setProp(Properties prop)
+  public void setProp(Map<K,V> prop)
   {
     this.prop = prop;
   }
