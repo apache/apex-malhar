@@ -33,6 +33,9 @@ var WidgetView = BaseView.extend({
         this.widgetDef = options.widget;
         this.dashDef = options.dashboard;
 
+        // Look for removal handler
+        this.onRemove = options.onRemove;
+
         // Extend events if necessary
         if (this.events !== WidgetView.prototype.events) {
             this.events = _.extend({},WidgetView.prototype.events,this.events);
@@ -263,6 +266,13 @@ var WidgetView = BaseView.extend({
     
     _toggleHighlight: function(highlighted) {
         this.$el[ highlighted ? 'addClass' : 'removeClass' ]('highlighted');
+    },
+
+    remove: function() {
+        if (typeof this.onRemove === 'function') {
+            this.onRemove();
+        }
+        BaseView.prototype.remove.apply(this, arguments);
     },
     
     // @final
