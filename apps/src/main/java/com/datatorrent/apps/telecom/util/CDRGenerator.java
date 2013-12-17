@@ -6,6 +6,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
 
+import org.apache.commons.lang3.RandomStringUtils;
+
 import com.datatorrent.contrib.netflow.KafkaOutput;
 
 public class CDRGenerator
@@ -36,17 +38,17 @@ public class CDRGenerator
     builder.append("," + callCause[callCauseIndex]); // call cause definition #2
     callCauseIndex = (callCauseIndex + 1) % callCause.length;
 
-    builder.append(",0" + RandomString.nextString(10)); // customer identifier #3
-    builder.append(",0" + RandomString.nextString(10)); // telephone number #4
+    builder.append(",0" + RandomStringUtils.randomNumeric(10)); // customer identifier #3
+    builder.append(",0" + RandomStringUtils.randomNumeric(10)); // telephone number #4
 
     Calendar calendar = Calendar.getInstance();
     Date date = calendar.getTime();
     builder.append("," + callDate.format(date)); // call date #5
     builder.append("," + callTime.format(date)); // call time #6
-    builder.append("," + RandomString.nextString(3)); // duration #7
+    builder.append("," + RandomStringUtils.randomNumeric(3)); // duration #7
     if (currentCallType.equalsIgnoreCase("G")) {
-      builder.append("," + RandomString.nextString(3)); // bytes transmitted #8
-      builder.append("," + RandomString.nextString(3)); // bytes received #9
+      builder.append("," + RandomStringUtils.randomNumeric(3)); // bytes transmitted #8
+      builder.append("," + RandomStringUtils.randomNumeric(3)); // bytes received #9
     } else {
       builder.append(",,");
     }
@@ -54,10 +56,10 @@ public class CDRGenerator
     builder.append(",charge code"); // charge code #11
     builder.append("," + timeBand[timeBandIndex]); // time band #12
     timeBandIndex = (timeBandIndex + 1) % timeBand.length;
-    builder.append("," + RandomString.nextString(2)); // sales price #13
-    builder.append("," + RandomString.nextString(2)); // sales price #14
-    builder.append("," + RandomString.nextString(4)); // extension #15
-    builder.append("," + RandomString.nextString(10)); // ddi #16
+    builder.append("," + RandomStringUtils.randomNumeric(2)); // sales price #13
+    builder.append("," + RandomStringUtils.randomNumeric(2)); // sales price #14
+    builder.append("," + RandomStringUtils.randomNumeric(4)); // extension #15
+    builder.append("," + RandomStringUtils.randomNumeric(10)); // ddi #16
     builder.append(","); // grouping id #17
     builder.append(","); // call class #18
     builder.append(","); // carrier #19
@@ -75,8 +77,8 @@ public class CDRGenerator
     builder.append(","); // remote network #25
     builder.append(","); // APN #26
     builder.append(","); // diverted number #27
-    builder.append("," + RandomString.nextString(2)); // ring time #28
-    builder.append("," + RandomString.nextString(4)); // record id #29
+    builder.append("," + RandomStringUtils.randomNumeric(2)); // ring time #28
+    builder.append("," + RandomStringUtils.randomNumeric(4)); // record id #29
     return builder.toString();
   }
 
