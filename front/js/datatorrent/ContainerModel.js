@@ -132,6 +132,13 @@ var ContainerModel = BaseModel.extend({
                 'totalTuplesEmitted': BigInteger.ZERO
             }
         );
+
+        _.each(['recoveryWindowId', 'currentWindowId'], function(wKey) {
+            if (aggregates[wKey] === false) {
+                aggregates[wKey] = '0';
+            }
+        });
+
         this.set(aggregates);
     },
     
