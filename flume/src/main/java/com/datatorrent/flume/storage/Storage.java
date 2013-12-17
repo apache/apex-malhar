@@ -29,21 +29,18 @@ public interface Storage
    * This is used to clean up of the bytes identified by identifier
    *
    * @param identifier
-   * @return
    */
   void clean(byte[] identifier);
 
   /**
    * This flushes the data from stream
    *
-   * @return
    */
   void flush();
 
   /**
    * This flushes the data and closes stream
    *
-   * @return
    */
   void close();
 

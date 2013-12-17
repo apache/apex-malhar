@@ -4,6 +4,7 @@
  */
 package com.datatorrent.flume.sink;
 
+import com.datatorrent.common.util.Slice;
 import java.io.IOException;
 
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import org.apache.flume.sink.AbstractSink;
 import com.datatorrent.flume.sink.Server.Request;
 import com.datatorrent.flume.storage.Storage;
 import com.datatorrent.netlet.DefaultEventLoop;
+import java.util.Arrays;
 
 /**
  * DTFlumeSink is a flume sink developed to ingest the data into DataTorrent DAG
@@ -42,7 +44,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   private int outstandingEventsCount;
   private int lastConsumedEventsCount;
   private int idleCount;
-  private boolean playback;
+  private byte[] playback;
   private boolean process;
   private Storage storage;
   private String hostname;
@@ -68,18 +70,20 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch"})
   public Status process() throws EventDeliveryException
   {
-    /*
+    Slice slice;
     synchronized (server.requests) {
       for (Request r: server.requests) {
         logger.debug("found {}", r);
         switch (r.type) {
           case SEEK:
-            playback = storage.retrieve(r.getAddress()) != null;
+            slice = r.getAddress();
+            playback = storage.retrieve(Arrays.copyOfRange(slice.buffer, slice.offset, slice.offset + slice.length));
             process = true;
             break;
 
           case COMMITTED:
-            storage.clean(r.getAddress());
+            slice = r.getAddress();
+            storage.clean(Arrays.copyOfRange(slice.buffer, slice.offset, slice.offset + slice.length));
             break;
 
           case CONNECTED:
@@ -137,22 +141,16 @@ public class DTFlumeSink extends AbstractSink implements Configurable
     }
 
     if (maxTuples > 0) {
-      if (playback) {
-        logger.debug("playback mode still active");
-
-        RetrievalObject next;
+      if (playback != null) {
+        logger.debug("playback mode is active.");
         int i = 0;
-        while (i < maxTuples && (next = storage.retrieveNext()) != null) {
-          server.client.write(next.getToken(), next.getData());
-          i++;
+        do {
+          server.client.write(playback);
+          playback = storage.retrieveNext();
         }
+        while (++i < maxTuples && playback != null);
 
-        if (i == 0) {
-          playback = false;
-        }
-        else {
-          outstandingEventsCount += i;
-        }
+        outstandingEventsCount += i;
       }
       else {
         int i = 0;
@@ -163,8 +161,8 @@ public class DTFlumeSink extends AbstractSink implements Configurable
 
           Event e;
           while (i < maxTuples && (e = getChannel().take()) != null) {
-            long l = storage.store(e.getBody());
-            server.client.write(l, e.getBody());
+            byte[] address = storage.store(e.getBody());
+            server.client.write(address, e.getBody());
             i++;
           }
 
@@ -194,7 +192,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
           sleep();
         }
       }
-    }*/
+    }
 
     return Status.READY;
   }
