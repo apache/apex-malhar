@@ -390,10 +390,6 @@ var AppInstancePageView = BasePageView.extend({
     
     cleanUp: function() {
         this.model.cleanUp();
-        if (this.logicalOperators) {
-            this.logicalOperators.stopListening();
-            this.logicalOperators = null;
-        }
         BasePageView.prototype.cleanUp.call(this);
     },
 
