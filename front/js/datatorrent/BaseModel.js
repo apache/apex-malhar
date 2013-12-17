@@ -87,7 +87,7 @@ var BaseModel = Backbone.Model.extend({
         var attrs, windowUpdates = {}, changesToWindowAttrs = [], setResult;
 
         if (typeof key === 'object') {
-            attrs = key;
+            attrs = _.clone(key);
             options = val;
         } else {
             (attrs = {})[key] = val;
