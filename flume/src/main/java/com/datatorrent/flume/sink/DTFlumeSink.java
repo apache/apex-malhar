@@ -13,7 +13,6 @@ import org.apache.flume.conf.Configurable;
 import org.apache.flume.sink.AbstractSink;
 
 import com.datatorrent.flume.sink.Server.Request;
-import com.datatorrent.flume.storage.RetrievalObject;
 import com.datatorrent.flume.storage.Storage;
 import com.datatorrent.netlet.DefaultEventLoop;
 
@@ -283,7 +282,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
         @Override
         public void clean(byte[] identifier)
         {
-          
+
         }
 
         @Override
@@ -294,7 +293,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
         @Override
         public void close()
         {
-        
+
         }
 
       };
