@@ -40,9 +40,9 @@ var ApplicationModel = BaseModel.extend({
         'appMasterTrackingUrl': '',
         'appPath': '',
         'daemonAddress': '',
-        'elapsedTime': -1,
-        'recoveryWindowId_f': new WindowId('0'),
-        'currentWindowId_f': new WindowId('0'),
+        'elapsedTime': 0,
+        'recoveryWindowId': new WindowId('0'),
+        'currentWindowId': new WindowId('0'),
         'stats': {
             'allocatedContainers': '',
             'criticalPath': [],
@@ -74,7 +74,7 @@ var ApplicationModel = BaseModel.extend({
         'finishedTime': '',
         'progress': '',
         'queue': '',
-        'startedTime': -1,
+        'startedTime': false,
         'state': '',
         'trackingUI': '',
         'trackingUrl': '',
@@ -137,11 +137,6 @@ var ApplicationModel = BaseModel.extend({
         
         // Check for additional formatting
         if ( ! noFormat ) {
-            
-            // Update WindowIds
-            _.each(['recoveryWindowId', 'currentWindowId'], function(key) {
-                obj[key + '_f'].set(obj.stats[key] || '0');
-            }, this);
             
             // Additional data
             obj.as_of = lastHeartbeat.toLocaleString();
@@ -219,10 +214,14 @@ var ApplicationModel = BaseModel.extend({
         
         this.checkForDataSource();
         this.listenTo(this.dataSource, topic, function(stats) {
-            var updates = {
-                state: stats.state
-            };
-            delete stats.state;
+            var updates = {};
+
+            // Move attributes to main object where applicable
+            _.each(['recoveryWindowId', 'currentWindowId', 'state'], function(key) {
+                updates[key] = stats[key];
+                delete stats[key];
+            }, this);
+            
             updates.stats = stats;
             var lcState = updates.state.toLowerCase();
             if ( lcState === 'running' || lcState === 'accepted' ) {
