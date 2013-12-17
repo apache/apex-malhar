@@ -96,8 +96,7 @@ var AppMetricsWidget = BaseView.extend({
             var json = this.model.toJSON();
             var stats = json.stats;
             stats.lastHeartbeat = +new Date();
-            if (stats.currentWindowId){
-                
+            if (json.currentWindowId){
                 this.addPoint(stats);
             }
         });

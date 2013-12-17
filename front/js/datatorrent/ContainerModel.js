@@ -19,6 +19,7 @@ var BaseModel = require('./BaseModel');
 var BigInteger = require('jsbn');
 var OperatorCollection = require('./OperatorCollection');
 var bormat = require('bormat');
+var WindowId = require('./WindowId');
 
 /**
  * Model for containers
@@ -35,16 +36,20 @@ var ContainerModel = BaseModel.extend({
     
     debugName: 'container',
     
-    defaults: {
-        appId: '',
-        host: '',
-        id: '',
-        jvmName: '',
-        lastHeartbeat: '',
-        memoryMBAllocated: 0,
-        memoryMBFree: 0,
-        numOperators: 0,
-        state: ''
+    defaults: function() {
+        return {
+            appId: '',
+            host: '',
+            id: '',
+            jvmName: '',
+            lastHeartbeat: '',
+            memoryMBAllocated: 0,
+            memoryMBFree: 0,
+            numOperators: 0,
+            state: '',
+            recoveryWindowId_f: new WindowId('0'),
+            currentWindowId_f: new WindowId('0')
+        }
     },
     
     urlRoot: function() {
@@ -101,8 +106,10 @@ var ContainerModel = BaseModel.extend({
                     if (memo[key] === false) {
                         memo[key] = op[key];
                     }
-                    else if (op[key].offset*1 < memo[key].offset*1) {
-                        memo[key] = op[key];
+                    else {
+                        if (op[key].offset*1 < memo[key].offset*1) {
+                            memo[key] = op[key];
+                        }
                     }
                 });
 
@@ -125,6 +132,13 @@ var ContainerModel = BaseModel.extend({
                 'totalTuplesEmitted': BigInteger.ZERO
             }
         );
+
+        _.each(['recoveryWindowId', 'currentWindowId'], function(wKey) {
+            if (aggregates[wKey] === false) {
+                aggregates[wKey] = '0';
+            }
+        });
+
         this.set(aggregates);
     },
     
