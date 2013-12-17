@@ -31,7 +31,7 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>malhar-contrib</artifactId>
-			<version>${project.version}</version>			
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.jettison</groupId>
@@ -40,8 +40,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.kafka</groupId>
-			<artifactId>kafka_2.8.0</artifactId>
-			<version>0.8.0-beta1</version>
+			<artifactId>kafka_2.10</artifactId>
+			<version>0.8.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.hbase</groupId>
@@ -60,8 +60,8 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-				
-		
-		
+
+
+
 	</dependencies>
 </project>
