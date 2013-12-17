@@ -20,7 +20,7 @@ require('../js/datatorrent/JarAppModel.spec');
 require('../js/datatorrent/widgets/ListWidget/ListPalette.spec');
 require('../js/datatorrent/NavModel/NavModel.spec');
 require('../js/datatorrent/OpPropertiesModel.spec');	
-
+require('../js/datatorrent/OperatorModel.spec');
 
 require('../js/datatorrent/PortModel.spec');
 require('../js/datatorrent/RecordingModel.spec');

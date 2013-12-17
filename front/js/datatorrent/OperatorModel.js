@@ -30,10 +30,8 @@ var OperatorModel = BaseModel.extend({
         'className': '',
         'container': '',
         'cpuPercentageMA': '',
-        'currentWindowId': '',
-        'recoveryWindowId': '',
-        'recoveryWindowId_f': new WindowId('0'),
-        'currentWindowId_f': new WindowId('0'),
+        'recoveryWindowId': new WindowId('0'),
+        'currentWindowId': new WindowId('0'),
         'failureCount': '',
         'host': '',
         'id': '',
@@ -53,10 +51,6 @@ var OperatorModel = BaseModel.extend({
         var obj = this.toJSON();
         
         if ( !noFormat ) {
-            // Update WindowIds
-            _.each(['recoveryWindowId', 'currentWindowId'], function(key) {
-                obj[key + '_f'].set(obj[key]);
-            }, this);
             
             // Make comma group formatting
             _.each(['totalTuplesEmitted','tuplesEmittedPSMA','totalTuplesProcessed','tuplesProcessedPSMA'], function(key){
