@@ -29,9 +29,12 @@ public class HDFSStorageTest
     Storage storage = new HDFSStorage();
     ((Configurable)storage).configure(ctx);
     byte[] b = new byte[1028];
-    long val = storage.store(b);
+    byte[] val = storage.store(b);
     storage.close();
-    Assert.assertEquals("matched the stored value with retrieved value", new String(b), new String(storage.retrieve(val).getData()));
+    byte[] data = storage.retrieve(val);
+    byte[] tempData = new byte[data.length - 8];
+    System.arraycopy(data, 8, tempData, 0, tempData.length);
+    Assert.assertEquals("matched the stored value with retrieved value", new String(b), new String(tempData));
     
   }
   
@@ -64,7 +67,7 @@ public class HDFSStorageTest
     RandomAccessFile r = new RandomAccessFile("src/test/resources/TestInput.txt", "r");
     r.seek(0);
     byte[] b = r.readLine().getBytes();
-    long val = storage.store(b);
+    byte[] val = storage.store(b);
     storage.close();
     val = storage.store(b);
     storage.close();
@@ -73,6 +76,64 @@ public class HDFSStorageTest
     FileSystem fs = FileSystem.get(conf);
     boolean exists =fs.exists(new Path(STORAGE_DIRECTORY+"/"+"0")); 
     Assert.assertEquals("file shoule not exist", false, exists);
+    r.close();
+  }
+  
+  @Test
+  public void testNext() throws IOException
+  {
+    Context ctx = new Context();
+    ctx.put(HDFSStorage.BASE_DIR_KEY,STORAGE_DIRECTORY);
+    ctx.put(HDFSStorage.RESTORE_KEY,Boolean.toString(false));    
+    Storage storage = new HDFSStorage();
+    ((Configurable)storage).configure(ctx);
+    RandomAccessFile r = new RandomAccessFile("src/test/resources/TestInput.txt", "r");
+    r.seek(0);
+    byte[] b = r.readLine().getBytes();
+    byte[] val = storage.store(b);
+    byte[] b1 = r.readLine().getBytes();
+    storage.store(b1);
+    storage.store(b);
+    storage.close();
+    byte[] data = storage.retrieve(val);
+    byte[] tempData = new byte[data.length - 8];
+    System.arraycopy(data, 8, tempData, 0, tempData.length);
+    Assert.assertEquals("matched the stored value with retrieved value", new String(b), new String(tempData));
+    data = storage.retrieveNext();
+    tempData = new byte[data.length - 8];
+    System.arraycopy(data, 8, tempData, 0, tempData.length);
+    Assert.assertEquals("matched the stored value with retrieved value", new String(b1), new String(tempData));
+    data = storage.retrieveNext();
+    tempData = new byte[data.length - 8];
+    System.arraycopy(data, 8, tempData, 0, tempData.length);
+    Assert.assertEquals("matched the stored value with retrieved value", new String(b), new String(tempData));
+    r.close();
+  }
+  
+  @Test
+  public void testNextWithFileClose() throws IOException
+  {
+    Context ctx = new Context();
+    ctx.put(HDFSStorage.BASE_DIR_KEY,STORAGE_DIRECTORY);
+    ctx.put(HDFSStorage.RESTORE_KEY,Boolean.toString(false));    
+    Storage storage = new HDFSStorage();
+    ((Configurable)storage).configure(ctx);
+    RandomAccessFile r = new RandomAccessFile("src/test/resources/TestInput.txt", "r");
+    r.seek(0);
+    byte[] b = r.readLine().getBytes();
+    byte[] val = storage.store(b);
+    storage.close();
+    byte[] b1 = r.readLine().getBytes();
+    storage.store(b1);
+    storage.close();
+    byte[] data = storage.retrieve(val);
+    byte[] tempData = new byte[data.length - 8];
+    System.arraycopy(data, 8, tempData, 0, tempData.length);
+    Assert.assertEquals("matched the stored value with retrieved value", new String(b), new String(tempData));
+    data = storage.retrieveNext();
+    tempData = new byte[data.length - 8];
+    System.arraycopy(data, 8, tempData, 0, tempData.length);
+    Assert.assertEquals("matched the stored value with retrieved value", new String(b1), new String(tempData));
     r.close();
   }
 

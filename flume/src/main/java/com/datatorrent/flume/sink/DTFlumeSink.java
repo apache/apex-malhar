@@ -69,6 +69,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch"})
   public Status process() throws EventDeliveryException
   {
+    /*
     synchronized (server.requests) {
       for (Request r: server.requests) {
         logger.debug("found {}", r);
@@ -194,7 +195,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
           sleep();
         }
       }
-    }
+    }*/
 
     return Status.READY;
   }
@@ -262,39 +263,38 @@ public class DTFlumeSink extends AbstractSink implements Configurable
       storage = new Storage()
       {
         @Override
-        public long store(byte[] bytes)
-        {
-          return 0;
-        }
-
-        @Override
-        public RetrievalObject retrieve(long identifier)
+        public byte[] store(byte[] bytes)
         {
           return null;
         }
 
         @Override
-        public RetrievalObject retrieveNext()
+        public byte[] retrieve(byte[] identifier)
         {
           return null;
         }
 
         @Override
-        public boolean clean(long identifier)
+        public byte[] retrieveNext()
         {
-          return true;
+          return null;
         }
 
         @Override
-        public boolean flush()
+        public void clean(byte[] identifier)
         {
-          return true;
+          
         }
 
         @Override
-        public boolean close()
+        public void flush()
         {
-          return true;
+        }
+
+        @Override
+        public void close()
+        {
+        
         }
 
       };
