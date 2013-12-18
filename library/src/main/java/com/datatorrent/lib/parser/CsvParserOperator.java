@@ -18,7 +18,6 @@ package com.datatorrent.lib.parser;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Serializable;
-import java.nio.charset.Charset;
 import java.util.Map;
 
 import javax.validation.constraints.NotNull;
@@ -34,6 +33,7 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.ShipContainingJars;
 
 /**
@@ -65,9 +65,7 @@ public class CsvParserOperator extends BaseOperator
 
   private char separator = ',';
 
-  private Charset charset = Charset.defaultCharset();
-
-  @NotNull
+    @NotNull
   private CSVHeaderMapping headerMapping = null;
 
   @NotNull
@@ -89,6 +87,7 @@ public class CsvParserOperator extends BaseOperator
 
   };
 
+  @InputPortFieldAnnotation (optional = true, name = "byteInput")
   public transient DefaultInputPort<byte[]> byteArrayInput = new DefaultInputPort<byte[]>() {
 
     @Override
@@ -124,7 +123,7 @@ public class CsvParserOperator extends BaseOperator
 
   protected void processTuple(byte[] tuple)
   {
-    processTuple(new String(tuple, charset));
+    processTuple(new String(tuple));
   }
 
   @Override
@@ -182,16 +181,6 @@ public class CsvParserOperator extends BaseOperator
   public void setHeaderMapping(CSVHeaderMapping headerMapping)
   {
     this.headerMapping = headerMapping;
-  }
-
-  public void setCharset(Charset charset)
-  {
-    this.charset = charset;
-  }
-
-  public Charset getCharset()
-  {
-    return charset;
   }
 
   static class CSVStringReader extends Reader

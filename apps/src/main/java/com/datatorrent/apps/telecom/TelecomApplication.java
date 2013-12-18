@@ -1,6 +1,5 @@
 package com.datatorrent.apps.telecom;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,10 +8,6 @@ import java.util.Map;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.supercsv.cellprocessor.Optional;
-import org.supercsv.cellprocessor.ParseBool;
-import org.supercsv.cellprocessor.ParseDate;
-import org.supercsv.cellprocessor.ift.CellProcessor;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
@@ -21,8 +16,8 @@ import com.datatorrent.apps.telecom.operator.DefaultEnricher;
 import com.datatorrent.apps.telecom.operator.DefaultNormalizer;
 import com.datatorrent.apps.telecom.operator.EnrichmentOperator;
 import com.datatorrent.apps.telecom.operator.InputGenerator;
+import com.datatorrent.apps.telecom.util.TestHeaderMapping;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.parser.CSVHeaderMapping;
 import com.datatorrent.lib.parser.CsvParserOperator;
 
 public class TelecomApplication implements StreamingApplication
@@ -103,26 +98,5 @@ public class TelecomApplication implements StreamingApplication
     dag.addStream("normalizer -> console", normalizer.output, console.input);
   }
 
-  class TestHeaderMapping implements CSVHeaderMapping, Serializable
-  {
-    public String[] header;
-
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
-
-    @Override
-    public CellProcessor[] getProcessors()
-    {
-      return new CellProcessor[] { new Optional(), new ParseBool(), new ParseDate("yyyy-MM-dd") };
-    }
-
-    @Override
-    public String[] getHeaders()
-    {
-      return header;
-    }
-
-  }
+  
 }
