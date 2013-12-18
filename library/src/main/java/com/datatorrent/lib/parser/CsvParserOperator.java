@@ -16,7 +16,8 @@
 package com.datatorrent.lib.parser;
 
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.Reader;
+import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.Map;
 
@@ -36,50 +37,58 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.ShipContainingJars;
 
 /**
- * <p>A general CSV parser to parse csv String/bytearray content to Map</p><br>
- *
+ * <p>
+ * A general CSV parser to parse csv String/bytearray content to Map
+ * </p>
+ * <br>
+ * 
  * Properties:<br>
  * <b>quote</b>: Quote mark for csv file<br>
  * <b>separator</b>: Separator mark for csv file<br>
  * <br>
- *
+ * 
  * Shipped jars with this operator:<br>
- *  <b>org.supercsv.io.CsvMapReader<br>
- *
- *  <br>
- *
+ * <b>org.supercsv.io.CsvMapReader<br>
+ * 
+ * <br>
+ * 
  * @since 0.9.2
  */
 
-@ShipContainingJars(classes=CsvMapReader.class)
+@ShipContainingJars(classes = CsvMapReader.class)
 public class CsvParserOperator extends BaseOperator
 {
-  
+
   private static final Logger logger = LoggerFactory.getLogger(CsvParserOperator.class);
-  
+
   private char quote = '"';
-  
+
   private char separator = ',';
-  
+
   private Charset charset = Charset.defaultCharset();
-  
+
   @NotNull
-  private transient CSVHeaderMapping headerMapping = null;
-  
-  private String[] headers = null;
-  
-  private CellProcessor[] columnProcessors = null;
-  
-  public transient DefaultInputPort<String> stringInput = new DefaultInputPort<String>(){
+  private CSVHeaderMapping headerMapping = null;
+
+  @NotNull
+  private transient CSVStringReader csvStringReader = new CSVStringReader();
+
+  private transient ICsvMapReader mapReader;
+
+  private transient String[] headers = null;
+
+  private transient CellProcessor[] columnProcessors = null;
+
+  public transient DefaultInputPort<String> stringInput = new DefaultInputPort<String>() {
 
     @Override
     public void process(String tuple)
-    {      
+    {
       processTuple(tuple);
     }
-    
+
   };
-  
+
   public transient DefaultInputPort<byte[]> byteArrayInput = new DefaultInputPort<byte[]>() {
 
     @Override
@@ -88,8 +97,8 @@ public class CsvParserOperator extends BaseOperator
       processTuple(tuple);
     }
   };
-  
-  public transient DefaultOutputPort<Map<String, Object>> mapOutput = new DefaultOutputPort<Map<String,Object>>();
+
+  public transient DefaultOutputPort<Map<String, Object>> mapOutput = new DefaultOutputPort<Map<String, Object>>();
 
   @Override
   public void beginWindow(long windowId)
@@ -98,28 +107,21 @@ public class CsvParserOperator extends BaseOperator
 
   protected void processTuple(String tuple)
   {
-    StringReader reader = new StringReader(tuple);
-    ICsvMapReader mapReader = new CsvMapReader(reader, new CsvPreference.Builder(quote, separator, CsvPreference.STANDARD_PREFERENCE.getEndOfLineSymbols()).build());
     try {
-      
+
       if (headers == null) {
         headers = mapReader.getHeader(true);
       }
       Map<String, Object> customerMap;
+      csvStringReader.open(tuple);
       while ((customerMap = mapReader.read(headers, columnProcessors)) != null) {
         mapOutput.emit(customerMap);
       }
     } catch (Exception e) {
       logger.error("Parsing csv error", e);
-    } finally{
-      try {
-        mapReader.close();
-      } catch (IOException e) {
-        logger.error("Parsing csv error", e);
-      }
     }
   }
-  
+
   protected void processTuple(byte[] tuple)
   {
     processTuple(new String(tuple, charset));
@@ -133,14 +135,23 @@ public class CsvParserOperator extends BaseOperator
   @Override
   public void setup(OperatorContext context)
   {
+    if (!(headerMapping instanceof Serializable)) {
+      throw new IllegalArgumentException("Header mapping should be serializable!");
+    }
     headers = headerMapping.getHeaders();
     columnProcessors = headerMapping.getProcessors();
+
+    mapReader = new CsvMapReader(csvStringReader, new CsvPreference.Builder(quote, separator, CsvPreference.STANDARD_PREFERENCE.getEndOfLineSymbols()).surroundingSpacesNeedQuotes(true).build());
   }
 
   @Override
   public void teardown()
   {
-
+    try {
+      mapReader.close();
+    } catch (IOException e) {
+      logger.error("Parsing csv error", e);
+    }
   }
 
   public char getQuote()
@@ -167,20 +178,88 @@ public class CsvParserOperator extends BaseOperator
   {
     return headerMapping;
   }
-  
+
   public void setHeaderMapping(CSVHeaderMapping headerMapping)
   {
     this.headerMapping = headerMapping;
   }
-  
+
   public void setCharset(Charset charset)
   {
     this.charset = charset;
   }
-  
+
   public Charset getCharset()
   {
     return charset;
+  }
+
+  static class CSVStringReader extends Reader
+  {
+    private String str;
+    private int length;
+    private int next = 0;
+
+    @Override
+    public int read(char[] cbuf, int off, int len) throws IOException
+    {
+      ensureOpen();
+      if ((off < 0) || (off > cbuf.length) || (len < 0) || ((off + len) > cbuf.length) || ((off + len) < 0)) {
+        throw new IndexOutOfBoundsException();
+      } else if (len == 0) {
+        return 0;
+      }
+      if (next >= length)
+        return -1;
+      int n = Math.min(length - next, len);
+      str.getChars(next, next + n, cbuf, off);
+      next += n;
+      return n;
+    }
+
+    /**
+     * Reads a single character.
+     * 
+     * @return The character read, or -1 if the end of the stream has been reached
+     * 
+     * @exception IOException
+     *              If an I/O error occurs
+     */
+    public int read() throws IOException
+    {
+      ensureOpen();
+      if (next >= length)
+        return -1;
+      return str.charAt(next++);
+    }
+
+    public boolean ready() throws IOException
+    {
+      ensureOpen();
+      return true;
+    }
+
+    @Override
+    public void close() throws IOException
+    {
+      str = null;
+    }
+
+    /** Check to make sure that the stream has not been closed */
+    private void ensureOpen() throws IOException
+    {
+      if (str == null) {
+        throw new IOException("Stream closed");
+      }
+    }
+
+    void open(String str) throws IOException
+    {
+      this.str = str;
+      this.length = this.str.length();
+      this.next = 0;
+    }
+
   }
 
 }
