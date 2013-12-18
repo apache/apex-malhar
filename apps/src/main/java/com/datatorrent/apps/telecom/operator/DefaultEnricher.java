@@ -21,7 +21,7 @@ import java.util.Map;
  *
  * @since 0.9.2
  */
-public class DefaultEnricher implements EnricherInterface<String,String>
+public class DefaultEnricher implements EnricherInterface<String, String,String,String>
 {
 
   @Override

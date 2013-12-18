@@ -34,26 +34,26 @@ import com.datatorrent.api.Operator;
  * 
  * @since 0.9.2
  */
-public class LongCallAggregatorOperator implements Operator
+public class LongCallAggregatorOperator<K,V> implements Operator
 {
 
   /**
    * This map represents the fields and their values that will be used to identity the main object
    */
   @NotNull
-  Map<String, String> acquirerIdentifier;
+  Map<K,V> acquirerIdentifier;
 
   /**
    * This map represents the fields and their values that will be used to identity the secondary object
    */
   @NotNull
-  Map<String, String> mergeeIdentifier;
+  Map<K,V> mergeeIdentifier;
 
   /**
    * This list contains the fields that will be used to match the Main Acquirer object with secondary object
    */
   @NotNull
-  List<String> matchFieldList;
+  List<K> matchFieldList;
 
   /**
    * This represents the sliding window count
@@ -68,14 +68,14 @@ public class LongCallAggregatorOperator implements Operator
   /**
    * This stores the list of all the Mergee objects that come in a particular window
    */
-  private Map<Integer, Map<String, Map<String, String>>> windowCacheObject;
+  private Map<Integer, Map<String, Map<K,V>>> windowCacheObject;
   private Map<String, Integer> tupleCacheObject;
 
-  public final transient DefaultOutputPort<Map<String, String>> output = new DefaultOutputPort<Map<String, String>>();
+  public final transient DefaultOutputPort<Map<K,V>> output = new DefaultOutputPort<Map<K,V>>();
 
-  public final transient DefaultInputPort<Map<String, String>> input = new DefaultInputPort<Map<String, String>>() {
+  public final transient DefaultInputPort<Map<K,V>> input = new DefaultInputPort<Map<K,V>>() {
     @Override
-    public void process(Map<String, String> t)
+    public void process(Map<K,V> t)
     {
       // Identifying if it is Mergee Object
       if (isMergeeObject(t)) {
@@ -83,7 +83,7 @@ public class LongCallAggregatorOperator implements Operator
         if (matchFieldId == null) {
           return;
         }
-        Map<String, Map<String, String>> currentWindowMap = windowCacheObject.get(currentWindow);
+        Map<String, Map<K,V>> currentWindowMap = windowCacheObject.get(currentWindow);
         currentWindowMap.put(matchFieldId, t);
 
         if (tupleCacheObject.get(matchFieldId) != null) {
@@ -109,22 +109,22 @@ public class LongCallAggregatorOperator implements Operator
       output.emit(t);
     }
 
-    private boolean isAcquirer(Map<String, String> t)
+    private boolean isAcquirer(Map<K,V> t)
     {
-      for (Map.Entry<String, String> entry : acquirerIdentifier.entrySet()) {
-        if (t.get(entry.getKey()) == null || !(t.get(entry.getKey()).equalsIgnoreCase(entry.getValue()))) {
+      for (Map.Entry<K,V> entry : acquirerIdentifier.entrySet()) {
+        if (t.get(entry.getKey()) == null || !(t.get(entry.getKey()).equals(entry.getValue()))) {
           return false;
         }
       }
       return true;
     }
 
-    private String getMatchFieldString(Map<String, String> t)
+    private String getMatchFieldString(Map<K,V> t)
     {
       StringBuilder output = new StringBuilder();
-      Iterator<String> itr = matchFieldList.iterator();
+      Iterator<K> itr = matchFieldList.iterator();
       while (itr.hasNext()) {
-        String matchField = itr.next();
+        K matchField = itr.next();
         if (t.get(matchField) != null) {
           output.append(t.get(matchField)).append("-");
         }
@@ -134,10 +134,10 @@ public class LongCallAggregatorOperator implements Operator
       return output.toString();
     }
 
-    private boolean isMergeeObject(Map<String, String> t)
+    private boolean isMergeeObject(Map<K,V> t)
     {
-      for (Map.Entry<String, String> entry : mergeeIdentifier.entrySet()) {
-        if (t.get(entry.getKey()) == null || !(t.get(entry.getKey()).equalsIgnoreCase(entry.getValue()))) {
+      for (Map.Entry<K,V> entry : mergeeIdentifier.entrySet()) {
+        if (t.get(entry.getKey()) == null || !(t.get(entry.getKey()).equals(entry.getValue()))) {
           return false;
         }
       }
@@ -149,7 +149,7 @@ public class LongCallAggregatorOperator implements Operator
   public void setup(OperatorContext context)
   {
     if (windowCacheObject == null) {
-      windowCacheObject = new HashMap<Integer, Map<String, Map<String, String>>>(windowSize);
+      windowCacheObject = new HashMap<Integer, Map<String, Map<K,V>>>(windowSize);
     }
     if (tupleCacheObject == null) {
       tupleCacheObject = new HashMap<String, Integer>();
@@ -165,9 +165,9 @@ public class LongCallAggregatorOperator implements Operator
   @Override
   public void beginWindow(long windowId)
   {
-    Map<String, Map<String, String>> currentWindowMap = windowCacheObject.get(currentWindow);
+    Map<String, Map<K,V>> currentWindowMap = windowCacheObject.get(currentWindow);
     if (currentWindowMap == null) {
-      currentWindowMap = new HashMap<String, Map<String, String>>();
+      currentWindowMap = new HashMap<String, Map<K,V>>();
       windowCacheObject.put(currentWindow, currentWindowMap);
     } else {
       currentWindowMap.clear();
@@ -180,8 +180,8 @@ public class LongCallAggregatorOperator implements Operator
   {
     currentWindow = (currentWindow + 1) % windowSize;
     if (windowCacheObject.size() == windowSize) {
-      Map<String, Map<String, String>> currentWindowMap = windowCacheObject.get(currentWindow);
-      for (Map.Entry<String, Map<String, String>> entry : currentWindowMap.entrySet()) {
+      Map<String, Map<K,V>> currentWindowMap = windowCacheObject.get(currentWindow);
+      for (Map.Entry<String, Map<K,V>> entry : currentWindowMap.entrySet()) {
         output.emit(entry.getValue());
         tupleCacheObject.remove(entry.getKey());
       }
@@ -189,32 +189,32 @@ public class LongCallAggregatorOperator implements Operator
 
   }
 
-  public Map<String, String> getAcquirerIdentifier()
+  public Map<K,V> getAcquirerIdentifier()
   {
     return acquirerIdentifier;
   }
 
-  public void setAcquirerIdentifier(Map<String, String> acquirerIdentifier)
+  public void setAcquirerIdentifier(Map<K,V> acquirerIdentifier)
   {
     this.acquirerIdentifier = acquirerIdentifier;
   }
 
-  public Map<String, String> getMergeeIdentifier()
+  public Map<K,V> getMergeeIdentifier()
   {
     return mergeeIdentifier;
   }
 
-  public void setMergeeIdentifier(Map<String, String> mergeeIdentifier)
+  public void setMergeeIdentifier(Map<K,V> mergeeIdentifier)
   {
     this.mergeeIdentifier = mergeeIdentifier;
   }
 
-  public List<String> getMatchFieldList()
+  public List<K> getMatchFieldList()
   {
     return matchFieldList;
   }
 
-  public void setMatchFieldList(List<String> matchFieldList)
+  public void setMatchFieldList(List<K> matchFieldList)
   {
     this.matchFieldList = matchFieldList;
   }

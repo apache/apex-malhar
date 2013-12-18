@@ -40,7 +40,7 @@ public class NormalizationOperatorTest
   public void testNormalizationOperator()
   {
 
-    EnrichmentOperator<String, Map<String, String>> oper = new EnrichmentOperator<String, Map<String, String>>();
+    EnrichmentOperator<String, Map<String, String>,String,String> oper = new EnrichmentOperator<String, Map<String, String>,String,String>();
     oper.setEnricher(DefaultNormalizer.class);
 
     Map<String, Map<String, String>> prop = new HashMap<String, Map<String, String>>();
@@ -71,7 +71,7 @@ public class NormalizationOperatorTest
   public void testNormalizationOperator2()
   {
 
-    EnrichmentOperator<String, Map<String, String>> oper = new EnrichmentOperator<String, Map<String, String>>();
+    EnrichmentOperator<String, Map<String, String>,String,String> oper = new EnrichmentOperator<String, Map<String, String>,String,String>();
     oper.setEnricher(DefaultNormalizer.class);
 
     Map<String, Map<String, String>> prop = new HashMap<String, Map<String, String>>();

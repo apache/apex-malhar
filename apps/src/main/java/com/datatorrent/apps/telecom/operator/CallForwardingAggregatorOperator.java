@@ -34,7 +34,7 @@ import com.datatorrent.api.Operator;
  *
  * @since 0.9.2
  */
-public class CallForwardingAggregatorOperator implements Operator
+public class CallForwardingAggregatorOperator<K,V> implements Operator
 {
 
   /**
@@ -42,26 +42,26 @@ public class CallForwardingAggregatorOperator implements Operator
    * from objects marked as mergee
    */
   @NotNull
-  Map<String, String> acquirerIdentifier;
+  Map<K, V> acquirerIdentifier;
 
   /**
    * This map represents the fields and their values that will be used to identity the Mergee object whose fields will
    * be added to objects identified as main
    */
   @NotNull
-  Map<String, String> mergeeIdentifier;
+  Map<K, V> mergeeIdentifier;
 
   /**
    * This list contains the fields that will be used to match the Main Acquirer object with Mergee object
    */
   @NotNull
-  List<String> matchFieldList;
+  List<K> matchFieldList;
 
   /**
    * This list contains the fields that need to be added to Acquiere object from Merge object
    */
   @NotNull
-  List<String> mergeFieldList;
+  List<K> mergeFieldList;
 
   /**
    * This represents the sliding window count
@@ -76,24 +76,24 @@ public class CallForwardingAggregatorOperator implements Operator
   /**
    * This stores the list of all the Mergee objects that come in a particular window
    */
-  private Map<Integer, Map<String, List<Map<String, String>>>> windowCacheObject;
+  private Map<Integer, Map<String, List<Map<K, V>>>> windowCacheObject;
 
-  public final transient DefaultOutputPort<HashMap<String, String>> output = new DefaultOutputPort<HashMap<String, String>>();
+  public final transient DefaultOutputPort<Map<K, V>> output = new DefaultOutputPort<Map<K, V>>();
 
-  public final transient DefaultInputPort<HashMap<String, String>> input = new DefaultInputPort<HashMap<String, String>>() {
+  public final transient DefaultInputPort<Map<K, V>> input = new DefaultInputPort<Map<K, V>>() {
     @Override
-    public void process(HashMap<String, String> t)
+    public void process(Map<K, V> t)
     {
       // Identifying if it is Mergee Object
       if (isMergeeObject(t)) {
-        Map<String, List<Map<String, String>>> currentWindowMap = windowCacheObject.get(currentWindow);
+        Map<String, List<Map<K, V>>> currentWindowMap = windowCacheObject.get(currentWindow);
         String matchFieldId = getMatchFieldString(t);
         if (matchFieldId == null) {
           return;
         }
-        List<Map<String, String>> list = currentWindowMap.get(matchFieldId);
+        List<Map<K, V>> list = currentWindowMap.get(matchFieldId);
         if (list == null) {
-          list = new ArrayList<Map<String, String>>();
+          list = new ArrayList<Map<K, V>>();
           list.add(t);
           currentWindowMap.put(matchFieldId, list);
         } else {
@@ -108,15 +108,15 @@ public class CallForwardingAggregatorOperator implements Operator
         String matchFieldId = getMatchFieldString(t);
         if (matchFieldId != null) {
           for (int i = 0; i < windowSize; i++) {
-            Map<String, List<Map<String, String>>> currentWindowMap = windowCacheObject.get(i);
+            Map<String, List<Map<K, V>>> currentWindowMap = windowCacheObject.get(i);
             if (currentWindowMap.get(matchFieldId) != null) {
-              List<Map<String, String>> list = currentWindowMap.get(matchFieldId);
-              Iterator<Map<String, String>> itr = list.iterator();
+              List<Map<K, V>> list = currentWindowMap.get(matchFieldId);
+              Iterator<Map<K, V>> itr = list.iterator();
               while (itr.hasNext()) {
-                Map<String, String> m = itr.next();
-                Iterator<String> mergeFieldItr = mergeFieldList.iterator();
+                Map<K, V> m = itr.next();
+                Iterator<K> mergeFieldItr = mergeFieldList.iterator();
                 while (mergeFieldItr.hasNext()) {
-                  String mergeField = mergeFieldItr.next();
+                  K mergeField = mergeFieldItr.next();
                   if (m.get(mergeField) != null) {
                     t.put(mergeField, m.get(mergeField));
                   }
@@ -133,22 +133,22 @@ public class CallForwardingAggregatorOperator implements Operator
 
     }
 
-    private boolean isAcquirer(HashMap<String, String> t)
+    private boolean isAcquirer(Map<K, V> t)
     {
-      for (Map.Entry<String, String> entry : acquirerIdentifier.entrySet()) {
-        if (t.get(entry.getKey()) == null || !(t.get(entry.getKey()).equalsIgnoreCase(entry.getValue()))) {
+      for (Map.Entry<K, V> entry : acquirerIdentifier.entrySet()) {
+        if (t.get(entry.getKey()) == null || !(t.get(entry.getKey()).equals(entry.getValue()))) {
           return false;
         }
       }
       return true;
     }
 
-    private String getMatchFieldString(HashMap<String, String> t)
+    private String getMatchFieldString(Map<K, V> t)
     {
       StringBuilder output = new StringBuilder();
-      Iterator<String> itr = matchFieldList.iterator();
+      Iterator<K> itr = matchFieldList.iterator();
       while (itr.hasNext()) {
-        String matchField = itr.next();
+        K matchField = itr.next();
         if (t.get(matchField) != null) {
           output.append(t.get(matchField)).append("-");
         }
@@ -158,10 +158,10 @@ public class CallForwardingAggregatorOperator implements Operator
       return output.toString();
     }
 
-    private boolean isMergeeObject(HashMap<String, String> t)
+    private boolean isMergeeObject(Map<K, V> t)
     {
-      for (Map.Entry<String, String> entry : mergeeIdentifier.entrySet()) {
-        if (t.get(entry.getKey()) == null || !(t.get(entry.getKey()).equalsIgnoreCase(entry.getValue()))) {
+      for (Map.Entry<K, V> entry : mergeeIdentifier.entrySet()) {
+        if (t.get(entry.getKey()) == null || !(t.get(entry.getKey()).equals(entry.getValue()))) {
           return false;
         }
       }
@@ -173,7 +173,7 @@ public class CallForwardingAggregatorOperator implements Operator
   public void setup(OperatorContext context)
   {
     if (windowCacheObject == null) {
-      windowCacheObject = new HashMap<Integer, Map<String, List<Map<String, String>>>>(windowSize);
+      windowCacheObject = new HashMap<Integer, Map<String, List<Map<K, V>>>>(windowSize);
     }
 
   }
@@ -186,9 +186,9 @@ public class CallForwardingAggregatorOperator implements Operator
   @Override
   public void beginWindow(long windowId)
   {
-    Map<String, List<Map<String, String>>> currentWindowMap = windowCacheObject.get(currentWindow);
+    Map<String, List<Map<K, V>>> currentWindowMap = windowCacheObject.get(currentWindow);
     if (currentWindowMap == null) {
-      currentWindowMap = new HashMap<String, List<Map<String, String>>>();
+      currentWindowMap = new HashMap<String, List<Map<K, V>>>();
       windowCacheObject.put(currentWindow, currentWindowMap);
     } else {
       currentWindowMap.clear();
@@ -203,42 +203,42 @@ public class CallForwardingAggregatorOperator implements Operator
 
   }
 
-  public Map<String, String> getAcquirerIdentifier()
+  public Map<K, V> getAcquirerIdentifier()
   {
     return acquirerIdentifier;
   }
 
-  public void setAcquirerIdentifier(Map<String, String> acquirerIdentifier)
+  public void setAcquirerIdentifier(Map<K, V> acquirerIdentifier)
   {
     this.acquirerIdentifier = acquirerIdentifier;
   }
 
-  public Map<String, String> getMergeeIdentifier()
+  public Map<K, V> getMergeeIdentifier()
   {
     return mergeeIdentifier;
   }
 
-  public void setMergeeIdentifier(Map<String, String> mergeeIdentifier)
+  public void setMergeeIdentifier(Map<K, V> mergeeIdentifier)
   {
     this.mergeeIdentifier = mergeeIdentifier;
   }
 
-  public List<String> getMatchFieldList()
+  public List<K> getMatchFieldList()
   {
     return matchFieldList;
   }
 
-  public void setMatchFieldList(List<String> matchFieldList)
+  public void setMatchFieldList(List<K> matchFieldList)
   {
     this.matchFieldList = matchFieldList;
   }
 
-  public List<String> getMergeFieldList()
+  public List<K> getMergeFieldList()
   {
     return mergeFieldList;
   }
 
-  public void setMergeFieldList(List<String> mergeFieldList)
+  public void setMergeFieldList(List<K> mergeFieldList)
   {
     this.mergeFieldList = mergeFieldList;
   }
