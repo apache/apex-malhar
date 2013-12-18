@@ -109,7 +109,7 @@ public class CallForwardingAggregatorOperator<K,V> implements Operator
         if (matchFieldId != null) {
           for (int i = 0; i < windowSize; i++) {
             Map<String, List<Map<K, V>>> currentWindowMap = windowCacheObject.get(i);
-            if (currentWindowMap.get(matchFieldId) != null) {
+            if (currentWindowMap!= null && currentWindowMap.get(matchFieldId) != null) {
               List<Map<K, V>> list = currentWindowMap.get(matchFieldId);
               Iterator<Map<K, V>> itr = list.iterator();
               while (itr.hasNext()) {

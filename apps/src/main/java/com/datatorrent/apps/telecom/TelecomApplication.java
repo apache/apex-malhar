@@ -36,8 +36,7 @@ public class TelecomApplication implements StreamingApplication
     oper.setMergeeIdentifier(mergeeIdentifier);
 
     List<String> matchFieldList = new ArrayList<String>();
-    matchFieldList.add("timeBand");
-    matchFieldList.add("callData");
+    matchFieldList.add("callDate");
     oper.setMatchFieldList(matchFieldList);
 
     List<String> mergeFieldList = new ArrayList<String>();
