@@ -21,11 +21,13 @@ public class InputGenerator implements InputOperator
    * Number of tuples to be emitted in each emitTuple Call
    */
   private int tupleBlast = 1000;
-  
+  private boolean first;
+
   @Override
   public void beginWindow(long windowId)
   {
     // TODO Auto-generated method stub
+    first = true;
 
   }
 
@@ -53,8 +55,11 @@ public class InputGenerator implements InputOperator
   @Override
   public void emitTuples()
   {
-    for(int i = 0; i < tupleBlast; i++){
-      output.emit(CDRGenerator.getNextCDR());
+    if (first) {
+      for (int i = 0; i < tupleBlast; i++) {
+        output.emit(CDRGenerator.getNextCDR());
+      }
+      first = false;
     }
 
   }
@@ -141,6 +146,5 @@ public class InputGenerator implements InputOperator
       return builder.toString();
     }
 
-    
   }
 }

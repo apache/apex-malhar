@@ -11,7 +11,7 @@ import com.datatorrent.lib.parser.CSVHeaderMapping;
 
 public class TestHeaderMapping implements CSVHeaderMapping, Serializable
 {
-  public String[] header;
+  private String[] header;
 
   /**
    * 
@@ -21,12 +21,20 @@ public class TestHeaderMapping implements CSVHeaderMapping, Serializable
   @Override
   public CellProcessor[] getProcessors()
   {
-    return new CellProcessor[] { new Optional(), new ParseBool(), new ParseDate("yyyy-MM-dd") };
+      CellProcessor[] processor = new CellProcessor[header.length];
+      for (CellProcessor cellProcessor : processor) {
+        cellProcessor = new Optional();
+      }
+      return processor;
   }
 
   @Override
   public String[] getHeaders()
   {
     return header;
+  }
+  
+  public void setHeaders(String[] headers){
+    this.header = headers;
   }
 }

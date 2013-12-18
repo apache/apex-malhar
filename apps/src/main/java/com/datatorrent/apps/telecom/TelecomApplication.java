@@ -75,7 +75,7 @@ public class TelecomApplication implements StreamingApplication
 
     CsvParserOperator parser = dag.addOperator("parser", CsvParserOperator.class);
     TestHeaderMapping headerMapping = new TestHeaderMapping();
-    headerMapping.header = new String[] { "callType", "callCause", "cli", "telephone", "callDate", "callTime", "duration", "bytesTransmitted", "bytesReceived", "description", "chargeCode", "timeBand", "salesPrice", "preBundle", "extension", "ddi", "groupingId", "callClass", "carrier", "recording", "vat", "countryOfOrigin", "network", "retailTariffCode", "remoteNetwork", "apn", "divertedNumber", "ringTime", "recordId" };
+    headerMapping.setHeaders(new String[] { "callType", "callCause", "cli", "telephone", "callDate", "callTime", "duration", "bytesTransmitted", "bytesReceived", "description", "chargeCode", "timeBand", "salesPrice", "preBundle", "extension", "ddi", "groupingId", "callClass", "carrier", "recording", "vat", "countryOfOrigin", "network", "retailTariffCode", "remoteNetwork", "apn", "divertedNumber", "ringTime", "recordId" });
     parser.setHeaderMapping(headerMapping);
 
     CallForwardingAggregatorOperator<String, Object> aggregator = dag.addOperator("Call Forwarding Aggregator", new CallForwardingAggregatorOperator<String, Object>());
@@ -91,12 +91,11 @@ public class TelecomApplication implements StreamingApplication
     ConsoleOutputOperator console = dag.addOperator("Output", ConsoleOutputOperator.class);
     ConsoleOutputOperator console1 = dag.addOperator("Output1", ConsoleOutputOperator.class);
 
-    dag.addStream("input -> parser", input.output, parser.stringInput,console1.input);
+    dag.addStream("input -> parser", input.output, parser.stringInput, console1.input);
     dag.addStream("parser -> aggregator", parser.mapOutput, aggregator.input);
     dag.addStream("aggregator -> enricher", aggregator.output, enricher.input);
     dag.addStream("enricher -> normalizer", enricher.output, normalizer.input);
     dag.addStream("normalizer -> console", normalizer.output, console.input);
   }
 
-  
 }
