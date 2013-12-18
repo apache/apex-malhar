@@ -16,7 +16,9 @@
 package com.datatorrent.apps.telecom.operator;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import junit.framework.Assert;
 
@@ -35,13 +37,51 @@ public class NormalizationOperatorTest
 
   private static Logger logger = LoggerFactory.getLogger(NormalizationOperatorTest.class);
 
+  public class TestNormalizer implements EnricherInterface<String,Map<String,String>,String,String>
+  {
+
+    /**
+     * This stores the map object storing the normalization values;
+     */
+    private Map<String,Map<String,String>> prop;
+    /**
+     * This stores the key set for the above map
+     */
+    private Set<String> keySet;
+
+    @Override
+    public void configure(Map<String,Map<String,String>> prop)
+    {
+      this.prop = prop;
+      keySet = this.prop.keySet();
+    }
+
+    @Override
+    public void enrichRecord(Map<String,String> m)
+    {
+      Iterator<String> itr = keySet.iterator();
+      String key;
+      while (itr.hasNext()) {
+        key = itr.next();
+        if (m.containsKey(key)) {
+          Object val = m.get(key);
+          if (prop.get(key).get(val) != null) {
+            m.put(key, prop.get(key).get(val));
+          }
+        }
+      }
+
+    }
+
+  }
+  
   @Test
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public void testNormalizationOperator()
   {
 
     EnrichmentOperator<String, Map<String, String>,String,String> oper = new EnrichmentOperator<String, Map<String, String>,String,String>();
-    oper.setEnricher(DefaultNormalizer.class);
+    oper.setEnricher(TestNormalizer.class);
 
     Map<String, Map<String, String>> prop = new HashMap<String, Map<String, String>>();
     prop.put("age", new HashMap<String, String>());
@@ -72,7 +112,7 @@ public class NormalizationOperatorTest
   {
 
     EnrichmentOperator<String, Map<String, String>,String,String> oper = new EnrichmentOperator<String, Map<String, String>,String,String>();
-    oper.setEnricher(DefaultNormalizer.class);
+    oper.setEnricher(TestNormalizer.class);
 
     Map<String, Map<String, String>> prop = new HashMap<String, Map<String, String>>();
     prop.put("age", new HashMap<String, String>());

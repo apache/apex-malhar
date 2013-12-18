@@ -21,7 +21,7 @@ import java.util.Map;
  *
  * @since 0.9.2
  */
-public class DefaultEnricher implements EnricherInterface<String, String,String,String>
+public class DefaultEnricher implements EnricherInterface<String, String,String,Object>
 {
 
   @Override
@@ -31,7 +31,7 @@ public class DefaultEnricher implements EnricherInterface<String, String,String,
   }
 
   @Override
-  public void enrichRecord(Map<String, String> m)
+  public void enrichRecord(Map<String, Object> m)
   {
     
   }

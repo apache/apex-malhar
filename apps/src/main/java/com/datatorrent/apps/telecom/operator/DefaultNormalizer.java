@@ -23,27 +23,27 @@ import java.util.Set;
 * This implements the default implementation for normalization
 * @since 0.9.2
 */
-public class DefaultNormalizer implements EnricherInterface<String,Map<String,String>,String,String>
+public class DefaultNormalizer implements EnricherInterface<String,Map<String,Object>,String,Object>
 {
 
   /**
    * This stores the map object storing the normalization values;
    */
-  private Map<String,Map<String,String>> prop;
+  private Map<String,Map<String,Object>> prop;
   /**
    * This stores the key set for the above map
    */
   private Set<String> keySet;
 
   @Override
-  public void configure(Map<String,Map<String,String>> prop)
+  public void configure(Map<String,Map<String,Object>> prop)
   {
     this.prop = prop;
     keySet = this.prop.keySet();
   }
 
   @Override
-  public void enrichRecord(Map<String,String> m)
+  public void enrichRecord(Map<String,Object> m)
   {
     Iterator<String> itr = keySet.iterator();
     String key;

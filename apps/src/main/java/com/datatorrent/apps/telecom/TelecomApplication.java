@@ -1,5 +1,6 @@
 package com.datatorrent.apps.telecom;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +9,10 @@ import java.util.Map;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.supercsv.cellprocessor.Optional;
+import org.supercsv.cellprocessor.ParseBool;
+import org.supercsv.cellprocessor.ParseDate;
+import org.supercsv.cellprocessor.ift.CellProcessor;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
@@ -17,6 +22,8 @@ import com.datatorrent.apps.telecom.operator.DefaultNormalizer;
 import com.datatorrent.apps.telecom.operator.EnrichmentOperator;
 import com.datatorrent.apps.telecom.operator.InputGenerator;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.parser.CSVHeaderMapping;
+import com.datatorrent.lib.parser.CsvParserOperator;
 
 public class TelecomApplication implements StreamingApplication
 {
@@ -24,14 +31,14 @@ public class TelecomApplication implements StreamingApplication
   @SuppressWarnings("unused")
   private static final Logger logger = LoggerFactory.getLogger(TelecomApplication.class);
 
-  private void configureCallForwardingAggregator(CallForwardingAggregatorOperator<String, String> oper)
+  private void configureCallForwardingAggregator(CallForwardingAggregatorOperator<String, Object> oper)
   {
 
-    Map<String, String> acquirerIdentifier = new HashMap<String, String>();
+    Map<String, Object> acquirerIdentifier = new HashMap<String, Object>();
     acquirerIdentifier.put("callType", "V");
     oper.setAcquirerIdentifier(acquirerIdentifier);
 
-    Map<String, String> mergeeIdentifier = new HashMap<String, String>();
+    Map<String, Object> mergeeIdentifier = new HashMap<String, Object>();
     mergeeIdentifier.put("callType", "U");
     oper.setMergeeIdentifier(mergeeIdentifier);
 
@@ -46,17 +53,17 @@ public class TelecomApplication implements StreamingApplication
     oper.setWindowSize(5);
   }
 
-  private void configureNormalizer(EnrichmentOperator<String, Map<String, String>, String, String> normalizer)
+  private void configureNormalizer(EnrichmentOperator<String, Map<String, Object>, String, Object> normalizer)
   {
-    Map<String, Map<String, String>> prop = new HashMap<String, Map<String, String>>();
-    prop.put("callType", new HashMap<String, String>());
-    Map<String, String> m = prop.get("callType");
+    Map<String, Map<String, Object>> prop = new HashMap<String, Map<String, Object>>();
+    prop.put("callType", new HashMap<String, Object>());
+    Map<String, Object> m = prop.get("callType");
     m.put("V", "Outbound voice call");
     m.put("VOIP", "Voice over IP Call");
     m.put("D", "Data/ISDN call");
     m.put("C", "Conference call");
-    prop.put("recording", new HashMap<String, String>());
-    Map<String,String> m1 = prop.get("recording");
+    prop.put("recording", new HashMap<String, Object>());
+    Map<String, Object> m1 = prop.get("recording");
     m1.put("1", "Recorded");
     m1.put("0", "Not Recorded");
     m1.put("", "Not Recorded");
@@ -68,26 +75,54 @@ public class TelecomApplication implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    
+
     InputGenerator input = dag.addOperator("input", InputGenerator.class);
 
-    CallForwardingAggregatorOperator<String, String> aggregator = dag.addOperator("Call Forwarding Aggregator", new CallForwardingAggregatorOperator<String, String>());
+    CsvParserOperator parser = dag.addOperator("parser", CsvParserOperator.class);
+    TestHeaderMapping headerMapping = new TestHeaderMapping();
+    headerMapping.header = new String[] { "callType", "callCause", "cli", "telephone", "callDate", "callTime", "duration", "bytesTransmitted", "bytesReceived", "description", "chargeCode", "timeBand", "salesPrice", "preBundle", "extension", "ddi", "groupingId", "callClass", "carrier", "recording", "vat", "countryOfOrigin", "network", "retailTariffCode", "remoteNetwork", "apn", "divertedNumber", "ringTime", "recordId" };
+    parser.setHeaderMapping(headerMapping);
+
+    CallForwardingAggregatorOperator<String, Object> aggregator = dag.addOperator("Call Forwarding Aggregator", new CallForwardingAggregatorOperator<String, Object>());
     configureCallForwardingAggregator(aggregator);
 
-    EnrichmentOperator<String, String, String, String> enricher = dag.addOperator("Enricher", new EnrichmentOperator<String, String, String, String>());
+    EnrichmentOperator<String, String, String, Object> enricher = dag.addOperator("Enricher", new EnrichmentOperator<String, String, String, Object>());
     enricher.setProp(new HashMap<String, String>());
     enricher.setEnricher(DefaultEnricher.class);
 
-    EnrichmentOperator<String, Map<String, String>, String, String> normalizer = dag.addOperator("Normalizer", new EnrichmentOperator<String, Map<String, String>, String, String>());
+    EnrichmentOperator<String, Map<String, Object>, String, Object> normalizer = dag.addOperator("Normalizer", new EnrichmentOperator<String, Map<String, Object>, String, Object>());
     configureNormalizer(normalizer);
 
     ConsoleOutputOperator console = dag.addOperator("Output", ConsoleOutputOperator.class);
     ConsoleOutputOperator console1 = dag.addOperator("Output1", ConsoleOutputOperator.class);
 
-    dag.addStream("input -> aggregator", input.output, aggregator.input,console1.input);
+    dag.addStream("input -> parser", input.output, parser.stringInput,console1.input);
+    dag.addStream("parser -> aggregator", parser.mapOutput, aggregator.input);
     dag.addStream("aggregator -> enricher", aggregator.output, enricher.input);
     dag.addStream("enricher -> normalizer", enricher.output, normalizer.input);
     dag.addStream("normalizer -> console", normalizer.output, console.input);
   }
 
+  class TestHeaderMapping implements CSVHeaderMapping, Serializable
+  {
+    public String[] header;
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    @Override
+    public CellProcessor[] getProcessors()
+    {
+      return new CellProcessor[] { new Optional(), new ParseBool(), new ParseDate("yyyy-MM-dd") };
+    }
+
+    @Override
+    public String[] getHeaders()
+    {
+      return header;
+    }
+
+  }
 }

@@ -16,7 +16,7 @@ import com.datatorrent.api.InputOperator;
 public class InputGenerator implements InputOperator
 {
 
-  public transient DefaultOutputPort<Map<String,String>> output = new DefaultOutputPort<Map<String,String>>();
+  public transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
   /**
    * Number of tuples to be emitted in each emitTuple Call
    */
@@ -87,48 +87,58 @@ public class InputGenerator implements InputOperator
     private static DateFormat callDate = new SimpleDateFormat("dd/MM/yyyy");
     private static DateFormat callTime = new SimpleDateFormat("HH:mm:ss");
 
-    public static Map<String,String> getNextCDR()
+    public static String getNextCDR()
     {
-      Map<String,String> map = new HashMap<String, String>();
-      map.put("callType",callType[callTypeIndex]); // call type #1
+      StringBuilder builder = new StringBuilder();
+      builder.append(callType[callTypeIndex]); // call type #1
       String currentCallType = callType[callTypeIndex];
       callTypeIndex = (callTypeIndex + 1) % callType.length;
 
-      map.put("callCause" , callCause[callCauseIndex]); // call cause definition #2
+      builder.append("," + callCause[callCauseIndex]); // call cause definition #2
       callCauseIndex = (callCauseIndex + 1) % callCause.length;
 
-      map.put("cli","0" + RandomStringUtils.randomNumeric(10)); // customer identifier #3
-      map.put("telephone","0" + RandomStringUtils.randomNumeric(10)); // telephone number #4
+      builder.append(",0" + RandomStringUtils.randomNumeric(10)); // customer identifier #3
+      builder.append(",0" + RandomStringUtils.randomNumeric(10)); // telephone number #4
 
       Calendar calendar = Calendar.getInstance();
       Date date = calendar.getTime();
-      map.put("callDate", callDate.format(date)); // call date #5
-      map.put("callTime" , callTime.format(date)); // call time #6
-      map.put("duration" , RandomStringUtils.randomNumeric(3)); // duration #7
+      builder.append("," + callDate.format(date)); // call date #5
+      builder.append("," + callTime.format(date)); // call time #6
+      builder.append("," + RandomStringUtils.randomNumeric(3)); // duration #7
       if (currentCallType.equalsIgnoreCase("G")) {
-        map.put("bytesTransmitted" , RandomStringUtils.randomNumeric(3)); // bytes transmitted #8
-        map.put("bytesReceived", RandomStringUtils.randomNumeric(3)); // bytes received #9
-      } 
-      map.put("description","description"); // description #10
-      map.put("chargeCode","charge code"); // charge code #11
-      map.put("timeBand" , timeBand[timeBandIndex]); // time band #12
+        builder.append("," + RandomStringUtils.randomNumeric(3)); // bytes transmitted #8
+        builder.append("," + RandomStringUtils.randomNumeric(3)); // bytes received #9
+      } else {
+        builder.append(",,");
+      }
+      builder.append(",description"); // description #10
+      builder.append(",charge code"); // charge code #11
+      builder.append("," + timeBand[timeBandIndex]); // time band #12
       timeBandIndex = (timeBandIndex + 1) % timeBand.length;
-      map.put("salesPrice" , RandomStringUtils.randomNumeric(2)); // sales price #13
-      map.put("preBundle" , RandomStringUtils.randomNumeric(2)); // sales price #14
-      map.put("extension" , RandomStringUtils.randomNumeric(4)); // extension #15
-      map.put("ddi" , RandomStringUtils.randomNumeric(10)); // ddi #16
-      map.put("groupingId","1"); // grouping id #17
-      map.put("recording" , recording[recordingIndex]); // recording #20
+      builder.append("," + RandomStringUtils.randomNumeric(2)); // sales price #13
+      builder.append("," + RandomStringUtils.randomNumeric(2)); // sales price #14
+      builder.append("," + RandomStringUtils.randomNumeric(4)); // extension #15
+      builder.append("," + RandomStringUtils.randomNumeric(10)); // ddi #16
+      builder.append(","); // grouping id #17
+      builder.append(","); // call class #18
+      builder.append(","); // carrier #19
+      builder.append("," + recording[recordingIndex]); // recording #20
       recordingIndex = (recordingIndex + 1) % recording.length;
-      map.put("vat" , vat[vatIndex]); // recording #21
+      builder.append("," + vat[vatIndex]); // recording #21
       vatIndex = (vatIndex + 1) % vat.length;
-      map.put("countryOfOrigin","GBR"); // country of origin #22
+      builder.append(",GBR"); // country of origin #22
       if (currentCallType.equalsIgnoreCase("m")) {
-        map.put("network","O2"); // network #23
-      } else 
-      map.put("ringTime" , RandomStringUtils.randomNumeric(2)); // ring time #28
-      map.put("recordId" , RandomStringUtils.randomNumeric(4)); // record id #29
-      return map;
+        builder.append(",O2"); // network #23
+      } else {
+        builder.append(","); // network #23
+      }
+      builder.append(","); // retail tariff #24
+      builder.append(","); // remote network #25
+      builder.append(","); // APN #26
+      builder.append(","); // diverted number #27
+      builder.append("," + RandomStringUtils.randomNumeric(2)); // ring time #28
+      builder.append("," + RandomStringUtils.randomNumeric(4)); // record id #29
+      return builder.toString();
     }
 
     
