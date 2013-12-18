@@ -28,6 +28,8 @@ import com.ning.http.client.websocket.WebSocketUpgradeHandler;
 import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.validation.constraints.NotNull;
@@ -63,6 +65,7 @@ public class WebSocketOutputOperator<T> extends BaseOperator
 
   /**
    * Gets the URI for WebSocket connection
+   *
    * @return the URI
    */
   public URI getUri()
@@ -72,6 +75,7 @@ public class WebSocketOutputOperator<T> extends BaseOperator
 
   /**
    * Sets the URI for WebSocket connection
+   *
    * @param uri
    */
   public void setUri(URI uri)
@@ -81,6 +85,7 @@ public class WebSocketOutputOperator<T> extends BaseOperator
 
   /**
    * Gets the milliseconds to wait before retrying connection
+   *
    * @return wait in milliseconds
    */
   public int getWaitMillisRetry()
@@ -90,6 +95,7 @@ public class WebSocketOutputOperator<T> extends BaseOperator
 
   /**
    * Sets the milliseconds to wait before retrying connection
+   *
    * @param waitMillisRetry
    */
   public void setWaitMillisRetry(int waitMillisRetry)
@@ -99,6 +105,7 @@ public class WebSocketOutputOperator<T> extends BaseOperator
 
   /**
    * Gets the IO Thread multiplier for AsyncWebSocket connection
+   *
    * @return the IO thread multiplier
    */
   public int getIoThreadMultiplier()
@@ -108,6 +115,7 @@ public class WebSocketOutputOperator<T> extends BaseOperator
 
   /**
    * Sets the IO Thread multiplier for AsyncWebSocket connection
+   *
    * @param ioThreadMultiplier
    */
   public void setIoThreadMultiplier(int ioThreadMultiplier)
@@ -117,6 +125,7 @@ public class WebSocketOutputOperator<T> extends BaseOperator
 
   /**
    * Gets the number of retries of connection before the giving up
+   *
    * @return the number of retries
    */
   public int getNumRetries()
@@ -126,6 +135,7 @@ public class WebSocketOutputOperator<T> extends BaseOperator
 
   /**
    * Sets the number of retries of connection before the giving up
+   *
    * @param numRetries
    */
   public void setNumRetries(int numRetries)
@@ -216,6 +226,19 @@ public class WebSocketOutputOperator<T> extends BaseOperator
   public void setup(OperatorContext context)
   {
     config.setIoThreadMultiplier(ioThreadMultiplier);
+    config.setApplicationThreadPool(Executors.newCachedThreadPool(new ThreadFactory()
+    {
+      private long count = 0;
+
+      @Override
+      public Thread newThread(Runnable r)
+      {
+        Thread t = new Thread(r);
+        t.setName(WebSocketOutputOperator.this.getName() + "-AsyncHttpClient-" + count++);
+        return t;
+      }
+
+    }));
     try {
       openConnection();
     }
