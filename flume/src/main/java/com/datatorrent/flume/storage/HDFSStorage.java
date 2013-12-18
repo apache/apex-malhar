@@ -103,7 +103,7 @@ public class HDFSStorage implements Storage, Configurable
 
   /**
    * This function reads the file at a location and return the bytes stored in the file
-   * 
+   *
    * @param path
    *          the location of the file
    * @return
@@ -120,7 +120,7 @@ public class HDFSStorage implements Storage, Configurable
 
   /**
    * This function writes the bytes to a file specified by the path
-   * 
+   *
    * @param path
    *          the file location
    * @param data
@@ -176,7 +176,7 @@ public class HDFSStorage implements Storage, Configurable
   }
 
   /**
-   * 
+   *
    * @param b
    * @param size
    * @param startIndex
@@ -184,9 +184,8 @@ public class HDFSStorage implements Storage, Configurable
    */
   private long byteArrayToLong(byte[] b, int startIndex)
   {
-    byte b1 = 0;
-    return Longs.fromBytes(b1, b1, b1, b1, b[3 + startIndex], b[2+startIndex], b[1+startIndex], b[startIndex]);
-     
+    final byte b1 = 0;
+    return Longs.fromBytes(b1, b1, b1, b1, b[3 + startIndex], b[2+startIndex], b[1+startIndex], b[startIndex]);     
   }
 
   @Override
