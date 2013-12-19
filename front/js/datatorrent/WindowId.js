@@ -25,11 +25,21 @@ WindowId.prototype = {
     
     toString: function() {
         // return formatter.windowFormatter(this);
+        if (this.offset === '-') {
+            return '-';
+        }
         return '<span class="window-id-display" title="timestamp: ' + this.timestamp.toLocaleString() + '">' + this.offset + '</span>';
     },
     
     set: function(value) {
         value = this.value = '' + value;
+
+        // Check for initial values of 0 and -1
+        if (value === '-1' || value === '0') {
+            this.timestamp = '-';
+            this.offset = '-';
+            return;
+        }
 	
         if (/[^0-9]/.test(value)) {
             throw new Error('First parameter of WindowId must be numeric');
