@@ -27,6 +27,7 @@ var OperatorModel = BaseModel.extend({
     debugName: 'operator',
     
     defaults: {
+        'appId': '',
         'className': '',
         'container': '',
         'cpuPercentageMA': '',

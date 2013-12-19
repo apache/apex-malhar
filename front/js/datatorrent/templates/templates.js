@@ -20,6 +20,8 @@ exports = module.exports = {
     'app_instance_link': kt.make(__dirname+'/app_instance_link.html','_'),
     
     'phys_op_link': kt.make(__dirname+'/phys_op_link.html','_'),
+
+    'logical_op_link': kt.make(__dirname+'/logical_op_link.html', '_'),
     
     'container_link': kt.make(__dirname+'/container_link.html','_'),
     

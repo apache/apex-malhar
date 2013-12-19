@@ -1,4 +1,9 @@
 <div class="overview-item">
+    <div class="key">Status</div>
+    <div class="value <%= DT.formatters.statusClassFormatter(status) %>"><%=status%></div>
+</div>
+
+<div class="overview-item">
     <div class="key"><%= DT.text('processed_per_sec') %></div>
     <div class="value"><%=tuplesProcessedPSMA_f%></div>
 </div>
@@ -16,11 +21,6 @@
 <div class="overview-item">
     <div class="key"><%= DT.text('emitted_total') %></div>
     <div class="value"><%=totalTuplesEmitted_f%></div>
-</div>
-
-<div class="overview-item">
-    <div class="key">Status</div>
-    <div class="value <%= DT.formatters.statusClassFormatter(status) %>"><%=status%></div>
 </div>
 
 <div class="overview-item">

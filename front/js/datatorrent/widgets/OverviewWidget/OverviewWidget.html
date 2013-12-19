@@ -1,0 +1,29 @@
+<% _.each( defs, function(d) { %>
+	
+<div class="overview-item" <% if (d.title) {
+
+	print('title="');
+
+	if (typeof d.title === 'function') {
+		print(d.title(attrs[d.key]));
+	} else {
+		print(d.title);
+	}
+
+	print('"');
+
+} %>>
+	<span class="key"><%= d.label %></span>
+	<span class="value"><% if (typeof d.value === 'function') {
+
+			print( d.value(attrs[d.key], attrs) );
+
+		} else {
+
+			print( attrs[d.key] );
+
+		} 
+	%></span>
+</div>
+	
+<% }) %>

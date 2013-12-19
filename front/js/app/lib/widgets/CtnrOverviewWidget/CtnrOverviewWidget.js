@@ -13,16 +13,60 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
+var _ = require('underscore');
+var kt = require('knights-templar');
+var BaseView = DT.widgets.OverviewWidget;
+
 /**
  * Overview widget for container
  * 
 */
-var _ = require('underscore');
-var kt = require('knights-templar');
-var BaseView = DT.widgets.OverviewWidget;
 var CtnrOverviewWidget = BaseView.extend({
 
-    template: kt.make(__dirname+'/CtnrOverviewWidget.html','_')
+    overview_items: [
+    	{
+    		label: DT.text('state_label'),
+    		key: 'state',
+    		value: function(state) {
+    			return '<span class="' + state.toLowerCase() + '">' + state + '</state>';
+    		}
+    	},
+    	{
+    		label: DT.text('alloc_mem_mb_label'),
+    		key: 'memoryMBAllocated'
+    	},
+    	{
+    		label: DT.text('free_mem_mb_label'),
+    		key: 'memoryMBFree'
+    	},
+    	{
+    		label: DT.text('num_operators_label'),
+    		key: 'numOperators'
+    	},
+    	{
+    		label: DT.text('as_of_label'),
+    		key: 'as_of'
+    	},
+    	{
+    		label: DT.text('current_wid_label'),
+    		title: DT.text('current_wid_title'),
+    		key: 'currentWindowId'
+    	},
+    	{
+    		label: DT.text('recovery_wid_label'),
+    		title: DT.text('recovery_wid_title'),
+    		key: 'recoveryWindowId'
+    	},
+    	{
+    		label: DT.text('processed_per_sec'),
+    		key: 'tuplesProcessedPSMA_f'
+    	},
+    	{
+    		label: DT.text('emitted_per_sec'),
+    		key: 'tuplesEmittedPSMA_f'
+    	}
+    ]
     
 });
 exports = module.exports = CtnrOverviewWidget;

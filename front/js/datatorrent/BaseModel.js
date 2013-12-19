@@ -106,11 +106,8 @@ var BaseModel = Backbone.Model.extend({
             }
         });
 
-        // Call the super for set
-        setResult = Backbone.Model.prototype.set.call(this, attrs, options);
-
         // Only proceed if the set worked
-        if (setResult !== false && !_.isEmpty(windowUpdates)) {
+        if (!_.isEmpty(windowUpdates)) {
 
             _.each(windowUpdates, function(w, k) {
 
@@ -138,6 +135,9 @@ var BaseModel = Backbone.Model.extend({
                 }, this);
             }
         }
+
+        // Call the super for set
+        return Backbone.Model.prototype.set.call(this, attrs, options);
 
     },
 
