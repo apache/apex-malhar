@@ -1,22 +1,24 @@
 package com.datatorrent.lib.util;
 
-import com.datatorrent.api.StreamCodec;
-import com.datatorrent.common.util.Slice;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+
+import javax.annotation.Nonnull;
+
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.base.Preconditions;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.lang.reflect.ParameterizedType;
+import com.datatorrent.api.StreamCodec;
+
+import com.datatorrent.common.util.Slice;
 
 /**
  * This codec is used for serializing the objects of class which are Kryo serializable.
  * It is needed when custom static partitioning is required.
  *
- * @param <T>
- *          Type of the object which gets serialized/deserialized using this  codec.
+ * @param <T> Type of the object which gets serialized/deserialized using this  codec.
  * @since 0.9.0
  */
 public class KryoSerializableStreamCodec<T> implements StreamCodec<T>
@@ -27,13 +29,12 @@ public class KryoSerializableStreamCodec<T> implements StreamCodec<T>
   {
     this.kryo = new Kryo();
     this.kryo.setClassLoader(Thread.currentThread().getContextClassLoader());
-    this.kryo.register((Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
   }
 
   /**
-   * Register classes of fields in the tuple with kryo.
+   * Registers a class with kryo. If the class of the tuple and its fields are registered then kryo serialization is more efficient.
    *
-   * @param clazz class that is registered with Kryo which associates the class with an int ID
+   * @param clazz class to register with Kryo.
    */
   public void register(Class clazz)
   {
@@ -41,10 +42,10 @@ public class KryoSerializableStreamCodec<T> implements StreamCodec<T>
   }
 
   /**
-   * Register classes with specified ids.
+   * Register a class with specified id.
    *
-   * @param clazz class that is registered with Kryo with associates the class with provided int ID
-   * @param id    greater than 0
+   * @param clazz class to register with Kryo.
+   * @param id    int ID of the class.
    */
   public void register(Class clazz, int id)
   {
@@ -52,12 +53,13 @@ public class KryoSerializableStreamCodec<T> implements StreamCodec<T>
     this.kryo.register(clazz, id);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public T fromByteArray(Slice fragment)
   {
     ByteArrayInputStream is = new ByteArrayInputStream(fragment.buffer, fragment.offset, fragment.length);
     Input input = new Input(is);
-    return kryo.readObject(input, (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
+    return (T) kryo.readClassAndObject(input);
   }
 
   @Override
@@ -65,7 +67,7 @@ public class KryoSerializableStreamCodec<T> implements StreamCodec<T>
   {
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     Output output = new Output(os);
-    kryo.writeObject(output, info);
+    kryo.writeClassAndObject(output, info);
     output.flush();
     return new Slice(os.toByteArray(), 0, os.toByteArray().length);
   }

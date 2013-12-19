@@ -18,16 +18,19 @@ package com.datatorrent.contrib.machinedata.operator;
 import com.datatorrent.api.*;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+
 import com.datatorrent.contrib.machinedata.data.*;
 import com.datatorrent.contrib.machinedata.util.DataTable;
 import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.lib.util.KryoSerializableStreamCodec;
+
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -61,7 +64,8 @@ public class CalculatorOperator extends BaseOperator
   private transient DateFormat dateFormat = new SimpleDateFormat();
 
   @InputPortFieldAnnotation(name = "dataPort")
-  public final transient DefaultInputPort<MachineInfo> dataPort = new DefaultInputPort<MachineInfo>() {
+  public final transient DefaultInputPort<MachineInfo> dataPort = new DefaultInputPort<MachineInfo>()
+  {
     @Override
     public void process(MachineInfo tuple)
     {
@@ -94,9 +98,9 @@ public class CalculatorOperator extends BaseOperator
   {
     MachineKey machineKey = tuple.getMachineKey();
     if (!data.containsRow(machineKey)) {
-      data.put(machineKey, ResourceType.CPU, Lists.<Integer> newArrayList());
-      data.put(machineKey, ResourceType.RAM, Lists.<Integer> newArrayList());
-      data.put(machineKey, ResourceType.HDD, Lists.<Integer> newArrayList());
+      data.put(machineKey, ResourceType.CPU, Lists.<Integer>newArrayList());
+      data.put(machineKey, ResourceType.RAM, Lists.<Integer>newArrayList());
+      data.put(machineKey, ResourceType.HDD, Lists.<Integer>newArrayList());
     }
     data.get(machineKey, ResourceType.CPU).add(tuple.getCpu());
     data.get(machineKey, ResourceType.RAM).add(tuple.getRam());
@@ -169,7 +173,7 @@ public class CalculatorOperator extends BaseOperator
   private void emitAlert(ResourceType type, MachineKey machineKey, double alertVal, String prefix)
   {
     BigDecimal decimalVal = new BigDecimal(alertVal);
-    decimalVal.setScale(2, BigDecimal.ROUND_HALF_UP);
+    decimalVal = decimalVal.setScale(2, BigDecimal.ROUND_HALF_UP);
     String alertTime = machineKey.getDay() + machineKey.getTimeKey();
     smtpAlert.emit(prefix + "-" + type.toString().toUpperCase() + " alert at " + alertTime + " " + type + " usage breached current usage: " + decimalVal.doubleValue() + "% threshold: " + percentileThreshold + "%\n\n" + machineKey);
   }
@@ -182,7 +186,8 @@ public class CalculatorOperator extends BaseOperator
       // Whole number
       int idx = (int) val - 1;
       return (sorted.get(idx) + sorted.get(idx + 1)) / 2.0;
-    } else {
+    }
+    else {
       int idx = (int) Math.round(val) - 1;
       return sorted.get(idx);
     }
@@ -191,8 +196,9 @@ public class CalculatorOperator extends BaseOperator
   private double getSD(List<Integer> data)
   {
     int sum = 0;
-    for (int i : data)
+    for (int i : data) {
       sum += i;
+    }
     double avg = sum / (data.size() * 1.0);
     double sd = 0;
     for (Integer point : data) {
@@ -202,9 +208,7 @@ public class CalculatorOperator extends BaseOperator
   }
 
   /**
-   * 
-   * @param kVal
-   *          the percentile which will be emitted by this operator
+   * @param kVal the percentile which will be emitted by this operator
    */
   public void setKthPercentile(int kVal)
   {
@@ -212,9 +216,7 @@ public class CalculatorOperator extends BaseOperator
   }
 
   /**
-   * 
-   * @param doCompute
-   *          when true percentile will be computed
+   * @param doCompute when true percentile will be computed
    */
   public void setComputePercentile(boolean doCompute)
   {
@@ -222,9 +224,7 @@ public class CalculatorOperator extends BaseOperator
   }
 
   /**
-   * 
-   * @param doCompute
-   *          when true standard deviation will be computed
+   * @param doCompute when true standard deviation will be computed
    */
   public void setComputeSD(boolean doCompute)
   {
@@ -232,9 +232,7 @@ public class CalculatorOperator extends BaseOperator
   }
 
   /**
-   * 
-   * @param doCompute
-   *          when true max will be computed
+   * @param doCompute when true max will be computed
    */
   public void setComputeMax(boolean doCompute)
   {
@@ -242,9 +240,7 @@ public class CalculatorOperator extends BaseOperator
   }
 
   /**
-   * 
-   * @param threshold
-   *          for percentile when breached will cause alert
+   * @param threshold for percentile when breached will cause alert
    */
   public void setPercentileThreshold(int threshold)
   {
@@ -252,9 +248,7 @@ public class CalculatorOperator extends BaseOperator
   }
 
   /**
-   * 
-   * @param threshold
-   *          for standard deviation when breached will cause alert
+   * @param threshold for standard deviation when breached will cause alert
    */
   public void setSDThreshold(int threshold)
   {
@@ -262,9 +256,7 @@ public class CalculatorOperator extends BaseOperator
   }
 
   /**
-   * 
-   * @param threshold
-   *          for Max when breached will cause alert
+   * @param threshold for Max when breached will cause alert
    */
   public void setMaxThreshold(int threshold)
   {
@@ -273,6 +265,10 @@ public class CalculatorOperator extends BaseOperator
 
   public static class MachineInfoStreamCodec extends KryoSerializableStreamCodec<MachineInfo>
   {
+    public MachineInfoStreamCodec()
+    {
+      super();
+    }
 
     @Override
     public int getPartition(MachineInfo o)
