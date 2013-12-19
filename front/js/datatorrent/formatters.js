@@ -13,11 +13,12 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+var _ = require('underscore');
 var WindowId = require('./WindowId');
 var templates = require('./templates');
 var bormat = require('bormat');
 
-exports.containerFormatter = function(value, row) {
+function containerFormatter(value, row) {
     if (!value) return '-';
     var vals = value.split('_');
     var displayval = vals[vals.length -1];
@@ -28,7 +29,7 @@ exports.containerFormatter = function(value, row) {
     });
 };
 
-exports.windowFormatter = function(windowIdObj) {
+function windowFormatter(windowIdObj) {
     if (! ( /\d{5,}/.test(windowIdObj) ) ) return windowIdObj;
     if (typeof windowIdObj !== 'object') {
         windowIdObj = new WindowId(windowIdObj);
@@ -36,7 +37,7 @@ exports.windowFormatter = function(windowIdObj) {
     return windowIdObj.toString();
 };
 
-exports.windowOffsetFormatter = function(windowIdObj) {
+function windowOffsetFormatter(windowIdObj) {
     if (! ( /\d{5,}/.test(windowIdObj) ) ) return windowIdObj;
     if (typeof windowIdObj !== 'object') {
         windowIdObj = new WindowId(windowIdObj);
@@ -44,11 +45,18 @@ exports.windowOffsetFormatter = function(windowIdObj) {
     return windowIdObj.offset;
 };
 
-exports.statusClassFormatter = function(status) {
+function statusClassFormatter(status) {
     return 'status-' + status.replace(/[^a-zA-Z]+/,'-').toLowerCase();
 };
 
-exports.percentageFormatter = function(value, isNumerator) {
+function logicalOpStatusFormatter(statuses) {
+    var strings = _.map(statuses, function(val, key) {
+        return val.length + ' <span class="' + statusClassFormatter(key) + '">' + key + '</span>';
+    }, '');
+    return strings.join(', ');
+};
+
+function percentageFormatter(value, isNumerator) {
     var multiplyBy = isNumerator ? 1 : 100;
     value = parseFloat(value).toFixed(3) * multiplyBy;
     value = value.toFixed(2);
@@ -56,5 +64,11 @@ exports.percentageFormatter = function(value, isNumerator) {
     return value + '%';
 };
 
+exports.containerFormatter = containerFormatter;
+exports.windowFormatter = windowFormatter;
+exports.windowOffsetFormatter = windowOffsetFormatter;
+exports.statusClassFormatter = statusClassFormatter;
+exports.logicalOpStatusFormatter = logicalOpStatusFormatter;
+exports.percentageFormatter = percentageFormatter;
 exports.commaGroups = bormat.commaGroups;
 exports.timeSince = bormat.timeSince;

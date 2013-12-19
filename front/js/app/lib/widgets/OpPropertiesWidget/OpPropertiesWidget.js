@@ -23,10 +23,8 @@ var Tabled = DT.lib.Tabled;
 var columns = require('./columns');
 var ListWidget = DT.widgets.ListWidget;
 var OpPropertiesModel = DT.lib.OpPropertiesModel;
-
+var LogicalOperatorModel = DT.lib.LogicalOperatorModel;
 var OpPropertiesWidget = ListWidget.extend({
-
-    listTitle: 'List of Properties',
 
     initialize: function(options) {
         ListWidget.prototype.initialize.call(this, options);
@@ -43,13 +41,21 @@ var OpPropertiesWidget = ListWidget.extend({
         }));
         
         // Check if the operator has loaded
-        if (this.model.get('operatorName')) {
+        var logicalNameAttr; // Attribute of name of logical operator
+
+        if (this.model instanceof LogicalOperatorModel) {
+            logicalNameAttr = 'logicalName';
+        } else {
+            logicalNameAttr = 'name';
+        }
+
+        if (this.model.get(logicalNameAttr)) {
             
-            this.setProperties(this.model.get('appId'), this.model.get('name'));
+            this.setProperties(this.model.get('appId'), this.model.get(logicalNameAttr));
             
         } else {
             
-            this.listenToOnce(this.model, 'change:name', function(model, attr) {
+            this.listenToOnce(this.model, 'change:' + logicalNameAttr, function(model, attr) {
                 this.setProperties(this.model.get('appId'), attr);
             });
             
