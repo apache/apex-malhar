@@ -19,6 +19,22 @@
 angular.module('app.controller')
   .controller('AppListCtrl', function ($scope, rest) {
     rest.getApps().then(function (apps) {
-      $scope.items = apps;
+      $scope.apps = apps;
     });
+
+    var linkTemplate = '<div class="ngCellText" ng-class="col.colIndex()"><span ng-cell-text><a href="#/jobs/{{COL_FIELD}}">{{COL_FIELD}}</a></span></div>';
+
+    $scope.gridOptions = {
+      data: 'apps',
+      enableRowSelection: false,
+      showFilter: true,
+      columnDefs: [
+        { field: 'id', displayName: 'Task', cellTemplate: linkTemplate, width: 250 },
+        { field: 'name', displayName: 'Name' },
+        { field: 'startedTime', displayName: 'Start Time', cellFilter: 'date:\'yyyy-MM-dd HH:mm:ss\'', width: 150 },
+        { field: 'state', displayName: 'State' },
+        { field: 'finalStatus', displayName: 'Final Status' },
+        { field: 'progress', displayName: 'Progress', cellFilter: 'percentage' }
+      ]
+    };
   });
