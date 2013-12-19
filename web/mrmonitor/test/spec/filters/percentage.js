@@ -28,7 +28,7 @@ describe('Filter: percentage', function () {
   }));
 
   it('should return percentage', function () {
-    var number = '50.12345';
+    var number = 50.12345;
     expect(percentage(number)).toBe('50.12%');
   });
 

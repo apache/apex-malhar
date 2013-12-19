@@ -30,7 +30,7 @@ angular.module('app.service')
 
             if (apps.length > 0) {
               apps = _.sortBy(apps, function (app) {
-                return (-app.startedTime);
+                return (- app.startedTime);
               });
               deferred.resolve(apps);
             } else {
@@ -64,11 +64,22 @@ angular.module('app.service')
           if (response && response.apps && response.apps.app && response.apps.app.length > 0) {
             //var apps = response.apps.app;
             //var apps = _.where(response.apps.app, { name: appName, state: 'RUNNING' });
-            var apps = _.where(response.apps.app, { applicationType: 'MAPREDUCE', state: 'RUNNING' });
+            //var apps = _.where(response.apps.app, { applicationType: 'MAPREDUCE', state: 'RUNNING' });
+
+            var apps;
+
+            var mapReduceApps = _.where(response.apps.app, { applicationType: 'MAPREDUCE' });
+
+            var runningApps = _.where(mapReduceApps, { state: 'RUNNING' });
+            if (runningApps.length  > 0) {
+              apps = runningApps;
+            } else {
+              apps = mapReduceApps;
+            }
 
             if (apps.length > 0) {
               apps = _.sortBy(apps, function (app) {
-                return parseInt(app.elapsedTime, 10);
+                return (- app.startedTime);
               });
               var app = apps[0];
               deferred.resolve(app);

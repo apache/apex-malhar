@@ -21,7 +21,7 @@ angular.module('app.filter')
     var numberFilter = $filter('number');
 
     return function (input) {
-      if (input) {
+      if (_.isNumber(input) && (input >= 0) && (input <= 100)) {
         return numberFilter(input, 2) + '%';
       } else {
         return null;
