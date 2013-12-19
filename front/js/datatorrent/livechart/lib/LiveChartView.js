@@ -32,6 +32,9 @@ var LiveChartView = Backbone.View.extend({
         
         // Set number formatter for overlays
         this.overlay_formatter = d3.format('n');
+
+        // Set an id for clip-path element:
+        this.clip_path_id = 'clip-' + this.cid;
     },
     
     render: function() {
@@ -320,12 +323,12 @@ var LiveChartView = Backbone.View.extend({
         svg.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
         // The clipping path
-        clipPathRect = svg.select('defs #clip rect');
+        clipPathRect = svg.select('defs #' + this.clip_path_id + ' rect');
         if (clipPathRect.empty()) {
             clipPathRect = svg
                 .append('defs')
                 .append('clipPath')
-                .attr('id', 'clip')
+                .attr('id', this.clip_path_id)
                 .append('rect');
         }
         clipPathRect
@@ -450,7 +453,7 @@ var LiveChartView = Backbone.View.extend({
             .enter()
             .insert('g','g.overlay-trg')
             .attr('class', 'seriesGroup')
-            .attr("clip-path", "url(#clip)")
+            .attr("clip-path", "url(#" + this.clip_path_id + ")")
             .attr('opacity', 0)
         ;
         
@@ -493,7 +496,7 @@ var LiveChartView = Backbone.View.extend({
                 overlay_target = this.svg
                     .append('g')
                     .attr('class', 'overlay-trg')
-                    .attr("clip-path", "url(#clip)");
+                    .attr("clip-path", "url(#" + this.clip_path_id + ")");
                     
                 // Create the group that will hold the series-specific overlay items
                 overlay_target.append('g')
