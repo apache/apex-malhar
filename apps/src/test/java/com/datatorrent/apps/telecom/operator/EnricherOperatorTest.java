@@ -32,7 +32,7 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 */
 public class EnricherOperatorTest
 {
-  public static class TestEnricher implements EnricherInterface<String,String>{
+  public static class TestEnricher implements EnricherInterface<String,String,String,String>{
 
         @Override
     public void enrichRecord(Map<String, String> m)
@@ -52,7 +52,7 @@ public class EnricherOperatorTest
   @Test
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public void testOperator(){
-    EnrichmentOperator<String,String> oper = new EnrichmentOperator<String,String>();
+    EnrichmentOperator<String,String,String,String> oper = new EnrichmentOperator<String,String,String,String>();
     oper.setProp(new HashMap<String,String>());
     oper.setEnricher(TestEnricher.class);
     oper.setup(null);

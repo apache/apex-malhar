@@ -22,7 +22,7 @@ import java.util.Map;
  *
  * @since 0.9.2
  */
-public interface EnricherInterface<K,V>
+public interface EnricherInterface<K,V,K1,V1>
 {
 
   /**
@@ -35,5 +35,5 @@ public interface EnricherInterface<K,V>
    * This is used to update the map object with new values
    * @param m
    */
-  public void enrichRecord(Map<String, String> m);
+  public void enrichRecord(Map<K1,V1> m);
 }

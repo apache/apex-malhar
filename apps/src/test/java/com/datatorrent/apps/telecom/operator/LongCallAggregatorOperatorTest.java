@@ -41,7 +41,7 @@ public class LongCallAggregatorOperatorTest
   @Test
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public void testOperator(){
-    LongCallAggregatorOperator opr = new LongCallAggregatorOperator();
+    LongCallAggregatorOperator<String,String> opr = new LongCallAggregatorOperator<String,String>();
     opr.setWindowSize(2);
     
     Map<String, String> acquirerIdentifier = new HashMap<String,String>();

@@ -41,7 +41,7 @@ public class CallForwardingAggregatorOperatorTest
   @Test
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public void testOperator(){
-    CallForwardingAggregatorOperator opr = new CallForwardingAggregatorOperator();
+    CallForwardingAggregatorOperator<String,String> opr = new CallForwardingAggregatorOperator<String,String>();
     opr.setWindowSize(2);
     
     List<String> mergeFieldList = new ArrayList<String>();

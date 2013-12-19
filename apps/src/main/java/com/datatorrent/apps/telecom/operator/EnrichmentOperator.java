@@ -15,7 +15,6 @@
  */
 package com.datatorrent.apps.telecom.operator;
 
-import java.util.HashMap;
 import java.util.Map;
 import javax.validation.constraints.NotNull;
 
@@ -31,14 +30,14 @@ import com.datatorrent.api.Operator;
 *
 * @since 0.9.2
 */
-public class EnrichmentOperator<K,V> implements Operator
+public class EnrichmentOperator<K,V,K1,V1> implements Operator
 {
 
   /**
    * The concrete class that will enrich the incoming tuple
    */
   @NotNull
-  private Class<? extends EnricherInterface<K,V>> enricher;
+  private Class<? extends EnricherInterface<K,V,K1,V1>> enricher;
   /**
    * The properties that need to be configure enricher
    */
@@ -48,12 +47,12 @@ public class EnrichmentOperator<K,V> implements Operator
   /**
    * This is used to store the reference to enricher obj
    */
-  private transient EnricherInterface<K,V> enricherObj;
+  private transient EnricherInterface<K,V,K1,V1> enricherObj;
   
-  public final transient DefaultOutputPort<HashMap<String, String>> output = new DefaultOutputPort<HashMap<String, String>>();
-  public final transient DefaultInputPort<HashMap<String, String>> input = new DefaultInputPort<HashMap<String, String>>() {
+  public final transient DefaultOutputPort<Map<K1,V1>> output = new DefaultOutputPort<Map<K1,V1>>();
+  public final transient DefaultInputPort<Map<K1,V1>> input = new DefaultInputPort<Map<K1,V1>>() {
     @Override
-    public void process(HashMap<String, String> t)
+    public void process(Map<K1,V1> t)
     {
       enricherObj.enrichRecord(t);
       output.emit(t);      
@@ -90,12 +89,12 @@ public class EnrichmentOperator<K,V> implements Operator
     
   }
 
-  public Class<? extends EnricherInterface<K,V>> getEnricher()
+  public Class<? extends EnricherInterface<K,V,K1,V1>> getEnricher()
   {
     return enricher;
   }
 
-  public void setEnricher(Class<? extends EnricherInterface<K,V>> enricher)
+  public void setEnricher(Class<? extends EnricherInterface<K,V,K1,V1>> enricher)
   {
     this.enricher = enricher;
   }
