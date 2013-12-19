@@ -448,7 +448,7 @@ var LiveChartView = Backbone.View.extend({
         // add new elements
         groups = this._seriesGroups
             .enter()
-            .append('g')
+            .insert('g','g.overlay-trg')
             .attr('class', 'seriesGroup')
             .attr("clip-path", "url(#clip)")
             .attr('opacity', 0)
