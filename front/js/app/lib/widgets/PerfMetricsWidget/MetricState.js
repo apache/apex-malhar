@@ -28,7 +28,7 @@ var MetricState = Backbone.Model.extend({
     },
     
     validate: function(attrs) {
-        if (attrs.limit > 200) {
+        if (attrs.limit > 300) {
             return 'Limit for points on the graph cannot exceed 200';
         }
         
