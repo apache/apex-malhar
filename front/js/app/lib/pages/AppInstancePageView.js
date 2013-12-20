@@ -178,7 +178,7 @@ var AppInstancePageView = BasePageView.extend({
                 },
                 {
                     name: 'appMetrics',
-                    defaultId: 'chart',
+                    defaultId: 'metrics',
                     view: AppMetricsWidget, 
                     inject: { 
                         dataSource:this.dataSource,

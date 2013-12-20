@@ -79,7 +79,7 @@ var ContainerPageView = BasePageView.extend({
                 appId: function() { return this.model.get('appId'); }, 
                 nav: this.app.nav
             }},
-            { name: 'containerMetrics', defaultId: 'container metrics', view: CtnrMetricsWidget, limit: 0, inject: {
+            { name: 'containerMetrics', defaultId: 'metrics', view: CtnrMetricsWidget, limit: 0, inject: {
                 dataSource:this.dataSource,
                 model: function() { return this.model }
             }}
@@ -97,7 +97,7 @@ var ContainerPageView = BasePageView.extend({
                 { widget: 'memoryGauge', id: 'memory gauge', width: 50 },
                 { widget: 'cpuGauge', id: 'CPU gauge', width: 50 },
                 { widget: 'operatorList', id: 'operator list'},
-                { widget: 'containerMetrics', id: 'container metrics'}
+                { widget: 'containerMetrics', id: 'metrics'}
             ]
         }
     ],
