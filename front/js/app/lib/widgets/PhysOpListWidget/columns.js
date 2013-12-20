@@ -56,7 +56,7 @@ exports = module.exports = [
     { id: 'container', label: 'Container', key: 'container', format: containerFormatter, sort: 'string', filter:'like' },
     { id: 'host', label: 'Node', key: 'host', sort: 'string', filter:'like', width: 130 },
     { id: 'latency', label: 'Latency', key: 'latencyMA', sort: 'number', filter: 'number' },
-    // { id: 'failureCount', label: 'Failure Count', key: 'failureCount', sort: 'number', filter: 'number' },
+    // { id: 'failureCount', label: DT.text('failure_count_label'), key: 'failureCount', sort: 'number', filter: 'number' },
     { id: 'currentWindowId', label: DT.text('current_wid_label'), key: 'currentWindowId', sort: 'number', filter: 'number', format: windowFormatter },
     { id: 'recoveryWindowId', label: DT.text('recovery_wid_label'), key: 'recoveryWindowId', sort: 'number', filter: 'number', format: windowFormatter },
     { id: 'cpuPercentageMA', label: 'CPU %', key: 'cpuPercentageMA', sort: 'number', filter: 'number', format: cpuFormatter }
