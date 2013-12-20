@@ -209,6 +209,10 @@
   cursor: pointer;
   top: 3px;
 }
+#pagecontent .dashboardMgr .inner ul li i.icon-pencil.wi-editName {
+  right: 30px;
+  top: 4px;
+}
 #pagecontent .dashboardMgr .inner ul li i.icon-list {
   cursor: move;
   cursor: -webkit-grab;
