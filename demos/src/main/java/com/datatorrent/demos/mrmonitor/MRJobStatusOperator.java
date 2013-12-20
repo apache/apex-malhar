@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,6 +86,14 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
 
       if ("delete".equalsIgnoreCase(mrStatusObj.getCommand())) {
         removeJob(mrStatusObj.getJobId());
+        JSONObject outputJsonObject = new JSONObject();
+        try {
+          outputJsonObject.put("id", mrStatusObj.getJobId());
+          outputJsonObject.put("removed", "true");
+          output.emit(outputJsonObject.toString());
+        } catch (JSONException e) {
+          LOG.warn("Error creating JSON: {}",e.getMessage());
+        }
         return;
       }
       if ("clear".equalsIgnoreCase(mrStatusObj.getCommand())) {
