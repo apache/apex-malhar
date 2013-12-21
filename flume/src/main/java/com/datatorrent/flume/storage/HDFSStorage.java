@@ -17,6 +17,7 @@ import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.flume.sink.Server;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
 
@@ -38,6 +39,8 @@ public class HDFSStorage implements Storage, Configurable
   public static final String OFFSET_KEY = "offset";
   public static final String RESTORE_KEY = "restore";
   public static final String BLOCKSIZE = "blockSize";
+  private static final int IDENTIFIER_SIZE=8;
+  private static final int DATA_LENGTH_BYTE_SIZE = 4;
   private String baseDir;
   private long fileCounter;
   private Path fileCounterFile;
@@ -51,6 +54,7 @@ public class HDFSStorage implements Storage, Configurable
   private long retrievalFile;
   private long cleanedFileCounter;
   private int offset;
+  
 
   @Override
   public void configure(Context ctx)
@@ -131,17 +135,16 @@ public class HDFSStorage implements Storage, Configurable
     return stream;
   }
 
-  private byte[] longToByteArray(long fileOffset, long fileCounter)
+  private long calculateOffset(long fileOffset, long fileCounter)
   {
-    long l = (fileCounter << 32) | (fileOffset & 0xffffffffl);
-    return Longs.toByteArray(l);
+    return( (fileCounter << 32) | (fileOffset & 0xffffffffl));    
   }
 
   @Override
   public byte[] store(byte[] bytes)
   {
     // 4 for the number of bytes used to store the length of the data
-    if (fileWriteOffset + bytes.length + 4 < blockSize) {
+    if (fileWriteOffset + bytes.length + DATA_LENGTH_BYTE_SIZE < blockSize) {
       try {
 
         if (fileWriteOffset == 0) {
@@ -152,8 +155,9 @@ public class HDFSStorage implements Storage, Configurable
           dataStream.write(Ints.toByteArray(bytes.length));
           dataStream.write(bytes);
         }
-        byte[] fileOffset = longToByteArray(fileWriteOffset, fileCounter);
-        fileWriteOffset += (bytes.length + 4);
+        byte[] fileOffset = new byte[IDENTIFIER_SIZE];
+        Server.writeLong(fileOffset,0,calculateOffset(fileWriteOffset, fileCounter));
+        fileWriteOffset += (bytes.length + DATA_LENGTH_BYTE_SIZE);
         return fileOffset;
       } catch (IOException ex) {
         logger.warn("Error while storing the bytes {}", ex.getMessage());
@@ -181,14 +185,14 @@ public class HDFSStorage implements Storage, Configurable
   private long byteArrayToLong(byte[] b, int startIndex)
   {
     final byte b1 = 0;
-    return Longs.fromBytes(b1, b1, b1, b1, b[0 + startIndex], b[1+startIndex], b[2+startIndex], b[3+startIndex]);
+    return Longs.fromBytes(b1, b1, b1, b1, b[3 + startIndex], b[2+startIndex], b[1+startIndex], b[startIndex]);     
   }
 
   @Override
   public byte[] retrieve(byte[] identifier)
   {
-    retrievalOffset = byteArrayToLong(identifier, offset);
-    retrievalFile = byteArrayToLong(identifier, 0);
+    retrievalOffset = byteArrayToLong(identifier, 0);
+    retrievalFile = byteArrayToLong(identifier, offset);
     if (retrievalFile > fileCounter) {
       return null;
     }
@@ -208,18 +212,17 @@ public class HDFSStorage implements Storage, Configurable
   private byte[] retrieveHelper() throws IOException
   {
     int length = readStream.readInt();
-    byte[] data = new byte[length + 8];
-    int readSize = readStream.read(data, 8, length);
+    byte[] data = new byte[length + IDENTIFIER_SIZE];
+    int readSize = readStream.read(data, IDENTIFIER_SIZE, length);
     if (readSize == -1) {
       throw new RuntimeException("Invalid identifier");
     }
-    retrievalOffset += length + 4;
+    retrievalOffset += length + DATA_LENGTH_BYTE_SIZE;
     if(readStream.available() < 1){
       retrievalOffset = 0;
       retrievalFile++;
     }
-    byte[] fileOffset = longToByteArray(retrievalOffset, retrievalFile);
-    System.arraycopy(fileOffset, 0, data, 0, 8);
+    Server.writeLong(data,0,calculateOffset(retrievalOffset, retrievalFile));
     return data;
   }
 
@@ -247,7 +250,7 @@ public class HDFSStorage implements Storage, Configurable
   @Override
   public void clean(byte[] identifier)
   {
-    long cleanFileIndex = byteArrayToLong(identifier, 0);
+    long cleanFileIndex = byteArrayToLong(identifier, offset);
     if (cleanedFileCounter >= cleanFileIndex) {
       return;
     }
