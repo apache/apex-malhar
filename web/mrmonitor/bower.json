@@ -16,7 +16,8 @@
     "angular-pines-notify": "~0.0.2",
     "angular-bootstrap": "~0.7.0",
     "angular-route": "~1.2.4",
-    "angular-ui-router": "~0.2.7"
+    "angular-ui-router": "~0.2.7",
+    "angular-animate": "~1.2.4"
   },
   "devDependencies": {
     "angular-mocks": "~1.0.7",

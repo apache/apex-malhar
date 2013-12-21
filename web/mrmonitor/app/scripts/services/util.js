@@ -17,7 +17,7 @@
 'use strict';
 
 angular.module('app.service')
-  .service('util', function () {
+  .service('util', function ($q, $timeout) {
     return {
       extractJobId: function (value) {
         if (!value) {
@@ -25,6 +25,18 @@ angular.module('app.service')
         }
 
         return value.match(/\d.*/)[0];
+      },
+
+      delay: function (promise) { // for dev only
+        var deferred = $q.defer();
+
+        promise.then(function (value) {
+          $timeout(function () {
+            deferred.resolve(value);
+          }, 2000);
+        });
+
+        return deferred.promise;
       }
     };
   });
