@@ -35,12 +35,14 @@ import com.datatorrent.netlet.DefaultEventLoop;
 public abstract class AbstractFlumeInputOperator<T>
         implements InputOperator, ActivationListener<OperatorContext>, IdleTimeHandler, CheckpointListener, Partitionable<AbstractFlumeInputOperator<T>>
 {
-  public transient DefaultOutputPort<T> output = new DefaultOutputPort<T>();
+  public final transient DefaultOutputPort<T> output = new DefaultOutputPort<T>();
   private transient int idleCounter;
   private transient int eventCounter;
   private transient DefaultEventLoop eventloop;
   private transient RecoveryAddress recoveryAddress;
   private final transient ArrayBlockingQueue<Payload> handoverBuffer;
+  private transient volatile boolean connected;
+  private transient Client client;
   @NotNull
   private String[] connectAddresses;
   private final ArrayList<RecoveryAddress> recoveryAddresses;
@@ -50,72 +52,6 @@ public abstract class AbstractFlumeInputOperator<T>
     this.handoverBuffer = new ArrayBlockingQueue<Payload>(1024 * 5);
     this.recoveryAddresses = new ArrayList<RecoveryAddress>();
   }
-
-  private class Payload
-  {
-    final T payload;
-    final long location;
-
-    Payload(T payload, long location)
-    {
-      this.payload = payload;
-      this.location = location;
-    }
-
-  }
-
-  private transient volatile boolean connected;
-
-  class Client extends AbstractLengthPrependerClient
-  {
-    @Override
-    public void onMessage(byte[] buffer, int offset, int size)
-    {
-      /* this are all the payload messages */
-      Payload payload = new Payload(convert(buffer, offset + 8, size - 8), Server.readLong(buffer, 0));
-      try {
-        handoverBuffer.put(payload);
-      }
-      catch (InterruptedException ex) {
-        handleException(ex, eventloop);
-      }
-    }
-
-    @Override
-    public void connected()
-    {
-      super.connected();
-
-      long address;
-      if (recoveryAddresses.size() > 0) {
-        address = recoveryAddresses.get(recoveryAddresses.size() - 1).address;
-      }
-      else {
-        address = 0;
-      }
-
-      int len = 1 /* for the message type SEEK */
-                + 8 /* for the address */;
-
-      byte[] array = new byte[len];
-      array[0] = Command.SEEK.getOrdinal();
-      Server.writeLong(array, 1, address);
-      write(array);
-
-      connected = true;
-      logger.debug("connected hence sending {} for {}", Command.SEEK, address);
-    }
-
-    @Override
-    public void disconnected()
-    {
-      connected = false;
-      super.disconnected();
-    }
-
-  }
-
-  private transient Client client;
 
   @Override
   public void setup(OperatorContext context)
@@ -305,6 +241,68 @@ public abstract class AbstractFlumeInputOperator<T>
     }
 
     return partitions;
+  }
+
+  private class Payload
+  {
+    final T payload;
+    final long location;
+
+    Payload(T payload, long location)
+    {
+      this.payload = payload;
+      this.location = location;
+    }
+
+  }
+
+  class Client extends AbstractLengthPrependerClient
+  {
+    @Override
+    public void onMessage(byte[] buffer, int offset, int size)
+    {
+      /* this are all the payload messages */
+      Payload payload = new Payload(convert(buffer, offset + 8, size - 8), Server.readLong(buffer, 0));
+      try {
+        handoverBuffer.put(payload);
+      }
+      catch (InterruptedException ex) {
+        handleException(ex, eventloop);
+      }
+    }
+
+    @Override
+    public void connected()
+    {
+      super.connected();
+
+      long address;
+      if (recoveryAddresses.size() > 0) {
+        address = recoveryAddresses.get(recoveryAddresses.size() - 1).address;
+      }
+      else {
+        address = 0;
+      }
+
+      int len = 1 /* for the message type SEEK */
+                + 8 /* for the address */;
+
+      byte[] array = new byte[len];
+      array[0] = Command.SEEK.getOrdinal();
+      Server.writeLong(array, 1, address);
+      write(array);
+
+      connected = true;
+      logger.debug("connected hence sending {} for {}", Command.SEEK, address);
+    }
+
+    @Override
+    public void disconnected()
+    {
+      connected = false;
+      super.disconnected();
+    }
+
   }
 
   private static final Logger logger = LoggerFactory.getLogger(AbstractFlumeInputOperator.class);
