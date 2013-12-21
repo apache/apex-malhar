@@ -15,7 +15,6 @@
  */
 package com.datatorrent.demos.mrmonitor;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import com.datatorrent.api.Context.OperatorContext;

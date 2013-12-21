@@ -278,7 +278,7 @@ public class Application implements StreamingApplication
     int partitions = conf.getInt(Application.class.getName() + ".partitions", 1);
     int unifier_count = conf.getInt(Application.class.getName() + ".unifier_count", 2);
 
-    dag.setAttribute(DAG.APPLICATION_NAME, "MachineData-DemoApplication");
+    dag.setAttribute(DAG.APPLICATION_NAME, "MachineDataApplication");
     dag.setAttribute(DAG.DEBUG, false);
     dag.setAttribute(DAG.STREAMING_WINDOW_SIZE_MILLIS, streamingWindowSizeMilliSeconds);
 

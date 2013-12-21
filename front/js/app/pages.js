@@ -89,9 +89,36 @@ exports = module.exports = [
                 // HCURL
                 return '#ops/apps/'+appId;
             }},
+            { name: 'physical operators' },
             { name: function(page, appId, operatorId) {
-                return 'operator_'+operatorId;
+                return operatorId;
             } }
+        ]
+    },
+
+    /** Logical Operator View */
+    {
+        'name': 'LogicalOpPageView',
+        'routes': ['ops/apps/:appId/logicalOperators/:logicalName'],
+        'view': require('./lib/pages/LogicalOpPageView'),
+        'paramList': ['appId', 'logicalName'],
+        'mode': 'ops',
+        'breadcrumbs': [
+            { name: text('ops_main_breadcrumb'), href: '#ops' },
+            { name: function(page, appId, operatorId) {
+                return appId;
+            },href: function(page, appId, operatorId) {
+                // HCURL
+                return '#ops/apps/'+appId;
+            }},
+            { 
+                name: 'logical operators'
+            },
+            { 
+                name: function(page, appId, logicalName) {
+                    return logicalName;
+                }
+            }
         ]
     },
     
@@ -122,7 +149,7 @@ exports = module.exports = [
             }}
         ]
     },
-    
+
     /** Stream View */
     {
         'name': 'StreamPageView',

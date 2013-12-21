@@ -43,7 +43,7 @@ public class PubSubWebSocketInputOperator extends WebSocketInputOperator
 
   @SuppressWarnings("unchecked")
   @Override
-  public Map<String, String> convertMessageToMap(String message) throws IOException
+  protected Map<String, String> convertMessageToMap(String message) throws IOException
   {
     Map<String, Object> map = mapper.readValue(message, HashMap.class);
     return (Map<String, String>)map.get("data");

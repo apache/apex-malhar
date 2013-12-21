@@ -1,0 +1,35 @@
+<div class="row-fluid applist">
+    <h2>Select Job To Monitor</h2>
+    <span class="alert loading" ng-show="showLoading">Loading Map Reduce Applications...</span>
+
+    <div ng-grid="gridOptions" class="app-list-grid"></div>
+
+    <!--
+    <table class="table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>StartTime</th>
+            <th>State</th>
+            <th>FinalStatus</th>
+            <th>Progress</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="item in items">
+            <td><a href="#/jobs/{{item.id}}">{{item.id}}</a></td>
+            <td>{{item.name}}</td>
+            <td>{{item.startedTime | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+            <td>{{item.state}}</td>
+            <td>{{item.finalStatus}}</td>
+            <td style="text-align: right;">{{item.progress|percentage}}</td>
+            <td>
+                <progress ng-if="item.state == 'RUNNING'" percent="item.progress" class="progress-striped active" />
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    -->
+</div>

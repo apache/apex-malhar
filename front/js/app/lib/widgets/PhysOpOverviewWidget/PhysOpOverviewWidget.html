@@ -1,4 +1,9 @@
 <div class="overview-item">
+    <div class="key">Status</div>
+    <div class="value <%= DT.formatters.statusClassFormatter(status) %>"><%=status%></div>
+</div>
+
+<div class="overview-item">
     <div class="key"><%= DT.text('processed_per_sec') %></div>
     <div class="value"><%=tuplesProcessedPSMA_f%></div>
 </div>
@@ -19,11 +24,6 @@
 </div>
 
 <div class="overview-item">
-    <div class="key">Status</div>
-    <div class="value <%= DT.formatters.statusClassFormatter(status) %>"><%=status%></div>
-</div>
-
-<div class="overview-item">
     <div class="key">Container ID</div>
     <div class="value"><%=containerLink%></div>
 </div>
@@ -35,12 +35,12 @@
 
 <div class="overview-item">
     <div class="key">Current Window</div>
-    <div class="value"><%=currentWindowId_f%></div>
+    <div class="value"><%=currentWindowId%></div>
 </div>
 
 <div class="overview-item">
     <div class="key">Recovery Window</div>
-    <div class="value"><%=recoveryWindowId_f%></div>
+    <div class="value"><%=recoveryWindowId%></div>
 </div>
 
 <div class="overview-item">

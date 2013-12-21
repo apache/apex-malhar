@@ -41,7 +41,7 @@ public class HttpInputOperatorSample implements StreamingApplication
 	public void populateDAG(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-		dag.setAttribute(DAGContext.APPLICATION_NAME, "MobileDevApplication");
+		dag.setAttribute(DAGContext.APPLICATION_NAME, "HttpInputOperatorApplication");
 		dag.setAttribute(DAGContext.DEBUG, true);
 
 		// Add random integer generator operator

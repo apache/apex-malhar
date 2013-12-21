@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.datatorrent</groupId>
     <artifactId>dt-framework</artifactId>
-    <version>0.9.1-RC2</version>
+    <version>0.9.1</version>
   </parent>
 
   <artifactId>malhar-all</artifactId>
@@ -22,7 +22,7 @@
   </repositories>
 
   <properties> 
-    <dt.framework.version>0.9.1-RC2</dt.framework.version>
+    <dt.framework.version>0.9.1</dt.framework.version>
   </properties>
 
   <modules>

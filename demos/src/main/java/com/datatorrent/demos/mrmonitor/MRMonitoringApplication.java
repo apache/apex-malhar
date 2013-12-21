@@ -55,7 +55,9 @@ public class MRMonitoringApplication implements StreamingApplication
 
     MRJobStatusOperator mrJobOperator = dag.addOperator("Monitoring-Operator", new MRJobStatusOperator());
     mrJobOperator.setMaxMapSize(maxNumberOfJobs);
+    mrJobOperator.setSleepTime(200);
     dag.setAttribute(mrJobOperator, OperatorContext.INITIAL_PARTITION_COUNT, numberOfPartitions);
+    dag.setAttribute(mrJobOperator, OperatorContext.APPLICATION_WINDOW_COUNT,4);
 
     URI uri = URI.create("ws://" + daemonAddress + "/pubsub");
     logger.info("WebSocket with daemon at {}", daemonAddress);
@@ -69,21 +71,38 @@ public class MRMonitoringApplication implements StreamingApplication
 
     dag.addStream("queryProcessing", convertorOper.output, mrJobOperator.input);
 
+    /**
+     * This is used to emit the meta data about the job
+     */
     PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator("Job-Output-Operator", new PubSubWebSocketOutputOperator<Object>());
     wsOut.setUri(uri);
     wsOut.setTopic("contrib.summit.mrDebugger.jobResult");
 
+    /**
+     * This is used to emit the information of map tasks of the job
+     */
     PubSubWebSocketOutputOperator<Object> wsMapOut = dag.addOperator("Map-Output-Operator", new PubSubWebSocketOutputOperator<Object>());
     wsMapOut.setUri(uri);
     wsMapOut.setTopic("contrib.summit.mrDebugger.mapResult");
 
+    /**
+     * This is used to emit the information of reduce tasks of the job
+     */
     PubSubWebSocketOutputOperator<Object> wsReduceOut = dag.addOperator("Reduce-Output-Operator", new PubSubWebSocketOutputOperator<Object>());
     wsReduceOut.setUri(uri);
     wsReduceOut.setTopic("contrib.summit.mrDebugger.reduceResult");
+    
+    /**
+     * This is used to emit the metric information of the job
+     */
+    PubSubWebSocketOutputOperator<Object> wsCounterOut = dag.addOperator("Counter-Output-Operator", new PubSubWebSocketOutputOperator<Object>());
+    wsCounterOut.setUri(uri);
+    wsCounterOut.setTopic("contrib.summit.mrDebugger.counterResult");
 
     dag.addStream("jobConsoledata", mrJobOperator.output, wsOut.input);
     dag.addStream("mapConsoledata", mrJobOperator.mapOutput, wsMapOut.input);
     dag.addStream("reduceConsoledata", mrJobOperator.reduceOutput, wsReduceOut.input);
+    dag.addStream("counterConsoledata", mrJobOperator.counterOutput, wsCounterOut.input);
 
   }
 

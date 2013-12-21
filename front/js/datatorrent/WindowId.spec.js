@@ -19,8 +19,8 @@ describe('WindowId.js', function() {
     
     var windowId;
     var windowValue = '5896637953039405386';
-    var windowOffset = '4426';
-    var windowTimestamp = '1372918010000';
+    var windowOffset = 4426;
+    var windowTimestamp = 1372918010000;
     
     beforeEach(function() {
         windowId = new WindowId(windowValue);
@@ -33,9 +33,13 @@ describe('WindowId.js', function() {
     it('should be a function', function() {
         expect(WindowId).to.be.a('function');
     });
+
+    it('timestamp should be a Date', function() {
+        expect(windowId.timestamp).to.be.instanceof(Date);
+    });
     
     it('should have timestamp, offset, and value', function() {
-        expect(windowId.timestamp).to.equal(windowTimestamp);
+        expect( windowId.timestamp.valueOf() ).to.equal(windowTimestamp);
         expect(windowId.offset).to.equal(windowOffset);
         expect(windowId.value).to.equal(windowValue);
     });
@@ -54,12 +58,39 @@ describe('WindowId.js', function() {
         expect(fn).to.throw(Error);
     });
     
+    it('should throw if first arg is non-numeric string', function() {
+        var fn = function() {
+            return new WindowId('343k18ia');
+        }
+        expect(fn).to.throw(Error);
+    });
+
     it('should have a set method that allows you to change the value', function() {
         expect(windowId.set).to.be.a('function');
         windowId.set('5896637953039405387');
-        expect(windowId.timestamp).to.equal('1372918010000');
-        expect(windowId.offset).to.equal('4427');
+        expect(windowId.timestamp.valueOf()).to.equal(1372918010000);
+        expect(windowId.offset).to.equal(4427);
         expect(windowId.value).to.equal('5896637953039405387');
+    });
+
+    describe('a windowId with an initial value of 0 or -1', function() {
+        
+        var w0, w1;
+
+        beforeEach(function() {
+            w0 = new WindowId('0');
+            w1 = new WindowId('-1');
+        });
+
+        afterEach(function() {
+            w0 = w1 = null;
+        });
+
+        it('should return "-" from its toString method', function() {
+            expect(w0.toString()).to.equal('-');
+            expect(w1.toString()).to.equal('-');
+        });
+
     });
 
 });

@@ -59,10 +59,10 @@ var CtnrMetricsWidget = BaseView.extend({
                 color: "#64c539",
                 label: DT.text('emitted_per_sec')
             },{
-                key: 'memoryMBFree',
-                color: '#AE08CE',
-                label: 'Free Memory (MB)'
-            },{
+            //     key: 'memoryMBFree',
+            //     color: '#AE08CE',
+            //     label: 'Free Memory (MB)'
+            // },{
                 key: 'memoryMBAllocated',
                 color: '#da1c17',
                 label: 'Memory Allocated (MB)'

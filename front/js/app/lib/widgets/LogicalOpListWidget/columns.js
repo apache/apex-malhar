@@ -15,6 +15,7 @@
 */
 var _ = require('underscore');
 var formatters = DT.formatters;
+var templates = DT.templates;
 var windowFormatter = formatters.windowFormatter;
 
 // function containersFormatter(ctnrs, row) {
@@ -31,16 +32,22 @@ function heartbeatFormatter(value) {
     return new Date(value*1).toLocaleTimeString();
 }
 
-function statusFormatter(value,row) {
-    var strings = _.map(value, function(val, key) {
-        return val.length + ' <span class="' + formatters.statusClassFormatter(key) + '">' + key + '</span>';
-    }, '');
-    return strings.join(', ');
+function logicalNameFormatter(value, row) {
+
+    var appId = row.get('appId') || ( row.collection ? row.collection.appId : false );
+
+    if (appId) {
+        return templates.logical_op_link({
+            appId: appId,
+            logicalName: value
+        });    
+    }
+    return value;
 }
 
 exports = module.exports = [
 	{ id: 'selector', key: 'selected', label: '', select: true, width: 40, lock_width: true },
-	{ id: 'logicalName', key: 'logicalName', label: 'name', sort: 'string', filter: 'like' },
+	{ id: 'logicalName', key: 'logicalName', label: 'name', sort: 'string', filter: 'like', format: logicalNameFormatter },
     { id: 'className', key: 'className', label: 'class', sort: 'string', filter: 'like' },
     { id: 'cpuPercentageMA', key: 'cpuPercentageMA', label: 'CPU %', sort: 'number', filter: 'number', format: cpuFormatter },
     { id: 'currentWindowId', key: 'currentWindowId', label: 'current window', sort: 'string', filter: 'like', format: windowFormatter },
@@ -48,7 +55,7 @@ exports = module.exports = [
     { id: 'failureCount', key: 'failureCount', label: 'failure count', sort: 'string', filter: 'like' },
     { id: 'lastHeartbeat', key: 'lastHeartbeat', label: 'last heartbeat', sort: 'date', filter: 'date', format: heartbeatFormatter },
     { id: 'latencyMA', key: 'latencyMA', label: 'latency (ms)', sort: 'number', filter: 'number' },
-    { id: 'status', key: 'status', label: 'status', sort: 'string', filter: 'like', format: statusFormatter },
+    { id: 'status', key: 'status', label: 'status', sort: 'string', filter: 'like', format: formatters.logicalOpStatusFormatter },
     { id: 'tuplesProcessedPSMA', key: 'tuplesProcessedPSMA', label: DT.text('processed_per_sec'), sort: 'number', filter: 'number', format: 'commaInt' },
     { id: 'tuplesEmittedPSMA', key: 'tuplesEmittedPSMA', label: DT.text('emitted_per_sec'), sort: 'number', filter: 'number', format: 'commaInt' },
     { id: 'totalTuplesProcessed', key: 'totalTuplesProcessed', label: DT.text('processed_total'), sort: 'number', filter: 'number', format: 'commaInt' },

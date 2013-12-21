@@ -28,6 +28,8 @@ import com.ning.http.client.websocket.WebSocketUpgradeHandler;
 import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.validation.constraints.NotNull;
@@ -50,10 +52,6 @@ import org.slf4j.LoggerFactory;
 public class WebSocketOutputOperator<T> extends BaseOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(WebSocketOutputOperator.class);
-  /**
-   * Timeout interval for reading from server. 0 or negative indicates no timeout.
-   */
-  public int readTimeoutMillis = 0;
   @NotNull
   private URI uri;
   private transient AsyncHttpClient client;
@@ -61,24 +59,93 @@ public class WebSocketOutputOperator<T> extends BaseOperator
   protected transient final ObjectMapper mapper = new ObjectMapper(jsonFactory);
   protected transient WebSocket connection;
   private int ioThreadMultiplier = 1;
-  private int numRetries = 2;
+  private int numRetries = 3;
+  private int waitMillisRetry = 5000;
   private final transient AsyncHttpClientConfigBean config = new AsyncHttpClientConfigBean();
 
+  /**
+   * Gets the URI for WebSocket connection
+   *
+   * @return the URI
+   */
+  public URI getUri()
+  {
+    return uri;
+  }
+
+  /**
+   * Sets the URI for WebSocket connection
+   *
+   * @param uri
+   */
   public void setUri(URI uri)
   {
     this.uri = uri;
   }
 
+  /**
+   * Gets the milliseconds to wait before retrying connection
+   *
+   * @return wait in milliseconds
+   */
+  public int getWaitMillisRetry()
+  {
+    return waitMillisRetry;
+  }
+
+  /**
+   * Sets the milliseconds to wait before retrying connection
+   *
+   * @param waitMillisRetry
+   */
+  public void setWaitMillisRetry(int waitMillisRetry)
+  {
+    this.waitMillisRetry = waitMillisRetry;
+  }
+
+  /**
+   * Gets the IO Thread multiplier for AsyncWebSocket connection
+   *
+   * @return the IO thread multiplier
+   */
+  public int getIoThreadMultiplier()
+  {
+    return ioThreadMultiplier;
+  }
+
+  /**
+   * Sets the IO Thread multiplier for AsyncWebSocket connection
+   *
+   * @param ioThreadMultiplier
+   */
   public void setIoThreadMultiplier(int ioThreadMultiplier)
   {
     this.ioThreadMultiplier = ioThreadMultiplier;
   }
 
+  /**
+   * Gets the number of retries of connection before the giving up
+   *
+   * @return the number of retries
+   */
+  public int getNumRetries()
+  {
+    return numRetries;
+  }
+
+  /**
+   * Sets the number of retries of connection before the giving up
+   *
+   * @param numRetries
+   */
   public void setNumRetries(int numRetries)
   {
     this.numRetries = numRetries;
   }
 
+  /**
+   * The input port
+   */
   public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()
   {
     @Override
@@ -100,6 +167,13 @@ public class WebSocketOutputOperator<T> extends BaseOperator
             LOG.debug("Caught exception", ex);
             LOG.warn("Send message failed ({}). Retrying ({}).", ex.getMessage(), countTries);
             connection.close();
+            if (waitMillisRetry > 0) {
+              try {
+                Thread.sleep(waitMillisRetry);
+              }
+              catch (InterruptedException ex1) {
+              }
+            }
           }
           else {
             throw new RuntimeException(ex);
@@ -152,6 +226,19 @@ public class WebSocketOutputOperator<T> extends BaseOperator
   public void setup(OperatorContext context)
   {
     config.setIoThreadMultiplier(ioThreadMultiplier);
+    config.setApplicationThreadPool(Executors.newCachedThreadPool(new ThreadFactory()
+    {
+      private long count = 0;
+
+      @Override
+      public Thread newThread(Runnable r)
+      {
+        Thread t = new Thread(r);
+        t.setName(WebSocketOutputOperator.this.getName() + "-AsyncHttpClient-" + count++);
+        return t;
+      }
+
+    }));
     try {
       openConnection();
     }

@@ -20,7 +20,7 @@ require('../js/datatorrent/JarAppModel.spec');
 require('../js/datatorrent/widgets/ListWidget/ListPalette.spec');
 require('../js/datatorrent/NavModel/NavModel.spec');
 require('../js/datatorrent/OpPropertiesModel.spec');	
-
+require('../js/datatorrent/OperatorModel.spec');
 
 require('../js/datatorrent/PortModel.spec');
 require('../js/datatorrent/RecordingModel.spec');
@@ -40,6 +40,7 @@ require('../js/app/lib/pages/PortPageView.spec');
 
 
 // Widget Tests
+require('../js/datatorrent/widgets/OverviewWidget/OverviewWidget.spec');
 require('../js/app/lib/widgets/PortInfoWidget/PortInfoWidget.spec');
 require('../js/app/lib/widgets/PortOverviewWidget/PortOverviewWidget.spec');
 require('../js/app/lib/widgets/PerfMetricsWidget/PerfMetricsWidget.spec');

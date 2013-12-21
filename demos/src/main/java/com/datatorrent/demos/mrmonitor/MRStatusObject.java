@@ -30,39 +30,84 @@ import org.codehaus.jettison.json.JSONObject;
 public class MRStatusObject
 {
   private String command;
+  /**
+   * This stores the Resource Manager/ Task Manager's host information
+   */
   private String uri;
+  /**
+   * This field stores the job id
+   */
   private String jobId;
+  /**
+   * This field stores the api version of the rest apis
+   */
   private String apiVersion;
+  /**
+   * This field stores the hadoop version 1 for 1.x and 2 for 2.x
+   */
   private int hadoopVersion;
+  /**
+   * This field stores the app id for the hadoop 2.x
+   */
   private String appId;
+  /**
+   * This field stores the RM port information for hadoop 2.x / Task Manager server port for hadoop 1.X  from where we can get the job information
+   */
   private int rmPort;
+  /**
+   * This field stores the history server information for hadoop 2.x from where we can get the job information
+   */
   private int historyServerPort;
+  /**
+   * This field stores the job information as json object
+   */
   private JSONObject jsonObject;
-  private Map<String, JSONObject> mapJsonObject;
-  private Map<String, JSONObject> reduceJsonObject;
+  /**
+   * This field tells if the object has been modified 
+   */
+  private boolean modified;
+  /**
+   * This stores the mapping of map task ids to the TaskObject
+   */
+  private Map<String, TaskObject> mapJsonObject;
+  /**
+   * This stores the mapping of reduce task ids to the TaskObject
+   */
+  private Map<String, TaskObject> reduceJsonObject;
+  /**
+   * This holds the information about the various metrics like MAP_OUTPUT_RECORDS etc for this job 
+   */
+  private TaskObject metricObject;
+  
+  /**
+   * This holds the number of windows occurred when the new data was retrieved for this job
+   */
+  private int retrials;
 
   public MRStatusObject()
   {
-    mapJsonObject = new ConcurrentHashMap<String, JSONObject>();
-    reduceJsonObject = new ConcurrentHashMap<String, JSONObject>();
+    retrials = 0;
+    modified = true;
+    mapJsonObject = new ConcurrentHashMap<String, TaskObject>();
+    reduceJsonObject = new ConcurrentHashMap<String, TaskObject>();
   }
 
-  public Map<String, JSONObject> getMapJsonObject()
+  public Map<String, TaskObject> getMapJsonObject()
   {
     return mapJsonObject;
   }
 
-  public void setMapJsonObject(Map<String, JSONObject> mapJsonObject)
+  public void setMapJsonObject(Map<String, TaskObject> mapJsonObject)
   {
     this.mapJsonObject = mapJsonObject;
   }
 
-  public Map<String, JSONObject> getReduceJsonObject()
+  public Map<String, TaskObject> getReduceJsonObject()
   {
     return reduceJsonObject;
   }
 
-  public void setReduceJsonObject(Map<String, JSONObject> reduceJsonObject)
+  public void setReduceJsonObject(Map<String, TaskObject> reduceJsonObject)
   {
     this.reduceJsonObject = reduceJsonObject;
   }
@@ -175,4 +220,101 @@ public class MRStatusObject
   {
     this.command = command;
   }
+
+  public boolean isModified()
+  {
+    return modified;
+  }
+
+  public void setModified(boolean modified)
+  {
+    this.modified = modified;
+  }
+  
+  public static class TaskObject{
+    /**
+     * This field stores the task information as json 
+     */
+    private JSONObject json;
+    /**
+     * This field tells if the object was modified
+     */
+    private boolean modified;
+    
+    public TaskObject(JSONObject json){
+      modified = true;
+      this.json = json;
+    }
+
+    /**
+     * This returns the task information as json
+     * 
+     * @return
+     */
+    public JSONObject getJson()
+    {
+      return json;
+    }
+
+    /**
+     * This stores the task information as json
+     * 
+     * @param json
+     */
+    public void setJson(JSONObject json)
+    {
+      this.json = json;
+    }
+
+    /**
+     * This returns if the json object has been modified
+     * 
+     * @return
+     */
+    public boolean isModified()
+    {
+      return modified;
+    }
+
+    /**
+     *  This sets if the json object is modified
+     *  
+     * @param modified
+     */
+    public void setModified(boolean modified)
+    {
+      this.modified = modified;
+    }
+    
+    /**
+     * This returns the string format of the json object 
+     * @return
+     */
+    public String getJsonString(){
+      return json.toString();
+    }
+  }
+  
+  public int getRetrials()
+  {
+    return retrials;
+  }
+
+  public void setRetrials(int retrials)
+  {
+    this.retrials = retrials;
+  }
+
+  public TaskObject getMetricObject()
+  {
+    return metricObject;
+  }
+
+  public void setMetricObject(TaskObject metricObject)
+  {
+    this.metricObject = metricObject;
+  }
+
+  
+
 }

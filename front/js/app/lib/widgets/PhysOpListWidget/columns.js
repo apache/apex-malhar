@@ -27,6 +27,10 @@ function statusFormatter(value,row) {
 }
 
 function nameFormatter(value, row) {
+    value = templates.logical_op_link({
+        appId: row.collection.appId,
+        logicalName: value
+    });
     var recordingStartTime = row.get('recordingStartTime');
     return (recordingStartTime && recordingStartTime != '-1') ? '<i class="icon-rec-on"></i> ' + value : value ;
 }

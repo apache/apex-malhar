@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.NotNull;
 import org.codehaus.jackson.JsonFactory;
@@ -61,11 +63,41 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
   private transient boolean shutdown = false;
   private int ioThreadMultiplier = 1;
 
+  /**
+   * Gets the URI for WebSocket connection
+   *
+   * @return the URI
+   */
+  public URI getUri()
+  {
+    return uri;
+  }
+
+  /**
+   * Sets the URI for WebSocket connection
+   *
+   * @param uri
+   */
   public void setUri(URI uri)
   {
     this.uri = uri;
   }
 
+  /**
+   * Gets the IO Thread multiplier for AsyncWebSocket connection
+   *
+   * @return the IO thread multiplier
+   */
+  public int getIoThreadMultiplier()
+  {
+    return ioThreadMultiplier;
+  }
+
+  /**
+   * Sets the IO Thread multiplier for AsyncWebSocket connection
+   *
+   * @param ioThreadMultiplier
+   */
   public void setIoThreadMultiplier(int ioThreadMultiplier)
   {
     this.ioThreadMultiplier = ioThreadMultiplier;
@@ -106,7 +138,7 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
   }
 
   @SuppressWarnings("unchecked")
-  public Map<String, String> convertMessageToMap(String message) throws IOException
+  protected Map<String, String> convertMessageToMap(String message) throws IOException
   {
     return mapper.readValue(message, HashMap.class);
   }
@@ -139,6 +171,19 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
       connectionClosed = false;
       AsyncHttpClientConfigBean config = new AsyncHttpClientConfigBean();
       config.setIoThreadMultiplier(ioThreadMultiplier);
+      config.setApplicationThreadPool(Executors.newCachedThreadPool(new ThreadFactory()
+      {
+        private long count = 0;
+
+        @Override
+        public Thread newThread(Runnable r)
+        {
+          Thread t = new Thread(r);
+          t.setName(WebSocketInputOperator.this.getName() + "-AsyncHttpClient-" + count++);
+          return t;
+        }
+
+      }));
       client = new AsyncHttpClient(config);
       connection = client.prepareGet(uri.toString()).execute(new WebSocketUpgradeHandler.Builder().addWebSocketListener(new WebSocketTextListener()
       {
@@ -179,7 +224,6 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
         {
           LOG.error("Caught exception", t);
         }
-
 
       }).build()).get(5, TimeUnit.SECONDS);
     }
