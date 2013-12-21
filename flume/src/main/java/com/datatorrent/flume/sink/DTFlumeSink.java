@@ -162,7 +162,12 @@ public class DTFlumeSink extends AbstractSink implements Configurable
           Event e;
           while (i < maxTuples && (e = getChannel().take()) != null) {
             byte[] address = storage.store(e.getBody());
-            server.client.write(address, e.getBody());
+            if (address != null) {
+              server.client.write(address, e.getBody());
+            }
+            else {
+              logger.debug("Detected the condition of recovery from flume crash!");
+            }
             i++;
           }
 
