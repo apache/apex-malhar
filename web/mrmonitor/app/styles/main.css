@@ -136,6 +136,14 @@ body {
     width: 70px;
 }
 
+.monitored-jobs h2, .applist h2 {
+    display: inline-block;
+}
+
+.loading {
+    margin-left: 20px;
+}
+
 /* TODO */
 
 /*
@@ -147,3 +155,23 @@ body {
     background-color: red;
 }
 */
+
+
+/* animations */
+.loading {
+    -webkit-transition: all linear 2s;
+    transition: all linear 2s;
+    opacity: 1;
+}
+
+.loading.ng-hide-add, .animate-hide.ng-hide-remove {
+    display: inline !important;
+}
+
+.loading.ng-hide {
+    opacity: 0;
+}
+
+.check-element {
+    padding:10px;
+}

@@ -23,8 +23,11 @@ describe('Service: Util', function () {
 
   // instantiate service
   var util;
-  beforeEach(inject(function (_util_) {
+  var $timeout;
+
+  beforeEach(inject(function (_util_, _$timeout_) {
     util = _util_;
+    $timeout = _$timeout_;
   }));
 
   it('should extract id from application', function () {
@@ -34,5 +37,22 @@ describe('Service: Util', function () {
   it('should extract id from job', function () {
     expect(util.extractJobId('job_1385061413075_0780')).toEqual('1385061413075_0780');
   });
+
+  it('should delay promise', inject(function ($rootScope, $q) {
+    var deferred = $q.defer();
+
+    var resolvedValue;
+
+    util.delay(deferred.promise).then(function (value) {
+      resolvedValue = value;
+    });
+
+    deferred.resolve('value');
+    $rootScope.$apply(); // required to propagate promise resolution
+
+    $timeout.flush();
+
+    expect(resolvedValue).toEqual('value');
+  }));
 
 });

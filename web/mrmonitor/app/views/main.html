@@ -9,10 +9,16 @@
     </div>
 </div>
 -->
-<div class="row-fluid">
+<div class="row-fluid monitored-jobs">
     <div class="span12" ng-controller="MonitoredJobGridController">
         <h2>Monitored Jobs</h2>
-        <p><a href="#/apps" class="btn btn-primary">Add Job</a></p>
+        <span ng-if="activeJobId">
+            <span class="alert loading" ng-show="showLoading">Loading job {{activeJobId}}...</span>
+        </span>
+
+        <p>
+            <a href="#/apps" class="btn btn-primary">Add Job</a>
+        </p>
         <div ng-grid="gridOptions" class="monitored-jobs-grid"></div>
     </div><!--/span-->
 </div>
