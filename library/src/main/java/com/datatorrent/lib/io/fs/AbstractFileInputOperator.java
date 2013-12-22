@@ -15,15 +15,17 @@
  */
 package com.datatorrent.lib.io.fs;
 
-import com.datatorrent.api.ActivationListener;
-import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.Context.OperatorContext;
-
 import java.io.IOException;
 import java.io.InputStream;
+
 import javax.validation.constraints.NotNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.ActivationListener;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.InputOperator;
 
 /**
  *
