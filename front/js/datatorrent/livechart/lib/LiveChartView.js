@@ -32,6 +32,9 @@ var LiveChartView = Backbone.View.extend({
         
         // Set number formatter for overlays
         this.overlay_formatter = d3.format('n');
+
+        // Set an id for clip-path element:
+        this.clip_path_id = 'clip-' + this.cid;
     },
     
     render: function() {
@@ -320,12 +323,12 @@ var LiveChartView = Backbone.View.extend({
         svg.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
         // The clipping path
-        clipPathRect = svg.select('defs #clip rect');
+        clipPathRect = svg.select('defs #' + this.clip_path_id + ' rect');
         if (clipPathRect.empty()) {
             clipPathRect = svg
                 .append('defs')
                 .append('clipPath')
-                .attr('id', 'clip')
+                .attr('id', this.clip_path_id)
                 .append('rect');
         }
         clipPathRect
@@ -415,6 +418,7 @@ var LiveChartView = Backbone.View.extend({
     
     },
     
+    // Transitions axis views based on axis models.
     _updateAxes: function() {
         yAxisGroup.transition().ease(options.easing).duration(duration).call(y.axis);
     },
@@ -447,9 +451,9 @@ var LiveChartView = Backbone.View.extend({
         // add new elements
         groups = this._seriesGroups
             .enter()
-            .append('g')
+            .insert('g','g.overlay-trg')
             .attr('class', 'seriesGroup')
-            .attr("clip-path", "url(#clip)")
+            .attr("clip-path", "url(#" + this.clip_path_id + ")")
             .attr('opacity', 0)
         ;
         
@@ -492,7 +496,7 @@ var LiveChartView = Backbone.View.extend({
                 overlay_target = this.svg
                     .append('g')
                     .attr('class', 'overlay-trg')
-                    .attr("clip-path", "url(#clip)");
+                    .attr("clip-path", "url(#" + this.clip_path_id + ")");
                     
                 // Create the group that will hold the series-specific overlay items
                 overlay_target.append('g')
@@ -510,6 +514,9 @@ var LiveChartView = Backbone.View.extend({
                 
                 // Create the rect that will listen to the mouse
                 overlay_target.append('rect')
+                    // Give it a class
+                    .attr('class','mouseover-rect')
+
                     // Set the listeners
                     .on('mouseover', function() {
                         overlay_target.select('g.overlays')
@@ -563,6 +570,17 @@ var LiveChartView = Backbone.View.extend({
                                     if (!d) return '';
                                     return self.overlay_formatter(d.value);
                                 });
+
+                        overlays
+                            .select('rect')
+                            .each(function(d) {
+                                var bb = this.parentElement.querySelector('text').getBBox();
+                                var x_translate = -1 * bb.width / 2 - 2;
+                                var y_translate = -1 * (bb.height + 5);
+                                this.setAttribute('width', bb.width + 4);
+                                this.setAttribute('height', bb.height);
+                                this.setAttribute('transform','translate(' + x_translate + ', ' + y_translate + ')');
+                            });
                     })
                     .on('mouseout', function() {
                         overlay_points = {};
@@ -574,7 +592,7 @@ var LiveChartView = Backbone.View.extend({
             }
             
             // Update the height and width of the rect
-            overlay_target.select('rect')
+            overlay_target.select('rect.mouseover-rect')
                 .attr('width', options.width)
                 .attr('height', options.height);
                 
@@ -593,16 +611,31 @@ var LiveChartView = Backbone.View.extend({
                 .attr('class', function(d) {
                     return 'series-overlay series-key-' + d.key;
                 });
+
+            // add circle element
             new_overlays
                 .append('circle')
                 .attr('r', 4.5)
                 .style('fill', function(d) {
                     return d.plot.color;
                 });
+            
+            // add rectangle before text
+            new_overlays
+                .append('rect')
+                .attr('class', 'overlay-background')
+                .attr('transform', "translate(0,-8)")
+                .attr('rx', 2)
+                .attr('ry', 2);
+
+            // add text last to be on top
             new_overlays
                 .append('text')
+                .attr('class', 'overlay-text')
                 .attr('text-anchor','middle')
                 .attr('transform', "translate(0,-8)");
+
+            
             
             // Remove old ones   
             overlays.exit().remove();

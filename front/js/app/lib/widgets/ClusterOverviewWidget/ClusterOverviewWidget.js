@@ -15,6 +15,7 @@
  */
 
 var _ = require('underscore');
+var formatters = DT.formatters;
 var kt = require('knights-templar');
 var BaseView = DT.widgets.OverviewWidget;
 var Notifier = DT.lib.Notifier;
@@ -29,7 +30,7 @@ var ClusterOverviewWidget = BaseView.extend({
     initialize: function(options) {
         
         // Set up cluster model
-        this.model = new ClusterMetricsModel({});
+        this.model = new ClusterMetricsModel({}, { dataSource: options.dataSource });
         this.model.fetch();
         this.model.subscribe();
 
@@ -45,14 +46,14 @@ var ClusterOverviewWidget = BaseView.extend({
         this.model.fetch({
             success: function() {
                 Notifier.success({
-                    title: DT.lang('Cluster Info Refreshed'),
-                    text: DT.lang('The cluster info has been successfully updated.')
+                    title: DT.text('Cluster Info Refreshed'),
+                    text: DT.text('The cluster info has been successfully updated.')
                 });
             },
             error: function(xhr, textStatus, errorThrown) {
 				Notifier.success({
-					title: DT.lang('Error Refreshing Cluster'),
-					text: DT.lang('An error occurred refreshing the cluster. Error: ') + errorThrown
+					title: DT.text('Error Refreshing Cluster'),
+					text: DT.text('An error occurred refreshing the cluster. Error: ') + errorThrown
 				});
             }
         });
@@ -63,7 +64,72 @@ var ClusterOverviewWidget = BaseView.extend({
         BaseView.prototype.remove.call(this);
     },
 
-    template: kt.make(__dirname+'/ClusterOverviewWidget.html','_')
+    overview_items: [
+        
+        {
+            label: DT.text('avg_app_age_label'),
+            key: 'averageAge',
+            value: function(averageAge) {
+                return formatters.timeSince({ timeChunk: averageAge }) || '-'
+            }
+        },
+
+        {
+            label: DT.text('cpu_percentage_label'),
+            key: 'cpuPercentage',
+            value: function(cpuPercentage) {
+                return formatters.percentageFormatter(cpuPercentage, true);
+            }
+        },
+
+        {
+            label: DT.text('current/max allocated mem (MB)'),
+            key: 'currentMemoryAllocatedMB',
+            value: function(currentMemoryAllocatedMB, attrs) {
+                return formatters.commaGroups(currentMemoryAllocatedMB) + ' / ' + DT.formatters.commaGroups(attrs.maxMemoryAllocatedMB);
+            }
+        },
+
+        {
+            label: DT.text('running / pending / failed / finished / killed / submitted'),
+            key: 'numAppsRunning',
+            value: function(numAppsRunning, attrs) {
+                return '<span class="status-running">' + formatters.commaGroups(attrs.numAppsRunning) + '</span> / ' +
+                       '<span class="status-pending-deploy">' + formatters.commaGroups(attrs.numAppsPending) + '</span> / ' +
+                       '<span class="status-failed">' + formatters.commaGroups(attrs.numAppsFailed) + '</span> / ' +
+                       '<span class="status-finished">' + formatters.commaGroups(attrs.numAppsFinished) + '</span> / ' +
+                       '<span class="status-killed">' + formatters.commaGroups(attrs.numAppsKilled) + '</span> / ' +
+                       '<span class="status-submitted">' + formatters.commaGroups(attrs.numAppsSubmitted) + '</span>';
+            }
+        },
+        
+        {
+            label: DT.text('num_containers_label'),
+            key: 'numContainers'
+        },
+
+        {
+            label: DT.text('num_operators_label'),
+            key: 'numOperators'
+        },
+        
+        {
+            label: DT.text('tuples_per_sec'),
+            key: 'tuplesProcessedPSMA',
+            value: function(val) {
+                return formatters.commaGroups(val);
+            }
+        },
+        
+        {
+            label: DT.text('emitted_per_sec'),
+            key: 'tuplesEmittedPSMA',
+            value: function(val) {
+                return formatters.commaGroups(val);
+            }
+        }
+
+    ]
     
 });
 

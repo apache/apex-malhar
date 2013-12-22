@@ -36,7 +36,7 @@ public class Application implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    dag.setAttribute(DAG.APPLICATION_NAME, "AdsDimensionDemoApplication");
+    dag.setAttribute(DAG.APPLICATION_NAME, "AdsDimensionApplication");
 
     InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
     dag.setOutputPortAttribute(input.outputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);

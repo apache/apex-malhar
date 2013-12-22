@@ -23,7 +23,10 @@ import com.datatorrent.api.DAG.Locality;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- * Example of application configuration in Java.<p>
+ * Example of application configuration in Java.
+ * <p>
+ * Measures the time taken to emit a fixed number of tuples. 
+ * </p>
  *
  * @since 0.3.2
  */

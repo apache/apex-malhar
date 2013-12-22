@@ -66,7 +66,7 @@ public class InputReceiver extends BaseOperator implements InputOperator
   private int operatorId;
   private long windowId = 1;
   private static DateFormat minuteDateFormat = new SimpleDateFormat("HHmm");
-  private static DateFormat dayDateFormat = new SimpleDateFormat("dd");
+  private static DateFormat dayDateFormat = new SimpleDateFormat("d");
 
   static {
     TimeZone tz = TimeZone.getTimeZone("GMT");

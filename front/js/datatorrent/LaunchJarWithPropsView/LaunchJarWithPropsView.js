@@ -15,7 +15,7 @@
  */
 var _ = require('underscore');
 var Backbone = require('backbone');
-var lang = require('../lang');
+var text = require('../text');
 var kt = require('knights-templar');
 var BaseView = require('../ModalView');
 
@@ -39,9 +39,9 @@ var AppLaunchProperties = Backbone.Collection.extend({
 
 var LaunchJarWithPropsView = BaseView.extend({
 
-	confirmText: lang('launch'),
+	confirmText: text('launch'),
 
-	title: lang('Launch Application with Properties'),
+	title: text('Launch Application with Properties'),
 
 	initialize: function() {
 

@@ -21,6 +21,7 @@ import java.util.Map;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseMatchOperator;
 
@@ -45,6 +46,7 @@ import com.datatorrent.lib.util.BaseMatchOperator;
  *
  * @since 0.3.2
  */
+@OperatorAnnotation(partitionable = false)
 public class FirstMatchStringMap<K> extends BaseMatchOperator<K,String>  
 {
 

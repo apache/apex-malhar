@@ -1,18 +1,21 @@
 /*
-* Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*   http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var text = DT.text;
+
 /**
  * Page View Definitions
  * 
@@ -28,9 +31,6 @@
  * @param mode         {String}           Specifies the mode that the page resides in ('dev'|'ops')
  * @param breadcrumbs  {Array}            Array of objects representing an item of the breadcrumbs. Each object requires a 'name' field and optionally a 'href' field.
 */
-
-var lang = DT.lang;
-
 exports = module.exports = [
 
     /**
@@ -47,7 +47,7 @@ exports = module.exports = [
         'mode': 'ops',
         'breadcrumbs': [
             {
-                name: lang('ops_main_breadcrumb')
+                name: text('ops_main_breadcrumb')
             }
         ]
     },
@@ -62,7 +62,7 @@ exports = module.exports = [
         'breadcrumbs': [
             // HCURL
             { 
-                name: lang('ops_main_breadcrumb'), 
+                name: text('ops_main_breadcrumb'), 
                 href: '#ops' 
             },
             {
@@ -82,16 +82,43 @@ exports = module.exports = [
         'mode': 'ops',
         'breadcrumbs': [
             // HCURL
-            { name: lang('ops_main_breadcrumb'), href: '#ops' },
+            { name: text('ops_main_breadcrumb'), href: '#ops' },
             { name: function(page, appId, operatorId) {
                 return appId;
             },href: function(page, appId, operatorId) {
                 // HCURL
                 return '#ops/apps/'+appId;
             }},
+            { name: 'physical operators' },
             { name: function(page, appId, operatorId) {
-                return 'operator_'+operatorId;
+                return operatorId;
             } }
+        ]
+    },
+
+    /** Logical Operator View */
+    {
+        'name': 'LogicalOpPageView',
+        'routes': ['ops/apps/:appId/logicalOperators/:logicalName'],
+        'view': require('./lib/pages/LogicalOpPageView'),
+        'paramList': ['appId', 'logicalName'],
+        'mode': 'ops',
+        'breadcrumbs': [
+            { name: text('ops_main_breadcrumb'), href: '#ops' },
+            { name: function(page, appId, operatorId) {
+                return appId;
+            },href: function(page, appId, operatorId) {
+                // HCURL
+                return '#ops/apps/'+appId;
+            }},
+            { 
+                name: 'logical operators'
+            },
+            { 
+                name: function(page, appId, logicalName) {
+                    return logicalName;
+                }
+            }
         ]
     },
     
@@ -104,7 +131,7 @@ exports = module.exports = [
         'mode': 'ops',
         'breadcrumbs': [
             // HCURL
-            { name: lang('ops_main_breadcrumb'), href: '#ops' },
+            { name: text('ops_main_breadcrumb'), href: '#ops' },
             { name: function(page, appId, operatorId) {
                 return appId;
             },href: function(page, appId, operatorId) {
@@ -122,7 +149,7 @@ exports = module.exports = [
             }}
         ]
     },
-    
+
     /** Stream View */
     {
         'name': 'StreamPageView',
@@ -132,7 +159,7 @@ exports = module.exports = [
         'mode': 'ops',
         'breadcrumbs': [
             {
-                name: lang('ops_main_breadcrumb'),
+                name: text('ops_main_breadcrumb'),
                 // HCURL
                 href: '#ops'
             },
@@ -164,7 +191,7 @@ exports = module.exports = [
         'mode': 'ops',
         'breadcrumbs': [
             {
-                name: lang('ops_main_breadcrumb'),
+                name: text('ops_main_breadcrumb'),
                 // HCURL
                 href: '#ops'
             },
@@ -196,7 +223,7 @@ exports = module.exports = [
         'mode': 'ops',
         'breadcrumbs': [
             // HCURL
-            { name: lang('ops_main_breadcrumb'), href: '#ops' },
+            { name: text('ops_main_breadcrumb'), href: '#ops' },
             { name: function(page, appId, operatorId) {
                 return appId;
             },href: function(page, appId, operatorId) {
@@ -225,7 +252,7 @@ exports = module.exports = [
         'breadcrumbs': [
             // HCURL
             {
-                name: lang('ops_main_breadcrumb'),
+                name: text('ops_main_breadcrumb'),
                 href: '#ops'
             },
             {
@@ -250,7 +277,7 @@ exports = module.exports = [
         'breadcrumbs': [
             // HCURL
             {
-                name: lang('ops_main_breadcrumb'),
+                name: text('ops_main_breadcrumb'),
                 href: '#ops'
             },
             {

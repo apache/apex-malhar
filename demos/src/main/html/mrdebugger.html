@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-<title>DataTorrent MR Monitoring</title>
+<title>DataTorrent Mobile Demo</title>
 
 <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
@@ -36,7 +36,7 @@ var markers = {};
 $(function() {
 
     $("#query1AddButton").click(function() {
-
+    
 	    var app_id = $("input#app_id").val();
 	    var hostname = $("input#hostname").val();
 	    var job_id = $("input#job_id").val();
@@ -44,7 +44,7 @@ $(function() {
 	    var api_version = $("input#api_version").val();
 	    var rm_port = $("input#rm_port").val();
 	    var hs_port = $("input#hs_port").val();
-
+	    
 	    var jsonData = {
 		command : 'add',
 		hostname:hostname,
@@ -55,18 +55,18 @@ $(function() {
 		rm_port:rm_port,
 		hs_port:hs_port
 	    };
-
+    
 	    sendQuery(jsonData, function() {
 	        $('#query1SubmitConfirm').html("<div id='message'></div>");
 	        $('#message').html("<h2>Add   submitted to application!</h2>")
 	        .append("<p>Result will appear on page shortly.</p>");
             });
-
+	    
 	    return false;
     });
 
     $("#query1DeleteButton").click(function() {
-
+    
 	    var app_id = $("input#app_id").val();
 	    var hostname = $("input#hostname").val();
 	    var job_id = $("input#job_id").val();
@@ -74,7 +74,7 @@ $(function() {
 	    var api_version = $("input#api_version").val();
 	    var rm_port = $("input#rm_port").val();
 	    var hs_port = $("input#hs_port").val();
-
+	    
 	    var jsonData = {
 		command : 'delete',
 		hostname:hostname,
@@ -85,13 +85,15 @@ $(function() {
 		rm_port:rm_port,
 		hs_port:hs_port
 	    };
-
+    
 	    sendQuery(jsonData, function() {
 	        $('#query1SubmitConfirm').html("<div id='message'></div>");
-	        $('#message').html("<h2>Add " + phone + " submitted to application!</h2>")
-	        .append("<p>Result will appear on page shortly.</p>");
+	        $('#message').html("<h2>Delete submitted to application!</h2>")
+		$('#jobQueryResult').html('');
+		$('#jobMapQueryResult').html('');
+		$('#jobReduceQueryResult').html('');
             });
-
+	    
 	    return false;
     });
 
@@ -99,7 +101,7 @@ $(function() {
         var ws = new WebSocket('ws://'+window.location.host+'/pubsub');
 
         ws.onopen = function () {
-          var topic = "contrib.summit.mrDebugger.mrDebuggerQuery";
+          var topic = "contrib.summit.mrDebugger.mrDebuggerQuery";  
           var msg = JSON.stringify({ "type" : "publish", "topic" : topic, "data" : jsonData });
           ws.send(msg);
           console.log("published to: " + topic + " data: " + msg);
@@ -121,7 +123,7 @@ $(function() {
     }
 
     var ws = new WebSocket('ws://'+window.location.host+'/pubsub');
-    var topic = "contrib.summit.mrDebugger.jobResult";
+    var topic = "contrib.summit.mrDebugger.jobResult";  
 
     ws.onopen = function () {
       var msg = JSON.stringify({ "type":"subscribe", "topic": topic});
@@ -133,14 +135,14 @@ $(function() {
       console.log('WebSocket Error ' + error);
     };
 
-    ws.onmessage = function (e){
+    ws.onmessage = function (e){ 
 
-	$('#jobQueryResult').append(e.data+"\n");
-    };
-
+	$('#jobQueryResult').append(e.data+"\n");	
+    };      
+    
 
     var mapws = new WebSocket('ws://'+window.location.host+'/pubsub');
-    var maptopic = "contrib.summit.mrDebugger.mapResult";
+    var maptopic = "contrib.summit.mrDebugger.mapResult";  
 
     mapws.onopen = function () {
       var msg = JSON.stringify({ "type":"subscribe", "topic": maptopic});
@@ -152,14 +154,14 @@ $(function() {
       console.log('WebSocket Error ' + error);
     };
 
-    mapws.onmessage = function (e){
+    mapws.onmessage = function (e){ 
 
-	$('#jobMapQueryResult').append(e.data+"\n");
-    };
+	$('#jobMapQueryResult').append(e.data+"\n");	
+    };      
 
 
     var reducews = new WebSocket('ws://'+window.location.host+'/pubsub');
-    var reducetopic = "contrib.summit.mrDebugger.reduceResult";
+    var reducetopic = "contrib.summit.mrDebugger.reduceResult";  
 
     reducews.onopen = function () {
       var msg = JSON.stringify({ "type":"subscribe", "topic": reducetopic});
@@ -171,11 +173,29 @@ $(function() {
       console.log('WebSocket Error ' + error);
     };
 
-    reducews.onmessage = function (e){
+    reducews.onmessage = function (e){ 
 
-	$('#jobReduceQueryResult').append(e.data+"\n");
+	$('#jobReduceQueryResult').append(e.data+"\n");	
+    };      
+    
+    var counterws = new WebSocket('ws://'+window.location.host+'/pubsub');
+    var coutnertopic = "contrib.summit.mrDebugger.counterResult";  
+
+    counterws.onopen = function () {
+      var msg = JSON.stringify({ "type":"subscribe", "topic": coutnertopic});
+      console.log("sending: " + msg);
+      counterws.send(msg);
     };
 
+    counterws.onerror = function (error) {
+      console.log('WebSocket Error ' + error);
+    };
+
+    counterws.onmessage = function (e){ 
+
+	$('#jobCounterQueryResult').append(e.data+"\n");	
+    };      
+    
   });
 
 
@@ -194,23 +214,23 @@ $(function() {
 		    </p>
 		    <p>
 		      <label for="phone" id="hostname_label">Hostname</label>
-		      <input type="text" name="hostname" id="hostname" size="30" value="" class="phone-input" />
+		      <input type="text" name="hostname" id="hostname" size="30" value="node0.morado.com" class="phone-input" />
 		    </p>
 		    <p>
 		      <label for="phone" id="rm_port_label">RM port</label>
-		      <input type="text" name="rm_port" id="rm_port" size="30" value="" class="phone-input" />
+		      <input type="text" name="rm_port" id="rm_port" size="30" value="8088" class="phone-input" />
 		    </p>
 		    <p>
 		      <label for="phone" id="hs_port_label">History Server port</label>
-		      <input type="text" name="hs_port" id="hs_port" size="30" value="" class="phone-input" />
+		      <input type="text" name="hs_port" id="hs_port" size="30" value="19888" class="phone-input" />
 		    </p>
 		    <p>
 		      <label for="phone" id="hadoop_version_label">Hadoop Version</label>
-		      <input type="text" name="hadoop_version" id="hadoop_version" size="30" value="" class="phone-input" />
+		      <input type="text" name="hadoop_version" id="hadoop_version" size="30" value="2" class="phone-input" />
 		    </p>
 		    <p>
 		      <label for="phone" id="api_version_label">API Version</label>
-		      <input type="text" name="api_version" id="api_version" size="30" value="" class="phone-input" />
+		      <input type="text" name="api_version" id="api_version" size="30" value="v1" class="phone-input" />
 		    </p>
             <p>
 		      <input type="submit" name="command" class="button" id="query1AddButton" value="Add" />
@@ -219,9 +239,10 @@ $(function() {
             </p>
 		  </form>
 		  <div id="query1SubmitConfirm"></div>
-		  <div>Job: <span id="jobQueryResult"></span></div>
-		  <div>Map Task: <span id="jobMapQueryResult"></span></div>
-		  <div>Reduce Job: <span id="jobReduceQueryResult"></span></div>
+		  <div style="align:left;background-color:#FFD700">Job: <span id="jobQueryResult" wrap="hard"></span></div>
+		  <div style="align:left;background-color:#FFA500">Map Task: <span id="jobMapQueryResult"></span></div>
+		  <div style="align:left;background-color:#EEEEEE">Reduce Job: <span id="jobReduceQueryResult"></span></div>
+		  <div style="align:left;background-color:#00FFFF">Metric: <span id="jobCounterQueryResult"></span></div>
 		</div>
 
 </body>

@@ -34,7 +34,7 @@ public class RandomEvenetGeneratorSample implements StreamingApplication
 	public void populateDAG(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-	    dag.setAttribute(DAG.APPLICATION_NAME, "MobileDevApplication");
+	    dag.setAttribute(DAG.APPLICATION_NAME, "RandomEventGeneratorApplication");
 	    dag.setAttribute(DAG.DEBUG, true);
 
 	    // Add random integer generator operator

@@ -1,0 +1,27 @@
+<!--
+<div class="row-fluid">
+    <div class="span12">
+        <span ng-show="app.id">
+            <span class="job-label">Application ID:</span> {{app.id}}
+            <span class="job-label">Name:</span> {{app.name}}
+            <span class="job-label">State:</span> {{app.state}}
+        </span>
+    </div>
+</div>
+-->
+<div class="row-fluid monitored-jobs">
+    <div class="span12" ng-controller="MonitoredJobGridController">
+        <h2>Monitored Jobs</h2>
+        <span ng-if="activeJobId">
+            <span class="alert loading" ng-show="showLoading">Loading job {{activeJobId}}...</span>
+        </span>
+
+        <p>
+            <a href="#/apps" class="btn btn-primary">Add Job</a>
+        </p>
+        <div ng-grid="gridOptions" class="monitored-jobs-grid"></div>
+    </div><!--/span-->
+</div>
+
+<span ui-view>
+</span>

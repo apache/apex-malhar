@@ -20,6 +20,7 @@ import java.util.Map;
 
 import javax.validation.constraints.Min;
 
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import org.apache.commons.lang.mutable.MutableDouble;
 
 import com.datatorrent.api.DefaultInputPort;
@@ -57,6 +58,7 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
  *
  * @since 0.3.3
  */
+@OperatorAnnotation(partitionable = false)
 public class QuotientMap<K, V extends Number> extends
 		BaseNumberKeyValueOperator<K, V>
 {

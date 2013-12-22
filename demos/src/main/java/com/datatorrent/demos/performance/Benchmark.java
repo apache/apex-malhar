@@ -23,7 +23,27 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 
 /**
- * Benchmark for operator locality.<p>
+ * Performance Demo Application:
+ * <p> 
+ * This demo demonstrates the performance of Datatorrent platform. 
+ * Performance is measured by the number of events processed per second and latency. 
+ * Performance varies depending on container memory, CPU and network I/O. 
+ * The demo can be used to check how the performance varies with stream locality.
+ *
+ * Stream locality decides how the operators are deployed:
+ * ThreadLocal - the operators are deployed within the same thread.
+ * ContainerLocal -the operators are deployed as separate threads within the process.
+ * NodeLocal- the operators are deployed as separate processes on a machine.
+ * RackLocal - the operators are deployed on different nodes of the same rack.
+ * NoLocality - lets the engine decide how to best deploy the operator.
+ *
+ * Note:  NodeLocal and RackLocal are preferences that can be specified to Hadoop ResourceManager. 
+ * It is not guaranteed that the operators will be deployed as requested. 
+ * ResourceManager makes the call depending on resource availability. 
+ * 
+ * Refer to demos/docs/PerformanceDemo.md for more details.
+ * 
+ * </p>
  *
  * @since 0.9.0
  */
@@ -63,6 +83,7 @@ public abstract class Benchmark
 
   /**
    * Place the 2 operators so that they are in the same Rack.
+   * The operators are requested to be deployed on different machines.
    */
   public static class RackLocal extends AbstractApplication
   {
@@ -76,6 +97,7 @@ public abstract class Benchmark
 
   /**
    * Place the 2 operators so that they are in the same node.
+   * The operators are requested to be deployed as different processes within the same machine.
    */
   public static class NodeLocal extends AbstractApplication
   {
@@ -89,6 +111,7 @@ public abstract class Benchmark
 
   /**
    * Place the 2 operators so that they are in the same container.
+   * The operators are deployed as different threads in the same process.
    */
   public static class ContainerLocal extends AbstractApplication
   {

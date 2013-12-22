@@ -1,103 +1,74 @@
 var express = require("express");
 var app = express();
-var server = require("http").createServer(app);
-var WebSocketServer = require('ws').Server;
-var fs = require('fs');
+var ejs = require('ejs');
+var fs = require('graceful-fs');
 var path = require('path');
-var stream = require('stream');
 var Hash = require('hashish');
-var mgr = require('./util');
-var Stream = require('stream');
+var httpProxy = require('http-proxy');
+var browserify = require('browserify');
 
-// Pipe random app list out
-var sendApps = function(req, res){
-    var num = Math.round(Math.random() * 10);
-    var file = path.join(__dirname, 'mock_data', 'apps'+num+'.txt');
-    var fstream = fs.createReadStream(file);
-    fstream.pipe(res);
-}
-// Pipe random op list out
-var sendOps = function(req, res){
-    var num = Math.round(Math.random() * 10);
-    var file = path.join(__dirname, 'mock_data', 'ops'+num+'.txt');
-    var fstream = fs.createReadStream(file);
-    fstream.pipe(res);
-}
+// Dev configuration
+var config = require('./config.js');
 
-// Mocking the Daemon HTTP Requests
-app.get('/resourcemanager/v1/cluster/apps', sendApps );
-app.get('/stram/v1/applications/:appId/operators', sendOps);
-
-// Serving static files
-app.use(express.static(__dirname, { maxAge: 86400000 }));
-
-// Spin up server
-server.listen(3333); console.log("Server listening on port 3333");
-
-// Set up ws server
-wsServer = new WebSocketServer({server: server});
-wsServer.on('connection', function(ws){
-    var socketid = mgr.connect(ws);
-    ws.on('message', function(raw) {
-        
-        var message = JSON.parse(raw);
-        switch(message.type) {
-            case "subscribe":
-                mgr.subscribe(socketid, message.topic);
-            break;
-            case "unsubscribe":
-                mgr.unsubscribe(socketid, message.topic);
-            break;
-        }
-        
-    });
-
-    ws.on('close', function(reasonCode, description) {
-        mgr.disconnect(socketid);
-    });
+// Set up the proxy that goes to the gateway
+var proxy = new httpProxy.HttpProxy({
+    target: {
+        host: config.gateway.host,
+        port: config.gateway.port
+    }
 });
 
-function pollApps(){
-    var clients = mgr.clients;
-    Hash(clients)
-    .filter(function(val, key){
-        return val.subscriptions.hasOwnProperty('apps.list');
-    })
-    .forEach(function(val, key){
-        var socket = val.socket;
-        var num = Math.round(Math.random() * 10);
-        var file = path.join(__dirname, 'mock_data', 'apps'+num+'.txt');
-        var contents = fs.readFileSync(file);
-        socket.send(JSON.stringify({"type":"data","topic":"apps.list","data":JSON.parse(contents)}));
-    })
-}
-function pollOps(){
-    var clients = mgr.clients;
-    var topic = ''; // topic to publish on
-    Hash(clients)
-    .filter(function(val, key){
-        for(var k in val.subscriptions) {
-            if ( /apps\.application_\d+_\d+\.operators\.list/.test(k) ) {
-                topic = k;
-                return true;
-            }
-        }
-        return false;
-    })
-    .forEach(function(val, key){
-        var socket = val.socket;
-        var num = Math.round(Math.random() * 10);
-        var file = path.join(__dirname, 'mock_data', 'ops'+num+'.txt');
-        var contents = fs.readFileSync(file);
-        socket.send(JSON.stringify({"type":"data","topic":topic,"data":JSON.parse(contents)}));
-    })
-}
+// Set logger
+app.use(express.logger());
 
+// Configure the app
+app.configure(function(){
 
-// Begin publishing
-setInterval(function(){
-    pollApps();
-    pollOps();
-}, 1000)
+    // Set rendering engine to EJS
+    app.engine('html', ejs.renderFile);
+    app.set('view engine', 'ejs');
 
+});
 
+// REST API Requests
+app.get('/ws/*', function(req, res) {
+    proxy.proxyRequest(req, res);
+});
+
+// Main entry page
+app.get('/', function(req, res) {
+    res.render('index', config);
+});
+
+// Browserify bundle
+var b = browserify();
+b.add('./js/start.dev.js');
+app.get('/bundle.js', function(req, res) {
+
+	res.setHeader("Content-Type", "text/javascript");
+
+	var bundle = b.bundle({
+		insertGlobals: true,
+		debug: true
+	});
+	bundle.on('error', function(e) {
+		res.end('$(function() { $("body").prepend("<p style=\'font-size:15px; padding: 10px;\'>' + e.toString() + '</p>"); });');
+	});
+
+	var data = '';
+	bundle.on('data', function(chunk) {
+		data += chunk;
+	});
+	
+	bundle.on('end', function() {
+		res.end(data, 'utf8');
+	});
+	
+});
+
+// Serve static files
+app.use(express.static(__dirname, { maxAge: 86400000 }));
+
+// Start the server
+app.listen(config.web.port);
+console.log("Server listening on port " + config.web.port);

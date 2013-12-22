@@ -51,18 +51,18 @@ var CtnrMetricsWidget = BaseView.extend({
         // Plot the initial series
         var series = [
             {
-                key: "tuplesEmittedPSMA",
-                color: "#64c539",
-                label: "Emitted/sec"
-            },{
                 key: 'tuplesProcessedPSMA',
                 color: '#1da8db',
-                label: 'Processed/sec'
+                label: DT.text('processed_per_sec')
             },{
-                key: 'memoryMBFree',
-                color: '#AE08CE',
-                label: 'Free Memory (MB)'
+                key: "tuplesEmittedPSMA",
+                color: "#64c539",
+                label: DT.text('emitted_per_sec')
             },{
+            //     key: 'memoryMBFree',
+            //     color: '#AE08CE',
+            //     label: 'Free Memory (MB)'
+            // },{
                 key: 'memoryMBAllocated',
                 color: '#da1c17',
                 label: 'Memory Allocated (MB)'

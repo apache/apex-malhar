@@ -50,13 +50,35 @@ exports = module.exports = {
     
     topics: {
         
+        ClusterMetrics           :'cluster.metrics',
         Applications             :'applications',
         Application              :'applications.:appId',
         Operators                :'applications.:appId.operators',
         Containers               :'applications.:appId.containers'
         
     },
-    
+
+    dag: {
+        edges: {
+            NONE: {
+                displayName: 'NOT ASSIGNED',
+                dasharray: '5,2'
+            },
+            THREAD_LOCAL: {
+                dasharray: null
+            },
+            CONTAINER_LOCAL: {
+                dasharray: '1,1'
+            },
+            NODE_LOCAL: {
+                dasharray: '1,3'
+            },
+            RACK_LOCAL: {
+                dasharray: '1,5'
+            }
+        }
+    },
+
     interpolateParams: function(string, params) {
         return string.replace(/:(\w+)/g, function(match, paramName) {
             return params[paramName];

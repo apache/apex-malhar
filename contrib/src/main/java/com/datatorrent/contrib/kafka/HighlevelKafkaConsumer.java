@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.validation.constraints.Min;
@@ -29,6 +30,7 @@ import kafka.consumer.ConsumerIterator;
 import kafka.consumer.KafkaStream;
 import kafka.javaapi.consumer.ConsumerConnector;
 import kafka.message.Message;
+import kafka.message.MessageAndMetadata;
 
 /**
  * High level kafka consumer adapter used for kafka input operator
@@ -40,12 +42,12 @@ import kafka.message.Message;
  * <br>
  *
  * Load balance: <br>
- * Build-in kafka loadbalancing strategy, Consumers with different consumer.id and same group.id will distribute the reads from different partition<br>
+ * Build-in kafka load balancing strategy, Consumers with different consumer.id and same group.id will distribute the reads from different partition<br>
  * There are at most #partition per topic could consuming in parallel
  * For more information see {@link http://kafka.apache.org/documentation.html#distributionimpl} <br>
  * <br><br>
  * Kafka broker failover: <br>
- * Build-in failover strategy, the consumer will pickup the next available syncronized broker to consume data <br>
+ * Build-in failover strategy, the consumer will pickup the next available synchronized broker to consume data <br>
  * For more information see {@link http://kafka.apache.org/documentation.html#distributionimpl} <br>
  *
  * @since 0.9.0
@@ -58,10 +60,12 @@ public class HighlevelKafkaConsumer extends KafkaConsumer
 
   private transient ConsumerConnector standardConsumer = null;
   
+  private transient ExecutorService consumerThreadExecutor = null;
+  
   /**
    * -1   Dynamically create number of stream according to the partitions
-   * < #kafkapartition each stream could receive any message from any partition, order is not guaranteed among the partitions
-   * > #kafkapartition each stream consume message from one partition, some stream might not get any data
+   * < #{kafka partition} each stream could receive any message from any partition, order is not guaranteed among the partitions
+   * > #{kafka partition} each stream consume message from one partition, some stream might not get any data
    */
   @Min(value = -1)
   private int numStream = 1;
@@ -84,6 +88,11 @@ public class HighlevelKafkaConsumer extends KafkaConsumer
     // Don't reuse any id for recovery to avoid rebalancing error because there is some delay for zookeeper to 
     // find out the old consumer is dead and delete the entry even new consumer is back online
     consumerConfig.put("consumer.id", "consumer" + System.currentTimeMillis());
+    if(initialOffset.equalsIgnoreCase("earliest")){
+      consumerConfig.put("auto.offset.reset", "smallest");
+    } else {
+      consumerConfig.put("auto.offset.reset", "largest");
+    }
     standardConsumer = kafka.consumer.Consumer.createJavaConsumerConnector(new ConsumerConfig(consumerConfig));
   }
 
@@ -100,26 +109,35 @@ public class HighlevelKafkaConsumer extends KafkaConsumer
     Map<String, List<KafkaStream<byte[], byte[]>>> consumerMap = standardConsumer.createMessageStreams(topicCountMap);
 
     // start $numStream anonymous threads to consume the data
-    ExecutorService executor = Executors.newFixedThreadPool(realNumStream);
+    consumerThreadExecutor = Executors.newFixedThreadPool(realNumStream);
     for (final KafkaStream<byte[], byte[]> stream : consumerMap.get(topic)) {
-      executor.submit(new Runnable() {
+      consumerThreadExecutor.submit(new Runnable() {
         public void run()
         {
           ConsumerIterator<byte[], byte[]> itr = stream.iterator();
           logger.debug("Thread " + Thread.currentThread().getName() + " start consuming message...");
           while (itr.hasNext() && isAlive) {
-            putMessage(new Message(itr.next().message()));
+            MessageAndMetadata<byte[], byte[]> mam = itr.next();
+            try {
+              putMessage(mam.partition(), new Message(mam.message()));
+            } catch (InterruptedException e) {
+              logger.error("Message Enqueue has been interrupted", e);
+            }
           }
+          logger.debug("Thread " + Thread.currentThread().getName() + " stop consuming message...");
         }
       });
     }
   }
 
   @Override
-  public void stop()
+  protected void _stop()
   {
-    isAlive = false;
-    standardConsumer.shutdown();
+    if(standardConsumer!=null)
+      standardConsumer.shutdown();
+    if(consumerThreadExecutor!=null){
+      consumerThreadExecutor.shutdown();
+    }
   }
 
   
@@ -129,7 +147,13 @@ public class HighlevelKafkaConsumer extends KafkaConsumer
   }
 
   @Override
-  protected KafkaConsumer cloneConsumer(int partitionId)
+  protected KafkaConsumer cloneConsumer(Set<Integer> partitionIds)
+  {
+    return cloneConsumer(partitionIds, null);
+  }
+  
+  @Override
+  protected KafkaConsumer cloneConsumer(Set<Integer> partitionIds, Map<Integer, Long> startOffset)
   {
     Properties newProp = new Properties();
     // Copy most properties from the template consumer. For example the "group.id" should be set to same value 
@@ -137,6 +161,8 @@ public class HighlevelKafkaConsumer extends KafkaConsumer
     HighlevelKafkaConsumer newConsumer = new HighlevelKafkaConsumer(newProp);
     newConsumer.setBrokerSet(this.brokerSet);
     newConsumer.setTopic(this.topic);
+    newConsumer.numStream = partitionIds.size();
+    newConsumer.initialOffset = initialOffset;
     return newConsumer;
   }
 
@@ -145,6 +171,14 @@ public class HighlevelKafkaConsumer extends KafkaConsumer
   {
     // commit the offsets at checkpoint so that high-level consumer don't have to receive too many duplicate messages
     standardConsumer.commitOffsets();
+  }
+
+  @Override
+  protected Map<Integer, Long> getCurrentOffsets()
+  {
+    // offset is not useful for high-level kafka consumer
+    // TODO 
+    throw new UnsupportedOperationException("Offset request is currently not supported for high-level consumer");
   }
   
 }

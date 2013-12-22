@@ -32,6 +32,7 @@ import com.datatorrent.contrib.machinedata.operator.CalculatorOperator;
 import com.datatorrent.contrib.machinedata.operator.MachineInfoAveragingOperator;
 import com.datatorrent.contrib.machinedata.operator.MachineInfoAveragingPrerequisitesOperator;
 import com.datatorrent.contrib.redis.RedisOutputOperator;
+import com.datatorrent.contrib.redis.RedisStringOutputOperator;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.SmtpOutputOperator;
 
@@ -106,9 +107,9 @@ public class Application implements StreamingApplication
    * @param database the database instance id
    * @return RedisOutputOperator
    */
-  private RedisOutputOperator<MachineKey, Map<String, String>> getRedisOutputOperator(String name, DAG dag, Configuration conf, int database)
+  private RedisStringOutputOperator<MachineKey> getRedisOutputOperator(String name, DAG dag, Configuration conf, int database)
   {
-    RedisOutputOperator<MachineKey, Map<String, String>> oper = dag.addOperator(name, new RedisOutputOperator<MachineKey, Map<String, String>>());
+    RedisStringOutputOperator<MachineKey> oper = dag.addOperator(name, new RedisStringOutputOperator<MachineKey>());
     String host = conf.get("machinedata.redis.host", "localhost");
     int port = conf.getInt("machinedata.redis.port", 6379);
     oper.setHost(host);
@@ -194,7 +195,7 @@ public class Application implements StreamingApplication
     setDefaultInputPortQueueCapacity(dag, averageOperator.inputPort);
     setDefaultOutputPortQueueCapacity(dag, averageOperator.outputPort);
 
-    RedisOutputOperator<MachineKey, Map<String, String>> redisAvgOperator = getRedisOutputOperator("RedisAverageOutput", dag, conf, conf.getInt("machinedata.redis.db", 5));
+    RedisStringOutputOperator<MachineKey> redisAvgOperator = getRedisOutputOperator("RedisAverageOutput", dag, conf, conf.getInt("machinedata.redis.db", 5));
     setDefaultInputPortQueueCapacity(dag, redisAvgOperator.inputInd);
     dag.setInputPortAttribute(redisAvgOperator.inputInd, PortContext.PARTITION_PARALLEL, true);
     dag.addStream("avg_output", averageOperator.outputPort, redisAvgOperator.inputInd);
@@ -277,7 +278,7 @@ public class Application implements StreamingApplication
     int partitions = conf.getInt(Application.class.getName() + ".partitions", 1);
     int unifier_count = conf.getInt(Application.class.getName() + ".unifier_count", 2);
 
-    dag.setAttribute(DAG.APPLICATION_NAME, "MachineData-DemoApplication");
+    dag.setAttribute(DAG.APPLICATION_NAME, "MachineDataApplication");
     dag.setAttribute(DAG.DEBUG, false);
     dag.setAttribute(DAG.STREAMING_WINDOW_SIZE_MILLIS, streamingWindowSizeMilliSeconds);
 

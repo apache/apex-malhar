@@ -84,7 +84,9 @@ public class FixedTuplesInputOperator implements InputOperator
   }
 
   /**
-   * @param count the count to set
+   * Sets the number of tuples to emit.
+   * 
+   * @param count the number of tuples to emit
    */
   public void setCount(int count)
   {

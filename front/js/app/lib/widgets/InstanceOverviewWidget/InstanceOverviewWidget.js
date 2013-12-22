@@ -18,20 +18,53 @@
  * 
 */
 var _ = require('underscore');
+var formatters = DT.formatters;
 var kt = require('knights-templar');
 var BaseView = DT.widgets.OverviewWidget;
 var Info = BaseView.extend({
-
-    html: function() {
-        var json = this.model.serialize();
-        var make_spacers = ['currentWindowId','tuplesProcessedPSMA','totalTuplesProcessed','num_operators','num_containers'];
-        for (var i = make_spacers.length - 1; i >= 0; i--){
-            json[make_spacers[i]] = json[make_spacers[i]] ? json[make_spacers[i]] : '-';
-        };
-        return this.template(json);
-    },
     
-    template: kt.make(__dirname + '/InstanceOverviewWidget.html','_')
+    overview_items: function() {
+    	
+    	var result = [
+
+    		{
+    			key: 'state',
+    			label: DT.text('state_label'),
+    			value: function(state) {
+    				return '<span class="' + formatters.statusClassFormatter(state) + '">' + state + '</span>';
+    			}
+    		}
+
+    	];
+
+    	if (this.model.get('state') === 'RUNNING') {
+    		result.push(
+    			{ key: 'as_of', label: DT.text('as_of_label') },
+    			{ key: 'currentWindowId', label: DT.text('current_wid_label'), title: DT.text('current_wid_title') },
+		    	{ key: 'recoveryWindowId', label: DT.text('recovery_wid_label'), title: DT.text('recovery_wid_title') },
+		    	{ key: 'stats', label: DT.text('processed_per_sec'), value: function(stats) { return stats.tuplesProcessedPSMA_f || '-' } },
+		    	{ key: 'stats', label: DT.text('emitted_per_sec'), value: function(stats) { return stats.tuplesEmittedPSMA_f || '-' } },
+		    	{ key: 'stats', label: DT.text('processed_total'), value: function(stats) { return stats.totalTuplesProcessed_f || '-' } },
+		    	{ key: 'stats', label: DT.text('emitted_total'), value: function(stats) { return stats.totalTuplesEmitted_f || '-' } },
+		    	{ key: 'stats', label: DT.text('num_operators'), value: function(stats) { return stats.numOperators } },
+		    	{ key: 'stats', label: DT.text('planned/alloc. containers'), value: function(stats, attrs) {
+		    		return stats.plannedContainers + ' / ' + stats.allocatedContainers + ' (' +  attrs.totalAllocatedMemory  + ' GB)';
+		    	}},
+			    { key: 'stats', label: DT.text('latency_ms_label'), value: function(stats) { return stats.latency } }
+    		);
+    	} else {
+    		result.push(
+				{ key: 'as_of', label: DT.text('ended_at_label') }
+    		);
+    	}
+
+    	result.push({
+    		key: 'up_for',
+    		label: DT.text('up_for_label')
+    	});
+
+    	return result;
+    }
     
 });
 exports = module.exports = Info

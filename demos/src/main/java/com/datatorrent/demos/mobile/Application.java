@@ -37,11 +37,25 @@ import java.net.URI;
 import java.util.Random;
 
 /**
- * Mobile Demo Application: It demonstrates ability to locate a cell phone in an
- * area code.
- * <p>
+ * Mobile Demo Application:
+ * <p> 
+ * This demo simulates large number of cell phones in the range of 40K to 200K
+ * and tracks a given cell number across cell towers. It also displays the changing locations of the cell number on a google map.
+ * 
+ * This demo demonstrates the scalability feature of Datatorrent platform. 
+ * It showcases the ability of the platform to scale up and down as the phone numbers generated increase and decrease respectively.
+ * If the tuples processed per second by the pmove operator increase beyond 30,000, more partitions of the pmove operator gets deployed until
+ * each of the partition processes around 10000 to 30000 tuples per second. 
+ * If the tuples processed per second drops below 10,000, the platform merges the operators until the partition count drops down to the original. 
+ * The load can be varied using the tuplesBlast property.
+ * If the tuplesBlast is set to 200, 40K cell phones are generated. 
+ * If the tuplesBlast is set to 1000, 200K cell phones are generated.
+ * The tuplesBlast property can be set using dtcli command: 'set-operator-property pmove tuplesBlast 1000'.    
+ * 
+ * 
  * The specs are as such<br>
- * 100K cells phones are tracked. They jump a cell tower frequently. Sometimes
+ * Depending on the tuplesBlast property, large number of cell phone numbers are generated.
+ * They jump a cell tower frequently. Sometimes
  * within a second sometimes in 10 seconds. The aim is to demonstrate the
  * following abilities<br>
  * <ul>
@@ -53,7 +67,9 @@ import java.util.Random;
  * partitions as per load</li>
  * <li></li>
  * </ul>
- *
+ * 
+ * Refer to demos/docs/MobileDemo.md for more information.
+ * 
  * <p>
  *
  * Running Java Test or Main app in IDE:
@@ -126,7 +142,7 @@ public class Application implements StreamingApplication
   {
     configure(dag, conf);
 
-    dag.setAttribute(DAG.APPLICATION_NAME, "MobileDemoApplication");
+    dag.setAttribute(DAG.APPLICATION_NAME, "MobileApplication");
     dag.setAttribute(DAG.DEBUG, true);
 
     RandomEventGenerator phones = dag.addOperator("phonegen", RandomEventGenerator.class);

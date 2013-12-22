@@ -105,6 +105,6 @@ var datatorrent = {
         this.widgets[name] = widget;
     },
     
-    lang: require('./lang')
+    text: require('./text')
 };
 exports = module.exports = datatorrent;

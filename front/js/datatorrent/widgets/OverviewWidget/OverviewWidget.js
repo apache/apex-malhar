@@ -28,14 +28,38 @@ var BaseView = require('../../WidgetView');
 var OverviewWidget = BaseView.extend({
     
     initialize: function(options){
+
         // Call super init
         BaseView.prototype.initialize.call(this, options);
         
         // Listen for changes
         this.listenTo(this.model, "change", this.renderContent);
     },
-    
+
+    html: function() {
+
+    	var attrs, html;
+
+        if (!this.overview_items) {
+            return BaseView.prototype.html.call(this);
+        }
+
+        if (typeof this.model.serialize === 'function') {
+            attrs = this.model.serialize();
+        } else {
+            attrs = this.model.toJSON();
+        }
+        
+    	html = this.overview_template({
+    		attrs: attrs,
+    		defs: _.result(this, 'overview_items')
+    	});
+    	return html;
+    },
+
     contentClass: 'page-overview',
+
+    overview_template: kt.make(__dirname+'/OverviewWidget.html')
     
 });
 

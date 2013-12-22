@@ -62,5 +62,38 @@ describe('ContainerModel.js', function() {
         });
         
     });
+
+    describe('updateOpAggValues method', function() {
+        
+        it('should call set', function() {
+            var spy = sandbox.spy();
+            var ctx = {
+                operators: {
+                    toJSON: function() { return [] }
+                },
+                set: spy
+            };
+
+            ContainerModel.prototype.updateOpAggValues.call(ctx);
+            expect(spy).to.have.been.calledOnce;
+        });
+
+        it('should set windowId attributes to 0 if no operators are present', function() {
+            var spy = sandbox.spy();
+            var ctx = {
+                operators: {
+                    toJSON: function() { return [] }
+                },
+                set: spy
+            };
+
+            ContainerModel.prototype.updateOpAggValues.call(ctx);
+
+            var aggregates = spy.getCall(0).args[0];
+            expect(aggregates).to.have.property('currentWindowId', '0');
+            expect(aggregates).to.have.property('recoveryWindowId', '0');
+        });
+
+    });
     
 });

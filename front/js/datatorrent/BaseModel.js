@@ -18,9 +18,12 @@ var Notifier = require('./Notifier');
 var Backbone = require('backbone');
 var settings = require('./settings');
 var util = require('./BaseUtil');
+var WindowId = require('./WindowId');
 var BaseModel = Backbone.Model.extend({
     
     debugName: 'model',
+
+    windowIdProperties: ['currentWindowId', 'recoveryWindowId'],
     
     initialize: function(attrs, options) {
         options = options || {};
@@ -78,6 +81,65 @@ var BaseModel = Backbone.Model.extend({
     fetchError: util.fetchError,
     
     responseFormatError: util.responseFormatError,
+
+    set: function(key, val, options) {
+
+        var attrs, windowUpdates = {}, changesToWindowAttrs = [], setResult;
+
+        if (typeof key === 'object') {
+            attrs = _.clone(key);
+            options = val;
+        } else {
+            (attrs = {})[key] = val;
+        }
+
+        options || (options = {});
+
+        // Remove window properties from attrs
+        _.each(this.windowIdProperties, function(windowKey) {
+            if (attrs.hasOwnProperty(windowKey)) {
+                windowUpdates[windowKey] = attrs[windowKey] instanceof WindowId 
+                    ? attrs[windowKey].value 
+                    : attrs[windowKey];
+
+                delete attrs[windowKey];
+            }
+        });
+
+        // Only proceed if the set worked
+        if (!_.isEmpty(windowUpdates)) {
+
+            _.each(windowUpdates, function(w, k) {
+
+                var current;
+
+                // Update current WindowId object if there
+                if ( (current = this.get(k)) instanceof WindowId && current.value !== w ) {
+                    current.set(w);
+                } 
+
+                // Otherwise create WindowId object
+                else {
+                    this.attributes[k] = new WindowId(w);
+                }
+
+                // Add key to the attrs to trigger a change event on
+                changesToWindowAttrs.push(k);
+
+            }, this);
+        
+            // trigger events if it is not silent
+            if (!options.silent) {
+                _.each(changesToWindowAttrs, function(changedKey) {
+                    this.trigger('change:' + changedKey, this, this.attributes[changedKey], options);
+                }, this);
+            }
+        }
+
+        // Call the super for set
+        return Backbone.Model.prototype.set.call(this, attrs, options);
+
+    },
 
     sync: function(method, model, options) {
         // READ/FETCH

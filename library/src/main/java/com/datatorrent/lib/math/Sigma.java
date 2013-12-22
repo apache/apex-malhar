@@ -15,6 +15,8 @@
  */
 package com.datatorrent.lib.math;
 
+import com.datatorrent.api.annotation.OperatorAnnotation;
+
 import java.util.Collection;
 
 /**
@@ -41,6 +43,7 @@ import java.util.Collection;
  * @param <T>
  * @since 0.3.3
  */
+@OperatorAnnotation(partitionable = false)
 public class Sigma<T extends Number> extends AbstractAggregateCalc<T>
 {
 	@Override

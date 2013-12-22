@@ -53,11 +53,11 @@ var AppMetricsWidget = BaseView.extend({
         var series = [{
             key: "tuplesEmittedPSMA",
             color: "#64c539",
-            label: "Emitted/sec"
+            label: DT.text('emitted_per_sec')
         }, {
             key: 'tuplesProcessedPSMA',
             color: '#1da8db',
-            label: 'Processed/sec'
+            label: DT.text('processed_per_sec')
         }, {
             key: 'totalBufferServerReadBytesPSMA',
             color: '#AE08CE',
@@ -96,8 +96,7 @@ var AppMetricsWidget = BaseView.extend({
             var json = this.model.toJSON();
             var stats = json.stats;
             stats.lastHeartbeat = +new Date();
-            if (stats.currentWindowId){
-                
+            if (json.currentWindowId){
                 this.addPoint(stats);
             }
         });

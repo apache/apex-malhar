@@ -2,4 +2,6 @@
 .project
 .settings/
 .metadata/
+.idea/
 target/
+*.iml
