@@ -35,28 +35,45 @@ a:hover {
 #wrapper [class*=" status-"] {
   font-weight: bold;
   text-shadow: 0;
+  display: inline-block;
+  vertical-align: middle;
+  padding-left: 16px;
+  background-repeat: no-repeat;
+  background-position: 2px center;
 }
 #wrapper .status-accepted {
+  background-image: url('../img/status_accepted.svg');
   color: #0084d7;
 }
 #wrapper .status-pending-deploy {
+  background-image: url('../img/status_accepted.svg');
   color: #0084d7;
 }
 #wrapper .status-running {
+  background-image: url('../img/status_running.svg');
   color: #009900;
 }
 #wrapper .status-active {
+  background-image: url('../img/status_running.svg');
   color: #009900;
 }
 #wrapper .status-failed {
+  background-image: url('../img/status_error.svg');
   color: #bb0000;
 }
 #wrapper .status-killed {
+  background-image: url('../img/status_killed.svg');
   color: #773333;
 }
 #wrapper .status-finished {
+  background-image: url('../img/status_inactive.svg');
   color: #555555;
 }
 #wrapper .status-inactive {
+  background-image: url('../img/status_inactive.svg');
   color: #555555;
+}
+#wrapper .status-submitted {
+  background-image: url('../img/status_submitted.svg');
+  color: #48737f;
 }
