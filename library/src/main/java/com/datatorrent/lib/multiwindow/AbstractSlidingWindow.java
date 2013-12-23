@@ -27,7 +27,7 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 /**
  *
  * <p>A sliding window class that lets users access both states of all streaming window in CURRENT sliding window
- * and state of the staled streaming window from LAST sliding windows</p><br>
+ * and state of the expired streaming window from LAST sliding windows</p><br>
  * 
  * <b>Properties</b>:<br>
  * <b>T</b> is the tuple object the operator accept <br>
@@ -52,7 +52,7 @@ public abstract class AbstractSlidingWindow<T, S> extends BaseOperator
 
 	protected ArrayList<S> states = null;
 	
-	protected S staleWindowState = null;
+	protected S lastExpiredWindowState = null;
 	
 	protected int currentCursor = -1;
 
@@ -94,14 +94,14 @@ public abstract class AbstractSlidingWindow<T, S> extends BaseOperator
 	 *
 	 * @param i 
 	 *   0 the state of the first coming streaming window 
-	 *   -1 the state of the staled streaming window 
+	 *   -1 the state of the last expired streaming window 
 	 * @return State of the streaming window
 	 * @throws ArrayIndexOutOfBoundsException if i >= sliding window size
 	 */
 	public S getStreamingWindowState(int i)
 	{
 	  if(i == -1){
-	    return staleWindowState;
+	    return lastExpiredWindowState;
 	  }
 		if (i >= getWindowSize()) {
 			throw new ArrayIndexOutOfBoundsException();
@@ -122,8 +122,8 @@ public abstract class AbstractSlidingWindow<T, S> extends BaseOperator
 	{
 	  // move currentCursor 1 position
 		currentCursor = (currentCursor + 1) % windowSize;
-		// stale the top state at the first position of the sliding application window 
-		staleWindowState = states.get(currentCursor);
+		// expire the state at the first position which is the state of the streaming window moving out of the current application window 
+		lastExpiredWindowState = states.get(currentCursor);
 		
 		states.set(currentCursor, createWindowState());
 		

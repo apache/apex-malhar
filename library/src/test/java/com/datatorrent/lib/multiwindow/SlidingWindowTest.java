@@ -100,7 +100,7 @@ public class SlidingWindowTest
 				swinSink.collectedTuples.size());
 		
 		assertEquals("Invalid second stream window state.", oper.getStreamingWindowState(1), Lists.newArrayList("a2", "b2"));
-		assertEquals("Invalid staled stream window state.", oper.staleWindowState, Lists.newArrayList("a0", "b0"));
+		assertEquals("Invalid expired stream window state.", oper.lastExpiredWindowState, Lists.newArrayList("a0", "b0"));
 
 	}
 }

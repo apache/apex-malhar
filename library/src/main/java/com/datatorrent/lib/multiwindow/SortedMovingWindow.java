@@ -44,7 +44,7 @@ import com.google.common.base.Function;
 * by default: comparator is null which means the tuple must be comparable
 * <p></p>
 *
-* @since 0.3.3
+* @since 0.9.2
 */
 public class SortedMovingWindow<T, K> extends AbstractSlidingWindow<T, List<T>>
 {
@@ -56,7 +56,7 @@ public class SortedMovingWindow<T, K> extends AbstractSlidingWindow<T, List<T>>
   
   private Map<K, PriorityQueue<T>> sortedListInSlidingWin = new HashMap<K, PriorityQueue<T>>();
 
-  private List<T> tuplesInCurrentSteamWin = new LinkedList<T>();
+  private List<T> tuplesInCurrentStreamWindow = new LinkedList<T>();
 
   @NotNull
   private Function<T, K> function = new SingleKeyMappingFunction<T, K>();
@@ -66,7 +66,7 @@ public class SortedMovingWindow<T, K> extends AbstractSlidingWindow<T, List<T>>
   @Override
   void processDataTuple(T tuple)
   {
-    tuplesInCurrentSteamWin.add(tuple);
+    tuplesInCurrentStreamWindow.add(tuple);
     K key = function.apply(tuple);
     PriorityQueue<T> sortedList = sortedListInSlidingWin.get(key);
     if (sortedList == null) {
@@ -80,7 +80,7 @@ public class SortedMovingWindow<T, K> extends AbstractSlidingWindow<T, List<T>>
   @Override
   public List<T> createWindowState()
   {
-    return tuplesInCurrentSteamWin;
+    return tuplesInCurrentStreamWindow;
   }
 
   @SuppressWarnings("unchecked")
@@ -88,32 +88,33 @@ public class SortedMovingWindow<T, K> extends AbstractSlidingWindow<T, List<T>>
   public void endWindow()
   {
     super.endWindow();
-    tuplesInCurrentSteamWin = new LinkedList<T>();
-    if(staleWindowState == null){
+    tuplesInCurrentStreamWindow = new LinkedList<T>();
+    if(lastExpiredWindowState == null){
       // not ready to emit value or empty in a certain window
       return;
     }
-    for (T staleE : staleWindowState) {
-      PriorityQueue<T> sortedListForE = sortedListInSlidingWin.get(function.apply(staleE));
+    // Assumption: the expiring tuple and any tuple before are already sorted. So it's safe to emit tuples from sortedListInSlidingWin till the expiring tuple
+    for (T expiredTuple : lastExpiredWindowState) {
+      // Find sorted list for the given key
+      PriorityQueue<T> sortedListForE = sortedListInSlidingWin.get(function.apply(expiredTuple));
       for (Iterator<T> iterator = sortedListForE.iterator(); iterator.hasNext();) {
         T minElemInSortedList = iterator.next();
         int k = 0;
         if (comparator == null) {
-          if (staleE instanceof Comparable) {
-            k = ((Comparable<T>) staleE).compareTo(minElemInSortedList);
+          if (expiredTuple instanceof Comparable) {
+            k = ((Comparable<T>) expiredTuple).compareTo(minElemInSortedList);
           } else {
-            errorOutput.emit(staleE);
-            throw new IllegalArgumentException("Operator \"" + getName() + "\" encounters an invalid tuple " + staleE + "\nNeither the tuple is comparable Nor Comparator is specified!");
+            errorOutput.emit(expiredTuple);
+            throw new IllegalArgumentException("Operator \"" + getName() + "\" encounters an invalid tuple " + expiredTuple + "\nNeither the tuple is comparable Nor Comparator is specified!");
           }
         } else {
-          k = comparator.compare(staleE, minElemInSortedList);
+          k = comparator.compare(expiredTuple, minElemInSortedList);
         }
         if (k < 0) {
-          // staleE less than the first element in the list which mean the staleE has been emitted before, skip this
+          // If the expiring tuple is less than the first element of the sorted list. It means this tuple must be emitted before
           break;
         } else if (k >= 0) {
-          // if staleE is greater or equal to the first element. Because staleE is moving out the window, any element
-          // prior to staleE is safe to be emitted
+          // Emit the element in sorted list if it's less than the expiring tuple 
           outputPort.emit(minElemInSortedList);
           // remove the element from the sorted list
           iterator.remove();
