@@ -111,9 +111,9 @@ public class SortedMovingWindow<T, K> extends AbstractSlidingWindow<T, List<T>>
           k = comparator.compare(expiredTuple, minElemInSortedList);
         }
         if (k < 0) {
-          // If the expiring tuple is less than the first element of the sorted list. It means this tuple must be emitted before
+          // If the expiring tuple is less than the first element of the sorted list. No more tuples to emit
           break;
-        } else if (k >= 0) {
+        } else {
           // Emit the element in sorted list if it's less than the expiring tuple 
           outputPort.emit(minElemInSortedList);
           // remove the element from the sorted list
