@@ -16,7 +16,7 @@
 
 'use strict';
 
-angular.module('app', ['ui.router', 'app.service', 'app.directive', 'app.controller', 'app.filter', 'ui.bootstrap']);
+angular.module('app', ['ui.router', 'ngAnimate', 'app.service', 'app.directive', 'app.controller', 'app.filter', 'ui.bootstrap']);
 
 angular.module('app')
   .constant('settings', window.settings)

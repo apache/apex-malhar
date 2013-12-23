@@ -1,40 +1,54 @@
 <div class="row-fluid job-progress-header">
     <h2>Job Progress</h2>
-    <span class="job-label">Job Id:</span> {{activeJobId}}
+    <span ng-show="activeJobId"><span class="job-label">Job Id:</span> {{activeJobId}}</span>
+    <span class="alert" ng-hide="activeJobId">Please select a job to monitor</span>
 </div>
 
-<div class="row-fluid" ng-controller="JobGridController">
-    <!--
-    <div class="span8">
-        <h2>Job Progress Chart</h2>
-        <line-chart chart="chart" class="line-chart"></line-chart>
-    </div><!--/span-->
-    <div class="span6 grid-container">
-        <div ng-grid="gridOptions" class="job-progress-grid"></div>
-    </div><!--/span-->
-    <div class="span6">
-        <small><em>Map - {{progress.map.progress | number:2}}%</em></small>
-        <progress percent="progress.map.progress" class="progress-striped"
-                  ng-class="{'active': progress.map.active}">
-        </progress>
-
-        <small><em>Reduce - {{progress.reduce.progress | number:2}}%</em></small>
-        <progress percent="progress.reduce.progress" class="progress-striped"
-                  ng-class="{'active': progress.reduce.active}">
-        </progress>
-
-        <small><em>Total - {{progress.total.progress | number:2}}%</em></small>
-        <progress percent="progress.total.progress" class="progress-striped"
-                  ng-class="{'active': progress.total.active}">
-        </progress>
-
-    </div><!--/span-->
-</div><!--/row-->
+<div class="row-fluid job-progress" ng-controller="JobGridController">
+    <div class="span12">
+        <table class="table" style="width:500px">
+            <thead>
+            <tr>
+                <th>Task</th>
+                <th>Complete</th>
+                <th>Running</th>
+                <th>Total</th>
+                <th>Progress</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Map</td>
+                <td>{{jobProgress.map.complete}}</td>
+                <td>{{jobProgress.map.running}}</td>
+                <td>{{jobProgress.map.total}}</td>
+                <td>{{jobProgress.map.progress | percentage}}</td>
+                <td>
+                    <progress percent="jobProgress.map.progress" class="progress-striped"
+                            ng-class="{'active': jobProgress.map.active}" />
+                </td>
+            </tr>
+            <tr>
+                <td>Reduce</td>
+                <td>{{jobProgress.reduce.complete}}</td>
+                <td>{{jobProgress.reduce.running}}</td>
+                <td>{{jobProgress.reduce.total}}</td>
+                <td>{{jobProgress.reduce.progress | percentage}}</td>
+                <td>
+                    <progress percent="jobProgress.reduce.progress" class="progress-striped"
+                            ng-class="{'active': jobProgress.reduce.active}" />
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 
 <div class="row-fluid counters" ng-controller="CounterController">
     <h2>Counters</h2>
 
-    <select ng-model="counterGroupName" ng-options="name for name in counterGroupNames" />
+    <select ng-model="counterGroupName" ng-options="name for name in counterGroupNames"></select>
 
     <div class="table-container">
         <table class="table">

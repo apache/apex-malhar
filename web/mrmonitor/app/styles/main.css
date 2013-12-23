@@ -44,8 +44,16 @@ body {
     height: 400px;
 }
 
-.monitored-jobs-grid {
+.ngGrid {
     border: 1px solid rgb(212,212,212);
+}
+
+.app-list-grid {
+    width: 900px;
+    height: 500px;
+}
+
+.monitored-jobs-grid {
     width: 900px;
     height: 150px;
 }
@@ -60,7 +68,6 @@ body {
 }
 
 .job-progress-grid {
-    border: 1px solid rgb(212,212,212);
     width: 500px;
     height: 200px;
 }
@@ -77,23 +84,24 @@ body {
 }
 
 .task-progress-grid {
-    border: 1px solid rgb(212,212,212);
     width: 500px;
     height: 200px;
 }
 
-.progress {
-    width: 300px;
-    height: 30px;
-    line-height: 30px;
-    vertical-align: middle;
+.job-progress .progress {
+    width: 200px;
+    margin-bottom: 0;
 }
 
-.progress .bar {
+.job-progress .progress .bar {
     padding-left: 20px;
     color: black;
     white-space: nowrap;
     text-align: left;
+}
+
+.job-progress .table tr {
+    height: 30px;
 }
 
 .job-label {
@@ -122,6 +130,20 @@ body {
     width: auto;
 }
 
+.applist .progress {
+    display: inline-block;
+    margin-bottom: 0;
+    width: 70px;
+}
+
+.monitored-jobs h2, .applist h2 {
+    display: inline-block;
+}
+
+.loading {
+    margin-left: 20px;
+}
+
 /* TODO */
 
 /*
@@ -133,3 +155,23 @@ body {
     background-color: red;
 }
 */
+
+
+/* animations */
+.loading {
+    -webkit-transition: all linear 2s;
+    transition: all linear 2s;
+    opacity: 1;
+}
+
+.loading.ng-hide-add, .animate-hide.ng-hide-remove {
+    display: inline !important;
+}
+
+.loading.ng-hide {
+    opacity: 0;
+}
+
+.check-element {
+    padding:10px;
+}

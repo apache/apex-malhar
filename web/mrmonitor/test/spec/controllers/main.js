@@ -32,6 +32,10 @@ describe('Controller: MainCtrl', function () {
       return mockRestService;
     });
 
+    $provide.factory('$state', function () {
+      return {};
+    });
+
     $provide.factory('$stateParams', function () {
       return {};
     });
