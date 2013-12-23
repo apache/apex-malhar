@@ -4,19 +4,23 @@
  */
 package com.datatorrent.flume.sink;
 
-import com.datatorrent.common.util.Slice;
-import java.io.IOException;
+import java.net.SocketAddress;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.apache.flume.*;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.sink.AbstractSink;
 
+import com.datatorrent.common.util.Slice;
+import com.datatorrent.flume.discovery.Discovery;
 import com.datatorrent.flume.sink.Server.Request;
 import com.datatorrent.flume.storage.Storage;
 import com.datatorrent.netlet.DefaultEventLoop;
-import java.util.Arrays;
 
 /**
  * DTFlumeSink is a flume sink developed to ingest the data into DataTorrent DAG
@@ -46,7 +50,6 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   private int idleCount;
   private byte[] playback;
   private boolean process;
-  private Storage storage;
   private String hostname;
   private int port;
   private String eventloopName;
@@ -54,16 +57,8 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   private double throughputAdjustmentFactor;
   private int minimumEventsPerTransaction;
   private int maximumEventsPerTransaction;
-
-  public DTFlumeSink()
-  {
-    try {
-      server = new Server();
-    }
-    catch (Exception ex) {
-      throw new RuntimeException(ex);
-    }
-  }
+  private Storage storage;
+  Discovery discovery;
 
   /* Begin implementing Flume Sink interface */
   @Override
@@ -215,23 +210,28 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   @Override
   public void start()
   {
-    logger.debug("Starting server binding at {}:{}", hostname, port);
     try {
       eventloop = new DefaultEventLoop(eventloopName == null ? "EventLoop-" + getName() : eventloopName);
+      server = new Server(discovery);
     }
-    catch (IOException ex) {
+    catch (Error error) {
+      throw error;
+    }
+    catch (RuntimeException re) {
+      throw re;
+    }
+    catch (Throwable ex) {
       throw new RuntimeException(ex);
     }
+
     eventloop.start();
     eventloop.start(hostname, port, server);
-    logger.info("Server listening at {}:{}.", hostname, port);
     super.start();
   }
 
   @Override
   public void stop()
   {
-    logger.debug("Stopping server at {}:{}", hostname, port);
     try {
       super.stop();
     }
@@ -239,18 +239,16 @@ public class DTFlumeSink extends AbstractSink implements Configurable
       eventloop.stop(server);
       eventloop.stop();
     }
-    logger.info("Stopped server at {}:{}", hostname, port);
   }
 
   /* End implementing Flume Sink interface */
 
   /* Begin Configurable Interface */
   @Override
-  @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch"})
   public void configure(Context context)
   {
     hostname = context.getString("hostname", "localhost");
-    port = context.getInteger("port", 5033);
+    port = context.getInteger("port", 0);
     eventloopName = context.getString("eventloopName");
     sleepMillis = context.getLong("sleepMillis", 5L);
     throughputAdjustmentFactor = context.getInteger("throughputAdjustmentPercent", 5) / 100.0;
@@ -259,8 +257,35 @@ public class DTFlumeSink extends AbstractSink implements Configurable
 
     logger.debug("hostname = {}\nport = {}\neventloopName = {}\nsleepMillis = {}\nthroughputAdjustmentFactor = {}\nmaximumEventsPerTransaction = {}\nminimumEventsPerTransaction = {}", hostname, port, eventloopName, sleepMillis, throughputAdjustmentFactor, maximumEventsPerTransaction, minimumEventsPerTransaction);
 
-    String lStorage = context.getString("storage");
-    if (lStorage == null) {
+    discovery = configure("discovery", Discovery.class, context);
+    if (discovery == null) {
+      logger.warn("Discovery agent not configured for the sink!");
+      discovery = new Discovery()
+      {
+        @Override
+        public void advertise(SocketAddress address)
+        {
+          logger.debug("Sink started listening on {}", address);
+        }
+
+        @Override
+        public void unadvertise(SocketAddress address)
+        {
+          logger.debug("Sink stopped listening on {}", address);
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public Collection<SocketAddress> discover()
+        {
+          return Collections.EMPTY_SET;
+        }
+
+      };
+    }
+
+    storage = configure("storage", Storage.class, context);
+    if (storage == null) {
       logger.warn("storage key missing... DTFlumeSink may lose data!");
       storage = new Storage()
       {
@@ -301,31 +326,45 @@ public class DTFlumeSink extends AbstractSink implements Configurable
 
       };
     }
-    else {
-      try {
-        Class<?> loadClass = Thread.currentThread().getContextClassLoader().loadClass(lStorage);
-        if (Storage.class.isAssignableFrom(loadClass)) {
-          storage = (Storage)loadClass.newInstance();
-          if (storage instanceof Configurable) {
-            ((Configurable)storage).configure(new Context(context.getSubProperties("storage.")));
-          }
-        }
-        else {
-          logger.error("storage class {} does not implement {} interface", lStorage, Storage.class.getCanonicalName());
-          throw new Error("Invalid storage " + lStorage);
-        }
-      }
-      catch (Throwable t) {
-        if (t instanceof RuntimeException) {
-          throw (RuntimeException)t;
-        }
-        else {
-          throw new RuntimeException(t);
-        }
-      }
-    }
+
   }
   /* End Configurable Interface */
+
+  private static <T> T configure(String key, Class<T> clazz, Context context)
+  {
+    String classname = context.getString(key);
+    if (classname == null) {
+      return null;
+    }
+
+    try {
+      Class<?> loadClass = Thread.currentThread().getContextClassLoader().loadClass(classname);
+      if (clazz.isAssignableFrom(loadClass)) {
+        @SuppressWarnings("unchecked")
+        T object = (T)loadClass.newInstance();
+        if (object instanceof Configurable) {
+          ((Configurable)object).configure(new Context(context.getSubProperties(key + '.')));
+        }
+        return object;
+
+      }
+      else {
+        logger.error("storage class {} does not implement {} interface", classname, Storage.class
+                .getCanonicalName());
+        throw new Error(
+                "Invalid storage " + classname);
+      }
+    }
+    catch (Error error) {
+      throw error;
+    }
+    catch (RuntimeException re) {
+      throw re;
+    }
+    catch (Throwable t) {
+      throw new RuntimeException(t);
+    }
+  }
 
   /**
    * @return the hostname
@@ -360,4 +399,20 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   }
 
   private static final Logger logger = LoggerFactory.getLogger(DTFlumeSink.class);
+
+  /**
+   * @return the discovery
+   */
+  Discovery getDiscovery()
+  {
+    return discovery;
+  }
+
+  /**
+   * @param discovery the discovery to set
+   */
+  void setDiscovery(Discovery discovery)
+  {
+    this.discovery = discovery;
+  }
 }
