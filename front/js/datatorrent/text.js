@@ -54,9 +54,10 @@ var textHash = {
     'latency_ms_label'           :  'latency (ms)',
     'cpu_percentage_label'       :  'cpu %',
     'failure_count_label'        :  'failures',
-    'last_heartbeat_label'       :  'last heartbeat'
-
-    
+    'last_heartbeat_label'       :  'last heartbeat',
+    'container_id_label'         :  'container id',
+    'host_label'                 :  'host',
+    'locality_not_assigned'      :  'AUTOMATIC'
 };
 
 function getTextItem(key) {

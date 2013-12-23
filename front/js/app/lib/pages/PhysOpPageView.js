@@ -91,7 +91,7 @@ var PhysOpPageView = BasePageView.extend({
 
             {
                 name: 'opmetrics',
-                defaultId: 'metric chart', 
+                defaultId: 'metrics', 
                 view: OpMetricsWidget,
                 limit: 0, inject: {
                     model: function() {
@@ -157,7 +157,7 @@ var PhysOpPageView = BasePageView.extend({
                 { widget: 'info', id: 'info', width: 60 },
                 { widget: 'action', id: 'actions', width: 40 },
                 { widget: 'overview', id: 'overview'},
-                { widget: 'opmetrics', id: 'opmetrics'}
+                { widget: 'opmetrics', id: 'metrics'}
             ]
         }
     ],

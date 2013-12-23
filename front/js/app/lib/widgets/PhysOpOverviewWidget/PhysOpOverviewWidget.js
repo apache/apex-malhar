@@ -23,19 +23,66 @@ var templates = DT.templates;
 var kt = require('knights-templar');
 var BaseView = DT.widgets.OverviewWidget;
 var PhysOpOverviewWidget = BaseView.extend({
-
-    html: function() {
-        var json = this.model.serialize();
-        json['cpuPercentageMA'] = formatters.percentageFormatter(json['cpuPercentageMA'], true);
-        json['containerLink'] = templates.container_link({
-            appId: json.appId,
-            containerId: json.container,
-            containerIdShort: json.container.replace(/.*_(\d+)$/, '$1')
-        });
-        return this.template(json);
-    },
     
-    template: kt.make(__dirname+'/PhysOpOverviewWidget.html','_')
+    overview_items: [
+        {
+            key: 'status',
+            label: DT.text('status_label'),
+            value: function() {
+                return '<span class="' + formatters.statusClassFormatter(status) + '">' + status + '</span>';
+            }
+        },
+        {
+            key: 'tuplesProcessedPSMA_f',
+            label: DT.text('processed_per_sec')
+        },
+        {
+            key: 'totalTuplesProcessed_f',
+            label: DT.text('processed_total')
+        },
+        {
+            key: 'tuplesEmittedPSMA_f',
+            label: DT.text('emitted_per_sec')
+        },
+        {
+            key: 'totalTuplesEmitted_f',
+            label: DT.text('emitted_total')
+        },
+        {
+            key: 'container',
+            label: DT.text('container_id_label'),
+            value: function(container, json) {
+                return templates.container_link({
+                    appId: json.appId,
+                    containerId: container,
+                    containerIdShort: container.replace(/.*_(\d+)$/, '$1')
+                });
+            }
+        },
+        {
+            key: 'host',
+            label: DT.text('host_label')
+        },
+        {
+            key: 'currentWindowId',
+            label: DT.text('current_wid_label')
+        },
+        {
+            key: 'recoveryWindowId',
+            label: DT.text('recovery_wid_label')
+        },
+        {
+            key: 'latencyMA',
+            label: DT.text('latency_ms_label')
+        },
+        {
+            key: 'cpuPercentageMA',
+            label: DT.text('cpu_percentage_label'),
+            value: function(cpu) {
+                return formatters.percentageFormatter(cpu, true);
+            }
+        }
+    ]
     
 });
 exports = module.exports = PhysOpOverviewWidget;

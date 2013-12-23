@@ -31,7 +31,7 @@ function sinksFormatter(sinks) {
     return sinkStrings.join(', ');
 }
 function localityFormatter(locality, row) {
-    return locality || 'NOT ASSIGNED';
+    return locality || DT.text('locality_not_assigned');
 }
 
 exports = module.exports = [
