@@ -4,6 +4,7 @@
  */
 package com.datatorrent.flume.sink;
 
+import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.common.util.Slice;
+import com.datatorrent.flume.discovery.Discovery;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 
 /**
@@ -21,6 +23,27 @@ import com.datatorrent.netlet.AbstractLengthPrependerClient;
  */
 public class Server extends com.datatorrent.netlet.Server
 {
+  private final Discovery discovery;
+
+  public Server(Discovery discovery)
+  {
+    this.discovery = discovery;
+  }
+
+  @Override
+  public void unregistered(SelectionKey key)
+  {
+    discovery.unadvertise(getServerAddress());
+    super.unregistered(key);
+  }
+
+  @Override
+  public void registered(SelectionKey key)
+  {
+    super.registered(key);
+    discovery.advertise(getServerAddress());
+  }
+
   public enum Command
   {
     ECHO((byte)0),
@@ -107,6 +130,7 @@ public class Server extends com.datatorrent.netlet.Server
     {
       super.connected();
       Server.this.client = this;
+      Server.this.discovery.unadvertise(Server.this.getServerAddress());
 
       synchronized (requests) {
         requests.add(Request.getRequest(new byte[] {Command.CONNECTED.getOrdinal(), 0, 0, 0, 0, 0, 0, 0, 0}, 0));
@@ -119,6 +143,7 @@ public class Server extends com.datatorrent.netlet.Server
       synchronized (requests) {
         requests.add(Request.getRequest(new byte[] {Command.DISCONNECTED.getOrdinal(), 0, 0, 0, 0, 0, 0, 0, 0}, 0));
       }
+      Server.this.discovery.advertise(Server.this.getServerAddress());
       Server.this.client = null;
       super.disconnected();
     }
