@@ -229,7 +229,7 @@ var AppInstancePageView = BasePageView.extend({
                     }
                 },
                 {
-                    name: 'physicalDag',
+                    name: 'physicalDAG',
                     defaultId: 'physical DAG',
                     view: PhysicalDagWidget,
                     limit: 0,
@@ -301,7 +301,7 @@ var AppInstancePageView = BasePageView.extend({
                 { widget: 'instanceInfo', id: 'info', width: 60 },
                 { widget: 'instanceAction', id: 'actions', width: 40 },
                 { widget: 'instanceOverview', id: 'overview' },
-                { widget: 'appDag', id: 'logical DAG' },
+                { widget: 'logicalDAG', id: 'logical DAG' },
                 { widget: 'logicalOperatorList', id: 'logical operators' },
                 { widget: 'appMetrics', id: 'metrics', width: 60 },
                 { widget: 'streamList', id: 'stream list', width: 40 },
@@ -324,7 +324,7 @@ var AppInstancePageView = BasePageView.extend({
             dash_id: 'physical-dag-view',
             widgets: [
                 { widget: 'instanceInfo', id: 'info' },
-                { widget: 'physDag', id: 'appDag' }
+                { widget: 'physicalDAG', id: 'physical DAG' }
             ]
         },
         {

@@ -137,7 +137,9 @@ var DagWidget = BaseView.extend({
     	// empty implementation (not required)
     },
 
-    postRender: forceImplement('postRender'),
+    postRender: function() {
+        // empty implementation
+    },
 
     /**
      * Creates minimap of the dag view.
