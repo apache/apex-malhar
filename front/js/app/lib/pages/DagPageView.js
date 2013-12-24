@@ -24,7 +24,7 @@ var ApplicationModel = DT.lib.ApplicationModel;
 
 // widgets
 var InstanceInfoWidget = require('../widgets/InstanceInfoWidget');
-var AppDagWidget = require('../widgets/AppDagWidget');
+var PhysicalDagWidget = require('../widgets/PhysicalDagWidget');
 
 var DagPageView = BasePageView.extend({
 
@@ -65,7 +65,7 @@ var DagPageView = BasePageView.extend({
                     return this.model;
                 }
             }},
-            { name: 'appDag', defaultId: 'appDag', view: AppDagWidget, limit: 0, inject: {
+            { name: 'appDag', defaultId: 'appDag', view: PhysicalDagWidget, limit: 0, inject: {
                 dataSource: this.dataSource,
                 model: function() {
                     return this.model
