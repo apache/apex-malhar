@@ -96,7 +96,6 @@ public class Server extends com.datatorrent.netlet.Server
     private final byte ord;
   }
 
-  Client client;
   public final ArrayList<Request> requests = new ArrayList<Request>(4);
 
   @Override
@@ -119,32 +118,30 @@ public class Server extends com.datatorrent.netlet.Server
         return;
       }
 
-      Request r = Request.getRequest(buffer, offset);
+      Request r = Request.getRequest(buffer, offset, this);
       synchronized (requests) {
         requests.add(r);
       }
     }
 
-    @Override
-    public void connected()
-    {
-      super.connected();
-      Server.this.client = this;
-      Server.this.discovery.unadvertise(Server.this.getServerAddress());
-
-      synchronized (requests) {
-        requests.add(Request.getRequest(new byte[] {Command.CONNECTED.getOrdinal(), 0, 0, 0, 0, 0, 0, 0, 0}, 0));
-      }
-    }
-
+//    @Override
+//    public void connected()
+//    {
+//      super.connected();
+//      Server.this.client = this;
+//      Server.this.discovery.unadvertise(Server.this.getServerAddress());
+//
+//      synchronized (requests) {
+//        requests.add(Request.getRequest(new byte[] {Command.CONNECTED.getOrdinal(), 0, 0, 0, 0, 0, 0, 0, 0}, 0));
+//      }
+//    }
     @Override
     public void disconnected()
     {
       synchronized (requests) {
-        requests.add(Request.getRequest(new byte[] {Command.DISCONNECTED.getOrdinal(), 0, 0, 0, 0, 0, 0, 0, 0}, 0));
+        requests.add(Request.getRequest(new byte[] {Command.DISCONNECTED.getOrdinal(), 0, 0, 0, 0, 0, 0, 0, 0}, 0, this));
       }
-      Server.this.discovery.advertise(Server.this.getServerAddress());
-      Server.this.client = null;
+//      Server.this.discovery.advertise(Server.this.getServerAddress());
       super.disconnected();
     }
 
@@ -164,10 +161,12 @@ public class Server extends com.datatorrent.netlet.Server
   public static abstract class Request
   {
     public final Command type;
+    public final Client client;
 
-    public Request(Command type)
+    public Request(Command type, Client client)
     {
       this.type = type;
+      this.client = client;
     }
 
     public abstract Slice getAddress();
@@ -182,12 +181,12 @@ public class Server extends com.datatorrent.netlet.Server
       return "Request{" + "type=" + type + '}';
     }
 
-    public static Request getRequest(final byte[] buffer, final int offset)
+    public static Request getRequest(final byte[] buffer, final int offset, Client client)
     {
       Command command = Command.getCommand(buffer[offset]);
       switch (command) {
         case WINDOWED:
-          return new Request(Command.WINDOWED)
+          return new Request(Command.WINDOWED, client)
           {
             final int eventCount;
             final int idleCount;
@@ -224,7 +223,7 @@ public class Server extends com.datatorrent.netlet.Server
           };
 
         default:
-          return new Request(command)
+          return new Request(command, client)
           {
             final Slice address;
 

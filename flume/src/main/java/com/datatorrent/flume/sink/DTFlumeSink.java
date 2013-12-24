@@ -18,6 +18,7 @@ import org.apache.flume.sink.AbstractSink;
 
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.flume.discovery.Discovery;
+import com.datatorrent.flume.sink.Server.Client;
 import com.datatorrent.flume.sink.Server.Request;
 import com.datatorrent.flume.storage.Storage;
 import com.datatorrent.netlet.DefaultEventLoop;
@@ -49,7 +50,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   private int lastConsumedEventsCount;
   private int idleCount;
   private byte[] playback;
-  private boolean process;
+  private Client client;
   private String hostname;
   private int port;
   private String eventloopName;
@@ -73,7 +74,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
           case SEEK:
             slice = r.getAddress();
             playback = storage.retrieve(Arrays.copyOfRange(slice.buffer, slice.offset, slice.offset + slice.length));
-            process = true;
+            client = r.client;
             break;
 
           case COMMITTED:
@@ -82,8 +83,13 @@ public class DTFlumeSink extends AbstractSink implements Configurable
             break;
 
           case CONNECTED:
+            logger.debug("Connected received, ignoring it!");
+            break;
+
           case DISCONNECTED:
-            process = false;
+            if (r.client == client) {
+              client = null;
+            }
             break;
 
           case WINDOWED:
@@ -101,7 +107,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
       server.requests.clear();
     }
 
-    if (!process) {
+    if (client == null) {
       logger.debug("No client expressed interest yet to consume the events");
       return Status.BACKOFF;
     }
@@ -140,7 +146,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
         logger.debug("playback mode is active.");
         int i = 0;
         do {
-          server.client.write(playback);
+          client.write(playback);
           playback = storage.retrieveNext();
         }
         while (++i < maxTuples && playback != null);
@@ -158,7 +164,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
           while (i < maxTuples && (e = getChannel().take()) != null) {
             byte[] address = storage.store(e.getBody());
             if (address != null) {
-              server.client.write(address, e.getBody());
+              client.write(address, e.getBody());
             }
             else {
               logger.debug("Detected the condition of recovery from flume crash!");
