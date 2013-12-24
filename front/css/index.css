@@ -33,7 +33,7 @@
 @import url("../js/app/lib/widgets/TupleViewerWidget/TupleViewerWidget.css");
 
 /* @import url("../js/app/lib/widgets/ActionWidget/ActionWidget.css"); */
-@import url("../js/app/lib/widgets/AppDagWidget/AppDagWidget.css");
+@import url("../js/app/lib/widgets/DagWidget/DagWidget.css");
 @import url("../js/app/lib/widgets/LogicalDagWidget/LogicalDagWidget.css");
 @import url("../js/app/lib/widgets/OpChartWidget/OpChartWidget.css");
 @import url("../js/app/lib/widgets/JarListWidget/JarListWidget.css");

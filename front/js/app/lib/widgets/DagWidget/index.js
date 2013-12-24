@@ -13,4 +13,4 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-exports = module.exports = require('./LogicalOpOverviewWidget');
+exports = module.exports = require('./DagWidget');
