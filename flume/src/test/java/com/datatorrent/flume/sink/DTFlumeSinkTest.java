@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.junit.Test;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.flume.channel.MemoryChannel;
@@ -124,5 +125,5 @@ public class DTFlumeSinkTest
     sink.stop();
   }
 
-  private static final org.slf4j.Logger logger = LoggerFactory.getLogger(DTFlumeSinkTest.class);
+  private static final Logger logger = LoggerFactory.getLogger(DTFlumeSinkTest.class);
 }
