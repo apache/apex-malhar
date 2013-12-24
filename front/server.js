@@ -34,6 +34,9 @@ app.configure(function(){
 app.get('/ws/*', function(req, res) {
     proxy.proxyRequest(req, res);
 });
+app.post('/ws/*', function(req, res) {
+    proxy.proxyRequest(req, res);
+});
 
 // Main entry page
 app.get('/', function(req, res) {

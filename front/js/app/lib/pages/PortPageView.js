@@ -61,7 +61,7 @@ var PortPageView = BasePageView.extend({
                 model: this.model,
                 nav: this.app.nav
             }},
-            { name: 'portmetrics', defaultId: 'port metrics', view: PortMetricsWidget, limit: 0, inject: {
+            { name: 'portmetrics', defaultId: 'metrics', view: PortMetricsWidget, limit: 0, inject: {
                 model: this.model,
                 nav: this.app.nav
             }}
@@ -76,7 +76,7 @@ var PortPageView = BasePageView.extend({
             widgets: [
                 { widget: 'info', id: 'info' },
                 { widget: 'overview', id: 'overview'},
-                { widget: 'portmetrics', id: 'port metrics'}
+                { widget: 'portmetrics', id: 'metrics'}
             ]
         }
     ],

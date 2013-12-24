@@ -45,11 +45,11 @@ var Header = BaseView.extend({
             client_logo: "client_logo_hadoop.jpg",
             version: this.UIVersion
         });
-        this.$('.ui-version').tooltip('destroy');
+        // this.$('#header .brand').tooltip('destroy');
         this.$el.html(markup);
-        this.$('.ui-version').tooltip({
-            position: { my: "left-10 top+5", at: "left bottom", collision: "flipfit" }
-        });
+        // this.$('#header .brand').tooltip({
+        //     position: { my: "left-10 top+5", at: "middle bottom", collision: "flipfit" }
+        // });
         return this;
     }
     

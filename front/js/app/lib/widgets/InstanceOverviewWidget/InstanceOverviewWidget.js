@@ -46,7 +46,7 @@ var Info = BaseView.extend({
 		    	{ key: 'stats', label: DT.text('emitted_per_sec'), value: function(stats) { return stats.tuplesEmittedPSMA_f || '-' } },
 		    	{ key: 'stats', label: DT.text('processed_total'), value: function(stats) { return stats.totalTuplesProcessed_f || '-' } },
 		    	{ key: 'stats', label: DT.text('emitted_total'), value: function(stats) { return stats.totalTuplesEmitted_f || '-' } },
-		    	{ key: 'stats', label: DT.text('num_operators'), value: function(stats) { return stats.numOperators } },
+		    	{ key: 'stats', label: DT.text('num_operators_label'), value: function(stats) { return stats.numOperators } },
 		    	{ key: 'stats', label: DT.text('planned/alloc. containers'), value: function(stats, attrs) {
 		    		return stats.plannedContainers + ' / ' + stats.allocatedContainers + ' (' +  attrs.totalAllocatedMemory  + ' GB)';
 		    	}},

@@ -59,7 +59,7 @@ function logicalOpStatusFormatter(statuses) {
 function percentageFormatter(value, isNumerator) {
     var multiplyBy = isNumerator ? 1 : 100;
     value = parseFloat(value).toFixed(3) * multiplyBy;
-    value = value.toFixed(2);
+    value = value.toFixed(1);
     value = bormat.commaGroups(value);
     return value + '%';
 };

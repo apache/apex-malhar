@@ -1,15 +1,16 @@
 <div id="header">
-    <a href="#" class="brand">DataTorrent</a> <!-- platform logo -->
-    <div class="ui-version" title="User Interface Version">
-        <% if (version) { %>
-            v<%= version %>
-        <% } %>
-    </div>
-    <a id="feedback-header-link" class="btn btn-mini btn-success" href="mailto:support@datatorrent.com">Send Feedback</a>
+    <a href="#" class="brand" <% if (version) { %>
+        title="version: <%= version %>"
+    <% } %>>DataTorrent</a> <!-- platform logo -->
+
+    <div class="nav-divider-line"></div>
+
     <!-- sign in area -->
-    <div class="sign-in-container" style="display:none;">
+    <!-- <div class="sign-in-container">
         <a href="#sign-in"></a>
-    </div>
+    </div> -->
+
+
     <ul class="dashboard-modes">
         <% _.each(modes, function(mode) { %>
             <li>
@@ -17,6 +18,9 @@
             </li
         ><% }) %>
     </ul>
+
+    <div class="nav-divider-line"></div>
+    
     <div class="client-brand">
         <!-- <img src="img/<%= client_logo %>"> -->
     </div>
