@@ -17,15 +17,15 @@
 'use strict';
 
 angular.module('app.controller')
-  .controller('JobCtrl', function ($scope, $stateParams, util) {
+  .controller('JobCtrl', function ($scope, $stateParams) {
     if ($stateParams.jobId) {
-      $scope.jobId = util.extractJobId($stateParams.jobId);
+      $scope.jobId = $stateParams.jobId;
       $scope.$emit('activeJobId', $scope.jobId);
     } else {
       $scope.$emit('activeJobId', null);
     }
   })
-  .controller('CounterController', function ($scope, webSocket, util) {
+  .controller('CounterController', function ($scope, webSocket) {
     var counterGroups = null;
     var counterGroupNames = null;
 
@@ -55,9 +55,7 @@ angular.module('app.controller')
     webSocket.subscribe(settings.topic.stats, function (data) {
       var counterObject = JSON.parse(data);
 
-      var jobId = util.extractJobId(counterObject.jobCounters.id);
-
-      if ($scope.jobId !== jobId) {
+      if ($scope.jobId !== counterObject.jobCounters.id) {
         return;
       }
 
@@ -66,65 +64,43 @@ angular.module('app.controller')
       $scope.$apply();
     }, $scope);
   })
-  .controller('MapLineChartController', function ($scope) {
-    var items = [];
+  .controller('MapLineChartController', function ($scope, util) {
+    $scope.chart = {
+      data: [],
+      max: 30
+    };
 
-    $scope.$watch('activeJob', function (job) {
-      if (!job) {
-        return;
+    $scope.$on('history', function (event, job) {
+      if (job && job.mapHistory) {
+        $scope.chart = {
+          data: util.minuteSeries(job.mapHistory),
+          max: 30
+        };
       }
-
-      var item = {
-        value: job.mapProgress,
-        timestamp: Date.now()
-      };
-
-      items.push(item);
-
-      if (items.length > 40) {
-        items.shift();
-      }
-
-      $scope.chart = {
-        data: items,
-        max: 30
-      };
     });
   })
-  .controller('ReduceLineChartController', function ($scope) {
-    var items = [];
+  .controller('ReduceLineChartController', function ($scope, util) {
+    $scope.chart = {
+      data: [],
+      max: 30
+    };
 
-    $scope.$watch('activeJob', function (job) {
-      if (!job) {
-        return;
+    $scope.$on('history', function (event, job) {
+      if (job && job.reduceHistory) {
+        $scope.chart = {
+          data: util.minuteSeries(job.reduceHistory),
+          max: 30
+        };
       }
-
-      var item = {
-        value: job.reduceProgress,
-        timestamp: Date.now()
-      };
-
-      items.push(item);
-
-      if (items.length > 40) {
-        items.shift();
-      }
-
-      $scope.chart = {
-        data: items,
-        max: 30
-      };
     });
   })
-  .controller('JobGridController', function ($scope, $filter, webSocket, util) {
+  .controller('JobGridController', function ($scope) {
     $scope.$watch('job', function (job) {
       if (!job) {
         return;
       }
 
-      var jobId = util.extractJobId(job.id);
-
-      if ($scope.jobId !== jobId) {
+      if ($scope.jobId !== job.id) {
         return;
       }
 

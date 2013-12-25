@@ -45,9 +45,17 @@ angular.module('app.directive')
             table.setCell(i, 1, value);
           }
 
-          var last = data[data.length - 1];
-          var max = new Date(last.timestamp);
-          var min = new Date(last.timestamp - chart.max * 1000);
+          var lastTimestamp;
+
+          if (data.length) {
+            var last = data[data.length - 1];
+            lastTimestamp = last.timestamp;
+          } else {
+            lastTimestamp = Date.now();
+          }
+
+          var max = new Date(lastTimestamp);
+          var min = new Date(lastTimestamp - chart.max * 60 * 1000);
 
           var chartOptions = {
             legend: 'none',
