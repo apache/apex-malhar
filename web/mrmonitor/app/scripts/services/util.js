@@ -37,6 +37,19 @@ angular.module('app.service')
         });
 
         return deferred.promise;
+      },
+
+      minuteSeries: function (values, now) {
+        var time = now ? now : Date.now();
+        var count = values.length;
+        var minute = 60 * 1000;
+
+        return _.map(values, function (value, index) {
+          return {
+            timestamp: time - (count - 1 - index) * minute,
+            value: value
+          };
+        });
       }
     };
   });

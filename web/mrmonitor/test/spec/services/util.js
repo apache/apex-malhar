@@ -55,4 +55,22 @@ describe('Service: Util', function () {
     expect(resolvedValue).toEqual('value');
   }));
 
+  it('should create minute series', function () {
+    var values = [10, 20, 40, 50, 70];
+    var now = Date.now();
+
+    var series = util.minuteSeries(values, now);
+    expect(series.length).toEqual(values.length);
+    expect(series[series.length - 1].timestamp).toEqual(now);
+    expect(series[series.length - 1].value).toEqual(values[values.length - 1]);
+  });
+
+  it('should create empty minute series', function () {
+    var values = [];
+    var now = Date.now();
+
+    var series = util.minuteSeries(values, now);
+    expect(series.length).toEqual(0);
+  });
+
 });

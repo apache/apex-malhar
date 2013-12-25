@@ -84,7 +84,7 @@ angular.module('app.service')
               var app = apps[0];
               deferred.resolve(app);
             } else {
-              errorMessage = 'No MAPREDUCE applications found. Please make sure application is running.'; //TODO
+              errorMessage = 'No Map Reduce applications found. Please make sure application is running.';
             }
           } else {
             errorMessage = 'No applications available.';

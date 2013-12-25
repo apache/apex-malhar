@@ -45,6 +45,17 @@
     </div>
 </div>
 
+<div class="row-fluid">
+    <div class="span6" ng-controller="MapLineChartController">
+        <h2>Map Progress</h2>
+        <line-chart chart="chart" class="line-chart"></line-chart>
+    </div><!--/span-->
+    <div class="span6" ng-controller="ReduceLineChartController">
+        <h2>Reduce Progress</h2>
+        <line-chart chart="chart" class="line-chart"></line-chart>
+    </div><!--/span-->
+</div><!--/row-->
+
 <div class="row-fluid counters" ng-controller="CounterController">
     <h2>Counters</h2>
 
@@ -76,16 +87,6 @@
     </div>
 </div>
 
-<div class="row-fluid">
-    <div class="span6" ng-controller="MapLineChartController">
-        <h2>Map Progress</h2>
-        <line-chart chart="chart" class="line-chart"></line-chart>
-    </div><!--/span-->
-    <div class="span6" ng-controller="ReduceLineChartController">
-        <h2>Reduce Progress</h2>
-        <line-chart chart="chart" class="line-chart"></line-chart>
-    </div><!--/span-->
-</div><!--/row-->
 
 <div class="row-fluid">
     <div class="span6 grid-container" ng-controller="MapGridController">

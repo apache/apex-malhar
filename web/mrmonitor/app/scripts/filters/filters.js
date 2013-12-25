@@ -27,4 +27,13 @@ angular.module('app.filter')
         return null;
       }
     };
+  })
+  .filter('appId', function () {
+    return function (input) {
+      if (input) {
+        return input.replace('application_', 'job_');
+      } else {
+        return null;
+      }
+    };
   });

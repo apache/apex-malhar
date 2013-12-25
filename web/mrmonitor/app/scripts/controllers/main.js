@@ -21,7 +21,9 @@ angular.module('app.controller')
     $scope.jobs = {};
     $scope.showLoading = false;
 
-    function jobRequest(id, command) {
+    function jobRequest(jobId, command) {
+      var id = util.extractJobId(jobId);
+
       var jsonData = {
         'command': command,
         'hostname': settings.hadoop.host,
@@ -50,8 +52,8 @@ angular.module('app.controller')
       $scope.activeJobId = activeJobId;
 
       if (activeJobId) {
-        if ($scope.jobs.hasOwnProperty('job_' + activeJobId)) { //TODO
-          $scope.job = $scope.jobs['job_' + activeJobId];
+        if ($scope.jobs.hasOwnProperty(activeJobId)) {
+          $scope.job = $scope.jobs[activeJobId];
           $scope.showLoading = false;
         } else {
           $scope.showLoading = true;
@@ -60,16 +62,12 @@ angular.module('app.controller')
       } else  {
         $scope.showLoading = false;
 
-        //TODO
-        //dev only
+        /*
+        // dev only, automatic map reduce job discovery
         // will be invoked on URL #/jobs/
 
-        if (true) {
-          return;
-        }
         rest.getApp().then(function (app) {
           if (app && app.id) {
-            //$state.go('jobs.job', { jobId: app.id });
             $scope.app = app;
 
             var id = util.extractJobId(app.id);
@@ -87,10 +85,13 @@ angular.module('app.controller')
             $state.go('jobs.job', { jobId: app.id });
           }
         });
+        */
       }
     });
 
-    function jobRemoved (jobId) {
+    function jobRemoved (id) {
+      var jobId = (id.indexOf('job_') < 0) ? 'job_' + id : id;
+
       $scope.$broadcast('jobRemoved', jobId);
 
       if ($scope.activeJobId && ($scope.activeJobId === jobId)) {
@@ -118,6 +119,12 @@ angular.module('app.controller')
         return;
       }
 
+      if (data.mapHistory || data.reduceHistory) {
+        if ($scope.activeJobId && (data.id === $scope.activeJobId)) {
+          $scope.broadcast('history', data);
+        }
+      }
+
       var job = data.job;
 
       if (!job) {
@@ -127,11 +134,8 @@ angular.module('app.controller')
       $scope.jobs[job.id] = job;
       $scope.job = job;
 
-      var jobId = util.extractJobId(job.id);
-
-      if ($scope.activeJobId === jobId) {
-        $scope.activeJob = $scope.job; //TODO
-        $scope.showLoading = false; //TODO rename activeJobLoaded
+      if ($scope.activeJobId === job.id) {
+        $scope.showLoading = false;
       }
 
       $scope.$apply();
@@ -140,12 +144,10 @@ angular.module('app.controller')
   .controller('MonitoredJobGridController', function ($scope, util, $templateCache, $state, notificationService) {
     function updateGrid () {
       var list = _.map(_.values($scope.jobs), function (job) {
-        var jobId = util.extractJobId(job.id);
-
         return {
           id: job.id,
           name: job.name,
-          cellRowClass: ($scope.activeJobId && ($scope.activeJobId === jobId)) ? 'row-active': '',
+          cellRowClass: ($scope.activeJobId && ($scope.activeJobId === job.id)) ? 'row-active': '',
           state: job.state,
           mapProgress: job.mapProgress,
           reduceProgress: job.reduceProgress,
@@ -156,6 +158,28 @@ angular.module('app.controller')
       list = _.sortBy(list, function (job) {
         return (- job.startTime);
       });
+
+      /*
+       var makeActiveFirst = true;
+
+       if (makeActiveFirst && $scope.activeJobId) {
+        var activeJobId = $scope.activeJobId;
+        console.log('activeJobId ' + activeJobId);
+        console.log(list);
+        var activeJob = _.find(list, function (job) {
+          console.log(job);
+          return job.id === activeJobId;
+        });
+        console.log('activeJob ' + activeJob);
+        console.log(list);
+        if (activeJob) {
+          list = _.without(list, activeJob);
+
+          list.splice(0, 0, activeJob);
+          //makeActiveFirst = false;
+        }
+      }
+      */
 
       $scope.gridData = list;
     }
@@ -169,7 +193,7 @@ angular.module('app.controller')
     });
 
     $scope.$on('jobRemoved', function (event, id) {
-      delete $scope.jobs['job_' + id]; //TODO
+      delete $scope.jobs[id];
       updateGrid();
     });
 
@@ -182,15 +206,12 @@ angular.module('app.controller')
     var rowTemplate = $templateCache.get('rowTemplate.html');
     rowTemplate = rowTemplate.replace('ngCell', 'ngCell {{row.entity.cellRowClass}}'); // custom row class
 
-    //TODO
     $scope.removeJob = function (id) {
-      var jobId = util.extractJobId(id);
-
-      $scope.jobRemoveRequest(jobId);
+      $scope.jobRemoveRequest(id);
 
       notificationService.notify({
         title: 'Remove Job',
-        text: 'Request to remove job ' + jobId + ' from monitoring has been sent.',
+        text: 'Request to remove job ' + id + ' from monitoring has been sent.',
         type: 'info',
         delay: 3000,
         icon: false,
@@ -198,9 +219,6 @@ angular.module('app.controller')
       });
     };
 
-    //TODO
-    //var actionCellTemplate = $templateCache.get('cellTemplate.html');
-    //actionCellTemplate = actionCellTemplate.replace('{{COL_FIELD CUSTOM_FILTERS}}', '<i class="icon-trash"></i>');
     var actionCellTemplate = '<div class="ngCellText" ng-class="col.colIndex()" ng-click="removeJob(row.entity.id);"><i class="icon-trash"></i></div>';
 
     $scope.gridOptions = {
