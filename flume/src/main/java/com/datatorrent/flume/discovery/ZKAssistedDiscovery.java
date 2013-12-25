@@ -139,7 +139,7 @@ public class ZKAssistedDiscovery implements Discovery, Configurable
     instanceSerializerFactory = new InstanceSerializerFactory(om.reader(), om.writer());
   }
 
-  private ServiceInstance<SinkMetadata> getInstance(String boundAddress, int boundPort) throws Exception
+  ServiceInstance<SinkMetadata> getInstance(String boundAddress, int boundPort) throws Exception
   {
     SinkMetadata sinkMetadata = new SinkMetadata(boundAddress, boundPort);
     return ServiceInstance.<SinkMetadata>builder()
@@ -164,7 +164,15 @@ public class ZKAssistedDiscovery implements Discovery, Configurable
             .build();
   }
 
-  public final class SinkMetadata
+  /**
+   * @return the instanceSerializerFactory
+   */
+  InstanceSerializerFactory getInstanceSerializerFactory()
+  {
+    return instanceSerializerFactory;
+  }
+
+  public static final class SinkMetadata
   {
     private static final String BOUND_HOST = "boundHost";
     private static final String BOUND_PORT = "boundPort";
@@ -196,6 +204,31 @@ public class ZKAssistedDiscovery implements Discovery, Configurable
     int getBoundPort()
     {
       return boundPort;
+    }
+
+    @Override
+    public int hashCode()
+    {
+      int hash = 7;
+      hash = 59 * hash + (this.boundHost != null ? this.boundHost.hashCode() : 0);
+      hash = 59 * hash + this.boundPort;
+      return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+      if (obj == null) {
+        return false;
+      }
+      if (getClass() != obj.getClass()) {
+        return false;
+      }
+      final SinkMetadata other = (SinkMetadata)obj;
+      if ((this.boundHost == null) ? (other.boundHost != null) : !this.boundHost.equals(other.boundHost)) {
+        return false;
+      }
+      return this.boundPort == other.boundPort;
     }
 
   }

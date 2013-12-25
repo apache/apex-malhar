@@ -404,8 +404,6 @@ public class DTFlumeSink extends AbstractSink implements Configurable
     this.port = port;
   }
 
-  private static final Logger logger = LoggerFactory.getLogger(DTFlumeSink.class);
-
   /**
    * @return the discovery
    */
@@ -421,4 +419,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   {
     this.discovery = discovery;
   }
+
+  private static final Logger logger = LoggerFactory.getLogger(DTFlumeSink.class);
+
 }

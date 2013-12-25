@@ -7,6 +7,7 @@ package com.datatorrent.flume.operator;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
 
+import com.datatorrent.flume.discovery.ZKAssistedDiscovery;
 import com.datatorrent.flume.sink.Server;
 import com.datatorrent.flume.sink.Server.Command;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
@@ -303,6 +305,22 @@ public abstract class AbstractFlumeInputOperator<T>
       super.disconnected();
     }
 
+  }
+
+  public static class StatsListner extends ZKAssistedDiscovery implements com.datatorrent.api.StatsListener, Serializable
+  {
+    @Override
+    public Response processStats(BatchedOperatorStats stats)
+    {
+      Collection<SocketAddress> addresses = discover();
+      for (SocketAddress address : addresses) {
+        logger.debug("address = {}", address);
+      }
+
+      return new Response();
+    }
+
+    private static final long serialVersionUID = 201312241646L;
   }
 
   private static final Logger logger = LoggerFactory.getLogger(AbstractFlumeInputOperator.class);
