@@ -121,7 +121,7 @@ angular.module('app.controller')
 
       if (data.mapHistory || data.reduceHistory) {
         if ($scope.activeJobId && (data.id === $scope.activeJobId)) {
-          $scope.broadcast('history', data);
+          $scope.$broadcast('history', data);
         }
       }
 
