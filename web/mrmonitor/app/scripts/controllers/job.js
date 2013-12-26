@@ -52,7 +52,7 @@ angular.module('app.controller')
       }
     });
 
-    webSocket.subscribe(settings.topic.stats, function (data) {
+    webSocket.subscribe(settings.topic.counters, function (data) {
       var counterObject = JSON.parse(data);
 
       if ($scope.jobId !== counterObject.jobCounters.id) {

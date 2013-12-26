@@ -29,28 +29,6 @@ Map Reduce Monitor Web Application. Implemented with [Node.js](http://nodejs.org
   It may take 10+ seconds to see data on the first load (Map Reduce Java application starts polling Hadoop REST API
 and then publishes it through DataTorrent Gateway WebSocket).
 
-## Running Application in Production Mode
-
- 1. Install Node.js.
-
- 2. Install npm dependencies
-
- ``` bash
-    $ npm install
- ```
-
- 3. Install forever tool
-
- ``` bash
-    $ npm install -g forever
- ```
-
- 4. Start Node.js Server (see prod.sh)
-
- ``` bash
-    $ NODE_ENV=production PORT=3000 forever start app.js
- ```
-
 ## Running Application in Development Mode
  Install dependencies:
 
@@ -74,11 +52,35 @@ and then publishes it through DataTorrent Gateway WebSocket).
 
 ## Building Application
 
- Application is built with Grunt (it creates dist folder used in production mode).
+ Application is built with Grunt (it creates dist folder with optimized JavaScript/CSS).
 
  ``` bash
     $ npm install -g grunt-cli
     $ grunt
+ ```
+
+## Running Application in Production Mode
+
+ In this mode resources are served from dist folder.
+
+ 1. Install Node.js.
+
+ 2. Install npm dependencies
+
+ ``` bash
+    $ npm install
+ ```
+
+ 3. Install forever tool
+
+ ``` bash
+    $ npm install -g forever
+ ```
+
+ 4. Start Node.js Server (see prod.sh)
+
+ ``` bash
+    $ NODE_ENV=production PORT=3000 forever start app.js
  ```
 
 ## Tips

@@ -164,14 +164,10 @@ body {
     opacity: 1;
 }
 
-.loading.ng-hide-add, .animate-hide.ng-hide-remove {
+.loading.ng-hide-add, .loading.ng-hide-remove {
     display: inline !important;
 }
 
 .loading.ng-hide {
     opacity: 0;
-}
-
-.check-element {
-    padding:10px;
 }
