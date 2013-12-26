@@ -430,8 +430,10 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
       obj.setModified(false);
       output.emit(obj.getJsonObject().toString());
       JSONObject outputJsonObject = new JSONObject();
-      outputJsonObject.put("mapHistory", obj.getMapStatusHistory().toString());
-      outputJsonObject.put("reduceHistory", obj.getReduceStatusHistory().toString());
+      
+      outputJsonObject.put("id", JOB_PREFIX + obj.getJobId());
+      outputJsonObject.put("mapHistory", new JSONArray(obj.getMapStatusHistory()));
+      outputJsonObject.put("reduceHistory", new JSONArray(obj.getReduceStatusHistory()));
       output.emit(outputJsonObject.toString());
       obj.setChangedHistoryStatus(false);
 
@@ -485,8 +487,8 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
           obj.setModified(false);
           output.emit(obj.getJsonObject().toString());
           if (obj.isChangedHistoryStatus()) {
-            outputJsonObject.put("mapHistory", obj.getMapStatusHistory().toString());
-            outputJsonObject.put("reduceHistory", obj.getReduceStatusHistory().toString());
+            outputJsonObject.put("mapHistory", new JSONArray(obj.getMapStatusHistory()));
+            outputJsonObject.put("reduceHistory", new JSONArray(obj.getReduceStatusHistory()));
             output.emit(outputJsonObject.toString());
             obj.setChangedHistoryStatus(false);
           }
