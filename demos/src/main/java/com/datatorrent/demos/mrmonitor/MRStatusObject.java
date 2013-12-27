@@ -15,10 +15,20 @@
  */
 package com.datatorrent.demos.mrmonitor;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * <p>
@@ -84,12 +94,62 @@ public class MRStatusObject
    */
   private int retrials;
 
+  /**
+   * The scheduler is used to store the job status every 1 minute
+   */
+  private transient ScheduledExecutorService statusScheduler;
+  
+  /**
+   * This stores the progress of the map tasks
+   */
+  Queue<String> mapStatusHistory;
+  
+  /**
+   * This stores the progress of the reduce tasks
+   */
+  Queue<String> reduceStatusHistory;
+  
+  /**
+   * The number of minutes for which the status history of map and reduce tasks is stored
+   */
+  private int statusHistoryCount=60;
+  
+  /**
+   * This field notifies if history status queues have changed over time
+   */
+  private boolean changedHistoryStatus;
+  
   public MRStatusObject()
   {
     retrials = 0;
     modified = true;
     mapJsonObject = new ConcurrentHashMap<String, TaskObject>();
     reduceJsonObject = new ConcurrentHashMap<String, TaskObject>();
+    mapStatusHistory = new LinkedList<String>();
+    reduceStatusHistory = new LinkedList<String>();
+    statusScheduler = Executors.newScheduledThreadPool(1);
+    statusScheduler.scheduleAtFixedRate(new Runnable()
+    {
+      @Override
+      public void run()
+      {
+        if(jsonObject != null){
+          if(hadoopVersion == 2){
+            if(mapStatusHistory.size() > statusHistoryCount){
+              mapStatusHistory.poll();
+              reduceStatusHistory.poll();
+            }
+            try {
+              mapStatusHistory.add(jsonObject.getJSONObject("job").getString("mapProgress"));
+              reduceStatusHistory.add(jsonObject.getJSONObject("job").getString("reduceProgress"));
+              changedHistoryStatus = true;
+            } catch (JSONException e) {
+              logger.error("error setting status history {}",e.getMessage());
+            }            
+          }
+        }
+      }
+    },0, 1, TimeUnit.MINUTES);
   }
 
   public Map<String, TaskObject> getMapJsonObject()
@@ -192,6 +252,16 @@ public class MRStatusObject
     this.jsonObject = jsonObject;
   }
 
+  public boolean isChangedHistoryStatus()
+  {
+    return changedHistoryStatus;
+  }
+
+  public void setChangedHistoryStatus(boolean changedHistoryStatus)
+  {
+    this.changedHistoryStatus = changedHistoryStatus;
+  }
+
   @Override
   public boolean equals(Object that)
   {
@@ -231,6 +301,48 @@ public class MRStatusObject
     this.modified = modified;
   }
   
+  public int getRetrials()
+  {
+    return retrials;
+  }
+
+  public void setRetrials(int retrials)
+  {
+    this.retrials = retrials;
+  }
+
+  public TaskObject getMetricObject()
+  {
+    return metricObject;
+  }
+
+  public void setMetricObject(TaskObject metricObject)
+  {
+    this.metricObject = metricObject;
+  }
+  
+  public int getStatusHistoryCount()
+  {
+    return statusHistoryCount;
+  }
+
+  public void setStatusHistoryCount(int statusHistoryCount)
+  {
+    this.statusHistoryCount = statusHistoryCount;
+  }
+
+  public Queue<String> getMapStatusHistory()
+  {
+    return mapStatusHistory;
+  }
+
+  public Queue<String> getReduceStatusHistory()
+  {
+    return reduceStatusHistory;
+  }
+
+
+
   public static class TaskObject{
     /**
      * This field stores the task information as json 
@@ -293,28 +405,8 @@ public class MRStatusObject
     public String getJsonString(){
       return json.toString();
     }
-  }
+  } 
   
-  public int getRetrials()
-  {
-    return retrials;
-  }
-
-  public void setRetrials(int retrials)
-  {
-    this.retrials = retrials;
-  }
-
-  public TaskObject getMetricObject()
-  {
-    return metricObject;
-  }
-
-  public void setMetricObject(TaskObject metricObject)
-  {
-    this.metricObject = metricObject;
-  }
-
+  private static Logger logger = LoggerFactory.getLogger(MRStatusObject.class);
   
-
 }
