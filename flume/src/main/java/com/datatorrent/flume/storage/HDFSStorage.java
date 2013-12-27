@@ -33,30 +33,60 @@ import com.google.common.primitives.Longs;
  */
 public class HDFSStorage implements Storage, Configurable
 {
+  private static final String identityFileName = "/counter";
+  private static final String cleanFileName = "/clean-counter";
+  private static final String offsetFileName = "/offsetFile";
   public static final String BASE_DIR_KEY = "baseDir";
   public static final String OFFSET_KEY = "offset";
   public static final String RESTORE_KEY = "restore";
   public static final String BLOCKSIZE = "blockSize";
-
-  private static final String identityFileName = "/counter";
-  private static final String cleanFileName = "/clean-counter";
   private static final int IDENTIFIER_SIZE = 8;
   private static final int DATA_LENGTH_BYTE_SIZE = 4;
-
-  private String id;
+  /**
+   * The baseDir where the storage facility is going to create files
+   */
   private String baseDir;
+  /**
+   * This identifies the current file number
+   */
   private long fileCounter;
+  /**
+   * The file that stores the fileCounter information
+   */
   private Path fileCounterFile;
+  /**
+   * This identifies the last cleaned file number
+   */
+  private long cleanedFileCounter;
+  /**
+   * The file that stores the clean file counter information
+   */
   private Path cleanFileCounterFile;
+  private Path offsetFile;
   private FileSystem fs;
   private FSDataOutputStream dataStream;
+  /**
+   * The block size to be used to create the storage files
+   */
   private long blockSize;
+  /**
+   * The offset in the current opened file
+   */
   private long fileWriteOffset;
   private FSDataInputStream readStream;
   private long retrievalOffset;
   private long retrievalFile;
-  private long cleanedFileCounter;
   private int offset;
+  private byte[] flushedOffset;
+  private long skipOffset;
+  private String id;
+
+
+  /**
+   * This stores the Identifier information identified in the last store function call
+   * @param ctx
+   */
+  // private byte[] fileOffset = new byte[IDENTIFIER_SIZE];
 
   @Override
   public void configure(Context ctx)
@@ -67,6 +97,7 @@ public class HDFSStorage implements Storage, Configurable
     baseDir = ctx.getString(BASE_DIR_KEY, conf.get("hadoop.tmp.dir"));
     // offset = ctx.getInteger(OFFSET_KEY, 4);
     offset = 4;
+    skipOffset = -1;
 
     boolean restore = ctx.getBoolean(RESTORE_KEY, true);
     if (baseDir.length() > 0) {
@@ -87,6 +118,7 @@ public class HDFSStorage implements Storage, Configurable
         cleanedFileCounter = -1;
         fileCounterFile = new Path(baseDir + identityFileName);
         cleanFileCounterFile = new Path(baseDir + cleanFileName);
+        offsetFile = new Path(baseDir + offsetFileName);
         if (restore) {
           if (fs.exists(fileCounterFile) && fs.isFile(fileCounterFile)) {
             fileCounter = Long.valueOf(new String(readData(fileCounterFile)));
@@ -94,6 +126,12 @@ public class HDFSStorage implements Storage, Configurable
           if (fs.exists(cleanFileCounterFile) && fs.isFile(cleanFileCounterFile)) {
             cleanedFileCounter = Long.valueOf(new String(readData(cleanFileCounterFile)));
           }
+          if (fs.exists(offsetFile) && fs.isFile(offsetFile)) {
+            flushedOffset = readData(offsetFile);
+          }
+        }else{
+          flushedOffset = new byte[8];
+          writeData(cleanFileCounterFile, String.valueOf(cleanedFileCounter).getBytes()).close();
         }
 
       }
@@ -161,8 +199,12 @@ public class HDFSStorage implements Storage, Configurable
           dataStream.write(Ints.toByteArray(bytes.length));
           dataStream.write(bytes);
         }
-        byte[] fileOffset = new byte[IDENTIFIER_SIZE];
-        Server.writeLong(fileOffset, 0, calculateOffset(fileWriteOffset, fileCounter));
+        byte[] fileOffset = null;
+        if(fileWriteOffset > skipOffset){
+          fileOffset = new byte[IDENTIFIER_SIZE];
+          Server.writeLong(fileOffset, 0, calculateOffset(fileWriteOffset, fileCounter));
+        }
+
         fileWriteOffset += (bytes.length + DATA_LENGTH_BYTE_SIZE);
         return fileOffset;
       }
@@ -214,8 +256,32 @@ public class HDFSStorage implements Storage, Configurable
     }
     catch (IOException e) {
       logger.warn(" error while retrieving {}", e.getMessage());
-      throw new RuntimeException(e);
+      // this is done for failure
+      if (retrievalFile == byteArrayToLong(flushedOffset, offset)) {
+        try {
+          retrievalFile++;
+          retrievalOffset -= byteArrayToLong(flushedOffset, 0);
+          return retrieveFailure();
+        } catch (Exception e1) {
+          retrievalFile--;
+          skipOffset = retrievalOffset;
+          retrievalOffset += byteArrayToLong(flushedOffset, 0);
+          throw new RuntimeException(e1);
+        }
+      }else{
+        throw new RuntimeException(e);
+      }
     }
+  }
+
+  private byte[] retrieveFailure() throws Exception
+  {
+    if (readStream != null) {
+      readStream.close();
+    }
+    readStream = new FSDataInputStream(fs.open(new Path(baseDir + "/" + (retrievalFile))));
+    readStream.seek(retrievalOffset);
+    return retrieveHelper();
   }
 
   private byte[] retrieveHelper() throws IOException
@@ -224,7 +290,7 @@ public class HDFSStorage implements Storage, Configurable
     byte[] data = new byte[length + IDENTIFIER_SIZE];
     int readSize = readStream.read(data, IDENTIFIER_SIZE, length);
     if (readSize == -1) {
-      throw new RuntimeException("Invalid identifier");
+      throw new IOException("Invalid identifier");
     }
     retrievalOffset += length + DATA_LENGTH_BYTE_SIZE;
     if (readStream.available() < 1) {
@@ -292,6 +358,22 @@ public class HDFSStorage implements Storage, Configurable
       catch (IOException ex) {
         logger.warn("not able to close the stream {}", ex.getMessage());
         throw new RuntimeException(ex);
+      }
+    }
+    byte[] lastStoredOffset = new byte[IDENTIFIER_SIZE];
+    Server.writeLong(lastStoredOffset, 0, calculateOffset(fileWriteOffset, fileCounter));
+    try {
+      writeData(offsetFile, lastStoredOffset).close();
+      flushedOffset = lastStoredOffset;
+    } catch (IOException e) {
+      try {
+        if (Long.valueOf(new String(readData(offsetFile))) == Long.valueOf(new String(lastStoredOffset))) {
+          flushedOffset = lastStoredOffset;
+        }
+      } catch (NumberFormatException e1) {
+        throw new RuntimeException(e1);
+      } catch (IOException e1) {
+        throw new RuntimeException(e1);
       }
     }
   }
