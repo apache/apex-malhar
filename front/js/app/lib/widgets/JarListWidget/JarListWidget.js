@@ -13,12 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-/**
- * JarListWidget
- * 
- * Description of widget.
- *
-*/
+
 var Tabled = DT.lib.Tabled;
 var _ = require('underscore');
 var kt = require('knights-templar');
@@ -29,7 +24,12 @@ var JarFileCollection = DT.lib.JarFileCollection;
 var Palette = require('./JarListPalette');
 var JarUploadView = require('./JarUploadView');
 
-// class definition
+/**
+ * JarListWidget
+ * 
+ * Description of widget.
+ *
+*/
 var JarListWidget = BaseView.extend({
     
     initialize: function(options) {

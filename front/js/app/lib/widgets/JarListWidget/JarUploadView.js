@@ -13,12 +13,6 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-/**
- * JarUploadWidget
- * 
- * Widget for uploading jar files
- *
-*/
 
 var _ = require('underscore');
 var kt = require('knights-templar');
@@ -26,7 +20,12 @@ var Notifier = DT.lib.Notifier;
 var BaseView = require('bassview');
 var JarFileModel = DT.lib.JarFileModel;
 
-// class definition
+/**
+ * JarUploadWidget
+ * 
+ * Widget for uploading jar files
+ *
+*/
 var JarUploadWidget = BaseView.extend({
     
     initialize: function(options) {
