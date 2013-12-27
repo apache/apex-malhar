@@ -7,10 +7,12 @@ package com.datatorrent.flume.sink;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
+import static java.lang.Thread.sleep;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.common.util.Slice;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 
 /**
@@ -68,7 +70,7 @@ public class Server extends com.datatorrent.netlet.Server
       }
     }
 
-    private byte ord;
+    private final byte ord;
   }
 
   Client client;
@@ -121,12 +123,15 @@ public class Server extends com.datatorrent.netlet.Server
       super.disconnected();
     }
 
-    public void write(long l, byte[] bytes)
+    @SuppressWarnings("SleepWhileInLoop")
+    public void write(byte[] l, byte[] bytes) throws InterruptedException
     {
-      byte[] array = new byte[bytes.length + 8];
-      writeLong(array, 0, l);
-      System.arraycopy(bytes, 0, array, 8, bytes.length);
-      write(array);
+      while (!write(l)) {
+        sleep(1);
+      }
+      while (!write(bytes)) {
+        sleep(1);
+      }
     }
 
   }
@@ -140,7 +145,7 @@ public class Server extends com.datatorrent.netlet.Server
       this.type = type;
     }
 
-    public abstract long getAddress();
+    public abstract Slice getAddress();
 
     public abstract int getEventCount();
 
@@ -168,7 +173,7 @@ public class Server extends com.datatorrent.netlet.Server
             }
 
             @Override
-            public long getAddress()
+            public Slice getAddress()
             {
               throw new UnsupportedOperationException();
             }
@@ -196,14 +201,14 @@ public class Server extends com.datatorrent.netlet.Server
         default:
           return new Request(command)
           {
-            final long address;
+            final Slice address;
 
             {
-              address = Server.readLong(buffer, offset + 1);
+              address = new Slice(buffer, offset + 1, 8);
             }
 
             @Override
-            public long getAddress()
+            public Slice getAddress()
             {
               return address;
             }

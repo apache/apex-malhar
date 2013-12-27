@@ -45,13 +45,13 @@ public interface Storage
 
   /**
    * This flushes the data from stream
-   * 
+   *
    */
   void flush();
 
   /**
    * This flushes the data and closes stream
-   * 
+   *
    */
   void close();
 
