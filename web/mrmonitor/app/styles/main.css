@@ -101,11 +101,11 @@ body {
 }
 
 .grid-container {
-    min-width: 500px;
+    min-width: 600px;
 }
 
 .task-progress-grid {
-    width: 500px;
+    width: 600px;
     height: 200px;
 }
 
