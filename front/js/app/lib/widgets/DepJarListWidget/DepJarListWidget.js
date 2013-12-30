@@ -13,4 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-exports = module.exports = require('./JarDagWidget');
+
+var _ = require('underscore');
+var kt = require('knights-templar');
+var BaseView = require('../JarListWidget');
+var DepJarFileModel = DT.lib.DepJarFileModel;
+var DepJarFileCollection = DT.lib.DepJarFileCollection;
+
+
+/**
+ * DepJarListWidget
+ * 
+ * A list of dependency jars
+ *
+*/
+var DepJarListWidget = BaseView.extend({
+    
+    Collection: DepJarFileCollection,
+
+    Model: DepJarFileModel
+    
+});
+
+exports = module.exports = DepJarListWidget;

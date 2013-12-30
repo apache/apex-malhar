@@ -31,13 +31,17 @@ var JarUploadView = require('./JarUploadView');
  *
 */
 var JarListWidget = BaseView.extend({
+
+    Collection: JarFileCollection,
+
+    Model: JarFileModel,
     
     initialize: function(options) {
         
         BaseView.prototype.initialize.call(this, options);
         
         // Set a model for the jar to be uploaded
-        this.model = new JarFileModel({}, {
+        this.model = new this.Model({}, {
             beforeUpload: _.bind(function(model) {
                 if (this.collection.get(model.get('name'))) {
                     return confirm('This will overwrite a jar on the server, do you want to proceed?');
@@ -46,7 +50,7 @@ var JarListWidget = BaseView.extend({
         });
         
         // Set a list of jars
-        this.collection = new JarFileCollection([]);
+        this.collection = new this.Collection([]);
         this.collection.fetch();
         
         this.collection.listenTo(this.model, 'upload_success', function() {

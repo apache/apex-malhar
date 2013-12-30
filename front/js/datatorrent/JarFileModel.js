@@ -26,6 +26,8 @@ var BaseModel = require('./BaseModel');
 var JarFileModel = BaseModel.extend({
     
     debugName: 'jarfile',
+
+    putResourceString: 'Jar',
     
     defaults: {
         'name': '',
@@ -70,7 +72,7 @@ var JarFileModel = BaseModel.extend({
         }, false);
         
         // open the connection
-        xhr.open('PUT', this.resourceURL('Jar') + '/' + self.get('name'));
+        xhr.open('PUT', this.resourceURL(this.putResourceString) + '/' + self.get('name'));
         
         // override the mime type of the request
         xhr.overrideMimeType('text/plain; charset=x-user-defined-binary');

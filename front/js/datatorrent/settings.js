@@ -34,7 +34,9 @@ exports = module.exports = {
         AlertTemplate            :'/ws/:v/alertTemplates',
         OpProperties             :'/ws/:v/applications/:appId/logicalPlan/operators/:operatorName/properties',
         Jar                      :'/ws/:v/jars',
-        JarApps                  :'/ws/:v/jars/:fileName/applications'
+        JarApps                  :'/ws/:v/jars/:fileName/applications',
+        JarDependencies          :'/ws/:v/jars/:fileName/dependencyJars',
+        DependencyJar            :'/ws/:v/dependencyJars'
         
     },
     

@@ -13,4 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-exports = module.exports = require('./JarDagWidget');
+
+var BaseCollection = require('./BaseCollection');
+var DepJarFileModel = require('./DepJarFileModel');
+var DepJarFileCollection = BaseCollection.extend({
+    
+    debugName: 'dependency jars',
+    
+    model: DepJarFileModel,
+    
+    url: function() {
+        return this.resourceURL('DependencyJar');
+    },
+    
+    responseTransform: 'dependencyJars'
+    
+});
+exports = module.exports = DepJarFileCollection;

@@ -41,6 +41,8 @@ var datatorrent = {
         DashMgrView                  : require('./DashMgrView'),
         DashModel                    : require('./DashModel'),
         DataSource                   : require('./DataSource'),
+        DepJarFileModel              : require('./DepJarFileModel'),
+        DepJarFileCollection         : require('./DepJarFileCollection'),
         HeaderView                   : require('./HeaderView'),
         JarAppCollection             : require('./JarAppCollection'),
         JarAppModel                  : require('./JarAppModel'),
