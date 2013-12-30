@@ -34,6 +34,7 @@ angular.module('app.controller')
     $scope.gridOptions = {
       data: 'apps',
       enableRowSelection: false,
+      enableColumnResize: true,
       showFilter: true,
       columnDefs: [
         { field: 'id', displayName: 'Task', cellTemplate: linkTemplate, width: 250 },
