@@ -22,12 +22,15 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Stats.OperatorStats;
+import com.datatorrent.api.Stats.OperatorStats.CustomStats;
 
 import com.datatorrent.flume.discovery.ZKAssistedDiscovery;
 import com.datatorrent.flume.sink.Server;
 import com.datatorrent.flume.sink.Server.Command;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 import com.datatorrent.netlet.DefaultEventLoop;
+import java.util.*;
 
 /**
  *
@@ -44,7 +47,9 @@ public abstract class AbstractFlumeInputOperator<T>
   private transient RecoveryAddress recoveryAddress;
   private final transient ArrayBlockingQueue<Payload> handoverBuffer;
   private transient volatile boolean connected;
+  private transient OperatorContext context;
   private transient Client client;
+
   @NotNull
   private String[] connectAddresses;
   private final ArrayList<RecoveryAddress> recoveryAddresses;
@@ -78,6 +83,8 @@ public abstract class AbstractFlumeInputOperator<T>
       String[] parts = connectAddresse.split(":");
       eventloop.connect(new InetSocketAddress(parts[0], Integer.parseInt(parts[1])), client = new Client());
     }
+
+    context = ctx;
   }
 
   @Override
@@ -121,6 +128,7 @@ public abstract class AbstractFlumeInputOperator<T>
   public void deactivate()
   {
     eventloop.disconnect(client);
+    context = null;
   }
 
   @Override
@@ -234,11 +242,16 @@ public abstract class AbstractFlumeInputOperator<T>
         partitions.add(new DefaultPartition<AbstractFlumeInputOperator<T>>(operator));
       }
     }
-    catch (Exception ex) {
-      if (ex instanceof RuntimeException) {
-        throw (RuntimeException)ex;
-      }
-
+    catch (Error er) {
+      throw er;
+    }
+    catch (RuntimeException re) {
+      throw re;
+    }
+    catch (IllegalAccessException ex) {
+      throw new RuntimeException(ex);
+    }
+    catch (InstantiationException ex) {
       throw new RuntimeException(ex);
     }
 
@@ -274,6 +287,8 @@ public abstract class AbstractFlumeInputOperator<T>
     }
 
     @Override
+    @SuppressWarnings("SynchronizeOnNonFinalField") /* context is virtually final for a given operator */
+
     public void connected()
     {
       super.connected();
@@ -295,13 +310,29 @@ public abstract class AbstractFlumeInputOperator<T>
       write(array);
 
       connected = true;
+      ConnectionStatus connectionStatus = new ConnectionStatus();
+      connectionStatus.connected = true;
+      connectionStatus.host = connectAddresses[0].substring(0, connectAddresses[0].indexOf(':'));
+      connectionStatus.port = Integer.parseInt(connectAddresses[0].substring(connectAddresses[0].indexOf(':') + 1));
+      synchronized (context) {
+        context.setCustomStats(connectionStatus);
+      }
       logger.debug("connected hence sending {} for {}", Command.SEEK, address);
     }
 
     @Override
+    @SuppressWarnings("SynchronizeOnNonFinalField") /* context is virtually final for a given operator */
+
     public void disconnected()
     {
       connected = false;
+      ConnectionStatus connectionStatus = new ConnectionStatus();
+      connectionStatus.connected = false;
+      connectionStatus.host = connectAddresses[0].substring(0, connectAddresses[0].indexOf(':'));
+      connectionStatus.port = Integer.parseInt(connectAddresses[0].substring(connectAddresses[0].indexOf(':') + 1));
+      synchronized (context) {
+        context.setCustomStats(connectionStatus);
+      }
       super.disconnected();
     }
 
@@ -309,18 +340,83 @@ public abstract class AbstractFlumeInputOperator<T>
 
   public static class StatsListner extends ZKAssistedDiscovery implements com.datatorrent.api.StatsListener, Serializable
   {
+    /*
+     * In the current design, one input operator is able to connect
+     * to only one flume adapter. Sometime in future, we should support
+     * any number of input operators connecting to any number of flume
+     * sinks and vice a versa.
+     *
+     * Until that happens the following map should be sufficient to
+     * keep track of which input operator is connected to which flume sink.
+     */
+    final transient HashMap<Integer, ConnectionStatus> map;
+    private int count;
+
+    public StatsListner()
+    {
+      this.map = new HashMap<Integer, ConnectionStatus>();
+    }
+
     @Override
     public Response processStats(BatchedOperatorStats stats)
     {
-      Collection<SocketAddress> addresses = discover();
-      for (SocketAddress address : addresses) {
-        logger.debug("address = {}", address);
+      ConnectionStatus storedStats = map.get(stats.getOperatorId());
+
+      boolean connected = false;
+      List<OperatorStats> lastWindowedStats = stats.getLastWindowedStats();
+      for (OperatorStats os: lastWindowedStats) {
+        if (os.customStats != null) {
+          if (storedStats == null) {
+            map.put(stats.getOperatorId(), (ConnectionStatus)os.customStats);
+          }
+          connected = ((ConnectionStatus)os.customStats).connected;
+        }
+      }
+
+      if (!connected || ++count == 5) {
+        Collection<SocketAddress> addresses = discover();
+        for (SocketAddress address: addresses) {
+        }
       }
 
       return new Response();
     }
 
     private static final long serialVersionUID = 201312241646L;
+  }
+
+  public static class ConnectionStatus implements CustomStats
+  {
+    String host;
+    int port;
+    boolean connected;
+
+    @Override
+    public int hashCode()
+    {
+      int hash = 7;
+      hash = 73 * hash + (this.host != null ? this.host.hashCode() : 0);
+      hash = 73 * hash + this.port;
+      return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+      if (obj == null) {
+        return false;
+      }
+      if (getClass() != obj.getClass()) {
+        return false;
+      }
+      final ConnectionStatus other = (ConnectionStatus)obj;
+      if ((this.host == null) ? (other.host != null) : !this.host.equals(other.host)) {
+        return false;
+      }
+      return this.port == other.port;
+    }
+
+    private static final long serialVersionUID = 201312261615L;
   }
 
   private static final Logger logger = LoggerFactory.getLogger(AbstractFlumeInputOperator.class);
