@@ -41,6 +41,7 @@
   font-weight: normal;
   text-shadow: none;
   letter-spacing: 1px;
+  margin-bottom: 0;
 }
 .jar_upload_target .jar-upload-filesize {
   font-size: 10px;
@@ -48,7 +49,7 @@
   letter-spacing: 1px;
 }
 .jar_upload_target .progress {
-  margin-bottom: -7px;
-  margin-top: 9px;
+  margin-bottom: 0;
+  margin-top: 5px;
   border: 1px solid #DEDEDE;
 }

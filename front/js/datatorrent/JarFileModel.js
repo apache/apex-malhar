@@ -56,6 +56,8 @@ var JarFileModel = BaseModel.extend({
             if ( this.beforeUpload(this) === false ) return false;
         }
 
+        this.trigger('upload_start');
+
         // xhr listeners
         // progress
         xhr.upload.addEventListener('progress', function(e) {

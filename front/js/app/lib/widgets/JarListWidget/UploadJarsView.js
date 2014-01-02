@@ -35,6 +35,11 @@ var UploadJarsView = BaseView.extend({
         
         // Listen for upload progress and complete on the model
         this.listenTo(this.collection, 'reset', this.render);
+        this.listenTo(this.collection, 'remove', function(model, collection) {
+            if (collection.length === 0) {
+                this.render();
+            }
+        });
     },
     
     render: function() {
@@ -49,7 +54,8 @@ var UploadJarsView = BaseView.extend({
             // Create view for individual file
             var view = new SingleJarUploadView({
                 model: file,
-                collection: this.uploaded
+                collection: this.collection,
+                uploaded: this.uploaded
             });
 
             // Append single view to this view
@@ -66,7 +72,10 @@ var UploadJarsView = BaseView.extend({
         'dragover .jar_upload_target': 'onDragOver',
         'drop .jar_upload_target': 'onDrop',
         'click .cancel_jar_btn': 'clearFiles',
-        'click .upload_jar_btn': 'uploadJars'
+        'click .upload_jar_btn': 'uploadJars',
+        'click .jar-to-upload': function(evt) {
+            evt.stopPropagation();
+        }
     },
     
     onFileChange: function() {
@@ -164,22 +173,25 @@ var UploadJarsView = BaseView.extend({
     uploadJars: function(evt) {
         evt.preventDefault();
         evt.stopPropagation();
-        
-        var formData = new FormData(this.$('.jar_upload_form')[0]);
-        
-        var result = this.model.upload(formData);
-        
-        // disable the button
-        if (result !== false) {
-            $(evt.target).attr('disabled', true);
-        }
+
+        var pending = this.collection.length;
+
+        this.listenTo(this.collection, 'upload_success', function() {
+            console.log('testing');
+            if (--pending === 0) {
+                this.collection.reset([]);
+            }
+        });
+
+        this.collection.each(function(file) {
+            file.upload();
+        });
     },
     
     clearFiles: function(evt) {
         evt.stopPropagation();
         evt.preventDefault();
         this.collection.reset([]);
-        this.render();
     },
     
     template: kt.make(__dirname+'/UploadJarsView.html','_')
