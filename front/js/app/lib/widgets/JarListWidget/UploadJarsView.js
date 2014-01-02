@@ -19,28 +19,44 @@ var kt = require('knights-templar');
 var Notifier = DT.lib.Notifier;
 var BaseView = require('bassview');
 var JarFileModel = DT.lib.JarFileModel;
+var SingleJarUploadView = require('./SingleJarUploadView');
 
 /**
- * JarUploadWidget
+ * UploadJarsView
  * 
- * Widget for uploading jar files
+ * View in JarListWidget for uploading jar(s).
  *
 */
-var JarUploadWidget = BaseView.extend({
+var UploadJarsView = BaseView.extend({
     
     initialize: function(options) {
+
+        this.uploaded = options.uploaded;
         
         // Listen for upload progress and complete on the model
-        this.listenTo(this.model, 'upload_progress', this.onProgress);
-        this.listenTo(this.model, 'upload_success', this.onSuccess);
-        this.listenTo(this.model, 'upload_complete', this.onComplete);
-        this.listenTo(this.model, 'upload_error', this.onError);
+        this.listenTo(this.collection, 'reset', this.render);
     },
     
     render: function() {
         
-        var html = this.template(this.model.toJSON());
+        var html = this.template({
+            files: this.collection.toJSON()
+        });
         this.$el.html(html);
+        var $jars = this.$('.jars-to-upload');
+        this.collection.each(function(file) {
+
+            // Create view for individual file
+            var view = new SingleJarUploadView({
+                model: file,
+                collection: this.uploaded
+            });
+
+            // Append single view to this view
+            $jars.append(view.render().el);
+
+        }, this);
+
         return this;
     },
     
@@ -49,32 +65,38 @@ var JarUploadWidget = BaseView.extend({
         'click .jar_upload_target': 'onClick',
         'dragover .jar_upload_target': 'onDragOver',
         'drop .jar_upload_target': 'onDrop',
-        'click .cancel_jar_btn': 'clearFile',
-        'click .upload_jar_btn': 'uploadJar'
+        'click .cancel_jar_btn': 'clearFiles',
+        'click .upload_jar_btn': 'uploadJars'
     },
     
     onFileChange: function() {
         
         var files = this.el.querySelector('.jar_upload').files;
-        var file = files[0];
         
-        if (!/\.jar$/.test(file.name)) {
-            Notifier.error({
-                'title': 'Only <code>.jar</code> files accepted',
-                'text': 'Ensure that you have dropped or selected a java archive file (.jar).'
-            });
-            // Re-render to clear out file
-            return this.render();
-        }
+        var filteredFiles = [];
 
-        // It's a jar!
-        this.model.set({
-            'name': file.name,
-            'size': file.size,
-            'type': file.type,
-            'file': file
-        });
-        this.render();
+        for (var i = files.length - 1; i >= 0; i--) {
+            var file = files[i];
+            if (!/\.jar$/.test(file.name)) {
+                Notifier.error({
+                    'title': 'Only <code>.jar</code> files accepted',
+                    'text': 'incompatible file: ' + file.name
+                });
+                // Re-render to clear out file
+                return this.render();
+            }
+
+            // It's a jar!
+            filteredFiles.push({
+                'name': file.name,
+                'size': file.size,
+                'type': file.type,
+                'file': file
+            });
+        };
+
+        this.collection.reset(filteredFiles, { remove: true });
+
     },
     
     onClick: function() {
@@ -139,7 +161,7 @@ var JarUploadWidget = BaseView.extend({
         });
     },
 
-    uploadJar: function(evt) {
+    uploadJars: function(evt) {
         evt.preventDefault();
         evt.stopPropagation();
         
@@ -153,15 +175,15 @@ var JarUploadWidget = BaseView.extend({
         }
     },
     
-    clearFile: function(evt) {
+    clearFiles: function(evt) {
         evt.stopPropagation();
         evt.preventDefault();
-        this.model.clear();
+        this.collection.reset([]);
         this.render();
     },
     
-    template: kt.make(__dirname+'/JarUploadView.html','_')
+    template: kt.make(__dirname+'/UploadJarsView.html','_')
     
 });
 
-exports = module.exports = JarUploadWidget;
+exports = module.exports = UploadJarsView;

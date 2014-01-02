@@ -57,7 +57,8 @@ var textHash = {
     'last_heartbeat_label'       :  'last heartbeat',
     'container_id_label'         :  'container id',
     'host_label'                 :  'host',
-    'locality_not_assigned'      :  'AUTOMATIC'
+    'locality_not_assigned'      :  'AUTOMATIC',
+    'overwrite_jar_warning'      :  'A jar with this name already exists and will be overwritten.'
 };
 
 function getTextItem(key) {

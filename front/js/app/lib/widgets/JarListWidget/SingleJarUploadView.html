@@ -1,0 +1,7 @@
+<% if (overwriting) { %>
+	<i class="icon-yellow-warning-sign overwrite-warning" title="<%= DT.text('overwrite_jar_warning') %>"></i>
+<% } %>
+<span class="jar-upload-filename"><%= name %></span>
+<span class="jar-upload-filesize">(<%= Math.floor(size/1024) %> KB)</span>
+<button class="btn btn-mini rename-jar"><%= DT.text('rename') %></button>
+<button class="btn btn-mini remove-jar"><%= DT.text('remove') %></button>

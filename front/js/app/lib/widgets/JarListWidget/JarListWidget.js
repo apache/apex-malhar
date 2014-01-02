@@ -22,12 +22,13 @@ var BaseView = DT.widgets.ListWidget;
 var JarFileModel = DT.lib.JarFileModel;
 var JarFileCollection = DT.lib.JarFileCollection;
 var Palette = require('./JarListPalette');
-var JarUploadView = require('./JarUploadView');
+var UploadJarsView = require('./UploadJarsView');
 
 /**
  * JarListWidget
  * 
- * Description of widget.
+ * This widget displays a list of uploaded jars
+ * and also allows users to upload jars themselves.
  *
 */
 var JarListWidget = BaseView.extend({
@@ -40,8 +41,8 @@ var JarListWidget = BaseView.extend({
         
         BaseView.prototype.initialize.call(this, options);
         
-        // Set a model for the jar to be uploaded
-        this.model = new this.Model({}, {
+        // Set a collection for the jar(s) to be uploaded
+        this.jarsToUpload = new this.Collection([], {
             beforeUpload: _.bind(function(model) {
                 if (this.collection.get(model.get('name'))) {
                     return confirm('This will overwrite a jar on the server, do you want to proceed?');
@@ -53,7 +54,7 @@ var JarListWidget = BaseView.extend({
         this.collection = new this.Collection([]);
         this.collection.fetch();
         
-        this.collection.listenTo(this.model, 'upload_success', function() {
+        this.collection.listenTo(this.jarsToUpload, 'upload_success', function() {
             setTimeout(_.bind(function() { this.fetch(); }, this), 1000);
         });
         
@@ -67,8 +68,9 @@ var JarListWidget = BaseView.extend({
             row_sorts: ['name']
         }));
         
-        this.subview('uploader', new JarUploadView({
-            model: this.model
+        this.subview('uploader', new UploadJarsView({
+            collection: this.jarsToUpload,
+            uploaded: this.collection
         }));
         
         // Set up the palette
@@ -89,7 +91,6 @@ var JarListWidget = BaseView.extend({
     
     remove: function() {
         this.collection.stopListening();
-        this.model.stopListening();
         BaseView.prototype.remove.call(this);
     }
     
