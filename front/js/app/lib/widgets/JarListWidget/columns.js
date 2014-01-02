@@ -16,6 +16,11 @@
 var templates = DT.templates;
 
 function nameFormatter(name, row) {
+    
+	if (row.get('depJar') ) {
+		return name;
+	}
+	
     return templates.jar_view_link({
         name: name
     });

@@ -22,6 +22,13 @@ var DepJarFileModel = BaseModel.extend({
 
 	putResourceString: 'DependencyJar',
 
+	defaults: {
+        'name': '',
+        'size': 0,
+        'type': '',
+        'depJar': true
+    }
+
 });
 
 exports = module.exports = DepJarFileModel;

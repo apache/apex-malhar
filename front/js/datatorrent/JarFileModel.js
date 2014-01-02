@@ -32,7 +32,8 @@ var JarFileModel = BaseModel.extend({
     defaults: {
         'name': '',
         'size': 0,
-        'type': ''
+        'type': '',
+        'depJar': false
     },
     
     idAttribute: 'name',
