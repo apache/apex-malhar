@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-var BaseCollection = require('./BaseCollection');
 var DepJarFileModel = require('./DepJarFileModel');
+var BaseCollection = require('./AbstractJarFileCollection');
 var DepJarFileCollection = BaseCollection.extend({
     
     debugName: 'dependency jars',

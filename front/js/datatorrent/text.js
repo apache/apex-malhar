@@ -14,6 +14,8 @@
 * limitations under the License.
 */
 
+var _ = require('underscore');
+
 /**
  * Text package.
  *
@@ -58,8 +60,15 @@ var textHash = {
     'container_id_label'         :  'container id',
     'host_label'                 :  'host',
     'locality_not_assigned'      :  'AUTOMATIC',
-    'overwrite_jar_warning'      :  'A jar with this name already exists and will be overwritten.'
+    'overwrite_jar_warning'      :  'A jar with this name already exists and will be overwritten.',
+    'dep_options_title'          :  'Options',
+    'dep_choices_title'          :  'Choices'
 };
+
+// Inter-dependent text items
+_.extend(textHash, {
+    'specify_jars_instructions'  :  'Select one or more dependency jars from the following list labeled "' + textHash.dep_options_title + '", then order them as needed in the "' + textHash.dep_choices_title + '" list.',
+});
 
 function getTextItem(key) {
     return textHash[key] || key;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-var BaseModel = require('./JarFileModel');
+var BaseModel = require('./AbstractJarFileModel');
 
 var DepJarFileModel = BaseModel.extend({
 

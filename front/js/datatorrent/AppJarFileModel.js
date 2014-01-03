@@ -14,27 +14,29 @@
 * limitations under the License.
 */
 /**
- * Jar File Collection
+ * Jar File Model
  * 
- * Represents a list of jars.
+ * Models a jar file that should contain application plans.
 */
-var BaseCollection = require('./BaseCollection');
-var JarFileModel = require('./JarFileModel');
-var JarFileCollection = BaseCollection.extend({
-    
-    debugName: 'jars',
-    
-    model: JarFileModel,
-    
-    url: function() {
-        return this.resourceURL('Jar');
-    },
 
-    initialize: function(models, options) {
-    	
-    },
+var BaseModel = require('./AbstractJarFileModel');
+var SpecifyJarDepsView = require('./SpecifyJarDepsView');
+
+// class definition
+var AppJarFileModel = BaseModel.extend({
     
-    responseTransform: 'jars'
+    specifyDependencies: function() {
+
+        var modal = new SpecifyJarDepsView({
+            model: this
+        });
+
+        $('body').append(modal.render().el);
+
+        modal.launch();
+
+    }
     
 });
-exports = module.exports = JarFileCollection;
+
+exports = module.exports = AppJarFileModel;

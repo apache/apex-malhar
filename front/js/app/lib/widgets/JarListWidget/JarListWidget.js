@@ -19,8 +19,8 @@ var _ = require('underscore');
 var kt = require('knights-templar');
 var columns = require('./columns');
 var BaseView = DT.widgets.ListWidget;
-var JarFileModel = DT.lib.JarFileModel;
-var JarFileCollection = DT.lib.JarFileCollection;
+var JarFileModel = DT.lib.AppJarFileModel;
+var JarFileCollection = DT.lib.AppJarFileCollection;
 var Palette = require('./JarListPalette');
 var UploadJarsView = require('./UploadJarsView');
 

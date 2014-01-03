@@ -18,7 +18,6 @@ var _ = require('underscore');
 var kt = require('knights-templar');
 var Notifier = DT.lib.Notifier;
 var BaseView = require('bassview');
-var JarFileModel = DT.lib.JarFileModel;
 var SingleJarUploadView = require('./SingleJarUploadView');
 
 /**

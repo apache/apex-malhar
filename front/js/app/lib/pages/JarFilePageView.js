@@ -19,7 +19,6 @@
  * Page centered around an uploaded jar file
 */
 var BasePageView = DT.lib.BasePageView;
-var JarFileModel = DT.lib.JarFileModel;
 
 // widgets
 var JarAppsWidget = require('../widgets/JarAppsWidget');
