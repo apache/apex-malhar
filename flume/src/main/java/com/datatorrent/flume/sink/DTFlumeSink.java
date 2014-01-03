@@ -54,7 +54,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   private Client client;
   private String hostname;
   private int port;
-  private String eventloopName;
+  private String id;
   private long sleepMillis;
   private double throughputAdjustmentFactor;
   private int minimumEventsPerTransaction;
@@ -216,7 +216,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   public void start()
   {
     try {
-      eventloop = new DefaultEventLoop(eventloopName == null ? "EventLoop-" + getName() : eventloopName);
+      eventloop = new DefaultEventLoop("EventLoop-" + id);
       server = new Server(discovery);
     }
     catch (Error error) {
@@ -254,13 +254,16 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   {
     hostname = context.getString("hostname", "localhost");
     port = context.getInteger("port", 0);
-    eventloopName = context.getString("eventloopName");
+    id = context.getString("eventloopName");
+    if (id == null) {
+      id = getName();
+    }
     sleepMillis = context.getLong("sleepMillis", 5L);
     throughputAdjustmentFactor = context.getInteger("throughputAdjustmentPercent", 5) / 100.0;
     maximumEventsPerTransaction = context.getInteger("maximumEventsPerTransaction", 10000);
     minimumEventsPerTransaction = context.getInteger("minimumEventsPerTransaction", 100);
 
-    logger.debug("hostname = {}\nport = {}\neventloopName = {}\nsleepMillis = {}\nthroughputAdjustmentFactor = {}\nmaximumEventsPerTransaction = {}\nminimumEventsPerTransaction = {}", hostname, port, eventloopName, sleepMillis, throughputAdjustmentFactor, maximumEventsPerTransaction, minimumEventsPerTransaction);
+    logger.debug("hostname = {}\nport = {}\neventloopName = {}\nsleepMillis = {}\nthroughputAdjustmentFactor = {}\nmaximumEventsPerTransaction = {}\nminimumEventsPerTransaction = {}", hostname, port, id, sleepMillis, throughputAdjustmentFactor, maximumEventsPerTransaction, minimumEventsPerTransaction);
 
     discovery = configure("discovery", Discovery.class, context);
     if (discovery == null) {
@@ -349,7 +352,14 @@ public class DTFlumeSink extends AbstractSink implements Configurable
         @SuppressWarnings("unchecked")
         T object = (T)loadClass.newInstance();
         if (object instanceof Configurable) {
-          ((Configurable)object).configure(new Context(context.getSubProperties(key + '.')));
+          Context context1 = new Context(context.getSubProperties(key + '.'));
+          String id = context1.getString(Storage.ID);
+          if (id == null) {
+            id = context.getString(Storage.ID);
+            logger.debug("Storage inherited id={} from sink", id);
+            context1.put(Storage.ID, id);
+          }
+          ((Configurable)object).configure(context1);
         }
         return object;
 
@@ -421,5 +431,4 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   }
 
   private static final Logger logger = LoggerFactory.getLogger(DTFlumeSink.class);
-
 }
