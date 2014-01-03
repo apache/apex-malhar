@@ -5,6 +5,9 @@
 		<button class="btn" disabled><%= DT.text('select an item') %></button>
 	<% } else if (selected.length === 1) {%>
 		<button class="inspectItem btn btn-primary"><i class="icon-eye-open icon-white"></i> <%= DT.text('inspect') %></button>
+		<% if (selected[0].depJar === false) { %>
+			<button class="btn btn-warning specifyDeps"><i class="icon-custom-white icon-custom-dependency"></i> <%= DT.text('specify dependencies') %></button>
+		<% } %>
 		<button class="removeJar btn btn-danger"><i class="icon-trash icon-white"></i> <%= DT.text('remove file') %></button>
 	<% } else { %>
 		<button class="removeJars btn btn-danger"><i class="icon-trash icon-white"></i> <%= DT.text('remove selected files') %></button>
