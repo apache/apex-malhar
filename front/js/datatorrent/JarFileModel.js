@@ -21,6 +21,7 @@
 
 var BaseModel = require('./BaseModel');
 
+var SpecifyJarDepsView = require('./SpecifyJarDepsView');
 
 // class definition
 var JarFileModel = BaseModel.extend({
@@ -87,6 +88,18 @@ var JarFileModel = BaseModel.extend({
         
         // start reading the file
         reader.readAsBinaryString(file);
+    },
+
+    specifyDependencies: function() {
+
+        var modal = new SpecifyJarDepsView({
+            model: this
+        });
+
+        $('body').append(modal.render().el);
+
+        modal.launch();
+
     }
     
 });

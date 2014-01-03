@@ -26,7 +26,8 @@ var JarListPalette = BaseView.extend({
         'click .inspectItem': 'goToJar',
         'click .removeJar': 'removeJar',
         'click .removeJars': 'removeJars',
-        'click .refreshList': 'refreshList'
+        'click .refreshList': 'refreshList',
+        'click .specifyDeps': 'specifyJarDeps'
     },
     
     goToJar: function() {
@@ -47,6 +48,14 @@ var JarListPalette = BaseView.extend({
         }
         
         this.render();
+    },
+
+    specifyJarDeps: function() {
+        var selected = this.getSelected();
+
+        if (selected.length !== 1) return;
+
+        selected[0].specifyDependencies();
     },
     
     removeJars: function() {
