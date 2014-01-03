@@ -292,6 +292,12 @@ var Tabled = BaseView.extend({
     grabTableResizer: function(evt){
         evt.preventDefault();
         evt.stopPropagation();
+
+        // check for right click
+        if (evt.which !== 1) {
+            return;
+        }
+
         var self = this;
         
         // Horizontal

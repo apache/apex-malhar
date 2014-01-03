@@ -176,7 +176,6 @@ var UploadJarsView = BaseView.extend({
         var pending = this.collection.length;
 
         this.listenTo(this.collection, 'upload_success', function() {
-            console.log('testing');
             if (--pending === 0) {
                 this.collection.reset([]);
             }
