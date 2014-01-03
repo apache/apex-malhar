@@ -36,7 +36,7 @@ import org.apache.flume.conf.Configurable;
  *
  * @author Chetan Narsude <chetan@datatorrent.com>
  */
-public class ZKAssistedDiscovery implements Discovery, Configurable
+public class ZKAssistedDiscovery implements Discovery<SocketAddress>, Configurable
 {
   private String connectionString;
   private String basePath;

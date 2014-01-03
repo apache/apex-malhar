@@ -22,6 +22,7 @@ import com.datatorrent.flume.sink.Server.Client;
 import com.datatorrent.flume.sink.Server.Request;
 import com.datatorrent.flume.storage.Storage;
 import com.datatorrent.netlet.DefaultEventLoop;
+import java.io.IOException;
 
 /**
  * DTFlumeSink is a flume sink developed to ingest the data into DataTorrent DAG
@@ -63,7 +64,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
 
   /* Begin implementing Flume Sink interface */
   @Override
-  @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch"})
+  @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch"})
   public Status process() throws EventDeliveryException
   {
     Slice slice;
@@ -180,17 +181,15 @@ public class DTFlumeSink extends AbstractSink implements Configurable
 
           t.commit();
         }
+        catch (Error er) {
+          throw er;
+        }
         catch (Throwable th) {
           logger.error("Exception during flume transaction", th);
-          t.rollback();
-
-          if (th instanceof Error) {
-            throw (Error)th;
-          }
-
           return Status.BACKOFF;
         }
         finally {
+          t.rollback();
           t.close();
         }
 
@@ -226,7 +225,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
     catch (RuntimeException re) {
       throw re;
     }
-    catch (Throwable ex) {
+    catch (IOException ex) {
       throw new RuntimeException(ex);
     }
 
@@ -266,7 +265,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
     discovery = configure("discovery", Discovery.class, context);
     if (discovery == null) {
       logger.warn("Discovery agent not configured for the sink!");
-      discovery = new Discovery()
+      discovery = new Discovery<SocketAddress>()
       {
         @Override
         public void advertise(SocketAddress address)
@@ -336,6 +335,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   }
   /* End Configurable Interface */
 
+  @SuppressWarnings( {"UseSpecificCatch", "BroadCatchBlock", "TooBroadCatch"})
   private static <T> T configure(String key, Class<T> clazz, Context context)
   {
     String classname = context.getString(key);
