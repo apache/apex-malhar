@@ -4,7 +4,6 @@
  */
 package com.datatorrent.flume.discovery;
 
-import java.net.SocketAddress;
 import java.util.Collection;
 
 /**
@@ -16,8 +15,9 @@ import java.util.Collection;
  * they can find an available DTFlumeSink server instance.
  *
  * @author Chetan Narsude <chetan@datatorrent.com>
+ * @param <T> - Type of the objects which can be discovered
  */
-public interface Discovery
+public interface Discovery<T>
 {
 
   /**
@@ -25,20 +25,20 @@ public interface Discovery
    *
    * @param serverAddress - the address which is awaiting client connection.
    */
-  void unadvertise(SocketAddress serverAddress);
+  void unadvertise(T serverAddress);
 
   /**
    * Recall the previously published address as it's no longer valid.
    *
    * @param serverAddress - previously published address which can no longer accept client connections.
    */
-  public void advertise(SocketAddress serverAddress);
+  public void advertise(T serverAddress);
 
   /**
    * Discover all the addresses which are actively accepting the client connections.
    *
    * @return - Active server addresses which can accept the connections.
    */
-  Collection<SocketAddress> discover();
+  Collection<T> discover();
 
 }

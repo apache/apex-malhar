@@ -34,7 +34,7 @@ public class DTFlumeSinkTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testServer() throws InterruptedException, IOException
   {
-    Discovery discovery = new Discovery()
+    Discovery<SocketAddress> discovery = new Discovery<SocketAddress>()
     {
       @Override
       public synchronized void unadvertise(SocketAddress serverAddress)

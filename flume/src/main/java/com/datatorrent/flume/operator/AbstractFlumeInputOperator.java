@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Partitionable.PartitionAware;
 import com.datatorrent.api.Stats.OperatorStats;
 import com.datatorrent.api.Stats.OperatorStats.CustomStats;
 
@@ -31,6 +32,7 @@ import com.datatorrent.flume.sink.Server.Command;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 import com.datatorrent.netlet.DefaultEventLoop;
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  *
@@ -38,7 +40,7 @@ import java.util.*;
  * @author Chetan Narsude <chetan@datatorrent.com>
  */
 public abstract class AbstractFlumeInputOperator<T>
-        implements InputOperator, ActivationListener<OperatorContext>, IdleTimeHandler, CheckpointListener, Partitionable<AbstractFlumeInputOperator<T>>
+        implements InputOperator, ActivationListener<OperatorContext>, IdleTimeHandler, CheckpointListener, Partitionable<AbstractFlumeInputOperator<T>>, PartitionAware<AbstractFlumeInputOperator<T>>
 {
   public final transient DefaultOutputPort<T> output = new DefaultOutputPort<T>();
   private transient int idleCounter;
@@ -217,16 +219,35 @@ public abstract class AbstractFlumeInputOperator<T>
   @Override
   public Collection<Partition<AbstractFlumeInputOperator<T>>> definePartitions(Collection<Partition<AbstractFlumeInputOperator<T>>> partitions, int incrementalCapacity)
   {
-    if (incrementalCapacity == 0) {
+//        HashMap<String, Integer> accounted = new HashMap<String, Integer>(1);
+//        for (SocketAddress address: addresses) {
+//          int port = ((InetSocketAddress)address).getPort();
+//          String host = ((InetSocketAddress)address).getHostName();
+//
+//          boolean found = false;
+//          for (Entry<Integer, ConnectionStatus> entry: map.entrySet()) {
+//            if (entry.getValue().port == port && host.equals(entry.getValue().host)) {
+//              accounted.put(host + ':' + port, entry.getKey());
+//              found = true;
+//              break;
+//            }
+//          }
+//
+//          if (!found) {
+//            accounted.put(host + ':' + port, null);
+//          }
+    /* This is possible when the partitioning is advised by statslistener */
+    Collection<SocketAddress> discovered = addresses.get();
+    if (incrementalCapacity == 0 && discovered == null) {
       return partitions;
     }
 
     ArrayList<String> allConnectAddresses = new ArrayList<String>(partitions.size() + incrementalCapacity);
     ArrayList<ArrayList<RecoveryAddress>> allRecoveryAddresses = new ArrayList<ArrayList<RecoveryAddress>>(partitions.size() + incrementalCapacity);
     for (Partition<AbstractFlumeInputOperator<T>> partition: partitions) {
-      String[] addresses = partition.getPartitionedInstance().connectAddresses;
-      allConnectAddresses.addAll(Arrays.asList(addresses));
-      for (int i = addresses.length; i-- > 0;) {
+      String[] lAddresses = partition.getPartitionedInstance().connectAddresses;
+      allConnectAddresses.addAll(Arrays.asList(lAddresses));
+      for (int i = lAddresses.length; i-- > 0;) {
         allRecoveryAddresses.add(partition.getPartitionedInstance().recoveryAddresses);
       }
     }
@@ -256,6 +277,20 @@ public abstract class AbstractFlumeInputOperator<T>
     }
 
     return partitions;
+  }
+
+  @Override
+  public void partitioned(Map<Integer, Partition<AbstractFlumeInputOperator<T>>> partitions)
+  {
+    HashMap<Integer, ConnectionStatus> map = localMap.get();
+    for (Entry<Integer, Partition<AbstractFlumeInputOperator<T>>> entry: partitions.entrySet()) {
+      if (map.containsKey(entry.getKey())) {
+        // what can be done here?
+      }
+      else {
+        map.put(entry.getKey(), null);
+      }
+    }
   }
 
   private class Payload
@@ -349,39 +384,67 @@ public abstract class AbstractFlumeInputOperator<T>
      * Until that happens the following map should be sufficient to
      * keep track of which input operator is connected to which flume sink.
      */
-    final transient HashMap<Integer, ConnectionStatus> map;
-    private int count;
+    private final transient HashMap<Integer, ConnectionStatus> map;
+    private transient long nextMillis;
+    private final Response response;
 
     public StatsListner()
     {
-      this.map = new HashMap<Integer, ConnectionStatus>();
+      map = localMap.get();
+      nextMillis = System.currentTimeMillis() + intervalMillis;
+      response = new Response();
     }
 
     @Override
     public Response processStats(BatchedOperatorStats stats)
     {
-      ConnectionStatus storedStats = map.get(stats.getOperatorId());
+      response.repartitionRequired = false;
 
-      boolean connected = false;
+      CustomStats lastStat = null;
       List<OperatorStats> lastWindowedStats = stats.getLastWindowedStats();
       for (OperatorStats os: lastWindowedStats) {
         if (os.customStats != null) {
-          if (storedStats == null) {
-            map.put(stats.getOperatorId(), (ConnectionStatus)os.customStats);
-          }
-          connected = ((ConnectionStatus)os.customStats).connected;
+          lastStat = os.customStats;
         }
       }
 
-      if (!connected || ++count == 5) {
+      if (lastStat instanceof ConnectionStatus) {
+        ConnectionStatus cs = (ConnectionStatus)lastStat;
+        map.put(stats.getOperatorId(), cs);
+        if (!cs.connected) {
+          response.repartitionRequired = true;
+        }
+      }
+
+      if (System.currentTimeMillis() >= nextMillis) {
         Collection<SocketAddress> addresses = discover();
-        for (SocketAddress address: addresses) {
+        if (addresses.size() != map.size()) {
+          AbstractFlumeInputOperator.addresses.set(addresses);
+          response.repartitionRequired = true;
         }
+        nextMillis = System.currentTimeMillis() + intervalMillis;
       }
 
-      return new Response();
+      return response;
     }
 
+    /**
+     * @return the intervalMillis
+     */
+    public long getIntervalMillis()
+    {
+      return intervalMillis;
+    }
+
+    /**
+     * @param intervalMillis the intervalMillis to set
+     */
+    public void setIntervalMillis(long intervalMillis)
+    {
+      this.intervalMillis = intervalMillis;
+    }
+
+    long intervalMillis = 60 * 1000L;
     private static final long serialVersionUID = 201312241646L;
   }
 
@@ -419,5 +482,16 @@ public abstract class AbstractFlumeInputOperator<T>
     private static final long serialVersionUID = 201312261615L;
   }
 
+  private static final transient ThreadLocal<HashMap<Integer, ConnectionStatus>> localMap = new ThreadLocal<HashMap<Integer, ConnectionStatus>>()
+  {
+    @Override
+    protected HashMap<Integer, ConnectionStatus> initialValue()
+    {
+      return new HashMap<Integer, ConnectionStatus>();
+    }
+
+  };
+
+  private static final transient ThreadLocal<Collection<SocketAddress>> addresses = new ThreadLocal<Collection<SocketAddress>>();
   private static final Logger logger = LoggerFactory.getLogger(AbstractFlumeInputOperator.class);
 }
