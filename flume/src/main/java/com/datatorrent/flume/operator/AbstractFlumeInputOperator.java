@@ -7,11 +7,8 @@ package com.datatorrent.flume.operator;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.ArrayBlockingQueue;
 import static java.lang.Thread.sleep;
 
@@ -26,13 +23,12 @@ import com.datatorrent.api.Partitionable.PartitionAware;
 import com.datatorrent.api.Stats.OperatorStats;
 import com.datatorrent.api.Stats.OperatorStats.CustomStats;
 
+import com.datatorrent.flume.discovery.Discovery.Service;
 import com.datatorrent.flume.discovery.ZKAssistedDiscovery;
 import com.datatorrent.flume.sink.Server;
 import com.datatorrent.flume.sink.Server.Command;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 import com.datatorrent.netlet.DefaultEventLoop;
-import java.util.*;
-import java.util.Map.Entry;
 
 /**
  *
@@ -237,7 +233,7 @@ public abstract class AbstractFlumeInputOperator<T>
 //            accounted.put(host + ':' + port, null);
 //          }
     /* This is possible when the partitioning is advised by statslistener */
-    Collection<SocketAddress> discovered = addresses.get();
+    Collection<Service<byte[]>> discovered = addresses.get();
     if (incrementalCapacity == 0 && discovered == null) {
       return partitions;
     }
@@ -417,7 +413,7 @@ public abstract class AbstractFlumeInputOperator<T>
       }
 
       if (System.currentTimeMillis() >= nextMillis) {
-        Collection<SocketAddress> addresses = discover();
+        Collection<Service<byte[]>> addresses = discover();
         if (addresses.size() != map.size()) {
           AbstractFlumeInputOperator.addresses.set(addresses);
           response.repartitionRequired = true;
@@ -492,6 +488,6 @@ public abstract class AbstractFlumeInputOperator<T>
 
   };
 
-  private static final transient ThreadLocal<Collection<SocketAddress>> addresses = new ThreadLocal<Collection<SocketAddress>>();
+  private static final transient ThreadLocal<Collection<Service<byte[]>>> addresses = new ThreadLocal<Collection<Service<byte[]>>>();
   private static final Logger logger = LoggerFactory.getLogger(AbstractFlumeInputOperator.class);
 }

@@ -4,7 +4,7 @@
  */
 package com.datatorrent.flume.sink;
 
-import java.net.SocketAddress;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -18,11 +18,11 @@ import org.apache.flume.sink.AbstractSink;
 
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.flume.discovery.Discovery;
+import com.datatorrent.flume.discovery.Discovery.Service;
 import com.datatorrent.flume.sink.Server.Client;
 import com.datatorrent.flume.sink.Server.Request;
 import com.datatorrent.flume.storage.Storage;
 import com.datatorrent.netlet.DefaultEventLoop;
-import java.io.IOException;
 
 /**
  * DTFlumeSink is a flume sink developed to ingest the data into DataTorrent DAG
@@ -60,7 +60,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   private int minimumEventsPerTransaction;
   private int maximumEventsPerTransaction;
   private Storage storage;
-  Discovery discovery;
+  Discovery<byte[]> discovery;
 
   /* Begin implementing Flume Sink interface */
   @Override
@@ -217,7 +217,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   {
     try {
       eventloop = new DefaultEventLoop("EventLoop-" + id);
-      server = new Server(discovery);
+      server = new Server(id, discovery);
     }
     catch (Error error) {
       throw error;
@@ -250,6 +250,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
 
   /* Begin Configurable Interface */
   @Override
+  @SuppressWarnings("unchecked")
   public void configure(Context context)
   {
     hostname = context.getString("hostname", "localhost");
@@ -268,23 +269,23 @@ public class DTFlumeSink extends AbstractSink implements Configurable
     discovery = configure("discovery", Discovery.class, context);
     if (discovery == null) {
       logger.warn("Discovery agent not configured for the sink!");
-      discovery = new Discovery<SocketAddress>()
+      discovery = new Discovery<byte[]>()
       {
         @Override
-        public void advertise(SocketAddress address)
+        public void unadvertise(Service<byte[]> service)
         {
-          logger.debug("Sink started listening on {}", address);
+          logger.debug("Sink {} stopped listening on {}:{}", service.getId(), service.getHost(), service.getPort());
         }
 
         @Override
-        public void unadvertise(SocketAddress address)
+        public void advertise(Service<byte[]> service)
         {
-          logger.debug("Sink stopped listening on {}", address);
+          logger.debug("Sink {} started listening on {}:{}", service.getId(), service.getHost(), service.getPort());
         }
 
         @Override
         @SuppressWarnings("unchecked")
-        public Collection<SocketAddress> discover()
+        public Collection<Service<byte[]>> discover()
         {
           return Collections.EMPTY_SET;
         }
@@ -338,7 +339,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   }
   /* End Configurable Interface */
 
-  @SuppressWarnings( {"UseSpecificCatch", "BroadCatchBlock", "TooBroadCatch"})
+  @SuppressWarnings({"UseSpecificCatch", "BroadCatchBlock", "TooBroadCatch"})
   private static <T> T configure(String key, Class<T> clazz, Context context)
   {
     String classname = context.getString(key);
@@ -417,7 +418,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   /**
    * @return the discovery
    */
-  Discovery getDiscovery()
+  Discovery<byte[]> getDiscovery()
   {
     return discovery;
   }
@@ -425,7 +426,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   /**
    * @param discovery the discovery to set
    */
-  void setDiscovery(Discovery discovery)
+  void setDiscovery(Discovery<byte[]> discovery)
   {
     this.discovery = discovery;
   }

@@ -6,7 +6,6 @@ package com.datatorrent.flume.sink;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -18,6 +17,7 @@ import org.apache.flume.channel.MemoryChannel;
 
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.flume.discovery.Discovery;
+import com.datatorrent.flume.discovery.Discovery.Service;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 import com.datatorrent.netlet.DefaultEventLoop;
 
@@ -34,25 +34,25 @@ public class DTFlumeSinkTest
   @SuppressWarnings("SleepWhileInLoop")
   public void testServer() throws InterruptedException, IOException
   {
-    Discovery<SocketAddress> discovery = new Discovery<SocketAddress>()
+    Discovery<byte[]> discovery = new Discovery<byte[]>()
     {
       @Override
-      public synchronized void unadvertise(SocketAddress serverAddress)
+      public synchronized void unadvertise(Service<byte[]> service)
       {
         notify();
       }
 
       @Override
-      public synchronized void advertise(SocketAddress serverAddress)
+      public synchronized void advertise(Service<byte[]> service)
       {
-        port = ((InetSocketAddress)serverAddress).getPort();
-        logger.debug("listening at {}", serverAddress);
+        port = service.getPort();
+        logger.debug("listening at {}", service);
         notify();
       }
 
       @Override
       @SuppressWarnings("unchecked")
-      public synchronized Collection<SocketAddress> discover()
+      public synchronized Collection<Service<byte[]>> discover()
       {
         try {
           wait();

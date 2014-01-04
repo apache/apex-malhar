@@ -23,22 +23,34 @@ public interface Discovery<T>
   /**
    * Advertise the host/port address where DTFlumeSink is accepting a client connection.
    *
-   * @param serverAddress - the address which is awaiting client connection.
+   * @param service
    */
-  void unadvertise(T serverAddress);
+  void unadvertise(Service<T> service);
 
   /**
    * Recall the previously published address as it's no longer valid.
    *
-   * @param serverAddress - previously published address which can no longer accept client connections.
+   * @param service
    */
-  public void advertise(T serverAddress);
+  public void advertise(Service<T> service);
 
   /**
    * Discover all the addresses which are actively accepting the client connections.
    *
    * @return - Active server addresses which can accept the connections.
    */
-  Collection<T> discover();
+  Collection<Service<T>> discover();
+
+  interface Service<T>
+  {
+    String getHost();
+
+    int getPort();
+
+    T getPayload();
+
+    String getId();
+
+  }
 
 }
