@@ -6,17 +6,9 @@ var kt = require('knights-templar');
 var Tabled = require('../tabled');
 var BaseView = require('../ModalView');
 var DepJarFileCollection = require('../DepJarFileCollection');
-var option_columns = [
-    { id: "selector", key: "selected", label: "", select: true, width: 40, lock_width: true },
-    { id: "name", key: "name", label: "file Name", filter: "like", sort_value: "a", sort: "string" },
-    { id: "modificationTime", label: "mod date", key: "modificationTime", sort: "number", filter: "date", format: "timeStamp" },
-    { id: "size", label: "size", key: "size", sort: "number", filter: "number", format: formatters.byteFormatter, width: 80 },
-    { id: "owner", label: "owner", key: "owner", sort: "string", filter: "like", width: 60 }
-];
-var choice_columns = [
-	{ id: "handle", key: "name", label: "order", width: 50, lock_width: true },
-	{ id: "name", key: "name", label: "File Name" }
-];
+var OptionsPalette = require('./OptionsPalette');
+var option_columns = require('./option_columns');
+var ChoicesList = require('./ChoicesList');
 
 /**
  * Modal view for specifying dependency jars
@@ -45,13 +37,46 @@ var SpecifyJarDepsView = BaseView.extend({
 			adjustable_width: false
 		}));
 
-		// Create choices table
-		this.subview('choices', new Tabled({
-			collection: this.choices,
-			columns: choice_columns,
-			table_width: 515,
-			adjustable_width: false
+		// Create palettes
+		this.subview('options_palette', new OptionsPalette({
+			collection: this.options,
+			table: this.subview('options')
 		}));
+
+		// Create choices table
+		this.subview('choices', new ChoicesList({
+			collection: this.choices,
+			parent: this
+		}));
+
+		// Set up comparator for choices
+		var choice_order = this.choice_order = [];
+		var self = this;
+		this.choices.comparator = function(row1, row2) {
+			return self.choice_order.indexOf(row1.get('name')) - choice_order.indexOf(row2.get('name'));
+		}
+
+		// Listen for selection changes
+		this.listenTo(this.options, 'change_selected', function(row, selected) {
+
+			var name = row.get('name');
+
+			if (selected) {
+				if (!this.choices.get(row)) {
+					choice_order.push(name);
+					this.choices.add(row);
+				}
+			} else {
+				if (this.choices.get(row)) {
+					choice_order.splice(choice_order.indexOf( name, 1 ));
+					this.choices.remove(row);
+				}
+			}
+		});
+
+		// this.subview('choices_palette', new ChoicesPalette({
+		// 	collection: this.choices
+		// }));
 	},
 
 	body: function() {
@@ -60,12 +85,13 @@ var SpecifyJarDepsView = BaseView.extend({
 
 	postRender: function() {
 		this.subview('options').resizeTableToCtnr();
-		this.subview('choices').resizeTableToCtnr();
 	},
 
 	assignments: {
 		'.dep-options .table-target': 'options',
-		'.dep-choices .table-target': 'choices'
+		'.dep-choices .table-target': 'choices',
+		'.dep-options .palette-target': 'options_palette',
+		// '.dep-choices .palette-target': 'choices_palette'
 	},
 
 	template: kt.make(__dirname+'/SpecifyJarDepsView.html','_')

@@ -13,6 +13,7 @@
 @import url("../js/datatorrent/LaunchJarWithPropsView/LaunchJarWithPropsView.css");
 @import url("../js/datatorrent/tabled/tabled.css");
 @import url("../js/datatorrent/livechart/livechart.css");
+@import url("../js/datatorrent/SpecifyJarDepsView/SpecifyJarDepsView.css");
 
 /* common styles */
 @import url("main.css");

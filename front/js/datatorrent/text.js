@@ -62,7 +62,8 @@ var textHash = {
     'locality_not_assigned'      :  'AUTOMATIC',
     'overwrite_jar_warning'      :  'A jar with this name already exists and will be overwritten.',
     'dep_options_title'          :  'Options',
-    'dep_choices_title'          :  'Choices'
+    'dep_choices_title'          :  'Choices',
+    'filename_label'             :  'file name'
 };
 
 // Inter-dependent text items
