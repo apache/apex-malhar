@@ -4,6 +4,7 @@
  */
 package com.datatorrent.flume.sink;
 
+import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.flume.discovery.Discovery;
+import com.datatorrent.flume.discovery.Discovery.Service;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 
 /**
@@ -23,25 +25,55 @@ import com.datatorrent.netlet.AbstractLengthPrependerClient;
  */
 public class Server extends com.datatorrent.netlet.Server
 {
-  private final Discovery discovery;
+  private final String id;
+  private final Discovery<byte[]> discovery;
 
-  public Server(Discovery discovery)
+  public Server(String id, Discovery<byte[]> discovery)
   {
+    this.id = id;
     this.discovery = discovery;
   }
 
-  @Override
-  public void unregistered(SelectionKey key)
+  private final Service<byte[]> service = new Service<byte[]>()
   {
-    discovery.unadvertise(getServerAddress());
+    @Override
+    public String getHost()
+    {
+        return ((InetSocketAddress)getServerAddress()).getHostName();
+    }
+
+    @Override
+    public int getPort()
+    {
+        return ((InetSocketAddress)getServerAddress()).getPort();
+    }
+
+    @Override
+    public byte[] getPayload()
+    {
+        return null;
+    }
+
+    @Override
+    public String getId()
+    {
+        return id;
+    }
+
+  };
+
+  @Override
+  public void unregistered(final SelectionKey key)
+  {
+    discovery.unadvertise(service);
     super.unregistered(key);
   }
 
   @Override
-  public void registered(SelectionKey key)
+  public void registered(final SelectionKey key)
   {
     super.registered(key);
-    discovery.advertise(getServerAddress());
+    discovery.advertise(service);
   }
 
   public enum Command

@@ -5,8 +5,6 @@
 package com.datatorrent.flume.discovery;
 
 import java.io.ByteArrayOutputStream;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -36,7 +34,7 @@ import org.apache.flume.conf.Configurable;
  *
  * @author Chetan Narsude <chetan@datatorrent.com>
  */
-public class ZKAssistedDiscovery implements Discovery<SocketAddress>, Configurable
+public class ZKAssistedDiscovery implements Discovery<byte[]>, Configurable
 {
   private String connectionString;
   private String basePath;
@@ -47,28 +45,18 @@ public class ZKAssistedDiscovery implements Discovery<SocketAddress>, Configurab
   private String serviceName;
 
   @Override
-  public void unadvertise(SocketAddress serverAddress)
+  public void unadvertise(Service<byte[]> service)
   {
-    if (serverAddress instanceof InetSocketAddress) {
-      doAdvertise((InetSocketAddress)serverAddress, false);
-    }
-    else {
-      logger.warn("Unknown address {} of type {}", serverAddress, serverAddress.getClass().getName());
-    }
+    doAdvertise(service, false);
   }
 
   @Override
-  public void advertise(SocketAddress serverAddress)
+  public void advertise(Service<byte[]> service)
   {
-    if (serverAddress instanceof InetSocketAddress) {
-      doAdvertise((InetSocketAddress)serverAddress, true);
-    }
-    else {
-      logger.warn("Unknown address {} of type {}", serverAddress, serverAddress.getClass().getName());
-    }
+    doAdvertise(service, true);
   }
 
-  public void doAdvertise(InetSocketAddress address, boolean flag)
+  public void doAdvertise(Service<byte[]> service, boolean flag)
   {
     CuratorFramework curatorFramework = CuratorFrameworkFactory.builder()
             .connectionTimeoutMs(connectionTimeoutMillis)
@@ -80,9 +68,9 @@ public class ZKAssistedDiscovery implements Discovery<SocketAddress>, Configurab
     try {
       new EnsurePath(basePath).ensure(curatorFramework.getZookeeperClient());
 
-      ServiceDiscovery<SinkMetadata> discovery = getDiscovery(curatorFramework);
+      ServiceDiscovery<byte[]> discovery = getDiscovery(curatorFramework);
       discovery.start();
-      ServiceInstance<SinkMetadata> instance = getInstance(address.getHostName(), address.getPort());
+      ServiceInstance<byte[]> instance = getInstance(service);
       if (flag) {
         discovery.registerService(instance);
       }
@@ -97,7 +85,7 @@ public class ZKAssistedDiscovery implements Discovery<SocketAddress>, Configurab
   }
 
   @Override
-  public Collection<SocketAddress> discover()
+  public Collection<Service<byte[]>> discover()
   {
     CuratorFramework curatorFramework = CuratorFrameworkFactory.builder()
             .connectionTimeoutMs(connectionTimeoutMillis)
@@ -109,13 +97,38 @@ public class ZKAssistedDiscovery implements Discovery<SocketAddress>, Configurab
     try {
       new EnsurePath(basePath).ensure(curatorFramework.getZookeeperClient());
 
-      ServiceDiscovery<SinkMetadata> discovery = getDiscovery(curatorFramework);
+      ServiceDiscovery<byte[]> discovery = getDiscovery(curatorFramework);
       discovery.start();
-      Collection<ServiceInstance<SinkMetadata>> services = discovery.queryForInstances(serviceName);
-      ArrayList<SocketAddress> returnable = new ArrayList<SocketAddress>(services.size());
-      for (ServiceInstance<SinkMetadata> service: services) {
-        SinkMetadata payload = service.getPayload();
-        returnable.add(new InetSocketAddress(payload.boundHost, payload.getBoundPort()));
+      Collection<ServiceInstance<byte[]>> services = discovery.queryForInstances(serviceName);
+      ArrayList<Service<byte[]>> returnable = new ArrayList<Service<byte[]>>(services.size());
+      for (final ServiceInstance<byte[]> service: services) {
+        returnable.add(new Service<byte[]>()
+        {
+          @Override
+          public String getHost()
+          {
+            return service.getAddress();
+          }
+
+          @Override
+          public int getPort()
+          {
+            return service.getPort();
+          }
+
+          @Override
+          public byte[] getPayload()
+          {
+            return service.getPayload();
+          }
+
+          @Override
+          public String getId()
+          {
+            return service.getId();
+          }
+
+        });
       }
       discovery.close();
       return returnable;
@@ -128,36 +141,36 @@ public class ZKAssistedDiscovery implements Discovery<SocketAddress>, Configurab
   @Override
   public void configure(Context context)
   {
+    serviceName = context.getString("serviceName", "DTFlume");
+
     connectionString = context.getString("connectionString");
     connectionTimeoutMillis = context.getInteger("connectionTimeoutMillis", 1000);
     connectionRetryCount = context.getInteger("connectionRetryCount", 10);
     conntectionRetrySleepMillis = context.getInteger("connectionRetrySleepMillis", 500);
     basePath = context.getString("basePath");
-    serviceName = context.getString("serviceName", "DTFlume");
 
     ObjectMapper om = new ObjectMapper();
     instanceSerializerFactory = new InstanceSerializerFactory(om.reader(), om.writer());
   }
 
-  ServiceInstance<SinkMetadata> getInstance(String boundAddress, int boundPort) throws Exception
+  ServiceInstance<byte[]> getInstance(Service<byte[]> service) throws Exception
   {
-    SinkMetadata sinkMetadata = new SinkMetadata(boundAddress, boundPort);
-    return ServiceInstance.<SinkMetadata>builder()
+    return ServiceInstance.<byte[]>builder()
             .name(serviceName)
-            .address(boundAddress)
-            .port(boundPort)
-            .id(boundAddress + boundPort)
-            .payload(sinkMetadata)
+            .address(service.getHost())
+            .port(service.getPort())
+            .id(service.getId())
+            .payload(service.getPayload())
             .build();
   }
 
-  private ServiceDiscovery<SinkMetadata> getDiscovery(CuratorFramework curatorFramework)
+  private ServiceDiscovery<byte[]> getDiscovery(CuratorFramework curatorFramework)
   {
-    return ServiceDiscoveryBuilder.builder(SinkMetadata.class)
+    return ServiceDiscoveryBuilder.builder(byte[].class)
             .basePath(basePath)
             .client(curatorFramework)
             .serializer(instanceSerializerFactory.getInstanceSerializer(
-                            new TypeReference<ServiceInstance<SinkMetadata>>()
+                            new TypeReference<ServiceInstance<byte[]>>()
                             {
                             }
                     ))
