@@ -360,6 +360,13 @@ public class HDFSStorage implements Storage, Configurable
         throw new RuntimeException(ex);
       }
     }
+    updateFlushedOffset();
+  }
+
+  /**
+   * This updates the flushed offset
+   */
+  private void updateFlushedOffset(){
     byte[] lastStoredOffset = new byte[IDENTIFIER_SIZE];
     Server.writeLong(lastStoredOffset, 0, calculateOffset(fileWriteOffset, fileCounter));
     try {
@@ -377,7 +384,6 @@ public class HDFSStorage implements Storage, Configurable
       }
     }
   }
-
   @Override
   public void close()
   {
@@ -386,6 +392,7 @@ public class HDFSStorage implements Storage, Configurable
         dataStream.close();
         fileWriteOffset = 0;
         ++fileCounter;
+        updateFlushedOffset();
 
       }
       catch (IOException ex) {
