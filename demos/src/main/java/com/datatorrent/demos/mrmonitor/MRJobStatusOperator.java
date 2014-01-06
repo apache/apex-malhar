@@ -434,6 +434,9 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
       outputJsonObject.put("id", JOB_PREFIX + obj.getJobId());
       outputJsonObject.put("mapHistory", new JSONArray(obj.getMapStatusHistory()));
       outputJsonObject.put("reduceHistory", new JSONArray(obj.getReduceStatusHistory()));
+      outputJsonObject.put("physicalMemoryHistory", new JSONArray(obj.getPhysicalMemeoryStatusHistory()));
+      outputJsonObject.put("virtualMemoryHistory", new JSONArray(obj.getVirtualMemoryStatusHistory()));
+      outputJsonObject.put("cpuHistory", new JSONArray(obj.getCpuStatusHistory()));
       output.emit(outputJsonObject.toString());
       obj.setChangedHistoryStatus(false);
 
@@ -489,6 +492,9 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
           if (obj.isChangedHistoryStatus()) {
             outputJsonObject.put("mapHistory", new JSONArray(obj.getMapStatusHistory()));
             outputJsonObject.put("reduceHistory", new JSONArray(obj.getReduceStatusHistory()));
+            outputJsonObject.put("physicalMemoryHistory", new JSONArray(obj.getPhysicalMemeoryStatusHistory()));
+            outputJsonObject.put("virtualMemoryHistory", new JSONArray(obj.getVirtualMemoryStatusHistory()));
+            outputJsonObject.put("cpuHistory", new JSONArray(obj.getCpuStatusHistory()));
             output.emit(outputJsonObject.toString());
             obj.setChangedHistoryStatus(false);
           }
