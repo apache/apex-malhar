@@ -219,15 +219,14 @@ public class HDFSStorageTest
     storage.flush();
     storage.close();
     byte[] identifier = new byte[8];
-    Server.writeLong(identifier, 0, calculateOffset((long) 4 + b.length, 0l));
+    Server.writeLong(identifier, 0, calculateOffset(0l, 1l));
     ctx.put(HDFSStorage.RESTORE_KEY, Boolean.toString(true));
     storage = new HDFSStorage();
     ((Configurable) storage).configure(ctx);
     try {
       storage.retrieve(identifier);
     } catch (Exception e) {
-      byte[] new_identifier = storage.store(b);
-      Assert.assertNull("identifier is null", new_identifier);
+      storage.store(b);
       storage.close();
       byte[] data = storage.retrieve(identifier);
       byte[] tempData = new byte[data.length - 8];
@@ -243,6 +242,7 @@ public class HDFSStorageTest
     storage.clean(identifier);
   }
 
+  @SuppressWarnings("unused")
   private static final Logger logger = LoggerFactory.getLogger(HDFSStorageTest.class);
 
   private long calculateOffset(long fileOffset, long fileCounter)
