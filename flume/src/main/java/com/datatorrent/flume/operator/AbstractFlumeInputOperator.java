@@ -44,7 +44,6 @@ public abstract class AbstractFlumeInputOperator<T>
   private transient int eventCounter;
   private transient DefaultEventLoop eventloop;
   private transient RecoveryAddress recoveryAddress;
-  private final transient ArrayBlockingQueue<Payload> handoverBuffer;
   private transient volatile boolean connected;
   private transient OperatorContext context;
   private transient Client client;
@@ -55,7 +54,6 @@ public abstract class AbstractFlumeInputOperator<T>
 
   public AbstractFlumeInputOperator()
   {
-    this.handoverBuffer = new ArrayBlockingQueue<Payload>(1024 * 5);
     this.recoveryAddresses = new ArrayList<RecoveryAddress>();
   }
 
@@ -526,5 +524,6 @@ public abstract class AbstractFlumeInputOperator<T>
   };
 
   private static final transient ThreadLocal<Collection<Service<byte[]>>> addresses = new ThreadLocal<Collection<Service<byte[]>>>();
+  private transient ArrayBlockingQueue<Payload> handoverBuffer = new ArrayBlockingQueue<Payload>(1024 * 5);
   private static final Logger logger = LoggerFactory.getLogger(AbstractFlumeInputOperator.class);
 }
