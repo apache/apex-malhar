@@ -226,7 +226,7 @@ public class HDFSStorageTest
     try {
       storage.retrieve(identifier);
     } catch (Exception e) {
-      storage.store(b);
+      Assert.assertNull("the identifier is null",storage.store(b));
       storage.close();
       byte[] data = storage.retrieve(identifier);
       byte[] tempData = new byte[data.length - 8];
