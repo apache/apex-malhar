@@ -10,8 +10,6 @@ import java.util.Collection;
 
 import com.google.common.base.Throwables;
 
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectReader;
 import org.codehaus.jackson.map.ObjectWriter;
@@ -185,66 +183,66 @@ public class ZKAssistedDiscovery implements Discovery<byte[]>, Configurable
     return instanceSerializerFactory;
   }
 
-  public static final class SinkMetadata
-  {
-    private static final String BOUND_HOST = "boundHost";
-    private static final String BOUND_PORT = "boundPort";
-
-    @JsonProperty(BOUND_HOST)
-    public final String boundHost;
-
-    @JsonProperty(BOUND_PORT)
-    public final int boundPort;
-
-    @JsonCreator
-    public SinkMetadata(@JsonProperty(BOUND_HOST) String boundHost, @JsonProperty(BOUND_PORT) int boundPort)
-    {
-      this.boundHost = boundHost;
-      this.boundPort = boundPort;
-    }
-
-    /**
-     * @return the boundHost
-     */
-    String getBoundHost()
-    {
-      return boundHost;
-    }
-
-    /**
-     * @return the boundPort
-     */
-    int getBoundPort()
-    {
-      return boundPort;
-    }
-
-    @Override
-    public int hashCode()
-    {
-      int hash = 7;
-      hash = 59 * hash + (this.boundHost != null ? this.boundHost.hashCode() : 0);
-      hash = 59 * hash + this.boundPort;
-      return hash;
-    }
-
-    @Override
-    public boolean equals(Object obj)
-    {
-      if (obj == null) {
-        return false;
-      }
-      if (getClass() != obj.getClass()) {
-        return false;
-      }
-      final SinkMetadata other = (SinkMetadata)obj;
-      if ((this.boundHost == null) ? (other.boundHost != null) : !this.boundHost.equals(other.boundHost)) {
-        return false;
-      }
-      return this.boundPort == other.boundPort;
-    }
-
-  }
+//  public static final class SinkMetadata
+//  {
+//    private static final String BOUND_HOST = "boundHost";
+//    private static final String BOUND_PORT = "boundPort";
+//
+//    @JsonProperty(BOUND_HOST)
+//    public final String boundHost;
+//
+//    @JsonProperty(BOUND_PORT)
+//    public final int boundPort;
+//
+//    @JsonCreator
+//    public SinkMetadata(@JsonProperty(BOUND_HOST) String boundHost, @JsonProperty(BOUND_PORT) int boundPort)
+//    {
+//      this.boundHost = boundHost;
+//      this.boundPort = boundPort;
+//    }
+//
+//    /**
+//     * @return the boundHost
+//     */
+//    String getBoundHost()
+//    {
+//      return boundHost;
+//    }
+//
+//    /**
+//     * @return the boundPort
+//     */
+//    int getBoundPort()
+//    {
+//      return boundPort;
+//    }
+//
+//    @Override
+//    public int hashCode()
+//    {
+//      int hash = 7;
+//      hash = 59 * hash + (this.boundHost != null ? this.boundHost.hashCode() : 0);
+//      hash = 59 * hash + this.boundPort;
+//      return hash;
+//    }
+//
+//    @Override
+//    public boolean equals(Object obj)
+//    {
+//      if (obj == null) {
+//        return false;
+//      }
+//      if (getClass() != obj.getClass()) {
+//        return false;
+//      }
+//      final SinkMetadata other = (SinkMetadata)obj;
+//      if ((this.boundHost == null) ? (other.boundHost != null) : !this.boundHost.equals(other.boundHost)) {
+//        return false;
+//      }
+//      return this.boundPort == other.boundPort;
+//    }
+//
+//  }
 
   public class InstanceSerializerFactory
   {
