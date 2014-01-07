@@ -41,17 +41,17 @@ import com.datatorrent.api.annotation.ShipContainingJars;
  * A general CSV parser to parse csv String/bytearray content to Map
  * </p>
  * <br>
- * 
+ *
  * Properties:<br>
  * <b>quote</b>: Quote mark for csv file<br>
  * <b>separator</b>: Separator mark for csv file<br>
  * <br>
- * 
+ *
  * Shipped jars with this operator:<br>
  * <b>org.supercsv.io.CsvMapReader<br>
- * 
+ *
  * <br>
- * 
+ *
  * @since 0.9.2
  */
 
@@ -69,7 +69,7 @@ public class CsvParserOperator extends BaseOperator
   private CSVHeaderMapping headerMapping = null;
 
   @NotNull
-  private transient CSVStringReader csvStringReader = new CSVStringReader();
+  private transient ReusableStringReader csvStringReader = new ReusableStringReader();
 
   private transient ICsvMapReader mapReader;
 
@@ -183,7 +183,7 @@ public class CsvParserOperator extends BaseOperator
     this.headerMapping = headerMapping;
   }
 
-  static class CSVStringReader extends Reader
+  public static class ReusableStringReader extends Reader
   {
     private String str;
     private int length;
@@ -208,9 +208,9 @@ public class CsvParserOperator extends BaseOperator
 
     /**
      * Reads a single character.
-     * 
+     *
      * @return The character read, or -1 if the end of the stream has been reached
-     * 
+     *
      * @exception IOException
      *              If an I/O error occurs
      */
@@ -242,7 +242,7 @@ public class CsvParserOperator extends BaseOperator
       }
     }
 
-    void open(String str) throws IOException
+    public void open(String str) throws IOException
     {
       this.str = str;
       this.length = this.str.length();
