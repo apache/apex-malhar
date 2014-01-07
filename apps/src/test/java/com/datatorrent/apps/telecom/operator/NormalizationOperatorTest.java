@@ -29,35 +29,35 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
-* 
-* @since 0.9.2
-*/
+ * 
+ * @since 0.9.2
+ */
 public class NormalizationOperatorTest
 {
 
   private static Logger logger = LoggerFactory.getLogger(NormalizationOperatorTest.class);
 
-  public class TestNormalizer implements EnricherInterface<String,Map<String,String>,String,String>
+  public static class TestNormalizer implements EnricherInterface<String, Map<String, String>, String, String>
   {
 
     /**
      * This stores the map object storing the normalization values;
      */
-    private Map<String,Map<String,String>> prop;
+    private Map<String, Map<String, String>> prop;
     /**
      * This stores the key set for the above map
      */
     private Set<String> keySet;
 
     @Override
-    public void configure(Map<String,Map<String,String>> prop)
+    public void configure(Map<String, Map<String, String>> prop)
     {
       this.prop = prop;
       keySet = this.prop.keySet();
     }
 
     @Override
-    public void enrichRecord(Map<String,String> m)
+    public void enrichRecord(Map<String, String> m)
     {
       Iterator<String> itr = keySet.iterator();
       String key;
@@ -74,13 +74,13 @@ public class NormalizationOperatorTest
     }
 
   }
-  
+
   @Test
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public void testNormalizationOperator()
   {
 
-    EnrichmentOperator<String, Map<String, String>,String,String> oper = new EnrichmentOperator<String, Map<String, String>,String,String>();
+    EnrichmentOperator<String, Map<String, String>, String, String> oper = new EnrichmentOperator<String, Map<String, String>, String, String>();
     oper.setEnricher(TestNormalizer.class);
 
     Map<String, Map<String, String>> prop = new HashMap<String, Map<String, String>>();
@@ -105,13 +105,13 @@ public class NormalizationOperatorTest
       logger.debug(o.toString());
     }
   }
-  
+
   @Test
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public void testNormalizationOperator2()
   {
 
-    EnrichmentOperator<String, Map<String, String>,String,String> oper = new EnrichmentOperator<String, Map<String, String>,String,String>();
+    EnrichmentOperator<String, Map<String, String>, String, String> oper = new EnrichmentOperator<String, Map<String, String>, String, String>();
     oper.setEnricher(TestNormalizer.class);
 
     Map<String, Map<String, String>> prop = new HashMap<String, Map<String, String>>();
