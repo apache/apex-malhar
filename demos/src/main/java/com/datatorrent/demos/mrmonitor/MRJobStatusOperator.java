@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -48,6 +49,7 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
 {
   private static final Logger LOG = LoggerFactory.getLogger(MRJobStatusOperator.class);
 
+  private static final String JOB_PREFIX = "job_";
   /**
    * This is time in Ms before making new request for data
    */
@@ -56,6 +58,27 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
    * This is the number of consecutive windows of no change before the job is removed from map
    */
   private int maxRetrials = 10;
+
+  /**
+   * The number of minutes for which the status history of map and reduce tasks is stored
+   */
+  private int statusHistoryCount = 60;
+
+  public int getStatusHistoryCount()
+  {
+    return statusHistoryCount;
+  }
+
+  public void setStatusHistoryCount(int statusHistoryCount)
+  {
+    this.statusHistoryCount = statusHistoryCount;
+    if (jobMap != null && jobMap.size() > 0) {
+      for (Entry<String, MRStatusObject> entry : jobMap.entrySet()) {
+        entry.getValue().setStatusHistoryCount(statusHistoryCount);
+      }
+    }
+
+  }
 
   public int getSleepTime()
   {
@@ -92,7 +115,7 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
           outputJsonObject.put("removed", "true");
           output.emit(outputJsonObject.toString());
         } catch (JSONException e) {
-          LOG.warn("Error creating JSON: {}",e.getMessage());
+          LOG.warn("Error creating JSON: {}", e.getMessage());
         }
         return;
       }
@@ -102,16 +125,16 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
       }
 
       if (jobMap.get(mrStatusObj.getJobId()) != null) {
-        removeJob(mrStatusObj.getJobId());
+        mrStatusObj = jobMap.get(mrStatusObj.getJobId());
       }
-
       if (mrStatusObj.getHadoopVersion() == 2) {
         getJsonForJob(mrStatusObj);
       } else if (mrStatusObj.getHadoopVersion() == 1) {
         getJsonForLegacyJob(mrStatusObj);
       }
-
+      mrStatusObj.setStatusHistoryCount(statusHistoryCount);
       iterator = jobMap.values().iterator();
+      emitHelper(mrStatusObj);
     }
   };
 
@@ -401,22 +424,83 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
   {
   }
 
+  private void emitHelper(MRStatusObject obj)
+  {
+    try {
+      obj.setModified(false);
+      output.emit(obj.getJsonObject().toString());
+      JSONObject outputJsonObject = new JSONObject();
+      
+      outputJsonObject.put("id", JOB_PREFIX + obj.getJobId());
+      outputJsonObject.put("mapHistory", new JSONArray(obj.getMapStatusHistory()));
+      outputJsonObject.put("reduceHistory", new JSONArray(obj.getReduceStatusHistory()));
+      outputJsonObject.put("physicalMemoryHistory", new JSONArray(obj.getPhysicalMemeoryStatusHistory()));
+      outputJsonObject.put("virtualMemoryHistory", new JSONArray(obj.getVirtualMemoryStatusHistory()));
+      outputJsonObject.put("cpuHistory", new JSONArray(obj.getCpuStatusHistory()));
+      output.emit(outputJsonObject.toString());
+      obj.setChangedHistoryStatus(false);
+
+      outputJsonObject = new JSONObject();
+      outputJsonObject.put("id", JOB_PREFIX + obj.getJobId());
+      JSONArray arr = new JSONArray();
+
+      for (Map.Entry<String, TaskObject> mapEntry : obj.getMapJsonObject().entrySet()) {
+        TaskObject json = mapEntry.getValue();
+          json.setModified(false);
+          arr.put(json.getJson());        
+      }
+
+      outputJsonObject.put("tasks", arr);
+      mapOutput.emit(outputJsonObject.toString());
+
+      outputJsonObject = new JSONObject();
+      outputJsonObject.put("id", JOB_PREFIX + obj.getJobId());
+      arr = new JSONArray();
+
+      for (Map.Entry<String, TaskObject> mapEntry : obj.getReduceJsonObject().entrySet()) {
+        TaskObject json = mapEntry.getValue();
+          json.setModified(false);
+          arr.put(json.getJson());
+      }
+
+      outputJsonObject.put("tasks", arr);
+      reduceOutput.emit(outputJsonObject.toString());
+      obj.setRetrials(0);
+    } catch (Exception e) {
+      LOG.warn("error creating json {}", e.getMessage());
+    }
+
+  }
+
   @Override
   public void endWindow()
   {
     List<String> delList = new ArrayList<String>();
     try {
       for (Map.Entry<String, MRStatusObject> entry : jobMap.entrySet()) {
+        MRStatusObject obj = entry.getValue();
+
+        JSONObject outputJsonObject = new JSONObject();
+        outputJsonObject.put("id", JOB_PREFIX + obj.getJobId());
 
         boolean modified = false;
-        MRStatusObject obj = entry.getValue();
+
         if (obj.isModified()) {
           modified = true;
           obj.setModified(false);
           output.emit(obj.getJsonObject().toString());
+          if (obj.isChangedHistoryStatus()) {
+            outputJsonObject.put("mapHistory", new JSONArray(obj.getMapStatusHistory()));
+            outputJsonObject.put("reduceHistory", new JSONArray(obj.getReduceStatusHistory()));
+            outputJsonObject.put("physicalMemoryHistory", new JSONArray(obj.getPhysicalMemeoryStatusHistory()));
+            outputJsonObject.put("virtualMemoryHistory", new JSONArray(obj.getVirtualMemoryStatusHistory()));
+            outputJsonObject.put("cpuHistory", new JSONArray(obj.getCpuStatusHistory()));
+            output.emit(outputJsonObject.toString());
+            obj.setChangedHistoryStatus(false);
+          }
         }
-        JSONObject outputJsonObject = new JSONObject();
-        outputJsonObject.put("id", obj.getJobId());
+        outputJsonObject = new JSONObject();
+        outputJsonObject.put("id", JOB_PREFIX + obj.getJobId());
         JSONArray arr = new JSONArray();
 
         for (Map.Entry<String, TaskObject> mapEntry : obj.getMapJsonObject().entrySet()) {
@@ -434,7 +518,7 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
         }
 
         outputJsonObject = new JSONObject();
-        outputJsonObject.put("id", obj.getJobId());
+        outputJsonObject.put("id", JOB_PREFIX + obj.getJobId());
         arr = new JSONArray();
 
         for (Map.Entry<String, TaskObject> mapEntry : obj.getReduceJsonObject().entrySet()) {

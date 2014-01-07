@@ -13,18 +13,4 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-'use strict';
-
-angular.module('app.filter')
-  .filter('percentage', function ($filter) {
-    var numberFilter = $filter('number');
-
-    return function (input) {
-      if (_.isNumber(input) && (input >= 0) && (input <= 100)) {
-        return numberFilter(input, 2) + '%';
-      } else {
-        return null;
-      }
-    };
-  });
+exports = module.exports = require('./DagWidget');

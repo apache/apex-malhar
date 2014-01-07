@@ -5,8 +5,26 @@ body {
     padding-bottom: 40px;
 }
 
+@media (max-width: 980px) {
+    body {
+        padding-top: 0;
+    }
+
+    .navbar-fixed-top .navbar-inner {
+        padding: 0;
+    }
+
+    /* Enable use of floated navbar text */
+    .navbar-text.pull-right {
+        float: none;
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+}
+
+/** Navigation bar */
 .navbar .nav > li {
-    line-height:28px;
+    line-height: 28px;
 }
 
 .navbar .brand {
@@ -14,24 +32,27 @@ body {
     padding: 0;
     width: 241px;
     height: 48px;
-    margin-left:-15px;
-}
-
-.navbar-inverse .nav .active > a, .navbar-inverse .nav .active > a:hover, .navbar-inverse .nav .active > a:focus {
-    background: #11506d;
+    margin-left: 0;
 }
 
 .navbar .navbar-inner {
     background: #11506d;
 }
 
-@media (max-width: 980px) {
-    /* Enable use of floated navbar text */
-    .navbar-text.pull-right {
-        float: none;
-        padding-left: 5px;
-        padding-right: 5px;
-    }
+.navbar-inverse .nav .active > a, .navbar-inverse .nav .active > a:hover, .navbar-inverse .nav .active > a:focus {
+    background: #11506d;
+}
+
+.navbar-inverse .nav-collapse .nav > li > a:hover {
+    background: #11506d;
+}
+
+.navbar-inverse .btn-navbar, .navbar-inverse .btn-navbar:hover, .navbar-inverse .btn-navbar:focus, .navbar-inverse .btn-navbar:active {
+    background: #11506d;
+}
+
+.navbar-inverse .nav .active > a, .navbar-inverse .nav .active > a:hover, .navbar-inverse .nav .active > a:focus {
+    background: #11506d;
 }
 
 /* Bootstrap images */
@@ -49,7 +70,7 @@ body {
 }
 
 .app-list-grid {
-    width: 900px;
+    width: 1000px;
     height: 500px;
 }
 
@@ -80,11 +101,11 @@ body {
 }
 
 .grid-container {
-    min-width: 500px;
+    min-width: 600px;
 }
 
 .task-progress-grid {
-    width: 500px;
+    width: 600px;
     height: 200px;
 }
 
@@ -164,14 +185,10 @@ body {
     opacity: 1;
 }
 
-.loading.ng-hide-add, .animate-hide.ng-hide-remove {
+.loading.ng-hide-add, .loading.ng-hide-remove {
     display: inline !important;
 }
 
 .loading.ng-hide {
     opacity: 0;
-}
-
-.check-element {
-    padding:10px;
 }

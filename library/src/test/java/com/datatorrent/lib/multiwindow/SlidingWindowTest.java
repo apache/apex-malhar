@@ -15,27 +15,26 @@
  */
 package com.datatorrent.lib.multiwindow;
 
-import java.util.ArrayList;
+import static junit.framework.Assert.*;
 
-import junit.framework.Assert;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.google.common.collect.Lists;
 
 /**
- * Functional tests for
+ * Unit tests for
  * {@link com.datatorrent.lib.multiwindow.AbstractSlidingWindow}.
  */
 public class SlidingWindowTest
 {
-	private static Logger log = LoggerFactory.getLogger(SlidingWindowTest.class);
 
-	public class mySlidingWindow extends AbstractSlidingWindow<String>
+	public class TestSlidingWindow extends AbstractSlidingWindow<String, List<String>>
 	{
 		@OutputPortFieldAnnotation(name = "out")
 		public final transient DefaultOutputPort<ArrayList<String>> out = new DefaultOutputPort<ArrayList<String>>();
@@ -51,22 +50,15 @@ public class SlidingWindowTest
 		@Override
 		public void endWindow()
 		{
-			saveWindowState(tuples);
 			out.emit(tuples);
 			tuples = new ArrayList<String>();
 		}
 
-		public void dumpStates()
-		{
-			log.debug("\nDumping states");
-			int i = getN() - 1;
-			while (i >= 0) {
-				Object o = getWindowState(i);
-				log.debug(String.format("State %d: %s", i, (o != null) ? o.toString()
-						: "null"));
-				i--;
-			}
-		}
+    @Override
+    public List<String> createWindowState()
+    {
+      return tuples;
+    }
 
 	};
 
@@ -77,11 +69,11 @@ public class SlidingWindowTest
   @Test
 	public void testNodeProcessing() throws InterruptedException
 	{
-		mySlidingWindow oper = new mySlidingWindow();
+	  TestSlidingWindow oper = new TestSlidingWindow();
 
 		CollectorTestSink swinSink = new CollectorTestSink();
 		oper.out.setSink(swinSink);
-		oper.setN(3);
+		oper.setWindowSize(3);
 		oper.setup(null);
 
 		oper.beginWindow(0);
@@ -104,11 +96,11 @@ public class SlidingWindowTest
 		oper.data.process("b3");
 		oper.endWindow();
 
-		Assert.assertEquals("number emitted tuples", 4,
+		assertEquals("number emitted tuples", 4,
 				swinSink.collectedTuples.size());
-		for (Object o : swinSink.collectedTuples) {
-			log.debug(o.toString());
-		}
-		oper.dumpStates();
+		
+		assertEquals("Invalid second stream window state.", oper.getStreamingWindowState(1), Lists.newArrayList("a2", "b2"));
+		assertEquals("Invalid expired stream window state.", oper.lastExpiredWindowState, Lists.newArrayList("a0", "b0"));
+
 	}
 }

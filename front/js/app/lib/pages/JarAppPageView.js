@@ -13,19 +13,21 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-/**
- * Jar App page
- * 
- * Page centered around an application 
- * that exists in an uploaded jar file
-*/
+
 var BasePageView = DT.lib.BasePageView;
 var JarAppModel = DT.lib.JarAppModel;
 
 // widgets
 var JarAppInfoWidget = require('../widgets/JarAppInfoWidget');
 var JarAppActionsWidget = require('../widgets/JarAppActionsWidget');
-var AppDagWidget = require('../widgets/AppDagWidget');
+var JarDagWidget = require('../widgets/JarDagWidget');
+
+/**
+ * Jar App page
+ * 
+ * Page centered around an application 
+ * that exists in an uploaded jar file
+*/
 var JarAppView = BasePageView.extend({
     
     pageName: "JarAppView",
@@ -36,7 +38,7 @@ var JarAppView = BasePageView.extend({
             widgets: [
                 { widget: "JarAppInfo", id: "info", width: 60 },
                 { widget: "JarAppActions", id: "actions", width: 40 },
-                { widget: "AppDag", id: "logical DAG" }
+                { widget: "jarDAG", id: "jar DAG" }
             ]
         }
     ],
@@ -74,9 +76,9 @@ var JarAppView = BasePageView.extend({
                 }
             },
             { 
-                name: 'AppDag', 
-                defaultId: 'logical DAG',
-                view: AppDagWidget, 
+                name: 'jarDAG', 
+                defaultId: 'jar DAG',
+                view: JarDagWidget, 
                 limit: 0, 
                 inject: {
                     dataSource: this.dataSource,
