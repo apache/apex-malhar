@@ -38,6 +38,7 @@ var AbstractJarFileModel = BaseModel.extend({
     idAttribute: 'name',
     
     initialize: function(attrs, options) {
+        options = options || {};
         BaseModel.prototype.initialize.call(this, attrs, options);
         if (typeof options.beforeUpload === 'function') {
             this.beforeUpload = options.beforeUpload;

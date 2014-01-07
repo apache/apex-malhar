@@ -74,7 +74,8 @@ var UploadJarsView = BaseView.extend({
         'click .upload_jar_btn': 'uploadJars',
         'click .jar-to-upload': function(evt) {
             evt.stopPropagation();
-        }
+        },
+        'submit .jar_upload_form': 'preventDefault'
     },
     
     onFileChange: function() {
@@ -190,6 +191,10 @@ var UploadJarsView = BaseView.extend({
         evt.stopPropagation();
         evt.preventDefault();
         this.collection.reset([]);
+    },
+
+    preventDefault: function(evt) {
+        evt.preventDefault();
     },
     
     template: kt.make(__dirname+'/UploadJarsView.html','_')

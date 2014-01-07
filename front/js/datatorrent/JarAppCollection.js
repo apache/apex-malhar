@@ -23,7 +23,7 @@ var JarAppModel = require('./JarAppModel');
 var BaseCollection = require('./BaseCollection');
 var JarAppCollection = BaseCollection.extend({
     
-    debugName: 'jars',
+    debugName: 'jar apps',
     
     url: function() {
         return this.resourceURL('JarApps', {
