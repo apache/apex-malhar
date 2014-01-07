@@ -32,6 +32,6 @@ exports = module.exports = [
     { id: "selector", key: "selected", label: "", select: true, width: 40, lock_width: true },
     { id: "name", key: "name", label: text('filename_label'), filter: "like", format: nameFormatter, sort_value: "a", sort: "string", width: 150 },
     { id: "modificationTime", label: text('mod_date_label'), key: "modificationTime", sort: "number", filter: "date", format: "timeStamp", width: 150 },
-    { id: "size", label: "size", key: text('filesize_label'), sort: "number", filter: "number", format: formatters.byteFormatter },
-    { id: "owner", label: "owner", key: text('owner_label'), sort: "string", filter: "like", width: 60 }
+    { id: "size", key: "size", label: text('filesize_label'), sort: "number", filter: "number", format: formatters.byteFormatter },
+    { id: "owner", key: "owner", label: text('owner_label'), sort: "string", filter: "like", width: 60 }
 ]

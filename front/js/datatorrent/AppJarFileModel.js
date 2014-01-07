@@ -13,21 +13,27 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
+var text = require('./text');
+var Notifier = require('./Notifier');
+var BaseModel = require('./AbstractJarFileModel');
+var SpecifyJarDepsView = require('./SpecifyJarDepsView');
+var DepJarFileCollection = require('./DepJarFileCollection');
+
 /**
  * Jar File Model
  * 
  * Models a jar file that should contain application plans.
 */
-
-var BaseModel = require('./AbstractJarFileModel');
-var SpecifyJarDepsView = require('./SpecifyJarDepsView');
-
-// class definition
 var AppJarFileModel = BaseModel.extend({
     
     specifyDependencies: function() {
 
+    	if (! (this.depJars instanceof DepJarFileCollection) ) {
+    		this.depJars = new DepJarFileCollection([]);
+    	}
         var modal = new SpecifyJarDepsView({
+        	collection: this.depJars,
             model: this
         });
 
@@ -35,6 +41,31 @@ var AppJarFileModel = BaseModel.extend({
 
         modal.launch();
 
+    },
+
+    submitDependencies: function() {
+    	$.ajax({
+    		url: this.resourceAction('specifyDepJars', {
+    			fileName: this.get('name')
+    		}),
+    		method: 'PUT',
+    		data: JSON.stringify({
+    			dependencyJars: this.depJars.pluck('name')
+    		}),
+            contentType: 'application/json; charset=utf-8',
+            success: function(res) {
+            	Notifier.success({
+            		title: text('specify_deps_success_title'),
+            		text: text('specify_deps_success_text')
+            	});
+            },
+            error: function() {
+            	Notifier.error({
+            		title: text('specify_deps_error_title'),
+            		text: text('specify_deps_error_text')
+            	});
+            }
+    	});
     }
     
 });

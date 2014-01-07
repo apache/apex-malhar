@@ -25,9 +25,6 @@ var SpecifyJarDepsView = BaseView.extend({
 		this.options = new DepJarFileCollection([]);
 		this.options.fetch();
 
-		// Create collection for storing choices
-		this.choices = new DepJarFileCollection([]);
-
 		// Create options table
 		this.subview('options', new Tabled({
 			collection: this.options,
@@ -45,14 +42,14 @@ var SpecifyJarDepsView = BaseView.extend({
 
 		// Create choices table
 		this.subview('choices', new ChoicesList({
-			collection: this.choices,
+			collection: this.collection,
 			parent: this
 		}));
 
 		// Set up comparator for choices
 		var choice_order = this.choice_order = [];
 		var self = this;
-		this.choices.comparator = function(row1, row2) {
+		this.collection.comparator = function(row1, row2) {
 			return self.choice_order.indexOf(row1.get('name')) - choice_order.indexOf(row2.get('name'));
 		}
 
@@ -62,20 +59,20 @@ var SpecifyJarDepsView = BaseView.extend({
 			var name = row.get('name');
 
 			if (selected) {
-				if (!this.choices.get(row)) {
+				if (!this.collection.get(row)) {
 					choice_order.push(name);
-					this.choices.add(row);
+					this.collection.add(row);
 				}
 			} else {
-				if (this.choices.get(row)) {
+				if (this.collection.get(row)) {
 					choice_order.splice(choice_order.indexOf( name, 1 ));
-					this.choices.remove(row);
+					this.collection.remove(row);
 				}
 			}
 		});
 
 		// this.subview('choices_palette', new ChoicesPalette({
-		// 	collection: this.choices
+		// 	collection: this.collection
 		// }));
 	},
 
@@ -92,6 +89,12 @@ var SpecifyJarDepsView = BaseView.extend({
 		'.dep-choices .table-target': 'choices',
 		'.dep-options .palette-target': 'options_palette',
 		// '.dep-choices .palette-target': 'choices_palette'
+	},
+
+	onConfirm: function(evt) {
+		evt.preventDefault();
+		this.model.submitDependencies();		
+		this.destroy();
 	},
 
 	template: kt.make(__dirname+'/SpecifyJarDepsView.html','_')

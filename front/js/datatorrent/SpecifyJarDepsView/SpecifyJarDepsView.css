@@ -15,6 +15,7 @@
   border-style: solid;
   cursor: -webkit-grab;
   cursor: -moz-grab;
+  margin-bottom: 0;
 }
 .dep-choices .table-target .jar-choice-row:first-child {
   border-width: 1px;

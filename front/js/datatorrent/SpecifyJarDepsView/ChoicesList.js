@@ -15,7 +15,7 @@ var ChoicesList = BaseView.extend({
 			this.$el.sortable('destroy');
 			this.hasBeenSortabled = false;
 		}
-
+		this.collection.sort();
 		var json = {
 			jars: this.collection.toJSON()
 		};
@@ -30,7 +30,7 @@ var ChoicesList = BaseView.extend({
             placeholder: 'item-placeholder',
             stop: _.bind(function(evt, ui) {
                 this.parent.choice_order = this.$el.sortable('toArray', { attribute: 'data-name' });
-                this.collection.sort();
+                
             }, this)
         });
 
