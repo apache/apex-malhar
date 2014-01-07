@@ -37,6 +37,10 @@ public class KryoStreamCodecTest {
 
     public static class TestKryoStreamCodec extends KryoSerializableStreamCodec<TestTuple> {
 
+        public TestKryoStreamCodec(){
+          super();
+        }
+
         @Override
         public int getPartition(TestTuple testTuple) {
             return testTuple.field;
@@ -48,6 +52,12 @@ public class KryoStreamCodecTest {
     {
         TestKryoStreamCodec coder = new TestKryoStreamCodec();
         TestKryoStreamCodec decoder = new TestKryoStreamCodec();
+
+        KryoSerializableStreamCodec<Object> objCoder = new KryoSerializableStreamCodec<Object>();
+        Slice sliceOfObj = objCoder.toByteArray(new Integer(10));
+        Object decodedObj = objCoder.fromByteArray(sliceOfObj);
+
+        Assert.assertEquals("codec", decodedObj, new Integer(10));
 
         TestTuple tp= new TestTuple(new Integer(5));
 
