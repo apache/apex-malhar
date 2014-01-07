@@ -59,7 +59,7 @@ function extractMinutes(minuteKeys, replies) {
     var reply = replies[i];
     var minuteKey = minuteKeys[i];
     if (reply) {
-      if (reply.day === minuteKey.day) {
+      if (parseInt(reply.day, 10) === parseInt(minuteKey.day, 10)) {
         var minute = {
           timestamp: minuteKeys[i].timestamp,
           cpu: reply.cpu,

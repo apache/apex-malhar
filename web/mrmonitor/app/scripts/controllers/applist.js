@@ -25,6 +25,8 @@ angular.module('app.controller')
     apps.then(function (apps) {
       $scope.apps = apps;
       $scope.showLoading = false;
+    }, function () {
+      $scope.showLoading = false;
     });
 
     var linkTemplate = '<div class="ngCellText" ng-class="col.colIndex()"><span ng-cell-text><a href="#/jobs/{{COL_FIELD | appId}}">{{COL_FIELD}}</a></span></div>';
@@ -32,6 +34,7 @@ angular.module('app.controller')
     $scope.gridOptions = {
       data: 'apps',
       enableRowSelection: false,
+      enableColumnResize: true,
       showFilter: true,
       columnDefs: [
         { field: 'id', displayName: 'Task', cellTemplate: linkTemplate, width: 250 },

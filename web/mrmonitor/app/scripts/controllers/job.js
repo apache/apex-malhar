@@ -161,11 +161,12 @@ angular.module('app.controller')
     $scope.gridOptions = {
       data: 'gridData',
       enableRowSelection: false,
-      multiSelect: false,
+      enableColumnResize: true,
       showFilter: true,
       columnDefs: [
         { field: 'id', displayName: 'Id', width: 270 },
         { field: 'state', displayName: 'State' },
+        { field: 'elapsedTime', displayName: 'Time', cellFilter: 'elapsed' },
         { field: 'progress', displayName: 'Progress', cellFilter: 'percentage' }
       ]
     };
@@ -186,9 +187,13 @@ angular.module('app.controller')
 
     $scope.gridOptions = {
       data: 'gridData',
+      enableRowSelection: false,
+      enableColumnResize: true,
+      showFilter: true,
       columnDefs: [
         { field: 'id', displayName: 'Id', width: 270 },
         { field: 'state', displayName: 'State' },
+        { field: 'elapsedTime', displayName: 'Time', cellFilter: 'elapsed' },
         { field: 'progress', displayName: 'Progress', cellFilter: 'percentage' }
       ]
     };
