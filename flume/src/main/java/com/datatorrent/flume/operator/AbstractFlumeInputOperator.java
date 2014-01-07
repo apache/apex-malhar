@@ -36,7 +36,8 @@ import com.datatorrent.netlet.DefaultEventLoop;
  * @author Chetan Narsude <chetan@datatorrent.com>
  */
 public abstract class AbstractFlumeInputOperator<T>
-        implements InputOperator, ActivationListener<OperatorContext>, IdleTimeHandler, CheckpointListener, Partitionable<AbstractFlumeInputOperator<T>>, PartitionAware<AbstractFlumeInputOperator<T>>
+        implements InputOperator, ActivationListener<OperatorContext>, IdleTimeHandler, CheckpointListener,
+        Partitionable<AbstractFlumeInputOperator<T>>, PartitionAware<AbstractFlumeInputOperator<T>>
 {
   public final transient DefaultOutputPort<T> output = new DefaultOutputPort<T>();
   private transient int idleCounter;
@@ -49,7 +50,7 @@ public abstract class AbstractFlumeInputOperator<T>
   private transient Client client;
 
   @NotNull
-  private String[] connectAddresses;
+  private String[] connectionSpecs;
   private final ArrayList<RecoveryAddress> recoveryAddresses;
 
   public AbstractFlumeInputOperator()
@@ -74,12 +75,12 @@ public abstract class AbstractFlumeInputOperator<T>
   @SuppressWarnings({"unchecked"})
   public void activate(OperatorContext ctx)
   {
-    if (connectAddresses.length != 1) {
+    if (connectionSpecs.length != 1) {
       throw new RuntimeException(String.format("A physical {} operator cannot connect to more than 1 addresses!", this.getClass().getSimpleName()));
     }
-    for (String connectAddresse: connectAddresses) {
+    for (String connectAddresse: connectionSpecs) {
       String[] parts = connectAddresse.split(":");
-      eventloop.connect(new InetSocketAddress(parts[0], Integer.parseInt(parts[1])), client = new Client());
+      eventloop.connect(new InetSocketAddress(parts[1], Integer.parseInt(parts[2])), client = new Client(parts[0]));
     }
 
     context = ctx;
@@ -155,15 +156,15 @@ public abstract class AbstractFlumeInputOperator<T>
    */
   public String[] getConnectAddresses()
   {
-    return connectAddresses.clone();
+    return connectionSpecs.clone();
   }
 
   /**
-   * @param connectAddresses the connectAddress to set
+   * @param specs - sinkid:host:port specification of all the sinks.
    */
-  public void setConnectAddresses(String[] connectAddresses)
+  public void setConnectAddresses(String[] specs)
   {
-    this.connectAddresses = connectAddresses.clone();
+    this.connectionSpecs = specs.clone();
   }
 
   private static class RecoveryAddress implements Serializable
@@ -232,19 +233,57 @@ public abstract class AbstractFlumeInputOperator<T>
 //          if (!found) {
 //            accounted.put(host + ':' + port, null);
 //          }
-    /* This is possible when the partitioning is advised by statslistener */
+//    /* This is possible when the partitioning is advised by statslistener */
     Collection<Service<byte[]>> discovered = addresses.get();
-    if (incrementalCapacity == 0 && discovered == null) {
+    if (discovered == null && incrementalCapacity == 0) {
       return partitions;
     }
 
     ArrayList<String> allConnectAddresses = new ArrayList<String>(partitions.size() + incrementalCapacity);
     ArrayList<ArrayList<RecoveryAddress>> allRecoveryAddresses = new ArrayList<ArrayList<RecoveryAddress>>(partitions.size() + incrementalCapacity);
     for (Partition<AbstractFlumeInputOperator<T>> partition: partitions) {
-      String[] lAddresses = partition.getPartitionedInstance().connectAddresses;
+      String[] lAddresses = partition.getPartitionedInstance().connectionSpecs;
       allConnectAddresses.addAll(Arrays.asList(lAddresses));
       for (int i = lAddresses.length; i-- > 0;) {
         allRecoveryAddresses.add(partition.getPartitionedInstance().recoveryAddresses);
+      }
+    }
+
+    if (discovered != null) {
+      HashMap<String, String> connections = new HashMap<String, String>(discovered.size());
+      for (Service<byte[]> service: discovered) {
+        String previousSpec = connections.get(service.getId());
+        String newspec = service.getId() + ':' + service.getHost() + ':' + service.getPort();
+        if (previousSpec == null) {
+          connections.put(service.getId(), newspec);
+        }
+        else {
+          boolean found = false;
+          for (ConnectionStatus cs: localMap.get().values()) {
+            if (previousSpec.equals(cs.spec) && !cs.connected) {
+              connections.put(service.getId(), newspec);
+              found = true;
+              break;
+            }
+          }
+
+          if (!found) {
+            logger.warn("2 sinks found with the same id: {} and {}... Ignoring previous", previousSpec, newspec);
+            connections.put(service.getId(), newspec);
+          }
+        }
+      }
+
+      for (int i = allConnectAddresses.size(); i-- > 0;) {
+        String[] parts = allConnectAddresses.get(i).split(":");
+        String get = connections.get(parts[0]);
+        if (get == null) {
+          allConnectAddresses.remove(i);
+          allRecoveryAddresses.remove(i);
+        }
+        else {
+          allConnectAddresses.set(i, get);
+        }
       }
     }
 
@@ -254,7 +293,7 @@ public abstract class AbstractFlumeInputOperator<T>
       for (int i = allConnectAddresses.size(); i-- > 0;) {
         @SuppressWarnings("unchecked")
         AbstractFlumeInputOperator<T> operator = getClass().newInstance();
-        operator.connectAddresses = new String[] {allConnectAddresses.get(i)};
+        operator.connectionSpecs = new String[] {allConnectAddresses.get(i)};
         operator.recoveryAddresses.addAll(allRecoveryAddresses.get(i));
         partitions.add(new DefaultPartition<AbstractFlumeInputOperator<T>>(operator));
       }
@@ -304,6 +343,13 @@ public abstract class AbstractFlumeInputOperator<T>
 
   class Client extends AbstractLengthPrependerClient
   {
+    private final String id;
+
+    Client(String id)
+    {
+      this.id = id;
+    }
+
     @Override
     public void onMessage(byte[] buffer, int offset, int size)
     {
@@ -343,8 +389,7 @@ public abstract class AbstractFlumeInputOperator<T>
       connected = true;
       ConnectionStatus connectionStatus = new ConnectionStatus();
       connectionStatus.connected = true;
-      connectionStatus.host = connectAddresses[0].substring(0, connectAddresses[0].indexOf(':'));
-      connectionStatus.port = Integer.parseInt(connectAddresses[0].substring(connectAddresses[0].indexOf(':') + 1));
+      connectionStatus.spec = connectionSpecs[0];
       synchronized (context) {
         context.setCustomStats(connectionStatus);
       }
@@ -359,8 +404,7 @@ public abstract class AbstractFlumeInputOperator<T>
       connected = false;
       ConnectionStatus connectionStatus = new ConnectionStatus();
       connectionStatus.connected = false;
-      connectionStatus.host = connectAddresses[0].substring(0, connectAddresses[0].indexOf(':'));
-      connectionStatus.port = Integer.parseInt(connectAddresses[0].substring(connectAddresses[0].indexOf(':') + 1));
+      connectionStatus.spec = connectionSpecs[0];
       synchronized (context) {
         context.setCustomStats(connectionStatus);
       }
@@ -446,17 +490,13 @@ public abstract class AbstractFlumeInputOperator<T>
 
   public static class ConnectionStatus implements CustomStats
   {
-    String host;
-    int port;
+    String spec;
     boolean connected;
 
     @Override
     public int hashCode()
     {
-      int hash = 7;
-      hash = 73 * hash + (this.host != null ? this.host.hashCode() : 0);
-      hash = 73 * hash + this.port;
-      return hash;
+      return spec.hashCode();
     }
 
     @Override
@@ -469,10 +509,7 @@ public abstract class AbstractFlumeInputOperator<T>
         return false;
       }
       final ConnectionStatus other = (ConnectionStatus)obj;
-      if ((this.host == null) ? (other.host != null) : !this.host.equals(other.host)) {
-        return false;
-      }
-      return this.port == other.port;
+      return spec == null ? other.spec == null : spec.equals(other.spec);
     }
 
     private static final long serialVersionUID = 201312261615L;
