@@ -1,9 +1,9 @@
 @import "variables";
 
-#wrapper .tabled-ctnr {
+.tabled-ctnr {
     padding-bottom:20px;
 }
-#wrapper .tabled {
+.tabled {
 	
     font-size:12px;
     overflow:visible;
@@ -24,45 +24,6 @@
         }
     }
 	
-    .th {
-        @top: lighten(@light_primary,5%);
-        @btm: lighten(@light_primary_ds,5%);
-        font-weight:normal;
-        letter-spacing:1px;
-        box-shadow: inset -1px 0 0 0 @tabled_border_color;
-        .resize {
-            width: 4px;
-        }
-        .sortlabel {
-            color:#EFEFEF;
-            &:hover {
-                color:#FFF;
-                cursor:pointer;
-            }
-        }
-    }
-	
-    .td {
-        a {
-            text-decoration:underline;
-            &.btn {
-                text-decoration:none;
-            }
-        }
-        box-shadow: inset -1px 0 0 0 @tabled_border_color;
-        .cell-inner {
-            .selectbox {
-                position:relative;
-                left:3px;
-                margin:0;
-            }
-            button, .btn {
-                margin-top:-3px;
-                line-height:15px;
-            }
-        }
-    }
-
     .tr {
 
         background:#FFF;
@@ -73,6 +34,45 @@
 
         &:last-child td{
             border-bottom:none;
+        }
+
+        .th {
+            @top: lighten(@light_primary,5%);
+            @btm: lighten(@light_primary_ds,5%);
+            font-weight:normal;
+            letter-spacing:1px;
+            box-shadow: inset -1px 0 0 0 @tabled_border_color;
+            .resize {
+                width: 4px;
+            }
+            .sortlabel {
+                color:#EFEFEF;
+                &:hover {
+                    color:#FFF;
+                    cursor:pointer;
+                }
+            }
+        }
+
+        .td {
+            a {
+                text-decoration:underline;
+                &.btn {
+                    text-decoration:none;
+                }
+            }
+            box-shadow: inset -1px 0 0 0 @tabled_border_color;
+            .cell-inner {
+                .selectbox {
+                    position:relative;
+                    left:3px;
+                    margin:0;
+                }
+                button, .btn {
+                    margin-top:-3px;
+                    line-height:15px;
+                }
+            }
         }
     }
     .resize-table {
@@ -87,6 +87,11 @@
         border-radius: 5px 0 0 0;
         box-shadow: inset 0 -1px 12px -5px, 0 0 0 1px #AAA;
         border:none;
+        opacity: 0.5;
+
+        &:hover {
+            opacity: 1;
+        }
 		
         .resize-grip {
             width:70%;

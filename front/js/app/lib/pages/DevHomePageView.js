@@ -23,16 +23,18 @@ var JarFileCollection = DT.lib.JarFileCollection;
 
 // widgets
 var JarListWidget = require('../widgets/JarListWidget');
+var DepJarListWidget = require('../widgets/DepJarListWidget');
 
 var DevHomePageView = BasePageView.extend({
     
-    pageName: "DevHomePageView",
+    pageName: 'DevHomePageView',
     
     defaultDashes: [
         {
-            dash_id: "default",
+            dash_id: 'default',
             widgets: [
-                { widget: "JarList", id: "Uploaded Jars" }
+                { widget: 'JarList', id: 'Application Jars', width: 50 },
+                { widget: 'DepJarList', id: 'Dependency Jars', width: 50 }
             ]
         }
     ],
@@ -44,16 +46,26 @@ var DevHomePageView = BasePageView.extend({
         
         this.defineWidgets([
             {
-                name: "JarList",
+                name: 'JarList',
                 defaultId: 'Uploaded Jars',
                 view: JarListWidget,
                 limit: 1,
                 inject: {
                     nav: this.app.nav
                 }
+            },
+            {
+                name: 'DepJarList',
+                defaultId: 'Upload Dependency Jars',
+                view: DepJarListWidget,
+                limit: 1,
+                inject: {
+                    nav: this.app.nav
+                }
             }
         ]);
-        this.loadDashboards("default");
+
+        this.loadDashboards('default');
     }
     
 });

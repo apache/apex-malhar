@@ -13,44 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 var _ = require('underscore');
 var kt = require('knights-templar');
-var BaseView = DT.lib.WidgetView;
+var BasePalette = require('../widgets/ListWidget/ListPalette');
 
-/**
- * <WIDGETNAME>
- * 
- * <WIDGETDESCRIPTION>
- *
-*/
-var <WIDGETNAME> = BaseView.extend({
-    
-    initialize: function(options) {
-        
-        BaseView.prototype.initialize.call(this, options);
-        
-        // listeners, subviews, etc.
-        
-    },
-    
-    html: function() {
-        
-        var html = '';
-        
-        // generate markup here
-        
-        return html;
-    },
-    
-    assignments: {
-        
-        // assign subviews here
-        
-    },
-    
-    template: kt.make(__dirname+'/<WIDGETNAME>.html','_')
-    
+var OptionsPalette = BasePalette.extend({
+
+	initialize: function(options) {
+
+		this.table = options.table;
+	},
+
+	events: {
+		'click .toggleAll': 'toggleSelect'
+	},
+
+	toggleSelect: function() {
+		
+		var filtered = this.table.getFilteredRows();
+		
+		var allOn = _.every(filtered, function(jar) {
+			return jar.selected;
+		});
+
+		var checkedNow = !allOn;
+
+		_.each(filtered, function(row) {
+			if (row.selected != checkedNow) {
+				row.selected = checkedNow;
+				row.trigger('change_selected', row, checkedNow);
+			}
+		});
+	},
+
+	template: kt.make(__dirname+'/OptionsPalette.html','_')
+
 });
 
-exports = module.exports = <WIDGETNAME>;
+exports = module.exports = OptionsPalette;

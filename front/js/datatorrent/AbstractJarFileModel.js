@@ -21,21 +21,24 @@
 
 var BaseModel = require('./BaseModel');
 
-
-// class definition
-var JarFileModel = BaseModel.extend({
+// abstract class definition
+var AbstractJarFileModel = BaseModel.extend({
     
     debugName: 'jarfile',
+
+    putResourceString: 'Jar',
     
     defaults: {
         'name': '',
         'size': 0,
-        'type': ''
+        'type': '',
+        'depJar': false
     },
     
     idAttribute: 'name',
     
     initialize: function(attrs, options) {
+        options = options || {};
         BaseModel.prototype.initialize.call(this, attrs, options);
         if (typeof options.beforeUpload === 'function') {
             this.beforeUpload = options.beforeUpload;
@@ -54,6 +57,8 @@ var JarFileModel = BaseModel.extend({
             if ( this.beforeUpload(this) === false ) return false;
         }
 
+        this.trigger('upload_start');
+
         // xhr listeners
         // progress
         xhr.upload.addEventListener('progress', function(e) {
@@ -70,7 +75,7 @@ var JarFileModel = BaseModel.extend({
         }, false);
         
         // open the connection
-        xhr.open('PUT', this.resourceURL('Jar') + '/' + self.get('name'));
+        xhr.open('PUT', this.resourceURL(this.putResourceString) + '/' + self.get('name'));
         
         // override the mime type of the request
         xhr.overrideMimeType('text/plain; charset=x-user-defined-binary');
@@ -83,7 +88,6 @@ var JarFileModel = BaseModel.extend({
         // start reading the file
         reader.readAsBinaryString(file);
     }
-    
 });
 
-exports = module.exports = JarFileModel;
+exports = module.exports = AbstractJarFileModel;

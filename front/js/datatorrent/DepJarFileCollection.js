@@ -14,43 +14,19 @@
  * limitations under the License.
  */
 
-var _ = require('underscore');
-var kt = require('knights-templar');
-var BaseView = DT.lib.WidgetView;
-
-/**
- * <WIDGETNAME>
- * 
- * <WIDGETDESCRIPTION>
- *
-*/
-var <WIDGETNAME> = BaseView.extend({
+var DepJarFileModel = require('./DepJarFileModel');
+var BaseCollection = require('./AbstractJarFileCollection');
+var DepJarFileCollection = BaseCollection.extend({
     
-    initialize: function(options) {
-        
-        BaseView.prototype.initialize.call(this, options);
-        
-        // listeners, subviews, etc.
-        
+    debugName: 'dependency jars',
+    
+    model: DepJarFileModel,
+    
+    url: function() {
+        return this.resourceURL('DependencyJar');
     },
     
-    html: function() {
-        
-        var html = '';
-        
-        // generate markup here
-        
-        return html;
-    },
-    
-    assignments: {
-        
-        // assign subviews here
-        
-    },
-    
-    template: kt.make(__dirname+'/<WIDGETNAME>.html','_')
+    responseTransform: 'dependencyJars'
     
 });
-
-exports = module.exports = <WIDGETNAME>;
+exports = module.exports = DepJarFileCollection;

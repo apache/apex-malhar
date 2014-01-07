@@ -6,6 +6,15 @@
 @import url("jquery-ui/jquery-ui-1.10.3.custom.css");
 @import url("jquery-ui.overrides.css");
 
+/* components */
+@import url("../js/datatorrent/HeaderView/HeaderView.css");
+@import url("../js/datatorrent/Breadcrumbs/Breadcrumbs.css");
+@import url("../js/datatorrent/DagView/DagView.css");
+@import url("../js/datatorrent/LaunchJarWithPropsView/LaunchJarWithPropsView.css");
+@import url("../js/datatorrent/tabled/tabled.css");
+@import url("../js/datatorrent/livechart/livechart.css");
+@import url("../js/datatorrent/SpecifyJarDepsView/SpecifyJarDepsView.css");
+
 /* common styles */
 @import url("main.css");
 @import url("icons.css");
@@ -16,14 +25,6 @@
 @import url("mainsprite.css");
 @import url("palette.css");
 @import url("alerts.css");
-
-/* components */
-@import url("../js/datatorrent/HeaderView/HeaderView.css");
-@import url("../js/datatorrent/Breadcrumbs/Breadcrumbs.css");
-@import url("../js/datatorrent/DagView/DagView.css");
-@import url("../js/datatorrent/LaunchJarWithPropsView/LaunchJarWithPropsView.css");
-@import url("../js/datatorrent/tabled/tabled.css");
-@import url("../js/datatorrent/livechart/livechart.css");
 
 /* widgets */
 @import url("../js/datatorrent/widgets/TopNWidget/TopNWidget.css");

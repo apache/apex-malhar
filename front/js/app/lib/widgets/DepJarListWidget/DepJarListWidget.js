@@ -16,41 +16,23 @@
 
 var _ = require('underscore');
 var kt = require('knights-templar');
-var BaseView = DT.lib.WidgetView;
+var BaseView = require('../JarListWidget');
+var DepJarFileModel = DT.lib.DepJarFileModel;
+var DepJarFileCollection = DT.lib.DepJarFileCollection;
+
 
 /**
- * <WIDGETNAME>
+ * DepJarListWidget
  * 
- * <WIDGETDESCRIPTION>
+ * A list of dependency jars
  *
 */
-var <WIDGETNAME> = BaseView.extend({
+var DepJarListWidget = BaseView.extend({
     
-    initialize: function(options) {
-        
-        BaseView.prototype.initialize.call(this, options);
-        
-        // listeners, subviews, etc.
-        
-    },
-    
-    html: function() {
-        
-        var html = '';
-        
-        // generate markup here
-        
-        return html;
-    },
-    
-    assignments: {
-        
-        // assign subviews here
-        
-    },
-    
-    template: kt.make(__dirname+'/<WIDGETNAME>.html','_')
+    Collection: DepJarFileCollection,
+
+    Model: DepJarFileModel
     
 });
 
-exports = module.exports = <WIDGETNAME>;
+exports = module.exports = DepJarListWidget;

@@ -19,38 +19,23 @@ var kt = require('knights-templar');
 var BaseView = DT.lib.WidgetView;
 
 /**
- * <WIDGETNAME>
+ * JarActionWidget
  * 
- * <WIDGETDESCRIPTION>
+ * Widget containing actions for an uploaded jar file.
  *
 */
-var <WIDGETNAME> = BaseView.extend({
+var JarActionWidget = BaseView.extend({
     
-    initialize: function(options) {
-        
-        BaseView.prototype.initialize.call(this, options);
-        
-        // listeners, subviews, etc.
-        
+    events: {
+        'click .specifyDeps': 'specifyDeps'
     },
-    
-    html: function() {
-        
-        var html = '';
-        
-        // generate markup here
-        
-        return html;
+
+    specifyDeps: function() {
+        this.model.specifyDependencies();
     },
-    
-    assignments: {
-        
-        // assign subviews here
-        
-    },
-    
-    template: kt.make(__dirname+'/<WIDGETNAME>.html','_')
+
+    template: kt.make(__dirname+'/JarActionWidget.html','_')
     
 });
 
-exports = module.exports = <WIDGETNAME>;
+exports = module.exports = JarActionWidget;

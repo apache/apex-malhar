@@ -13,4 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-exports = module.exports = require('./JarDagWidget');
+
+var BaseModel = require('./AbstractJarFileModel');
+
+var DepJarFileModel = BaseModel.extend({
+
+	debugName: 'dependency jarfile',
+
+	putResourceString: 'DependencyJar',
+
+	defaults: {
+        'name': '',
+        'size': 0,
+        'type': '',
+        'depJar': true
+    }
+
+});
+
+exports = module.exports = DepJarFileModel;

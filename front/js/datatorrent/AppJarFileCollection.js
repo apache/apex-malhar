@@ -13,34 +13,30 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
+var AppJarFileModel = require('./AppJarFileModel');
+var BaseCollection = require('./AbstractJarFileCollection');
+
 /**
- * Jar Application Collection
+ * Jar File Collection
  * 
- * Represents a collection of Applications in a jar file
- * 
+ * Represents a list of jars containing applications.
 */
-var JarAppModel = require('./JarAppModel');
-var BaseCollection = require('./BaseCollection');
-var JarAppCollection = BaseCollection.extend({
+var AppJarFileCollection = BaseCollection.extend({
     
-    debugName: 'jar apps',
+    debugName: 'jars',
+    
+    model: AppJarFileModel,
     
     url: function() {
-        return this.resourceURL('JarApps', {
-            fileName: this.fileName
-        });
+        return this.resourceURL('Jar');
     },
-    
+
     initialize: function(models, options) {
-        
-        BaseCollection.prototype.initialize.call(this, models, options);
-        
-        this.fileName = options.fileName;
-        
+    	
     },
     
-    model: JarAppModel,
+    responseTransform: 'jars'
     
-    responseTransform: 'applications'
 });
-exports = module.exports = JarAppCollection;
+exports = module.exports = AppJarFileCollection;

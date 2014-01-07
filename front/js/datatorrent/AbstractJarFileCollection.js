@@ -13,24 +13,30 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-/**
- * Jar File Collection
- * 
- * Represents a list of jars.
-*/
+
+var AbstractJarFileModel = require('./AbstractJarFileModel');
 var BaseCollection = require('./BaseCollection');
-var JarFileModel = require('./JarFileModel');
-var JarFileCollection = BaseCollection.extend({
+
+/**
+ * Abstracvt Jar File Collection
+ * 
+ * Base class for jar collections
+*/
+var AbstractJarFileCollection = BaseCollection.extend({
     
     debugName: 'jars',
     
-    model: JarFileModel,
+    model: AbstractJarFileModel,
     
     url: function() {
         return this.resourceURL('Jar');
+    },
+
+    initialize: function(models, options) {
+    	
     },
     
     responseTransform: 'jars'
     
 });
-exports = module.exports = JarFileCollection;
+exports = module.exports = AbstractJarFileCollection;

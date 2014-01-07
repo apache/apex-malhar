@@ -34,7 +34,9 @@ exports = module.exports = {
         AlertTemplate            :'/ws/:v/alertTemplates',
         OpProperties             :'/ws/:v/applications/:appId/logicalPlan/operators/:operatorName/properties',
         Jar                      :'/ws/:v/jars',
-        JarApps                  :'/ws/:v/jars/:fileName/applications'
+        JarApps                  :'/ws/:v/jars/:fileName/applications',
+        JarDependencies          :'/ws/:v/jars/:fileName/dependencyJars',
+        DependencyJar            :'/ws/:v/dependencyJars'
         
     },
     
@@ -45,7 +47,8 @@ exports = module.exports = {
         stopPortRecording        :'/ws/:v/applications/:appId/physicalPlan/operators/:operatorId/ports/:portName/recordings/stop',
         shutdownApp              :'/ws/:v/applications/:appId/shutdown',
         killApp                  :'/ws/:v/applications/:appId/kill',
-        launchApp                :'/ws/:v/jars/:fileName/applications/:appName/launch'
+        launchApp                :'/ws/:v/jars/:fileName/applications/:appName/launch',
+        specifyDepJars           :'/ws/:v/jars/:fileName/dependencyJars'
     },
     
     topics: {
