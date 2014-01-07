@@ -14,8 +14,6 @@
 * limitations under the License.
 */
 
-localStorage.clear();
-
 // Register pre-compiled templates
 var kt = require('knights-templar');
 var precompiled = require('./precompiled-templates');
