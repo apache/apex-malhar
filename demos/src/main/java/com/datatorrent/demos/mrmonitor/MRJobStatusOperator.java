@@ -40,7 +40,7 @@ import com.datatorrent.demos.mrmonitor.MRStatusObject.TaskObject;
  * <p>
  * MRJobStatusOperator class.
  * </p>
- * 
+ *
  * @since 0.3.4
  */
 

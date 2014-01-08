@@ -142,6 +142,33 @@ public class RomeSyndicationOperator extends SimpleSinglePortInputOperator<RomeF
     return is;
   }
 
+  public RomeStreamProvider getStreamProvider()
+  {
+    return streamProvider;
+  }
+
+  public void setOrderedUpdate(boolean orderedUpdate)
+  {
+    this.orderedUpdate = orderedUpdate;
+  }
+
+  public boolean isOrderedUpdate()
+  {
+    return orderedUpdate;
+  }
+
+  private InputStream getFeedInputStream() throws IOException
+  {
+    InputStream is;
+    if (streamProvider != null) {
+      is = streamProvider.getInputStream();
+    }
+    else {
+      URL url = new URL(location);
+      is = url.openStream();
+    }
+    return is;
+  }
   @Override
   /**
    * Thread processing of the syndication feeds

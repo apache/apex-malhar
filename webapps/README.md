@@ -5,9 +5,14 @@ Web Applications for DataTorrent Demos:
 - Twitter
 - Mobile
 - Machine Generated Data
+- Ads Dimensions
 - Fraud
 
 Demos run on [Node.js](http://nodejs.org/).
+
+## Architecture
+
+![Demos Architecture](docs/demos_architecture.png "Demos Architecture")
 
 ## Demos configuration
  - config.js

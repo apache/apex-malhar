@@ -36,6 +36,8 @@ import com.google.common.cache.CacheBuilder;
  * <li>Cache cleanup interval: the interval at which the cache is cleaned up of expired entries periodically.</li>
  * </ul>
  * <br>These properties of the cache are encapsulated in {@link CacheProperties}</br>
+ *
+ * @since 0.9.2
  */
 public class CacheStore implements Store.Primary
 {
