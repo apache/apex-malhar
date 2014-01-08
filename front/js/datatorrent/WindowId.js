@@ -40,9 +40,12 @@ WindowId.prototype = {
             this.offset = '-';
             return;
         }
-	
+
         if (/[^0-9]/.test(value)) {
-            throw new Error('First parameter of WindowId must be numeric');
+            LOG(3, 'WindowId first param not in expected format: ', value);
+            this.timestamp = '-';
+            this.offset = '-';
+            return;
         }
 	
         var full64 = new BigInteger(this.value);
