@@ -5,8 +5,10 @@
 package com.datatorrent.flume.storage;
 
 /**
- * 
+ * <p>Storage interface.</p>
+ *
  * @author Gaurav Gupta  <gaurav@datatorrent.com>
+ * @since 0.9.2
  */
 public interface Storage
 {
