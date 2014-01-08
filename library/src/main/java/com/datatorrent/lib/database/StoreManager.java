@@ -31,6 +31,8 @@ import com.google.common.base.Strings;
  * <br></br>
  * <br>Store Manager can also refresh the values of keys at a specified time every day. This time is in format HH:mm:ss Z.</br>
  * <br>This is non-threadsafe.</br>
+ *
+ * @since 0.9.2
  */
 public class StoreManager
 {

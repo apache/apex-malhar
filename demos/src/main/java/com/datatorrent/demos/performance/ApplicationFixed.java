@@ -25,7 +25,7 @@ import org.apache.hadoop.conf.Configuration;
 /**
  * Example of application configuration in Java.
  * <p>
- * Measures the time taken to emit a fixed number of tuples. 
+ * Measures the time taken to emit a fixed number of tuples.
  * </p>
  *
  * @since 0.3.2

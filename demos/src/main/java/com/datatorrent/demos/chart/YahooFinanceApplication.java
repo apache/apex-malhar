@@ -32,16 +32,16 @@ import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * <p>YahooFinanceApplication class
- * 
- * This demo is used to demonstrate the usage of chart operators. 
+ *
+ * This demo is used to demonstrate the usage of chart operators.
  * The demo plots the stock prices against time and showcases 2 types of charts : AverageCha avergert and CandleStickChart.
- * 
+ *
  * It has the following operators:
  * StockTickInput operator:  Feeds in the actual Yahoo finance ticks of stock prices.
  * AverageChart Operator: Plots the average (mean) value of stock prices against time.
  * CandleStick Operator: Plots the candle stick chart of stock price against time. Candle stick chart is a style of bar-chart.
  * The tuple recording should be turned on to see the charts on UI.
- *  
+ *
  * </p>
  *
  * @since 0.3.2
