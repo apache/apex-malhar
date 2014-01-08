@@ -16,8 +16,10 @@ import com.datatorrent.common.util.Slice;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 
 /**
+ * <p>Server class.</p>
  *
  * @author Chetan Narsude <chetan@datatorrent.com>
+ * @since 0.9.2
  */
 public class Server extends com.datatorrent.netlet.Server
 {
