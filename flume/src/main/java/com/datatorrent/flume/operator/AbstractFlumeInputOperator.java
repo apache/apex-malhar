@@ -411,7 +411,7 @@ public abstract class AbstractFlumeInputOperator<T>
 
   }
 
-  public static class StatsListner extends ZKAssistedDiscovery implements com.datatorrent.api.StatsListener, Serializable
+  public static class ZKStatsListner extends ZKAssistedDiscovery implements com.datatorrent.api.StatsListener, Serializable
   {
     /*
      * In the current design, one input operator is able to connect
@@ -426,7 +426,7 @@ public abstract class AbstractFlumeInputOperator<T>
     private transient long nextMillis;
     private final Response response;
 
-    public StatsListner()
+    public ZKStatsListner()
     {
       map = localMap.get();
       nextMillis = System.currentTimeMillis() + intervalMillis;
@@ -524,6 +524,7 @@ public abstract class AbstractFlumeInputOperator<T>
   };
 
   private static final transient ThreadLocal<Collection<Service<byte[]>>> addresses = new ThreadLocal<Collection<Service<byte[]>>>();
+  @SuppressWarnings("FieldMayBeFinal") // it's not final because that mucks with the serialization somehow
   private transient ArrayBlockingQueue<Payload> handoverBuffer = new ArrayBlockingQueue<Payload>(1024 * 5);
   private static final Logger logger = LoggerFactory.getLogger(AbstractFlumeInputOperator.class);
 }
