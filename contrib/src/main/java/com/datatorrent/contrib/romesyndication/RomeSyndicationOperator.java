@@ -20,14 +20,15 @@ import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndEntryImpl;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.SyndFeedInput;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Operator for getting syndication feeds processed using Rome.<p><br>
@@ -142,33 +143,6 @@ public class RomeSyndicationOperator extends SimpleSinglePortInputOperator<RomeF
     return is;
   }
 
-  public RomeStreamProvider getStreamProvider()
-  {
-    return streamProvider;
-  }
-
-  public void setOrderedUpdate(boolean orderedUpdate)
-  {
-    this.orderedUpdate = orderedUpdate;
-  }
-
-  public boolean isOrderedUpdate()
-  {
-    return orderedUpdate;
-  }
-
-  private InputStream getFeedInputStream() throws IOException
-  {
-    InputStream is;
-    if (streamProvider != null) {
-      is = streamProvider.getInputStream();
-    }
-    else {
-      URL url = new URL(location);
-      is = url.openStream();
-    }
-    return is;
-  }
   @Override
   /**
    * Thread processing of the syndication feeds
