@@ -53,7 +53,7 @@ public class DimensionTimeBucketSumOperatorTest
       oper.addCombination(dimensionKey);
     } catch (NoSuchFieldException e) {
     }
-    oper.setTimeBucketFlags(DimensionTimeBucketOperator.TIMEBUCKET_MINUTE);
+    oper.setTimeBucketFlags(AbstractDimensionTimeBucketOperator.TIMEBUCKET_MINUTE);
     oper.setup(null);
     oper.beginWindow(0);
     oper.in.process(getMap("10.10.1.1","/movies","200","FF",20));
