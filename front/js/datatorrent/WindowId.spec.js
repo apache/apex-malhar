@@ -44,27 +44,20 @@ describe('WindowId.js', function() {
         expect(windowId.value).to.equal(windowValue);
     });
     
-    it('should throw if no arguments', function() {
+    it('should not throw if no arguments passed', function() {
         var fn = function() {
             return new WindowId();
         }
-        expect(fn).to.throw(Error);
+        expect(fn).not.to.throw(Error);
     });
     
-    it('should throw if first arg is non-numeric string', function() {
+    it('should not throw even if first arg is non-numeric string', function() {
         var fn = function() {
             return new WindowId('343k18ia');
         }
-        expect(fn).to.throw(Error);
+        expect(fn).not.to.throw(Error);
     });
     
-    it('should throw if first arg is non-numeric string', function() {
-        var fn = function() {
-            return new WindowId('343k18ia');
-        }
-        expect(fn).to.throw(Error);
-    });
-
     it('should have a set method that allows you to change the value', function() {
         expect(windowId.set).to.be.a('function');
         windowId.set('5896637953039405387');
