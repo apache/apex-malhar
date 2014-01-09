@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.2
  */
-public class DimensionTimeBucketSumOperator extends DimensionTimeBucketOperator
+public class DimensionTimeBucketSumOperator extends AbstractDimensionTimeBucketOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(DimensionTimeBucketSumOperator.class);
   private Map<String, Map<String, Number>> dataMap;
