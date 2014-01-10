@@ -35,6 +35,7 @@ public class HDFSStorageTest
     Context ctx = new Context();
     ctx.put(HDFSStorage.BASE_DIR_KEY, STORAGE_DIRECTORY);
     ctx.put(HDFSStorage.RESTORE_KEY, Boolean.toString(false));
+    ctx.put(HDFSStorage.ID, "1");
     Storage storage = new HDFSStorage();
     ((Configurable) storage).configure(ctx);
     byte[] b = new byte[1028];
@@ -58,6 +59,7 @@ public class HDFSStorageTest
     Context ctx = new Context();
     ctx.put(HDFSStorage.BASE_DIR_KEY, STORAGE_DIRECTORY);
     ctx.put(HDFSStorage.RESTORE_KEY, Boolean.toString(true));
+    ctx.put(HDFSStorage.ID, "1");
     Storage storage = new HDFSStorage();
     ((Configurable) storage).configure(ctx);
     byte[] b = new byte[1028];
@@ -78,6 +80,7 @@ public class HDFSStorageTest
     Context ctx = new Context();
     ctx.put(HDFSStorage.BASE_DIR_KEY, STORAGE_DIRECTORY);
     ctx.put(HDFSStorage.RESTORE_KEY, Boolean.toString(false));
+    ctx.put(HDFSStorage.ID, "2");
     Storage storage = new HDFSStorage();
     ((Configurable) storage).configure(ctx);
     RandomAccessFile r = new RandomAccessFile("src/test/resources/TestInput.txt", "r");
@@ -104,6 +107,7 @@ public class HDFSStorageTest
     Context ctx = new Context();
     ctx.put(HDFSStorage.BASE_DIR_KEY, STORAGE_DIRECTORY);
     ctx.put(HDFSStorage.RESTORE_KEY, Boolean.toString(false));
+    ctx.put(HDFSStorage.ID, "3");
     Storage storage = new HDFSStorage();
     ((Configurable) storage).configure(ctx);
     RandomAccessFile r = new RandomAccessFile("src/test/resources/TestInput.txt", "r");
@@ -138,6 +142,7 @@ public class HDFSStorageTest
     Context ctx = new Context();
     ctx.put(HDFSStorage.BASE_DIR_KEY, STORAGE_DIRECTORY);
     ctx.put(HDFSStorage.RESTORE_KEY, Boolean.toString(false));
+    ctx.put(HDFSStorage.ID, "4");
     Storage storage = new HDFSStorage();
     ((Configurable) storage).configure(ctx);
     RandomAccessFile r = new RandomAccessFile("src/test/resources/TestInput.txt", "r");
@@ -170,6 +175,7 @@ public class HDFSStorageTest
     Context ctx = new Context();
     ctx.put(HDFSStorage.BASE_DIR_KEY, STORAGE_DIRECTORY);
     ctx.put(HDFSStorage.RESTORE_KEY, Boolean.toString(false));
+    ctx.put(HDFSStorage.ID, "5");
     Storage storage = new HDFSStorage();
     ((Configurable) storage).configure(ctx);
     RandomAccessFile r = new RandomAccessFile("src/test/resources/TestInput.txt", "r");
@@ -210,6 +216,7 @@ public class HDFSStorageTest
     Context ctx = new Context();
     ctx.put(HDFSStorage.BASE_DIR_KEY, STORAGE_DIRECTORY);
     ctx.put(HDFSStorage.RESTORE_KEY, Boolean.toString(false));
+    ctx.put(HDFSStorage.ID, "6");
     Storage storage = new HDFSStorage();
     ((Configurable) storage).configure(ctx);
     RandomAccessFile r = new RandomAccessFile("src/test/resources/TestInput.txt", "r");

@@ -38,6 +38,7 @@ public class HDFSStorage implements Storage, Configurable
   private static final String cleanFileName = "/clean-counter";
   private static final String offsetFileName = "/offsetFile";
   public static final String BASE_DIR_KEY = "baseDir";
+  public static final String ID = "id";
   public static final String OFFSET_KEY = "offset";
   public static final String RESTORE_KEY = "restore";
   public static final String BLOCKSIZE = "blockSize";
@@ -108,6 +109,15 @@ public class HDFSStorage implements Storage, Configurable
         }
         if (!fs.isDirectory(path)) {
           throw new RuntimeException(String.format("baseDir passed (%s) is not a directory.", baseDir));
+        }
+        String id = ctx.getString(ID);
+        if(id == null){
+          throw new RuntimeException(String.format("id can't be  null."));
+        }
+        baseDir = baseDir+"/"+id;
+        path = new Path(baseDir);
+        if(!fs.exists(path) || !fs.isDirectory(path)){
+          fs.mkdirs(path);
         }
         /* keeping the block size 2MB less than the default block size */
 
