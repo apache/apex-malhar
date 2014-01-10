@@ -56,19 +56,19 @@ public abstract class AbstractKPIOperator<K, V> implements Operator
    * This specifies the dateFormat for the time field in the input tuple
    */
   @NotNull
-  private DateFormat dateFormat;
+  DateFormat dateFormat;
 
   /**
    * This is the time interval for which the KPI is to be calculated. Currently it supports time intervals to be in
    * minutes. for e.g. 5m,10m,15m etc
    */
   @NotNull
-  private int[] timeRange;
+  int[] timeRange;
 
   /**
    * This field is used to store the minute received from the last tuple
    */
-  private transient int lastMinute;
+  private int lastMinute;
 
   /**
    * This is used to store the last minute for each time range
@@ -81,7 +81,7 @@ public abstract class AbstractKPIOperator<K, V> implements Operator
     public void process(Map<K, V> t)
     {
       try {
-        lastMinute = (dateFormat.parse((String) t.get(timeField)).getDate() > lastMinute) ? dateFormat.parse((String) t.get(timeField)).getDate() : lastMinute;
+        lastMinute = (dateFormat.parse(t.get(timeField).toString()).getDate() > lastMinute) ? dateFormat.parse((String) t.get(timeField)).getDate() : lastMinute;
       } catch (ParseException e) {
         logger.error("error while parsing the date {}", e.getMessage());
       }
