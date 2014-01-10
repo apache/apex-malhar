@@ -27,7 +27,7 @@ var OpActionWidget = BaseView.extend({
     initialize:function(options) {
         BaseView.prototype.initialize.call(this,options);
         this.dataSource = options.dataSource;
-        this.listenTo(this.model, 'change:recordingStartTime', this.render);
+        this.listenTo(this.model, 'change:recordingStartTime change:ports', this.render);
     },
     
     events: {
