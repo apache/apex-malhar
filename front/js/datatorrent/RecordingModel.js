@@ -227,19 +227,6 @@ var RecordingModel = BaseModel.extend({
     // Dummy function, should be overridden by child class
     onLiveTuples: function(data) {
         throw new Error('onLiveTuples needs to be implemented in a subclass.');
-    },
-    
-    syncRecording: function(fetch) {
-        if (fetch === undefined) fetch = true;
-        
-        this.dataSource.syncRecording({
-            appId: this.get('appId'),
-            operatorId: this.get('operatorId'),
-            ports: this.ports.length === 1 ? this.ports.at(0).get('id') : false,
-            success: function() {
-                if (fetch) this.fetch();
-            }.bind(this)
-        });
     }
     
 });
