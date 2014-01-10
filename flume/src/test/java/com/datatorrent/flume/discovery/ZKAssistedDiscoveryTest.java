@@ -31,7 +31,7 @@ public class ZKAssistedDiscoveryTest
   public void testSerialization() throws Exception
   {
     ZKAssistedDiscovery discovery = new ZKAssistedDiscovery();
-    discovery.configure(new Context());
+    discovery.configure(getContext());
     ServiceInstance<byte[]> instance = discovery.getInstance(new Service<byte[]>()
     {
 
@@ -67,6 +67,26 @@ public class ZKAssistedDiscoveryTest
     logger.debug("serialized json = {}", new String(serialize));
     ServiceInstance<byte[]> deserialize = instanceSerializer.deserialize(serialize);
     assertArrayEquals("Metadata", instance.getPayload(), deserialize.getPayload());
+  }
+
+  @Test
+  public void testDiscover()
+  {
+    ZKAssistedDiscovery discovery = new ZKAssistedDiscovery();
+    discovery.configure(getContext());
+    assertNotNull("Discovered Sinks", discovery.discover());
+  }
+
+  private Context getContext()
+  {
+    Context context = new Context();
+    context.put("serviceName", "DTFlumeTest");
+    context.put("connectionString", "127.0.0.1:2181");
+    context.put("connectionTimeoutMillis", "1000");
+    context.put("connectionRetryCount", "10");
+    context.put("connectionRetrySleepMillis", "500");
+    context.put("basePath", "/HelloDT");
+    return context;
   }
 
   private static final Logger logger = LoggerFactory.getLogger(ZKAssistedDiscoveryTest.class);
