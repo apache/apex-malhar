@@ -5,7 +5,7 @@
     </div>
     <div class="display">
         <div class="label">Window ID</div>
-        <div class="value currentWindowId" title="<%= currentWindowId %>"><%= currentWindowIdShort %></div>
+        <div class="value currentWindowId"><%= currentWindowId %></div>
     </div>
 </div>
 <div class="item tuple">
@@ -24,11 +24,3 @@
         <form action="" class="ports-frm"></form>
     </div>
 </div>
-<% if (!ended) { %>
-<div class="item">
-    <div class="display">
-        <button type="button" class="btn btn-primary syncRecording"><i class="icon-refresh icon-white"></i> refresh recording</button>
-        <div class="sync-rec-note">This recording has not yet ended, so pressing this button will update the tuple count and visible tuples in this widget.</div>
-    </div>
-</div>
-<% } %>
