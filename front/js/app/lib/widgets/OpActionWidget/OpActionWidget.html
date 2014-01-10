@@ -1,4 +1,4 @@
-<% if (recordingStartTime && recordingStartTime !== "-1") { %>
+<% if (isRecording) { %>
     <button class="btn stopRecording"><i class="icon-rec-on"></i> stop recording</button>
 <% } else { %>
     <button class="btn startRecording"><i class="icon-rec-off"></i> start recording</button>

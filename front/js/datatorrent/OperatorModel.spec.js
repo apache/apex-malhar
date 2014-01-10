@@ -44,4 +44,25 @@ describe('OperatorModel.js', function() {
 
     });
 
+    describe('the isRecording method', function() {
+        it('should return true if recordingStartTime is not -1', function() {
+            m.set('recordingStartTime', +new Date() + '');
+            expect(m.isRecording()).to.eql(true);
+        });
+
+        it('should return true if one of its ports has a recordingStartTime', function() {
+            m.set('ports', [
+            	{ recordingStartTime: (+new Date() - 1000)+ ''},
+            ]);
+           	expect(m.isRecording()).to.eql(true); 
+        });
+
+        it('should return false if recordingStartTime is not present or is -1', function() {
+            m.set('recordingStartTime', '-1');
+            expect(m.isRecording()).to.eql(false);
+            m.unset('recordingStartTime');
+            expect(m.isRecording()).to.eql(false);
+        });
+    });
+
 });

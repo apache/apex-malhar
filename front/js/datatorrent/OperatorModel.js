@@ -84,6 +84,22 @@ var OperatorModel = BaseModel.extend({
             this.trigger('update');
         });
         this.dataSource.subscribe(topic);
+    },
+
+    isRecording: function() {
+        var startTimeRE = /^\d+$/;
+        if (startTimeRE.test(this.get('recordingStartTime'))) {
+            return true;
+        }
+        return _.some(this.get('ports'), function(port) {
+            return startTimeRE.test(port.recordingStartTime);
+        });
+    },
+
+    toJSON: function() {
+        var json = BaseModel.prototype.toJSON.call(this);
+        json.isRecording = this.isRecording();
+        return json;
     }
     
 });

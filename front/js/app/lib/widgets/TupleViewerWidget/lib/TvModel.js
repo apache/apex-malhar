@@ -82,7 +82,7 @@ var ViewerRecording = Recording.extend({
             var selectedTuples = this.tuples.where({"selected":true});
             var curTuple = selectedTuples.length ? selectedTuples[0] : false ;
             this.set('currentTupleIndex', curTuple ? curTuple.get("idx") : '-' );
-            this.set('currentWindowId', curTuple ? curTuple.get("windowId") : '-' );
+            this.set('currentWindowId', curTuple ? curTuple.get("windowId") : '-1' );
         });
     },
     
@@ -93,15 +93,6 @@ var ViewerRecording = Recording.extend({
         }
         
         var json = this.toJSON();
-        
-        // window id
-        if (json.currentWindowId && json.currentWindowId !== '-') {
-            var windowInfo = new WindowId(json.currentWindowId);
-            json.currentWindowIdShort = windowInfo.offset;
-        } else {
-            json.currentWindowId = '-';
-            json.currentWindowIdShort = '-';
-        }
         
         // tuple index
         if (!json.currentTupleIndex) {
@@ -172,7 +163,7 @@ var ViewerRecording = Recording.extend({
             var lastIdx = offset.add(limit).subtract(BigInteger.ONE);
             var tuple = this.tuples.get(lastIdx.toString());
             if (tuple && tuple.get("selected")) {
-                console.log('shift down', this.set({"offset":offset.add(change).toString()},{validate: true}));
+                this.set({"offset":offset.add(change).toString()},{validate: true});
             }
         } 
         // Shifting up
@@ -180,7 +171,7 @@ var ViewerRecording = Recording.extend({
             var firstIdx = offset;
             var tuple = this.tuples.get(firstIdx.toString());
             if (tuple && tuple.get("selected")) {
-                console.log('shift up', this.set({"offset":offset.add(change).toString()},{validate: true}));
+                this.set({"offset":offset.add(change).toString()},{validate: true});
             }
         }
         
@@ -234,7 +225,6 @@ var ViewerRecording = Recording.extend({
                         curWindowId = prevRange.high;
                         BI_windowId = new BigInteger(prevRange.high);
                         jumped = true;
-                        console.log("jump!", range);
                     }
                 };
                 if (!jumped) {

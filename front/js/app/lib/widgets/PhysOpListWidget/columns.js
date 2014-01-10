@@ -31,8 +31,7 @@ function nameFormatter(value, row) {
         appId: row.collection.appId,
         logicalName: value
     });
-    var recordingStartTime = row.get('recordingStartTime');
-    return (recordingStartTime && recordingStartTime != '-1') ? '<i class="icon-rec-on"></i> ' + value : value ;
+    return row.isRecording() ? '<i class="icon-rec-on"></i> ' + value : value ;
 }
 
 function idFormatter(value, row) {
