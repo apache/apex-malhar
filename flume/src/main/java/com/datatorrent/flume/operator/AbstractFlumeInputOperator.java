@@ -457,12 +457,20 @@ public abstract class AbstractFlumeInputOperator<T>
       }
 
       if (System.currentTimeMillis() >= nextMillis) {
-        Collection<Service<byte[]>> addresses = discover();
-        if (addresses.size() != map.size()) {
+        try {
+          Collection<Service<byte[]>> addresses = discover();
           AbstractFlumeInputOperator.discoveredFlumeSinks.set(addresses);
-          response.repartitionRequired = true;
+          if (addresses.size() != map.size()) {
+            response.repartitionRequired = true;
+          }
+          nextMillis = System.currentTimeMillis() + intervalMillis;
         }
-        nextMillis = System.currentTimeMillis() + intervalMillis;
+        catch (Error er) {
+          throw er;
+        }
+        catch (Throwable cause) {
+          logger.warn("Unable to discover services, using values from last successful discovery", cause);
+        }
       }
 
       return response;
