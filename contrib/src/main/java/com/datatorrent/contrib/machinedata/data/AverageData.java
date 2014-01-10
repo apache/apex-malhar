@@ -87,4 +87,8 @@ public class AverageData
   {
     this.count = count;
   }
+  
+  public String toString(){
+    return sum+"-"+count;
+  }
 }
