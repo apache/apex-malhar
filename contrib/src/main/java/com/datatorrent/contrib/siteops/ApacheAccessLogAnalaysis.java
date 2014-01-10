@@ -35,7 +35,7 @@ import com.datatorrent.lib.testbench.HttpStatusFilter;
 import com.datatorrent.lib.testbench.KeyValSum;
 import com.datatorrent.lib.testbench.RedisSumOper;
 import com.datatorrent.lib.testbench.TopOccurance;
-import com.datatorrent.lib.util.DimensionTimeBucketOperator;
+import com.datatorrent.lib.util.AbstractDimensionTimeBucketOperator;
 import com.datatorrent.lib.util.DimensionTimeBucketSumOperator;
 /**
  * <p>ApacheAccessLogAnalaysis class.</p>
@@ -59,7 +59,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
   	TimeDimensionOperator oper = dag.addOperator(name, TimeDimensionOperator.class);
     oper.addDimensionKeyName("item");
     oper.addValueKeyName("view");
-    oper.setTimeBucketFlags(DimensionTimeBucketOperator.TIMEBUCKET_DAY | DimensionTimeBucketOperator.TIMEBUCKET_HOUR | DimensionTimeBucketOperator.TIMEBUCKET_MINUTE);
+    oper.setTimeBucketFlags(AbstractDimensionTimeBucketOperator.TIMEBUCKET_DAY | AbstractDimensionTimeBucketOperator.TIMEBUCKET_HOUR | AbstractDimensionTimeBucketOperator.TIMEBUCKET_MINUTE);
     return oper;
   }
 

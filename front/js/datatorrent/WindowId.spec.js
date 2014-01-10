@@ -57,6 +57,13 @@ describe('WindowId.js', function() {
         }
         expect(fn).not.to.throw(Error);
     });
+
+    it('toString should be a span with a tooltip and "invalid" as content', function() {
+        var w = new WindowId('2398ksdfj');
+        var $el = $(w.toString());
+        expect($el.text()).to.equal('Invalid');
+        expect($el.attr('title')).to.match(/2398ksdfj/);
+    });
     
     it('should have a set method that allows you to change the value', function() {
         expect(windowId.set).to.be.a('function');

@@ -9,7 +9,7 @@
 
   <artifactId>malhar-all</artifactId>
   <packaging>pom</packaging>
-  <version>0.9.2-SNAPSHOT</version>
+  <version>0.9.3-SNAPSHOT</version>
   <name>Malhar Open Source</name>
 
   <!-- repository to provide the DataTorrent artifacts -->

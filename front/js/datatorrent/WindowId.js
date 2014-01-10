@@ -27,6 +27,8 @@ WindowId.prototype = {
         // return formatter.windowFormatter(this);
         if (this.offset === '-') {
             return '-';
+        } else if (this.offset === false) {
+            return '<span title="invalid window ID: ' + this.value + '">Invalid</span>';
         }
         return '<span class="window-id-display" title="timestamp: ' + this.timestamp.toLocaleString() + '">' + this.offset + '</span>';
     },
@@ -44,7 +46,7 @@ WindowId.prototype = {
         if (/[^0-9]/.test(value)) {
             LOG(3, 'WindowId first param not in expected format: ', value);
             this.timestamp = '-';
-            this.offset = '-';
+            this.offset = false;
             return;
         }
 	

@@ -32,14 +32,37 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
  * <p>
- * Abstract DimensionTimeBucketOperator class.
+ * Abstract AbstractDimensionTimeBucketOperator class.
  * </p>
+ *
+ * This operator takes in a Map of key value pairs, and output the expanded key value pairs from the dimensions.
+ * The user of this class is supposed to:
+ * - provide the time key name in the map by calling setTimeKeyName
+ * - provide the time bucket unit by calling setTimeBucketFlags
+ * - (optional) provide the value field keys by calling addValueKeyName.
+ * - provide the dimension keys by calling addDimensionKeyName
+ * - (optional) provide the combinations of the dimensions by calling addCombination (if not, it will expand to all possible combinations of the dimension keys
+ *
+ * Example:
+ * input is a map that represents a line in apache access log.
+ *   "time" => the time
+ *   "url" => the url
+ *   "status" => the status code
+ *   "ip" => the ip
+ *   "bytes" => the number of bytes
+ *
+ * We set the time bucket to be just MINUTE, time key is "time", value field is "bytes", the dimension keys are "url", "status", and "ip"
+ *
+ * The output will be expanded into number_time_buckets * dimension_combinations * number_of_value_fields values.  The key will be the combinations of the values in the dimension keys
+ *
+ * Note that in most cases, the dimensions are keys with DISCRETE values
+ * The value fields are keys with AGGREGATE-able values
  *
  * @since 0.3.2
  */
-public abstract class DimensionTimeBucketOperator extends BaseOperator
+public abstract class AbstractDimensionTimeBucketOperator extends BaseOperator
 {
-  private static final Logger LOG = LoggerFactory.getLogger(DimensionTimeBucketOperator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractDimensionTimeBucketOperator.class);
   @InputPortFieldAnnotation(name = "in", optional = false)
   public final transient DefaultInputPort<Map<String, Object>> in = new DefaultInputPort<Map<String, Object>>() {
     @Override
@@ -73,22 +96,22 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
         for (String timeBucket : timeBucketList) {
           for (int[] dimensionCombination : dimensionCombinations) {
             String field = "0";
-            String key = new String();
+            StringBuilder key = new StringBuilder();
             if (dimensionCombination != null) {
               for (int d : dimensionCombination) {
-                if (!key.isEmpty()) {
-                  key += "|";
+                if (key.length() != 0) {
+                  key.append("|");
                 }
-                key += String.valueOf(d) + ":" + tuple.get(dimensionKeyNames.get(d)).toString();
+                key.append(String.valueOf(d)).append(":").append(tuple.get(dimensionKeyNames.get(d)).toString());
               }
             }
-            DimensionTimeBucketOperator.this.process(timeBucket, key, field, 1);
+            AbstractDimensionTimeBucketOperator.this.process(timeBucket, key.toString(), field, 1);
             for (int i = 0; i < valueKeyNames.size(); i++) {
               String valueKeyName = valueKeyNames.get(i);
               field = String.valueOf(i + 1);
               Object value = tuple.get(valueKeyName);
               Number numberValue = extractNumber(valueKeyName, value);
-              DimensionTimeBucketOperator.this.process(timeBucket, key, field, numberValue);
+              AbstractDimensionTimeBucketOperator.this.process(timeBucket, key.toString(), field, numberValue);
             }
           }
         }
@@ -151,7 +174,7 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
   /*
    * When calling this, the operator no longer expands all combinations of all
    * keys but instead only use the combinations the caller supplies
-   * 
+   *
    * @param keys The key combination to add
    */
   public void addCombination(Set<String> keys) throws NoSuchFieldException
@@ -226,32 +249,65 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
     currentWindowId = windowId;
   }
 
+  /**
+   * Add the key that should be treated as one of the dimensions. The key must be in the input Map
+   *
+   * @param key
+   */
   public void addDimensionKeyName(String key)
   {
     dimensionKeyNames.add(key);
   }
 
+  /**
+   * Add the key that should be treated as one of the value fields.  The key must be in the input Map
+   *
+   * @param key
+   */
   public void addValueKeyName(String key)
   {
     valueKeyNames.add(key);
   }
 
+  /**
+   * Set the key that should be treated as the timestamp.  The timestamp is assumed to be in epoch millis
+   *
+   * @param key
+   */
   public void setTimeKeyName(String key)
   {
     timeKeyName = key;
   }
 
+  /**
+   * Set the time bucket flags.
+   *
+   * @param timeBucketFlags The bit mask that represents which time unit to be used for time bucket
+   */
   public void setTimeBucketFlags(int timeBucketFlags)
   {
     this.timeBucketFlags = timeBucketFlags;
   }
 
+  /**
+   * Set the timezone of the time bucket
+   *
+   * @param tz
+   */
   public void setTimeZone(TimeZone tz)
   {
     timeZone = tz;
     calendar.setTimeZone(timeZone);
   }
 
+  /**
+   * The method that subclass must implement to provide routine on what to do with each timeBucket, key, value field and value expanded from the tuple
+   *
+   * @param timeBucket The time bucket string
+   * @param key The key, expanded from dimensions
+   * @param field The value field
+   * @param value The value
+   */
   public abstract void process(String timeBucket, String key, String field, Number value);
 
   public static class Combinations
@@ -322,5 +378,5 @@ public abstract class DimensionTimeBucketOperator extends BaseOperator
 
   }
 
-  private static final Logger logger = LoggerFactory.getLogger(DimensionTimeBucketOperator.class);
+  private static final Logger logger = LoggerFactory.getLogger(AbstractDimensionTimeBucketOperator.class);
 }

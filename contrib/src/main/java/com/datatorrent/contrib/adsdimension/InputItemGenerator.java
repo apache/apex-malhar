@@ -19,7 +19,11 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+
 import java.util.Random;
+
+import javax.validation.constraints.Min;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,13 +34,18 @@ import org.slf4j.LoggerFactory;
  */
 public class InputItemGenerator implements InputOperator
 {
+  @SuppressWarnings("unused")
   private static final Logger LOG = LoggerFactory.getLogger(InputItemGenerator.class);
+  @Min(1)
   private int numPublishers = 50;
+  @Min(1)
   private int numAdvertisers = 100;
+  @Min(1)
   private int numAdUnits = 5;
   private double expectedClickThruRate = 0.005;
+  @Min(1)
   private int blastCount = 10000;
-  private Random random = new Random();
+  private final Random random = new Random();
 
   @OutputPortFieldAnnotation(name = "outputPort")
   public final transient DefaultOutputPort<AdInfo> outputPort = new DefaultOutputPort<AdInfo>();
@@ -51,9 +60,44 @@ public class InputItemGenerator implements InputOperator
     this.expectedClickThruRate = expectedClickThruRate;
   }
 
+  public int getBlastCount()
+  {
+    return blastCount;
+  }
+
   public void setBlastCount(int blastCount)
   {
     this.blastCount = blastCount;
+  }
+
+  public int getNumPublishers()
+  {
+    return numPublishers;
+  }
+
+  public void setNumPublishers(int numPublishers)
+  {
+    this.numPublishers = numPublishers;
+  }
+
+  public int getNumAdvertisers()
+  {
+    return numAdvertisers;
+  }
+
+  public void setNumAdvertisers(int numAdvertisers)
+  {
+    this.numAdvertisers = numAdvertisers;
+  }
+
+  public int getNumAdUnits()
+  {
+    return numAdUnits;
+  }
+
+  public void setNumAdUnits(int numAdUnits)
+  {
+    this.numAdUnits = numAdUnits;
   }
 
   @Override
