@@ -53,12 +53,12 @@ public class CSSRKPIOperator implements Operator
         if (rangeBucket == null) {
           rangeBucket = new ArrayList<KeyValPair<TimeBucketKey, AverageData>>(previousHistoryCount);
           intializeArrayList(rangeBucket);
-          rangeBucket.set(index, new KeyValPair<TimeBucketKey, AverageData>(new TimeBucketKey(tuple.getKey().getTime(), tuple.getKey().getTimeSpec()), new AverageData(tuple.getValue().getSum(), tuple.getValue().getCount())));
+          rangeBucket.set(index, new KeyValPair<TimeBucketKey, AverageData>( tuple.getKey(), new AverageData(tuple.getValue().getSum(), tuple.getValue().getCount())));
           dataCache.put(i, rangeBucket);
         } else {
           if (rangeBucket.get(index) == null) { // the aggregations for new date is not present in the cache and
                                                 // corresponding cell is empty
-            rangeBucket.set(index, new KeyValPair<TimeBucketKey, AverageData>(new TimeBucketKey(tuple.getKey().getTime(), tuple.getKey().getTimeSpec()), new AverageData(tuple.getValue().getSum(), tuple.getValue().getCount())));
+            rangeBucket.set(index, new KeyValPair<TimeBucketKey, AverageData>(tuple.getKey(), new AverageData(tuple.getValue().getSum(), tuple.getValue().getCount())));
           } else {
             KeyValPair<TimeBucketKey, AverageData> existingSum = rangeBucket.get(index);
             if (Math.abs(minute - existingSum.getKey().getTime().get(Calendar.MINUTE)) < timeRange[i]) {
@@ -67,7 +67,7 @@ public class CSSRKPIOperator implements Operator
               avData.setSum(avData.getSum() + tuple.getValue().getSum());
             } else {
               outputPort.emit(new KeyValPair<Integer, KeyValPair<TimeBucketKey, AverageData>>(timeRange[i], existingSum));
-              rangeBucket.set(index, new KeyValPair<TimeBucketKey, AverageData>(new TimeBucketKey(tuple.getKey().getTime(), tuple.getKey().getTimeSpec()), new AverageData(tuple.getValue().getSum(), tuple.getValue().getCount())));
+              rangeBucket.set(index, new KeyValPair<TimeBucketKey, AverageData>(tuple.getKey(), new AverageData(tuple.getValue().getSum(), tuple.getValue().getCount())));
 
               if (emitedTimeRangeIndex[i] == index) {
                 emitedTimeRangeIndex[i] = (index + 1) % previousHistoryCount;
