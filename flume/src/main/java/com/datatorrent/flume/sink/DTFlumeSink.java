@@ -182,14 +182,15 @@ public class DTFlumeSink extends AbstractSink implements Configurable
           t.commit();
         }
         catch (Error er) {
+          t.rollback();
           throw er;
         }
         catch (Throwable th) {
           logger.error("Exception during flume transaction", th);
+          t.rollback();
           return Status.BACKOFF;
         }
         finally {
-          t.rollback();
           t.close();
         }
 
