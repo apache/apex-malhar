@@ -174,7 +174,7 @@ public abstract class AbstractFlumeInputOperator<T>
   private static class RecoveryAddress implements Serializable
   {
     long windowId;
-    long address;
+    byte[] address;
     private static final long serialVersionUID = 201312021432L;
   }
 
@@ -204,11 +204,8 @@ public abstract class AbstractFlumeInputOperator<T>
         byte[] array = new byte[arraySize];
 
         array[0] = Command.COMMITTED.getOrdinal();
-
-        final long recoveryOffset = ra.address;
-        Server.writeLong(array, 1, recoveryOffset);
-
-        logger.debug("wrote {} with recoveryOffset = {}", Command.COMMITTED, recoveryOffset);
+        System.arraycopy(ra.address, 0, array, 1, 8);
+        logger.debug("wrote {} with recoveryOffset = {}", Command.COMMITTED, Arrays.toString(ra.address));
         client.write(array);
       }
       else {
@@ -331,9 +328,9 @@ public abstract class AbstractFlumeInputOperator<T>
   private class Payload
   {
     final T payload;
-    final long location;
+    final byte[] location;
 
-    Payload(T payload, long location)
+    Payload(T payload, byte[] location)
     {
       this.payload = payload;
       this.location = location;
@@ -354,7 +351,7 @@ public abstract class AbstractFlumeInputOperator<T>
     public void onMessage(byte[] buffer, int offset, int size)
     {
       /* this are all the payload messages */
-      Payload payload = new Payload(convert(buffer, offset + 8, size - 8), Server.readLong(buffer, 0));
+      Payload payload = new Payload(convert(buffer, offset + 8, size - 8), Arrays.copyOfRange(buffer, offset, offset + 8));
       try {
         handoverBuffer.put(payload);
       }
@@ -370,12 +367,12 @@ public abstract class AbstractFlumeInputOperator<T>
     {
       super.connected();
 
-      long address;
+      byte[] address;
       if (recoveryAddresses.size() > 0) {
         address = recoveryAddresses.get(recoveryAddresses.size() - 1).address;
       }
       else {
-        address = 0;
+       address = new byte[8];
       }
 
       int len = 1 /* for the message type SEEK */
@@ -383,7 +380,7 @@ public abstract class AbstractFlumeInputOperator<T>
 
       byte[] array = new byte[len];
       array[0] = Command.SEEK.getOrdinal();
-      Server.writeLong(array, 1, address);
+      System.arraycopy(address, 0, array, 1, 8);
       write(array);
 
       connected = true;
