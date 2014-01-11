@@ -77,7 +77,7 @@ public class HDFSStorage implements Storage, Configurable
   private long retrievalOffset;
   private long retrievalFile;
   private int offset;
-  private byte[] flushedOffset;
+  private byte[] flushedOffset= new byte[8];;
   private long skipOffset;
   private String id;
 
@@ -134,13 +134,9 @@ public class HDFSStorage implements Storage, Configurable
           }
           if (fs.exists(offsetFile) && fs.isFile(offsetFile)) {
             flushedOffset = readData(offsetFile);
-          }
-          else {
-            flushedOffset = new byte[8];
-          }
+          }          
         }
         else {
-          flushedOffset = new byte[8];
           writeData(cleanFileCounterFile, String.valueOf(cleanedFileCounter).getBytes()).close();
         }
 
@@ -197,6 +193,7 @@ public class HDFSStorage implements Storage, Configurable
   @Override
   public byte[] store(byte[] bytes)
   {
+    logger.debug("store function called");
     // 4 for the number of bytes used to store the length of the data
     if (fileWriteOffset + bytes.length + DATA_LENGTH_BYTE_SIZE < blockSize) {
       try {
@@ -210,13 +207,14 @@ public class HDFSStorage implements Storage, Configurable
           dataStream.write(Ints.toByteArray(bytes.length));
           dataStream.write(bytes);
         }
+        fileWriteOffset += (bytes.length + DATA_LENGTH_BYTE_SIZE);
         byte[] fileOffset = null;
-        if (fileWriteOffset > skipOffset) {
+        if (fileWriteOffset >= skipOffset) {
           fileOffset = new byte[IDENTIFIER_SIZE];
           Server.writeLong(fileOffset, 0, calculateOffset(fileWriteOffset, fileCounter));
         }
 
-        fileWriteOffset += (bytes.length + DATA_LENGTH_BYTE_SIZE);
+        
         return fileOffset;
       }
       catch (IOException ex) {
@@ -260,6 +258,17 @@ public class HDFSStorage implements Storage, Configurable
     try {
       if (readStream != null) {
         readStream.close();
+      }
+      if(!fs.exists(new Path(baseDir + "/" + retrievalFile))){
+        skipOffset = retrievalOffset;
+        if(retrievalFile ==0 && retrievalOffset == 0){
+          // we have just started, so returning null
+          return null;
+        }else{
+          throw new RuntimeException("file "+retrievalFile+" doesn't exist");
+        }
+        
+        
       }
       readStream = new FSDataInputStream(fs.open(new Path(baseDir + "/" + retrievalFile)));
       readStream.seek(retrievalOffset);
