@@ -41,7 +41,7 @@ public class HDFSStorageTest
     byte[] b = new byte[1028];
     byte[] val = storage.store(b);
     storage.close();
-    byte[] data = storage.retrieve(val);
+    byte[] data = storage.retrieve(new byte[8]);
     byte[] tempData = new byte[data.length - 8];
     System.arraycopy(data, 8, tempData, 0, tempData.length);
     Assert.assertEquals("matched the stored value with retrieved value", new String(b), new String(tempData));
