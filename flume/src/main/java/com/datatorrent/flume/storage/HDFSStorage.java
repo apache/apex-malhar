@@ -28,7 +28,7 @@ import com.google.common.primitives.Longs;
  * baseDir - The base directory where the data is going to be stored <br />
  * restore - This is used to restore the application from previous failure <br />
  * blockSize - The maximum size of the each file to created. <br />
- * 
+ *
  * @author Gaurav Gupta <gaurav@datatorrent.com>
  */
 public class HDFSStorage implements Storage, Configurable
@@ -83,7 +83,7 @@ public class HDFSStorage implements Storage, Configurable
 
   /**
    * This stores the Identifier information identified in the last store function call
-   * 
+   *
    * @param ctx
    */
   // private byte[] fileOffset = new byte[IDENTIFIER_SIZE];
@@ -151,7 +151,7 @@ public class HDFSStorage implements Storage, Configurable
 
   /**
    * This function reads the file at a location and return the bytes stored in the file "
-   * 
+   *
    * @param path
    *          - the location of the file
    * @return
@@ -168,7 +168,7 @@ public class HDFSStorage implements Storage, Configurable
 
   /**
    * This function writes the bytes to a file specified by the path
-   * 
+   *
    * @param path
    *          the file location
    * @param data
@@ -227,7 +227,7 @@ public class HDFSStorage implements Storage, Configurable
   }
 
   /**
-   * 
+   *
    * @param b
    * @param size
    * @param startIndex
@@ -314,7 +314,7 @@ public class HDFSStorage implements Storage, Configurable
   public byte[] retrieveNext()
   {
     if(retrievalFile == -1){
-      throw new RuntimeException("Call retrieve first"); 
+      throw new RuntimeException("Call retrieve first");
     }
     try {
       if (readStream == null) {
@@ -408,7 +408,6 @@ public class HDFSStorage implements Storage, Configurable
     }
   }
 
-  @Override
   public void close()
   {
     if (dataStream != null) {

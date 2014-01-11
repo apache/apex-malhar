@@ -7,22 +7,21 @@ package com.datatorrent.flume.storage;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import org.apache.flume.Context;
-import org.apache.flume.conf.Configurable;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.flume.Context;
+import org.apache.flume.conf.Configurable;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+
 import com.datatorrent.flume.sink.Server;
-import com.datatorrent.flume.storage.HDFSStorage;
-import com.datatorrent.flume.storage.Storage;
 
 /**
- * 
+ *
  * @author Gaurav Gupta <gaurav@datatorrent.com>
  */
 public class HDFSStorageTest
@@ -36,7 +35,7 @@ public class HDFSStorageTest
     ctx.put(HDFSStorage.BASE_DIR_KEY, STORAGE_DIRECTORY);
     ctx.put(HDFSStorage.RESTORE_KEY, Boolean.toString(false));
     ctx.put(HDFSStorage.ID, "1");
-    Storage storage = new HDFSStorage();
+    HDFSStorage storage = new HDFSStorage();
     ((Configurable) storage).configure(ctx);
     Assert.assertNull(storage.retrieve(new byte[8]));
     byte[] b = new byte[1028];
@@ -60,7 +59,7 @@ public class HDFSStorageTest
     ctx.put(HDFSStorage.BASE_DIR_KEY, STORAGE_DIRECTORY);
     ctx.put(HDFSStorage.RESTORE_KEY, Boolean.toString(true));
     ctx.put(HDFSStorage.ID, "1");
-    Storage storage = new HDFSStorage();
+    HDFSStorage storage = new HDFSStorage();
     ((Configurable) storage).configure(ctx);
     byte[] b = new byte[1028];
     storage.store(b);
@@ -72,7 +71,7 @@ public class HDFSStorageTest
     byte[] identifier = new byte[8];
     Server.writeLong(identifier, 0, calculateOffset(0l, 2l));
     storage.clean(identifier);
-    ((HDFSStorage)storage).cleanHelperFiles();
+    storage.cleanHelperFiles();
   }
 
   @Test
@@ -82,14 +81,14 @@ public class HDFSStorageTest
     ctx.put(HDFSStorage.BASE_DIR_KEY, STORAGE_DIRECTORY);
     ctx.put(HDFSStorage.RESTORE_KEY, Boolean.toString(false));
     ctx.put(HDFSStorage.ID, "2");
-    Storage storage = new HDFSStorage();
-    ((Configurable) storage).configure(ctx);
+    HDFSStorage storage = new HDFSStorage();
+    storage.configure(ctx);
     RandomAccessFile r = new RandomAccessFile("src/test/resources/TestInput.txt", "r");
     r.seek(0);
     byte[] b = r.readLine().getBytes();
-    byte[] val = storage.store(b);
+    storage.store(b);
     storage.close();
-    val = storage.store(b);
+    byte[] val = storage.store(b);
     storage.close();
     storage.clean(val);
     Configuration conf = new Configuration();
@@ -100,7 +99,7 @@ public class HDFSStorageTest
     byte[] identifier = new byte[8];
     Server.writeLong(identifier, 0, calculateOffset(0l, 2l));
     storage.clean(identifier);
-    ((HDFSStorage)storage).cleanHelperFiles();
+    storage.cleanHelperFiles();
   }
 
   @Test
@@ -110,7 +109,7 @@ public class HDFSStorageTest
     ctx.put(HDFSStorage.BASE_DIR_KEY, STORAGE_DIRECTORY);
     ctx.put(HDFSStorage.RESTORE_KEY, Boolean.toString(false));
     ctx.put(HDFSStorage.ID, "3");
-    Storage storage = new HDFSStorage();
+    HDFSStorage storage = new HDFSStorage();
     ((Configurable) storage).configure(ctx);
     RandomAccessFile r = new RandomAccessFile("src/test/resources/TestInput.txt", "r");
     r.seek(0);
@@ -137,7 +136,7 @@ public class HDFSStorageTest
     byte[] identifier = new byte[8];
     Server.writeLong(identifier, 0, calculateOffset(0l, 1l));
     storage.clean(identifier);
-    ((HDFSStorage)storage).cleanHelperFiles();
+    storage.cleanHelperFiles();
   }
 
   @Test
@@ -147,7 +146,7 @@ public class HDFSStorageTest
     ctx.put(HDFSStorage.BASE_DIR_KEY, STORAGE_DIRECTORY);
     ctx.put(HDFSStorage.RESTORE_KEY, Boolean.toString(false));
     ctx.put(HDFSStorage.ID, "4");
-    Storage storage = new HDFSStorage();
+    HDFSStorage storage = new HDFSStorage();
     ((Configurable) storage).configure(ctx);
     Assert.assertNull(storage.retrieve(new byte[8]));
     RandomAccessFile r = new RandomAccessFile("src/test/resources/TestInput.txt", "r");
@@ -172,7 +171,7 @@ public class HDFSStorageTest
     storage.clean(identifier);
     Server.writeLong(identifier, 0, calculateOffset(0l, 2l));
     storage.clean(identifier);
-    ((HDFSStorage)storage).cleanHelperFiles();
+    storage.cleanHelperFiles();
   }
 
   @Test
@@ -182,7 +181,7 @@ public class HDFSStorageTest
     ctx.put(HDFSStorage.BASE_DIR_KEY, STORAGE_DIRECTORY);
     ctx.put(HDFSStorage.RESTORE_KEY, Boolean.toString(false));
     ctx.put(HDFSStorage.ID, "5");
-    Storage storage = new HDFSStorage();
+    HDFSStorage storage = new HDFSStorage();
     ((Configurable) storage).configure(ctx);
     RandomAccessFile r = new RandomAccessFile("src/test/resources/TestInput.txt", "r");
     r.seek(0);
@@ -215,7 +214,7 @@ public class HDFSStorageTest
 
     Server.writeLong(identifier, 0, calculateOffset(0l, 1l));
     storage.clean(identifier);
-    ((HDFSStorage)storage).cleanHelperFiles();
+    storage.cleanHelperFiles();
   }
 
   @Test
@@ -225,7 +224,7 @@ public class HDFSStorageTest
     ctx.put(HDFSStorage.BASE_DIR_KEY, STORAGE_DIRECTORY);
     ctx.put(HDFSStorage.RESTORE_KEY, Boolean.toString(false));
     ctx.put(HDFSStorage.ID, "6");
-    Storage storage = new HDFSStorage();
+    HDFSStorage storage = new HDFSStorage();
     ((Configurable) storage).configure(ctx);
     RandomAccessFile r = new RandomAccessFile("src/test/resources/TestInput.txt", "r");
     r.seek(0);
@@ -255,7 +254,7 @@ public class HDFSStorageTest
     storage.clean(identifier);
     Server.writeLong(identifier, 0, calculateOffset(0l, 2l));
     storage.clean(identifier);
-    ((HDFSStorage)storage).cleanHelperFiles();
+    storage.cleanHelperFiles();
   }
 
   @SuppressWarnings("unused")

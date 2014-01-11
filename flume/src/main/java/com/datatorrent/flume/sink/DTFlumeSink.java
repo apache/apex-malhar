@@ -327,11 +327,6 @@ public class DTFlumeSink extends AbstractSink implements Configurable
         {
         }
 
-        @Override
-        public void close()
-        {
-        }
-
       };
     }
 

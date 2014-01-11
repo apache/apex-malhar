@@ -54,10 +54,4 @@ public interface Storage
    */
   void flush();
 
-  /**
-   * This flushes the data and closes stream
-   *
-   */
-  void close();
-
 }
