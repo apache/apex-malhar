@@ -37,7 +37,6 @@ public class HDFSStorage implements Storage, Configurable
   private static final String cleanFileName = "/clean-counter";
   private static final String offsetFileName = "/offsetFile";
   public static final String BASE_DIR_KEY = "baseDir";
-  public static final String ID = "id";
   public static final String OFFSET_KEY = "offset";
   public static final String RESTORE_KEY = "restore";
   public static final String BLOCKSIZE = "blockSize";
@@ -82,17 +81,19 @@ public class HDFSStorage implements Storage, Configurable
   private long skipOffset;
   private String id;
 
-
   /**
    * This stores the Identifier information identified in the last store function call
+   *
    * @param ctx
    */
   // private byte[] fileOffset = new byte[IDENTIFIER_SIZE];
-
   @Override
   public void configure(Context ctx)
   {
     id = ctx.getString(ID);
+    if (id == null) {
+      throw new RuntimeException(String.format("id can't be  null."));
+    }
 
     Configuration conf = new Configuration();
     baseDir = ctx.getString(BASE_DIR_KEY, conf.get("hadoop.tmp.dir"));
@@ -105,20 +106,15 @@ public class HDFSStorage implements Storage, Configurable
       try {
         fs = FileSystem.get(conf);
         Path path = new Path(baseDir);
-        logger.debug("Base path {}", path);
         if (!fs.exists(path)) {
           throw new RuntimeException(String.format("baseDir passed (%s) doesn't exist.", baseDir));
         }
         if (!fs.isDirectory(path)) {
           throw new RuntimeException(String.format("baseDir passed (%s) is not a directory.", baseDir));
         }
-        String id = ctx.getString(ID);
-        if(id == null){
-          throw new RuntimeException(String.format("id can't be  null."));
-        }
-        baseDir = baseDir+"/"+id;
+        baseDir = baseDir + "/" + id;
         path = new Path(baseDir);
-        if(!fs.exists(path) || !fs.isDirectory(path)){
+        if (!fs.exists(path) || !fs.isDirectory(path)) {
           fs.mkdirs(path);
         }
         /* keeping the block size 2MB less than the default block size */
@@ -139,7 +135,8 @@ public class HDFSStorage implements Storage, Configurable
           if (fs.exists(offsetFile) && fs.isFile(offsetFile)) {
             flushedOffset = readData(offsetFile);
           }
-        }else{
+        }
+        else {
           flushedOffset = new byte[8];
           writeData(cleanFileCounterFile, String.valueOf(cleanedFileCounter).getBytes()).close();
         }
@@ -157,7 +154,8 @@ public class HDFSStorage implements Storage, Configurable
 
   /**
    * This function reads the file at a location and return the bytes stored in the file
-   *"
+   * "
+   *
    * @param path - the location of the file
    * @return
    * @throws IOException
@@ -175,9 +173,9 @@ public class HDFSStorage implements Storage, Configurable
    * This function writes the bytes to a file specified by the path
    *
    * @param path
-   *             the file location
+   * the file location
    * @param data
-   *             the data to be written to the file
+   * the data to be written to the file
    * @return
    * @throws IOException
    */
@@ -210,7 +208,7 @@ public class HDFSStorage implements Storage, Configurable
           dataStream.write(bytes);
         }
         byte[] fileOffset = null;
-        if(fileWriteOffset > skipOffset){
+        if (fileWriteOffset > skipOffset) {
           fileOffset = new byte[IDENTIFIER_SIZE];
           Server.writeLong(fileOffset, 0, calculateOffset(fileWriteOffset, fileCounter));
         }
@@ -272,13 +270,15 @@ public class HDFSStorage implements Storage, Configurable
           retrievalFile++;
           retrievalOffset -= byteArrayToLong(flushedOffset, 0);
           return retrieveFailure();
-        } catch (Exception e1) {
+        }
+        catch (Exception e1) {
           retrievalFile--;
           skipOffset = retrievalOffset;
           retrievalOffset += byteArrayToLong(flushedOffset, 0);
           throw new RuntimeException(e1);
         }
-      }else{
+      }
+      else {
         throw new RuntimeException(e);
       }
     }
@@ -376,24 +376,29 @@ public class HDFSStorage implements Storage, Configurable
   /**
    * This updates the flushed offset
    */
-  private void updateFlushedOffset(){
+  private void updateFlushedOffset()
+  {
     byte[] lastStoredOffset = new byte[IDENTIFIER_SIZE];
     Server.writeLong(lastStoredOffset, 0, calculateOffset(fileWriteOffset, fileCounter));
     try {
       writeData(offsetFile, lastStoredOffset).close();
       flushedOffset = lastStoredOffset;
-    } catch (IOException e) {
+    }
+    catch (IOException e) {
       try {
         if (Long.valueOf(new String(readData(offsetFile))) == Long.valueOf(new String(lastStoredOffset))) {
           flushedOffset = lastStoredOffset;
         }
-      } catch (NumberFormatException e1) {
+      }
+      catch (NumberFormatException e1) {
         throw new RuntimeException(e1);
-      } catch (IOException e1) {
+      }
+      catch (IOException e1) {
         throw new RuntimeException(e1);
       }
     }
   }
+
   @Override
   public void close()
   {
