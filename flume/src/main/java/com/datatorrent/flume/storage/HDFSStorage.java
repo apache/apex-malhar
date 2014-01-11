@@ -135,6 +135,9 @@ public class HDFSStorage implements Storage, Configurable
           if (fs.exists(offsetFile) && fs.isFile(offsetFile)) {
             flushedOffset = readData(offsetFile);
           }
+          else {
+            flushedOffset = new byte[8];
+          }
         }
         else {
           flushedOffset = new byte[8];

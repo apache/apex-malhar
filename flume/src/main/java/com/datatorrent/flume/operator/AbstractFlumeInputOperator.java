@@ -73,8 +73,10 @@ public abstract class AbstractFlumeInputOperator<T>
   @SuppressWarnings({"unchecked"})
   public void activate(OperatorContext ctx)
   {
+    logger.debug("Total number of connection specs is {}", connectionSpecs.length);
     if (connectionSpecs.length == 1) {
       for (String connectAddresse : connectionSpecs) {
+        logger.debug("Connection spec is {}", connectAddresse);
         String[] parts = connectAddresse.split(":");
         eventloop.connect(new InetSocketAddress(parts[1], Integer.parseInt(parts[2])), client = new Client(parts[0]));
       }
