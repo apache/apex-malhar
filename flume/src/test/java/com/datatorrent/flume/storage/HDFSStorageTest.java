@@ -40,7 +40,7 @@ public class HDFSStorageTest
     ((Configurable) storage).configure(ctx);
     Assert.assertNull(storage.retrieve(new byte[8]));
     byte[] b = new byte[1028];
-    storage.store(b);
+    Assert.assertNotNull(storage.store(b));
     storage.close();
     byte[] data = storage.retrieveNext();
     byte[] tempData = new byte[data.length - 8];
