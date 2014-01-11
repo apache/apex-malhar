@@ -28,7 +28,7 @@ import com.google.common.primitives.Longs;
  * baseDir - The base directory where the data is going to be stored <br />
  * restore - This is used to restore the application from previous failure <br />
  * blockSize - The maximum size of the each file to created. <br />
- *
+ * 
  * @author Gaurav Gupta <gaurav@datatorrent.com>
  */
 public class HDFSStorage implements Storage, Configurable
@@ -77,13 +77,13 @@ public class HDFSStorage implements Storage, Configurable
   private long retrievalOffset;
   private long retrievalFile;
   private int offset;
-  private byte[] flushedOffset= new byte[8];;
+  private byte[] flushedOffset = new byte[8];;
   private long skipOffset;
   private String id;
 
   /**
    * This stores the Identifier information identified in the last store function call
-   *
+   * 
    * @param ctx
    */
   // private byte[] fileOffset = new byte[IDENTIFIER_SIZE];
@@ -122,6 +122,7 @@ public class HDFSStorage implements Storage, Configurable
         blockSize = ctx.getLong(BLOCKSIZE, fs.getDefaultBlockSize(path));
         fileCounter = 0;
         cleanedFileCounter = -1;
+        retrievalFile = -1;
         fileCounterFile = new Path(baseDir + identityFileName);
         cleanFileCounterFile = new Path(baseDir + cleanFileName);
         offsetFile = new Path(baseDir + offsetFileName);
@@ -134,28 +135,25 @@ public class HDFSStorage implements Storage, Configurable
           }
           if (fs.exists(offsetFile) && fs.isFile(offsetFile)) {
             flushedOffset = readData(offsetFile);
-          }          
-        }
-        else {
+          }
+        } else {
           writeData(cleanFileCounterFile, String.valueOf(cleanedFileCounter).getBytes()).close();
         }
 
-      }
-      catch (IOException io) {
+      } catch (IOException io) {
         throw new RuntimeException(io);
       }
 
-    }
-    else {
+    } else {
       throw new RuntimeException(String.format("baseDir (%s) can't be empty", baseDir));
     }
   }
 
   /**
-   * This function reads the file at a location and return the bytes stored in the file
-   * "
-   *
-   * @param path - the location of the file
+   * This function reads the file at a location and return the bytes stored in the file "
+   * 
+   * @param path
+   *          - the location of the file
    * @return
    * @throws IOException
    */
@@ -170,11 +168,11 @@ public class HDFSStorage implements Storage, Configurable
 
   /**
    * This function writes the bytes to a file specified by the path
-   *
+   * 
    * @param path
-   * the file location
+   *          the file location
    * @param data
-   * the data to be written to the file
+   *          the data to be written to the file
    * @return
    * @throws IOException
    */
@@ -193,8 +191,6 @@ public class HDFSStorage implements Storage, Configurable
   @Override
   public byte[] store(byte[] bytes)
   {
-    logger.debug("store function called");
-    // 4 for the number of bytes used to store the length of the data
     if (fileWriteOffset + bytes.length + DATA_LENGTH_BYTE_SIZE < blockSize) {
       try {
 
@@ -202,8 +198,7 @@ public class HDFSStorage implements Storage, Configurable
           dataStream = writeData(new Path(baseDir + "/" + String.valueOf(fileCounter)), Ints.toByteArray(bytes.length));
           dataStream.write(bytes);
           writeData(fileCounterFile, String.valueOf(fileCounter + 1).getBytes()).close();
-        }
-        else {
+        } else {
           dataStream.write(Ints.toByteArray(bytes.length));
           dataStream.write(bytes);
         }
@@ -214,18 +209,15 @@ public class HDFSStorage implements Storage, Configurable
           Server.writeLong(fileOffset, 0, calculateOffset(fileWriteOffset, fileCounter));
         }
 
-        
         return fileOffset;
-      }
-      catch (IOException ex) {
+      } catch (IOException ex) {
         logger.warn("Error while storing the bytes {}", ex.getMessage());
         throw new RuntimeException(ex);
       }
     }
     try {
       dataStream.close();
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       logger.warn("Error while closing the streams {}", ex.getMessage());
       throw new RuntimeException(ex);
     }
@@ -235,7 +227,7 @@ public class HDFSStorage implements Storage, Configurable
   }
 
   /**
-   *
+   * 
    * @param b
    * @param size
    * @param startIndex
@@ -259,22 +251,19 @@ public class HDFSStorage implements Storage, Configurable
       if (readStream != null) {
         readStream.close();
       }
-      if(!fs.exists(new Path(baseDir + "/" + retrievalFile))){
+      if (!fs.exists(new Path(baseDir + "/" + retrievalFile))) {
         skipOffset = retrievalOffset;
-        if(retrievalFile ==0 && retrievalOffset == 0){
+        if (retrievalFile == 0 && retrievalOffset == 0) {
           // we have just started, so returning null
           return null;
-        }else{
-          throw new RuntimeException("file "+retrievalFile+" doesn't exist");
+        } else {
+          throw new RuntimeException("file " + retrievalFile + " doesn't exist");
         }
-        
-        
       }
       readStream = new FSDataInputStream(fs.open(new Path(baseDir + "/" + retrievalFile)));
       readStream.seek(retrievalOffset);
       return retrieveHelper();
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       logger.warn(" error while retrieving {}", e.getMessage());
       // this is done for failure
       if (retrievalFile == byteArrayToLong(flushedOffset, offset)) {
@@ -282,15 +271,13 @@ public class HDFSStorage implements Storage, Configurable
           retrievalFile++;
           retrievalOffset -= byteArrayToLong(flushedOffset, 0);
           return retrieveFailure();
-        }
-        catch (Exception e1) {
+        } catch (Exception e1) {
           retrievalFile--;
           skipOffset = retrievalOffset;
           retrievalOffset += byteArrayToLong(flushedOffset, 0);
           throw new RuntimeException(e1);
         }
-      }
-      else {
+      } else {
         throw new RuntimeException(e);
       }
     }
@@ -326,10 +313,15 @@ public class HDFSStorage implements Storage, Configurable
   @Override
   public byte[] retrieveNext()
   {
-    if (readStream == null) {
-      return null;
+    if(retrievalFile == -1){
+      throw new RuntimeException("Call retrieve first"); 
     }
     try {
+      if (readStream == null) {
+        readStream = new FSDataInputStream(fs.open(new Path(baseDir + "/" + (retrievalFile))));
+        readStream.seek(retrievalOffset);
+      }
+
       if (readStream.available() < 1) {
         if (retrievalFile > fileCounter) {
           throw new RuntimeException("no records available");
@@ -338,8 +330,7 @@ public class HDFSStorage implements Storage, Configurable
         readStream = new FSDataInputStream(fs.open(new Path(baseDir + "/" + retrievalFile)));
       }
       return retrieveHelper();
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       logger.warn(" error while retrieving {}", e.getMessage());
       throw new RuntimeException(e);
     }
@@ -359,16 +350,26 @@ public class HDFSStorage implements Storage, Configurable
           fs.delete(path, false);
         }
         ++cleanedFileCounter;
-      }
-      while (cleanedFileCounter < cleanFileIndex);
+      } while (cleanedFileCounter < cleanFileIndex);
       writeData(cleanFileCounterFile, String.valueOf(cleanedFileCounter).getBytes()).close();
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       logger.warn("not able to close the streams {}", e.getMessage());
       throw new RuntimeException(e);
     }
   }
 
+  /**
+   * This is used mainly for cleaning up of counter files created
+   */
+  public void cleanHelperFiles(){
+    try{
+      fs.delete(cleanFileCounterFile,false);
+      fs.delete(fileCounterFile,false);
+      fs.delete(offsetFile, false);
+    }catch(IOException e){
+      logger.warn(e.getMessage());
+    }
+  }
   @Override
   public void flush()
   {
@@ -376,8 +377,7 @@ public class HDFSStorage implements Storage, Configurable
       try {
         dataStream.hflush();
 
-      }
-      catch (IOException ex) {
+      } catch (IOException ex) {
         logger.warn("not able to close the stream {}", ex.getMessage());
         throw new RuntimeException(ex);
       }
@@ -395,17 +395,14 @@ public class HDFSStorage implements Storage, Configurable
     try {
       writeData(offsetFile, lastStoredOffset).close();
       flushedOffset = lastStoredOffset;
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       try {
         if (Long.valueOf(new String(readData(offsetFile))) == Long.valueOf(new String(lastStoredOffset))) {
           flushedOffset = lastStoredOffset;
         }
-      }
-      catch (NumberFormatException e1) {
+      } catch (NumberFormatException e1) {
         throw new RuntimeException(e1);
-      }
-      catch (IOException e1) {
+      } catch (IOException e1) {
         throw new RuntimeException(e1);
       }
     }
@@ -421,8 +418,7 @@ public class HDFSStorage implements Storage, Configurable
         ++fileCounter;
         updateFlushedOffset();
 
-      }
-      catch (IOException ex) {
+      } catch (IOException ex) {
         logger.warn("not able to close the stream {}", ex.getMessage());
         throw new RuntimeException(ex);
       }
