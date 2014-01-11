@@ -38,18 +38,18 @@ public class HDFSStorageTest
     ctx.put(HDFSStorage.ID, "1");
     Storage storage = new HDFSStorage();
     ((Configurable) storage).configure(ctx);
+    Assert.assertNull(storage.retrieve(new byte[8]));
     byte[] b = new byte[1028];
-    byte[] val = storage.store(b);
+    storage.store(b);
     storage.close();
-    byte[] data = storage.retrieve(new byte[8]);
+    byte[] data = storage.retrieveNext();
     byte[] tempData = new byte[data.length - 8];
     System.arraycopy(data, 8, tempData, 0, tempData.length);
     Assert.assertEquals("matched the stored value with retrieved value", new String(b), new String(tempData));
     byte[] identifier = new byte[8];
     Server.writeLong(identifier, 0, calculateOffset(0l, 1l));
     storage.clean(identifier);
-    
-
+    ((HDFSStorage)storage).cleanHelperFiles();
   }
 
   @Test
@@ -72,6 +72,7 @@ public class HDFSStorageTest
     byte[] identifier = new byte[8];
     Server.writeLong(identifier, 0, calculateOffset(0l, 2l));
     storage.clean(identifier);
+    ((HDFSStorage)storage).cleanHelperFiles();
   }
 
   @Test
@@ -99,6 +100,7 @@ public class HDFSStorageTest
     byte[] identifier = new byte[8];
     Server.writeLong(identifier, 0, calculateOffset(0l, 2l));
     storage.clean(identifier);
+    ((HDFSStorage)storage).cleanHelperFiles();
   }
 
   @Test
@@ -112,13 +114,14 @@ public class HDFSStorageTest
     ((Configurable) storage).configure(ctx);
     RandomAccessFile r = new RandomAccessFile("src/test/resources/TestInput.txt", "r");
     r.seek(0);
+    Assert.assertNull(storage.retrieve(new byte[8]));
     byte[] b = r.readLine().getBytes();
-    byte[] val = storage.store(b);
+    storage.store(b);
     byte[] b1 = r.readLine().getBytes();
     storage.store(b1);
     storage.store(b);
     storage.close();
-    byte[] data = storage.retrieve(val);
+    byte[] data = storage.retrieveNext();
     byte[] tempData = new byte[data.length - 8];
     System.arraycopy(data, 8, tempData, 0, tempData.length);
     Assert.assertEquals("matched the stored value with retrieved value", new String(b), new String(tempData));
@@ -134,6 +137,7 @@ public class HDFSStorageTest
     byte[] identifier = new byte[8];
     Server.writeLong(identifier, 0, calculateOffset(0l, 1l));
     storage.clean(identifier);
+    ((HDFSStorage)storage).cleanHelperFiles();
   }
 
   @Test
@@ -145,15 +149,16 @@ public class HDFSStorageTest
     ctx.put(HDFSStorage.ID, "4");
     Storage storage = new HDFSStorage();
     ((Configurable) storage).configure(ctx);
+    Assert.assertNull(storage.retrieve(new byte[8]));
     RandomAccessFile r = new RandomAccessFile("src/test/resources/TestInput.txt", "r");
     r.seek(0);
     byte[] b = r.readLine().getBytes();
-    byte[] val = storage.store(b);
+    storage.store(b);
     storage.close();
     byte[] b1 = r.readLine().getBytes();
     storage.store(b1);
     storage.close();
-    byte[] data = storage.retrieve(val);
+    byte[] data = storage.retrieveNext();
     byte[] tempData = new byte[data.length - 8];
     System.arraycopy(data, 8, tempData, 0, tempData.length);
     Assert.assertEquals("matched the stored value with retrieved value", new String(b), new String(tempData));
@@ -167,6 +172,7 @@ public class HDFSStorageTest
     storage.clean(identifier);
     Server.writeLong(identifier, 0, calculateOffset(0l, 2l));
     storage.clean(identifier);
+    ((HDFSStorage)storage).cleanHelperFiles();
   }
 
   @Test
@@ -180,13 +186,14 @@ public class HDFSStorageTest
     ((Configurable) storage).configure(ctx);
     RandomAccessFile r = new RandomAccessFile("src/test/resources/TestInput.txt", "r");
     r.seek(0);
+    Assert.assertNull(storage.retrieve(new byte[8]));
     byte[] b = r.readLine().getBytes();
-    byte[] val = storage.store(b);
+    storage.store(b);
     byte[] b1 = r.readLine().getBytes();
     storage.store(b1);
     storage.store(b);
     storage.close();
-    byte[] data = storage.retrieve(val);
+    byte[] data = storage.retrieveNext();
     byte[] tempData = new byte[data.length - 8];
     byte[] identifier = new byte[8];
     System.arraycopy(data, 8, tempData, 0, tempData.length);
@@ -205,9 +212,10 @@ public class HDFSStorageTest
     System.arraycopy(data, 0, identifier, 0, 8);
     Assert.assertEquals("matched the stored value with retrieved value", new String(b), new String(tempData));
     r.close();
-    
+
     Server.writeLong(identifier, 0, calculateOffset(0l, 1l));
     storage.clean(identifier);
+    ((HDFSStorage)storage).cleanHelperFiles();
   }
 
   @Test
@@ -239,14 +247,15 @@ public class HDFSStorageTest
       byte[] tempData = new byte[data.length - 8];
       System.arraycopy(data, 8, tempData, 0, tempData.length);
       Assert.assertEquals("matched the stored value with retrieved value", new String(b), new String(tempData));
-      
+
     }
     r.close();
-    
+
     Server.writeLong(identifier, 0, calculateOffset(0l, 1l));
     storage.clean(identifier);
     Server.writeLong(identifier, 0, calculateOffset(0l, 2l));
     storage.clean(identifier);
+    ((HDFSStorage)storage).cleanHelperFiles();
   }
 
   @SuppressWarnings("unused")
