@@ -49,7 +49,7 @@ public class HDFSStorageTest
     byte[] identifier = new byte[8];
     Server.writeLong(identifier, 0, calculateOffset(0l, 1l));
     storage.clean(identifier);
-    ((HDFSStorage)storage).cleanHelperFiles();
+    //((HDFSStorage)storage).cleanHelperFiles();
   }
 
   @Test
@@ -67,7 +67,7 @@ public class HDFSStorageTest
     storage.close();
     Configuration conf = new Configuration();
     FileSystem fs = FileSystem.get(conf);
-    boolean exists = fs.exists(new Path(STORAGE_DIRECTORY + "/" + "1"));
+    boolean exists = fs.exists(new Path(STORAGE_DIRECTORY + "/1/" + "1"));
     Assert.assertEquals("file shoule exist", true, exists);
     byte[] identifier = new byte[8];
     Server.writeLong(identifier, 0, calculateOffset(0l, 2l));
