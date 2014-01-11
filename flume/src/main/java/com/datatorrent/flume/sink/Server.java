@@ -9,7 +9,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
-import static java.lang.Thread.sleep;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -164,7 +163,7 @@ public class Server extends com.datatorrent.netlet.Server
       super.connected();
       logger.debug("some client connected!");
     }
-    
+
     @Override
     public void disconnected()
     {
@@ -172,17 +171,6 @@ public class Server extends com.datatorrent.netlet.Server
         requests.add(Request.getRequest(new byte[] {Command.DISCONNECTED.getOrdinal(), 0, 0, 0, 0, 0, 0, 0, 0}, 0, this));
       }
       super.disconnected();
-    }
-
-    @SuppressWarnings("SleepWhileInLoop")
-    public void write(byte[] l, byte[] bytes) throws InterruptedException
-    {
-      while (!write(l)) {
-        sleep(1);
-      }
-      while (!write(bytes)) {
-        sleep(1);
-      }
     }
 
   }

@@ -64,7 +64,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
 
   /* Begin implementing Flume Sink interface */
   @Override
-  @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch"})
+  @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch", "SleepWhileInLoop"})
   public Status process() throws EventDeliveryException
   {
     Slice slice;
@@ -165,7 +165,9 @@ public class DTFlumeSink extends AbstractSink implements Configurable
           while (i < maxTuples && (e = getChannel().take()) != null) {
             byte[] address = storage.store(e.getBody());
             if (address != null) {
-              client.write(address, e.getBody());
+              while(!client.write(address, e.getBody())) {
+                sleep();
+              }
             }
             else {
               logger.debug("Detected the condition of recovery from flume crash!");
