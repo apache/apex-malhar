@@ -188,7 +188,7 @@ public class HDFSStorageTest
     r.seek(0);
     Assert.assertNull(storage.retrieve(new byte[8]));
     byte[] b = r.readLine().getBytes();
-    storage.store(b);
+    byte[] address = storage.store(b);
     byte[] b1 = r.readLine().getBytes();
     storage.store(b1);
     storage.store(b);
@@ -200,7 +200,7 @@ public class HDFSStorageTest
     System.arraycopy(data, 0, identifier, 0, 8);
     Assert.assertEquals("matched the stored value with retrieved value", new String(b), new String(tempData));
 
-    data = storage.retrieve(identifier);
+    data = storage.retrieve(address);
     tempData = new byte[data.length - 8];
     System.arraycopy(data, 8, tempData, 0, tempData.length);
     System.arraycopy(data, 0, identifier, 0, 8);
