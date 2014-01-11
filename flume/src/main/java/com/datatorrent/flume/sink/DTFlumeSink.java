@@ -69,7 +69,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   {
     Slice slice;
     synchronized (server.requests) {
-      for (Request r: server.requests) {
+      for (Request r : server.requests) {
         logger.debug("found {}", r);
         switch (r.type) {
           case SEEK:
@@ -319,7 +319,6 @@ public class DTFlumeSink extends AbstractSink implements Configurable
         @Override
         public void clean(byte[] identifier)
         {
-
         }
 
         @Override
@@ -330,7 +329,6 @@ public class DTFlumeSink extends AbstractSink implements Configurable
         @Override
         public void close()
         {
-
         }
 
       };
@@ -357,7 +355,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
           String id = context1.getString(Storage.ID);
           if (id == null) {
             id = context.getString(Storage.ID);
-            logger.debug("Storage inherited id={} from sink", id);
+            logger.debug("{} inherited id={} from sink", key, id);
             context1.put(Storage.ID, id);
           }
           ((Configurable)object).configure(context1);
@@ -366,10 +364,8 @@ public class DTFlumeSink extends AbstractSink implements Configurable
 
       }
       else {
-        logger.error("storage class {} does not implement {} interface", classname, Storage.class
-                .getCanonicalName());
-        throw new Error(
-                "Invalid storage " + classname);
+        logger.error("key class {} does not implement {} interface", classname, Storage.class.getCanonicalName());
+        throw new Error("Invalid storage " + classname);
       }
     }
     catch (Error error) {
