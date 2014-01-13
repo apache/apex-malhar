@@ -18,7 +18,7 @@ import javax.validation.constraints.NotNull;
  */
 public abstract class AbstractTransactionableStoreOutputOperator<T> extends BaseOperator
 {
-  protected transient TransactionableStore store;
+  protected TransactionableStore store;
   protected boolean passThru = false;
   protected transient boolean inTransaction = false;
   @NotNull
