@@ -372,6 +372,9 @@ public abstract class AbstractFlumeInputOperator<T>
       byte[] address;
       if (recoveryAddresses.size() > 0) {
         address = recoveryAddresses.get(recoveryAddresses.size() - 1).address;
+        if (address == null) {
+          address = new byte[8];
+        }
       }
       else {
         address = new byte[8];
@@ -471,7 +474,10 @@ public abstract class AbstractFlumeInputOperator<T>
           }
           AbstractFlumeInputOperator.discoveredFlumeSinks.set(addresses);
           logger.debug("map = {}\ndiscovery = {}", map, addresses);
-          if (addresses.size() != map.size()) {
+          if (addresses.size() == map.size()) {
+            response.repartitionRequired = map.containsValue(null);
+          }
+          else {
             response.repartitionRequired = true;
           }
           nextMillis = System.currentTimeMillis() + intervalMillis;
