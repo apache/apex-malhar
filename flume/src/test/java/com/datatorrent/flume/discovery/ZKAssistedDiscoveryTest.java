@@ -12,7 +12,6 @@ import static org.junit.Assert.*;
 
 import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.curator.x.discovery.details.InstanceSerializer;
-import org.apache.flume.Context;
 
 import com.datatorrent.flume.discovery.Discovery.Service;
 
@@ -22,7 +21,6 @@ import com.datatorrent.flume.discovery.Discovery.Service;
  */
 public class ZKAssistedDiscoveryTest
 {
-
   public ZKAssistedDiscoveryTest()
   {
   }
@@ -31,10 +29,12 @@ public class ZKAssistedDiscoveryTest
   public void testSerialization() throws Exception
   {
     ZKAssistedDiscovery discovery = new ZKAssistedDiscovery();
-    discovery.configure(getContext());
+    discovery.setServiceName("DTFlumeTest");
+    discovery.setConnectionString("localhost:2181");
+    discovery.setBasePath("/HelloDT");
+    discovery.setup(null);
     ServiceInstance<byte[]> instance = discovery.getInstance(new Service<byte[]>()
     {
-
       @Override
       public String getHost()
       {
@@ -73,20 +73,52 @@ public class ZKAssistedDiscoveryTest
   public void testDiscover()
   {
     ZKAssistedDiscovery discovery = new ZKAssistedDiscovery();
-    discovery.configure(getContext());
+    discovery.setServiceName("DTFlumeTest");
+    discovery.setConnectionString("localhost:2181");
+    discovery.setBasePath("/HelloDT");
+    discovery.setup(null);
     assertNotNull("Discovered Sinks", discovery.discover());
+    discovery.teardown();
   }
 
-  private Context getContext()
+  @Test
+  public void testAdvertize()
   {
-    Context context = new Context();
-    context.put("serviceName", "DTFlumeTest");
-    context.put("connectionString", "127.0.0.1:2181");
-    context.put("connectionTimeoutMillis", "1000");
-    context.put("connectionRetryCount", "10");
-    context.put("connectionRetrySleepMillis", "500");
-    context.put("basePath", "/HelloDT");
-    return context;
+    ZKAssistedDiscovery discovery = new ZKAssistedDiscovery();
+    discovery.setServiceName("DTFlumeTest");
+    discovery.setConnectionString("localhost:2181");
+    discovery.setBasePath("/HelloDT");
+    discovery.setup(null);
+
+    Service<byte[]> service = new Service<byte[]>()
+    {
+      @Override
+      public String getHost()
+      {
+        return "chetan";
+      }
+
+      @Override
+      public int getPort()
+      {
+        return 5033;
+      }
+
+      @Override
+      public byte[] getPayload()
+      {
+        return new byte[] {3, 2, 1};
+      }
+
+      @Override
+      public String getId()
+      {
+        return "uniqueId";
+      }
+
+    };
+    discovery.advertise(service);
+    discovery.teardown();
   }
 
   private static final Logger logger = LoggerFactory.getLogger(ZKAssistedDiscoveryTest.class);

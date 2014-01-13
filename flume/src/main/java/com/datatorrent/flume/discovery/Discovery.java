@@ -19,7 +19,6 @@ import java.util.Collection;
  */
 public interface Discovery<T>
 {
-
   /**
    * Advertise the host/port address where DTFlumeSink is accepting a client connection.
    *

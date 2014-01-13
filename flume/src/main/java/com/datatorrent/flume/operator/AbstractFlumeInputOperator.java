@@ -199,14 +199,16 @@ public abstract class AbstractFlumeInputOperator<T>
       }
       else if (ra.windowId == windowId) {
         iterator.remove();
-        int arraySize = 1/* for the type of the message */
-                        + 8 /* for the location to commit */;
-        byte[] array = new byte[arraySize];
+        if (ra.address != null) {
+          int arraySize = 1/* for the type of the message */
+                          + 8 /* for the location to commit */;
+          byte[] array = new byte[arraySize];
 
-        array[0] = Command.COMMITTED.getOrdinal();
-        System.arraycopy(ra.address, 0, array, 1, 8);
-        logger.debug("wrote {} with recoveryOffset = {}", Command.COMMITTED, Arrays.toString(ra.address));
-        client.write(array);
+          array[0] = Command.COMMITTED.getOrdinal();
+          System.arraycopy(ra.address, 0, array, 1, 8);
+          logger.debug("wrote {} with recoveryOffset = {}", Command.COMMITTED, Arrays.toString(ra.address));
+          client.write(array);
+        }
       }
       else {
         break;
@@ -372,7 +374,7 @@ public abstract class AbstractFlumeInputOperator<T>
         address = recoveryAddresses.get(recoveryAddresses.size() - 1).address;
       }
       else {
-       address = new byte[8];
+        address = new byte[8];
       }
 
       int len = 1 /* for the message type SEEK */
@@ -437,6 +439,7 @@ public abstract class AbstractFlumeInputOperator<T>
     @Override
     public Response processStats(BatchedOperatorStats stats)
     {
+      logger.debug("process stats called {}", stats.getOperatorId());
       response.repartitionRequired = false;
 
       CustomStats lastStat = null;
@@ -444,6 +447,7 @@ public abstract class AbstractFlumeInputOperator<T>
       for (OperatorStats os : lastWindowedStats) {
         if (os.customStats != null) {
           lastStat = os.customStats;
+          logger.debug("{} laststat = {}", stats.getOperatorId(), lastStat);
         }
       }
 
@@ -457,8 +461,16 @@ public abstract class AbstractFlumeInputOperator<T>
 
       if (System.currentTimeMillis() >= nextMillis) {
         try {
-          Collection<Service<byte[]>> addresses = discover();
+          super.setup(null);
+          Collection<Service<byte[]>> addresses;
+          try {
+            addresses = discover();
+          }
+          finally {
+            super.teardown();
+          }
           AbstractFlumeInputOperator.discoveredFlumeSinks.set(addresses);
+          logger.debug("map = {}\ndiscovery = {}", map, addresses);
           if (addresses.size() != map.size()) {
             response.repartitionRequired = true;
           }
@@ -517,6 +529,12 @@ public abstract class AbstractFlumeInputOperator<T>
       }
       final ConnectionStatus other = (ConnectionStatus)obj;
       return spec == null ? other.spec == null : spec.equals(other.spec);
+    }
+
+    @Override
+    public String toString()
+    {
+      return "ConnectionStatus{" + "spec=" + spec + ", connected=" + connected + '}';
     }
 
     private static final long serialVersionUID = 201312261615L;
