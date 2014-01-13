@@ -66,16 +66,6 @@ public abstract class AbstractTransactionableStoreOutputOperator<T> extends Base
     this.inTransaction = inTransaction;
   }
 
-  public boolean isPassThru()
-  {
-    return passThru;
-  }
-
-  public void setPassThru(boolean passThru)
-  {
-    this.passThru = passThru;
-  }
-
   @Override
   public void setup(OperatorContext context)
   {
