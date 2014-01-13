@@ -23,5 +23,9 @@ public abstract class AbstractAggregateTransactionableStoreOutputOperator<T> ext
     super.endWindow();
   }
 
+  /**
+   * Stores the aggregated state to persistent store at end window.
+   *
+   */
   public abstract void storeAggregate();
 }

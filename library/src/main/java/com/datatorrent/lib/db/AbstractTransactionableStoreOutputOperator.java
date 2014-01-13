@@ -86,8 +86,22 @@ public abstract class AbstractTransactionableStoreOutputOperator<T> extends Base
     currentWindowId = windowId;
   }
 
+  /**
+   * Gets the committed window id from a persistent store.
+   *
+   * @param appId
+   * @param operatorId
+   * @return
+   */
   protected abstract long getCommittedWindowId(String appId, int operatorId);
 
+  /**
+   * Stores the committed window id to a persistent store.
+   *
+   * @param appId
+   * @param operatorId
+   * @param windowId
+   */
   protected abstract void storeCommittedWindowId(String appId, int operatorId, long windowId);
 
   @Override
@@ -105,6 +119,7 @@ public abstract class AbstractTransactionableStoreOutputOperator<T> extends Base
   }
 
   /**
+   * Processes the incoming tuple.
    *
    * @param tuple
    */
