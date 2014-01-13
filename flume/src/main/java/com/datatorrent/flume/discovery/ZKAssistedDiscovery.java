@@ -5,8 +5,11 @@
 package com.datatorrent.flume.discovery;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+
+import javax.validation.constraints.NotNull;
 
 import com.google.common.base.Throwables;
 
@@ -25,22 +28,36 @@ import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
 import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.curator.x.discovery.details.InstanceSerializer;
-import org.apache.flume.Context;
+
+import com.datatorrent.api.Component;
 import org.apache.flume.conf.Configurable;
 
 /**
  *
  * @author Chetan Narsude <chetan@datatorrent.com>
  */
-public class ZKAssistedDiscovery implements Discovery<byte[]>, Configurable
+public class ZKAssistedDiscovery implements Discovery<byte[]>, Component<com.datatorrent.api.Context>, Configurable
 {
-  private String connectionString;
-  private String basePath;
-  private Integer connectionTimeoutMillis;
-  private Integer connectionRetryCount;
-  private Integer conntectionRetrySleepMillis;
-  private InstanceSerializerFactory instanceSerializerFactory;
+  @NotNull
   private String serviceName;
+  @NotNull
+  private String connectionString;
+  @NotNull
+  private String basePath;
+  private int connectionTimeoutMillis;
+  private int connectionRetryCount;
+  private int conntectionRetrySleepMillis;
+  private transient InstanceSerializerFactory instanceSerializerFactory;
+  private transient CuratorFramework curatorFramework;
+  private transient ServiceDiscovery<byte[]> discovery;
+
+  public ZKAssistedDiscovery()
+  {
+    this.serviceName = "DTFlume";
+    this.conntectionRetrySleepMillis = 500;
+    this.connectionRetryCount = 10;
+    this.connectionTimeoutMillis = 1000;
+  }
 
   @Override
   public void unadvertise(Service<byte[]> service)
@@ -56,18 +73,9 @@ public class ZKAssistedDiscovery implements Discovery<byte[]>, Configurable
 
   public void doAdvertise(Service<byte[]> service, boolean flag)
   {
-    CuratorFramework curatorFramework = CuratorFrameworkFactory.builder()
-            .connectionTimeoutMs(connectionTimeoutMillis)
-            .retryPolicy(new RetryNTimes(connectionRetryCount, conntectionRetrySleepMillis))
-            .connectString(connectionString)
-            .build();
-    curatorFramework.start();
-
     try {
       new EnsurePath(basePath).ensure(curatorFramework.getZookeeperClient());
 
-      ServiceDiscovery<byte[]> discovery = getDiscovery(curatorFramework);
-      discovery.start();
       ServiceInstance<byte[]> instance = getInstance(service);
       if (flag) {
         discovery.registerService(instance);
@@ -75,7 +83,6 @@ public class ZKAssistedDiscovery implements Discovery<byte[]>, Configurable
       else {
         discovery.unregisterService(instance);
       }
-      discovery.close();
     }
     catch (Exception e) {
       throw Throwables.propagate(e);
@@ -85,21 +92,12 @@ public class ZKAssistedDiscovery implements Discovery<byte[]>, Configurable
   @Override
   public Collection<Service<byte[]>> discover()
   {
-    CuratorFramework curatorFramework = CuratorFrameworkFactory.builder()
-            .connectionTimeoutMs(connectionTimeoutMillis)
-            .retryPolicy(new RetryNTimes(connectionRetryCount, conntectionRetrySleepMillis))
-            .connectString(connectionString)
-            .build();
-    curatorFramework.start();
-
     try {
       new EnsurePath(basePath).ensure(curatorFramework.getZookeeperClient());
 
-      ServiceDiscovery<byte[]> discovery = getDiscovery(curatorFramework);
-      discovery.start();
       Collection<ServiceInstance<byte[]>> services = discovery.queryForInstances(serviceName);
       ArrayList<Service<byte[]>> returnable = new ArrayList<Service<byte[]>>(services.size());
-      for (final ServiceInstance<byte[]> service: services) {
+      for (final ServiceInstance<byte[]> service : services) {
         returnable.add(new Service<byte[]>()
         {
           @Override
@@ -126,29 +124,19 @@ public class ZKAssistedDiscovery implements Discovery<byte[]>, Configurable
             return service.getId();
           }
 
+          @Override
+          public String toString()
+          {
+            return "{" + getId() + " => " + getHost() + ':' + getPort() + '}';
+          }
+
         });
       }
-      discovery.close();
       return returnable;
     }
     catch (Exception e) {
       throw Throwables.propagate(e);
     }
-  }
-
-  @Override
-  public void configure(Context context)
-  {
-    serviceName = context.getString("serviceName", "DTFlume");
-
-    connectionString = context.getString("connectionString");
-    connectionTimeoutMillis = context.getInteger("connectionTimeoutMillis", 1000);
-    connectionRetryCount = context.getInteger("connectionRetryCount", 10);
-    conntectionRetrySleepMillis = context.getInteger("connectionRetrySleepMillis", 500);
-    basePath = context.getString("basePath");
-
-    ObjectMapper om = new ObjectMapper();
-    instanceSerializerFactory = new InstanceSerializerFactory(om.reader(), om.writer());
   }
 
   ServiceInstance<byte[]> getInstance(Service<byte[]> service) throws Exception
@@ -168,11 +156,9 @@ public class ZKAssistedDiscovery implements Discovery<byte[]>, Configurable
             .basePath(basePath)
             .client(curatorFramework)
             .serializer(instanceSerializerFactory.getInstanceSerializer(
-                            new TypeReference<ServiceInstance<byte[]>>()
-                            {
-                            }
-                    ))
-            .build();
+            new TypeReference<ServiceInstance<byte[]>>()
+    {
+    })).build();
   }
 
   /**
@@ -183,66 +169,150 @@ public class ZKAssistedDiscovery implements Discovery<byte[]>, Configurable
     return instanceSerializerFactory;
   }
 
-//  public static final class SinkMetadata
-//  {
-//    private static final String BOUND_HOST = "boundHost";
-//    private static final String BOUND_PORT = "boundPort";
-//
-//    @JsonProperty(BOUND_HOST)
-//    public final String boundHost;
-//
-//    @JsonProperty(BOUND_PORT)
-//    public final int boundPort;
-//
-//    @JsonCreator
-//    public SinkMetadata(@JsonProperty(BOUND_HOST) String boundHost, @JsonProperty(BOUND_PORT) int boundPort)
-//    {
-//      this.boundHost = boundHost;
-//      this.boundPort = boundPort;
-//    }
-//
-//    /**
-//     * @return the boundHost
-//     */
-//    String getBoundHost()
-//    {
-//      return boundHost;
-//    }
-//
-//    /**
-//     * @return the boundPort
-//     */
-//    int getBoundPort()
-//    {
-//      return boundPort;
-//    }
-//
-//    @Override
-//    public int hashCode()
-//    {
-//      int hash = 7;
-//      hash = 59 * hash + (this.boundHost != null ? this.boundHost.hashCode() : 0);
-//      hash = 59 * hash + this.boundPort;
-//      return hash;
-//    }
-//
-//    @Override
-//    public boolean equals(Object obj)
-//    {
-//      if (obj == null) {
-//        return false;
-//      }
-//      if (getClass() != obj.getClass()) {
-//        return false;
-//      }
-//      final SinkMetadata other = (SinkMetadata)obj;
-//      if ((this.boundHost == null) ? (other.boundHost != null) : !this.boundHost.equals(other.boundHost)) {
-//        return false;
-//      }
-//      return this.boundPort == other.boundPort;
-//    }
-//
-//  }
+  /**
+   * @return the connectionString
+   */
+  public String getConnectionString()
+  {
+    return connectionString;
+  }
+
+  /**
+   * @param connectionString the connectionString to set
+   */
+  public void setConnectionString(String connectionString)
+  {
+    this.connectionString = connectionString;
+  }
+
+  /**
+   * @return the basePath
+   */
+  public String getBasePath()
+  {
+    return basePath;
+  }
+
+  /**
+   * @param basePath the basePath to set
+   */
+  public void setBasePath(String basePath)
+  {
+    this.basePath = basePath;
+  }
+
+  /**
+   * @return the connectionTimeoutMillis
+   */
+  public int getConnectionTimeoutMillis()
+  {
+    return connectionTimeoutMillis;
+  }
+
+  /**
+   * @param connectionTimeoutMillis the connectionTimeoutMillis to set
+   */
+  public void setConnectionTimeoutMillis(int connectionTimeoutMillis)
+  {
+    this.connectionTimeoutMillis = connectionTimeoutMillis;
+  }
+
+  /**
+   * @return the connectionRetryCount
+   */
+  public int getConnectionRetryCount()
+  {
+    return connectionRetryCount;
+  }
+
+  /**
+   * @param connectionRetryCount the connectionRetryCount to set
+   */
+  public void setConnectionRetryCount(int connectionRetryCount)
+  {
+    this.connectionRetryCount = connectionRetryCount;
+  }
+
+  /**
+   * @return the conntectionRetrySleepMillis
+   */
+  public int getConntectionRetrySleepMillis()
+  {
+    return conntectionRetrySleepMillis;
+  }
+
+  /**
+   * @param conntectionRetrySleepMillis the conntectionRetrySleepMillis to set
+   */
+  public void setConntectionRetrySleepMillis(int conntectionRetrySleepMillis)
+  {
+    this.conntectionRetrySleepMillis = conntectionRetrySleepMillis;
+  }
+
+  /**
+   * @return the serviceName
+   */
+  public String getServiceName()
+  {
+    return serviceName;
+  }
+
+  /**
+   * @param serviceName the serviceName to set
+   */
+  public void setServiceName(String serviceName)
+  {
+    this.serviceName = serviceName;
+  }
+
+  @Override
+  public void configure(org.apache.flume.Context context)
+  {
+    serviceName = context.getString("serviceName", "DTFlume");
+    connectionString = context.getString("connectionString");
+    basePath = context.getString("basePath");
+
+    connectionTimeoutMillis = context.getInteger("connectionTimeoutMillis", 1000);
+    connectionRetryCount = context.getInteger("connectionRetryCount", 10);
+    conntectionRetrySleepMillis = context.getInteger("connectionRetrySleepMillis", 500);
+  }
+
+  @Override
+  public void setup(com.datatorrent.api.Context context)
+  {
+    ObjectMapper om = new ObjectMapper();
+    instanceSerializerFactory = new InstanceSerializerFactory(om.reader(), om.writer());
+
+    curatorFramework = CuratorFrameworkFactory.builder()
+            .connectionTimeoutMs(connectionTimeoutMillis)
+            .retryPolicy(new RetryNTimes(connectionRetryCount, conntectionRetrySleepMillis))
+            .connectString(connectionString)
+            .build();
+    curatorFramework.start();
+
+    discovery = getDiscovery(curatorFramework);
+    try {
+      discovery.start();
+    }
+    catch (Exception ex) {
+      Throwables.propagate(ex);
+    }
+  }
+
+  @Override
+  public void teardown()
+  {
+    try {
+      discovery.close();
+    }
+    catch (IOException ex) {
+      throw new RuntimeException(ex);
+    }
+    finally {
+      curatorFramework.close();
+      curatorFramework = null;
+    }
+  }
 
   public class InstanceSerializerFactory
   {

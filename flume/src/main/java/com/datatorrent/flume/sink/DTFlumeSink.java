@@ -16,6 +16,8 @@ import org.apache.flume.*;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.sink.AbstractSink;
 
+import com.datatorrent.api.Component;
+
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.flume.discovery.Discovery;
 import com.datatorrent.flume.discovery.Discovery.Service;
@@ -33,9 +35,9 @@ import com.datatorrent.netlet.DefaultEventLoop;
  * match the throughput of the DAG.&lt;/experimental&gt;
  * <p />
  * The properties you can set on the DTFlumeSink are: <br />
+ * id - string unique value identifying this sink <br />
  * hostname - string value indicating the fqdn or ip address of the interface on which the server should listen <br />
  * port - integer value indicating the numeric port to which the server should bind <br />
- * eventloopName - string value indicating the name of the network io thread <br />
  * sleepMillis - integer value indicating the number of milliseconds the process should sleep when there are no events before checking for next event again <br />
  * throughputAdjustmentPercent - integer value indicating by what percentage the flume transaction size should be adjusted upward or downward at a time <br />
  * minimumEventsPerTransaction - integer value indicating the minimum number of events per transaction <br />
@@ -165,7 +167,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
           while (i < maxTuples && (e = getChannel().take()) != null) {
             byte[] address = storage.store(e.getBody());
             if (address != null) {
-              while(!client.write(address, e.getBody())) {
+              while (!client.write(address, e.getBody())) {
                 sleep();
               }
             }
@@ -219,6 +221,11 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   public void start()
   {
     try {
+      if (discovery instanceof Component) {
+        @SuppressWarnings("unchecked")
+        Component<com.datatorrent.api.Context> component = (Component<com.datatorrent.api.Context>)discovery;
+        component.setup(null);
+      }
       eventloop = new DefaultEventLoop("EventLoop-" + id);
       server = new Server(id, discovery);
     }
@@ -246,6 +253,11 @@ public class DTFlumeSink extends AbstractSink implements Configurable
     finally {
       eventloop.stop(server);
       eventloop.stop();
+      if (discovery instanceof Component) {
+        @SuppressWarnings("unchecked")
+        Component<com.datatorrent.api.Context> component = (Component<com.datatorrent.api.Context>)discovery;
+        component.teardown();
+      }
     }
   }
 
@@ -253,12 +265,11 @@ public class DTFlumeSink extends AbstractSink implements Configurable
 
   /* Begin Configurable Interface */
   @Override
-  @SuppressWarnings("unchecked")
   public void configure(Context context)
   {
     hostname = context.getString("hostname", "localhost");
     port = context.getInteger("port", 0);
-    id = context.getString("eventloopName");
+    id = context.getString("id");
     if (id == null) {
       id = getName();
     }
@@ -267,10 +278,11 @@ public class DTFlumeSink extends AbstractSink implements Configurable
     maximumEventsPerTransaction = context.getInteger("maximumEventsPerTransaction", 10000);
     minimumEventsPerTransaction = context.getInteger("minimumEventsPerTransaction", 100);
 
-    logger.debug("hostname = {}\nport = {}\neventloopName = {}\nsleepMillis = {}\nthroughputAdjustmentFactor = {}\nmaximumEventsPerTransaction = {}\nminimumEventsPerTransaction = {}", hostname, port, id, sleepMillis, throughputAdjustmentFactor, maximumEventsPerTransaction, minimumEventsPerTransaction);
+    logger.debug("hostname = {}\nport = {}\nid = {}\nsleepMillis = {}\nthroughputAdjustmentFactor = {}\nmaximumEventsPerTransaction = {}\nminimumEventsPerTransaction = {}", hostname, port, id, sleepMillis, throughputAdjustmentFactor, maximumEventsPerTransaction, minimumEventsPerTransaction);
 
-    discovery = configure("discovery", Discovery.class, context);
-    if (discovery == null) {
+    @SuppressWarnings("unchecked")
+    Discovery<byte[]> ldiscovery = configure("discovery", Discovery.class, context);
+    if (ldiscovery == null) {
       logger.warn("Discovery agent not configured for the sink!");
       discovery = new Discovery<byte[]>()
       {
@@ -294,6 +306,9 @@ public class DTFlumeSink extends AbstractSink implements Configurable
         }
 
       };
+    }
+    else {
+      discovery = ldiscovery;
     }
 
     storage = configure("storage", Storage.class, context);
@@ -358,8 +373,8 @@ public class DTFlumeSink extends AbstractSink implements Configurable
           }
           ((Configurable)object).configure(context1);
         }
-        return object;
 
+        return object;
       }
       else {
         logger.error("key class {} does not implement {} interface", classname, Storage.class.getCanonicalName());
