@@ -57,8 +57,9 @@ exports = module.exports = {
         Applications             :'applications',
         Application              :'applications.:appId',
         Operators                :'applications.:appId.operators',
-        Containers               :'applications.:appId.containers'
-        
+        Containers               :'applications.:appId.containers',
+        TupleRecorder            :'tupleRecorder.:startTime'
+
     },
 
     dag: {

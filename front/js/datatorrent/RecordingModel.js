@@ -198,35 +198,37 @@ var RecordingModel = BaseModel.extend({
         this.tuples.set(retTuples,{remove: false});
         this.tuples.trigger('update');
     },
-
-    getSubscribeTopic: function() {
-        if (this.get('ended') || !this.get('recordingName')) return false;
-        var topic = 'tupleRecorder.'+this.get('recordingName');
-        return topic;
-    },
     
-    subscribeToTuples: function() {
-        var topic = this.getSubscribeTopic();
-        if (!topic) {
-            LOG(3, 'Could not subscribe to live tuples', ['The recording has either ended or is not a real recording', this.toJSON() ]);
+    subscribe: function() {
+
+        var startTime = this.get('startTime');
+        var ended = !! this.get('ended');
+        if (ended) {
+            LOG(3, 'Cannot subscribe to a recording that has ended.');
             return;
         }
+        if (!startTime) {
+            LOG(3, 'The recording does not have a startTime');
+            return;
+        }
+        var topic = this.resourceTopic('TupleRecorder', {
+            startTime: startTime
+        });
+        
         this.listenTo(this.dataSource, topic, this.onLiveTuples);
         this.dataSource.subscribe(topic);
     },
     
-    unsubscribeToTuples: function() {
-        var topic = this.getSubscribeTopic();
-        if (!topic) {
-            LOG(3, 'Could not unsubscribe to live tuples', ['The recording has either ended or is not a real recording: ', this.toJSON()]);
-            return;
-        }
+    unsubscribe: function() {
+        var topic = this.resourceTopic('TupleRecorder', {
+            startTime: startTime
+        });
         this.stopListening(this.dataSource, topic);
     },
     
     // Dummy function, should be overridden by child class
     onLiveTuples: function(data) {
-        throw new Error('onLiveTuples needs to be implemented in a subclass.');
+        LOG(3, 'onLiveTuples needs to be implemented in a subclass. Currently doing nothing.');
     }
     
 });

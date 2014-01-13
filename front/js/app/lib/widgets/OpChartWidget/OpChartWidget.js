@@ -13,11 +13,6 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-/**
- * OpChart Widget
- * 
- * Charting widget for chart operators
-*/
 
 var _ = require('underscore');
 var kt = require('knights-templar');
@@ -27,12 +22,18 @@ var RecView = require('./lib/OpChartView');
 var Control = require('./lib/Control');
 var bormat = require('bormat');
 var BaseView = DT.widgets.Widget;
+
+/**
+ * OpChart Widget
+ * 
+ * Charting widget for chart operators
+*/
 var OpChart = BaseView.extend({
 
     initialize:function(options) {
         
         BaseView.prototype.initialize.call(this,options);
-        
+
         // injections
         this.appId = this.model.get('id');
         this.dataSource = options.dataSource;
@@ -52,7 +53,7 @@ var OpChart = BaseView.extend({
         });
         
         // Listen for updates of recordings to re-rendering
-        this.listenTo(this.recordings, 'reset', this.render);
+        this.listenTo(this.recordings, 'sync', this.render);
         
         // Listen for updates to this.recording to save
         this.listenTo(this.recording, 'change:limit change:tail', this.saveRecordingState);
@@ -69,37 +70,40 @@ var OpChart = BaseView.extend({
             }
         }
         
-        if (!this.recording.get('recordingName')) {
+        if (!this.recording.get('startTime')) {
             // No previous recording set or found, fetch recordings
             this.recordings.fetch();
         }
         
     },
     
-    render: function() {
+    html: function() {
         var json, markup;
         
         // Check if recording has been set.
-        if (this.recording.get('recordingName')) {
+        if (this.recording.get('startTime')) {
             // It has. Render mark-up from the chart_template.
             // Assumes the presence of the 'chart' subview.
             json = this.recording.toJSON();
             markup = this.chart_template(json);
-            this.$el.html(markup);
-            this.assign({
-                '.chart-target': 'chart',
-                '.ctrl-target': 'control'
-            });
-            return this;
         }
         else {
             json = { options: this.getChartOptions(this.recordings) }
             markup = this.blank_template(json);
-            this.$el.html(markup);
-            return this;
         }
         
-        return this;
+        return markup;
+    },
+
+    assignments: function() {
+        if (this.recording.get('startTime')) {
+            return {
+                '.chart-target': 'chart',
+                '.ctrl-target': 'control'
+            };
+        } else {
+            return {};
+        }
     },
     
     getChartOptions: function(recs) {
@@ -113,18 +117,22 @@ var OpChart = BaseView.extend({
     selectRecording: function(evt) {
         evt.preventDefault();
         var recName = this.$('select.opchart-options').val();
-        var recording = this.recordings.where({ recordingName: recName })[0];
+        var recording = this.recordings.where({ startTime: recName })[0];
         this.setRecording(recording.toJSON());
     },
     
     setRecording: function(recordingJSON) {
 
         // Remove previous views
-        this.trigger('clean_up');
+        _.each(['chart','control'], function(key) {
+            var sv = this.subview(key);
+            if (sv) {
+                sv.remove();
+            }
+        }, this);
         
         // Set the recording property
-        this.recording.updateWith( recordingJSON );
-        this.recording.syncRecording(false);
+        this.recording.set( recordingJSON );
         
         // Store chart type
         var chartType = recordingJSON.properties.chartType.toLowerCase();
@@ -155,7 +163,7 @@ var OpChart = BaseView.extend({
         this.recording.setChart(chart.viewport);
         
         // Render this widget
-        this.render();
+        this.renderContent();
         
     },
     
@@ -165,7 +173,7 @@ var OpChart = BaseView.extend({
     },
     
     remove: function(){
-        this.recording.unsubscribeToTuples();
+        this.recording.unsubscribe();
         this.recording.tuples.reset([]);
         BaseView.prototype.remove.call(this);
     },
