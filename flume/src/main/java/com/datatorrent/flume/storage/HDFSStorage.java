@@ -254,8 +254,8 @@ public class HDFSStorage implements Storage, Configurable
         readStream.close();
       }
       if (!fs.exists(new Path(baseDir + "/" + retrievalFile))) {
-        skipOffset = retrievalOffset;
-        if (retrievalFile == 0 && retrievalOffset == 0) {
+        if (retrievalFile == 0 && retrievalOffset == 0 && fileCounter ==0 && fileWriteOffset == 0) {
+          skipOffset = retrievalOffset;
           // we have just started, so returning null
           return null;
         } else {
