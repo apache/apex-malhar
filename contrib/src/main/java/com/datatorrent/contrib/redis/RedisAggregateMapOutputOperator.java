@@ -20,6 +20,11 @@ public class RedisAggregateMapOutputOperator<K, V>
         extends AggregateMapTransactionableStoreOutputOperator<K, V, RedisStore>
         implements Partitionable<RedisAggregateMapOutputOperator<K, V>>
 {
+  public RedisAggregateMapOutputOperator()
+  {
+    store = new RedisStore();
+  }
+
   @Override
   public Collection<Partition<RedisAggregateMapOutputOperator<K, V>>> definePartitions(Collection<Partition<RedisAggregateMapOutputOperator<K, V>>> partitions, int incrementalCapacity)
   {

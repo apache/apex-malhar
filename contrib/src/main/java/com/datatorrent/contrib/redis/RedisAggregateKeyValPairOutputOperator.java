@@ -20,6 +20,11 @@ public class RedisAggregateKeyValPairOutputOperator<K, V>
         extends AggregateKeyValPairTransactionableStoreOutputOperator<K, V, RedisStore>
         implements Partitionable<RedisAggregateKeyValPairOutputOperator<K, V>>
 {
+  public RedisAggregateKeyValPairOutputOperator()
+  {
+    store = new RedisStore();
+  }
+
   @Override
   public Collection<Partition<RedisAggregateKeyValPairOutputOperator<K, V>>> definePartitions(Collection<Partition<RedisAggregateKeyValPairOutputOperator<K, V>>> partitions, int incrementalCapacity)
   {
