@@ -8,7 +8,7 @@ package com.datatorrent.lib.db;
  *
  * @since 0.9.3
  */
-public abstract class AbstractAggregateTransactionableStoreOutputOperator<T> extends AbstractTransactionableStoreOutputOperator<T>
+public abstract class AbstractAggregateTransactionableStoreOutputOperator<T, S extends TransactionableStore> extends AbstractTransactionableStoreOutputOperator<T, S>
 {
   @Override
   public void endWindow()

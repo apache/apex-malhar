@@ -5,15 +5,12 @@
 package com.datatorrent.contrib.redis;
 
 import com.datatorrent.api.DefaultPartition;
-import com.datatorrent.api.Operator;
 import com.datatorrent.api.Partitionable;
 import com.datatorrent.api.Partitionable.Partition;
 import com.datatorrent.api.Partitionable.PartitionKeys;
-import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.contrib.redis.old.RedisOutputOperator;
 import com.datatorrent.lib.db.AbstractTransactionableStoreOutputOperator;
-import com.datatorrent.lib.db.KeyValueStore;
-import com.datatorrent.lib.db.TransactionableStore;
+import com.datatorrent.lib.db.TransactionableKeyValueStore;
 import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.util.*;
@@ -26,8 +23,7 @@ import redis.clients.jedis.Transaction;
  *
  * @since 0.9.3
  */
-@ShipContainingJars(classes = {Jedis.class})
-public class RedisStore implements TransactionableStore, KeyValueStore
+public class RedisStore implements TransactionableKeyValueStore
 {
   private static final Logger LOG = LoggerFactory.getLogger(RedisOutputOperator.class);
   protected transient Jedis jedis;

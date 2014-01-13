@@ -69,19 +69,19 @@ public class RedisNumberAggregateMapOutputOperator<K, V> extends RedisAggregateM
           String field = entry1.getKey().toString();
           Object hvalue = entry1.getValue();
           if (hvalue instanceof Number) {
-            redisStore.hincrByFloat(key, field, ((Number)hvalue).doubleValue());
+            store.hincrByFloat(key, field, ((Number)hvalue).doubleValue());
           }
           else {
-            redisStore.hincrByFloat(key, field, Double.parseDouble(hvalue.toString()));
+            store.hincrByFloat(key, field, Double.parseDouble(hvalue.toString()));
           }
         }
       }
       else {
         if (value instanceof Number) {
-          redisStore.incrByFloat(key, ((Number)value).doubleValue());
+          store.incrByFloat(key, ((Number)value).doubleValue());
         }
         else {
-          redisStore.incrByFloat(key, Double.parseDouble(value.toString()));
+          store.incrByFloat(key, Double.parseDouble(value.toString()));
         }
       }
     }

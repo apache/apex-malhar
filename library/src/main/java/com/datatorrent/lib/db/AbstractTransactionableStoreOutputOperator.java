@@ -16,9 +16,9 @@ import javax.validation.constraints.NotNull;
  *
  * @since 0.9.3
  */
-public abstract class AbstractTransactionableStoreOutputOperator<T> extends BaseOperator
+public abstract class AbstractTransactionableStoreOutputOperator<T, S extends TransactionableStore> extends BaseOperator
 {
-  protected TransactionableStore store;
+  protected S store;
   protected transient boolean inTransaction = false;
   @NotNull
   protected String appId;
@@ -50,7 +50,7 @@ public abstract class AbstractTransactionableStoreOutputOperator<T> extends Base
     this.operatorId = operatorId;
   }
 
-  public void setStore(TransactionableStore store)
+  public void setStore(S store)
   {
     this.store = store;
   }
