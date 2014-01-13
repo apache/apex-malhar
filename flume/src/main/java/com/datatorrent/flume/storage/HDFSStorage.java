@@ -28,7 +28,7 @@ import com.google.common.primitives.Longs;
  * baseDir - The base directory where the data is going to be stored <br />
  * restore - This is used to restore the application from previous failure <br />
  * blockSize - The maximum size of the each file to created. <br />
- *
+ * 
  * @author Gaurav Gupta <gaurav@datatorrent.com>
  */
 public class HDFSStorage implements Storage, Configurable
@@ -83,7 +83,7 @@ public class HDFSStorage implements Storage, Configurable
 
   /**
    * This stores the Identifier information identified in the last store function call
-   *
+   * 
    * @param ctx
    */
   // private byte[] fileOffset = new byte[IDENTIFIER_SIZE];
@@ -114,11 +114,13 @@ public class HDFSStorage implements Storage, Configurable
         }
         baseDir = baseDir + "/" + id;
         path = new Path(baseDir);
+        if(!restore){
+          fs.delete(path, true);
+        }
         if (!fs.exists(path) || !fs.isDirectory(path)) {
           fs.mkdirs(path);
         }
-        /* keeping the block size 2MB less than the default block size */
-
+        
         blockSize = ctx.getLong(BLOCKSIZE, fs.getDefaultBlockSize(path));
         fileCounter = 0;
         cleanedFileCounter = -1;
@@ -136,7 +138,7 @@ public class HDFSStorage implements Storage, Configurable
           if (fs.exists(offsetFile) && fs.isFile(offsetFile)) {
             flushedOffset = readData(offsetFile);
           }
-        } else {
+        } else {          
           writeData(cleanFileCounterFile, String.valueOf(cleanedFileCounter).getBytes()).close();
         }
 
@@ -151,7 +153,7 @@ public class HDFSStorage implements Storage, Configurable
 
   /**
    * This function reads the file at a location and return the bytes stored in the file "
-   *
+   * 
    * @param path
    *          - the location of the file
    * @return
@@ -168,7 +170,7 @@ public class HDFSStorage implements Storage, Configurable
 
   /**
    * This function writes the bytes to a file specified by the path
-   *
+   * 
    * @param path
    *          the file location
    * @param data
@@ -227,7 +229,7 @@ public class HDFSStorage implements Storage, Configurable
   }
 
   /**
-   *
+   * 
    * @param b
    * @param size
    * @param startIndex
@@ -252,13 +254,18 @@ public class HDFSStorage implements Storage, Configurable
         readStream.close();
       }
       if (!fs.exists(new Path(baseDir + "/" + retrievalFile))) {
-        skipOffset = retrievalOffset;
-        if (retrievalFile == 0 && retrievalOffset == 0) {
+        if (retrievalFile == 0 && retrievalOffset == 0 && fileCounter ==0 && fileWriteOffset == 0) {
+          skipOffset = retrievalOffset;
           // we have just started, so returning null
           return null;
         } else {
           throw new RuntimeException("file " + retrievalFile + " doesn't exist");
         }
+      }
+      
+      // if the current file being written is same as the file to read then close the file being written
+      if (fileCounter == retrievalFile) {
+        close();
       }
       readStream = new FSDataInputStream(fs.open(new Path(baseDir + "/" + retrievalFile)));
       readStream.seek(retrievalOffset);
@@ -313,11 +320,15 @@ public class HDFSStorage implements Storage, Configurable
   @Override
   public byte[] retrieveNext()
   {
-    if(retrievalFile == -1){
+    if (retrievalFile == -1) {
       throw new RuntimeException("Call retrieve first");
     }
     try {
       if (readStream == null) {
+        // if the current file being written is same as the file to read then close the file being written
+        if (fileCounter == retrievalFile) {
+          close();
+        }
         readStream = new FSDataInputStream(fs.open(new Path(baseDir + "/" + (retrievalFile))));
         readStream.seek(retrievalOffset);
       }
@@ -327,6 +338,10 @@ public class HDFSStorage implements Storage, Configurable
           throw new RuntimeException("no records available");
         }
         readStream.close();
+        // if the current file being written is same as the file to read then close the file being written
+        if (fileCounter == retrievalFile) {
+          close();
+        }
         readStream = new FSDataInputStream(fs.open(new Path(baseDir + "/" + retrievalFile)));
       }
       return retrieveHelper();
@@ -361,15 +376,15 @@ public class HDFSStorage implements Storage, Configurable
   /**
    * This is used mainly for cleaning up of counter files created
    */
-  public void cleanHelperFiles(){
-    try{
-      fs.delete(cleanFileCounterFile,false);
-      fs.delete(fileCounterFile,false);
-      fs.delete(offsetFile, false);
-    }catch(IOException e){
+  public void cleanHelperFiles()
+  {
+    try {
+      fs.delete( new Path(baseDir), true);
+    } catch (IOException e) {
       logger.warn(e.getMessage());
     }
   }
+
   @Override
   public void flush()
   {

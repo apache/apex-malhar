@@ -40,8 +40,8 @@ public class HDFSStorageTest
     Assert.assertNull(storage.retrieve(new byte[8]));
     byte[] b = new byte[1028];
     Assert.assertNotNull(storage.store(b));
-    storage.close();
-    byte[] data = storage.retrieveNext();
+    //storage.close();
+    byte[] data = storage.retrieve(new byte[8]);
     byte[] tempData = new byte[data.length - 8];
     System.arraycopy(data, 8, tempData, 0, tempData.length);
     Assert.assertEquals("matched the stored value with retrieved value", new String(b), new String(tempData));
@@ -119,7 +119,7 @@ public class HDFSStorageTest
     byte[] b1 = r.readLine().getBytes();
     storage.store(b1);
     storage.store(b);
-    storage.close();
+    //storage.close();
     byte[] data = storage.retrieveNext();
     byte[] tempData = new byte[data.length - 8];
     System.arraycopy(data, 8, tempData, 0, tempData.length);
@@ -156,7 +156,7 @@ public class HDFSStorageTest
     storage.close();
     byte[] b1 = r.readLine().getBytes();
     storage.store(b1);
-    storage.close();
+    //storage.close();
     byte[] data = storage.retrieveNext();
     byte[] tempData = new byte[data.length - 8];
     System.arraycopy(data, 8, tempData, 0, tempData.length);
@@ -191,7 +191,6 @@ public class HDFSStorageTest
     byte[] b1 = r.readLine().getBytes();
     storage.store(b1);
     storage.store(b);
-    storage.close();
     byte[] data = storage.retrieveNext();
     byte[] tempData = new byte[data.length - 8];
     byte[] identifier = new byte[8];
