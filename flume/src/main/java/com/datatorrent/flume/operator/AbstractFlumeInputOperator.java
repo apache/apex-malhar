@@ -43,10 +43,11 @@ public abstract class AbstractFlumeInputOperator<T>
   private transient int idleCounter;
   private transient int eventCounter;
   private transient DefaultEventLoop eventloop;
-  private transient RecoveryAddress recoveryAddress;
   private transient volatile boolean connected;
   private transient OperatorContext context;
   private transient Client client;
+  private transient long windowId;
+  private transient byte[] address;
   @NotNull
   private String[] connectionSpecs;
   private final ArrayList<RecoveryAddress> recoveryAddresses;
@@ -91,8 +92,7 @@ public abstract class AbstractFlumeInputOperator<T>
   @Override
   public void beginWindow(long windowId)
   {
-    recoveryAddress = new RecoveryAddress();
-    recoveryAddress.windowId = windowId;
+    this.windowId = windowId;
     idleCounter = 0;
     eventCounter = 0;
   }
@@ -100,11 +100,18 @@ public abstract class AbstractFlumeInputOperator<T>
   @Override
   public void emitTuples()
   {
-    for (int i = handoverBuffer.size(); i-- > 0;) {
-      Payload payload = handoverBuffer.poll();
-      output.emit(payload.payload);
-      recoveryAddress.address = payload.location;
+    int i = handoverBuffer.size();
+    if (i > 0) {
+      while (--i > 0) {
+        output.emit(handoverBuffer.poll().payload);
+        eventCounter++;
+      }
+
+      Payload poll = handoverBuffer.poll();
+      output.emit(poll.payload);
       eventCounter++;
+
+      address = poll.location;
     }
   }
 
@@ -122,7 +129,13 @@ public abstract class AbstractFlumeInputOperator<T>
       client.write(array);
     }
 
-    recoveryAddresses.add(recoveryAddress);
+    if (address != null) {
+      RecoveryAddress rAddress = new RecoveryAddress();
+      rAddress.address = address;
+      address = null;
+      rAddress.windowId = windowId;
+      recoveryAddresses.add(rAddress);
+    }
   }
 
   @Override
@@ -146,7 +159,7 @@ public abstract class AbstractFlumeInputOperator<T>
   {
     idleCounter++;
     try {
-      sleep(5);
+      sleep(context.getValue(OperatorContext.SPIN_MILLIS));
     }
     catch (InterruptedException ex) {
       throw new RuntimeException(ex);
@@ -191,27 +204,40 @@ public abstract class AbstractFlumeInputOperator<T>
       return;
     }
 
-    Iterator<RecoveryAddress> iterator = recoveryAddresses.iterator();
-    while (iterator.hasNext()) {
-      RecoveryAddress ra = iterator.next();
-      if (ra.windowId < windowId) {
-        iterator.remove();
-      }
-      else if (ra.windowId == windowId) {
+    synchronized (recoveryAddresses) {
+      byte[] addr = null;
+
+      Iterator<RecoveryAddress> iterator = recoveryAddresses.iterator();
+      while (iterator.hasNext()) {
+        RecoveryAddress ra = iterator.next();
+        if (ra.windowId > windowId) {
+          break;
+        }
+
         iterator.remove();
         if (ra.address != null) {
-          int arraySize = 1/* for the type of the message */
-                          + 8 /* for the location to commit */;
-          byte[] array = new byte[arraySize];
-
-          array[0] = Command.COMMITTED.getOrdinal();
-          System.arraycopy(ra.address, 0, array, 1, 8);
-          logger.debug("wrote {} with recoveryOffset = {}", Command.COMMITTED, Arrays.toString(ra.address));
-          client.write(array);
+          addr = ra.address;
         }
       }
-      else {
-        break;
+
+      if (addr != null) {
+        /*
+         * Make sure that we store the last valid address processed
+         */
+        if (recoveryAddresses.isEmpty()) {
+          RecoveryAddress ra = new RecoveryAddress();
+          ra.address = addr;
+          recoveryAddresses.add(ra);
+        }
+
+        int arraySize = 1/* for the type of the message */
+                        + 8 /* for the location to commit */;
+        byte[] array = new byte[arraySize];
+
+        array[0] = Command.COMMITTED.getOrdinal();
+        System.arraycopy(addr, 0, array, 1, 8);
+        logger.debug("wrote {} with recoveryOffset = {}", Command.COMMITTED, Arrays.toString(addr));
+        client.write(array);
       }
     }
   }
@@ -370,14 +396,13 @@ public abstract class AbstractFlumeInputOperator<T>
       super.connected();
 
       byte[] address;
-      if (recoveryAddresses.size() > 0) {
-        address = recoveryAddresses.get(recoveryAddresses.size() - 1).address;
-        if (address == null) {
+      synchronized (recoveryAddresses) {
+        if (recoveryAddresses.size() > 0) {
+          address = recoveryAddresses.get(recoveryAddresses.size() - 1).address;
+        }
+        else {
           address = new byte[8];
         }
-      }
-      else {
-        address = new byte[8];
       }
 
       int len = 1 /* for the message type SEEK */
@@ -442,7 +467,6 @@ public abstract class AbstractFlumeInputOperator<T>
     @Override
     public Response processStats(BatchedOperatorStats stats)
     {
-      logger.debug("process stats called {}", stats.getOperatorId());
       response.repartitionRequired = false;
 
       CustomStats lastStat = null;
@@ -473,7 +497,7 @@ public abstract class AbstractFlumeInputOperator<T>
             super.teardown();
           }
           AbstractFlumeInputOperator.discoveredFlumeSinks.set(addresses);
-          logger.debug("map = {}\ndiscovery = {}", map, addresses);
+          logger.debug("map = {} !!!!!!!! discovery = {}", map, addresses);
           if (addresses.size() == map.size()) {
             response.repartitionRequired = map.containsValue(null);
           }
@@ -481,6 +505,7 @@ public abstract class AbstractFlumeInputOperator<T>
             response.repartitionRequired = true;
           }
           nextMillis = System.currentTimeMillis() + intervalMillis;
+          logger.debug("!!!! next check for {} at {} !!!!", stats.getOperatorId(), nextMillis);
         }
         catch (Error er) {
           throw er;
