@@ -25,8 +25,8 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.api.StreamingApplication;
 
-import com.datatorrent.contrib.redis.RedisNumberAggregateOutputOperator;
-import com.datatorrent.contrib.redis.RedisOutputOperator;
+import com.datatorrent.contrib.redis.old.RedisNumberAggregateOutputOperator;
+import com.datatorrent.contrib.redis.old.RedisOutputOperator;
 import com.datatorrent.lib.io.ApacheGenRandomLogs;
 import com.datatorrent.lib.logs.ApacheVirtualLogParseOperator;
 import com.datatorrent.lib.math.Sum;

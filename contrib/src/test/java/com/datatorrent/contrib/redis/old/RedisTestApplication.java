@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package com.datatorrent.contrib.redis;
+package com.datatorrent.contrib.redis.old;
 
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
@@ -24,7 +24,9 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.contrib.redis.old.RedisOutputOperator;
 import com.datatorrent.lib.util.KeyHashValPair;
+import com.datatorrent.lib.util.KeyValPair;
 
 public class RedisTestApplication implements StreamingApplication
 {
@@ -71,15 +73,13 @@ public class RedisTestApplication implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
     RandomNumberGenerator rng = dag.addOperator("random", new RandomNumberGenerator());
-    RedisAggregateKeyValPairOutputOperator<Integer, Integer> redis = dag.addOperator("redis", new RedisAggregateKeyValPairOutputOperator<Integer,Integer>());
+    RedisOutputOperator<Integer, Integer> redis = dag.addOperator("redis", new RedisOutputOperator<Integer,Integer>());
     String connectionList = conf.get("redsitestapplication.hostlist","localhost,6379,1|localhost,6379,2|localhost,6379,3");
     int partitions = conf.getInt("redsitestapplication.partition",3);
-    RedisStore redisStore = new RedisStore();
-    redisStore.setConnectionList(connectionList);
-    redisStore.setKeyExpiryTime(60);
-    redis.setStore(redisStore);
+    redis.setConnectionList(connectionList);
+    redis.setKeyExpiryTime(60);
     dag.setAttribute(redis, OperatorContext.INITIAL_PARTITION_COUNT, partitions);
-    dag.addStream("stream", rng.output, redis.input);
+    dag.addStream("stream", rng.output, redis.inputInd);
 
   }
 

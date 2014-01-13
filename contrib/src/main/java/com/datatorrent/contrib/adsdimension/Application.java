@@ -20,7 +20,7 @@ import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.contrib.redis.RedisNumberAggregateOutputOperator;
+import com.datatorrent.contrib.redis.old.RedisNumberAggregateOutputOperator;
 import java.util.Map;
 import org.apache.commons.lang.mutable.MutableDouble;
 import org.apache.hadoop.conf.Configuration;

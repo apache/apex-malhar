@@ -17,21 +17,19 @@ package com.datatorrent.contrib.redis;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import org.apache.commons.lang.mutable.MutableDouble;
-import org.apache.commons.lang.mutable.MutableInt;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <p>RedisNumberAggregateOutputOperator class.</p>
+ * <p>RedisNumberAggregateMapOutputOperator class.</p>
  *
  * @since 0.3.2
  */
-public class RedisNumberAggregateOutputOperator<K, V> extends RedisOutputOperator<K, V>
+public class RedisNumberAggregateMapOutputOperator<K, V> extends RedisAggregateMapOutputOperator<K, V>
 {
-  private static final Logger LOG = LoggerFactory.getLogger(RedisNumberAggregateOutputOperator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(RedisNumberAggregateMapOutputOperator.class);
 
   protected Number convertToNumber(Object o)
   {
@@ -53,41 +51,38 @@ public class RedisNumberAggregateOutputOperator<K, V> extends RedisOutputOperato
   }
 
   @Override
-  public void process(Map<K, V> t)
+  public void processTuple(Map<K, V> t)
   {
-    for (Map.Entry<K, V> entry: t.entrySet()) {
+    for (Map.Entry<K, V> entry : t.entrySet()) {
       process(entry.getKey(), entry.getValue());
     }
   }
 
   @Override
-  public void store(Map<K, Object> t)
+  public void storeAggregate()
   {
-    for (Map.Entry<K, Object> entry: t.entrySet()) {
+    for (Map.Entry<Object, Object> entry : dataMap.entrySet()) {
       String key = entry.getKey().toString();
       Object value = entry.getValue();
       if (value instanceof Map) {
-        for (Map.Entry<Object, Object> entry1: ((Map<Object, Object>)value).entrySet()) {
+        for (Map.Entry<Object, Object> entry1 : ((Map<Object, Object>)value).entrySet()) {
           String field = entry1.getKey().toString();
           Object hvalue = entry1.getValue();
           if (hvalue instanceof Number) {
-            redisConnection.hincrbyfloat(key, field, ((Number)hvalue).doubleValue());
+            redisStore.hincrByFloat(key, field, ((Number)hvalue).doubleValue());
           }
           else {
-            redisConnection.hincrbyfloat(key, field, Double.parseDouble(hvalue.toString()));
+            redisStore.hincrByFloat(key, field, Double.parseDouble(hvalue.toString()));
           }
         }
       }
       else {
         if (value instanceof Number) {
-          redisConnection.incrbyfloat(key, ((Number)value).doubleValue());
+          redisStore.incrByFloat(key, ((Number)value).doubleValue());
         }
         else {
-          redisConnection.incrbyfloat(key, Double.parseDouble(value.toString()));
+          redisStore.incrByFloat(key, Double.parseDouble(value.toString()));
         }
-      }
-      if(keyExpiryTime != -1){
-        redisConnection.expire(key, keyExpiryTime);
       }
     }
   }
@@ -105,7 +100,7 @@ public class RedisNumberAggregateOutputOperator<K, V> extends RedisOutputOperato
         throw new RuntimeException("Values of unexpected type in data map. Expecting Map");
       }
       Map<Object, Object> map = (Map<Object, Object>)o;
-      for (Map.Entry<Object, Object> entry1: ((Map<Object, Object>)value).entrySet()) {
+      for (Map.Entry<Object, Object> entry1 : ((Map<Object, Object>)value).entrySet()) {
         Object field = entry1.getKey();
         Number oldVal = (Number)map.get(field);
         if (oldVal == null) {

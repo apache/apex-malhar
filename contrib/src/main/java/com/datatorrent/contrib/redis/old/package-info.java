@@ -17,4 +17,4 @@
 /**
  * Redis operators and utilities.
  */
-package com.datatorrent.contrib.redis;
+package com.datatorrent.contrib.redis.old;

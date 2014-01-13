@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.redis;
+package com.datatorrent.contrib.redis.old;
 
 import com.datatorrent.lib.io.AbstractKeyValueStoreOutputOperator;
 import com.lambdaworks.redis.RedisClient;
@@ -172,11 +172,11 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
         /*
         redisConnection.hmset(entry.getKey().toString(), (Map) value);
         */
-        
+
         for (Map.Entry<Object, Object> entry1 : ((Map<Object, Object>) value).entrySet()) {
           redisConnection.hset(entry.getKey().toString(), entry1.getKey().toString(), entry1.getValue().toString());
         }
-        
+
       } else if (value instanceof Set) {
         for (Object o : (Set) value) {
           redisConnection.sadd(entry.getKey().toString(), o.toString());
@@ -210,9 +210,6 @@ public class RedisOutputOperator<K, V> extends AbstractKeyValueStoreOutputOperat
   {
     Collection c = partitions;
     Collection<Partition<RedisOutputOperator<K, V>>> operatorPartitions = c;
-    Partition<RedisOutputOperator<K, V>> template = null;
-    Iterator<Partition<RedisOutputOperator<K, V>>> itr = operatorPartitions.iterator();
-    template = itr.next();
     if(connectionList == null){
       connectionList = host+":"+port+","+dbIndex;
     }
