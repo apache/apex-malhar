@@ -209,6 +209,8 @@ public class HDFSStorage implements Storage, Configurable
         if (fileWriteOffset >= skipOffset) {
           fileOffset = new byte[IDENTIFIER_SIZE];
           Server.writeLong(fileOffset, 0, calculateOffset(fileWriteOffset, fileCounter));
+          // once the current file write offset becomes greater than skip offset, skip offset needs to be reset to -1 o/w for all subsequent files as well store will return null till skipoffset 
+          skipOffset = -1;
         }
 
         return fileOffset;
