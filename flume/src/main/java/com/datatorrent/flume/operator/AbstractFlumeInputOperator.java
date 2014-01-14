@@ -74,15 +74,17 @@ public abstract class AbstractFlumeInputOperator<T>
   @SuppressWarnings({"unchecked"})
   public void activate(OperatorContext ctx)
   {
-    logger.debug("Total number of connection specs is {}", connectionSpecs.length);
-    if (connectionSpecs.length == 1) {
+    if (connectionSpecs.length == 0) {
+      logger.info("Discovered zero DTFlumeSink");
+    }
+    else if (connectionSpecs.length == 1) {
       for (String connectAddresse : connectionSpecs) {
         logger.debug("Connection spec is {}", connectAddresse);
         String[] parts = connectAddresse.split(":");
         eventloop.connect(new InetSocketAddress(parts[1], Integer.parseInt(parts[2])), client = new Client(parts[0]));
       }
     }
-    else if (connectionSpecs.length != 0) {
+    else {
       throw new RuntimeException(String.format("A physical %s operator cannot connect to more than 1 addresses!", this.getClass().getSimpleName()));
     }
 
@@ -249,6 +251,7 @@ public abstract class AbstractFlumeInputOperator<T>
     if (discovered == null && incrementalCapacity == 0) {
       return partitions;
     }
+
     HashMap<String, ArrayList<RecoveryAddress>> allRecoveryAddresses = abandonedRecoveryAddresses.get();
     ArrayList<String> allConnectAddresses = new ArrayList<String>(partitions.size() + incrementalCapacity);
     for (Partition<AbstractFlumeInputOperator<T>> partition : partitions) {
@@ -287,14 +290,16 @@ public abstract class AbstractFlumeInputOperator<T>
 
       for (int i = allConnectAddresses.size(); i-- > 0;) {
         String[] parts = allConnectAddresses.get(i).split(":");
-        String get = connections.get(parts[0]);
-        if (get == null) {
+        String connection = connections.remove(parts[0]);
+        if (connection == null) {
           allConnectAddresses.remove(i);
         }
         else {
-          allConnectAddresses.set(i, get);
+          allConnectAddresses.set(i, connection);
         }
       }
+
+      allConnectAddresses.addAll(connections.values());
     }
 
     partitions.clear();
@@ -343,6 +348,7 @@ public abstract class AbstractFlumeInputOperator<T>
   public void partitioned(Map<Integer, Partition<AbstractFlumeInputOperator<T>>> partitions)
   {
     HashMap<Integer, ConnectionStatus> map = partitionedInstanceStatus.get();
+    map.clear();
     for (Entry<Integer, Partition<AbstractFlumeInputOperator<T>>> entry : partitions.entrySet()) {
       if (map.containsKey(entry.getKey())) {
         // what can be done here?
@@ -362,6 +368,12 @@ public abstract class AbstractFlumeInputOperator<T>
     {
       this.payload = payload;
       this.location = location;
+    }
+
+    @Override
+    public String toString()
+    {
+      return "Payload{" + "payload=" + payload + ", location=" + Arrays.toString(location) + '}';
     }
 
   }
@@ -474,7 +486,6 @@ public abstract class AbstractFlumeInputOperator<T>
       for (OperatorStats os : lastWindowedStats) {
         if (os.customStats != null) {
           lastStat = os.customStats;
-          logger.debug("{} laststat = {}", stats.getOperatorId(), lastStat);
         }
       }
 
@@ -497,7 +508,6 @@ public abstract class AbstractFlumeInputOperator<T>
             super.teardown();
           }
           AbstractFlumeInputOperator.discoveredFlumeSinks.set(addresses);
-          logger.debug("map = {} !!!!!!!! discovery = {}", map, addresses);
           if (addresses.size() == map.size()) {
             response.repartitionRequired = map.containsValue(null);
           }
@@ -505,7 +515,6 @@ public abstract class AbstractFlumeInputOperator<T>
             response.repartitionRequired = true;
           }
           nextMillis = System.currentTimeMillis() + intervalMillis;
-          logger.debug("!!!! next check for {} at {} !!!!", stats.getOperatorId(), nextMillis);
         }
         catch (Error er) {
           throw er;
