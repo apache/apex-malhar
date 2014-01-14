@@ -111,11 +111,8 @@ var ChartRecording = Recording.extend({
     },
     
     updateWith: function(attrs) {
-        // Check for previous subscriptions
-        this.unsubscribeToTuples();
-        
         // Update the model
-        Recording.prototype.updateWith.call(this, attrs);
+        Recording.prototype.set.call(this, attrs);
         
         // Chart-type-specific setup
         switch(attrs.properties.chartType) {
@@ -136,9 +133,8 @@ var ChartRecording = Recording.extend({
             
             break;
         }
-        
-        // Get new topic and subscribe
-        this.subscribeToTuples();
+
+        this.subscribe();
     },
     
     makeTupleRequest: function() {
@@ -168,17 +164,15 @@ var ChartRecording = Recording.extend({
         
         var options = {
             vp_width: 700,
-            vp_height: 400,
-            render_points: true
+            vp_height: 400
         };
         
         if (id) options.id = id;
         
         switch(props.chartType) {
             case 'LINE':
-                options['x_key'] = 'x_key';
-                options['multi_y'] = true;
-                options['type'] = 'line';
+                options.time_key = 'x_key';
+                options.data = this.tuples;
             break;
             
             case 'CANDLE':
