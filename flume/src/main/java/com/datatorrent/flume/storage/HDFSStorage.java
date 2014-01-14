@@ -56,6 +56,10 @@ public class HDFSStorage implements Storage, Configurable
    */
   private long fileCounter;
   /**
+   * This identifies the file number that has been flushed
+   */
+  private long flushedFileCounter;
+  /**
    * The file that stores the fileCounter information
    */
   private Path fileCounterFile;
@@ -143,6 +147,7 @@ public class HDFSStorage implements Storage, Configurable
         if (restore) {
           if (fs.exists(fileCounterFile) && fs.isFile(fileCounterFile)) {
             fileCounter = Long.valueOf(new String(readData(fileCounterFile)));
+            
           }
           if (fs.exists(cleanFileCounterFile) && fs.isFile(cleanFileCounterFile)) {
             cleanedFileCounter = Long.valueOf(new String(readData(cleanFileCounterFile)));
@@ -151,6 +156,7 @@ public class HDFSStorage implements Storage, Configurable
             cleanedOffset = readData(cleanFileOffsetFile);
           }
         }
+        flushedFileCounter = fileCounter;
       } catch (IOException io) {
         throw new RuntimeException(io);
       }
@@ -258,6 +264,11 @@ public class HDFSStorage implements Storage, Configurable
       skipOffset = retrievalOffset;
       return null;
     }
+    
+    if(retrievalFile >= flushedFileCounter  && retrievalFile <= fileCounter){
+      logger.warn("data not flushed for the given identifier");
+      return null;
+    }
 
     // making sure that the deleted address is not requested again
     if (retrievalFile != 0 || retrievalOffset != 0) {
@@ -287,7 +298,7 @@ public class HDFSStorage implements Storage, Configurable
       }
       byte[] flushedOffset = readData(new Path(baseDir + PATH_SEPARATOR + retrievalFile + OFFSET_SUFFIX));
       flushedLong = Server.readLong(flushedOffset, 0);
-      while (retrievalOffset >= flushedLong && retrievalFile < fileCounter) {
+      while (retrievalOffset >= flushedLong && retrievalFile < flushedFileCounter) {
         retrievalFile++;
         retrievalOffset -= flushedLong;
         flushedOffset = readData(new Path(baseDir + PATH_SEPARATOR + retrievalFile + OFFSET_SUFFIX));
@@ -295,7 +306,8 @@ public class HDFSStorage implements Storage, Configurable
       }
 
       if (retrievalFile >= fileCounter) {
-        throw new RuntimeException("Not a valid address");
+        logger.warn("data not flushed for the given identifier");
+        return null;
       }
       readStream = new FSDataInputStream(fs.open(new Path(baseDir + PATH_SEPARATOR + retrievalFile)));
       readStream.seek(retrievalOffset);
@@ -330,6 +342,10 @@ public class HDFSStorage implements Storage, Configurable
     if (retrievalFile == -1) {
       throw new RuntimeException("Call retrieve first");
     }
+    if (retrievalFile >= flushedFileCounter) {
+      logger.warn("data is not flushed");
+      return null;
+    }
     try {
       if (readStream == null) {
         readStream = new FSDataInputStream(fs.open(new Path(baseDir + PATH_SEPARATOR + (retrievalFile))));
@@ -339,8 +355,8 @@ public class HDFSStorage implements Storage, Configurable
       if (retrievalOffset >= flushedLong) {
         retrievalFile++;
         retrievalOffset=0;
-        if (retrievalFile >= fileCounter) {
-          logger.warn("read File is greater than write file");
+        if (retrievalFile >= flushedFileCounter) {
+          logger.warn("data is not flushed");
           return null;
         }
         readStream.close();
@@ -413,6 +429,7 @@ public class HDFSStorage implements Storage, Configurable
     while (itr.hasNext()) {
       itr.next().close();
     }
+    flushedFileCounter = fileCounter;
     files2Commit.clear();
   }
 
