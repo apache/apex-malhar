@@ -18,6 +18,10 @@ var _ = require('underscore');
 var kt = require('knights-templar');
 var BaseView = require('bassview');
 
+// modals
+var LicenseModal = require('../LicenseModalView');
+var GatewayInfoModal = require('../GatewayInfoModalView');
+
 /**
  * Header View
  * 
@@ -41,15 +45,25 @@ var Header = BaseView.extend({
     
     events: {
         'click .displayLicenseInfo': 'displayLicenseInfo',
-        'click .displayVersion': 'displayVersion'
+        'click .displayGatewayInfo': 'displayGatewayInfo'
     },
 
-    displayVersion: function(e) {
+    displayGatewayInfo: function(e) {
         e.preventDefault();
+        if (!this.gatewayInfoModal) {
+            this.gatewayInfoModal = new GatewayInfoModal({});
+            this.gatewayInfoModal.addToDOM();
+        }
+        this.gatewayInfoModal.launch();
     },
 
     displayLicenseInfo: function(e) {
         e.preventDefault();
+        if (!this.licenseModal) {
+            this.licenseModal = new LicenseModal({});
+            this.licenseModal.addToDOM();
+        }
+        this.licenseModal.launch();
     },
     
     render: function() {
@@ -58,12 +72,8 @@ var Header = BaseView.extend({
             client_logo: "client_logo_hadoop.jpg",
             version: this.UIVersion
         });
-        // this.$('#header .brand').tooltip('destroy');
         this.$el.html(markup);
         this.$el.addClass('navbar-fixed-top').addClass('navbar');
-        // this.$('#header .brand').tooltip({
-        //     position: { my: "left-10 top+5", at: "middle bottom", collision: "flipfit" }
-        // });
         return this;
     },
 

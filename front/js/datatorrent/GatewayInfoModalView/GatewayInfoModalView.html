@@ -1,0 +1,14 @@
+<% if (version !== false) {  %>
+
+	<p>
+		<strong>version:</strong> <%= version %><br>
+		<strong>date:</strong> <%= date %><br>
+		<strong>revision:</strong> <%= revision %><br>
+		<strong>buildVersion:</strong> <%= buildVersion %><br>
+		<strong>user:</strong> <%= user %><br>
+	</p>
+	
+
+<% } else { %>
+	<%= DT.text('Loading gateway information...') %>
+<% } %>
