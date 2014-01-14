@@ -19,7 +19,6 @@ import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitionable;
 import com.datatorrent.api.Partitionable.Partition;
 import com.datatorrent.api.Partitionable.PartitionKeys;
-import com.datatorrent.contrib.redis.old.RedisOutputOperator;
 import com.datatorrent.lib.db.AbstractTransactionableStoreOutputOperator;
 import com.datatorrent.lib.db.TransactionableKeyValueStore;
 import com.google.common.collect.Sets;
@@ -36,7 +35,7 @@ import redis.clients.jedis.Transaction;
  */
 public class RedisStore implements TransactionableKeyValueStore
 {
-  private static final Logger LOG = LoggerFactory.getLogger(RedisOutputOperator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(RedisStore.class);
   protected transient Jedis jedis;
   private String host = "localhost";
   private int port = 6379;
@@ -182,12 +181,26 @@ public class RedisStore implements TransactionableKeyValueStore
     transaction = null;
   }
 
+  /**
+   * Gets the value given the key.
+   * Note that it does NOT work with hash values or list values
+   *
+   * @param key
+   * @return
+   */
   @Override
   public Object get(Object key)
   {
     return jedis.get(key.toString());
   }
 
+  /**
+   * Gets all the values given the keys.
+   * Note that it does NOT work with hash values or list values
+   *
+   * @param keys
+   * @return
+   */
   @Override
   public List<Object> getAll(List<Object> keys)
   {
@@ -197,7 +210,12 @@ public class RedisStore implements TransactionableKeyValueStore
   @Override
   public void put(Object key, Object value)
   {
-    jedis.set(key.toString(), value.toString());
+    if (value instanceof Map) {
+      jedis.hmset(host, (Map)value);
+    }
+    else {
+      jedis.set(key.toString(), value.toString());
+    }
     if (keyExpiryTime != -1) {
       jedis.expire(key.toString(), keyExpiryTime);
     }

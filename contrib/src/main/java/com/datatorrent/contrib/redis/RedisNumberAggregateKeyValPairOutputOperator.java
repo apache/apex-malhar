@@ -13,8 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.datatorrent.contrib.redis;
+
+import com.datatorrent.lib.util.KeyValPair;
+import java.util.Map;
 
 /**
- * Redis operators and utilities.
+ * <p>RedisNumberAggregateKeyValPairOutputOperator class.</p>
+ *
+ * @since 0.3.2
  */
-package com.datatorrent.contrib.redis.old;
+public class RedisNumberAggregateKeyValPairOutputOperator<K, V> extends RedisAggregateKeyValPairOutputOperator<K, V>
+{
+  private NumberAggregation<K, V> numberAggregation = new NumberAggregation<K, V>(store, dataMap);
+
+  @Override
+  public void processTuple(KeyValPair<K, V> t)
+  {
+    numberAggregation.process(t.getKey(), t.getValue());
+  }
+
+  @Override
+  public void storeAggregate()
+  {
+    numberAggregation.storeAggregate();
+  }
+
+}

@@ -15,12 +15,7 @@
  */
 package com.datatorrent.contrib.redis;
 
-import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.lang.mutable.MutableDouble;
-import org.apache.commons.lang.mutable.MutableLong;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>RedisNumberAggregateMapOutputOperator class.</p>
@@ -29,113 +24,20 @@ import org.slf4j.LoggerFactory;
  */
 public class RedisNumberAggregateMapOutputOperator<K, V> extends RedisAggregateMapOutputOperator<K, V>
 {
-  private static final Logger LOG = LoggerFactory.getLogger(RedisNumberAggregateMapOutputOperator.class);
-
-  protected Number convertToNumber(Object o)
-  {
-    if (o == null) {
-      return null;
-    }
-    else if (o instanceof MutableDouble || o instanceof MutableLong) {
-      return (Number)o;
-    }
-    else if (o instanceof Double || o instanceof Float) {
-      return new MutableDouble((Number)o);
-    }
-    else if (o instanceof Number) {
-      return new MutableLong((Number)o);
-    }
-    else {
-      return new MutableDouble(o.toString());
-    }
-  }
+  private NumberAggregation<K,V> numberAggregation = new NumberAggregation<K,V>(store, dataMap);
 
   @Override
   public void processTuple(Map<K, V> t)
   {
     for (Map.Entry<K, V> entry : t.entrySet()) {
-      process(entry.getKey(), entry.getValue());
+      numberAggregation.process(entry.getKey(), entry.getValue());
     }
   }
 
   @Override
   public void storeAggregate()
   {
-    for (Map.Entry<Object, Object> entry : dataMap.entrySet()) {
-      String key = entry.getKey().toString();
-      Object value = entry.getValue();
-      if (value instanceof Map) {
-        for (Map.Entry<Object, Object> entry1 : ((Map<Object, Object>)value).entrySet()) {
-          String field = entry1.getKey().toString();
-          Object hvalue = entry1.getValue();
-          if (hvalue instanceof Number) {
-            store.hincrByFloat(key, field, ((Number)hvalue).doubleValue());
-          }
-          else {
-            store.hincrByFloat(key, field, Double.parseDouble(hvalue.toString()));
-          }
-        }
-      }
-      else {
-        if (value instanceof Number) {
-          store.incrByFloat(key, ((Number)value).doubleValue());
-        }
-        else {
-          store.incrByFloat(key, Double.parseDouble(value.toString()));
-        }
-      }
-    }
-  }
-
-  public void process(K key, V value) throws RuntimeException
-  {
-    if (value instanceof Map) {
-      Object o = dataMap.get(key);
-      if (o == null) {
-        o = new HashMap<Object, Object>();
-        dataMap.put(key, o);
-      }
-
-      if (!(o instanceof Map)) {
-        throw new RuntimeException("Values of unexpected type in data map. Expecting Map");
-      }
-      Map<Object, Object> map = (Map<Object, Object>)o;
-      for (Map.Entry<Object, Object> entry1 : ((Map<Object, Object>)value).entrySet()) {
-        Object field = entry1.getKey();
-        Number oldVal = (Number)map.get(field);
-        if (oldVal == null) {
-          map.put(field, convertToNumber(entry1.getValue()));
-        }
-        else if (oldVal instanceof MutableDouble) {
-          ((MutableDouble)oldVal).add(convertToNumber(entry1.getValue()));
-        }
-        else if (oldVal instanceof MutableLong) {
-          ((MutableLong)oldVal).add(convertToNumber(entry1.getValue()));
-        }
-        else {
-          throw new RuntimeException("Values of unexpected type in data map value field type. Expecting MutableLong or MutableDouble");
-        }
-      }
-    }
-    else {
-      Number oldVal = convertToNumber(dataMap.get(key));
-      if (oldVal == null) {
-        dataMap.put(key, convertToNumber(value));
-      }
-      else {
-        if (oldVal instanceof MutableDouble) {
-          ((MutableDouble)oldVal).add(convertToNumber(value));
-        }
-        else if (oldVal instanceof MutableLong) {
-          ((MutableLong)oldVal).add(convertToNumber(value));
-        }
-        else {
-          // should not get here
-          throw new RuntimeException("Values of unexpected type in data map value type. Expecting MutableLong or MutableDouble");
-        }
-      }
-
-    }
+    numberAggregation.storeAggregate();
   }
 
 }

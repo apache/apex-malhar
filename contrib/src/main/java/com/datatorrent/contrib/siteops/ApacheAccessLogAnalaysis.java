@@ -24,9 +24,9 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.contrib.redis.RedisAggregateMapOutputOperator;
 
-import com.datatorrent.contrib.redis.old.RedisNumberAggregateOutputOperator;
-import com.datatorrent.contrib.redis.old.RedisOutputOperator;
+import com.datatorrent.contrib.redis.RedisNumberAggregateMapOutputOperator;
 import com.datatorrent.lib.io.ApacheGenRandomLogs;
 import com.datatorrent.lib.logs.ApacheVirtualLogParseOperator;
 import com.datatorrent.lib.math.Sum;
@@ -66,8 +66,8 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
   public InputPort<Map<String, Map<String, Number>>> getRedisOutput(String name, DAG dag, int dbIndex)
   {
     @SuppressWarnings("unchecked")
-		RedisNumberAggregateOutputOperator<String, Map<String, Number>> oper = dag.addOperator(name, RedisNumberAggregateOutputOperator.class);
-    oper.setDatabase(dbIndex);
+		RedisNumberAggregateMapOutputOperator<String, Map<String, Number>> oper = dag.addOperator(name, RedisNumberAggregateMapOutputOperator.class);
+    oper.getStore().setDbIndex(dbIndex);
     return oper.input;
   }
 
@@ -101,8 +101,8 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
   	dag.addStream("topOccurStream", urlCounter.outport, topOccur.inport);
 
   	// redix output
-  	RedisOutputOperator<Integer, String> redis = dag.addOperator("redisapachelog2", new RedisOutputOperator<Integer, String>());
-  	redis.setDatabase(2);
+  	RedisAggregateMapOutputOperator<Integer, String> redis = dag.addOperator("redisapachelog2", new RedisAggregateMapOutputOperator<Integer, String>());
+  	redis.getStore().setDbIndex(2);
 
   	// output to console
     dag.addStream("rand_console", topOccur.outport, redis.input).setLocality(Locality.CONTAINER_LOCAL);
@@ -131,8 +131,8 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
     //dag.addStream("redisgt8Stream", serverTop.outport,  consoleOutput(dag, "console")).setInline(true);
 
     // redix output
-    RedisOutputOperator<Integer, String> redis10 = dag.addOperator("redisapachelog10", new RedisOutputOperator<Integer, String>());
-   	redis10.setDatabase(10);
+    RedisAggregateMapOutputOperator<Integer, String> redis10 = dag.addOperator("redisapachelog10", new RedisAggregateMapOutputOperator<Integer, String>());
+   	redis10.getStore().setDbIndex(10);
    	dag.addStream("rand_console10", serverTop.outport, redis10.input).setLocality(Locality.CONTAINER_LOCAL);
 
     // count ip occurance operator
@@ -147,13 +147,13 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
   	dag.addStream("topIpOccurStream", ipCounter.outport, topIpOccur.inport).setLocality(Locality.CONTAINER_LOCAL);
 
   	// output  ip counter
-  	RedisOutputOperator<Integer, String> redisIpCounter = dag.addOperator("redisapachelog3", new RedisOutputOperator<Integer, String>());
-  	redisIpCounter.setDatabase(3);
+  	RedisAggregateMapOutputOperator<Integer, String> redisIpCounter = dag.addOperator("redisapachelog3", new RedisAggregateMapOutputOperator<Integer, String>());
+  	redisIpCounter.getStore().setDbIndex(3);
   	dag.addStream("topIpRedixStream", topIpOccur.outport,  redisIpCounter.input).setLocality(Locality.CONTAINER_LOCAL);
 
     // output client more than 5 urls in sec
-    RedisOutputOperator<Integer, String> redisgt5 = dag.addOperator("redisapachelog5", new RedisOutputOperator<Integer, String>());
-    redisgt5.setDatabase(5);
+    RedisAggregateMapOutputOperator<Integer, String> redisgt5 = dag.addOperator("redisapachelog5", new RedisAggregateMapOutputOperator<Integer, String>());
+    redisgt5.getStore().setDbIndex(5);
    	dag.addStream("redisgt5Stream", topIpOccur.gtThreshHold,  redisgt5.input).setLocality(Locality.CONTAINER_LOCAL);
 
    	// get filter status operator
@@ -165,16 +165,16 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
    	topUrlStatus.setN(10);
    	dag.addStream("topUrlStatusStream", urlHttpFilter.outport,  topUrlStatus.inport).setLocality(Locality.CONTAINER_LOCAL);
    // dag.addStream("testconsole", topUrlStatus.outport,  consoleOutput(dag, "console")).setInline(true);
-  	RedisOutputOperator<Integer, String> redisgt7 = dag.addOperator("redisapachelog7", new RedisOutputOperator<Integer, String>());
-    redisgt7.setDatabase(7);
+  	RedisAggregateMapOutputOperator<Integer, String> redisgt7 = dag.addOperator("redisapachelog7", new RedisAggregateMapOutputOperator<Integer, String>());
+    redisgt7.getStore().setDbIndex(7);
     dag.addStream("redisgt7Stream", topUrlStatus.outport,  redisgt7.input).setLocality(Locality.CONTAINER_LOCAL);
 
    	// client data usage
    	Sum<Integer> totalOper =  dag.addOperator("totaloper", new Sum<Integer>());
    	dag.getMeta(totalOper).getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, 2);
    	dag.addStream("clientDataFilterStream", parser.clientDataUsage, totalOper.data).setLocality(Locality.CONTAINER_LOCAL);
-   	RedisOutputOperator<Integer, Integer> redisgt9 = dag.addOperator("redisapachelog9", new RedisOutputOperator<Integer, Integer>());
-    redisgt9.setDatabase(9);
+   	RedisAggregateMapOutputOperator<Integer, Integer> redisgt9 = dag.addOperator("redisapachelog9", new RedisAggregateMapOutputOperator<Integer, Integer>());
+    redisgt9.getStore().setDbIndex(9);
    	dag.addStream("redisgt9Stream", totalOper.redisport,  redisgt9.input).setLocality(Locality.CONTAINER_LOCAL);
    	//dag.addStream("redisgt9Stream", clientDataFilter.redisport,  consoleOutput(dag, "console")).setInline(true);  */
 
@@ -186,8 +186,8 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
    	TopOccurance serverTop404 = dag.addOperator("serverTop404", new TopOccurance());
    	serverTop404.setN(10);
    	dag.addStream("serverTop404Stream", serverHttpFilter.outport,  serverTop404.inport).setLocality(Locality.CONTAINER_LOCAL);
-  	RedisOutputOperator<Integer, String> redisgt8 = dag.addOperator("redisapachelog8", new RedisOutputOperator<Integer, String>());
-    redisgt8.setDatabase(8);
+  	RedisAggregateMapOutputOperator<Integer, String> redisgt8 = dag.addOperator("redisapachelog8", new RedisAggregateMapOutputOperator<Integer, String>());
+    redisgt8.getStore().setDbIndex(8);
     dag.addStream("redisgt8Stream", serverTop404.outport,  redisgt8.input).setLocality(Locality.CONTAINER_LOCAL);
 
     // data collect for each
@@ -198,8 +198,8 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
     topIpData.setN(10);
     dag.addStream("topIpDataStream", ipDataCollect.outport,  topIpData.inport).setLocality(Locality.CONTAINER_LOCAL);
     //dag.addStream("consoletest", topIpData.outport,  consoleOutput(dag, "console")).setInline(true);
-    RedisOutputOperator<Integer, String> redisgt6 = dag.addOperator("redisapachelog6", new RedisOutputOperator<Integer, String>());
-    redisgt6.setDatabase(6);
+    RedisAggregateMapOutputOperator<Integer, String> redisgt6 = dag.addOperator("redisapachelog6", new RedisAggregateMapOutputOperator<Integer, String>());
+    redisgt6.getStore().setDbIndex(6);
     dag.addStream("redisgt6Stream", topIpData.outport,  redisgt6.input).setLocality(Locality.CONTAINER_LOCAL);
 
     // total view count
@@ -207,8 +207,8 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
    	dag.getMeta(totalViewcount).getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, 2);
    	dag.addStream("totalViewcountStream", parser.viewCount, totalViewcount.inport).setLocality(Locality.CONTAINER_LOCAL);
    	//dag.addStream("consoletest", totalViewcount.sumInteger,  consoleOutput(dag, "console")).setInline(true);
-   	RedisOutputOperator<Integer, Integer> redisgt11 = dag.addOperator("redisapachelog11", new RedisOutputOperator<Integer, Integer>());
-    redisgt11.setDatabase(11);
+   	RedisAggregateMapOutputOperator<Integer, Integer> redisgt11 = dag.addOperator("redisapachelog11", new RedisAggregateMapOutputOperator<Integer, Integer>());
+    redisgt11.getStore().setDbIndex(11);
     dag.addStream("redisgtlog11Stream", totalViewcount.outport,  redisgt11.input).setLocality(Locality.CONTAINER_LOCAL);
   }
 }
