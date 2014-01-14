@@ -57,6 +57,11 @@ var ModalView = BaseView.extend({
 
 	},
 
+	addToDOM: function() {
+		$('body').append(this.render().$el);
+		return this;
+	},
+
 	events: {
 		'click .cancelBtn': 'onCancel',
 		'click .confirmBtn': 'onConfirm'
