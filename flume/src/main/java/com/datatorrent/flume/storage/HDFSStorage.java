@@ -36,6 +36,7 @@ public class HDFSStorage implements Storage, Configurable
   private static final String identityFileName = "/counter";
   private static final String cleanFileName = "/clean-counter";
   private static final String offsetFileName = "/offsetFile";
+  private static final String cleanoffsetFileName = "/cleanoffsetFile";
   public static final String BASE_DIR_KEY = "baseDir";
   public static final String OFFSET_KEY = "offset";
   public static final String RESTORE_KEY = "restore";
@@ -62,6 +63,10 @@ public class HDFSStorage implements Storage, Configurable
    * The file that stores the clean file counter information
    */
   private Path cleanFileCounterFile;
+  /**
+   * The file that stores the clean file offset information
+   */
+  private Path cleanFileOffsetFile;
   private Path offsetFile;
   private FileSystem fs;
   private FSDataOutputStream dataStream;
@@ -77,7 +82,8 @@ public class HDFSStorage implements Storage, Configurable
   private long retrievalOffset;
   private long retrievalFile;
   private int offset;
-  private byte[] flushedOffset = new byte[8];;
+  private byte[] flushedOffset = new byte[8];
+  private byte[] cleanedOffset = new byte[8];
   private long skipOffset;
   private String id;
 
@@ -114,19 +120,20 @@ public class HDFSStorage implements Storage, Configurable
         }
         baseDir = baseDir + "/" + id;
         path = new Path(baseDir);
-        if(!restore){
+        if (!restore) {
           fs.delete(path, true);
         }
         if (!fs.exists(path) || !fs.isDirectory(path)) {
           fs.mkdirs(path);
         }
-        
+
         blockSize = ctx.getLong(BLOCKSIZE, fs.getDefaultBlockSize(path));
         fileCounter = 0;
         cleanedFileCounter = -1;
         retrievalFile = -1;
         fileCounterFile = new Path(baseDir + identityFileName);
         cleanFileCounterFile = new Path(baseDir + cleanFileName);
+        cleanFileOffsetFile = new Path(baseDir + cleanoffsetFileName);
         offsetFile = new Path(baseDir + offsetFileName);
         if (restore) {
           if (fs.exists(fileCounterFile) && fs.isFile(fileCounterFile)) {
@@ -138,10 +145,10 @@ public class HDFSStorage implements Storage, Configurable
           if (fs.exists(offsetFile) && fs.isFile(offsetFile)) {
             flushedOffset = readData(offsetFile);
           }
-        } else {          
-          writeData(cleanFileCounterFile, String.valueOf(cleanedFileCounter).getBytes()).close();
+          if(fs.exists(cleanFileOffsetFile) && fs.isFile(cleanFileOffsetFile)){
+            cleanedOffset = readData(cleanFileOffsetFile);
+          }
         }
-
       } catch (IOException io) {
         throw new RuntimeException(io);
       }
@@ -209,7 +216,8 @@ public class HDFSStorage implements Storage, Configurable
         if (fileWriteOffset >= skipOffset) {
           fileOffset = new byte[IDENTIFIER_SIZE];
           Server.writeLong(fileOffset, 0, calculateOffset(fileWriteOffset, fileCounter));
-          // once the current file write offset becomes greater than skip offset, skip offset needs to be reset to -1 o/w for all subsequent files as well store will return null till skipoffset 
+          // once the current file write offset becomes greater than skip offset, skip offset needs to be reset to -1
+          // o/w for all subsequent files as well store will return null till skipoffset
           skipOffset = -1;
         }
 
@@ -256,16 +264,22 @@ public class HDFSStorage implements Storage, Configurable
         readStream.close();
       }
       if (!fs.exists(new Path(baseDir + "/" + retrievalFile))) {
-        if (retrievalFile == 0 && retrievalOffset == 0 && fileCounter ==0 && fileWriteOffset == 0) {
-          skipOffset = retrievalOffset;
+        if (retrievalFile == 0 && retrievalOffset == 0) {
           // we have just started, so returning null
-          return null;
+          if (fileCounter == 0 && fileWriteOffset == 0) {
+            skipOffset = retrievalOffset;
+            return null;
+          }else{
+            // we are restoring from a crash.
+            retrievalOffset = byteArrayToLong(cleanedOffset, 0);
+            retrievalFile = byteArrayToLong(cleanedOffset, offset);                        
+          }
         } else {
           retrievalFile = -1;
           throw new RuntimeException("Not a valid address");
         }
       }
-      
+
       // if the current file being written is same as the file to read then close the file being written
       if (fileCounter == retrievalFile) {
         close();
@@ -282,13 +296,13 @@ public class HDFSStorage implements Storage, Configurable
           retrievalOffset -= byteArrayToLong(flushedOffset, 0);
           return retrieveFailure();
         } catch (Exception e1) {
-          retrievalFile=-1;
+          retrievalFile = -1;
           skipOffset = retrievalOffset;
           retrievalOffset += byteArrayToLong(flushedOffset, 0);
           throw new RuntimeException(e1);
         }
       } else {
-        retrievalFile=-1;
+        retrievalFile = -1;
         throw new RuntimeException(e);
       }
     }
@@ -372,6 +386,7 @@ public class HDFSStorage implements Storage, Configurable
         ++cleanedFileCounter;
       } while (cleanedFileCounter < cleanFileIndex);
       writeData(cleanFileCounterFile, String.valueOf(cleanedFileCounter).getBytes()).close();
+      writeData(cleanFileOffsetFile, identifier).close();
     } catch (IOException e) {
       logger.warn("not able to close the streams {}", e.getMessage());
       throw new RuntimeException(e);
@@ -384,7 +399,7 @@ public class HDFSStorage implements Storage, Configurable
   public void cleanHelperFiles()
   {
     try {
-      fs.delete( new Path(baseDir), true);
+      fs.delete(new Path(baseDir), true);
     } catch (IOException e) {
       logger.warn(e.getMessage());
     }
