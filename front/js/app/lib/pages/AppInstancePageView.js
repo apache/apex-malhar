@@ -27,7 +27,6 @@ var InstanceOverviewWidget = require('../widgets/InstanceOverviewWidget');
 var PhysOpListWidget = require('../widgets/PhysOpListWidget');
 var LogicalOpListWidget = require('../widgets/LogicalOpListWidget');
 var CtnrListWidget = require('../widgets/CtnrListWidget');
-var OpChartWidget = require('../widgets/OpChartWidget');
 var AppMetricsWidget = require('../widgets/AppMetricsWidget');
 var RecListWidget = require('../widgets/RecListWidget');
 var StreamListWidget = require('../widgets/StreamListWidget');
@@ -193,16 +192,16 @@ var AppInstancePageView = BasePageView.extend({
                         pageParams: pageParams
                     }
                 },
-                {
-                    name: 'operatorChart',
-                    defaultId: 'operator chart',
-                    view: OpChartWidget,
-                    limit: 0, 
-                    inject: {
-                        dataSource: this.dataSource,
-                        model: this.model
-                    }
-                },
+                // {
+                //     name: 'operatorChart',
+                //     defaultId: 'operator chart',
+                //     view: OpChartWidget,
+                //     limit: 0, 
+                //     inject: {
+                //         dataSource: this.dataSource,
+                //         model: this.model
+                //     }
+                // },
                 {
                     name: 'alerts',
                     defaultId: 'alert list',
