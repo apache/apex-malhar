@@ -10,6 +10,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.common.primitives.Ints;
+import com.google.common.primitives.Longs;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.flume.Context;
 import org.apache.flume.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
@@ -17,12 +23,8 @@ import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.datatorrent.flume.sink.Server;
-import com.google.common.primitives.Ints;
-import com.google.common.primitives.Longs;
 
 /**
  * HDFSStorage is developed to store and retrieve the data from HDFS
@@ -31,7 +33,7 @@ import com.google.common.primitives.Longs;
  * baseDir - The base directory where the data is going to be stored <br />
  * restore - This is used to restore the application from previous failure <br />
  * blockSize - The maximum size of the each file to created. <br />
- * 
+ *
  * @author Gaurav Gupta <gaurav@datatorrent.com>
  */
 public class HDFSStorage implements Storage, Configurable
@@ -98,7 +100,7 @@ public class HDFSStorage implements Storage, Configurable
 
   /**
    * This stores the Identifier information identified in the last store function call
-   * 
+   *
    * @param ctx
    */
   // private byte[] fileOffset = new byte[IDENTIFIER_SIZE];
@@ -168,7 +170,7 @@ public class HDFSStorage implements Storage, Configurable
 
   /**
    * This function reads the file at a location and return the bytes stored in the file "
-   * 
+   *
    * @param path
    *          - the location of the file
    * @return
@@ -185,7 +187,7 @@ public class HDFSStorage implements Storage, Configurable
 
   /**
    * This function writes the bytes to a file specified by the path
-   * 
+   *
    * @param path
    *          the file location
    * @param data
@@ -241,7 +243,7 @@ public class HDFSStorage implements Storage, Configurable
   }
 
   /**
-   * 
+   *
    * @param b
    * @param size
    * @param startIndex
@@ -274,7 +276,8 @@ public class HDFSStorage implements Storage, Configurable
       return null;
     }
 
-    if (retrievalFile >= flushedFileCounter && retrievalFile <= fileCounter) {
+
+    if(retrievalFile >= flushedFileCounter  && retrievalFile <= fileCounter){
       logger.warn("data not flushed for the given identifier");
       return null;
     }
@@ -335,8 +338,8 @@ public class HDFSStorage implements Storage, Configurable
     }
     retrievalOffset += length + DATA_LENGTH_BYTE_SIZE;
     if (retrievalOffset >= flushedLong) {
-      Server.writeLong(data, 0, calculateOffset(0, retrievalFile + 1));
-    } else {
+      Server.writeLong(data, 0, calculateOffset(0, retrievalFile+1));
+    }else{
       Server.writeLong(data, 0, calculateOffset(retrievalOffset, retrievalFile));
     }
     return data;
