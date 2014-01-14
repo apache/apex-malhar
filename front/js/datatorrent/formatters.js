@@ -51,7 +51,8 @@ function statusClassFormatter(status) {
 
 function logicalOpStatusFormatter(statuses) {
     var strings = _.map(statuses, function(val, key) {
-        return val.length + ' <span class="' + statusClassFormatter(key) + '">' + key + '</span>';
+        // return val.length + ' <span class="' + statusClassFormatter(key) + '">' + key + '</span>';
+        return ' <span class="' + statusClassFormatter(key) + '" title="' + val.length + ' ' + key + '">' + val.length + '</span>';
     }, '');
     return strings.join(', ');
 };
@@ -65,6 +66,7 @@ function percentageFormatter(value, isNumerator) {
 };
 
 function byteFormatter(bytes) {
+    bytes *= 1;
     var precision = 1;
     var kilobyte = 1024;
     var megabyte = kilobyte * 1024;
