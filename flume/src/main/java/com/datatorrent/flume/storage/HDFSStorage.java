@@ -209,6 +209,8 @@ public class HDFSStorage implements Storage, Configurable
         if (fileWriteOffset >= skipOffset) {
           fileOffset = new byte[IDENTIFIER_SIZE];
           Server.writeLong(fileOffset, 0, calculateOffset(fileWriteOffset, fileCounter));
+          // once the current file write offset becomes greater than skip offset, skip offset needs to be reset to -1 o/w for all subsequent files as well store will return null till skipoffset 
+          skipOffset = -1;
         }
 
         return fileOffset;
@@ -259,7 +261,8 @@ public class HDFSStorage implements Storage, Configurable
           // we have just started, so returning null
           return null;
         } else {
-          throw new RuntimeException("file " + retrievalFile + " doesn't exist");
+          retrievalFile = -1;
+          throw new RuntimeException("Not a valid address");
         }
       }
       
@@ -279,12 +282,13 @@ public class HDFSStorage implements Storage, Configurable
           retrievalOffset -= byteArrayToLong(flushedOffset, 0);
           return retrieveFailure();
         } catch (Exception e1) {
-          retrievalFile--;
+          retrievalFile=-1;
           skipOffset = retrievalOffset;
           retrievalOffset += byteArrayToLong(flushedOffset, 0);
           throw new RuntimeException(e1);
         }
       } else {
+        retrievalFile=-1;
         throw new RuntimeException(e);
       }
     }
@@ -335,7 +339,8 @@ public class HDFSStorage implements Storage, Configurable
 
       if (readStream.available() < 1) {
         if (retrievalFile > fileCounter) {
-          throw new RuntimeException("no records available");
+          logger.error("read File is greater than write file");
+          return null;
         }
         readStream.close();
         // if the current file being written is same as the file to read then close the file being written
@@ -347,7 +352,7 @@ public class HDFSStorage implements Storage, Configurable
       return retrieveHelper();
     } catch (IOException e) {
       logger.warn(" error while retrieving {}", e.getMessage());
-      throw new RuntimeException(e);
+      return null;
     }
   }
 
