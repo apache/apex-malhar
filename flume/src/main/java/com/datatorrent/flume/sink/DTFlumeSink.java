@@ -143,6 +143,9 @@ public class DTFlumeSink extends AbstractSink implements Configurable
     if (maxTuples >= maximumEventsPerTransaction) {
       maxTuples = maximumEventsPerTransaction;
     }
+    else if (maxTuples <= 0) {
+      maxTuples = minimumEventsPerTransaction;
+    }
 
     if (maxTuples > 0) {
       if (playback != null) {
@@ -176,6 +179,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
           Event e;
           while (i < maxTuples && (e = getChannel().take()) != null) {
             byte[] address = storage.store(e.getBody());
+            logger.debug("got data {} from channel - address = {}", e.getBody(), address);
             if (address != null) {
               while (!client.write(address, e.getBody())) {
                 try {
@@ -272,7 +276,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
         eventloop.disconnect(client);
         client = null;
       }
-      
+
       eventloop.stop(server);
       eventloop.stop();
       if (discovery instanceof Component) {
