@@ -147,7 +147,7 @@ public class HDFSStorage implements Storage, Configurable
         if (restore) {
           if (fs.exists(fileCounterFile) && fs.isFile(fileCounterFile)) {
             fileCounter = Long.valueOf(new String(readData(fileCounterFile)));
-            
+
           }
           if (fs.exists(cleanFileCounterFile) && fs.isFile(cleanFileCounterFile)) {
             cleanedFileCounter = Long.valueOf(new String(readData(cleanFileCounterFile)));
@@ -234,7 +234,7 @@ public class HDFSStorage implements Storage, Configurable
         throw new RuntimeException(ex);
       }
     }
-    files2Commit.add(new DataBlock(dataStream, fileWriteOffset, new Path(baseDir + PATH_SEPARATOR + fileCounter + OFFSET_SUFFIX)));
+    files2Commit.add(new DataBlock(dataStream, fileWriteOffset, new Path(baseDir + PATH_SEPARATOR + fileCounter + OFFSET_SUFFIX), fileCounter));
     fileWriteOffset = 0;
     ++fileCounter;
     return store(bytes);
@@ -258,14 +258,23 @@ public class HDFSStorage implements Storage, Configurable
   {
     retrievalOffset = byteArrayToLong(identifier, 0);
     retrievalFile = byteArrayToLong(identifier, offset);
+    
+    if (retrievalFile == 0 && retrievalOffset == 0 && fileCounter == 0 && fileWriteOffset == 0) {
+      skipOffset = 0;
+      return null;
+    }
+
+    // flushing the last incomplete flushed file
+    flushInCompleteFlushedFile();
+    
 
     if ((retrievalFile > fileCounter) || (retrievalFile == fileCounter && retrievalOffset >= fileWriteOffset)) {
       skipFile = retrievalFile;
       skipOffset = retrievalOffset;
       return null;
     }
-    
-    if(retrievalFile >= flushedFileCounter  && retrievalFile <= fileCounter){
+
+    if (retrievalFile >= flushedFileCounter && retrievalFile <= fileCounter) {
       logger.warn("data not flushed for the given identifier");
       return null;
     }
@@ -280,10 +289,6 @@ public class HDFSStorage implements Storage, Configurable
 
     // we have just started
     if (retrievalFile == 0 && retrievalOffset == 0) {
-      if (fileCounter == 0 && fileWriteOffset == 0) {
-        skipOffset = 0;
-        return null;
-      }
       retrievalFile = byteArrayToLong(cleanedOffset, offset);
       retrievalOffset = byteArrayToLong(cleanedOffset, 0);
     }
@@ -305,7 +310,7 @@ public class HDFSStorage implements Storage, Configurable
         flushedLong = Server.readLong(flushedOffset, 0);
       }
 
-      if (retrievalFile >= fileCounter) {
+      if (retrievalFile >= flushedFileCounter) {
         logger.warn("data not flushed for the given identifier");
         return null;
       }
@@ -314,7 +319,8 @@ public class HDFSStorage implements Storage, Configurable
       return retrieveHelper();
     } catch (IOException e) {
       retrievalFile = -1;
-      throw new RuntimeException(e);
+      logger.warn(e.getMessage());
+      return null;
 
     }
   }
@@ -329,8 +335,8 @@ public class HDFSStorage implements Storage, Configurable
     }
     retrievalOffset += length + DATA_LENGTH_BYTE_SIZE;
     if (retrievalOffset >= flushedLong) {
-      Server.writeLong(data, 0, calculateOffset(0, retrievalFile+1));       
-    }else{
+      Server.writeLong(data, 0, calculateOffset(0, retrievalFile + 1));
+    } else {
       Server.writeLong(data, 0, calculateOffset(retrievalOffset, retrievalFile));
     }
     return data;
@@ -354,7 +360,7 @@ public class HDFSStorage implements Storage, Configurable
       }
       if (retrievalOffset >= flushedLong) {
         retrievalFile++;
-        retrievalOffset=0;
+        retrievalOffset = 0;
         if (retrievalFile >= flushedFileCounter) {
           logger.warn("data is not flushed");
           return null;
@@ -362,7 +368,7 @@ public class HDFSStorage implements Storage, Configurable
         readStream.close();
         readStream = new FSDataInputStream(fs.open(new Path(baseDir + PATH_SEPARATOR + retrievalFile)));
         byte[] flushedOffset = readData(new Path(baseDir + PATH_SEPARATOR + retrievalFile + OFFSET_SUFFIX));
-        flushedLong = Server.readLong(flushedOffset, 0);        
+        flushedLong = Server.readLong(flushedOffset, 0);
       }
       readStream.seek(retrievalOffset);
       return retrieveHelper();
@@ -411,6 +417,34 @@ public class HDFSStorage implements Storage, Configurable
     }
   }
 
+  private void flushInCompleteFlushedFile()
+  {
+    try {
+      if (flushedFileCounter == fileCounter) {
+        if (dataStream != null) {
+          fileCounter = flushedFileCounter + 1;
+          dataStream.close();
+          writeData(fileCounterFile, String.valueOf(flushedFileCounter + 1).getBytes()).close();
+        }
+      } else {
+        Iterator<DataBlock> itr = files2Commit.iterator();
+        while (itr.hasNext()) {
+          DataBlock db = itr.next();
+          if (db.fileName == flushedFileCounter) {
+            db.dataStream.close();
+          }
+        }
+      }
+      
+
+    } catch (IOException e) {
+      logger.warn(e.getMessage());
+    }
+    files2Commit.clear();   
+    fileWriteOffset = 0;
+
+  }
+
   @Override
   public void flush()
   {
@@ -418,7 +452,7 @@ public class HDFSStorage implements Storage, Configurable
       try {
         dataStream.hflush();
         writeData(fileCounterFile, String.valueOf(fileCounter + 1).getBytes()).close();
-        updateFlushedOffset(new Path(baseDir + PATH_SEPARATOR + fileCounter+OFFSET_SUFFIX), fileWriteOffset);
+        updateFlushedOffset(new Path(baseDir + PATH_SEPARATOR + fileCounter + OFFSET_SUFFIX), fileWriteOffset);
       } catch (IOException ex) {
         logger.warn("not able to close the stream {}", ex.getMessage());
         throw new RuntimeException(ex);
@@ -456,15 +490,17 @@ public class HDFSStorage implements Storage, Configurable
 
   class DataBlock
   {
-    private FSDataOutputStream dataStream;
-    private long dataOffset;
-    private Path flushedData;
+    FSDataOutputStream dataStream;
+    long dataOffset;
+    Path flushedData;
+    long fileName;
 
-    public DataBlock(FSDataOutputStream stream, long bytesWritten, Path path2FlushedData)
+    public DataBlock(FSDataOutputStream stream, long bytesWritten, Path path2FlushedData, long fileName)
     {
       this.dataStream = stream;
       this.dataOffset = bytesWritten;
       this.flushedData = path2FlushedData;
+      this.fileName = fileName;
     }
 
     public void close()
