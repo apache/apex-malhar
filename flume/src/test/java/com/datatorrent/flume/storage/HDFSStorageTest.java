@@ -147,6 +147,8 @@ public class HDFSStorageTest
     Assert.assertNotNull(storage.store(b1));
     Assert.assertNotNull(storage.store(b));
     Assert.assertNotNull(storage.store(b1));
+   // storage.flush();
+    Assert.assertNull(storage.retrieveNext());
     storage.flush();
     byte[] data = storage.retrieveNext();
     byte[] tempData = new byte[data.length - 8];
