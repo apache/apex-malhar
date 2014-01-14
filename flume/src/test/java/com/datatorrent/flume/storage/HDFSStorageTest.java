@@ -7,20 +7,21 @@ package com.datatorrent.flume.storage;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import org.apache.flume.Context;
-import org.apache.flume.conf.Configurable;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.flume.Context;
+import org.apache.flume.conf.Configurable;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+
 import com.datatorrent.flume.sink.Server;
 
 /**
- * 
+ *
  * @author Gaurav Gupta <gaurav@datatorrent.com>
  */
 public class HDFSStorageTest
@@ -66,7 +67,7 @@ public class HDFSStorageTest
     byte[] b = new byte[200];
     Assert.assertNotNull(storage.store(b));
     storage.flush();
-    
+
     storage = getStorage("1", true);
     storage.store(b);
     storage.flush();
@@ -127,7 +128,7 @@ public class HDFSStorageTest
     r.close();
     storage.cleanHelperFiles();
   }
-  
+
   @Test
   public void testRetrieval() throws IOException
   {
@@ -162,7 +163,7 @@ public class HDFSStorageTest
     System.arraycopy(data, 8, tempData, 0, tempData.length);
     System.arraycopy(data, 0, identifier, 0, 8);
     Assert.assertEquals("matched the stored value with retrieved value", new String(b), new String(tempData));
-    
+
     data = storage.retrieveNext();
     tempData = new byte[data.length - 8];
     System.arraycopy(data, 8, tempData, 0, tempData.length);
@@ -172,8 +173,8 @@ public class HDFSStorageTest
     r.close();
   }
 
-  
-  
+
+
   @Test
   public void testFailure() throws IOException
   {
