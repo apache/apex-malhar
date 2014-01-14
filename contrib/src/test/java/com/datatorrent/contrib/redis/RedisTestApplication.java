@@ -1,18 +1,18 @@
 /*
-* Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.datatorrent.contrib.redis;
 
 import org.apache.hadoop.conf.Configuration;
@@ -28,7 +28,6 @@ import com.datatorrent.lib.util.KeyHashValPair;
 
 public class RedisTestApplication implements StreamingApplication
 {
-
   static class RandomNumberGenerator implements InputOperator
   {
     private static final Logger LOG = LoggerFactory.getLogger(RandomNumberGenerator.class);
@@ -64,25 +63,21 @@ public class RedisTestApplication implements StreamingApplication
     int count;
   }
 
-
   public static final Logger logger = LoggerFactory.getLogger(RedisTestApplication.class);
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
     RandomNumberGenerator rng = dag.addOperator("random", new RandomNumberGenerator());
-    RedisAggregateKeyValPairOutputOperator<Integer, Integer> redis = dag.addOperator("redis", new RedisAggregateKeyValPairOutputOperator<Integer,Integer>());
-    String connectionList = conf.get("redsitestapplication.hostlist","localhost,6379,1|localhost,6379,2|localhost,6379,3");
-    int partitions = conf.getInt("redsitestapplication.partition",3);
-    RedisStore redisStore = new RedisStore();
+    RedisAggregateKeyValPairOutputOperator<Integer, Integer> redis = dag.addOperator("redis", new RedisAggregateKeyValPairOutputOperator<Integer, Integer>());
+    String connectionList = conf.get("redsitestapplication.hostlist", "localhost,6379,1|localhost,6379,2|localhost,6379,3");
+    int partitions = conf.getInt("redsitestapplication.partition", 3);
+    RedisStore redisStore = redis.getStore();
     redisStore.setConnectionList(connectionList);
     redisStore.setKeyExpiryTime(60);
-    redis.setStore(redisStore);
     dag.setAttribute(redis, OperatorContext.INITIAL_PARTITION_COUNT, partitions);
     dag.addStream("stream", rng.output, redis.input);
 
   }
-
-
 
 }
