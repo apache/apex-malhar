@@ -13,6 +13,11 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
+var _ = require('underscore');
+var kt = require('knights-templar');
+var BaseView = require('bassview');
+
 /**
  * Header View
  * 
@@ -20,9 +25,6 @@
  * Contains platform/client logo, mode switch
  * (development/operations), sign in
 */
-var _ = require('underscore');
-var kt = require('knights-templar');
-var BaseView = require('bassview');
 var Header = BaseView.extend({
     
     UIVersion: '',
@@ -37,7 +39,18 @@ var Header = BaseView.extend({
         );
     },
     
-    template: kt.make(__dirname+'/HeaderView.html', '_'),
+    events: {
+        'click .displayLicenseInfo': 'displayLicenseInfo',
+        'click .displayVersion': 'displayVersion'
+    },
+
+    displayVersion: function(e) {
+        e.preventDefault();
+    },
+
+    displayLicenseInfo: function(e) {
+        e.preventDefault();
+    },
     
     render: function() {
         var markup = this.template({
@@ -47,11 +60,13 @@ var Header = BaseView.extend({
         });
         // this.$('#header .brand').tooltip('destroy');
         this.$el.html(markup);
+        this.$el.addClass('navbar-fixed-top').addClass('navbar');
         // this.$('#header .brand').tooltip({
         //     position: { my: "left-10 top+5", at: "middle bottom", collision: "flipfit" }
         // });
         return this;
-    }
-    
+    },
+
+    template: kt.make(__dirname+'/HeaderView.html', '_')
 });
 exports = module.exports = Header

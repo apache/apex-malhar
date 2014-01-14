@@ -24,6 +24,7 @@ p {
 }
 #wrapper {
   min-width: 1024px;
+  padding-top: 48px;
 }
 #main {
   background-color: #fafafa;

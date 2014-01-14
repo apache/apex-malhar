@@ -1,27 +1,36 @@
-<div id="header">
-    <a href="#" class="brand" <% if (version) { %>
-        title="version: <%= version %>"
-    <% } %>>DataTorrent</a> <!-- platform logo -->
+<a href="#" class="brand" <% if (version) { %>
+    title="version: <%= version %>"
+<% } %>>DataTorrent</a> <!-- platform logo -->
 
-    <div class="nav-divider-line"></div>
+<!-- <div class="nav-divider-line"></div> -->
 
-    <!-- sign in area -->
-    <!-- <div class="sign-in-container">
-        <a href="#sign-in"></a>
-    </div> -->
+<!-- sign in area -->
+<!-- <div class="sign-in-container">
+    <a href="#sign-in"></a>
+</div> -->
 
+<ul class="dashboard-modes nav">
+    <li class="dropdown">
+        <a href="#" class="dropdown-toggle info-link" data-toggle="dropdown"><i class="icon-info-sign icon-white"></i></a>
+        <ul class="dropdown-menu">
+            <li class="nav-header">basic info</li>
+            <li><a href="#" class="displayLicenseInfo">License Info</a></li>
+            <li><a href="#" class="displayVersion">Version Info</a></li>
+            <li class="divider"></li>
+            <li class="nav-header">docs &amp; help</li>
+            <li><a href="#">API Docs</a></li>
+            <li><a href="#">Contact DataTorrent</a></li>
+        </ul>
+    </li>
+    <% _.each(modes, function(mode) { %>
+    <li>
+        <a href="<%= mode.href %>" class="<%= mode.class %>"><%= mode.name %></a>
+    </li
+    ><% }) %>
+</ul>
 
-    <ul class="dashboard-modes">
-        <% _.each(modes, function(mode) { %>
-            <li>
-                <a href="<%= mode.href %>" class="<%= mode.class %>"><%= mode.name %></a>
-            </li
-        ><% }) %>
-    </ul>
+<!-- <div class="nav-divider-line"></div> -->
 
-    <div class="nav-divider-line"></div>
-    
-    <div class="client-brand">
-        <!-- <img src="img/<%= client_logo %>"> -->
-    </div>
+<div class="client-brand">
+    <!-- <img src="img/<%= client_logo %>"> -->
 </div>
