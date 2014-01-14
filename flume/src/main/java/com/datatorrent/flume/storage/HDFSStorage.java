@@ -287,14 +287,14 @@ public class HDFSStorage implements Storage, Configurable
       }
       byte[] flushedOffset = readData(new Path(baseDir + PATH_SEPARATOR + retrievalFile + OFFSET_SUFFIX));
       flushedLong = Server.readLong(flushedOffset, 0);
-      while (retrievalOffset >= flushedLong && retrievalFile <= fileCounter) {
+      while (retrievalOffset >= flushedLong && retrievalFile < fileCounter) {
         retrievalFile++;
         retrievalOffset -= flushedLong;
         flushedOffset = readData(new Path(baseDir + PATH_SEPARATOR + retrievalFile + OFFSET_SUFFIX));
         flushedLong = Server.readLong(flushedOffset, 0);
       }
 
-      if (retrievalFile > fileCounter) {
+      if (retrievalFile >= fileCounter) {
         throw new RuntimeException("Not a valid address");
       }
       readStream = new FSDataInputStream(fs.open(new Path(baseDir + PATH_SEPARATOR + retrievalFile)));
@@ -339,7 +339,7 @@ public class HDFSStorage implements Storage, Configurable
       if (retrievalOffset >= flushedLong) {
         retrievalFile++;
         retrievalOffset=0;
-        if (retrievalFile > fileCounter) {
+        if (retrievalFile >= fileCounter) {
           logger.warn("read File is greater than write file");
           return null;
         }
