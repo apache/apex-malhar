@@ -26,22 +26,27 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  *
  * @since 0.3.4
  */
-public abstract class FilterOperator extends BaseOperator
+public abstract class FilterOperator<T> extends BaseOperator
 {
   @InputPortFieldAnnotation(name = "in", optional = false)
-  public final transient DefaultInputPort<Object> in = new DefaultInputPort<Object>()
+  public final transient DefaultInputPort<T> in = new DefaultInputPort<T>()
   {
     @Override
-    public void process(Object tuple)
+    public void process(T tuple)
     {
       if (satisfiesFilter(tuple)) {
         out.emit(tuple);
+      } else { 
+        handleInvalidTuple(tuple);
       }
     }
 
   };
   @OutputPortFieldAnnotation(name = "out", optional = false)
-  public final transient DefaultOutputPort<Object> out = new DefaultOutputPort<Object>();
+  public final transient DefaultOutputPort<T> out = new DefaultOutputPort<T>();
 
-  public abstract boolean satisfiesFilter(Object tuple);
+  public abstract boolean satisfiesFilter(T tuple);
+
+  public abstract void handleInvalidTuple(T tuple);
+  
 }

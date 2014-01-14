@@ -16,8 +16,11 @@
 package com.datatorrent.lib.util;
 
 import com.datatorrent.api.Context.OperatorContext;
+
 import java.util.Map;
+
 import javax.script.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +29,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.4
  */
-public class JavaScriptFilterOperator extends FilterOperator
+public class JavaScriptFilterOperator extends FilterOperator<Map<String, Object>>
 {
   protected transient ScriptEngineManager sem = new ScriptEngineManager();
   protected transient ScriptEngine engine = sem.getEngineByName("JavaScript");
@@ -73,36 +76,35 @@ public class JavaScriptFilterOperator extends FilterOperator
   }
 
   @Override
-  public boolean satisfiesFilter(Object tuple)
+  public boolean satisfiesFilter(Map<String, Object> tuple)
   {
-    if (tuple instanceof Map) {
-      Map<String, Object> map = (Map<String, Object>)tuple;
-      for (Map.Entry<String, Object> entry : map.entrySet()) {
-        LOG.debug("Putting {} = {}", entry.getKey(), entry.getValue());
-        engine.put(entry.getKey(), entry.getValue());
-      }
+    for (Map.Entry<String, Object> entry : tuple.entrySet()) {
+      LOG.debug("Putting {} = {}", entry.getKey(), entry.getValue());
+      engine.put(entry.getKey(), entry.getValue());
     }
     try {
-      Object result = ((Invocable)engine).invokeFunction(functionName);
+      Object result = ((Invocable) engine).invokeFunction(functionName);
       if (result instanceof Boolean) {
-        return (Boolean)result;
-      }
-      else if (result instanceof Integer) {
-        return ((Integer)result) != 0;
-      }
-      else if (result instanceof Long) {
-        return ((Long)result) != 0;
-      }
-      else if (result instanceof String) {
-        return Boolean.getBoolean((String)result);
-      }
-      else {
+        return (Boolean) result;
+      } else if (result instanceof Integer) {
+        return ((Integer) result) != 0;
+      } else if (result instanceof Long) {
+        return ((Long) result) != 0;
+      } else if (result instanceof String) {
+        return Boolean.getBoolean((String) result);
+      } else {
         LOG.warn("The script result (type: {}) cannot be converted to boolean. Returning false.", result == null ? "null" : result.getClass().getName());
         return false;
       }
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
+  }
+
+  @Override
+  public void handleInvalidTuple(Map<String, Object> tuple)
+  {
+    // TODO Auto-generated method stub
+    
   }
 }
