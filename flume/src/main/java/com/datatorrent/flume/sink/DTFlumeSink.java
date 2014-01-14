@@ -146,11 +146,21 @@ public class DTFlumeSink extends AbstractSink implements Configurable
 
     if (maxTuples > 0) {
       if (playback != null) {
-        logger.debug("playback mode is active.");
         int i = 0;
         do {
-          client.write(playback);
+          if (!client.write(playback)) {
+            try {
+              retryWrite(playback, null);
+            }
+            catch (IOException io) {
+              logger.warn("Playback Failed", io);
+              eventloop.disconnect(client);
+              client = null;
+              return Status.BACKOFF;
+            }
+          }
           playback = storage.retrieveNext();
+          logger.debug("playback sending {}", playback);
         }
         while (++i < maxTuples && playback != null);
 
@@ -168,7 +178,14 @@ public class DTFlumeSink extends AbstractSink implements Configurable
             byte[] address = storage.store(e.getBody());
             if (address != null) {
               while (!client.write(address, e.getBody())) {
-                sleep();
+                try {
+                  retryWrite(address, e.getBody());
+                }
+                catch (IOException io) {
+                  eventloop.disconnect(client);
+                  client = null;
+                  throw io;
+                }
               }
             }
             else {
@@ -190,7 +207,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
           throw er;
         }
         catch (Throwable th) {
-          logger.error("Exception during flume transaction", th);
+          logger.error("Transaction Failed", th);
           t.rollback();
           return Status.BACKOFF;
         }
@@ -251,6 +268,11 @@ public class DTFlumeSink extends AbstractSink implements Configurable
       super.stop();
     }
     finally {
+      if (client != null) {
+        eventloop.disconnect(client);
+        client = null;
+      }
+      
       eventloop.stop(server);
       eventloop.stop();
       if (discovery instanceof Component) {
@@ -438,6 +460,38 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   void setDiscovery(Discovery<byte[]> discovery)
   {
     this.discovery = discovery;
+  }
+
+  /**
+   * Attempt the sequence of writing after sleeping twice and upon failure assume
+   * that the client connection has problems and hence close it.
+   *
+   * @param address
+   * @param e
+   * @throws IOException
+   */
+  private void retryWrite(byte[] address, byte[] e) throws IOException
+  {
+    sleep();
+    if (e == null) {
+      if (!client.write(address)) {
+        sleep();
+        if (client.write(address)) {
+          return;
+        }
+      }
+
+    }
+    else {
+      if (!client.write(address, e)) {
+        sleep();
+        if (client.write(address, e)) {
+          return;
+        }
+      }
+    }
+
+    throw new IOException("write call to client failed!");
   }
 
   private static final Logger logger = LoggerFactory.getLogger(DTFlumeSink.class);

@@ -144,26 +144,25 @@ public class Server extends com.datatorrent.netlet.Server
     @Override
     public void onMessage(byte[] buffer, int offset, int size)
     {
-      logger.debug("got a message with id {} of size {}", buffer[offset], size);
+//      logger.debug("got a message with id {} of size {}", buffer[offset], size);
       if (Command.getCommand(buffer[offset]) == Command.ECHO) {
         write(buffer, offset, size);
         return;
       }
 
-      logger.debug("adding to the requeusts queue");
       Request r = Request.getRequest(buffer, offset, this);
       synchronized (requests) {
         requests.add(r);
       }
     }
 
-    @Override
-    public void connected()
-    {
-      super.connected();
-      logger.debug("some client connected!");
-    }
-
+//    @Override
+//    public void connected()
+//    {
+//      super.connected();
+//      logger.debug("some client connected!");
+//    }
+//
     @Override
     public void disconnected()
     {
