@@ -35,11 +35,12 @@ import com.datatorrent.flume.sink.Server;
  * baseDir - The base directory where the data is going to be stored <br />
  * restore - This is used to restore the application from previous failure <br />
  * blockSize - The maximum size of the each file to created. <br />
- * 
+ *
  * @author Gaurav Gupta <gaurav@datatorrent.com>
  */
 public class HDFSStorage implements Storage, Configurable, Component<com.datatorrent.api.Context>
 {
+  public static final int DEFAULT_BLOCK_SIZE = 64 * 1024 * 1024;
   public static final String BASE_DIR_KEY = "baseDir";
   public static final String RESTORE_KEY = "restore";
   public static final String BLOCKSIZE = "blockSize";
@@ -117,7 +118,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
 
   /**
    * This stores the Identifier information identified in the last store function call
-   * 
+   *
    * @param ctx
    */
   // private byte[] fileOffset = new byte[IDENTIFIER_SIZE];
@@ -148,7 +149,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
 
   /**
    * This function reads the file at a location and return the bytes stored in the file "
-   * 
+   *
    * @param path
    *          - the location of the file
    * @return
@@ -165,7 +166,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
 
   /**
    * This function writes the bytes to a file specified by the path
-   * 
+   *
    * @param path
    *          the file location
    * @param data
@@ -219,7 +220,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   }
 
   /**
-   * 
+   *
    * @param b
    * @param size
    * @param startIndex
@@ -302,8 +303,9 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
     } catch (IOException e) {
       logger.warn(e.getMessage());
       try {
-        if (readStream != null)
+        if (readStream != null) {
           readStream.close();
+        }
       } catch (IOException io) {
         logger.warn("Failed Close", io);
       } finally {
@@ -619,6 +621,9 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
 
       if (blockSize == 0) {
         blockSize = fs.getDefaultBlockSize(new Path(basePath, "tempData"));
+      }
+      if (blockSize == 0) {
+        blockSize = DEFAULT_BLOCK_SIZE;
       }
 
       currentWrittenFile = 0;
