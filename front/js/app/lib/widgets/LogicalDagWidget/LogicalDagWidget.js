@@ -254,6 +254,22 @@ var LogicalDagWidget = BaseView.extend({
         });
 
         //this.updateStreams(graph, root);
+    },
+
+    changeMetric: function () {
+        var selMetric = this.$('.metric-select').val();
+
+        this.metricModel = MetricModelFactory.getMetricModel(selMetric);
+        this.metricModel.update(this.collection);
+        this.updateMetricLabels(this.metricModel);
+    },
+
+    changeMetric2: function () {
+        var selMetric = this.$('.metric2-select').val();
+
+        this.metricModel2 = MetricModelFactory.getMetricModel(selMetric);
+        this.metricModel2.update(this.collection);
+        this.updateMetric2Labels(this.metricModel2);
     }
 
 });

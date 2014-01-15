@@ -345,14 +345,6 @@ var DagWidget = BaseView.extend({
         'click .toggle-legend': 'toggleLegend'
     },
 
-    changeMetric: function () {
-        var selMetric = this.$('.metric-select').val();
-
-        this.metricModel = MetricModelFactory.getMetricModel(selMetric);
-        this.metricModel.update(this.collection);
-        this.updateMetricLabels(this.metricModel);
-    },
-
     prevMetric: function (event) {
         event.preventDefault();
         var selMetric = this.$('.metric-select').val();
@@ -369,14 +361,6 @@ var DagWidget = BaseView.extend({
         var nextIndex = (index + 1) % this.metricIds.length;
         this.$('.metric-select').val(this.metricIds[nextIndex]);
         this.changeMetric();
-    },
-
-    changeMetric2: function () {
-        var selMetric = this.$('.metric2-select').val();
-
-        this.metricModel2 = MetricModelFactory.getMetricModel(selMetric);
-        this.metricModel2.update(this.collection);
-        this.updateMetric2Labels(this.metricModel2);
     },
 
     prevMetric2: function (event) {
