@@ -247,6 +247,11 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   public void start()
   {
     try {
+      if (storage instanceof Component) {
+        @SuppressWarnings("unchecked")
+        Component<com.datatorrent.api.Context> component = (Component<com.datatorrent.api.Context>)storage;
+        component.setup(null);
+      }
       if (discovery instanceof Component) {
         @SuppressWarnings("unchecked")
         Component<com.datatorrent.api.Context> component = (Component<com.datatorrent.api.Context>)discovery;
@@ -288,6 +293,11 @@ public class DTFlumeSink extends AbstractSink implements Configurable
         if (discovery instanceof Component) {
           @SuppressWarnings("unchecked")
           Component<com.datatorrent.api.Context> component = (Component<com.datatorrent.api.Context>)discovery;
+          component.teardown();
+        }
+        if (storage instanceof Component) {
+          @SuppressWarnings("unchecked")
+          Component<com.datatorrent.api.Context> component = (Component<com.datatorrent.api.Context>)storage;
           component.teardown();
         }
       }
