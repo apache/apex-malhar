@@ -7,10 +7,8 @@ package com.datatorrent.flume.operator;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.ArrayBlockingQueue;
 import static java.lang.Thread.sleep;
 
@@ -21,7 +19,12 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Partitionable.PartitionAware;
+import com.datatorrent.api.Stats.OperatorStats;
+import com.datatorrent.api.Stats.OperatorStats.CustomStats;
 
+import com.datatorrent.flume.discovery.Discovery.Service;
+import com.datatorrent.flume.discovery.ZKAssistedDiscovery;
 import com.datatorrent.flume.sink.Server;
 import com.datatorrent.flume.sink.Server.Command;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
@@ -35,23 +38,25 @@ import com.datatorrent.netlet.DefaultEventLoop;
  * @since 0.9.2
  */
 public abstract class AbstractFlumeInputOperator<T>
-        implements InputOperator, ActivationListener<OperatorContext>, IdleTimeHandler, CheckpointListener, Partitionable<AbstractFlumeInputOperator<T>>
+        implements InputOperator, ActivationListener<OperatorContext>, IdleTimeHandler, CheckpointListener,
+        Partitionable<AbstractFlumeInputOperator<T>>, PartitionAware<AbstractFlumeInputOperator<T>>
 {
   public final transient DefaultOutputPort<T> output = new DefaultOutputPort<T>();
   private transient int idleCounter;
   private transient int eventCounter;
   private transient DefaultEventLoop eventloop;
-  private transient RecoveryAddress recoveryAddress;
-  private final transient ArrayBlockingQueue<Payload> handoverBuffer;
   private transient volatile boolean connected;
+  private transient OperatorContext context;
   private transient Client client;
+  private transient long windowId;
+  private transient byte[] address;
   @NotNull
-  private String[] connectAddresses;
+  private String[] connectionSpecs;
   private final ArrayList<RecoveryAddress> recoveryAddresses;
 
   public AbstractFlumeInputOperator()
   {
-    this.handoverBuffer = new ArrayBlockingQueue<Payload>(1024 * 5);
+    connectionSpecs = new String[0];
     this.recoveryAddresses = new ArrayList<RecoveryAddress>();
   }
 
@@ -71,20 +76,27 @@ public abstract class AbstractFlumeInputOperator<T>
   @SuppressWarnings({"unchecked"})
   public void activate(OperatorContext ctx)
   {
-    if (connectAddresses.length != 1) {
-      throw new RuntimeException(String.format("A physical {} operator cannot connect to more than 1 addresses!", this.getClass().getSimpleName()));
+    if (connectionSpecs.length == 0) {
+      logger.info("Discovered zero DTFlumeSink");
     }
-    for (String connectAddresse: connectAddresses) {
-      String[] parts = connectAddresse.split(":");
-      eventloop.connect(new InetSocketAddress(parts[0], Integer.parseInt(parts[1])), client = new Client());
+    else if (connectionSpecs.length == 1) {
+      for (String connectAddresse : connectionSpecs) {
+        logger.debug("Connection spec is {}", connectAddresse);
+        String[] parts = connectAddresse.split(":");
+        eventloop.connect(new InetSocketAddress(parts[1], Integer.parseInt(parts[2])), client = new Client(parts[0]));
+      }
     }
+    else {
+      throw new RuntimeException(String.format("A physical %s operator cannot connect to more than 1 addresses!", this.getClass().getSimpleName()));
+    }
+
+    context = ctx;
   }
 
   @Override
   public void beginWindow(long windowId)
   {
-    recoveryAddress = new RecoveryAddress();
-    recoveryAddress.windowId = windowId;
+    this.windowId = windowId;
     idleCounter = 0;
     eventCounter = 0;
   }
@@ -92,11 +104,18 @@ public abstract class AbstractFlumeInputOperator<T>
   @Override
   public void emitTuples()
   {
-    for (int i = handoverBuffer.size(); i-- > 0;) {
-      Payload payload = handoverBuffer.poll();
-      output.emit(payload.payload);
-      recoveryAddress.address = payload.location;
+    int i = handoverBuffer.size();
+    if (i > 0) {
+      while (--i > 0) {
+        output.emit(handoverBuffer.poll().payload);
+        eventCounter++;
+      }
+
+      Payload poll = handoverBuffer.poll();
+      output.emit(poll.payload);
       eventCounter++;
+
+      address = poll.location;
     }
   }
 
@@ -114,13 +133,22 @@ public abstract class AbstractFlumeInputOperator<T>
       client.write(array);
     }
 
-    recoveryAddresses.add(recoveryAddress);
+    if (address != null) {
+      RecoveryAddress rAddress = new RecoveryAddress();
+      rAddress.address = address;
+      address = null;
+      rAddress.windowId = windowId;
+      recoveryAddresses.add(rAddress);
+    }
   }
 
   @Override
   public void deactivate()
   {
-    eventloop.disconnect(client);
+    if (connected) {
+      eventloop.disconnect(client);
+    }
+    context = null;
   }
 
   @Override
@@ -135,7 +163,7 @@ public abstract class AbstractFlumeInputOperator<T>
   {
     idleCounter++;
     try {
-      sleep(5);
+      sleep(context.getValue(OperatorContext.SPIN_MILLIS));
     }
     catch (InterruptedException ex) {
       throw new RuntimeException(ex);
@@ -149,21 +177,21 @@ public abstract class AbstractFlumeInputOperator<T>
    */
   public String[] getConnectAddresses()
   {
-    return connectAddresses.clone();
+    return connectionSpecs.clone();
   }
 
   /**
-   * @param connectAddresses the connectAddress to set
+   * @param specs - sinkid:host:port specification of all the sinks.
    */
-  public void setConnectAddresses(String[] connectAddresses)
+  public void setConnectAddresses(String[] specs)
   {
-    this.connectAddresses = connectAddresses.clone();
+    this.connectionSpecs = specs.clone();
   }
 
   private static class RecoveryAddress implements Serializable
   {
     long windowId;
-    long address;
+    byte[] address;
     private static final long serialVersionUID = 201312021432L;
   }
 
@@ -180,28 +208,40 @@ public abstract class AbstractFlumeInputOperator<T>
       return;
     }
 
-    Iterator<RecoveryAddress> iterator = recoveryAddresses.iterator();
-    while (iterator.hasNext()) {
-      RecoveryAddress ra = iterator.next();
-      if (ra.windowId < windowId) {
+    synchronized (recoveryAddresses) {
+      byte[] addr = null;
+
+      Iterator<RecoveryAddress> iterator = recoveryAddresses.iterator();
+      while (iterator.hasNext()) {
+        RecoveryAddress ra = iterator.next();
+        if (ra.windowId > windowId) {
+          break;
+        }
+
         iterator.remove();
+        if (ra.address != null) {
+          addr = ra.address;
+        }
       }
-      else if (ra.windowId == windowId) {
-        iterator.remove();
+
+      if (addr != null) {
+        /*
+         * Make sure that we store the last valid address processed
+         */
+        if (recoveryAddresses.isEmpty()) {
+          RecoveryAddress ra = new RecoveryAddress();
+          ra.address = addr;
+          recoveryAddresses.add(ra);
+        }
+
         int arraySize = 1/* for the type of the message */
                         + 8 /* for the location to commit */;
         byte[] array = new byte[arraySize];
 
         array[0] = Command.COMMITTED.getOrdinal();
-
-        final long recoveryOffset = ra.address;
-        Server.writeLong(array, 1, recoveryOffset);
-
-        logger.debug("wrote {} with recoveryOffset = {}", Command.COMMITTED, recoveryOffset);
+        System.arraycopy(addr, 0, array, 1, 8);
+        logger.debug("wrote {} with recoveryOffset = {}", Command.COMMITTED, Arrays.toString(addr));
         client.write(array);
-      }
-      else {
-        break;
       }
     }
   }
@@ -209,62 +249,151 @@ public abstract class AbstractFlumeInputOperator<T>
   @Override
   public Collection<Partition<AbstractFlumeInputOperator<T>>> definePartitions(Collection<Partition<AbstractFlumeInputOperator<T>>> partitions, int incrementalCapacity)
   {
-    if (incrementalCapacity == 0) {
+    Collection<Service<byte[]>> discovered = discoveredFlumeSinks.get();
+    if (discovered == null && incrementalCapacity == 0) {
       return partitions;
     }
 
+    HashMap<String, ArrayList<RecoveryAddress>> allRecoveryAddresses = abandonedRecoveryAddresses.get();
     ArrayList<String> allConnectAddresses = new ArrayList<String>(partitions.size() + incrementalCapacity);
-    ArrayList<ArrayList<RecoveryAddress>> allRecoveryAddresses = new ArrayList<ArrayList<RecoveryAddress>>(partitions.size() + incrementalCapacity);
-    for (Partition<AbstractFlumeInputOperator<T>> partition: partitions) {
-      String[] addresses = partition.getPartitionedInstance().connectAddresses;
-      allConnectAddresses.addAll(Arrays.asList(addresses));
-      for (int i = addresses.length; i-- > 0;) {
-        allRecoveryAddresses.add(partition.getPartitionedInstance().recoveryAddresses);
+    for (Partition<AbstractFlumeInputOperator<T>> partition : partitions) {
+      String[] lAddresses = partition.getPartitionedInstance().connectionSpecs;
+      allConnectAddresses.addAll(Arrays.asList(lAddresses));
+      for (int i = lAddresses.length; i-- > 0;) {
+        String[] parts = lAddresses[i].split(":", 2);
+        allRecoveryAddresses.put(parts[0], partition.getPartitionedInstance().recoveryAddresses);
       }
+    }
+
+    if (discovered != null) {
+      HashMap<String, String> connections = new HashMap<String, String>(discovered.size());
+      for (Service<byte[]> service : discovered) {
+        String previousSpec = connections.get(service.getId());
+        String newspec = service.getId() + ':' + service.getHost() + ':' + service.getPort();
+        if (previousSpec == null) {
+          connections.put(service.getId(), newspec);
+        }
+        else {
+          boolean found = false;
+          for (ConnectionStatus cs : partitionedInstanceStatus.get().values()) {
+            if (previousSpec.equals(cs.spec) && !cs.connected) {
+              connections.put(service.getId(), newspec);
+              found = true;
+              break;
+            }
+          }
+
+          if (!found) {
+            logger.warn("2 sinks found with the same id: {} and {}... Ignoring previous", previousSpec, newspec);
+            connections.put(service.getId(), newspec);
+          }
+        }
+      }
+
+      for (int i = allConnectAddresses.size(); i-- > 0;) {
+        String[] parts = allConnectAddresses.get(i).split(":");
+        String connection = connections.remove(parts[0]);
+        if (connection == null) {
+          allConnectAddresses.remove(i);
+        }
+        else {
+          allConnectAddresses.set(i, connection);
+        }
+      }
+
+      allConnectAddresses.addAll(connections.values());
     }
 
     partitions.clear();
-
     try {
-      for (int i = allConnectAddresses.size(); i-- > 0;) {
+      if (allConnectAddresses.isEmpty()) {
+        /* return at least one of them; otherwise stram becomes grumpy */
         @SuppressWarnings("unchecked")
         AbstractFlumeInputOperator<T> operator = getClass().newInstance();
-        operator.connectAddresses = new String[] {allConnectAddresses.get(i)};
-        operator.recoveryAddresses.addAll(allRecoveryAddresses.get(i));
         partitions.add(new DefaultPartition<AbstractFlumeInputOperator<T>>(operator));
       }
-    }
-    catch (Exception ex) {
-      if (ex instanceof RuntimeException) {
-        throw (RuntimeException)ex;
-      }
+      else {
+        for (int i = allConnectAddresses.size(); i-- > 0;) {
+          @SuppressWarnings("unchecked")
+          AbstractFlumeInputOperator<T> operator = getClass().newInstance();
 
+          String connectAddress = allConnectAddresses.get(i);
+          operator.connectionSpecs = new String[] {connectAddress};
+
+          String[] parts = connectAddress.split(":", 2);
+          ArrayList<RecoveryAddress> remove = allRecoveryAddresses.remove(parts[0]);
+          if (remove != null) {
+            operator.recoveryAddresses.addAll(remove);
+          }
+
+          partitions.add(new DefaultPartition<AbstractFlumeInputOperator<T>>(operator));
+        }
+      }
+    }
+    catch (Error er) {
+      throw er;
+    }
+    catch (RuntimeException re) {
+      throw re;
+    }
+    catch (IllegalAccessException ex) {
+      throw new RuntimeException(ex);
+    }
+    catch (InstantiationException ex) {
       throw new RuntimeException(ex);
     }
 
     return partitions;
   }
 
+  @Override
+  public void partitioned(Map<Integer, Partition<AbstractFlumeInputOperator<T>>> partitions)
+  {
+    HashMap<Integer, ConnectionStatus> map = partitionedInstanceStatus.get();
+    map.clear();
+    for (Entry<Integer, Partition<AbstractFlumeInputOperator<T>>> entry : partitions.entrySet()) {
+      if (map.containsKey(entry.getKey())) {
+        // what can be done here?
+      }
+      else {
+        map.put(entry.getKey(), null);
+      }
+    }
+  }
+
   private class Payload
   {
     final T payload;
-    final long location;
+    final byte[] location;
 
-    Payload(T payload, long location)
+    Payload(T payload, byte[] location)
     {
       this.payload = payload;
       this.location = location;
+    }
+
+    @Override
+    public String toString()
+    {
+      return "Payload{" + "payload=" + payload + ", location=" + Arrays.toString(location) + '}';
     }
 
   }
 
   class Client extends AbstractLengthPrependerClient
   {
+    private final String id;
+
+    Client(String id)
+    {
+      this.id = id;
+    }
+
     @Override
     public void onMessage(byte[] buffer, int offset, int size)
     {
       /* this are all the payload messages */
-      Payload payload = new Payload(convert(buffer, offset + 8, size - 8), Server.readLong(buffer, 0));
+      Payload payload = new Payload(convert(buffer, offset + 8, size - 8), Arrays.copyOfRange(buffer, offset, offset + 8));
       try {
         handoverBuffer.put(payload);
       }
@@ -274,16 +403,20 @@ public abstract class AbstractFlumeInputOperator<T>
     }
 
     @Override
+    @SuppressWarnings("SynchronizeOnNonFinalField") /* context is virtually final for a given operator */
+
     public void connected()
     {
       super.connected();
 
-      long address;
-      if (recoveryAddresses.size() > 0) {
-        address = recoveryAddresses.get(recoveryAddresses.size() - 1).address;
-      }
-      else {
-        address = 0;
+      byte[] address;
+      synchronized (recoveryAddresses) {
+        if (recoveryAddresses.size() > 0) {
+          address = recoveryAddresses.get(recoveryAddresses.size() - 1).address;
+        }
+        else {
+          address = new byte[8];
+        }
       }
 
       int len = 1 /* for the message type SEEK */
@@ -291,21 +424,188 @@ public abstract class AbstractFlumeInputOperator<T>
 
       byte[] array = new byte[len];
       array[0] = Command.SEEK.getOrdinal();
-      Server.writeLong(array, 1, address);
+      System.arraycopy(address, 0, array, 1, 8);
       write(array);
 
       connected = true;
+      ConnectionStatus connectionStatus = new ConnectionStatus();
+      connectionStatus.connected = true;
+      connectionStatus.spec = connectionSpecs[0];
+      OperatorContext ctx = context;
+      synchronized (ctx) {
+        context.setCustomStats(connectionStatus);
+      }
       logger.debug("connected hence sending {} for {}", Command.SEEK, address);
     }
 
     @Override
+    @SuppressWarnings("SynchronizeOnNonFinalField") /* context is virtually final for a given operator */
+
     public void disconnected()
     {
       connected = false;
+      ConnectionStatus connectionStatus = new ConnectionStatus();
+      connectionStatus.connected = false;
+      connectionStatus.spec = connectionSpecs[0];
+      OperatorContext ctx = context;
+      synchronized (ctx) {
+        context.setCustomStats(connectionStatus);
+      }
       super.disconnected();
     }
 
   }
 
+  public static class ZKStatsListner extends ZKAssistedDiscovery implements com.datatorrent.api.StatsListener, Serializable
+  {
+    /*
+     * In the current design, one input operator is able to connect
+     * to only one flume adapter. Sometime in future, we should support
+     * any number of input operators connecting to any number of flume
+     * sinks and vice a versa.
+     *
+     * Until that happens the following map should be sufficient to
+     * keep track of which input operator is connected to which flume sink.
+     */
+    private final transient HashMap<Integer, ConnectionStatus> map;
+    private transient long nextMillis;
+    private final Response response;
+
+    public ZKStatsListner()
+    {
+      map = partitionedInstanceStatus.get();
+      nextMillis = System.currentTimeMillis() + intervalMillis;
+      response = new Response();
+    }
+
+    @Override
+    public Response processStats(BatchedOperatorStats stats)
+    {
+      response.repartitionRequired = false;
+
+      CustomStats lastStat = null;
+      List<OperatorStats> lastWindowedStats = stats.getLastWindowedStats();
+      for (OperatorStats os : lastWindowedStats) {
+        if (os.customStats != null) {
+          lastStat = os.customStats;
+        }
+      }
+
+      if (lastStat instanceof ConnectionStatus) {
+        ConnectionStatus cs = (ConnectionStatus)lastStat;
+        map.put(stats.getOperatorId(), cs);
+        if (!cs.connected) {
+          response.repartitionRequired = true;
+        }
+      }
+
+      if (System.currentTimeMillis() >= nextMillis) {
+        try {
+          super.setup(null);
+          Collection<Service<byte[]>> addresses;
+          try {
+            addresses = discover();
+          }
+          finally {
+            super.teardown();
+          }
+          AbstractFlumeInputOperator.discoveredFlumeSinks.set(addresses);
+          if (addresses.size() == map.size()) {
+            response.repartitionRequired = map.containsValue(null);
+          }
+          else {
+            response.repartitionRequired = true;
+          }
+          nextMillis = System.currentTimeMillis() + intervalMillis;
+        }
+        catch (Error er) {
+          throw er;
+        }
+        catch (Throwable cause) {
+          logger.warn("Unable to discover services, using values from last successful discovery", cause);
+        }
+      }
+
+      return response;
+    }
+
+    /**
+     * @return the intervalMillis
+     */
+    public long getIntervalMillis()
+    {
+      return intervalMillis;
+    }
+
+    /**
+     * @param intervalMillis the intervalMillis to set
+     */
+    public void setIntervalMillis(long intervalMillis)
+    {
+      this.intervalMillis = intervalMillis;
+    }
+
+    long intervalMillis = 60 * 1000L;
+    private static final long serialVersionUID = 201312241646L;
+  }
+
+  public static class ConnectionStatus implements CustomStats
+  {
+    String spec;
+    boolean connected;
+
+    @Override
+    public int hashCode()
+    {
+      return spec.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+      if (obj == null) {
+        return false;
+      }
+      if (getClass() != obj.getClass()) {
+        return false;
+      }
+      final ConnectionStatus other = (ConnectionStatus)obj;
+      return spec == null ? other.spec == null : spec.equals(other.spec);
+    }
+
+    @Override
+    public String toString()
+    {
+      return "ConnectionStatus{" + "spec=" + spec + ", connected=" + connected + '}';
+    }
+
+    private static final long serialVersionUID = 201312261615L;
+  }
+
+  private static final transient ThreadLocal<HashMap<Integer, ConnectionStatus>> partitionedInstanceStatus = new ThreadLocal<HashMap<Integer, ConnectionStatus>>()
+  {
+    @Override
+    protected HashMap<Integer, ConnectionStatus> initialValue()
+    {
+      return new HashMap<Integer, ConnectionStatus>();
+    }
+
+  };
+  /**
+   * When a sink goes away and a replacement sink is not found, we stash the recovery addresses associated
+   * with the sink in a hope that the new sink may show up in near future.
+   */
+  private static final transient ThreadLocal<HashMap<String, ArrayList<RecoveryAddress>>> abandonedRecoveryAddresses = new ThreadLocal<HashMap<String, ArrayList<RecoveryAddress>>>()
+  {
+    @Override
+    protected HashMap<String, ArrayList<RecoveryAddress>> initialValue()
+    {
+      return new HashMap<String, ArrayList<RecoveryAddress>>();
+    }
+
+  };
+  private static final transient ThreadLocal<Collection<Service<byte[]>>> discoveredFlumeSinks = new ThreadLocal<Collection<Service<byte[]>>>();
+  @SuppressWarnings("FieldMayBeFinal") // it's not final because that mucks with the serialization somehow
+  private transient ArrayBlockingQueue<Payload> handoverBuffer = new ArrayBlockingQueue<Payload>(1024 * 5);
   private static final Logger logger = LoggerFactory.getLogger(AbstractFlumeInputOperator.class);
 }
