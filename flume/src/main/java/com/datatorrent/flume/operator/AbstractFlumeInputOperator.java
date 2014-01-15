@@ -28,9 +28,11 @@ import com.datatorrent.netlet.AbstractLengthPrependerClient;
 import com.datatorrent.netlet.DefaultEventLoop;
 
 /**
+ * <p>Abstract AbstractFlumeInputOperator class.</p>
  *
  * @param <T> Type of the output payload.
  * @author Chetan Narsude <chetan@datatorrent.com>
+ * @since 0.9.2
  */
 public abstract class AbstractFlumeInputOperator<T>
         implements InputOperator, ActivationListener<OperatorContext>, IdleTimeHandler, CheckpointListener, Partitionable<AbstractFlumeInputOperator<T>>

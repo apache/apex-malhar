@@ -28,8 +28,9 @@ import com.google.common.primitives.Longs;
  * baseDir - The base directory where the data is going to be stored <br />
  * restore - This is used to restore the application from previous failure <br />
  * blockSize - The maximum size of the each file to created. <br />
- * 
+ *
  * @author Gaurav Gupta <gaurav@datatorrent.com>
+ * @since 0.9.2
  */
 public class HDFSStorage implements Storage, Configurable
 {
@@ -37,6 +38,7 @@ public class HDFSStorage implements Storage, Configurable
   private static final String cleanFileName = "/clean-counter";
   private static final String offsetFileName = "/offsetFile";
   public static final String BASE_DIR_KEY = "baseDir";
+  public static final String ID = "id";
   public static final String OFFSET_KEY = "offset";
   public static final String RESTORE_KEY = "restore";
   public static final String BLOCKSIZE = "blockSize";
@@ -86,6 +88,7 @@ public class HDFSStorage implements Storage, Configurable
    */
   // private byte[] fileOffset = new byte[IDENTIFIER_SIZE];
 
+  // private byte[] fileOffset = new byte[IDENTIFIER_SIZE];
   @Override
   public void configure(Context ctx)
   {
@@ -106,6 +109,15 @@ public class HDFSStorage implements Storage, Configurable
         }
         if (!fs.isDirectory(path)) {
           throw new RuntimeException(String.format("baseDir passed (%s) is not a directory.", baseDir));
+        }
+        String id = ctx.getString(ID);
+        if(id == null){
+          throw new RuntimeException(String.format("id can't be  null."));
+        }
+        baseDir = baseDir+"/"+id;
+        path = new Path(baseDir);
+        if(!fs.exists(path) || !fs.isDirectory(path)){
+          fs.mkdirs(path);
         }
         /* keeping the block size 2MB less than the default block size */
 
@@ -346,6 +358,13 @@ public class HDFSStorage implements Storage, Configurable
         throw new RuntimeException(ex);
       }
     }
+    updateFlushedOffset();
+  }
+
+  /**
+   * This updates the flushed offset
+   */
+  private void updateFlushedOffset(){
     byte[] lastStoredOffset = new byte[IDENTIFIER_SIZE];
     Server.writeLong(lastStoredOffset, 0, calculateOffset(fileWriteOffset, fileCounter));
     try {      
@@ -364,7 +383,6 @@ public class HDFSStorage implements Storage, Configurable
       }
     }
   }
-
   @Override
   public void close()
   {
@@ -373,6 +391,7 @@ public class HDFSStorage implements Storage, Configurable
         dataStream.close();
         fileWriteOffset = 0;
         ++fileCounter;
+        updateFlushedOffset();
 
       } catch (IOException ex) {
         logger.warn("not able to close the stream {}", ex.getMessage());

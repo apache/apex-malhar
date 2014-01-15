@@ -36,6 +36,7 @@ import java.util.Arrays;
  * maximumEventsPerTransaction - integer value indicating the maximum number of events per transaction. This value can not be more than channel's transaction capacity.<br />
  *
  * @author Chetan Narsude <chetan@datatorrent.com>
+ * @since 0.9.2
  */
 public class DTFlumeSink extends AbstractSink implements Configurable
 {
