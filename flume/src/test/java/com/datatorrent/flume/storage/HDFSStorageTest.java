@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.flume.Context;
-import org.apache.flume.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -39,6 +38,7 @@ public class HDFSStorageTest
     ctx.put(HDFSStorage.BLOCKSIZE, "256");
     HDFSStorage lstorage = new HDFSStorage();
     lstorage.configure(ctx);
+    lstorage.setup(null);
     return lstorage;
   }
 
@@ -54,6 +54,7 @@ public class HDFSStorageTest
   public void teardown()
   {
     storage.cleanHelperFiles();
+    storage.teardown();
   }
 
   @Test
@@ -80,6 +81,7 @@ public class HDFSStorageTest
     byte[] b = new byte[200];
     Assert.assertNotNull(storage.store(b));
     storage.flush();
+    storage.teardown();
 
     storage = getStorage("1", true);
     storage.store(b);
@@ -190,8 +192,9 @@ public class HDFSStorageTest
       address = storage.store(b);
       storage.flush();
       storage.clean(address);
-
     }
+    storage.teardown();
+    
     byte[] identifier = new byte[8];
     storage = getStorage("1", true);
 

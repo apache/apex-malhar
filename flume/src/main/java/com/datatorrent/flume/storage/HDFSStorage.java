@@ -17,7 +17,6 @@ import com.google.common.primitives.Longs;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.apache.flume.Context;
 import org.apache.flume.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
@@ -26,6 +25,7 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
+import com.datatorrent.api.Component;
 import com.datatorrent.flume.sink.Server;
 
 /**
@@ -35,11 +35,12 @@ import com.datatorrent.flume.sink.Server;
  * baseDir - The base directory where the data is going to be stored <br />
  * restore - This is used to restore the application from previous failure <br />
  * blockSize - The maximum size of the each file to created. <br />
- * 
+ *
  * @author Gaurav Gupta <gaurav@datatorrent.com>
  */
-public class HDFSStorage implements Storage, Configurable
+public class HDFSStorage implements Storage, Configurable, Component<com.datatorrent.api.Context>
 {
+  public static final int DEFAULT_BLOCK_SIZE = 64 * 1024 * 1024;
   public static final String BASE_DIR_KEY = "baseDir";
   public static final String RESTORE_KEY = "restore";
   public static final String BLOCKSIZE = "blockSize";
@@ -112,13 +113,12 @@ public class HDFSStorage implements Storage, Configurable
 
   public HDFSStorage()
   {
-    this.blockSize = 64 * 1024 * 1024;
     this.restore = true;
   }
 
   /**
    * This stores the Identifier information identified in the last store function call
-   * 
+   *
    * @param ctx
    */
   // private byte[] fileOffset = new byte[IDENTIFIER_SIZE];
@@ -134,78 +134,22 @@ public class HDFSStorage implements Storage, Configurable
       id = tempId;
     }
 
-    Configuration conf = new Configuration();
-
     String tempBaseDir = ctx.getString(BASE_DIR_KEY);
-    if (tempBaseDir == null) {
-      if (baseDir == null) {
-        baseDir = conf.get("hadoop.tmp.dir");
-        if (baseDir == null || baseDir.isEmpty()) {
-          throw new IllegalArgumentException("baseDir cannot be null.");
-        }
-      }
-    } else {
+    if (tempBaseDir != null) {
       baseDir = tempBaseDir;
     }
 
-    // offset = ctx.getInteger(OFFSET_KEY, 4);
-    offset = 4;
-    skipOffset = -1;
-    skipFile = -1;
-
-    try {
-      fs = FileSystem.get(conf);
-      Path path = new Path(baseDir);
-      if (!fs.exists(path)) {
-        throw new RuntimeException(String.format("baseDir passed (%s) doesn't exist.", baseDir));
-      }
-      if (!fs.isDirectory(path)) {
-        throw new RuntimeException(String.format("baseDir passed (%s) is not a directory.", baseDir));
-      }
-
-      basePath = new Path(path, id);
-
-      restore = ctx.getBoolean(RESTORE_KEY, restore);
-      if (!restore) {
-        fs.delete(basePath, true);
-      }
-      if (!fs.exists(basePath) || !fs.isDirectory(basePath)) {
-        fs.mkdirs(basePath);
-      }
-
-      long tempBlockSize = ctx.getLong(BLOCKSIZE, fs.getDefaultBlockSize(basePath));
-      if (tempBlockSize > 0) {
-        blockSize = tempBlockSize;
-      }
-
-      currentWrittenFile = 0;
-      cleanedFileCounter = -1;
-      retrievalFile = -1;
-      fileCounterFile = new Path(basePath, IDENTITY_FILE);
-      cleanFileCounterFile = new Path(basePath, CLEAN_FILE);
-      cleanFileOffsetFile = new Path(basePath, CLEAN_OFFSET_FILE);
-      if (restore) {
-        if (fs.exists(fileCounterFile) && fs.isFile(fileCounterFile)) {
-          currentWrittenFile = Long.valueOf(new String(readData(fileCounterFile)));
-        }
-
-        if (fs.exists(cleanFileCounterFile) && fs.isFile(cleanFileCounterFile)) {
-          cleanedFileCounter = Long.valueOf(new String(readData(cleanFileCounterFile)));
-        }
-
-        if (fs.exists(cleanFileOffsetFile) && fs.isFile(cleanFileOffsetFile)) {
-          cleanedOffset = readData(cleanFileOffsetFile);
-        }
-      }
-      flushedFileCounter = currentWrittenFile;
-    } catch (IOException io) {
-      throw new RuntimeException(io);
+    restore = ctx.getBoolean(RESTORE_KEY, restore);
+    Long tempBlockSize = ctx.getLong(BLOCKSIZE);
+    if (tempBlockSize != null) {
+      blockSize = tempBlockSize;
     }
+
   }
 
   /**
    * This function reads the file at a location and return the bytes stored in the file "
-   * 
+   *
    * @param path
    *          - the location of the file
    * @return
@@ -222,7 +166,7 @@ public class HDFSStorage implements Storage, Configurable
 
   /**
    * This function writes the bytes to a file specified by the path
-   * 
+   *
    * @param path
    *          the file location
    * @param data
@@ -276,7 +220,7 @@ public class HDFSStorage implements Storage, Configurable
   }
 
   /**
-   * 
+   *
    * @param b
    * @param size
    * @param startIndex
@@ -359,8 +303,9 @@ public class HDFSStorage implements Storage, Configurable
     } catch (IOException e) {
       logger.warn(e.getMessage());
       try {
-        if(readStream != null)
+        if (readStream != null) {
           readStream.close();
+        }
       } catch (IOException io) {
         logger.warn("Failed Close", io);
       } finally {
@@ -474,20 +419,22 @@ public class HDFSStorage implements Storage, Configurable
   private void closeUnflushedFiles()
   {
     try {
-      if (fs.exists(new Path(basePath, currentWrittenFile + OFFSET_SUFFIX))) {
-        if (dataStream != null) {
-          dataStream.close();
-          for (DataBlock openStream : files2Commit) {
-            openStream.dataStream.close();
-          }
-          files2Commit.clear();
-        }
+      if (dataStream != null) {
+        dataStream.close();
+      }
+      for (DataBlock openStream : files2Commit) {
+        openStream.dataStream.close();
+      }
+      files2Commit.clear();
 
+      if (fs.exists(new Path(basePath, flushedFileCounter + OFFSET_SUFFIX))) {
+        // This means that flush was called
         writeData(fileCounterFile, String.valueOf(flushedFileCounter + 1).getBytes()).close();
         ++flushedFileCounter;
         currentWrittenFile = flushedFileCounter;
         fileWriteOffset = 0;
       }
+
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -636,4 +583,88 @@ public class HDFSStorage implements Storage, Configurable
   }
 
   private static final Logger logger = LoggerFactory.getLogger(HDFSStorage.class);
+
+  @Override
+  public void setup(com.datatorrent.api.Context context)
+  {
+    // offset = ctx.getInteger(OFFSET_KEY, 4);
+    Configuration conf = new Configuration();
+    if (baseDir == null) {
+      baseDir = conf.get("hadoop.tmp.dir");
+      if (baseDir == null || baseDir.isEmpty()) {
+        throw new IllegalArgumentException("baseDir cannot be null.");
+      }
+    }
+    offset = 4;
+    skipOffset = -1;
+    skipFile = -1;
+
+    try {
+      fs = FileSystem.get(conf);
+      Path path = new Path(baseDir);
+
+      if (!fs.exists(path)) {
+        throw new RuntimeException(String.format("baseDir passed (%s) doesn't exist.", baseDir));
+      }
+      if (!fs.isDirectory(path)) {
+        throw new RuntimeException(String.format("baseDir passed (%s) is not a directory.", baseDir));
+      }
+
+      basePath = new Path(path, id);
+
+      if (!restore) {
+        fs.delete(basePath, true);
+      }
+      if (!fs.exists(basePath) || !fs.isDirectory(basePath)) {
+        fs.mkdirs(basePath);
+      }
+
+      if (blockSize == 0) {
+        blockSize = fs.getDefaultBlockSize(new Path(basePath, "tempData"));
+      }
+      if (blockSize == 0) {
+        blockSize = DEFAULT_BLOCK_SIZE;
+      }
+
+      currentWrittenFile = 0;
+      cleanedFileCounter = -1;
+      retrievalFile = -1;
+      fileCounterFile = new Path(basePath, IDENTITY_FILE);
+      cleanFileCounterFile = new Path(basePath, CLEAN_FILE);
+      cleanFileOffsetFile = new Path(basePath, CLEAN_OFFSET_FILE);
+      if (restore) {
+        if (fs.exists(fileCounterFile) && fs.isFile(fileCounterFile)) {
+          currentWrittenFile = Long.valueOf(new String(readData(fileCounterFile)));
+        }
+
+        if (fs.exists(cleanFileCounterFile) && fs.isFile(cleanFileCounterFile)) {
+          cleanedFileCounter = Long.valueOf(new String(readData(cleanFileCounterFile)));
+        }
+
+        if (fs.exists(cleanFileOffsetFile) && fs.isFile(cleanFileOffsetFile)) {
+          cleanedOffset = readData(cleanFileOffsetFile);
+        }
+      }
+      flushedFileCounter = currentWrittenFile;
+    } catch (IOException io) {
+      throw new RuntimeException(io);
+    }
+
+  }
+
+  @Override
+  public void teardown()
+  {
+
+    try {
+      if (readStream != null) {
+        readStream.close();
+      }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    } finally {
+      closeUnflushedFiles();
+    }
+
+  }
 }
