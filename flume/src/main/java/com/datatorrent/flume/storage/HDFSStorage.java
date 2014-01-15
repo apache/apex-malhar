@@ -493,7 +493,8 @@ public class HDFSStorage implements Storage, Configurable
       files2Commit.clear();
 
       writeData(fileCounterFile, String.valueOf(flushedFileCounter + 1).getBytes()).close();
-      currentWrittenFile = flushedFileCounter + 1;
+      ++flushedFileCounter;
+      currentWrittenFile = flushedFileCounter;
       fileWriteOffset = 0;
     }
     catch (IOException e) {
