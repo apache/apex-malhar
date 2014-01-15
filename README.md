@@ -54,7 +54,8 @@ Web apps run on Node.js. Please see [webapps](https://github.com/DataTorrent/Mal
 Issue tracking
 --------------------
 
-Github issues tracking is used for tracking issues for this repository. You can monitor the state of existing issues and their track their progress there. 
+[Malhar JIRA](https://malhar.atlassian.net) issue tracking system is used for this project. You can monitor the state of existing issues and their track their progress at https://malhar.atlassian.net.
+
 
 Contributing
 --------------------
