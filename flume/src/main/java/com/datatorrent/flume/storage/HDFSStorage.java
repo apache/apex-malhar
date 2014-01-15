@@ -43,7 +43,7 @@ public class HDFSStorage implements Storage, Configurable
   public static final String BASE_DIR_KEY = "baseDir";
   public static final String RESTORE_KEY = "restore";
   public static final String BLOCKSIZE = "blockSize";
-  
+
   private static final String IDENTITY_FILE = "counter";
   private static final String CLEAN_FILE = "clean-counter";
   private static final String OFFSET_SUFFIX = "-offsetFile";
@@ -487,12 +487,13 @@ public class HDFSStorage implements Storage, Configurable
   private void closeUnflushedFiles()
   {
     try {
-      dataStream.close();
-
-      for (DataBlock openStream : files2Commit) {
-        openStream.dataStream.close();
+      if (dataStream != null) {
+        dataStream.close();
+        for (DataBlock openStream : files2Commit) {
+          openStream.dataStream.close();
+        }
+        files2Commit.clear();
       }
-      files2Commit.clear();
 
       writeData(fileCounterFile, String.valueOf(flushedFileCounter + 1).getBytes()).close();
       currentWrittenFile = flushedFileCounter + 1;
