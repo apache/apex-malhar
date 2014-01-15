@@ -17,6 +17,7 @@ import com.datatorrent.common.util.Slice;
 import com.datatorrent.flume.discovery.Discovery;
 import com.datatorrent.flume.discovery.Discovery.Service;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
+import com.datatorrent.netlet.DefaultEventLoop;
 
 /**
  *
@@ -31,6 +32,36 @@ public class Server extends com.datatorrent.netlet.Server
   {
     this.id = id;
     this.discovery = discovery;
+  }
+
+  @Override
+  public void handleException(Exception cce, DefaultEventLoop el)
+  {
+    logger.error("Server Error", cce);
+    Request r = new Request(Command.SERVER_ERROR, null)
+    {
+      @Override
+      public Slice getAddress()
+      {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+      }
+
+      @Override
+      public int getEventCount()
+      {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+      }
+
+      @Override
+      public int getIdleCount()
+      {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+      }
+
+    };
+    synchronized (requests) {
+      requests.add(r);
+    }
   }
 
   private final Service<byte[]> service = new Service<byte[]>()
@@ -78,12 +109,13 @@ public class Server extends com.datatorrent.netlet.Server
   public enum Command
   {
     ECHO((byte)0),
-    COMMITTED((byte)1),
-    CHECKPOINTED((byte)2),
-    SEEK((byte)3),
+    SEEK((byte)1),
+    COMMITTED((byte)2),
+    CHECKPOINTED((byte)3),
     CONNECTED((byte)4),
     DISCONNECTED((byte)5),
-    WINDOWED((byte)6);
+    WINDOWED((byte)6),
+    SERVER_ERROR((byte)7);
 
     Command(byte b)
     {
@@ -144,7 +176,6 @@ public class Server extends com.datatorrent.netlet.Server
     @Override
     public void onMessage(byte[] buffer, int offset, int size)
     {
-//      logger.debug("got a message with id {} of size {}", buffer[offset], size);
       if (Command.getCommand(buffer[offset]) == Command.ECHO) {
         write(buffer, offset, size);
         return;
@@ -156,13 +187,6 @@ public class Server extends com.datatorrent.netlet.Server
       }
     }
 
-//    @Override
-//    public void connected()
-//    {
-//      super.connected();
-//      logger.debug("some client connected!");
-//    }
-//
     @Override
     public void disconnected()
     {
