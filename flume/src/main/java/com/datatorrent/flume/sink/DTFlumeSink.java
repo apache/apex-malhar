@@ -25,6 +25,8 @@ import com.datatorrent.flume.sink.Server.Client;
 import com.datatorrent.flume.sink.Server.Request;
 import com.datatorrent.flume.storage.Storage;
 import com.datatorrent.netlet.DefaultEventLoop;
+import java.io.IOError;
+import java.util.ServiceConfigurationError;
 
 /**
  * DTFlumeSink is a flume sink developed to ingest the data into DataTorrent DAG
@@ -100,6 +102,9 @@ public class DTFlumeSink extends AbstractSink implements Configurable
             idleCount = r.getIdleCount();
             outstandingEventsCount -= lastConsumedEventsCount;
             break;
+
+          case SERVER_ERROR:
+            throw new IOError(null);
 
           default:
             logger.debug("Cannot understand the request {}", r);
@@ -242,6 +247,11 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   public void start()
   {
     try {
+      if (storage instanceof Component) {
+        @SuppressWarnings("unchecked")
+        Component<com.datatorrent.api.Context> component = (Component<com.datatorrent.api.Context>)storage;
+        component.setup(null);
+      }
       if (discovery instanceof Component) {
         @SuppressWarnings("unchecked")
         Component<com.datatorrent.api.Context> component = (Component<com.datatorrent.api.Context>)discovery;
@@ -272,17 +282,27 @@ public class DTFlumeSink extends AbstractSink implements Configurable
       super.stop();
     }
     finally {
-      if (client != null) {
-        eventloop.disconnect(client);
-        client = null;
-      }
+      try {
+        if (client != null) {
+          eventloop.disconnect(client);
+          client = null;
+        }
 
-      eventloop.stop(server);
-      eventloop.stop();
-      if (discovery instanceof Component) {
-        @SuppressWarnings("unchecked")
-        Component<com.datatorrent.api.Context> component = (Component<com.datatorrent.api.Context>)discovery;
-        component.teardown();
+        eventloop.stop(server);
+        eventloop.stop();
+        if (discovery instanceof Component) {
+          @SuppressWarnings("unchecked")
+          Component<com.datatorrent.api.Context> component = (Component<com.datatorrent.api.Context>)discovery;
+          component.teardown();
+        }
+        if (storage instanceof Component) {
+          @SuppressWarnings("unchecked")
+          Component<com.datatorrent.api.Context> component = (Component<com.datatorrent.api.Context>)storage;
+          component.teardown();
+        }
+      }
+      catch (Throwable cause) {
+        throw new ServiceConfigurationError("Failed Stop", cause);
       }
     }
   }
