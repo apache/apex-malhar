@@ -24,4 +24,5 @@ public interface Transactionable
   public void beginTransaction();
   public void commitTransaction();
   public void rollbackTransaction();
+  public boolean isInTransaction();
 }

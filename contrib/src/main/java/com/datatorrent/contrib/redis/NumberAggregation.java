@@ -46,26 +46,26 @@ class NumberAggregation<K, V>
   public void storeAggregate()
   {
     for (Map.Entry<Object, Object> entry : dataMap.entrySet()) {
-      String key = entry.getKey().toString();
+      Object key = entry.getKey();
       Object value = entry.getValue();
       if (value instanceof Map) {
         for (Map.Entry<Object, Object> entry1 : ((Map<Object, Object>)value).entrySet()) {
           String field = entry1.getKey().toString();
           Object hvalue = entry1.getValue();
           if (hvalue instanceof Number) {
-            store.hincrByFloat(key, field, ((Number)hvalue).doubleValue());
+            store.hincrByFloat(key.toString(), field, ((Number)hvalue).doubleValue());
           }
           else {
-            store.hincrByFloat(key, field, Double.parseDouble(hvalue.toString()));
+            store.hincrByFloat(key.toString(), field, Double.parseDouble(hvalue.toString()));
           }
         }
       }
       else {
         if (value instanceof Number) {
-          store.incrByFloat(key, ((Number)value).doubleValue());
+          store.incrByFloat(key.toString(), ((Number)value).doubleValue());
         }
         else {
-          store.incrByFloat(key, Double.parseDouble(value.toString()));
+          store.incrByFloat(key.toString(), Double.parseDouble(value.toString()));
         }
       }
     }

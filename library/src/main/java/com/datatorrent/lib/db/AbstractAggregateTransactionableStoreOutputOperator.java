@@ -25,11 +25,9 @@ public abstract class AbstractAggregateTransactionableStoreOutputOperator<T, S e
   public void endWindow()
   {
     store.beginTransaction();
-    setInTransaction(true);
     storeAggregate();
     storeCommittedWindowId(appId, operatorId, currentWindowId);
     store.commitTransaction();
-    setInTransaction(false);
     committedWindowId = currentWindowId;
     super.endWindow();
   }

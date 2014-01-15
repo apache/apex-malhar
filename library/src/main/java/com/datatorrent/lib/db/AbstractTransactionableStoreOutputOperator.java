@@ -30,7 +30,6 @@ import javax.validation.constraints.NotNull;
 public abstract class AbstractTransactionableStoreOutputOperator<T, S extends TransactionableStore> extends BaseOperator
 {
   protected S store;
-  protected transient boolean inTransaction = false;
   protected String appId;
   protected Integer operatorId;
   protected long currentWindowId = -1;
@@ -57,16 +56,6 @@ public abstract class AbstractTransactionableStoreOutputOperator<T, S extends Tr
   public void setStore(S store)
   {
     this.store = store;
-  }
-
-  public boolean isInTransaction()
-  {
-    return inTransaction;
-  }
-
-  public void setInTransaction(boolean inTransaction)
-  {
-    this.inTransaction = inTransaction;
   }
 
   @Override
@@ -112,7 +101,7 @@ public abstract class AbstractTransactionableStoreOutputOperator<T, S extends Tr
   public void teardown()
   {
     try {
-      if (inTransaction) {
+      if (store.isInTransaction()) {
         store.rollbackTransaction();
       }
       store.disconnect();

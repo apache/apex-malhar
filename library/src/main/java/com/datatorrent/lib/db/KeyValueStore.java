@@ -23,7 +23,7 @@ import java.util.Set;
  *
  * @since 0.9.3
  */
-public interface KeyValueStore
+public interface KeyValueStore extends Connectable
 {
   public Object get(Object key);
   public List<Object> getAll(List<Object> keys);

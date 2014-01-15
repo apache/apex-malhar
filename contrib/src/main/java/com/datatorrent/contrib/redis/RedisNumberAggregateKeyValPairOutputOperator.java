@@ -16,6 +16,7 @@
 package com.datatorrent.contrib.redis;
 
 import com.datatorrent.lib.util.KeyValPair;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -23,9 +24,10 @@ import java.util.Map;
  *
  * @since 0.3.2
  */
-public class RedisNumberAggregateKeyValPairOutputOperator<K, V> extends RedisAggregateKeyValPairOutputOperator<K, V>
+public class RedisNumberAggregateKeyValPairOutputOperator<K, V> extends AbstractRedisAggregateOutputOperator<KeyValPair<K, V>>
 {
-  private NumberAggregation<K, V> numberAggregation = new NumberAggregation<K, V>(store, dataMap);
+  private Map<Object, Object> dataMap = new HashMap<Object, Object>();
+  private transient NumberAggregation<K, V> numberAggregation = new NumberAggregation<K, V>(store, dataMap);
 
   @Override
   public void processTuple(KeyValPair<K, V> t)

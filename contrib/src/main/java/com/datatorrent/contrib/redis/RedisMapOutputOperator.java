@@ -15,31 +15,21 @@
  */
 package com.datatorrent.contrib.redis;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <p>RedisNumberAggregateMapOutputOperator class.</p>
+ * <p>RedisMapOutputOperator class.</p>
  *
  * @since 0.3.2
  */
-public class RedisNumberAggregateMapOutputOperator<K, V> extends AbstractRedisAggregateOutputOperator<Map<K, V>>
+public class RedisMapOutputOperator<K, V> extends AbstractRedisPassThruOutputOperator<Map<K, V>>
 {
-  private Map<Object, Object> dataMap = new HashMap<Object, Object>();
-  private NumberAggregation<K,V> numberAggregation = new NumberAggregation<K,V>(store, dataMap);
-
   @Override
   public void processTuple(Map<K, V> t)
   {
     for (Map.Entry<K, V> entry : t.entrySet()) {
-      numberAggregation.process(entry.getKey(), entry.getValue());
+      store.put(entry.getKey(), entry.getValue());
     }
-  }
-
-  @Override
-  public void storeAggregate()
-  {
-    numberAggregation.storeAggregate();
   }
 
 }

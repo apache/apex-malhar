@@ -27,7 +27,8 @@ import com.datatorrent.contrib.machinedata.data.MachineKey;
 import com.datatorrent.contrib.machinedata.operator.CalculatorOperator;
 import com.datatorrent.contrib.machinedata.operator.MachineInfoAveragingOperator;
 import com.datatorrent.contrib.machinedata.operator.MachineInfoAveragingPrerequisitesOperator;
-import com.datatorrent.contrib.redis.RedisAggregateKeyValPairOutputOperator;
+import com.datatorrent.contrib.redis.RedisKeyValPairOutputOperator;
+import com.datatorrent.contrib.redis.RedisMapOutputOperator;
 import com.datatorrent.contrib.redis.RedisStore;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.SmtpOutputOperator;
@@ -104,9 +105,9 @@ public class Application implements StreamingApplication
    * @param database the database instance id
    * @return RedisOutputOperator
    */
-  private RedisAggregateKeyValPairOutputOperator<MachineKey, Map<String, String>> getRedisOutputOperator(String name, DAG dag, Configuration conf, int database)
+  private RedisKeyValPairOutputOperator<MachineKey, Map<String, String>> getRedisOutputOperator(String name, DAG dag, Configuration conf, int database)
   {
-    RedisAggregateKeyValPairOutputOperator<MachineKey, Map<String, String>> oper = dag.addOperator(name, new RedisAggregateKeyValPairOutputOperator<MachineKey, Map<String, String>>());
+    RedisKeyValPairOutputOperator<MachineKey, Map<String, String>> oper = dag.addOperator(name, new RedisKeyValPairOutputOperator<MachineKey, Map<String, String>>());
     String host = conf.get("machinedata.redis.host", "localhost");
     int port = conf.getInt("machinedata.redis.port", 6379);
     RedisStore store = oper.getStore();
@@ -193,7 +194,7 @@ public class Application implements StreamingApplication
     setDefaultInputPortQueueCapacity(dag, averageOperator.inputPort);
     setDefaultOutputPortQueueCapacity(dag, averageOperator.outputPort);
 
-    RedisAggregateKeyValPairOutputOperator<MachineKey, Map<String, String>> redisAvgOperator = getRedisOutputOperator("RedisAverageOutput", dag, conf, conf.getInt("machinedata.redis.db", 5));
+    RedisKeyValPairOutputOperator<MachineKey, Map<String, String>> redisAvgOperator = getRedisOutputOperator("RedisAverageOutput", dag, conf, conf.getInt("machinedata.redis.db", 5));
     setDefaultInputPortQueueCapacity(dag, redisAvgOperator.input);
     dag.setInputPortAttribute(redisAvgOperator.input, PortContext.PARTITION_PARALLEL, true);
     dag.addStream("avg_output", averageOperator.outputPort, redisAvgOperator.input);

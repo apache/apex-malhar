@@ -27,7 +27,6 @@ public abstract class AbstractPassThruTransactionableStoreOutputOperator<T, S ex
   {
     super.beginWindow(windowId);
     store.beginTransaction();
-    setInTransaction(true);
   }
 
   @Override
@@ -35,7 +34,6 @@ public abstract class AbstractPassThruTransactionableStoreOutputOperator<T, S ex
   {
     storeCommittedWindowId(appId, operatorId, currentWindowId);
     store.commitTransaction();
-    setInTransaction(false);
     committedWindowId = currentWindowId;
     super.endWindow();
   }

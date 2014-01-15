@@ -15,24 +15,15 @@
  */
 package com.datatorrent.lib.db;
 
-import com.datatorrent.lib.util.KeyValPair;
-import java.util.Map;
-
 /**
  *
+ * @param <T>
+ * @param <S>
  * @since 0.9.3
  */
-public class AggregateKeyValPairTransactionableStoreOutputOperator<K, V, S extends TransactionableKeyValueStore>
-        extends AbstractAggregateTransactionableStoreOutputOperator<KeyValPair<K, V>, S>
+public abstract class AbstractPassThruTransactionableKeyValueStoreOutputOperator<T, S extends TransactionableKeyValueStore>
+        extends AbstractPassThruTransactionableStoreOutputOperator<T, S>
 {
-  protected Map<Object, Object> dataMap;
-
-  @Override
-  public void storeAggregate()
-  {
-    store.putAll(dataMap);
-  }
-
   @Override
   protected long getCommittedWindowId(String appId, int operatorId)
   {
@@ -49,12 +40,6 @@ public class AggregateKeyValPairTransactionableStoreOutputOperator<K, V, S exten
   protected Object getCommittedWindowKey(String appId, int operatorId)
   {
     return "_dt_wid:" + appId + ":" + operatorId;
-  }
-
-  @Override
-  public void processTuple(KeyValPair<K, V> tuple)
-  {
-    dataMap.put(tuple.getKey(), tuple.getValue());
   }
 
 }

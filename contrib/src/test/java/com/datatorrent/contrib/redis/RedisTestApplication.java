@@ -69,13 +69,9 @@ public class RedisTestApplication implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
     RandomNumberGenerator rng = dag.addOperator("random", new RandomNumberGenerator());
-    RedisAggregateKeyValPairOutputOperator<Integer, Integer> redis = dag.addOperator("redis", new RedisAggregateKeyValPairOutputOperator<Integer, Integer>());
-    String connectionList = conf.get("redsitestapplication.hostlist", "localhost,6379,1|localhost,6379,2|localhost,6379,3");
-    int partitions = conf.getInt("redsitestapplication.partition", 3);
+    RedisKeyValPairOutputOperator<Integer, Integer> redis = dag.addOperator("redis", new RedisKeyValPairOutputOperator<Integer, Integer>());
     RedisStore redisStore = redis.getStore();
-    redisStore.setConnectionList(connectionList);
     redisStore.setKeyExpiryTime(60);
-    dag.setAttribute(redis, OperatorContext.INITIAL_PARTITION_COUNT, partitions);
     dag.addStream("stream", rng.output, redis.input);
 
   }
