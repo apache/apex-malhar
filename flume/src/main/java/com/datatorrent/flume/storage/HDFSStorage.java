@@ -7,8 +7,10 @@ package com.datatorrent.flume.storage;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
+
+import javax.validation.constraints.NotNull;
 
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
@@ -38,11 +40,10 @@ import com.datatorrent.flume.sink.Server;
  */
 public class HDFSStorage implements Storage, Configurable
 {
-  private static final String IDENTITY_FILE = "/counter";
-  private static final String CLEAN_FILE = "/clean-counter";
+  private static final String IDENTITY_FILE = "counter";
+  private static final String CLEAN_FILE = "clean-counter";
   private static final String OFFSET_SUFFIX = "-offsetFile";
-  private static final String CLEAN_OFFSET_FILE = "/cleanoffsetFile";
-  private static final String PATH_SEPARATOR = "/";
+  private static final String CLEAN_OFFSET_FILE = "cleanoffsetFile";
   public static final String BASE_DIR_KEY = "baseDir";
   public static final String OFFSET_KEY = "offset";
   public static final String RESTORE_KEY = "restore";
@@ -50,13 +51,27 @@ public class HDFSStorage implements Storage, Configurable
   private static final int IDENTIFIER_SIZE = 8;
   private static final int DATA_LENGTH_BYTE_SIZE = 4;
   /**
-   * The baseDir where the storage facility is going to create files
+   * Identifier for this storage.
    */
+  @NotNull
+  private String id;
+  /**
+   * The baseDir where the storage facility is going to create files.
+   */
+  @NotNull
   private String baseDir;
+  /**
+   * The block size to be used to create the storage files
+   */
+  private long blockSize;
+  /**
+   *
+   */
+  private boolean restore;
   /**
    * This identifies the current file number
    */
-  private long fileCounter;
+  private long currentWrittenFile;
   /**
    * This identifies the file number that has been flushed
    */
@@ -79,11 +94,7 @@ public class HDFSStorage implements Storage, Configurable
   private Path cleanFileOffsetFile;
   private FileSystem fs;
   private FSDataOutputStream dataStream;
-  List<DataBlock> files2Commit = new ArrayList<DataBlock>();
-  /**
-   * The block size to be used to create the storage files
-   */
-  private long blockSize;
+  ArrayList<DataBlock> files2Commit = new ArrayList<DataBlock>();
   /**
    * The offset in the current opened file
    */
@@ -96,6 +107,13 @@ public class HDFSStorage implements Storage, Configurable
   private byte[] cleanedOffset = new byte[8];
   private long skipOffset;
   private long skipFile;
+  private transient Path basePath;
+
+  public HDFSStorage()
+  {
+    this.blockSize = 64 * 1024 * 1024;
+    this.restore = true;
+  }
 
   /**
    * This stores the Identifier information identified in the last store function call
@@ -106,66 +124,84 @@ public class HDFSStorage implements Storage, Configurable
   @Override
   public void configure(Context ctx)
   {
-    String id = ctx.getString(ID);
-    if (id == null) {
-      throw new RuntimeException(String.format("id can't be  null."));
+    String tempId = ctx.getString(ID);
+    if (tempId == null) {
+      if (id == null) {
+        throw new IllegalArgumentException("id can't be  null.");
+      }
+    }
+    else {
+      id = tempId;
     }
 
     Configuration conf = new Configuration();
-    baseDir = ctx.getString(BASE_DIR_KEY, conf.get("hadoop.tmp.dir"));
+
+    String tempBaseDir = ctx.getString(BASE_DIR_KEY);
+    if (tempBaseDir == null) {
+      if (baseDir == null) {
+        baseDir = conf.get("hadoop.tmp.dir");
+        if (baseDir == null || baseDir.isEmpty()) {
+          throw new IllegalArgumentException("baseDir cannot be null.");
+        }
+      }
+    }
+    else {
+      baseDir = tempBaseDir;
+    }
+
     // offset = ctx.getInteger(OFFSET_KEY, 4);
     offset = 4;
     skipOffset = -1;
     skipFile = -1;
 
-    boolean restore = ctx.getBoolean(RESTORE_KEY, true);
-    if (baseDir.length() > 0) {
-      try {
-        fs = FileSystem.get(conf);
-        Path path = new Path(baseDir);
-        if (!fs.exists(path)) {
-          throw new RuntimeException(String.format("baseDir passed (%s) doesn't exist.", baseDir));
-        }
-        if (!fs.isDirectory(path)) {
-          throw new RuntimeException(String.format("baseDir passed (%s) is not a directory.", baseDir));
-        }
-        baseDir = baseDir + PATH_SEPARATOR + id;
-        path = new Path(baseDir);
-        if (!restore) {
-          fs.delete(path, true);
-        }
-        if (!fs.exists(path) || !fs.isDirectory(path)) {
-          fs.mkdirs(path);
-        }
-
-        blockSize = ctx.getLong(BLOCKSIZE, fs.getDefaultBlockSize(path));
-        fileCounter = 0;
-        cleanedFileCounter = -1;
-        retrievalFile = -1;
-        fileCounterFile = new Path(baseDir + IDENTITY_FILE);
-        cleanFileCounterFile = new Path(baseDir + CLEAN_FILE);
-        cleanFileOffsetFile = new Path(baseDir + CLEAN_OFFSET_FILE);
-        if (restore) {
-          if (fs.exists(fileCounterFile) && fs.isFile(fileCounterFile)) {
-            fileCounter = Long.valueOf(new String(readData(fileCounterFile)));
-
-          }
-          if (fs.exists(cleanFileCounterFile) && fs.isFile(cleanFileCounterFile)) {
-            cleanedFileCounter = Long.valueOf(new String(readData(cleanFileCounterFile)));
-          }
-          if (fs.exists(cleanFileOffsetFile) && fs.isFile(cleanFileOffsetFile)) {
-            cleanedOffset = readData(cleanFileOffsetFile);
-          }
-        }
-        flushedFileCounter = fileCounter;
+    try {
+      fs = FileSystem.get(conf);
+      Path path = new Path(baseDir);
+      if (!fs.exists(path)) {
+        throw new RuntimeException(String.format("baseDir passed (%s) doesn't exist.", baseDir));
       }
-      catch (IOException io) {
-        throw new RuntimeException(io);
+      if (!fs.isDirectory(path)) {
+        throw new RuntimeException(String.format("baseDir passed (%s) is not a directory.", baseDir));
       }
 
+      basePath = new Path(path, id);
+
+      restore = ctx.getBoolean(RESTORE_KEY, restore);
+      if (!restore) {
+        fs.delete(basePath, true);
+      }
+      if (!fs.exists(basePath) || !fs.isDirectory(basePath)) {
+        fs.mkdirs(basePath);
+      }
+
+      long tempBlockSize = ctx.getLong(BLOCKSIZE, fs.getDefaultBlockSize(basePath));
+      if (tempBlockSize > 0) {
+        blockSize = tempBlockSize;
+      }
+
+      currentWrittenFile = 0;
+      cleanedFileCounter = -1;
+      retrievalFile = -1;
+      fileCounterFile = new Path(basePath, IDENTITY_FILE);
+      cleanFileCounterFile = new Path(basePath, CLEAN_FILE);
+      cleanFileOffsetFile = new Path(basePath, CLEAN_OFFSET_FILE);
+      if (restore) {
+        if (fs.exists(fileCounterFile) && fs.isFile(fileCounterFile)) {
+          currentWrittenFile = Long.valueOf(new String(readData(fileCounterFile)));
+        }
+
+        if (fs.exists(cleanFileCounterFile) && fs.isFile(cleanFileCounterFile)) {
+          cleanedFileCounter = Long.valueOf(new String(readData(cleanFileCounterFile)));
+        }
+
+        if (fs.exists(cleanFileOffsetFile) && fs.isFile(cleanFileOffsetFile)) {
+          cleanedOffset = readData(cleanFileOffsetFile);
+        }
+      }
+      flushedFileCounter = currentWrittenFile;
     }
-    else {
-      throw new RuntimeException(String.format("baseDir (%s) can't be empty", baseDir));
+    catch (IOException io) {
+      throw new RuntimeException(io);
     }
   }
 
@@ -211,26 +247,24 @@ public class HDFSStorage implements Storage, Configurable
   @Override
   public byte[] store(byte[] bytes)
   {
-    if (fileWriteOffset + bytes.length + DATA_LENGTH_BYTE_SIZE < blockSize) {
+    int bytesToWrite = bytes.length + DATA_LENGTH_BYTE_SIZE;
+    if (fileWriteOffset + bytesToWrite < blockSize) {
       try {
-
+        /* write length and the actual data to the file */
         if (fileWriteOffset == 0) {
-          dataStream = writeData(new Path(baseDir + PATH_SEPARATOR + fileCounter), Ints.toByteArray(bytes.length));
+          dataStream = writeData(new Path(basePath, String.valueOf(currentWrittenFile)), Ints.toByteArray(bytes.length));
           dataStream.write(bytes);
-          // writeData(fileCounterFile, String.valueOf(fileCounter + 1).getBytes()).close();
         }
         else {
           dataStream.write(Ints.toByteArray(bytes.length));
           dataStream.write(bytes);
         }
-        fileWriteOffset += (bytes.length + DATA_LENGTH_BYTE_SIZE);
-        byte[] fileOffset = null;
-        if (fileCounter > skipFile || (fileCounter == skipFile && fileWriteOffset >= skipOffset)) {
-          fileOffset = new byte[IDENTIFIER_SIZE];
-          Server.writeLong(fileOffset, 0, calculateOffset(fileWriteOffset, fileCounter));
-          // once the current file write offset becomes greater than skip offset, skip offset needs to be reset to -1
-          // o/w for all subsequent files as well store will return null till skipoffset
+        fileWriteOffset += bytesToWrite;
 
+        byte[] fileOffset = null;
+        if (currentWrittenFile > skipFile || (currentWrittenFile == skipFile && fileWriteOffset > skipOffset)) {
+          fileOffset = new byte[IDENTIFIER_SIZE];
+          Server.writeLong(fileOffset, 0, calculateOffset(fileWriteOffset, currentWrittenFile));
         }
         return fileOffset;
       }
@@ -239,9 +273,9 @@ public class HDFSStorage implements Storage, Configurable
         throw new RuntimeException(ex);
       }
     }
-    files2Commit.add(new DataBlock(dataStream, fileWriteOffset, new Path(baseDir + PATH_SEPARATOR + fileCounter + OFFSET_SUFFIX), fileCounter));
+    files2Commit.add(new DataBlock(dataStream, fileWriteOffset, new Path(basePath, currentWrittenFile + OFFSET_SUFFIX), currentWrittenFile));
     fileWriteOffset = 0;
-    ++fileCounter;
+    ++currentWrittenFile;
     return store(bytes);
   }
 
@@ -264,32 +298,33 @@ public class HDFSStorage implements Storage, Configurable
     retrievalOffset = byteArrayToLong(identifier, 0);
     retrievalFile = byteArrayToLong(identifier, offset);
 
-    if (retrievalFile == 0 && retrievalOffset == 0 && fileCounter == 0 && fileWriteOffset == 0) {
+    if (retrievalFile == 0 && retrievalOffset == 0 && currentWrittenFile == 0 && fileWriteOffset == 0) {
       skipOffset = 0;
       return null;
     }
 
     // flushing the last incomplete flushed file
-    flushInCompleteFlushedFile();
+    closeUnflushedFiles();
 
-
-    if ((retrievalFile > fileCounter) || (retrievalFile == fileCounter && retrievalOffset >= fileWriteOffset)) {
+    if ((retrievalFile > currentWrittenFile) || (retrievalFile == currentWrittenFile && retrievalOffset >= fileWriteOffset)) {
       skipFile = retrievalFile;
       skipOffset = retrievalOffset;
       return null;
     }
 
 
-    if (retrievalFile >= flushedFileCounter && retrievalFile <= fileCounter) {
-      logger.warn("data not flushed for the given identifier");
-      return null;
-    }
-
+    // socho... jor lagake.
+//    if (retrievalFile >= flushedFileCounter && retrievalFile <= currentWrittenFile) {
+//      logger.warn("data not flushed for the given identifier");
+//      return null;
+//    }
+//
     // making sure that the deleted address is not requested again
     if (retrievalFile != 0 || retrievalOffset != 0) {
-      if (retrievalFile < byteArrayToLong(cleanedOffset, offset) || (retrievalFile == byteArrayToLong(cleanedOffset, offset) && retrievalOffset < byteArrayToLong(cleanedOffset, 0))) {
+      long cleanedFile = byteArrayToLong(cleanedOffset, offset);
+      if (retrievalFile < cleanedFile || (retrievalFile == cleanedFile && retrievalOffset < byteArrayToLong(cleanedOffset, 0))) {
         logger.warn("The address asked has been deleted");
-        return null;
+        throw new IllegalArgumentException(String.format("The data for address %s has already been deleted", Arrays.toString(identifier)));
       }
     }
 
@@ -303,17 +338,18 @@ public class HDFSStorage implements Storage, Configurable
       if (readStream != null) {
         readStream.close();
       }
-      String fn = baseDir + PATH_SEPARATOR + retrievalFile;
-      if (!fs.exists(new Path(fn))) {
+      Path path = new Path(basePath, String.valueOf(retrievalFile));
+      if (!fs.exists(path)) {
         retrievalFile = -1;
-        throw new RuntimeException(String.format("File %s does not exist", fn));
+        throw new RuntimeException(String.format("File %s does not exist", path.toString()));
       }
-      byte[] flushedOffset = readData(new Path(baseDir + PATH_SEPARATOR + retrievalFile + OFFSET_SUFFIX));
+
+      byte[] flushedOffset = readData(new Path(basePath, retrievalFile + OFFSET_SUFFIX));
       flushedLong = Server.readLong(flushedOffset, 0);
       while (retrievalOffset >= flushedLong && retrievalFile < flushedFileCounter) {
         retrievalFile++;
         retrievalOffset -= flushedLong;
-        flushedOffset = readData(new Path(baseDir + PATH_SEPARATOR + retrievalFile + OFFSET_SUFFIX));
+        flushedOffset = readData(new Path(basePath, retrievalFile + OFFSET_SUFFIX));
         flushedLong = Server.readLong(flushedOffset, 0);
       }
 
@@ -321,15 +357,23 @@ public class HDFSStorage implements Storage, Configurable
         logger.warn("data not flushed for the given identifier");
         return null;
       }
-      readStream = new FSDataInputStream(fs.open(new Path(baseDir + PATH_SEPARATOR + retrievalFile)));
+      readStream = new FSDataInputStream(fs.open(path));
       readStream.seek(retrievalOffset);
       return retrieveHelper();
     }
     catch (IOException e) {
-      retrievalFile = -1;
       logger.warn(e.getMessage());
+      try {
+        readStream.close();
+      }
+      catch (IOException io) {
+        logger.warn("Failed Close", io);
+      }
+      finally {
+        retrievalFile = -1;
+        readStream = null;
+      }
       return null;
-
     }
   }
 
@@ -357,26 +401,30 @@ public class HDFSStorage implements Storage, Configurable
     if (retrievalFile == -1) {
       throw new RuntimeException("Call retrieve first");
     }
+
     if (retrievalFile >= flushedFileCounter) {
       logger.warn("data is not flushed");
       return null;
     }
+
     try {
-      if (readStream == null) {
-        readStream = new FSDataInputStream(fs.open(new Path(baseDir + PATH_SEPARATOR + (retrievalFile))));
-        byte[] flushedOffset = readData(new Path(baseDir + PATH_SEPARATOR + retrievalFile + OFFSET_SUFFIX));
-        flushedLong = Server.readLong(flushedOffset, 0);
-      }
+//      if (readStream == null) {
+//        readStream = new FSDataInputStream(fs.open(new Path(basePath, String.valueOf(retrievalFile))));
+//        byte[] flushedOffset = readData(new Path(basePath, retrievalFile + OFFSET_SUFFIX));
+//        flushedLong = Server.readLong(flushedOffset, 0);
+//      }
       if (retrievalOffset >= flushedLong) {
         retrievalFile++;
         retrievalOffset = 0;
+
         if (retrievalFile >= flushedFileCounter) {
           logger.warn("data is not flushed");
           return null;
         }
+        
         readStream.close();
-        readStream = new FSDataInputStream(fs.open(new Path(baseDir + PATH_SEPARATOR + retrievalFile)));
-        byte[] flushedOffset = readData(new Path(baseDir + PATH_SEPARATOR + retrievalFile + OFFSET_SUFFIX));
+        readStream = new FSDataInputStream(fs.open(new Path(basePath, String.valueOf(retrievalFile))));
+        byte[] flushedOffset = readData(new Path(basePath, retrievalFile + OFFSET_SUFFIX));
         flushedLong = Server.readLong(flushedOffset, 0);
       }
       readStream.seek(retrievalOffset);
@@ -398,11 +446,11 @@ public class HDFSStorage implements Storage, Configurable
     }
     try {
       do {
-        Path path = new Path(baseDir + PATH_SEPARATOR + cleanedFileCounter);
+        Path path = new Path(basePath, String.valueOf(cleanedFileCounter));
         if (fs.exists(path) && fs.isFile(path)) {
           fs.delete(path, false);
         }
-        path = new Path(baseDir + PATH_SEPARATOR + cleanedFileCounter + OFFSET_SUFFIX);
+        path = new Path(basePath, cleanedFileCounter + OFFSET_SUFFIX);
         if (fs.exists(path) && fs.isFile(path)) {
           fs.delete(path, false);
         }
@@ -434,34 +482,23 @@ public class HDFSStorage implements Storage, Configurable
     }
   }
 
-  private void flushInCompleteFlushedFile()
+  private void closeUnflushedFiles()
   {
     try {
-      if (flushedFileCounter == fileCounter) {
-        if (dataStream != null) {
-          fileCounter = flushedFileCounter + 1;
-          dataStream.close();
-          writeData(fileCounterFile, String.valueOf(flushedFileCounter + 1).getBytes()).close();
-        }
-      }
-      else {
-        Iterator<DataBlock> itr = files2Commit.iterator();
-        while (itr.hasNext()) {
-          DataBlock db = itr.next();
-          if (db.fileName == flushedFileCounter) {
-            db.dataStream.close();
-          }
-        }
-      }
+      dataStream.close();
 
+      for (DataBlock openStream : files2Commit) {
+        openStream.dataStream.close();
+      }
+      files2Commit.clear();
 
+      writeData(fileCounterFile, String.valueOf(flushedFileCounter + 1).getBytes()).close();
+      currentWrittenFile = flushedFileCounter + 1;
+      fileWriteOffset = 0;
     }
     catch (IOException e) {
-      logger.warn(e.getMessage());
+      throw new RuntimeException(e);
     }
-    files2Commit.clear();
-    fileWriteOffset = 0;
-
   }
 
   @Override
@@ -470,8 +507,8 @@ public class HDFSStorage implements Storage, Configurable
     if (dataStream != null) {
       try {
         dataStream.hflush();
-        writeData(fileCounterFile, String.valueOf(fileCounter + 1).getBytes()).close();
-        updateFlushedOffset(new Path(baseDir + PATH_SEPARATOR + fileCounter + OFFSET_SUFFIX), fileWriteOffset);
+        writeData(fileCounterFile, String.valueOf(currentWrittenFile + 1).getBytes()).close();
+        updateFlushedOffset(new Path(basePath, currentWrittenFile + OFFSET_SUFFIX), fileWriteOffset);
       }
       catch (IOException ex) {
         logger.warn("not able to close the stream {}", ex.getMessage());
@@ -483,7 +520,7 @@ public class HDFSStorage implements Storage, Configurable
     while (itr.hasNext()) {
       itr.next().close();
     }
-    flushedFileCounter = fileCounter;
+    flushedFileCounter = currentWrittenFile;
     files2Commit.clear();
   }
 
@@ -509,6 +546,70 @@ public class HDFSStorage implements Storage, Configurable
         throw new RuntimeException(e1);
       }
     }
+  }
+
+  /**
+   * @return the baseDir
+   */
+  public String getBaseDir()
+  {
+    return baseDir;
+  }
+
+  /**
+   * @param baseDir the baseDir to set
+   */
+  public void setBaseDir(String baseDir)
+  {
+    this.baseDir = baseDir;
+  }
+
+  /**
+   * @return the id
+   */
+  public String getId()
+  {
+    return id;
+  }
+
+  /**
+   * @param id the id to set
+   */
+  public void setId(String id)
+  {
+    this.id = id;
+  }
+
+  /**
+   * @return the blockSize
+   */
+  public long getBlockSize()
+  {
+    return blockSize;
+  }
+
+  /**
+   * @param blockSize the blockSize to set
+   */
+  public void setBlockSize(long blockSize)
+  {
+    this.blockSize = blockSize;
+  }
+
+  /**
+   * @return the restore
+   */
+  public boolean isRestore()
+  {
+    return restore;
+  }
+
+  /**
+   * @param restore the restore to set
+   */
+  public void setRestore(boolean restore)
+  {
+    this.restore = restore;
   }
 
   class DataBlock
