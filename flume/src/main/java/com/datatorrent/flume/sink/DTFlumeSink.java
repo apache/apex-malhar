@@ -95,6 +95,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
             if (r.client == client) {
               client = null;
             }
+            outstandingEventsCount = 0;
             break;
 
           case WINDOWED:
@@ -175,14 +176,15 @@ public class DTFlumeSink extends AbstractSink implements Configurable
         outstandingEventsCount += i;
       }
       else {
-        int i = 0;
+        int storedTuples = 0;
+        int writtenTuples = 0;
 
         Transaction t = getChannel().getTransaction();
         try {
           t.begin();
 
           Event e;
-          while (i < maxTuples && (e = getChannel().take()) != null) {
+          while (storedTuples < maxTuples && (e = getChannel().take()) != null) {
             byte[] address = storage.store(e.getBody());
             logger.debug("got data {} from channel - address = {}", e.getBody(), address);
             if (address != null) {
@@ -196,20 +198,23 @@ public class DTFlumeSink extends AbstractSink implements Configurable
                   throw io;
                 }
               }
+
+              writtenTuples++;
             }
             else {
               logger.debug("Detected the condition of recovery from flume crash!");
             }
-            i++;
+            storedTuples++;
           }
 
-          if (i > 0) {
-            outstandingEventsCount += i;
+          if (storedTuples > 0) {
             storage.flush();
-            logger.debug("Transaction details maxTuples = {}, i = {}, outstanding = {}", maxTuples, i, outstandingEventsCount);
           }
 
           t.commit();
+
+          outstandingEventsCount += writtenTuples;
+          logger.debug("Transaction details maxTuples = {}, i = {}, outstanding = {}", maxTuples, storedTuples, outstandingEventsCount);
         }
         catch (Error er) {
           t.rollback();
@@ -224,7 +229,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
           t.close();
         }
 
-        if (i == 0) {
+        if (storedTuples == 0) {
           sleep();
         }
       }
