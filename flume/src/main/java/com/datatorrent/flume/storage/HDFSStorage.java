@@ -40,14 +40,15 @@ import com.datatorrent.flume.sink.Server;
  */
 public class HDFSStorage implements Storage, Configurable
 {
+  public static final String BASE_DIR_KEY = "baseDir";
+  public static final String RESTORE_KEY = "restore";
+  public static final String BLOCKSIZE = "blockSize";
+  
   private static final String IDENTITY_FILE = "counter";
   private static final String CLEAN_FILE = "clean-counter";
   private static final String OFFSET_SUFFIX = "-offsetFile";
   private static final String CLEAN_OFFSET_FILE = "cleanoffsetFile";
-  public static final String BASE_DIR_KEY = "baseDir";
   public static final String OFFSET_KEY = "offset";
-  public static final String RESTORE_KEY = "restore";
-  public static final String BLOCKSIZE = "blockSize";
   private static final int IDENTIFIER_SIZE = 8;
   private static final int DATA_LENGTH_BYTE_SIZE = 4;
   /**
@@ -408,11 +409,12 @@ public class HDFSStorage implements Storage, Configurable
     }
 
     try {
-//      if (readStream == null) {
-//        readStream = new FSDataInputStream(fs.open(new Path(basePath, String.valueOf(retrievalFile))));
-//        byte[] flushedOffset = readData(new Path(basePath, retrievalFile + OFFSET_SUFFIX));
-//        flushedLong = Server.readLong(flushedOffset, 0);
-//      }
+      if (readStream == null) {
+        readStream = new FSDataInputStream(fs.open(new Path(basePath, String.valueOf(retrievalFile))));
+        byte[] flushedOffset = readData(new Path(basePath, retrievalFile + OFFSET_SUFFIX));
+        flushedLong = Server.readLong(flushedOffset, 0);
+      }
+
       if (retrievalOffset >= flushedLong) {
         retrievalFile++;
         retrievalOffset = 0;
@@ -472,7 +474,7 @@ public class HDFSStorage implements Storage, Configurable
   /**
    * This is used mainly for cleaning up of counter files created
    */
-  public void cleanHelperFiles()
+  void cleanHelperFiles()
   {
     try {
       fs.delete(basePath, true);
