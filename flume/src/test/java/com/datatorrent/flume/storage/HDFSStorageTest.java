@@ -19,6 +19,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
 import com.datatorrent.flume.sink.Server;
+import org.junit.After;
+import org.junit.Before;
 
 /**
  *
@@ -35,15 +37,28 @@ public class HDFSStorageTest
     ctx.put(HDFSStorage.RESTORE_KEY, Boolean.toString(restore));
     ctx.put(HDFSStorage.ID, id);
     ctx.put(HDFSStorage.BLOCKSIZE, "256");
-    HDFSStorage storage = new HDFSStorage();
-    ((Configurable) storage).configure(ctx);
-    return storage;
+    HDFSStorage lstorage = new HDFSStorage();
+    lstorage.configure(ctx);
+    return lstorage;
+  }
+
+  private HDFSStorage storage;
+
+  @Before
+  public void setup()
+  {
+    storage = getStorage("1", false);
+  }
+
+  @After
+  public void teardown()
+  {
+    storage.cleanHelperFiles();
   }
 
   @Test
   public void testStorage() throws IOException
   {
-    HDFSStorage storage = getStorage("1", false);
     Assert.assertNull(storage.retrieve(new byte[8]));
     byte[] b = new byte[200];
     Assert.assertNotNull(storage.store(b));
@@ -56,13 +71,11 @@ public class HDFSStorageTest
     byte[] identifier = new byte[8];
     Server.writeLong(identifier, 0, calculateOffset(0l, 1l));
     storage.clean(identifier);
-    storage.cleanHelperFiles();
   }
 
   @Test
   public void testStorageWithRestore() throws IOException
   {
-    HDFSStorage storage = getStorage("1", false);
     Assert.assertNull(storage.retrieve(new byte[8]));
     byte[] b = new byte[200];
     Assert.assertNotNull(storage.store(b));
@@ -75,13 +88,11 @@ public class HDFSStorageTest
     FileSystem fs = FileSystem.get(conf);
     boolean exists = fs.exists(new Path(STORAGE_DIRECTORY + "/1/" + "1"));
     Assert.assertEquals("file shoule exist", true, exists);
-    storage.cleanHelperFiles();
   }
 
   @Test
   public void testCleanup() throws IOException
   {
-    HDFSStorage storage = getStorage("1", false);
     RandomAccessFile r = new RandomAccessFile("src/test/resources/TestInput.txt", "r");
     r.seek(0);
     byte[] b = r.readLine().getBytes();
@@ -94,13 +105,11 @@ public class HDFSStorageTest
     boolean exists = fs.exists(new Path(STORAGE_DIRECTORY + "/" + "0"));
     Assert.assertEquals("file shoule not exist", false, exists);
     r.close();
-    storage.cleanHelperFiles();
   }
 
   @Test
   public void testNext() throws IOException
   {
-    HDFSStorage storage = getStorage("1", false);
     RandomAccessFile r = new RandomAccessFile("src/test/resources/TestInput.txt", "r");
     r.seek(0);
     Assert.assertNull(storage.retrieve(new byte[8]));
@@ -126,13 +135,11 @@ public class HDFSStorageTest
     System.arraycopy(data, 8, tempData, 0, tempData.length);
     Assert.assertEquals("matched the stored value with retrieved value", new String(b), new String(tempData));
     r.close();
-    storage.cleanHelperFiles();
   }
 
   @Test
   public void testRetrieval() throws IOException
   {
-    HDFSStorage storage = getStorage("1", false);
     RandomAccessFile r = new RandomAccessFile("src/test/resources/TestInput.txt", "r");
     r.seek(0);
     byte[] address = new byte[8];
@@ -148,7 +155,7 @@ public class HDFSStorageTest
     Assert.assertNotNull(storage.store(b1));
     Assert.assertNotNull(storage.store(b));
     Assert.assertNotNull(storage.store(b1));
-   // storage.flush();
+    // storage.flush();
     Assert.assertNull(storage.retrieveNext());
     storage.flush();
     byte[] data = storage.retrieveNext();
@@ -169,16 +176,12 @@ public class HDFSStorageTest
     System.arraycopy(data, 8, tempData, 0, tempData.length);
     System.arraycopy(data, 0, identifier, 0, 8);
     Assert.assertEquals("matched the stored value with retrieved value", new String(b1), new String(tempData));
-    storage.cleanHelperFiles();
     r.close();
   }
-
-
 
   @Test
   public void testFailure() throws IOException
   {
-    HDFSStorage storage = getStorage("1", false);
     byte[] address;
     byte[] b = new byte[200];
     storage.retrieve(new byte[8]);
@@ -192,26 +195,23 @@ public class HDFSStorageTest
     byte[] identifier = new byte[8];
     storage = getStorage("1", true);
 
-      storage.retrieve(identifier);
+    storage.retrieve(identifier);
 
-      storage.store(b);
-      storage.store(b);
-      storage.store(b);
-      storage.flush();
-      byte[] data = storage.retrieve(identifier);
-      byte[] tempData = new byte[data.length - 8];
-      System.arraycopy(data, 8, tempData, 0, tempData.length);
-      Assert.assertEquals("matched the stored value with retrieved value", new String(b), new String(tempData));
-
-    storage.cleanHelperFiles();
+    storage.store(b);
+    storage.store(b);
+    storage.store(b);
+    storage.flush();
+    byte[] data = storage.retrieve(identifier);
+    byte[] tempData = new byte[data.length - 8];
+    System.arraycopy(data, 8, tempData, 0, tempData.length);
+    Assert.assertEquals("matched the stored value with retrieved value", new String(b), new String(tempData));
   }
-
-  @SuppressWarnings("unused")
-  private static final Logger logger = LoggerFactory.getLogger(HDFSStorageTest.class);
 
   private long calculateOffset(long fileOffset, long fileCounter)
   {
     return ((fileCounter << 32) | (fileOffset & 0xffffffffl));
   }
 
+  @SuppressWarnings("unused")
+  private static final Logger logger = LoggerFactory.getLogger(HDFSStorageTest.class);
 }
