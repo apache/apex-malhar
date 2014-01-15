@@ -421,7 +421,7 @@ public class HDFSStorage implements Storage, Configurable
           logger.warn("data is not flushed");
           return null;
         }
-        
+
         readStream.close();
         readStream = new FSDataInputStream(fs.open(new Path(basePath, String.valueOf(retrievalFile))));
         byte[] flushedOffset = readData(new Path(basePath, retrievalFile + OFFSET_SUFFIX));
@@ -475,7 +475,7 @@ public class HDFSStorage implements Storage, Configurable
   public void cleanHelperFiles()
   {
     try {
-      fs.delete(new Path(baseDir), true);
+      fs.delete(basePath, true);
     }
     catch (IOException e) {
       logger.warn(e.getMessage());
