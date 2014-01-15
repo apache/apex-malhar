@@ -129,31 +129,46 @@ public class Server extends com.datatorrent.netlet.Server
 
     public static Command getCommand(byte b)
     {
+      Command c;
       switch (b) {
         case 0:
-          return ECHO;
+          c =  ECHO;
+          break;
 
         case 1:
-          return COMMITTED;
+          c = SEEK;
+          break;
 
         case 2:
-          return CHECKPOINTED;
+          c =  COMMITTED;
+          break;
 
         case 3:
-          return SEEK;
+          c =  CHECKPOINTED;
+          break;
 
         case 4:
-          return CONNECTED;
+          c = CONNECTED;
+          break;
 
         case 5:
-          return DISCONNECTED;
+          c = DISCONNECTED;
+          break;
 
         case 6:
-          return WINDOWED;
+          c = WINDOWED;
+          break;
+
+        case 7:
+          c = SERVER_ERROR;
+          break;
 
         default:
-          return null;
+          throw new IllegalArgumentException(String.format("No Command defined for ordinal %b", b));
       }
+
+      assert(b == c.ord);
+      return c;
     }
 
     private final byte ord;
