@@ -16,12 +16,12 @@
 package com.datatorrent.contrib.redis;
 
 import com.datatorrent.api.annotation.ShipContainingJars;
-import com.datatorrent.lib.db.AbstractAggregateTransactionableKeyValueStoreOutputOperator;
 import com.datatorrent.lib.db.AbstractPassThruTransactionableKeyValueStoreOutputOperator;
 import redis.clients.jedis.Jedis;
 
 /**
  *
+ * @param <T> The tuple type.
  * @since 0.9.3
  */
 @ShipContainingJars(classes = {Jedis.class})

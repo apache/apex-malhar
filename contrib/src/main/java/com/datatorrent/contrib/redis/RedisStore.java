@@ -15,10 +15,6 @@
  */
 package com.datatorrent.contrib.redis;
 
-import com.datatorrent.api.DefaultPartition;
-import com.datatorrent.api.Partitionable;
-import com.datatorrent.api.Partitionable.Partition;
-import com.datatorrent.lib.db.AbstractTransactionableStoreOutputOperator;
 import com.datatorrent.lib.db.TransactionableKeyValueStore;
 import java.io.IOException;
 import java.util.*;

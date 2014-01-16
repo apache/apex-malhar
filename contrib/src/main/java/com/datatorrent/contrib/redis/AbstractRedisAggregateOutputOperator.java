@@ -21,6 +21,7 @@ import redis.clients.jedis.Jedis;
 
 /**
  *
+ * @param <T> The tuple type.
  * @since 0.9.3
  */
 @ShipContainingJars(classes = {Jedis.class})

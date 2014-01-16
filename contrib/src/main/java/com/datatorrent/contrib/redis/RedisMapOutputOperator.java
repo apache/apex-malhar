@@ -20,6 +20,8 @@ import java.util.Map;
 /**
  * <p>RedisMapOutputOperator class.</p>
  *
+ * @param <K>
+ * @param <V> 
  * @since 0.3.2
  */
 public class RedisMapOutputOperator<K, V> extends AbstractRedisPassThruOutputOperator<Map<K, V>>

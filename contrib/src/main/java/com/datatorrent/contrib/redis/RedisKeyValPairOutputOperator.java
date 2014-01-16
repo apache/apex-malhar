@@ -20,6 +20,8 @@ import com.datatorrent.lib.util.KeyValPair;
 /**
  * <p>RedisMapOutputOperator class.</p>
  *
+ * @param <K>
+ * @param <V> 
  * @since 0.3.2
  */
 public class RedisKeyValPairOutputOperator<K, V> extends AbstractRedisPassThruOutputOperator<KeyValPair<K, V>>

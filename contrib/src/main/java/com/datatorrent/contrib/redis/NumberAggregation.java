@@ -10,7 +10,7 @@ import org.apache.commons.lang.mutable.MutableDouble;
 import org.apache.commons.lang.mutable.MutableLong;
 
 /**
- *
+ * Provides routines of number aggregation. Not to be exported outside of this package
  * @since 0.9.3
  */
 class NumberAggregation<K, V>
@@ -43,6 +43,7 @@ class NumberAggregation<K, V>
     }
   }
 
+  @SuppressWarnings("unchecked")
   public void storeAggregate()
   {
     for (Map.Entry<Object, Object> entry : dataMap.entrySet()) {
@@ -71,6 +72,7 @@ class NumberAggregation<K, V>
     }
   }
 
+  @SuppressWarnings("unchecked")
   public void process(K key, V value) throws RuntimeException
   {
     if (value instanceof Map) {

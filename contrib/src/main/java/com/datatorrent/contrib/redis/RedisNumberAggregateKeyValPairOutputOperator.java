@@ -22,6 +22,8 @@ import java.util.Map;
 /**
  * <p>RedisNumberAggregateKeyValPairOutputOperator class.</p>
  *
+ * @param <K>
+ * @param <V> 
  * @since 0.3.2
  */
 public class RedisNumberAggregateKeyValPairOutputOperator<K, V> extends AbstractRedisAggregateOutputOperator<KeyValPair<K, V>>
