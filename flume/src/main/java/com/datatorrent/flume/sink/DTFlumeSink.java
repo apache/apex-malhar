@@ -4,10 +4,13 @@
  */
 package com.datatorrent.flume.sink;
 
+import java.io.IOError;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.ServiceConfigurationError;
+import java.util.zip.CRC32;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +28,6 @@ import com.datatorrent.flume.sink.Server.Client;
 import com.datatorrent.flume.sink.Server.Request;
 import com.datatorrent.flume.storage.Storage;
 import com.datatorrent.netlet.DefaultEventLoop;
-import java.io.IOError;
-import java.util.ServiceConfigurationError;
 
 /**
  * DTFlumeSink is a flume sink developed to ingest the data into DataTorrent DAG
@@ -68,8 +69,9 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   private int maximumEventsPerTransaction;
   private Storage storage;
   Discovery<byte[]> discovery;
-
+  byte[] previousBody;
   /* Begin implementing Flume Sink interface */
+
   @Override
   @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch", "SleepWhileInLoop"})
   public Status process() throws EventDeliveryException
@@ -189,7 +191,13 @@ public class DTFlumeSink extends AbstractSink implements Configurable
 
           Event e;
           while (storedTuples < maxTuples && (e = getChannel().take()) != null) {
-            byte[] address = storage.store(e.getBody());
+            byte[] body = e.getBody();
+
+            byte[] address = storage.store(body);
+            CRC32 crc = new CRC32();
+            crc.update(body);
+            logger.debug("body = {} checksum = {} address = {}", (Object)body, crc.getValue(), address);
+
             if (address != null) {
               while (!client.write(address, e.getBody())) {
                 try {
@@ -219,7 +227,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
 
           outstandingEventsCount += writtenTuples;
           if (storedTuples > 0) { /* log less frequently */
-            logger.debug("Transaction details maxTuples = {}, i = {}, outstanding = {}", maxTuples, storedTuples, outstandingEventsCount);
+            logger.debug("Transaction details maxTuples = {}, storedTuples = {}, outstanding = {}", maxTuples, storedTuples, outstandingEventsCount);
           }
         }
         catch (Error er) {
