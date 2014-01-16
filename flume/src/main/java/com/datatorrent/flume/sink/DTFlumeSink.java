@@ -97,8 +97,8 @@ public class DTFlumeSink extends AbstractSink implements Configurable
           case DISCONNECTED:
             if (r.client == client) {
               client = null;
+              outstandingEventsCount = 0;
             }
-            outstandingEventsCount = 0;
             break;
 
           case WINDOWED:
@@ -168,6 +168,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
               logger.warn("Playback Failed", io);
               eventloop.disconnect(client);
               client = null;
+              outstandingEventsCount = 0;
               return Status.BACKOFF;
             }
           }
@@ -197,6 +198,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
                 catch (IOException io) {
                   eventloop.disconnect(client);
                   client = null;
+                  outstandingEventsCount = 0;
                   throw io;
                 }
               }
