@@ -368,7 +368,7 @@ public abstract class AbstractFlumeInputOperator<T>
   @Override
   public String toString()
   {
-    return "AbstractFlumeInputOperator{" + "connected=" + connected + ", connectionSpecs=" + connectionSpecs + ", recoveryAddresses=" + recoveryAddresses + '}';
+    return "AbstractFlumeInputOperator{" + "connected=" + connected + ", connectionSpecs=" + (connectionSpecs.length == 0? "empty" : connectionSpecs[0]) + ", recoveryAddresses=" + recoveryAddresses + '}';
   }
 
   class Client extends AbstractLengthPrependerClient
