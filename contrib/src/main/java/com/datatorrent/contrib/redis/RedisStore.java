@@ -24,6 +24,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Transaction;
 
 /**
+ * Provides the implementation of a Redis store.
  *
  * @since 0.9.3
  */
@@ -34,55 +35,84 @@ public class RedisStore implements TransactionableKeyValueStore
   private String host = "localhost";
   private int port = 6379;
   private int dbIndex = 0;
-  private int timeout = 10000;
   protected int keyExpiryTime = -1;
   private transient Transaction transaction;
 
+  /**
+   * Gets the host.
+   *
+   * @return
+   */
   public String getHost()
   {
     return host;
   }
 
+  /**
+   * Sets the host.
+   *
+   * @param host
+   */
   public void setHost(String host)
   {
     this.host = host;
   }
 
+  /**
+   * Gets the port.
+   *
+   * @return
+   */
   public int getPort()
   {
     return port;
   }
 
+  /**
+   * Sets the port.
+   *
+   * @param port
+   */
   public void setPort(int port)
   {
     this.port = port;
   }
 
+  /**
+   * Gets the DB index.
+   *
+   * @return
+   */
   public int getDbIndex()
   {
     return dbIndex;
   }
 
+  /**
+   * Sets the DB index.
+   *
+   * @param dbIndex
+   */
   public void setDbIndex(int dbIndex)
   {
     this.dbIndex = dbIndex;
   }
 
-  public int getTimeout()
-  {
-    return timeout;
-  }
-
-  public void setTimeout(int timeout)
-  {
-    this.timeout = timeout;
-  }
-
+  /**
+   * Gets the key expiry time.
+   *
+   * @return
+   */
   public int getKeyExpiryTime()
   {
     return keyExpiryTime;
   }
 
+  /**
+   * Sets the key expiry time.
+   *
+   * @param keyExpiryTime
+   */
   public void setKeyExpiryTime(int keyExpiryTime)
   {
     this.keyExpiryTime = keyExpiryTime;
@@ -193,6 +223,13 @@ public class RedisStore implements TransactionableKeyValueStore
     jedis.del(key.toString());
   }
 
+  /**
+   * Calls hincrbyfloat on the redis store.
+   *
+   * @param key
+   * @param field
+   * @param doubleValue
+   */
   public void hincrByFloat(String key, String field, double doubleValue)
   {
     jedis.hincrByFloat(key, field, doubleValue);
@@ -201,6 +238,12 @@ public class RedisStore implements TransactionableKeyValueStore
     }
   }
 
+  /**
+   * Calls incrbyfloat on the redis store.
+   * 
+   * @param key
+   * @param doubleValue
+   */
   public void incrByFloat(String key, double doubleValue)
   {
     jedis.incrByFloat(key, doubleValue);

@@ -20,6 +20,7 @@ import com.datatorrent.lib.db.AbstractAggregateTransactionableKeyValueStoreOutpu
 import redis.clients.jedis.Jedis;
 
 /**
+ * This abstract class provides the base class for any redis aggregate output adapter.
  *
  * @param <T> The tuple type.
  * @since 0.9.3

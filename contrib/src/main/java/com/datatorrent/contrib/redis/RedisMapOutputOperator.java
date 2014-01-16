@@ -20,8 +20,10 @@ import java.util.Map;
 /**
  * <p>RedisMapOutputOperator class.</p>
  *
- * @param <K>
- * @param <V> 
+ * This output adapter takes maps as tuples and just writes to the redis store with the keys and the values in the map
+ *
+ * @param <K> The key type.
+ * @param <V> The value type.
  * @since 0.3.2
  */
 public class RedisMapOutputOperator<K, V> extends AbstractRedisPassThruOutputOperator<Map<K, V>>

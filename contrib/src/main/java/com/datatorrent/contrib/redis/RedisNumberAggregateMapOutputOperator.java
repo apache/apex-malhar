@@ -20,9 +20,12 @@ import java.util.Map;
 
 /**
  * <p>RedisNumberAggregateMapOutputOperator class.</p>
+ * This class provides output adapter that takes a map of key type K and value type V, and if
+ * V is a map, it will increment the values in the map in redis as hash, otherwise, it will increment the value
+ * as is.
  *
- * @param <K>
- * @param <V> 
+ * @param <K> The key type
+ * @param <V> The value type
  * @since 0.3.2
  */
 public class RedisNumberAggregateMapOutputOperator<K, V> extends AbstractRedisAggregateOutputOperator<Map<K, V>>
