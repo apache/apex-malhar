@@ -65,6 +65,9 @@ public class HDFSStorageTest
     byte[] identifier = new byte[8];
     Assert.assertNotNull(storage.store(b));
     Assert.assertNotNull(storage.store(b));
+    Assert.assertNull(storage.retrieve(new byte[8]));
+    Assert.assertNotNull(storage.store(b));
+    Assert.assertNotNull(storage.store(b));
     storage.flush();
     byte[] data = storage.retrieve(new byte[8]);
     Assert.assertNotNull(storage.store(b));
