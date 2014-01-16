@@ -6,13 +6,20 @@ package com.datatorrent.flume.sink;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Collection;
+import java.util.Collections;
 
 import org.junit.Test;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.flume.channel.MemoryChannel;
+
+import com.datatorrent.common.util.Slice;
+import com.datatorrent.flume.discovery.Discovery;
+import com.datatorrent.flume.discovery.Discovery.Service;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 import com.datatorrent.netlet.DefaultEventLoop;
-import org.apache.flume.channel.MemoryChannel;
 
 /**
  *
@@ -21,24 +28,55 @@ import org.apache.flume.channel.MemoryChannel;
 public class DTFlumeSinkTest
 {
   static final String hostname = "localhost";
-  static final int port = 5033;
+  int port = 0;
 
   @Test
   @SuppressWarnings("SleepWhileInLoop")
   public void testServer() throws InterruptedException, IOException
   {
+    Discovery<byte[]> discovery = new Discovery<byte[]>()
+    {
+      @Override
+      public synchronized void unadvertise(Service<byte[]> service)
+      {
+        notify();
+      }
+
+      @Override
+      public synchronized void advertise(Service<byte[]> service)
+      {
+        port = service.getPort();
+        logger.debug("listening at {}", service);
+        notify();
+      }
+
+      @Override
+      @SuppressWarnings("unchecked")
+      public synchronized Collection<Service<byte[]>> discover()
+      {
+        try {
+          wait();
+        }
+        catch (InterruptedException ie) {
+          throw new RuntimeException(ie);
+        }
+        return Collections.EMPTY_LIST;
+      }
+
+    };
     DTFlumeSink sink = new DTFlumeSink();
     sink.setName("TeskSink");
     sink.setHostname(hostname);
-    sink.setPort(port);
+    sink.setPort(0);
     sink.setChannel(new MemoryChannel());
+    sink.setDiscovery(discovery);
     sink.start();
     AbstractLengthPrependerClient client = new AbstractLengthPrependerClient()
     {
       @Override
       public void onMessage(byte[] buffer, int offset, int size)
       {
-        logger.debug("Client Received = {}", new String(buffer, offset, size));
+        logger.debug("Client Received = {}", new Slice(buffer, offset, size));
         synchronized (DTFlumeSinkTest.this) {
           DTFlumeSinkTest.this.notify();
         }
@@ -68,6 +106,7 @@ public class DTFlumeSinkTest
 
     DefaultEventLoop eventloop = new DefaultEventLoop("Eventloop-TestClient");
     eventloop.start();
+    discovery.discover();
     try {
       eventloop.connect(new InetSocketAddress(hostname, port), client);
       try {
@@ -86,5 +125,5 @@ public class DTFlumeSinkTest
     sink.stop();
   }
 
-  private static final org.slf4j.Logger logger = LoggerFactory.getLogger(DTFlumeSinkTest.class);
+  private static final Logger logger = LoggerFactory.getLogger(DTFlumeSinkTest.class);
 }
