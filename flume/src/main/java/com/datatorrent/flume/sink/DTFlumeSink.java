@@ -73,8 +73,6 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   byte[] previousBody;
   /* Begin implementing Flume Sink interface */
 
-  HashSet<String> seenIdentities = new HashSet<String>();
-
   @Override
   @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch", "SleepWhileInLoop"})
   public Status process() throws EventDeliveryException
@@ -194,21 +192,11 @@ public class DTFlumeSink extends AbstractSink implements Configurable
 
           Event e;
           while (storedTuples < maxTuples && (e = getChannel().take()) != null) {
-            byte[] body = e.getBody();
-            byte[] address = storage.store(body);
-            CRC32 crc = new CRC32();
-            crc.update(body);
-            logger.debug("Identity = {} checksum = {} address = {}", "" + body, crc.getValue(), address);
-
-            if (seenIdentities.contains("" + body)) {
-              throw new RuntimeException("Reused body?!");
-            }
-            seenIdentities.add("" + body);
-
+            byte[] address = storage.store(e.getBody());
             if (address != null) {
-              while (!client.write(address, e.getBody())) {
+              while (!client.write(address, e.getBody().clone())) {
                 try {
-                  retryWrite(address, e.getBody());
+                  retryWrite(address, e.getBody().clone());
                 }
                 catch (IOException io) {
                   eventloop.disconnect(client);
