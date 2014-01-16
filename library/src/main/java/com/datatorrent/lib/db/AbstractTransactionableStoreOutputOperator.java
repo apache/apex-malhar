@@ -24,7 +24,11 @@ import java.io.IOException;
 import javax.validation.constraints.NotNull;
 
 /**
- * 
+ * This abstract class is intended to be an output adapter for a TransactionStore with "transactional exactly once" feature
+ * For non-idempotent operations (e.g. incrementing values in the store, etc)
+ *
+ * @param <T> The type of the tuple
+ * @param <S> The store type
  * @since 0.9.3
  */
 public abstract class AbstractTransactionableStoreOutputOperator<T, S extends TransactionableStore> extends BaseOperator
@@ -35,6 +39,9 @@ public abstract class AbstractTransactionableStoreOutputOperator<T, S extends Tr
   protected long currentWindowId = -1;
   protected long committedWindowId = -1;
 
+  /**
+   * The input port
+   */
   @InputPortFieldAnnotation(name = "in", optional = true)
   public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()
   {
@@ -48,11 +55,21 @@ public abstract class AbstractTransactionableStoreOutputOperator<T, S extends Tr
 
   };
 
+  /**
+   * Gets the store
+   *
+   * @return the store
+   */
   public S getStore()
   {
     return store;
   }
 
+  /**
+   * Sets the store
+   *
+   * @param store
+   */
   public void setStore(S store)
   {
     this.store = store;
@@ -112,7 +129,7 @@ public abstract class AbstractTransactionableStoreOutputOperator<T, S extends Tr
   }
 
   /**
-   * Processes the incoming tuple.
+   * Processes the incoming tuple.  Implementations need to provide what to do with the tuple (how to store the tuple)
    *
    * @param tuple
    */

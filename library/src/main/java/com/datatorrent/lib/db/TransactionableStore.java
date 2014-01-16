@@ -16,6 +16,7 @@
 package com.datatorrent.lib.db;
 
 /**
+ * This interface is for a store that supports transactions
  *
  * @since 0.9.3
  */

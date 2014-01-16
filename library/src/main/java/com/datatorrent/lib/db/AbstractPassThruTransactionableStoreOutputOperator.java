@@ -16,7 +16,12 @@
 package com.datatorrent.lib.db;
 
 /**
+ * This abstract class is intended for pass-through output adapter of any transactional store that wants the "transactional exactly once" feature.
+ * "Pass-through" means it does not wait for end window to write to the store. It will begin transaction at begin window and write to the store as the tuples
+ * come and commit the transaction at end window.
  *
+ * @param <T> The tuple type
+ * @param <S> The store type
  * @since 0.9.3
  */
 public abstract class AbstractPassThruTransactionableStoreOutputOperator<T, S extends TransactionableStore> extends AbstractTransactionableStoreOutputOperator<T, S>

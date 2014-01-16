@@ -20,16 +20,48 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * This interface is for any service that provides key/value storage
  *
  * @since 0.9.3
  */
 public interface KeyValueStore extends Connectable
 {
+  /**
+   * Gets the value given the key.
+   *
+   * @param key
+   * @return the value
+   */
   public Object get(Object key);
+
+  /**
+   * Gets all the values given by all the keys.
+   * Optimally the implementation should take advantage of any bulk get call with the store
+   *
+   * @param keys
+   * @return the list of values
+   */
   public List<Object> getAll(List<Object> keys);
 
+  /**
+   * Sets the key with the value in the store.
+   *
+   * @param key
+   * @param value
+   */
   public void put(Object key, Object value);
+
+  /**
+   * Sets the keys with the values according to the given map
+   *
+   * @param m the map
+   */
   public void putAll(Map<Object, Object> m);
 
+  /**
+   * Removes the key and the value given the key
+   * 
+   * @param key
+   */
   public void remove(Object key);
 }

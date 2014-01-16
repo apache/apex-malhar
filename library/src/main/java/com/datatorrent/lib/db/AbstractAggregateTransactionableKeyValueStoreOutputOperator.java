@@ -16,9 +16,10 @@
 package com.datatorrent.lib.db;
 
 /**
+ * This abstract class is for aggregate output (over one application window) to a transactionable key value store with the transactional exactly-once feature.
  *
- * @param <T>
- * @param <S>
+ * @param <T> The tuple type.
+ * @param <S> The store type.
  * @since 0.9.3
  */
 public abstract class AbstractAggregateTransactionableKeyValueStoreOutputOperator<T, S extends TransactionableKeyValueStore>

@@ -16,13 +16,30 @@
 package com.datatorrent.lib.db;
 
 /**
+ * This interface is for any service that provides transactional feature
  *
  * @since 0.9.3
  */
 public interface Transactionable
 {
+  /**
+   * Begins a transaction.
+   */
   public void beginTransaction();
+
+  /**
+   * Commits the current transaction.
+   */
   public void commitTransaction();
+
+  /**
+   * Rolls back the current transaction.
+   */
   public void rollbackTransaction();
+
+  /**
+   * Returns whether currently is in a transaction.
+   * @return
+   */
   public boolean isInTransaction();
 }

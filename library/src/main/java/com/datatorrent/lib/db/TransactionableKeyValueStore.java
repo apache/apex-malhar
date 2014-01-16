@@ -16,7 +16,8 @@
 package com.datatorrent.lib.db;
 
 /**
- *
+ * This interface is for a key value store that supports transactions
+ * 
  * @since 0.9.3
  */
 public interface TransactionableKeyValueStore extends TransactionableStore, KeyValueStore
