@@ -22,6 +22,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Partitionable.PartitionAware;
 import com.datatorrent.api.Stats.OperatorStats;
 import com.datatorrent.api.Stats.OperatorStats.CustomStats;
+import com.datatorrent.common.util.Slice;
 
 import com.datatorrent.flume.discovery.Discovery.Service;
 import com.datatorrent.flume.discovery.ZKAssistedDiscovery;
@@ -107,15 +108,16 @@ public abstract class AbstractFlumeInputOperator<T>
     int i = handoverBuffer.size();
     if (i > 0) {
       while (--i > 0) {
-        output.emit(handoverBuffer.poll().payload);
+        final Slice slice = handoverBuffer.poll();
+        output.emit(convert(slice.buffer, slice.offset + 8, slice.length - 8));
         eventCounter++;
       }
 
-      Payload poll = handoverBuffer.poll();
-      output.emit(poll.payload);
+      final Slice slice = handoverBuffer.poll();
+      output.emit(convert(slice.buffer, slice.offset + 8, slice.length - 8));
       eventCounter++;
 
-      address = poll.location;
+      address = Arrays.copyOfRange(slice.buffer, slice.offset, slice.offset + 8);
     }
   }
 
@@ -369,25 +371,6 @@ public abstract class AbstractFlumeInputOperator<T>
     return "AbstractFlumeInputOperator{" + "connected=" + connected + ", connectionSpecs=" + connectionSpecs + ", recoveryAddresses=" + recoveryAddresses + '}';
   }
 
-  private class Payload
-  {
-    final T payload;
-    final byte[] location;
-
-    Payload(T payload, byte[] location)
-    {
-      this.payload = payload;
-      this.location = location;
-    }
-
-    @Override
-    public String toString()
-    {
-      return "Payload{" + "payload=" + payload + ", location=" + Arrays.toString(location) + '}';
-    }
-
-  }
-
   class Client extends AbstractLengthPrependerClient
   {
     private final String id;
@@ -400,10 +383,8 @@ public abstract class AbstractFlumeInputOperator<T>
     @Override
     public void onMessage(byte[] buffer, int offset, int size)
     {
-      /* this are all the payload messages */
-      Payload payload = new Payload(convert(buffer, offset + 8, size - 8), Arrays.copyOfRange(buffer, offset, offset + 8));
       try {
-        handoverBuffer.put(payload);
+        handoverBuffer.put(new Slice(buffer, offset, size));
       }
       catch (InterruptedException ex) {
         handleException(ex, eventloop);
@@ -616,6 +597,6 @@ public abstract class AbstractFlumeInputOperator<T>
   };
   private static final transient ThreadLocal<Collection<Service<byte[]>>> discoveredFlumeSinks = new ThreadLocal<Collection<Service<byte[]>>>();
   @SuppressWarnings("FieldMayBeFinal") // it's not final because that mucks with the serialization somehow
-  private transient ArrayBlockingQueue<Payload> handoverBuffer = new ArrayBlockingQueue<Payload>(1024 * 5);
+  private transient ArrayBlockingQueue<Slice> handoverBuffer = new ArrayBlockingQueue<Slice>(1024 * 5);
   private static final Logger logger = LoggerFactory.getLogger(AbstractFlumeInputOperator.class);
 }
