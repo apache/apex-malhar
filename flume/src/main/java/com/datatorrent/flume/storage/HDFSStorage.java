@@ -5,6 +5,7 @@
 package com.datatorrent.flume.storage;
 
 import java.io.DataInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -176,9 +177,15 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
    */
   private FSDataOutputStream writeData(Path path, byte[] data) throws IOException
   {
-    FSDataOutputStream stream = fs.create(path);
-    stream.write(data);
-    return stream;
+    FSDataOutputStream fsOutputStream;
+    if (fs.getScheme().equals("file")) {
+      // local FS does not support hflush and does not flush native stream      
+      fsOutputStream = new FSDataOutputStream(new FileOutputStream(Path.getPathWithoutSchemeAndAuthority(path).toString()), null);
+    } else {
+      fsOutputStream = fs.create(path);
+    }    
+    fsOutputStream.write(data);
+    return fsOutputStream;
   }
 
   private long calculateOffset(long fileOffset, long fileCounter)
