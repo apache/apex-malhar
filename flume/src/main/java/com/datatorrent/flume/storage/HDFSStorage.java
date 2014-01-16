@@ -257,12 +257,6 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       return null;
     }
 
-    // socho... jor lagake.
-    // if (retrievalFile >= flushedFileCounter && retrievalFile <= currentWrittenFile) {
-    // logger.warn("data not flushed for the given identifier");
-    // return null;
-    // }
-    //
     // making sure that the deleted address is not requested again
     if (retrievalFile != 0 || retrievalOffset != 0) {
       long cleanedFile = byteArrayToLong(cleanedOffset, offset);
