@@ -28,6 +28,7 @@ import com.datatorrent.flume.sink.Server.Client;
 import com.datatorrent.flume.sink.Server.Request;
 import com.datatorrent.flume.storage.Storage;
 import com.datatorrent.netlet.DefaultEventLoop;
+import java.util.*;
 
 /**
  * DTFlumeSink is a flume sink developed to ingest the data into DataTorrent DAG
@@ -71,6 +72,8 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   Discovery<byte[]> discovery;
   byte[] previousBody;
   /* Begin implementing Flume Sink interface */
+
+  HashSet<Integer> seenIdentities = new HashSet<Integer>();
 
   @Override
   @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch", "SleepWhileInLoop"})
@@ -192,11 +195,16 @@ public class DTFlumeSink extends AbstractSink implements Configurable
           Event e;
           while (storedTuples < maxTuples && (e = getChannel().take()) != null) {
             byte[] body = e.getBody();
-
+            int identityHashCode = System.identityHashCode(body);
             byte[] address = storage.store(body);
             CRC32 crc = new CRC32();
             crc.update(body);
-            logger.debug("body = {} checksum = {} address = {}", (Object)body, crc.getValue(), address);
+            logger.debug("Identity = {} checksum = {} address = {}", identityHashCode, crc.getValue(), address);
+
+            if (seenIdentities.contains(identityHashCode)) {
+              throw new RuntimeException("Reused body?!");
+            }
+            seenIdentities.add(identityHashCode);
 
             if (address != null) {
               while (!client.write(address, e.getBody())) {
