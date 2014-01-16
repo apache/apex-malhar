@@ -451,6 +451,15 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
         ++flushedFileCounter;
         currentWrittenFile = flushedFileCounter;
         fileWriteOffset = 0;
+        flushedLong = 0;
+      }else{
+        // Flush was never called
+        if (fs.exists(fileCounterFile) && fs.isFile(fileCounterFile)) {
+          currentWrittenFile = Long.valueOf(new String(readData(fileCounterFile)));
+        }
+        flushedFileCounter = currentWrittenFile;
+        fileWriteOffset = 0;
+        flushedLong= 0;
       }
 
     }
