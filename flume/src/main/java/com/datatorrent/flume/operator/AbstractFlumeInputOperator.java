@@ -87,7 +87,7 @@ public abstract class AbstractFlumeInputOperator<T>
       }
     }
     else {
-      throw new RuntimeException(String.format("A physical %s operator cannot connect to more than 1 addresses!", this.getClass().getSimpleName()));
+      throw new IllegalArgumentException(String.format("A physical %s operator cannot connect to more than 1 addresses!", this.getClass().getSimpleName()));
     }
 
     context = ctx;
@@ -343,12 +343,14 @@ public abstract class AbstractFlumeInputOperator<T>
       throw new RuntimeException(ex);
     }
 
+    logger.debug("Requesting partitions: {}", partitions);
     return partitions;
   }
 
   @Override
   public void partitioned(Map<Integer, Partition<AbstractFlumeInputOperator<T>>> partitions)
   {
+    logger.debug("Partitioned Map: {}", partitions);
     HashMap<Integer, ConnectionStatus> map = partitionedInstanceStatus.get();
     map.clear();
     for (Entry<Integer, Partition<AbstractFlumeInputOperator<T>>> entry : partitions.entrySet()) {
@@ -359,6 +361,12 @@ public abstract class AbstractFlumeInputOperator<T>
         map.put(entry.getKey(), null);
       }
     }
+  }
+
+  @Override
+  public String toString()
+  {
+    return "AbstractFlumeInputOperator{" + "connected=" + connected + ", connectionSpecs=" + connectionSpecs + ", recoveryAddresses=" + recoveryAddresses + '}';
   }
 
   private class Payload
@@ -510,6 +518,8 @@ public abstract class AbstractFlumeInputOperator<T>
             super.teardown();
           }
           AbstractFlumeInputOperator.discoveredFlumeSinks.set(addresses);
+          logger.debug("current map = {}", map);
+          logger.debug("discovered sinks = {}", addresses);
           if (addresses.size() == map.size()) {
             response.repartitionRequired = map.containsValue(null);
           }

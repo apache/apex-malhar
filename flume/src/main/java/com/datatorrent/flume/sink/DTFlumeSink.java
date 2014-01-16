@@ -50,6 +50,8 @@ import java.util.ServiceConfigurationError;
  */
 public class DTFlumeSink extends AbstractSink implements Configurable
 {
+  private static final String HOSTNAME_STRING = "hostname";
+  private static final String HOSTNAME_DEFAULT = "locahost";
   private DefaultEventLoop eventloop;
   private Server server;
   private int outstandingEventsCount;
@@ -187,7 +189,6 @@ public class DTFlumeSink extends AbstractSink implements Configurable
           Event e;
           while (storedTuples < maxTuples && (e = getChannel().take()) != null) {
             byte[] address = storage.store(e.getBody());
-            logger.debug("got data {} from channel - address = {}", e.getBody(), address);
             if (address != null) {
               while (!client.write(address, e.getBody())) {
                 try {
@@ -215,7 +216,9 @@ public class DTFlumeSink extends AbstractSink implements Configurable
           t.commit();
 
           outstandingEventsCount += writtenTuples;
-          logger.debug("Transaction details maxTuples = {}, i = {}, outstanding = {}", maxTuples, storedTuples, outstandingEventsCount);
+          if (storedTuples > 0) { /* log less frequently */
+            logger.debug("Transaction details maxTuples = {}, i = {}, outstanding = {}", maxTuples, storedTuples, outstandingEventsCount);
+          }
         }
         catch (Error er) {
           t.rollback();
@@ -319,7 +322,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   @Override
   public void configure(Context context)
   {
-    hostname = context.getString("hostname", "localhost");
+    hostname = context.getString(HOSTNAME_STRING, HOSTNAME_DEFAULT);
     port = context.getInteger("port", 0);
     id = context.getString("id");
     if (id == null) {
@@ -329,8 +332,6 @@ public class DTFlumeSink extends AbstractSink implements Configurable
     throughputAdjustmentFactor = context.getInteger("throughputAdjustmentPercent", 5) / 100.0;
     maximumEventsPerTransaction = context.getInteger("maximumEventsPerTransaction", 10000);
     minimumEventsPerTransaction = context.getInteger("minimumEventsPerTransaction", 100);
-
-    logger.debug("hostname = {}\nport = {}\nid = {}\nsleepMillis = {}\nthroughputAdjustmentFactor = {}\nmaximumEventsPerTransaction = {}\nminimumEventsPerTransaction = {}", hostname, port, id, sleepMillis, throughputAdjustmentFactor, maximumEventsPerTransaction, minimumEventsPerTransaction);
 
     @SuppressWarnings("unchecked")
     Discovery<byte[]> ldiscovery = configure("discovery", Discovery.class, context);
