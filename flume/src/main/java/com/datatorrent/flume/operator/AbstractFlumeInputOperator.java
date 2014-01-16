@@ -507,13 +507,15 @@ public abstract class AbstractFlumeInputOperator<T>
           else {
             response.repartitionRequired = true;
           }
-          nextMillis = System.currentTimeMillis() + intervalMillis;
         }
         catch (Error er) {
           throw er;
         }
         catch (Throwable cause) {
           logger.warn("Unable to discover services, using values from last successful discovery", cause);
+        }
+        finally {
+          nextMillis = System.currentTimeMillis() + intervalMillis;
         }
       }
 
