@@ -448,19 +448,11 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       if (fs.exists(new Path(basePath, flushedFileCounter + OFFSET_SUFFIX))) {
         // This means that flush was called
         writeData(fileCounterFile, String.valueOf(flushedFileCounter + 1).getBytes()).close();
-        ++flushedFileCounter;
-        currentWrittenFile = flushedFileCounter;
-        fileWriteOffset = 0;
-        flushedLong = 0;
-      }else{
-        // Flush was never called
-        if (fs.exists(fileCounterFile) && fs.isFile(fileCounterFile)) {
-          currentWrittenFile = Long.valueOf(new String(readData(fileCounterFile)));
-        }
-        flushedFileCounter = currentWrittenFile;
-        fileWriteOffset = 0;
-        flushedLong= 0;
+        ++flushedFileCounter;        
       }
+      currentWrittenFile = flushedFileCounter;
+      fileWriteOffset = 0;
+      flushedLong = 0;
 
     }
     catch (IOException e) {
