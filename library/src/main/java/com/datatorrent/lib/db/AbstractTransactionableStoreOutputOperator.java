@@ -24,7 +24,7 @@ import java.io.IOException;
 import javax.validation.constraints.NotNull;
 
 /**
- *
+ * 
  * @since 0.9.3
  */
 public abstract class AbstractTransactionableStoreOutputOperator<T, S extends TransactionableStore> extends BaseOperator
