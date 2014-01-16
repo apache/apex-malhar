@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.ServiceConfigurationError;
-import java.util.zip.CRC32;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +27,6 @@ import com.datatorrent.flume.sink.Server.Client;
 import com.datatorrent.flume.sink.Server.Request;
 import com.datatorrent.flume.storage.Storage;
 import com.datatorrent.netlet.DefaultEventLoop;
-import java.util.*;
 
 /**
  * DTFlumeSink is a flume sink developed to ingest the data into DataTorrent DAG
@@ -176,7 +174,6 @@ public class DTFlumeSink extends AbstractSink implements Configurable
             }
           }
           playback = storage.retrieveNext();
-          logger.debug("playback sending {}", playback);
         }
         while (++i < maxTuples && playback != null);
 
@@ -194,9 +191,9 @@ public class DTFlumeSink extends AbstractSink implements Configurable
           while (storedTuples < maxTuples && (e = getChannel().take()) != null) {
             byte[] address = storage.store(e.getBody());
             if (address != null) {
-              while (!client.write(address, e.getBody().clone())) {
+              while (!client.write(address, e.getBody())) {
                 try {
-                  retryWrite(address, e.getBody().clone());
+                  retryWrite(address, e.getBody());
                 }
                 catch (IOException io) {
                   eventloop.disconnect(client);
