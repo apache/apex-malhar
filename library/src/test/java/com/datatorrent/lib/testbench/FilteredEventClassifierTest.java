@@ -17,7 +17,6 @@ package com.datatorrent.lib.testbench;
 
 import com.datatorrent.api.Sink;
 import com.datatorrent.lib.testbench.FilteredEventClassifier;
-import com.esotericsoftware.minlog.Log;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -167,7 +166,7 @@ public class FilteredEventClassifierTest
                            classifySink.collectedTupleValues.size()));
     for (Map.Entry<String, Double> ve: classifySink.collectedTupleValues.entrySet()) {
       Integer ieval = classifySink.collectedTuples.get(ve.getKey()); // ieval should not be null?
-      Log.info(String.format("%d tuples of key \"%s\" has value %f", ieval.intValue(), ve.getKey(), ve.getValue()));
+      LOG.info(String.format("%d tuples of key \"%s\" has value %f", ieval.intValue(), ve.getKey(), ve.getValue()));
     }
 
     // Now test a node with no weights
@@ -212,7 +211,7 @@ public class FilteredEventClassifierTest
                            classifySink.collectedTupleValues.size()));
     for (Map.Entry<String, Double> ve: classifySink.collectedTupleValues.entrySet()) {
       Integer ieval = classifySink.collectedTuples.get(ve.getKey()); // ieval should not be null?
-      Log.info(String.format("%d tuples of key \"%s\" has value %f", ieval.intValue(), ve.getKey(), ve.getValue()));
+      LOG.info(String.format("%d tuples of key \"%s\" has value %f", ieval.intValue(), ve.getKey(), ve.getValue()));
     }
 
     // Now test a node with no weights and no values
@@ -261,7 +260,7 @@ public class FilteredEventClassifierTest
 
     for (Map.Entry<String, Double> ve: classifySink.collectedTupleValues.entrySet()) {
       Integer ieval = classifySink.collectedTuples.get(ve.getKey()); // ieval should not be null?
-      Log.info(String.format("%d tuples of key \"%s\" has value %f",
+      LOG.info(String.format("%d tuples of key \"%s\" has value %f",
                              ieval.intValue(),
                              ve.getKey(),
                              ve.getValue()));
