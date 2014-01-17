@@ -129,7 +129,7 @@ public class RedisStore implements TransactionableKeyValueStore
   @Override
   public void disconnect() throws IOException
   {
-    jedis.shutdown();
+    jedis.disconnect();
   }
 
   @Override
@@ -240,7 +240,7 @@ public class RedisStore implements TransactionableKeyValueStore
 
   /**
    * Calls incrbyfloat on the redis store.
-   * 
+   *
    * @param key
    * @param doubleValue
    */

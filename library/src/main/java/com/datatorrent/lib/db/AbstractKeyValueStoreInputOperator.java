@@ -60,6 +60,16 @@ public abstract class AbstractKeyValueStoreInputOperator<T, S extends KeyValueSt
     this.store = store;
   }
 
+  /**
+   * Adds the key to the list of keys to be fetched for each window
+   * 
+   * @param key
+   */
+  public void addKey(Object key)
+  {
+    keys.add(key);
+  }
+
   @Override
   public void emitTuples()
   {
