@@ -481,6 +481,7 @@ public abstract class AbstractFlumeInputOperator<T>
       for (OperatorStats os : lastWindowedStats) {
         if (os.customStats != null) {
           lastStat = os.customStats;
+          logger.debug("Rececived custom stats = {}", lastStat);
         }
       }
 
