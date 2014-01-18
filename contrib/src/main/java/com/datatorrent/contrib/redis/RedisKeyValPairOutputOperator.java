@@ -13,8 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.datatorrent.contrib.redis;
+
+import com.datatorrent.lib.util.KeyValPair;
 
 /**
- * Redis operators and utilities.
+ * <p>RedisMapOutputOperator class.</p>
+ *
+ * This output adapter takes key value pairs as tuples and just writes to the redis store with the keys and the values in the key value pair
+ *
+ * @param <K> The key type.
+ * @param <V> The value type.
+ * @since 0.3.2
  */
-package com.datatorrent.contrib.redis;
+public class RedisKeyValPairOutputOperator<K, V> extends AbstractRedisPassThruOutputOperator<KeyValPair<K, V>>
+{
+  @Override
+  public void processTuple(KeyValPair<K, V> t)
+  {
+    store.put(t.getKey(), t.getValue());
+  }
+
+}
