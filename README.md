@@ -37,7 +37,9 @@ For an easer setup, sandbox virtual machine provides pre-configured DataTorrent 
 Demos
 -------------------
 
-Multiple demos are provided with the DataTorrent platform to showcase the platform and provide application development examples.  Demos can be executed after downloading and installing DataTorrent platform or the sandbox with pre-configured DataTorrent platform environment.  See [demos source code](https://github.com/DataTorrent/Malhar/tree/master/demos/src/main/java/com/datatorrent/demos) for application development examples.
+Multiple [demos](demos) are provided with the DataTorrent platform to showcase the platform and provide application development examples.
+Demos can be executed after [downloading](https://www.datatorrent.com/download) and installing the DataTorrent platform or the DataTorrent sandbox VM pre-configured with Hadoop and DataTorrent platform environment.
+See [demos](demos/src/main/java/com/datatorrent/demos) for application development examples.
 
 Web Apps
 -------------------
@@ -49,7 +51,7 @@ Web interface for the following demos is available:
 - Ads Dimensions
 - Fraud
 
-Web apps run on Node.js. Please see [webapps](https://github.com/DataTorrent/Malhar/tree/master/webapps) for more information.
+Web apps run on Node.js. Please see [webapps](webapps) for more information.
 
 Issue tracking
 --------------------
