@@ -30,6 +30,7 @@ import com.datatorrent.flume.sink.Server;
 import com.datatorrent.flume.sink.Server.Command;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 import com.datatorrent.netlet.DefaultEventLoop;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * <p>Abstract AbstractFlumeInputOperator class.</p>
@@ -422,6 +423,7 @@ public abstract class AbstractFlumeInputOperator<T>
       connectionStatus.spec = connectionSpecs[0];
       OperatorContext ctx = context;
       synchronized (ctx) {
+        logger.debug("{} Submitting ConnectionStatus = {}", AbstractFlumeInputOperator.this, connectionStatus);
         context.setCustomStats(connectionStatus);
       }
       logger.debug("connected hence sending {} for {}", Command.SEEK, address);
@@ -432,12 +434,14 @@ public abstract class AbstractFlumeInputOperator<T>
 
     public void disconnected()
     {
+      logger.debug("disconnected with latest addresses {}", recoveryAddresses);
       connected = false;
       ConnectionStatus connectionStatus = new ConnectionStatus();
       connectionStatus.connected = false;
       connectionStatus.spec = connectionSpecs[0];
       OperatorContext ctx = context;
       synchronized (ctx) {
+        logger.debug("{} Submitting ConnectionStatus = {}", AbstractFlumeInputOperator.this, connectionStatus);
         context.setCustomStats(connectionStatus);
       }
       super.disconnected();
@@ -544,8 +548,14 @@ public abstract class AbstractFlumeInputOperator<T>
 
   public static class ConnectionStatus implements CustomStats
   {
+    int id;
     String spec;
     boolean connected;
+
+    public ConnectionStatus()
+    {
+      id = ATOMIC_ID.incrementAndGet();
+    }
 
     @Override
     public int hashCode()
@@ -569,9 +579,10 @@ public abstract class AbstractFlumeInputOperator<T>
     @Override
     public String toString()
     {
-      return "ConnectionStatus{" + "spec=" + spec + ", connected=" + connected + '}';
+      return "ConnectionStatus{" + "id=" + id + ", spec=" + spec + ", connected=" + connected + '}';
     }
 
+    private static final AtomicInteger ATOMIC_ID = new AtomicInteger();
     private static final long serialVersionUID = 201312261615L;
   }
 
