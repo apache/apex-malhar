@@ -15,30 +15,30 @@
  */
 package com.datatorrent.contrib.redis;
 
+import com.datatorrent.lib.util.KeyValPair;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <p>RedisNumberAggregateMapOutputOperator class.</p>
- * This class provides output adapter that takes a map of key type K and value type V, and if
- * V is a map, it will increment the values in the map in redis as hash, otherwise, it will increment the value
+ * <p>RedisNumberSummationKeyValPairOutputOperator class.</p>
+ *
+ * This class provides output adapter that takes a key value pair of key type K and value type V, and if
+ * V is a map, it will increment the values in the key value pair in redis as hash, otherwise, it will increment the value
  * as is.
  *
  * @param <K> The key type
  * @param <V> The value type
  * @since 0.3.2
  */
-public class RedisNumberAggregateMapOutputOperator<K, V> extends AbstractRedisAggregateOutputOperator<Map<K, V>>
+public class RedisNumberSummationKeyValPairOutputOperator<K, V> extends AbstractRedisAggregateOutputOperator<KeyValPair<K, V>>
 {
   private Map<Object, Object> dataMap = new HashMap<Object, Object>();
-  private NumberAggregation<K,V> numberAggregation = new NumberAggregation<K,V>(store, dataMap);
+  private transient NumberSummation<K, V> numberAggregation = new NumberSummation<K, V>(store, dataMap);
 
   @Override
-  public void processTuple(Map<K, V> t)
+  public void processTuple(KeyValPair<K, V> t)
   {
-    for (Map.Entry<K, V> entry : t.entrySet()) {
-      numberAggregation.process(entry.getKey(), entry.getValue());
-    }
+    numberAggregation.process(t.getKey(), t.getValue());
   }
 
   @Override

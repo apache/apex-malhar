@@ -13,18 +13,18 @@ import org.apache.commons.lang.mutable.MutableLong;
  * Provides routines of number aggregation. Not to be exported outside of this package
  * @since 0.9.3
  */
-class NumberAggregation<K, V>
+class NumberSummation<K, V>
 {
   private RedisStore store;
   private Map<Object, Object> dataMap;
 
-  NumberAggregation(RedisStore store, Map<Object, Object> dataMap)
+  NumberSummation(RedisStore store, Map<Object, Object> dataMap)
   {
     this.store = store;
     this.dataMap = dataMap;
   }
 
-  private Number convertToNumber(Object o)
+  protected Number convertToNumber(Object o)
   {
     if (o == null) {
       return null;

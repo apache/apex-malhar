@@ -25,7 +25,7 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.contrib.redis.RedisMapOutputOperator;
-import com.datatorrent.contrib.redis.RedisNumberAggregateMapOutputOperator;
+import com.datatorrent.contrib.redis.RedisNumberSummationMapOutputOperator;
 import com.datatorrent.lib.io.ApacheGenRandomLogs;
 import com.datatorrent.lib.logs.ApacheVirtualLogParseOperator;
 import com.datatorrent.lib.math.Sum;
@@ -65,7 +65,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
   public InputPort<Map<String, Map<String, Number>>> getRedisOutput(String name, DAG dag, int dbIndex)
   {
     @SuppressWarnings("unchecked")
-		RedisNumberAggregateMapOutputOperator<String, Map<String, Number>> oper = dag.addOperator(name, RedisNumberAggregateMapOutputOperator.class);
+		RedisNumberSummationMapOutputOperator<String, Map<String, Number>> oper = dag.addOperator(name, RedisNumberSummationMapOutputOperator.class);
     oper.getStore().setDbIndex(dbIndex);
     return oper.input;
   }

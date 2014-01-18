@@ -20,7 +20,7 @@ import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.contrib.redis.RedisNumberAggregateKeyValPairOutputOperator;
+import com.datatorrent.contrib.redis.RedisNumberSummationKeyValPairOutputOperator;
 import java.util.Map;
 import org.apache.commons.lang.mutable.MutableDouble;
 import org.apache.hadoop.conf.Configuration;
@@ -53,7 +53,7 @@ public class Application implements StreamingApplication
     dag.setOutputPortAttribute(bucket.outputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);
     dag.setAttribute(bucket, OperatorContext.APPLICATION_WINDOW_COUNT, 10);
 
-    RedisNumberAggregateKeyValPairOutputOperator<AggrKey, Map<String, MutableDouble>> redis = dag.addOperator("RedisAdapter", new RedisNumberAggregateKeyValPairOutputOperator<AggrKey, Map<String, MutableDouble>>());
+    RedisNumberSummationKeyValPairOutputOperator<AggrKey, Map<String, MutableDouble>> redis = dag.addOperator("RedisAdapter", new RedisNumberSummationKeyValPairOutputOperator<AggrKey, Map<String, MutableDouble>>());
     dag.setInputPortAttribute(redis.input, PortContext.QUEUE_CAPACITY, 32 * 1024);
     dag.setAttribute(redis, OperatorContext.INITIAL_PARTITION_COUNT, 2);
 
