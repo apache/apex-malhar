@@ -194,6 +194,13 @@ public abstract class AbstractFlumeInputOperator<T>
   {
     long windowId;
     byte[] address;
+
+    @Override
+    public String toString()
+    {
+      return "RecoveryAddress{" + "windowId=" + windowId + ", address=" + Arrays.toString(address) + '}';
+    }
+
     private static final long serialVersionUID = 201312021432L;
   }
 
