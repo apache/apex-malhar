@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.ServiceConfigurationError;
-import java.util.zip.CRC32;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -175,7 +174,6 @@ public class DTFlumeSink extends AbstractSink implements Configurable
             }
           }
           playback = storage.retrieveNext();
-          logger.debug("playback sending {}", playback);
         }
         while (++i < maxTuples && playback != null);
 
@@ -191,13 +189,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
 
           Event e;
           while (storedTuples < maxTuples && (e = getChannel().take()) != null) {
-            byte[] body = e.getBody();
-
-            byte[] address = storage.store(body);
-            CRC32 crc = new CRC32();
-            crc.update(body);
-            logger.debug("body = {} checksum = {} address = {}", (Object)body, crc.getValue(), address);
-
+            byte[] address = storage.store(e.getBody());
             if (address != null) {
               while (!client.write(address, e.getBody())) {
                 try {
