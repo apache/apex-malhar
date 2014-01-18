@@ -31,25 +31,9 @@ var Control = BaseView.extend({
         
         this.recording = options.recording;
         
-        // subviews = controls
-        this.subview('toggle_multi_y', new bbindings.checkbox({
-            attr: 'multi_y',
-            model: this.model
-        }));
-        
-        this.subview('toggle_render_points', new bbindings.checkbox({
-            attr: 'render_points',
-            model: this.model
-        }));
-        
         this.subview('toggle_tail', new bbindings.checkbox({
             attr: 'tail',
             model: this.recording
-        }));
-        
-        this.subview('x_format', new bbindings.select({
-            attr: 'x_formatter',
-            model: this.model
         }));
         
         this.subview('rec_offset', new OffsetCtrl({
@@ -96,10 +80,7 @@ var Control = BaseView.extend({
         var markup = this.template(json);
         this.$el.html(markup);
         var assignments = {
-            '.toggle_multi_y': 'toggle_multi_y',
-            '.toggle_render_points': 'toggle_render_points',
             '.toggle_tail': 'toggle_tail',
-            '.x_format_select': 'x_format',
             '.rec_offset': 'rec_offset',
             '.rec_limit': 'rec_limit'
         };

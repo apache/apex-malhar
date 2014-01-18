@@ -5,7 +5,7 @@
     <select class="opchart-options">
         <option value="">Select a recording to chart</option>
         <% _.each(options, function(option) { %>
-        <option value="<%= option.recordingName %>">(<%= option.properties.chartType %>) Operator <%= option.operatorId %>, Started <%= option.startTimeFormatted %> ago, name: <%= option.recordingName %></option>
+        <option value="<%= option.startTime %>">(<%= option.properties.chartType %>) Operator <%= option.operatorId %>, Started <%= option.startTimeFormatted %> ago </option>
         <% }) %>
     </select>
     <button class="btn btn-primary chartRecording">chart</button>
