@@ -27,22 +27,4 @@ package com.datatorrent.lib.db;
 public abstract class AbstractPassThruTransactionableKeyValueStoreOutputOperator<T, S extends TransactionableKeyValueStore>
         extends AbstractPassThruTransactionableStoreOutputOperator<T, S>
 {
-  @Override
-  protected long getCommittedWindowId(String appId, int operatorId)
-  {
-    Object value = store.get(getCommittedWindowKey(appId, operatorId));
-    return (value == null) ? -1 : Long.valueOf(value.toString());
-  }
-
-  @Override
-  protected void storeCommittedWindowId(String appId, int operatorId, long windowId)
-  {
-    store.put(getCommittedWindowKey(appId, operatorId), windowId);
-  }
-
-  protected Object getCommittedWindowKey(String appId, int operatorId)
-  {
-    return "_dt_wid:" + appId + ":" + operatorId;
-  }
-
 }

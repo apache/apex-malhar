@@ -252,4 +252,22 @@ public class RedisStore implements TransactionableKeyValueStore
     }
   }
 
+  @Override
+  public long getCommittedWindowId(String appId, int operatorId)
+  {
+    Object value = get(getCommittedWindowKey(appId, operatorId));
+    return (value == null) ? -1 : Long.valueOf(value.toString());
+  }
+
+  @Override
+  public void storeCommittedWindowId(String appId, int operatorId, long windowId)
+  {
+    put(getCommittedWindowKey(appId, operatorId), windowId);
+  }
+
+  protected Object getCommittedWindowKey(String appId, int operatorId)
+  {
+    return "_dt_wid:" + appId + ":" + operatorId;
+  }
+
 }

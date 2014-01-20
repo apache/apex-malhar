@@ -60,9 +60,9 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
   {
     @Override
     @SuppressWarnings("unchecked")
-    public Map<Object, Object> convertToMap(Map<String, String> tuple)
+    public void processTuple(Map<String, String> tuple)
     {
-      return (Map<Object, Object>)(Map<?, ?>)tuple;
+      store.putAll((Map<Object, Object>)(Map<?, ?>)tuple);
     }
 
   }

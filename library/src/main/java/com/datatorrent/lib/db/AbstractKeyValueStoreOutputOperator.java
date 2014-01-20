@@ -92,22 +92,10 @@ public abstract class AbstractKeyValueStoreOutputOperator<T, S extends KeyValueS
   }
 
   /**
-   * Processes the incoming tuple.
+   * Processes the incoming tuple, presumably store the data in the tuple to the store
    *
    * @param tuple
    */
-  public void processTuple(T tuple)
-  {
-    Map<Object, Object> m = convertToMap(tuple);
-    store.putAll(m);
-  }
-
-  /**
-   * Implementation should provide the routine on how to convert a tuple to a map of key value pairs to be written to the store
-   *
-   * @param tuple
-   * @return
-   */
-  public abstract Map<Object, Object> convertToMap(T tuple);
+  public abstract void processTuple(T tuple);
 
 }
