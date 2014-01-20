@@ -84,9 +84,11 @@ public class StoreManager
         public void run()
         {
           Set<Object> keysToRefresh = primary.getKeys();
-          Map<Object, Object> refreshedValues = backup.bulkGet(keysToRefresh);
-          if (refreshedValues != null) {
-            primary.bulkSet(refreshedValues);
+          if (keysToRefresh.size() > 0) {
+            Map<Object, Object> refreshedValues = backup.bulkGet(keysToRefresh);
+            if (refreshedValues != null) {
+              primary.bulkSet(refreshedValues);
+            }
           }
         }
       }, initialDelay, 86400000);
