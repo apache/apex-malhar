@@ -1,0 +1,16 @@
+<div class="palette-actions">
+
+    <% if (none) { %>
+    <button disabled class="btn">no recording(s) selected</button>
+    <% } else if (one) {%>
+        <button class="inspectRecording btn btn-primary">view tuples</button>
+        <% if (!ended) { %>
+            <button class="stopOpRecording btn" data-appid="<%= appId %>" data-operatorid="<%= operatorId %>"><i class="icon-rec-on"></i> stop recording</button>
+        <% } %>
+    <% } else {%>
+        <button class="btn" disabled>no actions available</button>
+    <% } %>
+    
+    <button class="btn btn-info refreshRecordings"><i class="icon-refresh icon-white"></i> refresh list</button>
+    
+</div>

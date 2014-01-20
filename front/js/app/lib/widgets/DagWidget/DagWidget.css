@@ -1,0 +1,75 @@
+.app-dag .svg-main {
+  width: 100%;
+}
+.app-dag text {
+  font-weight: 300;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
+  font-size: 14px;
+}
+.app-dag rect {
+  fill: #fff;
+}
+.app-dag .node rect {
+  stroke-width: 2px;
+  stroke: #333;
+  fill: none;
+}
+.app-dag .edge rect {
+  fill: #fff;
+}
+.app-dag .edge path {
+  fill: none;
+  stroke: #333;
+  stroke-width: 1.5px;
+}
+.app-dag .edge-label rect {
+  fill: #fafafa;
+}
+.app-dag .node rect {
+  fill: #fafafa;
+}
+.app-dag .node-metric-label {
+  fill: blue;
+}
+.app-dag .node-metric2-label {
+  fill: #2f96b4;
+}
+.app-dag .metric-select-label {
+  color: blue;
+}
+.app-dag .metric2-select-label {
+  color: #2f96b4;
+}
+.app-dag .dag-legend {
+  padding-right: 50px;
+  display: none;
+}
+.app-dag .dag-legend > svg {
+  float: right;
+}
+.app-dag .options-controls {
+  float: right;
+}
+.app-dag .dag-minimap .minimap-backdrop {
+  fill: rgba(255, 255, 255, 0.95);
+  stroke: #777;
+  stroke-width: 1px;
+}
+.app-dag .dag-minimap .minimap-operator {
+  fill: #DEDEDE;
+  stroke: #777;
+  stroke-width: 1px;
+}
+.app-dag .dag-minimap .minimap-stream {
+  stroke: #777;
+  fill: none;
+}
+.app-dag .dag-minimap .minimap-viewbox {
+  fill: rgba(0, 0, 0, 0.2);
+}
+.app-dag .dag-minimap .minimap-interaction {
+  fill: transparent;
+}
+.app-dag .dag-minimap #minimap-clip-path {
+  fill: none;
+}

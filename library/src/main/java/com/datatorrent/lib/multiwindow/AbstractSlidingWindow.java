@@ -15,6 +15,8 @@
  */
 package com.datatorrent.lib.multiwindow;
 
+import java.util.ArrayList;
+
 import javax.validation.constraints.Min;
 
 import com.datatorrent.api.BaseOperator;
@@ -24,25 +26,20 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 
 /**
  *
- * A sliding window class that lets users access past N-1 window states
- * <p>
- * N is a property. The default behavior is just a passthrough, i.e. the
- * operator does not do any processing on its own. Users are expected to extend
- * this class and add their specific processing. Users have to define their own
- * output port(s)<br>
- * This module is a pass through or end of window as per users choice<br>
- * <br>
- * <b>Ports</b>:<br>
- * <b>data</b>: expects T (any POJO)<br>
- * <br>
+ * <p>A sliding window class that lets users access both states of all streaming window in CURRENT sliding window
+ * and state of the expired streaming window from LAST sliding windows</p><br>
+ *
  * <b>Properties</b>:<br>
- * <b>N</b>: Number of windows to keep state on<br>
+ * <b>T</b> is the tuple object the operator accept <br>
+ * <b>S</b> is the state object kept in the sliding window <br>
+ * <b>windowSize</b>: Number of streaming window in this sliding window<br>
  * <br>
  *
  * @since 0.3.3
  */
-public abstract class AbstractSlidingWindow<T> extends BaseOperator
+public abstract class AbstractSlidingWindow<T, S> extends BaseOperator
 {
+  
 	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<T> data = new DefaultInputPort<T>()
 	{
@@ -53,70 +50,64 @@ public abstract class AbstractSlidingWindow<T> extends BaseOperator
 		}
 	};
 
-	protected Object[] states = null;
-	protected int currentstate = -1;
+	protected ArrayList<S> states = null;
+	
+	protected S lastExpiredWindowState = null;
+	
+	protected int currentCursor = -1;
 
 	@Min(2)
-	int n = 2;
-
+	int windowSize = 2;
+	
 	/**
 	 * getter function for n (number of previous window states
 	 *
 	 * @return n
 	 */
 	@Min(2)
-	public int getN()
+	public int getWindowSize()
 	{
-		return n;
+		return windowSize;
 	}
 
 	/**
-	 * setter function for n
+	 * setter for windowSize
 	 *
 	 * @param i
 	 */
-	void setN(int i)
+	void setWindowSize(int windowSize)
 	{
-		n = i;
+		this.windowSize = windowSize;
 	}
 
 	abstract void processDataTuple(T tuple);
 
 	/**
-	 * Saves Object o as current window state. Calling this api twice in same
-	 * window would simply overwrite the previous call. This can be called during
-	 * processDataTuple, or endWindow. Usually it is better to call it in
-	 * endWindow.
+	 * Implement this method to create the state object needs to be kept in the sliding window 
 	 *
-	 * @param o
+	 * @return the state of current streaming window
 	 */
-	public void saveWindowState(Object o)
-	{
-		states[currentstate] = o;
-	}
+	public abstract S createWindowState();
 
 	/**
-	 * Can access any previous window state upto n-1 (0 is current, n-1 is the
-	 * N-1th previous)
+	 * Get the Streaming window state in it's coming the order start from 0
 	 *
-	 * @param i
-	 *          the previous window whose state is accessed
-	 * @return Object
+	 * @param i 
+	 *   0 the state of the first coming streaming window 
+	 *   -1 the state of the last expired streaming window 
+	 * @return State of the streaming window
+	 * @throws ArrayIndexOutOfBoundsException if i >= sliding window size
 	 */
-	public Object getWindowState(int i)
+	public S getStreamingWindowState(int i)
 	{
-		if (i >= getN()) {
-			return null;
+	  if(i == -1){
+	    return lastExpiredWindowState;
+	  }
+		if (i >= getWindowSize()) {
+			throw new ArrayIndexOutOfBoundsException();
 		}
-		int j = currentstate;
-		while (i != (getN() - 1)) {
-			j--;
-			if (j < 0) {
-				j = getN() - 1;
-			}
-			i++;
-		}
-		return states[j];
+		int index = (currentCursor + 1 + i) % windowSize ;
+		return states.get(index);
 	}
 
 	/**
@@ -129,14 +120,13 @@ public abstract class AbstractSlidingWindow<T> extends BaseOperator
 	@Override
 	public void beginWindow(long windowId)
 	{
-		currentstate++;
-		if (currentstate >= getN()) {
-			for (int i=1; i < getN(); i++) {
-				states[i-1] = states[i];
-			}
-			currentstate = getN()-1;
-		}
-		states[currentstate] = null;
+	  // move currentCursor 1 position
+		currentCursor = (currentCursor + 1) % windowSize;
+		// expire the state at the first position which is the state of the streaming window moving out of the current application window 
+		lastExpiredWindowState = states.get(currentCursor);
+		
+		states.set(currentCursor, createWindowState());
+		
 	}
 
 	/**
@@ -147,10 +137,12 @@ public abstract class AbstractSlidingWindow<T> extends BaseOperator
 	@Override
 	public void setup(OperatorContext context)
 	{
-		states = new Object[getN()];
-		for (int i = 0; i < getN(); i++) {
-			states[i] = null;
+	  super.setup(context);
+		states = new ArrayList<S>(windowSize);
+		//initialize the sliding window state to null
+		for (int i = 0; i < windowSize; i++) {
+			states.add(null);
 		}
-		currentstate = -1;
+		currentCursor = -1;
 	}
 }

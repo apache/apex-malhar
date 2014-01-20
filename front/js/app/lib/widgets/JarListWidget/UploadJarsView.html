@@ -1,0 +1,19 @@
+<form enctype="multipart/form-data" class="jar_upload_form">
+    <input type="file" class="jar_upload" name="jar_upload" accept=".jar" multiple />
+    <div class="well jar_upload_target">
+        <% if (files.length) { %>
+            
+            <div class="jars-to-upload">
+                    
+            </div>
+            <div class="upload-buttons">
+                <button class="upload_jar_btn btn btn-success">upload</button>
+                <button class="cancel_jar_btn btn btn-danger">cancel</button>
+            </div>
+            
+        <% } else { %>
+            <div class="drop-message">drag and drop jar file(s) here</div>
+            <span class="click-message">(click to choose files)</span>
+        <% } %>
+    </div>
+</form>

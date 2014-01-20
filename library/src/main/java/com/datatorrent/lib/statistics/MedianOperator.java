@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
@@ -39,6 +40,7 @@ import com.datatorrent.api.DefaultOutputPort;
  *
  * @since 0.3.4
  */
+@OperatorAnnotation(partitionable = false)
 public class MedianOperator extends BaseOperator
 {
   private ArrayList<Double> values;

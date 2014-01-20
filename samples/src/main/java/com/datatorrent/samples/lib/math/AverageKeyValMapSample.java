@@ -15,11 +15,13 @@
  */
 package com.datatorrent.samples.lib.math;
 
+
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.DAG;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.StreamingApplication;
+
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.math.AverageMap;
 
@@ -37,7 +39,7 @@ public class AverageKeyValMapSample  implements StreamingApplication
 	public void populateDAG(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-	    dag.setAttribute(DAG.APPLICATION_NAME, "MobileDevApplication");
+	    dag.setAttribute(DAG.APPLICATION_NAME, "AverageKeyValMapApplication");
 	    dag.setAttribute(DAG.DEBUG, true);
 
 	    // Add random integer generator operator
@@ -45,7 +47,7 @@ public class AverageKeyValMapSample  implements StreamingApplication
 
 	    AverageMap<String, Integer> average = dag.addOperator("average", AverageMap.class);
 	    dag.addStream("stream1",rand.outport , average.data);
-	    dag.getMeta(average).getAttributes().attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(20);
+	    dag.getMeta(average).getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, 20);
 
 	    // Connect to output console operator
 	    ConsoleOutputOperator console = dag.addOperator("console", new ConsoleOutputOperator());

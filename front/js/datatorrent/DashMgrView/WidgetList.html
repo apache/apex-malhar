@@ -1,0 +1,13 @@
+<h2 class="title">widgets</h2>
+<ul class="widget-instances"></ul>
+<div class="actions btn-group">
+    <a href="#" class="btn btn-mini dropdown-toggle" data-toggle="dropdown">
+    	add widget
+    	<span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu">
+    	<% _.each(wClasses, function(wc){ %>
+    		<li><a href="#" data-wname="<%= wc.name %>" class="addWidgetOption"><%= wc.name %></a></li>
+    	<% }) %>
+    </ul>
+</div>

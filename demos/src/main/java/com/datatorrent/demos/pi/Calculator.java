@@ -15,10 +15,10 @@
  */
 package com.datatorrent.demos.pi;
 
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.Operator.InputPort;
+import java.net.URI;
+
+import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.HttpOutputOperator;
 import com.datatorrent.lib.math.*;
@@ -26,8 +26,11 @@ import com.datatorrent.lib.stream.AbstractAggregator;
 import com.datatorrent.lib.stream.ArrayListAggregator;
 import com.datatorrent.lib.stream.Counter;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
-import java.net.URI;
-import org.apache.hadoop.conf.Configuration;
+
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.Operator.InputPort;
+import com.datatorrent.api.StreamingApplication;
 
 /**
  * <p>Calculator class.</p>
@@ -87,7 +90,7 @@ public class Calculator implements StreamingApplication
     dag.addStream("sqr", squareOperator.integerResult, pairOperator.input).setLocality(locality);
     dag.addStream("x2andy2", pairOperator.output, sumOperator.input).setLocality(locality);
     dag.addStream("x2plusy2", sumOperator.integerResult, comparator.input, inSquare.input).setLocality(locality);
-    dag.addStream("inCirclePoints", comparator.greaterThanOrEqualTo, inCircle.input).setLocality(locality);
+    dag.addStream("inCirclePoints", comparator.greaterThan, inCircle.input).setLocality(locality);
     dag.addStream("numerator", inCircle.output, division.numerator).setLocality(locality);
     dag.addStream("denominator", inSquare.output, division.denominator).setLocality(locality);
     dag.addStream("ratio", division.doubleQuotient, multiplication.input).setLocality(locality);

@@ -20,15 +20,18 @@ import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
+
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
+
 import java.net.UnknownHostException;
+
 import org.slf4j.LoggerFactory;
 
 /**
  * MongoDB input adapter operator, which send query data from database.<p><br>
- *
+ * <p/>
  * <br>
  * Ports:<br>
  * <b>Input</b>: no input port <br>
@@ -50,7 +53,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.2
  */
-public abstract class MongoDBInputOperator<T> extends MongoDBBaseOperator implements InputOperator, ActivationListener<OperatorContext>
+public abstract class MongoDBInputOperator<T> extends MongoDBOperatorBase implements InputOperator, ActivationListener<OperatorContext>
 {
   private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MongoDBInputOperator.class);
   private String table;
@@ -68,6 +71,7 @@ public abstract class MongoDBInputOperator<T> extends MongoDBBaseOperator implem
    * @param message
    */
   public abstract T getTuple(DBCursor result);
+
   /**
    * query from collection
    */

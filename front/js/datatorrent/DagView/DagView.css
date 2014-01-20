@@ -1,0 +1,33 @@
+.dag-container {
+  position: relative;
+}
+.dag-container.affix {
+  position: fixed;
+}
+.dag-container .dag-operator {
+  position: absolute;
+  border: 1px solid #CCC;
+  border-radius: 5px;
+  background-color: #FFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  overflow: hidden;
+  cursor: move;
+  background-color: #EFEFEF;
+}
+.dag-container .dag-operator .inner {
+  height: 100%;
+}
+.dag-container .dag-operator .inner .operator-label {
+  padding: 20px 0;
+  color: #666;
+  display: inline-block;
+}
+.dag-container .endpointSourceLabel,
+.dag-container .endpointTargetLabel {
+  z-index: 1;
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 2px;
+  color: #555;
+  letter-spacing: 1px;
+}

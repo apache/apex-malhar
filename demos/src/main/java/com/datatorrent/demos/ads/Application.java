@@ -15,15 +15,25 @@
  */
 package com.datatorrent.demos.ads;
 
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.DAG;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.conf.Configuration;
+
+import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Context.PortContext;
+import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.DAGContext;
 import com.datatorrent.api.Operator.InputPort;
+import com.datatorrent.api.StreamingApplication;
+
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.fs.HdfsOutputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
+import com.datatorrent.lib.io.fs.HdfsOutputOperator;
 import com.datatorrent.lib.math.MarginMap;
 import com.datatorrent.lib.math.QuotientMap;
 import com.datatorrent.lib.math.SumCountMap;
@@ -32,13 +42,6 @@ import com.datatorrent.lib.testbench.EventClassifier;
 import com.datatorrent.lib.testbench.EventGenerator;
 import com.datatorrent.lib.testbench.FilteredEventClassifier;
 import com.datatorrent.lib.testbench.ThroughputCounter;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.hadoop.conf.Configuration;
 
 /**
  * <p>
@@ -182,9 +185,16 @@ public class Application implements StreamingApplication
     if (LAUNCHMODE_YARN.equals(conf.get(DAG.LAUNCH_MODE))) {
       setLocalMode();
       // settings only affect distributed mode
-      dag.getAttributes().attr(DAG.CONTAINER_MEMORY_MB).setIfAbsent(2048);
-      dag.getAttributes().attr(DAG.MASTER_MEMORY_MB).setIfAbsent(1024);
-      dag.getAttributes().attr(DAG.CONTAINERS_MAX_COUNT).setIfAbsent(1);
+      AttributeMap attributes = dag.getAttributes();
+      if (attributes.get(DAGContext.CONTAINER_MEMORY_MB) == null) {
+        attributes.put(DAGContext.CONTAINER_MEMORY_MB, 2048);
+      }
+      if (attributes.get(DAGContext.MASTER_MEMORY_MB) == null) {
+        attributes.put(DAGContext.MASTER_MEMORY_MB, 1024);
+      }
+      if (attributes.get(DAGContext.CONTAINERS_MAX_COUNT) == null) {
+        attributes.put(DAGContext.CONTAINERS_MAX_COUNT, 1);
+      }
     }
     else if (LAUNCHMODE_LOCAL.equals(conf.get(DAG.LAUNCH_MODE))) {
       setLocalMode();
@@ -200,11 +210,11 @@ public class Application implements StreamingApplication
   private InputPort<Object> getConsolePort(DAG b, String name, boolean silent)
   {
     // output to HTTP server when specified in environment setting
-    String daemonAddress = b.attrValue(DAG.DAEMON_ADDRESS, null);
-    if (!StringUtils.isEmpty(daemonAddress)) {
-      URI uri = URI.create("ws://" + daemonAddress + "/pubsub");
+    String gatewayAddress = b.getValue(DAG.GATEWAY_ADDRESS);
+    if (!StringUtils.isEmpty(gatewayAddress)) {
+      URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
       String topic = "demos.ads." + name;
-      //LOG.info("WebSocket with daemon at: {}", daemonAddress);
+      //LOG.info("WebSocket with gateway at: {}", gatewayAddress);
       PubSubWebSocketOutputOperator<Object> wsOut = b.addOperator(name, new PubSubWebSocketOutputOperator<Object>());
       wsOut.setUri(uri);
       wsOut.setTopic(topic);
@@ -314,12 +324,12 @@ public class Application implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
     configure(dag, conf);
-    dag.setAttribute(DAG.APPLICATION_NAME, "AdsDevApplication");
+    dag.setAttribute(DAG.APPLICATION_NAME, "AdsApplication");
     dag.setAttribute(DAG.STREAMING_WINDOW_SIZE_MILLIS, WINDOW_SIZE_MILLIS); // set the streaming window size to 1 millisec
 
     //dag.getAttributes().attr(DAG.CONTAINERS_MAX_COUNT).setIfAbsent(9);
     EventGenerator viewGen = getPageViewGenOperator("viewGen", dag);
-    dag.getMeta(viewGen).getAttributes().attr(OperatorContext.INITIAL_PARTITION_COUNT).set(numGenerators);
+    dag.getMeta(viewGen).getAttributes().put(OperatorContext.INITIAL_PARTITION_COUNT, numGenerators);
     dag.setOutputPortAttribute(viewGen.hash_data, PortContext.QUEUE_CAPACITY, 32 * 1024);
 
     EventClassifier adviews = getAdViewsStampOperator("adviews", dag);

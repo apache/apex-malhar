@@ -15,11 +15,13 @@
  */
 package com.datatorrent.samples.lib.algo;
 
+
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.DAG;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.StreamingApplication;
+
 import com.datatorrent.lib.algo.BottomNMap;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.samples.lib.math.RandomKeyValMap;
@@ -38,7 +40,7 @@ public class BottomNMapSample implements StreamingApplication
 	public void populateDAG(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-		dag.setAttribute(DAG.APPLICATION_NAME, "BottomNMapSample");
+		dag.setAttribute(DAG.APPLICATION_NAME, "BottomNMapSampleApplication");
 		//dag.setAttribute(DAG.DEBUG, true);
 
 		// Add random integer generator operator
@@ -48,7 +50,7 @@ public class BottomNMapSample implements StreamingApplication
 		bottomn.setN(5);
 		dag.addStream("stream1", rand.outport, bottomn.data);
 		dag.getMeta(bottomn).getAttributes()
-				.attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(100);
+				.put(OperatorContext.APPLICATION_WINDOW_COUNT, 100);
 
 		// Connect to output console operator
 		ConsoleOutputOperator console = dag.addOperator("console",

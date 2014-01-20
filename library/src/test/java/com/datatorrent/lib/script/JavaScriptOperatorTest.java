@@ -37,9 +37,9 @@ public class JavaScriptOperatorTest
 		StringBuilder builder = new StringBuilder();
 		builder.append("val = val * val;");
 		oper.addSetupScript("function square() { return val*val;}");
-		oper.setup(null);
 		oper.setInvoke("square");
 		oper.setPassThru(true);
+    oper.setup(null);
 		CollectorTestSink sink = new CollectorTestSink();
 		oper.result.setSink(sink);
 

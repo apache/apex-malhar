@@ -1,0 +1,86 @@
+@import "variables.less";
+body {
+    font-family: "Helvetica Neue", helvetica, arial, sans-serif;
+    background: #ececec;
+    min-width:747px;
+    font-size: 12px;
+}
+a {
+    text-decoration: none;
+    color: @a_color;
+}
+a:hover {
+    color: @a_color_hover;
+}
+p {
+    line-height: 22px;
+}
+.loading-assets {
+    background: url('../img/loading.gif') no-repeat 0 0;
+    overflow:hidden;
+    text-indent:-1000px;
+    margin:200px auto 0;
+    height: 95px;
+    width: 483px;
+}
+#wrapper {
+    min-width:1024px;
+    padding-top:@logo_height;
+}
+#main {
+    background-color:@active_pane;
+    border:thin solid #ccc;
+    overflow:auto;
+    width:auto;
+}
+#header {
+    .brand {
+        background: url("../img/main_banner.png") no-repeat scroll 0 0;
+    }
+}
+#wrapper {
+    [class^="status-"], [class*=" status-"] {
+        font-weight: bold;
+        text-shadow:0;
+        .display_ib();
+        padding-left: 16px;
+        background-repeat: no-repeat;
+        background-position: 2px center;
+    }
+    .status-accepted {
+        background-image: url('../img/status_accepted.svg');
+        color: @status_accepted;
+    }
+    .status-pending-deploy {
+        background-image: url('../img/status_accepted.svg');
+        color: @status_pending_deploy;
+    }
+    .status-running {
+        background-image: url('../img/status_running.svg');
+        color: @status_running;
+    }
+    .status-active {
+        background-image: url('../img/status_running.svg');
+        color: @status_active;
+    }
+    .status-failed {
+        background-image: url('../img/status_error.svg');
+        color: @status_failed;
+    }
+    .status-killed {
+        background-image: url('../img/status_killed.svg');
+        color: @status_killed;
+    }
+    .status-finished {
+        background-image: url('../img/status_inactive.svg');
+        color: @status_finished;
+    }
+    .status-inactive {
+        background-image: url('../img/status_inactive.svg');
+        color: @status_inactive;
+    }
+    .status-submitted {
+        background-image: url('../img/status_submitted.svg');
+        color: @status_submitted;
+    }
+}

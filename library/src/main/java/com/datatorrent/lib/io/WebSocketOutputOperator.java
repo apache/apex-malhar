@@ -19,17 +19,22 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.ShipContainingJars;
+import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.AsyncHttpClientConfigBean;
+import com.ning.http.client.websocket.WebSocket;
+import com.ning.http.client.websocket.WebSocketTextListener;
+import com.ning.http.client.websocket.WebSocketUpgradeHandler;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import javax.validation.constraints.NotNull;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.eclipse.jetty.websocket.WebSocket;
-import org.eclipse.jetty.websocket.WebSocket.Connection;
-import org.eclipse.jetty.websocket.WebSocketClient;
-import org.eclipse.jetty.websocket.WebSocketClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,87 +48,212 @@ import org.slf4j.LoggerFactory;
  * @param <T> tuple type
  * @since 0.3.2
  */
-@ShipContainingJars(classes = {org.codehaus.jackson.JsonFactory.class, org.eclipse.jetty.websocket.WebSocket.class})
+@ShipContainingJars(classes = {com.ning.http.client.websocket.WebSocket.class})
 public class WebSocketOutputOperator<T> extends BaseOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(WebSocketOutputOperator.class);
-  /**
-   * Timeout interval for reading from server. 0 or negative indicates no timeout.
-   */
-  public int readTimeoutMillis = 0;
   @NotNull
   private URI uri;
-  private transient final WebSocketClientFactory factory = new WebSocketClientFactory();
-  private transient WebSocketClient client;
+  private transient AsyncHttpClient client;
   private transient final JsonFactory jsonFactory = new JsonFactory();
   protected transient final ObjectMapper mapper = new ObjectMapper(jsonFactory);
-  protected transient Connection connection;
+  protected transient WebSocket connection;
+  private int ioThreadMultiplier = 1;
+  private int numRetries = 3;
+  private int waitMillisRetry = 5000;
+  private final transient AsyncHttpClientConfigBean config = new AsyncHttpClientConfigBean();
 
+  /**
+   * Gets the URI for WebSocket connection
+   *
+   * @return the URI
+   */
+  public URI getUri()
+  {
+    return uri;
+  }
+
+  /**
+   * Sets the URI for WebSocket connection
+   *
+   * @param uri
+   */
   public void setUri(URI uri)
   {
     this.uri = uri;
   }
 
+  /**
+   * Gets the milliseconds to wait before retrying connection
+   *
+   * @return wait in milliseconds
+   */
+  public int getWaitMillisRetry()
+  {
+    return waitMillisRetry;
+  }
+
+  /**
+   * Sets the milliseconds to wait before retrying connection
+   *
+   * @param waitMillisRetry
+   */
+  public void setWaitMillisRetry(int waitMillisRetry)
+  {
+    this.waitMillisRetry = waitMillisRetry;
+  }
+
+  /**
+   * Gets the IO Thread multiplier for AsyncWebSocket connection
+   *
+   * @return the IO thread multiplier
+   */
+  public int getIoThreadMultiplier()
+  {
+    return ioThreadMultiplier;
+  }
+
+  /**
+   * Sets the IO Thread multiplier for AsyncWebSocket connection
+   *
+   * @param ioThreadMultiplier
+   */
+  public void setIoThreadMultiplier(int ioThreadMultiplier)
+  {
+    this.ioThreadMultiplier = ioThreadMultiplier;
+  }
+
+  /**
+   * Gets the number of retries of connection before the giving up
+   *
+   * @return the number of retries
+   */
+  public int getNumRetries()
+  {
+    return numRetries;
+  }
+
+  /**
+   * Sets the number of retries of connection before the giving up
+   *
+   * @param numRetries
+   */
+  public void setNumRetries(int numRetries)
+  {
+    this.numRetries = numRetries;
+  }
+
+  /**
+   * The input port
+   */
   public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()
   {
     @Override
     public void process(T t)
     {
-      try {
-        connection.sendMessage(convertMapToMessage(t));
-      }
-      catch (IOException ex) {
-        LOG.error("error sending message through web socket", ex);
-        throw new RuntimeException(ex);
+      int countTries = 0;
+      while (true) {
+        try {
+          if (!connection.isOpen()) {
+            LOG.warn("Connection is closed. Reconnecting...");
+            client.close();
+            openConnection();
+          }
+          connection.sendTextMessage(convertMapToMessage(t));
+          break;
+        }
+        catch (Exception ex) {
+          if (++countTries < numRetries) {
+            LOG.debug("Caught exception", ex);
+            LOG.warn("Send message failed ({}). Retrying ({}).", ex.getMessage(), countTries);
+            connection.close();
+            if (waitMillisRetry > 0) {
+              try {
+                Thread.sleep(waitMillisRetry);
+              }
+              catch (InterruptedException ex1) {
+              }
+            }
+          }
+          else {
+            throw new RuntimeException(ex);
+          }
+        }
       }
     }
 
   };
 
+  private void openConnection() throws IOException, ExecutionException, InterruptedException, TimeoutException
+  {
+    client = new AsyncHttpClient(config);
+    uri = URI.create(uri.toString()); // force reparse after deserialization
+    LOG.info("Opening URL: {}", uri);
+    connection = client.prepareGet(uri.toString()).execute(new WebSocketUpgradeHandler.Builder().addWebSocketListener(new WebSocketTextListener()
+    {
+      @Override
+      public void onMessage(String string)
+      {
+      }
+
+      @Override
+      public void onFragment(String string, boolean bln)
+      {
+      }
+
+      @Override
+      public void onOpen(WebSocket ws)
+      {
+        LOG.debug("Connection opened");
+      }
+
+      @Override
+      public void onClose(WebSocket ws)
+      {
+        LOG.debug("Connection closed.");
+      }
+
+      @Override
+      public void onError(Throwable t)
+      {
+        LOG.error("Caught exception", t);
+      }
+
+    }).build()).get(5, TimeUnit.SECONDS);
+  }
+
   @Override
   public void setup(OperatorContext context)
   {
-    try {
-      uri = URI.create(uri.toString()); // force reparse after deserialization
+    config.setIoThreadMultiplier(ioThreadMultiplier);
+    config.setApplicationThreadPool(Executors.newCachedThreadPool(new ThreadFactory()
+    {
+      private long count = 0;
 
-      factory.setBufferSize(8192);
-      factory.start();
-
-      client = factory.newWebSocketClient();
-      LOG.info("URL: {}", uri);
-      connection = client.open(uri, new WebSocket.OnTextMessage()
+      @Override
+      public Thread newThread(Runnable r)
       {
-        @Override
-        public void onMessage(String string)
-        {
-        }
+        Thread t = new Thread(r);
+        t.setName(WebSocketOutputOperator.this.getName() + "-AsyncHttpClient-" + count++);
+        return t;
+      }
 
-        @Override
-        public void onOpen(Connection cnctn)
-        {
-          LOG.debug("Connection opened");
-        }
-
-        @Override
-        public void onClose(int i, String string)
-        {
-          LOG.debug("Connection closed.");
-        }
-
-      }).get(5, TimeUnit.SECONDS);
+    }));
+    try {
+      openConnection();
     }
-    catch (Exception ex) {
-      throw new RuntimeException(ex);
+    catch (Exception ex1) {
+      throw new RuntimeException(ex1);
     }
   }
 
   @Override
   public void teardown()
   {
-    if (factory != null) {
-      factory.destroy();
-    }
     super.teardown();
+    if (client != null) {
+      client.close();
+    }
   }
 
   public String convertMapToMessage(T t) throws IOException

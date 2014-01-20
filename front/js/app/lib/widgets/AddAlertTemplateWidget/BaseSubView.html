@@ -1,0 +1,21 @@
+<div class="operator-class-definition">
+    <% if (classes.length) {%>
+    <select class="classSelect">
+        <option value="">choose a class</option>
+
+        <% _.each(classes, function(classObj) { %>
+        <option value="<%= classObj.name %>" <% if (classObj.name === alert.name) { print('selected="selected"') } %>><%= classObj.name %></option>
+        <% }) %>
+
+    <%} else { %>
+    <select class="classSelect" disabled="disabled">
+        <option>loading classes</option>
+
+    <% } %>
+
+    </select>
+
+    <div class="propertyDefinitions">
+
+    </div>
+</div>

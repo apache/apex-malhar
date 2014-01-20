@@ -25,13 +25,13 @@ import java.util.TreeMap;
  * @param <K> The key type
  * @since 0.3.2
  */
-public abstract class HistogramChartOperator<K> extends EnumChartOperator<K, HighLow>
+public abstract class HistogramChartOperator<K, V extends Number> extends EnumChartOperator<K, HighLow<V>>
 {
   protected Number high;
   protected Number low;
   protected int numDivisions;
   protected NumberType xNumberType = NumberType.INTEGER;
-  protected TreeMap<Number, HighLow> highLows = new TreeMap<Number, HighLow>();
+  protected TreeMap<Number, HighLow<V>> highLows = new TreeMap<Number, HighLow<V>>();
 
   @Override
   public Type getChartType()
@@ -154,7 +154,7 @@ public abstract class HistogramChartOperator<K> extends EnumChartOperator<K, Hig
   public abstract Number convertTupleToXSource(Object tuple);
 
   @Override
-  public HighLow convertTupleToX(Object tuple)
+  public HighLow<V> convertTupleToX(Object tuple)
   {
     Number number = convertTupleToXSource(tuple);
     if (xNumberType == NumberType.FLOAT) {

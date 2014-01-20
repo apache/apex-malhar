@@ -1,0 +1,19 @@
+<span class="select-status"><strong><%=selected.length%></strong> <%= DT.text('row(s) selected') %></span>
+<div class="palette-actions">
+
+	<% if (selected.length === 0) { %>
+		<button class="btn" disabled><%= DT.text('select an item') %></button>
+	<% } else if (selected.length === 1) {%>
+		<button class="inspectItem btn btn-primary"><i class="icon-eye-open icon-white"></i> <%= DT.text('inspect') %></button>
+		<div class="btn-group">
+			<button class="launchApp btn btn-success"><i class="icon-play icon-white"></i> <%= DT.text('launch app') %></button>
+			<button class="btn btn-success dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+			<ul class="dropdown-menu">
+				<li><a href="#" class="launchAppProps">launch with properties&hellip;</a></li>
+			</ul>
+		</div>
+	<% } else { %>
+		<button class="launchApp btn btn-success"><i class="icon-play icon-white"></i> <%= DT.text('launch selected apps') %></button>
+	<% } %>
+    
+</div>

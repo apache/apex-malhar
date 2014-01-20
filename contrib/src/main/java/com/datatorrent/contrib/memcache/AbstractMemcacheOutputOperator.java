@@ -77,7 +77,7 @@ public class AbstractMemcacheOutputOperator extends BaseOperator
     servers.add(server);
   }
 
-  public void watiForQueue(int timeout) {
+  public void waitForQueue(int timeout) {
     client.waitForQueues(timeout, TimeUnit.SECONDS);
   }
 

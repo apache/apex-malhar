@@ -39,22 +39,29 @@ Demos
 
 Multiple demos are provided with the DataTorrent platform to showcase the platform and provide application development examples.  Demos can be executed after downloading and installing DataTorrent platform or the sandbox with pre-configured DataTorrent platform environment.  See [demos source code](https://github.com/DataTorrent/Malhar/tree/master/demos/src/main/java/com/datatorrent/demos) for application development examples.
 
-Web Demos
+Web Apps
 -------------------
 
 Web interface for the following demos is available:
 - Twitter
 - Mobile
-- Ads Dimensions
-- Site Operations
 - Machine Generated Data
+- Ads Dimensions
+- Fraud
 
-Web demos run on Node.js. Please see [webdemos](https://github.com/DataTorrent/Malhar/tree/master/webdemos) for more information.
+Web apps run on Node.js. Please see [webapps](https://github.com/DataTorrent/Malhar/tree/master/webapps) for more information.
 
 Issue tracking
 --------------------
 
-Github issues tracking is used for tracking issues for this repository. You can monitor the state of existing issues and their track their progress there. 
+[Malhar JIRA](https://malhar.atlassian.net) issue tracking system is used for this project. You can monitor the state of existing issues and their track their progress at https://malhar.atlassian.net
+
+When working with JIRA to submit pull requests, please use [smart commits](https://confluence.atlassian.com/display/AOD/Processing+JIRA+issues+with+commit+messages) feature by specifying MLHR-XXXX in the commit messages.  It helps us link commits with issues being tracked for easy reference.  And example commit might look like this:
+
+    git commit -am "MLHR-12345 #comment Task completed ahead of schedule #resolve"
+
+
+
 
 Contributing
 --------------------
@@ -66,6 +73,8 @@ If you would like to help make Malhar better by adding new features, enhancing e
   * Write code, comments, tests in your repository
   * Create a GitHub pull request from your repository, providing as many details about your changes as possible
   * After we review and accept your request we’ll commit your code to the DataTorrent/Malhar repository
+
+The submitted code must follow certain prescribed conventions and it is also recommended that it follow the prescribed style. The conventions and style are described in the [Coding Conventions and Style](docs/CodingConventionsAndStyle.md) document.
 
 Thanks for contributing!
 

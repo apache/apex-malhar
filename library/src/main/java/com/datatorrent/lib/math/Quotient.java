@@ -18,6 +18,7 @@ package com.datatorrent.lib.math;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseNumberValueOperator;
 
@@ -42,6 +43,7 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  *
  * @since 0.3.3
  */
+@OperatorAnnotation(partitionable = false)
 public class Quotient<V extends Number> extends BaseNumberValueOperator<V>
 {
 	protected double nval = 0.0;

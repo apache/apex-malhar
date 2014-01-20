@@ -23,6 +23,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.lib.streamquery.condition.Condition;
 import com.datatorrent.lib.streamquery.index.Index;
 
@@ -47,6 +48,7 @@ import com.datatorrent.lib.streamquery.index.Index;
  *
  * @since 0.3.3
  */
+@OperatorAnnotation(partitionable = false)
 public class InnerJoinOperator  implements Operator
 {
 	/**

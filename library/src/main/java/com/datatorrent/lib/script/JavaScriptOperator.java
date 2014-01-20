@@ -15,14 +15,12 @@
  */
 package com.datatorrent.lib.script;
 
-import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.esotericsoftware.kryo.DefaultSerializer;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.serializers.FieldSerializer;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import javax.script.*;
@@ -67,94 +65,108 @@ import javax.script.*;
  * 		.
  * </pre>
  *
+ * This operator does not checkpoint interpreted functions in the variable bindings because they are not serializable
+ * Use setupScript() to define functions, and do NOT define or assign functions to variables at run time
+ *
  * @since 0.3.2
  */
-public class JavaScriptOperator extends BaseOperator implements ScriptOperator
+public class JavaScriptOperator extends ScriptOperator
 {
   public enum Type
   {
     EVAL, INVOKE
   };
 
-  protected transient ScriptEngineManager sem = new ScriptEngineManager();
-  protected transient ScriptEngine engine = sem.getEngineByName("JavaScript");
-  protected String scriptOrFunction;
-  protected Type type = Type.EVAL;
-  protected boolean keepContext = true;
-  protected boolean isPassThru = true;
-  protected transient SimpleScriptContext scriptContext = new SimpleScriptContext();
-  protected transient SimpleBindings scriptBindings = new SimpleBindings();
-  protected ArrayList<String> setupScripts = new ArrayList<String>();
-  protected Object evalResult;
-  @InputPortFieldAnnotation(name = "inBindings", optional = true)
-  public final transient DefaultInputPort<Map<String, Object>> inBindings = new DefaultInputPort<Map<String, Object>>()
+  public static class BindingsSerializer<T> extends FieldSerializer<T>
   {
-    @Override
-    public void process(Map<String, Object> tuple)
+    @SuppressWarnings("rawtypes")
+    public BindingsSerializer(Kryo kryo, Class<T> clazz)
     {
-      for (Map.Entry<String, Object> entry: tuple.entrySet()) {
-        engine.put(entry.getKey(), entry.getValue());
-      }
+      super(kryo, clazz);
       try {
-        switch (type) {
-          case EVAL:
-            evalResult = engine.eval(scriptOrFunction, scriptContext);
-            break;
-          case INVOKE:
-            evalResult = ((Invocable)engine).invokeFunction(scriptOrFunction);
-            break;
-        }
+        Class<?> interpretedFunctionClass = Class.forName("sun.org.mozilla.javascript.internal.InterpretedFunction");
 
-        if (isPassThru) {
-          result.emit(evalResult);
-        }
-      }
-      catch (Exception ex) {
-        throw new RuntimeException(ex);
-      }
+        kryo.register(interpretedFunctionClass,
+                      new FieldSerializer(kryo, interpretedFunctionClass)
+        {
+          @Override
+          protected Object create(Kryo kryo, Input input, Class type)
+          {
+            return new HashMap<String, Object>(); // hack to bypass unserializable interpreted function object
+          }
 
-      if (isPassThru) {
-        outBindings.emit(new HashMap<String, Object>(engine.getBindings(ScriptContext.ENGINE_SCOPE)));
+        });
+      }
+      catch (ClassNotFoundException ex) {
+        // ignore
       }
     }
 
-  };
-  @OutputPortFieldAnnotation(name = "outBindings", optional = true)
-  public final transient DefaultOutputPort<Map<String, Object>> outBindings = new DefaultOutputPort<Map<String, Object>>();
-  @OutputPortFieldAnnotation(name = "result", optional = true)
-  public final transient DefaultOutputPort<Object> result = new DefaultOutputPort<Object>();
+  }
+
+  @DefaultSerializer(value = BindingsSerializer.class)
+  protected static class MyBindings extends SimpleBindings
+  {
+  }
+
+  protected transient ScriptEngineManager sem = new ScriptEngineManager();
+  protected transient ScriptEngine engine = sem.getEngineByName("JavaScript");
+  protected Type type = Type.EVAL;
+  protected transient SimpleScriptContext scriptContext = new SimpleScriptContext();
+  protected MyBindings scriptBindings = new MyBindings();
+  protected Object evalResult;
+
+  @Override
+  public void process(Map<String, Object> tuple)
+  {
+    for (Map.Entry<String, Object> entry : tuple.entrySet()) {
+      engine.put(entry.getKey(), entry.getValue());
+    }
+    try {
+      switch (type) {
+        case EVAL:
+          evalResult = engine.eval(JavaScriptOperator.this.script, scriptContext);
+          break;
+        case INVOKE:
+          evalResult = ((Invocable)engine).invokeFunction(script);
+          break;
+      }
+
+      if (isPassThru && result.isConnected()) {
+        result.emit(evalResult);
+      }
+    }
+    catch (Exception ex) {
+      throw new RuntimeException(ex);
+    }
+
+    if (isPassThru && outBindings.isConnected()) {
+      outBindings.emit(getBindings());
+    }
+  }
+
+  @Override
+  public Map<String, Object> getBindings()
+  {
+    return new HashMap<String, Object>(engine.getBindings(ScriptContext.ENGINE_SCOPE));
+  }
 
   public void setEngineByName(String name)
   {
     engine = sem.getEngineByName(name);
   }
 
-  public void setKeepContext(boolean keepContext)
-  {
-    this.keepContext = keepContext;
-  }
 
   public void setEval(String script)
   {
     this.type = Type.EVAL;
-    this.scriptOrFunction = script;
+    this.script = script;
   }
 
   public void setInvoke(String functionName)
   {
     this.type = Type.INVOKE;
-    this.scriptOrFunction = functionName;
-  }
-
-  public void addSetupScript(String script)
-  {
-    setupScripts.add(script);
-  }
-
-  @Override
-  public void setPassThru(boolean isPassThru)
-  {
-    this.isPassThru = isPassThru;
+    this.script = functionName;
   }
 
   @Override
@@ -162,11 +174,7 @@ public class JavaScriptOperator extends BaseOperator implements ScriptOperator
   {
     if (!isPassThru) {
       result.emit(evalResult);
-      outBindings.emit(new HashMap<String, Object>(this.scriptContext.getBindings(ScriptContext.ENGINE_SCOPE)));
-    }
-    if (!keepContext) {
-      this.scriptContext = new SimpleScriptContext();
-      engine.setContext(this.scriptContext);
+      outBindings.emit(getBindings());
     }
   }
 
@@ -176,7 +184,7 @@ public class JavaScriptOperator extends BaseOperator implements ScriptOperator
     this.scriptContext.setBindings(scriptBindings, ScriptContext.ENGINE_SCOPE);
     engine.setContext(this.scriptContext);
     try {
-      for (String s: setupScripts) {
+      for (String s : setupScripts) {
         engine.eval(s, this.scriptContext);
       }
     }
@@ -189,19 +197,5 @@ public class JavaScriptOperator extends BaseOperator implements ScriptOperator
   {
     scriptBindings.put(key, val);
   }
-
-	@Override
-	public void setScript(String script)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void setScriptPath(String path)
-	{
-		// TODO Auto-generated method stub
-
-	}
 
 }

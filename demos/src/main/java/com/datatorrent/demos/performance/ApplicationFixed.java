@@ -23,7 +23,10 @@ import com.datatorrent.api.DAG.Locality;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- * Example of application configuration in Java.<p>
+ * Example of application configuration in Java.
+ * <p>
+ * Measures the time taken to emit a fixed number of tuples.
+ * </p>
  *
  * @since 0.3.2
  */
@@ -36,11 +39,11 @@ public class ApplicationFixed implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
     FixedTuplesInputOperator wordGenerator = dag.addOperator("WordGenerator", FixedTuplesInputOperator.class);
-    dag.getMeta(wordGenerator).getMeta(wordGenerator.output).getAttributes().attr(PortContext.QUEUE_CAPACITY).set(QUEUE_CAPACITY);
+    dag.getMeta(wordGenerator).getMeta(wordGenerator.output).getAttributes().put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
     wordGenerator.setCount(500000);
 
     WordCountOperator<byte[]> counter = dag.addOperator("Counter", new WordCountOperator<byte[]>());
-    dag.getMeta(counter).getMeta(counter.input).getAttributes().attr(PortContext.QUEUE_CAPACITY).set(QUEUE_CAPACITY);
+    dag.getMeta(counter).getMeta(counter.input).getAttributes().put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
 
     dag.addStream("Generator2Counter", wordGenerator.output, counter.input).setLocality(locality);
   }

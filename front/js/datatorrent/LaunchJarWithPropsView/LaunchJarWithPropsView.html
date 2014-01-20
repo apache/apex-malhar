@@ -1,0 +1,47 @@
+<table class="properties">
+	<thead>
+		<tr>
+			<th scope="col">property name</th>
+			<th scope="col">property value</th>
+			<th scope="col">remove</th>
+		</tr>
+	</thead>
+	<tbody>
+		<% if (properties.length === 0) { %>
+			<tr><td colspan="2" class="no-properties"><%= DT.text('No properties specified.') %></td></tr>
+		<% } else { %>
+			<% _.each( properties, function(prop) { %>
+				
+				<tr>
+					<td>
+						<input 
+							type="text"
+							class="propertyField"
+							placeholder="<%= DT.text('property name') %>"
+							data-id="<%= prop.id %>" 
+							data-key="name"
+							value="<%= prop.name %>"
+						>
+					</td>
+					<td>
+						<input 
+							type="text" 
+							class="propertyField" 
+							placeholder="<%= DT.text('property value') %>"
+							data-id="<%= prop.id %>" 
+							data-key="value"
+							value="<%= prop.value %>"
+						>
+					</td>
+					<td>
+						<button class="btn btn-danger removeProperty" data-id="<%= prop.id %>">
+							<i class="icon-white icon-remove"></i>
+						</button>
+					</td>
+				</tr>
+
+			<% }) %>
+		<% } %>
+	</tbody>
+</table>
+<button class="btn addProperty"><%= DT.text('Add a property') %></button>

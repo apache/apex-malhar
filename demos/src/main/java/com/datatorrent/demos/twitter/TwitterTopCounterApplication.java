@@ -137,11 +137,11 @@ public class TwitterTopCounterApplication implements StreamingApplication
 
   private InputPort<Object> consoleOutput(DAG dag, String operatorName)
   {
-    String daemonAddress = dag.attrValue(DAG.DAEMON_ADDRESS, null);
-    if (!StringUtils.isEmpty(daemonAddress)) {
-      URI uri = URI.create("ws://" + daemonAddress + "/pubsub");
+    String gatewayAddress = dag.getValue(DAG.GATEWAY_ADDRESS);
+    if (!StringUtils.isEmpty(gatewayAddress)) {
+      URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
       String topic = "demos.twitter." + operatorName;
-      //LOG.info("WebSocket with daemon at: {}", daemonAddress);
+      //LOG.info("WebSocket with gateway at: {}", gatewayAddress);
       PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator(operatorName, new PubSubWebSocketOutputOperator<Object>());
       wsOut.setUri(uri);
       wsOut.setTopic(topic);
@@ -155,7 +155,7 @@ public class TwitterTopCounterApplication implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    dag.setAttribute(DAG.APPLICATION_NAME, "TwitterDevApplication");
+    dag.setAttribute(DAG.APPLICATION_NAME, "TwitterApplication");
 
     // Setup the operator to get the data from twitter sample stream injected into the system.
     TwitterSampleInput twitterFeed = new TwitterSampleInput();

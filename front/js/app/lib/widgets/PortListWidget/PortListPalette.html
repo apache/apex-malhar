@@ -1,0 +1,17 @@
+<span class="select-status"><strong><%= selected.length %></strong> row(s) selected</span>
+<div class="palette-actions">
+
+    <% if (!selected.length) { %>
+    <button disabled class="btn">no port(s) selected</button>
+    <% } else if (selected.length === 1) {%>
+       	  <button class="inspectItem btn btn-primary"><i class="icon-eye-open icon-white"></i> <%= DT.text('inspect') %></button>
+        <% if (operator.recordingStartTime == '-1') { %>
+            <button class="startPortRecording btn"><i class="icon-rec-off"></i> start recording</button>
+        <% } else { %>
+            <button disabled class="btn">recording in progress</button>
+        <% }%>
+    <% } else {%>
+        <button class="btn" disabled>no actions available</button>
+    <% } %>
+    
+</div>

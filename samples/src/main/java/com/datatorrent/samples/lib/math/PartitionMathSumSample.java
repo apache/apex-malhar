@@ -15,11 +15,13 @@
  */
 package com.datatorrent.samples.lib.math;
 
+
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.DAG;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.StreamingApplication;
+
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.math.Sum;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
@@ -39,7 +41,7 @@ public class PartitionMathSumSample implements StreamingApplication
 	public void populateDAG(DAG dag, Configuration conf)
 	{
 		// Create application dag.
-		dag.setAttribute(DAG.APPLICATION_NAME, "MobileDevApplication");
+		dag.setAttribute(DAG.APPLICATION_NAME, "PartitionMathSumApplication");
 		dag.setAttribute(DAG.DEBUG, true);
 
 		// Add random integer generator operator
@@ -52,9 +54,9 @@ public class PartitionMathSumSample implements StreamingApplication
 		Sum<Integer> sum = dag.addOperator("sum", Sum.class);
 		dag.addStream("stream1", rand.integer_data, sum.data);
 		dag.getMeta(sum).getAttributes()
-				.attr(OperatorContext.INITIAL_PARTITION_COUNT).set(4);
+				.put(OperatorContext.INITIAL_PARTITION_COUNT, 4);
 		dag.getMeta(sum).getAttributes()
-				.attr(OperatorContext.APPLICATION_WINDOW_COUNT).set(20);
+				.put(OperatorContext.APPLICATION_WINDOW_COUNT, 20);
 
 		// Connect to output console operator
 		ConsoleOutputOperator console = dag.addOperator("console",

@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.2
  */
-@ShipContainingJars(classes={kafka.javaapi.producer.Producer.class, org.I0Itec.zkclient.ZkClient.class, scala.ScalaObject.class})
+@ShipContainingJars(classes={kafka.javaapi.producer.Producer.class, org.I0Itec.zkclient.ZkClient.class, scala.Function.class})
 public abstract class AbstractKafkaOutputOperator<K, V> implements Operator
 {
   @SuppressWarnings("unused")

@@ -18,9 +18,12 @@ package com.datatorrent.demos.performance;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Context.OperatorContext;
+import javax.validation.constraints.Min;
 
 /**
- * <p>RandomWordInputModule class.</p>
+ * <p>
+ * RandomWordInputModule class.
+ * </p>
  *
  * @since 0.3.2
  */
@@ -30,17 +33,74 @@ public class RandomWordInputModule implements InputOperator
   private transient int count;
   private boolean firstTime;
 
+  private boolean emitSameTuple = false;
+  byte[] sameTupleArray;
+
+  @Min(1)
+  private int tupleSize = 64;
+
+  /**
+   * Sets the size of the tuple to the specified size. 
+   * The change to tuple size takes effect in next window.
+   * 
+   * @param size the tupleSize to set
+   */
+  public void setTupleSize(int size)
+  {
+    tupleSize = size;
+    if (emitSameTuple) {
+      sameTupleArray = new byte[tupleSize];
+    }
+  }
+
+  /**
+   * @return the tupleSize
+   */
+  public int getTupleSize()
+  {
+    return tupleSize;
+  }
+
+  /**
+   * Sets the property that decides if the operator emits same tuple or 
+   * creates new tuple for every emit. The change takes effect in next window.
+   * 
+   * @param isSameTuple the boolean value to set for 'emitSameTuple' property
+   */
+  public void setEmitSameTuple(boolean isSameTuple)
+  {
+    emitSameTuple = isSameTuple;
+    if (isSameTuple) {
+      sameTupleArray = new byte[tupleSize];
+    }
+  }
+
+  /**
+   * @return the emitSameTuple property
+   */
+  public boolean getEmitSameTuple()
+  {
+    return emitSameTuple;
+  }
+
   @Override
   public void emitTuples()
   {
     if (firstTime) {
       for (int i = count--; i-- > 0;) {
-        output.emit(new byte[64]);
+        if (emitSameTuple) {
+          output.emit(sameTupleArray);
+        } else {
+          output.emit(new byte[tupleSize]);
+        }
       }
       firstTime = false;
-    }
-    else {
-      output.emit(new byte[64]);
+    } else {
+      if (emitSameTuple) {
+        output.emit(sameTupleArray);
+      } else {
+        output.emit(new byte[tupleSize]);
+      }
       count++;
     }
   }

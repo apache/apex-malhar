@@ -1,0 +1,28 @@
+<div class="modal-header">
+    <h3 class="widget-settings-title"><span class="muted">Widget Settings:</span> <%= widget %></h3>
+</div>
+<div class="modal-body">
+    <form>
+      <fieldset>
+        <label>Name</label>
+        <input type="text" value="<%= id %>" class="widgetId">
+        
+        <label>Width (in percentage)</label>
+        <div class="input-append">
+            <input type="text" value="<%= width %>" class="widgetWidth">
+            <span class="add-on">%</span>
+        </div>
+
+        <label>Height (in pixels, or "auto")</label>
+        <div class="input-append">
+            <input type="text" value="<%= height %>" class="widgetHeight">
+            <span class="add-on">(px)</span>
+            <span class="help-block">"auto" means that the height will be automatically set</span>
+        </div>
+
+      </fieldset>
+    </form>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Close (esc)</button>
+</div>

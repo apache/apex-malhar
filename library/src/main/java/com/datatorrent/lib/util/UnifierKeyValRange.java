@@ -29,18 +29,18 @@ import java.util.Map;
  *
  * @since 0.3.2
  */
-public class UnifierKeyValRange<K> implements Unifier<KeyValPair<K, HighLow>>
+public class UnifierKeyValRange<K, V extends Number> implements Unifier<KeyValPair<K, HighLow<V>>>
 {
-  public final transient DefaultOutputPort<KeyValPair<K, HighLow>> mergedport = new DefaultOutputPort<KeyValPair<K, HighLow>>();
+  public final transient DefaultOutputPort<KeyValPair<K, HighLow<V>>> mergedport = new DefaultOutputPort<KeyValPair<K, HighLow<V>>>();
 
   /**
    * combines the tuple into a single final tuple which is emitted in endWindow
    * @param tuple incoming tuple from a partition
    */
   @Override
-  public void process(KeyValPair<K, HighLow> tuple)
+  public void process(KeyValPair<K, HighLow<V>> tuple)
   {
-    HighLow val = map.get(tuple.getKey());
+    HighLow<V> val = map.get(tuple.getKey());
     if (val == null) {
       val = new HighLow(tuple.getValue().getHigh(), tuple.getValue().getLow());
     }
@@ -53,7 +53,7 @@ public class UnifierKeyValRange<K> implements Unifier<KeyValPair<K, HighLow>>
     }
   }
 
-  HashMap<K, HighLow> map = new HashMap<K, HighLow>();
+  HashMap<K, HighLow<V>> map = new HashMap<K, HighLow<V>>();
 
   /**
    * a no op
@@ -73,7 +73,7 @@ public class UnifierKeyValRange<K> implements Unifier<KeyValPair<K, HighLow>>
   public void endWindow()
   {
     if (!map.isEmpty()) {
-      for (Map.Entry<K, HighLow> e: map.entrySet()) {
+      for (Map.Entry<K, HighLow<V>> e: map.entrySet()) {
         mergedport.emit(new KeyValPair(e.getKey(), new HighLow(e.getValue().getHigh(), e.getValue().getLow())));
       }
       map.clear();

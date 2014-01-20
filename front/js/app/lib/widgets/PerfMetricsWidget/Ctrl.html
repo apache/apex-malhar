@@ -1,0 +1,23 @@
+<form class="form-horizontal">
+    <h4>Display Options</h4>
+    
+    <div title="This is the range of the graph, in seconds">
+        <label for="metric_limit">show: </label>
+        <select name="metric_limit" class="metric_limit">
+            <option value="30">last 30 seconds</option>
+            <option value="60">last minute</option>
+            <option value="120">last two minutes</option>
+            <option value="300">last 5 minutes</option>
+        </select>
+    </div>
+    
+    <h4>Series</h4>
+    <% _.each( plots, function(plot) { %>
+        <label class="checkbox">
+            <input type="checkbox" data-key="<%= plot.key %>" />
+            <span class="plot-colorblock" style="background-color:<%= plot.color %>"></span>
+            <%= plot.label %>
+        </label>
+    <% }) %>
+    
+</form>

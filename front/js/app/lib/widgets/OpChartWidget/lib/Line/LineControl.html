@@ -1,0 +1,41 @@
+<form action="#" class="form-horizontal well">
+    
+    <h4 title="These are the auto-detected series that can be plotted from your charting operator's output.">Series</h4>
+    
+    <% _.each( plots, function(plot) { %>
+        <label class="checkbox">
+            <input type="checkbox" data-key="<%= plot.key %>" />
+            <span class="plot-colorblock" style="background-color:<%= plot.color %>"></span>
+            <%= plot.label %>
+        </label>
+    <% }) %>
+    
+    <h4>Data Settings</h4>
+    
+    <label for="toggle_tail" class="checkbox" title="As new data is received, the chart position will be updated to display it. Only applies to live recordings.">
+        <input type="checkbox" name="toggle_tail" class="toggle_tail" /> Tail Incoming Data
+    </label>
+    
+    <div class="input-append" title="This is the location of the recording that the chart is currently displaying. This is not editable when 'Tail Incoming Data' is checked.">
+        <input type="text" name="rec_offset" class="rec_offset input-small" placeholder="offset" />
+        <span class="add-on">Offset</span>
+    </div>
+    
+    <div class="input-append" title="This is the data point range from the offset that should be displayed in the viewport. Above a certain amount, the tuple set will need to be downsampled for rendering.">
+        <input type="text" name="rec_limit" class="rec_limit input-small" placeholder="limit" />
+        <span class="add-on">Limit</span>
+    </div>
+    
+    <h4>Display Settings</h4>
+    
+    <label for="x_format_select" title="The options in this dropdown are predefined format functions for x-axis values. Select one and the chart will update automatically.">X-Axis Format</label>
+    
+    <select class="x_format_select" name="x_format_select" title="The options in this dropdown are predefined format functions for x-axis values. Select one and the chart will update automatically.">
+        <option value="">-- no format --</option>
+        <% _.each( x_formats, function(fn, key) { %>
+            <option value="<%= key %>"><%= key %></option>
+        <% }) %>
+    </select>
+    
+</form>
+

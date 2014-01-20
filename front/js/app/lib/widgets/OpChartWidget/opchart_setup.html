@@ -1,0 +1,12 @@
+<div class="title">
+    <span class="inner">Recording Chart</span>
+</div>
+<form class="opchart-select-form form-inline">
+    <select class="opchart-options">
+        <option value="">Select a recording to chart</option>
+        <% _.each(options, function(option) { %>
+        <option value="<%= option.startTime %>">(<%= option.properties.chartType %>) Operator <%= option.operatorId %>, Started <%= option.startTimeFormatted %> ago </option>
+        <% }) %>
+    </select>
+    <button class="btn btn-primary chartRecording">chart</button>
+</form>

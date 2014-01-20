@@ -1,0 +1,72 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Unit Test Runner</title>
+    <link rel="stylesheet" href="../node_modules/mocha/mocha.css" type="text/css" media="screen" charset="utf-8">
+</head>
+<body>
+    <div id="mocha"></div>
+    <!-- Defines the LOG method -->
+    <script src="../js/REPORTER.debug.js"></script>
+    
+    <!-- Puts $ in the global namespace (required for the DataTorrent Console) -->
+    <script src="../js/vendor/jquery/dist/jquery.js"></script>
+    
+    <!-- Mocha, the testing framework -->
+    <script src="../node_modules/mocha/mocha.js" type="text/javascript" charset="utf-8"></script>
+    
+    <!-- Defines WebConsole, a reporter that outputs to `console.log`.  -->
+    <!-- Helpful as an alternative to normal html reporter. -->
+    <!-- To use, simply add the query string "?reporter=console" to the url. -->
+    <script src="WebConsole.js" type="text/javascript"></script>
+
+    <!-- Chai, the assertion module used for testing. -->
+    <script src="../node_modules/chai/chai.js" type="text/javascript" charset="utf-8"></script>
+
+    <!-- Sinon, another helper library for creating mocks, stubs, and spies. -->
+    <script src="../node_modules/sinon/pkg/sinon.js" type="text/javascript" charset="utf-8"></script>
+
+    <!-- A plugin for chai that allows for easier use of chai with sinon -->
+    <script src="../node_modules/sinon-chai/lib/sinon-chai.js" type="text/javascript" charset="utf-8"></script>
+
+    <!-- Testing setup code -->
+    <script>
+    
+    (function(){
+        
+        // Options for running mocha
+        var options = { 
+            ui: 'bdd',
+            globals: [ 'jquery*', 'jQuery*', 'WebSocket' ]
+        };
+        
+        // Check for console reporter query string
+        if (window.location.search.indexOf('reporter=console') >= 0) {
+            options.reporter = WebConsole;
+        } else {
+            options.reporter = 'html';
+        }
+        
+        // Call setup code for mocha
+        mocha.setup(options);
+    
+        // Define expect as chai's expect function.
+        window.expect = chai.expect;
+    
+    }());
+    
+    </script>
+    
+    <!-- Actual test code to be run -->
+    <script src="http://localhost:3334/test.bundle.js" data-cover></script>
+
+    <script>
+    
+    mocha.run();
+    
+    </script>
+
+    <script src="http://localhost:3335"></script>
+
+</body>
+</html>

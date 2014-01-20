@@ -65,25 +65,41 @@ public abstract class AbstractActiveMQInputOperator extends ActiveMQConsumerBase
    * Any concrete class derived from AbstractActiveMQInputOperator has to implement this method
    * so that it knows what type of message it is going to send to Malhar in which output port.
    *
-   * @param message
+   * @param message- the message to emit
    */
   protected abstract void emitTuple(Message message);
 
+  /**
+   * @return the tuplesBlast
+   */
   public int getTuplesBlast()
   {
     return tuplesBlast;
   }
 
+  /**
+   * Sets the number of tuples emitted in each burst.
+   * 
+   * @param tuplesBlast the number of tuples to emit in each burst.
+   */
   public void setTuplesBlast(int tuplesBlast)
   {
     this.tuplesBlast = tuplesBlast;
   }
 
+  /**
+   * @return the buffer size
+   */
   public int getBufferSize()
   {
     return bufferSize;
   }
-
+  
+  /**
+   * Sets the size of holding buffer.
+   * 
+   * @param bufferSize- the size of the holding buffer
+   */
   public void setBufferSize(int bufferSize)
   {
     this.bufferSize = bufferSize;

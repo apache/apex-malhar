@@ -1,0 +1,11 @@
+.perfmetrics-chart-ctnr {
+  margin-right: 165px;
+  overflow: hidden;
+}
+.perfmetrics-chart-ctrl {
+  width: 150px;
+  float: right;
+}
+.perfmetrics-content {
+  box-shadow: inset -170px 0 #f5f5f5, inset -171px 0 #eaeaea;
+}

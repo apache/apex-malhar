@@ -16,23 +16,32 @@
 package com.datatorrent.demos.mobile;
 
 import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.HighLow;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import javax.validation.constraints.Min;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.constraints.Min;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+
 /**
- *
- * Takes in a stream via input port "data". Inverts the kindex and sends out the tuple on output port "kindex". Takes in specific queries on query port
- * and outputs the data in the cache through console port on receiving the tuple and on each subsequent end_of_window tuple<p>
+ * <p>
+ * This operator generates the GPS locations for the phone numbers specified.
+ * The range of phone numbers or a specific phone number can be set for which the GPS locations will be generated.
+ * It supports querying the locations of a given phone number.
+ * This is a partionable operator that can partition as the tuplesBlast increases.
+ * </p>
  *
  * @since 0.3.2
  */
@@ -46,9 +55,9 @@ public class PhoneMovementGenerator extends BaseOperator
     @Override
     public void process(Integer tuple)
     {
-      HighLow loc = gps.get(tuple);
+      HighLow<Integer> loc = gps.get(tuple);
       if (loc == null) {
-        loc = new HighLow(random.nextInt(range), random.nextInt(range));
+        loc = new HighLow<Integer>(random.nextInt(range), random.nextInt(range));
         gps.put(tuple, loc);
       }
       int xloc = loc.getHigh().intValue();
@@ -80,13 +89,13 @@ public class PhoneMovementGenerator extends BaseOperator
           yloc += range;
         }
       }
-      xloc = xloc % range;
-      yloc = yloc % range;
+      xloc %= range;
+      yloc %= range;
 
       // Set new location
-      HighLow nloc = newgps.get(tuple);
+      HighLow<Integer> nloc = newgps.get(tuple);
       if (nloc == null) {
-        newgps.put(tuple, new HighLow(xloc, yloc));
+        newgps.put(tuple, new HighLow<Integer>(xloc, yloc));
       }
       else {
         nloc.setHigh(xloc);
@@ -96,106 +105,147 @@ public class PhoneMovementGenerator extends BaseOperator
     }
   };
 
-  @InputPortFieldAnnotation(name = "query", optional=true)
-  public final transient DefaultInputPort<Map<String, String>> locationQuery = new DefaultInputPort<Map<String, String>>()
+  @InputPortFieldAnnotation(name="phoneQuery", optional=true)
+  public final transient DefaultInputPort<Map<String,String>> phoneQuery = new DefaultInputPort<Map<String,String>>()
   {
     @Override
-    public void process(Map<String, String> tuple)
+    public void process(Map<String,String> tuple)
     {
       log.info("new query: " + tuple);
-      String command = null;
-      String qid = null;
-      String phone = null;
-      for (Map.Entry<String, String> e: tuple.entrySet()) {
-        if (e.getKey().equals(KEY_COMMAND)) {
-          command = e.getValue();
-        }
-        if (e.getKey().equals(KEY_QUERYID)) {
-          qid = e.getValue();
-        }
-        else if (e.getKey().equals(KEY_PHONE)) {
-          phone = e.getValue();
-        }
-      }
-
-      if (qid != null) { // without qid, ignore
-        if ((phone != null)) {
-          if (phone.isEmpty()) {
-            deregisterPhone(qid);
-          }
-          else {
-            registerPhone(qid, phone);
-          }
-        }
-      } else if (command != null) {
+      String command = tuple.get(KEY_COMMAND);
+      if (command != null) {
         if (command.equals(COMMAND_ADD)) {
-          registerPhone(phone, phone);
-        } else if (command.equals(COMMAND_DELETE)) {
-          deregisterPhone(phone);
-        } else if (command.equals(COMMAND_CLEAR)) {
+          String phoneStr= tuple.get(KEY_PHONE);
+          registerPhone(phoneStr);
+        }
+        else if (command.equals(COMMAND_ADD_RANGE)) {
+          registerPhoneRange(tuple.get(KEY_START_PHONE), tuple.get(KEY_END_PHONE));
+        }
+        else if (command.equals(COMMAND_DELETE)) {
+          String phoneStr= tuple.get(KEY_PHONE);
+          deregisterPhone(phoneStr);
+        }
+        else if (command.equals(COMMAND_CLEAR)) {
           clearPhones();
         }
       }
     }
-
   };
 
   public static final String KEY_COMMAND = "command";
   public static final String KEY_PHONE = "phone";
-  public static final String KEY_QUERYID = "queryId";
   public static final String KEY_LOCATION = "location";
+  public static final String KEY_REMOVED = "removed";
+  public static final String KEY_START_PHONE = "startPhone";
+  public static final String KEY_END_PHONE = "endPhone";
 
   public static final String COMMAND_ADD = "add";
+  public static final String COMMAND_ADD_RANGE = "addRange";
   public static final String COMMAND_DELETE = "del";
   public static final String COMMAND_CLEAR = "clear";
 
-  final HashMap<String, Integer> phone_register = new HashMap<String,Integer>();
+  final Set<Integer> phone_register = Sets.newHashSet();
 
-
-  private final transient HashMap<Integer, HighLow> gps = new HashMap<Integer, HighLow>();
+  private final transient HashMap<Integer, HighLow<Integer>> gps = new HashMap<Integer, HighLow<Integer>>();
   private final Random random = new Random();
   private int range = 50;
   private int threshold = 80;
   private int rotate = 0;
 
-  private final transient HashMap<Integer, HighLow> newgps = new HashMap<Integer, HighLow>();
+  private final transient HashMap<Integer, HighLow<Integer>> newgps = new HashMap<Integer, HighLow<Integer>>();
 
+  /**
+   * @return the range of the phone numbers
+   */
   @Min(0)
   public int getRange()
   {
     return range;
   }
 
+  /**
+   * Sets the range of phone numbers for which the GPS locations need to be generated.
+   * 
+   * @param i the range of phone numbers to set
+   */
   public void setRange(int i)
   {
     range = i;
   }
 
+  /**
+   * @return the threshold 
+   */
   @Min(0)
   public int getThreshold()
   {
     return threshold;
   }
 
+  /**
+   * Sets the threshold that decides how frequently the GPS locations are updated.
+   * 
+   * @param i the value that decides how frequently the GPS locations change.
+   */
   public void setThreshold(int i)
   {
     threshold = i;
   }
 
-  private void registerPhone(String qid, String phone) throws NumberFormatException
+  private void registerPhone(String phoneStr)
   {
     // register the phone channel
-    phone_register.put(qid, new Integer(phone));
-    log.debug(String.format("Registered query id \"%s\", with phonenum \"%s\"", qid, phone));
-    emitQueryResult(qid, new Integer(phone));
+    if (Strings.isNullOrEmpty(phoneStr)) {
+      return;
+    }
+    try {
+      Integer phone = new Integer(phoneStr);
+      registerSinglePhone(phone);
+    } catch (NumberFormatException nfe) {
+      log.warn("Invalid no: " + phoneStr);
+    }
   }
 
-  private void deregisterPhone(String qid)
+  private void registerPhoneRange(String startPhoneStr, String endPhoneStr)
   {
-    // simply remove the channel
-    if (phone_register.get(qid) != null) {
-      phone_register.remove(qid);
-      log.debug(String.format("Removing query id \"%s\"", qid));
+    if (Strings.isNullOrEmpty(startPhoneStr) || Strings.isNullOrEmpty(endPhoneStr)) {
+      log.warn("Invalid phone range %s, %s", startPhoneStr,endPhoneStr);
+      return;
+    }
+    try {
+      Integer startPhone = new Integer(startPhoneStr);
+      Integer endPhone = new Integer(endPhoneStr);
+      Preconditions.checkArgument(endPhone >= startPhone, "Invalid phone range %s, %s", startPhone, endPhone);
+      for (int i = startPhone; i <= endPhone; i++) {
+        registerSinglePhone(i);
+      }
+    } catch (NumberFormatException nfe) {
+      log.warn("Invalid phone range <" + startPhoneStr + "," + endPhoneStr + ">");
+    }
+  }
+
+  private void registerSinglePhone(int phone)
+  {
+    phone_register.add(phone);
+    log.debug(String.format("Registered query id with phonenum \"%s\"", phone));
+    emitQueryResult(phone);
+  }
+
+  private void deregisterPhone(String phoneStr)
+  {
+    if (Strings.isNullOrEmpty(phoneStr)) {
+      return;
+    }
+    try {
+      Integer phone = new Integer(phoneStr);
+      // simply remove the channel
+      if (phone_register.contains(phone)) {
+        phone_register.remove(phone);
+        log.debug(String.format("Removing query id \"%s\"", phone));
+        emitPhoneRemoved(phone);
+      }
+    } catch (NumberFormatException nfe) {
+      log.warn("Invalid no: " + phoneStr);
     }
   }
 
@@ -218,8 +268,8 @@ public class PhoneMovementGenerator extends BaseOperator
   @Override
   public void endWindow()
   {
-    for (Map.Entry<Integer, HighLow> e: newgps.entrySet()) {
-      HighLow loc = gps.get(e.getKey());
+    for (Map.Entry<Integer, HighLow<Integer>> e: newgps.entrySet()) {
+      HighLow<Integer> loc = gps.get(e.getKey());
       if (loc == null) {
         gps.put(e.getKey(), e.getValue());
       }
@@ -229,8 +279,8 @@ public class PhoneMovementGenerator extends BaseOperator
       }
     }
     boolean found = false;
-    for (Map.Entry<String, Integer> p: phone_register.entrySet()) {
-      emitQueryResult(p.getKey(), p.getValue());
+    for (Integer phone: phone_register) {
+      emitQueryResult( phone);
       //log.debug(String.format("Query id is \"%s\", and phone is \"%d\"", p.getKey(), p.getValue()));
       found = true;
     }
@@ -240,16 +290,22 @@ public class PhoneMovementGenerator extends BaseOperator
     newgps.clear();
   }
 
-  private void emitQueryResult(String queryId, Integer phone) {
-    HighLow loc = gps.get(phone);
+  private void emitQueryResult(Integer phone) {
+    HighLow<Integer> loc = gps.get(phone);
     if (loc != null) {
       Map<String, String> queryResult = new HashMap<String, String>();
-      queryResult.put(KEY_QUERYID, queryId);
       queryResult.put(KEY_PHONE, String.valueOf(phone));
       queryResult.put(KEY_LOCATION, loc.toString());
       locationQueryResult.emit(queryResult);
     }
   }
 
+  private void emitPhoneRemoved(Integer phone)
+  {
+    Map<String,String> removedResult= Maps.newHashMap();
+    removedResult.put(KEY_PHONE, String.valueOf(phone));
+    removedResult.put(KEY_REMOVED,"true");
+    locationQueryResult.emit(removedResult);
+  }
 
 }

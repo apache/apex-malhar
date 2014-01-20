@@ -15,24 +15,25 @@
  */
 package com.datatorrent.lib.algo;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator.Unifier;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.util.AbstractBaseSortOperator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import com.datatorrent.lib.util.AbstractBaseSortOperator;
 
 /**
  * Takes a stream of key value pairs via input port "data". The incoming tuple
  * is merged into already existing sorted list. At the end of the window the
  * entire sorted list is emitted on output port "sort"
- * <p>
+ * <p/>
  * <br>
- * <b>StateFull : Yes, </b> tuple are compare across application window(s). <br>
- * <b>Partitions : No, </b> will yield wrong results. <br>
+ * <b>StateFull : No, </b> {@link AbstractBaseSortOperator} clears state in the endwindow call. <br>
+ * <b>Partitions : Yes, </b> the operator itself serves as the unifier.
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects K<br>
@@ -46,7 +47,7 @@ import java.util.HashMap;
 // TODO: Override PriorityQueue and rewrite addAll to insert with location
 //
 public class InsertSort<K> extends AbstractBaseSortOperator<K> implements
-    Unifier<ArrayList<K>>
+  Unifier<ArrayList<K>>
 {
   /**
    * Input port that takes in one tuple at a time

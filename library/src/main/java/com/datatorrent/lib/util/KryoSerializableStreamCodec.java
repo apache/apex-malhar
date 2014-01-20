@@ -1,73 +1,80 @@
 package com.datatorrent.lib.util;
 
-import com.datatorrent.api.StreamCodec;
-import com.datatorrent.common.util.Slice;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+
+import javax.annotation.Nonnull;
+
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.lang.reflect.ParameterizedType;
+import com.datatorrent.api.StreamCodec;
+
+import com.datatorrent.common.util.Slice;
 
 /**
  * This codec is used for serializing the objects of class which are Kryo serializable.
  * It is needed when custom static partitioning is required.
  *
- * @param <T>
- *          Type of the object which gets serialized/deserialized using this
- *          codec.
- *
+ * @param <T> Type of the object which gets serialized/deserialized using this  codec.
+ * @since 0.9.0
  */
-public class KryoSerializableStreamCodec<T> implements StreamCodec<T> {
-    private final Kryo kryo;
+public class KryoSerializableStreamCodec<T> implements StreamCodec<T>
+{
+  private final Kryo kryo;
 
-    public KryoSerializableStreamCodec(){
-        this.kryo=new Kryo();
-        this.kryo.setClassLoader(Thread.currentThread().getContextClassLoader());
-        this.kryo.register((Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
-    }
+  public KryoSerializableStreamCodec()
+  {
+    this.kryo = new Kryo();
+    this.kryo.setClassLoader(Thread.currentThread().getContextClassLoader());
+  }
 
-    /**
-     * Register classes of fields in the tuple with kryo.
-     *
-     * @param clazz
-     */
-    public void register(Class clazz){
-        this.kryo.register(clazz);
-    }
+  /**
+   * Registers a class with kryo. If the class of the tuple and its fields are registered then kryo serialization is more efficient.
+   *
+   * @param clazz class to register with Kryo.
+   */
+  public void register(Class clazz)
+  {
+    this.kryo.register(clazz);
+  }
 
-    /**
-     * Register classes with specified ids.
-     * @param clazz
-     * @param id greater than 0
-     */
-    public void register(Class clazz, int id){
-        Preconditions.checkArgument(id>0, "invalid id");
-        this.kryo.register(clazz, id);
-    }
+  /**
+   * Register a class with specified id.
+   *
+   * @param clazz class to register with Kryo.
+   * @param id    int ID of the class.
+   */
+  public void register(Class clazz, int id)
+  {
+    Preconditions.checkArgument(id > 0, "invalid id");
+    this.kryo.register(clazz, id);
+  }
 
-    @Override
-    public T fromByteArray(Slice fragment) {
-        ByteArrayInputStream is= new ByteArrayInputStream(fragment.buffer,fragment.offset, fragment.length);
-        Input input = new Input(is);
-        return kryo.readObject(input,(Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
-    }
+  @SuppressWarnings("unchecked")
+  @Override
+  public T fromByteArray(Slice fragment)
+  {
+    ByteArrayInputStream is = new ByteArrayInputStream(fragment.buffer, fragment.offset, fragment.length);
+    Input input = new Input(is);
+    return (T) kryo.readClassAndObject(input);
+  }
 
-    @Override
-    public Slice toByteArray(T info) {
-        ByteArrayOutputStream os=new ByteArrayOutputStream();
-        Output output = new Output(os);
-        kryo.writeObject(output, info);
-        output.flush();
-        return new Slice(os.toByteArray(),0, os.toByteArray().length);
-    }
+  @Override
+  public Slice toByteArray(T info)
+  {
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+    Output output = new Output(os);
+    kryo.writeClassAndObject(output, info);
+    output.flush();
+    return new Slice(os.toByteArray(), 0, os.toByteArray().length);
+  }
 
-    @Override
-    public int getPartition(T t){
-        return t.hashCode();
-    }
-
+  @Override
+  public int getPartition(T t)
+  {
+    return t.hashCode();
+  }
 }

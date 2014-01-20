@@ -1,0 +1,19 @@
+<label class="control-label" for="templateName">
+    Template Name
+    <span class="help-block">The alert will listen to this stream</span>
+</label>
+    
+<div class="controls">
+    <% if (templates.length) {%>
+        <select id="templateName" name="templateName">
+            <option value="">choose an alert template</option>
+            <% _.each( templates, function(template) { %>
+            <option value="<%= template.name %>"><%= template.name %></option>
+            <% }) %>
+        </select>
+    <%} else {%>
+        <select id="templateName" disabled="disabled">
+            <option value="">no template options</option>
+        </select>
+    <%}%>
+</div>

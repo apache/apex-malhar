@@ -15,17 +15,19 @@
  */
 package com.datatorrent.demos.pi;
 
+
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.script.JavaScriptOperator;
 import com.datatorrent.lib.stream.RoundRobinHashMap;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
 
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.StreamingApplication;
+
 /**
- * Monte Carlo PI extimation demo : <br>
+ * Monte Carlo PI estimation demo : <br>
  * This application computes value of PI using Monte Carlo pi estimation
  * formula. This demo inputs formula using java script operator.
  *
@@ -89,7 +91,6 @@ public class ApplicationWithScript implements StreamingApplication
     rrhm.setKeys(new String[] { "x", "y" });
 
     JavaScriptOperator calc = dag.addOperator("picalc", new JavaScriptOperator());
-    calc.setKeepContext(true);
     calc.setPassThru(false);
     calc.put("i",0);
     calc.put("count",0);
