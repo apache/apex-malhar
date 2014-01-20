@@ -26,12 +26,12 @@ import org.apache.commons.lang.mutable.MutableLong;
  */
 class NumberSummation<K, V>
 {
-  private RedisStore store;
+  private AbstractRedisAggregateOutputOperator<?> operator;
   private Map<Object, Object> dataMap;
 
-  NumberSummation(RedisStore store, Map<Object, Object> dataMap)
+  NumberSummation(AbstractRedisAggregateOutputOperator<?> operator, Map<Object, Object> dataMap)
   {
-    this.store = store;
+    this.operator = operator;
     this.dataMap = dataMap;
   }
 
@@ -65,19 +65,19 @@ class NumberSummation<K, V>
           String field = entry1.getKey().toString();
           Object hvalue = entry1.getValue();
           if (hvalue instanceof Number) {
-            store.hincrByFloat(key.toString(), field, ((Number)hvalue).doubleValue());
+            operator.getStore().hincrByFloat(key.toString(), field, ((Number)hvalue).doubleValue());
           }
           else {
-            store.hincrByFloat(key.toString(), field, Double.parseDouble(hvalue.toString()));
+            operator.getStore().hincrByFloat(key.toString(), field, Double.parseDouble(hvalue.toString()));
           }
         }
       }
       else {
         if (value instanceof Number) {
-          store.incrByFloat(key.toString(), ((Number)value).doubleValue());
+          operator.getStore().incrByFloat(key.toString(), ((Number)value).doubleValue());
         }
         else {
-          store.incrByFloat(key.toString(), Double.parseDouble(value.toString()));
+          operator.getStore().incrByFloat(key.toString(), Double.parseDouble(value.toString()));
         }
       }
     }

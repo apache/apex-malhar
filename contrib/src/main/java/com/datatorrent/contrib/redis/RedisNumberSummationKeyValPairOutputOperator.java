@@ -33,7 +33,7 @@ import java.util.Map;
 public class RedisNumberSummationKeyValPairOutputOperator<K, V> extends AbstractRedisAggregateOutputOperator<KeyValPair<K, V>>
 {
   private Map<Object, Object> dataMap = new HashMap<Object, Object>();
-  private transient NumberSummation<K, V> numberAggregation = new NumberSummation<K, V>(store, dataMap);
+  private transient NumberSummation<K, V> numberAggregation = new NumberSummation<K, V>(this, dataMap);
 
   @Override
   public void processTuple(KeyValPair<K, V> t)
