@@ -83,7 +83,7 @@ public abstract class AbstractTransactionableStoreOutputOperator<T, S extends Tr
       operatorId = context.getId();
 
       store.connect();
-      committedWindowId = getCommittedWindowId(appId, operatorId);
+      committedWindowId = store.getCommittedWindowId(appId, operatorId);
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
@@ -95,24 +95,6 @@ public abstract class AbstractTransactionableStoreOutputOperator<T, S extends Tr
   {
     currentWindowId = windowId;
   }
-
-  /**
-   * Gets the committed window id from a persistent store.
-   *
-   * @param appId
-   * @param operatorId
-   * @return the committed window id
-   */
-  protected abstract long getCommittedWindowId(String appId, int operatorId);
-
-  /**
-   * Stores the committed window id to a persistent store.
-   *
-   * @param appId
-   * @param operatorId
-   * @param windowId
-   */
-  protected abstract void storeCommittedWindowId(String appId, int operatorId, long windowId);
 
   @Override
   public void teardown()

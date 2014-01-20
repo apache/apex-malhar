@@ -22,4 +22,21 @@ package com.datatorrent.lib.db;
  */
 public interface TransactionableStore extends Connectable, Transactionable
 {
+    /**
+   * Gets the committed window id from a persistent store.
+   *
+   * @param appId
+   * @param operatorId
+   * @return the committed window id
+   */
+  public long getCommittedWindowId(String appId, int operatorId);
+
+  /**
+   * Stores the committed window id to a persistent store.
+   *
+   * @param appId
+   * @param operatorId
+   * @param windowId
+   */
+  public void storeCommittedWindowId(String appId, int operatorId, long windowId);
 }
