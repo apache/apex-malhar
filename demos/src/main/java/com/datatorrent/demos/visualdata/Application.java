@@ -70,8 +70,8 @@ public class Application implements StreamingApplication {
 
             PubSubWebSocketOutputOperator<Object> wsChartOut2 = dag.addOperator("wsChartOut2",
                     new PubSubWebSocketOutputOperator<Object>());
-            wsChartOut.setUri(uri);
-            wsChartOut.setTopic("app.visualdata.chartValue2");
+            wsChartOut2.setUri(uri);
+            wsChartOut2.setTopic("app.visualdata.chartValue2");
             dag.addStream("ws_chart_data2", chartValue2.output, wsChartOut2.input);
         } else {
             ConsoleOutputOperator console = dag.addOperator("console_out", new ConsoleOutputOperator());
