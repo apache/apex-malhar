@@ -42,6 +42,8 @@ public class Application implements StreamingApplication {
         RandomEventGenerator rand = dag.addOperator("random", new RandomEventGenerator());
         rand.setMinvalue(0);
         rand.setMaxvalue(maxValue);
+        
+        ChartValueGenerator chartValue = dag.addOperator("chartValue", new ChartValueGenerator());
 
         PiCalculateOperator calc = dag.addOperator("picalc", new PiCalculateOperator());
         calc.setBase(maxValue * maxValue);
@@ -54,12 +56,20 @@ public class Application implements StreamingApplication {
             PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator("wsOut",
                     new PubSubWebSocketOutputOperator<Object>());
             wsOut.setUri(uri);
-            wsOut.setTopic("demos.visualdata.randomValue");
-
-            dag.addStream("randomdata", calc.output, wsOut.input);
+            wsOut.setTopic("demos.visualdata.piValue");
+            dag.addStream("ws_pi_data", calc.output, wsOut.input);
+            
+            PubSubWebSocketOutputOperator<Object> wsChartOut = dag.addOperator("wsChartOut",
+                    new PubSubWebSocketOutputOperator<Object>());
+            wsChartOut.setUri(uri);
+            wsChartOut.setTopic("app.visualdata.chartValue");
+            dag.addStream("ws_chart_data", chartValue.output, wsChartOut.input);            
         } else {
-            ConsoleOutputOperator console = dag.addOperator("consoleout", new ConsoleOutputOperator());
+            ConsoleOutputOperator console = dag.addOperator("console_out", new ConsoleOutputOperator());
             dag.addStream("rand_console", calc.output, console.input).setLocality(locality);
+            
+            ConsoleOutputOperator chartConsole = dag.addOperator("chart_out", new ConsoleOutputOperator());
+            dag.addStream("chart_console", chartValue.output, chartConsole.input).setLocality(locality);
         }
     }
 
