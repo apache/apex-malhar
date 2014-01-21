@@ -43,6 +43,11 @@ public abstract class AbstractFlumeInputOperator<T>
         Partitionable<AbstractFlumeInputOperator<T>>, PartitionAware<AbstractFlumeInputOperator<T>>
 {
   public final transient DefaultOutputPort<T> output = new DefaultOutputPort<T>();
+  @NotNull
+  private String[] connectionSpecs;
+  private final ArrayList<RecoveryAddress> recoveryAddresses;
+  @SuppressWarnings("FieldMayBeFinal") // it's not final because that mucks with the serialization somehow
+  private transient ArrayBlockingQueue<Slice> handoverBuffer;
   private transient int idleCounter;
   private transient int eventCounter;
   private transient DefaultEventLoop eventloop;
@@ -51,14 +56,12 @@ public abstract class AbstractFlumeInputOperator<T>
   private transient Client client;
   private transient long windowId;
   private transient byte[] address;
-  @NotNull
-  private String[] connectionSpecs;
-  private final ArrayList<RecoveryAddress> recoveryAddresses;
 
   public AbstractFlumeInputOperator()
   {
+    handoverBuffer = new ArrayBlockingQueue<Slice>(1024 * 5);
     connectionSpecs = new String[0];
-    this.recoveryAddresses = new ArrayList<RecoveryAddress>();
+    recoveryAddresses = new ArrayList<RecoveryAddress>();
   }
 
   @Override
@@ -605,7 +608,5 @@ public abstract class AbstractFlumeInputOperator<T>
 
   };
   private static final transient ThreadLocal<Collection<Service<byte[]>>> discoveredFlumeSinks = new ThreadLocal<Collection<Service<byte[]>>>();
-  @SuppressWarnings("FieldMayBeFinal") // it's not final because that mucks with the serialization somehow
-  private transient ArrayBlockingQueue<Slice> handoverBuffer = new ArrayBlockingQueue<Slice>(1024 * 5);
   private static final Logger logger = LoggerFactory.getLogger(AbstractFlumeInputOperator.class);
 }
