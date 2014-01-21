@@ -22,21 +22,25 @@ angular.module('app.controller')
 
     var apps = rest.getApps();
 
-    //util.delay(apps).then(function (apps) { //TODO dev only
     apps.then(function (apps) {
       $scope.apps = apps;
       $scope.showLoading = false;
+    }, function () {
+      $scope.showLoading = false;
     });
 
-    var linkTemplate = '<div class="ngCellText" ng-class="col.colIndex()"><span ng-cell-text><a href="#/jobs/{{COL_FIELD}}">{{COL_FIELD}}</a></span></div>';
+    var linkTemplate = '<div class="ngCellText" ng-class="col.colIndex()"><span ng-cell-text><a href="#/jobs/{{COL_FIELD | appId}}">{{COL_FIELD}}</a></span></div>';
 
     $scope.gridOptions = {
       data: 'apps',
       enableRowSelection: false,
+      enableColumnResize: true,
       showFilter: true,
       columnDefs: [
         { field: 'id', displayName: 'Task', cellTemplate: linkTemplate, width: 250 },
         { field: 'name', displayName: 'Name' },
+        { field: 'user', displayName: 'User' },
+        { field: 'queue', displayName: 'Queue' },
         { field: 'startedTime', displayName: 'Start Time', cellFilter: 'date:\'yyyy-MM-dd HH:mm:ss\'', width: 150 },
         { field: 'state', displayName: 'State' },
         { field: 'finalStatus', displayName: 'Final Status' },

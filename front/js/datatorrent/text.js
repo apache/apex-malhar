@@ -14,6 +14,8 @@
 * limitations under the License.
 */
 
+var _ = require('underscore');
+
 /**
  * Text package.
  *
@@ -54,10 +56,24 @@ var textHash = {
     'latency_ms_label'           :  'latency (ms)',
     'cpu_percentage_label'       :  'cpu %',
     'failure_count_label'        :  'failures',
-    'last_heartbeat_label'       :  'last heartbeat'
-
-    
+    'last_heartbeat_label'       :  'last heartbeat',
+    'container_id_label'         :  'container id',
+    'host_label'                 :  'host',
+    'locality_not_assigned'      :  'AUTOMATIC',
+    'overwrite_jar_warning'      :  'A jar with this name already exists and will be overwritten.',
+    'dep_options_title'          :  'Options',
+    'dep_choices_title'          :  'Choices',
+    'filename_label'             :  'file name',
+    'specify_deps_success_title' :  'Dependencies jars specified',
+    'specify_deps_success_text'  :  'The dependency jars you selected and ordered have been specified for the corresponding jar file.',
+    'specify_deps_error_title'   :  'Error specifying dependencies',
+    'specify_deps_error_text'    :  'An error occurred trying to specify the dependencies for the jar you have selected. '
 };
+
+// Inter-dependent text items
+_.extend(textHash, {
+    'specify_jars_instructions'  :  'Select one or more dependency jars from the following list labeled "' + textHash.dep_options_title + '", then order them as needed in the "' + textHash.dep_choices_title + '" list.',
+});
 
 function getTextItem(key) {
     return textHash[key] || key;

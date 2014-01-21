@@ -51,6 +51,18 @@ angular.module('app.service')
               history: false
             });
           }
+        }, function () {
+          var errorMessage = 'Server Error. Failed to load applications.';
+
+          deferred.reject(errorMessage);
+          notificationService.notify({
+            title: 'Error',
+            text: errorMessage,
+            type: 'error',
+            icon: false,
+            hide: false,
+            history: false
+          });
         });
 
         return deferred.promise;
@@ -84,7 +96,7 @@ angular.module('app.service')
               var app = apps[0];
               deferred.resolve(app);
             } else {
-              errorMessage = 'No MAPREDUCE applications found. Please make sure application is running.'; //TODO
+              errorMessage = 'No Map Reduce applications found. Please make sure application is running.';
             }
           } else {
             errorMessage = 'No applications available.';

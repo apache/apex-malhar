@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 var express = require("express");
 var app = express();
 var ejs = require('ejs');
@@ -6,9 +22,10 @@ var path = require('path');
 var Hash = require('hashish');
 var httpProxy = require('http-proxy');
 var browserify = require('browserify');
+var util = require('./util');
 
 // Dev configuration
-var config = require('./config.js');
+var config = require('./config');
 
 // Set up the proxy that goes to the gateway
 var proxy = new httpProxy.HttpProxy({
@@ -34,6 +51,15 @@ app.configure(function(){
 app.get('/ws/*', function(req, res) {
     proxy.proxyRequest(req, res);
 });
+app.post('/ws/*', function(req, res) {
+    proxy.proxyRequest(req, res);
+});
+app.put('/ws/*', function(req, res) {
+	proxy.proxyRequest(req, res);
+});
+app.delete('/ws/*', function(req, res) {
+	proxy.proxyRequest(req, res);
+});
 
 // Main entry page
 app.get('/', function(req, res) {
@@ -44,6 +70,8 @@ app.get('/', function(req, res) {
 var b = browserify();
 b.add('./js/start.dev.js');
 app.get('/bundle.js', function(req, res) {
+
+	util.precompileTemplates();
 
 	res.setHeader("Content-Type", "text/javascript");
 

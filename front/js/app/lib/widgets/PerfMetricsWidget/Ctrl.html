@@ -1,10 +1,14 @@
 <form class="form-horizontal">
     <h4>Display Options</h4>
     
-    <div class="input-append input-prepend" title="This is the range of the graph, in seconds">
-        <span class="add-on">last</span>
-        <input type="text" name="metric_limit" class="metric_limit input-small" placeholder="limit" />
-        <span class="add-on">seconds</span>
+    <div title="This is the range of the graph, in seconds">
+        <label for="metric_limit">show: </label>
+        <select name="metric_limit" class="metric_limit">
+            <option value="30">last 30 seconds</option>
+            <option value="60">last minute</option>
+            <option value="120">last two minutes</option>
+            <option value="300">last 5 minutes</option>
+        </select>
     </div>
     
     <h4>Series</h4>

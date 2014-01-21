@@ -13,17 +13,17 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
+var BasePageView = DT.lib.BasePageView;
+var JarAppsWidget = require('../widgets/JarAppsWidget');
+var JarActionWidget = require('../widgets/JarActionWidget');
+var AppJarFileModel = DT.lib.AppJarFileModel;
+
 /**
  * Jarfile page
  * 
  * Page centered around an uploaded jar file
 */
-var BasePageView = DT.lib.BasePageView;
-var JarFileModel = DT.lib.JarFileModel;
-
-// widgets
-var JarAppsWidget = require('../widgets/JarAppsWidget');
-
 var JarFileView = BasePageView.extend({
     
     pageName: "JarFileView",
@@ -32,6 +32,7 @@ var JarFileView = BasePageView.extend({
         {
             dash_id: "default",
             widgets: [
+                { widget: 'JarAction', id: 'Actions' },
                 { widget: "JarApps", id: "Apps in Jar" }
             ]
         }
@@ -41,7 +42,11 @@ var JarFileView = BasePageView.extend({
     
     initialize: function(options) {
         BasePageView.prototype.initialize.call(this,options);
-        
+
+        this.model = new AppJarFileModel({
+            name: options.pageParams.fileName
+        });
+
         this.defineWidgets([
             {
                 name: "JarApps",
@@ -52,7 +57,16 @@ var JarFileView = BasePageView.extend({
                     fileName: options.pageParams.fileName,
                     nav: this.app.nav
                 }
-            }
+            },
+            {
+                name: "JarAction",
+                defaultId: 'Actions',
+                view: JarActionWidget,
+                limit: 0,
+                inject: {
+                    model: this.model
+                }
+            },
         ]);
         this.loadDashboards("default");
     }

@@ -32,8 +32,7 @@ describe('Controller: AppListCtrl', function () {
     });
   }));
 
-  it('should attach a list of awesomeThings to the scope', function () {
+  it('should be defined', function () {
     //TODO
-    //expect(scope.awesomeThings.length).toBe(3);
   });
 });

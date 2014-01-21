@@ -1,0 +1,31 @@
+.dep-choices h3,
+.dep-options h3 {
+  margin: 0;
+  padding: 0;
+  line-height: 1.2;
+}
+.btn input[type="checkbox"] {
+  margin-top: 0;
+}
+.dep-choices .table-target .jar-choice-row {
+  line-height: 24px;
+  border-width: 0 1px 1px;
+  border-color: rgba(0, 0, 0, 0.3);
+  padding: 0 10px;
+  border-style: solid;
+  cursor: -webkit-grab;
+  cursor: -moz-grab;
+  margin-bottom: 0;
+}
+.dep-choices .table-target .jar-choice-row:first-child {
+  border-width: 1px;
+}
+.dep-choices .table-target .jar-choice-row:nth-child(even) {
+  background: #EFEFEF;
+}
+.dep-choices .table-target .item-placeholder {
+  background-color: red;
+  height: 24px;
+  padding: 0;
+  width: 100%;
+}

@@ -15,10 +15,19 @@
  */
 package com.datatorrent.demos.mrmonitor;
 
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -51,7 +60,8 @@ public class MRStatusObject
    */
   private String appId;
   /**
-   * This field stores the RM port information for hadoop 2.x / Task Manager server port for hadoop 1.X  from where we can get the job information
+   * This field stores the RM port information for hadoop 2.x / Task Manager server port for hadoop 1.X from where we
+   * can get the job information
    */
   private int rmPort;
   /**
@@ -63,7 +73,7 @@ public class MRStatusObject
    */
   private JSONObject jsonObject;
   /**
-   * This field tells if the object has been modified 
+   * This field tells if the object has been modified
    */
   private boolean modified;
   /**
@@ -75,14 +85,54 @@ public class MRStatusObject
    */
   private Map<String, TaskObject> reduceJsonObject;
   /**
-   * This holds the information about the various metrics like MAP_OUTPUT_RECORDS etc for this job 
+   * This holds the information about the various metrics like MAP_OUTPUT_RECORDS etc for this job
    */
   private TaskObject metricObject;
-  
+
   /**
    * This holds the number of windows occurred when the new data was retrieved for this job
    */
   private int retrials;
+
+  /**
+   * The scheduler is used to store the job status every 1 minute
+   */
+  private transient ScheduledExecutorService statusScheduler;
+
+  /**
+   * This stores the progress of the map tasks
+   */
+  Queue<String> mapStatusHistory;
+
+  /**
+   * This stores the progress of the reduce tasks
+   */
+  Queue<String> reduceStatusHistory;
+
+  /**
+   * This stores the history of the physical memory usage
+   */
+  Queue<String> physicalMemoryStatusHistory;
+
+  /**
+   * This stores the history of the virtual memory usage
+   */
+  Queue<String> virtualMemoryStatusHistory;
+
+  /**
+   * This stores the history of the cpu
+   */
+  Queue<String> cpuStatusHistory;
+
+  /**
+   * The number of minutes for which the status history of map and reduce tasks is stored
+   */
+  private int statusHistoryCount = 60;
+
+  /**
+   * This field notifies if history status queues have changed over time
+   */
+  private boolean changedHistoryStatus;
 
   public MRStatusObject()
   {
@@ -90,6 +140,81 @@ public class MRStatusObject
     modified = true;
     mapJsonObject = new ConcurrentHashMap<String, TaskObject>();
     reduceJsonObject = new ConcurrentHashMap<String, TaskObject>();
+    mapStatusHistory = new LinkedList<String>();
+    reduceStatusHistory = new LinkedList<String>();
+    physicalMemoryStatusHistory = new LinkedList<String>();
+    virtualMemoryStatusHistory = new LinkedList<String>();
+    cpuStatusHistory = new LinkedList<String>();
+    statusScheduler = Executors.newScheduledThreadPool(1);
+    statusScheduler.scheduleAtFixedRate(new Runnable() {
+      @Override
+      public void run()
+      {
+        if (jsonObject != null) {
+          changedHistoryStatus = true;
+          if (mapStatusHistory.size() > statusHistoryCount) {
+            mapStatusHistory.poll();
+            reduceStatusHistory.poll();
+            physicalMemoryStatusHistory.poll();
+            virtualMemoryStatusHistory.poll();
+            cpuStatusHistory.poll();
+          }
+          if (hadoopVersion == 2) {
+            try {
+              mapStatusHistory.add(jsonObject.getJSONObject("job").getString("mapProgress"));
+              reduceStatusHistory.add(jsonObject.getJSONObject("job").getString("reduceProgress"));
+              if (metricObject.getJson() != null) {
+                JSONArray arr = metricObject.getJson().getJSONObject("jobCounters").getJSONArray("counterGroup");
+                int length = arr.length();
+                for (int i = 0; i < length; i++) {
+                  if (arr.getJSONObject(i).get("counterGroupName").equals("org.apache.hadoop.mapreduce.TaskCounter")) {
+                    JSONArray counters = arr.getJSONObject(i).getJSONArray("counter");
+                    for (int j = 0; j < counters.length(); j++) {
+                      JSONObject counterObj = counters.getJSONObject(j);
+                      if (counterObj.get("name").equals("PHYSICAL_MEMORY_BYTES")) {
+                        physicalMemoryStatusHistory.add(counterObj.getString("totalCounterValue"));
+                      } else if (counterObj.get("name").equals("VIRTUAL_MEMORY_BYTES")) {
+                        virtualMemoryStatusHistory.add(counterObj.getString("totalCounterValue"));
+                      } else if (counterObj.get("name").equals("CPU_MILLISECONDS")) {
+                        cpuStatusHistory.add(counterObj.getString("totalCounterValue"));
+                      }
+                    }
+                    break;
+                  }
+                }
+              }
+            } catch (JSONException e) {
+              logger.error("error setting status history {}", e.getMessage());
+            }
+          } else {
+            try {
+              mapStatusHistory.add(jsonObject.getJSONObject("mapTaskSummary").getString("progressPercentage"));
+              reduceStatusHistory.add(jsonObject.getJSONObject("reduceTaskSummary").getString("progressPercentage"));
+              JSONArray arr = jsonObject.getJSONArray("jobCounterGroupsInfo");
+              int length = arr.length();
+              for (int i = 0; i < length; i++) {
+                if (arr.getJSONObject(i).get("groupName").equals("Map-Reduce Framework")) {
+                  JSONArray counters = arr.getJSONObject(i).getJSONArray("jobCountersInfo");
+                  for (int j = 0; j < counters.length(); j++) {
+                    JSONObject counterObj = counters.getJSONObject(j);
+                    if (counterObj.get("name").equals("Physical memory (bytes) snapshot")) {
+                      physicalMemoryStatusHistory.add(counterObj.getString("totalValue"));
+                    } else if (counterObj.get("name").equals("Virtual memory (bytes) snapshot")) {
+                      virtualMemoryStatusHistory.add(counterObj.getString("totalValue"));
+                    } else if (counterObj.get("name").equals("CPU time spent (ms)")) {
+                      cpuStatusHistory.add(counterObj.getString("totalValue"));
+                    }
+                  }
+                  break;
+                }
+              }
+            } catch (JSONException e) {
+              logger.error("error setting status history {}", e.getMessage());
+            }
+          }
+        }
+      }
+    }, 0, 1, TimeUnit.MINUTES);
   }
 
   public Map<String, TaskObject> getMapJsonObject()
@@ -192,6 +317,16 @@ public class MRStatusObject
     this.jsonObject = jsonObject;
   }
 
+  public boolean isChangedHistoryStatus()
+  {
+    return changedHistoryStatus;
+  }
+
+  public void setChangedHistoryStatus(boolean changedHistoryStatus)
+  {
+    this.changedHistoryStatus = changedHistoryStatus;
+  }
+
   @Override
   public boolean equals(Object that)
   {
@@ -230,18 +365,75 @@ public class MRStatusObject
   {
     this.modified = modified;
   }
-  
-  public static class TaskObject{
+
+  public int getRetrials()
+  {
+    return retrials;
+  }
+
+  public void setRetrials(int retrials)
+  {
+    this.retrials = retrials;
+  }
+
+  public TaskObject getMetricObject()
+  {
+    return metricObject;
+  }
+
+  public void setMetricObject(TaskObject metricObject)
+  {
+    this.metricObject = metricObject;
+  }
+
+  public int getStatusHistoryCount()
+  {
+    return statusHistoryCount;
+  }
+
+  public void setStatusHistoryCount(int statusHistoryCount)
+  {
+    this.statusHistoryCount = statusHistoryCount;
+  }
+
+  public Queue<String> getMapStatusHistory()
+  {
+    return mapStatusHistory;
+  }
+
+  public Queue<String> getReduceStatusHistory()
+  {
+    return reduceStatusHistory;
+  }
+
+  public Queue<String> getPhysicalMemeoryStatusHistory()
+  {
+    return physicalMemoryStatusHistory;
+  }
+
+  public Queue<String> getVirtualMemoryStatusHistory()
+  {
+    return virtualMemoryStatusHistory;
+  }
+
+  public Queue<String> getCpuStatusHistory()
+  {
+    return cpuStatusHistory;
+  }
+
+  public static class TaskObject
+  {
     /**
-     * This field stores the task information as json 
+     * This field stores the task information as json
      */
     private JSONObject json;
     /**
      * This field tells if the object was modified
      */
     private boolean modified;
-    
-    public TaskObject(JSONObject json){
+
+    public TaskObject(JSONObject json)
+    {
       modified = true;
       this.json = json;
     }
@@ -277,44 +469,26 @@ public class MRStatusObject
     }
 
     /**
-     *  This sets if the json object is modified
-     *  
+     * This sets if the json object is modified
+     * 
      * @param modified
      */
     public void setModified(boolean modified)
     {
       this.modified = modified;
     }
-    
+
     /**
-     * This returns the string format of the json object 
+     * This returns the string format of the json object
+     * 
      * @return
      */
-    public String getJsonString(){
+    public String getJsonString()
+    {
       return json.toString();
     }
   }
-  
-  public int getRetrials()
-  {
-    return retrials;
-  }
 
-  public void setRetrials(int retrials)
-  {
-    this.retrials = retrials;
-  }
-
-  public TaskObject getMetricObject()
-  {
-    return metricObject;
-  }
-
-  public void setMetricObject(TaskObject metricObject)
-  {
-    this.metricObject = metricObject;
-  }
-
-  
+  private static Logger logger = LoggerFactory.getLogger(MRStatusObject.class);
 
 }

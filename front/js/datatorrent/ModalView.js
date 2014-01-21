@@ -38,6 +38,14 @@ var ModalView = BaseView.extend({
 
 		this.$el.html(html);
 
+		if (typeof this.assignments === 'object') {
+			this.assign(this.assignments);
+		}
+
+		if (typeof this.postRender === 'function') {
+			this.postRender();
+		}
+
 		return this;
 	},
 
@@ -47,6 +55,11 @@ var ModalView = BaseView.extend({
 		this.$('.modal-body').html(html);
 		return this;
 
+	},
+
+	addToDOM: function() {
+		$('body').append(this.render().$el);
+		return this;
 	},
 
 	events: {

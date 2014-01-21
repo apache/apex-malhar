@@ -33,7 +33,8 @@ var WidgetCtrl = BaseView.extend({
     events: {
         'click .wi-delete': 'onDeleteClick',
         'click .wi-settings': 'openSettings',
-        'dblclick .wid': 'editId',
+        'click .wi-editName': 'editId',
+        'dblclick span.wid': 'editId',
         'blur input.wid': 'saveId',
         'keydown input.wid': 'checkForEnter'
     },
@@ -72,10 +73,18 @@ var WidgetCtrl = BaseView.extend({
     },
 
     editId: function(evt){
+
+        if (this._editingId) {
+            this.saveId(evt);
+            return;
+        }
+
         evt.preventDefault();
         evt.stopPropagation();
+
         // cache the .wid el
-        var $wid = $(evt.target);
+        var $wid = this.$('.wid');
+        if (!$wid.length) return;
         // get the current id
         var curId = this.model.get('id');
         // create input
@@ -84,6 +93,8 @@ var WidgetCtrl = BaseView.extend({
         $wid.replaceWith($input);
         // focus on the input
         $input.focus();
+
+        this._editingId = true;
     },
     
     checkForEnter: function(evt) {
@@ -112,6 +123,8 @@ var WidgetCtrl = BaseView.extend({
         
         // set the id to this
         this.model.set('id', newId);
+
+        this._editingId = false;
     }, 100),
     
     openSettings: function(evt) {

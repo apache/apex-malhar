@@ -29,7 +29,7 @@ var CtnrOverviewWidget = BaseView.extend({
     		label: DT.text('state_label'),
     		key: 'state',
     		value: function(state) {
-    			return '<span class="' + state.toLowerCase() + '">' + state + '</state>';
+    			return '<span class="' + DT.formatters.statusClassFormatter(state) + '">' + state + '</state>';
     		}
     	},
     	{

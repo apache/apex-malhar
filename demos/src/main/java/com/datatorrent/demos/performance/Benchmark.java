@@ -24,10 +24,10 @@ import com.datatorrent.api.StreamingApplication;
 
 /**
  * Performance Demo Application:
- * <p> 
- * This demo demonstrates the performance of Datatorrent platform. 
- * Performance is measured by the number of events processed per second and latency. 
- * Performance varies depending on container memory, CPU and network I/O. 
+ * <p>
+ * This demo demonstrates the performance of Datatorrent platform.
+ * Performance is measured by the number of events processed per second and latency.
+ * Performance varies depending on container memory, CPU and network I/O.
  * The demo can be used to check how the performance varies with stream locality.
  *
  * Stream locality decides how the operators are deployed:
@@ -37,12 +37,12 @@ import com.datatorrent.api.StreamingApplication;
  * RackLocal - the operators are deployed on different nodes of the same rack.
  * NoLocality - lets the engine decide how to best deploy the operator.
  *
- * Note:  NodeLocal and RackLocal are preferences that can be specified to Hadoop ResourceManager. 
- * It is not guaranteed that the operators will be deployed as requested. 
- * ResourceManager makes the call depending on resource availability. 
- * 
+ * Note:  NodeLocal and RackLocal are preferences that can be specified to Hadoop ResourceManager.
+ * It is not guaranteed that the operators will be deployed as requested.
+ * ResourceManager makes the call depending on resource availability.
+ *
  * Refer to demos/docs/PerformanceDemo.md for more details.
- * 
+ *
  * </p>
  *
  * @since 0.9.0

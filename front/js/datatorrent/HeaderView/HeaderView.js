@@ -13,6 +13,15 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
+var _ = require('underscore');
+var kt = require('knights-templar');
+var BaseView = require('bassview');
+
+// modals
+var LicenseModal = require('../LicenseModalView');
+var GatewayInfoModal = require('../GatewayInfoModalView');
+
 /**
  * Header View
  * 
@@ -20,9 +29,6 @@
  * Contains platform/client logo, mode switch
  * (development/operations), sign in
 */
-var _ = require('underscore');
-var kt = require('knights-templar');
-var BaseView = require('bassview');
 var Header = BaseView.extend({
     
     UIVersion: '',
@@ -37,7 +43,28 @@ var Header = BaseView.extend({
         );
     },
     
-    template: kt.make(__dirname+'/HeaderView.html', '_'),
+    events: {
+        'click .displayLicenseInfo': 'displayLicenseInfo',
+        'click .displayGatewayInfo': 'displayGatewayInfo'
+    },
+
+    displayGatewayInfo: function(e) {
+        e.preventDefault();
+        if (!this.gatewayInfoModal) {
+            this.gatewayInfoModal = new GatewayInfoModal({});
+            this.gatewayInfoModal.addToDOM();
+        }
+        this.gatewayInfoModal.launch();
+    },
+
+    displayLicenseInfo: function(e) {
+        e.preventDefault();
+        if (!this.licenseModal) {
+            this.licenseModal = new LicenseModal({});
+            this.licenseModal.addToDOM();
+        }
+        this.licenseModal.launch();
+    },
     
     render: function() {
         var markup = this.template({
@@ -45,13 +72,11 @@ var Header = BaseView.extend({
             client_logo: "client_logo_hadoop.jpg",
             version: this.UIVersion
         });
-        this.$('.ui-version').tooltip('destroy');
         this.$el.html(markup);
-        this.$('.ui-version').tooltip({
-            position: { my: "left-10 top+5", at: "left bottom", collision: "flipfit" }
-        });
+        this.$el.addClass('navbar-fixed-top').addClass('navbar');
         return this;
-    }
-    
+    },
+
+    template: kt.make(__dirname+'/HeaderView.html', '_')
 });
 exports = module.exports = Header

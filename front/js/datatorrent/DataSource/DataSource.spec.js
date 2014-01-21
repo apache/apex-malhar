@@ -570,42 +570,6 @@ describe('DataSource.js', function() {
                 dataSource._actOnOpRecording.restore();
             });
             
-            it('syncRecording method should take a single argument', checkForOneArg('syncRecording'));
-            
-            it('syncRecording method should require appId and operatorId', function() {
-                var fn = function() {
-                    dataSource.syncRecording({
-                        appId: 'application_00000000_0001',
-                    });
-                }
-                var fn2 = function() {
-                    dataSource.syncRecording({
-                        operatorId: '1'
-                    });
-                }
-                expect(fn).to.throw();
-                expect(fn2).to.throw();
-            });
-            
-            it('syncRecording method should not throw if appId and operatorId are provided', function() {
-                var fn = function() {
-                    dataSource.syncRecording({
-                        appId: 'application_00000000_0001',
-                        operatorId: '1'
-                    });
-                }
-                expect(fn).not.to.throw();
-            });
-            
-            it('syncRecording method should call the post method', function() {
-                sandbox.stub(dataSource, 'post');
-                dataSource.syncRecording({
-                    appId: 'application_00000000_0001',
-                    operatorId: '1'
-                });
-                expect(dataSource.post).to.have.been.calledOnce;
-            });
-            
         });
         
     });

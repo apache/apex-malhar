@@ -10,6 +10,7 @@ config.settings = {};
 config.settings.hadoop = {};
 config.settings.topic = {};
 
+// WebSocket URL is ws://<gateway hostname>:<gateway port>/pubsub
 config.settings.webSocketURL = 'ws://localhost:9090/pubsub';
 
 config.settings.hadoop.version = '2';
@@ -21,6 +22,6 @@ config.settings.hadoop.historyServerPort = '19888';
 config.settings.topic.job = 'contrib.summit.mrDebugger.jobResult';
 config.settings.topic.map = 'contrib.summit.mrDebugger.mapResult';
 config.settings.topic.reduce = 'contrib.summit.mrDebugger.reduceResult';
-config.settings.topic.stats = 'contrib.summit.mrDebugger.counterResult';
+config.settings.topic.counters = 'contrib.summit.mrDebugger.counterResult';
 
 module.exports = config

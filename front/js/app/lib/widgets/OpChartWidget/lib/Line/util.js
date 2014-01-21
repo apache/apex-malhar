@@ -130,7 +130,7 @@ exports.extractPlots = function(recProperties, tupledata) {
             'color': colors.shift()
         });
     }
-    
+    console.log('plots', plots);
     return plots;
     
 }

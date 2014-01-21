@@ -32,32 +32,6 @@ var Palette = BaseView.extend({
         this.listenTo(this.collection, "change:recordingStartTime", this.render);
     },
     
-    render: function() {
-        
-        var selected = this.getSelected();
-
-        var isRecording = false;
-        if (selected.length === 1) {
-            var recordingStartTime = selected[0].get('recordingStartTime');
-            if (recordingStartTime && recordingStartTime != '-1') {
-                isRecording = true;
-            }
-        }
-
-        var markup = this.template({
-            selected: selected,
-            length: selected.length,
-            none: selected.length === 0,
-            one: selected.length === 1,
-            many: selected.length > 1,
-            isRecording: isRecording
-        });
-        
-        this.$el.html(markup);
-        
-        return this;
-    },
-    
     events: {
         "click .inspectOperator": "goToSelectedOp",
         "click .startOpRecording": "startOpRecording",

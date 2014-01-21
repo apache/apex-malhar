@@ -1,0 +1,21 @@
+<div class="app-dag physical-dag">
+    <div class="form-inline">
+        <div class="options-controls">
+            <!-- <a href="#" class="btn btn-link toggle-locality">Show Stream Locality</a> -->
+            <a href="#" class="btn btn-link reset-position">Reset Position</a>
+        </div>
+    </div>
+    <div class="dag-legend">
+        <svg height="110" width="370" class="svg-legend">
+            <g transform="translate(10, 10)">
+            </g>
+        </svg>
+    </div>
+    <svg height="110" class="svg-main">
+        <filter id="f1" x="0" y="0" height="150%">
+            <feOffset result="offOut" in="SourceGraphic" dx="5" dy="5" />
+            <feBlend in="SourceGraphic" in2="offOut" mode="normal" />
+        </filter>
+        <g transform="translate(20, 40)"/>
+    </svg>
+</div>

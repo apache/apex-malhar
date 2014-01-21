@@ -286,12 +286,17 @@ var Tabled = BaseView.extend({
         _.extend.apply(default_events, [default_events].concat(interactions));
         
         return default_events; 
-        
     },
     
     grabTableResizer: function(evt){
         evt.preventDefault();
         evt.stopPropagation();
+
+        // check for right click
+        if (evt.which !== 1) {
+            return;
+        }
+
         var self = this;
         
         // Horizontal
@@ -418,6 +423,10 @@ var Tabled = BaseView.extend({
         } else {
             return store[key];
         }
+    },
+
+    getFilteredRows: function() {
+        return this.collection.filter(this.config.passesFilters.bind(this.config));
     }
 
 });

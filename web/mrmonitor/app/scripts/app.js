@@ -42,4 +42,8 @@ angular.module('app')
         templateUrl: 'views/apps.html',
         controller: 'AppListCtrl'
       });
+  }).run (function ($templateCache) {
+    // workaround for angular-bootstrap Progressbar directive issue with ngAnimate (ng-repeat is removed from the template)
+    $templateCache.put('template/progressbar/progress.html',
+      '<div class=\"progress\"><progressbar width=\"bars[0].to\" old=\"bars[0].from\" animate=\"bars[0].animate\" type=\"bar.type\"></progressbar></div>');
   });

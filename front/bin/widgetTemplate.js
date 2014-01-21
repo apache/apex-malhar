@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
+var _ = require('underscore');
+var kt = require('knights-templar');
+var BaseView = DT.lib.WidgetView;
+
 /**
  * <WIDGETNAME>
  * 
  * <WIDGETDESCRIPTION>
  *
 */
-
-var _ = require('underscore');
-var kt = require('knights-templar');
-var BaseView = DT.lib.WidgetView;
-
-// class definition
 var <WIDGETNAME> = BaseView.extend({
     
     initialize: function(options) {

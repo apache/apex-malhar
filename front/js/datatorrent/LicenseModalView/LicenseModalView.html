@@ -1,0 +1,37 @@
+<% if (license !== false) {  %>
+	<p>
+		<strong>license ID:</strong><br><input type="text" value="<%= license.id %>" readonly class="input-xlarge">
+	</p>
+
+	<% if (license.sublicenses.length > 1) { %>
+	<h4>Sublicenses</h4>
+	<% } %>
+	<% _.each( license.sublicenses, function(sub) { %>
+	<p>
+		<strong>start date:</strong> <%= sub.startDate %><br>
+		<strong>end date:</strong> <%= sub.endDate %><br>
+		<strong>constraint:</strong> <%= sub.constraint %><br>
+	</p>
+	<% }) %>
+
+	<% if (licenseAgents.length > 1) { %>
+		<h4>License Agents</h4>
+	<% } else if (licenseAgents.length === 1) { %>
+		<h4>License Agent</h4>
+	<% } %>
+	<% _.each( licenseAgents, function(agent) { %>
+	<p>
+		<strong>user:</strong> <%= agent.user %><br>
+		<strong>started time:</strong> <%= new Date(agent.startedTime * 1).toLocaleString() %><br>
+		<strong>license ID:</strong> <%= agent.id %><br>
+	<% if (typeof agent.remainingLicensedMB !== 'undefined') { %>
+		<strong>remaining licensed memory:</strong> <%= DT.formatters.byteFormatter(agent.remainingLicensedMB * 1024) %><br>
+	<% } %>
+	</p>
+	<% }) %>
+
+<% } else { %>
+	
+	<%= DT.text('Loading license information...') %>
+
+<% } %>

@@ -45,7 +45,7 @@ var Ctrl = BaseView.extend({
         //     model: this.model
         // }));
         
-        this.subview('metric_limit', new bbindings.textint({
+        this.subview('metric_limit', new bbindings.select({
             attr: 'limit',
             model: this.state
         }));

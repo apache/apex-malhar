@@ -35,11 +35,11 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-/** 
+/**
  * <p>
- * This operator generates the GPS locations for the phone numbers specified. 
- * The range of phone numbers or a specific phone number can be set for which the GPS locations will be generated. 
- * It supports querying the locations of a given phone number. 
+ * This operator generates the GPS locations for the phone numbers specified.
+ * The range of phone numbers or a specific phone number can be set for which the GPS locations will be generated.
+ * It supports querying the locations of a given phone number.
  * This is a partionable operator that can partition as the tuplesBlast increases.
  * </p>
  *

@@ -44,7 +44,6 @@ var ConsoleView = BaseView.extend({
     className: 'console',
     
     render: function() {
-        console.log('full console render');
         var json = this.model.serialize();
         var markup = this.template(json);
         this.$el.html(markup);
@@ -58,7 +57,6 @@ var ConsoleView = BaseView.extend({
         'click .item.window .controls .next': 'nextWindow',
         'click .item.tuple .controls .prev': 'previousTuple',
         'click .item.tuple .controls .next': 'nextTuple',
-        'click .syncRecording': 'syncRecording',
         'dblclick .currentWindowId': 'directEnterWindow',
         'dblclick .currentTupleIndex': 'directEnterIndex' 
         
@@ -75,9 +73,6 @@ var ConsoleView = BaseView.extend({
     },
     nextTuple: function(evt) {
         this.model.shiftSelected(1);
-    },
-    syncRecording: function(evt) {
-        this.model.syncRecording();
     },
     
     directEnterIndex: function(evt) {

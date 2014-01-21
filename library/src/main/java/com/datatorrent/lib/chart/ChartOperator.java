@@ -15,19 +15,16 @@
  */
 package com.datatorrent.lib.chart;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.Partitionable;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 
 /**
  * This is the base class for all chart operators
  *
  * @since 0.3.2
  */
-public abstract class ChartOperator extends BaseOperator implements Partitionable<ChartOperator>
+@OperatorAnnotation(partitionable=false)
+public abstract class ChartOperator extends BaseOperator
 {
   /**
    * The different types of chart
@@ -58,14 +55,5 @@ public abstract class ChartOperator extends BaseOperator implements Partitionabl
    * @return The chart type
    */
   public abstract Type getChartType();
-
-  @Override
-  public Collection<Partition<ChartOperator>> definePartitions(Collection<Partition<ChartOperator>> partitions, int incrementalCapacity)
-  {
-    // prevent partitioning
-    List<Partition<ChartOperator>> newPartitions = new ArrayList<Partition<ChartOperator>>(1);
-    newPartitions.add(partitions.iterator().next());
-    return newPartitions;
-  }
 
 }

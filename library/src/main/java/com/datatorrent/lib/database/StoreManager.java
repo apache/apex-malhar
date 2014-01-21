@@ -31,6 +31,8 @@ import com.google.common.base.Strings;
  * <br></br>
  * <br>Store Manager can also refresh the values of keys at a specified time every day. This time is in format HH:mm:ss Z.</br>
  * <br>This is non-threadsafe.</br>
+ *
+ * @since 0.9.2
  */
 public class StoreManager
 {
@@ -82,9 +84,11 @@ public class StoreManager
         public void run()
         {
           Set<Object> keysToRefresh = primary.getKeys();
-          Map<Object, Object> refreshedValues = backup.bulkGet(keysToRefresh);
-          if (refreshedValues != null) {
-            primary.bulkSet(refreshedValues);
+          if (keysToRefresh.size() > 0) {
+            Map<Object, Object> refreshedValues = backup.bulkGet(keysToRefresh);
+            if (refreshedValues != null) {
+              primary.bulkSet(refreshedValues);
+            }
           }
         }
       }, initialDelay, 86400000);

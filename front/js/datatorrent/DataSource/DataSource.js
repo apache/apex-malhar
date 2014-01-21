@@ -489,21 +489,6 @@ DataSource.prototype = {
         
         this.post(options);
         LOG(1, action + ' recording', [options]);
-    },
-    syncRecording: function(options) {
-        // Ensure there is only one arg
-        if (arguments.length !== 1 || typeof options !== 'object') {
-            throw new Error('syncRecording requires exactly one argument; an options object.');
-        }
-        
-        if (!options.appId || !options.operatorId) {
-            throw new Error('syncRecording requires appId and operatorId options');
-        }
-        
-        options.url = path.join('/recordings', this.version, 'live', options.appId, options.operatorId, 'sync' );
-        options.data = {};
-        this.post(options);
-        LOG(1, 'syncing recording', ['url: ', options.url]);
     }
 }
 

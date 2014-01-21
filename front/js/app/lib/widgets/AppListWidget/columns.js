@@ -65,7 +65,7 @@ function lifetimeFormatter(value, row) {
 
 exports = module.exports = [
     { id: "selector", key: "selected", label: "", select: true, width: 40, lock_width: true },
-    { id: "id", label: "App Id", key: "id", sort: "string", filter: idFilter, format: idFormatter, width: 70, sort_value: "d" },
+    { id: "id", label: "ID", key: "id", sort: "string", filter: idFilter, format: idFormatter, width: 50, sort_value: "d", lock_width: true },
     { id: "name", key: "name", label: "App Name", sort: "string", filter: "like", width: 200 },
     { id: "state", label: "State", key: "state", format: stateFormatter, sort: stateSorter, filter:"like", width: 100 , sort_value: "a"},
     { id: "user", label: "User", key: "user", sort: "string", filter:"like" },

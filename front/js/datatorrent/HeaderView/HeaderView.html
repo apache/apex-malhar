@@ -1,23 +1,38 @@
-<div id="header">
-    <a href="#" class="brand">DataTorrent</a> <!-- platform logo -->
-    <div class="ui-version" title="User Interface Version">
-        <% if (version) { %>
-            v<%= version %>
-        <% } %>
-    </div>
-    <a id="feedback-header-link" class="btn btn-mini btn-success" href="mailto:support@datatorrent.com">Send Feedback</a>
-    <!-- sign in area -->
-    <div class="sign-in-container" style="display:none;">
-        <a href="#sign-in"></a>
-    </div>
-    <ul class="dashboard-modes">
-        <% _.each(modes, function(mode) { %>
-            <li>
-                <a href="<%= mode.href %>" class="<%= mode.class %>"><%= mode.name %></a>
-            </li
-        ><% }) %>
-    </ul>
-    <div class="client-brand">
-        <!-- <img src="img/<%= client_logo %>"> -->
-    </div>
+<a href="#" class="brand" <% if (version) { %>
+    title="version: <%= version %>"
+<% } %>>DataTorrent</a> <!-- platform logo -->
+
+<!-- <div class="nav-divider-line"></div> -->
+
+<!-- sign in area -->
+<!-- <div class="sign-in-container">
+    <a href="#sign-in"></a>
+</div> -->
+
+<ul class="dashboard-modes nav">
+    <li class="dropdown">
+        <a href="#" class="dropdown-toggle info-link" data-toggle="dropdown"><i class="icon-info-sign icon-white"></i></a>
+        <ul class="dropdown-menu">
+            <li class="nav-header">cluster info</li>
+            <li><a href="#" class="displayLicenseInfo">License Info</a></li>
+            <li><a href="#" class="displayGatewayInfo">Gateway Info</a></li>
+            <li class="divider"></li>
+            <li class="nav-header">docs &amp; help</li>
+            <li><a target="_blank" href="https://www.datatorrent.com/documentation.php">Guides</a></li>
+            <li><a target="_blank" href="https://www.datatorrent.com/docs/apidocs/">API Docs</a></li>
+            <li><a target="_blank" href="https://www.datatorrent.com/contactus.php">Contact DataTorrent</a></li>
+            <li><a href="https://github.com/DataTorrent/Malhar" target="_blank">Malhar Repository</a></li>
+        </ul>
+    </li>
+    <% _.each(modes, function(mode) { %>
+    <li>
+        <a href="<%= mode.href %>" class="<%= mode.class %>"><%= mode.name %></a>
+    </li
+    ><% }) %>
+</ul>
+
+<!-- <div class="nav-divider-line"></div> -->
+
+<div class="client-brand">
+    <!-- <img src="img/<%= client_logo %>"> -->
 </div>

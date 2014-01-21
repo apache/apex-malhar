@@ -16,21 +16,40 @@
   font-weight: 100;
   cursor: pointer;
 }
+.jar_upload_target .jar-to-upload {
+  margin-bottom: 5px;
+  padding-bottom: 5px;
+  border-bottom: 1px dotted #CCC;
+}
+.jar_upload_target .jar-to-upload:first-child {
+  border-top: 1px dotted #CCC;
+  padding-top: 5px;
+}
+.jar_upload_target .jar-to-upload .remove-jar {
+  color: #bb0000;
+}
+.jar_upload_target .jar-to-upload .rename-jar {
+  color: #0f5e83;
+}
 .jar_upload_target .click-message {
   color: #555;
   font-weight: 100;
   letter-spacing: 0.1em;
   cursor: pointer;
 }
-.jar_upload_target .jar_upload_filename {
+.jar_upload_target .jar-upload-filename {
   font-weight: normal;
   text-shadow: none;
+  letter-spacing: 1px;
+  margin-bottom: 0;
 }
-.jar_upload_target .jar_upload_filesize {
-  font-size: 12px;
+.jar_upload_target .jar-upload-filesize {
+  font-size: 10px;
+  color: #888;
+  letter-spacing: 1px;
 }
 .jar_upload_target .progress {
-  margin-bottom: -7px;
-  margin-top: 9px;
+  margin-bottom: 0;
+  margin-top: 5px;
   border: 1px solid #DEDEDE;
 }

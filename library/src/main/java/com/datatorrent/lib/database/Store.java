@@ -20,6 +20,8 @@ import java.util.Set;
 
 /**
  * <br>A store which could be a memory store or a database store.</br>
+ *
+ * @since 0.9.2
  */
 public interface Store
 {
