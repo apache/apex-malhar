@@ -51,6 +51,10 @@ public class ChartValueGenerator extends BaseOperator implements InputOperator {
         nextValue = nextValue < 0 ? 0 : nextValue > 100 ? 0 : nextValue;
         return nextValue;
     }
+    
+    public int getRandomIncrement() {
+        return randomIncrement;
+    }
 
     public void setRandomIncrement(int increment) {
         randomIncrement = increment;
