@@ -4,14 +4,16 @@
  */
 package com.datatorrent.lib.db;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.Assert;
+
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.LocalMode;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import org.junit.Assert;
 
 /**
  *
@@ -56,7 +58,7 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
 
   }
 
-  protected static class OutputOperator<S2 extends KeyValueStore> extends AbstractKeyValueStoreOutputOperator<Map<String, String>, S2>
+  protected static class OutputOperator<S2 extends KeyValueStore> extends AbstractStoreOutputOperator<Map<String, String>, S2>
   {
     @Override
     @SuppressWarnings("unchecked")

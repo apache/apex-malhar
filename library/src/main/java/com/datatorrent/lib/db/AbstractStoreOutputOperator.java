@@ -15,21 +15,22 @@
  */
 package com.datatorrent.lib.db;
 
+import java.io.IOException;
+
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import java.io.IOException;
-import java.util.Map;
 
 /**
- * This abstract class is for any implementation of an output adapter of non-transactional key value store without the transactional exactly once feature.
+ * This abstract class is for any implementation of an output adapter of non-transactional store {@link Connectable}
+ * without the transactional exactly once feature.
  *
  * @param <T> The tuple type
  * @param <S> The store type
  * @since 0.9.3
  */
-public abstract class AbstractKeyValueStoreOutputOperator<T, S extends KeyValueStore> extends BaseOperator
+public abstract class AbstractStoreOutputOperator<T, S extends Connectable> extends BaseOperator
 {
   protected S store;
 
