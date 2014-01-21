@@ -47,7 +47,7 @@ public class ChartValueGenerator extends BaseOperator implements InputOperator {
     }
 
     private int nextValue(int oldValue) {
-        int nextValue = oldValue + (int) (Math.random() * randomIncrement);
+        int nextValue = oldValue + (int) (Math.random() * randomIncrement - randomIncrement / 2);
         nextValue = nextValue < 0 ? 0 : nextValue > 100 ? 0 : nextValue;
         return nextValue;
     }
