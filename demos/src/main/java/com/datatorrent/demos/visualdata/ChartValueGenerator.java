@@ -25,7 +25,7 @@ import com.datatorrent.api.InputOperator;
  */
 public class ChartValueGenerator extends BaseOperator implements InputOperator {
     private int value = 50;
-    private int randomIncrement = 5; 
+    private int randomIncrement = 5;
 
     public final transient DefaultOutputPort<Integer> output = new DefaultOutputPort<Integer>();
 
@@ -51,7 +51,7 @@ public class ChartValueGenerator extends BaseOperator implements InputOperator {
         nextValue = nextValue < 0 ? 0 : nextValue > 100 ? 0 : nextValue;
         return nextValue;
     }
-    
+
     public void setRandomIncrement(int increment) {
         randomIncrement = increment;
     }
