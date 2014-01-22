@@ -30,7 +30,6 @@ import com.datatorrent.flume.sink.Server;
 import com.datatorrent.flume.sink.Server.Command;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 import com.datatorrent.netlet.DefaultEventLoop;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * <p>Abstract AbstractFlumeInputOperator class.</p>
