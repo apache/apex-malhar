@@ -171,11 +171,6 @@
       <version>1.5</version>
     </dependency>
     <dependency>
-      <groupId>com.lambdaworks</groupId>
-      <artifactId>lettuce</artifactId>
-      <version>2.3.2</version>
-    </dependency>
-    <dependency>
       <groupId>org.zeromq</groupId>
       <artifactId>jzmq</artifactId>
       <version>2.1.0</version>
@@ -187,9 +182,30 @@
       <version>1.2.2</version>
     </dependency>
     <dependency>
-	  <groupId>org.apache.commons</groupId>
-	  <artifactId>commons-lang3</artifactId>
-	  <version>3.1</version>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.1</version>
+    </dependency>
+    <dependency>
+      <groupId>redis.clients</groupId>
+      <artifactId>jedis</artifactId>
+      <version>2.2.1</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>malhar-library</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <version>2.3.1</version>
+    </dependency>
+    <dependency>
+	<groupId>org.apache-extras.cassandra-jdbc</groupId>
+	<artifactId>cassandra-jdbc</artifactId>
+	<version>1.2.5</version>
     </dependency>
     <dependency>
       <groupId>com.esotericsoftware.kryo</groupId>

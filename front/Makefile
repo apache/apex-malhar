@@ -16,8 +16,8 @@ clitest:
 # should be specified by the stram.gateway.staticResourceDirectory property
 # in stram-site.xml.
 build:
+	rm -rf dist_tmp
 	mkdir dist_tmp
-	cp index.html dist_tmp/index.html
 	cp package.json dist_tmp/package.json
 	cp favicon.ico dist_tmp/favicon.ico
 	mkdir dist_tmp/css

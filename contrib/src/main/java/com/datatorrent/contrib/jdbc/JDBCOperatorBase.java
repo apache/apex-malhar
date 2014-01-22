@@ -18,7 +18,10 @@ package com.datatorrent.contrib.jdbc;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
+
 import javax.validation.constraints.NotNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +41,8 @@ public class JDBCOperatorBase implements DBConnector
   @NotNull
   private String dbDriver;
   protected transient Connection connection = null;
+  private String userName;
+  private String password;
 
   @NotNull
   public String getDbUrl()
@@ -67,6 +72,26 @@ public class JDBCOperatorBase implements DBConnector
   }
 
   /**
+   * Sets the user name.
+   *
+   * @param userName user name.
+   */
+  public void setUserName(String userName)
+  {
+    this.userName = userName;
+  }
+
+  /**
+   * Sets the password.
+   *
+   * @param password password
+   */
+  public void setPassword(String password)
+  {
+    this.password = password;
+  }
+
+  /**
    * Create connection with database using JDBC.
    */
   @Override
@@ -75,7 +100,14 @@ public class JDBCOperatorBase implements DBConnector
     try {
       // This will load the JDBC driver, each DB has its own driver
       Class.forName(dbDriver).newInstance();
-      connection = DriverManager.getConnection(dbUrl);
+      Properties connectionProps = new Properties();
+      if (userName != null) {
+        connectionProps.put("user", this.userName);
+      }
+      if (password != null) {
+        connectionProps.put("password", this.password);
+      }
+      connection = DriverManager.getConnection(dbUrl, connectionProps);
 
       logger.debug("JDBC connection Success");
     }
