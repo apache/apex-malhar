@@ -44,6 +44,11 @@ public abstract class AbstractFlumeInputOperator<T>
         Partitionable<AbstractFlumeInputOperator<T>>, PartitionAware<AbstractFlumeInputOperator<T>>
 {
   public final transient DefaultOutputPort<T> output = new DefaultOutputPort<T>();
+  @NotNull
+  private String[] connectionSpecs;
+  private final ArrayList<RecoveryAddress> recoveryAddresses;
+  @SuppressWarnings("FieldMayBeFinal") // it's not final because that mucks with the serialization somehow
+  private transient ArrayBlockingQueue<Slice> handoverBuffer;
   private transient int idleCounter;
   private transient int eventCounter;
   private transient DefaultEventLoop eventloop;
@@ -52,14 +57,12 @@ public abstract class AbstractFlumeInputOperator<T>
   private transient Client client;
   private transient long windowId;
   private transient byte[] address;
-  @NotNull
-  private String[] connectionSpecs;
-  private final ArrayList<RecoveryAddress> recoveryAddresses;
 
   public AbstractFlumeInputOperator()
   {
+    handoverBuffer = new ArrayBlockingQueue<Slice>(1024 * 5);
     connectionSpecs = new String[0];
-    this.recoveryAddresses = new ArrayList<RecoveryAddress>();
+    recoveryAddresses = new ArrayList<RecoveryAddress>();
   }
 
   @Override
@@ -195,6 +198,13 @@ public abstract class AbstractFlumeInputOperator<T>
   {
     long windowId;
     byte[] address;
+
+    @Override
+    public String toString()
+    {
+      return "RecoveryAddress{" + "windowId=" + windowId + ", address=" + Arrays.toString(address) + '}';
+    }
+
     private static final long serialVersionUID = 201312021432L;
   }
 
@@ -460,20 +470,20 @@ public abstract class AbstractFlumeInputOperator<T>
      * Until that happens the following map should be sufficient to
      * keep track of which input operator is connected to which flume sink.
      */
-    private final transient HashMap<Integer, ConnectionStatus> map;
-    private transient long nextMillis;
+    long intervalMillis;
     private final Response response;
+    private transient long nextMillis;
 
     public ZKStatsListner()
     {
-      map = partitionedInstanceStatus.get();
-      nextMillis = System.currentTimeMillis() + intervalMillis;
+      intervalMillis = 60 * 1000L;
       response = new Response();
     }
 
     @Override
     public Response processStats(BatchedOperatorStats stats)
     {
+      final HashMap<Integer, ConnectionStatus> map = partitionedInstanceStatus.get();
       response.repartitionRequired = false;
 
       CustomStats lastStat = null;
@@ -504,8 +514,7 @@ public abstract class AbstractFlumeInputOperator<T>
             super.teardown();
           }
           AbstractFlumeInputOperator.discoveredFlumeSinks.set(addresses);
-          logger.debug("current map = {}", map);
-          logger.debug("discovered sinks = {}", addresses);
+          logger.debug("\ncurrent map = {}\ndiscovered sinks = {}", map, addresses);
           if (addresses.size() == map.size()) {
             response.repartitionRequired = map.containsValue(null);
           }
@@ -543,7 +552,6 @@ public abstract class AbstractFlumeInputOperator<T>
       this.intervalMillis = intervalMillis;
     }
 
-    long intervalMillis = 60 * 1000L;
     private static final long serialVersionUID = 201312241646L;
   }
 
@@ -610,7 +618,5 @@ public abstract class AbstractFlumeInputOperator<T>
 
   };
   private static final transient ThreadLocal<Collection<Service<byte[]>>> discoveredFlumeSinks = new ThreadLocal<Collection<Service<byte[]>>>();
-  @SuppressWarnings("FieldMayBeFinal") // it's not final because that mucks with the serialization somehow
-  private transient ArrayBlockingQueue<Slice> handoverBuffer = new ArrayBlockingQueue<Slice>(1024 * 5);
   private static final Logger logger = LoggerFactory.getLogger(AbstractFlumeInputOperator.class);
 }
