@@ -6,6 +6,7 @@ package com.datatorrent.flume.discovery;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -28,15 +29,15 @@ import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
 import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.curator.x.discovery.details.InstanceSerializer;
+import org.apache.flume.conf.Configurable;
 
 import com.datatorrent.api.Component;
-import org.apache.flume.conf.Configurable;
 
 /**
  *
  * @author Chetan Narsude <chetan@datatorrent.com>
  */
-public class ZKAssistedDiscovery implements Discovery<byte[]>, Component<com.datatorrent.api.Context>, Configurable
+public class ZKAssistedDiscovery implements Discovery<byte[]>, Component<com.datatorrent.api.Context>, Configurable, Serializable
 {
   @NotNull
   private String serviceName;
@@ -137,6 +138,56 @@ public class ZKAssistedDiscovery implements Discovery<byte[]>, Component<com.dat
     catch (Exception e) {
       throw Throwables.propagate(e);
     }
+  }
+
+  @Override
+  public String toString()
+  {
+    return "ZKAssistedDiscovery{" + "serviceName=" + serviceName + ", connectionString=" + connectionString + ", basePath=" + basePath + ", connectionTimeoutMillis=" + connectionTimeoutMillis + ", connectionRetryCount=" + connectionRetryCount + ", conntectionRetrySleepMillis=" + conntectionRetrySleepMillis + '}';
+  }
+
+  @Override
+  public int hashCode()
+  {
+    int hash = 7;
+    hash = 47 * hash + this.serviceName.hashCode();
+    hash = 47 * hash + this.connectionString.hashCode();
+    hash = 47 * hash + this.basePath.hashCode();
+    hash = 47 * hash + this.connectionTimeoutMillis;
+    hash = 47 * hash + this.connectionRetryCount;
+    hash = 47 * hash + this.conntectionRetrySleepMillis;
+    return hash;
+  }
+
+  @Override
+  public boolean equals(Object obj)
+  {
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final ZKAssistedDiscovery other = (ZKAssistedDiscovery)obj;
+    if (!this.serviceName.equals(other.serviceName)) {
+      return false;
+    }
+    if (!this.connectionString.equals(other.connectionString)) {
+      return false;
+    }
+    if (!this.basePath.equals(other.basePath)) {
+      return false;
+    }
+    if (this.connectionTimeoutMillis != other.connectionTimeoutMillis) {
+      return false;
+    }
+    if (this.connectionRetryCount != other.connectionRetryCount) {
+      return false;
+    }
+    if (this.conntectionRetrySleepMillis != other.conntectionRetrySleepMillis) {
+      return false;
+    }
+    return true;
   }
 
   ServiceInstance<byte[]> getInstance(Service<byte[]> service) throws Exception
@@ -362,5 +413,6 @@ public class ZKAssistedDiscovery implements Discovery<byte[]>, Component<com.dat
 
   }
 
+  private static final long serialVersionUID = 201401221145L;
   private static final Logger logger = LoggerFactory.getLogger(ZKAssistedDiscovery.class);
 }
