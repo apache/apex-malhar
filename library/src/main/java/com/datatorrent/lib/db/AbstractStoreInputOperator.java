@@ -22,8 +22,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import java.io.IOException;
 
 /**
- * This abstract class is for any implementation of an output adapter of non-transactional store {@link Connectable}
- * without the transactional exactly once feature.
+ * This abstract class is for any implementation of an input adapter of a store {@link Connectable}
  *
  * @param <T> The tuple type
  * @param <S> The store type
