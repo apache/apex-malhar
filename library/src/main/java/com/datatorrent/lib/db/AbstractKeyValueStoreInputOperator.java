@@ -15,11 +15,6 @@
  */
 package com.datatorrent.lib.db;
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -30,39 +25,13 @@ import java.util.*;
  * @param <S> The store type.
  * @since 0.9.3
  */
-public abstract class AbstractKeyValueStoreInputOperator<T, S extends KeyValueStore> implements InputOperator
+public abstract class AbstractKeyValueStoreInputOperator<T, S extends KeyValueStore> extends AbstractStoreInputOperator<T, S>
 {
-  /**
-   * The output port.
-   */
-  @OutputPortFieldAnnotation(name = "out")
-  final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
-  protected S store;
   protected List<Object> keys = new ArrayList<Object>();
 
   /**
-   * Gets the store.
-   *
-   * @return the store
-   */
-  public S getStore()
-  {
-    return store;
-  }
-
-  /**
-   * Sets the store.
-   *
-   * @param store
-   */
-  public void setStore(S store)
-  {
-    this.store = store;
-  }
-
-  /**
    * Adds the key to the list of keys to be fetched for each window
-   * 
+   *
    * @param key
    */
   public void addKey(Object key)
@@ -90,37 +59,5 @@ public abstract class AbstractKeyValueStoreInputOperator<T, S extends KeyValueSt
    * @return
    */
   public abstract T convertToTuple(Map<Object, Object> o);
-
-  @Override
-  public void beginWindow(long l)
-  {
-  }
-
-  @Override
-  public void endWindow()
-  {
-  }
-
-  @Override
-  public void setup(OperatorContext t1)
-  {
-    try {
-      store.connect();
-    }
-    catch (IOException ex) {
-      throw new RuntimeException(ex);
-    }
-  }
-
-  @Override
-  public void teardown()
-  {
-    try {
-      store.disconnect();
-    }
-    catch (IOException ex) {
-      // ignore
-    }
-  }
 
 }
