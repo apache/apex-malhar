@@ -21,6 +21,7 @@ var BaseView = require('bassview');
 // modals
 var LicenseModal = require('../LicenseModalView');
 var GatewayInfoModal = require('../GatewayInfoModalView');
+var ConsoleModal = require('../ConsoleInfoModalView');
 
 /**
  * Header View
@@ -45,7 +46,8 @@ var Header = BaseView.extend({
     
     events: {
         'click .displayLicenseInfo': 'displayLicenseInfo',
-        'click .displayGatewayInfo': 'displayGatewayInfo'
+        'click .displayGatewayInfo': 'displayGatewayInfo',
+        'click .displayConsoleInfo': 'displayConsoleInfo'
     },
 
     displayGatewayInfo: function(e) {
@@ -64,6 +66,15 @@ var Header = BaseView.extend({
             this.licenseModal.addToDOM();
         }
         this.licenseModal.launch();
+    },
+
+    displayConsoleInfo: function(e) {
+        e.preventDefault();
+        if (!this.consoleModal) {
+            this.consoleModal = new ConsoleModal({});
+            this.consoleModal.addToDOM();
+        }
+        this.consoleModal.launch();  
     },
     
     render: function() {

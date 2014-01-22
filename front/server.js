@@ -26,6 +26,8 @@ var util = require('./util');
 
 // Dev configuration
 var config = require('./config');
+// Package
+var pkg = require('./package.json');
 
 // Set up the proxy that goes to the gateway
 var proxy = new httpProxy.HttpProxy({
@@ -63,7 +65,10 @@ app.delete('/ws/*', function(req, res) {
 
 // Main entry page
 app.get('/', function(req, res) {
-    res.render('index', config);
+    res.render('index', {
+        config: config,
+        pkg: pkg
+    });
 });
 
 // Browserify bundle
