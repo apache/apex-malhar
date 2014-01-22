@@ -31,7 +31,6 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.ShipContainingJars;
-import com.sun.jersey.api.client.UniformInterfaceException;
 
 /**
  *
@@ -40,6 +39,7 @@ import com.sun.jersey.api.client.UniformInterfaceException;
  * Data of type {@link java.util.Map} is converted to JSON. All other types are sent in their {@link Object#toString()} representation.<br>
  * <br>
  *
+ * @param <T>
  * @since 0.3.2
  */
 @ShipContainingJars(classes = {com.sun.jersey.api.client.ClientHandler.class})
