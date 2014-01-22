@@ -509,8 +509,7 @@ public abstract class AbstractFlumeInputOperator<T>
             super.teardown();
           }
           AbstractFlumeInputOperator.discoveredFlumeSinks.set(addresses);
-          logger.debug("current map = {}", map);
-          logger.debug("discovered sinks = {}", addresses);
+          logger.debug("\ncurrent map = {}\ndiscovered sinks = {}", map, addresses);
           if (addresses.size() == map.size()) {
             response.repartitionRequired = map.containsValue(null);
           }
