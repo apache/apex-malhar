@@ -516,11 +516,19 @@ public abstract class AbstractFlumeInputOperator<T>
           }
           AbstractFlumeInputOperator.discoveredFlumeSinks.set(addresses);
           logger.debug("\ncurrent map = {}\ndiscovered sinks = {}", map, addresses);
-          if (addresses.size() == map.size()) {
-            response.repartitionRequired = map.containsValue(null);
-          }
-          else {
-            response.repartitionRequired = true;
+          switch (addresses.size()) {
+            case 0:
+              response.repartitionRequired = map.size() != 1;
+              break;
+
+            default:
+              if (addresses.size() == map.size()) {
+                response.repartitionRequired = map.containsValue(null);
+              }
+              else {
+                response.repartitionRequired = true;
+              }
+              break;
           }
         }
         catch (Error er) {
@@ -562,16 +570,6 @@ public abstract class AbstractFlumeInputOperator<T>
     String spec;
     boolean connected;
 
-    public ConnectionStatus()
-    {
-      try {
-        throw new RuntimeException();
-      }
-      catch (RuntimeException re) {
-        logger.debug("Trace", re);
-      }
-    }
-
     @Override
     public int hashCode()
     {
@@ -597,7 +595,6 @@ public abstract class AbstractFlumeInputOperator<T>
       return "ConnectionStatus{" + "id=" + id + ", spec=" + spec + ", connected=" + connected + '}';
     }
 
-    private static final AtomicInteger ATOMIC_ID = new AtomicInteger();
     private static final long serialVersionUID = 201312261615L;
   }
 
