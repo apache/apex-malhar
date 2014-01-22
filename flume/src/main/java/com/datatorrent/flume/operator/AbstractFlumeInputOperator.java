@@ -440,8 +440,7 @@ public abstract class AbstractFlumeInputOperator<T>
     }
 
     @Override
-    @SuppressWarnings("SynchronizeOnNonFinalField") /* context is virtually final for a given operator */
-
+    @SuppressWarnings("SynchronizeOnNonFinalField") // context is virtually final for a given operator
     public void disconnected()
     {
       logger.debug("disconnected with latest addresses {}", recoveryAddresses);
@@ -490,6 +489,7 @@ public abstract class AbstractFlumeInputOperator<T>
       List<OperatorStats> lastWindowedStats = stats.getLastWindowedStats();
       for (OperatorStats os : lastWindowedStats) {
         if (os.customStats != null) {
+          logger.debug("stats = {}", lastStat);
           lastStat = os.customStats;
           logger.debug("Rececived custom stats = {}", lastStat);
         }
@@ -499,6 +499,7 @@ public abstract class AbstractFlumeInputOperator<T>
         ConnectionStatus cs = (ConnectionStatus)lastStat;
         map.put(stats.getOperatorId(), cs);
         if (!cs.connected) {
+          logger.debug("setting repatitioned = true because of lastStat = {}", lastStat);
           response.repartitionRequired = true;
         }
       }
@@ -563,7 +564,12 @@ public abstract class AbstractFlumeInputOperator<T>
 
     public ConnectionStatus()
     {
-      id = ATOMIC_ID.incrementAndGet();
+      try {
+        throw new RuntimeException();
+      }
+      catch (RuntimeException re) {
+        logger.debug("Trace", re);
+      }
     }
 
     @Override
