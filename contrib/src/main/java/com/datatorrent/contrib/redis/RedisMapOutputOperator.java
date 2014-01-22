@@ -18,27 +18,22 @@ package com.datatorrent.contrib.redis;
 import java.util.Map;
 
 /**
- * <p>
- * RedisStringOutputOperator class.
- * This class is optimized for writing Map to the Redis database in a single redis request instead of separate calls for each of the key value pairs in map
- * </p>
+ * <p>RedisMapOutputOperator class.</p>
  *
+ * This output adapter takes maps as tuples and just writes to the redis store with the keys and the values in the map
+ *
+ * @param <K> The key type.
+ * @param <V> The value type.
  * @since 0.3.2
  */
-public class RedisStringOutputOperator<K> extends RedisOutputOperator<K,Map<String,String>>
+public class RedisMapOutputOperator<K, V> extends AbstractRedisPassThruOutputOperator<Map<K, V>>
 {
-
   @Override
-  public void store(Map<K, Object> t)
+  public void processTuple(Map<K, V> t)
   {
-    for (Map.Entry<K, Object> entry : t.entrySet()) {
-      Object value = entry.getValue();
-      if (value instanceof Map) {        
-        redisConnection.hmset(entry.getKey().toString(), (Map) value);
-      } 
-      if (keyExpiryTime != -1) {
-        redisConnection.expire(entry.getKey().toString(), keyExpiryTime);
-      }
+    for (Map.Entry<K, V> entry : t.entrySet()) {
+      store.put(entry.getKey(), entry.getValue());
     }
   }
+
 }

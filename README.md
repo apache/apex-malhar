@@ -54,7 +54,14 @@ Web apps run on Node.js. Please see [webapps](https://github.com/DataTorrent/Mal
 Issue tracking
 --------------------
 
-Github issues tracking is used for tracking issues for this repository. You can monitor the state of existing issues and their track their progress there. 
+[Malhar JIRA](https://malhar.atlassian.net) issue tracking system is used for this project. You can monitor the state of existing issues and their track their progress at https://malhar.atlassian.net
+
+When working with JIRA to submit pull requests, please use [smart commits](https://confluence.atlassian.com/display/AOD/Processing+JIRA+issues+with+commit+messages) feature by specifying MLHR-XXXX in the commit messages.  It helps us link commits with issues being tracked for easy reference.  And example commit might look like this:
+
+    git commit -am "MLHR-12345 #comment Task completed ahead of schedule #resolve"
+
+
+
 
 Contributing
 --------------------
