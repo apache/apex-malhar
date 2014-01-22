@@ -435,7 +435,6 @@ public abstract class AbstractFlumeInputOperator<T>
         logger.debug("{} Submitting ConnectionStatus = {}", AbstractFlumeInputOperator.this, connectionStatus);
         context.setCustomStats(connectionStatus);
       }
-      logger.debug("connected hence sending {} for {}", Command.SEEK, address);
     }
 
     @Override
@@ -488,7 +487,6 @@ public abstract class AbstractFlumeInputOperator<T>
       List<OperatorStats> lastWindowedStats = stats.getLastWindowedStats();
       for (OperatorStats os : lastWindowedStats) {
         if (os.customStats != null) {
-          logger.debug("stats = {}", lastStat);
           lastStat = os.customStats;
           logger.debug("Rececived custom stats = {}", lastStat);
         }
@@ -498,7 +496,7 @@ public abstract class AbstractFlumeInputOperator<T>
         ConnectionStatus cs = (ConnectionStatus)lastStat;
         map.put(stats.getOperatorId(), cs);
         if (!cs.connected) {
-          logger.debug("setting repatitioned = true because of lastStat = {}", lastStat);
+          logger.debug("Requesting repartition as lastStat = {}", lastStat);
           response.repartitionRequired = true;
         }
       }
