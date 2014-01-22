@@ -466,20 +466,20 @@ public abstract class AbstractFlumeInputOperator<T>
      * Until that happens the following map should be sufficient to
      * keep track of which input operator is connected to which flume sink.
      */
-    private final transient HashMap<Integer, ConnectionStatus> map;
-    private transient long nextMillis;
+    long intervalMillis;
     private final Response response;
+    private transient long nextMillis;
 
     public ZKStatsListner()
     {
-      map = partitionedInstanceStatus.get();
-      nextMillis = System.currentTimeMillis() + intervalMillis;
+      intervalMillis = 60 * 1000L;
       response = new Response();
     }
 
     @Override
     public Response processStats(BatchedOperatorStats stats)
     {
+      final HashMap<Integer, ConnectionStatus> map = partitionedInstanceStatus.get();
       response.repartitionRequired = false;
 
       CustomStats lastStat = null;
@@ -547,7 +547,6 @@ public abstract class AbstractFlumeInputOperator<T>
       this.intervalMillis = intervalMillis;
     }
 
-    long intervalMillis = 60 * 1000L;
     private static final long serialVersionUID = 201312241646L;
   }
 
