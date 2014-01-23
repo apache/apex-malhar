@@ -16,6 +16,8 @@
 
 package com.datatorrent.demos.visualdata;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +29,7 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.google.common.collect.Lists;
 
 /**
  * Chart value generator.
@@ -49,13 +52,13 @@ public class DemoValueGenerator extends BaseOperator implements InputOperator {
     }
 
     @OutputPortFieldAnnotation(name="simple output", optional=false)
-    public final transient DefaultOutputPort<HashMap<String, Number>> simpleOutput = new DefaultOutputPort<HashMap<String, Number>>();
+    public final transient DefaultOutputPort<ArrayList<HashMap<String, Number>>> simpleOutput = new DefaultOutputPort<ArrayList<HashMap<String, Number>>>();
     
     @OutputPortFieldAnnotation(name="simple output2", optional=false)
-    public final transient DefaultOutputPort<HashMap<String, Number>> simpleOutput2 = new DefaultOutputPort<HashMap<String, Number>>();
+    public final transient DefaultOutputPort<ArrayList<HashMap<String, Number>>> simpleOutput2 = new DefaultOutputPort<ArrayList<HashMap<String, Number>>>();
     
     @OutputPortFieldAnnotation(name="top 10 output", optional=false)
-    public final transient DefaultOutputPort<HashMap<String, Integer>> top10Output = new DefaultOutputPort<HashMap<String,Integer>>();
+    public final transient DefaultOutputPort<ArrayList<HashMap<String, Integer>>> top10Output = new DefaultOutputPort<ArrayList<HashMap<String,Integer>>>();
     
     @OutputPortFieldAnnotation(name="percentage output", optional=false)
     public final transient DefaultOutputPort<Integer> percentageOutput = new DefaultOutputPort<Integer>();
@@ -67,6 +70,7 @@ public class DemoValueGenerator extends BaseOperator implements InputOperator {
     public void beginWindow(long windowId) {
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void endWindow() {
         value1 = nextValue(value1, randomIncrement);
@@ -96,10 +100,10 @@ public class DemoValueGenerator extends BaseOperator implements InputOperator {
         }
         
         
-        top10Output.emit(topNResult);
+        top10Output.emit(Lists.newArrayList(topNResult));
         percentageOutput.emit(rand.nextInt(100));
-        simpleOutput.emit(WidgetSchemaUtil.createTimeSeriesData(time, value1));
-        simpleOutput2.emit(WidgetSchemaUtil.createTimeSeriesData(time, value2));
+        simpleOutput.emit(Lists.newArrayList(WidgetSchemaUtil.createTimeSeriesData(time, value1)));
+        simpleOutput2.emit(Lists.newArrayList(WidgetSchemaUtil.createTimeSeriesData(time, value2)));
     }
 
     @Override
