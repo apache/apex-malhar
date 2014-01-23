@@ -15,11 +15,14 @@
  */
 package com.datatorrent.contrib.couchdb;
 
+import java.util.List;
+
+import javax.validation.constraints.Min;
+
 import org.ektorp.ViewQuery;
 import org.ektorp.ViewResult;
 
-import javax.validation.constraints.Min;
-import java.util.List;
+import com.google.common.base.Throwables;
 
 /**
  * <br>This operator emits paged results. The page size is configured using operator property.</br>
@@ -57,15 +60,18 @@ public abstract class AbstractPagedCouchDBInputOperator<T> extends AbstractCouch
   public void emitTuples()
   {
     if (pageSize == 0)     //No pagination
+    {
       super.emitTuples();
+    }
     else {
       if (!started || nextPageKey != null) {
         started = true;
         ViewQuery query = getViewQuery().limit(pageSize + 1);
 
-        if (nextPageKey != null)
+        if (nextPageKey != null) {
           query.startKey(nextPageKey);
-        ViewResult result = dbLink.getConnector().queryView(query);
+        }
+        ViewResult result = store.queryStore(query);
         List<ViewResult.Row> rows = result.getRows();
         List<ViewResult.Row> rowsToEmit = rows;
         if (rows.size() > pageSize) {
@@ -77,9 +83,14 @@ public abstract class AbstractPagedCouchDBInputOperator<T> extends AbstractCouch
           //No next page so emit all the rows.
           nextPageKey = null;
         }
-        for (ViewResult.Row row : rowsToEmit) {
-          T tuple = getTuple(row);
-          outputPort.emit(tuple);
+        try {
+          for (ViewResult.Row row : rowsToEmit) {
+            T tuple = getTuple(row);
+            outputPort.emit(tuple);
+          }
+        }
+        catch (Throwable cause) {
+          Throwables.propagate(cause);
         }
       }
     }

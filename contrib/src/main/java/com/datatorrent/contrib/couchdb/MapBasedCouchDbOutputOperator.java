@@ -15,34 +15,42 @@
  */
 package com.datatorrent.contrib.couchdb;
 
-import com.google.common.base.Preconditions;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Map;
 
 /**
- * Implementation of {@link AbstractCouchDBOutputOperator}  that saves a Map in the couch database<br></br>
+ * Implementation of {@link AbstractCouchDBOutputOperator} that saves a Map in the couch database<br></br>
  *
  * @since 0.3.5
  */
 public class MapBasedCouchDbOutputOperator extends AbstractCouchDBOutputOperator<Map<Object, Object>>
 {
 
-  @Override
-  public CouchDbUpdateCommand getCommandToUpdateDb(Map<Object, Object> tuple)
+  private final EventForMap couchDbEvent;
+
+  public MapBasedCouchDbOutputOperator()
   {
-    return new UpdateCommandForMap(tuple);
+    super();
+    couchDbEvent = new EventForMap();
   }
 
-  private class UpdateCommandForMap implements CouchDbUpdateCommand
+  @Override
+  public CouchDbEvent getCouchDbEventFrom(Map<Object, Object> tuple)
+  {
+    couchDbEvent.setPayload(tuple);
+    return couchDbEvent;
+  }
+
+  private class EventForMap implements CouchDbEvent
   {
 
-    private final Map<Object, Object> payload;
+    private Map<Object, Object> payload;
 
-    public UpdateCommandForMap(Map<Object, Object> payload)
+    void setPayload(@Nonnull Map<Object, Object> payload)
     {
-      this.payload = Preconditions.checkNotNull(payload, "payload");
+      this.payload = payload;
     }
 
     @Nullable
@@ -52,30 +60,11 @@ public class MapBasedCouchDbOutputOperator extends AbstractCouchDBOutputOperator
       return (String) payload.get("_id");
     }
 
-    @Nullable
-    @Override
-    public String getRevision()
-    {
-      return (String) payload.get("_rev");
-    }
-
     @Nonnull
     @Override
     public Map<Object, Object> getPayLoad()
     {
       return payload;
-    }
-
-    @Override
-    public void setRevision(String revision)
-    {
-      payload.put("_rev", revision);
-    }
-
-    @Override
-    public void setId(String id)
-    {
-      payload.put("_id", id);
     }
   }
 }

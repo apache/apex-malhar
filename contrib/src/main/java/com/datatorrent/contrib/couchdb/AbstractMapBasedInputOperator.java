@@ -15,13 +15,17 @@
  */
 package com.datatorrent.contrib.couchdb;
 
-import com.google.common.collect.Maps;
+import java.io.IOException;
+import java.util.Map;
+
+import org.codehaus.jackson.map.ObjectMapper;
 import org.ektorp.ViewResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.Map;
+import com.google.common.collect.Maps;
+
+import com.datatorrent.api.annotation.ShipContainingJars;
 
 /**
  * <br>Couch-db input adaptor that emits a map.</br>
@@ -31,20 +35,24 @@ import java.util.Map;
  *
  * @since 0.3.5
  */
+@ShipContainingJars(classes = {ObjectMapper.class})
 public abstract class AbstractMapBasedInputOperator extends AbstractCouchDBInputOperator<Map<Object, Object>>
 {
-  private static final Logger logger = LoggerFactory.getLogger(AbstractMapBasedInputOperator.class);
+  private transient ObjectMapper mapper;
+
+  public AbstractMapBasedInputOperator()
+  {
+    mapper = new ObjectMapper();
+  }
 
   @Override
   @SuppressWarnings("unchecked")
-  public Map<Object, Object> getTuple(ViewResult.Row value)
+  public Map<Object, Object> getTuple(ViewResult.Row value) throws IOException
   {
     Map<Object, Object> valueMap = Maps.newHashMap();
-    try {
-      valueMap = mapper.readValue(value.getValueAsNode(), valueMap.getClass());
-    } catch (IOException e) {
-      logger.error("Error converting to map : " + e.fillInStackTrace());
-    }
-    return valueMap;
+    return mapper.readValue(value.getValueAsNode(), valueMap.getClass());
+
   }
+
+  private static final Logger logger = LoggerFactory.getLogger(AbstractMapBasedInputOperator.class);
 }
