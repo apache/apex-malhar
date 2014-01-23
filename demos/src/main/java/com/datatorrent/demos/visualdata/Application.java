@@ -43,10 +43,9 @@ public class Application implements StreamingApplication {
         rand.setMinvalue(0);
         rand.setMaxvalue(maxValue);
 
-        ChartValueGenerator chartValue = dag.addOperator("chartValue", new ChartValueGenerator());
-        chartValue.setRandomIncrement(5);
-        ChartValueGenerator chartValue2 = dag.addOperator("chartValue2", new ChartValueGenerator());
-        chartValue2.setRandomIncrement(20);
+        DemoValueGenerator demo = dag.addOperator("chartValue", new DemoValueGenerator());
+        demo.setRandomIncrement(5);
+        demo.setRandomIncrement2(20);
 
         PiCalculateOperator calc = dag.addOperator("picalc", new PiCalculateOperator());
         calc.setBase(maxValue * maxValue);
@@ -59,29 +58,48 @@ public class Application implements StreamingApplication {
             PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator("wsOut",
                     new PubSubWebSocketOutputOperator<Object>());
             wsOut.setUri(uri);
-            wsOut.setTopic("app.visualdata.piValue");
+            wsOut.setTopic("app.visualdata.piValue_" + WidgetSchemaUtil.getSimpleSchema());
             dag.addStream("ws_pi_data", calc.output, wsOut.input);
 
             PubSubWebSocketOutputOperator<Object> wsChartOut = dag.addOperator("wsChartOut",
                     new PubSubWebSocketOutputOperator<Object>());
             wsChartOut.setUri(uri);
-            wsChartOut.setTopic("app.visualdata.chartValue");
-            dag.addStream("ws_chart_data", chartValue.output, wsChartOut.input);
+            wsChartOut.setTopic("app.visualdata.chartValue_" + WidgetSchemaUtil.getTimeseriesSchema(0, 100));
+            dag.addStream("ws_chart_data", demo.simpleOutput, wsChartOut.input);
 
             PubSubWebSocketOutputOperator<Object> wsChartOut2 = dag.addOperator("wsChartOut2",
                     new PubSubWebSocketOutputOperator<Object>());
             wsChartOut2.setUri(uri);
-            wsChartOut2.setTopic("app.visualdata.chartValue2");
-            dag.addStream("ws_chart_data2", chartValue2.output, wsChartOut2.input);
+            wsChartOut2.setTopic("app.visualdata.chartValue2_" + WidgetSchemaUtil.getTimeseriesSchema(0, 100));
+            dag.addStream("ws_chart_data2", demo.simpleOutput2, wsChartOut2.input);
+            
+            PubSubWebSocketOutputOperator<Object> wsPercentage = dag.addOperator("wsPercentage",
+                new PubSubWebSocketOutputOperator<Object>());
+            wsPercentage.setUri(uri);
+            wsPercentage.setTopic("app.visualdata.percentage_" + WidgetSchemaUtil.getPercentageSchema());
+            dag.addStream("ws_percentage_data", demo.percentageOutput, wsPercentage.input);
+            
+            PubSubWebSocketOutputOperator<Object> wsTop10 = dag.addOperator("wsTopN",
+                new PubSubWebSocketOutputOperator<Object>());
+            wsTop10.setUri(uri);
+            wsTop10.setTopic("app.visualdata.topn_" + WidgetSchemaUtil.getTopNSchema(10));
+            dag.addStream("ws_topn_data", demo.top10Output, wsTop10.input);
+            
         } else {
             ConsoleOutputOperator console = dag.addOperator("console_out", new ConsoleOutputOperator());
             dag.addStream("rand_console", calc.output, console.input).setLocality(locality);
 
             ConsoleOutputOperator chartConsole = dag.addOperator("chart_out", new ConsoleOutputOperator());
-            dag.addStream("chart_console", chartValue.output, chartConsole.input).setLocality(locality);
+            dag.addStream("chart_console", demo.simpleOutput, chartConsole.input).setLocality(locality);
 
             ConsoleOutputOperator chartConsole2 = dag.addOperator("chart_out2", new ConsoleOutputOperator());
-            dag.addStream("chart_console2", chartValue2.output, chartConsole2.input).setLocality(locality);
+            dag.addStream("chart_console2", demo.simpleOutput2, chartConsole2.input).setLocality(locality);
+            
+            ConsoleOutputOperator percentageConsole = dag.addOperator("percentage", new ConsoleOutputOperator());
+            dag.addStream("percentage_console", demo.percentageOutput, percentageConsole.input).setLocality(locality);
+            
+            ConsoleOutputOperator top10Console = dag.addOperator("topn", new ConsoleOutputOperator());
+            dag.addStream("chart_console2", demo.top10Output, top10Console.input).setLocality(locality);
         }
     }
 
