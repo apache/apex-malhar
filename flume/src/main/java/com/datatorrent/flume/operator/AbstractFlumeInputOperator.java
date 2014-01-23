@@ -519,7 +519,12 @@ public abstract class AbstractFlumeInputOperator<T>
 
             default:
               if (addresses.size() == map.size()) {
-                response.repartitionRequired = map.containsValue(null);
+                for (ConnectionStatus value : map.values()) {
+                  if (value == null || value.connected == false) {
+                    response.repartitionRequired = true;
+                    break;
+                  }
+                }
               }
               else {
                 response.repartitionRequired = true;
