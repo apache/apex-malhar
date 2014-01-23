@@ -42,7 +42,7 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
  * @param <T>Type of tuples which are generated</T>
  * @since 0.3.5
  */
-@ShipContainingJars(classes = {ViewQuery.class, ViewResult.class})
+@ShipContainingJars(classes = {ViewQuery.class})
 public abstract class AbstractCouchDBInputOperator<T> extends AbstractStoreInputOperator<T, CouchDbStore>
 {
   @Override

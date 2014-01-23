@@ -17,9 +17,6 @@ package com.datatorrent.contrib.couchdb;
 
 import java.util.Map;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 /**
  * Implementation of {@link AbstractCouchDBOutputOperator} that saves a Map in the couch database<br></br>
  *

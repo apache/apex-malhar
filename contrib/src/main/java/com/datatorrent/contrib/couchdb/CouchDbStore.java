@@ -38,7 +38,7 @@ import com.datatorrent.lib.db.Connectable;
  *
  * @since 0.3.5
  */
-@ShipContainingJars(classes = {CouchDbConnector.class, ViewQuery.class, ViewResult.class})
+@ShipContainingJars(classes = {CouchDbConnector.class})
 public class CouchDbStore implements Connectable
 {
   /**
