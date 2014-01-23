@@ -505,26 +505,21 @@ public class DTFlumeSink extends AbstractSink implements Configurable
    */
   private void retryWrite(byte[] address, byte[] e) throws IOException
   {
-    sleep();
-    if (e == null) {
-      if (!client.write(address)) {
-        sleep();
-        if (client.write(address)) {
-          return;
-        }
-      }
-
-    }
-    else {
-      if (!client.write(address, e)) {
-        sleep();
-        if (client.write(address, e)) {
-          return;
-        }
+    while (client.isConnected()) {
+      sleep();
+      if (client.write(address)) {
+        break;
       }
     }
 
-    throw new IOException("write call to client failed!");
+    while (client.isConnected()) {
+      sleep();
+      if (client.write(e)) {
+        return;
+      }
+    }
+
+    throw new IOException("Client disconnected!");
   }
 
   private static final Logger logger = LoggerFactory.getLogger(DTFlumeSink.class);
