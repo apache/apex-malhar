@@ -402,8 +402,7 @@ public abstract class AbstractFlumeInputOperator<T>
     }
 
     @Override
-    @SuppressWarnings("SynchronizeOnNonFinalField") /* context is virtually final for a given operator */
-
+    @SuppressWarnings("SynchronizeOnNonFinalField") // context is virtually final for a given operator
     public void connected()
     {
       super.connected();
@@ -441,7 +440,6 @@ public abstract class AbstractFlumeInputOperator<T>
     @SuppressWarnings("SynchronizeOnNonFinalField") // context is virtually final for a given operator
     public void disconnected()
     {
-      logger.debug("disconnected with latest addresses {}", recoveryAddresses);
       connected = false;
       ConnectionStatus connectionStatus = new ConnectionStatus();
       connectionStatus.connected = false;
@@ -488,7 +486,7 @@ public abstract class AbstractFlumeInputOperator<T>
       for (OperatorStats os : lastWindowedStats) {
         if (os.customStats != null) {
           lastStat = os.customStats;
-          logger.debug("Rececived custom stats = {}", lastStat);
+          logger.debug("Received custom stats = {}", lastStat);
         }
       }
 
@@ -502,6 +500,7 @@ public abstract class AbstractFlumeInputOperator<T>
       }
 
       if (System.currentTimeMillis() >= nextMillis) {
+        logger.debug("nextMillis = {}", nextMillis);
         try {
           super.setup(null);
           Collection<Service<byte[]>> addresses;
@@ -536,6 +535,7 @@ public abstract class AbstractFlumeInputOperator<T>
         }
         finally {
           nextMillis = System.currentTimeMillis() + intervalMillis;
+          logger.debug("Proposed NextMillis = {}", nextMillis);
         }
       }
 
