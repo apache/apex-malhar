@@ -418,19 +418,33 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   private void closeUnflushedFiles()
   {
     try {
-      if (dataStream != null) {
-        dataStream.close();
-      }
+      Path path;
+      
+      //Deleting the files that are created but not flushed       
       for (DataBlock openStream : files2Commit) {
         openStream.dataStream.close();
+        path = new Path(basePath,String.valueOf(openStream.fileName));
+        if(fs.exists(path) && !fs.exists(new Path(basePath,openStream.fileName + OFFSET_SUFFIX))){
+          fs.delete(path,false);
+        }
       }
       files2Commit.clear();
 
+      // closing the stream
+      if (dataStream != null) {
+        dataStream.close();
+      }
+      
+      if (!fs.exists(new Path(basePath, currentWrittenFile + OFFSET_SUFFIX))) {
+        fs.delete(new Path(basePath,String.valueOf(currentWrittenFile)), false);
+      }
+      
       if (fs.exists(new Path(basePath, flushedFileCounter + OFFSET_SUFFIX))) {
         // This means that flush was called
         writeData(fileCounterFile, String.valueOf(flushedFileCounter + 1).getBytes()).close();
         ++flushedFileCounter;
       }
+      
       currentWrittenFile = flushedFileCounter;
       fileWriteOffset = 0;
       flushedLong = 0;
