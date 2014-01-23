@@ -213,7 +213,53 @@ public class HDFSStorageTest
     System.arraycopy(data, 8, tempData, 0, tempData.length);
     Assert.assertEquals("matched the stored value with retrieved value", new String(b), new String(tempData));
   }
-
+  @Test
+  public void testCleanForUnflushedData() throws IOException
+  {
+    byte[] address = null;
+    byte[] b = new byte[200];
+    storage.retrieve(new byte[8]);
+    for (int i = 0; i < 5; i++) {
+      storage.store(b);
+      address = storage.store(b);
+      storage.flush();
+      //storage.clean(address);
+    }
+    byte[] lastWrittenAddress = null;
+    for (int i = 0; i < 5; i++) {
+      storage.store(b);
+      lastWrittenAddress = storage.store(b);
+    }
+    storage.clean(lastWrittenAddress);
+    byte[] cleanedOffset = storage.readData(new Path(STORAGE_DIRECTORY+"/1/cleanoffsetFile"));
+    Assert.assertArrayEquals(address, cleanedOffset);
+    
+  }
+  
+  @Test
+  public void testCleanForFlushedData() throws IOException
+  {
+    byte[] address = null;
+    byte[] b = new byte[200];
+    storage.retrieve(new byte[8]);
+    for (int i = 0; i < 5; i++) {
+      storage.store(b);
+      address = storage.store(b);
+      storage.flush();
+      //storage.clean(address);
+    }
+    byte[] lastWrittenAddress = null;
+    for (int i = 0; i < 5; i++) {
+      storage.store(b);
+      lastWrittenAddress = storage.store(b);
+    }
+    storage.flush();
+    storage.clean(lastWrittenAddress);
+    byte[] cleanedOffset = storage.readData(new Path(STORAGE_DIRECTORY+"/1/cleanoffsetFile"));
+    Assert.assertArrayEquals(lastWrittenAddress, cleanedOffset);
+    
+  }
+  
   private long calculateOffset(long fileOffset, long fileCounter)
   {
     return ((fileCounter << 32) | (fileOffset & 0xffffffffl));

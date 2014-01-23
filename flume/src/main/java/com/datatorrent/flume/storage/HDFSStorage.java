@@ -46,7 +46,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   public static final String RESTORE_KEY = "restore";
   public static final String BLOCKSIZE = "blockSize";
   private static final String IDENTITY_FILE = "counter";
-  private static final String CLEAN_FILE = "clean-counter";
+//  private static final String CLEAN_FILE = "clean-counter";
   private static final String OFFSET_SUFFIX = "-offsetFile";
   private static final String CLEAN_OFFSET_FILE = "cleanoffsetFile";
   public static final String OFFSET_KEY = "offset";
@@ -89,7 +89,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   /**
    * The file that stores the clean file counter information
    */
-  //private Path cleanFileCounterFile;
+  // private Path cleanFileCounterFile;
   /**
    * The file that stores the clean file offset information
    */
@@ -106,6 +106,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   private long retrievalFile;
   private int offset;
   private long flushedLong;
+  private long currentFlushedLong;
   private byte[] cleanedOffset = new byte[8];
   private long skipOffset;
   private long skipFile;
@@ -155,7 +156,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
    * @return
    * @throws IOException
    */
-  private byte[] readData(Path path) throws IOException
+  byte[] readData(Path path) throws IOException
   {
     DataInputStream is = new DataInputStream(fs.open(path));
     byte[] bytes = new byte[is.available()];
@@ -381,6 +382,13 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
     if (cleanedFileCounter >= cleanFileIndex) {
       return;
     }
+    long cleanFileOffset = byteArrayToLong(identifier, 0);
+    // This is to make sure that we clean only the data that is flushed
+    if (cleanFileIndex > flushedFileCounter || (cleanFileIndex == flushedFileCounter && cleanFileOffset >= currentFlushedLong)) {
+      cleanFileIndex = flushedFileCounter;
+      cleanFileOffset = currentFlushedLong;
+      Server.writeLong(identifier, 0, calculateOffset(cleanFileOffset, cleanFileIndex));
+    }
     try {
       do {
         writeData(cleanFileOffsetFile, identifier).close();
@@ -394,8 +402,8 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
         }
         ++cleanedFileCounter;
       } while (cleanedFileCounter < cleanFileIndex);
-      //writeData(cleanFileCounterFile, String.valueOf(cleanedFileCounter).getBytes()).close();
-      
+      // writeData(cleanFileCounterFile, String.valueOf(cleanedFileCounter).getBytes()).close();
+
     } catch (IOException e) {
       logger.warn("not able to close the streams {}", e.getMessage());
       throw new RuntimeException(e);
@@ -420,13 +428,13 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   {
     try {
       Path path;
-      
-      //Deleting the files that are created but not flushed       
+
+      // Deleting the files that are created but not flushed
       for (DataBlock openStream : files2Commit) {
         openStream.dataStream.close();
-        path = new Path(basePath,String.valueOf(openStream.fileName));
-        if(fs.exists(path) && !fs.exists(new Path(basePath,openStream.fileName + OFFSET_SUFFIX))){
-          fs.delete(path,false);
+        path = new Path(basePath, String.valueOf(openStream.fileName));
+        if (fs.exists(path) && !fs.exists(new Path(basePath, openStream.fileName + OFFSET_SUFFIX))) {
+          fs.delete(path, false);
         }
       }
       files2Commit.clear();
@@ -435,17 +443,17 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       if (dataStream != null) {
         dataStream.close();
       }
-      
+
       if (!fs.exists(new Path(basePath, currentWrittenFile + OFFSET_SUFFIX))) {
-        fs.delete(new Path(basePath,String.valueOf(currentWrittenFile)), false);
+        fs.delete(new Path(basePath, String.valueOf(currentWrittenFile)), false);
       }
-      
+
       if (fs.exists(new Path(basePath, flushedFileCounter + OFFSET_SUFFIX))) {
         // This means that flush was called
         writeData(fileCounterFile, String.valueOf(flushedFileCounter + 1).getBytes()).close();
         ++flushedFileCounter;
       }
-      
+
       currentWrittenFile = flushedFileCounter;
       fileWriteOffset = 0;
       flushedLong = 0;
@@ -463,6 +471,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
         dataStream.hflush();
         writeData(fileCounterFile, String.valueOf(currentWrittenFile + 1).getBytes()).close();
         updateFlushedOffset(new Path(basePath, currentWrittenFile + OFFSET_SUFFIX), fileWriteOffset);
+        currentFlushedLong = fileWriteOffset;
       } catch (IOException ex) {
         logger.warn("not able to close the stream {}", ex.getMessage());
         throw new RuntimeException(ex);
@@ -646,7 +655,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       cleanedFileCounter = -1;
       retrievalFile = -1;
       fileCounterFile = new Path(basePath, IDENTITY_FILE);
-      //cleanFileCounterFile = new Path(basePath, CLEAN_FILE);
+      // cleanFileCounterFile = new Path(basePath, CLEAN_FILE);
       cleanFileOffsetFile = new Path(basePath, CLEAN_OFFSET_FILE);
       if (restore) {
         if (fs.exists(fileCounterFile) && fs.isFile(fileCounterFile)) {
@@ -654,17 +663,16 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
         }
 
         /*
-        if (fs.exists(cleanFileCounterFile) && fs.isFile(cleanFileCounterFile)) {
-          cleanedFileCounter = Long.valueOf(new String(readData(cleanFileCounterFile)));
-        }
-        */
+         * if (fs.exists(cleanFileCounterFile) && fs.isFile(cleanFileCounterFile)) { cleanedFileCounter =
+         * Long.valueOf(new String(readData(cleanFileCounterFile))); }
+         */
 
         if (fs.exists(cleanFileOffsetFile) && fs.isFile(cleanFileOffsetFile)) {
           cleanedOffset = readData(cleanFileOffsetFile);
         }
       }
-      
-      cleanedFileCounter = byteArrayToLong(cleanedOffset, offset) -1;
+
+      cleanedFileCounter = byteArrayToLong(cleanedOffset, offset) - 1;
       flushedFileCounter = currentWrittenFile;
     } catch (IOException io) {
       throw new RuntimeException(io);
