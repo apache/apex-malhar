@@ -89,7 +89,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   /**
    * The file that stores the clean file counter information
    */
-  private Path cleanFileCounterFile;
+  //private Path cleanFileCounterFile;
   /**
    * The file that stores the clean file offset information
    */
@@ -383,6 +383,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
     }
     try {
       do {
+        writeData(cleanFileOffsetFile, identifier).close();
         Path path = new Path(basePath, String.valueOf(cleanedFileCounter));
         if (fs.exists(path) && fs.isFile(path)) {
           fs.delete(path, false);
@@ -393,8 +394,8 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
         }
         ++cleanedFileCounter;
       } while (cleanedFileCounter < cleanFileIndex);
-      writeData(cleanFileCounterFile, String.valueOf(cleanedFileCounter).getBytes()).close();
-      writeData(cleanFileOffsetFile, identifier).close();
+      //writeData(cleanFileCounterFile, String.valueOf(cleanedFileCounter).getBytes()).close();
+      
     } catch (IOException e) {
       logger.warn("not able to close the streams {}", e.getMessage());
       throw new RuntimeException(e);
@@ -645,21 +646,25 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       cleanedFileCounter = -1;
       retrievalFile = -1;
       fileCounterFile = new Path(basePath, IDENTITY_FILE);
-      cleanFileCounterFile = new Path(basePath, CLEAN_FILE);
+      //cleanFileCounterFile = new Path(basePath, CLEAN_FILE);
       cleanFileOffsetFile = new Path(basePath, CLEAN_OFFSET_FILE);
       if (restore) {
         if (fs.exists(fileCounterFile) && fs.isFile(fileCounterFile)) {
           currentWrittenFile = Long.valueOf(new String(readData(fileCounterFile)));
         }
 
+        /*
         if (fs.exists(cleanFileCounterFile) && fs.isFile(cleanFileCounterFile)) {
           cleanedFileCounter = Long.valueOf(new String(readData(cleanFileCounterFile)));
         }
+        */
 
         if (fs.exists(cleanFileOffsetFile) && fs.isFile(cleanFileOffsetFile)) {
           cleanedOffset = readData(cleanFileOffsetFile);
         }
       }
+      
+      cleanedFileCounter = byteArrayToLong(cleanedOffset, offset) -1;
       flushedFileCounter = currentWrittenFile;
     } catch (IOException io) {
       throw new RuntimeException(io);
