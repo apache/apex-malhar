@@ -23,8 +23,6 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.TreeSet;
 
-import org.apache.commons.lang3.RandomStringUtils;
-
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
@@ -46,15 +44,15 @@ public class DemoValueGenerator extends BaseOperator implements InputOperator {
     
     {
       for (int i = 0; i < 20; i++) {
-        topNKeyValues.put(RandomStringUtils.randomAlphanumeric(rand.nextInt(10) + 5), 0);
+        topNKeyValues.put("testkey" + i, 0);
       }
     }
 
     @OutputPortFieldAnnotation(name="simple output", optional=false)
-    public final transient DefaultOutputPort<Integer> simpleOutput = new DefaultOutputPort<Integer>();
+    public final transient DefaultOutputPort<HashMap<String, Number>> simpleOutput = new DefaultOutputPort<HashMap<String, Number>>();
     
     @OutputPortFieldAnnotation(name="simple output2", optional=false)
-    public final transient DefaultOutputPort<Integer> simpleOutput2 = new DefaultOutputPort<Integer>();
+    public final transient DefaultOutputPort<HashMap<String, Number>> simpleOutput2 = new DefaultOutputPort<HashMap<String, Number>>();
     
     @OutputPortFieldAnnotation(name="top 10 output", optional=false)
     public final transient DefaultOutputPort<HashMap<String, Integer>> top10Output = new DefaultOutputPort<HashMap<String,Integer>>();
@@ -72,6 +70,8 @@ public class DemoValueGenerator extends BaseOperator implements InputOperator {
     @Override
     public void endWindow() {
         value1 = nextValue(value1, randomIncrement);
+        value2 = nextValue(value2, randomIncrement2);
+        long time = System.currentTimeMillis();
         
         for (Entry<String, Integer> hV : topNKeyValues.entrySet()) {
           hV.setValue(rand.nextInt(10000));
@@ -95,10 +95,11 @@ public class DemoValueGenerator extends BaseOperator implements InputOperator {
           topNResult.put(entry.getKey(), entry.getValue());
         }
         
+        
         top10Output.emit(topNResult);
         percentageOutput.emit(rand.nextInt(100));
-        simpleOutput.emit(Integer.valueOf(value1));
-        simpleOutput.emit(Integer.valueOf(value2));
+        simpleOutput.emit(WidgetSchemaUtil.createTimeSeriesData(time, value1));
+        simpleOutput2.emit(WidgetSchemaUtil.createTimeSeriesData(time, value2));
     }
 
     @Override

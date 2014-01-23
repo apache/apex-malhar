@@ -16,6 +16,10 @@
 
 package com.datatorrent.demos.visualdata;
 
+import java.util.HashMap;
+
+import com.google.common.collect.Maps;
+
 /**
  * A util class return the json notation of the schema of the Demo UI Widget
  */
@@ -39,6 +43,13 @@ public class WidgetSchemaUtil
   public static String getTopNSchema(int n)
   {
     return "{type:'topN',n:" + n + "}";
+  }
+  
+  public static HashMap<String, Number> createTimeSeriesData(long timestamp, Number value){
+    HashMap<String, Number> timeseriesMap = Maps.newHashMapWithExpectedSize(2);
+    timeseriesMap.put("timestamp", timestamp);
+    timeseriesMap.put("value", value);
+    return timeseriesMap;
   }
 
 }
