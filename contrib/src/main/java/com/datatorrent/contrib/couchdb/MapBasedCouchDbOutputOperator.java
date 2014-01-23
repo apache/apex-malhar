@@ -28,43 +28,11 @@ import javax.annotation.Nullable;
 public class MapBasedCouchDbOutputOperator extends AbstractCouchDBOutputOperator<Map<Object, Object>>
 {
 
-  private final EventForMap couchDbEvent;
-
-  public MapBasedCouchDbOutputOperator()
-  {
-    super();
-    couchDbEvent = new EventForMap();
-  }
-
   @Override
-  public CouchDbEvent getCouchDbEventFrom(Map<Object, Object> tuple)
+  public String getDocumentId(Map<Object, Object> tuple)
   {
-    couchDbEvent.setPayload(tuple);
-    return couchDbEvent;
+    return (String) tuple.get("_id");
   }
 
-  private class EventForMap implements CouchDbEvent
-  {
-
-    private Map<Object, Object> payload;
-
-    void setPayload(@Nonnull Map<Object, Object> payload)
-    {
-      this.payload = payload;
-    }
-
-    @Nullable
-    @Override
-    public String getId()
-    {
-      return (String) payload.get("_id");
-    }
-
-    @Nonnull
-    @Override
-    public Map<Object, Object> getPayLoad()
-    {
-      return payload;
-    }
-  }
 }
+

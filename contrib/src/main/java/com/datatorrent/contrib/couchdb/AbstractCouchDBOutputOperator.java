@@ -19,7 +19,7 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 
 /**
  * An {@link AbstractStoreOutputOperator} output operator that saves tuples in the CouchDb. <br/>
- * Sub-classes provide the implementation of creating/populating {@link CouchDbEvent} from each tuple.
+ * Sub-classes provide the implementation of parsing document id from the tuple.
  *
  * @param <T> type of tuple </T>
  * @since 0.3.5
@@ -35,14 +35,14 @@ public abstract class AbstractCouchDBOutputOperator<T> extends AbstractStoreOutp
   @Override
   public void processTuple(T tuple)
   {
-    CouchDbEvent couchDbEvent = getCouchDbEventFrom(tuple);
-    store.upsertDocument(couchDbEvent.getId(), couchDbEvent.getPayLoad());
+    store.upsertDocument(getDocumentId(tuple), tuple);
   }
 
   /**
-   * Create {@link CouchDbEvent} from the tuple. The payload and id
-   * @param tuple
-   * @return
+   * Get document id from the tuple.
+   *
+   * @param tuple tuple to be saved.
+   * @return document id.
    */
-  public abstract CouchDbEvent getCouchDbEventFrom(T tuple);
+  public abstract String getDocumentId(T tuple);
 }
