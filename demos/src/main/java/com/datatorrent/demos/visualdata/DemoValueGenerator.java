@@ -16,8 +16,6 @@
 
 package com.datatorrent.demos.visualdata;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +27,6 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.google.common.collect.Lists;
 
 /**
  * Chart value generator.
@@ -43,7 +40,7 @@ public class DemoValueGenerator extends BaseOperator implements InputOperator {
     
     private final static transient Random rand = new Random();
     
-    private transient Map<String, Integer> topNKeyValues = new HashMap<String, Integer>();
+    private transient Map<String, Number> topNKeyValues = new HashMap<String, Number>();
     
     {
       for (int i = 0; i < 20; i++) {
@@ -52,13 +49,13 @@ public class DemoValueGenerator extends BaseOperator implements InputOperator {
     }
 
     @OutputPortFieldAnnotation(name="simple output", optional=false)
-    public final transient DefaultOutputPort<ArrayList<HashMap<String, Number>>> simpleOutput = new DefaultOutputPort<ArrayList<HashMap<String, Number>>>();
+    public final transient DefaultOutputPort<HashMap<String, Number>[]> simpleOutput = new DefaultOutputPort<HashMap<String, Number>[]>();
     
     @OutputPortFieldAnnotation(name="simple output2", optional=false)
-    public final transient DefaultOutputPort<ArrayList<HashMap<String, Number>>> simpleOutput2 = new DefaultOutputPort<ArrayList<HashMap<String, Number>>>();
+    public final transient DefaultOutputPort<HashMap<String, Number>[]> simpleOutput2 = new DefaultOutputPort<HashMap<String, Number>[]>();
     
     @OutputPortFieldAnnotation(name="top 10 output", optional=false)
-    public final transient DefaultOutputPort<ArrayList<HashMap<String, Integer>>> top10Output = new DefaultOutputPort<ArrayList<HashMap<String,Integer>>>();
+    public final transient DefaultOutputPort<HashMap<String, Object>[]> top10Output = new DefaultOutputPort<HashMap<String, Object>[]>();
     
     @OutputPortFieldAnnotation(name="percentage output", optional=false)
     public final transient DefaultOutputPort<Integer> percentageOutput = new DefaultOutputPort<Integer>();
@@ -77,33 +74,32 @@ public class DemoValueGenerator extends BaseOperator implements InputOperator {
         value2 = nextValue(value2, randomIncrement2);
         long time = System.currentTimeMillis();
         
-        for (Entry<String, Integer> hV : topNKeyValues.entrySet()) {
+        for (Entry<String, Number> hV : topNKeyValues.entrySet()) {
           hV.setValue(rand.nextInt(10000));
         }
         
-        TreeSet<Entry<String, Integer>> tSet = new TreeSet<Entry<String,Integer>>(new Comparator<Entry<String,Integer>>() {
+        TreeSet<Entry<String, Number>> tSet = new TreeSet<Entry<String,Number>>(new Comparator<Entry<String,Number>>() {
           @Override
-          public int compare(Entry<String, Integer> o1, Entry<String, Integer> o2)
+          public int compare(Entry<String, Number> o1, Entry<String, Number> o2)
           {
-            return o1.getValue() - o2.getValue() == 0 ? -1 : o1.getValue() - o2.getValue();
+            return (int) (o1.getValue().doubleValue() - o2.getValue().doubleValue() == 0 ? -1 : o1.getValue().doubleValue() - o2.getValue().doubleValue());
           }
         });
         
         tSet.addAll(topNKeyValues.entrySet());
-        HashMap<String, Integer> topNResult = new HashMap<String, Integer>();
+        HashMap<String, Number> topNResult = new HashMap<String, Number>();
         int j = 0;
-        for (Entry<String, Integer> entry : tSet) {
+        for (Entry<String, Number> entry : tSet) {
           if(j++ ==10){
             break;
           }
           topNResult.put(entry.getKey(), entry.getValue());
         }
         
-        
-        top10Output.emit(Lists.newArrayList(topNResult));
+        top10Output.emit(WidgetSchemaUtil.createTopNData(topNResult));
         percentageOutput.emit(rand.nextInt(100));
-        simpleOutput.emit(Lists.newArrayList(WidgetSchemaUtil.createTimeSeriesData(time, value1)));
-        simpleOutput2.emit(Lists.newArrayList(WidgetSchemaUtil.createTimeSeriesData(time, value2)));
+        simpleOutput.emit(new HashMap[]{WidgetSchemaUtil.createTimeSeriesData(time, value1)});
+        simpleOutput2.emit(new HashMap[]{WidgetSchemaUtil.createTimeSeriesData(time, value2)});
     }
 
     @Override

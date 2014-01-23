@@ -17,6 +17,7 @@
 package com.datatorrent.demos.visualdata;
 
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import com.google.common.collect.Maps;
 
@@ -50,6 +51,20 @@ public class WidgetSchemaUtil
     timeseriesMap.put("timestamp", timestamp);
     timeseriesMap.put("value", value);
     return timeseriesMap;
+  }
+
+  public static HashMap<String, Object>[] createTopNData(HashMap<String, Number> topNMap)
+  {
+    
+    @SuppressWarnings("unchecked")
+    HashMap<String, Object>[] result = new HashMap[topNMap.size()];
+    int j = 0;
+    for (Entry<String, Number> e : topNMap.entrySet()) {
+      result[j] = new HashMap<String, Object>();
+      result[j].put("name", e.getKey());
+      result[j++].put("value", e.getValue());
+    }
+    return result;
   }
 
 }
