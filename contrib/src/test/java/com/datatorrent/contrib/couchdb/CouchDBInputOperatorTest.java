@@ -17,9 +17,13 @@ package com.datatorrent.contrib.couchdb;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+
 import com.google.common.collect.Maps;
+
 import junit.framework.Assert;
 import org.ektorp.ViewQuery;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +42,7 @@ public class CouchDBInputOperatorTest
     @Override
     public ViewQuery getViewQuery()
     {
-      return CouchDBTestHelper.get().createAndFetchViewQuery();
+      return CouchDBTestHelper.createAndFetchViewQuery();
     }
   }
 
@@ -51,12 +55,15 @@ public class CouchDBInputOperatorTest
     mapTuple.put("_id", testDocumentId);
     mapTuple.put("name", "TD1");
     mapTuple.put("type", "test");
-    CouchDBTestHelper.get().insertDocument(mapTuple);
+    CouchDBTestHelper.insertDocument(mapTuple);
 
     TestMapBasedCouchInputOperatorTest operatorTest = new TestMapBasedCouchInputOperatorTest();
+    CouchDbStore store = new CouchDbStore();
+    store.setDbName(CouchDBTestHelper.TEST_DB);
+    operatorTest.setStore(store);
+
     CollectorTestSink sink = new CollectorTestSink();
     operatorTest.outputPort.setSink(sink);
-    operatorTest.setDatabase(CouchDBTestHelper.get().getDatabase());
     operatorTest.setup(new OperatorContextTestHelper.TestIdOperatorContext(2));
 
     operatorTest.beginWindow(0);
@@ -75,5 +82,17 @@ public class CouchDBInputOperatorTest
       }
     }
     Assert.assertTrue("inserted tuple was found", found);
+  }
+
+  @BeforeClass
+  public static void setup()
+  {
+    CouchDBTestHelper.setup();
+  }
+
+  @AfterClass
+  public static void teardown()
+  {
+    CouchDBTestHelper.teardown();
   }
 }
