@@ -27,6 +27,7 @@ import com.datatorrent.flume.sink.Server.Client;
 import com.datatorrent.flume.sink.Server.Request;
 import com.datatorrent.flume.storage.Storage;
 import com.datatorrent.netlet.DefaultEventLoop;
+import com.datatorrent.netlet.NetletThrowable.NetletRuntimeException;
 
 /**
  * DTFlumeSink is a flume sink developed to ingest the data into DataTorrent DAG
@@ -228,6 +229,14 @@ public class DTFlumeSink extends AbstractSink implements Configurable
         }
         catch (Throwable th) {
           logger.error("Transaction Failed", th);
+          if (th instanceof NetletRuntimeException && client != null) {
+            try {
+              eventloop.disconnect(client);
+            }
+            finally {
+              client = null;
+            }
+          }
           t.rollback();
           return Status.BACKOFF;
         }
@@ -510,6 +519,10 @@ public class DTFlumeSink extends AbstractSink implements Configurable
       if (client.write(address)) {
         break;
       }
+    }
+
+    if (e == null) {
+      return;
     }
 
     while (client.isConnected()) {
