@@ -229,6 +229,10 @@ public class DTFlumeSink extends AbstractSink implements Configurable
         catch (Throwable th) {
           logger.error("Transaction Failed", th);
           t.rollback();
+          if (client != null) {
+            eventloop.disconnect(client);
+            client = null;
+          }
           return Status.BACKOFF;
         }
         finally {
