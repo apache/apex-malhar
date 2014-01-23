@@ -521,6 +521,10 @@ public class DTFlumeSink extends AbstractSink implements Configurable
       }
     }
 
+    if (e == null) {
+      return;
+    }
+
     while (client.isConnected()) {
       sleep();
       if (client.write(e)) {
