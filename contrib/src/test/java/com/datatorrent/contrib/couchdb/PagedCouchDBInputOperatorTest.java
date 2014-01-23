@@ -38,7 +38,7 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
  */
 public class PagedCouchDBInputOperatorTest
 {
-  private class TestPagedDBInputOperator extends AbstractPagedCouchDBInputOperator<Map<Object, Object>>
+  private class TestPagedDBInputOperator extends AbstractCouchDBInputOperator<Map<Object, Object>>
   {
     ObjectMapper mapper = new ObjectMapper();
 

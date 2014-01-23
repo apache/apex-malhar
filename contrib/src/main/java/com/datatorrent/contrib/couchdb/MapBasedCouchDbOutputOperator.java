@@ -18,7 +18,7 @@ package com.datatorrent.contrib.couchdb;
 import java.util.Map;
 
 /**
- * Implementation of {@link AbstractCouchDBOutputOperator} that saves a Map in the couch database<br></br>
+ * Implementation of {@link AbstractCouchDBOutputOperator} that saves a Map in the couch database.<br/>
  *
  * @since 0.3.5
  */

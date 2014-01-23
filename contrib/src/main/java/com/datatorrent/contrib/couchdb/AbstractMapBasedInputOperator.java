@@ -16,6 +16,7 @@
 package com.datatorrent.contrib.couchdb;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
@@ -23,15 +24,13 @@ import org.ektorp.ViewResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Maps;
-
 import com.datatorrent.api.annotation.ShipContainingJars;
 
 /**
- * <br>Couch-db input adaptor that emits a map.</br>
- * <br>This adaptor coverts the result of a database view to a map and emits it.</br>
- * <br>It uses the emitTuples implementation of {@link AbstractCouchDBInputOperator} which emits the complete result
- * of the ViewQuery every window cycle. </br>
+ * Couch-db input adaptor that emits a map.<br/>
+ * This adaptor coverts the result of a database view to a map and emits it.<br/>
+ * It uses the emitTuples implementation of {@link AbstractCouchDBInputOperator} which emits the complete result
+ * of the ViewQuery every window cycle.
  *
  * @since 0.3.5
  */
@@ -49,10 +48,6 @@ public abstract class AbstractMapBasedInputOperator extends AbstractCouchDBInput
   @SuppressWarnings("unchecked")
   public Map<Object, Object> getTuple(ViewResult.Row value) throws IOException
   {
-    Map<Object, Object> valueMap = Maps.newHashMap();
-    return mapper.readValue(value.getValueAsNode(), valueMap.getClass());
-
+    return mapper.readValue(value.getValueAsNode(), HashMap.class);
   }
-
-  private static final Logger logger = LoggerFactory.getLogger(AbstractMapBasedInputOperator.class);
 }

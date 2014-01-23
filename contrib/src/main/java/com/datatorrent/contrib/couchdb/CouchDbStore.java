@@ -51,14 +51,10 @@ public class CouchDbStore implements Connectable
   private String dbName;
 
   private transient CouchDbConnector dbConnector;
-
-  public CouchDbStore()
-  {
-    super();
-  }
+  private transient StdCouchDbInstance couchInstance;
 
   /**
-   * Sets the datbase URL.
+   * Sets the database URL.
    *
    * @param dbUrl database url.
    */
@@ -98,10 +94,10 @@ public class CouchDbStore implements Connectable
   }
 
   /**
-   * Returns if a document identified by the doc id is present in the database or not.
+   * Returns if a document identified by the document id is present in the database or not.
    *
    * @param docId document id.
-   * @return true if doc is in the database; false otherwise.
+   * @return true if the document is in the database; false otherwise.
    */
   public boolean containsDocument(String docId)
   {
@@ -112,7 +108,7 @@ public class CouchDbStore implements Connectable
    * Inserts a document in the store.
    *
    * @param docId    document id.
-   * @param document doument in the form of JsonNode.
+   * @param document document in the form of JsonNode.
    */
   public void insertDocument(String docId, @Nonnull Object document)
   {
@@ -179,18 +175,20 @@ public class CouchDbStore implements Connectable
     }
 
     HttpClient httpClient = builder.build();
-    dbConnector = new StdCouchDbInstance(httpClient).createConnector(dbName, false);
+    couchInstance = new StdCouchDbInstance(httpClient);
+    dbConnector = couchInstance.createConnector(dbName, false);
   }
 
   @Override
   public void disconnect() throws IOException
   {
+    couchInstance.getConnection().shutdown();
     dbConnector = null;
   }
 
   @Override
   public boolean isConnected()
   {
-    return dbConnector != null;
+    return dbConnector == null;
   }
 }
