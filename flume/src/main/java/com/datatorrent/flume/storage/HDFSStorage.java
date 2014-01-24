@@ -390,8 +390,8 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       Server.writeLong(identifier, 0, calculateOffset(cleanFileOffset, cleanFileIndex));
     }
     try {
+      writeData(cleanFileOffsetFile, identifier).close();
       do {
-        writeData(cleanFileOffsetFile, identifier).close();
         Path path = new Path(basePath, String.valueOf(cleanedFileCounter));
         if (fs.exists(path) && fs.isFile(path)) {
           fs.delete(path, false);

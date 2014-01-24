@@ -239,12 +239,11 @@ public class HDFSStorageTest
   @Test
   public void testCleanForFlushedData() throws IOException
   {
-    byte[] address = null;
     byte[] b = new byte[200];
     storage.retrieve(new byte[8]);
     for (int i = 0; i < 5; i++) {
       storage.store(b);
-      address = storage.store(b);
+      storage.store(b);
       storage.flush();
       //storage.clean(address);
     }
