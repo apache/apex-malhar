@@ -466,6 +466,12 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   @Override
   public void flush()
   {
+    Iterator<DataBlock> itr = files2Commit.iterator();
+    while (itr.hasNext()) {
+      itr.next().close();
+    }
+    files2Commit.clear();
+    
     if (dataStream != null) {
       try {
         dataStream.hflush();
@@ -476,14 +482,9 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
         logger.warn("not able to close the stream {}", ex.getMessage());
         throw new RuntimeException(ex);
       }
-    }
-
-    Iterator<DataBlock> itr = files2Commit.iterator();
-    while (itr.hasNext()) {
-      itr.next().close();
-    }
+    }    
     flushedFileCounter = currentWrittenFile;
-    files2Commit.clear();
+   
   }
 
   /**
