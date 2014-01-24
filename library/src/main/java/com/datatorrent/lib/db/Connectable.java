@@ -13,23 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.couchdb;
+package com.datatorrent.lib.db;
 
-import java.util.Map;
+import java.io.IOException;
 
 /**
- * Implementation of {@link AbstractCouchDBOutputOperator} that saves a Map in the couch database.<br/>
+ * This interface is for any object that needs to be connected to do operations
  *
- * @since 0.3.5
+ * @since 0.9.3
  */
-public class MapBasedCouchDbOutputOperator extends AbstractCouchDBOutputOperator<Map<Object, Object>>
+public interface Connectable
 {
+  /**
+   * Connects to the service.
+   *
+   * @throws IOException
+   */
+  public void connect() throws IOException;
 
-  @Override
-  public String getDocumentId(Map<Object, Object> tuple)
-  {
-    return (String) tuple.get("_id");
-  }
+  /**
+   * Disconnects from the service.
+   *
+   * @throws IOException
+   */
+  public void disconnect() throws IOException;
 
+  /**
+   * Returns whether the service is connected.
+   * 
+   * @return
+   */
+  public boolean isConnected();
 }
-
