@@ -104,7 +104,7 @@ public class SimpleSinglePortInputOperator<T> extends BaseOperator implements In
     }
 
     @Override
-    public synchronized void emit(T tuple)
+    public void emit(T tuple)
     {
       try {
         tuples.put(tuple);
@@ -114,7 +114,7 @@ public class SimpleSinglePortInputOperator<T> extends BaseOperator implements In
       }
     }
 
-    public synchronized void flush(int count)
+    public void flush(int count)
     {
       Iterator<T> iterator = tuples.iterator();
       while (count-- > 0 && iterator.hasNext()) {
