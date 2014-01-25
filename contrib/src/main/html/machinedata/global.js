@@ -156,7 +156,6 @@ function DataUrl()
 /**
  * Creates data table with time stamp and cpu values.
  * Draw line chart for time vs cpu.
- * @author Dinesh Prasad (dinesh@datatorrent.com).
  */
 function DrawCPUChart()
 {
@@ -188,7 +187,6 @@ function DrawCPUChart()
 /**
  * Creates data table with time stamp and revenu values.
  * Draw line chart for time vs ram.
- * @author Dinesh Prasad (dinesh@datatorrent.com).
  */
 function DrawRAMChart()
 {
@@ -219,7 +217,6 @@ function DrawRAMChart()
 /**
  * Creates data table with time stamp and hdd values.
  * Draw line chart for time vs hdd.
- * @author Dinesh Prasad (dinesh@datatorrent.com).
  */
 function DrawHDDChart()
 {
