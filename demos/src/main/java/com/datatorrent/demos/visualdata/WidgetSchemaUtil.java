@@ -28,22 +28,22 @@ public class WidgetSchemaUtil
 {
   
   public static String getSimpleSchema(){
-    return "{type:'simple'}";
+    return "{\"type\":\"simple\"}";
   }
   
   public static String getTimeseriesSchema(int min, int max)
   {
-    return "{type:'timeseries',minValue:" + min + ",maxValue:" + max + "}";
+    return "{\"type\":\"timeseries\",\"minValue\":" + min + ",\"maxValue\":" + max + "}";
   }
 
   public static String getPercentageSchema()
   {
-    return "{type:'percentage'}";
+    return "{\"type\":\"percentage\"}";
   }
 
   public static String getTopNSchema(int n)
   {
-    return "{type:'topN',n:" + n + "}";
+    return "{\"type\":\"topN\",\"n\":" + n + "}";
   }
   
   public static HashMap<String, Number> createTimeSeriesData(long timestamp, Number value){
