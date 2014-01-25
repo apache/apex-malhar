@@ -23,6 +23,10 @@
 
   <properties> 
     <dt.framework.version>0.9.3-SNAPSHOT</dt.framework.version>
+    <!-- the following properties match the properties defined in core/pom.xml -->
+    <jackson.version>1.9.2</jackson.version>
+    <jersey.version>1.9</jersey.version>
+    <jetty.version>8.1.10.v20130312</jetty.version>
   </properties>
 
   <modules>

@@ -15,13 +15,17 @@
  */
 package com.datatorrent.contrib.couchdb;
 
+import java.util.Map;
+
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
+import org.ektorp.CouchDbConnector;
+import org.ektorp.DbPath;
 import org.ektorp.ViewQuery;
-
-import javax.annotation.Nullable;
-import java.util.Map;
+import org.ektorp.http.HttpClient;
+import org.ektorp.http.StdHttpClient;
+import org.ektorp.impl.StdCouchDbInstance;
 
 /**
  * <br>A helper class that setups the couch db for testing</br>
@@ -30,93 +34,60 @@ import java.util.Map;
  */
 public class CouchDBTestHelper
 {
-  private static CouchDBTestHelper helper;
-  private static final String TEST_DB = "CouchDbTest";
+  public static final String TEST_DB = "CouchDbTest";
   private static final String DESIGN_DOC_ID = "_design/CouchDbTest";
   private static final String TEST_VIEW = "testView";
+  private static CouchDbConnector connector;
+  private static final ObjectMapper mapper = new ObjectMapper();
 
-  @Nullable
-  private final String dbUrl;
-  @Nullable
-  private final String dbUserName;
-  @Nullable
-  private final String dbPassword;
 
-  private final CouchDBLink dbLink;
-
-  private final ObjectMapper mapper;
-
-  public static synchronized CouchDBTestHelper get()
+  public static ViewQuery createAndFetchViewQuery()
   {
-    if (helper == null)
-      helper = new CouchDBTestHelper();
-    return helper;
-  }
-
-  private CouchDBTestHelper()
-  {
-    dbUrl = null;
-    dbUserName = null;
-    dbPassword = null;
-    dbLink = new CouchDBLink(dbUrl, dbUserName, dbPassword, TEST_DB);
-    mapper = new ObjectMapper();
-  }
-
-  public String getDbUrl()
-  {
-    return dbUrl;
-  }
-
-  public String getDbUserName()
-  {
-    return dbUserName;
-  }
-
-  public String getDbPassword()
-  {
-    return dbPassword;
-  }
-
-  public String getDatabase()
-  {
-    return TEST_DB;
-  }
-
-  public CouchDBLink getDbLink()
-  {
-    return dbLink;
-  }
-
-  public ViewQuery createAndFetchViewQuery()
-  {
-    if (!dbLink.getConnector().contains(DESIGN_DOC_ID)) {
+    if (!connector.contains(DESIGN_DOC_ID)) {
       //The design document doesn't exist in the database so we create it.
       JsonNode rootNode = mapper.createObjectNode();
       ((ObjectNode) rootNode).put("language", "javascript");
       ((ObjectNode) rootNode).putObject("views").putObject(TEST_VIEW).put("map", "function(doc) {\n  emit(doc._id, doc);\n}");
-      dbLink.getConnector().create(DESIGN_DOC_ID, rootNode);
+      connector.create(DESIGN_DOC_ID, rootNode);
     }
     return new ViewQuery().designDocId(DESIGN_DOC_ID).viewName(TEST_VIEW);
   }
 
-  public void insertDocument(Map<String,String> dbTuple)
+  public static void insertDocument(Map<String, String> dbTuple)
   {
-    String docId = dbTuple.get("_id");
-    if (docId != null && dbLink.getConnector().contains(docId)) {
-      JsonNode docNode = dbLink.getConnector().get(JsonNode.class, docId);
-      if (docNode != null && dbTuple.get("_rev") == null)
-        dbTuple.put("_rev",docNode.get("_rev").getTextValue());
+    connector.create(dbTuple);
+  }
+
+  public static JsonNode fetchDocument(String docId)
+  {
+    return connector.get(JsonNode.class, docId);
+  }
+
+  public static int getTotalDocuments()
+  {
+    return connector.queryView(createAndFetchViewQuery()).getTotalRows();
+  }
+
+  static void setup()
+  {
+    StdHttpClient.Builder builder = new StdHttpClient.Builder();
+    HttpClient httpClient = builder.build();
+    StdCouchDbInstance instance = new StdCouchDbInstance(httpClient);
+    DbPath dbPath = new DbPath(TEST_DB);
+    if (instance.checkIfDbExists((dbPath))) {
+      instance.deleteDatabase(dbPath.getPath());
     }
-    dbLink.getConnector().update(dbTuple);
+    connector = instance.createConnector(TEST_DB, true);
   }
 
-  public JsonNode fetchDocument(String docId)
+  static void teardown()
   {
-    return dbLink.getConnector().get(JsonNode.class, docId);
+    StdHttpClient.Builder builder = new StdHttpClient.Builder();
+    HttpClient httpClient = builder.build();
+    StdCouchDbInstance instance = new StdCouchDbInstance(httpClient);
+    DbPath dbPath = new DbPath(TEST_DB);
+    if (instance.checkIfDbExists((dbPath))) {
+      instance.deleteDatabase(dbPath.getPath());
+    }
   }
-
-  public int getTotalDocuments() {
-    return dbLink.getConnector().queryView(createAndFetchViewQuery()).getTotalRows();
-  }
-
 }

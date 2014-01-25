@@ -34,7 +34,12 @@ public class PubSubWebSocketInputOperator extends WebSocketInputOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(PubSubWebSocketInputOperator.class);
   private HashSet<String> topics = new HashSet<String>();
-  private transient PubSubMessageCodec<Object> codec = new PubSubMessageCodec<Object>(mapper);
+  private transient PubSubMessageCodec<Object> codec;
+
+  public PubSubWebSocketInputOperator()
+  {
+    this.codec = new PubSubMessageCodec<Object>(mapper);
+  }
 
   public void addTopic(String topic)
   {

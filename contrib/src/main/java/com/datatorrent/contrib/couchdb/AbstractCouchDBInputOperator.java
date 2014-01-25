@@ -15,100 +15,120 @@
  */
 package com.datatorrent.contrib.couchdb;
 
-import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.Context;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.annotation.ShipContainingJars;
-import com.google.common.base.Preconditions;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.datatorrent.lib.db.AbstractStoreInputOperator;
+import com.google.common.base.Throwables;
 import org.ektorp.ViewQuery;
 import org.ektorp.ViewResult;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.Min;
+import java.io.IOException;
+import java.util.List;
 
 /**
- * <br>Base class for CouchDb intput adaptor.</br>
- * <br>CouchDb filters documents in the database using stored views. Views are refered as design documents.
- * This operator queries the view and emits the view result.</br>
- * <p/>
- * <br>Subclasses  of this operator provide the ViewQuery which corresponds to a database view.</br>
- * <br>In this base implementaion, if the ViewQuery doesn't change, then the same view results are emitted
- * at the end of every streaming window.</br>
+ * Base class for CouchDb input adaptor.<br/>
+ * <p>
+ * CouchDb filters documents in the database using stored views. Views are referred as design documents.
+ * This operator queries the view and emits the view result.
+ * </p>
+ *
+ * <p>
+ * Subclasses  of this operator provide the ViewQuery which corresponds to a database view.<br/>
+ * In this base implementation, if the ViewQuery doesn't change, then the same view results are emitted
+ * at the end of every streaming window.
+ * </p>
+ *
+ * <p>
+ * The operator can emit paged results as well. The page size is configured using {@link #pageSize}.<br/>
+ * The operator assumes that the ViewQuery implementation by sub-classes does not depend on data outside the document
+ * (like the current date) because that will break the caching of a view's result in CouchDb.
+ * Also the {@link #getViewQuery()} method should return the same view stored in CouchDb every time.<br/>
+ * </p>
  *
  * @param <T>Type of tuples which are generated</T>
  * @since 0.3.5
  */
-@ShipContainingJars(classes = {ObjectMapper.class, ViewQuery.class, ViewResult.class})
-public abstract class AbstractCouchDBInputOperator<T> extends BaseOperator implements CouchDbOperator, InputOperator
+@ShipContainingJars(classes = {ViewQuery.class})
+public abstract class AbstractCouchDBInputOperator<T> extends AbstractStoreInputOperator<T, CouchDbStore>
 {
 
-  private String url;
-  @Nonnull
-  private String dbName;
-  private String userName;
-  private String password;
+  @Min(0)
+  private int pageSize;
 
-  protected transient CouchDBLink dbLink;
-  protected transient ObjectMapper mapper;
-
-  @OutputPortFieldAnnotation(name = "outputPort")
-  public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
+  private String nextPageKey = null;
+  private boolean started = false;
 
   @Override
   public void emitTuples()
   {
-    ViewQuery viewQuery = getViewQuery();
-    ViewResult result = dbLink.getConnector().queryView(viewQuery);
-    for (ViewResult.Row row : result.getRows()) {
-      T tuple = getTuple(row);
-      outputPort.emit(tuple);
+    if (pageSize == 0) {
+      ViewQuery viewQuery = getViewQuery();
+      ViewResult result = store.queryStore(viewQuery);
+      try {
+        for (ViewResult.Row row : result.getRows()) {
+          T tuple = getTuple(row);
+          outputPort.emit(tuple);
+        }
+      }
+      catch (Throwable cause) {
+        Throwables.propagate(cause);
+      }
     }
-  }
+    else {
+      if (!started || nextPageKey != null) {
+        started = true;
+        ViewQuery query = getViewQuery().limit(pageSize + 1);
 
-  @Override
-  public void setUrl(String url)
-  {
-    this.url = url;
-  }
-
-  @Override
-  public void setDatabase(String dbName)
-  {
-    this.dbName = Preconditions.checkNotNull(dbName, "database");
-  }
-
-  @Override
-  public void setUserName(String userName)
-  {
-    this.userName = userName;
-  }
-
-  @Override
-  public void setPassword(String password)
-  {
-    this.password = password;
-  }
-
-  @Override
-  public void setup(Context.OperatorContext context)
-  {
-    this.dbLink = new CouchDBLink(url, userName, password, dbName);
-    this.mapper = new ObjectMapper();
+        if (nextPageKey != null) {
+          query.startKey(nextPageKey);
+        }
+        ViewResult result = store.queryStore(query);
+        List<ViewResult.Row> rows = result.getRows();
+        List<ViewResult.Row> rowsToEmit = rows;
+        if (rows.size() > pageSize) {
+          //More pages to fetch. We don't emit the last row as it is a link to next page.
+          nextPageKey = rows.get(rows.size() - 1).getKey();
+          rowsToEmit = rows.subList(0, rows.size() - 1);
+        }
+        else {
+          //No next page so emit all the rows.
+          nextPageKey = null;
+        }
+        try {
+          for (ViewResult.Row row : rowsToEmit) {
+            T tuple = getTuple(row);
+            outputPort.emit(tuple);
+          }
+        }
+        catch (Throwable cause) {
+          Throwables.propagate(cause);
+        }
+      }
+    }
   }
 
   /**
    * @return view-query that specifies the couch-db view whose results will be fetched.
    */
+
   public abstract ViewQuery getViewQuery();
 
   /**
-   * This operator fetches result of a view in {@link ViewResult}. Sub-classes should provie the
-   * implementaion to convert a row of ViewResult to emitted tuple type.
+   * This operator fetches result of a view in {@link ViewResult}. Sub-classes should provide the
+   * implementation to convert a row of ViewResult to emitted tuple type.
    *
    * @param value a row of ViewResult that should be converted to a tuple.
-   * @return emmitted tuple.
+   * @return emitted tuple.
    */
-  public abstract T getTuple(ViewResult.Row value);
+  public abstract T getTuple(ViewResult.Row value) throws IOException;
+
+  /**
+   * Sets the no. of rows in a page.
+   *
+   * @param pageSize size of a page
+   */
+  public void setPageSize(int pageSize)
+  {
+    this.pageSize = pageSize;
+  }
 }
