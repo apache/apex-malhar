@@ -193,15 +193,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
             byte[] address = storage.store(e.getBody());
             if (address != null) {
               while (!client.write(address, e.getBody())) {
-                try {
-                  retryWrite(address, e.getBody());
-                }
-                catch (IOException io) {
-                  eventloop.disconnect(client);
-                  client = null;
-                  outstandingEventsCount = 0;
-                  throw io;
-                }
+                retryWrite(address, e.getBody());
               }
 
               writtenTuples++;
@@ -235,6 +227,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
             }
             finally {
               client = null;
+              outstandingEventsCount = 0;
             }
           }
           t.rollback();
