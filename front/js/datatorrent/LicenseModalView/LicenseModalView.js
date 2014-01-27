@@ -13,8 +13,11 @@ var LicenseModalView = BaseView.extend({
 
 	initialize: function() {
 		this.model = new LicenseModel({});
+		this.collection = this.model.get('licenseAgents');
 		this.model.fetch();
+		this.collection.fetch();
 		this.listenTo(this.model, 'sync', this.renderBody);
+		this.listenTo(this.collection, 'sync', this.renderBody);
 	},
 
 	body: function() {

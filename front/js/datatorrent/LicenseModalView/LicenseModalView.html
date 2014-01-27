@@ -1,33 +1,31 @@
-<% if (license !== false) {  %>
+<% if (licenseAgents.length && typeof id !== 'undefined') {  %>
+	<h4>General Information</h4>
 	<p>
-		<strong>license ID:</strong><br><input type="text" value="<%= license.id %>" readonly class="input-xlarge">
+		<strong>license ID:</strong><br><input type="text" value="<%= id %>" readonly class="input-xlarge">
 	</p>
-
-	<% if (license.sublicenses.length > 1) { %>
-	<h4>Sublicenses</h4>
-	<% } %>
-	<% _.each( license.sublicenses, function(sub) { %>
-	<p>
-		<strong>start date:</strong> <%= sub.startDate %><br>
-		<strong>end date:</strong> <%= sub.endDate %><br>
-		<strong>constraint:</strong> <%= sub.constraint %><br>
-	</p>
-	<% }) %>
 
 	<% if (licenseAgents.length > 1) { %>
-		<h4>License Agents</h4>
-	<% } else if (licenseAgents.length === 1) { %>
-		<h4>License Agent</h4>
+	<h4>License Agents</h4>
 	<% } %>
 	<% _.each( licenseAgents, function(agent) { %>
-	<p>
-		<strong>user:</strong> <%= agent.user %><br>
-		<strong>started time:</strong> <%= new Date(agent.startedTime * 1).toLocaleString() %><br>
-		<strong>license ID:</strong> <%= agent.id %><br>
-	<% if (typeof agent.remainingLicensedMB !== 'undefined') { %>
-		<strong>remaining licensed memory:</strong> <%= DT.formatters.byteFormatter(agent.remainingLicensedMB * 1024) %><br>
-	<% } %>
-	</p>
+	<p class="license-agent-info-block">
+		<strong>ID:</strong> <input type="text" value="<%= agent.id %>" readonly class="input-xlarge"><br>
+        <!-- <strong>appId:</strong> <%= agent.appId %><br> -->
+        <strong>started at:</strong> <%= (new Date(agent.startedTime * 1)).toLocaleString() %><br>
+        <strong>user:</strong> <%= agent.user %><br>
+        <strong>remaining memory:</strong> <%= DT.formatters.byteFormatter(agent.remainingLicensedMB, 'mb') %><br>
+        <strong>total memory:</strong> <%= DT.formatters.byteFormatter(agent.totalLicensedMB, 'mb') %><br>
+        <span class="license-agent-mem-usage progress <% 
+        	if (agent.percentUsedLicenseMB > 90) { 
+        		print('progress-danger') 
+        	} else if (agent.percentUsedLicenseMB > 75) {
+        		print('progress-warning')
+        	} %>">
+        	<span class="bar" style="width:<%= Math.max(agent.percentUsedLicenseMB, 2) %>%"></span>
+        </span>
+        <span class="license-agent-usage-label"><%= agent.percentUsedLicenseMB %>% used</span>
+
+    </p>
 	<% }) %>
 
 <% } else { %>
