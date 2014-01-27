@@ -15,16 +15,13 @@
  */
 package com.datatorrent.contrib.couchdb;
 
+import com.datatorrent.api.annotation.ShipContainingJars;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.ektorp.ViewResult;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.codehaus.jackson.map.ObjectMapper;
-import org.ektorp.ViewResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.datatorrent.api.annotation.ShipContainingJars;
 
 /**
  * Couch-db input adaptor that emits a map.<br/>
