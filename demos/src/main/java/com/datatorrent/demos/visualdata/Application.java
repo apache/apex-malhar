@@ -25,7 +25,7 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.demos.pi.PiCalculateOperator;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
+import com.datatorrent.lib.io.WidgetOutputOperator;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
 
 /**
@@ -38,7 +38,7 @@ public class Application implements StreamingApplication {
     public void populateDAG(DAG dag, Configuration conf) {
         dag.setAttribute(DAG.APPLICATION_NAME, "VisualDataDemo");
         int maxValue = 30000;
-
+        
         RandomEventGenerator rand = dag.addOperator("random", new RandomEventGenerator());
         rand.setMinvalue(0);
         rand.setMaxvalue(maxValue);
@@ -53,37 +53,31 @@ public class Application implements StreamingApplication {
 
         String gatewayAddress = dag.getValue(DAG.GATEWAY_ADDRESS);
         if (!StringUtils.isEmpty(gatewayAddress)) {
+          // setup the output operator
             URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
-
-            PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator("wsOut",
-                    new PubSubWebSocketOutputOperator<Object>());
-            wsOut.setUri(uri);
-            wsOut.setTopic("app.visualdata.piValue_" + WidgetSchemaUtil.getSimpleSchema());
-            dag.addStream("ws_pi_data", calc.output, wsOut.input);
-
-            PubSubWebSocketOutputOperator<Object> wsChartOut = dag.addOperator("wsChartOut",
-                    new PubSubWebSocketOutputOperator<Object>());
-            wsChartOut.setUri(uri);
-            wsChartOut.setTopic("app.visualdata.chartValue_" + WidgetSchemaUtil.getTimeseriesSchema(0, 100));
-            dag.addStream("ws_chart_data", demo.simpleOutput, wsChartOut.input);
-
-            PubSubWebSocketOutputOperator<Object> wsChartOut2 = dag.addOperator("wsChartOut2",
-                    new PubSubWebSocketOutputOperator<Object>());
-            wsChartOut2.setUri(uri);
-            wsChartOut2.setTopic("app.visualdata.chartValue2_" + WidgetSchemaUtil.getTimeseriesSchema(0, 100));
-            dag.addStream("ws_chart_data2", demo.simpleOutput2, wsChartOut2.input);
+            WidgetOutputOperator woo = new WidgetOutputOperator();
+            woo.setUri(uri);
+            WidgetOutputOperator wooa = new WidgetOutputOperator();
+            wooa.setUri(uri);
             
-            PubSubWebSocketOutputOperator<Object> wsPercentage = dag.addOperator("wsPercentage",
-                new PubSubWebSocketOutputOperator<Object>());
-            wsPercentage.setUri(uri);
-            wsPercentage.setTopic("app.visualdata.percentage_" + WidgetSchemaUtil.getPercentageSchema());
-            dag.addStream("ws_percentage_data", demo.percentageOutput, wsPercentage.input);
+            // wire to simple input gadget
+            dag.addStream("ws_pi_data", calc.output, woo.simpleInput.setTopic("app.visualdata.piValue"));
+
+            // wire to time series chart gadget
+            dag.addStream("ws_chart_data", demo.simpleOutput, woo.timeSeriesInput.setTopic("app.visualdata.chartValue").setMin(0).setMax(100));
+
+            // wire to another time series chart gadget
+            dag.addStream("ws_chart_data2", demo.simpleOutput2, wooa.timeSeriesInput.setTopic("app.visualdata.chartValue2"));
             
-            PubSubWebSocketOutputOperator<Object> wsTop10 = dag.addOperator("wsTopN",
-                new PubSubWebSocketOutputOperator<Object>());
-            wsTop10.setUri(uri);
-            wsTop10.setTopic("app.visualdata.topn_" + WidgetSchemaUtil.getTopNSchema(10));
-            dag.addStream("ws_topn_data", demo.top10Output, wsTop10.input);
+            // wire to percentage chart gadget
+            dag.addStream("ws_percentage_data", demo.percentageOutput,  woo.percentageInput.setTopic("app.visualdata.percentage"));
+            
+            // wire to top N chart gadget
+            dag.addStream("ws_topn_data", demo.top10Output, woo.topNInput.setN(10).setTopic("app.visualdata.topn"));
+            
+            // wire to progress chart gadget
+            dag.addStream("ws_progress_data", demo.progressOutput,  woo.percentageInput.setTopic("app.visualdata.progress"));
+            
             
         } else {
             ConsoleOutputOperator console = dag.addOperator("console_out", new ConsoleOutputOperator());

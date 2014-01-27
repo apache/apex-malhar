@@ -27,6 +27,7 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.common.util.Pair;
 
 /**
  * Chart value generator.
@@ -40,6 +41,8 @@ public class DemoValueGenerator extends BaseOperator implements InputOperator {
     
     private final static transient Random rand = new Random();
     
+    private int progress = 0;
+    
     private transient Map<String, Number> topNKeyValues = new HashMap<String, Number>();
     
     {
@@ -49,16 +52,19 @@ public class DemoValueGenerator extends BaseOperator implements InputOperator {
     }
 
     @OutputPortFieldAnnotation(name="simple output", optional=false)
-    public final transient DefaultOutputPort<HashMap<String, Number>[]> simpleOutput = new DefaultOutputPort<HashMap<String, Number>[]>();
+    public final transient DefaultOutputPort<Pair<Long, Number>> simpleOutput = new DefaultOutputPort<Pair<Long, Number>> ();
     
     @OutputPortFieldAnnotation(name="simple output2", optional=false)
-    public final transient DefaultOutputPort<HashMap<String, Number>[]> simpleOutput2 = new DefaultOutputPort<HashMap<String, Number>[]>();
+    public final transient DefaultOutputPort<Pair<Long, Number>> simpleOutput2 = new DefaultOutputPort<Pair<Long, Number>>();
     
     @OutputPortFieldAnnotation(name="top 10 output", optional=false)
-    public final transient DefaultOutputPort<HashMap<String, Object>[]> top10Output = new DefaultOutputPort<HashMap<String, Object>[]>();
+    public final transient DefaultOutputPort<HashMap<String, Number> > top10Output = new DefaultOutputPort<HashMap<String, Number>>();
     
     @OutputPortFieldAnnotation(name="percentage output", optional=false)
     public final transient DefaultOutputPort<Integer> percentageOutput = new DefaultOutputPort<Integer>();
+    
+    @OutputPortFieldAnnotation(name="progress output", optional=false)
+    public final transient DefaultOutputPort<Integer> progressOutput = new DefaultOutputPort<Integer>();
 
     public DemoValueGenerator() {
     }
@@ -67,7 +73,6 @@ public class DemoValueGenerator extends BaseOperator implements InputOperator {
     public void beginWindow(long windowId) {
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void endWindow() {
         value1 = nextValue(value1, randomIncrement);
@@ -96,10 +101,12 @@ public class DemoValueGenerator extends BaseOperator implements InputOperator {
           topNResult.put(entry.getKey(), entry.getValue());
         }
         
-        top10Output.emit(WidgetSchemaUtil.createTopNData(topNResult));
+        top10Output.emit(topNResult);
         percentageOutput.emit(rand.nextInt(100));
-        simpleOutput.emit(new HashMap[]{WidgetSchemaUtil.createTimeSeriesData(time, value1)});
-        simpleOutput2.emit(new HashMap[]{WidgetSchemaUtil.createTimeSeriesData(time, value2)});
+        progress = (progress + rand.nextInt(5))%100;
+        progressOutput.emit(progress);
+        simpleOutput.emit(new Pair<Long, Number>(time, value1));
+        simpleOutput2.emit(new Pair<Long, Number>(time, value2));
     }
 
     @Override
