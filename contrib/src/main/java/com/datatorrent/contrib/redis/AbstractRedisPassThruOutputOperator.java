@@ -13,23 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.couchdb;
+package com.datatorrent.contrib.redis;
 
-import java.util.Map;
+import com.datatorrent.api.annotation.ShipContainingJars;
+import com.datatorrent.lib.db.AbstractPassThruTransactionableKeyValueStoreOutputOperator;
+import redis.clients.jedis.Jedis;
 
 /**
- * Implementation of {@link AbstractCouchDBOutputOperator} that saves a Map in the couch database.<br/>
- *
- * @since 0.3.5
+ * This abstract class provides the base class for any pass-through redis output adapter.
+ * 
+ * @param <T> The tuple type.
+ * @since 0.9.3
  */
-public class MapBasedCouchDbOutputOperator extends AbstractCouchDBOutputOperator<Map<Object, Object>>
+@ShipContainingJars(classes = {Jedis.class})
+public abstract class AbstractRedisPassThruOutputOperator<T>
+        extends AbstractPassThruTransactionableKeyValueStoreOutputOperator<T, RedisStore>
 {
-
-  @Override
-  public String getDocumentId(Map<Object, Object> tuple)
+  public AbstractRedisPassThruOutputOperator()
   {
-    return (String) tuple.get("_id");
+    store = new RedisStore();
   }
 
 }
-

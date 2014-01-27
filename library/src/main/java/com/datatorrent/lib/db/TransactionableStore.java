@@ -13,23 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.couchdb;
-
-import java.util.Map;
+package com.datatorrent.lib.db;
 
 /**
- * Implementation of {@link AbstractCouchDBOutputOperator} that saves a Map in the couch database.<br/>
+ * This interface is for a store that supports transactions
  *
- * @since 0.3.5
+ * @since 0.9.3
  */
-public class MapBasedCouchDbOutputOperator extends AbstractCouchDBOutputOperator<Map<Object, Object>>
+public interface TransactionableStore extends Connectable, Transactionable
 {
+    /**
+   * Gets the committed window id from a persistent store.
+   *
+   * @param appId
+   * @param operatorId
+   * @return the committed window id
+   */
+  public long getCommittedWindowId(String appId, int operatorId);
 
-  @Override
-  public String getDocumentId(Map<Object, Object> tuple)
-  {
-    return (String) tuple.get("_id");
-  }
-
+  /**
+   * Stores the committed window id to a persistent store.
+   *
+   * @param appId
+   * @param operatorId
+   * @param windowId
+   */
+  public void storeCommittedWindowId(String appId, int operatorId, long windowId);
 }
-

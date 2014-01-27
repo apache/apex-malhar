@@ -25,7 +25,11 @@ import java.util.concurrent.Exchanger;
 import java.util.concurrent.TimeUnit;
 
 import junit.framework.Assert;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 
@@ -39,14 +43,13 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
  */
 public class JDBCLookupCacheBackedOperatorTest
 {
+  private static final String INMEM_DB_URL = "jdbc:hsqldb:mem:test;sql.syntax_mys=true";
+  private static final String INMEM_DB_DRIVER = "org.hsqldb.jdbcDriver";
+  protected static final String TABLE_NAME = "Test_Lookup_Cache";
 
-  private static final String URL = "jdbc:mysql://localhost/test?user=test&password=";
-  private static final String DB_NAME = "test";
-  private static final String TABLE_NAME = "Test_Lookup_Cache";
-  private static final String DB_DRIVER = "com.mysql.jdbc.Driver";
-
-  private static final Map<Integer, String> mapping = Maps.newHashMap();
-
+  protected static TestJDBCLookupCacheBackedOperator lookupCacheBaceOpertor = new TestJDBCLookupCacheBackedOperator();
+  protected static CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
+  protected static final Map<Integer, String> mapping = Maps.newHashMap();
   static {
     mapping.put(1, "one");
     mapping.put(2, "two");
@@ -55,9 +58,11 @@ public class JDBCLookupCacheBackedOperatorTest
     mapping.put(5, "five");
   }
 
+  protected static transient final Logger logger = LoggerFactory.getLogger(JDBCLookupCacheBackedOperatorTest.class);
+
   private final static Exchanger<Map<Object, Object>> bulkValuesExchanger = new Exchanger<Map<Object, Object>>();
 
-  public class TestJDBCLookupCacheBackedOperator extends JDBCLookupCacheBackedOperator<String>
+  public static class TestJDBCLookupCacheBackedOperator extends JDBCLookupCacheBackedOperator<String>
   {
 
     @Override
@@ -69,7 +74,7 @@ public class JDBCLookupCacheBackedOperatorTest
     @Override
     public Object fetchValueFromDatabase(Object key)
     {
-      String query = "select col2 from " + DB_NAME + "." + TABLE_NAME + " where col1 = " + key;
+      String query = "select col2 from " + TABLE_NAME + " where col1 = " + key;
       Statement stmt;
       try {
         stmt = jdbcConnector.connection.createStatement();
@@ -95,7 +100,7 @@ public class JDBCLookupCacheBackedOperatorTest
       }
       builder.deleteCharAt(builder.length() - 1);
       builder.append(")");
-      String query = "select col1, col2 from " + DB_NAME + "." + TABLE_NAME + " where col1 in " + builder.toString();
+      String query = "select col1, col2 from " + TABLE_NAME + " where col1 in " + builder.toString();
 
       try {
         Statement statement = jdbcConnector.connection.createStatement();
@@ -124,35 +129,13 @@ public class JDBCLookupCacheBackedOperatorTest
 
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void test() throws Exception
   {
-    JDBCOperatorTestHelper helper = new JDBCOperatorTestHelper();
-    helper.buildDataset();
-
-    TestJDBCLookupCacheBackedOperator oper = new TestJDBCLookupCacheBackedOperator();
-    oper.setDbUrl("jdbc:mysql://localhost/test?user=test&password=");
-    oper.setDbDriver("com.mysql.jdbc.Driver");
-
-    Calendar now = Calendar.getInstance(TimeZone.getTimeZone("PST"));
-    now.add(Calendar.SECOND, 15);
-
-    SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss z");
-    oper.setCacheRefreshTime(format.format(now.getTime()));
-
-    CollectorTestSink sink = new CollectorTestSink();
-    oper.output.setSink(sink);
-
-    setupDB();
-
-    Context.OperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(7);
-    oper.setup(context);
-    oper.activate(context);
-    oper.beginWindow(0);
-    oper.input.process("1");
-    oper.input.process("2");
-    oper.endWindow();
+    lookupCacheBaceOpertor.beginWindow(0);
+    lookupCacheBaceOpertor.input.process("1");
+    lookupCacheBaceOpertor.input.process("2");
+    lookupCacheBaceOpertor.endWindow();
 
     // Check values send vs received
     Assert.assertEquals("Number of emitted tuples", 2, sink.collectedTuples.size());
@@ -161,24 +144,19 @@ public class JDBCLookupCacheBackedOperatorTest
     Assert.assertEquals("bulk values retrieval", 2, bulk.size());
   }
 
-  private void setupDB() throws Exception
+  @BeforeClass
+  public static void setup() throws Exception
   {
     // This will load the JDBC driver, each DB has its own driver
-    Class.forName(DB_DRIVER).newInstance();
+    Class.forName(INMEM_DB_DRIVER).newInstance();
 
-    Connection con = DriverManager.getConnection(URL);
+    Connection con = DriverManager.getConnection(INMEM_DB_URL);
     Statement stmt = con.createStatement();
-
-    String createDB = "CREATE DATABASE IF NOT EXISTS " + DB_NAME;
-    String useDB = "USE " + DB_NAME;
-
-    stmt.executeUpdate(createDB);
-    stmt.executeQuery(useDB);
 
     String createTable = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (col1 INTEGER, col2 VARCHAR(20))";
 
     stmt.executeUpdate(createTable);
-    stmt.executeUpdate("Delete from " + DB_NAME + "." + TABLE_NAME);
+    stmt.executeUpdate("Delete from " + TABLE_NAME);
 
     //populate the database
     for (Map.Entry<Integer, String> entry : mapping.entrySet()) {
@@ -186,6 +164,26 @@ public class JDBCLookupCacheBackedOperatorTest
       stmt.executeUpdate(insert);
     }
 
+    //Setup the operator
+    lookupCacheBaceOpertor.setDbUrl(INMEM_DB_URL);
+    lookupCacheBaceOpertor.setDbDriver(INMEM_DB_DRIVER);
+
+    Calendar now = Calendar.getInstance(TimeZone.getTimeZone("PST"));
+    now.add(Calendar.SECOND, 15);
+
+    SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss z");
+    lookupCacheBaceOpertor.setCacheRefreshTime(format.format(now.getTime()));
+
+    lookupCacheBaceOpertor.output.setSink(sink);
+
+    Context.OperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(7);
+    lookupCacheBaceOpertor.setup(context);
+    lookupCacheBaceOpertor.activate(context);
+  }
+
+  @AfterClass
+  public static void teardown() throws Exception
+  {
   }
 
 }

@@ -15,32 +15,37 @@
  */
 package com.datatorrent.contrib.couchdb;
 
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.google.common.collect.Maps;
-import junit.framework.Assert;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.node.ObjectNode;
-import org.ektorp.ViewQuery;
-import org.ektorp.ViewResult;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.util.Map;
 
+import junit.framework.Assert;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.ektorp.ViewQuery;
+import org.ektorp.ViewResult;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import com.google.common.collect.Maps;
+
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.lib.testbench.CollectorTestSink;
+
 /**
  * Test for {@link PagedCouchDBInputOperatorTest}
+ *
  * @since 0.3.5
  */
 public class PagedCouchDBInputOperatorTest
 {
-  private class TestPagedDBInputOperator extends AbstractPagedCouchDBInputOperator<Map<Object, Object>>
+  private class TestPagedDBInputOperator extends AbstractCouchDBInputOperator<Map<Object, Object>>
   {
+    ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public ViewQuery getViewQuery()
     {
-      return CouchDBTestHelper.get().createAndFetchViewQuery();
+      return CouchDBTestHelper.createAndFetchViewQuery();
     }
 
     @SuppressWarnings("unchecked")
@@ -50,7 +55,8 @@ public class PagedCouchDBInputOperatorTest
       Map<Object, Object> valueMap = Maps.newHashMap();
       try {
         valueMap = mapper.readValue(row.getValueAsNode(), valueMap.getClass());
-      } catch (IOException e) {
+      }
+      catch (IOException e) {
         e.printStackTrace();
       }
       return valueMap;
@@ -68,17 +74,20 @@ public class PagedCouchDBInputOperatorTest
       mapTuple.put("_id", testDocumentIdPrefix + i);
       mapTuple.put("name", "PTD" + i);
       mapTuple.put("type", "test");
-      CouchDBTestHelper.get().insertDocument(mapTuple);
+      CouchDBTestHelper.insertDocument(mapTuple);
     }
 
     TestPagedDBInputOperator operatorTest = new TestPagedDBInputOperator();
+    CouchDbStore store = new CouchDbStore();
+    store.setDbName(CouchDBTestHelper.TEST_DB);
+    operatorTest.setStore(store);
+
     CollectorTestSink sink = new CollectorTestSink();
     operatorTest.outputPort.setSink(sink);
     operatorTest.setPageSize(5);
-    operatorTest.setDatabase(CouchDBTestHelper.get().getDatabase());
     operatorTest.setup(new OperatorContextTestHelper.TestIdOperatorContext(3));
 
-    int totalDocsInDb = CouchDBTestHelper.get().getTotalDocuments();
+    int totalDocsInDb = CouchDBTestHelper.getTotalDocuments();
     int rounds = (totalDocsInDb % 5 == 0 ? 0 : 1) + (totalDocsInDb / 5);
 
     int remainingDocCount = totalDocsInDb;
@@ -90,5 +99,17 @@ public class PagedCouchDBInputOperatorTest
       remainingDocCount = remainingDocCount - 5;
       sink.clear();
     }
+  }
+
+  @BeforeClass
+  public static void setup()
+  {
+    CouchDBTestHelper.setup();
+  }
+
+  @AfterClass
+  public static void teardown()
+  {
+    CouchDBTestHelper.teardown();
   }
 }

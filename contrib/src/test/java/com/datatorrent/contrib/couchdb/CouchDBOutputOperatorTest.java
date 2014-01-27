@@ -15,18 +15,18 @@
  */
 package com.datatorrent.contrib.couchdb;
 
-
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.google.common.collect.Maps;
-import junit.framework.Assert;
-import org.codehaus.jackson.JsonNode;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.MalformedURLException;
 import java.util.Map;
 
+import junit.framework.Assert;
+import org.codehaus.jackson.JsonNode;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import com.google.common.collect.Maps;
+
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
 
 /**
  * Test for {@link MapBasedCouchDbOutputOperator}
@@ -35,9 +35,6 @@ import java.util.Map;
  */
 public class CouchDBOutputOperatorTest
 {
-  private static final Logger LOGGER = LoggerFactory.getLogger(CouchDBOutputOperatorTest.class);
-
-
   @Test
   public void testCouchDBOutputOperator() throws MalformedURLException
   {
@@ -48,26 +45,39 @@ public class CouchDBOutputOperatorTest
     tuple.put("type", "test");
 
     MapBasedCouchDbOutputOperator dbOutputOper = new MapBasedCouchDbOutputOperator();
-    dbOutputOper.setDatabase(CouchDBTestHelper.get().getDatabase());
-    dbOutputOper.setUpdateRevisionWhenNull(true);
+    CouchDbStore store = new CouchDbStore();
+    store.setDbName(CouchDBTestHelper.TEST_DB);
+    dbOutputOper.setStore(store);
 
     dbOutputOper.setup(new OperatorContextTestHelper.TestIdOperatorContext(1));
     dbOutputOper.beginWindow(0);
-    dbOutputOper.inputPort.process(tuple);
+    dbOutputOper.input.process(tuple);
     dbOutputOper.endWindow();
 
     tuple.put("output-type", "map");
 
     dbOutputOper.beginWindow(1);
-    dbOutputOper.inputPort.process(tuple);
+    dbOutputOper.input.process(tuple);
     dbOutputOper.endWindow();
 
     //Test if the document was persisted
-    JsonNode docNode = CouchDBTestHelper.get().fetchDocument(testDocumentId);
+    JsonNode docNode = CouchDBTestHelper.fetchDocument(testDocumentId);
     Assert.assertNotNull("Document saved", docNode);
 
     Assert.assertEquals("name of document", "TD", docNode.get("name").getTextValue());
     Assert.assertEquals("type of document", "test", docNode.get("type").getTextValue());
     Assert.assertEquals("output-type", "map", docNode.get("output-type").getTextValue());
+  }
+
+  @BeforeClass
+  public static void setup()
+  {
+    CouchDBTestHelper.setup();
+  }
+
+  @AfterClass
+  public static void teardown()
+  {
+    CouchDBTestHelper.teardown();
   }
 }

@@ -13,36 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.couchdb;
+package com.datatorrent.lib.db;
 
 /**
- * Interface that is implemented by CounchDb Input and Output adaptors.</br>
+ * This interface is for any service that provides transactional feature
  *
- * @since 0.3.5
+ * @since 0.9.3
  */
-public interface CouchDbOperator
+public interface Transactionable
 {
   /**
-   * Sets the database connection url
-   * @param url database connection url
+   * Begins a transaction.
    */
-  void setUrl(String url);
+  public void beginTransaction();
 
   /**
-   * Sets the database name
-   * @param dbName  database name
+   * Commits the current transaction.
    */
-  void setDatabase(String dbName);
+  public void commitTransaction();
 
   /**
-   * Sets the database user
-   * @param userName database user
+   * Rolls back the current transaction.
    */
-  void setUserName(String userName);
+  public void rollbackTransaction();
 
   /**
-   * Sets the password of the database user
-   * @param password password of the database user
+   * Returns whether currently is in a transaction.
+   * @return
    */
-  void setPassword(String password);
+  public boolean isInTransaction();
 }
