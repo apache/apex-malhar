@@ -76,7 +76,7 @@ public class Application implements StreamingApplication {
             dag.addStream("ws_topn_data", demo.top10Output, woo.topNInput.setN(10).setTopic("app.visualdata.topn"));
             
             // wire to progress chart gadget
-            dag.addStream("ws_progress_data", demo.progressOutput,  woo.percentageInput.setTopic("app.visualdata.progress"));
+            dag.addStream("ws_progress_data", demo.progressOutput,  wooa.percentageInput.setTopic("app.visualdata.progress"));
             
             
         } else {
