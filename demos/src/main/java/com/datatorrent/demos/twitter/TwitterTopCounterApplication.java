@@ -15,17 +15,23 @@
  */
 package com.datatorrent.demos.twitter;
 
+import java.net.URI;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.conf.Configuration;
+
+import com.datatorrent.lib.algo.UniqueCounter;
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
+
+import com.datatorrent.contrib.twitter.TwitterSampleInput;
+
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.api.StreamingApplication;
+
 import com.datatorrent.demos.rollingtopwords.WindowedTopCounter;
-import com.datatorrent.lib.algo.UniqueCounter;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
-import java.net.URI;
-import org.apache.commons.lang.StringUtils;
-import org.apache.hadoop.conf.Configuration;
 
 /**
  * Twitter Demo Application: <br>

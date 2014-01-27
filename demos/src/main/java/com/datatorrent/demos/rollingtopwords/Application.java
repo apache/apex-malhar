@@ -18,7 +18,7 @@ package com.datatorrent.demos.rollingtopwords;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.demos.twitter.TwitterSampleInput;
+import com.datatorrent.contrib.twitter.TwitterSampleInput;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 
