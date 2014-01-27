@@ -71,7 +71,7 @@
       <scope>test</scope>
       <type>test-jar</type>
     </dependency>
-	<dependency>
+    <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka_2.10</artifactId>
       <version>0.8.0</version>
@@ -93,7 +93,7 @@
           <artifactId>zookeeper</artifactId>
         </exclusion>
       </exclusions>
-	</dependency>
+    </dependency>
     <dependency>
       <groupId>org.mongodb</groupId>
       <artifactId>mongo-java-driver</artifactId>
@@ -112,12 +112,12 @@
       <version>3.1.4</version>
       <optional>true</optional>
     </dependency>
-	<dependency>
-	  <groupId>net.sf.jopt-simple</groupId>
-	  <artifactId>jopt-simple</artifactId>
-	  <version>3.2</version>
-	  <scope>test</scope>
-	</dependency>
+    <dependency>
+      <groupId>net.sf.jopt-simple</groupId>
+      <artifactId>jopt-simple</artifactId>
+      <version>3.2</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>com.101tec</groupId>
       <artifactId>zkclient</artifactId>
@@ -257,15 +257,27 @@
       <version>2.3.1</version>
     </dependency>
     <dependency>
-	<groupId>org.apache-extras.cassandra-jdbc</groupId>
-	<artifactId>cassandra-jdbc</artifactId>
-	<version>1.2.5</version>
+      <groupId>org.apache-extras.cassandra-jdbc</groupId>
+      <artifactId>cassandra-jdbc</artifactId>
+      <version>1.2.5</version>
     </dependency>
     <dependency>
       <groupId>com.esotericsoftware.kryo</groupId>
       <artifactId>kryo</artifactId>
       <version>2.21</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <!-- required by twitter -->
+      <groupId>org.twitter4j</groupId>
+      <artifactId>twitter4j-core</artifactId>
+      <version>2.2.6</version>
+    </dependency>
+    <dependency>
+      <!-- required by twitter  -->
+      <groupId>org.twitter4j</groupId>
+      <artifactId>twitter4j-stream</artifactId>
+      <version>2.2.6</version>
     </dependency>
   </dependencies>
 </project>
