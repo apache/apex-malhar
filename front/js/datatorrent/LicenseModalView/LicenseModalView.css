@@ -1,19 +1,16 @@
-.license-info-block {
-  border: 1px solid #CCC;
-  border-radius: 3px;
-  padding: 10px;
+.general-license-info {
   position: relative;
 }
 .license-agent-mem-usage {
   position: absolute;
-  top: 10px;
+  top: 0px;
   right: 10px;
   width: 100px;
   height: 12px;
 }
 .license-agent-usage-label {
   position: absolute;
-  top: 25px;
+  top: 15px;
   right: 10px;
   font-size: 10px;
   color: #AAA;

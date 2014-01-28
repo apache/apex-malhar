@@ -18,6 +18,10 @@ var LicenseAgentModel = BaseModel.extend({
         json.usedLicensedMB = json.totalLicensedMB * 1 - json.remainingLicensedMB * 1;
         json.percentUsedLicenseMB = ((json.usedLicensedMB / json.totalLicensedMB) * 100).toFixed(1);
         return json;
+    },
+
+    urlRoot: function() {
+        return this.resourceURL('LicenseAgent')
     }
 
 });

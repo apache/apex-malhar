@@ -1,15 +1,6 @@
-<% if (licenseAgents.length && typeof id !== 'undefined') {  %>
-	<h4>General Information</h4>
-	<p>
-		<strong>license ID:</strong><br><input type="text" value="<%= id %>" readonly class="input-xlarge">
-	</p>
-
-	<% if (licenseAgents.length > 1) { %>
-	<h4>License Agents</h4>
-	<% } %>
-	<% _.each( licenseAgents, function(agent) { %>
-	<p class="license-agent-info-block">
-		<strong>ID:</strong> <input type="text" value="<%= agent.id %>" readonly class="input-xlarge"><br>
+<% if (agent.id && typeof id !== 'undefined') {  %>
+	<p class="general-license-info">
+		<strong>license ID:</strong> <%= id %><br>
         <!-- <strong>appId:</strong> <%= agent.appId %><br> -->
         <strong>started at:</strong> <%= (new Date(agent.startedTime * 1)).toLocaleString() %><br>
         <strong>user:</strong> <%= agent.user %><br>
@@ -23,10 +14,21 @@
         	} %>">
         	<span class="bar" style="width:<%= Math.max(agent.percentUsedLicenseMB, 2) %>%"></span>
         </span>
-        <span class="license-agent-usage-label"><%= agent.percentUsedLicenseMB %>% used</span>
-
+        <span class="license-agent-usage-label"><%= agent.percentUsedLicenseMB %>% memory used</span>
     </p>
-	<% }) %>
+
+	<% if (sections.length) { %>
+		<h4>License Sections</h4>
+		<% _.each( sections, function(section) { %>
+		<p class="license-info-block well">
+			<strong>start date:</strong> <%= section.startDate %><br>
+			<strong>end date:</strong> <%= section.endDate %><br>
+			<strong>constraint:</strong> <%= section.constraint %><br>
+			<strong>comment:</strong> <%= section.comment %><br>
+		</p>
+		<% }) %>
+
+	<% } %>
 
 <% } else { %>
 	

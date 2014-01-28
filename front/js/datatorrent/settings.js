@@ -88,7 +88,7 @@ exports = module.exports = {
 
     interpolateParams: function(string, params) {
         return string.replace(/:(\w+)/g, function(match, paramName) {
-            return params[paramName];
+            return encodeURIComponent(params[paramName]);
         });
     }
 };

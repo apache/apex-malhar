@@ -1,5 +1,5 @@
 var BaseModel = require('./BaseModel');
-var LicenseAgents = require('./LicenseAgentCollection');
+var LicenseAgent = require('./LicenseAgentModel');
 
 /**
  * Model representing licenses for datatorrent cluster
@@ -9,12 +9,13 @@ var LicenseModel = BaseModel.extend({
 	debugName: 'license',
 
 	defaults: {
-		licenseAgents: new LicenseAgents([])
+		agent: new LicenseAgent({}),
+        sections: []
 	},
 
     toJSON: function() {
         var json = BaseModel.prototype.toJSON.call(this);
-        json.licenseAgents = json.licenseAgents.toJSON();
+        json.agent = json.agent.toJSON();
         return json;
     },
 
