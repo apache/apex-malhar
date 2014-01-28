@@ -37,7 +37,8 @@ exports = module.exports = {
         JarApps                  :'/ws/:v/jars/:fileName/applications',
         JarDependencies          :'/ws/:v/jars/:fileName/dependencyJars',
         DependencyJar            :'/ws/:v/dependencyJars',
-        License                  :'/ws/:v/licenses',
+        License                  :'/ws/:v/licenses/files/default',
+        LicenseAgent             :'/ws/:v/licenses/agents',
         GatewayInfo              :'/ws/:v/about'
         
     },
@@ -87,7 +88,7 @@ exports = module.exports = {
 
     interpolateParams: function(string, params) {
         return string.replace(/:(\w+)/g, function(match, paramName) {
-            return params[paramName];
+            return encodeURIComponent(params[paramName]);
         });
     }
 };
