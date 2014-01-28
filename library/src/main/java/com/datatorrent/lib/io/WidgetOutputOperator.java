@@ -1,15 +1,19 @@
 package com.datatorrent.lib.io;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.util.PubSubMessageCodec;
 import com.datatorrent.api.util.PubSubWebSocketClient;
+import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.google.common.collect.Maps;
 
@@ -17,19 +21,25 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
 { 
   private transient PubSubMessageCodec<Object> codec = new PubSubMessageCodec<Object>(mapper);
   
-  private String timeSeriesPrefix = "widget.timeseries";
+  private ConsoleOutputOperator coo = new ConsoleOutputOperator();
   
-  private String simplePrefix = "widget.simple";
+  private String timeSeriesTopic = "widget.timeseries";
   
-  private String percentagePrefix = "widget.percentage";
+  private String simpleTopic = "widget.simple";
   
-  private String topNPrefix = "widget.topn";
+  private String percentageTopic = "widget.percentage";
+  
+  private String topNTopic = "widget.topn";
   
   private Number timeSeriesMax = 100;
   
   private Number timeSeriesMin = 0;
   
   private int nInTopN = 10;
+  
+  private transient String appId = null;
+  
+  private transient int operId = 0; 
   
   @InputPortFieldAnnotation(name="simple input", optional=true)
   public final transient SimpleInputPort simpleInput = new SimpleInputPort(this);
@@ -42,6 +52,24 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
   
   @InputPortFieldAnnotation(name="topN input", optional=true)
   public final transient TopNInputPort topNInput = new TopNInputPort(this);
+  
+  private transient boolean isWebSocketConnected = true;
+  
+  @Override
+  public void setup(OperatorContext context)
+  {
+    String gatewayAddress = context.getValue(DAG.GATEWAY_ADDRESS);
+    if(!StringUtils.isEmpty(gatewayAddress)){
+      setUri(URI.create("ws://" + gatewayAddress + "/pubsub"));
+      super.setup(context);
+    } else {
+      isWebSocketConnected = false;
+      coo.setup(context);
+    }
+    appId = context.getValue(DAG.APPLICATION_ID);
+    operId = context.getId();
+    
+  }
   
   @Override
   public String convertMapToMessage(Pair<String, Object> t) throws IOException {
@@ -56,7 +84,7 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
     
   }
   
-  public static class TimeseriesInputPort extends DefaultInputPort<TimeSeriesData> {
+  public static class TimeseriesInputPort extends DefaultInputPort<TimeSeriesData[]> {
 
     private WidgetOutputOperator operator;
     
@@ -66,13 +94,25 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
     }
     
     @Override
-    public void process(TimeSeriesData tuple)
+    public void process(TimeSeriesData[] tuple)
     {
-      HashMap<String, Number> timeseriesMap = Maps.newHashMapWithExpectedSize(2);
-      timeseriesMap.put("timestamp", tuple.time);
-      timeseriesMap.put("value", tuple.data);
-      operator.input.process(new MutablePair<String, Object>(operator.timeSeriesPrefix + "_{\"type\":\"timeseries\",\"minValue\":" + operator.timeSeriesMin + 
-          ",\"maxValue\":" + operator.timeSeriesMax + "}", timeseriesMap));
+      @SuppressWarnings("unchecked")
+      HashMap<String, Number>[] timeseriesMapData = new HashMap[tuple.length];
+      int i = 0;
+      for (TimeSeriesData data : tuple) {
+        HashMap<String, Number> timeseriesMap = Maps.newHashMapWithExpectedSize(2);
+        timeseriesMap.put("timestamp", data.time);
+        timeseriesMap.put("value", data.data);
+        timeseriesMapData[i++] = timeseriesMap;
+      }
+
+      if(operator.isWebSocketConnected){
+        operator.input.process(new MutablePair<String, Object>(operator.appId + "." + operator.operId +
+            "." + operator.timeSeriesTopic + "_{\"type\":\"timeseries\",\"minValue\":" + operator.timeSeriesMin + 
+            ",\"maxValue\":" + operator.timeSeriesMax + "}", timeseriesMapData));
+      } else {
+        operator.coo.input.process(tuple);
+      }
     }
     
     public TimeseriesInputPort setMax(Number max){
@@ -87,7 +127,7 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
     }
     
     public TimeseriesInputPort setTopic(String topic){
-      operator.timeSeriesPrefix = topic;
+      operator.timeSeriesTopic = topic;
       return this;
     }
     
@@ -113,7 +153,12 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
         result[j].put("name", e.getKey());
         result[j++].put("value", e.getValue());
       }
-      operator.input.process(new MutablePair<String, Object>(operator.topNPrefix + "_{\"type\":\"topN\",\"n\":" + operator.nInTopN + "}", result));
+      if(operator.isWebSocketConnected){
+        operator.input.process(new MutablePair<String, Object>(operator.appId + "." + operator.operId +
+            "." + operator.topNTopic + "_{\"type\":\"topN\",\"n\":" + operator.nInTopN + "}", result));
+      } else {
+        operator.coo.input.process(topNMap);
+      }
     }
     
     public TopNInputPort setN(int n){
@@ -123,7 +168,7 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
     
     public TopNInputPort setTopic(String topic)
     {
-      operator.topNPrefix = topic;
+      operator.topNTopic = topic;
       return this;
     }
     
@@ -141,11 +186,16 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
     @Override
     public void process(Object tuple)
     {
-      operator.input.process(new MutablePair<String, Object>(operator.simplePrefix + "_{\"type\":\"simple\"}", tuple.toString()));
+      
+      if (operator.isWebSocketConnected) {
+        operator.input.process(new MutablePair<String, Object>(operator.appId + "." + operator.operId + "." + operator.simpleTopic + "_{\"type\":\"simple\"}", tuple.toString()));
+      } else {
+        operator.coo.input.process(tuple);
+      }
     }
     
     public SimpleInputPort setTopic(String topic) {
-      operator.simplePrefix = topic;
+      operator.simpleTopic = topic;
       return this;
     }
   }
@@ -162,12 +212,17 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
     @Override
     public void process(Integer tuple)
     {
-      operator.input.process(new MutablePair<String, Object>(operator.percentagePrefix + "_{\"type\":\"percentage\"}", tuple));
+      if(operator.isWebSocketConnected){
+        operator.input.process(new MutablePair<String, Object>(operator.appId + "." + operator.operId +
+            "." + operator.percentageTopic + "_{\"type\":\"percentage\"}", tuple));
+      } else {
+        operator.coo.input.process(tuple);
+      }
     }
 
     public PercentageInputPort setTopic(String topic)
     {
-      operator.percentagePrefix = topic;
+      operator.percentageTopic = topic;
       return this;
     }
   }
