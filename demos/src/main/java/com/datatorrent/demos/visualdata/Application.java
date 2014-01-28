@@ -15,6 +15,8 @@
  */
 package com.datatorrent.demos.visualdata;
 
+import java.net.URI;
+
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
@@ -50,7 +52,9 @@ public class Application implements StreamingApplication {
     dag.addStream("rand_calc", rand.integer_data, calc.input).setLocality(locality);
 
     WidgetOutputOperator woo = dag.addOperator("widget output operator", new WidgetOutputOperator());
+    woo.setUri(URI.create("//empty"));
     WidgetOutputOperator wooa = dag.addOperator("widget output operator2", new WidgetOutputOperator());
+    wooa.setUri(URI.create("//empty"));
 
     // wire to simple input gadget
     dag.addStream("ws_pi_data", calc.output, woo.simpleInput.setTopic("app.visualdata.piValue")).setLocality(locality);
