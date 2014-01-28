@@ -107,9 +107,9 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
       }
 
       if(operator.isWebSocketConnected){
-        operator.input.process(new MutablePair<String, Object>(operator.appId + "." + operator.operId +
-            "." + operator.timeSeriesTopic + "_{\"type\":\"timeseries\",\"minValue\":" + operator.timeSeriesMin + 
-            ",\"maxValue\":" + operator.timeSeriesMax + "}", timeseriesMapData));
+        operator.input.process(new MutablePair<String, Object>(getFullTopic(operator.appId,operator.operId, operator.timeSeriesTopic,
+            "{\"type\":\"timeseries\",\"minValue\":" + operator.timeSeriesMin + 
+            ",\"maxValue\":" + operator.timeSeriesMax + "}" ), timeseriesMapData));
       } else {
         operator.coo.input.process(tuple);
       }
@@ -154,8 +154,8 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
         result[j++].put("value", e.getValue());
       }
       if(operator.isWebSocketConnected){
-        operator.input.process(new MutablePair<String, Object>(operator.appId + "." + operator.operId +
-            "." + operator.topNTopic + "_{\"type\":\"topN\",\"n\":" + operator.nInTopN + "}", result));
+        operator.input.process(new MutablePair<String, Object>(getFullTopic(operator.appId, operator.operId, operator.topNTopic, 
+            "{\"type\":\"topN\",\"n\":" + operator.nInTopN + "}"), result));
       } else {
         operator.coo.input.process(topNMap);
       }
@@ -188,7 +188,7 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
     {
       
       if (operator.isWebSocketConnected) {
-        operator.input.process(new MutablePair<String, Object>(operator.appId + "." + operator.operId + "." + operator.simpleTopic + "_{\"type\":\"simple\"}", tuple.toString()));
+        operator.input.process(new MutablePair<String, Object>(getFullTopic(operator.appId, operator.operId, operator.simpleTopic, "{\"type\":\"simple\"}"), tuple.toString()));
       } else {
         operator.coo.input.process(tuple);
       }
@@ -213,8 +213,7 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
     public void process(Integer tuple)
     {
       if(operator.isWebSocketConnected){
-        operator.input.process(new MutablePair<String, Object>(operator.appId + "." + operator.operId +
-            "." + operator.percentageTopic + "_{\"type\":\"percentage\"}", tuple));
+        operator.input.process(new MutablePair<String, Object>(getFullTopic(operator.appId, operator.operId, operator.percentageTopic, "{\"type\":\"percentage\"}"), tuple));
       } else {
         operator.coo.input.process(tuple);
       }
@@ -225,6 +224,10 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
       operator.percentageTopic = topic;
       return this;
     }
+  }
+  
+  private static String getFullTopic(String appId, int opId, String topic, String schema){
+    return "AppData" + "{\"appId\" : \"" + appId + "\", \"opId\":" + opId + ", \"topicName\" : \"" + topic + "\" \"schema\" : \"" + schema + "\"}";
   }
 
 }
