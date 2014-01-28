@@ -61,8 +61,7 @@ public class Application implements StreamingApplication {
             wooa.setUri(uri);
             
             // wire to simple input gadget
-            woo.simpleInput.setTopic("app.visualdata.piValue");
-            dag.addStream("ws_pi_data", calc.output, woo.simpleInput);
+            dag.addStream("ws_pi_data", calc.output, woo.simpleInput.setTopic("app.visualdata.piValue"));
             
             // wire to time series chart gadget
             dag.addStream("ws_chart_data", demo.simpleOutput, woo.timeSeriesInput.setTopic("app.visualdata.chartValue").setMin(0).setMax(100));

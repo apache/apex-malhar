@@ -27,7 +27,7 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.common.util.Pair;
+import com.datatorrent.lib.io.WidgetOutputOperator.TimeSeriesData;
 
 /**
  * Chart value generator.
@@ -52,10 +52,10 @@ public class DemoValueGenerator extends BaseOperator implements InputOperator {
     }
 
     @OutputPortFieldAnnotation(name="simple output", optional=false)
-    public final transient DefaultOutputPort<Pair<Long, Number>> simpleOutput = new DefaultOutputPort<Pair<Long, Number>> ();
+    public final transient DefaultOutputPort<TimeSeriesData> simpleOutput = new DefaultOutputPort<TimeSeriesData>();
     
     @OutputPortFieldAnnotation(name="simple output2", optional=false)
-    public final transient DefaultOutputPort<Pair<Long, Number>> simpleOutput2 = new DefaultOutputPort<Pair<Long, Number>>();
+    public final transient DefaultOutputPort<TimeSeriesData> simpleOutput2 = new DefaultOutputPort<TimeSeriesData>();
     
     @OutputPortFieldAnnotation(name="top 10 output", optional=false)
     public final transient DefaultOutputPort<HashMap<String, Number> > top10Output = new DefaultOutputPort<HashMap<String, Number>>();
@@ -105,8 +105,12 @@ public class DemoValueGenerator extends BaseOperator implements InputOperator {
         percentageOutput.emit(rand.nextInt(100));
         progress = (progress + rand.nextInt(5))%100;
         progressOutput.emit(progress);
-        simpleOutput.emit(new Pair<Long, Number>(time, value1));
-        simpleOutput2.emit(new Pair<Long, Number>(time, value2));
+        TimeSeriesData data1 = new TimeSeriesData();
+        data1.time = time; data1.data = value1;
+        TimeSeriesData data2 = new TimeSeriesData();
+        data2.time = time; data2.data = value1;
+        simpleOutput.emit(data1);
+        simpleOutput2.emit(data2);
     }
 
     @Override

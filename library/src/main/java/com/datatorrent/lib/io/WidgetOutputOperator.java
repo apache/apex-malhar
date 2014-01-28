@@ -3,11 +3,14 @@ package com.datatorrent.lib.io;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map.Entry;
+
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.util.PubSubMessageCodec;
 import com.datatorrent.api.util.PubSubWebSocketClient;
 import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.common.util.Pair;
 import com.google.common.collect.Maps;
 
 public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, Object>>
@@ -42,10 +45,18 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
   
   @Override
   public String convertMapToMessage(Pair<String, Object> t) throws IOException {
-    return PubSubWebSocketClient.constructPublishMessage(t.getFirst(), t.second, codec);
+    return PubSubWebSocketClient.constructPublishMessage(t.getLeft(), t.getRight(), codec);
   };
   
-  public static class TimeseriesInputPort extends DefaultInputPort<Pair<Long, Number>> {
+  public static class TimeSeriesData{
+    
+    public Long time;
+    
+    public Number data;
+    
+  }
+  
+  public static class TimeseriesInputPort extends DefaultInputPort<TimeSeriesData> {
 
     private WidgetOutputOperator operator;
     
@@ -55,12 +66,12 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
     }
     
     @Override
-    public void process(Pair<Long, Number> tuple)
+    public void process(TimeSeriesData tuple)
     {
       HashMap<String, Number> timeseriesMap = Maps.newHashMapWithExpectedSize(2);
-      timeseriesMap.put("timestamp", tuple.getFirst());
-      timeseriesMap.put("value", tuple.getSecond());
-      operator.input.process(new Pair<String, Object>(operator.timeSeriesPrefix + "_{\"type\":\"timeseries\",\"minValue\":" + operator.timeSeriesMin + 
+      timeseriesMap.put("timestamp", tuple.time);
+      timeseriesMap.put("value", tuple.data);
+      operator.input.process(new MutablePair<String, Object>(operator.timeSeriesPrefix + "_{\"type\":\"timeseries\",\"minValue\":" + operator.timeSeriesMin + 
           ",\"maxValue\":" + operator.timeSeriesMax + "}", timeseriesMap));
     }
     
@@ -102,7 +113,7 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
         result[j].put("name", e.getKey());
         result[j++].put("value", e.getValue());
       }
-      operator.input.process(new Pair<String, Object>(operator.topNPrefix + "_{\"type\":\"topN\",\"n\":" + operator.nInTopN + "}", result));
+      operator.input.process(new MutablePair<String, Object>(operator.topNPrefix + "_{\"type\":\"topN\",\"n\":" + operator.nInTopN + "}", result));
     }
     
     public TopNInputPort setN(int n){
@@ -130,7 +141,7 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
     @Override
     public void process(Object tuple)
     {
-      operator.input.process(new Pair<String, Object>(operator.simplePrefix + "_{\"type\":\"simple\"}", tuple.toString()));
+      operator.input.process(new MutablePair<String, Object>(operator.simplePrefix + "_{\"type\":\"simple\"}", tuple.toString()));
     }
     
     public SimpleInputPort setTopic(String topic) {
@@ -151,7 +162,7 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
     @Override
     public void process(Integer tuple)
     {
-      operator.input.process(new Pair<String, Object>(operator.percentagePrefix + "_{\"type\":\"percentage\"}", tuple));
+      operator.input.process(new MutablePair<String, Object>(operator.percentagePrefix + "_{\"type\":\"percentage\"}", tuple));
     }
 
     public PercentageInputPort setTopic(String topic)
