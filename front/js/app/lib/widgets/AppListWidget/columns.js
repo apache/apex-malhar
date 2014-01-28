@@ -18,6 +18,7 @@
 */
 var bormat = require('bormat');
 var templates = DT.templates;
+var formatters = DT.formatters;
 var stateOrder = ['RUNNING','FAILED','FINISHED','KILLED'];
 
 function stateFormatter(value,row) {
@@ -63,6 +64,13 @@ function lifetimeFormatter(value, row) {
     });
 }
 
+function memoryFormatter(value, row) {
+    if (!value) {
+        return '-';
+    }
+    return formatters.byteFormatter(value, 'mb');
+}
+
 exports = module.exports = [
     { id: "selector", key: "selected", label: "", select: true, width: 40, lock_width: true },
     { id: "id", label: "ID", key: "id", sort: "string", filter: idFilter, format: idFormatter, width: 50, sort_value: "d", lock_width: true },
@@ -70,5 +78,6 @@ exports = module.exports = [
     { id: "state", label: "State", key: "state", format: stateFormatter, sort: stateSorter, filter:"like", width: 100 , sort_value: "a"},
     { id: "user", label: "User", key: "user", sort: "string", filter:"like" },
     { id: "startedTime", label: "Started", key: "startedTime", sort: "number", filter: "date", format: "timeSince" },
-    { id: "lifetime", label: "Lifetime of App", key: "startedTime", filter: "numberFormatted", format: lifetimeFormatter }
+    { id: "lifetime", label: "Lifetime of App", key: "startedTime", filter: "numberFormatted", format: lifetimeFormatter },
+    { id: "allocatedMB", label: "Memory", key: "allocatedMB", sort: "number", filter: "number", format: memoryFormatter, width: 60 }
 ]
