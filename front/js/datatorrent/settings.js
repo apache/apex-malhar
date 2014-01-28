@@ -18,6 +18,7 @@ exports = module.exports = {
     alertUrlRoot: '/alerts',
     version: 'v1',
     maxAlertActions: 3,
+    statusOrder: ['RUNNING','FAILED','FINISHED','KILLED'],
     urls: {
         
         Application              :'/ws/:v/applications',
