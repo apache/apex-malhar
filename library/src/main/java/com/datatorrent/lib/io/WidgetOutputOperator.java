@@ -3,8 +3,7 @@ package com.datatorrent.lib.io;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map.Entry;
-
-import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.util.PubSubMessageCodec;
 import com.datatorrent.api.util.PubSubWebSocketClient;
 import com.datatorrent.api.DefaultInputPort;
@@ -29,17 +28,17 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
   
   private int nInTopN = 10;
   
+  @InputPortFieldAnnotation(name="simple input", optional=true)
+  public final transient SimpleInputPort simpleInput = new SimpleInputPort(this);
   
-  public void setup(OperatorContext context) {
-  };
-  
-  public transient SimpleInputPort simpleInput = new SimpleInputPort(this);
-  
-  public transient TimeseriesInputPort timeSeriesInput = new TimeseriesInputPort(this);
+  @InputPortFieldAnnotation(name="time series input", optional=true)
+  public final transient TimeseriesInputPort timeSeriesInput = new TimeseriesInputPort(this);
 
-  public transient PercentageInputPort percentageInput = new PercentageInputPort(this);
+  @InputPortFieldAnnotation(name="percentage input", optional=true)
+  public final transient PercentageInputPort percentageInput = new PercentageInputPort(this);
   
-  public transient TopNInputPort topNInput = new TopNInputPort(this);
+  @InputPortFieldAnnotation(name="topN input", optional=true)
+  public final transient TopNInputPort topNInput = new TopNInputPort(this);
   
   @Override
   public String convertMapToMessage(Pair<String, Object> t) throws IOException {

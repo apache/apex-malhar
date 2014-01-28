@@ -55,14 +55,15 @@ public class Application implements StreamingApplication {
         if (!StringUtils.isEmpty(gatewayAddress)) {
           // setup the output operator
             URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
-            WidgetOutputOperator woo = new WidgetOutputOperator();
+            WidgetOutputOperator woo = dag.addOperator("widget output operator", new WidgetOutputOperator());
             woo.setUri(uri);
-            WidgetOutputOperator wooa = new WidgetOutputOperator();
+            WidgetOutputOperator wooa = dag.addOperator("widget output operator2", new WidgetOutputOperator());
             wooa.setUri(uri);
             
             // wire to simple input gadget
-            dag.addStream("ws_pi_data", calc.output, woo.simpleInput.setTopic("app.visualdata.piValue"));
-
+            woo.simpleInput.setTopic("app.visualdata.piValue");
+            dag.addStream("ws_pi_data", calc.output, woo.simpleInput);
+            
             // wire to time series chart gadget
             dag.addStream("ws_chart_data", demo.simpleOutput, woo.timeSeriesInput.setTopic("app.visualdata.chartValue").setMin(0).setMax(100));
 

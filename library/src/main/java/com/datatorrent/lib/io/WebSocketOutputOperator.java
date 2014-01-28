@@ -18,6 +18,7 @@ package com.datatorrent.lib.io;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.ShipContainingJars;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfigBean;
@@ -32,7 +33,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
 import javax.validation.constraints.NotNull;
+
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -146,6 +149,7 @@ public class WebSocketOutputOperator<T> extends BaseOperator
   /**
    * The input port
    */
+  @InputPortFieldAnnotation(name="Web socket input", optional=true)
   public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()
   {
     @Override
