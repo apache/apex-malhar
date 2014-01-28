@@ -26,17 +26,4 @@ import com.datatorrent.lib.db.AbstractKeyValueStoreInputOperator;
  */
 public abstract class AbstractMemcacheInputOperator<T> extends AbstractKeyValueStoreInputOperator<T, MemcacheStore>
 {
-
-  @Override
-  public void setup(OperatorContext t1)
-  {
-    super.setup(t1); //To change body of generated methods, choose Tools | Templates.
-  }
-
-  @Override
-  public void teardown()
-  {
-    super.teardown(); //To change body of generated methods, choose Tools | Templates.
-  }
-
 }
