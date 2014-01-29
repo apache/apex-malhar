@@ -72,7 +72,11 @@ var LogicalDagWidget = BaseView.extend({
             },
             {
                 value: 'currentWindowId',
-                label: 'Current Window'
+                label: DT.text('current_wid_title')
+            },
+            {
+                value: 'recoveryWindowId',
+                label: DT.text('recovery_wid_title')
             },
             {
                 value: 'totalTuplesProcessed',
