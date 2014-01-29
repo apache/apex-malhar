@@ -28,8 +28,10 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.api.util.PubSubMessageCodec;
 import com.datatorrent.api.util.PubSubWebSocketClient;
+import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.google.common.collect.Maps;
@@ -41,12 +43,25 @@ import com.google.common.collect.Maps;
  *  <li>simpleInput is used for simple input widget. It takes any object and push the toString() value to the UI</li>
  *  <li>timeSeriesInput is used for a widget of bar chart of series number values at certain times. It takes a Long for time and a Number for value </li>
  *  <li>percentageInput is used for either the percentage gadget or progress bar. It takes int value between 0 and 100 as input</li>
- *  <li>topNInput is used for N key value table widget. It takes a Map as input</li>
+ *  <li>topNInput is used for N key value table widget. It takes a Map as input</li><br>
+ *  
+ *  By default it outputs data to WebSocket channel specified by DT gateway.<br>
+ *  If DT gateway is not specified, it will use output data to console.
  * 
  */
-public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, Object>>
+@ShipContainingJars(classes = {com.ning.http.client.websocket.WebSocket.class})
+public class WidgetOutputOperator extends BaseOperator
 { 
-  private transient PubSubMessageCodec<Object> codec = new PubSubMessageCodec<Object>(mapper);
+
+  private transient WebSocketOutputOperator<Pair<String, Object>> wsoo = new WebSocketOutputOperator<Pair<String,Object>>(){
+    
+    private transient PubSubMessageCodec<Object> codec = new PubSubMessageCodec<Object>(mapper);
+    
+    public String convertMapToMessage(Pair<String,Object> t) throws IOException {
+      return PubSubWebSocketClient.constructPublishMessage(t.getLeft(), t.getRight(), codec);
+    };
+    
+  };
   
   private transient ConsoleOutputOperator coo = new ConsoleOutputOperator();
   
@@ -66,7 +81,7 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
   
   private transient String appId = null;
   
-  private transient int operId = 0; 
+  private transient int operId = 0;
   
   @InputPortFieldAnnotation(name="simple input", optional=true)
   public final transient SimpleInputPort simpleInput = new SimpleInputPort(this);
@@ -87,8 +102,8 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
   {
     String gatewayAddress = context.getValue(DAG.GATEWAY_ADDRESS);
     if(!StringUtils.isEmpty(gatewayAddress)){
-      setUri(URI.create("ws://" + gatewayAddress + "/pubsub"));
-      super.setup(context);
+      wsoo.setUri(URI.create("ws://" + gatewayAddress + "/pubsub"));
+      wsoo.setup(context);
     } else {
       isWebSocketConnected = false;
       coo.setup(context);
@@ -97,11 +112,6 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
     operId = context.getId();
     
   }
-  
-  @Override
-  public String convertMapToMessage(Pair<String, Object> t) throws IOException {
-    return PubSubWebSocketClient.constructPublishMessage(t.getLeft(), t.getRight(), codec);
-  };
   
   public static class TimeSeriesData{
     
@@ -138,7 +148,7 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
         schemaObj.put("type", "timeseries");
         schemaObj.put("minValue", operator.timeSeriesMin);
         schemaObj.put("maxValue", operator.timeSeriesMax);
-        operator.input.process(new MutablePair<String, Object>(operator.getFullTopic( operator.timeSeriesTopic, schemaObj), timeseriesMapData));
+        operator.wsoo.input.process(new MutablePair<String, Object>(operator.getFullTopic( operator.timeSeriesTopic, schemaObj), timeseriesMapData));
       } else {
         operator.coo.input.process(tuple);
       }
@@ -186,7 +196,7 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
         HashMap<String, Object> schemaObj = new HashMap<String, Object>();
         schemaObj.put("type", "topN");
         schemaObj.put("n", operator.nInTopN);
-        operator.input.process(new MutablePair<String, Object>(operator.getFullTopic(operator.topNTopic, schemaObj), result));
+        operator.wsoo.input.process(new MutablePair<String, Object>(operator.getFullTopic(operator.topNTopic, schemaObj), result));
       } else {
         operator.coo.input.process(topNMap);
       }
@@ -221,7 +231,7 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
       if (operator.isWebSocketConnected) {
         HashMap<String, Object> schemaObj = new HashMap<String, Object>();
         schemaObj.put("type", "simple");
-        operator.input.process(new MutablePair<String, Object>(operator.getFullTopic(operator.simpleTopic, schemaObj), tuple.toString()));
+        operator.wsoo.input.process(new MutablePair<String, Object>(operator.getFullTopic(operator.simpleTopic, schemaObj), tuple.toString()));
       } else {
         operator.coo.input.process(tuple);
       }
@@ -248,7 +258,7 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
       if(operator.isWebSocketConnected){
         HashMap<String, Object> schemaObj = new HashMap<String, Object>();
         schemaObj.put("type", "percentage");
-        operator.input.process(new MutablePair<String, Object>(operator.getFullTopic(operator.percentageTopic, schemaObj), tuple));
+        operator.wsoo.input.process(new MutablePair<String, Object>(operator.getFullTopic(operator.percentageTopic, schemaObj), tuple));
       } else {
         operator.coo.input.process(tuple);
       }
@@ -268,10 +278,20 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
     topicObj.put("topicName", topic);
     topicObj.put("schema", schema);
     try {
-      return "AppData" + mapper.writeValueAsString(topicObj);
+      return "AppData" + wsoo.mapper.writeValueAsString(topicObj);
     } catch (Exception e) {
       throw new RuntimeException(e);
     } 
+  }
+  
+  @Override
+  public void teardown()
+  {
+    if(isWebSocketConnected){
+      wsoo.teardown();
+    } else {
+      coo.teardown();
+    }
   }
 
 }
