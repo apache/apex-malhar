@@ -30,7 +30,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.io.WidgetOutputOperator.TimeSeriesData;
 
 /**
- * Chart value generator.
+ * Random value generator for demo charts and widgets
  */
 public class DemoValueGenerator extends BaseOperator implements InputOperator {
     private int value1 = 50;

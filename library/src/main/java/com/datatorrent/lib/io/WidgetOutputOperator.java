@@ -1,8 +1,25 @@
+/*
+ * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.datatorrent.lib.io;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
@@ -17,11 +34,21 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.google.common.collect.Maps;
 
+/**
+ * This is an Output operator output the data in a format that can be displayed in DT UI widgets<br><br>
+ * 
+ * There are 4 input ports each of which is compatible to one widget
+ *  <li>simpleInput is used for simple input widget. It takes any object and push the toString() value to the UI</li>
+ *  <li>timeSeriesInput is used for a widget of bar chart of series number values at certain times. It takes a Long for time and a Number for value </li>
+ *  <li>percentageInput is used for either the percentage gadget or progress bar. It takes int value between 0 and 100 as input</li>
+ *  <li>topNInput is used for N key value table widget. It takes a Map as input</li>
+ * 
+ */
 public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, Object>>
 { 
   private transient PubSubMessageCodec<Object> codec = new PubSubMessageCodec<Object>(mapper);
   
-  private ConsoleOutputOperator coo = new ConsoleOutputOperator();
+  private transient ConsoleOutputOperator coo = new ConsoleOutputOperator();
   
   private String timeSeriesTopic = "widget.timeseries";
   
@@ -107,9 +134,11 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
       }
 
       if(operator.isWebSocketConnected){
-        operator.input.process(new MutablePair<String, Object>(getFullTopic(operator.appId,operator.operId, operator.timeSeriesTopic,
-            "{\"type\":\"timeseries\",\"minValue\":" + operator.timeSeriesMin + 
-            ",\"maxValue\":" + operator.timeSeriesMax + "}" ), timeseriesMapData));
+        HashMap<String, Object> schemaObj = new HashMap<String, Object>();
+        schemaObj.put("type", "timeseries");
+        schemaObj.put("minValue", operator.timeSeriesMin);
+        schemaObj.put("maxValue", operator.timeSeriesMax);
+        operator.input.process(new MutablePair<String, Object>(operator.getFullTopic( operator.timeSeriesTopic, schemaObj), timeseriesMapData));
       } else {
         operator.coo.input.process(tuple);
       }
@@ -154,8 +183,10 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
         result[j++].put("value", e.getValue());
       }
       if(operator.isWebSocketConnected){
-        operator.input.process(new MutablePair<String, Object>(getFullTopic(operator.appId, operator.operId, operator.topNTopic, 
-            "{\"type\":\"topN\",\"n\":" + operator.nInTopN + "}"), result));
+        HashMap<String, Object> schemaObj = new HashMap<String, Object>();
+        schemaObj.put("type", "topN");
+        schemaObj.put("n", operator.nInTopN);
+        operator.input.process(new MutablePair<String, Object>(operator.getFullTopic(operator.topNTopic, schemaObj), result));
       } else {
         operator.coo.input.process(topNMap);
       }
@@ -188,7 +219,9 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
     {
       
       if (operator.isWebSocketConnected) {
-        operator.input.process(new MutablePair<String, Object>(getFullTopic(operator.appId, operator.operId, operator.simpleTopic, "{\"type\":\"simple\"}"), tuple.toString()));
+        HashMap<String, Object> schemaObj = new HashMap<String, Object>();
+        schemaObj.put("type", "simple");
+        operator.input.process(new MutablePair<String, Object>(operator.getFullTopic(operator.simpleTopic, schemaObj), tuple.toString()));
       } else {
         operator.coo.input.process(tuple);
       }
@@ -213,7 +246,9 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
     public void process(Integer tuple)
     {
       if(operator.isWebSocketConnected){
-        operator.input.process(new MutablePair<String, Object>(getFullTopic(operator.appId, operator.operId, operator.percentageTopic, "{\"type\":\"percentage\"}"), tuple));
+        HashMap<String, Object> schemaObj = new HashMap<String, Object>();
+        schemaObj.put("type", "percentage");
+        operator.input.process(new MutablePair<String, Object>(operator.getFullTopic(operator.percentageTopic, schemaObj), tuple));
       } else {
         operator.coo.input.process(tuple);
       }
@@ -226,8 +261,17 @@ public class WidgetOutputOperator extends WebSocketOutputOperator<Pair<String, O
     }
   }
   
-  private static String getFullTopic(String appId, int opId, String topic, String schema){
-    return "AppData" + "{\"appId\" : \"" + appId + "\", \"opId\":" + opId + ", \"topicName\" : \"" + topic + "\" \"schema\" : \"" + schema + "\"}";
+  private String getFullTopic(String topic, Map<String, Object> schema){
+    HashMap<String, Object> topicObj = new HashMap<String, Object>();
+    topicObj.put("appId", appId);
+    topicObj.put("opId", operId);
+    topicObj.put("topicName", topic);
+    topicObj.put("schema", schema);
+    try {
+      return "AppData" + mapper.writeValueAsString(topicObj);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } 
   }
 
 }
