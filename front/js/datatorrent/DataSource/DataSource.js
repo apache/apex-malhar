@@ -18,6 +18,7 @@ var path = require('path');
 var _ = require('underscore'), Backbone = require('backbone');
 var HTTP_VERBS = ['GET', 'POST', 'PUT', 'DELETE'];
 var settings = require('../settings');
+var visibly = require('../../vendor/visibly.polyfill');
 
 // CONSTRUCTOR
 function DataSource(host, user) {

@@ -32,7 +32,6 @@ if (!window.LOG) {
 
 // Polyfills
 require('../vendor/sendAsBinary.polyfill');
-require('../vendor/visibly.polyfill');
 
 // Required Jquery plugins
 require('../vendor/bootstrap/bootstrap-transition');
