@@ -34,8 +34,10 @@ import org.apache.flume.conf.Configurable;
 import com.datatorrent.api.Component;
 
 /**
+ * <p>ZKAssistedDiscovery class.</p>
  *
  * @author Chetan Narsude <chetan@datatorrent.com>
+ * @since 0.9.3
  */
 public class ZKAssistedDiscovery implements Discovery<byte[]>, Component<com.datatorrent.api.Context>, Configurable, Serializable
 {

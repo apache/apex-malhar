@@ -16,6 +16,7 @@ import java.util.Collection;
  *
  * @author Chetan Narsude <chetan@datatorrent.com>
  * @param <T> - Type of the objects which can be discovered
+ * @since 0.9.3
  */
 public interface Discovery<T>
 {
