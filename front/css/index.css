@@ -7,6 +7,7 @@
 @import url("jquery-ui.overrides.css");
 
 /* components */
+@import url("../js/datatorrent/LicenseModalView/LicenseModalView.css");
 @import url("../js/datatorrent/HeaderView/HeaderView.css");
 @import url("../js/datatorrent/Breadcrumbs/Breadcrumbs.css");
 @import url("../js/datatorrent/DagView/DagView.css");

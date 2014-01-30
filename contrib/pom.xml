@@ -64,13 +64,6 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>malhar-library</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-      <type>test-jar</type>
-    </dependency>
 	<dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka_2.10</artifactId>
@@ -165,6 +158,17 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>org.fusesource.mqtt-client</groupId>
+      <artifactId>mqtt-client</artifactId>
+      <version>1.6</version>
+    </dependency>
+    <!--dependency>
+      <groupId>org.eclipse.paho</groupId>
+      <artifactId>mqtt-client</artifactId>
+      <version>0.4.0</version>
+      <optional>true</optional>
+    </dependency -->
+    <dependency>
       <groupId>rome</groupId>
       <artifactId>rome</artifactId>
       <version>1.0</version>
@@ -247,11 +251,6 @@
       <version>2.2.1</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>malhar-library</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <version>2.3.1</version>
@@ -266,6 +265,18 @@
       <artifactId>kryo</artifactId>
       <version>2.21</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>malhar-library</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>malhar-library</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+      <type>test-jar</type>
     </dependency>
   </dependencies>
 </project>

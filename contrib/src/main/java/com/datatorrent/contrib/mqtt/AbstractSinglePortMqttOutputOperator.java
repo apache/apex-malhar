@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.memcache;
+package com.datatorrent.contrib.mqtt;
 
 import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import org.fusesource.mqtt.client.Message;
 
 /**
- * Memcache output adapter operator, which send data to Memcached.<p><br>
+ * MQTT output adapter operator, which send data to MQTT.<p><br>
  *
  * <br>
  * Ports:<br>
@@ -37,16 +39,20 @@ import com.datatorrent.api.DefaultInputPort;
  * <b>Benchmarks</b>:TBD
  * <br>
  *
- * @since 0.3.2
+ * @since 0.9.3
  */
-public abstract class AbstractSinglePortMemcacheOutputOperator<T> extends AbstractMemcacheOutputOperator
+public abstract class AbstractSinglePortMqttOutputOperator<T> extends AbstractMqttOutputOperator
 {
   /**
-   * Users need to provide conversion of Tuple to message
+   * Users need to provide implementation of what to do when encountering a tuple to message(s) to be sent to MQTT
    * @param tuple
    */
   public abstract void processTuple(T tuple);
 
+  /**
+   * The input port
+   */
+  @InputPortFieldAnnotation(name = "in")
   public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>()
   {
     @Override

@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.memcache_whalin;
+package com.datatorrent.contrib.mqtt;
 
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import org.fusesource.mqtt.client.Message;
 
 /**
- * Memcache input adapter single port operator, which get Data from Memcached using whalin library.<p><br>
+ * MQTT input adapter operator, which receives data from MQTT.<p><br>
  *
  * <br>
  * Ports:<br>
@@ -30,33 +31,41 @@ import com.datatorrent.api.DefaultOutputPort;
  * None<br>
  * <br>
  * Compile time checks:<br>
- * Class derived from this has to implement the abstract method getTuple() <br>
+ * None<br>
  * <br>
  * Run time checks:<br>
  * None<br>
  * <br>
- * <b>Benchmarks</b>: TBD
+ * <b>Benchmarks</b>:TBD
  * <br>
  *
- * @since 0.3.2
+ * @since 0.9.3
  */
-public abstract class AbstractSinglePortMemcacheInputOperator<T> extends AbstractMemcacheInputOperator
+public abstract class AbstractSinglePortMqttInputOperator<T> extends AbstractMqttInputOperator
 {
-    @OutputPortFieldAnnotation(name = "outputPort")
+  /**
+   * the output port
+   */
+  @OutputPortFieldAnnotation(name = "out")
   final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**
-   * Any concrete class derived from AbstractSinglePortMemcacheInputOperator has to implement this method
-   * so that it knows what type of data it will receive from Memcached
-   * It converts a byte message into a Tuple. A Tuple can be of any type (derived from Java Object) that
+   * Any concrete class derived from AbstractSinglePortMqttInputOperator has to implement this method
+   * so that it knows what type of data it will receive from MQTT
+   * It converts a MQTT Message into a Tuple. A Tuple can be of any type (derived from Java Object) that
    * operator user intends to.
    *
    * @param message
    */
-    public abstract T getTuple(Object obj);
+  public abstract T getTuple(Message message);
 
-    @Override
-    public void emitTuple(Object obj) {
-      outputPort.emit(getTuple(obj));
+  @Override
+  public void emitTuple(Message message)
+  {
+    T t = getTuple(message);
+    if (t != null) {
+      outputPort.emit(t);
     }
+  }
+
 }
