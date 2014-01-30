@@ -39,7 +39,7 @@
     "backbone": "~1.1.0",
     "jsbn": "~0.0.0",
     "big-rational": "~0.9.2",
-    "d3": "~3.3.3",
+    "d3": "~3.4.1",
     "mrcolor": "~0.0.1",
     "knights-templar": "~0.2.2",
     "dagre-d3": "git://github.com/nickholub/dagre-d3.git"
