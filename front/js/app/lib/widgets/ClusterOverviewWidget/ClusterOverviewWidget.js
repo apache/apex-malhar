@@ -78,6 +78,9 @@ var ClusterOverviewWidget = BaseView.extend({
             label: DT.text('cpu_percentage_label'),
             key: 'cpuPercentage',
             value: function(cpuPercentage) {
+                if (!cpuPercentage) {
+                    return '-';
+                }
                 return formatters.percentageFormatter(cpuPercentage, true);
             }
         },
