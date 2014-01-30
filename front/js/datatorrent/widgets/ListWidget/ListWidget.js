@@ -32,8 +32,14 @@ var ListWidget = BaseView.extend({
                 tabled.resizeTableToCtnr();
             }, 100);
         }
-        
-        return BaseView.prototype.render.call(this);
+
+        var result = BaseView.prototype.render.call(this);
+
+        if ( tabled.collection._fetching ) {
+            tabled.setLoading();
+        }
+
+        return result;
     },
     
     assignments: function() {
