@@ -106,13 +106,13 @@
     <dependency>
       <groupId>org.apache.flume</groupId>
       <artifactId>flume-ng-sinks</artifactId>
-      <version>1.3.0</version>
+      <version>1.4.0</version>
       <type>pom</type>
     </dependency>
     <dependency>
       <groupId>org.apache.flume</groupId>
       <artifactId>flume-ng-core</artifactId>
-      <version>1.3.0</version>
+      <version>1.4.0</version>
       <exclusions>
         <exclusion>
           <!-- Curator requires later version of Guava -->
