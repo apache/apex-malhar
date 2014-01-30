@@ -427,6 +427,10 @@ var Tabled = BaseView.extend({
 
     getFilteredRows: function() {
         return this.collection.filter(this.config.passesFilters.bind(this.config));
+    },
+
+    setLoading: function() {
+        this.$('.tbody').html('<div class="tr loading-tr"><span class="tabled-spinner"></span> loading</div>');
     }
 
 });
