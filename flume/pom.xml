@@ -9,18 +9,40 @@
 
   <artifactId>dt-flume</artifactId>
   <packaging>jar</packaging>
-  <name>Flume Integration</name>
-
-  <properties>
-    <maven.deploy.skip>false</maven.deploy.skip>
-  </properties>
+  <name>DataTorrent Flume Integration</name>
 
   <profiles>
     <profile>
+      <id>devel</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>dt-stram</artifactId>
+          <version>${project.version}</version>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
       <id>release</id>
+      <properties>
+        <maven.deploy.skip>false</maven.deploy.skip>
+        <source.skip>true</source.skip>
+        <package.username>flume</package.username>
+      </properties>
       <activation>
         <activeByDefault>false</activeByDefault>
       </activation>
+      <dependencies>
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>dt-engine</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+      </dependencies>
       <build>
         <plugins>
           <plugin>
@@ -46,6 +68,122 @@
               </execution>
             </executions>
           </plugin>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>rpm-maven-plugin</artifactId>
+            <version>2.1-alpha-3</version>
+            <executions>
+              <execution>
+                <id>generate-rpm</id>
+                <goals>
+                  <goal>attached-rpm</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <copyright>Apache License, Version 2.0</copyright>
+              <distribution>DataTorrent Enterprise ${project.version}</distribution>
+              <group>Application/Collectors</group>
+              <icon>src/main/resources/logo.gif</icon>
+              <packager>DataTorrent Build System</packager>
+              <prefix>${package.prefix}</prefix>
+              <changelogFile>src/changelog</changelogFile>
+              <defineStatements>
+                <defineStatement>_unpackaged_files_terminate_build 0</defineStatement>
+              </defineStatements>
+              <mappings>
+                <mapping>
+                  <directory>${package.prefix}/flume-${project.version}/lib</directory>
+                  <filemode>750</filemode>
+                  <username>${package.username}</username>
+                  <groupname>${package.groupname}</groupname>
+                  <artifact></artifact>
+                  <dependency></dependency>
+                </mapping>
+                <mapping>
+                  <directory>${package.prefix}/flume-${project.version}/conf</directory>
+                  <configuration>true</configuration>
+                  <filemode>640</filemode>
+                  <username>${package.username}</username>
+                  <groupname>${package.groupname}</groupname>
+                  <sources>
+                    <source>
+                      <location>src/main/resources/flume-conf</location>
+                    </source>
+                  </sources>
+                </mapping>
+                <!-- mapping>
+                  <directory>/opt/dt</directory>
+                  <sources>
+                    <softlinkSource>
+                      <destination>flume</destination>
+                      <location>flume-${project.version}</location>
+                    </softlinkSource>
+                  </sources>
+                </mapping -->
+                <!-- mapping>
+                  <directory>/usr/local/bin/landfill</directory>
+                  <filemode>440</filemode>
+                  <username>dumper</username>
+                  <groupname>dumpgroup</groupname>
+                  <sources>
+                    <source>
+                      <location>target/classes</location>
+                    </source>
+                  </sources>
+                </mapping>
+                <mapping>
+                  <directory>/usr/local/doc/landfill</directory>
+                  <documentation>true</documentation>
+                  <filemode>444</filemode>
+                  <username>dumper</username>
+                  <groupname>dumpgroup</groupname>
+                  <sources>
+                    <source>
+                      <location>target/site</location>
+                    </source>
+                  </sources>
+                </mapping>
+                <mapping>
+                  <directory>/usr/local/bin</directory>
+                  <filemode>750</filemode>
+                  <username>dumper</username>
+                  <groupname>dumpgroup</groupname>
+                  <sources>
+                    <source>
+                      <location>src/main/bin</location>
+                    </source>
+                    <softlinkSource>
+                      <location>/usr/local/bin/new.sh</location>
+                      <destination>old.sh</destination>
+                    </softlinkSource>
+                  </sources>
+                </mapping>
+                <mapping>
+                  <directory>/usr/local/oldbin</directory>
+                  <filemode>750</filemode>
+                  <username>dumper</username>
+                  <groupname>dumpgroup</groupname>
+                  <sources>
+                    <softlinkSource>
+                      <location>/usr/local/bin</location>
+                    </softlinkSource>
+                  </sources>
+                </mapping -->
+              </mappings>
+              <preinstallScriptlet>
+                <script>echo "installing now"</script>
+              </preinstallScriptlet>
+              <!-- postinstallScriptlet>
+                <scriptFile>src/main/scripts/postinstall</scriptFile>
+                <fileEncoding>utf-8</fileEncoding>
+              </postinstallScriptlet>
+              <preremoveScriptlet>
+                <scriptFile>src/main/scripts/preremove</scriptFile>
+                <fileEncoding>utf-8</fileEncoding>
+              </preremoveScriptlet -->
+            </configuration>
+          </plugin>
         </plugins>
       </build>
     </profile>
@@ -60,7 +198,7 @@
           <argLine>-Xmx5000M</argLine>
         </configuration>
       </plugin>
-      <plugin>
+      <!-- plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
         <version>2.2</version>
@@ -81,6 +219,126 @@
               <include>${project.groupId}:dt-jarpath</include>
             </includes>
           </artifactSet>
+        </configuration>
+      </plugin -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>rpm-maven-plugin</artifactId>
+        <version>2.1-alpha-3</version>
+        <executions>
+          <execution>
+            <id>generate-rpm</id>
+            <goals>
+              <goal>attached-rpm</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <copyright>Apache License, Version 2.0</copyright>
+          <distribution>DataTorrent Enterprise ${project.version}</distribution>
+          <group>Application/Collectors</group>
+          <icon>src/main/resources/logo.gif</icon>
+          <packager>DataTorrent Build System</packager>
+          <prefix>${package.prefix}</prefix>
+          <changelogFile>src/changelog</changelogFile>
+          <defineStatements>
+            <defineStatement>_unpackaged_files_terminate_build 0</defineStatement>
+          </defineStatements>
+          <mappings>
+            <mapping>
+              <directory>${package.prefix}/flume-${project.version}/lib</directory>
+              <filemode>750</filemode>
+              <username>${package.username}</username>
+              <groupname>${package.groupname}</groupname>
+              <artifact></artifact>
+              <dependency>
+                <excludes>
+                  <exclude>${project.groupId}:dt-netlet</exclude>
+                </excludes>
+              </dependency>
+            </mapping>
+            <mapping>
+              <directory>${package.prefix}/flume-${project.version}/conf</directory>
+              <configuration>true</configuration>
+              <filemode>640</filemode>
+              <username>${package.username}</username>
+              <groupname>${package.groupname}</groupname>
+              <sources>
+                <source>
+                  <location>src/main/resources/flume-conf</location>
+                </source>
+              </sources>
+            </mapping>
+            <!-- mapping>
+              <directory>/opt/dt</directory>
+              <sources>
+                <softlinkSource>
+                  <destination>flume</destination>
+                  <location>flume-${project.version}</location>
+                </softlinkSource>
+              </sources>
+            </mapping -->
+            <!-- mapping>
+              <directory>/usr/local/bin/landfill</directory>
+              <filemode>440</filemode>
+              <username>dumper</username>
+              <groupname>dumpgroup</groupname>
+              <sources>
+                <source>
+                  <location>target/classes</location>
+                </source>
+              </sources>
+            </mapping>
+            <mapping>
+              <directory>/usr/local/doc/landfill</directory>
+              <documentation>true</documentation>
+              <filemode>444</filemode>
+              <username>dumper</username>
+              <groupname>dumpgroup</groupname>
+              <sources>
+                <source>
+                  <location>target/site</location>
+                </source>
+              </sources>
+            </mapping>
+            <mapping>
+              <directory>/usr/local/bin</directory>
+              <filemode>750</filemode>
+              <username>dumper</username>
+              <groupname>dumpgroup</groupname>
+              <sources>
+                <source>
+                  <location>src/main/bin</location>
+                </source>
+                <softlinkSource>
+                  <location>/usr/local/bin/new.sh</location>
+                  <destination>old.sh</destination>
+                </softlinkSource>
+              </sources>
+            </mapping>
+            <mapping>
+              <directory>/usr/local/oldbin</directory>
+              <filemode>750</filemode>
+              <username>dumper</username>
+              <groupname>dumpgroup</groupname>
+              <sources>
+                <softlinkSource>
+                  <location>/usr/local/bin</location>
+                </softlinkSource>
+              </sources>
+            </mapping -->
+          </mappings>
+          <preinstallScriptlet>
+            <script>echo "installing now"</script>
+          </preinstallScriptlet>
+          <!-- postinstallScriptlet>
+            <scriptFile>src/main/scripts/postinstall</scriptFile>
+            <fileEncoding>utf-8</fileEncoding>
+          </postinstallScriptlet>
+          <preremoveScriptlet>
+            <scriptFile>src/main/scripts/preremove</scriptFile>
+            <fileEncoding>utf-8</fileEncoding>
+          </preremoveScriptlet -->
         </configuration>
       </plugin>
     </plugins>
@@ -105,12 +363,6 @@
     </dependency>
     <dependency>
       <groupId>org.apache.flume</groupId>
-      <artifactId>flume-ng-sinks</artifactId>
-      <version>1.4.0</version>
-      <type>pom</type>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.flume</groupId>
       <artifactId>flume-ng-core</artifactId>
       <version>1.4.0</version>
       <exclusions>
@@ -127,12 +379,15 @@
           <artifactId>jackson-mapper-asl</artifactId>
           <groupId>org.codehaus.jackson</groupId>
         </exclusion>
+        <exclusion>
+          <artifactId>jetty</artifactId>
+          <groupId>org.mortbay.jetty</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jetty-util</artifactId>
+          <groupId>org.mortbay.jetty</groupId>
+        </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>dt-jarpath</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -141,19 +396,19 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>dt-api</artifactId>
+      <artifactId>dt-jarpath</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>dt-stram</artifactId>
+      <artifactId>dt-api</artifactId>
       <version>${project.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-client</artifactId>
       <version>2.2.0</version>
+      <scope>provided</scope>
       <exclusions>
         <exclusion>
           <artifactId>jackson-core-asl</artifactId>
@@ -165,12 +420,6 @@
       <groupId>net.sf.trove4j</groupId>
       <artifactId>trove4j</artifactId>
       <version>3.0.3</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>dt-engine</artifactId>
-      <version>${project.version}</version>
-      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.curator</groupId>
@@ -190,6 +439,21 @@
           <artifactId>jackson-mapper-asl</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-mapper-asl</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-core-asl</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>11.0.2</version>
     </dependency>
   </dependencies>
 </project>

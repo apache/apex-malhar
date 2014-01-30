@@ -1,8 +1,5 @@
 <config>
   <keep-names>
-    <class template="public class com.datatorrent.jarpath.JarPath">
-      <method template="public static void main(java.lang.String[])"/>
-    </class>
     <class template="class com.datatorrent.flume.*">
       <field access="protected+"/>
       <method access="protected+"/>
