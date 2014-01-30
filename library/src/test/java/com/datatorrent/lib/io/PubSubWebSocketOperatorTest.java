@@ -15,17 +15,19 @@
  */
 package com.datatorrent.lib.io;
 
-import com.datatorrent.lib.helper.SamplePubSubWebSocketServlet;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
+
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.Test;
+
+import com.datatorrent.lib.helper.SamplePubSubWebSocketServlet;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  * Tests for {@link com.datatorrent.lib.io.PubSubWebSocketInputOperatorTest} {@link com.datatorrent.lib.io.PubSubWebSocketOutputOperatorTest}

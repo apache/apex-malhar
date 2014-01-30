@@ -15,9 +15,10 @@
  */
 package com.datatorrent.demos.pi;
 
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.demos.pi.Application;
+
 import org.junit.Test;
+
+import com.datatorrent.api.LocalMode;
 
 /**
  *

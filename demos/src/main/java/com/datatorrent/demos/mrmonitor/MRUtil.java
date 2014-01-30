@@ -34,10 +34,10 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.4
  */
-public class Util
+public class MRUtil
 {
 
-  private static final Logger logger = LoggerFactory.getLogger(Util.class);
+  private static final Logger logger = LoggerFactory.getLogger(MRUtil.class);
   
   /**
    * This method returns the response content for a given url
@@ -50,6 +50,7 @@ public class Util
     logger.debug(url);
     try {
 
+      
       HttpGet httpget = new HttpGet(url);
 
       // Create a response handler
