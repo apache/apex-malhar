@@ -35,7 +35,7 @@ import com.datatorrent.lib.io.fs.HdfsOutputOperator;
  * <p>
  * Abstract MapReduceApplication class.
  * </p>
- * 
+ *
  * @since 0.9.0
  */
 @SuppressWarnings({ "deprecation" })

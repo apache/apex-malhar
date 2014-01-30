@@ -26,6 +26,8 @@ import com.datatorrent.lib.testbench.RandomEventGenerator;
 
 /**
  * Visual data demo.
+ *
+ * @since 0.9.3
  */
 public class Application implements StreamingApplication {
     

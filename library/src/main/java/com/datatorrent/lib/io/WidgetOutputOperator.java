@@ -38,16 +38,17 @@ import com.google.common.collect.Maps;
 
 /**
  * This is an Output operator output the data in a format that can be displayed in DT UI widgets<br><br>
- * 
+ *
  * There are 4 input ports each of which is compatible to one widget
  *  <li>simpleInput is used for simple input widget. It takes any object and push the toString() value to the UI</li>
  *  <li>timeSeriesInput is used for a widget of bar chart of series number values at certain times. It takes a Long for time and a Number for value </li>
  *  <li>percentageInput is used for either the percentage gadget or progress bar. It takes int value between 0 and 100 as input</li>
  *  <li>topNInput is used for N key value table widget. It takes a Map as input</li><br>
- *  
+ *
  *  By default it outputs data to WebSocket channel specified by DT gateway.<br>
  *  If DT gateway is not specified, it will use output data to console.
- * 
+ *
+ * @since 0.9.3
  */
 @ShipContainingJars(classes = {com.ning.http.client.websocket.WebSocket.class})
 public class WidgetOutputOperator extends BaseOperator

@@ -23,6 +23,8 @@ import com.datatorrent.contrib.kafka.AbstractPartitionableKafkaInputOperator;
 /**
  * This class just emit one constant msg for each kafka msg received
  * So we can track the throughput by msgs emitted per second in the stram platform
+ *
+ * @since 0.9.3
  */
 public class BenchmarkPartitionableKafkaInputOperator extends AbstractPartitionableKafkaInputOperator
 {

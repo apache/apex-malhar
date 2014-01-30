@@ -31,6 +31,8 @@ import com.datatorrent.lib.io.WidgetOutputOperator.TimeSeriesData;
 
 /**
  * Random value generator for demo charts and widgets
+ *
+ * @since 0.9.3
  */
 public class DemoValueGenerator extends BaseOperator implements InputOperator {
     private int value1 = 50;
