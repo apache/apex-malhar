@@ -19,7 +19,7 @@ exports = module.exports = {
     version: 'v1',
     maxAlertActions: 3,
     statusOrder: ['RUNNING','FAILED','FINISHED','KILLED'],
-    visibility_timeout: 30000,
+    visibility_timeout: 20000,
     urls: {
         
         Application              :'/ws/:v/applications',
