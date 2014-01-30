@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.datatorrent</groupId>
     <artifactId>dt-framework</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>0.9.3-RC1</version>
   </parent>
 
   <artifactId>malhar-all</artifactId>
@@ -22,7 +22,7 @@
   </repositories>
 
   <properties> 
-    <dt.framework.version>1.0.1-SNAPSHOT</dt.framework.version>
+    <dt.framework.version>0.9.3-RC1</dt.framework.version>
     <!-- the following properties match the properties defined in core/pom.xml -->
     <jackson.version>1.9.2</jackson.version>
     <jersey.version>1.9</jersey.version>
