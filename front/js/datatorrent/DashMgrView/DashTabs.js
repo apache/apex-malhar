@@ -131,18 +131,18 @@ var DashTabs = BaseView.extend({
     },
     
     // template: kt.make(__dirname+'/DashTabs.html','_'),
-    template: '<ul></ul><div class="actions"></div>',
+    template: '<ul><li class="createDashWrapper"><button class="btn btn-mini createDash"><i class="icon-plus"></i></button></li></ul>',
     
     render: function(){
         this.trigger("clean_up");
         this.$el.html(this.template);
-        this.renderDashTabs().renderActions();
+        this.renderDashTabs();
         return this;
     },
     
     renderDashTabs: function() {
         // cache the list element
-        var $ul = this.$('ul');
+        var $addBtn = this.$('ul .createDashWrapper');
         // loop through dashes (this.collection)
         this.collection.each(function(dash) {
             // create item view
@@ -150,20 +150,8 @@ var DashTabs = BaseView.extend({
             // listen for clean up
             view.listenTo(this, "clean_up", view.remove);
             // add to the list
-            $ul.append(view.render().el);
+            view.render().$el.insertBefore($addBtn);
         }, this)
-        return this;
-    },
-    
-    action_template: kt.make(__dirname+'/DashActions.html','_'),
-    
-    renderActions: function() {
-        // make json from currently selected dash
-        var json = this.collection.find(function(dash){ return dash.get('selected') }).toJSON();
-        // create markup
-        var markup = this.action_template(json);
-        // add to the actions element
-        this.$('.actions').html(markup);
         return this;
     },
     

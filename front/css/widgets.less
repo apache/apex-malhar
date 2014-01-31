@@ -101,9 +101,10 @@
         background-color: #DEDEDE;
     }
     .dashboardTabs{
+        padding-top: 2px;
         background-color: #DEDEDE;
         overflow: hidden;
-        border-bottom: 1px solid #CDCDCD;
+        border-bottom: 1px solid #BBB;
         box-shadow: inset 0 -5px 0 #EFEFEF, inset 0 -6px 0 #AAA;
         padding-bottom: 5px;
         ul {
@@ -112,14 +113,15 @@
         }
 
         li {
+            margin-top: -3px;
             float: left;
-            padding: 2px 10px;
             margin-left: 3px;
             background-color: #DEDEDE;
             border-radius: 4px 4px 0 0;
             border: 1px solid #AAA;
             label {
                 font:inherit;
+                padding: 4px 10px;
             }
             input[type="radio"] {
                 display:none;
@@ -129,7 +131,7 @@
             }
             &.selected {
                 background: #EFEFEF;
-                text-shadow: 0 0 #000, 0 2px 1px #FFF,0 2px 1px #FFF;
+                text-shadow: 0 2px 1px #FFF;
                 border-bottom-color: #EFEFEF;
             }
             i {
@@ -144,22 +146,24 @@
             }
             
         }
-        .actions {
-            padding-top: 4px;
-            float: left;
-            .createDash {
-                background: #DEDEDE;
-                border-color: #AAA; 
-                i {
-                    opacity: 0.5;
-                }
+        .createDashWrapper {
+            border: none;
+            background: none;
+            box-shadow: none;
+            padding: 1px;
+        }
+        .createDash {
+            background: #DEDEDE;
+            border-color: #AAA; 
+            margin-top: 2px;
+            i {
+                opacity: 0.5;
+            }
 
-                &:hover {
-                    i {opacity: 1;}
-                }
+            &:hover {
+                i {opacity: 1;}
             }
         }
-
         li, .createDash {
             box-shadow: inset 0 10px 23px -10px rgba(255,255,255, 0.6);
         }
