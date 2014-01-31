@@ -89,7 +89,6 @@ var ModalView = BaseView.extend({
 	},
 
 	onConfirm: function(evt) {
-		console.log('testing');
 		evt.preventDefault();
 		this.destroy();
 	},

@@ -27,10 +27,8 @@ var LicenseModalView = BaseView.extend({
 	title: text('License Information'),
 
 	initialize: function() {
-		this.model = new LicenseModel({});
-		this.agent = this.model.get('agent');
-		this.model.fetch();
-		this.listenTo(this.agent, 'sync', this.renderBody);
+		var agent = this.model.get('agent');
+		this.listenTo(agent, 'sync', this.renderBody);
 	},
 
 	body: function() {

@@ -69,7 +69,13 @@ var textHash = {
     'specify_deps_success_title' :  'Dependencies jars specified',
     'specify_deps_success_text'  :  'The dependency jars you selected and ordered have been specified for the corresponding jar file.',
     'specify_deps_error_title'   :  'Error specifying dependencies',
-    'specify_deps_error_text'    :  'An error occurred trying to specify the dependencies for the jar you have selected. '
+    'specify_deps_error_text'    :  'An error occurred trying to specify the dependencies for the jar you have selected. ',
+    'licensed_mem_bar_title'     :  function(percent) {
+        if (!percent) {
+            return 'Memory usage loading or unknown.';
+        }
+        return 'You are using ' + percent + '% of your licensed memory.';
+    }
 };
 
 // Inter-dependent text items
