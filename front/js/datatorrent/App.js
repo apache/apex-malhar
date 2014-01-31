@@ -43,9 +43,10 @@ require('../vendor/jsplumb/jquery.jsPlumb-1.5.2-min.js');
 require('../vendor/jquery-ui/ui/minified/jquery-ui.min.js');
 
 // Models
-var DataSource = require('./DataSource');
-var NavModel   = require('./NavModel');
-var UserModel  = require('./UserModel');
+var DataSource   = require('./DataSource');
+var NavModel     = require('./NavModel');
+var UserModel    = require('./UserModel');
+var LicenseModel = require('./LicenseModel');
 
 // Views
 var BaseView = require('bassview');
@@ -65,7 +66,11 @@ var App = BaseView.extend({
         
         // Holds the state of the user
         this.user = new UserModel();
-        
+
+        // Has licensing information
+        this.license = new LicenseModel({});
+        this.license.fetch();
+
         // Create dataSource instance.
         this.dataSource = new DataSource(options.host, this.user);
         this.dataSource.connect();
@@ -83,7 +88,8 @@ var App = BaseView.extend({
         this.header = new HeaderView({
             dataSource: this.dataSource,
             model: this.nav,
-            user: this.user
+            user: this.user,
+            license: this.license
         });
         
         // This module is responsible for changing page modules

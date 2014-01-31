@@ -33,6 +33,8 @@ exports = module.exports = {
     
     'jar_view_link': kt.make(__dirname+'/jar_view_link.html', '_'),
     
-    'jar_app_view_link': kt.make(__dirname + '/jar_app_view_link.html', '_')
+    'jar_app_view_link': kt.make(__dirname + '/jar_app_view_link.html', '_'),
+
+    'licensed_mem_bar': kt.make(__dirname + '/licensed_mem_bar.html', '_')
     
-}
+};

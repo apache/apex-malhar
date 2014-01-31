@@ -37,7 +37,7 @@ WindowId.prototype = {
         value = this.value = '' + value;
 
         // Check for initial values of 0 and -1
-        if (value === '-1' || value === '0') {
+        if (value === '-1' || value === '0' || value === 'undefined') {
             this.timestamp = '-';
             this.offset = '-';
             return;
