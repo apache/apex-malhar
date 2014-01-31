@@ -51,8 +51,7 @@ var Info = BaseView.extend({
 		    		return stats.plannedContainers + ' / ' + stats.allocatedContainers + ' (' +  attrs.totalAllocatedMemory  + ' GB)';
 		    	}},
 			    { key: 'stats', label: DT.text('latency_ms_label'), value: function(stats) { return stats.latency } },
-                { key: 'allocatedMB', label: DT.text('alloc_mem_label'), value: function(allocatedMB) { return formatters.byteFormatter(allocatedMB, 'mb') } },
-                { key: 'remainingLicensedMB', label: DT.text('remaining_licensed_mem'), value: function(remainingLicensedMB) { return formatters.byteFormatter(remainingLicensedMB, 'mb') } }
+                { key: 'allocatedMB', label: DT.text('alloc_mem_label'), value: function(allocatedMB) { return formatters.byteFormatter(allocatedMB, 'mb') } }
     		);
     	} else {
     		result.push(
