@@ -30,10 +30,6 @@ var LicenseModalView = BaseView.extend({
 		this.model = new LicenseModel({});
 		this.agent = this.model.get('agent');
 		this.model.fetch();
-		this.listenTo(this.model, 'sync', function() {
-			this.agent.set('id', this.model.get('id'));
-			this.agent.fetch();
-		});
 		this.listenTo(this.agent, 'sync', this.renderBody);
 	},
 
@@ -47,7 +43,7 @@ var LicenseModalView = BaseView.extend({
 		'click .cancelBtn': 'onCancel',
 		'click .confirmBtn': 'onConfirm'
 	},
-	
+
 	confirmText: text('close'),
 
 	cancelText: false,
