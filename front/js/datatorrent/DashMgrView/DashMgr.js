@@ -17,7 +17,6 @@ var _ = require('underscore');
 var kt = require('knights-templar');
 var BaseView = require('bassview');
 var WidgetList = require('./WidgetList');
-var DashList = require('./DashList');
 var DashMgr = BaseView.extend({
     
     initialize: function(options) {
@@ -29,10 +28,6 @@ var DashMgr = BaseView.extend({
         this.subview("widgetlist", new WidgetList({
             collection: this.wClasses,
             dashes: this.collection
-        }));
-        this.subview("dashlist", new DashList({
-            collection: this.collection,
-            page: options.page
         }));
         
         if (storedVisibility !== null) {
@@ -48,8 +43,7 @@ var DashMgr = BaseView.extend({
         this.$el.html(markup);
         this.$(".inner")[this.visible ? "show" : "hide"]();
         this.assign({
-            ".widget-list": "widgetlist",
-            ".dash-list": "dashlist"
+            ".widget-list": "widgetlist"
         });
         return this;
     },
@@ -70,6 +64,7 @@ var DashMgr = BaseView.extend({
         }
         this.$el.width(newWidth);
         $(".dashboardMain").css("marginLeft", newWidth);
+        $(".dashboardTabs").css("marginLeft", newWidth);
         this.$(".inner")[toggleMethod]();
         
         // store visible status in localStorage

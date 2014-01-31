@@ -21,11 +21,11 @@ var DashActions = BaseView.extend({
     
 });
 
-var DashItem = BaseView.extend({
+var DashTab = BaseView.extend({
     
     tagName: "li",
     
-    template: kt.make(__dirname+'/DashItem.html','_'),
+    template: kt.make(__dirname+'/DashTab.html','_'),
     
     render: function() {
         var json = this.model.toJSON();
@@ -53,6 +53,7 @@ var DashItem = BaseView.extend({
     },
     
     editDashId: function(evt) {
+        console.log('editDashId');
         evt.preventDefault();
         
         if (this.model.get("isDefault")) {
@@ -122,30 +123,30 @@ var DashItem = BaseView.extend({
     
 });
 
-var DashList = BaseView.extend({
+var DashTabs = BaseView.extend({
    
     initialize: function(options) {
         this.page = options.page;
         this.listenTo(this.collection, "add change:selected remove", this.render);
     },
     
-    // template: kt.make(__dirname+'/DashList.html','_'),
-    template: '<h2 class="title">dashboards</h2><ul></ul><div class="actions"></div>',
+    // template: kt.make(__dirname+'/DashTabs.html','_'),
+    template: '<ul></ul><div class="actions"></div>',
     
     render: function(){
         this.trigger("clean_up");
         this.$el.html(this.template);
-        this.renderDashItems().renderActions();
+        this.renderDashTabs().renderActions();
         return this;
     },
     
-    renderDashItems: function() {
+    renderDashTabs: function() {
         // cache the list element
         var $ul = this.$('ul');
         // loop through dashes (this.collection)
         this.collection.each(function(dash) {
             // create item view
-            var view = new DashItem({ model: dash, collection: this.collection });
+            var view = new DashTab({ model: dash, collection: this.collection });
             // listen for clean up
             view.listenTo(this, "clean_up", view.remove);
             // add to the list
@@ -203,4 +204,4 @@ var DashList = BaseView.extend({
     }
     
 });
-exports = module.exports = DashList
+exports = module.exports = DashTabs
