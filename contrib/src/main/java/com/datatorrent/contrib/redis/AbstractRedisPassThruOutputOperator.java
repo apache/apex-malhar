@@ -21,7 +21,7 @@ import redis.clients.jedis.Jedis;
 
 /**
  * This abstract class provides the base class for any pass-through redis output adapter.
- * 
+ *
  * @param <T> The tuple type.
  * @since 0.9.3
  */

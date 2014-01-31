@@ -13,26 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.kafka.benchmark;
-
-import kafka.producer.Partitioner;
-import kafka.utils.VerifiableProperties;
-
+var BaseCollection = require('./BaseCollection');
+var LicenseSectionModel = require('./LicenseSectionModel');
 
 /**
- * A simple partitioner class for test purpose
- * Key is a int string
- * Messages are distributed to 2 partitions
- * One for even number, the other for odd
+ * License Section Collection
  */
-public class KafkaTestPartitioner implements Partitioner<String>
-{
-  public KafkaTestPartitioner (VerifiableProperties props) {
-    
-  }
-  @Override
-  public int partition(String key, int num_Partitions)
-  {
-    return Integer.parseInt(key)%num_Partitions;
-  }
-}
+var LicenseSectionCollection = BaseCollection.extend({
+
+    debugName: 'License Sections',
+
+    model: LicenseSectionModel
+
+});
+exports = module.exports = LicenseSectionCollection;

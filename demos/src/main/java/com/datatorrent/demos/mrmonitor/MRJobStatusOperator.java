@@ -171,14 +171,14 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
   {
 
     String url = "http://" + statusObj.getUri() + ":" + statusObj.getRmPort() + "/proxy/application_" + statusObj.getAppId() + "/ws/v1/mapreduce/jobs/job_" + statusObj.getJobId();
-    String responseBody = Util.getJsonForURL(url);
+    String responseBody = MRUtil.getJsonForURL(url);
 
-    JSONObject jsonObj = Util.getJsonObject(responseBody);
+    JSONObject jsonObj = MRUtil.getJsonObject(responseBody);
 
     if (jsonObj == null) {
       url = "http://" + statusObj.getUri() + ":" + statusObj.getHistoryServerPort() + "/ws/v1/history/mapreduce/jobs/job_" + statusObj.getJobId();
-      responseBody = Util.getJsonForURL(url);
-      jsonObj = Util.getJsonObject(responseBody);
+      responseBody = MRUtil.getJsonForURL(url);
+      jsonObj = MRUtil.getJsonObject(responseBody);
     }
 
     if (jsonObj != null) {
@@ -206,12 +206,12 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
   private void getCounterInfoForJob(MRStatusObject statusObj)
   {
     String url = "http://" + statusObj.getUri() + ":" + statusObj.getRmPort() + "/proxy/application_" + statusObj.getAppId() + "/ws/v1/mapreduce/jobs/job_" + statusObj.getJobId() + "/counters";
-    String responseBody = Util.getJsonForURL(url);
-    JSONObject jsonObj = Util.getJsonObject(responseBody);
+    String responseBody = MRUtil.getJsonForURL(url);
+    JSONObject jsonObj = MRUtil.getJsonObject(responseBody);
     if (jsonObj == null) {
       url = "http://" + statusObj.getUri() + ":" + statusObj.getHistoryServerPort() + "/ws/v1/history/mapreduce/jobs/job_" + statusObj.getJobId() + "/counters";
-      responseBody = Util.getJsonForURL(url);
-      jsonObj = Util.getJsonObject(responseBody);
+      responseBody = MRUtil.getJsonForURL(url);
+      jsonObj = MRUtil.getJsonObject(responseBody);
     }
 
     if (jsonObj != null) {
@@ -233,14 +233,14 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
   private void getJsonsForTasks(MRStatusObject statusObj)
   {
     String url = "http://" + statusObj.getUri() + ":" + statusObj.getRmPort() + "/proxy/application_" + statusObj.getAppId() + "/ws/v1/mapreduce/jobs/job_" + statusObj.getJobId() + "/tasks/";
-    String responseBody = Util.getJsonForURL(url);
+    String responseBody = MRUtil.getJsonForURL(url);
 
-    JSONObject jsonObj = Util.getJsonObject(responseBody);
+    JSONObject jsonObj = MRUtil.getJsonObject(responseBody);
     if (jsonObj == null) {
       url = "http://" + statusObj.getUri() + ":" + statusObj.getHistoryServerPort() + "/ws/v1/history/mapreduce/jobs/job_" + statusObj.getJobId() + "/tasks/";
-      responseBody = Util.getJsonForURL(url);
+      responseBody = MRUtil.getJsonForURL(url);
 
-      jsonObj = Util.getJsonObject(responseBody);
+      jsonObj = MRUtil.getJsonObject(responseBody);
     }
 
     if (jsonObj != null) {
@@ -296,9 +296,9 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
   {
 
     String url = "http://" + statusObj.getUri() + ":" + statusObj.getRmPort() + "/jobdetails.jsp?format=json&jobid=job_" + statusObj.getJobId();
-    String responseBody = Util.getJsonForURL(url);
+    String responseBody = MRUtil.getJsonForURL(url);
 
-    JSONObject jsonObj = Util.getJsonObject(responseBody);
+    JSONObject jsonObj = MRUtil.getJsonObject(responseBody);
     if (jsonObj == null)
       return;
 
@@ -346,9 +346,9 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
       for (int pagenum = 1; pagenum <= totalPagenums; pagenum++) {
 
         String url = baseUrl + pagenum;
-        String responseBody = Util.getJsonForURL(url);
+        String responseBody = MRUtil.getJsonForURL(url);
 
-        JSONObject jsonObj = Util.getJsonObject(responseBody);
+        JSONObject jsonObj = MRUtil.getJsonObject(responseBody);
         if (jsonObj == null)
           return;
 

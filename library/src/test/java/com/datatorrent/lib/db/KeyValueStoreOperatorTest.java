@@ -91,9 +91,9 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
       final LocalMode.Controller lc = lma.getController();
       lc.run(3000);
       lc.shutdown();
-      Assert.assertEquals(CollectorModule.resultMap.get("test_abc"), "789");
-      Assert.assertEquals(CollectorModule.resultMap.get("test_def"), "456");
-      Assert.assertEquals(CollectorModule.resultMap.get("test_ghi"), "123");
+      Assert.assertEquals("789", CollectorModule.resultMap.get("test_abc"));
+      Assert.assertEquals("456", CollectorModule.resultMap.get("test_def"));
+      Assert.assertEquals("123", CollectorModule.resultMap.get("test_ghi"));
 
     }
     finally {
@@ -122,9 +122,9 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
       outputOperator.endWindow();
       outputOperator.teardown();
       store.connect();
-      Assert.assertEquals(store.get("test_abc"), "123");
-      Assert.assertEquals(store.get("test_def"), "456");
-      Assert.assertEquals(store.get("test_ghi"), "789");
+      Assert.assertEquals("123", store.get("test_abc"));
+      Assert.assertEquals("456", store.get("test_def"));
+      Assert.assertEquals("789", store.get("test_ghi"));
     }
     finally {
       store.remove("test_abc");

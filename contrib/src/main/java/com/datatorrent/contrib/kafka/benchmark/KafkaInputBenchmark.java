@@ -35,6 +35,8 @@ import com.datatorrent.contrib.kafka.SimpleKafkaConsumer;
  * The stream app to test the benckmark of kafka
  * You can set the property file to make it using either {@link SimpleKafkaConsumer} or {@link HighlevelKafkaConsumer}
  * The performance are pretty close
+ *
+ * @since 0.9.3
  */
 public class KafkaInputBenchmark implements StreamingApplication
 {

@@ -37,6 +37,7 @@ var ApplicationModel = BaseModel.extend({
         'id': '',
         'appId': '',
         'name': '',
+        'allocatedMB': undefined,
         'appMasterTrackingUrl': '',
         'appPath': '',
         'daemonAddress': '',

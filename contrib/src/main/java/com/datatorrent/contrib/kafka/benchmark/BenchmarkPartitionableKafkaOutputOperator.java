@@ -36,6 +36,7 @@ import com.yammer.metrics.Metrics;
  * It will also be split to {@link #partitionNum} partitions
  * Please set the {@link #partitionNum} in property file to get optimized performance
  *
+ * @since 0.9.3
  */
 @ShipContainingJars(classes={kafka.javaapi.consumer.SimpleConsumer.class, org.I0Itec.zkclient.ZkClient.class, scala.ScalaObject.class, Metrics.class})
 public class BenchmarkPartitionableKafkaOutputOperator implements Partitionable<BenchmarkPartitionableKafkaOutputOperator>, InputOperator, ActivationListener<OperatorContext>

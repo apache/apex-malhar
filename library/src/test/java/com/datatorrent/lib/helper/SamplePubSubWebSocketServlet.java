@@ -15,15 +15,18 @@
  */
 package com.datatorrent.lib.helper;
 
-import com.datatorrent.api.util.JacksonObjectMapperProvider;
 import java.io.IOException;
 import java.util.HashMap;
+
 import javax.servlet.http.HttpServletRequest;
+
 import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.util.JacksonObjectMapperProvider;
 
 /**
  *
@@ -31,7 +34,6 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("serial")
 public class SamplePubSubWebSocketServlet extends WebSocketServlet
 {
-
   private static final Logger LOG = LoggerFactory.getLogger(SamplePubSubWebSocketServlet.class);
   private ObjectMapper mapper = (new JacksonObjectMapperProvider()).getContext(null);
 

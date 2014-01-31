@@ -15,27 +15,22 @@
  */
 package com.datatorrent.lib.io;
 
-import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.ShipContainingJars;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-
-import java.io.IOException;
-import java.io.StringWriter;
 import java.net.URI;
 import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
 
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
+
+import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jettison.json.JSONObject;
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.annotation.ShipContainingJars;
 
 /**
  *
@@ -44,6 +39,7 @@ import org.codehaus.jettison.json.JSONObject;
  * Data of type {@link java.util.Map} is converted to JSON. All other types are sent in their {@link Object#toString()} representation.<br>
  * <br>
  *
+ * @param <T>
  * @since 0.3.2
  */
 @ShipContainingJars(classes = {com.sun.jersey.api.client.ClientHandler.class})
@@ -56,17 +52,11 @@ public class HttpOutputOperator<T> extends BaseOperator
     @Override
     public void process(T t)
     {
-      try {
-        if (t instanceof Map) {
-          resource.type(MediaType.APPLICATION_JSON).post("" + new JSONObject((Map<?, ?>)t));
-        }
-        else {
-          resource.post("" + t);
-        }
+      if (t instanceof Map) {
+        resource.type(MediaType.APPLICATION_JSON).post(new JSONObject((Map<?, ?>)t).toString());
       }
-      catch (Exception e) {
-        LOG.error("Failed to send tuple to {} {}", resource.getURI(), e.getMessage());
-        System.out.println("Failed to send tuple to " + resource.getURI() + " " + e.getMessage());
+      else {
+        resource.post(t.toString());
       }
     }
   };
@@ -93,7 +83,6 @@ public class HttpOutputOperator<T> extends BaseOperator
     wsClient.setFollowRedirects(true);
     resource = wsClient.resource(resourceUrl); // side step "not absolute URL" after serialization
     LOG.info("URL: {}", resourceUrl);
-    System.out.println("URL: {} " + resourceUrl );
   }
 
   @Override
@@ -104,26 +93,4 @@ public class HttpOutputOperator<T> extends BaseOperator
     }
     super.teardown();
   }
-
-  @SuppressWarnings("unused")
-private static class JsonStringGenerator {
-    /**
-     * Method to convert map into json format
-     * @param map with data to be converted into json
-     * @return json string
-     */
-    @SuppressWarnings({ "rawtypes" })
-    public static String createJsonString(Map jsonMap) throws IOException {
-
-     StringWriter writer = new StringWriter();
-     JsonGenerator jsonGenerator = new JsonFactory().
-           createJsonGenerator(writer);
-     ObjectMapper mapper = new ObjectMapper();
-     mapper.writeValue(jsonGenerator, jsonMap);
-     jsonGenerator.close();
-     System.out.println(writer.toString());
-     return writer.toString();
-    }
-
-   }
 }

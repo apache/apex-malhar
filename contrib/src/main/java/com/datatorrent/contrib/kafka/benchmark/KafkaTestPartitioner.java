@@ -15,25 +15,26 @@
  */
 package com.datatorrent.contrib.kafka.benchmark;
 
-import org.apache.hadoop.conf.Configuration;
+import kafka.producer.Partitioner;
+import kafka.utils.VerifiableProperties;
 
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.Context.OperatorContext;
 
 /**
- * An stream app to produce msg to cluster
+ * A simple partitioner class for test purpose
+ * Key is a int string
+ * Messages are distributed to 2 partitions
+ * One for even number, the other for odd
+ *
+ * @since 0.9.3
  */
-public class KafkaOutputBenchmark implements StreamingApplication
+public class KafkaTestPartitioner implements Partitioner<String>
 {
-
-  @Override
-  public void populateDAG(DAG dag, Configuration conf)
-  {
-    dag.setAttribute(DAG.APPLICATION_NAME, "KafkaProducerBenchmark");
-    BenchmarkPartitionableKafkaOutputOperator bpkoo = dag.addOperator("KafkaBenchmarkProducer", BenchmarkPartitionableKafkaOutputOperator.class);
-    bpkoo.setBrokerList(conf.get("kafka.brokerlist"));
-    dag.setAttribute(bpkoo, OperatorContext.INITIAL_PARTITION_COUNT, 2);
+  public KafkaTestPartitioner (VerifiableProperties props) {
+    
   }
-
+  @Override
+  public int partition(String key, int num_Partitions)
+  {
+    return Integer.parseInt(key)%num_Partitions;
+  }
 }

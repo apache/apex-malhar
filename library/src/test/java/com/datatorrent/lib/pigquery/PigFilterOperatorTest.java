@@ -31,40 +31,38 @@ public class PigFilterOperatorTest
 	@Test
   public void testSqlSelect()
   {
-  	// create operator   
+  	// create operator
 	  PigFilterOperator oper = new PigFilterOperator();
-  	
+
   	EqualValueCondition  condition = new EqualValueCondition();
   	condition.addEqualValue("a", 1);
   	oper.setCondition(condition);
-  	
-  	CollectorTestSink sink = new CollectorTestSink();
+
+  	CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
   	oper.outport.setSink(sink);
-  	
+
   	oper.setup(null);
   	oper.beginWindow(1);
-  	
+
   	HashMap<String, Object> tuple = new HashMap<String, Object>();
   	tuple.put("a", 0);
   	tuple.put("b", 1);
   	tuple.put("c", 2);
   	oper.inport.process(tuple);
-  	
+
   	tuple = new HashMap<String, Object>();
   	tuple.put("a", 1);
   	tuple.put("b", 3);
   	tuple.put("c", 4);
   	oper.inport.process(tuple);
-  	
+
   	tuple = new HashMap<String, Object>();
   	tuple.put("a", 1);
   	tuple.put("b", 5);
   	tuple.put("c", 6);
   	oper.inport.process(tuple);
-  	
-  	oper.endWindow();
-  	oper.teardown();
-  	
-  	System.out.println(sink.collectedTuples.toString());
+
+    oper.endWindow();
+    oper.teardown();
   }
 }
