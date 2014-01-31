@@ -187,6 +187,9 @@ var WidgetView = BaseView.extend({
     },
     
     _grabWidthResizer: function(e) {
+        if (e.which !== 1) {
+            return;
+        }
         e.stopPropagation();
         e.originalEvent.preventDefault();
         
@@ -223,6 +226,9 @@ var WidgetView = BaseView.extend({
     },
 
     _grabHeightResizer: function(e) {
+        if (e.which !== 1) {
+            return;
+        }
         e.stopPropagation();
         e.originalEvent.preventDefault();
 
