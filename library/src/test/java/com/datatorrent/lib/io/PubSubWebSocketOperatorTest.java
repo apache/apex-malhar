@@ -28,6 +28,7 @@ import org.junit.Test;
 
 import com.datatorrent.lib.helper.SamplePubSubWebSocketServlet;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Tests for {@link com.datatorrent.lib.io.PubSubWebSocketInputOperatorTest} {@link com.datatorrent.lib.io.PubSubWebSocketOutputOperatorTest}
@@ -65,6 +66,14 @@ public class PubSubWebSocketOperatorTest
     outputOperator.setup(null);
 
     inputOperator.activate(null);
+
+    long timeout = System.currentTimeMillis() + 3000;
+    while (!servlet.hasSubscriber()) {
+      Thread.sleep(10);
+      if (System.currentTimeMillis() > timeout) {
+        throw new TimeoutException("No subscribers connected after 3 seconds");
+      }
+    }
 
     inputOperator.beginWindow(1000);
     outputOperator.beginWindow(1000);
