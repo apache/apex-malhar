@@ -40,13 +40,6 @@ var Header = BaseView.extend({
 
         this.listenTo(this.model, "change:mode", this.render );
         this.listenTo(this.license.get('agent'), 'sync', this.render);
-
-        options.dataSource.getUIVersion(
-            _.bind(function(version){
-                this.UIVersion = version;
-                this.render();
-            },this)
-        );
     },
     
     events: {
@@ -86,7 +79,6 @@ var Header = BaseView.extend({
         var markup = this.template({
             modes: this.model.serializeModes(),
             client_logo: "client_logo_hadoop.jpg",
-            version: this.UIVersion,
             license: this.license.toJSON()
         });
         this.$el.html(markup);
