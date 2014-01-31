@@ -43,6 +43,11 @@ var LicenseModalView = BaseView.extend({
 		return html;
 	},
 
+	events: {
+		'click .cancelBtn': 'onCancel',
+		'click .confirmBtn': 'onConfirm'
+	},
+	
 	confirmText: text('close'),
 
 	cancelText: false,

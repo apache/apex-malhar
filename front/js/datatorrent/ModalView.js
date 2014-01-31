@@ -71,6 +71,7 @@ var ModalView = BaseView.extend({
 		this.$el.modal({
 			show: true
 		});
+		this.delegateEvents();
 	},
 
 	close: function() {
@@ -88,6 +89,7 @@ var ModalView = BaseView.extend({
 	},
 
 	onConfirm: function(evt) {
+		console.log('testing');
 		evt.preventDefault();
 		this.destroy();
 	},
