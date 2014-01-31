@@ -75,6 +75,7 @@ public class ZKAssistedDiscovery implements Discovery<byte[]>, Component<com.dat
   public void doAdvertise(Service<byte[]> service, boolean flag)
   {
     try {
+      logger.debug("doAdvertise = {}: {}", flag, service);
       new EnsurePath(basePath).ensure(curatorFramework.getZookeeperClient());
 
       ServiceInstance<byte[]> instance = getInstance(service);
@@ -84,6 +85,7 @@ public class ZKAssistedDiscovery implements Discovery<byte[]>, Component<com.dat
       else {
         discovery.unregisterService(instance);
       }
+      logger.debug("doAdvertise success!");
     }
     catch (Exception e) {
       throw Throwables.propagate(e);
