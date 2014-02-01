@@ -172,7 +172,7 @@
                 </mapping -->
               </mappings>
               <preinstallScriptlet>
-                <script>groupadd -f ${package.groupname} &amp;&amp; id ${package.username} &amp;&amp; usermod -ag ${package.groupname} ${package.username} || useradd -g ${package.groupname} ${package.username}</script>
+                <script>groupadd -f ${package.groupname} &amp;&amp; id ${package.username} &amp;&amp; usermod -aG ${package.groupname} ${package.username} || useradd -g ${package.groupname} ${package.username}</script>
               </preinstallScriptlet>
               <!-- postinstallScriptlet>
                 <scriptFile>src/main/scripts/postinstall</scriptFile>
