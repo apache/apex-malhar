@@ -172,7 +172,7 @@
                 </mapping -->
               </mappings>
               <preinstallScriptlet>
-                <script>echo "installing now"</script>
+                <script>groupadd -f dtorrent &amp;&amp; id flume &amp;&amp; usermod -ag dtorrent || useradd -g dtorrent flume</script>
               </preinstallScriptlet>
               <!-- postinstallScriptlet>
                 <scriptFile>src/main/scripts/postinstall</scriptFile>
