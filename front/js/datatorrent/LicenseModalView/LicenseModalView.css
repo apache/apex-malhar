@@ -1,0 +1,17 @@
+.general-license-info {
+  position: relative;
+}
+.general-license-info .license-agent-mem-usage {
+  position: absolute;
+  top: 0px;
+  right: 10px;
+  width: 100px;
+  height: 12px;
+}
+.general-license-info .license-agent-usage-label {
+  position: absolute;
+  top: 15px;
+  right: 10px;
+  font-size: 10px;
+  color: #AAA;
+}

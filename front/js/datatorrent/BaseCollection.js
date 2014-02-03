@@ -39,6 +39,10 @@ var BaseCollection = Backbone.Collection.extend({
     responseTransform: null,
 
     fetch: function(options) {
+
+        // Indicate the collection is fetching
+        this._fetching = true;
+
         // Ensure options is an object
         options = options || {};
         
@@ -71,13 +75,15 @@ var BaseCollection = Backbone.Collection.extend({
     sync: function(method, collection, options) {
         // READ/FETCH
         if ( method === 'read' ) {
-        
+
             // Holds the original success function
             var success = options.success;
     
             // Wrap the success function:
             options.success = _.bind(function(resp) {
-        
+            
+                this._fetching = false;
+
                 // Allow for the response to be transformed by an optional
                 // responseTransform attribute (can be a string or function).
         

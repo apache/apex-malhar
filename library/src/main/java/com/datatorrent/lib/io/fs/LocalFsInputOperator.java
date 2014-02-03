@@ -15,14 +15,13 @@
  */
 package com.datatorrent.lib.io.fs;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 
-import com.datatorrent.api.DefaultOutputPort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
 
 /**
  * <p>
@@ -35,60 +34,76 @@ import com.datatorrent.api.Context.OperatorContext;
  * <br>
  * <b>Properties</b>:<br>
  * <b>filePath</b> : Path for file to be read. <br>
- * <b>sleepInterval</b>: Thread sleep interval after emiiting line.<br>
+ * <b>sleepInterval</b>: Thread sleep interval after emitting line.<br>
  * <br>
  *
  * @since 0.3.2
  */
 public class LocalFsInputOperator extends AbstractLocalFSInputOperator
 {
-	public final transient DefaultOutputPort<String> outport = new DefaultOutputPort<String>();
-	private DataInputStream in;
-	private BufferedReader br;
-	private int sleepInterval = 0;
+  public final transient DefaultOutputPort<String> outport = new DefaultOutputPort<String>();
+  private DataInputStream in;
+  private BufferedReader br;
+  private int sleepInterval;
 
-    @Override
-    public void activate(OperatorContext context)
-    {
-      super.activate(context);
-      in = new DataInputStream(input);
-      br = new BufferedReader(new InputStreamReader(in));
+  public LocalFsInputOperator()
+  {
+    this.sleepInterval = 0;
+  }
+
+  @Override
+  public void activate(OperatorContext context)
+  {
+    super.activate(context);
+    in = new DataInputStream(input);
+    br = new BufferedReader(new InputStreamReader(in));
+  }
+
+  @Override
+  public void deactivate()
+  {
+    try {
+      br.close();
+    }
+    catch (IOException ex) {
+      logger.warn("Exception while closing the stream", ex);
     }
 
-    @Override
-    public void deactivate()
-    {
-      super.deactivate();
+    super.deactivate();
+  }
+
+  @Override
+  public void emitTuples(FileInputStream stream)
+  {
+    try {
+      String strLine = br.readLine();
+      if (strLine != null) {
+        outport.emit(strLine);
+      }
+    }
+    catch (Exception e) {
+      throw new RuntimeException(e);
     }
 
-	@Override
-	public void emitTuples(FileInputStream stream) {
-		try{
-			String strLine = br.readLine();
-			if(strLine != null) outport.emit(strLine);
-		}catch (Exception e){
-			e.printStackTrace();
-		}
-		if (sleepInterval > 0) {
-			try {
-				Thread.sleep(sleepInterval);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+    if (sleepInterval > 0) {
+      try {
+        Thread.sleep(sleepInterval);
+      }
+      catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+    }
+  }
 
-	public int getSleepInterval() {
-		return sleepInterval;
-	}
+  public int getSleepInterval()
+  {
+    return sleepInterval;
+  }
 
-	public void setSleepInterval(int sleepInterval) {
-		this.sleepInterval = sleepInterval;
-	}
+  public void setSleepInterval(int sleepInterval)
+  {
+    this.sleepInterval = sleepInterval;
+  }
 
-	@Override
-	public void emitTuples()
-	{
-		emitTuples(null);
-	}
+  private static final Logger logger = LoggerFactory.getLogger(LocalFsInputOperator.class);
 }

@@ -330,7 +330,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
    * @param stats
    * @return
    */
-  private synchronized boolean needPartition(BatchedOperatorStats stats){
+  private boolean needPartition(BatchedOperatorStats stats){
 
     long t = System.currentTimeMillis();
 
@@ -440,7 +440,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
       @Override
       public boolean apply(KafkaMeterStats kms)
       {
-        return kms.get_1minMovingAvg()[0] > msgRateUpperBound;
+        return kms.get_1minMovingAvgPerPartition().size()>1 && kms.get_1minMovingAvg()[0] > msgRateUpperBound;
       }
     });
 
@@ -449,7 +449,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
       @Override
       public boolean apply(KafkaMeterStats kms)
       {
-        return kms.get_1minMovingAvg()[1] > byteRateUpperBound;
+        return kms.get_1minMovingAvgPerPartition().size()>1 && kms.get_1minMovingAvg()[1] > byteRateUpperBound;
       }
     });
 
