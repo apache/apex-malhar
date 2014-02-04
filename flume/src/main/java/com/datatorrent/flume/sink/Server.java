@@ -92,6 +92,12 @@ public class Server extends com.datatorrent.netlet.Server
         return id;
     }
 
+    @Override
+    public String toString()
+    {
+      return "Server.Service{id=" + id + ", host=" + getHost() + ", port=" + getPort() +  ", payload=" + getPayload() + '}';
+    }
+
   };
 
   @Override
