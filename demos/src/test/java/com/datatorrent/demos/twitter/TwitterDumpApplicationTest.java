@@ -24,8 +24,8 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 
 /**
- *
- * @author Chetan Narsude <chetan@datatorrent.com>
+ * Test for the application which taps into the twitter's sample input stream and
+ * dumps all the tweets into  a database.
  */
 public class TwitterDumpApplicationTest
 {
