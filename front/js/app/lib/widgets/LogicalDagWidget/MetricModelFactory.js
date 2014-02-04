@@ -126,6 +126,15 @@ var MetricModelFactory = {
             valueToString: function (value) {
                 return bormat.commaGroups(value);
             }
+        },
+        recoveryWindowId: {
+          showMetric: function (id, map) {
+            return map.hasOwnProperty(id);
+          },
+
+          valueToString: function (value) {
+            return formatters.windowOffsetFormatter(value);
+          }
         }
     }
 };

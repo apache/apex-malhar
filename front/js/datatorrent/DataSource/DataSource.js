@@ -48,7 +48,19 @@ DataSource.prototype = {
 
     connect: function() {
         // Pointer to this instance
-        var self = this;
+        var self = this, isHidden = visibly.hidden(), visibleTimer;
+
+        visibly.onHidden(function() {
+            visibleTimer = setTimeout(function() {
+                LOG('3', 'Console hidden for more than ' + Math.round(settings.visibility_timeout/1000) + ' seconds. Turning off WebSocket messages.');
+                isHidden = true;
+            }, settings.visibility_timeout);
+        });
+
+        visibly.onVisible(function() {
+            clearTimeout(visibleTimer);
+            isHidden = false;
+        });
 
         // This is the WebSocket object. A deferred is
         // created so the class can determine if the
@@ -70,6 +82,11 @@ DataSource.prototype = {
         }
         this.ws.onmessage = function(msg) {
             var msgJson;
+
+            if (isHidden) {
+                return;
+            }
+
             try {
                 // to parse the json
                 msgJson = JSON.parse(msg.data);

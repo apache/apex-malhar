@@ -15,16 +15,9 @@
  */
 package com.datatorrent.contrib.memcache;
 
-import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.Context.OperatorContext;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import net.spy.memcached.AddrUtil;
+import com.datatorrent.api.annotation.ShipContainingJars;
+import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 import net.spy.memcached.MemcachedClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Memcache output adapter operator, which produce data to Memcached.<p><br>
@@ -34,57 +27,21 @@ import org.slf4j.LoggerFactory;
  * <b>Input</b>: Can have any number of input ports<br>
  * <b>Output</b>: no output port<br>
  * <br>
- * Properties:<br>
- * <b>servers</b>:the memcache server url list<br>
- * <b>client</b>:MemcachedClient instance<br>
- * <br>
- * Compile time checks:<br>
- * None<br>
- * <br>
- * Run time checks:<br>
- * None<br>
- * <br>
- * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
- * <table border="1" cellspacing=1 cellpadding=1 summary="Benchmark table for AbstractMemcacheOutputOperator&lt;K,V extends Number&gt; operator template">
- * <tr><th>In-Bound</th><th>Out-bound</th><th>Comments</th></tr>
- * <tr><td>One tuple per key per window per port</td><td><b>39 thousand K,V pairs/s</td><td>Out-bound rate is the main determinant of performance. Operator can process about 39 thousand unique (k,v immutable pairs) tuples/sec as Memcache DAG. Tuples are assumed to be
- * immutable. If you use mutable tuples and have lots of keys, the benchmarks may differ</td></tr>
- * </table><br>
- * <br>
- *
  * @since 0.3.2
  */
-public class AbstractMemcacheOutputOperator extends BaseOperator
+/**
+ * This abstract class provides the base class for any memcache output adapter.
+ *
+ * @param <T> The tuple type.
+ * @since 0.9.3
+ */
+@ShipContainingJars(classes = {MemcachedClient.class})
+public abstract class AbstractMemcacheOutputOperator<T>
+        extends AbstractStoreOutputOperator<T, MemcacheStore>
 {
-  private static final Logger logger = LoggerFactory.getLogger(AbstractMemcacheOutputOperator.class);
-  protected transient MemcachedClient client;
-  private ArrayList<String> servers = new ArrayList<String>();
-
-  @Override
-  public void setup(OperatorContext context)
+  public AbstractMemcacheOutputOperator()
   {
-    try {
-      client = new MemcachedClient(AddrUtil.getAddresses(servers));
-    }
-    catch (IOException ex) {
-      logger.info(ex.toString());
-    }
-
-  }
-
-  public void addServer(String server)
-  {
-    servers.add(server);
-  }
-
-  public void waitForQueue(int timeout) {
-    client.waitForQueues(timeout, TimeUnit.SECONDS);
-  }
-
-  @Override
-  public void teardown()
-  {
-    client.shutdown(2000, TimeUnit.MILLISECONDS);
+    store = new MemcacheStore();
   }
 
 }
