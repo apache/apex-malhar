@@ -8,9 +8,11 @@
   </parent>
 
   <artifactId>malhar-all</artifactId>
-  <packaging>pom</packaging>
   <version>1.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
   <name>Malhar Open Source</name>
+  <url>https://www.datatorrent.com/</url>
 
   <!-- repository to provide the DataTorrent artifacts -->
   <repositories>
@@ -24,6 +26,7 @@
   <properties> 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <netbeans.hint.license>malhar-inc</netbeans.hint.license>
+    <maven.deploy.skip>false</maven.deploy.skip>
     <dt.framework.version>1.0.1-SNAPSHOT</dt.framework.version>
     <!-- the following properties match the properties defined in core/pom.xml -->
     <jackson.version>1.9.2</jackson.version>
