@@ -36,7 +36,16 @@ var LicenseModel = BaseModel.extend({
 
 	url: function() {
 		return this.resourceURL('License');
-	}
+	},
+
+    fetch: function() {
+        this.once('sync', function(model) {
+            var agent = this.get('agent');
+            agent.set('id', model.get('id'));
+            agent.fetch();
+        });
+        return BaseModel.prototype.fetch.apply(this, arguments);
+    }
 
 });
 exports = module.exports = LicenseModel;

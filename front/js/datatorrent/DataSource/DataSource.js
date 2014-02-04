@@ -204,18 +204,6 @@ DataSource.prototype = {
         this._send(message);
         LOG(2, 'unsubscribe', ['topic:', topic]);
     },
-    getUIVersion: function(cb) {
-        this.get({
-            url: 'package.json',
-            success: function(res) {
-                cb(res.version);
-            },
-            dataType: 'json',
-            error: function() {
-                LOG('4', 'package.json could not be retrieved');
-            }
-        });
-    },
     // launchApp: function(options) {
     //     
     //     checkSingleArg(arguments, options, 'launchApp');

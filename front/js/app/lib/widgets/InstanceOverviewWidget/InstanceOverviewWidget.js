@@ -47,10 +47,11 @@ var Info = BaseView.extend({
 		    	{ key: 'stats', label: DT.text('processed_total'), value: function(stats) { return stats.totalTuplesProcessed_f || '-' } },
 		    	{ key: 'stats', label: DT.text('emitted_total'), value: function(stats) { return stats.totalTuplesEmitted_f || '-' } },
 		    	{ key: 'stats', label: DT.text('num_operators_label'), value: function(stats) { return stats.numOperators } },
-		    	{ key: 'stats', label: DT.text('planned/alloc. containers'), value: function(stats, attrs) {
+		    	{ key: 'stats', label: DT.text('planned/alloc. ctnrs'), value: function(stats, attrs) {
 		    		return stats.plannedContainers + ' / ' + stats.allocatedContainers + ' (' +  attrs.totalAllocatedMemory  + ' GB)';
 		    	}},
-			    { key: 'stats', label: DT.text('latency_ms_label'), value: function(stats) { return stats.latency } }
+			    { key: 'stats', label: DT.text('latency_ms_label'), value: function(stats) { return stats.latency } },
+                { key: 'allocatedMB', label: DT.text('alloc_mem_label'), value: function(allocatedMB) { return formatters.byteFormatter(allocatedMB, 'mb') } }
     		);
     	} else {
     		result.push(

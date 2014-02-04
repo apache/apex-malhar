@@ -27,20 +27,19 @@ var LicenseModalView = BaseView.extend({
 	title: text('License Information'),
 
 	initialize: function() {
-		this.model = new LicenseModel({});
-		this.agent = this.model.get('agent');
-		this.model.fetch();
-		this.listenTo(this.model, 'sync', function() {
-			this.agent.set('id', this.model.get('id'));
-			this.agent.fetch();
-		});
-		this.listenTo(this.agent, 'sync', this.renderBody);
+		var agent = this.model.get('agent');
+		this.listenTo(agent, 'sync', this.renderBody);
 	},
 
 	body: function() {
 		var json = this.model.toJSON();
 		var html = this.template(json);
 		return html;
+	},
+
+	events: {
+		'click .cancelBtn': 'onCancel',
+		'click .confirmBtn': 'onConfirm'
 	},
 
 	confirmText: text('close'),

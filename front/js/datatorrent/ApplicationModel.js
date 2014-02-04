@@ -140,7 +140,7 @@ var ApplicationModel = BaseModel.extend({
         if ( ! noFormat ) {
             
             // Additional data
-            obj.as_of = lastHeartbeat.toLocaleString();
+            obj.as_of = (+new Date() - lastHeartbeat) < 24 * 60 * 60 * 1000 ? lastHeartbeat.toLocaleTimeString() : lastHeartbeat.toLocaleString();
             obj.up_for = bormat.timeSince(undefined, { timeChunk: obj.elapsedTime*1, unixUptime: true });
             obj.idShorthand = obj.id.split('_')[2];
             

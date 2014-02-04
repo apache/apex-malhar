@@ -35,13 +35,11 @@ var Header = BaseView.extend({
     UIVersion: '',
     
     initialize: function(options) {
+        
+        this.license = options.license;
+
         this.listenTo(this.model, "change:mode", this.render );
-        options.dataSource.getUIVersion(
-            _.bind(function(version){
-                this.UIVersion = version;
-                this.render();
-            },this)
-        );
+        this.listenTo(this.license.get('agent'), 'sync', this.render);
     },
     
     events: {
@@ -62,7 +60,7 @@ var Header = BaseView.extend({
     displayLicenseInfo: function(e) {
         e.preventDefault();
         if (!this.licenseModal) {
-            this.licenseModal = new LicenseModal({});
+            this.licenseModal = new LicenseModal({ model: this.license });
             this.licenseModal.addToDOM();
         }
         this.licenseModal.launch();
@@ -81,7 +79,7 @@ var Header = BaseView.extend({
         var markup = this.template({
             modes: this.model.serializeModes(),
             client_logo: "client_logo_hadoop.jpg",
-            version: this.UIVersion
+            license: this.license.toJSON()
         });
         this.$el.html(markup);
         this.$el.addClass('navbar-fixed-top').addClass('navbar');

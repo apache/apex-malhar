@@ -71,6 +71,7 @@ var ModalView = BaseView.extend({
 		this.$el.modal({
 			show: true
 		});
+		this.delegateEvents();
 	},
 
 	close: function() {

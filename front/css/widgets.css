@@ -84,12 +84,6 @@
   height: 5px;
   cursor: ns-resize;
 }
-#pagecontent .widget .widget-width-resize:hover,
-#pagecontent .widget .widget-height-resize:hover,
-#pagecontent .widget .widget-width-resize.widget-resizing,
-#pagecontent .widget .widget-height-resize.widget-resizing {
-  background-color: rgba(0, 0, 0, 0.5);
-}
 #pagecontent .dashboardMain {
   /*		box-shadow: -3px 3px 3px -3px rgba(0, 0, 0, 0.4);*/
   padding: 0 4px;
