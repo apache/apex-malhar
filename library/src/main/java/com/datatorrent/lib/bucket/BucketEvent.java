@@ -13,39 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.redis;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import com.datatorrent.lib.db.KeyValueStoreOperatorTest;
+package com.datatorrent.lib.bucket;
 
 /**
+ * Type of events that can be bucketed.
  *
- * @since 0.9.3
  */
-public class RedisOperatorTest
+public interface BucketEvent
 {
-  RedisStore store;
-  KeyValueStoreOperatorTest<RedisStore> testFramework;
-
-  @Before
-  public void setup()
-  {
-    store = new RedisStore();
-    testFramework = new KeyValueStoreOperatorTest<RedisStore>(store);
-  }
-
-  @Test
-  public void testOutputOperator() throws Exception
-  {
-    testFramework.testOutputOperator();
-  }
-
-  @Test
-  public void testInputOperator() throws Exception
-  {
-    testFramework.testInputOperator();
-  }
-
+  Object getEventKey();
 }

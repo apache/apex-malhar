@@ -13,39 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.redis;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import com.datatorrent.lib.db.KeyValueStoreOperatorTest;
+package com.datatorrent.lib.bucket;
 
 /**
- *
- * @since 0.9.3
+ * A {@link BucketStore} for {@link TimeEvent} which also supports deleting
+ * expired events.
  */
-public class RedisOperatorTest
+public interface BucketStoreForExpirable<T extends TimeEvent> extends BucketStore<T>
 {
-  RedisStore store;
-  KeyValueStoreOperatorTest<RedisStore> testFramework;
-
-  @Before
-  public void setup()
-  {
-    store = new RedisStore();
-    testFramework = new KeyValueStoreOperatorTest<RedisStore>(store);
-  }
-
-  @Test
-  public void testOutputOperator() throws Exception
-  {
-    testFramework.testOutputOperator();
-  }
-
-  @Test
-  public void testInputOperator() throws Exception
-  {
-    testFramework.testInputOperator();
-  }
-
+  /**
+   * Deletes events which have timestamp less than the given time from the store.
+   *
+   * @param earliestValidTimeInMillis time in milliseconds; all the events with timestamp less than this are deleted
+   *                                  from store.
+   * @throws Exception
+   */
+  void cleanUpExpiredEvents(long earliestValidTimeInMillis) throws Exception;
 }
