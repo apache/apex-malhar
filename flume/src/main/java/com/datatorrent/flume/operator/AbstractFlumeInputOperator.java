@@ -494,7 +494,7 @@ public abstract class AbstractFlumeInputOperator<T>
         ConnectionStatus cs = (ConnectionStatus)lastStat;
         map.put(stats.getOperatorId(), cs);
         if (!cs.connected) {
-          logger.debug("Requesting repartition as lastStat = {}", lastStat);
+          logger.debug("setting repatitioned = true because of lastStat = {}", lastStat);
           response.repartitionRequired = true;
         }
       }
