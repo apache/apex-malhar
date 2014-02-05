@@ -22,6 +22,8 @@
   </repositories>
 
   <properties> 
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <netbeans.hint.license>malhar-inc</netbeans.hint.license>
     <dt.framework.version>0.9.3-RC2</dt.framework.version>
     <!-- the following properties match the properties defined in core/pom.xml -->
     <jackson.version>1.9.2</jackson.version>
