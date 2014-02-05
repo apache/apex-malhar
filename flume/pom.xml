@@ -4,7 +4,7 @@
   <parent>
     <artifactId>dt-framework</artifactId>
     <groupId>com.datatorrent</groupId>
-    <version>0.9.3-RC3</version>
+    <version>0.9.3-RC4</version>
   </parent>
 
   <artifactId>dt-flume</artifactId>
@@ -98,7 +98,12 @@
                   <username>${package.username}</username>
                   <groupname>${package.groupname}</groupname>
                   <artifact></artifact>
-                  <dependency></dependency>
+                  <dependency>
+                    <excludes>
+                      <exclude>asm:asm:4.0</exclude>
+                      <exclude>com.datatorrent:dt-netlet</exclude>
+                    </excludes>
+                  </dependency>
                 </mapping>
                 <mapping>
                   <directory>${package.prefix}/flume-${project.version}/conf</directory>
