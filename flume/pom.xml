@@ -4,7 +4,7 @@
   <parent>
     <artifactId>dt-framework</artifactId>
     <groupId>com.datatorrent</groupId>
-    <version>0.9.3-RC2</version>
+    <version>1.0.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>dt-flume</artifactId>
@@ -94,7 +94,7 @@
               <mappings>
                 <mapping>
                   <directory>${package.prefix}/flume-${project.version}/lib</directory>
-                  <filemode>750</filemode>
+                  <filemode>640</filemode>
                   <username>${package.username}</username>
                   <groupname>${package.groupname}</groupname>
                   <artifact></artifact>
@@ -177,7 +177,7 @@
                 </mapping -->
               </mappings>
               <preinstallScriptlet>
-                <script>groupadd -f ${package.groupname} &amp;&amp; id ${package.username} &amp;&amp; usermod -aG ${package.groupname} ${package.username} || useradd -g ${package.groupname} ${package.username}</script>
+                <script>groupadd -f ${package.groupname} &amp;&amp; id ${package.username} &gt;/dev/null 2&gt;&amp;1 &amp;&amp; usermod -aG ${package.groupname} ${package.username} || useradd -g ${package.groupname} ${package.username}</script>
               </preinstallScriptlet>
               <!-- postinstallScriptlet>
                 <scriptFile>src/main/scripts/postinstall</scriptFile>
