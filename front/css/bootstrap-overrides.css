@@ -154,3 +154,7 @@ table {
     opacity: 0.7;
   }
 }
+.btn-link:hover,
+.btn-link:focus {
+  outline: none;
+}
