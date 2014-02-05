@@ -85,7 +85,7 @@ app.get('/bundle.js', function(req, res) {
 		debug: true
 	});
 	bundle.on('error', function(e) {
-		res.end('$(function() { $("body").prepend("<p style=\'font-size:15px; padding: 10px;\'>' + e.toString() + '</p>"); });');
+		res.end('$(function() { $("body").prepend("<p style=\'font-size:15px; padding: 10px;\'>' + e.toString().replace('"', '\"') + '</p>"); });');
 	});
 
 	var data = '';
