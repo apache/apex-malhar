@@ -16,7 +16,7 @@
 package com.datatorrent.demos.twitter;
 
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.demos.twitter.TwitterSampleInput;
+import com.datatorrent.contrib.twitter.TwitterSampleInput;
 import com.datatorrent.demos.twitter.TwitterTopCounterApplication;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;

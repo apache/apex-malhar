@@ -24,6 +24,8 @@
   <properties> 
     <maven.deploy.skip>false</maven.deploy.skip>
     <dt.framework.version>0.9.3-RC5</dt.framework.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <netbeans.hint.license>malhar-inc</netbeans.hint.license>
     <!-- the following properties match the properties defined in core/pom.xml -->
     <jackson.version>1.9.2</jackson.version>
     <jersey.version>1.9</jersey.version>

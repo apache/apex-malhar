@@ -32,6 +32,10 @@
 
 <!-- <div class="nav-divider-line"></div> -->
 
-<div class="client-brand">
+<!-- <div class="client-brand"> -->
     <!-- <img src="img/<%= client_logo %>"> -->
+<!-- </div> -->
+
+<div class="header-license-usage" title="<%= DT.text('licensed_mem_bar_title')(license.agent.percentUsedLicenseMB) %>">
+    <%= DT.templates.licensed_mem_bar({agent: license.agent}) %>
 </div>
