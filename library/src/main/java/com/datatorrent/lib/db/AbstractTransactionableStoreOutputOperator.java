@@ -15,13 +15,15 @@
  */
 package com.datatorrent.lib.db;
 
+import java.io.IOException;
+
+import javax.validation.constraints.Min;
+
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import java.io.IOException;
-import javax.validation.constraints.NotNull;
 
 /**
  * This abstract class is intended to be an output adapter for a TransactionStore with "transactional exactly once" feature
@@ -38,6 +40,8 @@ public abstract class AbstractTransactionableStoreOutputOperator<T, S extends Tr
   protected Integer operatorId;
   protected long currentWindowId = -1;
   protected long committedWindowId = -1;
+  @Min(0)
+  protected int numOfCommitRetries;
 
   /**
    * The input port
@@ -54,6 +58,11 @@ public abstract class AbstractTransactionableStoreOutputOperator<T, S extends Tr
     }
 
   };
+
+  public AbstractTransactionableStoreOutputOperator()
+  {
+    numOfCommitRetries = 0;
+  }
 
   /**
    * Gets the store
@@ -103,10 +112,17 @@ public abstract class AbstractTransactionableStoreOutputOperator<T, S extends Tr
       if (store.isInTransaction()) {
         store.rollbackTransaction();
       }
-      store.disconnect();
     }
-    catch (IOException ex) {
+    catch (Transactionable.OperationFailedException ex) {
       throw new RuntimeException(ex);
+    }
+    finally {
+      try {
+        store.disconnect();
+      }
+      catch (IOException e) {
+        throw new RuntimeException(e);
+      }
     }
   }
 
@@ -116,5 +132,45 @@ public abstract class AbstractTransactionableStoreOutputOperator<T, S extends Tr
    * @param tuple
    */
   public abstract void processTuple(T tuple);
+
+  /**
+   * Sets the number of times commit operation is re-tried if it fails.<br/>
+   * <b>Default:</b> 0
+   *
+   * @param retries no. of retries.
+   */
+  public void setNumOfCommitRetries(int retries)
+  {
+    this.numOfCommitRetries = retries;
+  }
+
+  protected void commit()
+  {
+    for (int i = 0; i <= numOfCommitRetries; i++) {
+      try {
+        store.commitTransaction();
+        return;
+      }
+      catch (Transactionable.OperationFailedException e) {
+        if (i == numOfCommitRetries) {
+          try {
+            store.rollbackTransaction();
+          }
+          catch (Transactionable.OperationFailedException ex) {
+            throw new RuntimeException(ex);
+          }
+          finally {
+            try {
+              store.disconnect();
+            }
+            catch (IOException ioEx) {
+              throw new RuntimeException(ioEx);
+            }
+          }
+          throw new RuntimeException(e);
+        }
+      }
+    }
+  }
 
 }
