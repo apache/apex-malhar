@@ -38,7 +38,7 @@ public abstract class AbstractPassThruTransactionableStoreOutputOperator<T, S ex
   public void endWindow()
   {
     store.storeCommittedWindowId(appId, operatorId, currentWindowId);
-    commit();
+    store.commitTransaction();
     committedWindowId = currentWindowId;
     super.endWindow();
   }

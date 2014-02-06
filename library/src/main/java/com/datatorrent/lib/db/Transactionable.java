@@ -30,28 +30,16 @@ public interface Transactionable
   /**
    * Commits the current transaction.
    */
-  public void commitTransaction() throws OperationFailedException;
+  public void commitTransaction();
 
   /**
    * Rolls back the current transaction.
    */
-  public void rollbackTransaction() throws OperationFailedException;
+  public void rollbackTransaction();
 
   /**
    * Returns whether currently is in a transaction.
    * @return
    */
   public boolean isInTransaction();
-
-  /**
-   * The OperationFailedException is thrown from a {@link Transactionable} when {@link Transactionable#commitTransaction()}
-   * or {@link Transactionable#rollbackTransaction()} fail.
-   */
-  public static class OperationFailedException extends Exception
-  {
-    public OperationFailedException(String message)
-    {
-      super(message);
-    }
-  }
 }
