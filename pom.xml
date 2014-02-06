@@ -22,6 +22,7 @@
   </repositories>
 
   <properties> 
+    <maven.deploy.skip>false</maven.deploy.skip>
     <dt.framework.version>0.9.3-RC4</dt.framework.version>
     <!-- the following properties match the properties defined in core/pom.xml -->
     <jackson.version>1.9.2</jackson.version>
