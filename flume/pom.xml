@@ -94,7 +94,7 @@
               <mappings>
                 <mapping>
                   <directory>${package.prefix}/flume-${project.version}/lib</directory>
-                  <filemode>640</filemode>
+                  <filemode>750</filemode>
                   <username>${package.username}</username>
                   <groupname>${package.groupname}</groupname>
                   <artifact></artifact>
