@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.TreeSet;
-
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
@@ -47,11 +46,19 @@ public class DemoValueGenerator extends BaseOperator implements InputOperator {
     
     private transient Map<String, Number> topNKeyValues = new HashMap<String, Number>();
     
+    private transient HashMap<String, Number> piechartValues = new HashMap<String, Number>();
+    
     {
       for (int i = 0; i < 20; i++) {
-        topNKeyValues.put("testkey" + i, 0);
+        if (i < 10){
+          topNKeyValues.put("testkey0" + i, 0);
+        }
+        else{
+          topNKeyValues.put("testkey" + i, 0);
+        }
       }
     }
+    
 
     @OutputPortFieldAnnotation(name="simple output", optional=false)
     public final transient DefaultOutputPort<TimeSeriesData[]> simpleOutput = new DefaultOutputPort<TimeSeriesData[]>();
@@ -67,6 +74,9 @@ public class DemoValueGenerator extends BaseOperator implements InputOperator {
     
     @OutputPortFieldAnnotation(name="progress output", optional=false)
     public final transient DefaultOutputPort<Integer> progressOutput = new DefaultOutputPort<Integer>();
+    
+    @OutputPortFieldAnnotation(name="piechart output", optional=false)
+    public final transient DefaultOutputPort<HashMap<String, Number>> pieChartOutput = new DefaultOutputPort<HashMap<String, Number>>();
 
     public DemoValueGenerator() {
     }
@@ -103,6 +113,16 @@ public class DemoValueGenerator extends BaseOperator implements InputOperator {
           topNResult.put(entry.getKey(), entry.getValue());
         }
         
+        int[] pieNumbers = {rand.nextInt(100), rand.nextInt(100), rand.nextInt(100), rand.nextInt(100), rand.nextInt(100)};
+        int sum = 0;
+        for (int i = 0; i < pieNumbers.length; i++) {
+          sum += pieNumbers[i];
+        }
+        for (int i = 0; i < pieNumbers.length; i++) {
+          piechartValues.put("part" + i, (double)pieNumbers[i]/(double)sum);
+        }
+        
+        pieChartOutput.emit(piechartValues);
         top10Output.emit(topNResult);
         percentageOutput.emit(rand.nextInt(100));
         progress = (progress + rand.nextInt(5))%100;
