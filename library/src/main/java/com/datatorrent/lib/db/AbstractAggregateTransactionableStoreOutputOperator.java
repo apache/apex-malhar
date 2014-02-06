@@ -24,20 +24,20 @@ package com.datatorrent.lib.db;
  */
 public abstract class AbstractAggregateTransactionableStoreOutputOperator<T, S extends TransactionableStore> extends AbstractTransactionableStoreOutputOperator<T, S>
 {
-
   @Override
   public void endWindow()
   {
     store.beginTransaction();
     storeAggregate();
     store.storeCommittedWindowId(appId, operatorId, currentWindowId);
-    commit();
+    store.commitTransaction();
     committedWindowId = currentWindowId;
     super.endWindow();
   }
 
   /**
    * Stores the aggregated state to persistent store at end window.
+   *
    */
   public abstract void storeAggregate();
 }
