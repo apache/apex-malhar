@@ -6,6 +6,8 @@
     </class>
   </keep-names>
   <property name="incremental-obfuscation" value="../engine/target/allatori-log.xml"/>
+  <!-- If serializing inner classes with Kryo disable synthetize-fields -->
+  <property name="synthetize-fields" value="disable"/>
   <jars>
     <jar in="${dep1.jar}" out="target/temp.jar" />
     <jar in="${obf.jar}" out="${obf.jar}"/>
