@@ -17,6 +17,7 @@ var _ = require('underscore');
 var BaseView = DT.widgets.Widget;
 var d3 = require('d3');
 var dagreD3 = require('dagre-d3');
+var settings = DT.settings;
 
 /**
  * Base class for DAG widgets
@@ -385,7 +386,7 @@ var DagWidget = BaseView.extend({
         event.preventDefault();
 
         var toggleLocalityLink = this.$el.find('.toggle-locality');
-        var legend = this.$el.find('.logical-dag-legend');
+        var legend = this.$el.find('.dag-legend');
 
         this.showLocality = !this.showLocality;
 
