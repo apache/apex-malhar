@@ -1,24 +1,10 @@
 /*
- * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Copyright (c) 2012-2013 Malhar, Inc.
+ *  All Rights Reserved.
  */
 package com.datatorrent.flume.source;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Timer;
@@ -39,8 +25,8 @@ import com.google.common.base.Strings;
 
 public class DTFlumeSource extends AbstractSource implements EventDrivenSource, Configurable
 {
-  private static String FILE_NAME = "sourceFile";
-  private static String RATE = "rate";
+  static String FILE_NAME = "sourceFile";
+  static String RATE = "rate";
   private static String d1 = "2013-11-07";
   private static String d2 = "2103-11-08";
 
@@ -71,11 +57,10 @@ public class DTFlumeSource extends AbstractSource implements EventDrivenSource, 
   {
     filePath = Preconditions.checkNotNull(context.getString(FILE_NAME));
     rate = context.getInteger(RATE);
-
     emitTimer = new Timer();
     Preconditions.checkArgument(!Strings.isNullOrEmpty(filePath));
     try {
-      lineReader = new BufferedReader(new FileReader(filePath));
+      lineReader = new BufferedReader(new InputStreamReader( new FileInputStream(filePath)));
     }
     catch (FileNotFoundException e) {
       throw new RuntimeException(e);
@@ -97,7 +82,7 @@ public class DTFlumeSource extends AbstractSource implements EventDrivenSource, 
             String line = lineReader.readLine();
             if (line == null) {
               lineReader.close();
-              lineReader = new BufferedReader(new FileReader(filePath));
+              lineReader = new BufferedReader(new InputStreamReader( new FileInputStream(filePath)));
               line = lineReader.readLine();
             }
             String eventToSend = null;
@@ -107,7 +92,6 @@ public class DTFlumeSource extends AbstractSource implements EventDrivenSource, 
             if (line.contains(d2)) {
               eventToSend = line.replaceAll(d2, todayDate);
             }
-
             Event event = EventBuilder.withBody(eventToSend.getBytes());
             channel.processEvent(event);
           }
