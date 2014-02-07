@@ -43,20 +43,23 @@ public class DTFlumeSource extends AbstractSource implements EventDrivenSource, 
   public DTFlumeSource()
   {
     super();
+    this.rate = 2500;
+  }
+
+  public void updateDates()
+  {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     Calendar cal = Calendar.getInstance();
     todayDate = format.format(cal.getTime());
     cal.add(Calendar.DATE, -1);
     yesterdayDate = format.format(cal.getTime());
-    rate = -1;
-
   }
 
   @Override
   public void configure(Context context)
   {
     filePath = Preconditions.checkNotNull(context.getString(FILE_NAME));
-    rate = context.getInteger(RATE);
+    rate = context.getInteger(RATE, rate);
     emitTimer = new Timer();
     Preconditions.checkArgument(!Strings.isNullOrEmpty(filePath));
     try {
@@ -71,12 +74,15 @@ public class DTFlumeSource extends AbstractSource implements EventDrivenSource, 
   @Override
   public void start()
   {
+    super.start();
+
     final ChannelProcessor channel = getChannelProcessor();
     emitTimer.scheduleAtFixedRate(new TimerTask()
     {
       @Override
       public void run()
       {
+        updateDates(); // make this run only once a day
         try {
           for (int i = 0; i < rate; i++) {
             String line = lineReader.readLine();
@@ -92,7 +98,7 @@ public class DTFlumeSource extends AbstractSource implements EventDrivenSource, 
             if (line.contains(d2)) {
               eventToSend = line.replaceAll(d2, todayDate);
             }
-            Event event = EventBuilder.withBody(eventToSend.getBytes());
+            Event event = EventBuilder.withBody(eventToSend == null? line.getBytes(): eventToSend.getBytes());
             channel.processEvent(event);
           }
         }
