@@ -27,27 +27,29 @@ public class DTFlumeSource extends AbstractSource implements EventDrivenSource, 
 {
   static String FILE_NAME = "sourceFile";
   static String RATE = "rate";
+  static byte FIELD_SEPARATOR = 1;
   private static String d1 = "2013-11-07";
-  private static String d2 = "2013-11-08";
 
   public Timer emitTimer;
 
   @Nonnull
   public String filePath;
   public int rate;
-  public String yesterdayDate;
-  public String todayDate;
+  public transient String yesterdayDate;
+  public transient String todayDate;
 
   private transient BufferedReader lineReader;
 
   public DTFlumeSource()
   {
     super();
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
     Calendar cal = Calendar.getInstance();
-    todayDate = format.format(cal.getTime());
+    todayDate = dateFormat.format(cal.getTimeInMillis());
+
     cal.add(Calendar.DATE, -1);
-    yesterdayDate = format.format(cal.getTime());
+    yesterdayDate = dateFormat.format(cal.getTimeInMillis());
     rate = -1;
 
   }
@@ -60,7 +62,7 @@ public class DTFlumeSource extends AbstractSource implements EventDrivenSource, 
     emitTimer = new Timer();
     Preconditions.checkArgument(!Strings.isNullOrEmpty(filePath));
     try {
-      lineReader = new BufferedReader(new InputStreamReader( new FileInputStream(filePath)));
+      lineReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));
     }
     catch (FileNotFoundException e) {
       throw new RuntimeException(e);
@@ -82,17 +84,41 @@ public class DTFlumeSource extends AbstractSource implements EventDrivenSource, 
             String line = lineReader.readLine();
             if (line == null) {
               lineReader.close();
-              lineReader = new BufferedReader(new InputStreamReader( new FileInputStream(filePath)));
+              lineReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));
               line = lineReader.readLine();
             }
-            String eventToSend = null;
-            if (line.contains(d1)) {
-              eventToSend = line.replaceAll(d1, yesterdayDate);
+            byte[] row = line.getBytes();
+            final int rowsize = row.length;
+
+            /* guid */
+            int sliceLengh = -1;
+            while (++sliceLengh < rowsize) {
+              if (row[sliceLengh] == FIELD_SEPARATOR) {
+                break;
+              }
             }
-            if (line.contains(d2)) {
-              eventToSend = line.replaceAll(d2, todayDate);
+
+            /* skip the next record */
+            int pointer = sliceLengh + 1;
+            while (pointer < rowsize) {
+              if (row[pointer++] == FIELD_SEPARATOR) {
+                break;
+              }
             }
-            Event event = EventBuilder.withBody(eventToSend.getBytes());
+
+           /* lets parse the date */
+            int dateStart = pointer;
+            while (pointer < rowsize) {
+              if (row[pointer++] == FIELD_SEPARATOR) {
+                String date = new String(row, dateStart, pointer - dateStart - 1);
+                if (date.contains(d1)) {
+                  System.arraycopy(yesterdayDate.getBytes(), 0, row, dateStart, yesterdayDate.getBytes().length);
+                }
+                else
+                  System.arraycopy(todayDate.getBytes(), 0, row, dateStart, todayDate.getBytes().length);
+              }
+            }
+            Event event = EventBuilder.withBody(row);
             channel.processEvent(event);
           }
         }
