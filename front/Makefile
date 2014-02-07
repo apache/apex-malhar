@@ -51,20 +51,4 @@ build_debug:
 	rm -rf dist
 	mv dist_tmp dist
 	node bin/setBuildVersions.js
-
-# Spins up a beefy server that will browserify the UI javascript on-demand.
-# Used only during development. 
-bundle:
-	./node_modules/.bin/beefy js/start.dev.js:bundle.js 9222 -- --ig --debug
-
-# Same as above, but uses the ktbr transformation to inline all underscore templates
-bundle_ktbr:
-	./node_modules/.bin/beefy js/start.dev.js:bundle.js 9222 -- -t ktbr --debug
-
-
-# This bundle will trigger the page to refresh when a change to any files have been made.
-# It can be convenient, but can also start hogging the CPU.
-livebundle:
-	./node_modules/.bin/beefy js/start.dev.js:bundle.js 9222 --live 9223 -- --ig --debug
-
 .PHONY: test
