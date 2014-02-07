@@ -28,7 +28,7 @@ public class DTFlumeSource extends AbstractSource implements EventDrivenSource, 
   static String FILE_NAME = "sourceFile";
   static String RATE = "rate";
   private static String d1 = "2013-11-07";
-  private static String d2 = "2103-11-08";
+  private static String d2 = "2013-11-08";
 
   public Timer emitTimer;
 
