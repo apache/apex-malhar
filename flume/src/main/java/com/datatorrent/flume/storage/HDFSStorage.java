@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Random;
 
 import javax.validation.constraints.NotNull;
 
@@ -121,7 +120,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
 
   /**
    * This stores the Identifier information identified in the last store function call
-   * 
+   *
    * @param ctx
    */
   // private byte[] fileOffset = new byte[IDENTIFIER_SIZE];
@@ -153,7 +152,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
 
   /**
    * This function reads the file at a location and return the bytes stored in the file "
-   * 
+   *
    * @param path
    *          - the location of the file
    * @return
@@ -170,7 +169,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
 
   /**
    * This function writes the bytes to a file specified by the path
-   * 
+   *
    * @param path
    *          the file location
    * @param data
@@ -231,7 +230,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   }
 
   /**
-   * 
+   *
    * @param b
    * @param size
    * @param startIndex
@@ -476,7 +475,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       itr.next().close();
     }
     files2Commit.clear();
-    
+
     if (dataStream != null) {
       try {
         dataStream.hflush();
@@ -487,7 +486,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
         logger.warn("not able to close the stream {}", ex.getMessage());
         throw new RuntimeException(ex);
       }
-    }    
+    }
     flushedFileCounter = currentWrittenFile;
     //logger.debug("flushedFileCounter in flush {}",flushedFileCounter);
   }
