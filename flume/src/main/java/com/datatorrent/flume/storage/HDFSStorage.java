@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Random;
 
 import javax.validation.constraints.NotNull;
 
@@ -254,11 +255,6 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       skipOffset = 0;
       return null;
     }
-    if ((retrievalFile > currentWrittenFile) || (retrievalFile == currentWrittenFile && retrievalOffset >= fileWriteOffset)) {
-      skipFile = retrievalFile;
-      skipOffset = retrievalOffset;
-      return null;
-    }
 
     // making sure that the deleted address is not requested again
     if (retrievalFile != 0 || retrievalOffset != 0) {
@@ -275,6 +271,11 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       retrievalOffset = byteArrayToLong(cleanedOffset, 0);
     }
 
+    if ((retrievalFile > currentWrittenFile) || (retrievalFile == currentWrittenFile && retrievalOffset >= fileWriteOffset)) {
+      skipFile = retrievalFile;
+      skipOffset = retrievalOffset;
+      return null;
+    }
     try {
       if (readStream != null) {
         readStream.close();
