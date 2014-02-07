@@ -38,17 +38,15 @@ build:
 # logger enabled. Good for debugging issues that occur when the project is
 # deployed but not during development.
 build_debug:
+	rm -rf dist_tmp
 	mkdir dist_tmp
-	cp index.html dist_tmp/index.html
 	cp package.json dist_tmp/package.json
 	cp favicon.ico dist_tmp/favicon.ico
 	mkdir dist_tmp/css
 	mkdir dist_tmp/js
 	mkdir dist_tmp/img
-	./node_modules/.bin/lessc -x --strict-imports css/index.less dist_tmp/css/index.css
+	./node_modules/.bin/lessc --strict-imports css/index.less dist_tmp/css/index.css
 	./node_modules/.bin/browserify -t ./node_modules/ktbr js/start.js > dist_tmp/js/bundle.js
-	cat js/vendor/jquery/dist/jquery.js dist_tmp/js/bundle.js > dist_tmp/js/bundle.tmp.js
-	mv dist_tmp/js/bundle.tmp.js dist_tmp/js/bundle.js
 	cp img/* dist_tmp/img/
 	rm -rf dist
 	mv dist_tmp dist
