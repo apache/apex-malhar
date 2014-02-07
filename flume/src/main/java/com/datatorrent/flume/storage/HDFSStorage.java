@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Random;
 
 import javax.validation.constraints.NotNull;
 
@@ -198,6 +199,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   @Override
   public byte[] store(byte[] bytes)
   {
+    logger.debug("store message ");
     int bytesToWrite = bytes.length + DATA_LENGTH_BYTE_SIZE;
     if (fileWriteOffset + bytesToWrite < blockSize) {
       try {
@@ -244,6 +246,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   @Override
   public byte[] retrieve(byte[] identifier)
   {
+    logger.debug("retrieve");
     // flushing the last incomplete flushed file
     closeUnflushedFiles();
 
@@ -252,11 +255,6 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
 
     if (retrievalFile == 0 && retrievalOffset == 0 && currentWrittenFile == 0 && fileWriteOffset == 0) {
       skipOffset = 0;
-      return null;
-    }
-    if ((retrievalFile > currentWrittenFile) || (retrievalFile == currentWrittenFile && retrievalOffset >= fileWriteOffset)) {
-      skipFile = retrievalFile;
-      skipOffset = retrievalOffset;
       return null;
     }
 
@@ -275,6 +273,11 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       retrievalOffset = byteArrayToLong(cleanedOffset, 0);
     }
 
+    if ((retrievalFile > currentWrittenFile) || (retrievalFile == currentWrittenFile && retrievalOffset >= fileWriteOffset)) {
+      skipFile = retrievalFile;
+      skipOffset = retrievalOffset;
+      return null;
+    }
     try {
       if (readStream != null) {
         readStream.close();
@@ -338,6 +341,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   @Override
   public byte[] retrieveNext()
   {
+    logger.debug("retrieveNext");
     if (retrievalFile == -1) {
       throw new RuntimeException("Call retrieve first");
     }
@@ -380,6 +384,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   @SuppressWarnings("AssignmentToCollectionOrArrayFieldFromParameter")
   public void clean(byte[] identifier)
   {
+    logger.info("clean {}" , new String(identifier));
     long cleanFileIndex = byteArrayToLong(identifier, offset);
     if (cleanedFileCounter >= cleanFileIndex) {
       return;
@@ -468,6 +473,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   @Override
   public void flush()
   {
+    logger.debug("flush");
     Iterator<DataBlock> itr = files2Commit.iterator();
     while (itr.hasNext()) {
       itr.next().close();
@@ -486,7 +492,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       }
     }    
     flushedFileCounter = currentWrittenFile;
-   
+    logger.debug("flushedFileCounter in flush {}",flushedFileCounter);
   }
 
   /**
