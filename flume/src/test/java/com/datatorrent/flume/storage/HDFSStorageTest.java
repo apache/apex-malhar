@@ -213,6 +213,7 @@ public class HDFSStorageTest
     System.arraycopy(data, 8, tempData, 0, tempData.length);
     Assert.assertEquals("matched the stored value with retrieved value", new String(b), new String(tempData));
   }
+
   @Test
   public void testCleanForUnflushedData() throws IOException
   {
@@ -223,7 +224,7 @@ public class HDFSStorageTest
       storage.store(b);
       address = storage.store(b);
       storage.flush();
-      //storage.clean(address);
+      // storage.clean(address);
     }
     byte[] lastWrittenAddress = null;
     for (int i = 0; i < 5; i++) {
@@ -231,11 +232,11 @@ public class HDFSStorageTest
       lastWrittenAddress = storage.store(b);
     }
     storage.clean(lastWrittenAddress);
-    byte[] cleanedOffset = storage.readData(new Path(STORAGE_DIRECTORY+"/1/cleanoffsetFile"));
+    byte[] cleanedOffset = storage.readData(new Path(STORAGE_DIRECTORY + "/1/cleanoffsetFile"));
     Assert.assertArrayEquals(address, cleanedOffset);
-    
+
   }
-  
+
   @Test
   public void testCleanForFlushedData() throws IOException
   {
@@ -245,7 +246,7 @@ public class HDFSStorageTest
       storage.store(b);
       storage.store(b);
       storage.flush();
-      //storage.clean(address);
+      // storage.clean(address);
     }
     byte[] lastWrittenAddress = null;
     for (int i = 0; i < 5; i++) {
@@ -254,11 +255,53 @@ public class HDFSStorageTest
     }
     storage.flush();
     storage.clean(lastWrittenAddress);
-    byte[] cleanedOffset = storage.readData(new Path(STORAGE_DIRECTORY+"/1/cleanoffsetFile"));
+    byte[] cleanedOffset = storage.readData(new Path(STORAGE_DIRECTORY + "/1/cleanoffsetFile"));
     Assert.assertArrayEquals(lastWrittenAddress, cleanedOffset);
-    
+
   }
-  
+
+  @Test
+  public void testRandomSequence() throws IOException
+  {
+    storage.retrieve(new byte[] { -31, -25, 37, 5, 2, 0, 0, 0 });
+    storage.store(new byte[] { 48, 48, 48, 51, 101, 100, 55, 56, 55, 49, 53, 99, 52, 101, 55, 50, 97, 52, 48, 49, 51, 99, 97, 54, 102, 57, 55, 53, 57, 100, 49, 99, 1, 50, 48, 49, 51, 45, 49, 49, 45, 48, 55, 1, 50, 48, 49, 51, 45, 49, 49, 45, 48, 55, 32, 48, 48, 58, 48, 48, 58, 52, 54, 1, 52, 50, 49, 50, 51, 1, 50, 1, 49, 53, 49, 49, 52, 50, 54, 53, 1, 49, 53, 49, 49, 57, 51, 53, 49, 1, 49, 53, 49, 50, 57, 56, 50, 52, 1, 49, 53, 49, 50, 49, 55, 48, 55, 1, 49, 48, 48, 55, 55, 51, 57, 51, 1, 49, 57, 49, 52, 55, 50, 53, 52, 54, 49, 1, 49, 1, 48, 1, 48, 46, 48, 1, 48, 46, 48, 1, 48, 46, 48 });
+    storage.flush();
+    storage.clean(new byte[] { -109, 0, 0, 0, 0, 0, 0, 0 });
+    storage.retrieve(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 });
+    for (int i = 0; i < 2555; i++) {
+      storage.store(new byte[] { 48, 48, 48, 55, 56, 51, 98, 101, 50, 54, 50, 98, 52, 102, 50, 54, 56, 97, 55, 56, 102, 48, 54, 54, 50, 49, 49, 54, 99, 98, 101, 99, 1, 50, 48, 49, 51, 45, 49, 49, 45, 48, 55, 1, 50, 48, 49, 51, 45, 49, 49, 45, 48, 55, 32, 48, 48, 58, 48, 48, 58, 53, 49, 1, 49, 49, 49, 49, 54, 51, 57, 1, 50, 1, 49, 53, 49, 48, 57, 57, 56, 51, 1, 49, 53, 49, 49, 49, 55, 48, 52, 1, 49, 53, 49, 50, 49, 51, 55, 49, 1, 49, 53, 49, 49, 52, 56, 51, 49, 1, 49, 48, 48, 55, 49, 57, 56, 49, 1, 49, 50, 48, 50, 55, 54, 49, 54, 56, 53, 1, 49, 1, 48, 1, 48, 46, 48, 1, 48, 46, 48, 1, 48, 46, 48 });
+      storage.flush();
+    }
+    storage.retrieve(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 });
+    for (int i = 0; i < 1297; i++) {
+      storage.retrieveNext();
+    }
+    storage.retrieve(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 });
+    for (int i = 0; i < 1302; i++) {
+      storage.retrieveNext();
+    }
+    storage.retrieve(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 });
+    for (int i = 0; i < 1317; i++) {
+      storage.retrieveNext();
+    }
+    storage.retrieve(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 });
+    for (int i = 0; i < 2007; i++) {
+      storage.retrieveNext();
+    }
+    storage.retrieve(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 });
+    for (int i = 0; i < 2556; i++) {
+      ;
+      storage.retrieveNext();
+    }
+    storage.store(new byte[] { 48, 48, 48, 48, 98, 48, 52, 54, 49, 57, 55, 51, 52, 97, 53, 101, 56, 56, 97, 55, 98, 53, 52, 51, 98, 50, 102, 51, 49, 97, 97, 54, 1, 50, 48, 49, 51, 45, 49, 49, 45, 48, 55, 1, 50, 48, 49, 51, 45, 49, 49, 45, 48, 55, 32, 48, 48, 58, 51, 49, 58, 52, 56, 1, 49, 48, 53, 53, 57, 52, 50, 1, 50, 1, 49, 53, 49, 49, 54, 49, 56, 52, 1, 49, 53, 49, 49, 57, 50, 49, 49, 1, 49, 53, 49, 50, 57, 54, 54, 53, 1, 49, 53, 49, 50, 49, 53, 52, 56, 1, 49, 48, 48, 56, 48, 51, 52, 50, 1, 55, 56, 56, 50, 54, 53, 52, 56, 1, 49, 1, 48, 1, 48, 46, 48, 1, 48, 46, 48, 1, 48, 46, 48 });
+    storage.flush();
+    storage.retrieve(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 });
+    for (int i = 0; i < 2062; i++) {
+      storage.retrieveNext();
+
+    }
+  }
+
   private long calculateOffset(long fileOffset, long fileCounter)
   {
     return ((fileCounter << 32) | (fileOffset & 0xffffffffl));
