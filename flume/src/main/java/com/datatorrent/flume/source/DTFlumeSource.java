@@ -4,9 +4,7 @@
  */
 package com.datatorrent.flume.source;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -22,14 +20,17 @@ import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.source.AbstractSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
 public class DTFlumeSource extends AbstractSource implements EventDrivenSource, Configurable
 {
+  private static final Logger logger = LoggerFactory.getLogger(DTFlumeSource.class);
+
   static String FILE_NAME = "sourceFile";
   static String RATE = "rate";
   static byte FIELD_SEPARATOR = 1;
@@ -42,41 +43,39 @@ public class DTFlumeSource extends AbstractSource implements EventDrivenSource, 
   public int rate;
   public transient String yesterdayDate;
   public transient String todayDate;
-
-  private transient BufferedReader lineReader;
   private transient List<Event> cache;
+  private transient int startIdx;
 
   public DTFlumeSource()
   {
     super();
-    final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    this.rate = 2500;
+    startIdx = 0;
+  }
 
+  public void updateDates()
+  {
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     Calendar cal = Calendar.getInstance();
     todayDate = dateFormat.format(cal.getTimeInMillis());
 
     cal.add(Calendar.DATE, -1);
-    yesterdayDate = dateFormat.format(cal.getTimeInMillis());
-    rate = -1;
-
+    yesterdayDate = dateFormat.format(cal.getTime());
   }
 
   @Override
   public void configure(Context context)
   {
-    filePath = Preconditions.checkNotNull(context.getString(FILE_NAME));
-    rate = context.getInteger(RATE);
+    filePath = context.getString(FILE_NAME);
+    rate = context.getInteger(RATE, rate);
     emitTimer = new Timer();
+    updateDates();
     Preconditions.checkArgument(!Strings.isNullOrEmpty(filePath));
     cache = Lists.newArrayListWithCapacity(rate);
     try {
-      lineReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));
-      for (int i = 0; i < rate; i++) {
-        String line = lineReader.readLine();
-        if (line == null) {
-          lineReader.close();
-          lineReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));
-          line = lineReader.readLine();
-        }
+      BufferedReader lineReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));
+      String line;
+      while ((line = lineReader.readLine()) != null) {
         byte[] row = line.getBytes();
         final int rowsize = row.length;
 
@@ -109,12 +108,16 @@ public class DTFlumeSource extends AbstractSource implements EventDrivenSource, 
             break;
           }
         }
+        logger.debug(new String(row, 0, row.length));
         Event event = EventBuilder.withBody(row);
         cache.add(event);
       }
     }
-    catch (Throwable t) {
-      Throwables.propagate(t);
+    catch (FileNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+    catch (IOException e) {
+      throw new RuntimeException(e);
     }
 
   }
@@ -122,15 +125,18 @@ public class DTFlumeSource extends AbstractSource implements EventDrivenSource, 
   @Override
   public void start()
   {
+    super.start();
+
     final ChannelProcessor channel = getChannelProcessor();
     emitTimer.scheduleAtFixedRate(new TimerTask()
     {
       @Override
       public void run()
       {
-        for (Event event : cache) {
-          channel.processEvent(event);
+        for (int i = startIdx; i < startIdx + rate; i++) {
+          channel.processEvent(cache.get(i));
         }
+        startIdx = (startIdx + rate) % cache.size();
       }
     }, 0, 1000);
   }
