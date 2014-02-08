@@ -3,8 +3,6 @@
  */
 package com.datatorrent.flume.storage;
 
-import java.util.Arrays;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +28,7 @@ public class DebugWrapper implements Storage, Configurable, Component<com.datato
       ret = storage.store(bytes);
     }
     finally {
-      logger.debug("storage.store(new byte[]{{}});", Arrays.toString(bytes));
+      logger.debug("storage.store(new byte[]{{}});", bytes);
     }
 
     return ret;
@@ -45,7 +43,7 @@ public class DebugWrapper implements Storage, Configurable, Component<com.datato
       ret = storage.retrieve(identifier);
     }
     finally {
-      logger.debug("storage.retrieve(new byte[]{{}});", Arrays.toString(identifier));
+      logger.debug("storage.retrieve(new byte[]{{}});", identifier);
     }
 
     return ret;
