@@ -13,6 +13,13 @@ import java.util.TimerTask;
 
 import javax.annotation.Nonnull;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.EventDrivenSource;
@@ -20,44 +27,24 @@ import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.source.AbstractSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 
 public class TestSource extends AbstractSource implements EventDrivenSource, Configurable
 {
-  private static final Logger logger = LoggerFactory.getLogger(TestSource.class);
   static String FILE_NAME = "sourceFile";
   static String RATE = "rate";
   static byte FIELD_SEPARATOR = 1;
   private static String d1 = "2013-11-07";
   public Timer emitTimer;
   @Nonnull
-  public String filePath;
-  public int rate;
-  public transient String yesterdayDate;
-  public transient String todayDate;
-  private transient List<Event> cache;
-  private transient int startIdx;
+  String filePath;
+  int rate;
+  transient List<Event> cache;
+  private transient int startIndex;
 
   public TestSource()
   {
     super();
     this.rate = 2500;
-    startIdx = 0;
-  }
-
-  public void updateDates()
-  {
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    Calendar cal = Calendar.getInstance();
-    todayDate = format.format(cal.getTimeInMillis());
-
-    cal.add(Calendar.DATE, -1);
-    yesterdayDate = format.format(cal.getTime());
   }
 
   @Override
@@ -65,47 +52,14 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
   {
     filePath = context.getString(FILE_NAME);
     rate = context.getInteger(RATE, rate);
-    emitTimer = new Timer();
     Preconditions.checkArgument(!Strings.isNullOrEmpty(filePath));
-    cache = Lists.newArrayListWithCapacity(rate);
     try {
       BufferedReader lineReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));
-      String line;
-      while ((line = lineReader.readLine()) != null) {
-        byte[] row = line.getBytes();
-        final int rowsize = row.length;
-
-        /* guid */
-        int sliceLengh = -1;
-        while (++sliceLengh < rowsize) {
-          if (row[sliceLengh] == FIELD_SEPARATOR) {
-            break;
-          }
-        }
-        /* skip the next record */
-        int pointer = sliceLengh + 1;
-        while (pointer < rowsize) {
-          if (row[pointer++] == FIELD_SEPARATOR) {
-            break;
-          }
-        }
-
-        /* lets parse the date */
-        int dateStart = pointer;
-        while (pointer < rowsize) {
-          if (row[pointer++] == FIELD_SEPARATOR) {
-            String date = new String(row, dateStart, pointer - dateStart - 1);
-            if (date.indexOf(d1) >= 0) {
-              System.arraycopy(yesterdayDate.getBytes(), 0, row, dateStart, yesterdayDate.getBytes().length);
-            }
-            else {
-              System.arraycopy(todayDate.getBytes(), 0, row, dateStart, todayDate.getBytes().length);
-            }
-            break;
-          }
-        }
-        logger.debug(new String(row, 0, row.length));
-        cache.add(EventBuilder.withBody(row));
+      try {
+        buildCache(lineReader);
+      }
+      finally {
+        lineReader.close();
       }
     }
     catch (FileNotFoundException e) {
@@ -120,25 +74,29 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
   public void start()
   {
     super.start();
+    emitTimer = new Timer();
 
     final ChannelProcessor channel = getChannelProcessor();
+    final int cacheSize = cache.size();
     emitTimer.scheduleAtFixedRate(new TimerTask()
     {
       @Override
       public void run()
       {
-        int size = cache.size();
-        int index = startIdx;
-
-        try {
-          for (int i = rate; i-- > 0;) {
-            channel.processEvent(cache.get(index));
-            index = (index + 1) % size;
+        int lastIndex = startIndex + rate;
+        if (lastIndex > cacheSize) {
+          lastIndex -= cacheSize;
+          channel.processEventBatch(cache.subList(startIndex, cacheSize));
+          while (lastIndex > cacheSize) {
+            channel.processEventBatch(cache);
+            lastIndex -= cacheSize;
           }
+          channel.processEventBatch(cache.subList(0, lastIndex));
         }
-        finally {
-          startIdx = index;
+        else {
+          channel.processEventBatch(cache.subList(startIndex, lastIndex));
         }
+        startIndex = lastIndex;
       }
 
     }, 0, 1000);
@@ -151,4 +109,55 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
     super.stop();
   }
 
+  private void buildCache(BufferedReader lineReader) throws IOException
+  {
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+
+    Calendar cal = Calendar.getInstance();
+    String todayDate = format.format(cal.getTimeInMillis());
+
+    cal.add(Calendar.DATE, -1);
+    String yesterdayDate = format.format(cal.getTime());
+
+    cache = Lists.newArrayListWithCapacity(rate);
+
+    String line;
+    while ((line = lineReader.readLine()) != null) {
+      byte[] row = line.getBytes();
+      final int rowsize = row.length;
+
+      /* guid */
+      int sliceLengh = -1;
+      while (++sliceLengh < rowsize) {
+        if (row[sliceLengh] == FIELD_SEPARATOR) {
+          break;
+        }
+      }
+      /* skip the next record */
+      int pointer = sliceLengh + 1;
+      while (pointer < rowsize) {
+        if (row[pointer++] == FIELD_SEPARATOR) {
+          break;
+        }
+      }
+
+      /* lets parse the date */
+      int dateStart = pointer;
+      while (pointer < rowsize) {
+        if (row[pointer++] == FIELD_SEPARATOR) {
+          String date = new String(row, dateStart, pointer - dateStart - 1);
+          if (date.indexOf(d1) >= 0) {
+            System.arraycopy(yesterdayDate.getBytes(), 0, row, dateStart, yesterdayDate.getBytes().length);
+          }
+          else {
+            System.arraycopy(todayDate.getBytes(), 0, row, dateStart, todayDate.getBytes().length);
+          }
+          break;
+        }
+      }
+      cache.add(EventBuilder.withBody(row));
+    }
+  }
+
+  private static final Logger logger = LoggerFactory.getLogger(TestSource.class);
 }
