@@ -134,9 +134,17 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
         }
       }
       /* skip the next record */
+      int recordStart = sliceLengh + 1;
       int pointer = sliceLengh + 1;
       while (pointer < rowsize) {
         if (row[pointer++] == FIELD_SEPARATOR) {
+          String date = new String(row, recordStart, pointer - recordStart - 1);
+          if (date.indexOf(d1) >= 0) {
+            System.arraycopy(yesterdayDate.getBytes(), 0, row, recordStart, yesterdayDate.getBytes().length);
+          }
+          else {
+            System.arraycopy(todayDate.getBytes(), 0, row, recordStart, todayDate.getBytes().length);
+          }
           break;
         }
       }
@@ -155,6 +163,7 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
           break;
         }
       }
+
       cache.add(EventBuilder.withBody(row));
     }
   }
