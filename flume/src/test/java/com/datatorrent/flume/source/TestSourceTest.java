@@ -71,9 +71,8 @@ public class TestSourceTest
       for (int i = ts.cache.size(); i-- > 0;) {
         Event event =  queue.poll(2, TimeUnit.SECONDS);
         String row = new String(event.getBody()) ;
-        assertNotNull(event);
-        assertFalse(row.contains("2013-11-07"));
-        assertFalse(row.contains("2013-11-08"));
+        assertFalse("2013-11-07 should not be present", row.contains("2013-11-07"));
+        assertFalse("2013-11-08 should not be present", row.contains("2013-11-08"));
       }
     }
     finally {
