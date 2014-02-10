@@ -23,7 +23,7 @@ build:
 	mkdir dist_tmp/css
 	mkdir dist_tmp/js
 	mkdir dist_tmp/img
-	./node_modules/.bin/lessc -x --strict-imports css/index.less dist_tmp/css/index.css
+	./node_modules/.bin/lessc -ru -x --strict-imports css/index.less dist_tmp/css/index.css
 	./node_modules/.bin/browserify -t ./node_modules/ktbr js/start.js > dist_tmp/js/bundle.js
 	./node_modules/.bin/uglifyjs \
 		js/vendor/jquery/dist/jquery.js \
@@ -45,7 +45,7 @@ build_debug:
 	mkdir dist_tmp/css
 	mkdir dist_tmp/js
 	mkdir dist_tmp/img
-	./node_modules/.bin/lessc --strict-imports css/index.less dist_tmp/css/index.css
+	./node_modules/.bin/lessc -ru --strict-imports css/index.less dist_tmp/css/index.css
 	./node_modules/.bin/browserify -t ./node_modules/ktbr js/start.js > dist_tmp/js/bundle.js
 	cp img/* dist_tmp/img/
 	rm -rf dist
