@@ -16,7 +16,7 @@
 package com.datatorrent.demos.rollingtopwords;
 
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.demos.twitter.TwitterSampleInput;
+import com.datatorrent.contrib.twitter.TwitterSampleInput;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 

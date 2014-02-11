@@ -74,11 +74,15 @@ public class WidgetOutputOperator extends BaseOperator
   
   private String topNTopic = "widget.topn";
   
+  private String pieChartTopic = "widget,piechart";
+  
   private Number timeSeriesMax = 100;
   
   private Number timeSeriesMin = 0;
   
   private int nInTopN = 10;
+  
+  private int nInPie = 5;
   
   private transient String appId = null;
   
@@ -95,6 +99,9 @@ public class WidgetOutputOperator extends BaseOperator
   
   @InputPortFieldAnnotation(name="topN input", optional=true)
   public final transient TopNInputPort topNInput = new TopNInputPort(this);
+  
+  @InputPortFieldAnnotation(name="pieChart input", optional=true)
+  public final transient PiechartInputPort pieChartInput = new PiechartInputPort(this);
   
   private transient boolean isWebSocketConnected = true;
   
@@ -270,6 +277,50 @@ public class WidgetOutputOperator extends BaseOperator
       operator.percentageTopic = topic;
       return this;
     }
+  }
+  
+public static class PiechartInputPort extends DefaultInputPort<HashMap<String, Number>>{
+    
+    private WidgetOutputOperator operator;
+    
+    public PiechartInputPort(WidgetOutputOperator oper)
+    {
+      operator = oper;
+    }
+
+    @Override
+    public void process(HashMap<String, Number> pieNumbers)
+    {
+      
+      @SuppressWarnings("unchecked")
+      HashMap<String, Object>[] result = new HashMap[pieNumbers.size()];
+      int j = 0;
+      for (Entry<String, Number> e : pieNumbers.entrySet()) {
+        result[j] = new HashMap<String, Object>();
+        result[j].put("label", e.getKey());
+        result[j++].put("value", e.getValue());
+      }
+      if(operator.isWebSocketConnected){
+        HashMap<String, Object> schemaObj = new HashMap<String, Object>();
+        schemaObj.put("type", "piechart");
+        schemaObj.put("n", operator.nInPie);
+        operator.wsoo.input.process(new MutablePair<String, Object>(operator.getFullTopic(operator.pieChartTopic, schemaObj), result));
+      } else {
+        operator.coo.input.process(pieNumbers);
+      }
+    }
+    
+    public PiechartInputPort setN(int n){
+      operator.nInPie = n;
+      return this;
+    }
+    
+    public PiechartInputPort setTopic(String topic)
+    {
+      operator.pieChartTopic = topic;
+      return this;
+    }
+    
   }
   
   private String getFullTopic(String topic, Map<String, Object> schema){

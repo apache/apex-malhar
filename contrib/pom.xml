@@ -64,10 +64,18 @@
         </exclusion>
       </exclusions>
     </dependency>
-	<dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>malhar-library</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+      <type>test-jar</type>
+    </dependency>
+    <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka_2.10</artifactId>
       <version>0.8.0</version>
+      <optional>true</optional>
       <exclusions>
         <exclusion>
           <groupId>org.slf4j</groupId>
@@ -86,7 +94,7 @@
           <artifactId>zookeeper</artifactId>
         </exclusion>
       </exclusions>
-	</dependency>
+    </dependency>
     <dependency>
       <groupId>org.mongodb</groupId>
       <artifactId>mongo-java-driver</artifactId>
@@ -105,16 +113,18 @@
       <version>3.1.4</version>
       <optional>true</optional>
     </dependency>
-	<dependency>
-	  <groupId>net.sf.jopt-simple</groupId>
-	  <artifactId>jopt-simple</artifactId>
-	  <version>3.2</version>
-	  <scope>test</scope>
-	</dependency>
+    <dependency>
+      <groupId>net.sf.jopt-simple</groupId>
+      <artifactId>jopt-simple</artifactId>
+      <version>3.2</version>
+      <optional>true</optional>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>com.101tec</groupId>
       <artifactId>zkclient</artifactId>
       <version>0.3</version>
+      <optional>true</optional>
       <scope>provided</scope>
       <exclusions>
         <exclusion>
@@ -161,17 +171,13 @@
       <groupId>org.fusesource.mqtt-client</groupId>
       <artifactId>mqtt-client</artifactId>
       <version>1.6</version>
-    </dependency>
-    <!--dependency>
-      <groupId>org.eclipse.paho</groupId>
-      <artifactId>mqtt-client</artifactId>
-      <version>0.4.0</version>
       <optional>true</optional>
-    </dependency -->
+    </dependency>
     <dependency>
       <groupId>rome</groupId>
       <artifactId>rome</artifactId>
       <version>1.0</version>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.apache.hbase</groupId>
@@ -229,6 +235,7 @@
       <groupId>org.ektorp</groupId>
       <artifactId>org.ektorp</artifactId>
       <version>1.2.2</version>
+      <optional>true</optional>
       <exclusions>
         <exclusion>
           <artifactId>jackson-core-asl</artifactId>
@@ -249,16 +256,19 @@
       <groupId>redis.clients</groupId>
       <artifactId>jedis</artifactId>
       <version>2.2.1</version>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <version>2.3.1</version>
+      <optional>true</optional>
     </dependency>
     <dependency>
-	<groupId>org.apache-extras.cassandra-jdbc</groupId>
-	<artifactId>cassandra-jdbc</artifactId>
-	<version>1.2.5</version>
+      <groupId>org.apache-extras.cassandra-jdbc</groupId>
+      <artifactId>cassandra-jdbc</artifactId>
+      <version>1.2.5</version>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.esotericsoftware.kryo</groupId>
@@ -277,6 +287,18 @@
       <version>${project.version}</version>
       <scope>test</scope>
       <type>test-jar</type>
+    </dependency>
+    <dependency>
+      <!-- required by twitter -->
+      <groupId>org.twitter4j</groupId>
+      <artifactId>twitter4j-core</artifactId>
+      <version>2.2.6</version>
+    </dependency>
+    <dependency>
+      <!-- required by twitter  -->
+      <groupId>org.twitter4j</groupId>
+      <artifactId>twitter4j-stream</artifactId>
+      <version>2.2.6</version>
     </dependency>
   </dependencies>
 </project>
