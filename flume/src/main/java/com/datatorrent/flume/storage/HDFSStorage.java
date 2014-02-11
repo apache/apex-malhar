@@ -120,7 +120,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
 
   /**
    * This stores the Identifier information identified in the last store function call
-   * 
+   *
    * @param ctx
    */
   // private byte[] fileOffset = new byte[IDENTIFIER_SIZE];
@@ -152,7 +152,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
 
   /**
    * This function reads the file at a location and return the bytes stored in the file "
-   * 
+   *
    * @param path
    *          - the location of the file
    * @return
@@ -169,7 +169,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
 
   /**
    * This function writes the bytes to a file specified by the path
-   * 
+   *
    * @param path
    *          the file location
    * @param data
@@ -198,6 +198,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   @Override
   public byte[] store(byte[] bytes)
   {
+    //logger.debug("store message ");
     int bytesToWrite = bytes.length + DATA_LENGTH_BYTE_SIZE;
     if (fileWriteOffset + bytesToWrite < blockSize) {
       try {
@@ -229,7 +230,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   }
 
   /**
-   * 
+   *
    * @param b
    * @param size
    * @param startIndex
@@ -244,6 +245,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   @Override
   public byte[] retrieve(byte[] identifier)
   {
+    //logger.debug("retrieve");
     // flushing the last incomplete flushed file
     closeUnflushedFiles();
 
@@ -252,11 +254,6 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
 
     if (retrievalFile == 0 && retrievalOffset == 0 && currentWrittenFile == 0 && fileWriteOffset == 0) {
       skipOffset = 0;
-      return null;
-    }
-    if ((retrievalFile > currentWrittenFile) || (retrievalFile == currentWrittenFile && retrievalOffset >= fileWriteOffset)) {
-      skipFile = retrievalFile;
-      skipOffset = retrievalOffset;
       return null;
     }
 
@@ -275,6 +272,11 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       retrievalOffset = byteArrayToLong(cleanedOffset, 0);
     }
 
+    if ((retrievalFile > currentWrittenFile) || (retrievalFile == currentWrittenFile && retrievalOffset >= fileWriteOffset)) {
+      skipFile = retrievalFile;
+      skipOffset = retrievalOffset;
+      return null;
+    }
     try {
       if (readStream != null) {
         readStream.close();
@@ -322,10 +324,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   {
     int length = readStream.readInt();
     byte[] data = new byte[length + IDENTIFIER_SIZE];
-    int readSize = readStream.read(data, IDENTIFIER_SIZE, length);
-    if (readSize == -1) {
-      throw new IOException("Invalid identifier");
-    }
+    readStream.readFully(retrievalOffset+4,data, IDENTIFIER_SIZE, length);
     retrievalOffset += length + DATA_LENGTH_BYTE_SIZE;
     if (retrievalOffset >= flushedLong) {
       Server.writeLong(data, 0, calculateOffset(0, retrievalFile + 1));
@@ -338,6 +337,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   @Override
   public byte[] retrieveNext()
   {
+    //logger.debug("retrieveNext");
     if (retrievalFile == -1) {
       throw new RuntimeException("Call retrieve first");
     }
@@ -380,6 +380,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   @SuppressWarnings("AssignmentToCollectionOrArrayFieldFromParameter")
   public void clean(byte[] identifier)
   {
+    //logger.info("clean {}" , new String(identifier));
     long cleanFileIndex = byteArrayToLong(identifier, offset);
     if (cleanedFileCounter >= cleanFileIndex) {
       return;
@@ -468,12 +469,13 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   @Override
   public void flush()
   {
+    //logger.debug("flush");
     Iterator<DataBlock> itr = files2Commit.iterator();
     while (itr.hasNext()) {
       itr.next().close();
     }
     files2Commit.clear();
-    
+
     if (dataStream != null) {
       try {
         dataStream.hflush();
@@ -484,9 +486,9 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
         logger.warn("not able to close the stream {}", ex.getMessage());
         throw new RuntimeException(ex);
       }
-    }    
+    }
     flushedFileCounter = currentWrittenFile;
-   
+    //logger.debug("flushedFileCounter in flush {}",flushedFileCounter);
   }
 
   /**
