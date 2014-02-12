@@ -32,7 +32,7 @@ var Palette = BaseView.extend({
     },
 
     killContainers: function(evt) {
-        $(evt.target).prop('disabled', true);
+        this.$('.killCtnrs').prop('disabled', true);
         var selected = this.getSelected();
         _.each(selected, function(ctnr) {
             ctnr.kill();

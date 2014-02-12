@@ -163,6 +163,15 @@ var ContainerModel = BaseModel.extend({
                 return ctnr.id === this.get('id');
             }, this);
             
+            // If container cannot be found, it should be removed
+            if (!updates) {
+                this.stopListening(this.dataSource, topic);
+                this.operators.unsubscribe();
+                this.set('state', 'ENDED');
+                this.trigger('remove');
+                return;
+            }
+
             // Update the model and trigger 'update' custom event
             this.set(updates);
             this.trigger('update');

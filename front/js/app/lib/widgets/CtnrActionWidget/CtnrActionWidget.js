@@ -29,10 +29,11 @@ var CtnrActionWidget = BaseView.extend({
     },
 
     killCtnr: function() {
+        this.$('.killCtnr').prop('disabled', true);
         this.model.kill();
     },
     
     template: kt.make(__dirname+'/CtnrActionWidget.html','_')
-    
+
 });
 exports = module.exports = CtnrActionWidget;

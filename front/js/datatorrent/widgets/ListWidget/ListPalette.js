@@ -37,7 +37,7 @@ var ListPalette = BaseView.extend({
             }
         }, this);
         
-        this.listenTo(this.collection, 'change_selected', this.render);
+        this.listenTo(this.collection, 'change_selected remove', this.render);
         
     },
     
