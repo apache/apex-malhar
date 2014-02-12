@@ -282,6 +282,8 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   @Override
   public byte[] retrieve(byte[] identifier)
   {
+    skipFile = -1;
+    skipOffset = 0;
     // logger.debug("retrieve");
     // flushing the last incomplete flushed file
     closeUnflushedFiles();
