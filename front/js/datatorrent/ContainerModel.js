@@ -37,7 +37,7 @@ var text = require('./text');
 var ContainerModel = BaseModel.extend({
     
     debugName: 'container',
-    
+
     defaults: function() {
         return {
             appId: '',
@@ -176,7 +176,7 @@ var ContainerModel = BaseModel.extend({
     },
 
     kill: function() {
-        var appId = this.get('appId') || this.collection ? this.collection.appId : undefined;
+        var appId = this.get('appId') || (this.collection ? this.collection.appId : undefined);
         if (!appId) {
             LOG(3, 'Container:kill requires the presence of an appId.');
             return;
