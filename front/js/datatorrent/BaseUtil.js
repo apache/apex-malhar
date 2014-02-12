@@ -50,6 +50,12 @@ function fetchError(object, response, options) {
     return message;
 }
 
+function quietFetchError(object, response, options) {
+    if (typeof LOG === 'function') {
+        LOG(4, this.debugName + ' failed to load (' + response.status + ')', ['Server responded with: ' + response.statusText]);
+    }
+}
+
 function responseFormatError() {
     var message = {
         'title': this.debugName + ' not in expected format',
