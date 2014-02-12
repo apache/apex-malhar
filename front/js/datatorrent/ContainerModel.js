@@ -20,6 +20,8 @@ var BigInteger = require('jsbn');
 var OperatorCollection = require('./OperatorCollection');
 var bormat = require('bormat');
 var WindowId = require('./WindowId');
+var Notifier = require('./Notifier');
+var text = require('./text');
 
 /**
  * Model for containers
@@ -171,6 +173,33 @@ var ContainerModel = BaseModel.extend({
             // Listen for updates
             this.operators.subscribe();
         }
+    },
+
+    kill: function() {
+        var appId = this.get('appId') || this.collection ? this.collection.appId : undefined;
+        if (!appId) {
+            LOG(3, 'Container:kill requires the presence of an appId.');
+            return;
+        }
+        $.ajax({
+            type: 'POST',
+            url: this.resourceAction('killContainer', {
+                appId: appId,
+                containerId: this.get('id')
+            }),
+            success: function() {
+                Notifier.success({
+                    title: text('kill_ctnr_sent_title'),
+                    text: text('kill_ctnr_sent_text')
+                });
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                Notifier.error({
+                    title: text('kill_ctnr_fail_title'),
+                    text: text('kill_ctnr_fail_text')(errorThrown)
+                });
+            }
+        });
     }
     
 });

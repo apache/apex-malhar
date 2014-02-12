@@ -75,7 +75,18 @@ var textHash = {
             return 'Memory usage loading or unknown.';
         }
         return 'You are using ' + percent + '% of your licensed memory.';
+    },
+    'kill_ctnr_sent_title'       :  'Kill Container Signal Sent',
+    'kill_ctnr_sent_text'        :  'The signal to kill this container has been sent. It may take a few moments for the container to terminate.',
+    'kill_ctnr_fail_title'       :  'Kill Container Signal Failed',
+    'kill_ctnr_fail_text'       :   function(reason) {
+        var message = 'An error occurred sending the kill signal to this container. ';
+        if (reason) {
+            message += 'Server response: ' + reason;
+        }
+        return message;
     }
+
 };
 
 // Inter-dependent text items
