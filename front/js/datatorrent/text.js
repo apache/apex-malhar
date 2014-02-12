@@ -15,6 +15,7 @@
 */
 
 var _ = require('underscore');
+var formatters = require('./formatters');
 
 /**
  * Text package.
@@ -70,11 +71,11 @@ var textHash = {
     'specify_deps_success_text'  :  'The dependency jars you selected and ordered have been specified for the corresponding jar file.',
     'specify_deps_error_title'   :  'Error specifying dependencies',
     'specify_deps_error_text'    :  'An error occurred trying to specify the dependencies for the jar you have selected. ',
-    'licensed_mem_bar_title'     :  function(percent) {
-        if (!percent) {
+    'licensed_mem_bar_title'     :  function(agent) {
+        if (!agent.percentUsedLicenseMB) {
             return 'Memory usage loading or unknown.';
         }
-        return 'You are using ' + percent + '% of your licensed memory.';
+        return 'You are using ' + formatters.byteFormatter(agent.usedLicensedMB, 'mb') + ' of ' + formatters.byteFormatter(agent.totalLicensedMB, 'mb') + ' licensed memory.';
     },
     'kill_ctnr_sent_title'       :  'Kill Container Signal Sent',
     'kill_ctnr_sent_text'        :  'The signal to kill this container has been sent. It may take a few moments for the container to terminate.',
