@@ -70,7 +70,8 @@ public class HDFSStorageTest
     Assert.assertNull(storage.retrieve(addr));
     Assert.assertNull(storage.store(b));
     storage.flush();
-    match(storage.retrieve(address),"cb");    
+    match(storage.retrieve(address),"cb");
+    Assert.assertNotNull(storage.store(b));
   }
   
   @Test
@@ -163,6 +164,13 @@ public class HDFSStorageTest
         
   }
   
+  /**
+   * This test covers following use case
+   * The file is flushed and then more data is written to the same file, but the new data is not flushed and file is not roll over and storage fails
+   * The new storage comes up and client asks for data at the last returned address from earlier storage instance. The new storage returns null. 
+   * Client stores the data again but the address returned this time is null and the retrieval of the earlier address now returns data 
+   * @throws Exception
+   */
   @Test
   public void testPartialFlushWithFailure() throws Exception{
     Assert.assertNull(storage.retrieve(new byte[8]));
