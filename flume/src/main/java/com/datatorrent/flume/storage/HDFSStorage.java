@@ -428,15 +428,17 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   {
     // logger.info("clean {}" , new String(identifier));
     long cleanFileIndex = byteArrayToLong(identifier, offset);
-    if (cleanedFileCounter >= cleanFileIndex) {
-      return;
-    }
+    
     long cleanFileOffset = byteArrayToLong(identifier, 0);
     // This is to make sure that we clean only the data that is flushed
     if (cleanFileIndex > flushedFileCounter || (cleanFileIndex == flushedFileCounter && cleanFileOffset >= flushedFileWriteOffset)) {
       cleanFileIndex = flushedFileCounter;
       cleanFileOffset = flushedFileWriteOffset;
       Server.writeLong(identifier, 0, calculateOffset(cleanFileOffset, cleanFileIndex));
+    }
+    cleanedOffset = identifier;
+    if (cleanedFileCounter >= cleanFileIndex) {
+      return;
     }
     try {
       writeData(cleanFileOffsetFile, identifier).close();
@@ -461,7 +463,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       logger.warn("not able to close the streams {}", e.getMessage());
       throw new RuntimeException(e);
     } finally {
-      cleanedOffset = identifier;
+      
     }
   }
 
@@ -501,6 +503,9 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       if(flushedFileCounter != -1){
        currentWrittenFile = flushedFileCounter;
        fileWriteOffset = flushedFileCounter;
+      }else{
+        currentWrittenFile = 0;
+        fileWriteOffset = 0;
       }
       
       flushedLong = 0;
