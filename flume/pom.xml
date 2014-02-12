@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
   <parent>
     <artifactId>dt-framework</artifactId>
     <groupId>com.datatorrent</groupId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>0.9.4-SNAPSHOT</version>
   </parent>
 
   <artifactId>dt-flume</artifactId>
@@ -177,7 +178,7 @@
                 </mapping -->
               </mappings>
               <preinstallScriptlet>
-                <script>groupadd -f ${package.groupname} &amp;&amp; id ${package.username} &amp;&amp; usermod -aG ${package.groupname} ${package.username} || useradd -g ${package.groupname} ${package.username}</script>
+                <script>groupadd -f ${package.groupname} &amp;&amp; id ${package.username} &gt;/dev/null 2&gt;&amp;1 &amp;&amp; usermod -aG ${package.groupname} ${package.username} || useradd -g ${package.groupname} ${package.username}</script>
               </preinstallScriptlet>
               <!-- postinstallScriptlet>
                 <scriptFile>src/main/scripts/postinstall</scriptFile>
