@@ -52,6 +52,7 @@ exports = module.exports = {
         stopPortRecording        :'/ws/:v/applications/:appId/physicalPlan/operators/:operatorId/ports/:portName/recordings/stop',
         shutdownApp              :'/ws/:v/applications/:appId/shutdown',
         killApp                  :'/ws/:v/applications/:appId/kill',
+        killContainer            :'/ws/:v/applications/:appId/physicalPlan/containers/:containerId/kill',
         launchApp                :'/ws/:v/jars/:fileName/applications/:appName/launch',
         specifyDepJars           :'/ws/:v/jars/:fileName/dependencyJars'
     },
