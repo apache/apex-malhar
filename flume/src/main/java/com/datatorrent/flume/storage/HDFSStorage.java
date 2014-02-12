@@ -449,6 +449,10 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
         if (fs.exists(path) && fs.isFile(path)) {
           fs.delete(path, false);
         }
+        path = new Path(basePath, cleanedFileCounter + BOOK_KEEPING_FILE_OFFSET);
+        if (fs.exists(path) && fs.isFile(path)) {
+          fs.delete(path, false);
+        }
         ++cleanedFileCounter;
       } while (cleanedFileCounter < cleanFileIndex);
       // writeData(cleanFileCounterFile, String.valueOf(cleanedFileCounter).getBytes()).close();
