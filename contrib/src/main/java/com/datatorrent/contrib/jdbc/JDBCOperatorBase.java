@@ -34,15 +34,13 @@ import com.datatorrent.lib.database.DBConnector;
  */
 public class JDBCOperatorBase implements DBConnector
 {
-  private static final Logger logger = LoggerFactory.getLogger(JDBCOperatorBase.class);
-
   @NotNull
   private String dbUrl;
   @NotNull
   private String dbDriver;
-  protected transient Connection connection = null;
   private String userName;
   private String password;
+  protected transient Connection connection = null;
 
   @NotNull
   public String getDbUrl()
@@ -132,4 +130,6 @@ public class JDBCOperatorBase implements DBConnector
       throw new RuntimeException("Error while closing database resource", ex);
     }
   }
+
+  private static final Logger logger = LoggerFactory.getLogger(JDBCOperatorBase.class);
 }
