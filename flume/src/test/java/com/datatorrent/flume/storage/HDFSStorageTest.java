@@ -11,13 +11,14 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.apache.flume.Context;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
 import com.datatorrent.flume.sink.Server;
+import com.google.common.primitives.Longs;
+
 import org.junit.After;
 import org.junit.Before;
 
@@ -354,6 +355,7 @@ public class HDFSStorageTest
     return ((fileCounter << 32) | (fileOffset & 0xffffffffl));
   }
 
+  
   @SuppressWarnings("unused")
   private static final Logger logger = LoggerFactory.getLogger(HDFSStorageTest.class);
 }

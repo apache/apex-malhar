@@ -243,6 +243,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
 
         byte[] fileOffset = null;
         if ((currentWrittenFile > skipFile) ||(currentWrittenFile == skipFile && fileWriteOffset > skipOffset)) {
+          skipFile = -1;
           fileOffset = new byte[IDENTIFIER_SIZE];
           Server.writeLong(fileOffset, 0, calculateOffset(fileWriteOffset, currentWrittenFile));
         }
@@ -437,11 +438,12 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       Server.writeLong(identifier, 0, calculateOffset(cleanFileOffset, cleanFileIndex));
     }
     cleanedOffset = identifier;
-    if (cleanedFileCounter >= cleanFileIndex) {
-      return;
-    }
+    
     try {
       writeData(cleanFileOffsetFile, identifier).close();
+      if (cleanedFileCounter >= cleanFileIndex) {
+        return;
+      }
       do {
         Path path = new Path(basePath, String.valueOf(cleanedFileCounter));
         if (fs.exists(path) && fs.isFile(path)) {
@@ -498,11 +500,12 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       if (fs.exists(new Path(basePath, flushedFileCounter + OFFSET_SUFFIX))) {
         // This means that flush was called
         flushedFileWriteOffset = getFlushedFileWriteOffset(new Path(basePath, flushedFileCounter + OFFSET_SUFFIX));
+        bookKeepingFileOffset = getFlushedFileWriteOffset(new Path(basePath,flushedFileCounter + BOOK_KEEPING_FILE_OFFSET));
       }
       
       if(flushedFileCounter != -1){
        currentWrittenFile = flushedFileCounter;
-       fileWriteOffset = flushedFileCounter;
+       fileWriteOffset = flushedFileWriteOffset;
       }else{
         currentWrittenFile = 0;
         fileWriteOffset = 0;
