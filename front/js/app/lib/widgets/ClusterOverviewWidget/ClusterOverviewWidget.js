@@ -65,14 +65,6 @@ var ClusterOverviewWidget = BaseView.extend({
     },
 
     overview_items: [
-        
-        {
-            label: DT.text('avg_app_age_label'),
-            key: 'averageAge',
-            value: function(averageAge) {
-                return formatters.timeSince({ timeChunk: averageAge }) || '-'
-            }
-        },
 
         {
             label: DT.text('cpu_percentage_label'),
