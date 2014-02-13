@@ -437,8 +437,11 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
     long cleanFileIndex = byteArrayToLong(identifier, offset);
 
     long cleanFileOffset = byteArrayToLong(identifier, 0);
+    if(flushedFileCounter == -1){
+      identifier = new byte[8];
+    }
     // This is to make sure that we clean only the data that is flushed
-    if (cleanFileIndex > flushedFileCounter || (cleanFileIndex == flushedFileCounter && cleanFileOffset >= flushedFileWriteOffset)) {
+    else if (cleanFileIndex > flushedFileCounter || (cleanFileIndex == flushedFileCounter && cleanFileOffset >= flushedFileWriteOffset)) {
       cleanFileIndex = flushedFileCounter;
       cleanFileOffset = flushedFileWriteOffset;
       Server.writeLong(identifier, 0, calculateOffset(cleanFileOffset, cleanFileIndex));
