@@ -86,10 +86,18 @@ var ClusterOverviewWidget = BaseView.extend({
         },
 
         {
-            label: DT.text('current/max allocated mem (MB)'),
+            label: DT.text('current alloc mem'),
             key: 'currentMemoryAllocatedMB',
             value: function(currentMemoryAllocatedMB, attrs) {
-                return formatters.commaGroups(currentMemoryAllocatedMB) + ' / ' + DT.formatters.commaGroups(attrs.maxMemoryAllocatedMB);
+                return formatters.byteFormatter(currentMemoryAllocatedMB, 'mb');
+            }
+        },
+
+        {
+            label: DT.text('peak alloc mem'),
+            key: 'maxMemoryAllocatedMB',
+            value: function(maxMemoryAllocatedMB) {
+                return formatters.byteFormatter(maxMemoryAllocatedMB, 'mb');
             }
         },
 
