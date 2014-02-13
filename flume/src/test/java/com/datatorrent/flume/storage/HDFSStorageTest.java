@@ -56,245 +56,252 @@ public class HDFSStorageTest
   }
 
   /**
-   * This test covers following use case
-   * 1. Some data is stored
-   * 2. File is flush but the file is not close
-   * 3. Some more data is stored but the file doesn't roll-overs
-   * 4. Retrieve is called for the last returned address and it return nulls
-   * 5. Some more data is stored again but the address is returned null because of previous retrieve call
+   * This test covers following use case 1. Some data is stored 2. File is flush but the file is not close 3. Some more
+   * data is stored but the file doesn't roll-overs 4. Retrieve is called for the last returned address and it return
+   * nulls 5. Some more data is stored again but the address is returned null because of previous retrieve call
+   * 
    * @throws Exception
    */
   @Test
-  public void testPartialFlush() throws Exception{
+  public void testPartialFlush() throws Exception
+  {
     Assert.assertNull(storage.retrieve(new byte[8]));
     byte[] b = "ab".getBytes();
-    byte[] address =  storage.store(b);
+    byte[] address = storage.store(b);
     Assert.assertNotNull(address);
     storage.flush();
     b = "cb".getBytes();
     byte[] addr = storage.store(b);
-    match(storage.retrieve(new byte[8]),"ab");
+    match(storage.retrieve(new byte[8]), "ab");
     Assert.assertNull(storage.retrieve(addr));
     Assert.assertNull(storage.store(b));
     storage.flush();
-    match(storage.retrieve(address),"cb");
+    match(storage.retrieve(address), "cb");
     Assert.assertNotNull(storage.store(b));
   }
+
   /**
-   * This test covers following use case
-   * 1. Some data is stored to make sure that there is no roll over
-   * 2. File is flushed but the file is not closed
-   * 3. Some more data is stored. The data stored is enough to make the file roll over
-   * 4. Retrieve is called for the last returned address and it return nulls as the data is not flushed
-   * 5. Some more data is stored again but the address is returned null because of previous retrieve call
-   * 6. The data is flushed to make sure that the data is committed.
-   * 7. Now the data is retrieved from the starting and data returned matches the data stored
+   * This test covers following use case 1. Some data is stored to make sure that there is no roll over 2. File is
+   * flushed but the file is not closed 3. Some more data is stored. The data stored is enough to make the file roll
+   * over 4. Retrieve is called for the last returned address and it return nulls as the data is not flushed 5. Some
+   * more data is stored again but the address is returned null because of previous retrieve call 6. The data is flushed
+   * to make sure that the data is committed. 7. Now the data is retrieved from the starting and data returned matches
+   * the data stored
+   * 
    * @throws Exception
    */
   @Test
-  public void testPartialFlushRollOver() throws Exception{
+  public void testPartialFlushRollOver() throws Exception
+  {
     Assert.assertNull(storage.retrieve(new byte[8]));
     byte[] b = new byte[] { 48, 48, 48, 48, 98, 48, 52, 54, 49, 57, 55, 51, 52, 97, 53, 101, 56, 56, 97, 55, 98, 53, 52, 51, 98, 50, 102, 51, 49, 97, 97, 54, 1, 50, 48, 49, 51, 45, 49, 49, 45, 48, 55, 1, 50, 48, 49, 51, 45, 49, 49, 45, 48, 55, 32, 48, 48, 58, 51, 49, 58, 52, 56, 1, 49, 48, 53, 53, 57, 52, 50, 1, 50, 1, 49, 53, 49, 49, 54, 49, 56, 52, 1, 49, 53, 49, 49, 57, 50, 49, 49, 1, 49, 53, 49, 50, 57, 54, 54, 53, 1, 49, 53, 49, 50, 49, 53, 52, 56, 1, 49, 48, 48, 56, 48, 51, 52, 50, 1, 55, 56, 56, 50, 54, 53, 52, 56, 1, 49, 1, 48, 1, 48, 46, 48, 1, 48, 46, 48, 1, 48, 46, 48 };
     byte[] b_org = new byte[] { 48, 48, 48, 48, 98, 48, 52, 54, 49, 57, 55, 51, 52, 97, 53, 101, 56, 56, 97, 55, 98, 53, 52, 51, 98, 50, 102, 51, 49, 97, 97, 54, 1, 50, 48, 49, 51, 45, 49, 49, 45, 48, 55, 1, 50, 48, 49, 51, 45, 49, 49, 45, 48, 55, 32, 48, 48, 58, 51, 49, 58, 52, 56, 1, 49, 48, 53, 53, 57, 52, 50, 1, 50, 1, 49, 53, 49, 49, 54, 49, 56, 52, 1, 49, 53, 49, 49, 57, 50, 49, 49, 1, 49, 53, 49, 50, 57, 54, 54, 53, 1, 49, 53, 49, 50, 49, 53, 52, 56, 1, 49, 48, 48, 56, 48, 51, 52, 50, 1, 55, 56, 56, 50, 54, 53, 52, 56, 1, 49, 1, 48, 1, 48, 46, 48, 1, 48, 46, 48, 1, 48, 46, 48 };
-    byte[] address =  storage.store(b);
+    byte[] address = storage.store(b);
     Assert.assertNotNull(address);
     storage.flush();
     byte[] addr = null;
-    for(int i = 0; i < 5; i++){
-      b[0] = (byte) (b[0]+1);
+    for (int i = 0; i < 5; i++) {
+      b[0] = (byte) (b[0] + 1);
       addr = storage.store(b);
     }
     Assert.assertNull(storage.retrieve(addr));
-    for(int i = 0; i < 5; i++){
-      b[0] = (byte) (b[0]+1);
+    for (int i = 0; i < 5; i++) {
+      b[0] = (byte) (b[0] + 1);
       Assert.assertNull(storage.store(b));
-    }    
+    }
     storage.flush();
     match(storage.retrieve(new byte[8]), new String(b_org));
-    b_org[0]=(byte)(b_org[0]+1);
-    match(storage.retrieve(address),new String(b_org));
-    b_org[0]=(byte)(b_org[0]+1);
-    match(storage.retrieveNext(),new String(b_org));
-    b_org[0]=(byte)(b_org[0]+1);
-    match(storage.retrieveNext(),new String(b_org));
-        
+    b_org[0] = (byte) (b_org[0] + 1);
+    match(storage.retrieve(address), new String(b_org));
+    b_org[0] = (byte) (b_org[0] + 1);
+    match(storage.retrieveNext(), new String(b_org));
+    b_org[0] = (byte) (b_org[0] + 1);
+    match(storage.retrieveNext(), new String(b_org));
+
   }
-  
+
   /**
-   * This test covers following use case
-   * 1. Some data is stored to make sure that there is no roll over
-   * 2. File is flushed but the file is not closed
-   * 3. Some more data is stored. The data stored is enough to make the file roll over
-   * 4. The storage crashes and new storage is instiated.
-   * 5. Retrieve is called for the last returned address and it return nulls as the data is not flushed
-   * 6. Some more data is stored again but the address is returned null because of previous retrieve call
-   * 7. The data is flushed to make sure that the data is committed.
-   * 8. Now the data is retrieved from the starting and data returned matches the data stored
+   * This test covers following use case 1. Some data is stored to make sure that there is no roll over 2. File is
+   * flushed but the file is not closed 3. Some more data is stored. The data stored is enough to make the file roll
+   * over 4. The storage crashes and new storage is instiated. 5. Retrieve is called for the last returned address and
+   * it return nulls as the data is not flushed 6. Some more data is stored again but the address is returned null
+   * because of previous retrieve call 7. The data is flushed to make sure that the data is committed. 8. Now the data
+   * is retrieved from the starting and data returned matches the data stored
+   * 
    * @throws Exception
    */
   @Test
-  public void testPartialFlushRollOverWithFailure() throws Exception{
+  public void testPartialFlushRollOverWithFailure() throws Exception
+  {
     Assert.assertNull(storage.retrieve(new byte[8]));
     byte[] b = new byte[] { 48, 48, 48, 48, 98, 48, 52, 54, 49, 57, 55, 51, 52, 97, 53, 101, 56, 56, 97, 55, 98, 53, 52, 51, 98, 50, 102, 51, 49, 97, 97, 54, 1, 50, 48, 49, 51, 45, 49, 49, 45, 48, 55, 1, 50, 48, 49, 51, 45, 49, 49, 45, 48, 55, 32, 48, 48, 58, 51, 49, 58, 52, 56, 1, 49, 48, 53, 53, 57, 52, 50, 1, 50, 1, 49, 53, 49, 49, 54, 49, 56, 52, 1, 49, 53, 49, 49, 57, 50, 49, 49, 1, 49, 53, 49, 50, 57, 54, 54, 53, 1, 49, 53, 49, 50, 49, 53, 52, 56, 1, 49, 48, 48, 56, 48, 51, 52, 50, 1, 55, 56, 56, 50, 54, 53, 52, 56, 1, 49, 1, 48, 1, 48, 46, 48, 1, 48, 46, 48, 1, 48, 46, 48 };
     byte[] b_org = new byte[] { 48, 48, 48, 48, 98, 48, 52, 54, 49, 57, 55, 51, 52, 97, 53, 101, 56, 56, 97, 55, 98, 53, 52, 51, 98, 50, 102, 51, 49, 97, 97, 54, 1, 50, 48, 49, 51, 45, 49, 49, 45, 48, 55, 1, 50, 48, 49, 51, 45, 49, 49, 45, 48, 55, 32, 48, 48, 58, 51, 49, 58, 52, 56, 1, 49, 48, 53, 53, 57, 52, 50, 1, 50, 1, 49, 53, 49, 49, 54, 49, 56, 52, 1, 49, 53, 49, 49, 57, 50, 49, 49, 1, 49, 53, 49, 50, 57, 54, 54, 53, 1, 49, 53, 49, 50, 49, 53, 52, 56, 1, 49, 48, 48, 56, 48, 51, 52, 50, 1, 55, 56, 56, 50, 54, 53, 52, 56, 1, 49, 1, 48, 1, 48, 46, 48, 1, 48, 46, 48, 1, 48, 46, 48 };
-    byte[] address =  storage.store(b);
+    byte[] address = storage.store(b);
     Assert.assertNotNull(address);
     storage.flush();
     byte[] addr = null;
-    for(int i = 0; i < 5; i++){
-      b[0] = (byte) (b[0]+1);
+    for (int i = 0; i < 5; i++) {
+      b[0] = (byte) (b[0] + 1);
       addr = storage.store(b);
     }
     storage = getStorage("1", true);
     Assert.assertNull(storage.retrieve(addr));
-    for(int i = 0; i < 5; i++){
-      b[0] = (byte) (b[0]+1);
+    for (int i = 0; i < 5; i++) {
+      b[0] = (byte) (b[0] + 1);
       Assert.assertNull(storage.store(b));
-    }    
+    }
     storage.flush();
     match(storage.retrieve(new byte[8]), new String(b_org));
-    b_org[0]=(byte)(b_org[0]+1);
-    match(storage.retrieve(address),new String(b_org));
-    b_org[0]=(byte)(b_org[0]+1);
-    match(storage.retrieveNext(),new String(b_org));
-    b_org[0]=(byte)(b_org[0]+1);
-    match(storage.retrieveNext(),new String(b_org));
-        
+    b_org[0] = (byte) (b_org[0] + 1);
+    match(storage.retrieve(address), new String(b_org));
+    b_org[0] = (byte) (b_org[0] + 1);
+    match(storage.retrieveNext(), new String(b_org));
+    b_org[0] = (byte) (b_org[0] + 1);
+    match(storage.retrieveNext(), new String(b_org));
+
   }
+
   /**
    * This tests clean when the file doesn't roll over
+   * 
    * @throws Exception
    */
   @Test
-  public void testPartialFlushWithClean() throws Exception{
+  public void testPartialFlushWithClean() throws Exception
+  {
     Assert.assertNull(storage.retrieve(new byte[8]));
     byte[] b = "ab".getBytes();
-    byte[] address =  storage.store(b);
+    byte[] address = storage.store(b);
     Assert.assertNotNull(address);
     storage.flush();
     storage.clean(address);
     b = "cb".getBytes();
-    byte[] addr = storage.store(b);    
+    byte[] addr = storage.store(b);
     Assert.assertNull(storage.retrieve(addr));
     Assert.assertNull(storage.store(b));
     storage.flush();
-    match(storage.retrieve(new byte[8]),"cb");
-    match(storage.retrieve(address),"cb");
+    match(storage.retrieve(new byte[8]), "cb");
+    match(storage.retrieve(address), "cb");
     Assert.assertNotNull(storage.store(b));
   }
-  
+
   /**
    * This tests clean when the file doesn't roll over
+   * 
    * @throws Exception
    */
   @Test
-  public void testPartialFlushWithCleanAndFailure() throws Exception{
+  public void testPartialFlushWithCleanAndFailure() throws Exception
+  {
     Assert.assertNull(storage.retrieve(new byte[8]));
     byte[] b = "ab".getBytes();
-    byte[] address =  storage.store(b);
+    byte[] address = storage.store(b);
     Assert.assertNotNull(address);
     storage.flush();
     storage.clean(address);
     b = "cb".getBytes();
-    byte[] addr = storage.store(b);    
+    byte[] addr = storage.store(b);
     storage = getStorage("1", true);
     Assert.assertNull(storage.retrieve(addr));
     Assert.assertNull(storage.store(b));
     storage.flush();
-    match(storage.retrieve(new byte[8]),"cb");
-    match(storage.retrieve(address),"cb");
+    match(storage.retrieve(new byte[8]), "cb");
+    match(storage.retrieve(address), "cb");
     Assert.assertNotNull(storage.store(b));
   }
-  
+
   /**
-   * This test covers following use case
-   * 1. Some data is stored to make sure that there is no roll over
-   * 2. File is flushed but the file is not closed
-   * 3. The data is cleaned till the last returned address
-   * 4. Some more data is stored. The data stored is enough to make the file roll over
-   * 5. Retrieve is called for the last returned address and it return nulls as the data is not flushed
-   * 6. Some more data is stored again but the address is returned null because of previous retrieve call
-   * 7. The data is flushed to make sure that the data is committed.
-   * 8. Now the data is retrieved from the starting and data returned matches the data stored
+   * This test covers following use case 1. Some data is stored to make sure that there is no roll over 2. File is
+   * flushed but the file is not closed 3. The data is cleaned till the last returned address 4. Some more data is
+   * stored. The data stored is enough to make the file roll over 5. Retrieve is called for the last returned address
+   * and it return nulls as the data is not flushed 6. Some more data is stored again but the address is returned null
+   * because of previous retrieve call 7. The data is flushed to make sure that the data is committed. 8. Now the data
+   * is retrieved from the starting and data returned matches the data stored
+   * 
    * @throws Exception
    */
   @Test
-  public void testPartialFlushWithCleanAndRollOver() throws Exception{
+  public void testPartialFlushWithCleanAndRollOver() throws Exception
+  {
     Assert.assertNull(storage.retrieve(new byte[8]));
     byte[] b = new byte[] { 48, 48, 48, 48, 98, 48, 52, 54, 49, 57, 55, 51, 52, 97, 53, 101, 56, 56, 97, 55, 98, 53, 52, 51, 98, 50, 102, 51, 49, 97, 97, 54, 1, 50, 48, 49, 51, 45, 49, 49, 45, 48, 55, 1, 50, 48, 49, 51, 45, 49, 49, 45, 48, 55, 32, 48, 48, 58, 51, 49, 58, 52, 56, 1, 49, 48, 53, 53, 57, 52, 50, 1, 50, 1, 49, 53, 49, 49, 54, 49, 56, 52, 1, 49, 53, 49, 49, 57, 50, 49, 49, 1, 49, 53, 49, 50, 57, 54, 54, 53, 1, 49, 53, 49, 50, 49, 53, 52, 56, 1, 49, 48, 48, 56, 48, 51, 52, 50, 1, 55, 56, 56, 50, 54, 53, 52, 56, 1, 49, 1, 48, 1, 48, 46, 48, 1, 48, 46, 48, 1, 48, 46, 48 };
     byte[] b_org = new byte[] { 48, 48, 48, 48, 98, 48, 52, 54, 49, 57, 55, 51, 52, 97, 53, 101, 56, 56, 97, 55, 98, 53, 52, 51, 98, 50, 102, 51, 49, 97, 97, 54, 1, 50, 48, 49, 51, 45, 49, 49, 45, 48, 55, 1, 50, 48, 49, 51, 45, 49, 49, 45, 48, 55, 32, 48, 48, 58, 51, 49, 58, 52, 56, 1, 49, 48, 53, 53, 57, 52, 50, 1, 50, 1, 49, 53, 49, 49, 54, 49, 56, 52, 1, 49, 53, 49, 49, 57, 50, 49, 49, 1, 49, 53, 49, 50, 57, 54, 54, 53, 1, 49, 53, 49, 50, 49, 53, 52, 56, 1, 49, 48, 48, 56, 48, 51, 52, 50, 1, 55, 56, 56, 50, 54, 53, 52, 56, 1, 49, 1, 48, 1, 48, 46, 48, 1, 48, 46, 48, 1, 48, 46, 48 };
-    byte[] address =  storage.store(b);
+    byte[] address = storage.store(b);
     Assert.assertNotNull(address);
     storage.flush();
     storage.clean(address);
-    
+
     byte[] addr = null;
-    for(int i = 0; i < 5; i++){
-      b[0] = (byte) (b[0]+1);
+    for (int i = 0; i < 5; i++) {
+      b[0] = (byte) (b[0] + 1);
       addr = storage.store(b);
     }
     Assert.assertNull(storage.retrieve(addr));
-    for(int i = 0; i < 5; i++){
-      b[0] = (byte) (b[0]+1);
+    for (int i = 0; i < 5; i++) {
+      b[0] = (byte) (b[0] + 1);
       Assert.assertNull(storage.store(b));
-    }    
+    }
     storage.flush();
-    b_org[0]=(byte)(b_org[0]+1);
-    match(storage.retrieve(new byte[8]),new String(b_org));
-    match(storage.retrieve(address),new String(b_org));
-    b_org[0]=(byte)(b_org[0]+1);
-    match(storage.retrieveNext(),new String(b_org));
-    b_org[0]=(byte)(b_org[0]+1);
-    match(storage.retrieveNext(),new String(b_org));
-        
+    b_org[0] = (byte) (b_org[0] + 1);
+    match(storage.retrieve(new byte[8]), new String(b_org));
+    match(storage.retrieve(address), new String(b_org));
+    b_org[0] = (byte) (b_org[0] + 1);
+    match(storage.retrieveNext(), new String(b_org));
+    b_org[0] = (byte) (b_org[0] + 1);
+    match(storage.retrieveNext(), new String(b_org));
+
   }
-  
+
   /**
    * This tests the clean when the files are roll-over and the storage fails
+   * 
    * @throws Exception
    */
   @Test
-  public void testPartialFlushWithCleanAndRollOverAndFailure() throws Exception{
+  public void testPartialFlushWithCleanAndRollOverAndFailure() throws Exception
+  {
     Assert.assertNull(storage.retrieve(new byte[8]));
     byte[] b = new byte[] { 48, 48, 48, 48, 98, 48, 52, 54, 49, 57, 55, 51, 52, 97, 53, 101, 56, 56, 97, 55, 98, 53, 52, 51, 98, 50, 102, 51, 49, 97, 97, 54, 1, 50, 48, 49, 51, 45, 49, 49, 45, 48, 55, 1, 50, 48, 49, 51, 45, 49, 49, 45, 48, 55, 32, 48, 48, 58, 51, 49, 58, 52, 56, 1, 49, 48, 53, 53, 57, 52, 50, 1, 50, 1, 49, 53, 49, 49, 54, 49, 56, 52, 1, 49, 53, 49, 49, 57, 50, 49, 49, 1, 49, 53, 49, 50, 57, 54, 54, 53, 1, 49, 53, 49, 50, 49, 53, 52, 56, 1, 49, 48, 48, 56, 48, 51, 52, 50, 1, 55, 56, 56, 50, 54, 53, 52, 56, 1, 49, 1, 48, 1, 48, 46, 48, 1, 48, 46, 48, 1, 48, 46, 48 };
     byte[] b_org = new byte[] { 48, 48, 48, 48, 98, 48, 52, 54, 49, 57, 55, 51, 52, 97, 53, 101, 56, 56, 97, 55, 98, 53, 52, 51, 98, 50, 102, 51, 49, 97, 97, 54, 1, 50, 48, 49, 51, 45, 49, 49, 45, 48, 55, 1, 50, 48, 49, 51, 45, 49, 49, 45, 48, 55, 32, 48, 48, 58, 51, 49, 58, 52, 56, 1, 49, 48, 53, 53, 57, 52, 50, 1, 50, 1, 49, 53, 49, 49, 54, 49, 56, 52, 1, 49, 53, 49, 49, 57, 50, 49, 49, 1, 49, 53, 49, 50, 57, 54, 54, 53, 1, 49, 53, 49, 50, 49, 53, 52, 56, 1, 49, 48, 48, 56, 48, 51, 52, 50, 1, 55, 56, 56, 50, 54, 53, 52, 56, 1, 49, 1, 48, 1, 48, 46, 48, 1, 48, 46, 48, 1, 48, 46, 48 };
-    byte[] address =  storage.store(b);
+    byte[] address = storage.store(b);
     Assert.assertNotNull(address);
     storage.flush();
     storage.clean(address);
     byte[] addr = null;
-    for(int i = 0; i < 5; i++){
-      b[0] = (byte) (b[0]+1);
+    for (int i = 0; i < 5; i++) {
+      b[0] = (byte) (b[0] + 1);
       addr = storage.store(b);
     }
     storage = getStorage("1", true);
     Assert.assertNull(storage.retrieve(addr));
-    for(int i = 0; i < 5; i++){
-      b[0] = (byte) (b[0]+1);
+    for (int i = 0; i < 5; i++) {
+      b[0] = (byte) (b[0] + 1);
       Assert.assertNull(storage.store(b));
-    }    
+    }
     storage.flush();
-    b_org[0]=(byte)(b_org[0]+1);
-    match(storage.retrieve(address),new String(b_org));
-    b_org[0]=(byte)(b_org[0]+1);
-    match(storage.retrieveNext(),new String(b_org));
-    b_org[0]=(byte)(b_org[0]+1);
-    match(storage.retrieveNext(),new String(b_org));
-        
+    b_org[0] = (byte) (b_org[0] + 1);
+    match(storage.retrieve(address), new String(b_org));
+    b_org[0] = (byte) (b_org[0] + 1);
+    match(storage.retrieveNext(), new String(b_org));
+    b_org[0] = (byte) (b_org[0] + 1);
+    match(storage.retrieveNext(), new String(b_org));
+
   }
-  
+
   /**
-   * This test covers following use case
-   * The file is flushed and then more data is written to the same file, but the new data is not flushed and file is not roll over and storage fails
-   * The new storage comes up and client asks for data at the last returned address from earlier storage instance. The new storage returns null. 
-   * Client stores the data again but the address returned this time is null and the retrieval of the earlier address now returns data 
+   * This test covers following use case The file is flushed and then more data is written to the same file, but the new
+   * data is not flushed and file is not roll over and storage fails The new storage comes up and client asks for data
+   * at the last returned address from earlier storage instance. The new storage returns null. Client stores the data
+   * again but the address returned this time is null and the retrieval of the earlier address now returns data
+   * 
    * @throws Exception
    */
   @Test
-  public void testPartialFlushWithFailure() throws Exception{
+  public void testPartialFlushWithFailure() throws Exception
+  {
     Assert.assertNull(storage.retrieve(new byte[8]));
     byte[] b = "ab".getBytes();
-    byte[] address =  storage.store(b);
+    byte[] address = storage.store(b);
     Assert.assertNotNull(address);
     storage.flush();
     b = "cb".getBytes();
@@ -303,15 +310,16 @@ public class HDFSStorageTest
     Assert.assertNull(storage.retrieve(addr));
     Assert.assertNull(storage.store(b));
     storage.flush();
-    match(storage.retrieve(address),"cb");    
+    match(storage.retrieve(address), "cb");
   }
-  
-  private void match(byte[] data, String match){
+
+  private void match(byte[] data, String match)
+  {
     byte[] tempData = new byte[data.length - 8];
     System.arraycopy(data, 8, tempData, 0, tempData.length);
     Assert.assertEquals("matched the stored value with retrieved value", match, new String(tempData));
   }
-  
+
   @Test
   public void testStorage() throws IOException
   {
@@ -398,7 +406,7 @@ public class HDFSStorageTest
     r.close();
   }
 
-   @Test
+  @Test
   public void testFailure() throws IOException
   {
     byte[] address;
@@ -425,6 +433,24 @@ public class HDFSStorageTest
     byte[] tempData = new byte[data.length - 8];
     System.arraycopy(data, 8, tempData, 0, tempData.length);
     Assert.assertEquals("matched the stored value with retrieved value", new String(b), new String(tempData));
+  }
+
+  /**
+   * This test case tests the clean call before any flush is called.
+   * 
+   * @throws IOException
+   */
+  @Test
+  public void testCleanUnflushedData() throws IOException
+  {
+    for (int i = 0; i < 5; i++) {
+      storage.store((i+"").getBytes());      
+    }
+    storage.clean(new byte[8]);
+    storage.flush();
+    match(storage.retrieve(new byte[8]),"0");
+    match(storage.retrieveNext(),"1");
+
   }
 
   @Test
@@ -486,7 +512,7 @@ public class HDFSStorageTest
 
     byte[] lastWrittenAddress = null;
     for (int i = 0; i < 5; i++) {
-      storage.store((i+"").getBytes());
+      storage.store((i + "").getBytes());
       lastWrittenAddress = storage.store(b);
     }
     Assert.assertNull(storage.retrieve(new byte[8]));
@@ -499,7 +525,7 @@ public class HDFSStorageTest
   @Test
   public void testRandomSequence() throws IOException
   {
-    storage.retrieve(new byte[] {0, 0, 0, 0, 0, 0, 0, 0 });
+    storage.retrieve(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 });
     storage.store(new byte[] { 48, 48, 48, 51, 101, 100, 55, 56, 55, 49, 53, 99, 52, 101, 55, 50, 97, 52, 48, 49, 51, 99, 97, 54, 102, 57, 55, 53, 57, 100, 49, 99, 1, 50, 48, 49, 51, 45, 49, 49, 45, 48, 55, 1, 50, 48, 49, 51, 45, 49, 49, 45, 48, 55, 32, 48, 48, 58, 48, 48, 58, 52, 54, 1, 52, 50, 49, 50, 51, 1, 50, 1, 49, 53, 49, 49, 52, 50, 54, 53, 1, 49, 53, 49, 49, 57, 51, 53, 49, 1, 49, 53, 49, 50, 57, 56, 50, 52, 1, 49, 53, 49, 50, 49, 55, 48, 55, 1, 49, 48, 48, 55, 55, 51, 57, 51, 1, 49, 57, 49, 52, 55, 50, 53, 52, 54, 49, 1, 49, 1, 48, 1, 48, 46, 48, 1, 48, 46, 48, 1, 48, 46, 48 });
     storage.flush();
     storage.clean(new byte[] { -109, 0, 0, 0, 0, 0, 0, 0 });
@@ -537,7 +563,6 @@ public class HDFSStorageTest
     }
   }
 
-   
   @SuppressWarnings("unused")
   private static final Logger logger = LoggerFactory.getLogger(HDFSStorageTest.class);
 }
