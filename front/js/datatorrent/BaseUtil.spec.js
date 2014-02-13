@@ -13,17 +13,26 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+var _ = require('underscore');
 var BaseUtil = require('./BaseUtil');
+var Notifier = require('./Notifier');
+
 var settings = {
     version: 'v1',
     urls: {
-        'example' : '/example/path/with/:var',
-        'example2': '/example/with/version/:v/and/:param',
-        'example3': '/example/:v'
+        'example' : '/example/url/path/with/:var',
+        'example2': '/example/url/with/version/:v/and/:param',
+        'example3': '/example/url/:v'
     },
     topics: {
-        'example' : 'example.path.with.:var',
-        'example2': 'example'
+        'example' : '/example/topic/path/with/:var',
+        'example2': '/example/topic/with/version/:v/and/:param',
+        'example3': '/example/topic/:v'
+    },
+    actions: {
+        'example' : '/example/action/path/with/:var',
+        'example2': '/example/action/with/version/:v/and/:param',
+        'example3': '/example/action/:v'
     },
     interpolateParams: function(string, params) {
         return string.replace(/:(\w+)/g, function(match, paramName) {
@@ -33,60 +42,79 @@ var settings = {
 }
 
 describe('BaseUtil.js', function() {
-    
-    describe('the resourceURL method', function() {
-            
-        var context = {
-            settings: settings
-        };
 
-        it('should construct a url with given settings.urls.path and parameters', function() {
-            var result = BaseUtil.resourceURL.call(context, 'example', { 'var': 'variables' });
-            expect(result).to.equal('/example/path/with/variables');
-        });
-        
-        it('should autofill version params in urls', function() {
-            var result = BaseUtil.resourceURL.call(context, 'example2', { 'param': 'parameter' });
-            expect(result).to.equal('/example/with/version/' + settings.version + '/and/parameter');
-        });
-        
-        it('should not require a param object', function(){
-            var result = BaseUtil.resourceURL.call(context, 'example3');
-            expect(result).to.equal('/example/' + settings.version);
-        });
-        
-        it('should throw if the url does not exist', function() {
-            var fn = function() {
-                BaseUtil.resourceURL.call(context, 'notRegistered');
-            }
-            expect(fn).to.throw;
-        });
+    var sandbox;
+
+    beforeEach(function() {
+        sandbox = sinon.sandbox.create();
+        sandbox.stub(Notifier, 'error');
+        sandbox.stub(window, 'LOG');
 
     });
+
+    afterEach(function() {
+        sandbox.restore();
+    });
     
-    describe('the resourceTopic method', function() {
+    describe('the API', function() {
+        _.each(['resourceURL','resourceTopic','resourceAction','subscribeToTopic','fetchError','quietFetchError','responseFormatError'], function(method){
+            it('should expose the ' + method + ' method', function() {
+                expect(BaseUtil[method]).to.be.a('function');
+            });
+        }, this);
+    });
+
+    _.each({'resourceURL':'url','resourceTopic':'topic','resourceAction':'action'}, function(entity, method) {
+        describe('the ' + method + ' method', function() {
+                
+            var context = {
+                settings: settings
+            };
+
+            it('should construct a ' + entity + ' with given settings.' + entity + 's.path and parameters', function() {
+                var result = BaseUtil[method].call(context, 'example', { 'var': 'variables' });
+                expect(result).to.equal('/example/' + entity + '/path/with/variables');
+            });
             
-        var context = {
-            settings: settings
-        };
+            it('should autofill version params in ' + entity + 's', function() {
+                var result = BaseUtil[method].call(context, 'example2', { 'param': 'parameter' });
+                expect(result).to.equal('/example/' + entity + '/with/version/' + settings.version + '/and/parameter');
+            });
+            
+            it('should not require a param object', function(){
+                var result = BaseUtil[method].call(context, 'example3');
+                expect(result).to.equal('/example/' + entity + '/' + settings.version);
+            });
+            
+            it('should throw if the ' + entity + ' does not exist', function() {
+                var fn = function() {
+                    BaseUtil[method].call(context, 'notRegistered');
+                }
+                expect(fn).to.throw;
+            });
 
-        it('should construct a topic with given settings.topics.path and parameters', function() {
-            var result = BaseUtil.resourceTopic.call(context, 'example', { 'var': 'variables' });
-            expect(result).to.equal('example.path.with.variables');
         });
-        
-        it('should not require a param object', function(){
-            var result = BaseUtil.resourceTopic.call(context, 'example2');
-            expect(result).to.equal('example');
-        });
-        
-        it('should throw if the url does not exist', function() {
-            var fn = function() {
-                BaseUtil.resourceTopic.call(context, 'notRegistered');
-            }
-            expect(fn).to.throw;
-        });
+    }, this);
 
+    describe('the fetchError method', function() {
+        it('should call Notifier.error with an object containing title and text attrs', function() {
+            BaseUtil.fetchError({},{ status: '404', statusText: 'Not Found'},{});
+            expect(Notifier.error).to.have.been.calledOnce;
+        });
+    });
+
+    describe('the quietFetchError method', function() {
+        it('should call the window.LOG function', function() {
+            BaseUtil.quietFetchError({},{ status: '404', statusText: 'Not Found'},{});
+            expect(window.LOG).to.have.been.calledOnce;
+        });
+    });
+
+    describe('the responseFormatError method', function() {
+        it('should call Notifier.error with an object containing title and text attrs', function() {
+            BaseUtil.responseFormatError({},{ status: '404', statusText: 'Not Found'},{});
+            expect(Notifier.error).to.have.been.calledOnce;
+        });
     });
     
 });
