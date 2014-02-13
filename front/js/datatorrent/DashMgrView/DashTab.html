@@ -1,8 +1,10 @@
 <input type="radio" name="curDashRadio" value="<%=dash_id%>" id="dash-<%=dash_id%>" <% if (selected) { print('checked') }%> />
 <label for="dash-<%=dash_id%>">
     <span class="dash_id"><%=dash_id%></span>
-<% if (!isDefault) {%>
-	<i class="icon-pencil editDashName"></i>
+<% if (isDefault) { %>
+	<i class="icon-lock" title="<%= DT.text('default dashboards cannot be deleted') %>"></i>
+<% } else { %>
+    <i class="icon-pencil editDashName"></i>
     <i class="icon-remove removeDash"></i>
-<%}%>
+<% } %>
 </label>
