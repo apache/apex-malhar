@@ -35,6 +35,9 @@ var LicenseModalView = BaseView.extend({
 			this.agent.fetch();
 		});
 		this.listenTo(this.agent, 'sync', this.renderBody);
+		this.listenTo(this.model, 'error', function() {
+			this.$('.modal-body').html(text('No license found.'));
+		});
 	},
 
 	body: function() {
