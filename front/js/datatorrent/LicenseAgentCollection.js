@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 var BaseCollection = require('./BaseCollection');
+var BaseUtil = require('./BaseUtil');
 var LicenseAgentModel = require('./LicenseAgentModel');
 
 /**
@@ -28,6 +29,8 @@ var LicenseAgentCollection = BaseCollection.extend({
     url: function() {
         return this.resourceURL('LicenseAgent');
     },
+
+    fetchError: BaseUtil.quietFetchError,
 
     responseTransform: 'licenseAgents'
 
