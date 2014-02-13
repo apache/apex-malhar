@@ -59,7 +59,7 @@ var ContainerPageView = BasePageView.extend({
 
         // Define widgets
         this.defineWidgets([
-            { name: 'info', defaultId: 'info', view: CtnrInfoWidget, limit: 0, inject: {
+            { name: 'info', defaultId: 'container info', view: CtnrInfoWidget, limit: 0, inject: {
                 model: this.model, 
                 nav: this.app.nav
             }},
@@ -96,7 +96,7 @@ var ContainerPageView = BasePageView.extend({
         {
             dash_id: 'default',
             widgets: [
-                { widget: 'info', id: 'info', width: 65 },
+                { widget: 'info', id: 'container info', width: 65 },
                 { widget: 'actions', id: 'actions', width: 35 },
                 { widget: 'overview', id: 'overview' },
                 { widget: 'memoryGauge', id: 'memory gauge', width: 50 },

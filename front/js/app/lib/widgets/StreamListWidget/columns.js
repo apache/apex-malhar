@@ -36,8 +36,8 @@ function localityFormatter(locality, row) {
 
 exports = module.exports = [
     { id: 'selector', label: '', key: 'selected', select: true, width: 40, lock_width: true },
-    { id: 'name', label: 'Name', key: 'name', filter: 'like', sort: 'string', sort_value: 'a', format: nameFormatter },
-    { id: 'locality', label: 'Locality', key: 'locality', filter: 'like', sort: 'string', format: localityFormatter },
-    { id: 'source', label: 'Source', key: 'source', filter: 'likeFormatted', format: sourceFormatter },
-    { id: 'sinks', label: 'Sinks', key: 'sinks', filter: 'likeFormatted', format: sinksFormatter }
+    { id: 'name', label: DT.text('name_label'), key: 'name', filter: 'like', sort: 'string', sort_value: 'a', format: nameFormatter },
+    { id: 'locality', label: DT.text('locality_label'), key: 'locality', filter: 'like', sort: 'string', format: localityFormatter },
+    { id: 'source', label: DT.text('source_label'), key: 'source', filter: 'likeFormatted', format: sourceFormatter },
+    { id: 'sinks', label: DT.text('sinks_label'), key: 'sinks', filter: 'likeFormatted', format: sinksFormatter }
 ];
