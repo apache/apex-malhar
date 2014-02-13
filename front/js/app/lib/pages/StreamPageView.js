@@ -42,7 +42,7 @@ var StreamPage = Base.extend({
         {
             dash_id: 'default',
             widgets: [
-                { widget: 'StreamInfo', id: 'info' },
+                { widget: 'StreamInfo', id: 'stream info' },
                 { widget: 'SourcePorts', id: 'sources', width: 50 },
                 { widget: 'SinkPorts', id: 'sinks', width: 50 }
             ]
@@ -83,7 +83,7 @@ var StreamPage = Base.extend({
         
         
         this.defineWidgets([
-            { name: 'StreamInfo', defaultId: 'info', view: StreamInfoWidget, inject: {
+            { name: 'StreamInfo', defaultId: 'stream info', view: StreamInfoWidget, inject: {
                 dataSource: this.dataSource,
                 model: this.model,
                 instance: this.instance

@@ -1,9 +1,9 @@
 <div class="info-item">
-    <span class="key">Stream Name:</span>
+    <span class="key"><%= DT.text('name_label') %>:</span>
     <span class="value"><%=model.name%></span>
 </div>
 
 <div class="info-item">
-    <span class="key">Locality:</span>
-    <span class="value"><% model.locality ? print(model.locality) : print('NOT ASSIGNED') %></span>
+    <span class="key"><%= DT.text('locality_label') %>:</span>
+    <span class="value"><% model.locality ? print(model.locality) : print(DT.text('locality_not_assigned')) %></span>
 </div>

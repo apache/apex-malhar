@@ -52,10 +52,10 @@ function portsFormatter(ports, row) {
 
 exports = module.exports = [
     { id: "selector", key: "selected", label: "", select: true, width: 40, lock_width: true },
-    { id: "recordingName", key: "recordingName", label: "Name / Start Time", filter: "like", sort: "string", format: nameFormatter },
-    { id: "ports", key: "ports", label: "Ports", filter: "likeFormatted", format: portsFormatter, interaction: portInteractions },
-    { id: "startTime", key: "startTime", label: "Started", format: bormat.timeSince, sort: "number", filter: "date" },
-    { id: "ended", key: "ended", label: "Ended?", format: endedFormatter, filter: "likeFormatted", sort: EndedSorter },
-    { id: "operatorId", key: "operatorId", label: "Operator ID", filter: "number", sort: "number" },
-    { id: "totalTuples", key: "totalTuples", label: "Total Tuples", format: bormat.commaGroups, sort: "number", filter: "number" }
+    { id: "recordingName", key: "recordingName", label: DT.text('name_label'), filter: "like", sort: "string", format: nameFormatter },
+    { id: "ports", key: "ports", label: DT.text('ports_label'), filter: "likeFormatted", format: portsFormatter, interaction: portInteractions },
+    { id: "startTime", key: "startTime", label: DT.text('started_label'), format: bormat.timeSince, sort: "number", filter: "date" },
+    { id: "ended", key: "ended", label: DT.text('ended_label'), format: endedFormatter, filter: "likeFormatted", sort: EndedSorter },
+    { id: "operatorId", key: "operatorId", label: DT.text('operator_id_label'), filter: "number", sort: "number" },
+    { id: "totalTuples", key: "totalTuples", label: DT.text('total_tuples_label'), format: bormat.commaGroups, sort: "number", filter: "number" }
 ]
