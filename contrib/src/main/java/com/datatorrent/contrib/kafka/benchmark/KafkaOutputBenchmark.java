@@ -23,6 +23,8 @@ import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * An stream app to produce msg to cluster
+ *
+ * @since 0.9.3
  */
 public class KafkaOutputBenchmark implements StreamingApplication
 {

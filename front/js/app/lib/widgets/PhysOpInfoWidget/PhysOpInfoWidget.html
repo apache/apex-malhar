@@ -1,9 +1,9 @@
 <div class="info-item">
-    <span class="key">Operator Name:</span>
+    <span class="key"><%= DT.text('name_label') %>:</span>
     <span class="value"><% name ? print(DT.templates.logical_op_link({ appId: appId, logicalName: name })) : print('loading') %></span>
 </div>
 
 <div class="info-item">
-    <span class="key">Operator ID:</span>
+    <span class="key"><%= DT.text('id_label') %>:</span>
     <span class="value"><%=id%></span>
 </div>

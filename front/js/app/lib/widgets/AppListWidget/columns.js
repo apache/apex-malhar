@@ -18,15 +18,17 @@
 */
 var bormat = require('bormat');
 var templates = DT.templates;
-var stateOrder = ['RUNNING','FAILED','FINISHED','KILLED'];
+var formatters = DT.formatters;
+var stateOrder = DT.settings.statusOrder;
 
 function stateFormatter(value,row) {
-    if (value == null || value === "")
-        return "-";
+    if (!value) {
+        return '-';
+    }
     var finalStatus = row.get('finalStatus');
-    var html = '<span class="status-' + value.replace(' ','-').toLowerCase() + '">' + value + '</span> ';
-    if (finalStatus.toLowerCase() !== 'undefined') {
-        html += '<span class="final-status" title="Final Status">(' + finalStatus + ')</span>';
+    var html = '<span class="status-' + value.replace(' ','-').toLowerCase() + '">' + value + '</span>';
+    if ( typeof finalStatus === 'string' && finalStatus.toLowerCase() !== 'undefined' ) {
+        html += ' <span class="final-status" title="Final Status">(' + finalStatus + ')</span>';
     }
     return html;
 }
@@ -49,10 +51,6 @@ function idFilter(term, value, computedValue, row) {
     return value.indexOf(term) > -1;
 }
 
-function finalStatusFormatter(value, row) {
-    return value;
-}
-
 function lifetimeFormatter(value, row) {
     var finishedTime = row.get('finishedTime') * 1 || +new Date() ;
     var startedTime = row.get('startedTime') * 1 ;
@@ -63,12 +61,35 @@ function lifetimeFormatter(value, row) {
     });
 }
 
+function memoryFormatter(value, row) {
+    if (!value) {
+        return '-';
+    }
+    return formatters.byteFormatter(value, 'mb');
+}
+
+function memorySorter(row1, row2) {
+    var v1 = row1.get('allocatedMB');
+    var v2 = row2.get('allocatedMB');
+    if (!v1 && !v2) {
+        return 0;
+    }
+    if (!v1) {
+        return -1;
+    }
+    if (!v2) {
+        return 1;
+    }
+    return v1 - v2;
+}
+
 exports = module.exports = [
-    { id: "selector", key: "selected", label: "", select: true, width: 40, lock_width: true },
-    { id: "id", label: "ID", key: "id", sort: "string", filter: idFilter, format: idFormatter, width: 50, sort_value: "d", lock_width: true },
-    { id: "name", key: "name", label: "App Name", sort: "string", filter: "like", width: 200 },
-    { id: "state", label: "State", key: "state", format: stateFormatter, sort: stateSorter, filter:"like", width: 100 , sort_value: "a"},
-    { id: "user", label: "User", key: "user", sort: "string", filter:"like" },
-    { id: "startedTime", label: "Started", key: "startedTime", sort: "number", filter: "date", format: "timeSince" },
-    { id: "lifetime", label: "Lifetime of App", key: "startedTime", filter: "numberFormatted", format: lifetimeFormatter }
-]
+    { id: 'selector', key: 'selected', label: '', select: true, width: 40, lock_width: true },
+    { id: 'id', label: DT.text('id_label'), key: 'id', sort: 'string', filter: idFilter, format: idFormatter, width: 50, sort_value: 'd', lock_width: true },
+    { id: 'name', key: 'name', label: DT.text('name_label'), sort: 'string', filter: 'like', width: 200 },
+    { id: 'state', label: DT.text('state_label'), key: 'state', format: stateFormatter, sort: stateSorter, filter:'like', width: 100 , sort_value: 'a'},
+    { id: 'user', key: 'user', label: DT.text('user_label'), sort: 'string', filter:'like' },
+    { id: 'startedTime', label: DT.text('started_label'), key: 'startedTime', sort: 'number', filter: 'date', format: 'timeSince' },
+    { id: 'lifetime', label: DT.text('lifetime_label'), key: 'startedTime', filter: 'numberFormatted', format: lifetimeFormatter },
+    { id: 'allocatedMB', label: DT.text('memory_label'), key: 'allocatedMB', sort: memorySorter, filter: 'number', format: memoryFormatter, width: 60 }
+];

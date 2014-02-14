@@ -1,0 +1,13 @@
+<% if (agent.totalLicensedMB) { %> 
+<span class="license-agent-mem-usage progress <% 
+    if (agent.percentUsedLicenseMB > 90) { 
+        print('progress-danger pulse');
+    } else if (agent.percentUsedLicenseMB > 70) {
+        print('progress-warning');
+    } else if (agent.percentUsedLicenseMB > 30) {
+        print('progress-success');
+    } %>">
+    <span class="bar" style="width:<%= Math.max(agent.percentUsedLicenseMB, 2) %>%"></span>
+</span>
+<span class="license-agent-usage-label"><%= agent.percentUsedLicenseMB ? agent.percentUsedLicenseMB + '% memory used' : '' %></span>
+<% } %>

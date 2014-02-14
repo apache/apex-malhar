@@ -25,6 +25,7 @@ var Notifier = require('./Notifier');
 var WidgetClassCollection = require('./WidgetClassCollection');
 var DashCollection = require('./DashCollection');
 var DashMgr = require('./DashMgrView');
+var DashTabs = require('./DashMgrView/DashTabs');
 var BaseView = require('bassview');
 var BasePageView = BaseView.extend({
     
@@ -55,6 +56,11 @@ var BasePageView = BaseView.extend({
         // Check for dashboardMgr
         if (this.useDashMgr) {
             this.subview('dashMgr', new DashMgr({
+                collection: this.__wDashes,
+                widgets: this.__wClasses,
+                page: this
+            }));
+            this.subview('dashTabs', new DashTabs({
                 collection: this.__wDashes,
                 widgets: this.__wClasses,
                 page: this
@@ -330,11 +336,15 @@ var BasePageView = BaseView.extend({
             // Reset html
             var dashMgrView = this.subview('dashMgr');
             var marginLeft = dashMgrView.visible ? dashMgrView.width : dashMgrView.collapsedWidth ;
-            this.el.innerHTML = '<div class="dashboardMgr" style="width: ' + marginLeft + 'px;"></div><div class="dashboardMain" style="margin-left: ' + marginLeft + 'px;"></div>';
+            this.el.innerHTML = 
+                '<div class="dashboardMgr" style="width: ' + marginLeft + 'px;"></div>'+
+                '<div class="dashboardTabs" style="margin-left: ' + marginLeft + 'px;"></div>' + 
+                '<div class="dashboardMain" style="margin-left: ' + marginLeft + 'px;"></div>';
             $el = this.$('.dashboardMain');
             
             // Re-assign the dashboard manager view
             this.assign({'.dashboardMgr':'dashMgr'});
+            this.assign({'.dashboardTabs':'dashTabs'});
         }
         
         // render the widgets

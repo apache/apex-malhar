@@ -24,6 +24,8 @@ import kafka.utils.VerifiableProperties;
  * Key is a int string
  * Messages are distributed to 2 partitions
  * One for even number, the other for odd
+ *
+ * @since 0.9.3
  */
 public class KafkaTestPartitioner implements Partitioner<String>
 {

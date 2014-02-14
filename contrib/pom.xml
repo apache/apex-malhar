@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.datatorrent</groupId>
     <artifactId>malhar-all</artifactId>
-    <version>0.9.3-SNAPSHOT</version>
+    <version>0.9.4-SNAPSHOT</version>
   </parent>
 
   <artifactId>malhar-contrib</artifactId>
@@ -75,6 +75,7 @@
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka_2.10</artifactId>
       <version>0.8.0</version>
+      <optional>true</optional>
       <exclusions>
         <exclusion>
           <groupId>org.slf4j</groupId>
@@ -116,12 +117,14 @@
       <groupId>net.sf.jopt-simple</groupId>
       <artifactId>jopt-simple</artifactId>
       <version>3.2</version>
+      <optional>true</optional>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.101tec</groupId>
       <artifactId>zkclient</artifactId>
       <version>0.3</version>
+      <optional>true</optional>
       <scope>provided</scope>
       <exclusions>
         <exclusion>
@@ -165,9 +168,16 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>org.fusesource.mqtt-client</groupId>
+      <artifactId>mqtt-client</artifactId>
+      <version>1.6</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>rome</groupId>
       <artifactId>rome</artifactId>
       <version>1.0</version>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.apache.hbase</groupId>
@@ -225,6 +235,7 @@
       <groupId>org.ektorp</groupId>
       <artifactId>org.ektorp</artifactId>
       <version>1.2.2</version>
+      <optional>true</optional>
       <exclusions>
         <exclusion>
           <artifactId>jackson-core-asl</artifactId>
@@ -245,6 +256,25 @@
       <groupId>redis.clients</groupId>
       <artifactId>jedis</artifactId>
       <version>2.2.1</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <version>2.3.1</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache-extras.cassandra-jdbc</groupId>
+      <artifactId>cassandra-jdbc</artifactId>
+      <version>1.2.5</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.esotericsoftware.kryo</groupId>
+      <artifactId>kryo</artifactId>
+      <version>2.21</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -252,20 +282,11 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.hsqldb</groupId>
-      <artifactId>hsqldb</artifactId>
-      <version>2.3.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache-extras.cassandra-jdbc</groupId>
-      <artifactId>cassandra-jdbc</artifactId>
-      <version>1.2.5</version>
-    </dependency>
-    <dependency>
-      <groupId>com.esotericsoftware.kryo</groupId>
-      <artifactId>kryo</artifactId>
-      <version>2.21</version>
-      <scope>provided</scope>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>malhar-library</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+      <type>test-jar</type>
     </dependency>
     <dependency>
       <!-- required by twitter -->

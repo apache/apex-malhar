@@ -32,16 +32,16 @@ function windowFormat(operator, port) {
 exports = module.exports = function(portType) {
     return [
         // portName
-        { id: 'portName', key: 'name', label: 'Port Name', sort: 'string', filter: 'like', sort: 'string', sort_value: 'a', format: portFormat },
+        { id: 'portName', key: 'name', label: DT.text('port_label'), sort: 'string', filter: 'like', sort: 'string', sort_value: 'a', format: portFormat },
         // operator
-        { id: 'operator', key: 'operator', label: 'Operator Name (ID)', filter: 'likeFormatted', sort: 'string', format: operatorFormat },
+        { id: 'operator', key: 'operator', label: DT.text('operator name (id)'), filter: 'likeFormatted', sort: 'string', format: operatorFormat },
         // bufferServerBytesPSMA10
-        { id: 'bufferServerBytesPSMA', key: 'bufferServerBytesPSMA', label: 'Buffer ' + ( portType === 'source' ? 'Writes' : 'Reads' ) + '/sec' , filter: 'number', sort: 'number', format: 'commaInt' },
+        { id: 'bufferServerBytesPSMA', key: 'bufferServerBytesPSMA', label: ( portType === 'source' ? DT.text('buffer_server_writes_ps') : DT.text('buffer_server_reads_ps') ), filter: 'number', sort: 'number', format: 'commaInt' },
         // tuplesPSMA10
-        { id: 'tuplesPSMA', key: 'tuplesPSMA', label: 'Tuples/sec', filter: 'number', sort: 'number', format: 'commaInt' },
+        { id: 'tuplesPSMA', key: 'tuplesPSMA', label: DT.text('tuples_per_sec'), filter: 'number', sort: 'number', format: 'commaInt' },
         // totalTuples
-        { id: 'totalTuples', key: 'totalTuples', label: 'Total Tuples', filter: 'number', sort: 'number', format: 'commaInt' },
+        { id: 'totalTuples', key: 'totalTuples', label: DT.text('tuples_total'), filter: 'number', sort: 'number', format: 'commaInt' },
         // current window
-        { id: 'currentWindow', key: 'operator', label: 'Current Window', filter: 'likeFormatted', format: windowFormat }
+        { id: 'currentWindow', key: 'operator', label: DT.text('current_wid_label'), filter: 'likeFormatted', format: windowFormat }
     ]
 }

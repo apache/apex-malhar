@@ -1,6 +1,17 @@
 /*
- *  Copyright (c) 2012-2014 Malhar, Inc.
- *  All Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.datatorrent.demos.twitter;
 
@@ -25,8 +36,31 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ShipContainingJars;
 
 /**
+ * An application which connects to Twitter Sample Input and stores all the
+ * tweets with their usernames in a mysql database. Please review the docs
+ * for TwitterTopCounterApplication to setup your twitter credentials. You
+ * may also be able to change JDBCStore credentials using config file.
  *
- * @author Chetan Narsude <chetan@datatorrent.com>
+ * You will also need to create appropriate database and tables with the
+ * following schema, also included in mysql.sql in resources:
+ * <pre>
+ * DROP TABLE if exists tweets;
+ * CREATE TABLE tweets (
+ * window_id LONG NOT NULL,
+ * creation_date DATE,
+ * text VARCHAR(256) NOT NULL,
+ * userid VARCHAR(40) NOT NULL,
+ * KEY ( userid, creation_date)
+ * );
+ *
+ * drop table if exists dt_window_id_tracker;
+ * CREATE TABLE dt_window_id_tracker (
+ * dt_application_id VARCHAR(100) NOT NULL,
+ * dt_operator_id int(11) NOT NULL,
+ * dt_window_id bigint NOT NULL,
+ * UNIQUE (dt_application_id, dt_operator_id, dt_window_id)
+ * )  ENGINE=MyISAM DEFAULT CHARSET=latin1;
+ * </pre>
  */
 public class TwitterDumpApplication implements StreamingApplication
 {

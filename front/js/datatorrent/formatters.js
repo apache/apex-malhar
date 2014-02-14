@@ -27,7 +27,7 @@ function containerFormatter(value, row) {
         appId: row.collection ? row.collection.appId : null,
         containerIdShort: displayval
     });
-};
+}
 
 function windowFormatter(windowIdObj) {
     if (! ( /\d{5,}/.test(windowIdObj) ) ) return windowIdObj;
@@ -35,19 +35,19 @@ function windowFormatter(windowIdObj) {
         windowIdObj = new WindowId(windowIdObj);
     }
     return windowIdObj.toString();
-};
+}
 
 function windowOffsetFormatter(windowIdObj) {
-    if (! ( /\d{5,}/.test(windowIdObj) ) ) return windowIdObj;
-    if (typeof windowIdObj !== 'object') {
-        windowIdObj = new WindowId(windowIdObj);
+    if (!_.isObject(windowIdObj)) {
+      windowIdObj = new WindowId(windowIdObj);
     }
+
     return windowIdObj.offset;
-};
+}
 
 function statusClassFormatter(status) {
     return 'status-' + status.replace(/[^a-zA-Z]+/,'-').toLowerCase();
-};
+}
 
 function logicalOpStatusFormatter(statuses) {
     var strings = _.map(statuses, function(val, key) {
@@ -55,7 +55,7 @@ function logicalOpStatusFormatter(statuses) {
         return ' <span class="' + statusClassFormatter(key) + '" title="' + val.length + ' ' + key + '">' + val.length + '</span>';
     }, '');
     return strings.join(', ');
-};
+}
 
 function percentageFormatter(value, isNumerator) {
     var multiplyBy = isNumerator ? 1 : 100;
@@ -63,30 +63,40 @@ function percentageFormatter(value, isNumerator) {
     value = value.toFixed(1);
     value = bormat.commaGroups(value);
     return value + '%';
-};
+}
 
-function byteFormatter(bytes) {
-    bytes *= 1;
+// holds number of bytes per level
+var levels = { b: 1 };
+levels.kb = 1024;
+levels.mb = levels.kb * 1024;
+levels.gb = levels.mb * 1024;
+levels.tb = levels.gb * 1024;
+/**
+ * Format a given number of bytes (or other unit)
+ * @param  {number} bytes The number of bytes (or other unit) to format
+ * @param  {string} level (optional) units of the bytes parameter (defaults to "b" for bytes, can be "kb", "mb", "gb", or "tb")
+ * @return {string} returns human-readable string format
+ */
+function byteFormatter(bytes, level) {
+    
     var precision = 1;
-    var kilobyte = 1024;
-    var megabyte = kilobyte * 1024;
-    var gigabyte = megabyte * 1024;
-    var terabyte = gigabyte * 1024;
+    level = level || 'b';
+    bytes *= levels[level];
    
-    if ((bytes >= 0) && (bytes < kilobyte)) {
+    if ((bytes >= 0) && (bytes < levels.kb)) {
         return bytes + ' B';
  
-    } else if ((bytes >= kilobyte) && (bytes < megabyte)) {
-        return (bytes / kilobyte).toFixed(precision) + ' KB';
+    } else if ((bytes >= levels.kb) && (bytes < levels.mb)) {
+        return (bytes / levels.kb).toFixed(precision) + ' KB';
  
-    } else if ((bytes >= megabyte) && (bytes < gigabyte)) {
-        return (bytes / megabyte).toFixed(precision) + ' MB';
+    } else if ((bytes >= levels.mb) && (bytes < levels.gb)) {
+        return (bytes / levels.mb).toFixed(precision) + ' MB';
  
-    } else if ((bytes >= gigabyte) && (bytes < terabyte)) {
-        return (bytes / gigabyte).toFixed(precision) + ' GB';
+    } else if ((bytes >= levels.gb) && (bytes < levels.tb)) {
+        return (bytes / levels.gb).toFixed(precision) + ' GB';
  
-    } else if (bytes >= terabyte) {
-        return (bytes / terabyte).toFixed(precision) + ' TB';
+    } else if (bytes >= levels.tb) {
+        return (bytes / levels.tb).toFixed(precision) + ' TB';
  
     } else {
         return bytes + ' B';

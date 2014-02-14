@@ -43,13 +43,6 @@ public class Application implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
 		TwitterSampleInput twitterFeed = new TwitterSampleInput();
-		twitterFeed.setConsumerKey("uPLCFoMJUGrnTevKcYNPQ");
-		twitterFeed
-				.setConsumerSecret("0LWZ4fL3eivCbkQcvReFL4Pbcg2yx6KN1f5jRrso");
-		twitterFeed
-				.setAccessToken("1525255297-6HksiqL4B0J9lTQfzfWjTjr7VKTDKA6rQON6otd");
-		twitterFeed
-				.setAccessTokenSecret("ya76sQEFjz5rcWThNOOoViNNfAT1vMlD6xkqpswQ");
 		twitterFeed = dag.addOperator("TweetSampler", twitterFeed);
 
    /* TwitterStatusWordExtractor wordExtractor = dag.addOperator("WordExtractor", TwitterStatusWordExtractor.class);

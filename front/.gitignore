@@ -5,3 +5,4 @@ node_modules/*
 /dist
 test/suite.bundle.js
 /js/precompiled-templates.js
+*.css

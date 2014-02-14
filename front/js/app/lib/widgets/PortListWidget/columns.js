@@ -45,9 +45,9 @@ function nameFormatter(name, row) {
 
 exports = module.exports = [
     { id: 'selector', label: '', key: 'selected', select: true, width: 40, lock_width: true },
-    { id: 'name', key: 'name', label: 'Port Name', filter: 'like', sort: 'string', format: nameFormatter, sort_value: 'a' },
-    { id: 'type', key: 'type', label: 'Type', filter: 'like', sort: 'string', format: typeFormatter },
+    { id: 'name', key: 'name', label: DT.text('name_label'), filter: 'like', sort: 'string', format: nameFormatter, sort_value: 'a' },
+    { id: 'type', key: 'type', label: DT.text('type_label'), filter: 'like', sort: 'string', format: typeFormatter },
     { id: 'tuplesPSMA', key: 'tuplesPSMA', label: DT.text('tuples_per_sec'), filter: 'number', sort: 'number', format: 'commaInt' },
     { id: 'totalTuples', key: 'totalTuples', label: DT.text('tuples_total'), filter: 'number', sort: 'number', format: 'commaInt' },
-    { id: 'bufferServerBytesPSMA', key: 'bufferServerBytesPSMA', label: 'Buffer Server Bytes/sec', filter: 'number', sort: 'number', format: 'commaInt' }
+    { id: 'bufferServerBytesPSMA', key: 'bufferServerBytesPSMA', label: DT.text('buffer_server_bps_label'), filter: 'number', sort: 'number', format: 'commaInt' }
 ];

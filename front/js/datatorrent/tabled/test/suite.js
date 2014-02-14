@@ -188,6 +188,19 @@ describe("the Tabled module", function() {
             var after = $(".td.col-age:eq(0)", this.$pg).text();
             assert(before != after, "age should have changed in the cell");
         });
+
+        describe('the setLoading function', function() {
+
+            it('should be a function', function() {
+                expect(this.tabled.setLoading).to.be.a('function');     
+            });
+
+            it('should clear the tbody element', function() {
+                this.tabled.setLoading();
+                expect($('.tbody').html()).to.equal('<div class="tr loading-tr"><span class="tabled-spinner"></span> loading</div>');
+            });
+            
+        });
         
         afterEach(function() {
             this.tabled.remove();
