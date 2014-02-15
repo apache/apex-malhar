@@ -32,8 +32,10 @@ var CtnrInfoWidget = BaseView.extend({
         this.model = options.model;
 
         // Listen for changes on elapsed time
-        this.listenTo(this.model, "update", this.render);
+        this.listenTo(this.model, "change:containerLogsUrl change:host change:jvmName", this.render);
     },
+
+    className: 'visible-overflow',
     
     template: kt.make(__dirname+'/CtnrInfoWidget.html','_')
     
