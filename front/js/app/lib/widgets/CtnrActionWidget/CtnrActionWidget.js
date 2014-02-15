@@ -14,33 +14,26 @@
 * limitations under the License.
 */
 /**
- * Palette view for Container List
+ * OpActionWidget
+ * 
+ * Executes various actions for an operator
 */
-var BaseView = DT.lib.ListPalette;
+
 var _ = require('underscore');
 var kt = require('knights-templar');
-var Palette = BaseView.extend({
+var BaseView = DT.widgets.Widget;
+var CtnrActionWidget = BaseView.extend({
     
     events: {
-        'click .inspectItem' : 'inspectContainer',
-        'click .killCtnrs': 'killContainers'
-    },
-    
-    inspectContainer: function() {
-        var ctnrId = this.getSelected()[0].get('id');
-        this.nav.go('ops/apps/' + this.model.get('id') + '/containers/' + ctnrId, { trigger:true } );
+        'click .killCtnr': 'killCtnr'
     },
 
-    killContainers: function(evt) {
-        this.$('.killCtnrs').prop('disabled', true);
-        var selected = this.getSelected();
-        _.each(selected, function(ctnr) {
-            ctnr.kill();
-        });
+    killCtnr: function() {
+        this.$('.killCtnr').prop('disabled', true);
+        this.model.kill();
     },
-
-    template: kt.make(__dirname+'/CtnrListPalette.html')
     
+    template: kt.make(__dirname+'/CtnrActionWidget.html','_')
+
 });
-
-exports = module.exports = Palette
+exports = module.exports = CtnrActionWidget;

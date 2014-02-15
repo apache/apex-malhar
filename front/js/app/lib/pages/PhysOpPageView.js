@@ -56,7 +56,7 @@ var PhysOpPageView = BasePageView.extend({
         this.defineWidgets([
             {
                 name: 'info',
-                defaultId: 'info',
+                defaultId: 'operator info',
                 view: PhysOpInfoWidget,
                 limit: 0, inject: {
                     model: function() {
@@ -143,7 +143,7 @@ var PhysOpPageView = BasePageView.extend({
         {
             dash_id: 'info',
             widgets: [
-                { widget: 'info', id: 'info', width: 60 },
+                { widget: 'info', id: 'operator info', width: 60 },
                 { widget: 'action', id: 'actions', width: 40 },
                 { widget: 'overview', id: 'overview'},
                 { widget: 'portlist', id: 'portlist'},
@@ -154,7 +154,7 @@ var PhysOpPageView = BasePageView.extend({
         {
             dash_id: 'metrics',
             widgets: [
-                { widget: 'info', id: 'info', width: 60 },
+                { widget: 'info', id: 'operator info', width: 60 },
                 { widget: 'action', id: 'actions', width: 40 },
                 { widget: 'overview', id: 'overview'},
                 { widget: 'opmetrics', id: 'metrics'}

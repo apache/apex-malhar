@@ -10,7 +10,6 @@
   <artifactId>malhar-all</artifactId>
   <version>0.9.4-SNAPSHOT</version>
   <packaging>pom</packaging>
-
   <name>Malhar Open Source</name>
   <url>https://www.datatorrent.com/</url>
 

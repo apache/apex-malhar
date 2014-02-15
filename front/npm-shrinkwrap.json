@@ -76,150 +76,6 @@
         }
       }
     },
-    "beefy": {
-      "version": "0.4.5",
-      "from": "beefy@~0.4.0",
-      "dependencies": {
-        "response-stream": {
-          "version": "0.0.0",
-          "from": "response-stream@0.0.0"
-        },
-        "colors": {
-          "version": "0.6.2",
-          "from": "colors@~0.6.0-1"
-        },
-        "through": {
-          "version": "2.2.7",
-          "from": "through@~2.2.0"
-        },
-        "nopt": {
-          "version": "2.1.2",
-          "from": "nopt@~2.1.1",
-          "dependencies": {
-            "abbrev": {
-              "version": "1.0.4",
-              "from": "abbrev@1"
-            }
-          }
-        },
-        "watchr": {
-          "version": "2.4.9",
-          "from": "watchr@~2.4.3",
-          "dependencies": {
-            "bal-util": {
-              "version": "2.4.1",
-              "from": "bal-util@~2.4.0",
-              "dependencies": {
-                "ambi": {
-                  "version": "2.1.6",
-                  "from": "ambi@~2.1.5"
-                }
-              }
-            },
-            "typechecker": {
-              "version": "2.0.8",
-              "from": "typechecker@~2.0.8"
-            },
-            "extendr": {
-              "version": "2.1.0",
-              "from": "extendr@~2.1.0"
-            },
-            "eachr": {
-              "version": "2.0.2",
-              "from": "eachr@~2.0.2"
-            },
-            "safefs": {
-              "version": "3.1.1",
-              "from": "safefs@~3.1.0",
-              "resolved": "http://registry.npmjs.org/safefs/-/safefs-3.1.1.tgz"
-            },
-            "taskgroup": {
-              "version": "3.3.8",
-              "from": "taskgroup@~3.3.1",
-              "resolved": "http://registry.npmjs.org/taskgroup/-/taskgroup-3.3.8.tgz",
-              "dependencies": {
-                "ambi": {
-                  "version": "2.1.6",
-                  "from": "ambi@~2.1.5"
-                }
-              }
-            },
-            "ignorefs": {
-              "version": "1.0.0",
-              "from": "ignorefs@~1.0.0",
-              "dependencies": {
-                "ignorepatterns": {
-                  "version": "1.0.1",
-                  "from": "ignorepatterns@~1.0.0"
-                }
-              }
-            },
-            "extract-opts": {
-              "version": "2.2.0",
-              "from": "extract-opts@~2.2.0"
-            }
-          }
-        },
-        "mime": {
-          "version": "1.2.11",
-          "from": "mime@~1.2.9"
-        },
-        "sse-stream": {
-          "version": "0.0.4",
-          "from": "sse-stream@0.0.4"
-        },
-        "open": {
-          "version": "0.0.3",
-          "from": "open@0.0.3"
-        },
-        "portfinder": {
-          "version": "0.2.1",
-          "from": "portfinder@~0.2.1",
-          "dependencies": {
-            "mkdirp": {
-              "version": "0.0.7",
-              "from": "mkdirp@0.0.x"
-            }
-          }
-        },
-        "script-injector": {
-          "version": "0.1.7",
-          "from": "script-injector@~0.1.0",
-          "dependencies": {
-            "trumpet": {
-              "version": "1.6.3",
-              "from": "trumpet@~1.6.3",
-              "dependencies": {
-                "sax": {
-                  "version": "0.5.8",
-                  "from": "sax@~0.5.4"
-                },
-                "ent": {
-                  "version": "0.0.7",
-                  "from": "ent@~0.0.5"
-                },
-                "buffers": {
-                  "version": "0.1.1",
-                  "from": "buffers@~0.1.1"
-                },
-                "inherits": {
-                  "version": "2.0.1",
-                  "from": "inherits@~2.0.0"
-                }
-              }
-            },
-            "through": {
-              "version": "2.3.4",
-              "from": "through@~2.3.4"
-            },
-            "duplexer": {
-              "version": "0.1.1",
-              "from": "duplexer@~0.1.1"
-            }
-          }
-        }
-      }
-    },
     "sinon": {
       "version": "1.7.3",
       "from": "sinon@~1.7.3",
@@ -692,7 +548,7 @@
                 },
                 "source-map": {
                   "version": "0.1.31",
-                  "from": "source-map@~0.1.7",
+                  "from": "source-map@>= 0.1.2",
                   "dependencies": {
                     "amdefine": {
                       "version": "0.1.0",
@@ -712,8 +568,7 @@
                 },
                 "uglify-to-browserify": {
                   "version": "1.0.2",
-                  "from": "uglify-to-browserify@~1.0.0",
-                  "resolved": "http://registry.npmjs.org/uglify-to-browserify/-/uglify-to-browserify-1.0.2.tgz"
+                  "from": "uglify-to-browserify@~1.0.0"
                 }
               }
             }
@@ -873,8 +728,7 @@
                 },
                 "forever-agent": {
                   "version": "0.5.2",
-                  "from": "forever-agent@~0.5.0",
-                  "resolved": "http://registry.npmjs.org/forever-agent/-/forever-agent-0.5.2.tgz"
+                  "from": "forever-agent@~0.5.0"
                 },
                 "node-uuid": {
                   "version": "1.4.1",

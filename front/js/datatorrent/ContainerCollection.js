@@ -25,6 +25,13 @@ var ContainerCollection = Base.extend({
     responseTransform: 'containers',
     
     model: Container,
+
+    initialize: function() {
+        Base.prototype.initialize.apply(this, arguments);
+        this.on('remove', function(model) {
+            console.log('removal from container collection');
+        });
+    },
     
     url: function() {
         return this.resourceURL('Container', {
