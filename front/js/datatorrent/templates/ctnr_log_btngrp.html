@@ -1,0 +1,14 @@
+<div class="btn-group">
+  <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+    <i class="icon-file"></i> <%= DT.text('logs_label') %>
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu">
+    <li><a target="_blank" href="<%= containerLogsUrl %>" target="_blank"><%= DT.text('all_logs') %></a></li>
+    <li class="divider"></li>
+    <li><a target="_blank" href="<%= containerLogsUrl %>/stdout/?start=-4096" target="_blank"><%= DT.text('stdout_log') %></a></li>
+    <li><a target="_blank" href="<%= containerLogsUrl %>/stderr/?start=-4096" target="_blank"><%= DT.text('stderr_log') %></a></li>
+    <li><a target="_blank" href="<%= containerLogsUrl %>/dt.log/?start=-4096" target="_blank"><%= DT.text('dt_log') %></a></li>
+    <li><a target="_blank" href="<%= containerLogsUrl %>/gc.log/?start=-4096" target="_blank"><%= DT.text('gc_log') %></a></li>
+  </ul>
+</div>

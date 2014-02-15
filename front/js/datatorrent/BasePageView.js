@@ -302,12 +302,17 @@ var BasePageView = BaseView.extend({
                 toInject[key] = val;
             }
         }, this);
+        var View = wClass.get('view');
         var options = _.extend({
-        className: 'widget w-'+wClass.get('name'),
-        widget: w,
+            className: 'widget w-' + wClass.get('name'),
+            widget: w,
             dashboard: curDash
         }, toInject );
-        var View = wClass.get('view');
+
+        if (View.prototype.className) {
+            options.className += ' ' + View.prototype.className;
+        }
+        
         var view = new View(options);
         view.listenTo(this, 'clean_up remove_widgets', view.remove);
         view.$el.attr('data-id', w.get('id'));
