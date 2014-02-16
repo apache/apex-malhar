@@ -4,17 +4,15 @@
  */
 package com.datatorrent.flume.interceptor;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * @author Chetan Narsude <chetan@datatorrent.com>
+ * Tests for {@link ColumnFilteringFormattingInterceptor}
  */
-public class ColumnFilteringInterceptorTest
+public class ColumnFilteringFormattingInterceptorTest
 {
   private static InterceptorTestHelper helper;
 
@@ -22,22 +20,15 @@ public class ColumnFilteringInterceptorTest
   public static void startUp()
   {
     HashMap<String, String> contextMap = new HashMap<String, String>();
-    contextMap.put(ColumnFilteringInterceptor.Constants.DST_SEPARATOR, Byte.toString((byte) 1));
     contextMap.put(ColumnFilteringInterceptor.Constants.SRC_SEPARATOR, Byte.toString((byte) 2));
-    contextMap.put(ColumnFilteringInterceptor.Constants.COLUMNS, "1 2 3");
+    contextMap.put(ColumnFilteringFormattingInterceptor.Constants.COLUMNS_FORMATTER, "{1}\001{2}\001{3}\001");
 
-    helper = new InterceptorTestHelper(new ColumnFilteringInterceptor.Builder(), contextMap);
+    helper = new InterceptorTestHelper(new ColumnFilteringFormattingInterceptor.Builder(), contextMap);
   }
 
   @Test
   public void testInterceptEvent()
   {
     helper.testIntercept_Event();
-  }
-
-  @Test
-  public void testFiles() throws IOException, URISyntaxException
-  {
-    helper.testFiles();
   }
 }
