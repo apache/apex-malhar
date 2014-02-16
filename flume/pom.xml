@@ -32,6 +32,7 @@
       <properties>
         <maven.deploy.skip>false</maven.deploy.skip>
         <source.skip>true</source.skip>
+        <obfuscation.skip>true</obfuscation.skip>
         <package.username>flume</package.username>
         <rpm.skip>package</rpm.skip>
         <rpm.phase>${rpm.skip}</rpm.phase>
