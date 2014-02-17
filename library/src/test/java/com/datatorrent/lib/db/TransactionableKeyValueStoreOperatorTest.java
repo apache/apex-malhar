@@ -54,12 +54,13 @@ public class TransactionableKeyValueStoreOperatorTest<S extends TransactionableK
       Map<String, String> m = new HashMap<String, String>();
       m.put("test_abc", "123");
       m.put("test_def", "456");
+      outputOperator.input.process(m);
       Assert.assertNull(testStore.get("test_abc"));
       Assert.assertNull(testStore.get("test_def"));
-      outputOperator.input.process(m);
       m = new HashMap<String, String>();
       m.put("test_ghi", "789");
       outputOperator.input.process(m);
+      Assert.assertNull(testStore.get("test_ghi"));
       outputOperator.endWindow();
       outputOperator.teardown();
       Assert.assertEquals("123", testStore.get("test_abc"));

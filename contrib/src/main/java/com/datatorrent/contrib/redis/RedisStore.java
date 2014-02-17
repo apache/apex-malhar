@@ -315,4 +315,10 @@ public class RedisStore implements TransactionableKeyValueStore
     return "_dt_wid:" + appId + ":" + operatorId;
   }
 
+  @Override
+  public void removeCommittedWindowId(String appId, int operatorId)
+  {
+    remove(getCommittedWindowKey(appId, operatorId));
+  }
+
 }

@@ -78,16 +78,17 @@ public abstract class AbstractTransactionableStoreOutputOperator<T, S extends Tr
   public void setup(OperatorContext context)
   {
     try {
+      store.connect();
       if (context == null) {
         appId = "test_appid";
         operatorId = 0;
+        store.removeCommittedWindowId(appId, operatorId);
       }
       else {
         appId = context.getValue(DAG.APPLICATION_ID);
         operatorId = context.getId();
+        committedWindowId = store.getCommittedWindowId(appId, operatorId);
       }
-      store.connect();
-      committedWindowId = store.getCommittedWindowId(appId, operatorId);
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
