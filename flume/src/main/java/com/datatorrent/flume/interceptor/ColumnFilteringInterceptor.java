@@ -70,7 +70,7 @@ public class ColumnFilteringInterceptor implements Interceptor
     while (i < length) {
       if (body[i++] == srcSeparator) {
         positions[++index] = i;
-        if (index == maxIndex) {
+        if (index >= maxIndex) {
           break;
         }
       }

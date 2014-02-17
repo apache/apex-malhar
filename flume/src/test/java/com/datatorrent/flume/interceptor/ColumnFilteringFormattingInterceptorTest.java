@@ -89,4 +89,28 @@ public class ColumnFilteringFormattingInterceptorTest
 
     assertArrayEquals("Six Fields, " + new String(body), "abcSeconddef".getBytes(), body);
   }
+
+  @Test
+  public void testInterceptEventWithColumnZero()
+  {
+    HashMap<String, String> contextMap = new HashMap<String, String>();
+    contextMap.put(ColumnFilteringInterceptor.Constants.SRC_SEPARATOR, Byte.toString((byte) 2));
+    contextMap.put(ColumnFilteringFormattingInterceptor.Constants.COLUMNS_FORMATTER, "{0}\001");
+
+    ColumnFilteringFormattingInterceptor.Builder builder = new ColumnFilteringFormattingInterceptor.Builder();
+    builder.configure(new Context(contextMap));
+    Interceptor interceptor = builder.build();
+
+    assertArrayEquals("Empty Bytes",
+      "\001".getBytes(),
+      interceptor.intercept(new InterceptorTestHelper.MyEvent("".getBytes())).getBody());
+
+    assertArrayEquals("One Field",
+      "First\001".getBytes(),
+      interceptor.intercept(new InterceptorTestHelper.MyEvent("First".getBytes())).getBody());
+
+    assertArrayEquals("Two Fields",
+      "\001".getBytes(),
+      interceptor.intercept(new InterceptorTestHelper.MyEvent("\002First".getBytes())).getBody());
+  }
 }
