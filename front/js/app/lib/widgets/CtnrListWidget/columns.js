@@ -69,14 +69,18 @@ function heartbeatFormatter(value, row) {
     return new Date(value*1).toLocaleTimeString();
 }
 
+function memoryFormatter(value, row) {
+    return formatters.byteFormatter(value, 'mb');
+}
+
 exports = module.exports = [
     { id: 'selector', label: '', key: 'selected', select: true, width: 40, lock_width: true },
-    { id: 'id', label: 'Container Id', key: 'id', sort: 'string', filter: 'like', format: idFormatter, width: 70, sort_value: 'a' },
-    { id: 'process_id', label: 'Process ID', key: 'jvmName', sort: 'string', filter: 'like', format: processFormatter },
-    { id: 'node', label: 'Node Name', key: 'jvmName', sort: nodeSorter, filter: 'like', format: nodeFormatter },
-    { id: 'lastHeartbeat', label: 'Last Heartbeat', key: 'lastHeartbeat', sort: 'number', filter: 'date', format: heartbeatFormatter },
-    { id: 'memoryMBAllocated', label: 'Allocated Memory (MB)', key: 'memoryMBAllocated', format: 'commaInt', filter: 'number', sort: 'number' },
+    { id: 'id', label: DT.text('id_label'), key: 'id', sort: 'string', filter: 'like', format: idFormatter, width: 70, sort_value: 'a' },
+    { id: 'process_id', label: DT.text('process_id_label'), key: 'jvmName', sort: 'string', filter: 'like', format: processFormatter },
+    { id: 'node', label: DT.text('host_label'), key: 'jvmName', sort: nodeSorter, filter: 'like', format: nodeFormatter },
+    { id: 'lastHeartbeat', label: DT.text('last_heartbeat_label'), key: 'lastHeartbeat', sort: 'number', filter: 'date', format: heartbeatFormatter },
+    { id: 'memoryMBAllocated', label: DT.text('alloc_mem_label'), key: 'memoryMBAllocated', format: memoryFormatter, filter: 'number', sort: 'number' },
     // { id: 'memoryMBFree', label: 'Free Memory (MB)', key: 'memoryMBFree', format: 'commaInt', filter: 'number', sort: 'number' },
-    { id: 'numOperators', label: 'No. of Operators', key: 'numOperators', format: 'commaInt', filter: 'number', sort: 'number' },
-    { id: 'state', label: 'State', key: 'state', sort: 'string', filter:'like', format: statusFormatter }
+    { id: 'numOperators', label: DT.text('num_operators_label'), key: 'numOperators', format: 'commaInt', filter: 'number', sort: 'number' },
+    { id: 'state', label: DT.text('state_label'), key: 'state', sort: 'string', filter:'like', format: statusFormatter }
 ];

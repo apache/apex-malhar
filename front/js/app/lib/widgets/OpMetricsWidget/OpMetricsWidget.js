@@ -54,27 +54,27 @@ var Appmetrics = BaseView.extend({
         var series =[{
             key: "tuplesEmittedPSMA",
             color: "#64c539",
-            label: "Emitted/sec"
+            label: DT.text('emitted_per_sec')
         }, {
             key: 'tuplesProcessedPSMA',
             color: '#1da8db',
-            label: 'Processed/sec'
+            label: DT.text('processed_per_sec')
         },{
             key: 'cpuPercentageMA',
             color: '#da1c17',
-            label: 'Percentage of CPU'
+            label: DT.text('cpu_percentage_label')
         }, {
             key: 'latencyMA',
             color: '#888',
-            label: 'Latency'
+            label: DT.text('latency_ms_label')
         }, {
             key: 'inputBufferServerBytesPS',
             color: '#AE08CE',
-            label: 'Buffer Server Reads'
+            label: DT.text('buffer_server_reads_label')
         }, {
            key: 'outputBufferServerBytesPS',
            color: '#f2be20',
-           label: 'Buffer Server Writes'
+           label: DT.text('buffer_server_writes_label')
         }];
 
         this.plotSeries(series);

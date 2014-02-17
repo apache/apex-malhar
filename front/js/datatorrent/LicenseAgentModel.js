@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 var BaseModel = require('./BaseModel');
-
+var BaseUtil = require('./BaseUtil');
 var LicenseAgentModel = BaseModel.extend({
 
     debugName: 'License Agent',
@@ -37,7 +37,9 @@ var LicenseAgentModel = BaseModel.extend({
 
     urlRoot: function() {
         return this.resourceURL('LicenseAgent')
-    }
+    },
+
+    fetchError: BaseUtil.quietFetchError
 
 });
 exports = module.exports = LicenseAgentModel;

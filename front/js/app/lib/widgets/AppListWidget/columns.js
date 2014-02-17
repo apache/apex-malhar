@@ -85,11 +85,11 @@ function memorySorter(row1, row2) {
 
 exports = module.exports = [
     { id: 'selector', key: 'selected', label: '', select: true, width: 40, lock_width: true },
-    { id: 'id', label: 'ID', key: 'id', sort: 'string', filter: idFilter, format: idFormatter, width: 50, sort_value: 'd', lock_width: true },
-    { id: 'name', key: 'name', label: 'App Name', sort: 'string', filter: 'like', width: 200 },
-    { id: 'state', label: 'State', key: 'state', format: stateFormatter, sort: stateSorter, filter:'like', width: 100 , sort_value: 'a'},
-    { id: 'user', label: 'User', key: 'user', sort: 'string', filter:'like' },
-    { id: 'startedTime', label: 'Started', key: 'startedTime', sort: 'number', filter: 'date', format: 'timeSince' },
-    { id: 'lifetime', label: 'Lifetime of App', key: 'startedTime', filter: 'numberFormatted', format: lifetimeFormatter },
-    { id: 'allocatedMB', label: 'Memory', key: 'allocatedMB', sort: memorySorter, filter: 'number', format: memoryFormatter, width: 60 }
+    { id: 'id', label: DT.text('id_label'), key: 'id', sort: 'string', filter: idFilter, format: idFormatter, width: 50, sort_value: 'd', lock_width: true },
+    { id: 'name', key: 'name', label: DT.text('name_label'), sort: 'string', filter: 'like', width: 200 },
+    { id: 'state', label: DT.text('state_label'), key: 'state', format: stateFormatter, sort: stateSorter, filter:'like', width: 100 , sort_value: 'a'},
+    { id: 'user', key: 'user', label: DT.text('user_label'), sort: 'string', filter:'like' },
+    { id: 'startedTime', label: DT.text('started_label'), key: 'startedTime', sort: 'number', filter: 'date', format: 'timeSince' },
+    { id: 'lifetime', label: DT.text('lifetime_label'), key: 'startedTime', filter: 'numberFormatted', format: lifetimeFormatter },
+    { id: 'allocatedMB', label: DT.text('memory_label'), key: 'allocatedMB', sort: memorySorter, filter: 'number', format: memoryFormatter, width: 60 }
 ];

@@ -61,6 +61,13 @@ var OperatorCollection = Base.extend({
         });
         this.dataSource.subscribe(topic);
     },
+
+    unsubscribe: function() {
+        var topic = this.resourceTopic('Operators', {
+            appId: this.appId
+        });
+        this.stopListening(this.dataSource, topic);
+    },
     
     set: function(models, options) {
         

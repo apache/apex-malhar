@@ -22,13 +22,24 @@ var kt = require('knights-templar');
 var Palette = BaseView.extend({
     
     events: {
-        'click .inspectItem' : 'inspectContainer'
+        'click .inspectItem' : 'inspectContainer',
+        'click .killCtnrs': 'killContainers'
     },
     
     inspectContainer: function() {
         var ctnrId = this.getSelected()[0].get('id');
         this.nav.go('ops/apps/' + this.model.get('id') + '/containers/' + ctnrId, { trigger:true } );
-    }
+    },
+
+    killContainers: function(evt) {
+        this.$('.killCtnrs').prop('disabled', true);
+        var selected = this.getSelected();
+        _.each(selected, function(ctnr) {
+            ctnr.kill();
+        });
+    },
+
+    template: kt.make(__dirname+'/CtnrListPalette.html')
     
 });
 

@@ -38,10 +38,10 @@ function windowFormatter(windowIdObj) {
 }
 
 function windowOffsetFormatter(windowIdObj) {
-    if (! ( /\d{5,}/.test(windowIdObj) ) ) return windowIdObj;
-    if (typeof windowIdObj !== 'object') {
-        windowIdObj = new WindowId(windowIdObj);
+    if (!_.isObject(windowIdObj)) {
+      windowIdObj = new WindowId(windowIdObj);
     }
+
     return windowIdObj.offset;
 }
 
