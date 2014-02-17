@@ -60,6 +60,7 @@ public class WebSocketOutputOperator<T> extends BaseOperator
   private int ioThreadMultiplier = 1;
   private int numRetries = 3;
   private int waitMillisRetry = 5000;
+  private long count = 0;
 
   /**
    * Gets the URI for WebSocket connection
@@ -188,8 +189,6 @@ public class WebSocketOutputOperator<T> extends BaseOperator
     config.setIoThreadMultiplier(ioThreadMultiplier);
     config.setApplicationThreadPool(Executors.newCachedThreadPool(new ThreadFactory()
     {
-      private long count = 0;
-
       @Override
       public Thread newThread(Runnable r)
       {
