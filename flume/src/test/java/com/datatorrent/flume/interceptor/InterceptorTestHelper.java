@@ -182,7 +182,8 @@ public class InterceptorTestHelper
     String line;
     int i = 0;
     while ((line = br.readLine()) != null) {
-      RawEvent event = RawEvent.from(interceptor.intercept(new MyEvent(line.getBytes())).getBody(), FIELD_SEPARATOR);
+      byte[] body = interceptor.intercept(new MyEvent(line.getBytes())).getBody();
+      RawEvent event = RawEvent.from(body, FIELD_SEPARATOR);
       Assert.assertEquals("GUID", new Slice(line.getBytes(), 0, 32), event.guid);
       logger.debug("guid = {}, time = {}", event.guid, event.time);
       i++;
