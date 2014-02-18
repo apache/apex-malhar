@@ -16,6 +16,7 @@ config.machine.redis.port = process.env.MACHINE_REDIS_PORT || 6379;
 config.machine.redis.dbIndex = process.env.MACHINE_REDIS_DB_INDEX || 2;
 config.adsdimensions.redis.host = process.env.ADS_REDIS_HOST || null;
 config.adsdimensions.redis.port = process.env.ADS_REDIS_PORT || 6379;
+config.adsdimensions.redis.dbIndex = process.env.ADS_REDIS_DB_INDEX || 0;
 config.fraud.mongo.host = process.env.MONGODB_HOST || null;
 config.fraud.mongo.port = process.env.MONGODB_PORT || 27017;
 config.fraud.mongo.dbName = 'frauddetect';

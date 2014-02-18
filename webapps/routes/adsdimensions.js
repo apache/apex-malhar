@@ -25,6 +25,9 @@ var demoEnabled = (config.adsdimensions.redis.port && config.adsdimensions.redis
 
 if (demoEnabled) {
   client = redis.createClient(config.adsdimensions.redis.port, config.adsdimensions.redis.host);
+  if (config.adsdimensions.redis.dbIndex) {
+    client.select(config.adsdimensions.redis.dbIndex);
+  }
 }
 
 exports.data = function (req, res) {
