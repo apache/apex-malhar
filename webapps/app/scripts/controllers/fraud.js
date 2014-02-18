@@ -219,7 +219,7 @@ angular.module('fraud')
                 if (res.data.userGenerated === "true" || res.data.userGenerated === true) {
                     displayAlert(res.data);
                 }
-            });
+            }, $scope);
             socket.subscribe('demos.app.frauddetect.txSummary', function(res) {
                 var data = res.data;
                 _.each(['amtInLastSecond','avgAmtInLastSecond','totalTxns','txnsInLastSecond'], function(key) {
@@ -246,14 +246,14 @@ angular.module('fraud')
                     
                 });
                 $scope.$apply();
-            });
+            }, $scope);
         });
         $scope.stats.forEach(function(stat){
             socket.subscribe(stat.topic, function(res) {
                 console.log("stat topic " + stat.topic + " data received: ", res);
                 stat.value = res.value;
                 $scope.$apply();
-            });
+            }, $scope);
         });
         
         $scope.alerts = [];

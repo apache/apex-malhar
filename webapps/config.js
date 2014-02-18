@@ -33,7 +33,7 @@ settings.dimensions = {};
 settings.dimensions.range = {};
 settings.fraud = {};
 
-settings.webSocketUrl = 'ws://' + config.gateway.host + ':' + config.gateway.port + '/pubsub';
+settings.webSocketURL = 'ws://' + config.gateway.host + ':' + config.gateway.port + '/pubsub';
 settings.appsURL = 'http://' + config.gateway.host + ':' + config.gateway.port + '/static/#ops/apps/';
 
 settings.twitter.appName = 'TwitterCustomerApplication';

@@ -54,7 +54,7 @@ angular.module('widgets')
                             $scope.totalEmitted = appData.tuplesEmittedPSMA;
                             $scope.totalProcessed = appData.totalTuplesProcessed;
                             $scope.$apply();
-                        });
+                        }, $scope);
                     }
                 });
             }
