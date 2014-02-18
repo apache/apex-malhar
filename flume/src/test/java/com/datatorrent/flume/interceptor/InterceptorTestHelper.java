@@ -12,17 +12,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import org.apache.flume.Context;
-import org.apache.flume.Event;
-import org.apache.flume.interceptor.Interceptor;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.datatorrent.common.util.Slice;
-
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNotNull;
+
+import org.apache.flume.Context;
+import org.apache.flume.Event;
+import org.apache.flume.interceptor.Interceptor;
+
+import com.datatorrent.common.util.Slice;
 
 /**
  * @author Chetan Narsude <chetan@datatorrent.com>

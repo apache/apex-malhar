@@ -172,12 +172,12 @@ public class ColumnFilteringFormattingInterceptor implements Interceptor
       Pattern colPat = Pattern.compile("\\{\\d+?\\}");
       Matcher matcher = colPat.matcher(formatter);
       int separatorStart = 0;
-      String prefix = "";
+      String lPrefix = "";
       while (matcher.find()) {
         String col = matcher.group();
         lColumns.add(Integer.parseInt(col.substring(1, col.length() - 1)));
         if (separatorStart == 0 && matcher.start() > 0) {
-          prefix = formatter.substring(0, matcher.start());
+          lPrefix = formatter.substring(0, matcher.start());
         }
         else if (separatorStart > 0) {
           lSeparators.add(formatter.substring(separatorStart, matcher.start()));
@@ -202,7 +202,7 @@ public class ColumnFilteringFormattingInterceptor implements Interceptor
         }
       }
       srcSeparator = context.getInteger(SRC_SEPARATOR, (int) SRC_SEPARATOR_DFLT).byteValue();
-      this.prefix = prefix.getBytes();
+      this.prefix = lPrefix.getBytes();
     }
   }
 
