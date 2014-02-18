@@ -15,20 +15,16 @@
     <link rel="stylesheet" href="bower_components/bootstrap-sass/bootstrap-2.3.2.css">
     <link rel="stylesheet" href="bower_components/bootstrap-sass/bootstrap-responsive-2.3.2.css">
     <link rel="stylesheet" href="bower_components/ng-grid/ng-grid.css">
+    <link rel="stylesheet" href="styles/jquery.pnotify.default.css">
     <!-- endbuild -->
 
     <!-- build:css(.tmp) styles/main.css -->
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild -->
 </head>
-<body>
-<!--[if lt IE 7]>
-<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-<![endif]-->
-
+<body ng-app="app">
 <!--[if lt IE 9]>
-<script src="bower_components/es5-shim/es5-shim.js"></script>
-<script src="bower_components/json3/lib/json3.min.js"></script>
+<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
 <![endif]-->
 
 <div class="navbar navbar-inverse navbar-fixed-top">
@@ -42,22 +38,20 @@
             <a class="brand" href="/"></a>
             <div class="nav-collapse collapse">
                 <ul class="nav">
-                    <li><a href="/twitter.html">Twitter</a></li>
-                    <li><a href="/mobile.html">Mobile</a></li>
-                    <li><a href="/machine.html">Machine</a></li>
-                    <li><a href="/dimensions.html">Ads</a></li>
-                    <li><a href="/fraud.html">Fraud</a></li>
+                    <li><a href="#twitter">Twitter</a></li>
+                    <li><a href="#mobile">Mobile</a></li>
+                    <li><a href="#machine">Machine</a></li>
+                    <li><a href="#dimensions">Ads</a></li>
+                    <li><a href="#fraud">Fraud</a></li>
                 </ul>
             </div><!--/.nav-collapse -->
         </div>
     </div>
 </div>
 
-<div class="hero-unit">
-    <h2 class="app-title">DataTorrent Demo Applications</h2>
-    <p>Welcome to DataTorrent Demo Applications.</p>
-    <p>Please click on the links above to open the demo.</p>
-</div>
+<div class="ng-view"></div>
+
+<script src="settings.js"></script>
 
 <script src="bower_components/jquery/jquery.js"></script>
 <script src="bower_components/angular/angular.js"></script>
@@ -77,6 +71,47 @@
 <script src="bower_components/bootstrap-sass/js/bootstrap-collapse.js"></script>
 <script src="bower_components/bootstrap-sass/js/bootstrap-tab.js"></script>
 <!-- endbuild -->
+
+<!-- build:js scripts/modules.js -->
+<script src="bower_components/underscore/underscore.js"></script>
+<script src="bower_components/angular-resource/angular-resource.js"></script>
+<script src="bower_components/angular-cookies/angular-cookies.js"></script>
+<script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+<script src="bower_components/restangular/src/restangular.js"></script>
+<script src="bower_components/underscore/underscore.js"></script>
+<script src="bower_components/ng-grid/ng-grid-2.0.7.debug.js"></script>
+<script src="bower_components/d3/d3.js"></script>
+<script src="bower_components/uri.js/src/URI.js"></script>
+<script src="scripts/vendor/jsbn.js"></script>
+<script src="scripts/vendor/gauge.js"></script>
+<script src="scripts/vendor/jquery.pnotify.js"></script>
+<script src="scripts/vendor/angular-google-maps.js"></script>
+<script src="scripts/vendor/visibly.js"></script>
+<!-- endbuild -->
+
+<!-- build:js({.tmp,app}) scripts/scripts.js -->
+<script src="scripts/app.js"></script>
+<script src="scripts/services/rest.js"></script>
+<script src="scripts/services/socket.js"></script>
+<script src="scripts/directives/lineChart.js"></script>
+<script src="scripts/directives/gauge.js"></script>
+<script src="scripts/directives/barChart.js"></script>
+<script src="scripts/directives/stat.js"></script>
+<script src="scripts/filters/elapsed.js"></script>
+<script src="scripts/controllers/twitter.js"></script>
+<script src="scripts/controllers/mobile.js"></script>
+<script src="scripts/controllers/machine.js"></script>
+<script src="scripts/controllers/dimensions.js"></script>
+<script src="scripts/controllers/fraud.js"></script>
+<!-- endbuild -->
+
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+    google.load('visualization', '1', {'packages':['corechart']});
+</script>
+
+<script src="http://maps.googleapis.com/maps/api/js?sensor=false&language=en"></script>
+<script src="scripts/vendor/markerwithlabel.js"></script>
 
 </body>
 </html>
