@@ -50,7 +50,7 @@ angular.module('fraud')
         ];
         $scope.merchants = ['Wal-Mart', 'Target', 'Amazon', 'Apple', 'Sears', 'Macys', 'JCPenny', 'Levis'];
         $scope.terminals = [1, 2, 3, 4, 5, 6, 7, 8];
-        $scope.zips      = [94086, 94087, 94088, 94089, 94090, 94091, 94092, 94093]
+        $scope.zips      = [94086, 94087, 94088, 94089, 94090, 94091, 94092, 94093];
         $scope.actions   = [
             {
                 id: 1,
@@ -391,7 +391,14 @@ angular.module('fraud')
             parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             return parts.join(".");
         }
-        function updateFraudCount() {
+
+        var scopeDestroyed = false;
+
+        function  updateFraudCount() {
+            if (scopeDestroyed) {
+                return;
+            }
+
             if ($scope.startedTime) {
                 $.get('/fraud/alertCount?since=' + $scope.startedTime).done(function(res) {
                 
@@ -425,6 +432,11 @@ angular.module('fraud')
         $scope.clearFrauds = function() {
             $('#alertDisplayBox').html("");
         }
+
+        // stop server polling on destroy (e.g. when navigating to another view)
+        $scope.$on('$destroy', function () {
+          scopeDestroyed = true;
+        }.bind(this));
     }]);
 
 })();

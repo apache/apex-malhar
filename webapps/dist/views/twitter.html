@@ -1,0 +1,38 @@
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span12">
+            <h2 class="app-title">
+                Twitter Top URLs
+                <a ng-show="appURL" href="{{appURL}}" class="btn btn-primary btn-view-console" target="_blank">View Console</a>
+            </h2>
+        </div>
+    </div>
+    <div class="row-fluid">
+        <p class="well span7">
+            This demo application processes tweets and computes most frequently cited URLs during the last 5 minutes. The results are continuously updated every 0.5 sec. For demo purposes, we used live (1% sample) developer version of the Twitter feed, and scale it up by 100x to produce the true load.  The application process load equivalent to full firehose.
+        </p>
+        <div class="span5">
+            <span widgets-stat="" app="app"></span>
+        </div><!--/span-->
+    </div>
+    <div class="row-fluid">
+        <div class="span4">
+            <h4>Top 10 URLs</h4>
+            <div ng-controller="TwitterGridControlller">
+                <div class="twitter-grid" ng-grid="gridOptions"></div>
+            </div>
+        </div><!--/span-->
+        <div class="span4">
+            <h4>Top 10 URLs Chart</h4>
+            <div ng-controller="TwitterBarChartController">
+                <span widgets-bar-chart="" class="bar-chart" data="twitterBarChartData" label="name" on-click="d3OnClick(item)"></span>
+            </div>
+        </div><!--/span-->
+    </div><!--/row-->
+
+    <hr>
+
+    <footer>
+        <p>&copy; DataTorrent 2013</p>
+    </footer>
+</div><!--/.fluid-container-->

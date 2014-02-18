@@ -136,6 +136,11 @@
               });
             },
 
+            publish: function(topic, data) {
+              var message = { "type": "publish", "topic": topic, "data": data };
+              this.send(message);
+            },
+
             subscribe: function (topic, callback, $scope) {
               var callbacks = topicMap[topic];
 

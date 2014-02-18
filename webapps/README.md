@@ -8,28 +8,42 @@ Web Applications for DataTorrent Demos:
 - Ads Dimensions
 - Fraud
 
-Demos run on [Node.js](http://nodejs.org/).
-
 ## Architecture
 
 ![Demos Architecture](docs/demos_architecture.png "Demos Architecture")
 
 ## Demos configuration
- - config.js
- - app/scripts/settings.js
+ Please use ```config.js``` or environment variables for configuration (DT Gateway, Redis, MongoDB, etc.).
+ See ```prod_start.sh``` and ```dev_start.sh```.
 
 ## Running Demos
- Install dependencies:
+ Demos run on [Node.js](http://nodejs.org/).
+ To run demo web application with prebuilt dependencies:
 
+ ``` bash
+    $ NODE_ENV=production node app.js
+ ```
+
+ By default application will be available at http://localhost:3003 and will connect to DT Gateway at localhost:9090.
+
+## Running Demos in Development Mode
+ Install npm dependencies:
+
+ ``` bash
     $ npm install
+ ```
 
  Install Bower dependencies:
 
+ ``` bash
     $ bower install
+ ```
 
  Start Node.js server:
 
-    $ node app
+ ``` bash
+    $ node app.js
+ ```
 
  Application will be available at http://localhost:3003
 
@@ -37,14 +51,18 @@ Demos run on [Node.js](http://nodejs.org/).
 
  Running Node.js as a daemon with [forever](https://github.com/nodejitsu/forever)
 
+ ``` bash
     $ npm install forever -g
     $ forever start app.js
     $ forever list
     $ forever stop <uid>
+ ```
 
  Running Node.js on different port
 
-    $ PORT=3001 node app
+ ``` bash
+    $ PORT=3001 node app.js
+ ```
 
 ## Links
 
