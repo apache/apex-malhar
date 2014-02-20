@@ -1,0 +1,25 @@
+<form enctype="multipart/form-data" class="file_upload_form">
+    <input 
+        type="file" 
+        class="file_upload" 
+        name="file_upload" 
+        <% if (accept)   { print('accept="' + accept + '"') } %> 
+        <% if (multiple) { print('multiple') } %> 
+    />
+    <div class="well file_upload_target">
+        <% if (files.length) { %>
+            
+            <div class="files-to-upload">
+                    
+            </div>
+            <div class="upload-buttons">
+                <button class="upload_file_btn btn btn-success"><%= uploadBtnConfirm %></button>
+                <button class="cancel_file_btn btn btn-danger"><%= uploadBtnCancel %></button>
+            </div>
+            
+        <% } else { %>
+            <div class="drop-message"><%= uploadTitle %></div>
+            <span class="click-message"><%= uploadText %></span>
+        <% } %>
+    </div>
+</form>

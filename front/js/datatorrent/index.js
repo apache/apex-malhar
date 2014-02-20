@@ -71,6 +71,7 @@ var datatorrent = {
         Tabled                       : require('./tabled'),
         TupleCollection              : require('./TupleCollection'),
         TupleModel                   : require('./TupleModel'),
+        UploadFilesView              : require('./UploadFilesView'),
         UserModel                    : require('./UserModel'),
         WidgetClassCollection        : require('./WidgetClassCollection'),
         WidgetClassModel             : require('./WidgetClassModel'),
