@@ -273,7 +273,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
    * @param startIndex
    * @return
    */
-  private long byteArrayToLong(byte[] b, int startIndex)
+  long byteArrayToLong(byte[] b, int startIndex)
   {
     final byte b1 = 0;
     return Longs.fromBytes(b1, b1, b1, b1, b[3 + startIndex], b[2 + startIndex], b[1 + startIndex], b[startIndex]);
@@ -284,7 +284,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   {
     skipFile = -1;
     skipOffset = 0;
-    // logger.debug("retrieve");
+    logger.debug("retrieve with address {}", Arrays.toString(identifier));
     // flushing the last incomplete flushed file
     closeUnflushedFiles();
 
@@ -433,11 +433,11 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   @SuppressWarnings("AssignmentToCollectionOrArrayFieldFromParameter")
   public void clean(byte[] identifier)
   {
-    // logger.info("clean {}" , new String(identifier));
+    logger.info("clean {}", Arrays.toString(identifier));
     long cleanFileIndex = byteArrayToLong(identifier, offset);
 
     long cleanFileOffset = byteArrayToLong(identifier, 0);
-    if(flushedFileCounter == -1){
+    if (flushedFileCounter == -1) {
       identifier = new byte[8];
     }
     // This is to make sure that we clean only the data that is flushed
@@ -530,11 +530,15 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   @Override
   public void flush()
   {
-    // logger.debug("flush");
+    StringBuilder builder = new StringBuilder(currentWrittenFile + "");
     Iterator<DataBlock> itr = files2Commit.iterator();
+    DataBlock db;
     while (itr.hasNext()) {
-      itr.next().updateOffsets();
+      db = itr.next();
+      db.updateOffsets();
+      builder.append(", " + db.fileName);
     }
+    logger.debug("flushed files {}", builder.toString());
     files2Commit.clear();
 
     if (dataStream != null) {
@@ -741,9 +745,14 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
         }
 
         if (fs.exists(flushedCounterFile) && fs.isFile(flushedCounterFile)) {
-          flushedFileCounter = Long.valueOf(new String(readData(flushedCounterFile)));
-          flushedFileWriteOffset = getFlushedFileWriteOffset(new Path(basePath, flushedFileCounter + OFFSET_SUFFIX));
-          bookKeepingFileOffset = getFlushedFileWriteOffset(new Path(basePath, flushedFileCounter + BOOK_KEEPING_FILE_OFFSET));
+          String strFlushedFileCounter = new String(readData(flushedCounterFile));
+          if (strFlushedFileCounter == null || strFlushedFileCounter.length() == 0) {
+            logger.warn("empty flushed file");
+          } else {
+            flushedFileCounter = Long.valueOf(strFlushedFileCounter);
+            flushedFileWriteOffset = getFlushedFileWriteOffset(new Path(basePath, flushedFileCounter + OFFSET_SUFFIX));
+            bookKeepingFileOffset = getFlushedFileWriteOffset(new Path(basePath, flushedFileCounter + BOOK_KEEPING_FILE_OFFSET));
+          }
 
         }
       }
