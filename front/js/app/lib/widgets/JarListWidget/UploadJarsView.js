@@ -15,6 +15,7 @@
 */
 var BaseView = DT.lib.UploadFilesView;
 var SingleJarUploadView = require('./SingleJarUploadView');
+var Notifier = DT.lib.Notifier;
 
 /**
  * UploadJarsView
@@ -36,7 +37,18 @@ var UploadJarsView = BaseView.extend({
 
     uploadText: '(or click to choose)',
 
-    FileView: SingleJarUploadView
+    FileView: SingleJarUploadView,
+
+    fileChangeCheck: function(file) {
+        var isJar = (file.type === 'application/java-archive');
+        if (!isJar) {
+            Notifier.error({
+                'title': DT.text('Only <code>.jar</code> files accepted'),
+                'text': DT.text('incompatible file: ' + file.name)
+            });
+        }
+        return isJar;
+    }
 
 });
 

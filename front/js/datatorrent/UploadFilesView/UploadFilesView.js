@@ -106,9 +106,19 @@ var UploadFilesView = BaseView.extend({
         
         var filteredFiles = [];
 
+        var hasFileChangeCheck = typeof this.fileChangeCheck === 'function';
+
         for (var i = files.length - 1; i >= 0; i--) {
             
             var file = files[i];
+
+            if (hasFileChangeCheck) {
+                var passed = this.fileChangeCheck(file);
+                if (!passed) {
+                    this.render();
+                    return;
+                }
+            }
 
             filteredFiles.push({
                 'name': file.name,
