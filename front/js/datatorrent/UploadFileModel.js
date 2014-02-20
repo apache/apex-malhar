@@ -26,7 +26,7 @@ var UploadFileModel = BaseModel.extend({
     
     debugName: 'file',
 
-    // MUST BE SPECIFIED IN CHILD CLASS
+    // must be specified in child class or options
     putResourceString: '', 
     
     defaults: {
@@ -43,6 +43,9 @@ var UploadFileModel = BaseModel.extend({
         if (typeof options.beforeUpload === 'function') {
             this.beforeUpload = options.beforeUpload;
         }
+        if (options.putResourceString) {
+            this.putResourceString = options.putResourceString;
+        }
     },
     
     // Uploads this file, requires the formData object
@@ -53,8 +56,12 @@ var UploadFileModel = BaseModel.extend({
         var file = this.get('file');
         var self = this;
         
-        if (this.beforeUpload && typeof this.beforeUpload === 'function') {
+        if (typeof this.beforeUpload === 'function') {
             if ( this.beforeUpload(this) === false ) return false;
+        }
+
+        if (this.collection && typeof this.collection.beforeUpload === 'function') {
+            if ( this.collection.beforeUpload(this) === false ) return false;
         }
 
         this.trigger('upload_start');

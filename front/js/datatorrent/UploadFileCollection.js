@@ -19,7 +19,12 @@ var UploadFileCollection = BaseCollection.extend({
 
     debugName: 'files',
     
-    model: UploadFileModel
-    
+    model: UploadFileModel,
+
+    initialize: function(models, options) {
+        options = options || {};
+        this.beforeUpload = options.beforeUpload;
+    }
+
 });
 exports = module.exports = UploadFileCollection;
