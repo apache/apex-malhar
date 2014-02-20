@@ -93,10 +93,11 @@ var SingleFileUploadView = BaseView.extend({
             return;
         }
 
-        // TODO
-        // check/add extension for any file
-        if ( ! /\.file$/.test(newName) ) {
-            newName += '.jar';
+        if (typeof this.nameFilter === 'function') {
+            newName = this.nameFilter(newName);
+            if (!newName) {
+                return;       
+            }
         }
 
         if (this.model.get('name') === newName) {
