@@ -29,24 +29,19 @@ var SingleFileUploadView = require('./SingleFileUploadView');
  * Usage:
  *
  *     var view = new UploadFilesView({
- *
- *         // Files must be DT.lib.UploadFileCollection
- *         // or a child class. Will hold all new files
- *         collection: new UploadFileCollection([]),
- *
- *         // optional: another UploadFileCollection
- *         // or child, 
- *         uploaded: myUploadedFiles // optional
+ *         collection: new DT.lib.UploadFileCollection([])
  *     });
  *     
  *     $('body').append(view.render().el);
  *
- * The 'collection' should be empty at 
- * Pass an 'uploaded' collection to test for overwrites.
  *
 */
 var UploadFilesView = BaseView.extend({
     
+    /**
+     * @param  {DT.lib.UploadFileCollection} options.collection  Holds files to be uploaded, and clears on upload success.
+     * @param  {DT.lib.UploadFileCollection} options.uploaded    (optional) Reference to files on server to check against for overwrites.
+     */
     initialize: function(options) {
 
         this.uploaded = options.uploaded;
