@@ -18,6 +18,10 @@ var datatorrent = {
     settings: require('./settings'),
     // Main library components
     lib: {
+        AbstractFileCollection       : require('./AbstractFileCollection'),
+        AbstractFileModel            : require('./AbstractFileModel'),
+        AbstractJarFileCollection    : require('./AbstractJarFileCollection'),
+        AbstractJarFileModel         : require('./AbstractJarFileModel'),
         AlertCollection              : require('./AlertCollection'),
         AlertModel                   : require('./AlertModel'),
         AlertParamsModel             : require('./AlertParamsModel'),
