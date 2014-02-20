@@ -13,22 +13,4 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var BaseView = DT.lib.UploadFilesView.prototype.FileView;
-
-/**
- * SingleJarUploadView
- * 
- * View that contains controls for one jar to be uploaded.
- */
-var SingleJarUploadView = BaseView.extend({
-
-	nameFilter: function(newName) {
-		// check/add extension for any file
-        if ( ! /\.jar$/.test(newName) ) {
-            newName += '.jar';
-        }
-        return newName;
-	}
-
-});
-exports = module.exports = SingleJarUploadView;
+exports = module.exports = require('./UploadFilesView');

@@ -111,7 +111,7 @@ var textHash = {
     'locality_not_assigned'      :  'AUTOMATIC',
     'no action available'        :  'no action available',
     'ops_main_breadcrumb'        :  'applications',
-    'overwrite_jar_warning'      :  'A jar with this name already exists and will be overwritten.',
+    'overwrite_file_warning'     :  'A file with this name already exists and will be overwritten.',
     'processed_per_sec'          :  'processed/s',
     'processed_total'            :  'total processed',
     'recovery_wid_title'         :  'recovery window id',

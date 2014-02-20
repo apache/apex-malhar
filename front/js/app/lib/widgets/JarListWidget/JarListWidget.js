@@ -50,13 +50,14 @@ var JarListWidget = BaseView.extend({
             }, this)
         });
         
-        // Set a list of jars
+        // Retrieve current jars on server
         this.collection = new this.Collection([]);
         this.collection.fetch();
         
-        this.collection.listenTo(this.jarsToUpload, 'upload_success', function() {
-            setTimeout(_.bind(function() { this.fetch(); }, this), 1000);
-        });
+        // When an upload succeeds, updated jars on server.
+        this.collection.listenTo(this.jarsToUpload, 'upload_success', _.bind(_.debounce(function() {
+            this.collection.fetch();
+        }, 1000), this));
         
         // Set up the table
         var columns = require('./columns');

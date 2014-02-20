@@ -13,22 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var BaseView = DT.lib.UploadFilesView.prototype.FileView;
+var UploadFileModel = require('./UploadFileModel');
+var BaseCollection = require('./BaseCollection');
+var UploadFileCollection = BaseCollection.extend({
 
-/**
- * SingleJarUploadView
- * 
- * View that contains controls for one jar to be uploaded.
- */
-var SingleJarUploadView = BaseView.extend({
+    debugName: 'files',
+    
+    model: UploadFileModel,
 
-	nameFilter: function(newName) {
-		// check/add extension for any file
-        if ( ! /\.jar$/.test(newName) ) {
-            newName += '.jar';
-        }
-        return newName;
-	}
+    initialize: function(models, options) {
+        options = options || {};
+        this.beforeUpload = options.beforeUpload;
+    }
 
 });
-exports = module.exports = SingleJarUploadView;
+exports = module.exports = UploadFileCollection;
