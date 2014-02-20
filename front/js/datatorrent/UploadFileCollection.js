@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var AbstractFileModel = require('./AbstractFileModel');
+var UploadFileModel = require('./UploadFileModel');
 var BaseCollection = require('./BaseCollection');
-var AbstractFileCollection = BaseCollection.extend({
+var UploadFileCollection = BaseCollection.extend({
 
     debugName: 'files',
     
-    model: AbstractFileModel
+    model: UploadFileModel
     
 });
-exports = module.exports = AbstractFileCollection;
+exports = module.exports = UploadFileCollection;

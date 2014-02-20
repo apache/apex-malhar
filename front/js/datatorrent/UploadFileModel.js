@@ -21,8 +21,8 @@
 
 var BaseModel = require('./BaseModel');
 
-// abstract class definition
-var AbstractFileModel = BaseModel.extend({
+// class definition
+var UploadFileModel = BaseModel.extend({
     
     debugName: 'file',
 
@@ -90,4 +90,4 @@ var AbstractFileModel = BaseModel.extend({
     }
 });
 
-exports = module.exports = AbstractFileModel;
+exports = module.exports = UploadFileModel;

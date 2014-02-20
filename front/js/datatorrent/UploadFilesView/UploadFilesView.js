@@ -20,10 +20,29 @@ var Notifier = require('../Notifier');
 var BaseView = require('bassview');
 var SingleFileUploadView = require('./SingleFileUploadView');
 
+
 /**
  * UploadFilesView
  * 
  * View in FileListWidget for uploading file(s).
+ *
+ * Usage:
+ *
+ *     var view = new UploadFilesView({
+ *
+ *         // Files must be DT.lib.UploadFileCollection
+ *         // or a child class. Will hold all new files
+ *         collection: new UploadFileCollection([]),
+ *
+ *         // optional: another UploadFileCollection
+ *         // or child, 
+ *         uploaded: myUploadedFiles // optional
+ *     });
+ *     
+ *     $('body').append(view.render().el);
+ *
+ * The 'collection' should be empty at 
+ * Pass an 'uploaded' collection to test for overwrites.
  *
 */
 var UploadFilesView = BaseView.extend({

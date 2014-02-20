@@ -15,10 +15,10 @@
 */
 
 var AbstractJarFileModel = require('./AbstractJarFileModel');
-var BaseCollection = require('./AbstractFileCollection');
+var BaseCollection = require('./UploadFileCollection');
 
 /**
- * Abstracvt Jar File Collection
+ * Abstract Jar File Collection
  * 
  * Base class for jar collections
 */

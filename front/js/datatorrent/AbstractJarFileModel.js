@@ -19,7 +19,7 @@
  * Models a jar file that should contain application plans.
 */
 
-var BaseModel = require('./AbstractFileModel');
+var BaseModel = require('./UploadFileModel');
 
 // abstract class definition
 var AbstractJarFileModel = BaseModel.extend({
