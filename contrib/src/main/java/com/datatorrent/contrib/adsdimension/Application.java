@@ -64,7 +64,7 @@ public class Application implements StreamingApplication
 
     RedisAggregateOutputOperator redis = dag.addOperator("Redis", new RedisAggregateOutputOperator());
 
-    dag.addStream("InputStream", input.outputPort, dimensions.data).setLocality(Locality.CONTAINER_LOCAL);
+    dag.addStream("InputStream", input.outputPort, dimensions.data);
     dag.addStream("DimensionalData", dimensions.output, redis.input);
   }
 
