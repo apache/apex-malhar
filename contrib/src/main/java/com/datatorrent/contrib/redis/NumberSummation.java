@@ -131,7 +131,6 @@ class NumberSummation<K, V>
           throw new RuntimeException("Values of unexpected type in data map value type. Expecting MutableLong or MutableDouble");
         }
       }
-
     }
   }
 }
