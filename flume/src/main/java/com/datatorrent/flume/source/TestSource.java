@@ -13,13 +13,6 @@ import java.util.TimerTask;
 
 import javax.annotation.Nonnull;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.EventDrivenSource;
@@ -27,6 +20,12 @@ import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.source.AbstractSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
 public class TestSource extends AbstractSource implements EventDrivenSource, Configurable
 {
@@ -114,10 +113,11 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
     Calendar cal = Calendar.getInstance();
-    String todayDate = format.format(cal.getTimeInMillis());
+    cal.add(Calendar.DATE, -1);
+    String yesterday = format.format(cal.getTimeInMillis());
 
     cal.add(Calendar.DATE, -1);
-    String yesterdayDate = format.format(cal.getTime());
+    String dayBeforeYesterday = format.format(cal.getTime());
 
     cache = Lists.newArrayListWithCapacity(rate);
 
@@ -140,10 +140,10 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
         if (row[pointer++] == FIELD_SEPARATOR) {
           String date = new String(row, recordStart, pointer - recordStart - 1);
           if (date.indexOf(d1) >= 0) {
-            System.arraycopy(yesterdayDate.getBytes(), 0, row, recordStart, yesterdayDate.getBytes().length);
+            System.arraycopy(dayBeforeYesterday.getBytes(), 0, row, recordStart, dayBeforeYesterday.getBytes().length);
           }
           else {
-            System.arraycopy(todayDate.getBytes(), 0, row, recordStart, todayDate.getBytes().length);
+            System.arraycopy(yesterday.getBytes(), 0, row, recordStart, yesterday.getBytes().length);
           }
           break;
         }
@@ -155,10 +155,10 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
         if (row[pointer++] == FIELD_SEPARATOR) {
           String date = new String(row, dateStart, pointer - dateStart - 1);
           if (date.indexOf(d1) >= 0) {
-            System.arraycopy(yesterdayDate.getBytes(), 0, row, dateStart, yesterdayDate.getBytes().length);
+            System.arraycopy(dayBeforeYesterday.getBytes(), 0, row, dateStart, dayBeforeYesterday.getBytes().length);
           }
           else {
-            System.arraycopy(todayDate.getBytes(), 0, row, dateStart, todayDate.getBytes().length);
+            System.arraycopy(yesterday.getBytes(), 0, row, dateStart, yesterday.getBytes().length);
           }
           break;
         }
