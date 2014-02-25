@@ -60,7 +60,7 @@ public class WebSocketOutputOperator<T> extends BaseOperator
   private int ioThreadMultiplier = 1;
   private int numRetries = 3;
   private int waitMillisRetry = 5000;
-  private final transient AsyncHttpClientConfigBean config = new AsyncHttpClientConfigBean();
+  private long count = 0;
 
   /**
    * Gets the URI for WebSocket connection
@@ -185,6 +185,19 @@ public class WebSocketOutputOperator<T> extends BaseOperator
 
   private void openConnection() throws IOException, ExecutionException, InterruptedException, TimeoutException
   {
+    final AsyncHttpClientConfigBean config = new AsyncHttpClientConfigBean();
+    config.setIoThreadMultiplier(ioThreadMultiplier);
+    config.setApplicationThreadPool(Executors.newCachedThreadPool(new ThreadFactory()
+    {
+      @Override
+      public Thread newThread(Runnable r)
+      {
+        Thread t = new Thread(r);
+        t.setName(WebSocketOutputOperator.this.getName() + "-AsyncHttpClient-" + count++);
+        return t;
+      }
+
+    }));
     client = new AsyncHttpClient(config);
     uri = URI.create(uri.toString()); // force reparse after deserialization
     LOG.info("Opening URL: {}", uri);
@@ -224,20 +237,6 @@ public class WebSocketOutputOperator<T> extends BaseOperator
   @Override
   public void setup(OperatorContext context)
   {
-    config.setIoThreadMultiplier(ioThreadMultiplier);
-    config.setApplicationThreadPool(Executors.newCachedThreadPool(new ThreadFactory()
-    {
-      private long count = 0;
-
-      @Override
-      public Thread newThread(Runnable r)
-      {
-        Thread t = new Thread(r);
-        t.setName(WebSocketOutputOperator.this.getName() + "-AsyncHttpClient-" + count++);
-        return t;
-      }
-
-    }));
     try {
       openConnection();
     }

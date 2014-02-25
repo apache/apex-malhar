@@ -54,6 +54,7 @@ var textHash = {
     'lifetime_label'             :  'lifetime',
     'locality_label'             :  'locality',
     'log_file_label'             :  'log file',
+    'logs_label'                 :  'logs',
     'memory_label'               :  'memory',
     'mod_date_label'             :  'last modified',
     'name_label'                 :  'name',
@@ -78,14 +79,17 @@ var textHash = {
     'user_label'                 :  'user',
     // End Labels
 
+    'all_logs'                   :  'all logs',
     'current_wid_title'          :  'current window id',
     'delete_item'                :  'delete',
     'delete_jar_prompt'          :  'Are you sure you want to delete this jar file? This cannot be undone.',
     'delete_jars_prompt'         :  'Are you sure you want to delete multiple jar files at once? This cannot be undone.',
     'dep_options_title'          :  'Options',
     'dep_choices_title'          :  'Choices',
+    'dt_log'                     :  'datatorrent log',
     'emitted_per_sec'            :  'emitted/s',
     'emitted_total'              :  'total emitted',
+    'gc_log'                     :  'GC log',
     'inspect'                    :  'inspect',
     'kill_ctnr_sent_title'       :  'Kill Container Signal Sent',
     'kill_ctnr_sent_text'        :  'The signal to kill this container has been sent. It may take a few moments for the container to terminate.',
@@ -107,7 +111,7 @@ var textHash = {
     'locality_not_assigned'      :  'AUTOMATIC',
     'no action available'        :  'no action available',
     'ops_main_breadcrumb'        :  'applications',
-    'overwrite_jar_warning'      :  'A jar with this name already exists and will be overwritten.',
+    'overwrite_file_warning'     :  'A file with this name already exists and will be overwritten.',
     'processed_per_sec'          :  'processed/s',
     'processed_total'            :  'total processed',
     'recovery_wid_title'         :  'recovery window id',
@@ -116,6 +120,8 @@ var textHash = {
     'specify_deps_success_text'  :  'The dependency jars you selected and ordered have been specified for the corresponding jar file.',
     'specify_deps_error_title'   :  'Error specifying dependencies',
     'specify_deps_error_text'    :  'An error occurred trying to specify the dependencies for the jar you have selected. ',
+    'stdout_log'                 :  'stdout log',
+    'stderr_log'                 :  'stderr log',
     'tuples_per_sec'             :  'tuples/s',
     'tuples_total'               :  'total tuples'
 };

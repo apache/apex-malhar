@@ -78,9 +78,11 @@ levels.tb = levels.gb * 1024;
  * @return {string} returns human-readable string format
  */
 function byteFormatter(bytes, level) {
-    
     var precision = 1;
     level = level || 'b';
+    if (!levels.hasOwnProperty(level)) {
+        throw new TypeError('byteFormatter 2nd argument must be one of the following: "b","kb","mb","gb","tb"');
+    }
     bytes *= levels[level];
    
     if ((bytes >= 0) && (bytes < levels.kb)) {

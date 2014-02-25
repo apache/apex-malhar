@@ -263,6 +263,13 @@ angular.module('machine')
         firstUpdate = false;
       }
     });
+
+    // stop server polling on destroy (e.g. when navigating to another view)
+    $scope.$on('$destroy', function () {
+      if (request) {
+        request.cancel();
+      }
+    }.bind(this));
   }]);
 
 })();

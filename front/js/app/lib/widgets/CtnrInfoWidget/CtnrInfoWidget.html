@@ -12,10 +12,6 @@
     <span class="key"><%= DT.text('jvm_name_label') %>:</span>
     <span class="value"><%=jvmName%></span>
 </div>
-
-<% if (containerLogsUrl) { %>
-<div class="info-item">
-	<span class="key"><%= DT.text('log_file_label') %>:</span>
-	<span class="value"><a href="<%= containerLogsUrl %>" target="_blank"><%= containerLogsUrl %></a></span>
-</div>
-<% } %>
+<% if (containerLogsUrl) {
+    print(DT.templates.ctnr_log_btngrp({ containerLogsUrl:containerLogsUrl }));
+} %>

@@ -31,6 +31,7 @@ require('../js/datatorrent/WidgetDefCollection.spec');
 require('../js/datatorrent/WidgetDefModel.spec');
 require('../js/datatorrent/WidgetView.spec');
 require('../js/datatorrent/WindowId.spec');
+require('../js/datatorrent/formatters.spec');
 
 
 // Page Tests

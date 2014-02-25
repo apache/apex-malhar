@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.datatorrent.lib.db;
 
 /**
@@ -24,7 +23,7 @@ public interface WindowAware extends Connectable
   /**
    * Gets the committed window id from a persistent store.
    *
-   * @param appId      application id
+   * @param appId application id
    * @param operatorId operator id
    * @return the committed window id
    */
@@ -33,9 +32,17 @@ public interface WindowAware extends Connectable
   /**
    * Stores the committed window id to a persistent store.
    *
-   * @param appId      application id
+   * @param appId application id
    * @param operatorId operator id
-   * @param windowId   window id
+   * @param windowId window id
    */
   public void storeCommittedWindowId(String appId, int operatorId, long windowId);
+
+  /**
+   * Removes the committed window id from a persistent store.
+   * @param appId
+   * @param operatorId
+   */
+  public void removeCommittedWindowId(String appId, int operatorId);
+
 }

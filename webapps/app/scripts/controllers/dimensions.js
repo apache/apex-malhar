@@ -290,6 +290,13 @@
       watchWithDelay('lookback', 500);
       watchWithDelay('pollInterval', 500);
       watchWithDelay('includeLastMinute', 0); //TODO no delay necessary
+
+      // stop server polling on destroy (e.g. when navigating to another view)
+      $scope.$on('$destroy', function () {
+        if (request) {
+          request.cancel();
+        }
+      }.bind(this));
     }]);
 
 })();

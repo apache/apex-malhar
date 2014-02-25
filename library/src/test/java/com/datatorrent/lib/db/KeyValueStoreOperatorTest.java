@@ -33,11 +33,13 @@ import com.datatorrent.api.LocalMode;
  */
 public class KeyValueStoreOperatorTest<S extends KeyValueStore>
 {
-  protected S store;
+  protected S operatorStore;
+  protected S testStore;
 
-  public KeyValueStoreOperatorTest(S store)
+  public KeyValueStoreOperatorTest(S operatorStore, S testStore)
   {
-    this.store = store;
+    this.operatorStore = operatorStore;
+    this.testStore = testStore;
   }
 
   public static class CollectorModule<T> extends BaseOperator
@@ -82,12 +84,10 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
 
   public void testInputOperator() throws Exception
   {
-    store.connect();
-    store.put("test_abc", "789");
-    store.put("test_def", "456");
-    store.put("test_ghi", "123");
-    store.disconnect();
-
+    testStore.connect();
+    testStore.put("test_abc", "789");
+    testStore.put("test_def", "456");
+    testStore.put("test_ghi", "123");
     try {
       LocalMode lma = LocalMode.newInstance();
       DAG dag = lma.getDAG();
@@ -97,7 +97,7 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
       inputOperator.addKey("test_abc");
       inputOperator.addKey("test_def");
       inputOperator.addKey("test_ghi");
-      inputOperator.setStore(store);
+      inputOperator.setStore(operatorStore);
       dag.addStream("stream", inputOperator.outputPort, collector.inputPort);
       final LocalMode.Controller lc = lma.getController();
       lc.run(3000);
@@ -108,11 +108,10 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
 
     }
     finally {
-      store.connect();
-      store.remove("test_abc");
-      store.remove("test_def");
-      store.remove("test_ghi");
-      store.disconnect();
+      testStore.remove("test_abc");
+      testStore.remove("test_def");
+      testStore.remove("test_ghi");
+      testStore.disconnect();
     }
   }
 
@@ -120,7 +119,7 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
   {
     OutputOperator<S> outputOperator = new OutputOperator<S>();
     try {
-      outputOperator.setStore(store);
+      outputOperator.setStore(operatorStore);
       outputOperator.setup(null);
       outputOperator.beginWindow(100);
       Map<String, String> m = new HashMap<String, String>();
@@ -132,16 +131,16 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
       outputOperator.input.process(m);
       outputOperator.endWindow();
       outputOperator.teardown();
-      store.connect();
-      Assert.assertEquals("123", store.get("test_abc"));
-      Assert.assertEquals("456", store.get("test_def"));
-      Assert.assertEquals("789", store.get("test_ghi"));
+      testStore.connect();
+      Assert.assertEquals("123", testStore.get("test_abc"));
+      Assert.assertEquals("456", testStore.get("test_def"));
+      Assert.assertEquals("789", testStore.get("test_ghi"));
     }
     finally {
-      store.remove("test_abc");
-      store.remove("test_def");
-      store.remove("test_ghi");
-      store.disconnect();
+      testStore.remove("test_abc");
+      testStore.remove("test_def");
+      testStore.remove("test_ghi");
+      testStore.disconnect();
     }
   }
 

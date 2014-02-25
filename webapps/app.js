@@ -15,7 +15,6 @@
  */
 
 var express = require('express');
-var sockjs  = require('sockjs');
 var http = require('http');
 var httpProxy = require('http-proxy');
 var config = require('./config');
@@ -44,65 +43,26 @@ if ('production' == app.get('env')) {
     app.use(express.errorHandler());
 }
 
-
 app.get('/machine', machine.data);
 app.get('/dimensions', adsdimensions.data);
 app.get('/fraud/alertCount', fraud.getAlertCount);
 app.get('/fraud/randomStats', fraud.getRecentStats);
 app.get('/ws/*', function(req, res) {
     proxy.proxyRequest(req, res, {
-        host: config.daemon.host,
-        port: config.daemon.port
+        host: config.gateway.host,
+        port: config.gateway.port
     });
 });
 
-var clients = {};
-var clientCount = 0;
+app.get('/settings.js', function(req, res) {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', 0);
 
-function broadcast() {
-    var random = Math.floor(Math.random() * 1000);
-
-    var topic;
-    if (random % 2 === 0) {
-        topic = 'topic1';
-    } else {
-        topic = 'topic2';
-    }
-    var message = {
-        topic: topic,
-        data: { id: random % 10, progress: random % 100 }
-    }
-
-    for (var key in clients) {
-        if(clients.hasOwnProperty(key)) {
-            //var message = { random: random, clients: clientCount };
-            clients[key].write(JSON.stringify(message));
-        }
-    }
-}
-
-function startBroadcast () {
-    setInterval(broadcast, 200);
-}
-
-var sockjsServer = sockjs.createServer();
-
-sockjsServer.on('connection', function(conn) {
-    clientCount++;
-    if (clientCount === 1) {
-        startBroadcast();
-    }
-
-    clients[conn.id] = conn;
-
-    conn.on('close', function() {
-        clientCount--;
-        delete clients[conn.id];
-    });
+  res.send('window.settings = ' + JSON.stringify(config.settings) + ';');
 });
 
-var server = http.createServer(app).listen(config.web.port, function(){
+http.createServer(app).listen(config.web.port, function(){
     console.log('Express server listening on port ' + config.web.port);
 });
-
-sockjsServer.installHandlers(server, { prefix: '/random' });
