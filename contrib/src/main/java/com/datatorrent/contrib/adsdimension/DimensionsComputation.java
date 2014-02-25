@@ -65,8 +65,8 @@ public class DimensionsComputation<EVENT> implements Operator, Partitionable<Dim
 
   }
 
-  private Aggregator<EVENT>[] aggregators;
-  private transient AggregatorMap<EVENT>[] aggregatorMaps;
+  //private transient Aggregator<EVENT>[] aggregators;
+  private AggregatorMap<EVENT>[] aggregatorMaps;
 
   /**
    * Set the dimensions which should each get the tuples going forward.
@@ -74,16 +74,26 @@ public class DimensionsComputation<EVENT> implements Operator, Partitionable<Dim
    * Dimesions are separated by comma. This form is chosen so that dimensions can be controlled through
    * properties file as well.
    *
-   * @param specs
+   * @param aggregators
    */
-  public void setAggregators(Aggregator<EVENT>[] specs)
+  public void setAggregators(Aggregator<EVENT>[] aggregators)
   {
-    aggregators = specs.clone();
+    @SuppressWarnings("unchecked")
+    AggregatorMap<EVENT>[] newInstance = (AggregatorMap<EVENT>[])Array.newInstance(AggregatorMap.class, aggregators.length);
+    aggregatorMaps = newInstance;
+    for (int i = aggregators.length; i-- > 0;) {
+      aggregatorMaps[i] = new AggregatorMap<EVENT>(aggregators[i]);
+    }
   }
 
   public Aggregator<EVENT>[] getAggregators()
   {
-    return aggregators.clone();
+    @SuppressWarnings("unchecked")
+    Aggregator<EVENT>[] aggregators = (Aggregator<EVENT>[])Array.newInstance(Aggregator.class, aggregatorMaps.length);
+    for (int i = aggregatorMaps.length; i-- > 0;) {
+      aggregators[i] = aggregatorMaps[i].aggregator;
+    }
+    return aggregators;
   }
 
   @Override
@@ -103,14 +113,8 @@ public class DimensionsComputation<EVENT> implements Operator, Partitionable<Dim
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public void setup(OperatorContext context)
   {
-    aggregatorMaps = (AggregatorMap[])Array.newInstance(AggregatorMap.class, aggregators.length);
-    int i = 0;
-    for (Aggregator<EVENT> aggregator : aggregators) {
-      aggregatorMaps[i++] = new AggregatorMap<EVENT>(aggregator);
-    }
   }
 
   @Override
@@ -255,7 +259,7 @@ public class DimensionsComputation<EVENT> implements Operator, Partitionable<Dim
   @DefaultSerializer(ExternalizableSerializer.class)
   static class AggregatorMap<EVENT> extends TCustomHashMap<EVENT, EVENT>
   {
-    Aggregator<EVENT> aggregator;
+    transient Aggregator<EVENT> aggregator;
 
     @SuppressWarnings("PublicConstructorInNonPublicClass")
     public AggregatorMap()
