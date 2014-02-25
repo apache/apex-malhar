@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 public class TestSource extends AbstractSource implements EventDrivenSource, Configurable
 {
@@ -75,14 +76,6 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
     catch (IOException e) {
       throw new RuntimeException(e);
     }
-
-    int cacheSize = cache.size();
-    int numPastEvents = (int) (percentPastEvents / 100.0 * cacheSize);
-    //pick #numPastEvents randomly and set them to a past date
-    for (int i = 0; i < numPastEvents; i++) {
-      int idx = random.nextInt(cacheSize);
-      cache.get(idx).past = true;
-    }
   }
 
   @Override
@@ -119,6 +112,12 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
 
   private void processBatch(ChannelProcessor channelProcessor, List<Row> rows)
   {
+    int noise = random.nextInt(percentPastEvents + 1);
+    Set<Integer> pastIndices = Sets.newHashSet();
+    for(int i=0;i<noise ; i++){
+      pastIndices.add(random.nextInt(rows.size()));
+    }
+
     Calendar calendar = Calendar.getInstance();
     calendar.add(Calendar.DATE, -1);
 
@@ -126,8 +125,9 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
     byte[] pastTimeField = dateFormat.format(calendar.getTime()).getBytes();
 
     List<Event> events = Lists.newArrayList();
-    for (Row eventRow : rows) {
-      if (eventRow.past) {
+    for (int i=0; i<rows.size(); i++) {
+      Row eventRow = rows.get(i);
+      if (pastIndices.contains(i)) {
         System.arraycopy(pastDateField, 0, eventRow.bytes, eventRow.dateFieldStart, pastDateField.length);
         System.arraycopy(pastTimeField, 0, eventRow.bytes, eventRow.timeFieldStart, pastTimeField.length);
       }
@@ -195,7 +195,7 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
     final byte[] bytes;
     int dateFieldStart;
     int timeFieldStart;
-    boolean past;
+//    boolean past;
 
     Row(byte[] bytes)
     {
