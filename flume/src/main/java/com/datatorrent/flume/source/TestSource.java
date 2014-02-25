@@ -6,10 +6,7 @@ package com.datatorrent.flume.source;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 import javax.annotation.Nonnull;
 
@@ -31,19 +28,28 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
 {
   static String FILE_NAME = "sourceFile";
   static String RATE = "rate";
+  static String PERCENT_PAST_EVENTS = "percentPastEvents";
   static byte FIELD_SEPARATOR = 1;
-  private static String d1 = "2013-11-07";
+
   public Timer emitTimer;
   @Nonnull
   String filePath;
   int rate;
-  transient List<Event> cache;
+  int percentPastEvents;
+  transient List<Row> cache;
   private transient int startIndex;
+  private transient Random random;
+
+  private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+  private SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
   public TestSource()
   {
     super();
     this.rate = 2500;
+    this.percentPastEvents = 5;
+    this.random = new Random();
+
   }
 
   @Override
@@ -51,6 +57,8 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
   {
     filePath = context.getString(FILE_NAME);
     rate = context.getInteger(RATE, rate);
+    percentPastEvents = context.getInteger(PERCENT_PAST_EVENTS, percentPastEvents);
+
     Preconditions.checkArgument(!Strings.isNullOrEmpty(filePath));
     try {
       BufferedReader lineReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));
@@ -66,6 +74,14 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
     }
     catch (IOException e) {
       throw new RuntimeException(e);
+    }
+
+    int cacheSize = cache.size();
+    int numPastEvents = (int) (percentPastEvents / 100.0 * cacheSize);
+    //pick #numPastEvents randomly and set them to a past date
+    for (int i = 0; i < numPastEvents; i++) {
+      int idx = random.nextInt(cacheSize);
+      cache.get(idx).past = true;
     }
   }
 
@@ -85,20 +101,47 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
         int lastIndex = startIndex + rate;
         if (lastIndex > cacheSize) {
           lastIndex -= cacheSize;
-          channel.processEventBatch(cache.subList(startIndex, cacheSize));
+          processBatch(channel, cache.subList(startIndex, cacheSize));
           while (lastIndex > cacheSize) {
-            channel.processEventBatch(cache);
+            processBatch(channel, cache);
             lastIndex -= cacheSize;
           }
-          channel.processEventBatch(cache.subList(0, lastIndex));
+          processBatch(channel, cache.subList(0, lastIndex));
         }
         else {
-          channel.processEventBatch(cache.subList(startIndex, lastIndex));
+          processBatch(channel, cache.subList(startIndex, lastIndex));
         }
         startIndex = lastIndex;
       }
 
     }, 0, 1000);
+  }
+
+  private void processBatch(ChannelProcessor channelProcessor, List<Row> rows)
+  {
+    Calendar calendar = Calendar.getInstance();
+    calendar.add(Calendar.DATE, -1);
+
+    byte[] pastDateField = dateFormat.format(calendar.getTime()).getBytes();
+    byte[] pastTimeField = dateFormat.format(calendar.getTime()).getBytes();
+
+    List<Event> events = Lists.newArrayList();
+    for (Row eventRow : rows) {
+      if (eventRow.past) {
+        System.arraycopy(pastDateField, 0, eventRow.bytes, eventRow.dateFieldStart, pastDateField.length);
+        System.arraycopy(pastTimeField, 0, eventRow.bytes, eventRow.timeFieldStart, pastTimeField.length);
+      }
+      else {
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        byte[] currentDateField = dateFormat.format(calendar.getTime()).getBytes();
+        byte[] currentTimeField = timeFormat.format(calendar.getTime()).getBytes();
+
+        System.arraycopy(currentDateField, 0, eventRow.bytes, eventRow.dateFieldStart, currentDateField.length);
+        System.arraycopy(currentTimeField, 0, eventRow.bytes, eventRow.timeFieldStart, currentTimeField.length);
+      }
+      events.add(EventBuilder.withBody(eventRow.bytes));
+    }
+    channelProcessor.processEventBatch(events);
   }
 
   @Override
@@ -110,20 +153,12 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
 
   private void buildCache(BufferedReader lineReader) throws IOException
   {
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-
-    Calendar cal = Calendar.getInstance();
-    cal.add(Calendar.DATE, -1);
-    String yesterday = format.format(cal.getTimeInMillis());
-
-    cal.add(Calendar.DATE, -1);
-    String dayBeforeYesterday = format.format(cal.getTime());
-
     cache = Lists.newArrayListWithCapacity(rate);
 
     String line;
     while ((line = lineReader.readLine()) != null) {
       byte[] row = line.getBytes();
+      Row eventRow = new Row(row);
       final int rowsize = row.length;
 
       /* guid */
@@ -133,18 +168,11 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
           break;
         }
       }
-      /* skip the next record */
       int recordStart = sliceLengh + 1;
       int pointer = sliceLengh + 1;
       while (pointer < rowsize) {
         if (row[pointer++] == FIELD_SEPARATOR) {
-          String date = new String(row, recordStart, pointer - recordStart - 1);
-          if (date.indexOf(d1) >= 0) {
-            System.arraycopy(dayBeforeYesterday.getBytes(), 0, row, recordStart, dayBeforeYesterday.getBytes().length);
-          }
-          else {
-            System.arraycopy(yesterday.getBytes(), 0, row, recordStart, yesterday.getBytes().length);
-          }
+          eventRow.dateFieldStart = recordStart;
           break;
         }
       }
@@ -153,18 +181,25 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
       int dateStart = pointer;
       while (pointer < rowsize) {
         if (row[pointer++] == FIELD_SEPARATOR) {
-          String date = new String(row, dateStart, pointer - dateStart - 1);
-          if (date.indexOf(d1) >= 0) {
-            System.arraycopy(dayBeforeYesterday.getBytes(), 0, row, dateStart, dayBeforeYesterday.getBytes().length);
-          }
-          else {
-            System.arraycopy(yesterday.getBytes(), 0, row, dateStart, yesterday.getBytes().length);
-          }
+          eventRow.timeFieldStart = dateStart;
           break;
         }
       }
 
-      cache.add(EventBuilder.withBody(row));
+      cache.add(eventRow);
+    }
+  }
+
+  private static class Row
+  {
+    final byte[] bytes;
+    int dateFieldStart;
+    int timeFieldStart;
+    boolean past;
+
+    Row(byte[] bytes)
+    {
+      this.bytes = bytes;
     }
   }
 
