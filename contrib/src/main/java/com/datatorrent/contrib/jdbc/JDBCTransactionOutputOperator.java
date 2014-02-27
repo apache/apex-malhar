@@ -15,14 +15,19 @@
  */
 package com.datatorrent.contrib.jdbc;
 
-import com.datatorrent.api.Context.OperatorContext;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
 import javax.validation.constraints.NotNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.Context.OperatorContext;
+
+import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
 
 /**
  * JDBCTransaction output adapter operator, which send insertion data to transaction database. <p><br>
@@ -54,7 +59,9 @@ import org.slf4j.LoggerFactory;
  * <br>
  *
  * @since 0.3.2
+ * @deprecated use {@link AbstractJdbcTransactionableOutputOperator}
  */
+@Deprecated
 public abstract class JDBCTransactionOutputOperator<T> extends JDBCOutputOperator<T>
 {
   private static final Logger logger = LoggerFactory.getLogger(JDBCTransactionOutputOperator.class);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.jdbc;
+package com.datatorrent.lib.db.jdbc;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -25,24 +25,24 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.database.DBConnector;
-import com.datatorrent.lib.db.jdbc.JdbcStore;
+import com.datatorrent.lib.db.Connectable;
 
 /**
- * Handles JDBC connection parameters and driver.
- *
- * @since 0.3.2
- * @deprecated use {@link JdbcStore}
+ * A {@link Connectable} that uses jdbc to connect to stores.
  */
-@Deprecated
-public class JDBCOperatorBase implements DBConnector
+public class JdbcStore implements Connectable, DBConnector
 {
+  protected static final Logger logger = LoggerFactory.getLogger(JdbcStore.class);
+
   @NotNull
   private String dbUrl;
   @NotNull
   private String dbDriver;
   private String userName;
   private String password;
+
   protected transient Connection connection = null;
 
   @NotNull
@@ -51,7 +51,7 @@ public class JDBCOperatorBase implements DBConnector
     return dbUrl;
   }
 
-  public void setDbUrl(String dbUrl)
+  public void setDbUrl(@NotNull String dbUrl)
   {
     this.dbUrl = dbUrl;
   }
@@ -62,7 +62,7 @@ public class JDBCOperatorBase implements DBConnector
     return dbDriver;
   }
 
-  public void setDbDriver(String dbDriver)
+  public void setDbDriver(@NotNull String dbDriver)
   {
     this.dbDriver = dbDriver;
   }
@@ -96,7 +96,7 @@ public class JDBCOperatorBase implements DBConnector
    * Create connection with database using JDBC.
    */
   @Override
-  public void setupDbConnection()
+  public void connect()
   {
     try {
       // This will load the JDBC driver, each DB has its own driver
@@ -112,11 +112,8 @@ public class JDBCOperatorBase implements DBConnector
 
       logger.debug("JDBC connection Success");
     }
-    catch (ClassNotFoundException ex) {
-      throw new RuntimeException("Exception during JBDC connection", ex);
-    }
-    catch (Exception ex) {
-      throw new RuntimeException("Exception during JBDC connection", ex);
+    catch (Throwable t) {
+      DTThrowable.rethrow(t);
     }
   }
 
@@ -124,53 +121,36 @@ public class JDBCOperatorBase implements DBConnector
    * Close JDBC connection.
    */
   @Override
-  public void teardownDbConnection()
+  public void disconnect()
   {
     try {
       connection.close();
     }
     catch (SQLException ex) {
-      throw new RuntimeException("Error while closing database resource", ex);
+      throw new RuntimeException("closing database resource", ex);
     }
   }
 
   @Override
-  public boolean equals(Object o)
+  public boolean connected()
   {
-    if (this == o) {
-      return true;
+    try {
+      return !connection.isClosed();
     }
-    if (!(o instanceof JDBCOperatorBase)) {
-      return false;
+    catch (SQLException e) {
+      throw new RuntimeException("is connected", e);
     }
-
-    JDBCOperatorBase that = (JDBCOperatorBase) o;
-
-    if (dbDriver != null ? !dbDriver.equals(that.dbDriver) : that.dbDriver != null) {
-      return false;
-    }
-    if (dbUrl != null ? !dbUrl.equals(that.dbUrl) : that.dbUrl != null) {
-      return false;
-    }
-    if (password != null ? !password.equals(that.password) : that.password != null) {
-      return false;
-    }
-    if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
-      return false;
-    }
-
-    return true;
   }
 
   @Override
-  public int hashCode()
+  public void setupDbConnection()
   {
-    int result = dbUrl != null ? dbUrl.hashCode() : 0;
-    result = 31 * result + (dbDriver != null ? dbDriver.hashCode() : 0);
-    result = 31 * result + (userName != null ? userName.hashCode() : 0);
-    result = 31 * result + (password != null ? password.hashCode() : 0);
-    return result;
+    connect();
   }
 
-  private static final Logger logger = LoggerFactory.getLogger(JDBCOperatorBase.class);
+  @Override
+  public void teardownDbConnection()
+  {
+    disconnect();
+  }
 }
