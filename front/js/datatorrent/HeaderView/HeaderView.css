@@ -103,3 +103,24 @@
   padding: 15px 20px;
   box-shadow: -1px 0 0 #10658c, 1px 0 0 #10658c, -2px 0 0 rgba(0, 0, 0, 0.1), 2px 0 0 rgba(0, 0, 0, 0.1);
 }
+#header .header-license-usage {
+  position: relative;
+  float: right;
+  width: 150px;
+  overflow: hidden;
+  height: 100%;
+}
+#header .header-license-usage .license-agent-mem-usage {
+  position: absolute;
+  top: 14px;
+  right: 10px;
+  width: 100px;
+  height: 12px;
+}
+#header .header-license-usage .license-agent-usage-label {
+  position: absolute;
+  top: 29px;
+  right: 13px;
+  font-size: 10px;
+  color: #AAA;
+}

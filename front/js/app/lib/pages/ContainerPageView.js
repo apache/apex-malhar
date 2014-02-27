@@ -25,6 +25,7 @@ var path = require('path');
 
 // widgets
 var CtnrInfoWidget = require('../widgets/CtnrInfoWidget');
+var CtnrActionWidget = require('../widgets/CtnrActionWidget');
 var CtnrOverviewWidget = require('../widgets/CtnrOverviewWidget');
 var CtnrMetricsWidget = require('../widgets/CtnrMetricsWidget');
 var OpListWidget = require('../widgets/PhysOpListWidget');
@@ -58,12 +59,15 @@ var ContainerPageView = BasePageView.extend({
 
         // Define widgets
         this.defineWidgets([
-            { name: 'info', defaultId: 'info', view: CtnrInfoWidget, limit: 0, inject: {
-                model: function() { return this.model }, 
+            { name: 'info', defaultId: 'container info', view: CtnrInfoWidget, limit: 0, inject: {
+                model: this.model, 
                 nav: this.app.nav
             }},
+            { name: 'actions', defaultId: 'actions', view: CtnrActionWidget, limit: 0, inject: {
+                model: this.model
+            }},
             { name: 'overview', defaultId: 'overview', view: CtnrOverviewWidget, limit: 0, inject: {
-                model: function() { return this.model }
+                model: this.model
             }},
             { name: 'memoryGauge', defaultId: 'memory gauge', view: GaugeWidget, limit: 0, inject: {
                 label: 'Memory',
@@ -75,13 +79,13 @@ var ContainerPageView = BasePageView.extend({
             }},
             { name: 'operatorList', defaultId: 'operator list', view: OpListWidget, limit: 1, inject: {
                 dataSource:this.dataSource,
-                operators: function() { return this.model.operators; }, 
-                appId: function() { return this.model.get('appId'); }, 
+                operators: this.model.operators, 
+                appId: this.model.get('appId'), 
                 nav: this.app.nav
             }},
             { name: 'containerMetrics', defaultId: 'metrics', view: CtnrMetricsWidget, limit: 0, inject: {
                 dataSource:this.dataSource,
-                model: function() { return this.model }
+                model: this.model
             }}
         ]);
         
@@ -92,7 +96,8 @@ var ContainerPageView = BasePageView.extend({
         {
             dash_id: 'default',
             widgets: [
-                { widget: 'info', id: 'info' },
+                { widget: 'info', id: 'container info', width: 65 },
+                { widget: 'actions', id: 'actions', width: 35 },
                 { widget: 'overview', id: 'overview' },
                 { widget: 'memoryGauge', id: 'memory gauge', width: 50 },
                 { widget: 'cpuGauge', id: 'CPU gauge', width: 50 },

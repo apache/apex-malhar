@@ -15,15 +15,18 @@
  */
 package com.datatorrent.lib.helper;
 
-import com.datatorrent.api.util.JacksonObjectMapperProvider;
 import java.io.IOException;
 import java.util.HashMap;
+
 import javax.servlet.http.HttpServletRequest;
+
 import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.util.JacksonObjectMapperProvider;
 
 /**
  *
@@ -31,13 +34,9 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("serial")
 public class SamplePubSubWebSocketServlet extends WebSocketServlet
 {
-
   private static final Logger LOG = LoggerFactory.getLogger(SamplePubSubWebSocketServlet.class);
   private ObjectMapper mapper = (new JacksonObjectMapperProvider()).getContext(null);
-
   private PubSubWebSocket subscriber;
-  @SuppressWarnings("unused")
-  private String topic;
 
   @Override
   public WebSocket doWebSocketConnect(HttpServletRequest hsr, String string)
@@ -47,7 +46,6 @@ public class SamplePubSubWebSocketServlet extends WebSocketServlet
 
   private class PubSubWebSocket implements WebSocket.OnTextMessage
   {
-
     private Connection connection;
 
     @SuppressWarnings("unchecked")
@@ -60,24 +58,25 @@ public class SamplePubSubWebSocketServlet extends WebSocketServlet
         HashMap<String, Object> map = mapper.readValue(arg0, HashMap.class);
         String type = (String)map.get("type");
         String topic = (String)map.get("topic");
-         if (type.equals("subscribe")) {
-            if (topic != null) {
-              subscriber = this;
-              topic = arg0;
-            }
-         } else if (type.equals("unsubscribe")) {
-           subscriber = null;
-           topic = null;
-         } else if (type.equals("publish")) {
-           Object data = map.get("data");
-           if (data != null) {
-             if (subscriber != null) {
+        if (type.equals("subscribe")) {
+          if (topic != null) {
+            subscriber = this;
+          }
+        }
+        else if (type.equals("unsubscribe")) {
+          subscriber = null;
+        }
+        else if (type.equals("publish")) {
+          Object data = map.get("data");
+          if (data != null) {
+            if (subscriber != null) {
               sendData(subscriber, topic, data);
-             }
-           }
-         }
-      } catch (Exception ex) {
-          LOG.warn("Data read error", ex);
+            }
+          }
+        }
+      }
+      catch (Exception ex) {
+        LOG.warn("Data read error", ex);
       }
     }
 
@@ -92,7 +91,6 @@ public class SamplePubSubWebSocketServlet extends WebSocketServlet
     {
       if (subscriber == this) {
         subscriber = null;
-        topic = null;
       }
     }
 
@@ -112,6 +110,11 @@ public class SamplePubSubWebSocketServlet extends WebSocketServlet
     catch (IOException ex) {
       LOG.warn("Connection send error", ex);
     }
+  }
+
+  public boolean hasSubscriber()
+  {
+    return subscriber != null;
   }
 
 }

@@ -15,19 +15,15 @@
  */
 package com.datatorrent.contrib.couchdb;
 
-import java.io.IOException;
-import java.util.List;
-
-import javax.validation.constraints.Min;
-
+import com.datatorrent.api.annotation.ShipContainingJars;
+import com.datatorrent.lib.db.AbstractStoreInputOperator;
+import com.google.common.base.Throwables;
 import org.ektorp.ViewQuery;
 import org.ektorp.ViewResult;
 
-import com.google.common.base.Throwables;
-
-import com.datatorrent.api.annotation.ShipContainingJars;
-
-import com.datatorrent.lib.db.AbstractStoreInputOperator;
+import javax.validation.constraints.Min;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Base class for CouchDb input adaptor.<br/>

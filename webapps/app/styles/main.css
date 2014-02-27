@@ -20,7 +20,7 @@ body {
 }
 
 [class^="icon-"], [class*=" icon-"] {
-    background-image: url("../img/glyphicons-halflings.png");
+    background-image: url("../images/glyphicons-halflings.png");
 }
 
 h4.ui-pnotify-title { 
@@ -155,7 +155,7 @@ h4.ui-pnotify-title {
 }
 
 .navbar .brand {
-    background: url("../img/main_banner.png") no-repeat scroll 0 0;
+    background: url("../images/main_banner.png") no-repeat scroll 0 0;
     padding: 0;
     width: 241px;
     height: 48px;

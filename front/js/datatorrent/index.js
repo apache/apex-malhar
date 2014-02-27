@@ -18,6 +18,8 @@ var datatorrent = {
     settings: require('./settings'),
     // Main library components
     lib: {
+        AbstractJarFileCollection    : require('./AbstractJarFileCollection'),
+        AbstractJarFileModel         : require('./AbstractJarFileModel'),
         AlertCollection              : require('./AlertCollection'),
         AlertModel                   : require('./AlertModel'),
         AlertParamsModel             : require('./AlertParamsModel'),
@@ -71,6 +73,9 @@ var datatorrent = {
         Tabled                       : require('./tabled'),
         TupleCollection              : require('./TupleCollection'),
         TupleModel                   : require('./TupleModel'),
+        UploadFileCollection         : require('./UploadFileCollection'),
+        UploadFileModel              : require('./UploadFileModel'),
+        UploadFilesView              : require('./UploadFilesView'),
         UserModel                    : require('./UserModel'),
         WidgetClassCollection        : require('./WidgetClassCollection'),
         WidgetClassModel             : require('./WidgetClassModel'),

@@ -15,28 +15,27 @@
  */
 package com.datatorrent.lib.io;
 
-import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.ShipContainingJars;
+import java.io.IOException;
+import java.net.URI;
+import java.util.concurrent.*;
+
+import javax.validation.constraints.NotNull;
+
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfigBean;
 import com.ning.http.client.websocket.WebSocket;
 import com.ning.http.client.websocket.WebSocketTextListener;
 import com.ning.http.client.websocket.WebSocketUpgradeHandler;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import javax.validation.constraints.NotNull;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.annotation.ShipContainingJars;
 
 /**
  *
@@ -61,7 +60,7 @@ public class WebSocketOutputOperator<T> extends BaseOperator
   private int ioThreadMultiplier = 1;
   private int numRetries = 3;
   private int waitMillisRetry = 5000;
-  private final transient AsyncHttpClientConfigBean config = new AsyncHttpClientConfigBean();
+  private long count = 0;
 
   /**
    * Gets the URI for WebSocket connection
@@ -186,6 +185,19 @@ public class WebSocketOutputOperator<T> extends BaseOperator
 
   private void openConnection() throws IOException, ExecutionException, InterruptedException, TimeoutException
   {
+    final AsyncHttpClientConfigBean config = new AsyncHttpClientConfigBean();
+    config.setIoThreadMultiplier(ioThreadMultiplier);
+    config.setApplicationThreadPool(Executors.newCachedThreadPool(new ThreadFactory()
+    {
+      @Override
+      public Thread newThread(Runnable r)
+      {
+        Thread t = new Thread(r);
+        t.setName(WebSocketOutputOperator.this.getName() + "-AsyncHttpClient-" + count++);
+        return t;
+      }
+
+    }));
     client = new AsyncHttpClient(config);
     uri = URI.create(uri.toString()); // force reparse after deserialization
     LOG.info("Opening URL: {}", uri);
@@ -225,20 +237,6 @@ public class WebSocketOutputOperator<T> extends BaseOperator
   @Override
   public void setup(OperatorContext context)
   {
-    config.setIoThreadMultiplier(ioThreadMultiplier);
-    config.setApplicationThreadPool(Executors.newCachedThreadPool(new ThreadFactory()
-    {
-      private long count = 0;
-
-      @Override
-      public Thread newThread(Runnable r)
-      {
-        Thread t = new Thread(r);
-        t.setName(WebSocketOutputOperator.this.getName() + "-AsyncHttpClient-" + count++);
-        return t;
-      }
-
-    }));
     try {
       openConnection();
     }

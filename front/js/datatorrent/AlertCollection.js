@@ -14,6 +14,7 @@
 * limitations under the License.
 */
 var Backbone = require('backbone');
+var Notifier = require('./Notifier');
 var BaseCollection = require('./BaseCollection');
 var AlertModel = require('./AlertModel');
 var path = require('path');
@@ -48,10 +49,10 @@ var AlertCollection = BaseCollection.extend({
     },
     
     fetchError: function() {
-        return {
+        Notifier.error({
             title: 'Could not get alerts',
             text: 'An error occurred retrieving the alerts for ' + this.appId + '.'
-        };
+        });
     }
 });
 

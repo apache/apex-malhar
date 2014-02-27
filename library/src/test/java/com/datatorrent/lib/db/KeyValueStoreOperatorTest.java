@@ -1,6 +1,17 @@
 /*
- *  Copyright (c) 2012-2014 Malhar, Inc.
- *  All Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.datatorrent.lib.db;
 
@@ -22,11 +33,13 @@ import com.datatorrent.api.LocalMode;
  */
 public class KeyValueStoreOperatorTest<S extends KeyValueStore>
 {
-  protected S store;
+  protected S operatorStore;
+  protected S testStore;
 
-  public KeyValueStoreOperatorTest(S store)
+  public KeyValueStoreOperatorTest(S operatorStore, S testStore)
   {
-    this.store = store;
+    this.operatorStore = operatorStore;
+    this.testStore = testStore;
   }
 
   public static class CollectorModule<T> extends BaseOperator
@@ -71,12 +84,10 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
 
   public void testInputOperator() throws Exception
   {
-    store.connect();
-    store.put("test_abc", "789");
-    store.put("test_def", "456");
-    store.put("test_ghi", "123");
-    store.disconnect();
-
+    testStore.connect();
+    testStore.put("test_abc", "789");
+    testStore.put("test_def", "456");
+    testStore.put("test_ghi", "123");
     try {
       LocalMode lma = LocalMode.newInstance();
       DAG dag = lma.getDAG();
@@ -86,22 +97,21 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
       inputOperator.addKey("test_abc");
       inputOperator.addKey("test_def");
       inputOperator.addKey("test_ghi");
-      inputOperator.setStore(store);
+      inputOperator.setStore(operatorStore);
       dag.addStream("stream", inputOperator.outputPort, collector.inputPort);
       final LocalMode.Controller lc = lma.getController();
       lc.run(3000);
       lc.shutdown();
-      Assert.assertEquals(CollectorModule.resultMap.get("test_abc"), "789");
-      Assert.assertEquals(CollectorModule.resultMap.get("test_def"), "456");
-      Assert.assertEquals(CollectorModule.resultMap.get("test_ghi"), "123");
+      Assert.assertEquals("789", CollectorModule.resultMap.get("test_abc"));
+      Assert.assertEquals("456", CollectorModule.resultMap.get("test_def"));
+      Assert.assertEquals("123", CollectorModule.resultMap.get("test_ghi"));
 
     }
     finally {
-      store.connect();
-      store.remove("test_abc");
-      store.remove("test_def");
-      store.remove("test_ghi");
-      store.disconnect();
+      testStore.remove("test_abc");
+      testStore.remove("test_def");
+      testStore.remove("test_ghi");
+      testStore.disconnect();
     }
   }
 
@@ -109,7 +119,7 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
   {
     OutputOperator<S> outputOperator = new OutputOperator<S>();
     try {
-      outputOperator.setStore(store);
+      outputOperator.setStore(operatorStore);
       outputOperator.setup(null);
       outputOperator.beginWindow(100);
       Map<String, String> m = new HashMap<String, String>();
@@ -121,16 +131,16 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
       outputOperator.input.process(m);
       outputOperator.endWindow();
       outputOperator.teardown();
-      store.connect();
-      Assert.assertEquals(store.get("test_abc"), "123");
-      Assert.assertEquals(store.get("test_def"), "456");
-      Assert.assertEquals(store.get("test_ghi"), "789");
+      testStore.connect();
+      Assert.assertEquals("123", testStore.get("test_abc"));
+      Assert.assertEquals("456", testStore.get("test_def"));
+      Assert.assertEquals("789", testStore.get("test_ghi"));
     }
     finally {
-      store.remove("test_abc");
-      store.remove("test_def");
-      store.remove("test_ghi");
-      store.disconnect();
+      testStore.remove("test_abc");
+      testStore.remove("test_def");
+      testStore.remove("test_ghi");
+      testStore.disconnect();
     }
   }
 

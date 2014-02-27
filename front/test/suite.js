@@ -31,6 +31,7 @@ require('../js/datatorrent/WidgetDefCollection.spec');
 require('../js/datatorrent/WidgetDefModel.spec');
 require('../js/datatorrent/WidgetView.spec');
 require('../js/datatorrent/WindowId.spec');
+require('../js/datatorrent/formatters.spec');
 
 
 // Page Tests
@@ -45,3 +46,4 @@ require('../js/app/lib/widgets/PortInfoWidget/PortInfoWidget.spec');
 require('../js/app/lib/widgets/PortOverviewWidget/PortOverviewWidget.spec');
 require('../js/app/lib/widgets/PerfMetricsWidget/PerfMetricsWidget.spec');
 require('../js/app/lib/widgets/LogicalDagWidget/MetricModel.spec');
+require('../js/app/lib/widgets/AppListWidget/columns.spec');

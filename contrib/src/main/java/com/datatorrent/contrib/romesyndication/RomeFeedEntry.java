@@ -15,11 +15,13 @@
  */
 package com.datatorrent.contrib.romesyndication;
 
-import com.esotericsoftware.kryo.DefaultSerializer;
-import com.datatorrent.api.codec.KryoJdkContainer;
-import com.datatorrent.api.codec.KryoJdkSerializer;
-import com.sun.syndication.feed.synd.SyndEntry;
 import java.io.Serializable;
+
+import com.esotericsoftware.kryo.DefaultSerializer;
+import com.esotericsoftware.kryo.serializers.JavaSerializer;
+import com.sun.syndication.feed.synd.SyndEntry;
+
+import com.datatorrent.api.codec.KryoJdkContainer;
 
 /**
  * RomeFeedEntry that wraps a Rome syndication entry.<p><br>
@@ -32,7 +34,7 @@ import java.io.Serializable;
  *
  * @since 0.3.2
  */
-@DefaultSerializer(KryoJdkSerializer.class)
+@DefaultSerializer(JavaSerializer.class)
 public class RomeFeedEntry extends KryoJdkContainer<SyndEntry> implements Serializable
 {
   /**

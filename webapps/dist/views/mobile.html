@@ -1,0 +1,40 @@
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span12">
+            <h2 class="app-title">
+                Mobile Geo-Location Monitoring
+                <a ng-show="appURL" href="{{appURL}}" class="btn btn-primary btn-view-console" target="_blank">View Console</a>
+            </h2>
+        </div>
+    </div>
+    <div class="row-fluid">
+        <p class="well span7">
+            This demo application highlights the ability to register specific mobile numbers and start receiving geo-location updates in real-time. While the events arrive at high volume of 50k to 250k updates per second, but the application only pushes out the updates for the registered phones, making it possible to visualize using simple web user interface. While influenced by real customers, because of privacy concerns, the data for this demo is automatically generated.
+        </p>
+        <div class="span5">
+            <span widgets-stat="" app="app"></span>
+        </div><!--/span-->
+    </div>
+    <div class="row-fluid">
+        <div class="span3" ng-controller="MobileGridControlller">
+            <h4>Locations</h4>
+
+            <div class="form-horizontal">
+                <input type="number" min="5550000" max="5559999" ng-model="phone">
+                <button ng-click="addPhone();" type="button" class="btn btn-default">Add</button>
+            </div>
+
+            <div class="mobile-grid" ng-grid="gridOptions"></div>
+        </div>
+        <div class="span9" ng-controller="MapController">
+            <div class="google-map" style="height:550px" center="position.coords" zoom="zoomProperty" markers="markersProperty" latitude="clickedLatitudeProperty" longitude="clickedLongitudeProperty" mark-click="false" draggable="true" fit="false" events="eventsProperty" style="height: 500px; width: 100%">
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <footer>
+        <p>&copy; DataTorrent 2013</p>
+    </footer>
+</div><!--/.fluid-container-->

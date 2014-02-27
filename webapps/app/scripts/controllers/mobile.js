@@ -54,7 +54,7 @@ angular.module('mobile')
             }
 
             $scope.$broadcast('datachanged', map);
-        });
+        }, $scope);
 
         //$scope.$on('phone_added', function (event, phone) {
         //    map[phone] = { phone: phone };

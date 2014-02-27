@@ -29,6 +29,10 @@ var BaseCollection = Backbone.Collection.extend({
     resourceTopic: util.resourceTopic,
 
     subscribeToTopic: util.subscribeToTopic,
+
+    fetchError: util.fetchError,
+    
+    responseFormatError: util.responseFormatError,
     
     checkForDataSource: function() {
         if (!this.dataSource) {
@@ -39,6 +43,10 @@ var BaseCollection = Backbone.Collection.extend({
     responseTransform: null,
 
     fetch: function(options) {
+
+        // Indicate the collection is fetching
+        this._fetching = true;
+
         // Ensure options is an object
         options = options || {};
         
@@ -53,12 +61,8 @@ var BaseCollection = Backbone.Collection.extend({
             options.error = _.bind(function(collection, response, options) {
                 var obj;
                 if (typeof this.fetchError === 'function') {
-                    obj = this.fetchError.call(this, collection, response, options);
-                } else {
-                    obj = this.fetchError;
+                    this.fetchError.call(this, collection, response, options);
                 }
-
-                Notifier.error(obj);
             },this);
         }
         
@@ -71,13 +75,15 @@ var BaseCollection = Backbone.Collection.extend({
     sync: function(method, collection, options) {
         // READ/FETCH
         if ( method === 'read' ) {
-        
+
             // Holds the original success function
             var success = options.success;
     
             // Wrap the success function:
             options.success = _.bind(function(resp) {
-        
+            
+                this._fetching = false;
+
                 // Allow for the response to be transformed by an optional
                 // responseTransform attribute (can be a string or function).
         
@@ -104,11 +110,8 @@ var BaseCollection = Backbone.Collection.extend({
                 if ( !(transformedResponse instanceof Array) && this.responseFormatError) {
                     var obj;
                     if (typeof this.responseFormatError === 'function') {
-                        obj = this.responseFormatError.call(this, resp, transformedResponse);
-                    } else {
-                        obj = this.responseFormatError;
+                        this.responseFormatError.call(this, resp, transformedResponse);
                     }
-                    Notifier.error(obj);
                 }
         
                 // Call original success function with transformed response.
@@ -120,22 +123,6 @@ var BaseCollection = Backbone.Collection.extend({
         }
 
         return Backbone.sync.apply(this, arguments);
-    },
-    
-    fetchError: function(collection, response, options) {
-        var message = {
-            'title': this.debugName + ' failed to load (' + response.status + ')',
-            'text': 'Server responded with: ' + response.statusText
-        };
-        return message;
-    },
-    
-    responseFormatError: function() {
-        var message = {
-            'title': this.debugName + ' not in expected format',
-            'text': 'The response returned by the daemon was not in the expected format.'
-        };
-        return message;
     },
     
     set: function(models, options) {

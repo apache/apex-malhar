@@ -1,21 +1,17 @@
 <div class="info-item">
-    <span class="key">Container Id:</span>
+    <span class="key"><%= DT.text('id_label') %>:</span>
     <span class="value"><%=id%></span>
 </div>
 
 <div class="info-item">
-    <span class="key">Host:</span>
+    <span class="key"><%= DT.text('host_label') %>:</span>
     <span class="value"><%=host%></span>
 </div>
 
 <div class="info-item">
-    <span class="key">JVM Name:</span>
+    <span class="key"><%= DT.text('jvm_name_label') %>:</span>
     <span class="value"><%=jvmName%></span>
 </div>
-
-<% if (containerLogsUrl) { %>
-<div class="info-item">
-	<span class="key">Log File:</span>
-	<span class="value"><a href="<%= containerLogsUrl %>" target="_blank"><%= containerLogsUrl %></a></span>
-</div>
-<% } %>
+<% if (containerLogsUrl) {
+    print(DT.templates.ctnr_log_btngrp({ containerLogsUrl:containerLogsUrl }));
+} %>

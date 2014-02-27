@@ -23,6 +23,7 @@ var Hash = require('hashish');
 var httpProxy = require('http-proxy');
 var browserify = require('browserify');
 var util = require('./util');
+var lessm = require('less-middleware');
 
 // Dev configuration
 var config = require('./config');
@@ -85,7 +86,7 @@ app.get('/bundle.js', function(req, res) {
 		debug: true
 	});
 	bundle.on('error', function(e) {
-		res.end('$(function() { $("body").prepend("<p style=\'font-size:15px; padding: 10px;\'>' + e.toString() + '</p>"); });');
+		res.end('$(function() { $("body").prepend("<p style=\'font-size:15px; padding: 10px;\'>' + e.toString().replace('"', '\"') + '</p>"); });');
 	});
 
 	var data = '';
@@ -98,6 +99,15 @@ app.get('/bundle.js', function(req, res) {
 	});
 	
 });
+
+// Compile LESS on the fly
+app.use(lessm({
+    dest: __dirname + '/css',
+    src: __dirname + '/css',
+    prefix: '/css',
+    debug: true,
+    sourceMap: true
+}));
 
 // Serve static files
 app.use(express.static(__dirname, { maxAge: 86400000 }));

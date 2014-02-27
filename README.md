@@ -1,14 +1,19 @@
 Malhar
 ======
-
 Malhar repository contains open source operator and codec library that can be used with the DataTorrent platform to build Realtime streaming applications. In addition to the library there are contrib, demos, webdemos and samples folders available. Demos contain demo applications built using the library operators. Webdemos contain webpages for the demos. Contrib contains additional operators that interface with third party softwares. Samples contain some sample code that shows how to use the library operators.
 
 [![Build Status](https://travis-ci.org/DataTorrent/Malhar.png?branch=master)](https://travis-ci.org/DataTorrent/Malhar)
 
+Documentation
+-------------
+
+The documentation for Operators, Widgets, Demos, and Apps is available at [Malhar Javadocs](https://datatorrent.com/docs/apidocs/). Documentation
+for the platform itself can be found at [Resources](https://datatorrent.com/resources.php).
+
 Discussion group
 --------------------
 
-The google group malhar-users@googlegroups.com is available for discussions. Subscription to the group is open and postings are welcome. You can post anything about the operators, discuss new operator ideas or report issues and get answers from experts. You can signup by going to the following url https://groups.google.com/forum/#!forum/malhar-users
+Please use the [Malhar discussion group](http://groups.google.com/group/malhar-users) for support. Subscription to the group is open and postings are welcome. You can post anything about the operators, discuss new operator ideas or report issues and get answers from experts. You can signup by going to the following url https://groups.google.com/forum/#!forum/malhar-users
 
 
 Getting the source code

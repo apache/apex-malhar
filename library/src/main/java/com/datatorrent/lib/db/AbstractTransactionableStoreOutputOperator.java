@@ -38,7 +38,6 @@ public abstract class AbstractTransactionableStoreOutputOperator<T, S extends Tr
   protected Integer operatorId;
   protected long currentWindowId = -1;
   protected long committedWindowId = -1;
-
   /**
    * The input port
    */
@@ -79,11 +78,17 @@ public abstract class AbstractTransactionableStoreOutputOperator<T, S extends Tr
   public void setup(OperatorContext context)
   {
     try {
-      appId = context.getValue(DAG.APPLICATION_ID);
-      operatorId = context.getId();
-
       store.connect();
-      committedWindowId = store.getCommittedWindowId(appId, operatorId);
+      if (context == null) {
+        appId = "test_appid";
+        operatorId = 0;
+        store.removeCommittedWindowId(appId, operatorId);
+      }
+      else {
+        appId = context.getValue(DAG.APPLICATION_ID);
+        operatorId = context.getId();
+        committedWindowId = store.getCommittedWindowId(appId, operatorId);
+      }
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
@@ -111,7 +116,7 @@ public abstract class AbstractTransactionableStoreOutputOperator<T, S extends Tr
   }
 
   /**
-   * Processes the incoming tuple.  Implementations need to provide what to do with the tuple (how to store the tuple)
+   * Processes the incoming tuple. Implementations need to provide what to do with the tuple (how to store the tuple)
    *
    * @param tuple
    */

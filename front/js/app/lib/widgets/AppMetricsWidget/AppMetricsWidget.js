@@ -61,22 +61,22 @@ var AppMetricsWidget = BaseView.extend({
         }, {
             key: 'totalBufferServerReadBytesPSMA',
             color: '#AE08CE',
-            label: 'Buffer Server Reads',
+            label: DT.text('buffer_server_reads_label'),
             visible: false
         }, {
             key: 'totalBufferServerWriteBytesPSMA',
             color: '#f2be20',
-            label: 'Buffer Server Writes',
+            label: DT.text('buffer_server_writes_label'),
             visible: false
         }, {
             key: 'latency',
             color: '#da1c17',
-            label: 'Latency',
+            label: DT.text('latency_ms_label'),
             visible: false
         }/*,{
             key: 'allocatedMemory',
             color: '#da1c17',
-            label: 'Allocated Memory (GB)'
+            label: DT.text('alloc_mem_mb_label')
         }*/];
 
         this.plotSeries(series);

@@ -15,10 +15,10 @@
 */
 
 var AbstractJarFileModel = require('./AbstractJarFileModel');
-var BaseCollection = require('./BaseCollection');
+var BaseCollection = require('./UploadFileCollection');
 
 /**
- * Abstracvt Jar File Collection
+ * Abstract Jar File Collection
  * 
  * Base class for jar collections
 */
@@ -30,10 +30,6 @@ var AbstractJarFileCollection = BaseCollection.extend({
     
     url: function() {
         return this.resourceURL('Jar');
-    },
-
-    initialize: function(models, options) {
-    	
     },
     
     responseTransform: 'jars'

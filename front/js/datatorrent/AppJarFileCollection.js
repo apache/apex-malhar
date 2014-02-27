@@ -32,10 +32,6 @@ var AppJarFileCollection = BaseCollection.extend({
         return this.resourceURL('Jar');
     },
 
-    initialize: function(models, options) {
-    	
-    },
-    
     responseTransform: 'jars'
     
 });

@@ -1,0 +1,10 @@
+<% if (overwriting) { %>
+    <i class="icon-yellow-warning-sign overwrite-warning" title="<%= DT.text('overwrite_file_warning') %>"></i>
+<% } %>
+<span class="file-upload-filename"><%= name %></span>
+<span class="file-upload-filesize">(<%= Math.floor(size/1024) %> KB)</span>
+<button class="btn btn-mini btn-info rename-file"><i class="icon-pencil icon-white"></i></button>
+<button class="btn btn-mini btn-danger remove-file"><i class="icon-remove icon-white"></i></button>
+<div class="progress progress-striped active" style="display: none;">
+    <div class="file_upload_progress bar" style="width: 0%;"></div>
+</div>

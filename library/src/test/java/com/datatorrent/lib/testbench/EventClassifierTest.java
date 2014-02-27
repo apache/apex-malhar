@@ -17,7 +17,6 @@ package com.datatorrent.lib.testbench;
 
 import com.datatorrent.api.Sink;
 import com.datatorrent.lib.testbench.EventClassifier;
-import com.esotericsoftware.minlog.Log;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -163,7 +162,7 @@ public class EventClassifierTest {
                              classifySink.collectedTupleValues.size()));
       for (Map.Entry<String, Double> ve: classifySink.collectedTupleValues.entrySet()) {
         Integer ieval = classifySink.collectedTuples.get(ve.getKey()); // ieval should not be null?
-        Log.info(String.format("%d tuples of key \"%s\" has value %f", ieval.intValue(), ve.getKey(), ve.getValue()));
+        LOG.info(String.format("%d tuples of key \"%s\" has value %f", ieval.intValue(), ve.getKey(), ve.getValue()));
       }
       Assert.assertEquals("number emitted tuples", sentval, ival);
 
@@ -201,7 +200,7 @@ public class EventClassifierTest {
                              classifySink.collectedTupleValues.size()));
       for (Map.Entry<String, Double> ve: classifySink.collectedTupleValues.entrySet()) {
         Integer ieval = classifySink.collectedTuples.get(ve.getKey()); // ieval should not be null?
-        Log.info(String.format("%d tuples of key \"%s\" has value %f", ieval.intValue(), ve.getKey(), ve.getValue()));
+        LOG.info(String.format("%d tuples of key \"%s\" has value %f", ieval.intValue(), ve.getKey(), ve.getValue()));
       }
       Assert.assertEquals("number emitted tuples", sentval, ival);
 
@@ -244,7 +243,7 @@ public class EventClassifierTest {
                            classifySink.collectedTupleValues.size()));
     for (Map.Entry<String, Double> ve: classifySink.collectedTupleValues.entrySet()) {
       Integer ieval = classifySink.collectedTuples.get(ve.getKey()); // ieval should not be null?
-      Log.info(String.format("%d tuples of key \"%s\" has value %f",
+      LOG.info(String.format("%d tuples of key \"%s\" has value %f",
                              ieval.intValue(),
                              ve.getKey(),
                              ve.getValue()));

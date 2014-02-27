@@ -14,7 +14,8 @@
 * limitations under the License.
 */
 var _          = require('underscore'),
-    Backbone   = require('backbone');
+    Backbone   = require('backbone'),
+    Notifier   = require('./Notifier');
     
 function makeResourceFn(settingAttr) {
     return function(path, params) {
@@ -25,15 +26,6 @@ function makeResourceFn(settingAttr) {
         }
         return this.settings.interpolateParams(string, params);
     };
-}
-
-function resourceAction(path, params) {
-    params = params || {};
-    var actionString = this.settings.actions[path];
-    if (actionString === undefined) {
-        throw new Error('The action named \'' + path + '\' was not found in settings.actions!');
-    }
-    return this.settings.interpolateParams(actionString, params);
 }
 
 function subscribeToTopic(topic) {
@@ -47,7 +39,13 @@ function fetchError(object, response, options) {
         'title': this.debugName + ' failed to load (' + response.status + ')',
         'text': 'Server responded with: ' + response.statusText
     };
-    return message;
+    Notifier.error(message);
+}
+
+function quietFetchError(object, response, options) {
+    if (typeof LOG === 'function') {
+        LOG(4, this.debugName + ' failed to load (' + response.status + ')', ['Server responded with: ' + response.statusText]);
+    }
 }
 
 function responseFormatError() {
@@ -55,7 +53,7 @@ function responseFormatError() {
         'title': this.debugName + ' not in expected format',
         'text': 'The response returned by the daemon was not in the expected format.'
     };
-    return message;
+    Notifier.error(message);
 }
 
 exports.resourceURL = makeResourceFn('urls');
@@ -63,4 +61,5 @@ exports.resourceTopic = makeResourceFn('topics');
 exports.resourceAction = makeResourceFn('actions');
 exports.subscribeToTopic = subscribeToTopic;
 exports.fetchError = fetchError;
+exports.quietFetchError = quietFetchError;
 exports.responseFormatError = responseFormatError;

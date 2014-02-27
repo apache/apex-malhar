@@ -25,16 +25,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAGContext;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.Context.PortContext;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.fs.HdfsOutputOperator;
 
 /**
- * <p>Abstract MapReduceApplication class.</p>
+ * <p>
+ * Abstract MapReduceApplication class.
+ * </p>
  *
  * @since 0.9.0
  */
@@ -91,11 +91,11 @@ public abstract class MapReduceApplication<K1, V1, K2, V2> implements StreamingA
   {
     conf();
 
-    String dirName = conf.get(MapReduceApplication.class.getName() + ".inputDirName", "src/test/resources/wordcount/");
-    String outputDirName = conf.get(MapReduceApplication.class.getName() + ".outputDirName", "src/test/resources/output");
-    int numberOfReducers = conf.getInt(MapReduceApplication.class.getName() + ".numOfReducers", 1);
-    int numberOfMaps = conf.getInt(MapReduceApplication.class.getName() + ".numOfMaps", 2);
-    String configurationfilePath = conf.get(MapReduceApplication.class.getName() + ".configFile", "");
+    String dirName = conf.get(this.getClass().getName() + ".inputDirName", "src/test/resources/wordcount/");
+    String outputDirName = conf.get(this.getClass().getName() + ".outputDirName", "src/test/resources/output");
+    int numberOfReducers = conf.getInt(this.getClass().getName() + ".numOfReducers", 1);
+    int numberOfMaps = conf.getInt(this.getClass().getName() + ".numOfMaps", 2);
+    String configurationfilePath = conf.get(this.getClass().getName() + ".configFile", "");
 
     // logger.info("configfile {}", configurationfilePath);
     MapOperator<K1, V1, K2, V2> inputOperator = dag.addOperator("map", new MapOperator<K1, V1, K2, V2>());

@@ -51,6 +51,7 @@ var StreamListWidget = ListWidget.extend({
             row_sorts: ['name'],
             save_state: true
         }));
+
         
         // create the palette view
         this.subview('palette', new Palette({
@@ -62,6 +63,5 @@ var StreamListWidget = ListWidget.extend({
         }));
         
     }
-    
 });
 exports = module.exports = StreamListWidget;

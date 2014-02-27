@@ -25,8 +25,8 @@ function dateFormatter(value, row) {
 
 exports = module.exports = [
     { id: "selector", key: "selected", label: "", select: true, width: 40, lock_width: true },
-    { id: 'name', key: 'name', label: 'Alert Name', filter: 'like', sort: 'string' },
-    { id: 'operatorName', key: 'operatorName', label: 'Operator Name', filter: 'like', sort: 'string' },
-    { id: 'portName', key: 'portName', label: 'Port Name', filter: 'like', sort: 'string' },
-    { id: 'lastTriggered', key: 'lastTriggered', label: 'Last Triggered', filter: 'likeFormatted', sort: 'number', format: dateFormatter }
+    { id: 'name', key: 'name', label: DT.text('alert_label'), filter: 'like', sort: 'string' },
+    { id: 'operatorName', key: 'operatorName', label: DT.text('operator_label'), filter: 'like', sort: 'string' },
+    { id: 'portName', key: 'portName', label: DT.text('port_label'), filter: 'like', sort: 'string' },
+    { id: 'lastTriggered', key: 'lastTriggered', label: DT.text('last_triggered'), filter: 'likeFormatted', sort: 'number', format: dateFormatter }
 ];

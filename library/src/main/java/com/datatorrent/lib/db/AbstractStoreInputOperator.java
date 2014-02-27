@@ -26,6 +26,7 @@ import java.io.IOException;
  *
  * @param <T> The tuple type
  * @param <S> The store type
+ * @since 0.9.3
  */
 public abstract class AbstractStoreInputOperator<T, S extends Connectable> implements InputOperator
 {
