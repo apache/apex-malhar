@@ -92,7 +92,7 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class Application implements StreamingApplication
 {
-  protected String fileName = "src/main/resources/com/datatorrent/demos/wordcount/samplefile.txt";
+  protected String fileName = "com/datatorrent/demos/wordcount/samplefile.txt";
   private Locality locality = null;
 
   @Override
