@@ -1,0 +1,11 @@
+<% _.each( properties, function(prop) { %>
+<tr>
+    <td><%= prop.name %></td>
+    <td>
+        <span class="property-value" data-property-name="<%= prop.name %>">
+            <%= prop.value %>
+        </span>
+    </td>
+    <td><%= prop.description %></td>
+</tr>
+<% }) %>

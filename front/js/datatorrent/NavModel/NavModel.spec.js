@@ -20,7 +20,7 @@ var util = require('./util');
 
 describe('NavModel.js', function() {
     
-    var sandbox, navModel, opts, PageOne, pages;
+    var sandbox, navModel, opts, PageOne, pages, modes;
     
     beforeEach(function() {
         
@@ -72,6 +72,20 @@ describe('NavModel.js', function() {
                 ]
             }
         ];
+
+        modes = [{
+            'name': 'Configuration',
+            'href': '#config',
+            'id': 'config'
+        }, {
+            'name': 'Development',
+            'href': '#dev',
+            'id': 'dev'
+        }, {
+            'name': 'Operations',
+            'href': '#ops',
+            'id': 'ops'
+        }];
         
         navModel = new NavModel({},{ pages: pages });
     });
@@ -98,6 +112,11 @@ describe('NavModel.js', function() {
     
             it('should create a router object', function() {
                 expect(navModel.router).to.be.instanceof(Backbone.Router);
+            });
+
+            it('should create a modes collection', function() {
+                var m = new NavModel({}, { pages: pages, modes: modes });
+                expect(m.modes).to.be.instanceof(Backbone.Collection);
             });
         });
     
@@ -135,14 +154,6 @@ describe('NavModel.js', function() {
                 sandbox.stub(Backbone.history, 'start');
                 navModel.start();
                 expect(Backbone.history.start).to.have.been.calledOnce;
-            });
-        });
-    
-        describe('the serializeModes method', function() {
-            it('should return an array of objects', function() {
-                var res = navModel.serializeModes();
-                expect(res).to.be.instanceof(Array);
-                expect(res[0]).to.be.an('object');
             });
         });
     
