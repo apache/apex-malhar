@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.datatorrent</groupId>
     <artifactId>dt-framework</artifactId>
-    <version>0.9.3-RC5</version>
+    <version>0.9.3</version>
   </parent>
 
   <artifactId>malhar-all</artifactId>
@@ -23,7 +23,7 @@
 
   <properties> 
     <maven.deploy.skip>false</maven.deploy.skip>
-    <dt.framework.version>0.9.3-RC5</dt.framework.version>
+    <dt.framework.version>0.9.3</dt.framework.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <netbeans.hint.license>malhar-inc</netbeans.hint.license>
     <!-- the following properties match the properties defined in core/pom.xml -->
