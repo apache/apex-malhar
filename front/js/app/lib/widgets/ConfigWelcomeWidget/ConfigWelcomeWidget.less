@@ -1,0 +1,174 @@
+.install-steps-nav {
+    ol {
+        border-radius: 10px 0 0 10px;
+        border: 1px solid rgba(0,0,0,0.2);
+        overflow: hidden;
+
+        li {
+            
+            border-bottom: 1px solid rgba(0,0,0,0.2);
+            &:last-child {
+                border-bottom: none;
+            }
+
+            a {
+                display: block;
+                padding: 10px 10px 10px 0; 
+                text-align: right;
+                font-size: 15px;
+                position: relative;
+                &.active {
+                    color: #FFF;
+                    background: #11506D url('../../../../../img/welcome_hero.jpg');
+                    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.6);
+                    text-shadow: 0 1px 0 #000;                    
+                }
+
+                &:hover {
+                    text-decoration: none;
+                }
+
+                i.install-issue {
+                    position: absolute;
+                    left: 10px;
+                }
+            }
+
+        }
+    }
+}
+.install-steps-pane {
+    border: 1px solid rgba(0,0,0,0.2);
+    min-height: 250px;
+    margin-left: -1px;
+    margin-right: -1px;
+    margin-bottom: 10px;
+    border-radius: 0 10px 10px;
+    .action-link {
+        color: blue;
+    }
+    .loading {
+      display: none;
+    }
+    .register-spinner {
+        display: inline-block;
+        width: 23px;
+        height: 12px;
+        vertical-align: middle;
+        position: relative;
+        background: transparent url('data:image/gif;base64,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') no-repeat 0 0 scroll;
+        top: -1px;
+    }
+    .inner {
+        overflow: auto;
+        padding: 15px;
+        h1 {
+            background: #11506D url('../../../../../img/welcome_hero.jpg');
+            margin-top:0;
+            color: #FFF;
+            padding: 5px 10px 8px;
+            border-radius: 5px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.4);
+            text-shadow: 0 2px 3px black;
+        }
+
+        table {
+            width:100%;
+            border: 1px solid #CCC;
+            margin-bottom:15px;
+            thead {
+                tr {
+                    background-color: #474747 !important;
+                    color: white;
+
+                    th {
+                        text-align: left;
+                        padding: 10px 5px;
+                    }
+                }
+            }
+            tr {
+                &.install-issue {
+                    background-color: #FDD !important;
+                }
+
+                &:nth-child(odd) {
+                    background-color: #DEDEDE;
+                }
+
+                td {
+                    padding: 10px;
+                }
+
+                input, select {
+                    margin-bottom: 0;
+                }
+            }
+        }
+
+        .welcome-banner {
+            background: #11506D url('../../../../../img/welcome_hero.jpg');
+            color: white; text-shadow: 0 2px 3px black;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.4);
+            padding: 15px 5%;
+            h1 {
+                color: white !important;
+                font-size: 50px;
+                letter-spacing: 1px;
+                background: transparent;
+                box-shadow: none;
+                padding: none;
+                text-shadow: 0 2px 3px black;
+            }
+            p {
+                font-size: 15px;
+                letter-spacing: 1px;
+            }
+        }
+
+        .section-license {
+            .container-fluid {
+                padding: 0;
+            }
+            .control-label1 {
+                 width: 80px;
+            }
+            .controls1 {
+                 margin-left: 100px;
+            }
+        }
+
+        .section-system {
+            .controls input {
+                margin-bottom: 5px;
+            }
+        }
+
+        .license-terms-link {
+            float:right;
+            margin-right: 10px;
+            vertical-align: middle;
+            display: inline-block;
+            height: 42px;
+            line-height: 42px;
+        }
+    }
+
+}
+
+
+i.install-issue {
+   display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid #FFF;
+    background-color: #C00;
+    box-shadow: inset 0 -1px 3px rgba(100, 0, 0, 0.3), 0 0 2px rgba(0, 0, 0, 0.5);
+    font-size: 12px;
+    line-height: 14px;
+    text-align: center;
+    color: #FFF;
+    font-style: normal;
+    font-weight: bolder;
+}
