@@ -93,6 +93,7 @@ var SystemView = BaseView.extend({
         this.subview('address-ip-input', new Bbind.text({
             model: this.addressModel,
             attr: 'ip',
+            listenToModel: false,
             setAnyway: true,
             classElement: function($el) {
                 return $el.parent().parent();
@@ -104,6 +105,7 @@ var SystemView = BaseView.extend({
         this.subview('address-port', new Bbind.text({
             model: this.addressModel,
             attr: 'port',
+            listenToModel: false,
             setAnyway: true,
             classElement: function($el) {
                 return $el.parent().parent();
@@ -130,6 +132,7 @@ var SystemView = BaseView.extend({
         this.subview('dfs-directory', new Bbind.text({
             model: this.dfsModel,
             attr: 'value',
+            listenToModel: false,
             setAnyway: true,
             classElement: function($el) {
                 return $el.parent().parent();

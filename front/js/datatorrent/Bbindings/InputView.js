@@ -33,6 +33,7 @@ var InputView = Backbone.View.extend({
             errorClass: 'validation-error',
             autoRevert: false,
             setAnyway: false,
+            listenToModel: true,
             delayUpdate: false,
             classElement: false,
             // supply a function here that returns an element 
@@ -50,7 +51,9 @@ var InputView = Backbone.View.extend({
         this.attr = options.attr;
         
         // Listen to changes on this attribute
-        this.listenTo(this.model, 'change:'+this.attr, this.render);
+        if (options.listenToModel) {
+            this.listenTo(this.model, 'change:'+this.attr, this.render);
+        }
         
         // Save options to this
         this.options = options;
