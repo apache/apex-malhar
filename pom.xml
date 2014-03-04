@@ -37,5 +37,6 @@
     <module>contrib</module>
     <module>demos</module>
     <module>samples</module>
+    <module>apps</module>
   </modules>
 </project>
