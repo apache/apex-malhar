@@ -146,7 +146,6 @@ var SystemView = BaseView.extend({
     },
 
     inputChanged: function () {
-        console.log('inputChanged');
         var addressValid = this.addressModel.isValid();
         var dfsValid = this.dfsModel.isValid();
 
@@ -299,10 +298,6 @@ var SystemView = BaseView.extend({
 
         if (jQuery(event.target).hasClass('disabled')) {
             return;
-        }
-
-        if (this.addressModel.isChanged()) {
-            console.log('changed');
         }
 
         this.$el.find('.address-ip-input').blur();
