@@ -22,19 +22,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.google.common.collect.Maps;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.api.annotation.ShipContainingJars;
-import com.datatorrent.api.util.PubSubMessageCodec;
-import com.datatorrent.api.util.PubSubWebSocketClient;
+import com.datatorrent.lib.util.PubSubMessageCodec;
+import com.datatorrent.lib.util.PubSubWebSocketClient;
+
 import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
-import com.google.common.collect.Maps;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.ShipContainingJars;
+import java.lang.reflect.Array;
 
 /**
  * This is an Output operator output the data in a format that can be displayed in DT UI widgets<br><br>
@@ -53,11 +56,11 @@ import com.google.common.collect.Maps;
 @ShipContainingJars(classes = {com.ning.http.client.websocket.WebSocket.class})
 public class WidgetOutputOperator extends BaseOperator
 {
-
   protected transient WebSocketOutputOperator<Pair<String, Object>> wsoo = new WebSocketOutputOperator<Pair<String,Object>>(){
 
     private transient PubSubMessageCodec<Object> codec = new PubSubMessageCodec<Object>(mapper);
 
+    @Override
     public String convertMapToMessage(Pair<String,Object> t) throws IOException {
       return PubSubWebSocketClient.constructPublishMessage(t.getLeft(), t.getRight(), codec);
     };
@@ -104,7 +107,6 @@ public class WidgetOutputOperator extends BaseOperator
   public final transient PiechartInputPort pieChartInput = new PiechartInputPort(this);
 
   protected transient boolean isWebSocketConnected = true;
-
   @Override
   public void setup(OperatorContext context)
   {
@@ -141,7 +143,7 @@ public class WidgetOutputOperator extends BaseOperator
     @Override
     public void process(TimeSeriesData[] tuple)
     {
-      @SuppressWarnings("unchecked")
+      @SuppressWarnings({"unchecked", "rawtypes"})
       HashMap<String, Number>[] timeseriesMapData = new HashMap[tuple.length];
       int i = 0;
       for (TimeSeriesData data : tuple) {
@@ -192,7 +194,7 @@ public class WidgetOutputOperator extends BaseOperator
     @Override
     public void process(HashMap<String, Number> topNMap)
     {
-      @SuppressWarnings("unchecked")
+      @SuppressWarnings({"unchecked", "rawtypes"})
       HashMap<String, Object>[] result = new HashMap[topNMap.size()];
       int j = 0;
       for (Entry<String, Number> e : topNMap.entrySet()) {
@@ -291,9 +293,9 @@ public static class PiechartInputPort extends DefaultInputPort<HashMap<String, N
     @Override
     public void process(HashMap<String, Number> pieNumbers)
     {
-
       @SuppressWarnings("unchecked")
-      HashMap<String, Object>[] result = new HashMap[pieNumbers.size()];
+      HashMap<String, Object>[] result = (HashMap<String, Object>[])Array.newInstance(HashMap.class, pieNumbers.size());
+
       int j = 0;
       for (Entry<String, Number> e : pieNumbers.entrySet()) {
         result[j] = new HashMap<String, Object>();

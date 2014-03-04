@@ -13,33 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.io;
-
-import java.io.IOException;
-
-import com.datatorrent.lib.util.PubSubMessageCodec;
-import com.datatorrent.lib.util.PubSubWebSocketClient;
+package com.datatorrent.lib.util;
 
 /**
- * <p>PubSubWebSocketOutputOperator class.</p>
  *
- * @param <T>
+ * For JSON raw serialization, assumes the passed string to be a valid javascript value representation
+ *
  * @since 0.3.2
  */
-public class PubSubWebSocketOutputOperator<T> extends WebSocketOutputOperator<T>
+public class ObjectMapperString
 {
-  private String topic = null;
-  private transient PubSubMessageCodec<Object> codec = new PubSubMessageCodec<Object>(mapper);
+  public String string;
 
-  public void setTopic(String topic)
+  /**
+   * <p>Constructor for ObjectMapperString.</p>
+   */
+  public ObjectMapperString(String string)
   {
-    this.topic = topic;
+    this.string = string;
   }
 
+  /** {@inheritDoc} */
   @Override
-  public String convertMapToMessage(T t) throws IOException
+  public String toString()
   {
-    return PubSubWebSocketClient.constructPublishMessage(topic, t, codec);
+    return string;
   }
 
 }
