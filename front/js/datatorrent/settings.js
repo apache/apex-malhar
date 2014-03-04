@@ -47,8 +47,8 @@ exports = module.exports = {
         LicenseRequest           :'/ws/:v/licenses/request',
         LicenseLastRequest       :'/ws/:v/licenses/lastRequest',
         ConfigIPAddresses        :'/ws/:v/config/ipAddresses',
-        GatewayInfo              :'/ws/:v/about'
-        
+        GatewayInfo              :'/ws/:v/about',
+        GatewayRestart           :'/ws/:v/config/restart'
     },
     
     actions: {

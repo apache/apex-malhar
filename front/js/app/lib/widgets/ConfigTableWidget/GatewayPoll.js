@@ -14,9 +14,33 @@
  * limitations under the License.
  */
 
+var settings = require('../../../../datatorrent/settings');
+
 function GatewayPoll(timeout) {
     this.timeout = timeout;
     this.savedId = null;
+    this.aboutUrl = settings.interpolateParams(settings.urls.GatewayInfo, {
+        v: settings.version
+    });
+}
+
+GatewayPoll.prototype.restartRequest = function () {
+    var url = settings.interpolateParams(settings.urls.GatewayRestart, {
+        v: settings.version
+    });
+
+    return jQuery.post(url);
+}
+
+GatewayPoll.prototype.initId = function () {
+    // get initial jvmName
+    var ajax = jQuery.get(this.aboutUrl);
+
+    ajax.done(function (data) {
+        this.savedId = data.jvmName;
+    }.bind(this));
+
+    return ajax;
 }
 
 GatewayPoll.prototype.start = function () {
@@ -29,15 +53,11 @@ GatewayPoll.prototype.start = function () {
 }
 
 GatewayPoll.prototype.poll = function () {
-    var ajax = jQuery.get('/ws/v1/about');
+    var ajax = jQuery.get(this.aboutUrl);
 
     ajax.done(function (data) {
-        if (!this.savedId) {
-            this.savedId = data.jvmName;
-        } else {
-            if (this.savedId !== data.jvmName) {
-                this.deferred.resolve();
-            }
+        if (this.savedId !== data.jvmName) {
+            this.deferred.resolve();
         }
     }.bind(this));
 

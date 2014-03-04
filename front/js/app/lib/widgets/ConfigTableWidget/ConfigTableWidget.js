@@ -130,30 +130,47 @@ var ConfigTableWidget = BaseView.extend({
         this.loadingModal.launch();
 
         var poll = new GatewayPoll(10000);
-        var promise = poll.start(); //TODO get initial jvmName first
 
-        promise.done(function () {
-            //alert('restarted');
-            Notifier.success({
-                title: 'Success',
-                text: 'Gateway has been restarted. Current page will be reloaded.'
-            });
-            setTimeout(function() {
-                window.location.reload();
-            }, 3000);
+        var initPromise = poll.initId(); // get current jvnName with PID
+        initPromise.done(function () {
+            // trigger restart
+            var restartRequestPromise = poll.restartRequest();
+            restartRequestPromise.done(function () {
+                var promise = poll.start(); // poll for jvnName change
+
+                promise.done(function () {
+                    Notifier.success({
+                        title: 'Success',
+                        text: 'Gateway has been restarted. Current page will be reloaded.'
+                    });
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 2000);
+                }.bind(this));
+
+                promise.fail(function () {
+                    this.restartFailed();
+                }.bind(this));
+            }.bind(this));
+
+            restartRequestPromise.fail(function () {
+                this.restartFailed();
+            }.bind(this));
         }.bind(this));
 
-        promise.fail(function () {
-            Notifier.error({
-                title: 'Error',
-                text: 'Failed to restart the Gateway.',
-                hide: false
-            });
-            this.loadingModal.close();
+        initPromise.fail(function () {
+            this.restartFailed();
         }.bind(this));
+    },
 
-        // trigger restart
-        jQuery.post('/ws/v1/config/restart');
+    restartFailed: function () {
+        Notifier.error({
+            title: 'Error',
+            text: 'Failed to restart the Gateway.',
+            hide: false
+        });
+
+        this.loadingModal.close();
     },
 
     updateFilters: _.debounce(function() {
