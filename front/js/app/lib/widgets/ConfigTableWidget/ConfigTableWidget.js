@@ -17,6 +17,10 @@
 var _ = require('underscore');
 var kt = require('knights-templar');
 var BaseView = DT.lib.WidgetView;
+var LoadingModal = require('./LoadingModalView');
+var GatewayInfoModel = require('../../../../datatorrent/GatewayInfoModel');
+var GatewayPoll = require('./GatewayPoll');
+var Notifier = DT.lib.Notifier;
 
 /**
  * ConfigTableWidget
@@ -119,7 +123,37 @@ var ConfigTableWidget = BaseView.extend({
     },
 
     restart: function () {
-        console.log('TODO restart');
+        if (!this.loadingModal) {
+            this.loadingModal = new LoadingModal();
+            this.loadingModal.addToDOM();
+        }
+        this.loadingModal.launch();
+
+        var poll = new GatewayPoll(10000);
+        var promise = poll.start(); //TODO get initial jvmName first
+
+        promise.done(function () {
+            //alert('restarted');
+            Notifier.success({
+                title: 'Success',
+                text: 'Gateway has been restarted. Current page will be reloaded.'
+            });
+            setTimeout(function() {
+                window.location.reload();
+            }, 3000);
+        }.bind(this));
+
+        promise.fail(function () {
+            Notifier.error({
+                title: 'Error',
+                text: 'Failed to restart the Gateway.',
+                hide: false
+            });
+            this.loadingModal.close();
+        }.bind(this));
+
+        // trigger restart
+        jQuery.post('/ws/v1/config/restart');
     },
 
     updateFilters: _.debounce(function() {
