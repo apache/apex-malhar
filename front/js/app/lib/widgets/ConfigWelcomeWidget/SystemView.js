@@ -183,7 +183,7 @@ var SystemView = BaseView.extend({
         }.bind(this));
 
         ajax.fail(function (jqXHR) {
-            if (jqXHR.status === 500) { //TODO change to 404
+            if (jqXHR.status === 404) {
                 d.resolveWith(null, [null]);
             } else {
                 //TODO
@@ -244,96 +244,41 @@ var SystemView = BaseView.extend({
     },
 
     loadCustomAddress: function () {
-        if (true) {
-            this.customAddressModel = new Backbone.Model({
-                ip: '',
-                port: ''
-            });
-            var promise = this.loadProperty('dt.attr.GATEWAY_ADDRESS');
-
-            promise.then(function (data) {
-                if (data && data.value) {
-                    var value = data.value;
-                    var parts = value.split(':');
-                    this.customAddressModel.set('ip', parts[0]);
-                    this.customAddressModel.set('port', parts[1]);
-                }
-            }.bind(this));
-
-            return promise;
-        }
-
-        var d = $.Deferred();
-        this.customAddressModel = new Backbone.Model();
-
-        var model = new ConfigPropertyModel({
-            name: 'dt.attr.GATEWAY_ADDRESS'
+        this.customAddressModel = new Backbone.Model({
+            ip: '',
+            port: ''
         });
-        //TODO override fetchError: util.fetchError,
+        var promise = this.loadProperty('dt.attr.GATEWAY_ADDRESS');
 
-        var ajax = model.fetch();
-
-        ajax.then(function (data) {
-            var value = data.value;
-            var parts = value.split(':');
-            this.customAddressModel.set('ip', parts[0]);
-            this.customAddressModel.set('port', parts[1]);
-            d.resolve();
-        }.bind(this));
-
-        ajax.fail(function (jqXHR) {
-            if (jqXHR.status === 404) {
-                d.resolve();
-            } else {
-                //TODO
-                //console.log(jqXHR.responseText);
-                //var response = JSON.parse(jqXHR.responseText);
-                //this.errorMsg = response.message;
-                //this.errorMsg = 'Failed to load config property dt.attr.GATEWAY_ADDRESS';
-                this.error = true;
-                d.reject();
+        promise.then(function (data) {
+            if (data && data.value) {
+                var value = data.value;
+                var parts = value.split(':');
+                this.customAddressModel.set('ip', parts[0]);
+                this.customAddressModel.set('port', parts[1]);
             }
         }.bind(this));
 
-        return d.promise();
+        return promise;
     },
 
     loadDefaultAddress: function () {
-        if (true) {
-            this.defaultAddressModel = new Backbone.Model({
-                ip: '',
-                port: ''
-            });
-            var promise = this.loadProperty('dt.gateway.address');
-
-            promise.then(function (data) {
-                if (data && data.value) {
-                    var value = data.value;
-                    var parts = value.split(':');
-                    this.defaultAddressModel.set('ip', parts[0]);
-                    this.defaultAddressModel.set('port', parts[1]);
-                }
-            }.bind(this));
-
-            return promise;
-        }
-
-        this.defaultAddressModel = new Backbone.Model();
-
-        var model = new ConfigPropertyModel({
-            name: 'dt.gateway.address'
+        this.defaultAddressModel = new Backbone.Model({
+            ip: '',
+            port: ''
         });
+        var promise = this.loadProperty('dt.gateway.address');
 
-        var ajax = model.fetch();
-
-        ajax.then(function (data) {
-            var value = data.value;
-            var parts = value.split(':');
-            this.defaultAddressModel.set('ip', parts[0]);
-            this.defaultAddressModel.set('port', parts[1]);
+        promise.then(function (data) {
+            if (data && data.value) {
+                var value = data.value;
+                var parts = value.split(':');
+                this.defaultAddressModel.set('ip', parts[0]);
+                this.defaultAddressModel.set('port', parts[1]);
+            }
         }.bind(this));
 
-        return ajax;
+        return promise;
     },
 
     loadIPList: function () {
