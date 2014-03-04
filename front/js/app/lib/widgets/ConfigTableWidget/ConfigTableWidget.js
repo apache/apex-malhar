@@ -72,6 +72,8 @@ var ConfigTableWidget = BaseView.extend({
     events: {
         'dblclick .property-value': 'startPropertyEdit',
         'click .update-property': 'updateProperty',
+        'click .update-cancel': 'updateCancel',
+        'click .restart': 'restart',
         'change .config-properties-filter': 'updateFilters',
         'keyup .config-properties-filter': 'updateFilters'
     },
@@ -85,6 +87,10 @@ var ConfigTableWidget = BaseView.extend({
         _.defer(function() {
             $textarea.focus();
         });
+
+        var $btnCancel = $('<button role="button" class="btn update-cancel" style="margin-left: 10px;" data-property-name="' + name + '">cancel</button>');
+        $btnCancel.insertAfter($textarea);
+
         var $btn = $('<br><button role="button" class="btn update-property" data-property-name="' + name + '">update</button>');
         $btn.insertAfter($textarea);
     },
@@ -100,6 +106,20 @@ var ConfigTableWidget = BaseView.extend({
             property.save();
         }
         $td.html('<span class="property-value" data-property-name="' + propName + '">' + newVal + '</span>');
+    },
+
+    updateCancel: function(e) {
+        var $btn = $(e.target);
+        var propName = $btn.data('property-name');
+        var $td = $btn.parent('td');
+        var property = this.collection.get(propName);
+        if (property) {
+            $td.html('<span class="property-value" data-property-name="' + propName + '">' + property.get('value') + '</span>');
+        }
+    },
+
+    restart: function () {
+        console.log('TODO restart');
     },
 
     updateFilters: _.debounce(function() {
