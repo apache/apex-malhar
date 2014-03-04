@@ -55,6 +55,7 @@ var LicenseRegisterView = BaseView.extend({
         this.subview('register-name', new Bbind.text({
             model: this.licenseRequestModel,
             attr: 'name',
+            listenToModel: false,
             setAnyway: true,
             classElement: function($el) {
                 return $el.parent().parent();
@@ -65,6 +66,7 @@ var LicenseRegisterView = BaseView.extend({
         this.subview('register-company', new Bbind.text({
             model: this.licenseRequestModel,
             attr: 'company',
+            listenToModel: false,
             setAnyway: true,
             classElement: function($el) {
                 return $el.parent().parent();
@@ -85,6 +87,7 @@ var LicenseRegisterView = BaseView.extend({
         this.subview('register-email', new Bbind.text({
             model: this.licenseRequestModel,
             attr: 'email',
+            listenToModel: false,
             setAnyway: true,
             classElement: function($el) {
                 return $el.parent().parent();
@@ -95,6 +98,7 @@ var LicenseRegisterView = BaseView.extend({
         this.subview('register-phone', new Bbind.text({
             model: this.licenseRequestModel,
             attr: 'phone',
+            listenToModel: false,
             setAnyway: true,
             classElement: function($el) {
                 return $el.parent().parent();
