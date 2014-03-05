@@ -42,7 +42,7 @@ var SystemView = BaseView.extend({
         this.loading = true;
 
         var aboutPromise = this.loadAbout();
-        //var ipListPromise = this.loadIPList();
+        var ipListPromise = this.loadIPList();
         var defaultAddressPromise = this.loadDefaultAddress();
         var customAddressPromise = this.loadCustomAddress();
         var dfsPromise = this.loadDfsProperty();
@@ -50,8 +50,8 @@ var SystemView = BaseView.extend({
         this.addressModel = new GatewayAddressModel();
         this.dfsModel = new DfsModel();
 
-        //var all = $.when(aboutPromise, ipListPromise, customAddressPromise, defaultAddressPromise, dfsPromise);
-        var all = $.when(aboutPromise, customAddressPromise, defaultAddressPromise, dfsPromise);
+        var all = $.when(aboutPromise, ipListPromise, customAddressPromise, defaultAddressPromise, dfsPromise);
+        //var all = $.when(aboutPromise, customAddressPromise, defaultAddressPromise, dfsPromise);
         all.done(function () {
             var model;
             if (this.customAddressModel.get('ip') && this.customAddressModel.get('port')) {
@@ -114,11 +114,11 @@ var SystemView = BaseView.extend({
             errorClass: 'error'
         }));
 
-        /*
-        //TODO remove
+        this.ipSelectModel = new Backbone.Model({
+            ip: null
+        });
         this.subview('address-ip-select', new Bbind.select({
-            //model: this.addressModel,
-            model: new Backbone.Model(), //TODO
+            model: this.ipSelectModel,
             attr: 'ip',
             setAnyway: true,
             classElement: function($el) {
@@ -127,7 +127,19 @@ var SystemView = BaseView.extend({
             errorEl: '.help-block',
             errorClass: 'error'
         }));
-        */
+        this.listenTo(this.ipSelectModel, 'change', function () {
+            var input = this.$el.find('.address-ip-input');
+            var val = this.ipSelectModel.get('ip');
+            if (val.length === 0) {
+                input.val('');
+                input.css('display', 'block');
+                input.focus();
+            } else {
+                input.val(val);
+                input.blur();
+                input.css('display', 'none');
+            }
+        });
 
         this.subview('dfs-directory', new Bbind.text({
             model: this.dfsModel,
@@ -222,13 +234,6 @@ var SystemView = BaseView.extend({
             ]);
         });
 
-        return d.promise();
-    },
-
-    savePropertyTODO: function (name, value) {
-        var d = $.Deferred();
-        //d.resolve(); //TODO
-        d.rejectWith(null, [name]);
         return d.promise();
     },
 
@@ -345,9 +350,14 @@ var SystemView = BaseView.extend({
             this.assign(this.assignments);
         }
 
-        _.defer(function () {
-            this.$el.find('.address-ip-select').val(this.addressModel.get('ip'));
-        }.bind(this));
+        var selIP = this.addressModel.get('ip');
+        if (selIP && _.indexOf(this.ipAddresses, selIP) >= 0) {
+            _.defer(function () {
+                this.$el.find('.address-ip-select').val(selIP);
+            }.bind(this));
+        } else {
+            this.$el.find('.address-ip-input').show();
+        }
 
         return this;
         //dt.attr.GATEWAY_ADDRESS ip:9090
@@ -355,7 +365,7 @@ var SystemView = BaseView.extend({
     },
 
     assignments: {
-        //'.address-ip-select': 'address-ip-select',
+        '.address-ip-select': 'address-ip-select',
         '.address-ip-input': 'address-ip-input',
         '.address-port': 'address-port',
         '.dfs-directory': 'dfs-directory'

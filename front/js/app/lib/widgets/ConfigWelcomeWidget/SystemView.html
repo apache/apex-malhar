@@ -48,17 +48,20 @@
                 IP address and port that other nodes in the cluster should use to reach the gateway.
             </td>
             <td>
-
-                <select class="address-ip-select" style="display: none;">
-                    <option value="">&lt;Enter Manually&gt;</option>
-                    <% _.each(ipAddresses, function(ip) { %>
-                        <option value="<%= ip %>"><%= ip %></option>
-                    <% }) %>
-                </select>
                 <div class="control-group">
                     <label class="control-label">IP Address</label>
                     <div class="controls">
-                        <input type="text" class="address-ip-input" value="<%= addressModel.get('ip') %>" />
+                        <select class="address-ip-select">
+                            <option value="">&lt;Custom&gt;</option>
+                            <% _.each(ipAddresses, function(ip) { %>
+                                <option value="<%= ip %>"><%= ip %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <input style="display:none;" type="text" class="address-ip-input" value="<%= addressModel.get('ip') %>" />
                         <span class="help-block"></span>
                     </div>
                 </div>
