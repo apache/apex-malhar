@@ -10,7 +10,6 @@ import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ArrayBlockingQueue;
-import static java.lang.Thread.sleep;
 
 import javax.validation.constraints.NotNull;
 
@@ -22,14 +21,16 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Partitionable.PartitionAware;
 import com.datatorrent.api.Stats.OperatorStats;
 import com.datatorrent.api.Stats.OperatorStats.CustomStats;
-import com.datatorrent.common.util.Slice;
 
+import com.datatorrent.common.util.Slice;
 import com.datatorrent.flume.discovery.Discovery.Service;
 import com.datatorrent.flume.discovery.ZKAssistedDiscovery;
 import com.datatorrent.flume.sink.Server;
 import com.datatorrent.flume.sink.Server.Command;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 import com.datatorrent.netlet.DefaultEventLoop;
+
+import static java.lang.Thread.sleep;
 
 /**
  * <p>Abstract AbstractFlumeInputOperator class.</p>
@@ -202,6 +203,36 @@ public abstract class AbstractFlumeInputOperator<T>
     public String toString()
     {
       return "RecoveryAddress{" + "windowId=" + windowId + ", address=" + Arrays.toString(address) + '}';
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+      if (this == o) {
+        return true;
+      }
+      if (!(o instanceof RecoveryAddress)) {
+        return false;
+      }
+
+      RecoveryAddress that = (RecoveryAddress) o;
+
+      if (windowId != that.windowId) {
+        return false;
+      }
+      if (!Arrays.equals(address, that.address)) {
+        return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode()
+    {
+      int result = (int) (windowId ^ (windowId >>> 32));
+      result = 31 * result + (address != null ? Arrays.hashCode(address) : 0);
+      return result;
     }
 
     private static final long serialVersionUID = 201312021432L;
@@ -623,5 +654,36 @@ public abstract class AbstractFlumeInputOperator<T>
 
   };
   private static final transient ThreadLocal<Collection<Service<byte[]>>> discoveredFlumeSinks = new ThreadLocal<Collection<Service<byte[]>>>();
+
+  @Override
+  public boolean equals(Object o)
+  {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof AbstractFlumeInputOperator)) {
+      return false;
+    }
+
+    AbstractFlumeInputOperator that = (AbstractFlumeInputOperator) o;
+
+    if (!Arrays.equals(connectionSpecs, that.connectionSpecs)) {
+      return false;
+    }
+    if (recoveryAddresses != null ? !recoveryAddresses.equals(that.recoveryAddresses) : that.recoveryAddresses != null) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public int hashCode()
+  {
+    int result = connectionSpecs != null ? Arrays.hashCode(connectionSpecs) : 0;
+    result = 31 * result + (recoveryAddresses != null ? recoveryAddresses.hashCode() : 0);
+    return result;
+  }
+
   private static final Logger logger = LoggerFactory.getLogger(AbstractFlumeInputOperator.class);
 }
