@@ -1,7 +1,14 @@
 <span class="section-system">
 <h1>System</h1>
 
-<% if (error) {  %>
+<% if (hadoopError) {  %>
+
+<p class="alert alert-error">
+    Hadoop is not found. Please install Hadoop first and restart the Gateway.
+    Restart is available from <a href="#config">configuration page</a>.
+</p>
+
+<% } else if (error) {  %>
 
 <p class="alert alert-error">
     Error loading system properties.

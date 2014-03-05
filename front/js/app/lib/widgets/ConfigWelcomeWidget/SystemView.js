@@ -53,15 +53,21 @@ var SystemView = BaseView.extend({
         var all = $.when(aboutPromise, ipListPromise, customAddressPromise, defaultAddressPromise, dfsPromise);
         //var all = $.when(aboutPromise, customAddressPromise, defaultAddressPromise, dfsPromise);
         all.done(function () {
-            var model;
-            if (this.customAddressModel.get('ip') && this.customAddressModel.get('port')) {
-                model = this.customAddressModel;
-            } else {
-                model = this.defaultAddressModel;
-            }
-            this.addressModel.init(model);
+            var hadoopLocation = this.about.get('hadoopLocation');
 
-            this.dfsModel.init(this.dfsDirectory);
+            if (!hadoopLocation || (hadoopLocation.length === 0)) {
+                this.hadoopError = true;
+            } else {
+                var model;
+                if (this.customAddressModel.get('ip') && this.customAddressModel.get('port')) {
+                    model = this.customAddressModel;
+                } else {
+                    model = this.defaultAddressModel;
+                }
+                this.addressModel.init(model);
+
+                this.dfsModel.init(this.dfsDirectory);
+            }
 
             this.loading = false;
             this.render();
@@ -72,23 +78,6 @@ var SystemView = BaseView.extend({
             this.error = true;
             this.render();
         }.bind(this));
-
-        //this.ipAddresses = new ConfigIPAddressCollection();
-        //this.ipAddresses.fetch();
-        //this.listenTo(this.ipAddresses, 'sync', this.render);
-        var that = this;
-
-        //TODO remove
-        if (false)
-        this.listenTo(this.addressModel, 'change:ip', function () {
-            var input = this.$el.find('.address-ip-input');
-            if (this.addressModel.get('ip').length === 0) {
-                input.css('display', 'block');
-                input.focus();
-            } else {
-                input.css('display', 'none');
-            }
-        });
 
         this.subview('address-ip-input', new Bbind.text({
             model: this.addressModel,
@@ -335,6 +324,7 @@ var SystemView = BaseView.extend({
 
     render: function() {
         var html = this.template({
+            hadoopError: this.hadoopError,
             error: this.error,
             errorMsg: this.errorMsg,
             loading: this.loading,
