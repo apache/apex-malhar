@@ -19,7 +19,6 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.lib.io.fs.HdfsOutputOperator;
 import com.datatorrent.lib.io.fs.HdfsWordInputOperator;
 
 import org.apache.hadoop.conf.Configuration;
@@ -44,8 +43,8 @@ public abstract class HDFSBothInputOutputOperatorsBenchmark
       wordGenerator.setFilePath("hdfs:///user/hadoop/hdfsOperatorBenchmarking/2/transactions.out.part0");
       dag.getMeta(wordGenerator).getMeta(wordGenerator.output).getAttributes().put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
    
-      HdfsOutputOperator hdfsOutputOperator = dag.addOperator("hdfsOutputOperator", new HdfsOutputOperator());
-      hdfsOutputOperator.setFilePath("hdfsBothInputOutputOperatorBenchmarking" + "/%(contextId)/transactions.out.part%(partIndex)");
+      HdfsByteOutputOperator hdfsOutputOperator = dag.addOperator("hdfsOutputOperator", new HdfsByteOutputOperator());
+      hdfsOutputOperator.setFilePathPattern("hdfsBothInputOutputOperatorBenchmarking" + "/%(contextId)/transactions.out.part%(partIndex)");
       hdfsOutputOperator.setAppend(false);
       dag.getMeta(wordGenerator).getMeta(wordGenerator.output).getAttributes().put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
  
