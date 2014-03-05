@@ -20,17 +20,18 @@ import java.util.concurrent.TimeUnit;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.contrib.adsdimension.AdInfo.AdInfoAggregator;
-
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 /**
  * <p>Application class.</p>
  *
  * @since 0.3.2
  */
+@ApplicationAnnotation(name="AdsDimension")
 public class Application implements StreamingApplication
 {
   @Override

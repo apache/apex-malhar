@@ -23,6 +23,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Operator.InputPort;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.contrib.redis.RedisMapOutputOperator;
 import com.datatorrent.contrib.redis.RedisNumberSummationMapOutputOperator;
@@ -41,6 +42,7 @@ import com.datatorrent.lib.util.DimensionTimeBucketSumOperator;
  *
  * @since 0.3.2
  */
+@ApplicationAnnotation(name="SiteOps")
 public class ApacheAccessLogAnalaysis implements StreamingApplication
 {
   public static class TimeDimensionOperator extends DimensionTimeBucketSumOperator
