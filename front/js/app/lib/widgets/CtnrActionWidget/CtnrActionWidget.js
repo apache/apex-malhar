@@ -23,6 +23,13 @@ var _ = require('underscore');
 var kt = require('knights-templar');
 var BaseView = DT.widgets.Widget;
 var CtnrActionWidget = BaseView.extend({
+
+    className: 'visible-overflow',
+
+    initialize: function() {
+        BaseView.prototype.initialize.apply(this, arguments);
+        this.listenTo(this.model, 'change:containerLogsUrl', this.renderContent);
+    },
     
     events: {
         'click .killCtnr': 'killCtnr'

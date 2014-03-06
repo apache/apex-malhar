@@ -8,12 +8,18 @@ var config = require('../config');
 // Create deferred for mongo connection
 var mongoCxn = Deferred();
 
-// Connect to the mongo database
-var db = new Db('frauddetect', new Server(config.fraud.mongo.host, config.fraud.mongo.port));
-db.open(function(err, mongoclient){
-    console.log('Mongo Database connection opened');
-    mongoCxn.resolve();
-});
+var demoEnabled = (config.fraud.mongo.host && config.fraud.mongo.port);
+
+if (demoEnabled) {
+    // Connect to the mongo database
+    var db = new Db(config.fraud.mongo.dbName, new Server(config.fraud.mongo.host, config.fraud.mongo.port));
+    db.open(function(err, mongoclient){
+        console.log('Mongo Database connection opened');
+        mongoCxn.resolve();
+    });
+} else {
+    mongoCxn.reject();
+}
 
 /**
  * Returns a map with keys of the collection names

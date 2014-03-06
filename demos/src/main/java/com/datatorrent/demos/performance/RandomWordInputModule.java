@@ -24,7 +24,7 @@ import javax.validation.constraints.Min;
  * <p>
  * RandomWordInputModule class.
  * </p>
- *
+ * 
  * @since 0.3.2
  */
 public class RandomWordInputModule implements InputOperator
@@ -40,10 +40,10 @@ public class RandomWordInputModule implements InputOperator
   private int tupleSize = 64;
 
   /**
-   * Sets the size of the tuple to the specified size. 
-   * The change to tuple size takes effect in next window.
+   * Sets the size of the tuple to the specified size. The change to tuple size takes effect in next window.
    * 
-   * @param size the tupleSize to set
+   * @param size
+   *          the tupleSize to set
    */
   public void setTupleSize(int size)
   {
@@ -62,10 +62,11 @@ public class RandomWordInputModule implements InputOperator
   }
 
   /**
-   * Sets the property that decides if the operator emits same tuple or 
-   * creates new tuple for every emit. The change takes effect in next window.
+   * Sets the property that decides if the operator emits same tuple or creates new tuple for every emit. The change
+   * takes effect in next window.
    * 
-   * @param isSameTuple the boolean value to set for 'emitSameTuple' property
+   * @param isSameTuple
+   *          the boolean value to set for 'emitSameTuple' property
    */
   public void setEmitSameTuple(boolean isSameTuple)
   {
@@ -83,23 +84,36 @@ public class RandomWordInputModule implements InputOperator
     return emitSameTuple;
   }
 
+  
+  /**
+   * Emits byte array of specified size. 
+   * Emits either the same byte array or creates new byte array every time
+   * depending on the value of emitSameTuple property.
+   * Local copies of tupleSize and emitSameTuple are made to improve the 
+   * performance.
+   * 
+   */
   @Override
   public void emitTuples()
   {
+    final int TUPLE_SIZE_COPY = tupleSize;
+    final boolean EMIT_SAME_TUPLE_COPY = emitSameTuple;
     if (firstTime) {
-      for (int i = count--; i-- > 0;) {
-        if (emitSameTuple) {
+      if (EMIT_SAME_TUPLE_COPY) {
+        for (int i = count--; i-- > 0;) {
           output.emit(sameTupleArray);
-        } else {
-          output.emit(new byte[tupleSize]);
+        }
+      } else {
+        for (int i = count--; i-- > 0;) {
+          output.emit(new byte[TUPLE_SIZE_COPY]);
         }
       }
       firstTime = false;
     } else {
-      if (emitSameTuple) {
+      if (EMIT_SAME_TUPLE_COPY) {
         output.emit(sameTupleArray);
       } else {
-        output.emit(new byte[tupleSize]);
+        output.emit(new byte[TUPLE_SIZE_COPY]);
       }
       count++;
     }

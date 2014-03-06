@@ -81,6 +81,7 @@ class NumberSummation<K, V>
         }
       }
     }
+    dataMap.clear();
   }
 
   @SuppressWarnings("unchecked")

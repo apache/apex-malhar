@@ -26,14 +26,12 @@ import com.datatorrent.lib.db.KeyValueStoreOperatorTest;
  */
 public class MemcacheWhalinOperatorTest
 {
-  MemcacheStore store;
   KeyValueStoreOperatorTest<MemcacheStore> testFramework;
 
   @Before
   public void setup()
   {
-    store = new MemcacheStore();
-    testFramework = new KeyValueStoreOperatorTest<MemcacheStore>(store);
+    testFramework = new KeyValueStoreOperatorTest<MemcacheStore>(new MemcacheStore(), new MemcacheStore());
   }
 
   @Test

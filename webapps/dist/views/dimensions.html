@@ -1,0 +1,165 @@
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span12">
+            <h2 class="app-title">
+                Ads Dimensions
+                <a ng-show="appURL" href="{{appURL}}" class="btn btn-primary btn-view-console" target="_blank">View Console</a>
+            </h2>
+        </div>
+    </div>
+    <div class="row-fluid">
+        <p class="well span7">
+            This demo application monitors the online ads dimensions in real time. The views and clicks of ads are being counted in real time. Three dimensions are being tracked, namely publisher, advertiser, and ad unit. In real time all the dimensions are computed for views (cost) and clicks (revenue). This enables a participant in an real time ad exchange to run applications to optimize the performance of their bids.
+        </p>
+        <div class="span5">
+            <span widgets-stat="" app="app"></span>
+        </div><!--/span-->
+    </div>
+
+    <div class="row-fluid">
+        <div class="span2">
+            <div class="well sidebar-nav">
+                <ul class="nav nav-list params-nav">
+                    <li class="nav-header">Dimensions</li>
+                    <form method="GET">
+                        <li>
+                            <label for="publisher">Publisher ID:</label>
+                            <select ng-model="publisher" id="publisher" ng-options="item.label for item in select.publisher">
+                            </select>
+                        </li>
+
+                        <li>
+                            <label for="advertiser">Advertiser ID:</label>
+                            <select ng-model="advertiser" id="advertiser" ng-options="item.label for item in select.advertiser">
+                            </select>
+                        </li>
+
+                        <li>
+                            <label for="adunit">Ad Unit:</label>
+                            <select ng-model="adunit" id="adunit" ng-options="item.label for item in select.adunit">
+                            </select>
+                        </li>
+
+                        <li>
+                            <label for="pollInterval">Poll Interval:</label>
+                            <div class="input-append">
+                                <input type="number" ng-model="pollInterval" min="1" id="pollInterval" class="input-small">
+                                <span class="add-on">Sec</span>
+                            </div>
+                        </li>
+
+                        <li>
+                            <label for="lookback">Look Back:</label>
+                            <div class="input-append">
+                                <input type="number" ng-model="lookback" min="2" id="lookback" class="input-small">
+                                <span class="add-on">Minutes</span>
+                            </div>
+                        </li>
+
+                        <li>
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" ng-model="includeLastMinute"> Include Last Minute
+                                </label>
+                            </div>
+                        </li>
+                    </form>
+                </ul>
+            </div><!--/.well -->
+        </div><!--/span-->
+        <div class="span10">
+            <div class="row-fluid">
+                <div class="span12 network-response">
+                    <span ng-show="lastResponse">
+                        <span class="network-response-label">Network Last Response:</span>
+                        <span class="network-response-stat">{{lastResponse|date:'HH:mm:ss'}}</span>
+                    </span>
+                    <span ng-show="responseTime">
+                        <span class="network-response-label">Network Response Time:</span>
+                        <span class="network-response-stat">{{responseTime|number}} ms</span>
+                    </span>
+                    <span class="network-response-label network-response-loading" ng-show="requestProgress > 1">
+                        Loading: {{requestProgress|number}} sec
+                    </span>
+
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="span6">
+                    <h4 class="chart-title">Cost Chart</h4>
+                    <line-chart chart="costChart" class="line-chart"></line-chart>
+                </div><!--/span-->
+                <div class="span6">
+                    <h4 class="chart-title">Revenue Chart</h4>
+                    <line-chart chart="revenueChart" class="line-chart"></line-chart>
+                </div><!--/span-->
+            </div><!--/row-->
+            <div class="row-fluid">
+                <div class="span6">
+                    <h4 class="chart-title">Impressions Chart</h4>
+                    <line-chart chart="impressionsChart" class="line-chart"></line-chart>
+                </div><!--/span-->
+                <div class="span6">
+                    <h4 class="chart-title">Clicks Chart</h4>
+                    <line-chart chart="clicksChart" class="line-chart"></line-chart>
+                </div><!--/span-->
+            </div><!--/row-->
+            <div class="row-fluid">
+                <div class="span6">
+                    <h4 class="chart-title">Ctr Chart</h4>
+                    <line-chart chart="ctrChart" class="line-chart"></line-chart>
+                </div><!--/span-->
+                <div class="span6">
+                    <h4 class="chart-title">Margin Chart</h4>
+                    <line-chart chart="marginChart" class="line-chart"></line-chart>
+                </div><!--/span-->
+            </div><!--/row-->
+            <div class="row-fluid">
+                <div class="span6">
+                    <h4 class="chart-title">Server Polling Statistics</h4>
+                    <div>
+                        <span class="network-response-label">Network Last Response:</span>
+                        <span class="network-response-stat">{{lastResponse|date:'HH:mm:ss'}}</span>
+                        <span class="network-response-label network-response-loading" ng-show="requestProgress > 1">
+                            Loading: {{requestProgress|number}} sec
+                        </span>
+                    </div>
+                    <div>
+                        <span class="network-response-label">Network Response Time:</span>
+                        <span>{{responseTime|number}} ms</span>
+                    </div>
+                    <div>
+                        <span class="network-response-label">Minutes cached:</span>
+                        <span>{{minutesCached}}</span>
+                    </div>
+                    <div>
+                        <span class="network-response-label">Minutes received:</span>
+                        <span>{{minutesReceived}}</span>
+                    </div>
+                    <div>
+                        <span class="network-response-label">Keys Queried:</span>
+                        <span>{{response.keysQueried}}</span>
+                    </div>
+                    <div>
+                        <span class="network-response-label">Last Key Queried:</span>
+                        <span>{{response.lastKeyQueried}}</span>
+                    </div>
+                    <div>
+                        <span class="network-response-label">Last Key with Data:</span>
+                        <span>{{response.lastKey}}</span>
+                    </div>
+                    <div>
+                        <span class="network-response-label">Redis Query Time:</span>
+                        <span>{{response.queryTime|number}} ms</span>
+                    </div>
+                </div><!--/span-->
+            </div><!--/row-->
+        </div><!--/span-->
+    </div><!--/row-->
+
+    <hr>
+
+    <footer>
+        <p>&copy; DataTorrent 2013</p>
+    </footer>
+</div><!--/.fluid-container-->

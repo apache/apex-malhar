@@ -1,0 +1,168 @@
+.install-steps-nav {
+    ol {
+        border-radius: 10px 0 0 10px;
+        border: 1px solid rgba(0,0,0,0.2);
+        overflow: hidden;
+
+        li {
+            
+            border-bottom: 1px solid rgba(0,0,0,0.2);
+            &:last-child {
+                border-bottom: none;
+            }
+
+            a {
+                display: block;
+                padding: 10px 10px 10px 0; 
+                text-align: right;
+                font-size: 15px;
+                position: relative;
+                &.active {
+                    color: #FFF;
+                    background: #11506D url('../../../../../img/welcome_hero.jpg');
+                    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.6);
+                    text-shadow: 0 1px 0 #000;                    
+                }
+
+                &:hover {
+                    text-decoration: none;
+                }
+
+                i.install-issue {
+                    position: absolute;
+                    left: 10px;
+                }
+            }
+
+        }
+    }
+}
+.install-steps-pane {
+    border: 1px solid rgba(0,0,0,0.2);
+    min-height: 250px;
+    margin-left: -1px;
+    margin-right: -1px;
+    margin-bottom: 10px;
+    border-radius: 0 10px 10px;
+    .action-link {
+        color: blue;
+    }
+    .loading {
+      display: none;
+    }
+    .inner {
+        overflow: auto;
+        padding: 15px;
+        h1 {
+            background: #11506D url('../../../../../img/welcome_hero.jpg');
+            margin-top:0;
+            color: #FFF;
+            padding: 5px 10px 8px;
+            border-radius: 5px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.4);
+            text-shadow: 0 2px 3px black;
+        }
+
+        table {
+            width:100%;
+            border: 1px solid #CCC;
+            margin-bottom:15px;
+            thead {
+                tr {
+                    background-color: #474747 !important;
+                    color: white;
+
+                    th {
+                        text-align: left;
+                        padding: 10px 5px;
+                    }
+                }
+            }
+            tr {
+                &.install-issue {
+                    background-color: #FDD !important;
+                }
+
+                &:nth-child(odd) {
+                    background-color: #DEDEDE;
+                }
+
+                td {
+                    padding: 10px;
+                }
+
+                input, select {
+                    margin-bottom: 0;
+                }
+            }
+        }
+
+        .welcome-banner {
+            background: #11506D url('../../../../../img/welcome_hero.jpg');
+            color: white; text-shadow: 0 2px 3px black;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.4);
+            padding: 15px 5%;
+            h1 {
+                color: white !important;
+                font-size: 50px;
+                letter-spacing: 1px;
+                background: transparent;
+                box-shadow: none;
+                padding: none;
+                text-shadow: 0 2px 3px black;
+            }
+            p {
+                font-size: 15px;
+                letter-spacing: 1px;
+            }
+        }
+
+        .section-license {
+            .container-fluid {
+                padding: 0;
+            }
+            .control-label1 {
+                 width: 80px;
+            }
+            .controls1 {
+                 margin-left: 100px;
+            }
+        }
+
+        .section-system {
+            .controls input {
+                margin-bottom: 5px;
+            }
+            .address-ip-select {
+                width: 100%;
+            }
+        }
+
+        .license-terms-link {
+            float:right;
+            margin-right: 10px;
+            vertical-align: middle;
+            display: inline-block;
+            height: 42px;
+            line-height: 42px;
+        }
+    }
+
+}
+
+
+i.install-issue {
+   display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid #FFF;
+    background-color: #C00;
+    box-shadow: inset 0 -1px 3px rgba(100, 0, 0, 0.3), 0 0 2px rgba(0, 0, 0, 0.5);
+    font-size: 12px;
+    line-height: 14px;
+    text-align: center;
+    color: #FFF;
+    font-style: normal;
+    font-weight: bolder;
+}

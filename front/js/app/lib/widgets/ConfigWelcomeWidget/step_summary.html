@@ -1,0 +1,53 @@
+<h1>Summary</h1>
+
+<p class="well">
+    The following is a summary of the changes you have made during this installation setup. Please review them and then you may submit the changes to the gateway so that they can take effect.
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th scope="col">property</th>
+            <th scope="col">old value</th>
+            <th scope="col">new value</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>gateway ip address</td>
+            <td><input type="text" value="0.0.0.0"/></td>
+            <td><input type="text" value="127.0.0.1"/></td>
+        </tr>
+        <tr>
+            <td>gateway ip app address</td>
+            <td>
+                <select name="gateway-app-ip">
+                    <option value="192.168.0.1">192.168.0.1</option>
+                    <option value="192.168.0.2">192.168.0.2</option>
+                    <option value="192.168.0.3">192.168.0.3</option>
+                    <option value="192.168.0.4">192.168.0.4</option>
+                </select>
+            </td>
+            <td>
+                <select name="gateway-app-ip">
+                    <option value="192.168.0.1">192.168.0.1</option>
+                    <option value="192.168.0.2">192.168.0.2</option>
+                    <option selected="selected" value="192.168.0.3">192.168.0.3</option>
+                    <option value="192.168.0.4">192.168.0.4</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>HDFS directory</td>
+            <td><input type="text" value="/users/datatorrent"/></td>
+            <td><input type="text" value="/users/vendor/datatorrent"/></td>
+        </tr>
+    </tbody>
+</table>
+
+<a href="#" class="install-step-link btn pull-left btn-large" data-action="applications">
+    <i class="icon-circle-arrow-left"></i> back
+</a>
+<a href="#" class="btn btn-success pull-right btn-large">
+    continue <i class="icon-circle-arrow-right icon-white"></i>
+</a>

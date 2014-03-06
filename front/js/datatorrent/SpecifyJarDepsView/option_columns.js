@@ -20,6 +20,6 @@ exports = module.exports = [
     { id: "selector", key: "selected", label: "", select: true, width: 40, lock_width: true },
     { id: "name", key: "name", label: text('filename_label'), filter: "like", sort_value: "a", sort: "string" },
     { id: "modificationTime", label: "mod date", key: "modificationTime", sort: "number", filter: "date", format: "timeStamp" },
-    { id: "size", label: "size", key: "size", sort: "number", filter: "number", format: formatters.byteFormatter, width: 80 },
+    { id: "size", label: "size", key: "size", sort: "number", filter: "number", format: function(size, jar) { return formatters.byteFormatter(size) }, width: 80 },
     { id: "owner", label: "owner", key: "owner", sort: "string", filter: "like", width: 60 }
 ];

@@ -5,6 +5,9 @@
         <button class="btn" disabled><%= DT.text('select an item') %></button>
     <% } else if (selected.length === 1) {%>
         <button class="inspectItem btn btn-primary"><i class="icon-eye-open icon-white"></i> <%= DT.text('inspect') %></button>
+        <% if (selected[0].containerLogsUrl) {
+            print(DT.templates.ctnr_log_btngrp({ containerLogsUrl:selected[0].containerLogsUrl }));
+        } %>
         <button class="killCtnrs btn btn-danger"><i class="icon-ban-circle icon-white"></i> <%= DT.text('kill') %></button>
     <% } else { %>
         <button class="killCtnrs btn btn-danger"><i class="icon-ban-circle icon-white"></i> <%= DT.text('kill all') %></button>

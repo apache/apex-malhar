@@ -19,75 +19,46 @@
 'use strict';
 
 angular.module('widgets', ['socket']);
+
 angular.module('twitter', ['rest', 'socket', 'widgets', 'ngGrid']);
-
-angular.module('twitter')
-    .config(function ($routeProvider) {
-        $routeProvider
-            .when('/', {
-                templateUrl: 'views/twitter.html',
-                controller: 'TwitterController'
-            })
-            .otherwise({
-                redirectTo: '/'
-            });
-    });
-
 angular.module('mobile', ['rest', 'widgets', 'ngGrid', 'google-maps']);
-
-angular.module('mobile')
-    .config(function ($routeProvider) {
-        $routeProvider
-            .when('/', {
-                templateUrl: 'views/mobile.html',
-                controller: 'MobileController'
-            })
-            .otherwise({
-                redirectTo: '/'
-            });
-    });
-
 angular.module('machine', ['ng', 'rest', 'widgets']);
-
-angular.module('machine')
-    .config(function ($routeProvider) {
-        $routeProvider
-            .when('/', {
-                templateUrl: 'views/machine.html',
-                controller: 'MachineController'
-            })
-            .otherwise({
-                redirectTo: '/'
-            });
-    });
-
 angular.module('dimensions', ['ng', 'rest', 'widgets']);
+angular.module('fraud', ['rest', 'widgets']);
 
-angular.module('dimensions')
-    .config(function ($routeProvider) {
-      $routeProvider
-        .when('/', {
-          templateUrl: 'views/dimensions.html',
-          controller: 'DimensionsController'
-        })
-        .otherwise({
-          redirectTo: '/'
-        });
-    });
+angular.module('app', ['socket', 'twitter', 'mobile', 'machine', 'dimensions', 'fraud']);
 
-angular.module('fraud', ['rest', 'widgets', 'socket']);
+angular.module('app')
+  .config(function ($routeProvider, socketProvider) {
+    if (window.settings) {
+      socketProvider.setWebSocketURL(settings.webSocketURL);
+    }
 
-angular.module('fraud')
-    .config(function($routeProvider) {
-        $routeProvider
-            .when('/', {
-                templateUrl: 'views/fraud.html',
-                controller: 'FraudController'
-            })
-            .otherwise({
-                redirectTo: '/'
-            });
-    });
+    $routeProvider
+      .when('/', {
+        templateUrl: 'views/welcome.html'
+      })
+      .when('/twitter', {
+        templateUrl: 'views/twitter.html',
+        controller: 'TwitterController'
+      })
+      .when('/mobile', {
+        templateUrl: 'views/mobile.html',
+        controller: 'MobileController'
+      })
+      .when('/machine', {
+        templateUrl: 'views/machine.html',
+        controller: 'MachineController'
+      })
+      .when('/dimensions', {
+        templateUrl: 'views/dimensions.html',
+        controller: 'DimensionsController'
+      })
+      .when('/fraud', {
+        templateUrl: 'views/fraud.html',
+        controller: 'FraudController'
+      })
+  });
 
 })();
 

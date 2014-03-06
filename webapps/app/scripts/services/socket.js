@@ -16,113 +16,168 @@
 
 /*global settings, console, angular, jQuery, _*/
 (function () {
-'use strict';
+  'use strict';
 
-angular.module('socket', []).factory('socket', function() {
-    var ws = new WebSocket(settings.webSocketUrl);
+  angular.module('socket', [])
+    .factory('visibly', function ($window) {
+      return $window.visibly;
+    })
+    .provider('socket', function () {
 
-    //TODO use AngularJS promise instead
-    var dfd = new jQuery.Deferred();
-    var topicMap = {}; // topic -> [callbacks] mapping
-    var bufferCallbacks = jQuery.Callbacks();
+      var webSocketURL;
+      var webSocketObject; // for testing only
 
-    ws.onopen = function () {
-        dfd.resolve();
-    };
+      return {
+        $get: function ($q, $rootScope, $timeout, visibly) {
+          if (!webSocketURL && !webSocketObject) {
+            throw 'WebSocket URL is not defined';
+          }
 
-    ws.onerror = function (error) {
-        //TODO error handling
-    };
+          var socket = !webSocketObject ? new WebSocket(webSocketURL) : webSocketObject;
 
-    var useBuffer = false; //TODO
-    var delay = 1000;
-    var buffer = {};
+          var deferred = $q.defer();
 
-    function notifySubscribers() {
-        bufferCallbacks.fire(buffer, delay);
+          socket.onopen = function () {
+            deferred.resolve();
+            $rootScope.$apply();
 
-        // notify
-        jQuery.each(buffer, function(topic, messages) {
-            var callbacks = topicMap[topic];
-            var lastMessage = messages[messages.length - 1];
-            callbacks.fire(lastMessage, messages);
-        });
-        buffer = {} ; // clear buffer
+            jQuery.pnotify({
+              title: 'WebSocket',
+              text: 'WebSocket connection established.',
+              type: 'success',
+              delay: 2000,
+              icon: false,
+              history: false
+            });
+          };
 
-        _.delay(notifySubscribers, delay);
-    }
+          var webSocketError = false;
 
-    notifySubscribers();
-
-    ws.onmessage = function (e) {
-        var data = JSON.parse(e.data);
-        //console.log(data);
-        var topic = data.topic;
-
-        if (useBuffer) { // use buffer
-            var messages = buffer[topic];
-            if (_.isUndefined(messages)) {
-                messages = [];
-                buffer[topic] = messages;
+          socket.onclose = function () {
+            if (!webSocketError) {
+              jQuery.pnotify({
+                title: 'WebSocket Closed',
+                text: 'WebSocket connection has been closed. Try refreshing the page.',
+                type: 'error',
+                icon: false,
+                hide: false,
+                history: false
+              });
             }
-            messages.push(data);
-        } else { // do not use buffer
+          };
+
+          //TODO
+          socket.onerror = function () {
+            webSocketError = true;
+            jQuery.pnotify({
+              title: 'WebSocket Error',
+              text: 'WebSocket error. Try refreshing the page.',
+              type: 'error',
+              icon: false,
+              hide: false,
+              history: false
+            });
+          };
+
+          var topicMap = {}; // topic -> [callbacks] mapping
+
+          var stopUpdates = false;
+
+          socket.onmessage = function (event) {
+            if (stopUpdates) { // stop updates if page is inactive
+              return;
+            }
+
+            var message = JSON.parse(event.data);
+
+            var topic = message.topic;
+
             if (topicMap.hasOwnProperty(topic)) {
-                topicMap[topic].fire(data);
+              topicMap[topic].fire(message);
             }
-        }
-    };
+          };
 
-    return {
-        // for testing only
-        message: function(topic, data) {
-            var callbacks = topicMap[topic];
-            callbacks.fire({ data: data });
-        },
+          var timeoutPromise;
 
-        send: function(message) {
-            var msg = JSON.stringify(message);
-            console.log('send ' + msg);
+          visibly.onHidden(function () {
+            timeoutPromise = $timeout(function () {
+              stopUpdates = true;
+              timeoutPromise = null;
+            }, 60000);
+          });
 
-            if (dfd.state() === 'resolved') {
-                ws.send(msg);
-            } else {
-                dfd.done(function() {
-                    ws.send(msg);
-                });
+          visibly.onVisible(function () {
+            if (stopUpdates && !webSocketError) {
+              jQuery.pnotify({
+                title: 'Warning',
+                text: 'Page has not been visible for more than 60 seconds. WebSocket real-time updates have been suspended to conserve system resources. ' +
+                  'Refreshing the page is recommended.',
+                type: 'warning',
+                icon: false,
+                hide: false,
+                history: false
+              });
             }
-        },
 
-        onbuffer: function(callback) {
-            bufferCallbacks.add(callback);
-        },
+            stopUpdates = false;
 
-        subscribe: function (topic, callback) {
-            var callbacks = topicMap[topic];
-            if (!callbacks) {
-                var message = { "type":"subscribe", "topic": topic };
-                this.send(message); // subscribe message
+            if (timeoutPromise) {
+              $timeout.cancel(timeoutPromise);
+            }
+          });
+
+          return {
+            send: function (message) {
+              var msg = JSON.stringify(message);
+
+              deferred.promise.then(function () {
+                console.log('send ' + msg);
+                socket.send(msg);
+              });
+            },
+
+            publish: function(topic, data) {
+              var message = { "type": "publish", "topic": topic, "data": data };
+              this.send(message);
+            },
+
+            subscribe: function (topic, callback, $scope) {
+              var callbacks = topicMap[topic];
+
+              if (!callbacks) {
+                var message = { type: 'subscribe', topic: topic }; // subscribe message
+                this.send(message);
 
                 callbacks = jQuery.Callbacks();
                 topicMap[topic] = callbacks;
+              }
+
+              callbacks.add(callback);
+
+              if ($scope) {
+                $scope.$on('$destroy', function () {
+                  this.unsubscribe(topic, callback);
+                }.bind(this));
+              }
+            },
+
+            unsubscribe: function (topic, callback) {
+              if (topicMap.hasOwnProperty(topic)) {
+                var callbacks = topicMap[topic];
+                callbacks.remove(callback); //TODO remove topic from topicMap if callbacks is empty
+              }
             }
-            callbacks.add(callback);
-        },
-        
-        publish: function(topic, data) {
-            var message = { "type": "publish", "topic": topic, "data": data };
-            this.send(message);
+          };
         },
 
-        on: function(topic, callback) {
-            var callbacks = topicMap[topic];
-            if (!callbacks) {
-                callbacks = jQuery.Callbacks();
-                topicMap[topic] = callbacks;
-            }
-            callbacks.add(callback);
+        setWebSocketURL: function (wsURL) {
+          webSocketURL = wsURL;
+        },
+
+        setWebSocketObject: function (wsObject) {
+          webSocketObject = wsObject;
         }
-    };
-});
+      };
+    });
 
 })();

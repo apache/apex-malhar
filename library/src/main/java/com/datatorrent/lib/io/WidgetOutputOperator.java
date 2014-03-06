@@ -52,59 +52,59 @@ import com.google.common.collect.Maps;
  */
 @ShipContainingJars(classes = {com.ning.http.client.websocket.WebSocket.class})
 public class WidgetOutputOperator extends BaseOperator
-{ 
+{
 
-  private transient WebSocketOutputOperator<Pair<String, Object>> wsoo = new WebSocketOutputOperator<Pair<String,Object>>(){
-    
+  protected transient WebSocketOutputOperator<Pair<String, Object>> wsoo = new WebSocketOutputOperator<Pair<String,Object>>(){
+
     private transient PubSubMessageCodec<Object> codec = new PubSubMessageCodec<Object>(mapper);
-    
+
     public String convertMapToMessage(Pair<String,Object> t) throws IOException {
       return PubSubWebSocketClient.constructPublishMessage(t.getLeft(), t.getRight(), codec);
     };
-    
+
   };
-  
-  private transient ConsoleOutputOperator coo = new ConsoleOutputOperator();
-  
+
+  protected transient ConsoleOutputOperator coo = new ConsoleOutputOperator();
+
   private String timeSeriesTopic = "widget.timeseries";
-  
+
   private String simpleTopic = "widget.simple";
-  
+
   private String percentageTopic = "widget.percentage";
-  
-  private String topNTopic = "widget.topn";
-  
+
+  protected String topNTopic = "widget.topn";
+
   private String pieChartTopic = "widget,piechart";
-  
+
   private Number timeSeriesMax = 100;
-  
+
   private Number timeSeriesMin = 0;
-  
-  private int nInTopN = 10;
-  
+
+  protected int nInTopN = 10;
+
   private int nInPie = 5;
-  
+
   private transient String appId = null;
-  
+
   private transient int operId = 0;
-  
+
   @InputPortFieldAnnotation(name="simple input", optional=true)
   public final transient SimpleInputPort simpleInput = new SimpleInputPort(this);
-  
+
   @InputPortFieldAnnotation(name="time series input", optional=true)
   public final transient TimeseriesInputPort timeSeriesInput = new TimeseriesInputPort(this);
 
   @InputPortFieldAnnotation(name="percentage input", optional=true)
   public final transient PercentageInputPort percentageInput = new PercentageInputPort(this);
-  
+
   @InputPortFieldAnnotation(name="topN input", optional=true)
   public final transient TopNInputPort topNInput = new TopNInputPort(this);
-  
+
   @InputPortFieldAnnotation(name="pieChart input", optional=true)
   public final transient PiechartInputPort pieChartInput = new PiechartInputPort(this);
-  
-  private transient boolean isWebSocketConnected = true;
-  
+
+  protected transient boolean isWebSocketConnected = true;
+
   @Override
   public void setup(OperatorContext context)
   {
@@ -118,26 +118,26 @@ public class WidgetOutputOperator extends BaseOperator
     }
     appId = context.getValue(DAG.APPLICATION_ID);
     operId = context.getId();
-    
+
   }
-  
+
   public static class TimeSeriesData{
-    
+
     public Long time;
-    
+
     public Number data;
-    
+
   }
-  
+
   public static class TimeseriesInputPort extends DefaultInputPort<TimeSeriesData[]> {
 
     private WidgetOutputOperator operator;
-    
+
     public TimeseriesInputPort(WidgetOutputOperator woo)
     {
       operator = woo;
     }
-    
+
     @Override
     public void process(TimeSeriesData[] tuple)
     {
@@ -161,29 +161,29 @@ public class WidgetOutputOperator extends BaseOperator
         operator.coo.input.process(tuple);
       }
     }
-    
+
     public TimeseriesInputPort setMax(Number max){
       operator.timeSeriesMax = max;
       return this;
     }
-    
-    
+
+
     public TimeseriesInputPort setMin(Number min){
       operator.timeSeriesMin = min;
       return this;
     }
-    
+
     public TimeseriesInputPort setTopic(String topic){
       operator.timeSeriesTopic = topic;
       return this;
     }
-    
+
   }
-  
+
   public static class TopNInputPort extends DefaultInputPort<HashMap<String, Number>>{
-    
+
     private WidgetOutputOperator operator;
-    
+
     public TopNInputPort(WidgetOutputOperator oper)
     {
       operator = oper;
@@ -209,24 +209,24 @@ public class WidgetOutputOperator extends BaseOperator
         operator.coo.input.process(topNMap);
       }
     }
-    
+
     public TopNInputPort setN(int n){
       operator.nInTopN = n;
       return this;
     }
-    
+
     public TopNInputPort setTopic(String topic)
     {
       operator.topNTopic = topic;
       return this;
     }
-    
+
   }
-  
+
   public static class SimpleInputPort extends DefaultInputPort<Object>{
-    
+
     private WidgetOutputOperator operator;
-    
+
     public SimpleInputPort(WidgetOutputOperator oper)
     {
       operator = oper;
@@ -235,7 +235,7 @@ public class WidgetOutputOperator extends BaseOperator
     @Override
     public void process(Object tuple)
     {
-      
+
       if (operator.isWebSocketConnected) {
         HashMap<String, Object> schemaObj = new HashMap<String, Object>();
         schemaObj.put("type", "simple");
@@ -244,13 +244,13 @@ public class WidgetOutputOperator extends BaseOperator
         operator.coo.input.process(tuple);
       }
     }
-    
+
     public SimpleInputPort setTopic(String topic) {
       operator.simpleTopic = topic;
       return this;
     }
   }
-  
+
   public static class PercentageInputPort extends DefaultInputPort<Integer>
   {
     private WidgetOutputOperator operator;
@@ -278,11 +278,11 @@ public class WidgetOutputOperator extends BaseOperator
       return this;
     }
   }
-  
+
 public static class PiechartInputPort extends DefaultInputPort<HashMap<String, Number>>{
-    
+
     private WidgetOutputOperator operator;
-    
+
     public PiechartInputPort(WidgetOutputOperator oper)
     {
       operator = oper;
@@ -291,7 +291,7 @@ public static class PiechartInputPort extends DefaultInputPort<HashMap<String, N
     @Override
     public void process(HashMap<String, Number> pieNumbers)
     {
-      
+
       @SuppressWarnings("unchecked")
       HashMap<String, Object>[] result = new HashMap[pieNumbers.size()];
       int j = 0;
@@ -309,21 +309,21 @@ public static class PiechartInputPort extends DefaultInputPort<HashMap<String, N
         operator.coo.input.process(pieNumbers);
       }
     }
-    
+
     public PiechartInputPort setN(int n){
       operator.nInPie = n;
       return this;
     }
-    
+
     public PiechartInputPort setTopic(String topic)
     {
       operator.pieChartTopic = topic;
       return this;
     }
-    
+
   }
-  
-  private String getFullTopic(String topic, Map<String, Object> schema){
+
+  protected String getFullTopic(String topic, Map<String, Object> schema){
     HashMap<String, Object> topicObj = new HashMap<String, Object>();
     topicObj.put("appId", appId);
     topicObj.put("opId", operId);
@@ -333,9 +333,9 @@ public static class PiechartInputPort extends DefaultInputPort<HashMap<String, N
       return "AppData" + wsoo.mapper.writeValueAsString(topicObj);
     } catch (Exception e) {
       throw new RuntimeException(e);
-    } 
+    }
   }
-  
+
   @Override
   public void teardown()
   {

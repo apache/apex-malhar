@@ -1,0 +1,64 @@
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="span12">
+			<h2 class="app-title">
+				Fraud Detection
+				<a href="{{appURL}}" class="btn btn-primary" target="_blank" style="margin-left: 20px">View Console</a>
+			</h2>
+		</div>
+	</div>
+	<div class="row-fluid">
+		<p class="well span7">
+			This demo application processes a stream of credit card transactions, coming from multiple Point Of Sale terminals. The application computes statistics and applies several fraud evaluators to recognize potential fraud attempts. In particular, it looks for well-known fraud patterns, like small purchase followed by the big purchase at the same sales terminal, unusually big purchases per particular merchant or terminal, usage of multiple cards issued to different customers by the same bank at the same terminal and more. Alerts are generated in real-time, also all computed data and alerts saved into MongoDB for subsequent analysis. While influenced by real customers, because of privacy concerns, the data for this demo is automatically generated.
+		</p>
+		<div class="span5">
+			<span widgets-stat="" app="app"></span>
+		</div><!--/span-->
+	</div>
+
+	<h3>Statistics</h3>
+	<div class="row-fluid">
+		<div class="well span3 overview-item" ng-repeat="stat in stats">
+			<div class="key">{{stat.label}}</div>
+			<div class="value">{{stat.value}}</div>
+		</div>
+	</div>
+    
+	<div class="row-fluid">
+		<div class="span5">
+			<h3>Generate Transactions</h3>
+			<div class="row-fluid" class="generate-tx-div" ng-repeat="action in actions">
+				<div class="span3 generate-tx-btn-wrap">
+					<button class="btn generate-{{action.severity}}" ng-click="action.generateTxns()">generate</button>
+				</div><div class="span9 generate-tx-desc">
+					<h4>Fraud Type {{action.id}} <span class="lead">({{action.subtitle}})</span></h4>
+					<p>{{action.description}}</p>    
+				</div>
+			</div>
+		</div>
+		<div class="span7">
+			<h3>User Alerts Triggered <button class="btn clearFraudsBtn" ng-click="clearFrauds()">clear</button></h3>
+			<div class="well" id="alertDisplayBox">
+				
+			</div>
+		</div>
+	</div>
+
+	<hr>
+
+	<footer>
+		<p>&copy; DataTorrent 2013</p>
+	</footer>
+</div><!--/.fluid-container-->
+<div id="txn-modal" class="modal hide fade" role="dialog" style="display:none">
+	<div class="modal-header">
+	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	    <h3>Transaction</h3>
+	  </div>
+	  <div class="modal-body">
+		  
+	  </div>
+	  <div class="modal-footer">
+	    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+	  </div>
+</div>
