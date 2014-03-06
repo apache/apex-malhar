@@ -13,39 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.demos.performance;
+package com.datatorrent.benchmark;
 
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
-import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.lib.io.fs.HdfsWordInputOperator;
+import com.datatorrent.lib.io.fs.HdfsOutputOperator;
 
 import org.apache.hadoop.conf.Configuration;
 
 /**
- * Application used to benchmark HDFS input operator<p>
- * 
- * The DAG consists of HDFS input operator that is connected to word count operator.
+ * Application used to benchmark HDFS output operator
+ * The DAG consists of random word generator operator that is 
+ * connected to HDFS output operator that writes to a file on HDFS.<p>
  *
  * @since 0.9.4
  */
 
-public abstract class HDFSInputOperatorBenchmark
+public abstract class HDFSOutputOperatorBenchmark
 {
   static abstract class AbstractApplication implements StreamingApplication
   {
-   // public static final int QUEUE_CAPACITY = 32 * 1024;
+    public static final int QUEUE_CAPACITY = 32 * 1024;
 
     @Override
     public void populateDAG(DAG dag, Configuration conf)
     {
-      HdfsWordInputOperator wordGenerator =  dag.addOperator("wordGenerator", HdfsWordInputOperator.class);
-      wordGenerator.setFilePath("hdfs:///user/hadoop/hdfsOperatorBenchmarking/2/transactions.out.part0");
-
-      WordCountOperator<byte[]> counter = dag.addOperator("counter", new WordCountOperator<byte[]>());
- 
-      dag.addStream("HDFSInputOperator2Counter", wordGenerator.output, counter.input).setLocality(getLocality());  
+      RandomWordInputModule wordGenerator = dag.addOperator("wordGenerator", RandomWordInputModule.class);
+   
+      HdfsOutputOperator hdfsOutputOperator = dag.addOperator("hdfsOutputOperator", new HdfsOutputOperator());
+      hdfsOutputOperator.setFilePath("hdfsOperatorBenchmarking" + "/%(contextId)/transactions.out.part%(partIndex)");
+      hdfsOutputOperator.setAppend(false);
+   
+      dag.addStream("Generator2HDFSOutput", wordGenerator.output, hdfsOutputOperator.input).setLocality(getLocality());      
     }
     
     public abstract Locality getLocality();

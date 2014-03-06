@@ -13,24 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.demos.performance;
-
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.lib.io.fs.HdfsOutputOperator;
+package com.datatorrent.benchmark;
 
 import org.apache.hadoop.conf.Configuration;
 
-/**
- * Application used to benchmark HDFS output operator
- * The DAG consists of random word generator operator that is 
- * connected to HDFS output operator that writes to a file on HDFS.<p>
- *
- * @since 0.9.4
- */
+import com.datatorrent.api.Context.PortContext;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.StreamingApplication;
 
-public abstract class HDFSOutputOperatorBenchmark
+/**
+ * Performance Demo Application:
+ * <p>
+ * This demo demonstrates the performance of Datatorrent platform.
+ * Performance is measured by the number of events processed per second and latency.
+ * Performance varies depending on container memory, CPU and network I/O.
+ * The demo can be used to check how the performance varies with stream locality.
+ *
+ * Stream locality decides how the operators are deployed:
+ * ThreadLocal - the operators are deployed within the same thread.
+ * ContainerLocal -the operators are deployed as separate threads within the process.
+ * NodeLocal- the operators are deployed as separate processes on a machine.
+ * RackLocal - the operators are deployed on different nodes of the same rack.
+ * NoLocality - lets the engine decide how to best deploy the operator.
+ *
+ * Note:  NodeLocal and RackLocal are preferences that can be specified to Hadoop ResourceManager.
+ * It is not guaranteed that the operators will be deployed as requested.
+ * ResourceManager makes the call depending on resource availability.
+ *
+ * Refer to demos/docs/PerformanceDemo.md for more details.
+ *
+ * </p>
+ *
+ * @since 0.9.0
+ */
+public abstract class Benchmark
 {
   static abstract class AbstractApplication implements StreamingApplication
   {
@@ -40,16 +57,15 @@ public abstract class HDFSOutputOperatorBenchmark
     public void populateDAG(DAG dag, Configuration conf)
     {
       RandomWordInputModule wordGenerator = dag.addOperator("wordGenerator", RandomWordInputModule.class);
-   
-      HdfsOutputOperator hdfsOutputOperator = dag.addOperator("hdfsOutputOperator", new HdfsOutputOperator());
-      hdfsOutputOperator.setFilePath("hdfsOperatorBenchmarking" + "/%(contextId)/transactions.out.part%(partIndex)");
-      hdfsOutputOperator.setAppend(false);
-   
-      dag.addStream("Generator2HDFSOutput", wordGenerator.output, hdfsOutputOperator.input).setLocality(getLocality());      
+      dag.getMeta(wordGenerator).getMeta(wordGenerator.output).getAttributes().put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
+
+      WordCountOperator<byte[]> counter = dag.addOperator("counter", new WordCountOperator<byte[]>());
+      dag.getMeta(counter).getMeta(counter.input).getAttributes().put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
+
+      dag.addStream("Generator2Counter", wordGenerator.output, counter.input).setLocality(getLocality());
     }
-    
+
     public abstract Locality getLocality();
-    
   }
   
   /**
@@ -62,10 +78,12 @@ public abstract class HDFSOutputOperatorBenchmark
     {
       return null;
     }
+
   }
 
   /**
    * Place the 2 operators so that they are in the same Rack.
+   * The operators are requested to be deployed on different machines.
    */
   public static class RackLocal extends AbstractApplication
   {
@@ -74,10 +92,12 @@ public abstract class HDFSOutputOperatorBenchmark
     {
       return Locality.RACK_LOCAL;
     }
+
   }
 
   /**
    * Place the 2 operators so that they are in the same node.
+   * The operators are requested to be deployed as different processes within the same machine.
    */
   public static class NodeLocal extends AbstractApplication
   {
@@ -86,10 +106,12 @@ public abstract class HDFSOutputOperatorBenchmark
     {
       return Locality.NODE_LOCAL;
     }
+
   }
 
   /**
    * Place the 2 operators so that they are in the same container.
+   * The operators are deployed as different threads in the same process.
    */
   public static class ContainerLocal extends AbstractApplication
   {
@@ -98,6 +120,7 @@ public abstract class HDFSOutputOperatorBenchmark
     {
       return Locality.CONTAINER_LOCAL;
     }
+
   }
 
   /**
@@ -110,8 +133,7 @@ public abstract class HDFSOutputOperatorBenchmark
     {
       return Locality.THREAD_LOCAL;
     }
+
   }
 
 }
-
-

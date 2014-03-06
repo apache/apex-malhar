@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.demos.performance;
+package com.datatorrent.benchmark;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Context.PortContext;
-import com.datatorrent.demos.performance.ApplicationFixed;
-import com.datatorrent.demos.performance.FixedTuplesInputOperator;
+import com.datatorrent.benchmark.ApplicationFixed;
+import com.datatorrent.benchmark.FixedTuplesInputOperator;
 
 import java.io.IOException;
+
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Assert;
 import org.junit.Test;

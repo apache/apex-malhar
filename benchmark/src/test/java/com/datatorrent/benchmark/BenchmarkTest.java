@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.demos.performance;
+package com.datatorrent.benchmark;
 
 import java.io.IOException;
 
@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.LocalMode;
+import com.datatorrent.benchmark.Benchmark;
 
 /**
  * Test the DAG declaration in local mode.

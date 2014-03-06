@@ -13,19 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.kafka.benchmark;
+package com.datatorrent.benchmark.kafka;
 
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 /**
  * An stream app to produce msg to cluster
  *
  * @since 0.9.3
  */
+@ApplicationAnnotation(name="KafkaOutputBenchmark")
 public class KafkaOutputBenchmark implements StreamingApplication
 {
 
