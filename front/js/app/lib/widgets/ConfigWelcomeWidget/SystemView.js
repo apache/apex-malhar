@@ -25,6 +25,7 @@ var Notifier = DT.lib.Notifier;
 var ConfigPropertyCollection = DT.lib.ConfigPropertyCollection;
 var ConfigIssueCollection = DT.lib.ConfigIssueCollection;
 var GatewayAddressModel = require('./GatewayAddressModel');
+var HadoopLocationModel = require('../../../../datatorrent/HadoopLocationModel');
 var DfsModel = require('./DfsModel');
 
 var SystemView = BaseView.extend({
@@ -41,6 +42,7 @@ var SystemView = BaseView.extend({
         this.error = false; //TODO
         this.loading = true;
 
+        var hadoopLocationPromise = this.loadHadoopLocation();
         var aboutPromise = this.loadAbout();
         var ipListPromise = this.loadIPList();
         var defaultAddressPromise = this.loadDefaultAddress();
@@ -50,7 +52,7 @@ var SystemView = BaseView.extend({
         this.addressModel = new GatewayAddressModel();
         this.dfsModel = new DfsModel();
 
-        var all = $.when(aboutPromise, ipListPromise, customAddressPromise, defaultAddressPromise, dfsPromise);
+        var all = $.when(hadoopLocationPromise, aboutPromise, ipListPromise, customAddressPromise, defaultAddressPromise, dfsPromise);
         //var all = $.when(aboutPromise, customAddressPromise, defaultAddressPromise, dfsPromise);
         all.done(function () {
             var hadoopLocation = this.about.get('hadoopLocation');
@@ -78,6 +80,18 @@ var SystemView = BaseView.extend({
             this.error = true;
             this.render();
         }.bind(this));
+
+        this.subview('hadoop-location', new Bbind.text({
+            model: this.hadoopLocationModel,
+            attr: 'value',
+            listenToModel: false,
+            setAnyway: true,
+            classElement: function($el) {
+                return $el.parent().parent();
+            },
+            errorEl: '.help-block',
+            errorClass: 'error'
+        }));
 
         this.subview('address-ip-input', new Bbind.text({
             model: this.addressModel,
@@ -142,15 +156,17 @@ var SystemView = BaseView.extend({
             errorClass: 'error'
         }));
 
+        this.listenTo(this.hadoopLocationModel, 'change', this.inputChanged);
         this.listenTo(this.addressModel, 'change', this.inputChanged);
         this.listenTo(this.dfsModel, 'change', this.inputChanged);
     },
 
     inputChanged: function () {
+        var hadoopLocationModelValid = this.hadoopLocationModel.isValid();
         var addressValid = this.addressModel.isValid();
         var dfsValid = this.dfsModel.isValid();
 
-        if (addressValid && dfsValid) {
+        if (hadoopLocationModelValid && addressValid && dfsValid) {
             this.$el.find('.continue').removeClass('disabled');
         } else {
             this.$el.find('.continue').addClass('disabled');
@@ -217,11 +233,46 @@ var SystemView = BaseView.extend({
         });
 
         ajax.fail(function (jqXHR) {
+            this.errorMsg = 'Failed to update property ' + propName;
             d.rejectWith(null, [
                 name,
                 jqXHR
             ]);
-        });
+        }.bind(this));
+
+        return d.promise();
+    },
+
+    saveHadoopLocation: function () {
+        var ajax = this.hadoopLocationModel.save();
+
+        ajax.fail(function (jqXHR) {
+            this.errorMsg = 'Failed to update hadoop location';
+        }.bind(this));
+
+        return ajax;
+    },
+
+    loadHadoopLocation: function () {
+        var d = $.Deferred();
+
+        this.hadoopLocationModel = new HadoopLocationModel();
+        var ajax = this.hadoopLocationModel.fetch();
+
+        ajax.done(function () {
+            // save default value
+            this.hadoopLocationModel.init(this.hadoopLocationModel.get('value'));
+            d.resolve();
+        }.bind(this));
+
+        ajax.fail(function (jqXHR) {
+            if (jqXHR.status === 404) { //TODO
+                this.hadoopLocationModel.init('');
+                d.resolve();
+            } else {
+                d.reject();
+            }
+        }.bind(this));
 
         return d.promise();
     },
@@ -298,28 +349,50 @@ var SystemView = BaseView.extend({
         this.$el.find('.address-port').blur();
         this.$el.find('.dfs-directory').blur();
 
-        if (!this.addressModel.isValid() || !this.dfsModel.isValid()) {
+        if (!this.hadoopLocationModel.isValid() || !this.addressModel.isValid() || !this.dfsModel.isValid()) {
             this.$el.find('.continue').addClass('disabled');
             return;
         }
 
-        var addressPromise = this.saveProperty('dt.attr.GATEWAY_ADDRESS', this.addressModel.getValue());
+        var hadoopLocationPromise;
+        if (this.hadoopLocationModel.isChanged()) {
+            hadoopLocationPromise = this.saveHadoopLocation();
+        } else {
+            hadoopLocationPromise = this.createResolvedPromise();
+        }
+
+        var addressPromise;
+        if (this.addressModel.isChanged()) {
+            addressPromise = this.saveProperty('dt.attr.GATEWAY_ADDRESS', this.addressModel.getValue());
+        } else {
+            addressPromise = this.createResolvedPromise();
+        }
 
         // example values: /user/hadoop/DataTorrent, /user/hadoop/Stram
-        var dfsPromise = this.saveProperty('dt.dfsRootDirectory', this.dfsModel.getValue());
+        var dfsPromise;
+        if (this.dfsModel.isChanged()) {
+            dfsPromise = this.saveProperty('dt.dfsRootDirectory', this.dfsModel.getValue());
+        } else {
+            dfsPromise = this.createResolvedPromise();
+        }
 
-        var all = $.when(addressPromise, dfsPromise);
+        var all = $.when(hadoopLocationPromise, addressPromise, dfsPromise);
 
         all.done(function () {
             this.navFlow.go('SummaryView');
         }.bind(this));
 
         all.fail(function (propName) {
-            this.errorMsg = 'Failed to save property ' + propName;
             this.render();
         }.bind(this));
 
         //jQuery(event.target).addClass('disabled');
+    },
+
+    createResolvedPromise: function () {
+        var d = $.Deferred();
+        d.resolve();
+        return d.promise();
     },
 
     render: function() {
@@ -328,6 +401,7 @@ var SystemView = BaseView.extend({
             error: this.error,
             errorMsg: this.errorMsg,
             loading: this.loading,
+            hadoopLocationModel: this.hadoopLocationModel,
             about: this.about,
             addressModel: this.addressModel,
             dfsModel: this.dfsModel,
@@ -355,6 +429,7 @@ var SystemView = BaseView.extend({
     },
 
     assignments: {
+        '.hadoop-location': 'hadoop-location',
         '.address-ip-select': 'address-ip-select',
         '.address-ip-input': 'address-ip-input',
         '.address-port': 'address-port',
