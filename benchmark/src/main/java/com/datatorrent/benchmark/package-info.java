@@ -17,4 +17,4 @@
 /**
  * DataTorrent performance demonstration application.
  */
-package com.datatorrent.demos.performance;
+package com.datatorrent.benchmark;

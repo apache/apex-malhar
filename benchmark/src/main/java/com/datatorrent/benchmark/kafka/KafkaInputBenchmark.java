@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.datatorrent.contrib.kafka.benchmark;
+package com.datatorrent.benchmark.kafka;
 
 import java.util.HashSet;
 import java.util.Properties;

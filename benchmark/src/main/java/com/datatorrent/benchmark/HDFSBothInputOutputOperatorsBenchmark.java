@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.demos.performance;
+package com.datatorrent.benchmark;
 
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
