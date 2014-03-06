@@ -26,7 +26,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.Partitionable;
+import com.datatorrent.api.Partitioner;
 import com.yammer.metrics.Metrics;
 
 /**
@@ -39,7 +39,7 @@ import com.yammer.metrics.Metrics;
  * @since 0.9.3
  */
 @ShipContainingJars(classes={kafka.javaapi.consumer.SimpleConsumer.class, org.I0Itec.zkclient.ZkClient.class, scala.ScalaObject.class, Metrics.class})
-public class BenchmarkPartitionableKafkaOutputOperator implements Partitionable<BenchmarkPartitionableKafkaOutputOperator>, InputOperator, ActivationListener<OperatorContext>
+public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<BenchmarkPartitionableKafkaOutputOperator>, InputOperator, ActivationListener<OperatorContext>
 {
 
   private String topic = "benchmark";
@@ -94,7 +94,7 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitionable<
   public Collection<Partition<BenchmarkPartitionableKafkaOutputOperator>> definePartitions(Collection<Partition<BenchmarkPartitionableKafkaOutputOperator>> partitions, int pNum)
   {
 
-    ArrayList<Partition<BenchmarkPartitionableKafkaOutputOperator>> newPartitions = new ArrayList<Partitionable.Partition<BenchmarkPartitionableKafkaOutputOperator>>(partitionNum);
+    ArrayList<Partition<BenchmarkPartitionableKafkaOutputOperator>> newPartitions = new ArrayList<Partitioner.Partition<BenchmarkPartitionableKafkaOutputOperator>>(partitionNum);
 
     for (int i = 0; i < partitionNum; i++) {
       BenchmarkPartitionableKafkaOutputOperator bpkoo = new BenchmarkPartitionableKafkaOutputOperator();

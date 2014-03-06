@@ -70,7 +70,7 @@ import com.datatorrent.lib.bucket.BucketStore;
  * @param <OUTPUT> type of output tuple</OUTPUT>
  */
 public abstract class Deduper<INPUT extends BucketEvent, OUTPUT>
-  implements Operator, ActivationListener<Context.OperatorContext>, BucketManager.Listener, IdleTimeHandler, Partitionable<Deduper<INPUT, OUTPUT>>
+  implements Operator, ActivationListener<Context.OperatorContext>, BucketManager.Listener, IdleTimeHandler, Partitioner<Deduper<INPUT, OUTPUT>>
 {
   //Check-pointed state
   @Nonnull

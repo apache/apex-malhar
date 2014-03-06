@@ -42,7 +42,7 @@ import com.datatorrent.api.annotation.ShipContainingJars;
  * @param <EVENT> - Type of the tuple whose attributes are used to define dimensions.
  */
 @ShipContainingJars(classes = {TCustomHashMap.class, HashingStrategy.class})
-public class DimensionsComputation<EVENT> implements Operator, Partitionable<DimensionsComputation<EVENT>>
+public class DimensionsComputation<EVENT> implements Operator, Partitioner<DimensionsComputation<EVENT>>
 {
   public final transient DefaultOutputPort<EVENT> output = new DefaultOutputPort<EVENT>();
   public final transient DefaultInputPort<EVENT> data = new DefaultInputPort<EVENT>()
