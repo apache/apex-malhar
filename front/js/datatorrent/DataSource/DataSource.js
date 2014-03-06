@@ -73,13 +73,16 @@ DataSource.prototype = {
             LOG('2', 'WebSocket connection established');
             self.__wsCxn.resolveWith( self, [self.ws] );
         }
+        this.supressOnClose = false;
         this.ws.onclose = function() {
             LOG('3', 'WebSocket connection has closed');
-            Notifier.warning({
-                'title': 'WebSocket connection closed',
-                'text': 'The WebSocket connection to the Gateway has been closed. You may have left the network or the server itself may be down. Try <a href="Javascript:window.location.reload(true)">refreshing the page</a>.',
-                'hide': false
-            });
+            if (!self.supressOnClose) {
+                Notifier.warning({
+                    'title': 'WebSocket connection closed',
+                    'text': 'The WebSocket connection to the Gateway has been closed. You may have left the network or the server itself may be down. Try <a href="Javascript:window.location.reload(true)">refreshing the page</a>.',
+                    'hide': false
+                });
+            }
         }
         this.ws.onmessage = function(msg) {
             var msgJson;
@@ -151,6 +154,12 @@ DataSource.prototype = {
                 'hide': false
             });
         }
+    },
+    disconnect: function () {
+        this.__wsCxn.done(function () {
+            this.supressOnClose = true;
+            this.ws.close();
+        })
     },
     _ajax: function(type, options) {
         if (!options.url || typeof options.url !== 'string') {

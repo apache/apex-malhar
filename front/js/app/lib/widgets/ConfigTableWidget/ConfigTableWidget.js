@@ -17,9 +17,8 @@
 var _ = require('underscore');
 var kt = require('knights-templar');
 var BaseView = DT.lib.WidgetView;
-var LoadingModal = require('./LoadingModalView');
 var GatewayInfoModel = require('../../../../datatorrent/GatewayInfoModel');
-var GatewayPoll = require('./GatewayPoll');
+var RestartModal = DT.lib.RestartModal;
 var Notifier = DT.lib.Notifier;
 
 /**
@@ -31,7 +30,7 @@ var ConfigTableWidget = BaseView.extend({
     initialize: function(options) {
         
         BaseView.prototype.initialize.call(this, options);
-        
+        this.dataSource = options.dataSource;
         this.issues = options.issues;
 
         this.listenTo(this.collection, 'sync', this.render);
@@ -123,54 +122,14 @@ var ConfigTableWidget = BaseView.extend({
     },
 
     restart: function () {
-        if (!this.loadingModal) {
-            this.loadingModal = new LoadingModal();
-            this.loadingModal.addToDOM();
+        if (!this.restartModal) {
+            this.restartModal = new RestartModal({
+                dataSource: this.dataSource,
+                message: 'Restarting the Gateway...'
+            });
+            this.restartModal.addToDOM();
         }
-        this.loadingModal.launch();
-
-        var poll = new GatewayPoll(10000);
-
-        var initPromise = poll.initId(); // get current jvnName with PID
-        initPromise.done(function () {
-            // trigger restart
-            var restartRequestPromise = poll.restartRequest();
-            restartRequestPromise.done(function () {
-                var promise = poll.start(); // poll for jvnName change
-
-                promise.done(function () {
-                    Notifier.success({
-                        title: 'Success',
-                        text: 'Gateway has been restarted. Current page will be reloaded.'
-                    });
-                    setTimeout(function() {
-                        window.location.reload();
-                    }, 2000);
-                }.bind(this));
-
-                promise.fail(function () {
-                    this.restartFailed();
-                }.bind(this));
-            }.bind(this));
-
-            restartRequestPromise.fail(function () {
-                this.restartFailed();
-            }.bind(this));
-        }.bind(this));
-
-        initPromise.fail(function () {
-            this.restartFailed();
-        }.bind(this));
-    },
-
-    restartFailed: function () {
-        Notifier.error({
-            title: 'Error',
-            text: 'Failed to restart the Gateway.',
-            hide: false
-        });
-
-        this.loadingModal.close();
+        this.restartModal.launch();
     },
 
     updateFilters: _.debounce(function() {

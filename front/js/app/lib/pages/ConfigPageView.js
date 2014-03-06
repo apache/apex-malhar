@@ -54,7 +54,8 @@ var ConfigPageView = BasePageView.extend({
                 limit: 1,
                 inject: {
                     collection: this.properties,
-                    issues: this.issues
+                    issues: this.issues,
+                    dataSource: this.dataSource
                 }
             }
         ]);

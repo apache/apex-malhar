@@ -73,6 +73,7 @@ var datatorrent = {
         PortModel                    : require('./PortModel'),
         RecordingCollection          : require('./RecordingCollection'),
         RecordingModel               : require('./RecordingModel'),
+        RestartModal                 : require('./RestartModalView'),
         StreamCollection             : require('./StreamCollection'),
         StreamModel                  : require('./StreamModel'),
         StreamPortCollection         : require('./StreamPortCollection'),
