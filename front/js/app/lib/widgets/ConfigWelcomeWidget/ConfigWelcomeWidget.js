@@ -27,6 +27,7 @@ var LicenseInfoView = require('./LicenseInfoView');
 var LicenseRegisterView = require('./LicenseRegisterView');
 var LicenseUploadView = require('./LicenseUploadView');
 var LicenseOfflineView = require('./LicenseOfflineView');
+var SummaryView = require('./SummaryView');
 
 /**
  * ConfigWelcomeWidget
@@ -201,8 +202,8 @@ var ConfigWelcomeWidget = WidgetView.extend({
             template: kt.make(__dirname+'/SystemView.html') // TODO
         },
         SummaryView: {
-            view: StepView, //TODO
-            template: kt.make(__dirname+'/SummaryView.html') // TODO
+            view: SummaryView,
+            template: kt.make(__dirname+'/SummaryView.html')
         }
     },
 

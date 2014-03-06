@@ -48,6 +48,7 @@ exports = module.exports = {
         LicenseLastRequest       :'/ws/:v/licenses/lastRequest',
         ConfigIPAddresses        :'/ws/:v/config/ipAddresses',
         GatewayInfo              :'/ws/:v/about',
+        HadoopLocation           :'/ws/:v/config/hadoopInstallDirectory',
         GatewayRestart           :'/ws/:v/config/restart'
     },
     
