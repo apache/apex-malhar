@@ -53,10 +53,13 @@ public class ApacheLogParseMapOutputOperatorTest
     log.debug("map {}",map);
     Assert.assertEquals("Size of map is 9", 9, map.size());
     Assert.assertEquals("checking ip", "127.0.0.1", map.get("1"));
+    Assert.assertEquals("checking", "-", map.get("2"));
+    Assert.assertEquals("checking userid", "-", map.get("3"));
     Assert.assertEquals("checking date", "04/Apr/2013:17:17:21 -0700", map.get("4"));
     Assert.assertEquals("checking url", "/favicon.ico", map.get("5"));
     Assert.assertEquals("checking http code", "404", map.get("6"));
     Assert.assertEquals("checking bytes", "498", map.get("7"));
+    Assert.assertEquals("checking", "-", map.get("8"));
     Assert.assertEquals("checking agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.43 Safari/537.31", map.get("9"));
   }
   
@@ -82,6 +85,8 @@ public class ApacheLogParseMapOutputOperatorTest
     Map<String, Object> map = (Map<String, Object>) sink.collectedTuples.get(0);
     log.debug("map {}",map);
     Assert.assertEquals("Size of map is 7", 7, map.size());
+    Assert.assertEquals("checking", "-", map.get("2"));
+    Assert.assertEquals("checking userid", "-", map.get("3"));
     Assert.assertEquals("checking ip", "127.0.0.1", map.get("1"));
     Assert.assertEquals("checking date", "04/Apr/2013:17:17:21 -0700", map.get("4"));
     Assert.assertEquals("checking url", "/favicon.ico", map.get("5"));
