@@ -248,6 +248,11 @@ public abstract class Deduper<INPUT extends BucketEvent, OUTPUT>
   }
 
   @Override
+  public void partitioned(Map<Integer, Partition<Deduper<INPUT, OUTPUT>>> partitions)
+  {
+  }
+
+  @Override
   @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch"})
   public Collection<Partition<Deduper<INPUT, OUTPUT>>> definePartitions(Collection<Partition<Deduper<INPUT, OUTPUT>>> partitions, int incrementalCapacity)
   {

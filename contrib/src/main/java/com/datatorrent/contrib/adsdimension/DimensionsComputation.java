@@ -123,6 +123,11 @@ public class DimensionsComputation<EVENT> implements Operator, Partitioner<Dimen
   }
 
   @Override
+  public void partitioned(Map<Integer, Partition<DimensionsComputation<EVENT>>> partitions)
+  {
+  }
+
+  @Override
   public Collection<Partition<DimensionsComputation<EVENT>>> definePartitions(Collection<Partition<DimensionsComputation<EVENT>>> partitions, int incrementalCapacity)
   {
     if (incrementalCapacity == 0) {

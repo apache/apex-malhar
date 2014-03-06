@@ -28,6 +28,7 @@ import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Partitioner;
 import com.yammer.metrics.Metrics;
+import java.util.Map;
 
 /**
  * This operator keep sending constant messages(1kb each) in {@link #threadNum} threads
@@ -52,7 +53,7 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
 
   //define constant message
   private byte[] constantMsg = null;
-  
+
   private int msgSize = 1024;
 
   @Override
@@ -91,6 +92,11 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
   }
 
   @Override
+  public void partitioned(Map<Integer, Partition<BenchmarkPartitionableKafkaOutputOperator>> partitions)
+  {
+  }
+
+  @Override
   public Collection<Partition<BenchmarkPartitionableKafkaOutputOperator>> definePartitions(Collection<Partition<BenchmarkPartitionableKafkaOutputOperator>> partitions, int pNum)
   {
 
@@ -115,7 +121,7 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
     for (int i = 0; i < constantMsg.length; i++) {
       constantMsg[i] = (byte) ('a' + i%26);
     }
-    
+
     for (int i = 0; i < threadNum; i++) {
       new Thread(new Runnable() {
         @Override
@@ -192,12 +198,12 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
   {
     this.threadNum = threadNum;
   }
-  
+
   public void setMsgSize(int msgSize)
   {
     this.msgSize = msgSize;
   }
-  
+
   public int getMsgSize()
   {
     return msgSize;

@@ -23,6 +23,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>AlertEscalationOperator class.</p>
@@ -105,6 +106,11 @@ public class AlertEscalationOperator extends BaseOperator implements Partitioner
       inAlertSince = -1;
       lastAlertTimeStamp = -1;
     }
+  }
+
+  @Override
+  public void partitioned(Map<Integer, Partition<AlertEscalationOperator>> partitions)
+  {
   }
 
   @Override

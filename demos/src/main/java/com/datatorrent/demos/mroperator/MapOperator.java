@@ -296,6 +296,11 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
   }
 
   @Override
+  public void partitioned(Map<Integer, Partition<MapOperator<K1, V1, K2, V2>>> partitions)
+  {
+  }
+
+  @Override
   public Collection<Partition<MapOperator<K1, V1, K2, V2>>> definePartitions(Collection<Partition<MapOperator<K1, V1, K2, V2>>> partitions, int incrementalCapacity)
   {
 

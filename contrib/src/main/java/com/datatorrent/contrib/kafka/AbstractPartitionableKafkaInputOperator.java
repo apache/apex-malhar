@@ -110,6 +110,11 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
   private transient List<Integer> newWaitingPartition = new LinkedList<Integer>();
 
   @Override
+  public void partitioned(Map<Integer, Partition<AbstractPartitionableKafkaInputOperator>> partitions)
+  {
+  }
+
+  @Override
   public Collection<Partition<AbstractPartitionableKafkaInputOperator>> definePartitions(Collection<Partition<AbstractPartitionableKafkaInputOperator>> partitions, int incrementalCapacity)
   {
 
