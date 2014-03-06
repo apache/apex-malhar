@@ -10,6 +10,7 @@ import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ArrayBlockingQueue;
+import static java.lang.Thread.sleep;
 
 import javax.validation.constraints.NotNull;
 
@@ -18,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.Partitioner.PartitionAware;
 import com.datatorrent.api.Stats.OperatorStats;
 import com.datatorrent.api.Stats.OperatorStats.CustomStats;
 
@@ -30,8 +30,6 @@ import com.datatorrent.flume.sink.Server.Command;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 import com.datatorrent.netlet.DefaultEventLoop;
 
-import static java.lang.Thread.sleep;
-
 /**
  * <p>Abstract AbstractFlumeInputOperator class.</p>
  *
@@ -41,7 +39,7 @@ import static java.lang.Thread.sleep;
  */
 public abstract class AbstractFlumeInputOperator<T>
         implements InputOperator, ActivationListener<OperatorContext>, IdleTimeHandler, CheckpointListener,
-        Partitioner<AbstractFlumeInputOperator<T>>, PartitionAware<AbstractFlumeInputOperator<T>>
+        Partitioner<AbstractFlumeInputOperator<T>>
 {
   public final transient DefaultOutputPort<T> output = new DefaultOutputPort<T>();
   @NotNull
@@ -665,7 +663,7 @@ public abstract class AbstractFlumeInputOperator<T>
       return false;
     }
 
-    AbstractFlumeInputOperator that = (AbstractFlumeInputOperator) o;
+    AbstractFlumeInputOperator<?> that = (AbstractFlumeInputOperator<?>) o;
 
     if (!Arrays.equals(connectionSpecs, that.connectionSpecs)) {
       return false;
