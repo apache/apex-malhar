@@ -19,6 +19,7 @@ var Backbone = require('backbone');
 var BaseView = require('./StepView');
 var ConfigIssueCollection = DT.lib.ConfigIssueCollection;
 var Notifier = DT.lib.Notifier;
+var RestartModal = DT.lib.RestartModal;
 
 var SummaryView = BaseView.extend({
 
@@ -49,7 +50,18 @@ var SummaryView = BaseView.extend({
             var restartRequiredIssue = this.issues.findWhere({
                 key: 'RESTART_NEEDED'
             });
-            this.restartRequired = !!restartRequiredIssue;
+
+            var restartRequired = !!restartRequiredIssue;
+
+            //if (true) {
+            if (restartRequired) {
+                var restartModal = new RestartModal({
+                    dataSource: this.dataSource,
+                    message: 'Changes made require restart. Restarting the Gateway...'
+                });
+                restartModal.addToDOM();
+                restartModal.launch();
+            }
 
             this.render();
         }.bind(this));

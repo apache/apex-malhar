@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-var settings = require('../../../../datatorrent/settings');
+var settings = require('../settings');
 
 function GatewayPoll(timeout) {
     this.timeout = timeout;
