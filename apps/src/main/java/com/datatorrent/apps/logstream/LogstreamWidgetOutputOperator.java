@@ -33,6 +33,7 @@ import com.datatorrent.api.DefaultInputPort;
 
 import com.datatorrent.apps.logstream.PropertyRegistry.LogstreamPropertyRegistry;
 import com.datatorrent.apps.logstream.PropertyRegistry.PropertyRegistry;
+import java.lang.reflect.Array;
 
 /**
  * Output operator to send outputs to websocket to display on UI widgets.
@@ -122,7 +123,8 @@ public class LogstreamWidgetOutputOperator extends WidgetOutputOperator
     private void processTopN(HashMap<String, Number> topNMap, HashMap<String, Object> schemaObj)
     {
       @SuppressWarnings("unchecked")
-      HashMap<String, Object>[] result = new HashMap[topNMap.size()];
+      HashMap<String, Object>[] result = (HashMap<String, Object>[])Array.newInstance(HashMap.class, topNMap.size());
+      
       int j = 0;
       for (Entry<String, Number> e : topNMap.entrySet()) {
         result[j] = new HashMap<String, Object>();
