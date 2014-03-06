@@ -20,11 +20,14 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.TextInputFormat;
 
+import com.datatorrent.api.annotation.ApplicationAnnotation;
+
 /**
  * <p>LogsCountApplication class.</p>
  *
  * @since 0.9.0
  */
+@ApplicationAnnotation(name="Map Reduce Application (Logs Count)")
 public class LogsCountApplication extends MapReduceApplication<LongWritable, Text, DateWritable, IntWritable>
 {
 

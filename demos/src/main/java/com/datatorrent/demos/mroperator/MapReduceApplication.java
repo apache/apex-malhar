@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAGContext;
 import com.datatorrent.api.StreamingApplication;
@@ -39,6 +40,7 @@ import com.datatorrent.lib.io.fs.HdfsOutputOperator;
  * @since 0.9.0
  */
 @SuppressWarnings({ "deprecation" })
+@ApplicationAnnotation(name="Map Reduce Application")
 public abstract class MapReduceApplication<K1, V1, K2, V2> implements StreamingApplication
 {
 

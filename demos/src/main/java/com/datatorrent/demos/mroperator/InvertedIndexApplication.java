@@ -20,11 +20,14 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.TextInputFormat;
 
+import com.datatorrent.api.annotation.ApplicationAnnotation;
+
 /**
  * <p>InvertedIndexApplication class.</p>
  *
  * @since 0.9.0
  */
+@ApplicationAnnotation(name="Map Reduce Application (Inverted Index)")
 public class InvertedIndexApplication extends MapReduceApplication<LongWritable, Text, Text, Text>
 {
 
