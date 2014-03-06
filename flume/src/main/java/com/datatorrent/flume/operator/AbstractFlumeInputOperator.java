@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.Partitionable.PartitionAware;
+import com.datatorrent.api.Partitioner.PartitionAware;
 import com.datatorrent.api.Stats.OperatorStats;
 import com.datatorrent.api.Stats.OperatorStats.CustomStats;
 
@@ -41,7 +41,7 @@ import static java.lang.Thread.sleep;
  */
 public abstract class AbstractFlumeInputOperator<T>
         implements InputOperator, ActivationListener<OperatorContext>, IdleTimeHandler, CheckpointListener,
-        Partitionable<AbstractFlumeInputOperator<T>>, PartitionAware<AbstractFlumeInputOperator<T>>
+        Partitioner<AbstractFlumeInputOperator<T>>, PartitionAware<AbstractFlumeInputOperator<T>>
 {
   public final transient DefaultOutputPort<T> output = new DefaultOutputPort<T>();
   @NotNull
