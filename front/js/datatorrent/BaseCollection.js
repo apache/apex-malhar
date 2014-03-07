@@ -69,7 +69,7 @@ var BaseCollection = Backbone.Collection.extend({
         LOG(1, 'fetching ' + (this.debugName || 'unlabeled collection (set debugName attribute on collection)'), ['options: ', options]);
         
         // Call super
-        Backbone.Collection.prototype.fetch.call(this, options);
+        return Backbone.Collection.prototype.fetch.call(this, options);
     },
 
     sync: function(method, collection, options) {

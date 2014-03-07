@@ -33,7 +33,6 @@ import com.datatorrent.api.StreamingApplication;
 
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
-import com.datatorrent.lib.io.fs.HdfsOutputOperator;
 import com.datatorrent.lib.math.MarginMap;
 import com.datatorrent.lib.math.QuotientMap;
 import com.datatorrent.lib.math.SumCountMap;
@@ -353,9 +352,10 @@ public class Application implements StreamingApplication
     DAG.StreamMeta viewsAggStream = dag.addStream("viewsaggregate", adviews.data, insertclicks.data, viewAggregate.data).setLocality(Locality.CONTAINER_LOCAL);
 
     if (conf.getBoolean(P_enableHdfs, false)) {
-      HdfsOutputOperator viewsToHdfs = dag.addOperator("viewsToHdfs", new HdfsOutputOperator());
+      HdfsHashMapOutputOperator viewsToHdfs = dag.addOperator("viewsToHdfs", new HdfsHashMapOutputOperator());
       viewsToHdfs.setAppend(false);
-      viewsToHdfs.setFilePath("file:///tmp/adsdemo/views-%(operatorId)-part%(partIndex)");
+      viewsToHdfs.setCloseCurrentFile(true);
+      viewsToHdfs.setFilePathPattern("file:///tmp/adsdemo/views-%(operatorId)-part%(partIndex)");
       dag.setInputPortAttribute(viewsToHdfs.input, PortContext.PARTITION_PARALLEL, true);
       viewsAggStream.addSink(viewsToHdfs.input);
     }
