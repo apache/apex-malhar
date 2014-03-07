@@ -48,6 +48,10 @@ var LicenseModel = BaseModel.extend({
         return BaseModel.prototype.fetch.apply(this, arguments);
     },
 
+    isDefault: function () {
+        return this.get('id') && (this.get('id').indexOf('default') === 0);
+    },
+
     fetchError: BaseUtil.quietFetchError
 
 });

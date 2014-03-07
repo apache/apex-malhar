@@ -67,26 +67,27 @@ ActivationListener<OperatorContext>
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractRabbitMQInputOperator.class);
   @NotNull
-  private String host;
+  protected String host;
+  protected int port;
   @NotNull
-  private String exchange;
+  protected String exchange;
   @NotNull
-  private String exchangeType;
-  private String routingKey = "";
-  private String queueName; // Has to be supplied by client when exchangeType is not "fanout"
-  transient ConnectionFactory connFactory;
+  protected String exchangeType;
+  protected String routingKey = "";
+  protected String queueName; // Has to be supplied by client when exchangeType is not "fanout"
+  protected transient ConnectionFactory connFactory;
 //  QueueingConsumer consumer = null;
 
   private static final int DEFAULT_BLAST_SIZE = 1000;
   private static final int DEFAULT_BUFFER_SIZE = 1024*1024;
   private int tuple_blast = DEFAULT_BLAST_SIZE;
-  private int bufferSize = DEFAULT_BUFFER_SIZE;
+  protected int bufferSize = DEFAULT_BUFFER_SIZE;
 
-  transient Connection connection = null;
-  transient Channel channel = null;
-  transient TracingConsumer tracingConsumer = null;
-  transient String cTag;
-  transient ArrayBlockingQueue<byte[]> holdingBuffer;
+  protected transient Connection connection;
+  protected transient Channel channel;
+  protected transient TracingConsumer tracingConsumer;
+  protected transient String cTag;
+  protected transient ArrayBlockingQueue<byte[]> holdingBuffer;
 
 /**
  * define a consumer which can asynchronously receive data,
@@ -169,6 +170,10 @@ ActivationListener<OperatorContext>
     try {
       connFactory = new ConnectionFactory();
       connFactory.setHost(host);
+      if (port != 0){
+        connFactory.setPort(port);
+      }
+
       connection = connFactory.newConnection();
       channel = connection.createChannel();
 
@@ -191,7 +196,7 @@ ActivationListener<OperatorContext>
       cTag = channel.basicConsume(queueName, true, tracingConsumer);
     }
     catch (IOException ex) {
-      logger.debug(ex.toString());
+      throw new RuntimeException("Connection Failure", ex);
     }
   }
 
@@ -219,6 +224,16 @@ ActivationListener<OperatorContext>
   public void setHost(String host)
   {
     this.host = host;
+  }
+
+  public int getPort()
+  {
+    return port;
+  }
+
+  public void setPort(int port)
+  {
+    this.port = port;
   }
 
   public String getExchange()

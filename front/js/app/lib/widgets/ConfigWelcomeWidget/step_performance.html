@@ -1,0 +1,51 @@
+<h1>Performance</h1>
+
+<p class="well">
+    Use the following controls to change some performance settings regarding your DataTorrent installation.
+</p>
+
+<table>
+    <tbody>
+        <tr>
+            <td><code>hadoop</code> binary location</td>
+            <td>This is the absolute path to the location of the hadoop executable on the node that the gateway is running on.</td>
+            <td><input type="text" value="/home/hadoop/hadoop/bin/hadoop" disabled /></td>
+        </tr>
+        <tr>
+            <td>java version</td>
+            <td>Version of the Java Runtime Environment that is available on the node that the gateway is running on.</td>
+            <td><input type="text" value="1.6" disabled />  </td>
+        </tr>
+        <tr>
+            <td>gateway ip address</td>
+            <td>The IP address of the gateway node that the gateway should listen on for requests.</td>
+            <td><input type="text" value="0.0.0.0"/></td>
+        </tr>
+        <tr>
+            <td>gateway ip app address</td>
+            <td>
+                The IP address that other nodes in the cluster should use to reach the gateway.
+            </td>
+            <td>
+                <select name="gateway-app-ip">
+                    <option value="192.168.0.1">192.168.0.1</option>
+                    <option value="192.168.0.2">192.168.0.2</option>
+                    <option value="192.168.0.3">192.168.0.3</option>
+                    <option value="192.168.0.4">192.168.0.4</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>HDFS directory</td>
+            <td>The location where all datatorrent stuff will go, including checkpointed data, recordings, etc</td>
+            <td><input type="text" value="/users/datatorrent"/></td>
+        </tr>
+    </tbody>
+</table>
+
+<a href="#" class="install-step-link btn pull-left btn-large" data-action="system">
+    <i class="icon-circle-arrow-left"></i> back
+</a>
+<a href="#" class="install-step-link btn btn-success pull-right btn-large" data-action="applications">
+    continue <i class="icon-circle-arrow-right icon-white"></i>
+</a>

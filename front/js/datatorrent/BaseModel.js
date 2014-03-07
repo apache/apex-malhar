@@ -75,7 +75,7 @@ var BaseModel = Backbone.Model.extend({
         LOG(1, 'fetching ' + this.debugName, ['options: ', options]);
         
         // Call super
-        Backbone.Collection.prototype.fetch.call(this, options);
+        return Backbone.Model.prototype.fetch.call(this, options);
     },
     
     set: function(key, val, options) {

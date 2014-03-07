@@ -213,7 +213,7 @@ var UploadFilesView = BaseView.extend({
 
         var pending = this.collection.length;
 
-        this.listenTo(this.collection, 'upload_success', function() {
+        this.listenTo(this.collection, 'upload_success upload_error', function() {
             if (--pending === 0) {
                 this.collection.reset([]);
             }

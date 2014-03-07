@@ -33,6 +33,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
+        <version>2.4</version>
         <executions>
           <execution>
             <goals>
@@ -188,7 +189,7 @@
     <dependency>
       <groupId>com.esotericsoftware.kryo</groupId>
       <artifactId>kryo</artifactId>
-      <version>2.21</version>
+      <version>2.23.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
