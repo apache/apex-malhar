@@ -34,6 +34,39 @@ var text = DT.text;
 exports = module.exports = [
 
     /**
+     * CONFIGURATION MODE
+     */
+    {
+        'name': 'WelcomePageView',
+        'routes': ['welcome'],
+        'view': require('./lib/pages/WelcomePageView'),
+        'paramList': [],
+        'mode': 'config',
+        'breadcrumbs': [
+            {
+                name: text('configuration'),
+                href: '#config'
+            },
+            {
+                name: text('Welcome!')
+            }
+        ]
+    },
+
+    {
+        'name': 'ConfigurationPageView',
+        'routes': ['config', '/config', '/configuration'],
+        'view': require('./lib/pages/ConfigPageView'),
+        'paramList': [],
+        'mode': 'config',
+        'breadcrumbs': [
+            {
+                name: text('configuration')
+            }
+        ]
+    },
+
+    /**
      * OPERATIONS MODE
      * 
     */

@@ -73,13 +73,16 @@ DataSource.prototype = {
             LOG('2', 'WebSocket connection established');
             self.__wsCxn.resolveWith( self, [self.ws] );
         }
+        this.supressOnClose = false;
         this.ws.onclose = function() {
             LOG('3', 'WebSocket connection has closed');
-            Notifier.warning({
-                'title': 'WebSocket connection closed',
-                'text': 'The WebSocket connection to the daemon has been closed. You may have left the network or the server itself may be down. Try <a href="Javascript:window.location.reload(true)">refreshing the page</a>.',
-                'hide': false
-            });
+            if (!self.supressOnClose) {
+                Notifier.warning({
+                    'title': 'WebSocket connection closed',
+                    'text': 'The WebSocket connection to the Gateway has been closed. You may have left the network or the server itself may be down. Try <a href="Javascript:window.location.reload(true)">refreshing the page</a>.',
+                    'hide': false
+                });
+            }
         }
         this.ws.onmessage = function(msg) {
             var msgJson;
@@ -151,6 +154,12 @@ DataSource.prototype = {
                 'hide': false
             });
         }
+    },
+    disconnect: function () {
+        this.__wsCxn.done(function () {
+            this.supressOnClose = true;
+            this.ws.close();
+        })
     },
     _ajax: function(type, options) {
         if (!options.url || typeof options.url !== 'string') {
@@ -495,6 +504,45 @@ DataSource.prototype = {
         
         this.post(options);
         LOG(1, action + ' recording', [options]);
+    },
+    requestLicense: function (params) {
+        var url = settings.interpolateParams(settings.urls.LicenseRequest, {
+            v: settings.version
+        });
+
+        var options = {
+            data: params,
+            url: url
+        }
+
+        //var d = $.Deferred();
+        //d.resolve();
+        //return d.promise();
+
+        return this.post(options);
+    },
+    getLicenseLastRequest: function (params) {
+        var url = settings.interpolateParams(settings.urls.LicenseLastRequest, {
+            v: settings.version
+        });
+
+        var options = {
+            data: params,
+            url: url
+        }
+
+        return this.get(options);
+    },
+    getConfigIPAddresses: function () {
+        var url = settings.interpolateParams(settings.urls.ConfigIPAddresses, {
+            v: settings.version
+        });
+
+        var options = {
+            url: url
+        }
+
+        return this.get(options);
     }
 }
 

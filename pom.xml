@@ -39,5 +39,6 @@
     <module>demos</module>
     <module>samples</module>
     <module>benchmark</module>
+    <module>apps</module>
   </modules>
 </project>

@@ -37,6 +37,7 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.ShipContainingJars;
+import java.lang.reflect.Array;
 
 /**
  * This is an Output operator output the data in a format that can be displayed in DT UI widgets<br><br>
@@ -55,18 +56,18 @@ import com.datatorrent.api.annotation.ShipContainingJars;
 @ShipContainingJars(classes = {com.ning.http.client.websocket.WebSocket.class})
 public class WidgetOutputOperator extends BaseOperator
 {
-
-  private transient WebSocketOutputOperator<Pair<String, Object>> wsoo = new WebSocketOutputOperator<Pair<String,Object>>(){
+  protected transient WebSocketOutputOperator<Pair<String, Object>> wsoo = new WebSocketOutputOperator<Pair<String,Object>>(){
 
     private transient PubSubMessageCodec<Object> codec = new PubSubMessageCodec<Object>(mapper);
 
+    @Override
     public String convertMapToMessage(Pair<String,Object> t) throws IOException {
       return PubSubWebSocketClient.constructPublishMessage(t.getLeft(), t.getRight(), codec);
     };
 
   };
 
-  private transient ConsoleOutputOperator coo = new ConsoleOutputOperator();
+  protected transient ConsoleOutputOperator coo = new ConsoleOutputOperator();
 
   private String timeSeriesTopic = "widget.timeseries";
 
@@ -74,7 +75,7 @@ public class WidgetOutputOperator extends BaseOperator
 
   private String percentageTopic = "widget.percentage";
 
-  private String topNTopic = "widget.topn";
+  protected String topNTopic = "widget.topn";
 
   private String pieChartTopic = "widget,piechart";
 
@@ -82,7 +83,7 @@ public class WidgetOutputOperator extends BaseOperator
 
   private Number timeSeriesMin = 0;
 
-  private int nInTopN = 10;
+  protected int nInTopN = 10;
 
   private int nInPie = 5;
 
@@ -105,7 +106,7 @@ public class WidgetOutputOperator extends BaseOperator
   @InputPortFieldAnnotation(name="pieChart input", optional=true)
   public final transient PiechartInputPort pieChartInput = new PiechartInputPort(this);
 
-  private transient boolean isWebSocketConnected = true;
+  protected transient boolean isWebSocketConnected = true;
 
   @Override
   public void setup(OperatorContext context)
@@ -133,7 +134,7 @@ public class WidgetOutputOperator extends BaseOperator
 
   public static class TimeseriesInputPort extends DefaultInputPort<TimeSeriesData[]> {
 
-    private WidgetOutputOperator operator;
+    private final WidgetOutputOperator operator;
 
     public TimeseriesInputPort(WidgetOutputOperator woo)
     {
@@ -143,7 +144,7 @@ public class WidgetOutputOperator extends BaseOperator
     @Override
     public void process(TimeSeriesData[] tuple)
     {
-      @SuppressWarnings("unchecked")
+      @SuppressWarnings({"unchecked", "rawtypes"})
       HashMap<String, Number>[] timeseriesMapData = new HashMap[tuple.length];
       int i = 0;
       for (TimeSeriesData data : tuple) {
@@ -184,7 +185,7 @@ public class WidgetOutputOperator extends BaseOperator
 
   public static class TopNInputPort extends DefaultInputPort<HashMap<String, Number>>{
 
-    private WidgetOutputOperator operator;
+    private final WidgetOutputOperator operator;
 
     public TopNInputPort(WidgetOutputOperator oper)
     {
@@ -194,7 +195,7 @@ public class WidgetOutputOperator extends BaseOperator
     @Override
     public void process(HashMap<String, Number> topNMap)
     {
-      @SuppressWarnings("unchecked")
+      @SuppressWarnings({"unchecked", "rawtypes"})
       HashMap<String, Object>[] result = new HashMap[topNMap.size()];
       int j = 0;
       for (Entry<String, Number> e : topNMap.entrySet()) {
@@ -227,7 +228,7 @@ public class WidgetOutputOperator extends BaseOperator
 
   public static class SimpleInputPort extends DefaultInputPort<Object>{
 
-    private WidgetOutputOperator operator;
+    private final WidgetOutputOperator operator;
 
     public SimpleInputPort(WidgetOutputOperator oper)
     {
@@ -255,7 +256,7 @@ public class WidgetOutputOperator extends BaseOperator
 
   public static class PercentageInputPort extends DefaultInputPort<Integer>
   {
-    private WidgetOutputOperator operator;
+    private final WidgetOutputOperator operator;
 
     public PercentageInputPort(WidgetOutputOperator oper)
     {
@@ -283,7 +284,7 @@ public class WidgetOutputOperator extends BaseOperator
 
 public static class PiechartInputPort extends DefaultInputPort<HashMap<String, Number>>{
 
-    private WidgetOutputOperator operator;
+    private final WidgetOutputOperator operator;
 
     public PiechartInputPort(WidgetOutputOperator oper)
     {
@@ -293,9 +294,9 @@ public static class PiechartInputPort extends DefaultInputPort<HashMap<String, N
     @Override
     public void process(HashMap<String, Number> pieNumbers)
     {
-
       @SuppressWarnings("unchecked")
-      HashMap<String, Object>[] result = new HashMap[pieNumbers.size()];
+      HashMap<String, Object>[] result = (HashMap<String, Object>[])Array.newInstance(HashMap.class, pieNumbers.size());
+
       int j = 0;
       for (Entry<String, Number> e : pieNumbers.entrySet()) {
         result[j] = new HashMap<String, Object>();
@@ -325,7 +326,7 @@ public static class PiechartInputPort extends DefaultInputPort<HashMap<String, N
 
   }
 
-  private String getFullTopic(String topic, Map<String, Object> schema){
+  protected String getFullTopic(String topic, Map<String, Object> schema){
     HashMap<String, Object> topicObj = new HashMap<String, Object>();
     topicObj.put("appId", appId);
     topicObj.put("opId", operId);

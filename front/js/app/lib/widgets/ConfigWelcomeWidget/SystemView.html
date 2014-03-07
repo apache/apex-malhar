@@ -1,0 +1,117 @@
+<span class="section-system">
+<h1>System</h1>
+
+<% if (hadoopError) {  %>
+
+<p class="alert alert-error">
+    Hadoop is not found. Please install Hadoop first and restart the Gateway.
+    Restart is available from <a href="#config">configuration page</a>.
+</p>
+
+<% } else if (error) {  %>
+
+<p class="alert alert-error">
+    Error loading system properties.
+</p>
+
+<% } else if (loading) {  %>
+
+<p class="alert">
+    <%= DT.text('Loading System Properties...') %>
+</p>
+
+<% } else { %>
+
+<% if (errorMsg) {  %>
+
+<p class="alert alert-error">
+    <%= errorMsg %>
+</p>
+
+<% } %>
+
+<p class="well">
+    Use the following controls to change basic system settings regarding your DataTorrent installation.
+    <!--
+    If there is an issue icon (<i class="install-issue">!</i>) next to a property name, it means that the
+    property is preventing DataTorrent from functioning properly. -->
+</p>
+
+<table>
+    <tbody>
+        <tr>
+            <td>hadoop binary location</td>
+            <td>This is the absolute path to the location of the hadoop executable on the node that the gateway is running on.</td>
+            <td>
+                <div class="control-group">
+                    <div class="controls">
+                        <input class="hadoop-location" type="text" value="<%= hadoopLocationModel.get('value') %>" />
+                        <span class="help-block"></span>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>java version</td>
+            <td>Version of the Java Runtime Environment that is available on the node that the gateway is running on.</td>
+            <td><input type="text" value="<%= about.get('javaVersion') %>" disabled />  </td>
+        </tr>
+        <tr>
+            <td>gateway host address</td>
+            <td>
+                IP address and port that other nodes in the cluster should use to reach the gateway.
+            </td>
+            <td>
+                <div class="control-group">
+                    <label class="control-label">IP Address</label>
+                    <div class="controls">
+                        <select class="address-ip-select">
+                            <option value="">&lt;Custom&gt;</option>
+                            <% _.each(ipAddresses, function(ip) { %>
+                                <option value="<%= ip %>"><%= ip %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <input style="display:none;" type="text" class="address-ip-input" value="<%= addressModel.get('ip') %>" />
+                        <span class="help-block"></span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">Port</label>
+                    <div class="controls">
+                        <input type="text" class="address-port" value="<%= addressModel.get('port') %>" />
+                        <span class="help-block"></span>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <!--<i class="install-issue" title="There is something wrong with this value!">!</i>-->
+                HDFS directory</td>
+            <td>The location where all datatorrent stuff will go, including checkpointed data, recordings, etc</td>
+            <td>
+                <div class="control-group">
+                    <div class="controls">
+                        <input type="text" class="dfs-directory" value="<%= dfsModel.get('value') %>" />
+                        <span class="help-block"></span>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<% } %>
+
+<a href="#" class="install-step-link btn pull-left btn-large" data-action="LicenseInfoView">
+    <i class="icon-circle-arrow-left"></i> back
+</a>
+<a href="#" class="continue btn btn-success pull-right btn-large">
+    continue <i class="icon-circle-arrow-right icon-white"></i>
+</a>
+</span>

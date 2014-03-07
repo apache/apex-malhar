@@ -98,7 +98,13 @@ var PageLoaderView = BaseView.extend({
         this.loaded_page = loaded_page;
 
         // Set the mode from the pages hash
-        nav.set("mode", pageMetadata.mode);
+        var mode = nav.modes.get(pageMetadata.mode);
+        if (mode) {
+            nav.modes.clearActive({silent: true});
+            mode.set('active', true);
+        } else {
+            LOG(3, 'Page did not have valid mode', ['mode: ', pageMetadata.mode]);
+        }
 
         // Set the breadcrumbs
         this.breadcrumbs.reset(loaded_page.breadcrumbs);
@@ -122,7 +128,9 @@ var PageLoaderView = BaseView.extend({
             return dash.get('selected');
         });
         
-        loadedDash.triggerResize();
+        if (loadedDash) {
+            loadedDash.triggerResize();
+        }
         
     }, 300 ),
     
