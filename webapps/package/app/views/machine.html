@@ -1,0 +1,173 @@
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span12">
+            <h2 class="app-title">
+                Large Scale Monitoring and Analysis
+                <a ng-show="appURL" href="{{appURL}}" class="btn btn-primary btn-view-console" target="_blank">View Console</a>
+            </h2>
+        </div>
+    </div>
+    <div class="row-fluid">
+        <p class="well span7">
+            This demo application monitors samples of CPU, RAM and HD utilization coming from a heterogeneous installed base of multiple devices located at multiple data centers and used by different customers. The application receives sensor events from each device including the device ID, device model, the OS version, other installed application versions, and customer attributes.  It tracks the status of the devices across every combination of dimensions. This allows both immediate analysis and real-time monitoring of anomalies - e.g. notify when average CPU utilization exceeds 70% for particular combination of model, customer and software. While influenced by real customers, because of security concerns, this demo uses randomly generated data.
+        </p>
+        <div class="span5">
+            <span widgets-stat="" app="app"></span>
+        </div><!--/span-->
+    </div>
+
+    <div class="row-fluid">
+        <div class="span2">
+            <div class="well sidebar-nav">
+                <ul class="nav nav-list params-nav">
+                    <li class="nav-header">Dimensions</li>
+                    <form method="GET">
+                        <li>
+                        <label for="customer">Customer ID:</label>
+                        <select ng-model="customer" id="customer" ng-options="item.label for item in select.customer">
+                        </select>
+                        </li>
+
+                        <li>
+                        <label for="product">Product ID:</label>
+                        <select ng-model="product" id="product" ng-options="item.label for item in select.product">
+                        </select>
+                        </li>
+
+                        <li>
+                        <label for="os">Product OS:</label>
+                        <select ng-model="os" id="os" ng-options="item.label for item in select.os">
+                        </select>
+                        </li>
+
+                        <li>
+                        <label for="software1">Software1 Ver:</label>
+                        <select ng-model="software1" id="software1" ng-options="item.label for item in select.software1">
+                        </select>
+                        </li>
+
+                        <li>
+                        <label for="software2">Software2 Ver:</label>
+                        <select ng-model="software2" id="software2" ng-options="item.label for item in select.software2">
+                        </select>
+                        </li>
+
+                        <li>
+                        <label for="deviceId">Device ID:</label>
+                        <select ng-model="deviceId" id="deviceId" ng-options="item.label for item in select.deviceId">
+                        </select>
+                        </li>
+
+                        <li>
+                        <label for="lookback">Look Back:</label>
+                        <div class="input-append">
+                            <input type="number" ng-model="lookback" min="2" id="lookback" class="input-small">
+                            <span class="add-on">Minutes</span>
+                        </div>
+                        </li>
+                        <!--
+                        <li>
+                            <input ng-click="reload();" type="submit" value="reload" class="btn btn-primary" />
+                        </li>
+                        -->
+
+                    </form>
+                </ul>
+            </div><!--/.well -->
+        </div><!--/span-->
+        <div class="span10">
+            <div class="row-fluid">
+                <div class="span12 network-response">
+                    <span ng-show="lastResponse">
+                        <span class="network-response-label">Network Last Response:</span>
+                        <span class="network-response-stat">{{lastResponse|date:'HH:mm:ss'}}</span>
+                    </span>
+                    <span ng-show="responseTime">
+                        <span class="network-response-label">Network Response Time:</span>
+                        <span class="network-response-stat">{{responseTime|number}} ms</span>
+                    </span>
+                    <span class="network-response-label network-response-loading" ng-show="requestProgress > 1">
+                        Loading: {{requestProgress|number}} sec
+                    </span>
+
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="span8">
+                    <h4 class="chart-title">CPU Usage (%)</h4>
+                    <line-chart chart="cpuChart" class="line-chart"></line-chart>
+                </div><!--/span-->
+                <div class="span4">
+                    <h4>Current CPU Usage (%)</h4>
+                    <span gauge="" min="0" max="100" value="cpu" label="CPU" class="gauge"></span>
+                </div><!--/span-->
+            </div><!--/row-->
+            <div class="row-fluid">
+                <div class="span8">
+                    <h4 class="chart-title">RAM Usage (%)</h4>
+                    <line-chart chart="ramChart" class="line-chart"></line-chart>
+                </div><!--/span-->
+                <div class="span4">
+                    <h4>Current RAM Usage (%)</h4>
+                    <span gauge="" min="0" max="100" value="ram" label="RAM" class="gauge"></span>
+                </div><!--/span-->
+            </div><!--/row-->
+            <div class="row-fluid">
+                <div class="span8">
+                    <h4 class="chart-title">HDD Usage (%)</h4>
+                    <line-chart chart="hddChart" class="line-chart"></line-chart>
+                </div><!--/span-->
+                <div class="span4">
+                    <h4>Current HDD Usage (%)</h4>
+                    <span gauge="" min="0" max="100" value="hdd" label="HDD" class="gauge"></span>
+                </div><!--/span-->
+            </div><!--/row-->
+            <div class="row-fluid">
+                <div class="span8">
+                    <h4 class="chart-title">Server Polling Statistics</h4>
+                    <div>
+                        <span class="network-response-label">Network Last Response:</span>
+                        <span class="network-response-stat">{{lastResponse|date:'HH:mm:ss'}}</span>
+                        <span class="network-response-label network-response-loading" ng-show="requestProgress > 1">
+                            Loading: {{requestProgress|number}} sec
+                        </span>
+                    </div>
+                    <div>
+                        <span class="network-response-label">Network Response Time:</span>
+                        <span>{{responseTime|number}} ms</span>
+                    </div>
+                    <div>
+                        <span class="network-response-label">Minutes cached:</span>
+                        <span>{{minutesCached}}</span>
+                    </div>
+                    <div>
+                        <span class="network-response-label">Minutes received:</span>
+                        <span>{{minutesReceived}}</span>
+                    </div>
+                    <div>
+                        <span class="network-response-label">Keys Queried:</span>
+                        <span>{{response.keysQueried}}</span>
+                    </div>
+                    <div>
+                        <span class="network-response-label">Last Key Queried:</span>
+                        <span>{{response.lastKeyQueried}}</span>
+                    </div>
+                    <div>
+                        <span class="network-response-label">Last Key with Data:</span>
+                        <span>{{response.lastKey}}</span>
+                    </div>
+                    <div>
+                        <span class="network-response-label">Redis Query Time:</span>
+                        <span>{{response.queryTime|number}} ms</span>
+                    </div>
+                </div><!--/span-->
+            </div><!--/row-->
+        </div><!--/span-->
+    </div><!--/row-->
+
+    <hr>
+
+    <footer>
+        <p>&copy; DataTorrent 2013</p>
+    </footer>
+</div><!--/.fluid-container-->
