@@ -27,6 +27,8 @@ var ConfigPropertyModel = BaseModel.extend({
         description: ''
     },
 
+    fetchError: null,
+
     urlRoot: function() {
         return this.resourceURL('ConfigProperty');
     }

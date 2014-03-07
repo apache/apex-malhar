@@ -221,17 +221,15 @@ var SystemView = BaseView.extend({
         });
 
         var ajax = model.save();
+        //var ajax = function () { var df = $.Deferred();df.reject();return df.promise() }();
 
         ajax.done(function () {
             d.resolve();
         });
 
         ajax.fail(function (jqXHR) {
-            this.errorMsg = 'Failed to update property ' + propName;
-            d.rejectWith(null, [
-                name,
-                jqXHR
-            ]);
+            this.errorMsg = 'Failed to update property ' + name;
+            d.reject();
         }.bind(this));
 
         return d.promise();
@@ -376,7 +374,7 @@ var SystemView = BaseView.extend({
             this.navFlow.go('SummaryView');
         }.bind(this));
 
-        all.fail(function (propName) {
+        all.fail(function () {
             this.render();
         }.bind(this));
 
