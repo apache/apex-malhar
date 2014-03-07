@@ -42,6 +42,7 @@ public abstract class AbstractFlumeInputOperator<T>
         Partitioner<AbstractFlumeInputOperator<T>>
 {
   public final transient DefaultOutputPort<T> output = new DefaultOutputPort<T>();
+  public final transient DefaultOutputPort<Slice> drop = new DefaultOutputPort<Slice>();
   @NotNull
   private String[] connectionSpecs;
   private final ArrayList<RecoveryAddress> recoveryAddresses;
@@ -111,12 +112,24 @@ public abstract class AbstractFlumeInputOperator<T>
     if (i > 0) {
       while (--i > 0) {
         final Slice slice = handoverBuffer.poll();
-        output.emit(convert(slice.buffer, slice.offset + 8, slice.length - 8));
+        T convert = convert(slice.buffer, slice.offset + 8, slice.length - 8);
+        if (convert == null) {
+          drop.emit(slice);
+        }
+        else {
+          output.emit(convert);
+        }
         eventCounter++;
       }
 
       final Slice slice = handoverBuffer.poll();
-      output.emit(convert(slice.buffer, slice.offset + 8, slice.length - 8));
+      T convert = convert(slice.buffer, slice.offset + 8, slice.length - 8);
+      if (convert == null) {
+        drop.emit(slice);
+      }
+      else {
+        output.emit(convert);
+      }
       eventCounter++;
 
       address = Arrays.copyOfRange(slice.buffer, slice.offset, slice.offset + 8);
@@ -213,7 +226,7 @@ public abstract class AbstractFlumeInputOperator<T>
         return false;
       }
 
-      RecoveryAddress that = (RecoveryAddress) o;
+      RecoveryAddress that = (RecoveryAddress)o;
 
       if (windowId != that.windowId) {
         return false;
@@ -228,7 +241,7 @@ public abstract class AbstractFlumeInputOperator<T>
     @Override
     public int hashCode()
     {
-      int result = (int) (windowId ^ (windowId >>> 32));
+      int result = (int)(windowId ^ (windowId >>> 32));
       result = 31 * result + (address != null ? Arrays.hashCode(address) : 0);
       return result;
     }
@@ -407,7 +420,7 @@ public abstract class AbstractFlumeInputOperator<T>
   @Override
   public String toString()
   {
-    return "AbstractFlumeInputOperator{" + "connected=" + connected + ", connectionSpecs=" + (connectionSpecs.length == 0? "empty" : connectionSpecs[0]) + ", recoveryAddresses=" + recoveryAddresses + '}';
+    return "AbstractFlumeInputOperator{" + "connected=" + connected + ", connectionSpecs=" + (connectionSpecs.length == 0 ? "empty" : connectionSpecs[0]) + ", recoveryAddresses=" + recoveryAddresses + '}';
   }
 
   class Client extends AbstractLengthPrependerClient
@@ -663,7 +676,7 @@ public abstract class AbstractFlumeInputOperator<T>
       return false;
     }
 
-    AbstractFlumeInputOperator<?> that = (AbstractFlumeInputOperator<?>) o;
+    AbstractFlumeInputOperator<?> that = (AbstractFlumeInputOperator<?>)o;
 
     if (!Arrays.equals(connectionSpecs, that.connectionSpecs)) {
       return false;
