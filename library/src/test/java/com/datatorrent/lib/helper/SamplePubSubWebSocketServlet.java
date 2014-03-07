@@ -26,7 +26,7 @@ import org.eclipse.jetty.websocket.WebSocketServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.util.JacksonObjectMapperProvider;
+import com.datatorrent.lib.util.JacksonObjectMapperProvider;
 
 /**
  *

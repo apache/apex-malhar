@@ -15,10 +15,10 @@
  */
 package com.datatorrent.lib.io;
 
-import com.datatorrent.api.util.PubSubMessageCodec;
-import com.datatorrent.api.util.PubSubWebSocketClient;
-
 import java.io.IOException;
+
+import com.datatorrent.lib.util.PubSubMessageCodec;
+import com.datatorrent.lib.util.PubSubWebSocketClient;
 
 /**
  * <p>PubSubWebSocketOutputOperator class.</p>

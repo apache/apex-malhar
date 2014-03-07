@@ -21,7 +21,7 @@ import com.esotericsoftware.kryo.DefaultSerializer;
 import com.esotericsoftware.kryo.serializers.JavaSerializer;
 import com.sun.syndication.feed.synd.SyndEntry;
 
-import com.datatorrent.api.codec.KryoJdkContainer;
+import com.datatorrent.lib.codec.KryoJdkContainer;
 
 /**
  * RomeFeedEntry that wraps a Rome syndication entry.<p><br>

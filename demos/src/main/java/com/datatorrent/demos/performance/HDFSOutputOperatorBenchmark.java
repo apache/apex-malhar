@@ -18,7 +18,6 @@ package com.datatorrent.demos.performance;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.lib.io.fs.HdfsOutputOperator;
 
 import org.apache.hadoop.conf.Configuration;
 
@@ -41,8 +40,8 @@ public abstract class HDFSOutputOperatorBenchmark
     {
       RandomWordInputModule wordGenerator = dag.addOperator("wordGenerator", RandomWordInputModule.class);
    
-      HdfsOutputOperator hdfsOutputOperator = dag.addOperator("hdfsOutputOperator", new HdfsOutputOperator());
-      hdfsOutputOperator.setFilePath("hdfsOperatorBenchmarking" + "/%(contextId)/transactions.out.part%(partIndex)");
+      HdfsByteOutputOperator hdfsOutputOperator = dag.addOperator("hdfsOutputOperator", new HdfsByteOutputOperator());
+      hdfsOutputOperator.setFilePathPattern("hdfsOperatorBenchmarking" + "/%(contextId)/transactions.out.part%(partIndex)");
       hdfsOutputOperator.setAppend(false);
    
       dag.addStream("Generator2HDFSOutput", wordGenerator.output, hdfsOutputOperator.input).setLocality(getLocality());      

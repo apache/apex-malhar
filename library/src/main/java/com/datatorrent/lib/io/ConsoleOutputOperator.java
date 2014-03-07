@@ -55,6 +55,23 @@ public class ConsoleOutputOperator extends BaseOperator
     }
   };
   public boolean silent = false;
+  
+  /**
+   * @return the silent
+   */
+  public boolean isSilent()
+  {
+    return silent;
+  }
+
+  /**
+   * @param silent the silent to set
+   */
+  public void setSilent(boolean silent)
+  {
+    this.silent = silent;
+  }
+
   /**
    * When set to true, tuples are also logged at INFO level.
    */
