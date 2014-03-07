@@ -31,7 +31,7 @@ import com.google.common.collect.Maps;
  * Events in a bucket are divided in 2 sections: <br/>
  * <ul>
  * <li> Written:
- * Known events which are loaded from a persistent store {@link Bucket}
+ * Known events which are loaded from a persistent store {@link BucketStore}
  * </li>
  * <li> Un-written: New events which are not persisted yet.</li>
  * </ul>
