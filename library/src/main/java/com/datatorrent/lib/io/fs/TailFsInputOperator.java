@@ -73,6 +73,11 @@ public class TailFsInputOperator implements InputOperator, ActivationListener<Op
    */
   private boolean end;
 
+  /**
+   * The delimiter used to identify tne end of the record
+   */
+  private char delimiter = '\n';
+
   private transient RandomAccessFile reader;
   private transient File file;
 
@@ -161,6 +166,23 @@ public class TailFsInputOperator implements InputOperator, ActivationListener<Op
     this.numberOfTuples = numberOfTuples;
   }
 
+  /**
+   * @return the delimiter
+   */
+  public char getDelimiter()
+  {
+    return delimiter;
+  }
+
+  /**
+   * @param delimiter
+   *          the delimiter to set
+   */
+  public void setDelimiter(char delimiter)
+  {
+    this.delimiter = delimiter;
+  }
+
   @Override
   public void beginWindow(long windowId)
   {
@@ -217,7 +239,7 @@ public class TailFsInputOperator implements InputOperator, ActivationListener<Op
     int localCounter = numberOfTuples;
     try {
       while (localCounter >= 0) {
-        String str = reader.readLine();
+        String str = readLine();
         if (str == null) {
           logger.debug("reached end of file");
         } else {
@@ -232,6 +254,24 @@ public class TailFsInputOperator implements InputOperator, ActivationListener<Op
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  private String readLine() throws IOException
+  {
+    StringBuffer sb = new StringBuffer();
+    char readChar;
+    int ch;
+    long pos = reader.getFilePointer();
+    while ((ch = reader.read()) != -1) {
+      readChar = (char) ch;
+      if (readChar != delimiter) {
+        sb.append(readChar);
+      } else {
+        return sb.toString();
+      }
+    }
+    reader.seek(pos);
+    return null;
   }
 
   public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();

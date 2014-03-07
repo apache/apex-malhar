@@ -37,7 +37,7 @@ public class TailFsInputOperatorTest
   public void testTailInputOperator() throws Exception{
     FileWriter fstream = new FileWriter(filePath);
     BufferedWriter out = new BufferedWriter(fstream);
-    out.write("Hello Java");
+    out.write("Hello Java\n");
     out.close();
     
     TailFsInputOperator oper = new TailFsInputOperator();
@@ -53,7 +53,7 @@ public class TailFsInputOperatorTest
     oper.endWindow();
     fstream = new FileWriter(filePath,true);
     out = new BufferedWriter(fstream);
-    out.write("Hello Java");
+    out.write("Hello Java\n");
     out.close();
     oper.beginWindow(1);
     oper.emitTuples();
@@ -88,13 +88,49 @@ public class TailFsInputOperatorTest
     oper.endWindow();
     fstream = new FileWriter(filePath,true);
     out = new BufferedWriter(fstream);
-    out.write("Hello Java");
+    out.write("Hello Java\n");
     out.close();
     oper.beginWindow(1);
     oper.emitTuples();
     oper.endWindow();
     oper.deactivate();
     Assert.assertEquals(1,sink.collectedTuples.size()); 
+    out.close();
+    File file = new File(filePath);
+    if(file.exists()){
+      file.delete();
+    }
+  }
+  
+  @Test
+  public void testDelimiter() throws Exception{
+    FileWriter fstream = new FileWriter(filePath);
+    BufferedWriter out = new BufferedWriter(fstream);
+    out.write("Hello Java");
+    out.close();
+    
+    TailFsInputOperator oper = new TailFsInputOperator();
+    oper.setFilePath(filePath);
+    oper.setDelimiter('|');
+    CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
+    oper.output.setSink(sink);
+    oper.setDelay(1);
+    oper.setNumberOfTuples(10);
+    oper.setup(null);
+    oper.activate(null);
+    oper.beginWindow(0);
+    oper.emitTuples();
+    oper.endWindow();
+    fstream = new FileWriter(filePath,true);
+    out = new BufferedWriter(fstream);
+    out.write("Hello Java|");
+    out.close();
+    oper.beginWindow(1);
+    oper.emitTuples();
+    oper.endWindow();
+    oper.deactivate();
+    Assert.assertEquals(1,sink.collectedTuples.size());
+    Assert.assertEquals("Hello JavaHello Java", sink.collectedTuples.get(0));
     out.close();
     File file = new File(filePath);
     if(file.exists()){
