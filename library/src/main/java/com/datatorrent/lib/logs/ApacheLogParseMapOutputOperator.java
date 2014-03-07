@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.datatorrent.lib.logs;
 
 import java.io.IOException;
@@ -15,11 +30,22 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
 
 /**
+ * Parse Apache log lines one line at a time. logRegex is used as a parser. The fields extracted are defined as a
+ * property
  * <p>
- * ApacheLogParseMapOutputOperator class.
- * </p>
+ * This is a pass through operator<br>
+ * <br>
+ * <b>StateFull : No </b><br>
+ * <b>Partitions : Yes</b>, No dependency among input values. <br>
+ * <br>
+ * <b>Ports</b>:<br>
+ * <b>data</b>: expects String<br>
+ * <b>output</b>: emits Map<br>
+ * <br>
+ * <b>Properties</b>:<br>
+ * <b>logRegex</b>: defines the regex <br>
+ * <b>groupMap</b>: defines the mapping from the group ids to the names <br>
  * 
- * @since 0.3.5
  */
 public class ApacheLogParseMapOutputOperator extends BaseOperator
 {
@@ -31,7 +57,7 @@ public class ApacheLogParseMapOutputOperator extends BaseOperator
    * This defines the mapping from group Ids to name
    */
   @NotNull
-  private Map<String,Integer> groupMap;
+  private Map<String, Integer> groupMap;
   private transient Pattern accessLogPattern;
 
   /**
@@ -53,7 +79,7 @@ public class ApacheLogParseMapOutputOperator extends BaseOperator
    * Client IP address, output port.
    */
   public final transient DefaultOutputPort<Map<String, Object>> output = new DefaultOutputPort<Map<String, Object>>();
-  
+
   /**
    * @return the groupMap
    */
@@ -63,7 +89,8 @@ public class ApacheLogParseMapOutputOperator extends BaseOperator
   }
 
   /**
-   * @param groupMap the groupMap to set
+   * @param groupMap
+   *          the groupMap to set
    */
   public void setGroupMap(Map<String, Integer> groupMap)
   {
@@ -119,7 +146,7 @@ public class ApacheLogParseMapOutputOperator extends BaseOperator
     if (logRegex == null) {
       setLogRegex(getAccessLogRegex());
     }
-    if(groupMap == null || groupMap.size() ==0){
+    if (groupMap == null || groupMap.size() == 0) {
       throw new RuntimeException("The mapping from group Ids to names can't be null");
     }
   }
@@ -140,9 +167,9 @@ public class ApacheLogParseMapOutputOperator extends BaseOperator
     Matcher accessLogEntryMatcher = accessLogPattern.matcher(line);
     if (accessLogEntryMatcher.matches()) {
       Map<String, Object> outputMap = new HashMap<String, Object>();
-      
-      for(Map.Entry<String, Integer> entry : groupMap.entrySet()){
-        outputMap.put(entry.getKey(),accessLogEntryMatcher.group(entry.getValue().intValue()).trim());        
+
+      for (Map.Entry<String, Integer> entry : groupMap.entrySet()) {
+        outputMap.put(entry.getKey(), accessLogEntryMatcher.group(entry.getValue().intValue()).trim());
       }
       output.emit(outputMap);
     }
