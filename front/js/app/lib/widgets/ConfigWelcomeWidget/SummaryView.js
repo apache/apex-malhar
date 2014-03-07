@@ -21,6 +21,7 @@ var ConfigIssueCollection = DT.lib.ConfigIssueCollection;
 var Notifier = DT.lib.Notifier;
 var RestartModal = DT.lib.RestartModal;
 var ConfigPropertyModel = require('../../../../datatorrent/ConfigPropertyModel');
+var ConfirmModal = require('./ConfirmModalView');
 
 var SummaryView = BaseView.extend({
 
@@ -59,12 +60,12 @@ var SummaryView = BaseView.extend({
 
             //if (true) {
             if (restartRequired) {
-                var restartModal = new RestartModal({
-                    dataSource: this.dataSource,
-                    message: 'Changes made require restart. Restarting the Gateway...'
+                var modal = new ConfirmModal({
+                    message: 'Changes made require restart. Please retart the Gateway.',
+                    confirmCallback: this.restart.bind(this)
                 });
-                restartModal.addToDOM();
-                restartModal.launch();
+                modal.addToDOM();
+                modal.launch();
             }
 
             this.render();
@@ -74,6 +75,15 @@ var SummaryView = BaseView.extend({
             this.error = true;
             this.render();
         }.bind(this));
+    },
+
+    restart: function () {
+        var restartModal = new RestartModal({
+            dataSource: this.dataSource,
+            message: 'Restarting the Gateway...'
+        });
+        restartModal.addToDOM();
+        restartModal.launch();
     },
 
     saveConfigStatusProperty: function () {

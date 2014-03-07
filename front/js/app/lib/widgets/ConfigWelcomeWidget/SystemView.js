@@ -239,7 +239,8 @@ var SystemView = BaseView.extend({
         var ajax = this.hadoopLocationModel.save();
 
         ajax.fail(function (jqXHR) {
-            this.errorMsg = 'Failed to update hadoop location';
+            var response = JSON.parse(jqXHR.responseText);
+            this.errorMsg = response.message;
         }.bind(this));
 
         return ajax;
