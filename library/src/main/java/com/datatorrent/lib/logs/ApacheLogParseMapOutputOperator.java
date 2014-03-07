@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.validation.constraints.NotNull;
+
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
@@ -25,6 +27,11 @@ public class ApacheLogParseMapOutputOperator extends BaseOperator
    * The apache log pattern regex
    */
   private String logRegex;
+  /**
+   * This defines the mapping from group Ids to name
+   */
+  @NotNull
+  private Map<String,Integer> groupMap;
   private transient Pattern accessLogPattern;
 
   /**
@@ -46,6 +53,22 @@ public class ApacheLogParseMapOutputOperator extends BaseOperator
    * Client IP address, output port.
    */
   public final transient DefaultOutputPort<Map<String, Object>> output = new DefaultOutputPort<Map<String, Object>>();
+  
+  /**
+   * @return the groupMap
+   */
+  public Map<String, Integer> getGroupMap()
+  {
+    return groupMap;
+  }
+
+  /**
+   * @param groupMap the groupMap to set
+   */
+  public void setGroupMap(Map<String, Integer> groupMap)
+  {
+    this.groupMap = groupMap;
+  }
 
   /**
    * @return the logRegex
@@ -96,6 +119,9 @@ public class ApacheLogParseMapOutputOperator extends BaseOperator
     if (logRegex == null) {
       setLogRegex(getAccessLogRegex());
     }
+    if(groupMap == null || groupMap.size() ==0){
+      throw new RuntimeException("The mapping from group Ids to names can't be null");
+    }
   }
 
   /**
@@ -113,10 +139,10 @@ public class ApacheLogParseMapOutputOperator extends BaseOperator
   {
     Matcher accessLogEntryMatcher = accessLogPattern.matcher(line);
     if (accessLogEntryMatcher.matches()) {
-      int groupCount = accessLogEntryMatcher.groupCount();
       Map<String, Object> outputMap = new HashMap<String, Object>();
-      for(int i = 1; i<= groupCount; i++){
-        outputMap.put(""+i,accessLogEntryMatcher.group(i).trim());        
+      
+      for(Map.Entry<String, Integer> entry : groupMap.entrySet()){
+        outputMap.put(entry.getKey(),accessLogEntryMatcher.group(entry.getValue().intValue()).trim());        
       }
       output.emit(outputMap);
     }

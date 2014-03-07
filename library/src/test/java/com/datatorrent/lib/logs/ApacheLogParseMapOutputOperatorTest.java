@@ -15,6 +15,7 @@
  */
 package com.datatorrent.lib.logs;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
@@ -43,6 +44,15 @@ public class ApacheLogParseMapOutputOperatorTest
     ApacheLogParseMapOutputOperator oper = new ApacheLogParseMapOutputOperator();
     CollectorTestSink sink = new CollectorTestSink();
     oper.output.setSink(sink);
+    Map<String, Integer> groupMap = new HashMap<String, Integer>();
+    groupMap.put("ipAddr",1);
+    groupMap.put("userId",3);
+    groupMap.put("date",4);
+    groupMap.put("url",5);
+    groupMap.put("httpCode",6);
+    groupMap.put("bytes",7);
+    groupMap.put("agent",9);
+    oper.setGroupMap(groupMap);
     String token = "127.0.0.1 - - [04/Apr/2013:17:17:21 -0700] \"GET /favicon.ico HTTP/1.1\" 404 498 \"-\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.43 Safari/537.31\"";
     oper.setup(null);
     oper.beginWindow(0);
@@ -51,16 +61,14 @@ public class ApacheLogParseMapOutputOperatorTest
     Assert.assertEquals("number emitted tuples", 1, sink.collectedTuples.size());
     Map<String, Object> map = (Map<String, Object>) sink.collectedTuples.get(0);
     log.debug("map {}",map);
-    Assert.assertEquals("Size of map is 9", 9, map.size());
-    Assert.assertEquals("checking ip", "127.0.0.1", map.get("1"));
-    Assert.assertEquals("checking", "-", map.get("2"));
-    Assert.assertEquals("checking userid", "-", map.get("3"));
-    Assert.assertEquals("checking date", "04/Apr/2013:17:17:21 -0700", map.get("4"));
-    Assert.assertEquals("checking url", "/favicon.ico", map.get("5"));
-    Assert.assertEquals("checking http code", "404", map.get("6"));
-    Assert.assertEquals("checking bytes", "498", map.get("7"));
-    Assert.assertEquals("checking", "-", map.get("8"));
-    Assert.assertEquals("checking agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.43 Safari/537.31", map.get("9"));
+    Assert.assertEquals("Size of map is 7", 7, map.size());
+    Assert.assertEquals("checking ip", "127.0.0.1", map.get("ipAddr"));
+    Assert.assertEquals("checking userid", "-", map.get("userId"));
+    Assert.assertEquals("checking date", "04/Apr/2013:17:17:21 -0700", map.get("date"));
+    Assert.assertEquals("checking url", "/favicon.ico", map.get("url"));
+    Assert.assertEquals("checking http code", "404", map.get("httpCode"));
+    Assert.assertEquals("checking bytes", "498", map.get("bytes"));
+    Assert.assertEquals("checking agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.43 Safari/537.31", map.get("agent"));
   }
   
 
@@ -75,6 +83,14 @@ public class ApacheLogParseMapOutputOperatorTest
     ApacheLogParseMapOutputOperator oper = new ApacheLogParseMapOutputOperator();
     CollectorTestSink sink = new CollectorTestSink();
     oper.output.setSink(sink);
+    Map<String, Integer> groupMap = new HashMap<String, Integer>();
+    groupMap.put("ipAddr",1);
+    groupMap.put("userId",3);
+    groupMap.put("date",4);
+    groupMap.put("url",5);
+    groupMap.put("httpCode",6);
+    groupMap.put("rest",7);
+    oper.setGroupMap(groupMap);
     String token = "127.0.0.1 - - [04/Apr/2013:17:17:21 -0700] \"GET /favicon.ico HTTP/1.1\" 404 498 \"-\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.43 Safari/537.31\"";
     oper.setLogRegex("^([\\d\\.]+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] \"[A-Z]+ (.+?) HTTP/\\S+\" (\\d{3})(.*)");
     oper.setup(null);
@@ -84,13 +100,12 @@ public class ApacheLogParseMapOutputOperatorTest
     Assert.assertEquals("number emitted tuples", 1, sink.collectedTuples.size());
     Map<String, Object> map = (Map<String, Object>) sink.collectedTuples.get(0);
     log.debug("map {}",map);
-    Assert.assertEquals("Size of map is 7", 7, map.size());
-    Assert.assertEquals("checking", "-", map.get("2"));
-    Assert.assertEquals("checking userid", "-", map.get("3"));
-    Assert.assertEquals("checking ip", "127.0.0.1", map.get("1"));
-    Assert.assertEquals("checking date", "04/Apr/2013:17:17:21 -0700", map.get("4"));
-    Assert.assertEquals("checking url", "/favicon.ico", map.get("5"));
-    Assert.assertEquals("checking http code", "404", map.get("6"));
-    Assert.assertEquals("checking bytes", "498 \"-\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.43 Safari/537.31\"", map.get("7"));    
+    Assert.assertEquals("Size of map is 6", 6, map.size());
+    Assert.assertEquals("checking ip", "127.0.0.1", map.get("ipAddr"));
+    Assert.assertEquals("checking userid", "-", map.get("userId"));    
+    Assert.assertEquals("checking date", "04/Apr/2013:17:17:21 -0700", map.get("date"));
+    Assert.assertEquals("checking url", "/favicon.ico", map.get("url"));
+    Assert.assertEquals("checking http code", "404", map.get("httpCode"));
+    Assert.assertEquals("checking bytes", "498 \"-\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.43 Safari/537.31\"", map.get("rest"));    
   }
 }
