@@ -9,6 +9,7 @@ config.adsdimensions = {};
 config.adsdimensions.redis = {};
 
 config.web.port = process.env.PORT || 3003;
+config.web.staticDir = process.env.STATIC_DIR || '/app';
 config.gateway.host = process.env.GATEWAY_HOST || 'localhost';
 config.gateway.port = process.env.GATEWAY_PORT || 9090;
 config.machine.redis.host = process.env.MACHINE_REDIS_HOST || null;
