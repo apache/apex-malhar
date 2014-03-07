@@ -1,4 +1,4 @@
-webapps
+Web Demos
 ===============
 
 Web Applications for DataTorrent Demos:
