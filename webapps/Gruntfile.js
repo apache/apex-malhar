@@ -265,6 +265,22 @@ module.exports = function (grunt) {
         cwd: '<%= yeoman.app %>/styles',
         dest: '.tmp/styles/',
         src: '{,*/}*.css'
+      },
+      package: {
+        files: [{
+            expand: true,
+            cwd: '<%= yeoman.dist %>',
+            dest: 'package/app/',
+            src: '**/*'
+          }, {
+            expand: true,
+            dest: 'package/',
+            src: ['app.js', 'config.js', 'package.json']
+          }, {
+          expand: true,
+          dest: 'package',
+          src: 'routes/*.js'
+        }]
       }
     },
     concurrent: {
