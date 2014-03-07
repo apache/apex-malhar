@@ -1,5 +1,5 @@
 #!/bin/sh
-export NODE_ENV=production
+export STATIC_DIR=/dist
 export PORT=3003
 export GATEWAY_HOST=localhost
 export GATEWAY_PORT=9090

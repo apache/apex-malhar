@@ -1,7 +1,7 @@
 Web Demos
 ===============
 
-Web Applications for DataTorrent Demos:
+Web Application for DataTorrent Demos:
 - Twitter
 - Mobile
 - Machine Generated Data
@@ -12,19 +12,9 @@ Web Applications for DataTorrent Demos:
 
 ![Demos Architecture](docs/demos_architecture.png "Demos Architecture")
 
-## Demos configuration
- Please use ```config.js``` or environment variables for configuration (DT Gateway, Redis, MongoDB, etc.).
- See ```prod_start.sh``` and ```dev_start.sh```.
-
 ## Running Demos
  Demos run on [Node.js](http://nodejs.org/).
- To run demo web application with prebuilt dependencies:
-
- ``` bash
-    $ NODE_ENV=production node app.js
- ```
-
- By default application will be available at http://localhost:3003 and will connect to DT Gateway at localhost:9090.
+ See [package](package) to run demos with prefetched runtime dependencies (only Node.js is required).
 
 ## Running Demos in Development Mode
  Install npm dependencies:
@@ -46,6 +36,11 @@ Web Applications for DataTorrent Demos:
  ```
 
  Application will be available at http://localhost:3003
+
+## Demos configuration
+ Please use ```config.js``` or environment variables for configuration (DT Gateway, Redis, MongoDB, etc.).
+ See ```prod_start.sh``` and ```dev_start.sh```.
+
 
 ## Tips
 

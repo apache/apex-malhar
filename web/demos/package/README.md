@@ -1,7 +1,7 @@
-webapps
+Web Demos
 ===============
 
-Web Applications for DataTorrent Demos:
+Web Application for DataTorrent Demos:
 - Twitter
 - Mobile
 - Machine Generated Data
