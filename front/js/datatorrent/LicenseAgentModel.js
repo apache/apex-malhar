@@ -39,7 +39,10 @@ var LicenseAgentModel = BaseModel.extend({
         return this.resourceURL('LicenseAgent')
     },
 
-    fetchError: BaseUtil.quietFetchError
+    fetchError: function (object, response, options) {
+        this.set('fetchFailed', true);
+        BaseUtil.quietFetchError(object, response, options);
+    }
 
 });
 exports = module.exports = LicenseAgentModel;
