@@ -19,17 +19,16 @@
  * of memory and minimize the latency of reading/writing data to disk.<br/>
  *
  * <p>
- *   The core class for managing buckets is {@link com.datatorrent.lib.bucket.BucketManager}. Only it can create
- *   new {@link com.datatorrent.lib.bucket.Bucket}s.<br/>
- *   BucketManager interacts with a {@link com.datatorrent.lib.bucket.BucketStore} which is provided
+ *   The api of a bucket manager is provided by {@link com.datatorrent.lib.bucket.BucketManager}.<br/>
+ *   There are 2 concrete implementations:
+ *   <ul>
+ *     <li>{@link com.datatorrent.lib.bucket.BucketManagerImpl}</li>
+ *     <li>{@link com.datatorrent.lib.bucket.TimeBasedBucketManagerImpl}</li>
+ *   </ul>
+ *   Only a BucketManager can create new {@link com.datatorrent.lib.bucket.Bucket}s. It interacts with a {@link com.datatorrent.lib.bucket.BucketStore} which is provided
  *   by the user which in this case is an {@link com.datatorrent.api.Operator}. <br/>
  *   {@link com.datatorrent.lib.bucket.HdfsBucketStore} is an example of BucketStore which uses Hdfs as the persistent
  *   store.
- * </p>
- *
- * <p>
- *   There is also a {@link com.datatorrent.lib.bucket.BucketManagerForExpirable} which works with events that
- *   can be expired. It can be configured to delete these events from memory as well as persistent store periodically.
  * </p>
  *
  * <p>

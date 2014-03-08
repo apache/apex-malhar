@@ -16,6 +16,7 @@
 package com.datatorrent.lib.bucket;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.Exchanger;
 
 import org.apache.hadoop.conf.Configuration;
@@ -26,12 +27,13 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 
 /**
- * Tests for {@link HdfsBucketStore}
+ * Tests for {@link com.datatorrent.lib.bucket.BucketManagerImpl}
  */
 public class BucketManagerTest
 {
@@ -40,18 +42,17 @@ public class BucketManagerTest
 
   private static BucketManager<DummyEvent> manager;
   private static String applicationPath;
-  private static HdfsBucketStore<DummyEvent> hdfsBucketStore;
   private static int bucket1 = 2875;
   private static int bucket2 = 2876;
 
-  private static class TestStorageManagerListener implements BucketManager.Listener
+  static class TestStorageManagerListener implements BucketManager.Listener<DummyEvent>
   {
 
     @Override
-    public void bucketLoaded(long bucketKey)
+    public void bucketLoaded(Bucket<DummyEvent> bucket)
     {
       try {
-        eventBucketExchanger.exchange(bucketKey);
+        eventBucketExchanger.exchange(bucket.bucketKey);
       }
       catch (InterruptedException e) {
         throw new RuntimeException(e);
@@ -68,32 +69,15 @@ public class BucketManagerTest
   @Test
   public void testLoadAndSave() throws Exception
   {
-    testRound(0);
-    testRound(1);
-  }
-
-  @Test
-  public void testBucketEviction() throws IOException, InterruptedException
-  {
-    manager.loadBucketData(new BucketManager.LoadCommand(bucket1));
-    eventBucketExchanger.exchange(null);
-    manager.loadBucketData(new BucketManager.LoadCommand(bucket2));
-    eventBucketExchanger.exchange(null);
-    Assert.assertTrue(manager.getBucket(bucket1) == null);
-    Assert.assertNotNull(manager.getBucket(bucket2));
-  }
-
-  @Test
-  public void testBucketDeletion() throws Exception
-  {
-    hdfsBucketStore.deleteBucket(bucket1);
-    testRound(0);
+    for (int i = 0; i < 100; i++) {
+      testRound(i);
+    }
   }
 
   private void testRound(int round) throws Exception
   {
     long now = System.currentTimeMillis();
-    manager.loadBucketData(new BucketManager.LoadCommand(bucket1));
+    manager.loadBucketData(bucket1);
     eventBucketExchanger.exchange(null);
     for (int i = round * 10; i < (round * 10) + 10; i++) {
       DummyEvent dummyEvent = new DummyEvent(i, now);
@@ -105,24 +89,58 @@ public class BucketManagerTest
     Assert.assertEquals("no of events", (round + 1) * 10, bucket.countOfWrittenEvents());
   }
 
+  @Test
+  public void testBucketEviction() throws IOException, InterruptedException
+  {
+    manager.loadBucketData(bucket1);
+    eventBucketExchanger.exchange(null);
+    manager.loadBucketData(bucket2);
+    eventBucketExchanger.exchange(null);
+    Assert.assertTrue(manager.getBucket(bucket1) == null);
+    Assert.assertNotNull(manager.getBucket(bucket2));
+  }
+
+  @Test
+  public void test2BucketEviction() throws InterruptedException
+  {
+    for (int i = 0; i < 100; i++) {
+      manager.loadBucketData(i);
+      eventBucketExchanger.exchange(null);
+    }
+
+    for (int i = 0; i < 100; i++) {
+      if (i != 99) {
+        Assert.assertTrue(manager.getBucket(i) == null);
+      }
+      else {
+        Assert.assertNotNull(manager.getBucket(i));
+      }
+    }
+  }
+
+
   @BeforeClass
   public static void setup() throws Exception
   {
     applicationPath = OperatorContextTestHelper.getUniqueApplicationPath(APPLICATION_PATH_PREFIX);
-    hdfsBucketStore = new HdfsBucketStore<DummyEvent>(applicationPath, 0, 50, Sets.newHashSet(0), 0);
-    manager = new BucketManager<DummyEvent>(true, 2880, 1, 1, 1);
-    manager.startService(hdfsBucketStore, new TestStorageManagerListener());
+
+    Map<String, Object> parameters = Maps.newHashMap();
+    parameters.put(HdfsBucketStore.APP_PATH, applicationPath);
+    parameters.put(HdfsBucketStore.OPERATOR_ID, 0);
+    parameters.put(HdfsBucketStore.PARTITION_KEYS, Sets.newHashSet(0));
+    parameters.put(HdfsBucketStore.PARTITION_MASK, 0);
+
+    manager = new BucketManagerImpl.Builder<DummyEvent>(true, 2880).noOfBucketsInMemory(1)
+      .maxNoOfBucketsInMemory(1).millisPreventingBucketEviction(1).build();
+    manager.startService(new Context(parameters), new TestStorageManagerListener());
   }
 
   @AfterClass
   public static void teardown() throws IOException
   {
-    hdfsBucketStore.deleteBucket(bucket1);
     manager.shutdownService();
     Path root = new Path(applicationPath);
     FileSystem fs = FileSystem.get(root.toUri(), new Configuration());
     fs.delete(root, true);
   }
-
-
 }
