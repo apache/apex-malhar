@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>DataTorrent: The Real-Time Big Data Platform</title>
+  <link rel="stylesheet" href="css/index.<%= pkg.version %>.css" type="text/css" media="screen">
+  <link href="favicon.ico" rel="icon" type="image/x-icon" />
+</head>
+<body>
+<div id="wrapper">
+  <div class="loading-assets">assets loading</div>
+</div>
+<script>
+  window.UI_VERSION = '<%= pkg.version %>';
+  window.WEBSOCKET_HOST = "<%= config.gateway.host + ':' + config.gateway.port %>";
+</script>
+<script type="text/javascript" src="js/bundle.<%= pkg.version %>.js"></script>
+</body>
+</html>

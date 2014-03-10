@@ -61,6 +61,7 @@ describe('PageLoaderView.js', function() {
                 current_page: 'current page not set',
                 url_args: []
             });
+            this.navModel.modes = new Backbone.Collection([]);
         });
 
         afterEach(function() {

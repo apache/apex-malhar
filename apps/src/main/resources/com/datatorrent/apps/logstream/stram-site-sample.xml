@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!-- Put this in $HOME/.stram/stram-site.xml -->
+<configuration>
+
+  <property>
+     <name>stram.maxContainers</name>
+     <value>7</value>
+     </property>
+
+  <property>
+     <name>stram.masterMemoryMB</name>
+     <value>1024</value>
+  </property>
+
+  <property>
+     <name>stram.containerMemoryMB</name>
+     <value>512</value>
+  </property>
+
+  <property>
+     <name>stram.heartbeatTimeoutMillis</name>
+     <value>300000</value>
+  </property>
+
+<!-- daemon -->
+
+  <property>
+    <name>stram.daemon.address</name>
+    <value>0.0.0.0:9090</value>
+  </property>
+<property>
+  <name>stram.daemon.staticResourceDirectory</name>
+  <value>/home/user/.stram/htdocs</value>
+</property>
+
+<!-- Log Input from logstash -->
+  <!-- apache access logs -->
+  <property>
+    <name>stram.operator.ApacheLogInput.host</name>
+    <value>localhost</value>
+  </property>
+  <property>
+    <name>stram.operator.ApacheLogInput.exchange</name>
+    <value>logstash</value>
+  </property>
+  <property>
+    <name>stram.operator.ApacheLogInput.exchangeType</name>
+    <value>direct</value>
+  </property>
+  <property>
+    <name>stram.operator.ApacheLogInput.routingKey</name>
+    <value>apache</value>
+  </property>
+  <property>
+    <name>stram.operator.ApacheLogInput.queueName</name>
+    <value>apacheLogQueue</value>
+  </property>
+
+  <!-- mysql logs -->
+  <property>
+    <name>stram.operator.MysqlLogInput.host</name>
+    <value>localhost</value>
+  </property>
+  <property>
+    <name>stram.operator.MysqlLogInput.exchange</name>
+    <value>logstash</value>
+  </property>
+  <property>
+    <name>stram.operator.MysqlLogInput.exchangeType</name>
+    <value>direct</value>
+  </property>
+  <property>
+    <name>stram.operator.MysqlLogInput.routingKey</name>
+    <value>mysql</value>
+  </property>
+  <property>
+    <name>stram.operator.MysqlLogInput.queueName</name>
+    <value>mysqlLogQueue</value>
+  </property>
+
+  <!-- syslog logs -->
+  <property>
+    <name>stram.operator.SyslogLogInput.host</name>
+    <value>localhost</value>
+  </property>
+  <property>
+    <name>stram.operator.SyslogLogInput.exchange</name>
+    <value>logstash</value>
+  </property>
+  <property>
+    <name>stram.operator.SyslogLogInput.exchangeType</name>
+    <value>direct</value>
+  </property>
+  <property>
+    <name>stram.operator.SyslogLogInput.routingKey</name>
+    <value>syslog</value>
+  </property>
+  <property>
+    <name>stram.operator.SyslogLogInput.queueName</name>
+    <value>syslogQueue</value>
+  </property>
+
+  <!-- system info logs -->
+  <property>
+    <name>stram.operator.SystemLogInput.host</name>
+    <value>localhost</value>
+  </property>
+  <property>
+    <name>stram.operator.SystemLogInput.exchange</name>
+    <value>logstash</value>
+  </property>
+  <property>
+    <name>stram.operator.SystemLogInput.exchangeType</name>
+    <value>direct</value>
+  </property>
+  <property>
+    <name>stram.operator.SystemLogInput.routingKey</name>
+    <value>system</value>
+  </property>
+  <property>
+    <name>stram.operator.SystemLogInput.queueName</name>
+    <value>systemQueue</value>
+  </property>
+</configuration>
+
