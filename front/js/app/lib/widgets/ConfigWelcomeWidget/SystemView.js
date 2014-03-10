@@ -227,7 +227,13 @@ var SystemView = BaseView.extend({
         });
 
         ajax.fail(function (jqXHR) {
-            this.errorMsg = 'Failed to update property ' + propName;
+            if (jqXHR.status = 412) {
+                var response = JSON.parse(jqXHR.responseText);
+                this.errorMsg = response.message;
+            } else {
+                this.errorMsg = 'Failed to update property ' + propName;
+            }
+
             d.rejectWith(null, [
                 name,
                 jqXHR
