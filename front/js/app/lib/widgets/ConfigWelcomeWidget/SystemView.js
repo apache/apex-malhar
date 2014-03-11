@@ -55,21 +55,15 @@ var SystemView = BaseView.extend({
         var all = $.when(hadoopLocationPromise, aboutPromise, ipListPromise, customAddressPromise, defaultAddressPromise, dfsPromise);
         //var all = $.when(aboutPromise, customAddressPromise, defaultAddressPromise, dfsPromise);
         all.done(function () {
-            var hadoopLocation = this.about.get('hadoopLocation');
-
-            if (!hadoopLocation || (hadoopLocation.length === 0)) {
-                this.hadoopError = true;
+            var model;
+            if (this.customAddressModel.get('ip') && this.customAddressModel.get('port')) {
+                model = this.customAddressModel;
             } else {
-                var model;
-                if (this.customAddressModel.get('ip') && this.customAddressModel.get('port')) {
-                    model = this.customAddressModel;
-                } else {
-                    model = this.defaultAddressModel;
-                }
-                this.addressModel.init(model);
-
-                this.dfsModel.init(this.dfsDirectory);
+                model = this.defaultAddressModel;
             }
+            this.addressModel.init(model);
+
+            this.dfsModel.init(this.dfsDirectory);
 
             this.loading = false;
             this.render();
@@ -233,7 +227,13 @@ var SystemView = BaseView.extend({
         });
 
         ajax.fail(function (jqXHR) {
-            this.errorMsg = 'Failed to update property ' + propName;
+            if (jqXHR.status = 412) {
+                var response = JSON.parse(jqXHR.responseText);
+                this.errorMsg = response.message;
+            } else {
+                this.errorMsg = 'Failed to update property ' + propName;
+            }
+
             d.rejectWith(null, [
                 name,
                 jqXHR
