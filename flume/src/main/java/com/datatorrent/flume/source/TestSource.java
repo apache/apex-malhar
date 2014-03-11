@@ -31,12 +31,13 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
   static String RATE = "rate";
   static String PERCENT_PAST_EVENTS = "percentPastEvents";
   static byte FIELD_SEPARATOR = 1;
+  static int DEF_PERCENT_PAST_EVENTS = 5;
 
   public Timer emitTimer;
   @Nonnull
   String filePath;
   int rate;
-  int percentPastEvents;
+  int numberOfPastEvents;
   transient List<Row> cache;
   private transient int startIndex;
   private transient Random random;
@@ -48,7 +49,7 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
   {
     super();
     this.rate = 2500;
-    this.percentPastEvents = 5;
+    this.numberOfPastEvents = DEF_PERCENT_PAST_EVENTS * 25;
     this.random = new Random();
 
   }
@@ -58,8 +59,7 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
   {
     filePath = context.getString(FILE_NAME);
     rate = context.getInteger(RATE, rate);
-    percentPastEvents = context.getInteger(PERCENT_PAST_EVENTS, percentPastEvents);
-
+    int percentPastEvents = context.getInteger(PERCENT_PAST_EVENTS, DEF_PERCENT_PAST_EVENTS);
     Preconditions.checkArgument(!Strings.isNullOrEmpty(filePath));
     try {
       BufferedReader lineReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));
@@ -75,6 +75,10 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
     }
     catch (IOException e) {
       throw new RuntimeException(e);
+    }
+
+    if (DEF_PERCENT_PAST_EVENTS != percentPastEvents) {
+      numberOfPastEvents = percentPastEvents / 100 * cache.size();
     }
   }
 
@@ -112,9 +116,12 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
 
   private void processBatch(ChannelProcessor channelProcessor, List<Row> rows)
   {
-    int noise = random.nextInt(percentPastEvents + 1);
+    if (rows.size() == 0) {
+      return;
+    }
+    int noise = random.nextInt(numberOfPastEvents + 1);
     Set<Integer> pastIndices = Sets.newHashSet();
-    for(int i=0;i<noise ; i++){
+    for (int i = 0; i < noise; i++) {
       pastIndices.add(random.nextInt(rows.size()));
     }
 
@@ -125,7 +132,7 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
     byte[] pastTimeField = dateFormat.format(calendar.getTime()).getBytes();
 
     List<Event> events = Lists.newArrayList();
-    for (int i=0; i<rows.size(); i++) {
+    for (int i = 0; i < rows.size(); i++) {
       Row eventRow = rows.get(i);
       if (pastIndices.contains(i)) {
         System.arraycopy(pastDateField, 0, eventRow.bytes, eventRow.dateFieldStart, pastDateField.length);
