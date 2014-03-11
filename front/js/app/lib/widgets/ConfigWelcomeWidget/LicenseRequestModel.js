@@ -56,7 +56,7 @@ var LicenseRequestModel = Backbone.Model.extend({
         if (attrs['email'].trim().length === 0) {
             invalid['email'] = 'Email is required';
         } else if (!this.validateEmail(attrs['email'])) {
-            invalid['email'] = 'Email should be valid';
+            invalid['email'] = 'Email is invalid';
         }
 
         if (! _.isEmpty(invalid) ) {
