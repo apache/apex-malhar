@@ -18,7 +18,7 @@ package com.datatorrent.contrib.adsdimension;
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
-import com.datatorrent.contrib.adsdimension.DimensionsComputation.Aggregator;
+import com.datatorrent.lib.statistics.DimensionsComputation.Aggregator;
 
 /**
  * <p>AdInfo class.</p>

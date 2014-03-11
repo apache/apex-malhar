@@ -13,13 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.adsdimension;
+package com.datatorrent.lib.statistics;
 
 import java.io.*;
 import java.lang.reflect.Array;
 import java.util.*;
-import java.util.Collection;
 import java.util.Map.Entry;
+
+import gnu.trove.map.hash.TCustomHashMap;
+import gnu.trove.strategy.HashingStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.esotericsoftware.kryo.DefaultSerializer;
 import com.esotericsoftware.kryo.Kryo;
@@ -27,14 +31,8 @@ import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import gnu.trove.map.hash.TCustomHashMap;
-import gnu.trove.strategy.HashingStrategy;
-
-import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.*;
 import com.datatorrent.api.annotation.ShipContainingJars;
 
 /**

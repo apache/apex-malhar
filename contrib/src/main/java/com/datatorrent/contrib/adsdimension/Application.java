@@ -19,12 +19,13 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.contrib.adsdimension.AdInfo.AdInfoAggregator;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+
+import com.datatorrent.contrib.adsdimension.AdInfo.AdInfoAggregator;
+import com.datatorrent.lib.statistics.DimensionsComputation;
 
 /**
  * <p>Application class.</p>
