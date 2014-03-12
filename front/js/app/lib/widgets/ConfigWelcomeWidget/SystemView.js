@@ -165,6 +165,9 @@ var SystemView = BaseView.extend({
         } else {
             this.$el.find('.continue').addClass('disabled');
         }
+
+        // hide error messages
+        this.$el.find('.server-error').hide();
     },
 
     loadDfsProperty: function () {
@@ -221,35 +224,42 @@ var SystemView = BaseView.extend({
         });
 
         var ajax = model.save();
-        //var ajax = function () { var df = $.Deferred();df.reject();return df.promise() }();
+        //var ajax = function () { var df = $.Deferred();df.rejectWith(null, [{status: 500}]);return df.promise() }();
 
         ajax.done(function () {
             d.resolve();
         });
 
         ajax.fail(function (jqXHR) {
-            if (jqXHR.status = 412) {
+            if (jqXHR.status === 412) {
                 var response = JSON.parse(jqXHR.responseText);
                 this.errorMsg = response.message;
             } else {
                 this.errorMsg = 'Failed to update property ' + name;
             }
 
-            d.reject();
+            d.rejectWith(null, [this.errorMsg]);
         }.bind(this));
 
         return d.promise();
     },
 
     saveHadoopLocation: function () {
+        var d = $.Deferred();
+
         var ajax = this.hadoopLocationModel.save();
+
+        ajax.done(function () {
+            d.resolve();
+        }.bind(this));
 
         ajax.fail(function (jqXHR) {
             var response = JSON.parse(jqXHR.responseText);
             this.errorMsg = response.message;
+            d.rejectWith(null, [this.errorMsg]);
         }.bind(this));
 
-        return ajax;
+        return d.promise();
     },
 
     loadHadoopLocation: function () {
@@ -360,12 +370,20 @@ var SystemView = BaseView.extend({
             hadoopLocationPromise = this.createResolvedPromise();
         }
 
+        hadoopLocationPromise.fail(function (msg) {
+            this.showError('.hadoop-error', msg);
+        }.bind(this));
+
         var addressPromise;
         if (this.addressModel.isChanged()) {
             addressPromise = this.saveProperty('dt.attr.GATEWAY_ADDRESS', this.addressModel.getValue());
         } else {
             addressPromise = this.createResolvedPromise();
         }
+
+        addressPromise.fail(function (msg) {
+            this.showError('.address-error', msg);
+        }.bind(this));
 
         // example values: /user/hadoop/DataTorrent, /user/hadoop/Stram
         var dfsPromise;
@@ -375,15 +393,19 @@ var SystemView = BaseView.extend({
             dfsPromise = this.createResolvedPromise();
         }
 
+        dfsPromise.fail(function (msg) {
+            this.showError('.dfs-directory-error', msg);
+        }.bind(this));
+
         var all = $.when(hadoopLocationPromise, addressPromise, dfsPromise);
 
         all.done(function () {
             this.navFlow.go('SummaryView');
         }.bind(this));
 
-        all.fail(function () {
-            this.render();
-        }.bind(this));
+        //all.fail(function () {
+            //this.render();
+        //}.bind(this));
 
         //jQuery(event.target).addClass('disabled');
     },
@@ -392,6 +414,12 @@ var SystemView = BaseView.extend({
         var d = $.Deferred();
         d.resolve();
         return d.promise();
+    },
+
+    showError: function (selector, msg) {
+        var el = this.$el.find(selector);
+        el.text(msg);
+        el.show();
     },
 
     render: function() {
