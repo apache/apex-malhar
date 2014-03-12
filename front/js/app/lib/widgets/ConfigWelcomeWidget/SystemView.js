@@ -150,9 +150,18 @@ var SystemView = BaseView.extend({
             errorClass: 'error'
         }));
 
-        this.listenTo(this.hadoopLocationModel, 'change', this.inputChanged);
-        this.listenTo(this.addressModel, 'change', this.inputChanged);
-        this.listenTo(this.dfsModel, 'change', this.inputChanged);
+        this.listenTo(this.hadoopLocationModel, 'change', function () {
+            this.clearError('.hadoop-error');
+            this.inputChanged();
+        });
+        this.listenTo(this.addressModel, 'change', function () {
+            this.clearError('.address-error');
+            this.inputChanged();
+        }) ;
+        this.listenTo(this.dfsModel, 'change', function () {
+            this.clearError('.dfs-directory-error');
+            this.inputChanged();
+        }) ;
     },
 
     inputChanged: function () {
@@ -165,9 +174,6 @@ var SystemView = BaseView.extend({
         } else {
             this.$el.find('.continue').addClass('disabled');
         }
-
-        // hide error messages
-        this.$el.find('.server-error').hide();
     },
 
     loadDfsProperty: function () {
@@ -231,14 +237,15 @@ var SystemView = BaseView.extend({
         });
 
         ajax.fail(function (jqXHR) {
+            var msg;
             if (jqXHR.status === 412) {
                 var response = JSON.parse(jqXHR.responseText);
-                this.errorMsg = response.message;
+                msg = response.message;
             } else {
-                this.errorMsg = 'Failed to update property ' + name;
+                msg = 'Failed to update property ' + name;
             }
 
-            d.rejectWith(null, [this.errorMsg]);
+            d.rejectWith(null, [msg]);
         }.bind(this));
 
         return d.promise();
@@ -255,8 +262,7 @@ var SystemView = BaseView.extend({
 
         ajax.fail(function (jqXHR) {
             var response = JSON.parse(jqXHR.responseText);
-            this.errorMsg = response.message;
-            d.rejectWith(null, [this.errorMsg]);
+            d.rejectWith(null, [response.message]);
         }.bind(this));
 
         return d.promise();
@@ -420,6 +426,10 @@ var SystemView = BaseView.extend({
         var el = this.$el.find(selector);
         el.text(msg);
         el.show();
+    },
+
+    clearError: function (selector) {
+        this.$el.find(selector).hide();
     },
 
     render: function() {
