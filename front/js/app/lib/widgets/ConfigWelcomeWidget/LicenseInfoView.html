@@ -1,0 +1,49 @@
+<span class="section-license">
+<h1>License</h1>
+
+<% if (error) {  %>
+
+<p class="alert alert-error">
+    Error Loading License Information
+</p>
+
+<% } else if (license.get('id')) {  %>
+
+<% if (message) {  %>
+<p class="alert alert-success">
+    <%= message %>
+</p>
+<% } %>
+
+<% if (licenseRequestBlob) {  %>
+<p class="alert">
+    You are using embedded license. See details of your evaluation license request <a href="#" class="go-to-offline">here</a>.
+</p>
+<% } %>
+
+<div>
+    <h4>Current License</h4>
+    <p><strong>license ID:</strong> <%= license.get('id') %> <a href="#" class="displayLicenseInfo action-link">More Info</a></p>
+</div>
+
+<div style="text-align: right;">
+    <p>To change the license please <a href="#" class="go-to-upload action-link">upload</a> new license file or <a href="#" class="go-to-register action-link">register</a>.</p>
+</div>
+
+<% } else { %>
+
+<p class="alert">
+    <%= DT.text('Loading license information...') %>
+</p>
+
+<% } %>
+
+<a href="#" class="install-step-link btn pull-left btn-large" data-action="WelcomeView">
+    <i class="icon-circle-arrow-left"></i> back
+</a>
+
+
+<a href="#" class="install-step-link btn btn-success pull-right btn-large" data-action="SystemView">
+    continue <i class="icon-circle-arrow-right icon-white"></i>
+</a>
+</span>

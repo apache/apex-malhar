@@ -63,6 +63,7 @@ var App = BaseView.extend({
         
         // Get the pages from options
         var pages = options.pages;
+        var modes = options.modes;
         
         // Holds the state of the user
         this.user = new UserModel();
@@ -80,7 +81,8 @@ var App = BaseView.extend({
         
         // Create the Navigation model
         this.nav = new NavModel({},{
-            pages: pages
+            pages: pages,
+            modes: modes
         });
         
         // Top bar with logo, mode switch, and 

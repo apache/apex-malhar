@@ -1,4 +1,4 @@
-<a href="#" class="brand">DataTorrent</a> <!-- platform logo -->
+<a href="#welcome" class="brand">DataTorrent</a> <!-- platform logo -->
 
 <!-- <div class="nav-divider-line"></div> -->
 
@@ -25,7 +25,7 @@
     </li>
     <% _.each(modes, function(mode) { %>
     <li>
-        <a href="<%= mode.href %>" class="<%= mode.class %>"><%= mode.name %></a>
+        <a href="<%= mode.href %>" class="<%= mode.id %> <% if (mode.active) { print('active') } %>"><%= mode.name %></a>
     </li
     ><% }) %>
 </ul>
