@@ -1,0 +1,55 @@
+<span class="section-system">
+<h1>Hadoop</h1>
+
+<% if (loading) {  %>
+
+<p class="alert">
+    <%= DT.text('Loading...') %>
+</p>
+
+<% } else { %>
+
+<% if (errorMsg) {  %>
+
+<p class="alert alert-error">
+    <%= errorMsg %>
+</p>
+
+<% } %>
+
+<p class="well">
+    Hadoop installation is mandatory to run DataTorrent platform. Use control below to update hadoop installation.
+</p>
+
+<table>
+    <tbody>
+    <tr>
+        <td>hadoop location</td>
+        <td>This is the absolute path to the location of the hadoop executable on the node that the gateway is running on.</td>
+        <td>
+            <div class="control-group">
+                <div class="controls">
+                    <input class="hadoop-location" type="text" value="<%= hadoopLocationModel.get('value') %>" />
+                    <span class="help-block"></span>
+                </div>
+            </div>
+            <div class="server-error hadoop-error"></div>
+        </td>
+    </tr>
+    <tr>
+        <td>java version</td>
+        <td>Version of the Java Runtime Environment that is available on the node that the gateway is running on.</td>
+        <td><input type="text" value="<%= about.get('javaVersion') %>" disabled />  </td>
+    </tr>
+    </tbody>
+</table>
+
+<% } %>
+
+<a href="#" class="install-step-link btn pull-left btn-large" data-action="LicenseInfoView">
+    <i class="icon-circle-arrow-left"></i> back
+</a>
+<a href="#" class="continue btn btn-success pull-right btn-large">
+    continue <i class="icon-circle-arrow-right icon-white"></i>
+</a>
+</span>
