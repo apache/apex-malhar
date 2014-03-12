@@ -32,7 +32,9 @@ public class ApplicationWithDerbySQL implements StreamingApplication
 {
   @Override
   public void populateDAG(DAG dag, Configuration conf) {
-    String[] symbols = {"YHOO","GOOG","AAPL","FB","AMZN","NFLX","IBM"};
+      String symbolStr = conf.get(ApplicationWithDerbySQL.class.getName() + ".tickerSymbols", "YHOO,GOOG,AAPL,FB,AMZN,NFLX,IBM");
+
+      String[] symbols = symbolStr.split(",");
 
     YahooFinanceCSVInputOperator input1 = dag.addOperator("input1", new YahooFinanceCSVInputOperator());
     YahooFinanceCSVInputOperator input2 = dag.addOperator("input2", new YahooFinanceCSVInputOperator());
@@ -61,7 +63,7 @@ public class ApplicationWithDerbySQL implements StreamingApplication
     sqlOper.setInputSchema(1, inputSchema2);
 
     // Calculate PE Ratio and PB Ratio using SQL
-    sqlOper.setStatement("SELECT SESSION.t1.s0 AS symbol, SESSION.t1.l1 / SESSION.t2.e0 AS pe_ratio, SESSION.t1.l1 / SESSION.t2.b4 AS pb_ratio FROM SESSION.t1,SESSION.t2 WHERE SESSION.t1.s0 = SESSION.t2.s0");
+    sqlOper.addExecStatementString("SELECT SESSION.t1.s0 AS symbol, SESSION.t1.l1 / SESSION.t2.e0 AS pe_ratio, SESSION.t1.l1 / SESSION.t2.b4 AS pb_ratio FROM SESSION.t1,SESSION.t2 WHERE SESSION.t1.s0 = SESSION.t2.s0");
 
     dag.addStream("input1_sql", input1.outputPort, sqlOper.in1);
     dag.addStream("input2_sql", input2.outputPort, sqlOper.in2);
