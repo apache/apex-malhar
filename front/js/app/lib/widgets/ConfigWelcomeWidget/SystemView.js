@@ -42,8 +42,6 @@ var SystemView = BaseView.extend({
         this.error = false; //TODO
         this.loading = true;
 
-        var hadoopLocationPromise = this.loadHadoopLocation();
-        var aboutPromise = this.loadAbout();
         var ipListPromise = this.loadIPList();
         var defaultAddressPromise = this.loadDefaultAddress();
         var customAddressPromise = this.loadCustomAddress();
@@ -52,7 +50,7 @@ var SystemView = BaseView.extend({
         this.addressModel = new GatewayAddressModel();
         this.dfsModel = new DfsModel();
 
-        var all = $.when(hadoopLocationPromise, aboutPromise, ipListPromise, customAddressPromise, defaultAddressPromise, dfsPromise);
+        var all = $.when(ipListPromise, customAddressPromise, defaultAddressPromise, dfsPromise);
         //var all = $.when(aboutPromise, customAddressPromise, defaultAddressPromise, dfsPromise);
         all.done(function () {
             var model;
@@ -74,18 +72,6 @@ var SystemView = BaseView.extend({
             this.error = true;
             this.render();
         }.bind(this));
-
-        this.subview('hadoop-location', new Bbind.text({
-            model: this.hadoopLocationModel,
-            attr: 'value',
-            listenToModel: false,
-            setAnyway: true,
-            classElement: function($el) {
-                return $el.parent().parent();
-            },
-            errorEl: '.help-block',
-            errorClass: 'error'
-        }));
 
         this.subview('address-ip-input', new Bbind.text({
             model: this.addressModel,
@@ -150,10 +136,6 @@ var SystemView = BaseView.extend({
             errorClass: 'error'
         }));
 
-        this.listenTo(this.hadoopLocationModel, 'change', function () {
-            this.clearError('.hadoop-error');
-            this.inputChanged();
-        });
         this.listenTo(this.addressModel, 'change', function () {
             this.clearError('.address-error');
             this.inputChanged();
@@ -165,11 +147,10 @@ var SystemView = BaseView.extend({
     },
 
     inputChanged: function () {
-        var hadoopLocationModelValid = this.hadoopLocationModel.isValid();
         var addressValid = this.addressModel.isValid();
         var dfsValid = this.dfsModel.isValid();
 
-        if (hadoopLocationModelValid && addressValid && dfsValid) {
+        if (addressValid && dfsValid) {
             this.$el.find('.continue').removeClass('disabled');
         } else {
             this.$el.find('.continue').addClass('disabled');
@@ -251,60 +232,6 @@ var SystemView = BaseView.extend({
         return d.promise();
     },
 
-    saveHadoopLocation: function () {
-        var d = $.Deferred();
-
-        var ajax = this.hadoopLocationModel.save();
-
-        ajax.done(function () {
-            d.resolve();
-        }.bind(this));
-
-        ajax.fail(function (jqXHR) {
-            var response = JSON.parse(jqXHR.responseText);
-            d.rejectWith(null, [response.message]);
-        }.bind(this));
-
-        return d.promise();
-    },
-
-    loadHadoopLocation: function () {
-        var d = $.Deferred();
-
-        this.hadoopLocationModel = new HadoopLocationModel();
-        var ajax = this.hadoopLocationModel.fetch();
-
-        ajax.done(function () {
-            // save default value
-            this.hadoopLocationModel.init(this.hadoopLocationModel.get('value'));
-            d.resolve();
-        }.bind(this));
-
-        ajax.fail(function (jqXHR) {
-            if (jqXHR.status === 404) { //TODO
-                this.hadoopLocationModel.init('');
-                d.resolve();
-            } else {
-                d.reject();
-            }
-        }.bind(this));
-
-        return d.promise();
-    },
-
-    loadAbout: function () {
-        var d = $.Deferred();
-
-        this.about = new GatewayInfoModel({});
-        this.about.fetch(); //TODO error handling
-
-        this.listenTo(this.about, 'sync', function () {
-            d.resolve();
-        });
-
-        return d.promise();
-    },
-
     loadCustomAddress: function () {
         this.customAddressModel = new Backbone.Model({
             ip: '',
@@ -364,21 +291,10 @@ var SystemView = BaseView.extend({
         this.$el.find('.address-port').blur();
         this.$el.find('.dfs-directory').blur();
 
-        if (!this.hadoopLocationModel.isValid() || !this.addressModel.isValid() || !this.dfsModel.isValid()) {
+        if (!this.addressModel.isValid() || !this.dfsModel.isValid()) {
             this.$el.find('.continue').addClass('disabled');
             return;
         }
-
-        var hadoopLocationPromise;
-        if (this.hadoopLocationModel.isChanged()) {
-            hadoopLocationPromise = this.saveHadoopLocation();
-        } else {
-            hadoopLocationPromise = this.createResolvedPromise();
-        }
-
-        hadoopLocationPromise.fail(function (msg) {
-            this.showError('.hadoop-error', msg);
-        }.bind(this));
 
         var addressPromise;
         if (this.addressModel.isChanged()) {
@@ -403,17 +319,11 @@ var SystemView = BaseView.extend({
             this.showError('.dfs-directory-error', msg);
         }.bind(this));
 
-        var all = $.when(hadoopLocationPromise, addressPromise, dfsPromise);
+        var all = $.when(addressPromise, dfsPromise);
 
         all.done(function () {
             this.navFlow.go('SummaryView');
         }.bind(this));
-
-        //all.fail(function () {
-            //this.render();
-        //}.bind(this));
-
-        //jQuery(event.target).addClass('disabled');
     },
 
     createResolvedPromise: function () {
@@ -438,8 +348,6 @@ var SystemView = BaseView.extend({
             error: this.error,
             errorMsg: this.errorMsg,
             loading: this.loading,
-            hadoopLocationModel: this.hadoopLocationModel,
-            about: this.about,
             addressModel: this.addressModel,
             dfsModel: this.dfsModel,
             ipAddresses: this.ipAddresses
@@ -466,8 +374,6 @@ var SystemView = BaseView.extend({
     },
 
     assignments: {
-        '.hadoop-location': 'hadoop-location',
-        '.address-ip-select': 'address-ip-select',
         '.address-ip-input': 'address-ip-input',
         '.address-port': 'address-port',
         '.dfs-directory': 'dfs-directory'

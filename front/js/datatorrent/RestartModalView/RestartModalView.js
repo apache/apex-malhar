@@ -32,6 +32,7 @@ var RestartModalView = BaseView.extend({
     initialize: function(options) {
         this.dataSource = options.dataSource;
         this.message = options.message;
+        this.restartCompleteCallback = options.restartCompleteCallback;
 
         var poll = new GatewayPoll(10000);
 
@@ -49,6 +50,9 @@ var RestartModalView = BaseView.extend({
                         text: 'Gateway has been successfully restarted.'
                     });
                     this.dataSource.connect();
+                    if (this.restartCompleteCallback) {
+                        this.restartCompleteCallback.call();
+                    }
                     this.close();
                 }.bind(this));
 

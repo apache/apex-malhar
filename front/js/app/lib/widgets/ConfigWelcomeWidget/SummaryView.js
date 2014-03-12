@@ -17,11 +17,8 @@
 var _ = require('underscore');
 var Backbone = require('backbone');
 var BaseView = require('./StepView');
-var ConfigIssueCollection = DT.lib.ConfigIssueCollection;
 var Notifier = DT.lib.Notifier;
-var RestartModal = DT.lib.RestartModal;
 var ConfigPropertyModel = require('../../../../datatorrent/ConfigPropertyModel');
-var ConfirmModal = require('./ConfirmModalView');
 
 var SummaryView = BaseView.extend({
 
@@ -34,56 +31,20 @@ var SummaryView = BaseView.extend({
         this.dataSource = options.dataSource;
         this.navFlow = options.navFlow;
 
-        this.error = false; //TODO
+        this.error = false;
         this.loading = true;
 
-        this.issues = new ConfigIssueCollection([]);
-
-        var issuesPromise = this.issues.fetch();
         var configStatusPromise = this.saveConfigStatusProperty();
-        //var d = $.Deferred();
-        //setTimeout(function () {
-        //    d.reject();
-        //}, 3000);
-        //var ajax = d.promise();
 
-        var all = $.when(issuesPromise, configStatusPromise);
-
-        all.done(function () {
+        configStatusPromise.done(function () {
             this.loading = false;
-
-            var restartRequiredIssue = this.issues.findWhere({
-                key: 'RESTART_NEEDED'
-            });
-
-            var restartRequired = !!restartRequiredIssue;
-
-            //if (true) {
-            if (restartRequired) {
-                var modal = new ConfirmModal({
-                    message: 'Changes made require restart. Please retart the Gateway.',
-                    confirmCallback: this.restart.bind(this)
-                });
-                modal.addToDOM();
-                modal.launch();
-            }
-
             this.render();
         }.bind(this));
 
-        all.fail(function () {
+        configStatusPromise.fail(function () {
             this.error = true;
             this.render();
         }.bind(this));
-    },
-
-    restart: function () {
-        var restartModal = new RestartModal({
-            dataSource: this.dataSource,
-            message: 'Restarting the Gateway...'
-        });
-        restartModal.addToDOM();
-        restartModal.launch();
     },
 
     saveConfigStatusProperty: function () {
@@ -98,8 +59,7 @@ var SummaryView = BaseView.extend({
     render: function() {
         var html = this.template({
             error: this.error,
-            loading: this.loading,
-            restartRequired: this.restartRequired
+            loading: this.loading
         });
 
         this.$el.html(html);
