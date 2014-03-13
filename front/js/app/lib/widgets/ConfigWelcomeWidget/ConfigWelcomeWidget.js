@@ -28,6 +28,7 @@ var LicenseRegisterView = require('./LicenseRegisterView');
 var LicenseUploadView = require('./LicenseUploadView');
 var LicenseOfflineView = require('./LicenseOfflineView');
 var SummaryView = require('./SummaryView');
+var HadoopView = require('./HadoopView');
 
 /**
  * ConfigWelcomeWidget
@@ -193,6 +194,7 @@ var ConfigWelcomeWidget = WidgetView.extend({
             view: LicenseUploadView,
             template: kt.make(__dirname+'/LicenseUploadView.html')
         },
+
         LicenseOfflineView: {
             view: LicenseOfflineView,
             template: kt.make(__dirname+'/LicenseOfflineView.html')
@@ -200,6 +202,14 @@ var ConfigWelcomeWidget = WidgetView.extend({
         SystemView: {
             view: SystemView,
             template: kt.make(__dirname+'/SystemView.html') // TODO
+        },
+        LicenseOfflineView: {
+            view: LicenseOfflineView,
+            template: kt.make(__dirname+'/LicenseOfflineView.html')
+        },
+        HadoopView: {
+            view: HadoopView,
+            template: kt.make(__dirname+'/HadoopView.html')
         },
         SummaryView: {
             view: SummaryView,
