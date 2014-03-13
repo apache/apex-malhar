@@ -375,6 +375,7 @@ var SystemView = BaseView.extend({
 
     assignments: {
         '.address-ip-input': 'address-ip-input',
+        '.address-ip-select': 'address-ip-select',
         '.address-port': 'address-port',
         '.dfs-directory': 'dfs-directory'
     }
