@@ -17,7 +17,8 @@ import com.datatorrent.common.util.Slice;
 import com.datatorrent.flume.discovery.Discovery;
 import com.datatorrent.flume.discovery.Discovery.Service;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
-import com.datatorrent.netlet.DefaultEventLoop;
+import com.datatorrent.netlet.AbstractServer;
+import com.datatorrent.netlet.EventLoop;
 
 /**
  * <p>Server class.</p>
@@ -25,7 +26,7 @@ import com.datatorrent.netlet.DefaultEventLoop;
  * @author Chetan Narsude <chetan@datatorrent.com>
  * @since 0.9.2
  */
-public class Server extends com.datatorrent.netlet.Server
+public class Server extends AbstractServer
 {
   private final String id;
   private final Discovery<byte[]> discovery;
@@ -37,7 +38,7 @@ public class Server extends com.datatorrent.netlet.Server
   }
 
   @Override
-  public void handleException(Exception cce, DefaultEventLoop el)
+  public void handleException(Exception cce, EventLoop el)
   {
     logger.error("Server Error", cce);
     Request r = new Request(Command.SERVER_ERROR, null)
