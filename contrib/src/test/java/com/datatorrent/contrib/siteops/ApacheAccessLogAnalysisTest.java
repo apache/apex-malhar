@@ -15,11 +15,11 @@
  */
 package com.datatorrent.contrib.siteops;
 
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 
+import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.contrib.siteops.ApacheAccessLogAnalaysis;
 /**
  */
 public class ApacheAccessLogAnalysisTest
@@ -28,6 +28,7 @@ public class ApacheAccessLogAnalysisTest
   public void testApplication() throws Exception
   {
   	//LocalMode.runApp(new ApacheAccessLogAnalaysis(), 10000);
+    @SuppressWarnings("deprecation")
   	ApacheAccessLogAnalaysis app = new ApacheAccessLogAnalaysis();
     LocalMode lma = LocalMode.newInstance();
     app.populateDAG(lma.getDAG(), new Configuration(false));

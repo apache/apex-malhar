@@ -63,7 +63,6 @@ public class DimensionsComputation<EVENT> implements Operator, Partitioner<Dimen
 
   }
 
-  //private transient Aggregator<EVENT>[] aggregators;
   private AggregatorMap<EVENT>[] aggregatorMaps;
 
   /**

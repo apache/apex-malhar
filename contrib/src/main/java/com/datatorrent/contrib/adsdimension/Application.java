@@ -19,13 +19,14 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.api.Context.PortContext;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.annotation.ApplicationAnnotation;
+import com.datatorrent.lib.statistics.DimensionsComputation;
 
 import com.datatorrent.contrib.adsdimension.AdInfo.AdInfoAggregator;
-import com.datatorrent.lib.statistics.DimensionsComputation;
+
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 /**
  * <p>Application class.</p>
@@ -38,8 +39,7 @@ public class Application implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    dag.setAttribute(DAG.APPLICATION_NAME, "AdsDimensionApplication");
-    dag.setAttribute(PortContext.QUEUE_CAPACITY, 32 * 1024);
+    dag.setAttribute(DAG.APPLICATION_NAME, "AdsDimension");
 
     InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
 
@@ -66,7 +66,7 @@ public class Application implements StreamingApplication
 
     RedisAggregateOutputOperator redis = dag.addOperator("Redis", new RedisAggregateOutputOperator());
 
-    dag.addStream("InputStream", input.outputPort, dimensions.data);
+    dag.addStream("InputStream", input.outputPort, dimensions.data).setLocality(Locality.CONTAINER_LOCAL);
     dag.addStream("DimensionalData", dimensions.output, redis.input);
   }
 
