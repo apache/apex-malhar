@@ -296,6 +296,9 @@ var SystemView = BaseView.extend({
             return;
         }
 
+        this.$el.find('.loading').show();
+        this.$el.find('.continue').addClass('disabled');
+
         var addressPromise;
         if (this.addressModel.isChanged()) {
             addressPromise = this.saveProperty('dt.attr.GATEWAY_ADDRESS', this.addressModel.getValue());
@@ -323,6 +326,11 @@ var SystemView = BaseView.extend({
 
         all.done(function () {
             this.navFlow.go('SummaryView');
+        }.bind(this));
+
+        all.fail(function () {
+            this.$el.find('.loading').hide();
+            this.$el.find('.continue').removeClass('disabled');
         }.bind(this));
     },
 
@@ -375,6 +383,7 @@ var SystemView = BaseView.extend({
 
     assignments: {
         '.address-ip-input': 'address-ip-input',
+        '.address-ip-select': 'address-ip-select',
         '.address-port': 'address-port',
         '.dfs-directory': 'dfs-directory'
     }
