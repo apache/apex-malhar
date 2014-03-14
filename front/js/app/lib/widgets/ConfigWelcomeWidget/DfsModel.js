@@ -42,7 +42,7 @@ var DfsModel = Backbone.Model.extend({
         var invalid = {};
 
         if (attrs['value'].trim().length === 0) {
-            invalid['value'] = 'HDFS directory is required';
+            invalid['value'] = 'DFS directory is required';
         }
 
         if (! _.isEmpty(invalid)) {
