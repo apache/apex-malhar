@@ -265,7 +265,7 @@ public class TailFsInputOperator implements InputOperator, ActivationListener<Op
     long length = file.length();
     if (length < pos) {
       // file got rotated or truncated
-      deactivate();
+      reader.close();
       reader = new RandomAccessFile(file, "r");
       position = 0;
       reader.seek(position);
