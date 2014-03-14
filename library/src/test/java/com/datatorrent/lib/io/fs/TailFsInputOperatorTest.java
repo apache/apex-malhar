@@ -26,20 +26,22 @@ import org.junit.Test;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
- * Functional tests for {@link com.datatorrent.lib.io.localfs.TailFsInputOperator} <p>
+ * Functional tests for {@link com.datatorrent.lib.io.localfs.TailFsInputOperator}
+ * <p>
  */
 public class TailFsInputOperatorTest
 {
 
   private String filePath = "target/tailFsInputOperator.txt";
-  
+
   @Test
-  public void testTailInputOperator() throws Exception{
+  public void testTailInputOperator() throws Exception
+  {
     FileWriter fstream = new FileWriter(filePath);
     BufferedWriter out = new BufferedWriter(fstream);
     out.write("Hello Java\n");
     out.close();
-    
+
     TailFsInputOperator oper = new TailFsInputOperator();
     oper.setFilePath(filePath);
     CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
@@ -51,7 +53,7 @@ public class TailFsInputOperatorTest
     oper.beginWindow(0);
     oper.emitTuples();
     oper.endWindow();
-    fstream = new FileWriter(filePath,true);
+    fstream = new FileWriter(filePath, true);
     out = new BufferedWriter(fstream);
     out.write("Hello Java\n");
     out.close();
@@ -59,21 +61,22 @@ public class TailFsInputOperatorTest
     oper.emitTuples();
     oper.endWindow();
     oper.deactivate();
-    Assert.assertEquals(2,sink.collectedTuples.size()); 
+    Assert.assertEquals(2, sink.collectedTuples.size());
     out.close();
     File file = new File(filePath);
-    if(file.exists()){
+    if (file.exists()) {
       file.delete();
     }
   }
-  
+
   @Test
-  public void testTailFromEnd() throws Exception{
+  public void testTailFromEnd() throws Exception
+  {
     FileWriter fstream = new FileWriter(filePath);
     BufferedWriter out = new BufferedWriter(fstream);
     out.write("Hello Java");
     out.close();
-    
+
     TailFsInputOperator oper = new TailFsInputOperator();
     oper.setFilePath(filePath);
     CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
@@ -86,7 +89,7 @@ public class TailFsInputOperatorTest
     oper.beginWindow(0);
     oper.emitTuples();
     oper.endWindow();
-    fstream = new FileWriter(filePath,true);
+    fstream = new FileWriter(filePath, true);
     out = new BufferedWriter(fstream);
     out.write("Hello Java\n");
     out.close();
@@ -94,21 +97,23 @@ public class TailFsInputOperatorTest
     oper.emitTuples();
     oper.endWindow();
     oper.deactivate();
-    Assert.assertEquals(1,sink.collectedTuples.size()); 
+    Assert.assertEquals(1, sink.collectedTuples.size());
+    Assert.assertEquals("Hello Java", sink.collectedTuples.get(0));
     out.close();
     File file = new File(filePath);
-    if(file.exists()){
+    if (file.exists()) {
       file.delete();
     }
   }
-  
+
   @Test
-  public void testDelimiter() throws Exception{
+  public void testDelimiter() throws Exception
+  {
     FileWriter fstream = new FileWriter(filePath);
     BufferedWriter out = new BufferedWriter(fstream);
     out.write("Hello Java");
     out.close();
-    
+
     TailFsInputOperator oper = new TailFsInputOperator();
     oper.setFilePath(filePath);
     oper.setDelimiter('|');
@@ -121,7 +126,7 @@ public class TailFsInputOperatorTest
     oper.beginWindow(0);
     oper.emitTuples();
     oper.endWindow();
-    fstream = new FileWriter(filePath,true);
+    fstream = new FileWriter(filePath, true);
     out = new BufferedWriter(fstream);
     out.write("Hello Java|");
     out.close();
@@ -129,11 +134,45 @@ public class TailFsInputOperatorTest
     oper.emitTuples();
     oper.endWindow();
     oper.deactivate();
-    Assert.assertEquals(1,sink.collectedTuples.size());
+    Assert.assertEquals(1, sink.collectedTuples.size());
     Assert.assertEquals("Hello JavaHello Java", sink.collectedTuples.get(0));
     out.close();
     File file = new File(filePath);
-    if(file.exists()){
+    if (file.exists()) {
+      file.delete();
+    }
+  }
+
+  @Test
+  public void testTruncation() throws Exception
+  {
+    FileWriter fstream = new FileWriter(filePath);
+    BufferedWriter out = new BufferedWriter(fstream);
+    out.write("Hello Java");
+    out.close();
+
+    TailFsInputOperator oper = new TailFsInputOperator();
+    oper.setFilePath(filePath);
+    CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
+    oper.output.setSink(sink);
+    oper.setDelay(1);
+    oper.setEnd(true);
+    oper.setNumberOfTuples(10);
+    oper.setup(null);
+    oper.activate(null);
+    fstream = new FileWriter(filePath);
+    out = new BufferedWriter(fstream);
+    out.write("Hello\n");
+    out.close();
+    oper.beginWindow(0);
+    oper.emitTuples();
+    oper.endWindow();
+    oper.deactivate();
+    Assert.assertEquals(1, sink.collectedTuples.size());
+    Assert.assertEquals("Hello", sink.collectedTuples.get(0));
+    out.close();
+    File file = new File(filePath);
+    if (file.exists()) {
       file.delete();
     }
   }

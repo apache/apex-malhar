@@ -298,10 +298,6 @@ public abstract class AbstractHdfsOutputOperator<T> extends BaseOperator
    * This function returns the path for the file output. If the implementing class wants to use single file, then it can
    * return the same path every time o/w different based on the use case
    * 
-   * @param context
-   *          The operator context
-   * @param windowId
-   *          The current window id
    * 
    * @return
    */
