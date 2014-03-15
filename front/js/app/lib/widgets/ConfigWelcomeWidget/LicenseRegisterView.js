@@ -182,7 +182,7 @@ var LicenseRegisterView = BaseView.extend({
 
         ajax.done(function () {
             this.navFlow.go('LicenseInfoView', {
-                message: 'Successfully registered.'
+                message: 'Registration request submitted. Please check your email to validate the registration and to unlock the free one-year license.'
             });
         }.bind(this));
 
