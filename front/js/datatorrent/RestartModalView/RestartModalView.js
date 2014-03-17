@@ -73,8 +73,9 @@ var RestartModalView = BaseView.extend({
 
     restartFailed: function () {
         Notifier.error({
-            title: 'Error',
-            text: 'Failed to restart the Gateway.',
+            title: 'Failed to restart',
+            text: 'Please issue the following to your command line terminal to force the DT Gateway to start: '
+                + '<br/><span style="font-family:Consolas,Courier,monospace;">service dtgateway start</span>',
             hide: false
         });
 
