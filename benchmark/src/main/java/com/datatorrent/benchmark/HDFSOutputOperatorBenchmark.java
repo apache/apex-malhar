@@ -18,6 +18,8 @@ package com.datatorrent.benchmark;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
+
 
 import org.apache.hadoop.conf.Configuration;
 
@@ -29,6 +31,7 @@ import org.apache.hadoop.conf.Configuration;
  * @since 0.9.4
  */
 
+@ApplicationAnnotation(name="HDFSOutputOperatorBenchmarkingApp")
 public abstract class HDFSOutputOperatorBenchmark
 {
   static abstract class AbstractApplication implements StreamingApplication
@@ -54,6 +57,7 @@ public abstract class HDFSOutputOperatorBenchmark
   /**
    * Let the engine decide how to best place the 2 operators.
    */
+  @ApplicationAnnotation(name="HDFSOutputOperatorBenchmarkNoLocality")
   public static class NoLocality extends AbstractApplication
   {
     @Override
@@ -66,6 +70,7 @@ public abstract class HDFSOutputOperatorBenchmark
   /**
    * Place the 2 operators so that they are in the same Rack.
    */
+  @ApplicationAnnotation(name="HDFSOutputOperatorBenchmarkRackLocality")
   public static class RackLocal extends AbstractApplication
   {
     @Override
@@ -78,6 +83,7 @@ public abstract class HDFSOutputOperatorBenchmark
   /**
    * Place the 2 operators so that they are in the same node.
    */
+  @ApplicationAnnotation(name="HDFSOutputOperatorBenchmarkNodeLocality")
   public static class NodeLocal extends AbstractApplication
   {
     @Override
@@ -90,6 +96,7 @@ public abstract class HDFSOutputOperatorBenchmark
   /**
    * Place the 2 operators so that they are in the same container.
    */
+  @ApplicationAnnotation(name="HDFSOutputOperatorBenchmarkContainerLocality")
   public static class ContainerLocal extends AbstractApplication
   {
     @Override
@@ -102,6 +109,7 @@ public abstract class HDFSOutputOperatorBenchmark
   /**
    * Place the 2 operators so that they are in the same thread.
    */
+  @ApplicationAnnotation(name="HDFSOutputOperatorBenchmarkThreadLocality")
   public static class ThreadLocal extends AbstractApplication
   {
     @Override

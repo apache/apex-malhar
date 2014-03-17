@@ -21,6 +21,7 @@ import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 /**
  * Performance Demo Application:
@@ -47,6 +48,8 @@ import com.datatorrent.api.StreamingApplication;
  *
  * @since 0.9.0
  */
+
+@ApplicationAnnotation(name="PerformanceBenchmarkingApp")
 public abstract class Benchmark
 {
   static abstract class AbstractApplication implements StreamingApplication
@@ -71,6 +74,7 @@ public abstract class Benchmark
   /**
    * Let the engine decide how to best place the 2 operators.
    */
+  @ApplicationAnnotation(name="PerformanceBenchmarkNoLocality")
   public static class NoLocality extends AbstractApplication
   {
     @Override
@@ -85,6 +89,7 @@ public abstract class Benchmark
    * Place the 2 operators so that they are in the same Rack.
    * The operators are requested to be deployed on different machines.
    */
+  @ApplicationAnnotation(name="PerformanceBenchmarkRackLocal")
   public static class RackLocal extends AbstractApplication
   {
     @Override
@@ -98,7 +103,8 @@ public abstract class Benchmark
   /**
    * Place the 2 operators so that they are in the same node.
    * The operators are requested to be deployed as different processes within the same machine.
-   */
+   */  
+  @ApplicationAnnotation(name="PerformanceBenchmarkNodeLocal")
   public static class NodeLocal extends AbstractApplication
   {
     @Override
@@ -113,6 +119,7 @@ public abstract class Benchmark
    * Place the 2 operators so that they are in the same container.
    * The operators are deployed as different threads in the same process.
    */
+  @ApplicationAnnotation(name="PerformanceBenchmarkContainerLocal")
   public static class ContainerLocal extends AbstractApplication
   {
     @Override
@@ -126,6 +133,7 @@ public abstract class Benchmark
   /**
    * Place the 2 operators so that they are in the same thread.
    */
+  @ApplicationAnnotation(name="PerformanceBenchmarkThreadLocal")
   public static class ThreadLocal extends AbstractApplication
   {
     @Override
