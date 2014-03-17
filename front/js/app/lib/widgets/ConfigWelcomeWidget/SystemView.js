@@ -376,6 +376,12 @@ var SystemView = BaseView.extend({
             this.$el.find('.address-ip-input').show();
         }
 
+        if (_.isString(this.dfsDirectory) && (this.dfsDirectory.length === 0)) {
+            _.defer(function () {
+                this.showError('.dfs-directory-error', 'DFS is not configured');
+            }.bind(this));
+        }
+
         return this;
         //dt.attr.GATEWAY_ADDRESS ip:9090
         //dt.gateway.address
