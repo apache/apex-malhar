@@ -29,8 +29,8 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.DAGContext;
 import com.datatorrent.api.Operator.InputPort;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.api.StreamingApplication;
-
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 import com.datatorrent.lib.math.MarginMap;
@@ -145,6 +145,7 @@ import com.datatorrent.lib.testbench.ThroughputCounter;
  *
  * @since 0.3.2
  */
+@ApplicationAnnotation(name="Ads Application")
 public class Application implements StreamingApplication
 {
   public static final int WINDOW_SIZE_MILLIS = 500;

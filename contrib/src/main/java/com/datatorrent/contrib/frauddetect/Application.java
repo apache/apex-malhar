@@ -26,11 +26,9 @@ import com.datatorrent.lib.multiwindow.SimpleMovingAverage;
 import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.contrib.frauddetect.operator.HdfsStringOutputOperator;
 import com.datatorrent.contrib.frauddetect.operator.MongoDBOutputOperator;
-
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.net.URI;
 
 /**

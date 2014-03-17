@@ -30,9 +30,9 @@ import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.api.DAGContext;
 import com.datatorrent.api.StreamingApplication;
-
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
@@ -45,6 +45,7 @@ import com.datatorrent.lib.util.AlertEscalationOperator;
  *
  * @since 0.3.2
  */
+@ApplicationAnnotation(name="Mobile Application With Alert")
 public class ApplicationAlert implements StreamingApplication
 {
   private static final Logger LOG = LoggerFactory.getLogger(ApplicationAlert.class);
