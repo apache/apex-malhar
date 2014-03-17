@@ -46,7 +46,7 @@ var RestartModalView = BaseView.extend({
 
                 promise.done(function () {
                     Notifier.success({
-                        title: 'Gateway',
+                        title: 'Restart Successful',
                         text: 'Gateway has been successfully restarted.'
                     });
                     this.dataSource.connect();
@@ -73,7 +73,7 @@ var RestartModalView = BaseView.extend({
 
     restartFailed: function () {
         Notifier.error({
-            title: 'Failed to restart',
+            title: 'Restart Failed',
             text: 'Please issue the following to your command line terminal to force the DT Gateway to start: '
                 + '<br/><span style="font-family:Consolas,Courier,monospace;">service dtgateway start</span>',
             hide: false
