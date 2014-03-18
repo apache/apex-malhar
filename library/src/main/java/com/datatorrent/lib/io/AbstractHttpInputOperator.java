@@ -33,17 +33,13 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
 /**
- *
- * Reads via GET from given URL as input stream (entities on stream delimited by leading length)<p>
- * <br>
- * Incoming data is interpreted as JSONObject and converted to {@link java.util.Map}.<br>
- * If second rawOutput is connected then content is streamed to this port as it is.
+ * Reads via GET from given URL as input stream<p>
  * <br>
  *
  * @since 0.3.2
  */
 @ShipContainingJars(classes = {com.sun.jersey.api.client.ClientHandler.class})
-public abstract class AbstractHttpInputOperator extends SimpleSinglePortInputOperator<Map<String, String>> implements Runnable
+public abstract class AbstractHttpInputOperator<T> extends SimpleSinglePortInputOperator<T> implements Runnable
 {
   public final transient DefaultOutputPort<String> rawOutput = new DefaultOutputPort<String>();
   private static final Logger LOG = LoggerFactory.getLogger(AbstractHttpInputOperator.class);
@@ -69,7 +65,6 @@ public abstract class AbstractHttpInputOperator extends SimpleSinglePortInputOpe
   {
     headers.put(key, value);
   }
-
 
   @Override
   public void setup(OperatorContext context)
