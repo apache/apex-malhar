@@ -17,6 +17,8 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.flume.Event;
+
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Stats.OperatorStats;
@@ -45,6 +47,7 @@ public abstract class AbstractFlumeInputOperator<T>
   public final transient DefaultOutputPort<Slice> drop = new DefaultOutputPort<Slice>();
   @NotNull
   private String[] connectionSpecs;
+  private StreamCodec<Event> codec;
   private final ArrayList<RecoveryAddress> recoveryAddresses;
   @SuppressWarnings("FieldMayBeFinal") // it's not final because that mucks with the serialization somehow
   private transient ArrayBlockingQueue<Slice> handoverBuffer;
@@ -112,7 +115,9 @@ public abstract class AbstractFlumeInputOperator<T>
     if (i > 0) {
       while (--i > 0) {
         final Slice slice = handoverBuffer.poll();
-        T convert = convert(slice.buffer, slice.offset + 8, slice.length - 8);
+        slice.offset += 8;
+        slice.length -= 8;
+        T convert = convert((Event)codec.fromByteArray(slice));
         if (convert == null) {
           drop.emit(slice);
         }
@@ -123,7 +128,9 @@ public abstract class AbstractFlumeInputOperator<T>
       }
 
       final Slice slice = handoverBuffer.poll();
-      T convert = convert(slice.buffer, slice.offset + 8, slice.length - 8);
+      slice.offset += 8;
+      slice.offset -= 8;
+      T convert = convert((Event)codec.fromByteArray(slice));
       if (convert == null) {
         drop.emit(slice);
       }
@@ -132,7 +139,7 @@ public abstract class AbstractFlumeInputOperator<T>
       }
       eventCounter++;
 
-      address = Arrays.copyOfRange(slice.buffer, slice.offset, slice.offset + 8);
+      address = Arrays.copyOfRange(slice.buffer, slice.offset - 8, slice.offset);
     }
   }
 
@@ -187,7 +194,7 @@ public abstract class AbstractFlumeInputOperator<T>
     }
   }
 
-  public abstract T convert(byte[] buffer, int offset, int size);
+  public abstract T convert(Event event);
 
   /**
    * @return the connectAddress
@@ -203,6 +210,22 @@ public abstract class AbstractFlumeInputOperator<T>
   public void setConnectAddresses(String[] specs)
   {
     this.connectionSpecs = specs.clone();
+  }
+
+  /**
+   * @return the codec
+   */
+  public StreamCodec<Event> getCodec()
+  {
+    return codec;
+  }
+
+  /**
+   * @param codec the codec to set
+   */
+  public void setCodec(StreamCodec<Event> codec)
+  {
+    this.codec = codec;
   }
 
   private static class RecoveryAddress implements Serializable

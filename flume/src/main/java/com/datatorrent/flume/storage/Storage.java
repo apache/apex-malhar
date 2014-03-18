@@ -4,6 +4,8 @@
  */
 package com.datatorrent.flume.storage;
 
+import com.datatorrent.common.util.Slice;
+
 /**
  * <p>Storage interface.</p>
  *
@@ -23,7 +25,7 @@ public interface Storage
    * @param bytes
    * @return
    */
-  byte[] store(byte[] bytes);
+  byte[] store(Slice bytes);
 
   /**
    * This returns the data bytes for the current identifier and the identifier for next data bytes. <br/>

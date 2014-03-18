@@ -72,31 +72,31 @@ public class Server extends AbstractServer
     @Override
     public String getHost()
     {
-        return ((InetSocketAddress)getServerAddress()).getHostName();
+      return ((InetSocketAddress)getServerAddress()).getHostName();
     }
 
     @Override
     public int getPort()
     {
-        return ((InetSocketAddress)getServerAddress()).getPort();
+      return ((InetSocketAddress)getServerAddress()).getPort();
     }
 
     @Override
     public byte[] getPayload()
     {
-        return null;
+      return null;
     }
 
     @Override
     public String getId()
     {
-        return id;
+      return id;
     }
 
     @Override
     public String toString()
     {
-      return "Server.Service{id=" + id + ", host=" + getHost() + ", port=" + getPort() +  ", payload=" + getPayload() + '}';
+      return "Server.Service{id=" + id + ", host=" + getHost() + ", port=" + getPort() + ", payload=" + getPayload() + '}';
     }
 
   };
@@ -141,7 +141,7 @@ public class Server extends AbstractServer
       Command c;
       switch (b) {
         case 0:
-          c =  ECHO;
+          c = ECHO;
           break;
 
         case 1:
@@ -149,11 +149,11 @@ public class Server extends AbstractServer
           break;
 
         case 2:
-          c =  COMMITTED;
+          c = COMMITTED;
           break;
 
         case 3:
-          c =  CHECKPOINTED;
+          c = CHECKPOINTED;
           break;
 
         case 4:
@@ -176,7 +176,7 @@ public class Server extends AbstractServer
           throw new IllegalArgumentException(String.format("No Command defined for ordinal %b", b));
       }
 
-      assert(b == c.ord);
+      assert (b == c.ord);
       return c;
     }
 
@@ -218,6 +218,16 @@ public class Server extends AbstractServer
         requests.add(Request.getRequest(new byte[] {Command.DISCONNECTED.getOrdinal(), 0, 0, 0, 0, 0, 0, 0, 0}, 0, this));
       }
       super.disconnected();
+    }
+
+    public boolean write(byte[] address, Slice event)
+    {
+      if (event.offset == 0 && event.length == event.buffer.length) {
+        return write(address, event.buffer);
+      }
+
+      // a better method would be to replace the write implementation and allow it to natively support writing slices
+      return write(address, event.clone().buffer);
     }
 
   }

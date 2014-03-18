@@ -4,11 +4,13 @@
  */
 package com.datatorrent.flume.integration;
 
+
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.flume.Event;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.*;
@@ -28,9 +30,9 @@ public class ApplicationTest implements StreamingApplication
   public static class FlumeInputOperator extends AbstractFlumeInputOperator<Slice>
   {
     @Override
-    public Slice convert(byte[] buffer, int offset, int size)
+    public Slice convert(Event event)
     {
-      return new Slice(buffer, offset, size);
+      return new Slice(event.getBody(), 0, event.getBody().length);
     }
 
   }
