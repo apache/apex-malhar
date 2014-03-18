@@ -36,7 +36,7 @@ import org.junit.Test;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
- * Functional test for {@linkcom.datatorrent.lib.io.AbstractHttpInputOperator }.
+ * Functional test for {@linkcom.datatorrent.lib.io.HttpJsonChunksInputOperator }.
  */
 public class HttpInputOperatorTest
 {
