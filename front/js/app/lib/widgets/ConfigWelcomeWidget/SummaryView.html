@@ -19,9 +19,16 @@
     Configuration is complete. You can return to configuration wizard from <a href="#config">configuration page</a> at any time.
 </p>
 
+<p>
+    <h3>Getting Started</h3>
+    <p class="getting-started">To learn more and to get started with DataTorrent platform please visit our <a href="https://www.datatorrent.com/developers/" target="_blank">Developer Center</a></p>
+</p>
+
 <% if (issues.length) { %>
 <p>
-    Below is a list of identified issues. Please refer to the guide for more information.
+    <h3>Identified Issues</h3>
+    <p>Below is a list of identified issues. Please refer to the installation guide in the Developer Center for more information.</p>
+
     <div class="issue-list">
     <% issues.each(function (issue) { %>
         <div class="alert <%= issue.get('severity') === 'error' ? 'alert-error': '' %>">
