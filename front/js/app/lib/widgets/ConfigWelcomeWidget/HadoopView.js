@@ -18,15 +18,10 @@ var _ = require('underscore');
 var Backbone = require('backbone');
 var BaseView = require('./StepView');
 var GatewayInfoModel = require('../../../../datatorrent/GatewayInfoModel');
-var ConfigIPAddressCollection = require('./ConfigIPAddressCollection');
-var ConfigPropertyModel = require('../../../../datatorrent/ConfigPropertyModel');
 var Bbind = DT.lib.Bbindings;
 var Notifier = DT.lib.Notifier;
-var ConfigPropertyCollection = DT.lib.ConfigPropertyCollection;
 var ConfigIssueCollection = DT.lib.ConfigIssueCollection;
-var GatewayAddressModel = require('./GatewayAddressModel');
 var HadoopLocationModel = require('../../../../datatorrent/HadoopLocationModel');
-var DfsModel = require('./DfsModel');
 var RestartModal = DT.lib.RestartModal;
 var ConfirmModal = require('./ConfirmModalView');
 
@@ -187,7 +182,7 @@ var HadoopView = BaseView.extend({
         }.bind(this));
 
         hadoopLocationPromise.done(function () {
-            var issues = new ConfigIssueCollection([]);
+            var issues = new ConfigIssueCollection([], { silentErrors: true });
             var issuesPromise = issues.fetch();
 
             issuesPromise.done(function () {
