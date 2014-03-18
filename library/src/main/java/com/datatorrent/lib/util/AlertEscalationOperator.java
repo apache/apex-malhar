@@ -125,8 +125,9 @@ public class AlertEscalationOperator extends BaseOperator implements Partitioner
   @Override
   public void setup(OperatorContext context)
   {
-    if(context != null)
+    if(context != null) {
       context.getAttributes().put(OperatorContext.AUTO_RECORD, true);
+    }
   }
 
 }
