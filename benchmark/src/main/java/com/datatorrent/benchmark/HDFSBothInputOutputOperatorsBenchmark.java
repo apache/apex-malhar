@@ -19,6 +19,7 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.io.fs.HdfsWordInputOperator;
 
 import org.apache.hadoop.conf.Configuration;
@@ -30,6 +31,7 @@ import org.apache.hadoop.conf.Configuration;
  * @since 0.3.2
  */
 
+@ApplicationAnnotation(name="HDFSBothInOutOperatorsBenchmarkingApp")
 public abstract class HDFSBothInputOutputOperatorsBenchmark
 {
   static abstract class AbstractApplication implements StreamingApplication
@@ -58,6 +60,7 @@ public abstract class HDFSBothInputOutputOperatorsBenchmark
   /**
    * Let the engine decide how to best place the 2 operators.
    */
+  @ApplicationAnnotation(name="HDFSBothInOutOperatorsBenchmarkNoLocality")
   public static class NoLocality extends AbstractApplication
   {
     @Override
@@ -70,6 +73,7 @@ public abstract class HDFSBothInputOutputOperatorsBenchmark
   /**
    * Place the 2 operators so that they are in the same Rack.
    */
+  @ApplicationAnnotation(name="HDFSBothInOutOperatorsBenchmarkRackLocality")
   public static class RackLocal extends AbstractApplication
   {
     @Override
@@ -82,6 +86,7 @@ public abstract class HDFSBothInputOutputOperatorsBenchmark
   /**
    * Place the 2 operators so that they are in the same node.
    */
+  @ApplicationAnnotation(name="HDFSBothInOutOperatorsBenchmarkNodeLocality")
   public static class NodeLocal extends AbstractApplication
   {
     @Override
@@ -94,6 +99,7 @@ public abstract class HDFSBothInputOutputOperatorsBenchmark
   /**
    * Place the 2 operators so that they are in the same container.
    */
+  @ApplicationAnnotation(name="HDFSBothInOutOperatorsBenchmarkContainerLocality")
   public static class ContainerLocal extends AbstractApplication
   {
     @Override
@@ -106,6 +112,7 @@ public abstract class HDFSBothInputOutputOperatorsBenchmark
   /**
    * Place the 2 operators so that they are in the same thread.
    */
+  @ApplicationAnnotation(name="HDFSBothInOutOperatorsBenchmarkThreadLocality")
   public static class ThreadLocal extends AbstractApplication
   {
     @Override
