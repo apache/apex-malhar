@@ -145,7 +145,6 @@ public class TailFsInputOperatorTest
     }
   }
 
-  /*
   @Test
   public void testTruncation() throws Exception
   {
@@ -186,15 +185,14 @@ public class TailFsInputOperatorTest
     Assert.assertEquals(1, sink.collectedTuples.size());
     Assert.assertEquals("Hello", sink.collectedTuples.get(0));
   }
-*/
+
   /**
    * This tests the case when the file is rotated and new file has same size as old file
    * 
    * @throws Exception
    */
-  /*
+
   @Test
-  
   public void testTruncationWithSameFileSize() throws Exception
   {
     FileWriter fstream = new FileWriter(filePath);
@@ -235,5 +233,5 @@ public class TailFsInputOperatorTest
     Assert.assertEquals("Hello abcd", sink.collectedTuples.get(0));
 
   }
-  */
+
 }
