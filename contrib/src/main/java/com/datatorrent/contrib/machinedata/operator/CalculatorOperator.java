@@ -22,7 +22,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.contrib.machinedata.data.*;
 import com.datatorrent.contrib.machinedata.util.DataTable;
 import com.datatorrent.lib.util.KeyValPair;
-import com.datatorrent.lib.util.KryoSerializableStreamCodec;
+import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;

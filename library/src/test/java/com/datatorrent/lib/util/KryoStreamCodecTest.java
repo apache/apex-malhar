@@ -1,5 +1,6 @@
 package com.datatorrent.lib.util;
 
+import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.datatorrent.common.util.Slice;
 import com.google.common.base.Preconditions;
 import org.junit.Assert;
