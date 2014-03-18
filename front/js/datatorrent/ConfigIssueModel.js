@@ -19,10 +19,10 @@ var ConfigIssueModel = BaseModel.extend({
 
     debugName: 'config issue',
 
-    idAttribute: 'name',
+    idAttribute: 'key',
 
     defaults: {
-        name: '',
+        key: '',
         value: '',
         description: ''
     },
