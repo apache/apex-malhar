@@ -1,4 +1,4 @@
-package com.datatorrent.lib.util;
+package com.datatorrent.lib.codec;
 
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.datatorrent.common.util.Slice;
@@ -83,7 +83,7 @@ public class KryoStreamCodecTest {
         TestKryoStreamCodec codec= new TestKryoStreamCodec();
 
         Slice dsp = codec.toByteArray(t1);
-        TestTuple t2 = codec.fromByteArray(dsp);
+        TestTuple t2 = (TestTuple)codec.fromByteArray(dsp);
         Assert.assertEquals("", t1.field, t2.field);
     }
 }
