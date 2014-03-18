@@ -103,6 +103,8 @@ var HadoopView = BaseView.extend({
     saveHadoopLocation: function () {
         var d = $.Deferred();
 
+        //setTimeout(function () { d.rejectWith(null, ['hadoop location update failed test msg']); }, 3000); return d.promise();
+
         var ajax = this.hadoopLocationModel.save();
 
         ajax.done(function () {
@@ -168,6 +170,9 @@ var HadoopView = BaseView.extend({
             return;
         }
 
+        this.$el.find('.loading').show();
+        this.$el.find('.continue').addClass('disabled');
+
         var hadoopLocationPromise;
         if (this.hadoopLocationModel.isChanged()) {
             hadoopLocationPromise = this.saveHadoopLocation();
@@ -176,6 +181,8 @@ var HadoopView = BaseView.extend({
         }
 
         hadoopLocationPromise.fail(function (msg) {
+            this.$el.find('.loading').hide();
+            this.$el.find('.continue').removeClass('disabled');
             this.showError('.hadoop-error', msg);
         }.bind(this));
 
@@ -184,6 +191,9 @@ var HadoopView = BaseView.extend({
             var issuesPromise = issues.fetch();
 
             issuesPromise.done(function () {
+                this.$el.find('.loading').hide();
+                this.$el.find('.continue').removeClass('disabled');
+
                 var restartRequiredIssue = issues.findWhere({
                     key: 'RESTART_NEEDED'
                 });
@@ -204,7 +214,7 @@ var HadoopView = BaseView.extend({
             }.bind(this));
 
             issuesPromise.fail(function () {
-                this.errorMsg = 'Internal Error. Failed to load installation status.'; //TODO
+                this.errorMsg = 'Internal Error. Failed to load installation status.';
                 this.render();
             }.bind(this));
         }.bind(this));

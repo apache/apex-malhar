@@ -16,8 +16,6 @@
 var _ = require('underscore');
 var kt = require('knights-templar');
 var BasePageView = DT.lib.BasePageView;
-var ConfigPropertyCollection = DT.lib.ConfigPropertyCollection;
-var ConfigIssueCollection = DT.lib.ConfigIssueCollection;
 
 // widgets
 var ConfigWelcomeWidget = require('../widgets/ConfigWelcomeWidget');
@@ -40,12 +38,6 @@ var WelcomePageView = BasePageView.extend({
     initialize: function(options) {
         BasePageView.prototype.initialize.call(this,options);
 
-        this.properties = new ConfigPropertyCollection([]);
-        this.properties.fetch();
-        window.props = this.properties;
-        this.issues = new ConfigIssueCollection([]);
-        this.issues.fetch();
-
         this.defineWidgets([
             {
                 name: 'ConfigWelcome',
@@ -53,8 +45,6 @@ var WelcomePageView = BasePageView.extend({
                 view: ConfigWelcomeWidget,
                 limit: 1,
                 inject: {
-                    collection: this.properties,
-                    issues: this.issues,
                     dataSource: this.dataSource
                 }
             }

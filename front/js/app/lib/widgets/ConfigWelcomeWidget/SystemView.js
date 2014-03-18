@@ -376,6 +376,14 @@ var SystemView = BaseView.extend({
             this.$el.find('.address-ip-input').show();
         }
 
+        if (_.isString(this.dfsDirectory) && (this.dfsDirectory.length === 0)) {
+            _.defer(function () {
+                this.$el.find('.dfs-directory').attr('disabled', '');
+                this.$el.find('.continue').addClass('disabled');
+                this.showError('.dfs-directory-error', 'DFS is not configured. Please configure DFS using fs.defaultFS property in your Hadoop configuration and rerun this configuration wizard.');
+            }.bind(this));
+        }
+
         return this;
         //dt.attr.GATEWAY_ADDRESS ip:9090
         //dt.gateway.address
