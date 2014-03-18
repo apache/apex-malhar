@@ -47,6 +47,7 @@ public abstract class AbstractFlumeInputOperator<T>
   public final transient DefaultOutputPort<Slice> drop = new DefaultOutputPort<Slice>();
   @NotNull
   private String[] connectionSpecs;
+  @NotNull
   private StreamCodec<Event> codec;
   private final ArrayList<RecoveryAddress> recoveryAddresses;
   @SuppressWarnings("FieldMayBeFinal") // it's not final because that mucks with the serialization somehow
