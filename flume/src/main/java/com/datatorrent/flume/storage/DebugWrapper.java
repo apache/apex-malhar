@@ -10,6 +10,7 @@ import org.apache.flume.Context;
 import org.apache.flume.conf.Configurable;
 
 import com.datatorrent.api.Component;
+import com.datatorrent.common.util.Slice;
 
 /**
  *
@@ -20,7 +21,7 @@ public class DebugWrapper implements Storage, Configurable, Component<com.datato
   HDFSStorage storage = new HDFSStorage();
 
   @Override
-  public byte[] store(byte[] bytes)
+  public byte[] store(Slice bytes)
   {
     byte[] ret = null;
 

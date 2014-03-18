@@ -4,12 +4,13 @@
  */
 package com.datatorrent.flume.storage;
 
-
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.flume.Context;
+
+import com.datatorrent.common.util.Slice;
 
 /**
  *
@@ -30,7 +31,7 @@ public class HDFSStoragePerformance
     logger.debug(" start time {}",System.currentTimeMillis());
     byte[] b = new byte[1024];
     for (int i = 0; i < 1000000; i++) {
-      storage.store(b);
+      storage.store(new Slice(b, 0, b.length));
     }
     storage.flush();
     logger.debug(" end time {}",System.currentTimeMillis());

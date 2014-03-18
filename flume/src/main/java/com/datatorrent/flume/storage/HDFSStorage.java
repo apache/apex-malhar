@@ -27,6 +27,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
 import com.datatorrent.api.Component;
+import com.datatorrent.common.util.Slice;
 import com.datatorrent.flume.sink.Server;
 
 /**
@@ -36,7 +37,7 @@ import com.datatorrent.flume.sink.Server;
  * baseDir - The base directory where the data is going to be stored <br />
  * restore - This is used to restore the application from previous failure <br />
  * blockSize - The maximum size of the each file to created. <br />
- * 
+ *
  * @author Gaurav Gupta <gaurav@datatorrent.com>
  * @since 0.9.3
  */
@@ -127,7 +128,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
 
   /**
    * This stores the Identifier information identified in the last store function call
-   * 
+   *
    * @param ctx
    */
   @Override
@@ -157,7 +158,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
 
   /**
    * This function reads the file at a location and return the bytes stored in the file "
-   * 
+   *
    * @param path
    *          - the location of the file
    * @return
@@ -174,7 +175,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
 
   /**
    * This function writes the bytes to a file specified by the path
-   * 
+   *
    * @param path
    *          the file location
    * @param data
@@ -201,10 +202,10 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   }
 
   @Override
-  public byte[] store(byte[] bytes)
+  public byte[] store(Slice slice)
   {
     // logger.debug("store message ");
-    int bytesToWrite = bytes.length + DATA_LENGTH_BYTE_SIZE;
+    int bytesToWrite = slice.length + DATA_LENGTH_BYTE_SIZE;
     if (currentWrittenFile < skipFile) {
       fileWriteOffset += bytesToWrite;
       if (fileWriteOffset >= bookKeepingFileOffset) {
@@ -238,11 +239,11 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
         /* write length and the actual data to the file */
         if (fileWriteOffset == 0) {
           // writeData(flushedCounterFile, String.valueOf(currentWrittenFile).getBytes()).close();
-          dataStream = writeData(new Path(basePath, String.valueOf(currentWrittenFile)), Ints.toByteArray(bytes.length));
-          dataStream.write(bytes);
+          dataStream = writeData(new Path(basePath, String.valueOf(currentWrittenFile)), Ints.toByteArray(slice.length));
+          dataStream.write(slice.buffer, slice.offset, slice.length);
         } else {
-          dataStream.write(Ints.toByteArray(bytes.length));
-          dataStream.write(bytes);
+          dataStream.write(Ints.toByteArray(slice.length));
+          dataStream.write(slice.buffer, slice.offset, slice.length);
         }
         fileWriteOffset += bytesToWrite;
 
@@ -263,11 +264,11 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
     files2Commit.add(db);
     fileWriteOffset = 0;
     ++currentWrittenFile;
-    return store(bytes);
+    return store(slice);
   }
 
   /**
-   * 
+   *
    * @param b
    * @param size
    * @param startIndex
@@ -536,7 +537,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
     while (itr.hasNext()) {
       db = itr.next();
       db.updateOffsets();
-      builder.append(", " + db.fileName);
+      builder.append(", ").append(db.fileName);
     }
     logger.debug("flushed files {}", builder.toString());
     files2Commit.clear();
@@ -746,7 +747,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
 
         if (fs.exists(flushedCounterFile) && fs.isFile(flushedCounterFile)) {
           String strFlushedFileCounter = new String(readData(flushedCounterFile));
-          if (strFlushedFileCounter == null || strFlushedFileCounter.length() == 0) {
+          if (strFlushedFileCounter.isEmpty()) {
             logger.warn("empty flushed file");
           } else {
             flushedFileCounter = Long.valueOf(strFlushedFileCounter);

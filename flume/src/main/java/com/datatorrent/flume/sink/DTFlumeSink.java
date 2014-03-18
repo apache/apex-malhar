@@ -6,10 +6,7 @@ package com.datatorrent.flume.sink;
 
 import java.io.IOError;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.ServiceConfigurationError;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,12 +16,14 @@ import org.apache.flume.conf.Configurable;
 import org.apache.flume.sink.AbstractSink;
 
 import com.datatorrent.api.Component;
+import com.datatorrent.api.StreamCodec;
 
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.flume.discovery.Discovery;
 import com.datatorrent.flume.discovery.Discovery.Service;
 import com.datatorrent.flume.sink.Server.Client;
 import com.datatorrent.flume.sink.Server.Request;
+import com.datatorrent.flume.storage.EventCodec;
 import com.datatorrent.flume.storage.Storage;
 import com.datatorrent.netlet.DefaultEventLoop;
 import com.datatorrent.netlet.NetletThrowable.NetletRuntimeException;
@@ -69,7 +68,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   private int maximumEventsPerTransaction;
   private Storage storage;
   Discovery<byte[]> discovery;
-  byte[] previousBody;
+  StreamCodec<Event> codec;
   /* Begin implementing Flume Sink interface */
 
   @Override
@@ -190,10 +189,11 @@ public class DTFlumeSink extends AbstractSink implements Configurable
 
           Event e;
           while (storedTuples < maxTuples && (e = getChannel().take()) != null) {
-            byte[] address = storage.store(e.getBody());
+            Slice event = codec.toByteArray(e);
+            byte[] address = storage.store(event);
             if (address != null) {
-              while (!client.write(address, e.getBody())) {
-                retryWrite(address, e.getBody());
+              while (!client.write(address, event)) {
+                retryWrite(address, event);
               }
 
               writtenTuples++;
@@ -283,6 +283,8 @@ public class DTFlumeSink extends AbstractSink implements Configurable
       throw new RuntimeException(ex);
     }
 
+    // make it configurable
+    codec = new EventCodec();
     eventloop.start();
     eventloop.start(hostname, port, server);
     super.start();
@@ -303,6 +305,9 @@ public class DTFlumeSink extends AbstractSink implements Configurable
 
         eventloop.stop(server);
         eventloop.stop();
+
+        codec = null;
+
         if (discovery instanceof Component) {
           @SuppressWarnings("unchecked")
           Component<com.datatorrent.api.Context> component = (Component<com.datatorrent.api.Context>)discovery;
@@ -374,7 +379,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
       storage = new Storage()
       {
         @Override
-        public byte[] store(byte[] bytes)
+        public byte[] store(Slice slice)
         {
           return null;
         }
@@ -505,7 +510,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
    * @param e
    * @throws IOException
    */
-  private void retryWrite(byte[] address, byte[] e) throws IOException
+  private void retryWrite(byte[] address, Slice event) throws IOException
   {
     while (client.isConnected()) {
       sleep();
@@ -514,13 +519,13 @@ public class DTFlumeSink extends AbstractSink implements Configurable
       }
     }
 
-    if (e == null) {
+    if (event == null) {
       return;
     }
 
     while (client.isConnected()) {
       sleep();
-      if (client.write(e)) {
+      if (client.write(event.buffer, event.offset, event.length)) {
         return;
       }
     }
