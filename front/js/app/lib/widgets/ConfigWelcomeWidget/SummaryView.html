@@ -1,9 +1,10 @@
+<span class="section-complete">
 <h1>Configuration Complete</h1>
 
-<% if (error) {  %>
+<% if (errorMsg) {  %>
 
 <p class="alert alert-error">
-    Error completing configuration.
+    <%= errorMsg %>
 </p>
 
 <% } else if (loading) {  %>
@@ -18,6 +19,20 @@
     Configuration is complete. You can return to configuration wizard from <a href="#config">configuration page</a> at any time.
 </p>
 
+<% if (issues.length) { %>
+<p>
+    Below is a list of identified issues. Please refer to the guide for more information.
+    <div class="issue-list">
+    <% issues.each(function (issue) { %>
+        <div class="alert <%= issue.get('severity') === 'error' ? 'alert-error': '' %>">
+            <h4><%= issue.get('key') %></h4>
+            <%= issue.get('description') %>
+        </div>
+    <% }) %>
+    </div>
+</p>
+<% } %>
+
 <a href="#" class="install-step-link btn pull-left btn-large" data-action="SystemView">
     <i class="icon-circle-arrow-left"></i> back
 </a>
@@ -27,3 +42,4 @@
 </a>
 
 <% } %>
+</span>

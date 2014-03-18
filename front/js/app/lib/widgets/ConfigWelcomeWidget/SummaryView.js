@@ -19,6 +19,8 @@ var Backbone = require('backbone');
 var BaseView = require('./StepView');
 var Notifier = DT.lib.Notifier;
 var ConfigPropertyModel = require('../../../../datatorrent/ConfigPropertyModel');
+var ConfigIssueModel = DT.lib.ConfigIssueModel;
+var ConfigIssueCollection = DT.lib.ConfigIssueCollection;
 
 var SummaryView = BaseView.extend({
 
@@ -31,20 +33,50 @@ var SummaryView = BaseView.extend({
         this.dataSource = options.dataSource;
         this.navFlow = options.navFlow;
 
-        this.error = false;
         this.loading = true;
 
-        var configStatusPromise = this.saveConfigStatusProperty();
+        this.issues = new ConfigIssueCollection([]);
+        var issuesPromise = this.issues.fetch();
 
-        configStatusPromise.done(function () {
-            this.loading = false;
-            this.render();
+        issuesPromise.done(function () {
+            var configStatusPromise = this.saveConfigStatusProperty();
+
+            configStatusPromise.done(function () {
+                this.loading = false;
+                /*
+                this.issues.add(new ConfigIssueModel({
+                    key: 'issue2',
+                    severity: 'warning',
+                    description: 'description2'
+                }));
+                this.issues.add(new ConfigIssueModel({
+                    key: 'issue3',
+                    severity: 'error',
+                    description: 'description3'
+                }));
+                this.issues.add(new ConfigIssueModel({
+                    key: 'issue4',
+                    severity: 'warning',
+                    description: 'description4'
+                }));
+                */
+
+                this.render();
+            }.bind(this));
+
+            configStatusPromise.fail(function () {
+                this.showError();
+            }.bind(this));
         }.bind(this));
 
-        configStatusPromise.fail(function () {
-            this.error = true;
-            this.render();
+        issuesPromise.fail(function () {
+            this.showError();
         }.bind(this));
+    },
+
+    showError: function () {
+        this.errorMsg = 'Error completing configuration. Please make sure DT Gateway is running.'
+        this.render();
     },
 
     saveConfigStatusProperty: function () {
@@ -58,8 +90,9 @@ var SummaryView = BaseView.extend({
 
     render: function() {
         var html = this.template({
-            error: this.error,
-            loading: this.loading
+            errorMsg: this.errorMsg,
+            loading: this.loading,
+            issues: this.issues
         });
 
         this.$el.html(html);
