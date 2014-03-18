@@ -45,6 +45,21 @@ describe('BaseModel.js', function() {
 		expect(BaseModel.prototype.settings).to.equal(settings);
 	});
 
+	describe('initialize method', function() {
+	    
+		it('should check for a dataSource object in options', function() {
+			var dz = {};
+		    var m2 = new BaseModel({}, { dataSource: dz});
+		    expect(m2.dataSource).to.equal(dz);
+		});
+
+		it('should look for "silentErrors" in options and set quietFetchError to fetchError', function() {
+			var m2 = new BaseModel({}, { silentErrors: true });
+		    expect(m2.fetchError).to.equal(BaseUtil.quietFetchError);
+		});
+
+	});
+
 	describe('set method', function() {
 
 		it('should call Backbone.Model.prototype.set', function() {

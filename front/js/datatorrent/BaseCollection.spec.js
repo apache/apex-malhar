@@ -30,5 +30,12 @@ describe('BaseCollection.js', function() {
     it('should have the settings object attached to it', function() {
         expect(BaseCollection.prototype.settings).to.equal(settings);
     });
+
+    describe('the initialize method', function() {
+        it('should look for "silentErrors" in options and set quietFetchError to fetchError', function() {
+            var c = new BaseCollection([], { silentErrors: true });
+            expect(c.fetchError).to.equal(BaseUtil.quietFetchError);
+        });
+    });
     
 });

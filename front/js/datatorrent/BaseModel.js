@@ -30,6 +30,9 @@ var BaseModel = Backbone.Model.extend({
         if (options.hasOwnProperty('dataSource')) {
             this.dataSource = options.dataSource;
         }
+        if (options.silentErrors) {
+            this.fetchError = util.quietFetchError;
+        }
     },
     
     settings: settings,
@@ -89,14 +92,12 @@ var BaseModel = Backbone.Model.extend({
             (attrs = {})[key] = val;
         }
 
-        options || (options = {});
+        options = options || {};
 
         // Remove window properties from attrs
         _.each(this.windowIdProperties, function(windowKey) {
             if (attrs.hasOwnProperty(windowKey)) {
-                windowUpdates[windowKey] = attrs[windowKey] instanceof WindowId 
-                    ? attrs[windowKey].value 
-                    : attrs[windowKey];
+                windowUpdates[windowKey] = attrs[windowKey] instanceof WindowId ? attrs[windowKey].value : attrs[windowKey];
 
                 delete attrs[windowKey];
             }
@@ -112,7 +113,7 @@ var BaseModel = Backbone.Model.extend({
                 // Update current WindowId object if there
                 if ( (current = this.get(k)) instanceof WindowId && current.value !== w ) {
                     current.set(w);
-                } 
+                }
 
                 // Otherwise create WindowId object
                 else {
