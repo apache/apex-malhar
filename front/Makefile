@@ -13,8 +13,8 @@ clitest:
 
 # The build step. This creates a dist folder whose contents should be placed 
 # in the static file directory of the DataTorrent Gateway. This directory
-# should be specified by the stram.gateway.staticResourceDirectory property
-# in stram-site.xml.
+# should be specified by the dt.gateway.staticResourceDirectory property
+# in dt-site.xml.
 build:
 	rm -rf dist_tmp
 	mkdir dist_tmp

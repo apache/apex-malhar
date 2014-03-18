@@ -23,13 +23,13 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAGContext;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.HttpInputOperator;
+import com.datatorrent.lib.io.HttpJsonChunksInputOperator;
 
 /**
  * * This sample application code for showing sample usage of malhar
  * operator(s). <br>
  * <b>Operator : </b> HttpInputOperator <br>
- * <bClass : </b> com.datatorrent.lib.io.HttpInputOperator
+ * <bClass : </b> com.datatorrent.lib.io.HttpJsonChunksInputOperator
  *
  * this application connects to yahoo news and relays raw content to output console.
  *
@@ -45,8 +45,8 @@ public class HttpInputOperatorSample implements StreamingApplication
 		dag.setAttribute(DAGContext.DEBUG, true);
 
 		// Add random integer generator operator
-		HttpInputOperator reader = dag.addOperator("reader",
-				HttpInputOperator.class);
+		HttpJsonChunksInputOperator reader = dag.addOperator("reader",
+				HttpJsonChunksInputOperator.class);
 		reader.setUrl(URI.create("http://news.yahoo.com"));
 		reader.readTimeoutMillis = 10000;
 
