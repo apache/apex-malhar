@@ -35,7 +35,8 @@ var SummaryView = BaseView.extend({
 
         this.loading = true;
 
-        this.issues = new ConfigIssueCollection([]);
+        this.issues = new ConfigIssueCollection([], { silentErrors: true });
+
         var issuesPromise = this.issues.fetch();
 
         issuesPromise.done(function () {

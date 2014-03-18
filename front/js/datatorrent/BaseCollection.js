@@ -35,7 +35,7 @@ var BaseCollection = Backbone.Collection.extend({
     responseFormatError: util.responseFormatError,
 
     initialize: function(models, options) {
-        if (options.silentErrors) {
+        if (options && options.silentErrors) {
             this.fetchError = util.quietFetchError;
         }
     },
