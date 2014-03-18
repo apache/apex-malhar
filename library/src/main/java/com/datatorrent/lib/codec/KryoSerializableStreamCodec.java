@@ -51,13 +51,12 @@ public class KryoSerializableStreamCodec<T> implements StreamCodec<T>
     this.kryo.register(clazz, id);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public T fromByteArray(Slice fragment)
+  public Object fromByteArray(Slice fragment)
   {
     ByteArrayInputStream is = new ByteArrayInputStream(fragment.buffer, fragment.offset, fragment.length);
     Input input = new Input(is);
-    return (T) kryo.readClassAndObject(input);
+    return kryo.readClassAndObject(input);
   }
 
   @Override

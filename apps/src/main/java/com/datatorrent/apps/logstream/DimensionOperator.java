@@ -25,12 +25,15 @@ import com.google.common.collect.Sets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.apache.commons.lang.mutable.MutableDouble;
 
+import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.datatorrent.lib.logs.DimensionObject;
-import com.datatorrent.lib.util.KryoSerializableStreamCodec;
+
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
+
 import com.datatorrent.apps.logstream.LogstreamUtil.AggregateOperation;
 import com.datatorrent.apps.logstream.PropertyRegistry.LogstreamPropertyRegistry;
 import com.datatorrent.apps.logstream.PropertyRegistry.PropertyRegistry;
