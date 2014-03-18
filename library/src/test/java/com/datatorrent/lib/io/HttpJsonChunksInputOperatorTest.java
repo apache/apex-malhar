@@ -38,7 +38,7 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 /**
  * Functional test for {@linkcom.datatorrent.lib.io.HttpJsonChunksInputOperator }.
  */
-public class HttpInputOperatorTest
+public class HttpJsonChunksInputOperatorTest
 {
   @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
