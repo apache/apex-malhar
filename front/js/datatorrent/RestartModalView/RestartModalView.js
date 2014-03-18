@@ -30,6 +30,12 @@ var RestartModalView = BaseView.extend({
     closeBtn: false,
 
     initialize: function(options) {
+        BaseView.prototype.initialize.call(this, {
+            launchOptions: {
+                backdrop: 'static'
+            }
+        });
+
         this.dataSource = options.dataSource;
         this.message = options.message;
         this.restartCompleteCallback = options.restartCompleteCallback;

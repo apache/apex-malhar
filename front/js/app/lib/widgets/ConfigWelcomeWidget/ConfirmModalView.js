@@ -26,6 +26,12 @@ var ConfirmModalView = BaseView.extend({
     title: 'Restart Required',
 
     initialize: function(options) {
+        BaseView.prototype.initialize.call(this, {
+            launchOptions: {
+                backdrop: 'static'
+            }
+        });
+
         this.message = options.message;
         this.confirmCallback = options.confirmCallback;
     },
