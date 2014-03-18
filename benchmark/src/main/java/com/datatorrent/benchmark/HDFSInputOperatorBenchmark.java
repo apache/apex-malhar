@@ -20,6 +20,7 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.lib.io.fs.HdfsWordInputOperator;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 import org.apache.hadoop.conf.Configuration;
 
@@ -31,6 +32,7 @@ import org.apache.hadoop.conf.Configuration;
  * @since 0.9.4
  */
 
+@ApplicationAnnotation(name="HDFSInputOperatorBenchmarkingApp")
 public abstract class HDFSInputOperatorBenchmark
 {
   static abstract class AbstractApplication implements StreamingApplication
@@ -55,6 +57,7 @@ public abstract class HDFSInputOperatorBenchmark
   /**
    * Let the engine decide how to best place the 2 operators.
    */
+  @ApplicationAnnotation(name="HDFSInputOperatorBenchmarkNoLocality")
   public static class NoLocality extends AbstractApplication
   {
     @Override
@@ -67,6 +70,7 @@ public abstract class HDFSInputOperatorBenchmark
   /**
    * Place the 2 operators so that they are in the same Rack.
    */
+  @ApplicationAnnotation(name="HDFSInputOperatorBenchmarkRackLocality")
   public static class RackLocal extends AbstractApplication
   {
     @Override
@@ -79,6 +83,7 @@ public abstract class HDFSInputOperatorBenchmark
   /**
    * Place the 2 operators so that they are in the same node.
    */
+  @ApplicationAnnotation(name="HDFSInputOperatorBenchmarkNodeLocality")
   public static class NodeLocal extends AbstractApplication
   {
     @Override
@@ -91,6 +96,7 @@ public abstract class HDFSInputOperatorBenchmark
   /**
    * Place the 2 operators so that they are in the same container.
    */
+  @ApplicationAnnotation(name="HDFSInputOperatorBenchmarkContainerLocality")
   public static class ContainerLocal extends AbstractApplication
   {
     @Override
@@ -103,6 +109,7 @@ public abstract class HDFSInputOperatorBenchmark
   /**
    * Place the 2 operators so that they are in the same thread.
    */
+  @ApplicationAnnotation(name="HDFSInputOperatorBenchmarkThreadLocality")
   public static class ThreadLocal extends AbstractApplication
   {
     @Override
