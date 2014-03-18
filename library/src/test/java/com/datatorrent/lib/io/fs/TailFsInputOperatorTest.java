@@ -18,8 +18,6 @@ package com.datatorrent.lib.io.fs;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 import junit.framework.Assert;
 
@@ -145,7 +143,6 @@ public class TailFsInputOperatorTest
     }
   }
 
-  /*
   @Test
   public void testTruncation() throws Exception
   {
@@ -162,7 +159,10 @@ public class TailFsInputOperatorTest
     oper.setNumberOfTuples(10);
     oper.setup(null);
     oper.activate(null);
-    Files.move(Paths.get(filePath), Paths.get(filePath + ".bk"));
+    File file = new File(filePath);
+    if (file.exists()) {
+      file.renameTo(new File(filePath+".bk"));      
+    }
     try {
       Thread.sleep(1000);
     } catch (InterruptedException e) {
@@ -175,7 +175,7 @@ public class TailFsInputOperatorTest
     oper.emitTuples();
     oper.endWindow();
     oper.deactivate();
-    File file = new File(filePath);
+    file = new File(filePath);
     if (file.exists()) {
       file.delete();
     }
@@ -186,15 +186,14 @@ public class TailFsInputOperatorTest
     Assert.assertEquals(1, sink.collectedTuples.size());
     Assert.assertEquals("Hello", sink.collectedTuples.get(0));
   }
-*/
+
   /**
    * This tests the case when the file is rotated and new file has same size as old file
    * 
    * @throws Exception
    */
-  /*
+
   @Test
-  
   public void testTruncationWithSameFileSize() throws Exception
   {
     FileWriter fstream = new FileWriter(filePath);
@@ -210,7 +209,10 @@ public class TailFsInputOperatorTest
     oper.setNumberOfTuples(10);
     oper.setup(null);
     oper.activate(null);
-    Files.move(Paths.get(filePath), Paths.get(filePath + ".bk"));
+    File file = new File(filePath);
+    if (file.exists()) {
+      file.renameTo(new File(filePath+".bk"));      
+    }
     try {
       Thread.sleep(1000);
     } catch (InterruptedException e) {
@@ -223,9 +225,9 @@ public class TailFsInputOperatorTest
     oper.emitTuples();
     oper.endWindow();
     oper.deactivate();
-    File file = new File(filePath);
+    file = new File(filePath);
     if (file.exists()) {
-      file.delete();
+      file.delete();      
     }
     file = new File(filePath + ".bk");
     if (file.exists()) {
@@ -235,5 +237,5 @@ public class TailFsInputOperatorTest
     Assert.assertEquals("Hello abcd", sink.collectedTuples.get(0));
 
   }
-  */
+
 }
