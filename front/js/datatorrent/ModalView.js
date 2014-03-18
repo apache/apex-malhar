@@ -19,6 +19,13 @@ var kt = require('knights-templar');
 var BaseView = require('bassview');
 var ModalView = BaseView.extend({
 
+	initialize: function(options) {
+		options = options || {};
+		if (options.hasOwnProperty('launchOptions')) {
+			this.launchOptions = options.launchOptions;
+		}
+	},
+
 	title: 'No title',
 
 	confirmText: text('save'),
@@ -70,10 +77,14 @@ var ModalView = BaseView.extend({
 		'click .confirmBtn': 'onConfirm'
 	},
 
-	launch: function() {
-		this.$el.modal({
-			show: true
-		});
+	launchOptions: {
+		show: true
+	},
+
+	launch: function(options) {
+		options = options || {};
+		options = _.defaults(options, this.launchOptions);
+		this.$el.modal(options);
 		this.delegateEvents();
 	},
 
