@@ -15,21 +15,45 @@
  */
 
 var _ = require('underscore');
+var kt = require('knights-templar');
 var BaseView = require('./StepView');
+var GatewayInfoModel = require('../../../../datatorrent/GatewayInfoModel');
 
 var LicenseOfflineView = BaseView.extend({
 
     initialize: function(options) {
         BaseView.prototype.initialize.apply(this, arguments);
+        this.loading = true;
         var stateOptions = options.stateOptions;
         this.prevStateId = (stateOptions && stateOptions.prevStateId) ? stateOptions.prevStateId : 'WelcomeView';
 
-        this.requestText = options.stateOptions.licenseRequestBlob;
-        this.mailtoText = encodeURIComponent(this.requestText);
+        var licenseRequestBlob = options.stateOptions ? options.stateOptions.licenseRequestBlob : '';
+        var template = kt.make(__dirname + '/LicenseOfflineRequest.html', '_');
+
+        var about = new GatewayInfoModel({});
+        var ajax = about.fetch();
+
+        ajax.done(function () {
+            this.loading = false;
+            this.requestText = template({
+                licenseRequestBlob: licenseRequestBlob,
+                hostname: about.get('hostname')
+            });
+            this.mailtoText = encodeURIComponent(this.requestText);
+            this.render();
+        }.bind(this));
+
+        ajax.fail(function () { //TODO disable pnotify error
+            this.loading = false;
+            this.errorMsg = 'Failed to load Gateway Info';
+            this.render();
+        }.bind(this));
     },
 
     render: function() {
         var html = this.template({
+            loading: this.loading,
+            errorMsg: this.errorMsg,
             prevStateId: this.prevStateId,
             mailtoText: this.mailtoText,
             requestText: this.requestText
