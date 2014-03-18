@@ -18,6 +18,8 @@ package com.datatorrent.lib.io.fs;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import junit.framework.Assert;
 
@@ -150,7 +152,6 @@ public class TailFsInputOperatorTest
     BufferedWriter out = new BufferedWriter(fstream);
     out.write("Hello Java");
     out.close();
-
     TailFsInputOperator oper = new TailFsInputOperator();
     oper.setFilePath(filePath);
     CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
@@ -160,6 +161,11 @@ public class TailFsInputOperatorTest
     oper.setNumberOfTuples(10);
     oper.setup(null);
     oper.activate(null);
+    Files.move(Paths.get(filePath), Paths.get(filePath + ".bk"));
+    try {
+      Thread.sleep(1000);
+    } catch (InterruptedException e) {
+    }
     fstream = new FileWriter(filePath);
     out = new BufferedWriter(fstream);
     out.write("Hello\n");
@@ -168,12 +174,62 @@ public class TailFsInputOperatorTest
     oper.emitTuples();
     oper.endWindow();
     oper.deactivate();
-    Assert.assertEquals(1, sink.collectedTuples.size());
-    Assert.assertEquals("Hello", sink.collectedTuples.get(0));
-    out.close();
     File file = new File(filePath);
     if (file.exists()) {
       file.delete();
     }
+    file = new File(filePath + ".bk");
+    if (file.exists()) {
+      file.delete();
+    }
+    Assert.assertEquals(1, sink.collectedTuples.size());
+    Assert.assertEquals("Hello", sink.collectedTuples.get(0));
+  }
+
+  /**
+   * This tests the case when the file is rotated and new file has same size as old file
+   * 
+   * @throws Exception
+   */
+  @Test
+  public void testTruncationWithSameFileSize() throws Exception
+  {
+    FileWriter fstream = new FileWriter(filePath);
+    BufferedWriter out = new BufferedWriter(fstream);
+    out.write("Hello Java\n");
+    out.close();
+    TailFsInputOperator oper = new TailFsInputOperator();
+    oper.setFilePath(filePath);
+    CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
+    oper.output.setSink(sink);
+    oper.setDelay(1);
+    oper.setEnd(true);
+    oper.setNumberOfTuples(10);
+    oper.setup(null);
+    oper.activate(null);
+    Files.move(Paths.get(filePath), Paths.get(filePath + ".bk"));
+    try {
+      Thread.sleep(1000);
+    } catch (InterruptedException e) {
+    }
+    fstream = new FileWriter(filePath);
+    out = new BufferedWriter(fstream);
+    out.write("Hello abcd\n");
+    out.close();
+    oper.beginWindow(0);
+    oper.emitTuples();
+    oper.endWindow();
+    oper.deactivate();
+    File file = new File(filePath);
+    if (file.exists()) {
+      file.delete();
+    }
+    file = new File(filePath + ".bk");
+    if (file.exists()) {
+      file.delete();
+    }
+    Assert.assertEquals(1, sink.collectedTuples.size());
+    Assert.assertEquals("Hello abcd", sink.collectedTuples.get(0));
+
   }
 }
