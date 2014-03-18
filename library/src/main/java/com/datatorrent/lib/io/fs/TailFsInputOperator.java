@@ -18,12 +18,8 @@ package com.datatorrent.lib.io.fs;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.FileTime;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,10 +80,9 @@ public class TailFsInputOperator implements InputOperator, ActivationListener<Op
   private char delimiter = '\n';
 
   /**
-   * This is used to store the creation time of the file
+   * This is used to store the last access time of the file
    */
-  private transient FileTime fileTime;
-  private transient Path path;
+  private transient long accessTime;
 
   private transient RandomAccessFile reader;
   private transient File file;
@@ -228,9 +223,7 @@ public class TailFsInputOperator implements InputOperator, ActivationListener<Op
       reader = new RandomAccessFile(file, "r");
       position = end ? file.length() : position;
       reader.seek(position);
-      path = Paths.get(filePath);
-      BasicFileAttributes attributes = Files.readAttributes(path, BasicFileAttributes.class);
-      fileTime = attributes.creationTime();
+      accessTime = System.currentTimeMillis();
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -276,16 +269,16 @@ public class TailFsInputOperator implements InputOperator, ActivationListener<Op
     char readChar;
     int ch;
     long pos = reader.getFilePointer();
-    BasicFileAttributes attributes = Files.readAttributes(path, BasicFileAttributes.class);
-    if (fileTime.compareTo(attributes.creationTime()) < 0) {
+    long length = file.length();
+    if ((length < pos) || (length == pos && FileUtils.isFileNewer(file, accessTime))) {
       // file got rotated or truncated
       reader.close();
       reader = new RandomAccessFile(file, "r");
       position = 0;
       reader.seek(position);
       pos = 0;
-      fileTime = attributes.creationTime();
     }
+    accessTime = System.currentTimeMillis();
     while ((ch = reader.read()) != -1) {
       readChar = (char) ch;
       if (readChar != delimiter) {
