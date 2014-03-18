@@ -36,7 +36,7 @@ import org.junit.Test;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
- * Functional test for {@linkcom.datatorrent.lib.io.HttpInputOperator }.
+ * Functional test for {@linkcom.datatorrent.lib.io.HttpJsonChunksInputOperator }.
  */
 public class HttpInputOperatorTest
 {
@@ -84,7 +84,7 @@ public class HttpInputOperatorTest
     String url = "http://localhost:" + server.getConnectors()[0].getLocalPort() + "/somecontext";
     System.out.println(url);
 
-    final HttpInputOperator operator = new HttpInputOperator();
+    final AbstractHttpInputOperator operator = new HttpJsonChunksInputOperator();
 
     CollectorTestSink sink = new CollectorTestSink();
 
