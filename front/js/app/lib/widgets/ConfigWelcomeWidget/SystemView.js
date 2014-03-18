@@ -378,7 +378,7 @@ var SystemView = BaseView.extend({
 
         if (_.isString(this.dfsDirectory) && (this.dfsDirectory.length === 0)) {
             _.defer(function () {
-                this.showError('.dfs-directory-error', 'DFS is not configured');
+                this.showError('.dfs-directory-error', 'DFS is not configured. Please configure DFS using fs.defaultFS property in your Hadoop configuration and rerun this configuration wizard.');
             }.bind(this));
         }
 
