@@ -35,7 +35,7 @@ import com.datatorrent.api.annotation.ShipContainingJars;
  * Read input from Twitter. <p> <br>
  *
  * This test can only be run from command line using command line interface script.
- * You need to set twitter authentication credentials in $HOME/.stram/stram-site.xml file in order to run this.
+ * You need to set twitter authentication credentials in $HOME/.dt/dt-site.xml file in order to run this.
  * The authentication requires following 4 information.
  * Your application consumer key,
  * Your application consumer secret,
