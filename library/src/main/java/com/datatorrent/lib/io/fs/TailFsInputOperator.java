@@ -32,7 +32,7 @@ import com.datatorrent.api.InputOperator;
  * <p>
  * This operator implements "tail -f" command. If the operator has reached the end of the file, it will wait till more
  * data comes
- * 
+ *
  * <br>
  * <b>Ports</b>:<br>
  * <b>outport</b>: emits &lt;String&gt;<br>
@@ -44,7 +44,7 @@ import com.datatorrent.api.InputOperator;
  * <b>numberOfTuples</b>: number of tuples to be emitted in a single emit Tuple call.<br>
  * <b>end</b>: if the user wants to start tailing from end.<br>
  * <br>
- * 
+ *
  */
 
 public class TailFsInputOperator implements InputOperator, ActivationListener<OperatorContext>
@@ -248,7 +248,7 @@ public class TailFsInputOperator implements InputOperator, ActivationListener<Op
       while (localCounter >= 0) {
         String str = readLine();
         if (str == null) {
-          logger.debug("reached end of file");
+          //logger.debug("reached end of file");
         } else {
           output.emit(str);
         }

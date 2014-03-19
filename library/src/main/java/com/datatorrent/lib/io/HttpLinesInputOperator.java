@@ -16,7 +16,6 @@
 package com.datatorrent.lib.io;
 
 import com.sun.jersey.api.client.ClientResponse;
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
