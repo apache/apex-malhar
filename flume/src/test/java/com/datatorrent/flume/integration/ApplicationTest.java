@@ -17,7 +17,6 @@ import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG.Locality;
 
-import com.datatorrent.common.util.Slice;
 import com.datatorrent.flume.operator.AbstractFlumeInputOperator;
 
 /**
@@ -27,27 +26,26 @@ import com.datatorrent.flume.operator.AbstractFlumeInputOperator;
 @Ignore
 public class ApplicationTest implements StreamingApplication
 {
-  public static class FlumeInputOperator extends AbstractFlumeInputOperator<Slice>
+  public static class FlumeInputOperator extends AbstractFlumeInputOperator<Event>
   {
     @Override
-    public Slice convert(Event event)
+    public Event convert(Event event)
     {
-      return new Slice(event.getBody(), 0, event.getBody().length);
+      return event;
     }
-
   }
 
   public static class Counter implements Operator
   {
     private int count;
-    private transient Slice slice;
-    public final transient DefaultInputPort<Slice> input = new DefaultInputPort<Slice>()
+    private transient Event event;
+    public final transient DefaultInputPort<Event> input = new DefaultInputPort<Event>()
     {
       @Override
-      public void process(Slice tuple)
+      public void process(Event tuple)
       {
         count++;
-        slice = tuple;
+        event = tuple;
       }
 
     };
@@ -60,7 +58,7 @@ public class ApplicationTest implements StreamingApplication
     @Override
     public void endWindow()
     {
-      logger.debug("total count = {}, tuple = {}", count, slice);
+      logger.debug("total count = {}, tuple = {}", count, event);
     }
 
     @Override
