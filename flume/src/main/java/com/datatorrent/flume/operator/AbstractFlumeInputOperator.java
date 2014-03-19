@@ -23,6 +23,7 @@ import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Stats.OperatorStats;
 import com.datatorrent.api.Stats.OperatorStats.CustomStats;
+import com.datatorrent.api.annotation.ShipContainingJars;
 
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.flume.discovery.Discovery.Service;
@@ -39,6 +40,7 @@ import com.datatorrent.netlet.DefaultEventLoop;
  * @author Chetan Narsude <chetan@datatorrent.com>
  * @since 0.9.2
  */
+@ShipContainingJars(classes = {Event.class})
 public abstract class AbstractFlumeInputOperator<T>
         implements InputOperator, ActivationListener<OperatorContext>, IdleTimeHandler, CheckpointListener,
         Partitioner<AbstractFlumeInputOperator<T>>
