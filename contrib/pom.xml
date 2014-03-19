@@ -286,7 +286,7 @@
       <artifactId>malhar-library</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
-      <type>test-jar</type>
+      <classifier>tests</classifier>
     </dependency>
     <dependency>
       <!-- required by twitter -->

@@ -20,6 +20,7 @@ var BaseView = require('./StepView');
 var ConfigIssueCollection = DT.lib.ConfigIssueCollection;
 var Notifier = DT.lib.Notifier;
 var RestartModal = DT.lib.RestartModal;
+var ConfigPropertyModel = require('../../../../datatorrent/ConfigPropertyModel');
 
 var SummaryView = BaseView.extend({
 
@@ -37,14 +38,17 @@ var SummaryView = BaseView.extend({
 
         this.issues = new ConfigIssueCollection([]);
 
-        var ajax = this.issues.fetch();
+        var issuesPromise = this.issues.fetch();
+        var configStatusPromise = this.saveConfigStatusProperty();
         //var d = $.Deferred();
         //setTimeout(function () {
         //    d.reject();
         //}, 3000);
         //var ajax = d.promise();
 
-        ajax.done(function () {
+        var all = $.when(issuesPromise, configStatusPromise);
+
+        all.done(function () {
             this.loading = false;
 
             var restartRequiredIssue = this.issues.findWhere({
@@ -66,10 +70,19 @@ var SummaryView = BaseView.extend({
             this.render();
         }.bind(this));
 
-        ajax.fail(function () {
+        all.fail(function () {
             this.error = true;
             this.render();
         }.bind(this));
+    },
+
+    saveConfigStatusProperty: function () {
+        var model = new ConfigPropertyModel({
+            name: 'dt.configStatus',
+            value: 'complete'
+        });
+
+        return model.save();
     },
 
     render: function() {

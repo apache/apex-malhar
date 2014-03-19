@@ -18,11 +18,18 @@ var templates = DT.templates;
 
 function portFormat(name, port) {
     var operator = port.get('operator');
-    return templates.port_name_link({ appId: operator.get('appId'), operatorId: operator.get('id'), portName: name });
+    if (!operator.collection || !operator.collection.appId) return name;
+    return templates.port_name_link({ appId: operator.collection.appId, operatorId: operator.get('id'), portName: name });
 }
 
-function operatorFormat(operator, port) {
-    return templates.phys_op_link({ appId: operator.get('appId'), operatorId: operator.get('id'), displayText: operator.get('name') + ' (' + operator.get('id') + ')' });
+function physicalOperatorFormat(operator, port) {
+    if (!operator.collection || !operator.collection.appId) return operator.get('id');
+    return templates.phys_op_link({ appId: operator.collection.appId, operatorId: operator.get('id'), displayText: operator.get('id') });
+}
+
+function logicalOperatorFormat(operator, port) {
+    if (!operator.collection || !operator.collection.appId) return operator.get('id');
+    return templates.logical_op_link({ appId: operator.collection.appId, logicalName: operator.get('name'), displayText: operator.get('name') });
 }
 
 function windowFormat(operator, port) {
@@ -33,8 +40,10 @@ exports = module.exports = function(portType) {
     return [
         // portName
         { id: 'portName', key: 'name', label: DT.text('port_label'), sort: 'string', filter: 'like', sort: 'string', sort_value: 'a', format: portFormat },
-        // operator
-        { id: 'operator', key: 'operator', label: DT.text('operator name (id)'), filter: 'likeFormatted', sort: 'string', format: operatorFormat },
+        // physicalOperator
+        { id: 'physicalOperatorFormat', key: 'operator', label: DT.text('physical operator'), filter: 'likeFormatted', sort: 'string', format: physicalOperatorFormat },
+        // logicalOperator
+        { id: 'logicalOperator', key: 'operator', label: DT.text('logical operator'), filter: 'likeFormatted', sort: 'string', format: logicalOperatorFormat },
         // bufferServerBytesPSMA10
         { id: 'bufferServerBytesPSMA', key: 'bufferServerBytesPSMA', label: ( portType === 'source' ? DT.text('buffer_server_writes_ps') : DT.text('buffer_server_reads_ps') ), filter: 'number', sort: 'number', format: 'commaInt' },
         // tuplesPSMA10

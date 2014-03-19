@@ -76,7 +76,6 @@ var Header = BaseView.extend({
     },
     
     render: function() {
-        console.log('rendering header');
         var markup = this.template({
             modes: this.model.modes.toJSON(),
             client_logo: "client_logo_hadoop.jpg",

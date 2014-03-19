@@ -4,7 +4,7 @@
 <% if (hadoopError) {  %>
 
 <p class="alert alert-error">
-    Hadoop is not found. Please install Hadoop first and restart the Gateway.
+    Hadoop is not found. Please install Hadoop first and restart the DT Gateway.
     Restart is available from <a href="#config">configuration page</a>.
 </p>
 
@@ -40,8 +40,8 @@
 <table>
     <tbody>
         <tr>
-            <td>hadoop binary location</td>
-            <td>This is the absolute path to the location of the hadoop executable on the node that the gateway is running on.</td>
+            <td>hadoop installation location</td>
+            <td>This is the absolute path to the location of your hadoop installation.</td>
             <td>
                 <div class="control-group">
                     <div class="controls">
@@ -53,13 +53,13 @@
         </tr>
         <tr>
             <td>java version</td>
-            <td>Version of the Java Runtime Environment that is available on the node that the gateway is running on.</td>
+            <td>Version of the Java Runtime Environment.</td>
             <td><input type="text" value="<%= about.get('javaVersion') %>" disabled />  </td>
         </tr>
         <tr>
-            <td>gateway host address</td>
+            <td>gateway connect address</td>
             <td>
-                IP address and port that other nodes in the cluster should use to reach the gateway.
+                IP address and port that other nodes in the cluster should use to reach the DT Gateway.
             </td>
             <td>
                 <div class="control-group">
@@ -92,8 +92,8 @@
         <tr>
             <td>
                 <!--<i class="install-issue" title="There is something wrong with this value!">!</i>-->
-                HDFS directory</td>
-            <td>The location where all datatorrent stuff will go, including checkpointed data, recordings, etc</td>
+                DFS directory</td>
+            <td>In the distributed file system (e.g. HDFS) configured in your Hadoop installation, the directory where all datatorrent stuff will go, including checkpointed data, recordings, etc</td>
             <td>
                 <div class="control-group">
                     <div class="controls">
