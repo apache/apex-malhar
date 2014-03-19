@@ -45,7 +45,7 @@ import com.datatorrent.lib.util.AlertEscalationOperator;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="Mobile Application With Alert")
+@ApplicationAnnotation(name="MobileApplicationWithAlert")
 public class ApplicationAlert implements StreamingApplication
 {
   private static final Logger LOG = LoggerFactory.getLogger(ApplicationAlert.class);

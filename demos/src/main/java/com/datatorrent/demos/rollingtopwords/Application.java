@@ -38,7 +38,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="Twitter Rolling Top Words Application")
+@ApplicationAnnotation(name="TwitterRollingTopWordsApplication")
 public class Application implements StreamingApplication
 {
   private final Locality locality = null;

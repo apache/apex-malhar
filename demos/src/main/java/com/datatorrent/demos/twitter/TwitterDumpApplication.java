@@ -62,7 +62,7 @@ import com.datatorrent.api.annotation.ShipContainingJars;
  * )  ENGINE=MyISAM DEFAULT CHARSET=latin1;
  * </pre>
  */
-@ApplicationAnnotation(name="Twitter Top Counter Application With DB")
+@ApplicationAnnotation(name="TwitterTopCounterApplicationWithDB")
 public class TwitterDumpApplication implements StreamingApplication
 {
   @ShipContainingJars(classes = {com.mysql.jdbc.Driver.class})

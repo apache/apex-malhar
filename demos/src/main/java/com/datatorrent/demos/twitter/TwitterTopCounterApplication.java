@@ -135,7 +135,7 @@ import com.datatorrent.demos.rollingtopwords.WindowedTopCounter;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="Twitter Top Counter Application")
+@ApplicationAnnotation(name="TwitterTopCounterApplication")
 public class TwitterTopCounterApplication implements StreamingApplication
 {
   private final Locality locality = null;
