@@ -10,6 +10,14 @@ import java.util.*;
 
 import javax.annotation.Nonnull;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.EventDrivenSource;
@@ -17,22 +25,15 @@ import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.source.AbstractSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 public class TestSource extends AbstractSource implements EventDrivenSource, Configurable
 {
-  static String FILE_NAME = "sourceFile";
-  static String RATE = "rate";
-  static String PERCENT_PAST_EVENTS = "percentPastEvents";
+  public static final String SOURCE_FILE = "sourceFile";
+  public static final String LINE_NUMBER = "lineNumber";
+  public static final String RATE = "rate";
+  public static final String PERCENT_PAST_EVENTS = "percentPastEvents";
   static byte FIELD_SEPARATOR = 1;
   static int DEF_PERCENT_PAST_EVENTS = 5;
-
   public Timer emitTimer;
   @Nonnull
   String filePath;
@@ -41,7 +42,6 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
   transient List<Row> cache;
   private transient int startIndex;
   private transient Random random;
-
   private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
   private SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -57,7 +57,7 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
   @Override
   public void configure(Context context)
   {
-    filePath = context.getString(FILE_NAME);
+    filePath = context.getString(SOURCE_FILE);
     rate = context.getInteger(RATE, rate);
     int percentPastEvents = context.getInteger(PERCENT_PAST_EVENTS, DEF_PERCENT_PAST_EVENTS);
     Preconditions.checkArgument(!Strings.isNullOrEmpty(filePath));
@@ -99,6 +99,7 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
         if (lastIndex > cacheSize) {
           lastIndex -= cacheSize;
           processBatch(channel, cache.subList(startIndex, cacheSize));
+          startIndex = 0;
           while (lastIndex > cacheSize) {
             processBatch(channel, cache);
             lastIndex -= cacheSize;
@@ -116,9 +117,10 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
 
   private void processBatch(ChannelProcessor channelProcessor, List<Row> rows)
   {
-    if (rows.size() == 0) {
+    if (rows.isEmpty()) {
       return;
     }
+
     int noise = random.nextInt(numberOfPastEvents + 1);
     Set<Integer> pastIndices = Sets.newHashSet();
     for (int i = 0; i < noise; i++) {
@@ -146,7 +148,11 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
         System.arraycopy(currentDateField, 0, eventRow.bytes, eventRow.dateFieldStart, currentDateField.length);
         System.arraycopy(currentTimeField, 0, eventRow.bytes, eventRow.timeFieldStart, currentTimeField.length);
       }
-      events.add(EventBuilder.withBody(eventRow.bytes));
+
+      HashMap<String, String> headers = new HashMap<String, String>(2);
+      headers.put(SOURCE_FILE, filePath);
+      headers.put(LINE_NUMBER, String.valueOf(startIndex + i));
+      events.add(EventBuilder.withBody(eventRow.bytes, headers));
     }
     channelProcessor.processEventBatch(events);
   }
@@ -208,6 +214,7 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
     {
       this.bytes = bytes;
     }
+
   }
 
   private static final Logger logger = LoggerFactory.getLogger(TestSource.class);
