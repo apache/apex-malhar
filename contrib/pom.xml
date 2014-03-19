@@ -259,6 +259,12 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>com.lambdaworks</groupId>
+      <artifactId>lettuce</artifactId>
+      <version>2.3.3</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <version>2.3.1</version>
