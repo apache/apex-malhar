@@ -76,6 +76,8 @@ var SystemView = BaseView.extend({
         this.subview('address-ip-input', new Bbind.text({
             model: this.addressModel,
             attr: 'ip',
+            updateEvents: ['blur'],
+            clearErrorOnFocus: true,
             listenToModel: false,
             setAnyway: true,
             classElement: function($el) {
@@ -88,6 +90,8 @@ var SystemView = BaseView.extend({
         this.subview('address-port', new Bbind.text({
             model: this.addressModel,
             attr: 'port',
+            updateEvents: ['blur'],
+            clearErrorOnFocus: true,
             listenToModel: false,
             setAnyway: true,
             classElement: function($el) {
@@ -127,6 +131,8 @@ var SystemView = BaseView.extend({
         this.subview('dfs-directory', new Bbind.text({
             model: this.dfsModel,
             attr: 'value',
+            updateEvents: ['blur'],
+            clearErrorOnFocus: true,
             listenToModel: false,
             setAnyway: true,
             classElement: function($el) {
@@ -138,11 +144,11 @@ var SystemView = BaseView.extend({
 
         this.listenTo(this.addressModel, 'change', function () {
             this.clearError('.address-error');
-            this.inputChanged();
+            //this.inputChanged();
         }) ;
         this.listenTo(this.dfsModel, 'change', function () {
             this.clearError('.dfs-directory-error');
-            this.inputChanged();
+            //this.inputChanged();
         }) ;
     },
 
@@ -291,7 +297,6 @@ var SystemView = BaseView.extend({
         this.$el.find('.dfs-directory').blur();
 
         if (!this.addressModel.isValid() || !this.dfsModel.isValid()) {
-            this.$el.find('.continue').addClass('disabled');
             return;
         }
 
