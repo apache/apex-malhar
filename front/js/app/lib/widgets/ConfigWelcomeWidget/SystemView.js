@@ -177,7 +177,6 @@ var SystemView = BaseView.extend({
         var model = new ConfigPropertyModel({
             name: name
         });
-        //TODO override fetchError: util.fetchError,
 
         var ajax = model.fetch();
 
@@ -237,7 +236,7 @@ var SystemView = BaseView.extend({
             ip: '',
             port: ''
         });
-        var promise = this.loadProperty('dt.attr.GATEWAY_ADDRESS');
+        var promise = this.loadProperty('dt.attr.GATEWAY_CONNECT_ADDRESS');
 
         promise.then(function (data) {
             if (data && data.value) {
@@ -256,7 +255,7 @@ var SystemView = BaseView.extend({
             ip: '',
             port: ''
         });
-        var promise = this.loadProperty('dt.gateway.address');
+        var promise = this.loadProperty('dt.gateway.listenAddress');
 
         promise.then(function (data) {
             if (data && data.value) {
@@ -301,7 +300,7 @@ var SystemView = BaseView.extend({
 
         var addressPromise;
         if (this.addressModel.isChanged()) {
-            addressPromise = this.saveProperty('dt.attr.GATEWAY_ADDRESS', this.addressModel.getValue());
+            addressPromise = this.saveProperty('dt.attr.GATEWAY_CONNECT_ADDRESS', this.addressModel.getValue());
         } else {
             addressPromise = this.createResolvedPromise();
         }
@@ -385,8 +384,6 @@ var SystemView = BaseView.extend({
         }
 
         return this;
-        //dt.attr.GATEWAY_ADDRESS ip:9090
-        //dt.gateway.address
     },
 
     assignments: {
