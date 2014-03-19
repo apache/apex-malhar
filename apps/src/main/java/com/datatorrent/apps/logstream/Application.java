@@ -151,7 +151,7 @@ public class Application implements StreamingApplication
 
   private InputPort<Object> wsOutput(DAG dag, String operatorName)
   {
-    String daemonAddress = dag.getValue(DAG.GATEWAY_ADDRESS);
+    String daemonAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
     if (!StringUtils.isEmpty(daemonAddress)) {
       URI uri = URI.create("ws://" + daemonAddress + "/pubsub");
       String appId = "appid";

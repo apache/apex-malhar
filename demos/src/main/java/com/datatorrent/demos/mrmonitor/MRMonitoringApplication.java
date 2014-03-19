@@ -46,7 +46,7 @@ public class MRMonitoringApplication implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    String daemonAddress = dag.getValue(DAG.GATEWAY_ADDRESS);
+    String daemonAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
     if (daemonAddress == null || StringUtils.isEmpty(daemonAddress)) {
       daemonAddress = "10.0.2.15:9790";
     }

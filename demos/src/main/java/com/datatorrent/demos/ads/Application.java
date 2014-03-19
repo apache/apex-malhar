@@ -210,7 +210,7 @@ public class Application implements StreamingApplication
   private InputPort<Object> getConsolePort(DAG b, String name, boolean silent)
   {
     // output to HTTP server when specified in environment setting
-    String gatewayAddress = b.getValue(DAG.GATEWAY_ADDRESS);
+    String gatewayAddress = b.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
     if (!StringUtils.isEmpty(gatewayAddress)) {
       URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
       String topic = "demos.ads." + name;
