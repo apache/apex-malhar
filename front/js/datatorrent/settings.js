@@ -48,8 +48,8 @@ exports = module.exports = {
         LicenseLastRequest       :'/ws/:v/licenses/lastRequest',
         ConfigIPAddresses        :'/ws/:v/config/ipAddresses',
         GatewayInfo              :'/ws/:v/about',
-        HadoopLocation           :'/ws/:v/config/hadoopInstallDirectory',
-        GatewayRestart           :'/ws/:v/config/restart'
+        HadoopLocation           :'/ws/:v/config/hadoopInstallDirectory'
+        
     },
     
     actions: {
@@ -61,7 +61,8 @@ exports = module.exports = {
         killApp                  :'/ws/:v/applications/:appId/kill',
         killContainer            :'/ws/:v/applications/:appId/physicalPlan/containers/:containerId/kill',
         launchApp                :'/ws/:v/jars/:fileName/applications/:appName/launch',
-        specifyDepJars           :'/ws/:v/jars/:fileName/dependencyJars'
+        specifyDepJars           :'/ws/:v/jars/:fileName/dependencyJars',
+        restartGateway           :'/ws/:v/config/restart'
     },
     
     topics: {

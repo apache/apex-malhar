@@ -25,23 +25,23 @@ function GatewayPoll(timeout) {
 }
 
 GatewayPoll.prototype.restartRequest = function () {
-    var url = settings.interpolateParams(settings.urls.GatewayRestart, {
+    var url = settings.interpolateParams(settings.actions.restartGateway, {
         v: settings.version
     });
 
-    return jQuery.post(url);
-}
+    return $.post(url);
+};
 
 GatewayPoll.prototype.initId = function () {
     // get initial jvmName
-    var ajax = jQuery.get(this.aboutUrl);
+    var ajax = $.get(this.aboutUrl);
 
     ajax.done(function (data) {
         this.savedId = data.jvmName;
     }.bind(this));
 
     return ajax;
-}
+};
 
 GatewayPoll.prototype.start = function () {
     this.deferred = $.Deferred();
@@ -50,10 +50,10 @@ GatewayPoll.prototype.start = function () {
     this.poll();
 
     return this.deferred.promise();
-}
+};
 
 GatewayPoll.prototype.poll = function () {
-    var ajax = jQuery.get(this.aboutUrl);
+    var ajax = $.get(this.aboutUrl);
 
     ajax.done(function (data) {
         if (this.savedId !== data.jvmName) {
@@ -71,7 +71,7 @@ GatewayPoll.prototype.poll = function () {
             }
         }
     }.bind(this));
-}
+};
 
 
 exports = module.exports = GatewayPoll;
